@@ -1,0 +1,178 @@
+{
+    "id": 1099,
+    "name": "E4_ENDODIS",
+    "description": "Other endocrine disorders — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#E4"
+        ],
+        "level": "3",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 4,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 852,
+            "imported_at": "2026-04-17T00:17:21+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "E3[4-5]",
+                "patterns": [
+                    "E34",
+                    "E35"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "E3[4-5]",
+                "patterns": [
+                    "E34",
+                    "E35"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "E4_CARCISDR",
+            "E4_HYPERSEC",
+            "E4_ECTHOR",
+            "E4_SHORT",
+            "E4_TALL",
+            "E4_ANDRORESIST",
+            "E4_ENDODISNAS",
+            "E4_ENDINOTH"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1102635,
+                1102636,
+                1102637,
+                1568008,
+                35206955,
+                35206956,
+                35206957,
+                35206958,
+                35206959,
+                35206960,
+                35206961,
+                35206962,
+                35206963,
+                37402359,
+                37402360,
+                37402361,
+                37402362,
+                37402363,
+                37402364,
+                37402365,
+                37402366,
+                45537971,
+                45542752,
+                45600656
+            ],
+            "conditions_standard": [
+                199771,
+                4264680,
+                31821,
+                433441,
+                440076,
+                4030353,
+                440359,
+                37110207,
+                45757367,
+                45770921
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:55.000000Z",
+    "updated_at": "2026-04-17T00:17:21.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#E4"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

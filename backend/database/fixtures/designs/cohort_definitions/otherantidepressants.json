@@ -1,0 +1,191 @@
+{
+    "id": 4222,
+    "name": "OTHER_ANTIDEPRESSANTS",
+    "description": "Other antidepressants — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#RX",
+            "#NEURO_CM"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 1,
+            "n_tokens_resolved": 1
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3975,
+            "imported_at": "2026-04-17T00:17:50+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": "N06AX",
+                "patterns": [
+                    "N06AX"
+                ]
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [
+                1366610,
+                1510996,
+                750982,
+                1119510,
+                43560354,
+                1363516,
+                19006186,
+                19007737,
+                19128066,
+                703547,
+                714684,
+                19072123,
+                19058055,
+                19008261,
+                725131,
+                19072021,
+                19041910,
+                743670,
+                19080226,
+                19084693,
+                42608871,
+                715259,
+                36878783,
+                717607,
+                40234834,
+                42899139,
+                44507700
+            ],
+            "source_concept_ids": [
+                715826,
+                723262,
+                954899,
+                954902,
+                955043,
+                21604729,
+                21604730,
+                21604731,
+                21604732,
+                21604733,
+                21604734,
+                21604735,
+                21604736,
+                21604737,
+                21604738,
+                21604739,
+                21604740,
+                21604741,
+                21604742,
+                21604743,
+                21604744,
+                21604745,
+                21604746,
+                21604747,
+                21604748,
+                21604749,
+                21604750,
+                21604751,
+                40252222,
+                40252223,
+                44819158
+            ],
+            "conditions_standard": []
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:23.000000Z",
+    "updated_at": "2026-04-17T00:17:50.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#RX",
+        "#NEURO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

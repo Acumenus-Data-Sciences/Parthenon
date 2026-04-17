@@ -1,0 +1,214 @@
+{
+    "id": 1117,
+    "name": "E4_VIT_DEF",
+    "description": "Vitamin deficiency — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#E4",
+            "#NEURO_CM"
+        ],
+        "level": "3",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 14,
+            "n_tokens_resolved": 14
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 870,
+            "imported_at": "2026-04-17T00:17:21+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "E5[0-6]",
+                "patterns": [
+                    "E50",
+                    "E51",
+                    "E52",
+                    "E53",
+                    "E54",
+                    "E55",
+                    "E56"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "E5[0-6]",
+                "patterns": [
+                    "E50",
+                    "E51",
+                    "E52",
+                    "E53",
+                    "E54",
+                    "E55",
+                    "E56"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "E4_VIT_A_DEF",
+            "E4_THIA_DEF",
+            "E4_NIAC_DEF",
+            "E4_VIT_B_DEF",
+            "E4_VIT_C_DEF",
+            "E4_VIT_D_DEF",
+            "E4_VIT_E_DEF",
+            "E4_VIT_K_DEF",
+            "E4_VIT_NAS_DEF"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1568013,
+                1568014,
+                1568015,
+                1568016,
+                1568017,
+                1568018,
+                35206972,
+                35206973,
+                35206974,
+                35206975,
+                35206976,
+                35206977,
+                35206978,
+                35206979,
+                35206980,
+                35206981,
+                35206982,
+                35206983,
+                35206984,
+                35206985,
+                35206986,
+                35206987,
+                35206988,
+                35206989,
+                35206990,
+                35206991,
+                35206992,
+                35206993,
+                35206994,
+                35206995,
+                35206996,
+                45552396,
+                45581370
+            ],
+            "conditions_standard": [
+                438114,
+                441266,
+                434620,
+                437246,
+                436070,
+                436658,
+                376663,
+                377822,
+                372293,
+                442101,
+                376374,
+                378394,
+                378395,
+                436664,
+                4050977,
+                4303664,
+                432580,
+                435787,
+                439787,
+                438719,
+                4203927,
+                435781,
+                4324421,
+                4282630
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:56.000000Z",
+    "updated_at": "2026-04-17T00:17:21.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#E4",
+        "#NEURO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

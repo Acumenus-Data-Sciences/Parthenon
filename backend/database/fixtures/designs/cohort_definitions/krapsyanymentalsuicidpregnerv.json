@@ -1,0 +1,196 @@
+{
+    "id": 4383,
+    "name": "KRA_PSY_ANYMENTAL_SUICID_PREG_NERV",
+    "description": "Any mental disorder, or suicide (or attempt), or psychic disorders complicating pregnancy, partum or puerperium or nerve system disorders — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#KRA_PSY"
+        ],
+        "level": null,
+        "parent": "O99",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 4,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 4136,
+            "imported_at": "2026-04-17T00:17:51+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "6484X",
+                "patterns": [
+                    "6484X"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "6484X",
+                "patterns": [
+                    "6484X"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "O993",
+                "patterns": [
+                    "O993"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "O993",
+                "patterns": [
+                    "O993"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "VWXY20_SUICI_OTHER_INTENTI_SELF_H"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1571931,
+                1571932,
+                1571933,
+                1571934,
+                1571935,
+                1571936,
+                45534323,
+                45534324,
+                45534325,
+                45539223,
+                45544039,
+                45548851,
+                45548852,
+                45558348,
+                45558349,
+                45563197,
+                45568007,
+                45572904,
+                45572905,
+                45572906,
+                45572907,
+                45577674,
+                45577675,
+                45577676,
+                45582593,
+                45582594,
+                45587398,
+                45587399,
+                45592313,
+                45592314,
+                45592315,
+                45597053,
+                45597054,
+                45601909,
+                45606676,
+                45606677,
+                44821029,
+                44826784,
+                44830224,
+                44832534,
+                44833726,
+                44836085
+            ],
+            "conditions_standard": [
+                4063155,
+                435875,
+                444094,
+                36714559,
+                903654,
+                4060424,
+                4218813,
+                440795,
+                4244438,
+                37165537,
+                45757093,
+                4239938,
+                441364,
+                439658,
+                433260
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:23.000000Z",
+    "updated_at": "2026-04-17T00:17:51.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#KRA_PSY"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

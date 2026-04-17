@@ -1,0 +1,205 @@
+{
+    "id": 1163,
+    "name": "E4_AMINO",
+    "description": "Other disorders of amino-acid metabolism — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#E4"
+        ],
+        "level": "3",
+        "parent": "E70-E90",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 916,
+            "imported_at": "2026-04-17T00:17:21+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "E72",
+                "patterns": [
+                    "E72"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "E72",
+                "patterns": [
+                    "E72"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "E4_AMINOTRANSPORT",
+            "E4_SULFURMET",
+            "E4_UREACYCLE",
+            "E4_LYSINEHYDRO",
+            "E4_ORNITHINE",
+            "E4_GLYCINE",
+            "E4_AMINONAS"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1348415,
+                1348416,
+                1348417,
+                1348418,
+                1348419,
+                1348420,
+                1348421,
+                1348422,
+                1568042,
+                1568043,
+                1568044,
+                1568045,
+                1568046,
+                1595531,
+                1595532,
+                35207037,
+                35207038,
+                35207039,
+                35207040,
+                45533039,
+                45537981,
+                45542764,
+                45552407,
+                45552408,
+                45557131,
+                45561977,
+                45566755,
+                45571685,
+                45576467,
+                45576468,
+                45581376,
+                45586170,
+                45586171,
+                45586172,
+                45591056,
+                45591058,
+                45595825,
+                45595826,
+                45600670
+            ],
+            "conditions_standard": [
+                4276513,
+                4074393,
+                4184819,
+                4291473,
+                435774,
+                438391,
+                434323,
+                434311,
+                4305951,
+                4030374,
+                4235585,
+                4030372,
+                4035267,
+                441827,
+                4194065,
+                4012934,
+                4164940,
+                4029731,
+                4216432,
+                4216498,
+                4053156,
+                4225406,
+                4035269,
+                4162980,
+                4100827
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:56.000000Z",
+    "updated_at": "2026-04-17T00:17:21.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#E4"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

@@ -1,0 +1,205 @@
+{
+    "id": 1545,
+    "name": "G6_PARALOTHUNS",
+    "description": "Other and unspecified paralytic syndromes — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#G6",
+            "#GASTRO_CM"
+        ],
+        "level": "3",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 10,
+            "n_tokens_resolved": 6
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1298,
+            "imported_at": "2026-04-17T00:17:26+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "3440[8-9]",
+                "patterns": [
+                    "34408",
+                    "34409"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "344",
+                "patterns": [
+                    "344"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "3440[8-9]",
+                "patterns": [
+                    "34408",
+                    "34409"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "344",
+                "patterns": [
+                    "344"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "G83[8-9]",
+                "patterns": [
+                    "G838",
+                    "G839"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "G83[8-9]",
+                "patterns": [
+                    "G838",
+                    "G839"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1568419,
+                35207488,
+                45576613,
+                45581518,
+                45591200,
+                45595963,
+                45605574,
+                44820763,
+                44820764,
+                44820765,
+                44821853,
+                44823020,
+                44823021,
+                44823022,
+                44823023,
+                44823024,
+                44824159,
+                44825336,
+                44826553,
+                44827696,
+                44828874,
+                44828875,
+                44829968,
+                44829969,
+                44829970,
+                44832276,
+                44832277,
+                44832278,
+                44833443,
+                44834633,
+                44835835,
+                44835836,
+                44835837
+            ],
+            "conditions_standard": [
+                374377,
+                4101563,
+                4151990,
+                4282301,
+                4151991,
+                4144328,
+                379012,
+                434644,
+                381548,
+                372880,
+                195240,
+                40481345,
+                134331,
+                192606,
+                4102342,
+                40480416,
+                374914,
+                440377,
+                380393,
+                193186,
+                44782711,
+                40480066,
+                40480514,
+                4141654,
+                40481376
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:59.000000Z",
+    "updated_at": "2026-04-17T00:17:26.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#G6",
+        "#GASTRO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

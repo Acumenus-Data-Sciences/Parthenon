@@ -1,0 +1,279 @@
+{
+    "id": 1296,
+    "name": "F5_SCHZPHR",
+    "description": "Schizophrenia — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#F5",
+            "#ASTHMA_CM",
+            "#COPD",
+            "#ILD_CM",
+            "#NEURO_CM"
+        ],
+        "level": "3",
+        "parent": "F20-F29",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1049,
+            "imported_at": "2026-04-17T00:17:23+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "295",
+                "patterns": [
+                    "295"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "295",
+                "patterns": [
+                    "295"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "295",
+                "patterns": [
+                    "295"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "295",
+                "patterns": [
+                    "295"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "F20",
+                "patterns": [
+                    "F20"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "F20",
+                "patterns": [
+                    "F20"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": "2957",
+                "patterns": [
+                    "2957"
+                ]
+            },
+            "hd_icd_9_excl": {
+                "raw": "2954|2957",
+                "patterns": [
+                    "2954",
+                    "2957"
+                ]
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1568206,
+                1568207,
+                35207126,
+                35207127,
+                35207128,
+                35207129,
+                35207130,
+                35207131,
+                45547696,
+                45562038,
+                44819537,
+                44819538,
+                44820712,
+                44820713,
+                44820714,
+                44820715,
+                44820716,
+                44821815,
+                44821816,
+                44821817,
+                44821818,
+                44821819,
+                44822969,
+                44822970,
+                44822971,
+                44824109,
+                44824110,
+                44824111,
+                44824112,
+                44824113,
+                44825288,
+                44825289,
+                44825290,
+                44825291,
+                44826491,
+                44826492,
+                44826493,
+                44826494,
+                44826495,
+                44826496,
+                44826497,
+                44827646,
+                44827647,
+                44827648,
+                44827649,
+                44827650,
+                44827651,
+                44827652,
+                44828825,
+                44828826,
+                44828827,
+                44828828,
+                44828829,
+                44829918,
+                44829919,
+                44829920,
+                44829921,
+                44831084,
+                44831085,
+                44831086,
+                44832223,
+                44832224,
+                44832225,
+                44832226,
+                44832227,
+                44832228,
+                44832229,
+                44832230,
+                44833399,
+                44834586,
+                44834587,
+                44834588,
+                44835779,
+                44835780,
+                44835781,
+                44835782,
+                44835783,
+                44836960,
+                44836961,
+                44836962,
+                44836963
+            ],
+            "conditions_standard": [
+                435783,
+                433450,
+                441828,
+                433996,
+                4008566,
+                439004,
+                444434,
+                441835,
+                4100366,
+                436067,
+                436947,
+                434010,
+                4286201,
+                432299,
+                435218,
+                435219,
+                434332,
+                437243,
+                440373,
+                440368,
+                4105330,
+                438724,
+                436385,
+                434901,
+                435217,
+                441538,
+                436944,
+                432300,
+                444396,
+                435236,
+                432598,
+                439275,
+                440686,
+                4100365,
+                433742,
+                436673,
+                436384,
+                436071,
+                433442,
+                432865,
+                434321,
+                435782,
+                433990,
+                433443
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:57.000000Z",
+    "updated_at": "2026-04-17T00:17:23.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#F5",
+        "#ASTHMA_CM",
+        "#COPD",
+        "#ILD_CM",
+        "#NEURO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

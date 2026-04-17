@@ -1,0 +1,224 @@
+{
+    "id": 2059,
+    "name": "I9_PHLETHROM",
+    "description": "Phlebitis and thrombophlebitis (not including DVT) — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#I9",
+            "#CARDIO",
+            "#NEURO_CM"
+        ],
+        "level": "3",
+        "parent": "I80-I89",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.75,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 8,
+            "n_tokens_resolved": 6
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1812,
+            "imported_at": "2026-04-17T00:17:31+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "451",
+                "patterns": [
+                    "451"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "4519X|4518X",
+                "patterns": [
+                    "4519X",
+                    "4518X"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "451",
+                "patterns": [
+                    "451"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "4519X|4518X",
+                "patterns": [
+                    "4519X",
+                    "4518X"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "I80",
+                "patterns": [
+                    "I80"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "I80",
+                "patterns": [
+                    "I80"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": "4510",
+                "patterns": [
+                    "4510"
+                ]
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": "I802|I803",
+                "patterns": [
+                    "I802",
+                    "I803"
+                ]
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1553755,
+                1553756,
+                1553757,
+                1553758,
+                1553759,
+                1553760,
+                1553761,
+                1553762,
+                1553763,
+                1553764,
+                1569339,
+                1569340,
+                1569341,
+                1569342,
+                1569343,
+                1569344,
+                1569345,
+                1569346,
+                1569347,
+                35207884,
+                35207885,
+                35207886,
+                45533506,
+                45533507,
+                45538449,
+                45538450,
+                45543221,
+                45543222,
+                45543223,
+                45543224,
+                45543225,
+                45543226,
+                45548079,
+                45557593,
+                45557594,
+                45557595,
+                45562403,
+                45567231,
+                45567232,
+                45572135,
+                45572136,
+                45576920,
+                45576921,
+                45581817,
+                45586632,
+                45591518,
+                45591519,
+                45601085,
+                45601086,
+                45605846,
+                44821964,
+                44821965,
+                44825453,
+                44832401,
+                44832402,
+                44833587,
+                44837122
+            ],
+            "conditions_standard": [
+                40480453,
+                40488439,
+                320741,
+                444055,
+                439314,
+                4221821,
+                4176614,
+                4111861,
+                4241473,
+                444097,
+                438452,
+                440738,
+                4151275,
+                318174,
+                4042503
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:04.000000Z",
+    "updated_at": "2026-04-17T00:17:31.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#I9",
+        "#CARDIO",
+        "#NEURO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

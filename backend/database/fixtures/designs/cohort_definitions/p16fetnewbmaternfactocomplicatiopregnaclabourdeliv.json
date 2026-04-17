@@ -1,0 +1,279 @@
+{
+    "id": 3224,
+    "name": "P16_FET_NEWB_MATERN_FACTO_COMPLICATIO_PREGNAC_LABOUR_DELIV",
+    "description": "Fetus and newborn affected by maternal factors and by complications of pregnancy, labour and delivery — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#P16"
+        ],
+        "level": "2",
+        "parent": "P",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 10,
+            "n_tokens_resolved": 10
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2977,
+            "imported_at": "2026-04-17T00:17:42+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "P0[0-4]",
+                "patterns": [
+                    "P00",
+                    "P01",
+                    "P02",
+                    "P03",
+                    "P04"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "P0[0-4]",
+                "patterns": [
+                    "P00",
+                    "P01",
+                    "P02",
+                    "P03",
+                    "P04"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "P16_FET_NEWB_MATERN_COND_UNREL_PRESENT_PREGNAC",
+            "P16_FET_NEWB_MATERN_COMPLICATIO_PREGNAC",
+            "P16_FET_NEWB_COMPLICATIO_PLACEN_CORD_MEMBRANES",
+            "P16_FET_NEWB_OTH_COMPLICATIO_LABOUR_DELIV",
+            "P16_FET_NEWB_NOXIO_INFLUENCES_TRANSMIT_PLACEN_BREAST_MILK"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                766415,
+                1571961,
+                1571962,
+                1571963,
+                1571964,
+                1571965,
+                1571966,
+                1571967,
+                1571968,
+                1571969,
+                1571970,
+                1571971,
+                1595658,
+                1595659,
+                1595660,
+                1595661,
+                1595662,
+                1595663,
+                1595664,
+                1595665,
+                1595666,
+                1595667,
+                1595668,
+                1595669,
+                1595670,
+                1595671,
+                1595672,
+                1595673,
+                35210395,
+                35210396,
+                35210397,
+                35210398,
+                35210399,
+                35210400,
+                35210401,
+                35210402,
+                35210403,
+                35210404,
+                35210405,
+                35210406,
+                35210407,
+                35210408,
+                35210409,
+                35210410,
+                35210411,
+                35210412,
+                35210413,
+                35210414,
+                35210415,
+                35210416,
+                35210417,
+                35210418,
+                35210419,
+                35210420,
+                35210421,
+                35210422,
+                35210423,
+                35210424,
+                35210425,
+                35210426,
+                35210427,
+                35210428,
+                35210429,
+                35210430,
+                35210431,
+                35210432,
+                35210433,
+                35210434,
+                35210435,
+                35210436,
+                35210437,
+                45539230,
+                45539231,
+                45548857,
+                45548858,
+                45548859,
+                45553629,
+                45558354,
+                45568014,
+                45572923,
+                45577684,
+                45587407,
+                45592323,
+                45597059
+            ],
+            "conditions_standard": [
+                37167376,
+                43530894,
+                37167888,
+                37163338,
+                37162439,
+                37164828,
+                441406,
+                4050236,
+                4178809,
+                434821,
+                4134142,
+                4060672,
+                606805,
+                606765,
+                606502,
+                604805,
+                600527,
+                43531705,
+                605035,
+                605059,
+                600552,
+                600520,
+                37167135,
+                37167138,
+                37167136,
+                37167137,
+                437611,
+                37167116,
+                37167115,
+                37169850,
+                37162660,
+                4064697,
+                37162659,
+                37167133,
+                37166145,
+                37166700,
+                4300467,
+                37162456,
+                37162480,
+                1244284,
+                37167077,
+                37167850,
+                37167347,
+                37167370,
+                1244885,
+                37167270,
+                195075,
+                604989
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:14.000000Z",
+    "updated_at": "2026-04-17T00:17:42.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#P16"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

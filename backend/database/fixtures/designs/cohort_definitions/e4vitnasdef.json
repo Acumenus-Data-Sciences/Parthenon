@@ -1,0 +1,156 @@
+{
+    "id": 1126,
+    "name": "E4_VIT_NAS_DEF",
+    "description": "Deficiency of other\/unspecified vitamins — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#E4",
+            "#NEURO_CM"
+        ],
+        "level": "4",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 12,
+            "n_tokens_resolved": 8
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 879,
+            "imported_at": "2026-04-17T00:17:21+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "266[8-9]",
+                "patterns": [
+                    "2668",
+                    "2669"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "269[1-2]",
+                "patterns": [
+                    "2691",
+                    "2692"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "266[8-9]",
+                "patterns": [
+                    "2668",
+                    "2669"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "269[1-2]",
+                "patterns": [
+                    "2691",
+                    "2692"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "E56[8-9]",
+                "patterns": [
+                    "E568",
+                    "E569"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "E56[8-9]",
+                "patterns": [
+                    "E568",
+                    "E569"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": "26688",
+                "patterns": [
+                    "26688"
+                ]
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                35206995,
+                35206996,
+                44821793,
+                44829894
+            ],
+            "conditions_standard": [
+                436658
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:56.000000Z",
+    "updated_at": "2026-04-17T00:17:21.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#E4",
+        "#NEURO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

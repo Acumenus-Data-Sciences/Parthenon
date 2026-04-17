@@ -1,0 +1,257 @@
+{
+    "id": 2035,
+    "name": "I9_HEARTFAIL",
+    "description": "Heart failure, strict — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#I9",
+            "#CARDIO",
+            "#OPHTAL_CM",
+            "#NEURO_CM",
+            "#COPD_CM",
+            "#ILD_CM"
+        ],
+        "level": "3",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6086956521739131,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 23,
+            "n_tokens_resolved": 14
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1788,
+            "imported_at": "2026-04-17T00:17:31+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "42700|42710|428|7824",
+                "patterns": [
+                    "42700",
+                    "42710",
+                    "428",
+                    "7824"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "4029B|428",
+                "patterns": [
+                    "4029B",
+                    "428"
+                ]
+            },
+            "kela_atc": {
+                "raw": "C03CA01|C03EB01",
+                "patterns": [
+                    "C03CA01",
+                    "C03EB01"
+                ]
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "42700|42710|428|7824",
+                "patterns": [
+                    "42700",
+                    "42710",
+                    "428",
+                    "7824"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "4029B|428",
+                "patterns": [
+                    "4029B",
+                    "428"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "I50|I110|I130|I132",
+                "patterns": [
+                    "I50",
+                    "I110",
+                    "I130",
+                    "I132"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "I50|I110|I130|I132",
+                "patterns": [
+                    "I50",
+                    "I110",
+                    "I130",
+                    "I132"
+                ]
+            },
+            "kela_reimb": {
+                "raw": "201",
+                "patterns": [
+                    "201"
+                ]
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [
+                956874
+            ],
+            "source_concept_ids": [
+                1326599,
+                1326600,
+                1326601,
+                1326602,
+                1326603,
+                1326604,
+                1326605,
+                1326606,
+                1326607,
+                1326608,
+                1326609,
+                1569178,
+                1569179,
+                1569180,
+                1569181,
+                35207669,
+                35207673,
+                35207674,
+                35207792,
+                35207793,
+                45533456,
+                45533457,
+                45543182,
+                45548022,
+                45562355,
+                45567180,
+                45567181,
+                45576878,
+                45586587,
+                45586588,
+                45591469,
+                45601038,
+                44820869,
+                44820870,
+                44823119,
+                44824250,
+                44824251,
+                44826642,
+                44827779,
+                44827794,
+                44827795,
+                44827796,
+                44830086,
+                44831230,
+                44831248,
+                44831249,
+                44831250,
+                44832381,
+                44833573,
+                44833574,
+                44834716,
+                44834732,
+                44835943,
+                44835944,
+                21601518,
+                21601554
+            ],
+            "conditions_standard": [
+                316139,
+                4273632,
+                4233424,
+                4014159,
+                37309625,
+                4195785,
+                4242669,
+                4004279,
+                319835,
+                443587,
+                40482727,
+                444101,
+                439696,
+                439694,
+                439846,
+                40479576,
+                40480603,
+                40481042,
+                40481043,
+                40480602,
+                44782733,
+                4229440,
+                40479192,
+                443580,
+                44782719,
+                44782718,
+                319034,
+                314378,
+                442604
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:03.000000Z",
+    "updated_at": "2026-04-17T00:17:31.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#I9",
+        "#CARDIO",
+        "#OPHTAL_CM",
+        "#NEURO_CM",
+        "#COPD_CM",
+        "#ILD_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

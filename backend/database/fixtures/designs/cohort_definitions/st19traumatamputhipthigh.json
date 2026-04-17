@@ -1,0 +1,222 @@
+{
+    "id": 3638,
+    "name": "ST19_TRAUMAT_AMPUT_HIP_THIGH",
+    "description": "Traumatic amputation of hip and thigh — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#ST19"
+        ],
+        "level": "3",
+        "parent": "S7",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3391,
+            "imported_at": "2026-04-17T00:17:46+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "S78",
+                "patterns": [
+                    "S78"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "S78",
+                "patterns": [
+                    "S78"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                15165,
+                15166,
+                15167,
+                15168,
+                15169,
+                15170,
+                15171,
+                15172,
+                15173,
+                15174,
+                15175,
+                15176,
+                15177,
+                15178,
+                15179,
+                15180,
+                15181,
+                15182,
+                1573757,
+                1573758,
+                1573759,
+                1573760,
+                1573761,
+                1573762,
+                1573763,
+                1573764,
+                1573765,
+                1573766,
+                45535944,
+                45535945,
+                45535946,
+                45535947,
+                45540777,
+                45540778,
+                45540779,
+                45545601,
+                45545602,
+                45550378,
+                45550379,
+                45550380,
+                45550381,
+                45555190,
+                45555191,
+                45555192,
+                45555193,
+                45555194,
+                45555195,
+                45555196,
+                45559917,
+                45564774,
+                45564775,
+                45564776,
+                45569618,
+                45569619,
+                45569620,
+                45569621,
+                45574530,
+                45579284,
+                45579285,
+                45579286,
+                45584129,
+                45584130,
+                45584131,
+                45588987,
+                45588988,
+                45588989,
+                45588990,
+                45588991,
+                45588992,
+                45593854,
+                45593855,
+                45598689,
+                45598690,
+                45598691,
+                45603513,
+                45603514,
+                45603515,
+                45608277,
+                45608278,
+                45608279,
+                45608280,
+                45608281
+            ],
+            "conditions_standard": [
+                37116542,
+                37116543,
+                4051440,
+                4051439,
+                4318111,
+                44783029,
+                434512
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:18.000000Z",
+    "updated_at": "2026-04-17T00:17:46.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#ST19"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

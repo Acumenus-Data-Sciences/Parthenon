@@ -1,0 +1,177 @@
+{
+    "id": 1772,
+    "name": "H7_GLOBEDEGENERATED",
+    "description": "Degenerative conditions of globe — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#H7",
+            "#OPHTAL"
+        ],
+        "level": "4",
+        "parent": "H44",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.5,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 8,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1525,
+            "imported_at": "2026-04-17T00:17:28+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "37861|37514",
+                "patterns": [
+                    "37861",
+                    "37514"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "3604",
+                "patterns": [
+                    "3604"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "37861|37514",
+                "patterns": [
+                    "37861",
+                    "37514"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "3604",
+                "patterns": [
+                    "3604"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "H445",
+                "patterns": [
+                    "H445"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "H445",
+                "patterns": [
+                    "H445"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1568823,
+                1568824,
+                45538295,
+                45543057,
+                45552707,
+                45557437,
+                45557438,
+                45562252,
+                45562253,
+                45571990,
+                45581679,
+                45591366,
+                45596107,
+                45596108,
+                45596109,
+                45600934,
+                45605698,
+                44820781,
+                44823035,
+                44826570,
+                44828893,
+                44829992,
+                44833461
+            ],
+            "conditions_standard": [
+                375807,
+                373461,
+                36713314,
+                36717025,
+                4078543,
+                3657105,
+                40274883,
+                4247597,
+                377551
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:01.000000Z",
+    "updated_at": "2026-04-17T00:17:28.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#H7",
+        "#OPHTAL"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

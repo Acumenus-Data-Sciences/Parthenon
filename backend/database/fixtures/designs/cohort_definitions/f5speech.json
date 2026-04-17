@@ -1,0 +1,170 @@
+{
+    "id": 1400,
+    "name": "F5_SPEECH",
+    "description": "Specific development disorders of speech and language — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#F5"
+        ],
+        "level": "3",
+        "parent": "F80-F89",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1153,
+            "imported_at": "2026-04-17T00:17:24+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "3060",
+                "patterns": [
+                    "3060"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "3153",
+                "patterns": [
+                    "3153"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "3060",
+                "patterns": [
+                    "3060"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "3153",
+                "patterns": [
+                    "3153"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "F80",
+                "patterns": [
+                    "F80"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "F80",
+                "patterns": [
+                    "F80"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "F5_SPECIFIC_SPEECH"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1568259,
+                35207244,
+                35207245,
+                35207246,
+                35207247,
+                35207248,
+                35207249,
+                37200331,
+                45538086,
+                45591155,
+                45605514,
+                44819564,
+                44819565,
+                44821838,
+                44824141,
+                44832257,
+                44834616
+            ],
+            "conditions_standard": [
+                436373,
+                4039744,
+                4047124,
+                441277,
+                4046219,
+                435232,
+                4039757,
+                443361,
+                43020472,
+                40480431
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:58.000000Z",
+    "updated_at": "2026-04-17T00:17:24.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#F5"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

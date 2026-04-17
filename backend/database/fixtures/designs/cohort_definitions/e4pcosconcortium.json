@@ -1,0 +1,233 @@
+{
+    "id": 1079,
+    "name": "E4_PCOS_CONCORTIUM",
+    "description": "Polycystic ovarian syndrome, consortium definition — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#E4"
+        ],
+        "level": "C",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.7142857142857143,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 14,
+            "n_tokens_resolved": 10
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 832,
+            "imported_at": "2026-04-17T00:17:20+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "626|70405",
+                "patterns": [
+                    "626",
+                    "70405"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "626|7041",
+                "patterns": [
+                    "626",
+                    "7041"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "626|70405",
+                "patterns": [
+                    "626",
+                    "70405"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "626|7041",
+                "patterns": [
+                    "626",
+                    "7041"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "N925|N926|L680",
+                "patterns": [
+                    "N925",
+                    "N926",
+                    "L680"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "N925|N926|L680",
+                "patterns": [
+                    "N925",
+                    "N926",
+                    "L680"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": "2561|255|258|2561|255|3065|304|21899|2262|253|253|183|22099|7595|253|2260",
+                "patterns": [
+                    "2561",
+                    "255",
+                    "258",
+                    "3065",
+                    "304",
+                    "21899",
+                    "2262",
+                    "253",
+                    "183",
+                    "22099",
+                    "7595",
+                    "2260"
+                ]
+            },
+            "hd_icd_9_excl": {
+                "raw": "2563|25631|2568|2550|2580|2434A|2532[AB]2552|3071A|3072A|3075[AB]|304|2180|253X|2531X|2531A|2395|220|7586|2531A|2270|1940",
+                "patterns": [
+                    "2563",
+                    "25631",
+                    "2568",
+                    "2550",
+                    "2580",
+                    "2434A",
+                    "2532A2552",
+                    "2532B2552",
+                    "3071A",
+                    "3072A",
+                    "3075A",
+                    "3075B",
+                    "304",
+                    "2180",
+                    "253X",
+                    "2531X",
+                    "2531A",
+                    "2395",
+                    "220",
+                    "7586",
+                    "2270",
+                    "1940"
+                ]
+            },
+            "hd_icd_10_excl": {
+                "raw": "E2839|E24|E23[0-4]|E25|F50|F11|D25|D352|E22|E221|C56|D27|Q96|N643|C74",
+                "patterns": [
+                    "E2839",
+                    "E24",
+                    "E230",
+                    "E231",
+                    "E232",
+                    "E233",
+                    "E234",
+                    "E25",
+                    "F50",
+                    "F11",
+                    "D25",
+                    "D352",
+                    "E22",
+                    "E221",
+                    "C56",
+                    "D27",
+                    "Q96",
+                    "N643",
+                    "C74"
+                ]
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": 2,
+        "include_endpoints": [
+            "E4_PCOS",
+            "N14_MENSIRREG"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                35208615,
+                35209477,
+                35209478,
+                44820997,
+                44822060,
+                44824366,
+                44825569,
+                44827910,
+                44827911,
+                44827912,
+                44830198,
+                44831358,
+                44833691,
+                44836060,
+                44836154
+            ],
+            "conditions_standard": [
+                134718,
+                196168,
+                4028474,
+                443800,
+                443431,
+                197607,
+                198195,
+                4078455,
+                194093,
+                195012
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:55.000000Z",
+    "updated_at": "2026-04-17T00:17:20.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#E4"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

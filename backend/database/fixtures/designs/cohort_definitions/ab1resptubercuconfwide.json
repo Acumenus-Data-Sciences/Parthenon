@@ -1,0 +1,290 @@
+{
+    "id": 5328,
+    "name": "AB1_RESP_TUBERCU_CONF_WIDE",
+    "description": "Respiratory tuberculosis, confirmed, including avohilmo — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#AB1"
+        ],
+        "level": "4",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 7,
+            "n_tokens_resolved": 7
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 5081,
+            "imported_at": "2026-04-17T00:17:59+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "01[1-2].A",
+                "patterns": [
+                    "011.A",
+                    "012.A"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "01[1-2].A",
+                "patterns": [
+                    "011.A",
+                    "012.A"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "A15",
+                "patterns": [
+                    "A15"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "A15",
+                "patterns": [
+                    "A15"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": "A15",
+                "patterns": [
+                    "A15"
+                ]
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567249,
+                35205451,
+                35205452,
+                35205453,
+                35205454,
+                35205455,
+                35205456,
+                35205457,
+                44819312,
+                44819313,
+                44819314,
+                44819315,
+                44819317,
+                44819318,
+                44820524,
+                44820525,
+                44820526,
+                44820527,
+                44820528,
+                44821635,
+                44821636,
+                44821637,
+                44821638,
+                44821639,
+                44821640,
+                44821641,
+                44821642,
+                44821643,
+                44821644,
+                44821645,
+                44821646,
+                44822780,
+                44822781,
+                44822782,
+                44822783,
+                44822784,
+                44822785,
+                44822786,
+                44822787,
+                44823933,
+                44823934,
+                44823935,
+                44823936,
+                44823937,
+                44823938,
+                44825100,
+                44825101,
+                44825102,
+                44825103,
+                44825104,
+                44825105,
+                44826291,
+                44826292,
+                44826293,
+                44826294,
+                44827453,
+                44827454,
+                44827455,
+                44827456,
+                44827457,
+                44827458,
+                44827459,
+                44827460,
+                44827461,
+                44827462,
+                44827463,
+                44828632,
+                44828633,
+                44828634,
+                44828635,
+                44828636,
+                44828637,
+                44828638,
+                44828639,
+                44828640,
+                44828641,
+                44828642,
+                44828643,
+                44829703,
+                44829704,
+                44829705,
+                44829706,
+                44829707,
+                44830888,
+                44830889,
+                44830890,
+                44830891,
+                44830892,
+                44830893,
+                44830894,
+                44830895,
+                44830896,
+                44832038,
+                44832039,
+                44832040,
+                44832041,
+                44832042,
+                44832043,
+                44832044,
+                44832045,
+                44833186,
+                44833187,
+                44833188,
+                44833189,
+                44833190,
+                44834390,
+                44834391,
+                44834392,
+                44834393,
+                44834394,
+                44834395,
+                44834396,
+                44834397,
+                44834398,
+                44834399,
+                44835573,
+                44835574,
+                44835575,
+                44835576,
+                44835577,
+                44835578,
+                44836739,
+                44836740,
+                44836741,
+                44836742,
+                44836743,
+                44836744,
+                44836745
+            ],
+            "conditions_standard": [
+                45771090,
+                253954,
+                134851,
+                261495,
+                253121,
+                260315,
+                257775,
+                252235,
+                45763768,
+                255454,
+                255175,
+                256018,
+                4090539,
+                26899,
+                260936,
+                256896,
+                258335,
+                261774,
+                254266,
+                4056128,
+                260630
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:32.000000Z",
+    "updated_at": "2026-04-17T00:17:59.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#AB1"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

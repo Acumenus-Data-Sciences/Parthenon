@@ -1,0 +1,234 @@
+{
+    "id": 2131,
+    "name": "J10_UPPERINFEC",
+    "description": "Acute upper respiratory infections — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#J10"
+        ],
+        "level": "2",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 14,
+            "n_tokens_resolved": 14
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1884,
+            "imported_at": "2026-04-17T00:17:32+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "J0[0-6]",
+                "patterns": [
+                    "J00",
+                    "J01",
+                    "J02",
+                    "J03",
+                    "J04",
+                    "J05",
+                    "J06"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "J0[0-6]",
+                "patterns": [
+                    "J00",
+                    "J01",
+                    "J02",
+                    "J03",
+                    "J04",
+                    "J05",
+                    "J06"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "J10_COLD",
+            "J10_SINUSITIS",
+            "J10_PHARYNGITIS",
+            "J10_TONSILLITIS",
+            "J10_LARYNGITIS",
+            "J10_EPIGLOTTITIS",
+            "J10_ACUTEUPPERINFEC"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1569439,
+                1569440,
+                1569441,
+                1569442,
+                1569443,
+                1569444,
+                1569445,
+                1569446,
+                1569447,
+                1569448,
+                1569449,
+                1569450,
+                1569451,
+                1569452,
+                1569453,
+                1569454,
+                1569455,
+                1569456,
+                1569457,
+                35207921,
+                35207922,
+                35207923,
+                35207924,
+                35207925,
+                35207926,
+                35207927,
+                35207928,
+                35207929,
+                45533536,
+                45533539,
+                45533540,
+                45533541,
+                45538468,
+                45538469,
+                45538470,
+                45538471,
+                45538473,
+                45543253,
+                45548100,
+                45552877,
+                45557614,
+                45562435,
+                45572158,
+                45576939,
+                45576940,
+                45576941,
+                45581839,
+                45581840,
+                45591539,
+                45591540,
+                45596274,
+                45601113,
+                45601115,
+                45605880
+            ],
+            "conditions_standard": [
+                260123,
+                141323,
+                139850,
+                141056,
+                137900,
+                4173734,
+                25297,
+                24660,
+                4212727,
+                4173027,
+                437903,
+                46271527,
+                260134,
+                4105773,
+                257011,
+                260427,
+                28060,
+                30133,
+                31597,
+                23798,
+                4273095,
+                255566,
+                435840,
+                4048489,
+                4110362,
+                46270516,
+                433513
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:04.000000Z",
+    "updated_at": "2026-04-17T00:17:32.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#J10"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

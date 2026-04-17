@@ -1,0 +1,190 @@
+{
+    "id": 3341,
+    "name": "Q17_APVR",
+    "description": "Abnormal pulmonary venous return — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#Q17"
+        ],
+        "level": "3",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 16,
+            "n_tokens_resolved": 16
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3094,
+            "imported_at": "2026-04-17T00:17:43+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "7456X|7474[A-C]",
+                "patterns": [
+                    "7456X",
+                    "7474A",
+                    "7474B",
+                    "7474C"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "7456X|7474[A-C]",
+                "patterns": [
+                    "7456X",
+                    "7474A",
+                    "7474B",
+                    "7474C"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "Q2112|Q262|Q263|Q264",
+                "patterns": [
+                    "Q2112",
+                    "Q262",
+                    "Q263",
+                    "Q264"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "Q2112|Q262|Q263|Q264",
+                "patterns": [
+                    "Q2112",
+                    "Q262",
+                    "Q263",
+                    "Q264"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": "758|7595|75683",
+                "patterns": [
+                    "758",
+                    "7595",
+                    "75683"
+                ]
+            },
+            "hd_icd_10_excl": {
+                "raw": "Q90|Q91|Q92|Q93|Q96|Q8780|Q8781|Q8782|Q8783|Q8784|Q8786|Q8788|Q85|Q796|Q874|Q875",
+                "patterns": [
+                    "Q90",
+                    "Q91",
+                    "Q92",
+                    "Q93",
+                    "Q96",
+                    "Q8780",
+                    "Q8781",
+                    "Q8782",
+                    "Q8783",
+                    "Q8784",
+                    "Q8786",
+                    "Q8788",
+                    "Q85",
+                    "Q796",
+                    "Q874",
+                    "Q875"
+                ]
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                35210844,
+                35210845,
+                35210846,
+                37402960,
+                44821193,
+                44823396,
+                44825749,
+                44825750,
+                44831545,
+                44831547,
+                44835042,
+                44835043,
+                44836238
+            ],
+            "conditions_standard": [
+                432432,
+                257660,
+                4006984,
+                4070299,
+                314147,
+                435912,
+                76798
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:16.000000Z",
+    "updated_at": "2026-04-17T00:17:43.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#Q17"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

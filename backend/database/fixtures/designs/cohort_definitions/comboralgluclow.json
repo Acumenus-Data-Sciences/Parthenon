@@ -1,0 +1,181 @@
+{
+    "id": 4140,
+    "name": "COMB_ORAL_GLUCLOW",
+    "description": "Combinations of oral blood glucose lowering drugs — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#RX",
+            "#DIAB"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 1,
+            "n_tokens_resolved": 1
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3893,
+            "imported_at": "2026-04-17T00:17:50+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": "A10BD",
+                "patterns": [
+                    "A10BD"
+                ]
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [
+                793293,
+                1503297,
+                1580747,
+                40166035,
+                44785829,
+                40239216,
+                45774751,
+                43009070,
+                19033909,
+                1547504,
+                1597756,
+                1525215,
+                19122137,
+                43013884,
+                1516766,
+                43526465,
+                1529331
+            ],
+            "source_concept_ids": [
+                715784,
+                715785,
+                715825,
+                723194,
+                947815,
+                947843,
+                955064,
+                955183,
+                1501888,
+                1588671,
+                1588688,
+                21600765,
+                21600766,
+                21600767,
+                21600768,
+                21600769,
+                21600770,
+                21600771,
+                21600772,
+                21600773,
+                21600774,
+                40251676,
+                40251677,
+                43534748,
+                43534749,
+                43534750,
+                43534751,
+                45893267,
+                45893467,
+                45893491,
+                45893517
+            ],
+            "conditions_standard": []
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:23.000000Z",
+    "updated_at": "2026-04-17T00:17:50.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#RX",
+        "#DIAB"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

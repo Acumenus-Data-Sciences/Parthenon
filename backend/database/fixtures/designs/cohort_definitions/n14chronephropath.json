@@ -1,0 +1,182 @@
+{
+    "id": 2963,
+    "name": "N14_CHRONEPHROPATH",
+    "description": "Chronic nephritic syndrome — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#N14",
+            "#OPHTAL_CM",
+            "#GASTRO_CM"
+        ],
+        "level": "3",
+        "parent": "N00-N08",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2716,
+            "imported_at": "2026-04-17T00:17:40+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "582",
+                "patterns": [
+                    "582"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "582",
+                "patterns": [
+                    "582"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "582",
+                "patterns": [
+                    "582"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "582",
+                "patterns": [
+                    "582"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "N03",
+                "patterns": [
+                    "N03"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "N03",
+                "patterns": [
+                    "N03"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                725435,
+                1571472,
+                35209195,
+                35209196,
+                35209197,
+                35209198,
+                35209199,
+                35209200,
+                35209201,
+                35209202,
+                35209203,
+                35209204,
+                44824340,
+                44825538,
+                44825539,
+                44831325,
+                44831326,
+                44831327,
+                44837186,
+                44837187,
+                44837188
+            ],
+            "conditions_standard": [
+                4056478,
+                36716651,
+                4054993,
+                4056479,
+                46270347,
+                4056462,
+                4059463,
+                4059584,
+                4055899,
+                4056480,
+                312358,
+                45769862,
+                252365,
+                45770906,
+                196464,
+                433257
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:12.000000Z",
+    "updated_at": "2026-04-17T00:17:40.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#N14",
+        "#OPHTAL_CM",
+        "#GASTRO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

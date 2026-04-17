@@ -1,0 +1,249 @@
+{
+    "id": 4800,
+    "name": "C3_ORALCAVITY",
+    "description": "Malignant neoplasm of oral cavity — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#C3"
+        ],
+        "level": "3",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.47619047619047616,
+            "bucket": "SPARSE",
+            "n_tokens_total": 21,
+            "n_tokens_resolved": 10
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 4553,
+            "imported_at": "2026-04-17T00:17:54+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": "C0[1-6]",
+                "patterns": [
+                    "C01",
+                    "C02",
+                    "C03",
+                    "C04",
+                    "C05",
+                    "C06"
+                ]
+            },
+            "cod_icd_8": {
+                "raw": "141|14[3-5]",
+                "patterns": [
+                    "141",
+                    "143",
+                    "144",
+                    "145"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "141|14[3-5]",
+                "patterns": [
+                    "141",
+                    "143",
+                    "144",
+                    "145"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_behav": {
+                "raw": "3",
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": "ANY",
+                "patterns": [
+                    "ANY"
+                ]
+            },
+            "cod_icd_10": {
+                "raw": "C0[1-6]",
+                "patterns": [
+                    "C01",
+                    "C02",
+                    "C03",
+                    "C04",
+                    "C05",
+                    "C06"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "SPARSE",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "C3_TONGUE",
+            "C3_GUM",
+            "C3_FLOOROFMOUTH",
+            "C3_PALATE",
+            "C3_MOUTHNAS"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567462,
+                1567463,
+                1567464,
+                1567465,
+                1567466,
+                1567467,
+                35206056,
+                35206057,
+                35206058,
+                35206059,
+                35206060,
+                35206061,
+                35206062,
+                35206063,
+                35206064,
+                35206065,
+                35206066,
+                35206067,
+                35206068,
+                35206069,
+                35206070,
+                35206071,
+                35206072,
+                35206073,
+                35206074,
+                35206075,
+                35206076,
+                35206077,
+                35206078,
+                35206079,
+                45537790,
+                45561783,
+                44819420,
+                44820594,
+                44821721,
+                44825189,
+                44825190,
+                44825193,
+                44825194,
+                44826384,
+                44826385,
+                44826386,
+                44827543,
+                44827544,
+                44828725,
+                44828726,
+                44832117,
+                44833280,
+                44833281,
+                44833283,
+                44833284,
+                44834475,
+                44834476,
+                44834477,
+                44834478,
+                44835660,
+                44835663,
+                44835664,
+                44835665,
+                44835666,
+                44836818,
+                44836819
+            ],
+            "conditions_standard": [
+                437498,
+                140950,
+                135750,
+                134290,
+                439404,
+                140955,
+                256633,
+                434587,
+                4156114,
+                437220,
+                436042,
+                434289,
+                436043,
+                435478,
+                440335,
+                438982,
+                440344,
+                438694,
+                254282,
+                434285,
+                4001170,
+                134579,
+                261808,
+                433704,
+                440036,
+                440655
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:26.000000Z",
+    "updated_at": "2026-04-17T00:17:54.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#C3"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

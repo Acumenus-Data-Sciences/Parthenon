@@ -1,0 +1,256 @@
+{
+    "id": 1011,
+    "name": "E4_HYTHY_AI_EXCL",
+    "description": "Developmental endpoint to exclude non autoimmune-cases from E4_HYTHY_AI_STRICT — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#E4"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.9230769230769231,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 39,
+            "n_tokens_resolved": 36
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 764,
+            "imported_at": "2026-04-17T00:17:20+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "253",
+                "patterns": [
+                    "253"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "253",
+                "patterns": [
+                    "253"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": "^BAA60",
+                "patterns": [
+                    "BAA60"
+                ]
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "253",
+                "patterns": [
+                    "253"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "253",
+                "patterns": [
+                    "253"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "E8901|E8909|E23|D352|E0382|E05[1-9]|E0[0-2]",
+                "patterns": [
+                    "E8901",
+                    "E8909",
+                    "E23",
+                    "D352",
+                    "E0382",
+                    "E051",
+                    "E052",
+                    "E053",
+                    "E054",
+                    "E055",
+                    "E056",
+                    "E057",
+                    "E058",
+                    "E059",
+                    "E00",
+                    "E01",
+                    "E02"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "E8901|E8909|E23|D352|E0382|E05[1-9]|E0[0-2]",
+                "patterns": [
+                    "E8901",
+                    "E8909",
+                    "E23",
+                    "D352",
+                    "E0382",
+                    "E051",
+                    "E052",
+                    "E053",
+                    "E054",
+                    "E055",
+                    "E056",
+                    "E057",
+                    "E058",
+                    "E059",
+                    "E00",
+                    "E01",
+                    "E02"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567891,
+                1567892,
+                1567897,
+                1567898,
+                1567899,
+                1567900,
+                1567901,
+                1567902,
+                1567993,
+                35206610,
+                35206843,
+                35206844,
+                35206845,
+                35206846,
+                35206847,
+                35206848,
+                35206849,
+                35206850,
+                35206851,
+                35206909,
+                35206910,
+                35206911,
+                35206912,
+                35206913,
+                35206914,
+                45537949,
+                45537951,
+                45542725,
+                45547615,
+                45576427,
+                45576428,
+                45581339,
+                45581340,
+                45595788,
+                45600630,
+                45600631,
+                45605390,
+                44820687,
+                44822938,
+                44824075,
+                44825266,
+                44825267,
+                44827619,
+                44832195,
+                44833371,
+                44833372,
+                44833373,
+                44833374
+            ],
+            "conditions_standard": [
+                4314093,
+                4129370,
+                140976,
+                135778,
+                4337834,
+                4177975,
+                138387,
+                23986,
+                4242816,
+                4129371,
+                4275410,
+                4130026,
+                4237122,
+                4034826,
+                140062,
+                4130027,
+                4254542,
+                609069,
+                1245117,
+                439382,
+                133436,
+                138718,
+                136932,
+                137519,
+                134608,
+                4229431,
+                23164,
+                26378,
+                25211,
+                28385,
+                28403,
+                30365,
+                25780
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:55.000000Z",
+    "updated_at": "2026-04-17T00:17:20.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#E4"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

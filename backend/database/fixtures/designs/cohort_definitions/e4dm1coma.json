@@ -1,0 +1,162 @@
+{
+    "id": 961,
+    "name": "E4_DM1COMA",
+    "description": "Type 1 diabetes with coma — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#E4",
+            "#ASTHMA_CM",
+            "#COPD_CM",
+            "#DIAB",
+            "#OPHTAL_CM",
+            "#GASTRO_CM",
+            "#ILD_CM",
+            "#NEURO_CM"
+        ],
+        "level": "4",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.5,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 4,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 714,
+            "imported_at": "2026-04-17T00:17:19+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "2502B",
+                "patterns": [
+                    "2502B"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "2502B",
+                "patterns": [
+                    "2502B"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "E100",
+                "patterns": [
+                    "E100"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "E100",
+                "patterns": [
+                    "E100"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                44824073,
+                44826459,
+                44832190,
+                44832191,
+                44836916
+            ],
+            "conditions_standard": [
+                201820,
+                4032787,
+                4226238,
+                201254,
+                201531,
+                443592
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:54.000000Z",
+    "updated_at": "2026-04-17T00:17:19.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#E4",
+        "#ASTHMA_CM",
+        "#COPD_CM",
+        "#DIAB",
+        "#OPHTAL_CM",
+        "#GASTRO_CM",
+        "#ILD_CM",
+        "#NEURO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

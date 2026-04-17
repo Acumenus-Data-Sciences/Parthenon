@@ -1,0 +1,171 @@
+{
+    "id": 994,
+    "name": "E4_DMNASPERIPH",
+    "description": "Unspecified diabetes with peripheral circulatory complications — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#E4",
+            "#ASTHMA_CM",
+            "#COPD_CM",
+            "#DIAB",
+            "#OPHTAL_CM",
+            "#ILD_CM",
+            "#NEURO_CM"
+        ],
+        "level": "4",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 10,
+            "n_tokens_resolved": 10
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 747,
+            "imported_at": "2026-04-17T00:17:19+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "2506C|2506X",
+                "patterns": [
+                    "2506C",
+                    "2506X"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "2506C|2506X",
+                "patterns": [
+                    "2506C",
+                    "2506X"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "E125|E135|E145",
+                "patterns": [
+                    "E125",
+                    "E135",
+                    "E145"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "E125|E135|E145",
+                "patterns": [
+                    "E125",
+                    "E135",
+                    "E145"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567983,
+                45537963,
+                45571661,
+                45586143,
+                44819501,
+                44827615,
+                44828795,
+                44831046,
+                44833366
+            ],
+            "conditions_standard": [
+                201820,
+                321822,
+                4131908,
+                4226354,
+                201254,
+                377821,
+                443730
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:54.000000Z",
+    "updated_at": "2026-04-17T00:17:19.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#E4",
+        "#ASTHMA_CM",
+        "#COPD_CM",
+        "#DIAB",
+        "#OPHTAL_CM",
+        "#ILD_CM",
+        "#NEURO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

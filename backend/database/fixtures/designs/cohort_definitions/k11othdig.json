@@ -1,0 +1,283 @@
+{
+    "id": 2349,
+    "name": "K11_OTHDIG",
+    "description": "Diseases of the digestive system — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#K11",
+            "#GASTRO"
+        ],
+        "level": "2",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2102,
+            "imported_at": "2026-04-17T00:17:34+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "K9",
+                "patterns": [
+                    "K9"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "K9",
+                "patterns": [
+                    "K9"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "K11_COELIAC",
+            "K11_MALABSORB",
+            "K11_POSTOPDIS",
+            "K11_GIBLEEDING",
+            "K11_OTHDISDIG",
+            "K11_DISDIGINOTH"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                786026,
+                786027,
+                786028,
+                786029,
+                786030,
+                1326629,
+                1326630,
+                1326631,
+                1569700,
+                1569701,
+                1569702,
+                1569703,
+                1569704,
+                1569705,
+                1569706,
+                1569707,
+                1569708,
+                1569709,
+                1569710,
+                1569711,
+                1569712,
+                1569713,
+                1569714,
+                1569715,
+                1569716,
+                35208401,
+                35208402,
+                35208403,
+                35208404,
+                35208405,
+                35208406,
+                35208407,
+                35208408,
+                35208409,
+                35208410,
+                35208411,
+                35208412,
+                35208413,
+                35208414,
+                35208415,
+                35208416,
+                37200673,
+                37200674,
+                37200675,
+                37200676,
+                37200677,
+                37200678,
+                37200679,
+                45538557,
+                45538558,
+                45538560,
+                45543351,
+                45543352,
+                45543353,
+                45543354,
+                45548176,
+                45548177,
+                45548178,
+                45552958,
+                45552959,
+                45552960,
+                45552961,
+                45552962,
+                45557684,
+                45562518,
+                45562519,
+                45562520,
+                45562521,
+                45567333,
+                45567334,
+                45567335,
+                45567336,
+                45572237,
+                45572241,
+                45572242,
+                45577006,
+                45577007,
+                45577008,
+                45577009,
+                45577010,
+                45581918,
+                45586748,
+                45586749,
+                45591613,
+                45591616,
+                45601198,
+                45605963,
+                45605966,
+                45605967
+            ],
+            "conditions_standard": [
+                4131798,
+                4001716,
+                4299644,
+                194993,
+                442019,
+                4201745,
+                4106203,
+                4308716,
+                4055231,
+                200447,
+                4002836,
+                4123283,
+                45757072,
+                434675,
+                45757691,
+                194992,
+                193521,
+                196732,
+                200146,
+                22666,
+                194985,
+                194079,
+                4340367,
+                200444,
+                26727,
+                4103703,
+                192671,
+                40484904,
+                4308835,
+                440303,
+                4340954,
+                45757241,
+                197782,
+                4140154,
+                4141190,
+                437312,
+                4178810,
+                45757462,
+                4331292,
+                4149888,
+                45770895,
+                4252862,
+                45757247,
+                45770898,
+                45757243,
+                46270495,
+                4048716,
+                40485376,
+                45757244,
+                45757223,
+                4055748,
+                46270494
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:06.000000Z",
+    "updated_at": "2026-04-17T00:17:34.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#K11",
+        "#GASTRO"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

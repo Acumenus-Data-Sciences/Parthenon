@@ -1,0 +1,230 @@
+{
+    "id": 3710,
+    "name": "ST19_MALTR_SYNDR",
+    "description": "Maltreatment syndromes — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#ST19"
+        ],
+        "level": "3",
+        "parent": "T6[6-9]|T7[0-8]",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3463,
+            "imported_at": "2026-04-17T00:17:47+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "T74",
+                "patterns": [
+                    "T74"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "T74",
+                "patterns": [
+                    "T74"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                19216,
+                19217,
+                19218,
+                19219,
+                19220,
+                19221,
+                19222,
+                19223,
+                19224,
+                19225,
+                19226,
+                786164,
+                786165,
+                786166,
+                786167,
+                786168,
+                786169,
+                786170,
+                786171,
+                786172,
+                1575153,
+                1575154,
+                1575155,
+                1575156,
+                1575157,
+                1575158,
+                1595721,
+                1595722,
+                1595723,
+                1595724,
+                1595725,
+                1595726,
+                1595727,
+                1595728,
+                1595729,
+                1595730,
+                1595731,
+                1595732,
+                1595733,
+                1595734,
+                1595735,
+                1595736,
+                1595737,
+                1595738,
+                45536996,
+                45541786,
+                45541788,
+                45546654,
+                45546655,
+                45546656,
+                45551440,
+                45551441,
+                45556215,
+                45556216,
+                45560993,
+                45560994,
+                45560995,
+                45565796,
+                45570668,
+                45570670,
+                45570671,
+                45575515,
+                45585193,
+                45585194,
+                45585195,
+                45585196,
+                45585197,
+                45594865,
+                45599709,
+                45599710,
+                45599711,
+                45599712,
+                45604502,
+                45604503,
+                45604504,
+                45609287,
+                45609288
+            ],
+            "conditions_standard": [
+                1447946,
+                439391,
+                435151,
+                40479849,
+                437460,
+                443256,
+                439395,
+                436313,
+                441481,
+                437449,
+                4022126,
+                4201705,
+                40482897,
+                4020158,
+                4302066,
+                443080,
+                4161447,
+                44805320,
+                4022125,
+                4054807
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:19.000000Z",
+    "updated_at": "2026-04-17T00:17:47.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#ST19"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

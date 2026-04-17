@@ -1,0 +1,201 @@
+{
+    "id": 3564,
+    "name": "ST19_DISLO_SPRAIN_STRAIN_JOINTS_LIGAM_HEAD",
+    "description": "Dislocation, sprain and strain of joints and ligaments of head — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#ST19"
+        ],
+        "level": "3",
+        "parent": "S0",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3317,
+            "imported_at": "2026-04-17T00:17:45+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "S03",
+                "patterns": [
+                    "S03"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "S03",
+                "patterns": [
+                    "S03"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                10391,
+                10392,
+                10393,
+                10394,
+                10395,
+                10396,
+                1572385,
+                37201425,
+                37201426,
+                37201427,
+                37201428,
+                37201429,
+                37201430,
+                37201431,
+                37201432,
+                37201433,
+                37201434,
+                37201435,
+                37201436,
+                37201437,
+                37201438,
+                37201439,
+                37201440,
+                37201441,
+                37201442,
+                37201443,
+                37201444,
+                37201445,
+                37201446,
+                37201447,
+                37201448,
+                37201449,
+                37201450,
+                37201451,
+                37201452,
+                37201453,
+                37201454,
+                37201455,
+                37201456,
+                45534532,
+                45539422,
+                45539423,
+                45539425,
+                45549044,
+                45549046,
+                45553818,
+                45563380,
+                45563381,
+                45573097,
+                45573098,
+                45577876,
+                45577877,
+                45587586,
+                45587587,
+                45597266,
+                45597267,
+                45606884
+            ],
+            "conditions_standard": [
+                4123293,
+                4090883,
+                4050079,
+                75103,
+                375415,
+                4023316,
+                73553,
+                4042836,
+                437726,
+                435119,
+                4048181
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:18.000000Z",
+    "updated_at": "2026-04-17T00:17:45.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#ST19"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

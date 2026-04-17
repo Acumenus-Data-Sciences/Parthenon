@@ -1,0 +1,169 @@
+{
+    "id": 811,
+    "name": "D3_IMMUDEFANTIBODY",
+    "description": "Immunodeficiency with predominantly antibody defects — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#D3",
+            "#ASTHMA_CM",
+            "#COPD_CM",
+            "#ILD_CM"
+        ],
+        "level": "3",
+        "parent": "D80-D89",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 564,
+            "imported_at": "2026-04-17T00:17:18+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "D80",
+                "patterns": [
+                    "D80"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "D80",
+                "patterns": [
+                    "D80"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "D3_HEREDHYPOGAMMA",
+            "D3_NONHEREDHYPOGAMMA",
+            "D3_DEF_IIGA",
+            "D3_DEF_IGG",
+            "D3_DEF_IGM",
+            "D3_IMMUDEF_INCR_IGM",
+            "D3_AB_DEF_NORMHYPERIG",
+            "D3_TRANSHYPOGAMMAINFANT",
+            "D3_IMMUDEFANTIBODYNAS"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567881,
+                35206798,
+                35206799,
+                35206800,
+                35206801,
+                35206802,
+                35206803,
+                35206804,
+                35206805,
+                35206806,
+                35206807
+            ],
+            "conditions_standard": [
+                433740,
+                433173,
+                440072,
+                433171,
+                4100858,
+                434893,
+                432287,
+                4098622,
+                4230184
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:53.000000Z",
+    "updated_at": "2026-04-17T00:17:18.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#D3",
+        "#ASTHMA_CM",
+        "#COPD_CM",
+        "#ILD_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

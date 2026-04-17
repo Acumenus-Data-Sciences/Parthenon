@@ -1,0 +1,166 @@
+{
+    "id": 3353,
+    "name": "Q17_CLEFT_PALATE",
+    "description": "Cleft palate — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#Q17"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.8333333333333334,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 12,
+            "n_tokens_resolved": 10
+        },
+        "conditions": "!Q17_CLEFT_PALATE_EXCLUDE",
+        "provenance": {
+            "source_row": 3106,
+            "imported_at": "2026-04-17T00:17:43+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "74900",
+                "patterns": [
+                    "74900"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "7490[ABCE]",
+                "patterns": [
+                    "7490A",
+                    "7490B",
+                    "7490C",
+                    "7490E"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "74900",
+                "patterns": [
+                    "74900"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "7490[ABCE]",
+                "patterns": [
+                    "7490A",
+                    "7490B",
+                    "7490C",
+                    "7490E"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "Q35",
+                "patterns": [
+                    "Q35"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "Q35",
+                "patterns": [
+                    "Q35"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1572078,
+                35210894,
+                35210895,
+                35210896,
+                35210897,
+                35210898,
+                44821195,
+                44822252,
+                44822253,
+                44830390,
+                44831550,
+                44833878
+            ],
+            "conditions_standard": [
+                135923,
+                40492466,
+                4109045,
+                4272171,
+                4077901,
+                257086,
+                261679
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:16.000000Z",
+    "updated_at": "2026-04-17T00:17:43.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#Q17"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

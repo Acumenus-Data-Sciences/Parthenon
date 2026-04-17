@@ -1,0 +1,240 @@
+{
+    "id": 2975,
+    "name": "N14_RENALTUB",
+    "description": "Renal tubulo-interstitial diseases — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#N14"
+        ],
+        "level": "2",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2728,
+            "imported_at": "2026-04-17T00:17:40+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "N1",
+                "patterns": [
+                    "N1"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "N1",
+                "patterns": [
+                    "N1"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "N14_PYELONEPHR",
+            "N14_CHRONTUBULOINTNEPHRITIS",
+            "N14_TUBULOINTNEPHRNAS",
+            "N14_HYDRONEPHR",
+            "N14_OBSTRUREFLUROPATH",
+            "N14_DRUGSANDHEAVYMETAL",
+            "N14_RENALTUBULOOTH",
+            "N14_RENALTUBULOINOTH"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                725440,
+                725441,
+                725442,
+                1571477,
+                1571478,
+                1571479,
+                1571480,
+                1571481,
+                1571482,
+                1571483,
+                1571484,
+                1571485,
+                1571486,
+                35209246,
+                35209247,
+                35209248,
+                35209249,
+                35209250,
+                35209251,
+                35209252,
+                35209253,
+                35209254,
+                35209255,
+                35209256,
+                35209257,
+                35209258,
+                35209259,
+                35209260,
+                35209261,
+                35209262,
+                35209263,
+                35209264,
+                35209265,
+                35209266,
+                35209267,
+                35209268,
+                35209269,
+                35209270,
+                35209271,
+                35209272,
+                35209273,
+                35209274,
+                35209275,
+                35209276,
+                35209277,
+                35209278,
+                35209279,
+                35209280,
+                37200876,
+                37402576,
+                37402577,
+                45539032,
+                45548648,
+                45548653,
+                45553434,
+                45553435,
+                45558136,
+                45563006,
+                45563008,
+                45572699,
+                45572700,
+                45582390
+            ],
+            "conditions_standard": [
+                443597,
+                45763854,
+                45763855,
+                4264718,
+                194406,
+                433811,
+                197036,
+                194408,
+                45773214,
+                4177206,
+                197320,
+                46271022,
+                4280571,
+                194685,
+                4126297,
+                37016341,
+                42537304,
+                199065,
+                4174994,
+                4244418,
+                4126119,
+                4056595,
+                4095279,
+                198192,
+                45757466,
+                197329,
+                432961,
+                443614,
+                443601,
+                443612,
+                443611,
+                192359,
+                36713576,
+                37016366,
+                193782,
+                45757477
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:12.000000Z",
+    "updated_at": "2026-04-17T00:17:40.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#N14"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

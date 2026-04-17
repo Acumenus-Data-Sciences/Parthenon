@@ -1,0 +1,238 @@
+{
+    "id": 5075,
+    "name": "AB1_PEDICULOSIS_ACARIASIS_OTHERINFEST_WIDE",
+    "description": "Pediculosis, acariasis and other infestations, including avohilmo — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#AB1"
+        ],
+        "level": "2",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.7777777777777778,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 27,
+            "n_tokens_resolved": 21
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 4828,
+            "imported_at": "2026-04-17T00:17:56+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "13[2-4]",
+                "patterns": [
+                    "132",
+                    "133",
+                    "134"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "13[2-4]",
+                "patterns": [
+                    "132",
+                    "133",
+                    "134"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "13[2-4]",
+                "patterns": [
+                    "132",
+                    "133",
+                    "134"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "13[2-4]",
+                "patterns": [
+                    "132",
+                    "133",
+                    "134"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "B8[5-9]",
+                "patterns": [
+                    "B85",
+                    "B86",
+                    "B87",
+                    "B88",
+                    "B89"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "B8[5-9]",
+                "patterns": [
+                    "B85",
+                    "B86",
+                    "B87",
+                    "B88",
+                    "B89"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": "B8[5-9]",
+                "patterns": [
+                    "B85",
+                    "B86",
+                    "B87",
+                    "B88",
+                    "B89"
+                ]
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "AB1_PEDICULOSIS_AND_PHTHIRIAASIS",
+            "AB1_SCABIES",
+            "AB1_MYIASIS",
+            "AB1_OTHER_INFESTATIONS",
+            "AB1_PARASITIC_NOS"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1348409,
+                1348410,
+                1567447,
+                1567448,
+                1567449,
+                1567450,
+                35205993,
+                35205994,
+                35205995,
+                35205996,
+                35205997,
+                35205998,
+                35205999,
+                35206000,
+                35206001,
+                35206002,
+                35206003,
+                35206004,
+                35206005,
+                35206006,
+                35206007,
+                35206008,
+                35206009,
+                35206010,
+                35206011,
+                45532890,
+                45542575,
+                45542576,
+                44819416,
+                44820591,
+                44821717,
+                44821718,
+                44822862,
+                44824018,
+                44825185,
+                44825186,
+                44825187,
+                44827537,
+                44827538,
+                44827539,
+                44827540,
+                44827541,
+                44833278,
+                44835659
+            ],
+            "conditions_standard": [
+                4190504,
+                436634,
+                4148108,
+                441799,
+                432251,
+                132835,
+                139737,
+                138690,
+                4057662,
+                140949,
+                4346191,
+                4345918,
+                4173259,
+                4090202,
+                4090203,
+                4275434,
+                436641,
+                45757246,
+                4180294,
+                4049510,
+                4090117,
+                440053,
+                436041,
+                4327199,
+                140961
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:29.000000Z",
+    "updated_at": "2026-04-17T00:17:56.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#AB1"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

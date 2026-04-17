@@ -1,0 +1,245 @@
+{
+    "id": 1944,
+    "name": "I9_MI",
+    "description": "Myocardial infarction — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#I9",
+            "#ASTHMA_CM",
+            "#COPD_CM",
+            "#CARDIO",
+            "#DIAB_CM",
+            "#ILD_CM",
+            "#NEURO_CM",
+            "#RHEUMA_CM"
+        ],
+        "level": "3",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.75,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 8,
+            "n_tokens_resolved": 6
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1697,
+            "imported_at": "2026-04-17T00:17:30+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "410",
+                "patterns": [
+                    "410"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "410",
+                "patterns": [
+                    "410"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "410",
+                "patterns": [
+                    "410"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "410",
+                "patterns": [
+                    "410"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "I21|I22",
+                "patterns": [
+                    "I21",
+                    "I22"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "I21|I22",
+                "patterns": [
+                    "I21",
+                    "I22"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                785996,
+                1326588,
+                1326589,
+                1326590,
+                1326591,
+                1569126,
+                1569127,
+                1569128,
+                1569129,
+                1569130,
+                35207684,
+                35207685,
+                35207686,
+                35207687,
+                35207688,
+                35207689,
+                45533436,
+                45557536,
+                45562340,
+                45572079,
+                45572080,
+                45576865,
+                45605779,
+                45605781,
+                44819697,
+                44819698,
+                44819699,
+                44819700,
+                44819701,
+                44819702,
+                44820857,
+                44820858,
+                44820859,
+                44820860,
+                44820861,
+                44823111,
+                44824237,
+                44825428,
+                44825429,
+                44825430,
+                44826635,
+                44826636,
+                44827782,
+                44828972,
+                44828973,
+                44830079,
+                44831236,
+                44831237,
+                44832372,
+                44832373,
+                44832374,
+                44832375,
+                44832376,
+                44833561,
+                44834718,
+                44834719,
+                44834720,
+                44834721,
+                44834722,
+                44834723,
+                44834724,
+                44835926,
+                44835927,
+                44835928,
+                44837099
+            ],
+            "conditions_standard": [
+                4329847,
+                312327,
+                37309626,
+                45766075,
+                45766116,
+                4296653,
+                4108217,
+                4270024,
+                4108677,
+                4108218,
+                45766114,
+                46270163,
+                46270162,
+                43020460,
+                45766241,
+                434376,
+                438447,
+                444406,
+                438438,
+                441579,
+                438170,
+                439693,
+                436706
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:03.000000Z",
+    "updated_at": "2026-04-17T00:17:30.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#I9",
+        "#ASTHMA_CM",
+        "#COPD_CM",
+        "#CARDIO",
+        "#DIAB_CM",
+        "#ILD_CM",
+        "#NEURO_CM",
+        "#RHEUMA_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

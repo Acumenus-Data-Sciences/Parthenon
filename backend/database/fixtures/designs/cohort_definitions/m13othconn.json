@@ -1,0 +1,197 @@
+{
+    "id": 2709,
+    "name": "M13_OTHCONN",
+    "description": "Other systemic involvement of connective tissue — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#M13",
+            "#ASTHMA_CM",
+            "#COPD_CM",
+            "#GASTRO_CM"
+        ],
+        "level": "3",
+        "parent": "M30-M36",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2462,
+            "imported_at": "2026-04-17T00:17:37+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "M35",
+                "patterns": [
+                    "M35"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "M35",
+                "patterns": [
+                    "M35"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "M13_SJOGREN",
+            "M13_BEHCET",
+            "M13_POLYMYALGIA",
+            "M13_DIFFASCITIS",
+            "M13_MULTIFIBRO",
+            "M13_WEBERCHRISTIAN",
+            "M13_HYPERMOBILITY",
+            "M13_CONNECTNAS",
+            "M13_SYSTCONINOTH",
+            "M13_MCTD"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                713856,
+                713858,
+                766394,
+                766395,
+                766396,
+                766397,
+                766398,
+                766399,
+                766400,
+                1570621,
+                1570622,
+                35208832,
+                35208833,
+                35208834,
+                35208835,
+                35208836,
+                35208837,
+                35208838,
+                35208839,
+                35208840,
+                45533829,
+                45548403,
+                45557866,
+                45557867,
+                45577246,
+                45577247
+            ],
+            "conditions_standard": [
+                703578,
+                36717034,
+                254443,
+                4291025,
+                4175154,
+                376106,
+                4000610,
+                4059452,
+                4137275,
+                44790851,
+                255334,
+                4079978,
+                436642,
+                255348,
+                4083100,
+                4009035,
+                4141144,
+                76790,
+                253549,
+                4193620,
+                4116778
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:09.000000Z",
+    "updated_at": "2026-04-17T00:17:37.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#M13",
+        "#ASTHMA_CM",
+        "#COPD_CM",
+        "#GASTRO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

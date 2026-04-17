@@ -1,0 +1,221 @@
+{
+    "id": 3167,
+    "name": "O15_MATERN_CARE_PELVIC_ABNORM",
+    "description": "Maternal care for known or suspected abnormality of pelvic organs — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#O15"
+        ],
+        "level": "3",
+        "parent": "O30-O48",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2920,
+            "imported_at": "2026-04-17T00:17:42+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "O34",
+                "patterns": [
+                    "O34"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "O34",
+                "patterns": [
+                    "O34"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": 2,
+        "include_endpoints": [
+            "O15_MATERN_CARE_CERVICAL_INCOMPETENCE"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                725448,
+                725449,
+                1571764,
+                1571765,
+                1571766,
+                1571767,
+                1571768,
+                1571769,
+                1571770,
+                1571771,
+                1571772,
+                1571773,
+                1571774,
+                1571775,
+                1571776,
+                1571777,
+                1571778,
+                37200987,
+                37200988,
+                37200989,
+                45534225,
+                45534226,
+                45539138,
+                45539139,
+                45539140,
+                45539141,
+                45543961,
+                45543962,
+                45548753,
+                45553512,
+                45553513,
+                45553514,
+                45553515,
+                45553516,
+                45553517,
+                45558251,
+                45558253,
+                45558254,
+                45558255,
+                45563102,
+                45563103,
+                45563104,
+                45563105,
+                45567920,
+                45567921,
+                45567922,
+                45567923,
+                45567925,
+                45572804,
+                45572806,
+                45572807,
+                45572808,
+                45577594,
+                45582490,
+                45582493,
+                45582495,
+                45587318,
+                45587319,
+                45587320,
+                45592230,
+                45592231,
+                45592232,
+                45596961,
+                45596962,
+                45596963,
+                45596964,
+                45596965,
+                45596966,
+                45601816,
+                45601817
+            ],
+            "conditions_standard": [
+                4135932,
+                79890,
+                4145939,
+                196758,
+                436740,
+                197050,
+                442781,
+                195877,
+                4211831,
+                4185383,
+                4212095,
+                4028479,
+                4239938,
+                4244438,
+                4034870,
+                4218813
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:14.000000Z",
+    "updated_at": "2026-04-17T00:17:42.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#O15"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

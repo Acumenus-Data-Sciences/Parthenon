@@ -1,0 +1,179 @@
+{
+    "id": 5145,
+    "name": "C3_ASTROCYTOMA_WIDE",
+    "description": "Brain astrocytoma, including Hilmo — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#C3"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.5,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 8,
+            "n_tokens_resolved": 4
+        },
+        "conditions": "HLP_C3_ASTROCYTOMA",
+        "provenance": {
+            "source_row": 4898,
+            "imported_at": "2026-04-17T00:17:57+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "191",
+                "patterns": [
+                    "191"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "191",
+                "patterns": [
+                    "191"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": "C71",
+                "patterns": [
+                    "C71"
+                ]
+            },
+            "cod_icd_8": {
+                "raw": "191",
+                "patterns": [
+                    "191"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "191",
+                "patterns": [
+                    "191"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "C71",
+                "patterns": [
+                    "C71"
+                ]
+            },
+            "canc_behav": {
+                "raw": "3",
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": "9400",
+                "patterns": [
+                    "9400"
+                ]
+            },
+            "cod_icd_10": {
+                "raw": "C71",
+                "patterns": [
+                    "C71"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "HLP_C3_ASTROCYTOMA"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567597,
+                35206291,
+                35206292,
+                35206293,
+                35206294,
+                35206295,
+                35206296,
+                35206297,
+                35206298,
+                35206299,
+                35206300,
+                44820621,
+                44820622,
+                44821734,
+                44825212,
+                44828742,
+                44828743,
+                44830986,
+                44832132,
+                44833305,
+                44834499,
+                44836843
+            ],
+            "conditions_standard": [
+                380055,
+                380661,
+                441233,
+                433976,
+                438086,
+                432559,
+                432848,
+                433149,
+                441806,
+                4003693
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:30.000000Z",
+    "updated_at": "2026-04-17T00:17:57.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#C3"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

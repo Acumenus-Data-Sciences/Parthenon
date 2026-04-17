@@ -1,0 +1,158 @@
+{
+    "id": 5231,
+    "name": "C3_RESPIRATORY_INTRATHORACIC3_NAS_WIDE",
+    "description": "Malignant neoplasm of other and ill-defined sites in the respiratory system and intrathoracic organs, including Hilmo — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#C3",
+            "#NEURO_CM"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.5,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 8,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 4984,
+            "imported_at": "2026-04-17T00:17:58+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "1639",
+                "patterns": [
+                    "1639"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "165",
+                "patterns": [
+                    "165"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": "C39",
+                "patterns": [
+                    "C39"
+                ]
+            },
+            "cod_icd_8": {
+                "raw": "1639",
+                "patterns": [
+                    "1639"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "165",
+                "patterns": [
+                    "165"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "C39",
+                "patterns": [
+                    "C39"
+                ]
+            },
+            "canc_behav": {
+                "raw": "3",
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": "ANY",
+                "patterns": [
+                    "ANY"
+                ]
+            },
+            "cod_icd_10": {
+                "raw": "C39",
+                "patterns": [
+                    "C39"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567493,
+                35206192,
+                35206193,
+                44827557,
+                44830973,
+                44834485,
+                44836832
+            ],
+            "conditions_standard": [
+                439392,
+                4114221,
+                252840,
+                4311499
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:31.000000Z",
+    "updated_at": "2026-04-17T00:17:58.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#C3",
+        "#NEURO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

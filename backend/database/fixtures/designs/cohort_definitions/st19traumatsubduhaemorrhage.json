@@ -1,0 +1,226 @@
+{
+    "id": 3532,
+    "name": "ST19_TRAUMAT_SUBDU_HAEMORRHAGE",
+    "description": "Traumatic subdural haemorrhage — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#ST19",
+            "#GASTRO_CM",
+            "#NEURO"
+        ],
+        "level": "4",
+        "parent": "S06",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 6
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3285,
+            "imported_at": "2026-04-17T00:17:45+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "852[2-3]",
+                "patterns": [
+                    "8522",
+                    "8523"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "852[2-3]",
+                "patterns": [
+                    "8522",
+                    "8523"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "S065",
+                "patterns": [
+                    "S065"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "S065",
+                "patterns": [
+                    "S065"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                10594,
+                10595,
+                10596,
+                10597,
+                10598,
+                10599,
+                10600,
+                10601,
+                10602,
+                10603,
+                1572429,
+                37403026,
+                37403027,
+                37403028,
+                37403029,
+                45534564,
+                45534565,
+                45534566,
+                45539466,
+                45539467,
+                45549089,
+                45549090,
+                45553859,
+                45553860,
+                45553861,
+                45558595,
+                45568258,
+                45573140,
+                45573141,
+                45573142,
+                45577908,
+                45577909,
+                45577910,
+                45577911,
+                45577912,
+                45577913,
+                45582831,
+                45582832,
+                45582833,
+                45592538,
+                45592539,
+                45597302,
+                45602121,
+                45602122,
+                45606927,
+                45606928,
+                44822408,
+                44822409,
+                44823544,
+                44823545,
+                44827066,
+                44827067,
+                44828244,
+                44828245,
+                44828246,
+                44828247,
+                44829379,
+                44829380,
+                44830526,
+                44832801,
+                44832802,
+                44835190,
+                44835191,
+                44837521
+            ],
+            "conditions_standard": [
+                4017107,
+                4323344,
+                381135,
+                381966,
+                380844,
+                4133018,
+                372448,
+                4306655,
+                4177197,
+                4017105,
+                4014781,
+                4132546,
+                4154699,
+                4201635,
+                618759,
+                436526,
+                439194,
+                444196,
+                433050
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:17.000000Z",
+    "updated_at": "2026-04-17T00:17:45.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#ST19",
+        "#GASTRO_CM",
+        "#NEURO"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

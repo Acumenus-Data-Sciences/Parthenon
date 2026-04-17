@@ -1,0 +1,266 @@
+{
+    "id": 3428,
+    "name": "R18_SYMPTOMS_SIGNS_INVOLVI_CIRCULATO_RESPI_SYSTEMS",
+    "description": "Symptoms and signs involving the circulatory and respiratory systems — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#R18"
+        ],
+        "level": "2",
+        "parent": "R",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3181,
+            "imported_at": "2026-04-17T00:17:44+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "R0",
+                "patterns": [
+                    "R0"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "R0",
+                "patterns": [
+                    "R0"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "R18_ABNORMALITI_HEART_BEAT",
+            "R18_CARDIAC_MURMU_OTHER_CARDIAC_SOUNDS",
+            "R18_GANGRENE_NOT_ELSEW_CLASSIFIED",
+            "R18_ABNORMAL_BLOOD_P_READI_WO_DIAGNOSIS",
+            "R18_HAEMORRHAGE_RESPI_PASSA",
+            "R18_COUGH",
+            "R18_ABNORMALITI_BREAT",
+            "R18_PAIN_THROAT_CHEST",
+            "R18_OTHER_SYMPTOMS_SIGNS_INVOLVI_CIRCULATO_RESPI_SYSTEMS"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                766424,
+                766425,
+                766426,
+                766427,
+                766428,
+                766429,
+                786123,
+                786124,
+                786125,
+                786126,
+                786127,
+                1326788,
+                1572186,
+                1572187,
+                1572188,
+                1572189,
+                1572190,
+                1572191,
+                1572192,
+                1572193,
+                1572194,
+                1572195,
+                1572196,
+                1572197,
+                35211261,
+                35211262,
+                35211263,
+                35211264,
+                35211265,
+                35211266,
+                35211267,
+                35211268,
+                35211269,
+                35211270,
+                35211271,
+                35211272,
+                35211273,
+                35211274,
+                35211275,
+                35211276,
+                35211277,
+                35211278,
+                35211279,
+                35211280,
+                35211281,
+                35211282,
+                35211283,
+                35211284,
+                35211285,
+                35211286,
+                35211287,
+                35211288,
+                45534422,
+                45534424,
+                45539314,
+                45548944,
+                45553714,
+                45558447,
+                45558453,
+                45563287,
+                45563288,
+                45568110,
+                45573007,
+                45577776,
+                45577778,
+                45587496,
+                45587497,
+                45597165,
+                45597167,
+                45602002,
+                45602003,
+                45606793,
+                45606794
+            ],
+            "conditions_standard": [
+                1077447,
+                254761,
+                4078697,
+                4195384,
+                4234105,
+                4090430,
+                45757358,
+                4191650,
+                4262562,
+                4114164,
+                4305577,
+                4317284,
+                4305080,
+                312437,
+                4132926,
+                77670,
+                4180628,
+                437390,
+                444070,
+                4169095,
+                315078,
+                316822,
+                141693,
+                317002,
+                4096682,
+                4208719,
+                261687,
+                253321,
+                314754,
+                315531,
+                316814,
+                4298207,
+                194475,
+                4328356,
+                259153,
+                4168213,
+                134159,
+                78786,
+                317109,
+                433596,
+                317376,
+                4248728,
+                257375,
+                4279614,
+                4330445,
+                315361,
+                42539051,
+                4195085,
+                321689,
+                257683
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:16.000000Z",
+    "updated_at": "2026-04-17T00:17:44.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#R18"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

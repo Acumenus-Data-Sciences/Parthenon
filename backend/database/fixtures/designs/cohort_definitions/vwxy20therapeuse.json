@@ -1,0 +1,220 @@
+{
+    "id": 3819,
+    "name": "VWXY20_THERAPE_USE",
+    "description": "therapeutic use — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#VWXY20"
+        ],
+        "level": "3",
+        "parent": "Y40-Y84",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 8,
+            "n_tokens_resolved": 8
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3572,
+            "imported_at": "2026-04-17T00:17:48+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "Y7|Y8[0-2]",
+                "patterns": [
+                    "Y7",
+                    "Y80",
+                    "Y81",
+                    "Y82"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "Y7|Y8[0-2]",
+                "patterns": [
+                    "Y7",
+                    "Y80",
+                    "Y81",
+                    "Y82"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                8694,
+                725814,
+                725815,
+                1575905,
+                1575906,
+                1575907,
+                1575908,
+                1575909,
+                1575910,
+                1575911,
+                1575912,
+                1575913,
+                1575914,
+                1575915,
+                1575916,
+                1575917,
+                35224743,
+                35224744,
+                35224745,
+                35224746,
+                35224747,
+                35224748,
+                35224749,
+                35224750,
+                35224751,
+                35224752,
+                35224753,
+                35224754,
+                35224755,
+                35224756,
+                35224757,
+                35224758,
+                35224759,
+                35224760,
+                35224761,
+                35224762,
+                35224763,
+                35224764,
+                35224765,
+                35224766,
+                35224767,
+                35224768,
+                35224769,
+                35224770,
+                35224771,
+                35224772,
+                35224773,
+                35224774,
+                35224775,
+                35224776,
+                35224777,
+                35224778,
+                35224779,
+                35224780,
+                35224781,
+                35224782,
+                35224783,
+                35224784,
+                35224785,
+                35224786,
+                35224787,
+                35224788,
+                35224789,
+                35224790,
+                35224791,
+                35224792,
+                35224793,
+                35224794,
+                35224795,
+                35224796,
+                35224797,
+                35224798,
+                35224799,
+                35224800,
+                35224801,
+                35224802,
+                35224803,
+                45542371
+            ],
+            "conditions_standard": [
+                438046,
+                43021248,
+                43021250
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:20.000000Z",
+    "updated_at": "2026-04-17T00:17:48.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#VWXY20"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

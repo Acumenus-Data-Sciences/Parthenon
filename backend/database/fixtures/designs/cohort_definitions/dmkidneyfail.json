@@ -1,0 +1,176 @@
+{
+    "id": 4334,
+    "name": "DM_KIDNEYFAIL",
+    "description": "Diabetes, kidney failure — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#DIAB"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.8571428571428571,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 14,
+            "n_tokens_resolved": 12
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 4087,
+            "imported_at": "2026-04-17T00:17:51+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "25002",
+                "patterns": [
+                    "25002"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "2503",
+                "patterns": [
+                    "2503"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "25002",
+                "patterns": [
+                    "25002"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "2503",
+                "patterns": [
+                    "2503"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "E1[0-4]2",
+                "patterns": [
+                    "E102",
+                    "E112",
+                    "E122",
+                    "E132",
+                    "E142"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "E1[0-4]2",
+                "patterns": [
+                    "E102",
+                    "E112",
+                    "E122",
+                    "E132",
+                    "E142"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": "E122",
+                "patterns": [
+                    "E122"
+                ]
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567942,
+                1567958,
+                1567975,
+                45542741,
+                45547621,
+                45552379,
+                45552388,
+                45561955,
+                45591027,
+                45595797,
+                45600637,
+                45605401,
+                44820683,
+                44826460,
+                44832192,
+                44832193,
+                44836917
+            ],
+            "conditions_standard": [
+                200687,
+                201254,
+                201826,
+                443731,
+                192279,
+                201820,
+                43531578,
+                443735
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:23.000000Z",
+    "updated_at": "2026-04-17T00:17:51.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#DIAB"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

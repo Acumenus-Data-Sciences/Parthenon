@@ -1,0 +1,283 @@
+{
+    "id": 1778,
+    "name": "H7_OPTNEUROTH",
+    "description": "Other disorders of optic [2nd] nerve and visual pathways — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#H7",
+            "#OPHTAL"
+        ],
+        "level": "3",
+        "parent": "H46-H48",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1531,
+            "imported_at": "2026-04-17T00:17:28+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "H47",
+                "patterns": [
+                    "H47"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "H47",
+                "patterns": [
+                    "H47"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "H7_OPTNERVNAS",
+            "H7_PAPILLOEDEMA",
+            "H7_OPTATROPHY_WIDE",
+            "H7_OPTICDISCOTH",
+            "H7_OPTICCHIASM",
+            "H7_VISUALPATHOTH",
+            "H7_VISUALCORTEXOTH",
+            "H7_VISUALPATHNAS"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1568843,
+                1568844,
+                1568845,
+                1568846,
+                1568847,
+                1568848,
+                1568849,
+                1568850,
+                1568851,
+                1568852,
+                1568853,
+                1568854,
+                1568855,
+                1568856,
+                1568857,
+                1568858,
+                1568859,
+                1568860,
+                1568861,
+                45533340,
+                45533341,
+                45533342,
+                45533343,
+                45538301,
+                45538302,
+                45538303,
+                45538304,
+                45543064,
+                45543065,
+                45543067,
+                45543068,
+                45543069,
+                45547911,
+                45547912,
+                45547913,
+                45547914,
+                45547915,
+                45547916,
+                45547917,
+                45547918,
+                45547919,
+                45547920,
+                45552712,
+                45557443,
+                45557444,
+                45557445,
+                45557446,
+                45557447,
+                45557448,
+                45557449,
+                45557450,
+                45562261,
+                45562262,
+                45567080,
+                45567081,
+                45567082,
+                45567083,
+                45567084,
+                45567085,
+                45567086,
+                45571996,
+                45571997,
+                45571998,
+                45572001,
+                45572002,
+                45576776,
+                45576777,
+                45576778,
+                45576779,
+                45576780,
+                45576782,
+                45576783,
+                45576784,
+                45581686,
+                45581687,
+                45581688,
+                45581689,
+                45581690,
+                45581691,
+                45581692,
+                45586486,
+                45586487,
+                45586488,
+                45586489,
+                45586490,
+                45586491,
+                45586492,
+                45586493,
+                45591376,
+                45591377,
+                45591378,
+                45591379,
+                45591380,
+                45591381,
+                45591382,
+                45596115,
+                45596116,
+                45596117,
+                45596118,
+                45596119,
+                45600945,
+                45600946,
+                45600947,
+                45600948,
+                45605704,
+                45605705,
+                45605706
+            ],
+            "conditions_standard": [
+                257293,
+                374360,
+                380113,
+                4308632,
+                372914,
+                4134605,
+                436702,
+                4290692,
+                37206829,
+                259827,
+                254361,
+                4027566,
+                4104577,
+                4109398,
+                4109399,
+                433480,
+                373487,
+                4329511,
+                375823,
+                373497,
+                4196227,
+                380729,
+                437876,
+                438155,
+                436701,
+                4109394,
+                253482,
+                441564,
+                373206,
+                45757715,
+                441565,
+                45772121
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:01.000000Z",
+    "updated_at": "2026-04-17T00:17:28.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#H7",
+        "#OPHTAL"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

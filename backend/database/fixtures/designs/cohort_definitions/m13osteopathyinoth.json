@@ -1,0 +1,243 @@
+{
+    "id": 2936,
+    "name": "M13_OSTEOPATHYINOTH",
+    "description": "Osteopathy in diseases classified elsewhere — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#M13",
+            "#GASTRO_CM"
+        ],
+        "level": "4",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2689,
+            "imported_at": "2026-04-17T00:17:39+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "M90",
+                "patterns": [
+                    "M90"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "M90",
+                "patterns": [
+                    "M90"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1571359,
+                1571360,
+                1571361,
+                1571362,
+                1571363,
+                1571364,
+                1571365,
+                1571366,
+                1571367,
+                1571368,
+                1571369,
+                1571370,
+                1571371,
+                1571372,
+                1571373,
+                1571374,
+                1571375,
+                1571376,
+                1571377,
+                1571378,
+                1571379,
+                1571380,
+                1571381,
+                1571382,
+                1571383,
+                45534079,
+                45534080,
+                45534081,
+                45534082,
+                45534083,
+                45539000,
+                45539001,
+                45539002,
+                45543817,
+                45543818,
+                45543819,
+                45543820,
+                45543821,
+                45543822,
+                45548617,
+                45548618,
+                45548619,
+                45548620,
+                45548621,
+                45548622,
+                45553404,
+                45558107,
+                45558108,
+                45558109,
+                45558110,
+                45562972,
+                45562973,
+                45562974,
+                45562975,
+                45562976,
+                45562977,
+                45562978,
+                45562979,
+                45562980,
+                45567794,
+                45567795,
+                45567796,
+                45567797,
+                45567798,
+                45572675,
+                45572676,
+                45572677,
+                45572678,
+                45577482,
+                45582357,
+                45582358,
+                45582359,
+                45582360,
+                45582361,
+                45582362,
+                45587206,
+                45587207,
+                45587208,
+                45587209,
+                45587210,
+                45592091,
+                45592092,
+                45592093,
+                45592094,
+                45592095,
+                45592096,
+                45592097,
+                45596816,
+                45596817,
+                45596818,
+                45601687,
+                45601688,
+                45601690,
+                45606449,
+                45606450,
+                45606451,
+                45606452
+            ],
+            "conditions_standard": [
+                75909,
+                4287786,
+                77630,
+                76191,
+                136779,
+                77635,
+                444211,
+                43531054,
+                72986,
+                44782620,
+                4003466
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:12.000000Z",
+    "updated_at": "2026-04-17T00:17:39.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#M13",
+        "#GASTRO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

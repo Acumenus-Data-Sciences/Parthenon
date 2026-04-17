@@ -1,0 +1,222 @@
+{
+    "id": 3741,
+    "name": "ST19_BURN_CORROSION_OTHER_INTERNAL_ORGANS",
+    "description": "Burn and corrosion of other internal organs — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#ST19"
+        ],
+        "level": "4",
+        "parent": "T2[6-8]",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3494,
+            "imported_at": "2026-04-17T00:17:47+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "T28",
+                "patterns": [
+                    "T28"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "T28",
+                "patterns": [
+                    "T28"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                17498,
+                17499,
+                17500,
+                17501,
+                17502,
+                17503,
+                17504,
+                17505,
+                17506,
+                17507,
+                17508,
+                17509,
+                17510,
+                17511,
+                17512,
+                17513,
+                17514,
+                17515,
+                1574550,
+                1574551,
+                1574552,
+                1574553,
+                1574554,
+                45536630,
+                45536631,
+                45536632,
+                45541423,
+                45541427,
+                45541428,
+                45541429,
+                45546277,
+                45546278,
+                45551091,
+                45551092,
+                45555870,
+                45555871,
+                45560623,
+                45560624,
+                45560625,
+                45565450,
+                45565451,
+                45565452,
+                45565453,
+                45565454,
+                45570322,
+                45570324,
+                45570325,
+                45570326,
+                45575178,
+                45575179,
+                45580021,
+                45580022,
+                45580023,
+                45580024,
+                45584809,
+                45584810,
+                45584811,
+                45584812,
+                45584813,
+                45589667,
+                45589668,
+                45589669,
+                45589670,
+                45589671,
+                45594543,
+                45599356,
+                45599357,
+                45599358,
+                45599359,
+                45599360,
+                45599362,
+                45604176,
+                45608938,
+                45608939,
+                45608940,
+                45608941,
+                45608942
+            ],
+            "conditions_standard": [
+                196284,
+                27438,
+                195976,
+                4111360,
+                198030,
+                4151989,
+                4055326,
+                4054671,
+                4055329,
+                4152475,
+                4155499,
+                441172
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:19.000000Z",
+    "updated_at": "2026-04-17T00:17:47.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#ST19"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

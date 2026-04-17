@@ -1,0 +1,280 @@
+{
+    "id": 5088,
+    "name": "Q17_CONGEN_MALFO_URINARY_SYSTEM_WIDE",
+    "description": "Congenital malformations of the urinary system, including avohilmo — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#Q17"
+        ],
+        "level": "2",
+        "parent": "Q",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 15,
+            "n_tokens_resolved": 15
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 4841,
+            "imported_at": "2026-04-17T00:17:57+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "Q6[0-4]",
+                "patterns": [
+                    "Q60",
+                    "Q61",
+                    "Q62",
+                    "Q63",
+                    "Q64"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "Q6[0-4]",
+                "patterns": [
+                    "Q60",
+                    "Q61",
+                    "Q62",
+                    "Q63",
+                    "Q64"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": "Q6[0-4]",
+                "patterns": [
+                    "Q60",
+                    "Q61",
+                    "Q62",
+                    "Q63",
+                    "Q64"
+                ]
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "Q17_RENAL_AGENE_OTHER_REDUCT_DEFECTS_KIDNEY",
+            "Q17_CYSTIC_KIDNEY_DISEA",
+            "Q17_CONGEN_OBSTRUCTIVE_DEFECTS_RENAL_PELVIS_CONGEN_MALFO_URETER",
+            "Q17_OTHER_CONGEN_MALFO_KIDNEY",
+            "Q17_OTHER_CONGEN_MALFO_URINARY_SYSTEM"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1572107,
+                1572108,
+                1572109,
+                1572110,
+                1572111,
+                1572112,
+                1572113,
+                1572114,
+                1572115,
+                1572116,
+                1572117,
+                1572118,
+                1572119,
+                35211012,
+                35211013,
+                35211014,
+                35211015,
+                35211016,
+                35211017,
+                35211018,
+                35211019,
+                35211020,
+                35211021,
+                35211022,
+                35211023,
+                35211024,
+                35211025,
+                35211026,
+                35211027,
+                35211028,
+                35211029,
+                35211030,
+                35211031,
+                35211032,
+                35211033,
+                35211034,
+                35211035,
+                35211036,
+                35211037,
+                35211038,
+                35211039,
+                35211040,
+                35211041,
+                35211042,
+                35211043,
+                45534394,
+                45539289,
+                45544105,
+                45548915,
+                45553686,
+                45553688,
+                45558416,
+                45563255,
+                45568068,
+                45568069,
+                45568070,
+                45568072,
+                45568073,
+                45568075,
+                45572976,
+                45572980,
+                45572981,
+                45577738,
+                45577740,
+                45577741,
+                45577742,
+                45587467,
+                45587468,
+                45592382,
+                45597138,
+                45601971,
+                45601972,
+                45606750,
+                45606751,
+                45606752,
+                45606753
+            ],
+            "conditions_standard": [
+                4139587,
+                36716270,
+                45757772,
+                201675,
+                4108905,
+                4042407,
+                440828,
+                4259147,
+                195363,
+                197667,
+                197096,
+                4040385,
+                4003487,
+                4151867,
+                4223016,
+                35623051,
+                4220238,
+                201111,
+                197656,
+                4037874,
+                37397743,
+                4299657,
+                4170862,
+                4162450,
+                193312,
+                4147222,
+                4040640,
+                433583,
+                4113455,
+                201121,
+                36713435,
+                4217299,
+                4004457,
+                4048434,
+                4286801,
+                4113451,
+                441961,
+                4314421,
+                45763578,
+                440516,
+                4281313,
+                443748,
+                4078216,
+                43020941,
+                4187913,
+                4294383,
+                4139254,
+                4174824,
+                45757740,
+                4028980,
+                45757597
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:29.000000Z",
+    "updated_at": "2026-04-17T00:17:57.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#Q17"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

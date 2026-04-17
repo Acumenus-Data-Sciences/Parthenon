@@ -1,0 +1,181 @@
+{
+    "id": 1972,
+    "name": "I9_CEREBDOTH",
+    "description": "Other specified cerebrovascular diseases, other cerebrovascular disorders in diseases classified elsewhere — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#I9",
+            "#ASTHMA_CM",
+            "#GASTRO_CM",
+            "#NEURO_CM"
+        ],
+        "level": "3",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.8571428571428571,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 14,
+            "n_tokens_resolved": 12
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1725,
+            "imported_at": "2026-04-17T00:17:30+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "438",
+                "patterns": [
+                    "438"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "436|4371|4378X",
+                "patterns": [
+                    "436",
+                    "4371",
+                    "4378X"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "438",
+                "patterns": [
+                    "438"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "436|4371|4378X",
+                "patterns": [
+                    "436",
+                    "4371",
+                    "4378X"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "I67[8-9]|I688",
+                "patterns": [
+                    "I678",
+                    "I679",
+                    "I688"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "I67[8-9]|I688",
+                "patterns": [
+                    "I678",
+                    "I679",
+                    "I688"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1569226,
+                1595599,
+                1595600,
+                1595601,
+                35207836,
+                35207837,
+                35207840,
+                45533468,
+                45538403,
+                45562371,
+                45567192,
+                45576890,
+                45581787,
+                44833578,
+                44835952,
+                44837112
+            ],
+            "conditions_standard": [
+                45766121,
+                381591,
+                4180158,
+                4190891,
+                443916,
+                4164092,
+                45773220,
+                42872891,
+                374384,
+                4121341
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:03.000000Z",
+    "updated_at": "2026-04-17T00:17:30.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#I9",
+        "#ASTHMA_CM",
+        "#GASTRO_CM",
+        "#NEURO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

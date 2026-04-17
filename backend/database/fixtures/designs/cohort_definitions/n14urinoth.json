@@ -1,0 +1,312 @@
+{
+    "id": 2998,
+    "name": "N14_URINOTH",
+    "description": "Other diseases of urinary system — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#N14"
+        ],
+        "level": "2",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2751,
+            "imported_at": "2026-04-17T00:17:40+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "N3",
+                "patterns": [
+                    "N3"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "N3",
+                "patterns": [
+                    "N3"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "N14_CYSTITIS",
+            "N14_NEUROMUSCDYSBLADD",
+            "N14_OTHBLADD",
+            "N14_BLADDDISINOTH",
+            "N14_URETHRITISANDURSYNDR",
+            "N14_URETHRALSTRICT",
+            "N14_URETHRAOTH",
+            "N14_URETHINOTH"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1571495,
+                1571496,
+                1571497,
+                1571498,
+                1571499,
+                1571500,
+                1571501,
+                1571502,
+                1571503,
+                1571504,
+                1571505,
+                1571506,
+                1571507,
+                1571508,
+                1571509,
+                1571510,
+                1571511,
+                1571512,
+                1571513,
+                1571514,
+                1571515,
+                1571516,
+                1571517,
+                1595621,
+                1595622,
+                1595623,
+                1595624,
+                1595625,
+                1595626,
+                1595627,
+                1595628,
+                1595629,
+                1595630,
+                1595631,
+                1595632,
+                1595633,
+                1595634,
+                1595635,
+                1595636,
+                1595637,
+                1595638,
+                35209301,
+                35209302,
+                35209303,
+                35209304,
+                35209305,
+                35209306,
+                35209307,
+                35209308,
+                35209309,
+                35209310,
+                35209311,
+                35209312,
+                35209313,
+                35209314,
+                35209315,
+                35209316,
+                35209317,
+                35209318,
+                35209319,
+                35209320,
+                35209321,
+                35209322,
+                35209323,
+                35209324,
+                35209325,
+                35209326,
+                35209327,
+                37200877,
+                37200878,
+                45534128,
+                45534130,
+                45539039,
+                45539041,
+                45539042,
+                45539045,
+                45543860,
+                45543861,
+                45543863,
+                45543868,
+                45543869,
+                45543871,
+                45548657,
+                45548661,
+                45548662,
+                45548663,
+                45553440,
+                45558148,
+                45558152,
+                45558153,
+                45563013,
+                45567839,
+                45567842,
+                45572703,
+                45572704,
+                45572705,
+                45572707,
+                45577517,
+                45577520,
+                45577521,
+                45582400,
+                45592126,
+                45592133,
+                45592134,
+                45592135,
+                45596864,
+                45601725,
+                45601726,
+                45601727,
+                45606487,
+                45606489,
+                45606490
+            ],
+            "conditions_standard": [
+                195588,
+                194081,
+                1450471,
+                201621,
+                441615,
+                201353,
+                199075,
+                201337,
+                200450,
+                195590,
+                195589,
+                45757757,
+                45757761,
+                75865,
+                197672,
+                4009573,
+                45757770,
+                4144895,
+                433813,
+                201344,
+                201345,
+                195864,
+                195313,
+                201792,
+                195862,
+                196733,
+                201338,
+                196156,
+                194418,
+                81902,
+                193871,
+                4126278,
+                45757768,
+                197378,
+                764098,
+                37016338,
+                37206607,
+                45757767,
+                37016367,
+                45757758,
+                196465,
+                36714355,
+                4182691,
+                195591,
+                45757759,
+                45757504,
+                193326,
+                45757766,
+                443524,
+                37016352,
+                45757762,
+                45757760,
+                37018854,
+                40490423,
+                193874,
+                4172646,
+                200848,
+                45757738
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:12.000000Z",
+    "updated_at": "2026-04-17T00:17:40.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#N14"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

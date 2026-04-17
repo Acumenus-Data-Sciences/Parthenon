@@ -1,0 +1,181 @@
+{
+    "id": 1890,
+    "name": "H8_CHOLEASTOMA",
+    "description": "Cholesteatoma of middle ear — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#H8"
+        ],
+        "level": "3",
+        "parent": "H65-H75",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1643,
+            "imported_at": "2026-04-17T00:17:29+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "38700",
+                "patterns": [
+                    "38700"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "3853",
+                "patterns": [
+                    "3853"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "38700",
+                "patterns": [
+                    "38700"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "3853",
+                "patterns": [
+                    "3853"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "H71",
+                "patterns": [
+                    "H71"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "H71",
+                "patterns": [
+                    "H71"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1569011,
+                1569012,
+                1569013,
+                1569014,
+                45538341,
+                45543128,
+                45543129,
+                45543130,
+                45547972,
+                45547973,
+                45557508,
+                45572051,
+                45576829,
+                45576830,
+                45581737,
+                45581738,
+                45586541,
+                45591422,
+                45596162,
+                45596163,
+                45596164,
+                45596165,
+                45600999,
+                45601000,
+                45605746,
+                45605747,
+                44820842,
+                44820843,
+                44828964,
+                44832357,
+                44834709,
+                44835914
+            ],
+            "conditions_standard": [
+                381585,
+                45757239,
+                372331,
+                372925,
+                4335739,
+                258441,
+                40483291,
+                377879
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:02.000000Z",
+    "updated_at": "2026-04-17T00:17:29.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#H8"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

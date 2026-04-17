@@ -1,0 +1,177 @@
+{
+    "id": 4617,
+    "name": "REITER",
+    "description": "Reiter disease — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#RHEUMA"
+        ],
+        "level": null,
+        "parent": "M02",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 4,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 4370,
+            "imported_at": "2026-04-17T00:17:52+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "0993",
+                "patterns": [
+                    "0993"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "0993",
+                "patterns": [
+                    "0993"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "M023",
+                "patterns": [
+                    "M023"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "M023",
+                "patterns": [
+                    "M023"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1569950,
+                1569951,
+                1569952,
+                1569953,
+                1569954,
+                1569955,
+                1569956,
+                1569957,
+                45533684,
+                45548244,
+                45548245,
+                45548246,
+                45553030,
+                45553031,
+                45553032,
+                45557749,
+                45557750,
+                45567400,
+                45572321,
+                45572322,
+                45577089,
+                45582000,
+                45586827,
+                45586828,
+                45586829,
+                45596420,
+                45596421,
+                45601270,
+                45601271,
+                45601272,
+                45606036,
+                45606037,
+                44820580
+            ],
+            "conditions_standard": [
+                78357,
+                4067054,
+                4067299,
+                4313176,
+                4065483,
+                40482662,
+                4065482
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:25.000000Z",
+    "updated_at": "2026-04-17T00:17:52.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#RHEUMA"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

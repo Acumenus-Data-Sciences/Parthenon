@@ -1,0 +1,259 @@
+{
+    "id": 3022,
+    "name": "N14_BREAST",
+    "description": "Disorders of breast — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#N14"
+        ],
+        "level": "2",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2775,
+            "imported_at": "2026-04-17T00:17:40+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "N6",
+                "patterns": [
+                    "N6"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "N6",
+                "patterns": [
+                    "N6"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": 2,
+        "include_endpoints": [
+            "N14_BENIGNMAMDYSP",
+            "N14_INFLAMMBREAST",
+            "N14_HYPERTROPHYBREAST",
+            "N14_LUMPNASBREAST",
+            "N14_BREASTDISOTH"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                725443,
+                725444,
+                725445,
+                725446,
+                725447,
+                1326709,
+                1326710,
+                1326711,
+                1326712,
+                1326713,
+                1326714,
+                1326715,
+                1326716,
+                1326717,
+                1326718,
+                1326719,
+                1326720,
+                1326721,
+                1326722,
+                1326723,
+                1326724,
+                1326725,
+                1326726,
+                1326727,
+                1553810,
+                1553811,
+                1571544,
+                1571545,
+                1571546,
+                1571547,
+                1571548,
+                1571549,
+                1571550,
+                1571551,
+                1571552,
+                1571553,
+                1571554,
+                35209355,
+                35209356,
+                35209357,
+                35209358,
+                35209359,
+                35209360,
+                35209361,
+                35209362,
+                35209363,
+                35209364,
+                37200892,
+                37200893,
+                45534134,
+                45534135,
+                45534136,
+                45534137,
+                45539057,
+                45543883,
+                45543885,
+                45548674,
+                45548676,
+                45548677,
+                45553448,
+                45563021,
+                45567852,
+                45567855,
+                45572721,
+                45577537,
+                45582414,
+                45582415,
+                45582416,
+                45582417,
+                45587250,
+                45587251,
+                45587252,
+                45587253,
+                45592147,
+                45596878,
+                45601742,
+                45601745,
+                45606501,
+                45606502
+            ],
+            "conditions_standard": [
+                4130000,
+                80767,
+                765053,
+                764597,
+                764599,
+                764598,
+                765720,
+                760895,
+                764594,
+                764595,
+                765719,
+                764596,
+                764600,
+                764603,
+                78200,
+                78473,
+                78804,
+                75010,
+                75311,
+                438808,
+                77030,
+                4056770,
+                45757370,
+                79072,
+                78474,
+                4034227,
+                436470,
+                81623,
+                79884,
+                73819,
+                4153106,
+                4181744,
+                81634,
+                37310242,
+                76467,
+                37310243,
+                4283689,
+                40352130,
+                37310245,
+                37310244,
+                45757371
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:12.000000Z",
+    "updated_at": "2026-04-17T00:17:40.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#N14"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

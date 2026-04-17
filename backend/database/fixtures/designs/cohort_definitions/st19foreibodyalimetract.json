@@ -1,0 +1,210 @@
+{
+    "id": 3678,
+    "name": "ST19_FOREI_BODY_ALIME_TRACT",
+    "description": "Foreign body in alimentary tract — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#ST19"
+        ],
+        "level": "3",
+        "parent": "T1[5-9]",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3431,
+            "imported_at": "2026-04-17T00:17:46+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "T18",
+                "patterns": [
+                    "T18"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "T18",
+                "patterns": [
+                    "T18"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                16671,
+                16672,
+                16673,
+                16674,
+                16675,
+                16676,
+                16677,
+                16678,
+                16679,
+                16680,
+                16681,
+                16682,
+                16683,
+                16684,
+                16685,
+                1574269,
+                1574270,
+                1574271,
+                1574272,
+                1574273,
+                1574274,
+                45536486,
+                45541261,
+                45541262,
+                45541263,
+                45546106,
+                45546107,
+                45550920,
+                45550921,
+                45550922,
+                45550923,
+                45550924,
+                45555721,
+                45555722,
+                45555723,
+                45560443,
+                45560444,
+                45560445,
+                45565301,
+                45565302,
+                45570160,
+                45575030,
+                45575031,
+                45575032,
+                45579842,
+                45579843,
+                45579846,
+                45584658,
+                45589521,
+                45594372,
+                45594373,
+                45594374,
+                45594375,
+                45594376,
+                45594377,
+                45599185,
+                45599186,
+                45599187,
+                45599188,
+                45599189,
+                45599190,
+                45604033,
+                45604034,
+                45604035,
+                45608767,
+                45608768
+            ],
+            "conditions_standard": [
+                135424,
+                23653,
+                4164911,
+                4155764,
+                3655481,
+                194831,
+                4086855,
+                4133837,
+                75708,
+                201728,
+                435397
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:19.000000Z",
+    "updated_at": "2026-04-17T00:17:46.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#ST19"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

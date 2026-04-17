@@ -1,0 +1,217 @@
+{
+    "id": 2191,
+    "name": "K11_CD_STRICT2",
+    "description": "Crohn disease (strict definition, require KELA, min 2 HDR) — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#K11",
+            "#ASTHMA_CM",
+            "#COPD_CM",
+            "#GASTRO",
+            "#ILD_CM",
+            "#RHEUMA_CM"
+        ],
+        "level": "C",
+        "parent": "K50-K52",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 4
+        },
+        "conditions": "K11_KELACROHN&K11_CROHN_NEVT>1",
+        "provenance": {
+            "source_row": 1944,
+            "imported_at": "2026-04-17T00:17:32+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "5630",
+                "patterns": [
+                    "5630"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "555",
+                "patterns": [
+                    "555"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "5630",
+                "patterns": [
+                    "5630"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "555",
+                "patterns": [
+                    "555"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "K50",
+                "patterns": [
+                    "K50"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "K50",
+                "patterns": [
+                    "K50"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1569610,
+                1569611,
+                1569612,
+                1569613,
+                1569614,
+                1569615,
+                1569616,
+                1569617,
+                1569618,
+                45533598,
+                45533600,
+                45533601,
+                45538530,
+                45543315,
+                45543316,
+                45548159,
+                45557653,
+                45557654,
+                45562489,
+                45562491,
+                45567306,
+                45567307,
+                45572211,
+                45576986,
+                45576987,
+                45576988,
+                45581901,
+                45581902,
+                45586716,
+                45591593,
+                45596325,
+                45596326,
+                45596327,
+                45601172,
+                45601174,
+                45601175,
+                45601176,
+                44820945,
+                44822028,
+                44825522,
+                44827872,
+                44834811
+            ],
+            "conditions_standard": [
+                201606,
+                195585,
+                46269884,
+                194684,
+                46269874,
+                46269879,
+                46269889,
+                46269881,
+                46269878,
+                46269886,
+                196160,
+                46269875,
+                46269883,
+                46269890,
+                46269888,
+                46269882,
+                46269891,
+                46269876,
+                46269885,
+                46269877,
+                46274073,
+                195575,
+                46269887,
+                46269880
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:05.000000Z",
+    "updated_at": "2026-04-17T00:17:32.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#K11",
+        "#ASTHMA_CM",
+        "#COPD_CM",
+        "#GASTRO",
+        "#ILD_CM",
+        "#RHEUMA_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

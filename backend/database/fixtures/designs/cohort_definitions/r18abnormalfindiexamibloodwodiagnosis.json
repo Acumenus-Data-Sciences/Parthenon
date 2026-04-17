@@ -1,0 +1,249 @@
+{
+    "id": 3435,
+    "name": "R18_ABNORMAL_FINDI_EXAMI_BLOOD_WO_DIAGNOSIS",
+    "description": "Abnormal findings on examination of blood, without diagnosis — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#R18"
+        ],
+        "level": "2",
+        "parent": "R",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3188,
+            "imported_at": "2026-04-17T00:17:44+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "R7",
+                "patterns": [
+                    "R7"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "R7",
+                "patterns": [
+                    "R7"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "R18_ELEVATED_ERYTHROCYTE_SEDIM_RATE_ABNORMALITY_PLASMA_VISCO",
+            "R18_ABNORMALITY_RED_BLOOD_CELLS",
+            "R18_ABNORMALITY_WHITE_BLOOD_CELLS_NOT_ELSEW_CLASSIFIED",
+            "R18_ELEVATED_BLOOD_GLUCOSE_LEVEL",
+            "R18_ABNORMAL_SERUM_ENZYME_LEVELS",
+            "R18_LABOR_EVIDE_HUMAN_IMMUNODEFICIENCY_VIRUS_HIV",
+            "R18_OTHER_ABNORMAL_IMMUNOL_FINDI_SERUM",
+            "R18_OTHER_ABNORMALITI_PLASMA_PROTEINS",
+            "R18_FINDI_DRUGS_OTHER_SUBST_NOT_NORMALLY_FOUND_BLOOD",
+            "R18_OTHER_ABNORMAL_FINDI_BLOOD_CHEMIS"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                725460,
+                725461,
+                766437,
+                1348644,
+                1348645,
+                1572271,
+                1572272,
+                1572273,
+                1572274,
+                1572275,
+                1572276,
+                1572277,
+                1572278,
+                1572279,
+                1572280,
+                1572281,
+                1572282,
+                35211418,
+                35211419,
+                35211420,
+                35211421,
+                35211422,
+                35211423,
+                35211424,
+                35211425,
+                35211426,
+                35211427,
+                35211428,
+                35211429,
+                35211430,
+                35211431,
+                35211432,
+                35211433,
+                35211434,
+                35211435,
+                35211436,
+                35211437,
+                35211438,
+                35211439,
+                35211440,
+                35211441,
+                35211442,
+                35211443,
+                37201113,
+                45539357,
+                45539358,
+                45548982,
+                45553746,
+                45553748,
+                45558481,
+                45558483,
+                45568152,
+                45577809,
+                45587526,
+                45592429,
+                45592430,
+                45592434,
+                45597199,
+                45602041
+            ],
+            "conditions_standard": [
+                4155237,
+                4012918,
+                4055669,
+                4204380,
+                4255168,
+                4098179,
+                4246053,
+                4044812,
+                4214376,
+                440216,
+                40480939,
+                45770886,
+                37174816,
+                4168378,
+                436230,
+                4013526,
+                4168839,
+                436238,
+                4046263,
+                4276586,
+                40480500,
+                42537689,
+                40484102,
+                4325125,
+                4132106,
+                40480490,
+                4029490,
+                4166129,
+                40481365,
+                4168706,
+                4168231,
+                37203929,
+                4005185,
+                4166144,
+                37018196,
+                432739,
+                40480893,
+                4248223,
+                37108742,
+                4216894,
+                4311629,
+                132736,
+                438557,
+                4306267,
+                4308509,
+                441419
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:16.000000Z",
+    "updated_at": "2026-04-17T00:17:44.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#R18"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

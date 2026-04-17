@@ -1,0 +1,185 @@
+{
+    "id": 3434,
+    "name": "R18_SYMPTOMS_SIGNS_INVOLVI_SPEECH_VOICE",
+    "description": "Symptoms and signs involving speech and voice — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#R18"
+        ],
+        "level": "2",
+        "parent": "R",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 6
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3187,
+            "imported_at": "2026-04-17T00:17:44+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "R4[7-9]",
+                "patterns": [
+                    "R47",
+                    "R48",
+                    "R49"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "R4[7-9]",
+                "patterns": [
+                    "R47",
+                    "R48",
+                    "R49"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "R18_SPEECH_DISTU_NOT_ELSEW_CLASSIFIED",
+            "R18_DYSLE_OTHER_SYMBO_DYSFU_NOT_ELSEW_CLASSIFIED",
+            "R18_VOICE_DISTU"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1572248,
+                1572249,
+                1572250,
+                1572251,
+                1572252,
+                1572253,
+                35211377,
+                35211378,
+                35211379,
+                35211380,
+                35211381,
+                35211382,
+                35211383,
+                35211384,
+                45539349,
+                45544150,
+                45553739,
+                45558472,
+                45563310,
+                45563311,
+                45573028,
+                45573029,
+                45573030,
+                45582714,
+                45597187
+            ],
+            "conditions_standard": [
+                4021783,
+                4024716,
+                435642,
+                432436,
+                4128827,
+                4168556,
+                4196636,
+                4024717,
+                4173136,
+                132342,
+                40326053,
+                40481303,
+                441594,
+                440424,
+                4046804,
+                4119850,
+                4011175,
+                4105088,
+                4125590
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:16.000000Z",
+    "updated_at": "2026-04-17T00:17:44.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#R18"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

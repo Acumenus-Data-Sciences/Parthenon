@@ -1,0 +1,190 @@
+{
+    "id": 1953,
+    "name": "I9_SAH",
+    "description": "Subarachnoid haemorrhage — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#I9",
+            "#ASTHMA_CM",
+            "#COPD_CM",
+            "#CARDIO",
+            "#DIAB_CM",
+            "#GASTRO_CM",
+            "#ILD_CM",
+            "#NEURO_CM",
+            "#RHEUMA_CM"
+        ],
+        "level": "3",
+        "parent": "I60-I69",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1706,
+            "imported_at": "2026-04-17T00:17:30+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "430",
+                "patterns": [
+                    "430"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "430",
+                "patterns": [
+                    "430"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "430",
+                "patterns": [
+                    "430"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "430",
+                "patterns": [
+                    "430"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "I60",
+                "patterns": [
+                    "I60"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "I60",
+                "patterns": [
+                    "I60"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1569184,
+                1569185,
+                1569186,
+                1569187,
+                1569188,
+                1569189,
+                35207803,
+                35207804,
+                35207805,
+                35207806,
+                35207807,
+                45533459,
+                45533460,
+                45538388,
+                45538389,
+                45538390,
+                45543185,
+                45552799,
+                45562357,
+                45562359,
+                45567185,
+                45586591,
+                45591471,
+                45605800,
+                45605801,
+                45605802,
+                44820872
+            ],
+            "conditions_standard": [
+                4148906,
+                4108952,
+                4078446,
+                4077959,
+                4111708,
+                432923
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:03.000000Z",
+    "updated_at": "2026-04-17T00:17:30.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#I9",
+        "#ASTHMA_CM",
+        "#COPD_CM",
+        "#CARDIO",
+        "#DIAB_CM",
+        "#GASTRO_CM",
+        "#ILD_CM",
+        "#NEURO_CM",
+        "#RHEUMA_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

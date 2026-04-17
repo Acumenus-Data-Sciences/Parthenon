@@ -1,0 +1,253 @@
+{
+    "id": 1412,
+    "name": "F5_DEMENTIA_INCLAVO",
+    "description": "Dementia, including avohilmo — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#F5",
+            "#AVO"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 4,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1165,
+            "imported_at": "2026-04-17T00:17:24+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": "F0[0-3]",
+                "patterns": [
+                    "F00",
+                    "F01",
+                    "F02",
+                    "F03"
+                ]
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "F5_DEMENTIA"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1568087,
+                1568088,
+                1568089,
+                1568090,
+                35207114,
+                37402371,
+                37402372,
+                37402373,
+                37402374,
+                37402375,
+                37402376,
+                37402377,
+                37402378,
+                37402379,
+                37402380,
+                37402381,
+                37402382,
+                37402383,
+                37402384,
+                37402385,
+                37402386,
+                37402387,
+                37402388,
+                37402389,
+                37402390,
+                37402391,
+                37402392,
+                37402393,
+                37402394,
+                37402395,
+                37402396,
+                37402397,
+                37402398,
+                37402399,
+                37402400,
+                37402401,
+                37402402,
+                37402403,
+                37402404,
+                37402405,
+                37402406,
+                37402407,
+                37402408,
+                37402409,
+                37402410,
+                37402411,
+                37402412,
+                37402413,
+                37402414,
+                37402415,
+                37402416,
+                37402417,
+                37402418,
+                37402419,
+                37402420,
+                37402421,
+                37402422,
+                37402423,
+                37402424,
+                37402425,
+                37402426,
+                37402427,
+                37402428,
+                37402429,
+                37402430,
+                37402431,
+                37402432,
+                37402433,
+                37402434,
+                37402435,
+                37402436,
+                37402437,
+                37402438,
+                37402439,
+                37402440,
+                37402441,
+                37402442,
+                37402443,
+                37402444,
+                37402445,
+                37402446,
+                37402447,
+                37402448,
+                37402449,
+                37402450,
+                37402451,
+                37402452,
+                37402453,
+                37402454,
+                37402455,
+                37402456,
+                37402457,
+                45538000,
+                45591073,
+                45591076,
+                45595842,
+                45595843,
+                45600683,
+                45600684
+            ],
+            "conditions_standard": [
+                443605,
+                374888,
+                4182210,
+                4187507,
+                37018688,
+                4100247,
+                4167815,
+                441542,
+                762497,
+                37109056,
+                762704,
+                436073,
+                765653,
+                37312035,
+                43530666,
+                440383
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:58.000000Z",
+    "updated_at": "2026-04-17T00:17:24.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#F5",
+        "#AVO"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

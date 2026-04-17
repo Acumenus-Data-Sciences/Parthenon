@@ -1,0 +1,312 @@
+{
+    "id": 4627,
+    "name": "RHEUMA_OTHER_WIDE",
+    "description": "Other (seronegative) rheumatoid arthritis, wide — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#RHEUMA"
+        ],
+        "level": null,
+        "parent": "M05-M14",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 8,
+            "n_tokens_resolved": 8
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 4380,
+            "imported_at": "2026-04-17T00:17:52+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "7140B|7148|7142",
+                "patterns": [
+                    "7140B",
+                    "7148",
+                    "7142"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "7140B|7148|7142",
+                "patterns": [
+                    "7140B",
+                    "7148",
+                    "7142"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "M06",
+                "patterns": [
+                    "M06"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "M06",
+                "patterns": [
+                    "M06"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                725372,
+                725373,
+                1570039,
+                1570040,
+                1570041,
+                1570042,
+                1570043,
+                1570044,
+                1570045,
+                1570046,
+                1570047,
+                1570048,
+                1570049,
+                1570050,
+                1570051,
+                1570052,
+                1570053,
+                1570054,
+                1570055,
+                1570056,
+                1570057,
+                1570058,
+                1570059,
+                1570060,
+                1570061,
+                1570062,
+                1570063,
+                1570064,
+                1570065,
+                1570066,
+                1570067,
+                1570068,
+                1570069,
+                1570070,
+                1570071,
+                35208751,
+                35208752,
+                35208753,
+                45533701,
+                45533702,
+                45533703,
+                45538635,
+                45538636,
+                45538638,
+                45538639,
+                45543437,
+                45543438,
+                45543439,
+                45543440,
+                45543442,
+                45543443,
+                45548267,
+                45548268,
+                45548269,
+                45548270,
+                45548271,
+                45553051,
+                45553052,
+                45553053,
+                45557762,
+                45557763,
+                45557764,
+                45557765,
+                45562593,
+                45562594,
+                45562595,
+                45562596,
+                45562597,
+                45562598,
+                45562599,
+                45562600,
+                45567420,
+                45567422,
+                45567423,
+                45567424,
+                45567425,
+                45567426,
+                45572340,
+                45572341,
+                45572342,
+                45572343,
+                45572344,
+                45572345,
+                45572346,
+                45577104,
+                45577105,
+                45577106,
+                45577107,
+                45577108,
+                45577109,
+                45577111,
+                45577112,
+                45577113,
+                45577114,
+                45577115,
+                45577116,
+                45577117,
+                45577118,
+                45577119,
+                45582017,
+                45586840,
+                45586841,
+                45586842,
+                45586843,
+                45586844,
+                45586845,
+                45591701,
+                45591702,
+                45591703,
+                45591704,
+                45591705,
+                45596442,
+                45596443,
+                45596444,
+                45596445,
+                45596446,
+                45601284,
+                45601285,
+                45601286,
+                45601287,
+                45601288,
+                45601289,
+                45606053,
+                45606054,
+                45606055,
+                45606056,
+                45606057,
+                45606058,
+                45606059,
+                45606060,
+                45606061,
+                45606062,
+                45606063,
+                45606064,
+                44826868,
+                44831487,
+                44832628,
+                44836170,
+                44837334
+            ],
+            "conditions_standard": [
+                4083556,
+                80809,
+                1244750,
+                76191,
+                136779,
+                4115161,
+                44783158,
+                4094283,
+                40482662,
+                134453,
+                4344258,
+                46273162,
+                4184657,
+                4211842,
+                4216972,
+                4009619,
+                4117689,
+                40400211,
+                77630,
+                4142899,
+                4305027,
+                4114439,
+                4116440,
+                4116441,
+                4116150,
+                4116151,
+                4117687,
+                4344166,
+                74125,
+                4117686,
+                37207809,
+                256197
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:25.000000Z",
+    "updated_at": "2026-04-17T00:17:52.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#RHEUMA"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

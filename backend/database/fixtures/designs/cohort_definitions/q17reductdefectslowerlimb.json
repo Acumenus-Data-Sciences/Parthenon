@@ -1,0 +1,204 @@
+{
+    "id": 3382,
+    "name": "Q17_REDUCT_DEFECTS_LOWER_LIMB",
+    "description": "Reduction defects of lower limb — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#Q17"
+        ],
+        "level": "3",
+        "parent": "Q6[5-9]|Q7",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3135,
+            "imported_at": "2026-04-17T00:17:44+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "Q72",
+                "patterns": [
+                    "Q72"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "Q72",
+                "patterns": [
+                    "Q72"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1572141,
+                1572142,
+                1572143,
+                1572144,
+                1572145,
+                1572146,
+                1572147,
+                1572148,
+                1572149,
+                1572150,
+                1572151,
+                1572152,
+                35211088,
+                35211089,
+                35211090,
+                35211091,
+                45534407,
+                45539298,
+                45539299,
+                45539301,
+                45539302,
+                45544113,
+                45548925,
+                45548926,
+                45548927,
+                45553699,
+                45553700,
+                45553701,
+                45558428,
+                45558429,
+                45558430,
+                45558432,
+                45558433,
+                45563266,
+                45563267,
+                45563269,
+                45563270,
+                45563271,
+                45568085,
+                45568086,
+                45568088,
+                45568089,
+                45572985,
+                45572987,
+                45577753,
+                45577754,
+                45577755,
+                45582673,
+                45582674,
+                45587474,
+                45587475,
+                45587476,
+                45587477,
+                45587478,
+                45587479,
+                45597151,
+                45601980,
+                45606766,
+                45606768,
+                45606769
+            ],
+            "conditions_standard": [
+                73580,
+                4143808,
+                4185529,
+                4133327,
+                4153492,
+                438552,
+                433588,
+                436513,
+                4003820,
+                195074,
+                37162935
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:16.000000Z",
+    "updated_at": "2026-04-17T00:17:44.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#Q17"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

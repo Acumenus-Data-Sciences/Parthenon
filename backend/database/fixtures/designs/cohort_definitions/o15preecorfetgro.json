@@ -1,0 +1,218 @@
+{
+    "id": 3147,
+    "name": "O15_PREEC_OR_FETGRO",
+    "description": "Pre-eclampsia or poor fetal growth — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#O15"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 6
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2900,
+            "imported_at": "2026-04-17T00:17:41+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "6565A|6565B",
+                "patterns": [
+                    "6565A",
+                    "6565B"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "6565A|6565B",
+                "patterns": [
+                    "6565A",
+                    "6565B"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "O365",
+                "patterns": [
+                    "O365"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "O365",
+                "patterns": [
+                    "O365"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": 2,
+        "include_endpoints": [
+            "O15_PRE_OR_ECLAMPSIA"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                10080,
+                10081,
+                10082,
+                10083,
+                10084,
+                10085,
+                10086,
+                10087,
+                1571788,
+                1571789,
+                1571790,
+                45534246,
+                45534247,
+                45534248,
+                45539158,
+                45539159,
+                45539160,
+                45543977,
+                45543978,
+                45543979,
+                45543980,
+                45543981,
+                45543982,
+                45548771,
+                45548772,
+                45548773,
+                45548774,
+                45548775,
+                45553528,
+                45553529,
+                45553530,
+                45558275,
+                45558276,
+                45558277,
+                45563127,
+                45563128,
+                45567938,
+                45567939,
+                45567940,
+                45567941,
+                45572824,
+                45572825,
+                45572826,
+                45577605,
+                45577606,
+                45577607,
+                45577608,
+                45577609,
+                45582514,
+                45582515,
+                45582516,
+                45582517,
+                45587333,
+                45587334,
+                45587335,
+                45587336,
+                45587337,
+                45587338,
+                45587339,
+                45587340,
+                45596985,
+                45596986,
+                45596987,
+                45601838,
+                45601839,
+                45606593,
+                45606594,
+                44826804,
+                44833751,
+                44834912,
+                44836104
+            ],
+            "conditions_standard": [
+                4034100,
+                4239938,
+                4244438,
+                4218813,
+                72693,
+                4041280
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:14.000000Z",
+    "updated_at": "2026-04-17T00:17:41.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#O15"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

@@ -1,0 +1,202 @@
+{
+    "id": 3590,
+    "name": "ST19_OTHER_UNSPE_INJURI_THORAX",
+    "description": "Other and unspecified injuries of thorax — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#ST19"
+        ],
+        "level": "3",
+        "parent": "S2",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3343,
+            "imported_at": "2026-04-17T00:17:45+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "S29",
+                "patterns": [
+                    "S29"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "S29",
+                "patterns": [
+                    "S29"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                11422,
+                11423,
+                11424,
+                11425,
+                11426,
+                11427,
+                11428,
+                11429,
+                11430,
+                11431,
+                11432,
+                11433,
+                11434,
+                11435,
+                1572698,
+                1572699,
+                1572700,
+                1572701,
+                1572702,
+                1572703,
+                45534758,
+                45534759,
+                45534760,
+                45534761,
+                45534762,
+                45539652,
+                45539653,
+                45544465,
+                45544466,
+                45544467,
+                45549276,
+                45549277,
+                45549278,
+                45554042,
+                45554043,
+                45554044,
+                45554045,
+                45554046,
+                45558786,
+                45558787,
+                45558789,
+                45568443,
+                45568444,
+                45568445,
+                45568446,
+                45568447,
+                45568448,
+                45568449,
+                45573326,
+                45573327,
+                45578111,
+                45578112,
+                45578113,
+                45587815,
+                45587816,
+                45587817,
+                45592717,
+                45597496,
+                45602312,
+                45602313,
+                45602315,
+                45607116
+            ],
+            "conditions_standard": [
+                4062387,
+                4168796,
+                4151529,
+                4094683,
+                133628,
+                435119,
+                4176755
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:18.000000Z",
+    "updated_at": "2026-04-17T00:17:45.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#ST19"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

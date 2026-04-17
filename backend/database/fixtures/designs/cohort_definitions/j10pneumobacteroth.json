@@ -1,0 +1,203 @@
+{
+    "id": 2143,
+    "name": "J10_PNEUMOBACTEROTH",
+    "description": "Bacterial pneumonia, not elsewhere classified — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#J10"
+        ],
+        "level": "4",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.75,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 8,
+            "n_tokens_resolved": 6
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1896,
+            "imported_at": "2026-04-17T00:17:32+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "482",
+                "patterns": [
+                    "482"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "482",
+                "patterns": [
+                    "482"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "482",
+                "patterns": [
+                    "482"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "482",
+                "patterns": [
+                    "482"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "J15|J170",
+                "patterns": [
+                    "J15",
+                    "J170"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "J15|J170",
+                "patterns": [
+                    "J15",
+                    "J170"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": "48210",
+                "patterns": [
+                    "48210"
+                ]
+            },
+            "hd_icd_9_excl": {
+                "raw": "4822",
+                "patterns": [
+                    "4822"
+                ]
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                786003,
+                786004,
+                1569466,
+                1569467,
+                35207940,
+                35207941,
+                35207942,
+                35207943,
+                35207944,
+                35207945,
+                35207946,
+                35207947,
+                35207948,
+                45533545,
+                45557620,
+                45567261,
+                45591550,
+                45601122,
+                44819743,
+                44819744,
+                44820885,
+                44820886,
+                44821983,
+                44821984,
+                44823143,
+                44824281,
+                44824282,
+                44825468,
+                44825469,
+                44827819,
+                44829006,
+                44832417,
+                44832418,
+                44833607,
+                44834766,
+                44834767,
+                44835978,
+                44835979,
+                44837132
+            ],
+            "conditions_standard": [
+                605209,
+                258180,
+                257315,
+                259852,
+                253790,
+                252351,
+                252655,
+                261324,
+                260430,
+                440431,
+                46274035,
+                46270027,
+                40480033,
+                4112820,
+                260754,
+                40481335,
+                257908
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:04.000000Z",
+    "updated_at": "2026-04-17T00:17:32.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#J10"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

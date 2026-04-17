@@ -1,0 +1,170 @@
+{
+    "id": 519,
+    "name": "CD2_BENIGN_LIPOMATOUS",
+    "description": "Benign lipomatous neoplasm — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#CD2"
+        ],
+        "level": "2",
+        "parent": "D10-D36",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 272,
+            "imported_at": "2026-04-17T00:17:15+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "D17",
+                "patterns": [
+                    "D17"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "D17",
+                "patterns": [
+                    "D17"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "CD2_BENIGN_LIPO_SKIN_HEADFACENECK",
+            "CD2_BENIGN_LIPO_SKIN_TRUNK",
+            "CD2_BENIGN_LIPO_SKIN_LIMBS",
+            "CD2_BENIGN_LIPO_SKIN_NOS",
+            "CD2_BENIGN_LIPO_INTRA_ABD",
+            "CD2_BENIGN_LIPO_INTRATHO",
+            "CD2_BENIGN_LIPO_SPERMATIC",
+            "CD2_BENIGN_LIPO_NOS"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567761,
+                1567762,
+                1567763,
+                35206542,
+                35206543,
+                35206544,
+                35206545,
+                35206546,
+                35206547,
+                35206548,
+                45532972,
+                45532973,
+                45532974,
+                45542686,
+                45561900,
+                45566668,
+                45581288,
+                45590980,
+                45590981,
+                45595737
+            ],
+            "conditions_standard": [
+                4112852,
+                4031128,
+                198101,
+                4200649,
+                4033319,
+                4242348,
+                4239897,
+                4243593
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:51.000000Z",
+    "updated_at": "2026-04-17T00:17:15.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#CD2"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

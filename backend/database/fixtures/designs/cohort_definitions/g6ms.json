@@ -1,0 +1,165 @@
+{
+    "id": 1444,
+    "name": "G6_MS",
+    "description": "MS-disease \/ Multiple Sclerosis — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#G6",
+            "#GASTRO_CM",
+            "#ILD_CM",
+            "#NEURO"
+        ],
+        "level": "3",
+        "parent": "G35-G37",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.5714285714285714,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 7,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1197,
+            "imported_at": "2026-04-17T00:17:24+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "34099",
+                "patterns": [
+                    "34099"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "340",
+                "patterns": [
+                    "340"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "34099",
+                "patterns": [
+                    "34099"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "340",
+                "patterns": [
+                    "340"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "G35",
+                "patterns": [
+                    "G35"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "G35",
+                "patterns": [
+                    "G35"
+                ]
+            },
+            "kela_reimb": {
+                "raw": "109",
+                "patterns": [
+                    "109"
+                ]
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1348437,
+                1348438,
+                1348439,
+                1348440,
+                1348441,
+                1348442,
+                1348935,
+                1348997,
+                1348998,
+                1348999,
+                35207365,
+                44819583
+            ],
+            "conditions_standard": [
+                4145049,
+                4178929,
+                374919,
+                4137855
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:58.000000Z",
+    "updated_at": "2026-04-17T00:17:24.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#G6",
+        "#GASTRO_CM",
+        "#ILD_CM",
+        "#NEURO"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

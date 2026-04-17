@@ -1,0 +1,183 @@
+{
+    "id": 821,
+    "name": "D3_COMBIMMUDEF",
+    "description": "Combined immunodeficiencies — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#D3",
+            "#ASTHMA_CM",
+            "#COPD_CM",
+            "#ILD_CM"
+        ],
+        "level": "3",
+        "parent": "D80-D89",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 574,
+            "imported_at": "2026-04-17T00:17:18+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "D81",
+                "patterns": [
+                    "D81"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "D81",
+                "patterns": [
+                    "D81"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "D3_SCIDA",
+            "D3_SCIDB",
+            "D3_SCIDC",
+            "D3_ADA_DEF",
+            "D3_NEFELOF",
+            "D3_PNP_DEF",
+            "D3_COMPXI",
+            "D3_COMPXII",
+            "D3_OCID",
+            "D3_COMBIMMUDEFNAS"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1553745,
+                1553746,
+                1553747,
+                1553748,
+                1567882,
+                1567883,
+                1567884,
+                35206808,
+                35206809,
+                35206810,
+                35206811,
+                35206812,
+                35206813,
+                35206814,
+                35206815,
+                35206816,
+                37402358,
+                45537939,
+                45571643,
+                45581333,
+                45581334
+            ],
+            "conditions_standard": [
+                4261471,
+                602598,
+                40483560,
+                442575,
+                4097998,
+                4100976,
+                4101448,
+                27526,
+                4245623,
+                37110769,
+                4100980,
+                4338534
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:53.000000Z",
+    "updated_at": "2026-04-17T00:17:18.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#D3",
+        "#ASTHMA_CM",
+        "#COPD_CM",
+        "#ILD_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

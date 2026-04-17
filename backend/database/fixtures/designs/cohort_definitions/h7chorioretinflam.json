@@ -1,0 +1,267 @@
+{
+    "id": 1694,
+    "name": "H7_CHORIORETINFLAM",
+    "description": "Chorioretinal inflammation — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#H7",
+            "#OPHTAL"
+        ],
+        "level": "3",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.7142857142857143,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 14,
+            "n_tokens_resolved": 10
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1447,
+            "imported_at": "2026-04-17T00:17:27+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "365|36700",
+                "patterns": [
+                    "365",
+                    "36700"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "363[0-2]",
+                "patterns": [
+                    "3630",
+                    "3631",
+                    "3632"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "365|36700",
+                "patterns": [
+                    "365",
+                    "36700"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "363[0-2]",
+                "patterns": [
+                    "3630",
+                    "3631",
+                    "3632"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "H30|H320",
+                "patterns": [
+                    "H30",
+                    "H320"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "H30|H320",
+                "patterns": [
+                    "H30",
+                    "H320"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1568676,
+                1568677,
+                1568678,
+                1568679,
+                1568680,
+                1568681,
+                1568682,
+                1568683,
+                1568684,
+                1568685,
+                1568686,
+                1568687,
+                1568688,
+                1568689,
+                1568690,
+                1568691,
+                45533287,
+                45533288,
+                45533289,
+                45538249,
+                45538250,
+                45543013,
+                45543014,
+                45543015,
+                45543016,
+                45547847,
+                45547848,
+                45552648,
+                45552649,
+                45552650,
+                45552651,
+                45552652,
+                45552653,
+                45557386,
+                45557387,
+                45557389,
+                45562216,
+                45562217,
+                45562218,
+                45567022,
+                45567023,
+                45567024,
+                45571933,
+                45571934,
+                45571935,
+                45571936,
+                45571937,
+                45571938,
+                45576706,
+                45576707,
+                45576708,
+                45576709,
+                45576711,
+                45576712,
+                45576713,
+                45581635,
+                45581636,
+                45581637,
+                45586429,
+                45586430,
+                45586431,
+                45586432,
+                45591307,
+                45591308,
+                45596057,
+                45596058,
+                45596060,
+                45600895,
+                45600896,
+                45605656,
+                45605657,
+                45605658,
+                45605659,
+                45605660,
+                44819612,
+                44819613,
+                44820791,
+                44821874,
+                44823045,
+                44823046,
+                44823047,
+                44824176,
+                44828902,
+                44828903,
+                44828904,
+                44831154,
+                44832307,
+                44832308,
+                44832309,
+                44833471,
+                44833472,
+                44834651,
+                44835860,
+                44837032
+            ],
+            "conditions_standard": [
+                434033,
+                437850,
+                4102047,
+                4162559,
+                439017,
+                434638,
+                433762,
+                4109410,
+                4104213,
+                4102049,
+                4197154,
+                438744,
+                4108968,
+                436967,
+                434927,
+                433757,
+                432620,
+                434026,
+                432630,
+                435541,
+                432631,
+                438740
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:00.000000Z",
+    "updated_at": "2026-04-17T00:17:27.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#H7",
+        "#OPHTAL"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

@@ -1,0 +1,221 @@
+{
+    "id": 4067,
+    "name": "Z21_PERSONAL_HISTORY_MALIG_NEOPLASM",
+    "description": "Personal history of malignant neoplasm — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#Z21"
+        ],
+        "level": "3",
+        "parent": "Z[8-9]",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3820,
+            "imported_at": "2026-04-17T00:17:50+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "Z85",
+                "patterns": [
+                    "Z85"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "Z85",
+                "patterns": [
+                    "Z85"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1348984,
+                1576205,
+                1576206,
+                1576207,
+                1576208,
+                1576209,
+                1576210,
+                1576211,
+                1576212,
+                1576213,
+                1576214,
+                1576215,
+                1576216,
+                1576217,
+                1576218,
+                35225335,
+                35225336,
+                35225337,
+                35225338,
+                35225339,
+                35225340,
+                35225341,
+                35225342,
+                35225343,
+                35225344,
+                35225345,
+                35225346,
+                35225347,
+                35225348,
+                35225349,
+                35225350,
+                45537686,
+                45542468,
+                45542469,
+                45547352,
+                45547354,
+                45547355,
+                45552118,
+                45552119,
+                45552121,
+                45552122,
+                45556859,
+                45556860,
+                45556862,
+                45556864,
+                45556865,
+                45561658,
+                45566465,
+                45566466,
+                45571393,
+                45571394,
+                45571395,
+                45571396,
+                45576192,
+                45576193,
+                45576196,
+                45576197,
+                45581077,
+                45581078,
+                45581079,
+                45581080,
+                45585860,
+                45585861,
+                45585862,
+                45585863,
+                45590760,
+                45590761,
+                45590762,
+                45595548,
+                45595549,
+                45595550,
+                45595551,
+                45600356,
+                45600357,
+                45600358,
+                45600359,
+                45600360,
+                45600361,
+                45605156,
+                45605157,
+                45605158,
+                45605159,
+                45605160,
+                45605161,
+                45609978,
+                45609979,
+                45609981
+            ],
+            "conditions_standard": [
+                1340204
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:22.000000Z",
+    "updated_at": "2026-04-17T00:17:50.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#Z21"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

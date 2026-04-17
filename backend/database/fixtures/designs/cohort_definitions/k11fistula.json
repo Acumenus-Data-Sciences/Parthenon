@@ -1,0 +1,226 @@
+{
+    "id": 2397,
+    "name": "K11_FISTULA",
+    "description": "Colonic or urogenital fistula — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#K11"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.8333333333333334,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 24,
+            "n_tokens_resolved": 20
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2150,
+            "imported_at": "2026-04-17T00:17:34+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "54302|565",
+                "patterns": [
+                    "54302",
+                    "565"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "5374|565",
+                "patterns": [
+                    "5374",
+                    "565"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "54302|565",
+                "patterns": [
+                    "54302",
+                    "565"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "5374|565",
+                "patterns": [
+                    "5374",
+                    "565"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "K316|K383|K60|K63.2|N321|N82[2-4]",
+                "patterns": [
+                    "K316",
+                    "K383",
+                    "K60",
+                    "K63.2",
+                    "N321",
+                    "N822",
+                    "N823",
+                    "N824"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "K316|K383|K60|K63.2|N321|N82[2-4]",
+                "patterns": [
+                    "K316",
+                    "K383",
+                    "K60",
+                    "K63.2",
+                    "N321",
+                    "N822",
+                    "N823",
+                    "N824"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1102695,
+                1102696,
+                1102697,
+                1102698,
+                1102699,
+                1102700,
+                1102701,
+                1102702,
+                1102703,
+                1102704,
+                1102705,
+                1102706,
+                1102707,
+                1102708,
+                1102709,
+                1102710,
+                1102711,
+                1102712,
+                1102713,
+                1102714,
+                1102715,
+                1102716,
+                1102717,
+                1102718,
+                1102719,
+                1102720,
+                1102721,
+                1102722,
+                1102723,
+                1102724,
+                1102725,
+                1102726,
+                1102727,
+                1569651,
+                35208244,
+                35208255,
+                35208294,
+                35208295,
+                35208296,
+                35208297,
+                35208298,
+                35208299,
+                35208316,
+                35209307,
+                35209410,
+                35209411,
+                35209412,
+                44824328,
+                44829040,
+                44834820,
+                44836024
+            ],
+            "conditions_standard": [
+                4213865,
+                37203984,
+                440059,
+                4127647,
+                193807,
+                4055116,
+                4066036,
+                4291648,
+                4057381,
+                4057835,
+                76725,
+                196160,
+                201344,
+                4113820,
+                4112931,
+                199066
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:06.000000Z",
+    "updated_at": "2026-04-17T00:17:34.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#K11"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

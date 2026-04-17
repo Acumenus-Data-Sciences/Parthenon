@@ -1,0 +1,246 @@
+{
+    "id": 3338,
+    "name": "Q17_CONOTR_DEFEC",
+    "description": "Conotruncal defects — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#Q17"
+        ],
+        "level": "3",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 54,
+            "n_tokens_resolved": 54
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3091,
+            "imported_at": "2026-04-17T00:17:43+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "7450A|7450C|7451B|7451X|7451A|7452A|7452B|7452C|7450B|7460B|7460C|7473A",
+                "patterns": [
+                    "7450A",
+                    "7450C",
+                    "7451B",
+                    "7451X",
+                    "7451A",
+                    "7452A",
+                    "7452B",
+                    "7452C",
+                    "7450B",
+                    "7460B",
+                    "7460C",
+                    "7473A"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "7450A|7450C|7451B|7451X|7451A|7452A|7452B|7452C|7450B|7460B|7460C|7473A",
+                "patterns": [
+                    "7450A",
+                    "7450C",
+                    "7451B",
+                    "7451X",
+                    "7451A",
+                    "7452A",
+                    "7452B",
+                    "7452C",
+                    "7450B",
+                    "7460B",
+                    "7460C",
+                    "7473A"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "Q2000|Q2001|Q201|Q202|Q203|Q2130|Q2131|Q2132|Q2133|Q214|Q220|Q221|Q2571|Q2573|Q2578",
+                "patterns": [
+                    "Q2000",
+                    "Q2001",
+                    "Q201",
+                    "Q202",
+                    "Q203",
+                    "Q2130",
+                    "Q2131",
+                    "Q2132",
+                    "Q2133",
+                    "Q214",
+                    "Q220",
+                    "Q221",
+                    "Q2571",
+                    "Q2573",
+                    "Q2578"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "Q2000|Q2001|Q201|Q202|Q203|Q2130|Q2131|Q2132|Q2133|Q214|Q220|Q221|Q2571|Q2573|Q2578",
+                "patterns": [
+                    "Q2000",
+                    "Q2001",
+                    "Q201",
+                    "Q202",
+                    "Q203",
+                    "Q2130",
+                    "Q2131",
+                    "Q2132",
+                    "Q2133",
+                    "Q214",
+                    "Q220",
+                    "Q221",
+                    "Q2571",
+                    "Q2573",
+                    "Q2578"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": "758|7595|75683",
+                "patterns": [
+                    "758",
+                    "7595",
+                    "75683"
+                ]
+            },
+            "hd_icd_10_excl": {
+                "raw": "Q90|Q91|Q92|Q93|Q96|Q8780|Q8781|Q8782|Q8783|Q8784|Q8786|Q8788|Q85|Q796|Q874|Q875",
+                "patterns": [
+                    "Q90",
+                    "Q91",
+                    "Q92",
+                    "Q93",
+                    "Q96",
+                    "Q8780",
+                    "Q8781",
+                    "Q8782",
+                    "Q8783",
+                    "Q8784",
+                    "Q8786",
+                    "Q8788",
+                    "Q85",
+                    "Q796",
+                    "Q874",
+                    "Q875"
+                ]
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                35210792,
+                35210793,
+                35210794,
+                35210804,
+                35210807,
+                35210808,
+                45544082,
+                44820005,
+                44820006,
+                44821190,
+                44821191,
+                44822251,
+                44824558,
+                44825755,
+                44826931,
+                44828094,
+                44829250,
+                44830385,
+                44831546,
+                44833876,
+                44835039,
+                44835040,
+                44837384
+            ],
+            "conditions_standard": [
+                313867,
+                4251327,
+                432431,
+                4061819,
+                36714644,
+                313005,
+                4097984,
+                316226,
+                319921,
+                320835,
+                435646,
+                4119302,
+                441385,
+                320206,
+                441950
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:15.000000Z",
+    "updated_at": "2026-04-17T00:17:43.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#Q17"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

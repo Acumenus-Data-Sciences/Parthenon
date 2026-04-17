@@ -1,0 +1,224 @@
+{
+    "id": 1310,
+    "name": "F5_DEMENTIA_U",
+    "description": "Undefined dementia — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#F5",
+            "#OPHTAL_CM",
+            "#NEURO"
+        ],
+        "level": null,
+        "parent": "F00-F03",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1063,
+            "imported_at": "2026-04-17T00:17:23+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "290",
+                "patterns": [
+                    "290"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "290",
+                "patterns": [
+                    "290"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "290",
+                "patterns": [
+                    "290"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "290",
+                "patterns": [
+                    "290"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "F03",
+                "patterns": [
+                    "F03"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "F03",
+                "patterns": [
+                    "F03"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": "2901[0-1]",
+                "patterns": [
+                    "29010",
+                    "29011"
+                ]
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1568090,
+                35207114,
+                37402429,
+                37402430,
+                37402431,
+                37402432,
+                37402433,
+                37402434,
+                37402435,
+                37402436,
+                37402437,
+                37402438,
+                37402439,
+                37402440,
+                37402441,
+                37402442,
+                37402443,
+                37402444,
+                37402445,
+                37402446,
+                37402447,
+                37402448,
+                37402449,
+                37402450,
+                37402451,
+                37402452,
+                37402453,
+                37402454,
+                37402455,
+                37402456,
+                37402457,
+                45538000,
+                45595843,
+                44819534,
+                44820708,
+                44820709,
+                44821810,
+                44821811,
+                44824105,
+                44824106,
+                44827641,
+                44829914,
+                44829915,
+                44831078,
+                44831079,
+                44832219,
+                44833397,
+                44834581,
+                44835772,
+                44835773,
+                44836954
+            ],
+            "conditions_standard": [
+                4182210,
+                4187507,
+                43530666,
+                4100247,
+                4167815,
+                441542,
+                762497,
+                762704,
+                765653,
+                379784,
+                378125,
+                380986,
+                381832,
+                443790,
+                444091,
+                377254,
+                443864,
+                4152048,
+                376946,
+                443605,
+                4048875,
+                44782771,
+                375791,
+                376085,
+                377527
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:57.000000Z",
+    "updated_at": "2026-04-17T00:17:23.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#F5",
+        "#OPHTAL_CM",
+        "#NEURO"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

@@ -1,0 +1,271 @@
+{
+    "id": 1902,
+    "name": "H8_INNER",
+    "description": "Diseases of inner ear — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#H8"
+        ],
+        "level": "2",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 8,
+            "n_tokens_resolved": 8
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1655,
+            "imported_at": "2026-04-17T00:17:29+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "H8[0-3]",
+                "patterns": [
+                    "H80",
+                    "H81",
+                    "H82",
+                    "H83"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "H8[0-3]",
+                "patterns": [
+                    "H80",
+                    "H81",
+                    "H82",
+                    "H83"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "H8_OTOSCLE",
+            "H8_VERTIGO",
+            "H8_LABYRINTHITIS",
+            "H8_LABYRFISTU",
+            "H8_LABYRDYSFUNC",
+            "H8_NOISEINNER",
+            "H8_INNERNAS"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1569046,
+                1569047,
+                1569048,
+                1569049,
+                1569050,
+                1569051,
+                1569052,
+                1569053,
+                1569054,
+                1569055,
+                1569056,
+                1569057,
+                1569058,
+                1569059,
+                1569060,
+                1569061,
+                1569062,
+                1569063,
+                1569064,
+                1569065,
+                1569066,
+                1569067,
+                1569068,
+                1569069,
+                1569070,
+                45533416,
+                45533417,
+                45533418,
+                45533419,
+                45533420,
+                45538352,
+                45538353,
+                45538355,
+                45538356,
+                45543138,
+                45543141,
+                45543142,
+                45543143,
+                45547983,
+                45547984,
+                45547985,
+                45547986,
+                45547987,
+                45547988,
+                45547990,
+                45547991,
+                45547992,
+                45547993,
+                45552755,
+                45552756,
+                45552758,
+                45557522,
+                45557524,
+                45562324,
+                45567144,
+                45567146,
+                45567148,
+                45567149,
+                45572060,
+                45572062,
+                45572063,
+                45572065,
+                45572066,
+                45576841,
+                45576842,
+                45576843,
+                45576844,
+                45576845,
+                45576847,
+                45576848,
+                45581746,
+                45581748,
+                45581749,
+                45581750,
+                45581751,
+                45586549,
+                45586550,
+                45586551,
+                45586552,
+                45586553,
+                45586554,
+                45586555,
+                45591433,
+                45591435,
+                45591436,
+                45591437,
+                45591438,
+                45591439,
+                45591440,
+                45591441,
+                45591442,
+                45591443,
+                45596173,
+                45596174,
+                45596175,
+                45601008,
+                45601009,
+                45601010,
+                45601011,
+                45601012,
+                45605756,
+                45605757,
+                45605758,
+                45605759,
+                45605760,
+                45605761,
+                45605762,
+                45605763
+            ],
+            "conditions_standard": [
+                439035,
+                380428,
+                378436,
+                434365,
+                81303,
+                79833,
+                81878,
+                437496,
+                78162,
+                381035,
+                444297,
+                4335747,
+                74052,
+                72926,
+                78771,
+                377572
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:02.000000Z",
+    "updated_at": "2026-04-17T00:17:29.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#H8"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

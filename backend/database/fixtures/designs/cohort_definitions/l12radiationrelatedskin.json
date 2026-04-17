@@ -1,0 +1,200 @@
+{
+    "id": 2511,
+    "name": "L12_RADIATIONRELATEDSKIN",
+    "description": "Radiation-related disorders of the skin and subcutaneous tissue — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#L12"
+        ],
+        "level": "2",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 10,
+            "n_tokens_resolved": 10
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2264,
+            "imported_at": "2026-04-17T00:17:35+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "L5[5-9]",
+                "patterns": [
+                    "L55",
+                    "L56",
+                    "L57",
+                    "L58",
+                    "L59"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "L5[5-9]",
+                "patterns": [
+                    "L55",
+                    "L56",
+                    "L57",
+                    "L58",
+                    "L59"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "L12_SUNBURN",
+            "L12_OTHACUSKINSUN",
+            "L12_NONIONRADISKIN",
+            "L12_RADIODERMATITIS",
+            "L12_SKINRADIOTH"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1569786,
+                1569787,
+                1569788,
+                1569789,
+                1569790,
+                35208557,
+                35208558,
+                35208559,
+                35208560,
+                35208561,
+                35208562,
+                35208563,
+                35208564,
+                35208565,
+                35208566,
+                35208567,
+                35208568,
+                35208569,
+                35208570,
+                35208571,
+                35208572,
+                35208573,
+                35208574,
+                35208575,
+                35208576,
+                35208577,
+                35208578,
+                35208579,
+                35208580,
+                35208581,
+                45543374
+            ],
+            "conditions_standard": [
+                4300442,
+                4290728,
+                4061844,
+                137350,
+                4061839,
+                438223,
+                437949,
+                4308570,
+                4286349,
+                4066470,
+                4014199,
+                4080921,
+                138825,
+                439096,
+                4230340,
+                4166058,
+                4202842,
+                442179,
+                4329565,
+                4148368,
+                4031003,
+                141650
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:08.000000Z",
+    "updated_at": "2026-04-17T00:17:35.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#L12"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

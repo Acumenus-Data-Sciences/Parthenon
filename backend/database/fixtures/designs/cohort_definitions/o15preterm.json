@@ -1,0 +1,228 @@
+{
+    "id": 3181,
+    "name": "O15_PRETERM",
+    "description": "Preterm labour and delivery — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#O15"
+        ],
+        "level": "3",
+        "parent": "O60-O75",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2934,
+            "imported_at": "2026-04-17T00:17:42+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "63497",
+                "patterns": [
+                    "63497"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "644",
+                "patterns": [
+                    "644"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "63497",
+                "patterns": [
+                    "63497"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "644",
+                "patterns": [
+                    "644"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "O60",
+                "patterns": [
+                    "O60"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "O60",
+                "patterns": [
+                    "O60"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": "6440A",
+                "patterns": [
+                    "6440A"
+                ]
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": 2,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                10140,
+                10141,
+                10142,
+                10143,
+                10144,
+                10145,
+                10146,
+                1571847,
+                1571848,
+                1571849,
+                1571850,
+                45534285,
+                45534286,
+                45534288,
+                45539188,
+                45539189,
+                45544006,
+                45544007,
+                45544008,
+                45544009,
+                45544010,
+                45548810,
+                45548811,
+                45548812,
+                45553578,
+                45553579,
+                45553580,
+                45553581,
+                45558318,
+                45563151,
+                45563152,
+                45563153,
+                45563154,
+                45563155,
+                45563156,
+                45567977,
+                45567978,
+                45572863,
+                45572864,
+                45572865,
+                45572866,
+                45572867,
+                45572868,
+                45577648,
+                45577649,
+                45577650,
+                45582558,
+                45587372,
+                45587373,
+                45592271,
+                45592272,
+                45592273,
+                45592274,
+                45597012,
+                45597013,
+                45597014,
+                45597015,
+                45597016,
+                45601875,
+                45601876,
+                45601877,
+                45606635,
+                45606636,
+                44819854,
+                44824398,
+                44829102,
+                44829103,
+                44829104,
+                44829105,
+                44832525,
+                44833717,
+                44833718,
+                44834881
+            ],
+            "conditions_standard": [
+                44784550,
+                45757175,
+                36712702,
+                45757176,
+                44784551,
+                4244438,
+                4218813,
+                4273560,
+                36712703,
+                433260,
+                4086393,
+                4062557
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:14.000000Z",
+    "updated_at": "2026-04-17T00:17:42.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#O15"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

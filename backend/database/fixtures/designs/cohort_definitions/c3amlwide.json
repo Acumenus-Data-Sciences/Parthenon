@@ -1,0 +1,280 @@
+{
+    "id": 5143,
+    "name": "C3_AML_WIDE",
+    "description": "Acute myeloid leukaemia, including Hilmo — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#C3"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.49056603773584906,
+            "bucket": "SPARSE",
+            "n_tokens_total": 53,
+            "n_tokens_resolved": 26
+        },
+        "conditions": "HLP_C3_AML",
+        "provenance": {
+            "source_row": 4896,
+            "imported_at": "2026-04-17T00:17:57+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "20500",
+                "patterns": [
+                    "20500"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "2050A|2052A|2053A|2060A|2060A|2070A",
+                "patterns": [
+                    "2050A",
+                    "2052A",
+                    "2053A",
+                    "2060A",
+                    "2070A"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": "ANY",
+                "patterns": [
+                    "ANY"
+                ]
+            },
+            "cod_icd_8": {
+                "raw": "20500",
+                "patterns": [
+                    "20500"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "2050A|2052A|2053A|2060A|2060A|2070A",
+                "patterns": [
+                    "2050A",
+                    "2052A",
+                    "2053A",
+                    "2060A",
+                    "2070A"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "C920|C92[3-5]|C930|C940|C942|C944",
+                "patterns": [
+                    "C920",
+                    "C923",
+                    "C924",
+                    "C925",
+                    "C930",
+                    "C940",
+                    "C942",
+                    "C944"
+                ]
+            },
+            "canc_behav": {
+                "raw": "3",
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": "9840|9861|986[5-7]|6869|987[0-4]|987[7-9]|989[15678]|991[0-2]|993[01]",
+                "patterns": [
+                    "9840",
+                    "9861",
+                    "9865",
+                    "9866",
+                    "9867",
+                    "6869",
+                    "9870",
+                    "9871",
+                    "9872",
+                    "9873",
+                    "9874",
+                    "9877",
+                    "9878",
+                    "9879",
+                    "9891",
+                    "9895",
+                    "9896",
+                    "9897",
+                    "9898",
+                    "9910",
+                    "9911",
+                    "9912",
+                    "9930",
+                    "9931"
+                ]
+            },
+            "cod_icd_10": {
+                "raw": "C920|C92[3-5]|C930|C940|C942|C944",
+                "patterns": [
+                    "C920",
+                    "C923",
+                    "C924",
+                    "C925",
+                    "C930",
+                    "C940",
+                    "C942",
+                    "C944"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": "2051A|2058A|2059A|2061A|2068|2069",
+                "patterns": [
+                    "2051A",
+                    "2058A",
+                    "2059A",
+                    "2061A",
+                    "2068",
+                    "2069"
+                ]
+            },
+            "hd_icd_10_excl": {
+                "raw": "C92[12]|C927|C929|C931|C933|C937|C939|C943|C946|C947",
+                "patterns": [
+                    "C921",
+                    "C922",
+                    "C927",
+                    "C929",
+                    "C931",
+                    "C933",
+                    "C937",
+                    "C939",
+                    "C943",
+                    "C946",
+                    "C947"
+                ]
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "SPARSE",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "HLP_C3_AML"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567690,
+                1567693,
+                1567694,
+                1567695,
+                1567700,
+                1567706,
+                1567707,
+                1567709,
+                45532959,
+                45532960,
+                45532961,
+                45537878,
+                45547554,
+                45547557,
+                45547560,
+                45552314,
+                45552316,
+                45557043,
+                45561876,
+                45566650,
+                45571574,
+                45571577,
+                45571578,
+                45581255,
+                45581257,
+                45581260,
+                45586070,
+                45590966,
+                45595722,
+                45595723,
+                45595724,
+                45605331,
+                44819466,
+                44820645,
+                44820646,
+                44824054,
+                44825236,
+                44826430,
+                44826431,
+                44827585,
+                44828757,
+                44828758,
+                44829845,
+                44829846,
+                44832158,
+                44832160,
+                44832164,
+                44833339,
+                44833341,
+                44834520,
+                44836871,
+                44836872
+            ],
+            "conditions_standard": [
+                140352,
+                140967,
+                4002497,
+                135768,
+                138099,
+                4079686,
+                4003184,
+                4137687,
+                132575,
+                35622958,
+                4139358,
+                135496,
+                37165277,
+                135762,
+                315497,
+                4143848,
+                140672
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:30.000000Z",
+    "updated_at": "2026-04-17T00:17:57.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#C3"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

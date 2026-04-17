@@ -1,0 +1,206 @@
+{
+    "id": 5004,
+    "name": "AB1_BACT_INTEST_OTH_WIDE",
+    "description": "Other bacterial intestinal infections, including avohilmo — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#AB1"
+        ],
+        "level": "3",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.4444444444444444,
+            "bucket": "SPARSE",
+            "n_tokens_total": 18,
+            "n_tokens_resolved": 8
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 4757,
+            "imported_at": "2026-04-17T00:17:56+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "00[5]|008[0-3]",
+                "patterns": [
+                    "005",
+                    "0080",
+                    "0081",
+                    "0082",
+                    "0083"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "00[5]",
+                "patterns": [
+                    "005"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "00[5]|008[0-3]",
+                "patterns": [
+                    "005",
+                    "0080",
+                    "0081",
+                    "0082",
+                    "0083"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "00[5]",
+                "patterns": [
+                    "005"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "A0[4-5]",
+                "patterns": [
+                    "A04",
+                    "A05"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "A0[4-5]",
+                "patterns": [
+                    "A04",
+                    "A05"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": "A0[4-5]",
+                "patterns": [
+                    "A04",
+                    "A05"
+                ]
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "SPARSE",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1326482,
+                1326483,
+                1567243,
+                1567244,
+                35205413,
+                35205414,
+                35205415,
+                35205416,
+                35205417,
+                35205418,
+                35205419,
+                35205420,
+                35205421,
+                35205422,
+                35205423,
+                35205424,
+                35205425,
+                35205426,
+                35205427,
+                35205428,
+                35205429,
+                45585895,
+                44819301,
+                44819302,
+                44820518,
+                44826284,
+                44827445,
+                44828623,
+                44832033,
+                44832034,
+                44833184,
+                44834383
+            ],
+            "conditions_standard": [
+                4307981,
+                4323342,
+                193402,
+                441500,
+                4345206,
+                4345354,
+                4345355,
+                4345207,
+                192815,
+                198334,
+                46273592,
+                193688,
+                197776,
+                607203,
+                196324,
+                438670,
+                4058528,
+                4188028,
+                434854,
+                437773
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:28.000000Z",
+    "updated_at": "2026-04-17T00:17:56.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#AB1"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

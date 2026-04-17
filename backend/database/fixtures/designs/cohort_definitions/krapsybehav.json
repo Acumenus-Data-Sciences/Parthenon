@@ -1,0 +1,185 @@
+{
+    "id": 4401,
+    "name": "KRA_PSY_BEHAV",
+    "description": "Behavioural disorders — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#KRA_PSY"
+        ],
+        "level": null,
+        "parent": "F90-F98",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.8,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 10,
+            "n_tokens_resolved": 8
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 4154,
+            "imported_at": "2026-04-17T00:17:51+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "30899",
+                "patterns": [
+                    "30899"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "3120A|3123D|3138A",
+                "patterns": [
+                    "3120A",
+                    "3123D",
+                    "3138A"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "30899",
+                "patterns": [
+                    "30899"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "3120A|3123D|3138A",
+                "patterns": [
+                    "3120A",
+                    "3123D",
+                    "3138A"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "F91",
+                "patterns": [
+                    "F91"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "F91",
+                "patterns": [
+                    "F91"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1568264,
+                35207266,
+                35207267,
+                35207268,
+                35207269,
+                35207270,
+                35207271,
+                44820741,
+                44820742,
+                44825315,
+                44826528,
+                44827672,
+                44827675,
+                44828848,
+                44828850,
+                44829946,
+                44829947,
+                44829948,
+                44829950,
+                44831112,
+                44831114,
+                44831115,
+                44833422,
+                44834613,
+                44835815
+            ],
+            "conditions_standard": [
+                443617,
+                4338038,
+                437843,
+                439800,
+                441547,
+                433451,
+                436959,
+                434629,
+                440989,
+                440088,
+                433752,
+                434632,
+                4281692,
+                433758,
+                438746
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:24.000000Z",
+    "updated_at": "2026-04-17T00:17:51.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#KRA_PSY"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

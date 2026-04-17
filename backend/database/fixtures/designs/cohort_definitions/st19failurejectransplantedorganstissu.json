@@ -1,0 +1,267 @@
+{
+    "id": 3721,
+    "name": "ST19_FAILU_REJEC_TRANSPLANTED_ORGANS_TISSU",
+    "description": "Failure and rejection of transplanted organs and tissues — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#ST19"
+        ],
+        "level": "3",
+        "parent": "T8",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3474,
+            "imported_at": "2026-04-17T00:17:47+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "T86",
+                "patterns": [
+                    "T86"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "T86",
+                "patterns": [
+                    "T86"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                725610,
+                725611,
+                725612,
+                725613,
+                725614,
+                725615,
+                725616,
+                725617,
+                725618,
+                725619,
+                725620,
+                725621,
+                725622,
+                725623,
+                725624,
+                725625,
+                725626,
+                725627,
+                725628,
+                725629,
+                1575306,
+                1575307,
+                1575308,
+                1575309,
+                1575310,
+                1575311,
+                1575312,
+                1575313,
+                1575314,
+                1575315,
+                1575316,
+                1575317,
+                1575318,
+                1575319,
+                1575320,
+                45537090,
+                45537092,
+                45537093,
+                45541885,
+                45546763,
+                45546764,
+                45551552,
+                45551553,
+                45551554,
+                45551555,
+                45551556,
+                45551557,
+                45551558,
+                45551559,
+                45551560,
+                45556301,
+                45556302,
+                45561100,
+                45561101,
+                45561102,
+                45565900,
+                45565901,
+                45570777,
+                45570778,
+                45570779,
+                45570780,
+                45575625,
+                45575626,
+                45575627,
+                45580471,
+                45580474,
+                45580475,
+                45585325,
+                45585326,
+                45585327,
+                45585328,
+                45585329,
+                45585330,
+                45585331,
+                45585332,
+                45585333,
+                45585334,
+                45590130,
+                45590131,
+                45590132,
+                45590133,
+                45590134,
+                45594968,
+                45594969,
+                45594970,
+                45599828,
+                45599829,
+                45599830,
+                45599831,
+                45604588,
+                45604589,
+                45609393,
+                45609394,
+                45609395,
+                45609396,
+                45609397,
+                45609398
+            ],
+            "conditions_standard": [
+                37209483,
+                37209481,
+                201461,
+                377280,
+                42537744,
+                37209482,
+                37209484,
+                4151240,
+                4334801,
+                4125659,
+                199991,
+                443575,
+                4309008,
+                200616,
+                257755,
+                1076485,
+                4155080,
+                200906,
+                4309320,
+                4343239,
+                4341657,
+                37163742,
+                4308707,
+                4308404,
+                437169,
+                1076483,
+                4120090,
+                4083357,
+                4197631,
+                4207623,
+                4248020,
+                4341658,
+                4121274,
+                4127554,
+                4121617,
+                4309315,
+                4128369
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:19.000000Z",
+    "updated_at": "2026-04-17T00:17:47.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#ST19"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

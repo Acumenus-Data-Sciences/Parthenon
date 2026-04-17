@@ -1,0 +1,171 @@
+{
+    "id": 2405,
+    "name": "L12_PSORIASIS",
+    "description": "Psoriasis — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#L12",
+            "#ILD_CM",
+            "#RHEUMA_CM"
+        ],
+        "level": "3",
+        "parent": "L40-L45",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2158,
+            "imported_at": "2026-04-17T00:17:34+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "L40",
+                "patterns": [
+                    "L40"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "L40",
+                "patterns": [
+                    "L40"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "L12_PSORI_VULG",
+            "L12_PSORI_PUSTGEN",
+            "L12_PSORI_ACRODERM",
+            "L12_PSORI_PUSTUPALM",
+            "L12_PSORI_GUTTATE",
+            "L12_PSORI_ARTHRO",
+            "L12_PSORI_NAS"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1569777,
+                1569778,
+                35208505,
+                35208506,
+                35208507,
+                35208508,
+                35208509,
+                35208510,
+                35208511,
+                45533640,
+                45548196,
+                45548197,
+                45586768,
+                45596373,
+                45601222
+            ],
+            "conditions_standard": [
+                140168,
+                40319772,
+                4307925,
+                4031142,
+                4222163,
+                4100184,
+                4284492,
+                4079733,
+                46274123,
+                4064048,
+                4083682
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:07.000000Z",
+    "updated_at": "2026-04-17T00:17:34.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#L12",
+        "#ILD_CM",
+        "#RHEUMA_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

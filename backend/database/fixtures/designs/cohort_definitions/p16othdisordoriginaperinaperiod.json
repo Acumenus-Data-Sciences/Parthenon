@@ -1,0 +1,237 @@
+{
+    "id": 3232,
+    "name": "P16_OTH_DISORD_ORIGINA_PERINA_PERIOD",
+    "description": "Other disorders originating in the perinatal period — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#P16"
+        ],
+        "level": "2",
+        "parent": "P",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2985,
+            "imported_at": "2026-04-17T00:17:42+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "P9",
+                "patterns": [
+                    "P9"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "P9",
+                "patterns": [
+                    "P9"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "P16_CONVU_NEWBO",
+            "P16_OTH_DISTU_CEREBRAL_STATUS_NEWBO",
+            "P16_FEEDI_PROBL_NEWBO",
+            "P16_REACTIO_INTOX_DRUGS_ADMINISTE_FETUS_NEWBO",
+            "P16_DISORD_MUSCLE_TONE_NEWBO",
+            "P16_FETAL_DEATH_UNSP_CAUSE",
+            "P16_OTH_COND_ORIGINA_PERINA_PERIOD"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                725453,
+                725454,
+                725455,
+                725456,
+                725457,
+                1326778,
+                1326779,
+                1326780,
+                1326781,
+                1572039,
+                1572040,
+                1572041,
+                1572042,
+                1572043,
+                1572044,
+                35210660,
+                35210661,
+                35210662,
+                35210663,
+                35210664,
+                35210665,
+                35210666,
+                35210667,
+                35210668,
+                35210669,
+                35210670,
+                35210671,
+                35210672,
+                35210673,
+                35210674,
+                35210675,
+                35210676,
+                35210677,
+                35210678,
+                35210679,
+                35210680,
+                35210681,
+                35210682,
+                35210683,
+                35210684,
+                35210685,
+                35210686,
+                35210687,
+                35210688,
+                35210689,
+                45539257,
+                45548877,
+                45553654,
+                45563231,
+                45563232,
+                45568046,
+                45582631,
+                45587432,
+                45597098,
+                45601948,
+                45601951,
+                45601953,
+                45606715
+            ],
+            "conditions_standard": [
+                443454,
+                4159152,
+                4318859,
+                4290019,
+                377980,
+                433315,
+                4049042,
+                45770735,
+                80205,
+                380533,
+                4049043,
+                4233425,
+                4071867,
+                444292,
+                372444,
+                374748,
+                4169915,
+                4171358,
+                4071863,
+                4049041,
+                36716761,
+                4045730,
+                4049044,
+                4140071,
+                443213,
+                4149398,
+                4212326,
+                4071866,
+                4219613,
+                45771350,
+                441959,
+                36717004,
+                903656,
+                4162557,
+                4296735,
+                435359,
+                37018896,
+                36716760
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:15.000000Z",
+    "updated_at": "2026-04-17T00:17:42.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#P16"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

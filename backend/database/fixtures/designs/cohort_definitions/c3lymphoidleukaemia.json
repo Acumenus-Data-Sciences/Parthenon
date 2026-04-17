@@ -1,0 +1,222 @@
+{
+    "id": 5377,
+    "name": "C3_LYMPHOID_LEUKAEMIA",
+    "description": "Lymphoid leukaemia — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#C3",
+            "#NEURO_CM"
+        ],
+        "level": "3",
+        "parent": "C81-C96",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 5130,
+            "imported_at": "2026-04-17T00:18:00+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "204",
+                "patterns": [
+                    "204"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "204",
+                "patterns": [
+                    "204"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "204",
+                "patterns": [
+                    "204"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "204",
+                "patterns": [
+                    "204"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "C91",
+                "patterns": [
+                    "C91"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "C91",
+                "patterns": [
+                    "C91"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567680,
+                1567681,
+                1567682,
+                1567683,
+                1567684,
+                1567685,
+                1567686,
+                1567687,
+                1567688,
+                35206431,
+                35206432,
+                35206433,
+                35206434,
+                45532958,
+                45537874,
+                45537875,
+                45542662,
+                45542664,
+                45547552,
+                45547553,
+                45552311,
+                45552313,
+                45557039,
+                45557040,
+                45561871,
+                45561872,
+                45561873,
+                45566647,
+                45566648,
+                45571568,
+                45571569,
+                45576366,
+                45581253,
+                45586063,
+                45586064,
+                45586065,
+                45590964,
+                45590965,
+                45595718,
+                45595719,
+                45595720,
+                44820642,
+                44820643,
+                44820644,
+                44821758,
+                44821759,
+                44821760,
+                44821761,
+                44822907,
+                44822908,
+                44824053,
+                44825231,
+                44829844,
+                44831013,
+                44831014,
+                44831015,
+                44831016,
+                44832155,
+                44833336,
+                44833337,
+                44833338,
+                44834519
+            ],
+            "conditions_standard": [
+                132853,
+                134305,
+                4173824,
+                4173974,
+                4038845,
+                4003188,
+                4079683,
+                4173963,
+                134596,
+                141816,
+                133438,
+                760935,
+                760934,
+                138379,
+                36712834,
+                136656,
+                4139054
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:32.000000Z",
+    "updated_at": "2026-04-17T00:18:00.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#C3",
+        "#NEURO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

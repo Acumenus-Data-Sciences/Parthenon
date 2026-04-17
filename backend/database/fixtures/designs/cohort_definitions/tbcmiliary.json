@@ -1,0 +1,177 @@
+{
+    "id": 4593,
+    "name": "TBC_MILIARY",
+    "description": "Miliary tuberculosis — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#GASTRO_CM"
+        ],
+        "level": null,
+        "parent": "A15-A19",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 4346,
+            "imported_at": "2026-04-17T00:17:52+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "018",
+                "patterns": [
+                    "018"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "018",
+                "patterns": [
+                    "018"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "018",
+                "patterns": [
+                    "018"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "018",
+                "patterns": [
+                    "018"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "A19",
+                "patterns": [
+                    "A19"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "A19",
+                "patterns": [
+                    "A19"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567258,
+                35205465,
+                35205466,
+                35205467,
+                35205468,
+                35205469,
+                44820542,
+                44820543,
+                44820544,
+                44822807,
+                44823958,
+                44823959,
+                44823960,
+                44823961,
+                44825132,
+                44825133,
+                44826319,
+                44826320,
+                44827482,
+                44828659,
+                44828660,
+                44828661,
+                44829727,
+                44830909,
+                44830910,
+                44832063,
+                44832064,
+                44833216,
+                44834417,
+                44836764,
+                44836765
+            ],
+            "conditions_standard": [
+                434559,
+                37117202,
+                4087419,
+                435734,
+                4056128
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:25.000000Z",
+    "updated_at": "2026-04-17T00:17:52.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#GASTRO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

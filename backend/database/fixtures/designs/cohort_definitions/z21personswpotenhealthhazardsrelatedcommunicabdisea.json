@@ -1,0 +1,278 @@
+{
+    "id": 3993,
+    "name": "Z21_PERSONS_W_POTEN_HEALTH_HAZARDS_RELATED_COMMUNICAB_DISEA",
+    "description": "Persons with potential health hazards related to communicable diseases — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#Z21"
+        ],
+        "level": "2",
+        "parent": "Z",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3746,
+            "imported_at": "2026-04-17T00:17:49+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "Z2",
+                "patterns": [
+                    "Z2"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "Z2",
+                "patterns": [
+                    "Z2"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "Z21_CONTACT_W_EXPOS_COMMUNICAB_DISEA",
+            "Z21_ASYMP_HUMAN_IMMUNODEFICIENCY_VIRUS_HIV_INFECTION_STATUS",
+            "Z21_CARRIER_INFECTIOUS_DISEA",
+            "Z21_NEED_IMMUNI_SINGLE_BACTERIAL_DISEA",
+            "Z21_NEED_IMMUNI_CERTA_SINGLE_VIRAL_DISEA",
+            "Z21_NEED_IMMUNI_OTH_SINGLE_VIRAL_DISEA",
+            "Z21_NEED_IMMUNI_OTH_SINGLE_INFECTIOUS_DISEA",
+            "Z21_NEED_IMMUNI_COMBINA_INFECTIOUS_DISEA",
+            "Z21_IMMUNI_NOT_CARRIED",
+            "Z21_NEED_OTH_PROPHYLACT_MEASU"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                713859,
+                786360,
+                786361,
+                786362,
+                786363,
+                786364,
+                786365,
+                786366,
+                786367,
+                786368,
+                786369,
+                1554062,
+                1576033,
+                1576034,
+                1576035,
+                1576036,
+                1576037,
+                1576038,
+                1576039,
+                1576040,
+                1576041,
+                1576042,
+                1576043,
+                1576044,
+                1576045,
+                1595792,
+                1595793,
+                35225081,
+                35225082,
+                35225083,
+                35225084,
+                35225085,
+                35225086,
+                35225087,
+                35225088,
+                35225089,
+                35225090,
+                35225091,
+                35225092,
+                35225093,
+                35225094,
+                35225095,
+                35225096,
+                35225097,
+                35225098,
+                35225099,
+                37202277,
+                37202278,
+                37202279,
+                37202280,
+                37202281,
+                37202282,
+                37202283,
+                37202284,
+                37202285,
+                37403750,
+                37403751,
+                37403752,
+                37403753,
+                45537621,
+                45537622,
+                45542411,
+                45542412,
+                45542414,
+                45547293,
+                45547294,
+                45552068,
+                45556824,
+                45561616,
+                45561619,
+                45561620,
+                45566406,
+                45566413,
+                45571329,
+                45571332,
+                45576140,
+                45576141,
+                45576144,
+                45581019,
+                45585811,
+                45585812,
+                45585815,
+                45585816,
+                45585817,
+                45590708,
+                45590709,
+                45590710,
+                45609916,
+                45609917,
+                45609918
+            ],
+            "conditions_standard": [
+                37311059,
+                4280828,
+                1242757,
+                4061660,
+                4003404,
+                40484646,
+                37116462,
+                37016200,
+                4016359,
+                4015842,
+                4312538,
+                37117058,
+                37109077,
+                439657,
+                40479809,
+                40479426,
+                40479434,
+                40479430,
+                40479792,
+                40479328,
+                440053,
+                4241530,
+                4016356,
+                4015718,
+                1243842,
+                42535080,
+                4132855,
+                40481086,
+                443364,
+                37310279,
+                1340204,
+                4340380,
+                43531662,
+                4016358,
+                192815,
+                4016357,
+                4141769,
+                4016354,
+                43530695,
+                4340379,
+                4064391,
+                40479329,
+                40479428,
+                4160859
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:21.000000Z",
+    "updated_at": "2026-04-17T00:17:49.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#Z21"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

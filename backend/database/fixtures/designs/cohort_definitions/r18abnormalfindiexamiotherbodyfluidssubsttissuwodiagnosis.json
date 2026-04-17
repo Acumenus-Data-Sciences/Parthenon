@@ -1,0 +1,312 @@
+{
+    "id": 3437,
+    "name": "R18_ABNORMAL_FINDI_EXAMI_OTHER_BODY_FLUIDS_SUBST_TISSU_WO_DIAGNOSIS",
+    "description": "Abnormal findings on examination of other body fluids, substances and tissues, without diagnosis — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#R18"
+        ],
+        "level": "2",
+        "parent": "R",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 14,
+            "n_tokens_resolved": 14
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3190,
+            "imported_at": "2026-04-17T00:17:44+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "R8[3-9]",
+                "patterns": [
+                    "R83",
+                    "R84",
+                    "R85",
+                    "R86",
+                    "R87",
+                    "R88",
+                    "R89"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "R8[3-9]",
+                "patterns": [
+                    "R83",
+                    "R84",
+                    "R85",
+                    "R86",
+                    "R87",
+                    "R88",
+                    "R89"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "R18_ABNORMAL_FINDI_CEREBROS_FLUID",
+            "R18_ABNORMAL_FINDI_BRONCHIAL_WASHI_NASAL_SECRE_PLEURAL_FLUID_SPUTUM_THROAT_SCRAP",
+            "R18_ABNORMAL_FINDI_PERITONEAL_FLUID_SALIVA",
+            "R18_ABNORMAL_SPERMATOZ",
+            "R18_ABNORMAL_FINDI_SECRE_SMEARS_CERVIX_UTERI_VAGINA_VULVA",
+            "R18_ABNORMAL_FINDI_NIPPLE_DISCH_SYNOVIAL_FLUID_WOUND_SECRE"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1572286,
+                1572287,
+                1572288,
+                1572289,
+                1572290,
+                1572291,
+                1572292,
+                1572293,
+                1572294,
+                1572295,
+                1572296,
+                1572297,
+                1572298,
+                1572299,
+                35211454,
+                35211455,
+                35211456,
+                35211457,
+                35211458,
+                35211459,
+                35211460,
+                35211461,
+                35211462,
+                35211463,
+                35211464,
+                35211465,
+                35211466,
+                35211467,
+                35211468,
+                35211469,
+                35211470,
+                35211471,
+                35211472,
+                35211473,
+                35211474,
+                35211475,
+                35211476,
+                35211477,
+                35211478,
+                35211479,
+                35211480,
+                35211481,
+                35211482,
+                35211483,
+                35211484,
+                35211485,
+                35211486,
+                35211487,
+                35211488,
+                35211489,
+                35211490,
+                35211491,
+                35211492,
+                35211493,
+                35211494,
+                35211495,
+                35211496,
+                35211497,
+                35211498,
+                35211499,
+                35211500,
+                35211501,
+                35211502,
+                35211503,
+                35211504,
+                35211505,
+                35211506,
+                35211507,
+                35211508,
+                35211509,
+                35211510,
+                45534470,
+                45534474,
+                45534475,
+                45539364,
+                45539367,
+                45544160,
+                45544161,
+                45544166,
+                45544167,
+                45548986,
+                45548989,
+                45548990,
+                45548991,
+                45548992,
+                45553751,
+                45553753,
+                45558488,
+                45563328,
+                45563330,
+                45568154,
+                45568155,
+                45573046,
+                45577818,
+                45577819,
+                45577820,
+                45577822,
+                45582729,
+                45582730,
+                45587533,
+                45587534,
+                45592438,
+                45592439,
+                45597208,
+                45597209,
+                45602044,
+                45606826,
+                45606828,
+                45606830
+            ],
+            "conditions_standard": [
+                4065770,
+                4024567,
+                40484102,
+                4171913,
+                443698,
+                4090861,
+                4095793,
+                4171912,
+                37206940,
+                4172067,
+                4168846,
+                4168840,
+                4168690,
+                4168693,
+                4309195,
+                443411,
+                434492,
+                4276565,
+                4168841,
+                4171911,
+                4168692,
+                4168242,
+                4166139,
+                4171910,
+                4172063,
+                4046263,
+                45757380,
+                45773176,
+                441691,
+                45757387,
+                45757385,
+                45757384,
+                45757382,
+                45770837,
+                36717114,
+                444125,
+                444126,
+                444127,
+                438559,
+                40480043,
+                443715,
+                45772096,
+                40483083,
+                45763589,
+                434170,
+                443709,
+                443572,
+                435651,
+                45772099,
+                45757381,
+                45757386
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:16.000000Z",
+    "updated_at": "2026-04-17T00:17:44.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#R18"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

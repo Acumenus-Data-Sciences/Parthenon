@@ -1,0 +1,224 @@
+{
+    "id": 2282,
+    "name": "K11_GASTRODUOULC",
+    "description": "Gastroduodenal ulcer — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#K11",
+            "#GASTRO"
+        ],
+        "level": "3",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 8,
+            "n_tokens_resolved": 8
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2035,
+            "imported_at": "2026-04-17T00:17:33+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "K2[5-8]",
+                "patterns": [
+                    "K25",
+                    "K26",
+                    "K27",
+                    "K28"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "K2[5-8]",
+                "patterns": [
+                    "K25",
+                    "K26",
+                    "K27",
+                    "K28"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "K11_GULC",
+            "K11_DULC",
+            "K11_PULC",
+            "K11_GJULC"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1569562,
+                1569563,
+                1569564,
+                1569565,
+                35208201,
+                35208202,
+                35208203,
+                35208204,
+                35208205,
+                35208206,
+                35208207,
+                35208208,
+                35208209,
+                35208210,
+                35208211,
+                35208212,
+                35208213,
+                35208214,
+                35208215,
+                35208216,
+                35208217,
+                35208218,
+                35208219,
+                35208220,
+                35208221,
+                35208222,
+                35208223,
+                35208224,
+                35208225,
+                35208226,
+                35208227,
+                35208228,
+                35208229,
+                35208230,
+                35208231,
+                35208232,
+                35208233,
+                35208234,
+                35208235,
+                35208236
+            ],
+            "conditions_standard": [
+                4265600,
+                4198381,
+                4027663,
+                4059178,
+                4231580,
+                4057953,
+                4169592,
+                4195231,
+                4211001,
+                4150681,
+                4294973,
+                4296611,
+                4248429,
+                4027729,
+                4265479,
+                4336230,
+                4138962,
+                4232181,
+                4173408,
+                4289830,
+                4222896,
+                4046500,
+                4194543,
+                4006994,
+                4163865,
+                4174044,
+                4146517,
+                4247008,
+                4204555,
+                4274491,
+                4280942,
+                4217947,
+                4147683,
+                433515,
+                4147351,
+                4164920,
+                4177387,
+                4101104
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:05.000000Z",
+    "updated_at": "2026-04-17T00:17:33.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#K11",
+        "#GASTRO"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

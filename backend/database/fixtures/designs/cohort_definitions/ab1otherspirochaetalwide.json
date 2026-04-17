@@ -1,0 +1,231 @@
+{
+    "id": 5033,
+    "name": "AB1_OTHER_SPIROCHAETAL_WIDE",
+    "description": "Other spirochaetal diseases, including avohilmo — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#AB1"
+        ],
+        "level": "2",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.8260869565217391,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 23,
+            "n_tokens_resolved": 19
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 4786,
+            "imported_at": "2026-04-17T00:17:56+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "08[8-9]",
+                "patterns": [
+                    "088",
+                    "089"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "104|08[7-7]",
+                "patterns": [
+                    "104",
+                    "087"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "08[8-9]",
+                "patterns": [
+                    "088",
+                    "089"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "104|08[7-7]",
+                "patterns": [
+                    "104",
+                    "087"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "A6[5-9]",
+                "patterns": [
+                    "A65",
+                    "A66",
+                    "A67",
+                    "A68",
+                    "A69"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "A6[5-9]",
+                "patterns": [
+                    "A65",
+                    "A66",
+                    "A67",
+                    "A68",
+                    "A69"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": "A6[5-9]",
+                "patterns": [
+                    "A65",
+                    "A66",
+                    "A67",
+                    "A68",
+                    "A69"
+                ]
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "AB1_SYPHILIS_NONVENEREAL",
+            "AB1_YAWNS",
+            "AB1_PINTA",
+            "AB1_RELAP_FEVER",
+            "AB1_SPIROCHE_OTHER",
+            "AB1_LYME"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567323,
+                1567324,
+                1567325,
+                1567326,
+                1567327,
+                35205614,
+                35205615,
+                35205616,
+                35205617,
+                35205618,
+                35205619,
+                35205620,
+                35205621,
+                35205622,
+                35205623,
+                35205624,
+                35205625,
+                35205626,
+                35205627,
+                35205628,
+                35205629,
+                35205630,
+                35205631,
+                35205632,
+                35205633,
+                35205634,
+                35205635,
+                35205636,
+                45542535,
+                45542536,
+                45547430,
+                45566520,
+                45600433,
+                44819400,
+                44822842,
+                44825171,
+                44828703,
+                44830949,
+                44834459,
+                44835634,
+                44835645
+            ],
+            "conditions_standard": [
+                432829,
+                433966,
+                45767113,
+                433967,
+                440638,
+                436636,
+                134284,
+                141795,
+                139734,
+                136911,
+                433706,
+                443775,
+                436037,
+                439668,
+                438362,
+                434572,
+                434580,
+                4084961,
+                443908,
+                438963,
+                4260546,
+                4163133,
+                4044930,
+                4141757
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:28.000000Z",
+    "updated_at": "2026-04-17T00:17:56.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#AB1"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

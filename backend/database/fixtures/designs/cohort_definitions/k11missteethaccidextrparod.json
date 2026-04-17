@@ -1,0 +1,190 @@
+{
+    "id": 2255,
+    "name": "K11_MISS_TEETH_ACCID_EXTR_PAROD",
+    "description": "Missing teeth due to accident, extraction or parodontitis — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#K11",
+            "#DENTAL",
+            "#AVO"
+        ],
+        "level": "4",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 3,
+            "n_tokens_resolved": 3
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2008,
+            "imported_at": "2026-04-17T00:17:33+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "K081",
+                "patterns": [
+                    "K081"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "K081",
+                "patterns": [
+                    "K081"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": "K081",
+                "patterns": [
+                    "K081"
+                ]
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1569535,
+                1569536,
+                1569537,
+                1569538,
+                1569539,
+                1569540,
+                45538495,
+                45538496,
+                45538497,
+                45538498,
+                45538499,
+                45548139,
+                45548140,
+                45552909,
+                45557639,
+                45557640,
+                45557641,
+                45562479,
+                45567288,
+                45567289,
+                45567290,
+                45576975,
+                45581878,
+                45591574,
+                45596298,
+                45596299,
+                45596300,
+                45601144,
+                45605914,
+                45605915,
+                45605916
+            ],
+            "conditions_standard": [
+                40481327,
+                46269870,
+                46269866,
+                46274126,
+                46269872,
+                46269873,
+                46269869,
+                45769899,
+                46274071,
+                45769896,
+                45769898,
+                46269865,
+                45769897,
+                46273468,
+                46269871,
+                46274072,
+                46269864,
+                46269868,
+                46273467,
+                46269867
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:05.000000Z",
+    "updated_at": "2026-04-17T00:17:33.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#K11",
+        "#DENTAL",
+        "#AVO"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

@@ -1,0 +1,295 @@
+{
+    "id": 2453,
+    "name": "L12_DERMATITISECZEMA",
+    "description": "Dermatitis and eczema — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#L12"
+        ],
+        "level": "2",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 4,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2206,
+            "imported_at": "2026-04-17T00:17:35+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "L[2-3]",
+                "patterns": [
+                    "L2",
+                    "L3"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "L[2-3]",
+                "patterns": [
+                    "L2",
+                    "L3"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "L12_ATOPIC",
+            "L12_SEBORRHOEIC",
+            "L12_DIAPER",
+            "L12_ALLERGICCONTACT",
+            "L12_OTHERCONTACT",
+            "L12_EXFOLIATIVE",
+            "L12_FOODDERMAT",
+            "L12_INTERNALSUBSTANCEDERM",
+            "L12_LICHSIMPANDPRURIGO",
+            "L12_PRURITUS",
+            "L12_DERMATITISNAS"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                766381,
+                766382,
+                766383,
+                766384,
+                766385,
+                766386,
+                766387,
+                766388,
+                766389,
+                766390,
+                1102728,
+                1102729,
+                1569765,
+                1569766,
+                1569767,
+                1569768,
+                1569769,
+                1569770,
+                1569771,
+                1569772,
+                1569773,
+                1569774,
+                1569775,
+                1569776,
+                35208449,
+                35208450,
+                35208451,
+                35208452,
+                35208453,
+                35208454,
+                35208455,
+                35208456,
+                35208457,
+                35208458,
+                35208459,
+                35208460,
+                35208461,
+                35208462,
+                35208463,
+                35208464,
+                35208465,
+                35208466,
+                35208467,
+                35208468,
+                35208469,
+                35208470,
+                35208471,
+                35208472,
+                35208473,
+                35208474,
+                35208475,
+                35208476,
+                35208477,
+                35208478,
+                35208479,
+                35208480,
+                35208481,
+                35208482,
+                35208483,
+                35208484,
+                35208485,
+                35208486,
+                35208487,
+                35208488,
+                35208489,
+                35208490,
+                35208491,
+                35208492,
+                35208493,
+                35208494,
+                35208495,
+                35208496,
+                35208497,
+                35208498,
+                35208499,
+                35208500,
+                35208501,
+                35208502,
+                35208503,
+                35208504,
+                45543364,
+                45543367,
+                45552974,
+                45567351,
+                45572263,
+                45572266,
+                45572267,
+                45591629,
+                45601213
+            ],
+            "conditions_standard": [
+                4004352,
+                4298613,
+                619358,
+                45773561,
+                135618,
+                133834,
+                137053,
+                4031019,
+                134438,
+                37171431,
+                4317258,
+                4169287,
+                45766714,
+                4066727,
+                137626,
+                4249474,
+                200164,
+                607783,
+                4066471,
+                4066735,
+                4064028,
+                4064029,
+                46269791,
+                4064030,
+                45770891,
+                443900,
+                4291277,
+                4064032,
+                4066472,
+                46269732,
+                4066736,
+                4299538,
+                141648,
+                1077500,
+                4286663,
+                46270371,
+                442747,
+                4066733,
+                4270887,
+                4064036,
+                4066819,
+                4066820,
+                4204991,
+                4272156,
+                200169,
+                4277280,
+                4194652,
+                36685964,
+                4216188,
+                4049417,
+                4146738,
+                40547222,
+                4242574,
+                4297491,
+                4066382,
+                46269733,
+                4210912,
+                4236759,
+                43530807
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:07.000000Z",
+    "updated_at": "2026-04-17T00:17:35.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#L12"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

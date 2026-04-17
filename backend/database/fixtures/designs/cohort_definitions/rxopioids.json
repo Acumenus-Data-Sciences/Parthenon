@@ -1,0 +1,246 @@
+{
+    "id": 4113,
+    "name": "RX_OPIOIDS",
+    "description": "Opioids — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#RX"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 1,
+            "n_tokens_resolved": 1
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3866,
+            "imported_at": "2026-04-17T00:17:50+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": "N02A",
+                "patterns": [
+                    "N02A"
+                ]
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "RX_TRAMADOL",
+            "RX_FENTALYL",
+            "RX_MORPHIN",
+            "RX_CODEINE",
+            "RX_OXYCODONE"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [
+                1125765,
+                1114220,
+                19002431,
+                1174888,
+                1177480,
+                1125315,
+                37002667,
+                1130585,
+                1103314,
+                1118084,
+                1201620,
+                1189596,
+                19056874,
+                1112807,
+                1124957,
+                1126658,
+                1714319,
+                1110410,
+                923829,
+                37493805,
+                19022417,
+                19129648,
+                40798904,
+                1102527,
+                1154029,
+                19021940,
+                19134009,
+                1153664,
+                37493802,
+                1103640,
+                19132884,
+                1133201,
+                1133732,
+                1114122,
+                19088393,
+                19003010,
+                19026459
+            ],
+            "source_concept_ids": [
+                947771,
+                947876,
+                955014,
+                955015,
+                955102,
+                955137,
+                955223,
+                1123614,
+                1123615,
+                1123626,
+                1123631,
+                1123645,
+                1123647,
+                1123678,
+                1123747,
+                1123748,
+                1123777,
+                1123817,
+                1123820,
+                1123896,
+                1123902,
+                1501758,
+                1502107,
+                21604254,
+                21604255,
+                21604256,
+                21604257,
+                21604258,
+                21604259,
+                21604260,
+                21604261,
+                21604262,
+                21604263,
+                21604264,
+                21604265,
+                21604266,
+                21604267,
+                21604268,
+                21604269,
+                21604270,
+                21604271,
+                21604272,
+                21604273,
+                21604274,
+                21604275,
+                21604276,
+                21604277,
+                21604278,
+                21604279,
+                21604280,
+                21604281,
+                21604282,
+                21604283,
+                21604284,
+                21604285,
+                21604286,
+                21604287,
+                21604288,
+                21604289,
+                21604290,
+                21604291,
+                21604292,
+                21604293,
+                21604294,
+                21604295,
+                21604296,
+                21604297,
+                21604298,
+                21604299,
+                21604300,
+                21604301,
+                21604302
+            ],
+            "conditions_standard": []
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:22.000000Z",
+    "updated_at": "2026-04-17T00:17:50.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#RX"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

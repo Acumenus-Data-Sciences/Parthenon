@@ -1,0 +1,206 @@
+{
+    "id": 2730,
+    "name": "M13_JUVERHEU",
+    "description": "Juvenile rheumatoid arthirtis — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#M13",
+            "#GASTRO_CM",
+            "#RHEUMA"
+        ],
+        "level": "4",
+        "parent": "M08",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2483,
+            "imported_at": "2026-04-17T00:17:37+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "7120",
+                "patterns": [
+                    "7120"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "7143A",
+                "patterns": [
+                    "7143A"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "7120",
+                "patterns": [
+                    "7120"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "7143A",
+                "patterns": [
+                    "7143A"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "M080",
+                "patterns": [
+                    "M080"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "M080",
+                "patterns": [
+                    "M080"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                725374,
+                1570082,
+                1570083,
+                1570084,
+                1570085,
+                1570086,
+                1570087,
+                1570088,
+                1570089,
+                45538643,
+                45538644,
+                45543445,
+                45543446,
+                45548275,
+                45553057,
+                45557768,
+                45557769,
+                45562602,
+                45567431,
+                45567432,
+                45567433,
+                45567434,
+                45572347,
+                45572348,
+                45586849,
+                45601293,
+                45601294,
+                45601295,
+                45606068,
+                45606069,
+                45606070,
+                45606071,
+                45606072,
+                44821124,
+                44834973,
+                44834974,
+                44837332,
+                44837333
+            ],
+            "conditions_standard": [
+                4259507,
+                1075361,
+                1076080,
+                1076089,
+                1075348,
+                1076083,
+                1076086,
+                40482662,
+                1076085,
+                1076082,
+                1076090,
+                74125,
+                762178,
+                75897,
+                1076081,
+                1076087,
+                1076091,
+                762180,
+                1076084,
+                1076088,
+                4132811,
+                42535177,
+                42535150
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:10.000000Z",
+    "updated_at": "2026-04-17T00:17:37.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#M13",
+        "#GASTRO_CM",
+        "#RHEUMA"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

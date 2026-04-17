@@ -1,0 +1,301 @@
+{
+    "id": 1448,
+    "name": "G6_EPLEPSY",
+    "description": "Epilepsy — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#G6",
+            "#GASTRO_CM"
+        ],
+        "level": "3",
+        "parent": "G40-G47",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.5714285714285714,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 7,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1201,
+            "imported_at": "2026-04-17T00:17:24+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "345",
+                "patterns": [
+                    "345"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "345",
+                "patterns": [
+                    "345"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "345",
+                "patterns": [
+                    "345"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "345",
+                "patterns": [
+                    "345"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "G40",
+                "patterns": [
+                    "G40"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "G40",
+                "patterns": [
+                    "G40"
+                ]
+            },
+            "kela_reimb": {
+                "raw": "111",
+                "patterns": [
+                    "111"
+                ]
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": "34520",
+                "patterns": [
+                    "34520"
+                ]
+            },
+            "hd_icd_9_excl": {
+                "raw": "3452|3453",
+                "patterns": [
+                    "3452",
+                    "3453"
+                ]
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                725299,
+                725300,
+                725301,
+                725302,
+                786403,
+                786404,
+                786405,
+                786406,
+                786407,
+                786408,
+                786409,
+                1102673,
+                1102674,
+                1102675,
+                1102676,
+                1102677,
+                1568300,
+                1568301,
+                1568302,
+                1568303,
+                1568304,
+                1568305,
+                1568306,
+                1568307,
+                1568308,
+                1568309,
+                1568310,
+                1568311,
+                1568312,
+                1568313,
+                1568314,
+                1568315,
+                1568316,
+                1568317,
+                1568318,
+                1568319,
+                1568320,
+                1568321,
+                1568322,
+                1568323,
+                1568324,
+                1568325,
+                1568326,
+                1568327,
+                1568328,
+                1568329,
+                45533135,
+                45538105,
+                45538106,
+                45538107,
+                45542881,
+                45542882,
+                45542883,
+                45542884,
+                45542885,
+                45547731,
+                45552524,
+                45557228,
+                45557229,
+                45557230,
+                45557232,
+                45557233,
+                45557234,
+                45566870,
+                45566871,
+                45566872,
+                45571798,
+                45571799,
+                45571800,
+                45571801,
+                45576572,
+                45576573,
+                45576574,
+                45581487,
+                45581489,
+                45581490,
+                45586283,
+                45586286,
+                45586287,
+                45591171,
+                45591173,
+                45591174,
+                45591175,
+                45595936,
+                45595937,
+                45595938,
+                45600778,
+                45600779,
+                45600780,
+                45600781,
+                45600782,
+                45600783,
+                45605537,
+                45605538,
+                45605539,
+                45605540,
+                45605541,
+                45605542,
+                44819586,
+                44819587,
+                44820766,
+                44820767,
+                44823025,
+                44823026,
+                44824160,
+                44825337,
+                44825338,
+                44825339,
+                44826554,
+                44826555,
+                44826556,
+                44827697,
+                44828876,
+                44828877,
+                44829971,
+                44829972,
+                44831129,
+                44832279,
+                44833444,
+                44834634,
+                44834635,
+                44835838,
+                44835839,
+                44835840,
+                44837012
+            ],
+            "conditions_standard": [
+                36676367,
+                4043550,
+                4332304,
+                4046214,
+                37167166,
+                4180314,
+                380378,
+                374915,
+                43530626,
+                4236312,
+                4274575,
+                443615,
+                4055361,
+                4194232,
+                4267274,
+                374023,
+                376105,
+                4046213,
+                762729,
+                4306496,
+                377091,
+                381842,
+                4029498,
+                4047897,
+                373748,
+                37163420
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:58.000000Z",
+    "updated_at": "2026-04-17T00:17:24.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#G6",
+        "#GASTRO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

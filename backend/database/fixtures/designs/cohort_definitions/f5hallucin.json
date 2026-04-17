@@ -1,0 +1,225 @@
+{
+    "id": 1359,
+    "name": "F5_HALLUCIN",
+    "description": "Mental and behavioural disorders due to hallucinogens — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#F5"
+        ],
+        "level": "3",
+        "parent": "F10-F19",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.75,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 8,
+            "n_tokens_resolved": 6
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1112,
+            "imported_at": "2026-04-17T00:17:23+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "3047",
+                "patterns": [
+                    "3047"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "3045|3053",
+                "patterns": [
+                    "3045",
+                    "3053"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "3047",
+                "patterns": [
+                    "3047"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "3045|3053",
+                "patterns": [
+                    "3045",
+                    "3053"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "F16",
+                "patterns": [
+                    "F16"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "F16",
+                "patterns": [
+                    "F16"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1326503,
+                1568164,
+                1568165,
+                1568166,
+                1568167,
+                1568168,
+                1568169,
+                1568170,
+                1568171,
+                1568172,
+                1568173,
+                1568174,
+                1568175,
+                1568176,
+                37402468,
+                45533080,
+                45533081,
+                45538041,
+                45538042,
+                45538043,
+                45538045,
+                45542816,
+                45542818,
+                45542819,
+                45542820,
+                45552448,
+                45552449,
+                45552450,
+                45552451,
+                45552452,
+                45562020,
+                45562021,
+                45562024,
+                45566808,
+                45566809,
+                45571734,
+                45571735,
+                45571736,
+                45571738,
+                45576518,
+                45576519,
+                45581432,
+                45581434,
+                45586216,
+                45586217,
+                45591113,
+                45591114,
+                45595879,
+                45595880,
+                45600714,
+                45600715,
+                45605474,
+                45605475,
+                44820731,
+                44824128,
+                44824132,
+                44825307,
+                44826516,
+                44831102,
+                44833410,
+                44833414,
+                44834600,
+                44836981
+            ],
+            "conditions_standard": [
+                441272,
+                4203152,
+                437245,
+                4173746,
+                433180,
+                37162280,
+                35622958,
+                4236877,
+                4176286,
+                4137955,
+                4035299,
+                4029464,
+                434921,
+                1075249,
+                35610537,
+                438732,
+                432304,
+                440381,
+                441271
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:58.000000Z",
+    "updated_at": "2026-04-17T00:17:23.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#F5"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

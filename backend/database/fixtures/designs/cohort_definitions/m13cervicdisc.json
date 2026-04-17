@@ -1,0 +1,230 @@
+{
+    "id": 2815,
+    "name": "M13_CERVICDISC",
+    "description": "Cervical disc disorders — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#M13",
+            "#GASTRO_CM"
+        ],
+        "level": "4",
+        "parent": "M50-M54",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.8333333333333334,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 12,
+            "n_tokens_resolved": 10
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2568,
+            "imported_at": "2026-04-17T00:17:38+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "7250",
+                "patterns": [
+                    "7250"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "7220|7224|7227|7228A",
+                "patterns": [
+                    "7220",
+                    "7224",
+                    "7227",
+                    "7228A"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "7250",
+                "patterns": [
+                    "7250"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "7220|7224|7227|7228A",
+                "patterns": [
+                    "7220",
+                    "7224",
+                    "7227",
+                    "7228A"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "M50",
+                "patterns": [
+                    "M50"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "M50",
+                "patterns": [
+                    "M50"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1570683,
+                1570684,
+                1570685,
+                1570686,
+                1570687,
+                1570688,
+                1570689,
+                37200720,
+                37200721,
+                37200722,
+                37200723,
+                37200724,
+                37200725,
+                37200726,
+                37200727,
+                37200728,
+                37200729,
+                37200730,
+                37200731,
+                37200732,
+                37200733,
+                37200734,
+                37200735,
+                37200736,
+                37200737,
+                37200738,
+                37200739,
+                37200740,
+                37200741,
+                37200742,
+                37200743,
+                45533864,
+                45538779,
+                45538780,
+                45538781,
+                45538782,
+                45538783,
+                45543606,
+                45543607,
+                45543608,
+                45553199,
+                45553200,
+                45557896,
+                45557897,
+                45557898,
+                45567574,
+                45567575,
+                45567576,
+                45577281,
+                45586988,
+                45586989,
+                45591863,
+                45601471,
+                45601472,
+                45606239,
+                44819972,
+                44823365,
+                44823366,
+                44824518,
+                44825706,
+                44826893,
+                44828057,
+                44828058,
+                44831515,
+                44833845,
+                44836200,
+                44836201
+            ],
+            "conditions_standard": [
+                4141028,
+                139906,
+                4067313,
+                40483292,
+                314131,
+                442775,
+                141104,
+                442427,
+                442425,
+                78832,
+                442426,
+                74725,
+                132412,
+                139110
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:11.000000Z",
+    "updated_at": "2026-04-17T00:17:38.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#M13",
+        "#GASTRO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

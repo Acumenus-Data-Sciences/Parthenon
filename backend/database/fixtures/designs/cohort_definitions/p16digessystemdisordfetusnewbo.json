@@ -1,0 +1,183 @@
+{
+    "id": 3230,
+    "name": "P16_DIGES_SYSTEM_DISORD_FETUS_NEWBO",
+    "description": "Digestive system disorders of fetus and newborn — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#P16"
+        ],
+        "level": "2",
+        "parent": "P",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 8,
+            "n_tokens_resolved": 8
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2983,
+            "imported_at": "2026-04-17T00:17:42+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "P7[5-8]",
+                "patterns": [
+                    "P75",
+                    "P76",
+                    "P77",
+                    "P78"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "P7[5-8]",
+                "patterns": [
+                    "P75",
+                    "P76",
+                    "P77",
+                    "P78"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "P16_MECONIUMI_CAUSED_CYSTIC_FIBROSIS",
+            "P16_MECONIUM_ILEUS1",
+            "P16_OTH_INTESTINAL_OBSTRUCTION_NEWBO",
+            "P16_NECROTIZ_ENTEROCOLITIS_FETUS_NEWBO",
+            "P16_OTH_PERINA_DIGES_SYSTEM_DISORD"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1326775,
+                1572032,
+                1572033,
+                1572034,
+                35210635,
+                35210636,
+                35210637,
+                35210638,
+                35210639,
+                35210640,
+                35210641,
+                35210642,
+                35210643,
+                35210644,
+                35210645,
+                45534357,
+                45539251,
+                45563228,
+                45577712,
+                45592347,
+                45592348,
+                45597095,
+                45606713
+            ],
+            "conditions_standard": [
+                4042220,
+                4340391,
+                4171091,
+                200524,
+                4048747,
+                198870,
+                442255,
+                4308227,
+                199925,
+                4172868,
+                44784273,
+                36715842,
+                4064161,
+                36712969,
+                4172869
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:15.000000Z",
+    "updated_at": "2026-04-17T00:17:42.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#P16"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

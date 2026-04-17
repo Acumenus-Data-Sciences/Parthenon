@@ -1,0 +1,230 @@
+{
+    "id": 3296,
+    "name": "Q17_CONGEN_MALFO_NERVOUS_SYSTEM",
+    "description": "Congenital malformations of the nervous system — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#Q17"
+        ],
+        "level": "2",
+        "parent": "Q",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3049,
+            "imported_at": "2026-04-17T00:17:43+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "Q0",
+                "patterns": [
+                    "Q0"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "Q0",
+                "patterns": [
+                    "Q0"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "Q17_ANENC_SIMIL_MALFO",
+            "Q17_ENCEPHALOCELE",
+            "Q17_MICROCEPHALY",
+            "Q17_CONGEN_HYDROCEPHALUS",
+            "Q17_OTHER_CONGEN_MALFO_BRAIN",
+            "Q17_SPINA_BIFIDA",
+            "Q17_OTHER_CONGEN_MALFO_SPINAL_CORD",
+            "Q17_OTHER_CONGEN_MALFO_NERVOUS_SYSTEM"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1572045,
+                1572046,
+                1572047,
+                1572048,
+                1572049,
+                1572050,
+                1572051,
+                1572052,
+                35210690,
+                35210691,
+                35210692,
+                35210693,
+                35210694,
+                35210695,
+                35210696,
+                35210697,
+                35210698,
+                35210699,
+                35210700,
+                35210701,
+                35210702,
+                35210703,
+                35210704,
+                35210705,
+                35210706,
+                35210707,
+                35210708,
+                35210709,
+                35210710,
+                35210711,
+                35210712,
+                35210713,
+                35210714,
+                35210715,
+                35210716,
+                35210717,
+                35210718,
+                35210719,
+                35210720,
+                35210721,
+                35210722,
+                35210723,
+                35210724,
+                35210725,
+                35210726,
+                35210727,
+                35210728,
+                35210729,
+                35210730,
+                45539260,
+                45587437,
+                45587438,
+                45587439
+            ],
+            "conditions_standard": [
+                377085,
+                432419,
+                438244,
+                4283381,
+                4079975,
+                374142,
+                4099094,
+                377368,
+                372727,
+                378848,
+                4102401,
+                4099828,
+                4173142,
+                606879,
+                4103313,
+                4068969,
+                36674994,
+                4149584,
+                4328365,
+                4319903,
+                4078705,
+                376210,
+                378840,
+                200200,
+                40482936,
+                378839,
+                376224,
+                4136209,
+                4302582,
+                133013,
+                40482937,
+                3655374,
+                378533,
+                4160043,
+                43530710
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:15.000000Z",
+    "updated_at": "2026-04-17T00:17:43.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#Q17"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

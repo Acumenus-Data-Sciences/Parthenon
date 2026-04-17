@@ -1,0 +1,235 @@
+{
+    "id": 3225,
+    "name": "P16_DISORD_RELATED_LENGTH_GESTATION_FETAL_GROWTH",
+    "description": "Disorders related to length of gestation and fetal growth — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#P16"
+        ],
+        "level": "2",
+        "parent": "P",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 8,
+            "n_tokens_resolved": 8
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2978,
+            "imported_at": "2026-04-17T00:17:42+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "P0[5-8]",
+                "patterns": [
+                    "P05",
+                    "P06",
+                    "P07",
+                    "P08"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "P0[5-8]",
+                "patterns": [
+                    "P05",
+                    "P06",
+                    "P07",
+                    "P08"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "P16_SLOW_FETAL_GROWTH_FETAL_MALNUTRITION",
+            "P16_DISORD_RELATED_GESTATION_LOW_BIRTHWGHTT_NECIFIED",
+            "P16_DISORD_RELATED_LONG_GESTATION_HIGH_BIRTHWGHTT"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1571972,
+                1571973,
+                1571974,
+                1571975,
+                1571976,
+                1571977,
+                1571978,
+                1571979,
+                1571980,
+                1571981,
+                35210438,
+                35210439,
+                35210440,
+                35210441,
+                37201014,
+                37201015,
+                45534330,
+                45534331,
+                45534332,
+                45534333,
+                45539232,
+                45539233,
+                45544050,
+                45544051,
+                45548860,
+                45548861,
+                45553630,
+                45553631,
+                45558358,
+                45563206,
+                45563207,
+                45563208,
+                45563209,
+                45563210,
+                45568016,
+                45568017,
+                45568018,
+                45568019,
+                45572925,
+                45572926,
+                45572927,
+                45572928,
+                45577687,
+                45577688,
+                45577690,
+                45577691,
+                45582609,
+                45582610,
+                45587408,
+                45587409,
+                45587411,
+                45587412,
+                45592324,
+                45597063,
+                45597066,
+                45601918,
+                45601919,
+                45601920,
+                45601921,
+                45601922,
+                45606685,
+                45606687,
+                45606688
+            ],
+            "conditions_standard": [
+                4145947,
+                4171115,
+                4195545,
+                4173323,
+                439128,
+                36675035,
+                4171116,
+                441128,
+                75639,
+                4171113,
+                434758,
+                440532,
+                37018684,
+                37016220,
+                37016221,
+                4149451,
+                437369,
+                4079858,
+                4217564,
+                37016212,
+                37016211,
+                37018683,
+                440833,
+                37016218,
+                37016213,
+                37018889,
+                36716686,
+                37016216,
+                37016217
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:14.000000Z",
+    "updated_at": "2026-04-17T00:17:42.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#P16"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

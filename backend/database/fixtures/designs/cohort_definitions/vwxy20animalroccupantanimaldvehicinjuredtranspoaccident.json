@@ -1,0 +1,294 @@
+{
+    "id": 3887,
+    "name": "VWXY20_ANIMAL_R_OCCUPANT_ANIMAL_D_VEHIC_INJURED_TRANSPO_ACCIDENT",
+    "description": "Animal-rider or occupant of animal-drawn vehicle injured in transport accident — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#VWXY20"
+        ],
+        "level": "5",
+        "parent": "V29|V[3-8]",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3640,
+            "imported_at": "2026-04-17T00:17:48+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "V80",
+                "patterns": [
+                    "V80"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "V80",
+                "patterns": [
+                    "V80"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                20557,
+                20558,
+                20559,
+                20560,
+                20561,
+                20562,
+                20563,
+                20564,
+                20565,
+                20566,
+                20567,
+                20568,
+                20569,
+                20570,
+                20571,
+                20572,
+                20573,
+                20574,
+                20575,
+                20576,
+                20577,
+                20578,
+                20579,
+                20580,
+                20581,
+                20582,
+                20583,
+                20584,
+                20585,
+                20586,
+                20587,
+                1575514,
+                1575515,
+                1575516,
+                1575517,
+                1575518,
+                1575519,
+                1575520,
+                1575521,
+                1575522,
+                1575523,
+                1575524,
+                1575525,
+                1575526,
+                1575527,
+                1575528,
+                1575529,
+                1575530,
+                1575531,
+                45537295,
+                45537297,
+                45537298,
+                45537299,
+                45542081,
+                45542082,
+                45542083,
+                45542084,
+                45542085,
+                45542086,
+                45546946,
+                45546947,
+                45546948,
+                45546949,
+                45546950,
+                45546951,
+                45551745,
+                45551746,
+                45551747,
+                45551748,
+                45551749,
+                45551750,
+                45551751,
+                45551752,
+                45551753,
+                45556496,
+                45561302,
+                45561303,
+                45561304,
+                45561305,
+                45566092,
+                45566093,
+                45566094,
+                45566095,
+                45566096,
+                45566097,
+                45566098,
+                45566099,
+                45566100,
+                45566101,
+                45570977,
+                45570978,
+                45570980,
+                45570982,
+                45570983,
+                45570984,
+                45570985,
+                45570986,
+                45570987,
+                45570988,
+                45575811,
+                45575812,
+                45575813,
+                45575814,
+                45580675,
+                45580676,
+                45580677,
+                45580679,
+                45585488,
+                45585489,
+                45585490,
+                45585491,
+                45585492,
+                45585493,
+                45585494,
+                45590329,
+                45590331,
+                45590332,
+                45590333,
+                45595144,
+                45595145,
+                45595146,
+                45600019,
+                45600020,
+                45600021,
+                45600022,
+                45600023,
+                45600024,
+                45600025,
+                45604772,
+                45604773,
+                45604774,
+                45609583,
+                45609584,
+                45609585,
+                45609586,
+                45609587,
+                45609588,
+                45609589,
+                45609590,
+                45609591,
+                45609592,
+                45609593
+            ],
+            "conditions_standard": [
+                440921,
+                442212,
+                4067275,
+                442361,
+                442199,
+                4053486,
+                4067730,
+                442672,
+                438922,
+                4155105,
+                4152529,
+                4166270,
+                4152176,
+                444074,
+                4168046,
+                442402,
+                4152175,
+                439620,
+                438329
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:21.000000Z",
+    "updated_at": "2026-04-17T00:17:48.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#VWXY20"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

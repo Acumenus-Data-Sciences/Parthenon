@@ -1,0 +1,223 @@
+{
+    "id": 2893,
+    "name": "M13_ENTESOPATHYLOW",
+    "description": "Enthesopathies of lower limb, excluding foot — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#M13",
+            "#GASTRO_CM"
+        ],
+        "level": "3",
+        "parent": "M70-M79",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2646,
+            "imported_at": "2026-04-17T00:17:39+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "M76",
+                "patterns": [
+                    "M76"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "M76",
+                "patterns": [
+                    "M76"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "M13_GLUTEALTEND",
+            "M13_PSOASTEND",
+            "M13_ILIACCRESTSPUR",
+            "M13_ILIOTIBBAND",
+            "M13_TIBIALCOLLATERAL",
+            "M13_PATELLARTEND",
+            "M13_ACHILLESTEND",
+            "M13_PERONEALTEND",
+            "M13_ENTESOPATHYLOWNAS"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                8690,
+                1571038,
+                1571039,
+                1571040,
+                1571041,
+                1571042,
+                1571043,
+                1571044,
+                1571045,
+                1571046,
+                1571047,
+                1571048,
+                1571049,
+                35208987,
+                35208988,
+                35208989,
+                35208990,
+                35208991,
+                35208992,
+                35208993,
+                35208994,
+                35208995,
+                35208996,
+                35208997,
+                35208998,
+                35208999,
+                35209000,
+                35209001,
+                35209002,
+                45533936,
+                45543686,
+                45553267,
+                45557987,
+                45557988,
+                45562831,
+                45562833,
+                45562834,
+                45567652,
+                45567653,
+                45567654,
+                45567655,
+                45567656,
+                45572545,
+                45572547,
+                45572548,
+                45572549,
+                45577347,
+                45577348,
+                45577350,
+                45577351,
+                45582244,
+                45587056,
+                45587057,
+                45587058,
+                45587059,
+                45596681,
+                45596683,
+                45601537,
+                45601538,
+                45601539,
+                45601541,
+                45601542
+            ],
+            "conditions_standard": [
+                4194889,
+                4239487,
+                4192851,
+                4223399,
+                4173780,
+                4344031,
+                433000,
+                77963,
+                4180849,
+                1076243,
+                77081,
+                37171184,
+                37311961,
+                1076889,
+                37171185,
+                1076888
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:11.000000Z",
+    "updated_at": "2026-04-17T00:17:39.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#M13",
+        "#GASTRO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

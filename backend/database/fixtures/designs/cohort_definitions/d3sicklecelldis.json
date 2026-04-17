@@ -1,0 +1,221 @@
+{
+    "id": 866,
+    "name": "D3_SICKLECELLDIS",
+    "description": "Sickle-cell disorders — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#D3",
+            "#NEURO_CM"
+        ],
+        "level": "3",
+        "parent": "D55-D59",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 6
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 619,
+            "imported_at": "2026-04-17T00:17:18+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "282[5-6]",
+                "patterns": [
+                    "2825",
+                    "2826"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "282[5-6]",
+                "patterns": [
+                    "2825",
+                    "2826"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "D57",
+                "patterns": [
+                    "D57"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "D57",
+                "patterns": [
+                    "D57"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                725216,
+                725217,
+                725218,
+                725219,
+                725220,
+                725221,
+                725222,
+                725223,
+                725224,
+                725225,
+                725226,
+                725227,
+                725228,
+                725229,
+                725230,
+                725231,
+                725232,
+                725233,
+                725234,
+                725235,
+                725236,
+                725237,
+                785896,
+                785897,
+                785898,
+                785899,
+                785900,
+                785901,
+                1567844,
+                1567845,
+                1567846,
+                1567847,
+                1567848,
+                1567849,
+                1567850,
+                35206724,
+                35206725,
+                45542708,
+                45542710,
+                45542711,
+                45552357,
+                45561923,
+                45561924,
+                45561925,
+                45561926,
+                45566702,
+                45571635,
+                45576406,
+                45581324,
+                45586115,
+                45595765,
+                45595766,
+                45600606,
+                44819529,
+                44820699,
+                44825276,
+                44825277,
+                44827638,
+                44828818,
+                44831065,
+                44835766,
+                44836942
+            ],
+            "conditions_standard": [
+                4209085,
+                443738,
+                443721,
+                321263,
+                4130068,
+                254062,
+                40485018,
+                4130678,
+                4213628,
+                4216915,
+                22281,
+                4131942,
+                24006,
+                315523,
+                26942,
+                30683,
+                25518,
+                443726
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:53.000000Z",
+    "updated_at": "2026-04-17T00:17:18.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#D3",
+        "#NEURO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

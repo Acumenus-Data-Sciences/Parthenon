@@ -1,0 +1,42 @@
+{
+    "id": 247,
+    "name": "Live-smoke 222 UNION 223",
+    "description": null,
+    "expression_json": {
+        "source_key": "PANCREAS",
+        "workbench_tree": {
+            "id": "r",
+            "op": "UNION",
+            "kind": "op",
+            "children": [
+                {
+                    "id": "a",
+                    "kind": "cohort",
+                    "cohort_id": 222
+                },
+                {
+                    "id": "b",
+                    "kind": "cohort",
+                    "cohort_id": 223
+                }
+            ]
+        },
+        "referenced_cohort_ids": [
+            222,
+            223
+        ]
+    },
+    "author_id": 117,
+    "is_public": false,
+    "version": 2,
+    "created_at": "2026-04-16T21:45:16.000000Z",
+    "updated_at": "2026-04-16T21:45:56.000000Z",
+    "deleted_at": null,
+    "tags": null,
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "general",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

@@ -1,0 +1,283 @@
+{
+    "id": 3223,
+    "name": "P16_HAEMORRHAGIC_HAEMATOL_DISORD_FETUS_NEWBO",
+    "description": "Haemorrhagic and haematological disorders of fetus and newborn — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#P16"
+        ],
+        "level": "2",
+        "parent": "P",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 4,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2976,
+            "imported_at": "2026-04-17T00:17:42+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "P[5-6]",
+                "patterns": [
+                    "P5",
+                    "P6"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "P[5-6]",
+                "patterns": [
+                    "P5",
+                    "P6"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "P16_FETAL_BLOOD_LOSS",
+            "P16_UMBIL_HAEMORRHAGE_NEWBO",
+            "P16_INTRACR_NONTRAU_HAEMORRHAGE_FETUS_NEWBO",
+            "P16_HAEMORRHAGIC_DISEA_FETUS_NEWBO",
+            "P16_OTH_NEONTAL_HAEMORRHAGES",
+            "P16_HAEMOLYTIC_DISEA_FETUS_NEWBO",
+            "P16_HYDROPS_FETALIS_HAEMOLYTIC_DISEA",
+            "P16_KERNICTERUS",
+            "P16_NEONTAL_JAUND_OTH_EXCESSI_HAEMOLYS",
+            "P16_NEONTAL_JAUND_OTH_UNSP_CAUSES",
+            "P16_DISSEM_INTRAVA_COAGU_FETUS_NEWBO",
+            "P16_OTH_PERINA_HAEMATOL_DISORD"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1572014,
+                1572015,
+                1572016,
+                1572017,
+                1572018,
+                1572019,
+                1572020,
+                1572021,
+                1572022,
+                1572023,
+                1572024,
+                1572025,
+                1572026,
+                1572027,
+                35210549,
+                35210550,
+                35210551,
+                35210552,
+                35210553,
+                35210554,
+                35210555,
+                35210556,
+                35210557,
+                35210558,
+                35210559,
+                35210560,
+                35210561,
+                35210562,
+                35210563,
+                35210564,
+                35210565,
+                35210566,
+                35210567,
+                35210568,
+                35210569,
+                35210570,
+                35210571,
+                35210572,
+                35210573,
+                35210574,
+                35210575,
+                35210576,
+                35210577,
+                35210578,
+                35210579,
+                35210580,
+                35210581,
+                35210582,
+                35210583,
+                35210584,
+                35210585,
+                35210586,
+                35210587,
+                35210588,
+                35210589,
+                35210590,
+                35210591,
+                35210592,
+                35210593,
+                35210594,
+                35210595,
+                35210596,
+                35210597,
+                35210598,
+                35210599,
+                35210600,
+                35210601,
+                35210602,
+                35210603,
+                35210604,
+                35210605,
+                35210606,
+                35210607,
+                45544066,
+                45548869,
+                45558379,
+                45577706,
+                45577707,
+                45577708,
+                45592336,
+                45597082
+            ],
+            "conditions_standard": [
+                79146,
+                438259,
+                439847,
+                37167184,
+                436529,
+                440218,
+                4173169,
+                4173577,
+                1076113,
+                435656,
+                1076123,
+                4212884,
+                4196670,
+                4201300,
+                4223239,
+                4209304,
+                201366,
+                4215480,
+                4048281,
+                1244290,
+                1244307,
+                260841,
+                603079,
+                4071070,
+                4048608,
+                4048286,
+                194158,
+                765023,
+                4329097,
+                4048603,
+                433603,
+                437090,
+                77662,
+                437681,
+                1244978,
+                1076120,
+                1076125,
+                1076127,
+                1244969,
+                440847,
+                1244980,
+                4221399,
+                432443,
+                435076,
+                439140,
+                432452,
+                4206007,
+                434156,
+                439149,
+                433604,
+                4042220,
+                37167189,
+                37167252,
+                1244310
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:14.000000Z",
+    "updated_at": "2026-04-17T00:17:42.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#P16"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

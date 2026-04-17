@@ -1,0 +1,240 @@
+{
+    "id": 3226,
+    "name": "P16_BIRTH_TRAUMA",
+    "description": "Birth trauma — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#P16"
+        ],
+        "level": "2",
+        "parent": "P",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 12,
+            "n_tokens_resolved": 12
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2979,
+            "imported_at": "2026-04-17T00:17:42+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "P1[0-5]",
+                "patterns": [
+                    "P10",
+                    "P11",
+                    "P12",
+                    "P13",
+                    "P14",
+                    "P15"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "P1[0-5]",
+                "patterns": [
+                    "P10",
+                    "P11",
+                    "P12",
+                    "P13",
+                    "P14",
+                    "P15"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "P16_INTRACR_LACERATION_HAEMORRHAGE_BIRTHINJY",
+            "P16_OTH_BIRTHINJI_CENTRAL_NERVOUS_SYSTEM",
+            "P16_BIRTHINJY_SCALP",
+            "P16_BIRTHINJY_SKELETON",
+            "P16_BIRTHINJY_PERIP_NERVOUS_SYSTEM",
+            "P16_OTH_BIRTHINJI"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1571982,
+                1571983,
+                1571984,
+                1571985,
+                1571986,
+                1571987,
+                1571988,
+                35210442,
+                35210443,
+                35210444,
+                35210445,
+                35210446,
+                35210447,
+                35210448,
+                35210449,
+                35210450,
+                35210451,
+                35210452,
+                35210453,
+                35210454,
+                35210455,
+                35210456,
+                35210457,
+                35210458,
+                35210459,
+                35210460,
+                35210461,
+                35210462,
+                35210463,
+                35210464,
+                35210465,
+                35210466,
+                35210467,
+                35210468,
+                35210469,
+                35210470,
+                35210471,
+                35210472,
+                35210473,
+                35210474,
+                35210475,
+                35210476,
+                35210477,
+                35210478,
+                35210479,
+                35210480,
+                35210481,
+                35210482,
+                35210483,
+                45548863,
+                45601923
+            ],
+            "conditions_standard": [
+                435641,
+                42873157,
+                4347416,
+                4290881,
+                257370,
+                197089,
+                4130539,
+                4071589,
+                4048279,
+                4071066,
+                4071588,
+                378544,
+                4048139,
+                377680,
+                442529,
+                44784364,
+                36716538,
+                4047852,
+                4071591,
+                42538556,
+                4047853,
+                4146847,
+                4048135,
+                46284319,
+                4071595,
+                4070316,
+                81685,
+                4009644,
+                4305334,
+                4103235,
+                381952,
+                4047865,
+                4169992,
+                4047867,
+                4070533,
+                4048141,
+                36716733,
+                4047868,
+                4220985
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:15.000000Z",
+    "updated_at": "2026-04-17T00:17:42.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#P16"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

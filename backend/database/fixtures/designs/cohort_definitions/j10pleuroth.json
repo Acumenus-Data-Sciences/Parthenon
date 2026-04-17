@@ -1,0 +1,167 @@
+{
+    "id": 2172,
+    "name": "J10_PLEUROTH",
+    "description": "Other pleural conditions — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#J10"
+        ],
+        "level": "3",
+        "parent": "J90-J94",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1925,
+            "imported_at": "2026-04-17T00:17:32+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "511",
+                "patterns": [
+                    "511"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "511",
+                "patterns": [
+                    "511"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "511",
+                "patterns": [
+                    "511"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "511",
+                "patterns": [
+                    "511"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "J94",
+                "patterns": [
+                    "J94"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "J94",
+                "patterns": [
+                    "J94"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": "511[1-2]",
+                "patterns": [
+                    "5111",
+                    "5112"
+                ]
+            },
+            "hd_icd_9_excl": {
+                "raw": "5111",
+                "patterns": [
+                    "5111"
+                ]
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1569508,
+                35208088,
+                35208089,
+                35208090,
+                35208091,
+                35208092,
+                44820895,
+                44823147,
+                44829015,
+                44829016,
+                44829017,
+                44831282,
+                44837139
+            ],
+            "conditions_standard": [
+                78786,
+                4306136,
+                40481857,
+                4135466,
+                443392,
+                3655266,
+                258458,
+                254061
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:05.000000Z",
+    "updated_at": "2026-04-17T00:17:32.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#J10"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

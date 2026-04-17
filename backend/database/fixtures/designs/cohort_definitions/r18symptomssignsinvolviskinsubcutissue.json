@@ -1,0 +1,202 @@
+{
+    "id": 3430,
+    "name": "R18_SYMPTOMS_SIGNS_INVOLVI_SKIN_SUBCU_TISSUE",
+    "description": "Symptoms and signs involving the skin and subcutaneous tissue — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#R18"
+        ],
+        "level": "2",
+        "parent": "R",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 8,
+            "n_tokens_resolved": 8
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3183,
+            "imported_at": "2026-04-17T00:17:44+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "R2[0-3]",
+                "patterns": [
+                    "R20",
+                    "R21",
+                    "R22",
+                    "R23"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "R2[0-3]",
+                "patterns": [
+                    "R20",
+                    "R21",
+                    "R22",
+                    "R23"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "R18_DISTU_SKIN_SENSA",
+            "R18_RASH_OTHER_NONSPECIFIC_SKIN_ERUPT",
+            "R18_LOCALIZED_SWELL_MASS_LUMP_SKIN_SUBCU_TISSUE",
+            "R18_OTHER_SKIN_CHANG"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1572212,
+                1572213,
+                1572214,
+                1572215,
+                1572216,
+                35211304,
+                35211305,
+                35211306,
+                35211307,
+                35211308,
+                35211309,
+                35211310,
+                35211311,
+                35211312,
+                35211313,
+                35211314,
+                35211315,
+                35211316,
+                35211317,
+                35211318,
+                35211319,
+                45539324,
+                45544135,
+                45548957,
+                45548958,
+                45553722,
+                45568121,
+                45573019,
+                45592413,
+                45606799,
+                45606800
+            ],
+            "conditions_standard": [
+                137682,
+                4102120,
+                4206592,
+                42709746,
+                42709742,
+                141960,
+                4155909,
+                4161682,
+                4236484,
+                4031840,
+                140214,
+                36712689,
+                4200520,
+                40486678,
+                4275722,
+                438555,
+                37165080,
+                318566,
+                438252,
+                140842,
+                36685986,
+                36685980,
+                36685976,
+                36685988,
+                602300,
+                36685978,
+                4317258
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:16.000000Z",
+    "updated_at": "2026-04-17T00:17:44.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#R18"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

@@ -1,0 +1,223 @@
+{
+    "id": 3615,
+    "name": "ST19_INJURY_NERVES_FOREA_LEVEL",
+    "description": "Injury of nerves at forearm level — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#ST19"
+        ],
+        "level": "3",
+        "parent": "S5",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3368,
+            "imported_at": "2026-04-17T00:17:46+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "S54",
+                "patterns": [
+                    "S54"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "S54",
+                "patterns": [
+                    "S54"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                13082,
+                13083,
+                13084,
+                13085,
+                13086,
+                13087,
+                13088,
+                13089,
+                13090,
+                13091,
+                13092,
+                13093,
+                13094,
+                13095,
+                13096,
+                13097,
+                13098,
+                13099,
+                1573195,
+                1573196,
+                1573197,
+                1573198,
+                1573199,
+                1573200,
+                1573201,
+                1573202,
+                45535351,
+                45535352,
+                45535353,
+                45535354,
+                45540183,
+                45540184,
+                45540185,
+                45540186,
+                45540187,
+                45545008,
+                45545009,
+                45549829,
+                45549830,
+                45549831,
+                45549832,
+                45549833,
+                45554607,
+                45554608,
+                45554609,
+                45559321,
+                45559322,
+                45559323,
+                45559324,
+                45568994,
+                45568995,
+                45568996,
+                45568997,
+                45573904,
+                45573905,
+                45573906,
+                45573907,
+                45573908,
+                45573909,
+                45573910,
+                45578655,
+                45583530,
+                45583531,
+                45583532,
+                45583533,
+                45588378,
+                45588379,
+                45588380,
+                45593254,
+                45593255,
+                45593256,
+                45593258,
+                45593260,
+                45602866,
+                45602867,
+                45602869,
+                45607683,
+                45607685,
+                45607686,
+                45607687
+            ],
+            "conditions_standard": [
+                373101,
+                433642,
+                136865,
+                4059109,
+                4043672,
+                36715774,
+                36715775,
+                36715776,
+                36717481,
+                37205092
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:18.000000Z",
+    "updated_at": "2026-04-17T00:17:46.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#ST19"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

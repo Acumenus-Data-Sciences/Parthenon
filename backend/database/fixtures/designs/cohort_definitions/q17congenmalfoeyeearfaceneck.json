@@ -1,0 +1,272 @@
+{
+    "id": 3297,
+    "name": "Q17_CONGEN_MALFO_EYE_EAR_FACE_NECK",
+    "description": "Congenital malformations of eye, ear, face and neck — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#Q17"
+        ],
+        "level": "2",
+        "parent": "Q",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3050,
+            "imported_at": "2026-04-17T00:17:43+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "Q1",
+                "patterns": [
+                    "Q1"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "Q1",
+                "patterns": [
+                    "Q1"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "Q17_CONGEN_MALFO_EYELID_LACRIMAL_APPARA_ORBIT",
+            "Q17_ANOPH_MICROPHT_MACROP",
+            "Q17_CONGEN_LENS_MALFO",
+            "Q17_CONGEN_MALFO_ANTER_SEGMENT_EYE",
+            "Q17_CONGEN_MALFO_POSTERI_SEGMENT_EYE",
+            "Q17_OTHER_CONGEN_MALFO_EYE",
+            "Q17_CONGEN_MALFO_EAR_CAUSI_IMPAIRM_HEARING",
+            "Q17_OTHER_CONGEN_MALFO_EAR",
+            "Q17_OTHER_CONGEN_MALFO_FACE_NECK"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1572053,
+                1572054,
+                1572055,
+                1572056,
+                1572057,
+                1572058,
+                1572059,
+                1572060,
+                1572061,
+                1572062,
+                35210731,
+                35210732,
+                35210733,
+                35210734,
+                35210735,
+                35210736,
+                35210737,
+                35210738,
+                35210739,
+                35210740,
+                35210741,
+                35210742,
+                35210743,
+                35210744,
+                35210745,
+                35210746,
+                35210747,
+                35210748,
+                35210749,
+                35210750,
+                35210751,
+                35210752,
+                35210753,
+                35210754,
+                35210755,
+                35210756,
+                35210757,
+                35210758,
+                35210759,
+                35210760,
+                35210761,
+                35210762,
+                35210763,
+                35210764,
+                35210765,
+                35210766,
+                35210767,
+                35210768,
+                35210769,
+                35210770,
+                35210771,
+                35210772,
+                35210773,
+                35210774,
+                35210775,
+                35210776,
+                35210777,
+                35210778,
+                35210779,
+                35210780,
+                35210781,
+                35210782,
+                35210783,
+                35210784,
+                35210785,
+                35210786,
+                35210787,
+                35210788,
+                35210789,
+                35210790,
+                45558392,
+                45563236
+            ],
+            "conditions_standard": [
+                4070197,
+                372424,
+                4027702,
+                436805,
+                441669,
+                376793,
+                4166587,
+                439394,
+                437093,
+                4132119,
+                4069660,
+                380510,
+                37110301,
+                4156959,
+                440196,
+                441953,
+                381115,
+                434143,
+                376512,
+                4246469,
+                380513,
+                378245,
+                4068113,
+                381949,
+                4259117,
+                373858,
+                40602337,
+                440195,
+                4079975,
+                376225,
+                4134614,
+                4069806,
+                4100723,
+                378547,
+                436806,
+                4316347,
+                40403168,
+                381384,
+                4185093,
+                4328488,
+                440199,
+                375921,
+                378548,
+                442641,
+                378849,
+                45757259,
+                4147784,
+                4170135,
+                25056,
+                4178668,
+                133859,
+                23304,
+                22426,
+                140520,
+                138553,
+                444242,
+                4171022
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:15.000000Z",
+    "updated_at": "2026-04-17T00:17:43.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#Q17"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

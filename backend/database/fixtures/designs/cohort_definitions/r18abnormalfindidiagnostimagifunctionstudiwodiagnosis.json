@@ -1,0 +1,278 @@
+{
+    "id": 3438,
+    "name": "R18_ABNORMAL_FINDI_DIAGNOST_IMAGI_FUNCTION_STUDI_WO_DIAGNOSIS",
+    "description": "Abnormal findings on diagnostic imaging and in function studies, without diagnosis — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#R18"
+        ],
+        "level": "2",
+        "parent": "R",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 10,
+            "n_tokens_resolved": 10
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3191,
+            "imported_at": "2026-04-17T00:17:44+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "R9[0-4]",
+                "patterns": [
+                    "R90",
+                    "R91",
+                    "R92",
+                    "R93",
+                    "R94"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "R9[0-4]",
+                "patterns": [
+                    "R90",
+                    "R91",
+                    "R92",
+                    "R93",
+                    "R94"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "R18_ABNORMAL_FINDI_DIAGNOST_IMAGI_CENTRAL_NERVOUS_SYSTEM",
+            "R18_ABNORMAL_FINDI_DIAGNOST_IMAGI_LUNG",
+            "R18_ABNORMAL_FINDI_DIAGNOST_IMAGI_BREAST",
+            "R18_ABNORMAL_FINDI_DIAGNOST_IMAGI_OTHER_BODY_STRUCTURES",
+            "R18_ABNORMAL_RESULTS_FUNCTION_STUDI"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                786129,
+                786130,
+                786131,
+                786132,
+                786133,
+                786134,
+                786135,
+                786136,
+                786137,
+                786138,
+                786139,
+                786140,
+                786141,
+                786142,
+                786143,
+                786144,
+                786145,
+                786146,
+                1572300,
+                1572301,
+                1572302,
+                1572303,
+                1572304,
+                1572305,
+                1572306,
+                1572307,
+                1572308,
+                1572309,
+                1572310,
+                1595696,
+                1595697,
+                1595698,
+                1595699,
+                1595700,
+                1595701,
+                35211511,
+                35211512,
+                35211513,
+                35211514,
+                35211515,
+                35211516,
+                35211517,
+                35211518,
+                35211519,
+                35211520,
+                35211521,
+                35211522,
+                35211523,
+                35211524,
+                35211525,
+                35211526,
+                35211527,
+                37201116,
+                37201117,
+                37201118,
+                37201119,
+                37201120,
+                37201121,
+                45534478,
+                45534479,
+                45534480,
+                45539371,
+                45544169,
+                45548994,
+                45548996,
+                45558492,
+                45558493,
+                45563331,
+                45568157,
+                45573048,
+                45577823,
+                45577825,
+                45577828,
+                45577829,
+                45582732,
+                45582734,
+                45582735,
+                45587536,
+                45587538,
+                45592442,
+                45592444,
+                45597211,
+                45597212,
+                45606832,
+                45606833
+            ],
+            "conditions_standard": [
+                4032513,
+                44789863,
+                36713017,
+                434169,
+                4256761,
+                40484102,
+                432451,
+                434486,
+                4065254,
+                137989,
+                441969,
+                4106292,
+                4311115,
+                437677,
+                439154,
+                435081,
+                436231,
+                40482267,
+                440529,
+                40481385,
+                4171776,
+                40481319,
+                4064989,
+                437992,
+                438878,
+                4194160,
+                45770748,
+                435086,
+                4142875,
+                4180938,
+                40484908,
+                441415,
+                37108814,
+                320536,
+                45757639,
+                4168694,
+                44783760,
+                40484949,
+                443702,
+                4168553,
+                4168089,
+                253328,
+                37109019,
+                377383,
+                40484951,
+                36713238
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:16.000000Z",
+    "updated_at": "2026-04-17T00:17:44.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#R18"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

@@ -1,0 +1,183 @@
+{
+    "id": 3173,
+    "name": "O15_MEMBR_PREMAT_RUPT",
+    "description": "Premature rupture of membranes — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#O15"
+        ],
+        "level": "3",
+        "parent": "O30-O48",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2926,
+            "imported_at": "2026-04-17T00:17:42+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "63495",
+                "patterns": [
+                    "63495"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "6581A",
+                "patterns": [
+                    "6581A"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "63495",
+                "patterns": [
+                    "63495"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "6581A",
+                "patterns": [
+                    "6581A"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "O42",
+                "patterns": [
+                    "O42"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "O42",
+                "patterns": [
+                    "O42"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": 2,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1571806,
+                1571807,
+                1571808,
+                1571809,
+                1571810,
+                1571811,
+                1571812,
+                45534270,
+                45539179,
+                45544002,
+                45544003,
+                45553560,
+                45558305,
+                45558307,
+                45567972,
+                45567973,
+                45572855,
+                45577639,
+                45582549,
+                45582550,
+                45592261,
+                45592262,
+                45592263,
+                45597004,
+                45597005,
+                44823269,
+                44827964,
+                44829136,
+                44833754
+            ],
+            "conditions_standard": [
+                194702,
+                4064296,
+                45770893,
+                4060691,
+                45757148,
+                45757149,
+                4239938,
+                45772076,
+                4218813,
+                4244438,
+                45757122,
+                45757123,
+                433260
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:14.000000Z",
+    "updated_at": "2026-04-17T00:17:42.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#O15"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

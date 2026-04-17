@@ -1,0 +1,196 @@
+{
+    "id": 3921,
+    "name": "VWXY20_KIVAARIN_HAULIKON_TAI_MUUN_SUURIK_TULIA_LAUKA_LIITTYVA_TAPATURMA",
+    "description": "Rifle, shotgun and larger firearm discharge — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#VWXY20"
+        ],
+        "level": "5",
+        "parent": "W[2-4]",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3674,
+            "imported_at": "2026-04-17T00:17:49+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "W33",
+                "patterns": [
+                    "W33"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "W33",
+                "patterns": [
+                    "W33"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                21100,
+                21101,
+                21102,
+                21103,
+                21104,
+                21105,
+                21106,
+                21107,
+                21108,
+                21109,
+                1575645,
+                1575646,
+                35223011,
+                35223012,
+                35223013,
+                35223014,
+                35223015,
+                35223016,
+                35223017,
+                35223018,
+                35223019,
+                35223020,
+                35223021,
+                35223022,
+                35223023,
+                35223024,
+                35223025,
+                45537409,
+                45542204,
+                45547079,
+                45547080,
+                45547081,
+                45551873,
+                45551874,
+                45551875,
+                45551876,
+                45561415,
+                45566204,
+                45571119,
+                45571120,
+                45571121,
+                45575934,
+                45575935,
+                45575936,
+                45575937,
+                45575938,
+                45580809,
+                45585604,
+                45585605,
+                45585606,
+                45590474,
+                45595270,
+                45595271,
+                45595272,
+                45604889,
+                45604890,
+                45604891,
+                45609729
+            ],
+            "conditions_standard": [
+                437167,
+                4151406,
+                435445,
+                437480,
+                439620
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:21.000000Z",
+    "updated_at": "2026-04-17T00:17:49.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#VWXY20"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

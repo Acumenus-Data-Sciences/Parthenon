@@ -1,0 +1,303 @@
+{
+    "id": 3658,
+    "name": "ST19_TRAUMAT_AMPUT_ANKLE_FOOT",
+    "description": "Traumatic amputation of ankle and foot — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#ST19"
+        ],
+        "level": "3",
+        "parent": "S90",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3411,
+            "imported_at": "2026-04-17T00:17:46+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "S98",
+                "patterns": [
+                    "S98"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "S98",
+                "patterns": [
+                    "S98"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                16558,
+                16559,
+                16560,
+                16561,
+                16562,
+                16563,
+                16564,
+                16565,
+                16566,
+                16567,
+                16568,
+                16569,
+                16570,
+                16571,
+                16572,
+                16573,
+                16574,
+                16575,
+                16576,
+                16577,
+                16578,
+                16579,
+                16580,
+                16581,
+                16582,
+                16583,
+                16584,
+                16585,
+                16586,
+                16587,
+                16588,
+                16589,
+                16590,
+                16591,
+                16592,
+                16593,
+                1574205,
+                1574206,
+                1574207,
+                1574208,
+                1574209,
+                1574210,
+                1574211,
+                1574212,
+                1574213,
+                1574214,
+                1574215,
+                1574216,
+                1574217,
+                1574218,
+                1574219,
+                1574220,
+                1574221,
+                1574222,
+                45536451,
+                45536452,
+                45536453,
+                45536454,
+                45541222,
+                45541223,
+                45541224,
+                45541225,
+                45541226,
+                45541227,
+                45541228,
+                45541229,
+                45541230,
+                45541231,
+                45541232,
+                45541233,
+                45546078,
+                45546079,
+                45546080,
+                45546081,
+                45546083,
+                45546084,
+                45550885,
+                45550886,
+                45550887,
+                45550888,
+                45550889,
+                45550890,
+                45550891,
+                45550892,
+                45550893,
+                45550894,
+                45550895,
+                45555686,
+                45555687,
+                45555688,
+                45555689,
+                45555690,
+                45555691,
+                45555692,
+                45560425,
+                45560426,
+                45565270,
+                45565271,
+                45565272,
+                45565273,
+                45565274,
+                45565275,
+                45565276,
+                45570119,
+                45570120,
+                45570121,
+                45570122,
+                45570123,
+                45570124,
+                45570125,
+                45570126,
+                45570127,
+                45575005,
+                45575006,
+                45575007,
+                45575008,
+                45579813,
+                45579814,
+                45579815,
+                45579816,
+                45579818,
+                45579819,
+                45579820,
+                45584638,
+                45584639,
+                45584640,
+                45589493,
+                45589494,
+                45589495,
+                45589496,
+                45589497,
+                45589498,
+                45594336,
+                45594337,
+                45594338,
+                45594339,
+                45594340,
+                45594341,
+                45594342,
+                45594343,
+                45594344,
+                45594345,
+                45594346,
+                45599161,
+                45599162,
+                45599163,
+                45599164,
+                45603995,
+                45603997,
+                45603998,
+                45603999,
+                45604000,
+                45604001,
+                45604002,
+                45604003,
+                45608738,
+                45608739,
+                45608740,
+                45608741,
+                45608742,
+                45608743,
+                45608744
+            ],
+            "conditions_standard": [
+                4053150,
+                4053149,
+                4051432,
+                4056430,
+                4320025,
+                4318111,
+                4319152,
+                434512
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:18.000000Z",
+    "updated_at": "2026-04-17T00:17:46.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#ST19"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

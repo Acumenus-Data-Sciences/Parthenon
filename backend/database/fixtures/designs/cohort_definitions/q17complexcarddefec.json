@@ -1,0 +1,266 @@
+{
+    "id": 3343,
+    "name": "Q17_COMPLEX_CARD_DEFEC",
+    "description": "Complex cardiac defects — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#Q17"
+        ],
+        "level": "3",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 48,
+            "n_tokens_resolved": 48
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3096,
+            "imported_at": "2026-04-17T00:17:43+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "7453B|7451C|7458X|7459X|7456X|7454C|7462A|7468A|7471C|7472X",
+                "patterns": [
+                    "7453B",
+                    "7451C",
+                    "7458X",
+                    "7459X",
+                    "7456X",
+                    "7454C",
+                    "7462A",
+                    "7468A",
+                    "7471C",
+                    "7472X"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "7453B|7451C|7458X|7459X|7456X|7454C|7462A|7468A|7471C|7472X",
+                "patterns": [
+                    "7453B",
+                    "7451C",
+                    "7458X",
+                    "7459X",
+                    "7456X",
+                    "7454C",
+                    "7462A",
+                    "7468A",
+                    "7471C",
+                    "7472X"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "Q2040|Q2041|Q2048|Q205|Q2060|Q2061|Q208|Q209|Q2115|Q2180|Q225|Q242|Q2521|Q2544",
+                "patterns": [
+                    "Q2040",
+                    "Q2041",
+                    "Q2048",
+                    "Q205",
+                    "Q2060",
+                    "Q2061",
+                    "Q208",
+                    "Q209",
+                    "Q2115",
+                    "Q2180",
+                    "Q225",
+                    "Q242",
+                    "Q2521",
+                    "Q2544"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "Q2040|Q2041|Q2048|Q205|Q2060|Q2061|Q208|Q209|Q2115|Q2180|Q225|Q242|Q2521|Q2544",
+                "patterns": [
+                    "Q2040",
+                    "Q2041",
+                    "Q2048",
+                    "Q205",
+                    "Q2060",
+                    "Q2061",
+                    "Q208",
+                    "Q209",
+                    "Q2115",
+                    "Q2180",
+                    "Q225",
+                    "Q242",
+                    "Q2521",
+                    "Q2544"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": "758|7595|75683",
+                "patterns": [
+                    "758",
+                    "7595",
+                    "75683"
+                ]
+            },
+            "hd_icd_10_excl": {
+                "raw": "Q90|Q91|Q92|Q93|Q96|Q8780|Q8781|Q8782|Q8783|Q8784|Q8786|Q8788|Q85|Q796|Q874|Q875",
+                "patterns": [
+                    "Q90",
+                    "Q91",
+                    "Q92",
+                    "Q93",
+                    "Q96",
+                    "Q8780",
+                    "Q8781",
+                    "Q8782",
+                    "Q8783",
+                    "Q8784",
+                    "Q8786",
+                    "Q8788",
+                    "Q85",
+                    "Q796",
+                    "Q874",
+                    "Q875"
+                ]
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                35210796,
+                35210798,
+                35210799,
+                35210812,
+                35210825,
+                37201016,
+                37201022,
+                37402963,
+                44820005,
+                44820008,
+                44820009,
+                44821190,
+                44823394,
+                44824560,
+                44825749,
+                44825750,
+                44825751,
+                44825752,
+                44825754,
+                44826928,
+                44826930,
+                44828094,
+                44828095,
+                44828096,
+                44828097,
+                44828098,
+                44829247,
+                44830385,
+                44830386,
+                44830388,
+                44831544,
+                44831545,
+                44832680,
+                44835039,
+                44835041,
+                44836238,
+                44836239,
+                44837385,
+                44837386
+            ],
+            "conditions_standard": [
+                4100733,
+                312723,
+                4069182,
+                441108,
+                433860,
+                4163372,
+                4316879,
+                316226,
+                321119,
+                314463,
+                432431,
+                434146,
+                433015,
+                435912,
+                4069184,
+                321109,
+                318549,
+                313011,
+                441385,
+                320827,
+                434462,
+                313867,
+                76798,
+                315069,
+                4069183
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:16.000000Z",
+    "updated_at": "2026-04-17T00:17:43.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#Q17"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

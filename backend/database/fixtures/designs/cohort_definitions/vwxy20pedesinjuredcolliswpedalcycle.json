@@ -1,0 +1,217 @@
+{
+    "id": 3866,
+    "name": "VWXY20_PEDES_INJURED_COLLIS_W_PEDAL_CYCLE",
+    "description": "Pedestrian injured in collision with pedal cycle — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#VWXY20"
+        ],
+        "level": "5",
+        "parent": "V0",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3619,
+            "imported_at": "2026-04-17T00:17:48+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "V01",
+                "patterns": [
+                    "V01"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "V01",
+                "patterns": [
+                    "V01"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                19801,
+                19802,
+                19803,
+                19804,
+                19805,
+                19806,
+                19807,
+                19808,
+                19809,
+                19810,
+                19811,
+                19812,
+                725652,
+                725653,
+                725654,
+                725655,
+                725656,
+                725657,
+                725658,
+                725659,
+                725660,
+                725661,
+                725662,
+                725663,
+                725664,
+                725665,
+                725666,
+                725667,
+                725668,
+                725669,
+                725670,
+                725671,
+                725672,
+                725673,
+                725674,
+                725675,
+                725676,
+                725677,
+                725678,
+                1575353,
+                1575354,
+                1575355,
+                1575356,
+                45537118,
+                45537119,
+                45541904,
+                45541905,
+                45546782,
+                45551574,
+                45551575,
+                45551576,
+                45556323,
+                45556324,
+                45556326,
+                45561122,
+                45561123,
+                45561125,
+                45565924,
+                45570806,
+                45570807,
+                45570808,
+                45575648,
+                45575649,
+                45575650,
+                45575651,
+                45575652,
+                45575653,
+                45580496,
+                45580497,
+                45580498,
+                45585348,
+                45585349,
+                45590154,
+                45590155,
+                45590156,
+                45599846,
+                45599847,
+                45599848,
+                45604608
+            ],
+            "conditions_standard": [
+                441188,
+                442247,
+                438329,
+                4067156,
+                439620
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:20.000000Z",
+    "updated_at": "2026-04-17T00:17:48.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#VWXY20"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

@@ -1,0 +1,175 @@
+{
+    "id": 1525,
+    "name": "G6_MUSDYST",
+    "description": "Muscular dystrophy — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#G6",
+            "#GASTRO_CM"
+        ],
+        "level": "3",
+        "parent": "G71",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.5,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 8,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1278,
+            "imported_at": "2026-04-17T00:17:25+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "33030|33090",
+                "patterns": [
+                    "33030",
+                    "33090"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "3591A",
+                "patterns": [
+                    "3591A"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "33030|33090",
+                "patterns": [
+                    "33030",
+                    "33090"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "3591A",
+                "patterns": [
+                    "3591A"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "G710",
+                "patterns": [
+                    "G710"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "G710",
+                "patterns": [
+                    "G710"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1348443,
+                1595546,
+                1595547,
+                1595548,
+                1595549,
+                35207465,
+                37402473,
+                37402474,
+                37402475,
+                37402476,
+                37402477,
+                37402478,
+                37402479,
+                37402480,
+                37402481,
+                37402482,
+                37402483,
+                37402484,
+                44833456
+            ],
+            "conditions_standard": [
+                4347185,
+                4247802,
+                4344276,
+                4163266,
+                4347189,
+                37395782,
+                37397523,
+                37395781,
+                36713857,
+                37111586,
+                80399
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:59.000000Z",
+    "updated_at": "2026-04-17T00:17:25.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#G6",
+        "#GASTRO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

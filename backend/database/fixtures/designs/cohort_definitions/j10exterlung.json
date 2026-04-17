@@ -1,0 +1,244 @@
+{
+    "id": 2119,
+    "name": "J10_EXTERLUNG",
+    "description": "Lung diseases due to external agents — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#J10",
+            "#ILD_CM"
+        ],
+        "level": "2",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 4,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1872,
+            "imported_at": "2026-04-17T00:17:32+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "J[6-7]",
+                "patterns": [
+                    "J6",
+                    "J7"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "J[6-7]",
+                "patterns": [
+                    "J6",
+                    "J7"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "J10_COALPNEUMOC",
+            "J10_ASBESTPNEUMOC",
+            "J10_SILICAPNEUMOC",
+            "J10_INORGPNEUMOC",
+            "J10_NASPNEUMOC",
+            "J10_TUBERCPNEUMOC",
+            "J10_AIRWDISDUST",
+            "J10_HYPERSPNEUMONI",
+            "J10_CHEMGASRESP",
+            "J10_PNEUMONISOLLIQ",
+            "J10_RESPCONDEXT"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1569493,
+                1569494,
+                1569495,
+                1569496,
+                1569497,
+                1569498,
+                1569499,
+                35208026,
+                35208027,
+                35208028,
+                35208029,
+                35208030,
+                35208031,
+                35208032,
+                35208033,
+                35208034,
+                35208035,
+                35208036,
+                35208037,
+                35208038,
+                35208039,
+                35208040,
+                35208041,
+                35208042,
+                35208043,
+                35208044,
+                35208045,
+                35208046,
+                35208047,
+                35208048,
+                35208049,
+                35208050,
+                35208051,
+                35208052,
+                35208053,
+                35208054,
+                35208055,
+                35208056,
+                35208057,
+                35208058,
+                35208059,
+                35208060,
+                35208061,
+                35208062,
+                35208063,
+                35208064,
+                35208065,
+                35208066,
+                35208067,
+                35208068,
+                45557628,
+                45586677
+            ],
+            "conditions_standard": [
+                442125,
+                254389,
+                259044,
+                444084,
+                3655118,
+                4187218,
+                320136,
+                252946,
+                256450,
+                4249010,
+                4236624,
+                4032314,
+                4221139,
+                4066407,
+                4266525,
+                4196950,
+                4112676,
+                4311814,
+                4027669,
+                4302900,
+                435298,
+                437588,
+                439853,
+                443890,
+                434975,
+                433233,
+                438175,
+                434670,
+                439298,
+                4120269,
+                3655108,
+                4063381,
+                4110180,
+                4112839,
+                253506,
+                256721,
+                442297,
+                4110644,
+                252348,
+                4110182,
+                4112814,
+                4112813,
+                4143700
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:04.000000Z",
+    "updated_at": "2026-04-17T00:17:32.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#J10",
+        "#ILD_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

@@ -1,0 +1,256 @@
+{
+    "id": 2457,
+    "name": "L12_OTHERCONTACT",
+    "description": "Other contact dermatitis — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#L12"
+        ],
+        "level": "3",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.3,
+            "bucket": "SPARSE",
+            "n_tokens_total": 20,
+            "n_tokens_resolved": 6
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2210,
+            "imported_at": "2026-04-17T00:17:35+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "692[1-6]|69281",
+                "patterns": [
+                    "6921",
+                    "6922",
+                    "6923",
+                    "6924",
+                    "6925",
+                    "6926",
+                    "69281"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "692",
+                "patterns": [
+                    "692"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "692[1-6]|69281",
+                "patterns": [
+                    "6921",
+                    "6922",
+                    "6923",
+                    "6924",
+                    "6925",
+                    "6926",
+                    "69281"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "692",
+                "patterns": [
+                    "692"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "L2[4-5]",
+                "patterns": [
+                    "L24",
+                    "L25"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "L2[4-5]",
+                "patterns": [
+                    "L24",
+                    "L25"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": "6925",
+                "patterns": [
+                    "6925"
+                ]
+            },
+            "hd_icd_9_excl": {
+                "raw": "6920B|6921B|6922B|6924B|6924D|6924H|6924L|6925B|6925D|6926B|6926D",
+                "patterns": [
+                    "6920B",
+                    "6921B",
+                    "6922B",
+                    "6924B",
+                    "6924D",
+                    "6924H",
+                    "6924L",
+                    "6925B",
+                    "6925D",
+                    "6926B",
+                    "6926D"
+                ]
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "SPARSE",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                766381,
+                766382,
+                766383,
+                766384,
+                766385,
+                766386,
+                766387,
+                766388,
+                766389,
+                766390,
+                1569770,
+                1569771,
+                1569772,
+                35208465,
+                35208466,
+                35208467,
+                35208468,
+                35208469,
+                35208470,
+                35208471,
+                35208472,
+                35208473,
+                35208474,
+                35208475,
+                35208476,
+                35208477,
+                35208478,
+                35208479,
+                35208480,
+                35208481,
+                45543367,
+                45572267,
+                44821091,
+                44821092,
+                44822165,
+                44822166,
+                44822167,
+                44824473,
+                44824474,
+                44824475,
+                44825651,
+                44826848,
+                44828003,
+                44828004,
+                44828005,
+                44829178,
+                44829179,
+                44829180,
+                44830299,
+                44832602,
+                44833787,
+                44834952,
+                44834953,
+                44836149,
+                44836150,
+                44837309,
+                44837310
+            ],
+            "conditions_standard": [
+                4004352,
+                4298613,
+                619358,
+                134438,
+                443900,
+                4291277,
+                4064032,
+                4066472,
+                46269732,
+                4066736,
+                4299538,
+                141648,
+                1077500,
+                4286663,
+                46270371,
+                442747,
+                4066733,
+                46269733,
+                4300442,
+                4331304,
+                137350,
+                40482226,
+                4096946,
+                141650,
+                437949,
+                4239682,
+                4033772,
+                438223,
+                141372,
+                607783
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:07.000000Z",
+    "updated_at": "2026-04-17T00:17:35.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#L12"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

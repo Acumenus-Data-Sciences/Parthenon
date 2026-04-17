@@ -1,0 +1,166 @@
+{
+    "id": 5142,
+    "name": "C3_ALL_WIDE",
+    "description": "Acute lymphocytic leukaemia, including Hilmo — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#C3"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.25,
+            "bucket": "SPARSE",
+            "n_tokens_total": 16,
+            "n_tokens_resolved": 4
+        },
+        "conditions": "HLP_C3_ALL",
+        "provenance": {
+            "source_row": 4895,
+            "imported_at": "2026-04-17T00:17:57+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "20400",
+                "patterns": [
+                    "20400"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "2040A",
+                "patterns": [
+                    "2040A"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": "ANY",
+                "patterns": [
+                    "ANY"
+                ]
+            },
+            "cod_icd_8": {
+                "raw": "20400",
+                "patterns": [
+                    "20400"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "2040A",
+                "patterns": [
+                    "2040A"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "C910",
+                "patterns": [
+                    "C910"
+                ]
+            },
+            "canc_behav": {
+                "raw": "3",
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": "981[1-8]|9835",
+                "patterns": [
+                    "9811",
+                    "9812",
+                    "9813",
+                    "9814",
+                    "9815",
+                    "9816",
+                    "9817",
+                    "9818",
+                    "9835"
+                ]
+            },
+            "cod_icd_10": {
+                "raw": "C910",
+                "patterns": [
+                    "C910"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "SPARSE",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "HLP_C3_ALL"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567681,
+                45557039,
+                45557040,
+                45566647,
+                44821759,
+                44821760,
+                44822907,
+                44829844
+            ],
+            "conditions_standard": [
+                134305,
+                141816,
+                36712834
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:30.000000Z",
+    "updated_at": "2026-04-17T00:17:57.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#C3"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

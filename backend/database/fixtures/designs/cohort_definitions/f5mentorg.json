@@ -1,0 +1,185 @@
+{
+    "id": 1350,
+    "name": "F5_MENTORG",
+    "description": "Other mental disorders due to brain damage and dysfunction and to physical disease — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#F5"
+        ],
+        "level": "3",
+        "parent": "F04-F09",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 10,
+            "n_tokens_resolved": 6
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1103,
+            "imported_at": "2026-04-17T00:17:23+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "294|309",
+                "patterns": [
+                    "294",
+                    "309"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "2938|2939",
+                "patterns": [
+                    "2938",
+                    "2939"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "294|309",
+                "patterns": [
+                    "294",
+                    "309"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "2938|2939",
+                "patterns": [
+                    "2938",
+                    "2939"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "F06",
+                "patterns": [
+                    "F06"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "F06",
+                "patterns": [
+                    "F06"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": "2944|2943",
+                "patterns": [
+                    "2944",
+                    "2943"
+                ]
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1568091,
+                1568092,
+                35207117,
+                35207118,
+                35207119,
+                35207120,
+                35207121,
+                35207122,
+                37402458,
+                37402459,
+                37402460,
+                45557151,
+                45561998,
+                45576490,
+                45581399,
+                45600688,
+                44819536,
+                44821812,
+                44822968,
+                44832222,
+                44834584,
+                44835776,
+                44835777
+            ],
+            "conditions_standard": [
+                374009,
+                373176,
+                373175,
+                4335159,
+                375229,
+                381537,
+                4297400,
+                4295956,
+                4328217,
+                4329560,
+                4298317,
+                4102936,
+                443586,
+                444100
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:58.000000Z",
+    "updated_at": "2026-04-17T00:17:23.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#F5"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

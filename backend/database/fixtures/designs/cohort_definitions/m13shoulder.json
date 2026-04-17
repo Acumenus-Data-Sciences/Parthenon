@@ -1,0 +1,199 @@
+{
+    "id": 2885,
+    "name": "M13_SHOULDER",
+    "description": "Shoulder lesions — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#M13",
+            "#GASTRO_CM"
+        ],
+        "level": "3",
+        "parent": "M70-M79",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2638,
+            "imported_at": "2026-04-17T00:17:39+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "M75",
+                "patterns": [
+                    "M75"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "M75",
+                "patterns": [
+                    "M75"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "M13_ADHCAPSULITIS",
+            "M13_ROTATORCUFF",
+            "M13_BICIPITALTEND",
+            "M13_CALCIFICTEND",
+            "M13_IMPINGEMENT",
+            "M13_SHOULDERBURSITIS",
+            "M13_SHOULDERNAS"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1571029,
+                1571030,
+                1571031,
+                1571032,
+                1571033,
+                1571034,
+                1571035,
+                1571036,
+                1571037,
+                45533932,
+                45533933,
+                45533934,
+                45533935,
+                45538861,
+                45538862,
+                45538863,
+                45538864,
+                45543682,
+                45543683,
+                45543684,
+                45548501,
+                45557985,
+                45562827,
+                45562828,
+                45562829,
+                45567649,
+                45567650,
+                45572540,
+                45572541,
+                45572542,
+                45572544,
+                45577346,
+                45582242,
+                45582243,
+                45587054,
+                45587055,
+                45591931,
+                45596679,
+                45601534,
+                45601535,
+                45601536,
+                45606320
+            ],
+            "conditions_standard": [
+                77630,
+                77644,
+                4212887,
+                4000968,
+                441946,
+                4344500,
+                4344258,
+                4172970,
+                762213,
+                762206,
+                762217,
+                762212,
+                762207,
+                762216
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:11.000000Z",
+    "updated_at": "2026-04-17T00:17:39.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#M13",
+        "#GASTRO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

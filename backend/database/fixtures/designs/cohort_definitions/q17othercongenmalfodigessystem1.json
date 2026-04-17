@@ -1,0 +1,275 @@
+{
+    "id": 3301,
+    "name": "Q17_OTHER_CONGEN_MALFO_DIGES_SYSTEM1",
+    "description": "Other congenital malformations of the digestive system — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#Q17"
+        ],
+        "level": "2",
+        "parent": "Q",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 16,
+            "n_tokens_resolved": 16
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3054,
+            "imported_at": "2026-04-17T00:17:43+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "Q3[8-9]|Q4[0-5]",
+                "patterns": [
+                    "Q38",
+                    "Q39",
+                    "Q40",
+                    "Q41",
+                    "Q42",
+                    "Q43",
+                    "Q44",
+                    "Q45"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "Q3[8-9]|Q4[0-5]",
+                "patterns": [
+                    "Q38",
+                    "Q39",
+                    "Q40",
+                    "Q41",
+                    "Q42",
+                    "Q43",
+                    "Q44",
+                    "Q45"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "Q17_OTHER_CONGEN_MALFO_TONGUE_MOUTH_PHARYNX",
+            "Q17_CONGEN_MALFO_OESOPHAGUS",
+            "Q17_OTHER_CONGEN_MALFO_UPPER_ALIME_TRACT",
+            "Q17_CONGEN_ABSENCE_ATRES_STENO_SMALL_INTESTINE",
+            "Q17_CONGEN_ABSENCE_ATRES_STENO_LARGE_INTESTINE",
+            "Q17_OTHER_CONGEN_MALFO_INTESTINE",
+            "Q17_CONGEN_MALFO_GALLB_BILE_DUCTS_LIVER",
+            "Q17_OTHER_CONGEN_MALFO_DIGES_SYSTEM2"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                785877,
+                786098,
+                786099,
+                1572081,
+                1572082,
+                1572083,
+                1572084,
+                1572085,
+                1572086,
+                1572087,
+                1572088,
+                35210910,
+                35210911,
+                35210912,
+                35210913,
+                35210914,
+                35210915,
+                35210916,
+                35210917,
+                35210918,
+                35210919,
+                35210920,
+                35210921,
+                35210922,
+                35210923,
+                35210924,
+                35210925,
+                35210926,
+                35210927,
+                35210928,
+                35210929,
+                35210930,
+                35210931,
+                35210932,
+                35210933,
+                35210934,
+                35210935,
+                35210936,
+                35210937,
+                35210938,
+                35210939,
+                35210940,
+                35210941,
+                35210942,
+                35210943,
+                35210944,
+                35210945,
+                35210946,
+                35210947,
+                35210948,
+                35210949,
+                35210950,
+                35210951,
+                35210952,
+                35210953,
+                35210954,
+                35210955,
+                35210956,
+                35210957,
+                35210958,
+                35210959,
+                35210960,
+                35210961,
+                35210962,
+                35210963,
+                35210964,
+                35210965,
+                35210966,
+                35210967,
+                35210968
+            ],
+            "conditions_standard": [
+                4136964,
+                444421,
+                4215370,
+                23868,
+                4169977,
+                197084,
+                4032939,
+                4130372,
+                4151863,
+                198249,
+                4033966,
+                436812,
+                437979,
+                433862,
+                4109612,
+                4027567,
+                133303,
+                24148,
+                23865,
+                36717640,
+                4004146,
+                4341231,
+                30515,
+                4231281,
+                4107566,
+                4005764,
+                192433,
+                198246,
+                194151,
+                4314399,
+                193807,
+                4008737,
+                441394,
+                194149,
+                443221,
+                200837,
+                4242694,
+                4197547,
+                4123290,
+                4253536,
+                4175814,
+                196796,
+                4035808,
+                37163116,
+                4187364,
+                197654,
+                4342875,
+                4222723,
+                4002480
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:15.000000Z",
+    "updated_at": "2026-04-17T00:17:43.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#Q17"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

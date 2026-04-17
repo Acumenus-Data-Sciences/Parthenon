@@ -1,0 +1,197 @@
+{
+    "id": 446,
+    "name": "AB1_SEQULEAE_OF_INFECTIONS_AND_PARASITES",
+    "description": "Sequelae of infectious and parasitic diseases — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#AB1"
+        ],
+        "level": "2",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.7272727272727273,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 22,
+            "n_tokens_resolved": 16
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 199,
+            "imported_at": "2026-04-17T00:17:14+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "019|044|066",
+                "patterns": [
+                    "019",
+                    "044",
+                    "066"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "13[7-9]",
+                "patterns": [
+                    "137",
+                    "138",
+                    "139"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "019|044|066",
+                "patterns": [
+                    "019",
+                    "044",
+                    "066"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "13[7-9]",
+                "patterns": [
+                    "137",
+                    "138",
+                    "139"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "B9[0-4]",
+                "patterns": [
+                    "B90",
+                    "B91",
+                    "B92",
+                    "B93",
+                    "B94"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "B9[0-4]",
+                "patterns": [
+                    "B90",
+                    "B91",
+                    "B92",
+                    "B93",
+                    "B94"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "AB1_SEQULAE_TUBERCU",
+            "AB1_SEQULAE_POLIO",
+            "AB1_SEQULAE_LEPROSY",
+            "AB1_SEQULAE_INF_NOS"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567451,
+                1567452,
+                35206012,
+                35206013,
+                35206014,
+                35206015,
+                35206016,
+                35206017,
+                35206018,
+                35206019,
+                35206020,
+                35206021,
+                35206022,
+                35206023,
+                44821719,
+                44821720,
+                44826382,
+                44826383,
+                44828722,
+                44828723,
+                44829786,
+                44833279,
+                44834473,
+                44836815,
+                44836816
+            ],
+            "conditions_standard": [
+                4090205,
+                36714927,
+                373970,
+                81229,
+                433421,
+                377802,
+                4093636,
+                36716521,
+                434866,
+                4093637
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:50.000000Z",
+    "updated_at": "2026-04-17T00:17:14.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#AB1"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

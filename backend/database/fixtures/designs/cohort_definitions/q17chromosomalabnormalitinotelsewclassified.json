@@ -1,0 +1,297 @@
+{
+    "id": 3306,
+    "name": "Q17_CHROMOSOMAL_ABNORMALITI_NOT_ELSEW_CLASSIFIED",
+    "description": "Chromosomal abnormalities, not elsewhere classified — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#Q17"
+        ],
+        "level": "2",
+        "parent": "Q",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3059,
+            "imported_at": "2026-04-17T00:17:43+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "Q9",
+                "patterns": [
+                    "Q9"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "Q9",
+                "patterns": [
+                    "Q9"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "Q17_DOWNS_SYNDR",
+            "Q17_EDWAR_SYNDR_PATAU_SYNDR",
+            "Q17_OTHER_TRISOMI_PARTIAL_TRISOMI_AUTOSOMES_NOT_ELSEW_CLASSIFIED",
+            "Q17_MONOSOMI_DELET_AUTOSOMES_NOT_ELSEW_CLASSIFIED",
+            "Q17_BALANC_REARR_STRUCTURAL_MARKERS_NOT_ELSEW_CLASSIFIED",
+            "Q17_TURNE_SYNDR",
+            "Q17_OTHER_SEX_CHROMOSOME_ABNORMALITI_FEMALE_PHENOT_NOT_ELSEW_CLASSIFIED",
+            "Q17_OTHER_SEX_CHROMOSOME_ABNORMALITI_MALE_PHENOT_NOT_ELSEW_CLASSIFIED",
+            "Q17_OTHER_CHROMOSOME_ABNORMALITI_NOT_ELSEW_CLASSIFIED"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                786122,
+                1348612,
+                1348613,
+                1348614,
+                1348615,
+                1348616,
+                1348617,
+                1348618,
+                1572175,
+                1572176,
+                1572177,
+                1572178,
+                1572179,
+                1572180,
+                1572181,
+                1572182,
+                1572183,
+                1572184,
+                1572185,
+                1595688,
+                1595689,
+                1595690,
+                35211200,
+                35211201,
+                35211202,
+                35211203,
+                35211204,
+                35211205,
+                35211206,
+                35211207,
+                35211208,
+                35211209,
+                35211210,
+                35211211,
+                35211212,
+                35211213,
+                35211214,
+                35211215,
+                35211216,
+                35211217,
+                35211218,
+                35211219,
+                35211220,
+                35211221,
+                35211222,
+                35211223,
+                35211224,
+                35211225,
+                35211226,
+                35211227,
+                35211228,
+                35211229,
+                35211230,
+                35211231,
+                35211232,
+                35211233,
+                35211234,
+                35211235,
+                35211236,
+                35211237,
+                35211238,
+                35211239,
+                35211240,
+                35211241,
+                35211242,
+                35211243,
+                35211244,
+                35211245,
+                35211246,
+                35211247,
+                35211248,
+                35211249,
+                35211250,
+                35211251,
+                35211252,
+                35211253,
+                35211254,
+                35211255,
+                35211256,
+                35211257,
+                35211258,
+                35211259,
+                35211260,
+                45544125,
+                45558444,
+                45568102,
+                45601996,
+                45606787
+            ],
+            "conditions_standard": [
+                44783247,
+                4240613,
+                4339018,
+                4334251,
+                605187,
+                4257441,
+                4320803,
+                4148897,
+                40480271,
+                441126,
+                4114975,
+                4114976,
+                4307885,
+                4111485,
+                4110273,
+                434153,
+                4296631,
+                4268609,
+                4006457,
+                4006586,
+                4110269,
+                439125,
+                4007082,
+                4006587,
+                4114973,
+                4243363,
+                4004635,
+                4007081,
+                4111482,
+                436802,
+                4111483,
+                4111484,
+                4007087,
+                4007425,
+                4114974,
+                4004638,
+                4148896,
+                605030,
+                4062498,
+                440518,
+                4168853,
+                433022,
+                4007426,
+                4004646,
+                4007427,
+                4007090,
+                46271763,
+                4007429,
+                4004648,
+                46271765,
+                46271771,
+                4148557,
+                4114978,
+                4111626,
+                4219609,
+                4228490,
+                40420291,
+                4251774,
+                4176135,
+                4111487,
+                4114979,
+                4007565,
+                37164815,
+                4005275,
+                43020566,
+                35624485
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:15.000000Z",
+    "updated_at": "2026-04-17T00:17:43.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#Q17"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

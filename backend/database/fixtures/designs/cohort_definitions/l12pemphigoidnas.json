@@ -1,0 +1,164 @@
+{
+    "id": 2446,
+    "name": "L12_PEMPHIGOID_NAS",
+    "description": "Other and unspecified pemphigoid — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#L12"
+        ],
+        "level": "4",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.7,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 10,
+            "n_tokens_resolved": 7
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2199,
+            "imported_at": "2026-04-17T00:17:35+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "69402",
+                "patterns": [
+                    "69402"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "6945",
+                "patterns": [
+                    "6945"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "69402",
+                "patterns": [
+                    "69402"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "6945",
+                "patterns": [
+                    "6945"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "L12[8-9]",
+                "patterns": [
+                    "L128",
+                    "L129"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "L12[8-9]",
+                "patterns": [
+                    "L128",
+                    "L129"
+                ]
+            },
+            "kela_reimb": {
+                "raw": "ANY",
+                "patterns": [
+                    "ANY"
+                ]
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": "L12",
+                "patterns": [
+                    "L12"
+                ]
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1569762,
+                1569763,
+                35208439,
+                35208440,
+                35208441,
+                35208442,
+                35208443,
+                45552973,
+                45586764,
+                45601212,
+                44831459
+            ],
+            "conditions_standard": [
+                139899,
+                4100661,
+                4298692,
+                4142060,
+                4031099,
+                4246290
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:07.000000Z",
+    "updated_at": "2026-04-17T00:17:35.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#L12"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

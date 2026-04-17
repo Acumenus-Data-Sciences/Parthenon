@@ -1,0 +1,188 @@
+{
+    "id": 5170,
+    "name": "C3_DLBCL_WIDE",
+    "description": "Diffuse large B-cell lymphoma, including Hilmo — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#C3"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 4
+        },
+        "conditions": "HLP_C3_DLBCL",
+        "provenance": {
+            "source_row": 4923,
+            "imported_at": "2026-04-17T00:17:58+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "2000B",
+                "patterns": [
+                    "2000B"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": "ANY",
+                "patterns": [
+                    "ANY"
+                ]
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "2000B",
+                "patterns": [
+                    "2000B"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "C833",
+                "patterns": [
+                    "C833"
+                ]
+            },
+            "canc_behav": {
+                "raw": "3",
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": "9680",
+                "patterns": [
+                    "9680"
+                ]
+            },
+            "cod_icd_10": {
+                "raw": "C833",
+                "patterns": [
+                    "C833"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "HLP_C3_DLBCL"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1102872,
+                1102873,
+                1102874,
+                1567654,
+                45542647,
+                45547540,
+                45557027,
+                45561851,
+                45561852,
+                45561853,
+                45571554,
+                45581240,
+                45586043,
+                45595705,
+                44821740,
+                44830991,
+                44830992,
+                44833311,
+                44833312,
+                44835687,
+                44835688,
+                44835689,
+                44836853,
+                44836854
+            ],
+            "conditions_standard": [
+                373152,
+                432574,
+                603291,
+                200349,
+                40481357,
+                440058,
+                37165833,
+                37165865,
+                132841,
+                37165866,
+                200343,
+                435753,
+                441241,
+                436920,
+                435193,
+                442128,
+                200660,
+                192265,
+                139759,
+                438106,
+                200659
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:30.000000Z",
+    "updated_at": "2026-04-17T00:17:58.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#C3"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

@@ -1,0 +1,210 @@
+{
+    "id": 3299,
+    "name": "Q17_CONGEN_MALFO_RESPI_SYSTEM",
+    "description": "Congenital malformations of the respiratory system — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#Q17"
+        ],
+        "level": "2",
+        "parent": "Q",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 10,
+            "n_tokens_resolved": 10
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3052,
+            "imported_at": "2026-04-17T00:17:43+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "Q3[0-4]",
+                "patterns": [
+                    "Q30",
+                    "Q31",
+                    "Q32",
+                    "Q33",
+                    "Q34"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "Q3[0-4]",
+                "patterns": [
+                    "Q30",
+                    "Q31",
+                    "Q32",
+                    "Q33",
+                    "Q34"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "Q17_CONGEN_MALFO_NOSE",
+            "Q17_CONGEN_MALFO_LARYNX",
+            "Q17_CONGEN_MALFO_TRACHEA_BRONCHUS",
+            "Q17_CONGEN_MALFO_LUNG",
+            "Q17_OTHER_CONGEN_MALFO_RESPI_SYSTEM"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1572073,
+                1572074,
+                1572075,
+                1572076,
+                1572077,
+                35210863,
+                35210864,
+                35210865,
+                35210866,
+                35210867,
+                35210868,
+                35210869,
+                35210870,
+                35210871,
+                35210872,
+                35210873,
+                35210874,
+                35210875,
+                35210876,
+                35210877,
+                35210878,
+                35210879,
+                35210880,
+                35210881,
+                35210882,
+                35210883,
+                35210884,
+                35210885,
+                35210886,
+                35210887,
+                35210888,
+                35210889,
+                35210890,
+                35210891,
+                35210892,
+                35210893
+            ],
+            "conditions_standard": [
+                4215933,
+                442799,
+                4108877,
+                257094,
+                4173657,
+                256810,
+                4009627,
+                256811,
+                4318409,
+                4186285,
+                4005622,
+                4109493,
+                4197544,
+                4113306,
+                4316227,
+                443913,
+                4319334,
+                4004129,
+                255362,
+                261393,
+                4058627,
+                4088076,
+                4279620,
+                255059,
+                4147788,
+                4113424,
+                4246066
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:15.000000Z",
+    "updated_at": "2026-04-17T00:17:43.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#Q17"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

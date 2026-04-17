@@ -1,0 +1,220 @@
+{
+    "id": 3027,
+    "name": "N14_BREASTDISOTH",
+    "description": "Other disorders of breast — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#N14"
+        ],
+        "level": "3",
+        "parent": "N60-N64",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.5294117647058824,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 34,
+            "n_tokens_resolved": 18
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2780,
+            "imported_at": "2026-04-17T00:17:40+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "611[2-9]",
+                "patterns": [
+                    "6112",
+                    "6113",
+                    "6114",
+                    "6115",
+                    "6116",
+                    "6117",
+                    "6118",
+                    "6119"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "611[2-9]",
+                "patterns": [
+                    "6112",
+                    "6113",
+                    "6114",
+                    "6115",
+                    "6116",
+                    "6117",
+                    "6118",
+                    "6119"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "611[2-9]",
+                "patterns": [
+                    "6112",
+                    "6113",
+                    "6114",
+                    "6115",
+                    "6116",
+                    "6117",
+                    "6118",
+                    "6119"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "611[2-9]",
+                "patterns": [
+                    "6112",
+                    "6113",
+                    "6114",
+                    "6115",
+                    "6116",
+                    "6117",
+                    "6118",
+                    "6119"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "N64",
+                "patterns": [
+                    "N64"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "N64",
+                "patterns": [
+                    "N64"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": "6117B",
+                "patterns": [
+                    "6117B"
+                ]
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": 2,
+        "include_endpoints": [
+            "N14_GALACTORRHEA"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1571552,
+                1571553,
+                35209358,
+                35209359,
+                35209360,
+                35209361,
+                35209362,
+                35209363,
+                35209364,
+                45534136,
+                45534137,
+                45548677,
+                45553448,
+                45567855,
+                45582416,
+                45582417,
+                44819827,
+                44819828,
+                44822048,
+                44823201,
+                44824358,
+                44824359,
+                44825559,
+                44825560,
+                44826747,
+                44830191,
+                44831341,
+                44831342,
+                44832499,
+                44834848,
+                44834849
+            ],
+            "conditions_standard": [
+                77030,
+                4056770,
+                4034227,
+                436470,
+                81623,
+                79884,
+                73819,
+                4181744,
+                81634,
+                76467,
+                4283689,
+                40352130,
+                432672,
+                76745,
+                436167,
+                80767
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:12.000000Z",
+    "updated_at": "2026-04-17T00:17:40.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#N14"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

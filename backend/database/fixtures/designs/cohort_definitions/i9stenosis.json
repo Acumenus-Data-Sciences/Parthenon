@@ -1,0 +1,192 @@
+{
+    "id": 1961,
+    "name": "I9_STENOSIS",
+    "description": "Occlusion and stenosis of arteries, not leading to stroke — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#I9",
+            "#ASTHMA_CM",
+            "#COPD_CM",
+            "#CARDIO",
+            "#GASTRO_CM",
+            "#ILD_CM",
+            "#NEURO_CM"
+        ],
+        "level": "3",
+        "parent": "I60-I69",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 8,
+            "n_tokens_resolved": 8
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1714,
+            "imported_at": "2026-04-17T00:17:30+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "4330X|4331X|4339X",
+                "patterns": [
+                    "4330X",
+                    "4331X",
+                    "4339X"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "4330X|4331X|4339X",
+                "patterns": [
+                    "4330X",
+                    "4331X",
+                    "4339X"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "I66",
+                "patterns": [
+                    "I66"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "I66",
+                "patterns": [
+                    "I66"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1569221,
+                1569222,
+                1569223,
+                1569224,
+                35207825,
+                35207826,
+                35207827,
+                45533466,
+                45533467,
+                45552809,
+                45557557,
+                45562370,
+                45567191,
+                45572102,
+                45581785,
+                45591478,
+                45596217,
+                45601051,
+                45601052,
+                44819712,
+                44823121,
+                44824252,
+                44827798,
+                44827799,
+                44827800,
+                44830089,
+                44833576,
+                44835950
+            ],
+            "conditions_standard": [
+                3654597,
+                765404,
+                4111716,
+                4111717,
+                4112024,
+                442263,
+                443454,
+                442615,
+                374371,
+                763093,
+                44784634
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:03.000000Z",
+    "updated_at": "2026-04-17T00:17:30.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#I9",
+        "#ASTHMA_CM",
+        "#COPD_CM",
+        "#CARDIO",
+        "#GASTRO_CM",
+        "#ILD_CM",
+        "#NEURO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

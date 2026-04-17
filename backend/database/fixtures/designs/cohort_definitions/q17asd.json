@@ -1,0 +1,180 @@
+{
+    "id": 3331,
+    "name": "Q17_ASD",
+    "description": "Atrial septal defect — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#Q17"
+        ],
+        "level": "4",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.5454545454545454,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 11,
+            "n_tokens_resolved": 6
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3084,
+            "imported_at": "2026-04-17T00:17:43+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "7455A|7456A",
+                "patterns": [
+                    "7455A",
+                    "7456A"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": "^FFC00|^FFC02|^FFC22|^FFC50|^FFC96",
+                "patterns": [
+                    "FFC00",
+                    "FFC02",
+                    "FFC22",
+                    "FFC50",
+                    "FFC96"
+                ]
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "7455A|7456A",
+                "patterns": [
+                    "7455A",
+                    "7456A"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "Q211",
+                "patterns": [
+                    "Q211"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "Q211",
+                "patterns": [
+                    "Q211"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": "Q20|Q2111|Q2[2-5]|Q26[0-1]|Q26[5-9]",
+                "patterns": [
+                    "Q20",
+                    "Q2111",
+                    "Q22",
+                    "Q23",
+                    "Q24",
+                    "Q25",
+                    "Q260",
+                    "Q261",
+                    "Q265",
+                    "Q266",
+                    "Q267",
+                    "Q268",
+                    "Q269"
+                ]
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                35210801,
+                37402958,
+                37402959,
+                37402960,
+                37402961,
+                37402962,
+                37402963,
+                37402964,
+                37402965,
+                44825749,
+                44825750,
+                44831545,
+                44832679,
+                44836238
+            ],
+            "conditions_standard": [
+                4289309,
+                434467,
+                4070299,
+                4101032,
+                4316879,
+                435912,
+                76798
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:15.000000Z",
+    "updated_at": "2026-04-17T00:17:43.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#Q17"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

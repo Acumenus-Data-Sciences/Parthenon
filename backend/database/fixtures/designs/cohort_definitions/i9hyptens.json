@@ -1,0 +1,246 @@
+{
+    "id": 1988,
+    "name": "I9_HYPTENS",
+    "description": "Hypertension — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#I9",
+            "#COPD_CM",
+            "#CARDIO",
+            "#OPHTAL_CM",
+            "#ILD_CM",
+            "#NEURO_CM",
+            "#RHEUMA_CM"
+        ],
+        "level": "C",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.7317073170731707,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 41,
+            "n_tokens_resolved": 30
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1741,
+            "imported_at": "2026-04-17T00:17:30+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "400|401|402|403|404",
+                "patterns": [
+                    "400",
+                    "401",
+                    "402",
+                    "403",
+                    "404"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "4019X|4029A|4029B|4039A|4040A|4059A|4059B|4372A|4059X",
+                "patterns": [
+                    "4019X",
+                    "4029A",
+                    "4029B",
+                    "4039A",
+                    "4040A",
+                    "4059A",
+                    "4059B",
+                    "4372A",
+                    "4059X"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "400|401|402|403|404",
+                "patterns": [
+                    "400",
+                    "401",
+                    "402",
+                    "403",
+                    "404"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "4019X|4029A|4029B|4039A|4040A|4059A|4059B|4372A|4059X",
+                "patterns": [
+                    "4019X",
+                    "4029A",
+                    "4029B",
+                    "4039A",
+                    "4040A",
+                    "4059A",
+                    "4059B",
+                    "4372A",
+                    "4059X"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "I10|I11|I12|I13|I15|I674",
+                "patterns": [
+                    "I10",
+                    "I11",
+                    "I12",
+                    "I13",
+                    "I15",
+                    "I674"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "I10|I11|I12|I13|I15|I674",
+                "patterns": [
+                    "I10",
+                    "I11",
+                    "I12",
+                    "I13",
+                    "I15",
+                    "I674"
+                ]
+            },
+            "kela_reimb": {
+                "raw": "205",
+                "patterns": [
+                    "205"
+                ]
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1569120,
+                1569121,
+                1569122,
+                1569123,
+                1569124,
+                35207668,
+                35207669,
+                35207670,
+                35207671,
+                35207672,
+                35207673,
+                35207674,
+                35207675,
+                35207676,
+                35207677,
+                35207678,
+                35207679,
+                35207832,
+                45543164,
+                45596188,
+                44819692,
+                44819693,
+                44821949,
+                44827779,
+                44828971,
+                44830077,
+                44830078,
+                44831230,
+                44831232,
+                44832369,
+                44833559,
+                44834716,
+                44835923,
+                44835925,
+                44835953,
+                44837098
+            ],
+            "conditions_standard": [
+                442604,
+                201313,
+                44784621,
+                319826,
+                320128,
+                444101,
+                319034,
+                443919,
+                44782429,
+                439696,
+                439694,
+                317895,
+                443771,
+                4110948,
+                312938,
+                442603,
+                44782728,
+                44782690,
+                314378,
+                439695,
+                44784439
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:03.000000Z",
+    "updated_at": "2026-04-17T00:17:30.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#I9",
+        "#COPD_CM",
+        "#CARDIO",
+        "#OPHTAL_CM",
+        "#ILD_CM",
+        "#NEURO_CM",
+        "#RHEUMA_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

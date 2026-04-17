@@ -1,0 +1,185 @@
+{
+    "id": 4454,
+    "name": "CHILDHOOD_ALLERGY",
+    "description": "Childhood allergy (age < 16) — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#ASTHMA",
+            "#COPD_CM"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 20,
+            "n_tokens_resolved": 20
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 4207,
+            "imported_at": "2026-04-17T00:17:52+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "6918|477",
+                "patterns": [
+                    "6918",
+                    "477"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "6918|477",
+                "patterns": [
+                    "6918",
+                    "477"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "J450|L20|J30[1-4]|L236|J3019",
+                "patterns": [
+                    "J450",
+                    "L20",
+                    "J301",
+                    "J302",
+                    "J303",
+                    "J304",
+                    "L236",
+                    "J3019"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "J450|L20|J30[1-4]|L236|J3019",
+                "patterns": [
+                    "J450",
+                    "L20",
+                    "J301",
+                    "J302",
+                    "J303",
+                    "J304",
+                    "L236",
+                    "J3019"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": "EVENT_AGE<16",
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1569765,
+                1569766,
+                35207972,
+                35207973,
+                35208449,
+                35208450,
+                35208462,
+                45543364,
+                45552974,
+                45567351,
+                45572263,
+                45601213,
+                44821978,
+                44821979,
+                44824472,
+                44826666,
+                44831272,
+                44835974,
+                44837129
+            ],
+            "conditions_standard": [
+                133834,
+                256439,
+                4280726,
+                4066727,
+                4064030,
+                4066382,
+                4210912,
+                4236759,
+                257007,
+                46270156,
+                40481374
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:24.000000Z",
+    "updated_at": "2026-04-17T00:17:52.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#ASTHMA",
+        "#COPD_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

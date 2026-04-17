@@ -1,0 +1,189 @@
+{
+    "id": 643,
+    "name": "CD2_INSITU_MELANOMA",
+    "description": "Melanoma in situ — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#CD2",
+            "#INSITU"
+        ],
+        "level": "2",
+        "parent": "D00-D09",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 396,
+            "imported_at": "2026-04-17T00:17:16+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "D03",
+                "patterns": [
+                    "D03"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "D03",
+                "patterns": [
+                    "D03"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "CD2_INSITU_MELANOMA_LIP",
+            "CD2_INSITU_MELANOMA_EYELID",
+            "CD2_INSITU_MELANOMA_EAR",
+            "CD2_INSITU_MELANOMA_FACE",
+            "CD2_INSITU_MELANOMA_SCALPNECK",
+            "CD2_INSITU_MELANOMA_TRUNK",
+            "CD2_INSITU_MELANOMA_UPPERLIMB",
+            "CD2_INSITU_MELANOMA_LOWERLIMB",
+            "CD2_INSITU_MELANOMA_NOS"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567722,
+                1567723,
+                1567724,
+                1567725,
+                1567726,
+                1567727,
+                1567728,
+                1595515,
+                1595516,
+                1595517,
+                1595518,
+                35206470,
+                35206471,
+                35206472,
+                35206473,
+                45542674,
+                45542676,
+                45547566,
+                45547567,
+                45547568,
+                45547569,
+                45547570,
+                45557052,
+                45557053,
+                45561885,
+                45566658,
+                45571583,
+                45581272,
+                45581273,
+                45586079,
+                45590970,
+                45600575
+            ],
+            "conditions_standard": [
+                4031756,
+                4033836,
+                4031759,
+                4031107,
+                4031109,
+                4031111,
+                4031113,
+                4033835,
+                4098922,
+                4033300,
+                36685061,
+                36684811
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:52.000000Z",
+    "updated_at": "2026-04-17T00:17:16.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#CD2",
+        "#INSITU"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

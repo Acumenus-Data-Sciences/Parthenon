@@ -1,0 +1,255 @@
+{
+    "id": 5155,
+    "name": "C3_BREAST_ERPLUS_WIDE",
+    "description": "Malignant neoplasm of breast, ER-positive, including Hilmo — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#C3",
+            "#NEURO_CM"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.5,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 8,
+            "n_tokens_resolved": 4
+        },
+        "conditions": "RX_ERPLUS",
+        "provenance": {
+            "source_row": 4908,
+            "imported_at": "2026-04-17T00:17:57+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "174",
+                "patterns": [
+                    "174"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "174",
+                "patterns": [
+                    "174"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": "C50",
+                "patterns": [
+                    "C50"
+                ]
+            },
+            "cod_icd_8": {
+                "raw": "174",
+                "patterns": [
+                    "174"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "174",
+                "patterns": [
+                    "174"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "C50",
+                "patterns": [
+                    "C50"
+                ]
+            },
+            "canc_behav": {
+                "raw": "[23]",
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": "ANY",
+                "patterns": [
+                    "ANY"
+                ]
+            },
+            "cod_icd_10": {
+                "raw": "C50",
+                "patterns": [
+                    "C50"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": 2,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1348993,
+                1348994,
+                1348995,
+                1348996,
+                1567537,
+                1567538,
+                1567539,
+                1567540,
+                1567541,
+                1567542,
+                1567543,
+                1567544,
+                1567545,
+                1567546,
+                1567547,
+                1567548,
+                1567549,
+                1567550,
+                1567551,
+                1567552,
+                1567553,
+                1567554,
+                1567555,
+                1567556,
+                1567557,
+                1567558,
+                1567559,
+                1567560,
+                1567561,
+                1567562,
+                1567563,
+                1567564,
+                45532911,
+                45532912,
+                45537820,
+                45537821,
+                45537822,
+                45537823,
+                45537824,
+                45542613,
+                45547503,
+                45547504,
+                45552262,
+                45556994,
+                45556995,
+                45556996,
+                45561812,
+                45561813,
+                45561814,
+                45561815,
+                45561817,
+                45561818,
+                45561819,
+                45561820,
+                45566599,
+                45566600,
+                45566602,
+                45566603,
+                45571519,
+                45571520,
+                45571521,
+                45571522,
+                45571523,
+                45576323,
+                45576325,
+                45576326,
+                45576327,
+                45581222,
+                45586010,
+                45586011,
+                45586012,
+                45586013,
+                45586014,
+                45590907,
+                45590908,
+                45590909,
+                45590910,
+                45595666,
+                45595667,
+                45595668,
+                45600507,
+                45600508,
+                45600510,
+                45600511,
+                45605276,
+                45605277,
+                44819434,
+                44819435,
+                44820614,
+                44824029,
+                44827561,
+                44829810,
+                44832128,
+                44834488,
+                44834489,
+                44834490
+            ],
+            "conditions_standard": [
+                1075590,
+                4162253,
+                1075508,
+                1075588,
+                4158563,
+                4187851,
+                4187850,
+                4188545,
+                441513,
+                4092513,
+                1075604,
+                1075605
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:30.000000Z",
+    "updated_at": "2026-04-17T00:17:57.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#C3",
+        "#NEURO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

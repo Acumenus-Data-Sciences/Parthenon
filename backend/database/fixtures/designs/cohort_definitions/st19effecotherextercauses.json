@@ -1,0 +1,220 @@
+{
+    "id": 3711,
+    "name": "ST19_EFFEC_OTHER_EXTER_CAUSES",
+    "description": "Effects of other external causes — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#ST19"
+        ],
+        "level": "3",
+        "parent": "T6[6-9]|T7[0-8]",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3464,
+            "imported_at": "2026-04-17T00:17:47+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "T75",
+                "patterns": [
+                    "T75"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "T75",
+                "patterns": [
+                    "T75"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                19227,
+                19228,
+                19229,
+                19230,
+                19231,
+                19232,
+                19233,
+                19234,
+                19235,
+                19236,
+                19237,
+                19238,
+                19239,
+                19240,
+                1348872,
+                1348873,
+                1348874,
+                1348875,
+                1348876,
+                1348877,
+                1348878,
+                1348879,
+                1348880,
+                1575159,
+                1575160,
+                1575161,
+                1575162,
+                45541789,
+                45541790,
+                45541791,
+                45546658,
+                45546659,
+                45546660,
+                45546661,
+                45546662,
+                45551442,
+                45551443,
+                45556217,
+                45556218,
+                45560996,
+                45560997,
+                45570672,
+                45570673,
+                45570674,
+                45570675,
+                45570676,
+                45570677,
+                45575516,
+                45575517,
+                45575518,
+                45580369,
+                45580370,
+                45580371,
+                45585200,
+                45585201,
+                45590029,
+                45590030,
+                45590031,
+                45594868,
+                45594869,
+                45594870,
+                45599713,
+                45599714,
+                45599715,
+                45599716,
+                45599717,
+                45604506,
+                45609289,
+                45609290
+            ],
+            "conditions_standard": [
+                436579,
+                37111253,
+                439973,
+                4020873,
+                4121643,
+                440615,
+                4215494,
+                439383,
+                30284,
+                439396,
+                4114611,
+                1340204,
+                442045,
+                4319155,
+                4201705,
+                441766,
+                435119,
+                443940
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:19.000000Z",
+    "updated_at": "2026-04-17T00:17:47.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#ST19"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

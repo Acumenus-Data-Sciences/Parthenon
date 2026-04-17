@@ -1,0 +1,176 @@
+{
+    "id": 731,
+    "name": "C3_MELANOMA",
+    "description": "Malignant melanoma — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#C3",
+            "#NEURO_CM",
+            "#AVO"
+        ],
+        "level": "C",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 27,
+            "n_tokens_resolved": 18
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 484,
+            "imported_at": "2026-04-17T00:17:17+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": "ANY",
+                "patterns": [
+                    "ANY"
+                ]
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_behav": {
+                "raw": "3",
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": "87[2-9]",
+                "patterns": [
+                    "872",
+                    "873",
+                    "874",
+                    "875",
+                    "876",
+                    "877",
+                    "878",
+                    "879"
+                ]
+            },
+            "cod_icd_10": {
+                "raw": "C6902|D039|C5103|C5113|C5123|C5182|C5293|C6982|C6992",
+                "patterns": [
+                    "C6902",
+                    "D039",
+                    "C5103",
+                    "C5113",
+                    "C5123",
+                    "C5182",
+                    "C5293",
+                    "C6982",
+                    "C6992"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": "C6902|D039|C5103|C5113|C5123|C5182|C5293|C6982|C6992",
+                "patterns": [
+                    "C6902",
+                    "D039",
+                    "C5103",
+                    "C5113",
+                    "C5123",
+                    "C5182",
+                    "C5293",
+                    "C6982",
+                    "C6992"
+                ]
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "C3_MELANOMA_SKIN",
+            "C3_UVEAMELANOMA",
+            "CD2_INSITU_MELANOMA"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                35206473,
+                45542617,
+                45595681,
+                45605285
+            ],
+            "conditions_standard": [
+                4031756,
+                373151,
+                374874,
+                438095
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:52.000000Z",
+    "updated_at": "2026-04-17T00:17:17.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#C3",
+        "#NEURO_CM",
+        "#AVO"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

@@ -1,0 +1,222 @@
+{
+    "id": 1613,
+    "name": "H7_ENTROPION",
+    "description": "Entropion and trichiasis of eyelid — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#H7",
+            "#OPHTAL"
+        ],
+        "level": "4",
+        "parent": "H02",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1366,
+            "imported_at": "2026-04-17T00:17:26+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "37812",
+                "patterns": [
+                    "37812"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "3740",
+                "patterns": [
+                    "3740"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "37812",
+                "patterns": [
+                    "37812"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "3740",
+                "patterns": [
+                    "3740"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "H020",
+                "patterns": [
+                    "H020"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "H020",
+                "patterns": [
+                    "H020"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1568451,
+                1568452,
+                1568453,
+                1568454,
+                1568455,
+                1568456,
+                1568457,
+                45533181,
+                45533182,
+                45533183,
+                45542927,
+                45542928,
+                45547780,
+                45547781,
+                45552558,
+                45552559,
+                45552560,
+                45552561,
+                45557272,
+                45557273,
+                45557274,
+                45557275,
+                45562122,
+                45562123,
+                45562124,
+                45566917,
+                45571848,
+                45571849,
+                45571850,
+                45571851,
+                45571852,
+                45571853,
+                45576622,
+                45576623,
+                45576624,
+                45576625,
+                45581530,
+                45581531,
+                45581532,
+                45586335,
+                45586336,
+                45586337,
+                45591217,
+                45591218,
+                45591219,
+                45591220,
+                45600820,
+                45600821,
+                45600822,
+                44820819,
+                44821908,
+                44821909,
+                44823073,
+                44825396,
+                44825397,
+                44837056
+            ],
+            "conditions_standard": [
+                4143370,
+                379020,
+                374650,
+                376418,
+                372322,
+                375272,
+                4246581,
+                1077020,
+                4319602,
+                3656984,
+                4317981,
+                37207865,
+                37207925,
+                37207929,
+                3656854,
+                1077052,
+                1077061,
+                1077095,
+                3656899,
+                45763779,
+                3656938,
+                45763787,
+                37207869
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:00.000000Z",
+    "updated_at": "2026-04-17T00:17:26.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#H7",
+        "#OPHTAL"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

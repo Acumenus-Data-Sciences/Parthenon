@@ -1,0 +1,258 @@
+{
+    "id": 2253,
+    "name": "K11_DENTOFACIAL_ANOMALIES",
+    "description": "Dentofacial anomalies [including malocclusion] — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#K11",
+            "#DENTAL",
+            "#AVO"
+        ],
+        "level": "3",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.25,
+            "bucket": "SPARSE",
+            "n_tokens_total": 4,
+            "n_tokens_resolved": 1
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2006,
+            "imported_at": "2026-04-17T00:17:33+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "524",
+                "patterns": [
+                    "524"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "K07",
+                "patterns": [
+                    "K07"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "K07",
+                "patterns": [
+                    "K07"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": "K07",
+                "patterns": [
+                    "K07"
+                ]
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "SPARSE",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                44819761,
+                44819762,
+                44819763,
+                44819764,
+                44819765,
+                44819766,
+                44820908,
+                44820909,
+                44820910,
+                44820911,
+                44820912,
+                44820913,
+                44820914,
+                44822006,
+                44822007,
+                44822008,
+                44822009,
+                44822010,
+                44823157,
+                44823158,
+                44823159,
+                44824299,
+                44824300,
+                44824301,
+                44824302,
+                44824303,
+                44825490,
+                44825491,
+                44825492,
+                44825493,
+                44826692,
+                44826693,
+                44826694,
+                44827842,
+                44827843,
+                44827844,
+                44827845,
+                44827846,
+                44827847,
+                44827848,
+                44829029,
+                44829030,
+                44830128,
+                44830129,
+                44830130,
+                44830131,
+                44831289,
+                44831290,
+                44831291,
+                44831292,
+                44831293,
+                44832442,
+                44832443,
+                44832444,
+                44832445,
+                44833618,
+                44833619,
+                44833620,
+                44834784,
+                44834785,
+                44835998,
+                44835999,
+                44836000,
+                44836001,
+                44836002,
+                44837147,
+                44837148,
+                44837149,
+                44837150
+            ],
+            "conditions_standard": [
+                45757682,
+                256142,
+                45757658,
+                433805,
+                74396,
+                74399,
+                257586,
+                4009155,
+                4318718,
+                45770929,
+                73231,
+                435569,
+                4134127,
+                45757659,
+                439050,
+                434063,
+                438454,
+                258182,
+                45757677,
+                437014,
+                433243,
+                435571,
+                261330,
+                45757661,
+                438793,
+                201603,
+                444124,
+                259862,
+                260759,
+                45757667,
+                261904,
+                40274208,
+                45757657,
+                140443,
+                435843,
+                45757673,
+                434678,
+                439051,
+                437912,
+                434672,
+                441890,
+                433230,
+                42535743,
+                22945,
+                4182164,
+                45770927,
+                4140216,
+                438792
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:05.000000Z",
+    "updated_at": "2026-04-17T00:17:33.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#K11",
+        "#DENTAL",
+        "#AVO"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

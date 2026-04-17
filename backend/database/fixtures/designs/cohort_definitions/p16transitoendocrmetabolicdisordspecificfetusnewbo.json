@@ -1,0 +1,221 @@
+{
+    "id": 3229,
+    "name": "P16_TRANSITO_ENDOCR_METABOLIC_DISORD_SPECIFIC_FETUS_NEWBO",
+    "description": "Transitory endocrine and metabolic disorders specific to fetus and newborn — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#P16"
+        ],
+        "level": "2",
+        "parent": "P",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 10,
+            "n_tokens_resolved": 10
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2982,
+            "imported_at": "2026-04-17T00:17:42+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "P7[0-4]",
+                "patterns": [
+                    "P70",
+                    "P71",
+                    "P72",
+                    "P73",
+                    "P74"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "P7[0-4]",
+                "patterns": [
+                    "P70",
+                    "P71",
+                    "P72",
+                    "P73",
+                    "P74"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "P16_TRANSITO_DISORD_CARBOH_METABOLISM_SPECIFIC_FETUS_NEWBO",
+            "P16_TRANSITO_NEONTAL_DISORD_CALCIUM_MAGNES_METABOLISM",
+            "P16_OTH_TRANSITO_NEONTAL_ENDOCR_DISORD",
+            "P16_OTH_TRANSITO_NEONTAL_ELECTROL_METABOLIC_DISTU"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1572028,
+                1572029,
+                1572030,
+                1572031,
+                1595675,
+                1595676,
+                1595677,
+                1595678,
+                1595679,
+                1595680,
+                1595681,
+                1595682,
+                1595683,
+                35210608,
+                35210609,
+                35210610,
+                35210611,
+                35210612,
+                35210613,
+                35210614,
+                35210615,
+                35210616,
+                35210617,
+                35210618,
+                35210619,
+                35210620,
+                35210621,
+                35210622,
+                35210623,
+                35210624,
+                35210625,
+                35210626,
+                35210627,
+                35210628,
+                35210629,
+                35210630,
+                35210631,
+                35210632,
+                35210633,
+                35210634,
+                45572938
+            ],
+            "conditions_standard": [
+                4048923,
+                4337102,
+                4048620,
+                4048926,
+                4071744,
+                4048927,
+                438730,
+                4042220,
+                4048738,
+                4253927,
+                4016089,
+                42537310,
+                436234,
+                42538560,
+                434480,
+                193323,
+                4173186,
+                23034,
+                437515,
+                441406,
+                4268615,
+                4150930,
+                380534,
+                4135213,
+                436670,
+                4172997,
+                4210297,
+                4171100,
+                434474,
+                4302027,
+                4071745,
+                4327033,
+                37170255,
+                35623050
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:15.000000Z",
+    "updated_at": "2026-04-17T00:17:42.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#P16"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

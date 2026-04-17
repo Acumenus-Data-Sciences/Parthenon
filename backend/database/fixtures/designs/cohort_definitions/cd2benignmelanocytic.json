@@ -1,0 +1,180 @@
+{
+    "id": 545,
+    "name": "CD2_BENIGN_MELANOCYTIC",
+    "description": "Melanocytic naevi — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#CD2"
+        ],
+        "level": "2",
+        "parent": "D10-D36",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 298,
+            "imported_at": "2026-04-17T00:17:15+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "D22",
+                "patterns": [
+                    "D22"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "D22",
+                "patterns": [
+                    "D22"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "CD2_BENIGN_MELANOCYTIC_LIP",
+            "CD2_BENIGN_MELANOCYTIC_EYELID",
+            "CD2_BENIGN_MELANOCYTIC_EAR",
+            "CD2_BENIGN_MELANOCYTIC_FACE",
+            "CD2_BENIGN_MELANOCYTIC_SCALPNECK",
+            "CD2_BENIGN_MELANOCYTIC_TRUNK",
+            "CD2_BENIGN_MELANOCYTIC_UPPERLIMB",
+            "CD2_BENIGN_MELANOCYTIC_LOWERLIMB",
+            "CD2_BENIGN_MELANOCYTIC_NOS"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567771,
+                1567772,
+                1567773,
+                1567774,
+                1567775,
+                1567776,
+                1595523,
+                1595524,
+                1595525,
+                1595526,
+                35206562,
+                35206563,
+                35206564,
+                35206565,
+                45532976,
+                45537900,
+                45547583,
+                45552336,
+                45552337,
+                45552338,
+                45557062,
+                45557063,
+                45566672,
+                45576380,
+                45576381,
+                45581292,
+                45581293,
+                45600584
+            ],
+            "conditions_standard": [
+                4271013,
+                4031757,
+                4033297,
+                1244370,
+                4033839,
+                4031763,
+                4033296,
+                4221679,
+                4033837
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:51.000000Z",
+    "updated_at": "2026-04-17T00:17:15.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#CD2"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

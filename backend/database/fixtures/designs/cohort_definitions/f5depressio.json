@@ -1,0 +1,222 @@
+{
+    "id": 1294,
+    "name": "F5_DEPRESSIO",
+    "description": "Depression — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#F5",
+            "#ASTHMA_CM",
+            "#COPD",
+            "#ILD_CM",
+            "#NEURO_CM",
+            "#RHEUMA_CM"
+        ],
+        "level": "3",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 10,
+            "n_tokens_resolved": 10
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1047,
+            "imported_at": "2026-04-17T00:17:23+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "2961|2968|3004",
+                "patterns": [
+                    "2961",
+                    "2968",
+                    "3004"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "2961|2968|3004",
+                "patterns": [
+                    "2961",
+                    "2968",
+                    "3004"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "F3[2-3]",
+                "patterns": [
+                    "F32",
+                    "F33"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "F3[2-3]",
+                "patterns": [
+                    "F32",
+                    "F33"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "F5_DEPRESSION_PSYCHOTIC"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                766349,
+                1568217,
+                1568218,
+                1568219,
+                35207150,
+                35207151,
+                35207152,
+                35207153,
+                35207154,
+                35207155,
+                35207156,
+                35207157,
+                35207158,
+                35207159,
+                35207160,
+                35207161,
+                37200319,
+                37200320,
+                45547704,
+                45547706,
+                45552479,
+                45571761,
+                45576541,
+                44819540,
+                44819541,
+                44821820,
+                44822974,
+                44822980,
+                44822981,
+                44824118,
+                44825292,
+                44827653,
+                44829925,
+                44831088,
+                44832231,
+                44832235,
+                44836972
+            ],
+            "conditions_standard": [
+                440383,
+                3656234,
+                4282316,
+                433991,
+                4195572,
+                4049623,
+                441534,
+                438406,
+                4152280,
+                4228802,
+                4077577,
+                435220,
+                434911,
+                4098302,
+                4242733,
+                4025677,
+                4141454,
+                4263748,
+                4323418,
+                437249,
+                443237,
+                438119,
+                437831,
+                436665,
+                440980,
+                439262,
+                438405,
+                439272,
+                438727,
+                433440
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:57.000000Z",
+    "updated_at": "2026-04-17T00:17:23.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#F5",
+        "#ASTHMA_CM",
+        "#COPD",
+        "#ILD_CM",
+        "#NEURO_CM",
+        "#RHEUMA_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

@@ -1,0 +1,215 @@
+{
+    "id": 1415,
+    "name": "G6_NEUINFL",
+    "description": "Inflammatory diseases of the central nervous system — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#G6",
+            "#GASTRO_CM"
+        ],
+        "level": "2",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1168,
+            "imported_at": "2026-04-17T00:17:24+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "G0",
+                "patterns": [
+                    "G0"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "G0",
+                "patterns": [
+                    "G0"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "G6_MENINGBACT",
+            "G6_MENINGVIR",
+            "G6_MENINGOTH",
+            "G6_ADEM",
+            "G6_ENCEPHBACT",
+            "G6_ENCEPHOTH",
+            "G6_CNSABSC",
+            "G6_CNSPHLEB",
+            "G6_NEUROINFSEQ"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                766353,
+                1568270,
+                1568271,
+                1568272,
+                1568273,
+                1568274,
+                1568275,
+                1568276,
+                1568277,
+                1568278,
+                35207293,
+                35207294,
+                35207295,
+                35207296,
+                35207297,
+                35207298,
+                35207299,
+                35207300,
+                35207301,
+                35207302,
+                35207303,
+                35207304,
+                35207305,
+                35207306,
+                35207307,
+                35207308,
+                35207309,
+                35207310,
+                35207311,
+                35207312,
+                35207313,
+                45533127,
+                45533128,
+                45562071,
+                45562072,
+                45566859,
+                45566860,
+                45571786,
+                45576568,
+                45581479,
+                45586270,
+                45586273,
+                45586274,
+                45586275
+            ],
+            "conditions_standard": [
+                604439,
+                436091,
+                435785,
+                4147498,
+                374021,
+                4249574,
+                4190307,
+                374335,
+                437538,
+                432879,
+                440390,
+                436090,
+                4207307,
+                438418,
+                439797,
+                4219348,
+                4044931,
+                37019108,
+                4181187,
+                4208815,
+                4045733,
+                4110933,
+                138965,
+                43530701,
+                443802,
+                379792
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:58.000000Z",
+    "updated_at": "2026-04-17T00:17:24.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#G6",
+        "#GASTRO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

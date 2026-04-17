@@ -1,0 +1,221 @@
+{
+    "id": 3751,
+    "name": "ST19_OTHER_SUPERF_INJURI_ANKLE_FOOT",
+    "description": "Other superficial injuries of ankle and foot — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#ST19"
+        ],
+        "level": "4",
+        "parent": "S90",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3504,
+            "imported_at": "2026-04-17T00:17:47+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "S908",
+                "patterns": [
+                    "S908"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "S908",
+                "patterns": [
+                    "S908"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                15963,
+                15964,
+                15965,
+                15966,
+                15967,
+                15968,
+                15969,
+                15970,
+                15971,
+                15972,
+                15973,
+                15974,
+                15975,
+                15976,
+                15977,
+                15978,
+                15979,
+                15980,
+                1574035,
+                1574036,
+                1574037,
+                1574038,
+                1574039,
+                1574040,
+                45536274,
+                45536275,
+                45541069,
+                45541070,
+                45541071,
+                45541072,
+                45541073,
+                45541074,
+                45545937,
+                45545938,
+                45545939,
+                45545940,
+                45545941,
+                45545942,
+                45545943,
+                45550714,
+                45550715,
+                45555520,
+                45555521,
+                45555522,
+                45560242,
+                45560243,
+                45560244,
+                45560245,
+                45560246,
+                45560247,
+                45565119,
+                45565120,
+                45569954,
+                45569955,
+                45574818,
+                45574819,
+                45574820,
+                45574821,
+                45574822,
+                45579634,
+                45579635,
+                45579636,
+                45579637,
+                45584491,
+                45584492,
+                45589326,
+                45589327,
+                45589328,
+                45589329,
+                45594170,
+                45594171,
+                45599002,
+                45599003,
+                45599004,
+                45603822,
+                45603823,
+                45603824,
+                45603825,
+                45608605
+            ],
+            "conditions_standard": [
+                4055993,
+                4150489,
+                4164348,
+                40487393,
+                4149688,
+                4151842,
+                4166909,
+                40480275,
+                433633
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:19.000000Z",
+    "updated_at": "2026-04-17T00:17:47.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#ST19"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

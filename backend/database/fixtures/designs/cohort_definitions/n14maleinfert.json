@@ -1,0 +1,178 @@
+{
+    "id": 3015,
+    "name": "N14_MALEINFERT",
+    "description": "Male infertility — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#N14"
+        ],
+        "level": "3",
+        "parent": "N40-N51",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2768,
+            "imported_at": "2026-04-17T00:17:40+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "606",
+                "patterns": [
+                    "606"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "606",
+                "patterns": [
+                    "606"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "606",
+                "patterns": [
+                    "606"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "606",
+                "patterns": [
+                    "606"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "N46",
+                "patterns": [
+                    "N46"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "N46",
+                "patterns": [
+                    "N46"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": 1,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1571528,
+                1571529,
+                1571530,
+                1571531,
+                45534132,
+                45534133,
+                45543875,
+                45558157,
+                45558158,
+                45558159,
+                45558160,
+                45563019,
+                45567846,
+                45567847,
+                45577532,
+                45582406,
+                45587244,
+                45592140,
+                45596869,
+                45601733,
+                45606494,
+                44824355,
+                44831338,
+                44832494,
+                44832495,
+                44834845
+            ],
+            "conditions_standard": [
+                198197,
+                4143116,
+                194419,
+                201354,
+                4138607,
+                37018855,
+                4142110,
+                37016334,
+                4302062,
+                76744,
+                4141809
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:12.000000Z",
+    "updated_at": "2026-04-17T00:17:40.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#N14"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

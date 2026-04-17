@@ -1,0 +1,220 @@
+{
+    "id": 2012,
+    "name": "I9_NONRHEVALV",
+    "description": "Non-rheumatic valve diseases — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#I9",
+            "#CARDIO",
+            "#NEURO_CM"
+        ],
+        "level": "4",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.5555555555555556,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 18,
+            "n_tokens_resolved": 10
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1765,
+            "imported_at": "2026-04-17T00:17:31+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "39[4-6]|424",
+                "patterns": [
+                    "394",
+                    "395",
+                    "396",
+                    "424"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "424",
+                "patterns": [
+                    "424"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "39[4-6]|424",
+                "patterns": [
+                    "394",
+                    "395",
+                    "396",
+                    "424"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "424",
+                "patterns": [
+                    "424"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "I3[4-7]",
+                "patterns": [
+                    "I34",
+                    "I35",
+                    "I36",
+                    "I37"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "I3[4-7]",
+                "patterns": [
+                    "I34",
+                    "I35",
+                    "I36",
+                    "I37"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": "4249|3940|3950|3960|3970",
+                "patterns": [
+                    "4249",
+                    "3940",
+                    "3950",
+                    "3960",
+                    "3970"
+                ]
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1569156,
+                1569157,
+                1569158,
+                1569159,
+                35207728,
+                35207729,
+                35207730,
+                35207731,
+                35207732,
+                35207733,
+                35207734,
+                35207735,
+                35207736,
+                35207737,
+                35207738,
+                35207739,
+                35207740,
+                35207741,
+                35207742,
+                35207743,
+                35207744,
+                35207745,
+                35207746,
+                35207747,
+                37402501,
+                37402502,
+                44820866,
+                44824245,
+                44828977,
+                44828978,
+                44832378,
+                44833567,
+                44834730,
+                44835936,
+                44837104
+            ],
+            "conditions_standard": [
+                45769461,
+                4158911,
+                4108817,
+                443962,
+                4252872,
+                4110937,
+                4189343,
+                315564,
+                4111099,
+                314054,
+                4111413,
+                4111412,
+                4111414,
+                4108233,
+                4111416,
+                4108819,
+                319845,
+                4108170,
+                4232337,
+                4048520,
+                319843,
+                440736
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:03.000000Z",
+    "updated_at": "2026-04-17T00:17:31.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#I9",
+        "#CARDIO",
+        "#NEURO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

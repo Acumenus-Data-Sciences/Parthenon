@@ -1,0 +1,212 @@
+{
+    "id": 3599,
+    "name": "ST19_CRUSHI_INJURY_TRAUMAT_AMPUT_PART_ABDOMEN_LOWER_BACK_PELVIS",
+    "description": "Crushing injury and traumatic amputation of part of abdomen, lower back and pelvis — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#ST19"
+        ],
+        "level": "3",
+        "parent": "S3",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3352,
+            "imported_at": "2026-04-17T00:17:46+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "S38",
+                "patterns": [
+                    "S38"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "S38",
+                "patterns": [
+                    "S38"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                12084,
+                12085,
+                12086,
+                12087,
+                12088,
+                12089,
+                12090,
+                12091,
+                12092,
+                12093,
+                12094,
+                12095,
+                1572871,
+                1572872,
+                1572873,
+                1572874,
+                1572875,
+                1572876,
+                45534933,
+                45544631,
+                45544632,
+                45544635,
+                45549444,
+                45549445,
+                45549446,
+                45549447,
+                45554220,
+                45554221,
+                45558939,
+                45558940,
+                45563767,
+                45568603,
+                45568604,
+                45568605,
+                45568606,
+                45573498,
+                45573499,
+                45573500,
+                45573501,
+                45573502,
+                45573503,
+                45573504,
+                45578269,
+                45578270,
+                45583184,
+                45587970,
+                45587971,
+                45592871,
+                45592872,
+                45592873,
+                45597651,
+                45602478,
+                45602479,
+                45602480,
+                45602481,
+                45607287,
+                45607288,
+                45607289,
+                45607290
+            ],
+            "conditions_standard": [
+                4301248,
+                437428,
+                4133009,
+                4151103,
+                40629958,
+                196856,
+                4054978,
+                37116614,
+                37116615,
+                434251,
+                194526,
+                4096479,
+                438022,
+                4272646,
+                440272,
+                434512,
+                133628,
+                4155512,
+                200588,
+                4209352
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:18.000000Z",
+    "updated_at": "2026-04-17T00:17:46.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#ST19"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

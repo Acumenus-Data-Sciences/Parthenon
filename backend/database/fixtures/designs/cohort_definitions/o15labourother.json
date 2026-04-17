@@ -1,0 +1,219 @@
+{
+    "id": 3196,
+    "name": "O15_LABOUR_OTHER",
+    "description": "Other complications of labour and delivery, not elsewhere classified — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#O15"
+        ],
+        "level": "3",
+        "parent": "O60-O75",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 4,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2949,
+            "imported_at": "2026-04-17T00:17:42+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "669",
+                "patterns": [
+                    "669"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "669",
+                "patterns": [
+                    "669"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "O75",
+                "patterns": [
+                    "O75"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "O75",
+                "patterns": [
+                    "O75"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": 2,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1571868,
+                1571869,
+                35210355,
+                35210356,
+                35210357,
+                35210358,
+                35210359,
+                35210360,
+                35210361,
+                45544028,
+                45567992,
+                45597027,
+                44819915,
+                44821068,
+                44821069,
+                44821070,
+                44821071,
+                44822147,
+                44822148,
+                44822149,
+                44823294,
+                44823295,
+                44823296,
+                44823297,
+                44824441,
+                44824442,
+                44824443,
+                44824444,
+                44824445,
+                44824446,
+                44824447,
+                44825629,
+                44825630,
+                44826828,
+                44826829,
+                44827985,
+                44827986,
+                44829161,
+                44829162,
+                44830274,
+                44830275,
+                44830276,
+                44830277,
+                44830278,
+                44831435,
+                44831436,
+                44831437,
+                44831438,
+                44831439,
+                44832578,
+                44833777,
+                44833778,
+                44834930,
+                44834931,
+                44834932,
+                44836125,
+                44836126,
+                44837290,
+                44837291,
+                44837292,
+                44837293,
+                44837294
+            ],
+            "conditions_standard": [
+                440795,
+                45757191,
+                444269,
+                4143214,
+                1449985,
+                441361,
+                45757118,
+                4065745,
+                435886,
+                444094,
+                4041280,
+                440793,
+                433260,
+                314432,
+                37116834,
+                193277,
+                435875,
+                441364,
+                435022,
+                436767
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:14.000000Z",
+    "updated_at": "2026-04-17T00:17:42.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#O15"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

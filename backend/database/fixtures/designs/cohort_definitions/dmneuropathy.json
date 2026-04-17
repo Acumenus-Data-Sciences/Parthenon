@@ -1,0 +1,201 @@
+{
+    "id": 4337,
+    "name": "DM_NEUROPATHY",
+    "description": "Diabetic neuropathy — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#DIAB"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.8571428571428571,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 14,
+            "n_tokens_resolved": 12
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 4090,
+            "imported_at": "2026-04-17T00:17:51+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "25005",
+                "patterns": [
+                    "25005"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "2505",
+                "patterns": [
+                    "2505"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "25005",
+                "patterns": [
+                    "25005"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "2505",
+                "patterns": [
+                    "2505"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "E1[0-4]4",
+                "patterns": [
+                    "E104",
+                    "E114",
+                    "E124",
+                    "E134",
+                    "E144"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "E1[0-4]4",
+                "patterns": [
+                    "E104",
+                    "E114",
+                    "E124",
+                    "E134",
+                    "E144"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "DM_MONONEURO",
+            "DM_POLYNEURO",
+            "DM_AMYOTROPHY",
+            "DM_AUTONOMIC"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567949,
+                1567965,
+                1567982,
+                45533017,
+                45533020,
+                45537962,
+                45547625,
+                45557113,
+                45561948,
+                45561956,
+                45561957,
+                45566735,
+                45576439,
+                45576448,
+                45586138,
+                45591034,
+                45595795,
+                45595804,
+                45600638,
+                45605403,
+                45605404,
+                44819500,
+                44820684,
+                44822936,
+                44828794,
+                44829879
+            ],
+            "conditions_standard": [
+                201254,
+                377821,
+                201826,
+                376065,
+                201820,
+                443730,
+                37016767,
+                4140466,
+                37016768,
+                4222415,
+                37017432,
+                4143857,
+                4044391,
+                376112,
+                4225055,
+                4191611,
+                4048028,
+                37017431,
+                4175440,
+                443767,
+                42538169
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:23.000000Z",
+    "updated_at": "2026-04-17T00:17:51.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#DIAB"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

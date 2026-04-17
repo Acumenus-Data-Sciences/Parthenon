@@ -1,0 +1,169 @@
+{
+    "id": 2016,
+    "name": "I9_CAVS_RHEU",
+    "description": "Calcific aortic valvular stenosis, including rheumatic fever — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#I9",
+            "#CARDIO"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.8,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 20,
+            "n_tokens_resolved": 16
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1769,
+            "imported_at": "2026-04-17T00:17:31+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "39500|39502",
+                "patterns": [
+                    "39500",
+                    "39502"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "3950A|3952A|4241[BC]",
+                "patterns": [
+                    "3950A",
+                    "3952A",
+                    "4241B",
+                    "4241C"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "39500|39502",
+                "patterns": [
+                    "39500",
+                    "39502"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "3950A|3952A|4241[BC]",
+                "patterns": [
+                    "3950A",
+                    "3952A",
+                    "4241B",
+                    "4241C"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "I350|I352|I060|I062",
+                "patterns": [
+                    "I350",
+                    "I352",
+                    "I060",
+                    "I062"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "I350|I352|I060|I062",
+                "patterns": [
+                    "I350",
+                    "I352",
+                    "I060",
+                    "I062"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                35207648,
+                35207650,
+                35207733,
+                35207735,
+                44820866,
+                44831228,
+                44833553
+            ],
+            "conditions_standard": [
+                313221,
+                320429,
+                4189343,
+                4111099,
+                314054
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:03.000000Z",
+    "updated_at": "2026-04-17T00:17:31.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#I9",
+        "#CARDIO"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

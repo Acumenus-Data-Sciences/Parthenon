@@ -1,0 +1,198 @@
+{
+    "id": 1311,
+    "name": "F5_SLEEP",
+    "description": "Sleep disorders — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#F5",
+            "#NEURO"
+        ],
+        "level": "3",
+        "parent": "F50-F59",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1064,
+            "imported_at": "2026-04-17T00:17:23+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "3064",
+                "patterns": [
+                    "3064"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "3074",
+                "patterns": [
+                    "3074"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "3064",
+                "patterns": [
+                    "3064"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "3074",
+                "patterns": [
+                    "3074"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "F51",
+                "patterns": [
+                    "F51"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "F51",
+                "patterns": [
+                    "F51"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "F5_INSOMNIA",
+            "F5_HYPERSOMNIA",
+            "F5_SLEEPWAKE",
+            "F5_SLEEPTERRORS",
+            "F5_NIGHTMARES",
+            "F5_SLEEP_NOS"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1568242,
+                1568243,
+                1568244,
+                35207196,
+                35207197,
+                35207198,
+                35207199,
+                35207200,
+                45538071,
+                45562054,
+                45562055,
+                45566847,
+                45566848,
+                45566849,
+                45571766,
+                45595911,
+                45600753,
+                45605502,
+                44820736,
+                44822992,
+                44824134,
+                44824135,
+                44825311,
+                44826522,
+                44827669,
+                44828845,
+                44831110,
+                44835808,
+                44835809
+            ],
+            "conditions_standard": [
+                374905,
+                4102985,
+                4047912,
+                377535,
+                4232324,
+                4009184,
+                4175644,
+                4138617,
+                439013,
+                42538607,
+                436669,
+                4262584,
+                4087475,
+                4215402,
+                40482260,
+                439708,
+                377266,
+                435524,
+                434334
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:57.000000Z",
+    "updated_at": "2026-04-17T00:17:23.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#F5",
+        "#NEURO"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

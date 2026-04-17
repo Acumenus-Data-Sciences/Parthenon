@@ -1,0 +1,215 @@
+{
+    "id": 4827,
+    "name": "Q17_CLEFT_LIP_OR_LIP_AND_PALATE",
+    "description": "Cleft lip and cleft lip and palate — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#Q17"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.7,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 40,
+            "n_tokens_resolved": 28
+        },
+        "conditions": "!Q17_CLEFT_PALATE_EXCLUDE",
+        "provenance": {
+            "source_row": 4580,
+            "imported_at": "2026-04-17T00:17:54+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "74910|7491[123]|74920|74924",
+                "patterns": [
+                    "74910",
+                    "74911",
+                    "74912",
+                    "74913",
+                    "74920",
+                    "74924"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "7491[A-G]|7492[A-E]",
+                "patterns": [
+                    "7491A",
+                    "7491B",
+                    "7491C",
+                    "7491D",
+                    "7491E",
+                    "7491F",
+                    "7491G",
+                    "7492A",
+                    "7492B",
+                    "7492C",
+                    "7492D",
+                    "7492E"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "74910|7491[123]|74920|74924",
+                "patterns": [
+                    "74910",
+                    "74911",
+                    "74912",
+                    "74913",
+                    "74920",
+                    "74924"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "7491[A-G]|7492[A-E]",
+                "patterns": [
+                    "7491A",
+                    "7491B",
+                    "7491C",
+                    "7491D",
+                    "7491E",
+                    "7491F",
+                    "7491G",
+                    "7492A",
+                    "7492B",
+                    "7492C",
+                    "7492D",
+                    "7492E"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "Q3[67]",
+                "patterns": [
+                    "Q36",
+                    "Q37"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "Q3[67]",
+                "patterns": [
+                    "Q36",
+                    "Q37"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1572079,
+                1572080,
+                35210899,
+                35210900,
+                35210901,
+                35210902,
+                35210903,
+                35210904,
+                35210905,
+                35210906,
+                35210907,
+                35210908,
+                35210909,
+                44821196,
+                44822254,
+                44823399,
+                44824565,
+                44824566,
+                44826933,
+                44826934,
+                44830391,
+                44830392,
+                44830393,
+                44830394,
+                44831551,
+                44835044
+            ],
+            "conditions_standard": [
+                133861,
+                134144,
+                4127128,
+                4004138,
+                4005755,
+                46269853,
+                46269855,
+                46269856,
+                46269854,
+                46269852,
+                137972,
+                602932,
+                132420,
+                140506
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:26.000000Z",
+    "updated_at": "2026-04-17T00:17:54.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#Q17"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

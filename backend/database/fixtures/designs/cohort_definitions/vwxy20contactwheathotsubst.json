@@ -1,0 +1,236 @@
+{
+    "id": 3832,
+    "name": "VWXY20_CONTACT_W_HEAT_HOT_SUBST",
+    "description": "Contact with heat and hot substances — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#VWXY20"
+        ],
+        "level": "4",
+        "parent": "W|X[0-5]",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3585,
+            "imported_at": "2026-04-17T00:17:48+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "X1",
+                "patterns": [
+                    "X1"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "X1",
+                "patterns": [
+                    "X1"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                21277,
+                21278,
+                21279,
+                21280,
+                21281,
+                21282,
+                1575697,
+                1575698,
+                1575699,
+                1575700,
+                1575701,
+                45537464,
+                45537465,
+                45542254,
+                45542255,
+                45542256,
+                45542257,
+                45542258,
+                45547138,
+                45547139,
+                45547140,
+                45547141,
+                45551933,
+                45551934,
+                45556664,
+                45556665,
+                45556666,
+                45556667,
+                45556668,
+                45556669,
+                45556670,
+                45561455,
+                45561456,
+                45561457,
+                45561458,
+                45561459,
+                45561460,
+                45566252,
+                45566253,
+                45571172,
+                45571173,
+                45571174,
+                45571175,
+                45571176,
+                45571177,
+                45575985,
+                45575986,
+                45580855,
+                45580856,
+                45580857,
+                45580858,
+                45585649,
+                45585650,
+                45585651,
+                45585652,
+                45585653,
+                45590533,
+                45590534,
+                45590535,
+                45590536,
+                45590537,
+                45590538,
+                45590539,
+                45590540,
+                45595318,
+                45595319,
+                45595320,
+                45595321,
+                45595322,
+                45595323,
+                45595324,
+                45595325,
+                45600191,
+                45600192,
+                45604945,
+                45604946,
+                45604947,
+                45604948,
+                45609774,
+                45609775,
+                45609776,
+                45609777,
+                45609778,
+                45609779,
+                45609780
+            ],
+            "conditions_standard": [
+                4054152,
+                4054159,
+                4073070,
+                4054162,
+                4053938,
+                442995,
+                4054574,
+                4054576,
+                439987,
+                4054573,
+                4053939,
+                4073067,
+                4054153,
+                439620,
+                4054160,
+                4312122,
+                4054579,
+                4053935
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:20.000000Z",
+    "updated_at": "2026-04-17T00:17:48.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#VWXY20"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

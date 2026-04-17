@@ -1,0 +1,175 @@
+{
+    "id": 2065,
+    "name": "I9_VARICVESOTH",
+    "description": "Varicose veins of other sites — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#I9",
+            "#NEURO_CM"
+        ],
+        "level": "3",
+        "parent": "I80-I89",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1818,
+            "imported_at": "2026-04-17T00:17:31+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "456",
+                "patterns": [
+                    "456"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "456",
+                "patterns": [
+                    "456"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "456",
+                "patterns": [
+                    "456"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "456",
+                "patterns": [
+                    "456"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "I86",
+                "patterns": [
+                    "I86"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "I86",
+                "patterns": [
+                    "I86"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": "4560",
+                "patterns": [
+                    "4560"
+                ]
+            },
+            "hd_icd_9_excl": {
+                "raw": "456[0-1]",
+                "patterns": [
+                    "4560",
+                    "4561"
+                ]
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1569403,
+                35207897,
+                35207898,
+                35207899,
+                35207900,
+                35207901,
+                35207902,
+                44819736,
+                44819737,
+                44823134,
+                44824273,
+                44825455,
+                44828998,
+                44832406,
+                44832407,
+                44834758,
+                44835965,
+                44837125
+            ],
+            "conditions_standard": [
+                312349,
+                441046,
+                4196960,
+                197311,
+                436140,
+                4237824,
+                4111998,
+                28779,
+                24966
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:04.000000Z",
+    "updated_at": "2026-04-17T00:17:31.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#I9",
+        "#NEURO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

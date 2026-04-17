@@ -1,0 +1,226 @@
+{
+    "id": 4585,
+    "name": "NEURODEGOTH",
+    "description": "Other degenerative diseases of the nervous system — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#GASTRO_CM"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 4338,
+            "imported_at": "2026-04-17T00:17:52+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "G3",
+                "patterns": [
+                    "G3"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "G3",
+                "patterns": [
+                    "G3"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "G6_ALZHEIMER",
+            "G6_ATROPHCIRCUM",
+            "G6_DEGENSEN",
+            "G6_ALCODEGEN",
+            "G6_DEGENOTH"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                785878,
+                785933,
+                785934,
+                785935,
+                1348436,
+                1348437,
+                1348438,
+                1348439,
+                1348440,
+                1348441,
+                1348442,
+                1348935,
+                1348997,
+                1348998,
+                1348999,
+                1568293,
+                1568294,
+                1568295,
+                1568296,
+                1568297,
+                1568298,
+                1568299,
+                35207356,
+                35207357,
+                35207358,
+                35207359,
+                35207360,
+                35207361,
+                35207362,
+                35207363,
+                35207364,
+                35207365,
+                35207366,
+                35207367,
+                35207368,
+                35207369,
+                35207370,
+                35207371,
+                35207372,
+                35207373,
+                35207374,
+                35207375,
+                35207376,
+                35207377,
+                45538103,
+                45547730,
+                45562080,
+                45562081,
+                45586282,
+                45595932,
+                45600775,
+                45605533,
+                45605534,
+                45605535
+            ],
+            "conditions_standard": [
+                4218753,
+                374912,
+                37164973,
+                375801,
+                36716896,
+                4145049,
+                4178929,
+                374919,
+                4137855,
+                378419,
+                376337,
+                4179873,
+                4043378,
+                4213310,
+                4218017,
+                4220313,
+                373179,
+                37164783,
+                140099,
+                380995,
+                4249574,
+                376970,
+                4303996,
+                4238559,
+                139803,
+                4043403,
+                4046110,
+                4196433,
+                4077904,
+                4106216,
+                439795,
+                4068119,
+                435242
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:25.000000Z",
+    "updated_at": "2026-04-17T00:17:52.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#GASTRO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

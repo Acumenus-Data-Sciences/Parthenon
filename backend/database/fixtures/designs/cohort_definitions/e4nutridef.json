@@ -1,0 +1,292 @@
+{
+    "id": 1116,
+    "name": "E4_NUTRIDEF",
+    "description": "Other nutritional deficiencies — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#E4",
+            "#NEURO_CM"
+        ],
+        "level": "2",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 4,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 869,
+            "imported_at": "2026-04-17T00:17:21+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "E[5-6]",
+                "patterns": [
+                    "E5",
+                    "E6"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "E[5-6]",
+                "patterns": [
+                    "E5",
+                    "E6"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "E4_VIT_DEF",
+            "E4_CA_DEF",
+            "E4_SELE_DEF",
+            "E4_ZINC_DEF",
+            "E4_COPP_DEF",
+            "E4_FE_DEF",
+            "E4_MG_DEF",
+            "E4_MANG_DEF",
+            "E4_CHRO_DEF",
+            "E4_MOLYB_DEF",
+            "E4_VANA_DEF",
+            "E4_MULTI_DEF",
+            "E4_NUTRIEL_NAS_DEF",
+            "E4_FAT_DEF",
+            "E4_IMBAL_FOOD",
+            "E4_NUTRI_DEF_NAS",
+            "E4_SEQUMAL"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1102638,
+                1102639,
+                1102640,
+                1102641,
+                1102642,
+                1568013,
+                1568014,
+                1568015,
+                1568016,
+                1568017,
+                1568018,
+                1568019,
+                1568020,
+                1568021,
+                1568022,
+                1568023,
+                1568024,
+                35206972,
+                35206973,
+                35206974,
+                35206975,
+                35206976,
+                35206977,
+                35206978,
+                35206979,
+                35206980,
+                35206981,
+                35206982,
+                35206983,
+                35206984,
+                35206985,
+                35206986,
+                35206987,
+                35206988,
+                35206989,
+                35206990,
+                35206991,
+                35206992,
+                35206993,
+                35206994,
+                35206995,
+                35206996,
+                35206997,
+                35206998,
+                35206999,
+                35207000,
+                35207001,
+                35207002,
+                35207003,
+                35207004,
+                35207005,
+                35207006,
+                35207007,
+                35207008,
+                35207009,
+                35207010,
+                35207011,
+                35207012,
+                35207013,
+                35207014,
+                35207015,
+                35207016,
+                35207017,
+                35207018,
+                35207019,
+                35207020,
+                35207021,
+                35207022,
+                35207023,
+                35207024,
+                35207025,
+                35207026,
+                35207027,
+                35207028,
+                35207029,
+                35207030,
+                45552396,
+                45581370,
+                45586164,
+                45591051,
+                45600659
+            ],
+            "conditions_standard": [
+                433736,
+                434005,
+                438114,
+                441266,
+                434620,
+                437246,
+                436070,
+                436658,
+                435227,
+                4177084,
+                4217557,
+                438392,
+                376663,
+                377822,
+                372293,
+                442101,
+                376374,
+                378394,
+                378395,
+                436664,
+                4050977,
+                4303664,
+                432580,
+                435787,
+                439787,
+                438719,
+                4203927,
+                435781,
+                4096201,
+                4101282,
+                4101283,
+                4024266,
+                4146209,
+                4029273,
+                4165352,
+                4184338,
+                4079897,
+                4079898,
+                4101284,
+                4029271,
+                4098471,
+                4101287,
+                4098472,
+                4100825,
+                72857,
+                438731,
+                4097996,
+                4100857,
+                436941,
+                433985,
+                4029280,
+                435522,
+                4098618,
+                4324421,
+                4282630,
+                437525
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:56.000000Z",
+    "updated_at": "2026-04-17T00:17:21.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#E4",
+        "#NEURO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

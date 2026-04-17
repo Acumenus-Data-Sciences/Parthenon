@@ -1,0 +1,188 @@
+{
+    "id": 2843,
+    "name": "M13_MUSCLEATROPH",
+    "description": "Muscle wasting and atrophy, not elsewhere classified — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#M13",
+            "#GASTRO_CM"
+        ],
+        "level": "4",
+        "parent": "M62",
+        "release": "df14",
+        "coverage": {
+            "pct": 0.6666666666666666,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 6,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2596,
+            "imported_at": "2026-04-17T00:17:38+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "7331",
+                "patterns": [
+                    "7331"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "7282A",
+                "patterns": [
+                    "7282A"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "7331",
+                "patterns": [
+                    "7331"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "7282A",
+                "patterns": [
+                    "7282A"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "M625",
+                "patterns": [
+                    "M625"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "M625",
+                "patterns": [
+                    "M625"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1570823,
+                1570824,
+                1570825,
+                1570826,
+                1570827,
+                1570828,
+                1570829,
+                1570830,
+                37402541,
+                37402542,
+                37402543,
+                37402544,
+                37402545,
+                45533887,
+                45538819,
+                45543635,
+                45543636,
+                45553226,
+                45553227,
+                45557926,
+                45557927,
+                45557928,
+                45562776,
+                45567610,
+                45572496,
+                45572497,
+                45572498,
+                45577315,
+                45587016,
+                45591889,
+                45591890,
+                45601495,
+                45601496,
+                45601497,
+                45601498,
+                45601499,
+                45606276,
+                44819976
+            ],
+            "conditions_standard": [
+                78236,
+                77630,
+                76191,
+                136779,
+                77635,
+                72986,
+                44782620
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:11.000000Z",
+    "updated_at": "2026-04-17T00:17:38.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#M13",
+        "#GASTRO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

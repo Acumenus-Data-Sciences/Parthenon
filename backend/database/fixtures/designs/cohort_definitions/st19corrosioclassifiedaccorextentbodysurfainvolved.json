@@ -1,0 +1,209 @@
+{
+    "id": 3745,
+    "name": "ST19_CORROSIO_CLASSIFIED_ACCOR_EXTENT_BODY_SURFA_INVOLVED",
+    "description": "Corrosions classified according to extent of body surface involved — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#ST19"
+        ],
+        "level": "4",
+        "parent": "T29|T3[0-2]",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3498,
+            "imported_at": "2026-04-17T00:17:47+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "T32",
+                "patterns": [
+                    "T32"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "T32",
+                "patterns": [
+                    "T32"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1574566,
+                1574567,
+                1574568,
+                1574569,
+                1574570,
+                1574571,
+                1574572,
+                1574573,
+                1574574,
+                1574575,
+                35215219,
+                45536643,
+                45536644,
+                45536645,
+                45536646,
+                45536647,
+                45536648,
+                45541437,
+                45541438,
+                45541439,
+                45541440,
+                45546283,
+                45546284,
+                45551099,
+                45551100,
+                45551101,
+                45551102,
+                45555878,
+                45555879,
+                45555880,
+                45555881,
+                45560633,
+                45560634,
+                45560635,
+                45565458,
+                45565459,
+                45565461,
+                45565462,
+                45570333,
+                45570334,
+                45570335,
+                45575185,
+                45575186,
+                45580027,
+                45580028,
+                45580029,
+                45580030,
+                45580031,
+                45584821,
+                45584822,
+                45584823,
+                45584824,
+                45589678,
+                45589679,
+                45589680,
+                45594549,
+                45594551,
+                45594552,
+                45594554,
+                45599367,
+                45604181,
+                45604183,
+                45608950,
+                45608951,
+                45608952
+            ],
+            "conditions_standard": [
+                4060006,
+                4057924,
+                4054747,
+                4057927,
+                4055449,
+                4057929,
+                4060013,
+                4057933,
+                4057935,
+                4054753,
+                4055331
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:19.000000Z",
+    "updated_at": "2026-04-17T00:17:47.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#ST19"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

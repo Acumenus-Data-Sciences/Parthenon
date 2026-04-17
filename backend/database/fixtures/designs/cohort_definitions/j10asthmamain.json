@@ -1,0 +1,219 @@
+{
+    "id": 2101,
+    "name": "J10_ASTHMA_MAIN",
+    "description": "Asthma (only as main-diagnosis) — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#J10",
+            "#ASTHMA"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.75,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 8,
+            "n_tokens_resolved": 6
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1854,
+            "imported_at": "2026-04-17T00:17:31+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": true,
+        "cod_mainonly": true,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "493",
+                "patterns": [
+                    "493"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "493",
+                "patterns": [
+                    "493"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "493",
+                "patterns": [
+                    "493"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "493",
+                "patterns": [
+                    "493"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "J45|J46",
+                "patterns": [
+                    "J45",
+                    "J46"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "J45|J46",
+                "patterns": [
+                    "J45",
+                    "J46"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1569488,
+                1569489,
+                1569490,
+                1569491,
+                45543269,
+                45543270,
+                45548116,
+                45548117,
+                45557626,
+                45562457,
+                45567265,
+                45567266,
+                45572168,
+                45572169,
+                45572170,
+                45572171,
+                45576951,
+                45576952,
+                45581859,
+                45581860,
+                45586674,
+                45586675,
+                45591558,
+                45591559,
+                45601133,
+                45601134,
+                44820889,
+                44821987,
+                44821988,
+                44823144,
+                44824287,
+                44824288,
+                44824289,
+                44826678,
+                44826679,
+                44829012,
+                44830115,
+                44831278,
+                44831279,
+                44831280,
+                44832423,
+                44832424,
+                44833611,
+                44834769,
+                44837135,
+                44837136
+            ],
+            "conditions_standard": [
+                317009,
+                45772937,
+                37116845,
+                4146581,
+                45768911,
+                45769351,
+                45768910,
+                45768965,
+                45769350,
+                4138760,
+                45769438,
+                45768963,
+                45769352,
+                4143828,
+                45768908,
+                313236,
+                4142738,
+                4145356,
+                45768964,
+                257581,
+                43530693,
+                312950,
+                45769442,
+                4145497,
+                255573,
+                45769441,
+                45769443,
+                45773005
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:04.000000Z",
+    "updated_at": "2026-04-17T00:17:31.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#J10",
+        "#ASTHMA"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

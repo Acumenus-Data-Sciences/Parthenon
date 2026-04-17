@@ -1,0 +1,176 @@
+{
+    "id": 5409,
+    "name": "C3_LIQUID_CANCER_WIDE",
+    "description": "Liquid cancers, including Hilmo — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#C3"
+        ],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0,
+            "bucket": "UNMAPPED",
+            "n_tokens_total": 3,
+            "n_tokens_resolved": 0
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 5162,
+            "imported_at": "2026-04-17T00:18:00+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": "C42|C77",
+                "patterns": [
+                    "C42",
+                    "C77"
+                ]
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_behav": {
+                "raw": "3",
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": "ANY",
+                "patterns": [
+                    "ANY"
+                ]
+            },
+            "cod_icd_10": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "UNMAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "C_HODGKIN_LYMPHOMA",
+            "C_FOLLICULAR_LYMPHOMA",
+            "C_NONFOLLICULAR_LYMPHOMA",
+            "C_TNK_LYMPHOMA",
+            "C_NONHODGKIN_NAS",
+            "C_OTHER_SPECIAL_TNK_LYMPHOMA",
+            "C_LYMPHOMA",
+            "C3_PRIMARY_LYMPHOID_HEMATOPOIETIC",
+            "C3_HODGKIN_LYMPHOMA",
+            "C3_FOLLICULAR_LYMPHOMA",
+            "C3_NONFOLLICULAR_LYMPHOMA",
+            "C3_TNK_LYMPHOMA",
+            "C3_NONHODGKIN_NAS",
+            "C3_OTHER_SPECIAL_TNK_LYMPHOMA",
+            "C3_IMMUNOPROLIFERATIVE",
+            "C3_MULTIPLE_MYELOMA_PLASMA_CELL",
+            "C3_LYMPHOID_LEUKAEMIA",
+            "C3_MYELOID_LEUKAEMIA",
+            "C3_MONOCYTIC_LEUKAEMIA",
+            "C3_OTHER_LEUKAEMIA_SPECIFIED",
+            "C3_LEUKAEMIA_NAS",
+            "C3_PRIMARY_LYMPHOID_HEMATOPOIETIC_NAS",
+            "HLP_C3_ALL",
+            "HLP_C3_CLL",
+            "HLP_C3_AML",
+            "HLP_C3_DLBCL",
+            "HLP_C3_BURKITT",
+            "C3_ALL_WIDE",
+            "C3_AML_WIDE",
+            "C3_BURKITT_WIDE",
+            "C3_CLL_WIDE",
+            "C3_CML_WIDE",
+            "C3_DLBCL_WIDE",
+            "C3_MACROGLOBULINEMIA_WIDE",
+            "C3_MANTLE_CELL_LYMPHOMA_WIDE",
+            "C3_MARGINAL_ZONE_LYMPHOMA_WIDE",
+            "C3_MULT_MYELOMA_WIDE",
+            "C3_MYELODYSP_SYNDR_WIDE",
+            "C3_NONHODGKIN_WIDE",
+            "C3_CIRCULATING_LYMPHOID_WIDE",
+            "C3_AML_MDS",
+            "C3_LYMPHNODES_SECONDARY_NAS_WIDE",
+            "MYELOPROF_NONCML"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [],
+            "conditions_standard": []
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:32.000000Z",
+    "updated_at": "2026-04-17T00:18:00.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#C3"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

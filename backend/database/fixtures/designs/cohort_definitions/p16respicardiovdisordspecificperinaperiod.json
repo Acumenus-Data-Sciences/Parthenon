@@ -1,0 +1,278 @@
+{
+    "id": 3227,
+    "name": "P16_RESPI_CARDIOV_DISORD_SPECIFIC_PERINA_PERIOD",
+    "description": "Respiratory and cardiovascular disorders specific to the perinatal period — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#P16"
+        ],
+        "level": "2",
+        "parent": "P",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2980,
+            "imported_at": "2026-04-17T00:17:42+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "P2",
+                "patterns": [
+                    "P2"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "P2",
+                "patterns": [
+                    "P2"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "P16_INTRAU_HYPOXIA",
+            "P16_BIRTH_ASPHYXIA",
+            "P16_RESPI_DISTR_NEWBO",
+            "P16_CONGN_PNEUMON",
+            "P16_NEONTAL_ASPIRATI_SYNDR",
+            "P16_INTERSTITIAL_EMPHY_RELATED_COND_ORIGINA_PERINA_PERIOD",
+            "P16_PULMONARY_HAEMORRHAGE_ORIGINA_PERINA_PERIOD",
+            "P16_CHRONIC_RESPI_DISEA_ORIGINA_PERINA_PERIOD",
+            "P16_OTH_RESPI_COND_ORIGINA_PERINA_PERIOD",
+            "P16_CARDIOV_DISORD_ORIGINA_PERINA_PERIOD"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1326773,
+                1326774,
+                1571990,
+                1571991,
+                1571992,
+                1571993,
+                1571994,
+                1571995,
+                1571996,
+                1571997,
+                1571998,
+                1571999,
+                1572000,
+                1572001,
+                1572002,
+                1572003,
+                1572004,
+                1572005,
+                1572006,
+                35210484,
+                35210485,
+                35210486,
+                35210487,
+                35210488,
+                35210489,
+                35210490,
+                35210491,
+                35210492,
+                35210493,
+                35210494,
+                35210495,
+                35210496,
+                35210497,
+                35210498,
+                35210499,
+                35210500,
+                35210501,
+                35210502,
+                35210503,
+                35210504,
+                35210505,
+                35210506,
+                35210507,
+                35210508,
+                35210509,
+                35210510,
+                35210511,
+                35210512,
+                35210513,
+                35210514,
+                35210515,
+                35210516,
+                35210517,
+                35210518,
+                35210519,
+                35210520,
+                35210521,
+                37402948,
+                37402949,
+                37402950,
+                37402951,
+                37402952,
+                37402953,
+                37402954,
+                37402955,
+                37402956,
+                37402957,
+                45534340,
+                45534341,
+                45534342,
+                45539238,
+                45539241,
+                45558369,
+                45568024,
+                45572932,
+                45577697,
+                45577699,
+                45577700,
+                45577701,
+                45577703,
+                45582617,
+                45582618,
+                45592329,
+                45597071,
+                45601929,
+                45606699
+            ],
+            "conditions_standard": [
+                4121462,
+                258866,
+                255084,
+                434154,
+                439934,
+                252442,
+                4048150,
+                258564,
+                43021073,
+                1244485,
+                319138,
+                260212,
+                4181199,
+                4170972,
+                4173170,
+                321683,
+                4174308,
+                4070540,
+                4071610,
+                4071611,
+                4048148,
+                4048149,
+                4174309,
+                4171691,
+                4270073,
+                4261839,
+                4048460,
+                4149586,
+                257375,
+                4201423,
+                4283942,
+                258554,
+                134760,
+                4262580,
+                318247,
+                4317960,
+                4172864,
+                4071202,
+                4172865,
+                43022069,
+                252305,
+                42539560,
+                36716743,
+                433589,
+                443522,
+                443523,
+                318856,
+                4106274
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:15.000000Z",
+    "updated_at": "2026-04-17T00:17:42.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#P16"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

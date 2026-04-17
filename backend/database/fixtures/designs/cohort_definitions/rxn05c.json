@@ -1,0 +1,280 @@
+{
+    "id": 1319,
+    "name": "RX_N05C",
+    "description": "Use of hypnotics and sedatives — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#F5"
+        ],
+        "level": "C",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 1,
+            "n_tokens_resolved": 1
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1072,
+            "imported_at": "2026-04-17T00:17:23+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": "N05C",
+                "patterns": [
+                    "N05C"
+                ]
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [
+                1146633,
+                37498491,
+                35197946,
+                1301152,
+                1758995,
+                45775760,
+                44814600,
+                730729,
+                712757,
+                19039767,
+                19015346,
+                19030299,
+                766067,
+                19059149,
+                19021512,
+                19135827,
+                19072082,
+                40798884,
+                19005015,
+                19068964,
+                700253,
+                19113034,
+                19134133,
+                742594,
+                1189490,
+                19027181,
+                756349,
+                19020021,
+                19055224,
+                748010,
+                704599,
+                19007977,
+                836715,
+                708298,
+                19039262,
+                731188,
+                19042550,
+                19061124,
+                19006742,
+                40799066,
+                19044883,
+                744740,
+                720727,
+                757352,
+                781182,
+                19004160,
+                19092283,
+                40798676,
+                19033243,
+                965748,
+                19053610,
+                19042692,
+                749727,
+                1397059,
+                35197991,
+                40798942,
+                19082402,
+                19061088,
+                702865,
+                19041852
+            ],
+            "source_concept_ids": [
+                715757,
+                947937,
+                947979,
+                948041,
+                954943,
+                955036,
+                955110,
+                955198,
+                1502090,
+                1588681,
+                21604606,
+                21604607,
+                21604608,
+                21604609,
+                21604610,
+                21604611,
+                21604612,
+                21604613,
+                21604614,
+                21604615,
+                21604616,
+                21604617,
+                21604618,
+                21604619,
+                21604620,
+                21604621,
+                21604622,
+                21604623,
+                21604624,
+                21604625,
+                21604626,
+                21604627,
+                21604628,
+                21604629,
+                21604630,
+                21604631,
+                21604632,
+                21604633,
+                21604634,
+                21604635,
+                21604636,
+                21604637,
+                21604638,
+                21604639,
+                21604640,
+                21604641,
+                21604642,
+                21604643,
+                21604644,
+                21604645,
+                21604646,
+                21604647,
+                21604648,
+                21604649,
+                21604650,
+                21604651,
+                21604652,
+                21604653,
+                21604654,
+                21604655,
+                21604656,
+                21604657,
+                21604658,
+                21604659,
+                21604660,
+                21604661,
+                21604662,
+                21604663,
+                21604664,
+                21604665,
+                21604666,
+                21604667,
+                21604668,
+                21604669,
+                21604670,
+                21604671,
+                21604672,
+                21604673,
+                21604674,
+                21604675,
+                21604676,
+                21604677,
+                21604678,
+                21604679,
+                21604680,
+                21604681,
+                21604682,
+                21604683,
+                21604684
+            ],
+            "conditions_standard": []
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:57.000000Z",
+    "updated_at": "2026-04-17T00:17:23.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#F5"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

@@ -1,0 +1,188 @@
+{
+    "id": 4802,
+    "name": "C3_BILIARY_GALLBLADDER",
+    "description": "Malignant neoplasm of intrahepatic ducts, biliary tract and gallbladder — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#C3"
+        ],
+        "level": "3",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.45454545454545453,
+            "bucket": "SPARSE",
+            "n_tokens_total": 11,
+            "n_tokens_resolved": 5
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 4555,
+            "imported_at": "2026-04-17T00:17:54+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": "C2[2-4]",
+                "patterns": [
+                    "C22",
+                    "C23",
+                    "C24"
+                ]
+            },
+            "cod_icd_8": {
+                "raw": "155|156",
+                "patterns": [
+                    "155",
+                    "156"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "155|156",
+                "patterns": [
+                    "155",
+                    "156"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_behav": {
+                "raw": "3",
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": "ANY",
+                "patterns": [
+                    "ANY"
+                ]
+            },
+            "cod_icd_10": {
+                "raw": "C2[2-4]",
+                "patterns": [
+                    "C22",
+                    "C23",
+                    "C24"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "SPARSE",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "C3_LIVER_INTRAHEPATIC_BILE_DUCTS",
+            "C3_GALLBLADDER",
+            "C3_BILIARY_TRACT"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567479,
+                1567480,
+                35206146,
+                35206147,
+                35206148,
+                35206149,
+                35206150,
+                35206151,
+                35206152,
+                35206153,
+                35206154,
+                35206155,
+                35206156,
+                35206157,
+                45585987,
+                44819423,
+                44820601,
+                44826395,
+                44829795,
+                44829796,
+                44829797,
+                44832120,
+                44834483,
+                44835671,
+                44836827
+            ],
+            "conditions_standard": [
+                4246127,
+                194589,
+                4001171,
+                4001664,
+                4001172,
+                4003021,
+                4115271,
+                4094864,
+                197806,
+                40486896,
+                441225,
+                198695,
+                201519,
+                40490929
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:26.000000Z",
+    "updated_at": "2026-04-17T00:17:54.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#C3"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

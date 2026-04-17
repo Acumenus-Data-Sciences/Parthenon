@@ -1,0 +1,208 @@
+{
+    "id": 1687,
+    "name": "H7_ADHESIOIRIS",
+    "description": "Pupillary membranes and other adhesions and disruptions of iris and ciliary body — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#H7",
+            "#OPHTAL"
+        ],
+        "level": "4",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.75,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 8,
+            "n_tokens_resolved": 6
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1440,
+            "imported_at": "2026-04-17T00:17:27+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "37831",
+                "patterns": [
+                    "37831"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "3647",
+                "patterns": [
+                    "3647"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "37831",
+                "patterns": [
+                    "37831"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "3647",
+                "patterns": [
+                    "3647"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "H21[4-5]",
+                "patterns": [
+                    "H214",
+                    "H215"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "H21[4-5]",
+                "patterns": [
+                    "H214",
+                    "H215"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1568639,
+                1568640,
+                1568641,
+                1568642,
+                1568643,
+                1568644,
+                45533275,
+                45533276,
+                45538238,
+                45538239,
+                45543002,
+                45543003,
+                45543004,
+                45547838,
+                45547839,
+                45552636,
+                45552637,
+                45557372,
+                45557374,
+                45562201,
+                45562202,
+                45567009,
+                45567010,
+                45567011,
+                45567012,
+                45571920,
+                45571921,
+                45576697,
+                45586420,
+                45591293,
+                45591294,
+                45591295,
+                45591296,
+                45596045,
+                45596046,
+                45596047,
+                45600886,
+                45600887,
+                45605640,
+                45605641,
+                45605642,
+                44819621,
+                44823051,
+                44826577,
+                44828909,
+                44830007,
+                44833479,
+                44834656,
+                44837036,
+                44837037
+            ],
+            "conditions_standard": [
+                4318523,
+                37118667,
+                440705,
+                441560,
+                440713,
+                4285569,
+                441289,
+                441016,
+                437268,
+                437295,
+                42538661,
+                42538662,
+                42539361
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:00.000000Z",
+    "updated_at": "2026-04-17T00:17:27.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#H7",
+        "#OPHTAL"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

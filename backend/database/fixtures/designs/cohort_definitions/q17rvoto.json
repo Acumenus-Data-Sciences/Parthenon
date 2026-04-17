@@ -1,0 +1,241 @@
+{
+    "id": 3340,
+    "name": "Q17_RVOTO",
+    "description": "Right ventricular outflow tract obstruction — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#Q17"
+        ],
+        "level": "3",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 40,
+            "n_tokens_resolved": 40
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 3093,
+            "imported_at": "2026-04-17T00:17:43+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "7460B|7460C|7460X|7461B|7461A|7468X|7468B|7473A",
+                "patterns": [
+                    "7460B",
+                    "7460C",
+                    "7460X",
+                    "7461B",
+                    "7461A",
+                    "7468X",
+                    "7468B",
+                    "7473A"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "7460B|7460C|7460X|7461B|7461A|7468X|7468B|7473A",
+                "patterns": [
+                    "7460B",
+                    "7460C",
+                    "7460X",
+                    "7461B",
+                    "7461A",
+                    "7468X",
+                    "7468B",
+                    "7473A"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "Q220|Q221|Q222|Q223|Q2240|Q2241|Q226|Q228|Q229|Q243|Q255|Q256",
+                "patterns": [
+                    "Q220",
+                    "Q221",
+                    "Q222",
+                    "Q223",
+                    "Q2240",
+                    "Q2241",
+                    "Q226",
+                    "Q228",
+                    "Q229",
+                    "Q243",
+                    "Q255",
+                    "Q256"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "Q220|Q221|Q222|Q223|Q2240|Q2241|Q226|Q228|Q229|Q243|Q255|Q256",
+                "patterns": [
+                    "Q220",
+                    "Q221",
+                    "Q222",
+                    "Q223",
+                    "Q2240",
+                    "Q2241",
+                    "Q226",
+                    "Q228",
+                    "Q229",
+                    "Q243",
+                    "Q255",
+                    "Q256"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": "758|7595|75683",
+                "patterns": [
+                    "758",
+                    "7595",
+                    "75683"
+                ]
+            },
+            "hd_icd_10_excl": {
+                "raw": "Q90|Q91|Q92|Q93|Q96|Q8780|Q8781|Q8782|Q8783|Q8784|Q8786|Q8788|Q85|Q796|Q874|Q875",
+                "patterns": [
+                    "Q90",
+                    "Q91",
+                    "Q92",
+                    "Q93",
+                    "Q96",
+                    "Q8780",
+                    "Q8781",
+                    "Q8782",
+                    "Q8783",
+                    "Q8784",
+                    "Q8786",
+                    "Q8788",
+                    "Q85",
+                    "Q796",
+                    "Q874",
+                    "Q875"
+                ]
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                35210807,
+                35210808,
+                35210809,
+                35210810,
+                35210813,
+                35210814,
+                35210815,
+                35210826,
+                35210837,
+                35210838,
+                44820006,
+                44821192,
+                44822251,
+                44824558,
+                44825751,
+                44825752,
+                44825755,
+                44826931,
+                44828095,
+                44828096,
+                44829250,
+                44831546,
+                44832680,
+                44833876,
+                44835040,
+                44835041,
+                44836239,
+                44837385,
+                44837386
+            ],
+            "conditions_standard": [
+                36714644,
+                313005,
+                4035467,
+                319921,
+                4145158,
+                4184499,
+                4069184,
+                4031766,
+                4317288,
+                435646,
+                321109,
+                4119302,
+                441108,
+                313011,
+                320206,
+                312723,
+                315069,
+                4069183
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:16.000000Z",
+    "updated_at": "2026-04-17T00:17:43.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#Q17"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

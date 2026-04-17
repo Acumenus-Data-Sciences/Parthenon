@@ -1,0 +1,170 @@
+{
+    "id": 4289,
+    "name": "AUTOIMMUNE",
+    "description": "Autoimmune diseases — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [],
+        "level": null,
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0,
+            "bucket": "CONTROL_ONLY",
+            "n_tokens_total": 0,
+            "n_tokens_resolved": 0
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 4042,
+            "imported_at": "2026-04-17T00:17:51+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "CONTROL_ONLY",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "M13_RHEUMA",
+            "M13_RELAPSPOLYCHONDR",
+            "SLE_FG",
+            "M13_SJOGREN",
+            "M13_SYSTSLCE",
+            "M13_DERMATOPOLY",
+            "M13_WEGENER",
+            "M13_MICROPOLYANG",
+            "M13_CHURGSTRAUSS",
+            "D3_ALLERGPURPURA",
+            "I9_RHEUFEV",
+            "E4_HYTHY_AI_STRICT",
+            "G6_MS",
+            "E4_DM1",
+            "G6_ADEM",
+            "G6_DISSOTH",
+            "G6_NARCOCATA",
+            "AUTOIMMUNE_HYPERTHYROIDISM",
+            "E4_THYROIDITAUTOIM",
+            "E4_AUTOPOLYFAI",
+            "AUTOHEP",
+            "D3_AIHA_DRUG",
+            "D3_AIHA_OTHER",
+            "G6_MYASTHENIA",
+            "G6_OTHDEMYEL",
+            "G6_MYOMUSCINOTH",
+            "K11_COELIAC",
+            "CHIRBIL_PRIM",
+            "G6_GUILBAR",
+            "K11_IBD",
+            "L12_PSORIASIS",
+            "L12_VITILIGO",
+            "L12_ALOPECAREATA",
+            "D3_ITP",
+            "N14_HENOCHSCHONLEIN_NEPHRITIS",
+            "E4_ADDISON",
+            "M13_HYPERANG",
+            "N14_IGA_NEPHROPATHY",
+            "D3_ANAEMIA_B12_DEF",
+            "H7_IRIDOCYC_ANTER",
+            "E4_GRAVES_OPHT_STRICT",
+            "M13_BEHCET",
+            "L12_PEMPHIGOID",
+            "L12_DERMATHERP",
+            "M13_MCTD"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [],
+            "conditions_standard": []
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:23.000000Z",
+    "updated_at": "2026-04-17T00:17:51.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

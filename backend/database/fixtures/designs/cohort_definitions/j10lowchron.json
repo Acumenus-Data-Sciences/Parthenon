@@ -1,0 +1,231 @@
+{
+    "id": 2155,
+    "name": "J10_LOWCHRON",
+    "description": "Chronic lower respiratory diseases — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#J10"
+        ],
+        "level": "2",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 2,
+            "n_tokens_resolved": 2
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 1908,
+            "imported_at": "2026-04-17T00:17:32+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10": {
+                "raw": "J4",
+                "patterns": [
+                    "J4"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "J4",
+                "patterns": [
+                    "J4"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "J10_BRONCH",
+            "J10_SIMPLBRONCH",
+            "J10_BRONCHNAS",
+            "J10_COPD",
+            "J10_ASTHMA",
+            "J10_BRONCHIECTASIS",
+            "J10_ASTHMACOPDKELA"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                786005,
+                786006,
+                786007,
+                786008,
+                786009,
+                786010,
+                786011,
+                1569485,
+                1569486,
+                1569487,
+                1569488,
+                1569489,
+                1569490,
+                1569491,
+                1569492,
+                35208013,
+                35208014,
+                35208015,
+                35208016,
+                35208017,
+                35208018,
+                35208019,
+                35208020,
+                35208021,
+                35208022,
+                35208023,
+                35208024,
+                35208025,
+                45543269,
+                45543270,
+                45548116,
+                45548117,
+                45557626,
+                45562457,
+                45562458,
+                45562459,
+                45567265,
+                45567266,
+                45572168,
+                45572169,
+                45572170,
+                45572171,
+                45572172,
+                45576951,
+                45576952,
+                45581859,
+                45581860,
+                45586674,
+                45586675,
+                45591558,
+                45591559,
+                45601133,
+                45601134
+            ],
+            "conditions_standard": [
+                255573,
+                4222731,
+                4333202,
+                4179244,
+                4207623,
+                255841,
+                261325,
+                317009,
+                256449,
+                256451,
+                261889,
+                257905,
+                4112826,
+                4177944,
+                4286497,
+                4110056,
+                257004,
+                45772937,
+                37116845,
+                4146581,
+                45768911,
+                45769351,
+                45768910,
+                45768965,
+                45769350,
+                4138760,
+                45769438,
+                40483342,
+                45768963,
+                45769352,
+                4143828,
+                45768908,
+                313236,
+                4142738,
+                4145356,
+                45768964,
+                257581
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:04.000000Z",
+    "updated_at": "2026-04-17T00:17:32.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#J10"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

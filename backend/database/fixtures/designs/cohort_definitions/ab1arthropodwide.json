@@ -1,0 +1,275 @@
+{
+    "id": 5045,
+    "name": "AB1_ARTHROPOD_WIDE",
+    "description": "Arthropod-borne viral fevers and viral haemorrhagic fevers, including avohilmo — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#AB1"
+        ],
+        "level": "2",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 38,
+            "n_tokens_resolved": 38
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 4798,
+            "imported_at": "2026-04-17T00:17:56+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "06[1|7-8]",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "06[5-6]|078[6-7]",
+                "patterns": [
+                    "065",
+                    "066",
+                    "0786",
+                    "0787"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "06[1|7-8]",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "06[5-6]|078[6-7]",
+                "patterns": [
+                    "065",
+                    "066",
+                    "0786",
+                    "0787"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "A9[0-9]",
+                "patterns": [
+                    "A90",
+                    "A91",
+                    "A92",
+                    "A93",
+                    "A94",
+                    "A95",
+                    "A96",
+                    "A97",
+                    "A98",
+                    "A99"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "A9[0-9]",
+                "patterns": [
+                    "A90",
+                    "A91",
+                    "A92",
+                    "A93",
+                    "A94",
+                    "A95",
+                    "A96",
+                    "A97",
+                    "A98",
+                    "A99"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": "A9[0-9]",
+                "patterns": [
+                    "A90",
+                    "A91",
+                    "A92",
+                    "A93",
+                    "A94",
+                    "A95",
+                    "A96",
+                    "A97",
+                    "A98",
+                    "A99"
+                ]
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [
+            "AB1_DENGUE_FEVER",
+            "AB1_DENGUE_HEMORR",
+            "AB1_OTHER_MOSQUITO_FEVER",
+            "AB1_ANTHRO_VIRAL_FEVER_NOS",
+            "AB1_YELLOW_FEVER",
+            "AB1_ARENAVIRAL_FEVER",
+            "AB1_DENGUE",
+            "AB1_VIRAL_HEMOR_FEVER_NOS"
+        ],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567344,
+                1567345,
+                1567346,
+                1567347,
+                1567348,
+                1567349,
+                35205698,
+                35205699,
+                35205700,
+                35205701,
+                35205702,
+                35205703,
+                35205704,
+                35205705,
+                35205706,
+                35205707,
+                35205708,
+                35205709,
+                35205710,
+                35205711,
+                35205712,
+                35205713,
+                35205714,
+                35205715,
+                35205716,
+                35205717,
+                35205718,
+                35205719,
+                35205720,
+                35205721,
+                35205722,
+                35205723,
+                35205724,
+                35205725,
+                35205726,
+                37200001,
+                45581136,
+                45585936,
+                45595600,
+                45605215,
+                44819374,
+                44819375,
+                44819376,
+                44820558,
+                44820559,
+                44820560,
+                44821687,
+                44821688,
+                44822829,
+                44822830,
+                44823978,
+                44826346,
+                44826347,
+                44827502,
+                44828691,
+                44828692,
+                44828693,
+                44832082,
+                44832089,
+                44833241,
+                44835629,
+                44836788
+            ],
+            "conditions_standard": [
+                438685,
+                438970,
+                440029,
+                441210,
+                442783,
+                4347554,
+                440022,
+                4049502,
+                4009926,
+                4310683,
+                4220454,
+                4300216,
+                4217969,
+                434566,
+                4274011,
+                439724,
+                442796,
+                4240364,
+                4284824,
+                4078535,
+                438681,
+                437211,
+                434273,
+                4300760,
+                4285805,
+                37399017,
+                4214984,
+                373692,
+                440327,
+                44806553,
+                36716728,
+                4332657
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:28.000000Z",
+    "updated_at": "2026-04-17T00:17:56.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#AB1"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

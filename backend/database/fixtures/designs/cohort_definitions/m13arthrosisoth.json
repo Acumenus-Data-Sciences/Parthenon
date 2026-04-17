@@ -1,0 +1,299 @@
+{
+    "id": 2753,
+    "name": "M13_ARTHROSIS_OTH",
+    "description": "Other arthrosis — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#M13",
+            "#GASTRO_CM"
+        ],
+        "level": "4",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.8,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 10,
+            "n_tokens_resolved": 8
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2506,
+            "imported_at": "2026-04-17T00:17:37+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "713",
+                "patterns": [
+                    "713"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "7151|7152",
+                "patterns": [
+                    "7151",
+                    "7152"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "713",
+                "patterns": [
+                    "713"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "7151|7152",
+                "patterns": [
+                    "7151",
+                    "7152"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "M19|M18",
+                "patterns": [
+                    "M19",
+                    "M18"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "M19|M18",
+                "patterns": [
+                    "M19",
+                    "M18"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": "7130[0-1]|71303|7131",
+                "patterns": [
+                    "71300",
+                    "71301",
+                    "71303",
+                    "7131"
+                ]
+            },
+            "hd_icd_9_excl": {
+                "raw": "7151L|7151E|7151F|7152L|7152E|7152F",
+                "patterns": [
+                    "7151L",
+                    "7151E",
+                    "7151F",
+                    "7152L",
+                    "7152E",
+                    "7152F"
+                ]
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                725378,
+                725379,
+                725380,
+                1570336,
+                1570337,
+                1570338,
+                1570339,
+                1570340,
+                1570341,
+                1570342,
+                1570343,
+                1570344,
+                1570345,
+                1570346,
+                1570347,
+                1570348,
+                1570349,
+                1570350,
+                1570351,
+                1570352,
+                1570353,
+                1570354,
+                1570355,
+                1570356,
+                1570357,
+                1570358,
+                1570359,
+                35208777,
+                35208778,
+                35208779,
+                35208780,
+                45533745,
+                45533746,
+                45533747,
+                45533748,
+                45533749,
+                45538685,
+                45538686,
+                45538687,
+                45538688,
+                45538689,
+                45543485,
+                45543486,
+                45543487,
+                45548322,
+                45548323,
+                45548324,
+                45548325,
+                45548326,
+                45553097,
+                45553098,
+                45553099,
+                45557807,
+                45557808,
+                45557809,
+                45562649,
+                45562650,
+                45562651,
+                45567471,
+                45567472,
+                45567473,
+                45567474,
+                45572374,
+                45572375,
+                45577168,
+                45582057,
+                45582059,
+                45582061,
+                45582062,
+                45582063,
+                45582064,
+                45586890,
+                45586891,
+                45586892,
+                45586893,
+                45586894,
+                45591743,
+                45591744,
+                45591745,
+                45591746,
+                45591747,
+                45596495,
+                45596497,
+                45596498,
+                45601354,
+                45601356,
+                45606131,
+                45606132,
+                45606133,
+                44819946,
+                44819947,
+                44822188,
+                44822189,
+                44822190,
+                44823349,
+                44825677,
+                44825678,
+                44825679,
+                44828035,
+                44830323,
+                44830324,
+                44830325,
+                44832630,
+                44833811,
+                44834975,
+                44834976,
+                44834977,
+                44834978,
+                44836173
+            ],
+            "conditions_standard": [
+                72993,
+                44783205,
+                40481943,
+                4242103,
+                80180,
+                4035439,
+                73840,
+                4197477,
+                4197476,
+                75036,
+                78505,
+                77631,
+                4083695,
+                136779,
+                79904,
+                40482662,
+                80494,
+                40484571,
+                80802,
+                4035441,
+                73553,
+                4114586,
+                4115522,
+                80183,
+                75617,
+                74722,
+                4323893,
+                4134443,
+                4079750,
+                4323193,
+                434123
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:10.000000Z",
+    "updated_at": "2026-04-17T00:17:37.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#M13",
+        "#GASTRO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

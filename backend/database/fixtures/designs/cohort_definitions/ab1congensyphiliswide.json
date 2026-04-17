@@ -1,0 +1,225 @@
+{
+    "id": 5024,
+    "name": "AB1_CONGEN_SYPHILIS_WIDE",
+    "description": "Congenital syphilis, including avohilmo — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#AB1"
+        ],
+        "level": "4",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.7142857142857143,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 7,
+            "n_tokens_resolved": 5
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 4777,
+            "imported_at": "2026-04-17T00:17:56+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "09[0]",
+                "patterns": [
+                    "090"
+                ]
+            },
+            "hd_icd_9": {
+                "raw": "09[0]",
+                "patterns": [
+                    "090"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "09[0]",
+                "patterns": [
+                    "090"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "09[0]",
+                "patterns": [
+                    "090"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "A50",
+                "patterns": [
+                    "A50"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "A50",
+                "patterns": [
+                    "A50"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": "A50",
+                "patterns": [
+                    "A50"
+                ]
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "PARTIAL",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567296,
+                1567297,
+                1567298,
+                1567299,
+                1567300,
+                35205580,
+                35205581,
+                35205582,
+                35205583,
+                35205584,
+                45537728,
+                45537729,
+                45542531,
+                45547412,
+                45552183,
+                45552184,
+                45556904,
+                45561709,
+                45561711,
+                45561712,
+                45561713,
+                45561714,
+                45566507,
+                45566508,
+                45566509,
+                45566510,
+                45571430,
+                45571431,
+                45571432,
+                45576240,
+                45581114,
+                45581117,
+                45585916,
+                45585917,
+                45600414,
+                45600415,
+                45600416,
+                45605206,
+                44820571,
+                44820572,
+                44822843,
+                44825163,
+                44825164,
+                44829766,
+                44829767,
+                44830950,
+                44832098,
+                44834447,
+                44834448,
+                44835635,
+                44835636,
+                44836799
+            ],
+            "conditions_standard": [
+                434279,
+                434570,
+                4087751,
+                372243,
+                437794,
+                4089980,
+                436632,
+                436624,
+                4080886,
+                4322865,
+                4160083,
+                4307791,
+                4000061,
+                4313730,
+                606068,
+                4047472,
+                4045978,
+                4046242,
+                606070,
+                4132494,
+                255848,
+                201506,
+                4084820,
+                3655637,
+                4241576,
+                4299115,
+                378686,
+                381794,
+                438348,
+                442630
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:28.000000Z",
+    "updated_at": "2026-04-17T00:17:56.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#AB1"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

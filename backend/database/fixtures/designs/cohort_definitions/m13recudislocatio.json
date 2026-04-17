@@ -1,0 +1,203 @@
+{
+    "id": 2777,
+    "name": "M13_RECUDISLOCATIO",
+    "description": "Recurrent dislocation and subluxation of joint — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#M13",
+            "#GASTRO_CM"
+        ],
+        "level": "4",
+        "parent": "M24",
+        "release": "df14",
+        "coverage": {
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
+            "n_tokens_total": 4,
+            "n_tokens_resolved": 4
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 2530,
+            "imported_at": "2026-04-17T00:17:38+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": "7183",
+                "patterns": [
+                    "7183"
+                ]
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_8": {
+                "raw": "$!$",
+                "patterns": []
+            },
+            "cod_icd_9": {
+                "raw": "7183",
+                "patterns": [
+                    "7183"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": "M244",
+                "patterns": [
+                    "M244"
+                ]
+            },
+            "canc_behav": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": null,
+                "patterns": []
+            },
+            "cod_icd_10": {
+                "raw": "M244",
+                "patterns": [
+                    "M244"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "FULLY_MAPPED",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                725384,
+                1570493,
+                1570494,
+                1570495,
+                1570496,
+                1570497,
+                1570498,
+                1570499,
+                1570500,
+                45538725,
+                45538726,
+                45538727,
+                45538728,
+                45543541,
+                45548377,
+                45548378,
+                45548379,
+                45548380,
+                45548381,
+                45553138,
+                45553139,
+                45553140,
+                45557844,
+                45562685,
+                45562686,
+                45567516,
+                45567517,
+                45572410,
+                45572411,
+                45577208,
+                45577209,
+                45577210,
+                45577211,
+                45577212,
+                45582102,
+                45586932,
+                45591795,
+                45596540,
+                45601404,
+                45601405,
+                44823357,
+                44824508,
+                44824509,
+                44826881,
+                44829209,
+                44830335,
+                44831499,
+                44833827,
+                44836185,
+                44836186,
+                44837344
+            ],
+            "conditions_standard": [
+                81939,
+                4117249,
+                78510,
+                4115841,
+                77962,
+                76199,
+                77637,
+                76783,
+                4117253,
+                80186,
+                4117255,
+                4115844,
+                78231
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:56:10.000000Z",
+    "updated_at": "2026-04-17T00:17:38.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#M13",
+        "#GASTRO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

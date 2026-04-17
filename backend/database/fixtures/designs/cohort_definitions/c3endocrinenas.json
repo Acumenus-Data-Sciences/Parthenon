@@ -1,0 +1,182 @@
+{
+    "id": 769,
+    "name": "C3_ENDOCRINE_NAS",
+    "description": "Malignant neoplasm of other endocrine glands and related structures — FinnGen Endpoint Library (DF14). Source: https:\/\/finngen.fi. Note: cohort generation against a CDM is not yet implemented for this shape; copy to a custom cohort first.",
+    "expression_json": {
+        "kind": "finngen_endpoint",
+        "tags": [
+            "#C3",
+            "#NEURO_CM"
+        ],
+        "level": "3",
+        "parent": null,
+        "release": "df14",
+        "coverage": {
+            "pct": 0.47619047619047616,
+            "bucket": "SPARSE",
+            "n_tokens_total": 21,
+            "n_tokens_resolved": 10
+        },
+        "conditions": null,
+        "provenance": {
+            "source_row": 522,
+            "imported_at": "2026-04-17T00:17:17+00:00",
+            "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
+            "importer_version": "1.0.0"
+        },
+        "hd_mainonly": false,
+        "cod_mainonly": false,
+        "source_codes": {
+            "hd_icd_8": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_atc": {
+                "raw": null,
+                "patterns": []
+            },
+            "oper_nom": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_topo": {
+                "raw": "C75",
+                "patterns": [
+                    "C75"
+                ]
+            },
+            "cod_icd_8": {
+                "raw": "194[1-9]",
+                "patterns": [
+                    "1941",
+                    "1942",
+                    "1943",
+                    "1944",
+                    "1945",
+                    "1946",
+                    "1947",
+                    "1948",
+                    "1949"
+                ]
+            },
+            "cod_icd_9": {
+                "raw": "194[1-9]",
+                "patterns": [
+                    "1941",
+                    "1942",
+                    "1943",
+                    "1944",
+                    "1945",
+                    "1946",
+                    "1947",
+                    "1948",
+                    "1949"
+                ]
+            },
+            "hd_icd_10": {
+                "raw": null,
+                "patterns": []
+            },
+            "canc_behav": {
+                "raw": "3",
+                "patterns": []
+            },
+            "canc_morph": {
+                "raw": "ANY",
+                "patterns": [
+                    "ANY"
+                ]
+            },
+            "cod_icd_10": {
+                "raw": "C75",
+                "patterns": [
+                    "C75"
+                ]
+            },
+            "kela_reimb": {
+                "raw": null,
+                "patterns": []
+            },
+            "outpat_icd": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_8_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_9_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "hd_icd_10_excl": {
+                "raw": null,
+                "patterns": []
+            },
+            "kela_reimb_icd": {
+                "raw": null,
+                "patterns": []
+            }
+        },
+        "spec_version": "1.0",
+        "pre_conditions": null,
+        "coverage_bucket": "SPARSE",
+        "sex_restriction": null,
+        "include_endpoints": [],
+        "resolved_concepts": {
+            "truncated": false,
+            "drugs_standard": [],
+            "source_concept_ids": [
+                1567607,
+                35206305,
+                35206306,
+                35206307,
+                35206308,
+                35206309,
+                35206310,
+                35206311,
+                35206312,
+                44824035,
+                44826414,
+                44827565,
+                44829819,
+                44829820,
+                44830988,
+                44832133
+            ],
+            "conditions_standard": [
+                133420,
+                139753,
+                24296,
+                442134,
+                26361,
+                27235,
+                442122,
+                4130672,
+                4095304
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-04-16T23:55:53.000000Z",
+    "updated_at": "2026-04-17T00:17:17.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "finngen-endpoint",
+        "finngen:df14",
+        "#C3",
+        "#NEURO_CM"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "finngen-endpoint",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}
