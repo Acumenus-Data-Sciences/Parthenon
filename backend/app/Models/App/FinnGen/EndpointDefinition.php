@@ -6,8 +6,11 @@ namespace App\Models\App\FinnGen;
 
 use App\Enums\CoverageBucket;
 use App\Enums\CoverageProfile;
+use App\Models\App\FinnGenEndpointGeneration;
+use Database\Factories\App\FinnGen\EndpointDefinitionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -18,6 +21,10 @@ use Illuminate\Support\Carbon;
  * Plan 13.1-02 migration, these rows live in finngen.endpoint_definitions
  * with purpose-built typed columns (D-04) and natural TEXT primary key on
  * `name` (D-05).
+ *
+ * Wave 3 (Plan 13.1-03) expanded this from the Wave 0 stub: added the
+ * generations() HasMany relationship, explicit newFactory() method, and
+ * full production usage from FinnGenEndpointImporter + EndpointBrowserController.
  *
  * @property string $name FinnGen endpoint name (e.g. I9_AF, C3_COLON_ADENO)
  * @property string|null $longname Human-readable description
@@ -32,10 +39,6 @@ use Illuminate\Support\Carbon;
  * @property array<string, mixed> $qualifying_event_spec Structured FinnGen definition (ICD/NOMESCO/KELA_REIMB branches)
  * @property Carbon $created_at
  * @property Carbon $updated_at
- *
- * Wave 0 (Plan 13.1-01) creates this stub only. Wave 3 (Plan 13.1-03) extends
- * it with scopes, accessors, and relation methods once the underlying table
- * exists and downstream services are migrated off CohortDefinition.
  */
 class EndpointDefinition extends Model
 {
@@ -80,4 +83,25 @@ class EndpointDefinition extends Model
         'tags' => 'array',
         'qualifying_event_spec' => 'array',
     ];
+
+    protected static function newFactory(): EndpointDefinitionFactory
+    {
+        return EndpointDefinitionFactory::new();
+    }
+
+    /**
+     * Generations for this endpoint (per-source materializations). D-07 FK
+     * split: new rows populate finngen_endpoint_name alongside the legacy
+     * cohort_definition_id column.
+     *
+     * @return HasMany<FinnGenEndpointGeneration, $this>
+     */
+    public function generations(): HasMany
+    {
+        return $this->hasMany(
+            FinnGenEndpointGeneration::class,
+            'finngen_endpoint_name',
+            'name',
+        );
+    }
 }

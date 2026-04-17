@@ -19,7 +19,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class FinnGenEndpointGeneration extends Model
 {
-    protected $table = 'finngen_endpoint_generations';
+    protected $connection = 'finngen';
+
+    protected $table = 'endpoint_generations';
 
     /**
      * Mass-assignment whitelist (HIGHSEC §3.1).
@@ -28,6 +30,7 @@ class FinnGenEndpointGeneration extends Model
      */
     protected $fillable = [
         'endpoint_name',
+        'finngen_endpoint_name',
         'source_key',
         'cohort_definition_id',
         'run_id',

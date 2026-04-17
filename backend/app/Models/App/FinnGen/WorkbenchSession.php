@@ -33,7 +33,9 @@ class WorkbenchSession extends Model
 {
     use HasUlids;
 
-    protected $table = 'app.finngen_workbench_sessions';
+    protected $connection = 'finngen';
+
+    protected $table = 'workbench_sessions';
 
     public $incrementing = false;
 

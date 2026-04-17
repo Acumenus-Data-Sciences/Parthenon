@@ -29,8 +29,6 @@ class CohortDefinition extends Model
         'share_expires_at',
         'deprecated_at',
         'superseded_by',
-        // Phase 13 — D-05 portability classification (Plan 02 adds the column).
-        'coverage_profile',
     ];
 
     /**

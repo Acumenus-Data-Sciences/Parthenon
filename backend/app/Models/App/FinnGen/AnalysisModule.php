@@ -26,7 +26,9 @@ use Illuminate\Database\Eloquent\Model;
  */
 class AnalysisModule extends Model
 {
-    protected $table = 'app.finngen_analysis_modules';
+    protected $connection = 'finngen';
+
+    protected $table = 'analysis_modules';
 
     protected $primaryKey = 'key';
 

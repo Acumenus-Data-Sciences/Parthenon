@@ -17,7 +17,9 @@ use Illuminate\Database\Eloquent\Model;
  */
 class FinnGenUnmappedCode extends Model
 {
-    protected $table = 'finngen_unmapped_codes';
+    protected $connection = 'finngen';
+
+    protected $table = 'unmapped_codes';
 
     /**
      * Mass-assignment whitelist (HIGHSEC §3.1 — never unguarded).

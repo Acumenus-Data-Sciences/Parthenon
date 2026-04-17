@@ -40,7 +40,9 @@ class Run extends Model
 {
     use HasUlids;
 
-    protected $table = 'app.finngen_runs';
+    protected $connection = 'finngen';
+
+    protected $table = 'runs';
 
     public $incrementing = false;
 
