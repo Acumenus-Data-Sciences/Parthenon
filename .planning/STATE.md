@@ -7,7 +7,7 @@ stopped_at: Milestone v1.0 FinnGen Genomics started 2026-04-16
 last_updated: "2026-04-17T01:15:00.000Z"
 last_activity: 2026-04-16 - Milestone v1.0 FinnGen Genomics started; phenotyping foundation (PHENO-01..08) validated and live in production
 progress:
-  total_phases: 0
+  total_phases: 6
   completed_phases: 0
   total_plans: 0
   completed_plans: 0

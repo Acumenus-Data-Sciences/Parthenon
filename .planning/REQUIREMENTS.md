@@ -131,11 +131,25 @@ recorded here so this milestone's roadmap can build on top of them.
 
 ## Traceability
 
-Phase mapping is filled by `gsd-roadmapper` after the roadmap is created.
+Phase mapping produced by `gsd-roadmapper` on 2026-04-16.
+Coverage: 14 / 14 GENOMICS-* requirements mapped (100%).
 
-| REQ-ID | Phase | Status |
-|--------|-------|--------|
-| GENOMICS-01..14 | TBD by roadmapper | pending |
+| REQ-ID       | Phase     | Status  |
+|--------------|-----------|---------|
+| GENOMICS-01  | Phase 14  | pending |
+| GENOMICS-02  | Phase 14  | pending |
+| GENOMICS-03  | Phase 15  | pending |
+| GENOMICS-04  | Phase 16  | pending |
+| GENOMICS-05  | Phase 15  | pending |
+| GENOMICS-06  | Phase 17  | pending |
+| GENOMICS-07  | Phase 17  | pending |
+| GENOMICS-08  | Phase 17  | pending |
+| GENOMICS-09  | Phase 18  | pending |
+| GENOMICS-10  | Phase 18  | pending |
+| GENOMICS-11  | Phase 18  | pending |
+| GENOMICS-12  | Phase 13  | pending |
+| GENOMICS-13  | Phase 16  | pending |
+| GENOMICS-14  | Phase 15  | pending |
 
 ## Validated traceability
 

@@ -1,235 +1,119 @@
-# Roadmap: IRSF-NHS OMOP CDM Import
+# Roadmap: FinnGen Genomics v1
 
 ## Overview
 
-This roadmap transforms the IRSF Natural History Study dataset (~1,860 Rett Syndrome patients across two RDCRN protocols) into a fully queryable OMOP CDM v5.4 source in Parthenon. The work follows the strict dependency chain dictated by OMOP FK constraints: shared utilities first, then person/visit foundation, then clinical domains (medications, conditions, measurements, observations) with custom vocabulary, then CDM loading in FK order, and finally validation with Achilles/DQD. Each phase produces inspectable artifacts (tested library modules, staging CSVs, validation reports) before the next phase begins.
+This roadmap layers the genomics half of FinnGen's research stack on top of
+the already-validated FinnGen phenotyping foundation (PHENO-01..08, landed
+2026-04-16, 5,161 endpoints live at `/workbench/finngen-endpoints`). It
+delivers four capabilities, in dependency order: (1) Finnish OMOP vocabulary
+load to lift the residual ~25% UNMAPPED bucket, (2) a regenie-based GWAS
+pipeline with per-source summary-stat schemas and a PheWeb-lite browser UI,
+(3) PGS Catalog ingestion + per-cohort polygenic risk scoring with
+distribution visualization, and (4) a Risteys-style per-endpoint dashboard
+(mortality, comorbidity, drug-use timeline) built on the existing Darkstar
+R worker pattern. Phase numbering continues from IRSF-NHS (Phases 1-12
+complete); this milestone begins at Phase 13.
 
 ## Phases
 
 **Phase Numbering:**
-- Integer phases (1, 2, 3): Planned milestone work
-- Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
+- Integer phases (13-18): Planned milestone work
+- Decimal phases (e.g., 14.1): Urgent insertions (marked with INSERTED)
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [x] **Phase 1: Project Setup and Source Data Profiling** - Python project scaffold in scripts/irsf-etl/ with pandera, plus automated profiling of all 60+ source CSVs (completed 2026-03-26)
-- [x] **Phase 2: Shared Library - Date and ID Utilities** - Tested date assembly and cross-protocol ID reconciliation modules that all downstream scripts depend on (completed 2026-03-26)
-- [x] **Phase 3: Shared Library - Vocabulary and Error Handling** - Vocabulary validator against current Athena load and structured error accumulation logger (completed 2026-03-26)
-- [x] **Phase 4: Person and Demographics** - Person roster script producing ~1,860 unique persons with gender, race, ethnicity, DOB, and death records (completed 2026-03-26)
-- [x] **Phase 5: Visit Derivation** - Visit occurrence script deriving visits from clinical table dates with outpatient/inpatient classification (completed 2026-03-26)
-- [x] **Phase 6: Custom IRSF Vocabulary** - Custom vocabulary (concept_ids >= 2B) for CSS, MBA, genotype mutations, and Rett diagnostic categories (completed 2026-03-26)
-- [x] **Phase 7: Medications** - Drug exposure script transforming 44K medication records with RxNorm formatted-string parsing and source value preservation (completed 2026-03-26)
-- [x] **Phase 8: Conditions** - Condition occurrence script for chronic diagnoses, seizures, fractures, and infections with SNOMED mapping (completed 2026-03-26)
-- [x] **Phase 9: Measurements** - Measurement script with wide-to-long unpivot for growth, CSS, labs, and SF-36 data (completed 2026-03-26)
-- [x] **Phase 10: Observations** - Observation script for MBA scores, genotype boolean mapping, and categorical clinical data (completed 2026-03-26)
-- [x] **Phase 11: Data Loading and Observation Periods** - Upload staging CSVs to Parthenon in FK order, compute observation periods, populate CDM_SOURCE (completed 2026-03-26)
-- [x] **Phase 12: Validation and Cohort Verification** - DQD checks, Achilles characterization, temporal integrity, Rett-specific plausibility, and cohort buildability (completed 2026-03-26)
+- [ ] **Phase 13: Finnish OMOP Vocabulary Load** - Load ICD-8, Finnish ICD-9, ICDO3, NOMESCO, KELA_REIMB as custom OMOP vocabularies and re-import endpoints to drop the residual UNMAPPED bucket
+- [ ] **Phase 14: regenie GWAS Infrastructure** - Containerize regenie, wire Darkstar async dispatch, and ship the per-source `{source}_gwas_results` schema with indexed summary-stat tables
+- [ ] **Phase 15: GWAS Dispatch, Run Tracking, and Generation History** - Endpoint x source GWAS dispatch API, run-history catalog per (endpoint x source x covariate-set), and multi-run generation history view
+- [ ] **Phase 16: PheWeb-lite Results UI and Workbench Attribution** - Manhattan plot, regional/LocusZoom-lite views, top-variants drawer, plus the one-tweak workbench attribution badge for FinnGen-seeded sessions
+- [ ] **Phase 17: PGS Catalog Ingestion, PRS Scoring, and Distribution Viz** - `parthenon:load-pgs-catalog` command, per-cohort PRS dispatch, and histogram + quintile visualization in the cohort detail drawer
+- [ ] **Phase 18: Risteys-style Endpoint Dashboard** - Per-endpoint Kaplan-Meier survival, comorbidity matrix, and pre-index drug-use timeline via the `co2.endpoint_profile` module
 
 ## Phase Details
 
-### Phase 1: Project Setup and Source Data Profiling
-**Goal**: Python ETL project is scaffolded and all source data is profiled before any transformation begins
-**Depends on**: Nothing (first phase)
-**Requirements**: FOUND-05, FOUND-06
+### Phase 13: Finnish OMOP Vocabulary Load
+**Goal**: Residual UNMAPPED FinnGen endpoints drop below 100 once Finnish-specific vocabularies resolve their source codes to standard concepts
+**Depends on**: Nothing (independent of GWAS/PRS/dashboard chains; builds directly on PHENO-01..08)
+**Requirements**: GENOMICS-12
 **Success Criteria** (what must be TRUE):
-  1. Running `python -m scripts.irsf_etl` from the project root produces a help message showing available commands
-  2. A profiling report exists for all 60+ source CSVs showing row counts, null rates, value distributions, and date format detection
-  3. pandera is installed and importable in the ETL environment with a passing smoke test
-**Plans**: 2 plans
-
-Plans:
-- [ ] 01-01: Project scaffold and dependency setup
-- [ ] 01-02: Source data profiling automation
-
-### Phase 2: Shared Library - Date and ID Utilities
-**Goal**: Every downstream script can assemble valid dates from split columns and resolve any protocol ID to a unified person_id
-**Depends on**: Phase 1
-**Requirements**: FOUND-01, FOUND-02
-**Success Criteria** (what must be TRUE):
-  1. Date assembler correctly handles all edge cases from Final_Queries.sql (month text abbreviations, invalid days clamped, years outside 1900-2025 rejected) with >= 80% test coverage
-  2. ID reconciliation maps all three ID systems (participant_id5201, participant_id5211, unified participant_id) to deterministic person_ids and produces person_id_map.csv
-  3. Both modules are pure functions with no database dependency, importable by all ETL scripts
+  1. `vocab.concept` contains new entries for ICD-8, Finnish ICD-9, ICDO3, NOMESCO, and KELA_REIMB with concept_ids >= 2,000,000,000 per OHDSI custom-vocabulary convention
+  2. Re-running `finngen:import-endpoints --release=df14` drops the UNMAPPED bucket from 427 endpoints to fewer than 100 (verified via `coverage_bucket` counts)
+  3. `app.finngen_unmapped_codes` row count for vocabularies ICD-8, ICD9_FIN, ICDO3, NOMESCO, KELA_REIMB falls by at least 80% compared to the 2026-04-16 baseline (9,093 total unmapped rows)
+  4. At least one previously UNMAPPED endpoint (e.g., an ICDO3-keyed cancer phenotype) can be generated against the PANCREAS source via the existing `POST /api/v1/finngen/endpoints/{name}/generate` path with subject_count > 0
 **Plans**: TBD
 
-Plans:
-- [ ] 02-01: Date assembly module ported from Final_Queries.sql
-- [ ] 02-02: Cross-protocol ID reconciliation module
-
-### Phase 3: Shared Library - Vocabulary and Error Handling
-**Goal**: ETL scripts can validate concept_ids against current Athena vocabulary and accumulate errors without aborting
-**Depends on**: Phase 1
-**Requirements**: FOUND-03, FOUND-04
+### Phase 14: regenie GWAS Infrastructure
+**Goal**: A containerized regenie runtime is callable by Darkstar with summary statistics landing in an indexed per-source schema
+**Depends on**: Nothing (infrastructure-only; does not require Phase 13)
+**Requirements**: GENOMICS-01, GENOMICS-02
 **Success Criteria** (what must be TRUE):
-  1. Vocabulary validator queries omop.concept for standard/valid concepts and follows Maps-to chain for deprecated codes, reporting remapping decisions
-  2. Error logger accumulates rejected/skipped records per table with reasons and produces a rejection summary report (not fail-fast)
-  3. Pre-mapped RxNorm and SNOMED crosswalk files have been validated against current Athena load with a currency report showing how many codes are current vs deprecated vs unmapped
+  1. `docker/regenie/` ships a Dockerfile with a pinned regenie version, runs as a non-root user per HIGHSEC section 4.1, and is invocable from Darkstar via the `finngen.gwas.regenie` analysis type with step-1 and step-2 orchestration
+  2. Intermediate LOCO prediction artifacts from step-1 persist on the `finngen-artifacts` Docker volume and are reused when a subsequent step-2 runs against the same cohort within the cache window
+  3. Each CDM source has a `{source}_gwas_results.summary_stats` schema owned by `parthenon_migrator` with explicit GRANT blocks to `parthenon_app`, containing the full column set (`chrom, pos, ref, alt, snp_id, af, beta, se, p_value, case_n, control_n, cohort_definition_id, gwas_run_id`)
+  4. The summary_stats table has a `(chrom, pos)` index for Manhattan-plot range scans and a `(cohort_definition_id, p_value)` index for top-hit lookups, both verifiable via `\d+` in psql
 **Plans**: TBD
 
-Plans:
-- [ ] 03-01: Vocabulary validator with Maps-to chain resolution
-- [ ] 03-02: Error accumulation logger and rejection reporting
-
-### Phase 4: Person and Demographics
-**Goal**: All ~1,860 unique Rett Syndrome patients exist as person records with accurate demographics and death records
-**Depends on**: Phase 2, Phase 3
-**Requirements**: PERS-01, PERS-02, PERS-03, PERS-04, PERS-05, PERS-06
+### Phase 15: GWAS Dispatch, Run Tracking, and Generation History
+**Goal**: A researcher can trigger a GWAS against any endpoint x source tuple and see every historical run (GWAS and endpoint-generation) surfaced in the browser
+**Depends on**: Phase 14
+**Requirements**: GENOMICS-03, GENOMICS-05, GENOMICS-14
 **Success Criteria** (what must be TRUE):
-  1. staging/person.csv contains approximately 1,860 unique persons with deterministic person_id assignment (no duplicates, no orphans across protocols)
-  2. Gender distribution is approximately 95% female (concept_id 8532), matching known Rett population characteristics
-  3. Race, ethnicity, and date of birth fields are populated with correct OMOP concept_ids (multi-race mapped to concept_id 0 with flags in race_source_value)
-  4. staging/death.csv contains deduplicated death records from both protocols (73 from 5201, 94 from 5211) with at most one death per person
+  1. `POST /api/v1/finngen/endpoints/{name}/gwas` with `{source_key, control_cohort_id, covariate_set_id?, overwrite?}` returns 202 + a Run record when the endpoint has resolvable concepts AND the source has a registered VCF index, and returns 422 when either precondition fails
+  2. `app.finngen_endpoint_gwas_runs` tracking table records each dispatch with `(endpoint_name, source_key, control_cohort_id, covariate_set_id, run_id, case_n, control_n, top_hit_p_value, status, created_at)` and the endpoint detail drawer lists all completed runs for that endpoint via a new "GWAS runs" section
+  3. The endpoint browser detail drawer's "Generation history" section shows every historical endpoint-generation run per (endpoint x source) pair -- not just the latest -- with timestamp, subject_count, and status, sourced from either a new `finngen_endpoint_generation_runs` table or a filtered query against the existing `finngen_runs` table
+  4. A researcher submits a GWAS run from the endpoint browser and sees `status=succeeded` with summary_stats row count > 0 in `{source}_gwas_results.summary_stats` within 30 minutes of dispatch
 **Plans**: TBD
+**UI hint**: yes
 
-Plans:
-- [ ] 04-01: Person roster builder from Person_Characteristics
-- [ ] 04-02: Demographics mapping (gender, race, ethnicity, DOB)
-- [ ] 04-03: Death record extraction and deduplication
-
-### Phase 5: Visit Derivation
-**Goal**: Every clinical event has a visit_occurrence to reference, with correct visit type classification
-**Depends on**: Phase 4
-**Requirements**: VISIT-01, VISIT-02, VISIT-03
+### Phase 16: PheWeb-lite Results UI and Workbench Attribution
+**Goal**: A completed GWAS run renders as a native Manhattan/LocusZoom-lite browser, and FinnGen-seeded workbench sessions visibly declare their endpoint lineage
+**Depends on**: Phase 15
+**Requirements**: GENOMICS-04, GENOMICS-13
 **Success Criteria** (what must be TRUE):
-  1. staging/visit_occurrence.csv contains visits derived from unique (person_id, visit_date, visit_label) tuples across all clinical tables
-  2. Study visits are classified as outpatient (concept_id 9202) and Hospitalizations_5211 records as inpatient (concept_id 9201)
-  3. visit_id_map.csv lookup file is produced and usable by all clinical event scripts to resolve visit references
+  1. `/workbench/finngen-endpoints/{name}/gwas/{run_id}` renders a full-chromosome Manhattan plot (chrom x -log10(p)) in under 3 seconds for a typical ~10M-SNP summary-stat run, built in React with d3/recharts (no Python service)
+  2. The Manhattan plot supports click-through to a regional view (zoomed +/- 500 kb window) and a LocusZoom-lite panel showing LD-colored variants plus a gene track, sourced from the indexed summary_stats table
+  3. A sortable top-50 variants table is visible on the same page with a per-row drawer showing chrom/pos/ref/alt/af/beta/se/p-value and the originating `gwas_run_id`
+  4. Any workbench session whose `session_state.seeded_from.kind === "finngen-endpoint"` displays a "From FinnGen {endpoint_name}" pill at the top of the operation tree, linking back to the endpoint browser detail drawer
 **Plans**: TBD
+**UI hint**: yes
 
-Plans:
-- [ ] 05-01: Visit derivation from clinical table dates
-- [ ] 05-02: Visit type classification and lookup map generation
-
-### Phase 6: Custom IRSF Vocabulary
-**Goal**: All Rett-specific concepts (CSS, MBA, genotype mutations, diagnostic categories) are registered as custom vocabulary entries queryable in Parthenon
-**Depends on**: Phase 3
-**Requirements**: VOCAB-01, VOCAB-02, VOCAB-03, VOCAB-04, VOCAB-05, VOCAB-06
+### Phase 17: PGS Catalog Ingestion, PRS Scoring, and Distribution Viz
+**Goal**: A researcher can load any PGS Catalog score, compute per-subject PRS for a cohort x source, and read off the distribution in the cohort detail drawer
+**Depends on**: Phase 14 (variant-index plumbing from the GWAS infrastructure)
+**Requirements**: GENOMICS-06, GENOMICS-07, GENOMICS-08
 **Success Criteria** (what must be TRUE):
-  1. Custom vocabulary with vocabulary_id='IRSF-NHS' exists with all concept_ids in the >= 2,000,000,000 range per OHDSI convention
-  2. CSS total score, ~13 individual CSS items, MBA total score, and MBA items each have registered custom concepts
-  3. ~50 MECP2/CDKL5/FOXG1 mutation concepts are registered with groupings (missense, nonsense, large deletion, C-terminal truncation)
-  4. Rett diagnostic category concepts (classic Rett, atypical Rett, CDKL5 deficiency, FOXG1, MECP2 duplication) are registered
-  5. All custom concepts are registered in source_to_concept_map for ETL lookup
+  1. `php artisan parthenon:load-pgs-catalog --score-id=PGS000001` ingests the score metadata + weight file into `vocab.pgs_scores` and `vocab.pgs_score_variants`, is idempotent on re-run, and ships with explicit `parthenon_app` GRANT blocks per HIGHSEC
+  2. `POST /api/v1/finngen/endpoints/{name}/prs` with `{source_key, score_id}` dispatches a Darkstar PRS run that writes per-subject scores to `{source}_gwas_results.prs_subject_scores` keyed by `(score_id, cohort_definition_id, subject_id)`, completing without error for at least one real (endpoint x source x PGS Catalog score) smoke test
+  3. The cohort detail drawer renders a PRS histogram with overlaid quintile bands, summary stats (mean, median, IQR), and a "Download CSV" button that returns the per-subject score table
+  4. The same drawer handles the empty-state gracefully (no PRS yet computed) with a "Compute PRS" CTA and a score picker populated from `vocab.pgs_scores`
 **Plans**: TBD
+**UI hint**: yes
 
-Plans:
-- [ ] 06-01: Custom vocabulary design and concept ID assignment
-- [ ] 06-02: CSS and MBA concept registration
-- [ ] 06-03: Genotype mutation and diagnostic category concept registration
-- [ ] 06-04: source_to_concept_map population
-
-### Phase 7: Medications
-**Goal**: All 44K medication records are transformed to drug_exposure staging CSV with validated RxNorm mappings and full source traceability
-**Depends on**: Phase 4, Phase 5, Phase 3
-**Requirements**: MED-01, MED-02, MED-03, MED-04, MED-05, SRC-01, SRC-02
+### Phase 18: Risteys-style Endpoint Dashboard
+**Goal**: Every FinnGen endpoint has a browsable mortality / comorbidity / drug-use profile driven by Darkstar R workers against any source CDM
+**Depends on**: Phase 13 (endpoint coverage) -- can run in parallel with 14-17 once Phase 13 ships
+**Requirements**: GENOMICS-09, GENOMICS-10, GENOMICS-11
 **Success Criteria** (what must be TRUE):
-  1. staging/drug_exposure.csv contains all 44K medication records with drug_exposure_start_date assembled from split columns
-  2. MedRxNormCode formatted strings are parsed via regex extracting clean RxNorm concept_ids, with deprecated codes remapped via Maps-to
-  3. Drug mapping coverage rate is >= 90% (records with valid, current RxNorm concept_id)
-  4. Every mapped record carries original source code/text in drug_source_value and pre-mapped concept_id in drug_source_concept_id
-  5. stop_reason is populated from ReasonForStoppin columns where available
-**Plans**: 3 plans
-
-Plans:
-- [ ] 07-01: RxNorm parser module and drug_exposure pandera schema
-- [ ] 07-02: Drug exposure builder with vocabulary validation and source value preservation
-- [ ] 07-03: Medication ETL orchestrator, CLI integration, and real-data validation
-
-### Phase 8: Conditions
-**Goal**: Chronic diagnoses, seizures, fractures, and infections are transformed to condition_occurrence staging CSV with validated SNOMED mappings
-**Depends on**: Phase 4, Phase 5, Phase 3
-**Requirements**: COND-01, COND-02, COND-03
-**Success Criteria** (what must be TRUE):
-  1. staging/condition_occurrence.csv contains condition records from all relevant 5211 tables (chronic diagnoses, seizures, bone fractures, infections)
-  2. Pre-mapped SNOMED codes from SNOWMEDOutput columns are validated against current vocabulary with deprecated codes remapped
-  3. Condition mapping coverage rate is >= 85% (records with valid, current SNOMED concept_id)
-**Plans**: 2 plans
-
-Plans:
-- [ ] 08-01: Condition extraction from 5211 tables
-- [ ] 08-02: SNOMED mapping validation and staging CSV assembly
-
-### Phase 9: Measurements
-**Goal**: Growth data, clinical severity scores, labs, and quality-of-life scores are unpivoted to OMOP measurement rows with correct concept mappings
-**Depends on**: Phase 4, Phase 5, Phase 6, Phase 3
-**Requirements**: MEAS-01, MEAS-02, MEAS-03, MEAS-04, MEAS-05, MEAS-06
-**Success Criteria** (what must be TRUE):
-  1. Growth measurements (height, weight, BMI, head circumference) are unpivoted from wide to long format with correct LOINC concept_ids (3036277, 3025315, 3038553, 3036832)
-  2. CSS total score and individual items are stored as separate measurement rows using custom IRSF concept_ids from Phase 6
-  3. Lab results from Labs_5211 are mapped to LOINC concepts, and SF-36 scores are transformed to measurement rows
-  4. Measurement mapping coverage rate is >= 95% for growth and lab measurements
-  5. Wide-to-long unpivot filters NULL primary values to avoid row inflation (growth: ~25K rows, not ~52K)
+  1. A new Darkstar CO2 module `co2.endpoint_profile` reads from any source's `condition_occurrence`, `death`, and `observation_period` and returns Kaplan-Meier survival curves + median survival + age-at-death distribution for a given (endpoint x source) pair
+  2. The endpoint detail drawer renders a Kaplan-Meier plot, a top-50 comorbidity matrix (co-occurring FinnGen endpoints sorted by lift / phi-coefficient, displayed as a click-through heatmap), and a stacked horizontal bar chart of top ATC classes prescribed in the 90-day pre-index window
+  3. A researcher opens the endpoint detail drawer for E4_DM2 against PANCREAS and sees all three panels populated within 15 seconds, with values clinically plausible (e.g., T2DM comorbidity heatmap surfaces E4_HYPERTENSION / E4_OBESITY near the top)
+  4. Each R worker follows the established `darkstar/api/finngen/` module pattern with qualifying-event UNION branches + concept_ancestor descendant expansion, consistent with `cohort.endpoint.generate`
 **Plans**: TBD
-
-Plans:
-- [ ] 09-01: Growth measurement unpivot with LOINC mapping
-- [ ] 09-02: CSS clinical severity score decomposition
-- [ ] 09-03: Lab results and SF-36 quality-of-life mapping
-
-### Phase 10: Observations
-**Goal**: MBA scores, genotype data, and categorical clinical observations are captured as structured observation rows
-**Depends on**: Phase 4, Phase 5, Phase 6, Phase 3
-**Requirements**: OBS-01, OBS-02, OBS-03, OBS-04
-**Success Criteria** (what must be TRUE):
-  1. MBA scores are stored as observation rows with custom IRSF concept_ids from Phase 6
-  2. Genotype/mutation data (~50 boolean columns) produces observations only for value=1 entries (~1,860-3,000 rows, not ~93,000) using custom IRSF vocabulary concepts
-  3. Rett features, developmental history, clinical assessments, allergies, nutrition, and other categorical data are mapped to observation rows
-  4. All observations carry observation_source_value preserving original column names and values
-**Plans**: TBD
-
-Plans:
-- [x] 10-01: MBA score transformation
-- [ ] 10-02: Genotype boolean mapping to observations
-- [ ] 10-03: Categorical clinical data observation mapping
-
-### Phase 11: Data Loading and Observation Periods
-**Goal**: All staging CSVs are loaded into Parthenon's OMOP CDM in correct FK order with observation periods computed for every patient
-**Depends on**: Phase 4, Phase 5, Phase 7, Phase 8, Phase 9, Phase 10
-**Requirements**: LOAD-01, LOAD-02, LOAD-03, LOAD-04
-**Success Criteria** (what must be TRUE):
-  1. Staging CSVs are uploaded to Parthenon ingestion pipeline in strict FK order: person -> visit -> death -> drug -> condition -> measurement -> observation
-  2. Observation periods computed post-load cover the true date range per person (from earliest to latest event across all clinical tables)
-  3. 100% of loaded persons have at least one observation period (person count in omop.person = person count in omop.observation_period)
-  4. CDM_SOURCE table is populated with IRSF-NHS metadata (source name, description, vocabulary version, ETL reference)
-**Plans**: TBD
-
-Plans:
-- [ ] 11-01: FK-ordered staging CSV upload to Parthenon
-- [ ] 11-02: Observation period computation and CDM_SOURCE population
-
-### Phase 12: Validation and Cohort Verification
-**Goal**: The loaded IRSF-NHS data passes quality checks, produces Achilles characterization, and supports cohort-based research queries
-**Depends on**: Phase 11
-**Requirements**: VAL-01, VAL-02, VAL-03, VAL-04, VAL-05, VAL-06
-**Success Criteria** (what must be TRUE):
-  1. DQD checks pass at >= 80% rate on populated tables (excluding trivially empty tables from the denominator)
-  2. Achilles characterization runs successfully and produces reports viewable in Parthenon's results explorer
-  3. Zero clinical events are recorded before birth or after death (temporal integrity verified)
-  4. Rett-specific plausibility checks pass: approximately 95% female, MECP2 mutation present in approximately 95%, age at first visit typically 0-10 years
-  5. At least 3 cohort definitions are buildable in Parthenon's cohort builder (all Rett patients, seizure subgroup, medication exposure subgroup)
-**Plans**: 3 plans
-
-Plans:
-- [x] 12-01: DQD execution and threshold verification (VAL-01, VAL-06)
-- [ ] 12-02: Achilles characterization and temporal integrity checks (VAL-02, VAL-03)
-- [ ] 12-03: Rett-specific plausibility checks and cohort buildability verification (VAL-04, VAL-05)
+**UI hint**: yes
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12
-Note: Phases 2 and 3 can run in parallel. Phases 7, 8, 9, 10 can run in parallel (after their dependencies are met). Phase 6 can run in parallel with Phases 4 and 5.
+Phase 13 is independent and can ship first (cheapest, lifts coverage for everything downstream).
+Phases 14 -> 15 -> 16 form the GWAS chain (strict order).
+Phase 17 depends on Phase 14 only (can run in parallel with 15-16 once the `{source}_gwas_results` schema exists).
+Phase 18 depends on Phase 13 and can run in parallel with the entire 14-17 chain.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Project Setup and Source Data Profiling | 2/2 | Complete    | 2026-03-26 |
-| 2. Shared Library - Date and ID Utilities | 0/2 | Complete    | 2026-03-26 |
-| 3. Shared Library - Vocabulary and Error Handling | 0/2 | Complete    | 2026-03-26 |
-| 4. Person and Demographics | 1/3 | Complete    | 2026-03-26 |
-| 5. Visit Derivation | 2/2 | Complete    | 2026-03-26 |
-| 6. Custom IRSF Vocabulary | 2/2 | Complete    | 2026-03-26 |
-| 7. Medications | 1/3 | Complete    | 2026-03-26 |
-| 8. Conditions | 2/2 | Complete    | 2026-03-26 |
-| 9. Measurements | 1/3 | Complete    | 2026-03-26 |
-| 10. Observations | 3/3 | Complete    | 2026-03-26 |
-| 11. Data Loading and Observation Periods | 2/2 | Complete    | 2026-03-26 |
-| 12. Validation and Cohort Verification | 3/3 | Complete    | 2026-03-26 |
+| 13. Finnish OMOP Vocabulary Load | 0/0 | Not started | - |
+| 14. regenie GWAS Infrastructure | 0/0 | Not started | - |
+| 15. GWAS Dispatch, Run Tracking, and Generation History | 0/0 | Not started | - |
+| 16. PheWeb-lite Results UI and Workbench Attribution | 0/0 | Not started | - |
+| 17. PGS Catalog Ingestion, PRS Scoring, and Distribution Viz | 0/0 | Not started | - |
+| 18. Risteys-style Endpoint Dashboard | 0/0 | Not started | - |
