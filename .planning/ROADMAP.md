@@ -22,7 +22,7 @@ complete); this milestone begins at Phase 13.
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 13: Finnish OMOP Vocabulary Load** - Load ICD-8, Finnish ICD-9, ICDO3, NOMESCO, KELA_REIMB as custom OMOP vocabularies and re-import endpoints to drop the residual UNMAPPED bucket
+- [ ] **Phase 13: FinnGen Endpoint Universalization (Standard-First Resolver)** - Upgrade FinnGenConceptResolver to prefer OHDSI standard concepts; ship a curated FinnGen-authored cross-walk (source_to_concept_map only, no custom vocab registration); add coverage_profile metadata per endpoint; re-process 5,161 live expressions in one shot at phase merge
 - [ ] **Phase 14: regenie GWAS Infrastructure** - Containerize regenie, wire Darkstar async dispatch, and ship the per-source `{source}_gwas_results` schema with indexed summary-stat tables
 - [ ] **Phase 15: GWAS Dispatch, Run Tracking, and Generation History** - Endpoint x source GWAS dispatch API, run-history catalog per (endpoint x source x covariate-set), and multi-run generation history view
 - [ ] **Phase 16: PheWeb-lite Results UI and Workbench Attribution** - Manhattan plot, regional/LocusZoom-lite views, top-variants drawer, plus the one-tweak workbench attribution badge for FinnGen-seeded sessions
@@ -31,16 +31,19 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ## Phase Details
 
-### Phase 13: Finnish OMOP Vocabulary Load
-**Goal**: Residual UNMAPPED FinnGen endpoints drop below 100 once Finnish-specific vocabularies resolve their source codes to standard concepts
+### Phase 13: FinnGen Endpoint Universalization (Standard-First Resolver)
+**Goal**: FinnGen's 5,161 endpoint definitions resolve to OHDSI standard concepts on any OMOP CDM globally — without requiring Finnish-specific custom vocabularies. UNMAPPED bucket drops from 427 endpoints to <100 via standard-concept resolution + a curated FinnGen-authored cross-walk, not via custom vocab registration.
 **Depends on**: Nothing (independent of GWAS/PRS/dashboard chains; builds directly on PHENO-01..08)
-**Requirements**: GENOMICS-12
+**Requirements**: GENOMICS-12a (GENOMICS-12b deferred to Phase 18.5: Finnish CDM Enablement)
 **Success Criteria** (what must be TRUE):
-  1. `vocab.concept` contains new entries for ICD-8, Finnish ICD-9, ICDO3, NOMESCO, and KELA_REIMB with concept_ids >= 2,000,000,000 per OHDSI custom-vocabulary convention
-  2. Re-running `finngen:import-endpoints --release=df14` drops the UNMAPPED bucket from 427 endpoints to fewer than 100 (verified via `coverage_bucket` counts)
-  3. `app.finngen_unmapped_codes` row count for vocabularies ICD-8, ICD9_FIN, ICDO3, NOMESCO, KELA_REIMB falls by at least 80% compared to the 2026-04-16 baseline (9,093 total unmapped rows)
-  4. At least one previously UNMAPPED endpoint (e.g., an ICDO3-keyed cancer phenotype) can be generated against the PANCREAS source via the existing `POST /api/v1/finngen/endpoints/{name}/generate` path with subject_count > 0
+  1. `FinnGenConceptResolver` resolves source codes via OHDSI standard-concept chains first (`concept_relationship` "Maps to" → standard concept) before falling back to source-vocab resolution; no new entries are added to `vocab.vocabulary` for ICD-8 / ICD9_FIN / NOMESCO / KELA_REIMB / ICD-10-FI (no concept_id ≥ 2B block allocation)
+  2. A curated `vocab.source_to_concept_map` cross-walk ships covering ICD-8 → ICD10CM/SNOMED, NOMESCO → SNOMED Procedure, KELA_REIMB → RxNorm class, and high-value ICD-10-FI extensions → ICD10CM parents, sourced from FinnGen's own mapping references where available and filled in with OHDSI Phoebe/Athena; rows are owned by `parthenon_migrator` with explicit GRANT to `parthenon_app` per HIGHSEC §4.1
+  3. Every endpoint in `app.cohort_definitions` tagged `finngen-endpoint` carries a `coverage_profile` classification (`universal` / `partial` / `finland_only`) derived from resolver output; the FinnGen Endpoint Browser renders a "Requires Finnish CDM" pill for `finland_only` endpoints and disables their "Generate" CTA on non-Finnish sources with a clear tooltip
+  4. A baseline scan of all 5,161 endpoints under the upgraded resolver reports actual coverage before a target number is locked; after phase 13 ships, the UNMAPPED bucket count drops from 427 to <100 AND no endpoint is classified `coverage_bucket = UNMAPPED` while being simultaneously `coverage_profile = universal` (consistency invariant)
+  5. The 5,161 live `cohort_definitions.expression` rows are re-processed in one shot at phase merge via `finngen:import-endpoints --release=df14 --overwrite` wrapped in a single transaction; a rollback snapshot table `app.finngen_endpoint_expressions_pre_phase13` preserves pre-migration state for at least one milestone
+  6. At least one previously-UNMAPPED endpoint (e.g., an ICDO3-keyed cancer phenotype or an ICD-8-keyed cardiovascular phenotype) generates successfully against the PANCREAS source with `subject_count > 0` via `POST /api/v1/finngen/endpoints/{name}/generate`
 **Plans**: TBD
+**UI hint**: yes (endpoint browser coverage_profile pill + disabled Generate CTA tooltip)
 
 ### Phase 14: regenie GWAS Infrastructure
 **Goal**: A containerized regenie runtime is callable by Darkstar with summary statistics landing in an indexed per-source schema
@@ -111,7 +114,7 @@ Phase 18 depends on Phase 13 and can run in parallel with the entire 14-17 chain
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 13. Finnish OMOP Vocabulary Load | 0/0 | Not started | - |
+| 13. FinnGen Endpoint Universalization (Standard-First Resolver) | 0/0 | Not started | - |
 | 14. regenie GWAS Infrastructure | 0/0 | Not started | - |
 | 15. GWAS Dispatch, Run Tracking, and Generation History | 0/0 | Not started | - |
 | 16. PheWeb-lite Results UI and Workbench Attribution | 0/0 | Not started | - |

@@ -86,14 +86,32 @@ recorded here so this milestone's roadmap can build on top of them.
   classes prescribed in the 90-day pre-index window across the cohort,
   displayed as a stacked horizontal bar chart.
 
-### Vocabulary completeness
+### Endpoint universalization
 
-- [ ] **GENOMICS-12**: Custom Finnish OMOP vocabulary load. Acquire
-  THL-published ICD-8, Finnish ICD-9, ICDO3, NOMESCO, KELA_REIMB
-  catalogs. Build custom OMOP vocabulary entries (concept_ids ≥ 2B)
-  with best-effort cross-walks to ICD10CM where possible. Re-run
-  `finngen:import-endpoints --release=df14` and verify the residual
-  UNMAPPED bucket drops from 427 to <100 endpoints.
+- [ ] **GENOMICS-12a**: FinnGen endpoint universalization via
+  standard-first resolver. Rewrite `FinnGenConceptResolver` to prefer
+  OHDSI standard concepts (SNOMED / RxNorm / ICD10CM / ATC) via
+  `concept_relationship` "Maps to", so endpoint expressions resolve on
+  any OMOP CDM globally — not only FinnGen-native data. Ship a curated
+  FinnGen-authored `source_to_concept_map` covering ICD-8 → ICD10CM/
+  SNOMED, NOMESCO → SNOMED Procedure, KELA_REIMB → RxNorm class, plus
+  any high-value ICD-10-FI extensions with ICD10CM parents. **Do not**
+  register Finnish vocabularies as custom OMOP vocabularies (no
+  concept_id ≥ 2B block allocation). Add `coverage_profile` metadata
+  per endpoint (Universal / Partial / Finland-only); expose a
+  "Requires Finnish CDM" pill for Finland-only endpoints in the
+  browser. Baseline scan the 5,161 endpoints under the new resolver to
+  empirically set the coverage target, then verify UNMAPPED bucket
+  drops from 427 to <100 endpoints. Re-process the live
+  `cohort_definitions.expression` rows in one shot at phase merge with
+  a rollback snapshot table.
+
+- [ ] **GENOMICS-12b** *(deferred to Phase 18.5: Finnish CDM
+  Enablement)*: Custom Finnish OMOP vocabulary load. Only triggered
+  when a Finnish-sourced CDM (e.g., THL HILMO, AvoHILMO, KanTa) is
+  attached to Parthenon. Acquires THL-published ICD-8, Finnish ICD-9,
+  ICD-10-FI, ICDO3-FI, NOMESCO, KELA_REIMB catalogs; registers them as
+  custom OMOP vocabularies (concept_ids ≥ 2B). Not in v1.0.
 
 ### Polish + closing-the-loop
 
@@ -147,7 +165,8 @@ Coverage: 14 / 14 GENOMICS-* requirements mapped (100%).
 | GENOMICS-09  | Phase 18  | pending |
 | GENOMICS-10  | Phase 18  | pending |
 | GENOMICS-11  | Phase 18  | pending |
-| GENOMICS-12  | Phase 13  | pending |
+| GENOMICS-12a | Phase 13  | pending |
+| GENOMICS-12b | Phase 18.5 (deferred) | deferred |
 | GENOMICS-13  | Phase 16  | pending |
 | GENOMICS-14  | Phase 15  | pending |
 
