@@ -1,5 +1,6 @@
 // frontend/src/features/finngen-workbench/hooks/useWorkbenchSession.ts
 import { useEffect, useRef, useState } from "react";
+import type { UseMutationResult } from "@tanstack/react-query";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { finngenWorkbenchApi } from "../api";
 import type {
@@ -82,7 +83,9 @@ export function useAutosaveWorkbenchSession(
   id: string | null,
   sessionState: WorkbenchSessionStateV1 | null,
   delayMs = 5_000,
-): AutosaveStatus & { mutation: ReturnType<typeof useMutation> } {
+): AutosaveStatus & {
+  mutation: UseMutationResult<WorkbenchSession, Error, UpdateWorkbenchSessionPayload>;
+} {
   const qc = useQueryClient();
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [error, setError] = useState<Error | null>(null);

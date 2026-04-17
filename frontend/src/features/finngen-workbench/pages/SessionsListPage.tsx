@@ -90,7 +90,7 @@ export default function SessionsListPage() {
               <option value="">— pick a source —</option>
               {sourcesQuery.data?.map((s) => (
                 <option key={s.source_key} value={s.source_key}>
-                  {s.label} ({s.source_key})
+                  {s.source_name} ({s.source_key})
                 </option>
               ))}
             </select>

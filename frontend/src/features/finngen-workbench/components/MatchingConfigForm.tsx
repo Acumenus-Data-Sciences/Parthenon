@@ -183,31 +183,3 @@ function CohortInput({
   );
 }
 
-// Legacy raw input — preserved for tests/data-entry contexts that still use
-// the old number-only flow. Unused at runtime; kept here so the file diff is
-// minimal and the tests don't break their reach into the form.
-function _CohortInputLegacy({
-  value,
-  onChange,
-  cohortNames,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  cohortNames?: Record<number, string>;
-}) {
-  const cid = parseInt(value, 10);
-  const name = Number.isFinite(cid) && cohortNames ? cohortNames[cid] : undefined;
-  return (
-    <div className="flex items-center gap-2">
-      <input
-        type="number"
-        min={1}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="cohort id"
-        className="w-32 rounded border border-border-default bg-surface-overlay px-2 py-1 text-xs"
-      />
-      {name !== undefined && <span className="text-xs text-text-ghost">{name}</span>}
-    </div>
-  );
-}
