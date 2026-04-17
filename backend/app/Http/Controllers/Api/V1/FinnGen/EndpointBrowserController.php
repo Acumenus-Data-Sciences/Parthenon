@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\FinnGen;
 
-use App\Enums\CohortDomain;
+use App\Enums\CoverageBucket;
 use App\Enums\CoverageProfile;
 use App\Http\Controllers\Controller;
-use App\Models\App\CohortDefinition;
+use App\Models\App\FinnGen\EndpointDefinition;
 use App\Models\App\FinnGenEndpointGeneration;
 use App\Models\App\FinnGenUnmappedCode;
 use App\Models\App\Source;
@@ -21,9 +21,12 @@ use Illuminate\Support\Facades\DB;
  * SP4 Genomics #1 follow-on — researcher-facing browser for the imported
  * FinnGen endpoint library (~5,161 phenotype defs from DF14).
  *
- * Reads cohort_definitions where domain = finngen-endpoint. Surfaces the
- * top-level coverage_bucket so researchers can filter by mapping quality
- * before adopting an endpoint into their workbench.
+ * Phase 13.1: reads finngen.endpoint_definitions via EndpointDefinition on
+ * the read-only finngen_ro connection (D-09 ro/rw split). Writes (generate
+ * dispatch, generation tracking) use the default finngen rw connection.
+ *
+ * Surfaces the typed coverage_bucket column so researchers can filter by
+ * mapping quality before adopting an endpoint into their workbench.
  *
  * Permission: finngen.workbench.use (same gate as the rest of SP4).
  */
@@ -57,12 +60,13 @@ final class EndpointBrowserController extends Controller
      * GET /api/v1/finngen/endpoints
      *
      * Filters:
-     *   q          — substring search across name, description, and the raw
-     *                ICD code text in expression_json->source_codes.*.raw
+     *   q          — substring search across name, longname, description, and
+     *                the raw ICD code text in qualifying_event_spec->source_codes.*.raw
      *   tag        — single tag (case-sensitive); e.g. 'cardiovascular',
      *                'cancer', 'finngen:df14'
      *   bucket     — single coverage bucket; one of BUCKETS
-     *   release    — convenience alias for tag = "finngen:{release}"
+     *   release    — convenience alias for tag = "finngen:{release}" OR direct
+     *                release column match ('df12'|'df13'|'df14')
      *   per_page   — 1..100, default 25
      */
     public function index(Request $request): JsonResponse
@@ -73,28 +77,28 @@ final class EndpointBrowserController extends Controller
         $bucket = trim((string) $request->query('bucket', ''));
         $release = trim((string) $request->query('release', ''));
 
-        $query = CohortDefinition::query()
-            ->where('domain', CohortDomain::FINNGEN_ENDPOINT->value)
+        $query = EndpointDefinition::on('finngen_ro')
             ->orderBy('name');
 
         if ($q !== '') {
             $like = '%'.str_replace(['%', '_'], ['\%', '\_'], $q).'%';
             $query->where(function ($qb) use ($like): void {
                 $qb->where('name', 'ILIKE', $like)
+                    ->orWhere('longname', 'ILIKE', $like)
                     ->orWhere('description', 'ILIKE', $like)
-                    ->orWhereRaw('expression_json::text ILIKE ?', [$like]);
+                    ->orWhereRaw('qualifying_event_spec::text ILIKE ?', [$like]);
             });
         }
 
         if (in_array($bucket, self::BUCKETS, true)) {
-            $query->whereRaw("expression_json->>'coverage_bucket' = ?", [$bucket]);
+            $query->where('coverage_bucket', $bucket);
         }
 
         if ($tag !== '') {
             $query->whereRaw('tags @> ?::jsonb', [json_encode([$tag])]);
         }
         if ($release !== '') {
-            $query->whereRaw('tags @> ?::jsonb', [json_encode(['finngen:'.$release])]);
+            $query->where('release', $release);
         }
 
         /** @var LengthAwarePaginator $page */
@@ -117,7 +121,7 @@ final class EndpointBrowserController extends Controller
                 });
         }
 
-        $page->getCollection()->transform(function (CohortDefinition $row) use ($genByEndpoint): array {
+        $page->getCollection()->transform(function (EndpointDefinition $row) use ($genByEndpoint): array {
             $summary = $this->summarize($row);
             $summary['generations'] = $genByEndpoint[$row->name] ?? [];
 
@@ -136,28 +140,27 @@ final class EndpointBrowserController extends Controller
      */
     public function stats(): JsonResponse
     {
-        $base = CohortDefinition::query()
-            ->where('domain', CohortDomain::FINNGEN_ENDPOINT->value);
+        $base = EndpointDefinition::on('finngen_ro');
 
         $byBucket = (clone $base)
-            ->selectRaw("COALESCE(expression_json->>'coverage_bucket', 'UNKNOWN') AS bucket, COUNT(*) AS n")
-            ->groupBy(DB::raw("COALESCE(expression_json->>'coverage_bucket', 'UNKNOWN')"))
+            ->selectRaw('COALESCE(coverage_bucket, ?) AS bucket, COUNT(*) AS n', ['UNKNOWN'])
+            ->groupBy('coverage_bucket')
             ->pluck('n', 'bucket');
 
-        // Top 20 tags excluding the boilerplate ones (finngen-endpoint, finngen:dfXX)
-        $topTags = DB::connection('pgsql')->select("
+        // Top 20 tags excluding the boilerplate ones (finngen:dfXX release tags
+        // and any historical 'finngen-endpoint' sentinel rows).
+        $topTags = DB::connection('finngen_ro')->select("
             SELECT tag, COUNT(*) AS n
               FROM (
                 SELECT jsonb_array_elements_text(tags) AS tag
-                  FROM app.cohort_definitions
-                 WHERE domain = ?
+                  FROM finngen.endpoint_definitions
               ) t
              WHERE tag NOT IN ('finngen-endpoint')
                AND tag NOT LIKE 'finngen:%'
              GROUP BY tag
              ORDER BY n DESC
              LIMIT 20
-        ", [CohortDomain::FINNGEN_ENDPOINT->value]);
+        ");
 
         $unmappedTotal = FinnGenUnmappedCode::query()->count();
         $unmappedByVocab = FinnGenUnmappedCode::query()
@@ -185,41 +188,47 @@ final class EndpointBrowserController extends Controller
     /**
      * GET /api/v1/finngen/endpoints/{name}
      *
-     * Returns full row + parsed expression_json highlights for a single
-     * endpoint. Lookup is by FinnGen short name (e.g., 'E4_DM2'), not
-     * cohort_definition_id, since researchers think in FinnGen names.
+     * Returns full row + parsed qualifying_event_spec highlights for a single
+     * endpoint. Lookup is by FinnGen short name (e.g., 'E4_DM2') — the
+     * natural PK on finngen.endpoint_definitions.
      */
     public function show(string $name): JsonResponse
     {
-        $row = CohortDefinition::query()
-            ->where('domain', CohortDomain::FINNGEN_ENDPOINT->value)
+        /** @var EndpointDefinition $row */
+        $row = EndpointDefinition::on('finngen_ro')
             ->where('name', $name)
             ->firstOrFail();
 
-        $expr = is_array($row->expression_json) ? $row->expression_json : [];
-        $resolved = $expr['resolved_concepts'] ?? [];
-        $coverage = $expr['coverage'] ?? [];
+        $spec = is_array($row->qualifying_event_spec) ? $row->qualifying_event_spec : [];
+        $resolved = $spec['resolved_concepts'] ?? [];
+        $coverage = $spec['coverage'] ?? [];
+        $coverageProfile = $row->coverage_profile instanceof CoverageProfile
+            ? $row->coverage_profile->value
+            : $row->coverage_profile;
+        $coverageBucket = $row->coverage_bucket instanceof CoverageBucket
+            ? $row->coverage_bucket->value
+            : $row->coverage_bucket;
 
         return response()->json([
             'data' => [
-                'id' => $row->id,
+                // Phase 13.1: natural TEXT PK — the endpoint name IS the id.
+                // Wire-compat: keep 'id' key with the name value so frontend
+                // code referencing endpoint.id keeps working.
+                'id' => $row->name,
                 'name' => $row->name,
-                'longname' => $expr['longname'] ?? null,
+                'longname' => $row->longname,
                 'description' => $row->description,
                 'tags' => $row->tags ?? [],
-                'release' => $expr['release'] ?? null,
-                'coverage_bucket' => $expr['coverage_bucket'] ?? ($coverage['bucket'] ?? null),
+                'release' => $row->release,
+                'coverage_bucket' => $coverageBucket,
                 'coverage' => $coverage,
-                // Phase 13 — portability classification. Typed column
-                // first, expression_json fallback (NULL-safe) for rows
-                // not yet re-imported after Plan 06 --overwrite.
-                'coverage_profile' => $row->coverage_profile ?? ($expr['coverage_profile'] ?? null),
-                'level' => $expr['level'] ?? null,
-                'sex_restriction' => $expr['sex_restriction'] ?? null,
-                'include_endpoints' => $expr['include_endpoints'] ?? [],
-                'pre_conditions' => $expr['pre_conditions'] ?? null,
-                'conditions' => $expr['conditions'] ?? null,
-                'source_codes' => $expr['source_codes'] ?? [],
+                'coverage_profile' => $coverageProfile,
+                'level' => $spec['level'] ?? null,
+                'sex_restriction' => $spec['sex_restriction'] ?? null,
+                'include_endpoints' => $spec['include_endpoints'] ?? [],
+                'pre_conditions' => $spec['pre_conditions'] ?? null,
+                'conditions' => $spec['conditions'] ?? null,
+                'source_codes' => $spec['source_codes'] ?? [],
                 'resolved_concepts' => [
                     'condition_count' => count($resolved['conditions_standard'] ?? []),
                     'drug_count' => count($resolved['drugs_standard'] ?? []),
@@ -237,10 +246,9 @@ final class EndpointBrowserController extends Controller
      * POST /api/v1/finngen/endpoints/{name}/generate
      *
      * Genomics #2 — Materialize this endpoint against a CDM source. Reads
-     * resolved standard SNOMED + RxNorm concept_ids from the cohort
-     * definition's expression_json and dispatches a finngen.endpoint.generate
-     * Run. The R worker INSERTs one cohort row per qualifying subject into
-     * {cohort_schema}.cohort using the same cohort_definition_id.
+     * resolved standard SNOMED + RxNorm concept_ids from the endpoint's
+     * qualifying_event_spec and dispatches a finngen.endpoint.generate Run.
+     * The R worker INSERTs one cohort row per qualifying subject.
      *
      * Returns 202 with the freshly-created Run record; caller polls
      * /api/v1/finngen/runs/{id} for terminal status + summary.subject_count.
@@ -252,8 +260,10 @@ final class EndpointBrowserController extends Controller
             'overwrite_existing' => 'sometimes|boolean',
         ]);
 
-        $row = CohortDefinition::query()
-            ->where('domain', CohortDomain::FINNGEN_ENDPOINT->value)
+        // Write path uses the default finngen rw connection (EndpointDefinition
+        // is also queryable here, but generate reads need no special privilege).
+        /** @var EndpointDefinition $row */
+        $row = EndpointDefinition::on('finngen_ro')
             ->where('name', $name)
             ->firstOrFail();
 
@@ -265,7 +275,7 @@ final class EndpointBrowserController extends Controller
             ], 404);
         }
 
-        $expr = is_array($row->expression_json) ? $row->expression_json : [];
+        $spec = is_array($row->qualifying_event_spec) ? $row->qualifying_event_spec : [];
 
         // Phase 13 T-13-04 — server-side defense-in-depth. The frontend
         // disables the Generate CTA for finland_only endpoints on non-
@@ -279,18 +289,20 @@ final class EndpointBrowserController extends Controller
         // are currently blocked by design, and this branch always fires.
         /** @var list<string> $finnishSourceKeys */
         $finnishSourceKeys = self::FINNISH_SOURCE_KEYS;
-        $profile = $row->coverage_profile ?? ($expr['coverage_profile'] ?? null);
-        if ($profile === CoverageProfile::FINLAND_ONLY->value
+        $coverageProfile = $row->coverage_profile instanceof CoverageProfile
+            ? $row->coverage_profile
+            : null;
+        if ($coverageProfile === CoverageProfile::FINLAND_ONLY
             && ! in_array((string) $data['source_key'], $finnishSourceKeys, true)) {
             return response()->json([
                 'message' => 'This endpoint requires a Finnish CDM data source; selected source is not eligible.',
-                'coverage_profile' => $profile,
+                'coverage_profile' => $coverageProfile->value,
                 'source_key' => (string) $data['source_key'],
                 'finnish_sources_available' => $finnishSourceKeys,
             ], 422);
         }
 
-        $resolved = $expr['resolved_concepts'] ?? [];
+        $resolved = $spec['resolved_concepts'] ?? [];
         $conditionConcepts = array_values(array_unique(array_map('intval', $resolved['conditions_standard'] ?? [])));
         $drugConcepts = array_values(array_unique(array_map('intval', $resolved['drugs_standard'] ?? [])));
         $sourceConcepts = array_values(array_unique(array_map('intval', $resolved['source_concept_ids'] ?? [])));
@@ -298,20 +310,25 @@ final class EndpointBrowserController extends Controller
         if ($conditionConcepts === [] && $drugConcepts === [] && $sourceConcepts === []) {
             return response()->json([
                 'message' => "Endpoint {$name} has no resolved concepts (likely CONTROL_ONLY) — cannot materialize.",
-                'coverage_bucket' => $expr['coverage_bucket'] ?? null,
+                'coverage_bucket' => $row->coverage_bucket instanceof CoverageBucket
+                    ? $row->coverage_bucket->value
+                    : $row->coverage_bucket,
             ], 422);
         }
 
         // FinnGen sex_restriction may be null/missing; cast-then-match avoids
         // PHPStan complaints about narrowing through the Eloquent cast.
-        $sex = match (strtolower(trim((string) ($expr['sex_restriction'] ?? '')))) {
+        $sex = match (strtolower(trim((string) ($spec['sex_restriction'] ?? '')))) {
             'female' => 'female',
             'male' => 'male',
             default => null,
         };
 
         $params = [
-            'cohort_definition_id' => (int) $row->id,
+            // Phase 13.1: cohort_definition_id is null for new generations
+            // (the endpoint is no longer an app.cohort_definitions row).
+            // The R worker keys on endpoint_name going forward.
+            'cohort_definition_id' => null,
             'condition_concept_ids' => $conditionConcepts,
             'drug_concept_ids' => $drugConcepts,
             'source_concept_ids' => $sourceConcepts,
@@ -331,13 +348,16 @@ final class EndpointBrowserController extends Controller
         // — one row per pair, refreshed on every dispatch so the browser can
         // surface "Generated on: SOURCE" badges with the latest run + status
         // without joining {source_results}.cohort on every render.
+        // Phase 13.1 D-07: new rows populate finngen_endpoint_name (FK to
+        // finngen.endpoint_definitions.name); cohort_definition_id stays null.
         FinnGenEndpointGeneration::updateOrCreate(
             [
                 'endpoint_name' => (string) $row->name,
                 'source_key' => (string) $data['source_key'],
             ],
             [
-                'cohort_definition_id' => (int) $row->id,
+                'finngen_endpoint_name' => (string) $row->name,
+                'cohort_definition_id' => null,
                 'run_id' => (string) $run->id,
                 'last_status' => (string) $run->status,
                 'last_subject_count' => null,
@@ -347,7 +367,7 @@ final class EndpointBrowserController extends Controller
         return response()->json([
             'data' => [
                 'run' => $run,
-                'cohort_definition_id' => (int) $row->id,
+                'cohort_definition_id' => null,
                 'endpoint_name' => $row->name,
                 'source_key' => (string) $data['source_key'],
                 'expected_concept_counts' => [
@@ -406,29 +426,40 @@ final class EndpointBrowserController extends Controller
      * Summary projection used by the index endpoint — keeps response small
      * since the page card only needs name, longname, coverage, and tags.
      *
+     * Wire-compat note: the keys here MUST match what the frontend
+     * `EndpointSummary` TypeScript type expects (coverage_bucket,
+     * coverage_profile, release, coverage_pct, n_tokens_total,
+     * n_tokens_resolved, level, sex_restriction). Plan 13.1-03 Assumption
+     * A4 preserves this shape on the wire.
+     *
      * @return array<string, mixed>
      */
-    private function summarize(CohortDefinition $row): array
+    private function summarize(EndpointDefinition $row): array
     {
-        $expr = is_array($row->expression_json) ? $row->expression_json : [];
-        $coverage = $expr['coverage'] ?? [];
+        $spec = is_array($row->qualifying_event_spec) ? $row->qualifying_event_spec : [];
+        $coverage = $spec['coverage'] ?? [];
+        $coverageBucket = $row->coverage_bucket instanceof CoverageBucket
+            ? $row->coverage_bucket->value
+            : $row->coverage_bucket;
+        $coverageProfile = $row->coverage_profile instanceof CoverageProfile
+            ? $row->coverage_profile->value
+            : $row->coverage_profile;
 
         return [
-            'id' => $row->id,
+            // Wire-compat: natural TEXT PK; name doubles as the row id.
+            'id' => $row->name,
             'name' => $row->name,
+            'longname' => $row->longname,
             'description' => $row->description,
             'tags' => $row->tags ?? [],
-            'coverage_bucket' => $expr['coverage_bucket'] ?? ($coverage['bucket'] ?? null),
+            'coverage_bucket' => $coverageBucket,
             'coverage_pct' => $coverage['pct'] ?? null,
-            'n_tokens_total' => $coverage['n_tokens_total'] ?? null,
-            'n_tokens_resolved' => $coverage['n_tokens_resolved'] ?? null,
-            'release' => $expr['release'] ?? null,
-            'level' => $expr['level'] ?? null,
-            'sex_restriction' => $expr['sex_restriction'] ?? null,
-            // Phase 13 — portability classification. Column first (typed
-            // CoverageProfile), expression_json fallback for rows not yet
-            // re-imported after Plan 06's --overwrite scan.
-            'coverage_profile' => $row->coverage_profile ?? ($expr['coverage_profile'] ?? null),
+            'n_tokens_total' => $row->total_tokens,
+            'n_tokens_resolved' => $row->resolved_tokens,
+            'release' => $row->release,
+            'level' => $spec['level'] ?? null,
+            'sex_restriction' => $spec['sex_restriction'] ?? null,
+            'coverage_profile' => $coverageProfile,
         ];
     }
 }

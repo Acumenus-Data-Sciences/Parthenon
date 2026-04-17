@@ -19,7 +19,7 @@ class SweepArtifactsCommand extends Command
 {
     protected $signature = 'finngen:sweep-artifacts {--dry-run}';
 
-    protected $description = 'Reconcile finngen-artifacts volume against finngen_runs rows';
+    protected $description = 'Reconcile finngen-artifacts volume against finngen.runs rows';
 
     public function handle(): int
     {

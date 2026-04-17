@@ -11,20 +11,21 @@ use Illuminate\Support\Facades\Artisan;
 
 /**
  * Imports the FinnGen curated endpoint library XLSX into
- * app.cohort_definitions as idempotent, tagged, FINNGEN_ENDPOINT-domain
- * rows. See quick task 260416-qpg for design details.
+ * finngen.endpoint_definitions as idempotent, typed rows (natural PK on
+ * endpoint name). See quick task 260416-qpg for design details.
+ * Phase 13.1 moved these rows out of app.cohort_definitions.
  */
 final class ImportEndpointsCommand extends Command
 {
     protected $signature = 'finngen:import-endpoints
         {--release=df14 : df12 | df13 | df14}
-        {--dry-run : Parse and report coverage but do not write cohort_definitions rows}
+        {--dry-run : Parse and report coverage but do not write endpoint_definitions rows}
         {--limit= : Only import the first N endpoints (for testing)}
         {--fixture= : Override fixture filename (relative to database/fixtures/finngen/ or absolute)}
         {--no-solr-reindex : Skip the post-import solr:index-cohorts bulk reindex}
-        {--overwrite : Re-import endpoints in overwrite mode; snapshots cohort_definitions to app.finngen_endpoint_expressions_pre_phase13 first (Phase 13)}';
+        {--overwrite : Re-import endpoints in overwrite mode; snapshots finngen.endpoint_definitions to finngen.endpoint_expressions_pre_phase13 first (Phase 13)}';
 
-    protected $description = 'Import the FinnGen curated endpoint library as cohort_definitions';
+    protected $description = 'Import the FinnGen curated endpoint library into finngen.endpoint_definitions';
 
     public function handle(FinnGenEndpointImporter $importer): int
     {
@@ -66,7 +67,7 @@ final class ImportEndpointsCommand extends Command
         ));
 
         if ($overwrite && ! $dryRun) {
-            $this->info('Snapshotting current FinnGen cohort_definitions to app.finngen_endpoint_expressions_pre_phase13...');
+            $this->info('Snapshotting current FinnGen endpoint_definitions to finngen.endpoint_expressions_pre_phase13...');
         }
 
         $report = $importer->import(

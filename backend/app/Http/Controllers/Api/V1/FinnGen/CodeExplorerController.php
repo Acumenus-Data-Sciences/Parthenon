@@ -169,7 +169,7 @@ class CodeExplorerController extends Controller
         );
         $exists = (bool) ($row?->present ?? false);
 
-        $setupRunId = DB::table('app.finngen_runs')
+        $setupRunId = DB::connection('finngen')->table('runs')
             ->where('source_key', $sourceKey)
             ->where('analysis_type', 'romopapi.setup')
             ->whereIn('status', ['queued', 'running'])

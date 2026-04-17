@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 /**
  * Nightly GC for finished, unpinned runs. Spec §3.5.
  *
- * Deletes rows from app.finngen_runs AND removes the corresponding artifact
+ * Deletes rows from finngen.runs AND removes the corresponding artifact
  * directory from /opt/finngen-artifacts/runs/{id}. Idempotent: if the
  * directory is already missing, continues deleting the row.
  */

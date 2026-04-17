@@ -62,7 +62,7 @@ final class ImportReport
     public int $invariantViolations = 0;
 
     /**
-     * Phase 13 — row count in app.finngen_endpoint_expressions_pre_phase13
+     * Phase 13 — row count in finngen.endpoint_expressions_pre_phase13
      * after the pre-overwrite snapshot. Null when --overwrite was not passed.
      */
     public ?int $snapshotRowCount = null;

@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\FinnGen;
 
-use App\Enums\CohortDomain;
 use App\Enums\CoverageProfile;
-use App\Models\App\CohortDefinition;
+use App\Models\App\FinnGen\EndpointDefinition;
 use App\Models\App\FinnGenUnmappedCode;
 use App\Services\FinnGen\Dto\EndpointRow;
 use App\Services\FinnGen\Dto\ImportReport;
@@ -22,14 +21,14 @@ use RuntimeException;
  *     → expand source-code patterns (FinnGenPatternExpander)
  *     → resolve to OMOP concept IDs (FinnGenConceptResolver)
  *     → classify coverage bucket
- *     → upsert CohortDefinition (updateOrCreate by name) with events disabled
- *     → record unmapped codes in app.finngen_unmapped_codes
+ *     → upsert EndpointDefinition (updateOrCreate by name) in finngen schema
+ *     → record unmapped codes in finngen.unmapped_codes
  *     → write per-release coverage JSON to storage/app/finngen-endpoints/
  *
  * Idempotent: re-running the same release keeps the same row count.
- * The observer (CohortDefinitionObserver) is intentionally bypassed during
- * the bulk loop to avoid flooding Horizon with thousands of SolrUpdateCohortJob
- * dispatches — the caller runs one bulk `solr:index-cohorts --fresh` after.
+ * Phase 13.1: writes target finngen.endpoint_definitions via EndpointDefinition
+ * (connection 'finngen'), no longer app.cohort_definitions with
+ * domain='finngen-endpoint'.
  */
 final class FinnGenEndpointImporter
 {
@@ -80,31 +79,30 @@ final class FinnGenEndpointImporter
             $report->snapshotRowCount = $this->snapshotPrePhase13();
         }
 
-        // Disable observer for the bulk loop — D-07, T-qpg-05.
-        CohortDefinition::withoutEvents(function () use (
-            $reader, $release, $authorId, $dryRun, $limit, $progress, $report, $total, $path, &$unmappedAggregator
-        ): void {
-            $batch = [];
-            $processed = 0;
-            foreach ($reader->rows() as $row) {
-                if ($limit !== null && $report->total >= $limit) {
-                    break;
-                }
-                $report->total++;
-                $batch[] = $row;
-                $processed++;
-                if (count($batch) >= self::BATCH_SIZE) {
-                    $this->processBatch($batch, $release, $authorId, $dryRun, $path, $report, $unmappedAggregator);
-                    $batch = [];
-                }
-                if ($progress !== null) {
-                    $progress($processed, $total);
-                }
+        // Phase 13.1: EndpointDefinition lives on the finngen connection
+        // and has no observer — no withoutEvents wrapper needed. (CohortDefinitionObserver
+        // used to fan out Solr reindexes per row; EndpointDefinition uses its own
+        // indexing path via solr:index-cohorts bulk reindex.)
+        $batch = [];
+        $processed = 0;
+        foreach ($reader->rows() as $row) {
+            if ($limit !== null && $report->total >= $limit) {
+                break;
             }
-            if ($batch !== []) {
+            $report->total++;
+            $batch[] = $row;
+            $processed++;
+            if (count($batch) >= self::BATCH_SIZE) {
                 $this->processBatch($batch, $release, $authorId, $dryRun, $path, $report, $unmappedAggregator);
+                $batch = [];
             }
-        });
+            if ($progress !== null) {
+                $progress($processed, $total);
+            }
+        }
+        if ($batch !== []) {
+            $this->processBatch($batch, $release, $authorId, $dryRun, $path, $report, $unmappedAggregator);
+        }
 
         // Upsert unmapped codes — outside withoutEvents (FinnGenUnmappedCode has no observer).
         if (! $dryRun && $unmappedAggregator !== []) {
@@ -287,8 +285,10 @@ final class FinnGenEndpointImporter
             return;
         }
 
-        // Build expression_json per RESEARCH §3.
-        $expression = $this->buildExpressionJson(
+        // Build qualifying_event_spec (Phase 13 called this expression_json;
+        // Phase 13.1 renames it to match the typed JSONB column on
+        // finngen.endpoint_definitions).
+        $qualifyingEventSpec = $this->buildQualifyingEventSpec(
             $row, $release, basename($sourcePath),
             $hd10Raw, $hd9Raw, $hd8Raw, $cod10Raw, $cod9Raw, $cod8Raw,
             $outpatRaw, $operNomRaw, $kelaReimbRaw, $kelaAtcRaw,
@@ -297,9 +297,11 @@ final class FinnGenEndpointImporter
             $profile, $bucket, $pct, $totalTokens, $resolvedTokens,
         );
 
-        // Tags: merge row tags with mandatory import tags.
+        // Tags: merge row tags with mandatory import tags. Phase 13.1: no more
+        // 'finngen-endpoint' sentinel (domain was a CohortDefinition concern);
+        // keep release tag for filtering.
         $tags = array_values(array_unique(array_merge(
-            ['finngen-endpoint', 'finngen:'.$release],
+            ['finngen:'.$release],
             $row->tags,
         )));
 
@@ -312,21 +314,23 @@ final class FinnGenEndpointImporter
             strtoupper($release),
         );
 
-        $existing = CohortDefinition::where('name', $row->name)->first();
-        CohortDefinition::updateOrCreate(
+        // authorId is accepted for API compat but not stored on EndpointDefinition
+        // — FinnGen endpoints are library content, not researcher-authored.
+        unset($authorId);
+
+        EndpointDefinition::updateOrCreate(
             ['name' => $row->name],
             [
+                'longname' => $row->longname,
                 'description' => $description,
-                'expression_json' => $expression,
-                'author_id' => $authorId,
-                'is_public' => true,
-                'version' => $existing?->version ?? 1,
+                'release' => $release,
+                'coverage_profile' => $profile,
+                'coverage_bucket' => $bucket,
+                'universal_pct' => $pct * 100.0,
+                'total_tokens' => $totalTokens,
+                'resolved_tokens' => $resolvedTokens,
                 'tags' => $tags,
-                'domain' => CohortDomain::FINNGEN_ENDPOINT,
-                'quality_tier' => 'draft',
-                // Phase 13 — D-05 typed column parallel write. Lowercase enum
-                // value ('universal' | 'partial' | 'finland_only').
-                'coverage_profile' => $profile->value,
+                'qualifying_event_spec' => $qualifyingEventSpec,
             ],
         );
         $report->imported++;
@@ -363,7 +367,7 @@ final class FinnGenEndpointImporter
      * @param  array{standard:list<int>,source:list<int>,truncated:bool}  $kelaReimb
      * @return array<string, mixed>
      */
-    private function buildExpressionJson(
+    private function buildQualifyingEventSpec(
         EndpointRow $row,
         string $release,
         string $sourceFile,
@@ -424,7 +428,7 @@ final class FinnGenEndpointImporter
             // a 2-level JSON path traversal to filter by mapping quality.
             'coverage_bucket' => $bucket,
             // Phase 13 — D-05 portability classification, mirrored into the
-            // typed column on app.cohort_definitions for frontend filtering.
+            // typed column on finngen.endpoint_definitions for frontend filtering.
             'coverage_profile' => $profile->value,
             'level' => $row->level,
             'sex_restriction' => $row->sex_restriction,
@@ -573,17 +577,26 @@ final class FinnGenEndpointImporter
     }
 
     /**
-     * Snapshot all current finngen-endpoint cohort_definitions rows into the
-     * Plan 02 rollback table BEFORE the importer rewrites expression_json.
+     * Phase 13.1: the rollback snapshot table moved from
+     * (legacy) app finngen_endpoint_expressions_pre_phase13 to
+     * finngen.endpoint_expressions_pre_phase13 via ALTER TABLE SET SCHEMA
+     * (Plan 02). The 5,161-row snapshot captured by the Phase 13 importer
+     * is preserved through v1.0 ship for rollback. After Plan 02 migration,
+     * `app.cohort_definitions WHERE domain='finngen-endpoint'` returns zero
+     * rows (all moved to finngen.endpoint_definitions), so this INSERT is
+     * effectively a no-op. Kept as defense-in-depth: if any FINNGEN_ENDPOINT
+     * rows leak back into app.cohort_definitions (shouldn't happen), the
+     * snapshot keeps capturing them before --overwrite rewrites expression_json.
+     *
      * Idempotent via ON CONFLICT — re-running --overwrite refreshes the
-     * snapshot without duplicating rows (per ADR/Plan 02 schema).
+     * snapshot without duplicating rows.
      *
      * Returns the total snapshot row count (post-upsert) for logging.
      */
     private function snapshotPrePhase13(): int
     {
         $sql = <<<'SQL'
-INSERT INTO app.finngen_endpoint_expressions_pre_phase13
+INSERT INTO finngen.endpoint_expressions_pre_phase13
     (cohort_definition_id, name, expression_json, coverage_bucket, created_at, snapshotted_at)
 SELECT
     id, name, expression_json, expression_json->>'coverage_bucket', created_at, NOW()
@@ -594,9 +607,9 @@ ON CONFLICT (cohort_definition_id) DO UPDATE
        coverage_bucket = EXCLUDED.coverage_bucket,
        snapshotted_at  = EXCLUDED.snapshotted_at
 SQL;
-        DB::statement($sql, [CohortDomain::FINNGEN_ENDPOINT->value]);
+        DB::statement($sql, ['finngen-endpoint']);
 
-        $countRow = DB::selectOne('SELECT COUNT(*) AS n FROM app.finngen_endpoint_expressions_pre_phase13');
+        $countRow = DB::selectOne('SELECT COUNT(*) AS n FROM finngen.endpoint_expressions_pre_phase13');
 
         return (int) $countRow->n;
     }
