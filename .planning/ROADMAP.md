@@ -42,7 +42,15 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. A baseline scan of all 5,161 endpoints under the upgraded resolver reports actual coverage before a target number is locked; after phase 13 ships, the UNMAPPED bucket count drops from 427 to <100 AND no endpoint is classified `coverage_bucket = UNMAPPED` while being simultaneously `coverage_profile = universal` (consistency invariant)
   5. The 5,161 live `cohort_definitions.expression` rows are re-processed in one shot at phase merge via `finngen:import-endpoints --release=df14 --overwrite` wrapped in a single transaction; a rollback snapshot table `app.finngen_endpoint_expressions_pre_phase13` preserves pre-migration state for at least one milestone
   6. At least one previously-UNMAPPED endpoint (e.g., an ICDO3-keyed cancer phenotype or an ICD-8-keyed cardiovascular phenotype) generates successfully against the PANCREAS source with `subject_count > 0` via `POST /api/v1/finngen/endpoints/{name}/generate`
-**Plans**: TBD
+**Plans**: 8 plans
+- [ ] 13-01-PLAN.md — Wave 0: ADRs (STCM schema target, classification edges) + 9 failing TDD test skeletons
+- [ ] 13-02-PLAN.md — Wave 1: schema migrations (coverage_profile column + rollback snapshot table)
+- [ ] 13-03-PLAN.md — Wave 2: CoverageProfile enum + FinnGenCoverageProfileClassifier pure function
+- [ ] 13-04-PLAN.md — Wave 2: 6 FinnGen cross-walk CSVs + idempotent seed migration (vocab.source_to_concept_map)
+- [ ] 13-05-PLAN.md — Wave 2: FinnGenConceptResolver standard-first rewrite (STCM-first + 3 new vocab methods + invalid_reason guards)
+- [ ] 13-06-PLAN.md — Wave 3: FinnGenEndpointImporter 7-vocab pipeline + ImportEndpointsCommand --overwrite + ScanCoverageProfileCommand
+- [ ] 13-07-PLAN.md — Wave 4: EndpointBrowserController coverage_profile API + CoverageProfileBadge component + disabled Generate CTA (server-side 422 guard)
+- [ ] 13-08-PLAN.md — Wave 5: live baseline scan + --overwrite execution + PANCREAS smoke-generation + VALIDATION.md signoff (CHECKPOINT)
 **UI hint**: yes (endpoint browser coverage_profile pill + disabled Generate CTA tooltip)
 
 ### Phase 14: regenie GWAS Infrastructure
