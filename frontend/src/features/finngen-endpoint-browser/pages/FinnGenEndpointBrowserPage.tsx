@@ -10,6 +10,7 @@ import {
   useEndpointList,
   useEndpointStats,
   useGenerateEndpoint,
+  useOpenInWorkbench,
 } from "../hooks/useEndpoints";
 import type {
   CoverageBucket,
@@ -469,6 +470,66 @@ function EndpointDetailDrawer({
   );
 }
 
+function GenerationHistoryRow({
+  generation,
+  endpointName,
+  longname,
+  cohortDefinitionId,
+}: {
+  generation: EndpointGeneration;
+  endpointName: string;
+  longname: string | null;
+  cohortDefinitionId: number;
+}) {
+  const navigate = useNavigate();
+  const open = useOpenInWorkbench();
+
+  const handleOpen = () => {
+    open.mutate(
+      {
+        endpointName,
+        longname,
+        cohortDefinitionId,
+        sourceKey: generation.source_key,
+      },
+      {
+        onSuccess: (session) => {
+          navigate(`/workbench/cohorts/${session.id}`);
+        },
+      },
+    );
+  };
+
+  return (
+    <div className="flex items-center justify-between rounded border border-slate-800 bg-slate-950/60 px-3 py-2 text-xs">
+      <div className="flex items-center gap-2">
+        <GenerationBadge g={generation} />
+        {generation.subject_count != null && (
+          <span className="text-slate-300">
+            {generation.subject_count.toLocaleString()} subjects
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-3">
+        {generation.finished_at && (
+          <span className="font-mono text-[10px] text-slate-600">
+            {new Date(generation.finished_at).toLocaleString()}
+          </span>
+        )}
+        {generation.status === "succeeded" && (
+          <button
+            onClick={handleOpen}
+            disabled={open.isPending}
+            className="rounded border border-teal-500/40 bg-teal-500/10 px-2 py-1 text-[10px] font-semibold text-teal-300 hover:border-teal-400/60 hover:bg-teal-500/20 disabled:opacity-50"
+          >
+            {open.isPending ? "Opening…" : "Open in Workbench →"}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function GenerationBadge({ g }: { g: EndpointGeneration }) {
   const statusTone =
     g.status === "succeeded"
@@ -635,24 +696,13 @@ function EndpointDetailBody({ d }: { d: EndpointDetail }) {
           </p>
           <div className="mt-2 space-y-1.5">
             {d.generations.map((g) => (
-              <div
+              <GenerationHistoryRow
                 key={`${g.source_key}-${g.run_id ?? ""}`}
-                className="flex items-center justify-between rounded border border-slate-800 bg-slate-950/60 px-3 py-2 text-xs"
-              >
-                <div className="flex items-center gap-2">
-                  <GenerationBadge g={g} />
-                  {g.subject_count != null && (
-                    <span className="text-slate-300">
-                      {g.subject_count.toLocaleString()} subjects
-                    </span>
-                  )}
-                </div>
-                {g.finished_at && (
-                  <span className="font-mono text-[10px] text-slate-600">
-                    {new Date(g.finished_at).toLocaleString()}
-                  </span>
-                )}
-              </div>
+                generation={g}
+                endpointName={d.name}
+                longname={d.longname}
+                cohortDefinitionId={d.id}
+              />
             ))}
           </div>
         </div>
