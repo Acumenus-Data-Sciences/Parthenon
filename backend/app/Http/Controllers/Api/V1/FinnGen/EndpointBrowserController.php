@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1\FinnGen;
 
 use App\Enums\CohortDomain;
+use App\Enums\CoverageProfile;
 use App\Http\Controllers\Controller;
 use App\Models\App\CohortDefinition;
 use App\Models\App\FinnGenEndpointGeneration;
@@ -33,6 +34,20 @@ final class EndpointBrowserController extends Controller
 
     /** Maximum page size — protects the pgsql/JSONB query path. */
     private const MAX_PER_PAGE = 100;
+
+    /**
+     * Source keys whose CDM carries Finnish source vocabularies (ICD-8,
+     * ICDO3-FI, NOMESCO, KELA_REIMB, ICD-10-FI, Finnish ICD-9). Populated
+     * in Phase 18.5 when a THL HILMO / AvoHILMO / KanTa CDM attaches. For
+     * v1.0 this list is INTENTIONALLY empty — no Finnish CDM is connected,
+     * so finland_only endpoints cannot generate on any current source.
+     *
+     * Phase 13 T-13-04 mitigation: server-side defense-in-depth for the
+     * frontend disabled-CTA UX (see FinnGenEndpointBrowserPage.tsx).
+     *
+     * @var list<string>
+     */
+    private const FINNISH_SOURCE_KEYS = [];
 
     public function __construct(
         private readonly FinnGenRunService $runs,
@@ -195,6 +210,10 @@ final class EndpointBrowserController extends Controller
                 'release' => $expr['release'] ?? null,
                 'coverage_bucket' => $expr['coverage_bucket'] ?? ($coverage['bucket'] ?? null),
                 'coverage' => $coverage,
+                // Phase 13 — portability classification. Typed column
+                // first, expression_json fallback (NULL-safe) for rows
+                // not yet re-imported after Plan 06 --overwrite.
+                'coverage_profile' => $row->coverage_profile ?? ($expr['coverage_profile'] ?? null),
                 'level' => $expr['level'] ?? null,
                 'sex_restriction' => $expr['sex_restriction'] ?? null,
                 'include_endpoints' => $expr['include_endpoints'] ?? [],
@@ -247,6 +266,30 @@ final class EndpointBrowserController extends Controller
         }
 
         $expr = is_array($row->expression_json) ? $row->expression_json : [];
+
+        // Phase 13 T-13-04 — server-side defense-in-depth. The frontend
+        // disables the Generate CTA for finland_only endpoints on non-
+        // Finnish sources, but a researcher could still POST here
+        // directly. Reject with 422 when coverage_profile == finland_only
+        // AND source_key is not in FINNISH_SOURCE_KEYS.
+        //
+        // NOTE: FINNISH_SOURCE_KEYS is intentionally empty for v1.0
+        // (Phase 18.5 populates). PHPStan's narrowing of `in_array` to
+        // "always false" is the point — all finland_only generations
+        // are currently blocked by design, and this branch always fires.
+        /** @var list<string> $finnishSourceKeys */
+        $finnishSourceKeys = self::FINNISH_SOURCE_KEYS;
+        $profile = $row->coverage_profile ?? ($expr['coverage_profile'] ?? null);
+        if ($profile === CoverageProfile::FINLAND_ONLY->value
+            && ! in_array((string) $data['source_key'], $finnishSourceKeys, true)) {
+            return response()->json([
+                'message' => 'This endpoint requires a Finnish CDM data source; selected source is not eligible.',
+                'coverage_profile' => $profile,
+                'source_key' => (string) $data['source_key'],
+                'finnish_sources_available' => $finnishSourceKeys,
+            ], 422);
+        }
+
         $resolved = $expr['resolved_concepts'] ?? [];
         $conditionConcepts = array_values(array_unique(array_map('intval', $resolved['conditions_standard'] ?? [])));
         $drugConcepts = array_values(array_unique(array_map('intval', $resolved['drugs_standard'] ?? [])));
@@ -382,6 +425,10 @@ final class EndpointBrowserController extends Controller
             'release' => $expr['release'] ?? null,
             'level' => $expr['level'] ?? null,
             'sex_restriction' => $expr['sex_restriction'] ?? null,
+            // Phase 13 — portability classification. Column first (typed
+            // CoverageProfile), expression_json fallback for rows not yet
+            // re-imported after Plan 06's --overwrite scan.
+            'coverage_profile' => $row->coverage_profile ?? ($expr['coverage_profile'] ?? null),
         ];
     }
 }
