@@ -2,7 +2,7 @@
 // FinnGen DF14 endpoint library (~5,161 phenotypes). Surfaces coverage
 // quality so researchers know what's usable before adopting an endpoint.
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import {
@@ -18,6 +18,17 @@ import type {
   EndpointGeneration,
   EndpointSummary,
 } from "../api";
+import { CoverageProfileBadge } from "../components/CoverageProfileBadge";
+
+/**
+ * Phase 13 — source keys whose CDM carries Finnish source vocabs
+ * (ICD-8, NOMESCO, KELA_REIMB, ICDO3-FI, ICD-10-FI, Finnish ICD-9).
+ * Empty for v1.0; Phase 18.5 populates when a THL HILMO / AvoHILMO /
+ * KanTa CDM attaches. `finland_only` endpoints remain un-generatable
+ * until this list is non-empty AND the user selects one of the listed
+ * sources. Mirrors EndpointBrowserController::FINNISH_SOURCE_KEYS.
+ */
+const FINNISH_SOURCES: readonly string[] = [];
 
 const BUCKET_META: Record<
   CoverageBucket,
@@ -49,7 +60,7 @@ const BUCKET_META: Record<
     tone: "text-rose-300",
     ring: "ring-rose-500/40 hover:ring-rose-400/70",
     bar: "bg-rose-500/80",
-    description: "0% codes resolved (awaits Finnish vocab)",
+    description: "0% codes resolved — see coverage profile for portability",
   },
   CONTROL_ONLY: {
     label: "Control only",
@@ -84,12 +95,19 @@ function useDebounced<T>(value: T, delay = 300): T {
   return v;
 }
 
-export default function FinnGenEndpointBrowserPage() {
+export function FinnGenEndpointBrowserPage() {
+  // URL param `?endpoint=NAME` auto-opens the detail drawer on mount.
+  // Lets researchers deep-link to a specific endpoint (shared URLs) AND
+  // gives the DisabledGenerateCTA test a way to render the Generate CTA
+  // without simulating a row click.
+  const [searchParams] = useSearchParams();
+  const urlEndpoint = searchParams.get("endpoint");
+
   const [search, setSearch] = useState("");
   const [bucket, setBucket] = useState<CoverageBucket | "">("");
   const [tag, setTag] = useState<string>("");
   const [page, setPage] = useState(1);
-  const [openName, setOpenName] = useState<string | null>(null);
+  const [openName, setOpenName] = useState<string | null>(urlEndpoint);
 
   const debouncedSearch = useDebounced(search, 300);
 
@@ -357,6 +375,7 @@ function EndpointRow({
                 <span className="ml-1.5 font-mono text-slate-500">{pct}%</span>
               )}
             </span>
+            <CoverageProfileBadge profile={row.coverage_profile} />
           </div>
           {row.description && (
             <p className="mt-1 truncate text-xs text-slate-500">
@@ -583,18 +602,21 @@ function EndpointDetailBody({ d }: { d: EndpointDetail }) {
 
       {/* Coverage block */}
       <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-4">
-        <div className="flex items-baseline justify-between">
+        <div className="flex items-baseline justify-between gap-2">
           <p className="text-xs uppercase tracking-wider text-slate-500">
             Mapping coverage
           </p>
-          <span
-            className={`rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-semibold uppercase ${meta.tone}`}
-          >
-            {meta.label}
-            {pct != null && (
-              <span className="ml-1.5 font-mono text-slate-500">{pct}%</span>
-            )}
-          </span>
+          <div className="flex items-center gap-2">
+            <span
+              className={`rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-semibold uppercase ${meta.tone}`}
+            >
+              {meta.label}
+              {pct != null && (
+                <span className="ml-1.5 font-mono text-slate-500">{pct}%</span>
+              )}
+            </span>
+            <CoverageProfileBadge profile={d.coverage_profile} />
+          </div>
         </div>
         <p className="mt-1 text-xs text-slate-500">{meta.description}</p>
         <div className="mt-3 grid grid-cols-3 gap-3 text-xs">
@@ -830,13 +852,29 @@ function GeneratePanel({
             </option>
           ))}
         </select>
-        <button
-          onClick={submit}
-          disabled={!sourceKey || generate.isPending}
-          className="rounded-md bg-teal-500/90 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-teal-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500"
-        >
-          {generate.isPending ? "Dispatching…" : "Generate cohort →"}
-        </button>
+        {/* Phase 13 — finland_only guard. Mirrors the server-side 422 in
+            EndpointBrowserController::generate (T-13-04). The button is
+            disabled whenever the selected source cannot carry the endpoint's
+            source vocabularies, and the title tooltip explains why. */}
+        {(() => {
+          const isFinlandOnly = endpoint.coverage_profile === "finland_only";
+          const isNonFinnishSource = !FINNISH_SOURCES.includes(sourceKey);
+          const isFinlandOnlyBlocked = isFinlandOnly && isNonFinnishSource;
+          return (
+            <button
+              onClick={submit}
+              disabled={!sourceKey || generate.isPending || isFinlandOnlyBlocked}
+              title={
+                isFinlandOnlyBlocked
+                  ? "This endpoint requires Finnish CDM data; the selected source is not eligible."
+                  : undefined
+              }
+              className="rounded-md bg-teal-500/90 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-teal-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500"
+            >
+              {generate.isPending ? "Dispatching…" : "Generate cohort →"}
+            </button>
+          );
+        })()}
       </div>
       <label className="mt-2 flex items-center gap-2 text-[11px] text-slate-500">
         <input
@@ -884,3 +922,8 @@ function Field({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+// Default export preserved for the router's lazy import
+// (frontend/src/app/router.tsx) without breaking the named export
+// expected by the Vitest test files.
+export default FinnGenEndpointBrowserPage;

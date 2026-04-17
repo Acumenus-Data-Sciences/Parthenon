@@ -10,6 +10,14 @@ export type CoverageBucket =
   | "CONTROL_ONLY"
   | "UNKNOWN";
 
+// Phase 13 — endpoint portability classification. Distinguishes how
+// a FinnGen endpoint resolves on non-Finnish OMOP CDMs:
+//   - universal    — every qualifying-event vocab group resolves to a standard concept
+//   - partial      — some groups resolve, some are Finnish-only
+//   - finland_only — no groups resolve outside Finnish source vocabs
+// Mirrors backend App\Enums\CoverageProfile. Keep in sync.
+export type CoverageProfile = "universal" | "partial" | "finland_only";
+
 export type EndpointGeneration = {
   source_key: string;
   status: string;
@@ -32,6 +40,8 @@ export type EndpointSummary = {
   level: string | number | null;
   sex_restriction: string | null;
   generations: EndpointGeneration[];
+  // Phase 13 — portability classification (null until Plan 06 --overwrite runs).
+  coverage_profile: CoverageProfile | null;
 };
 
 export type EndpointDetail = {
@@ -42,6 +52,8 @@ export type EndpointDetail = {
   tags: string[];
   release: string | null;
   coverage_bucket: CoverageBucket | null;
+  // Phase 13 — portability classification (null until Plan 06 --overwrite runs).
+  coverage_profile: CoverageProfile | null;
   coverage: {
     bucket?: CoverageBucket;
     pct?: number;
@@ -145,13 +157,37 @@ export type GenerateEndpointResponse = {
   };
 };
 
+// Phase 13 — 422 response shape when the server refuses a finland_only
+// endpoint against a non-Finnish source (T-13-04 guard in
+// EndpointBrowserController::generate).
+export type GenerateEndpointRefusal = {
+  message: string;
+  coverage_profile?: CoverageProfile;
+  source_key?: string;
+  finnish_sources_available?: string[];
+};
+
 export async function generateEndpoint(
   name: string,
   payload: GenerateEndpointPayload,
 ): Promise<GenerateEndpointResponse> {
-  const r = await apiClient.post<GenerateEndpointResponse>(
-    `/finngen/endpoints/${encodeURIComponent(name)}/generate`,
-    payload,
-  );
-  return r.data;
+  try {
+    const r = await apiClient.post<GenerateEndpointResponse>(
+      `/finngen/endpoints/${encodeURIComponent(name)}/generate`,
+      payload,
+    );
+    return r.data;
+  } catch (err: unknown) {
+    // Re-throw preserving the 422 body so the UI can surface the server's
+    // message verbatim (T-13-04 refusal carries the exact copy the user
+    // should see).
+    if (typeof err === "object" && err !== null && "response" in err) {
+      const r = (err as { response?: { status?: number; data?: unknown } })
+        .response;
+      if (r?.status === 422 && r?.data) {
+        throw r.data;
+      }
+    }
+    throw err;
+  }
 }

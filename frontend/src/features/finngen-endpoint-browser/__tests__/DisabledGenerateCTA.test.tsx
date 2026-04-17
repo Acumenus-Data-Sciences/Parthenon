@@ -34,7 +34,7 @@ describe("FinnGenEndpointBrowserPage — Generate CTA disablement for finland_on
     const qc = new QueryClient();
     render(
       <QueryClientProvider client={qc}>
-        <MemoryRouter>
+        <MemoryRouter initialEntries={["/?endpoint=FIN_TEST_ENDPOINT"]}>
           <FinnGenEndpointBrowserPage />
         </MemoryRouter>
       </QueryClientProvider>
