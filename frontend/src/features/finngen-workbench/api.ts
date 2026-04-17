@@ -11,6 +11,7 @@ const BASE = "/finngen/workbench/sessions";
 const PREVIEW_URL = "/finngen/workbench/preview-counts";
 const MATCH_URL = "/finngen/workbench/match";
 const MATERIALIZE_URL = "/finngen/workbench/materialize";
+const PROMOTE_MATCH_URL = "/finngen/workbench/promote-match";
 
 export type PreviewCountsResponse = {
   total: number;
@@ -62,6 +63,31 @@ export type MaterializeCohortResponse = {
   run: MatchCohortRunResponse; // same Run envelope; analysis_type = cohort.materialize
   cohort_definition_id: number;
   overwrite?: boolean;
+};
+
+// SP4 Phase D.3 — promote a succeeded cohort.match run's matched output
+// into a first-class cohort_definition. The response reports both the
+// new cohort id and whether this call just returned a prior promotion.
+export type PromoteMatchedCohortPayload = {
+  run_id: string;
+  name?: string;
+  description?: string;
+};
+
+export type PromoteMatchedCohortResponse = {
+  cohort_definition_id: number;
+  name: string;
+  run_id: string;
+  already_promoted: boolean;
+  rows_migrated: number;
+  provenance: {
+    primary_cohort_id: number;
+    comparator_cohort_ids: number[];
+    ratio: number;
+    match_sex: boolean;
+    match_birth_year: boolean;
+    max_year_difference: number;
+  };
 };
 
 export const finngenWorkbenchApi = {
@@ -139,6 +165,21 @@ export const finngenWorkbenchApi = {
   ): Promise<{ data: MaterializeCohortResponse }> => {
     const { data } = await apiClient.post<{ data: MaterializeCohortResponse }>(
       MATERIALIZE_URL,
+      payload,
+    );
+    return data;
+  },
+
+  /**
+   * SP4 Phase D.3 — promote a succeeded cohort.match run's matched output
+   * into a first-class cohort_definition. Idempotent: re-promoting the same
+   * run returns the existing record with already_promoted=true.
+   */
+  promoteMatchedCohort: async (
+    payload: PromoteMatchedCohortPayload,
+  ): Promise<{ data: PromoteMatchedCohortResponse }> => {
+    const { data } = await apiClient.post<{ data: PromoteMatchedCohortResponse }>(
+      PROMOTE_MATCH_URL,
       payload,
     );
     return data;

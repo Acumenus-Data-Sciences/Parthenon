@@ -29,6 +29,7 @@ import { usePreviewCounts } from "../hooks/usePreviewCounts";
 import { CohortChip } from "./CohortChip";
 import { OpContainer } from "./OpContainer";
 import { CohortPicker } from "./CohortPicker";
+import { Shell } from "@/components/workbench/primitives";
 import {
   DndContext,
   closestCenter,
@@ -246,44 +247,51 @@ export function OperationBuilder({ tree, onChange, cohortNames, sourceKey }: Ope
 
   return (
     <div className="space-y-3">
-      {tree === null ? (
-        <EmptyState
-          isPicking={pickingForId === ROOT_PICK_KEY}
-          startPicking={() => setPickingForId(ROOT_PICK_KEY)}
-          onAddCohort={(id) => {
-            addCohortToParent(null, id);
-            setPickingForId(null);
-          }}
-          cancelPicking={() => setPickingForId(null)}
-          onAddOp={(op) => addOpToParent(null, op)}
-        />
-      ) : (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          {renderNode(tree, true)}
-        </DndContext>
-      )}
+      <Shell
+        title="Operation tree"
+        subtitle="Compose cohorts with UNION (∪), INTERSECT (∩), and MINUS (∖). Reorder siblings by dragging; click an op chip to cycle its kind."
+      >
+        <div className="space-y-3 p-4">
+          {tree === null ? (
+            <EmptyState
+              isPicking={pickingForId === ROOT_PICK_KEY}
+              startPicking={() => setPickingForId(ROOT_PICK_KEY)}
+              onAddCohort={(id) => {
+                addCohortToParent(null, id);
+                setPickingForId(null);
+              }}
+              cancelPicking={() => setPickingForId(null)}
+              onAddOp={(op) => addOpToParent(null, op)}
+            />
+          ) : (
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              {renderNode(tree, true)}
+            </DndContext>
+          )}
 
-      {/* Polish 4 — always-visible single-line live preview of the compiled
-          expression. The full disclosure below remains for the "expanded"
-          pane view + the validation-error count badge. */}
-      {tree !== null && (
-        <div className="flex items-baseline gap-2 px-3 py-1 text-[10px] text-text-ghost">
-          <span className="uppercase tracking-wide">Expression:</span>
-          <span
-            className={[
-              "font-mono truncate",
-              errors.length > 0 ? "text-error" : "text-text-secondary",
-            ].join(" ")}
-            title={expression}
-          >
-            {expression || "(empty)"}
-          </span>
+          {/* Polish 4 — always-visible single-line live preview of the compiled
+              expression. The disclosure below remains for the "expanded" pane
+              view + the validation-error count badge. */}
+          {tree !== null && (
+            <div className="flex items-baseline gap-2 border-t border-border-default pt-2 text-[10px] text-text-ghost">
+              <span className="uppercase tracking-wide">Expression:</span>
+              <span
+                className={[
+                  "truncate font-mono",
+                  errors.length > 0 ? "text-error" : "text-text-secondary",
+                ].join(" ")}
+                title={expression}
+              >
+                {expression || "(empty)"}
+              </span>
+            </div>
+          )}
         </div>
-      )}
+      </Shell>
 
       <ExpressionDisclosure
         open={expressionOpen}
@@ -344,10 +352,29 @@ function NodeToolbar({
 }) {
   return (
     <div className="flex items-center gap-1">
-      <ToolbarButton onClick={onAddCohort} label="+ cohort" />
-      <ToolbarButton onClick={() => onAddOp("UNION")} label="+ ∪" tone="success" />
-      <ToolbarButton onClick={() => onAddOp("INTERSECT")} label="+ ∩" tone="info" />
-      <ToolbarButton onClick={() => onAddOp("MINUS")} label="+ ∖" tone="warning" />
+      <ToolbarButton
+        onClick={onAddCohort}
+        label="+ cohort"
+        title="Add a cohort reference here"
+      />
+      <ToolbarButton
+        onClick={() => onAddOp("UNION")}
+        label="+ ∪"
+        tone="success"
+        title="Add a nested UNION (subjects in any child)"
+      />
+      <ToolbarButton
+        onClick={() => onAddOp("INTERSECT")}
+        label="+ ∩"
+        tone="info"
+        title="Add a nested INTERSECT (subjects in all children)"
+      />
+      <ToolbarButton
+        onClick={() => onAddOp("MINUS")}
+        label="+ ∖"
+        tone="warning"
+        title="Add a nested MINUS (first child minus the rest)"
+      />
     </div>
   );
 }
@@ -356,22 +383,28 @@ function ToolbarButton({
   onClick,
   label,
   tone,
+  title,
 }: {
   onClick: () => void;
   label: string;
   tone?: "success" | "info" | "warning";
+  title?: string;
 }) {
   const toneClass =
-    tone === "success" ? "text-success hover:bg-success/10" :
-    tone === "info" ? "text-info hover:bg-info/10" :
-    tone === "warning" ? "text-warning hover:bg-warning/10" :
-    "text-text-ghost hover:bg-surface-raised";
+    tone === "success"
+      ? "text-success hover:bg-success/10"
+      : tone === "info"
+      ? "text-info hover:bg-info/10"
+      : tone === "warning"
+      ? "text-warning hover:bg-warning/10"
+      : "text-text-ghost hover:bg-surface-raised";
   return (
     <button
       type="button"
       onClick={onClick}
+      title={title}
       className={[
-        "rounded px-1.5 py-0.5 text-[10px] font-medium transition-colors border border-border-default bg-surface-overlay",
+        "rounded border border-border-default bg-surface-overlay px-1.5 py-0.5 text-[10px] font-medium transition-colors",
         toneClass,
       ].join(" ")}
     >

@@ -1,12 +1,12 @@
-// SP4 Polish 5 — MatchingResults render smoke. Mocks useMatchRunStatus to
+// SP4 Polish 5 — MatchingResults render smoke. Mocks useFinnGenRunStatus to
 // feed a canned succeeded run carrying counts + waterfall + SMD diagnostics.
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 
-vi.mock("../hooks/useMatchCohort", () => ({
-  useMatchRunStatus: () => ({
+vi.mock("../hooks/useFinnGenRunStatus", () => ({
+  useFinnGenRunStatus: () => ({
     data: {
       id: "01MATCH",
       status: "succeeded",

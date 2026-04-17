@@ -13,11 +13,8 @@ import { MaterializeStep } from "../components/MaterializeStep";
 import { ImportCohortsStep } from "../components/ImportCohortsStep";
 import { AutosaveBadge } from "../components/AutosaveBadge";
 import { RecentRunsPanel } from "../components/RecentRunsPanel";
-import {
-  WorkbenchStepper,
-  WORKBENCH_STEPS,
-  type WorkbenchStepKey,
-} from "../components/WorkbenchStepper";
+import { WorkbenchStepper } from "../components/WorkbenchStepper";
+import { WORKBENCH_STEPS, type WorkbenchStepKey } from "../lib/workbenchSteps";
 import {
   useAutosaveWorkbenchSession,
   useWorkbenchSession,
@@ -25,6 +22,7 @@ import {
 import { useMatchCohort } from "../hooks/useMatchCohort";
 import { useWorkbenchStore } from "../stores/workbenchStore";
 import type { OperationNode } from "../lib/operationTree";
+import type { MatchedCohortPromotion } from "../types";
 
 export default function WorkbenchPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -51,7 +49,13 @@ export default function WorkbenchPage() {
     });
   };
 
-  // Hydrate the store from the loaded session once.
+  // Hydrate the store from the loaded session once. v1.0 dropped the
+  // "select-source" placeholder step; sessions persisted under the old
+  // 6-step order may open on the step one index ahead of where the
+  // researcher left off. We accept that one-time drift instead of running a
+  // client-side step migration — the earlier attempt re-ran every load
+  // because schema_version wasn't bumped server-side, eventually pinning
+  // sessions at step 0. Users can click the stepper once to re-orient.
   useEffect(() => {
     if (session !== undefined && sessionId !== undefined) {
       loadSession(sessionId, session.session_state ?? {});
@@ -62,7 +66,7 @@ export default function WorkbenchPage() {
   const autosave = useAutosaveWorkbenchSession(sessionId ?? null, sessionState, 5_000);
 
   const stepIndex = typeof sessionState.step === "number" ? sessionState.step : 0;
-  const currentStep = WORKBENCH_STEPS[stepIndex]?.key ?? "select-source";
+  const currentStep = WORKBENCH_STEPS[stepIndex]?.key ?? "import-cohorts";
 
   const completed = useMemo(() => {
     const set = new Set<WorkbenchStepKey>();
@@ -118,11 +122,21 @@ export default function WorkbenchPage() {
         >
           <ArrowLeft size={12} /> All sessions
         </Link>
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-lg font-semibold text-text-primary">{session.name}</h1>
-            <p className="text-xs text-text-ghost">
-              {session.source_key} · session {session.id.slice(0, 8)}…
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h1 className="truncate text-lg font-semibold text-text-primary">
+                {session.name}
+              </h1>
+              <span
+                className="inline-flex shrink-0 items-center rounded bg-info/10 px-2 py-0.5 font-mono text-[10px] font-medium text-info"
+                title="Data source this session is bound to"
+              >
+                {session.source_key}
+              </span>
+            </div>
+            <p className="text-[10px] text-text-ghost">
+              session {session.id.slice(0, 8)}…
             </p>
           </div>
           <AutosaveBadge status={autosave} />
@@ -131,15 +145,6 @@ export default function WorkbenchPage() {
       </header>
 
       <main className="space-y-4">
-        {currentStep === "select-source" && (
-          <PlaceholderStep title="Source already selected">
-            <p className="text-xs text-text-secondary">
-              This session is bound to <span className="font-mono">{session.source_key}</span>.
-              Source switching is deferred to a future phase.
-            </p>
-          </PlaceholderStep>
-        )}
-
         {currentStep === "import-cohorts" && (
           <ImportCohortsStep
             tree={tree}
@@ -157,7 +162,7 @@ export default function WorkbenchPage() {
         )}
 
         {currentStep === "match" && (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,22rem)_1fr] md:items-start">
             <MatchingConfigForm
               sourceKey={session.source_key}
               loading={matchMutation.isPending}
@@ -170,7 +175,25 @@ export default function WorkbenchPage() {
                 });
               }}
             />
-            <MatchingResults runId={matchRunId} />
+            <MatchingResults
+              runId={matchRunId}
+              promotion={
+                matchRunId !== null
+                  ? (sessionState.matched_cohort_promotions as
+                      | Record<string, MatchedCohortPromotion>
+                      | undefined)?.[matchRunId]
+                  : undefined
+              }
+              onPromote={(p) => {
+                const prior =
+                  (sessionState.matched_cohort_promotions as
+                    | Record<string, MatchedCohortPromotion>
+                    | undefined) ?? {};
+                useWorkbenchStore.getState().patchState({
+                  matched_cohort_promotions: { ...prior, [p.run_id]: p },
+                });
+              }}
+            />
           </div>
         )}
 
@@ -207,6 +230,11 @@ export default function WorkbenchPage() {
                 ? sessionState.materialized_cohort_id
                 : null
             }
+            matchedPromotions={Object.values(
+              (sessionState.matched_cohort_promotions as
+                | Record<string, MatchedCohortPromotion>
+                | undefined) ?? {},
+            )}
             navigate={navigate}
           />
         )}
@@ -231,25 +259,20 @@ export default function WorkbenchPage() {
   );
 }
 
-function PlaceholderStep({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-lg border border-dashed border-border-default p-6">
-      <h2 className="mb-2 text-sm font-semibold text-text-secondary">{title}</h2>
-      {children}
-    </div>
-  );
-}
-
 function HandoffStep({
   sourceKey,
   materializedCohortId,
+  matchedPromotions,
   navigate,
 }: {
   sourceKey: string;
   materializedCohortId: number | null;
+  matchedPromotions: MatchedCohortPromotion[];
   navigate: (path: string) => void;
 }) {
   const ready = materializedCohortId !== null;
+  const hasPromotions = matchedPromotions.length > 0;
+
   // SP4 Polish 2 completion — hand off to the standalone FinnGen Analysis
   // Gallery (not the investigation page). FinnGenAnalysesStandalonePage reads
   // source_key + workbench_cohort_id from the URL and pre-populates the
@@ -258,35 +281,109 @@ function HandoffStep({
     ? `/workbench/finngen-analyses?source_key=${encodeURIComponent(sourceKey)}&workbench_cohort_id=${materializedCohortId}`
     : `/workbench/finngen-analyses?source_key=${encodeURIComponent(sourceKey)}`;
 
+  // v1.0 UX — when neither a materialized cohort nor any promoted matches
+  // exist, show a single focused CTA instead of two empty panels.
+  if (!ready && !hasPromotions) {
+    return (
+      <div className="rounded-lg border border-dashed border-border-default bg-surface-raised p-8 text-center">
+        <h2 className="text-sm font-semibold text-text-secondary">Nothing to hand off yet</h2>
+        <p className="mx-auto mt-1 max-w-md text-xs text-text-ghost">
+          Finish the <span className="font-mono">Materialize</span> step to persist your operation
+          tree as a cohort, or promote a succeeded <span className="font-mono">Match</span> run to
+          bring matched comparator cohorts forward. Either will enable handoff to the Analysis
+          Gallery.
+        </p>
+        <button
+          type="button"
+          onClick={() => navigate(destination)}
+          className="mt-4 inline-flex items-center gap-2 rounded border border-border-default bg-surface-overlay px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:bg-surface-raised"
+        >
+          <ExternalLink size={12} />
+          Open {sourceKey} Analysis Gallery without a pre-selected cohort
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="rounded-lg border border-border-default bg-surface-raised p-6 space-y-3">
-      <h2 className="text-sm font-semibold text-text-secondary">Handoff to Analysis Gallery</h2>
-      {ready ? (
-        <p className="text-xs text-text-secondary">
-          Materialized cohort <span className="font-mono">#{materializedCohortId}</span> is ready.
-          Open it directly in a CO2 analysis (CodeWAS, Demographics, Overlaps, timeCodeWAS).
-        </p>
-      ) : (
-        <p className="text-xs text-text-ghost">
-          Materialize the operation tree in the previous step to enable hand-off. You can also
-          open the gallery empty and pick a cohort manually.
-        </p>
+    <div className="space-y-4">
+      <div className="space-y-3 rounded-lg border border-border-default bg-surface-raised p-6">
+        <h2 className="text-sm font-semibold text-text-secondary">
+          Handoff: materialized cohort
+        </h2>
+        {ready ? (
+          <p className="text-xs text-text-secondary">
+            Materialized cohort <span className="font-mono">#{materializedCohortId}</span> is ready.
+            Open it directly in a CO2 analysis (CodeWAS, Demographics, Overlaps, timeCodeWAS).
+          </p>
+        ) : (
+          <p className="text-xs text-text-ghost">
+            Materialize the operation tree in the previous step to enable hand-off of your tree as
+            a cohort. You can still open the gallery empty and pick a cohort manually.
+          </p>
+        )}
+        <button
+          type="button"
+          onClick={() => navigate(destination)}
+          className={[
+            "inline-flex items-center gap-2 rounded px-3 py-1.5 text-xs font-medium transition-colors",
+            ready
+              ? "bg-success text-bg-canvas hover:bg-success/90"
+              : "border border-border-default bg-surface-overlay text-text-secondary hover:bg-surface-raised",
+          ].join(" ")}
+        >
+          <ExternalLink size={12} />
+          {ready
+            ? `Open cohort #${materializedCohortId} in Analysis Gallery`
+            : `Open ${sourceKey} in Analysis Gallery`}
+        </button>
+      </div>
+
+      {hasPromotions && (
+        <div className="space-y-3 rounded-lg border border-border-default bg-surface-raised p-6">
+          <div>
+            <h2 className="text-sm font-semibold text-text-secondary">
+              Handoff: matched comparator cohorts
+            </h2>
+            <p className="text-[10px] text-text-ghost">
+              Promoted from cohort.match runs in this session. Open any as the primary cohort in an
+              analysis, or pair with the materialized cohort for comparative studies.
+            </p>
+          </div>
+          <ul className="space-y-2">
+            {matchedPromotions.map((p) => (
+              <li
+                key={p.run_id}
+                className="flex flex-wrap items-center gap-3 rounded border border-border-default bg-surface-overlay/40 px-3 py-2"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-text-primary">
+                    <span className="font-mono text-text-secondary">#{p.cohort_definition_id}</span>{" "}
+                    · {p.name}
+                  </p>
+                  <p className="text-[10px] text-text-ghost">
+                    Primary #{p.primary_cohort_id} vs [
+                    {p.comparator_cohort_ids.map((id) => "#" + id).join(", ")}] at 1:{p.ratio}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate(
+                      `/workbench/finngen-analyses?source_key=${encodeURIComponent(sourceKey)}` +
+                        `&workbench_cohort_id=${p.cohort_definition_id}`,
+                    )
+                  }
+                  className="inline-flex items-center gap-1.5 rounded bg-success px-2.5 py-1 text-[11px] font-medium text-bg-canvas hover:bg-success/90"
+                >
+                  <ExternalLink size={11} />
+                  Open in gallery
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
-      <button
-        type="button"
-        onClick={() => navigate(destination)}
-        className={[
-          "inline-flex items-center gap-2 rounded px-3 py-1.5 text-xs font-medium transition-colors",
-          ready
-            ? "bg-success text-bg-canvas hover:bg-success/90"
-            : "border border-border-default bg-surface-overlay text-text-secondary hover:bg-surface-raised",
-        ].join(" ")}
-      >
-        <ExternalLink size={12} />
-        {ready
-          ? `Open cohort #${materializedCohortId} in Analysis Gallery`
-          : `Open ${sourceKey} in Analysis Gallery`}
-      </button>
     </div>
   );
 }

@@ -1,22 +1,6 @@
 // frontend/src/features/finngen-workbench/components/WorkbenchStepper.tsx
 import { Check, ChevronRight } from "lucide-react";
-
-export type WorkbenchStepKey =
-  | "select-source"
-  | "import-cohorts"
-  | "operate"
-  | "match"
-  | "materialize"
-  | "handoff";
-
-export const WORKBENCH_STEPS: { key: WorkbenchStepKey; label: string }[] = [
-  { key: "select-source", label: "Select source" },
-  { key: "import-cohorts", label: "Import cohorts" },
-  { key: "operate", label: "Operate" },
-  { key: "match", label: "Match" },
-  { key: "materialize", label: "Materialize" },
-  { key: "handoff", label: "Handoff" },
-];
+import { WORKBENCH_STEPS, type WorkbenchStepKey } from "../lib/workbenchSteps";
 
 interface WorkbenchStepperProps {
   current: WorkbenchStepKey;
@@ -50,7 +34,7 @@ export function WorkbenchStepper({ current, completed, onStepChange }: Workbench
               <span>{step.label}</span>
             </button>
             {idx < WORKBENCH_STEPS.length - 1 && (
-              <ChevronRight size={12} className="text-text-ghost mx-0.5" aria-hidden />
+              <ChevronRight size={12} className="mx-0.5 text-text-ghost" aria-hidden />
             )}
           </li>
         );

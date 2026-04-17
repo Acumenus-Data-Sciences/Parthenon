@@ -1,19 +1,25 @@
 // frontend/src/features/finngen-workbench/components/MatchingResults.tsx
 //
-// SP4 Phase D.2 + Polish 5 — polling results view for cohort.match runs.
-// Renders three panels when the run succeeds:
-//   1. HadesExtras counts table (cohortId / name / entries / subjects)
-//   2. Attrition waterfall (primary input → comparator input(s) → matched
-//      output(s)) — horizontal bar chart of step counts
-//   3. SMD diagnostics table — per covariate (age_years, pct_female) and
-//      per comparator, shows mean_primary / mean_comparator pre+post +
-//      SMD pre vs post (color-coded: green |SMD|<0.1, amber <0.25, red ≥0.25).
-import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
-import { useMatchRunStatus } from "../hooks/useMatchCohort";
+// Polling results view for cohort.match runs. Renders (in reading order):
+//   1. Status strip  — queued / running / succeeded / failed + run id
+//   2. Promote CTA   — save matched controls as a first-class cohort
+//   3. Headline KPIs — primary N, comparator N (pooled), matched N (pooled)
+//   4. Counts table  — one row per cohort the match touched (entries/subjects)
+//   5. Attrition waterfall — primary → comparator inputs → matched outputs
+//   6. SMD diagnostics     — covariate × comparator, pre vs post
+import { AlertCircle, Award, CheckCheck, Clock, Loader2 } from "lucide-react";
+import { useFinnGenRunStatus } from "../hooks/useFinnGenRunStatus";
+import { usePromoteMatchedCohort } from "../hooks/usePromoteMatchedCohort";
+import type { MatchedCohortPromotion } from "../types";
+import { Panel, Shell, StatusStrip } from "@/components/workbench/primitives";
 
 interface MatchingResultsProps {
   runId: string | null;
   cohortNames?: Record<number, string>;
+  /** SP4 Phase D.3 — existing promotion for this run, if any. */
+  promotion?: MatchedCohortPromotion;
+  /** Called when the user promotes a succeeded match into a cohort_definition. */
+  onPromote?: (promotion: MatchedCohortPromotion) => void;
 }
 
 type CountRow = {
@@ -48,31 +54,43 @@ type SmdRow = {
   n_comparator_post: number | null;
 };
 
-export function MatchingResults({ runId, cohortNames }: MatchingResultsProps) {
-  const { data, isPending, isError } = useMatchRunStatus(runId);
+const SHELL_TITLE = "Matching results";
+const SHELL_SUBTITLE = "Status, balance diagnostics, and attrition for the current run.";
+
+export function MatchingResults({
+  runId,
+  cohortNames,
+  promotion,
+  onPromote,
+}: MatchingResultsProps) {
+  const { data, isPending, isError } = useFinnGenRunStatus(runId);
 
   if (runId === null) {
     return (
-      <div className="rounded border border-dashed border-border-default p-6 text-center text-xs text-text-ghost">
-        Configure matching parameters and click Run to see results here.
-      </div>
+      <Shell title={SHELL_TITLE} subtitle={SHELL_SUBTITLE}>
+        <EmptyState />
+      </Shell>
     );
   }
 
   if (isPending && data === undefined) {
     return (
-      <div className="flex items-center gap-2 rounded border border-border-default bg-surface-raised p-4 text-xs text-text-secondary">
-        <Loader2 size={14} className="animate-spin" />
-        Loading run...
-      </div>
+      <Shell title={SHELL_TITLE} subtitle={SHELL_SUBTITLE}>
+        <div className="flex items-center gap-2 p-4 text-xs text-text-secondary">
+          <Loader2 size={14} className="animate-spin" />
+          Loading run…
+        </div>
+      </Shell>
     );
   }
 
   if (isError || data === undefined) {
     return (
-      <div className="flex items-center gap-2 rounded border border-error/40 bg-error/5 p-4 text-xs text-error">
-        <AlertCircle size={14} /> Could not load run status.
-      </div>
+      <Shell title={SHELL_TITLE} subtitle={SHELL_SUBTITLE}>
+        <div className="flex items-center gap-2 p-4 text-xs text-error">
+          <AlertCircle size={14} /> Could not load run status.
+        </div>
+      </Shell>
     );
   }
 
@@ -81,133 +99,244 @@ export function MatchingResults({ runId, cohortNames }: MatchingResultsProps) {
   const isFailed = status === "failed" || status === "canceled";
   const isDone = status === "succeeded";
 
-  // Counts from the cohort.match worker live in summary.counts (HadesExtras
-  // returns a tibble; jsonlite serializes it as an array of row objects).
-  const summary = (data as unknown as {
-    summary?: { counts?: CountRow[]; waterfall?: WaterfallRow[]; smd?: SmdRow[] };
-  }).summary;
+  const summary = (
+    data as unknown as {
+      summary?: { counts?: CountRow[]; waterfall?: WaterfallRow[]; smd?: SmdRow[] };
+    }
+  ).summary;
   const counts: CountRow[] = Array.isArray(summary?.counts) ? summary.counts : [];
   const waterfall: WaterfallRow[] = Array.isArray(summary?.waterfall) ? summary.waterfall : [];
   const smd: SmdRow[] = Array.isArray(summary?.smd) ? summary.smd : [];
 
+  const kpis = computeKpis(waterfall);
+
   return (
-    <div className="space-y-3 rounded border border-border-default bg-surface-raised p-4">
-      <div className="flex items-center gap-2 text-xs">
-        {isRunning && <Loader2 size={14} className="animate-spin text-info" />}
-        {isDone && <CheckCircle2 size={14} className="text-success" />}
-        {isFailed && <AlertCircle size={14} className="text-error" />}
-        <span className={isFailed ? "text-error" : "text-text-secondary"}>
-          Status: <span className="font-mono">{status}</span>
-        </span>
-        {isRunning && <span className="text-text-ghost">— polling every 2s</span>}
-      </div>
+    <Shell title={SHELL_TITLE} subtitle={SHELL_SUBTITLE}>
+      <StatusStrip status={status} runId={data.id} />
 
       {isFailed && (
-        <p className="text-xs text-error">
-          {(data as unknown as { error?: { message?: string } }).error?.message ?? "Run failed."}
-        </p>
-      )}
-
-      {isDone && counts.length === 0 && (
-        <p className="text-xs text-text-ghost">Match completed but no count rows were emitted.</p>
-      )}
-
-      {counts.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b border-border-default text-left text-text-ghost">
-                <th className="px-2 py-1.5">Cohort</th>
-                <th className="px-2 py-1.5">Name</th>
-                <th className="px-2 py-1.5 text-right">Entries</th>
-                <th className="px-2 py-1.5 text-right">Subjects</th>
-              </tr>
-            </thead>
-            <tbody>
-              {counts.map((row, idx) => {
-                const cid = row.cohortId ?? row.cohort_id ?? null;
-                const name = row.cohortName ?? row.cohort_name ?? (cid !== null ? cohortNames?.[cid] : undefined) ?? "—";
-                const entries = row.cohortEntries ?? row.cohort_entries ?? 0;
-                const subjects = row.cohortSubjects ?? row.cohort_subjects ?? 0;
-                return (
-                  <tr key={idx} className="border-b border-border-default/50">
-                    <td className="px-2 py-1.5 font-mono text-text-secondary">{cid ?? "—"}</td>
-                    <td className="px-2 py-1.5 text-text-primary">{name}</td>
-                    <td className="px-2 py-1.5 text-right font-mono text-text-secondary">
-                      {entries.toLocaleString()}
-                    </td>
-                    <td className="px-2 py-1.5 text-right font-mono text-text-secondary">
-                      {subjects.toLocaleString()}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className="mx-4 mb-4 flex items-start gap-2 rounded border border-error/40 bg-error/5 p-3 text-xs text-error">
+          <AlertCircle size={14} className="mt-0.5 flex-shrink-0" />
+          <span>
+            {(data as unknown as { error?: { message?: string } }).error?.message ??
+              "Run failed."}
+          </span>
         </div>
       )}
 
-      {/* Polish 5 — attrition waterfall */}
-      {waterfall.length > 0 && <WaterfallChart rows={waterfall} />}
+      {isRunning && (
+        <div className="px-4 pb-4 text-xs text-text-ghost">
+          Matching in progress. Results appear here once complete.
+        </div>
+      )}
 
-      {/* Polish 5 — SMD diagnostics */}
-      {smd.length > 0 && <SmdTable rows={smd} />}
+      {isDone && (
+        <div className="space-y-4 px-4 pb-4">
+          <PromoteCta
+            runId={runId}
+            promotion={promotion}
+            onPromote={onPromote}
+            primaryCohortId={
+              (waterfall.find((r) => r.step === "primary_input")?.cohort_id as
+                | number
+                | undefined) ?? null
+            }
+          />
+
+          {kpis && <KpiRow kpis={kpis} />}
+
+          {counts.length === 0 && (
+            <p className="text-xs text-text-ghost">
+              Match completed but no count rows were emitted.
+            </p>
+          )}
+
+          {counts.length > 0 && (
+            <Panel label="Cohorts in this match">
+              <CountsTable rows={counts} cohortNames={cohortNames} />
+            </Panel>
+          )}
+
+          {waterfall.length > 0 && (
+            <Panel label="Attrition waterfall">
+              <WaterfallChart rows={waterfall} />
+            </Panel>
+          )}
+
+          {smd.length > 0 && (
+            <Panel label="Covariate balance (SMD)">
+              <SmdTable rows={smd} />
+            </Panel>
+          )}
+        </div>
+      )}
+    </Shell>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center gap-2 px-4 py-10 text-center">
+      <div className="rounded-full border border-dashed border-border-default p-3 text-text-ghost">
+        <Clock size={18} />
+      </div>
+      <p className="text-xs text-text-secondary">No run yet.</p>
+      <p className="text-[10px] text-text-ghost">
+        Configure matching on the left and press <span className="font-mono">Run matching</span>.
+      </p>
     </div>
   );
 }
 
-// SP4 Polish 5 — attrition waterfall (horizontal bar chart). Primary input
-// sets the scale; each comparator + matched row renders a bar proportional
-// to its share of the primary size.
+function computeKpis(waterfall: WaterfallRow[]): {
+  primary: number;
+  comparators: number;
+  matched: number;
+  rate: number | null;
+} | null {
+  if (waterfall.length === 0) return null;
+  const primary = waterfall
+    .filter((r) => r.step === "primary_input")
+    .reduce((acc, r) => acc + (r.count ?? 0), 0);
+  const comparators = waterfall
+    .filter((r) => r.step === "comparator_input")
+    .reduce((acc, r) => acc + (r.count ?? 0), 0);
+  const matched = waterfall
+    .filter((r) => r.step === "matched_output")
+    .reduce((acc, r) => acc + (r.count ?? 0), 0);
+  const rate = comparators > 0 ? matched / comparators : null;
+  return { primary, comparators, matched, rate };
+}
+
+function KpiRow({
+  kpis,
+}: {
+  kpis: { primary: number; comparators: number; matched: number; rate: number | null };
+}) {
+  return (
+    <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+      <Kpi label="Primary (cases)" value={kpis.primary.toLocaleString()} tone="info" />
+      <Kpi
+        label="Comparators (input)"
+        value={kpis.comparators.toLocaleString()}
+        tone="warning"
+      />
+      <Kpi label="Matched (output)" value={kpis.matched.toLocaleString()} tone="success" />
+      <Kpi
+        label="Match rate"
+        value={kpis.rate === null ? "—" : `${(kpis.rate * 100).toFixed(1)}%`}
+        tone="neutral"
+      />
+    </div>
+  );
+}
+
+function Kpi({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: "info" | "warning" | "success" | "neutral";
+}) {
+  const accent = {
+    info: "border-l-info",
+    warning: "border-l-warning",
+    success: "border-l-success",
+    neutral: "border-l-border-default",
+  }[tone];
+  return (
+    <div
+      className={`rounded border border-border-default border-l-2 bg-surface-overlay/30 px-3 py-2 ${accent}`}
+    >
+      <div className="text-[10px] uppercase tracking-wide text-text-ghost">{label}</div>
+      <div className="mt-0.5 font-mono text-sm text-text-primary">{value}</div>
+    </div>
+  );
+}
+
+function CountsTable({
+  rows,
+  cohortNames,
+}: {
+  rows: CountRow[];
+  cohortNames?: Record<number, string>;
+}) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-xs">
+        <thead>
+          <tr className="border-b border-border-default text-left text-text-ghost">
+            <th className="px-2 py-1.5">Cohort</th>
+            <th className="px-2 py-1.5">Name</th>
+            <th className="px-2 py-1.5 text-right">Entries</th>
+            <th className="px-2 py-1.5 text-right">Subjects</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, idx) => {
+            const cid = row.cohortId ?? row.cohort_id ?? null;
+            const name =
+              row.cohortName ??
+              row.cohort_name ??
+              (cid !== null ? cohortNames?.[cid] : undefined) ??
+              "—";
+            const entries = row.cohortEntries ?? row.cohort_entries ?? 0;
+            const subjects = row.cohortSubjects ?? row.cohort_subjects ?? 0;
+            return (
+              <tr key={idx} className="border-b border-border-default/50 last:border-b-0">
+                <td className="px-2 py-1.5 font-mono text-text-secondary">{cid ?? "—"}</td>
+                <td className="px-2 py-1.5 text-text-primary">{name}</td>
+                <td className="px-2 py-1.5 text-right font-mono text-text-secondary">
+                  {entries.toLocaleString()}
+                </td>
+                <td className="px-2 py-1.5 text-right font-mono text-text-secondary">
+                  {subjects.toLocaleString()}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function WaterfallChart({ rows }: { rows: WaterfallRow[] }) {
   const maxCount = Math.max(1, ...rows.map((r) => r.count ?? 0));
   return (
-    <div className="space-y-1.5 rounded border border-border-default bg-surface-overlay/30 p-3">
-      <h3 className="text-[10px] font-semibold uppercase tracking-wide text-text-ghost">
-        Attrition waterfall
-      </h3>
-      <ol className="space-y-1">
-        {rows.map((row, idx) => {
-          const n = row.count ?? 0;
-          const width = Math.max(2, Math.round((n / maxCount) * 100));
-          const color =
-            row.step === "primary_input"
-              ? "bg-info"
-              : row.step === "matched_output"
-              ? "bg-success"
-              : "bg-warning";
-          return (
-            <li key={idx} className="flex items-center gap-2 text-xs">
-              <span className="w-48 truncate text-text-secondary" title={row.label}>
-                {row.label}
-              </span>
-              <div className="relative flex-1">
-                <div
-                  className={["h-3 rounded", color].join(" ")}
-                  style={{ width: `${width}%` }}
-                />
-              </div>
-              <span className="w-16 text-right font-mono text-text-secondary">
-                {n.toLocaleString()}
-              </span>
-            </li>
-          );
-        })}
-      </ol>
-    </div>
+    <ol className="space-y-1">
+      {rows.map((row, idx) => {
+        const n = row.count ?? 0;
+        const width = Math.max(2, Math.round((n / maxCount) * 100));
+        const color =
+          row.step === "primary_input"
+            ? "bg-info"
+            : row.step === "matched_output"
+            ? "bg-success"
+            : "bg-warning";
+        return (
+          <li key={idx} className="flex items-center gap-2 text-xs">
+            <span className="w-48 truncate text-text-secondary" title={row.label}>
+              {row.label}
+            </span>
+            <div className="relative flex-1">
+              <div className={`h-3 rounded ${color}`} style={{ width: `${width}%` }} />
+            </div>
+            <span className="w-16 text-right font-mono text-text-secondary">
+              {n.toLocaleString()}
+            </span>
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
-// SP4 Polish 5 — SMD diagnostics table. Color-codes each SMD cell:
-//   |SMD| < 0.10 → green (well balanced)
-//   |SMD| < 0.25 → amber (moderate imbalance)
-//   |SMD| ≥ 0.25 → red   (material imbalance)
 function SmdTable({ rows }: { rows: SmdRow[] }) {
   return (
-    <div className="rounded border border-border-default bg-surface-overlay/30 p-3 space-y-2">
-      <h3 className="text-[10px] font-semibold uppercase tracking-wide text-text-ghost">
-        Covariate balance (SMD)
-      </h3>
+    <div className="space-y-2">
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
@@ -223,7 +352,7 @@ function SmdTable({ rows }: { rows: SmdRow[] }) {
           </thead>
           <tbody>
             {rows.map((r, idx) => (
-              <tr key={idx} className="border-b border-border-default/50">
+              <tr key={idx} className="border-b border-border-default/50 last:border-b-0">
                 <td className="px-2 py-1.5 text-text-primary">{r.covariate}</td>
                 <td className="px-2 py-1.5 text-right font-mono text-text-secondary">
                   {r.comparator_id}
@@ -253,6 +382,97 @@ function SmdTable({ rows }: { rows: SmdRow[] }) {
         <span className="text-warning">amber</span> &lt; 0.25 ·{" "}
         <span className="text-error">red</span> ≥ 0.25.
       </p>
+    </div>
+  );
+}
+
+// SP4 Phase D.3 — Promote CTA. Renders the "Save as cohort" button when the
+// run isn't promoted yet, or a confirmation badge with the resulting
+// cohort_definition_id when it is. Unavailable if primaryCohortId is null
+// (shouldn't happen on a succeeded match but we fail closed).
+function PromoteCta({
+  runId,
+  promotion,
+  onPromote,
+  primaryCohortId,
+}: {
+  runId: string;
+  promotion?: MatchedCohortPromotion;
+  onPromote?: (promotion: MatchedCohortPromotion) => void;
+  primaryCohortId: number | null;
+}) {
+  const mutation = usePromoteMatchedCohort();
+
+  if (promotion !== undefined) {
+    return (
+      <div className="flex items-center gap-2 rounded border border-success/40 bg-success/5 px-3 py-2 text-xs text-success">
+        <CheckCheck size={14} className="flex-shrink-0" />
+        <span>
+          Promoted as cohort{" "}
+          <span className="font-mono">#{promotion.cohort_definition_id}</span>
+          {" · "}
+          <span className="text-text-secondary">{promotion.name}</span>
+        </span>
+      </div>
+    );
+  }
+
+  const disabled = mutation.isPending || primaryCohortId === null;
+
+  function handleClick() {
+    if (disabled) return;
+    mutation.mutate(
+      { run_id: runId },
+      {
+        onSuccess: (result) => {
+          if (onPromote === undefined) return;
+          onPromote({
+            run_id: result.run_id,
+            cohort_definition_id: result.cohort_definition_id,
+            name: result.name,
+            promoted_at: new Date().toISOString(),
+            primary_cohort_id: result.provenance.primary_cohort_id,
+            comparator_cohort_ids: result.provenance.comparator_cohort_ids,
+            ratio: result.provenance.ratio,
+          });
+        },
+      },
+    );
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-3 rounded border border-border-default bg-surface-overlay/40 px-3 py-2">
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-medium text-text-primary">
+          Save matched controls as a first-class cohort
+        </p>
+        <p className="text-[10px] text-text-ghost">
+          Makes this match available to downstream analyses (incidence rate, estimation, prediction…).
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={disabled}
+        className={[
+          "flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium transition-colors",
+          disabled
+            ? "cursor-not-allowed bg-surface-overlay text-text-ghost"
+            : "bg-success text-bg-canvas hover:bg-success/90",
+        ].join(" ")}
+      >
+        {mutation.isPending ? (
+          <Loader2 size={12} className="animate-spin" />
+        ) : (
+          <Award size={12} />
+        )}
+        {mutation.isPending ? "Promoting…" : "Save as cohort"}
+      </button>
+      {mutation.isError && (
+        <p className="w-full text-[10px] text-error">
+          Promotion failed: {mutation.error.message}
+        </p>
+      )}
     </div>
   );
 }

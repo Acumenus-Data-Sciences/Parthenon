@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Jobs\FinnGen\RunFinnGenAnalysisJob;
 use App\Models\App\CohortDefinition;
+use App\Models\App\FinnGen\Run;
 use App\Models\App\FinnGen\WorkbenchSession;
 use App\Models\App\WebApiRegistry;
 use App\Models\User;
@@ -11,6 +12,7 @@ use Database\Seeders\Testing\FinnGenTestingSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 uses(RefreshDatabase::class);
@@ -531,4 +533,236 @@ it('POST /workbench/atlas/import returns 503 when no active registry', function 
             'atlas_ids' => [101, 102],
         ])
         ->assertStatus(503);
+});
+
+// ── SP4 Phase D.3 — promote-match ───────────────────────────────────────────
+
+it('POST /workbench/promote-match denies viewer', function () {
+    $this->actingAs($this->viewer)
+        ->postJson('/api/v1/finngen/workbench/promote-match', [
+            'run_id' => str_repeat('0', 26),
+        ])->assertStatus(403);
+});
+
+it('POST /workbench/promote-match validates run_id format', function () {
+    $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/promote-match', [
+            'run_id' => 'too-short',
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['run_id']);
+});
+
+it('POST /workbench/promote-match returns 404 for non-existent run', function () {
+    $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/promote-match', [
+            'run_id' => '01HXXXXXXXXXXXXXXXXXXXXXXX',
+        ])
+        ->assertStatus(404);
+});
+
+it('POST /workbench/promote-match rejects runs of the wrong analysis_type', function () {
+    $run = Run::create([
+        'user_id' => $this->researcher->id,
+        'source_key' => 'EUNOMIA',
+        'analysis_type' => 'cohort.materialize', // wrong type
+        'status' => Run::STATUS_SUCCEEDED,
+        'params' => ['primary_cohort_id' => 221],
+        'finished_at' => now(),
+    ]);
+
+    $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/promote-match', [
+            'run_id' => $run->id,
+        ])
+        ->assertStatus(422)
+        ->assertJsonPath('message', 'Run is not a cohort.match run');
+});
+
+it('POST /workbench/promote-match rejects non-succeeded runs', function () {
+    $run = Run::create([
+        'user_id' => $this->researcher->id,
+        'source_key' => 'EUNOMIA',
+        'analysis_type' => 'cohort.match',
+        'status' => Run::STATUS_RUNNING,
+        'params' => ['primary_cohort_id' => 221, 'comparator_cohort_ids' => [222]],
+    ]);
+
+    $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/promote-match', [
+            'run_id' => $run->id,
+        ])
+        ->assertStatus(422);
+});
+
+// Helper: ensure the PANCREAS cohort schema + cohort table exist in the test
+// DB. We prefer PANCREAS over EUNOMIA — PANCREAS has the genomics + oncology
+// depth that mirrors real FinnGen researcher flows, and project memory calls
+// it out as the default source for the workbench.
+//
+// Uses raw SQL (`DB::statement` / `DB::insert`) throughout. The query
+// builder's `DB::table('schema.table')` path double-quotes the whole string
+// as a single identifier rather than splitting on the dot, which silently
+// targets the wrong table.
+function ensurePancreasCohortTable(): void
+{
+    DB::statement('CREATE SCHEMA IF NOT EXISTS pancreas_results');
+    DB::statement(
+        'CREATE TABLE IF NOT EXISTS pancreas_results.cohort (
+            cohort_definition_id INTEGER NOT NULL,
+            subject_id BIGINT NOT NULL,
+            cohort_start_date DATE NOT NULL,
+            cohort_end_date DATE NOT NULL
+        )'
+    );
+    DB::statement('DELETE FROM pancreas_results.cohort');
+}
+
+function seedPhantomCohortRows(int $phantomId, int $count): void
+{
+    for ($i = 0; $i < $count; $i++) {
+        DB::insert(
+            'INSERT INTO pancreas_results.cohort (cohort_definition_id, subject_id, cohort_start_date, cohort_end_date) VALUES (?, ?, ?, ?)',
+            [$phantomId, 100 + $i, '2020-01-01', '2020-12-31'],
+        );
+    }
+}
+
+it('POST /workbench/promote-match happy path promotes and migrates phantom rows', function () {
+    ensurePancreasCohortTable();
+
+    $run = Run::create([
+        'user_id' => $this->researcher->id,
+        'source_key' => 'PANCREAS',
+        'analysis_type' => 'cohort.match',
+        'status' => Run::STATUS_SUCCEEDED,
+        'params' => [
+            'primary_cohort_id' => 221,
+            'comparator_cohort_ids' => [222, 223],
+            'ratio' => 2,
+            'match_sex' => true,
+            'match_birth_year' => true,
+            'max_year_difference' => 1,
+        ],
+        'finished_at' => now(),
+    ]);
+
+    $phantomId = 9_000_000 + 221;
+    seedPhantomCohortRows($phantomId, 3);
+
+    $resp = $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/promote-match', [
+            'run_id' => $run->id,
+            'name' => 'Matched PDAC controls',
+        ])
+        ->assertStatus(201);
+
+    $resp->assertJsonPath('data.already_promoted', false);
+    $resp->assertJsonPath('data.rows_migrated', 3);
+    $resp->assertJsonPath('data.name', 'Matched PDAC controls');
+    $resp->assertJsonPath('data.provenance.primary_cohort_id', 221);
+    $resp->assertJsonPath('data.provenance.comparator_cohort_ids', [222, 223]);
+    $resp->assertJsonPath('data.provenance.ratio', 2);
+
+    $newCohortDefId = (int) $resp->json('data.cohort_definition_id');
+    expect($newCohortDefId)->toBeGreaterThan(0);
+
+    // Phantom id should now be empty; new id should have the 3 subjects.
+    $phantomRemaining = (int) DB::selectOne(
+        'SELECT COUNT(*) AS n FROM pancreas_results.cohort WHERE cohort_definition_id = ?',
+        [$phantomId],
+    )->n;
+    expect($phantomRemaining)->toBe(0);
+
+    $migrated = (int) DB::selectOne(
+        'SELECT COUNT(*) AS n FROM pancreas_results.cohort WHERE cohort_definition_id = ?',
+        [$newCohortDefId],
+    )->n;
+    expect($migrated)->toBe(3);
+
+    // cohort_definition row carries provenance under expression_json.
+    $def = CohortDefinition::where('id', $newCohortDefId)->firstOrFail();
+    expect($def->author_id)->toBe($this->researcher->id)
+        ->and($def->expression_json['finngen_match_promotion']['run_id'])->toBe($run->id);
+});
+
+it('POST /workbench/promote-match is idempotent — second call returns the prior promotion', function () {
+    ensurePancreasCohortTable();
+
+    $run = Run::create([
+        'user_id' => $this->researcher->id,
+        'source_key' => 'PANCREAS',
+        'analysis_type' => 'cohort.match',
+        'status' => Run::STATUS_SUCCEEDED,
+        'params' => [
+            'primary_cohort_id' => 300,
+            'comparator_cohort_ids' => [301],
+            'ratio' => 1,
+        ],
+        'finished_at' => now(),
+    ]);
+
+    seedPhantomCohortRows(9_000_000 + 300, 1);
+
+    $first = $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/promote-match', ['run_id' => $run->id])
+        ->assertStatus(201);
+
+    $firstId = (int) $first->json('data.cohort_definition_id');
+    expect($firstId)->toBeGreaterThan(0);
+
+    // Second call — the run is already promoted; endpoint returns the prior
+    // record with already_promoted=true, rows_migrated=0.
+    $second = $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/promote-match', ['run_id' => $run->id])
+        ->assertStatus(200);
+
+    $second->assertJsonPath('data.already_promoted', true);
+    $second->assertJsonPath('data.cohort_definition_id', $firstId);
+    $second->assertJsonPath('data.rows_migrated', 0);
+
+    // Only one cohort_definition row exists for this run.
+    $count = CohortDefinition::whereRaw(
+        "expression_json::jsonb->'finngen_match_promotion'->>'run_id' = ?",
+        [$run->id],
+    )->count();
+    expect($count)->toBe(1);
+});
+
+it('POST /workbench/promote-match returns 422 when phantom rows are missing', function () {
+    ensurePancreasCohortTable();
+
+    $run = Run::create([
+        'user_id' => $this->researcher->id,
+        'source_key' => 'PANCREAS',
+        'analysis_type' => 'cohort.match',
+        'status' => Run::STATUS_SUCCEEDED,
+        'params' => ['primary_cohort_id' => 999, 'comparator_cohort_ids' => [998]],
+        'finished_at' => now(),
+    ]);
+
+    $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/promote-match', ['run_id' => $run->id])
+        ->assertStatus(422)
+        ->assertJsonFragment([
+            'message' => 'Matched cohort rows not found in pancreas_results.cohort for phantom id 9000999',
+        ]);
+});
+
+it('POST /workbench/promote-match refuses to promote another userʼs run', function () {
+    $other = User::factory()->create()->assignRole('researcher');
+    $run = Run::create([
+        'user_id' => $other->id,
+        'source_key' => 'EUNOMIA',
+        'analysis_type' => 'cohort.match',
+        'status' => Run::STATUS_SUCCEEDED,
+        'params' => ['primary_cohort_id' => 221, 'comparator_cohort_ids' => [222]],
+        'finished_at' => now(),
+    ]);
+
+    $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/promote-match', [
+            'run_id' => $run->id,
+        ])
+        ->assertStatus(404);
 });

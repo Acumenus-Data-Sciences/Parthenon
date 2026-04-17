@@ -49,21 +49,26 @@ export default function FinnGenAnalysesStandalonePage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-6">
-      <header className="mb-4 space-y-2">
+    <div className="mx-auto max-w-7xl space-y-4 px-6 py-6">
+      <header className="space-y-2">
         <Link
           to="/workbench"
           className="inline-flex items-center gap-1 text-xs text-text-ghost hover:text-text-secondary"
         >
           <ArrowLeft size={12} /> Workbench
         </Link>
-        <div className="flex items-center gap-2">
-          <h1 className="text-lg font-semibold text-text-primary">FinnGen Analysis Gallery</h1>
-          <span className="rounded bg-surface-overlay px-2 py-0.5 text-[10px] font-mono text-text-ghost">
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="text-lg font-semibold text-text-primary">
+            FinnGen Analysis Gallery
+          </h1>
+          <span
+            className="inline-flex items-center rounded bg-info/10 px-2 py-0.5 font-mono text-[10px] font-medium text-info"
+            title="Data source this gallery is scoped to"
+          >
             {sourceKey}
           </span>
           {validCohortId !== null && (
-            <span className="inline-flex items-center gap-1 rounded bg-success/10 px-2 py-0.5 text-[10px] text-success">
+            <span className="inline-flex items-center gap-1 rounded bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">
               <Database size={10} /> cohort #{validCohortId} pre-selected
             </span>
           )}

@@ -5,6 +5,7 @@ import { useAnalysisModules } from "../hooks/useAnalysisModules";
 import { useAllFinnGenRuns } from "../hooks/useModuleRuns";
 import { ModuleCard } from "../components/ModuleCard";
 import { Loader2 } from "lucide-react";
+import { Shell } from "@/components/workbench/primitives";
 
 interface AnalysisGalleryPageProps {
   sourceKey: string;
@@ -27,41 +28,38 @@ export function AnalysisGalleryPage({ sourceKey, onSelectModule }: AnalysisGalle
     [runsResponse],
   );
 
-  if (modulesLoading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 size={20} className="animate-spin text-text-ghost" />
-        <span className="ml-2 text-sm text-text-ghost">Loading modules...</span>
-      </div>
-    );
-  }
-
-  if (co2Modules.length === 0) {
-    return (
-      <div className="py-16 text-center text-sm text-text-muted">
-        No analysis modules available.
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <div className="mb-4">
-        <h2 className="text-sm font-semibold text-text-primary">FinnGen Analysis Modules</h2>
-        <p className="text-xs text-text-muted mt-1">
-          Select a module to configure and run a statistical analysis on your cohorts.
-        </p>
+    <Shell
+      title="Analysis modules"
+      subtitle="Pick a CO2 module to configure and run a statistical analysis on your cohorts."
+    >
+      <div className="p-4">
+        {modulesLoading && (
+          <div className="flex items-center justify-center py-10">
+            <Loader2 size={20} className="animate-spin text-text-ghost" />
+            <span className="ml-2 text-sm text-text-ghost">Loading modules…</span>
+          </div>
+        )}
+
+        {!modulesLoading && co2Modules.length === 0 && (
+          <div className="py-10 text-center text-sm text-text-muted">
+            No analysis modules available.
+          </div>
+        )}
+
+        {!modulesLoading && co2Modules.length > 0 && (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {co2Modules.map((mod) => (
+              <ModuleCard
+                key={mod.key}
+                module={mod}
+                runCount={runCountByModule(mod.key)}
+                onClick={() => onSelectModule(mod)}
+              />
+            ))}
+          </div>
+        )}
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {co2Modules.map((mod) => (
-          <ModuleCard
-            key={mod.key}
-            module={mod}
-            runCount={runCountByModule(mod.key)}
-            onClick={() => onSelectModule(mod)}
-          />
-        ))}
-      </div>
-    </div>
+    </Shell>
   );
 }

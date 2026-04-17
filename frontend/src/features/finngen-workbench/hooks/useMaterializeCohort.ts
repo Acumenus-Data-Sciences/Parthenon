@@ -5,7 +5,7 @@ import { finngenWorkbenchApi, type MaterializeCohortPayload, type MaterializeCoh
 /**
  * SP4 Polish 2 — dispatch a materialize run. Returns the Run envelope plus
  * the new cohort_definition_id. Caller polls /api/v1/finngen/runs/{id} via
- * useMatchRunStatus (same poller — the Run shape is shared) and persists
+ * useFinnGenRunStatus (same poller — the Run shape is shared) and persists
  * the cohort_definition_id in session_state so the Handoff step can link to
  * the materialized cohort.
  */

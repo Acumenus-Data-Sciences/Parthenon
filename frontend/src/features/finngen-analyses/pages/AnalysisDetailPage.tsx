@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck — finngen-analyses SP3 in flight; unblock CI build
 import { useCallback, useState } from "react";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { AlertCircle, ArrowLeft, Clock, Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { FinnGenRun } from "@/features/_finngen-foundation";
 import {
@@ -18,6 +18,7 @@ import { RunProgressBar } from "../components/RunProgressBar";
 import { SettingsForm } from "../components/SettingsForm";
 import { ResultViewerSwitch } from "../components/results/ResultViewerSwitch";
 import type { CO2ModuleKey } from "../types";
+import { Shell } from "@/components/workbench/primitives";
 
 interface AnalysisDetailPageProps {
   moduleKey: string;
@@ -115,112 +116,132 @@ export function AnalysisDetailPage({ moduleKey, sourceKey, onBack, defaultCohort
   }
 
   return (
-    <div>
-      {/* Header */}
-      <div className="mb-6 flex items-center gap-3">
+    <div className="space-y-4">
+      {/* Header strip */}
+      <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-1 text-xs text-text-ghost hover:text-text-secondary transition-colors"
+          className="flex items-center gap-1 text-xs text-text-ghost transition-colors hover:text-text-secondary"
         >
           <ArrowLeft size={14} />
-          Back to Gallery
+          Back to gallery
         </button>
         <div className="h-4 w-px bg-border-default" />
-        <h2 className="text-sm font-semibold text-text-primary">
-          {module.label}
-        </h2>
-        <span className="text-xs text-text-muted">{module.description}</span>
+        <h2 className="text-sm font-semibold text-text-primary">{module.label}</h2>
+        <span className="truncate text-xs text-text-muted">{module.description}</span>
       </div>
 
-      {/* Two-column layout */}
-      <div className="flex gap-6">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-[20rem_1fr] md:items-start">
         {/* Settings sidebar */}
-        <div className="w-80 shrink-0 space-y-6">
-          {module.settings_schema ? (
-            <SettingsForm
-              moduleKey={moduleKey as CO2ModuleKey}
-              schema={module.settings_schema}
-              defaultValues={mergedDefaults}
-              onSubmit={handleSubmit}
-              isPending={createRun.isPending}
-            />
-          ) : (
-            <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-              <p className="text-xs text-text-ghost">No settings schema available for this module.</p>
+        <div className="space-y-4">
+          <Shell
+            title="Configure"
+            subtitle={`Parameters for ${module.label}.`}
+          >
+            <div className="p-4">
+              {module.settings_schema ? (
+                <SettingsForm
+                  moduleKey={moduleKey as CO2ModuleKey}
+                  schema={module.settings_schema}
+                  defaultValues={mergedDefaults}
+                  onSubmit={handleSubmit}
+                  isPending={createRun.isPending}
+                />
+              ) : (
+                <p className="text-xs text-text-ghost">
+                  No settings schema available for this module.
+                </p>
+              )}
             </div>
-          )}
+          </Shell>
 
-          {/* Recent runs */}
           {recentRuns.length > 0 && (
-            <div>
-              <h3 className="text-xs font-semibold text-text-secondary mb-2">Recent Runs</h3>
-              <div className="space-y-1">
+            <Shell
+              title="Recent runs"
+              subtitle={`${recentRuns.length} most recent run${recentRuns.length === 1 ? "" : "s"}. Click to inspect.`}
+            >
+              <ul className="divide-y divide-border-default">
                 {recentRuns.map((run) => (
-                  <button
-                    key={run.id}
-                    type="button"
-                    onClick={() => setSelectedRunId(run.id)}
-                    className={[
-                      "flex w-full items-center justify-between rounded px-2.5 py-1.5 text-xs transition-colors",
-                      displayRunId === run.id
-                        ? "bg-surface-overlay text-text-primary"
-                        : "text-text-muted hover:bg-surface-overlay/50",
-                    ].join(" ")}
-                  >
-                    <RunStatusBadge status={run.status} />
-                    <span className="text-text-ghost">
-                      {new Date(run.created_at).toLocaleTimeString()}
-                    </span>
-                  </button>
+                  <li key={run.id}>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedRunId(run.id)}
+                      className={[
+                        "flex w-full items-center justify-between px-4 py-2 text-xs transition-colors",
+                        displayRunId === run.id
+                          ? "bg-surface-overlay text-text-primary"
+                          : "text-text-muted hover:bg-surface-overlay/50",
+                      ].join(" ")}
+                    >
+                      <RunStatusBadge status={run.status} />
+                      <span className="text-text-ghost">
+                        {new Date(run.created_at).toLocaleTimeString()}
+                      </span>
+                    </button>
+                  </li>
                 ))}
-              </div>
-            </div>
+              </ul>
+            </Shell>
           )}
         </div>
 
         {/* Results panel */}
-        <div className="flex-1 min-w-0">
+        <Shell
+          title="Results"
+          subtitle="Run output appears here once an analysis succeeds."
+        >
           {!showRun && (
-            <div className="flex items-center justify-center rounded-lg border border-dashed border-border-default py-24">
-              <p className="text-sm text-text-ghost">
-                Configure settings and run an analysis to see results.
+            <div className="flex flex-col items-center justify-center gap-2 px-4 py-14 text-center">
+              <div className="rounded-full border border-dashed border-border-default p-3 text-text-ghost">
+                <Clock size={18} />
+              </div>
+              <p className="text-sm text-text-secondary">No run yet.</p>
+              <p className="text-[10px] text-text-ghost">
+                Configure settings on the left and submit to run an analysis.
               </p>
             </div>
           )}
 
           {showRun && FINNGEN_ACTIVE_STATUSES.includes(showRun.status) && (
-            <div className="rounded-lg border border-border-default bg-surface-raised p-6">
+            <div className="p-4">
               <RunProgressBar run={showRun} />
             </div>
           )}
 
           {showRun?.status === "failed" && (
-            <div className="rounded-lg border border-primary bg-primary/10 p-4">
-              <p className="text-xs font-medium text-critical">Analysis failed</p>
-              <p className="text-xs text-text-muted mt-1">
-                {showRun.error?.message ?? "Unknown error"}
-              </p>
-              {showRun.error?.category && (
-                <p className="text-xs text-text-ghost mt-1">Category: {showRun.error.category}</p>
-              )}
+            <div className="flex items-start gap-2 p-4 text-xs text-error">
+              <AlertCircle size={14} className="mt-0.5 flex-shrink-0" />
+              <div className="space-y-1">
+                <p className="font-medium">Analysis failed</p>
+                <p className="text-text-muted">
+                  {showRun.error?.message ?? "Unknown error"}
+                </p>
+                {showRun.error?.category && (
+                  <p className="text-[10px] text-text-ghost">
+                    Category: {showRun.error.category}
+                  </p>
+                )}
+              </div>
             </div>
           )}
 
           {showRun?.status === "succeeded" && displayData && (
-            <ResultViewerSwitch
-              moduleKey={moduleKey as CO2ModuleKey}
-              display={displayData}
-            />
+            <div className="p-4">
+              <ResultViewerSwitch
+                moduleKey={moduleKey as CO2ModuleKey}
+                display={displayData}
+              />
+            </div>
           )}
 
           {showRun?.status === "succeeded" && !displayData && (
             <div className="flex items-center justify-center py-12">
               <Loader2 size={16} className="animate-spin text-text-ghost" />
-              <span className="ml-2 text-xs text-text-ghost">Loading results...</span>
+              <span className="ml-2 text-xs text-text-ghost">Loading results…</span>
             </div>
           )}
-        </div>
+        </Shell>
       </div>
     </div>
   );

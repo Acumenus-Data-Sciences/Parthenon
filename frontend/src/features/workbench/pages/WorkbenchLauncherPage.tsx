@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useInvestigations } from "@/features/investigation/hooks/useInvestigation";
 import type { ToolsetDescriptor } from "../types";
 import { ToolsetCard } from "../components/ToolsetCard";
+import { Shell } from "@/components/workbench/primitives";
 
 // Inline toolset registry (previously in ../toolsets.ts — removed with the
 // obsolete StudyAgent FinnGen components in Task D3). The FinnGen Evidence
@@ -92,70 +93,84 @@ export default function WorkbenchLauncherPage() {
       </div>
 
       {/* Toolset Grid */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {visibleToolsets.map((toolset) => (
-          <ToolsetCard key={toolset.slug} toolset={toolset} />
-        ))}
-      </div>
+      <Shell
+        title="Toolsets"
+        subtitle="Pick the workbench that fits your research question."
+      >
+        <div className="grid gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
+          {visibleToolsets.map((toolset) => (
+            <ToolsetCard key={toolset.slug} toolset={toolset} />
+          ))}
+        </div>
+      </Shell>
 
       {/* Recent Investigations */}
-      <section className="mt-12">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-text-primary">
-            Recent Investigations
-          </h2>
-          <Link
-            to="/workbench/investigation/new"
-            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-text-primary transition-colors hover:opacity-90"
-            style={{ backgroundColor: "var(--primary)" }}
-          >
-            New Investigation
-          </Link>
-        </div>
+      <section className="mt-8">
+        <Shell
+          title="Recent investigations"
+          subtitle="Evidence investigations you've worked on recently."
+        >
+          <div className="p-4">
+            {investigationsLoading && (
+              <div className="flex items-center gap-2 py-4 text-sm text-text-ghost">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Loading investigations…</span>
+              </div>
+            )}
 
-        {investigationsLoading ? (
-          <div className="flex items-center gap-2 text-text-ghost text-sm py-4">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span>Loading investigations...</span>
-          </div>
-        ) : recentInvestigations.length === 0 ? (
-          <div className="bg-surface-base/50 border border-border-default rounded-xl p-6 text-center">
-            <p className="text-sm text-text-ghost mb-3">
-              Start your first Evidence Investigation
-            </p>
-            <Link
-              to="/workbench/investigation/new"
-              className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:opacity-90"
-              style={{ backgroundColor: "var(--primary)" }}
-            >
-              Create Investigation
-            </Link>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-2">
-            {recentInvestigations.map((inv) => (
-              <Link
-                key={inv.id}
-                to={`/workbench/investigation/${inv.id}`}
-                className="flex items-center justify-between bg-surface-base/50 border border-border-default rounded-xl px-4 py-3 hover:border-border-default transition-colors group"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className="text-sm text-text-primary truncate group-hover:text-text-primary transition-colors">
-                    {inv.title}
-                  </span>
-                  <span
-                    className={`shrink-0 inline-block px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_BADGE[inv.status] ?? "bg-surface-raised text-text-muted"}`}
+            {!investigationsLoading && recentInvestigations.length === 0 && (
+              <div className="flex flex-col items-center justify-center gap-3 py-6 text-center">
+                <p className="text-sm text-text-ghost">
+                  Start your first Evidence Investigation.
+                </p>
+                <Link
+                  to="/workbench/investigation/new"
+                  className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:opacity-90"
+                  style={{ backgroundColor: "var(--primary)" }}
+                >
+                  Create Investigation
+                </Link>
+              </div>
+            )}
+
+            {!investigationsLoading && recentInvestigations.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-end">
+                  <Link
+                    to="/workbench/investigation/new"
+                    className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-text-primary transition-colors hover:opacity-90"
+                    style={{ backgroundColor: "var(--primary)" }}
                   >
-                    {inv.status}
-                  </span>
+                    New Investigation
+                  </Link>
                 </div>
-                <span className="shrink-0 text-xs text-text-ghost ml-4">
-                  {formatDate(inv.updated_at)}
-                </span>
-              </Link>
-            ))}
+                <div className="flex flex-col gap-2">
+                  {recentInvestigations.map((inv) => (
+                    <Link
+                      key={inv.id}
+                      to={`/workbench/investigation/${inv.id}`}
+                      className="group flex items-center justify-between rounded-xl border border-border-default bg-surface-base/50 px-4 py-3 transition-colors hover:bg-surface-overlay/60"
+                    >
+                      <div className="flex min-w-0 items-center gap-3">
+                        <span className="truncate text-sm text-text-primary transition-colors group-hover:text-text-primary">
+                          {inv.title}
+                        </span>
+                        <span
+                          className={`inline-block shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[inv.status] ?? "bg-surface-raised text-text-muted"}`}
+                        >
+                          {inv.status}
+                        </span>
+                      </div>
+                      <span className="ml-4 shrink-0 text-xs text-text-ghost">
+                        {formatDate(inv.updated_at)}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        </Shell>
       </section>
 
       {/* Footer hint */}

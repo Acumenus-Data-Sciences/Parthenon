@@ -1064,6 +1064,10 @@ Route::prefix('v1')->group(function () {
                 // SP4 Polish 2 — materialize tree → new cohort_definition + cohort rows
                 Route::post('/materialize', [WorkbenchSessionController::class, 'materializeCohort'])
                     ->middleware(['permission:finngen.workbench.use', 'finngen.idempotency', 'throttle:10,1']);
+                // SP4 Phase D.3 — promote a succeeded cohort.match run's phantom
+                // matched cohort into a first-class cohort_definition (idempotent).
+                Route::post('/promote-match', [WorkbenchSessionController::class, 'promoteMatchedCohort'])
+                    ->middleware(['permission:finngen.workbench.use', 'finngen.idempotency', 'throttle:10,1']);
                 // SP4 Phase E — Atlas import (reuses admin AtlasDiscoveryService +
                 // AtlasCohortImportService via the active WebApiRegistry row).
                 Route::get('/atlas/cohorts', [WorkbenchSessionController::class, 'listAtlasCohorts'])

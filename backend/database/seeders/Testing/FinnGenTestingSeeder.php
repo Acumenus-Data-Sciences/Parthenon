@@ -57,6 +57,32 @@ class FinnGenTestingSeeder extends Seeder
             ]
         );
 
+        // PANCREAS — Pancreatic Cancer multimodal corpus. Preferred over
+        // EUNOMIA for FinnGen researcher flows (genomics + oncology depth).
+        Source::withTrashed()->updateOrCreate(
+            ['source_key' => 'PANCREAS'],
+            [
+                'source_name' => 'Pancreatic Cancer Corpus',
+                'source_dialect' => 'postgresql',
+                'source_connection' => 'pancreas',
+                'is_cache_enabled' => false,
+                'deleted_at' => null,
+            ]
+        );
+
+        // ACUMENUS — the 1M-patient Acumenus CDM; the richest source in the
+        // platform, suitable for feasibility and downstream analysis tests.
+        Source::withTrashed()->updateOrCreate(
+            ['source_key' => 'ACUMENUS'],
+            [
+                'source_name' => 'Acumenus CDM',
+                'source_dialect' => 'postgresql',
+                'source_connection' => 'omop',
+                'is_cache_enabled' => false,
+                'deleted_at' => null,
+            ]
+        );
+
         // Disabled source fixture — soft-deleted so FinnGenSourceContextBuilder
         // tests can verify the disabled-source path.
         $disabled = Source::withTrashed()->updateOrCreate(

@@ -9,8 +9,10 @@ use App\Http\Requests\FinnGen\CreateWorkbenchSessionRequest;
 use App\Http\Requests\FinnGen\MatchWorkbenchCohortRequest;
 use App\Http\Requests\FinnGen\MaterializeWorkbenchCohortRequest;
 use App\Http\Requests\FinnGen\PreviewWorkbenchCountsRequest;
+use App\Http\Requests\FinnGen\PromoteMatchedCohortRequest;
 use App\Http\Requests\FinnGen\UpdateWorkbenchSessionRequest;
 use App\Models\App\CohortDefinition;
+use App\Models\App\FinnGen\Run;
 use App\Models\App\WebApiRegistry;
 use App\Services\FinnGen\CohortOperationCompiler;
 use App\Services\FinnGen\Exceptions\FinnGenDarkstarRejectedException;
@@ -24,6 +26,7 @@ use App\Services\WebApi\AtlasCohortImportService;
 use App\Services\WebApi\AtlasDiscoveryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -334,6 +337,201 @@ class WorkbenchSessionController extends Controller
                 'overwrite' => $overwrite,
             ],
         ], 202);
+    }
+
+    /**
+     * SP4 Phase D.3 — promote a succeeded cohort.match run's matched output
+     * into a first-class cohort_definition so downstream SP3 analyses can
+     * consume it.
+     *
+     * The R worker (darkstar/api/finngen/cohort_ops.R) writes matched subjects
+     * under a phantom cohort_definition_id = 9,000,000 + primary_id. This
+     * endpoint mints a real row in app.cohort_definitions, then UPDATEs the
+     * phantom rows in {cohort_schema}.cohort to point at the new id.
+     *
+     * Idempotent: if the run was already promoted (any cohort_definition row
+     * owned by the user with expression_json->finngen_match_promotion.run_id
+     * matching), returns the existing record without creating a duplicate.
+     */
+    public function promoteMatchedCohort(PromoteMatchedCohortRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+        $userId = (int) $request->user()->id;
+        $runId = (string) $data['run_id'];
+
+        /** @var Run|null $run */
+        $run = Run::where('id', $runId)->where('user_id', $userId)->first();
+        if ($run === null) {
+            throw new NotFoundHttpException('Match run not found');
+        }
+        if ($run->analysis_type !== 'cohort.match') {
+            return response()->json([
+                'message' => 'Run is not a cohort.match run',
+            ], 422);
+        }
+        if ($run->status !== Run::STATUS_SUCCEEDED) {
+            return response()->json([
+                'message' => "Run must be succeeded before promotion (status={$run->status})",
+            ], 422);
+        }
+
+        $params = is_array($run->params) ? $run->params : [];
+        $primaryCohortId = (int) ($params['primary_cohort_id'] ?? 0);
+        if ($primaryCohortId <= 0) {
+            return response()->json([
+                'message' => 'Run params missing primary_cohort_id',
+            ], 422);
+        }
+        $comparatorIds = array_values(array_filter(
+            array_map('intval', is_array($params['comparator_cohort_ids'] ?? null) ? $params['comparator_cohort_ids'] : []),
+            static fn (int $id): bool => $id > 0,
+        ));
+        $ratio = (int) ($params['ratio'] ?? 1);
+        $matchSex = (bool) ($params['match_sex'] ?? true);
+        $matchBirthYear = (bool) ($params['match_birth_year'] ?? true);
+        $maxYearDifference = (int) ($params['max_year_difference'] ?? 1);
+        $phantomCohortId = 9_000_000 + $primaryCohortId;
+
+        // Idempotency — return the prior promotion when present.
+        /** @var CohortDefinition|null $existing */
+        $existing = CohortDefinition::where('author_id', $userId)
+            ->whereRaw("expression_json::jsonb->'finngen_match_promotion'->>'run_id' = ?", [$runId])
+            ->first();
+        if ($existing !== null) {
+            return response()->json([
+                'data' => [
+                    'cohort_definition_id' => (int) $existing->id,
+                    'name' => (string) $existing->name,
+                    'run_id' => $runId,
+                    'already_promoted' => true,
+                    'rows_migrated' => 0,
+                    'provenance' => [
+                        'primary_cohort_id' => $primaryCohortId,
+                        'comparator_cohort_ids' => $comparatorIds,
+                        'ratio' => $ratio,
+                        'match_sex' => $matchSex,
+                        'match_birth_year' => $matchBirthYear,
+                        'max_year_difference' => $maxYearDifference,
+                    ],
+                ],
+            ]);
+        }
+
+        $source = $this->sourceBuilder->build(
+            (string) $run->source_key,
+            FinnGenSourceContextBuilder::ROLE_RW,
+        );
+        $cohortSchema = (string) $source['schemas']['cohort'];
+
+        // Defense-in-depth — cohortSchema is interpolated into raw SQL below
+        // (we can't bind a schema name as a parameter). SourceDaimon.table_qualifier
+        // is admin-owned so this should never trip, but guard anyway.
+        if (preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $cohortSchema) !== 1) {
+            return response()->json([
+                'message' => "Invalid cohort schema name '{$cohortSchema}'",
+            ], 500);
+        }
+
+        // Pre-flight: verify phantom rows exist. A succeeded run with zero
+        // matched rows is an upstream inconsistency we should report cleanly
+        // rather than create an empty cohort_definition.
+        $phantomCount = (int) DB::connection()
+            ->selectOne(
+                "SELECT COUNT(*) AS n FROM {$cohortSchema}.cohort WHERE cohort_definition_id = ?",
+                [$phantomCohortId],
+            )->n;
+        if ($phantomCount === 0) {
+            return response()->json([
+                'message' => "Matched cohort rows not found in {$cohortSchema}.cohort for phantom id {$phantomCohortId}",
+            ], 422);
+        }
+
+        $defaultName = sprintf('Matched controls for cohort #%d (1:%d)', $primaryCohortId, $ratio);
+        $name = isset($data['name']) && trim((string) $data['name']) !== ''
+            ? (string) $data['name']
+            : $defaultName;
+        $description = isset($data['description']) && trim((string) $data['description']) !== ''
+            ? (string) $data['description']
+            : sprintf(
+                'Matched output from cohort.match run %s. Primary #%d vs comparators [%s]. '.
+                'Ratio 1:%d. match_sex=%s, match_birth_year=%s (±%d years).',
+                $runId,
+                $primaryCohortId,
+                implode(', ', array_map(static fn (int $id): string => '#'.$id, $comparatorIds)),
+                $ratio,
+                $matchSex ? 'yes' : 'no',
+                $matchBirthYear ? 'yes' : 'no',
+                $maxYearDifference,
+            );
+
+        // Atomic: if the UPDATE fails we don't want an orphan cohort_definition
+        // pointing at zero rows. cohort_definitions and {cohortSchema}.cohort
+        // both live in the primary Parthenon DB (different schemas), so a
+        // single transaction on the pgsql connection covers both writes.
+        [$definition, $rowsMigrated] = DB::connection()->transaction(
+            function () use (
+                $userId,
+                $name,
+                $description,
+                $run,
+                $runId,
+                $primaryCohortId,
+                $comparatorIds,
+                $ratio,
+                $matchSex,
+                $matchBirthYear,
+                $maxYearDifference,
+                $phantomCohortId,
+                $cohortSchema,
+            ) {
+                $def = CohortDefinition::create([
+                    'name' => $name,
+                    'description' => $description,
+                    'author_id' => $userId,
+                    'is_public' => false,
+                    'version' => 1,
+                    'expression_json' => [
+                        'source_key' => (string) $run->source_key,
+                        'finngen_match_promotion' => [
+                            'run_id' => $runId,
+                            'primary_cohort_id' => $primaryCohortId,
+                            'comparator_cohort_ids' => $comparatorIds,
+                            'ratio' => $ratio,
+                            'match_sex' => $matchSex,
+                            'match_birth_year' => $matchBirthYear,
+                            'max_year_difference' => $maxYearDifference,
+                            'phantom_cohort_id' => $phantomCohortId,
+                            'cohort_schema' => $cohortSchema,
+                        ],
+                    ],
+                ]);
+
+                $updated = DB::connection()->update(
+                    "UPDATE {$cohortSchema}.cohort SET cohort_definition_id = ? WHERE cohort_definition_id = ?",
+                    [(int) $def->id, $phantomCohortId],
+                );
+
+                return [$def, (int) $updated];
+            },
+        );
+
+        return response()->json([
+            'data' => [
+                'cohort_definition_id' => (int) $definition->id,
+                'name' => $name,
+                'run_id' => $runId,
+                'already_promoted' => false,
+                'rows_migrated' => $rowsMigrated,
+                'provenance' => [
+                    'primary_cohort_id' => $primaryCohortId,
+                    'comparator_cohort_ids' => $comparatorIds,
+                    'ratio' => $ratio,
+                    'match_sex' => $matchSex,
+                    'match_birth_year' => $matchBirthYear,
+                    'max_year_difference' => $maxYearDifference,
+                ],
+            ],
+        ], 201);
     }
 
     /**
