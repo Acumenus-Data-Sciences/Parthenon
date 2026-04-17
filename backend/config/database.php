@@ -204,6 +204,46 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        // Phase 13.1 — FinnGen workbench subsystem (rw). Self-contained schema
+        // for endpoint_definitions, analysis_modules, runs, workbench_sessions,
+        // endpoint_generations, unmapped_codes, endpoint_expressions_pre_phase13.
+        // search_path deliberately omits 'app' so promote-to-cohort flow must
+        // schema-qualify app.cohort_definitions (boundary visible in code).
+        // Uses default DB_USERNAME/DB_PASSWORD (resolves to parthenon_app at
+        // runtime) per D-08.
+        'finngen' => [
+            'driver' => 'pgsql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'parthenon'),
+            'username' => env('DB_USERNAME', 'DB_USERNAME_NOT_SET'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'finngen,vocab,php',
+            'sslmode' => 'prefer',
+        ],
+
+        // Phase 13.1 — FinnGen endpoint browser (read-only). Routes via the
+        // parthenon_finngen_ro PG role (SELECT-only on finngen.* + vocab.*,
+        // no access to app.* or omop.*) per HIGHSEC §1 + D-09. Falls back to
+        // the existing FINNGEN_PG_RO_PASSWORD env var used by
+        // FinnGenSourceContextBuilder so secrets stay in one place.
+        'finngen_ro' => [
+            'driver' => 'pgsql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'parthenon'),
+            'username' => env('DB_FINNGEN_RO_USERNAME', 'parthenon_finngen_ro'),
+            'password' => env('DB_FINNGEN_RO_PASSWORD', env('FINNGEN_PG_RO_PASSWORD', '')),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'finngen,vocab,php',
+            'sslmode' => 'prefer',
+        ],
+
         // Morpheus inpatient CDM — schema-isolated OMOP CDM for inpatient
         // clinical data. Extension tables in inpatient_ext, shared vocabulary
         // from vocab schema.
