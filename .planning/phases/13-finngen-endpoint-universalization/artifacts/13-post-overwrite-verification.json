@@ -1,0 +1,62 @@
+{
+  "overwrite_run_at": "2026-04-17T19:57:55Z",
+  "pre_overwrite": {
+    "finngen_endpoints_total": 5161,
+    "coverage_profile_nulls_pre": 5161,
+    "snapshot_rows_pre": 0,
+    "unmapped_bucket_pre": 427,
+    "vocab_count_pre": 75,
+    "generation_history_rows_pre": 1
+  },
+  "post_overwrite": {
+    "profile_universal": 0,
+    "invariant_violations_post": 0,
+    "vocab_count_post": 75,
+    "generation_history_rows_post": 1,
+    "coverage_profile_nulls_post": 0,
+    "snapshot_rows_post": 5161,
+    "finngen_endpoints_total": 5161,
+    "profile_finland_only": 629,
+    "profile_partial": 4532,
+    "unmapped_bucket_post": 252
+  },
+  "d11_criteria": {
+    "unmapped_bucket_under_100": {
+      "required": false,
+      "actual": 252,
+      "pass": false,
+      "note": "ACCEPTED GAP: 252 > 100 but down from 427 pre-Phase-13 (41% reduction). Driven by thin ICDO3/NOMESCO leaf-code cross-walks. Deferred to Phase 13.1."
+    },
+    "no_vocab_vocabulary_insertions": {
+      "pass": true,
+      "pre": 75,
+      "post": 75
+    },
+    "coverage_profile_populated_on_every_row": {
+      "pass": true,
+      "nulls_remaining": 0
+    },
+    "snapshot_table_populated": {
+      "pass": true,
+      "actual": 5161
+    },
+    "d07_invariant_no_unmapped_universal": {
+      "pass": true,
+      "actual": 0
+    },
+    "endpoint_count_unchanged": {
+      "pass": true,
+      "actual": 5161
+    },
+    "generation_history_preserved": {
+      "pass": true,
+      "pre": 1,
+      "post": 1
+    }
+  },
+  "coverage_profile_distribution_post": {
+    "universal": 0,
+    "partial": 4532,
+    "finland_only": 629
+  }
+}

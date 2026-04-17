@@ -1,0 +1,26 @@
+{
+    "total_endpoints": 5161,
+    "coverage_profile_distribution": {
+        "universal": 0,
+        "partial": 4532,
+        "finland_only": 629
+    },
+    "coverage_bucket_distribution": {
+        "FULLY_MAPPED": 4204,
+        "PARTIAL": 298,
+        "SPARSE": 35,
+        "UNMAPPED": 252,
+        "CONTROL_ONLY": 372
+    },
+    "invariant_violations": 0,
+    "baseline_unmapped_count": 252,
+    "top_lifted_vocabularies": {
+        "ICD8": 1444,
+        "ICDO3": 24,
+        "NOMESCO": 64,
+        "KELA_REIMB": 45,
+        "ICD10_FIN": 4235,
+        "ICD9_FIN": 2202
+    },
+    "generated_at": "2026-04-17T19:54:10+00:00"
+}
