@@ -1,0 +1,38 @@
+# source: FinnGen ICD-9-FI codes → Athena ICD-9-CM → SNOMED Maps-to (FinnGen DF14 unmapped codes)
+# target_vocab: SNOMED (Athena 5.4 snapshot — live vocab.concept, verified 2026-04-17)
+# license: MIT (FinnGen) + CC-BY-4.0 (Athena)
+# curator: Phase 13-04 executor (Parthenon GSD agent)
+source_code,source_concept_id,source_vocabulary_id,source_code_description,target_concept_id,target_vocabulary_id,valid_start_date,valid_end_date,invalid_reason,provenance_tag
+011.[A,0,ICD9_FIN,Pulmonary tuberculosis,253954,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+012.[A,0,ICD9_FIN,Respiratory tuberculosis,45771090,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+027[0],0,ICD9_FIN,Bacterial infectious disease,432545,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+027[1],0,ICD9_FIN,Bacterial infectious disease,432545,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+038[0],0,ICD9_FIN,Sepsis,132797,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+0781[A,0,ICD9_FIN,Verruca vulgaris,140641,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+078[5],0,ICD9_FIN,Infectious disease,432250,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+084[0],0,ICD9_FIN,Malaria,438067,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+084[1],0,ICD9_FIN,Malaria,438067,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+123[0,0,ICD9_FIN,Cestode infection,433702,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+3170,0,ICD9_FIN,Mild intellectual disability,432612,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+3199,0,ICD9_FIN,Intellectual disability,40277917,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+3259X,0,ICD9_FIN,Thrombophlebitis of intracranial venous sinus,4135330,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+%3450,0,ICD9_FIN,Generalized epilepsy,4055361,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+%3451,0,ICD9_FIN,Generalized epilepsy,4055361,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+%3452,0,ICD9_FIN,Absence status epilepticus,381842,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+%3453,0,ICD9_FIN,Tonic-clonic status epilepticus,373748,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+%3454,0,ICD9_FIN,Focal epilepsy,374915,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+345[45],0,ICD9_FIN,Seizure disorder,4029498,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+%3455,0,ICD9_FIN,Focal epilepsy,374915,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+3472,0,ICD9_FIN,Cataplexy and narcolepsy,437854,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+3651[A,0,ICD9_FIN,Open-angle glaucoma,441284,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+416[0,0,ICD9_FIN,Chronic cor pulmonale,4195892,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+4241[BC],0,ICD9_FIN,Aortic valve disorder,314054,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+4242[A-C],0,ICD9_FIN,"Tricuspid valve disorder, non-rheumatic",4108817,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+460-519,0,ICD9_FIN,Common cold,260427,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+646[12]A,0,ICD9_FIN,"Complication of pregnancy, childbirth and/or puerperium",435875,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+6961[B-D],0,ICD9_FIN,Psoriasis,140168,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+7490[ABCE],0,ICD9_FIN,Cleft palate,135923,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+7491[A-G],0,ICD9_FIN,Cleft lip,133861,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+7492[ABCDE],0,ICD9_FIN,Cleft palate with cleft lip,134144,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+7492[A-E],0,ICD9_FIN,Cleft palate with cleft lip,134144,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin
+V420,0,ICD9_FIN,Transplanted kidney present,42539502,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd9fin

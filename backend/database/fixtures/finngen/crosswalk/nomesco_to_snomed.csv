@@ -1,0 +1,360 @@
+# source: Nordic NCSP chapter-letter → SNOMED procedure-system-root mapping (clinical SME)
+# target_vocab: SNOMED (Athena 5.4 snapshot — live vocab.concept, verified 2026-04-17)
+# license: Public domain (NOMESCO chapter structure) + CC-BY-4.0 (SNOMED via Athena)
+# curator: Phase 13-04 executor (Parthenon GSD agent)
+source_code,source_concept_id,source_vocabulary_id,source_code_description,target_concept_id,target_vocabulary_id,valid_start_date,valid_end_date,invalid_reason,provenance_tag
+^AAC0,0,NOMESCO,Evaluation procedure,4297090,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+AAC0,0,NOMESCO,Evaluation procedure,4297090,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^AAC1,0,NOMESCO,Evaluation procedure,4297090,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+AAC1,0,NOMESCO,Evaluation procedure,4297090,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^AAC9,0,NOMESCO,Evaluation procedure,4297090,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+AAC9,0,NOMESCO,Evaluation procedure,4297090,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^AAL0,0,NOMESCO,Evaluation procedure,4297090,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+AAL0,0,NOMESCO,Evaluation procedure,4297090,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^ABC07,0,NOMESCO,Evaluation procedure,4297090,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+ABC07,0,NOMESCO,Evaluation procedure,4297090,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^ABC16,0,NOMESCO,Evaluation procedure,4297090,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+ABC16,0,NOMESCO,Evaluation procedure,4297090,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^ABC26,0,NOMESCO,Evaluation procedure,4297090,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+ABC26,0,NOMESCO,Evaluation procedure,4297090,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^BAA60,0,NOMESCO,Procedure on endocrine system,4040395,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+BAA60,0,NOMESCO,Procedure on endocrine system,4040395,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CFW99,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CFW99,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CHD15,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CHD15,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CHD50,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CHD50,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CHD65,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CHD65,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKC10,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKC10,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKC12,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKC12,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKC12ZXA10,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKC12ZXA10,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKC15,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKC15,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKC20,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKC20,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKC50,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKC50,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKC60,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKC60,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKC60CKC20,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKC60CKC20,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKC60CKC30,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKC60CKC30,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKC60CKC70,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKC60CKC70,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKC70,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKC70,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKC75,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKC75,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKC99,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKC99,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKD05,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKD05,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKD10,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKD10,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKD15,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKD15,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKD20,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKD20,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKD65,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKD65,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKD65CKD10,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKD65CKD10,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKD91,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKD91,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKD92CKD93,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKD92CKD93,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKD94,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKD94,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^CKD95,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKD95,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+CKD99,0,NOMESCO,Procedure on structure of eye,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^DHB20,0,NOMESCO,Otorhinolaryngologic procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+DHB20,0,NOMESCO,Otorhinolaryngologic procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^DNB00,0,NOMESCO,Otorhinolaryngologic procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+DNB00,0,NOMESCO,Otorhinolaryngologic procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^DNB10,0,NOMESCO,Otorhinolaryngologic procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+DNB10,0,NOMESCO,Otorhinolaryngologic procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^DNB20,0,NOMESCO,Otorhinolaryngologic procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+DNB20,0,NOMESCO,Otorhinolaryngologic procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^ECA00,0,NOMESCO,Procedure on mouth,4043022,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+ECA00,0,NOMESCO,Procedure on mouth,4043022,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^EDC10,0,NOMESCO,Procedure on mouth,4043022,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+EDC10,0,NOMESCO,Procedure on mouth,4043022,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^EEC05,0,NOMESCO,Procedure on mouth,4043022,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+EEC05,0,NOMESCO,Procedure on mouth,4043022,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^EMB1,0,NOMESCO,Procedure on mouth,4043022,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+EMB1,0,NOMESCO,Procedure on mouth,4043022,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^EMB2,0,NOMESCO,Procedure on mouth,4043022,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+EMB2,0,NOMESCO,Procedure on mouth,4043022,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^EMB3,0,NOMESCO,Procedure on mouth,4043022,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+EMB3,0,NOMESCO,Procedure on mouth,4043022,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FFC00,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FFC00,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FFC02,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FFC02,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FFC22,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FFC22,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FFC50,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FFC50,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FFC96,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FFC96,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FGA,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FGA,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FGC,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FGC,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FGD,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FGD,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FGE,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FGE,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FGW,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FGW,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FJE,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FJE,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FJF,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FJF,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FK1BT,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FK1BT,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FKA,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FK[ABCDW],0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FKB,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FKC,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FKD,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FKW,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FMA,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FMA,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FM[ABCDW],0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FMB,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FMB,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FMC,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FMD,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FMD00,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FMD00,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FMD01,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FMD01,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FMD02,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FMD02,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FMD15,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FMD15,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FMD96,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FMD96,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FME05,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FME05,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FME10,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FME[123467]0,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FME20,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FME30,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FME40,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FME60,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FME70,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FMW,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FN1A,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FN1[ABSY],0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FN1B,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FN1S,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FN1Y,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FN2A,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FN2[ABCD],0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FN2B,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FN2C,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FN2D,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FN2EA,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FN2E[ABCF],0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FN2EB,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FN2EC,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FN2EF,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FN3CT,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FN3CT,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FNA,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FNA,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FNB,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FNB,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FNC,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FNC,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FND,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FND,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FNE,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FNE,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FNF,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FNF,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FNG,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FNG,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FPD00,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FPD00,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FPD10,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FPD10,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FPD96,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FPD96,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FPE,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FPE,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FPF,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FPF,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FPH,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FPH,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FPJ,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FPJ,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FQB00,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+FQB00,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^FQB[1,0,NOMESCO,Procedure on cardiovascular system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^GDG[0,0,NOMESCO,Procedure on respiratory system,4043018,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^GDG0[0,0,NOMESCO,Procedure on respiratory system,4043018,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^GDG96,0,NOMESCO,Procedure on respiratory system,4043018,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+GDG96,0,NOMESCO,Procedure on respiratory system,4043018,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^J,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^JAK10,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+JAK10,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^JEA,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+JEA,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^JFA38,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+JFA38,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^JFA60,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+JFA60,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^JFA63,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+JFA63,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^JFB00,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+JFB00,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^JFB01,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+JFB01,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^JFB20,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+JFB20,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^JFB21,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+JFB21,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^JFB30,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+JFB30,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^JFB31,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+JFB31,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^JFB33,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+JFB33,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^JFB43,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+JFB43,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^JFB44,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+JFB44,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^JFB96,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+JFB96,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^JFB97,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+JFB97,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^JFH,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+JFH,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^JKA2,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+JKA2,0,NOMESCO,Procedure on digestive system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^KA4,0,NOMESCO,Procedure on urinary system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+KA4,0,NOMESCO,Procedure on urinary system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^KAS10,0,NOMESCO,Procedure on urinary system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+KAS10,0,NOMESCO,Procedure on urinary system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^KAS20,0,NOMESCO,Procedure on urinary system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+KAS20,0,NOMESCO,Procedure on urinary system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^KAS40,0,NOMESCO,Procedure on urinary system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+KAS40,0,NOMESCO,Procedure on urinary system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^KAS41,0,NOMESCO,Procedure on urinary system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+KAS41,0,NOMESCO,Procedure on urinary system,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^NFB,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+NFB,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^NFC,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+NFC,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^NFQ20,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+NFQ20,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^NGB,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+NGB,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^NGC,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+NGC,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^NGD,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+NGD,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^NGQ,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+NGQ,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^NGQ10,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+NGQ10,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^NGQ20,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+NGQ20,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^NHQ,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+NHQ,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^NHQ1,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+NHQ1,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^NHQ2,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+NHQ2,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^NHQ3,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+NHQ3,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^NHQ40,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+NHQ40,0,NOMESCO,Procedure on musculoskeletal system,4010247,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^PBL08,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+PBL08,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^PBL09,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+PBL09,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^PBL10,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+PBL10,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^PBL11,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+PBL11,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^PBL99,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+PBL99,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^PE1AT,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+PE1AT,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^PE1BT,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+PE1BT,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^PEE,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+PEE,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^PEF,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+PEF,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^PEH,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+PEH,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^PEN,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+PEN,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^PEP,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+PEP,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^PEQ,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+PEQ,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^PES,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+PES,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^PF1AT,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+PF1AT,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^PF1BT,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+PF1BT,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^PFE,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+PFE,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^PFH,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+PFH,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^PFQ,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+PFQ,0,NOMESCO,Procedure on skin AND/OR subcutaneous tissue,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^TDA90,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+TDA90,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+TFN10,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^TFN[145]0,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+TFN40,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+TFN50,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^TFP00,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+TFP00,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^TFP04,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+TFP04,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^TFP20,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+TFP20,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^TJA30,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+TJA30,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^TJA33,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+TJA33,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^TJA35,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+TJA35,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^TK800,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+TK800,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^TK810,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+TK810,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^TK820,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+TK820,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^TK822,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+TK822,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^TK823,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+TK823,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^TK824,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+TK824,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^TK830,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+TK830,0,NOMESCO,Supportive procedure,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^XFN02,0,NOMESCO,Other category,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+XFN02,0,NOMESCO,Other category,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^XFP20,0,NOMESCO,Other category,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+XFP20,0,NOMESCO,Other category,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^ZXG40,0,NOMESCO,Other category,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+ZXG40,0,NOMESCO,Other category,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+^ZXG50,0,NOMESCO,Other category,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+ZXG50,0,NOMESCO,Other category,4190569,SNOMED,1970-01-01,2099-12-31,,sme-sphp-2026-04-17

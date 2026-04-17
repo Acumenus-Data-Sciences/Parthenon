@@ -1,0 +1,1513 @@
+# source: FINNGEN/phenotype-matching ICD-8 → ICD-10 bridge table (MIT) + Athena ICD-10-CM → SNOMED Maps-to
+# target_vocab: SNOMED (Athena 5.4 snapshot — live vocab.concept, verified 2026-04-17)
+# license: MIT (FinnGen) + CC-BY-4.0 (Athena)
+# curator: Phase 13-04 executor (Parthenon GSD agent)
+source_code,source_concept_id,source_vocabulary_id,source_code_description,target_concept_id,target_vocabulary_id,valid_start_date,valid_end_date,invalid_reason,provenance_tag
+000,0,ICD8,Cholera,198677,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+00001,0,ICD8,Cholera,198677,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+00010,0,ICD8,Cholera,198677,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+00097,0,ICD8,Cholera,198677,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+00099,0,ICD8,Cholera,198677,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+001,0,ICD8,Typhoid and paratyphoid fevers,133685,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+002,0,ICD8,Other salmonella infections,133685,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+003,0,ICD8,Shigellosis,201780,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+004,0,ICD8,Other bacterial intestinal infections,193402,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+004[0],0,ICD8,Other bacterial intestinal infections,193402,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0040,0,ICD8,Other bacterial intestinal infections,193402,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+005,0,ICD8,"Other bacterial foodborne intoxications, not elsewhere classified",441500,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+006,0,ICD8,Amebiasis,438959,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+007,0,ICD8,Other protozoal intestinal diseases,196325,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+008,0,ICD8,"Infectious gastroenteritis and colitis, unspecified",37396146,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0080,0,ICD8,"Infectious gastroenteritis and colitis, unspecified",37396146,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0081,0,ICD8,"Infectious gastroenteritis and colitis, unspecified",37396146,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0082,0,ICD8,"Infectious gastroenteritis and colitis, unspecified",37396146,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0083,0,ICD8,"Infectious gastroenteritis and colitis, unspecified",37396146,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0088,0,ICD8,"Infectious gastroenteritis and colitis, unspecified",37396146,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0089,0,ICD8,"Infectious gastroenteritis and colitis, unspecified",37396146,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+009,0,ICD8,"Infectious gastroenteritis and colitis, unspecified",37396146,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+010,0,ICD8,Respiratory tuberculosis,45771090,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+011,0,ICD8,Respiratory tuberculosis,45771090,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+012,0,ICD8,Respiratory tuberculosis,45771090,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+013,0,ICD8,Tuberculosis of nervous system,374267,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+014,0,ICD8,Tuberculosis of other organs,434557,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+015,0,ICD8,Tuberculosis of other organs,434557,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+016,0,ICD8,Tuberculosis of other organs,434557,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+017,0,ICD8,Tuberculosis of other organs,434557,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+018,0,ICD8,Tuberculosis of other organs,434557,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+019,0,ICD8,Sequelae of tuberculosis,4090205,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+020,0,ICD8,Plague,434271,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+021,0,ICD8,Tularemia,441781,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+022,0,ICD8,Anthrax,438960,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+023,0,ICD8,Brucellosis,441497,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+024,0,ICD8,Glanders and melioidosis,435742,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+025,0,ICD8,Rat-bite fevers,433690,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+026,0,ICD8,Erysipeloid,4266323,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+027,0,ICD8,"Other zoonotic bacterial diseases, not elsewhere classified",432545,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+027[0],0,ICD8,"Other zoonotic bacterial diseases, not elsewhere classified",432545,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0270,0,ICD8,"Other zoonotic bacterial diseases, not elsewhere classified",432545,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+027[1],0,ICD8,"Other zoonotic bacterial diseases, not elsewhere classified",432545,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0271,0,ICD8,"Other zoonotic bacterial diseases, not elsewhere classified",432545,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+030,0,ICD8,Leprosy [Hansen's disease],432821,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+031,0,ICD8,Infection due to other mycobacteria,440631,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+032,0,ICD8,Diphtheria,4265179,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+033,0,ICD8,Whooping cough,257778,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+034,0,ICD8,Scarlet fever,141213,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0340,0,ICD8,Scarlet fever,141213,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+035,0,ICD8,Meningococcal infection,436621,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+036,0,ICD8,Meningococcal infection,436621,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+037,0,ICD8,Other tetanus,435740,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+038,0,ICD8,Other sepsis,132797,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+038[0],0,ICD8,Other sepsis,132797,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0380,0,ICD8,Other sepsis,132797,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0382,0,ICD8,Other sepsis,132797,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+039,0,ICD8,Bacterial infection of unspecified site,432545,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+040,0,ICD8,"Other bacterial diseases, not elsewhere classified",432545,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+041,0,ICD8,Bacterial infection of unspecified site,432545,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+042,0,ICD8,Actinomycosis,436020,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+043,0,ICD8,Nocardiosis,4104668,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+044,0,ICD8,Nocardiosis,4104668,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+045,0,ICD8,Acute poliomyelitis,378679,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+046,0,ICD8,Atypical virus infections of central nervous system,444407,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+050,0,ICD8,Smallpox,134573,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+051,0,ICD8,Monkeypox,4234275,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+052,0,ICD8,Measles,4030555,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+053,0,ICD8,Varicella [chickenpox],434272,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+054,0,ICD8,Herpesviral [herpes simplex] infections,444429,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+055,0,ICD8,Rubella [German measles],4273323,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+056,0,ICD8,"Other viral infections characterized by skin and mucous membrane lesions, not elsewhere classified",440029,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+057,0,ICD8,Unspecified viral infection characterized by skin and mucous membrane lesions,440029,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+061,0,ICD8,Yellow fever,441210,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+062,0,ICD8,Dengue fever [classical dengue],440022,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+063,0,ICD8,Other mosquito-borne viral fevers,438685,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+064,0,ICD8,Mosquito-borne viral encephalitis,372547,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+065,0,ICD8,Arenaviral hemorrhagic fever,442783,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+066,0,ICD8,Unspecified arthropod-borne viral fever,438685,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+070,0,ICD8,Acute hepatitis A,4098652,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+071,0,ICD8,Rabies,377793,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+072,0,ICD8,Mumps,4290000,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+073,0,ICD8,Viral warts,140641,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+074,0,ICD8,Viral conjunctivitis,380038,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0742,0,ICD8,Viral conjunctivitis,380038,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+075,0,ICD8,Infectious mononucleosis,437784,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+076,0,ICD8,Other diseases caused by chlamydiae,438066,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+077,0,ICD8,Viral conjunctivitis,380038,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+078,0,ICD8,Viral infection of unspecified site,440029,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+079,0,ICD8,Unspecified parasitic disease,432251,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0790,0,ICD8,Unspecified parasitic disease,432251,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0791,0,ICD8,Unspecified parasitic disease,432251,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0792,0,ICD8,Unspecified parasitic disease,432251,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0793,0,ICD8,Unspecified parasitic disease,432251,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0794,0,ICD8,Unspecified parasitic disease,432251,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+079[5],0,ICD8,Unspecified parasitic disease,432251,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0795,0,ICD8,Unspecified parasitic disease,432251,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0796,0,ICD8,Unspecified parasitic disease,432251,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0797,0,ICD8,Unspecified parasitic disease,432251,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0798,0,ICD8,Unspecified parasitic disease,432251,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0799,0,ICD8,Unspecified parasitic disease,432251,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+080,0,ICD8,"Infectious gastroenteritis and colitis, unspecified",37396146,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+081,0,ICD8,Typhus fever,4080602,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+082,0,ICD8,Spotted fever [tick-borne rickettsioses],434575,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+083,0,ICD8,Other rickettsioses,436906,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+084,0,ICD8,Unspecified malaria,438067,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+084[0],0,ICD8,Unspecified malaria,438067,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0840,0,ICD8,Unspecified malaria,438067,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+084[1],0,ICD8,Unspecified malaria,438067,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0841,0,ICD8,Unspecified malaria,438067,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+085,0,ICD8,Leishmaniasis,433407,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+086,0,ICD8,Chagas' disease,436334,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+087,0,ICD8,African trypanosomiasis,438344,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+088,0,ICD8,Other infestations,432251,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+090,0,ICD8,Congenital syphilis,434279,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+091,0,ICD8,Early syphilis,4089985,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+092,0,ICD8,Late syphilis,435739,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+093,0,ICD8,Late syphilis,435739,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0930,0,ICD8,Late syphilis,435739,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+094,0,ICD8,Late syphilis,435739,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+095,0,ICD8,Late syphilis,435739,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+096,0,ICD8,Other and unspecified syphilis,436033,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+097,0,ICD8,Other and unspecified syphilis,436033,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+098,0,ICD8,Gonococcal infection,433417,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+099,0,ICD8,Other sexually transmitted chlamydial diseases,438066,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0991A,0,ICD8,Other sexually transmitted chlamydial diseases,438066,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+0992A,0,ICD8,Other sexually transmitted chlamydial diseases,438066,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+110,0,ICD8,Other superficial mycoses,4077081,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+111,0,ICD8,Unspecified mycosis,433701,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+112,0,ICD8,Candidiasis,433968,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+113,0,ICD8,"Other mycoses, not elsewhere classified",433701,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+114,0,ICD8,Coccidioidomycosis,437217,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+115,0,ICD8,Histoplasmosis,433134,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+116,0,ICD8,Blastomycosis,433146,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+117,0,ICD8,Cryptococcosis,440035,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1171,0,ICD8,Cryptococcosis,440035,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1172,0,ICD8,Cryptococcosis,440035,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1173,0,ICD8,Cryptococcosis,440035,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+120,0,ICD8,Other helminthiases,441793,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+121,0,ICD8,Taeniasis,433135,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+122,0,ICD8,Echinococcosis,440043,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+123,0,ICD8,Other cestode infections,433702,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+123[0,0,ICD8,Other cestode infections,433702,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1231,0,ICD8,Other cestode infections,433702,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+123[4,0,ICD8,Other cestode infections,433702,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1235,0,ICD8,Other cestode infections,433702,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+124,0,ICD8,Strongyloidiasis,436040,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+125,0,ICD8,Schistosomiasis [bilharziasis],436038,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+126,0,ICD8,Hookworm diseases,440948,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+127,0,ICD8,Unspecified intestinal parasitism,196347,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1270,0,ICD8,Unspecified intestinal parasitism,196347,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1271,0,ICD8,Unspecified intestinal parasitism,196347,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1272,0,ICD8,Unspecified intestinal parasitism,196347,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1279,0,ICD8,Unspecified intestinal parasitism,196347,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+128,0,ICD8,Filariasis,438359,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1289,0,ICD8,Filariasis,438359,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+129,0,ICD8,Other helminthiases,441793,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1299,0,ICD8,Other helminthiases,441793,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+130,0,ICD8,Toxoplasmosis,440653,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+131,0,ICD8,Schistosomiasis [bilharziasis],436038,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+132,0,ICD8,Pediculosis and phthiriasis,4148108,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+133,0,ICD8,Scabies,140949,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1330,0,ICD8,Scabies,140949,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+134,0,ICD8,Myiasis,441799,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1340,0,ICD8,Myiasis,441799,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+135,0,ICD8,Other infestations,432251,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+136,0,ICD8,Unspecified parasitic disease,432251,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+13601,0,ICD8,Unspecified parasitic disease,432251,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+13602,0,ICD8,Unspecified parasitic disease,432251,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+13608,0,ICD8,Unspecified parasitic disease,432251,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+13609,0,ICD8,Unspecified parasitic disease,432251,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+140,0,ICD8,Malignant neoplasm of base of tongue,256633,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+141,0,ICD8,Malignant neoplasm of other and unspecified parts of tongue,437498,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1410,0,ICD8,Malignant neoplasm of other and unspecified parts of tongue,437498,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+142,0,ICD8,Malignant neoplasm of parotid gland,434588,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1420,0,ICD8,Malignant neoplasm of parotid gland,434588,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+143,0,ICD8,Malignant neoplasm of gum,140950,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+144,0,ICD8,Malignant neoplasm of floor of mouth,135750,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+145,0,ICD8,Malignant neoplasm of other and unspecified parts of mouth,439404,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1451,0,ICD8,Malignant neoplasm of other and unspecified parts of mouth,439404,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+146,0,ICD8,Malignant neoplasm of tonsil,31509,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1460,0,ICD8,Malignant neoplasm of tonsil,31509,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+147,0,ICD8,Malignant neoplasm of nasopharynx,36684473,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+148,0,ICD8,Malignant neoplasm of hypopharynx,439746,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1481,0,ICD8,Malignant neoplasm of hypopharynx,439746,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+149,0,ICD8,"Malignant neoplasm of other and ill-defined sites in the lip, oral cavity and pharynx",436045,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+150,0,ICD8,Malignant neoplasm of esophagus,26638,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+151,0,ICD8,Malignant neoplasm of stomach,196044,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+152,0,ICD8,Malignant neoplasm of small intestine,192836,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+153,0,ICD8,Malignant neoplasm of colon,197500,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1540,0,ICD8,Malignant neoplasm of rectosigmoid junction,438699,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1541,0,ICD8,Malignant neoplasm of rectosigmoid junction,438699,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1542,0,ICD8,Malignant neoplasm of rectosigmoid junction,438699,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+155,0,ICD8,Malignant neoplasm of liver and intrahepatic bile ducts,4246127,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+156,0,ICD8,Malignant neoplasm of gallbladder,197806,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1560,0,ICD8,Malignant neoplasm of gallbladder,197806,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+157,0,ICD8,Malignant neoplasm of pancreas,199754,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+158,0,ICD8,Malignant neoplasm of retroperitoneum and peritoneum,4089665,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+159,0,ICD8,Malignant neoplasm of other and ill-defined digestive organs,4114221,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+160,0,ICD8,Malignant neoplasm of nasal cavity and middle ear,442131,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1600,0,ICD8,Malignant neoplasm of nasal cavity and middle ear,442131,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1601,0,ICD8,Malignant neoplasm of nasal cavity and middle ear,442131,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+161,0,ICD8,Malignant neoplasm of larynx,26052,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+162,0,ICD8,Malignant neoplasm of trachea,432262,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1620,0,ICD8,Malignant neoplasm of trachea,432262,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+163,0,ICD8,"Malignant neoplasm of heart, mediastinum and pleura",80665,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1630,0,ICD8,"Malignant neoplasm of heart, mediastinum and pleura",80665,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+16301,0,ICD8,"Malignant neoplasm of heart, mediastinum and pleura",80665,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1631,0,ICD8,"Malignant neoplasm of heart, mediastinum and pleura",80665,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1639,0,ICD8,"Malignant neoplasm of heart, mediastinum and pleura",80665,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+170,0,ICD8,Malignant neoplasm of bone and articular cartilage of limbs,444203,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1704,0,ICD8,Malignant neoplasm of bone and articular cartilage of limbs,444203,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1705,0,ICD8,Malignant neoplasm of bone and articular cartilage of limbs,444203,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1707,0,ICD8,Malignant neoplasm of bone and articular cartilage of limbs,444203,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1708,0,ICD8,Malignant neoplasm of bone and articular cartilage of limbs,444203,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+171,0,ICD8,Malignant neoplasm of other connective and soft tissue,439392,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+172,0,ICD8,Malignant melanoma of skin,141232,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+173,0,ICD8,Other and unspecified malignant neoplasm of skin,139750,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+174,0,ICD8,Malignant neoplasm of breast,4162253,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+180,0,ICD8,Malignant neoplasm of cervix uteri,196359,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+181,0,ICD8,Malignant neoplasm of vagina,196048,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+182,0,ICD8,Malignant neoplasm of corpus uteri,4162860,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1820,0,ICD8,Malignant neoplasm of corpus uteri,4162860,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+183,0,ICD8,Malignant neoplasm of ovary,200051,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1830,0,ICD8,Malignant neoplasm of ovary,200051,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1840,0,ICD8,Malignant neoplasm of other and unspecified female genital organs,201238,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1841,0,ICD8,Malignant neoplasm of other and unspecified female genital organs,201238,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+185,0,ICD8,Malignant neoplasm of prostate,200962,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+186,0,ICD8,Malignant neoplasm of testis,433716,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+187,0,ICD8,Malignant neoplasm of penis,195483,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1870,0,ICD8,Malignant neoplasm of penis,195483,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+188,0,ICD8,Malignant neoplasm of bladder,196360,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1890,0,ICD8,"Malignant neoplasm of kidney, except renal pelvis",198985,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1891,0,ICD8,"Malignant neoplasm of kidney, except renal pelvis",198985,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1892,0,ICD8,"Malignant neoplasm of kidney, except renal pelvis",198985,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1899,0,ICD8,"Malignant neoplasm of kidney, except renal pelvis",198985,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+190,0,ICD8,Malignant neoplasm of eye and adnexa,4160342,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+191,0,ICD8,Malignant neoplasm of brain,380055,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+192,0,ICD8,"Malignant neoplasm of spinal cord, cranial nerves and other parts of central nervous system",4247822,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1921,0,ICD8,"Malignant neoplasm of spinal cord, cranial nerves and other parts of central nervous system",4247822,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1922,0,ICD8,"Malignant neoplasm of spinal cord, cranial nerves and other parts of central nervous system",4247822,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1924,0,ICD8,"Malignant neoplasm of spinal cord, cranial nerves and other parts of central nervous system",4247822,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1925,0,ICD8,"Malignant neoplasm of spinal cord, cranial nerves and other parts of central nervous system",4247822,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+193,0,ICD8,Malignant neoplasm of thyroid gland,133424,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1940,0,ICD8,Malignant neoplasm of adrenal gland,198104,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1941,0,ICD8,Malignant neoplasm of adrenal gland,198104,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1942,0,ICD8,Malignant neoplasm of adrenal gland,198104,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1943,0,ICD8,Malignant neoplasm of adrenal gland,198104,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1944,0,ICD8,Malignant neoplasm of adrenal gland,198104,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1945,0,ICD8,Malignant neoplasm of adrenal gland,198104,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1946,0,ICD8,Malignant neoplasm of adrenal gland,198104,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1947,0,ICD8,Malignant neoplasm of adrenal gland,198104,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1948,0,ICD8,Malignant neoplasm of adrenal gland,198104,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+1949,0,ICD8,Malignant neoplasm of adrenal gland,198104,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+195,0,ICD8,Malignant neoplasm of other and ill-defined sites,4114221,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+196,0,ICD8,Secondary and unspecified malignant neoplasm of lymph nodes,36768587,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+197,0,ICD8,Secondary malignant neoplasm of respiratory and digestive organs,35225597,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+198,0,ICD8,Secondary malignant neoplasm of other and unspecified sites,36769180,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+199,0,ICD8,Malignant neoplasm without specification of site,443392,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+202,0,ICD8,Other specified and unspecified types of non-Hodgkin lymphoma,4038838,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+203,0,ICD8,Multiple myeloma and malignant plasma cell neoplasms,437233,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+204,0,ICD8,Lymphoid leukemia,132853,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+20400,0,ICD8,Lymphoid leukemia,132853,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+20415,0,ICD8,Lymphoid leukemia,132853,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+205,0,ICD8,Myeloid leukemia,140666,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+20500,0,ICD8,Myeloid leukemia,140666,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+20515,0,ICD8,Myeloid leukemia,140666,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+206,0,ICD8,Monocytic leukemia,321526,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+207,0,ICD8,Other leukemias of specified cell type,317510,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2070,0,ICD8,Other leukemias of specified cell type,317510,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2071,0,ICD8,Other leukemias of specified cell type,317510,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2072,0,ICD8,Other leukemias of specified cell type,317510,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+208,0,ICD8,Leukemia of unspecified cell type,317510,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+209,0,ICD8,"Other and unspecified malignant neoplasms of lymphoid, hematopoietic and related tissue",439392,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2100,0,ICD8,Benign neoplasm of mouth and pharynx,30356,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2101,0,ICD8,Benign neoplasm of mouth and pharynx,30356,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2102,0,ICD8,Benign neoplasm of mouth and pharynx,30356,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2103,0,ICD8,Benign neoplasm of mouth and pharynx,30356,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2104,0,ICD8,Benign neoplasm of mouth and pharynx,30356,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2105,0,ICD8,Benign neoplasm of mouth and pharynx,30356,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2106,0,ICD8,Benign neoplasm of mouth and pharynx,30356,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2107,0,ICD8,Benign neoplasm of mouth and pharynx,30356,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2108,0,ICD8,Benign neoplasm of mouth and pharynx,30356,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2109,0,ICD8,Benign neoplasm of mouth and pharynx,30356,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2110,0,ICD8,Benign neoplasm of other and ill-defined parts of digestive system,193431,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2111,0,ICD8,Benign neoplasm of other and ill-defined parts of digestive system,193431,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2112,0,ICD8,Benign neoplasm of other and ill-defined parts of digestive system,193431,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21121,0,ICD8,Benign neoplasm of other and ill-defined parts of digestive system,193431,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21131,0,ICD8,Benign neoplasm of other and ill-defined parts of digestive system,193431,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21132,0,ICD8,Benign neoplasm of other and ill-defined parts of digestive system,193431,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21133,0,ICD8,Benign neoplasm of other and ill-defined parts of digestive system,193431,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21134,0,ICD8,Benign neoplasm of other and ill-defined parts of digestive system,193431,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21135,0,ICD8,Benign neoplasm of other and ill-defined parts of digestive system,193431,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21136,0,ICD8,Benign neoplasm of other and ill-defined parts of digestive system,193431,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21139,0,ICD8,Benign neoplasm of other and ill-defined parts of digestive system,193431,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2114,0,ICD8,Benign neoplasm of other and ill-defined parts of digestive system,193431,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21150,0,ICD8,Benign neoplasm of other and ill-defined parts of digestive system,193431,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21151,0,ICD8,Benign neoplasm of other and ill-defined parts of digestive system,193431,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21152,0,ICD8,Benign neoplasm of other and ill-defined parts of digestive system,193431,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21160,0,ICD8,Benign neoplasm of other and ill-defined parts of digestive system,193431,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2117,0,ICD8,Benign neoplasm of other and ill-defined parts of digestive system,193431,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21199,0,ICD8,Benign neoplasm of other and ill-defined parts of digestive system,193431,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2120,0,ICD8,Benign neoplasm of middle ear and respiratory system,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2121,0,ICD8,Benign neoplasm of middle ear and respiratory system,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2122,0,ICD8,Benign neoplasm of middle ear and respiratory system,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2123,0,ICD8,Benign neoplasm of middle ear and respiratory system,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2124,0,ICD8,Benign neoplasm of middle ear and respiratory system,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2125,0,ICD8,Benign neoplasm of middle ear and respiratory system,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21299,0,ICD8,Benign neoplasm of middle ear and respiratory system,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21300,0,ICD8,Benign neoplasm of bone and articular cartilage,74606,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21301,0,ICD8,Benign neoplasm of bone and articular cartilage,74606,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21302,0,ICD8,Benign neoplasm of bone and articular cartilage,74606,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21303,0,ICD8,Benign neoplasm of bone and articular cartilage,74606,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21304,0,ICD8,Benign neoplasm of bone and articular cartilage,74606,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21305,0,ICD8,Benign neoplasm of bone and articular cartilage,74606,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21306,0,ICD8,Benign neoplasm of bone and articular cartilage,74606,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21307,0,ICD8,Benign neoplasm of bone and articular cartilage,74606,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21308,0,ICD8,Benign neoplasm of bone and articular cartilage,74606,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21309,0,ICD8,Benign neoplasm of bone and articular cartilage,74606,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+214,0,ICD8,Benign lipomatous neoplasm,4112852,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21501,0,ICD8,Other benign neoplasms of connective and other soft tissue,442105,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21502,0,ICD8,Other benign neoplasms of connective and other soft tissue,442105,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21503,0,ICD8,Other benign neoplasms of connective and other soft tissue,442105,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21504,0,ICD8,Other benign neoplasms of connective and other soft tissue,442105,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2150[5,0,ICD8,Other benign neoplasms of connective and other soft tissue,442105,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2160[0,0,ICD8,Melanocytic nevi,4271013,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21601,0,ICD8,Melanocytic nevi,4271013,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21602,0,ICD8,Melanocytic nevi,4271013,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21603,0,ICD8,Melanocytic nevi,4271013,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21604,0,ICD8,Melanocytic nevi,4271013,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21605,0,ICD8,Melanocytic nevi,4271013,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21606,0,ICD8,Melanocytic nevi,4271013,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21607,0,ICD8,Melanocytic nevi,4271013,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21608,0,ICD8,Melanocytic nevi,4271013,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2161,0,ICD8,Melanocytic nevi,4271013,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2162,0,ICD8,Melanocytic nevi,4271013,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2163,0,ICD8,Melanocytic nevi,4271013,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2164,0,ICD8,Melanocytic nevi,4271013,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2165,0,ICD8,Melanocytic nevi,4271013,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2166,0,ICD8,Melanocytic nevi,4271013,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2167,0,ICD8,Melanocytic nevi,4271013,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2168,0,ICD8,Melanocytic nevi,4271013,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2169,0,ICD8,Melanocytic nevi,4271013,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21799,0,ICD8,Benign neoplasm of breast,72576,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+21899,0,ICD8,Leiomyoma of uterus,197236,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+219,0,ICD8,Benign neoplasm of ovary,199764,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2191,0,ICD8,Benign neoplasm of ovary,199764,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+220,0,ICD8,Benign neoplasm of eye and adnexa,381252,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+22099,0,ICD8,Benign neoplasm of eye and adnexa,381252,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2210,0,ICD8,Benign neoplasm of meninges,4003171,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2211,0,ICD8,Benign neoplasm of meninges,4003171,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2212,0,ICD8,Benign neoplasm of meninges,4003171,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2219,0,ICD8,Benign neoplasm of meninges,4003171,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2220,0,ICD8,Benign neoplasm of urinary organs,78706,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2221,0,ICD8,Benign neoplasm of urinary organs,78706,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2228,0,ICD8,Benign neoplasm of urinary organs,78706,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2229,0,ICD8,Benign neoplasm of urinary organs,78706,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2230,0,ICD8,Benign neoplasm of brain and other parts of central nervous system,4239871,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2231,0,ICD8,Benign neoplasm of brain and other parts of central nervous system,4239871,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2232,0,ICD8,Benign neoplasm of brain and other parts of central nervous system,4239871,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2233,0,ICD8,Benign neoplasm of brain and other parts of central nervous system,4239871,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2238,0,ICD8,Benign neoplasm of brain and other parts of central nervous system,4239871,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2239,0,ICD8,Benign neoplasm of brain and other parts of central nervous system,4239871,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+22400,0,ICD8,Benign neoplasm of other and unspecified sites,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+22401,0,ICD8,Benign neoplasm of other and unspecified sites,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+22402,0,ICD8,Benign neoplasm of other and unspecified sites,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+22403,0,ICD8,Benign neoplasm of other and unspecified sites,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+22404,0,ICD8,Benign neoplasm of other and unspecified sites,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+22405,0,ICD8,Benign neoplasm of other and unspecified sites,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+22409,0,ICD8,Benign neoplasm of other and unspecified sites,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2250,0,ICD8,Benign neoplasm of other and unspecified sites,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2251,0,ICD8,Benign neoplasm of other and unspecified sites,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2252,0,ICD8,Benign neoplasm of other and unspecified sites,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2253,0,ICD8,Benign neoplasm of other and unspecified sites,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2254,0,ICD8,Benign neoplasm of other and unspecified sites,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2255,0,ICD8,Benign neoplasm of other and unspecified sites,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2256,0,ICD8,Benign neoplasm of other and unspecified sites,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2259,0,ICD8,Benign neoplasm of other and unspecified sites,435506,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2260,0,ICD8,Benign neoplasm of other and unspecified intrathoracic organs,4242348,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2261,0,ICD8,Benign neoplasm of other and unspecified intrathoracic organs,4242348,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2262,0,ICD8,Benign neoplasm of other and unspecified intrathoracic organs,4242348,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2263,0,ICD8,Benign neoplasm of other and unspecified intrathoracic organs,4242348,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2268,0,ICD8,Benign neoplasm of other and unspecified intrathoracic organs,4242348,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2269,0,ICD8,Benign neoplasm of other and unspecified intrathoracic organs,4242348,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+22700,0,ICD8,Benign neoplasm of other and unspecified endocrine glands,136937,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+22701,0,ICD8,Benign neoplasm of other and unspecified endocrine glands,136937,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2289,0,ICD8,"Hemangioma and lymphangioma, any site",4266186,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+240,0,ICD8,Iodine-deficiency related thyroid disorders and allied conditions,4129370,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+241,0,ICD8,Other nontoxic goiter,141825,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2420,0,ICD8,Thyrotoxicosis [hyperthyroidism],4142479,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2421,0,ICD8,Thyrotoxicosis [hyperthyroidism],4142479,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2422,0,ICD8,Thyrotoxicosis [hyperthyroidism],4142479,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+243,0,ICD8,Other hypothyroidism,140673,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+244,0,ICD8,Thyroiditis,133444,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+245,0,ICD8,Other disorders of thyroid,141253,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+24500,0,ICD8,Other disorders of thyroid,141253,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+24501,0,ICD8,Other disorders of thyroid,141253,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+24502,0,ICD8,Other disorders of thyroid,141253,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+24503,0,ICD8,Other disorders of thyroid,141253,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+24504,0,ICD8,Other disorders of thyroid,141253,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+24509,0,ICD8,Other disorders of thyroid,141253,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+24599,0,ICD8,Other disorders of thyroid,141253,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+250,0,ICD8,Type 1 diabetes mellitus,201254,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25000,0,ICD8,Type 1 diabetes mellitus,201254,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25001,0,ICD8,Type 1 diabetes mellitus,201254,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25002,0,ICD8,Type 1 diabetes mellitus,201254,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25003,0,ICD8,Type 1 diabetes mellitus,201254,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25004,0,ICD8,Type 1 diabetes mellitus,201254,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25005,0,ICD8,Type 1 diabetes mellitus,201254,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25006,0,ICD8,Type 1 diabetes mellitus,201254,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25008,0,ICD8,Type 1 diabetes mellitus,201254,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25009,0,ICD8,Type 1 diabetes mellitus,201254,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25101,0,ICD8,Other disorders of pancreatic internal secretion,193983,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25103,0,ICD8,Other disorders of pancreatic internal secretion,193983,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25108,0,ICD8,Other disorders of pancreatic internal secretion,193983,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25109,0,ICD8,Other disorders of pancreatic internal secretion,193983,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2520,0,ICD8,Hypoparathyroidism,140362,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2521,0,ICD8,Hypoparathyroidism,140362,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2529,0,ICD8,Hypoparathyroidism,140362,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+253,0,ICD8,Hypofunction and other disorders of the pituitary gland,23986,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2530,0,ICD8,Hypofunction and other disorders of the pituitary gland,23986,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25301,0,ICD8,Hypofunction and other disorders of the pituitary gland,23986,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2531,0,ICD8,Hypofunction and other disorders of the pituitary gland,23986,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2539,0,ICD8,Hypofunction and other disorders of the pituitary gland,23986,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25390,0,ICD8,Hypofunction and other disorders of the pituitary gland,23986,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25499,0,ICD8,Diseases of thymus,433730,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+255,0,ICD8,Other disorders of adrenal gland,193165,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25500,0,ICD8,Other disorders of adrenal gland,193165,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25501,0,ICD8,Other disorders of adrenal gland,193165,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25502,0,ICD8,Other disorders of adrenal gland,193165,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25508,0,ICD8,Other disorders of adrenal gland,193165,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2551,0,ICD8,Other disorders of adrenal gland,193165,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2559,0,ICD8,Other disorders of adrenal gland,193165,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2560,0,ICD8,Ovarian dysfunction,201257,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2561,0,ICD8,Ovarian dysfunction,201257,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2569,0,ICD8,Ovarian dysfunction,201257,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25690,0,ICD8,Ovarian dysfunction,201257,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2570,0,ICD8,Other endocrine disorders,31821,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2571,0,ICD8,Other endocrine disorders,31821,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2579,0,ICD8,Other endocrine disorders,31821,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+258,0,ICD8,Adrenogenital disorders,196369,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2580,0,ICD8,Adrenogenital disorders,196369,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+25810,0,ICD8,Adrenogenital disorders,196369,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2589,0,ICD8,Adrenogenital disorders,196369,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+260,0,ICD8,Kwashiorkor,432593,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+261,0,ICD8,Nutritional marasmus,440370,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+262,0,ICD8,Unspecified severe protein-calorie malnutrition,4233565,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+264,0,ICD8,Vitamin A deficiency,438114,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+265,0,ICD8,Niacin deficiency [pellagra],4303664,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2652,0,ICD8,Niacin deficiency [pellagra],4303664,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2668,0,ICD8,Deficiency of other B group vitamins,437246,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+26680,0,ICD8,Deficiency of other B group vitamins,437246,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+26688,0,ICD8,Deficiency of other B group vitamins,437246,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2669,0,ICD8,Deficiency of other B group vitamins,437246,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+26799,0,ICD8,Ascorbic acid deficiency,439787,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+268,0,ICD8,Vitamin D deficiency,436070,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2691,0,ICD8,Other nutritional deficiencies,435227,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2692,0,ICD8,Other nutritional deficiencies,435227,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2699,0,ICD8,Other nutritional deficiencies,435227,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27000,0,ICD8,Disorders of aromatic amino-acid metabolism,4140301,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2701,0,ICD8,Disorders of aromatic amino-acid metabolism,4140301,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2702,0,ICD8,Disorders of aromatic amino-acid metabolism,4140301,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2703,0,ICD8,Disorders of aromatic amino-acid metabolism,4140301,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27040,0,ICD8,Disorders of aromatic amino-acid metabolism,4140301,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27050,0,ICD8,Disorders of aromatic amino-acid metabolism,4140301,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27060,0,ICD8,Disorders of aromatic amino-acid metabolism,4140301,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27081,0,ICD8,Disorders of aromatic amino-acid metabolism,4140301,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27082,0,ICD8,Disorders of aromatic amino-acid metabolism,4140301,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2710,0,ICD8,Other disorders of carbohydrate metabolism,437515,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2711,0,ICD8,Other disorders of carbohydrate metabolism,437515,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27120,0,ICD8,Other disorders of carbohydrate metabolism,437515,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2718,0,ICD8,Other disorders of carbohydrate metabolism,437515,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27180,0,ICD8,Other disorders of carbohydrate metabolism,437515,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2719,0,ICD8,Other disorders of carbohydrate metabolism,437515,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2720,0,ICD8,Disorders of lipoprotein metabolism and other lipidemias,437530,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27201,0,ICD8,Disorders of lipoprotein metabolism and other lipidemias,437530,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27202,0,ICD8,Disorders of lipoprotein metabolism and other lipidemias,437530,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27203,0,ICD8,Disorders of lipoprotein metabolism and other lipidemias,437530,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27204,0,ICD8,Disorders of lipoprotein metabolism and other lipidemias,437530,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27205,0,ICD8,Disorders of lipoprotein metabolism and other lipidemias,437530,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27206,0,ICD8,Disorders of lipoprotein metabolism and other lipidemias,437530,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27207,0,ICD8,Disorders of lipoprotein metabolism and other lipidemias,437530,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27208,0,ICD8,Disorders of lipoprotein metabolism and other lipidemias,437530,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27209,0,ICD8,Disorders of lipoprotein metabolism and other lipidemias,437530,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27281,0,ICD8,Disorders of lipoprotein metabolism and other lipidemias,437530,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27282,0,ICD8,Disorders of lipoprotein metabolism and other lipidemias,437530,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27288,0,ICD8,Disorders of lipoprotein metabolism and other lipidemias,437530,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2729,0,ICD8,Disorders of lipoprotein metabolism and other lipidemias,437530,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2730,0,ICD8,Disorders of glycoprotein metabolism,4031941,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2731,0,ICD8,Disorders of glycoprotein metabolism,4031941,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27310,0,ICD8,Disorders of glycoprotein metabolism,4031941,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2733,0,ICD8,Disorders of glycoprotein metabolism,4031941,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27340,0,ICD8,Disorders of glycoprotein metabolism,4031941,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27350,0,ICD8,Disorders of glycoprotein metabolism,4031941,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27382,0,ICD8,Disorders of glycoprotein metabolism,4031941,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2740,0,ICD8,Disorders of purine and pyrimidine metabolism,440066,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2754,0,ICD8,Disorders of mineral metabolism,438721,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27699,0,ICD8,"Other disorders of fluid, electrolyte and acid-base balance",436670,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+27799,0,ICD8,Other and unspecified metabolic disorders,436670,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+280,0,ICD8,Iron deficiency anemia,436659,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2800,0,ICD8,Iron deficiency anemia,436659,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2810,0,ICD8,Vitamin B12 deficiency anemia,432588,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2811,0,ICD8,Vitamin B12 deficiency anemia,432588,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2812,0,ICD8,Vitamin B12 deficiency anemia,432588,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2813,0,ICD8,Vitamin B12 deficiency anemia,432588,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2814,0,ICD8,Vitamin B12 deficiency anemia,432588,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2815,0,ICD8,Vitamin B12 deficiency anemia,432588,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2816,0,ICD8,Vitamin B12 deficiency anemia,432588,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2817,0,ICD8,Vitamin B12 deficiency anemia,432588,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2818,0,ICD8,Vitamin B12 deficiency anemia,432588,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2819,0,ICD8,Vitamin B12 deficiency anemia,432588,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2820,0,ICD8,Anemia due to enzyme disorders,601114,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2821,0,ICD8,Anemia due to enzyme disorders,601114,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2822,0,ICD8,Anemia due to enzyme disorders,601114,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2823,0,ICD8,Anemia due to enzyme disorders,601114,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28238,0,ICD8,Anemia due to enzyme disorders,601114,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28240,0,ICD8,Anemia due to enzyme disorders,601114,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28250,0,ICD8,Anemia due to enzyme disorders,601114,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2829,0,ICD8,Anemia due to enzyme disorders,601114,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2830,0,ICD8,Acquired hemolytic anemia,440979,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28390,0,ICD8,Acquired hemolytic anemia,440979,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28391,0,ICD8,Acquired hemolytic anemia,440979,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28398,0,ICD8,Acquired hemolytic anemia,440979,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+284,0,ICD8,Other aplastic anemias and other bone marrow failure syndromes,4131124,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28404,0,ICD8,Other aplastic anemias and other bone marrow failure syndromes,4131124,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28500,0,ICD8,Other anemias,439777,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2858,0,ICD8,Other anemias,439777,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2859,0,ICD8,Other anemias,439777,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2860,0,ICD8,Hereditary factor VIII deficiency,434007,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2861,0,ICD8,Hereditary factor VIII deficiency,434007,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28620,0,ICD8,Hereditary factor VIII deficiency,434007,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28630,0,ICD8,Hereditary factor VIII deficiency,434007,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2864,0,ICD8,Hereditary factor VIII deficiency,434007,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28650,0,ICD8,Hereditary factor VIII deficiency,434007,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28651,0,ICD8,Hereditary factor VIII deficiency,434007,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2869,0,ICD8,Hereditary factor VIII deficiency,434007,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2870,0,ICD8,Purpura and other hemorrhagic conditions,4179872,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28710,0,ICD8,Purpura and other hemorrhagic conditions,4179872,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28711,0,ICD8,Purpura and other hemorrhagic conditions,4179872,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28719,0,ICD8,Purpura and other hemorrhagic conditions,4179872,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2872,0,ICD8,Purpura and other hemorrhagic conditions,4179872,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28730,0,ICD8,Purpura and other hemorrhagic conditions,4179872,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2879,0,ICD8,Purpura and other hemorrhagic conditions,4179872,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28790,0,ICD8,Purpura and other hemorrhagic conditions,4179872,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2889,0,ICD8,Neutropenia,320073,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28900,0,ICD8,Other and unspecified diseases of blood and blood-forming organs,317248,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2891,0,ICD8,Other and unspecified diseases of blood and blood-forming organs,317248,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2892,0,ICD8,Other and unspecified diseases of blood and blood-forming organs,317248,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2893,0,ICD8,Other and unspecified diseases of blood and blood-forming organs,317248,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2894,0,ICD8,Other and unspecified diseases of blood and blood-forming organs,317248,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28940,0,ICD8,Other and unspecified diseases of blood and blood-forming organs,317248,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28942,0,ICD8,Other and unspecified diseases of blood and blood-forming organs,317248,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2899,0,ICD8,Other and unspecified diseases of blood and blood-forming organs,317248,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28990,0,ICD8,Other and unspecified diseases of blood and blood-forming organs,317248,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+28991,0,ICD8,Other and unspecified diseases of blood and blood-forming organs,317248,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+290,0,ICD8,Delirium due to known physiological condition,373995,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2900,0,ICD8,Delirium due to known physiological condition,373995,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+29010,0,ICD8,Delirium due to known physiological condition,373995,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+29011,0,ICD8,Delirium due to known physiological condition,373995,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+29019,0,ICD8,Delirium due to known physiological condition,373995,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+291,0,ICD8,Alcohol related disorders,36714559,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+29100,0,ICD8,Alcohol related disorders,36714559,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+293,0,ICD8,Delirium due to known physiological condition,373995,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+294,0,ICD8,Unspecified dementia,4182210,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2944,0,ICD8,Unspecified dementia,4182210,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+29440,0,ICD8,Unspecified dementia,4182210,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+295,0,ICD8,Schizophrenia,435783,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2957,0,ICD8,Schizophrenia,435783,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+296,0,ICD8,Bipolar disorder,436665,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+29699,0,ICD8,Bipolar disorder,436665,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+297,0,ICD8,Delusional disorders,432590,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+298,0,ICD8,Brief psychotic disorder,4182683,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+29800,0,ICD8,Brief psychotic disorder,4182683,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2981,0,ICD8,Brief psychotic disorder,4182683,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2982,0,ICD8,Brief psychotic disorder,4182683,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2983,0,ICD8,Brief psychotic disorder,4182683,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2984,0,ICD8,Brief psychotic disorder,4182683,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2985,0,ICD8,Brief psychotic disorder,4182683,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2986,0,ICD8,Brief psychotic disorder,4182683,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2987,0,ICD8,Brief psychotic disorder,4182683,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2988,0,ICD8,Brief psychotic disorder,4182683,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+2989,0,ICD8,Brief psychotic disorder,4182683,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+299,0,ICD8,Pervasive developmental disorders,439776,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+29999,0,ICD8,Pervasive developmental disorders,439776,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+300,0,ICD8,Phobic anxiety disorders,4304010,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3000,0,ICD8,Phobic anxiety disorders,4304010,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3001,0,ICD8,Phobic anxiety disorders,4304010,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3002,0,ICD8,Phobic anxiety disorders,4304010,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3003,0,ICD8,Phobic anxiety disorders,4304010,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+30030,0,ICD8,Phobic anxiety disorders,4304010,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3004,0,ICD8,Phobic anxiety disorders,4304010,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3005,0,ICD8,Phobic anxiety disorders,4304010,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3006,0,ICD8,Phobic anxiety disorders,4304010,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3007,0,ICD8,Phobic anxiety disorders,4304010,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3008,0,ICD8,Phobic anxiety disorders,4304010,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3009,0,ICD8,Phobic anxiety disorders,4304010,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+301,0,ICD8,Specific personality disorders,441838,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3010,0,ICD8,Specific personality disorders,441838,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+30100,0,ICD8,Specific personality disorders,441838,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+30110,0,ICD8,Specific personality disorders,441838,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3012,0,ICD8,Specific personality disorders,441838,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3013,0,ICD8,Specific personality disorders,441838,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3014,0,ICD8,Specific personality disorders,441838,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3015,0,ICD8,Specific personality disorders,441838,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3016,0,ICD8,Specific personality disorders,441838,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3017,0,ICD8,Specific personality disorders,441838,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3018,0,ICD8,Specific personality disorders,441838,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+30188,0,ICD8,Specific personality disorders,441838,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3019,0,ICD8,Specific personality disorders,441838,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+302,0,ICD8,Paraphilias,4173740,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3021,0,ICD8,Paraphilias,4173740,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3023,0,ICD8,Paraphilias,4173740,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+303,0,ICD8,Alcohol related disorders,36714559,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+304,0,ICD8,Other psychoactive substance related disorders,37162280,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3040,0,ICD8,Other psychoactive substance related disorders,37162280,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3041,0,ICD8,Other psychoactive substance related disorders,37162280,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3042,0,ICD8,Other psychoactive substance related disorders,37162280,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3043,0,ICD8,Other psychoactive substance related disorders,37162280,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3044,0,ICD8,Other psychoactive substance related disorders,37162280,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3045,0,ICD8,Other psychoactive substance related disorders,37162280,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3046,0,ICD8,Other psychoactive substance related disorders,37162280,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3047,0,ICD8,Other psychoactive substance related disorders,37162280,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3048,0,ICD8,Other psychoactive substance related disorders,37162280,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3049,0,ICD8,Other psychoactive substance related disorders,37162280,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+305,0,ICD8,Other anxiety disorders,442077,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+306,0,ICD8,Other nonpsychotic mental disorders,444243,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3060,0,ICD8,Other nonpsychotic mental disorders,444243,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3061,0,ICD8,Other nonpsychotic mental disorders,444243,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+30620,0,ICD8,Other nonpsychotic mental disorders,444243,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3064,0,ICD8,Other nonpsychotic mental disorders,444243,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+30640,0,ICD8,Other nonpsychotic mental disorders,444243,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3065,0,ICD8,Other nonpsychotic mental disorders,444243,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+30650,0,ICD8,Other nonpsychotic mental disorders,444243,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3066,0,ICD8,Other nonpsychotic mental disorders,444243,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3067,0,ICD8,Other nonpsychotic mental disorders,444243,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+30680,0,ICD8,Other nonpsychotic mental disorders,444243,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+307,0,ICD8,Somatoform disorders,37109944,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+30799,0,ICD8,Somatoform disorders,37109944,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+308,0,ICD8,"Reaction to severe stress, and adjustment disorders",4152371,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+30899,0,ICD8,"Reaction to severe stress, and adjustment disorders",4152371,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+309,0,ICD8,Phobic anxiety disorders,4304010,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+310,0,ICD8,Mild intellectual disabilities,432612,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+311,0,ICD8,Moderate intellectual disabilities,436682,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+312,0,ICD8,Severe intellectual disabilities,432898,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+313,0,ICD8,Profound intellectual disabilities,438733,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+314,0,ICD8,Mild intellectual disabilities,432612,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+315,0,ICD8,Specific developmental disorders of speech and language,436373,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+31610,0,ICD8,Impulse disorders,433752,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+320,0,ICD8,"Encephalitis, myelitis and encephalomyelitis",4147498,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+321,0,ICD8,"Encephalitis, myelitis and encephalomyelitis in diseases classified elsewhere",4147498,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+32100,0,ICD8,"Encephalitis, myelitis and encephalomyelitis in diseases classified elsewhere",4147498,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+322,0,ICD8,Intracranial and intraspinal abscess and granuloma,374335,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+32300,0,ICD8,"Encephalitis, myelitis and encephalomyelitis in diseases classified elsewhere",4147498,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+32302,0,ICD8,"Encephalitis, myelitis and encephalomyelitis in diseases classified elsewhere",4147498,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+32303,0,ICD8,"Encephalitis, myelitis and encephalomyelitis in diseases classified elsewhere",4147498,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+32308,0,ICD8,"Encephalitis, myelitis and encephalomyelitis in diseases classified elsewhere",4147498,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+32309,0,ICD8,"Encephalitis, myelitis and encephalomyelitis in diseases classified elsewhere",4147498,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+324,0,ICD8,Intracranial and intraspinal phlebitis and thrombophlebitis,4045733,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+33000,0,ICD8,Cerebral palsy,4134120,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+33010,0,ICD8,Cerebral palsy,4134120,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+33020,0,ICD8,Cerebral palsy,4134120,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+33030,0,ICD8,Cerebral palsy,4134120,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+33090,0,ICD8,Cerebral palsy,4134120,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+33100,0,ICD8,"Other degenerative diseases of nervous system, not elsewhere classified",376337,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+332,0,ICD8,Parkinson's disease,381270,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34099,0,ICD8,Multiple sclerosis,374919,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34101,0,ICD8,Other demyelinating diseases of central nervous system,375801,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34102,0,ICD8,Other demyelinating diseases of central nervous system,375801,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34103,0,ICD8,Other demyelinating diseases of central nervous system,375801,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34104,0,ICD8,Other demyelinating diseases of central nervous system,375801,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34105,0,ICD8,Other demyelinating diseases of central nervous system,375801,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34106,0,ICD8,Other demyelinating diseases of central nervous system,375801,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34107,0,ICD8,Other demyelinating diseases of central nervous system,375801,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34108,0,ICD8,Other demyelinating diseases of central nervous system,375801,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34109,0,ICD8,Other demyelinating diseases of central nervous system,375801,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34200,0,ICD8,Hemiplegia and hemiparesis,43531639,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34208,0,ICD8,Hemiplegia and hemiparesis,43531639,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34209,0,ICD8,Hemiplegia and hemiparesis,43531639,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+343,0,ICD8,Paraplegia (paraparesis) and quadriplegia (quadriparesis),374377,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34400,0,ICD8,Other paralytic syndromes,374377,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34401,0,ICD8,Other paralytic syndromes,374377,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34403,0,ICD8,Other paralytic syndromes,374377,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34408,0,ICD8,Other paralytic syndromes,374377,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34409,0,ICD8,Other paralytic syndromes,374377,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+345,0,ICD8,Epilepsy and recurrent seizures,380378,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+%34519,0,ICD8,Epilepsy and recurrent seizures,380378,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34519,0,ICD8,Epilepsy and recurrent seizures,380378,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34520,0,ICD8,Epilepsy and recurrent seizures,380378,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+%3453,0,ICD8,Epilepsy and recurrent seizures,380378,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3453,0,ICD8,Epilepsy and recurrent seizures,380378,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+346,0,ICD8,Migraine,318736,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34601,0,ICD8,Migraine,318736,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34700,0,ICD8,Sleep disorders,435524,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34791,0,ICD8,Sleep disorders,435524,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34792,0,ICD8,Sleep disorders,435524,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34793,0,ICD8,Sleep disorders,435524,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34798,0,ICD8,Sleep disorders,435524,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34799,0,ICD8,Sleep disorders,435524,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3480,0,ICD8,Other disorders of brain,372887,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3481,0,ICD8,Other disorders of brain,372887,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34821,0,ICD8,Other disorders of brain,372887,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+34829,0,ICD8,Other disorders of brain,372887,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3489,0,ICD8,Other disorders of brain,372887,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+349,0,ICD8,Other disorders of nervous system not elsewhere classified,376337,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+350,0,ICD8,Disorders of trigeminal nerve,440703,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+35199,0,ICD8,Facial nerve disorders,378135,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+35300,0,ICD8,Nerve root and plexus disorders,43531046,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+35301,0,ICD8,Nerve root and plexus disorders,43531046,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+35302,0,ICD8,Nerve root and plexus disorders,43531046,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+35399,0,ICD8,Nerve root and plexus disorders,43531046,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+35401,0,ICD8,Mononeuropathies of upper limb,43531027,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+35408,0,ICD8,Mononeuropathies of upper limb,43531027,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+35409,0,ICD8,Mononeuropathies of upper limb,43531027,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+35600,0,ICD8,Hereditary and idiopathic neuropathy,4301699,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+35601,0,ICD8,Hereditary and idiopathic neuropathy,4301699,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+35602,0,ICD8,Hereditary and idiopathic neuropathy,4301699,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+35603,0,ICD8,Hereditary and idiopathic neuropathy,4301699,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+35604,0,ICD8,Hereditary and idiopathic neuropathy,4301699,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+35608,0,ICD8,Hereditary and idiopathic neuropathy,4301699,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+35609,0,ICD8,Hereditary and idiopathic neuropathy,4301699,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+35700,0,ICD8,Inflammatory polyneuropathy,4296728,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+35701,0,ICD8,Inflammatory polyneuropathy,4296728,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+35708,0,ICD8,Inflammatory polyneuropathy,4296728,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+35800,0,ICD8,Myasthenia gravis and other myoneural disorders,377263,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+360,0,ICD8,Hordeolum and chalazion,376125,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36001,0,ICD8,Hordeolum and chalazion,376125,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36002,0,ICD8,Hordeolum and chalazion,376125,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+361,0,ICD8,Disorders of lacrimal system,432910,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+362,0,ICD8,Keratitis,374035,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+363,0,ICD8,Iridocyclitis,434926,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36300,0,ICD8,Iridocyclitis,434926,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36400,0,ICD8,Other cataract,375545,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36401,0,ICD8,Other cataract,375545,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36402,0,ICD8,Other cataract,375545,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36409,0,ICD8,Other cataract,375545,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+365,0,ICD8,Glaucoma,437541,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36600,0,ICD8,Other disorders of lens,373785,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36601,0,ICD8,Other disorders of lens,373785,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36602,0,ICD8,Other disorders of lens,373785,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36603,0,ICD8,Other disorders of lens,373785,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36604,0,ICD8,Other disorders of lens,373785,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36605,0,ICD8,Other disorders of lens,373785,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36606,0,ICD8,Other disorders of lens,373785,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36607,0,ICD8,Other disorders of lens,373785,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36608,0,ICD8,Other disorders of lens,373785,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36609,0,ICD8,Other disorders of lens,373785,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36700,0,ICD8,Disorders of refraction and accommodation,377861,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36701,0,ICD8,Disorders of refraction and accommodation,377861,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36702,0,ICD8,Disorders of refraction and accommodation,377861,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36703,0,ICD8,Disorders of refraction and accommodation,377861,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36704,0,ICD8,Disorders of refraction and accommodation,377861,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36705,0,ICD8,Disorders of refraction and accommodation,377861,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36706,0,ICD8,Disorders of refraction and accommodation,377861,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36707,0,ICD8,Disorders of refraction and accommodation,377861,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36708,0,ICD8,Disorders of refraction and accommodation,377861,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36709,0,ICD8,Disorders of refraction and accommodation,377861,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36790,0,ICD8,Disorders of refraction and accommodation,377861,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36791,0,ICD8,Disorders of refraction and accommodation,377861,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36792,0,ICD8,Disorders of refraction and accommodation,377861,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36793,0,ICD8,Disorders of refraction and accommodation,377861,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36800,0,ICD8,Visual disturbances,374034,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36801,0,ICD8,Visual disturbances,374034,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36802,0,ICD8,Visual disturbances,374034,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36803,0,ICD8,Visual disturbances,374034,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36804,0,ICD8,Visual disturbances,374034,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36805,0,ICD8,Visual disturbances,374034,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36808,0,ICD8,Visual disturbances,374034,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36809,0,ICD8,Visual disturbances,374034,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36900,0,ICD8,Blindness and low vision,4023310,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36901,0,ICD8,Blindness and low vision,4023310,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36902,0,ICD8,Blindness and low vision,4023310,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36903,0,ICD8,Blindness and low vision,4023310,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36904,0,ICD8,Blindness and low vision,4023310,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36905,0,ICD8,Blindness and low vision,4023310,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+36907,0,ICD8,Blindness and low vision,4023310,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37000,0,ICD8,Otitis externa,380731,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37001,0,ICD8,Otitis externa,380731,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37002,0,ICD8,Otitis externa,380731,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37008,0,ICD8,Otitis externa,380731,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37009,0,ICD8,Otitis externa,380731,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37100,0,ICD8,Nonsuppurative otitis media,4170137,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37101,0,ICD8,Nonsuppurative otitis media,4170137,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37102,0,ICD8,Nonsuppurative otitis media,4170137,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37103,0,ICD8,Nonsuppurative otitis media,4170137,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+372,0,ICD8,Suppurative and unspecified otitis media,372328,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37300,0,ICD8,Eustachian salpingitis and obstruction,372324,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37301,0,ICD8,Eustachian salpingitis and obstruction,372324,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37302,0,ICD8,Eustachian salpingitis and obstruction,372324,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37303,0,ICD8,Eustachian salpingitis and obstruction,372324,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37304,0,ICD8,Eustachian salpingitis and obstruction,372324,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37309,0,ICD8,Eustachian salpingitis and obstruction,372324,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+374,0,ICD8,Perforation of tympanic membrane,375292,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37402,0,ICD8,Perforation of tympanic membrane,375292,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37500,0,ICD8,Other diseases of inner ear,4335747,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37510,0,ICD8,Other diseases of inner ear,4335747,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37511,0,ICD8,Other diseases of inner ear,4335747,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37512,0,ICD8,Other diseases of inner ear,4335747,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37513,0,ICD8,Other diseases of inner ear,4335747,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37514,0,ICD8,Other diseases of inner ear,4335747,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3752,0,ICD8,Other diseases of inner ear,4335747,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3759,0,ICD8,Other diseases of inner ear,4335747,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37597,0,ICD8,Other diseases of inner ear,4335747,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+376,0,ICD8,Conductive and sensorineural hearing loss,377889,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37602,0,ICD8,Conductive and sensorineural hearing loss,377889,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37603,0,ICD8,Conductive and sensorineural hearing loss,377889,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37700,0,ICD8,Otalgia and effusion of ear,378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37701,0,ICD8,Otalgia and effusion of ear,378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37702,0,ICD8,Otalgia and effusion of ear,378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37703,0,ICD8,Otalgia and effusion of ear,378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37704,0,ICD8,Otalgia and effusion of ear,378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37705,0,ICD8,Otalgia and effusion of ear,378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37709,0,ICD8,Otalgia and effusion of ear,378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37710,0,ICD8,Otalgia and effusion of ear,378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37711,0,ICD8,Otalgia and effusion of ear,378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37712,0,ICD8,Otalgia and effusion of ear,378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37720,0,ICD8,Otalgia and effusion of ear,378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37730,0,ICD8,Otalgia and effusion of ear,378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37731,0,ICD8,Otalgia and effusion of ear,378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37790,0,ICD8,Otalgia and effusion of ear,378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37791,0,ICD8,Otalgia and effusion of ear,378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37798,0,ICD8,Otalgia and effusion of ear,378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37799,0,ICD8,Otalgia and effusion of ear,378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3780,0,ICD8,"Other disorders of ear, not elsewhere classified",378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37811,0,ICD8,"Other disorders of ear, not elsewhere classified",378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37812,0,ICD8,"Other disorders of ear, not elsewhere classified",378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37813,0,ICD8,"Other disorders of ear, not elsewhere classified",378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37820,0,ICD8,"Other disorders of ear, not elsewhere classified",378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37821,0,ICD8,"Other disorders of ear, not elsewhere classified",378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3783,0,ICD8,"Other disorders of ear, not elsewhere classified",378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37831,0,ICD8,"Other disorders of ear, not elsewhere classified",378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37840,0,ICD8,"Other disorders of ear, not elsewhere classified",378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3785,0,ICD8,"Other disorders of ear, not elsewhere classified",378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37860,0,ICD8,"Other disorders of ear, not elsewhere classified",378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37861,0,ICD8,"Other disorders of ear, not elsewhere classified",378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37870,0,ICD8,"Other disorders of ear, not elsewhere classified",378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37872,0,ICD8,"Other disorders of ear, not elsewhere classified",378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+37898,0,ICD8,"Other disorders of ear, not elsewhere classified",378161,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+390,0,ICD8,Rheumatic fever without heart involvement,440735,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+391,0,ICD8,Rheumatic fever with heart involvement,45766036,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3920,0,ICD8,Rheumatic chorea,444120,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+393,0,ICD8,Rheumatic mitral valve diseases,4222174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+394,0,ICD8,Rheumatic aortic valve diseases,315282,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3940,0,ICD8,Rheumatic aortic valve diseases,315282,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+395,0,ICD8,Rheumatic tricuspid valve diseases,4175807,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3950,0,ICD8,Rheumatic tricuspid valve diseases,4175807,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+39500,0,ICD8,Rheumatic tricuspid valve diseases,4175807,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+39502,0,ICD8,Rheumatic tricuspid valve diseases,4175807,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+396,0,ICD8,Multiple valve diseases,4108234,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3960,0,ICD8,Multiple valve diseases,4108234,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3970,0,ICD8,Other rheumatic heart diseases,319825,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+3979,0,ICD8,Other rheumatic heart diseases,319825,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+398,0,ICD8,Other rheumatic heart diseases,319825,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+400,0,ICD8,Essential (primary) hypertension,320128,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+401,0,ICD8,Essential (primary) hypertension,320128,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+402,0,ICD8,Hypertensive heart disease,442604,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+40299,0,ICD8,Hypertensive heart disease,442604,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+403,0,ICD8,Hypertensive chronic kidney disease,201313,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+40399,0,ICD8,Hypertensive chronic kidney disease,201313,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+404,0,ICD8,Hypertensive heart and chronic kidney disease,44784621,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+40499,0,ICD8,Hypertensive heart and chronic kidney disease,44784621,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+410,0,ICD8,Acute myocardial infarction,312327,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+411,0,ICD8,Angina pectoris,321318,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+4110,0,ICD8,Angina pectoris,321318,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+412,0,ICD8,Chronic ischemic heart disease,315286,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+413,0,ICD8,Angina pectoris,321318,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+414,0,ICD8,Chronic ischemic heart disease,315286,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+420,0,ICD8,Acute pericarditis,320116,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+421,0,ICD8,Acute and subacute endocarditis,441589,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+422,0,ICD8,Acute myocarditis,312653,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+423,0,ICD8,Other diseases of pericardium,318772,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+424,0,ICD8,Nonrheumatic aortic valve disorders,4158911,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+425,0,ICD8,Cardiomyopathy,321319,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+42500,0,ICD8,Cardiomyopathy,321319,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+426,0,ICD8,Atrioventricular and left bundle-branch block,320425,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+42600,0,ICD8,Atrioventricular and left bundle-branch block,320425,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+42700,0,ICD8,Paroxysmal tachycardia,313792,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+42710,0,ICD8,Paroxysmal tachycardia,313792,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+4272,0,ICD8,Paroxysmal tachycardia,313792,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+4275,0,ICD8,Paroxysmal tachycardia,313792,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+42792,0,ICD8,Paroxysmal tachycardia,313792,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+42798,0,ICD8,Paroxysmal tachycardia,313792,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+428,0,ICD8,Heart failure,316139,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+42899,0,ICD8,Heart failure,316139,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+42999,0,ICD8,Complications and ill-defined descriptions of heart disease,321588,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+430,0,ICD8,Nontraumatic subarachnoid hemorrhage,4148906,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+431,0,ICD8,Nontraumatic intracerebral hemorrhage,43530727,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+433,0,ICD8,Cerebral infarction,443454,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+434,0,ICD8,Cerebral infarction,443454,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+43400,0,ICD8,Cerebral infarction,443454,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+43499,0,ICD8,Cerebral infarction,443454,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+435,0,ICD8,"Occlusion and stenosis of precerebral arteries, not resulting in cerebral infarction",374371,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+436,0,ICD8,Other cerebrovascular diseases,381591,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+437,0,ICD8,Sequelae of cerebrovascular disease,434056,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+438,0,ICD8,Sequelae of cerebrovascular disease,434056,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+440,0,ICD8,Atherosclerosis,318443,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+4402,0,ICD8,Atherosclerosis,318443,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+441,0,ICD8,Aortic aneurysm and dissection,4187240,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+44120,0,ICD8,Aortic aneurysm and dissection,4187240,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+442,0,ICD8,Other aneurysm,4332246,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+443,0,ICD8,Other peripheral vascular diseases,321052,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+44300,0,ICD8,Other peripheral vascular diseases,321052,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+44310,0,ICD8,Other peripheral vascular diseases,321052,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+4439,0,ICD8,Other peripheral vascular diseases,321052,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+444,0,ICD8,Arterial embolism and thrombosis,312337,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+44400,0,ICD8,Arterial embolism and thrombosis,312337,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+4442,0,ICD8,Arterial embolism and thrombosis,312337,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+4460,0,ICD8,Other disorders of arteries and arterioles,321887,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+4461,0,ICD8,Other disorders of arteries and arterioles,321887,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+4462,0,ICD8,Other disorders of arteries and arterioles,321887,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+4463,0,ICD8,Other disorders of arteries and arterioles,321887,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+4464,0,ICD8,Other disorders of arteries and arterioles,321887,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+4469,0,ICD8,Other disorders of arteries and arterioles,321887,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+447,0,ICD8,Other disorders of arteries and arterioles,321887,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+448,0,ICD8,Other disorders of arteries and arterioles,321887,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+450,0,ICD8,Varicose veins of lower extremities,318169,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+451,0,ICD8,Phlebitis and thrombophlebitis,320741,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+452,0,ICD8,Portal vein thrombosis,199837,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+453,0,ICD8,Other venous embolism and thrombosis,4145867,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+455,0,ICD8,Esophageal varices,24966,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+456,0,ICD8,Varicose veins of other sites,312349,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+4560,0,ICD8,Varicose veins of other sites,312349,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+457,0,ICD8,Other disorders of veins,4234997,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+4580,0,ICD8,Nonspecific lymphadenitis,316084,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+4581,0,ICD8,Nonspecific lymphadenitis,316084,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+4589,0,ICD8,Nonspecific lymphadenitis,316084,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+460,0,ICD8,Acute nasopharyngitis [common cold],260427,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+460-519,0,ICD8,Acute nasopharyngitis [common cold],260427,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+461,0,ICD8,Acute sinusitis,260123,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+462,0,ICD8,Acute pharyngitis,25297,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+463,0,ICD8,Acute tonsillitis,24660,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+464,0,ICD8,Acute obstructive laryngitis [croup] and epiglottitis,260134,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+46404,0,ICD8,Acute obstructive laryngitis [croup] and epiglottitis,260134,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+465,0,ICD8,Acute upper respiratory infections of multiple and unspecified sites,257011,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+46699,0,ICD8,Acute bronchitis,260139,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+470,0,ICD8,Influenza due to other identified influenza virus,4266367,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+471,0,ICD8,Influenza due to other identified influenza virus,4266367,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+47101,0,ICD8,Influenza due to other identified influenza virus,4266367,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+47109,0,ICD8,Influenza due to other identified influenza virus,4266367,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+472,0,ICD8,Acute laryngitis and tracheitis,4173027,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+473,0,ICD8,"Chronic rhinitis, nasopharyngitis and pharyngitis",4063381,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+474,0,ICD8,Chronic diseases of tonsils and adenoids,432347,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+480,0,ICD8,"Viral pneumonia, not elsewhere classified",261326,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+48099,0,ICD8,"Viral pneumonia, not elsewhere classified",261326,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+48199,0,ICD8,Pneumonia due to Streptococcus pneumoniae,258785,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+482,0,ICD8,"Bacterial pneumonia, not elsewhere classified",257315,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+48210,0,ICD8,"Bacterial pneumonia, not elsewhere classified",257315,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+48399,0,ICD8,"Pneumonia due to other infectious organisms, not elsewhere classified",255848,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+48499,0,ICD8,Pneumonia in diseases classified elsewhere,255848,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+48502,0,ICD8,"Pneumonia, unspecified organism",255848,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+48503,0,ICD8,"Pneumonia, unspecified organism",255848,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+48504,0,ICD8,"Pneumonia, unspecified organism",255848,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+48505,0,ICD8,"Pneumonia, unspecified organism",255848,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+48506,0,ICD8,"Pneumonia, unspecified organism",255848,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+48507,0,ICD8,"Pneumonia, unspecified organism",255848,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+48508,0,ICD8,"Pneumonia, unspecified organism",255848,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+48509,0,ICD8,"Pneumonia, unspecified organism",255848,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+486,0,ICD8,"Pneumonia, unspecified organism",255848,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+49099,0,ICD8,"Bronchitis, not specified as acute or chronic",256451,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+49101,0,ICD8,Simple and mucopurulent chronic bronchitis,255841,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+49102,0,ICD8,Simple and mucopurulent chronic bronchitis,255841,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+49104,0,ICD8,Simple and mucopurulent chronic bronchitis,255841,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+49109,0,ICD8,Simple and mucopurulent chronic bronchitis,255841,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+492,0,ICD8,Emphysema,261325,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+493,0,ICD8,Asthma,317009,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+500,0,ICD8,Coalworker's pneumoconiosis,252946,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+501,0,ICD8,Pneumoconiosis due to asbestos and other mineral fibers,256450,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+502,0,ICD8,Pneumoconiosis due to dust containing silica,442125,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+503,0,ICD8,Pneumoconiosis due to other inorganic dusts,254389,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+50499,0,ICD8,Unspecified pneumoconiosis,259044,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+505,0,ICD8,Unspecified pneumoconiosis,259044,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+506,0,ICD8,"Respiratory conditions due to inhalation of chemicals, gases, fumes and vapors",3655118,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+507,0,ICD8,Pneumonitis due to solids and liquids,4187218,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+508,0,ICD8,Respiratory conditions due to other external agents,320136,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+50803,0,ICD8,Respiratory conditions due to other external agents,320136,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+510,0,ICD8,Pyothorax,4238808,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+511,0,ICD8,"Pleural effusion, not elsewhere classified",254061,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5111,0,ICD8,"Pleural effusion, not elsewhere classified",254061,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5112,0,ICD8,"Pleural effusion, not elsewhere classified",254061,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+51299,0,ICD8,Pneumothorax and air leak,253796,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+51399,0,ICD8,Abscess of lung and mediastinum,4025164,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5150,0,ICD8,Other interstitial pulmonary diseases,4119786,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5152,0,ICD8,Other interstitial pulmonary diseases,4119786,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+51599,0,ICD8,Other interstitial pulmonary diseases,4119786,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+51600,0,ICD8,Other interstitial pulmonary diseases,4119786,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5161,0,ICD8,Other interstitial pulmonary diseases,4119786,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5162,0,ICD8,Other interstitial pulmonary diseases,4119786,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+51701,0,ICD8,Respiratory disorders in diseases classified elsewhere,320136,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+51899,0,ICD8,Other respiratory disorders,320136,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+519,0,ICD8,Other respiratory disorders,320136,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+51910,0,ICD8,Other respiratory disorders,320136,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+51920,0,ICD8,Other respiratory disorders,320136,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+520,0,ICD8,Disorders of tooth development and eruption,4159157,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+52000,0,ICD8,Disorders of tooth development and eruption,4159157,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+52010,0,ICD8,Disorders of tooth development and eruption,4159157,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+521,0,ICD8,Dental caries,133228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5210,0,ICD8,Dental caries,133228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+52100,0,ICD8,Dental caries,133228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5211,0,ICD8,Dental caries,133228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5212,0,ICD8,Dental caries,133228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5213,0,ICD8,Dental caries,133228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5214,0,ICD8,Dental caries,133228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5215,0,ICD8,Dental caries,133228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5216,0,ICD8,Dental caries,133228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5217,0,ICD8,Dental caries,133228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5218,0,ICD8,Dental caries,133228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5219,0,ICD8,Dental caries,133228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+522,0,ICD8,Diseases of pulp and periapical tissues,435570,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+523,0,ICD8,Gingivitis and periodontal diseases,201603,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5232,0,ICD8,Gingivitis and periodontal diseases,201603,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5234,0,ICD8,Gingivitis and periodontal diseases,201603,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5235,0,ICD8,Gingivitis and periodontal diseases,201603,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5236,0,ICD8,Gingivitis and periodontal diseases,201603,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5237,0,ICD8,Gingivitis and periodontal diseases,201603,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5238,0,ICD8,Gingivitis and periodontal diseases,201603,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5239,0,ICD8,Gingivitis and periodontal diseases,201603,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+525,0,ICD8,Other disorders of teeth and supporting structures,201603,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+527,0,ICD8,Diseases of salivary glands,25572,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+528,0,ICD8,Stomatitis and related lesions,138455,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5280,0,ICD8,Stomatitis and related lesions,138455,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+529,0,ICD8,Diseases of tongue,432941,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5293,0,ICD8,Diseases of tongue,432941,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5300,0,ICD8,Other diseases of esophagus,31610,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5301,0,ICD8,Other diseases of esophagus,31610,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5302,0,ICD8,Other diseases of esophagus,31610,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5303,0,ICD8,Other diseases of esophagus,31610,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5304,0,ICD8,Other diseases of esophagus,31610,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5309,0,ICD8,Other diseases of esophagus,31610,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+533,0,ICD8,"Peptic ulcer, site unspecified",4027663,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+534,0,ICD8,Gastrojejunal ulcer,4059178,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+53503,0,ICD8,Gastritis and duodenitis,4043371,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+53504,0,ICD8,Gastritis and duodenitis,4043371,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+53505,0,ICD8,Gastritis and duodenitis,4043371,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+53506,0,ICD8,Gastritis and duodenitis,4043371,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+53507,0,ICD8,Gastritis and duodenitis,4043371,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+53508,0,ICD8,Gastritis and duodenitis,4043371,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+53509,0,ICD8,Gastritis and duodenitis,4043371,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+536,0,ICD8,Other diseases of stomach and duodenum,4000609,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5361,0,ICD8,Other diseases of stomach and duodenum,4000609,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+537,0,ICD8,Other diseases of stomach and duodenum,4000609,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+540,0,ICD8,Acute appendicitis,4310400,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5402,0,ICD8,Acute appendicitis,4310400,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+541,0,ICD8,Other appendicitis,440448,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+542,0,ICD8,Unspecified appendicitis,440448,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+550,0,ICD8,Inguinal hernia,4288544,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5510,0,ICD8,Unspecified abdominal hernia,199860,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5511,0,ICD8,Unspecified abdominal hernia,199860,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5512,0,ICD8,Unspecified abdominal hernia,199860,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5513,0,ICD8,Unspecified abdominal hernia,199860,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5518,0,ICD8,Unspecified abdominal hernia,199860,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5519,0,ICD8,Unspecified abdominal hernia,199860,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+560,0,ICD8,Paralytic ileus and intestinal obstruction without hernia,193518,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5600,0,ICD8,Paralytic ileus and intestinal obstruction without hernia,193518,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5601,0,ICD8,Paralytic ileus and intestinal obstruction without hernia,193518,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5602,0,ICD8,Paralytic ileus and intestinal obstruction without hernia,193518,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5603,0,ICD8,Paralytic ileus and intestinal obstruction without hernia,193518,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5609,0,ICD8,Paralytic ileus and intestinal obstruction without hernia,193518,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+56095,0,ICD8,Paralytic ileus and intestinal obstruction without hernia,193518,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+56096,0,ICD8,Paralytic ileus and intestinal obstruction without hernia,193518,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+562,0,ICD8,Diverticular disease of intestine,4272162,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5630,0,ICD8,Other functional intestinal disorders,196151,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5631,0,ICD8,Other functional intestinal disorders,196151,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5639,0,ICD8,Other functional intestinal disorders,196151,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+564,0,ICD8,Other functional intestinal disorders,196151,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+56419,0,ICD8,Other functional intestinal disorders,196151,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+565,0,ICD8,Fissure and fistula of anal and rectal regions,4055116,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+566,0,ICD8,Abscess of anal and rectal regions,4326601,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+567,0,ICD8,Peritonitis,196152,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+569,0,ICD8,Other diseases of intestine,201618,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+56906,0,ICD8,Other diseases of intestine,201618,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+56907,0,ICD8,Other diseases of intestine,201618,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+570,0,ICD8,"Hepatic failure, not elsewhere classified",4245975,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+57001,0,ICD8,"Hepatic failure, not elsewhere classified",4245975,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5710,0,ICD8,Fibrosis and cirrhosis of liver,4267417,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5719,0,ICD8,Fibrosis and cirrhosis of liver,4267417,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+573,0,ICD8,Liver disorders in diseases classified elsewhere,194984,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+57300,0,ICD8,Liver disorders in diseases classified elsewhere,194984,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+574,0,ICD8,Cholelithiasis,4145627,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+57500,0,ICD8,Cholecystitis,192956,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+57501,0,ICD8,Cholecystitis,192956,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+57502,0,ICD8,Cholecystitis,192956,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+57503,0,ICD8,Cholecystitis,192956,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+57504,0,ICD8,Cholecystitis,192956,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+57505,0,ICD8,Cholecystitis,192956,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+576,0,ICD8,Other diseases of biliary tract,197917,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+57600,0,ICD8,Other diseases of biliary tract,197917,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+57602,0,ICD8,Other diseases of biliary tract,197917,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+57604,0,ICD8,Other diseases of biliary tract,197917,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5770,0,ICD8,Other diseases of pancreas,192963,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5771,0,ICD8,Other diseases of pancreas,192963,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5779,0,ICD8,Other diseases of pancreas,192963,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+580,0,ICD8,Acute nephritic syndrome,4189531,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+581,0,ICD8,Nephrotic syndrome,195314,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+582,0,ICD8,Chronic nephritic syndrome,4056478,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+58200,0,ICD8,Chronic nephritic syndrome,4056478,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+58209,0,ICD8,Chronic nephritic syndrome,4056478,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+583,0,ICD8,Unspecified nephritic syndrome,4298809,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+584,0,ICD8,Acute kidney failure,197320,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+590,0,ICD8,Acute pyelonephritis,4280571,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5900,0,ICD8,Acute pyelonephritis,4280571,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5901,0,ICD8,Acute pyelonephritis,4280571,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5902,0,ICD8,Acute pyelonephritis,4280571,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5909,0,ICD8,Acute pyelonephritis,4280571,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+591,0,ICD8,Obstructive and reflux uropathy,194406,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+592,0,ICD8,Calculus of kidney and ureter,4148260,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+593,0,ICD8,Disorders resulting from impaired renal tubular function,4030518,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5930,0,ICD8,Disorders resulting from impaired renal tubular function,4030518,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5932,0,ICD8,Disorders resulting from impaired renal tubular function,4030518,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+59321,0,ICD8,Disorders resulting from impaired renal tubular function,4030518,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+59322,0,ICD8,Disorders resulting from impaired renal tubular function,4030518,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5933,0,ICD8,Disorders resulting from impaired renal tubular function,4030518,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5934,0,ICD8,Disorders resulting from impaired renal tubular function,4030518,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+5935,0,ICD8,Disorders resulting from impaired renal tubular function,4030518,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+594,0,ICD8,Calculus of lower urinary tract,197028,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+595,0,ICD8,Cystitis,195588,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+596,0,ICD8,Other disorders of bladder,201337,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+597,0,ICD8,Urethritis and urethral syndrome,200450,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+598,0,ICD8,Urethral stricture,195590,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+599,0,ICD8,Other disorders of urinary system,75865,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+600,0,ICD8,Benign prostatic hyperplasia,198803,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+601,0,ICD8,Inflammatory diseases of prostate,194997,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+602,0,ICD8,Other and unspecified disorders of prostate,196734,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+603,0,ICD8,Hydrocele and spermatocele,196738,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+604,0,ICD8,Orchitis and epididymitis,78193,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+605,0,ICD8,Disorders of prepuce,45766654,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+606,0,ICD8,Male infertility,198197,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6070,0,ICD8,Other disorders of penis,196158,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6071,0,ICD8,Other disorders of penis,196158,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6072,0,ICD8,Other disorders of penis,196158,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6073,0,ICD8,Other disorders of penis,196158,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6074,0,ICD8,Other disorders of penis,196158,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6075,0,ICD8,Other disorders of penis,196158,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6076,0,ICD8,Other disorders of penis,196158,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6077,0,ICD8,Other disorders of penis,196158,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6078,0,ICD8,Other disorders of penis,196158,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6079,0,ICD8,Other disorders of penis,196158,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+60790,0,ICD8,Other disorders of penis,196158,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+610,0,ICD8,Benign mammary dysplasia,78200,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6110,0,ICD8,Other disorders of breast,77030,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6111,0,ICD8,Other disorders of breast,77030,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6112,0,ICD8,Other disorders of breast,77030,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6113,0,ICD8,Other disorders of breast,77030,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6114,0,ICD8,Other disorders of breast,77030,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6115,0,ICD8,Other disorders of breast,77030,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6116,0,ICD8,Other disorders of breast,77030,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6117,0,ICD8,Other disorders of breast,77030,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6118,0,ICD8,Other disorders of breast,77030,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6119,0,ICD8,Other disorders of breast,77030,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+620,0,ICD8,"Noninflammatory disorders of ovary, fallopian tube and broad ligament",4276175,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6200,0,ICD8,"Noninflammatory disorders of ovary, fallopian tube and broad ligament",4276175,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+621,0,ICD8,"Other noninflammatory disorders of uterus, except cervix",4329445,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6210,0,ICD8,"Other noninflammatory disorders of uterus, except cervix",4329445,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+62191,0,ICD8,"Other noninflammatory disorders of uterus, except cervix",4329445,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6220,0,ICD8,Dysplasia of cervix uteri,192367,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6221,0,ICD8,Dysplasia of cervix uteri,192367,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+62212,0,ICD8,Dysplasia of cervix uteri,192367,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+62213,0,ICD8,Dysplasia of cervix uteri,192367,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+62218,0,ICD8,Dysplasia of cervix uteri,192367,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+62219,0,ICD8,Dysplasia of cervix uteri,192367,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+623,0,ICD8,Other noninflammatory disorders of vagina,195867,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+624,0,ICD8,Other noninflammatory disorders of vulva and perineum,195603,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+625,0,ICD8,Pain and other conditions associated with female genital organs and menstrual cycle,200452,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+62520,0,ICD8,Pain and other conditions associated with female genital organs and menstrual cycle,200452,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6253,0,ICD8,Pain and other conditions associated with female genital organs and menstrual cycle,200452,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+62530,0,ICD8,Pain and other conditions associated with female genital organs and menstrual cycle,200452,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+62531,0,ICD8,Pain and other conditions associated with female genital organs and menstrual cycle,200452,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+62532,0,ICD8,Pain and other conditions associated with female genital organs and menstrual cycle,200452,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+62533,0,ICD8,Pain and other conditions associated with female genital organs and menstrual cycle,200452,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+62538,0,ICD8,Pain and other conditions associated with female genital organs and menstrual cycle,200452,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+62539,0,ICD8,Pain and other conditions associated with female genital organs and menstrual cycle,200452,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+626,0,ICD8,"Excessive, frequent and irregular menstruation",4171394,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6260,0,ICD8,"Excessive, frequent and irregular menstruation",4171394,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6261,0,ICD8,"Excessive, frequent and irregular menstruation",4171394,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6262,0,ICD8,"Excessive, frequent and irregular menstruation",4171394,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6263,0,ICD8,"Excessive, frequent and irregular menstruation",4171394,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6264,0,ICD8,"Excessive, frequent and irregular menstruation",4171394,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6265,0,ICD8,"Excessive, frequent and irregular menstruation",4171394,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6266,0,ICD8,"Excessive, frequent and irregular menstruation",4171394,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+626[67],0,ICD8,"Excessive, frequent and irregular menstruation",4171394,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6267,0,ICD8,"Excessive, frequent and irregular menstruation",4171394,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6268,0,ICD8,"Excessive, frequent and irregular menstruation",4171394,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6269,0,ICD8,"Excessive, frequent and irregular menstruation",4171394,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+627,0,ICD8,Menopausal and other perimenopausal disorders,4141640,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+628,0,ICD8,Female infertility,201909,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+62911,0,ICD8,"Intraoperative and postprocedural complications and disorders of genitourinary system, not elsewhere classified",442019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+62920,0,ICD8,"Intraoperative and postprocedural complications and disorders of genitourinary system, not elsewhere classified",442019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6293,0,ICD8,"Intraoperative and postprocedural complications and disorders of genitourinary system, not elsewhere classified",442019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+62950,0,ICD8,"Intraoperative and postprocedural complications and disorders of genitourinary system, not elsewhere classified",442019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6297,0,ICD8,"Intraoperative and postprocedural complications and disorders of genitourinary system, not elsewhere classified",442019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+62980,0,ICD8,"Intraoperative and postprocedural complications and disorders of genitourinary system, not elsewhere classified",442019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+62990,0,ICD8,"Intraoperative and postprocedural complications and disorders of genitourinary system, not elsewhere classified",442019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+631,0,ICD8,Ectopic pregnancy,437611,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6320,0,ICD8,Complications following (induced) termination of pregnancy,37162983,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+632[01],0,ICD8,Complications following (induced) termination of pregnancy,37162983,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6321,0,ICD8,Complications following (induced) termination of pregnancy,37162983,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+63230,0,ICD8,Complications following (induced) termination of pregnancy,37162983,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6340,0,ICD8,Spontaneous abortion,4067106,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+634[01],0,ICD8,Spontaneous abortion,4067106,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6341,0,ICD8,Spontaneous abortion,4067106,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6342,0,ICD8,Spontaneous abortion,4067106,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6344,0,ICD8,Spontaneous abortion,4067106,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+63494,0,ICD8,Spontaneous abortion,4067106,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+63495,0,ICD8,Spontaneous abortion,4067106,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+63496,0,ICD8,Spontaneous abortion,4067106,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+63497,0,ICD8,Spontaneous abortion,4067106,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+63498,0,ICD8,Spontaneous abortion,4067106,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+635,0,ICD8,Failed attempted termination of pregnancy,4171359,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+638,0,ICD8,Failed attempted termination of pregnancy,4171359,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+639,0,ICD8,Complications following ectopic and molar pregnancy,439658,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6390,0,ICD8,Complications following ectopic and molar pregnancy,439658,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+640,0,ICD8,"Pre-existing hypertension complicating pregnancy, childbirth and the puerperium",321074,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+641,0,ICD8,Gestational [pregnancy-induced] hypertension without significant proteinuria,4167493,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+642,0,ICD8,Gestational [pregnancy-induced] hypertension without significant proteinuria,4167493,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+643,0,ICD8,Excessive vomiting in pregnancy,4030872,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+64395,0,ICD8,Excessive vomiting in pregnancy,4030872,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6439[578],0,ICD8,Excessive vomiting in pregnancy,4030872,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+64397,0,ICD8,Excessive vomiting in pregnancy,4030872,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+64398,0,ICD8,Excessive vomiting in pregnancy,4030872,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+64590,0,ICD8,Late pregnancy,432695,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6459[015],0,ICD8,Late pregnancy,432695,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+64591,0,ICD8,Late pregnancy,432695,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+64592,0,ICD8,Late pregnancy,432695,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+64595,0,ICD8,Late pregnancy,432695,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+650,0,ICD8,Encounter for full-term uncomplicated delivery,441641,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+65007,0,ICD8,Encounter for full-term uncomplicated delivery,441641,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+652,0,ICD8,Maternal care for malpresentation of fetus,74104,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6603,0,ICD8,"Other complications of labor and delivery, not elsewhere classified",440795,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+66120,0,ICD8,Abnormalities of forces of labor,437342,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6613,0,ICD8,Abnormalities of forces of labor,437342,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6629,0,ICD8,Long labor,440167,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+670,0,ICD8,Puerperal sepsis,4102318,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+671,0,ICD8,Other puerperal infections,4075295,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6710,0,ICD8,Other puerperal infections,4075295,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+67299,0,ICD8,"Complications of the puerperium, not elsewhere classified",441364,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+673,0,ICD8,Obstetric embolism,435026,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6739,0,ICD8,Obstetric embolism,435026,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+680,0,ICD8,Staphylococcal scalded skin syndrome,132392,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+681,0,ICD8,Cellulitis and acute lymphangitis,4130215,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+682,0,ICD8,Cellulitis and acute lymphangitis,4130215,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+683,0,ICD8,Acute lymphadenitis,318222,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+684,0,ICD8,Other local infections of skin and subcutaneous tissue,443600,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+68600,0,ICD8,Other local infections of skin and subcutaneous tissue,443600,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+68610,0,ICD8,Other local infections of skin and subcutaneous tissue,443600,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+68611,0,ICD8,Other local infections of skin and subcutaneous tissue,443600,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+68690,0,ICD8,Other local infections of skin and subcutaneous tissue,443600,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+68691,0,ICD8,Other local infections of skin and subcutaneous tissue,443600,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+68693,0,ICD8,Other local infections of skin and subcutaneous tissue,443600,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+68696,0,ICD8,Other local infections of skin and subcutaneous tissue,443600,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+68698,0,ICD8,Other local infections of skin and subcutaneous tissue,443600,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+690,0,ICD8,Seborrheic dermatitis,137053,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+691,0,ICD8,Atopic dermatitis,133834,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+69100,0,ICD8,Atopic dermatitis,133834,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6921,0,ICD8,Allergic contact dermatitis,4031019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6922,0,ICD8,Allergic contact dermatitis,4031019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6923,0,ICD8,Allergic contact dermatitis,4031019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6924,0,ICD8,Allergic contact dermatitis,4031019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6925,0,ICD8,Allergic contact dermatitis,4031019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6926,0,ICD8,Allergic contact dermatitis,4031019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6927,0,ICD8,Allergic contact dermatitis,4031019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6928,0,ICD8,Allergic contact dermatitis,4031019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+69281,0,ICD8,Allergic contact dermatitis,4031019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+69282,0,ICD8,Allergic contact dermatitis,4031019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+69283,0,ICD8,Allergic contact dermatitis,4031019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+69288,0,ICD8,Allergic contact dermatitis,4031019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6929,0,ICD8,Allergic contact dermatitis,4031019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+693,0,ICD8,Dermatitis due to substances taken internally,37171431,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+69400,0,ICD8,Pemphigus,135338,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+69401,0,ICD8,Pemphigus,135338,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+69402,0,ICD8,Pemphigus,135338,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+69403,0,ICD8,Pemphigus,135338,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+69409,0,ICD8,Pemphigus,135338,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6941,0,ICD8,Pemphigus,135338,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+69500,0,ICD8,Urticaria,139900,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+69510,0,ICD8,Urticaria,139900,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+69520,0,ICD8,Urticaria,139900,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+69530,0,ICD8,Urticaria,139900,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6954,0,ICD8,Urticaria,139900,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6959,0,ICD8,Urticaria,139900,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+69591,0,ICD8,Urticaria,139900,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+69599,0,ICD8,Urticaria,139900,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6960,0,ICD8,Psoriasis,140168,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+69600,0,ICD8,Psoriasis,140168,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+69610,0,ICD8,Psoriasis,140168,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+69619,0,ICD8,Psoriasis,140168,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6962,0,ICD8,Psoriasis,140168,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6963,0,ICD8,Psoriasis,140168,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6964,0,ICD8,Psoriasis,140168,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6965,0,ICD8,Psoriasis,140168,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6966,0,ICD8,Psoriasis,140168,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6967,0,ICD8,Psoriasis,140168,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6968,0,ICD8,Psoriasis,140168,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6969,0,ICD8,Psoriasis,140168,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6970,0,ICD8,Lichen planus,132703,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6971,0,ICD8,Lichen planus,132703,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+69799,0,ICD8,Lichen planus,132703,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6980,0,ICD8,Pruritus,4169287,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6981,0,ICD8,Pruritus,4169287,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6982,0,ICD8,Pruritus,4169287,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6983,0,ICD8,Pruritus,4169287,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6984,0,ICD8,Pruritus,4169287,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+6989,0,ICD8,Pruritus,4169287,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+700,0,ICD8,Pressure ulcer,37159532,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70100,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70101,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7011,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70110,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70112,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70115,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70119,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70120,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70130,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70190,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70198,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70200,0,ICD8,Skin changes due to chronic exposure to nonionizing radiation,4061844,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70300,0,ICD8,Nail disorders,132706,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70301,0,ICD8,Nail disorders,132706,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70302,0,ICD8,Nail disorders,132706,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70303,0,ICD8,Nail disorders,132706,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70304,0,ICD8,Nail disorders,132706,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70305,0,ICD8,Nail disorders,132706,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70306,0,ICD8,Nail disorders,132706,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70308,0,ICD8,Nail disorders,132706,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70309,0,ICD8,Nail disorders,132706,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70400,0,ICD8,Other nonscarring hair loss,4031164,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70401,0,ICD8,Other nonscarring hair loss,4031164,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70402,0,ICD8,Other nonscarring hair loss,4031164,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70403,0,ICD8,Other nonscarring hair loss,4031164,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70404,0,ICD8,Other nonscarring hair loss,4031164,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70405,0,ICD8,Other nonscarring hair loss,4031164,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70406,0,ICD8,Other nonscarring hair loss,4031164,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70407,0,ICD8,Other nonscarring hair loss,4031164,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70408,0,ICD8,Other nonscarring hair loss,4031164,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70409,0,ICD8,Other nonscarring hair loss,4031164,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+705,0,ICD8,Eccrine sweat disorders,4291291,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7050,0,ICD8,Eccrine sweat disorders,4291291,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7051,0,ICD8,Eccrine sweat disorders,4291291,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70600,0,ICD8,Acne,141095,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70601,0,ICD8,Acne,141095,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70610,0,ICD8,Acne,141095,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70611,0,ICD8,Acne,141095,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70612,0,ICD8,Acne,141095,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70620,0,ICD8,Acne,141095,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7063,0,ICD8,Acne,141095,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70630,0,ICD8,Acne,141095,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7064,0,ICD8,Acne,141095,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7065,0,ICD8,Acne,141095,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7066,0,ICD8,Acne,141095,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7067,0,ICD8,Acne,141095,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7068,0,ICD8,Acne,141095,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7069,0,ICD8,Acne,141095,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+707,0,ICD8,Pressure ulcer,37159532,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70700,0,ICD8,Pressure ulcer,37159532,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70708,0,ICD8,Pressure ulcer,37159532,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+708,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7082,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70900,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70901,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70902,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70903,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70904,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70905,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70906,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70907,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70908,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+70909,0,ICD8,"Other disorders of skin and subcutaneous tissue, not elsewhere classified",200174,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+710,0,ICD8,Polyosteoarthritis,80180,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+711,0,ICD8,Other rheumatoid arthritis,80809,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+71107,0,ICD8,Other rheumatoid arthritis,80809,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+71108,0,ICD8,Other rheumatoid arthritis,80809,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+71109,0,ICD8,Other rheumatoid arthritis,80809,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7120,0,ICD8,Other crystal arthropathies,80484,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7121,0,ICD8,Other crystal arthropathies,80484,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+71210,0,ICD8,Other crystal arthropathies,80484,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7122,0,ICD8,Other crystal arthropathies,80484,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+71220,0,ICD8,Other crystal arthropathies,80484,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7123,0,ICD8,Other crystal arthropathies,80484,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+71238,0,ICD8,Other crystal arthropathies,80484,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+71239,0,ICD8,Other crystal arthropathies,80484,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7124,0,ICD8,Other crystal arthropathies,80484,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7125,0,ICD8,Other crystal arthropathies,80484,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+713,0,ICD8,Other and unspecified osteoarthritis,80180,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+71300,0,ICD8,Other and unspecified osteoarthritis,80180,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+71301,0,ICD8,Other and unspecified osteoarthritis,80180,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+71303,0,ICD8,Other and unspecified osteoarthritis,80180,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7131,0,ICD8,Other and unspecified osteoarthritis,80180,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7132,0,ICD8,Other and unspecified osteoarthritis,80180,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+71320,0,ICD8,Other and unspecified osteoarthritis,80180,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+720,0,ICD8,Kyphosis and lordosis,73302,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+72199,0,ICD8,Spondylosis,4227449,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+722,0,ICD8,Dorsalgia,4169580,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+72209,0,ICD8,Dorsalgia,4169580,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+72228,0,ICD8,Dorsalgia,4169580,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+72229,0,ICD8,Dorsalgia,4169580,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7230,0,ICD8,Ankylosing spondylitis,437082,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+72310,0,ICD8,Ankylosing spondylitis,437082,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+72391,0,ICD8,Ankylosing spondylitis,437082,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+72398,0,ICD8,Ankylosing spondylitis,437082,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+72399,0,ICD8,Ankylosing spondylitis,437082,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+72410,0,ICD8,Dorsalgia,4169580,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7249,0,ICD8,Dorsalgia,4169580,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+725,0,ICD8,Myositis,73001,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7250,0,ICD8,Myositis,73001,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+72699,0,ICD8,Other bursopathies,444115,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+727,0,ICD8,Synovitis and tenosynovitis,74728,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7281,0,ICD8,Other disorders of muscle,137275,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7282,0,ICD8,Other disorders of muscle,137275,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7283,0,ICD8,Other disorders of muscle,137275,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7285,0,ICD8,Other disorders of muscle,137275,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+72870,0,ICD8,Other disorders of muscle,137275,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7288,0,ICD8,Other disorders of muscle,137275,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7289,0,ICD8,Other disorders of muscle,137275,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+72900,0,ICD8,"Other and unspecified soft tissue disorders, not elsewhere classified",4244662,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+72901,0,ICD8,"Other and unspecified soft tissue disorders, not elsewhere classified",4244662,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+72902,0,ICD8,"Other and unspecified soft tissue disorders, not elsewhere classified",4244662,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+72903,0,ICD8,"Other and unspecified soft tissue disorders, not elsewhere classified",4244662,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+72904,0,ICD8,"Other and unspecified soft tissue disorders, not elsewhere classified",4244662,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73099,0,ICD8,Osteomyelitis,141663,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73100,0,ICD8,Osteonecrosis,4287786,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73101,0,ICD8,Osteonecrosis,4287786,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73102,0,ICD8,Osteonecrosis,4287786,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73103,0,ICD8,Osteonecrosis,4287786,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73105,0,ICD8,Osteonecrosis,4287786,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73106,0,ICD8,Osteonecrosis,4287786,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73107,0,ICD8,Osteonecrosis,4287786,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73108,0,ICD8,Osteonecrosis,4287786,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73109,0,ICD8,Osteonecrosis,4287786,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+732,0,ICD8,Other juvenile osteochondrosis,441103,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+733,0,ICD8,Other disorders of bone density and structure,75909,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7330,0,ICD8,Other disorders of bone density and structure,75909,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7331,0,ICD8,Other disorders of bone density and structure,75909,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7339,0,ICD8,Other disorders of bone density and structure,75909,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7340,0,ICD8,Other specific joint derangements,78228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7341,0,ICD8,Other specific joint derangements,78228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73490,0,ICD8,Other specific joint derangements,78228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73491,0,ICD8,Other specific joint derangements,78228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73492,0,ICD8,Other specific joint derangements,78228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73493,0,ICD8,Other specific joint derangements,78228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73494,0,ICD8,Other specific joint derangements,78228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73495,0,ICD8,Other specific joint derangements,78228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73496,0,ICD8,Other specific joint derangements,78228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73497,0,ICD8,Other specific joint derangements,78228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73498,0,ICD8,Other specific joint derangements,78228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73499,0,ICD8,Other specific joint derangements,78228,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+735,0,ICD8,Other acquired deformities of limbs,133857,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+736,0,ICD8,Other acquired deformities of limbs,133857,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+737,0,ICD8,Kyphosis and lordosis,73302,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73800,0,ICD8,Other acquired deformities of musculoskeletal system and connective tissue,140823,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73801,0,ICD8,Other acquired deformities of musculoskeletal system and connective tissue,140823,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73802,0,ICD8,Other acquired deformities of musculoskeletal system and connective tissue,140823,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73803,0,ICD8,Other acquired deformities of musculoskeletal system and connective tissue,140823,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73804,0,ICD8,Other acquired deformities of musculoskeletal system and connective tissue,140823,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73805,0,ICD8,Other acquired deformities of musculoskeletal system and connective tissue,140823,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73808,0,ICD8,Other acquired deformities of musculoskeletal system and connective tissue,140823,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+73809,0,ICD8,Other acquired deformities of musculoskeletal system and connective tissue,140823,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+742,0,ICD8,Other congenital malformations of nervous system,374142,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+746,0,ICD8,Other congenital malformations of circulatory system,141124,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+74629,0,ICD8,Other congenital malformations of circulatory system,141124,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+74642,0,ICD8,Other congenital malformations of circulatory system,141124,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+74663,0,ICD8,Other congenital malformations of circulatory system,141124,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7470,0,ICD8,Other congenital malformations of peripheral vascular system,316795,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7471,0,ICD8,Other congenital malformations of peripheral vascular system,316795,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+74719,0,ICD8,Other congenital malformations of peripheral vascular system,316795,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7472,0,ICD8,Other congenital malformations of peripheral vascular system,316795,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7473,0,ICD8,Other congenital malformations of peripheral vascular system,316795,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+74900,0,ICD8,Cleft palate with cleft lip,134144,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+74910,0,ICD8,Cleft palate with cleft lip,134144,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+74911,0,ICD8,Cleft palate with cleft lip,134144,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7491[123],0,ICD8,Cleft palate with cleft lip,134144,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+74912,0,ICD8,Cleft palate with cleft lip,134144,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+74913,0,ICD8,Cleft palate with cleft lip,134144,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+74920,0,ICD8,Cleft palate with cleft lip,134144,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+74924,0,ICD8,Cleft palate with cleft lip,134144,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+74929,0,ICD8,Cleft palate with cleft lip,134144,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+753,0,ICD8,Other congenital malformations of urinary system,4108905,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+75400,0,ICD8,Other congenital musculoskeletal deformities,135061,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+75401,0,ICD8,Other congenital musculoskeletal deformities,135061,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+75600,0,ICD8,Other osteochondrodysplasias,4023985,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7595,0,ICD8,"Other congenital malformations, not elsewhere classified",4079975,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7824,0,ICD8,Other skin changes,141960,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+78329,0,ICD8,Other symptoms and signs involving the digestive system and abdomen,4297887,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+78330,0,ICD8,Other symptoms and signs involving the digestive system and abdomen,4297887,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+784,0,ICD8,Pain in throat and chest,4132926,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7840,0,ICD8,Pain in throat and chest,4132926,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+78400,0,ICD8,Pain in throat and chest,4132926,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+78559,0,ICD8,Abnormalities of heart beat,4262562,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7861,0,ICD8,Abnormalities of breathing,4305080,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7873,0,ICD8,Flatulence and related conditions,4091513,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+7880,0,ICD8,Pain associated with micturition,197684,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+78840,0,ICD8,Pain associated with micturition,197684,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+78850,0,ICD8,Pain associated with micturition,197684,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+78869,0,ICD8,Pain associated with micturition,197684,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+78870,0,ICD8,Pain associated with micturition,197684,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+78891,0,ICD8,Pain associated with micturition,197684,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+79010,0,ICD8,Other abnormal findings of blood chemistry,436230,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+800,0,ICD8,Fracture of skull and facial bones,4011508,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+801,0,ICD8,Fracture of skull and facial bones,4011508,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+802,0,ICD8,Fracture of skull and facial bones,4011508,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+803,0,ICD8,Fracture of skull and facial bones,4011508,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+804,0,ICD8,Other and unspecified injuries of head,375415,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+820,0,ICD8,Fracture of femur,442560,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+850,0,ICD8,Intracranial injury,437409,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+851,0,ICD8,Intracranial injury,437409,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+852,0,ICD8,Intracranial injury,437409,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+853,0,ICD8,Intracranial injury,437409,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+854,0,ICD8,Intracranial injury,437409,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+980,0,ICD8,Toxic effect of alcohol,37165682,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+9800,0,ICD8,Toxic effect of alcohol,37165682,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+9977,0,ICD8,"Complications of procedures, not elsewhere classified",442019,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
+E95,0,ICD8,Intentional self-harm by sharp object,4092411,SNOMED,1970-01-01,2099-12-31,,finngen-phenotype-matching-icd8-bridge
