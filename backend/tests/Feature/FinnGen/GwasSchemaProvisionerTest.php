@@ -19,7 +19,7 @@ it('creates pancreas_gwas_results.summary_stats with all 13 columns', function (
         'chrom', 'pos', 'ref', 'alt', 'snp_id', 'af', 'beta', 'se',
         'p_value', 'case_n', 'control_n', 'cohort_definition_id', 'gwas_run_id',
     ]);
-})->skip('Wave 0 skeleton — implementation lands in Wave 2 Plan 14-03');
+});
 
 it('is idempotent on re-provision', function () {
     $svc = app(GwasSchemaProvisioner::class);
@@ -28,8 +28,38 @@ it('is idempotent on re-provision', function () {
     expect(DB::selectOne("
         SELECT to_regclass('pancreas_gwas_results.summary_stats') AS t
     ")->t)->not->toBeNull();
-})->skip('Wave 0 skeleton — implementation lands in Wave 2 Plan 14-03');
+});
 
 it('rejects unsafe source_key values', function () {
     app(GwasSchemaProvisioner::class)->provision('foo; DROP TABLE x;--');
-})->throws(InvalidArgumentException::class)->skip('Wave 0 skeleton — implementation lands in Wave 2 Plan 14-03');
+})->throws(InvalidArgumentException::class);
+
+it('creates BRIN composite index on (gwas_run_id, chrom, pos) per Pitfall 2', function () {
+    app(GwasSchemaProvisioner::class)->provision('PANCREAS');
+    $row = DB::selectOne("
+        SELECT indexdef
+        FROM pg_indexes
+        WHERE schemaname = 'pancreas_gwas_results'
+          AND tablename  = 'summary_stats'
+          AND indexname  = 'summary_stats_run_chrom_pos_brin'
+    ");
+    expect($row)->not->toBeNull();
+    expect($row->indexdef)->toContain('USING brin');
+    expect($row->indexdef)->toContain('gwas_run_id');
+    expect($row->indexdef)->toContain('chrom');
+    expect($row->indexdef)->toContain('pos');
+});
+
+it('creates BTREE on (cohort_definition_id, p_value)', function () {
+    app(GwasSchemaProvisioner::class)->provision('PANCREAS');
+    $row = DB::selectOne("
+        SELECT indexdef
+        FROM pg_indexes
+        WHERE schemaname = 'pancreas_gwas_results'
+          AND tablename  = 'summary_stats'
+          AND indexname  = 'summary_stats_cohort_p_btree'
+    ");
+    expect($row)->not->toBeNull();
+    expect($row->indexdef)->toContain('cohort_definition_id');
+    expect($row->indexdef)->toContain('p_value');
+});
