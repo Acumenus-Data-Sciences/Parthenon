@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { Loader2, AlertCircle, Mail, User, CheckCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import apiClient from "@/lib/api-client";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 export function RegisterPage() {
+  const { t } = useTranslation("auth");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
@@ -17,10 +19,13 @@ export function RegisterPage() {
     setLoading(true);
 
     try {
-      await apiClient.post("/auth/register", { name: name.trim(), email: email.trim() });
+      await apiClient.post("/auth/register", {
+        name: name.trim(),
+        email: email.trim(),
+      });
       setDone(true);
     } catch {
-      setError("Registration failed. Please try again.");
+      setError(t("register.failed"));
     } finally {
       setLoading(false);
     }
@@ -52,7 +57,14 @@ export function RegisterPage() {
   };
 
   return (
-    <div style={{ position: "fixed", inset: 0, display: "flex", overflow: "hidden" }}>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        display: "flex",
+        overflow: "hidden",
+      }}
+    >
       <div style={{ position: "absolute", top: 16, right: 16, zIndex: 10 }}>
         <ThemeToggle />
       </div>
@@ -90,18 +102,28 @@ export function RegisterPage() {
             backgroundSize: "cover",
             backgroundPosition: "center 40%",
             filter: "brightness(0.28) saturate(0.4)",
-            maskImage: "linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)",
-            WebkitMaskImage: "linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)",
+            maskImage:
+              "linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)",
           }}
         />
         <div
           style={{
             position: "absolute",
             inset: 0,
-            background: "radial-gradient(ellipse at center, rgba(8,8,10,0.55) 0%, rgba(8,8,10,0.3) 50%, transparent 80%)",
+            background:
+              "radial-gradient(ellipse at center, rgba(8,8,10,0.55) 0%, rgba(8,8,10,0.3) 50%, transparent 80%)",
           }}
         />
-        <div style={{ position: "relative", zIndex: 1, maxWidth: 500, textAlign: "center" }}>
+        <div
+          style={{
+            position: "relative",
+            zIndex: 1,
+            maxWidth: 500,
+            textAlign: "center",
+          }}
+        >
           <div
             style={{
               width: 56,
@@ -132,7 +154,7 @@ export function RegisterPage() {
               marginTop: "var(--space-3)",
             }}
           >
-            Unified Outcomes Research Platform
+            {t("hero.tagline")}
           </p>
           <p
             style={{
@@ -143,7 +165,7 @@ export function RegisterPage() {
               lineHeight: 1.6,
             }}
           >
-            Request access to the platform. A temporary password will be sent to your email address.
+            {t("register.heroDescription")}
           </p>
         </div>
       </div>
@@ -157,7 +179,8 @@ export function RegisterPage() {
           alignItems: "center",
           justifyContent: "center",
           padding: "var(--space-10)",
-          background: "linear-gradient(135deg, rgba(14,14,17,0.88) 0%, rgba(14,14,17,0.95) 100%)",
+          background:
+            "linear-gradient(135deg, rgba(14,14,17,0.88) 0%, rgba(14,14,17,0.95) 100%)",
           borderLeft: "1px solid rgba(255,255,255,0.04)",
           backdropFilter: "blur(40px)",
           WebkitBackdropFilter: "blur(40px)",
@@ -170,7 +193,8 @@ export function RegisterPage() {
             right: 0,
             width: 300,
             height: 300,
-            background: "radial-gradient(circle at top right, var(--primary-glow), transparent 70%)",
+            background:
+              "radial-gradient(circle at top right, var(--primary-glow), transparent 70%)",
             opacity: 0.15,
             pointerEvents: "none",
           }}
@@ -181,13 +205,15 @@ export function RegisterPage() {
             position: "relative",
             width: "100%",
             maxWidth: 420,
-            background: "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.015) 100%)",
+            background:
+              "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.015) 100%)",
             backdropFilter: "blur(16px)",
             WebkitBackdropFilter: "blur(16px)",
             border: "1px solid rgba(255,255,255,0.08)",
             borderRadius: "var(--radius-xl)",
             padding: "var(--space-10) var(--space-8)",
-            boxShadow: "0 24px 64px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)",
+            boxShadow:
+              "0 24px 64px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)",
           }}
         >
           {done ? (
@@ -217,7 +243,7 @@ export function RegisterPage() {
                   marginBottom: "var(--space-3)",
                 }}
               >
-                Check your email
+                {t("common.checkEmail")}
               </h2>
               <p
                 style={{
@@ -228,7 +254,7 @@ export function RegisterPage() {
                   marginBottom: "var(--space-6)",
                 }}
               >
-                If this email is new to Parthenon, a temporary password has been sent. Use it to sign in — you'll be asked to set a permanent password on first login.
+                {t("register.successBody")}
               </p>
               <Link
                 to="/login"
@@ -248,7 +274,7 @@ export function RegisterPage() {
                   letterSpacing: "0.3px",
                 }}
               >
-                Go to sign in
+                {t("register.goToSignIn")}
               </Link>
             </div>
           ) : (
@@ -263,7 +289,7 @@ export function RegisterPage() {
                     lineHeight: 1.2,
                   }}
                 >
-                  Request access
+                  {t("common.requestAccess")}
                 </h2>
                 <p
                   style={{
@@ -273,7 +299,7 @@ export function RegisterPage() {
                     marginTop: "var(--space-2)",
                   }}
                 >
-                  Enter your details and we'll email a temporary password
+                  {t("register.subtitle")}
                 </p>
               </div>
 
@@ -300,11 +326,20 @@ export function RegisterPage() {
                 )}
 
                 <div style={{ marginBottom: "var(--space-4)" }}>
-                  <label htmlFor="name" style={labelStyle}>Full name</label>
+                  <label htmlFor="name" style={labelStyle}>
+                    {t("common.fullName")}
+                  </label>
                   <div style={{ position: "relative" }}>
                     <User
                       size={14}
-                      style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-ghost)", pointerEvents: "none" }}
+                      style={{
+                        position: "absolute",
+                        left: 12,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        color: "var(--text-ghost)",
+                        pointerEvents: "none",
+                      }}
                     />
                     <input
                       id="name"
@@ -312,20 +347,36 @@ export function RegisterPage() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required
-                      placeholder="Jane Smith"
+                      placeholder={t("register.namePlaceholder")}
                       style={inputStyle}
-                      onFocus={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.boxShadow = "var(--focus-ring)"; }}
-                      onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border-default)"; e.currentTarget.style.boxShadow = "none"; }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = "var(--accent)";
+                        e.currentTarget.style.boxShadow = "var(--focus-ring)";
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor =
+                          "var(--border-default)";
+                        e.currentTarget.style.boxShadow = "none";
+                      }}
                     />
                   </div>
                 </div>
 
                 <div style={{ marginBottom: "var(--space-6)" }}>
-                  <label htmlFor="email" style={labelStyle}>Email</label>
+                  <label htmlFor="email" style={labelStyle}>
+                    {t("common.email")}
+                  </label>
                   <div style={{ position: "relative" }}>
                     <Mail
                       size={14}
-                      style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-ghost)", pointerEvents: "none" }}
+                      style={{
+                        position: "absolute",
+                        left: 12,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        color: "var(--text-ghost)",
+                        pointerEvents: "none",
+                      }}
                     />
                     <input
                       id="email"
@@ -335,8 +386,15 @@ export function RegisterPage() {
                       required
                       placeholder="you@example.com"
                       style={inputStyle}
-                      onFocus={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.boxShadow = "var(--focus-ring)"; }}
-                      onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border-default)"; e.currentTarget.style.boxShadow = "none"; }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = "var(--accent)";
+                        e.currentTarget.style.boxShadow = "var(--focus-ring)";
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor =
+                          "var(--border-default)";
+                        e.currentTarget.style.boxShadow = "none";
+                      }}
                     />
                   </div>
                 </div>
@@ -367,11 +425,14 @@ export function RegisterPage() {
                 >
                   {loading ? (
                     <>
-                      <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} />
-                      Sending...
+                      <Loader2
+                        size={16}
+                        style={{ animation: "spin 1s linear infinite" }}
+                      />
+                      {t("register.sending")}
                     </>
                   ) : (
-                    "Request access"
+                    t("common.requestAccess")
                   )}
                 </button>
               </form>
@@ -391,12 +452,12 @@ export function RegisterPage() {
                     color: "var(--text-muted)",
                   }}
                 >
-                  Already have an account?{" "}
+                  {t("register.alreadyHaveAccount")}{" "}
                   <Link
                     to="/login"
                     style={{ color: "var(--accent)", textDecoration: "none" }}
                   >
-                    Sign in
+                    {t("common.signIn")}
                   </Link>
                 </p>
               </div>

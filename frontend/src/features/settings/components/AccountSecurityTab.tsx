@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Loader2, Lock, CheckCircle2, AlertCircle, Mail } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
 import apiClient from "@/lib/api-client";
@@ -11,6 +12,7 @@ interface Toast {
 }
 
 export function AccountSecurityTab() {
+  const { t } = useTranslation("settings");
   const user = useAuthStore((s) => s.user);
   const updateUser = useAuthStore((s) => s.updateUser);
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -51,11 +53,11 @@ export function AccountSecurityTab() {
       });
       if (data.user) updateUser(data.user);
       setForm({ current_password: "", new_password: "", new_password_confirmation: "" });
-      showToast("Password changed successfully", "success");
+      showToast(t("account.passwordChanged"), "success");
     } catch (err: unknown) {
       const message =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        "Failed to change password";
+        t("account.passwordChangeFailed");
       showToast(message, "error");
     } finally {
       setIsSubmitting(false);
@@ -77,8 +79,10 @@ export function AccountSecurityTab() {
             <Mail size={18} className="text-success" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-text-primary">Email Address</h3>
-            <p className="text-xs text-text-muted">Your login email cannot be changed here</p>
+            <h3 className="text-sm font-semibold text-text-primary">
+              {t("account.emailTitle")}
+            </h3>
+            <p className="text-xs text-text-muted">{t("account.emailSubtitle")}</p>
           </div>
         </div>
         <div className="space-y-1.5">
@@ -88,7 +92,7 @@ export function AccountSecurityTab() {
             disabled
             className={cn(inputClass, "opacity-60 cursor-not-allowed")}
           />
-          <p className="text-xs text-text-ghost">Contact your administrator to change your email address.</p>
+          <p className="text-xs text-text-ghost">{t("account.emailHelp")}</p>
         </div>
       </section>
 
@@ -99,41 +103,43 @@ export function AccountSecurityTab() {
             <Lock size={18} className="text-accent" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-text-primary">Change Password</h3>
-            <p className="text-xs text-text-muted">Update your password regularly for security</p>
+            <h3 className="text-sm font-semibold text-text-primary">
+              {t("account.passwordTitle")}
+            </h3>
+            <p className="text-xs text-text-muted">{t("account.passwordSubtitle")}</p>
           </div>
         </div>
 
         <div className="space-y-4">
           <div className="space-y-1.5">
             <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-              Current Password
+              {t("account.currentPassword")}
             </label>
             <input
               type="password"
               value={form.current_password}
               onChange={(e) => setForm((prev) => ({ ...prev, current_password: e.target.value }))}
               className={inputClass}
-              placeholder="Enter current password"
+              placeholder={t("account.currentPasswordPlaceholder")}
             />
           </div>
 
           <div className="space-y-1.5">
             <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-              New Password
+              {t("account.newPassword")}
             </label>
             <input
               type="password"
               value={form.new_password}
               onChange={(e) => setForm((prev) => ({ ...prev, new_password: e.target.value }))}
               className={inputClass}
-              placeholder="Minimum 8 characters"
+              placeholder={t("account.newPasswordPlaceholder")}
             />
           </div>
 
           <div className="space-y-1.5">
             <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-              Confirm New Password
+              {t("account.confirmPassword")}
             </label>
             <input
               type="password"
@@ -142,10 +148,10 @@ export function AccountSecurityTab() {
                 setForm((prev) => ({ ...prev, new_password_confirmation: e.target.value }))
               }
               className={inputClass}
-              placeholder="Re-enter new password"
+              placeholder={t("account.confirmPasswordPlaceholder")}
             />
             {form.new_password_confirmation && !passwordsMatch && (
-              <p className="text-xs text-critical">Passwords do not match</p>
+              <p className="text-xs text-critical">{t("account.passwordsDoNotMatch")}</p>
             )}
           </div>
         </div>
@@ -161,7 +167,7 @@ export function AccountSecurityTab() {
             )}
           >
             {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Lock size={14} />}
-            Change Password
+            {t("account.changePassword")}
           </button>
         </div>
       </section>

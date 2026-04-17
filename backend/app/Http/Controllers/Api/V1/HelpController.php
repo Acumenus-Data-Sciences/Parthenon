@@ -19,17 +19,28 @@ class HelpController extends Controller
     {
         // Sanitize key — only allow alphanumeric, hyphens, and dots
         if (! preg_match('/^[a-z0-9\-\.]+$/', $key)) {
-            return response()->json(['message' => 'Help topic not found.'], 404);
+            return response()->json(['message' => __('help.not_found')], 404);
         }
 
-        $path = resource_path("help/{$key}.json");
+        $requestedLocale = (string) config(
+            'parthenon-locales.current',
+            config('parthenon-locales.default', 'en-US'),
+        );
+        $match = $this->findHelpFile($key, $requestedLocale);
 
-        if (! file_exists($path)) {
-            return response()->json(['message' => 'Help topic not found.'], 404);
+        if ($match === null) {
+            return response()->json(['message' => __('help.not_found')], 404);
         }
 
-        $raw = file_get_contents($path);
+        $raw = file_get_contents($match['path']);
         $content = json_decode((string) $raw, true);
+        if (! is_array($content)) {
+            return response()->json(['message' => __('help.malformed')], 500);
+        }
+
+        $content['locale'] = $match['locale'];
+        $content['requested_locale'] = $requestedLocale;
+        $content['fallback_used'] = $match['fallback_used'];
 
         return response()->json($content);
     }
@@ -123,5 +134,68 @@ class HelpController extends Controller
         }
 
         return $entries;
+    }
+
+    /**
+     * @return array{path: string, locale: string, fallback_used: bool}|null
+     */
+    private function findHelpFile(string $key, string $requestedLocale): ?array
+    {
+        $defaultLocale = (string) config('parthenon-locales.default', 'en-US');
+        $candidates = [];
+
+        foreach ($this->localeCandidates($requestedLocale) as $locale) {
+            $candidates[] = [
+                'path' => resource_path("help/{$locale}/{$key}.json"),
+                'locale' => $requestedLocale,
+                'fallback_used' => false,
+            ];
+        }
+
+        foreach ($this->localeCandidates($defaultLocale) as $locale) {
+            $candidates[] = [
+                'path' => resource_path("help/{$locale}/{$key}.json"),
+                'locale' => $defaultLocale,
+                'fallback_used' => $requestedLocale !== $defaultLocale,
+            ];
+        }
+
+        // Legacy English layout. Keep this as the final English fallback while
+        // translated help files move into locale subdirectories.
+        $candidates[] = [
+            'path' => resource_path("help/{$key}.json"),
+            'locale' => $defaultLocale,
+            'fallback_used' => $requestedLocale !== $defaultLocale,
+        ];
+
+        $seen = [];
+        foreach ($candidates as $candidate) {
+            if (isset($seen[$candidate['path']])) {
+                continue;
+            }
+            $seen[$candidate['path']] = true;
+
+            if (file_exists($candidate['path'])) {
+                return $candidate;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function localeCandidates(string $locale): array
+    {
+        $metadata = (array) config("parthenon-locales.supported.{$locale}", []);
+        $laravelLocale = isset($metadata['laravel']) ? (string) $metadata['laravel'] : str_replace('-', '_', $locale);
+        $language = strtolower(strtok(str_replace('_', '-', $locale), '-') ?: $locale);
+
+        return array_values(array_unique(array_filter([
+            $locale,
+            $laravelLocale,
+            $language,
+        ])));
     }
 }

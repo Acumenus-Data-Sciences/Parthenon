@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, type FormEvent } from "react";
 import { Loader2, Mail, CheckCircle, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import apiClient from "@/lib/api-client";
 import axios from "axios";
 
@@ -14,6 +15,7 @@ export function ForgotPasswordModal({
   onClose,
   defaultEmail = "",
 }: ForgotPasswordModalProps) {
+  const { t } = useTranslation("auth");
   const [email, setEmail] = useState(defaultEmail);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -57,9 +59,9 @@ export function ForgotPasswordModal({
       setSuccess(true);
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.status === 429) {
-        setError("Too many requests. Please wait and try again.");
+        setError(t("forgot.tooManyRequests"));
       } else {
-        setError("Something went wrong. Please try again.");
+        setError(t("forgot.genericError"));
       }
     } finally {
       setLoading(false);
@@ -101,6 +103,7 @@ export function ForgotPasswordModal({
           <button
             type="button"
             onClick={onClose}
+            aria-label={t("forgot.close")}
             style={{
               position: "absolute",
               top: 16,
@@ -129,7 +132,10 @@ export function ForgotPasswordModal({
           <div style={{ textAlign: "center", padding: "var(--space-4) 0" }}>
             <CheckCircle
               size={48}
-              style={{ color: "var(--success)", margin: "0 auto var(--space-4)" }}
+              style={{
+                color: "var(--success)",
+                margin: "0 auto var(--space-4)",
+              }}
             />
             <h3
               style={{
@@ -140,7 +146,7 @@ export function ForgotPasswordModal({
                 marginBottom: "var(--space-2)",
               }}
             >
-              Check your email
+              {t("forgot.successTitle")}
             </h3>
             <p
               style={{
@@ -150,8 +156,7 @@ export function ForgotPasswordModal({
                 lineHeight: 1.5,
               }}
             >
-              If an account exists with that email, a new temporary password has
-              been sent.
+              {t("forgot.successBody")}
             </p>
           </div>
         ) : (
@@ -166,7 +171,7 @@ export function ForgotPasswordModal({
                 marginBottom: "var(--space-2)",
               }}
             >
-              Reset your password
+              {t("forgot.title")}
             </h3>
             <p
               style={{
@@ -177,7 +182,7 @@ export function ForgotPasswordModal({
                 lineHeight: 1.5,
               }}
             >
-              Enter your email and we'll send you a new temporary password.
+              {t("forgot.intro")}
             </p>
 
             <form onSubmit={handleSubmit}>
@@ -212,7 +217,7 @@ export function ForgotPasswordModal({
                     marginBottom: "var(--space-2)",
                   }}
                 >
-                  Email
+                  {t("common.email")}
                 </label>
                 <div style={{ position: "relative" }}>
                   <Mail
@@ -303,10 +308,10 @@ export function ForgotPasswordModal({
                       size={16}
                       style={{ animation: "spin 1s linear infinite" }}
                     />
-                    Sending...
+                    {t("forgot.sending")}
                   </>
                 ) : (
-                  "Send temporary password"
+                  t("forgot.sendTemporaryPassword")
                 )}
               </button>
             </form>

@@ -7,6 +7,7 @@ import {
   AlertCircle,
   Bell,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import {
   useNotificationPreferences,
@@ -22,38 +23,38 @@ interface Toast {
 
 const GRANULAR_LABELS: {
   key: keyof NotificationPreferences["notification_preferences"];
-  label: string;
-  description: string;
+  labelKey: string;
+  descriptionKey: string;
 }[] = [
   {
     key: "analysis_completed",
-    label: "Analysis Completed",
-    description: "Receive a notification when an analysis finishes successfully",
+    labelKey: "notifications.analysisCompleted",
+    descriptionKey: "notifications.analysisCompletedDescription",
   },
   {
     key: "analysis_failed",
-    label: "Analysis Failed",
-    description: "Receive a notification when an analysis encounters an error",
+    labelKey: "notifications.analysisFailed",
+    descriptionKey: "notifications.analysisFailedDescription",
   },
   {
     key: "cohort_generated",
-    label: "Cohort Generated",
-    description: "Receive a notification when a cohort generation completes",
+    labelKey: "notifications.cohortGenerated",
+    descriptionKey: "notifications.cohortGeneratedDescription",
   },
   {
     key: "study_completed",
-    label: "Study Completed",
-    description: "Receive a notification when a study run finishes",
+    labelKey: "notifications.studyCompleted",
+    descriptionKey: "notifications.studyCompletedDescription",
   },
   {
     key: "daily_digest",
-    label: "Daily Ops Digest",
-    description:
-      "Receive a daily morning email with CI status, service health, data quality, and changelog",
+    labelKey: "notifications.dailyDigest",
+    descriptionKey: "notifications.dailyDigestDescription",
   },
 ];
 
 export function NotificationSettings() {
+  const { t } = useTranslation("settings");
   const { data, isLoading, error } = useNotificationPreferences();
   const updateMutation = useUpdateNotificationPreferences();
 
@@ -82,9 +83,16 @@ export function NotificationSettings() {
   };
 
   useEffect(() => {
-    if (data) {
-      setForm(data);
-    }
+    if (!data) return;
+
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) setForm(data);
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [data]);
 
   const handleToggle = (
@@ -114,13 +122,26 @@ export function NotificationSettings() {
   const handleSave = () => {
     updateMutation.mutate(form, {
       onSuccess: () => {
-        showToast("Notification preferences saved successfully", "success");
+        showToast(t("notifications.saved"), "success");
       },
       onError: () => {
-        showToast("Failed to save notification preferences", "error");
+        showToast(t("notifications.saveFailed"), "error");
       },
     });
   };
+
+  const digestModes = [
+    {
+      value: "always",
+      label: t("notifications.everyMorning"),
+      desc: t("notifications.everyMorningDescription"),
+    },
+    {
+      value: "alerts_only",
+      label: t("notifications.alertsOnly"),
+      desc: t("notifications.alertsOnlyDescription"),
+    },
+  ] as const;
 
   if (isLoading) {
     return (
@@ -135,7 +156,7 @@ export function NotificationSettings() {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <AlertCircle size={24} className="mx-auto text-critical mb-2" />
-          <p className="text-critical">Failed to load notification preferences</p>
+          <p className="text-critical">{t("notifications.loadFailed")}</p>
         </div>
       </div>
     );
@@ -151,10 +172,10 @@ export function NotificationSettings() {
           </div>
           <div className="flex-1">
             <h3 className="text-sm font-semibold text-text-primary">
-              Email Notifications
+              {t("notifications.emailTitle")}
             </h3>
             <p className="text-xs text-text-muted">
-              Receive notifications via email
+              {t("notifications.emailSubtitle")}
             </p>
           </div>
           <ToggleSwitch
@@ -182,9 +203,9 @@ export function NotificationSettings() {
                 />
                 <div>
                   <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
-                    {item.label}
+                    {t(item.labelKey)}
                   </span>
-                  <p className="text-xs text-text-ghost">{item.description}</p>
+                  <p className="text-xs text-text-ghost">{t(item.descriptionKey)}</p>
                 </div>
               </label>
             ))}
@@ -193,22 +214,9 @@ export function NotificationSettings() {
             {form.notification_preferences.daily_digest && (
               <div className="mt-3 ml-1 space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-                  Digest Frequency
+                  {t("notifications.digestFrequency")}
                 </p>
-                {(
-                  [
-                    {
-                      value: "always",
-                      label: "Every morning",
-                      desc: "Full summary at 9am daily",
-                    },
-                    {
-                      value: "alerts_only",
-                      label: "Alerts only",
-                      desc: "Only when something needs attention",
-                    },
-                  ] as const
-                ).map((opt) => (
+                {digestModes.map((opt) => (
                   <label
                     key={opt.value}
                     className="flex items-start gap-3 cursor-pointer group"
@@ -254,10 +262,10 @@ export function NotificationSettings() {
           </div>
           <div className="flex-1">
             <h3 className="text-sm font-semibold text-text-primary">
-              SMS Notifications
+              {t("notifications.smsTitle")}
             </h3>
             <p className="text-xs text-text-muted">
-              Receive notifications via text message
+              {t("notifications.smsSubtitle")}
             </p>
           </div>
           <ToggleSwitch
@@ -271,7 +279,7 @@ export function NotificationSettings() {
             {/* Phone number */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-                Phone Number
+                {t("notifications.phoneNumber")}
               </label>
               <input
                 type="tel"
@@ -296,18 +304,18 @@ export function NotificationSettings() {
                   {(() => {
                     const checkedValue = form.notification_preferences[item.key];
                     return (
-                  <ToggleSwitch
-                    checked={typeof checkedValue === "boolean" ? checkedValue : false}
-                    onChange={() => handleGranularToggle(item.key)}
-                    size="sm"
-                  />
+                      <ToggleSwitch
+                        checked={typeof checkedValue === "boolean" ? checkedValue : false}
+                        onChange={() => handleGranularToggle(item.key)}
+                        size="sm"
+                      />
                     );
                   })()}
                   <div>
                     <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
-                      {item.label}
+                      {t(item.labelKey)}
                     </span>
-                    <p className="text-xs text-text-ghost">{item.description}</p>
+                    <p className="text-xs text-text-ghost">{t(item.descriptionKey)}</p>
                   </div>
                 </label>
               ))}
@@ -332,7 +340,7 @@ export function NotificationSettings() {
           ) : (
             <Bell size={14} />
           )}
-          Save Preferences
+          {t("notifications.savePreferences")}
         </button>
       </div>
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useUiStore } from "@/stores/uiStore";
 import { useAuthStore } from "@/stores/authStore";
@@ -49,14 +50,14 @@ import { HelpSlideOver } from "@/features/help/components/HelpSlideOver";
 
 interface NavChild {
   path: string;
-  label: string;
+  labelKey: string;
   icon: LucideIcon;
   superAdminOnly?: boolean;
 }
 
 interface NavItem {
   path: string;
-  label: string;
+  labelKey: string;
   icon: LucideIcon;
   adminOnly?: boolean;
   superAdminOnly?: boolean;
@@ -66,84 +67,84 @@ interface NavItem {
 const studyAgentEnabled = import.meta.env.VITE_STUDY_AGENT_ENABLED === "true";
 
 const navItems: NavItem[] = [
-  { path: "/", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/commons", label: "Commons", icon: MessageSquare },
+  { path: "/", labelKey: "nav.dashboard", icon: LayoutDashboard },
+  { path: "/commons", labelKey: "nav.commons", icon: MessageSquare },
   {
     path: "/data-sources",
-    label: "Data",
+    labelKey: "nav.data",
     icon: Database,
     children: [
-      { path: "/data-sources", label: "Clinical Data Models", icon: Database },
-      { path: "/ingestion", label: "Data Ingestion", icon: Upload },
-      { path: "/data-explorer", label: "Data Explorer", icon: BarChart3 },
+      { path: "/data-sources", labelKey: "nav.clinicalDataModels", icon: Database },
+      { path: "/ingestion", labelKey: "nav.dataIngestion", icon: Upload },
+      { path: "/data-explorer", labelKey: "nav.dataExplorer", icon: BarChart3 },
     ],
   },
   {
     path: "/vocabulary",
-    label: "Vocabulary",
+    labelKey: "nav.vocabulary",
     icon: BookOpen,
     children: [
-      { path: "/vocabulary", label: "Vocabulary Search", icon: BookOpen },
-      { path: "/mapping-assistant", label: "Mapping Assistant", icon: ArrowLeftRight },
+      { path: "/vocabulary", labelKey: "nav.vocabularySearch", icon: BookOpen },
+      { path: "/mapping-assistant", labelKey: "nav.mappingAssistant", icon: ArrowLeftRight },
     ],
   },
   {
     path: "/cohort-definitions",
-    label: "Research",
+    labelKey: "nav.research",
     icon: FlaskRound,
     children: [
-      { path: "/cohort-definitions", label: "Cohort Definitions", icon: Users },
-      { path: "/concept-sets", label: "Concept Sets", icon: FlaskConical },
-      { path: "/analyses", label: "Analyses", icon: Workflow },
-      { path: "/studies", label: "Studies", icon: Briefcase },
+      { path: "/cohort-definitions", labelKey: "nav.cohortDefinitions", icon: Users },
+      { path: "/concept-sets", labelKey: "nav.conceptSets", icon: FlaskConical },
+      { path: "/analyses", labelKey: "nav.analyses", icon: Workflow },
+      { path: "/studies", labelKey: "nav.studies", icon: Briefcase },
       ...(studyAgentEnabled
-        ? [{ path: "/study-designer", label: "Study Designer", icon: Brain }]
+        ? [{ path: "/study-designer", labelKey: "nav.studyDesigner", icon: Brain }]
         : []),
-      { path: "/study-packages", label: "Study Packages", icon: Package },
-      { path: "/phenotype-library", label: "Phenotype Library", icon: Library },
+      { path: "/study-packages", labelKey: "nav.studyPackages", icon: Package },
+      { path: "/phenotype-library", labelKey: "nav.phenotypeLibrary", icon: Library },
     ],
   },
   {
     path: "/profiles",
-    label: "Evidence",
+    labelKey: "nav.evidence",
     icon: Microscope,
     children: [
-      { path: "/profiles", label: "Patient Profiles", icon: UserCircle },
-      { path: "/patient-similarity", label: "Patient Similarity", icon: UsersRound },
-      { path: "/risk-scores", label: "Risk Scores", icon: Activity },
-      { path: "/standard-pros", label: "Standard PROs+", icon: ClipboardList },
-      { path: "/genomics", label: "Genomics", icon: Dna },
-      { path: "/imaging", label: "Imaging", icon: ScanLine },
-      { path: "/heor", label: "HEOR", icon: TrendingUp },
-      { path: "/gis", label: "GIS Explorer", icon: Globe },
+      { path: "/profiles", labelKey: "nav.patientProfiles", icon: UserCircle },
+      { path: "/patient-similarity", labelKey: "nav.patientSimilarity", icon: UsersRound },
+      { path: "/risk-scores", labelKey: "nav.riskScores", icon: Activity },
+      { path: "/standard-pros", labelKey: "nav.standardPros", icon: ClipboardList },
+      { path: "/genomics", labelKey: "nav.genomics", icon: Dna },
+      { path: "/imaging", labelKey: "nav.imaging", icon: ScanLine },
+      { path: "/heor", labelKey: "nav.heor", icon: TrendingUp },
+      { path: "/gis", labelKey: "nav.gisExplorer", icon: Globe },
     ],
   },
   {
     path: "/query-assistant",
-    label: "Tools",
+    labelKey: "nav.tools",
     icon: Hammer,
     children: [
-      { path: "/jupyter", label: "Jupyter", icon: NotebookPen },
-      { path: "/workbench", label: "Workbench", icon: PanelsTopLeft },
-      { path: "/query-assistant", label: "Query Assistant", icon: MessageSquareCode },
-      { path: "/publish", label: "Publish", icon: FileOutput },
-      { path: "/jobs", label: "Jobs", icon: Briefcase },
+      { path: "/jupyter", labelKey: "nav.jupyter", icon: NotebookPen },
+      { path: "/workbench", labelKey: "nav.workbench", icon: PanelsTopLeft },
+      { path: "/query-assistant", labelKey: "nav.queryAssistant", icon: MessageSquareCode },
+      { path: "/publish", labelKey: "nav.publish", icon: FileOutput },
+      { path: "/jobs", labelKey: "nav.jobs", icon: Briefcase },
     ],
   },
   {
     path: "/admin",
-    label: "Administration",
+    labelKey: "nav.administration",
     icon: Settings,
     adminOnly: true,
     children: [
-      { path: "/admin", label: "Admin Dashboard", icon: Settings },
-      { path: "/admin/system-health", label: "System Health", icon: Activity },
-      { path: "/admin/honest-broker", label: "Honest Broker", icon: ShieldUser },
-      { path: "/admin/users", label: "Users", icon: UsersRound },
-      { path: "/admin/user-audit", label: "Audit Log", icon: ScrollText },
-      { path: "/admin/roles", label: "Roles & Permissions", icon: ShieldCheck, superAdminOnly: true },
-      { path: "/admin/auth-providers", label: "Auth Providers", icon: KeyRound, superAdminOnly: true },
-      { path: "/admin/notifications", label: "Notifications", icon: Bell },
+      { path: "/admin", labelKey: "nav.adminDashboard", icon: Settings },
+      { path: "/admin/system-health", labelKey: "nav.systemHealth", icon: Activity },
+      { path: "/admin/honest-broker", labelKey: "nav.honestBroker", icon: ShieldUser },
+      { path: "/admin/users", labelKey: "nav.users", icon: UsersRound },
+      { path: "/admin/user-audit", labelKey: "nav.auditLog", icon: ScrollText },
+      { path: "/admin/roles", labelKey: "nav.rolesPermissions", icon: ShieldCheck, superAdminOnly: true },
+      { path: "/admin/auth-providers", labelKey: "nav.authProviders", icon: KeyRound, superAdminOnly: true },
+      { path: "/admin/notifications", labelKey: "nav.notifications", icon: Bell },
     ],
   },
 ];
@@ -208,6 +209,7 @@ function getHelpKeyForPath(pathname: string): string {
 }
 
 export function Sidebar() {
+  const { t } = useTranslation("layout");
   const location = useLocation();
   const { sidebarOpen, toggleSidebar } = useUiStore();
   const { isAdmin, isSuperAdmin } = useAuthStore();
@@ -265,7 +267,7 @@ export function Sidebar() {
         <button
           onClick={toggleSidebar}
           className="sidebar-toggle"
-          aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+          aria-label={sidebarOpen ? t("sidebar.collapse") : t("sidebar.expand")}
         >
           {sidebarOpen ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
         </button>
@@ -277,6 +279,7 @@ export function Sidebar() {
           const hasChildren = item.children && item.children.length > 0;
           const groupActive = isGroupActive(item);
           const expanded = hasChildren && isExpanded(item);
+          const itemLabel = t(item.labelKey);
 
           if (!hasChildren) {
             // Simple link (Dashboard)
@@ -285,7 +288,7 @@ export function Sidebar() {
                 <Link
                   to={item.path}
                   className={cn("nav-item", isActive(item.path) && "active")}
-                  title={!sidebarOpen ? item.label : undefined}
+                  title={!sidebarOpen ? itemLabel : undefined}
                   data-tour={
                     item.path === "/data-sources"
                       ? "data-sources"
@@ -297,7 +300,7 @@ export function Sidebar() {
                   }
                 >
                   <item.icon size={18} className="nav-icon" />
-                  {sidebarOpen && <span className="nav-label">{item.label}</span>}
+                  {sidebarOpen && <span className="nav-label">{itemLabel}</span>}
                 </Link>
               </div>
             );
@@ -310,7 +313,7 @@ export function Sidebar() {
                 type="button"
                 onClick={() => toggleGroup(item.path)}
                 className={cn("nav-item", groupActive && "active")}
-                title={!sidebarOpen ? item.label : undefined}
+                title={!sidebarOpen ? itemLabel : undefined}
                 data-tour={
                   item.path === "/data-sources"
                     ? "data-sources"
@@ -324,7 +327,7 @@ export function Sidebar() {
                 <item.icon size={18} className="nav-icon" />
                 {sidebarOpen && (
                   <>
-                    <span className="nav-label">{item.label}</span>
+                    <span className="nav-label">{itemLabel}</span>
                     <ChevronDown
                       size={14}
                       className={cn(
@@ -341,19 +344,23 @@ export function Sidebar() {
                 <div>
                   {item.children!
                     .filter((child) => !child.superAdminOnly || isSuperAdmin())
-                    .map((child) => (
-                      <Link
-                        key={child.path}
-                        to={child.path}
-                        className={cn(
-                          "nav-sub-item",
-                          location.pathname === child.path && "active",
-                        )}
-                      >
-                        <child.icon size={14} />
-                        {child.label}
-                      </Link>
-                    ))}
+                    .map((child) => {
+                      const childLabel = t(child.labelKey);
+
+                      return (
+                        <Link
+                          key={child.path}
+                          to={child.path}
+                          className={cn(
+                            "nav-sub-item",
+                            location.pathname === child.path && "active",
+                          )}
+                        >
+                          <child.icon size={14} />
+                          {childLabel}
+                        </Link>
+                      );
+                    })}
                 </div>
               )}
             </div>
@@ -372,8 +379,8 @@ export function Sidebar() {
         <button
           type="button"
           onClick={() => setHelpOpen(true)}
-          title="Help"
-          aria-label="Open contextual help"
+          title={t("sidebar.help")}
+          aria-label={t("sidebar.openHelp")}
           className={cn(
             "flex items-center gap-2 rounded-lg transition-colors",
             "bg-accent/15 text-accent hover:bg-accent/25 hover:text-accent",
@@ -383,7 +390,7 @@ export function Sidebar() {
           )}
         >
           <HelpCircle size={sidebarOpen ? 16 : 18} />
-          {sidebarOpen && <span>Help</span>}
+          {sidebarOpen && <span>{t("sidebar.help")}</span>}
         </button>
       </div>
 

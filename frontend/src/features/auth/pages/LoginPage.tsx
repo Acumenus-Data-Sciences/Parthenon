@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import type { FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Loader2, AlertCircle, Lock, Mail, KeyRound } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/stores/authStore";
 import { ConstellationBackground } from "../components/ConstellationBackground";
 import { ForgotPasswordModal } from "../components/ForgotPasswordModal";
@@ -13,8 +14,22 @@ import { fetchDashboardStats } from "@/features/dashboard/api/dashboardApi";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import type { AuthResponse } from "@/types/api";
 
+const capabilityKeys = [
+  "cohortDefinitions",
+  "characterization",
+  "incidenceRates",
+  "estimation",
+  "prediction",
+  "pathways",
+  "genomics",
+  "imaging",
+  "heor",
+  "gis",
+] as const;
+
 export function LoginPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation("auth");
   const setAuth = useAuthStore((s) => s.setAuth);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -56,7 +71,7 @@ export function LoginPage() {
 
       navigate("/");
     } catch {
-      setError("Invalid credentials. Please try again.");
+      setError(t("login.invalidCredentials"));
     } finally {
       setLoading(false);
     }
@@ -170,7 +185,7 @@ export function LoginPage() {
               lineHeight: 1.4,
             }}
           >
-            Unified Outcomes Research Platform
+            {t("hero.tagline")}
           </p>
 
           <p
@@ -182,18 +197,20 @@ export function LoginPage() {
               lineHeight: 1.6,
             }}
           >
-            A next-generation outcomes research platform built on the{" "}
+            {t("hero.descriptionPrefix")}{" "}
             <a
               href="https://ohdsi.org"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: "var(--auth-hero-accent)", textDecoration: "none", borderBottom: "1px solid var(--auth-hero-accent-muted)" }}
+              style={{
+                color: "var(--auth-hero-accent)",
+                textDecoration: "none",
+                borderBottom: "1px solid var(--auth-hero-accent-muted)",
+              }}
             >
               OHDSI
             </a>{" "}
-            ecosystem and the OMOP Common Data Model. Cohort building,
-            characterization, population-level estimation, patient-level
-            prediction, and pathway analysis — unified in a single platform.
+            {t("hero.descriptionSuffix")}
           </p>
 
           <p
@@ -205,12 +222,16 @@ export function LoginPage() {
               lineHeight: 1.5,
             }}
           >
-            Open source on{" "}
+            {t("hero.openSourcePrefix")}{" "}
             <a
               href="https://github.com/sudoshi/Parthenon"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: "var(--auth-hero-text-muted)", textDecoration: "none", borderBottom: "1px solid var(--auth-hero-text-ghost)" }}
+              style={{
+                color: "var(--auth-hero-text-muted)",
+                textDecoration: "none",
+                borderBottom: "1px solid var(--auth-hero-text-ghost)",
+              }}
             >
               GitHub
             </a>
@@ -226,20 +247,9 @@ export function LoginPage() {
               marginTop: "var(--space-6)",
             }}
           >
-            {[
-              "Cohort Definitions",
-              "Characterization",
-              "Incidence Rates",
-              "Estimation",
-              "Prediction",
-              "Pathways",
-              "Genomics",
-              "Imaging",
-              "HEOR",
-              "GIS",
-            ].map((label) => (
+            {capabilityKeys.map((key) => (
               <span
-                key={label}
+                key={key}
                 style={{
                   fontFamily: "var(--font-mono)",
                   fontSize: "10px",
@@ -252,7 +262,7 @@ export function LoginPage() {
                   background: "var(--auth-hero-pill-bg)",
                 }}
               >
-                {label}
+                {t(`hero.capabilities.${key}`)}
               </span>
             ))}
           </div>
@@ -290,7 +300,7 @@ export function LoginPage() {
                 e.currentTarget.style.color = "var(--auth-hero-accent)";
               }}
             >
-              Read our Development Blog &rarr;
+              {t("hero.links.blog")} &rarr;
             </a>
             <a
               href="https://discord.gg/GkkT7dzmwf"
@@ -315,7 +325,7 @@ export function LoginPage() {
                 e.currentTarget.style.color = "var(--auth-hero-accent)";
               }}
             >
-              Join our Discord Community &rarr;
+              {t("hero.links.discord")} &rarr;
             </a>
             <a
               href="/install"
@@ -335,14 +345,16 @@ export function LoginPage() {
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.color = "var(--auth-hero-accent)";
-                e.currentTarget.style.borderBottomColor = "var(--auth-hero-accent-muted)";
+                e.currentTarget.style.borderBottomColor =
+                  "var(--auth-hero-accent-muted)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.color = "var(--auth-hero-text-ghost)";
-                e.currentTarget.style.borderBottomColor = "var(--auth-hero-link-border-muted)";
+                e.currentTarget.style.borderBottomColor =
+                  "var(--auth-hero-link-border-muted)";
               }}
             >
-              Install on a New Machine &rarr;
+              {t("hero.links.install")} &rarr;
             </a>
           </div>
 
@@ -366,7 +378,7 @@ export function LoginPage() {
                 opacity: 0.6,
               }}
             >
-              OMOP CDM v5.4
+              {t("hero.cdmVersion")}
             </p>
             <a
               href="https://www.acumenus.io"
@@ -501,7 +513,7 @@ export function LoginPage() {
                 lineHeight: 1.2,
               }}
             >
-              Sign in
+              {t("common.signIn")}
             </h2>
             <p
               style={{
@@ -511,7 +523,7 @@ export function LoginPage() {
                 marginTop: "var(--space-2)",
               }}
             >
-              Enter your credentials to continue
+              {t("login.subtitle")}
             </p>
           </div>
 
@@ -554,7 +566,7 @@ export function LoginPage() {
                   marginBottom: "var(--space-2)",
                 }}
               >
-                Email
+                {t("common.email")}
               </label>
               <div style={{ position: "relative" }}>
                 <Mail
@@ -615,7 +627,7 @@ export function LoginPage() {
                   marginBottom: "var(--space-2)",
                 }}
               >
-                Password
+                {t("common.password")}
               </label>
               <div style={{ position: "relative" }}>
                 <Lock
@@ -635,7 +647,7 @@ export function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  placeholder="Enter your password"
+                  placeholder={t("login.passwordPlaceholder")}
                   style={{
                     width: "100%",
                     padding: "10px 12px 10px 36px",
@@ -688,46 +700,49 @@ export function LoginPage() {
                   e.currentTarget.style.color = "var(--text-muted)";
                 }}
               >
-                Forgot password?
+                {t("login.forgotPassword")}
               </button>
             </div>
 
             {/* Demo login shortcut — only rendered when installer wrote VITE_DEMO_* vars */}
-            {import.meta.env.VITE_DEMO_EMAIL && import.meta.env.VITE_DEMO_PASSWORD && (
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail(import.meta.env.VITE_DEMO_EMAIL);
-                  setPassword(import.meta.env.VITE_DEMO_PASSWORD);
-                }}
-                style={{
-                  width: "100%",
-                  marginBottom: "var(--space-3)",
-                  padding: "8px 0",
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "var(--text-xs)",
-                  color: "var(--text-muted)",
-                  background: "var(--auth-demo-bg)",
-                  border: "1px dashed var(--auth-demo-border)",
-                  borderRadius: "var(--radius-md)",
-                  cursor: "pointer",
-                  transition: "color 200ms, border-color 200ms, background 200ms",
-                  letterSpacing: "0.3px",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = "var(--accent)";
-                  e.currentTarget.style.borderColor = "var(--accent-muted)";
-                  e.currentTarget.style.background = "var(--accent-bg)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = "var(--text-muted)";
-                  e.currentTarget.style.borderColor = "var(--auth-demo-border)";
-                  e.currentTarget.style.background = "var(--auth-demo-bg)";
-                }}
-              >
-                Fill demo credentials
-              </button>
-            )}
+            {import.meta.env.VITE_DEMO_EMAIL &&
+              import.meta.env.VITE_DEMO_PASSWORD && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail(import.meta.env.VITE_DEMO_EMAIL);
+                    setPassword(import.meta.env.VITE_DEMO_PASSWORD);
+                  }}
+                  style={{
+                    width: "100%",
+                    marginBottom: "var(--space-3)",
+                    padding: "8px 0",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "var(--text-xs)",
+                    color: "var(--text-muted)",
+                    background: "var(--auth-demo-bg)",
+                    border: "1px dashed var(--auth-demo-border)",
+                    borderRadius: "var(--radius-md)",
+                    cursor: "pointer",
+                    transition:
+                      "color 200ms, border-color 200ms, background 200ms",
+                    letterSpacing: "0.3px",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = "var(--accent)";
+                    e.currentTarget.style.borderColor = "var(--accent-muted)";
+                    e.currentTarget.style.background = "var(--accent-bg)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = "var(--text-muted)";
+                    e.currentTarget.style.borderColor =
+                      "var(--auth-demo-border)";
+                    e.currentTarget.style.background = "var(--auth-demo-bg)";
+                  }}
+                >
+                  {t("login.fillDemo")}
+                </button>
+              )}
 
             {/* Sign in button */}
             <button
@@ -749,8 +764,7 @@ export function LoginPage() {
                 borderRadius: "var(--radius-md)",
                 cursor: loading ? "not-allowed" : "pointer",
                 opacity: loading ? 0.6 : 1,
-                transition:
-                  "opacity 200ms, box-shadow 200ms, transform 100ms",
+                transition: "opacity 200ms, box-shadow 200ms, transform 100ms",
                 boxShadow: "0 4px 20px var(--primary-glow)",
                 letterSpacing: "0.3px",
               }}
@@ -773,10 +787,10 @@ export function LoginPage() {
                     size={16}
                     style={{ animation: "spin 1s linear infinite" }}
                   />
-                  Signing in...
+                  {t("login.signingIn")}
                 </>
               ) : (
-                "Sign in"
+                t("common.signIn")
               )}
             </button>
           </form>
@@ -809,7 +823,7 @@ export function LoginPage() {
                     background: "rgba(255,255,255,0.08)",
                   }}
                 />
-                or
+                {t("login.or")}
                 <div
                   style={{
                     flex: 1,
@@ -838,7 +852,7 @@ export function LoginPage() {
                 }}
               >
                 <KeyRound size={16} />
-                {providers.oidc_label ?? "Sign in with Authentik"}
+                {providers.oidc_label ?? t("login.oidcFallback")}
               </a>
             </div>
           )}
@@ -862,12 +876,12 @@ export function LoginPage() {
                 color: "var(--text-muted)",
               }}
             >
-              Don't have an account?{" "}
+              {t("login.noAccount")}{" "}
               <Link
                 to="/register"
                 style={{ color: "var(--accent)", textDecoration: "none" }}
               >
-                Request access
+                {t("common.requestAccess")}
               </Link>
             </p>
             <p

@@ -20,8 +20,21 @@ interface AvatarResponse {
   avatar: string;
 }
 
+export interface UpdateLocalePayload {
+  locale: string;
+}
+
+export interface LocaleResponse {
+  locale: string;
+}
+
 export async function updateProfile(payload: UpdateProfilePayload): Promise<ProfileResponse> {
   const { data } = await apiClient.put<ProfileResponse>("/user/profile", payload);
+  return data;
+}
+
+export async function updateLocale(payload: UpdateLocalePayload): Promise<LocaleResponse> {
+  const { data } = await apiClient.put<LocaleResponse>("/user/locale", payload);
   return data;
 }
 

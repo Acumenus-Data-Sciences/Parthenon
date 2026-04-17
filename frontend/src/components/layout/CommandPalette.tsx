@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import { useUiStore } from "@/stores/uiStore";
 import { useAbbyStore } from "@/stores/abbyStore";
 import apiClient from "@/lib/api-client";
@@ -39,6 +40,7 @@ interface CommandItem {
 
 export function CommandPalette() {
   const navigate = useNavigate();
+  const { t } = useTranslation("layout");
   const { commandPaletteOpen, setCommandPaletteOpen } = useUiStore();
   const toggleAbbyPanel = useAbbyStore((s) => s.togglePanel);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -47,6 +49,7 @@ export function CommandPalette() {
   const [searchResults, setSearchResults] = useState<CommandItem[]>([]);
   const [searching, setSearching] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const searchResultsGroup = t("command.groups.searchResults");
 
   const fetchSearchResults = useCallback(
     async (q: string) => {
@@ -70,7 +73,7 @@ export function CommandPalette() {
         const items: CommandItem[] = (res.data.data?.results ?? []).map((r) => ({
           id: `search-${r.type}-${r.id}`,
           label: r.title,
-          group: "Search Results",
+          group: searchResultsGroup,
           icon:
             r.type === "concept"
               ? Beaker
@@ -95,27 +98,27 @@ export function CommandPalette() {
         setSearching(false);
       }
     },
-    [navigate],
+    [navigate, searchResultsGroup],
   );
 
   const commands = useMemo<CommandItem[]>(
     () => [
-      { id: "dashboard", label: "Dashboard", group: "Navigation", icon: LayoutDashboard, action: () => navigate("/"), shortcut: "g d", keywords: "home overview" },
-      { id: "sources", label: "Data Sources", group: "Navigation", icon: Database, action: () => navigate("/data-sources"), shortcut: "g s", keywords: "cdm connection" },
-      { id: "ingestion", label: "Data Ingestion", group: "Navigation", icon: Upload, action: () => navigate("/ingestion"), keywords: "etl upload csv" },
-      { id: "explorer", label: "Data Explorer", group: "Navigation", icon: BarChart3, action: () => navigate("/data-explorer"), shortcut: "g e", keywords: "achilles dqd quality" },
-      { id: "vocabulary", label: "Vocabulary", group: "Navigation", icon: BookOpen, action: () => navigate("/vocabulary"), shortcut: "g v", keywords: "concepts athena search omop" },
-      { id: "cohorts", label: "Cohort Definitions", group: "Navigation", icon: Users, action: () => navigate("/cohort-definitions"), shortcut: "g c", keywords: "cohort build define" },
-      { id: "concept-sets", label: "Concept Sets", group: "Navigation", icon: FlaskConical, action: () => navigate("/concept-sets"), keywords: "concepts group" },
-      { id: "analyses", label: "Analyses", group: "Navigation", icon: Workflow, action: () => navigate("/analyses"), shortcut: "g a", keywords: "characterization incidence ple plp" },
-      { id: "studies", label: "Studies", group: "Navigation", icon: Briefcase, action: () => navigate("/studies"), keywords: "research strategus" },
-      { id: "profiles", label: "Patient Profiles", group: "Navigation", icon: UserCircle, action: () => navigate("/profiles"), keywords: "person timeline" },
-      { id: "jobs", label: "Jobs", group: "Navigation", icon: Briefcase, action: () => navigate("/jobs"), shortcut: "g j", keywords: "queue horizon status" },
-      { id: "admin", label: "Administration", group: "Navigation", icon: Settings, action: () => navigate("/admin"), keywords: "users roles settings" },
-      { id: "honest-broker", label: "Honest Broker", group: "Navigation", icon: ShieldCheck, action: () => navigate("/admin/honest-broker"), keywords: "survey broker blinded respondent person id" },
-      { id: "ai", label: "Open AI Assistant", group: "Actions", icon: Sparkles, action: () => toggleAbbyPanel(), shortcut: "Ctrl Shift A", keywords: "abby chat medgemma" },
+      { id: "dashboard", label: t("nav.dashboard"), group: t("command.groups.navigation"), icon: LayoutDashboard, action: () => navigate("/"), shortcut: "g d", keywords: "home overview" },
+      { id: "sources", label: t("nav.clinicalDataModels"), group: t("command.groups.navigation"), icon: Database, action: () => navigate("/data-sources"), shortcut: "g s", keywords: "cdm connection" },
+      { id: "ingestion", label: t("nav.dataIngestion"), group: t("command.groups.navigation"), icon: Upload, action: () => navigate("/ingestion"), keywords: "etl upload csv" },
+      { id: "explorer", label: t("nav.dataExplorer"), group: t("command.groups.navigation"), icon: BarChart3, action: () => navigate("/data-explorer"), shortcut: "g e", keywords: "achilles dqd quality" },
+      { id: "vocabulary", label: t("nav.vocabulary"), group: t("command.groups.navigation"), icon: BookOpen, action: () => navigate("/vocabulary"), shortcut: "g v", keywords: "concepts athena search omop" },
+      { id: "cohorts", label: t("nav.cohortDefinitions"), group: t("command.groups.navigation"), icon: Users, action: () => navigate("/cohort-definitions"), shortcut: "g c", keywords: "cohort build define" },
+      { id: "concept-sets", label: t("nav.conceptSets"), group: t("command.groups.navigation"), icon: FlaskConical, action: () => navigate("/concept-sets"), keywords: "concepts group" },
+      { id: "analyses", label: t("nav.analyses"), group: t("command.groups.navigation"), icon: Workflow, action: () => navigate("/analyses"), shortcut: "g a", keywords: "characterization incidence ple plp" },
+      { id: "studies", label: t("nav.studies"), group: t("command.groups.navigation"), icon: Briefcase, action: () => navigate("/studies"), keywords: "research strategus" },
+      { id: "profiles", label: t("nav.patientProfiles"), group: t("command.groups.navigation"), icon: UserCircle, action: () => navigate("/profiles"), keywords: "person timeline" },
+      { id: "jobs", label: t("nav.jobs"), group: t("command.groups.navigation"), icon: Briefcase, action: () => navigate("/jobs"), shortcut: "g j", keywords: "queue horizon status" },
+      { id: "admin", label: t("nav.administration"), group: t("command.groups.navigation"), icon: Settings, action: () => navigate("/admin"), keywords: "users roles settings" },
+      { id: "honest-broker", label: t("nav.honestBroker"), group: t("command.groups.navigation"), icon: ShieldCheck, action: () => navigate("/admin/honest-broker"), keywords: "survey broker blinded respondent person id" },
+      { id: "ai", label: t("command.openAiAssistant"), group: t("command.groups.actions"), icon: Sparkles, action: () => toggleAbbyPanel(), shortcut: "Ctrl Shift A", keywords: "abby chat medgemma" },
     ],
-    [navigate, toggleAbbyPanel],
+    [navigate, t, toggleAbbyPanel],
   );
 
   // Debounced Solr search
@@ -202,13 +205,13 @@ export function CommandPalette() {
         className="command-palette-backdrop"
         onClick={() => setCommandPaletteOpen(false)}
       />
-      <div className="command-palette" role="dialog" aria-label="Command palette">
+      <div className="command-palette" role="dialog" aria-label={t("command.dialogLabel")}>
         <div className="flex items-center" style={{ padding: "0 var(--space-4)" }}>
           <Search size={18} style={{ color: "var(--text-ghost)", flexShrink: 0 }} />
           <input
             ref={inputRef}
             className="command-palette-input"
-            placeholder="Type a command or search..."
+            placeholder={t("command.placeholder")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -219,7 +222,7 @@ export function CommandPalette() {
         <div className="command-palette-list">
           {filtered.length === 0 && (
             <div style={{ padding: "var(--space-6)", textAlign: "center", color: "var(--text-muted)", fontSize: "var(--text-sm)" }}>
-              {searching ? "Searching..." : "No results found"}
+              {searching ? t("command.searching") : t("command.noResults")}
             </div>
           )}
           {Array.from(groups.entries()).map(([group, items]) => (
@@ -241,7 +244,7 @@ export function CommandPalette() {
                     <item.icon size={16} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <span>{item.label}</span>
-                      {item.group === "Search Results" && item.keywords && (
+                      {item.group === searchResultsGroup && item.keywords && (
                         <span style={{ marginLeft: 8, color: "var(--text-ghost)", fontSize: "var(--text-xs)" }}>
                           {item.keywords}
                         </span>

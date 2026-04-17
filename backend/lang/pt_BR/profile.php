@@ -1,0 +1,10 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'updated' => 'Perfil atualizado com sucesso',
+    'avatar_upload_failed' => 'Não foi possível salvar o arquivo de avatar',
+    'avatar_uploaded' => 'Avatar enviado com sucesso',
+    'avatar_removed' => 'Avatar removido com sucesso',
+];

@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Intervention\Image\Interfaces\ImageManagerInterface;
 
 /**
@@ -28,7 +29,7 @@ class UserProfileController extends Controller
         $user->update($request->validated());
 
         return response()->json([
-            'message' => 'Profile updated successfully',
+            'message' => __('profile.updated'),
             'user' => $user->fresh(),
         ]);
     }
@@ -59,13 +60,13 @@ class UserProfileController extends Controller
         };
 
         if (! Storage::disk('public')->put($filename, (string) $encoded)) {
-            return response()->json(['message' => 'Failed to save avatar file'], 500);
+            return response()->json(['message' => __('profile.avatar_upload_failed')], 500);
         }
 
         $user->update(['avatar' => $filename]);
 
         return response()->json([
-            'message' => 'Avatar uploaded successfully',
+            'message' => __('profile.avatar_uploaded'),
             'avatar' => $filename,
         ]);
     }
@@ -81,7 +82,7 @@ class UserProfileController extends Controller
 
         $user->update(['avatar' => null]);
 
-        return response()->json(['message' => 'Avatar removed successfully']);
+        return response()->json(['message' => __('profile.avatar_removed')]);
     }
 
     /**
@@ -101,6 +102,28 @@ class UserProfileController extends Controller
 
         return response()->json([
             'theme_preference' => $user->theme_preference,
+        ]);
+    }
+
+    /**
+     * PUT /v1/user/locale
+     *
+     * Persist the authenticated user's preferred interface language.
+     */
+    public function updateLocale(Request $request): JsonResponse
+    {
+        $supportedLocales = array_keys((array) config('parthenon-locales.supported', []));
+
+        $validated = $request->validate([
+            'locale' => ['required', 'string', Rule::in($supportedLocales)],
+        ]);
+
+        /** @var User $user */
+        $user = $request->user();
+        $user->update(['locale' => $validated['locale']]);
+
+        return response()->json([
+            'locale' => $user->locale,
         ]);
     }
 }

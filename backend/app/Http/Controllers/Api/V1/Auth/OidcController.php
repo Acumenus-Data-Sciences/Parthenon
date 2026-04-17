@@ -162,7 +162,7 @@ class OidcController extends Controller
                     'id', 'name', 'email', 'avatar', 'phone_number', 'job_title',
                     'department', 'organization', 'bio', 'last_login_at',
                     'must_change_password', 'onboarding_completed', 'default_source_id',
-                    'theme_preference', 'created_at', 'updated_at',
+                    'theme_preference', 'locale', 'created_at', 'updated_at',
                 ]),
                 'roles' => $user->getRoleNames(),
                 'permissions' => $user->getAllPermissions()->pluck('name'),
@@ -179,7 +179,7 @@ class OidcController extends Controller
     {
         return response()->json([
             'oidc_enabled' => (bool) config('services.oidc.enabled', false),
-            'oidc_label' => 'Sign in with Authentik',
+            'oidc_label' => __('auth.oidc_authentik_label'),
             'oidc_redirect_path' => '/api/v1/auth/oidc/redirect',
         ]);
     }

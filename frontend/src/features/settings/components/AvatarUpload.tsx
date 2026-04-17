@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { Camera, Trash2, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useUploadAvatar, useDeleteAvatar } from "../hooks/useProfile";
 import { useAuthStore } from "@/stores/authStore";
@@ -8,6 +9,7 @@ const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED = ".jpeg,.jpg,.png,.webp";
 
 export function AvatarUpload() {
+  const { t } = useTranslation("settings");
   const user = useAuthStore((s) => s.user);
   const updateUser = useAuthStore((s) => s.updateUser);
   const uploadMutation = useUploadAvatar();
@@ -35,7 +37,7 @@ export function AvatarUpload() {
     if (!file) return;
 
     if (file.size > MAX_SIZE) {
-      setError("File must be under 5MB");
+      setError(t("avatar.fileTooLarge"));
       return;
     }
 
@@ -61,7 +63,7 @@ export function AvatarUpload() {
         img.src = `/storage/${response.avatar}`;
       },
       onError: () => {
-        setError("Upload failed. Please try again.");
+        setError(t("avatar.uploadFailed"));
         // Revert preview
         URL.revokeObjectURL(blobUrl);
         setLocalPreview(null);
@@ -83,7 +85,7 @@ export function AvatarUpload() {
           updateUser({ ...user, avatar: null });
         }
       },
-      onError: () => setError("Failed to remove avatar."),
+      onError: () => setError(t("avatar.removeFailed")),
     });
   };
 
@@ -102,7 +104,7 @@ export function AvatarUpload() {
             <div className="relative w-full h-full">
               <img
                 src={displayUrl}
-                alt={user?.name ?? "Avatar"}
+                alt={user?.name ?? t("avatar.alt")}
                 className="w-full h-full object-cover"
               />
               {isLoading && (
@@ -137,7 +139,7 @@ export function AvatarUpload() {
           )}
         >
           <Camera size={14} />
-          Upload Photo
+          {t("avatar.uploadPhoto")}
         </button>
         {displayUrl && (
           <button
@@ -150,11 +152,11 @@ export function AvatarUpload() {
             )}
           >
             <Trash2 size={14} />
-            Remove
+            {t("avatar.remove")}
           </button>
         )}
         {error && <p className="text-xs text-critical">{error}</p>}
-        <p className="text-xs text-text-ghost">JPEG, PNG, or WebP. Max 5MB.</p>
+        <p className="text-xs text-text-ghost">{t("avatar.guidance")}</p>
       </div>
     </div>
   );

@@ -181,7 +181,7 @@ Route::prefix('v1')->group(function () {
         ->middleware('throttle:60,1');
 
     // Protected routes
-    Route::middleware(['auth:sanctum', 'source.resolve'])->group(function () {
+    Route::middleware(['auth:sanctum', 'locale.resolve', 'source.resolve'])->group(function () {
         Route::get('/auth/user', [AuthController::class, 'user']);
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
@@ -887,6 +887,8 @@ Route::prefix('v1')->group(function () {
         Route::delete('user/avatar', [UserProfileController::class, 'deleteAvatar'])
             ->middleware('throttle:10,1');
         Route::put('user/theme', [UserProfileController::class, 'updateTheme'])
+            ->middleware('throttle:20,1');
+        Route::put('user/locale', [UserProfileController::class, 'updateLocale'])
             ->middleware('throttle:20,1');
 
         // Help & Changelog (§9.12)

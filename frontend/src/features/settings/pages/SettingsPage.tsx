@@ -1,19 +1,23 @@
 import { useSearchParams } from "react-router-dom";
-import { User, Shield, Bell, Settings } from "lucide-react";
+import { User, Shield, Bell, Settings, Globe2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { ProfileTab } from "../components/ProfileTab";
 import { AccountSecurityTab } from "../components/AccountSecurityTab";
 import { NotificationSettings } from "../components/NotificationSettings";
+import { LanguageRegionTab } from "../components/LanguageRegionTab";
 
 const TABS = [
-  { key: "profile", label: "Profile", icon: User },
-  { key: "account", label: "Account & Security", icon: Shield },
-  { key: "notifications", label: "Notifications", icon: Bell },
+  { key: "profile", labelKey: "tabs.profile", icon: User },
+  { key: "account", labelKey: "tabs.account", icon: Shield },
+  { key: "notifications", labelKey: "tabs.notifications", icon: Bell },
+  { key: "language", labelKey: "tabs.languageRegion", icon: Globe2 },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
 
 export default function SettingsPage() {
+  const { t } = useTranslation("settings");
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = (searchParams.get("tab") as TabKey) || "profile";
 
@@ -29,9 +33,9 @@ export default function SettingsPage() {
           <Settings size={20} className="text-success" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Settings</h1>
+          <h1 className="text-2xl font-bold text-text-primary">{t("title")}</h1>
           <p className="text-sm text-text-muted">
-            Manage your profile, security, and preferences
+            {t("subtitle")}
           </p>
         </div>
       </div>
@@ -39,7 +43,7 @@ export default function SettingsPage() {
       {/* Tabs */}
       <div className="border-b border-border-default">
         <nav className="flex gap-1" role="tablist">
-          {TABS.map(({ key, label, icon: Icon }) => (
+          {TABS.map(({ key, labelKey, icon: Icon }) => (
             <button
               key={key}
               role="tab"
@@ -53,7 +57,7 @@ export default function SettingsPage() {
               )}
             >
               <Icon size={16} />
-              {label}
+              {t(labelKey)}
             </button>
           ))}
         </nav>
@@ -64,6 +68,7 @@ export default function SettingsPage() {
         {activeTab === "profile" && <ProfileTab />}
         {activeTab === "account" && <AccountSecurityTab />}
         {activeTab === "notifications" && <NotificationSettings />}
+        {activeTab === "language" && <LanguageRegionTab />}
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ export interface User {
   onboarding_completed: boolean;
   default_source_id: number | null;
   theme_preference: "dark" | "light";
+  locale: string | null;
   last_login_at: string | null;
   last_active_at: string | null;
   is_active: boolean;

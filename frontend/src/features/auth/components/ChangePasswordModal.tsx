@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Lock, AlertCircle, Loader2, ShieldAlert } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import apiClient from "@/lib/api-client";
 import { useAuthStore } from "@/stores/authStore";
 import type { User } from "@/types/models";
@@ -14,6 +15,7 @@ interface ChangePasswordResponse {
  * No backdrop click, no close button — intentionally non-dismissable.
  */
 export function ChangePasswordModal() {
+  const { t } = useTranslation("auth");
   const updateUser = useAuthStore((s) => s.updateUser);
 
   const [currentPw, setCurrentPw] = useState("");
@@ -27,15 +29,15 @@ export function ChangePasswordModal() {
     setError("");
 
     if (newPw !== confirmPw) {
-      setError("New passwords do not match.");
+      setError(t("changePassword.errors.mismatch"));
       return;
     }
     if (newPw.length < 8) {
-      setError("New password must be at least 8 characters.");
+      setError(t("changePassword.errors.tooShort"));
       return;
     }
     if (newPw === currentPw) {
-      setError("New password must differ from the current password.");
+      setError(t("changePassword.errors.same"));
       return;
     }
 
@@ -43,13 +45,17 @@ export function ChangePasswordModal() {
     try {
       const { data } = await apiClient.post<ChangePasswordResponse>(
         "/auth/change-password",
-        { current_password: currentPw, new_password: newPw, new_password_confirmation: confirmPw },
+        {
+          current_password: currentPw,
+          new_password: newPw,
+          new_password_confirmation: confirmPw,
+        },
       );
       updateUser(data.user);
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ?? "Password change failed. Please try again.";
+          ?.message ?? t("changePassword.errors.failed");
       setError(msg);
       setCurrentPw("");
     } finally {
@@ -150,7 +156,7 @@ export function ChangePasswordModal() {
                 lineHeight: 1.2,
               }}
             >
-              Change your password
+              {t("changePassword.title")}
             </h2>
             <p
               style={{
@@ -160,7 +166,7 @@ export function ChangePasswordModal() {
                 margin: "var(--space-1) 0 0",
               }}
             >
-              You must set a new password before continuing.
+              {t("changePassword.intro")}
             </p>
           </div>
         </div>
@@ -191,7 +197,7 @@ export function ChangePasswordModal() {
           {/* Current password */}
           <div style={{ marginBottom: "var(--space-4)" }}>
             <label htmlFor="current-password" style={labelStyle}>
-              Temporary password
+              {t("common.temporaryPassword")}
             </label>
             <div style={{ position: "relative" }}>
               <Lock
@@ -212,7 +218,7 @@ export function ChangePasswordModal() {
                 onChange={(e) => setCurrentPw(e.target.value)}
                 required
                 autoFocus
-                placeholder="Enter your temporary password"
+                placeholder={t("changePassword.currentPlaceholder")}
                 style={inputStyle}
                 onFocus={(e) => {
                   e.currentTarget.style.borderColor = "var(--accent)";
@@ -229,7 +235,7 @@ export function ChangePasswordModal() {
           {/* New password */}
           <div style={{ marginBottom: "var(--space-4)" }}>
             <label htmlFor="new-password" style={labelStyle}>
-              New password
+              {t("common.newPassword")}
             </label>
             <div style={{ position: "relative" }}>
               <Lock
@@ -249,7 +255,7 @@ export function ChangePasswordModal() {
                 value={newPw}
                 onChange={(e) => setNewPw(e.target.value)}
                 required
-                placeholder="Min 8 characters"
+                placeholder={t("changePassword.newPlaceholder")}
                 style={inputStyle}
                 onFocus={(e) => {
                   e.currentTarget.style.borderColor = "var(--accent)";
@@ -266,7 +272,7 @@ export function ChangePasswordModal() {
           {/* Confirm new password */}
           <div style={{ marginBottom: "var(--space-6)" }}>
             <label htmlFor="confirm-password" style={labelStyle}>
-              Confirm new password
+              {t("common.confirmNewPassword")}
             </label>
             <div style={{ position: "relative" }}>
               <Lock
@@ -286,7 +292,7 @@ export function ChangePasswordModal() {
                 value={confirmPw}
                 onChange={(e) => setConfirmPw(e.target.value)}
                 required
-                placeholder="Repeat new password"
+                placeholder={t("changePassword.confirmPlaceholder")}
                 style={inputStyle}
                 onFocus={(e) => {
                   e.currentTarget.style.borderColor = "var(--accent)";
@@ -326,11 +332,14 @@ export function ChangePasswordModal() {
           >
             {loading ? (
               <>
-                <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} />
-                Changing password...
+                <Loader2
+                  size={16}
+                  style={{ animation: "spin 1s linear infinite" }}
+                />
+                {t("changePassword.changing")}
               </>
             ) : (
-              "Set new password"
+              t("changePassword.submit")
             )}
           </button>
         </form>

@@ -108,6 +108,38 @@ it('allows nullable optional fields on profile update', function () {
         ->assertJsonPath('message', 'Profile updated successfully');
 });
 
+// ── Update Locale ───────────────────────────────────────────────────────────
+
+it('requires authentication to update locale', function () {
+    $this->putJson('/api/v1/user/locale', ['locale' => 'fr-FR'])
+        ->assertStatus(401);
+});
+
+it('updates user locale with a supported language', function () {
+    $user = User::factory()->create(['locale' => 'en-US']);
+    $user->assignRole('viewer');
+
+    $this->actingAs($user)
+        ->putJson('/api/v1/user/locale', ['locale' => 'ko-KR'])
+        ->assertOk()
+        ->assertJsonPath('locale', 'ko-KR');
+
+    $this->assertDatabaseHas('users', [
+        'id' => $user->id,
+        'locale' => 'ko-KR',
+    ]);
+});
+
+it('rejects unsupported locales', function () {
+    $user = User::factory()->create(['locale' => 'en-US']);
+    $user->assignRole('viewer');
+
+    $this->actingAs($user)
+        ->putJson('/api/v1/user/locale', ['locale' => 'tlh'])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['locale']);
+});
+
 // ── Upload Avatar ────────────────────────────────────────────────────────────
 
 it('requires authentication to upload avatar', function () {

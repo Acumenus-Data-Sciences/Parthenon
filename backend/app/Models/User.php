@@ -47,6 +47,7 @@ class User extends Authenticatable
         'workbench_mode',
         'default_source_id',
         'theme_preference',
+        'locale',
     ];
 
     /**
@@ -74,6 +75,7 @@ class User extends Authenticatable
             'notification_preferences' => 'array',
             'workbench_mode' => 'string',
             'default_source_id' => 'integer',
+            'locale' => 'string',
         ];
     }
 

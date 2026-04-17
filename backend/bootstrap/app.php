@@ -4,6 +4,7 @@ use App\Http\Middleware\EnforceFinnGenIdempotency;
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\RecordUserActivity;
 use App\Http\Middleware\RequireSourceContext;
+use App\Http\Middleware\ResolveLocale;
 use App\Http\Middleware\ResolveSourceContext;
 use App\Jobs\Analysis\CareGapNightlyRefreshJob;
 use Illuminate\Console\Scheduling\Schedule;
@@ -32,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->statefulApi();
         $middleware->api(prepend: [
             ForceJsonResponse::class,
+            ResolveLocale::class,
         ]);
         $middleware->appendToGroup('api', [
             RecordUserActivity::class,
@@ -40,6 +42,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
+            'locale.resolve' => ResolveLocale::class,
             'source.resolve' => ResolveSourceContext::class,
             'source.require' => RequireSourceContext::class,
             'finngen.idempotency' => EnforceFinnGenIdempotency::class,

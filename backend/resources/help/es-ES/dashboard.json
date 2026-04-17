@@ -1,0 +1,15 @@
+{
+  "key": "dashboard",
+  "title": "Panel",
+  "description": "El panel de Parthenon ofrece una vista rápida de tu entorno OMOP CDM. Revisa métricas clave de las fuentes de datos, trabajos activos, actividad reciente de cohortes y datos de caracterización CDM como demografía y cobertura de observaciones.",
+  "docs_url": "/docs/part1-getting-started/01-introduction",
+  "video_url": null,
+  "tips": [
+    "La barra de métricas superior muestra fuentes CDM, cohortes activas, trabajos en ejecución, fallos DQD y recuentos de conjuntos de conceptos.",
+    "La sección de caracterización CDM permite seleccionar una fuente y ver recuentos de pacientes, duración mediana de observación, eventos totales, completitud de datos, distribución por sexo y pirámide de edad.",
+    "Salud de fuentes muestra el estado de conexión de tus principales fuentes de datos. Revísalo si los análisis no se ejecutan.",
+    "Trabajos activos muestra las tareas en segundo plano que se están ejecutando. Usa Ver todo para abrir la página completa de trabajos.",
+    "Actividad reciente de cohortes muestra las últimas definiciones de cohortes y su estado de generación.",
+    "Acciones rápidas ofrece accesos directos para tareas comunes: crear cohortes, explorar vocabulario, explorar datos y ejecutar análisis."
+  ]
+}

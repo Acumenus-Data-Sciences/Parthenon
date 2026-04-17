@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getStoredLocalePreference, normalizeLocale } from "@/i18n/locales";
 import { useAuthStore } from "@/stores/authStore";
 import { useSourceStore } from "@/stores/sourceStore";
 
@@ -20,6 +21,16 @@ apiClient.interceptors.request.use((config) => {
   const sourceId = useSourceStore.getState().activeSourceId;
   if (sourceId) {
     config.headers["X-Source-Id"] = String(sourceId);
+  }
+
+  const locale =
+    useAuthStore.getState().user?.locale ??
+    getStoredLocalePreference() ??
+    (typeof document !== "undefined" ? document.documentElement.lang : null);
+  if (locale) {
+    const normalizedLocale = normalizeLocale(locale);
+    config.headers["Accept-Language"] = normalizedLocale;
+    config.headers["X-Parthenon-Locale"] = normalizedLocale;
   }
 
   return config;

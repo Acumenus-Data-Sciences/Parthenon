@@ -32,7 +32,7 @@ class AuthController extends Controller
 
         // Always return the same message to prevent email enumeration
         if (User::where('email', $email)->exists()) {
-            return response()->json(['message' => 'Account created. Check your email for your temporary password.']);
+            return response()->json(['message' => __('auth.account_created')]);
         }
 
         $tempPassword = $this->generateTempPassword();
@@ -59,7 +59,7 @@ class AuthController extends Controller
             ]);
         }
 
-        return response()->json(['message' => 'Account created. Check your email for your temporary password.']);
+        return response()->json(['message' => __('auth.account_created')]);
     }
 
     public function login(LoginRequest $request): JsonResponse
@@ -70,7 +70,7 @@ class AuthController extends Controller
 
         // Same error for "not found" and "wrong password" to prevent enumeration
         if (! $user || ! Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+            return response()->json(['message' => __('auth.invalid_credentials')], 401);
         }
 
         $token = $user->createToken('auth-token')->plainTextToken;
@@ -109,11 +109,11 @@ class AuthController extends Controller
         $user = $request->user();
 
         if (! Hash::check($request->current_password, $user->password)) {
-            return response()->json(['message' => 'Current password is incorrect'], 401);
+            return response()->json(['message' => __('auth.current_password_incorrect')], 401);
         }
 
         if (Hash::check($request->new_password, $user->password)) {
-            return response()->json(['message' => 'New password must differ from the current password'], 422);
+            return response()->json(['message' => __('auth.new_password_must_differ')], 422);
         }
 
         $user->update([
@@ -129,7 +129,7 @@ class AuthController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Password changed successfully',
+            'message' => __('auth.password_changed'),
             'user' => $this->formatUser($user->fresh()),
         ]);
     }
@@ -173,7 +173,7 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'message' => 'If an account exists with that email, a new temporary password has been sent.',
+            'message' => __('auth.temporary_password_sent'),
         ]);
     }
 
@@ -191,7 +191,7 @@ class AuthController extends Controller
 
         $user->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Logged out']);
+        return response()->json(['message' => __('auth.logged_out')]);
     }
 
     // ── Helpers ─────────────────────────────────────────────────────────────
@@ -204,7 +204,7 @@ class AuthController extends Controller
             ...$user->only(['id', 'name', 'email', 'avatar', 'phone_number', 'job_title',
                 'department', 'organization', 'bio', 'last_login_at',
                 'must_change_password', 'onboarding_completed', 'default_source_id',
-                'theme_preference', 'created_at', 'updated_at']),
+                'theme_preference', 'locale', 'created_at', 'updated_at']),
             'roles' => $user->getRoleNames(),
             'permissions' => $user->getAllPermissions()->pluck('name'),
         ];

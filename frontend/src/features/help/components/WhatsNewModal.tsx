@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Sparkles, ChevronDown, ChevronUp } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Modal } from "@/components/ui/Modal";
 import { useChangelog } from "../hooks/useHelp";
 import type { ChangelogEntry } from "../api/helpApi";
@@ -15,8 +16,27 @@ const SECTION_COLORS: Record<string, string> = {
   Security: "text-purple-400",
 };
 
+function readSeenVersion(): string | null {
+  if (typeof window === "undefined") return null;
+
+  try {
+    return window.localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function writeSeenVersion(version: string): void {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, version);
+  } catch {
+    // The modal can still close if storage is unavailable.
+  }
+}
+
 function EntryCard({ entry }: { entry: ChangelogEntry }) {
   const [expanded, setExpanded] = useState(false);
+  const { t } = useTranslation("help");
   const sectionKeys = Object.keys(entry.sections);
 
   return (
@@ -36,7 +56,8 @@ function EntryCard({ entry }: { entry: ChangelogEntry }) {
               key={section}
               className={`text-xs ${SECTION_COLORS[section] ?? "text-text-muted"}`}
             >
-              {entry.sections[section].length} {section}
+              {entry.sections[section].length}{" "}
+              {t(`sections.${section}`, { defaultValue: section })}
             </span>
           ))}
         </div>
@@ -54,11 +75,14 @@ function EntryCard({ entry }: { entry: ChangelogEntry }) {
               <div
                 className={`mb-2 text-xs font-semibold uppercase tracking-wider ${SECTION_COLORS[section] ?? "text-text-muted"}`}
               >
-                {section}
+                {t(`sections.${section}`, { defaultValue: section })}
               </div>
               <ul className="space-y-1.5">
                 {entry.sections[section].map((item, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-text-muted">
+                  <li
+                    key={i}
+                    className="flex items-start gap-2 text-sm text-text-muted"
+                  >
                     <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-surface-highlight" />
                     {item}
                   </li>
@@ -77,27 +101,26 @@ interface WhatsNewModalProps {
   onExternalClose?: () => void;
 }
 
-export function WhatsNewModal({ externalOpen, onExternalClose }: WhatsNewModalProps = {}) {
+export function WhatsNewModal({
+  externalOpen,
+  onExternalClose,
+}: WhatsNewModalProps = {}) {
   const { data: entries, isLoading } = useChangelog();
-  const [autoOpen, setAutoOpen] = useState(false);
-
-  const isOpen = externalOpen || autoOpen;
-
-  useEffect(() => {
-    if (externalOpen !== undefined) return; // skip auto-open when externally controlled
-    if (!entries || entries.length === 0) return;
-    const latestVersion = entries[0].version;
-    const seenVersion = localStorage.getItem(STORAGE_KEY);
-    if (seenVersion !== latestVersion) {
-      setAutoOpen(true);
-    }
-  }, [entries, externalOpen]);
+  const { t } = useTranslation("help");
+  const [seenVersion, setSeenVersion] = useState(readSeenVersion);
+  const latestVersion = entries?.[0]?.version;
+  const isExternallyControlled = externalOpen !== undefined;
+  const shouldAutoOpen =
+    !isExternallyControlled &&
+    latestVersion !== undefined &&
+    seenVersion !== latestVersion;
+  const isOpen = isExternallyControlled ? externalOpen : shouldAutoOpen;
 
   const handleClose = () => {
-    if (entries && entries.length > 0) {
-      localStorage.setItem(STORAGE_KEY, entries[0].version);
+    if (latestVersion) {
+      writeSeenVersion(latestVersion);
+      setSeenVersion(latestVersion);
     }
-    setAutoOpen(false);
     onExternalClose?.();
   };
 
@@ -108,7 +131,7 @@ export function WhatsNewModal({ externalOpen, onExternalClose }: WhatsNewModalPr
       open={isOpen}
       onClose={handleClose}
       size="lg"
-      title="What's New in Parthenon"
+      title={t("whatsNewTitle")}
       footer={
         <div className="flex justify-end">
           <button
@@ -116,7 +139,7 @@ export function WhatsNewModal({ externalOpen, onExternalClose }: WhatsNewModalPr
             onClick={handleClose}
             className="rounded-lg bg-success px-5 py-2 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors"
           >
-            Got it
+            {t("gotIt")}
           </button>
         </div>
       }
@@ -124,9 +147,7 @@ export function WhatsNewModal({ externalOpen, onExternalClose }: WhatsNewModalPr
       <div className="space-y-3">
         <div className="flex items-center gap-2 mb-4">
           <Sparkles size={16} className="text-success" />
-          <p className="text-sm text-text-muted">
-            Here's what changed since your last visit.
-          </p>
+          <p className="text-sm text-text-muted">{t("whatsNewIntro")}</p>
         </div>
         {entries.map((entry) => (
           <EntryCard key={entry.version} entry={entry} />

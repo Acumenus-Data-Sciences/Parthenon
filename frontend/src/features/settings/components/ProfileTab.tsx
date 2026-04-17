@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Loader2, Save, CheckCircle2, AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
 import { useUpdateProfile } from "../hooks/useProfile";
@@ -12,6 +13,7 @@ interface Toast {
 }
 
 export function ProfileTab() {
+  const { t } = useTranslation("settings");
   const user = useAuthStore((s) => s.user);
   const updateMutation = useUpdateProfile();
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -26,16 +28,25 @@ export function ProfileTab() {
   });
 
   useEffect(() => {
-    if (user) {
-      setForm({
-        name: user.name ?? "",
-        phone_number: user.phone_number ?? "",
-        job_title: user.job_title ?? "",
-        department: user.department ?? "",
-        organization: user.organization ?? "",
-        bio: user.bio ?? "",
-      });
-    }
+    if (!user) return;
+
+    let cancelled = false;
+    const nextForm = {
+      name: user.name ?? "",
+      phone_number: user.phone_number ?? "",
+      job_title: user.job_title ?? "",
+      department: user.department ?? "",
+      organization: user.organization ?? "",
+      bio: user.bio ?? "",
+    };
+
+    queueMicrotask(() => {
+      if (!cancelled) setForm(nextForm);
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   const showToast = (message: string, type: "success" | "error") => {
@@ -61,8 +72,8 @@ export function ProfileTab() {
         bio: form.bio || null,
       },
       {
-        onSuccess: () => showToast("Profile saved successfully", "success"),
-        onError: () => showToast("Failed to save profile", "error"),
+        onSuccess: () => showToast(t("profile.saved"), "success"),
+        onError: () => showToast(t("profile.saveFailed"), "error"),
       },
     );
   };
@@ -77,31 +88,35 @@ export function ProfileTab() {
     <div className="max-w-2xl space-y-8">
       {/* Avatar */}
       <section className="rounded-lg border border-border-default bg-surface-raised p-6">
-        <h3 className="text-sm font-semibold text-text-primary mb-4">Profile Photo</h3>
+        <h3 className="text-sm font-semibold text-text-primary mb-4">
+          {t("profile.photoTitle")}
+        </h3>
         <AvatarUpload />
       </section>
 
       {/* Profile Details */}
       <section className="rounded-lg border border-border-default bg-surface-raised p-6 space-y-5">
-        <h3 className="text-sm font-semibold text-text-primary">Profile Details</h3>
+        <h3 className="text-sm font-semibold text-text-primary">
+          {t("profile.detailsTitle")}
+        </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-              Name <span className="text-critical">*</span>
+              {t("profile.name")} <span className="text-critical">*</span>
             </label>
             <input
               type="text"
               value={form.name}
               onChange={(e) => handleChange("name", e.target.value)}
               className={inputClass}
-              placeholder="Full name"
+              placeholder={t("profile.fullNamePlaceholder")}
             />
           </div>
 
           <div className="space-y-1.5">
             <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-              Phone
+              {t("profile.phone")}
             </label>
             <input
               type="tel"
@@ -114,46 +129,46 @@ export function ProfileTab() {
 
           <div className="space-y-1.5">
             <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-              Job Title
+              {t("profile.jobTitle")}
             </label>
             <input
               type="text"
               value={form.job_title}
               onChange={(e) => handleChange("job_title", e.target.value)}
               className={inputClass}
-              placeholder="e.g. Research Scientist"
+              placeholder={t("profile.jobTitlePlaceholder")}
             />
           </div>
 
           <div className="space-y-1.5">
             <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-              Department
+              {t("profile.department")}
             </label>
             <input
               type="text"
               value={form.department}
               onChange={(e) => handleChange("department", e.target.value)}
               className={inputClass}
-              placeholder="e.g. Clinical Informatics"
+              placeholder={t("profile.departmentPlaceholder")}
             />
           </div>
 
           <div className="space-y-1.5 md:col-span-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-              Organization
+              {t("profile.organization")}
             </label>
             <input
               type="text"
               value={form.organization}
               onChange={(e) => handleChange("organization", e.target.value)}
               className={inputClass}
-              placeholder="e.g. Acumenus Data Sciences"
+              placeholder={t("profile.organizationPlaceholder")}
             />
           </div>
 
           <div className="space-y-1.5 md:col-span-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-              Bio
+              {t("profile.bio")}
             </label>
             <textarea
               value={form.bio}
@@ -161,7 +176,7 @@ export function ProfileTab() {
               rows={4}
               maxLength={2000}
               className={cn(inputClass, "resize-none")}
-              placeholder="A brief description about yourself and your research interests..."
+              placeholder={t("profile.bioPlaceholder")}
             />
             <p className="text-xs text-text-ghost text-right">
               {form.bio.length}/2000
@@ -186,7 +201,7 @@ export function ProfileTab() {
           ) : (
             <Save size={14} />
           )}
-          Save Profile
+          {t("profile.saveProfile")}
         </button>
       </div>
 

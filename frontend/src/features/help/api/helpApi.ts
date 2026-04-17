@@ -7,6 +7,9 @@ export interface HelpContent {
   docs_url: string | null;
   video_url: string | null;
   tips: string[];
+  locale?: string;
+  requested_locale?: string;
+  fallback_used?: boolean;
 }
 
 export interface ChangelogSection {

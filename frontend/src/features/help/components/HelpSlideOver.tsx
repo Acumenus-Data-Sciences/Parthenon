@@ -1,4 +1,5 @@
 import { ExternalLink, Lightbulb, Loader2, BookOpen } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Drawer } from "@/components/ui/Drawer";
 import { useHelp } from "../hooks/useHelp";
 
@@ -8,13 +9,14 @@ interface HelpSlideOverProps {
 }
 
 export function HelpSlideOver({ helpKey, onClose }: HelpSlideOverProps) {
+  const { t } = useTranslation("help");
   const { data, isLoading, isError } = useHelp(helpKey);
 
   return (
     <Drawer
       open={!!helpKey}
       onClose={onClose}
-      title={data?.title ?? "Help"}
+      title={data?.title ?? t("title")}
       size="md"
     >
       {isLoading && (
@@ -25,12 +27,18 @@ export function HelpSlideOver({ helpKey, onClose }: HelpSlideOverProps) {
 
       {isError && (
         <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
-          Help content could not be loaded.
+          {t("loadError")}
         </div>
       )}
 
       {data && (
         <div className="space-y-6">
+          {data.fallback_used && (
+            <div className="rounded-lg border border-warning/25 bg-warning/10 p-3 text-xs text-warning">
+              {t("fallbackNotice")}
+            </div>
+          )}
+
           {/* Description */}
           <p className="text-sm leading-relaxed text-text-secondary">
             {data.description}
@@ -41,7 +49,7 @@ export function HelpSlideOver({ helpKey, onClose }: HelpSlideOverProps) {
             <div>
               <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-text-ghost">
                 <Lightbulb size={13} />
-                Tips
+                {t("tips")}
               </div>
               <ul className="space-y-2">
                 {data.tips.map((tip, i) => (
@@ -61,11 +69,17 @@ export function HelpSlideOver({ helpKey, onClose }: HelpSlideOverProps) {
             {data.docs_url && (
               <button
                 type="button"
-                onClick={() => window.open(data.docs_url ?? undefined, "_blank", "noopener,noreferrer")}
+                onClick={() =>
+                  window.open(
+                    data.docs_url ?? undefined,
+                    "_blank",
+                    "noopener,noreferrer",
+                  )
+                }
                 className="inline-flex items-center gap-2 text-sm text-success hover:text-success-dark transition-colors cursor-pointer"
               >
                 <BookOpen size={14} />
-                Read full documentation
+                {t("readDocumentation")}
                 <ExternalLink size={12} />
               </button>
             )}
@@ -77,7 +91,7 @@ export function HelpSlideOver({ helpKey, onClose }: HelpSlideOverProps) {
                 className="inline-flex items-center gap-2 text-sm text-success hover:text-success-dark transition-colors"
               >
                 <ExternalLink size={14} />
-                Watch video tutorial
+                {t("watchVideo")}
               </a>
             )}
           </div>
