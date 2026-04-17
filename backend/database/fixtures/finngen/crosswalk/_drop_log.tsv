@@ -1,0 +1,805 @@
+vocab	source_code	reason
+ICD8	$!$	non-code pattern
+ICD8	0	no ICD-8 bridge for head=0
+ICD8	00[3]	no ICD-8 bridge for head=00
+ICD8	00[5]	no ICD-8 bridge for head=00
+ICD8	00[6]	no ICD-8 bridge for head=00
+ICD8	00[7]	no ICD-8 bridge for head=00
+ICD8	00[9]	no ICD-8 bridge for head=00
+ICD8	0[1]	non-code pattern
+ICD8	01	no ICD-8 bridge for head=01
+ICD8	01[3]	no ICD-8 bridge for head=01
+ICD8	01[8]	no ICD-8 bridge for head=01
+ICD8	01[9]	no ICD-8 bridge for head=01
+ICD8	02[0]	no ICD-8 bridge for head=02
+ICD8	02[1]	no ICD-8 bridge for head=02
+ICD8	02[2]	no ICD-8 bridge for head=02
+ICD8	02[3]	no ICD-8 bridge for head=02
+ICD8	02[6]	no ICD-8 bridge for head=02
+ICD8	02[7]	no ICD-8 bridge for head=02
+ICD8	03[0]	no ICD-8 bridge for head=03
+ICD8	03[1]	no ICD-8 bridge for head=03
+ICD8	03[2]	no ICD-8 bridge for head=03
+ICD8	03[3]	no ICD-8 bridge for head=03
+ICD8	03[4]	no ICD-8 bridge for head=03
+ICD8	03[5]	no ICD-8 bridge for head=03
+ICD8	03[6]	no ICD-8 bridge for head=03
+ICD8	03[7]	no ICD-8 bridge for head=03
+ICD8	03[8]	no ICD-8 bridge for head=03
+ICD8	03[9]	no ICD-8 bridge for head=03
+ICD8	04[4]	no ICD-8 bridge for head=04
+ICD8	04[5-]	no ICD-8 bridge for head=04
+ICD8	04[5]	no ICD-8 bridge for head=04
+ICD8	04[6]	no ICD-8 bridge for head=04
+ICD8	05[0]	no ICD-8 bridge for head=05
+ICD8	05[2]	no ICD-8 bridge for head=05
+ICD8	05[3]	no ICD-8 bridge for head=05
+ICD8	05[4]	no ICD-8 bridge for head=05
+ICD8	05[5]	no ICD-8 bridge for head=05
+ICD8	05[6]	no ICD-8 bridge for head=05
+ICD8	06[1	non-code pattern
+ICD8	06[1]	no ICD-8 bridge for head=06
+ICD8	06[2]	no ICD-8 bridge for head=06
+ICD8	06[3]	no ICD-8 bridge for head=06
+ICD8	06[4]	no ICD-8 bridge for head=06
+ICD8	06[7]	no ICD-8 bridge for head=06
+ICD8	067	no ICD-8 bridge for head=067
+ICD8	07[1]	no ICD-8 bridge for head=07
+ICD8	07[2]	no ICD-8 bridge for head=07
+ICD8	07[5]	no ICD-8 bridge for head=07
+ICD8	07[6	non-code pattern
+ICD8	07[8]	no ICD-8 bridge for head=07
+ICD8	08[0]	no ICD-8 bridge for head=08
+ICD8	08[1]	no ICD-8 bridge for head=08
+ICD8	08[2]	no ICD-8 bridge for head=08
+ICD8	08[4]	no ICD-8 bridge for head=08
+ICD8	08[5]	no ICD-8 bridge for head=08
+ICD8	08[6]	no ICD-8 bridge for head=08
+ICD8	08[7]	no ICD-8 bridge for head=08
+ICD8	08[8]	no ICD-8 bridge for head=08
+ICD8	089	no ICD-8 bridge for head=089
+ICD8	09[0]	no ICD-8 bridge for head=09
+ICD8	09[1]	no ICD-8 bridge for head=09
+ICD8	09[8]	no ICD-8 bridge for head=09
+ICD8	09[9]	no ICD-8 bridge for head=09
+ICD8	10	no ICD-8 bridge for head=10
+ICD8	10[4]	no ICD-8 bridge for head=10
+ICD8	104	no ICD-8 bridge for head=104
+ICD8	1040	no ICD-8 bridge for head=104
+ICD8	11	no ICD-8 bridge for head=11
+ICD8	12	no ICD-8 bridge for head=12
+ICD8	13	no ICD-8 bridge for head=13
+ICD8	14	no ICD-8 bridge for head=14
+ICD8	15	no ICD-8 bridge for head=15
+ICD8	16	no ICD-8 bridge for head=16
+ICD8	17	no ICD-8 bridge for head=17
+ICD8	18	no ICD-8 bridge for head=18
+ICD8	19	no ICD-8 bridge for head=19
+ICD8	20	no ICD-8 bridge for head=20
+ICD8	21	no ICD-8 bridge for head=21
+ICD8	22	no ICD-8 bridge for head=22
+ICD8	2-3]	no ICD-8 bridge for head=23
+ICD8	23	no ICD-8 bridge for head=23
+ICD8	24	no ICD-8 bridge for head=24
+ICD8	25	no ICD-8 bridge for head=25
+ICD8	26	no ICD-8 bridge for head=26
+ICD8	27	no ICD-8 bridge for head=27
+ICD8	2780	no ICD-8 bridge for head=278
+ICD8	2781	no ICD-8 bridge for head=278
+ICD8	2782	no ICD-8 bridge for head=278
+ICD8	2789	no ICD-8 bridge for head=278
+ICD8	28	no ICD-8 bridge for head=28
+ICD8	29	no ICD-8 bridge for head=29
+ICD8	30	no ICD-8 bridge for head=30
+ICD8	31	no ICD-8 bridge for head=31
+ICD8	32	no ICD-8 bridge for head=32
+ICD8	33	no ICD-8 bridge for head=33
+ICD8	34	no ICD-8 bridge for head=34
+ICD8	35	no ICD-8 bridge for head=35
+ICD8	36	no ICD-8 bridge for head=36
+ICD8	37	no ICD-8 bridge for head=37
+ICD8	38	no ICD-8 bridge for head=38
+ICD8	38000	no ICD-8 bridge for head=380
+ICD8	38001	no ICD-8 bridge for head=380
+ICD8	38002	no ICD-8 bridge for head=380
+ICD8	38003	no ICD-8 bridge for head=380
+ICD8	38004	no ICD-8 bridge for head=380
+ICD8	38005	no ICD-8 bridge for head=380
+ICD8	38006	no ICD-8 bridge for head=380
+ICD8	38007	no ICD-8 bridge for head=380
+ICD8	38008	no ICD-8 bridge for head=380
+ICD8	38009	no ICD-8 bridge for head=380
+ICD8	3810	no ICD-8 bridge for head=381
+ICD8	3811	no ICD-8 bridge for head=381
+ICD8	3819	no ICD-8 bridge for head=381
+ICD8	3820	no ICD-8 bridge for head=382
+ICD8	3821	no ICD-8 bridge for head=382
+ICD8	3829	no ICD-8 bridge for head=382
+ICD8	3830	no ICD-8 bridge for head=383
+ICD8	3831	no ICD-8 bridge for head=383
+ICD8	3839	no ICD-8 bridge for head=383
+ICD8	38400	no ICD-8 bridge for head=384
+ICD8	38401	no ICD-8 bridge for head=384
+ICD8	38402	no ICD-8 bridge for head=384
+ICD8	38403	no ICD-8 bridge for head=384
+ICD8	38599	no ICD-8 bridge for head=385
+ICD8	38699	no ICD-8 bridge for head=386
+ICD8	38700	no ICD-8 bridge for head=387
+ICD8	38710	no ICD-8 bridge for head=387
+ICD8	38798	no ICD-8 bridge for head=387
+ICD8	388	no ICD-8 bridge for head=388
+ICD8	389	no ICD-8 bridge for head=389
+ICD8	39	no ICD-8 bridge for head=39
+ICD8	40	no ICD-8 bridge for head=40
+ICD8	41	no ICD-8 bridge for head=41
+ICD8	42	no ICD-8 bridge for head=42
+ICD8	43	no ICD-8 bridge for head=43
+ICD8	44	no ICD-8 bridge for head=44
+ICD8	4499	no ICD-8 bridge for head=449
+ICD8	45	no ICD-8 bridge for head=45
+ICD8	454	no SNOMED target for ICD-10 I84
+ICD8	46	no ICD-8 bridge for head=46
+ICD8	47	no ICD-8 bridge for head=47
+ICD8	48	no ICD-8 bridge for head=48
+ICD8	49	no ICD-8 bridge for head=49
+ICD8	50	no ICD-8 bridge for head=50
+ICD8	51	no ICD-8 bridge for head=51
+ICD8	52	no ICD-8 bridge for head=52
+ICD8	524	no SNOMED target for ICD-10 K07
+ICD8	5242	no SNOMED target for ICD-10 K07
+ICD8	526	no SNOMED target for ICD-10 K10
+ICD8	5260	no SNOMED target for ICD-10 K10
+ICD8	53	no ICD-8 bridge for head=53
+ICD8	54	no ICD-8 bridge for head=54
+ICD8	543	no ICD-8 bridge for head=543
+ICD8	54302	no ICD-8 bridge for head=543
+ICD8	55	no ICD-8 bridge for head=55
+ICD8	56	no ICD-8 bridge for head=56
+ICD8	57	no ICD-8 bridge for head=57
+ICD8	58	no ICD-8 bridge for head=58
+ICD8	59	no ICD-8 bridge for head=59
+ICD8	6	no ICD-8 bridge for head=6
+ICD8	60	no ICD-8 bridge for head=60
+ICD8	61	no ICD-8 bridge for head=61
+ICD8	612	no ICD-8 bridge for head=612
+ICD8	613	no ICD-8 bridge for head=613
+ICD8	614	no ICD-8 bridge for head=614
+ICD8	6150	no ICD-8 bridge for head=615
+ICD8	6152	no ICD-8 bridge for head=615
+ICD8	616	no ICD-8 bridge for head=616
+ICD8	62	no ICD-8 bridge for head=62
+ICD8	63	no ICD-8 bridge for head=63
+ICD8	637	no SNOMED target for ICD-10 O06
+ICD8	63700	no SNOMED target for ICD-10 O06
+ICD8	6370[02]	no SNOMED target for ICD-10 O06
+ICD8	63701	no SNOMED target for ICD-10 O06
+ICD8	63702	no SNOMED target for ICD-10 O06
+ICD8	63703	no SNOMED target for ICD-10 O06
+ICD8	6370[349]	no SNOMED target for ICD-10 O06
+ICD8	63704	no SNOMED target for ICD-10 O06
+ICD8	63705	no SNOMED target for ICD-10 O06
+ICD8	63706	no SNOMED target for ICD-10 O06
+ICD8	63707	no SNOMED target for ICD-10 O06
+ICD8	63708	no SNOMED target for ICD-10 O06
+ICD8	63709	no SNOMED target for ICD-10 O06
+ICD8	6371	no SNOMED target for ICD-10 O06
+ICD8	63710	no SNOMED target for ICD-10 O06
+ICD8	63799	no SNOMED target for ICD-10 O06
+ICD8	64	no ICD-8 bridge for head=64
+ICD8	64[01]	no ICD-8 bridge for head=64
+ICD8	65	no ICD-8 bridge for head=65
+ICD8	6530	no ICD-8 bridge for head=653
+ICD8	6531	no ICD-8 bridge for head=653
+ICD8	654	no ICD-8 bridge for head=654
+ICD8	655	no ICD-8 bridge for head=655
+ICD8	6[56]	no ICD-8 bridge for head=6
+ICD8	6569	no ICD-8 bridge for head=656
+ICD8	6574	no ICD-8 bridge for head=657
+ICD8	66	no ICD-8 bridge for head=66
+ICD8	67	no ICD-8 bridge for head=67
+ICD8	67800	no ICD-8 bridge for head=678
+ICD8	6780[089]	no ICD-8 bridge for head=678
+ICD8	67801	no ICD-8 bridge for head=678
+ICD8	6780[12]	no ICD-8 bridge for head=678
+ICD8	67802	no ICD-8 bridge for head=678
+ICD8	67808	no ICD-8 bridge for head=678
+ICD8	67809	no ICD-8 bridge for head=678
+ICD8	68	no ICD-8 bridge for head=68
+ICD8	69	no ICD-8 bridge for head=69
+ICD8	70	no ICD-8 bridge for head=70
+ICD8	71	no ICD-8 bridge for head=71
+ICD8	71490	no ICD-8 bridge for head=714
+ICD8	71491	no ICD-8 bridge for head=714
+ICD8	71493	no ICD-8 bridge for head=714
+ICD8	71498	no ICD-8 bridge for head=714
+ICD8	7160	no ICD-8 bridge for head=716
+ICD8	7161	no ICD-8 bridge for head=716
+ICD8	7170	no ICD-8 bridge for head=717
+ICD8	7172	no ICD-8 bridge for head=717
+ICD8	71798	no ICD-8 bridge for head=717
+ICD8	71899	no ICD-8 bridge for head=718
+ICD8	72	no ICD-8 bridge for head=72
+ICD8	73	no ICD-8 bridge for head=73
+ICD8	74	no ICD-8 bridge for head=74
+ICD8	75	no ICD-8 bridge for head=75
+ICD8	76	no ICD-8 bridge for head=76
+ICD8	77	no ICD-8 bridge for head=77
+ICD8	7-8]	no ICD-8 bridge for head=78
+ICD8	78	no ICD-8 bridge for head=78
+ICD8	79	no ICD-8 bridge for head=79
+ICD8	79199	no ICD-8 bridge for head=791
+ICD8	798	no ICD-8 bridge for head=798
+ICD8	799	no ICD-8 bridge for head=799
+ICD8	8	no ICD-8 bridge for head=8
+ICD8	9	no ICD-8 bridge for head=9
+ICD8	9]	no ICD-8 bridge for head=9
+ICD8	E	non-code pattern
+ICD8	Y	no ICD-8 bridge for head=Y
+ICD8	Y80	no ICD-8 bridge for head=Y80
+ICD8	Y81	no ICD-8 bridge for head=Y81
+ICD8	Y82	no ICD-8 bridge for head=Y82
+ICD8	Y83	no ICD-8 bridge for head=Y83
+ICD8	Y84	no ICD-8 bridge for head=Y84
+ICD8	Y85	no ICD-8 bridge for head=Y85
+ICD8	Y86	no ICD-8 bridge for head=Y86
+ICD8	Y87	no ICD-8 bridge for head=Y87
+ICD9_FIN	$!$	non-code pattern
+ICD9_FIN	00[1]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	00[5]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	0[1]	non-code pattern
+ICD9_FIN	01[3]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	01[8]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	02[0]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	02[1]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	02[2]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	02[3]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	02[6]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	02[7]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	03[0]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	03[1]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	03[2]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	03[3]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	03[4]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	03[5]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	03[6]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	03[7]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	03[8]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	03[9]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	04[5]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	04[6	non-code pattern
+ICD9_FIN	04[7]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	05[0]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	05[2]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	05[3]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	05[4]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	05[5]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	05[6]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	06[1]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	06[2]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	06[3]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	06[4]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	06[6]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	07[1]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	07[2]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	07[5]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	07[6]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	07[7]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	07[8]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	08[2]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	08[4]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	08[5]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	08[7]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	09[0]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	09[1]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	09[8]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	09[9]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	10[4]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	2-3]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	8]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	9]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	B]	no ICD-9-CM ancestor in vocab.concept
+ICD9_FIN	C	non-code pattern
+ICD9_FIN	E	non-code pattern
+ICD9_FIN	V	non-code pattern
+ICD9_FIN	X]	no ICD-9-CM ancestor in vocab.concept
+ICD10_FIN	$!$	non-code pattern
+ICD10_FIN	3]	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	4]	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	5]	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	9]	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	A16	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	A3[0-9]	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	A4[0-9]	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	A97	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	B21	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	B22	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	B23	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	B24	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	C1[23]	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	C3[01]	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	C97	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E12	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E120	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E121	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E122	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E123	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E124	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E125	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E126	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E12[7-8]	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E129	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E1.3	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E140	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E141	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E142	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E143	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E144	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E145	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E146	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E14[7-8]	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E149	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E1.7	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	E90	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	F00	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	F000	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	F00[01]	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	F001	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	F0024	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	F009&G309	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	F3[23]3	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	F61	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	F62	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	F83	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	F92	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	G41	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	H03	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	H06	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	H062&E059	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	H13	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	H190	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	H191	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	H192	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	H193	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	H2[02]	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	H450	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	H451	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	H458	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	H480	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	H481	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	H488	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	H580	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	H581	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	H588	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	J46	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K07	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K070	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K0703	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K0704	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K0710	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K0711	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K0712	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K0713	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K0714	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K072	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K0720	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K0721	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K0722	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K0723	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K0724	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K0725	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K0727	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K0730	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K076	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K076[0	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K0760	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K10	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	K93	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	L6[02]	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	M68	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	M73	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	N38	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	O05	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	O06	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	O81	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	O83	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	O84	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	O95	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	O96	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	O97	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	P20	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	P21	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	P75	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	P75&E841	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Q3[67]	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	R02	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	R72	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	R95	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	R96	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	R98	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	S18	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T00	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T01	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T02	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T03	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T04	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T05	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T06	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T08	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T09	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T10	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T11	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T12	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T13	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T29	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T35	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T9	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T90	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T91	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T92	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T93	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T94	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T95	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T96	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T97	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	T98	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	U04	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	U06	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	U070	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	U071	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	U072	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	U8	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	U80	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	U81	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	U88	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	U89	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	W71	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	W76	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	W80	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	X27	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	X28	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	X33	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	X44	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	X45	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	X46	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	X47	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	X48	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	X49	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	X59	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	X69	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	X90	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Y10-Y34	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Y19	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Y34	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Y4	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Y40-Y84	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Y5	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Y57	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Y58	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Y59	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Y86	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Y87	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Y88	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Y89	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Y94	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Z10	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Z24	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Z25	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Z26	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Z27	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Z35	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Z50	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Z501	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Z54	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZA	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZA00	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZA10	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZA20	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZA30	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZA40	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZA50	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZA51	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZA60	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZA70	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZA80	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZA81	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZA82	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZA83	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZA84	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	Z[AB]	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZB	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZB00	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZB01	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZB02	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZB10	no ICD-10-CM ancestor in vocab.concept
+ICD10_FIN	ZB11	no ICD-10-CM ancestor in vocab.concept
+NOMESCO	2	not a NOMESCO surgical code
+NOMESCO	3]	not a NOMESCO surgical code
+NOMESCO	3]0	not a NOMESCO surgical code
+NOMESCO	^SAA02	not a NOMESCO surgical code
+NOMESCO	SAA02	not a NOMESCO surgical code
+NOMESCO	^SAA03	not a NOMESCO surgical code
+NOMESCO	SAA03	not a NOMESCO surgical code
+NOMESCO	^SAA04	not a NOMESCO surgical code
+NOMESCO	SAA04	not a NOMESCO surgical code
+NOMESCO	^SDA12	not a NOMESCO surgical code
+NOMESCO	SDA12	not a NOMESCO surgical code
+NOMESCO	^SDA13	not a NOMESCO surgical code
+NOMESCO	SDA13	not a NOMESCO surgical code
+NOMESCO	^SDA14	not a NOMESCO surgical code
+NOMESCO	SDA14	not a NOMESCO surgical code
+NOMESCO	^SFA	not a NOMESCO surgical code
+NOMESCO	SFA	not a NOMESCO surgical code
+NOMESCO	^SGA	not a NOMESCO surgical code
+NOMESCO	SGA	not a NOMESCO surgical code
+NOMESCO	^SGA01	not a NOMESCO surgical code
+NOMESCO	SGA01	not a NOMESCO surgical code
+NOMESCO	^SGA02	not a NOMESCO surgical code
+NOMESCO	SGA02	not a NOMESCO surgical code
+NOMESCO	^SGA03	not a NOMESCO surgical code
+NOMESCO	SGA03	not a NOMESCO surgical code
+NOMESCO	^SGA04	not a NOMESCO surgical code
+NOMESCO	SGA04	not a NOMESCO surgical code
+NOMESCO	^SGA05	not a NOMESCO surgical code
+NOMESCO	SGA05	not a NOMESCO surgical code
+NOMESCO	^SGB	not a NOMESCO surgical code
+NOMESCO	SGB	not a NOMESCO surgical code
+NOMESCO	^SGC	not a NOMESCO surgical code
+NOMESCO	SGC	not a NOMESCO surgical code
+NOMESCO	^SHA03	not a NOMESCO surgical code
+NOMESCO	SHA03	not a NOMESCO surgical code
+NOMESCO	^SHA04	not a NOMESCO surgical code
+NOMESCO	SHA04	not a NOMESCO surgical code
+NOMESCO	^SHB00	not a NOMESCO surgical code
+NOMESCO	SHB00	not a NOMESCO surgical code
+NOMESCO	^WX722	not a NOMESCO surgical code
+NOMESCO	WX722	not a NOMESCO surgical code
+NOMESCO	^WX725	not a NOMESCO surgical code
+NOMESCO	WX725	not a NOMESCO surgical code
+NOMESCO	^WX730	not a NOMESCO surgical code
+NOMESCO	WX730	not a NOMESCO surgical code
+KELA_REIMB	103	ingredient Insulin Human not in RxNorm standard
+KELA_REIMB	122	ingredient Erythropoietin not in RxNorm standard
+KELA_REIMB	203	ingredient Salbutamol not in RxNorm standard
+KELA_REIMB	307	ingredient Acetylsalicylic acid not in RxNorm standard
+ICDO3	$!$	non-mappable fragment
+ICDO3	1	non-mappable fragment
+ICDO3	2	non-mappable fragment
+ICDO3	[23]	no 3-digit morphology base
+ICDO3	3	non-mappable fragment
+ICDO3	6869	no SNOMED neoplasm fallback
+ICDO3	8041	no SNOMED neoplasm fallback
+ICDO3	8046	no SNOMED neoplasm fallback
+ICDO3	8070	no SNOMED neoplasm fallback
+ICDO3	8071	no SNOMED neoplasm fallback
+ICDO3	8072	no SNOMED neoplasm fallback
+ICDO3	8073	no SNOMED neoplasm fallback
+ICDO3	8074	no SNOMED neoplasm fallback
+ICDO3	8075	no SNOMED neoplasm fallback
+ICDO3	8076	no SNOMED neoplasm fallback
+ICDO3	8077	no SNOMED neoplasm fallback
+ICDO3	8082	no SNOMED neoplasm fallback
+ICDO3	8083	no SNOMED neoplasm fallback
+ICDO3	8084	no SNOMED neoplasm fallback
+ICDO3	8090	no SNOMED neoplasm fallback
+ICDO3	8091	no SNOMED neoplasm fallback
+ICDO3	8092	no SNOMED neoplasm fallback
+ICDO3	8093	no SNOMED neoplasm fallback
+ICDO3	8094	no SNOMED neoplasm fallback
+ICDO3	8095	no SNOMED neoplasm fallback
+ICDO3	8096	no SNOMED neoplasm fallback
+ICDO3	8097	no SNOMED neoplasm fallback
+ICDO3	8098	no SNOMED neoplasm fallback
+ICDO3	8120	no SNOMED neoplasm fallback
+ICDO3	8140	no SNOMED neoplasm fallback
+ICDO3	8144	no SNOMED neoplasm fallback
+ICDO3	8145	no SNOMED neoplasm fallback
+ICDO3	8170	no SNOMED neoplasm fallback
+ICDO3	8171	no SNOMED neoplasm fallback
+ICDO3	8172	no SNOMED neoplasm fallback
+ICDO3	8173	no SNOMED neoplasm fallback
+ICDO3	8174	no SNOMED neoplasm fallback
+ICDO3	8175	no SNOMED neoplasm fallback
+ICDO3	8240	no SNOMED neoplasm fallback
+ICDO3	8242	no SNOMED neoplasm fallback
+ICDO3	8243	no SNOMED neoplasm fallback
+ICDO3	8244	no SNOMED neoplasm fallback
+ICDO3	8246	no SNOMED neoplasm fallback
+ICDO3	8247	no SNOMED neoplasm fallback
+ICDO3	8249	no SNOMED neoplasm fallback
+ICDO3	8260	no SNOMED neoplasm fallback
+ICDO3	8441	no SNOMED neoplasm fallback
+ICDO3	8470	no SNOMED neoplasm fallback
+ICDO3	8471	no SNOMED neoplasm fallback
+ICDO3	8472	no SNOMED neoplasm fallback
+ICDO3	8473	no SNOMED neoplasm fallback
+ICDO3	8480	no SNOMED neoplasm fallback
+ICDO3	8500	no SNOMED neoplasm fallback
+ICDO3	8510	no SNOMED neoplasm fallback
+ICDO3	8513	no SNOMED neoplasm fallback
+ICDO3	8620	no SNOMED neoplasm fallback
+ICDO3	872	no SNOMED neoplasm fallback
+ICDO3	8720	no SNOMED neoplasm fallback
+ICDO3	8721	no SNOMED neoplasm fallback
+ICDO3	8726	no SNOMED neoplasm fallback
+ICDO3	873	no SNOMED neoplasm fallback
+ICDO3	8730	no SNOMED neoplasm fallback
+ICDO3	874	no SNOMED neoplasm fallback
+ICDO3	8742	no SNOMED neoplasm fallback
+ICDO3	8743	no SNOMED neoplasm fallback
+ICDO3	8744	no SNOMED neoplasm fallback
+ICDO3	8745	no SNOMED neoplasm fallback
+ICDO3	875	no SNOMED neoplasm fallback
+ICDO3	876	no SNOMED neoplasm fallback
+ICDO3	877	no SNOMED neoplasm fallback
+ICDO3	878	no SNOMED neoplasm fallback
+ICDO3	879	no SNOMED neoplasm fallback
+ICDO3	8810	no SNOMED neoplasm fallback
+ICDO3	8811	no SNOMED neoplasm fallback
+ICDO3	8814	no SNOMED neoplasm fallback
+ICDO3	8815	no SNOMED neoplasm fallback
+ICDO3	8821	no SNOMED neoplasm fallback
+ICDO3	8830	no SNOMED neoplasm fallback
+ICDO3	8832	no SNOMED neoplasm fallback
+ICDO3	8840	no SNOMED neoplasm fallback
+ICDO3	8850	no SNOMED neoplasm fallback
+ICDO3	8851	no SNOMED neoplasm fallback
+ICDO3	8852	no SNOMED neoplasm fallback
+ICDO3	8853	no SNOMED neoplasm fallback
+ICDO3	8854	no SNOMED neoplasm fallback
+ICDO3	8858	no SNOMED neoplasm fallback
+ICDO3	8890	no SNOMED neoplasm fallback
+ICDO3	9050	no SNOMED neoplasm fallback
+ICDO3	9051	no SNOMED neoplasm fallback
+ICDO3	9052	no SNOMED neoplasm fallback
+ICDO3	9053	no SNOMED neoplasm fallback
+ICDO3	9061	no SNOMED neoplasm fallback
+ICDO3	9070	no SNOMED neoplasm fallback
+ICDO3	907[01]	no SNOMED neoplasm fallback
+ICDO3	9071	no SNOMED neoplasm fallback
+ICDO3	9080	no SNOMED neoplasm fallback
+ICDO3	9100	no SNOMED neoplasm fallback
+ICDO3	9180	no SNOMED neoplasm fallback
+ICDO3	9181	no SNOMED neoplasm fallback
+ICDO3	9183	no SNOMED neoplasm fallback
+ICDO3	9200	no SNOMED neoplasm fallback
+ICDO3	9220	no SNOMED neoplasm fallback
+ICDO3	9230	no SNOMED neoplasm fallback
+ICDO3	9231	no SNOMED neoplasm fallback
+ICDO3	9261	no SNOMED neoplasm fallback
+ICDO3	9382	no SNOMED neoplasm fallback
+ICDO3	9391	no SNOMED neoplasm fallback
+ICDO3	9392	no SNOMED neoplasm fallback
+ICDO3	9393	no SNOMED neoplasm fallback
+ICDO3	9400	no SNOMED neoplasm fallback
+ICDO3	9440	no SNOMED neoplasm fallback
+ICDO3	9470	no SNOMED neoplasm fallback
+ICDO3	9510	no SNOMED neoplasm fallback
+ICDO3	9511	no SNOMED neoplasm fallback
+ICDO3	9512	no SNOMED neoplasm fallback
+ICDO3	9513	no SNOMED neoplasm fallback
+ICDO3	9514	no SNOMED neoplasm fallback
+ICDO3	9530	no SNOMED neoplasm fallback
+ICDO3	9531	no SNOMED neoplasm fallback
+ICDO3	9532	no SNOMED neoplasm fallback
+ICDO3	9533	no SNOMED neoplasm fallback
+ICDO3	9534	no SNOMED neoplasm fallback
+ICDO3	9537	no SNOMED neoplasm fallback
+ICDO3	9538	no SNOMED neoplasm fallback
+ICDO3	9539	no SNOMED neoplasm fallback
+ICDO3	9670	no SNOMED neoplasm fallback
+ICDO3	9671	no SNOMED neoplasm fallback
+ICDO3	9672	no SNOMED neoplasm fallback
+ICDO3	9673	no SNOMED neoplasm fallback
+ICDO3	9674	no SNOMED neoplasm fallback
+ICDO3	9675	no SNOMED neoplasm fallback
+ICDO3	9676	no SNOMED neoplasm fallback
+ICDO3	9677	no SNOMED neoplasm fallback
+ICDO3	9678	no SNOMED neoplasm fallback
+ICDO3	9679	no SNOMED neoplasm fallback
+ICDO3	9680	no SNOMED neoplasm fallback
+ICDO3	9687	no SNOMED neoplasm fallback
+ICDO3	9699	no SNOMED neoplasm fallback
+ICDO3	9700	no SNOMED neoplasm fallback
+ICDO3	9701	no SNOMED neoplasm fallback
+ICDO3	9702	no SNOMED neoplasm fallback
+ICDO3	9732	no SNOMED neoplasm fallback
+ICDO3	9761	no SNOMED neoplasm fallback
+ICDO3	9765	no SNOMED neoplasm fallback
+ICDO3	9910	no SNOMED neoplasm fallback
+ICDO3	9911	no SNOMED neoplasm fallback
+ICDO3	9912	no SNOMED neoplasm fallback
+ICDO3	9920	no SNOMED neoplasm fallback
+ICDO3	9930	no SNOMED neoplasm fallback
+ICDO3	993[01]	no SNOMED neoplasm fallback
+ICDO3	9931	no SNOMED neoplasm fallback
+ICDO3	9950	no SNOMED neoplasm fallback
+ICDO3	9962	no SNOMED neoplasm fallback
+ICDO3	9980	no SNOMED neoplasm fallback
+ICDO3	9982	no SNOMED neoplasm fallback
+ICDO3	9983	no SNOMED neoplasm fallback
+ICDO3	9984	no SNOMED neoplasm fallback
+ICDO3	9985	no SNOMED neoplasm fallback
+ICDO3	9986	no SNOMED neoplasm fallback
+ICDO3	9987	no SNOMED neoplasm fallback
+ICDO3	9989	no SNOMED neoplasm fallback
+ICDO3	C00	no 3-digit morphology base
+ICDO3	C01	no 3-digit morphology base
+ICDO3	C02	no 3-digit morphology base
+ICDO3	C03	no 3-digit morphology base
+ICDO3	C04	no 3-digit morphology base
+ICDO3	C05	no 3-digit morphology base
+ICDO3	C06	no 3-digit morphology base
+ICDO3	C07	no 3-digit morphology base
+ICDO3	C08	no 3-digit morphology base
+ICDO3	C09	no 3-digit morphology base
+ICDO3	C10	no 3-digit morphology base
+ICDO3	C11	no 3-digit morphology base
+ICDO3	C12	no 3-digit morphology base
+ICDO3	C1[23]	no SNOMED neoplasm fallback
+ICDO3	C13	no 3-digit morphology base
+ICDO3	C14	no 3-digit morphology base
+ICDO3	C15	no 3-digit morphology base
+ICDO3	C16	no 3-digit morphology base
+ICDO3	C17	no 3-digit morphology base
+ICDO3	C18	no 3-digit morphology base
+ICDO3	C19	no 3-digit morphology base
+ICDO3	C20	no 3-digit morphology base
+ICDO3	C21	no 3-digit morphology base
+ICDO3	C22	no 3-digit morphology base
+ICDO3	C23	no 3-digit morphology base
+ICDO3	C24	no 3-digit morphology base
+ICDO3	C25	no 3-digit morphology base
+ICDO3	C26	no 3-digit morphology base
+ICDO3	C30	no 3-digit morphology base
+ICDO3	C3[01]	no SNOMED neoplasm fallback
+ICDO3	C31	no 3-digit morphology base
+ICDO3	C32	no 3-digit morphology base
+ICDO3	C33	no 3-digit morphology base
+ICDO3	C34	no 3-digit morphology base
+ICDO3	C37	no 3-digit morphology base
+ICDO3	C38	no 3-digit morphology base
+ICDO3	C384	no SNOMED neoplasm fallback
+ICDO3	C39	no 3-digit morphology base
+ICDO3	C40	no 3-digit morphology base
+ICDO3	C41	no 3-digit morphology base
+ICDO3	C42	no 3-digit morphology base
+ICDO3	C44	no 3-digit morphology base
+ICDO3	C47	no 3-digit morphology base
+ICDO3	C48	no 3-digit morphology base
+ICDO3	C49	no 3-digit morphology base
+ICDO3	C50	no 3-digit morphology base
+ICDO3	C51	no 3-digit morphology base
+ICDO3	C52	no 3-digit morphology base
+ICDO3	C53	no 3-digit morphology base
+ICDO3	C54	no 3-digit morphology base
+ICDO3	C55	no 3-digit morphology base
+ICDO3	C56	no 3-digit morphology base
+ICDO3	C57	no 3-digit morphology base
+ICDO3	C58	no 3-digit morphology base
+ICDO3	C60	no 3-digit morphology base
+ICDO3	C61	no 3-digit morphology base
+ICDO3	C62	no 3-digit morphology base
+ICDO3	C63	no 3-digit morphology base
+ICDO3	C64	no 3-digit morphology base
+ICDO3	C65	no 3-digit morphology base
+ICDO3	C66	no 3-digit morphology base
+ICDO3	C67	no 3-digit morphology base
+ICDO3	C68	no 3-digit morphology base
+ICDO3	C69	no 3-digit morphology base
+ICDO3	C70	no 3-digit morphology base
+ICDO3	C71	no 3-digit morphology base
+ICDO3	C72	no 3-digit morphology base
+ICDO3	C73	no 3-digit morphology base
+ICDO3	C74	no 3-digit morphology base
+ICDO3	C75	no 3-digit morphology base
+ICDO3	C76	no 3-digit morphology base
+ICDO3	C77	no 3-digit morphology base
+ICDO3	C78	no 3-digit morphology base
+ICDO3	C79	no 3-digit morphology base
+ICDO3	C80	no 3-digit morphology base
+ICDO3	C81	no 3-digit morphology base
+ICDO3	C82	no 3-digit morphology base
+ICDO3	C83	no 3-digit morphology base
+ICDO3	C84	no 3-digit morphology base
+ICDO3	C85	no 3-digit morphology base
+ICDO3	C86	no 3-digit morphology base

@@ -1,0 +1,43 @@
+# source: KELA (Kansaneläkelaitos) reimbursement category → standard RxNorm Ingredient (clinical SME)
+# target_vocab: RxNorm (Athena 5.4 snapshot — live vocab.concept, verified 2026-04-17)
+# license: KELA codes are Finland public reimbursement codes (open use) + CC-BY-4.0 (RxNorm)
+# curator: Phase 13-04 executor (Parthenon GSD agent)
+source_code,source_concept_id,source_vocabulary_id,source_code_description,target_concept_id,target_vocabulary_id,valid_start_date,valid_end_date,invalid_reason,provenance_tag
+101,0,KELA_REIMB,KELA reimbursement 101 – Donepezil,715997,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+104,0,KELA_REIMB,KELA reimbursement 104 – Levothyroxine,1501700,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+105,0,KELA_REIMB,KELA reimbursement 105 – Clozapine,800878,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+106,0,KELA_REIMB,KELA reimbursement 106 – Warfarin,1310149,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+107,0,KELA_REIMB,KELA reimbursement 107 – Digoxin,1326303,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+108,0,KELA_REIMB,KELA reimbursement 108 – Lithium,19124477,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+109,0,KELA_REIMB,KELA reimbursement 109 – Quetiapine,766814,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+110,0,KELA_REIMB,KELA reimbursement 110 – Levodopa,789578,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+111,0,KELA_REIMB,KELA reimbursement 111 – Valproate,745466,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+112,0,KELA_REIMB,KELA reimbursement 112 – Lamotrigine,705103,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+113,0,KELA_REIMB,KELA reimbursement 113 – Levetiracetam,711584,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+115,0,KELA_REIMB,KELA reimbursement 115 – Timolol,902427,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+116,0,KELA_REIMB,KELA reimbursement 116 – Latanoprost,954688,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+119,0,KELA_REIMB,KELA reimbursement 119 – Interferon alfa-2a,1379969,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+120,0,KELA_REIMB,KELA reimbursement 120 – Tacrolimus,950637,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+123,0,KELA_REIMB,KELA reimbursement 123 – Alendronate,1557272,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+126,0,KELA_REIMB,KELA reimbursement 126 – Tamoxifen,1436678,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+130,0,KELA_REIMB,KELA reimbursement 130 – Cyclosporine,19010482,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+132,0,KELA_REIMB,KELA reimbursement 132 – Leuprolide,1351541,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+133,0,KELA_REIMB,KELA reimbursement 133 – Emtricitabine,1703069,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+134,0,KELA_REIMB,KELA reimbursement 134 – Tiotropium,1106776,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+135,0,KELA_REIMB,KELA reimbursement 135 – Tolterodine,913782,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+137,0,KELA_REIMB,KELA reimbursement 137 – Rosuvastatin,1510813,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+138,0,KELA_REIMB,KELA reimbursement 138 – Ezetimibe,1526475,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+201,0,KELA_REIMB,KELA reimbursement 201 – Furosemide,956874,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+202,0,KELA_REIMB,KELA reimbursement 202 – Methotrexate,1305058,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+205,0,KELA_REIMB,KELA reimbursement 205 – Candesartan,1351557,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+206,0,KELA_REIMB,KELA reimbursement 206 – Amlodipine,1332418,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+207,0,KELA_REIMB,KELA reimbursement 207 – Simvastatin,1539403,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+208,0,KELA_REIMB,KELA reimbursement 208 – Atorvastatin,1545958,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+212,0,KELA_REIMB,KELA reimbursement 212 – Ramipril,1334456,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+214,0,KELA_REIMB,KELA reimbursement 214 – Bisoprolol,1338005,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+317,0,KELA_REIMB,KELA reimbursement 317 – Clopidogrel,1322184,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+319,0,KELA_REIMB,KELA reimbursement 319 – Apixaban,43013024,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+342,0,KELA_REIMB,KELA reimbursement 342 – Dabigatran,45775372,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+351,0,KELA_REIMB,KELA reimbursement 351 – Rivaroxaban,40241331,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+377,0,KELA_REIMB,KELA reimbursement 377 – Warfarin,1310149,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17
+395,0,KELA_REIMB,KELA reimbursement 395 – Edoxaban,45892847,RxNorm,1970-01-01,2099-12-31,,sme-sphp-2026-04-17

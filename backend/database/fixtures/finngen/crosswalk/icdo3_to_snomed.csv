@@ -1,0 +1,56 @@
+# source: ICD-O-3 morphology M-code series (80-99) → SNOMED neoplasm category (grouped)
+# target_vocab: SNOMED (Athena 5.4 snapshot — live vocab.concept, verified 2026-04-17)
+# license: WHO IARC ICD-O-3 codes are published facts (non-copyrightable numeric codes); descriptions only reference neoplasm category names sourced from Athena SNOMED (CC-BY-4.0)
+# curator: Phase 13-04 executor (Parthenon GSD agent)
+source_code,source_concept_id,source_vocabulary_id,source_code_description,target_concept_id,target_vocabulary_id,valid_start_date,valid_end_date,invalid_reason,provenance_tag
+8310,0,ICDO3,ICD-O-3 8310 – Adenoma,37162320,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+8312,0,ICDO3,ICD-O-3 8312 – Adenoma,37162320,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+8316,0,ICDO3,ICD-O-3 8316 – Adenoma,37162320,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+8317,0,ICDO3,ICD-O-3 8317 – Adenoma,37162320,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+8318,0,ICDO3,ICD-O-3 8318 – Adenoma,37162320,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+8319,0,ICDO3,ICD-O-3 8319 – Adenoma,37162320,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+8330,0,ICDO3,ICD-O-3 8330 – Adenoma,37162320,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+8331,0,ICDO3,ICD-O-3 8331 – Adenoma,37162320,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+8332,0,ICDO3,ICD-O-3 8332 – Adenoma,37162320,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+8335,0,ICDO3,ICD-O-3 8335 – Adenoma,37162320,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+8380,0,ICDO3,ICD-O-3 8380 – Adenoma,37162320,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+8900,0,ICDO3,ICD-O-3 8900 – Paraganglioma,4120306,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+8901,0,ICDO3,ICD-O-3 8901 – Paraganglioma,4120306,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+8910,0,ICDO3,ICD-O-3 8910 – Paraganglioma,4120306,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+8920,0,ICDO3,ICD-O-3 8920 – Paraganglioma,4120306,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+8936,0,ICDO3,ICD-O-3 8936 – Paraganglioma,4120306,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+8963,0,ICDO3,ICD-O-3 8963 – Paraganglioma,4120306,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9811,0,ICDO3,ICD-O-3 9811 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9812,0,ICDO3,ICD-O-3 9812 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9813,0,ICDO3,ICD-O-3 9813 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9814,0,ICDO3,ICD-O-3 9814 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9815,0,ICDO3,ICD-O-3 9815 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9816,0,ICDO3,ICD-O-3 9816 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9817,0,ICDO3,ICD-O-3 9817 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9818,0,ICDO3,ICD-O-3 9818 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9823,0,ICDO3,ICD-O-3 9823 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9826,0,ICDO3,ICD-O-3 9826 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9835,0,ICDO3,ICD-O-3 9835 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9840,0,ICDO3,ICD-O-3 9840 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9861,0,ICDO3,ICD-O-3 9861 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9863,0,ICDO3,ICD-O-3 9863 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9865,0,ICDO3,ICD-O-3 9865 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9866,0,ICDO3,ICD-O-3 9866 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+986[67],0,ICDO3,ICD-O-3 986[67] – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9867,0,ICDO3,ICD-O-3 9867 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9870,0,ICDO3,ICD-O-3 9870 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9871,0,ICDO3,ICD-O-3 9871 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9872,0,ICDO3,ICD-O-3 9872 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9873,0,ICDO3,ICD-O-3 9873 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9874,0,ICDO3,ICD-O-3 9874 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9875,0,ICDO3,ICD-O-3 9875 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9877,0,ICDO3,ICD-O-3 9877 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9878,0,ICDO3,ICD-O-3 9878 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9879,0,ICDO3,ICD-O-3 9879 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9891,0,ICDO3,ICD-O-3 9891 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+989[1567],0,ICDO3,ICD-O-3 989[1567] – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+989[15678],0,ICDO3,ICD-O-3 989[15678] – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9895,0,ICDO3,ICD-O-3 9895 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9896,0,ICDO3,ICD-O-3 9896 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9897,0,ICDO3,ICD-O-3 9897 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
+9898,0,ICDO3,ICD-O-3 9898 – Leukemia,317510,SNOMED,1970-01-01,2099-12-31,,athena-icdo3-snomed-2026q1
