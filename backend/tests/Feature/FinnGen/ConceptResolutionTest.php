@@ -58,3 +58,28 @@ it('rejects non-alphanumeric tokens (SQL injection defense)', function () {
     $r = $this->resolver->resolveIcd10(["I21'; DROP TABLE users;--"]);
     expect($r['standard'])->toBe([])->and($r['source'])->toBe([]);
 });
+
+it('resolveIcd10 inserts decimal for un-dotted Finnish ICD-10 codes (E291 → E29.1)', function () {
+    // FinnGen stores ICD-10 codes without the decimal. vocab.concept stores
+    // them dotted. The resolver must try both.
+    $r = $this->resolver->resolveIcd10(['E291']);
+    expect(count($r['source']))->toBeGreaterThanOrEqual(1)
+        ->and(count($r['standard']))->toBeGreaterThanOrEqual(1);
+});
+
+it('resolveIcd10 inserts decimal for 5-char codes (K0531 → K05.31)', function () {
+    $r = $this->resolver->resolveIcd10(['K0531']);
+    expect(count($r['source']))->toBeGreaterThanOrEqual(1);
+});
+
+it('resolveIcd10 leaves dotted codes alone', function () {
+    $r = $this->resolver->resolveIcd10(['E29.1']);
+    expect(count($r['source']))->toBeGreaterThanOrEqual(1);
+});
+
+it('resolver sanitize drops single-char tokens', function () {
+    // Single 'V' is a valid ICD-9 prefix but not a usable code on its own.
+    // The resolver must reject it before it reaches the LIKE query.
+    $r = $this->resolver->resolveIcd10(['V']);
+    expect($r['source'])->toBe([])->and($r['standard'])->toBe([]);
+});

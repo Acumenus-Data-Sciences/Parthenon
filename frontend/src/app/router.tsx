@@ -346,6 +346,14 @@ export const router = createBrowserRouter(
               ).then((m) => ({ Component: m.default })),
           },
           {
+            // SP4 Genomics #1 — FinnGen curated endpoint library browser
+            path: "finngen-endpoints",
+            lazy: () =>
+              import(
+                "@/features/finngen-endpoint-browser/pages/FinnGenEndpointBrowserPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
             path: "community-sdk-demo",
             lazy: () =>
               import(

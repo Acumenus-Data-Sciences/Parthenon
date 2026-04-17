@@ -61,6 +61,7 @@ use App\Http\Controllers\Api\V1\FhirToCdmController;
 use App\Http\Controllers\Api\V1\FinnGen\AnalysisModuleController;
 use App\Http\Controllers\Api\V1\FinnGen\ArtifactController;
 use App\Http\Controllers\Api\V1\FinnGen\CodeExplorerController;
+use App\Http\Controllers\Api\V1\FinnGen\EndpointBrowserController;
 use App\Http\Controllers\Api\V1\FinnGen\RunController;
 use App\Http\Controllers\Api\V1\FinnGen\SyncReadController;
 use App\Http\Controllers\Api\V1\FinnGen\WorkbenchSessionController;
@@ -1067,6 +1068,16 @@ Route::prefix('v1')->group(function () {
                     ->middleware(['permission:finngen.workbench.use', 'throttle:30,1']);
                 Route::post('/atlas/import', [WorkbenchSessionController::class, 'importAtlasCohorts'])
                     ->middleware(['permission:finngen.workbench.use', 'finngen.idempotency', 'throttle:10,1']);
+            });
+
+            // SP4 Genomics #1 — FinnGen curated endpoint library browser
+            Route::prefix('endpoints')->group(function () {
+                Route::get('/', [EndpointBrowserController::class, 'index'])
+                    ->middleware(['permission:finngen.workbench.use', 'throttle:120,1']);
+                Route::get('/stats', [EndpointBrowserController::class, 'stats'])
+                    ->middleware(['permission:finngen.workbench.use', 'throttle:60,1']);
+                Route::get('/{name}', [EndpointBrowserController::class, 'show'])
+                    ->middleware(['permission:finngen.workbench.use', 'throttle:120,1']);
             });
         });
 

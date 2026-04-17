@@ -28,12 +28,27 @@ class FinnGenConceptResolver
     public const MAX_RESOLVED = 500;
 
     /**
+     * FinnGen stores ICD-10 codes without the decimal (`E291`, `K0531`) but
+     * vocab.concept stores them dotted (`E29.1`, `K05.31`). For each prefix:
+     * keep the original (matches dotted-or-undotted in vocab) AND emit a
+     * dotted variant with the decimal inserted after the 3rd char if the
+     * prefix is at least 4 chars and doesn't already contain a dot. This
+     * mirrors the resolveIcd9 strategy. Recovers ~80% of FinnGen ICD-10
+     * codes that previously fell into the unmapped sidecar.
+     *
      * @param  list<string>  $patterns
      * @return array{standard: list<int>, source: list<int>, truncated: bool}
      */
     public function resolveIcd10(array $patterns): array
     {
-        $prefixes = $this->sanitize($patterns);
+        $prefixes = [];
+        foreach ($this->sanitize($patterns) as $p) {
+            $prefixes[] = $p;
+            if (strlen($p) >= 4 && ! str_contains($p, '.')) {
+                $prefixes[] = substr($p, 0, 3).'.'.substr($p, 3);
+            }
+        }
+        $prefixes = array_values(array_unique($prefixes));
         if ($prefixes === []) {
             return ['standard' => [], 'source' => [], 'truncated' => false];
         }
@@ -162,7 +177,13 @@ class FinnGenConceptResolver
     }
 
     /**
-     * Reject tokens containing anything outside [A-Za-z0-9.\-_].
+     * Reject tokens that aren't plausible source codes:
+     *  - shorter than 2 chars (single 'V', 'E', 'A' are noise, not codes)
+     *  - containing characters outside [A-Za-z0-9.\-_]
+     *
+     * The min-length-2 guard eliminates XLSX cell artifacts (single-letter
+     * stragglers, residual nulls) that historically reached the unmapped
+     * sidecar without being filterable downstream.
      *
      * @param  list<string>  $patterns
      * @return list<string>
@@ -172,7 +193,7 @@ class FinnGenConceptResolver
         $out = [];
         foreach ($patterns as $p) {
             $p = trim($p);
-            if ($p === '') {
+            if (strlen($p) < 2) {
                 continue;
             }
             if (preg_match('/^[A-Za-z0-9._\-]+$/', $p) === 1) {

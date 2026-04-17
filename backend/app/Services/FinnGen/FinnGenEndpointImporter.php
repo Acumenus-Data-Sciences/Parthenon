@@ -324,6 +324,10 @@ final class FinnGenEndpointImporter
             'kind' => 'finngen_endpoint',
             'spec_version' => '1.0',
             'release' => $release,
+            // Top-level coverage_bucket for cheap SQL filtering and UI display.
+            // Mirrors coverage.bucket below; promoted so callers don't need
+            // a 2-level JSON path traversal to filter by mapping quality.
+            'coverage_bucket' => $bucket,
             'level' => $row->level,
             'sex_restriction' => $row->sex_restriction,
             'include_endpoints' => $row->include,
