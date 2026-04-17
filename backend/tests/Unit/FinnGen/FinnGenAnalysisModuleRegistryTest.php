@@ -23,6 +23,7 @@ it('all() returns the seeded modules keyed by key', function () {
 
     // SP1-3: 4 CO2 modules + 2 romopapi modules.
     // SP4 Phase D added cohort.match; Polish 2 added cohort.materialize.
+    // Genomics #2 added endpoint.generate.
     expect(array_keys($modules))->toEqualCanonicalizing([
         'co2.codewas',
         'co2.time_codewas',
@@ -32,6 +33,7 @@ it('all() returns the seeded modules keyed by key', function () {
         'romopapi.setup',
         'cohort.match',
         'cohort.materialize',
+        'endpoint.generate',
     ]);
     expect($modules['co2.codewas'])->toBeInstanceOf(AnalysisModule::class);
 });
@@ -78,13 +80,13 @@ it('all() cache is refreshed after flush()', function () {
         'min_role' => 'researcher',
     ]);
 
-    // Without flush, cache still shows 8 (4 CO2 + 2 romopapi + cohort.match + cohort.materialize)
-    expect($this->registry->all())->toHaveCount(8);
+    // Without flush, cache still shows 9 (4 CO2 + 2 romopapi + cohort.match + cohort.materialize + endpoint.generate)
+    expect($this->registry->all())->toHaveCount(9);
 
     $this->registry->flush();
 
     // After flush, new row is visible
-    expect($this->registry->all())->toHaveCount(9);
+    expect($this->registry->all())->toHaveCount(10);
 });
 
 it('validateParams() passes for enabled module + arbitrary params (SP1 stub)', function () {
