@@ -1,9 +1,11 @@
 // TanStack Query hooks for the FinnGen Endpoint Browser.
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useMutation, useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
   fetchEndpoint,
   fetchEndpointStats,
   fetchEndpoints,
+  generateEndpoint,
+  type GenerateEndpointPayload,
   type ListEndpointsParams,
 } from "../api";
 
@@ -30,5 +32,12 @@ export function useEndpointDetail(name: string | null) {
     queryFn: () => fetchEndpoint(name ?? ""),
     enabled: !!name,
     staleTime: 60_000,
+  });
+}
+
+export function useGenerateEndpoint(name: string | null) {
+  return useMutation({
+    mutationFn: (payload: GenerateEndpointPayload) =>
+      generateEndpoint(name ?? "", payload),
   });
 }

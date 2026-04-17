@@ -108,3 +108,39 @@ export async function fetchEndpoint(name: string): Promise<EndpointDetail> {
   );
   return r.data.data;
 }
+
+// Genomics #2 — materialize an endpoint against a source CDM.
+export type GenerateEndpointPayload = {
+  source_key: string;
+  overwrite_existing?: boolean;
+};
+
+export type GenerateEndpointResponse = {
+  data: {
+    run: {
+      id: string;
+      status: string;
+      analysis_type: string;
+      source_key: string;
+    };
+    cohort_definition_id: number;
+    endpoint_name: string;
+    source_key: string;
+    expected_concept_counts: {
+      conditions: number;
+      drugs: number;
+      source: number;
+    };
+  };
+};
+
+export async function generateEndpoint(
+  name: string,
+  payload: GenerateEndpointPayload,
+): Promise<GenerateEndpointResponse> {
+  const r = await apiClient.post<GenerateEndpointResponse>(
+    `/finngen/endpoints/${encodeURIComponent(name)}/generate`,
+    payload,
+  );
+  return r.data;
+}

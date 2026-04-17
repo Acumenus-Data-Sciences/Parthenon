@@ -372,6 +372,170 @@ finngen_cohort_match_execute <- function(source_envelope, run_id, export_folder,
   as.numeric((p1 - p2) / pooled)
 }
 
+# Genomics #2 — Materialize a FinnGen endpoint definition against a CDM.
+# Reads the resolved standard SNOMED + RxNorm concept_ids from PHP, expands
+# them through vocab.concept_ancestor (so all descendants count), unions
+# qualifying events from condition_occurrence + drug_exposure (and a fallback
+# match on source_concept_id for ICD-10/9 source codes that didn't resolve to
+# standard), and writes one row per subject to {cohort_schema}.cohort with
+# index = MIN(event_date), end = MAX(event_date). Optional sex filter via
+# gender_concept_id (8507 male / 8532 female).
+#
+# Honors the same overwrite gate as cohort.materialize: refuses to write
+# if rows already exist for cohort_definition_id unless overwrite_existing
+# is true.
+finngen_endpoint_generate_execute <- function(source_envelope, run_id, export_folder, params) {
+  dir.create(export_folder, recursive = TRUE, showWarnings = FALSE)
+  progress_path <- file.path(export_folder, "progress.json")
+
+  run_with_classification(export_folder, function() {
+    cohort_def_id   <- as.integer(params$cohort_definition_id)
+    condition_ids   <- as.integer(params$condition_concept_ids %||% integer(0))
+    drug_ids        <- as.integer(params$drug_concept_ids %||% integer(0))
+    source_ids      <- as.integer(params$source_concept_ids %||% integer(0))
+    sex_restriction <- params$sex_restriction %||% NULL  # "male" / "female" / NULL
+    overwrite       <- isTRUE(params$overwrite_existing)
+
+    if (is.na(cohort_def_id) || cohort_def_id <= 0)
+      stop("endpoint.generate: cohort_definition_id required")
+    if (length(condition_ids) == 0 && length(drug_ids) == 0 && length(source_ids) == 0)
+      stop("endpoint.generate: no resolved concepts — endpoint cannot be materialized (CONTROL_ONLY?)")
+
+    write_progress(progress_path, list(step = "build_connection", pct = 5))
+    connection <- .finngen_open_connection(source_envelope)
+    on.exit(tryCatch(DatabaseConnector::disconnect(connection), error = function(e) NULL), add = TRUE)
+
+    cohort_schema <- source_envelope$schemas$cohort
+    cdm_schema    <- source_envelope$schemas$cdm
+    vocab_schema  <- source_envelope$schemas$vocab %||% "vocab"
+    if (!grepl("^[a-z][a-z0-9_]*$", cohort_schema)) stop(sprintf("endpoint.generate: unsafe cohort_schema %s", cohort_schema))
+    if (!grepl("^[a-z][a-z0-9_]*$", cdm_schema))    stop(sprintf("endpoint.generate: unsafe cdm_schema %s", cdm_schema))
+    if (!grepl("^[a-z][a-z0-9_]*$", vocab_schema))  stop(sprintf("endpoint.generate: unsafe vocab_schema %s", vocab_schema))
+
+    write_progress(progress_path, list(step = "check_existing", pct = 12))
+    existing_df <- DatabaseConnector::querySql(
+      connection,
+      sprintf("SELECT COUNT(*) AS c FROM %s.cohort WHERE cohort_definition_id = %d",
+              cohort_schema, cohort_def_id)
+    )
+    names(existing_df) <- tolower(names(existing_df))
+    existing_count <- as.integer(existing_df$c[1])
+    if (!is.na(existing_count) && existing_count > 0) {
+      if (overwrite) {
+        write_progress(progress_path, list(
+          step = "clear_existing", pct = 18,
+          message = sprintf("Clearing %d prior rows", existing_count)
+        ))
+        DatabaseConnector::executeSql(
+          connection,
+          sprintf("DELETE FROM %s.cohort WHERE cohort_definition_id = %d",
+                  cohort_schema, cohort_def_id)
+        )
+      } else {
+        stop(sprintf("endpoint.generate: cohort_definition_id %d already has %d rows in %s.cohort — re-run with overwrite_existing=true",
+                     cohort_def_id, existing_count, cohort_schema))
+      }
+    }
+
+    # Build the qualifying-event CTEs. Each branch only included if the
+    # corresponding concept list is non-empty — keeps the SQL minimal for
+    # condition-only or drug-only endpoints.
+    branches <- character(0)
+
+    if (length(condition_ids) > 0) {
+      cond_list <- paste(condition_ids, collapse = ",")
+      branches <- c(branches, sprintf(
+        "SELECT co.person_id AS subject_id, co.condition_start_date AS event_date
+           FROM %s.condition_occurrence co
+          WHERE co.condition_concept_id IN (
+            SELECT descendant_concept_id FROM %s.concept_ancestor
+            WHERE ancestor_concept_id IN (%s)
+          )",
+        cdm_schema, vocab_schema, cond_list
+      ))
+    }
+
+    if (length(drug_ids) > 0) {
+      drug_list <- paste(drug_ids, collapse = ",")
+      branches <- c(branches, sprintf(
+        "SELECT de.person_id AS subject_id, de.drug_exposure_start_date AS event_date
+           FROM %s.drug_exposure de
+          WHERE de.drug_concept_id IN (
+            SELECT descendant_concept_id FROM %s.concept_ancestor
+            WHERE ancestor_concept_id IN (%s)
+          )",
+        cdm_schema, vocab_schema, drug_list
+      ))
+    }
+
+    # Source-concept fallback — catches ICD-10/9 codes the resolver matched
+    # in vocab but never traversed Maps-to to a standard SNOMED. Useful for
+    # endpoints where the Finnish-specific source code is recorded in
+    # condition_source_concept_id but no standard_concept maps cleanly.
+    if (length(source_ids) > 0) {
+      src_list <- paste(source_ids, collapse = ",")
+      branches <- c(branches, sprintf(
+        "SELECT co.person_id AS subject_id, co.condition_start_date AS event_date
+           FROM %s.condition_occurrence co
+          WHERE co.condition_source_concept_id IN (%s)",
+        cdm_schema, src_list
+      ))
+    }
+
+    qualifying_cte <- paste(branches, collapse = "\nUNION\n")
+
+    sex_filter <- ""
+    if (!is.null(sex_restriction) && nzchar(sex_restriction)) {
+      sx <- tolower(sex_restriction)
+      sex_concept <- if (sx == "female") 8532L else if (sx == "male") 8507L else NA_integer_
+      if (!is.na(sex_concept)) {
+        sex_filter <- sprintf("AND p.gender_concept_id = %d", sex_concept)
+      }
+    }
+
+    write_progress(progress_path, list(step = "insert_subjects", pct = 35, message = "Materializing endpoint"))
+    insert_sql <- sprintf(
+      "INSERT INTO %s.cohort (cohort_definition_id, subject_id, cohort_start_date, cohort_end_date)
+       SELECT %d AS cohort_definition_id,
+              q.subject_id,
+              MIN(q.event_date) AS cohort_start_date,
+              MAX(q.event_date) AS cohort_end_date
+         FROM (
+           %s
+         ) q
+         JOIN %s.person p ON p.person_id = q.subject_id
+        WHERE 1=1 %s
+        GROUP BY q.subject_id",
+      cohort_schema, cohort_def_id, qualifying_cte, cdm_schema, sex_filter
+    )
+    DatabaseConnector::executeSql(connection, insert_sql)
+
+    write_progress(progress_path, list(step = "count_subjects", pct = 85))
+    cnt_df <- DatabaseConnector::querySql(
+      connection,
+      sprintf("SELECT COUNT(*) AS c FROM %s.cohort WHERE cohort_definition_id = %d",
+              cohort_schema, cohort_def_id)
+    )
+    names(cnt_df) <- tolower(names(cnt_df))
+    subject_count <- as.integer(cnt_df$c[1])
+
+    .write_summary(export_folder, list(
+      analysis_type        = "endpoint.generate",
+      cohort_definition_id = cohort_def_id,
+      subject_count        = subject_count,
+      n_condition_concepts = length(condition_ids),
+      n_drug_concepts      = length(drug_ids),
+      n_source_concepts    = length(source_ids),
+      sex_restriction      = sex_restriction
+    ))
+    write_progress(progress_path, list(step = "done", pct = 100))
+    list(
+      subject_count        = subject_count,
+      cohort_definition_id = cohort_def_id
+    )
+  })
+}
+
 # SP4 Phase B.3 — sync preview-counts. Receives a precompiled subject_id SQL
 # fragment from PHP (CohortOperationCompiler::compileSql), opens a connection
 # against the source, and returns COUNT(DISTINCT subject_id). PHP validates

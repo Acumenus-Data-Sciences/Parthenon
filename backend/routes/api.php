@@ -1078,6 +1078,9 @@ Route::prefix('v1')->group(function () {
                     ->middleware(['permission:finngen.workbench.use', 'throttle:60,1']);
                 Route::get('/{name}', [EndpointBrowserController::class, 'show'])
                     ->middleware(['permission:finngen.workbench.use', 'throttle:120,1']);
+                // Genomics #2 — materialize this endpoint against a source CDM
+                Route::post('/{name}/generate', [EndpointBrowserController::class, 'generate'])
+                    ->middleware(['permission:finngen.workbench.use', 'finngen.idempotency', 'throttle:10,1']);
             });
         });
 

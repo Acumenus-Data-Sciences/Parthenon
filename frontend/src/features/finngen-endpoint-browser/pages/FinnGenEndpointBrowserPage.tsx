@@ -2,11 +2,14 @@
 // FinnGen DF14 endpoint library (~5,161 phenotypes). Surfaces coverage
 // quality so researchers know what's usable before adopting an endpoint.
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import {
   useEndpointDetail,
   useEndpointList,
   useEndpointStats,
+  useGenerateEndpoint,
 } from "../hooks/useEndpoints";
 import type {
   CoverageBucket,
@@ -465,6 +468,8 @@ function EndpointDetailBody({ d }: { d: EndpointDetail }) {
   const visibleTags = d.tags.filter(
     (t) => t !== "finngen-endpoint" && !t.startsWith("finngen:"),
   );
+  const generatable =
+    d.coverage_bucket !== "CONTROL_ONLY" && d.coverage_bucket !== "UNMAPPED";
 
   return (
     <div className="space-y-6 px-6 py-5">
@@ -586,19 +591,119 @@ function EndpointDetailBody({ d }: { d: EndpointDetail }) {
         </div>
       )}
 
-      {/* CTA */}
+      {/* CTA — Generate against a CDM (Genomics #2) */}
+      <GeneratePanel endpoint={d} canGenerate={generatable} />
+    </div>
+  );
+}
+
+// ── Generate panel — source picker + materialize button ─────────────────────
+
+function GeneratePanel({
+  endpoint,
+  canGenerate,
+}: {
+  endpoint: EndpointDetail;
+  canGenerate: boolean;
+}) {
+  const navigate = useNavigate();
+  const sourcesQuery = useQuery({
+    queryKey: ["sources"],
+    queryFn: fetchSources,
+    staleTime: 5 * 60_000,
+  });
+  const generate = useGenerateEndpoint(endpoint.name);
+  const [explicitSource, setExplicitSource] = useState<string | null>(null);
+  const [overwrite, setOverwrite] = useState(false);
+  // Derive: user pick if any, else first source from API. Avoids
+  // setState-in-effect by computing fresh on every render.
+  const sourceKey =
+    explicitSource ?? sourcesQuery.data?.[0]?.source_key ?? "";
+
+  const submit = () => {
+    if (!sourceKey) return;
+    generate.mutate(
+      { source_key: sourceKey, overwrite_existing: overwrite },
+      {
+        onSuccess: (res) => {
+          // Tail the run on the standard runs detail page.
+          navigate(`/workbench/finngen-analyses?run=${res.data.run.id}`);
+        },
+      },
+    );
+  };
+
+  if (!canGenerate) {
+    return (
       <div className="sticky bottom-0 -mx-6 border-t border-slate-800 bg-[#0E0E11] px-6 py-4">
-        <Link
-          to="/workbench/cohorts"
-          className="block w-full rounded-md bg-teal-500/90 px-4 py-2.5 text-center text-sm font-semibold text-slate-900 hover:bg-teal-400"
-        >
-          Use {d.name} in Workbench →
-        </Link>
-        <p className="mt-2 text-center text-[10px] text-slate-500">
-          Generation against CDM data is not yet implemented for this shape;
-          copy to a custom cohort first.
-        </p>
+        <div className="rounded-md border border-slate-800 bg-slate-950/60 p-3 text-center">
+          <p className="text-xs text-slate-500">
+            {endpoint.coverage_bucket === "CONTROL_ONLY"
+              ? "This endpoint defines a control group and has no source codes — nothing to materialize."
+              : "All source codes are unmapped — generation requires loading the missing Finnish vocabularies first."}
+          </p>
+          <Link
+            to="/workbench/cohorts"
+            className="mt-2 inline-block text-xs text-teal-400 hover:text-teal-300"
+          >
+            Use in Workbench manually →
+          </Link>
+        </div>
       </div>
+    );
+  }
+
+  const error = generate.error as { response?: { data?: { message?: string } } } | undefined;
+  const errorMsg =
+    error?.response?.data?.message ??
+    (generate.error ? "Failed to dispatch generation" : null);
+
+  return (
+    <div className="sticky bottom-0 -mx-6 border-t border-slate-800 bg-[#0E0E11] px-6 py-4">
+      <p className="mb-2 text-[10px] uppercase tracking-wider text-slate-500">
+        Materialize against
+      </p>
+      <div className="flex items-center gap-2">
+        <select
+          value={sourceKey}
+          onChange={(e) => setExplicitSource(e.target.value)}
+          disabled={sourcesQuery.isLoading || generate.isPending}
+          className="flex-1 rounded-md border border-slate-800 bg-slate-950 px-3 py-2 font-mono text-xs text-slate-200 focus:border-teal-500/60 focus:outline-none focus:ring-1 focus:ring-teal-500/40"
+        >
+          {sourcesQuery.isLoading && <option>Loading sources…</option>}
+          {sourcesQuery.data?.map((s) => (
+            <option key={s.id} value={s.source_key}>
+              {s.source_name} ({s.source_key})
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={submit}
+          disabled={!sourceKey || generate.isPending}
+          className="rounded-md bg-teal-500/90 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-teal-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500"
+        >
+          {generate.isPending ? "Dispatching…" : "Generate cohort →"}
+        </button>
+      </div>
+      <label className="mt-2 flex items-center gap-2 text-[11px] text-slate-500">
+        <input
+          type="checkbox"
+          checked={overwrite}
+          onChange={(e) => setOverwrite(e.target.checked)}
+          className="h-3 w-3 accent-teal-500"
+          disabled={generate.isPending}
+        />
+        Overwrite existing rows for this endpoint in the source
+      </label>
+      {errorMsg && (
+        <p className="mt-2 rounded border border-rose-500/40 bg-rose-500/10 px-2 py-1 text-[11px] text-rose-300">
+          {errorMsg}
+        </p>
+      )}
+      <p className="mt-2 text-center text-[10px] text-slate-600">
+        Inserts one cohort row per qualifying subject (matched by condition +
+        drug concept descendants). You'll be redirected to the run page.
+      </p>
     </div>
   );
 }

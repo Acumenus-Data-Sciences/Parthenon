@@ -250,6 +250,35 @@ class FinnGenAnalysisModuleSeeder extends Seeder
                 ],
                 'result_component' => null,
             ],
+            // Genomics #2 — Materialize a FinnGen endpoint definition against a CDM
+            [
+                'key' => 'endpoint.generate',
+                'label' => 'Generate FinnGen Endpoint',
+                'description' => 'Materialize a curated FinnGen endpoint (~5,161 from DF14) against a source CDM. Inserts one cohort row per qualifying subject (matched by condition + drug concept descendants) with index = MIN(event_date).',
+                'darkstar_endpoint' => '/finngen/endpoint/generate',
+                'min_role' => 'researcher',
+                'settings_schema' => [
+                    'type' => 'object',
+                    'required' => ['cohort_definition_id'],
+                    'properties' => [
+                        'cohort_definition_id' => ['type' => 'integer'],
+                        'condition_concept_ids' => ['type' => 'array', 'items' => ['type' => 'integer']],
+                        'drug_concept_ids' => ['type' => 'array', 'items' => ['type' => 'integer']],
+                        'source_concept_ids' => ['type' => 'array', 'items' => ['type' => 'integer']],
+                        'sex_restriction' => ['type' => ['string', 'null'], 'enum' => ['male', 'female', null]],
+                        'overwrite_existing' => ['type' => 'boolean'],
+                    ],
+                ],
+                'default_settings' => (object) [],
+                'result_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'subject_count' => ['type' => 'integer'],
+                        'cohort_definition_id' => ['type' => 'integer'],
+                    ],
+                ],
+                'result_component' => null,
+            ],
         ];
 
         foreach ($modules as $mod) {

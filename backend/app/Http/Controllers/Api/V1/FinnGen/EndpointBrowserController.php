@@ -8,6 +8,8 @@ use App\Enums\CohortDomain;
 use App\Http\Controllers\Controller;
 use App\Models\App\CohortDefinition;
 use App\Models\App\FinnGenUnmappedCode;
+use App\Models\App\Source;
+use App\Services\FinnGen\FinnGenRunService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -30,6 +32,10 @@ final class EndpointBrowserController extends Controller
 
     /** Maximum page size — protects the pgsql/JSONB query path. */
     private const MAX_PER_PAGE = 100;
+
+    public function __construct(
+        private readonly FinnGenRunService $runs,
+    ) {}
 
     /**
      * GET /api/v1/finngen/endpoints
@@ -182,6 +188,91 @@ final class EndpointBrowserController extends Controller
                 'updated_at' => $row->updated_at?->toIso8601String(),
             ],
         ]);
+    }
+
+    /**
+     * POST /api/v1/finngen/endpoints/{name}/generate
+     *
+     * Genomics #2 — Materialize this endpoint against a CDM source. Reads
+     * resolved standard SNOMED + RxNorm concept_ids from the cohort
+     * definition's expression_json and dispatches a finngen.endpoint.generate
+     * Run. The R worker INSERTs one cohort row per qualifying subject into
+     * {cohort_schema}.cohort using the same cohort_definition_id.
+     *
+     * Returns 202 with the freshly-created Run record; caller polls
+     * /api/v1/finngen/runs/{id} for terminal status + summary.subject_count.
+     */
+    public function generate(Request $request, string $name): JsonResponse
+    {
+        $data = $request->validate([
+            'source_key' => 'required|string|max:64',
+            'overwrite_existing' => 'sometimes|boolean',
+        ]);
+
+        $row = CohortDefinition::query()
+            ->where('domain', CohortDomain::FINNGEN_ENDPOINT->value)
+            ->where('name', $name)
+            ->firstOrFail();
+
+        // Validate source_key resolves to a real, active source.
+        $source = Source::query()->where('source_key', $data['source_key'])->first();
+        if ($source === null) {
+            return response()->json([
+                'message' => "Source not found: {$data['source_key']}",
+            ], 404);
+        }
+
+        $expr = is_array($row->expression_json) ? $row->expression_json : [];
+        $resolved = $expr['resolved_concepts'] ?? [];
+        $conditionConcepts = array_values(array_unique(array_map('intval', $resolved['conditions_standard'] ?? [])));
+        $drugConcepts = array_values(array_unique(array_map('intval', $resolved['drugs_standard'] ?? [])));
+        $sourceConcepts = array_values(array_unique(array_map('intval', $resolved['source_concept_ids'] ?? [])));
+
+        if ($conditionConcepts === [] && $drugConcepts === [] && $sourceConcepts === []) {
+            return response()->json([
+                'message' => "Endpoint {$name} has no resolved concepts (likely CONTROL_ONLY) — cannot materialize.",
+                'coverage_bucket' => $expr['coverage_bucket'] ?? null,
+            ], 422);
+        }
+
+        // FinnGen sex_restriction may be null/missing; cast-then-match avoids
+        // PHPStan complaints about narrowing through the Eloquent cast.
+        $sex = match (strtolower(trim((string) ($expr['sex_restriction'] ?? '')))) {
+            'female' => 'female',
+            'male' => 'male',
+            default => null,
+        };
+
+        $params = [
+            'cohort_definition_id' => (int) $row->id,
+            'condition_concept_ids' => $conditionConcepts,
+            'drug_concept_ids' => $drugConcepts,
+            'source_concept_ids' => $sourceConcepts,
+            'sex_restriction' => $sex,
+            'overwrite_existing' => (bool) ($data['overwrite_existing'] ?? false),
+            'endpoint_name' => $row->name,
+        ];
+
+        $run = $this->runs->create(
+            userId: (int) $request->user()->id,
+            sourceKey: (string) $data['source_key'],
+            analysisType: 'endpoint.generate',
+            params: $params,
+        );
+
+        return response()->json([
+            'data' => [
+                'run' => $run,
+                'cohort_definition_id' => (int) $row->id,
+                'endpoint_name' => $row->name,
+                'source_key' => (string) $data['source_key'],
+                'expected_concept_counts' => [
+                    'conditions' => count($conditionConcepts),
+                    'drugs' => count($drugConcepts),
+                    'source' => count($sourceConcepts),
+                ],
+            ],
+        ], 202);
     }
 
     /**
