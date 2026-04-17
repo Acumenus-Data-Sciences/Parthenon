@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.0
-milestone_name: FinnGen Genomics v1
-status: defining_requirements
-stopped_at: Milestone v1.0 FinnGen Genomics started 2026-04-16
-last_updated: "2026-04-17T01:15:00.000Z"
-last_activity: 2026-04-16 - Milestone v1.0 FinnGen Genomics started; phenotyping foundation (PHENO-01..08) validated and live in production
+milestone_name: milestone
+status: Defining requirements (REQUIREMENTS.md drafted; awaiting roadmap)
+stopped_at: Phase 13 context gathered (FinnGen endpoint universalization reframe)
+last_updated: "2026-04-17T17:21:39.974Z"
+last_activity: 2026-04-16 — Milestone v1.0 FinnGen Genomics started
 progress:
   total_phases: 6
   completed_phases: 0
@@ -197,6 +197,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-11T23:37:32.192Z
-Stopped at: Completed 260411-qux (automated hex-to-token sweep)
-Resume file: None
+Last session: 2026-04-17T17:21:39.972Z
+Stopped at: Phase 13 context gathered (FinnGen endpoint universalization reframe)
+Resume file: .planning/phases/13-finngen-endpoint-universalization/13-CONTEXT.md
