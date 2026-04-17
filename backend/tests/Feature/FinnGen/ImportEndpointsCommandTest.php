@@ -2,8 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Enums\CohortDomain;
-use App\Models\App\CohortDefinition;
+use App\Models\App\FinnGen\EndpointDefinition;
 use App\Models\App\FinnGenUnmappedCode;
 use App\Models\User;
 use App\Services\FinnGen\FinnGenConceptResolver;
@@ -12,6 +11,26 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 
 uses(RefreshDatabase::class);
+
+/**
+ * Phase 13.1 rewrite (Plan 13.1-04 Task 1 / RESEARCH.md Call-Site Inventory
+ * §"Tests"): the importer now writes to finngen.endpoint_definitions instead
+ * of app.cohort_definitions WHERE domain='finngen-endpoint'. All row-count
+ * and per-row assertions target the EndpointDefinition model directly.
+ *
+ * Surface changes vs. Phase 13:
+ *   - CohortDefinition → EndpointDefinition (count, all, first)
+ *   - CohortDomain / FINNGEN-ENDPOINT domain assertion removed
+ *     (EndpointDefinition lives in finngen.* — the schema IS the namespace;
+ *     no domain marker needed)
+ *   - expression_json.kind/coverage/source_codes → qualifying_event_spec.*
+ *     (typed JSONB column with the same shape; see CONTEXT.md D-04)
+ *   - author_id assertion removed (EndpointDefinition has no author_id;
+ *     FinnGen endpoints are library content, not researcher-authored —
+ *     Plan 13.1-03 deviation #3)
+ *   - "finngen-endpoint" sentinel tag dropped from the tags assertion
+ *     (Plan 13.1-03 deviation); release tag "finngen:df14" preserved
+ */
 
 /**
  * Build a Mockery double of the resolver that returns deterministic fake
@@ -53,8 +72,8 @@ beforeEach(function () {
     }
 });
 
-it('dry-run does not write any cohort_definitions rows but produces a coverage report', function () {
-    expect(CohortDefinition::count())->toBe(0);
+it('dry-run does not write any endpoint_definitions rows but produces a coverage report', function () {
+    expect(EndpointDefinition::count())->toBe(0);
 
     $exit = Artisan::call('finngen:import-endpoints', [
         '--release' => 'df14',
@@ -64,11 +83,11 @@ it('dry-run does not write any cohort_definitions rows but produces a coverage r
     ]);
 
     expect($exit)->toBe(0);
-    expect(CohortDefinition::count())->toBe(0);
+    expect(EndpointDefinition::count())->toBe(0);
     expect(File::exists(storage_path('app/finngen-endpoints/df14-coverage.json')))->toBeTrue();
 });
 
-it('writes cohort_definitions rows from the sample fixture on first run', function () {
+it('writes endpoint_definitions rows from the sample fixture on first run', function () {
     $exit = Artisan::call('finngen:import-endpoints', [
         '--release' => 'df14',
         '--fixture' => 'sample_endpoints.xlsx',
@@ -76,82 +95,68 @@ it('writes cohort_definitions rows from the sample fixture on first run', functi
     ]);
 
     expect($exit)->toBe(0);
-    $count = CohortDefinition::count();
+    $count = EndpointDefinition::count();
     expect($count)->toBeGreaterThanOrEqual(5); // 10-row sample minus banner = 9; allow buffer for row-count jitter
     expect($count)->toBeLessThanOrEqual(12);
 });
 
-it('is idempotent — second run does not change the cohort row count', function () {
+it('is idempotent — second run does not change the endpoint row count', function () {
     Artisan::call('finngen:import-endpoints', [
         '--release' => 'df14',
         '--fixture' => 'sample_endpoints.xlsx',
         '--no-solr-reindex' => true,
     ]);
-    $countAfterFirst = CohortDefinition::count();
+    $countAfterFirst = EndpointDefinition::count();
 
     Artisan::call('finngen:import-endpoints', [
         '--release' => 'df14',
         '--fixture' => 'sample_endpoints.xlsx',
         '--no-solr-reindex' => true,
     ]);
-    $countAfterSecond = CohortDefinition::count();
+    $countAfterSecond = EndpointDefinition::count();
 
     expect($countAfterSecond)->toBe($countAfterFirst);
 });
 
-it('tags every imported row with finngen-endpoint and finngen:df14', function () {
+it('tags every imported row with finngen:df14 release tag', function () {
     Artisan::call('finngen:import-endpoints', [
         '--release' => 'df14',
         '--fixture' => 'sample_endpoints.xlsx',
         '--no-solr-reindex' => true,
     ]);
 
-    $rows = CohortDefinition::all();
+    $rows = EndpointDefinition::all();
     expect($rows)->not->toBeEmpty();
     foreach ($rows as $c) {
-        expect($c->tags)->toContain('finngen-endpoint');
         expect($c->tags)->toContain('finngen:df14');
     }
 });
 
-it('sets domain=FINNGEN_ENDPOINT on every imported row', function () {
+it('sets release=df14 on every imported row', function () {
     Artisan::call('finngen:import-endpoints', [
         '--release' => 'df14',
         '--fixture' => 'sample_endpoints.xlsx',
         '--no-solr-reindex' => true,
     ]);
 
-    foreach (CohortDefinition::all() as $c) {
-        expect($c->domain)->toBe(CohortDomain::FINNGEN_ENDPOINT);
+    foreach (EndpointDefinition::all() as $c) {
+        expect($c->release)->toBe('df14');
     }
 });
 
-it('sets expression_json.kind to "finngen_endpoint" with source_codes and coverage blocks', function () {
+it('qualifying_event_spec carries source_codes + resolved_concepts + coverage structure', function () {
     Artisan::call('finngen:import-endpoints', [
         '--release' => 'df14',
         '--fixture' => 'sample_endpoints.xlsx',
         '--no-solr-reindex' => true,
     ]);
 
-    $first = CohortDefinition::first();
+    $first = EndpointDefinition::first();
     expect($first)->not->toBeNull();
-    expect($first->expression_json['kind'])->toBe('finngen_endpoint');
-    expect($first->expression_json)->toHaveKey('source_codes');
-    expect($first->expression_json)->toHaveKey('resolved_concepts');
-    expect($first->expression_json)->toHaveKey('coverage');
-    expect($first->expression_json['coverage'])->toHaveKey('bucket');
-});
-
-it('sets author_id on every imported row to the admin@acumenus.net user', function () {
-    Artisan::call('finngen:import-endpoints', [
-        '--release' => 'df14',
-        '--fixture' => 'sample_endpoints.xlsx',
-        '--no-solr-reindex' => true,
-    ]);
-
-    foreach (CohortDefinition::all() as $c) {
-        expect($c->author_id)->toBe($this->admin->id);
-    }
+    expect($first->qualifying_event_spec)->toHaveKey('source_codes');
+    expect($first->qualifying_event_spec)->toHaveKey('resolved_concepts');
+    expect($first->qualifying_event_spec)->toHaveKey('coverage');
+    expect($first->qualifying_event_spec['coverage'])->toHaveKey('bucket');
 });
 
 it('writes a coverage report JSON with total, by_bucket, top_unmapped_vocabularies', function () {
@@ -169,7 +174,7 @@ it('writes a coverage report JSON with total, by_bucket, top_unmapped_vocabulari
     expect($json)->toHaveKey('top_unmapped_vocabularies');
 });
 
-it('records unmapped codes in app.finngen_unmapped_codes for ICD-8 tokens', function () {
+it('records unmapped codes in finngen.unmapped_codes for ICD-8 tokens', function () {
     // Sample fixture includes endpoints with HD_ICD_8 populated (e.g. early P16, Q17 rows).
     Artisan::call('finngen:import-endpoints', [
         '--release' => 'df14',
