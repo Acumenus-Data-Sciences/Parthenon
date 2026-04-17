@@ -4,6 +4,11 @@
 **Status:** Approved
 **Author:** Dr. Sanjay Udoshi + Claude
 
+**2026-04-17 Update:** The binary distribution layer is superseded by the
+source-only bootstrap in `installer/install.sh`. The Phase 0 idea remains useful,
+but release assets should stay source-only until native installers are signed,
+reproducible, and covered by install smoke tests.
+
 ## Problem
 
 The Parthenon installer (`installer/webapp.py`) requires the repository to already be cloned, Python to be installed, and Docker to be running. A user visiting `parthenon.acumenus.net` has no path from "interested" to "running instance" without manually cloning the repo, installing dependencies, and running `python3 install.py`.

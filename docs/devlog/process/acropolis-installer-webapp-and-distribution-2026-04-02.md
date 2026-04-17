@@ -7,6 +7,17 @@
 
 ---
 
+## 2026-04-17 Status Update
+
+The package distribution portion of this devlog is retired. The v1.0.5 and
+v1.0.6 release assets showed that the native archives and package-manager
+wrappers were not reliable enough to publish. Current releases are source-only:
+GitHub provides the source archives, and `installer/install.sh` is the supported
+bootstrap path. Native packages should not return until they are signed,
+reproducible, and covered by install smoke tests.
+
+---
+
 ## Summary
 
 The Parthenon installer webapp (`installer/webapp.py`) was redesigned from scratch and extended into a full cross-platform distribution system. What started as a refinement of the existing web-based installer evolved into Acropolis — a universal installer and deployment platform that can be distributed via Homebrew, Snap, APT/DEB, Winget, and direct download, with conditional Apple and Windows code signing in CI.

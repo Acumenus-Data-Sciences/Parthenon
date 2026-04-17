@@ -5,6 +5,11 @@
 **Author:** Dr. Sanjay Udoshi + Claude
 **Supersedes:** The "download binary" approach from the remote installer spec. That spec's Phase 0 bootstrap logic (`bootstrap_remote.py`) remains valid — this spec replaces the *distribution* layer only.
 
+**2026-04-17 Update:** Superseded by the source-only release policy after the
+v1.0.5 and v1.0.6 package assets proved unreliable. Do not publish Homebrew,
+Snap, Deb, Winget, or native installer assets until they are signed,
+reproducible, and covered by install smoke tests.
+
 ## Problem
 
 Downloaded executables cannot be double-clicked on any modern OS without code signing, notarization, or package manager trust. macOS Gatekeeper, Linux execute-bit stripping, and Windows SmartScreen all block unsigned downloaded binaries. The direct-download approach from the remote installer spec fails at the last mile.

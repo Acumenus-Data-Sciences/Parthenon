@@ -5,6 +5,27 @@
 
 ---
 
+## Release Asset Policy — 2026-04-17
+
+The supported public installer is now the source bootstrap:
+
+```bash
+curl -fsSL https://parthenon.acumenus.net/install.sh | sh
+```
+
+GitHub releases should contain only GitHub's generated source archives. Native
+archives, Rust GUI builds, `.deb`, `.snap`, Winget, and checksum assets are
+paused because the v1.0.5 and v1.0.6 release assets were not reliable enough for
+users. Future package assets must be signed, reproducible, and covered by
+install smoke tests before they are attached to releases.
+
+The bootstrap installs by acquiring a tagged source ref with Git or a GitHub
+source archive, then running `python3 install.py --webapp` from that source
+tree. Use `--version <tag>` for pinned installs and `--cli -- <install.py args>`
+for terminal installs.
+
+---
+
 ## What Was Built
 
 A fully self-contained Python installer (`python install.py`) that takes a

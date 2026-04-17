@@ -76,32 +76,38 @@ def test_install_landing_pages_match_release_bootstrap_regime():
     root = Path(__file__).resolve().parents[2]
     public_install = (root / "frontend" / "public" / "install" / "index.html").read_text()
     public_bootstrap = (root / "frontend" / "public" / "install.sh").read_text()
+    installer_bootstrap = (root / "installer" / "install.sh").read_text()
     packaged_install = (root / "installer" / "web" / "install-landing.html").read_text()
     wizard_index = (root / "installer" / "web" / "index.html").read_text()
 
     for html in (public_install, packaged_install):
         assert "curl -fsSL https://parthenon.acumenus.net/install.sh | sh" in html
-        assert "acropolis-install-linux.tar.gz" in html
-        assert "acropolis-install-macos.zip" in html
-        assert "acropolis-install-win.exe" in html
-        assert "parthenon-installer-gui-linux-x86_64.tar.gz" in html
-        assert "Download Rust GUI" in html
-        assert "checksums.sha256" in html
-        assert "No Enterprise key required" in html
+        assert "--version v1.0.6" in html
+        assert "--cli -- --community" in html
+        assert "Source-only releases" in html
+        assert "GitHub releases provide source code archives only" in html
 
         assert "brew install" not in html
         assert "sudo snap install" not in html
         assert "winget install" not in html
         assert "Package Manager" not in html
+        assert "acropolis-install-linux.tar.gz" not in html
+        assert "acropolis-install-macos.zip" not in html
+        assert "acropolis-install-win.exe" not in html
+        assert "parthenon-installer-gui-linux-x86_64.tar.gz" not in html
+        assert "Download Rust GUI" not in html
+        assert "checksums.sha256" not in html
 
     assert "Remote Community Install" in wizard_index
     assert "brew, snap, or winget" not in wizard_index
 
+    assert public_bootstrap == installer_bootstrap
     assert public_bootstrap.startswith("#!/bin/sh")
-    assert "acropolis-install-linux.tar.gz" in public_bootstrap
-    assert "acropolis-install-macos.zip" in public_bootstrap
-    assert "checksums.sha256" in public_bootstrap
-    assert "exec \"${TMPDIR}/${BINARY}\" \"$@\"" in public_bootstrap
+    assert "archive/refs/tags" in public_bootstrap
+    assert "git clone --depth 1 --branch" in public_bootstrap
+    assert "exec \"$PYTHON\" install.py --webapp \"$@\"" in public_bootstrap
+    assert "acropolis-install-linux.tar.gz" not in public_bootstrap
+    assert "checksums.sha256" not in public_bootstrap
 
 
 def test_status_pill_removed_and_alerts_live_at_top():

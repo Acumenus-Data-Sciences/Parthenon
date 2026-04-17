@@ -86,7 +86,26 @@ Describe a cohort in plain English — *"patients with type 2 diabetes newly sta
 - Git
 - Python 3.9+ (for the installer)
 
-### Recommended: Install with Infrastructure
+### Recommended: Source Bootstrap
+
+GitHub release downloads are source-only. Use the bootstrap script to install
+the latest tagged source release and launch the browser installer:
+
+```bash
+curl -fsSL https://parthenon.acumenus.net/install.sh | sh
+```
+
+Pin a known release when you need a repeatable install:
+
+```bash
+curl -fsSL https://parthenon.acumenus.net/install.sh | sh -s -- --version v1.0.6
+```
+
+On Windows, run the same command from a WSL 2 Linux shell with Docker Desktop
+WSL integration enabled. Native zips, `.deb`, `.snap`, and package-manager
+installers are paused until signed packages pass install smoke tests.
+
+### Install with Infrastructure from a Checkout
 
 The full production deployment includes Parthenon plus the Acropolis infrastructure layer: automatic TLS via Traefik, container management via Portainer, database administration via pgAdmin. The Enterprise tier adds n8n workflow automation, Apache Superset BI dashboards, DataHub data catalog, Authentik SSO, and Wazuh security monitoring.
 

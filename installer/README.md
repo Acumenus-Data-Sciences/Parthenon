@@ -8,11 +8,31 @@ Python-based Rich TUI installer for guided Parthenon deployment.
 python3 install.py
 ```
 
+Source bootstrap from a fresh host:
+
+```bash
+curl -fsSL https://parthenon.acumenus.net/install.sh | sh
+```
+
+Pinned source bootstrap:
+
+```bash
+curl -fsSL https://parthenon.acumenus.net/install.sh | sh -s -- --version v1.0.6
+```
+
 Desktop launcher:
 
 ```bash
 python3 clickme.py
 ```
+
+## Release Packaging Policy
+
+GitHub releases should publish only GitHub's generated source archives. Do not
+attach PyInstaller, Cosmopolitan, Rust GUI, `.deb`, `.snap`, Winget, or checksum
+assets until those installers are signed, reproducible, and covered by install
+smoke tests. The supported remote install path is `installer/install.sh`, which
+obtains the requested source ref and runs the in-repo Python installer.
 
 The browser-based installer now begins with a required onboarding gate:
 
@@ -71,20 +91,8 @@ Installers can consume that bundle with either:
 - `PARTHENON_HECATE_BOOTSTRAP_ARCHIVE`
 - `PARTHENON_HECATE_BOOTSTRAP_SHA256` for optional checksum verification
 
-Build desktop artifacts with PyInstaller:
-
-```bash
-python3 -m venv .venv-packaging
-. .venv-packaging/bin/activate
-python -m pip install pyinstaller rich questionary
-python scripts/build_clickme.py --clean
-```
-
-On Linux, the built launcher is written to:
-
-```bash
-dist/ParthenonInstaller
-```
+Desktop packaging experiments can remain local, but they are not release
+assets until they satisfy the packaging policy above.
 
 ## Modules
 
