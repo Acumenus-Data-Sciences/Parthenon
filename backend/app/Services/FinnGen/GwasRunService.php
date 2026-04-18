@@ -14,6 +14,7 @@ use App\Models\App\FinnGen\SourceVariantIndex;
 use App\Models\App\FinnGenEndpointGeneration;
 use App\Models\App\Source;
 use App\Models\User;
+use App\Observers\FinnGen\FinnGenGwasRunObserver;
 use App\Services\FinnGen\Exceptions\ControlCohortNotPreparedException;
 use App\Services\FinnGen\Exceptions\CovariateSetNotFoundException;
 use App\Services\FinnGen\Exceptions\DuplicateRunException;
@@ -186,7 +187,7 @@ final class GwasRunService
      *   6. Backfill tracking row with real step-2 run_id + optional step-1 run_id.
      *   7. Overwrite branch: mark prior row superseded; ownership check (Open Q5).
      *
-     * Returns the freshly-inserted tracking row. {@see \App\Observers\FinnGen\FinnGenGwasRunObserver}
+     * Returns the freshly-inserted tracking row. {@see FinnGenGwasRunObserver}
      * backfills status / case_n / control_n / top_hit_p_value when the runs succeed.
      */
     public function dispatchFullGwas(
