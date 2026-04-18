@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Activity, Bot, KeyRound, ShieldCheck, Users, ArrowRight, Wand2, BookOpen, Server, ArrowRightLeft,
   Database, FlaskConical, CircleDot,
@@ -13,12 +14,12 @@ import { useAuthStore } from "@/stores/authStore";
 import { useSetupWizard } from "@/contexts/SetupWizardContext";
 import { useAtlasMigration } from "@/contexts/AtlasMigrationContext";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
+import { formatNumber } from "@/i18n/format";
 import type { SystemHealthService } from "@/types/models";
 
 const NAV_CARDS = [
   {
-    title: "User Management",
-    description: "Create, edit, and deactivate user accounts. Assign roles to control access.",
+    titleKey: "userManagement",
     icon: Users,
     href: "/admin/users",
     color: "text-blue-500",
@@ -26,8 +27,7 @@ const NAV_CARDS = [
     superAdminOnly: false,
   },
   {
-    title: "Roles & Permissions",
-    description: "Define custom roles and fine-tune permission assignments across all domains.",
+    titleKey: "rolesPermissions",
     icon: ShieldCheck,
     href: "/admin/roles",
     color: "text-purple-500",
@@ -35,8 +35,7 @@ const NAV_CARDS = [
     superAdminOnly: true,
   },
   {
-    title: "Authentication Providers",
-    description: "Enable and configure LDAP, OAuth 2.0, SAML 2.0, or OIDC for SSO.",
+    titleKey: "authProviders",
     icon: KeyRound,
     href: "/admin/auth-providers",
     color: "text-amber-500",
@@ -44,8 +43,7 @@ const NAV_CARDS = [
     superAdminOnly: true,
   },
   {
-    title: "AI Provider Configuration",
-    description: "Switch Abby's backend between local Ollama, Anthropic, OpenAI, Gemini, and more.",
+    titleKey: "aiProviders",
     icon: Bot,
     href: "/admin/ai-providers",
     color: "text-orange-500",
@@ -53,8 +51,7 @@ const NAV_CARDS = [
     superAdminOnly: true,
   },
   {
-    title: "System Health",
-    description: "Live status of all Parthenon services: Redis, AI, Darkstar, Solr, Orthanc PACS, job queues.",
+    titleKey: "systemHealth",
     icon: Activity,
     href: "/admin/system-health",
     color: "text-emerald-500",
@@ -62,8 +59,7 @@ const NAV_CARDS = [
     superAdminOnly: false,
   },
   {
-    title: "Vocabulary Management",
-    description: "Update OMOP vocabulary tables by uploading a new Athena vocabulary ZIP file.",
+    titleKey: "vocabularyManagement",
     icon: BookOpen,
     href: "/admin/vocabulary",
     color: "text-violet-500",
@@ -71,8 +67,7 @@ const NAV_CARDS = [
     superAdminOnly: true,
   },
   {
-    title: "FHIR EHR Connections",
-    description: "Manage FHIR R4 connections to Epic, Cerner, and other EHR systems for bulk data import.",
+    titleKey: "fhirConnections",
     icon: Server,
     href: "/admin/fhir-connections",
     color: "text-teal-500",
@@ -101,9 +96,10 @@ function Stat({ label, value, warn }: { label: string; value: string | number; w
 }
 
 function formatCompact(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(n);
+  return formatNumber(n, {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  });
 }
 
 function getService(services: SystemHealthService[] | undefined, key: string): SystemHealthService | undefined {
@@ -111,6 +107,7 @@ function getService(services: SystemHealthService[] | undefined, key: string): S
 }
 
 export default function AdminDashboardPage() {
+  const { t } = useTranslation("app");
   const { isSuperAdmin } = useAuthStore();
   const { openSetupWizard } = useSetupWizard();
   const { openAtlasMigration } = useAtlasMigration();
@@ -158,9 +155,11 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Administration</h1>
+        <h1 className="text-2xl font-bold text-foreground">
+          {t("administration.dashboard.title")}
+        </h1>
         <p className="mt-1 text-muted-foreground">
-          Manage users, roles, permissions, and system configuration.
+          {t("administration.dashboard.subtitle")}
         </p>
       </div>
 
@@ -171,17 +170,37 @@ export default function AdminDashboardPage() {
           <div className={`rounded-lg border ${overallBorder} bg-surface-raised p-4 hover:bg-surface-overlay transition-colors h-full`}>
             <div className="flex items-center gap-2 mb-3">
               <Activity size={14} className="text-emerald-400" />
-              <span className="text-xs font-semibold text-text-primary">Platform</span>
+              <span className="text-xs font-semibold text-text-primary">
+                {t("administration.dashboard.panels.platform")}
+              </span>
               <span className={`ml-auto text-[10px] font-medium px-1.5 py-0.5 rounded ${
                 allHealthy ? "bg-emerald-500/15 text-emerald-400" : hasDown ? "bg-red-500/15 text-red-400" : "bg-amber-500/15 text-amber-400"
               }`}>
-                {allHealthy ? "All healthy" : hasDown ? "Degraded" : "Warning"}
+                {allHealthy
+                  ? t("administration.dashboard.status.allHealthy")
+                  : hasDown
+                    ? t("administration.dashboard.status.degraded")
+                    : t("administration.dashboard.status.warning")}
               </span>
             </div>
             <div className="space-y-1.5">
-              <Stat label="Services" value={`${healthyCount}/${totalServices} up`} warn={healthyCount < totalServices} />
-              <Stat label="Queue" value={`${pendingJobs} pending / ${failedJobs} failed`} warn={failedJobs > 0} />
-              <Stat label="Redis" value={redisMsg} />
+              <Stat
+                label={t("administration.dashboard.labels.services")}
+                value={t("administration.dashboard.values.servicesUp", {
+                  healthy: formatNumber(healthyCount),
+                  total: formatNumber(totalServices),
+                })}
+                warn={healthyCount < totalServices}
+              />
+              <Stat
+                label={t("administration.dashboard.labels.queue")}
+                value={t("administration.dashboard.values.queueSummary", {
+                  pending: formatNumber(pendingJobs),
+                  failed: formatNumber(failedJobs),
+                })}
+                warn={failedJobs > 0}
+              />
+              <Stat label={t("administration.dashboard.labels.redis")} value={redisMsg} />
               {services && (
                 <div className="flex gap-1 mt-2 flex-wrap">
                   {services.map((s) => (
@@ -200,13 +219,26 @@ export default function AdminDashboardPage() {
           <div className="rounded-lg border border-border-default bg-surface-raised p-4 hover:bg-surface-overlay transition-colors h-full">
             <div className="flex items-center gap-2 mb-3">
               <Users size={14} className="text-blue-400" />
-              <span className="text-xs font-semibold text-text-primary">Users & Access</span>
+              <span className="text-xs font-semibold text-text-primary">
+                {t("administration.dashboard.panels.usersAccess")}
+              </span>
             </div>
             <div className="space-y-1.5">
-              <Stat label="Total users" value={usersPage?.total ?? "—"} />
-              <Stat label="Roles" value={roles?.length ?? "—"} />
-              <Stat label="Auth providers" value={`${enabledProviders} enabled`} />
-              <Stat label="Token expiry" value="8h" />
+              <Stat
+                label={t("administration.dashboard.labels.totalUsers")}
+                value={usersPage?.total ?? "—"}
+              />
+              <Stat label={t("administration.dashboard.labels.roles")} value={roles?.length ?? "—"} />
+              <Stat
+                label={t("administration.dashboard.labels.authProviders")}
+                value={t("administration.dashboard.values.enabledCount", {
+                  count: formatNumber(enabledProviders),
+                })}
+              />
+              <Stat
+                label={t("administration.dashboard.labels.tokenExpiry")}
+                value={t("administration.dashboard.values.tokenExpiry")}
+              />
             </div>
           </div>
         </Link>
@@ -216,9 +248,13 @@ export default function AdminDashboardPage() {
           <div className="rounded-lg border border-border-default bg-surface-raised p-4 hover:bg-surface-overlay transition-colors h-full">
             <div className="flex items-center gap-2 mb-3">
               <Database size={14} className="text-violet-400" />
-              <span className="text-xs font-semibold text-text-primary">Data Sources</span>
+              <span className="text-xs font-semibold text-text-primary">
+                {t("administration.dashboard.panels.dataSources")}
+              </span>
               <span className="ml-auto text-[10px] font-medium px-1.5 py-0.5 rounded bg-violet-500/15 text-violet-400">
-                {cdmSources.length} CDM{cdmSources.length !== 1 ? "s" : ""}
+                {t("administration.dashboard.values.cdmCount", {
+                  count: formatNumber(cdmSources.length),
+                })}
               </span>
             </div>
             <div className="space-y-1.5">
@@ -229,12 +265,20 @@ export default function AdminDashboardPage() {
                 </div>
               ))}
               {cdmSources.length === 0 && (
-                <span className="text-[11px] text-text-ghost">No CDM sources configured</span>
+                <span className="text-[11px] text-text-ghost">
+                  {t("administration.dashboard.messages.noCdmSources")}
+                </span>
               )}
               {solr && (
                 <>
                   <div className="border-t border-border-default mt-2 pt-1.5" />
-                  <Stat label="Solr" value={`${formatCompact(solrDocs)} docs / ${solrCores} cores`} />
+                  <Stat
+                    label={t("administration.dashboard.labels.solr")}
+                    value={t("administration.dashboard.values.solrSummary", {
+                      docs: formatCompact(solrDocs),
+                      cores: formatNumber(solrCores),
+                    })}
+                  />
                 </>
               )}
             </div>
@@ -246,27 +290,29 @@ export default function AdminDashboardPage() {
           <div className="rounded-lg border border-border-default bg-surface-raised p-4 hover:bg-surface-overlay transition-colors h-full">
             <div className="flex items-center gap-2 mb-3">
               <FlaskConical size={14} className="text-orange-400" />
-              <span className="text-xs font-semibold text-text-primary">AI & Research</span>
+              <span className="text-xs font-semibold text-text-primary">
+                {t("administration.dashboard.panels.aiResearch")}
+              </span>
             </div>
             <div className="space-y-1.5">
               <Stat
-                label="AI provider"
-                value={activeAiProvider?.display_name ?? "None"}
+                label={t("administration.dashboard.labels.aiProvider")}
+                value={activeAiProvider?.display_name ?? t("administration.dashboard.values.none")}
                 warn={!activeAiProvider}
               />
               {activeAiProvider?.model && (
-                <Stat label="Model" value={activeAiProvider.model} />
+                <Stat label={t("administration.dashboard.labels.model")} value={activeAiProvider.model} />
               )}
               <Stat
-                label="Abby"
-                value={aiSvc?.status === "healthy" ? "Online" : aiSvc?.status ?? "—"}
+                label={t("administration.dashboard.labels.abby")}
+                value={aiSvc?.status === "healthy" ? t("administration.dashboard.values.online") : aiSvc?.status ?? "—"}
                 warn={aiSvc?.status === "down"}
               />
               <Stat
-                label="R / HADES"
+                label={t("administration.dashboard.labels.researchRuntime")}
                 value={
                   darkstar?.status === "healthy"
-                    ? darkstar.message ?? "Online"
+                    ? darkstar.message ?? t("administration.dashboard.values.online")
                     : darkstar?.status ?? "—"
                 }
                 warn={darkstar?.status === "down"}
@@ -286,11 +332,15 @@ export default function AdminDashboardPage() {
                   <div className={`inline-flex rounded-md p-2 ${card.bg}`}>
                     <card.icon className={`h-5 w-5 ${card.color}`} />
                   </div>
-                  <h3 className="mt-4 text-base font-semibold text-foreground">{card.title}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{card.description}</p>
+                  <h3 className="mt-4 text-base font-semibold text-foreground">
+                    {t(`administration.dashboard.nav.${card.titleKey}.title`)}
+                  </h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {t(`administration.dashboard.nav.${card.titleKey}.description`)}
+                  </p>
                 </div>
                 <div className="mt-4 flex items-center gap-1 text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-                  Open <ArrowRight className="h-4 w-4" />
+                  {t("administration.dashboard.actions.open")} <ArrowRight className="h-4 w-4" />
                 </div>
               </div>
             </Panel>
@@ -306,13 +356,15 @@ export default function AdminDashboardPage() {
                   <div className="inline-flex rounded-md bg-accent/10 p-2">
                     <Wand2 className="h-5 w-5 text-accent" />
                   </div>
-                  <h3 className="mt-4 text-base font-semibold text-foreground">Platform Setup Wizard</h3>
+                  <h3 className="mt-4 text-base font-semibold text-foreground">
+                    {t("administration.dashboard.setupWizard.title")}
+                  </h3>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Re-run the guided setup — health check, AI provider, authentication, and data sources.
+                    {t("administration.dashboard.setupWizard.description")}
                   </p>
                 </div>
                 <div className="mt-4 flex items-center gap-1 text-sm font-medium text-accent opacity-0 transition-opacity group-hover:opacity-100">
-                  Open wizard <ArrowRight className="h-4 w-4" />
+                  {t("administration.dashboard.actions.openWizard")} <ArrowRight className="h-4 w-4" />
                 </div>
               </div>
             </Panel>
@@ -328,13 +380,15 @@ export default function AdminDashboardPage() {
                   <div className="inline-flex rounded-md bg-rose-500/10 p-2">
                     <ArrowRightLeft className="h-5 w-5 text-rose-500" />
                   </div>
-                  <h3 className="mt-4 text-base font-semibold text-foreground">Migrate from Atlas</h3>
+                  <h3 className="mt-4 text-base font-semibold text-foreground">
+                    {t("administration.dashboard.atlasMigration.title")}
+                  </h3>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Import cohort definitions, concept sets, and analyses from an existing OHDSI Atlas installation.
+                    {t("administration.dashboard.atlasMigration.description")}
                   </p>
                 </div>
                 <div className="mt-4 flex items-center gap-1 text-sm font-medium text-rose-500 opacity-0 transition-opacity group-hover:opacity-100">
-                  Open wizard <ArrowRight className="h-4 w-4" />
+                  {t("administration.dashboard.actions.openWizard")} <ArrowRight className="h-4 w-4" />
                 </div>
               </div>
             </Panel>

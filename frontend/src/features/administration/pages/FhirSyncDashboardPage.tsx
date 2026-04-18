@@ -18,7 +18,9 @@ import {
   Zap,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Panel, MetricCard } from "@/components/ui";
+import { formatDateTime, formatNumber } from "@/i18n/format";
 import { useFhirSyncDashboard } from "../hooks/useFhirConnections";
 import type { FhirSyncRun, FhirSyncDashboard } from "../api/adminApi";
 
@@ -34,16 +36,6 @@ const STATUS_BADGE: Record<string, string> = {
 
 const ACTIVE_STATUSES = ["pending", "exporting", "downloading", "processing"];
 
-function formatDate(iso: string | null): string {
-  if (!iso) return "Never";
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
 function formatDuration(start: string | null, end: string | null): string {
   if (!start) return "--";
   const s = new Date(start).getTime();
@@ -54,10 +46,11 @@ function formatDuration(start: string | null, end: string | null): string {
   return `${Math.floor(sec / 3600)}h ${Math.floor((sec % 3600) / 60)}m`;
 }
 
-function formatNumber(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return n.toLocaleString();
+function formatCompactNumber(n: number): string {
+  return formatNumber(n, {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  });
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -97,10 +90,12 @@ function SyncTimeline({
 }: {
   timeline: FhirSyncDashboard["timeline"];
 }) {
+  const { t } = useTranslation("app");
+
   if (!timeline || timeline.length === 0) {
     return (
       <div className="flex items-center justify-center py-8 text-xs text-text-ghost">
-        No sync activity in the last 30 days
+        {t("administration.fhirSync.timeline.empty")}
       </div>
     );
   }
@@ -119,7 +114,11 @@ function SyncTimeline({
           <div
             key={day.date}
             className="flex-1 flex flex-col justify-end group relative min-w-[4px]"
-            title={`${day.date}: ${day.completed} completed, ${day.failed} failed`}
+            title={t("administration.fhirSync.timeline.tooltip", {
+              date: day.date,
+              completed: formatNumber(day.completed),
+              failed: formatNumber(day.failed),
+            })}
           >
             {failedHeight > 0 && (
               <div
@@ -137,7 +136,10 @@ function SyncTimeline({
               <div className="bg-surface-overlay border border-border-default rounded px-2 py-1 text-[10px] text-text-secondary whitespace-nowrap shadow-lg">
                 {day.date}
                 <br />
-                {day.completed} ok / {day.failed} fail
+                {t("administration.fhirSync.timeline.hoverSummary", {
+                  completed: formatNumber(day.completed),
+                  failed: formatNumber(day.failed),
+                })}
               </div>
             </div>
           </div>
@@ -156,7 +158,9 @@ function ConnectionHealthRow({
 }: {
   conn: FhirSyncDashboard["connections"][0];
 }) {
+  const { t } = useTranslation("app");
   const isActive = ACTIVE_STATUSES.includes(conn.last_sync_status ?? "");
+  const status = conn.last_sync_status ?? "pending";
 
   return (
     <Link
@@ -177,7 +181,9 @@ function ConnectionHealthRow({
         </div>
       </div>
       <span className="text-[10px] text-text-ghost min-w-[60px]">
-        {conn.total_runs} runs
+        {t("administration.fhirSync.values.runs", {
+          count: formatNumber(conn.total_runs),
+        })}
       </span>
       {conn.last_sync_status && (
         <span
@@ -186,11 +192,11 @@ function ConnectionHealthRow({
           {isActive && (
             <Loader2 size={8} className="inline animate-spin mr-0.5" />
           )}
-          {conn.last_sync_status}
+          {t(`administration.fhirSync.status.${status}`)}
         </span>
       )}
       <span className="text-[10px] text-text-ghost min-w-[80px] text-right">
-        {formatDate(conn.last_sync_at)}
+        {conn.last_sync_at ? formatDateTime(conn.last_sync_at) : t("administration.fhirSync.values.never")}
       </span>
       <ChevronRight
         size={12}
@@ -205,6 +211,7 @@ function ConnectionHealthRow({
 // ──────────────────────────────────────────────────────────────────────────────
 
 function RecentRunRow({ run }: { run: FhirSyncRun }) {
+  const { t } = useTranslation("app");
   const isActive = ACTIVE_STATUSES.includes(run.status);
   const trigUser = run.triggered_by ?? run.triggered_by_user;
   const [showError, setShowError] = useState(false);
@@ -218,7 +225,7 @@ function RecentRunRow({ run }: { run: FhirSyncRun }) {
           {isActive && (
             <Loader2 size={10} className="inline animate-spin mr-1" />
           )}
-          {run.status}
+          {t(`administration.fhirSync.status.${run.status}`)}
         </span>
         {run.connection && (
           <span className="text-text-muted font-medium min-w-[100px] truncate">
@@ -226,24 +233,24 @@ function RecentRunRow({ run }: { run: FhirSyncRun }) {
           </span>
         )}
         <span className="text-text-ghost min-w-[80px]">
-          {formatDate(run.created_at)}
+          {formatDateTime(run.created_at)}
         </span>
         <span className="text-text-ghost min-w-[55px]">
           {formatDuration(run.started_at, run.finished_at)}
         </span>
         <div className="flex items-center gap-3 text-text-muted flex-1">
-          <span title="Extracted">
+          <span title={t("administration.fhirSync.metrics.extracted")}>
             <Download size={10} className="inline mr-0.5" />
-            {formatNumber(run.records_extracted)}
+            {formatCompactNumber(run.records_extracted)}
           </span>
-          <span title="Written">
+          <span title={t("administration.fhirSync.metrics.written")}>
             <FileText size={10} className="inline mr-0.5" />
-            {formatNumber(run.records_written)}
+            {formatCompactNumber(run.records_written)}
           </span>
           {run.records_failed > 0 && (
-            <span className="text-critical" title="Failed">
+            <span className="text-critical" title={t("administration.fhirSync.metrics.failed")}>
               <XCircle size={10} className="inline mr-0.5" />
-              {formatNumber(run.records_failed)}
+              {formatCompactNumber(run.records_failed)}
             </span>
           )}
           <CoverageBar value={run.mapping_coverage} />
@@ -256,7 +263,7 @@ function RecentRunRow({ run }: { run: FhirSyncRun }) {
             type="button"
             onClick={() => setShowError(!showError)}
             className="p-1 rounded text-critical hover:bg-critical/10 transition-colors"
-            title="View error"
+            title={t("administration.fhirSync.actions.viewError")}
           >
             <AlertCircle size={12} />
           </button>
@@ -286,17 +293,18 @@ function PipelineFunnel({
   written: number;
   failed: number;
 }) {
+  const { t } = useTranslation("app");
   const steps = [
-    { label: "Extracted", value: extracted, icon: Download, color: "text-blue-400" },
-    { label: "Mapped", value: mapped, icon: BarChart3, color: "text-violet-400" },
-    { label: "Written", value: written, icon: Database, color: "text-success" },
-    { label: "Failed", value: failed, icon: XCircle, color: "text-critical" },
+    { labelKey: "extracted", value: extracted, icon: Download, color: "text-blue-400" },
+    { labelKey: "mapped", value: mapped, icon: BarChart3, color: "text-violet-400" },
+    { labelKey: "written", value: written, icon: Database, color: "text-success" },
+    { labelKey: "failed", value: failed, icon: XCircle, color: "text-critical" },
   ];
 
   return (
     <div className="flex items-center gap-2">
       {steps.map((step, i) => (
-        <div key={step.label} className="flex items-center gap-2">
+        <div key={step.labelKey} className="flex items-center gap-2">
           {i > 0 && i < 3 && (
             <ChevronRight size={12} className="text-text-ghost/40" />
           )}
@@ -307,9 +315,11 @@ function PipelineFunnel({
             <step.icon size={12} className={step.color} />
             <div className="text-center">
               <div className={`text-sm font-semibold ${step.color}`}>
-                {formatNumber(step.value)}
+                {formatCompactNumber(step.value)}
               </div>
-              <div className="text-[10px] text-text-ghost">{step.label}</div>
+              <div className="text-[10px] text-text-ghost">
+                {t(`administration.fhirSync.metrics.${step.labelKey}`)}
+              </div>
             </div>
           </div>
         </div>
@@ -323,6 +333,7 @@ function PipelineFunnel({
 // ──────────────────────────────────────────────────────────────────────────────
 
 export default function FhirSyncDashboardPage() {
+  const { t } = useTranslation("app");
   const hasActiveRuns = (data: FhirSyncDashboard | undefined) =>
     data?.summary.active_runs ? data.summary.active_runs > 0 : false;
 
@@ -347,7 +358,7 @@ export default function FhirSyncDashboardPage() {
   if (!dashboard) {
     return (
       <div className="text-center py-20 text-text-ghost">
-        Failed to load dashboard data.
+        {t("administration.fhirSync.messages.failedToLoad")}
       </div>
     );
   }
@@ -367,10 +378,10 @@ export default function FhirSyncDashboardPage() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-text-primary">
-              FHIR Sync Monitor
+              {t("administration.fhirSync.title")}
             </h1>
             <p className="mt-0.5 text-sm text-text-muted">
-              Real-time ETL pipeline monitoring across all FHIR connections
+              {t("administration.fhirSync.subtitle")}
             </p>
           </div>
         </div>
@@ -378,12 +389,16 @@ export default function FhirSyncDashboardPage() {
           {s.active_runs > 0 && (
             <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-blue-400/10 text-blue-400 font-medium">
               <Loader2 size={10} className="animate-spin" />
-              {s.active_runs} active
+              {t("administration.fhirSync.values.activeRuns", {
+                count: formatNumber(s.active_runs),
+              })}
             </span>
           )}
           <span className="flex items-center gap-1">
             <RefreshCw size={10} />
-            {hasActiveRuns(dashboard) ? "10s" : "60s"} refresh
+            {t("administration.fhirSync.values.refreshInterval", {
+              seconds: hasActiveRuns(dashboard) ? "10" : "60",
+            })}
           </span>
         </div>
       </div>
@@ -391,37 +406,37 @@ export default function FhirSyncDashboardPage() {
       {/* Top-level Stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <MetricCard
-          label="Connections"
+          label={t("administration.fhirSync.stats.connections")}
           value={`${s.active_connections}/${s.total_connections}`}
           icon={<Server size={16} />}
           to="/admin/fhir-connections"
         />
         <MetricCard
-          label="Total Runs"
-          value={s.total_runs}
+          label={t("administration.fhirSync.stats.totalRuns")}
+          value={formatNumber(s.total_runs)}
           icon={<Activity size={16} />}
           to="/admin/fhir-connections"
         />
         <MetricCard
-          label="Completed"
-          value={s.completed_runs}
+          label={t("administration.fhirSync.stats.completed")}
+          value={formatNumber(s.completed_runs)}
           icon={<CheckCircle2 size={16} />}
           to="/admin/fhir-connections"
         />
         <MetricCard
-          label="Failed"
-          value={s.failed_runs}
+          label={t("administration.fhirSync.stats.failed")}
+          value={formatNumber(s.failed_runs)}
           icon={<XCircle size={16} />}
           to="/admin/fhir-connections"
         />
         <MetricCard
-          label="Records Written"
-          value={formatNumber(s.total_written)}
+          label={t("administration.fhirSync.stats.recordsWritten")}
+          value={formatCompactNumber(s.total_written)}
           icon={<Database size={16} />}
           to="/admin/fhir-connections"
         />
         <MetricCard
-          label="Avg Coverage"
+          label={t("administration.fhirSync.stats.avgCoverage")}
           value={s.avg_coverage != null ? `${s.avg_coverage}%` : "--"}
           icon={<TrendingUp size={16} />}
           to="/admin/fhir-connections"
@@ -434,10 +449,10 @@ export default function FhirSyncDashboardPage() {
           <div className="flex items-center gap-2 mb-4">
             <Zap size={14} className="text-success" />
             <h2 className="text-sm font-semibold text-text-primary">
-              Pipeline Throughput
+              {t("administration.fhirSync.panels.pipelineThroughput")}
             </h2>
             <span className="text-[10px] text-text-ghost ml-auto">
-              All-time totals
+              {t("administration.fhirSync.values.allTimeTotals")}
             </span>
           </div>
           <PipelineFunnel
@@ -449,7 +464,7 @@ export default function FhirSyncDashboardPage() {
           {s.avg_coverage != null && (
             <div className="mt-4 pt-3 border-t border-border-subtle">
               <div className="flex items-center justify-between text-xs text-text-muted mb-1">
-                <span>Average mapping coverage</span>
+                <span>{t("administration.fhirSync.metrics.averageMappingCoverage")}</span>
                 <span className="font-medium">{s.avg_coverage}%</span>
               </div>
               <CoverageBar value={s.avg_coverage} />
@@ -461,18 +476,18 @@ export default function FhirSyncDashboardPage() {
           <div className="flex items-center gap-2 mb-4">
             <BarChart3 size={14} className="text-success" />
             <h2 className="text-sm font-semibold text-text-primary">
-              Sync Activity (30 days)
+              {t("administration.fhirSync.panels.syncActivity")}
             </h2>
           </div>
           <SyncTimeline timeline={dashboard.timeline} />
           <div className="flex items-center gap-4 mt-2 text-[10px] text-text-ghost">
             <span className="flex items-center gap-1">
               <span className="w-2 h-2 rounded-sm bg-success/60" />
-              Completed
+              {t("administration.fhirSync.status.completed")}
             </span>
             <span className="flex items-center gap-1">
               <span className="w-2 h-2 rounded-sm bg-critical/60" />
-              Failed
+              {t("administration.fhirSync.status.failed")}
             </span>
           </div>
         </Panel>
@@ -485,12 +500,12 @@ export default function FhirSyncDashboardPage() {
           <div className="flex items-center gap-2 mb-3">
             <Server size={14} className="text-success" />
             <h2 className="text-sm font-semibold text-text-primary">
-              Connection Health
+              {t("administration.fhirSync.panels.connectionHealth")}
             </h2>
           </div>
           {dashboard.connections.length === 0 ? (
             <p className="text-xs text-text-ghost py-4 text-center">
-              No connections configured
+              {t("administration.fhirSync.messages.noConnections")}
             </p>
           ) : (
             <div className="rounded-md border border-border-subtle overflow-hidden">
@@ -506,24 +521,24 @@ export default function FhirSyncDashboardPage() {
           <div className="flex items-center gap-2 mb-3">
             <Clock size={14} className="text-success" />
             <h2 className="text-sm font-semibold text-text-primary">
-              Recent Sync Runs
+              {t("administration.fhirSync.panels.recentRuns")}
             </h2>
             <span className="text-[10px] text-text-ghost ml-auto">
-              Last 20 across all connections
+              {t("administration.fhirSync.values.lastRuns")}
             </span>
           </div>
           {dashboard.recent_runs.length === 0 ? (
             <p className="text-xs text-text-ghost py-4 text-center">
-              No sync runs yet
+              {t("administration.fhirSync.messages.noRuns")}
             </p>
           ) : (
             <div className="rounded-md border border-border-subtle overflow-hidden">
               <div className="px-3 py-1.5 bg-surface-overlay/50 text-[10px] font-medium text-text-ghost uppercase tracking-wider flex items-center gap-3">
-                <span className="min-w-[80px]">Status</span>
-                <span className="min-w-[100px]">Connection</span>
-                <span className="min-w-[80px]">Started</span>
-                <span className="min-w-[55px]">Duration</span>
-                <span className="flex-1">Metrics</span>
+                <span className="min-w-[80px]">{t("administration.fhirSync.table.status")}</span>
+                <span className="min-w-[100px]">{t("administration.fhirSync.table.connection")}</span>
+                <span className="min-w-[80px]">{t("administration.fhirSync.table.started")}</span>
+                <span className="min-w-[55px]">{t("administration.fhirSync.table.duration")}</span>
+                <span className="flex-1">{t("administration.fhirSync.table.metrics")}</span>
               </div>
               {dashboard.recent_runs.map((run) => (
                 <RecentRunRow key={run.id} run={run} />

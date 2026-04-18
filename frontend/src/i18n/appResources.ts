@@ -1088,6 +1088,576 @@ const enApp: MessageTree = {
 
   },
   administration: {
+    dashboard: {
+      title: "Administration",
+      subtitle: "Manage users, roles, permissions, and system configuration.",
+      panels: {
+        platform: "Platform",
+        usersAccess: "Users & Access",
+        dataSources: "Data Sources",
+        aiResearch: "AI & Research",
+      },
+      status: {
+        allHealthy: "All healthy",
+        degraded: "Degraded",
+        warning: "Warning",
+      },
+      labels: {
+        services: "Services",
+        queue: "Queue",
+        redis: "Redis",
+        totalUsers: "Total users",
+        roles: "Roles",
+        authProviders: "Auth providers",
+        tokenExpiry: "Token expiry",
+        solr: "Solr",
+        aiProvider: "AI provider",
+        model: "Model",
+        abby: "Abby",
+        researchRuntime: "R / HADES",
+      },
+      values: {
+        servicesUp: "{{healthy}}/{{total}} up",
+        queueSummary: "{{pending}} pending / {{failed}} failed",
+        enabledCount: "{{count}} enabled",
+        tokenExpiry: "8h",
+        cdmCount: "{{count}} CDM",
+        solrSummary: "{{docs}} docs / {{cores}} cores",
+        none: "None",
+        online: "Online",
+      },
+      messages: {
+        noCdmSources: "No CDM sources configured",
+      },
+      nav: {
+        userManagement: {
+          title: "User Management",
+          description:
+            "Create, edit, and deactivate user accounts. Assign roles to control access.",
+        },
+        rolesPermissions: {
+          title: "Roles & Permissions",
+          description:
+            "Define custom roles and fine-tune permission assignments across all domains.",
+        },
+        authProviders: {
+          title: "Authentication Providers",
+          description:
+            "Enable and configure LDAP, OAuth 2.0, SAML 2.0, or OIDC for SSO.",
+        },
+        aiProviders: {
+          title: "AI Provider Configuration",
+          description:
+            "Switch Abby's backend between local Ollama, Anthropic, OpenAI, Gemini, and more.",
+        },
+        systemHealth: {
+          title: "System Health",
+          description:
+            "Live status of all Parthenon services: Redis, AI, Darkstar, Solr, Orthanc PACS, job queues.",
+        },
+        vocabularyManagement: {
+          title: "Vocabulary Management",
+          description:
+            "Update OMOP vocabulary tables by uploading a new Athena vocabulary ZIP file.",
+        },
+        fhirConnections: {
+          title: "FHIR EHR Connections",
+          description:
+            "Manage FHIR R4 connections to Epic, Cerner, and other EHR systems for bulk data import.",
+        },
+      },
+      setupWizard: {
+        title: "Platform Setup Wizard",
+        description:
+          "Re-run the guided setup: health check, AI provider, authentication, and data sources.",
+      },
+      atlasMigration: {
+        title: "Migrate from Atlas",
+        description:
+          "Import cohort definitions, concept sets, and analyses from an existing OHDSI Atlas installation.",
+      },
+      actions: {
+        open: "Open",
+        openWizard: "Open wizard",
+      },
+    },
+    atlasMigration: {
+      steps: {
+        connect: "Connect",
+        discover: "Discover",
+        select: "Select",
+        import: "Import",
+        summary: "Summary",
+      },
+      entityTypes: {
+        conceptSets: "Concept Sets",
+        cohortDefinitions: "Cohort Definitions",
+        incidenceRates: "Incidence Rates",
+        characterizations: "Characterizations",
+        pathways: "Pathways",
+        estimations: "Estimations",
+        predictions: "Predictions",
+      },
+      connect: {
+        title: "Connect to Atlas WebAPI",
+        description:
+          "Enter the base URL of your existing OHDSI WebAPI instance. Parthenon will connect and inventory all available entities for migration.",
+        webapiUrl: "WebAPI Base URL",
+        authentication: "Authentication",
+        auth: {
+          none: "None (public WebAPI)",
+          basic: "Basic Authentication",
+          bearer: "Bearer Token",
+        },
+        credentials: "Credentials (username:password)",
+        bearerToken: "Bearer Token",
+        testConnection: "Test Connection",
+        webapiVersion: "WebAPI version: {{version}}",
+      },
+      discover: {
+        discovering: "Discovering entities...",
+        querying: "Querying all WebAPI endpoints in parallel",
+        title: "Atlas Inventory",
+        summary:
+          "Found {{count}} migratable entities across {{categories}} categories.",
+        sourcesFound: "Also found {{count}} data source(s).",
+      },
+      select: {
+        title: "Select Entities to Migrate",
+        description:
+          "Choose which entities to import. Dependencies are resolved automatically.",
+        analysisWarning:
+          "Analysis entities may reference cohort definitions and concept sets by ID. Parthenon will remap these references automatically during import. For best results, include the referenced cohorts and concept sets in your selection.",
+        selectedCount: "{{selected}}/{{total}} selected",
+        totalSelected: "{{count}} entities selected for migration",
+      },
+      import: {
+        starting: "Starting migration...",
+        importing: "Importing Entities...",
+        complete: "Migration Complete",
+        failed: "Migration Failed",
+        processed: "All selected entities have been processed.",
+        error: "An error occurred during migration.",
+        percentComplete: "{{percent}}% complete",
+        polling: "Polling for updates...",
+      },
+      summary: {
+        successful: "Migration Successful",
+        completedWithWarnings: "Migration Completed with Warnings",
+        failed: "Migration Failed",
+        from: "From",
+        duration: "Duration: {{duration}}",
+      },
+      metrics: {
+        total: "Total",
+        imported: "Imported",
+        skipped: "Skipped",
+        failed: "Failed",
+      },
+      table: {
+        entityType: "Entity Type",
+        category: "Category",
+      },
+      actions: {
+        selectAll: "Select All",
+        deselectAll: "Deselect All",
+        retryFailed: "Retry Failed ({{count}})",
+        done: "Done",
+        closeTitle: "Close - return any time via Administration",
+        previous: "Previous",
+        startMigration: "Start Migration",
+        next: "Next",
+      },
+      errors: {
+        connectionFailed: "Connection failed",
+        discoveryFailed: "Discovery failed",
+      },
+    },
+    fhirConnections: {
+      title: "FHIR EHR Connections",
+      subtitle:
+        "Configure SMART Backend Services connections for FHIR R4 Bulk Data extraction from Epic, Cerner, and other EHR systems.",
+      runMetrics: {
+        extracted: "Extracted",
+        mapped: "Mapped",
+        written: "Written",
+        failed: "Failed",
+        mappingCoverage: "Mapping coverage",
+      },
+      history: {
+        loading: "Loading sync history...",
+        empty: "No sync runs yet.",
+        status: "Status",
+        started: "Started",
+        duration: "Duration",
+        metrics: "Metrics",
+        title: "Sync History",
+      },
+      dialog: {
+        editTitle: "Edit FHIR Connection",
+        addTitle: "Add FHIR Connection",
+        description:
+          "Configure a SMART Backend Services connection to an EHR FHIR R4 endpoint.",
+      },
+      labels: {
+        siteName: "Site Name",
+        siteKey: "Site Key (slug)",
+        ehrVendor: "EHR Vendor",
+        fhirBaseUrl: "FHIR Base URL",
+        tokenEndpoint: "Token Endpoint",
+        clientId: "Client ID",
+        rsaPrivateKey: "RSA Private Key (PEM)",
+        scopes: "Scopes",
+        groupId: "Group ID (for Bulk Export)",
+        exportResourceTypes:
+          "Export Resource Types (comma-separated, blank = all)",
+        active: "Active",
+        incrementalSync: "Incremental sync",
+      },
+      vendors: {
+        epic: "Epic",
+        cerner: "Cerner (Oracle Health)",
+        other: "Other FHIR R4",
+      },
+      placeholders: {
+        siteName: "Johns Hopkins Epic",
+        keepExistingKey: "Leave blank to keep existing key",
+        resourceTypes:
+          "Patient,Condition,Encounter,MedicationRequest,Observation,Procedure",
+      },
+      actions: {
+        cancel: "Cancel",
+        saveChanges: "Save Changes",
+        createConnection: "Create Connection",
+        testConnection: "Test connection",
+        edit: "Edit",
+        delete: "Delete",
+        details: "Details",
+        syncMonitor: "Sync Monitor",
+        addConnection: "Add Connection",
+      },
+      messages: {
+        failedToSave: "Failed to save",
+        failedToStartSync: "Failed to start sync",
+        deleteConfirm: 'Delete "{{name}}"?',
+        noConnections: "No FHIR connections configured",
+        noConnectionsDescription:
+          "Add a connection to begin extracting clinical data from an EHR via FHIR R4 Bulk Data.",
+      },
+      sync: {
+        activateFirst: "Activate connection first",
+        uploadKeyFirst: "Upload a private key first",
+        inProgress: "Sync in progress",
+        incrementalTitle: "Incremental Sync (only new data)",
+        fullSync: "Full Sync",
+        sync: "Sync",
+        incrementalSync: "Incremental Sync",
+        incrementalDescription: "Only new/updated data since last sync",
+        fullDescription: "Download all data from EHR",
+        forceFullSync: "Force Full Sync",
+        forceFullDescription: "Re-download all data, deduplicate on write",
+      },
+      values: {
+        percent: "{{value}}%",
+        byUser: "by {{name}}",
+        keyUploaded: "Key uploaded",
+        noKey: "No key",
+        lastSync: "Last sync: {{date}}",
+        records: "{{count}} records",
+        testElapsed: "{{message}} ({{elapsed}}ms)",
+        allSupported: "All supported",
+        enabled: "Enabled",
+        disabled: "Disabled",
+        since: "(since {{date}})",
+        notSet: "Not set",
+        never: "Never",
+      },
+      details: {
+        tokenEndpoint: "Token endpoint:",
+        clientId: "Client ID:",
+        scopes: "Scopes:",
+        groupId: "Group ID:",
+        resourceTypes: "Resource types:",
+        incremental: "Incremental:",
+        targetSource: "Target source:",
+        syncRuns: "Sync runs:",
+      },
+      stats: {
+        totalConnections: "Total Connections",
+        active: "Active",
+        keysConfigured: "Keys Configured",
+        lastSync: "Last Sync",
+      },
+    },
+    vocabulary: {
+      title: "Vocabulary Management",
+      subtitle: "Update OMOP vocabulary tables from an Athena download ZIP.",
+      status: {
+        pending: "Queued",
+        running: "Running",
+        completed: "Completed",
+        failed: "Failed",
+      },
+      log: {
+        title: "Import Log",
+        noOutput: "(no output yet)",
+      },
+      labels: {
+        schema: "Schema:",
+        source: "Source:",
+        rowsLoaded: "Rows loaded:",
+        duration: "Duration:",
+        by: "By:",
+        progress: "Progress",
+        optional: "(optional)",
+      },
+      values: {
+        seconds: "{{value}}s",
+      },
+      actions: {
+        refresh: "Refresh",
+        remove: "Remove",
+        uploading: "Uploading...",
+        startImport: "Start Import",
+      },
+      upload: {
+        title: "Upload Athena Vocabulary ZIP",
+        descriptionPrefix: "Download a vocabulary bundle from",
+        descriptionMiddle: "and upload it here.",
+        descriptionSuffix:
+          "The import runs as a background job and can take 15-60 minutes depending on vocabulary size.",
+        maxFileSize: "Files up to 5 GB are supported",
+        dropHere: "Drop Athena ZIP here",
+        browse: "or click to browse",
+        targetSource: "Target CDM Source",
+        defaultSchema: "Default vocabulary schema",
+        sourceHelpPrefix:
+          "Selects which source's vocabulary schema the import will populate. If no source is chosen, the default",
+        sourceHelpSuffix: "connection schema is used.",
+      },
+      instructions: {
+        title: "How to get a vocabulary ZIP from Athena",
+        signInPrefix: "Visit",
+        signInSuffix: "and sign in.",
+        selectDomains:
+          "Select the vocabulary domains and versions you need (e.g. SNOMED, RxNorm, LOINC).",
+        clickPrefix: "Click",
+        downloadVocabularies: "Download Vocabularies",
+        clickSuffix: "- Athena will email you a download link.",
+        uploadZip:
+          "Download the ZIP (typically 500 MB-3 GB) and upload it below.",
+      },
+      messages: {
+        deleteConfirm: "Delete this import record?",
+        uploadFailed: "Upload failed: {{message}}",
+        unknownError: "Unknown error",
+        uploadSuccess:
+          "ZIP uploaded successfully. Import job is queued - check below for progress.",
+        importRunning:
+          "An import is currently running. New uploads are disabled until it completes.",
+      },
+      history: {
+        title: "Import History",
+        loading: "Loading...",
+        empty: "No vocabulary imports yet. Upload an Athena ZIP above to get started.",
+      },
+    },
+    systemHealth: {
+      title: "System Health",
+      subtitle:
+        "Live status of all Parthenon services. Auto-refreshes every 30 seconds.",
+      serverStatus: "Server Status",
+      lastChecked: "Last checked at {{time}}",
+      polling: "Polling services...",
+      gisDataManagement: "GIS Data Management",
+      status: {
+        healthy: "Healthy",
+        degraded: "Degraded",
+        down: "Down",
+      },
+      overall: {
+        healthy: "Healthy",
+        needsAttention: "Needs Attention",
+      },
+      labels: {
+        pending: "Pending:",
+        failed: "Failed:",
+        cores: "Cores:",
+        documents: "Documents:",
+        dagster: "Dagster:",
+        graphql: "GraphQL:",
+        studies: "Studies:",
+        instances: "Instances:",
+        disk: "Disk:",
+      },
+      actions: {
+        refresh: "Refresh",
+        openService: "Open Service",
+        viewDetails: "View details",
+      },
+      tiers: {
+        corePlatform: "Core Platform",
+        dataSearch: "Data & Search",
+        aiAnalytics: "AI & Analytics",
+        clinicalServices: "Clinical Services",
+        monitoringCommunications: "Monitoring & Communications",
+        acropolisInfrastructure: "Acropolis Infrastructure",
+        unknown: "Other Services",
+      },
+      hades: {
+        title: "OHDSI Package Parity",
+        subtitle:
+          "Darkstar package coverage for first-class, native, and compatibility work.",
+        checking: "Checking Darkstar packages...",
+        unavailable: "Darkstar package inventory is unavailable.",
+        installed: "Installed:",
+        missing: "Missing:",
+        total: "Total:",
+        requiredMissing: "Required missing:",
+        shinyPolicy: "Legacy Shiny Policy",
+        notExposed: "not exposed",
+        shinyPolicyDescription:
+          "Hosted Shiny apps, iframe embedding, and user-supplied app paths are disabled. OHDSI Shiny packages remain runtime compatibility artifacts only.",
+        replacement: "Replacement: {{surface}}",
+        package: "Package",
+        capability: "Capability",
+        priority: "Priority",
+        surface: "Surface",
+        source: "Source",
+        runtime: "runtime",
+        status: {
+          complete: "Complete",
+          partial: "Partial",
+        },
+      },
+    },
+    fhirSync: {
+      title: "FHIR Sync Monitor",
+      subtitle: "Real-time ETL pipeline monitoring across all FHIR connections",
+      status: {
+        completed: "Completed",
+        running: "Running",
+        pending: "Pending",
+        exporting: "Exporting",
+        downloading: "Downloading",
+        processing: "Processing",
+        failed: "Failed",
+      },
+      timeline: {
+        empty: "No sync activity in the last 30 days",
+        tooltip: "{{date}}: {{completed}} completed, {{failed}} failed",
+        hoverSummary: "{{completed}} ok / {{failed}} fail",
+      },
+      metrics: {
+        extracted: "Extracted",
+        mapped: "Mapped",
+        written: "Written",
+        failed: "Failed",
+        averageMappingCoverage: "Average mapping coverage",
+      },
+      actions: {
+        viewError: "View error",
+      },
+      values: {
+        runs: "{{count}} runs",
+        never: "Never",
+        activeRuns: "{{count}} active",
+        refreshInterval: "{{seconds}}s refresh",
+        allTimeTotals: "All-time totals",
+        lastRuns: "Last 20 across all connections",
+      },
+      messages: {
+        failedToLoad: "Failed to load dashboard data.",
+        noConnections: "No connections configured",
+        noRuns: "No sync runs yet",
+      },
+      stats: {
+        connections: "Connections",
+        totalRuns: "Total Runs",
+        completed: "Completed",
+        failed: "Failed",
+        recordsWritten: "Records Written",
+        avgCoverage: "Avg Coverage",
+      },
+      panels: {
+        pipelineThroughput: "Pipeline Throughput",
+        syncActivity: "Sync Activity (30 days)",
+        connectionHealth: "Connection Health",
+        recentRuns: "Recent Sync Runs",
+      },
+      table: {
+        status: "Status",
+        connection: "Connection",
+        started: "Started",
+        duration: "Duration",
+        metrics: "Metrics",
+      },
+    },
+    gisData: {
+      title: "GIS Boundary Data",
+      subtitle: "Manage geographic boundary datasets for the GIS Explorer",
+      status: {
+        loaded: "loaded",
+        empty: "empty",
+      },
+      tabs: {
+        boundaries: "Boundaries",
+        dataImport: "Data Import",
+      },
+      messages: {
+        checking: "Checking boundary data...",
+        noBoundaryData:
+          "No boundary data loaded. Select a source and levels below to begin.",
+      },
+      labels: {
+        boundaries: "Boundaries:",
+        countries: "Countries:",
+      },
+      load: {
+        title: "Load Boundaries",
+        adminLevels: "Admin levels to load:",
+      },
+      sources: {
+        gadm: {
+          name: "GADM v4.1",
+          description:
+            "Global Administrative Areas - 356K boundaries across 6 admin levels",
+        },
+        geoboundaries: {
+          name: "geoBoundaries CGAZ",
+          description:
+            "Simplified boundaries for cartographic consistency (ADM0-2)",
+        },
+      },
+      levels: {
+        adm0: "Countries (ADM0)",
+        adm1: "States / Provinces (ADM1)",
+        adm2: "Districts / Counties (ADM2)",
+        adm3: "Sub-districts (ADM3)",
+      },
+      actions: {
+        preparing: "Preparing...",
+        generateLoadCommand: "Generate Load Command",
+        refreshStats: "Refresh Stats",
+        copyToClipboard: "Copy to clipboard",
+        close: "Close",
+      },
+      modal: {
+        runOnHost: "Run on Host",
+        description:
+          "GIS data loads directly to local PostgreSQL 17. Run this command from the project root:",
+        datasetFlagPrefix: "The",
+        datasetFlagSuffix:
+          "flag enables progress tracking. Refresh stats after the script completes.",
+      },
+      job: {
+        title: "Loading GIS Boundaries",
+        description: "Source: {{source}} | Levels: {{levels}}",
+      },
+      values: {
+        all: "all",
+      },
+    },
     honestBroker: {
       title: "Honest Broker",
       subtitle:
@@ -3483,6 +4053,582 @@ const esApp: MessageTree = {
 
   },
   administration: {
+    dashboard: {
+      title: "Administración",
+      subtitle: "Gestiona usuarios, roles, permisos y configuración del sistema.",
+      panels: {
+        platform: "Plataforma",
+        usersAccess: "Usuarios y acceso",
+        dataSources: "Fuentes de datos",
+        aiResearch: "IA e investigación",
+      },
+      status: {
+        allHealthy: "Todo saludable",
+        degraded: "Degradado",
+        warning: "Advertencia",
+      },
+      labels: {
+        services: "Servicios",
+        queue: "Cola",
+        redis: "Redis",
+        totalUsers: "Usuarios totales",
+        roles: "Roles",
+        authProviders: "Proveedores de autenticación",
+        tokenExpiry: "Caducidad del token",
+        solr: "Solr",
+        aiProvider: "Proveedor de IA",
+        model: "Modelo",
+        abby: "Abby",
+        researchRuntime: "R / HADES",
+      },
+      values: {
+        servicesUp: "{{healthy}}/{{total}} activos",
+        queueSummary: "{{pending}} pendientes / {{failed}} fallidos",
+        enabledCount: "{{count}} habilitados",
+        tokenExpiry: "8 h",
+        cdmCount: "{{count}} CDM",
+        solrSummary: "{{docs}} docs / {{cores}} núcleos",
+        none: "Ninguno",
+        online: "En línea",
+      },
+      messages: {
+        noCdmSources: "No hay fuentes CDM configuradas",
+      },
+      nav: {
+        userManagement: {
+          title: "Gestión de usuarios",
+          description:
+            "Crea, edita y desactiva cuentas de usuario. Asigna roles para controlar el acceso.",
+        },
+        rolesPermissions: {
+          title: "Roles y permisos",
+          description:
+            "Define roles personalizados y ajusta asignaciones de permisos en todos los dominios.",
+        },
+        authProviders: {
+          title: "Proveedores de autenticación",
+          description:
+            "Habilita y configura LDAP, OAuth 2.0, SAML 2.0 u OIDC para SSO.",
+        },
+        aiProviders: {
+          title: "Configuración de proveedores de IA",
+          description:
+            "Cambia el backend de Abby entre Ollama local, Anthropic, OpenAI, Gemini y más.",
+        },
+        systemHealth: {
+          title: "Estado del sistema",
+          description:
+            "Estado en vivo de los servicios de Parthenon: Redis, IA, Darkstar, Solr, Orthanc PACS y colas de trabajos.",
+        },
+        vocabularyManagement: {
+          title: "Gestión de vocabulario",
+          description:
+            "Actualiza tablas de vocabulario OMOP cargando un nuevo archivo ZIP de Athena.",
+        },
+        fhirConnections: {
+          title: "Conexiones FHIR EHR",
+          description:
+            "Gestiona conexiones FHIR R4 a Epic, Cerner y otros sistemas EHR para importación masiva de datos.",
+        },
+      },
+      setupWizard: {
+        title: "Asistente de configuración de la plataforma",
+        description:
+          "Vuelve a ejecutar la configuración guiada: estado, proveedor de IA, autenticación y fuentes de datos.",
+      },
+      atlasMigration: {
+        title: "Migrar desde Atlas",
+        description:
+          "Importa definiciones de cohortes, conjuntos de conceptos y análisis desde una instalación OHDSI Atlas existente.",
+      },
+      actions: {
+        open: "Abrir",
+        openWizard: "Abrir asistente",
+      },
+    },
+    atlasMigration: {
+      steps: {
+        connect: "Conectar",
+        discover: "Descubrir",
+        select: "Seleccionar",
+        import: "Importar",
+        summary: "Resumen",
+      },
+      entityTypes: {
+        conceptSets: "Conjuntos de conceptos",
+        cohortDefinitions: "Definiciones de cohortes",
+        incidenceRates: "Tasas de incidencia",
+        characterizations: "Caracterizaciones",
+        pathways: "Rutas",
+        estimations: "Estimaciones",
+        predictions: "Predicciones",
+      },
+      connect: {
+        title: "Conectar a Atlas WebAPI",
+        description:
+          "Ingresa la URL base de tu instancia OHDSI WebAPI existente. Parthenon se conectará e inventariará todas las entidades disponibles para migración.",
+        webapiUrl: "URL base de WebAPI",
+        authentication: "Autenticación",
+        auth: {
+          none: "Ninguna (WebAPI pública)",
+          basic: "Autenticación básica",
+          bearer: "Token Bearer",
+        },
+        credentials: "Credenciales (usuario:contraseña)",
+        bearerToken: "Token Bearer",
+        testConnection: "Probar conexión",
+        webapiVersion: "Versión de WebAPI: {{version}}",
+      },
+      discover: {
+        discovering: "Descubriendo entidades...",
+        querying: "Consultando todos los endpoints de WebAPI en paralelo",
+        title: "Inventario de Atlas",
+        summary:
+          "Se encontraron {{count}} entidades migrables en {{categories}} categorías.",
+        sourcesFound: "También se encontraron {{count}} fuente(s) de datos.",
+      },
+      select: {
+        title: "Seleccionar entidades para migrar",
+        description:
+          "Elige qué entidades importar. Las dependencias se resuelven automáticamente.",
+        analysisWarning:
+          "Las entidades de análisis pueden referenciar definiciones de cohortes y conjuntos de conceptos por ID. Parthenon reasignará estas referencias automáticamente durante la importación. Para obtener mejores resultados, incluye las cohortes y conjuntos de conceptos referenciados en tu selección.",
+        selectedCount: "{{selected}}/{{total}} seleccionadas",
+        totalSelected: "{{count}} entidades seleccionadas para migración",
+      },
+      import: {
+        starting: "Iniciando migración...",
+        importing: "Importando entidades...",
+        complete: "Migración completa",
+        failed: "Migración fallida",
+        processed: "Todas las entidades seleccionadas se han procesado.",
+        error: "Ocurrió un error durante la migración.",
+        percentComplete: "{{percent}}% completo",
+        polling: "Consultando actualizaciones...",
+      },
+      summary: {
+        successful: "Migración correcta",
+        completedWithWarnings: "Migración completada con advertencias",
+        failed: "Migración fallida",
+        from: "Desde",
+        duration: "Duración: {{duration}}",
+      },
+      metrics: {
+        total: "Total",
+        imported: "Importadas",
+        skipped: "Omitidas",
+        failed: "Fallidas",
+      },
+      table: {
+        entityType: "Tipo de entidad",
+        category: "Categoría",
+      },
+      actions: {
+        selectAll: "Seleccionar todo",
+        deselectAll: "Deseleccionar todo",
+        retryFailed: "Reintentar fallidas ({{count}})",
+        done: "Listo",
+        closeTitle: "Cerrar - vuelve cuando quieras desde Administración",
+        previous: "Anterior",
+        startMigration: "Iniciar migración",
+        next: "Siguiente",
+      },
+      errors: {
+        connectionFailed: "La conexión falló",
+        discoveryFailed: "El descubrimiento falló",
+      },
+    },
+    fhirConnections: {
+      title: "Conexiones FHIR EHR",
+      subtitle:
+        "Configura conexiones SMART Backend Services para extracción FHIR R4 Bulk Data desde Epic, Cerner y otros sistemas EHR.",
+      runMetrics: {
+        extracted: "Extraídos",
+        mapped: "Mapeados",
+        written: "Escritos",
+        failed: "Fallidos",
+        mappingCoverage: "Cobertura de mapeo",
+      },
+      history: {
+        loading: "Cargando historial de sincronización...",
+        empty: "Aún no hay ejecuciones de sincronización.",
+        status: "Estado",
+        started: "Inicio",
+        duration: "Duración",
+        metrics: "Métricas",
+        title: "Historial de sincronización",
+      },
+      dialog: {
+        editTitle: "Editar conexión FHIR",
+        addTitle: "Agregar conexión FHIR",
+        description:
+          "Configura una conexión SMART Backend Services a un endpoint EHR FHIR R4.",
+      },
+      labels: {
+        siteName: "Nombre del sitio",
+        siteKey: "Clave del sitio (slug)",
+        ehrVendor: "Proveedor EHR",
+        fhirBaseUrl: "URL base FHIR",
+        tokenEndpoint: "Endpoint de token",
+        clientId: "ID de cliente",
+        rsaPrivateKey: "Clave privada RSA (PEM)",
+        scopes: "Alcances",
+        groupId: "ID de grupo (para exportación masiva)",
+        exportResourceTypes:
+          "Tipos de recursos de exportación (separados por comas, en blanco = todos)",
+        active: "Activa",
+        incrementalSync: "Sincronización incremental",
+      },
+      vendors: {
+        epic: "Epic",
+        cerner: "Cerner (Oracle Health)",
+        other: "Otro FHIR R4",
+      },
+      placeholders: {
+        siteName: "Johns Hopkins Epic",
+        keepExistingKey: "Dejar en blanco para conservar la clave existente",
+        resourceTypes:
+          "Patient,Condition,Encounter,MedicationRequest,Observation,Procedure",
+      },
+      actions: {
+        cancel: "Cancelar",
+        saveChanges: "Guardar cambios",
+        createConnection: "Crear conexión",
+        testConnection: "Probar conexión",
+        edit: "Editar",
+        delete: "Eliminar",
+        details: "Detalles",
+        syncMonitor: "Monitor de sincronización",
+        addConnection: "Agregar conexión",
+      },
+      messages: {
+        failedToSave: "No se pudo guardar",
+        failedToStartSync: "No se pudo iniciar la sincronización",
+        deleteConfirm: '¿Eliminar "{{name}}"?',
+        noConnections: "No hay conexiones FHIR configuradas",
+        noConnectionsDescription:
+          "Agrega una conexión para comenzar a extraer datos clínicos desde un EHR mediante FHIR R4 Bulk Data.",
+      },
+      sync: {
+        activateFirst: "Activar primero la conexión",
+        uploadKeyFirst: "Carga primero una clave privada",
+        inProgress: "Sincronización en curso",
+        incrementalTitle: "Sincronización incremental (solo datos nuevos)",
+        fullSync: "Sincronización completa",
+        sync: "Sincronizar",
+        incrementalSync: "Sincronización incremental",
+        incrementalDescription:
+          "Solo datos nuevos o actualizados desde la última sincronización",
+        fullDescription: "Descargar todos los datos del EHR",
+        forceFullSync: "Forzar sincronización completa",
+        forceFullDescription:
+          "Volver a descargar todos los datos y deduplicar al escribir",
+      },
+      values: {
+        percent: "{{value}}%",
+        byUser: "por {{name}}",
+        keyUploaded: "Clave cargada",
+        noKey: "Sin clave",
+        lastSync: "Última sincronización: {{date}}",
+        records: "{{count}} registros",
+        testElapsed: "{{message}} ({{elapsed}} ms)",
+        allSupported: "Todos compatibles",
+        enabled: "Habilitada",
+        disabled: "Deshabilitada",
+        since: "(desde {{date}})",
+        notSet: "No configurado",
+        never: "Nunca",
+      },
+      details: {
+        tokenEndpoint: "Endpoint de token:",
+        clientId: "ID de cliente:",
+        scopes: "Alcances:",
+        groupId: "ID de grupo:",
+        resourceTypes: "Tipos de recursos:",
+        incremental: "Incremental:",
+        targetSource: "Fuente destino:",
+        syncRuns: "Ejecuciones de sincronización:",
+      },
+      stats: {
+        totalConnections: "Conexiones totales",
+        active: "Activas",
+        keysConfigured: "Claves configuradas",
+        lastSync: "Última sincronización",
+      },
+    },
+    vocabulary: {
+      title: "Gestión de vocabulario",
+      subtitle:
+        "Actualiza tablas de vocabulario OMOP desde un ZIP descargado de Athena.",
+      status: {
+        pending: "En cola",
+        running: "En ejecución",
+        completed: "Completado",
+        failed: "Fallido",
+      },
+      log: {
+        title: "Registro de importación",
+        noOutput: "(aún sin salida)",
+      },
+      labels: {
+        schema: "Esquema:",
+        source: "Fuente:",
+        rowsLoaded: "Filas cargadas:",
+        duration: "Duración:",
+        by: "Por:",
+        progress: "Progreso",
+        optional: "(opcional)",
+      },
+      values: {
+        seconds: "{{value}} s",
+      },
+      actions: {
+        refresh: "Actualizar",
+        remove: "Quitar",
+        uploading: "Cargando...",
+        startImport: "Iniciar importación",
+      },
+      upload: {
+        title: "Cargar ZIP de vocabulario Athena",
+        descriptionPrefix: "Descarga un paquete de vocabulario desde",
+        descriptionMiddle: "y cárgalo aquí.",
+        descriptionSuffix:
+          "La importación se ejecuta como trabajo en segundo plano y puede tardar entre 15 y 60 minutos según el tamaño del vocabulario.",
+        maxFileSize: "Se admiten archivos de hasta 5 GB",
+        dropHere: "Suelta aquí el ZIP de Athena",
+        browse: "o haz clic para explorar",
+        targetSource: "Fuente CDM destino",
+        defaultSchema: "Esquema de vocabulario predeterminado",
+        sourceHelpPrefix:
+          "Selecciona qué esquema de vocabulario de la fuente se poblará. Si no eliges una fuente, se usa",
+        sourceHelpSuffix: "como esquema de conexión predeterminado.",
+      },
+      instructions: {
+        title: "Cómo obtener un ZIP de vocabulario desde Athena",
+        signInPrefix: "Visita",
+        signInSuffix: "e inicia sesión.",
+        selectDomains:
+          "Selecciona los dominios y versiones de vocabulario que necesitas (p. ej., SNOMED, RxNorm, LOINC).",
+        clickPrefix: "Haz clic en",
+        downloadVocabularies: "Download Vocabularies",
+        clickSuffix: "- Athena te enviará por correo un enlace de descarga.",
+        uploadZip:
+          "Descarga el ZIP (normalmente 500 MB-3 GB) y cárgalo abajo.",
+      },
+      messages: {
+        deleteConfirm: "¿Eliminar este registro de importación?",
+        uploadFailed: "La carga falló: {{message}}",
+        unknownError: "Error desconocido",
+        uploadSuccess:
+          "ZIP cargado correctamente. El trabajo de importación está en cola; revisa abajo el progreso.",
+        importRunning:
+          "Hay una importación en ejecución. Las nuevas cargas están deshabilitadas hasta que termine.",
+      },
+      history: {
+        title: "Historial de importaciones",
+        loading: "Cargando...",
+        empty:
+          "Aún no hay importaciones de vocabulario. Carga un ZIP de Athena arriba para empezar.",
+      },
+    },
+    systemHealth: {
+      title: "Estado del sistema",
+      subtitle:
+        "Estado en vivo de todos los servicios de Parthenon. Se actualiza automáticamente cada 30 segundos.",
+      serverStatus: "Estado del servidor",
+      lastChecked: "Última comprobación a las {{time}}",
+      polling: "Consultando servicios...",
+      gisDataManagement: "Gestión de datos GIS",
+      status: {
+        healthy: "Saludable",
+        degraded: "Degradado",
+        down: "Caído",
+      },
+      overall: {
+        healthy: "Saludable",
+        needsAttention: "Requiere atención",
+      },
+      labels: {
+        pending: "Pendientes:",
+        failed: "Fallidos:",
+        cores: "Núcleos:",
+        documents: "Documentos:",
+        dagster: "Dagster:",
+        graphql: "GraphQL:",
+        studies: "Estudios:",
+        instances: "Instancias:",
+        disk: "Disco:",
+      },
+      actions: {
+        refresh: "Actualizar",
+        openService: "Abrir servicio",
+        viewDetails: "Ver detalles",
+      },
+      tiers: {
+        corePlatform: "Plataforma central",
+        dataSearch: "Datos y búsqueda",
+        aiAnalytics: "IA y analítica",
+        clinicalServices: "Servicios clínicos",
+        monitoringCommunications: "Monitoreo y comunicaciones",
+        acropolisInfrastructure: "Infraestructura Acropolis",
+        unknown: "Otros servicios",
+      },
+      hades: {
+        title: "Paridad de paquetes OHDSI",
+        subtitle:
+          "Cobertura de paquetes Darkstar para trabajo nativo de primera clase y compatibilidad.",
+        checking: "Comprobando paquetes Darkstar...",
+        unavailable: "El inventario de paquetes Darkstar no está disponible.",
+        installed: "Instalados:",
+        missing: "Faltantes:",
+        total: "Total:",
+        requiredMissing: "Requeridos faltantes:",
+        shinyPolicy: "Política de Shiny legado",
+        notExposed: "no expuesto",
+        shinyPolicyDescription:
+          "Las apps Shiny alojadas, la incrustación por iframe y las rutas de apps aportadas por usuarios están deshabilitadas. Los paquetes OHDSI Shiny permanecen solo como artefactos de compatibilidad en tiempo de ejecución.",
+        replacement: "Reemplazo: {{surface}}",
+        package: "Paquete",
+        capability: "Capacidad",
+        priority: "Prioridad",
+        surface: "Superficie",
+        source: "Fuente",
+        runtime: "tiempo de ejecución",
+        status: {
+          complete: "Completo",
+          partial: "Parcial",
+        },
+      },
+    },
+    fhirSync: {
+      title: "Monitor de sincronización FHIR",
+      subtitle:
+        "Monitoreo en tiempo real del pipeline ETL en todas las conexiones FHIR",
+      status: {
+        completed: "Completado",
+        running: "En ejecución",
+        pending: "Pendiente",
+        exporting: "Exportando",
+        downloading: "Descargando",
+        processing: "Procesando",
+        failed: "Fallido",
+      },
+      timeline: {
+        empty: "No hay actividad de sincronización en los últimos 30 días",
+        tooltip: "{{date}}: {{completed}} completadas, {{failed}} fallidas",
+        hoverSummary: "{{completed}} correctas / {{failed}} fallidas",
+      },
+      metrics: {
+        extracted: "Extraídos",
+        mapped: "Mapeados",
+        written: "Escritos",
+        failed: "Fallidos",
+        averageMappingCoverage: "Cobertura promedio de mapeo",
+      },
+      actions: {
+        viewError: "Ver error",
+      },
+      values: {
+        runs: "{{count}} ejecuciones",
+        never: "Nunca",
+        activeRuns: "{{count}} activas",
+        refreshInterval: "Actualiza cada {{seconds}} s",
+        allTimeTotals: "Totales históricos",
+        lastRuns: "Últimas 20 en todas las conexiones",
+      },
+      messages: {
+        failedToLoad: "No se pudieron cargar los datos del panel.",
+        noConnections: "No hay conexiones configuradas",
+        noRuns: "Aún no hay ejecuciones de sincronización",
+      },
+      stats: {
+        connections: "Conexiones",
+        totalRuns: "Ejecuciones totales",
+        completed: "Completadas",
+        failed: "Fallidas",
+        recordsWritten: "Registros escritos",
+        avgCoverage: "Cobertura prom.",
+      },
+      panels: {
+        pipelineThroughput: "Rendimiento del pipeline",
+        syncActivity: "Actividad de sincronización (30 días)",
+        connectionHealth: "Estado de conexiones",
+        recentRuns: "Ejecuciones recientes",
+      },
+      table: {
+        status: "Estado",
+        connection: "Conexión",
+        started: "Inicio",
+        duration: "Duración",
+        metrics: "Métricas",
+      },
+    },
+    gisData: {
+      title: "Datos de límites GIS",
+      subtitle:
+        "Gestiona conjuntos de datos de límites geográficos para GIS Explorer",
+      status: {
+        loaded: "cargado",
+        empty: "vacío",
+      },
+      tabs: {
+        boundaries: "Límites",
+        dataImport: "Importación de datos",
+      },
+      messages: {
+        checking: "Comprobando datos de límites...",
+        noBoundaryData:
+          "No hay datos de límites cargados. Selecciona una fuente y niveles abajo para empezar.",
+      },
+      labels: {
+        boundaries: "Límites:",
+        countries: "Países:",
+      },
+      load: {
+        title: "Cargar límites",
+        adminLevels: "Niveles administrativos a cargar:",
+      },
+      sources: {
+        gadm: {
+          name: "GADM v4.1",
+          description:
+            "Áreas administrativas globales: 356K límites en 6 niveles administrativos",
+        },
+        geoboundaries: {
+          name: "geoBoundaries CGAZ",
+          description:
+            "Límites simplificados para consistencia cartográfica (ADM0-2)",
+        },
+      },
+      levels: {
+        adm0: "Países (ADM0)",
+        adm1: "Estados / provincias (ADM1)",
+        adm2: "Distritos / condados (ADM2)",
+        adm3: "Subdistritos (ADM3)",
+      },
+      actions: {
+        preparing: "Preparando...",
+        generateLoadCommand: "Generar comando de carga",
+        refreshStats: "Actualizar estadísticas",
+        copyToClipboard: "Copiar al portapapeles",
+        close: "Cerrar",
+      },
+      modal: {
+        runOnHost: "Ejecutar en el host",
+        description:
+          "Los datos GIS se cargan directamente en PostgreSQL 17 local. Ejecuta este comando desde la raíz del proyecto:",
+        datasetFlagPrefix: "La bandera",
+        datasetFlagSuffix:
+          "habilita el seguimiento del progreso. Actualiza las estadísticas cuando termine el script.",
+      },
+      job: {
+        title: "Cargando límites GIS",
+        description: "Fuente: {{source}} | Niveles: {{levels}}",
+      },
+      values: {
+        all: "todos",
+      },
+    },
     honestBroker: {
       title: "Intermediario honesto",
       subtitle:
@@ -5878,6 +7024,577 @@ const koApp: MessageTree = {
     },
   },
   administration: {
+    dashboard: {
+      title: "관리",
+      subtitle: "사용자, 역할, 권한 및 시스템 구성을 관리합니다.",
+      panels: {
+        platform: "플랫폼",
+        usersAccess: "사용자 및 접근",
+        dataSources: "데이터 소스",
+        aiResearch: "AI 및 연구",
+      },
+      status: {
+        allHealthy: "모두 정상",
+        degraded: "성능 저하",
+        warning: "경고",
+      },
+      labels: {
+        services: "서비스",
+        queue: "대기열",
+        redis: "Redis",
+        totalUsers: "전체 사용자",
+        roles: "역할",
+        authProviders: "인증 제공자",
+        tokenExpiry: "토큰 만료",
+        solr: "Solr",
+        aiProvider: "AI 제공자",
+        model: "모델",
+        abby: "Abby",
+        researchRuntime: "R / HADES",
+      },
+      values: {
+        servicesUp: "{{healthy}}/{{total}}개 가동",
+        queueSummary: "대기 {{pending}}개 / 실패 {{failed}}개",
+        enabledCount: "{{count}}개 활성화",
+        tokenExpiry: "8시간",
+        cdmCount: "CDM {{count}}개",
+        solrSummary: "문서 {{docs}}개 / 코어 {{cores}}개",
+        none: "없음",
+        online: "온라인",
+      },
+      messages: {
+        noCdmSources: "구성된 CDM 소스가 없습니다",
+      },
+      nav: {
+        userManagement: {
+          title: "사용자 관리",
+          description:
+            "사용자 계정을 생성, 편집, 비활성화하고 역할을 배정해 접근을 제어합니다.",
+        },
+        rolesPermissions: {
+          title: "역할 및 권한",
+          description:
+            "사용자 지정 역할을 정의하고 모든 도메인의 권한 배정을 세밀하게 조정합니다.",
+        },
+        authProviders: {
+          title: "인증 제공자",
+          description:
+            "SSO를 위해 LDAP, OAuth 2.0, SAML 2.0 또는 OIDC를 활성화하고 구성합니다.",
+        },
+        aiProviders: {
+          title: "AI 제공자 구성",
+          description:
+            "Abby의 백엔드를 로컬 Ollama, Anthropic, OpenAI, Gemini 등으로 전환합니다.",
+        },
+        systemHealth: {
+          title: "시스템 상태",
+          description:
+            "Redis, AI, Darkstar, Solr, Orthanc PACS, 작업 대기열 등 모든 Parthenon 서비스의 실시간 상태입니다.",
+        },
+        vocabularyManagement: {
+          title: "어휘 관리",
+          description:
+            "새 Athena 어휘 ZIP 파일을 업로드하여 OMOP 어휘 테이블을 업데이트합니다.",
+        },
+        fhirConnections: {
+          title: "FHIR EHR 연결",
+          description:
+            "대량 데이터 가져오기를 위해 Epic, Cerner 및 기타 EHR 시스템의 FHIR R4 연결을 관리합니다.",
+        },
+      },
+      setupWizard: {
+        title: "플랫폼 설정 마법사",
+        description:
+          "상태 점검, AI 제공자, 인증, 데이터 소스에 대한 안내식 설정을 다시 실행합니다.",
+      },
+      atlasMigration: {
+        title: "Atlas에서 마이그레이션",
+        description:
+          "기존 OHDSI Atlas 설치에서 코호트 정의, 개념 세트 및 분석을 가져옵니다.",
+      },
+      actions: {
+        open: "열기",
+        openWizard: "마법사 열기",
+      },
+    },
+    atlasMigration: {
+      steps: {
+        connect: "연결",
+        discover: "검색",
+        select: "선택",
+        import: "가져오기",
+        summary: "요약",
+      },
+      entityTypes: {
+        conceptSets: "개념 세트",
+        cohortDefinitions: "코호트 정의",
+        incidenceRates: "발생률",
+        characterizations: "특성화",
+        pathways: "경로",
+        estimations: "추정",
+        predictions: "예측",
+      },
+      connect: {
+        title: "Atlas WebAPI에 연결",
+        description:
+          "기존 OHDSI WebAPI 인스턴스의 기본 URL을 입력하세요. Parthenon이 연결하여 마이그레이션 가능한 모든 엔티티를 인벤토리화합니다.",
+        webapiUrl: "WebAPI 기본 URL",
+        authentication: "인증",
+        auth: {
+          none: "없음(공개 WebAPI)",
+          basic: "기본 인증",
+          bearer: "Bearer 토큰",
+        },
+        credentials: "자격 증명(사용자 이름:비밀번호)",
+        bearerToken: "Bearer 토큰",
+        testConnection: "연결 테스트",
+        webapiVersion: "WebAPI 버전: {{version}}",
+      },
+      discover: {
+        discovering: "엔티티를 검색하는 중...",
+        querying: "모든 WebAPI 엔드포인트를 병렬로 조회하는 중",
+        title: "Atlas 인벤토리",
+        summary:
+          "{{categories}}개 범주에서 마이그레이션 가능한 엔티티 {{count}}개를 찾았습니다.",
+        sourcesFound: "데이터 소스 {{count}}개도 찾았습니다.",
+      },
+      select: {
+        title: "마이그레이션할 엔티티 선택",
+        description:
+          "가져올 엔티티를 선택하세요. 종속성은 자동으로 해결됩니다.",
+        analysisWarning:
+          "분석 엔티티는 ID로 코호트 정의와 개념 세트를 참조할 수 있습니다. Parthenon은 가져오기 중 이러한 참조를 자동으로 다시 매핑합니다. 최상의 결과를 위해 참조된 코호트와 개념 세트를 선택에 포함하세요.",
+        selectedCount: "{{selected}}/{{total}}개 선택됨",
+        totalSelected: "마이그레이션할 엔티티 {{count}}개 선택됨",
+      },
+      import: {
+        starting: "마이그레이션을 시작하는 중...",
+        importing: "엔티티를 가져오는 중...",
+        complete: "마이그레이션 완료",
+        failed: "마이그레이션 실패",
+        processed: "선택한 모든 엔티티가 처리되었습니다.",
+        error: "마이그레이션 중 오류가 발생했습니다.",
+        percentComplete: "{{percent}}% 완료",
+        polling: "업데이트를 확인하는 중...",
+      },
+      summary: {
+        successful: "마이그레이션 성공",
+        completedWithWarnings: "경고와 함께 마이그레이션 완료",
+        failed: "마이그레이션 실패",
+        from: "원본",
+        duration: "소요 시간: {{duration}}",
+      },
+      metrics: {
+        total: "합계",
+        imported: "가져옴",
+        skipped: "건너뜀",
+        failed: "실패",
+      },
+      table: {
+        entityType: "엔티티 유형",
+        category: "범주",
+      },
+      actions: {
+        selectAll: "모두 선택",
+        deselectAll: "모두 선택 해제",
+        retryFailed: "실패 항목 재시도({{count}})",
+        done: "완료",
+        closeTitle: "닫기 - 언제든지 관리에서 다시 열 수 있습니다",
+        previous: "이전",
+        startMigration: "마이그레이션 시작",
+        next: "다음",
+      },
+      errors: {
+        connectionFailed: "연결 실패",
+        discoveryFailed: "검색 실패",
+      },
+    },
+    fhirConnections: {
+      title: "FHIR EHR 연결",
+      subtitle:
+        "Epic, Cerner 및 기타 EHR 시스템에서 FHIR R4 Bulk Data를 추출하기 위한 SMART Backend Services 연결을 구성합니다.",
+      runMetrics: {
+        extracted: "추출됨",
+        mapped: "매핑됨",
+        written: "기록됨",
+        failed: "실패",
+        mappingCoverage: "매핑 커버리지",
+      },
+      history: {
+        loading: "동기화 이력을 불러오는 중...",
+        empty: "아직 동기화 실행이 없습니다.",
+        status: "상태",
+        started: "시작",
+        duration: "소요 시간",
+        metrics: "지표",
+        title: "동기화 이력",
+      },
+      dialog: {
+        editTitle: "FHIR 연결 편집",
+        addTitle: "FHIR 연결 추가",
+        description:
+          "EHR FHIR R4 엔드포인트에 대한 SMART Backend Services 연결을 구성합니다.",
+      },
+      labels: {
+        siteName: "사이트 이름",
+        siteKey: "사이트 키(slug)",
+        ehrVendor: "EHR 벤더",
+        fhirBaseUrl: "FHIR 기본 URL",
+        tokenEndpoint: "토큰 엔드포인트",
+        clientId: "클라이언트 ID",
+        rsaPrivateKey: "RSA 개인 키(PEM)",
+        scopes: "범위",
+        groupId: "그룹 ID(Bulk Export용)",
+        exportResourceTypes:
+          "내보낼 리소스 유형(쉼표로 구분, 비워 두면 전체)",
+        active: "활성",
+        incrementalSync: "증분 동기화",
+      },
+      vendors: {
+        epic: "Epic",
+        cerner: "Cerner (Oracle Health)",
+        other: "기타 FHIR R4",
+      },
+      placeholders: {
+        siteName: "Johns Hopkins Epic",
+        keepExistingKey: "기존 키를 유지하려면 비워 두세요",
+        resourceTypes:
+          "Patient,Condition,Encounter,MedicationRequest,Observation,Procedure",
+      },
+      actions: {
+        cancel: "취소",
+        saveChanges: "변경 사항 저장",
+        createConnection: "연결 생성",
+        testConnection: "연결 테스트",
+        edit: "편집",
+        delete: "삭제",
+        details: "세부 정보",
+        syncMonitor: "동기화 모니터",
+        addConnection: "연결 추가",
+      },
+      messages: {
+        failedToSave: "저장하지 못했습니다",
+        failedToStartSync: "동기화를 시작하지 못했습니다",
+        deleteConfirm: '"{{name}}"을(를) 삭제하시겠습니까?',
+        noConnections: "구성된 FHIR 연결이 없습니다",
+        noConnectionsDescription:
+          "FHIR R4 Bulk Data를 통해 EHR에서 임상 데이터를 추출하려면 연결을 추가하세요.",
+      },
+      sync: {
+        activateFirst: "먼저 연결을 활성화하세요",
+        uploadKeyFirst: "먼저 개인 키를 업로드하세요",
+        inProgress: "동기화 진행 중",
+        incrementalTitle: "증분 동기화(새 데이터만)",
+        fullSync: "전체 동기화",
+        sync: "동기화",
+        incrementalSync: "증분 동기화",
+        incrementalDescription:
+          "마지막 동기화 이후 새 데이터 또는 업데이트된 데이터만",
+        fullDescription: "EHR에서 모든 데이터 다운로드",
+        forceFullSync: "전체 동기화 강제 실행",
+        forceFullDescription:
+          "모든 데이터를 다시 다운로드하고 쓰기 시 중복 제거",
+      },
+      values: {
+        percent: "{{value}}%",
+        byUser: "{{name}} 사용자가 실행",
+        keyUploaded: "키 업로드됨",
+        noKey: "키 없음",
+        lastSync: "마지막 동기화: {{date}}",
+        records: "레코드 {{count}}개",
+        testElapsed: "{{message}} ({{elapsed}}ms)",
+        allSupported: "지원되는 모든 항목",
+        enabled: "활성화됨",
+        disabled: "비활성화됨",
+        since: "({{date}} 이후)",
+        notSet: "설정되지 않음",
+        never: "없음",
+      },
+      details: {
+        tokenEndpoint: "토큰 엔드포인트:",
+        clientId: "클라이언트 ID:",
+        scopes: "범위:",
+        groupId: "그룹 ID:",
+        resourceTypes: "리소스 유형:",
+        incremental: "증분:",
+        targetSource: "대상 소스:",
+        syncRuns: "동기화 실행:",
+      },
+      stats: {
+        totalConnections: "전체 연결",
+        active: "활성",
+        keysConfigured: "구성된 키",
+        lastSync: "마지막 동기화",
+      },
+    },
+    vocabulary: {
+      title: "어휘 관리",
+      subtitle: "Athena 다운로드 ZIP에서 OMOP 어휘 테이블을 업데이트합니다.",
+      status: {
+        pending: "대기열",
+        running: "실행 중",
+        completed: "완료됨",
+        failed: "실패",
+      },
+      log: {
+        title: "가져오기 로그",
+        noOutput: "(아직 출력 없음)",
+      },
+      labels: {
+        schema: "스키마:",
+        source: "소스:",
+        rowsLoaded: "로드된 행:",
+        duration: "소요 시간:",
+        by: "실행자:",
+        progress: "진행률",
+        optional: "(선택 사항)",
+      },
+      values: {
+        seconds: "{{value}}초",
+      },
+      actions: {
+        refresh: "새로고침",
+        remove: "제거",
+        uploading: "업로드 중...",
+        startImport: "가져오기 시작",
+      },
+      upload: {
+        title: "Athena 어휘 ZIP 업로드",
+        descriptionPrefix: "어휘 번들을",
+        descriptionMiddle: "에서 다운로드한 뒤 여기에 업로드하세요.",
+        descriptionSuffix:
+          "가져오기는 백그라운드 작업으로 실행되며 어휘 크기에 따라 15-60분이 걸릴 수 있습니다.",
+        maxFileSize: "최대 5 GB 파일을 지원합니다",
+        dropHere: "Athena ZIP을 여기에 놓으세요",
+        browse: "또는 클릭하여 찾아보기",
+        targetSource: "대상 CDM 소스",
+        defaultSchema: "기본 어휘 스키마",
+        sourceHelpPrefix:
+          "가져오기가 채울 소스의 어휘 스키마를 선택합니다. 소스를 선택하지 않으면 기본",
+        sourceHelpSuffix: "연결 스키마가 사용됩니다.",
+      },
+      instructions: {
+        title: "Athena에서 어휘 ZIP을 받는 방법",
+        signInPrefix: "",
+        signInSuffix: "에 방문해 로그인하세요.",
+        selectDomains:
+          "필요한 어휘 도메인과 버전을 선택하세요(예: SNOMED, RxNorm, LOINC).",
+        clickPrefix: "",
+        downloadVocabularies: "Download Vocabularies",
+        clickSuffix: "를 클릭하면 Athena가 다운로드 링크를 이메일로 보냅니다.",
+        uploadZip:
+          "ZIP 파일(일반적으로 500 MB-3 GB)을 다운로드하여 아래에 업로드하세요.",
+      },
+      messages: {
+        deleteConfirm: "이 가져오기 기록을 삭제하시겠습니까?",
+        uploadFailed: "업로드 실패: {{message}}",
+        unknownError: "알 수 없는 오류",
+        uploadSuccess:
+          "ZIP이 성공적으로 업로드되었습니다. 가져오기 작업이 대기열에 추가되었습니다. 아래에서 진행 상황을 확인하세요.",
+        importRunning:
+          "가져오기가 현재 실행 중입니다. 완료될 때까지 새 업로드가 비활성화됩니다.",
+      },
+      history: {
+        title: "가져오기 이력",
+        loading: "불러오는 중...",
+        empty:
+          "아직 어휘 가져오기가 없습니다. 시작하려면 위에서 Athena ZIP을 업로드하세요.",
+      },
+    },
+    systemHealth: {
+      title: "시스템 상태",
+      subtitle:
+        "모든 Parthenon 서비스의 실시간 상태입니다. 30초마다 자동 새로고침됩니다.",
+      serverStatus: "서버 상태",
+      lastChecked: "{{time}}에 마지막 확인",
+      polling: "서비스를 확인하는 중...",
+      gisDataManagement: "GIS 데이터 관리",
+      status: {
+        healthy: "정상",
+        degraded: "성능 저하",
+        down: "중단",
+      },
+      overall: {
+        healthy: "정상",
+        needsAttention: "주의 필요",
+      },
+      labels: {
+        pending: "대기:",
+        failed: "실패:",
+        cores: "코어:",
+        documents: "문서:",
+        dagster: "Dagster:",
+        graphql: "GraphQL:",
+        studies: "검사:",
+        instances: "인스턴스:",
+        disk: "디스크:",
+      },
+      actions: {
+        refresh: "새로고침",
+        openService: "서비스 열기",
+        viewDetails: "세부 정보 보기",
+      },
+      tiers: {
+        corePlatform: "핵심 플랫폼",
+        dataSearch: "데이터 및 검색",
+        aiAnalytics: "AI 및 분석",
+        clinicalServices: "임상 서비스",
+        monitoringCommunications: "모니터링 및 커뮤니케이션",
+        acropolisInfrastructure: "Acropolis 인프라",
+        unknown: "기타 서비스",
+      },
+      hades: {
+        title: "OHDSI 패키지 동등성",
+        subtitle:
+          "일급 네이티브 및 호환성 작업을 위한 Darkstar 패키지 커버리지입니다.",
+        checking: "Darkstar 패키지를 확인하는 중...",
+        unavailable: "Darkstar 패키지 인벤토리를 사용할 수 없습니다.",
+        installed: "설치됨:",
+        missing: "누락:",
+        total: "전체:",
+        requiredMissing: "필수 누락:",
+        shinyPolicy: "레거시 Shiny 정책",
+        notExposed: "노출되지 않음",
+        shinyPolicyDescription:
+          "호스팅된 Shiny 앱, iframe 임베딩, 사용자 제공 앱 경로는 비활성화되어 있습니다. OHDSI Shiny 패키지는 런타임 호환성 아티팩트로만 유지됩니다.",
+        replacement: "대체 항목: {{surface}}",
+        package: "패키지",
+        capability: "역량",
+        priority: "우선순위",
+        surface: "표면",
+        source: "소스",
+        runtime: "런타임",
+        status: {
+          complete: "완료",
+          partial: "부분",
+        },
+      },
+    },
+    fhirSync: {
+      title: "FHIR 동기화 모니터",
+      subtitle: "모든 FHIR 연결의 ETL 파이프라인을 실시간으로 모니터링합니다",
+      status: {
+        completed: "완료됨",
+        running: "실행 중",
+        pending: "대기 중",
+        exporting: "내보내는 중",
+        downloading: "다운로드 중",
+        processing: "처리 중",
+        failed: "실패",
+      },
+      timeline: {
+        empty: "최근 30일 동안 동기화 활동이 없습니다",
+        tooltip: "{{date}}: 완료 {{completed}}개, 실패 {{failed}}개",
+        hoverSummary: "정상 {{completed}}개 / 실패 {{failed}}개",
+      },
+      metrics: {
+        extracted: "추출됨",
+        mapped: "매핑됨",
+        written: "기록됨",
+        failed: "실패",
+        averageMappingCoverage: "평균 매핑 커버리지",
+      },
+      actions: {
+        viewError: "오류 보기",
+      },
+      values: {
+        runs: "실행 {{count}}회",
+        never: "없음",
+        activeRuns: "활성 {{count}}개",
+        refreshInterval: "{{seconds}}초마다 새로고침",
+        allTimeTotals: "전체 기간 합계",
+        lastRuns: "모든 연결의 최근 20개",
+      },
+      messages: {
+        failedToLoad: "대시보드 데이터를 불러오지 못했습니다.",
+        noConnections: "구성된 연결이 없습니다",
+        noRuns: "아직 동기화 실행이 없습니다",
+      },
+      stats: {
+        connections: "연결",
+        totalRuns: "전체 실행",
+        completed: "완료됨",
+        failed: "실패",
+        recordsWritten: "기록된 레코드",
+        avgCoverage: "평균 커버리지",
+      },
+      panels: {
+        pipelineThroughput: "파이프라인 처리량",
+        syncActivity: "동기화 활동(30일)",
+        connectionHealth: "연결 상태",
+        recentRuns: "최근 동기화 실행",
+      },
+      table: {
+        status: "상태",
+        connection: "연결",
+        started: "시작",
+        duration: "소요 시간",
+        metrics: "지표",
+      },
+    },
+    gisData: {
+      title: "GIS 경계 데이터",
+      subtitle: "GIS Explorer용 지리 경계 데이터셋을 관리합니다",
+      status: {
+        loaded: "로드됨",
+        empty: "비어 있음",
+      },
+      tabs: {
+        boundaries: "경계",
+        dataImport: "데이터 가져오기",
+      },
+      messages: {
+        checking: "경계 데이터를 확인하는 중...",
+        noBoundaryData:
+          "로드된 경계 데이터가 없습니다. 시작하려면 아래에서 소스와 수준을 선택하세요.",
+      },
+      labels: {
+        boundaries: "경계:",
+        countries: "국가:",
+      },
+      load: {
+        title: "경계 로드",
+        adminLevels: "로드할 행정 수준:",
+      },
+      sources: {
+        gadm: {
+          name: "GADM v4.1",
+          description: "전 세계 행정 구역: 6개 행정 수준에 걸친 356K 경계",
+        },
+        geoboundaries: {
+          name: "geoBoundaries CGAZ",
+          description: "지도 일관성을 위한 단순화된 경계(ADM0-2)",
+        },
+      },
+      levels: {
+        adm0: "국가(ADM0)",
+        adm1: "주 / 도(ADM1)",
+        adm2: "구 / 군(ADM2)",
+        adm3: "하위 구역(ADM3)",
+      },
+      actions: {
+        preparing: "준비 중...",
+        generateLoadCommand: "로드 명령 생성",
+        refreshStats: "통계 새로고침",
+        copyToClipboard: "클립보드에 복사",
+        close: "닫기",
+      },
+      modal: {
+        runOnHost: "호스트에서 실행",
+        description:
+          "GIS 데이터는 로컬 PostgreSQL 17에 직접 로드됩니다. 프로젝트 루트에서 이 명령을 실행하세요.",
+        datasetFlagPrefix: "",
+        datasetFlagSuffix:
+          "플래그는 진행률 추적을 활성화합니다. 스크립트가 완료된 뒤 통계를 새로고침하세요.",
+      },
+      job: {
+        title: "GIS 경계 로드 중",
+        description: "소스: {{source}} | 수준: {{levels}}",
+      },
+      values: {
+        all: "전체",
+      },
+    },
     honestBroker: {
       title: "정직한 중개인",
       subtitle:

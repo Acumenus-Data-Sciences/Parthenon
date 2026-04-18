@@ -1,33 +1,36 @@
 import { useState } from "react";
 import { Globe, Database, Loader2, RefreshCw, Terminal, Copy, Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Panel, Badge, Button, JobProgressModal } from "@/components/ui";
 import { useGisStats, useLoadDataset, useDatasetStatus } from "@/features/gis/hooks/useGis";
 import type { AdminLevel } from "@/features/gis/types";
+import { formatNumber } from "@/i18n/format";
 import { ImportWizard } from "./gis-import/ImportWizard";
 
 const SOURCES = [
   {
     id: "gadm",
-    name: "GADM v4.1",
-    description: "Global Administrative Areas — 356K boundaries across 6 admin levels",
+    nameKey: "gadm",
+    descriptionKey: "gadm",
     size: "2.6 GB",
   },
   {
     id: "geoboundaries",
-    name: "geoBoundaries CGAZ",
-    description: "Simplified boundaries for cartographic consistency (ADM0-2)",
+    nameKey: "geoboundaries",
+    descriptionKey: "geoboundaries",
     size: "1.2 GB",
   },
 ] as const;
 
-const LEVEL_OPTIONS: { value: AdminLevel; label: string }[] = [
-  { value: "ADM0", label: "Countries (ADM0)" },
-  { value: "ADM1", label: "States / Provinces (ADM1)" },
-  { value: "ADM2", label: "Districts / Counties (ADM2)" },
-  { value: "ADM3", label: "Sub-districts (ADM3)" },
+const LEVEL_OPTIONS: { value: AdminLevel; labelKey: string }[] = [
+  { value: "ADM0", labelKey: "adm0" },
+  { value: "ADM1", labelKey: "adm1" },
+  { value: "ADM2", labelKey: "adm2" },
+  { value: "ADM3", labelKey: "adm3" },
 ];
 
 export function GisDataPanel() {
+  const { t } = useTranslation("app");
   const { data: stats, isLoading: statsLoading, refetch } = useGisStats();
   const loadMutation = useLoadDataset();
 
@@ -88,14 +91,16 @@ export function GisDataPanel() {
         <div className="flex items-center gap-3">
           <Globe className="h-5 w-5 text-accent" />
           <div>
-            <p className="font-semibold text-foreground">GIS Boundary Data</p>
+            <p className="font-semibold text-foreground">{t("administration.gisData.title")}</p>
             <p className="mt-0.5 text-sm text-muted-foreground">
-              Manage geographic boundary datasets for the GIS Explorer
+              {t("administration.gisData.subtitle")}
             </p>
           </div>
         </div>
         <Badge variant={hasBoundaries ? "success" : "warning"}>
-          {hasBoundaries ? "loaded" : "empty"}
+          {hasBoundaries
+            ? t("administration.gisData.status.loaded")
+            : t("administration.gisData.status.empty")}
         </Badge>
       </div>
 
@@ -109,7 +114,7 @@ export function GisDataPanel() {
               : "text-text-ghost hover:text-text-muted"
           }`}
         >
-          Boundaries
+          {t("administration.gisData.tabs.boundaries")}
         </button>
         <button
           onClick={() => setActiveTab("import")}
@@ -119,7 +124,7 @@ export function GisDataPanel() {
               : "text-text-ghost hover:text-text-muted"
           }`}
         >
-          Data Import
+          {t("administration.gisData.tabs.dataImport")}
         </button>
       </div>
 
@@ -135,21 +140,21 @@ export function GisDataPanel() {
       {statsLoading ? (
         <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-3 w-3 animate-spin" />
-          Checking boundary data...
+          {t("administration.gisData.messages.checking")}
         </div>
       ) : stats && hasBoundaries ? (
         <div className="mt-3 space-y-2">
           <div className="flex gap-4 text-sm">
             <span className="text-muted-foreground">
-              Boundaries:{" "}
+              {t("administration.gisData.labels.boundaries")}{" "}
               <span className="font-medium text-foreground">
-                {stats.total_boundaries.toLocaleString()}
+                {formatNumber(stats.total_boundaries)}
               </span>
             </span>
             <span className="text-muted-foreground">
-              Countries:{" "}
+              {t("administration.gisData.labels.countries")}{" "}
               <span className="font-medium text-foreground">
-                {stats.total_countries}
+                {formatNumber(stats.total_countries)}
               </span>
             </span>
           </div>
@@ -161,21 +166,21 @@ export function GisDataPanel() {
                   key={l.code}
                   className="rounded bg-surface-elevated px-2 py-0.5 text-xs text-text-muted"
                 >
-                  {l.label}: {l.count.toLocaleString()}
+                  {l.label}: {formatNumber(l.count)}
                 </span>
               ))}
           </div>
         </div>
       ) : (
         <p className="mt-3 text-sm text-muted-foreground">
-          No boundary data loaded. Select a source and levels below to begin.
+          {t("administration.gisData.messages.noBoundaryData")}
         </p>
       )}
 
       {/* Load controls */}
       <div className="mt-4 space-y-3 rounded-lg border border-border-default bg-surface-base p-3">
         <h4 className="text-xs font-semibold uppercase tracking-wider text-text-ghost">
-          Load Boundaries
+          {t("administration.gisData.load.title")}
         </h4>
 
         {/* Source selector */}
@@ -198,9 +203,9 @@ export function GisDataPanel() {
                 className="mt-0.5 accent-accent"
               />
               <div>
-                <p className="text-sm font-medium text-text-primary">{src.name}</p>
+                <p className="text-sm font-medium text-text-primary">{t(`administration.gisData.sources.${src.nameKey}.name`)}</p>
                 <p className="text-xs text-text-ghost">
-                  {src.description} ({src.size})
+                  {t(`administration.gisData.sources.${src.descriptionKey}.description`)} ({src.size})
                 </p>
               </div>
             </label>
@@ -209,7 +214,7 @@ export function GisDataPanel() {
 
         {/* Level selector */}
         <div>
-          <p className="mb-1.5 text-xs text-text-muted">Admin levels to load:</p>
+          <p className="mb-1.5 text-xs text-text-muted">{t("administration.gisData.load.adminLevels")}</p>
           <div className="flex flex-wrap gap-2">
             {LEVEL_OPTIONS.map((opt) => (
               <button
@@ -221,7 +226,7 @@ export function GisDataPanel() {
                     : "bg-surface-elevated text-text-ghost hover:text-text-muted"
                 }`}
               >
-                {opt.label}
+                {t(`administration.gisData.levels.${opt.labelKey}`)}
               </button>
             ))}
           </div>
@@ -238,12 +243,12 @@ export function GisDataPanel() {
             {loadMutation.isPending ? (
               <>
                 <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                Preparing...
+                {t("administration.gisData.actions.preparing")}
               </>
             ) : (
               <>
                 <Database className="mr-1 h-3 w-3" />
-                Generate Load Command
+                {t("administration.gisData.actions.generateLoadCommand")}
               </>
             )}
           </Button>
@@ -255,7 +260,7 @@ export function GisDataPanel() {
               onClick={() => refetch()}
             >
               <RefreshCw className="mr-1 h-3 w-3" />
-              Refresh Stats
+              {t("administration.gisData.actions.refreshStats")}
             </Button>
           )}
         </div>
@@ -267,11 +272,10 @@ export function GisDataPanel() {
           <div className="mx-4 w-full max-w-lg rounded-lg border border-border-default bg-surface-raised p-6 shadow-2xl">
             <div className="flex items-center gap-2 text-accent">
               <Terminal className="h-5 w-5" />
-              <h3 className="text-lg font-semibold">Run on Host</h3>
+              <h3 className="text-lg font-semibold">{t("administration.gisData.modal.runOnHost")}</h3>
             </div>
             <p className="mt-2 text-sm text-text-muted">
-              GIS data loads directly to local PostgreSQL 17. Run this command from
-              the project root:
+              {t("administration.gisData.modal.description")}
             </p>
             <div className="group mt-3 flex items-start gap-2 rounded-lg border border-border-default bg-surface-base p-3">
               <code className="flex-1 break-all text-sm text-success">
@@ -280,7 +284,7 @@ export function GisDataPanel() {
               <button
                 onClick={handleCopy}
                 className="shrink-0 rounded p-1 text-text-ghost hover:text-accent"
-                title="Copy to clipboard"
+                title={t("administration.gisData.actions.copyToClipboard")}
               >
                 {copied ? (
                   <Check className="h-4 w-4 text-emerald-400" />
@@ -290,12 +294,13 @@ export function GisDataPanel() {
               </button>
             </div>
             <p className="mt-3 text-xs text-text-ghost">
-              The <code className="text-text-muted">--dataset-id</code> flag enables
-              progress tracking. Refresh stats after the script completes.
+              {t("administration.gisData.modal.datasetFlagPrefix")}{" "}
+              <code className="text-text-muted">--dataset-id</code>{" "}
+              {t("administration.gisData.modal.datasetFlagSuffix")}
             </p>
             <div className="mt-4 flex justify-end gap-2">
               <Button variant="secondary" size="sm" onClick={handleModalClose}>
-                Close
+                {t("administration.gisData.actions.close")}
               </Button>
             </div>
           </div>
@@ -307,8 +312,11 @@ export function GisDataPanel() {
         <JobProgressModal
           open={modalOpen && !cliCommand}
           onClose={handleModalClose}
-          title="Loading GIS Boundaries"
-          description={`Source: ${job.source} | Levels: ${job.levels_requested?.join(", ") ?? "all"}`}
+          title={t("administration.gisData.job.title")}
+          description={t("administration.gisData.job.description", {
+            source: job.source,
+            levels: job.levels_requested?.join(", ") ?? t("administration.gisData.values.all"),
+          })}
           status={jobStatus as "pending" | "running" | "completed" | "failed"}
           progress={jobProgress}
           logOutput={job.log_output}
