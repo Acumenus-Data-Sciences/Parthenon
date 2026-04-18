@@ -138,8 +138,18 @@ it('does NOT cache non-successful responses', function () {
 })->skip(fn () => ! finngenIdemRedisAvailable(), 'Redis not available');
 
 it('TTL is configurable via finngen.idempotency_ttl_seconds', function () {
+    // Redis SETNX (used by the idempotency store to claim the key) is a no-op
+    // when the key already exists — so the TTL from a stale prior test run
+    // would persist. beforeEach's `finngen:idem:*` sweep normally handles
+    // this, but Redis key-space prefixing under phpunit can miss keys that
+    // other middlewares write without the expected prefix. Belt-and-suspenders:
+    // explicitly DEL the exact key this test will claim.
+    Redis::connection()->del("finngen:idem:{$this->user->id}:ttl-key");
+    Redis::connection()->del("finngen:idem:{$this->user->id}:ttl-key:response");
+
     config(['finngen.idempotency_ttl_seconds' => 999]);
     app()->forgetInstance(FinnGenIdempotencyStore::class);
+    app()->forgetInstance(EnforceFinnGenIdempotency::class);
     app()->singleton(FinnGenIdempotencyStore::class, fn () => new FinnGenIdempotencyStore(999));
     $middleware = app(EnforceFinnGenIdempotency::class);
 
