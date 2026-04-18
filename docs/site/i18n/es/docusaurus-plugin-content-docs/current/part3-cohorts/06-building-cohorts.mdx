@@ -1,0 +1,270 @@
+---
+id: 06-building-cohorts
+title: "6. Construcción de cohortes"
+sidebar_label: "6. Construcción de cohortes"
+---
+
+# Construcción de cohortes
+
+Este capítulo le guía por la creación de una definición completa de cohorte en Parthenon usando el constructor visual de cohortes. El constructor proporciona una interfaz estructurada basada en formularios para construir expresiones de cohorte CIRCE sin escribir JSON ni SQL. Si es nuevo en los conceptos de cohortes OMOP, lea primero el [Capítulo 5 --- Expresiones de cohortes](05-cohort-expressions).
+
+---
+
+## Crear una nueva definición de cohorte
+
+1. Vaya a **Cohorts** en la barra superior.
+2. Haga clic en **New Cohort Definition**.
+3. Ingrese un **Name**, por ejemplo "T2DM New Users --- Metformin", y una **Description** opcional.
+4. El constructor de cohortes se abre con secciones colapsables para cada parte de la expresión de cohorte.
+
+El constructor se organiza en las siguientes secciones, cada una representada como un panel colapsable:
+
+| Sección | Icono | Propósito |
+|---|---|---|
+| Primary Criteria | Target | Definir el evento índice |
+| Inclusion Rules | Filter | Agregar criterios de calificación |
+| End Strategy | Clock | Configurar la salida de la cohorte |
+| Demographic Filters | Users | Edad, género, raza, etnicidad |
+| Censoring Criteria | Shield | Eventos que terminan la observación |
+| Genomic Criteria | DNA | Filtros de biomarcadores moleculares |
+| Imaging Criteria | Scan | Filtros basados en imágenes DICOM |
+| Settings | Settings | Límites de calificación/expresión, colapso |
+
+---
+
+## Pestaña 1: evento índice (Primary Criteria)
+
+La pestaña de evento índice es donde define el evento clínico que califica a un paciente para entrar en la cohorte. Esta es la decisión más crítica en el diseño de cohortes.
+
+### Agregar un evento primario
+
+1. Expanda la sección **Primary Criteria** (abierta por defecto).
+2. Haga clic en **Add Primary Event** para agregar un criterio de dominio.
+3. Seleccione el **Domain** en el selector de dominio:
+   - Condition Occurrence
+   - Drug Exposure
+   - Procedure Occurrence
+   - Measurement
+   - Observation
+   - Visit Occurrence
+   - Death
+4. Adjunte un **Concept Set** seleccionando uno existente o creando uno nuevo en línea.
+
+### Configurar filtros específicos de dominio
+
+Cada dominio ofrece opciones de filtro específicas:
+
+**Todos los dominios:**
+
+- **First occurrence only**: restringe al evento calificado cronológicamente más temprano por paciente. Esencial para diseños de cohortes de nuevos usuarios/incidentes.
+- **Date range**: limita eventos a una ventana calendario específica, útil para estudios con periodos de inscripción.
+- **Age at event**: filtro de rango numérico sobre la edad del paciente en el momento del evento.
+
+**Específicos de Measurement:**
+
+- **Value as number**: aplica un umbral numérico, por ejemplo HbA1c >= 7.0. Operadores: `>`, `>=`, `<`, `<=`, `=`, `between`.
+- **Value as concept**: filtra por concepto de resultado, por ejemplo "Positive" o "Abnormal".
+- **Unit**: restringe a mediciones con unidades específicas.
+
+**Específicos de Visit:**
+
+- **Visit type**: requiere que el evento ocurra durante un contexto de visita específico, como inpatient, outpatient, ED o long-term care.
+
+### Configurar la ventana de observación
+
+Debajo de los criterios de evento primario, configure la observación continua requerida:
+
+- **Prior days**: días mínimos de observación continua _antes_ de la fecha índice, por ejemplo 365 días para un periodo de retrospectiva adecuado.
+- **Post days**: días mínimos de observación continua _después_ de la fecha índice, por ejemplo 0 si no hay requisito mínimo de seguimiento.
+
+:::warning La ventana de observación afecta el tamaño de la cohorte
+Exigir ventanas de observación largas, por ejemplo 730 días previos, reduce significativamente el tamaño de la cohorte porque los pacientes deben tener inscripción ininterrumpida durante todo el periodo. En bases de datos de reclamaciones con inscripción anual, incluso 365 días pueden causar una atrición sustancial. Revise los patrones de inscripción de su fuente de datos antes de definir ventanas largas.
+:::
+
+---
+
+## Pestaña 2: reglas de inclusión
+
+Las reglas de inclusión refinan la cohorte al exigir o prohibir eventos clínicos adicionales relativos a la fecha índice. Cada regla tiene nombre y aparece como una fila en el reporte de atrición, lo que facilita entender qué criterios causan la mayor pérdida de pacientes.
+
+### Agregar una regla de inclusión
+
+1. Expanda la sección **Inclusion Rules**.
+2. Haga clic en **+ Add Inclusion Rule**.
+3. Ingrese un **Rule Name** descriptivo, por ejemplo "Has prior T2DM diagnosis" o "No prior insulin use". Este nombre aparece en el reporte de atrición, así que la claridad importa.
+4. Configure la **Group Logic**:
+   - **ALL**: todos los criterios de esta regla deben cumplirse.
+   - **ANY**: al menos un criterio debe cumplirse.
+   - **AT_MOST_0**: ningún criterio debe cumplirse (lógica de exclusión).
+
+### Agregar criterios a una regla
+
+Para cada criterio dentro de una regla:
+
+1. Haga clic en **Add Criteria**.
+2. Seleccione el **Domain** (Condition, Drug, Procedure, Measurement, etc.).
+3. Adjunte un **Concept Set**.
+4. Configure la **Temporal Window**: días relativos a la fecha índice:
+   - Días de inicio y fin con dirección (antes del índice = coeficiente negativo, después = positivo).
+   - Ejemplo: Start = 365 days before, End = 1 day before significa la ventana `[-365, -1]`.
+5. Configure el **Occurrence Count**:
+   - `At least N` (type 2): por ejemplo, "at least 1 diagnosis".
+   - `Exactly N` (type 0): por ejemplo, "exactly 0 prior exposures" para washout.
+   - `At most N` (type 1): por ejemplo, "at most 2 prior visits".
+
+### Anidar grupos de criterios
+
+Para lógica compleja, puede anidar grupos dentro de una regla. Haga clic en **Add Group** dentro de un grupo existente para crear un subgrupo con su propia lógica ALL/ANY/AT_MOST_0. Esto permite expresiones como:
+
+> "Has at least 1 T2DM diagnosis in the prior year AND (has HbA1c >= 7 OR has fasting glucose >= 126 mg/dL)"
+
+### Patrones comunes de reglas de inclusión
+
+| Patrón | Nombre de regla | Configuración |
+|---|---|---|
+| **Diagnóstico previo** | "Has prior T2DM" | At least 1 ConditionOccurrence en el conjunto T2DM, [-365, -1] |
+| **Washout de nuevo usuario** | "No prior metformin" | Exactly 0 DrugExposure en el conjunto metformin, [-365, -1] |
+| **Seguimiento mínimo** | "365 days follow-up" | Al menos 365 días de observación después del índice |
+| **Restricción de edad** | "Adults only" | Filtro demográfico: age >= 18 en índice |
+| **Excluir historial de desenlace** | "No prior MI" | Group type AT_MOST_0: ConditionOccurrence en conjunto MI, [-9999, -1] |
+| **Requerir valor de laboratorio** | "Has baseline HbA1c" | At least 1 Measurement en conjunto HbA1c con valor, [-180, 0] |
+| **Solo hospitalización** | "Inpatient setting" | At least 1 VisitOccurrence de tipo Inpatient, [0, 0] |
+
+:::tip Orden de reglas para atrición
+Ordene sus reglas de inclusión de menos a más restrictivas. Esto produce una cascada de atrición donde las caídas más grandes aparecen al final, lo que facilita identificar qué criterios limitan más. Si una regla elimina el 90% de los pacientes y aparece primero, las reglas posteriores mostrarán caídas engañosamente pequeñas.
+:::
+
+---
+
+## Pestaña 3: salida de cohorte
+
+La estrategia de salida determina cuándo termina el periodo de pertenencia de cada paciente a la cohorte. Esto afecta directamente el `cohort_end_date` escrito en la tabla de resultados.
+
+### Opciones de estrategia de salida
+
+1. **End of continuous observation** (predeterminado)
+   - El paciente permanece en la cohorte hasta que termina su periodo de observación continua, por ejemplo cuando pierde cobertura de seguro, deja el sistema de salud o termina la cobertura de la base de datos.
+   - Es la opción más común para estudios farmacoepidemiológicos.
+
+2. **Fixed duration after index**
+   - Defina un número fijo de días después de la fecha índice.
+   - Elija el ancla: `StartDate` (fecha índice) o `EndDate` (fin del evento índice).
+   - Ejemplo: 90 días después del inicio de dispensación de un medicamento para una ventana de desenlace de 90 días.
+
+3. **Drug era end**
+   - Seleccione un conjunto de conceptos de medicamentos y configure:
+     - **Gap days**: brecha máxima permitida entre exposiciones consecutivas antes de considerar terminada la era, por ejemplo 30 días para permitir brechas de reposición.
+     - **Offset**: días que se agregan después de la fecha de fin de la era, por ejemplo 30 para capturar eventos poco después de la discontinuación.
+   - Ideal para cohortes de tratamiento donde la pertenencia debe coincidir con terapia activa.
+
+:::info No hay salida basada en evento en el constructor
+Aunque la especificación CIRCE admite salida basada en evento (la cohorte termina cuando ocurre un evento clínico específico), Parthenon actualmente implementa esta lógica mediante criterios de censura en lugar de un panel separado de salida por evento. Agregue criterios de censura para eventos como muerte o riesgos competitivos.
+:::
+
+---
+
+## Secciones de configuración adicional
+
+### Filtros demográficos
+
+Expanda la sección **Demographic Filters** para agregar restricciones a nivel de paciente:
+
+- **Age**: rango numérico en la fecha índice, por ejemplo 18 a 89.
+- **Gender**: seleccione Male, Female o ambos.
+- **Race**: seleccione uno o más conceptos OMOP de raza.
+- **Ethnicity**: seleccione uno o más conceptos OMOP de etnicidad.
+
+Estos filtros se aplican independientemente de las reglas de inclusión y no aparecen en la cascada de atrición.
+
+### Criterios de censura
+
+Expanda la sección **Censoring Criteria** para definir eventos que terminan la observación de cohorte de un paciente incluso si su observación continua no ha terminado:
+
+- Agregue criterios de dominio (la misma interfaz que primary criteria) para eventos como muerte, trasplante o cambio de tratamiento.
+- Los pacientes se censuran en la primera aparición de cualquier evento de censura.
+
+### Settings (Limits and Collapse)
+
+Expanda la sección **Settings** para configurar:
+
+- **Qualified Limit**: `First` (solo el evento calificado más temprano por paciente) o `All` (todos los eventos calificados). Predeterminado: `First`.
+- **Expression Limit**: `First` (conservar el primer evento que sobrevive las reglas de inclusión) o `All`. Predeterminado: `First`.
+- **Collapse Settings**: habilita el colapso de eras con un `EraPad` configurable (brecha en días). Cuando está habilitado, periodos de entrada de cohorte adyacentes separados por menos de `EraPad` días se fusionan en un único periodo continuo.
+
+---
+
+## Panel de criterios genómicos (Phase 15)
+
+La sección **Genomic Criteria** permite agregar filtros de biomarcadores moleculares a la definición de cohorte. Esto extiende el formato CIRCE estándar para investigación en medicina de precisión.
+
+Tipos de criterio disponibles:
+
+- **Gene mutation**: requiere o excluye una variante genética específica, por ejemplo EGFR L858R.
+- **Tumor mutational burden (TMB)**: umbral sobre mutaciones por megabase.
+- **Microsatellite instability (MSI)**: filtro de estado (MSS, MSI-L, MSI-H).
+- **Gene fusion**: requiere un evento de fusión específico, por ejemplo ALK-EML4.
+- **Pathogenicity**: filtro de clasificación ClinVar.
+
+Cada criterio puede alternarse entre modo de inclusión y exclusión.
+
+---
+
+## Panel de criterios de imágenes (Phase 16)
+
+La sección **Imaging Criteria** agrega filtros basados en imágenes DICOM a las definiciones de cohortes. Esto es especialmente útil para oncología, radiología y estudios de investigación multimodales.
+
+Tipos de criterio disponibles:
+
+- **Modality**: filtra por modalidad de imagen (CT, MRI, PET, X-Ray, Ultrasound).
+- **Anatomy**: filtra por parte del cuerpo examinada.
+- **Quantitative**: umbral sobre características de radiomics, por ejemplo volumen tumoral > 2 cm.
+- **AI classification**: requiere una clasificación específica de modelo de IA con confianza mínima.
+- **Dose**: restricción de dosis máxima de radiación.
+
+:::info Requisitos de datos de imágenes
+Los criterios de imágenes requieren que los metadatos DICOM se carguen en las tablas de extensión CDM. Si la fuente de datos no incluye datos de imágenes, estos criterios coincidirán con cero pacientes. La canalización de datos de imágenes se configura en **Admin > Imaging Sources**.
+:::
+
+---
+
+## Pestaña Population Analytics (Phase 16)
+
+Después de definir su cohorte y generarla contra una fuente de datos, la pestaña **Population Analytics** proporciona estadísticas agregadas sobre la cohorte generada:
+
+- Distribución de edad y género.
+- Cobertura del periodo de observación.
+- Distribución geográfica, si está disponible.
+- Tendencias temporales de entrada a la cohorte a lo largo del calendario.
+
+Esta pestaña es de solo lectura y refleja los resultados de la generación más reciente. Ayuda a validar rápidamente que la composición de la cohorte coincide con las expectativas antes de avanzar a los análisis.
+
+---
+
+## Guardado y versionado
+
+Haga clic en **Save** para persistir la definición de cohorte. Comportamientos clave:
+
+- La definición se guarda como JSON CIRCE en la columna `expression_json` de la tabla `cohort_definitions`.
+- Cada guardado incrementa el número de `version`.
+- La definición en sí **no contiene datos de pacientes**: es puramente una especificación. Los datos de pacientes solo se producen durante la generación.
+- Las definiciones guardadas pueden hacerse públicas (visibles para todos los usuarios) o mantenerse privadas.
+
+:::tip Convenciones de nombres
+Use una convención de nombres consistente para las definiciones de cohortes. Un formato recomendado:
+
+```
+[Phenotype] --- [Design variant] --- [Version]
+```
+
+Ejemplos:
+
+- `GI Hemorrhage --- Inpatient only --- v2`
+- `T2DM New Users --- 365d washout --- v1`
+- `NSCLC EGFR+ --- First-line --- v3`
+
+Esto facilita rastrear reportes de atrición, referencias de estudio y publicaciones hasta definiciones específicas.
+:::
+
+:::danger No modifique cohortes generadas
+Una vez que una cohorte se ha generado y usado en análisis posteriores, modificar la definición y regenerarla invalidará todos los resultados de análisis que la referencian. Clone la definición y cree una nueva versión en su lugar.
+:::
