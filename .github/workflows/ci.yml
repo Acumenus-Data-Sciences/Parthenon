@@ -60,6 +60,14 @@ jobs:
           psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS app;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS php;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS omop;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS vocab;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS results;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS gis;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS eunomia;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS finngen;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS inpatient;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS inpatient_ext;"
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
