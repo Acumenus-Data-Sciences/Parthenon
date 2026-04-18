@@ -1,4 +1,44 @@
 ## ──────────────────────────────────────────────────────────────────
+## Stage 0a: regenie v4.1 builder (Phase 14 D-14, D-23)
+##           Isolated from the HADES layers so R-package changes
+##           don't re-download the regenie binary. Mirrors
+##           docker/regenie/Dockerfile but inlined to keep Darkstar's
+##           build graph self-contained (multi-stage COPY below).
+##           Non-root posture is enforced by the Darkstar runtime
+##           stage (USER ruser via s6-setuidgid) per HIGHSEC §4.1.
+## ──────────────────────────────────────────────────────────────────
+FROM debian:12-slim AS regenie-builder
+ARG REGENIE_VERSION=v4.1
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        curl ca-certificates unzip \
+    && rm -rf /var/lib/apt/lists/*
+RUN curl -fL -o /tmp/regenie.zip \
+        "https://github.com/rgcgithub/regenie/releases/download/${REGENIE_VERSION}/regenie_${REGENIE_VERSION}.gz_x86_64_Linux.zip" \
+    && unzip /tmp/regenie.zip -d /opt/regenie \
+    && chmod +x "/opt/regenie/regenie_${REGENIE_VERSION}.gz_x86_64_Linux" \
+    && ln -s "/opt/regenie/regenie_${REGENIE_VERSION}.gz_x86_64_Linux" /opt/regenie/regenie \
+    && rm /tmp/regenie.zip
+
+## ──────────────────────────────────────────────────────────────────
+## Stage 0b: PLINK2 alpha 6.33 builder (Phase 14)
+##           Needed by the Phase 14-04 PrepareSourceVariantsCommand for
+##           VCF→PGEN conversion and PCA; also available to the R worker
+##           for any ad-hoc variant-set operations.
+##           S3 asset path moved to plink2-assets/alpha6/ in 2026-03;
+##           mirrors docker/regenie/Dockerfile A2 fix.
+## ──────────────────────────────────────────────────────────────────
+FROM debian:12-slim AS plink2-builder
+ARG PLINK2_DATE=20260228
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        curl ca-certificates unzip \
+    && rm -rf /var/lib/apt/lists/*
+RUN curl -fL -o /tmp/plink2.zip \
+        "https://s3.amazonaws.com/plink2-assets/alpha6/plink2_linux_avx2_${PLINK2_DATE}.zip" \
+    && unzip /tmp/plink2.zip -d /opt/plink2 \
+    && chmod +x /opt/plink2/plink2 \
+    && rm /tmp/plink2.zip
+
+## ──────────────────────────────────────────────────────────────────
 ## Stage 1: HADES dependency layer (cached — only rebuilds when
 ##           packages change, not on every code edit)
 ## ──────────────────────────────────────────────────────────────────
@@ -56,7 +96,7 @@ RUN R -e " \
     CRAN  = 'https://cloud.r-project.org' \
   )); \
   install.packages('remotes'); \
-  install.packages(c('plumber2', 'mirai', 'nanonext', 'jsonlite', 'DBI', 'RPostgres', 'httr2', 'callr', 'processx')); \
+  install.packages(c('plumber2', 'mirai', 'nanonext', 'jsonlite', 'DBI', 'RPostgres', 'httr2', 'callr', 'processx', 'digest')); \
   remotes::install_version('ParallelLogger', version = '3.5.1', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
   install.packages(c('rJava', 'duckdb')); \
   if (!requireNamespace('plumber2', quietly = TRUE)) stop('plumber2 failed'); \
