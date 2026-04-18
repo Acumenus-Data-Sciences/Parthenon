@@ -30,6 +30,23 @@ struct CheckResult {
     detail: String,
 }
 
+#[derive(Debug, Deserialize)]
+struct ContractPreflightPayload {
+    preflight: ContractPreflight,
+}
+
+#[derive(Debug, Deserialize)]
+struct ContractPreflight {
+    checks: Vec<ContractCheck>,
+}
+
+#[derive(Debug, Deserialize)]
+struct ContractCheck {
+    name: String,
+    status: String,
+    detail: String,
+}
+
 #[derive(Clone, Debug, Serialize)]
 struct InstallEvent {
     stream: String,
@@ -78,6 +95,28 @@ fn bootstrap() -> BootstrapPayload {
 
 #[tauri::command]
 fn validate_environment(request: InstallRequest) -> Vec<CheckResult> {
+    match contract_validation_check(&request) {
+        Ok(validation_check) => match contract_preflight_checks(&request) {
+            Ok(mut checks) => {
+                checks.insert(0, validation_check);
+                checks
+            }
+            Err(err) => {
+                let mut checks = fallback_environment_checks(&request);
+                checks.push(validation_check);
+                checks.push(CheckResult::fail("Python installer preflight", err));
+                checks
+            }
+        },
+        Err(err) => {
+            let mut checks = fallback_environment_checks(&request);
+            checks.push(CheckResult::fail("Python installer validation", err));
+            checks
+        }
+    }
+}
+
+fn fallback_environment_checks(request: &InstallRequest) -> Vec<CheckResult> {
     let mut checks = Vec::new();
 
     if cfg!(target_os = "windows") {
@@ -161,7 +200,7 @@ fn local_repo_check(repo_path: &str) -> CheckResult {
 
 #[tauri::command]
 fn preview_defaults(request: InstallRequest) -> Result<String, String> {
-    serde_json::to_string_pretty(&redacted_defaults(&request)).map_err(|err| err.to_string())
+    install_summary_text(&request)
 }
 
 #[tauri::command]
@@ -213,18 +252,14 @@ fn start_install(
 }
 
 fn run_install(app: AppHandle, request: InstallRequest) -> Result<(), String> {
-    let defaults = build_defaults(&request);
-    let defaults_json = serde_json::to_string_pretty(&defaults).map_err(|err| err.to_string())?;
-
     if request.dry_run {
         emit_log(
             &app,
             "stdout",
-            "Dry run selected. Redacted defaults JSON follows; no installer process was launched.",
+            "Test run selected. No files were changed and no Docker services were started.",
         );
-        let redacted_json = serde_json::to_string_pretty(&redacted_defaults(&request))
-            .map_err(|err| err.to_string())?;
-        for line in redacted_json.lines() {
+        let summary = install_summary_text(&request)?;
+        for line in summary.lines() {
             emit_log(&app, "stdout", line);
         }
         let _ = app.emit(
@@ -238,6 +273,7 @@ fn run_install(app: AppHandle, request: InstallRequest) -> Result<(), String> {
         return Ok(());
     }
 
+    let defaults_json = contract_defaults_json(&request, false)?;
     let mut command_plan = if cfg!(target_os = "windows") {
         build_windows_wsl_command(&request, &defaults_json)?
     } else {
@@ -407,27 +443,296 @@ exit "$rc"
     })
 }
 
-fn build_defaults(request: &InstallRequest) -> serde_json::Value {
-    let modules = serde_json::json!([
-        "research",
-        "commons",
-        "ai_knowledge",
-        "data_pipeline",
-        "infrastructure"
+fn contract_defaults_json(request: &InstallRequest, redact: bool) -> Result<String, String> {
+    contract_payload_json(request, "defaults", redact)
+}
+
+fn contract_plan_json(request: &InstallRequest, redact: bool) -> Result<String, String> {
+    contract_payload_json(request, "plan", redact)
+}
+
+fn contract_preflight_checks(request: &InstallRequest) -> Result<Vec<CheckResult>, String> {
+    let payload = contract_payload_json(request, "preflight", true)?;
+    parse_contract_preflight_checks(&payload)
+}
+
+fn contract_validation_check(request: &InstallRequest) -> Result<CheckResult, String> {
+    let payload = contract_payload_json(request, "validate", true)?;
+    parse_contract_validation_check(&payload)
+}
+
+fn contract_payload_json(
+    request: &InstallRequest,
+    action: &str,
+    redact: bool,
+) -> Result<String, String> {
+    let seed_json =
+        serde_json::to_string_pretty(&build_seed(request)).map_err(|err| err.to_string())?;
+    let command_plan = if cfg!(target_os = "windows") {
+        build_windows_contract_command(request, action, &seed_json, redact)?
+    } else {
+        build_local_contract_command(request, action, &seed_json, redact)?
+    };
+    run_capture(command_plan)
+}
+
+fn parse_contract_preflight_checks(payload: &str) -> Result<Vec<CheckResult>, String> {
+    let payload: ContractPreflightPayload = serde_json::from_str(payload)
+        .map_err(|err| format!("Could not parse installer preflight JSON: {err}"))?;
+    Ok(payload
+        .preflight
+        .checks
+        .into_iter()
+        .map(CheckResult::from_contract)
+        .collect())
+}
+
+fn parse_contract_validation_check(payload: &str) -> Result<CheckResult, String> {
+    let payload: serde_json::Value = serde_json::from_str(payload)
+        .map_err(|err| format!("Could not parse installer validation JSON: {err}"))?;
+    if payload
+        .get("ok")
+        .and_then(serde_json::Value::as_bool)
+        .unwrap_or(false)
+    {
+        return Ok(CheckResult::pass(
+            "Installer config validation",
+            "Python installer accepted the selected Community configuration",
+        ));
+    }
+    if let Some(error) = payload.get("error").and_then(serde_json::Value::as_str) {
+        return Ok(CheckResult::fail("Installer config validation", error));
+    }
+    Err("Installer validation response did not include an ok flag".to_string())
+}
+
+fn run_capture(mut command_plan: CommandPlan) -> Result<String, String> {
+    let temp_defaults = command_plan.temp_defaults.clone();
+    let output = command_plan
+        .command
+        .current_dir(&command_plan.cwd)
+        .output()
+        .map_err(|err| {
+            cleanup_temp_file(temp_defaults.clone());
+            format!("Could not run installer contract: {err}")
+        })?;
+    cleanup_temp_file(temp_defaults);
+
+    if output.status.success() {
+        Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
+    } else {
+        let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+        let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        if let Some(error) = parse_contract_error(&stdout) {
+            return Err(format!("Installer contract failed: {error}"));
+        }
+        let detail = if stderr.is_empty() { stdout } else { stderr };
+        Err(format!("Installer contract failed: {detail}"))
+    }
+}
+
+fn parse_contract_error(payload: &str) -> Option<String> {
+    serde_json::from_str::<serde_json::Value>(payload)
+        .ok()
+        .and_then(|value| {
+            value
+                .get("error")
+                .and_then(serde_json::Value::as_str)
+                .map(str::to_string)
+        })
+}
+
+fn install_summary_text(request: &InstallRequest) -> Result<String, String> {
+    let payload = contract_plan_json(request, true)?;
+    let payload: serde_json::Value = serde_json::from_str(&payload)
+        .map_err(|err| format!("Could not parse installer plan JSON: {err}"))?;
+    Ok(format_install_summary(&payload))
+}
+
+fn format_install_summary(payload: &serde_json::Value) -> String {
+    let config = &payload["config"];
+    let plan = &payload["plan"];
+    let edition = value_text(config, "edition", "Community Edition");
+    let admin = value_text(config, "admin_email", "admin@example.com");
+    let app_url = value_text(config, "app_url", "http://localhost");
+    let datasets = string_array(&plan["datasets"]);
+    let services = string_array(&plan["compose_services"])
+        .into_iter()
+        .map(|service| friendly_service_name(&service).to_string())
+        .collect::<Vec<_>>();
+
+    let starter_data = if datasets.is_empty() {
+        "No starter data".to_string()
+    } else {
+        datasets.join(", ")
+    };
+    let service_summary = if services.is_empty() {
+        "Core Parthenon services".to_string()
+    } else {
+        services.join(", ")
+    };
+
+    [
+        "Installer plan".to_string(),
+        format!("Edition: {edition}"),
+        format!("Admin: {admin}"),
+        format!("URL: {app_url}"),
+        format!("Starter data: {starter_data}"),
+        format!("Services: {service_summary}"),
+        "Passwords and internal defaults are handled by the installer.".to_string(),
+    ]
+    .join("\n")
+}
+
+fn value_text(payload: &serde_json::Value, key: &str, default: &str) -> String {
+    payload
+        .get(key)
+        .and_then(serde_json::Value::as_str)
+        .unwrap_or(default)
+        .to_string()
+}
+
+fn string_array(value: &serde_json::Value) -> Vec<String> {
+    value
+        .as_array()
+        .map(|items| {
+            items
+                .iter()
+                .filter_map(serde_json::Value::as_str)
+                .map(str::to_string)
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+fn friendly_service_name(service: &str) -> &str {
+    match service {
+        "nginx" => "Parthenon web app",
+        "php" => "Application runtime",
+        "postgres" => "PostgreSQL",
+        "redis" => "Redis",
+        "solr" => "Solr search",
+        "hecate" => "Hecate concept search",
+        "qdrant" => "Qdrant vector store",
+        "node" => "Frontend assets",
+        "study-agent" => "Study Agent",
+        "blackrabbit" => "BlackRabbit profiler",
+        "fhir-to-cdm" => "FHIR-to-CDM",
+        "orthanc" => "Orthanc imaging",
+        other => other,
+    }
+}
+
+fn build_local_contract_command(
+    request: &InstallRequest,
+    action: &str,
+    seed_json: &str,
+    redact: bool,
+) -> Result<CommandPlan, String> {
+    validate_contract_action(action)?;
+    let repo_path = PathBuf::from(request.repo_path.trim());
+    validate_repo_path(&repo_path)?;
+    let python =
+        resolve_python().ok_or_else(|| "python3 or python was not found on PATH".to_string())?;
+    let input_path = write_defaults_file(seed_json)?;
+
+    let mut command = Command::new(python);
+    command.args([
+        "install.py",
+        "--contract",
+        action,
+        "--community",
+        "--contract-input",
     ]);
+    command.arg(&input_path);
+    if action == "preflight" {
+        command.arg("--contract-repo-root");
+        command.arg(&repo_path);
+    }
+    if redact {
+        command.arg("--contract-redact");
+    }
+    command.arg("--contract-pretty");
+
+    Ok(CommandPlan {
+        command,
+        display_location: repo_path.display().to_string(),
+        cwd: repo_path,
+        temp_defaults: Some(input_path),
+    })
+}
+
+fn build_windows_contract_command(
+    request: &InstallRequest,
+    action: &str,
+    seed_json: &str,
+    redact: bool,
+) -> Result<CommandPlan, String> {
+    validate_contract_action(action)?;
+    let repo_linux = request
+        .wsl_repo_path
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .ok_or_else(|| {
+            "Windows installs require a WSL repo path, such as /home/user/Parthenon".to_string()
+        })?;
+    let redact_flag = if redact { " --contract-redact" } else { "" };
+    let repo_root_flag = if action == "preflight" {
+        format!(" --contract-repo-root {}", shell_quote(repo_linux))
+    } else {
+        String::new()
+    };
+
+    let script = format!(
+        r#"set -e
+contract_input=$(mktemp)
+cat > "$contract_input" <<'PARTHENON_CONTRACT_INPUT'
+{seed_json}
+PARTHENON_CONTRACT_INPUT
+cd {repo}
+set +e
+python3 install.py --contract {action} --community --contract-input "$contract_input"{repo_root_flag}{redact_flag} --contract-pretty
+rc=$?
+rm -f "$contract_input"
+exit "$rc"
+"#,
+        repo = shell_quote(repo_linux),
+    );
+
+    let mut command = Command::new("wsl.exe");
+    if let Some(distro) = request
+        .wsl_distro
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+    {
+        command.args(["-d", distro]);
+    }
+    command.args(["bash", "-lc", &script]);
+
+    Ok(CommandPlan {
+        command,
+        cwd: env::current_dir().map_err(|err| err.to_string())?,
+        temp_defaults: None,
+        display_location: format!("WSL:{repo_linux}"),
+    })
+}
+
+fn validate_contract_action(action: &str) -> Result<(), String> {
+    match action {
+        "defaults" | "validate" | "plan" | "preflight" => Ok(()),
+        _ => Err(format!("Unsupported installer contract action: {action}")),
+    }
+}
+
+fn build_seed(request: &InstallRequest) -> serde_json::Value {
     let datasets = if request.include_eunomia {
         serde_json::json!(["eunomia", "phenotype-library"])
     } else {
         serde_json::json!([])
     };
     serde_json::json!({
-        "experience": "Beginner",
-        "edition": "Community Edition",
-        "enterprise_key": "",
-        "umls_api_key": "",
-        "vocab_zip_path": null,
-        "cdm_dialect": "PostgreSQL",
-        "env": "local",
         "app_url": normalized_or(&request.app_url, "http://localhost"),
         "admin_email": normalized_or(&request.admin_email, "admin@example.com"),
         "admin_name": normalized_or(&request.admin_name, "Admin"),
@@ -436,53 +741,14 @@ fn build_defaults(request: &InstallRequest) -> serde_json::Value {
         "include_eunomia": request.include_eunomia,
         "datasets": datasets,
         "ollama_url": request.ollama_url.trim(),
-        "modules": modules,
         "enable_solr": request.enable_solr,
         "enable_study_agent": request.enable_study_agent,
         "enable_blackrabbit": request.enable_blackrabbit,
         "enable_fhir_to_cdm": request.enable_fhir_to_cdm,
         "enable_hecate": request.enable_hecate,
         "enable_qdrant": request.enable_hecate,
-        "enable_orthanc": request.enable_orthanc,
-        "enable_livekit": false,
-        "enable_authentik": false,
-        "enable_superset": false,
-        "enable_datahub": false,
-        "enable_wazuh": false,
-        "enable_n8n": false,
-        "enable_portainer": false,
-        "enable_pgadmin": false,
-        "enable_grafana": false
+        "enable_orthanc": request.enable_orthanc
     })
-}
-
-fn redacted_defaults(request: &InstallRequest) -> serde_json::Value {
-    let mut defaults = build_defaults(request);
-    if let Some(values) = defaults.as_object_mut() {
-        redact_secret(values, "admin_password", "(auto-generated by installer)");
-        redact_secret(values, "abby_analyst_password", "");
-        redact_secret(values, "db_password", "");
-        redact_secret(values, "enterprise_key", "");
-        redact_secret(values, "frontier_api_key", "");
-        redact_secret(values, "livekit_api_secret", "");
-        redact_secret(values, "orthanc_password", "");
-        redact_secret(values, "umls_api_key", "");
-    }
-    defaults
-}
-
-fn redact_secret(
-    values: &mut serde_json::Map<String, serde_json::Value>,
-    key: &str,
-    empty_replacement: &str,
-) {
-    if let Some(value) = values.get_mut(key) {
-        let replacement = match value.as_str() {
-            Some("") | None => empty_replacement,
-            Some(_) => "[redacted]",
-        };
-        *value = serde_json::Value::String(replacement.to_string());
-    }
 }
 
 fn normalized_or<'a>(value: &'a str, default: &'a str) -> &'a str {
@@ -626,6 +892,20 @@ fn shell_quote(value: &str) -> String {
 }
 
 impl CheckResult {
+    fn from_contract(check: ContractCheck) -> Self {
+        let status = match check.status.as_str() {
+            "ok" | "pass" => "pass",
+            "warn" => "warn",
+            "fail" => "fail",
+            other => other,
+        };
+        Self {
+            name: check.name,
+            status: status.to_string(),
+            detail: check.detail,
+        }
+    }
+
     fn pass(name: impl Into<String>, detail: impl Into<String>) -> Self {
         Self {
             name: name.into(),
@@ -680,59 +960,51 @@ mod tests {
             timezone: "UTC".to_string(),
             include_eunomia: true,
             enable_solr: true,
-            enable_study_agent: true,
-            enable_blackrabbit: true,
-            enable_fhir_to_cdm: true,
+            enable_study_agent: false,
+            enable_blackrabbit: false,
+            enable_fhir_to_cdm: false,
             enable_hecate: true,
             enable_orthanc: false,
-            ollama_url: "http://host.docker.internal:11434".to_string(),
+            ollama_url: "".to_string(),
             dry_run: true,
         }
     }
 
     #[test]
-    fn defaults_are_community_only() {
-        let defaults = build_defaults(&request());
+    fn seed_contains_ui_overrides_not_install_truth() {
+        let seed = build_seed(&request());
 
-        assert_eq!(defaults["experience"], "Beginner");
-        assert_eq!(defaults["edition"], "Community Edition");
-        assert_eq!(defaults["enterprise_key"], "");
-        assert_eq!(defaults["enable_authentik"], false);
-        assert_eq!(defaults["enable_superset"], false);
-        assert_eq!(defaults["enable_portainer"], false);
-        assert_eq!(defaults["enable_blackrabbit"], true);
-        assert_eq!(defaults["enable_hecate"], true);
-        assert_eq!(defaults["enable_qdrant"], true);
-        assert_eq!(defaults["datasets"], serde_json::json!(["eunomia", "phenotype-library"]));
+        assert!(seed.get("experience").is_none());
+        assert!(seed.get("edition").is_none());
+        assert!(seed.get("modules").is_none());
+        assert_eq!(seed["enable_blackrabbit"], false);
+        assert_eq!(seed["enable_hecate"], true);
+        assert_eq!(seed["enable_qdrant"], true);
+        assert_eq!(
+            seed["datasets"],
+            serde_json::json!(["eunomia", "phenotype-library"])
+        );
     }
 
     #[test]
     fn hecate_enables_qdrant() {
         let mut request = request();
         request.enable_hecate = true;
-        let defaults = build_defaults(&request);
+        let seed = build_seed(&request);
 
-        assert_eq!(defaults["enable_hecate"], true);
-        assert_eq!(defaults["enable_qdrant"], true);
+        assert_eq!(seed["enable_hecate"], true);
+        assert_eq!(seed["enable_qdrant"], true);
     }
 
     #[test]
-    fn preview_redacts_secrets_without_mutating_install_defaults() {
+    fn community_seed_can_disable_quick_start_datasets() {
         let mut request = request();
-        request.admin_password = "typed-secret".to_string();
+        request.include_eunomia = false;
 
-        let install_defaults = build_defaults(&request);
-        let preview_defaults = redacted_defaults(&request);
+        let seed = build_seed(&request);
 
-        assert_eq!(install_defaults["admin_password"], "typed-secret");
-        assert_eq!(preview_defaults["admin_password"], "[redacted]");
-
-        request.admin_password.clear();
-        let blank_preview = redacted_defaults(&request);
-        assert_eq!(
-            blank_preview["admin_password"],
-            "(auto-generated by installer)"
-        );
+        assert_eq!(seed["include_eunomia"], false);
+        assert_eq!(seed["datasets"], serde_json::json!([]));
     }
 
     #[test]
@@ -780,6 +1052,179 @@ mod tests {
     }
 
     #[test]
+    fn local_contract_command_uses_python_contract() {
+        let mut request = request();
+        let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../..")
+            .canonicalize()
+            .expect("repo root");
+        request.repo_path = repo_root.to_string_lossy().to_string();
+
+        let command_plan = build_local_contract_command(
+            &request,
+            "defaults",
+            r#"{"admin_email":"admin@example.com"}"#,
+            true,
+        )
+        .expect("contract command");
+        let args = command_plan
+            .command
+            .get_args()
+            .map(|value| value.to_string_lossy().to_string())
+            .collect::<Vec<_>>();
+        let input_path = command_plan
+            .temp_defaults
+            .clone()
+            .expect("contract input path");
+
+        assert_eq!(command_plan.cwd, repo_root);
+        assert_eq!(args[0], "install.py");
+        assert_eq!(args[1], "--contract");
+        assert_eq!(args[2], "defaults");
+        assert!(args.contains(&"--community".to_string()));
+        assert!(args.contains(&"--contract-redact".to_string()));
+        assert!(args.contains(&"--contract-pretty".to_string()));
+        assert!(input_path.exists());
+
+        cleanup_temp_file(command_plan.temp_defaults);
+    }
+
+    #[test]
+    fn local_preflight_contract_command_passes_repo_root() {
+        let mut request = request();
+        let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../..")
+            .canonicalize()
+            .expect("repo root");
+        request.repo_path = repo_root.to_string_lossy().to_string();
+
+        let command_plan = build_local_contract_command(
+            &request,
+            "preflight",
+            r#"{"admin_email":"admin@example.com"}"#,
+            true,
+        )
+        .expect("contract command");
+        let args = command_plan
+            .command
+            .get_args()
+            .map(|value| value.to_string_lossy().to_string())
+            .collect::<Vec<_>>();
+
+        assert_eq!(args[2], "preflight");
+        assert!(args.contains(&"--contract-repo-root".to_string()));
+        assert!(args.contains(&repo_root.to_string_lossy().to_string()));
+
+        cleanup_temp_file(command_plan.temp_defaults);
+    }
+
+    #[test]
+    fn contract_preflight_json_maps_python_ok_status() {
+        let checks = parse_contract_preflight_checks(
+            r#"{
+              "preflight": {
+                "checks": [
+                  {"name":"Docker daemon","status":"ok","detail":"running"},
+                  {"name":"Port 8082 free","status":"fail","detail":"in use"},
+                  {"name":"PHP vendor dir","status":"warn","detail":"missing"}
+                ]
+              }
+            }"#,
+        )
+        .expect("preflight checks");
+
+        assert_eq!(checks[0].status, "pass");
+        assert_eq!(checks[1].status, "fail");
+        assert_eq!(checks[2].status, "warn");
+    }
+
+    #[test]
+    fn contract_validation_json_maps_to_ui_check() {
+        let check = parse_contract_validation_check(r#"{"ok":true,"config":{}}"#)
+            .expect("validation check");
+
+        assert_eq!(check.name, "Installer config validation");
+        assert_eq!(check.status, "pass");
+
+        let failed =
+            parse_contract_validation_check(r#"{"ok":false,"error":"admin_email is required"}"#)
+                .expect("failed validation check");
+
+        assert_eq!(failed.status, "fail");
+        assert_eq!(failed.detail, "admin_email is required");
+    }
+
+    #[test]
+    fn contract_error_parser_extracts_json_error() {
+        assert_eq!(
+            parse_contract_error(r#"{"ok":false,"error":"bad config"}"#),
+            Some("bad config".to_string())
+        );
+        assert_eq!(parse_contract_error("traceback text"), None);
+    }
+
+    #[test]
+    fn install_summary_formats_plan_without_json() {
+        let summary = format_install_summary(&serde_json::json!({
+            "config": {
+                "edition": "Community Edition",
+                "admin_email": "admin@example.com",
+                "app_url": "http://localhost"
+            },
+            "plan": {
+                "datasets": ["eunomia", "phenotype-library"],
+                "compose_services": ["nginx", "postgres", "redis", "solr", "hecate", "qdrant"]
+            }
+        }));
+
+        assert!(summary.contains("Installer plan"));
+        assert!(summary.contains("Community Edition"));
+        assert!(summary.contains("Parthenon web app"));
+        assert!(summary.contains("Hecate concept search"));
+        assert!(!summary.contains('{'));
+        assert!(!summary.contains("admin_password"));
+    }
+
+    #[test]
+    #[ignore = "smoke test: invokes the Python installer contract in the repo checkout"]
+    fn python_contract_defaults_smoke_for_real_repo() {
+        let mut request = request();
+        let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../..")
+            .canonicalize()
+            .expect("repo root");
+        request.repo_path = repo_root.to_string_lossy().to_string();
+
+        let payload = contract_defaults_json(&request, true).expect("contract defaults JSON");
+        let parsed: serde_json::Value =
+            serde_json::from_str(&payload).expect("contract defaults parse");
+
+        assert_eq!(parsed["edition"], "Community Edition");
+        assert_eq!(parsed["experience"], "Beginner");
+        assert_eq!(parsed["admin_password"], "[redacted]");
+        assert_eq!(parsed["enable_blackrabbit"], false);
+        assert_eq!(parsed["enable_hecate"], true);
+    }
+
+    #[test]
+    #[ignore = "smoke test: invokes the Python installer validation and preflight contracts"]
+    fn python_contract_preflight_smoke_for_real_repo() {
+        let mut request = request();
+        let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../..")
+            .canonicalize()
+            .expect("repo root");
+        request.repo_path = repo_root.to_string_lossy().to_string();
+
+        let checks = validate_environment(request);
+
+        assert!(checks.iter().any(|check| {
+            check.name == "Installer config validation" && check.status == "pass"
+        }));
+        assert!(checks.iter().any(|check| check.name == "Python ≥ 3.9"));
+    }
+
+    #[test]
     fn windows_wsl_command_quotes_repo_path() {
         let mut request = request();
         request.wsl_distro = Some("Ubuntu-24.04".to_string());
@@ -801,6 +1246,36 @@ mod tests {
         assert_eq!(args[3], "-lc");
         assert!(args[4].contains("cd '/home/alice'\\''s/Parthenon'"));
         assert!(args[4].contains("python3 install.py --defaults-file"));
+    }
+
+    #[test]
+    fn windows_contract_command_quotes_repo_path() {
+        let mut request = request();
+        request.wsl_distro = Some("Ubuntu-24.04".to_string());
+        request.wsl_repo_path = Some("/home/alice's/Parthenon".to_string());
+
+        let command_plan = build_windows_contract_command(
+            &request,
+            "preflight",
+            r#"{"admin_email":"admin@example.com"}"#,
+            true,
+        )
+        .expect("wsl contract command");
+        let args = command_plan
+            .command
+            .get_args()
+            .map(|value| value.to_string_lossy().to_string())
+            .collect::<Vec<_>>();
+
+        assert_eq!(command_plan.command.get_program(), "wsl.exe");
+        assert_eq!(args[0], "-d");
+        assert_eq!(args[1], "Ubuntu-24.04");
+        assert_eq!(args[2], "bash");
+        assert_eq!(args[3], "-lc");
+        assert!(args[4].contains("cd '/home/alice'\\''s/Parthenon'"));
+        assert!(args[4].contains("python3 install.py --contract preflight --community"));
+        assert!(args[4].contains("--contract-repo-root '/home/alice'\\''s/Parthenon'"));
+        assert!(args[4].contains("--contract-redact"));
     }
 
     #[test]

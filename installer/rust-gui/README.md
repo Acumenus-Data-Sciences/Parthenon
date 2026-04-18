@@ -3,14 +3,18 @@
 Rust/Tauri desktop shell for the Parthenon Community installer.
 
 This MVP keeps the existing Python installer as the source of installation
-truth. The Rust app collects Community defaults, writes a temporary defaults
-JSON, launches:
+truth. The Rust app collects Community inputs, asks the Python installer
+contract to normalize them, writes the resulting temporary defaults JSON, and
+launches:
 
 ```bash
 python3 install.py --defaults-file <generated.json> --non-interactive
 ```
 
 and streams stdout/stderr back into the GUI.
+
+Plan summary, dry run, validation, and preflight use the Python installer
+contract so the desktop shell does not duplicate installer rules.
 
 ## Run
 
@@ -22,18 +26,42 @@ cargo run
 Dry run is enabled by default in the UI. A real install requires clearing the
 dry-run toggle and confirming that Docker services will be started.
 
-Defaults preview and dry-run output redact secrets before rendering them in
-the GUI log. The installer process still receives the full generated defaults
-file during a real install.
+Dry-run output is a plain-language install summary. The installer process still
+receives the full generated defaults file during a real install.
 
 ## Verify
 
 ```bash
 cargo fmt --check
 cargo test
+cargo test python_contract_ -- --ignored
 cargo clippy --all-targets -- -D warnings
 cargo build
 ```
+
+The ignored `python_contract_` tests are intentional smoke tests: they invoke
+the real Python installer contract from the repo checkout.
+
+## Bundle
+
+```bash
+cargo install tauri-cli --version '^2' --locked
+cargo tauri build
+```
+
+On Linux, the build emits `.deb`, `.rpm`, and `.AppImage` artifacts under
+`target/release/bundle/`. Native release uploads still require signing,
+reproducibility, and platform smoke tests before distribution.
+
+GitHub Actions workflow `.github/workflows/build-rust-installer-gui.yml` builds
+Linux x64, macOS Intel, macOS Apple Silicon, and Windows x64 packages. Run it
+manually from Actions with the desired ref, or publish a GitHub release to
+produce archived workflow artifacts named:
+
+- `parthenon-installer-linux-x64`
+- `parthenon-installer-macos-x64`
+- `parthenon-installer-macos-arm64`
+- `parthenon-installer-windows-x64`
 
 ## Linux Prerequisites
 

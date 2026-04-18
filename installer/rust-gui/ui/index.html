@@ -12,12 +12,22 @@
         <div class="intro">
           <p class="eyebrow">Community Edition</p>
           <h1>Install Parthenon</h1>
-          <p>Choose the local checkout, confirm the default Community stack, and launch the existing Python installer with a generated defaults file.</p>
+          <p>Set the admin account, check the machine, then start the Community installer. The app handles the installer details for you.</p>
         </div>
 
+        <nav class="stepper" aria-label="Installer progress">
+          <div class="step active" data-step="configure"><span>1</span> Configure</div>
+          <div class="step" data-step="check"><span>2</span> Check</div>
+          <div class="step" data-step="install"><span>3</span> Install</div>
+          <div class="step" data-step="done"><span>4</span> Done</div>
+        </nav>
+
         <form id="installer-form" class="installer-form">
-          <fieldset>
-            <legend>Workspace</legend>
+          <section class="form-section">
+            <div>
+              <h2>Workspace</h2>
+              <p>Use the Parthenon checkout folder.</p>
+            </div>
             <label>
               Parthenon repo path
               <input id="repo-path" name="repo_path" autocomplete="off" />
@@ -32,10 +42,13 @@
                 <input id="wsl-repo-path" name="wsl_repo_path" placeholder="/home/user/Parthenon" autocomplete="off" />
               </label>
             </div>
-          </fieldset>
+          </section>
 
-          <fieldset>
-            <legend>Administrator</legend>
+          <section class="form-section">
+            <div>
+              <h2>Administrator</h2>
+              <p>This account is created during installation.</p>
+            </div>
             <div class="field-grid">
               <label>
                 Admin email
@@ -54,10 +67,13 @@
                 <input id="timezone" name="timezone" value="UTC" />
               </label>
             </div>
-          </fieldset>
+          </section>
 
-          <fieldset>
-            <legend>Community Stack</legend>
+          <section class="form-section">
+            <div>
+              <h2>Community Stack</h2>
+              <p>These defaults stand up the Community edition with search and starter data.</p>
+            </div>
             <div class="field-grid">
               <label>
                 App URL
@@ -65,51 +81,45 @@
               </label>
               <label>
                 Ollama URL
-                <input id="ollama-url" name="ollama_url" value="http://host.docker.internal:11434" />
+                <input id="ollama-url" name="ollama_url" placeholder="Optional: http://host.docker.internal:11434" />
               </label>
             </div>
             <div class="toggle-grid">
               <label><input id="include-eunomia" type="checkbox" checked /> Eunomia demo data</label>
               <label><input id="enable-solr" type="checkbox" checked /> Solr search</label>
-              <label><input id="enable-study-agent" type="checkbox" checked /> Study Agent</label>
-              <label><input id="enable-blackrabbit" type="checkbox" checked /> BlackRabbit profiler</label>
-              <label><input id="enable-fhir-to-cdm" type="checkbox" checked /> FHIR-to-CDM</label>
               <label><input id="enable-hecate" type="checkbox" checked /> Hecate concept search</label>
-              <label><input id="enable-orthanc" type="checkbox" /> Orthanc imaging</label>
             </div>
-          </fieldset>
+          </section>
 
-          <fieldset>
-            <legend>Launch</legend>
+          <section class="form-section">
+            <div>
+              <h2>Ready To Install</h2>
+              <p>Run the system check first. A real install writes files and starts Docker services.</p>
+            </div>
+            <div id="review" class="review-list"></div>
             <div class="launch-options">
-              <label><input id="dry-run" type="checkbox" checked /> Dry run only</label>
-              <label><input id="confirm-real-install" type="checkbox" /> I understand real install will write files and start Docker services</label>
+              <label><input id="dry-run" type="checkbox" checked /> Test run only</label>
+              <label><input id="confirm-real-install" type="checkbox" /> I am ready to start Docker services and write installer files</label>
             </div>
             <div class="button-row">
-              <button id="preflight-btn" type="button">Run Preflight</button>
-              <button id="preview-btn" type="button">Preview Defaults</button>
-              <button id="install-btn" class="primary" type="submit">Start</button>
+              <button id="preflight-btn" type="button">Check System</button>
+              <button id="install-btn" class="primary" type="submit">Run Test</button>
             </div>
-          </fieldset>
+          </section>
         </form>
       </section>
 
       <aside class="status-panel">
-        <section>
+        <section class="status-card">
           <h2>Status</h2>
           <div id="status" class="status">Ready</div>
         </section>
-        <section>
-          <h2>Preflight</h2>
-          <div id="preflight" class="preflight-list">Run preflight before starting the installer.</div>
+        <section class="status-card">
+          <h2>System Check</h2>
+          <div id="preflight" class="preflight-list">Check the system before starting the installer.</div>
         </section>
-        <section>
-          <h2>Defaults Preview</h2>
-          <p class="panel-note">Secrets are redacted in preview and dry-run output.</p>
-          <pre id="preview" class="preview">No defaults generated yet.</pre>
-        </section>
-        <section>
-          <h2>Installer Log</h2>
+        <section class="status-card">
+          <h2>Progress</h2>
           <pre id="log" class="log">Waiting for installer output.</pre>
         </section>
       </aside>

@@ -85,6 +85,11 @@ def _compose_service_names(cfg: dict[str, Any] | None = None) -> list[str]:
     return deduped
 
 
+def compose_service_names(cfg: dict[str, Any] | None = None) -> list[str]:
+    """Return Docker Compose service names selected by installer config."""
+    return _compose_service_names(cfg)
+
+
 def _ensure_external_networks() -> None:
     """Create external networks referenced by docker-compose.yml if missing.
 
@@ -164,6 +169,14 @@ def _get_services(cfg: dict[str, Any] | None = None) -> list[tuple[str, str, int
             if cfg.get(f"enable_{key}"):
                 services.append(svc_tuple)
     return services
+
+
+def service_health_plan(cfg: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    """Return health polling metadata for selected services."""
+    return [
+        {"service": service, "container": container, "timeout_seconds": timeout}
+        for service, container, timeout in _get_services(cfg)
+    ]
 
 
 def wait_for_services(cfg: dict[str, Any] | None = None) -> None:

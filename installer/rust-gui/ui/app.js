@@ -4,38 +4,91 @@ const tauriEvent = window.__TAURI__?.event;
 const form = document.querySelector("#installer-form");
 const statusEl = document.querySelector("#status");
 const preflightEl = document.querySelector("#preflight");
-const previewEl = document.querySelector("#preview");
+const reviewEl = document.querySelector("#review");
 const logEl = document.querySelector("#log");
 const installBtn = document.querySelector("#install-btn");
 const dryRunEl = document.querySelector("#dry-run");
 const confirmEl = document.querySelector("#confirm-real-install");
 const windowsFields = document.querySelector("#windows-fields");
+const preflightBtn = document.querySelector("#preflight-btn");
+
+const state = {
+  checks: [],
+  preflightRan: false,
+  running: false,
+  platform: "",
+};
 
 function setStatus(message, kind = "info") {
   statusEl.textContent = message;
-  statusEl.style.color = kind === "error" ? "var(--red-strong)" : kind === "success" ? "var(--green)" : "var(--gold)";
+  statusEl.dataset.kind = kind;
+}
+
+function setStep(activeStep) {
+  document.querySelectorAll("[data-step]").forEach((node) => {
+    node.classList.toggle("active", node.dataset.step === activeStep);
+    node.classList.toggle("complete", stepRank(node.dataset.step) < stepRank(activeStep));
+  });
+}
+
+function stepRank(step) {
+  return { configure: 0, check: 1, install: 2, done: 3 }[step] ?? 0;
 }
 
 function readPayload() {
+  const value = (selector) => document.querySelector(selector)?.value.trim() || "";
+  const rawValue = (selector) => document.querySelector(selector)?.value || "";
+  const checked = (selector) => document.querySelector(selector)?.checked || false;
   return {
-    repo_path: document.querySelector("#repo-path").value.trim(),
-    wsl_distro: document.querySelector("#wsl-distro").value.trim(),
-    wsl_repo_path: document.querySelector("#wsl-repo-path").value.trim(),
-    admin_email: document.querySelector("#admin-email").value.trim(),
-    admin_name: document.querySelector("#admin-name").value.trim(),
-    admin_password: document.querySelector("#admin-password").value,
-    app_url: document.querySelector("#app-url").value.trim(),
-    timezone: document.querySelector("#timezone").value.trim(),
-    include_eunomia: document.querySelector("#include-eunomia").checked,
-    enable_solr: document.querySelector("#enable-solr").checked,
-    enable_study_agent: document.querySelector("#enable-study-agent").checked,
-    enable_blackrabbit: document.querySelector("#enable-blackrabbit").checked,
-    enable_fhir_to_cdm: document.querySelector("#enable-fhir-to-cdm").checked,
-    enable_hecate: document.querySelector("#enable-hecate").checked,
-    enable_orthanc: document.querySelector("#enable-orthanc").checked,
-    ollama_url: document.querySelector("#ollama-url").value.trim(),
+    repo_path: value("#repo-path"),
+    wsl_distro: value("#wsl-distro"),
+    wsl_repo_path: value("#wsl-repo-path"),
+    admin_email: value("#admin-email"),
+    admin_name: value("#admin-name"),
+    admin_password: rawValue("#admin-password"),
+    app_url: value("#app-url"),
+    timezone: value("#timezone"),
+    include_eunomia: checked("#include-eunomia"),
+    enable_solr: checked("#enable-solr"),
+    enable_study_agent: checked("#enable-study-agent"),
+    enable_blackrabbit: checked("#enable-blackrabbit"),
+    enable_fhir_to_cdm: checked("#enable-fhir-to-cdm"),
+    enable_hecate: checked("#enable-hecate"),
+    enable_orthanc: checked("#enable-orthanc"),
+    ollama_url: value("#ollama-url"),
     dry_run: dryRunEl.checked,
   };
+}
+
+function renderReview() {
+  const payload = readPayload();
+  const services = ["Parthenon web app", "PostgreSQL", "Redis"];
+  if (payload.enable_solr) services.push("Solr search");
+  if (payload.enable_hecate) services.push("Hecate", "Qdrant");
+
+  const data = payload.include_eunomia ? "Eunomia and Phenotype Library" : "No starter data";
+  const mode = payload.dry_run ? "Test run only" : "Real install";
+  const destination = state.platform === "windows"
+    ? (payload.wsl_repo_path || payload.repo_path || "Select a checkout")
+    : (payload.repo_path || "Select a checkout");
+
+  reviewEl.innerHTML = [
+    reviewRow("Destination", destination),
+    reviewRow("Admin", payload.admin_email || "admin@example.com"),
+    reviewRow("URL", payload.app_url || "http://localhost"),
+    reviewRow("Starter data", data),
+    reviewRow("Services", services.join(", ")),
+    reviewRow("Mode", mode),
+  ].join("");
+}
+
+function reviewRow(label, value) {
+  return `
+    <div class="review-row">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+    </div>
+  `;
 }
 
 function renderChecks(checks) {
@@ -44,12 +97,15 @@ function renderChecks(checks) {
     return;
   }
 
-  preflightEl.innerHTML = checks.map((check) => `
-    <div class="check ${check.status}">
-      <strong>${escapeHtml(check.name)} · ${escapeHtml(check.status)}</strong>
-      <span>${escapeHtml(check.detail || "No detail")}</span>
-    </div>
-  `).join("");
+  preflightEl.innerHTML = checks.map((check) => {
+    const label = check.status === "pass" ? "Ready" : check.status === "warn" ? "Needs attention" : "Blocked";
+    return `
+      <div class="check ${escapeHtml(check.status)}">
+        <strong>${escapeHtml(label)} · ${escapeHtml(check.name)}</strong>
+        <span>${escapeHtml(check.detail || "No detail")}</span>
+      </div>
+    `;
+  }).join("");
 }
 
 function appendLog(message, stream = "stdout") {
@@ -71,9 +127,17 @@ function escapeHtml(value) {
   }[char]));
 }
 
+function hasFailedCheck() {
+  return state.checks.some((check) => check.status === "fail");
+}
+
 function updateInstallButton() {
-  installBtn.textContent = dryRunEl.checked ? "Start Dry Run" : "Start Install";
-  installBtn.disabled = !dryRunEl.checked && !confirmEl.checked;
+  renderReview();
+  installBtn.textContent = dryRunEl.checked ? "Run Test" : "Install Parthenon";
+  installBtn.disabled = state.running
+    || !state.preflightRan
+    || hasFailedCheck()
+    || (!dryRunEl.checked && !confirmEl.checked);
 }
 
 async function invoke(name, payload) {
@@ -84,12 +148,15 @@ async function invoke(name, payload) {
 }
 
 async function boot() {
+  setStep("configure");
   updateInstallButton();
   try {
     const data = await invoke("bootstrap", {});
+    state.platform = data.platform || "";
     document.querySelector("#repo-path").value = data.repo_path || "";
     windowsFields.hidden = !data.windows;
     setStatus(`Ready on ${data.platform}${data.python ? ` with ${data.python}` : ""}`);
+    renderReview();
   } catch (err) {
     setStatus(String(err), "error");
   }
@@ -99,55 +166,79 @@ async function boot() {
       appendLog(event.payload.message, event.payload.stream);
     });
     await tauriEvent.listen("install-finished", (event) => {
-      installBtn.disabled = false;
+      state.running = false;
+      setStep(event.payload.success ? "done" : "install");
       setStatus(event.payload.message, event.payload.success ? "success" : "error");
+      updateInstallButton();
     });
   }
 }
 
-document.querySelector("#preflight-btn").addEventListener("click", async () => {
-  setStatus("Running preflight...");
+async function runPreflight() {
+  setStep("check");
+  state.preflightRan = false;
+  state.checks = [];
+  updateInstallButton();
+  preflightBtn.disabled = true;
+  setStatus("Checking system...");
+  preflightEl.textContent = "Checking Python, Docker, ports, and selected services.";
   try {
     const checks = await invoke("validate_environment", { request: readPayload() });
+    state.checks = checks;
+    state.preflightRan = true;
     renderChecks(checks);
-    if (checks.some((check) => check.status === "fail")) {
-      setStatus("Preflight found blockers", "error");
+    if (hasFailedCheck()) {
+      setStatus("Resolve the blocked checks before installing.", "error");
     } else if (checks.some((check) => check.status === "warn")) {
-      setStatus("Preflight complete with warnings");
+      setStatus("System check complete with warnings.");
     } else {
-      setStatus("Preflight complete", "success");
+      setStatus("System check complete.", "success");
     }
   } catch (err) {
     setStatus(String(err), "error");
+  } finally {
+    preflightBtn.disabled = false;
+    updateInstallButton();
   }
-});
+}
 
-document.querySelector("#preview-btn").addEventListener("click", async () => {
-  setStatus("Generating defaults preview...");
-  try {
-    previewEl.textContent = await invoke("preview_defaults", { request: readPayload() });
-    setStatus("Defaults generated", "success");
-  } catch (err) {
-    setStatus(String(err), "error");
-  }
-});
+preflightBtn.addEventListener("click", runPreflight);
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (!state.preflightRan) {
+    setStatus("Run the system check first.", "error");
+    return;
+  }
+  if (hasFailedCheck()) {
+    setStatus("Resolve the blocked checks before installing.", "error");
+    return;
+  }
   if (!dryRunEl.checked && !confirmEl.checked) {
-    setStatus("Confirm real install before starting.", "error");
+    setStatus("Confirm the real install before starting.", "error");
     updateInstallButton();
     return;
   }
   logEl.textContent = "";
-  installBtn.disabled = true;
-  setStatus(dryRunEl.checked ? "Starting dry run..." : "Starting installer...");
+  state.running = true;
+  setStep("install");
+  updateInstallButton();
+  setStatus(dryRunEl.checked ? "Running installer test..." : "Installing Parthenon...");
   try {
     await invoke("start_install", { request: readPayload() });
   } catch (err) {
-    installBtn.disabled = false;
+    state.running = false;
     setStatus(String(err), "error");
+    updateInstallButton();
   }
+});
+
+form.addEventListener("input", () => {
+  state.preflightRan = false;
+  state.checks = [];
+  preflightEl.textContent = "Settings changed. Check the system again before installing.";
+  setStep("configure");
+  updateInstallButton();
 });
 
 dryRunEl.addEventListener("change", updateInstallButton);

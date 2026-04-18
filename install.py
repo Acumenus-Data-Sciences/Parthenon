@@ -28,7 +28,7 @@ REQUIRED = {
 }
 
 
-def _ensure_deps() -> None:
+def _ensure_deps(*, quiet: bool = False) -> None:
     """Install missing dependencies silently before importing them."""
     missing = []
     for module, pkg in REQUIRED.items():
@@ -38,7 +38,8 @@ def _ensure_deps() -> None:
             missing.append(pkg)
 
     if missing:
-        print(f"Installing missing dependencies: {', '.join(missing)}")
+        if not quiet:
+            print(f"Installing missing dependencies: {', '.join(missing)}")
         # Try normal install first; fall back to --break-system-packages for
         # Debian/Ubuntu systems that block system-wide pip installs (PEP 668).
         cmd = [sys.executable, "-m", "pip", "install", "--quiet", *missing]
@@ -52,7 +53,8 @@ def _ensure_deps() -> None:
             else:
                 sys.stderr.buffer.write(result.stderr)
                 raise SystemExit(1)
-        print("Dependencies installed.\n")
+        if not quiet:
+            print("Dependencies installed.\n")
 
 
 def _parse_args() -> argparse.Namespace:
@@ -93,12 +95,42 @@ def _parse_args() -> argparse.Namespace:
         default=False,
         help="Launch the web-based installer UI (used by the remote installer binary)",
     )
+    parser.add_argument(
+        "--contract",
+        choices=["defaults", "validate", "plan", "preflight"],
+        default=None,
+        help="Emit machine-readable installer contract JSON and exit",
+    )
+    parser.add_argument(
+        "--contract-input",
+        type=str,
+        default=None,
+        help="JSON file with contract override/default values",
+    )
+    parser.add_argument(
+        "--contract-repo-root",
+        type=str,
+        default=None,
+        help="Repo root for contract preflight checks",
+    )
+    parser.add_argument(
+        "--contract-redact",
+        action="store_true",
+        default=False,
+        help="Redact secrets in contract JSON output",
+    )
+    parser.add_argument(
+        "--contract-pretty",
+        action="store_true",
+        default=False,
+        help="Pretty-print contract JSON output",
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = _parse_args()
-    _ensure_deps()
+    _ensure_deps(quiet=args.contract is not None)
 
     # Deferred import — deps now guaranteed to exist
     import json
@@ -124,6 +156,27 @@ def main() -> None:
         args.non_interactive = True
 
     try:
+        if args.contract:
+            from installer import contract as installer_contract
+            try:
+                contract_input = defaults
+                if args.contract_input:
+                    contract_input = installer_contract.load_json(args.contract_input)
+                payload = installer_contract.build_payload(
+                    args.contract,
+                    overrides=contract_input,
+                    community=args.community,
+                    repo_root=args.contract_repo_root,
+                    redacted=args.contract_redact,
+                )
+            except Exception as exc:
+                installer_contract.emit_json(
+                    {"ok": False, "error": str(exc)},
+                    pretty=args.contract_pretty,
+                )
+                sys.exit(1)
+            installer_contract.emit_json(payload, pretty=args.contract_pretty)
+            return
         if args.webapp:
             from installer.webapp import main as webapp_main
             webapp_main(remote=True)

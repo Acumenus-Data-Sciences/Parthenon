@@ -25,29 +25,19 @@ const state = {
 };
 
 function communityMvpValues() {
+  const defaults = state.bootstrap?.community_defaults || {};
+  return withModuleBooleans(defaults);
+}
+
+function withModuleBooleans(values) {
+  const mods = values.modules || [];
   return {
-    experience: "Beginner",
-    edition: "Community Edition",
-    enterprise_key: "",
-    umls_api_key: "",
-    vocab_zip_path: null,
-    include_eunomia: true,
-    ollama_url: "",
-    modules: ["research", "ai_knowledge", "infrastructure"],
-    datasets: ["eunomia", "phenotype-library"],
-    research: true,
-    commons: false,
-    ai_knowledge: true,
-    data_pipeline: false,
-    infrastructure: true,
-    enable_study_agent: false,
-    enable_livekit: false,
-    enable_hecate: true,
-    enable_qdrant: true,
-    enable_blackrabbit: false,
-    enable_fhir_to_cdm: false,
-    enable_orthanc: false,
-    enable_solr: true,
+    ...values,
+    research: mods.includes("research"),
+    commons: mods.includes("commons"),
+    ai_knowledge: mods.includes("ai_knowledge"),
+    data_pipeline: mods.includes("data_pipeline"),
+    infrastructure: mods.includes("infrastructure"),
   };
 }
 
@@ -1030,18 +1020,11 @@ function syncDynamicState() {
 async function init() {
   state.bootstrap = await api("/api/bootstrap");
   const d = state.bootstrap.defaults;
-  // Derive individual module booleans from the modules array so checkboxes bind correctly
-  const mods = d.modules || [];
   state.currentValues = {
-    ...d,
+    ...withModuleBooleans(d),
     repo_path: state.bootstrap.repo_path,
     wsl_distro: state.bootstrap.wsl_distro,
     wsl_repo_path: state.bootstrap.wsl_repo_path,
-    research: mods.includes("research"),
-    commons: mods.includes("commons"),
-    ai_knowledge: mods.includes("ai_knowledge"),
-    data_pipeline: mods.includes("data_pipeline"),
-    infrastructure: mods.includes("infrastructure"),
     umls_api_key: d.umls_api_key || "",
     edition: "Community Edition",
     enterprise_key: "",
