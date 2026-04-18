@@ -1,8 +1,11 @@
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  getLocaleMetadata,
   getLocaleDirection,
   normalizeLocale,
+  PUBLIC_SELECTABLE_LOCALES,
   SUPPORTED_LOCALES,
+  USER_SELECTABLE_LOCALES,
 } from "../locales";
 import i18n, { setActiveLocale } from "../i18n";
 import { formatNumber } from "../format";
@@ -31,6 +34,55 @@ describe("i18n locale support", () => {
   it("tracks RTL direction for Arabic", () => {
     expect(getLocaleDirection("ar")).toBe("rtl");
     expect(getLocaleDirection("hi-IN")).toBe("ltr");
+  });
+
+  it("publishes canonical locale metadata for the initial rollout", () => {
+    expect(getLocaleMetadata("es").releaseTier).toBe("tier-a-pilot");
+    expect(getLocaleMetadata("ko").releaseTier).toBe("tier-a-candidate");
+    expect(getLocaleMetadata("ar").releaseTier).toBe("rtl-canary");
+    expect(getLocaleMetadata("en-XA")).toMatchObject({
+      laravelLocale: "en",
+      docusaurusLocale: "en",
+      selectable: false,
+    });
+  });
+
+  it("keeps every supported locale enabled with Intl and fallback metadata", () => {
+    for (const locale of SUPPORTED_LOCALES) {
+      expect(locale.enabled).toBe(true);
+      expect(locale.laravelLocale).toBeTruthy();
+      expect(locale.docusaurusLocale).toBeTruthy();
+      expect(locale.dateLocale).toBeTruthy();
+      expect(locale.numberLocale).toBeTruthy();
+      expect(locale.fallbackLocales.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("marks the pseudolocale as QA-only metadata", () => {
+    expect(getLocaleMetadata("en-XA")).toMatchObject({
+      qaOnly: true,
+      selectable: false,
+      releaseTier: "qa",
+    });
+  });
+
+  it("limits public language choices to English, Spanish, and Korean", () => {
+    expect(PUBLIC_SELECTABLE_LOCALES.map((locale) => locale.code)).toEqual([
+      "en-US",
+      "es-ES",
+      "ko-KR",
+    ]);
+    expect(getLocaleMetadata("ar")).toMatchObject({
+      qaOnly: true,
+      selectable: false,
+    });
+    expect(getLocaleMetadata("fr-FR").selectable).toBe(false);
+  });
+
+  it("keeps QA canary locales available in development and test selectors", () => {
+    expect(USER_SELECTABLE_LOCALES.map((locale) => locale.code)).toEqual(
+      expect.arrayContaining(["ar", "en-XA"]),
+    );
   });
 
   it("has resources for every selectable locale", () => {

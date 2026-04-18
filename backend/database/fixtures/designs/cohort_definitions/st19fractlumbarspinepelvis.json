@@ -19,7 +19,7 @@
         "conditions": null,
         "provenance": {
             "source_row": 3346,
-            "imported_at": "2026-04-17T00:17:46+00:00",
+            "imported_at": "2026-04-17T19:57:12+00:00",
             "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
             "importer_version": "1.0.0"
         },
@@ -103,6 +103,7 @@
         "pre_conditions": null,
         "coverage_bucket": "FULLY_MAPPED",
         "sex_restriction": null,
+        "coverage_profile": "partial",
         "include_endpoints": [],
         "resolved_concepts": {
             "truncated": true,
@@ -285,18 +286,6 @@
                 1572785,
                 1572786,
                 1572787,
-                35213026,
-                35213027,
-                35213028,
-                35213029,
-                35213030,
-                35213031,
-                35213032,
-                35213033,
-                35213034,
-                35213035,
-                35213036,
-                35213037,
                 45534805,
                 45534806,
                 45534807,
@@ -607,7 +596,19 @@
                 45558850,
                 45558851,
                 45558852,
-                45558853
+                45558853,
+                45558854,
+                45558855,
+                45558856,
+                45558857,
+                45558858,
+                45558859,
+                45558860,
+                45558861,
+                45558862,
+                45558863,
+                45558864,
+                45558865
             ],
             "conditions_standard": [
                 4085898,
@@ -697,7 +698,7 @@
     "is_public": true,
     "version": 1,
     "created_at": "2026-04-16T23:56:18.000000Z",
-    "updated_at": "2026-04-17T00:17:46.000000Z",
+    "updated_at": "2026-04-17T19:57:12.000000Z",
     "deleted_at": null,
     "tags": [
         "finngen-endpoint",
@@ -709,5 +710,6 @@
     "domain": "finngen-endpoint",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null
+    "superseded_by": null,
+    "coverage_profile": "partial"
 }

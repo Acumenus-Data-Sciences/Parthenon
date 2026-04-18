@@ -20,7 +20,7 @@
         "conditions": null,
         "provenance": {
             "source_row": 1365,
-            "imported_at": "2026-04-17T00:17:26+00:00",
+            "imported_at": "2026-04-17T19:56:49+00:00",
             "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
             "importer_version": "1.0.0"
         },
@@ -106,6 +106,7 @@
         "pre_conditions": null,
         "coverage_bucket": "FULLY_MAPPED",
         "sex_restriction": null,
+        "coverage_profile": "partial",
         "include_endpoints": [
             "H7_ENTROPION",
             "H7_ECTROPION",
@@ -541,7 +542,7 @@
     "is_public": true,
     "version": 1,
     "created_at": "2026-04-16T23:56:00.000000Z",
-    "updated_at": "2026-04-17T00:17:26.000000Z",
+    "updated_at": "2026-04-17T19:56:49.000000Z",
     "deleted_at": null,
     "tags": [
         "finngen-endpoint",
@@ -554,5 +555,6 @@
     "domain": "finngen-endpoint",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null
+    "superseded_by": null,
+    "coverage_profile": "partial"
 }

@@ -8,5 +8,7 @@ return [
     'password_changed' => 'パスワードを変更しました',
     'temporary_password_sent' => 'そのメールのアカウントが存在する場合、新しい一時パスワードが送信されました。',
     'logged_out' => 'ログアウトしました',
+    'unauthenticated' => '認証が必要です',
+    'forbidden' => 'この操作を実行する権限がありません',
     'oidc_authentik_label' => 'Authentik でログイン',
 ];

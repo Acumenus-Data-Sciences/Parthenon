@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Requests\UploadAvatarRequest;
 use App\Models\User;
+use App\Support\ApiMessage;
+use App\Support\ParthenonLocales;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Intervention\Image\Interfaces\ImageManagerInterface;
 
 /**
@@ -29,7 +31,7 @@ class UserProfileController extends Controller
         $user->update($request->validated());
 
         return response()->json([
-            'message' => __('profile.updated'),
+            ...ApiMessage::payload('profile.updated'),
             'user' => $user->fresh(),
         ]);
     }
@@ -60,13 +62,13 @@ class UserProfileController extends Controller
         };
 
         if (! Storage::disk('public')->put($filename, (string) $encoded)) {
-            return response()->json(['message' => __('profile.avatar_upload_failed')], 500);
+            return response()->json(ApiMessage::payload('profile.avatar_upload_failed'), 500);
         }
 
         $user->update(['avatar' => $filename]);
 
         return response()->json([
-            'message' => __('profile.avatar_uploaded'),
+            ...ApiMessage::payload('profile.avatar_uploaded'),
             'avatar' => $filename,
         ]);
     }
@@ -82,7 +84,7 @@ class UserProfileController extends Controller
 
         $user->update(['avatar' => null]);
 
-        return response()->json(['message' => __('profile.avatar_removed')]);
+        return response()->json(ApiMessage::payload('profile.avatar_removed'));
     }
 
     /**
@@ -101,6 +103,7 @@ class UserProfileController extends Controller
         $user->update(['theme_preference' => $validated['theme_preference']]);
 
         return response()->json([
+            ...ApiMessage::payload('profile.theme_updated'),
             'theme_preference' => $user->theme_preference,
         ]);
     }
@@ -112,17 +115,23 @@ class UserProfileController extends Controller
      */
     public function updateLocale(Request $request): JsonResponse
     {
-        $supportedLocales = array_keys((array) config('parthenon-locales.supported', []));
-
         $validated = $request->validate([
-            'locale' => ['required', 'string', Rule::in($supportedLocales)],
+            'locale' => ['required', 'string', 'max:32'],
         ]);
+
+        $locale = ParthenonLocales::normalizeSelectable($validated['locale']);
+        if ($locale === null) {
+            throw ValidationException::withMessages([
+                'locale' => __('validation.in', ['attribute' => 'locale']),
+            ]);
+        }
 
         /** @var User $user */
         $user = $request->user();
-        $user->update(['locale' => $validated['locale']]);
+        $user->update(['locale' => $locale]);
 
         return response()->json([
+            ...ApiMessage::payload('profile.locale_updated'),
             'locale' => $user->locale,
         ]);
     }

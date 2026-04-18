@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Search, X, Check } from "lucide-react";
 
 type SortMode = "alpha" | "count" | "selected";
@@ -43,6 +44,7 @@ export default function TagSearchModal({
   facets,
   color = "teal",
 }: TagSearchModalProps) {
+  const { t } = useTranslation("common");
   const [search, setSearch] = useState("");
   const [sortMode, setSortMode] = useState<SortMode>("selected");
 
@@ -79,9 +81,11 @@ export default function TagSearchModal({
   }, [tags, search, sortMode, facets, activeTags]);
 
   const sortOptions: Array<{ mode: SortMode; label: string }> = [
-    { mode: "selected", label: "Selected first" },
+    { mode: "selected", label: t("ui.tags.sort.selectedFirst") },
     { mode: "alpha", label: "A-Z" },
-    ...(hasFacets ? [{ mode: "count" as SortMode, label: "By count" }] : []),
+    ...(hasFacets
+      ? [{ mode: "count" as SortMode, label: t("ui.tags.sort.byCount") }]
+      : []),
   ];
 
   return (
@@ -97,12 +101,13 @@ export default function TagSearchModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border-default px-5 py-4">
           <h3 className="text-sm font-semibold text-text-primary">
-            Browse Tags ({tags.length})
+            {t("ui.tags.browseTags", { count: tags.length })}
           </h3>
           <button
             type="button"
             onClick={onClose}
             className="rounded p-1 text-text-ghost hover:bg-surface-elevated hover:text-text-primary transition-colors"
+            aria-label={t("ui.aria.close")}
           >
             <X size={16} />
           </button>
@@ -114,7 +119,7 @@ export default function TagSearchModal({
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-ghost" />
             <input
               type="text"
-              placeholder="Search tags..."
+              placeholder={t("ui.tags.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               autoFocus
@@ -143,14 +148,14 @@ export default function TagSearchModal({
         {activeTags.length > 0 && (
           <div className="flex items-center justify-between border-b border-border-default px-5 py-2">
             <span className="text-xs text-text-ghost">
-              {activeTags.length} selected
+              {t("ui.tags.selected", { count: activeTags.length })}
             </span>
             <button
               type="button"
               onClick={onClear}
               className="text-xs text-text-ghost hover:text-text-muted transition-colors"
             >
-              Clear all
+              {t("ui.tags.clearAll")}
             </button>
           </div>
         )}
@@ -162,7 +167,7 @@ export default function TagSearchModal({
         >
           {sortedTags.length === 0 ? (
             <p className="text-sm text-text-ghost text-center py-8">
-              No tags match &ldquo;{search}&rdquo;
+              {t("ui.tags.noMatches", { query: search })}
             </p>
           ) : (
             <div className="flex flex-wrap gap-2">
@@ -199,7 +204,7 @@ export default function TagSearchModal({
             onClick={onClose}
             className="px-4 py-2 bg-surface-elevated text-text-primary text-sm font-medium rounded-lg hover:bg-surface-accent transition-colors"
           >
-            Done
+            {t("ui.tags.done")}
           </button>
         </div>
       </div>

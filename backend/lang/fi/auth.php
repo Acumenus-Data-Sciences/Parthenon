@@ -8,5 +8,7 @@ return [
     'password_changed' => 'Salasana vaihdettu onnistuneesti',
     'temporary_password_sent' => 'Jos tällä sähköpostilla on tili, uusi väliaikainen salasana on lähetetty.',
     'logged_out' => 'Kirjauduttu ulos',
+    'unauthenticated' => 'Tunnistautuminen vaaditaan',
+    'forbidden' => 'Sinulla ei ole oikeutta suorittaa tätä toimintoa',
     'oidc_authentik_label' => 'Kirjaudu Authentikilla',
 ];

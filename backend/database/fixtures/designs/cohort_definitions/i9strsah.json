@@ -19,15 +19,15 @@
         "parent": null,
         "release": "df14",
         "coverage": {
-            "pct": 0.7222222222222222,
-            "bucket": "PARTIAL",
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
             "n_tokens_total": 36,
-            "n_tokens_resolved": 26
+            "n_tokens_resolved": 36
         },
         "conditions": null,
         "provenance": {
             "source_row": 1710,
-            "imported_at": "2026-04-17T00:17:30+00:00",
+            "imported_at": "2026-04-17T19:56:53+00:00",
             "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
             "importer_version": "1.0.0"
         },
@@ -152,8 +152,9 @@
         },
         "spec_version": "1.0",
         "pre_conditions": null,
-        "coverage_bucket": "PARTIAL",
+        "coverage_bucket": "FULLY_MAPPED",
         "sex_restriction": null,
+        "coverage_profile": "partial",
         "include_endpoints": [],
         "resolved_concepts": {
             "truncated": false,
@@ -262,7 +263,6 @@
                 45557553,
                 45557554,
                 45557555,
-                45562357,
                 45562359,
                 45562362,
                 45562363,
@@ -292,7 +292,6 @@
                 45586595,
                 45586596,
                 45586597,
-                45591471,
                 45591474,
                 45591476,
                 45596212,
@@ -308,7 +307,6 @@
                 45601047,
                 45605800,
                 45605801,
-                45605802,
                 45605806,
                 45605807,
                 45605809,
@@ -378,11 +376,11 @@
                 443239,
                 46273649,
                 4338227,
-                432923,
                 4006294,
                 762933,
                 442263,
                 372924,
+                432923,
                 442615,
                 375557,
                 374371,
@@ -390,7 +388,8 @@
                 441874,
                 44784634,
                 376713,
-                4164092
+                4164092,
+                381591
             ]
         }
     },
@@ -398,7 +397,7 @@
     "is_public": true,
     "version": 1,
     "created_at": "2026-04-16T23:56:03.000000Z",
-    "updated_at": "2026-04-17T00:17:30.000000Z",
+    "updated_at": "2026-04-17T19:56:53.000000Z",
     "deleted_at": null,
     "tags": [
         "finngen-endpoint",
@@ -418,5 +417,6 @@
     "domain": "finngen-endpoint",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null
+    "superseded_by": null,
+    "coverage_profile": "partial"
 }

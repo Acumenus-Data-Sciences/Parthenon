@@ -19,7 +19,7 @@
         "conditions": null,
         "provenance": {
             "source_row": 3312,
-            "imported_at": "2026-04-17T00:17:45+00:00",
+            "imported_at": "2026-04-17T19:57:12+00:00",
             "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
             "importer_version": "1.0.0"
         },
@@ -103,6 +103,7 @@
         "pre_conditions": null,
         "coverage_bucket": "FULLY_MAPPED",
         "sex_restriction": null,
+        "coverage_profile": "partial",
         "include_endpoints": [
             "ST19_COMPLICATIO_FOLLOWI_INFUS_TRANSFU_THERAPE_INJEC",
             "ST19_COMPLICATIO_PROCED_NOT_ELSEW_CLASSIFIED",
@@ -388,12 +389,6 @@
                 19553,
                 19554,
                 19555,
-                19556,
-                19557,
-                19558,
-                19559,
-                19560,
-                19561,
                 19562,
                 19563,
                 19564,
@@ -617,7 +612,13 @@
                 1102815,
                 1102816,
                 1102817,
-                1102818
+                1102818,
+                1102819,
+                1102820,
+                1102821,
+                1102822,
+                1575176,
+                1575177
             ],
             "conditions_standard": [
                 200907,
@@ -828,7 +829,7 @@
     "is_public": true,
     "version": 1,
     "created_at": "2026-04-16T23:56:18.000000Z",
-    "updated_at": "2026-04-17T00:17:45.000000Z",
+    "updated_at": "2026-04-17T19:57:12.000000Z",
     "deleted_at": null,
     "tags": [
         "finngen-endpoint",
@@ -840,5 +841,6 @@
     "domain": "finngen-endpoint",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null
+    "superseded_by": null,
+    "coverage_profile": "partial"
 }

@@ -19,7 +19,7 @@
         "conditions": null,
         "provenance": {
             "source_row": 3764,
-            "imported_at": "2026-04-17T00:17:49+00:00",
+            "imported_at": "2026-04-17T19:57:16+00:00",
             "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
             "importer_version": "1.0.0"
         },
@@ -103,6 +103,7 @@
         "pre_conditions": null,
         "coverage_bucket": "FULLY_MAPPED",
         "sex_restriction": null,
+        "coverage_profile": "partial",
         "include_endpoints": [],
         "resolved_concepts": {
             "truncated": false,
@@ -120,7 +121,6 @@
                 1576038,
                 1576039,
                 1576040,
-                1576041,
                 35225090,
                 35225091,
                 35225092,
@@ -128,32 +128,25 @@
                 35225094,
                 35225095,
                 35225096,
-                45537621,
                 45542412,
                 45552068,
-                45571332,
                 45576140,
                 45576141,
                 45585811,
-                45585812,
                 45590710,
-                45609916,
-                45609917
+                45609916
             ],
             "conditions_standard": [
                 4280828,
                 4003404,
                 4016359,
-                4015842,
                 4016356,
                 4015718,
                 1243842,
                 42535080,
-                4340380,
                 4016358,
                 4016357,
                 43530695,
-                4340379,
                 4160859
             ]
         }
@@ -162,7 +155,7 @@
     "is_public": true,
     "version": 1,
     "created_at": "2026-04-16T23:56:22.000000Z",
-    "updated_at": "2026-04-17T00:17:49.000000Z",
+    "updated_at": "2026-04-17T19:57:16.000000Z",
     "deleted_at": null,
     "tags": [
         "finngen-endpoint",
@@ -174,5 +167,6 @@
     "domain": "finngen-endpoint",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null
+    "superseded_by": null,
+    "coverage_profile": "partial"
 }

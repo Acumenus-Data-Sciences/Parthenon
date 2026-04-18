@@ -6,10 +6,14 @@ Owner: Product/Engineering
 
 Status: Implementation started
 
+Branch: `feature/parthenon-native-i18n`
+
 ## Implementation Progress
 
 2026-04-17:
 
+- Created dedicated implementation branch `feature/parthenon-native-i18n`.
+- Locked the initial language rollout decision: Spanish (`es-ES`) as the first production pilot, Korean (`ko-KR`) as the parallel production candidate, and Arabic (`ar`) as the internal RTL canary.
 - Added per-user locale persistence with a topnav language selector.
 - Added the initial supported locale registry for English, Spanish, French, German, Portuguese, Finnish, Japanese, Simplified Chinese, Korean, Hindi, Arabic, and an internal pseudolocale.
 - Wired frontend i18next initialization, document `lang`/`dir` updates, locale request headers, formatter helpers, and shared shell translation resources.
@@ -20,6 +24,38 @@ Status: Implementation started
 - Localized the rest of Settings: profile details, avatar controls, account/security, and notification preferences.
 - Added locale-aware contextual help lookup with English fallback metadata, localized help/changelog UI chrome, and a first Spanish dashboard help file as the content migration pattern.
 - Localized the unauthenticated auth flow: login, registration, forgot-password, forced password change, OIDC callback states, and matching backend auth response messages.
+- Expanded the frontend and backend locale registries with Laravel, Docusaurus, formatting, fallback, release-tier, enabled, and selectability metadata.
+- Added backend `ParthenonLocales` support helper and switched locale middleware/profile updates to shared normalization semantics.
+- Normalized persisted user locale updates so language-only values such as `ko` save as `ko-KR`.
+- Aligned Docusaurus config with English, Spanish, Korean, and Arabic locale builds.
+- Added focused frontend/backend locale metadata tests for Spanish, Korean, Arabic, and pseudolocale behavior.
+- Verified DB-backed user locale persistence against local PostgreSQL 17 using the `pgsql_testing` connection and `parthenon_testing` database.
+- Locked public user-facing language choices to English (`en-US`), Spanish (`es-ES`), and Korean (`ko-KR`). Non-certified Wave 1 locales remain enabled in metadata and translation tooling but are not selectable by users until certified; Arabic (`ar`) and `en-XA` remain QA/internal canaries.
+- Added frontend/backend locale metadata parity coverage so Docusaurus, Laravel, and frontend locale metadata cannot drift silently.
+- Added development/test missing-key telemetry hooks for structured namespace/key/language reporting.
+- Added a targeted locale-save rollback test for failed Settings preference updates.
+- Applied the production `users.locale` migration through the protected targeted migration path and verified `admin@acumenus.net` persisted locale cleanup back to `en-US`.
+- Deployed frontend/docs assets from the dedicated i18n worktree and remounted the live PHP, nginx, Horizon, and Reverb services on `/home/smudoshi/Github/Parthenon-i18n` so the original `main` checkout remains available for other agents.
+- Added a local deployment compose override for the i18n worktree that overlays the production Laravel `storage` and generated API docs directories into the branch-mounted containers; this preserves live runtime data while serving branch code.
+- Reran `./deploy.sh --php` with the i18n worktree compose override; deploy smoke passed for `/`, `/login`, `/jobs`, Sanctum CSRF, API 404 handling, and HADES package readiness.
+- Live public route smoke passed for `/`, `/login`, `/jobs`, `/docs/`, `/docs/es/`, `/docs/ko/`, and `/docs/ar/`.
+- Live authenticated locale smoke passed with `admin@acumenus.net`: `es-ES` save, `ko-KR` save, hidden `fr-FR` rejection with HTTP 422, and cleanup back to `en-US`.
+- Added focused Playwright i18n shell coverage in `e2e/tests/i18n-shell.spec.ts` for public language selector options, Spanish/Korean persistence, pseudolocale rendering, and Arabic RTL document metadata. Live production run passed 3/3 tests and restored `admin@acumenus.net` to `en-US`.
+- Added `npm run i18n:report`, which writes `frontend/reports/i18n-completeness.json` with per-locale key coverage, missing/empty key counts, and identical-to-source counts for CI and release-readiness review. Current report: 100% key coverage across 12 locales and 5 namespaces; Spanish distinct-value coverage is 94.78% and Korean is 93.74%.
+- Began PR5 backend message contract implementation with `App\Support\ApiMessage`. Auth and profile responses now preserve `message` while adding stable `message_key`, optional `message_params`, and `message_meta` with requested/message/fallback locale and fallback status. Added frontend `ApiMessageEnvelope`/`ApiMessageMeta` types for clients adopting the contract.
+- Added backend coverage for localized public auth errors, profile/auth message keys, replacement params, and fallback metadata. Focused backend tests pass: `ApiMessageTest`, `AuthTest`, and `UserProfileTest`.
+- Extended PR5 to global API exception handling: validation, unauthenticated, and authorization failures now use the same localized `message_key` envelope. Added core Laravel validation language files for every backend i18n locale and converted contextual help error responses to the envelope.
+- Added backend coverage for Korean public validation envelopes, Spanish authenticated validation envelopes, localized unauthenticated errors, help error message keys, and all-locale presence of core backend contract keys.
+- Deployed the PR5 backend contract update from the i18n worktree. Post-deploy smoke passed for `/`, `/login`, `/jobs`, Sanctum CSRF, API 404 handling, and HADES package readiness.
+- Live API contract smoke passed for Korean validation errors, Korean unauthenticated errors, Spanish invalid login errors, authenticated help not-found errors, and public/docs routes.
+- Continued PR5 on non-FinnGen study workflows only. `StudyController` create/update/delete/execute/add-analysis/remove-analysis/transition responses now emit localized `study.*` message keys and fallback metadata; domain exceptions keep a stable localized envelope plus diagnostic `detail`.
+- Added `study.php` backend language files for every backend i18n locale and frontend typing for study transition responses to extend `ApiMessageEnvelope`.
+- Added focused study message-contract tests for Spanish creation, Korean transitions with `message_params`, Spanish invalid transition errors, wrong-study analysis removal errors, and all-locale presence of the new study keys. The host Laravel test run is currently blocked by unrelated root-owned FinnGen files under active development, so the focused backend suite was verified in a temporary backend copy with readable FinnGen stubs and passed 8 tests / 124 assertions. No FinnGen source or tests were modified.
+- Added a warn-only frontend i18n scanner (`npm run i18n:scan`) that reports hardcoded JSX text, user-facing JSX attributes, and common display text properties without blocking feature branches. It writes the full baseline to `frontend/reports/i18n-scan-full.json`.
+- Added a scoped PR3/PR4 scanner command (`npm run i18n:scan:pr3-pr4`) for app shell, shared UI, auth, and settings extraction. It writes `frontend/reports/i18n-scan-pr3-pr4.json`. Initial baseline: 208 candidates across 57 files; full frontend baseline: 8,193 candidates across 1,068 files.
+- Extracted the first PR3 app-shell cluster: Abby panel chrome and About Abby modal copy now use layout translation keys, with Spanish and Korean public-locale copy and English fallback for hidden Wave 1 locales. Updated scanner baseline: 175 PR3/PR4 candidates and 8,160 full-frontend candidates.
+- Extracted the full PR3/PR4 scanner scope for app shell, shared UI, auth, and settings. Setup wizard/onboarding, auth setup steps, shared primitives, tag modals, job progress modal, notification settings header, and intentional non-translatable proper nouns/examples are now covered. Updated scanner baseline: 0 PR3/PR4 candidates across 57 files and 7,985 full-frontend candidates across 1,068 files.
+- Verified the current i18n branch with frontend i18n tests, TypeScript project check using the declared TypeScript 6 line, focused ESLint on touched frontend files, `git diff --check`, and backend locale/profile tests against local PostgreSQL 17 `parthenon_testing`.
 
 ## Executive Summary
 
@@ -57,7 +93,7 @@ Local repository audit commands included:
 - Package dependency inspection for i18next-related packages.
 - Frontend TypeScript AST scan to estimate user-facing strings.
 - Backend grep for hardcoded response/message strings.
-- Help-content, route, user-profile, and settings endpoint review.
+- Help-content, route, user-profile, settings endpoint, and Docusaurus documentation site review.
 
 The AST counts are directional, not a final translation inventory. They intentionally overcount non-user strings so the plan does not underestimate effort.
 
@@ -180,12 +216,39 @@ Potentially in scope depending on the product definition:
 
 - `installer/gui_qt.py`
 - `frontend/public/install/**`
-- README/docs/public documentation.
+- Docusaurus documentation site under `docs/site/`.
+- Docusaurus blog content under `docs/blog/`.
+- Docusaurus static build output under `docs/dist/` and `docs/site/build/` as generated artifacts, not translation source.
+- README/docs/public documentation outside the Docusaurus site.
 - Export PDFs and generated documents.
 - Admin broadcast emails.
 - Survey invitation emails and public survey route.
 
 These should not block the first web-app pilot, but they must be included before claiming full native product availability.
+
+### Docusaurus Documentation Site
+
+Relevant files:
+
+- `docs/site/docusaurus.config.ts`
+- `docs/site/package.json`
+- `docs/site/sidebars.ts`
+- `docs/site/docs/**`
+- `docs/site/src/**`
+- `docs/blog/**`
+- `docs/dist/**`
+- `deploy.sh`
+- `docker/nginx/default.conf.template`
+
+Findings:
+
+- The Docusaurus v3 user manual is a shipped platform surface served under `/docs/`.
+- Docusaurus currently has `i18n.defaultLocale: "en"` and `locales: ["en"]`; no production documentation locales are configured yet.
+- The site includes MDX manual pages, generated OpenAPI reference pages, a development blog, Mermaid diagrams, local Lunr search, optional Algolia configuration, and nginx/static deploy plumbing.
+- `docs/site/package.json` already has `write-translations`, which is the Docusaurus extraction command for theme/navbar/footer strings.
+- `docs/dist/` and `docs/site/build/` are generated outputs and should not be translated directly.
+- API route names, endpoint paths, schema names, code blocks, CLI commands, SQL, JSON, and OpenAPI identifiers must remain stable; explanatory prose around them can be localized.
+- Docusaurus search must be locale-aware. Local Lunr indexes need per-locale language support where available; Algolia DocSearch would need separate locale facets or indices.
 
 ## Definition Of "Native Availability"
 
@@ -197,10 +260,11 @@ A locale is production-supported only when all criteria below are true:
 4. API error/status messages shown to users are localized or mapped to localized frontend keys.
 5. Dates, times, numbers, percentages, currency, units, pluralized phrases, and sorting use the active locale.
 6. Emails and export documents generated by Parthenon use recipient/request locale when known.
-7. Abby and other AI-generated explanations use the active locale by default, while code/SQL/artifacts remain intact.
-8. Clinical terminology uses available same-language OMOP synonyms or clearly falls back to the canonical term.
-9. English appears only for proper nouns, code identifiers, unavailable source data, untranslated user-generated content, logs, or documented fallback cases.
-10. The locale has passed automated missing-key checks, pseudolocale checks, Playwright smoke tests, RTL tests if applicable, and human linguistic QA.
+7. Docusaurus manual pages, docs-site chrome, docs navigation/sidebar labels, docs search, API-reference prose where product-owned, and blog/release-note surfaces included in the release tier are available in that locale.
+8. Abby and other AI-generated explanations use the active locale by default, while code/SQL/artifacts remain intact.
+9. Clinical terminology uses available same-language OMOP synonyms or clearly falls back to the canonical term.
+10. English appears only for proper nouns, code identifiers, unavailable source data, untranslated user-generated content, logs, or documented fallback cases.
+11. The locale has passed automated missing-key checks, pseudolocale checks, Playwright smoke tests, Docusaurus build/link/search checks, RTL tests if applicable, and human linguistic QA.
 
 ## Recommended Locale Strategy
 
@@ -218,18 +282,37 @@ Examples:
 Recommended initial set:
 
 - Base: `en-US`
-- Pseudolocale: `en-XA` or internal `pseudo`
-- Pilot LTR language: `es-ES` or `fr-FR`
-- RTL canary: `ar`
+- Pseudolocale: `en-XA`
+- First production pilot: `es-ES`
+- Parallel production candidate: `ko-KR`
+- Internal RTL canary: `ar`
+- Initial Tier A target candidates: `es-ES`, `ko-KR`
 - Wave 1 production candidates: `es-ES`, `fr-FR`, `de-DE`, `pt-BR`, `fi-FI`, `ja-JP`, `zh-Hans`, `ko-KR`, `hi-IN`, `ar`
+
+Current public-selectable languages:
+
+- `en-US`: English baseline.
+- `es-ES`: Spanish production pilot.
+- `ko-KR`: Korean production candidate.
+
+Current internal/QA-only languages:
+
+- `ar`: RTL canary for layout, bidirectional text, and Docusaurus/docs readiness.
+- `en-XA`: pseudolocale for expansion and missing extraction checks.
+
+Current metadata-enabled but hidden Wave 1 candidates:
+
+- `fr-FR`, `de-DE`, `pt-BR`, `fi-FI`, `ja-JP`, `zh-Hans`, `hi-IN`.
 
 Rationale:
 
+- `es-ES` is the fastest first production pilot because it exercises the full localization pipeline with lower layout risk and strong translation tooling support.
+- `ko-KR` should run beside Spanish because it stress-tests non-Latin typography, line wrapping, search/tokenization assumptions, clinical terminology policy, and AI tone/register.
 - `es`, `fr`, `de`, `pt-BR` cover common international product expectations.
 - `fi-FI` is valuable because FinnGen is a major Parthenon feature.
 - `ja-JP`, `zh-Hans`, and `ko-KR` expose East Asian layout, font coverage, line-breaking, and search/sort behavior.
 - `hi-IN` exposes Indic-script shaping, Devanagari font coverage, Hindi plural/phrase behavior, and India-specific number/date formatting concerns.
-- `ar` forces RTL, bidirectional text, and logical CSS discipline early.
+- `ar` forces RTL, bidirectional text, and logical CSS discipline early. It should stay active in engineering smoke tests even if it is not release-blocking for the first production language pack.
 
 Do not claim "all languages" until language-support tiers are explicit:
 
@@ -266,7 +349,7 @@ This stack keeps Parthenon vendor-flexible while still giving us a concrete impl
 Phrase is the best fit for Parthenon's product-localization workflow because it directly matches the repository model:
 
 - Phrase Strings integrates with GitHub repositories and uses a `.phrase.yml` file to define import/export paths, which maps cleanly to `frontend/src/i18n/**`, `frontend/public/locales/**`, and backend language files.
-- Phrase Strings provides key-oriented software localization, while Phrase TMS covers larger help/docs/export/email content.
+- Phrase Strings provides key-oriented software localization, while Phrase TMS covers larger help, Docusaurus MDX, blog, export, and email content.
 - Phrase Language AI acts as a central MT and agentic translation hub across Phrase products, can autoselect engines by domain/language pair, supports MT glossaries, and can run AI Translation Agent workflows.
 - Phrase Next GenMT is especially relevant for product/help content because it uses generative AI, supports glossary use, tag handling, multi-segment context, locale variants, and real-time customization from translation memories.
 - Phrase QPS predicts MQM-derived quality scores and is available in Phrase TMS, Phrase Language AI API, and Phrase Strings, making it useful for routing low-confidence segments to human review.
@@ -300,6 +383,7 @@ Use DeepL for:
 
 - UI strings.
 - Help articles.
+- Docusaurus manual/blog prose and generated-doc explanatory prose after code/API artifacts are protected.
 - Product documentation.
 - Email/export copy that contains no PHI or sensitive customer data.
 - High-quality LTR and CJK/Korean/Hindi first drafts where language-pair results pass our bakeoff.
@@ -386,6 +470,7 @@ Use OpenAI for:
 - "Review this translation against source, glossary, and tone guide" jobs.
 - Locale-specific Abby responses and explanations.
 - Help text refinement after raw MT.
+- Docusaurus MDX/prose refinement after raw MT, while preserving frontmatter, admonitions, MDX imports, links, code fences, Mermaid syntax, and OpenAPI identifiers.
 - Detecting unlocalized source terms, broken placeholders, suspect clinical terminology, and untranslated English.
 
 Do not use OpenAI for:
@@ -412,7 +497,7 @@ All translation calls must be classified before leaving Parthenon:
 - Class 3: PHI, patient notes, row-level patient data, user-uploaded documents, private comments. Do not send to third-party translation services unless the specific provider, endpoint, region, and BAA/DPA are approved for PHI.
 - Class 4: code-like artifacts such as SQL, JSON, CDM field names, API payload keys, logs, identifiers, cohort JSON, concept IDs. Never translate. Localize surrounding explanation only.
 
-The default implementation should allow Class 0 through the Phrase/DeepL/OpenAI workflow, block Class 3, and mark Class 1/2 for explicit policy approval.
+The default implementation should allow Class 0 through the Phrase/DeepL/OpenAI workflow, block Class 3, and mark Class 1/2 for explicit policy approval. Docusaurus pages are mostly Class 0, but embedded code/API/schema blocks and generated OpenAPI identifiers are Class 4 and must be protected by the exporter before translation.
 
 ### Best-Practice Localization Rules
 
@@ -425,6 +510,7 @@ Follow these rules regardless of provider:
 - Use `dir="auto"` or equivalent isolation for mixed-direction user/runtime text.
 - Prefer logical CSS properties (`margin-inline-start`, `padding-inline-end`, etc.) as the UI is converted.
 - Store a product termbase with "do not translate" entries for Parthenon, Abby, OMOP, OHDSI, CDM, SQL, ICD, SNOMED, LOINC, RxNorm, Atlas, cohort, concept set, and other clinical/product terms.
+- Preserve Markdown/MDX structure in docs translations: frontmatter keys, imports/exports, admonition syntax, heading IDs, link targets, code fences, Mermaid diagrams, JSX components, API paths, and anchor slugs.
 - Keep translation memory and glossary assets under exportable formats such as TMX/CSV/TSV so Parthenon is not locked to one vendor.
 - Require human review for Tier A languages before release, then allow AI+QPS routing to reduce review scope on future diffs.
 
@@ -442,6 +528,7 @@ Sample set:
 
 - 250 UI strings across navigation, settings, auth, cohort definitions, study designer, data explorer, ETL, and admin.
 - 25 long help sections.
+- 25 Docusaurus MDX sections, including one page with frontmatter, one with Mermaid, one with admonitions, one with code fences, and one generated API-reference page.
 - 50 clinical/product terminology snippets.
 - 25 validation/error/toast strings with placeholders.
 - 25 RTL/mixed-direction strings.
@@ -486,7 +573,7 @@ Add a backend-only translation orchestration service after the current UI langua
   - `TranslationPolicyService` for data-class gating.
   - `PlaceholderIntegrityService` for ICU/i18next/tag parity.
   - `TerminologyService` for termbase and do-not-translate rules.
-  - `LocaleAssetExporter` to generate TMS upload files from frontend/backend namespaces.
+  - `LocaleAssetExporter` to generate TMS upload files from frontend/backend namespaces, help JSON, email/export templates, and Docusaurus MDX/blog/theme strings.
   - `LocaleAssetImporter` to validate and import reviewed translations back into the repo.
 
 Provider configuration should be environment-driven and tenant-aware:
@@ -506,8 +593,8 @@ Proceed with Phrase-first localization workflow design, but do not hard-wire Phr
 
 Recommended next implementation step:
 
-1. Add a `translation_assets` tooling path that exports frontend/backend locale namespaces to a TMS-ready JSON/CSV bundle.
-2. Add placeholder/term QA scripts that run locally and in CI.
+1. Add a `translation_assets` tooling path that exports frontend/backend locale namespaces, help JSON, and Docusaurus source content to a TMS-ready JSON/CSV/MDX bundle.
+2. Add placeholder/term/MDX structure QA scripts that run locally and in CI.
 3. Add provider-neutral backend service interfaces and a no-op/local-file provider.
 4. Add a DeepL/OpenAI prototype behind feature flags for Class 0 strings only.
 5. Run the bakeoff before purchasing or committing to production provider credentials.
@@ -671,6 +758,45 @@ Exports:
 - Keep raw scientific results/code/identifiers unchanged.
 - Decide whether exported documents are generated in the viewer locale, study locale, or requested export locale.
 
+### Docusaurus Site
+
+Docusaurus is part of native platform availability, not a separate optional documentation project.
+
+Source surfaces:
+
+- `docs/site/docs/**`: user manual, migration guide, architecture pages, generated API docs output checked into the Docusaurus docs tree.
+- `docs/blog/**`: development blog and release communication where product-facing.
+- `docs/site/docusaurus.config.ts`: navbar, footer, tagline, metadata, locale config, search config.
+- `docs/site/sidebars.ts`: sidebar labels and generated API sidebar labels.
+- `docs/site/src/**`: custom pages/components/CSS that contain user-visible documentation chrome.
+
+Generated surfaces:
+
+- `docs/dist/**` and `docs/site/build/**` are build output. Never translate these directly.
+- Build localized docs with the Docusaurus source/i18n folders and deploy with `./deploy.sh --docs`.
+
+Docusaurus i18n tasks:
+
+- Expand `docs/site/docusaurus.config.ts` from `locales: ["en"]` to the supported docs locale set, using Docusaurus-compatible locale IDs.
+- Run `npm run write-translations` from `docs/site` to extract theme/navbar/footer strings.
+- Add Docusaurus i18n folders for each Tier A docs locale, for example `docs/site/i18n/{locale}/docusaurus-plugin-content-docs/current/**`, `docs/site/i18n/{locale}/docusaurus-plugin-content-blog/**`, and theme translation JSON.
+- Localize MDX prose, headings, sidebar/category labels, navbar/footer labels, page titles/descriptions, admonition prose, alt text, and search metadata.
+- Preserve frontmatter keys, explicit `id` and `slug` values, link targets, heading anchors used by in-app help, MDX imports/exports, JSX component names/props that are code, admonition markers, code fences, Mermaid diagrams, API paths, and OpenAPI schema identifiers.
+- Decide whether translated docs use localized slugs or stable English slugs. Recommendation: keep stable route slugs for in-app help links and use localized titles/headings. If localized slugs are later required, add redirect maps and help-link locale routing.
+- Configure docs search per locale. For local Lunr, verify language support and index generation for each locale. For Algolia, use locale-aware indices/facets and keep `/docs/{locale}/...` routing searchable.
+- Ensure OpenAPI generated docs separate immutable API artifacts from translatable summaries/descriptions. Endpoint paths, HTTP methods, request/response field names, enum values, and examples remain unchanged.
+- Include docs in the same termbase as the app. Product terms, clinical vocabulary, abbreviations, and code-like tokens must stay consistent across app UI, help JSON, Docusaurus, emails, exports, and Abby.
+
+Docusaurus acceptance:
+
+- `./deploy.sh --docs` succeeds for all enabled docs locales.
+- `/docs/` and locale-specific docs routes render with correct `lang`/`dir`.
+- Sidebar, navbar, footer, search UI, blog archive, docs pages, and API reference chrome are localized.
+- In-app help `docs_url` links resolve for each locale or intentionally fall back to the English route.
+- Localized search returns results for translated pages and does not cross-pollute unrelated locales.
+- Link checking passes with known `/docs/api` integration exceptions documented.
+- RTL docs locale smoke tests cover navigation, sidebars, code blocks, Mermaid diagrams, tables, admonitions, and search.
+
 ### Clinical Vocabulary And Data
 
 Add a locale-aware terminology policy:
@@ -757,6 +883,7 @@ Scanner should classify:
 - Backend response messages.
 - Blade static text.
 - Help JSON content.
+- Docusaurus MDX prose, frontmatter titles/descriptions, sidebar labels, navbar/footer labels, blog metadata, docs custom components, and OpenAPI generated prose.
 
 Allowlist:
 
@@ -765,6 +892,7 @@ Allowlist:
 - Permission names and role identifiers.
 - Query keys.
 - SQL and code snippets.
+- Markdown/MDX code fences, imports/exports, Mermaid syntax, frontmatter keys, explicit route slugs/IDs, Docusaurus config keys, OpenAPI operation IDs, schema names, field names, enum values, and examples where the value is part of an API contract.
 - Proper nouns and product names.
 - Test strings when not user-facing.
 
@@ -816,16 +944,18 @@ Duration: 3-5 days
 Deliverables:
 
 - Confirm initial supported locale list.
-- Confirm what "native" includes for v1: web app, public survey, emails, help, exports, installer, docs.
+- Confirm what "native" includes for v1: web app, public survey, emails, help, exports, installer, Docusaurus docs site, Docusaurus blog/release notes, generated API docs, and public/static docs.
 - Choose translation storage location: repo JSON, backend-served JSON, or external TMS integration.
 - Decide if machine translation can be used for drafts.
 - Decide review level for clinical/medical text.
 - Define terminology glossary owners.
+- Decide whether docs locales keep stable English route slugs or localized slugs with redirects. Recommendation: stable slugs for v1.
 
 Acceptance:
 
 - Written scope and tier definitions.
 - Locale list with BCP 47 tags, native names, direction, fallback chain, and support tier.
+- Documentation surfaces are explicitly assigned to Tier A/B/C rules, including Docusaurus manual, blog, generated API docs, and in-app help docs links.
 
 ### Phase 1: Foundation
 
@@ -851,6 +981,13 @@ Backend tasks:
 - Add base `lang/en/*.php` structure.
 - Convert existing FinnGen translation pattern into broader API pattern.
 
+Docusaurus tasks:
+
+- Add supported docs locales to `docs/site/docusaurus.config.ts`.
+- Run Docusaurus translation extraction for navbar/footer/theme strings.
+- Add docs locale routing strategy and fallback policy to the in-app help link resolver.
+- Add a Docusaurus source inventory to the i18n scanner without touching generated `docs/dist/**`.
+
 Acceptance:
 
 - User can change language setting and see shell/nav/settings update.
@@ -858,6 +995,7 @@ Acceptance:
 - `Accept-Language` and `X-Parthenon-Locale` flow to backend.
 - HTML `lang`/`dir` updates.
 - Pseudolocale shows expanded shell text.
+- Docusaurus can build with the base English locale after i18n config changes.
 - Existing tests pass.
 
 ### Phase 2: Frontend Extraction Waves
@@ -909,7 +1047,7 @@ Acceptance:
 - Pseudolocale passes smoke navigation.
 - At least one pilot locale can navigate migrated flows.
 
-### Phase 3: Backend, Help, Emails, And Exports
+### Phase 3: Backend, Help, Docusaurus, Emails, And Exports
 
 Duration: 2-4 weeks, overlaps Phase 2
 
@@ -918,6 +1056,11 @@ Tasks:
 - Convert common API response messages to keyed translations.
 - Localize Laravel validation messages and field labels.
 - Implement help locale fallback.
+- Configure Docusaurus locale directories for Tier A docs locales.
+- Localize Docusaurus docs-site chrome, sidebars, and top-priority manual pages.
+- Add Docusaurus MDX structure validation to prevent broken frontmatter, links, code fences, Mermaid diagrams, admonitions, imports, and OpenAPI identifiers.
+- Wire in-app help docs links to locale-specific Docusaurus routes with English fallback.
+- Add docs search validation for each docs locale.
 - Localize email subjects and Blade templates.
 - Localize export labels.
 - Decide changelog behavior.
@@ -927,6 +1070,9 @@ Acceptance:
 
 - API returns localized messages for common profile/auth/help/admin errors.
 - Help content resolves `{locale}/{key}.json` with fallback.
+- Docusaurus builds through `./deploy.sh --docs` and produces localized route output for enabled docs locales.
+- Localized Docusaurus pages preserve code/API artifacts and pass link/search smoke checks.
+- Help `docs_url` links resolve in the active locale or use documented English fallback.
 - Emails render with correct `lang`/`dir`.
 - Export labels are localized where product-owned.
 
@@ -961,6 +1107,7 @@ Tasks:
 - Add RTL canary locale.
 - Convert major directional CSS to logical properties.
 - Add Playwright tests for LTR, pseudolocale, and RTL smoke routes.
+- Add Docusaurus RTL smoke tests for `/docs/`, a manual page, an API reference page, blog index, search, a Mermaid page, and a table-heavy page.
 - Verify keyboard/focus behavior in mirrored layouts.
 - Verify `dir="auto"` in user-generated and source-data text.
 - Run accessibility checks for labels and language attributes.
@@ -968,6 +1115,7 @@ Tasks:
 Acceptance:
 
 - Arabic/Hebrew canary renders without major layout breakage in shell, tables, forms, drawers, modals, and chat/wiki content.
+- Arabic/Hebrew Docusaurus routes render navigation, sidebar, search, admonitions, code blocks, tables, and diagrams without major layout breakage.
 - Screenshots show no clipped primary actions under pseudolocale.
 - Accessibility labels are translated or intentionally stable.
 
@@ -980,9 +1128,11 @@ Tasks:
 - Export strings to translators/TMS.
 - Translate product UI.
 - Translate help content and emails.
+- Translate Docusaurus manual/blog/docs-site chrome for the target tier.
 - Review clinical/research terminology.
 - Import translations.
 - Run automated parity checks.
+- Run Docusaurus build/link/search checks.
 - Linguistic QA by native reviewer.
 - Product QA in target workflows.
 - Release as Tier A or Tier B language.
@@ -991,6 +1141,7 @@ Acceptance:
 
 - Translation coverage meets threshold.
 - Human reviewer signs off.
+- Docusaurus target-locale docs meet the same release tier as the app surface, or the fallback is explicitly documented for Tier B/C.
 - No critical UI truncation.
 - No clinical terminology blockers.
 - Known fallback cases documented.
@@ -1101,7 +1252,29 @@ Tests:
 - Missing locale file falls back to English.
 - Missing key returns localized "not found" message.
 
-### Epic 7: Emails And Exports
+### Epic 7: Docusaurus Documentation Site
+
+Tasks:
+
+- Add Docusaurus locale configuration in `docs/site/docusaurus.config.ts`.
+- Run `npm run write-translations` from `docs/site` and commit generated translation JSON.
+- Add `docs/site/i18n/{locale}/...` source folders for manual pages, blog posts, and theme strings.
+- Localize `docs/site/docs/**` MDX prose and `docs/blog/**` content by tier.
+- Localize navbar/footer/sidebar labels and docs metadata.
+- Preserve route IDs/slugs, heading IDs used by help links, MDX imports, code fences, Mermaid diagrams, and OpenAPI identifiers.
+- Add MDX structure checks for translated docs.
+- Add docs search checks per locale.
+- Build and deploy docs with `./deploy.sh --docs`.
+
+Tests:
+
+- Docusaurus builds for English and pilot locale.
+- Localized docs route resolves from in-app `docs_url`.
+- Search returns locale-specific results.
+- API reference identifiers remain unchanged.
+- RTL docs smoke route renders sidebar, search, tables, code, and Mermaid diagrams.
+
+### Epic 8: Emails And Exports
 
 Tasks:
 
@@ -1118,7 +1291,7 @@ Tests:
 - RTL email smoke rendering.
 - Export snapshot labels localized.
 
-### Epic 8: Clinical Terminology
+### Epic 9: Clinical Terminology
 
 Tasks:
 
@@ -1134,7 +1307,7 @@ Tests:
 - Missing synonym falls back to canonical concept name.
 - Source values remain unchanged.
 
-### Epic 9: AI Localization
+### Epic 10: AI Localization
 
 Tasks:
 
@@ -1150,7 +1323,7 @@ Tests:
 - Text-to-SQL accepts pilot-language prompt and emits SQL.
 - Cohort explanation localizes prose but preserves concept identifiers.
 
-### Epic 10: Governance And Translation Operations
+### Epic 11: Governance And Translation Operations
 
 Tasks:
 
@@ -1159,6 +1332,7 @@ Tasks:
 - Create style guide by language.
 - Define reviewer roles.
 - Define fallback and versioning policy.
+- Define documentation localization policy for manual pages, blog posts, release notes, generated API docs, and in-app help `docs_url` fallback.
 - Add translation release checklist.
 
 Acceptance:
@@ -1177,6 +1351,7 @@ Unit tests:
 - Translation key parity.
 - Laravel middleware.
 - Help fallback.
+- Docusaurus translation asset inventory and MDX structure validation.
 - Backend localized response helper.
 
 Integration tests:
@@ -1185,6 +1360,7 @@ Integration tests:
 - API error localization.
 - Vocabulary synonym lookup by locale.
 - Abby locale propagation.
+- Help `docs_url` locale fallback to Docusaurus routes.
 
 Playwright/e2e:
 
@@ -1194,6 +1370,7 @@ Playwright/e2e:
 - RTL canary smoke.
 - Public survey route.
 - Shared cohort route.
+- Docusaurus manual route, API reference route, blog index, search, Mermaid page, and table-heavy page.
 
 Visual checks:
 
@@ -1212,6 +1389,7 @@ Accessibility checks:
 - Translated accessible names.
 - No English-only `aria-label`.
 - Keyboard navigation in RTL.
+- Docusaurus page language, direction, skip links, sidebar navigation, search dialog labels, and code block controls.
 
 Performance checks:
 
@@ -1219,6 +1397,7 @@ Performance checks:
 - Locale namespace lazy loading.
 - Cache headers for locale JSON.
 - Avoid loading all languages for every user.
+- Docusaurus build size, per-locale search index size, static asset cache behavior, and docs route generation time.
 
 ## Release Plan
 
@@ -1242,6 +1421,7 @@ Scope:
 - Cohort definitions, concept sets, vocabulary, analyses/studies landing pages.
 - Help fallback.
 - Common backend messages.
+- Docusaurus locale config and top-priority docs route fallback from in-app help.
 
 Exit:
 
@@ -1264,7 +1444,7 @@ Exit:
 Scope:
 
 - Pilot locale translated and reviewed.
-- Emails/help/public flows included.
+- Emails/help/Docusaurus/public flows included.
 - AI locale-aware for key workflows.
 
 Exit:
@@ -1289,6 +1469,8 @@ Engineering:
 - Foundation: 2-3 weeks.
 - Full English extraction and tooling: 6-10 weeks.
 - Backend/content/email/export localization: 2-4 weeks, partially parallel.
+- Docusaurus documentation localization infrastructure: 1-2 weeks.
+- Docusaurus content translation/review: 1-4 weeks per target docs tier, depending on how much manual/blog/API prose is included.
 - Clinical terminology and AI localization first pass: 3-5 weeks.
 - RTL hardening: 1-3 weeks.
 
@@ -1314,6 +1496,465 @@ Calendar expectation:
 - Broad Tier A coverage for 5-8 locales: about 4-6 months with parallel translation.
 - "All available languages": ongoing program.
 
+## Branch Execution Plan
+
+This section turns the strategy above into a branch-level implementation checklist for `feature/parthenon-native-i18n`. The branch should stay reviewable by landing small PR-sized slices that each leave the platform in a working state.
+
+### Initial Phase TODOs
+
+#### Phase A: Branch And Scope Lock
+
+- [x] Create `feature/parthenon-native-i18n`.
+- [x] Record Spanish (`es-ES`) as the first production pilot.
+- [x] Record Korean (`ko-KR`) as the parallel production candidate.
+- [x] Record Arabic (`ar`) as an internal RTL canary.
+- [x] Keep `en-XA` as the layout-expansion pseudolocale.
+- [x] Decide whether non-pilot Wave 1 locales are public-selectable previews or hidden until certified.
+- [ ] Decide whether installer GUI and public install pages are included in v1 native scope.
+- [ ] Decide whether Docusaurus v1 Tier A includes the manual only or also blog, API docs, migration guide, and release notes.
+
+#### Phase B: Canonical Locale Registry
+
+- [x] Expand locale metadata to include BCP 47 tag, Laravel tag, Docusaurus tag, English label, native label, direction, date locale, number locale, fallback chain, release tier, and QA/public-selectability flags.
+- [x] Use the same normalization semantics in frontend and backend: exact match, case-insensitive match, underscore-to-hyphen match, language-only fallback, then `en-US`.
+- [x] Normalize the persisted user locale before saving it.
+- [x] Return the normalized locale in `/api/v1/user/locale`.
+- [x] Expose release-tier metadata to frontend UI and future translation tooling.
+- [x] Align Docusaurus `i18n` config with the initial docs locale set: English, Spanish, Korean, and Arabic canary.
+- [x] Add tests proving Spanish, Korean, Arabic, and pseudolocale metadata stay valid.
+
+#### Phase C: Runtime And Preference Hardening
+
+- [x] Confirm topnav selector and Settings `Language & Region` use canonical metadata, with user-facing controls limited to public-selectable locales.
+- [x] Confirm preference precedence: authenticated user locale, explicit request/query locale, stored local browser preference, browser language, default English.
+- [x] Confirm locale changes update `document.documentElement.lang` and `dir`.
+- [x] Confirm API requests send both `Accept-Language` and `X-Parthenon-Locale`.
+- [x] Add a targeted test for failed locale saves rolling back optimistic frontend state.
+- [x] Add missing-key telemetry in development/test mode.
+- [x] Add frontend/backend locale metadata parity checks to prevent registry drift.
+- [x] Validate the signed-in language preference flow against the deployed app with the admin smoke account.
+
+#### Phase D: First Translation Coverage Slice
+
+- [x] Treat shell/auth/settings/help as the first Spanish/Korean production coverage slice.
+- [x] Add or verify Spanish and Korean resources for shell, auth, settings, profile, help chrome, backend auth, backend profile, and backend help strings.
+- [ ] Keep Arabic and `en-XA` in smoke tests for layout and direction only.
+- [x] Add missing-key telemetry in warn-only mode.
+- [x] Add hardcoded user-facing string scanner/reporting in warn-only mode.
+- [ ] Add a translation completeness report for `en-US`, `es-ES`, `ko-KR`, `ar`, and `en-XA`.
+- [x] Run focused frontend and backend locale tests before expanding into more surfaces.
+
+Branch goals:
+
+1. Establish one canonical locale registry for the platform, docs, backend, and translation tooling.
+2. Make the signed-in app remember a per-user preferred language and apply it consistently.
+3. Convert user-facing strings into stable translation keys with English as the source language.
+4. Add CI and scanner coverage so new pages and features cannot silently bypass i18n.
+5. Bring Docusaurus into the same localization program as the product UI.
+6. Define the translation operations path for AI drafts, TMS sync, review, fallback, and release.
+7. Prepare the branch for progressive language-pack production without blocking feature delivery.
+
+### Branch Working Agreement
+
+- Keep English source strings stable once extracted. Renames should be treated as migration work because they invalidate translation memory.
+- Prefer one PR per surface or capability. Avoid broad "translate everything" PRs that mix runtime changes, content changes, and visual fixes.
+- Every PR that adds user-facing text must either add translation keys or explicitly document why the text is source-data, code, or intentionally untranslated.
+- Missing translations are allowed during feature development only when the fallback is visible in tooling and safe at runtime.
+- Release branches should fail on missing Tier A translations for release-blocking surfaces.
+- Feature branches should warn on missing translations unless the feature is marked release-ready.
+- Docusaurus source content is translated from `docs/site/**` and related source directories, never from generated `docs/dist/**` or `docs/site/build/**`.
+- Clinical vocabulary/source values are not machine-translated as if they were UI copy. They use source terminology tables, explicit fallback labels, or curated terminology assets.
+- AI-generated copy must receive the user's locale, source/fallback metadata, and formatting conventions. It must not invent translated clinical labels when source data is unavailable.
+
+### Definition Of Ready For Each PR
+
+Before starting a PR slice:
+
+- The target surface and ownership are named.
+- English source strings and translation namespace are identified.
+- Fallback behavior is defined.
+- Tests or verification commands are listed.
+- Any data/privacy class for text sent to an external translation service is identified.
+- Docusaurus impact is checked if the PR changes public docs, docs navigation, release notes, generated API documentation, or help links.
+
+### Definition Of Done For Each PR
+
+A PR slice is done when:
+
+- New user-facing strings are extracted to the agreed namespace or intentionally exempted.
+- Existing supported locales either have translations, pseudolocale coverage, or documented fallback.
+- `en-XA` can expose layout expansion issues for the changed frontend surface.
+- RTL behavior is checked when layout or chrome changes.
+- Backend responses include stable message keys where clients need localized rendering.
+- Docusaurus changes build through `./deploy.sh --docs` when docs are touched.
+- Frontend changes deploy through `./deploy.sh --frontend` when shipped assets are touched.
+- Scanner, typecheck, unit, and smoke checks are updated or explicitly deferred with a follow-up item.
+
+### PR Sequence
+
+#### PR 0: Branch Setup And Plan Lock
+
+Scope:
+
+- Create `feature/parthenon-native-i18n`.
+- Add this execution checklist.
+- Confirm the branch status and existing dirty files.
+- Lock Spanish (`es-ES`) as the first production pilot, Korean (`ko-KR`) as the parallel production candidate, and Arabic (`ar`) as the internal RTL canary.
+
+Acceptance criteria:
+
+- Branch exists locally.
+- Plan names branch, PR sequence, acceptance gates, and open decisions.
+- Plan records the initial Spanish/Korean rollout decision and Arabic canary stance.
+- No runtime code behavior changes are introduced by this PR.
+
+Verification:
+
+- `git status --short --branch`
+- `git diff --check`
+
+Status: Complete for planning scope; implementation continues with PR 1.
+
+#### PR 1: Canonical Locale Registry And User Preference Contract
+
+Scope:
+
+- Finalize a shared locale registry for frontend, Laravel, Docusaurus, and translation tooling.
+- Confirm BCP 47 tags: `en-US`, `es-ES`, `fr-FR`, `de-DE`, `pt-BR`, `fi-FI`, `ja-JP`, `zh-Hans`, `ko-KR`, `hi-IN`, `ar`, `en-XA`.
+- Ensure user preference persistence uses one canonical field and one migration path.
+- Add fallback chains and native language labels.
+- Document locale metadata fields: `tag`, `base`, `laravel`, `docusaurus`, `nativeName`, `englishName`, `dir`, `dateLocale`, `numberLocale`, `enabled`, `releaseTier`.
+
+Acceptance criteria:
+
+- Frontend selector, backend middleware, API headers, and settings page use the same registry semantics.
+- Unsupported locale input normalizes to the safest supported fallback.
+- Per-user locale preference survives logout/login and browser refresh.
+- Server-side locale negotiation order is documented and covered by tests.
+- Locale metadata is available to docs tooling without duplicating divergent values.
+
+Verification:
+
+- Backend locale negotiation tests.
+- Frontend language selector tests.
+- Manual smoke: change language in topnav, refresh, log out, log back in, confirm preference.
+
+Status: Complete for the initial implementation slice. Canonical metadata, backend normalization, frontend metadata tests, backend unit tests, DB-backed profile feature tests, Docusaurus locale config, targeted production migration, frontend deploy, PHP deploy, and live admin preference smoke are complete. Public user-facing selectors expose only `en-US`, `es-ES`, and `ko-KR`; hidden Wave 1 and QA locales remain available to metadata/tooling.
+
+#### PR 2: Frontend i18n Runtime Hardening
+
+Scope:
+
+- Stabilize i18next initialization, namespace loading, fallback behavior, and document `lang`/`dir` updates.
+- Standardize hooks/helpers for translation, formatting, and locale-aware routes.
+- Add pseudolocale generation for `en-XA`.
+- Add missing-key telemetry hooks in development.
+
+Acceptance criteria:
+
+- App shell renders with English, pseudolocale, and Arabic direction without runtime errors.
+- Missing keys are visible in development and test output.
+- Locale changes do not require full page reload unless explicitly required.
+- Route changes preserve selected locale and layout direction.
+
+Verification:
+
+- Frontend unit tests for locale provider and formatter helpers.
+- Playwright smoke for `en-US`, `en-XA`, and `ar` app shell.
+- `./deploy.sh --frontend`
+
+Status: Complete for the current branch slice. Runtime locale application, request headers, formatter metadata, public selector hardening, locale metadata parity tests, missing-key telemetry, warn-only hardcoded string scanner/reporting, Playwright shell coverage for `en-US`, `en-XA`, and `ar`, and a JSON translation completeness report artifact are implemented. Future PR 2 hardening can promote the report from advisory to release-gating once Tier A thresholds are finalized.
+
+#### PR 3: App Shell, Navigation, And Shared Components Extraction
+
+Scope:
+
+- Complete extraction for topnav, sidebar, command palette, breadcrumbs, modals, toasts, common buttons, empty states, loading states, and error boundaries.
+- Define shared namespaces for common UI language.
+- Add scanner rules for JSX/TSX hardcoded strings.
+
+Acceptance criteria:
+
+- No hardcoded user-facing strings remain in shared shell components except approved exemptions.
+- Shared components accept translated labels or translation keys consistently.
+- Scanner runs in warn-only mode on feature branches.
+- Pseudolocale shows no major clipping in app shell.
+
+Verification:
+
+- Hardcoded-string scanner report.
+- Component tests for shared components.
+- Playwright shell smoke across desktop and mobile.
+
+Status: Scoped scanner extraction complete for the initial branch slice. `npm run i18n:scan:pr3-pr4` now reports 0 candidates across 57 app shell/shared UI/auth/settings files. The full frontend scanner baseline is 7,985 candidates across 1,068 frontend source files. Formal shell Playwright coverage is in place. Remaining PR 3 work is component-level shared UI tests where useful and expanding extraction beyond the PR3/PR4 starter scope.
+
+#### PR 4: Core Auth, Settings, Profile, And Account Surfaces
+
+Scope:
+
+- Finish extraction and locale behavior for login, registration, password reset, forced password change, OIDC callback states, settings, profile, avatar controls, account/security, notifications, and language/region settings.
+- Ensure backend auth/profile messages are localized or emit stable message keys.
+
+Acceptance criteria:
+
+- Auth and settings flows are usable in `en-US`, `en-XA`, pilot locale, and Arabic canary.
+- Form labels, validation, submit states, backend errors, and success messages are localized.
+- User locale/timezone settings update the current session without stale display state.
+
+Verification:
+
+- Frontend form tests.
+- Backend profile/auth message tests.
+- End-to-end smoke for login and settings language update.
+
+Status: Initial auth/settings extraction complete for the scanner scope. The unauthenticated auth flow was already localized; this pass added native Spanish/Korean coverage for the setup wizard, onboarding tour, system health, AI provider, authentication provider, data source, complete, and notification settings surfaces. Backend profile/locale tests pass against `parthenon_testing`; fresh live end-to-end browser smoke now covers the topnav selector, Spanish/Korean preference persistence, pseudolocale shell rendering, and Arabic RTL metadata.
+
+#### PR 5: Backend Message Contract And API Localization
+
+Scope:
+
+- Standardize API responses with `message_key`, localized `message`, optional `params`, and fallback metadata.
+- Convert common Laravel validation/auth/profile/help errors to translation files.
+- Add request locale middleware coverage for `X-Parthenon-Locale`, user profile, query override, and `Accept-Language`.
+- Decide when client-side rendering should use `message_key` instead of trusting server-rendered `message`.
+
+Acceptance criteria:
+
+- API clients receive stable keys for localizable responses.
+- Validation messages can be localized without changing API shape.
+- Fallback responses are identifiable for telemetry and QA.
+- Unsupported locale requests do not crash or leak raw keys to production users.
+
+Verification:
+
+- Laravel feature tests for middleware negotiation.
+- API response snapshot tests for localized and fallback cases.
+- Contract documentation update.
+
+Status: In progress. The reusable `ApiMessage` envelope is implemented and wired through auth/profile/help/study responses while preserving existing `message` compatibility. Global API exception handling now standardizes validation, unauthenticated, and authorization failures with localized `message_key`, optional `message_params`, `message_meta`, and existing `errors` compatibility. Focused tests cover Spanish public auth localization, Korean public validation errors, Spanish authenticated validation errors, localized unauthenticated errors, profile/help/study message keys, replacement params, fallback metadata, and all-locale presence of core backend contract keys. FinnGen controller migration is intentionally deferred while that area is under active development. Remaining PR 5 work is the larger migration of domain-specific controller success/error strings across analyses, cohort authoring, public survey flows, study sub-resources, and admin operational endpoints.
+
+#### PR 6: Formatting Layer Migration
+
+Scope:
+
+- Migrate date, time, timezone, number, percent, currency, compact number, relative time, and list formatting to locale-aware helpers.
+- Audit direct uses of `toLocaleString`, Moment/Day.js formatting, raw currency symbols, and English-only date text.
+- Define explicit export formatting behavior for viewer locale, study locale, and requested export locale.
+
+Acceptance criteria:
+
+- User-visible formatting uses shared helpers or documented exceptions.
+- Timezone and locale are treated separately.
+- CSV/PDF/export formatting rules are deterministic and documented.
+- Tests cover representative locales: `en-US`, `fi-FI`, `pt-BR`, `ja-JP`, `hi-IN`, and `ar`.
+
+Verification:
+
+- Formatter unit tests.
+- Export snapshot tests where export surfaces exist.
+- Pseudolocale and RTL visual smoke for changed pages.
+
+#### PR 7: Feature Surface Extraction Waves
+
+Scope:
+
+- Extract remaining product areas in batches: dashboards, study setup, cohort builder, phenotyping workflows, search, results views, data tables, saved designs, admin pages, notifications, and collaboration surfaces.
+- Keep each extraction wave scoped to one product area.
+- Add namespace ownership notes for future development.
+
+Acceptance criteria:
+
+- Each extracted surface has English keys, pseudolocale coverage, and fallback-safe runtime behavior.
+- Clinical/source-data fields remain explicitly marked as source values.
+- No product area mixes translated UI labels with machine-translated clinical source values.
+- Newly discovered hardcoded strings become tracked follow-up items if not fixed in the same PR.
+
+Verification:
+
+- Scanner delta report per wave.
+- Unit or component tests for high-use components.
+- Playwright smoke for the product area.
+
+#### PR 8: Help, Changelog, Emails, And Exports
+
+Scope:
+
+- Localize help lookup, changelog chrome/content strategy, transactional emails, notification templates, export labels, report titles, and generated file metadata.
+- Add English fallback metadata for translated content gaps.
+- Define translation ownership for long-form content.
+
+Acceptance criteria:
+
+- Help UI can resolve locale-specific content with English fallback.
+- Emails include locale-aware subject, body, footer, and action labels.
+- Exports contain localized UI labels but preserve data values and identifiers.
+- Missing localized long-form content is visible to QA and content owners.
+
+Verification:
+
+- Help lookup tests.
+- Email rendering snapshots.
+- Export snapshot tests.
+- Manual smoke for localized help and fallback.
+
+#### PR 9: Docusaurus Native i18n Foundation
+
+Scope:
+
+- Configure `docs/site/docusaurus.config.ts` for the production locale registry.
+- Add Docusaurus locale directories and translation files for navbar, footer, sidebars, theme strings, docs chrome, and selected pilot docs.
+- Define doc ID, slug, redirect, search index, and versioning policy.
+- Ensure app help links route to localized Docusaurus pages when available and English fallback otherwise.
+
+Acceptance criteria:
+
+- Docusaurus builds for base English and at least one pilot locale.
+- Navbar/footer/sidebar strings are extracted and translatable.
+- MDX code fences, imports, admonitions, tabs, and OpenAPI identifiers are preserved.
+- Generated docs output is not hand-edited.
+- Localized docs routes either resolve correctly or fall back predictably.
+
+Verification:
+
+- `./deploy.sh --docs`
+- Docusaurus route smoke for English and pilot locale.
+- Link check for localized docs.
+- MDX placeholder/code-fence integrity check.
+
+#### PR 10: Translation Operations And AI Provider Abstraction
+
+Scope:
+
+- Add provider-neutral translation interfaces and policy layer for TMS sync, AI draft generation, terminology checks, placeholder integrity, and import/export.
+- Implement initial repo-managed JSON/MDX workflow if the TMS contract is not signed yet.
+- Add adapters or stubs for Phrase, DeepL, and OpenAI-assisted QA according to the service strategy.
+- Enforce data classification rules before sending text to external providers.
+
+Acceptance criteria:
+
+- Translation jobs can export changed English source strings.
+- AI draft generation is separated from human approval.
+- Placeholders, ICU variables, Markdown links, MDX syntax, code fences, and product terms are protected.
+- PHI/restricted data classes are blocked from external translation by default.
+- Translation memory and terminology inputs are part of the workflow, not afterthoughts.
+
+Verification:
+
+- Unit tests for provider interface and policy decisions.
+- Placeholder integrity tests.
+- Dry-run export/import command.
+- Fixture-based MDX translation round-trip.
+
+#### PR 11: Clinical Terminology And Source Data Localization
+
+Scope:
+
+- Inventory clinical vocabulary display fields and classify them as UI label, curated terminology, source vocabulary, user-entered content, or generated narrative.
+- Add locale-aware terminology lookup where curated multilingual data exists.
+- Add explicit fallback badges/copy for source values shown in English.
+- Protect ontology codes, phenotype definitions, cohort criteria, and identifiers from unsafe translation.
+
+Acceptance criteria:
+
+- Clinical/source values are not blindly machine-translated.
+- Users can distinguish localized UI from untranslated source vocabulary.
+- Terminology fallback is auditable.
+- AI summaries cite source/fallback status when clinical labels are unavailable in the selected locale.
+
+Verification:
+
+- Terminology lookup tests.
+- Cohort/phenotype display snapshots.
+- AI prompt fixture tests for locale and fallback metadata.
+
+#### PR 12: AI Localization And Narrative Quality
+
+Scope:
+
+- Pass locale, fallback chain, terminology constraints, measurement/date conventions, and user-facing tone rules into Abby and other AI-assisted narrative surfaces.
+- Add prompt templates or structured response schemas for localized output.
+- Add QA checks for locale mismatch, untranslated UI boilerplate, hallucinated clinical terms, broken placeholders, and unsafe fallback hiding.
+
+Acceptance criteria:
+
+- AI responses use the selected locale for eligible user-facing narrative.
+- Protected identifiers, codes, variables, and clinical source terms remain intact.
+- Locale fallback behavior is visible in generated output where it matters.
+- Generated narrative can be evaluated with fixtures before release.
+
+Verification:
+
+- AI localization fixture tests.
+- Prompt/schema validation.
+- Human review sample set for pilot locale.
+
+#### PR 13: RTL, Accessibility, And Visual QA
+
+Scope:
+
+- Harden Arabic RTL layout, bidirectional text, icons, charts, tables, modals, forms, and navigation.
+- Validate keyboard navigation, screen reader labels, focus order, accessible names, and language attributes.
+- Add screenshot diff coverage for representative pages.
+
+Acceptance criteria:
+
+- `dir="rtl"` applies correctly for Arabic without breaking LTR locales.
+- Icons and directional affordances mirror only when semantically appropriate.
+- Tables, charts, and code blocks remain readable.
+- Accessible names and language metadata reflect the selected locale.
+
+Verification:
+
+- Playwright desktop/mobile screenshots for `en-US`, `en-XA`, pilot locale, and `ar`.
+- Accessibility scan for representative pages.
+- Manual RTL review checklist.
+
+#### PR 14: Language Pack Production And Release Gates
+
+Scope:
+
+- Produce reviewed Tier A language packs.
+- Add release-branch CI gates for missing translations and untranslated critical paths.
+- Add language-pack metadata: completion percentage, review status, fallback count, release eligibility, and last synced source commit.
+- Add rollout controls and telemetry for locale adoption and fallback frequency.
+
+Acceptance criteria:
+
+- Tier A locales meet completeness and review thresholds.
+- Release-blocking surfaces cannot ship with silent English fallback.
+- Tier B/C locales can exist as preview/draft without being represented as fully native.
+- Product, docs, backend, email, export, help, and AI surfaces have a coherent release status per locale.
+
+Verification:
+
+- Translation completeness report.
+- Release-branch CI gate.
+- Locale smoke matrix.
+- Rollback/fallback test.
+
+### Branch-Level CI And Automation Roadmap
+
+Add the following gates progressively:
+
+1. Warn-only hardcoded string scanner for frontend source.
+2. Warn-only missing-key scanner for supported locales.
+3. Pseudolocale generation and smoke test.
+4. Backend translation key coverage test.
+5. Docusaurus i18n build and link check for touched docs.
+6. Placeholder and ICU integrity validator.
+7. MDX/code-fence integrity validator.
+8. Release-branch failure for Tier A missing translations.
+9. Translation completeness report posted to PRs.
+10. Locale fallback telemetry in staging.
+
+### Branch Backlog Triage Rules
+
+- Fix in the current PR when the missing i18n work is inside the touched surface and low risk.
+- Create a tracked follow-up when extraction touches shared architecture, clinical/source data semantics, or docs translation policy.
+- Block merge when a new user-facing release surface cannot be reached in English, pseudolocale, and the selected pilot locale.
+- Block release when a Tier A locale silently falls back on a release-blocking path.
+- Do not block feature development on reviewed translations for all languages; block only on extractability, fallback safety, and release-tier policy.
+
 ## Risks And Mitigations
 
 | Risk | Impact | Mitigation |
@@ -1324,6 +1965,9 @@ Calendar expectation:
 | AI ignores locale | Inconsistent experience | Add locale to prompts, tests, and response policies. |
 | RTL breaks layout | Unusable for Arabic/Hebrew | Add RTL canary early; use logical CSS; Playwright screenshots. |
 | Bundle bloat | Slower app load | Lazy load namespaces/languages. |
+| Docusaurus route/link drift | Help links and docs navigation break per locale | Keep stable slugs for v1, validate `docs_url` per locale, and build docs through `./deploy.sh --docs`. |
+| Docusaurus search misses translated content | Users cannot find localized docs | Generate/check per-locale search indexes or configure Algolia with locale-aware indices/facets. |
+| MDX translation breaks docs build | Docs deployment fails | Protect frontmatter/imports/code/Mermaid/OpenAPI tokens and add MDX structure validation before import. |
 | Translator churn | Inconsistent terminology | Translation memory, glossary, stable keys. |
 | Keys drift across branches | Missing translations | CI key parity and missing-key reports. |
 | User-generated content direction issues | Broken mixed-language display | Use `dir="auto"` for runtime/user content. |
@@ -1331,16 +1975,24 @@ Calendar expectation:
 
 ## Open Decisions
 
-1. Which locales are Tier A for the first release?
-2. Is the first pilot `es-ES`, `fr-FR`, or another locale?
-3. Is Arabic a release locale or an internal RTL canary first?
-4. Does "native" include installer GUI and public install pages in v1?
-5. Do exports use viewer locale, study locale, or explicit export locale?
-6. Should frontend translation assets live in `public/locales` or be bundled by source imports?
-7. Should we adopt a TMS now or start with repo-managed JSON?
-8. Are machine translations acceptable for draft UI copy?
-9. Who signs off clinical/research terminology?
-10. Should API responses be localized server-side, client-side from `message_key`, or both?
+Resolved on 2026-04-17:
+
+- First production pilot: `es-ES`.
+- Parallel production candidate: `ko-KR`.
+- Initial Tier A target candidates: `es-ES`, `ko-KR`, pending final linguistic QA and release certification.
+- Arabic stance: `ar` remains an internal RTL canary first, not a first-release blocker unless explicitly promoted.
+
+Still open:
+
+1. Does "native" include installer GUI and public install pages in v1?
+2. Which Docusaurus surfaces are Tier A in v1: manual only, blog/release notes, generated API docs, migration guide, or all docs?
+3. Should Docusaurus keep stable English slugs for all locales, or eventually support localized slugs with redirects?
+4. Do exports use viewer locale, study locale, or explicit export locale?
+5. Should frontend translation assets live in `public/locales` or be bundled by source imports?
+6. Should we adopt a TMS now or start with repo-managed JSON?
+7. Are machine translations acceptable for draft UI copy and documentation prose?
+8. Who signs off clinical/research terminology?
+9. Should API responses be localized server-side, client-side from `message_key`, or both?
 
 ## Recommended First Sprint
 
@@ -1351,6 +2003,7 @@ Calendar expectation:
 5. Add request locale headers and backend locale middleware.
 6. Add formatter helpers and migrate shell/settings/auth date/number usages.
 7. Add scanner in warn-only mode.
-8. Add Playwright smoke for English, pseudolocale, and Arabic canary shell.
+8. Add Docusaurus inventory and base i18n config for `docs/site`, keeping `docs/dist/**` generated.
+9. Add Playwright smoke for English, pseudolocale, Arabic canary shell, and English Docusaurus route health.
 
 This sprint creates the spine. After that, feature extraction can proceed in parallel without each feature inventing its own localization pattern.

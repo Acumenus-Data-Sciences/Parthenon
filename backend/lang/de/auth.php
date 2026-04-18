@@ -8,5 +8,7 @@ return [
     'password_changed' => 'Passwort erfolgreich geändert',
     'temporary_password_sent' => 'Wenn ein Konto mit dieser E-Mail existiert, wurde ein neues temporäres Passwort gesendet.',
     'logged_out' => 'Abgemeldet',
+    'unauthenticated' => 'Authentifizierung erforderlich',
+    'forbidden' => 'Sie haben keine Berechtigung, diese Aktion auszuführen',
     'oidc_authentik_label' => 'Mit Authentik anmelden',
 ];

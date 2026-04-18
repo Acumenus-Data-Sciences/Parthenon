@@ -49,4 +49,8 @@ it('returns localized not found messages for missing help topics', function () {
 
     expect($response->getStatusCode())->toBe(404);
     expect($data['message'])->toBe('Tema de ayuda no encontrado.');
+    expect($data['message_key'])->toBe('help.not_found');
+    expect($data['message_meta']['requested_locale'])->toBe('es-ES');
+    expect($data['message_meta']['message_locale'])->toBe('es-ES');
+    expect($data['message_meta']['fallback_used'])->toBeFalse();
 });

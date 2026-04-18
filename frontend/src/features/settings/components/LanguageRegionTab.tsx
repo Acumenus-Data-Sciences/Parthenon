@@ -5,7 +5,7 @@ import { useAuthStore } from "@/stores/authStore";
 import {
   getLocaleDirection,
   normalizeLocale,
-  USER_SELECTABLE_LOCALES,
+  PUBLIC_SELECTABLE_LOCALES,
 } from "@/i18n/locales";
 import { formatDate, formatNumber } from "@/i18n/format";
 import { useUpdateLocale } from "../hooks/useProfile";
@@ -56,7 +56,7 @@ export function LanguageRegionTab() {
             disabled={updateLocale.isPending}
             className={selectClass}
           >
-            {USER_SELECTABLE_LOCALES.map((locale) => (
+            {PUBLIC_SELECTABLE_LOCALES.map((locale) => (
               <option key={locale.code} value={locale.code}>
                 {locale.nativeLabel}
               </option>

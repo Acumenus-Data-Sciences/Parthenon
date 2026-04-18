@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Bot, Loader2, Eye, EyeOff, ChevronDown, ChevronUp } from "lucide-react";
 import {
   useAiProviders,
@@ -15,7 +16,7 @@ interface Props {
 }
 
 interface ProviderMeta {
-  region: string;
+  regionKey: string;
   regionColor: string;
   models: string[];
   hasApiKey: boolean;
@@ -24,56 +25,56 @@ interface ProviderMeta {
 
 const PROVIDER_META: Record<string, ProviderMeta> = {
   ollama: {
-    region: "Local",
+    regionKey: "setup.aiProvider.regions.local",
     regionColor: "bg-gray-500/10 text-text-muted",
     models: ["MedAIBase/MedGemma1.5:4b", "llama3.2", "gemma3:4b", "mistral"],
     hasApiKey: false,
     hasBaseUrl: true,
   },
   anthropic: {
-    region: "US",
+    regionKey: "setup.aiProvider.regions.us",
     regionColor: "bg-blue-500/10 text-blue-400",
     models: ["claude-opus-4-6", "claude-sonnet-4-6", "claude-haiku-4-5-20251001"],
     hasApiKey: true,
     hasBaseUrl: false,
   },
   openai: {
-    region: "US",
+    regionKey: "setup.aiProvider.regions.us",
     regionColor: "bg-blue-500/10 text-blue-400",
     models: ["gpt-4o", "gpt-4o-mini", "o3-mini"],
     hasApiKey: true,
     hasBaseUrl: false,
   },
   gemini: {
-    region: "US",
+    regionKey: "setup.aiProvider.regions.us",
     regionColor: "bg-blue-500/10 text-blue-400",
     models: ["gemini-2.5-pro", "gemini-2.0-flash", "gemini-1.5-pro"],
     hasApiKey: true,
     hasBaseUrl: false,
   },
   deepseek: {
-    region: "China",
+    regionKey: "setup.aiProvider.regions.china",
     regionColor: "bg-red-500/10 text-red-400",
     models: ["deepseek-chat", "deepseek-reasoner"],
     hasApiKey: true,
     hasBaseUrl: false,
   },
   qwen: {
-    region: "China",
+    regionKey: "setup.aiProvider.regions.china",
     regionColor: "bg-red-500/10 text-red-400",
     models: ["qwen-max", "qwen-plus", "qwen-turbo"],
     hasApiKey: true,
     hasBaseUrl: false,
   },
   moonshot: {
-    region: "China",
+    regionKey: "setup.aiProvider.regions.china",
     regionColor: "bg-red-500/10 text-red-400",
     models: ["moonshot-v1-128k"],
     hasApiKey: true,
     hasBaseUrl: false,
   },
   mistral: {
-    region: "EU",
+    regionKey: "setup.aiProvider.regions.eu",
     regionColor: "bg-emerald-500/10 text-emerald-400",
     models: ["mistral-large-latest", "mistral-medium"],
     hasApiKey: true,
@@ -95,6 +96,7 @@ function OtherProviderRow({
   onActivate: () => void;
   isActivating: boolean;
 }) {
+  const { t } = useTranslation("auth");
   const meta = PROVIDER_META[provider.provider_type];
   if (!meta) return null;
 
@@ -107,7 +109,7 @@ function OtherProviderRow({
         <div>
           <span className="text-sm font-medium text-text-primary">{provider.display_name}</span>
           <span className={cn("ml-2 rounded-full px-2 py-0.5 text-[9px] font-medium", meta.regionColor)}>
-            {meta.region}
+            {t(meta.regionKey)}
           </span>
         </div>
       </div>
@@ -117,13 +119,14 @@ function OtherProviderRow({
         disabled={isActivating}
         className="rounded-md border border-surface-highlight px-3 py-1 text-xs font-medium text-text-muted transition-colors hover:border-accent/40 hover:text-accent disabled:opacity-50"
       >
-        Switch to this
+        {t("setup.aiProvider.switchToThis")}
       </button>
     </div>
   );
 }
 
 export function AiProviderStep({ onConfigured }: Props) {
+  const { t } = useTranslation("auth");
   const { data: providers, isLoading } = useAiProviders();
   const updateMutation = useUpdateAiProvider();
   const testMutation = useTestAiProvider();
@@ -187,7 +190,10 @@ export function AiProviderStep({ onConfigured }: Props) {
         setTestResult(r);
         if (r.success) onConfigured();
       },
-      onError: () => setTestResult({ success: false, message: "Connection test failed." }),
+      onError: () => setTestResult({
+        success: false,
+        message: t("setup.aiProvider.testFailed"),
+      }),
     });
   }
 
@@ -195,7 +201,9 @@ export function AiProviderStep({ onConfigured }: Props) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-6 w-6 animate-spin text-accent" />
-        <span className="ml-2 text-sm text-text-muted">Loading AI providers...</span>
+        <span className="ml-2 text-sm text-text-muted">
+          {t("setup.aiProvider.loading")}
+        </span>
       </div>
     );
   }
@@ -203,10 +211,11 @@ export function AiProviderStep({ onConfigured }: Props) {
   return (
     <div className="space-y-5">
       <div>
-        <h3 className="text-lg font-semibold text-text-primary">AI Provider Configuration</h3>
+        <h3 className="text-lg font-semibold text-text-primary">
+          {t("setup.aiProvider.title")}
+        </h3>
         <p className="text-sm text-text-muted">
-          Configure which AI backend powers Abby, the research assistant. Only one provider
-          is active at a time.
+          {t("setup.aiProvider.intro")}
         </p>
       </div>
 
@@ -215,7 +224,7 @@ export function AiProviderStep({ onConfigured }: Props) {
         <div className="flex items-center gap-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3">
           <div className="h-2 w-2 rounded-full bg-emerald-500" />
           <span className="text-sm font-medium text-emerald-400">
-            Active provider:{" "}
+            {t("setup.aiProvider.activeProvider")}{" "}
             <span className="font-semibold">{activeProvider.display_name}</span>
             {activeProvider.model && (
               <span className="ml-2 font-normal text-emerald-300/80">
@@ -233,7 +242,7 @@ export function AiProviderStep({ onConfigured }: Props) {
             {/* Model selector */}
             <div>
               <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-text-muted">
-                Model
+                {t("setup.aiProvider.model")}
               </label>
               {meta.models.length > 0 ? (
                 <select
@@ -259,7 +268,7 @@ export function AiProviderStep({ onConfigured }: Props) {
                     setModel(e.target.value);
                     setDirty(true);
                   }}
-                  placeholder="Model name"
+                  placeholder={t("setup.aiProvider.modelPlaceholder")}
                 />
               )}
             </div>
@@ -268,7 +277,7 @@ export function AiProviderStep({ onConfigured }: Props) {
             {meta.hasApiKey && (
               <div>
                 <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-text-muted">
-                  API Key
+                  {t("setup.aiProvider.apiKey")}
                 </label>
                 <div className="relative">
                   <input
@@ -297,7 +306,7 @@ export function AiProviderStep({ onConfigured }: Props) {
             {meta.hasBaseUrl && (
               <div>
                 <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-text-muted">
-                  Base URL
+                  {t("setup.aiProvider.baseUrl")}
                 </label>
                 <input
                   type="text"
@@ -337,7 +346,7 @@ export function AiProviderStep({ onConfigured }: Props) {
                 className="flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-surface-base hover:bg-accent-light disabled:opacity-50"
               >
                 {updateMutation.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                Save
+                {t("setup.aiProvider.save")}
               </button>
             )}
             <button
@@ -347,7 +356,7 @@ export function AiProviderStep({ onConfigured }: Props) {
               className="flex items-center gap-1.5 rounded-md border border-surface-highlight px-3 py-1.5 text-sm font-medium text-text-muted transition-colors hover:border-accent/40 hover:text-text-primary disabled:opacity-50"
             >
               {testMutation.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-              Test Connection
+              {t("setup.aiProvider.testConnection")}
             </button>
           </div>
         </div>
@@ -362,7 +371,12 @@ export function AiProviderStep({ onConfigured }: Props) {
             className="flex items-center gap-1.5 text-sm text-text-ghost hover:text-text-muted transition-colors"
           >
             {showOthers ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            {showOthers ? "Hide" : "Show"} other providers ({otherProviders.length})
+            {t(
+              showOthers
+                ? "setup.aiProvider.hideOtherProviders"
+                : "setup.aiProvider.showOtherProviders",
+              { count: otherProviders.length },
+            )}
           </button>
 
           {showOthers && (

@@ -208,5 +208,6 @@
     "domain": "general",
     "quality_tier": null,
     "deprecated_at": null,
-    "superseded_by": null
+    "superseded_by": null,
+    "coverage_profile": null
 }

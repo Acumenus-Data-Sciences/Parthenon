@@ -11,15 +11,15 @@
         "parent": "O60-O75",
         "release": "df14",
         "coverage": {
-            "pct": 0.6666666666666666,
-            "bucket": "PARTIAL",
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
             "n_tokens_total": 6,
-            "n_tokens_resolved": 4
+            "n_tokens_resolved": 6
         },
         "conditions": null,
         "provenance": {
             "source_row": 2943,
-            "imported_at": "2026-04-17T00:17:42+00:00",
+            "imported_at": "2026-04-17T19:57:08+00:00",
             "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
             "importer_version": "1.0.0"
         },
@@ -109,8 +109,9 @@
         },
         "spec_version": "1.0",
         "pre_conditions": null,
-        "coverage_bucket": "PARTIAL",
+        "coverage_bucket": "FULLY_MAPPED",
         "sex_restriction": 2,
+        "coverage_profile": "partial",
         "include_endpoints": [],
         "resolved_concepts": {
             "truncated": false,
@@ -128,13 +129,6 @@
                 10164,
                 1571859,
                 1571860,
-                35210312,
-                35210313,
-                35210314,
-                35210315,
-                35210316,
-                35210317,
-                35210318,
                 45534299,
                 45534300,
                 45539197,
@@ -259,7 +253,8 @@
                 433260,
                 444094,
                 4041280,
-                4300078
+                4300078,
+                437342
             ]
         }
     },
@@ -267,7 +262,7 @@
     "is_public": true,
     "version": 1,
     "created_at": "2026-04-16T23:56:14.000000Z",
-    "updated_at": "2026-04-17T00:17:42.000000Z",
+    "updated_at": "2026-04-17T19:57:08.000000Z",
     "deleted_at": null,
     "tags": [
         "finngen-endpoint",
@@ -279,5 +274,6 @@
     "domain": "finngen-endpoint",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null
+    "superseded_by": null,
+    "coverage_profile": "partial"
 }

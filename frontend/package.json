@@ -12,6 +12,9 @@
     "test:run": "vitest run",
     "test:changed": "vitest run --changed",
     "test:coverage": "vitest run --coverage",
+    "i18n:report": "node scripts/i18n-completeness.mjs --output reports/i18n-completeness.json",
+    "i18n:scan": "node scripts/i18n-scan.mjs --output reports/i18n-scan-full.json",
+    "i18n:scan:pr3-pr4": "node scripts/i18n-scan.mjs --paths src/components/layout,src/components/ui,src/features/auth,src/features/settings --output reports/i18n-scan-pr3-pr4.json",
     "generate:api-types": "sh -c 'openapi-typescript \"${OPENAPI_INPUT:-../backend/api.json}\" -o src/types/api.generated.ts'"
   },
   "dependencies": {

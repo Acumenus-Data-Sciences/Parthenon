@@ -17,15 +17,15 @@
         "parent": null,
         "release": "df14",
         "coverage": {
-            "pct": 0.7317073170731707,
-            "bucket": "PARTIAL",
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
             "n_tokens_total": 41,
-            "n_tokens_resolved": 30
+            "n_tokens_resolved": 41
         },
         "conditions": null,
         "provenance": {
             "source_row": 1741,
-            "imported_at": "2026-04-17T00:17:30+00:00",
+            "imported_at": "2026-04-17T19:56:54+00:00",
             "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
             "importer_version": "1.0.0"
         },
@@ -151,12 +151,15 @@
         },
         "spec_version": "1.0",
         "pre_conditions": null,
-        "coverage_bucket": "PARTIAL",
+        "coverage_bucket": "FULLY_MAPPED",
         "sex_restriction": null,
+        "coverage_profile": "partial",
         "include_endpoints": [],
         "resolved_concepts": {
             "truncated": false,
-            "drugs_standard": [],
+            "drugs_standard": [
+                1351557
+            ],
             "source_concept_ids": [
                 1569120,
                 1569121,
@@ -211,6 +214,7 @@
                 443771,
                 4110948,
                 312938,
+                381591,
                 442603,
                 44782728,
                 44782690,
@@ -224,7 +228,7 @@
     "is_public": true,
     "version": 1,
     "created_at": "2026-04-16T23:56:03.000000Z",
-    "updated_at": "2026-04-17T00:17:30.000000Z",
+    "updated_at": "2026-04-17T19:56:54.000000Z",
     "deleted_at": null,
     "tags": [
         "finngen-endpoint",
@@ -242,5 +246,6 @@
     "domain": "finngen-endpoint",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null
+    "superseded_by": null,
+    "coverage_profile": "partial"
 }

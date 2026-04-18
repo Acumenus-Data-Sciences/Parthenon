@@ -8,5 +8,7 @@ return [
     'password_changed' => 'Mot de passe modifié avec succès',
     'temporary_password_sent' => 'Si un compte existe avec cet e-mail, un nouveau mot de passe temporaire a été envoyé.',
     'logged_out' => 'Déconnexion effectuée',
+    'unauthenticated' => 'Authentification requise',
+    'forbidden' => "Vous n'avez pas l'autorisation d'effectuer cette action",
     'oidc_authentik_label' => 'Se connecter avec Authentik',
 ];

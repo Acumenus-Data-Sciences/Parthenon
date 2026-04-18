@@ -20,7 +20,7 @@
         "conditions": null,
         "provenance": {
             "source_row": 3899,
-            "imported_at": "2026-04-17T00:17:50+00:00",
+            "imported_at": "2026-04-17T19:57:17+00:00",
             "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
             "importer_version": "1.0.0"
         },
@@ -102,6 +102,7 @@
         "pre_conditions": null,
         "coverage_bucket": "FULLY_MAPPED",
         "sex_restriction": null,
+        "coverage_profile": "partial",
         "include_endpoints": [],
         "resolved_concepts": {
             "truncated": false,
@@ -109,41 +110,25 @@
                 36854701,
                 36863042,
                 779705,
-                45774435,
                 1000979,
                 1516766,
                 1502826,
-                1583722,
                 1517998,
                 19035533,
-                40170911,
-                43009094,
-                44785829,
-                44506754,
-                43526465,
-                45774751,
-                44816332
+                43009094
             ],
             "source_concept_ids": [
                 947965,
                 954905,
                 954960,
                 955214,
-                1588695,
                 21600788,
                 21600789,
                 21600790,
                 21600791,
-                21600792,
                 21600793,
                 21600794,
-                21600795,
-                21600796,
-                40251701,
-                43534754,
-                43534755,
-                43534756,
-                45893266
+                21600796
             ],
             "conditions_standard": []
         }
@@ -152,7 +137,7 @@
     "is_public": true,
     "version": 1,
     "created_at": "2026-04-16T23:56:23.000000Z",
-    "updated_at": "2026-04-17T00:17:50.000000Z",
+    "updated_at": "2026-04-17T19:57:17.000000Z",
     "deleted_at": null,
     "tags": [
         "finngen-endpoint",
@@ -165,5 +150,6 @@
     "domain": "finngen-endpoint",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null
+    "superseded_by": null,
+    "coverage_profile": "partial"
 }

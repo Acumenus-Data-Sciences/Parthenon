@@ -11,6 +11,7 @@ import {
   SUPPORTED_LOCALES,
   type SupportedLocale,
 } from "./locales";
+import { recordMissingTranslationKey } from "./missingKeys";
 import { namespaces, resources } from "./resources";
 
 const supportedLocaleCodes = SUPPORTED_LOCALES.map((locale) => locale.code);
@@ -62,8 +63,10 @@ void i18next.use(initReactI18next).init({
   initImmediate: false,
   saveMissing: import.meta.env.DEV,
   missingKeyHandler: (lng, ns, key) => {
+    const missingKey = recordMissingTranslationKey(lng, ns, key);
+
     if (import.meta.env.DEV) {
-      console.warn(`[i18n] missing key`, { lng, ns, key });
+      console.warn(`[i18n] missing key`, missingKey);
     }
   },
 });

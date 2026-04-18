@@ -1,13 +1,18 @@
 import i18next from "i18next";
-import { normalizeLocale, type SupportedLocale } from "./locales";
+import { getLocaleMetadata, normalizeLocale, type SupportedLocale } from "./locales";
 
 export function getActiveLocale(): SupportedLocale {
   return normalizeLocale(i18next.resolvedLanguage ?? i18next.language);
 }
 
-function toIntlLocale(locale: string | null | undefined): SupportedLocale {
+function toIntlDateLocale(locale: string | null | undefined): string {
   const normalized = normalizeLocale(locale);
-  return normalized === "en-XA" ? "en-US" : normalized;
+  return getLocaleMetadata(normalized).dateLocale;
+}
+
+function toIntlNumberLocale(locale: string | null | undefined): string {
+  const normalized = normalizeLocale(locale);
+  return getLocaleMetadata(normalized).numberLocale;
 }
 
 export function formatDate(
@@ -15,7 +20,7 @@ export function formatDate(
   options: Intl.DateTimeFormatOptions = { dateStyle: "medium" },
   locale: string | null | undefined = getActiveLocale(),
 ): string {
-  return new Intl.DateTimeFormat(toIntlLocale(locale), options).format(
+  return new Intl.DateTimeFormat(toIntlDateLocale(locale), options).format(
     new Date(value),
   );
 }
@@ -36,7 +41,7 @@ export function formatNumber(
   options?: Intl.NumberFormatOptions,
   locale: string | null | undefined = getActiveLocale(),
 ): string {
-  return new Intl.NumberFormat(toIntlLocale(locale), options).format(value);
+  return new Intl.NumberFormat(toIntlNumberLocale(locale), options).format(value);
 }
 
 export function formatPercent(
@@ -55,7 +60,7 @@ export function createLocaleCollator(
   locale: string | null | undefined = getActiveLocale(),
   options?: Intl.CollatorOptions,
 ): Intl.Collator {
-  return new Intl.Collator(toIntlLocale(locale), {
+  return new Intl.Collator(toIntlNumberLocale(locale), {
     sensitivity: "base",
     numeric: true,
     ...options,
