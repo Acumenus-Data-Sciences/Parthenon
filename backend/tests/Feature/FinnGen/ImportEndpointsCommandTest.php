@@ -57,6 +57,12 @@ function finngenStubResolver(): FinnGenConceptResolver
         : ['standard' => [1503297], 'source' => [21600712], 'truncated' => false]);
     // @phpstan-ignore method.notFound
     $mock->shouldReceive('resolveIcd8')->andReturn(['standard' => [], 'source' => [], 'truncated' => false]);
+    // @phpstan-ignore method.notFound
+    $mock->shouldReceive('resolveIcdO3')->andReturn(['standard' => [], 'source' => [], 'truncated' => false]);
+    // @phpstan-ignore method.notFound
+    $mock->shouldReceive('resolveNomesco')->andReturn(['standard' => [], 'source' => [], 'truncated' => false]);
+    // @phpstan-ignore method.notFound
+    $mock->shouldReceive('resolveKelaReimb')->andReturn(['standard' => [], 'source' => [], 'truncated' => false]);
 
     return $mock;
 }

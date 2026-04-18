@@ -58,6 +58,45 @@ return new class extends Migration
         DB::statement('CREATE SCHEMA IF NOT EXISTS finngen AUTHORIZATION parthenon_owner');
 
         // ------------------------------------------------------------------
+        // Block 1b (Phase 13.2-04 idempotency guard): drop any residual
+        // finngen.* tables from a prior successful run of this migration.
+        //
+        // Context: `migrate:fresh` on parthenon_testing (search_path =
+        // app,php,public) drops tables only in app/php/public schemas; it
+        // does NOT drop tables in the finngen schema. When migrations
+        // re-run, the original `create_finngen_*_table` migrations
+        // recreate the `app.finngen_*` tables, but this migration's
+        // `ALTER TABLE ... SET SCHEMA finngen` fails with
+        // SQLSTATE[42P07] "relation finngen_analysis_modules_pkey
+        // already exists in schema finngen" because the pkey name from
+        // a prior successful SET SCHEMA collides with the incoming one.
+        //
+        // This guard drops any pre-existing finngen.* tables so Blocks
+        // 2-4 can proceed cleanly. Safe because:
+        //   - On a truly fresh DB, the finngen schema won't have these
+        //     tables yet (IF EXISTS clauses short-circuit).
+        //   - On parthenon_testing re-entry, the residual tables are
+        //     empty (migrate:fresh just dropped the source app.finngen_*
+        //     data; no state is lost by dropping the empty stale
+        //     finngen.* shells).
+        //   - On DEV/prod, this migration has already run to completion
+        //     and Laravel will not call up() again.
+        // ------------------------------------------------------------------
+        DB::statement(<<<'SQL'
+DO $reset$
+BEGIN
+    DROP TABLE IF EXISTS finngen.endpoint_definitions              CASCADE;
+    DROP TABLE IF EXISTS finngen.analysis_modules                  CASCADE;
+    DROP TABLE IF EXISTS finngen.runs                              CASCADE;
+    DROP TABLE IF EXISTS finngen.workbench_sessions                CASCADE;
+    DROP TABLE IF EXISTS finngen.unmapped_codes                    CASCADE;
+    DROP TABLE IF EXISTS finngen.endpoint_generations              CASCADE;
+    DROP TABLE IF EXISTS finngen.endpoint_expressions_pre_phase13  CASCADE;
+END
+$reset$
+SQL);
+
+        // ------------------------------------------------------------------
         // Block 2: SET SCHEMA on the 6 existing FinnGen tables.
         // Metadata-only, fast. Associated indexes, constraints, and sequences
         // owned by moved-table columns move automatically (PG17 docs).
