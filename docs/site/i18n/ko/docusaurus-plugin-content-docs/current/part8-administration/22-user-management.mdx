@@ -1,0 +1,134 @@
+---
+id: 22-user-management
+title: "22. 사용자 관리"
+sidebar_label: "22. 사용자 관리"
+---
+
+# 사용자 관리
+
+Parthenon의 user management system은 누가 플랫폼에 접근할 수 있는지, 어떤 role을 갖는지, 어떻게 authenticate하는지를 제어합니다. 모든 user management 기능에는 **admin** 또는 **super-admin** role이 필요하며 **Admin > Users** 섹션에서 접근합니다.
+
+## User list
+
+**Admin > Users**로 이동하면 등록된 모든 user를 볼 수 있습니다. 목록은 sort와 search가 가능한 table로 표시됩니다:
+
+| Column | Description |
+|--------|-------------|
+| **Name** | User의 full name |
+| **Email** | Login email address(unique identifier) |
+| **Roles** | Badge로 표시되는 assigned roles(예: `researcher`, `admin`) |
+| **Status** | Active(초록) 또는 Suspended(빨강) |
+| **Must Change Password** | 다음 login에서 forced password change가 필요한지 나타내는 flag |
+| **Last Login** | 가장 최근 successful authentication timestamp |
+| **Created** | Account creation date |
+
+Search bar를 사용해 name 또는 email로 필터링하세요. Column header를 클릭하면 정렬할 수 있습니다. User가 많은 조직을 위해 목록은 pagination을 지원합니다.
+
+## User 만들기
+
+1. 오른쪽 상단의 **New User**를 클릭합니다.
+2. User의 **Full Name**과 **Email Address**를 입력합니다.
+3. 하나 이상의 **Roles**를 할당합니다([23장 -- Roles & Permissions](23-roles-permissions) 참조).
+4. **Create User**를 클릭합니다.
+
+### Password generation and delivery
+
+User가 생성되면 Parthenon은 다음을 수행합니다:
+
+1. Cryptographically random temporary password를 생성합니다.
+2. User record의 `must_change_password` flag를 `true`로 설정합니다.
+3. 구성된 mail provider를 통해 temporary password를 user의 email address로 보냅니다([25장 -- System Configuration](25-system-configuration) 참조).
+4. User의 첫 login 시 **닫을 수 없는 password change modal**이 나타나며, platform feature에 접근하기 전에 새 password를 설정해야 합니다.
+
+:::info Mail configuration
+Mail이 `log` driver(development mode)로 구성된 경우 temporary password는 email로 전송되지 않고 Laravel log file에 기록됩니다. Production에서는 사용자가 credentials를 받을 수 있도록 실제 mail provider(Resend, SMTP, Mailgun 또는 Amazon SES)를 구성하세요.
+:::
+
+## User 편집
+
+User row의 **Edit** icon을 클릭하면 edit panel이 열립니다:
+
+- **Change name or email**: user의 display name 또는 login email address를 업데이트합니다.
+- **Add or remove roles**: role assignment를 수정합니다. 변경 사항은 user의 다음 API call부터 적용됩니다.
+- **Reset password**: 새 temporary password를 생성하고 email로 보낸 뒤 `must_change_password = true`를 설정합니다.
+- **Suspend or reactivate**: account access를 전환합니다(아래 참조).
+
+## Account suspend
+
+Suspended user는 login할 수 없습니다. Account가 suspend되면:
+
+1. 기존 session token(Sanctum personal access token)이 모두 즉시 invalidated됩니다.
+2. Active browser session은 다음 request에서 종료됩니다.
+3. User가 login을 시도하면 "Account suspended" message를 봅니다.
+
+Suspension은 **되돌릴 수 있습니다**. **Reactivate**를 클릭하면 full access가 복원됩니다. User data, created objects(cohort definitions, concept sets, analyses), audit history는 보존됩니다.
+
+:::tip 삭제보다 suspension을 사용하세요
+직원이 role을 바꾸거나 휴직하거나 다른 부서로 이동할 때 account를 삭제하지 말고 suspend하세요. 이는 다음을 보존합니다:
+
+- 사용자가 만든 cohort definitions와 concept sets.
+- Analysis execution history.
+- Audit trail entries.
+- 쉬운 reactivation을 위한 role 및 permission configuration.
+:::
+
+## User 삭제
+
+User를 삭제하면 Parthenon에서 account가 영구적으로 제거됩니다. 삭제 전에:
+
+- 사용자가 만든 object(cohort definitions, concept sets, analyses)는 삭제를 수행하는 administrator에게 **reassigned**됩니다.
+- 이 user를 참조하는 audit log entries는 compliance를 위해 original user ID와 함께 보존됩니다.
+- Active sessions와 tokens는 destroyed됩니다.
+
+Account가 실수로 생성된 경우에만 deletion을 사용하세요. 그 외 모든 경우에는 suspension을 선호하세요.
+
+:::warning 되돌릴 수 없는 작업
+User deletion은 취소할 수 없습니다. User의 authentication credentials, role assignments, preferences가 영구적으로 제거됩니다. 향후 user가 다시 access해야 한다면 새 account를 만들어야 합니다.
+:::
+
+## Bulk import
+
+큰 team이나 organization을 onboarding하려면 **Import Users** 기능을 사용하세요:
+
+1. Admin > Users 섹션에서 **Import Users**를 클릭합니다.
+2. 다음 column을 가진 CSV file을 업로드합니다:
+
+```csv
+name,email,role
+Jane Smith,jane.smith@hospital.org,researcher
+Bob Chen,bob.chen@hospital.org,viewer
+Alice Wong,alice.wong@hospital.org,admin
+```
+
+3. Parthenon은 CSV를 validate합니다:
+   - Existing users 및 CSV 내부의 duplicate email address를 확인합니다.
+   - Configured roles에 대해 role name을 validate합니다.
+   - Invalid email format을 flag합니다.
+4. **Import**를 클릭해 모든 account를 만듭니다.
+5. Temporary password가 생성되어 batch email로 각 user에게 전송됩니다.
+
+Import summary는 생성된 account, 건너뛴 account(duplicate), 실패한 account(validation errors)의 수를 보여 줍니다.
+
+## Self-registration
+
+Administrator가 [System Configuration](25-system-configuration)에서 self-registration을 활성화한 경우, 새 user는 `/register` page에서 account를 만들 수 있습니다:
+
+1. User가 **name**과 **email address**를 입력합니다.
+2. Parthenon이 temporary password를 생성하고 email로 보냅니다.
+3. User는 temporary password로 login하고 즉시 password를 변경해야 합니다.
+4. 모든 self-registered account는 기본적으로 **Viewer** role을 받습니다.
+5. 추가 permission을 부여하려면 administrator가 user role을 수동으로 `researcher` 이상으로 업그레이드해야 합니다.
+
+:::tip Institutional email restriction
+보안을 위해 self-registration을 특정 email domain(예: `@yourhospital.org`)으로 제한하는 것을 고려하세요. 이렇게 하면 허가되지 않은 external user가 account를 만드는 것을 방지할 수 있습니다. 허용 domain 목록은 **Admin > System Configuration > Registration Settings**에서 구성합니다.
+:::
+
+## Admin seed command
+
+초기 설정 또는 fresh database migration 이후 super-admin account를 만들려면 Artisan command를 사용합니다:
+
+```bash
+php artisan admin:seed
+```
+
+이 interactive command는 admin의 name, email, password를 입력받습니다. `upsert` logic을 사용하므로 지정한 email의 account가 이미 있으면 duplicate를 만들지 않고 기존 record를 업데이트합니다. Seeded admin은 `must_change_password = false`이므로 즉시 system에 접근할 수 있습니다.
