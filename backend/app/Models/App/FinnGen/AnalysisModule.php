@@ -26,8 +26,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class AnalysisModule extends Model
 {
-    protected $connection = 'finngen';
-
     protected $table = 'analysis_modules';
 
     protected $primaryKey = 'key';
@@ -35,6 +33,15 @@ class AnalysisModule extends Model
     public $incrementing = false;
 
     protected $keyType = 'string';
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->setConnection(config('finngen.connection', 'finngen'));
+    }
 
     /**
      * @var list<string>

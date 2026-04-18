@@ -40,13 +40,20 @@ class Run extends Model
 {
     use HasUlids;
 
-    protected $connection = 'finngen';
-
     protected $table = 'runs';
 
     public $incrementing = false;
 
     protected $keyType = 'string';
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->setConnection(config('finngen.connection', 'finngen'));
+    }
 
     /**
      * @var list<string>

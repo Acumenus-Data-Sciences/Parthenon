@@ -39,9 +39,16 @@ class FinnGenEndpointGeneration extends Model
      */
     public const OMOP_COHORT_ID_OFFSET = 100_000_000_000;
 
-    protected $connection = 'finngen';
-
     protected $table = 'endpoint_generations';
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->setConnection(config('finngen.connection', 'finngen'));
+    }
 
     /**
      * Mass-assignment whitelist (HIGHSEC §3.1).
