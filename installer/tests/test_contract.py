@@ -1,4 +1,5 @@
 from pathlib import Path
+import subprocess
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -123,3 +124,74 @@ def test_contract_preflight_payload_shape(monkeypatch):
 
     assert payload["preflight"]["failures"] == 0
     assert any(check["name"] == "Docker daemon" for check in payload["preflight"]["checks"])
+
+
+def test_contract_data_check_payload_for_local_postgres(monkeypatch, tmp_path):
+    monkeypatch.setattr("installer.config.utils.is_port_free", lambda port: True)
+    monkeypatch.setattr("installer.data_probe.shutil.which", lambda name: None)
+
+    payload = contract.build_payload(
+        "data-check",
+        community=True,
+        overrides={"enable_hecate": False},
+        repo_root=str(tmp_path),
+    )
+
+    data_check = payload["data_check"]
+    names = {check["name"]: check for check in data_check["checks"]}
+    assert data_check["repo_root"] == str(tmp_path)
+    assert names["OMOP data path"]["status"] == "ok"
+    assert names["OMOP connection details"]["status"] == "ok"
+    assert names["Local PostgreSQL service"]["status"] == "warn"
+
+
+def test_contract_data_check_flags_missing_existing_db_target(monkeypatch, tmp_path):
+    monkeypatch.setattr("installer.config.utils.is_port_free", lambda port: True)
+
+    payload = contract.build_payload(
+        "data-check",
+        community=True,
+        overrides={
+            "cdm_setup_mode": "Use an existing database server",
+            "cdm_dialect": "Snowflake",
+            "cdm_server": "",
+            "cdm_database": "",
+            "vocabulary_setup": "Load later",
+        },
+        repo_root=str(tmp_path),
+    )
+
+    data_check = payload["data_check"]
+    names = {check["name"]: check for check in data_check["checks"]}
+    assert data_check["failures"] == 1
+    assert names["OMOP connection details"]["status"] == "fail"
+    assert "server" in names["OMOP connection details"]["detail"]
+    assert names["HADES connection helper"]["status"] == "warn"
+
+
+def test_contract_data_check_fails_incomplete_existing_postgres_cdm(monkeypatch, tmp_path):
+    monkeypatch.setattr("installer.config.utils.is_port_free", lambda port: True)
+    monkeypatch.setattr("installer.data_probe.shutil.which", lambda name: "/usr/bin/psql")
+    monkeypatch.setattr(
+        "installer.data_probe.subprocess.run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(args[0], 0, "f|f|f|f|f\n", ""),
+    )
+
+    payload = contract.build_payload(
+        "data-check",
+        community=True,
+        overrides={
+            "cdm_setup_mode": "Use an existing OMOP CDM",
+            "cdm_dialect": "PostgreSQL",
+            "cdm_server": "db.example.org:5432",
+            "cdm_database": "research",
+            "cdm_user": "reader",
+            "vocabulary_setup": "Use existing vocabulary",
+        },
+        repo_root=str(tmp_path),
+    )
+
+    names = {check["name"]: check for check in payload["data_check"]["checks"]}
+    assert names["PostgreSQL connection probe"]["status"] == "ok"
+    assert names["PostgreSQL OMOP tables"]["status"] == "fail"
+    assert names["PostgreSQL work schemas"]["status"] == "fail"

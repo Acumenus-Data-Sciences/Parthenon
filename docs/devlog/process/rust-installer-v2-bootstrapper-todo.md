@@ -38,6 +38,8 @@ target, and guide vocabulary loading without requiring a repo checkout.
 ## Supported DBMS Tiers
 
 - [ ] First-class test path: PostgreSQL.
+- [x] Add shared non-destructive data readiness checks for local PostgreSQL and
+      existing PostgreSQL targets.
 - [ ] Add connection probes for SQL Server, Oracle, Redshift, Snowflake,
       BigQuery, Spark, Synapse, IRIS, DuckDB, and SQLite.
 - [ ] Mark deprecated HADES platforms as advanced only: Hive, Impala, Netezza,
@@ -60,7 +62,9 @@ target, and guide vocabulary loading without requiring a repo checkout.
 - [x] Ask what already exists: empty database, schemas only, tables without
       vocabulary, vocabulary without clinical data, or complete CDM.
 - [x] Ask how vocabulary will be handled: existing, Athena ZIP, later, or demo.
-- [ ] Add connection testing for existing database server / existing CDM paths.
+- [x] Add first-pass readiness checks for existing database server / existing
+      CDM paths through the shared contract.
+- [ ] Add HADES helper-backed connection testing for all supported DBMSs.
 - [ ] Add file picker for Athena vocabulary ZIP.
 - [ ] Add local PostgreSQL provisioning confirmation and disk/resource checks.
 - [ ] Show only plain-language plan summaries by default.

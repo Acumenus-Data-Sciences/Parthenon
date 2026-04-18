@@ -36,6 +36,11 @@ struct ContractPreflightPayload {
 }
 
 #[derive(Debug, Deserialize)]
+struct ContractDataCheckPayload {
+    data_check: ContractPreflight,
+}
+
+#[derive(Debug, Deserialize)]
 struct ContractPreflight {
     checks: Vec<ContractCheck>,
 }
@@ -112,6 +117,10 @@ fn validate_environment(request: InstallRequest) -> Vec<CheckResult> {
         Ok(validation_check) => match contract_preflight_checks(&request) {
             Ok(mut checks) => {
                 checks.insert(0, validation_check);
+                match contract_data_checks(&request) {
+                    Ok(mut data_checks) => checks.append(&mut data_checks),
+                    Err(err) => checks.push(CheckResult::fail("OMOP data readiness", err)),
+                }
                 checks
             }
             Err(err) => {
@@ -469,6 +478,11 @@ fn contract_preflight_checks(request: &InstallRequest) -> Result<Vec<CheckResult
     parse_contract_preflight_checks(&payload)
 }
 
+fn contract_data_checks(request: &InstallRequest) -> Result<Vec<CheckResult>, String> {
+    let payload = contract_payload_json(request, "data-check", true)?;
+    parse_contract_data_checks(&payload)
+}
+
 fn contract_validation_check(request: &InstallRequest) -> Result<CheckResult, String> {
     let payload = contract_payload_json(request, "validate", true)?;
     parse_contract_validation_check(&payload)
@@ -494,6 +508,17 @@ fn parse_contract_preflight_checks(payload: &str) -> Result<Vec<CheckResult>, St
         .map_err(|err| format!("Could not parse installer preflight JSON: {err}"))?;
     Ok(payload
         .preflight
+        .checks
+        .into_iter()
+        .map(CheckResult::from_contract)
+        .collect())
+}
+
+fn parse_contract_data_checks(payload: &str) -> Result<Vec<CheckResult>, String> {
+    let payload: ContractDataCheckPayload = serde_json::from_str(payload)
+        .map_err(|err| format!("Could not parse installer data readiness JSON: {err}"))?;
+    Ok(payload
+        .data_check
         .checks
         .into_iter()
         .map(CheckResult::from_contract)
@@ -666,7 +691,7 @@ fn build_local_contract_command(
         "--contract-input",
     ]);
     command.arg(&input_path);
-    if action == "preflight" {
+    if action == "preflight" || action == "data-check" {
         command.arg("--contract-repo-root");
         command.arg(&repo_path);
     }
@@ -699,7 +724,7 @@ fn build_windows_contract_command(
             "Windows installs require a WSL repo path, such as /home/user/Parthenon".to_string()
         })?;
     let redact_flag = if redact { " --contract-redact" } else { "" };
-    let repo_root_flag = if action == "preflight" {
+    let repo_root_flag = if action == "preflight" || action == "data-check" {
         format!(" --contract-repo-root {}", shell_quote(repo_linux))
     } else {
         String::new()
@@ -742,7 +767,7 @@ exit "$rc"
 
 fn validate_contract_action(action: &str) -> Result<(), String> {
     match action {
-        "defaults" | "validate" | "plan" | "preflight" => Ok(()),
+        "defaults" | "validate" | "plan" | "preflight" | "data-check" => Ok(()),
         _ => Err(format!("Unsupported installer contract action: {action}")),
     }
 }
@@ -1213,6 +1238,35 @@ mod tests {
     }
 
     #[test]
+    fn local_data_check_contract_command_passes_repo_root() {
+        let mut request = request();
+        let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../..")
+            .canonicalize()
+            .expect("repo root");
+        request.repo_path = repo_root.to_string_lossy().to_string();
+
+        let command_plan = build_local_contract_command(
+            &request,
+            "data-check",
+            r#"{"admin_email":"admin@example.com"}"#,
+            true,
+        )
+        .expect("contract command");
+        let args = command_plan
+            .command
+            .get_args()
+            .map(|value| value.to_string_lossy().to_string())
+            .collect::<Vec<_>>();
+
+        assert_eq!(args[2], "data-check");
+        assert!(args.contains(&"--contract-repo-root".to_string()));
+        assert!(args.contains(&repo_root.to_string_lossy().to_string()));
+
+        cleanup_temp_file(command_plan.temp_defaults);
+    }
+
+    #[test]
     fn contract_preflight_json_maps_python_ok_status() {
         let checks = parse_contract_preflight_checks(
             r#"{
@@ -1226,6 +1280,26 @@ mod tests {
             }"#,
         )
         .expect("preflight checks");
+
+        assert_eq!(checks[0].status, "pass");
+        assert_eq!(checks[1].status, "fail");
+        assert_eq!(checks[2].status, "warn");
+    }
+
+    #[test]
+    fn contract_data_check_json_maps_python_ok_status() {
+        let checks = parse_contract_data_checks(
+            r#"{
+              "data_check": {
+                "checks": [
+                  {"name":"OMOP data path","status":"ok","detail":"local"},
+                  {"name":"Athena vocabulary ZIP","status":"fail","detail":"missing"},
+                  {"name":"HADES connection helper","status":"warn","detail":"needed"}
+                ]
+              }
+            }"#,
+        )
+        .expect("data checks");
 
         assert_eq!(checks[0].status, "pass");
         assert_eq!(checks[1].status, "fail");
@@ -1324,6 +1398,7 @@ mod tests {
             check.name == "Installer config validation" && check.status == "pass"
         }));
         assert!(checks.iter().any(|check| check.name == "Python ≥ 3.9"));
+        assert!(checks.iter().any(|check| check.name == "OMOP data path"));
     }
 
     #[test]
@@ -1376,6 +1451,31 @@ mod tests {
         assert_eq!(args[3], "-lc");
         assert!(args[4].contains("cd '/home/alice'\\''s/Parthenon'"));
         assert!(args[4].contains("python3 install.py --contract preflight --community"));
+        assert!(args[4].contains("--contract-repo-root '/home/alice'\\''s/Parthenon'"));
+        assert!(args[4].contains("--contract-redact"));
+    }
+
+    #[test]
+    fn windows_data_check_contract_command_quotes_repo_path() {
+        let mut request = request();
+        request.wsl_distro = Some("Ubuntu-24.04".to_string());
+        request.wsl_repo_path = Some("/home/alice's/Parthenon".to_string());
+
+        let command_plan = build_windows_contract_command(
+            &request,
+            "data-check",
+            r#"{"admin_email":"admin@example.com"}"#,
+            true,
+        )
+        .expect("wsl contract command");
+        let args = command_plan
+            .command
+            .get_args()
+            .map(|value| value.to_string_lossy().to_string())
+            .collect::<Vec<_>>();
+
+        assert_eq!(command_plan.command.get_program(), "wsl.exe");
+        assert!(args[4].contains("python3 install.py --contract data-check --community"));
         assert!(args[4].contains("--contract-repo-root '/home/alice'\\''s/Parthenon'"));
         assert!(args[4].contains("--contract-redact"));
     }

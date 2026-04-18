@@ -13,8 +13,9 @@ python3 install.py --defaults-file <generated.json> --non-interactive
 
 and streams stdout/stderr back into the GUI.
 
-Plan summary, dry run, validation, and preflight use the Python installer
-contract so the desktop shell does not duplicate installer rules.
+Plan summary, dry run, validation, machine preflight, and OMOP data readiness
+checks use the Python installer contract so the desktop shell does not
+duplicate installer rules.
 
 ## Data Setup Direction
 
@@ -26,7 +27,9 @@ The user can choose:
 - a local PostgreSQL OMOP database managed by the installer.
 
 The current UI captures those choices and sends them through the shared Python
-contract as a plain-language setup plan. Actual cross-DB connection testing,
+contract as a plain-language setup plan. The readiness step now adds
+non-destructive OMOP checks, including PostgreSQL probes when possible and clear
+warnings for DBMSs that will route through the HADES DatabaseConnector helper.
 OMOP DDL installation, Athena vocabulary import, and no-repo bootstrap bundle
 downloads are tracked in `docs/devlog/process/rust-installer-v2-bootstrapper-todo.md`.
 

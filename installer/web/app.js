@@ -320,13 +320,69 @@ function renderStep() {
         <section class="section glass-soft">
           <div class="section-kicker">Environment</div>
           <h4>Deployment Configuration</h4>
-          <p class="section-copy">Set the base URL, database dialect, and timezone for this installation.</p>
+          <p class="section-copy">Set the base URL, timezone, and OMOP data target for this installation.</p>
           <div class="grid two">
             ${renderFields([
               { key: "app_url", label: "Application URL" },
               { key: "env", label: "Environment", type: "select", options: ["local", "production"] },
-              { key: "cdm_dialect", label: "CDM database dialect", type: "select", options: defaults ? ["PostgreSQL", "Microsoft SQL Server", "Google BigQuery", "Amazon Redshift", "Snowflake", "Oracle", "Not sure yet / will configure later"] : [] },
               { key: "timezone", label: "Timezone" },
+            ])}
+          </div>
+        </section>
+        <section class="section glass-soft">
+          <div class="section-kicker">OMOP Data</div>
+          <h4>Data Source Setup</h4>
+          <p class="section-copy">Use an existing OMOP CDM, prepare a database you already have, or let the installer create local PostgreSQL.</p>
+          <div class="grid two">
+            ${renderFields([
+              { key: "cdm_setup_mode", label: "OMOP target", type: "select", options: [
+                "Create local PostgreSQL OMOP database",
+                "Use an existing database server",
+                "Use an existing OMOP CDM",
+              ] },
+              { key: "cdm_dialect", label: "Database platform", type: "select", options: [
+                "PostgreSQL",
+                "Microsoft SQL Server",
+                "Google BigQuery",
+                "Amazon Redshift",
+                "Snowflake",
+                "Oracle",
+                "DuckDB",
+                "SQLite",
+                "Apache Spark",
+                "Azure Synapse Analytics Dedicated",
+                "InterSystems IRIS",
+                "Not sure yet / will configure later",
+              ] },
+              { key: "cdm_existing_state", label: "What exists now", type: "select", options: [
+                "Empty database or schema",
+                "Schemas exist but OMOP tables are missing",
+                "OMOP tables exist but vocabulary is missing",
+                "Vocabulary is loaded but clinical data is pending",
+                "Complete OMOP CDM exists",
+              ] },
+              { key: "vocabulary_setup", label: "Vocabulary", type: "select", options: [
+                "Use existing vocabulary",
+                "Load Athena vocabulary ZIP",
+                "Load later",
+                "Use demo starter data",
+              ] },
+            ])}
+          </div>
+          <div class="grid two" style="margin-top: 0.95rem;">
+            ${renderFields([
+              { key: "cdm_server", label: "Database server" },
+              { key: "cdm_database", label: "Database name" },
+              { key: "cdm_user", label: "Database user" },
+              { key: "cdm_password", label: "Database password", secret: true },
+            ])}
+          </div>
+          <div class="grid four" style="margin-top: 0.95rem;">
+            ${renderFields([
+              { key: "cdm_schema", label: "CDM schema" },
+              { key: "vocabulary_schema", label: "Vocabulary schema" },
+              { key: "results_schema", label: "Results schema" },
+              { key: "temp_schema", label: "Temp schema" },
             ])}
           </div>
         </section>
@@ -763,8 +819,15 @@ function formatReview(payload) {
     + group("Edition",
         row("Experience", payload.experience)
         + row("Edition", payload.edition)
-        + row("CDM Dialect", payload.cdm_dialect)
         + row("Demo Dataset", payload.include_eunomia ? "Eunomia (GiBleed)" : "None"))
+    + group("OMOP Data",
+        row("Target", payload.cdm_setup_mode)
+        + row("Platform", payload.cdm_dialect)
+        + row("Current State", payload.cdm_existing_state)
+        + row("Vocabulary", payload.vocabulary_setup)
+        + row("Database", payload.cdm_database)
+        + row("CDM Schema", payload.cdm_schema)
+        + row("Results Schema", payload.results_schema))
     + group("Access",
         row("Admin Email", payload.admin_email)
         + row("Admin Name", payload.admin_name)
@@ -1013,6 +1076,13 @@ function syncDynamicState() {
   ["livekit_url", "livekit_api_key", "livekit_api_secret"].forEach((key) => setField(key, !!livekit));
   ["orthanc_user", "orthanc_password"].forEach((key) => setField(key, !!orthanc));
   ["solr_java_mem"].forEach((key) => setField(key, !!solr));
+
+  const localDataTarget = payload.cdm_setup_mode === "Create local PostgreSQL OMOP database";
+  ["cdm_server", "cdm_user", "cdm_password"].forEach((key) => setField(key, !localDataTarget));
+  const cdmState = document.querySelector('[data-field="cdm_existing_state"]');
+  if (payload.cdm_setup_mode === "Use an existing OMOP CDM" && cdmState?.value === "Empty database or schema") {
+    cdmState.value = "Complete OMOP CDM exists";
+  }
 
   state.currentValues = { ...state.currentValues, ...getPayload() };
 }
