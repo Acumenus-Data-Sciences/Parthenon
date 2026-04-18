@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import { formatNumber } from "@/i18n/format";
 import type { FeasibilityResult } from "../../../types/ares";
 
 interface ConsortDiagramProps {
@@ -11,7 +13,7 @@ interface ConsortStep {
   excluded: number;
 }
 
-function buildConsortSteps(results: FeasibilityResult[], labels: string[]): ConsortStep[] {
+function buildConsortSteps(results: FeasibilityResult[], labels: string[], allSourcesLabel: string): ConsortStep[] {
   const total = results.length;
   const criterionKeys: Array<keyof Pick<FeasibilityResult, "domain_pass" | "concept_pass" | "visit_pass" | "date_pass" | "patient_pass">> = [
     "domain_pass",
@@ -21,7 +23,7 @@ function buildConsortSteps(results: FeasibilityResult[], labels: string[]): Cons
     "patient_pass",
   ];
 
-  const steps: ConsortStep[] = [{ label: "All Sources", remaining: total, excluded: 0 }];
+  const steps: ConsortStep[] = [{ label: allSourcesLabel, remaining: total, excluded: 0 }];
 
   let currentSources = [...results];
 
@@ -44,19 +46,33 @@ function buildConsortSteps(results: FeasibilityResult[], labels: string[]): Cons
 }
 
 export default function ConsortDiagram({ results, criteriaLabels }: ConsortDiagramProps) {
+  const { t } = useTranslation("app");
+
   if (results.length === 0) {
-    return <p className="py-4 text-center text-xs text-text-ghost">No results to display CONSORT diagram.</p>;
+    return (
+      <p className="py-4 text-center text-xs text-text-ghost">
+        {t("dataExplorer.ares.feasibility.consort.noResults")}
+      </p>
+    );
   }
 
-  const defaultLabels = ["Domains", "Concepts", "Visit Types", "Date Range", "Patient Count"];
+  const defaultLabels = [
+    t("dataExplorer.ares.feasibility.criteria.domains"),
+    t("dataExplorer.ares.feasibility.criteria.concepts"),
+    t("dataExplorer.ares.feasibility.criteria.visitTypes"),
+    t("dataExplorer.ares.feasibility.criteria.dateRange"),
+    t("dataExplorer.ares.feasibility.criteria.patientCount"),
+  ];
   const labels = criteriaLabels.length > 0 ? criteriaLabels : defaultLabels;
-  const steps = buildConsortSteps(results, labels);
+  const steps = buildConsortSteps(results, labels, t("dataExplorer.ares.feasibility.consort.allSources"));
 
   return (
     <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
-      <h4 className="mb-1 text-sm font-medium text-text-primary">CONSORT-Style Attrition Flow</h4>
+      <h4 className="mb-1 text-sm font-medium text-text-primary">
+        {t("dataExplorer.ares.feasibility.consort.title")}
+      </h4>
       <p className="mb-4 text-[11px] text-text-ghost">
-        Shows how sources are progressively excluded by each criterion gate.
+        {t("dataExplorer.ares.feasibility.consort.description")}
       </p>
 
       <div className="flex flex-col items-center gap-0">
@@ -73,7 +89,11 @@ export default function ConsortDiagram({ results, criteriaLabels }: ConsortDiagr
               }`}
             >
               <span className="text-[10px] text-text-muted">{step.label}</span>
-              <span className="text-sm font-bold text-text-primary">{step.remaining} sources</span>
+              <span className="text-sm font-bold text-text-primary">
+                {t("dataExplorer.ares.feasibility.consort.sources", {
+                  count: formatNumber(step.remaining),
+                })}
+              </span>
             </div>
 
             {/* Arrow + exclusion label */}
@@ -82,7 +102,9 @@ export default function ConsortDiagram({ results, criteriaLabels }: ConsortDiagr
                 <div className="h-6 w-px bg-surface-highlight" />
                 {steps[idx + 1].excluded > 0 && (
                   <span className="rounded bg-primary/15 px-2 py-0.5 text-[10px] text-critical">
-                    -{steps[idx + 1].excluded} excluded
+                    {t("dataExplorer.ares.feasibility.consort.excluded", {
+                      count: formatNumber(steps[idx + 1].excluded),
+                    })}
                   </span>
                 )}
               </div>

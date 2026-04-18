@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Server,
   Globe,
@@ -39,30 +40,30 @@ interface Props {
 
 const META: Record<
   AuthProviderType,
-  { label: string; icon: LucideIcon; description: string; color: string }
+  { labelKey: string; icon: LucideIcon; descriptionKey: string; color: string }
 > = {
   ldap: {
-    label: "LDAP / Active Directory",
+    labelKey: "setup.authentication.providers.ldap.label",
     icon: Server,
-    description: "Authenticate against AD or any LDAP v3 directory.",
+    descriptionKey: "setup.authentication.providers.ldap.description",
     color: "text-blue-500",
   },
   oauth2: {
-    label: "OAuth 2.0",
+    labelKey: "setup.authentication.providers.oauth2.label",
     icon: Globe,
-    description: "Delegate auth to GitHub, Google, Microsoft, or custom.",
+    descriptionKey: "setup.authentication.providers.oauth2.description",
     color: "text-green-500",
   },
   saml2: {
-    label: "SAML 2.0",
+    labelKey: "setup.authentication.providers.saml2.label",
     icon: FileKey,
-    description: "Enterprise SSO via Okta, Azure AD, ADFS, etc.",
+    descriptionKey: "setup.authentication.providers.saml2.description",
     color: "text-purple-500",
   },
   oidc: {
-    label: "OpenID Connect",
+    labelKey: "setup.authentication.providers.oidc.label",
     icon: Fingerprint,
-    description: "Modern SSO with PKCE and OIDC discovery.",
+    descriptionKey: "setup.authentication.providers.oidc.description",
     color: "text-amber-500",
   },
 };
@@ -86,6 +87,7 @@ function ProviderCard({
   provider: AuthProviderSetting;
   onEnabled: () => void;
 }) {
+  const { t } = useTranslation("auth");
   const meta = META[provider.provider_type];
   const Icon = meta.icon;
   const ConfigForm = CONFIG_FORMS[provider.provider_type];
@@ -132,8 +134,8 @@ function ProviderCard({
             <Icon className="h-5 w-5" />
           </div>
           <div>
-            <p className="font-medium text-text-primary">{meta.label}</p>
-            <p className="text-xs text-text-muted">{meta.description}</p>
+            <p className="font-medium text-text-primary">{t(meta.labelKey)}</p>
+            <p className="text-xs text-text-muted">{t(meta.descriptionKey)}</p>
           </div>
         </div>
 
@@ -141,7 +143,9 @@ function ProviderCard({
           {/* Toggle */}
           <label className="flex cursor-pointer items-center gap-2">
             <span className="text-xs text-text-muted">
-              {provider.is_enabled ? "Enabled" : "Disabled"}
+              {provider.is_enabled
+                ? t("setup.authentication.enabled")
+                : t("setup.authentication.disabled")}
             </span>
             <div className="relative">
               <input
@@ -170,7 +174,8 @@ function ProviderCard({
             onClick={() => setOpen((o) => !o)}
             className="flex items-center gap-1 rounded-md border border-border-default px-3 py-1.5 text-xs font-medium text-text-muted hover:bg-surface-elevated"
           >
-            Configure {open ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+            {t("setup.authentication.configure")}{" "}
+            {open ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
           </button>
         </div>
       </div>
@@ -198,7 +203,7 @@ function ProviderCard({
                 ) : (
                   <FlaskConical className="h-4 w-4" />
                 )}
-                Test Connection
+                {t("setup.authentication.testConnection")}
               </button>
               {testResult && (
                 <div
@@ -216,7 +221,9 @@ function ProviderCard({
                   )}
                   <div>
                     <p className="font-medium">
-                      {testResult.success ? "Connection successful" : "Connection failed"}
+                      {testResult.success
+                        ? t("setup.authentication.connectionSuccessful")
+                        : t("setup.authentication.connectionFailed")}
                     </p>
                     <p className="mt-0.5 text-xs opacity-80">{testResult.message}</p>
                   </div>
@@ -231,6 +238,7 @@ function ProviderCard({
 }
 
 export function AuthenticationStep({ onConfigured }: Props) {
+  const { t } = useTranslation("auth");
   const { data: providers, isLoading } = useAuthProviders();
   const ordered = [...(providers ?? [])].sort((a, b) => a.priority - b.priority);
 
@@ -238,7 +246,9 @@ export function AuthenticationStep({ onConfigured }: Props) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-6 w-6 animate-spin text-accent" />
-        <span className="ml-2 text-sm text-text-muted">Loading auth providers...</span>
+        <span className="ml-2 text-sm text-text-muted">
+          {t("setup.authentication.loading")}
+        </span>
       </div>
     );
   }
@@ -246,10 +256,11 @@ export function AuthenticationStep({ onConfigured }: Props) {
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-semibold text-text-primary">Authentication Providers</h3>
+        <h3 className="text-lg font-semibold text-text-primary">
+          {t("setup.authentication.title")}
+        </h3>
         <p className="text-sm text-text-muted">
-          Configure external identity providers for single sign-on. This step is optional —
-          local username/password authentication is always available.
+          {t("setup.authentication.intro")}
         </p>
       </div>
 
@@ -259,13 +270,15 @@ export function AuthenticationStep({ onConfigured }: Props) {
           <Fingerprint className="h-5 w-5" />
         </div>
         <div className="flex-1">
-          <p className="font-medium text-text-primary">Username & Password</p>
+          <p className="font-medium text-text-primary">
+            {t("setup.authentication.usernamePassword")}
+          </p>
           <p className="text-xs text-text-muted">
-            Built-in Sanctum authentication — always active.
+            {t("setup.authentication.builtIn")}
           </p>
         </div>
         <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-medium text-emerald-400">
-          Always on
+          {t("setup.authentication.alwaysOn")}
         </span>
       </div>
 

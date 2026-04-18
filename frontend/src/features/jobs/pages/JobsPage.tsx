@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   RefreshCw,
   Loader2,
@@ -32,13 +33,13 @@ import { JobDetailDrawer } from "../components/JobDetailDrawer";
 import { cn } from "@/lib/utils";
 import { HelpButton } from "@/features/help";
 
-const statusFilters: Array<{ label: string; value: JobStatus | "all" | "archived" }> = [
-  { label: "All (24h)", value: "all" },
-  { label: "Running", value: "running" },
-  { label: "Failed", value: "failed" },
-  { label: "Completed", value: "completed" },
-  { label: "Queued", value: "queued" },
-  { label: "Archived", value: "archived" },
+const statusFilters: Array<{ labelKey: string; value: JobStatus | "all" | "archived" }> = [
+  { labelKey: "all", value: "all" },
+  { labelKey: "running", value: "running" },
+  { labelKey: "failed", value: "failed" },
+  { labelKey: "completed", value: "completed" },
+  { labelKey: "queued", value: "queued" },
+  { labelKey: "archived", value: "archived" },
 ];
 
 const typeIcons: Partial<Record<JobType, LucideIcon>> = {
@@ -74,11 +75,6 @@ const statusIcons: Record<JobStatus, LucideIcon> = {
   cancelled: Ban,
 };
 
-function formatJobType(type: JobType | string | null | undefined): string {
-  if (!type) return "analysis";
-  return String(type).replace(/_/g, " ");
-}
-
 function formatDuration(started: string | null, completed: string | null): string {
   if (!started) return "—";
   const start = new Date(started).getTime();
@@ -104,46 +100,73 @@ function LiveTimer({ startedAt }: { startedAt: string }) {
   return <>{formatDuration(startedAt, null)}</>;
 }
 
-function formatRelativeTime(dateStr: string): string {
+function formatRelativeTime(dateStr: string, language: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
+  const formatter = new Intl.RelativeTimeFormat(language, { numeric: "auto" });
+  if (mins < 1) return formatter.format(0, "minute");
+  if (mins < 60) return formatter.format(-mins, "minute");
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
+  if (hrs < 24) return formatter.format(-hrs, "hour");
+  return formatter.format(-Math.floor(hrs / 24), "day");
 }
 
-const typeFilters: Array<{ label: string; value: JobType | "all" }> = [
-  { label: "All Types", value: "all" },
+const jobTypeLabelKeys: Partial<Record<JobType | "all", string>> = {
+  all: "all",
+  characterization: "characterization",
+  incidence_rate: "incidenceRate",
+  estimation: "estimation",
+  prediction: "prediction",
+  pathway: "pathway",
+  sccs: "sccs",
+  evidence_synthesis: "evidenceSynthesis",
+  cohort_generation: "cohortGeneration",
+  care_gap: "careGaps",
+  achilles: "achilles",
+  dqd: "dataQuality",
+  heel: "heelChecks",
+  ingestion: "ingestion",
+  vocabulary_load: "vocabulary",
+  genomic_parse: "genomicParse",
+  poseidon: "poseidon",
+  fhir_export: "fhirExport",
+  fhir_sync: "fhirSync",
+  gis_import: "gisImport",
+  gis_boundary: "gisBoundaries",
+  analysis: "analysis",
+};
+
+const typeFilters: Array<{ value: JobType | "all" }> = [
+  { value: "all" },
   // ─── Research & Analysis ───
-  { label: "Characterization", value: "characterization" },
-  { label: "Incidence Rate", value: "incidence_rate" },
-  { label: "Estimation", value: "estimation" },
-  { label: "Prediction", value: "prediction" },
-  { label: "Pathway", value: "pathway" },
-  { label: "SCCS", value: "sccs" },
-  { label: "Evidence Synthesis", value: "evidence_synthesis" },
-  { label: "Cohort Generation", value: "cohort_generation" },
-  { label: "Care Gaps", value: "care_gap" },
-  // ─── Data Quality ──���
-  { label: "Achilles", value: "achilles" },
-  { label: "Data Quality", value: "dqd" },
-  { label: "Heel Checks", value: "heel" },
+  { value: "characterization" },
+  { value: "incidence_rate" },
+  { value: "estimation" },
+  { value: "prediction" },
+  { value: "pathway" },
+  { value: "sccs" },
+  { value: "evidence_synthesis" },
+  { value: "cohort_generation" },
+  { value: "care_gap" },
+  // Data Quality
+  { value: "achilles" },
+  { value: "dqd" },
+  { value: "heel" },
   // ─── Data Pipeline ───
-  { label: "Ingestion", value: "ingestion" },
-  { label: "Vocabulary", value: "vocabulary_load" },
-  { label: "Genomic Parse", value: "genomic_parse" },
-  { label: "Poseidon ETL", value: "poseidon" },
+  { value: "ingestion" },
+  { value: "vocabulary_load" },
+  { value: "genomic_parse" },
+  { value: "poseidon" },
   // ─── Integrations ───
-  { label: "FHIR Export", value: "fhir_export" },
-  { label: "FHIR Sync", value: "fhir_sync" },
+  { value: "fhir_export" },
+  { value: "fhir_sync" },
   // ─── GIS ───
-  { label: "GIS Import", value: "gis_import" },
-  { label: "GIS Boundaries", value: "gis_boundary" },
+  { value: "gis_import" },
+  { value: "gis_boundary" },
 ];
 
 export default function JobsPage() {
+  const { i18n, t } = useTranslation("app");
   const [statusFilter, setStatusFilter] = useState<JobStatus | "all" | "archived">("all");
   const [typeFilter, setTypeFilter] = useState<JobType | "all">("all");
   const [page, setPage] = useState(1);
@@ -166,10 +189,6 @@ export default function JobsPage() {
   const jobs = data?.data ?? [];
   const meta = data?.meta;
 
-  useEffect(() => {
-    setPage(1);
-  }, [statusFilter, typeFilter]);
-
   const handleRetry = useCallback(
     (job: { id: number; type: JobType }) => retryMutation.mutate(job),
     [retryMutation],
@@ -180,13 +199,36 @@ export default function JobsPage() {
     [cancelMutation],
   );
 
+  const jobTypeLabel = (type: JobType | "all" | string | null | undefined) => {
+    if (!type) return t("jobs.filters.types.analysis");
+    const labelKey = jobTypeLabelKeys[type as JobType | "all"];
+    return labelKey
+      ? t(`jobs.filters.types.${labelKey}`)
+      : String(type).replace(/_/g, " ");
+  };
+
+  const statusLabel = (status: JobStatus | "all" | "archived" | string) =>
+    t(`jobs.filters.statuses.${status}`, {
+      defaultValue: String(status).replace(/_/g, " "),
+    });
+
+  const changeStatusFilter = (value: JobStatus | "all" | "archived") => {
+    setStatusFilter(value);
+    setPage(1);
+  };
+
+  const changeTypeFilter = (value: JobType | "all") => {
+    setTypeFilter(value);
+    setPage(1);
+  };
+
   return (
     <div>
       {/* Page header */}
       <div className="page-header" style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
         <div style={{ flex: 1 }}>
-          <h1 className="page-title">Jobs</h1>
-          <p className="page-subtitle">Monitor background jobs and queue status</p>
+          <h1 className="page-title">{t("jobs.page.title")}</h1>
+          <p className="page-subtitle">{t("jobs.page.subtitle")}</p>
         </div>
         <HelpButton helpKey="jobs" />
       </div>
@@ -196,9 +238,9 @@ export default function JobsPage() {
         {statusFilters.map((f) => (
           <FilterChip
             key={f.value}
-            label={f.label}
+            label={t(`jobs.filters.statuses.${f.labelKey}`)}
             active={statusFilter === f.value}
-            onToggle={() => setStatusFilter(f.value)}
+            onToggle={() => changeStatusFilter(f.value)}
           />
         ))}
       </div>
@@ -208,9 +250,9 @@ export default function JobsPage() {
         {typeFilters.map((f) => (
           <FilterChip
             key={f.value}
-            label={f.label}
+            label={jobTypeLabel(f.value)}
             active={typeFilter === f.value}
-            onToggle={() => setTypeFilter(f.value)}
+            onToggle={() => changeTypeFilter(f.value)}
           />
         ))}
       </div>
@@ -224,24 +266,26 @@ export default function JobsPage() {
         ) : jobs.length === 0 ? (
           <EmptyState
             icon={<Clock size={40} />}
-            title="No jobs found"
+            title={t("jobs.page.empty.title")}
             message={
-              isArchived ? "No archived jobs older than 24 hours." :
-              statusFilter !== "all" ? `No ${statusFilter} jobs. Try a different filter.` :
-              "No jobs in the last 24 hours. Check Archived for older jobs."
+              isArchived ? t("jobs.page.empty.archived") :
+              statusFilter !== "all" ? t("jobs.page.empty.filtered", {
+                status: statusLabel(statusFilter).toLocaleLowerCase(),
+              }) :
+              t("jobs.page.empty.recent")
             }
           />
         ) : (
           <table className="data-table">
             <thead>
               <tr>
-                <th>Job</th>
-                <th>Type</th>
-                <th>Source</th>
-                <th>Started</th>
-                <th>Duration</th>
-                <th>Status</th>
-                <th style={{ width: 100 }}>Actions</th>
+                <th>{t("jobs.page.table.job")}</th>
+                <th>{t("jobs.page.table.type")}</th>
+                <th>{t("jobs.page.table.source")}</th>
+                <th>{t("jobs.page.table.started")}</th>
+                <th>{t("jobs.page.table.duration")}</th>
+                <th>{t("jobs.page.table.status")}</th>
+                <th style={{ width: 100 }}>{t("jobs.page.table.actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -260,11 +304,11 @@ export default function JobsPage() {
                     <td>
                       <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-1)" }}>
                         <TypeIcon size={14} />
-                        <span>{formatJobType(job.type)}</span>
+                        <span>{jobTypeLabel(job.type)}</span>
                       </span>
                     </td>
                     <td>{job.source_name ?? "—"}</td>
-                    <td>{job.started_at ? formatRelativeTime(job.started_at) : "—"}</td>
+                    <td>{job.started_at ? formatRelativeTime(job.started_at, i18n.language) : "—"}</td>
                     <td className="mono">
                       {job.status === "running" && job.started_at ? (
                         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -302,7 +346,7 @@ export default function JobsPage() {
                             "default"
                           }
                         >
-                          {job.status}
+                          {statusLabel(job.status)}
                         </Badge>
                       </span>
                     </td>
@@ -312,8 +356,8 @@ export default function JobsPage() {
                           <button
                             className="btn btn-ghost btn-sm btn-icon"
                             onClick={() => handleRetry({ id: job.id, type: job.type })}
-                            title="Retry"
-                            aria-label="Retry job"
+                            title={t("jobs.actions.retry")}
+                            aria-label={t("jobs.actions.retryJob")}
                           >
                             <RefreshCw size={14} />
                           </button>
@@ -322,8 +366,8 @@ export default function JobsPage() {
                           <button
                             className="btn btn-ghost btn-sm btn-icon"
                             onClick={() => handleCancel({ id: job.id, type: job.type })}
-                            title="Cancel"
-                            aria-label="Cancel job"
+                            title={t("jobs.actions.cancel")}
+                            aria-label={t("jobs.actions.cancelJob")}
                           >
                             <Ban size={14} />
                           </button>
@@ -341,7 +385,11 @@ export default function JobsPage() {
       {!!meta && meta.last_page > 1 && (
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "var(--space-3)" }}>
           <div style={{ color: "var(--text-muted)", fontSize: "var(--text-sm)" }}>
-            Page {meta.current_page} of {meta.last_page} · {meta.total} jobs
+            {t("jobs.page.pagination", {
+              current: meta.current_page,
+              last: meta.last_page,
+              total: meta.total,
+            })}
           </div>
           <div style={{ display: "flex", gap: "var(--space-2)" }}>
             <button
@@ -349,14 +397,14 @@ export default function JobsPage() {
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={meta.current_page <= 1}
             >
-              <ChevronLeft size={14} /> Previous
+              <ChevronLeft size={14} /> {t("jobs.actions.previous")}
             </button>
             <button
               className="btn btn-secondary btn-sm"
               onClick={() => setPage((p) => Math.min(meta.last_page, p + 1))}
               disabled={meta.current_page >= meta.last_page}
             >
-              Next <ChevronRight size={14} />
+              {t("jobs.actions.next")} <ChevronRight size={14} />
             </button>
           </div>
         </div>

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import { formatNumber } from "@/i18n/format";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 
 interface AgePyramidData {
@@ -12,6 +14,8 @@ interface AgePyramidProps {
 }
 
 export default function AgePyramid({ data, sourceName }: AgePyramidProps) {
+  const { t } = useTranslation("app");
+
   if (data.length === 0) return null;
 
   // Male values should be negative for left side
@@ -23,7 +27,11 @@ export default function AgePyramid({ data, sourceName }: AgePyramidProps) {
 
   return (
     <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
-      <h4 className="mb-3 text-sm font-medium text-text-primary">{sourceName} -- Age Distribution</h4>
+      <h4 className="mb-3 text-sm font-medium text-text-primary">
+        {t("dataExplorer.ares.diversity.agePyramid.title", {
+          source: sourceName,
+        })}
+      </h4>
       <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
@@ -34,7 +42,7 @@ export default function AgePyramid({ data, sourceName }: AgePyramidProps) {
             <XAxis
               type="number"
               tick={{ fill: "var(--text-muted)", fontSize: 11 }}
-              tickFormatter={(v: number) => Math.abs(v).toLocaleString()}
+              tickFormatter={(v: number) => formatNumber(Math.abs(v))}
             />
             <YAxis
               type="category"
@@ -49,20 +57,22 @@ export default function AgePyramid({ data, sourceName }: AgePyramidProps) {
                 color: "var(--text-secondary)",
                 fontSize: 12,
               }}
-              formatter={((value: number) => [Math.abs(value).toLocaleString(), ""]) as never}
+              formatter={((value: number) => [formatNumber(Math.abs(value)), ""]) as never}
             />
             <ReferenceLine x={0} stroke="var(--surface-highlight)" />
-            <Bar dataKey="male" fill="#7c8aed" name="Male" />
-            <Bar dataKey="female" fill="var(--critical)" name="Female" />
+            <Bar dataKey="male" fill="#7c8aed" name={t("dataExplorer.ares.diversity.labels.male")} />
+            <Bar dataKey="female" fill="var(--critical)" name={t("dataExplorer.ares.diversity.labels.female")} />
           </BarChart>
         </ResponsiveContainer>
       </div>
       <div className="mt-2 flex justify-center gap-4 text-xs text-text-muted">
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-full bg-info" /> Male
+          <span className="inline-block h-2 w-2 rounded-full bg-info" />
+          {t("dataExplorer.ares.diversity.labels.male")}
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-full bg-critical" /> Female
+          <span className="inline-block h-2 w-2 rounded-full bg-critical" />
+          {t("dataExplorer.ares.diversity.labels.female")}
         </span>
       </div>
     </div>

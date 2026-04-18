@@ -1,0 +1,150 @@
+---
+id: 00-dashboard
+title: "Dashboard"
+sidebar_label: "Dashboard"
+slug: /dashboard
+---
+
+# Dashboard
+
+El **Dashboard** es la página inicial después del inicio de sesión y funciona como el centro de mando operativo de Parthenon. Proporciona una vista unificada de sus fuentes de datos CDM, actividades de investigación activas, definiciones de cohortes y estado de calidad de datos en una sola pantalla. Desde aquí, los investigadores pueden evaluar la salud de las bases de datos conectadas, monitorear trabajos en ejecución y navegar directamente a cualquier módulo funcional.
+
+El dashboard está diseñado para conciencia situacional rápida. Un coordinador de investigación que abre Parthenon al inicio del día puede ver de inmediato cuántas fuentes están conectadas, si hay trabajos en ejecución y si los problemas de calidad de datos requieren atención, sin navegar a módulos individuales.
+
+---
+
+## Arquitectura del módulo
+
+```
+DashboardPage
+ |
+ |-- Fila de tarjetas métricas
+ |    |-- CDM Sources (conteo de bases conectadas)
+ |    |-- Active Cohorts (conteo de cohortes definidas)
+ |    |-- Running Jobs (en cola o ejecutándose)
+ |    |-- DQD Failures (fallos de calidad de datos)
+ |    |-- Concept Sets (conteo de conjuntos guardados)
+ |
+ |-- Sección CDM Characterization
+ |    |-- SourceSelector (desplegable para elegir fuente activa)
+ |    |-- CdmMetricCard x4 (Persons, Median Obs Duration, Total Events, Completeness)
+ |    |-- ProportionalBar (distribución por género)
+ |    |-- DemographicsPyramid (pirámide de edad por género)
+ |    |-- Sparkline (tendencias de inicio de observación)
+ |
+ |-- Fila de paneles de dos columnas 1
+ |    |-- Source Health (tabla: nombre de fuente, dialecto, estado)
+ |    |-- Active Jobs (tabla: nombre de trabajo, tipo, estado)
+ |
+ |-- Fila de paneles de dos columnas 2
+ |    |-- Recent Cohort Activity (tabla: cohorte, sujetos, estado)
+ |    |-- Quick Actions (enlaces a flujos clave)
+```
+
+Los datos fluyen a través de dos capas de hooks:
+
+- **`useDashboardStats`** obtiene estadísticas agregadas de la plataforma (fuentes, cohortes, trabajos, fallos DQD, conjuntos de conceptos) mediante TanStack Query.
+- **Hooks de Achilles** (`useRecordCounts`, `useDemographics`, `useObservationPeriods`) obtienen datos de caracterización CDM para la fuente actualmente seleccionada.
+
+---
+
+## Recorrido de funciones
+
+### Tarjetas métricas
+
+La fila superior muestra cinco tarjetas de resumen que se cargan desde una única llamada API:
+
+| Métrica | Descripción | Indicador visual |
+|---|---|---|
+| **CDM Sources** | Número de bases OMOP conectadas | Icono de base de datos |
+| **Active Cohorts** | Total de definiciones de cohortes | Icono de usuarios |
+| **Running Jobs** | Trabajos actualmente en cola o ejecución | Variante informativa azul cuando > 0 |
+| **DQD Failures** | Fallos de verificaciones Data Quality Dashboard | Variante crítica roja cuando > 0, verde cuando 0 |
+| **Concept Sets** | Conjuntos de conceptos guardados en el sistema | Icono de matraz |
+
+### Caracterización CDM
+
+Debajo de las tarjetas métricas, la sección CDM Characterization proporciona un perfil de datos clínicos para una fuente seleccionada. Un desplegable **Source Selector** permite cambiar entre bases de datos conectadas. El sistema selecciona automáticamente la fuente predeterminada, o la primera fuente disponible, durante la carga inicial.
+
+Se muestran cuatro tarjetas métricas CDM en una cuadrícula:
+
+| Tarjeta | Fuente de datos | Notas |
+|---|---|---|
+| **Persons** | Conteo de registros de la tabla `person` | Incluye un sparkline con tendencias de inicio de observación por año |
+| **Median Obs Duration** | Distribución de duración de periodos de observación | Se muestra en días |
+| **Total Events** | Suma de conteos de todas las tablas de eventos clínicos | Excluye `person` y `observation_period` |
+| **Data Completeness** | Porcentaje de tablas CDM con datos | Muestra subtítulo `N/M tables` |
+
+Debajo de las tarjetas, la sección renderiza:
+
+- **Gender Distribution**: gráfico de barra proporcional con segmentos codificados por color para cada concepto de género.
+- **Demographics Pyramid**: visualización de pirámide poblacional por edad y género.
+
+Un enlace "View Full" navega al Explorador de datos para una caracterización más profunda.
+
+### Panel de salud de fuentes
+
+Muestra una tabla de hasta cinco fuentes de datos conectadas, con nombre de fuente, dialecto SQL y estado de salud de la conexión. Un enlace "View All" navega a la página de gestión de fuentes de datos. Cuando no hay fuentes configuradas, un estado vacío invita al usuario a conectar una base de datos CDM.
+
+### Panel de trabajos activos
+
+Lista trabajos recientes con nombre, tipo (mostrado como insignia) y estado de ejecución. Los trabajos en ejecución muestran un spinner animado. Cuando no hay trabajos activos, se muestra un estado vacío informativo.
+
+### Panel de actividad reciente de cohortes
+
+Muestra definiciones de cohortes modificadas recientemente con conteos de sujetos e insignias de estado (activa, error o borrador). Proporciona un enlace directo a la lista de definiciones de cohortes.
+
+### Acciones rápidas
+
+Cuatro botones de acceso directo para flujos comunes:
+
+- **Connect a Data Source**: navegar a la configuración de fuentes de datos
+- **Create Cohort Definition**: empezar a crear una nueva cohorte
+- **Build Concept Set**: abrir el constructor de conjuntos de conceptos
+- **Explore Data Quality**: navegar al Explorador de datos
+
+---
+
+## Estados de carga y manejo de errores
+
+El dashboard implementa estados completos de carga y error para ofrecer una experiencia responsiva:
+
+- **Carga con skeletons**: mientras la llamada API de estadísticas está en curso, todas las tarjetas métricas y paneles renderizan placeholders animados que coinciden con las dimensiones finales. Esto evita cambios de diseño cuando llegan los datos.
+- **Carga de sección CDM**: las cuatro tarjetas métricas CDM y los paneles de gráficos muestran skeletons independientes mientras se cargan datos Achilles para la fuente seleccionada.
+- **API no disponible**: si la llamada API de estadísticas falla, aparece una alerta de advertencia debajo de las tarjetas métricas indicando que pueden mostrarse datos en caché. La alerta incluye un icono y texto descriptivo para orientar al investigador.
+- **Estados vacíos**: cada panel (Source Health, Active Jobs, Recent Cohorts) renderiza un estado vacío dedicado con icono, título, mensaje y, cuando corresponde, un botón de acción. Por ejemplo, cuando no hay fuentes configuradas, el panel Source Health muestra un mensaje "No data sources" con un botón "Add Source".
+- **Sin fuente seleccionada**: si no hay fuente CDM disponible o seleccionada, la sección de caracterización muestra un icono centrado de base de datos con una indicación para seleccionar una fuente de datos.
+
+:::tip
+Si nota datos desactualizados en el dashboard, TanStack Query vuelve a cargar automáticamente al enfocar la ventana. También puede navegar fuera y regresar para activar una carga nueva.
+:::
+
+---
+
+## Referencia de API
+
+| Endpoint | Método | Descripción |
+|---|---|---|
+| `GET /api/v1/dashboard/stats` | GET | Devuelve estadísticas agregadas del dashboard: fuentes, conteo de cohortes, conteo de trabajos, fallos DQD, conjuntos de conceptos, cohortes recientes y trabajos recientes |
+| `GET /api/v1/achilles/{sourceId}/record-counts` | GET | Conteos de registros por tabla CDM para una fuente |
+| `GET /api/v1/achilles/{sourceId}/demographics` | GET | Distribución de género y edad para una fuente |
+| `GET /api/v1/achilles/{sourceId}/observation-periods` | GET | Duración de periodos de observación y distribuciones de fecha de inicio |
+
+:::tip
+El dashboard selecciona automáticamente la fuente predeterminada al cargar. Si ha configurado una fuente con `is_default: true`, se preseleccionará en la sección CDM Characterization sin intervención manual.
+:::
+
+:::warning
+Si la API no está disponible, el dashboard muestra una alerta de advertencia e intenta mostrar datos en caché. Asegúrese de que los servicios backend estén ejecutándose y saludables antes de basar decisiones de investigación en las métricas mostradas.
+:::
+
+---
+
+## Páginas relacionadas
+
+- [Fuentes de datos](/part1-getting-started/02-data-sources): configure y gestione conexiones a bases de datos CDM
+- [Explorador de datos](/part6-data-explorer/18-characterization-achilles): caracterización CDM completa con Achilles
+- [Definiciones de cohortes](/part3-cohorts/06-building-cohorts): cree y gestione definiciones de cohortes
+- [Conjuntos de conceptos](/part2-vocabulary/04-concept-sets): construya y mantenga conjuntos de conceptos
+- [Data Quality Dashboard](/part6-data-explorer/19-data-quality-dashboard): evaluación detallada de calidad de datos
+- [Gestión de usuarios](/part8-administration/22-user-management): gestione miembros del equipo y acceso

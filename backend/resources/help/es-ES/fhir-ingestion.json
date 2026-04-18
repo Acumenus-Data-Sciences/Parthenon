@@ -1,0 +1,17 @@
+{
+  "key": "fhir-ingestion",
+  "title": "Ingesta FHIR",
+  "description": "La Ingesta FHIR convierte recursos FHIR R4 al formato OMOP CDM y los carga en su base de datos. Puede cargar un solo archivo FHIR Bundle JSON o procesar por lotes múltiples archivos NDJSON. El sistema mapea recursos FHIR (Patient, Condition, MedicationRequest, etc.) a las tablas OMOP CDM correspondientes y reporta conteos detallados de filas por tabla.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Cargue un archivo FHIR R4 Bundle JSON usando el área de carga de archivos, o arrastre y suelte para mayor comodidad.",
+    "Para conjuntos de datos grandes, use el modo por lotes para cargar múltiples archivos NDJSON que se procesan en paralelo.",
+    "Después de la ingesta, revise el desglose por tabla que muestra cuántas filas se insertaron en cada tabla CDM (person, condition_occurrence, drug_exposure, etc.).",
+    "Verifique el indicador de estado de salud para confirmar que el servicio de ingesta FHIR esté ejecutándose antes de intentar una carga.",
+    "El historial de ingesta se almacena localmente para que pueda revisar importaciones anteriores, incluidas marcas de tiempo, nombres de archivo y conteos de filas.",
+    "Use los controles de búsqueda y filtro en el panel de resultados para encontrar tipos de recursos FHIR o tablas CDM específicos.",
+    "Las ingestas fallidas o parcialmente fallidas muestran información detallada de error para ayudarle a identificar y corregir problemas en sus datos FHIR.",
+    "Exporte el informe de ingesta para documentación o para rastrear linaje de datos desde la fuente FHIR hasta el destino OMOP CDM."
+  ]
+}

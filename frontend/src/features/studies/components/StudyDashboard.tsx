@@ -1,4 +1,5 @@
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { ExecutionStatusBadge } from "@/features/analyses/components/ExecutionStatusBadge";
 import type { StudyAnalysisEntry, StudyProgress } from "../types/study";
@@ -15,6 +16,8 @@ export function StudyDashboard({
   progress,
   isLoading,
 }: StudyDashboardProps) {
+  const { t } = useTranslation("app");
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -35,14 +38,14 @@ export function StudyDashboard({
       {/* Progress Overview */}
       <div className="panel space-y-4">
         <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-          Execution Progress
+          {t("studies.detail.sections.executionProgress")}
         </h3>
 
         {/* Progress bar */}
         <div className="space-y-2">
           <div className="flex items-center justify-between" style={{ fontSize: "var(--text-xs)" }}>
             <span style={{ color: "var(--text-muted)" }}>
-              {completed} of {total} analyses completed
+              {t("studies.dashboard.progressSummary", { completed, total })}
             </span>
             <span style={{ fontFamily: "var(--font-mono)", color: "var(--primary)" }}>
               {progressPct.toFixed(0)}%
@@ -72,14 +75,14 @@ export function StudyDashboard({
         {/* Status cards */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           {[
-            { label: "Total", value: total, color: "var(--text-primary)" },
-            { label: "Pending", value: pending, color: "var(--text-muted)" },
-            { label: "Running", value: running, color: "var(--warning)" },
-            { label: "Completed", value: completed, color: "var(--success)" },
-            { label: "Failed", value: failed, color: "var(--critical)" },
+            { key: "total", value: total, color: "var(--text-primary)" },
+            { key: "pending", value: pending, color: "var(--text-muted)" },
+            { key: "running", value: running, color: "var(--warning)" },
+            { key: "completed", value: completed, color: "var(--success)" },
+            { key: "failed", value: failed, color: "var(--critical)" },
           ].map((stat) => (
             <div
-              key={stat.label}
+              key={stat.key}
               className="panel-inset text-center"
               style={{ padding: "var(--space-3)", borderRadius: "var(--radius-md)" }}
             >
@@ -87,7 +90,7 @@ export function StudyDashboard({
                 {stat.value}
               </p>
               <p style={{ fontSize: "10px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.8px" }}>
-                {stat.label}
+                {t(`studies.dashboard.stats.${stat.key}`)}
               </p>
             </div>
           ))}
@@ -99,15 +102,15 @@ export function StudyDashboard({
         <div className="panel" style={{ padding: 0, overflow: "hidden" }}>
           <div style={{ padding: "var(--space-4)", borderBottom: "1px solid var(--border-default)" }}>
             <h3 className="panel-title" style={{ fontSize: "var(--text-base)", marginBottom: 0 }}>
-              Study Analyses
+              {t("studies.dashboard.sections.studyAnalyses")}
             </h3>
           </div>
           <table className="data-table">
             <thead>
               <tr>
-                <th>Type</th>
-                <th>Name</th>
-                <th>Status</th>
+                <th>{t("studies.dashboard.table.type")}</th>
+                <th>{t("studies.dashboard.table.name")}</th>
+                <th>{t("studies.dashboard.table.status")}</th>
               </tr>
             </thead>
             <tbody>
@@ -131,7 +134,7 @@ export function StudyDashboard({
                     </td>
                     <td style={{ color: "var(--text-primary)" }}>
                       {entry.analysis?.name ??
-                        `Analysis #${entry.analysis_id}`}
+                        t("studies.designer.messages.analysisFallback", { id: entry.analysis_id })}
                     </td>
                     <td>
                       {latestExec ? (
@@ -140,7 +143,7 @@ export function StudyDashboard({
                         />
                       ) : (
                         <span style={{ fontSize: "var(--text-xs)", color: "var(--text-ghost)" }}>
-                          Not executed
+                          {t("studies.dashboard.messages.notExecuted")}
                         </span>
                       )}
                     </td>
@@ -155,10 +158,10 @@ export function StudyDashboard({
       {(!analyses || analyses.length === 0) && (
         <div className="empty-state">
           <h3 className="empty-title">
-            No analyses in this study
+            {t("studies.dashboard.empty.title")}
           </h3>
           <p className="empty-message">
-            Add analyses in the Design tab to get started.
+            {t("studies.dashboard.empty.message")}
           </p>
         </div>
       )}

@@ -20,7 +20,7 @@
         "conditions": "!C3_CML_WIDE",
         "provenance": {
             "source_row": 4454,
-            "imported_at": "2026-04-17T00:17:53+00:00",
+            "imported_at": "2026-04-17T19:57:20+00:00",
             "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
             "importer_version": "1.0.0"
         },
@@ -102,6 +102,7 @@
         "pre_conditions": null,
         "coverage_bucket": "FULLY_MAPPED",
         "sex_restriction": null,
+        "coverage_profile": "partial",
         "include_endpoints": [
             "POLYCYTVERA",
             "CHRONMYELOPRO",
@@ -111,17 +112,17 @@
         "resolved_concepts": {
             "truncated": false,
             "drugs_standard": [],
-            "source_concept_ids": [
-                35206791
-            ],
-            "conditions_standard": []
+            "source_concept_ids": [],
+            "conditions_standard": [
+                317248
+            ]
         }
     },
     "author_id": 117,
     "is_public": true,
     "version": 1,
     "created_at": "2026-04-16T23:56:25.000000Z",
-    "updated_at": "2026-04-17T00:17:53.000000Z",
+    "updated_at": "2026-04-17T19:57:20.000000Z",
     "deleted_at": null,
     "tags": [
         "finngen-endpoint",
@@ -134,5 +135,6 @@
     "domain": "finngen-endpoint",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null
+    "superseded_by": null,
+    "coverage_profile": "partial"
 }

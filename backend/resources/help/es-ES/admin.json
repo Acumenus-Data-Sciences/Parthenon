@@ -1,0 +1,14 @@
+{
+  "key": "admin",
+  "title": "Administración",
+  "description": "La sección Administración ofrece gestión a nivel de sistema para Parthenon, incluidas cuentas de usuario, control de acceso basado en roles, configuración de proveedores de autenticación, ajustes de proveedores de IA, conexiones FHIR con EHR y monitoreo de salud del sistema.",
+  "docs_url": "/docs/part8-administration/22-user-management",
+  "video_url": null,
+  "tips": [
+    "Gestione usuarios, asigne roles y controle permisos de acceso desde las páginas Usuarios y Roles.",
+    "Configure autenticación SSO mediante SAML u OIDC en la sección Proveedores de autenticación.",
+    "Configure proveedores de IA (Ollama, OpenAI, etc.) para búsqueda semántica y funciones de IA clínica.",
+    "Supervise la salud del sistema para verificar que todos los servicios (base de datos, Redis, IA, Darkstar) estén operativos.",
+    "Las conexiones FHIR permiten sincronización automática de datos desde Epic, Cerner y otros sistemas EHR."
+  ]
+}

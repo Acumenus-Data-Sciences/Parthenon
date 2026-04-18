@@ -1,0 +1,82 @@
+{
+  "version.label": {
+    "message": "Siguiente",
+    "description": "The label for version current"
+  },
+  "sidebar.userManual.category.Part I — Getting Started": {
+    "message": "Parte I — Primeros pasos",
+    "description": "The label for category Part I — Getting Started in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part II — Vocabulary": {
+    "message": "Parte II — Vocabulario",
+    "description": "The label for category Part II — Vocabulary in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part III — Cohorts": {
+    "message": "Parte III — Cohortes",
+    "description": "The label for category Part III — Cohorts in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part IV — Analyses & Studies": {
+    "message": "Parte IV — Análisis y estudios",
+    "description": "The label for category Part IV — Analyses & Studies in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part V — Data Ingestion & ETL": {
+    "message": "Parte V — Ingesta de datos y ETL",
+    "description": "The label for category Part V — Data Ingestion & ETL in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part VI — Data Explorer": {
+    "message": "Parte VI — Explorador de datos",
+    "description": "The label for category Part VI — Data Explorer in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part VII — Patient Profiles & Care Gaps": {
+    "message": "Parte VII — Perfiles de pacientes y brechas de atención",
+    "description": "The label for category Part VII — Patient Profiles & Care Gaps in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part VIII — Administration": {
+    "message": "Parte VIII — Administración",
+    "description": "The label for category Part VIII — Administration in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part IX — Genomics": {
+    "message": "Parte IX — Genómica",
+    "description": "The label for category Part IX — Genomics in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part X — Imaging": {
+    "message": "Parte X — Imágenes",
+    "description": "The label for category Part X — Imaging in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part XI — HEOR": {
+    "message": "Parte XI — HEOR",
+    "description": "The label for category Part XI — HEOR in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part XII — FHIR EHR Integration": {
+    "message": "Parte XII — Integración FHIR EHR",
+    "description": "The label for category Part XII — FHIR EHR Integration in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part XIII — GIS Explorer": {
+    "message": "Parte XIII — Explorador GIS",
+    "description": "The label for category Part XIII — GIS Explorer in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part XIV — Morpheus Inpatient Data": {
+    "message": "Parte XIV — Datos hospitalarios de Morpheus",
+    "description": "The label for category Part XIV — Morpheus Inpatient Data in sidebar userManual"
+  },
+  "sidebar.userManual.category.Abby AI": {
+    "message": "Abby AI",
+    "description": "The label for category Abby AI in sidebar userManual"
+  },
+  "sidebar.userManual.category.Architecture": {
+    "message": "Arquitectura",
+    "description": "The label for category Architecture in sidebar userManual"
+  },
+  "sidebar.userManual.category.Migration Guide (Atlas → Parthenon)": {
+    "message": "Guía de migración (Atlas → Parthenon)",
+    "description": "The label for category Migration Guide (Atlas → Parthenon) in sidebar userManual"
+  },
+  "sidebar.userManual.category.Appendices": {
+    "message": "Apéndices",
+    "description": "The label for category Appendices in sidebar userManual"
+  },
+  "sidebar.userManual.doc.Overview": {
+    "message": "Resumen",
+    "description": "The label for the doc item Overview in sidebar userManual, linking to the doc intro"
+  }
+}

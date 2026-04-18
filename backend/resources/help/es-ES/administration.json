@@ -1,0 +1,13 @@
+{
+  "key": "administration",
+  "title": "Administración",
+  "description": "La sección Administración proporciona a los administradores de plataforma controles centralizados para gestionar usuarios, roles, proveedores de autenticación, notificaciones del sistema e infraestructura de búsqueda. La configuración adecuada de estos ajustes es esencial para mantener seguridad, auditabilidad y rendimiento en todo el despliegue de Parthenon.",
+  "docs_url": "/docs/part8-administration/22-user-management",
+  "video_url": null,
+  "tips": [
+    "Audite periódicamente las cuentas de usuario y deshabilite credenciales de miembros del equipo que ya no requieran acceso para mantener una postura de mínimo privilegio.",
+    "Configure al menos un proveedor de autenticación de respaldo para evitar escenarios de bloqueo si el proveedor de identidad principal deja de estar disponible.",
+    "Use el registro de auditoría para investigar patrones inesperados de acceso a datos y cumplir requisitos de informes de cumplimiento.",
+    "Programe reconstrucciones de índice Solr durante horas de baja demanda para evitar afectar el rendimiento de la búsqueda de vocabulario para investigadores activos."
+  ]
+}

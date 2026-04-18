@@ -18,6 +18,31 @@ const algoliaConfig =
       }
     : {};
 
+const localeConfigs = {
+  en: {
+    label: "English",
+    direction: "ltr",
+    htmlLang: "en-US",
+  },
+  es: {
+    label: "Español",
+    direction: "ltr",
+    htmlLang: "es-ES",
+  },
+  ko: {
+    label: "한국어",
+    direction: "ltr",
+    htmlLang: "ko-KR",
+  },
+  ar: {
+    label: "العربية",
+    direction: "rtl",
+    htmlLang: "ar",
+  },
+} as const;
+
+const publicDocusaurusLocales = ["en", "es", "ko"] as const;
+
 const config: Config = {
   title: "Parthenon",
   tagline: "Next-generation unified outcomes research platform",
@@ -36,7 +61,8 @@ const config: Config = {
 
   i18n: {
     defaultLocale: "en",
-    locales: ["en"],
+    locales: [...publicDocusaurusLocales],
+    localeConfigs,
   },
 
   plugins: [
@@ -173,6 +199,10 @@ const config: Config = {
         {
           href: "https://github.com/sudoshi/Parthenon",
           label: "GitHub",
+          position: "right",
+        },
+        {
+          type: "localeDropdown",
           position: "right",
         },
       ],

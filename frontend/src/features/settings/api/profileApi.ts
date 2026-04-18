@@ -1,4 +1,5 @@
 import apiClient from "@/lib/api-client";
+import type { ApiMessageEnvelope } from "@/types/api";
 import type { User } from "@/types/models";
 
 export interface UpdateProfilePayload {
@@ -10,13 +11,11 @@ export interface UpdateProfilePayload {
   bio: string | null;
 }
 
-interface ProfileResponse {
-  message: string;
+interface ProfileResponse extends ApiMessageEnvelope {
   user: User;
 }
 
-interface AvatarResponse {
-  message: string;
+interface AvatarResponse extends ApiMessageEnvelope {
   avatar: string;
 }
 
@@ -24,7 +23,7 @@ export interface UpdateLocalePayload {
   locale: string;
 }
 
-export interface LocaleResponse {
+export interface LocaleResponse extends ApiMessageEnvelope {
   locale: string;
 }
 
@@ -47,7 +46,7 @@ export async function uploadAvatar(file: File): Promise<AvatarResponse> {
   return data;
 }
 
-export async function deleteAvatar(): Promise<{ message: string }> {
-  const { data } = await apiClient.delete<{ message: string }>("/user/avatar");
+export async function deleteAvatar(): Promise<ApiMessageEnvelope> {
+  const { data } = await apiClient.delete<ApiMessageEnvelope>("/user/avatar");
   return data;
 }

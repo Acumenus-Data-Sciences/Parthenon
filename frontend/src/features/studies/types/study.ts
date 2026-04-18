@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import type { AnalysisExecution } from "@/features/analyses/types/analysis";
+import type { ApiMessageEnvelope } from "@/types/api";
 
 export interface Study {
   id: number;
@@ -229,9 +230,8 @@ export interface StudyActivityLogEntry {
   user?: { id: number; name: string; email: string } | null;
 }
 
-export interface StudyTransitionResponse {
+export interface StudyTransitionResponse extends ApiMessageEnvelope {
   data: Study;
-  message: string;
   allowed_transitions: string[];
 }
 

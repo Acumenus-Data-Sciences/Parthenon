@@ -1,8 +1,10 @@
 import { useState, type KeyboardEvent } from "react";
+import { useTranslation } from "react-i18next";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
 import { Send } from "lucide-react";
+import { formatDate } from "@/i18n/format";
 import { useReplies, useSendMessage } from "../../api";
 import type { Message } from "../../types";
 import { ReactionPills } from "./ReactionPills";
@@ -13,7 +15,12 @@ interface ThreadViewProps {
   currentUserId: number;
 }
 
-export function ThreadView({ parentMessage, slug, currentUserId }: ThreadViewProps) {
+export function ThreadView({
+  parentMessage,
+  slug,
+  currentUserId,
+}: ThreadViewProps) {
+  const { t } = useTranslation("commons");
   void currentUserId;
   const { data: replies = [], isLoading } = useReplies(slug, parentMessage.id);
   const sendMessage = useSendMessage();
@@ -38,12 +45,12 @@ export function ThreadView({ parentMessage, slug, currentUserId }: ThreadViewPro
   return (
     <div className="mb-4 ml-[64px] mr-3 overflow-hidden rounded-2xl border border-border-default bg-surface-raised shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
       <div className="flex items-center gap-1.5 border-b border-border-default bg-surface-overlay px-4 py-2.5 text-[11px] text-muted-foreground">
-        <span>Thread</span>
+        <span>{t("chat.thread.title")}</span>
         <span className="opacity-50">·</span>
         <span>
           {isLoading
-            ? "Loading..."
-            : `${replies.length} ${replies.length === 1 ? "reply" : "replies"}`}
+            ? t("chat.thread.loading")
+            : t("chat.messages.replyCount", { count: replies.length })}
         </span>
       </div>
 
@@ -57,7 +64,7 @@ export function ThreadView({ parentMessage, slug, currentUserId }: ThreadViewPro
             >
               {reply.deleted_at ? (
                 <p className="text-xs italic text-muted-foreground">
-                  [message deleted]
+                  {t("chat.messages.deleted")}
                 </p>
               ) : (
                 <>
@@ -66,13 +73,15 @@ export function ThreadView({ parentMessage, slug, currentUserId }: ThreadViewPro
                       {reply.user.name}
                     </span>
                     <span className="rounded-full bg-white/[0.04] px-2 py-0.5 text-[10px] text-muted-foreground">
-                      {new Date(reply.created_at).toLocaleTimeString([], {
+                      {formatDate(reply.created_at, {
                         hour: "2-digit",
                         minute: "2-digit",
                       })}
                     </span>
                     {reply.is_edited && (
-                      <span className="text-xs text-muted-foreground">(edited)</span>
+                      <span className="text-xs text-muted-foreground">
+                        {t("chat.messages.edited")}
+                      </span>
                     )}
                   </div>
                   <div className="prose prose-sm prose-invert max-w-none text-sm text-foreground">
@@ -101,7 +110,7 @@ export function ThreadView({ parentMessage, slug, currentUserId }: ThreadViewPro
           value={replyBody}
           onChange={(e) => setReplyBody(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Reply..."
+          placeholder={t("chat.thread.placeholder")}
           rows={1}
           className="flex-1 resize-none rounded-xl border border-border-default bg-surface-base px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
         />

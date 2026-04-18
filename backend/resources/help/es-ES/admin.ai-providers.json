@@ -1,0 +1,17 @@
+{
+  "key": "admin.ai-providers",
+  "title": "Configuración de proveedores de IA",
+  "description": "Configure qué backend de AI/LLM impulsa Abby, el asistente de IA de la plataforma. Admite 8 proveedores, incluidos Ollama local, Anthropic, OpenAI, Gemini, DeepSeek, Qwen, Moonshot y Mistral. Solo un proveedor puede estar activo a la vez, y todas las claves API se almacenan cifradas.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Solo un proveedor de IA puede estar activo a la vez. Haga clic en Establecer como activo en una tarjeta de proveedor para cambiar el backend que impulsa Abby.",
+    "Use el interruptor habilitar/deshabilitar para controlar qué proveedores están disponibles sin eliminar su configuración.",
+    "Ollama se ejecuta localmente y no requiere una clave API, solo una URL base (predeterminada: http://localhost:11434). Incluye MedGemma para uso clínico.",
+    "Las claves API se almacenan cifradas en la base de datos. Use el icono de ojo para alternar la visibilidad al ingresar o verificar una clave.",
+    "Haga siempre clic en Probar conexión después de configurar un proveedor para verificar que la clave API y el modelo funcionen correctamente.",
+    "Cada proveedor muestra una insignia de región (US, EU, China o Local) para ayudarle a tomar decisiones de residencia de datos para su organización.",
+    "El banner del proveedor activo en la parte superior de la página muestra qué proveedor y modelo está usando Abby actualmente.",
+    "Recuerde hacer clic en Guardar después de cambiar el modelo o la clave API; los cambios sin guardar se indican cuando aparece el botón Guardar."
+  ]
+}

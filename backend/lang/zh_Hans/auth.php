@@ -8,5 +8,7 @@ return [
     'password_changed' => '密码已成功更改',
     'temporary_password_sent' => '如果存在使用该电子邮件的账户，新的临时密码已发送。',
     'logged_out' => '已退出登录',
+    'unauthenticated' => '需要身份验证',
+    'forbidden' => '你没有执行此操作的权限',
     'oidc_authentik_label' => '使用 Authentik 登录',
 ];

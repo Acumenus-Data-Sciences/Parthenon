@@ -1,0 +1,128 @@
+---
+id: 19-data-quality-dashboard
+title: "19. Data Quality Dashboard"
+sidebar_label: "19. Data Quality Dashboard"
+---
+
+# Data Quality Dashboard
+
+El **Data Quality Dashboard** (DQD) evalúa la conformidad, completitud y plausibilidad de sus datos OMOP CDM contra la [especificación OHDSI Data Quality Dashboard](https://ohdsi.github.io/DataQualityDashboard/). Ejecuta aproximadamente 3,000 comprobaciones de calidad de datos y resume los resultados por categoría, tabla CDM y dominio de conceptos. La evaluación de calidad de datos es un prerrequisito crítico antes de usar cualquier CDM para investigación: ayuda a identificar errores ETL, problemas en datos fuente y sesgos potenciales.
+
+## Categorías de comprobaciones DQD
+
+El marco DQD organiza las comprobaciones en tres categorías, cada una orientada a una dimensión distinta de calidad de datos:
+
+| Categoría | Descripción | Conteo aproximado | Ejemplos |
+|-----------|-------------|-------------------|----------|
+| **Conformance** | Los datos cumplen requisitos estructurales del CDM | ~1,200 | Concept IDs válidos, tipos de datos correctos, integridad referencial, rangos de fecha dentro de límites |
+| **Completeness** | Columnas y registros esperados están poblados | ~800 | Campos obligatorios no nulos, conteos esperados por dominio, cobertura de periodo de observación |
+| **Plausibility** | Los valores son clínicamente razonables | ~1,000 | Edad al morir dentro de la esperanza de vida, duración de medicamento dentro de rango esperado, valores de laboratorio dentro de límites fisiológicos |
+
+Cada comprobación devuelve:
+
+- **Pass/Fail status**: basado en el umbral de fallo configurado.
+- **Failure count**: número de registros que violan la comprobación.
+- **Failure rate**: porcentaje de registros aplicables que fallan.
+- **Violation sample**: hasta 10 registros de ejemplo para investigación.
+
+El **overall DQD score** es el porcentaje ponderado de comprobaciones aprobadas, lo que entrega un único número que resume la calidad de la base de datos.
+
+## Ver resultados DQD
+
+1. Vaya a **Data Explorer** y seleccione una Data Source en el desplegable.
+2. Haga clic en la pestaña **Data Quality** (4.ª pestaña).
+3. El panel de resumen muestra:
+   - Tasa general de aprobación con indicador codificado por color (verde > 90%, amarillo 70-90%, rojo < 70%).
+   - Desglose por categoría: tasa de aprobación independiente para Conformance, Completeness y Plausibility.
+   - Desglose por tabla CDM: tasas de aprobación agrupadas por tabla clínica.
+
+### Tabla de detalle de comprobaciones
+
+Debajo del resumen, la lista completa muestra cada comprobación DQD con:
+
+| Columna | Descripción |
+|---------|-------------|
+| **Check Name** | Nombre descriptivo de la comprobación |
+| **Description** | Qué evalúa la comprobación |
+| **Category** | Conformance / Completeness / Plausibility |
+| **CDM Table** | Tabla clínica revisada, por ejemplo `condition_occurrence` |
+| **CDM Column** | Columna específica, por ejemplo `condition_concept_id` |
+| **Threshold** | Límite configurable de tasa de fallo (predeterminado: 5%) |
+| **Failure Count** | Número de registros que fallan esta comprobación |
+| **Failure Rate** | Porcentaje de registros aplicables que fallan |
+| **Status** | Icono Pass / Fail |
+
+Haga clic en cualquier fila para expandir el panel de detalle de violaciones, que muestra registros de ejemplo y pasos sugeridos de remediación.
+
+## Filtrar y buscar
+
+La barra de filtros proporciona múltiples dimensiones para acotar la lista de comprobaciones:
+
+- **Category**: Conformance / Completeness / Plausibility (botones de alternancia).
+- **Status**: Passing / Failing / All (desplegable).
+- **CDM Table**: seleccione una tabla específica, por ejemplo `measurement` o `drug_exposure`.
+- **Concept Domain**: filtre por dominio OMOP (Condition, Drug, Measurement, etc.).
+- **Search**: búsqueda de texto libre en nombres y descripciones de comprobaciones.
+
+:::tip Priorización
+Comience filtrando a comprobaciones **Failing** ordenadas por **Failure Count** descendente. Esto muestra primero los problemas de calidad de datos de mayor impacto. Una sola comprobación con 100,000 fallos es más urgente que 10 comprobaciones con 5 fallos cada una.
+:::
+
+## Comprobaciones Achilles Heel
+
+La pestaña **Achilles Heel** (5.ª pestaña de Data Explorer) muestra notificaciones de calidad basadas en reglas generadas como parte de la ejecución Achilles. Son comprobaciones más simples y rápidas que el DQD completo:
+
+| Severidad | Icono | Descripción | Ejemplos |
+|-----------|-------|-------------|----------|
+| **ERROR** | Círculo rojo | Problemas críticos de calidad que requieren atención inmediata | Fechas futuras en periodo de observación, duraciones negativas de exposición a medicamentos, registros huérfanos |
+| **WARNING** | Triángulo amarillo | Problemas potenciales que pueden afectar la validez del análisis | Año de nacimiento posterior al año de muerte, periodos de observación extremadamente largos, distribuciones de género inusuales |
+| **NOTIFICATION** | Información azul | Elementos informativos sobre características de los datos | Bajos conteos en ciertos dominios, columnas de valor único, brechas de cobertura de vocabulario |
+
+Las comprobaciones Heel se almacenan en la tabla `achilles_heel_results` y se actualizan automáticamente cuando Achilles se vuelve a ejecutar. Son significativamente más rápidas que una ejecución DQD completa (segundos frente a minutos).
+
+### Tabla de comprobaciones Heel
+
+La pestaña Heel muestra comprobaciones en una tabla ordenable y filtrable:
+
+- Filtre por severidad (Error / Warning / Notification).
+- Busque por texto de mensaje.
+- Ordene por conteo de registros para encontrar los problemas más prevalentes.
+- Haga clic en cualquier comprobación para ver el análisis Achilles subyacente que la activó.
+
+## Ejecutar una comprobación DQD completa
+
+1. Vaya a **Admin > System > DQD Jobs** (requiere rol admin).
+2. Seleccione una Data Source en el desplegable.
+3. Opcionalmente configure:
+   - **Failure threshold**: porcentaje por encima del cual una comprobación se considera fallida (predeterminado: 5%).
+   - **Check categories**: ejecutar todas las categorías o seleccionar categorías específicas.
+   - **CDM tables**: restringir comprobaciones a tablas específicas, útil para reevaluación dirigida después de correcciones ETL.
+4. Haga clic en **Run DQD**.
+5. DQD se ejecuta como trabajo en segundo plano mediante Laravel Horizon. Tiempos típicos:
+   - CDM pequeño (< 10K pacientes): 5-15 minutos.
+   - CDM mediano (10K-1M pacientes): 15-45 minutos.
+   - CDM grande (> 1M pacientes): 30-90 minutos.
+
+:::warning Umbrales de fallo
+El umbral predeterminado es **5%**: las comprobaciones donde más del 5% de los registros aplicables fallan se marcan como "failing". Este umbral debe ajustarse según sus estándares de calidad:
+
+- **Redes de investigación** (OHDSI, PCORnet): suelen usar umbrales de 1-5%.
+- **Presentaciones regulatorias**: pueden requerir tolerancia 0% para ciertas comprobaciones.
+- **Análisis exploratorio**: 10% puede ser aceptable para evaluación inicial de datos.
+
+Ajuste los umbrales en **Admin > System Configuration > Data Quality Settings**.
+:::
+
+## Historial de resultados DQD
+
+Parthenon almacena resultados DQD históricos para análisis de tendencias. Vaya a **Data Quality > History** para ver:
+
+- **Score trend**: gráfico de líneas del puntaje DQD general a lo largo del tiempo.
+- **Category trends**: líneas de tendencia individuales para Conformance, Completeness y Plausibility.
+- **Run comparison**: diferencia lado a lado de dos ejecuciones DQD para ver qué comprobaciones mejoraron o empeoraron después de una actualización ETL.
+
+Esta vista histórica es invaluable para seguir la mejora de calidad de datos a través de iteraciones ETL sucesivas.
+
+:::danger No ignore comprobaciones fallidas
+Las comprobaciones DQD fallidas pueden sesgar silenciosamente los resultados de investigación. Por ejemplo, si el 20% de los registros `condition_occurrence` tienen `condition_concept_id = 0` (sin mapear), las estimaciones de prevalencia se subestimarán sistemáticamente. Revise y corrija siempre las comprobaciones fallidas antes de usar un CDM para investigación publicada.
+:::

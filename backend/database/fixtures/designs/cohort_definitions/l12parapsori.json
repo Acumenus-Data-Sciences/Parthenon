@@ -19,7 +19,7 @@
         "conditions": null,
         "provenance": {
             "source_row": 2228,
-            "imported_at": "2026-04-17T00:17:35+00:00",
+            "imported_at": "2026-04-17T19:56:59+00:00",
             "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
             "importer_version": "1.0.0"
         },
@@ -103,6 +103,7 @@
         "pre_conditions": null,
         "coverage_bucket": "FULLY_MAPPED",
         "sex_restriction": null,
+        "coverage_profile": "partial",
         "include_endpoints": [
             "L12_PARAPSO_PITYLICHETVARACUT",
             "L12_PARAPSO_PITYLICHCHRON",
@@ -117,7 +118,6 @@
                 1569779,
                 35208512,
                 35208513,
-                35208514,
                 35208515,
                 35208516,
                 35208517,
@@ -138,7 +138,7 @@
     "is_public": true,
     "version": 1,
     "created_at": "2026-04-16T23:56:07.000000Z",
-    "updated_at": "2026-04-17T00:17:35.000000Z",
+    "updated_at": "2026-04-17T19:56:59.000000Z",
     "deleted_at": null,
     "tags": [
         "finngen-endpoint",
@@ -150,5 +150,6 @@
     "domain": "finngen-endpoint",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null
+    "superseded_by": null,
+    "coverage_profile": "partial"
 }

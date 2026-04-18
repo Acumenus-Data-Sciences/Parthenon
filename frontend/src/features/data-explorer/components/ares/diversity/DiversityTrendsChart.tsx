@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   LineChart,
   Line,
@@ -18,20 +19,23 @@ interface DiversityTrendsChartProps {
   sourceName: string;
 }
 
-const DIMENSION_CONFIG: Record<DimensionKey, { label: string; color: string; dataKey: string }> = {
-  composite: { label: "Composite", color: "var(--accent)", dataKey: "composite_index" },
-  gender: { label: "Gender", color: "var(--success)", dataKey: "gender_index" },
-  race: { label: "Race", color: "var(--primary)", dataKey: "race_index" },
-  ethnicity: { label: "Ethnicity", color: "var(--domain-observation)", dataKey: "ethnicity_index" },
+const DIMENSION_CONFIG: Record<DimensionKey, { labelKey: string; color: string; dataKey: string }> = {
+  composite: { labelKey: "composite", color: "var(--accent)", dataKey: "composite_index" },
+  gender: { labelKey: "gender", color: "var(--success)", dataKey: "gender_index" },
+  race: { labelKey: "race", color: "var(--primary)", dataKey: "race_index" },
+  ethnicity: { labelKey: "ethnicity", color: "var(--domain-observation)", dataKey: "ethnicity_index" },
 };
 
 export default function DiversityTrendsChart({ data, sourceName }: DiversityTrendsChartProps) {
+  const { t } = useTranslation("app");
   const [activeDimensions, setActiveDimensions] = useState<DimensionKey[]>(["composite"]);
 
   if (data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-12">
-        <p className="text-sm text-text-ghost">No release data available for diversity trends.</p>
+        <p className="text-sm text-text-ghost">
+          {t("dataExplorer.ares.diversity.messages.noTrendData")}
+        </p>
       </div>
     );
   }
@@ -46,9 +50,13 @@ export default function DiversityTrendsChart({ data, sourceName }: DiversityTren
     <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-medium text-text-primary">Diversity Trends: {sourceName}</h3>
+          <h3 className="text-sm font-medium text-text-primary">
+            {t("dataExplorer.ares.diversity.trends.title", {
+              source: sourceName,
+            })}
+          </h3>
           <p className="mt-0.5 text-xs text-text-ghost">
-            Simpson's Diversity Index per release (0 = homogeneous, 1 = maximally diverse)
+            {t("dataExplorer.ares.diversity.trends.description")}
           </p>
         </div>
       </div>
@@ -74,7 +82,7 @@ export default function DiversityTrendsChart({ data, sourceName }: DiversityTren
                   className="inline-block h-2 w-2 rounded-full"
                   style={{ backgroundColor: isActive ? config.color : "var(--text-ghost)" }}
                 />
-                {config.label}
+                {t(`dataExplorer.ares.diversity.dimensions.${config.labelKey}`)}
               </button>
             );
           },
@@ -113,7 +121,7 @@ export default function DiversityTrendsChart({ data, sourceName }: DiversityTren
                   key={dim}
                   type="monotone"
                   dataKey={config.dataKey}
-                  name={config.label}
+                  name={t(`dataExplorer.ares.diversity.dimensions.${config.labelKey}`)}
                   stroke={config.color}
                   strokeWidth={2}
                   dot={{ fill: config.color, r: 3 }}

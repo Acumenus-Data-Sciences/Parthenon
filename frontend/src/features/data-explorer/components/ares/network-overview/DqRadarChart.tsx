@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import { formatNumber } from "@/i18n/format";
 import {
   Radar,
   RadarChart,
@@ -12,12 +14,12 @@ import type { DqRadarProfile } from "../../../types/ares";
 
 const COLORS = ["var(--success)", "var(--accent)", "var(--primary)", "var(--domain-observation)", "var(--warning)"];
 
-const DIMENSION_LABELS: Record<string, string> = {
-  completeness: "Completeness",
-  conformance_value: "Conformance (Value)",
-  conformance_relational: "Conformance (Relational)",
-  plausibility_atemporal: "Plausibility (Atemporal)",
-  plausibility_temporal: "Plausibility (Temporal)",
+const DIMENSION_LABEL_KEYS: Record<string, string> = {
+  completeness: "completeness",
+  conformance_value: "conformanceValue",
+  conformance_relational: "conformanceRelational",
+  plausibility_atemporal: "plausibilityAtemporal",
+  plausibility_temporal: "plausibilityTemporal",
 };
 
 interface DqRadarChartProps {
@@ -26,21 +28,22 @@ interface DqRadarChartProps {
 }
 
 export default function DqRadarChart({ profiles, maxSources = 5 }: DqRadarChartProps) {
+  const { t } = useTranslation("app");
   const displayProfiles = profiles.slice(0, maxSources);
 
   if (displayProfiles.length === 0) {
     return (
       <div className="flex items-center justify-center py-12 text-sm text-text-ghost">
-        No DQ radar data available.
+        {t("dataExplorer.ares.networkOverview.radar.noData")}
       </div>
     );
   }
 
   // Transform to recharts format: one entry per dimension, with source values as keys
-  const dimensions = Object.keys(DIMENSION_LABELS);
+  const dimensions = Object.keys(DIMENSION_LABEL_KEYS);
   const radarData = dimensions.map((dim) => {
     const entry: Record<string, string | number> = {
-      dimension: DIMENSION_LABELS[dim],
+      dimension: t(`dataExplorer.ares.networkOverview.radar.dimensions.${DIMENSION_LABEL_KEYS[dim]}`),
     };
     for (const profile of displayProfiles) {
       entry[profile.source_name] = profile.dimensions[dim as keyof typeof profile.dimensions] ?? 0;
@@ -50,9 +53,11 @@ export default function DqRadarChart({ profiles, maxSources = 5 }: DqRadarChartP
 
   return (
     <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
-      <h3 className="mb-3 text-sm font-medium text-text-primary">DQ Radar Profile (Kahn Dimensions)</h3>
+      <h3 className="mb-3 text-sm font-medium text-text-primary">
+        {t("dataExplorer.ares.networkOverview.radar.title")}
+      </h3>
       <p className="mb-4 text-xs text-text-ghost">
-        Pass rates across the five Kahn data quality dimensions. Higher values indicate better quality.
+        {t("dataExplorer.ares.networkOverview.radar.description")}
       </p>
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
@@ -66,7 +71,7 @@ export default function DqRadarChart({ profiles, maxSources = 5 }: DqRadarChartP
               angle={90}
               domain={[0, 100]}
               tick={{ fill: "var(--text-ghost)", fontSize: 10 }}
-              tickFormatter={(v: number) => `${v}%`}
+              tickFormatter={(v: number) => t("dataExplorer.ares.networkOverview.percent", { value: formatNumber(v) })}
             />
             <Tooltip
               contentStyle={{
@@ -75,7 +80,10 @@ export default function DqRadarChart({ profiles, maxSources = 5 }: DqRadarChartP
                 borderRadius: "8px",
               }}
               labelStyle={{ color: "var(--text-primary)" }}
-              formatter={((value: number) => [`${value}%`, undefined]) as never}
+              formatter={((value: number) => [
+                t("dataExplorer.ares.networkOverview.percent", { value: formatNumber(value) }),
+                undefined,
+              ]) as never}
             />
             {displayProfiles.map((profile, idx) => (
               <Radar

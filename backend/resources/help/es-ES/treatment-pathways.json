@@ -1,0 +1,14 @@
+{
+  "key": "treatment-pathways",
+  "title": "Análisis de rutas de tratamiento",
+  "description": "El análisis de Rutas de tratamiento describe la secuencia de tratamientos que recibe una cohorte a lo largo del tiempo. Muestra qué proporción de pacientes inicia cada medicamento, cambia, combina o suspende tratamientos, produciendo un diagrama Sankey de flujos terapéuticos.",
+  "docs_url": "/docs/part4-analyses/11-treatment-pathways",
+  "video_url": null,
+  "tips": [
+    "Agregue todas las cohortes de tratamientos de interés para ver el panorama terapéutico completo de una condición.",
+    "La ventana de combinación (brecha permitida) controla cómo se tratan las exposiciones superpuestas como una combinación.",
+    "El recuento mínimo de celda oculta rutas poco frecuentes por privacidad; ajuste este umbral en la configuración.",
+    "Los resultados de rutas son exploratorios; use Tasas de incidencia o Estimación para análisis inferenciales.",
+    "Ordenar el Sankey por frecuencia resalta los recorridos clínicos más comunes."
+  ]
+}

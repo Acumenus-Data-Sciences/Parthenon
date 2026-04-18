@@ -12,15 +12,15 @@
         "parent": "G40-G47",
         "release": "df14",
         "coverage": {
-            "pct": 0.5,
-            "bucket": "PARTIAL",
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
             "n_tokens_total": 4,
-            "n_tokens_resolved": 2
+            "n_tokens_resolved": 4
         },
         "conditions": null,
         "provenance": {
             "source_row": 1214,
-            "imported_at": "2026-04-17T00:17:25+00:00",
+            "imported_at": "2026-04-17T19:56:47+00:00",
             "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
             "importer_version": "1.0.0"
         },
@@ -106,8 +106,9 @@
         },
         "spec_version": "1.0",
         "pre_conditions": null,
-        "coverage_bucket": "PARTIAL",
+        "coverage_bucket": "FULLY_MAPPED",
         "sex_restriction": null,
+        "coverage_profile": "partial",
         "include_endpoints": [
             "G6_CLUSTHEADACHE_WIDE"
         ],
@@ -145,7 +146,6 @@
                 45547738,
                 45547739,
                 45547740,
-                45552531,
                 45552532,
                 45552533,
                 45562091,
@@ -166,7 +166,6 @@
                 45586295,
                 45591183,
                 45591184,
-                45595945,
                 45600788,
                 45600789,
                 45600790,
@@ -208,7 +207,8 @@
                 374342,
                 43530640,
                 40480081,
-                372313
+                372313,
+                318736
             ]
         }
     },
@@ -216,7 +216,7 @@
     "is_public": true,
     "version": 1,
     "created_at": "2026-04-16T23:55:58.000000Z",
-    "updated_at": "2026-04-17T00:17:25.000000Z",
+    "updated_at": "2026-04-17T19:56:47.000000Z",
     "deleted_at": null,
     "tags": [
         "finngen-endpoint",
@@ -229,5 +229,6 @@
     "domain": "finngen-endpoint",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null
+    "superseded_by": null,
+    "coverage_profile": "partial"
 }

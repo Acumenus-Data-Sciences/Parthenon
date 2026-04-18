@@ -1,0 +1,14 @@
+{
+  "key": "vocabulary-search",
+  "title": "Búsqueda de vocabulario",
+  "description": "El módulo Búsqueda de vocabulario ofrece búsqueda de texto completo y navegación jerárquica en vocabularios estandarizados OMOP, incluidos SNOMED CT, RxNorm, LOINC, ICD-10 y muchos otros. Los investigadores pueden explorar relaciones entre conceptos, revisar metadatos de dominios y vocabularios, e identificar los conceptos estándar precisos necesarios para definir criterios de cohorte y conjuntos de conceptos clínicamente rigurosos.",
+  "docs_url": "/docs/part2-vocabulary/03-vocabulary-browser",
+  "video_url": null,
+  "tips": [
+    "Use juntos los filtros de dominio y vocabulario para acotar grandes conjuntos de resultados al buscar términos clínicos amplios como \"diabetes\" o \"infección\".",
+    "Examine la vista de jerarquía de conceptos para descubrir conceptos descendientes que quizá quiera incluir en un conjunto de conceptos mediante la opción Incluir descendientes del Constructor de conjuntos de conceptos.",
+    "Los conceptos estándar están marcados con un indicador verde; prefiera estos al crear criterios de cohorte para garantizar compatibilidad entre bases de datos.",
+    "Copie un ID de concepto directamente desde los resultados de búsqueda para localizarlo rápidamente en el Constructor de conjuntos de conceptos o en el editor de expresiones de cohorte.",
+    "Consulte el apéndice de dominios OMOP para ver una descripción estructurada de cómo se organizan los conceptos en dominios clínicos dentro del CDM."
+  ]
+}

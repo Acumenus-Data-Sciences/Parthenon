@@ -7,4 +7,6 @@ return [
     'avatar_upload_failed' => 'تعذر حفظ ملف الصورة الرمزية',
     'avatar_uploaded' => 'تم تحميل الصورة الرمزية بنجاح',
     'avatar_removed' => 'تمت إزالة الصورة الرمزية بنجاح',
+    'theme_updated' => 'تم تحديث تفضيل السمة',
+    'locale_updated' => 'تم تحديث تفضيل اللغة',
 ];

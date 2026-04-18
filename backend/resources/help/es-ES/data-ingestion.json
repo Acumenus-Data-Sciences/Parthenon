@@ -1,0 +1,14 @@
+{
+  "key": "data-ingestion",
+  "title": "Ingesta de datos",
+  "description": "El módulo Ingesta de datos permite a los equipos de investigación cargar, mapear y transformar datos fuente al OMOP Common Data Model. Desde cargas de archivos planos, pasando por mapeo de esquemas y estandarización de conceptos, el pipeline de ingesta asegura que los conjuntos de datos entrantes se validen y armonicen antes de estar disponibles para creación de cohortes, análisis y exploración en toda la plataforma Parthenon.",
+  "docs_url": "/docs/part5-ingestion/15-uploading-data",
+  "video_url": null,
+  "tips": [
+    "Revise su esquema fuente contra las definiciones de dominios OMOP antes de iniciar una sesión de mapeo para reducir correcciones de ida y vuelta.",
+    "Use el paso de mapeo de conceptos para resolver códigos fuente no mapeados temprano; los códigos no resueltos se excluirán de resultados de cohortes y análisis.",
+    "Cargue primero una muestra pequeña y representativa para validar su configuración de mapeo de esquema antes de enviar el conjunto de datos completo.",
+    "Monitoree la cola de Trabajos después del envío para seguir el progreso de ingesta y revisar advertencias o errores de validación a nivel de fila.",
+    "Consulte el apéndice de dominios OMOP para obtener orientación sobre qué campos fuente se mapean a cada dominio y vocabulario estándar."
+  ]
+}

@@ -1,3 +1,6 @@
+import { useTranslation } from "react-i18next";
+import { formatNumber } from "@/i18n/format";
+
 interface DapGapItem {
   dimension: string;
   source_value: number;
@@ -23,6 +26,8 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default function DapGapMatrix({ data }: DapGapMatrixProps) {
+  const { t } = useTranslation("app");
+
   if (data.length === 0) return null;
 
   // Extract all unique dimensions from first source
@@ -34,7 +39,7 @@ export default function DapGapMatrix({ data }: DapGapMatrixProps) {
         <thead>
           <tr>
             <th className="sticky left-0 bg-surface-raised px-3 py-2 text-left text-[11px] text-text-muted">
-              Source
+              {t("dataExplorer.ares.feasibility.table.source")}
             </th>
             {dimensions.map((dim) => (
               <th key={dim} className="px-2 py-2 text-center text-[10px] text-text-ghost">
@@ -53,11 +58,18 @@ export default function DapGapMatrix({ data }: DapGapMatrixProps) {
                 <td key={gap.dimension} className="px-1 py-1">
                   <div
                     className={`rounded px-2 py-1.5 text-center text-[10px] font-mono ${STATUS_STYLES[gap.status]}`}
-                    title={`Actual: ${gap.source_value}% | Target: ${gap.benchmark_value}% | Gap: ${gap.gap > 0 ? "+" : ""}${gap.gap}%`}
+                    title={t("dataExplorer.ares.diversity.dap.tooltip", {
+                      actual: formatNumber(gap.source_value, { maximumFractionDigits: 1 }),
+                      target: formatNumber(gap.benchmark_value, { maximumFractionDigits: 1 }),
+                      gap: `${gap.gap > 0 ? "+" : ""}${formatNumber(gap.gap, { maximumFractionDigits: 1 })}`,
+                    })}
                   >
-                    {gap.source_value.toFixed(1)}%
+                    {t("dataExplorer.ares.diversity.percentValue", {
+                      value: formatNumber(gap.source_value, { maximumFractionDigits: 1 }),
+                    })}
                     <span className="ml-1 text-[8px] opacity-70">
-                      ({gap.gap > 0 ? "+" : ""}{gap.gap.toFixed(1)})
+                      ({gap.gap > 0 ? "+" : ""}
+                      {formatNumber(gap.gap, { maximumFractionDigits: 1 })})
                     </span>
                   </div>
                 </td>
@@ -68,13 +80,16 @@ export default function DapGapMatrix({ data }: DapGapMatrixProps) {
       </table>
       <div className="mt-3 flex gap-4 text-[10px] text-text-ghost">
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-full bg-success" /> Met (within 2%)
+          <span className="inline-block h-2 w-2 rounded-full bg-success" />
+          {t("dataExplorer.ares.diversity.dap.status.met")}
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-full bg-accent" /> Gap (2-10%)
+          <span className="inline-block h-2 w-2 rounded-full bg-accent" />
+          {t("dataExplorer.ares.diversity.dap.status.gap")}
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-full bg-primary" /> Critical (&gt;10%)
+          <span className="inline-block h-2 w-2 rounded-full bg-primary" />
+          {t("dataExplorer.ares.diversity.dap.status.critical")}
         </span>
       </div>
     </div>

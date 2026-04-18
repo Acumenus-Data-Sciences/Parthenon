@@ -1,0 +1,14 @@
+{
+  "key": "admin.roles",
+  "title": "Roles y permisos",
+  "description": "Defina roles y asigne permisos granulares para controlar qué pueden acceder y modificar los usuarios en Parthenon. Los roles usan un modelo de permisos basado en dominios que cubre fuentes de datos, cohortes, análisis, vocabulario, administración y más.",
+  "docs_url": "/docs/part8-administration/23-roles-permissions",
+  "video_url": null,
+  "tips": [
+    "Cada rol puede tener cualquier combinación de permisos en distintos dominios.",
+    "El rol super-admin tiene todos los permisos de forma predeterminada y no puede eliminarse.",
+    "Use la matriz de permisos para ver rápidamente qué roles tienen acceso a qué funciones.",
+    "Los cambios en roles tienen efecto inmediatamente para todos los usuarios asignados a ese rol.",
+    "Cree roles separados para investigadores, ingenieros de datos y administradores para un control de acceso adecuado."
+  ]
+}

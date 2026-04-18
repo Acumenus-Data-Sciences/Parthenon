@@ -1,0 +1,126 @@
+---
+id: 18-characterization-achilles
+title: "18. Caracterización Achilles"
+sidebar_label: "18. Caracterización Achilles"
+---
+
+# Caracterización Achilles
+
+El **Data Explorer** proporciona estadísticas resumidas precalculadas para sus bases OMOP CDM, impulsadas por [OHDSI Achilles](https://ohdsi.github.io/Achilles/). Achilles se ejecuta una vez contra un CDM y almacena cientos de consultas agregadas en un esquema de resultados, lo que habilita exploración interactiva rápida sin ejecutar consultas costosas en tiempo real contra las tablas clínicas.
+
+## Qué contiene Achilles
+
+Achilles calcula aproximadamente 170 consultas de análisis que cubren todos los dominios clínicos principales del OMOP CDM:
+
+| Grupo de análisis | Analysis IDs | Ejemplos |
+|-------------------|--------------|----------|
+| **Person** | 1-10 | Distribución de género, año de nacimiento, raza, etnicidad, género x año de nacimiento |
+| **Observation period** | 101-117 | Años de observación, distribuciones de duración, observación continua por año |
+| **Visit** | 200-220 | Frecuencias de tipo de visita, duración de visita, visitas por año |
+| **Condition** | 400-420 | Prevalencia de condiciones, coocurrencia, por edad/género, tendencias por año |
+| **Drug** | 700-720 | Prevalencia de medicamentos, duración de eras, distribuciones de días suministrados |
+| **Measurement** | 1800-1820 | Distribuciones de valores de laboratorio, unidades, rangos de valores, frecuencia de medición |
+| **Procedure** | 600-620 | Frecuencia de procedimientos por tipo y entorno clínico |
+| **Death** | 500-510 | Distribuciones de causa de muerte, tiempo desde inicio de observación hasta muerte |
+
+Cada análisis produce filas en las tablas `achilles_results` y `achilles_results_dist`, identificadas por `analysis_id`, con desgloses desde `stratum_1` hasta `stratum_5` para cortes dimensionales.
+
+## Dashboard de caracterización CDM
+
+La pestaña Overview de Data Explorer presenta un dashboard de caracterización CDM de 6 secciones que ofrece un resumen de la base de datos de un vistazo:
+
+### Selector de fuente
+
+Un desplegable en la parte superior del dashboard permite cambiar entre fuentes de datos configuradas. Solo aparecen en el selector las fuentes con un **results daimon** poblado. Parthenon usa `SET search_path` dinámico para enrutar consultas al esquema de resultados correcto de cada fuente, habilitando exploración multi-fuente sin fricción.
+
+### Tarjetas de métricas
+
+Cuatro tarjetas resumen muestran estadísticas poblacionales clave:
+
+| Tarjeta | Métrica | Fuente |
+|---------|---------|--------|
+| **Total Patients** | Conteo único de personas | Analysis 1 |
+| **Observation Period** | Rango de fecha más temprana a más reciente | Analysis 101, 109 |
+| **Gender Split** | Conteos Male / Female / Other | Analysis 2 |
+| **Median Follow-up** | Duración mediana del periodo de observación | Analysis 105 |
+
+### Barra de distribución de género
+
+Un gráfico de barras horizontal muestra la distribución de género en toda la población de pacientes, codificada por color según concepto de género (Male = azul, Female = rosa, Other = gris).
+
+### Pirámide edad-género
+
+Un gráfico de pirámide poblacional muestra la distribución de edad en bandas de 5 años, separada por género. Esta visualización revela de inmediato el perfil demográfico de la base de datos: si se inclina joven (Medicaid), mayor (Medicare) o equilibrada (reclamaciones comerciales).
+
+### Conteos de registros por dominio
+
+Una tabla muestra conteos totales de registros por dominio clínico (condiciones, medicamentos, procedimientos, mediciones, observaciones, visitas, muerte) con promedios por paciente.
+
+### Cobertura temporal
+
+Un gráfico de líneas muestra el número de pacientes con observación activa por año calendario, revelando tendencias de inscripción y la ventana efectiva de estudio.
+
+## Navegar las pestañas de Data Explorer
+
+Data Explorer tiene seis pestañas:
+
+1. **Overview**: dashboard de caracterización CDM descrito arriba.
+2. **Conditions**: mapa de árbol de prevalencia de condiciones y vista detallada.
+3. **Drugs**: prevalencia de exposiciones a medicamentos y estadísticas de eras.
+4. **Measurements**: distribuciones de valores de laboratorio con box plots.
+5. **Data Quality**: resultados Achilles Heel (consulte el [Capítulo 19](19-data-quality-dashboard)).
+6. **Ares**: observatorio de datos a nivel de red para caracterización entre fuentes, seguimiento de calidad y análisis de factibilidad (consulte el [Capítulo 21](21-ares-data-observatory)).
+
+## Pestaña Conditions
+
+La pestaña Conditions muestra condiciones ordenadas por prevalencia. La vista predeterminada es un mapa de árbol donde el tamaño de cada recuadro corresponde al conteo de pacientes. Seleccione cualquier condición para ver:
+
+- **Prevalence**: porcentaje de pacientes con al menos una ocurrencia.
+- **Age and gender distribution**: gráfico de barras estratificado.
+- **Prevalence by year**: línea de tendencia temporal.
+- **Top co-occurring conditions**: condiciones observadas con mayor frecuencia en los mismos pacientes.
+- **Source codes**: códigos originales ICD/SNOMED mapeados a este concepto estándar.
+
+## Pestaña Drugs
+
+La pestaña Drugs muestra exposiciones a medicamentos agregadas por ingrediente RxNorm. Seleccione cualquier medicamento para ver:
+
+- **Prevalence by ingredient**: porcentaje de pacientes expuestos.
+- **Days supply distribution**: histograma de duraciones de prescripción.
+- **Era duration distribution**: cuánto tiempo permanecen los pacientes en terapia continua.
+- **First exposure year trend**: cuándo empiezan los pacientes el medicamento por primera vez a lo largo del tiempo.
+- **Dose distribution**: si cantidad y días suministrados están poblados.
+
+## Pestaña Measurements
+
+La pestaña Measurements muestra estadísticas de mediciones codificadas en LOINC. Seleccione cualquier medición para ver:
+
+- **Value distribution**: histograma con ancho de bin configurable.
+- **Summary statistics**: mediana, rango intercuartílico, percentiles 5/95, mínimo/máximo.
+- **Unit of measure breakdown**: distribución de unidades registradas.
+- **Gender stratification**: distribuciones separadas para pacientes masculinos y femeninos.
+- **Temporal trend**: frecuencia de medición a lo largo de los años calendario.
+
+## Achilles multi-fuente
+
+Parthenon admite múltiples fuentes de datos, cada una con sus propios resultados Achilles. El sistema maneja esto mediante el **patrón Source/Daimon**:
+
+1. Cada fuente de datos tiene un daimon `results` que apunta a un esquema específico, por ejemplo `achilles_results` o `eunomia_results`.
+2. Cuando selecciona una fuente en Data Explorer, `AchillesResultReaderService` llama a `SET search_path` en la conexión de resultados hacia el esquema apropiado.
+3. Esto es sin estado por solicitud: cada llamada API establece el search path de forma independiente, por lo que usuarios concurrentes explorando fuentes distintas no interfieren entre sí.
+
+:::tip
+La frescura de resultados Achilles se muestra en el pie del dashboard como "Results as of [date]" para ayudar a los usuarios a entender la vigencia de los datos. Los resultados obsoletos (más de 30 días) muestran una insignia de advertencia.
+:::
+
+## Actualizar resultados Achilles
+
+Los resultados Achilles son instantáneas estáticas: reflejan el estado del CDM cuando Achilles se ejecutó por última vez. Para actualizarlos:
+
+1. Vaya a **Admin > System > Achilles Jobs** (requiere rol admin).
+2. Seleccione una fuente de datos y haga clic en **Run Achilles**.
+3. Achilles se ejecuta como trabajo en segundo plano mediante Laravel Horizon; supervise el progreso en la cola de trabajos.
+
+:::warning Consideraciones de rendimiento
+Ejecutar Achilles en un CDM grande (millones de pacientes) puede tardar entre 30 y 120 minutos y genera carga significativa en la base de datos. Programe las ejecuciones de Achilles fuera de horas pico y evite ejecutar varias fuentes simultáneamente. Para el conjunto de demostración Eunomia incluido (~2,700 pacientes), Achilles termina en menos de 30 segundos usando el mini-Achilles basado en SQL integrado en Parthenon.
+:::

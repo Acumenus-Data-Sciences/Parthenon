@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Check,
   X,
@@ -36,25 +37,26 @@ import type {
   SelectedEntities,
   AtlasMigration,
 } from "../api/migrationApi";
+import { formatNumber } from "@/i18n/format";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const STEPS = [
-  { key: "connect", label: "Connect" },
-  { key: "discover", label: "Discover" },
-  { key: "select", label: "Select" },
-  { key: "import", label: "Import" },
-  { key: "summary", label: "Summary" },
+  { key: "connect", labelKey: "connect" },
+  { key: "discover", labelKey: "discover" },
+  { key: "select", labelKey: "select" },
+  { key: "import", labelKey: "import" },
+  { key: "summary", labelKey: "summary" },
 ] as const;
 
 const ENTITY_TYPES = [
-  { key: "concept_sets" as const, label: "Concept Sets", icon: Database, color: "text-blue-400" },
-  { key: "cohort_definitions" as const, label: "Cohort Definitions", icon: Users, color: "text-purple-400" },
-  { key: "incidence_rates" as const, label: "Incidence Rates", icon: TrendingUp, color: "text-emerald-400" },
-  { key: "characterizations" as const, label: "Characterizations", icon: BarChart3, color: "text-amber-400" },
-  { key: "pathways" as const, label: "Pathways", icon: Route, color: "text-teal-400" },
-  { key: "estimations" as const, label: "Estimations", icon: Scale, color: "text-orange-400" },
-  { key: "predictions" as const, label: "Predictions", icon: Brain, color: "text-pink-400" },
+  { key: "concept_sets" as const, labelKey: "conceptSets", icon: Database, color: "text-blue-400" },
+  { key: "cohort_definitions" as const, labelKey: "cohortDefinitions", icon: Users, color: "text-purple-400" },
+  { key: "incidence_rates" as const, labelKey: "incidenceRates", icon: TrendingUp, color: "text-emerald-400" },
+  { key: "characterizations" as const, labelKey: "characterizations", icon: BarChart3, color: "text-amber-400" },
+  { key: "pathways" as const, labelKey: "pathways", icon: Route, color: "text-teal-400" },
+  { key: "estimations" as const, labelKey: "estimations", icon: Scale, color: "text-orange-400" },
+  { key: "predictions" as const, labelKey: "predictions", icon: Brain, color: "text-pink-400" },
 ];
 
 type EntityKey = (typeof ENTITY_TYPES)[number]["key"];
@@ -82,6 +84,8 @@ function formatDuration(start: string | null, end: string | null): string {
 // ── Step Indicator ───────────────────────────────────────────────────────────
 
 function StepIndicator({ currentStep }: { currentStep: number }) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="flex items-center justify-between pl-8 pr-14 pt-6 pb-2">
       {STEPS.map((s, index) => {
@@ -111,7 +115,7 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
                   isPending && "text-text-ghost",
                 )}
               >
-                {s.label}
+                {t(`administration.atlasMigration.steps.${s.labelKey}`)}
               </span>
             </div>
 
@@ -147,6 +151,7 @@ function ConnectStep({
   onTest: () => void;
   testing: boolean;
 }) {
+  const { t } = useTranslation("app");
   const inputCls =
     "w-full px-3 py-2.5 text-sm bg-surface-base border border-border-default rounded-lg text-text-primary placeholder-text-ghost focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30";
   const labelCls = "block text-xs font-medium text-text-muted mb-1.5";
@@ -154,16 +159,17 @@ function ConnectStep({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-text-primary">Connect to Atlas WebAPI</h2>
+        <h2 className="text-xl font-bold text-text-primary">
+          {t("administration.atlasMigration.connect.title")}
+        </h2>
         <p className="mt-1 text-sm text-text-muted">
-          Enter the base URL of your existing OHDSI WebAPI instance. Parthenon will connect and
-          inventory all available entities for migration.
+          {t("administration.atlasMigration.connect.description")}
         </p>
       </div>
 
       <div className="space-y-4">
         <div>
-          <label className={labelCls}>WebAPI Base URL</label>
+          <label className={labelCls}>{t("administration.atlasMigration.connect.webapiUrl")}</label>
           <div className="relative">
             <Globe size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost" />
             <input
@@ -178,21 +184,21 @@ function ConnectStep({
         </div>
 
         <div>
-          <label className={labelCls}>Authentication</label>
+          <label className={labelCls}>{t("administration.atlasMigration.connect.authentication")}</label>
           <select
             className={inputCls}
             value={config.auth_type}
             onChange={(e) => setConfig({ ...config, auth_type: e.target.value })}
           >
-            <option value="none">None (public WebAPI)</option>
-            <option value="basic">Basic Authentication</option>
-            <option value="bearer">Bearer Token</option>
+            <option value="none">{t("administration.atlasMigration.connect.auth.none")}</option>
+            <option value="basic">{t("administration.atlasMigration.connect.auth.basic")}</option>
+            <option value="bearer">{t("administration.atlasMigration.connect.auth.bearer")}</option>
           </select>
         </div>
 
         {config.auth_type === "basic" && (
           <div>
-            <label className={labelCls}>Credentials (username:password)</label>
+            <label className={labelCls}>{t("administration.atlasMigration.connect.credentials")}</label>
             <div className="relative">
               <Shield size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost" />
               <input
@@ -208,7 +214,7 @@ function ConnectStep({
 
         {config.auth_type === "bearer" && (
           <div>
-            <label className={labelCls}>Bearer Token</label>
+            <label className={labelCls}>{t("administration.atlasMigration.connect.bearerToken")}</label>
             <div className="relative">
               <Shield size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost" />
               <input
@@ -229,7 +235,7 @@ function ConnectStep({
           className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-surface-base hover:bg-accent-light transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {testing ? <Loader2 size={14} className="animate-spin" /> : <Globe size={14} />}
-          Test Connection
+          {t("administration.atlasMigration.connect.testConnection")}
         </button>
 
         {testResult && (
@@ -245,7 +251,11 @@ function ConnectStep({
             <div>
               <p className="font-medium">{testResult.message}</p>
               {testResult.version && (
-                <p className="mt-1 text-xs opacity-70">WebAPI version: {testResult.version}</p>
+                <p className="mt-1 text-xs opacity-70">
+                  {t("administration.atlasMigration.connect.webapiVersion", {
+                    version: testResult.version,
+                  })}
+                </p>
               )}
             </div>
           </div>
@@ -266,13 +276,19 @@ function DiscoverStep({
   discovering: boolean;
   error: string | null;
 }) {
+  const { t } = useTranslation("app");
+
   if (discovering) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-4">
         <Loader2 size={32} className="animate-spin text-accent" />
         <div className="text-center">
-          <p className="text-base font-semibold text-text-primary">Discovering entities...</p>
-          <p className="mt-1 text-sm text-text-ghost">Querying all WebAPI endpoints in parallel</p>
+          <p className="text-base font-semibold text-text-primary">
+            {t("administration.atlasMigration.discover.discovering")}
+          </p>
+          <p className="mt-1 text-sm text-text-ghost">
+            {t("administration.atlasMigration.discover.querying")}
+          </p>
         </div>
       </div>
     );
@@ -295,12 +311,18 @@ function DiscoverStep({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-text-primary">Atlas Inventory</h2>
+        <h2 className="text-xl font-bold text-text-primary">
+          {t("administration.atlasMigration.discover.title")}
+        </h2>
         <p className="mt-1 text-sm text-text-muted">
-          Found <span className="font-semibold text-accent">{totalCount}</span> migratable entities
-          across {ENTITY_TYPES.filter((et) => (discovery[et.key]?.count ?? 0) > 0).length} categories.
+          {t("administration.atlasMigration.discover.summary", {
+            count: formatNumber(totalCount),
+            categories: formatNumber(ENTITY_TYPES.filter((et) => (discovery[et.key]?.count ?? 0) > 0).length),
+          })}
           {discovery.sources?.count > 0 && (
-            <> Also found {discovery.sources.count} data source(s).</>
+            <> {t("administration.atlasMigration.discover.sourcesFound", {
+              count: formatNumber(discovery.sources.count),
+            })}</>
           )}
         </p>
       </div>
@@ -313,7 +335,9 @@ function DiscoverStep({
             <Panel key={et.key} className={cn("text-center py-5", count === 0 && "opacity-40")}>
               <Icon size={24} className={cn("mx-auto mb-2", et.color)} />
               <p className="text-2xl font-bold text-text-primary">{count}</p>
-              <p className="text-xs text-text-muted mt-1">{et.label}</p>
+              <p className="text-xs text-text-muted mt-1">
+                {t(`administration.atlasMigration.entityTypes.${et.labelKey}`)}
+              </p>
             </Panel>
           );
         })}
@@ -333,6 +357,7 @@ function SelectStep({
   selected: SelectedEntities;
   setSelected: (s: SelectedEntities) => void;
 }) {
+  const { t } = useTranslation("app");
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const totalSelected = Object.values(selected).reduce((sum, ids) => sum + ids.length, 0);
@@ -363,17 +388,19 @@ function SelectStep({
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-text-primary">Select Entities to Migrate</h2>
+          <h2 className="text-xl font-bold text-text-primary">
+            {t("administration.atlasMigration.select.title")}
+          </h2>
           <p className="mt-1 text-sm text-text-muted">
-            Choose which entities to import. Dependencies are resolved automatically.
+            {t("administration.atlasMigration.select.description")}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <button type="button" onClick={selectAll} className="px-3 py-1.5 text-xs font-medium text-accent hover:bg-accent/10 rounded-md transition-colors">
-            Select All
+            {t("administration.atlasMigration.actions.selectAll")}
           </button>
           <button type="button" onClick={() => setSelected({ ...EMPTY_SELECTION })} className="px-3 py-1.5 text-xs font-medium text-text-ghost hover:text-text-muted rounded-md transition-colors">
-            Deselect All
+            {t("administration.atlasMigration.actions.deselectAll")}
           </button>
         </div>
       </div>
@@ -382,9 +409,7 @@ function SelectStep({
         <div className="flex items-start gap-2 rounded-lg border border-accent/20 bg-accent/5 px-4 py-3 text-xs text-accent">
           <AlertCircle size={14} className="mt-0.5 shrink-0" />
           <p>
-            Analysis entities may reference cohort definitions and concept sets by ID.
-            Parthenon will remap these references automatically during import.
-            For best results, include the referenced cohorts and concept sets in your selection.
+            {t("administration.atlasMigration.select.analysisWarning")}
           </p>
         </div>
       )}
@@ -408,8 +433,15 @@ function SelectStep({
               >
                 <div className="flex items-center gap-3">
                   <Icon size={18} className={et.color} />
-                  <span className="text-sm font-semibold text-text-primary">{et.label}</span>
-                  <span className="text-xs text-text-ghost">{selectedCount}/{items.length} selected</span>
+                  <span className="text-sm font-semibold text-text-primary">
+                    {t(`administration.atlasMigration.entityTypes.${et.labelKey}`)}
+                  </span>
+                  <span className="text-xs text-text-ghost">
+                    {t("administration.atlasMigration.select.selectedCount", {
+                      selected: formatNumber(selectedCount),
+                      total: formatNumber(items.length),
+                    })}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -420,7 +452,9 @@ function SelectStep({
                       allSelected ? "bg-accent/15 text-accent" : "bg-surface-elevated text-text-muted hover:text-text-secondary",
                     )}
                   >
-                    {allSelected ? "Deselect All" : "Select All"}
+                    {allSelected
+                      ? t("administration.atlasMigration.actions.deselectAll")
+                      : t("administration.atlasMigration.actions.selectAll")}
                   </button>
                   {isExpanded ? <ChevronDown size={14} className="text-text-ghost" /> : <ChevronRight size={14} className="text-text-ghost" />}
                 </div>
@@ -448,7 +482,9 @@ function SelectStep({
       </div>
 
       <div className="text-sm text-text-muted">
-        <span className="font-semibold text-accent">{totalSelected}</span> entities selected for migration
+        {t("administration.atlasMigration.select.totalSelected", {
+          count: formatNumber(totalSelected),
+        })}
       </div>
     </div>
   );
@@ -457,11 +493,15 @@ function SelectStep({
 // ── Step 4: Import ───────────────────────────────────────────────────────────
 
 function ImportStep({ migration }: { migration: AtlasMigration | null }) {
+  const { t } = useTranslation("app");
+
   if (!migration) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-4">
         <Loader2 size={32} className="animate-spin text-accent" />
-        <p className="text-base font-semibold text-text-primary">Starting migration...</p>
+        <p className="text-base font-semibold text-text-primary">
+          {t("administration.atlasMigration.import.starting")}
+        </p>
       </div>
     );
   }
@@ -475,19 +515,29 @@ function ImportStep({ migration }: { migration: AtlasMigration | null }) {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-text-primary">
-          {isRunning ? "Importing Entities..." : migration.status === "completed" ? "Migration Complete" : "Migration Failed"}
+          {isRunning
+            ? t("administration.atlasMigration.import.importing")
+            : migration.status === "completed"
+              ? t("administration.atlasMigration.import.complete")
+              : t("administration.atlasMigration.import.failed")}
         </h2>
         <p className="mt-1 text-sm text-text-muted">
           {isRunning && migration.current_step ? migration.current_step
-            : migration.status === "completed" ? "All selected entities have been processed."
-              : migration.error_message ?? "An error occurred during migration."}
+            : migration.status === "completed" ? t("administration.atlasMigration.import.processed")
+              : migration.error_message ?? t("administration.atlasMigration.import.error")}
         </p>
       </div>
 
       <div>
         <div className="flex items-center justify-between text-xs text-text-muted mb-1.5">
-          <span>{progress}% complete</span>
-          <span>{migration.imported_entities + migration.skipped_entities + migration.failed_entities} / {migration.total_entities}</span>
+          <span>
+            {t("administration.atlasMigration.import.percentComplete", {
+              percent: formatNumber(progress),
+            })}
+          </span>
+          <span>
+            {formatNumber(migration.imported_entities + migration.skipped_entities + migration.failed_entities)} / {formatNumber(migration.total_entities)}
+          </span>
         </div>
         <div className="h-2.5 w-full rounded-full bg-surface-elevated overflow-hidden">
           <div
@@ -500,25 +550,31 @@ function ImportStep({ migration }: { migration: AtlasMigration | null }) {
       <div className="grid grid-cols-3 gap-3">
         <Panel className="text-center py-3">
           <p className="text-lg font-bold text-success">{migration.imported_entities}</p>
-          <p className="text-[10px] text-text-muted uppercase tracking-wider">Imported</p>
+          <p className="text-[10px] text-text-muted uppercase tracking-wider">
+            {t("administration.atlasMigration.metrics.imported")}
+          </p>
         </Panel>
         <Panel className="text-center py-3">
           <p className="text-lg font-bold text-accent">{migration.skipped_entities}</p>
-          <p className="text-[10px] text-text-muted uppercase tracking-wider">Skipped</p>
+          <p className="text-[10px] text-text-muted uppercase tracking-wider">
+            {t("administration.atlasMigration.metrics.skipped")}
+          </p>
         </Panel>
         <Panel className="text-center py-3">
           <p className="text-lg font-bold text-critical">{migration.failed_entities}</p>
-          <p className="text-[10px] text-text-muted uppercase tracking-wider">Failed</p>
+          <p className="text-[10px] text-text-muted uppercase tracking-wider">
+            {t("administration.atlasMigration.metrics.failed")}
+          </p>
         </Panel>
       </div>
 
       {migration.mapping_summary && Object.keys(migration.mapping_summary).length > 0 && (
         <div className="rounded-lg border border-border-default overflow-hidden">
           <div className="px-3 py-2 bg-surface-overlay/50 text-[10px] font-medium text-text-ghost uppercase tracking-wider grid grid-cols-5 gap-2">
-            <span className="col-span-2">Entity Type</span>
-            <span className="text-center">Imported</span>
-            <span className="text-center">Skipped</span>
-            <span className="text-center">Failed</span>
+            <span className="col-span-2">{t("administration.atlasMigration.table.entityType")}</span>
+            <span className="text-center">{t("administration.atlasMigration.metrics.imported")}</span>
+            <span className="text-center">{t("administration.atlasMigration.metrics.skipped")}</span>
+            <span className="text-center">{t("administration.atlasMigration.metrics.failed")}</span>
           </div>
           {Object.entries(migration.mapping_summary).map(([type, stats]) => (
             <div key={type} className="px-3 py-2 border-t border-border-subtle grid grid-cols-5 gap-2 text-xs">
@@ -540,7 +596,7 @@ function ImportStep({ migration }: { migration: AtlasMigration | null }) {
 
       {isRunning && (
         <div className="flex items-center justify-center gap-2 text-xs text-text-ghost">
-          <Loader2 size={12} className="animate-spin" /> Polling for updates...
+          <Loader2 size={12} className="animate-spin" /> {t("administration.atlasMigration.import.polling")}
         </div>
       )}
     </div>
@@ -560,61 +616,79 @@ function SummaryStep({
   retrying: boolean;
   onClose: () => void;
 }) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="space-y-6">
       <div className="text-center py-4">
         {migration.status === "completed" && migration.failed_entities === 0 ? (
           <>
             <CheckCircle2 size={48} className="mx-auto text-success mb-3" />
-            <h2 className="text-xl font-bold text-text-primary">Migration Successful</h2>
+            <h2 className="text-xl font-bold text-text-primary">
+              {t("administration.atlasMigration.summary.successful")}
+            </h2>
           </>
         ) : migration.status === "completed" ? (
           <>
             <AlertCircle size={48} className="mx-auto text-accent mb-3" />
-            <h2 className="text-xl font-bold text-text-primary">Migration Completed with Warnings</h2>
+            <h2 className="text-xl font-bold text-text-primary">
+              {t("administration.atlasMigration.summary.completedWithWarnings")}
+            </h2>
           </>
         ) : (
           <>
             <XCircle size={48} className="mx-auto text-critical mb-3" />
-            <h2 className="text-xl font-bold text-text-primary">Migration Failed</h2>
+            <h2 className="text-xl font-bold text-text-primary">
+              {t("administration.atlasMigration.summary.failed")}
+            </h2>
           </>
         )}
         <p className="mt-2 text-sm text-text-muted">
-          From <span className="font-mono text-text-secondary">{migration.webapi_url}</span>
+          {t("administration.atlasMigration.summary.from")} <span className="font-mono text-text-secondary">{migration.webapi_url}</span>
         </p>
       </div>
 
       <div className="grid grid-cols-4 gap-3">
         <Panel className="text-center py-4">
           <p className="text-2xl font-bold text-text-primary">{migration.total_entities}</p>
-          <p className="text-[10px] text-text-muted uppercase tracking-wider mt-1">Total</p>
+          <p className="text-[10px] text-text-muted uppercase tracking-wider mt-1">
+            {t("administration.atlasMigration.metrics.total")}
+          </p>
         </Panel>
         <Panel className="text-center py-4">
           <p className="text-2xl font-bold text-success">{migration.imported_entities}</p>
-          <p className="text-[10px] text-text-muted uppercase tracking-wider mt-1">Imported</p>
+          <p className="text-[10px] text-text-muted uppercase tracking-wider mt-1">
+            {t("administration.atlasMigration.metrics.imported")}
+          </p>
         </Panel>
         <Panel className="text-center py-4">
           <p className="text-2xl font-bold text-accent">{migration.skipped_entities}</p>
-          <p className="text-[10px] text-text-muted uppercase tracking-wider mt-1">Skipped</p>
+          <p className="text-[10px] text-text-muted uppercase tracking-wider mt-1">
+            {t("administration.atlasMigration.metrics.skipped")}
+          </p>
         </Panel>
         <Panel className="text-center py-4">
           <p className="text-2xl font-bold text-critical">{migration.failed_entities}</p>
-          <p className="text-[10px] text-text-muted uppercase tracking-wider mt-1">Failed</p>
+          <p className="text-[10px] text-text-muted uppercase tracking-wider mt-1">
+            {t("administration.atlasMigration.metrics.failed")}
+          </p>
         </Panel>
       </div>
 
       <div className="flex items-center justify-center gap-2 text-xs text-text-ghost">
         <Clock size={12} />
-        Duration: {formatDuration(migration.started_at, migration.completed_at)}
+        {t("administration.atlasMigration.summary.duration", {
+          duration: formatDuration(migration.started_at, migration.completed_at),
+        })}
       </div>
 
       {migration.import_results && (
         <div className="rounded-lg border border-border-default overflow-hidden">
           <div className="px-3 py-2 bg-surface-overlay/50 text-[10px] font-medium text-text-ghost uppercase tracking-wider grid grid-cols-5 gap-2">
-            <span className="col-span-2">Category</span>
-            <span className="text-center">Imported</span>
-            <span className="text-center">Skipped</span>
-            <span className="text-center">Failed</span>
+            <span className="col-span-2">{t("administration.atlasMigration.table.category")}</span>
+            <span className="text-center">{t("administration.atlasMigration.metrics.imported")}</span>
+            <span className="text-center">{t("administration.atlasMigration.metrics.skipped")}</span>
+            <span className="text-center">{t("administration.atlasMigration.metrics.failed")}</span>
           </div>
           {Object.entries(migration.import_results).map(([type, stats]) => (
             <div key={type} className="px-3 py-2 border-t border-border-subtle grid grid-cols-5 gap-2 text-xs">
@@ -643,7 +717,9 @@ function SummaryStep({
             className="inline-flex items-center gap-2 rounded-lg border border-accent/30 px-4 py-2.5 text-sm font-medium text-accent hover:bg-accent/10 transition-colors disabled:opacity-40"
           >
             {retrying ? <Loader2 size={14} className="animate-spin" /> : <ArrowRight size={14} />}
-            Retry Failed ({migration.failed_entities})
+            {t("administration.atlasMigration.actions.retryFailed", {
+              count: formatNumber(migration.failed_entities),
+            })}
           </button>
         )}
         <button
@@ -652,7 +728,7 @@ function SummaryStep({
           className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-surface-base hover:bg-accent-light transition-colors"
         >
           <Check size={14} />
-          Done
+          {t("administration.atlasMigration.actions.done")}
         </button>
       </div>
     </div>
@@ -666,6 +742,7 @@ interface Props {
 }
 
 export function AtlasMigrationWizard({ onClose }: Props) {
+  const { t } = useTranslation("app");
   // Wizard step state
   const [currentStep, setCurrentStep] = useState(0);
   const [slideDir, setSlideDir] = useState<"forward" | "back">("forward");
@@ -723,7 +800,14 @@ export function AtlasMigrationWizard({ onClose }: Props) {
       });
       setTestResult(result);
     } catch (err: unknown) {
-      setTestResult({ success: false, message: err instanceof Error ? err.message : "Connection failed", version: null, sources_count: 0 });
+      setTestResult({
+        success: false,
+        message: err instanceof Error
+          ? err.message
+          : t("administration.atlasMigration.errors.connectionFailed"),
+        version: null,
+        sources_count: 0,
+      });
     }
   }
 
@@ -739,7 +823,9 @@ export function AtlasMigrationWizard({ onClose }: Props) {
       });
       setDiscovery(result);
     } catch (err: unknown) {
-      setDiscoveryError(err instanceof Error ? err.message : "Discovery failed");
+      setDiscoveryError(err instanceof Error
+        ? err.message
+        : t("administration.atlasMigration.errors.discoveryFailed"));
     }
   }
 
@@ -810,7 +896,7 @@ export function AtlasMigrationWizard({ onClose }: Props) {
             <button
               type="button"
               onClick={onClose}
-              title="Close — return any time via Administration"
+              title={t("administration.atlasMigration.actions.closeTitle")}
               className="absolute right-4 top-4 z-10 rounded-md p-1.5 text-text-ghost hover:text-text-muted transition-colors"
             >
               <X size={18} />
@@ -859,7 +945,7 @@ export function AtlasMigrationWizard({ onClose }: Props) {
                 )}
               >
                 <ArrowLeft size={14} />
-                Previous
+                {t("administration.atlasMigration.actions.previous")}
               </button>
 
               <button
@@ -874,11 +960,11 @@ export function AtlasMigrationWizard({ onClose }: Props) {
                 {currentStep === 2 ? (
                   <>
                     {startMut.isPending ? <Loader2 size={14} className="animate-spin" /> : <Database size={14} />}
-                    Start Migration
+                    {t("administration.atlasMigration.actions.startMigration")}
                   </>
                 ) : (
                   <>
-                    Next
+                    {t("administration.atlasMigration.actions.next")}
                     <ArrowRight size={14} />
                   </>
                 )}

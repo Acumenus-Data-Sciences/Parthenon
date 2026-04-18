@@ -1,0 +1,17 @@
+{
+  "key": "admin.fhir-connections",
+  "title": "Conexiones FHIR",
+  "description": "Configure conexiones SMART Backend Services para extracción FHIR R4 Bulk Data desde sistemas EHR como Epic, Cerner y otros endpoints FHIR R4. Cada conexión almacena credenciales OAuth2, una clave privada RSA para autenticación JWT, y admite modos de sincronización incremental y completa.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Cada conexión requiere una URL base FHIR, endpoint de token, ID de cliente y clave privada RSA (formato PEM) para autenticación JWT de SMART Backend Services.",
+    "Los proveedores EHR compatibles incluyen Epic, Cerner (Oracle Health) y cualquier otro sistema compatible con FHIR R4.",
+    "Habilite la sincronización incremental para extraer solo datos nuevos o actualizados desde la última sincronización. Use Forzar sincronización completa para volver a descargar todos los datos cuando sea necesario.",
+    "Use el botón Probar conexión (icono de reproducción) para validar el intercambio de token OAuth2, la disponibilidad del endpoint FHIR y la capacidad de exportación masiva antes de sincronizar.",
+    "Los resultados de la prueba muestran un desglose paso a paso de la validación de conexión: intercambio de token, recuperación de metadatos y verificaciones de soporte de exportación.",
+    "Configure qué tipos de recursos FHIR exportar (por ejemplo, Patient, Condition, Encounter) o déjelo en blanco para exportar todos los tipos admitidos.",
+    "El panel Historial de sincronización en cada tarjeta de conexión muestra métricas detalladas de ejecución, incluidos registros extraídos, mapeados, escritos y fallidos.",
+    "Haga clic en el enlace Monitor de sincronización en la parte superior derecha para ver un panel entre conexiones con rendimiento de pipeline y tendencias de actividad de sincronización."
+  ]
+}

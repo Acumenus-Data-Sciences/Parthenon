@@ -13,15 +13,15 @@
         "parent": null,
         "release": "df14",
         "coverage": {
-            "pct": 0.75,
+            "pct": 0.7714285714285715,
             "bucket": "PARTIAL",
-            "n_tokens_total": 36,
+            "n_tokens_total": 35,
             "n_tokens_resolved": 27
         },
         "conditions": null,
         "provenance": {
             "source_row": 4949,
-            "imported_at": "2026-04-17T00:17:58+00:00",
+            "imported_at": "2026-04-17T19:57:26+00:00",
             "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
             "importer_version": "1.0.0"
         },
@@ -142,6 +142,7 @@
         "pre_conditions": null,
         "coverage_bucket": "PARTIAL",
         "sex_restriction": null,
+        "coverage_profile": "partial",
         "include_endpoints": [
             "C3_MELANOMA_SKIN_WIDE",
             "C3_UVEAMELANOMA",
@@ -160,7 +161,10 @@
                 4031756,
                 373151,
                 374874,
-                438095
+                438095,
+                195197,
+                196048,
+                4160342
             ]
         }
     },
@@ -168,7 +172,7 @@
     "is_public": true,
     "version": 1,
     "created_at": "2026-04-16T23:56:30.000000Z",
-    "updated_at": "2026-04-17T00:17:58.000000Z",
+    "updated_at": "2026-04-17T19:57:26.000000Z",
     "deleted_at": null,
     "tags": [
         "finngen-endpoint",
@@ -182,5 +186,6 @@
     "domain": "finngen-endpoint",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null
+    "superseded_by": null,
+    "coverage_profile": "partial"
 }

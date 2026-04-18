@@ -1,18 +1,17 @@
+import { useTranslation } from "react-i18next";
+import { formatDate } from "@/i18n/format";
 import AbbyAvatar from "./AbbyAvatar";
 import AbbySourceAttribution from "./AbbySourceAttribution";
 import AbbyFeedback from "./AbbyFeedback";
-import type {
-  AbbyResponseCardProps,
-  ObjectReference,
-} from "../../types/abby";
+import type { AbbyResponseCardProps, ObjectReference } from "../../types/abby";
 
-const REF_TYPE_LABELS: Record<string, string> = {
-  cohort_definition: "Cohort",
-  concept_set: "Concept set",
-  study: "Study",
-  analysis_result: "Analysis",
-  data_source: "Data source",
-  dq_report: "DQ report",
+const REF_TYPE_KEYS: Record<string, string> = {
+  cohort_definition: "abby.refTypes.cohortDefinition",
+  concept_set: "abby.refTypes.conceptSet",
+  study: "abby.refTypes.study",
+  analysis_result: "abby.refTypes.analysisResult",
+  data_source: "abby.refTypes.dataSource",
+  dq_report: "abby.refTypes.dqReport",
 };
 
 function ObjectRefChip({
@@ -22,6 +21,8 @@ function ObjectRefChip({
   objRef: ObjectReference;
   onClick?: () => void;
 }) {
+  const { t } = useTranslation("commons");
+
   return (
     <button
       className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted border border-border text-[11px] hover:border-muted-foreground/30 transition-colors duration-150 cursor-pointer"
@@ -29,17 +30,17 @@ function ObjectRefChip({
     >
       <span className="text-[9px] opacity-50">◆</span>
       <span className="text-[9px] text-muted-foreground uppercase tracking-wide">
-        {REF_TYPE_LABELS[objRef.type] ?? objRef.type}
+        {t(REF_TYPE_KEYS[objRef.type] ?? objRef.type, {
+          defaultValue: objRef.type,
+        })}
       </span>
-      <span className="font-medium text-primary">
-        {objRef.display_name}
-      </span>
+      <span className="font-medium text-primary">{objRef.display_name}</span>
     </button>
   );
 }
 
 function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString("en-US", {
+  return formatDate(iso, {
     hour: "numeric",
     minute: "2-digit",
   });
@@ -53,6 +54,8 @@ export default function AbbyResponseCard({
   onObjectReferenceClick,
   compact = false,
 }: AbbyResponseCardProps) {
+  const { t } = useTranslation("commons");
+
   return (
     <div className="group px-4 py-3 hover:bg-muted/30 transition-colors duration-100">
       <div className="flex gap-2.5">
@@ -66,16 +69,16 @@ export default function AbbyResponseCard({
                 compact ? "text-xs" : "text-[13px]"
               }`}
             >
-              Abby
+              {t("abby.name")}
             </span>
 
             <span className="inline-flex items-center px-1.5 py-px rounded text-[9px] font-medium bg-emerald-500/15 text-emerald-400">
-              {compact ? "AI" : "AI assistant"}
+              {compact ? t("abby.aiAssistantShort") : t("abby.aiAssistant")}
             </span>
 
             {!compact && (
               <span className="text-[10px] text-muted-foreground">
-                MedGemma 1.5 · 4B
+                {t("abby.modelLabel")}
               </span>
             )}
 

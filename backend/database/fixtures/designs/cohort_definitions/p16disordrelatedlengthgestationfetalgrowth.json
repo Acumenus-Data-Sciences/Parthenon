@@ -19,7 +19,7 @@
         "conditions": null,
         "provenance": {
             "source_row": 2978,
-            "imported_at": "2026-04-17T00:17:42+00:00",
+            "imported_at": "2026-04-17T19:57:08+00:00",
             "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
             "importer_version": "1.0.0"
         },
@@ -109,6 +109,7 @@
         "pre_conditions": null,
         "coverage_bucket": "FULLY_MAPPED",
         "sex_restriction": null,
+        "coverage_profile": "partial",
         "include_endpoints": [
             "P16_SLOW_FETAL_GROWTH_FETAL_MALNUTRITION",
             "P16_DISORD_RELATED_GESTATION_LOW_BIRTHWGHTT_NECIFIED",
@@ -219,7 +220,7 @@
     "is_public": true,
     "version": 1,
     "created_at": "2026-04-16T23:56:14.000000Z",
-    "updated_at": "2026-04-17T00:17:42.000000Z",
+    "updated_at": "2026-04-17T19:57:08.000000Z",
     "deleted_at": null,
     "tags": [
         "finngen-endpoint",
@@ -231,5 +232,6 @@
     "domain": "finngen-endpoint",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null
+    "superseded_by": null,
+    "coverage_profile": "partial"
 }

@@ -1,0 +1,126 @@
+---
+id: 18-characterization-achilles
+title: "18. Achilles 특성화"
+sidebar_label: "18. Achilles 특성화"
+---
+
+# Achilles 특성화
+
+**Data Explorer**는 [OHDSI Achilles](https://ohdsi.github.io/Achilles/)로 구동되는 OMOP CDM 데이터베이스의 사전 계산 요약 통계를 제공합니다. Achilles는 CDM에 대해 한 번 실행되어 수백 개의 aggregate query를 results schema에 저장하므로, 임상 테이블에 비싼 real-time query를 실행하지 않고도 빠른 interactive exploration이 가능합니다.
+
+## Achilles에 포함되는 내용
+
+Achilles는 OMOP CDM의 주요 임상 domain을 모두 포괄하는 약 170개의 analysis query를 계산합니다:
+
+| Analysis Group | Analysis IDs | 예 |
+|----------------|--------------|----|
+| **Person** | 1-10 | Gender distribution, year of birth, race, ethnicity, gender x year of birth |
+| **Observation period** | 101-117 | Observation years, duration distributions, continuous observation per year |
+| **Visit** | 200-220 | Visit type frequencies, visit duration, visits per year |
+| **Condition** | 400-420 | Condition prevalence, co-occurrence, by age/gender, trends by year |
+| **Drug** | 700-720 | Drug prevalence, era duration, days supply distributions |
+| **Measurement** | 1800-1820 | Lab value distributions, units, value ranges, measurement frequency |
+| **Procedure** | 600-620 | Procedure frequency by type and clinical setting |
+| **Death** | 500-510 | Cause of death distributions, time from observation start to death |
+
+각 analysis는 `analysis_id`로 식별되는 행을 `achilles_results` 및 `achilles_results_dist` 테이블에 생성하며, dimensional slicing을 위해 `stratum_1`부터 `stratum_5`까지의 breakdown을 포함합니다.
+
+## CDM characterization dashboard
+
+Data Explorer의 Overview 탭은 데이터베이스를 한눈에 요약하는 6개 섹션의 CDM characterization dashboard를 제공합니다:
+
+### Source selector
+
+Dashboard 상단의 드롭다운으로 구성된 데이터 소스 사이를 전환할 수 있습니다. 채워진 **results daimon**이 있는 source만 selector에 나타납니다. Parthenon은 동적 `SET search_path`를 사용해 각 source의 올바른 results schema로 query를 라우팅하므로 매끄러운 multi-source exploration이 가능합니다.
+
+### Metric cards
+
+네 개의 summary card가 주요 population statistics를 표시합니다:
+
+| Card | Metric | Source |
+|------|--------|--------|
+| **Total Patients** | Unique person count | Analysis 1 |
+| **Observation Period** | Earliest to latest date range | Analysis 101, 109 |
+| **Gender Split** | Male / Female / Other counts | Analysis 2 |
+| **Median Follow-up** | Median observation period duration | Analysis 105 |
+
+### Gender distribution bar
+
+가로 막대 chart가 전체 patient population의 gender distribution을 보여 주며, gender concept별로 색이 지정됩니다(Male = 파랑, Female = 분홍, Other = 회색).
+
+### Age-gender pyramid
+
+Population pyramid chart는 5년 단위 age band의 age distribution을 gender별로 나누어 표시합니다. 이 visualization은 데이터베이스가 젊은 층에 치우쳤는지(Medicaid), 고령층에 치우쳤는지(Medicare), 균형적인지(commercial claims)를 즉시 보여 줍니다.
+
+### Domain record counts
+
+Clinical domain별 총 record count(conditions, drugs, procedures, measurements, observations, visits, death)와 patient당 평균을 보여 주는 table입니다.
+
+### Temporal coverage
+
+Calendar year별 active observation이 있는 환자 수를 보여 주는 line chart로, enrollment trend와 effective study window를 드러냅니다.
+
+## Data Explorer 탭 탐색
+
+Data Explorer에는 여섯 개 탭이 있습니다:
+
+1. **Overview**: 위에서 설명한 CDM characterization dashboard.
+2. **Conditions**: condition prevalence treemap 및 drill-down.
+3. **Drugs**: drug exposure prevalence 및 era statistics.
+4. **Measurements**: box plot이 있는 lab value distribution.
+5. **Data Quality**: Achilles Heel 결과([19장](19-data-quality-dashboard) 참조).
+6. **Ares**: cross-source characterization, quality tracking, feasibility analysis를 위한 network-level data observatory([21장](21-ares-data-observatory) 참조).
+
+## Conditions 탭
+
+Conditions 탭은 prevalence 순으로 정렬된 condition을 표시합니다. 기본 view는 tile size가 patient count에 대응하는 treemap입니다. Condition을 선택하면 다음을 볼 수 있습니다:
+
+- **Prevalence**: 최소 한 번 occurrence가 있는 patient의 percentage.
+- **Age and gender distribution**: stratified bar chart.
+- **Prevalence by year**: temporal trend line.
+- **Top co-occurring conditions**: 같은 patient에게 가장 자주 함께 관찰되는 condition.
+- **Source codes**: 이 standard concept로 매핑된 original ICD/SNOMED code.
+
+## Drugs 탭
+
+Drugs 탭은 RxNorm ingredient별로 집계된 drug exposure를 보여 줍니다. Drug을 선택하면 다음을 볼 수 있습니다:
+
+- **Prevalence by ingredient**: 노출된 patient의 percentage.
+- **Days supply distribution**: prescription duration histogram.
+- **Era duration distribution**: patient가 continuous therapy에 머무르는 기간.
+- **First exposure year trend**: 시간이 지나며 patient가 처음 drug을 시작한 연도.
+- **Dose distribution**: quantity와 days supply가 채워져 있는 경우.
+
+## Measurements 탭
+
+Measurements 탭은 LOINC-coded measurement statistics를 보여 줍니다. Measurement를 선택하면 다음을 볼 수 있습니다:
+
+- **Value distribution**: configurable bin width가 있는 histogram.
+- **Summary statistics**: median, interquartile range, 5th/95th percentiles, min/max.
+- **Unit of measure breakdown**: recording unit distribution.
+- **Gender stratification**: male 및 female patient별 별도 distribution.
+- **Temporal trend**: calendar year에 따른 measurement frequency.
+
+## Multi-source Achilles
+
+Parthenon은 각자 Achilles results를 가진 multiple data source를 지원합니다. 시스템은 **Source/Daimon pattern**으로 이를 처리합니다:
+
+1. 각 데이터 소스는 특정 schema(예: `achilles_results`, `eunomia_results`)를 가리키는 `results` daimon을 가집니다.
+2. Data Explorer에서 source를 선택하면 `AchillesResultReaderService`가 results connection에서 적절한 schema로 `SET search_path`를 호출합니다.
+3. 이는 request별 stateless 동작입니다. 각 API call이 독립적으로 search path를 설정하므로 서로 다른 source를 탐색하는 concurrent user가 서로 간섭하지 않습니다.
+
+:::tip
+Achilles result freshness는 dashboard footer에 "Results as of [date]"로 표시되어 사용자가 data currency를 이해할 수 있게 합니다. 오래된 결과(30일 초과)는 warning badge를 표시합니다.
+:::
+
+## Achilles results 새로고침
+
+Achilles results는 static snapshot입니다. 마지막으로 Achilles가 실행되었을 때의 CDM 상태를 반영합니다. 새로고침하려면:
+
+1. **Admin > System > Achilles Jobs**로 이동합니다(admin role 필요).
+2. 데이터 소스를 선택하고 **Run Achilles**를 클릭합니다.
+3. Achilles는 Laravel Horizon을 통해 background job으로 실행됩니다. Job queue에서 진행 상황을 모니터링하세요.
+
+:::warning Performance considerations
+큰 CDM(수백만 명 환자)에서 Achilles를 실행하면 30-120분이 걸릴 수 있으며 database load가 큽니다. Achilles run은 off-peak hour에 예약하고 여러 source를 동시에 실행하지 마세요. 포함된 Eunomia demo dataset(~2,700명 환자)의 경우 Parthenon에 내장된 SQL-based mini-Achilles를 사용해 30초 이내에 완료됩니다.
+:::

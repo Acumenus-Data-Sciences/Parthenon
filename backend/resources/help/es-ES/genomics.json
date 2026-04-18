@@ -1,0 +1,17 @@
+{
+  "key": "genomics",
+  "title": "Genómica molecular",
+  "description": "El módulo Genómica proporciona un flujo completo para ingerir, anotar y analizar datos de variantes genómicas dentro del marco OMOP CDM. Cargue archivos VCF o MAF, anote variantes contra la base de datos de referencia ClinVar, vincule muestras con registros de pacientes OMOP y ejecute análisis de variantes y desenlaces a nivel poblacional.",
+  "docs_url": "/docs/part9-genomics/27-genomics-overview",
+  "video_url": null,
+  "tips": [
+    "Comience sincronizando la base de datos de referencia ClinVar (pestaña Referencia ClinVar). Use Solo P/LP para una semilla rápida o Sincronización completa para las 4.4M variantes.",
+    "Cargue archivos VCF o MAF mediante Cargar variantes. Los archivos menores de 10 MB se analizan al instante; los más grandes se envían a cola.",
+    "Después de la carga, haga clic en el icono de destello en cada fila de carga para anotar variantes con significancia clínica ClinVar, símbolos de genes y asociaciones con enfermedades.",
+    "Entre en una carga para ver su tabla de detalle de variantes. Use Emparejar personas para vincular muestras genómicas con registros OMOP person, luego Importar a OMOP para escribir variantes en la tabla MEASUREMENT.",
+    "Una vez anotadas las variantes, aparece la sección Genes más mutados en la página principal, mostrando los genes mutados con mayor frecuencia en todas las cargas.",
+    "Use la Suite de análisis para analítica poblacional: Mutación-Supervivencia (curvas Kaplan-Meier), Matriz Tratamiento-Variante (respuesta a fármacos por gen) y Caracterización genómica (waterfall de genes, tipos de variantes, carga mutacional).",
+    "El Tumor Board proporciona un panel de evidencia molecular a nivel de paciente para apoyo a decisiones clínicas.",
+    "Las variantes patogénicas y probablemente patogénicas se marcan automáticamente. Las de significancia incierta y variantes conflictivas se marcan para revisión."
+  ]
+}

@@ -1,4 +1,6 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { formatNumber } from "@/i18n/format";
 import { useDiversity, useAgePyramid, useDapCheck, usePooledDemographics, useDiversityTrends } from "../../../hooks/useNetworkData";
 import type { DiversitySource } from "../../../types/ares";
 import AgePyramid from "./AgePyramid";
@@ -17,15 +19,21 @@ const RATING_COLORS: Record<string, { bg: string; text: string; border: string }
 };
 
 function RatingCard({ source }: { source: DiversitySource }) {
+  const { t } = useTranslation("app");
   const colors = RATING_COLORS[source.diversity_rating] ?? RATING_COLORS.low;
   return (
     <div className={`rounded-lg border ${colors.border} ${colors.bg} p-3`}>
-      <p className={`text-xl font-semibold ${colors.text}`}>{source.simpson_index.toFixed(2)}</p>
+      <p className={`text-xl font-semibold ${colors.text}`}>
+        {formatNumber(source.simpson_index, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
+      </p>
       <p className="mt-0.5 truncate text-xs text-text-muted" title={source.source_name}>
         {source.source_name}
       </p>
       <p className={`mt-0.5 text-[10px] font-medium uppercase ${colors.text}`}>
-        {source.diversity_rating.replace("_", " ")}
+        {t(`dataExplorer.ares.diversity.ratings.${source.diversity_rating}`)}
       </p>
     </div>
   );
@@ -37,12 +45,15 @@ const DEMO_COLORS = [
 ];
 
 function DemographicBars({ label, data }: { label: string; data: Record<string, number> }) {
+  const { t } = useTranslation("app");
   const entries = Object.entries(data);
   if (entries.length === 0) {
     return (
       <div className="mb-2">
         <p className="mb-1 text-[11px] uppercase text-text-ghost">{label}</p>
-        <p className="text-xs text-text-ghost">No data</p>
+        <p className="text-xs text-text-ghost">
+          {t("dataExplorer.ares.diversity.messages.noData")}
+        </p>
       </div>
     );
   }
@@ -61,7 +72,7 @@ function DemographicBars({ label, data }: { label: string; data: Record<string, 
             }}
             title={`${name}: ${pct}%`}
           >
-            {pct >= 8 ? `${pct}%` : ""}
+            {pct >= 8 ? t("dataExplorer.ares.diversity.percentValue", { value: formatNumber(pct) }) : ""}
           </div>
         ))}
       </div>
@@ -72,7 +83,10 @@ function DemographicBars({ label, data }: { label: string; data: Record<string, 
               className="mr-1 inline-block h-2 w-2 rounded-full"
               style={{ backgroundColor: DEMO_COLORS[i % DEMO_COLORS.length] }}
             />
-            {name}: {pct}%
+            {t("dataExplorer.ares.diversity.labelPercentValue", {
+              label: name,
+              value: formatNumber(pct),
+            })}
           </span>
         ))}
       </div>
@@ -91,6 +105,7 @@ const DEFAULT_DAP_TARGETS: Record<string, number> = {
 };
 
 export default function DiversityView() {
+  const { t } = useTranslation("app");
   const [activeTab, setActiveTab] = useState<DiversityTab>("overview");
   const [pyramidSourceId, setPyramidSourceId] = useState<number | null>(null);
   const [pooledSourceIds, setPooledSourceIds] = useState<number[]>([]);
@@ -108,27 +123,37 @@ export default function DiversityView() {
   );
 
   if (isLoading) {
-    return <div className="p-4 text-text-ghost">Loading diversity data...</div>;
+    return (
+      <div className="p-4 text-text-ghost">
+        {t("dataExplorer.ares.diversity.messages.loading")}
+      </div>
+    );
   }
 
   if (!diversity || diversity.length === 0) {
-    return <div className="p-4 text-center text-text-ghost">No sources available for diversity analysis.</div>;
+    return (
+      <div className="p-4 text-center text-text-ghost">
+        {t("dataExplorer.ares.diversity.messages.noSources")}
+      </div>
+    );
   }
 
   const tabs: Array<{ key: DiversityTab; label: string }> = [
-    { key: "overview", label: "Overview" },
-    { key: "pyramid", label: "Age Pyramid" },
-    { key: "dap", label: "DAP Gap" },
-    { key: "pooled", label: "Pooled" },
-    { key: "geographic", label: "Geographic" },
-    { key: "trends", label: "Trends" },
+    { key: "overview", label: t("dataExplorer.ares.diversity.tabs.overview") },
+    { key: "pyramid", label: t("dataExplorer.ares.diversity.tabs.pyramid") },
+    { key: "dap", label: t("dataExplorer.ares.diversity.tabs.dap") },
+    { key: "pooled", label: t("dataExplorer.ares.diversity.tabs.pooled") },
+    { key: "geographic", label: t("dataExplorer.ares.diversity.tabs.geographic") },
+    { key: "trends", label: t("dataExplorer.ares.diversity.tabs.trends") },
   ];
 
   return (
     <div className="p-4">
-      <h2 className="mb-4 text-lg font-medium text-text-primary">Diversity Report</h2>
+      <h2 className="mb-4 text-lg font-medium text-text-primary">
+        {t("dataExplorer.ares.diversity.title")}
+      </h2>
       <p className="mb-4 text-xs text-text-ghost">
-        Demographic proportions across data sources. Sources sorted by population size.
+        {t("dataExplorer.ares.diversity.description")}
       </p>
 
       {/* Tab bar */}
@@ -163,15 +188,19 @@ export default function DiversityView() {
             <div key={source.source_id} className="rounded-lg border border-border-subtle bg-surface-raised p-4">
               <div className="mb-3 flex items-center justify-between">
                 <h3 className="text-sm font-medium text-text-primary">{source.source_name}</h3>
-                <span className="text-xs text-text-muted">{source.person_count.toLocaleString()} persons</span>
+                <span className="text-xs text-text-muted">
+                  {t("dataExplorer.ares.diversity.personCount", {
+                    value: formatNumber(source.person_count),
+                  })}
+                </span>
               </div>
-              <DemographicBars label="Gender" data={source.gender} />
-              <DemographicBars label="Race" data={source.race} />
-              <DemographicBars label="Ethnicity" data={source.ethnicity} />
+              <DemographicBars label={t("dataExplorer.ares.diversity.labels.gender")} data={source.gender} />
+              <DemographicBars label={t("dataExplorer.ares.diversity.labels.race")} data={source.race} />
+              <DemographicBars label={t("dataExplorer.ares.diversity.labels.ethnicity")} data={source.ethnicity} />
               {/* Benchmark overlay for race */}
               {Object.keys(source.race).length > 0 && (
                 <BenchmarkOverlay
-                  label="US Census 2020"
+                  label={t("dataExplorer.ares.diversity.benchmarks.usCensus2020")}
                   benchmarks={{ White: 57.8, "Black or African American": 12.4, Asian: 5.9 }}
                   actual={source.race}
                 />
@@ -188,7 +217,9 @@ export default function DiversityView() {
             onChange={(e) => setPyramidSourceId(e.target.value ? Number(e.target.value) : null)}
             className="rounded-lg border border-border-subtle bg-surface-raised px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
           >
-            <option value="">Select a source</option>
+            <option value="">
+              {t("dataExplorer.ares.diversity.filters.selectSource")}
+            </option>
             {diversity.map((s) => (
               <option key={s.source_id} value={s.source_id}>{s.source_name}</option>
             ))}
@@ -205,9 +236,11 @@ export default function DiversityView() {
       {activeTab === "dap" && (
         <div className="space-y-4">
           <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
-            <h3 className="mb-2 text-sm font-medium text-text-primary">FDA DAP Enrollment Gap Analysis</h3>
+            <h3 className="mb-2 text-sm font-medium text-text-primary">
+              {t("dataExplorer.ares.diversity.dap.title")}
+            </h3>
             <p className="mb-3 text-xs text-text-ghost">
-              Compares source demographics against US Census 2020 benchmarks to identify enrollment gaps.
+              {t("dataExplorer.ares.diversity.dap.description")}
             </p>
             {dapData && <DapGapMatrix data={dapData} />}
           </div>
@@ -217,9 +250,11 @@ export default function DiversityView() {
       {activeTab === "pooled" && (
         <div className="space-y-4">
           <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
-            <h3 className="mb-2 text-sm font-medium text-text-primary">Pooled Demographics</h3>
+            <h3 className="mb-2 text-sm font-medium text-text-primary">
+              {t("dataExplorer.ares.diversity.pooled.title")}
+            </h3>
             <p className="mb-3 text-xs text-text-ghost">
-              Select multiple sources to see weighted-merged demographic profiles.
+              {t("dataExplorer.ares.diversity.pooled.description")}
             </p>
             <div className="mb-3 flex flex-wrap gap-2">
               {diversity.map((s) => {
@@ -249,11 +284,14 @@ export default function DiversityView() {
             {pooledData && (
               <div>
                 <p className="mb-2 text-xs text-text-muted">
-                  Total: {pooledData.total_persons.toLocaleString()} persons across {pooledSourceIds.length} sources
+                  {t("dataExplorer.ares.diversity.pooled.summary", {
+                    persons: formatNumber(pooledData.total_persons),
+                    sources: formatNumber(pooledSourceIds.length),
+                  })}
                 </p>
-                <DemographicBars label="Gender" data={pooledData.gender} />
-                <DemographicBars label="Race" data={pooledData.race} />
-                <DemographicBars label="Ethnicity" data={pooledData.ethnicity} />
+                <DemographicBars label={t("dataExplorer.ares.diversity.labels.gender")} data={pooledData.gender} />
+                <DemographicBars label={t("dataExplorer.ares.diversity.labels.race")} data={pooledData.race} />
+                <DemographicBars label={t("dataExplorer.ares.diversity.labels.ethnicity")} data={pooledData.ethnicity} />
               </div>
             )}
           </div>
@@ -269,7 +307,9 @@ export default function DiversityView() {
             onChange={(e) => setTrendsSourceId(e.target.value ? Number(e.target.value) : null)}
             className="rounded-lg border border-border-subtle bg-surface-raised px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
           >
-            <option value="">Select a source</option>
+            <option value="">
+              {t("dataExplorer.ares.diversity.filters.selectSource")}
+            </option>
             {diversity.map((s) => (
               <option key={s.source_id} value={s.source_id}>{s.source_name}</option>
             ))}
@@ -282,7 +322,9 @@ export default function DiversityView() {
           )}
           {trendsSourceId && trendsData && trendsData.releases.length === 0 && (
             <div className="rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-12 text-center">
-              <p className="text-sm text-text-ghost">No releases found for this source. Create releases to track diversity trends.</p>
+              <p className="text-sm text-text-ghost">
+                {t("dataExplorer.ares.diversity.messages.noTrendReleases")}
+              </p>
             </div>
           )}
         </div>

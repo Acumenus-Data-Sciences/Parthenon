@@ -12,15 +12,15 @@
         "parent": null,
         "release": "df14",
         "coverage": {
-            "pct": 0.3333333333333333,
-            "bucket": "SPARSE",
-            "n_tokens_total": 6,
-            "n_tokens_resolved": 2
+            "pct": 0.75,
+            "bucket": "PARTIAL",
+            "n_tokens_total": 4,
+            "n_tokens_resolved": 3
         },
         "conditions": "RX_HER2PLUS",
         "provenance": {
             "source_row": 559,
-            "imported_at": "2026-04-17T00:17:18+00:00",
+            "imported_at": "2026-04-17T19:56:40+00:00",
             "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
             "importer_version": "1.0.0"
         },
@@ -110,8 +110,9 @@
         },
         "spec_version": "1.0",
         "pre_conditions": null,
-        "coverage_bucket": "SPARSE",
+        "coverage_bucket": "PARTIAL",
         "sex_restriction": 2,
+        "coverage_profile": "partial",
         "include_endpoints": [],
         "resolved_concepts": {
             "truncated": false,
@@ -234,7 +235,7 @@
     "is_public": true,
     "version": 1,
     "created_at": "2026-04-16T23:55:53.000000Z",
-    "updated_at": "2026-04-17T00:17:18.000000Z",
+    "updated_at": "2026-04-17T19:56:40.000000Z",
     "deleted_at": null,
     "tags": [
         "finngen-endpoint",
@@ -247,5 +248,6 @@
     "domain": "finngen-endpoint",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null
+    "superseded_by": null,
+    "coverage_profile": "partial"
 }

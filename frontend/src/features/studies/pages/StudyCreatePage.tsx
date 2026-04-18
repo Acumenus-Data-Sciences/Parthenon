@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -31,51 +32,51 @@ import type { StudyCreatePayload } from "../types/study";
 // ---------------------------------------------------------------------------
 
 const STEPS = [
-  { key: "basics", label: "Basics", icon: Briefcase },
-  { key: "science", label: "Scientific Design", icon: FlaskConical },
-  { key: "team", label: "Team & Timeline", icon: Users },
-  { key: "review", label: "Review & Create", icon: ClipboardCheck },
+  { key: "basics", labelKey: "basics", icon: Briefcase },
+  { key: "science", labelKey: "science", icon: FlaskConical },
+  { key: "team", labelKey: "team", icon: Users },
+  { key: "review", labelKey: "review", icon: ClipboardCheck },
 ] as const;
 
 const STUDY_TYPES = [
-  { value: "characterization", label: "Characterization", icon: BarChart3, color: "var(--success)", desc: "Describe patient populations and treatment patterns" },
-  { value: "population_level_estimation", label: "Population-Level Estimation", icon: Scale, color: "var(--info)", desc: "Estimate causal effects using observational data" },
-  { value: "patient_level_prediction", label: "Patient-Level Prediction", icon: Brain, color: "var(--domain-observation)", desc: "Predict individual patient outcomes" },
-  { value: "comparative_effectiveness", label: "Comparative Effectiveness", icon: FlaskConical, color: "var(--warning)", desc: "Compare treatments in real-world settings" },
-  { value: "safety_surveillance", label: "Safety Surveillance", icon: Shield, color: "var(--critical)", desc: "Monitor drug safety signals post-market" },
-  { value: "drug_utilization", label: "Drug Utilization", icon: Pill, color: "var(--success)", desc: "Analyze medication use patterns and trends" },
-  { value: "quality_improvement", label: "Quality Improvement", icon: Activity, color: "var(--domain-device)", desc: "Assess care quality and guideline adherence" },
-  { value: "custom", label: "Custom", icon: Wrench, color: "var(--text-muted)", desc: "Define a custom study type" },
-];
+  { value: "characterization", resourceKey: "characterization", icon: BarChart3, color: "var(--success)" },
+  { value: "population_level_estimation", resourceKey: "populationLevelEstimation", icon: Scale, color: "var(--info)" },
+  { value: "patient_level_prediction", resourceKey: "patientLevelPrediction", icon: Brain, color: "var(--domain-observation)" },
+  { value: "comparative_effectiveness", resourceKey: "comparativeEffectiveness", icon: FlaskConical, color: "var(--warning)" },
+  { value: "safety_surveillance", resourceKey: "safetySurveillance", icon: Shield, color: "var(--critical)" },
+  { value: "drug_utilization", resourceKey: "drugUtilization", icon: Pill, color: "var(--success)" },
+  { value: "quality_improvement", resourceKey: "qualityImprovement", icon: Activity, color: "var(--domain-device)" },
+  { value: "custom", resourceKey: "custom", icon: Wrench, color: "var(--text-muted)" },
+] as const;
 
 const STUDY_DESIGNS = [
-  { value: "", label: "Select design..." },
-  { value: "retrospective_cohort", label: "Retrospective Cohort" },
-  { value: "prospective_cohort", label: "Prospective Cohort" },
-  { value: "case_control", label: "Case-Control" },
-  { value: "cross_sectional", label: "Cross-Sectional" },
-  { value: "self_controlled", label: "Self-Controlled Case Series" },
-  { value: "nested_case_control", label: "Nested Case-Control" },
-  { value: "meta_analysis", label: "Meta-Analysis" },
-  { value: "network_study", label: "Network Study" },
-  { value: "methodological", label: "Methodological" },
-];
+  { value: "", labelKey: "select" },
+  { value: "retrospective_cohort", labelKey: "retrospectiveCohort" },
+  { value: "prospective_cohort", labelKey: "prospectiveCohort" },
+  { value: "case_control", labelKey: "caseControl" },
+  { value: "cross_sectional", labelKey: "crossSectional" },
+  { value: "self_controlled", labelKey: "selfControlled" },
+  { value: "nested_case_control", labelKey: "nestedCaseControl" },
+  { value: "meta_analysis", labelKey: "metaAnalysis" },
+  { value: "network_study", labelKey: "networkStudy" },
+  { value: "methodological", labelKey: "methodological" },
+] as const;
 
 const PHASES = [
-  { value: "", label: "Select phase..." },
-  { value: "I", label: "Phase I" },
-  { value: "II", label: "Phase II" },
-  { value: "III", label: "Phase III" },
-  { value: "IV", label: "Phase IV" },
-  { value: "not_applicable", label: "Not Applicable" },
-];
+  { value: "", labelKey: "select" },
+  { value: "I", labelKey: "phaseI" },
+  { value: "II", labelKey: "phaseII" },
+  { value: "III", labelKey: "phaseIII" },
+  { value: "IV", labelKey: "phaseIV" },
+  { value: "not_applicable", labelKey: "notApplicable" },
+] as const;
 
 const PRIORITIES = [
-  { value: "low", label: "Low", color: "var(--text-muted)" },
-  { value: "medium", label: "Medium", color: "var(--info)" },
-  { value: "high", label: "High", color: "var(--warning)" },
-  { value: "critical", label: "Critical", color: "var(--critical)" },
-];
+  { value: "low", color: "var(--text-muted)" },
+  { value: "medium", color: "var(--info)" },
+  { value: "high", color: "var(--warning)" },
+  { value: "critical", color: "var(--critical)" },
+] as const;
 
 // ---------------------------------------------------------------------------
 // Component
@@ -83,8 +84,20 @@ const PRIORITIES = [
 
 export default function StudyCreatePage() {
   const navigate = useNavigate();
+  const { t } = useTranslation("app");
   const createMutation = useCreateStudy();
   const [step, setStep] = useState(0);
+
+  const studyTypeLabel = (resourceKey: string) =>
+    t(`studies.create.studyTypes.${resourceKey}.label`);
+  const studyTypeDescription = (resourceKey: string) =>
+    t(`studies.create.studyTypes.${resourceKey}.description`);
+  const studyDesignLabel = (labelKey: string) =>
+    t(`studies.create.designs.${labelKey}`);
+  const phaseLabel = (labelKey: string) =>
+    t(`studies.create.phases.${labelKey}`);
+  const priorityLabel = (value: string) =>
+    t(`studies.priorities.${value}`);
 
   // Step 1: Basics
   const [title, setTitle] = useState("");
@@ -117,7 +130,7 @@ export default function StudyCreatePage() {
 
   // ---------------------------------------------------------------------------
   const dateError = startDate && endDate && endDate < startDate
-    ? "End date must be after start date"
+    ? t("studies.create.team.endDateAfterStart")
     : "";
 
   const canNext = () => {
@@ -163,7 +176,7 @@ export default function StudyCreatePage() {
       }
       if (data.error) setAiError(data.error);
     } catch {
-      setAiError("AI service unavailable. Please fill in fields manually.");
+      setAiError(t("studies.create.science.aiUnavailable"));
     } finally {
       setAiLoading(false);
     }
@@ -205,7 +218,7 @@ export default function StudyCreatePage() {
     <div className="space-y-5">
       {/* Study Type Selection */}
       <div>
-        <label className="form-label">Study Type *</label>
+        <label className="form-label">{t("studies.create.basics.studyType")}</label>
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-2 mt-1">
           {STUDY_TYPES.map((st) => {
             const Icon = st.icon;
@@ -229,8 +242,12 @@ export default function StudyCreatePage() {
                   <Icon size={16} style={{ color: st.color }} />
                 </div>
                 <div className="min-w-0">
-                  <p className={cn("text-sm font-medium", selected ? "text-success" : "text-text-primary")}>{st.label}</p>
-                  <p className="text-[11px] text-text-ghost mt-0.5 line-clamp-2">{st.desc}</p>
+                  <p className={cn("text-sm font-medium", selected ? "text-success" : "text-text-primary")}>
+                    {studyTypeLabel(st.resourceKey)}
+                  </p>
+                  <p className="text-[11px] text-text-ghost mt-0.5 line-clamp-2">
+                    {studyTypeDescription(st.resourceKey)}
+                  </p>
                 </div>
               </button>
             );
@@ -240,12 +257,12 @@ export default function StudyCreatePage() {
 
       {/* Title */}
       <div>
-        <label className="form-label">Title *</label>
+        <label className="form-label">{t("studies.create.basics.title")}</label>
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="e.g., Effect of Statins on Cardiovascular Outcomes in T2DM"
+          placeholder={t("studies.create.basics.titlePlaceholder")}
           className="form-input"
         />
       </div>
@@ -253,17 +270,17 @@ export default function StudyCreatePage() {
       {/* Short Title + Priority */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="form-label">Short Title</label>
+          <label className="form-label">{t("studies.create.basics.shortTitle")}</label>
           <input
             type="text"
             value={shortTitle}
             onChange={(e) => setShortTitle(e.target.value)}
-            placeholder="e.g., LEGEND-T2DM"
+            placeholder={t("studies.create.basics.shortTitlePlaceholder")}
             className="form-input"
           />
         </div>
         <div>
-          <label className="form-label">Priority</label>
+          <label className="form-label">{t("studies.create.basics.priority")}</label>
           <div className="flex gap-2 mt-1">
             {PRIORITIES.map((p) => (
               <button
@@ -281,7 +298,7 @@ export default function StudyCreatePage() {
                   backgroundColor: priority === p.value ? `${p.color}10` : "transparent",
                 }}
               >
-                {p.label}
+                {priorityLabel(p.value)}
               </button>
             ))}
           </div>
@@ -290,25 +307,25 @@ export default function StudyCreatePage() {
 
       {/* Study Design */}
       <div>
-        <label className="form-label">Study Design</label>
+        <label className="form-label">{t("studies.create.basics.studyDesign")}</label>
         <select
           value={studyDesign}
           onChange={(e) => setStudyDesign(e.target.value)}
           className="form-input form-select"
         >
           {STUDY_DESIGNS.map((d) => (
-            <option key={d.value} value={d.value}>{d.label}</option>
+            <option key={d.value} value={d.value}>{studyDesignLabel(d.labelKey)}</option>
           ))}
         </select>
       </div>
 
       {/* Description */}
       <div>
-        <label className="form-label">Description</label>
+        <label className="form-label">{t("studies.create.basics.description")}</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Brief description of the study..."
+          placeholder={t("studies.create.basics.descriptionPlaceholder")}
           rows={3}
           className="form-input form-textarea"
         />
@@ -316,17 +333,24 @@ export default function StudyCreatePage() {
 
       {/* Tags */}
       <div>
-        <label className="form-label">Tags</label>
+        <label className="form-label">{t("studies.create.basics.tags")}</label>
         <div className="flex items-center gap-2">
           <input
             type="text"
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddTag(); } }}
-            placeholder="Add tag and press Enter..."
+            placeholder={t("studies.create.basics.tagsPlaceholder")}
             className="form-input flex-1"
           />
-          <button type="button" onClick={handleAddTag} className="btn btn-ghost btn-sm"><Plus size={14} /></button>
+          <button
+            type="button"
+            onClick={handleAddTag}
+            className="btn btn-ghost btn-sm"
+            aria-label={t("studies.create.basics.addTag")}
+          >
+            <Plus size={14} />
+          </button>
         </div>
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2">
@@ -351,7 +375,7 @@ export default function StudyCreatePage() {
         <div className="flex items-center gap-2">
           <Sparkles size={16} className="text-domain-observation" />
           <span className="text-sm text-text-secondary">
-            Let AI suggest scientific design fields based on your study title
+            {t("studies.create.science.aiPrompt")}
           </span>
         </div>
         <button
@@ -362,7 +386,9 @@ export default function StudyCreatePage() {
           style={{ backgroundColor: "color-mix(in srgb, var(--domain-observation) 12%, transparent)", color: "var(--domain-observation)", borderColor: "color-mix(in srgb, var(--domain-observation) 25%, transparent)" }}
         >
           {aiLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-          {aiLoading ? "Generating..." : "Generate with AI"}
+          {aiLoading
+            ? t("studies.create.science.generating")
+            : t("studies.create.science.generateWithAi")}
         </button>
       </div>
       {aiError && (
@@ -370,50 +396,57 @@ export default function StudyCreatePage() {
       )}
 
       <div>
-        <label className="form-label">Scientific Rationale</label>
+        <label className="form-label">{t("studies.create.science.rationale")}</label>
         <textarea
           value={rationale}
           onChange={(e) => setRationale(e.target.value)}
-          placeholder="Why is this study needed? What gap in knowledge does it address?"
+          placeholder={t("studies.create.science.rationalePlaceholder")}
           rows={3}
           className="form-input form-textarea"
         />
       </div>
 
       <div>
-        <label className="form-label">Hypothesis</label>
+        <label className="form-label">{t("studies.create.science.hypothesis")}</label>
         <textarea
           value={hypothesis}
           onChange={(e) => setHypothesis(e.target.value)}
-          placeholder="State the primary hypothesis being tested..."
+          placeholder={t("studies.create.science.hypothesisPlaceholder")}
           rows={2}
           className="form-input form-textarea"
         />
       </div>
 
       <div>
-        <label className="form-label">Primary Objective</label>
+        <label className="form-label">{t("studies.create.science.primaryObjective")}</label>
         <textarea
           value={primaryObjective}
           onChange={(e) => setPrimaryObjective(e.target.value)}
-          placeholder="What is the main objective of this study?"
+          placeholder={t("studies.create.science.primaryObjectivePlaceholder")}
           rows={2}
           className="form-input form-textarea"
         />
       </div>
 
       <div>
-        <label className="form-label">Secondary Objectives</label>
+        <label className="form-label">{t("studies.create.science.secondaryObjectives")}</label>
         <div className="flex items-center gap-2">
           <input
             type="text"
             value={secObjInput}
             onChange={(e) => setSecObjInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddSecObj(); } }}
-            placeholder="Add objective and press Enter..."
+            placeholder={t("studies.create.science.secondaryObjectivePlaceholder")}
             className="form-input flex-1"
           />
-          <button type="button" onClick={handleAddSecObj} className="btn btn-ghost btn-sm"><Plus size={14} /></button>
+          <button
+            type="button"
+            onClick={handleAddSecObj}
+            className="btn btn-ghost btn-sm"
+            aria-label={t("studies.create.science.addSecondaryObjective")}
+          >
+            <Plus size={14} />
+          </button>
         </div>
         {secondaryObjectives.length > 0 && (
           <ul className="mt-2 space-y-1">
@@ -435,12 +468,12 @@ export default function StudyCreatePage() {
       </div>
 
       <div>
-        <label className="form-label">Funding Source</label>
+        <label className="form-label">{t("studies.create.science.fundingSource")}</label>
         <input
           type="text"
           value={fundingSource}
           onChange={(e) => setFundingSource(e.target.value)}
-          placeholder="e.g., NIH R01, PCORI, Industry-sponsored"
+          placeholder={t("studies.create.science.fundingSourcePlaceholder")}
           className="form-input"
         />
       </div>
@@ -451,11 +484,11 @@ export default function StudyCreatePage() {
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="form-label">Study Start Date</label>
+          <label className="form-label">{t("studies.create.team.startDate")}</label>
           <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="form-input" />
         </div>
         <div>
-          <label className="form-label">Study End Date</label>
+          <label className="form-label">{t("studies.create.team.endDate")}</label>
           <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={cn("form-input", dateError && "border-critical")} />
           {dateError && <p className="text-xs text-critical mt-1">{dateError}</p>}
         </div>
@@ -463,40 +496,40 @@ export default function StudyCreatePage() {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="form-label">Target Enrollment Sites</label>
+          <label className="form-label">{t("studies.create.team.targetSites")}</label>
           <input
             type="number"
             value={targetSites}
             onChange={(e) => setTargetSites(e.target.value)}
-            placeholder="e.g., 10"
+            placeholder={t("studies.create.team.targetSitesPlaceholder")}
             min={0}
             className="form-input"
           />
         </div>
         <div>
-          <label className="form-label">Study Phase</label>
+          <label className="form-label">{t("studies.create.team.studyPhase")}</label>
           <select value={phase} onChange={(e) => setPhase(e.target.value)} className="form-input form-select">
             {PHASES.map((p) => (
-              <option key={p.value} value={p.value}>{p.label}</option>
+              <option key={p.value} value={p.value}>{phaseLabel(p.labelKey)}</option>
             ))}
           </select>
         </div>
       </div>
 
       <div>
-        <label className="form-label">ClinicalTrials.gov ID</label>
+        <label className="form-label">{t("studies.create.team.nctId")}</label>
         <input
           type="text"
           value={nctId}
           onChange={(e) => setNctId(e.target.value)}
-          placeholder="e.g., NCT12345678"
+          placeholder={t("studies.create.team.nctIdPlaceholder")}
           className="form-input"
         />
       </div>
 
       <div className="rounded-lg border border-border-default bg-surface-raised p-4">
         <p className="text-sm text-text-muted">
-          Team members, sites, and cohorts can be configured after the study is created from the study dashboard.
+          {t("studies.create.team.note")}
         </p>
       </div>
     </div>
@@ -504,39 +537,47 @@ export default function StudyCreatePage() {
 
   const renderReview = () => {
     const selectedType = STUDY_TYPES.find((t) => t.value === studyType);
+    const selectedDesign = STUDY_DESIGNS.find((d) => d.value === studyDesign);
+    const selectedPhase = PHASES.find((p) => p.value === phase);
     const TypeIcon = selectedType?.icon ?? Briefcase;
 
     return (
       <div className="space-y-4">
         {/* Basics */}
         <div className="panel">
-          <h4 className="text-sm font-semibold text-text-secondary mb-3">Basics</h4>
+          <h4 className="text-sm font-semibold text-text-secondary mb-3">
+            {t("studies.create.review.basics")}
+          </h4>
           <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
             <div>
-              <span className="text-text-ghost">Title:</span>
+              <span className="text-text-ghost">{t("studies.create.review.labels.title")}</span>
               <p className="text-text-primary font-medium">{title}</p>
             </div>
             {shortTitle && (
               <div>
-                <span className="text-text-ghost">Short Title:</span>
+                <span className="text-text-ghost">{t("studies.create.review.labels.shortTitle")}</span>
                 <p className="text-text-primary">{shortTitle}</p>
               </div>
             )}
             <div className="flex items-center gap-2">
-              <span className="text-text-ghost">Type:</span>
+              <span className="text-text-ghost">{t("studies.create.review.labels.type")}</span>
               <div className="flex items-center gap-1.5">
                 <TypeIcon size={14} style={{ color: selectedType?.color }} />
-                <span className="text-text-primary">{selectedType?.label}</span>
+                <span className="text-text-primary">
+                  {selectedType ? studyTypeLabel(selectedType.resourceKey) : null}
+                </span>
               </div>
             </div>
             <div>
-              <span className="text-text-ghost">Priority:</span>
-              <span className="ml-1 text-text-primary capitalize">{priority}</span>
+              <span className="text-text-ghost">{t("studies.create.review.labels.priority")}</span>
+              <span className="ml-1 text-text-primary">{priorityLabel(priority)}</span>
             </div>
             {studyDesign && (
               <div>
-                <span className="text-text-ghost">Design:</span>
-                <span className="ml-1 text-text-primary">{STUDY_DESIGNS.find((d) => d.value === studyDesign)?.label}</span>
+                <span className="text-text-ghost">{t("studies.create.review.labels.design")}</span>
+                <span className="ml-1 text-text-primary">
+                  {selectedDesign ? studyDesignLabel(selectedDesign.labelKey) : null}
+                </span>
               </div>
             )}
           </div>
@@ -553,14 +594,16 @@ export default function StudyCreatePage() {
         {/* Science */}
         {(rationale || hypothesis || primaryObjective || secondaryObjectives.length > 0) && (
           <div className="panel">
-            <h4 className="text-sm font-semibold text-text-secondary mb-3">Scientific Design</h4>
+            <h4 className="text-sm font-semibold text-text-secondary mb-3">
+              {t("studies.create.review.scientificDesign")}
+            </h4>
             <div className="space-y-2 text-sm">
-              {rationale && <div><span className="text-text-ghost">Rationale:</span><p className="text-text-secondary mt-0.5">{rationale}</p></div>}
-              {hypothesis && <div><span className="text-text-ghost">Hypothesis:</span><p className="text-text-secondary mt-0.5">{hypothesis}</p></div>}
-              {primaryObjective && <div><span className="text-text-ghost">Primary Objective:</span><p className="text-text-secondary mt-0.5">{primaryObjective}</p></div>}
+              {rationale && <div><span className="text-text-ghost">{t("studies.create.review.labels.rationale")}</span><p className="text-text-secondary mt-0.5">{rationale}</p></div>}
+              {hypothesis && <div><span className="text-text-ghost">{t("studies.create.review.labels.hypothesis")}</span><p className="text-text-secondary mt-0.5">{hypothesis}</p></div>}
+              {primaryObjective && <div><span className="text-text-ghost">{t("studies.create.review.labels.primaryObjective")}</span><p className="text-text-secondary mt-0.5">{primaryObjective}</p></div>}
               {secondaryObjectives.length > 0 && (
                 <div>
-                  <span className="text-text-ghost">Secondary Objectives:</span>
+                  <span className="text-text-ghost">{t("studies.create.review.labels.secondaryObjectives")}</span>
                   <ul className="mt-1 space-y-0.5">
                     {secondaryObjectives.map((o, i) => <li key={i} className="text-text-secondary">{i + 1}. {o}</li>)}
                   </ul>
@@ -573,14 +616,23 @@ export default function StudyCreatePage() {
         {/* Timeline */}
         {(startDate || endDate || targetSites || phase || nctId) && (
           <div className="panel">
-            <h4 className="text-sm font-semibold text-text-secondary mb-3">Timeline & Registration</h4>
+            <h4 className="text-sm font-semibold text-text-secondary mb-3">
+              {t("studies.create.review.timelineRegistration")}
+            </h4>
             <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-              {startDate && <div><span className="text-text-ghost">Start:</span><span className="ml-1 text-text-primary">{startDate}</span></div>}
-              {endDate && <div><span className="text-text-ghost">End:</span><span className="ml-1 text-text-primary">{endDate}</span></div>}
-              {targetSites && <div><span className="text-text-ghost">Target Sites:</span><span className="ml-1 text-text-primary">{targetSites}</span></div>}
-              {phase && <div><span className="text-text-ghost">Phase:</span><span className="ml-1 text-text-primary">{PHASES.find((p) => p.value === phase)?.label}</span></div>}
-              {nctId && <div><span className="text-text-ghost">NCT ID:</span><span className="ml-1 text-text-primary">{nctId}</span></div>}
-              {fundingSource && <div><span className="text-text-ghost">Funding:</span><span className="ml-1 text-text-primary">{fundingSource}</span></div>}
+              {startDate && <div><span className="text-text-ghost">{t("studies.create.review.labels.start")}</span><span className="ml-1 text-text-primary">{startDate}</span></div>}
+              {endDate && <div><span className="text-text-ghost">{t("studies.create.review.labels.end")}</span><span className="ml-1 text-text-primary">{endDate}</span></div>}
+              {targetSites && <div><span className="text-text-ghost">{t("studies.create.review.labels.targetSites")}</span><span className="ml-1 text-text-primary">{targetSites}</span></div>}
+              {phase && (
+                <div>
+                  <span className="text-text-ghost">{t("studies.create.review.labels.phase")}</span>
+                  <span className="ml-1 text-text-primary">
+                    {selectedPhase ? phaseLabel(selectedPhase.labelKey) : null}
+                  </span>
+                </div>
+              )}
+              {nctId && <div><span className="text-text-ghost">{t("studies.create.review.labels.nctId")}</span><span className="ml-1 text-text-primary">{nctId}</span></div>}
+              {fundingSource && <div><span className="text-text-ghost">{t("studies.create.review.labels.funding")}</span><span className="ml-1 text-text-primary">{fundingSource}</span></div>}
             </div>
           </div>
         )}
@@ -594,13 +646,13 @@ export default function StudyCreatePage() {
       {/* Header */}
       <div>
         <button type="button" onClick={() => navigate("/studies")} className="btn btn-ghost btn-sm mb-3">
-          <ArrowLeft size={14} /> Studies
+          <ArrowLeft size={14} /> {t("studies.create.backToStudies")}
         </button>
         <div className="flex items-center gap-2">
-          <h1 className="page-title">Create Study</h1>
+          <h1 className="page-title">{t("studies.create.title")}</h1>
           <HelpButton helpKey="studies" />
         </div>
-        <p className="page-subtitle">Configure your research study step by step</p>
+        <p className="page-subtitle">{t("studies.create.subtitle")}</p>
       </div>
 
       {/* Step Indicator */}
@@ -629,7 +681,7 @@ export default function StudyCreatePage() {
                 )}>
                   {isDone ? <Check size={12} /> : i + 1}
                 </div>
-                <span className="hidden sm:inline">{s.label}</span>
+                <span className="hidden sm:inline">{t(`studies.create.steps.${s.labelKey}`)}</span>
               </button>
               {i < STEPS.length - 1 && (
                 <div className={cn("h-px w-4 shrink-0 mx-1", i < step ? "bg-success/30" : "bg-surface-elevated")} />
@@ -642,7 +694,7 @@ export default function StudyCreatePage() {
       {/* Step Content */}
       <div className="panel">
         <h3 className="text-base font-semibold text-text-primary mb-4">
-          {STEPS[step].label}
+          {t(`studies.create.steps.${STEPS[step].labelKey}`)}
         </h3>
         {step === 0 && renderBasics()}
         {step === 1 && renderScience()}
@@ -658,7 +710,7 @@ export default function StudyCreatePage() {
           disabled={step === 0}
           className="btn btn-ghost"
         >
-          <ArrowLeft size={14} /> Previous
+          <ArrowLeft size={14} /> {t("studies.create.previous")}
         </button>
 
         <div className="flex gap-2">
@@ -669,7 +721,7 @@ export default function StudyCreatePage() {
               disabled={!canNext()}
               className="btn btn-primary"
             >
-              Next <ArrowRight size={14} />
+              {t("studies.create.next")} <ArrowRight size={14} />
             </button>
           ) : (
             <>
@@ -680,7 +732,7 @@ export default function StudyCreatePage() {
                 className="btn btn-primary"
               >
                 {createMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-                Create as Draft
+                {t("studies.create.createAsDraft")}
               </button>
             </>
           )}

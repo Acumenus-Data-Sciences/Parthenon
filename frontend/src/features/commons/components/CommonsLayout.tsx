@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Megaphone, BookOpen, Sparkles, Hash, Users, Phone, Video } from "lucide-react";
 import { toast } from "@/components/ui/Toast";
 import { useChannels, useChannel, useMessages, useSendMessage, useMarkRead, useMembers, useUploadAttachment, useActiveCall, useStartCall, useEndCall } from "../api";
@@ -22,6 +23,7 @@ import { CommonsCallModal } from "./calls/CommonsCallModal";
 import { WhatsNewModal } from "@/features/help";
 
 export function CommonsLayout() {
+  const { t } = useTranslation("commons");
   const { slug } = useParams<{ slug?: string }>();
   const navigate = useNavigate();
   const activeSlug = slug ?? "general";
@@ -102,7 +104,7 @@ export function CommonsLayout() {
           setCallModalOpen(true);
         },
         onError: () => {
-          toast.error("Unable to start LiveKit call");
+          toast.error(t("call.startFailed"));
         },
       },
     );
@@ -121,7 +123,7 @@ export function CommonsLayout() {
           setCallModalOpen(false);
         },
         onError: () => {
-          toast.error("Unable to end LiveKit call");
+          toast.error(t("call.endFailed"));
         },
       },
     );
@@ -132,12 +134,16 @@ export function CommonsLayout() {
       {/* Left sidebar */}
       <div className="flex w-64 shrink-0 flex-col overflow-hidden rounded-2xl border border-border-default bg-surface-raised">
         <div className="flex shrink-0 items-center justify-between border-b border-white/[0.06] px-4 py-3.5">
-          <h1 className="text-[15px] font-semibold tracking-tight text-foreground">Commons</h1>
+          <h1 className="text-[15px] font-semibold tracking-tight text-foreground">
+            {t("page.title")}
+          </h1>
           <NotificationBell />
         </div>
         <div className="flex-1 overflow-y-auto">
           {channelsLoading ? (
-            <p className="px-4 text-sm text-muted-foreground">Loading...</p>
+            <p className="px-4 text-sm text-muted-foreground">
+              {t("page.loading")}
+            </p>
           ) : (
             <ChannelList channels={channels} activeSlug={activeSlug} />
           )}
@@ -146,7 +152,7 @@ export function CommonsLayout() {
             className="mx-2 mt-2 flex w-[calc(100%-16px)] items-center gap-2 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/[0.03] hover:text-foreground"
           >
             <Sparkles className="h-3.5 w-3.5" />
-            What's New
+            {t("page.whatsNew")}
           </button>
           <button
             onClick={() => setView(view === "announcements" ? "chat" : "announcements")}
@@ -157,7 +163,7 @@ export function CommonsLayout() {
             }`}
           >
             <Megaphone className="h-3.5 w-3.5" />
-            Announcements
+            {t("page.announcements")}
           </button>
           <button
             onClick={() => setView(view === "wiki" ? "chat" : "wiki")}
@@ -168,7 +174,7 @@ export function CommonsLayout() {
             }`}
           >
             <BookOpen className="h-3.5 w-3.5" />
-            Knowledge Base
+            {t("page.knowledgeBase")}
           </button>
         </div>
         <OnlineUsers users={onlineUsers} />
@@ -193,7 +199,7 @@ export function CommonsLayout() {
                     </span>
                     <div className="min-w-0">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/80">
-                        Commons Channel
+                        {t("channel.label")}
                       </p>
                       <h2 className="truncate text-[18px] font-semibold tracking-tight text-foreground">
                         # {channel?.name ?? activeSlug}
@@ -201,19 +207,23 @@ export function CommonsLayout() {
                     </div>
                   </div>
                   <p className="mt-2 max-w-3xl text-[12px] leading-6 text-muted-foreground">
-                    {channel?.description || "Discuss ideas, share files, and collaborate with the rest of the Commons."}
+                    {channel?.description || t("channel.fallbackDescription")}
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <div className="flex items-center gap-3 rounded-xl border border-border-default bg-surface-raised px-4 py-2">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Members</span>
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                        {t("channel.members")}
+                      </span>
                       <span className="text-sm font-semibold text-foreground">{members.length}</span>
                     </div>
                     <div className="h-4 w-px bg-white/[0.08]" />
                     <div className="flex items-center gap-1.5">
                       <Users className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Active</span>
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                        {t("channel.active")}
+                      </span>
                       <span className="text-sm font-semibold text-foreground">{activePresenceCount}</span>
                     </div>
                   </div>
@@ -225,7 +235,7 @@ export function CommonsLayout() {
                       className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
                     >
                       <Video className="h-4 w-4" />
-                      {startCall.isPending ? "Starting..." : "Start call"}
+                      {startCall.isPending ? t("call.starting") : t("call.start")}
                     </button>
                   ) : (
                     <div className="flex items-center gap-2">
@@ -235,7 +245,7 @@ export function CommonsLayout() {
                         className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-emerald-400"
                       >
                         <Phone className="h-4 w-4" />
-                        Join call
+                        {t("call.join")}
                       </button>
                       <button
                         type="button"
@@ -243,7 +253,7 @@ export function CommonsLayout() {
                         disabled={endCall.isPending}
                         className="rounded-xl border border-white/[0.08] px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/[0.04] hover:text-foreground disabled:opacity-50"
                       >
-                        {endCall.isPending ? "Ending..." : "End"}
+                        {endCall.isPending ? t("call.ending") : t("call.end")}
                       </button>
                     </div>
                   )}

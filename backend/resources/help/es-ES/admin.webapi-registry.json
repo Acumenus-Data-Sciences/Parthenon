@@ -1,0 +1,15 @@
+{
+  "key": "admin.webapi-registry",
+  "title": "Registro WebAPI",
+  "description": "Gestione conexiones a instancias heredadas de OHDSI WebAPI para migración de fuentes y compatibilidad hacia atrás. Puede registrar múltiples endpoints WebAPI, configurar autenticación y sincronizar fuentes de datos desde WebAPI remoto hacia Parthenon.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Haga clic en Agregar registro para conectar una instancia heredada de OHDSI WebAPI proporcionando su nombre y URL base (por ejemplo, https://webapi.example.com/WebAPI).",
+    "Se admiten tres tipos de autenticación: Ninguna, Basic Auth (user:pass) y Bearer Token. Elija el método que requiera su instancia WebAPI.",
+    "Use el botón Sincronizar fuentes para importar fuentes de datos desde un WebAPI registrado hacia Parthenon. Los resultados de sincronización muestran cuántas fuentes se importaron y cuántas se omitieron.",
+    "Cada tarjeta de registro muestra su estado activo/inactivo, tipo de autenticación y marca de tiempo de la última sincronización exitosa.",
+    "Puede eliminar un registro en cualquier momento, pero esto solo elimina la configuración de conexión, no las fuentes que ya se importaron.",
+    "Los resultados de sincronización del registro incluyen detalles de estado por fuente para ver exactamente qué fuentes se importaron y cuáles se omitieron o fallaron."
+  ]
+}

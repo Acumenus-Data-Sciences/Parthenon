@@ -8,5 +8,7 @@ return [
     'password_changed' => 'تم تغيير كلمة المرور بنجاح',
     'temporary_password_sent' => 'إذا كان هناك حساب بهذا البريد الإلكتروني، فقد تم إرسال كلمة مرور مؤقتة جديدة.',
     'logged_out' => 'تم تسجيل الخروج',
+    'unauthenticated' => 'المصادقة مطلوبة',
+    'forbidden' => 'ليست لديك صلاحية لتنفيذ هذا الإجراء',
     'oidc_authentik_label' => 'تسجيل الدخول باستخدام Authentik',
 ];

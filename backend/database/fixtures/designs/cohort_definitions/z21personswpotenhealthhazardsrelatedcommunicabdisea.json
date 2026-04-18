@@ -19,7 +19,7 @@
         "conditions": null,
         "provenance": {
             "source_row": 3746,
-            "imported_at": "2026-04-17T00:17:49+00:00",
+            "imported_at": "2026-04-17T19:57:16+00:00",
             "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
             "importer_version": "1.0.0"
         },
@@ -103,6 +103,7 @@
         "pre_conditions": null,
         "coverage_bucket": "FULLY_MAPPED",
         "sex_restriction": null,
+        "coverage_profile": "partial",
         "include_endpoints": [
             "Z21_CONTACT_W_EXPOS_COMMUNICAB_DISEA",
             "Z21_ASYMP_HUMAN_IMMUNODEFICIENCY_VIRUS_HIV_INFECTION_STATUS",
@@ -139,7 +140,6 @@
                 1576038,
                 1576039,
                 1576040,
-                1576041,
                 1576042,
                 1576043,
                 1576044,
@@ -178,7 +178,6 @@
                 37403751,
                 37403752,
                 37403753,
-                45537621,
                 45537622,
                 45542411,
                 45542412,
@@ -193,13 +192,11 @@
                 45566406,
                 45566413,
                 45571329,
-                45571332,
                 45576140,
                 45576141,
                 45576144,
                 45581019,
                 45585811,
-                45585812,
                 45585815,
                 45585816,
                 45585817,
@@ -207,7 +204,6 @@
                 45590709,
                 45590710,
                 45609916,
-                45609917,
                 45609918
             ],
             "conditions_standard": [
@@ -220,7 +216,6 @@
                 37116462,
                 37016200,
                 4016359,
-                4015842,
                 4312538,
                 37117058,
                 37109077,
@@ -242,7 +237,6 @@
                 443364,
                 37310279,
                 1340204,
-                4340380,
                 43531662,
                 4016358,
                 192815,
@@ -250,7 +244,6 @@
                 4141769,
                 4016354,
                 43530695,
-                4340379,
                 4064391,
                 40479329,
                 40479428,
@@ -262,7 +255,7 @@
     "is_public": true,
     "version": 1,
     "created_at": "2026-04-16T23:56:21.000000Z",
-    "updated_at": "2026-04-17T00:17:49.000000Z",
+    "updated_at": "2026-04-17T19:57:16.000000Z",
     "deleted_at": null,
     "tags": [
         "finngen-endpoint",
@@ -274,5 +267,6 @@
     "domain": "finngen-endpoint",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null
+    "superseded_by": null,
+    "coverage_profile": "partial"
 }

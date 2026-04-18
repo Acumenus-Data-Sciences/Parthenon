@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Loader2, Plus, MapPin, Trash2, Edit3, Save, X, Search } from "lucide-react";
+import { formatNumber } from "@/i18n/format";
 import { cn } from "@/lib/utils";
 import {
   useStudySites,
@@ -26,6 +28,7 @@ interface StudySitesTabProps {
 }
 
 export function StudySitesTab({ slug }: StudySitesTabProps) {
+  const { t } = useTranslation("app");
   const { data: sites, isLoading } = useStudySites(slug);
   const { data: allSources } = useSources();
   const createMutation = useCreateStudySite();
@@ -98,6 +101,11 @@ export function StudySitesTab({ slug }: StudySitesTabProps) {
     );
   };
 
+  const roleLabel = (role: string) =>
+    t(`studies.sites.roles.${role}`, { defaultValue: role.replace(/_/g, " ") });
+  const statusLabel = (status: string) =>
+    t(`studies.sites.statuses.${status}`, { defaultValue: status });
+
   if (isLoading) {
     return <div className="flex items-center justify-center py-16"><Loader2 size={24} className="animate-spin text-text-muted" /></div>;
   }
@@ -105,16 +113,20 @@ export function StudySitesTab({ slug }: StudySitesTabProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-text-secondary">Sites ({sites?.length ?? 0})</h3>
+        <h3 className="text-sm font-semibold text-text-secondary">
+          {t("studies.sites.sections.sites", { count: sites?.length ?? 0 })}
+        </h3>
         <button type="button" onClick={() => setShowAdd(true)} disabled={showAdd} className="btn btn-primary btn-sm">
-          <Plus size={14} /> Add Site
+          <Plus size={14} /> {t("studies.sites.actions.addSite")}
         </button>
       </div>
 
       {/* Add site form */}
       {showAdd && (
         <div className="panel space-y-3">
-          <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">Add Data Partner Site</p>
+          <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">
+            {t("studies.sites.form.addTitle")}
+          </p>
 
           {/* Source search + select */}
           <div className="space-y-2">
@@ -124,7 +136,7 @@ export function StudySitesTab({ slug }: StudySitesTabProps) {
                 type="text"
                 value={sourceSearch}
                 onChange={(e) => setSourceSearch(e.target.value)}
-                placeholder="Search data sources..."
+                placeholder={t("studies.sites.form.sourceSearchPlaceholder")}
                 className="form-input pl-9 w-full"
                 autoFocus
               />
@@ -150,47 +162,57 @@ export function StudySitesTab({ slug }: StudySitesTabProps) {
               </div>
             ) : (
               <p className="text-xs text-text-ghost py-2">
-                {availableSources.length === 0 ? "All sources are already assigned" : "No matching sources"}
+                {availableSources.length === 0
+                  ? t("studies.sites.messages.allSourcesAssigned")
+                  : t("studies.sites.messages.noMatchingSources")}
               </p>
             )}
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">Site Role</label>
+              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">
+                {t("studies.sites.form.siteRole")}
+              </label>
               <select value={newRole} onChange={(e) => setNewRole(e.target.value)} className="form-input form-select w-full">
                 {SITE_ROLES.map((r) => (
-                  <option key={r} value={r}>{r.replace(/_/g, " ")}</option>
+                  <option key={r} value={r}>{roleLabel(r)}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">IRB Protocol #</label>
+              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">
+                {t("studies.sites.form.irbProtocol")}
+              </label>
               <input
                 type="text"
                 value={newIrb}
                 onChange={(e) => setNewIrb(e.target.value)}
-                placeholder="Optional"
+                placeholder={t("studies.sites.form.optional")}
                 className="form-input w-full"
               />
             </div>
             <div>
-              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">Notes</label>
+              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">
+                {t("studies.sites.form.notes")}
+              </label>
               <input
                 type="text"
                 value={newNotes}
                 onChange={(e) => setNewNotes(e.target.value)}
-                placeholder="Optional"
+                placeholder={t("studies.sites.form.optional")}
                 className="form-input w-full"
               />
             </div>
           </div>
 
           <div className="flex gap-2 justify-end">
-            <button type="button" onClick={() => { setShowAdd(false); setSourceSearch(""); setNewSourceId(""); }} className="btn btn-ghost btn-sm">Cancel</button>
+            <button type="button" onClick={() => { setShowAdd(false); setSourceSearch(""); setNewSourceId(""); }} className="btn btn-ghost btn-sm">
+              {t("studies.sites.actions.cancel")}
+            </button>
             <button type="button" onClick={handleCreate} disabled={!newSourceId || createMutation.isPending} className="btn btn-primary btn-sm">
               {createMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-              Add Site
+              {t("studies.sites.actions.addSite")}
             </button>
           </div>
         </div>
@@ -199,20 +221,20 @@ export function StudySitesTab({ slug }: StudySitesTabProps) {
       {(!sites || sites.length === 0) ? (
         <div className="empty-state">
           <MapPin size={24} className="text-text-ghost mb-2" />
-          <h3 className="empty-title">No sites enrolled</h3>
-          <p className="empty-message">Add data partner sites to this study</p>
+          <h3 className="empty-title">{t("studies.sites.empty.title")}</h3>
+          <p className="empty-message">{t("studies.sites.empty.message")}</p>
         </div>
       ) : (
         <div className="panel" style={{ padding: 0, overflow: "hidden" }}>
           <table className="data-table">
             <thead>
               <tr>
-                <th>Source</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>IRB #</th>
-                <th>Patients</th>
-                <th>CDM</th>
+                <th>{t("studies.sites.table.source")}</th>
+                <th>{t("studies.sites.table.role")}</th>
+                <th>{t("studies.sites.table.status")}</th>
+                <th>{t("studies.sites.table.irb")}</th>
+                <th>{t("studies.sites.table.patients")}</th>
+                <th>{t("studies.sites.table.cdm")}</th>
                 <th className="w-20" />
               </tr>
             </thead>
@@ -222,7 +244,9 @@ export function StudySitesTab({ slug }: StudySitesTabProps) {
                 const color = SITE_STATUS_COLORS[site.status] ?? "var(--text-muted)";
                 return (
                   <tr key={site.id}>
-                    <td className="text-text-primary font-medium">{site.source?.source_name ?? `Source #${site.source_id}`}</td>
+                    <td className="text-text-primary font-medium">
+                      {site.source?.source_name ?? t("studies.sites.messages.sourceFallback", { id: site.source_id })}
+                    </td>
                     <td>
                       {isEditing ? (
                         <select
@@ -231,11 +255,11 @@ export function StudySitesTab({ slug }: StudySitesTabProps) {
                           className="form-input form-select py-1 text-xs"
                         >
                           {SITE_ROLES.map((r) => (
-                            <option key={r} value={r}>{r.replace(/_/g, " ")}</option>
+                            <option key={r} value={r}>{roleLabel(r)}</option>
                           ))}
                         </select>
                       ) : (
-                        <span className="text-xs text-text-muted capitalize">{site.site_role.replace(/_/g, " ")}</span>
+                        <span className="text-xs text-text-muted">{roleLabel(site.site_role)}</span>
                       )}
                     </td>
                     <td>
@@ -246,35 +270,42 @@ export function StudySitesTab({ slug }: StudySitesTabProps) {
                           className="form-input form-select py-1 text-xs"
                         >
                           {Object.keys(SITE_STATUS_COLORS).map((s) => (
-                            <option key={s} value={s}>{s}</option>
+                            <option key={s} value={s}>{statusLabel(s)}</option>
                           ))}
                         </select>
                       ) : (
                         <span className="inline-flex items-center gap-1 text-xs" style={{ color }}>
                           <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
-                          {site.status}
+                          {statusLabel(site.status)}
                         </span>
                       )}
                     </td>
                     <td className="text-xs text-text-muted">{site.irb_protocol_number ?? "—"}</td>
                     <td className="text-xs text-text-muted font-['IBM_Plex_Mono',monospace]">
-                      {site.patient_count_estimate?.toLocaleString() ?? "—"}
+                      {site.patient_count_estimate != null ? formatNumber(site.patient_count_estimate) : "—"}
                     </td>
                     <td className="text-xs text-text-muted">{site.cdm_version ?? "—"}</td>
                     <td>
                       <div className="flex items-center gap-1 justify-end">
                         {isEditing ? (
                           <>
-                            <button type="button" onClick={handleSave} className="p-1 text-success hover:text-success"><Save size={14} /></button>
-                            <button type="button" onClick={() => setEditId(null)} className="p-1 text-text-ghost hover:text-text-secondary"><X size={14} /></button>
+                            <button type="button" onClick={handleSave} className="p-1 text-success hover:text-success" title={t("studies.sites.actions.save")}>
+                              <Save size={14} />
+                            </button>
+                            <button type="button" onClick={() => setEditId(null)} className="p-1 text-text-ghost hover:text-text-secondary" title={t("studies.sites.actions.cancel")}>
+                              <X size={14} />
+                            </button>
                           </>
                         ) : (
                           <>
-                            <button type="button" onClick={() => startEdit(site)} className="p-1 text-text-ghost hover:text-text-secondary"><Edit3 size={14} /></button>
+                            <button type="button" onClick={() => startEdit(site)} className="p-1 text-text-ghost hover:text-text-secondary" title={t("studies.sites.actions.edit")}>
+                              <Edit3 size={14} />
+                            </button>
                             <button
                               type="button"
-                              onClick={() => { if (window.confirm("Remove this site?")) deleteMutation.mutate({ slug, siteId: site.id }); }}
+                              onClick={() => { if (window.confirm(t("studies.sites.confirmRemove"))) deleteMutation.mutate({ slug, siteId: site.id }); }}
                               className="p-1 text-text-ghost hover:text-critical"
+                              title={t("studies.sites.actions.remove")}
                             >
                               <Trash2 size={14} />
                             </button>

@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Plus, Trash2, Pencil, Package, ChevronDown, ChevronRight, Server } from "lucide-react";
+import { formatDate, formatDateTime, formatNumber } from "@/i18n/format";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { useReleases, useCreateRelease, useUpdateRelease, useDeleteRelease, useReleaseDiff } from "../../../hooks/useReleaseData";
 import { useReleasesTimeline, useReleasesCalendar } from "../../../hooks/useNetworkData";
@@ -31,12 +33,30 @@ function ReleaseCard({
   updateMutation: { isPending: boolean };
   deleteMutation: { isPending: boolean };
 }) {
+  const { t } = useTranslation("app");
   const [showDiff, setShowDiff] = useState(false);
   const [showEtl, setShowEtl] = useState(false);
   const { data: diff, isLoading: diffLoading } = useReleaseDiff(
     showDiff ? sourceId : null,
     showDiff ? release.id : null,
   );
+  const formatDuration = (seconds: number) => {
+    if (seconds >= 3600) {
+      return t("dataExplorer.ares.releases.duration.hoursMinutes", {
+        hours: formatNumber(Math.floor(seconds / 3600)),
+        minutes: formatNumber(Math.floor((seconds % 3600) / 60)),
+      });
+    }
+    if (seconds >= 60) {
+      return t("dataExplorer.ares.releases.duration.minutesSeconds", {
+        minutes: formatNumber(Math.floor(seconds / 60)),
+        seconds: formatNumber(seconds % 60),
+      });
+    }
+    return t("dataExplorer.ares.releases.duration.seconds", {
+      seconds: formatNumber(seconds),
+    });
+  };
 
   return (
     <div className="rounded-xl border border-border-subtle bg-surface-raised p-4">
@@ -51,15 +71,37 @@ function ReleaseCard({
                   : "bg-accent/10 text-accent"
               }`}
             >
-              {release.release_type === "scheduled_etl" ? "ETL" : "Snapshot"}
+              {release.release_type === "scheduled_etl"
+                ? t("dataExplorer.ares.releases.releaseTypes.etl")
+                : t("dataExplorer.ares.releases.releaseTypes.snapshot")}
             </span>
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-text-muted">
-            {release.cdm_version && <span>CDM {release.cdm_version}</span>}
-            {release.vocabulary_version && <span>Vocab {release.vocabulary_version}</span>}
-            <span>{release.person_count.toLocaleString()} persons</span>
-            <span>{release.record_count.toLocaleString()} records</span>
-            <span>{new Date(release.created_at).toLocaleDateString()}</span>
+            {release.cdm_version && (
+              <span>
+                {t("dataExplorer.ares.releases.cdmVersion", {
+                  version: release.cdm_version,
+                })}
+              </span>
+            )}
+            {release.vocabulary_version && (
+              <span>
+                {t("dataExplorer.ares.releases.vocabularyVersion", {
+                  version: release.vocabulary_version,
+                })}
+              </span>
+            )}
+            <span>
+              {t("dataExplorer.ares.releases.personCount", {
+                value: formatNumber(release.person_count),
+              })}
+            </span>
+            <span>
+              {t("dataExplorer.ares.releases.recordCount", {
+                value: formatNumber(release.record_count),
+              })}
+            </span>
+            <span>{formatDate(release.created_at)}</span>
           </div>
           {release.notes && (
             <p className="text-xs text-text-muted mt-1">{release.notes}</p>
@@ -70,7 +112,7 @@ function ReleaseCard({
             type="button"
             onClick={() => setShowDiff(!showDiff)}
             className="text-text-muted hover:text-success transition-colors p-1"
-            title="Show diff"
+            title={t("dataExplorer.ares.releases.actions.showDiff")}
           >
             {showDiff ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
           </button>
@@ -78,7 +120,7 @@ function ReleaseCard({
             type="button"
             onClick={() => setEditingId(editingId === release.id ? null : release.id)}
             className="text-text-muted hover:text-accent transition-colors p-1"
-            title="Edit release"
+            title={t("dataExplorer.ares.releases.actions.editRelease")}
           >
             <Pencil size={14} />
           </button>
@@ -104,44 +146,52 @@ function ReleaseCard({
             className="flex items-center gap-1.5 text-xs text-text-muted hover:text-accent transition-colors"
           >
             <Server size={12} />
-            ETL Provenance
+            {t("dataExplorer.ares.releases.etl.provenance")}
             {showEtl ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
           </button>
           {showEtl && (
             <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-2 rounded-lg bg-surface-base p-3 text-xs">
               {release.etl_metadata.who && (
                 <div>
-                  <span className="text-text-ghost">Ran by: </span>
+                  <span className="text-text-ghost">
+                    {t("dataExplorer.ares.releases.etl.ranBy")}{" "}
+                  </span>
                   <span className="text-text-primary">{release.etl_metadata.who}</span>
                 </div>
               )}
               {release.etl_metadata.code_version && (
                 <div>
-                  <span className="text-text-ghost">Code version: </span>
+                  <span className="text-text-ghost">
+                    {t("dataExplorer.ares.releases.etl.codeVersion")}{" "}
+                  </span>
                   <span className="font-mono text-success">{release.etl_metadata.code_version}</span>
                 </div>
               )}
               {release.etl_metadata.duration_seconds != null && (
                 <div>
-                  <span className="text-text-ghost">Duration: </span>
+                  <span className="text-text-ghost">
+                    {t("dataExplorer.ares.releases.etl.duration")}{" "}
+                  </span>
                   <span className="text-text-primary">
-                    {release.etl_metadata.duration_seconds >= 3600
-                      ? `${Math.floor(release.etl_metadata.duration_seconds / 3600)}h ${Math.floor((release.etl_metadata.duration_seconds % 3600) / 60)}m`
-                      : release.etl_metadata.duration_seconds >= 60
-                        ? `${Math.floor(release.etl_metadata.duration_seconds / 60)}m ${release.etl_metadata.duration_seconds % 60}s`
-                        : `${release.etl_metadata.duration_seconds}s`}
+                    {formatDuration(release.etl_metadata.duration_seconds)}
                   </span>
                 </div>
               )}
               {release.etl_metadata.started_at && (
                 <div>
-                  <span className="text-text-ghost">Started: </span>
-                  <span className="text-text-primary">{new Date(release.etl_metadata.started_at).toLocaleString()}</span>
+                  <span className="text-text-ghost">
+                    {t("dataExplorer.ares.releases.etl.started")}{" "}
+                  </span>
+                  <span className="text-text-primary">
+                    {formatDateTime(release.etl_metadata.started_at)}
+                  </span>
                 </div>
               )}
               {release.etl_metadata.parameters && Object.keys(release.etl_metadata.parameters).length > 0 && (
                 <div className="col-span-2 mt-1">
-                  <span className="text-text-ghost">Parameters:</span>
+                  <span className="text-text-ghost">
+                    {t("dataExplorer.ares.releases.etl.parameters")}
+                  </span>
                   <pre className="mt-1 overflow-x-auto rounded bg-surface-raised p-2 text-[10px] text-text-muted">
                     {JSON.stringify(release.etl_metadata.parameters, null, 2)}
                   </pre>
@@ -165,6 +215,7 @@ function ReleaseCard({
 }
 
 export function ReleasesView() {
+  const { t } = useTranslation("app");
   const [activeTab, setActiveTab] = useState<ReleasesTab>("list");
   const [selectedSourceId, setSelectedSourceId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -200,15 +251,11 @@ export function ReleasesView() {
   };
 
   const handleDelete = (releaseId: number) => {
-    if (!confirm("Delete this release?")) return;
+    if (!confirm(t("dataExplorer.ares.releases.confirmDelete"))) return;
     deleteMutation.mutate(releaseId);
   };
 
-  const tabs: Array<{ key: ReleasesTab; label: string }> = [
-    { key: "list", label: "Releases" },
-    { key: "swimlane", label: "Swimlane" },
-    { key: "calendar", label: "Calendar" },
-  ];
+  const tabs: ReleasesTab[] = ["list", "swimlane", "calendar"];
 
   return (
     <div className="space-y-4">
@@ -216,23 +263,25 @@ export function ReleasesView() {
       <div className="flex gap-1 rounded-lg border border-border-subtle bg-surface-base p-1">
         {tabs.map((tab) => (
           <button
-            key={tab.key}
+            key={tab}
             type="button"
-            onClick={() => setActiveTab(tab.key)}
+            onClick={() => setActiveTab(tab)}
             className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-              activeTab === tab.key
+              activeTab === tab
                 ? "bg-surface-accent text-accent"
                 : "text-text-muted hover:text-text-secondary"
             }`}
           >
-            {tab.label}
+            {t(`dataExplorer.ares.releases.tabs.${tab}`)}
           </button>
         ))}
       </div>
 
       {activeTab === "swimlane" && (
         <div className="rounded-xl border border-border-subtle bg-surface-raised p-4">
-          <h3 className="mb-3 text-sm font-medium text-text-primary">Release Timeline (All Sources)</h3>
+          <h3 className="mb-3 text-sm font-medium text-text-primary">
+            {t("dataExplorer.ares.releases.timelineTitle")}
+          </h3>
           {timelineData ? (
             <SwimLaneTimeline data={timelineData} />
           ) : (
@@ -245,7 +294,9 @@ export function ReleasesView() {
 
       {activeTab === "calendar" && (
         <div className="rounded-xl border border-border-subtle bg-surface-raised p-4">
-          <h3 className="mb-3 text-sm font-medium text-text-primary">Release Calendar</h3>
+          <h3 className="mb-3 text-sm font-medium text-text-primary">
+            {t("dataExplorer.ares.releases.calendarTitle")}
+          </h3>
           {calendarData ? (
             <ReleaseCalendar events={calendarData} />
           ) : (
@@ -265,7 +316,9 @@ export function ReleasesView() {
               onChange={(e) => setSelectedSourceId(e.target.value ? Number(e.target.value) : null)}
               className="rounded-lg border border-border-subtle bg-surface-raised px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
             >
-              <option value="">Select a source</option>
+              <option value="">
+                {t("dataExplorer.ares.releases.selectSource")}
+              </option>
               {sources?.map((s) => (
                 <option key={s.id} value={s.id}>{s.source_name}</option>
               ))}
@@ -278,7 +331,7 @@ export function ReleasesView() {
                 className="flex items-center gap-1.5 rounded-lg border border-border-subtle bg-surface-overlay px-3 py-2 text-sm text-accent hover:border-accent transition-colors"
               >
                 <Plus size={14} />
-                Create Release
+                {t("dataExplorer.ares.releases.actions.createRelease")}
               </button>
             )}
           </div>
@@ -289,7 +342,7 @@ export function ReleasesView() {
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <input
                   type="text"
-                  placeholder="Release name"
+                  placeholder={t("dataExplorer.ares.releases.form.releaseName")}
                   value={formData.release_name}
                   onChange={(e) => setFormData({ ...formData, release_name: e.target.value })}
                   className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none"
@@ -304,19 +357,23 @@ export function ReleasesView() {
                   }
                   className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
                 >
-                  <option value="scheduled_etl">Scheduled ETL</option>
-                  <option value="snapshot">Snapshot</option>
+                  <option value="scheduled_etl">
+                    {t("dataExplorer.ares.releases.releaseTypes.scheduledEtl")}
+                  </option>
+                  <option value="snapshot">
+                    {t("dataExplorer.ares.releases.releaseTypes.snapshot")}
+                  </option>
                 </select>
                 <input
                   type="text"
-                  placeholder="CDM version (optional)"
+                  placeholder={t("dataExplorer.ares.releases.form.cdmVersionOptional")}
                   value={formData.cdm_version ?? ""}
                   onChange={(e) => setFormData({ ...formData, cdm_version: e.target.value || undefined })}
                   className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none"
                 />
                 <input
                   type="text"
-                  placeholder="Vocabulary version (optional)"
+                  placeholder={t("dataExplorer.ares.releases.form.vocabularyVersionOptional")}
                   value={formData.vocabulary_version ?? ""}
                   onChange={(e) =>
                     setFormData({ ...formData, vocabulary_version: e.target.value || undefined })
@@ -331,14 +388,16 @@ export function ReleasesView() {
                   disabled={createMutation.isPending || !formData.release_name.trim()}
                   className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-accent-light disabled:opacity-50 transition-colors"
                 >
-                  {createMutation.isPending ? "Creating..." : "Create"}
+                  {createMutation.isPending
+                    ? t("dataExplorer.ares.releases.actions.creating")
+                    : t("dataExplorer.ares.releases.actions.create")}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
                   className="rounded-lg border border-border-subtle px-4 py-2 text-sm text-text-muted hover:text-text-primary transition-colors"
                 >
-                  Cancel
+                  {t("dataExplorer.ares.releases.actions.cancel")}
                 </button>
               </div>
             </div>
@@ -348,7 +407,9 @@ export function ReleasesView() {
           {!selectedSourceId && (
             <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-16">
               <Package size={32} className="text-text-muted mb-3" />
-              <p className="text-sm text-text-muted">Select a source to view its releases</p>
+              <p className="text-sm text-text-muted">
+                {t("dataExplorer.ares.releases.empty.selectSource")}
+              </p>
             </div>
           )}
 
@@ -361,7 +422,9 @@ export function ReleasesView() {
           {selectedSourceId && !isLoading && (!releases || releases.length === 0) && (
             <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-16">
               <Package size={32} className="text-text-muted mb-3" />
-              <p className="text-sm text-text-muted">No releases yet for this source</p>
+              <p className="text-sm text-text-muted">
+                {t("dataExplorer.ares.releases.empty.noReleases")}
+              </p>
             </div>
           )}
 

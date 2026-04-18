@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +23,7 @@ export function Modal({
   children,
   className,
 }: ModalProps) {
+  const { t } = useTranslation("common");
   const modalRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
 
@@ -70,7 +72,7 @@ export function Modal({
               <button
                 className="modal-close"
                 onClick={onClose}
-                aria-label="Close"
+                aria-label={t("ui.aria.close")}
               >
                 <X size={18} />
               </button>

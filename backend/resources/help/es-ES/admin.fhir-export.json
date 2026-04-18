@@ -1,0 +1,17 @@
+{
+  "key": "admin.fhir-export",
+  "title": "Exportación FHIR",
+  "description": "Exporte datos OMOP CDM como archivos FHIR R4 NDJSON para interoperabilidad con otros sistemas de salud. Seleccione una fuente de datos y los tipos de recursos FHIR que desea exportar; luego descargue los archivos NDJSON resultantes cuando finalice el trabajo.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Seleccione el ID de fuente de la fuente de datos OMOP CDM desde la que desea exportar y luego elija qué tipos de recursos FHIR incluir.",
+    "Los tipos de recursos admitidos incluyen Patient, Condition, Encounter, Observation, MedicationStatement, Procedure, Immunization y AllergyIntolerance.",
+    "Use el alternador Seleccionar todo / Deseleccionar todo para configurar rápidamente qué tipos de recursos incluir en la exportación.",
+    "La exportación se ejecuta como un trabajo en segundo plano. La sección de estado consulta cada 3 segundos para que pueda observar el progreso en tiempo real.",
+    "Cuando la exportación finaliza, aparecen enlaces de descarga para cada tipo de recurso como archivos NDJSON individuales con recuentos de recursos.",
+    "Cada archivo NDJSON sigue la especificación FHIR Bulk Data, con un recurso JSON por línea para streaming y procesamiento eficientes.",
+    "Si una exportación falla, el mensaje de error se muestra en la sección de estado. Corrija el problema e inicie una nueva exportación.",
+    "Haga clic en Iniciar una nueva exportación al final de la sección de estado para configurar y ejecutar otro trabajo de exportación."
+  ]
+}

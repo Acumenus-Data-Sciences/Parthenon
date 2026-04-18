@@ -1,0 +1,15 @@
+{
+  "key": "jupyter",
+  "title": "Jupyter",
+  "description": "Jupyter integra un entorno completo de notebooks dentro de Parthenon para análisis exploratorio, figuras personalizadas, diagnósticos de cohortes y flujos de investigación específicos de estudios. El laboratorio integrado monta un espacio de notebooks persistente respaldado por output/jupyter-notebook y proporciona un notebook inicial de Parthenon para que los investigadores pasen de flujos de cohortes y estudios al código sin salir de la plataforma.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Use el laboratorio integrado para exploración interactiva y luego abra el mismo espacio en una nueva pestaña cuando necesite más área de pantalla.",
+    "El espacio de notebooks persiste en output/jupyter-notebook, por lo que todo lo que guarde en Jupyter permanece en el repositorio y puede versionarse.",
+    "Comience con el notebook sembrado Parthenon Research Workbench para verificar el entorno y adoptar el flujo recomendado.",
+    "Use Jupyter para verificaciones personalizadas de subgrupos, análisis de sensibilidad, uniones GIS y gráficos puntuales que no justifican una función dedicada del producto.",
+    "Mantenga los notebooks orientados al estudio: nombre los archivos claramente y adjunte los artefactos resultantes al flujo de estudio o publicación correspondiente.",
+    "El contenedor expone sugerencias de conexión a la API y base de datos de Parthenon mediante variables de entorno para flujos avanzados con scripts."
+  ]
+}

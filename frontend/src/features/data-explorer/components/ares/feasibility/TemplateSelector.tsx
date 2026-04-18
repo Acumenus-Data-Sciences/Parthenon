@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useFeasibilityTemplates } from "../../../hooks/useNetworkData";
 import type { FeasibilityCriteria, FeasibilityTemplate } from "../../../types/ares";
 
@@ -6,10 +7,15 @@ interface TemplateSelectorProps {
 }
 
 export default function TemplateSelector({ onSelect }: TemplateSelectorProps) {
+  const { t } = useTranslation("app");
   const { data: templates, isLoading } = useFeasibilityTemplates();
 
   if (isLoading) {
-    return <span className="text-[10px] text-text-ghost">Loading templates...</span>;
+    return (
+      <span className="text-[10px] text-text-ghost">
+        {t("dataExplorer.ares.feasibility.templates.loading")}
+      </span>
+    );
   }
 
   if (!templates || templates.length === 0) {
@@ -29,7 +35,9 @@ export default function TemplateSelector({ onSelect }: TemplateSelectorProps) {
 
   return (
     <div className="mb-3">
-      <label className="mb-1 block text-xs text-text-muted">Start from Template</label>
+      <label className="mb-1 block text-xs text-text-muted">
+        {t("dataExplorer.ares.feasibility.templates.startFrom")}
+      </label>
       <div className="flex flex-wrap gap-2">
         {templates.map((t: FeasibilityTemplate) => (
           <button

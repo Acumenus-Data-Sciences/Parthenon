@@ -1,14 +1,23 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Upload, X } from "lucide-react";
 
 export function WikiIngestModal({
-  workspace, loading, onSubmit, onClose,
+  workspace,
+  loading,
+  onSubmit,
+  onClose,
 }: {
   workspace: string;
   loading: boolean;
-  onSubmit: (payload: { title?: string; rawContent?: string; file?: File | null }) => void;
+  onSubmit: (payload: {
+    title?: string;
+    rawContent?: string;
+    file?: File | null;
+  }) => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation("commons");
   const [title, setTitle] = useState("");
   const [rawContent, setRawContent] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -30,17 +39,29 @@ export function WikiIngestModal({
   const canSubmit = mode === "file" ? Boolean(file) : hasText;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
-      <div className="w-full max-w-lg rounded-lg border border-border-default bg-surface-raised shadow-2xl" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-lg rounded-lg border border-border-default bg-surface-raised shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border-default bg-surface-overlay px-5 py-4">
           <div>
-            <h2 className="text-base font-bold text-text-primary">Ingest Source</h2>
+            <h2 className="text-base font-bold text-text-primary">
+              {t("wiki.ingestModal.title")}
+            </h2>
             <p className="mt-0.5 text-xs text-text-muted">
-              Upload a paper or paste important text into <span className="font-medium text-text-primary">{workspace}</span>
+              {t("wiki.ingestModal.intro", { workspace })}
             </p>
           </div>
-          <button type="button" onClick={onClose} className="rounded-lg p-1.5 text-text-muted transition-colors hover:text-text-primary">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-1.5 text-text-muted transition-colors hover:text-text-primary"
+          >
             <X size={16} />
           </button>
         </div>
@@ -49,14 +70,14 @@ export function WikiIngestModal({
         <div className="space-y-3 px-5 py-4">
           <div className="rounded-lg border border-border-default bg-surface-base p-3">
             <p className="text-xs leading-5 text-text-secondary">
-              Abby will parse the source into structured wiki pages, embed the knowledge with SapBERT, and make it chat-ready in the Knowledge Base and Commons Abby.
+              {t("wiki.ingestModal.description")}
             </p>
           </div>
 
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Optional title override"
+            placeholder={t("wiki.ingestModal.titlePlaceholder")}
             className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2.5 text-sm text-text-primary placeholder:text-text-ghost outline-none transition-colors focus:border-success focus:ring-1 focus:ring-success/40"
           />
 
@@ -73,7 +94,7 @@ export function WikiIngestModal({
                   : "border-border-default bg-surface-base text-text-muted hover:text-text-secondary"
               }`}
             >
-              Upload paper
+              {t("wiki.ingestModal.uploadPaper")}
             </button>
             <button
               type="button"
@@ -87,7 +108,7 @@ export function WikiIngestModal({
                   : "border-border-default bg-surface-base text-text-muted hover:text-text-secondary"
               }`}
             >
-              Paste text
+              {t("wiki.ingestModal.pasteText")}
             </button>
           </div>
 
@@ -95,14 +116,14 @@ export function WikiIngestModal({
             <textarea
               value={rawContent}
               onChange={(e) => setRawContent(e.target.value)}
-              placeholder="Paste source text or markdown..."
+              placeholder={t("wiki.ingestModal.textPlaceholder")}
               rows={10}
               className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2.5 text-sm text-text-primary placeholder:text-text-ghost outline-none transition-colors focus:border-success focus:ring-1 focus:ring-success/40"
             />
           ) : (
             <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-surface-highlight bg-surface-base px-3 py-4 text-sm text-text-muted transition-colors hover:border-text-ghost">
               <Upload size={16} />
-              <span>{file ? file.name : "Attach a file (.md, .txt, .pdf)"}</span>
+              <span>{file ? file.name : t("wiki.ingestModal.attachFile")}</span>
               <input
                 type="file"
                 className="hidden"
@@ -113,19 +134,28 @@ export function WikiIngestModal({
           )}
 
           <p className="text-[11px] leading-5 text-text-ghost">
-            Use one source per ingest. PDFs are text-extracted, summarized into wiki pages, and embedded with SapBERT for semantic retrieval.
+            {t("wiki.ingestModal.help")}
           </p>
         </div>
 
         {/* Footer */}
         <div className="flex gap-2 border-t border-border-default px-5 py-4">
-          <button type="button" onClick={onClose}
-            className="flex-1 rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm text-text-muted transition-colors hover:text-text-secondary">
-            Cancel
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm text-text-muted transition-colors hover:text-text-secondary"
+          >
+            {t("wiki.ingestModal.cancel")}
           </button>
-          <button type="button" onClick={handleSubmit} disabled={loading || !canSubmit}
-            className="flex-1 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success-dark disabled:opacity-50">
-            {loading ? "Ingesting..." : "Ingest"}
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={loading || !canSubmit}
+            className="flex-1 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success-dark disabled:opacity-50"
+          >
+            {loading
+              ? t("wiki.ingestModal.ingesting")
+              : t("wiki.ingestModal.submit")}
           </button>
         </div>
       </div>

@@ -1,0 +1,14 @@
+{
+  "key": "admin.auth-providers",
+  "title": "Proveedores de autenticación",
+  "description": "Configure proveedores de autenticación externos para inicio de sesión único (SSO). Parthenon admite protocolos SAML 2.0 y OIDC, lo que permite integrarse con proveedores de identidad empresariales como Azure AD, Okta y Google Workspace.",
+  "docs_url": "/docs/part8-administration/24-authentication-providers",
+  "video_url": null,
+  "tips": [
+    "Habilite un proveedor y configure sus credenciales antes de probar la conexión.",
+    "Use el botón Probar para verificar que el proveedor responda correctamente antes de habilitarlo para usuarios.",
+    "Los proveedores SAML requieren una URL de metadatos o configuración XML de su proveedor de identidad.",
+    "Los proveedores OIDC necesitan ID de cliente, secreto de cliente y URL de descubrimiento.",
+    "Solo un proveedor puede ser el método principal de inicio de sesión, pero varios pueden estar habilitados simultáneamente."
+  ]
+}

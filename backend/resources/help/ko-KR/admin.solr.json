@@ -1,0 +1,17 @@
+{
+  "key": "admin.solr",
+  "title": "Solr 검색 관리",
+  "description": "Parthenon은 PostgreSQL과 함께 고성능 검색 계층으로 Apache Solr를 사용합니다. Solr는 용어 검색, 개념 자동완성, 코호트/연구 탐색, 분석 메타데이터 검색, 매핑 검토 필터링, 임상 이벤트 검색, 전역 Cmd+K 명령 팔레트를 구동합니다. PostgreSQL은 권위 있는 데이터 저장소로 유지되며, Solr는 언제든 다시 구축할 수 있는 읽기 최적화 인덱스입니다.",
+  "docs_url": "/docs/part8-administration/27-solr-administration",
+  "video_url": null,
+  "tips": [
+    "각 Solr core는 특정 도메인을 인덱싱합니다: 용어(개념), 코호트(정의 + 연구), 분석(Achilles 메타데이터), 매핑(수집 개념 매핑), 임상(CDM 테이블의 환자 이벤트).",
+    "증분 업데이트에는 Re-index를 사용하세요. 모든 문서를 삭제하고 처음부터 다시 구축하려면 Full Re-index를 사용하세요. 스키마 변경이나 데이터 수정 후 유용합니다.",
+    "용어 core는 가장 영향이 큰 core입니다. Vocabulary Browser의 개념 검색, 자동완성, 패싯 필터링을 구동합니다.",
+    "임상 core는 대규모 데이터베이스(수백만 이벤트)에서 인덱싱하는 데 몇 분이 걸릴 수 있습니다. 증분 인덱싱에는 --source 및 --domain 플래그를 사용하세요.",
+    "core가 Unavailable로 표시되면 Solr 컨테이너가 실행 중인지 확인하세요: docker compose ps solr. circuit breaker는 Solr가 다시 온라인 상태가 되면 자동으로 복구됩니다.",
+    "문서 수는 PostgreSQL 행 수와 대략 일치해야 합니다. 큰 차이는 오래된 인덱스를 의미할 수 있으므로 Full Re-index를 실행하세요.",
+    "Solr 구성은 backend/.env에 있습니다: SOLR_ENABLED, SOLR_HOST, SOLR_PORT. Solr 검색을 활성화하려면 SOLR_ENABLED=true로 설정하세요.",
+    "Solr를 사용할 수 없으면 모든 검색 기능은 자동으로 PostgreSQL ILIKE 쿼리로 대체됩니다. 속도는 느리지만 기능은 유지됩니다."
+  ]
+}

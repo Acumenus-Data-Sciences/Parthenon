@@ -1,13 +1,18 @@
 import { useState, useCallback } from "react";
-import type { AbbyFeedbackProps, FeedbackRating, FeedbackCategory } from "../../types/abby";
+import { useTranslation } from "react-i18next";
+import type {
+  AbbyFeedbackProps,
+  FeedbackRating,
+  FeedbackCategory,
+} from "../../types/abby";
 
-const FEEDBACK_CATEGORIES: { value: FeedbackCategory; label: string }[] = [
-  { value: "inaccurate_recall", label: "Inaccurate recall" },
-  { value: "wrong_source", label: "Wrong source cited" },
-  { value: "missing_context", label: "Missing context" },
-  { value: "too_verbose", label: "Too verbose" },
-  { value: "hallucination", label: "Made something up" },
-  { value: "other", label: "Other" },
+const FEEDBACK_CATEGORIES: { value: FeedbackCategory; labelKey: string }[] = [
+  { value: "inaccurate_recall", labelKey: "inaccurateRecall" },
+  { value: "wrong_source", labelKey: "wrongSource" },
+  { value: "missing_context", labelKey: "missingContext" },
+  { value: "too_verbose", labelKey: "tooVerbose" },
+  { value: "hallucination", labelKey: "hallucination" },
+  { value: "other", labelKey: "other" },
 ];
 
 export default function AbbyFeedback({
@@ -15,12 +20,13 @@ export default function AbbyFeedback({
   existingFeedback,
   onSubmit,
 }: AbbyFeedbackProps) {
+  const { t } = useTranslation("commons");
   const [rating, setRating] = useState<FeedbackRating | null>(
-    existingFeedback?.rating ?? null
+    existingFeedback?.rating ?? null,
   );
-  const [selectedCategories, setSelectedCategories] = useState<FeedbackCategory[]>(
-    existingFeedback?.categories ?? []
-  );
+  const [selectedCategories, setSelectedCategories] = useState<
+    FeedbackCategory[]
+  >(existingFeedback?.categories ?? []);
   const [comment, setComment] = useState(existingFeedback?.comment ?? "");
   const [showNegativeForm, setShowNegativeForm] = useState(false);
   const [submitted, setSubmitted] = useState(!!existingFeedback);
@@ -39,7 +45,7 @@ export default function AbbyFeedback({
 
   const toggleCategory = useCallback((cat: FeedbackCategory) => {
     setSelectedCategories((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat],
     );
   }, []);
 
@@ -66,7 +72,7 @@ export default function AbbyFeedback({
           onClick={handlePositive}
           disabled={submitted && rating === "helpful"}
         >
-          ▲ Helpful
+          ▲ {t("abby.feedback.helpful")}
         </button>
 
         <button
@@ -78,12 +84,12 @@ export default function AbbyFeedback({
           onClick={handleNegative}
           disabled={submitted}
         >
-          ▼ Not helpful
+          ▼ {t("abby.feedback.notHelpful")}
         </button>
 
         {submitted && (
           <span className="text-[11px] text-muted-foreground ml-auto">
-            Thank you for your feedback
+            {t("abby.feedback.thankYou")}
           </span>
         )}
       </div>
@@ -91,11 +97,11 @@ export default function AbbyFeedback({
       {showNegativeForm && !submitted && (
         <div className="mt-2.5 p-3 bg-muted/50 rounded-lg">
           <p className="text-[11px] text-muted-foreground mb-2">
-            What could be improved?
+            {t("abby.feedback.improve")}
           </p>
 
           <div className="flex flex-wrap gap-1.5 mb-3">
-            {FEEDBACK_CATEGORIES.map(({ value, label }) => (
+            {FEEDBACK_CATEGORIES.map(({ value, labelKey }) => (
               <button
                 key={value}
                 className={`px-2 py-0.5 rounded text-[10px] border transition-all duration-150 cursor-pointer ${
@@ -105,7 +111,7 @@ export default function AbbyFeedback({
                 }`}
                 onClick={() => toggleCategory(value)}
               >
-                {label}
+                {t(`abby.feedback.categories.${labelKey}`)}
               </button>
             ))}
           </div>
@@ -115,7 +121,7 @@ export default function AbbyFeedback({
               type="text"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Optional: add a note..."
+              placeholder={t("abby.feedback.notePlaceholder")}
               className="flex-1 h-8 px-2.5 text-[11px] bg-card border border-border rounded text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
               onKeyDown={(e) => e.key === "Enter" && handleNegativeSubmit()}
             />
@@ -123,7 +129,7 @@ export default function AbbyFeedback({
               className="h-8 px-3 text-[11px] font-medium bg-foreground text-background rounded hover:bg-foreground/80 transition-colors duration-150 cursor-pointer"
               onClick={handleNegativeSubmit}
             >
-              Submit
+              {t("abby.feedback.submit")}
             </button>
           </div>
         </div>

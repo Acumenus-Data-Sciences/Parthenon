@@ -1,9 +1,17 @@
-import { useState, useRef, useEffect, useCallback, useLayoutEffect } from "react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useLayoutEffect,
+} from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { AbbyProfilePanel } from '../../../abby-ai/components/AbbyProfilePanel';
-import AbbyPlanCard from '../../../abby-ai/components/AbbyPlanCard';
+import { useTranslation } from "react-i18next";
+import { AbbyProfilePanel } from "../../../abby-ai/components/AbbyProfilePanel";
+import AbbyPlanCard from "../../../abby-ai/components/AbbyPlanCard";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { formatDate } from "@/i18n/format";
 import AbbyAvatar from "./AbbyAvatar";
 import AbbyTypingIndicator from "./AbbyTypingIndicator";
 import AbbySourceAttribution from "./AbbySourceAttribution";
@@ -15,8 +23,8 @@ import {
   submitFeedback,
   executePlan,
 } from "../../services/abbyService";
-import { askDataQuestion } from '../../services/dataInterrogationService';
-import { DataInterrogationResult } from './DataInterrogationResult';
+import { askDataQuestion } from "../../services/dataInterrogationService";
+import { DataInterrogationResult } from "./DataInterrogationResult";
 import { useAuthStore } from "@/stores/authStore";
 import { useAbbyStore } from "@/stores/abbyStore";
 import { useAbbyConversations } from "../../api";
@@ -27,7 +35,7 @@ import type {
   DataInterrogationResponse,
   ObjectReference,
 } from "../../types/abby";
-import type { ActionPlan } from '../../../abby-ai/types/agency';
+import type { ActionPlan } from "../../../abby-ai/types/agency";
 
 // ─── Types ──────────────────────────────────────────────────────
 
@@ -43,11 +51,11 @@ interface ConversationEntry {
 
 // ─── Suggested Prompts ──────────────────────────────────────────
 
-const SUGGESTED_PROMPTS = [
-  "What cohort patterns have worked for diabetes studies?",
-  "Summarize recent review decisions",
-  "What concept sets exist for heart failure?",
-  "Help me design a new observational study",
+const SUGGESTED_PROMPT_KEYS = [
+  "cohortPatterns",
+  "reviewDecisions",
+  "conceptSets",
+  "studyDesign",
 ];
 
 // ─── Welcome Card ───────────────────────────────────────────────
@@ -57,37 +65,39 @@ function WelcomeCard({
 }: {
   onPromptClick: (prompt: string) => void;
 }) {
+  const { t } = useTranslation("commons");
+
   return (
     <div className="rounded-xl p-5 mb-4 border border-emerald-700/30 bg-gradient-to-br from-emerald-900/15 via-transparent to-teal-900/15 shadow-[inset_0_1px_0_0_rgba(16,185,129,0.1)]">
       <div className="flex items-start gap-3 mb-3">
         <AbbyAvatar size="lg" showStatus />
         <div>
           <h3 className="text-sm font-medium text-foreground">
-            Hi! I'm Abby, your research companion.
+            {t("abby.welcome.title")}
           </h3>
           <p className="text-[11px] text-emerald-400/80 mt-0.5">
-            AI assistant · Institutional memory
+            {t("abby.welcome.tagline")}
           </p>
         </div>
       </div>
 
       <p className="text-[13px] text-muted-foreground leading-relaxed mb-4">
-        I have access to this network's institutional memory — past discussions,
-        cohort designs, study outcomes, review decisions, and wiki articles. Ask
-        me anything about your research, and I'll draw on what this team has
-        learned.
+        {t("abby.welcome.body")}
       </p>
 
       <div className="flex flex-wrap gap-2">
-        {SUGGESTED_PROMPTS.map((prompt) => (
-          <button
-            key={prompt}
-            className="px-3 py-1.5 rounded-full text-[11px] text-muted-foreground bg-card border border-border hover:bg-muted hover:border-muted-foreground/30 transition-all duration-150 cursor-pointer"
-            onClick={() => onPromptClick(prompt)}
-          >
-            {prompt}
-          </button>
-        ))}
+        {SUGGESTED_PROMPT_KEYS.map((promptKey) => {
+          const prompt = t(`abby.welcome.prompts.${promptKey}`);
+          return (
+            <button
+              key={promptKey}
+              className="px-3 py-1.5 rounded-full text-[11px] text-muted-foreground bg-card border border-border hover:bg-muted hover:border-muted-foreground/30 transition-all duration-150 cursor-pointer"
+              onClick={() => onPromptClick(prompt)}
+            >
+              {prompt}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -131,15 +141,19 @@ function AbbyBubble({
   onFeedback: (feedback: AbbyFeedbackRequest) => void;
   onSuggestionClick: (suggestion: string) => void;
 }) {
+  const { t } = useTranslation("commons");
+
   return (
     <div className="flex gap-2.5">
       <AbbyAvatar size="md" />
       <div className="max-w-[85%] min-w-0">
         {/* Header: Name + AI badge + timestamp */}
         <div className="flex items-center gap-1.5 mb-1">
-          <span className="text-[13px] font-medium text-foreground">Abby</span>
+          <span className="text-[13px] font-medium text-foreground">
+            {t("abby.name")}
+          </span>
           <span className="text-[9px] px-1.5 py-px rounded bg-emerald-500/15 text-emerald-400 font-medium">
-            AI assistant
+            {t("abby.aiAssistant")}
           </span>
           <span className="text-[10px] text-muted-foreground ml-auto">
             {formatTime(entry.timestamp)}
@@ -185,7 +199,9 @@ function AbbyBubble({
               >
                 <span className="text-[9px] opacity-60">◆</span>
                 <span className="text-[9px] text-muted-foreground uppercase tracking-wide">
-                  {ref.type.replace(/_/g, " ")}
+                  {t(toAbbyRefTypeKey(ref.type), {
+                    defaultValue: ref.type.replace(/_/g, " "),
+                  })}
                 </span>
                 <span className="text-primary font-medium">
                   {ref.display_name}
@@ -212,20 +228,28 @@ function AbbyBubble({
 // ─── Main Component ─────────────────────────────────────────────
 
 export default function AskAbbyChannel() {
+  const { t } = useTranslation("commons");
   const [conversation, setConversation] = useState<ConversationEntry[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [historyOpen, setHistoryOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [activePlan, setActivePlan] = useState<ActionPlan | null>(null);
   const [isDataLoading, setIsDataLoading] = useState(false);
-  const { response, streamingContent, pipelineState, isLoading, error, sendQuery } = useAbbyQuery();
+  const {
+    response,
+    streamingContent,
+    pipelineState,
+    isLoading,
+    error,
+    sendQuery,
+  } = useAbbyQuery();
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const activeConversationIdRef = useRef<number | null>(null);
   const queryClient = useQueryClient();
 
   const user = useAuthStore((s) => s.user);
-  const userName = user?.name ?? "Researcher";
+  const userName = user?.name ?? t("abby.researcherFallback");
   const userInitials = userName
     .split(" ")
     .map((p) => p[0])
@@ -259,7 +283,7 @@ export default function AskAbbyChannel() {
         if (cancelled) return;
         activeConversationIdRef.current = conv.id;
         setConversation(
-          conv.messages.map((m) => mapConversationMessage(m, userName))
+          conv.messages.map((m) => mapConversationMessage(m, userName)),
         );
       })
       .catch(() => {
@@ -294,7 +318,9 @@ export default function AskAbbyChannel() {
       if (typeof response.conversation_id === "number") {
         activeConversationIdRef.current = response.conversation_id;
         setConversationId(response.conversation_id);
-        void queryClient.invalidateQueries({ queryKey: ["abby", "conversations"] });
+        void queryClient.invalidateQueries({
+          queryKey: ["abby", "conversations"],
+        });
       }
 
       setConversation((prev) => [
@@ -363,7 +389,10 @@ export default function AskAbbyChannel() {
                 tables: [],
                 queries: [],
                 iterations: 0,
-                error: err instanceof Error ? err.message : "An error occurred while analyzing your data question.",
+                error:
+                  err instanceof Error
+                    ? err.message
+                    : t("abby.dataQuestionError"),
               },
             },
           ]);
@@ -374,7 +403,8 @@ export default function AskAbbyChannel() {
       }
 
       // Regular Abby query
-      const currentConversationId = conversationId ?? activeConversationIdRef.current;
+      const currentConversationId =
+        conversationId ?? activeConversationIdRef.current;
       const autoTitle = currentConversationId ? undefined : query.slice(0, 50);
       const history = conversation.map((entry) => ({
         role: (entry.role === "abby" ? "assistant" : "user") as
@@ -383,36 +413,49 @@ export default function AskAbbyChannel() {
         content: entry.content,
       }));
 
-      sendQuery({
-        query,
-        channel_id: "ask-abby",
-        channel_name: "ask-abby",
-        user_name: userName,
-        page_context: "commons_ask_abby",
-        title: autoTitle,
-        conversation_id: currentConversationId ?? undefined,
-        history,
-      }, {
-        onConversationId: (id) => {
-          activeConversationIdRef.current = id;
-          setConversationId(id);
-          void queryClient.invalidateQueries({ queryKey: ["abby", "conversations"] });
+      sendQuery(
+        {
+          query,
+          channel_id: "ask-abby",
+          channel_name: "ask-abby",
+          user_name: userName,
+          page_context: "commons_ask_abby",
+          title: autoTitle,
+          conversation_id: currentConversationId ?? undefined,
+          history,
         },
-      });
+        {
+          onConversationId: (id) => {
+            activeConversationIdRef.current = id;
+            setConversationId(id);
+            void queryClient.invalidateQueries({
+              queryKey: ["abby", "conversations"],
+            });
+          },
+        },
+      );
     },
-    [conversationId, inputValue, isLoading, isDataLoading, userName, sendQuery, conversation, setConversationId, queryClient]
+    [
+      conversationId,
+      inputValue,
+      isLoading,
+      isDataLoading,
+      userName,
+      sendQuery,
+      conversation,
+      setConversationId,
+      queryClient,
+      t,
+    ],
   );
 
-  const handleFeedback = useCallback(
-    async (feedback: AbbyFeedbackRequest) => {
-      try {
-        await submitFeedback(feedback);
-      } catch (err) {
-        console.error("Failed to submit feedback:", err);
-      }
-    },
-    []
-  );
+  const handleFeedback = useCallback(async (feedback: AbbyFeedbackRequest) => {
+    try {
+      await submitFeedback(feedback);
+    } catch (err) {
+      console.error("Failed to submit feedback:", err);
+    }
+  }, []);
 
   const handleApprovePlan = useCallback(async (planId: string) => {
     try {
@@ -434,7 +477,7 @@ export default function AskAbbyChannel() {
         handleSend();
       }
     },
-    [handleSend]
+    [handleSend],
   );
 
   const loadConversation = useCallback(
@@ -442,14 +485,16 @@ export default function AskAbbyChannel() {
       try {
         const conv = await fetchAbbyConversation(id);
         activeConversationIdRef.current = conv.id;
-        setConversation(conv.messages.map((m) => mapConversationMessage(m, userName)));
+        setConversation(
+          conv.messages.map((m) => mapConversationMessage(m, userName)),
+        );
         setConversationId(id);
         setHistoryOpen(false);
       } catch {
         // Failed to load — leave current conversation
       }
     },
-    [userName, setConversationId]
+    [userName, setConversationId],
   );
 
   const handleNewChat = useCallback(() => {
@@ -465,19 +510,21 @@ export default function AskAbbyChannel() {
       {historyOpen && (
         <div className="flex w-[220px] shrink-0 flex-col border-r border-white/[0.04] bg-surface-base">
           <div className="flex items-center justify-between border-b border-white/[0.06] px-3 py-2.5">
-            <span className="text-[12px] font-semibold text-foreground">History</span>
+            <span className="text-[12px] font-semibold text-foreground">
+              {t("abby.history")}
+            </span>
             <button
               type="button"
               onClick={handleNewChat}
               className="rounded px-2 py-1 text-[11px] text-muted-foreground hover:bg-white/[0.05] hover:text-foreground transition-colors"
             >
-              New chat
+              {t("abby.newChat")}
             </button>
           </div>
           <div className="flex-1 overflow-y-auto py-1">
             {conversationHistory.length === 0 ? (
               <p className="px-3 py-4 text-center text-[11px] text-muted-foreground">
-                No past conversations
+                {t("abby.noPastConversations")}
               </p>
             ) : (
               conversationHistory.map((conv) => (
@@ -490,10 +537,14 @@ export default function AskAbbyChannel() {
                   }`}
                 >
                   <p className="truncate text-[12px] text-foreground">
-                    {conv.title || `Conversation — ${new Date(conv.created_at).toLocaleDateString()}`}
+                    {conv.title ||
+                      t("abby.conversationFallback", {
+                        date: formatDate(conv.created_at),
+                      })}
                   </p>
                   <p className="text-[10px] text-muted-foreground">
-                    {new Date(conv.created_at).toLocaleDateString()} · {conv.messages_count} messages
+                    {formatDate(conv.created_at)} ·{" "}
+                    {t("abby.messageCount", { count: conv.messages_count })}
                   </p>
                 </button>
               ))
@@ -508,16 +559,18 @@ export default function AskAbbyChannel() {
         <div className="flex items-center gap-3 px-5 py-3 border-b border-white/[0.06] shrink-0 bg-gradient-to-r from-emerald-900/[0.04] to-transparent">
           <AbbyAvatar size="lg" showStatus />
           <div className="flex-1 min-w-0">
-            <h2 className="text-sm font-medium text-foreground">Ask Abby</h2>
+            <h2 className="text-sm font-medium text-foreground">
+              {t("abby.askTitle")}
+            </h2>
             <p className="text-[11px] text-muted-foreground">
-              AI research companion · Institutional memory
+              {t("abby.tagline")}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setHistoryOpen((o) => !o)}
-              title="Conversation history"
+              title={t("abby.conversationHistory")}
               className={`flex h-7 w-7 items-center justify-center rounded transition-colors ${
                 historyOpen
                   ? "bg-white/[0.08] text-foreground"
@@ -525,14 +578,24 @@ export default function AskAbbyChannel() {
               }`}
             >
               {/* Clock icon */}
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z" />
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"
+                />
               </svg>
             </button>
             <button
               type="button"
               onClick={() => setShowProfile((o) => !o)}
-              title="My research profile"
+              title={t("abby.researchProfile")}
               className={`flex h-7 w-7 items-center justify-center rounded transition-colors ${
                 showProfile
                   ? "bg-white/[0.08] text-foreground"
@@ -540,13 +603,23 @@ export default function AskAbbyChannel() {
               }`}
             >
               {/* User/profile icon */}
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+                />
               </svg>
             </button>
             <div className="flex items-center gap-1.5 text-[11px] text-emerald-400">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              Online
+              {t("abby.online")}
             </div>
           </div>
         </div>
@@ -564,7 +637,11 @@ export default function AskAbbyChannel() {
 
           {conversation.map((entry) =>
             entry.role === "user" ? (
-              <UserBubble key={entry.id} entry={entry} initials={userInitials} />
+              <UserBubble
+                key={entry.id}
+                entry={entry}
+                initials={userInitials}
+              />
             ) : (
               <AbbyBubble
                 key={entry.id}
@@ -572,7 +649,7 @@ export default function AskAbbyChannel() {
                 onFeedback={handleFeedback}
                 onSuggestionClick={(s) => handleSend(s)}
               />
-            )
+            ),
           )}
 
           {isLoading && !streamingContent && (
@@ -589,12 +666,14 @@ export default function AskAbbyChannel() {
               <AbbyAvatar size="md" />
               <div className="max-w-[85%] min-w-0">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <span className="text-[13px] font-medium text-foreground">Abby</span>
+                  <span className="text-[13px] font-medium text-foreground">
+                    {t("abby.name")}
+                  </span>
                   <span className="text-[9px] px-1.5 py-px rounded bg-emerald-500/15 text-emerald-400 font-medium">
-                    AI assistant
+                    {t("abby.aiAssistant")}
                   </span>
                   <span className="text-[10px] text-muted-foreground ml-auto">
-                    typing...
+                    {t("abby.typing")}
                   </span>
                 </div>
                 <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-muted">
@@ -613,7 +692,7 @@ export default function AskAbbyChannel() {
               <AbbyAvatar size="sm" />
               <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-muted">
                 <p className="text-xs text-muted-foreground animate-pulse">
-                  Analyzing data...
+                  {t("abby.analyzingData")}
                 </p>
               </div>
             </div>
@@ -623,7 +702,7 @@ export default function AskAbbyChannel() {
             <div className="flex gap-2.5">
               <AbbyAvatar size="md" />
               <div className="max-w-[85%] px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-red-950/40 border border-red-800/30 text-[13px] text-red-400">
-                Something went wrong — please try again.
+                {t("abby.errorTryAgain")}
               </div>
             </div>
           )}
@@ -648,7 +727,7 @@ export default function AskAbbyChannel() {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask Abby anything about your research network..."
+              placeholder={t("abby.askPlaceholder")}
               disabled={isLoading || isDataLoading}
               className="flex-1 h-10 px-3.5 text-[13px] bg-surface-raised border border-white/[0.08] rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/30 disabled:opacity-60 transition-all duration-150"
             />
@@ -657,7 +736,7 @@ export default function AskAbbyChannel() {
               disabled={!inputValue.trim() || isLoading || isDataLoading}
               className="h-10 px-5 rounded-lg text-[13px] font-medium bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 cursor-pointer hover:shadow-[0_0_16px_rgba(16,185,129,0.25)]"
             >
-              Ask
+              {t("abby.askButton")}
             </button>
           </div>
         </div>
@@ -669,15 +748,27 @@ export default function AskAbbyChannel() {
 // ─── Helpers ────────────────────────────────────────────────────
 
 function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString("en-US", {
+  return formatDate(iso, {
     hour: "numeric",
     minute: "2-digit",
   });
 }
 
+function toAbbyRefTypeKey(type: string): string {
+  const map: Record<string, string> = {
+    cohort_definition: "abby.refTypes.cohortDefinition",
+    concept_set: "abby.refTypes.conceptSet",
+    study: "abby.refTypes.study",
+    analysis_result: "abby.refTypes.analysisResult",
+    data_source: "abby.refTypes.dataSource",
+    dq_report: "abby.refTypes.dqReport",
+  };
+  return map[type] ?? type;
+}
+
 function mapConversationMessage(
   message: AbbyConversationMessage,
-  userName: string
+  userName: string,
 ): ConversationEntry {
   return {
     id: String(message.id),
@@ -685,8 +776,9 @@ function mapConversationMessage(
     content: message.content,
     timestamp: message.created_at,
     userName: message.role === "user" ? userName : undefined,
-    response: message.role === "assistant"
-      ? normalizeConversationResponse(message) ?? undefined
-      : undefined,
+    response:
+      message.role === "assistant"
+        ? (normalizeConversationResponse(message) ?? undefined)
+        : undefined,
   };
 }

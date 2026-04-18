@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { formatDate, formatNumber } from "@/i18n/format";
 import {
   useFeasibilityAssessment,
   useFeasibilityForecast,
@@ -23,7 +25,7 @@ function ScoreBadge({ score, pass: _pass }: { score: number; pass: boolean }) {
 
   return (
     <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${color}`}>
-      {score}%
+      {formatNumber(score)}%
     </span>
   );
 }
@@ -31,6 +33,7 @@ function ScoreBadge({ score, pass: _pass }: { score: number; pass: boolean }) {
 type DetailView = "table" | "impact" | "consort";
 
 export default function FeasibilityView() {
+  const { t } = useTranslation("app");
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [detailView, setDetailView] = useState<DetailView>("table");
@@ -41,17 +44,28 @@ export default function FeasibilityView() {
   const { data: impactData } = useFeasibilityImpact(selectedId);
   const { data: forecastData } = useFeasibilityForecast(selectedId, forecastSourceId);
   const runMutation = useRunFeasibility();
+  const detailViewLabel = (mode: DetailView) =>
+    t(`dataExplorer.ares.feasibility.detailViews.${mode}`);
+  const criteriaLabels = [
+    t("dataExplorer.ares.feasibility.criteria.domains"),
+    t("dataExplorer.ares.feasibility.criteria.concepts"),
+    t("dataExplorer.ares.feasibility.criteria.visitTypes"),
+    t("dataExplorer.ares.feasibility.criteria.dateRange"),
+    t("dataExplorer.ares.feasibility.criteria.patientCount"),
+  ];
 
   return (
     <div className="p-4">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-medium text-text-primary">Feasibility Assessments</h2>
+        <h2 className="text-lg font-medium text-text-primary">
+          {t("dataExplorer.ares.feasibility.title")}
+        </h2>
         <button
           type="button"
           onClick={() => setShowForm(!showForm)}
           className="rounded bg-accent px-3 py-1.5 text-sm font-medium text-black hover:bg-accent"
         >
-          + New Assessment
+          {t("dataExplorer.ares.feasibility.actions.newAssessment")}
         </button>
       </div>
 
@@ -91,7 +105,10 @@ export default function FeasibilityView() {
               <div>
                 <p className="text-sm font-medium text-text-primary">{a.name}</p>
                 <p className="text-[11px] text-text-ghost">
-                  {new Date(a.created_at).toLocaleDateString()} | {a.sources_assessed} sources assessed
+                  {t("dataExplorer.ares.feasibility.assessmentMeta", {
+                    date: formatDate(a.created_at),
+                    sources: formatNumber(a.sources_assessed),
+                  })}
                 </p>
               </div>
               <span
@@ -103,7 +120,10 @@ export default function FeasibilityView() {
                       : "bg-primary/20 text-critical"
                 }`}
               >
-                {a.sources_passed}/{a.sources_assessed} passed
+                {t("dataExplorer.ares.feasibility.passedSummary", {
+                  passed: formatNumber(a.sources_passed),
+                  total: formatNumber(a.sources_assessed),
+                })}
               </span>
             </button>
           ))}
@@ -113,7 +133,9 @@ export default function FeasibilityView() {
       {/* Detail view toggle */}
       {selectedAssessment?.results && (
         <div className="mb-3 flex items-center gap-2">
-          <span className="text-xs text-text-ghost">View:</span>
+          <span className="text-xs text-text-ghost">
+            {t("dataExplorer.ares.feasibility.filters.view")}
+          </span>
           {(["table", "impact", "consort"] as const).map((mode) => (
             <button
               key={mode}
@@ -125,7 +147,7 @@ export default function FeasibilityView() {
                   : "text-text-muted hover:text-text-primary"
               }`}
             >
-              {mode === "table" ? "Score Table" : mode === "impact" ? "Impact Analysis" : "CONSORT Flow"}
+              {detailViewLabel(mode)}
             </button>
           ))}
         </div>
@@ -135,21 +157,41 @@ export default function FeasibilityView() {
       {selectedAssessment?.results && detailView === "table" && (
         <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
           <h3 className="mb-3 text-sm font-medium text-text-primary">
-            Results: {selectedAssessment.name}
+            {t("dataExplorer.ares.feasibility.resultsTitle", {
+              name: selectedAssessment.name,
+            })}
           </h3>
           <div className="overflow-hidden rounded-lg border border-border-subtle">
             <table className="w-full text-sm">
               <thead className="bg-surface-overlay">
                 <tr className="border-b border-border-subtle">
-                  <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">Source</th>
-                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">Domains</th>
-                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">Concepts</th>
-                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">Visits</th>
-                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">Dates</th>
-                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">Patients</th>
-                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">Score</th>
-                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">Overall</th>
-                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">Forecast</th>
+                  <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">
+                    {t("dataExplorer.ares.feasibility.table.source")}
+                  </th>
+                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">
+                    {t("dataExplorer.ares.feasibility.table.domains")}
+                  </th>
+                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">
+                    {t("dataExplorer.ares.feasibility.table.concepts")}
+                  </th>
+                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">
+                    {t("dataExplorer.ares.feasibility.table.visits")}
+                  </th>
+                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">
+                    {t("dataExplorer.ares.feasibility.table.dates")}
+                  </th>
+                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">
+                    {t("dataExplorer.ares.feasibility.table.patients")}
+                  </th>
+                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">
+                    {t("dataExplorer.ares.feasibility.table.score")}
+                  </th>
+                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">
+                    {t("dataExplorer.ares.feasibility.table.overall")}
+                  </th>
+                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">
+                    {t("dataExplorer.ares.feasibility.table.forecast")}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -181,7 +223,7 @@ export default function FeasibilityView() {
                               : "bg-primary/20 text-critical"
                         }`}
                       >
-                        {r.composite_score ?? 0}%
+                        {formatNumber(r.composite_score ?? 0)}%
                       </span>
                     </td>
                     <td className="px-3 py-2 text-center">
@@ -193,9 +235,15 @@ export default function FeasibilityView() {
                               : "bg-primary/20 text-critical"
                           }`}
                         >
-                          {r.overall_pass ? "ELIGIBLE" : "INELIGIBLE"}
+                          {r.overall_pass
+                            ? t("dataExplorer.ares.feasibility.status.eligible")
+                            : t("dataExplorer.ares.feasibility.status.ineligible")}
                         </span>
-                        <span className="text-[10px] text-text-ghost">{r.composite_score ?? 0}% score</span>
+                        <span className="text-[10px] text-text-ghost">
+                          {t("dataExplorer.ares.feasibility.scoreLabel", {
+                            score: formatNumber(r.composite_score ?? 0),
+                          })}
+                        </span>
                       </div>
                     </td>
                     <td className="px-3 py-2 text-center">
@@ -214,7 +262,9 @@ export default function FeasibilityView() {
                               : "border border-border-default text-text-muted hover:border-accent hover:text-accent"
                           }`}
                         >
-                          {forecastSourceId === r.source_id ? "Hide" : "Forecast"}
+                          {forecastSourceId === r.source_id
+                            ? t("dataExplorer.ares.feasibility.actions.hide")
+                            : t("dataExplorer.ares.feasibility.actions.forecast")}
                         </button>
                       )}
                     </td>
@@ -249,13 +299,13 @@ export default function FeasibilityView() {
       {selectedAssessment?.results && detailView === "consort" && (
         <ConsortDiagram
           results={selectedAssessment.results}
-          criteriaLabels={["Domains", "Concepts", "Visit Types", "Date Range", "Patient Count"]}
+          criteriaLabels={criteriaLabels}
         />
       )}
 
       {!assessments || assessments.length === 0 ? (
         <p className="py-10 text-center text-text-ghost">
-          No assessments yet. Create one to evaluate if your network can support a proposed study.
+          {t("dataExplorer.ares.feasibility.empty")}
         </p>
       ) : null}
     </div>

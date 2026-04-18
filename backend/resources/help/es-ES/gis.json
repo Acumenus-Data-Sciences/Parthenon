@@ -1,0 +1,17 @@
+{
+  "key": "gis",
+  "title": "Explorador GIS",
+  "description": "El Explorador GIS permite a los investigadores explorar patrones epidemiológicos en regiones geográficas. Proporciona mapas coropléticos interactivos de métricas clínicas (conteo de pacientes, prevalencia de condiciones, edad promedio) superpuestos sobre límites administrativos de conjuntos GADM y geoBoundaries. Los investigadores pueden seleccionar regiones para crear estudios o explorar cohortes por geografía. Está construido sobre consultas espaciales PostGIS con renderizado deck.gl acelerado por WebGL.",
+  "docs_url": "/docs/gis-explorer",
+  "video_url": null,
+  "tips": [
+    "Un administrador debe cargar primero datos de límites antes de que el mapa muestre regiones. Vaya a Administración → Salud del sistema → Gestión de datos GIS para importar shapefiles GADM o geoBoundaries.",
+    "Use el desplegable Nivel administrativo para cambiar entre países (ADM0), estados/provincias (ADM1), distritos (ADM2) y subdistritos (ADM3) según la granularidad geográfica que necesite.",
+    "Seleccione una métrica coroplética — conteo de pacientes, conteo de condiciones o edad promedio — para codificar regiones por intensidad de datos clínicos y revelar patrones geográficos en su cohorte.",
+    "Filtre por país para enfocar el mapa en subregiones de una nación específica, lo que mejora el rendimiento de renderizado al trabajar con límites ADM2 o ADM3 de alta resolución.",
+    "Haga clic en cualquier región para abrir su panel de detalle, que muestra área, conteos de regiones hijas y resúmenes de exposición para pacientes cuyos registros caen dentro de ese límite.",
+    "Use Crear estudio para {Region} en el panel de detalle para iniciar un nuevo estudio precargado con el área geográfica seleccionada como criterio de inclusión espacial.",
+    "Use Explorar cohortes en la región para encontrar definiciones de cohortes existentes cuyas poblaciones de pacientes se intersectan con el límite administrativo seleccionado.",
+    "El panel de leyenda muestra la escala de gradiente de color para la métrica activa; los colores más oscuros indican valores más altos, y el rango se ajusta dinámicamente a las regiones visibles."
+  ]
+}

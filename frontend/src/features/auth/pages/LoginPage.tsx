@@ -29,7 +29,7 @@ const capabilityKeys = [
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { t } = useTranslation("auth");
+  const { t } = useTranslation(["auth", "common"]);
   const setAuth = useAuthStore((s) => s.setAuth);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -233,6 +233,7 @@ export function LoginPage() {
                 borderBottom: "1px solid var(--auth-hero-text-ghost)",
               }}
             >
+              {/* i18n-exempt: brand name */}
               GitHub
             </a>
           </p>
@@ -300,7 +301,7 @@ export function LoginPage() {
                 e.currentTarget.style.color = "var(--auth-hero-accent)";
               }}
             >
-              {t("hero.links.blog")} &rarr;
+              {t("hero.links.blog")} <span aria-hidden="true">{"→"}</span>
             </a>
             <a
               href="https://discord.gg/GkkT7dzmwf"
@@ -325,7 +326,7 @@ export function LoginPage() {
                 e.currentTarget.style.color = "var(--auth-hero-accent)";
               }}
             >
-              {t("hero.links.discord")} &rarr;
+              {t("hero.links.discord")} <span aria-hidden="true">{"→"}</span>
             </a>
             <a
               href="/install"
@@ -354,7 +355,7 @@ export function LoginPage() {
                   "var(--auth-hero-link-border-muted)";
               }}
             >
-              {t("hero.links.install")} &rarr;
+              {t("hero.links.install")} <span aria-hidden="true">{"→"}</span>
             </a>
           </div>
 
@@ -399,7 +400,7 @@ export function LoginPage() {
                 e.currentTarget.style.color = "var(--auth-hero-text-ghost)";
               }}
             >
-              Acumenus Data Sciences
+              {t("common:companyFull")}
             </a>
           </div>
         </div>
@@ -586,7 +587,7 @@ export function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="you@example.com"
+                  placeholder={"you@example.com" /* i18n-exempt: example email address */}
                   style={{
                     width: "100%",
                     padding: "10px 12px 10px 36px",
@@ -900,7 +901,7 @@ export function LoginPage() {
                 rel="noopener noreferrer"
                 style={{ color: "inherit", textDecoration: "none" }}
               >
-                Acumenus Data Sciences
+                {t("common:companyFull")}
               </a>
             </p>
           </div>

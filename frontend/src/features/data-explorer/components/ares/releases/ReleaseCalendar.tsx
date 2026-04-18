@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { ReleaseCalendarEvent } from "../../../types/ares";
 
 interface ReleaseCalendarProps {
@@ -12,8 +13,14 @@ function getIntensityClass(count: number): string {
 }
 
 export default function ReleaseCalendar({ events }: ReleaseCalendarProps) {
+  const { t } = useTranslation("app");
+
   if (events.length === 0) {
-    return <p className="text-center text-xs text-text-ghost">No release events.</p>;
+    return (
+      <p className="text-center text-xs text-text-ghost">
+        {t("dataExplorer.ares.releases.calendar.noEvents")}
+      </p>
+    );
   }
 
   // Group events by date
@@ -77,7 +84,10 @@ export default function ReleaseCalendar({ events }: ReleaseCalendarProps) {
                     >
                       {day.count > 0 && (
                         <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 -translate-x-1/2 whitespace-nowrap rounded bg-surface-base px-2 py-1 text-[9px] text-text-secondary opacity-0 shadow-lg group-hover:opacity-100 transition-opacity border border-border-subtle">
-                          {day.date}: {day.count} release{day.count > 1 ? "s" : ""}
+                          {t("dataExplorer.ares.releases.calendar.dayEvents", {
+                            date: day.date,
+                            count: day.count,
+                          })}
                         </div>
                       )}
                     </div>
@@ -89,12 +99,12 @@ export default function ReleaseCalendar({ events }: ReleaseCalendarProps) {
         ))}
       </div>
       <div className="mt-2 flex items-center gap-1 text-[9px] text-text-ghost">
-        <span>Less</span>
+        <span>{t("dataExplorer.ares.releases.calendar.less")}</span>
         <span className="h-3 w-3 rounded-sm bg-surface-overlay" />
         <span className="h-3 w-3 rounded-sm bg-success/20" />
         <span className="h-3 w-3 rounded-sm bg-success/40" />
         <span className="h-3 w-3 rounded-sm bg-success/70" />
-        <span>More</span>
+        <span>{t("dataExplorer.ares.releases.calendar.more")}</span>
       </div>
     </div>
   );

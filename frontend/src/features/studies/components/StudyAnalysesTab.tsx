@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Loader2,
   Plus,
@@ -17,6 +18,7 @@ import {
   Database,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { formatDateTime } from "@/i18n/format";
 import { ExecutionStatusBadge } from "@/features/analyses/components/ExecutionStatusBadge";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import {
@@ -38,22 +40,26 @@ import type { ExecutionStatus } from "@/features/analyses/types/analysis";
 // Constants
 // ---------------------------------------------------------------------------
 
-const ANALYSIS_TYPE_META: Record<string, { label: string; icon: typeof BarChart3; color: string; detailPath: string }> = {
-  characterization: { label: "Characterization", icon: BarChart3, color: "var(--success)", detailPath: "/analyses/characterizations" },
-  "incidence-rate": { label: "Incidence Rate", icon: TrendingUp, color: "var(--info)", detailPath: "/analyses/incidence-rates" },
-  incidence_rate: { label: "Incidence Rate", icon: TrendingUp, color: "var(--info)", detailPath: "/analyses/incidence-rates" },
-  pathway: { label: "Pathway", icon: GitBranch, color: "var(--domain-observation)", detailPath: "/analyses/pathways" },
-  estimation: { label: "Estimation", icon: Scale, color: "var(--warning)", detailPath: "/analyses/estimations" },
-  prediction: { label: "Prediction", icon: Brain, color: "var(--critical)", detailPath: "/analyses/predictions" },
+const ANALYSIS_TYPE_META: Record<string, { i18nKey: string; icon: typeof BarChart3; color: string; detailPath: string }> = {
+  characterization: { i18nKey: "characterization", icon: BarChart3, color: "var(--success)", detailPath: "/analyses/characterizations" },
+  "incidence-rate": { i18nKey: "incidence-rate", icon: TrendingUp, color: "var(--info)", detailPath: "/analyses/incidence-rates" },
+  incidence_rate: { i18nKey: "incidence-rate", icon: TrendingUp, color: "var(--info)", detailPath: "/analyses/incidence-rates" },
+  pathway: { i18nKey: "pathway", icon: GitBranch, color: "var(--domain-observation)", detailPath: "/analyses/pathways" },
+  estimation: { i18nKey: "estimation", icon: Scale, color: "var(--warning)", detailPath: "/analyses/estimations" },
+  prediction: { i18nKey: "prediction", icon: Brain, color: "var(--critical)", detailPath: "/analyses/predictions" },
 };
 
 const ADD_ANALYSIS_TYPES = [
-  { value: "characterization", label: "Characterization" },
-  { value: "incidence_rate", label: "Incidence Rate" },
-  { value: "pathway", label: "Pathway" },
-  { value: "estimation", label: "Estimation" },
-  { value: "prediction", label: "Prediction" },
+  "characterization",
+  "incidence_rate",
+  "pathway",
+  "estimation",
+  "prediction",
 ];
+
+function humanize(value: string): string {
+  return value.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
 
 // ---------------------------------------------------------------------------
 // Component
@@ -65,6 +71,7 @@ interface StudyAnalysesTabProps {
 }
 
 export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
+  const { t } = useTranslation("app");
   const navigate = useNavigate();
   const slug = studySlug;
   const { data: analyses, isLoading } = useStudyAnalyses(slug);
@@ -145,14 +152,14 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-sm font-semibold text-text-secondary">
-            Analysis Pipeline ({analyses?.length ?? 0})
+            {t("studies.detail.sections.analysisPipeline", { count: analyses?.length ?? 0 })}
           </h3>
           {progress && progress.total > 0 && (
             <div className="flex items-center gap-3 mt-1 text-xs text-text-ghost">
-              <span className="text-success">{progress.completed} completed</span>
-              <span className="text-warning">{progress.running} running</span>
-              <span className="text-critical">{progress.failed} failed</span>
-              <span>{progress.pending} pending</span>
+              <span className="text-success">{t("studies.detail.progress.completed", { count: progress.completed })}</span>
+              <span className="text-warning">{t("studies.detail.progress.running", { count: progress.running })}</span>
+              <span className="text-critical">{t("studies.detail.progress.failed", { count: progress.failed })}</span>
+              <span>{t("studies.detail.progress.pending", { count: progress.pending })}</span>
             </div>
           )}
         </div>
@@ -166,7 +173,7 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
               className="form-input form-select py-1.5 pl-7 text-xs"
               style={{ minWidth: "140px" }}
             >
-              <option value="">Select source...</option>
+              <option value="">{t("studies.analyses.selectSource")}</option>
               {sources?.map((s) => <option key={s.id} value={s.id}>{s.source_name}</option>)}
             </select>
           </div>
@@ -177,10 +184,10 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
             className="btn btn-primary btn-sm"
           >
             {executeMutation.isPending || isRunning ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
-            Execute All
+            {t("studies.analyses.executeAll")}
           </button>
           <button type="button" onClick={() => setShowAddPanel(!showAddPanel)} className="btn btn-ghost btn-sm">
-            <Plus size={14} /> Add
+            <Plus size={14} /> {t("studies.designer.actions.add")}
           </button>
         </div>
       </div>
@@ -199,26 +206,32 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
       {/* Add Analysis Panel */}
       {showAddPanel && (
         <div className="panel">
-          <h4 className="text-sm font-semibold text-text-secondary mb-3">Add Analysis to Study</h4>
+          <h4 className="text-sm font-semibold text-text-secondary mb-3">
+            {t("studies.analyses.addAnalysisToStudy")}
+          </h4>
           <div className="flex items-end gap-3">
             <div className="flex-1">
-              <label className="form-label">Analysis Type</label>
+              <label className="form-label">{t("studies.designer.labels.analysisType")}</label>
               <select
                 value={addType}
                 onChange={(e) => { setAddType(e.target.value); setAddId(null); }}
                 className="form-input form-select"
               >
-                {ADD_ANALYSIS_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                {ADD_ANALYSIS_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {t(`studies.designer.analysisTypes.${type === "incidence_rate" ? "incidence-rate" : type}`)}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="flex-1">
-              <label className="form-label">Analysis</label>
+              <label className="form-label">{t("studies.designer.labels.analysis")}</label>
               <select
                 value={addId ?? ""}
                 onChange={(e) => setAddId(Number(e.target.value) || null)}
                 className="form-input form-select"
               >
-                <option value="">Select analysis...</option>
+                <option value="">{t("studies.designer.placeholders.selectAnalysis")}</option>
                 {getAnalysisOptions().map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
               </select>
             </div>
@@ -229,7 +242,7 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
               className="btn btn-primary btn-sm"
             >
               {addMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-              Add
+              {t("studies.designer.actions.add")}
             </button>
             <button type="button" onClick={() => setShowAddPanel(false)} className="btn btn-ghost btn-sm">
               <X size={14} />
@@ -242,19 +255,22 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
       {(!analyses || analyses.length === 0) ? (
         <div className="empty-state">
           <BarChart3 size={24} className="text-text-ghost mb-2" />
-          <h3 className="empty-title">No analyses in this study</h3>
-          <p className="empty-message">Add characterizations, estimations, predictions, and more to build your analysis pipeline</p>
+          <h3 className="empty-title">{t("studies.dashboard.empty.title")}</h3>
+          <p className="empty-message">{t("studies.analyses.emptyMessage")}</p>
         </div>
       ) : (
         <div className="space-y-4">
           {Object.entries(grouped).map(([type, entries]) => {
             const meta = ANALYSIS_TYPE_META[type] ?? {
-              label: type.replace(/_/g, " "),
+              i18nKey: "",
               icon: BarChart3,
               color: "var(--text-muted)",
               detailPath: "/analyses",
             };
             const Icon = meta.icon;
+            const analysisTypeLabel = meta.i18nKey
+              ? t(`studies.designer.analysisTypes.${meta.i18nKey}`)
+              : humanize(type);
 
             return (
               <div key={type}>
@@ -262,7 +278,7 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
                 <div className="flex items-center gap-2 mb-2">
                   <Icon size={14} style={{ color: meta.color }} />
                   <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: meta.color }}>
-                    {meta.label} ({entries.length})
+                    {t("studies.analyses.groupHeader", { label: analysisTypeLabel, count: entries.length })}
                   </span>
                 </div>
 
@@ -285,7 +301,7 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
 
                           <div className="flex-1 min-w-0">
                             <p className="text-sm text-text-primary font-medium truncate">
-                              {entry.analysis?.name ?? `Analysis #${entry.analysis_id}`}
+                              {entry.analysis?.name ?? t("studies.designer.messages.analysisFallback", { id: entry.analysis_id })}
                             </p>
                           </div>
 
@@ -295,7 +311,7 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
                               <ExecutionStatusBadge status={latestExec.status as ExecutionStatus} />
                             ) : (
                               <span className="text-[10px] text-text-ghost flex items-center gap-1">
-                                <Clock size={10} /> Not executed
+                                <Clock size={10} /> {t("studies.dashboard.messages.notExecuted")}
                               </span>
                             )}
                           </div>
@@ -306,20 +322,20 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
                               type="button"
                               onClick={() => navigate(`${meta.detailPath}/${entry.analysis_id}`)}
                               className="p-1.5 text-text-ghost hover:text-success transition-colors"
-                              title="Open analysis detail"
+                              title={t("studies.analyses.openAnalysisDetail")}
                             >
                               <ExternalLink size={13} />
                             </button>
                             <button
                               type="button"
                               onClick={() => {
-                                if (window.confirm("Remove this analysis from the study?")) {
+                                if (window.confirm(t("studies.analyses.confirmRemove"))) {
                                   removeMutation.mutate({ slug, entryId: entry.id });
                                 }
                               }}
                               disabled={removeMutation.isPending}
                               className="p-1.5 text-text-ghost hover:text-critical transition-colors"
-                              title="Remove from study"
+                              title={t("studies.analyses.removeFromStudy")}
                             >
                               <X size={13} />
                             </button>
@@ -331,30 +347,30 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
                           <div className="border-t border-border-default px-4 py-3 bg-surface-base">
                             <div className="grid grid-cols-2 gap-4 text-xs">
                               <div>
-                                <span className="text-text-ghost uppercase tracking-wider">Type</span>
-                                <p className="text-text-secondary mt-0.5 capitalize">{meta.label}</p>
+                                <span className="text-text-ghost uppercase tracking-wider">{t("studies.dashboard.table.type")}</span>
+                                <p className="text-text-secondary mt-0.5 capitalize">{analysisTypeLabel}</p>
                               </div>
                               <div>
-                                <span className="text-text-ghost uppercase tracking-wider">Analysis ID</span>
+                                <span className="text-text-ghost uppercase tracking-wider">{t("studies.analyses.analysisId")}</span>
                                 <p className="text-text-secondary mt-0.5 font-['IBM_Plex_Mono',monospace]">{entry.analysis_id}</p>
                               </div>
                               {latestExec && (
                                 <>
                                   <div>
-                                    <span className="text-text-ghost uppercase tracking-wider">Last Run</span>
+                                    <span className="text-text-ghost uppercase tracking-wider">{t("studies.analyses.lastRun")}</span>
                                     <p className="text-text-secondary mt-0.5">
-                                      {latestExec.started_at ? new Date(latestExec.started_at).toLocaleString() : "—"}
+                                      {latestExec.started_at ? formatDateTime(latestExec.started_at) : "—"}
                                     </p>
                                   </div>
                                   <div>
-                                    <span className="text-text-ghost uppercase tracking-wider">Completed</span>
+                                    <span className="text-text-ghost uppercase tracking-wider">{t("studies.dashboard.stats.completed")}</span>
                                     <p className="text-text-secondary mt-0.5">
-                                      {latestExec.completed_at ? new Date(latestExec.completed_at).toLocaleString() : "—"}
+                                      {latestExec.completed_at ? formatDateTime(latestExec.completed_at) : "—"}
                                     </p>
                                   </div>
                                   {latestExec.fail_message && (
                                     <div className="col-span-2">
-                                      <span className="text-text-ghost uppercase tracking-wider">Error</span>
+                                      <span className="text-text-ghost uppercase tracking-wider">{t("studies.analyses.error")}</span>
                                       <p className="text-critical mt-0.5 font-mono text-[11px]">{latestExec.fail_message}</p>
                                     </div>
                                   )}
@@ -367,7 +383,7 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
                                 onClick={() => navigate(`${meta.detailPath}/${entry.analysis_id}`)}
                                 className="btn btn-ghost btn-sm text-xs"
                               >
-                                <ExternalLink size={12} /> View Full Detail
+                                <ExternalLink size={12} /> {t("studies.analyses.viewFullDetail")}
                               </button>
                             </div>
                           </div>

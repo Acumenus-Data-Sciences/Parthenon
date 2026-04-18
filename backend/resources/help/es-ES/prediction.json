@@ -1,0 +1,14 @@
+{
+  "key": "prediction",
+  "title": "Predicción a nivel de paciente",
+  "description": "La Predicción a nivel de paciente (PLP) entrena modelos de aprendizaje automático para predecir desenlaces individuales de pacientes dentro de una ventana de tiempo en riesgo especificada. Los modelos incluyen regresión logística LASSO, bosques aleatorios y gradient boosting.",
+  "docs_url": "/docs/part4-analyses/13-patient-level-prediction",
+  "video_url": null,
+  "tips": [
+    "Defina cuidadosamente la ventana de predicción: una ventana demasiado corta pierde desenlaces tardíos; una demasiado larga captura eventos no relacionados.",
+    "Se recomienda una prevalencia mínima del desenlace de 1% para entrenar modelos confiables.",
+    "La regresión logística LASSO es el modelo inicial recomendado: es interpretable y rápida.",
+    "Revise el AUC, el gráfico de calibración y la importancia de características antes de desplegar cualquier modelo de predicción.",
+    "PLP requiere el entorno de ejecución HADES de Darkstar; revise Salud del sistema si la ejecución se detiene."
+  ]
+}

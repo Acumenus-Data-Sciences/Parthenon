@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Loader2, Plus, Users, Trash2, Edit3, Save, X, Search } from "lucide-react";
+import { formatDate } from "@/i18n/format";
 import { cn } from "@/lib/utils";
 import {
   useStudyTeam,
@@ -40,6 +42,7 @@ interface StudyTeamTabProps {
 }
 
 export function StudyTeamTab({ slug }: StudyTeamTabProps) {
+  const { t } = useTranslation("app");
   const { data: members, isLoading } = useStudyTeam(slug);
   const { data: usersData } = useUsers();
   const addMutation = useAddStudyTeamMember();
@@ -65,8 +68,11 @@ export function StudyTeamTab({ slug }: StudyTeamTabProps) {
         (u) =>
           u.name?.toLowerCase().includes(userSearch.toLowerCase()) ||
           u.email?.toLowerCase().includes(userSearch.toLowerCase()),
-      )
+    )
     : availableUsers;
+
+  const roleLabel = (role: string) =>
+    t(`studies.team.roles.${role}`, { defaultValue: role.replace(/_/g, " ") });
 
   const handleCreate = () => {
     if (!selectedUserId) return;
@@ -93,28 +99,34 @@ export function StudyTeamTab({ slug }: StudyTeamTabProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-text-secondary">Team Members ({members?.length ?? 0})</h3>
+        <h3 className="text-sm font-semibold text-text-secondary">
+          {t("studies.team.sections.members", { count: members?.length ?? 0 })}
+        </h3>
         <button type="button" onClick={() => setShowAdd(true)} disabled={showAdd} className="btn btn-primary btn-sm">
-          <Plus size={14} /> Add Member
+          <Plus size={14} /> {t("studies.team.actions.addMember")}
         </button>
       </div>
 
       {/* Add member form */}
       {showAdd && (
         <div className="panel space-y-3">
-          <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">Add Team Member</p>
+          <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">
+            {t("studies.team.form.addTitle")}
+          </p>
 
           <div className="grid grid-cols-2 gap-3">
             {/* User search + select */}
             <div className="space-y-2">
-              <label className="text-[10px] text-text-ghost uppercase tracking-wider block">User</label>
+              <label className="text-[10px] text-text-ghost uppercase tracking-wider block">
+                {t("studies.team.form.user")}
+              </label>
               <div className="relative">
                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost" />
                 <input
                   type="text"
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
-                  placeholder="Search users by name or email..."
+                  placeholder={t("studies.team.form.userSearchPlaceholder")}
                   className="form-input pl-9 w-full"
                   autoFocus
                 />
@@ -143,39 +155,36 @@ export function StudyTeamTab({ slug }: StudyTeamTabProps) {
                 </div>
               ) : (
                 <p className="text-xs text-text-ghost py-2">
-                  {availableUsers.length === 0 ? "All users are already team members" : "No matching users"}
+                  {availableUsers.length === 0
+                    ? t("studies.team.messages.allUsersAssigned")
+                    : t("studies.team.messages.noMatchingUsers")}
                 </p>
               )}
             </div>
 
             {/* Role select */}
             <div>
-              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">Role</label>
+              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">
+                {t("studies.team.form.role")}
+              </label>
               <select value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)} className="form-input form-select w-full">
                 {ROLES.map((r) => (
-                  <option key={r} value={r}>{r.replace(/_/g, " ")}</option>
+                  <option key={r} value={r}>{roleLabel(r)}</option>
                 ))}
               </select>
               <p className="text-[10px] text-text-ghost mt-2">
-                {selectedRole === "principal_investigator" && "Lead researcher responsible for the study"}
-                {selectedRole === "co_investigator" && "Contributing researcher with study oversight"}
-                {selectedRole === "data_scientist" && "Develops and runs analytical pipelines"}
-                {selectedRole === "statistician" && "Statistical analysis and methodology"}
-                {selectedRole === "site_lead" && "Manages data partner site operations"}
-                {selectedRole === "data_analyst" && "Data processing and quality checks"}
-                {selectedRole === "research_coordinator" && "Coordinates study logistics and timelines"}
-                {selectedRole === "irb_liaison" && "Manages IRB submissions and compliance"}
-                {selectedRole === "project_manager" && "Overall project planning and tracking"}
-                {selectedRole === "observer" && "Read-only access to study materials"}
+                {t(`studies.team.roleDescriptions.${selectedRole}`)}
               </p>
             </div>
           </div>
 
           <div className="flex gap-2 justify-end">
-            <button type="button" onClick={() => { setShowAdd(false); setUserSearch(""); setSelectedUserId(""); }} className="btn btn-ghost btn-sm">Cancel</button>
+            <button type="button" onClick={() => { setShowAdd(false); setUserSearch(""); setSelectedUserId(""); }} className="btn btn-ghost btn-sm">
+              {t("studies.team.actions.cancel")}
+            </button>
             <button type="button" onClick={handleCreate} disabled={!selectedUserId || addMutation.isPending} className="btn btn-primary btn-sm">
               {addMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-              Add Member
+              {t("studies.team.actions.addMember")}
             </button>
           </div>
         </div>
@@ -184,19 +193,19 @@ export function StudyTeamTab({ slug }: StudyTeamTabProps) {
       {(!members || members.length === 0) ? (
         <div className="empty-state">
           <Users size={24} className="text-text-ghost mb-2" />
-          <h3 className="empty-title">No team members</h3>
-          <p className="empty-message">Add researchers and collaborators to this study</p>
+          <h3 className="empty-title">{t("studies.team.empty.title")}</h3>
+          <p className="empty-message">{t("studies.team.empty.message")}</p>
         </div>
       ) : (
         <div className="panel" style={{ padding: 0, overflow: "hidden" }}>
           <table className="data-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Joined</th>
+                <th>{t("studies.team.table.name")}</th>
+                <th>{t("studies.team.table.email")}</th>
+                <th>{t("studies.team.table.role")}</th>
+                <th>{t("studies.team.table.status")}</th>
+                <th>{t("studies.team.table.joined")}</th>
                 <th className="w-20" />
               </tr>
             </thead>
@@ -211,7 +220,9 @@ export function StudyTeamTab({ slug }: StudyTeamTabProps) {
                         <div className="w-6 h-6 rounded-full bg-success/10 flex items-center justify-center text-[10px] font-medium text-success">
                           {m.user?.name?.charAt(0)?.toUpperCase() ?? "?"}
                         </div>
-                        <span className="text-text-primary font-medium">{m.user?.name ?? `User #${m.user_id}`}</span>
+                        <span className="text-text-primary font-medium">
+                          {m.user?.name ?? t("studies.team.messages.userFallback", { id: m.user_id })}
+                        </span>
                       </div>
                     </td>
                     <td className="text-xs text-text-muted">{m.user?.email ?? "—"}</td>
@@ -223,21 +234,21 @@ export function StudyTeamTab({ slug }: StudyTeamTabProps) {
                           className="form-input form-select py-1 text-xs"
                         >
                           {ROLES.map((r) => (
-                            <option key={r} value={r}>{r.replace(/_/g, " ")}</option>
+                            <option key={r} value={r}>{roleLabel(r)}</option>
                           ))}
                         </select>
                       ) : (
                         <span className="px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider" style={{ color, backgroundColor: `${color}15` }}>
-                          {m.role.replace(/_/g, " ")}
+                          {roleLabel(m.role)}
                         </span>
                       )}
                     </td>
                     <td>
                       <span className={`text-xs ${m.is_active ? "text-success" : "text-text-ghost"}`}>
-                        {m.is_active ? "Active" : "Inactive"}
+                        {m.is_active ? t("studies.team.statuses.active") : t("studies.team.statuses.inactive")}
                       </span>
                     </td>
-                    <td className="text-xs text-text-muted">{new Date(m.joined_at).toLocaleDateString()}</td>
+                    <td className="text-xs text-text-muted">{formatDate(m.joined_at)}</td>
                     <td>
                       <div className="flex items-center gap-1 justify-end">
                         {isEditing ? (
@@ -251,18 +262,24 @@ export function StudyTeamTab({ slug }: StudyTeamTabProps) {
                                 );
                               }}
                               className="p-1 text-success"
+                              title={t("studies.team.actions.save")}
                             >
                               <Save size={14} />
                             </button>
-                            <button type="button" onClick={() => setEditId(null)} className="p-1 text-text-ghost hover:text-text-secondary"><X size={14} /></button>
+                            <button type="button" onClick={() => setEditId(null)} className="p-1 text-text-ghost hover:text-text-secondary" title={t("studies.team.actions.cancel")}>
+                              <X size={14} />
+                            </button>
                           </>
                         ) : (
                           <>
-                            <button type="button" onClick={() => { setEditId(m.id); setEditRole(m.role); }} className="p-1 text-text-ghost hover:text-text-secondary"><Edit3 size={14} /></button>
+                            <button type="button" onClick={() => { setEditId(m.id); setEditRole(m.role); }} className="p-1 text-text-ghost hover:text-text-secondary" title={t("studies.team.actions.edit")}>
+                              <Edit3 size={14} />
+                            </button>
                             <button
                               type="button"
-                              onClick={() => { if (window.confirm("Remove this team member?")) removeMutation.mutate({ slug, memberId: m.id }); }}
+                              onClick={() => { if (window.confirm(t("studies.team.confirmRemove"))) removeMutation.mutate({ slug, memberId: m.id }); }}
                               className="p-1 text-text-ghost hover:text-critical"
+                              title={t("studies.team.actions.remove")}
                             >
                               <Trash2 size={14} />
                             </button>

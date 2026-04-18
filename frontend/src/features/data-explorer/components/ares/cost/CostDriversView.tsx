@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import { formatNumber } from "@/i18n/format";
 import { useCostDrivers } from "../../../hooks/useCostData";
 
 interface CostDriversViewProps {
@@ -23,20 +25,31 @@ const BAR_COLORS = [
 ];
 
 export default function CostDriversView({ sourceId }: CostDriversViewProps) {
+  const { t } = useTranslation("app");
   const { data, isLoading } = useCostDrivers(sourceId);
 
   if (!sourceId) {
-    return <div className="py-8 text-center text-text-ghost">Select a source to view cost drivers.</div>;
+    return (
+      <div className="py-8 text-center text-text-ghost">
+        {t("dataExplorer.ares.cost.messages.selectSourceForDrivers")}
+      </div>
+    );
   }
 
   if (isLoading) {
-    return <div className="p-4 text-text-ghost">Loading cost drivers...</div>;
+    return (
+      <div className="p-4 text-text-ghost">
+        {t("dataExplorer.ares.cost.messages.loadingDrivers")}
+      </div>
+    );
   }
 
   if (!data || !data.has_cost_data || data.drivers.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-12">
-        <p className="text-sm text-text-ghost">No cost driver data available for this source.</p>
+        <p className="text-sm text-text-ghost">
+          {t("dataExplorer.ares.cost.messages.noDriverData")}
+        </p>
       </div>
     );
   }
@@ -46,7 +59,7 @@ export default function CostDriversView({ sourceId }: CostDriversViewProps) {
   return (
     <div className="space-y-2">
       <p className="mb-3 text-xs text-text-ghost">
-        Top 10 concepts by total cost. Click a bar for concept detail.
+        {t("dataExplorer.ares.cost.messages.costDriversHelp")}
       </p>
       {data.drivers.map((driver, idx) => {
         const barWidth = maxCost > 0 ? (driver.total_cost / maxCost) * 100 : 0;
@@ -66,7 +79,11 @@ export default function CostDriversView({ sourceId }: CostDriversViewProps) {
               </div>
               <div className="flex items-center gap-3 text-xs">
                 <span className="font-semibold text-success">{formatCurrency(driver.total_cost)}</span>
-                <span className="text-accent">{driver.pct_of_total}%</span>
+                <span className="text-accent">
+                  {t("dataExplorer.ares.cost.metrics.percent", {
+                    value: formatNumber(driver.pct_of_total),
+                  })}
+                </span>
               </div>
             </div>
 
@@ -82,7 +99,9 @@ export default function CostDriversView({ sourceId }: CostDriversViewProps) {
               >
                 {barWidth > 15 && (
                   <span className="px-2 text-[10px] font-medium text-black">
-                    {driver.pct_of_total}%
+                    {t("dataExplorer.ares.cost.metrics.percent", {
+                      value: formatNumber(driver.pct_of_total),
+                    })}
                   </span>
                 )}
               </div>
@@ -90,10 +109,20 @@ export default function CostDriversView({ sourceId }: CostDriversViewProps) {
 
             {/* Stats row */}
             <div className="flex gap-4 text-[10px] text-text-ghost">
-              <span>{driver.record_count.toLocaleString()} records</span>
-              <span>{driver.patient_count.toLocaleString()} patients</span>
               <span>
-                Avg: {formatCurrency(driver.record_count > 0 ? driver.total_cost / driver.record_count : 0)}/record
+                {t("dataExplorer.ares.cost.metrics.recordCount", {
+                  count: formatNumber(driver.record_count),
+                })}
+              </span>
+              <span>
+                {t("dataExplorer.ares.cost.metrics.patientCount", {
+                  count: formatNumber(driver.patient_count),
+                })}
+              </span>
+              <span>
+                {t("dataExplorer.ares.cost.metrics.averagePerRecord", {
+                  value: formatCurrency(driver.record_count > 0 ? driver.total_cost / driver.record_count : 0),
+                })}
               </span>
             </div>
           </div>

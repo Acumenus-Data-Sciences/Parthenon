@@ -19,7 +19,7 @@
         "conditions": null,
         "provenance": {
             "source_row": 3532,
-            "imported_at": "2026-04-17T00:17:47+00:00",
+            "imported_at": "2026-04-17T19:57:14+00:00",
             "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
             "importer_version": "1.0.0"
         },
@@ -113,6 +113,7 @@
         "pre_conditions": null,
         "coverage_bucket": "FULLY_MAPPED",
         "sex_restriction": null,
+        "coverage_profile": "partial",
         "include_endpoints": [],
         "resolved_concepts": {
             "truncated": false,
@@ -172,11 +173,6 @@
                 1575702,
                 1575703,
                 1575704,
-                35223703,
-                35223764,
-                35223825,
-                35223826,
-                35223827,
                 37202239,
                 37202240,
                 37202241,
@@ -525,11 +521,6 @@
                 4053939,
                 4170415,
                 437453,
-                4143700,
-                4077127,
-                433109,
-                441471,
-                440606,
                 4166272,
                 439620,
                 440598,
@@ -566,7 +557,7 @@
     "is_public": true,
     "version": 1,
     "created_at": "2026-04-16T23:56:20.000000Z",
-    "updated_at": "2026-04-17T00:17:47.000000Z",
+    "updated_at": "2026-04-17T19:57:14.000000Z",
     "deleted_at": null,
     "tags": [
         "finngen-endpoint",
@@ -578,5 +569,6 @@
     "domain": "finngen-endpoint",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null
+    "superseded_by": null,
+    "coverage_profile": "partial"
 }

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import { formatDate } from "@/i18n/format";
 import type { SwimLaneEntry } from "../../../types/ares";
 
 interface SwimLaneTimelineProps {
@@ -10,8 +12,14 @@ const LANE_COLORS = [
 ];
 
 export default function SwimLaneTimeline({ data }: SwimLaneTimelineProps) {
+  const { t } = useTranslation("app");
+
   if (data.length === 0) {
-    return <p className="text-center text-xs text-text-ghost">No release data available.</p>;
+    return (
+      <p className="text-center text-xs text-text-ghost">
+        {t("dataExplorer.ares.releases.empty.noReleaseData")}
+      </p>
+    );
   }
 
   // Compute global date range
@@ -46,7 +54,7 @@ export default function SwimLaneTimeline({ data }: SwimLaneTimelineProps) {
                   <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-surface-base px-2 py-1 text-[10px] text-text-secondary opacity-0 shadow-lg group-hover:opacity-100 transition-opacity border border-border-subtle">
                     {release.name}
                     <br />
-                    <span className="text-text-ghost">{new Date(release.date).toLocaleDateString()}</span>
+                    <span className="text-text-ghost">{formatDate(release.date)}</span>
                     <br />
                     <span className="text-text-ghost">{release.type}</span>
                   </div>
@@ -60,8 +68,8 @@ export default function SwimLaneTimeline({ data }: SwimLaneTimelineProps) {
       <div className="flex items-center gap-3">
         <div className="w-32 shrink-0" />
         <div className="flex flex-1 justify-between text-[9px] text-text-ghost">
-          <span>{new Date(minDate).toLocaleDateString()}</span>
-          <span>{new Date(maxDate).toLocaleDateString()}</span>
+          <span>{formatDate(minDate)}</span>
+          <span>{formatDate(maxDate)}</span>
         </div>
       </div>
     </div>

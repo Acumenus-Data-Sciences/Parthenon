@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Search, X } from "lucide-react";
 import TagSearchModal from "./TagSearchModal";
 
@@ -40,6 +41,7 @@ export default function TagFilterBar({
   color = "teal",
   maxVisible = 15,
 }: TagFilterBarProps) {
+  const { t } = useTranslation("common");
   const [modalOpen, setModalOpen] = useState(false);
 
   if (tags.length === 0) return null;
@@ -58,7 +60,7 @@ export default function TagFilterBar({
   return (
     <>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-text-ghost">Filter by tag:</span>
+        <span className="text-xs text-text-ghost">{t("ui.tags.filterByTag")}</span>
 
         {displayTags.map((tag) => {
           const active = activeTags.includes(tag);
@@ -89,7 +91,7 @@ export default function TagFilterBar({
             className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-surface-elevated text-text-muted hover:text-text-primary hover:bg-surface-accent transition-colors"
           >
             <Search size={10} />
-            {adjustedHiddenCount} more
+            {t("ui.tags.more", { count: adjustedHiddenCount })}
           </button>
         )}
 
@@ -101,7 +103,7 @@ export default function TagFilterBar({
             className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium text-text-ghost hover:text-text-muted transition-colors"
           >
             <Search size={10} />
-            Search
+            {t("ui.tags.search")}
           </button>
         )}
 
@@ -111,7 +113,7 @@ export default function TagFilterBar({
             onClick={onClear}
             className="text-xs text-text-ghost hover:text-text-muted transition-colors"
           >
-            Clear all
+            {t("ui.tags.clearAll")}
           </button>
         )}
       </div>

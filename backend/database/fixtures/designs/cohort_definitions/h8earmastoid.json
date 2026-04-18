@@ -20,7 +20,7 @@
         "conditions": null,
         "provenance": {
             "source_row": 4602,
-            "imported_at": "2026-04-17T00:17:54+00:00",
+            "imported_at": "2026-04-17T19:57:22+00:00",
             "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
             "importer_version": "1.0.0"
         },
@@ -118,6 +118,7 @@
         "pre_conditions": null,
         "coverage_bucket": "PARTIAL",
         "sex_restriction": null,
+        "coverage_profile": "partial",
         "include_endpoints": [
             "H8_EXTERNAL",
             "H8_MIDDLEMASTOID",
@@ -374,7 +375,6 @@
                 45533417,
                 45533418,
                 45533419,
-                45533420,
                 45533422,
                 45533424,
                 45533425,
@@ -412,7 +412,6 @@
                 45538351,
                 45538352,
                 45538353,
-                45538355,
                 45538356,
                 45538358,
                 45538359,
@@ -506,7 +505,6 @@
                 45547985,
                 45547986,
                 45547987,
-                45547988,
                 45547990,
                 45547991,
                 45547992,
@@ -628,6 +626,9 @@
                 45562328,
                 45562329,
                 45562330,
+                45562331,
+                45562332,
+                45562333,
                 44819675,
                 44819676,
                 44819677,
@@ -1124,7 +1125,7 @@
     "is_public": true,
     "version": 1,
     "created_at": "2026-04-16T23:56:27.000000Z",
-    "updated_at": "2026-04-17T00:17:54.000000Z",
+    "updated_at": "2026-04-17T19:57:22.000000Z",
     "deleted_at": null,
     "tags": [
         "finngen-endpoint",
@@ -1137,5 +1138,6 @@
     "domain": "finngen-endpoint",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null
+    "superseded_by": null,
+    "coverage_profile": "partial"
 }

@@ -1,0 +1,30 @@
+{
+  "title": {
+    "message": "Parthenon",
+    "description": "The title in the navbar"
+  },
+  "logo.alt": {
+    "message": "Parthenon 로고",
+    "description": "The alt text of navbar logo"
+  },
+  "item.label.User Manual": {
+    "message": "사용자 매뉴얼",
+    "description": "Navbar item with label User Manual"
+  },
+  "item.label.API Reference": {
+    "message": "API 참조",
+    "description": "Navbar item with label API Reference"
+  },
+  "item.label.DB Architecture": {
+    "message": "DB 아키텍처",
+    "description": "Navbar item with label DB Architecture"
+  },
+  "item.label.Dev Blog": {
+    "message": "개발 블로그",
+    "description": "Navbar item with label Dev Blog"
+  },
+  "item.label.GitHub": {
+    "message": "GitHub",
+    "description": "Navbar item with label GitHub"
+  }
+}

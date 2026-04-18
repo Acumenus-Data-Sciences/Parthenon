@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   BookOpen, Upload, RefreshCw, CheckCircle2, XCircle,
   Clock, Loader2, Trash2, Database, FileArchive, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { Panel } from "@/components/ui";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
+import { formatDateTime, formatNumber } from "@/i18n/format";
 import {
   fetchVocabImports, fetchVocabImport, uploadVocabZip, deleteVocabImport,
   type VocabularyImport, type VocabImportStatus,
@@ -13,38 +15,36 @@ import {
 
 // ── Status helpers ────────────────────────────────────────────────────────────
 
-const STATUS_CONFIG: Record<VocabImportStatus, { label: string; color: string; icon: React.ComponentType<{ className?: string }> }> = {
-  pending:   { label: "Queued",    color: "text-amber-500",   icon: Clock },
-  running:   { label: "Running",   color: "text-blue-500",    icon: Loader2 },
-  completed: { label: "Completed", color: "text-emerald-500", icon: CheckCircle2 },
-  failed:    { label: "Failed",    color: "text-red-500",     icon: XCircle },
+const STATUS_CONFIG: Record<VocabImportStatus, { labelKey: string; color: string; icon: React.ComponentType<{ className?: string }> }> = {
+  pending:   { labelKey: "pending",   color: "text-amber-500",   icon: Clock },
+  running:   { labelKey: "running",   color: "text-blue-500",    icon: Loader2 },
+  completed: { labelKey: "completed", color: "text-emerald-500", icon: CheckCircle2 },
+  failed:    { labelKey: "failed",    color: "text-red-500",     icon: XCircle },
 };
 
 function StatusBadge({ status }: { status: VocabImportStatus }) {
+  const { t } = useTranslation("app");
   const cfg = STATUS_CONFIG[status];
   const Icon = cfg.icon;
   return (
     <span className={`inline-flex items-center gap-1.5 text-sm font-medium ${cfg.color}`}>
       <Icon className={`h-4 w-4 ${status === "running" ? "animate-spin" : ""}`} />
-      {cfg.label}
+      {t(`administration.vocabulary.status.${cfg.labelKey}`)}
     </span>
   );
 }
 
 function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
-}
-
-function formatNum(n: number): string {
-  return new Intl.NumberFormat().format(n);
+  if (bytes < 1024) return `${formatNumber(bytes)} B`;
+  if (bytes < 1024 * 1024) return `${formatNumber(bytes / 1024, { maximumFractionDigits: 1 })} KB`;
+  if (bytes < 1024 * 1024 * 1024) return `${formatNumber(bytes / (1024 * 1024), { maximumFractionDigits: 1 })} MB`;
+  return `${formatNumber(bytes / (1024 * 1024 * 1024), { maximumFractionDigits: 2 })} GB`;
 }
 
 // ── Log viewer ────────────────────────────────────────────────────────────────
 
 function LogViewer({ importId }: { importId: number }) {
+  const { t } = useTranslation("app");
   const [expanded, setExpanded] = useState(true);
   const logRef = useRef<HTMLPreElement>(null);
 
@@ -73,7 +73,7 @@ function LogViewer({ importId }: { importId: number }) {
         onClick={() => setExpanded((v) => !v)}
         className="flex w-full items-center justify-between px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
       >
-        <span>Import Log</span>
+        <span>{t("administration.vocabulary.log.title")}</span>
         {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
       </button>
       {expanded && (
@@ -81,7 +81,7 @@ function LogViewer({ importId }: { importId: number }) {
           ref={logRef}
           className="max-h-64 overflow-y-auto px-4 pb-3 font-mono text-xs text-foreground/80 whitespace-pre-wrap"
         >
-          {data.log_output ?? "(no output yet)"}
+          {data.log_output ?? t("administration.vocabulary.log.noOutput")}
         </pre>
       )}
     </div>
@@ -91,6 +91,7 @@ function LogViewer({ importId }: { importId: number }) {
 // ── Import card ───────────────────────────────────────────────────────────────
 
 function ImportCard({ imp, onDelete }: { imp: VocabularyImport; onDelete: (id: number) => void }) {
+  const { t } = useTranslation("app");
   const queryClient = useQueryClient();
 
   const { data: live = imp } = useQuery({
@@ -133,29 +134,29 @@ function ImportCard({ imp, onDelete }: { imp: VocabularyImport; onDelete: (id: n
         {live.target_schema && (
           <span className="flex items-center gap-1.5">
             <Database className="h-3.5 w-3.5" />
-            Schema: <code className="ml-0.5 text-foreground">{live.target_schema}</code>
+            {t("administration.vocabulary.labels.schema")} <code className="ml-0.5 text-foreground">{live.target_schema}</code>
           </span>
         )}
         {live.source && (
           <span className="flex items-center gap-1.5">
-            Source: <span className="text-foreground">{live.source.source_name}</span>
+            {t("administration.vocabulary.labels.source")} <span className="text-foreground">{live.source.source_name}</span>
           </span>
         )}
         {live.rows_loaded != null && (
-          <span>Rows loaded: <span className="text-foreground font-medium">{formatNum(live.rows_loaded)}</span></span>
+          <span>{t("administration.vocabulary.labels.rowsLoaded")} <span className="text-foreground font-medium">{formatNumber(live.rows_loaded)}</span></span>
         )}
         {elapsed != null && (
-          <span>Duration: <span className="text-foreground">{elapsed}s</span></span>
+          <span>{t("administration.vocabulary.labels.duration")} <span className="text-foreground">{t("administration.vocabulary.values.seconds", { value: formatNumber(elapsed) })}</span></span>
         )}
-        <span>By: <span className="text-foreground">{live.user?.name ?? "—"}</span></span>
-        <span>{new Date(live.created_at).toLocaleString()}</span>
+        <span>{t("administration.vocabulary.labels.by")} <span className="text-foreground">{live.user?.name ?? "—"}</span></span>
+        <span>{formatDateTime(live.created_at)}</span>
       </div>
 
       {/* Progress bar (only while active) */}
       {isActive && (
         <div className="space-y-1">
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Progress</span>
+            <span>{t("administration.vocabulary.labels.progress")}</span>
             <span>{live.progress_percentage}%</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
@@ -186,7 +187,7 @@ function ImportCard({ imp, onDelete }: { imp: VocabularyImport; onDelete: (id: n
             className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-colors"
           >
             <Trash2 className="h-3.5 w-3.5" />
-            Remove
+            {t("administration.vocabulary.actions.remove")}
           </button>
         </div>
       )}
@@ -203,6 +204,7 @@ function UploadZone({
   onUpload: (file: File, sourceId?: number) => void;
   uploading: boolean;
 }) {
+  const { t } = useTranslation("app");
   const [dragging, setDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedSource, setSelectedSource] = useState<string>("");
@@ -234,12 +236,14 @@ function UploadZone({
 
   return (
     <Panel className="space-y-4">
-      <h2 className="text-base font-semibold text-foreground">Upload Athena Vocabulary ZIP</h2>
+      <h2 className="text-base font-semibold text-foreground">{t("administration.vocabulary.upload.title")}</h2>
       <p className="text-sm text-muted-foreground">
-        Download a vocabulary bundle from{" "}
-        <span className="font-medium text-foreground">athena.ohdsi.org</span>, then upload it here.
-        The import runs as a background job and can take 15–60 minutes depending on vocabulary size.
-        Files up to <strong>5 GB</strong> are supported.
+        {t("administration.vocabulary.upload.descriptionPrefix")}{" "}
+        <span className="font-medium text-foreground">athena.ohdsi.org</span>{" "}
+        {t("administration.vocabulary.upload.descriptionMiddle")}{" "}
+        {" "}
+        {t("administration.vocabulary.upload.descriptionSuffix")}{" "}
+        <strong>{t("administration.vocabulary.upload.maxFileSize")}</strong>.
       </p>
 
       {/* Drop zone */}
@@ -278,15 +282,15 @@ function UploadZone({
               onClick={(e) => { e.stopPropagation(); setSelectedFile(null); }}
               className="text-xs text-muted-foreground underline hover:text-foreground"
             >
-              Remove
+              {t("administration.vocabulary.actions.remove")}
             </button>
           </>
         ) : (
           <>
             <Upload className="h-10 w-10 text-muted-foreground" />
             <div className="text-center">
-              <p className="font-medium text-foreground">Drop Athena ZIP here</p>
-              <p className="text-sm text-muted-foreground">or click to browse</p>
+              <p className="font-medium text-foreground">{t("administration.vocabulary.upload.dropHere")}</p>
+              <p className="text-sm text-muted-foreground">{t("administration.vocabulary.upload.browse")}</p>
             </div>
           </>
         )}
@@ -295,7 +299,7 @@ function UploadZone({
       {/* Source selector */}
       <div className="space-y-1.5">
         <label className="text-sm font-medium text-foreground" htmlFor="vocab-source">
-          Target CDM Source <span className="text-muted-foreground font-normal">(optional)</span>
+          {t("administration.vocabulary.upload.targetSource")} <span className="text-muted-foreground font-normal">{t("administration.vocabulary.labels.optional")}</span>
         </label>
         <select
           id="vocab-source"
@@ -303,7 +307,7 @@ function UploadZone({
           onChange={(e) => setSelectedSource(e.target.value)}
           className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
         >
-          <option value="">Default vocabulary schema</option>
+          <option value="">{t("administration.vocabulary.upload.defaultSchema")}</option>
           {sources.map((s) => (
             <option key={s.id} value={String(s.id)}>
               {s.source_name} ({s.source_key})
@@ -311,8 +315,9 @@ function UploadZone({
           ))}
         </select>
         <p className="text-xs text-muted-foreground">
-          Selects which source's vocabulary schema the import will populate. If no source is chosen,
-          the default <code>vocab</code> connection schema is used.
+          {t("administration.vocabulary.upload.sourceHelpPrefix")}{" "}
+          <code>vocab</code>{" "}
+          {t("administration.vocabulary.upload.sourceHelpSuffix")}
         </p>
       </div>
 
@@ -328,7 +333,9 @@ function UploadZone({
           ) : (
             <Upload className="h-4 w-4" />
           )}
-          {uploading ? "Uploading…" : "Start Import"}
+          {uploading
+            ? t("administration.vocabulary.actions.uploading")
+            : t("administration.vocabulary.actions.startImport")}
         </button>
       </div>
     </Panel>
@@ -338,6 +345,7 @@ function UploadZone({
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function VocabularyPage() {
+  const { t } = useTranslation("app");
   const queryClient = useQueryClient();
 
   const { data: imports = [], isLoading } = useQuery({
@@ -368,7 +376,7 @@ export default function VocabularyPage() {
   };
 
   const handleDelete = (id: number) => {
-    if (window.confirm("Delete this import record?")) {
+    if (window.confirm(t("administration.vocabulary.messages.deleteConfirm"))) {
       deleteMutation.mutate(id);
     }
   };
@@ -382,9 +390,9 @@ export default function VocabularyPage() {
             <BookOpen className="h-5 w-5 text-violet-500" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Vocabulary Management</h1>
+            <h1 className="text-2xl font-bold text-foreground">{t("administration.vocabulary.title")}</h1>
             <p className="text-sm text-muted-foreground">
-              Update OMOP vocabulary tables from an Athena download ZIP.
+              {t("administration.vocabulary.subtitle")}
             </p>
           </div>
         </div>
@@ -394,18 +402,18 @@ export default function VocabularyPage() {
           className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors"
         >
           <RefreshCw className="h-3.5 w-3.5" />
-          Refresh
+          {t("administration.vocabulary.actions.refresh")}
         </button>
       </div>
 
       {/* Instructions panel */}
       <Panel className="border-violet-500/20 bg-violet-500/5">
-        <h3 className="font-semibold text-foreground mb-2">How to get a vocabulary ZIP from Athena</h3>
+        <h3 className="font-semibold text-foreground mb-2">{t("administration.vocabulary.instructions.title")}</h3>
         <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
-          <li>Visit <strong className="text-foreground">athena.ohdsi.org</strong> and sign in.</li>
-          <li>Select the vocabulary domains and versions you need (e.g. SNOMED, RxNorm, LOINC).</li>
-          <li>Click <strong className="text-foreground">Download Vocabularies</strong> — Athena will email you a download link.</li>
-          <li>Download the ZIP (typically 500 MB – 3 GB) and upload it below.</li>
+          <li>{t("administration.vocabulary.instructions.signInPrefix")} <strong className="text-foreground">athena.ohdsi.org</strong> {t("administration.vocabulary.instructions.signInSuffix")}</li>
+          <li>{t("administration.vocabulary.instructions.selectDomains")}</li>
+          <li>{t("administration.vocabulary.instructions.clickPrefix")} <strong className="text-foreground">{t("administration.vocabulary.instructions.downloadVocabularies")}</strong> {t("administration.vocabulary.instructions.clickSuffix")}</li>
+          <li>{t("administration.vocabulary.instructions.uploadZip")}</li>
         </ol>
       </Panel>
 
@@ -416,13 +424,15 @@ export default function VocabularyPage() {
 
       {uploadMutation.isError && (
         <div className="rounded-md bg-red-500/10 px-4 py-3 text-sm text-red-400">
-          Upload failed: {(uploadMutation.error as Error)?.message ?? "Unknown error"}
+          {t("administration.vocabulary.messages.uploadFailed", {
+            message: (uploadMutation.error as Error)?.message ?? t("administration.vocabulary.messages.unknownError"),
+          })}
         </div>
       )}
 
       {uploadMutation.isSuccess && (
         <div className="rounded-md bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
-          ZIP uploaded successfully. Import job is queued — check below for progress.
+          {t("administration.vocabulary.messages.uploadSuccess")}
         </div>
       )}
 
@@ -431,21 +441,21 @@ export default function VocabularyPage() {
         <div className="flex items-center gap-3 rounded-lg bg-blue-500/10 border border-blue-500/20 px-4 py-3">
           <Loader2 className="h-5 w-5 animate-spin text-blue-500 shrink-0" />
           <p className="text-sm text-blue-400">
-            An import is currently running. New uploads are disabled until it completes.
+            {t("administration.vocabulary.messages.importRunning")}
           </p>
         </div>
       )}
 
       {/* Import history */}
       <div className="space-y-3">
-        <h2 className="text-base font-semibold text-foreground">Import History</h2>
+        <h2 className="text-base font-semibold text-foreground">{t("administration.vocabulary.history.title")}</h2>
         {isLoading ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+            <Loader2 className="h-4 w-4 animate-spin" /> {t("administration.vocabulary.history.loading")}
           </div>
         ) : imports.length === 0 ? (
           <Panel className="py-10 text-center text-muted-foreground text-sm">
-            No vocabulary imports yet. Upload an Athena ZIP above to get started.
+            {t("administration.vocabulary.history.empty")}
           </Panel>
         ) : (
           imports.map((imp) => (

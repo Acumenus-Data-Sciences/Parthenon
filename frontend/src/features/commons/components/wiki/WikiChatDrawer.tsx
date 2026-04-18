@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Loader2, Send, User, X } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import type { WikiChatMessage } from "../../types/wiki";
@@ -7,7 +8,9 @@ import AbbyAvatar from "../abby/AbbyAvatar";
 
 function UserBubble() {
   const user = useAuthStore((s) => s.user);
-  const avatarUrl = user?.avatar ? `/storage/${user.avatar}?v=${user.updated_at ?? ""}` : null;
+  const avatarUrl = user?.avatar
+    ? `/storage/${user.avatar}?v=${user.updated_at ?? ""}`
+    : null;
   const [err, setErr] = useState(false);
 
   if (avatarUrl && !err) {
@@ -27,11 +30,11 @@ function UserBubble() {
   );
 }
 
-const EXAMPLE_PROMPTS = [
-  "What are the main approaches to ETL for OMOP CDM?",
-  "How is real-world data used for cancer research?",
-  "What tools exist for data quality assessment in OHDSI?",
-  "Summarize the treatment pathways findings across the network",
+const EXAMPLE_PROMPT_KEYS = [
+  "omopEtl",
+  "cancerRwd",
+  "ohdsiDataQuality",
+  "treatmentPathways",
 ];
 
 export function WikiChatDrawer({
@@ -51,11 +54,13 @@ export function WikiChatDrawer({
   onClose: () => void;
   currentPageTitle?: string | null;
 }) {
+  const { t } = useTranslation("commons");
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (scrollRef.current)
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
 
   function handleSubmit() {
@@ -96,9 +101,15 @@ export function WikiChatDrawer({
               <div className="flex items-center gap-3">
                 <AbbyAvatar size="md" showStatus />
                 <div>
-                  <p className="text-sm font-semibold text-text-primary">Abby</p>
+                  <p className="text-sm font-semibold text-text-primary">
+                    {t("abby.name")}
+                  </p>
                   <p className="text-[10px] text-text-muted">
-                    {currentPageTitle ? `Scoped to: ${currentPageTitle.slice(0, 50)}` : "Ask questions about ingested knowledge"}
+                    {currentPageTitle
+                      ? t("wiki.chat.scopedTo", {
+                          title: currentPageTitle.slice(0, 50),
+                        })
+                      : t("wiki.chat.askKnowledge")}
                   </p>
                 </div>
               </div>
@@ -115,24 +126,34 @@ export function WikiChatDrawer({
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4">
               {messages.length === 0 ? (
                 <div>
-                  <p className="text-xs text-text-ghost">Try asking:</p>
+                  <p className="text-xs text-text-ghost">
+                    {t("wiki.chat.tryAsking")}
+                  </p>
                   <div className="mt-3 space-y-2">
-                    {EXAMPLE_PROMPTS.map((prompt) => (
-                      <button
-                        key={prompt}
-                        type="button"
-                        onClick={() => { setInput(prompt); }}
-                        className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2.5 text-left text-sm text-text-muted transition-colors hover:border-success/30 hover:text-text-secondary"
-                      >
-                        {prompt}
-                      </button>
-                    ))}
+                    {EXAMPLE_PROMPT_KEYS.map((promptKey) => {
+                      const prompt = t(`wiki.chat.prompts.${promptKey}`);
+                      return (
+                        <button
+                          key={promptKey}
+                          type="button"
+                          onClick={() => {
+                            setInput(prompt);
+                          }}
+                          className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2.5 text-left text-sm text-text-muted transition-colors hover:border-success/30 hover:text-text-secondary"
+                        >
+                          {prompt}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {messages.map((msg, idx) => {
-                    const isStreamingMsg = loading && msg.role === "assistant" && idx === messages.length - 1;
+                    const isStreamingMsg =
+                      loading &&
+                      msg.role === "assistant" &&
+                      idx === messages.length - 1;
                     return (
                       <div key={msg.id} className="flex gap-3">
                         {msg.role === "user" ? (
@@ -141,7 +162,10 @@ export function WikiChatDrawer({
                           </div>
                         ) : isStreamingMsg ? (
                           <div className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center">
-                            <Loader2 size={18} className="animate-spin text-success" />
+                            <Loader2
+                              size={18}
+                              className="animate-spin text-success"
+                            />
                           </div>
                         ) : (
                           <div className="mt-0.5 flex-shrink-0">
@@ -150,18 +174,31 @@ export function WikiChatDrawer({
                         )}
                         <div className="min-w-0 flex-1 pt-0.5">
                           {msg.role === "user" ? (
-                            <p className="text-sm text-text-primary">{msg.content}</p>
+                            <p className="text-sm text-text-primary">
+                              {msg.content}
+                            </p>
                           ) : msg.content ? (
                             <div className="text-sm text-text-secondary">
-                              <MarkdownRenderer markdown={msg.content} onNavigate={onNavigate} />
+                              <MarkdownRenderer
+                                markdown={msg.content}
+                                onNavigate={onNavigate}
+                              />
                             </div>
                           ) : isStreamingMsg ? (
-                            <p className="text-sm text-text-ghost">Generating response...</p>
+                            <p className="text-sm text-text-ghost">
+                              {t("wiki.chat.generating")}
+                            </p>
                           ) : null}
                           {msg.citations && msg.citations.length > 0 && (
                             <div className="mt-2 flex flex-wrap gap-1.5">
                               {msg.citations.map((c) => (
-                                <button key={c.slug} type="button" onClick={() => { onNavigate(c.slug); onClose(); }}
+                                <button
+                                  key={c.slug}
+                                  type="button"
+                                  onClick={() => {
+                                    onNavigate(c.slug);
+                                    onClose();
+                                  }}
                                   className="rounded border border-border-default bg-surface-overlay px-2 py-0.5 text-[10px] text-text-muted transition-colors hover:border-success/30 hover:text-success"
                                 >
                                   {c.title.slice(0, 50)}
@@ -183,13 +220,15 @@ export function WikiChatDrawer({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask the wiki..."
+                placeholder={t("wiki.chat.placeholder")}
                 rows={3}
                 maxLength={2000}
                 className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2.5 text-sm text-text-primary placeholder:text-text-ghost outline-none transition-colors focus:border-success/40"
               />
               <div className="mt-2 flex items-center justify-between">
-                <p className="text-[10px] text-text-ghost">{input.length}/2000 &middot; Ctrl+Enter to send</p>
+                <p className="text-[10px] text-text-ghost">
+                  {t("wiki.chat.shortcut", { count: input.length })}
+                </p>
                 <button
                   type="button"
                   onClick={handleSubmit}
@@ -197,9 +236,11 @@ export function WikiChatDrawer({
                   className="inline-flex items-center gap-1.5 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success disabled:opacity-50"
                 >
                   {loading ? (
-                    <>Searching...</>
+                    <>{t("wiki.chat.searching")}</>
                   ) : (
-                    <><Send size={14} /> Ask</>
+                    <>
+                      <Send size={14} /> {t("wiki.chat.ask")}
+                    </>
                   )}
                 </button>
               </div>

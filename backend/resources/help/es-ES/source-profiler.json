@@ -1,0 +1,17 @@
+{
+  "key": "source-profiler",
+  "title": "Perfilador de fuentes",
+  "description": "El Perfilador de fuentes examina una fuente de datos CDM para generar un perfil detallado de cada tabla y columna, similar a WhiteRabbit. Informa recuentos de filas, recuentos de columnas, porcentajes de nulos y calificaciones de calidad de datos para cada tabla. Úselo para evaluar la completitud y calidad de una fuente de datos antes de ejecutar análisis.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Seleccione una fuente de datos CDM en el menú desplegable y haga clic en Escanear para comenzar el perfilado. El tiempo de escaneo depende del tamaño de la base de datos.",
+    "Revise el resumen a nivel de tabla con recuentos de filas, recuentos de columnas, puntuaciones de nulos y calificaciones generales de calidad (A a F).",
+    "Haga clic en cualquier fila de tabla para expandirla y ver detalle a nivel de columna, incluidos tipos de datos, porcentajes de nulos y recuentos de valores distintos.",
+    "Cambie entre vista de lista y vista de mapa de calor para visualizar patrones de calidad de datos en toda la base de datos de un vistazo.",
+    "Use la barra de búsqueda para encontrar rápidamente tablas específicas por nombre dentro de los resultados del escaneo.",
+    "Ordene los resultados por nombre, recuento de filas, recuento de columnas, puntuación de nulos o calificación para identificar las tablas más y menos completas.",
+    "Los resultados del escaneo se guardan en el historial local para que pueda comparar perfiles a lo largo del tiempo a medida que mejora la calidad de datos.",
+    "Exporte el informe del escaneo con el botón Descargar para compartirlo con responsables de datos o incluirlo en la documentación ETL."
+  ]
+}

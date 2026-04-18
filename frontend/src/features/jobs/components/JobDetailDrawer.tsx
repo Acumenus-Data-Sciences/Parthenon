@@ -5,9 +5,34 @@ import {
   Loader2,
   AlertTriangle,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Badge, Progress, CodeBlock, Drawer } from "@/components/ui";
 import type { JobDetail, JobType, TimelineEntry } from "../api/jobsApi";
 import { useJobDetail } from "../hooks/useJobs";
+
+const jobTypeLabelKeys: Partial<Record<JobType, string>> = {
+  characterization: "characterization",
+  incidence_rate: "incidenceRate",
+  estimation: "estimation",
+  prediction: "prediction",
+  pathway: "pathway",
+  sccs: "sccs",
+  evidence_synthesis: "evidenceSynthesis",
+  cohort_generation: "cohortGeneration",
+  care_gap: "careGaps",
+  achilles: "achilles",
+  dqd: "dataQuality",
+  heel: "heelChecks",
+  ingestion: "ingestion",
+  vocabulary_load: "vocabulary",
+  genomic_parse: "genomicParse",
+  poseidon: "poseidon",
+  fhir_export: "fhirExport",
+  fhir_sync: "fhirSync",
+  gis_import: "gisImport",
+  gis_boundary: "gisBoundaries",
+  analysis: "analysis",
+};
 
 // ─── Helpers ────────────────────────────────────────────────────────────
 
@@ -98,10 +123,11 @@ function StatBar({ label, value, total, color }: { label: string; value: number;
 }
 
 function TimelineView({ entries }: { entries: TimelineEntry[] }) {
+  const { t } = useTranslation("app");
   if (entries.length === 0) return null;
   const recent = entries.slice(-30); // Show last 30 entries
   return (
-    <DetailSection title="Execution Log">
+    <DetailSection title={t("jobs.drawer.sections.executionLog")}>
       <div style={{ maxHeight: 300, overflowY: "auto", fontSize: "var(--text-xs)", fontFamily: "var(--font-mono)" }}>
         {recent.map((entry, i) => {
           const time = entry.timestamp ? new Date(entry.timestamp).toLocaleTimeString() : "";
@@ -122,11 +148,12 @@ function TimelineView({ entries }: { entries: TimelineEntry[] }) {
 // ─── Type-Specific Detail Renderers ─────────────────────────────────────
 
 function AnalysisDetails({ details }: { details: Record<string, unknown> }) {
+  const { t } = useTranslation("app");
   return (
-    <DetailSection title="Analysis">
+    <DetailSection title={t("jobs.drawer.sections.analysis")}>
       <MetaGrid items={[
-        { label: "Analysis", value: details.analysis_name as string },
-        { label: "Created By", value: details.created_by as string },
+        { label: t("jobs.drawer.labels.analysis"), value: details.analysis_name as string },
+        { label: t("jobs.drawer.labels.createdBy"), value: details.created_by as string },
       ]} />
       {!!details.analysis_description && (
         <div style={{ marginTop: "var(--space-2)", fontSize: "var(--text-sm)", color: "var(--text-secondary)" }}>
@@ -135,7 +162,9 @@ function AnalysisDetails({ details }: { details: Record<string, unknown> }) {
       )}
       {!!details.parameters && (
         <div style={{ marginTop: "var(--space-3)" }}>
-          <div className="text-label" style={{ marginBottom: "var(--space-1)" }}>Parameters</div>
+          <div className="text-label" style={{ marginBottom: "var(--space-1)" }}>
+            {t("jobs.drawer.labels.parameters")}
+          </div>
           <CodeBlock code={JSON.stringify(details.parameters, null, 2)} language="json" />
         </div>
       )}
@@ -144,13 +173,14 @@ function AnalysisDetails({ details }: { details: Record<string, unknown> }) {
 }
 
 function CohortDetails({ details }: { details: Record<string, unknown> }) {
+  const { t } = useTranslation("app");
   return (
-    <DetailSection title="Cohort">
+    <DetailSection title={t("jobs.drawer.sections.cohort")}>
       <MetaGrid items={[
-        { label: "Cohort", value: details.cohort_name as string },
-        { label: "Person Count", value: formatNumber(details.person_count as number), mono: true },
-        { label: "Source", value: details.source_name as string },
-        { label: "Source Key", value: details.source_key as string, mono: true },
+        { label: t("jobs.drawer.labels.cohort"), value: details.cohort_name as string },
+        { label: t("jobs.drawer.labels.personCount"), value: formatNumber(details.person_count as number), mono: true },
+        { label: t("jobs.drawer.labels.source"), value: details.source_name as string },
+        { label: t("jobs.drawer.labels.sourceKey"), value: details.source_key as string, mono: true },
       ]} />
       {!!details.cohort_description && (
         <div style={{ marginTop: "var(--space-2)", fontSize: "var(--text-sm)", color: "var(--text-secondary)" }}>
@@ -160,7 +190,7 @@ function CohortDetails({ details }: { details: Record<string, unknown> }) {
       {!!details.is_stale && (
         <div style={{ marginTop: "var(--space-2)", display: "flex", alignItems: "center", gap: "var(--space-1)", color: "var(--warning)" }}>
           <AlertTriangle size={14} />
-          <span style={{ fontSize: "var(--text-sm)" }}>This job stalled and was marked as failed after exceeding the 1-hour timeout.</span>
+          <span style={{ fontSize: "var(--text-sm)" }}>{t("jobs.drawer.messages.stalled")}</span>
         </div>
       )}
     </DetailSection>
@@ -168,20 +198,21 @@ function CohortDetails({ details }: { details: Record<string, unknown> }) {
 }
 
 function IngestionDetails({ details }: { details: Record<string, unknown> }) {
+  const { t } = useTranslation("app");
   return (
-    <DetailSection title="Ingestion Pipeline">
+    <DetailSection title={t("jobs.drawer.sections.ingestionPipeline")}>
       <MetaGrid items={[
-        { label: "Stage", value: details.pipeline_stage as string },
-        { label: "Project", value: details.project_name as string },
-        { label: "File", value: details.file_name as string },
-        { label: "File Size", value: formatBytes(details.file_size_bytes as number) },
-        { label: "Mapping Coverage", value: details.mapping_coverage != null ? `${((details.mapping_coverage as number) * 100).toFixed(1)}%` : null, mono: true },
+        { label: t("jobs.drawer.labels.stage"), value: details.pipeline_stage as string },
+        { label: t("jobs.drawer.labels.project"), value: details.project_name as string },
+        { label: t("jobs.drawer.labels.file"), value: details.file_name as string },
+        { label: t("jobs.drawer.labels.fileSize"), value: formatBytes(details.file_size_bytes as number) },
+        { label: t("jobs.drawer.labels.mappingCoverage"), value: details.mapping_coverage != null ? `${((details.mapping_coverage as number) * 100).toFixed(1)}%` : null, mono: true },
       ]} />
       {(details.records_total as number) > 0 && (
         <div style={{ marginTop: "var(--space-3)" }}>
-          <StatBar label="Processed" value={details.records_processed as number ?? 0} total={details.records_total as number ?? 0} color="var(--success)" />
+          <StatBar label={t("jobs.drawer.labels.processed")} value={details.records_processed as number ?? 0} total={details.records_total as number ?? 0} color="var(--success)" />
           {(details.records_failed as number) > 0 && (
-            <StatBar label="Failed" value={details.records_failed as number} total={details.records_total as number ?? 0} color="var(--critical)" />
+            <StatBar label={t("jobs.drawer.labels.failed")} value={details.records_failed as number} total={details.records_total as number ?? 0} color="var(--critical)" />
           )}
         </div>
       )}
@@ -190,41 +221,45 @@ function IngestionDetails({ details }: { details: Record<string, unknown> }) {
 }
 
 function FhirSyncDetails({ details }: { details: Record<string, unknown> }) {
+  const { t } = useTranslation("app");
   const types = details.resource_types as string[] | null;
   return (
-    <DetailSection title="FHIR Sync">
+    <DetailSection title={t("jobs.drawer.sections.fhirSync")}>
       {types && types.length > 0 && (
         <div style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap", marginBottom: "var(--space-3)" }}>
           {types.map((t) => <Badge key={t} variant="default">{t}</Badge>)}
         </div>
       )}
       <MetaGrid items={[
-        { label: "Files Downloaded", value: formatNumber(details.files_downloaded as number), mono: true },
-        { label: "Records Extracted", value: formatNumber(details.records_extracted as number), mono: true },
-        { label: "Records Mapped", value: formatNumber(details.records_mapped as number), mono: true },
-        { label: "Records Written", value: formatNumber(details.records_written as number), mono: true },
-        { label: "Records Failed", value: formatNumber(details.records_failed as number), mono: true },
-        { label: "Mapping Coverage", value: details.mapping_coverage != null ? `${((details.mapping_coverage as number) * 100).toFixed(1)}%` : null, mono: true },
+        { label: t("jobs.drawer.labels.filesDownloaded"), value: formatNumber(details.files_downloaded as number), mono: true },
+        { label: t("jobs.drawer.labels.recordsExtracted"), value: formatNumber(details.records_extracted as number), mono: true },
+        { label: t("jobs.drawer.labels.recordsMapped"), value: formatNumber(details.records_mapped as number), mono: true },
+        { label: t("jobs.drawer.labels.recordsWritten"), value: formatNumber(details.records_written as number), mono: true },
+        { label: t("jobs.drawer.labels.recordsFailed"), value: formatNumber(details.records_failed as number), mono: true },
+        { label: t("jobs.drawer.labels.mappingCoverage"), value: details.mapping_coverage != null ? `${((details.mapping_coverage as number) * 100).toFixed(1)}%` : null, mono: true },
       ]} />
     </DetailSection>
   );
 }
 
 function DqdDetails({ details }: { details: Record<string, unknown> }) {
+  const { t } = useTranslation("app");
   const passRate = details.pass_rate as number ?? 0;
   const failures = (details.top_failures as Array<{ check: string; category: string; severity: string; description: string; table: string }>) ?? [];
   return (
-    <DetailSection title="Data Quality">
-      <StatBar label="Passed" value={details.checks_passed as number ?? 0} total={details.checks_completed as number ?? 0} color="var(--success)" />
-      <StatBar label="Failed" value={details.checks_failed as number ?? 0} total={details.checks_completed as number ?? 0} color="var(--critical)" />
+    <DetailSection title={t("jobs.drawer.sections.dataQuality")}>
+      <StatBar label={t("jobs.drawer.labels.passed")} value={details.checks_passed as number ?? 0} total={details.checks_completed as number ?? 0} color="var(--success)" />
+      <StatBar label={t("jobs.drawer.labels.failed")} value={details.checks_failed as number ?? 0} total={details.checks_completed as number ?? 0} color="var(--critical)" />
       <MetaGrid items={[
-        { label: "Pass Rate", value: `${passRate}%`, mono: true },
-        { label: "Expected Checks", value: formatNumber(details.total_expected as number), mono: true },
-        { label: "Execution Time", value: details.total_execution_ms ? `${((details.total_execution_ms as number) / 1000).toFixed(1)}s` : null, mono: true },
+        { label: t("jobs.drawer.labels.passRate"), value: `${passRate}%`, mono: true },
+        { label: t("jobs.drawer.labels.expectedChecks"), value: formatNumber(details.total_expected as number), mono: true },
+        { label: t("jobs.drawer.labels.executionTime"), value: details.total_execution_ms ? `${((details.total_execution_ms as number) / 1000).toFixed(1)}s` : null, mono: true },
       ]} />
       {failures.length > 0 && (
         <div style={{ marginTop: "var(--space-3)" }}>
-          <div className="text-label" style={{ marginBottom: "var(--space-1)" }}>Failing Checks</div>
+          <div className="text-label" style={{ marginBottom: "var(--space-1)" }}>
+            {t("jobs.drawer.labels.failingChecks")}
+          </div>
           <div style={{ maxHeight: 200, overflowY: "auto", fontSize: "var(--text-xs)", fontFamily: "var(--font-mono)" }}>
             {failures.map((f, i) => (
               <div key={i} style={{ padding: "4px 0", borderBottom: "1px solid var(--border-subtle)" }}>
@@ -244,17 +279,20 @@ function DqdDetails({ details }: { details: Record<string, unknown> }) {
 }
 
 function HeelDetails({ details }: { details: Record<string, unknown> }) {
+  const { t } = useTranslation("app");
   const violations = (details.violations as Array<{ rule_id: number; rule_name: string; severity: string; record_count: number; attribute: string }>) ?? [];
   return (
-    <DetailSection title="Heel Checks">
+    <DetailSection title={t("jobs.drawer.sections.heelChecks")}>
       <MetaGrid items={[
-        { label: "Total Rules", value: formatNumber(details.total_rules as number), mono: true },
-        { label: "Rules Triggered", value: formatNumber(details.rules_triggered as number), mono: true },
-        { label: "Total Violations", value: formatNumber(details.total_violations as number), mono: true },
+        { label: t("jobs.drawer.labels.totalRules"), value: formatNumber(details.total_rules as number), mono: true },
+        { label: t("jobs.drawer.labels.rulesTriggered"), value: formatNumber(details.rules_triggered as number), mono: true },
+        { label: t("jobs.drawer.labels.totalViolations"), value: formatNumber(details.total_violations as number), mono: true },
       ]} />
       {violations.length > 0 && (
         <div style={{ marginTop: "var(--space-3)" }}>
-          <div className="text-label" style={{ marginBottom: "var(--space-1)" }}>Top Violations</div>
+          <div className="text-label" style={{ marginBottom: "var(--space-1)" }}>
+            {t("jobs.drawer.labels.topViolations")}
+          </div>
           <div style={{ maxHeight: 200, overflowY: "auto", fontSize: "var(--text-xs)", fontFamily: "var(--font-mono)" }}>
             {violations.map((v, i) => (
               <div key={i} style={{ padding: "4px 0", borderBottom: "1px solid var(--border-subtle)" }}>
@@ -263,7 +301,11 @@ function HeelDetails({ details }: { details: Record<string, unknown> }) {
                     <Badge variant={v.severity === "Error" ? "critical" : "warning"} style={{ fontSize: "var(--text-xs)", marginRight: "var(--space-1)" }}>{v.severity}</Badge>
                     <span style={{ color: "var(--text-secondary)" }}>{v.rule_name}</span>
                   </div>
-                  <span style={{ color: "var(--warning)", whiteSpace: "nowrap" }}>{formatNumber(v.record_count)} records</span>
+                  <span style={{ color: "var(--warning)", whiteSpace: "nowrap" }}>
+                    {t("jobs.drawer.messages.records", {
+                      count: formatNumber(v.record_count),
+                    })}
+                  </span>
                 </div>
               </div>
             ))}
@@ -275,26 +317,42 @@ function HeelDetails({ details }: { details: Record<string, unknown> }) {
 }
 
 function AchillesDetails({ details }: { details: Record<string, unknown> }) {
+  const { t } = useTranslation("app");
   const categories = (details.category_breakdown as Array<{ category: string; total: number; completed: number; failed: number; running: number }>) ?? [];
   const failedSteps = (details.failed_steps as Array<{ analysis_name: string; category: string; error: string }>) ?? [];
   return (
-    <DetailSection title="Achilles Analyses">
-      <StatBar label="Completed" value={details.completed_analyses as number ?? 0} total={details.total_analyses as number ?? 0} color="var(--success)" />
+    <DetailSection title={t("jobs.drawer.sections.achillesAnalyses")}>
+      <StatBar label={t("jobs.drawer.labels.completed")} value={details.completed_analyses as number ?? 0} total={details.total_analyses as number ?? 0} color="var(--success)" />
       {(details.failed_analyses as number) > 0 && (
-        <StatBar label="Failed" value={details.failed_analyses as number} total={details.total_analyses as number ?? 0} color="var(--critical)" />
+        <StatBar label={t("jobs.drawer.labels.failed")} value={details.failed_analyses as number} total={details.total_analyses as number ?? 0} color="var(--critical)" />
       )}
       {categories.length > 0 && (
         <div style={{ marginTop: "var(--space-3)" }}>
-          <div className="text-label" style={{ marginBottom: "var(--space-1)" }}>By Category</div>
+          <div className="text-label" style={{ marginBottom: "var(--space-1)" }}>
+            {t("jobs.drawer.labels.byCategory")}
+          </div>
           <div style={{ fontSize: "var(--text-xs)" }}>
             {categories.map((c) => (
               <div key={c.category} style={{ display: "flex", justifyContent: "space-between", padding: "3px 0", borderBottom: "1px solid var(--border-subtle)" }}>
                 <span style={{ color: "var(--text-secondary)" }}>{c.category}</span>
                 <span className="text-mono">
                   <span style={{ color: "var(--success)" }}>{c.completed}</span>
-                  {c.failed > 0 && <span style={{ color: "var(--critical)" }}> / {c.failed} failed</span>}
-                  {c.running > 0 && <span style={{ color: "var(--info)" }}> / {c.running} running</span>}
-                  <span style={{ color: "var(--text-muted)" }}> of {c.total}</span>
+                  {c.failed > 0 && (
+                    <span style={{ color: "var(--critical)" }}>
+                      {" / "}
+                      {t("jobs.drawer.messages.failedCount", { count: c.failed })}
+                    </span>
+                  )}
+                  {c.running > 0 && (
+                    <span style={{ color: "var(--info)" }}>
+                      {" / "}
+                      {t("jobs.drawer.messages.runningCount", { count: c.running })}
+                    </span>
+                  )}
+                  <span style={{ color: "var(--text-muted)" }}>
+                    {" "}
+                    {t("jobs.drawer.messages.ofTotal", { count: c.total })}
+                  </span>
                 </span>
               </div>
             ))}
@@ -303,7 +361,9 @@ function AchillesDetails({ details }: { details: Record<string, unknown> }) {
       )}
       {failedSteps.length > 0 && (
         <div style={{ marginTop: "var(--space-3)" }}>
-          <div className="text-label" style={{ marginBottom: "var(--space-1)", color: "var(--critical)" }}>Failed Steps</div>
+          <div className="text-label" style={{ marginBottom: "var(--space-1)", color: "var(--critical)" }}>
+            {t("jobs.drawer.labels.failedSteps")}
+          </div>
           <div style={{ maxHeight: 150, overflowY: "auto", fontSize: "var(--text-xs)", fontFamily: "var(--font-mono)" }}>
             {failedSteps.map((s, i) => (
               <div key={i} style={{ padding: "3px 0", borderBottom: "1px solid var(--border-subtle)" }}>
@@ -319,31 +379,35 @@ function AchillesDetails({ details }: { details: Record<string, unknown> }) {
 }
 
 function GenomicDetails({ details }: { details: Record<string, unknown> }) {
+  const { t } = useTranslation("app");
   return (
-    <DetailSection title="Genomic Parse">
+    <DetailSection title={t("jobs.drawer.sections.genomicParse")}>
       <MetaGrid items={[
-        { label: "File", value: details.filename as string },
-        { label: "Format", value: details.file_format as string },
-        { label: "File Size", value: formatBytes(details.file_size_bytes as number) },
-        { label: "Total Variants", value: formatNumber(details.total_variants as number), mono: true },
-        { label: "Mapped Variants", value: formatNumber(details.mapped_variants as number), mono: true },
-        { label: "Samples", value: formatNumber(details.sample_count as number), mono: true },
+        { label: t("jobs.drawer.labels.file"), value: details.filename as string },
+        { label: t("jobs.drawer.labels.format"), value: details.file_format as string },
+        { label: t("jobs.drawer.labels.fileSize"), value: formatBytes(details.file_size_bytes as number) },
+        { label: t("jobs.drawer.labels.totalVariants"), value: formatNumber(details.total_variants as number), mono: true },
+        { label: t("jobs.drawer.labels.mappedVariants"), value: formatNumber(details.mapped_variants as number), mono: true },
+        { label: t("jobs.drawer.labels.samples"), value: formatNumber(details.sample_count as number), mono: true },
       ]} />
     </DetailSection>
   );
 }
 
 function PoseidonDetails({ details }: { details: Record<string, unknown> }) {
+  const { t } = useTranslation("app");
   const stats = details.stats as Record<string, unknown> | null;
   return (
-    <DetailSection title="Poseidon ETL">
+    <DetailSection title={t("jobs.drawer.sections.poseidonEtl")}>
       <MetaGrid items={[
-        { label: "Run Type", value: details.run_type as string },
-        { label: "Dagster Run ID", value: details.dagster_run_id as string, mono: true },
+        { label: t("jobs.drawer.labels.runType"), value: details.run_type as string },
+        { label: t("jobs.drawer.labels.dagsterRunId"), value: details.dagster_run_id as string, mono: true },
       ]} />
       {stats && Object.keys(stats).length > 0 && (
         <div style={{ marginTop: "var(--space-3)" }}>
-          <div className="text-label" style={{ marginBottom: "var(--space-1)" }}>Stats</div>
+          <div className="text-label" style={{ marginBottom: "var(--space-1)" }}>
+            {t("jobs.drawer.labels.stats")}
+          </div>
           <CodeBlock code={JSON.stringify(stats, null, 2)} language="json" />
         </div>
       )}
@@ -352,16 +416,19 @@ function PoseidonDetails({ details }: { details: Record<string, unknown> }) {
 }
 
 function CareGapDetails({ details }: { details: Record<string, unknown> }) {
+  const { t } = useTranslation("app");
   return (
-    <DetailSection title="Care Gap Evaluation">
+    <DetailSection title={t("jobs.drawer.sections.careGapEvaluation")}>
       <MetaGrid items={[
-        { label: "Bundle", value: details.bundle_name as string },
-        { label: "Person Count", value: formatNumber(details.person_count as number), mono: true },
-        { label: "Cohort", value: details.cohort_definition as string },
+        { label: t("jobs.drawer.labels.bundle"), value: details.bundle_name as string },
+        { label: t("jobs.drawer.labels.personCount"), value: formatNumber(details.person_count as number), mono: true },
+        { label: t("jobs.drawer.labels.cohort"), value: details.cohort_definition as string },
       ]} />
       {!!details.compliance_summary && (
         <div style={{ marginTop: "var(--space-3)" }}>
-          <div className="text-label" style={{ marginBottom: "var(--space-1)" }}>Compliance Summary</div>
+          <div className="text-label" style={{ marginBottom: "var(--space-1)" }}>
+            {t("jobs.drawer.labels.complianceSummary")}
+          </div>
           <CodeBlock code={JSON.stringify(details.compliance_summary, null, 2)} language="json" />
         </div>
       )}
@@ -370,21 +437,22 @@ function CareGapDetails({ details }: { details: Record<string, unknown> }) {
 }
 
 function GisDetails({ details, type }: { details: Record<string, unknown>; type: string }) {
+  const { t } = useTranslation("app");
   const isBoundary = type === "gis_boundary";
   return (
-    <DetailSection title={isBoundary ? "GIS Boundaries" : "GIS Import"}>
+    <DetailSection title={isBoundary ? t("jobs.drawer.sections.gisBoundaries") : t("jobs.drawer.sections.gisImport")}>
       <MetaGrid items={[
         ...(isBoundary ? [
-          { label: "Dataset", value: details.dataset_name as string },
-          { label: "Data Type", value: details.data_type as string },
-          { label: "Source", value: details.source_name as string },
-          { label: "Version", value: details.source_version as string },
+          { label: t("jobs.drawer.labels.dataset"), value: details.dataset_name as string },
+          { label: t("jobs.drawer.labels.dataType"), value: details.data_type as string },
+          { label: t("jobs.drawer.labels.source"), value: details.source_name as string },
+          { label: t("jobs.drawer.labels.version"), value: details.source_version as string },
         ] : [
-          { label: "File", value: details.filename as string },
-          { label: "File Size", value: formatBytes(details.file_size_bytes as number) },
+          { label: t("jobs.drawer.labels.file"), value: details.filename as string },
+          { label: t("jobs.drawer.labels.fileSize"), value: formatBytes(details.file_size_bytes as number) },
         ]),
-        { label: "Geometry", value: details.geometry_type as string },
-        { label: "Features", value: formatNumber(details.feature_count as number), mono: true },
+        { label: t("jobs.drawer.labels.geometry"), value: details.geometry_type as string },
+        { label: t("jobs.drawer.labels.features"), value: formatNumber(details.feature_count as number), mono: true },
       ]} />
       {isBoundary && !!details.levels_requested && (
         <div style={{ marginTop: "var(--space-2)", display: "flex", gap: "var(--space-1)", flexWrap: "wrap" }}>
@@ -396,29 +464,31 @@ function GisDetails({ details, type }: { details: Record<string, unknown>; type:
 }
 
 function VocabularyDetails({ details }: { details: Record<string, unknown> }) {
+  const { t } = useTranslation("app");
   return (
-    <DetailSection title="Vocabulary Import">
+    <DetailSection title={t("jobs.drawer.sections.vocabularyImport")}>
       <MetaGrid items={[
-        { label: "File", value: details.file_name as string },
-        { label: "Version", value: details.vocabulary_version as string },
-        { label: "Tables Loaded", value: formatNumber(details.tables_loaded as number), mono: true },
-        { label: "Records Loaded", value: formatNumber(details.records_loaded as number), mono: true },
+        { label: t("jobs.drawer.labels.file"), value: details.file_name as string },
+        { label: t("jobs.drawer.labels.version"), value: details.vocabulary_version as string },
+        { label: t("jobs.drawer.labels.tablesLoaded"), value: formatNumber(details.tables_loaded as number), mono: true },
+        { label: t("jobs.drawer.labels.recordsLoaded"), value: formatNumber(details.records_loaded as number), mono: true },
       ]} />
     </DetailSection>
   );
 }
 
 function FhirExportDetails({ details }: { details: Record<string, unknown> }) {
+  const { t } = useTranslation("app");
   const types = details.resource_types as string[] | null;
   return (
-    <DetailSection title="FHIR Export">
+    <DetailSection title={t("jobs.drawer.sections.fhirExport")}>
       {types && types.length > 0 && (
         <div style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap", marginBottom: "var(--space-2)" }}>
           {types.map((t) => <Badge key={t} variant="default">{t}</Badge>)}
         </div>
       )}
       <MetaGrid items={[
-        { label: "Output Format", value: details.output_format as string },
+        { label: t("jobs.drawer.labels.outputFormat"), value: details.output_format as string },
       ]} />
     </DetailSection>
   );
@@ -481,13 +551,24 @@ interface JobDetailDrawerProps {
 }
 
 export function JobDetailDrawer({ jobId, jobType, onClose, onRetry, onCancel }: JobDetailDrawerProps) {
+  const { t } = useTranslation("app");
   const { data: job, isLoading, isError } = useJobDetail(jobId, jobType);
+  const jobTypeLabel = (type: JobType | string) => {
+    const labelKey = jobTypeLabelKeys[type as JobType];
+    return labelKey
+      ? t(`jobs.filters.types.${labelKey}`)
+      : String(type).replace(/_/g, " ");
+  };
+  const statusLabel = (status: string) =>
+    t(`jobs.filters.statuses.${status}`, {
+      defaultValue: status.replace(/_/g, " "),
+    });
 
   return (
     <Drawer
       open={jobId != null}
       onClose={onClose}
-      title={job?.name ?? "Job Details"}
+      title={job?.name ?? t("jobs.drawer.titleFallback")}
       size="lg"
     >
       {isLoading && (
@@ -498,7 +579,7 @@ export function JobDetailDrawer({ jobId, jobType, onClose, onRetry, onCancel }: 
 
       {isError && (
         <div style={{ padding: "var(--space-4)", textAlign: "center", color: "var(--text-muted)" }}>
-          Failed to load job details.
+          {t("jobs.drawer.loadError")}
         </div>
       )}
 
@@ -507,7 +588,7 @@ export function JobDetailDrawer({ jobId, jobType, onClose, onRetry, onCancel }: 
           {/* Status header */}
           <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
             <Badge variant={statusVariant(job.status)}>
-              {job.status}
+              {statusLabel(job.status)}
             </Badge>
             {job.status === "running" && job.progress > 0 && (
               <div style={{ flex: 1 }}>
@@ -520,15 +601,15 @@ export function JobDetailDrawer({ jobId, jobType, onClose, onRetry, onCancel }: 
           </div>
 
           {/* Core metadata */}
-          <DetailSection title="Overview">
+          <DetailSection title={t("jobs.drawer.sections.overview")}>
             <MetaGrid items={[
-              { label: "Type", value: String(job.type).replace(/_/g, " ") },
-              { label: "Source", value: job.source_name },
-              { label: "Triggered By", value: job.triggered_by },
-              { label: "Duration", value: formatDuration(job.started_at, job.completed_at), mono: true },
-              { label: "Started", value: formatTimestamp(job.started_at) },
-              { label: "Completed", value: formatTimestamp(job.completed_at) },
-              { label: "Created", value: formatTimestamp(job.created_at) },
+              { label: t("jobs.drawer.labels.type"), value: jobTypeLabel(job.type) },
+              { label: t("jobs.drawer.labels.source"), value: job.source_name },
+              { label: t("jobs.drawer.labels.triggeredBy"), value: job.triggered_by },
+              { label: t("jobs.drawer.labels.duration"), value: formatDuration(job.started_at, job.completed_at), mono: true },
+              { label: t("jobs.drawer.labels.started"), value: formatTimestamp(job.started_at) },
+              { label: t("jobs.drawer.labels.completed"), value: formatTimestamp(job.completed_at) },
+              { label: t("jobs.drawer.labels.created"), value: formatTimestamp(job.created_at) },
             ]} />
           </DetailSection>
 
@@ -537,7 +618,7 @@ export function JobDetailDrawer({ jobId, jobType, onClose, onRetry, onCancel }: 
             <div className="alert-card alert-critical">
               <XCircle size={16} className="alert-icon" />
               <div className="alert-content">
-                <div className="alert-title">Error</div>
+                <div className="alert-title">{t("jobs.drawer.labels.error")}</div>
                 <div className="alert-message">{job.error_message}</div>
               </div>
             </div>
@@ -545,7 +626,7 @@ export function JobDetailDrawer({ jobId, jobType, onClose, onRetry, onCancel }: 
 
           {/* Log output (brief) */}
           {job.log_output && (
-            <DetailSection title="Output">
+            <DetailSection title={t("jobs.drawer.sections.output")}>
               <CodeBlock code={job.log_output} language="log" />
             </DetailSection>
           )}
@@ -560,12 +641,12 @@ export function JobDetailDrawer({ jobId, jobType, onClose, onRetry, onCancel }: 
           <div style={{ display: "flex", gap: "var(--space-3)", paddingTop: "var(--space-3)", borderTop: "1px solid var(--border-default)" }}>
             {job.actions.retry && (
               <button className="btn btn-primary btn-sm" onClick={() => onRetry({ id: job.id, type: job.type })}>
-                <RefreshCw size={14} /> Retry
+                <RefreshCw size={14} /> {t("jobs.actions.retry")}
               </button>
             )}
             {job.actions.cancel && (
               <button className="btn btn-danger btn-sm" onClick={() => onCancel({ id: job.id, type: job.type })}>
-                <Ban size={14} /> Cancel
+                <Ban size={14} /> {t("jobs.actions.cancel")}
               </button>
             )}
           </div>

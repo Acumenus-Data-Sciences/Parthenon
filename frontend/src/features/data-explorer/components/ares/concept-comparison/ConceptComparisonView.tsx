@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import {
   useConceptComparison,
   useConceptSearch,
@@ -17,6 +18,7 @@ type ViewMode = "single" | "temporal" | "multi" | "funnel";
 type RateMode = "crude" | "standardized";
 
 export default function ConceptComparisonView() {
+  const { t } = useTranslation("app");
   const [viewMode, setViewMode] = useState<ViewMode>("single");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedConcept, setSelectedConcept] = useState<ConceptSearchResult | null>(null);
@@ -58,11 +60,19 @@ export default function ConceptComparisonView() {
   // Extract sources and benchmark from new response shape
   const comparisonSources = comparison?.sources ?? [];
   const benchmarkRate = comparison?.benchmark_rate ?? null;
+  const metadataText = (concept: ConceptSearchResult) =>
+    t("dataExplorer.ares.conceptComparison.conceptMetadata", {
+      domain: concept.domain_id,
+      vocabulary: concept.vocabulary_id,
+      id: concept.concept_id,
+    });
 
   return (
     <div className="p-4">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-medium text-text-primary">Concept Comparison Across Sources</h2>
+        <h2 className="text-lg font-medium text-text-primary">
+          {t("dataExplorer.ares.conceptComparison.title")}
+        </h2>
 
         {/* View mode toggle */}
         <div className="flex gap-1 rounded-lg border border-border-default p-0.5">
@@ -73,7 +83,7 @@ export default function ConceptComparisonView() {
               viewMode === "single" ? "bg-success text-black" : "text-text-muted"
             }`}
           >
-            Single
+            {t("dataExplorer.ares.conceptComparison.viewModes.single")}
           </button>
           <button
             type="button"
@@ -82,7 +92,7 @@ export default function ConceptComparisonView() {
               viewMode === "temporal" ? "bg-success text-black" : "text-text-muted"
             }`}
           >
-            Temporal
+            {t("dataExplorer.ares.conceptComparison.viewModes.temporal")}
           </button>
           <button
             type="button"
@@ -91,7 +101,7 @@ export default function ConceptComparisonView() {
               viewMode === "multi" ? "bg-success text-black" : "text-text-muted"
             }`}
           >
-            Multi-Concept
+            {t("dataExplorer.ares.conceptComparison.viewModes.multi")}
           </button>
           <button
             type="button"
@@ -100,7 +110,7 @@ export default function ConceptComparisonView() {
               viewMode === "funnel" ? "bg-success text-black" : "text-text-muted"
             }`}
           >
-            Attrition Funnel
+            {t("dataExplorer.ares.conceptComparison.viewModes.funnel")}
           </button>
         </div>
       </div>
@@ -115,7 +125,7 @@ export default function ConceptComparisonView() {
           />
           {selectedConcepts.length < 2 && (
             <p className="mt-2 text-xs text-text-ghost">
-              Select at least 2 concepts to compare.
+              {t("dataExplorer.ares.conceptComparison.messages.selectTwoConcepts")}
             </p>
           )}
         </div>
@@ -127,7 +137,7 @@ export default function ConceptComparisonView() {
           <div className="relative mb-4">
             <input
               type="text"
-              placeholder="Search for a concept (e.g. 'Type 2 Diabetes', 'Metformin')..."
+              placeholder={t("dataExplorer.ares.conceptComparison.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -138,7 +148,9 @@ export default function ConceptComparisonView() {
                          placeholder:text-text-ghost focus:border-accent focus:outline-none"
             />
             {searchLoading && (
-              <span className="absolute right-3 top-3 text-xs text-text-ghost">Searching...</span>
+              <span className="absolute right-3 top-3 text-xs text-text-ghost">
+                {t("dataExplorer.ares.conceptComparison.messages.searching")}
+              </span>
             )}
 
             {showResults && searchResults && searchResults.length > 0 && (
@@ -153,7 +165,7 @@ export default function ConceptComparisonView() {
                   >
                     <span className="text-text-primary">{concept.concept_name}</span>
                     <span className="text-[10px] text-text-ghost">
-                      {concept.domain_id} | {concept.vocabulary_id} | ID: {concept.concept_id}
+                      {metadataText(concept)}
                     </span>
                   </button>
                 ))}
@@ -166,7 +178,11 @@ export default function ConceptComparisonView() {
               <div>
                 <p className="text-sm text-text-primary">{selectedConcept.concept_name}</p>
                 <p className="text-[11px] text-text-ghost">
-                  {selectedConcept.domain_id} | {selectedConcept.vocabulary_id} | Concept ID: {selectedConcept.concept_id}
+                  {t("dataExplorer.ares.conceptComparison.selectedConceptMetadata", {
+                    domain: selectedConcept.domain_id,
+                    vocabulary: selectedConcept.vocabulary_id,
+                    id: selectedConcept.concept_id,
+                  })}
                 </p>
               </div>
               {viewMode === "single" && (
@@ -181,7 +197,7 @@ export default function ConceptComparisonView() {
                           rateMode === "crude" ? "bg-success text-black" : "text-text-muted"
                         }`}
                       >
-                        Crude Rate
+                        {t("dataExplorer.ares.conceptComparison.rateModes.crude")}
                       </button>
                       <button
                         type="button"
@@ -190,7 +206,7 @@ export default function ConceptComparisonView() {
                           rateMode === "standardized" ? "bg-success text-black" : "text-text-muted"
                         }`}
                       >
-                        Age-Sex Adjusted
+                        {t("dataExplorer.ares.conceptComparison.rateModes.standardized")}
                       </button>
                     </div>
                   )}
@@ -202,7 +218,7 @@ export default function ConceptComparisonView() {
                         metric === "rate_per_1000" ? "bg-accent text-black" : "text-text-muted"
                       }`}
                     >
-                      Rate/1000
+                      {t("dataExplorer.ares.conceptComparison.metrics.rate")}
                     </button>
                     <button
                       type="button"
@@ -211,7 +227,7 @@ export default function ConceptComparisonView() {
                         metric === "count" ? "bg-accent text-black" : "text-text-muted"
                       }`}
                     >
-                      Count
+                      {t("dataExplorer.ares.conceptComparison.metrics.count")}
                     </button>
                   </div>
                 </div>
@@ -225,7 +241,9 @@ export default function ConceptComparisonView() {
       {viewMode === "single" && (
         <>
           {(comparisonLoading || standardizedLoading) && (
-            <p className="text-text-ghost">Loading comparison data...</p>
+            <p className="text-text-ghost">
+              {t("dataExplorer.ares.conceptComparison.messages.loadingComparison")}
+            </p>
           )}
 
           {rateMode === "standardized" && standardizedData && (
@@ -244,7 +262,7 @@ export default function ConceptComparisonView() {
                 benchmarkRate={benchmarkRate}
               />
               <p className="mt-2 text-[10px] text-text-ghost">
-                Standardized to US Census 2020 population using direct age-sex standardization.
+                {t("dataExplorer.ares.conceptComparison.messages.standardizedNote")}
               </p>
               {standardizedData.some((s) => s.warning) && (
                 <div className="mt-1 space-y-0.5">
@@ -268,7 +286,7 @@ export default function ConceptComparisonView() {
 
           {!selectedConcept && (
             <p className="py-10 text-center text-text-ghost">
-              Search for a concept above to compare its prevalence across all data sources.
+              {t("dataExplorer.ares.conceptComparison.messages.searchToCompare")}
             </p>
           )}
         </>
@@ -277,26 +295,34 @@ export default function ConceptComparisonView() {
       {/* Temporal prevalence line chart */}
       {viewMode === "temporal" && (
         <>
-          {temporalLoading && <p className="text-text-ghost">Loading temporal prevalence...</p>}
+          {temporalLoading && (
+            <p className="text-text-ghost">
+              {t("dataExplorer.ares.conceptComparison.messages.loadingTemporal")}
+            </p>
+          )}
 
           {temporalData && temporalData.sources.length > 0 && (
             <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
               <TemporalPrevalenceChart
                 sources={temporalData.sources}
-                title={selectedConcept ? `Temporal Trend: ${selectedConcept.concept_name}` : undefined}
+                title={selectedConcept
+                  ? t("dataExplorer.ares.conceptComparison.temporalTrendTitle", {
+                      concept: selectedConcept.concept_name,
+                    })
+                  : undefined}
               />
             </div>
           )}
 
           {temporalData && temporalData.sources.length === 0 && selectedConcept && (
             <p className="py-10 text-center text-text-ghost">
-              No temporal data available for this concept.
+              {t("dataExplorer.ares.conceptComparison.messages.noTemporalData")}
             </p>
           )}
 
           {!selectedConcept && (
             <p className="py-10 text-center text-text-ghost">
-              Search for a concept above to view its temporal prevalence trend across releases.
+              {t("dataExplorer.ares.conceptComparison.messages.searchForTemporal")}
             </p>
           )}
         </>
@@ -315,7 +341,7 @@ export default function ConceptComparisonView() {
                     metric === "rate_per_1000" ? "bg-accent text-black" : "text-text-muted"
                   }`}
                 >
-                  Rate/1000
+                  {t("dataExplorer.ares.conceptComparison.metrics.rate")}
                 </button>
                 <button
                   type="button"
@@ -324,13 +350,17 @@ export default function ConceptComparisonView() {
                     metric === "count" ? "bg-accent text-black" : "text-text-muted"
                   }`}
                 >
-                  Count
+                  {t("dataExplorer.ares.conceptComparison.metrics.count")}
                 </button>
               </div>
             </div>
           )}
 
-          {multiLoading && <p className="text-text-ghost">Loading multi-concept comparison...</p>}
+          {multiLoading && (
+            <p className="text-text-ghost">
+              {t("dataExplorer.ares.conceptComparison.messages.loadingMulti")}
+            </p>
+          )}
 
           {multiComparison && (
             <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
@@ -343,7 +373,11 @@ export default function ConceptComparisonView() {
       {/* Attrition funnel */}
       {viewMode === "funnel" && (
         <>
-          {funnelLoading && <p className="text-text-ghost">Loading attrition funnel...</p>}
+          {funnelLoading && (
+            <p className="text-text-ghost">
+              {t("dataExplorer.ares.conceptComparison.messages.loadingFunnel")}
+            </p>
+          )}
 
           {funnelData && funnelData.length > 0 && (
             <AttritionFunnel data={funnelData} />
@@ -351,7 +385,7 @@ export default function ConceptComparisonView() {
 
           {funnelData && funnelData.length === 0 && selectedConcepts.length >= 2 && (
             <p className="py-10 text-center text-text-ghost">
-              No attrition data available for the selected concepts.
+              {t("dataExplorer.ares.conceptComparison.messages.noAttritionData")}
             </p>
           )}
         </>

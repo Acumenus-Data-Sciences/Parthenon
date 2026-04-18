@@ -1,14 +1,15 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { FeasibilityCriteria } from "../../../types/ares";
 import TemplateSelector from "./TemplateSelector";
 
 const DOMAINS = [
-  { id: "condition", label: "Conditions" },
-  { id: "drug", label: "Drugs" },
-  { id: "procedure", label: "Procedures" },
-  { id: "measurement", label: "Measurements" },
-  { id: "observation", label: "Observations" },
-  { id: "visit", label: "Visits" },
+  "condition",
+  "drug",
+  "procedure",
+  "measurement",
+  "observation",
+  "visit",
 ];
 
 interface FeasibilityFormProps {
@@ -17,6 +18,7 @@ interface FeasibilityFormProps {
 }
 
 export default function FeasibilityForm({ onSubmit, isLoading }: FeasibilityFormProps) {
+  const { t } = useTranslation("app");
   const [name, setName] = useState("");
   const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
   const [minPatients, setMinPatients] = useState<string>("");
@@ -53,15 +55,19 @@ export default function FeasibilityForm({ onSubmit, isLoading }: FeasibilityForm
 
   return (
     <div className="rounded-lg border border-border-default bg-surface-overlay p-4">
-      <h3 className="mb-3 text-sm font-medium text-text-primary">New Feasibility Assessment</h3>
+      <h3 className="mb-3 text-sm font-medium text-text-primary">
+        {t("dataExplorer.ares.feasibility.form.title")}
+      </h3>
 
       <TemplateSelector onSelect={handleTemplateSelect} />
 
       <div className="mb-3">
-        <label className="mb-1 block text-xs text-text-muted">Assessment Name</label>
+        <label className="mb-1 block text-xs text-text-muted">
+          {t("dataExplorer.ares.feasibility.form.assessmentName")}
+        </label>
         <input
           type="text"
-          placeholder="e.g. Diabetes Outcomes Study"
+          placeholder={t("dataExplorer.ares.feasibility.form.assessmentNamePlaceholder")}
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="w-full rounded border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary
@@ -70,30 +76,34 @@ export default function FeasibilityForm({ onSubmit, isLoading }: FeasibilityForm
       </div>
 
       <div className="mb-3">
-        <label className="mb-1 block text-xs text-text-muted">Required Domains</label>
+        <label className="mb-1 block text-xs text-text-muted">
+          {t("dataExplorer.ares.feasibility.form.requiredDomains")}
+        </label>
         <div className="flex flex-wrap gap-2">
-          {DOMAINS.map((d) => (
+          {DOMAINS.map((domain) => (
             <button
-              key={d.id}
+              key={domain}
               type="button"
-              onClick={() => toggleDomain(d.id)}
+              onClick={() => toggleDomain(domain)}
               className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                selectedDomains.includes(d.id)
+                selectedDomains.includes(domain)
                   ? "border-accent bg-accent/10 text-accent"
                   : "border-border-default text-text-muted hover:border-surface-highlight"
               }`}
             >
-              {d.label}
+              {t(`dataExplorer.ares.feasibility.form.domains.${domain}`)}
             </button>
           ))}
         </div>
       </div>
 
       <div className="mb-4">
-        <label className="mb-1 block text-xs text-text-muted">Minimum Patient Count (optional)</label>
+        <label className="mb-1 block text-xs text-text-muted">
+          {t("dataExplorer.ares.feasibility.form.minPatientCount")}
+        </label>
         <input
           type="number"
-          placeholder="e.g. 1000"
+          placeholder={t("dataExplorer.ares.feasibility.form.minPatientCountPlaceholder")}
           value={minPatients}
           onChange={(e) => setMinPatients(e.target.value)}
           className="w-48 rounded border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary
@@ -108,7 +118,9 @@ export default function FeasibilityForm({ onSubmit, isLoading }: FeasibilityForm
         className="rounded bg-accent px-4 py-2 text-sm font-medium text-black
                    hover:bg-accent disabled:opacity-50"
       >
-        {isLoading ? "Running..." : "Run Assessment"}
+        {isLoading
+          ? t("dataExplorer.ares.feasibility.actions.running")
+          : t("dataExplorer.ares.feasibility.actions.runAssessment")}
       </button>
     </div>
   );

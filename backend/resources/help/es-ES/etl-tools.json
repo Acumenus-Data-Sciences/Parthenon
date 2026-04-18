@@ -1,0 +1,17 @@
+{
+  "key": "etl-tools",
+  "title": "Herramientas ETL",
+  "description": "Un kit de herramientas ETL unificado con tres capacidades: perfilar bases de datos fuente usando WhiteRabbit para inspeccionar estructuras de tablas y calidad de datos, generar datos sintéticos OMOP CDM desde archivos CSV de Synthea, e ingerir recursos FHIR directamente en su CDM. Estas herramientas le ayudan a entender sus datos antes del mapeo y proporcionan conjuntos sintéticos para pruebas.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Use la pestaña Perfilador de fuentes para escanear cualquier fuente de datos configurada y obtener estadísticas a nivel de columna, incluidos tipos de datos, porcentajes de nulos, conteos distintos y valores de muestra.",
+    "Filtre su escaneo a tablas específicas ingresando una lista separada por comas (por ejemplo, person, visit_occurrence) para acelerar el perfilado en bases de datos grandes.",
+    "Las columnas con más de 50% de valores nulos se marcan automáticamente en los resultados del escaneo, lo que ayuda a identificar problemas de calidad de datos temprano.",
+    "Exporte su informe de escaneo como JSON para revisión sin conexión o para compartirlo con su equipo ETL.",
+    "El Generador Synthea carga archivos CSV pre-generados de Synthea en formato OMOP CDM. Debe tener los archivos CSV en una ruta accesible para el contenedor Darkstar antes de ejecutar el ETL.",
+    "Los conteos de pacientes para generación Synthea van de 1 a 100,000. Comience pequeño para verificar su pipeline antes de escalar.",
+    "La pestaña Ingesta FHIR permite cargar recursos FHIR directamente en su CDM sin un paso intermedio CSV.",
+    "Revise el indicador de salud del servicio en la parte superior de cada pestaña para confirmar que los servicios WhiteRabbit o Synthea estén disponibles antes de iniciar un trabajo."
+  ]
+}

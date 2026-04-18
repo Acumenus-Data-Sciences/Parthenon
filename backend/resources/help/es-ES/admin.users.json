@@ -1,0 +1,14 @@
+{
+  "key": "admin.users",
+  "title": "Gestión de usuarios",
+  "description": "El panel de Gestión de usuarios permite a los administradores crear, modificar y desactivar cuentas de usuario, asignar roles y restablecer contraseñas. Los usuarios nuevos reciben una contraseña temporal por correo electrónico y se les solicita cambiarla en el primer inicio de sesión.",
+  "docs_url": "/docs/part8-administration/22-user-management",
+  "video_url": null,
+  "tips": [
+    "Use roles en lugar de permisos individuales; los roles agrupan permisos adecuados para funciones laborales comunes.",
+    "El rol analyst es apropiado para la mayoría de usuarios investigadores; admin para personal de TI; super-admin solo para propietarios del sistema.",
+    "Desactivar un usuario, en lugar de eliminarlo, preserva entradas de auditoría vinculadas a esa cuenta.",
+    "Los usuarios con rol PHI Access pueden ver líneas de tiempo de pacientes; otorgue este rol solo a personal clínico acreditado.",
+    "Todos los cambios de rol se registran en el Audit Log con el administrador que hizo el cambio y la marca de tiempo."
+  ]
+}

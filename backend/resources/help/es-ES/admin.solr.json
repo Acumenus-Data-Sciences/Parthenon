@@ -1,0 +1,17 @@
+{
+  "key": "admin.solr",
+  "title": "Administración de búsqueda Solr",
+  "description": "Parthenon usa Apache Solr como capa de búsqueda de alto rendimiento junto con PostgreSQL. Solr impulsa la búsqueda de vocabulario, autocompletado de conceptos, descubrimiento de cohortes/estudios, búsqueda de metadatos de análisis, filtrado de revisión de mapeos, búsqueda de eventos clínicos y la paleta global de comandos Cmd+K. PostgreSQL sigue siendo el almacén de datos autoritativo; Solr es un índice optimizado para lectura que puede reconstruirse en cualquier momento.",
+  "docs_url": "/docs/part8-administration/27-solr-administration",
+  "video_url": null,
+  "tips": [
+    "Cada core de Solr indexa un dominio específico: vocabulario (conceptos), cohortes (definiciones + estudios), análisis (metadatos Achilles), mapeos (mapeos de conceptos de ingesta) y clínico (eventos de pacientes de tablas CDM).",
+    "Use Re-indexar para actualizaciones incrementales. Use Re-indexación completa para eliminar todos los documentos y reconstruir desde cero; es útil después de cambios de esquema o correcciones de datos.",
+    "El core de vocabulario es el de mayor impacto: impulsa búsqueda de conceptos, autocompletado y filtrado facetado en el Navegador de vocabulario.",
+    "El core clínico puede tardar varios minutos en indexar bases de datos grandes (millones de eventos). Use los indicadores --source y --domain para indexar incrementalmente.",
+    "Si un core muestra No disponible, compruebe que el contenedor Solr esté ejecutándose: docker compose ps solr. El circuit breaker se recuperará automáticamente cuando Solr vuelva a estar en línea.",
+    "Los conteos de documentos deben coincidir aproximadamente con sus conteos de filas PostgreSQL. Las discrepancias grandes pueden indicar un índice obsoleto; active una Re-indexación completa.",
+    "La configuración de Solr vive en backend/.env: SOLR_ENABLED, SOLR_HOST, SOLR_PORT. Establezca SOLR_ENABLED=true para activar la búsqueda Solr.",
+    "Cuando Solr no está disponible, todas las funciones de búsqueda vuelven automáticamente a consultas PostgreSQL ILIKE, más lentas pero funcionales."
+  ]
+}

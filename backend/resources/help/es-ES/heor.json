@@ -1,0 +1,15 @@
+{
+  "key": "heor",
+  "title": "Economía de la salud e investigación de desenlaces",
+  "description": "El módulo HEOR admite análisis de costo-efectividad, modelado de impacto presupuestario y contratación basada en valor según desenlaces. Defina análisis económicos con modelado de escenarios, cree contratos basados en valor con estructuras escalonadas de reembolso e integre hallazgos con datos clínicos OMOP CDM.",
+  "docs_url": "/docs/part11-heor/29-heor-overview",
+  "video_url": null,
+  "tips": [
+    "La pestaña Análisis económicos permite crear análisis de costo-efectividad e impacto presupuestario con horizontes temporales, monedas y múltiples escenarios configurables.",
+    "Cada análisis puede contener múltiples escenarios para comparar estrategias de tratamiento o supuestos de costo lado a lado.",
+    "La pestaña Contratos de valor gestiona contratos basados en desenlaces con socios farmacéuticos, incluidas estructuras escalonadas de reembolso vinculadas a tasas de desenlaces clínicos.",
+    "Los análisis HEOR están acotados a fuentes de datos específicas y pueden aprovechar definiciones de cohortes existentes para poblaciones objetivo.",
+    "Use la barra de estadísticas para seguir de un vistazo análisis totales, análisis completados y contratos de valor activos.",
+    "Para identificación de brechas de atención y gestión de salud poblacional, use el módulo separado Paquetes de atención."
+  ]
+}

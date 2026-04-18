@@ -1,0 +1,292 @@
+---
+id: 03-vocabulary-browser
+title: "3. Navegador de vocabulario"
+sidebar_label: "3. Navegador de vocabulario"
+---
+
+# Navegador de vocabulario
+
+El Navegador de vocabulario es la herramienta principal para explorar los vocabularios estandarizados de OMOP: las terminologías controladas que clasifican cada evento clínico registrado en una base OMOP CDM. Entender y navegar estos vocabularios es fundamental para la investigación basada en OMOP: cada condición, medicamento, medición, procedimiento, observación y dispositivo en el CDM se representa mediante un **concepto** con un identificador entero único.
+
+El Navegador de vocabulario de Parthenon combina la búsqueda tradicional de texto completo con búsqueda semántica impulsada por IA, lo que permite encontrar conceptos no solo por coincidencia de palabras clave sino por significado clínico.
+
+## ¿Qué es un concepto OMOP?
+
+Un concepto OMOP es una entrada única en el vocabulario estandarizado con los siguientes atributos:
+
+| Atributo | Descripción | Ejemplo |
+|----------|-------------|---------|
+| **Concept ID** | Identificador entero único | `201826` |
+| **Concept Name** | Etiqueta legible | Diabetes mellitus tipo 2 |
+| **Domain** | Área clínica a la que pertenece el concepto | Condition |
+| **Vocabulary** | Sistema terminológico de origen | SNOMED |
+| **Concept Class** | Nivel de granularidad dentro del vocabulario | Clinical Finding |
+| **Standard Concept** | Si este es el estándar OMOP para su dominio | Standard (S) |
+| **Concept Code** | Código en el vocabulario de origen | `44054006` |
+| **Valid Start/End** | Ventana de validez del concepto | 2002-01-31 a 2099-12-31 |
+| **Invalid Reason** | Si está obsoleto, el motivo (D=eliminado, U=actualizado) | NULL (válido) |
+
+El vocabulario OMOP contiene más de 7.2 millones de conceptos procedentes de decenas de vocabularios, incluidos SNOMED CT, RxNorm, RxNorm Extension, ICD-10-CM, ICD-10-PCS, LOINC, CPT4, HCPCS, ATC, MedDRA, UCUM y muchos otros.
+
+## Navegar al Vocabulary Browser
+
+Vaya a **Vocabulary > Browse Concepts** en la barra superior. El navegador se abre con un campo de búsqueda vacío y un panel de filtros. Un selector de fuente en el encabezado indica qué vocabulario de fuente de datos se está consultando; distintas fuentes pueden tener versiones de vocabulario distintas.
+
+## Buscar conceptos
+
+### Búsqueda de texto
+
+Escriba un término en el cuadro de búsqueda y presione Enter o haga clic en el icono de búsqueda. La búsqueda usa indexación de texto completo sobre nombres de conceptos, códigos de concepto y sinónimos de concepto.
+
+**Ejemplos de búsqueda:**
+
+| Consulta | Encuentra |
+|----------|-----------|
+| `diabetes` | Todos los conceptos con "diabetes" en el nombre |
+| `201826` | El concepto con ID 201826 directamente |
+| `E11.9` | Código ICD-10-CM E11.9 (diabetes mellitus tipo 2, sin complicaciones) |
+| `metformin` | Conceptos de medicamentos que contienen "metformin" |
+| `HbA1c` | Conceptos de medición para hemoglobina A1c |
+
+La búsqueda admite coincidencias parciales y consulta de sinónimos. Por ejemplo, buscar "T2DM" devuelve "Type 2 diabetes mellitus" porque "T2DM" está registrado como sinónimo de concepto. Del mismo modo, buscar "heart attack" encuentra "Myocardial infarction" mediante relaciones de sinónimos.
+
+:::tip Buscar por Concept ID
+Si conoce el concept ID exacto, escríbalo directamente en el cuadro de búsqueda. Parthenon reconoce la entrada numérica y realiza una búsqueda directa por ID, que es más rápida que la búsqueda de texto y siempre devuelve una coincidencia exacta.
+:::
+
+### Búsqueda semántica con IA
+
+Cuando hay un proveedor de IA configurado (consulte el [Capítulo 1: Introducción](../part1-getting-started/01-introduction)), el cuadro de búsqueda también admite **búsqueda semántica**. Active el modo de búsqueda con IA mediante el icono de cerebro junto al campo de búsqueda.
+
+En modo semántico, puede describir conceptos clínicos en lenguaje natural:
+
+| Consulta en lenguaje natural | Conceptos encontrados |
+|-----------------------------|----------------------|
+| "medications for lowering blood sugar" | Metformin, Glipizide, Sitagliptin, Insulin, etc. |
+| "lab tests for kidney function" | Creatinine, eGFR, BUN, Cystatin C, etc. |
+| "heart failure with reduced ejection fraction" | Systolic heart failure, HFrEF, conceptos SNOMED relacionados |
+| "drugs that cause QT prolongation" | Amiodarone, Sotalol, Haloperidol, etc. |
+
+La búsqueda semántica usa el modelo MedGemma (o el proveedor de IA configurado) para comprender la intención clínica detrás de la consulta y compararla con descripciones de conceptos, relaciones jerárquicas y conocimiento médico.
+
+:::info Disponibilidad de la búsqueda semántica
+La búsqueda semántica con IA requiere un proveedor de IA activo configurado en **Admin > AI Providers**. Si no hay un proveedor activo, el interruptor de búsqueda semántica se deshabilita y solo queda disponible la búsqueda de texto. La configuración predeterminada de Ollama/MedGemma mantiene todas las consultas en las instalaciones: no sale ningún dato de su red.
+:::
+
+## Filtrar resultados
+
+El panel de filtros en el lado izquierdo del navegador permite acotar los resultados por varios criterios. Los filtros se aplican de forma aditiva (lógica AND):
+
+### Filtro de dominio
+
+Seleccione uno o más dominios clínicos para restringir los resultados:
+
+| Dominio | Contiene | Conceptos de ejemplo |
+|---------|----------|----------------------|
+| **Condition** | Diagnósticos, enfermedades, síntomas | Diabetes tipo 2, neumonía, dolor torácico |
+| **Drug** | Medicamentos, ingredientes, medicamentos clínicos | Tableta de metformina 500 mg, aspirina |
+| **Measurement** | Pruebas de laboratorio, signos vitales, evaluaciones | HbA1c, presión arterial sistólica, BMI |
+| **Procedure** | Procedimientos quirúrgicos y diagnósticos | Colonoscopia, angiografía coronaria |
+| **Observation** | Observaciones clínicas, historia social | Uso de tabaco, grupo sanguíneo |
+| **Device** | Dispositivos médicos | Marcapasos, bomba de insulina |
+| **Visit** | Tipos de encuentro | Hospitalización, ambulatorio, visita a urgencias |
+| **Specimen** | Muestras biológicas | Sangre, orina, biopsia de tejido |
+| **Unit** | Unidades de medida | mg/dL, mmol/L, kg |
+
+### Filtro de vocabulario
+
+Seleccione vocabularios de origen específicos:
+
+- **SNOMED**: vocabulario principal para condiciones, procedimientos y observaciones.
+- **RxNorm / RxNorm Extension**: ingredientes, medicamentos clínicos y medicamentos de marca.
+- **ICD-10-CM**: códigos diagnósticos (modificación clínica de EE. UU.).
+- **ICD-10-PCS**: códigos de procedimientos (sistema de codificación de procedimientos de EE. UU.).
+- **LOINC**: observaciones de laboratorio y clínicas.
+- **CPT4 / HCPCS**: códigos de procedimientos y servicios (facturación de EE. UU.).
+- **ATC**: clasificación Anatomical Therapeutic Chemical de medicamentos.
+- **MedDRA**: Medical Dictionary for Regulatory Activities.
+- **UCUM**: Unified Code for Units of Measure.
+
+### Filtro de conceptos estándar
+
+Filtre por clasificación estándar:
+
+| Valor | Significado | Cuándo usarlo |
+|-------|-------------|---------------|
+| **Standard** | El concepto estándar OMOP para su dominio | Opción predeterminada para criterios de cohorte: estos son los que almacena el CDM |
+| **Classification** | Un concepto agrupador usado para jerarquía | Útil para navegar el árbol de vocabulario |
+| **Non-Standard** | Concepto de origen que mapea a un estándar | Úselo cuando necesite encontrar códigos de origen específicos (ICD-10, CPT) |
+
+### Filtro de clase de concepto
+
+Filtre por granularidad dentro de un vocabulario. Ejemplos:
+
+- SNOMED: Clinical Finding, Procedure, Organism, Body Structure.
+- RxNorm: Ingredient, Clinical Drug, Branded Drug, Clinical Drug Form.
+- LOINC: Lab Test, Clinical Observation, Survey.
+
+### Filtro de validez
+
+- **Valid only** (predeterminado): excluye conceptos obsoletos e inválidos.
+- **Include invalid**: muestra todos los conceptos, incluidos los obsoletos.
+
+:::warning Use siempre conceptos estándar para criterios de cohorte
+El OMOP CDM almacena datos clínicos usando conceptos estándar. Al construir criterios de inclusión de cohortes, seleccione siempre conceptos **Standard** (SNOMED para condiciones, RxNorm para medicamentos, LOINC para mediciones). Los conceptos no estándar (ICD-10, CPT) aparecen en campos de origen, pero no se usan para consultas primarias de datos clínicos. El navegador de vocabulario resalta los conceptos estándar con una insignia azul "Standard".
+:::
+
+## Vista de detalle de concepto
+
+Haga clic en cualquier concepto de los resultados de búsqueda para abrir la vista completa de detalle. Este panel proporciona información integral organizada en varias secciones:
+
+### Encabezado de metadatos
+
+Muestra de un vistazo el concept ID, nombre, dominio, vocabulario, clase, marca estándar, concept code y fechas de validez.
+
+### Jerarquía: ancestros
+
+Muestra conceptos más amplios por encima del concepto seleccionado en la jerarquía del vocabulario. Navegue hacia arriba para entender cómo encaja un concepto en la clasificación general.
+
+**Ejemplo de jerarquía para "Type 2 diabetes mellitus" (201826):**
+
+```
+Endocrine disease
+  └── Disorder of glucose metabolism
+        └── Diabetes mellitus
+              └── Type 2 diabetes mellitus  ← seleccionado
+```
+
+Haga clic en cualquier ancestro para navegar a la vista de detalle de ese concepto.
+
+### Jerarquía: descendientes
+
+Muestra conceptos más estrechos y específicos por debajo del concepto seleccionado. Esto es críticamente importante para entender qué capturará la opción "Include descendants" de un concepto dentro de un conjunto de conceptos.
+
+**Ejemplos de descendientes de "Type 2 diabetes mellitus" (201826):**
+
+- Type 2 diabetes mellitus with ophthalmic complication
+- Type 2 diabetes mellitus with renal complication
+- Type 2 diabetes mellitus with neurological complication
+- Type 2 diabetes mellitus with peripheral circulatory complication
+- ... (potencialmente cientos más)
+
+:::tip Revise los descendientes antes de crear conjuntos de conceptos
+Antes de agregar un concepto a un conjunto con "Include descendants" activado, revise siempre la lista de descendientes en la vista de detalle. Puede encontrar descendientes que incluyen subtipos no deseados. Por ejemplo, "Diabetes mellitus" incluye tanto Type 1 como Type 2; si solo quiere Type 2, comience desde el concepto 201826 en lugar del concepto padre.
+:::
+
+### Relaciones
+
+Muestra todas las relaciones de concepto definidas en `concept_relationship`:
+
+| Relación | Dirección | Ejemplo |
+|----------|-----------|---------|
+| **Is a** | Hacia arriba | "Type 2 diabetes mellitus" Is a "Diabetes mellitus" |
+| **Maps to** | Mapeo estándar | ICD-10-CM E11.9 Maps to SNOMED 201826 |
+| **Has ingredient** | Composición de medicamento | "Metformin 500mg tablet" Has ingredient "Metformin" |
+| **Has finding site** | Vínculo anatómico | "Pneumonia" Has finding site "Lung structure" |
+| **Subsumes** | Hacia abajo | "Diabetes mellitus" Subsumes "Type 2 diabetes mellitus" |
+
+### Sinónimos
+
+Enumera nombres alternativos para el concepto desde `concept_synonym`. Los sinónimos se pueden buscar: puede encontrar conceptos por cualquier sinónimo registrado.
+
+### Conceptos de origen
+
+Para un concepto estándar, esta sección muestra todos los conceptos no estándar que mapean hacia él. Esto es útil para entender qué códigos de origen (ICD-10, CPT, etc.) se resuelven a este concepto estándar durante el ETL.
+
+**Ejemplo:** el concepto estándar "Type 2 diabetes mellitus" (201826) es destino de mapeos desde:
+
+- ICD-10-CM E11.9 (Type 2 diabetes mellitus, without complications)
+- ICD-10-CM E11 (Type 2 diabetes mellitus)
+- ICD-9-CM 250.00 (Diabetes mellitus without mention of complication)
+- Read V2 C109. (Non-insulin dependent diabetes mellitus)
+
+## Herramienta de comparación de conceptos
+
+Parthenon proporciona una herramienta de comparación lado a lado en **Vocabulary > Compare Concepts** (también navegable mediante la ruta URL `/vocabulary/compare`). Esta herramienta es útil cuando necesita decidir entre conceptos similares para un conjunto de conceptos.
+
+### Usar la herramienta de comparación
+
+1. Vaya a **Vocabulary > Compare Concepts**.
+2. Busque y seleccione dos o más conceptos para comparar.
+3. La vista de comparación muestra los conceptos en columnas, con filas para cada atributo:
+   - Metadatos (ID, nombre, dominio, vocabulario, clase, estado estándar).
+   - Conteo de ancestros y profundidad de jerarquía.
+   - Conteo de descendientes.
+   - Conteo de relaciones.
+   - Conteo de sinónimos.
+   - Conteo de mapeos de conceptos de origen.
+
+Esto le ayuda a tomar decisiones informadas sobre qué concepto usar. Por ejemplo, comparar "Diabetes mellitus type 2" entre SNOMED e ICD-10 muestra cuál tiene más descendientes, más mapeos de origen y cuál es el concepto estándar.
+
+## Conceptos estándar vs. conceptos de origen
+
+Comprender la distinción entre conceptos estándar y conceptos de origen (no estándar) es esencial para usar eficazmente el OMOP CDM:
+
+### Conceptos estándar
+
+- Un vocabulario se designa como "estándar" para cada dominio (por ejemplo, SNOMED para condiciones, RxNorm para medicamentos, LOINC para mediciones).
+- Los datos clínicos en el CDM se almacenan usando concept IDs estándar en las columnas primarias `*_concept_id`.
+- **Use siempre conceptos estándar al construir criterios de cohorte**: son contra los que consulta el CDM.
+
+### Conceptos de origen
+
+- Los conceptos de origen preservan la terminología original de los datos fuente (ICD-10, CPT, códigos locales).
+- Se almacenan en columnas `*_source_concept_id` y campos de texto `*_source_value`.
+- Los conceptos de origen tienen relaciones "Maps to" que apuntan a sus conceptos estándar correspondientes.
+- Use conceptos de origen solo cuando necesite coincidencia exacta de código de origen, lo cual es raro en la mayoría de la investigación.
+
+### Conceptos de clasificación
+
+- Son nodos agrupadores en las jerarquías de vocabulario (por ejemplo, clases de medicamentos ATC).
+- No se usan directamente en columnas de datos CDM.
+- Son útiles para navegar la jerarquía y entender relaciones entre conceptos.
+
+## Versiones de vocabulario {#vocabulary-versions}
+
+La versión de vocabulario cargada en cada fuente de datos se muestra en el encabezado del navegador cuando se selecciona una fuente. Las publicaciones de vocabulario de Athena tienen fecha (por ejemplo, `v5.0 2026-02-25`) e incluyen periódicamente:
+
+- **Nuevos conceptos** agregados a vocabularios de origen.
+- **Conceptos obsoletos** marcados como inválidos con `invalid_reason = 'D'` (eliminado) o `'U'` (actualizado/reemplazado).
+- **Conceptos reclasificados** movidos entre dominios o clases.
+- **Nuevas relaciones** que vinculan conceptos entre vocabularios.
+- **Sinónimos actualizados** en varios idiomas.
+
+:::danger Revise los conjuntos de conceptos después de actualizar vocabularios
+Cuando el administrador carga una nueva versión de vocabulario, los conjuntos de conceptos existentes deben revisarse. Un concepto que era estándar puede haber quedado obsoleto, o pueden haberse agregado nuevos descendientes que cambian el alcance de un conjunto con "Include descendants" activado. Use la función **Preview** del conjunto de conceptos para verificar los concept IDs resueltos después de cualquier actualización de vocabulario.
+:::
+
+### Comprobar la versión de vocabulario
+
+Para ver qué versión de vocabulario usa una fuente:
+
+1. Abra **Data Sources** y haga clic en la fuente.
+2. La versión de vocabulario aparece bajo los metadatos del daimon de vocabulario.
+3. Como alternativa, en el Vocabulary Browser, la versión se muestra en la barra de encabezado junto al nombre de la fuente.
+
+## Flujos de trabajo prácticos
+
+### Encontrar el concepto correcto para una condición
+
+1. Busque el nombre de la condición (por ejemplo, "myocardial infarction").
+2. Filtre por **Domain: Condition** y **Standard Concept: Standard**.
+3. Revise los resultados principales; busque el concepto más amplio que capture su intención.
+4. Abra la vista de detalle del concepto y revise los descendientes para entender su alcance.
+5. Agregue el concepto a un conjunto con las banderas apropiadas (consulte el [Capítulo 4: Conjuntos de conceptos](./04-concept-sets)).
+
+### Encontrar conceptos de medicamentos a nivel de ingrediente
+
+1. Busque el nombre del medicamento (por ejemplo, "metformin").
+2. Filtre por **Domain: Drug** y **Concept Class: Ingredient**.
+3. El concepto de ingrediente captura todas las formulaciones, concentraciones y marcas.
+4. Use "Include descendants" en su conjunto de conceptos para incluir automáticamente todas las formas de medicamento clínico.
+
+### Mapear códigos de origen a conceptos estándar
+
+1. Busque directamente el código de origen (por ejemplo, "E11.9" para ICD-10-CM).
+2. Abra la vista de detalle del concepto.
+3. Mire la sección **Relationships** para encontrar relaciones "Maps to".
+4. El destino de la relación "Maps to" es el concepto estándar que debe usar.
+
+## Siguientes pasos
+
+Ahora que entiende cómo navegar vocabularios y encontrar conceptos, continúe con el [Capítulo 4: Conjuntos de conceptos](./04-concept-sets) para aprender a reunir conceptos en listas reutilizables que impulsan definiciones de cohortes y análisis.

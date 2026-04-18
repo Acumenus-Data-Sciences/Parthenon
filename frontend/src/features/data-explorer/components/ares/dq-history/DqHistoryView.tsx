@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { useDqHistory, useDqDeltas, useCategoryHeatmap, useDqHistoryExport } from "../../../hooks/useDqHistoryData";
@@ -12,6 +13,7 @@ import type { DqTrendPoint } from "../../../types/ares";
 type DqTab = "trends" | "heatmap" | "overlay" | "sla";
 
 export default function DqHistoryView() {
+  const { t } = useTranslation("app");
   const [selectedSourceId, setSelectedSourceId] = useState<number | null>(null);
   const [selectedReleaseId, setSelectedReleaseId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<DqTab>("trends");
@@ -26,6 +28,7 @@ export default function DqHistoryView() {
   const exportMutation = useDqHistoryExport(selectedSourceId);
 
   const selectedRelease = trends?.find((t: DqTrendPoint) => t.release_id === selectedReleaseId);
+  const tabLabel = (tab: DqTab) => t(`dataExplorer.ares.dqHistory.tabs.${tab}`);
 
   const handleExport = useCallback(() => {
     exportMutation.mutate("csv", {
@@ -49,7 +52,9 @@ export default function DqHistoryView() {
       {/* Header with source selector and tab toggle */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <label className="text-sm text-text-muted">Source:</label>
+          <label className="text-sm text-text-muted">
+            {t("dataExplorer.ares.dqHistory.filters.source")}
+          </label>
           <select
             value={selectedSourceId ?? ""}
             onChange={(e) => {
@@ -58,7 +63,9 @@ export default function DqHistoryView() {
             }}
             className="rounded border border-border-default bg-surface-overlay px-3 py-1.5 text-sm text-text-primary"
           >
-            <option value="">Select source...</option>
+            <option value="">
+              {t("dataExplorer.ares.dqHistory.filters.selectSource")}
+            </option>
             {sources?.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.source_name}
@@ -74,7 +81,9 @@ export default function DqHistoryView() {
               disabled={exportMutation.isPending}
               className="rounded border border-border-default px-3 py-1.5 text-xs text-text-muted transition-colors hover:border-surface-highlight hover:text-text-primary disabled:opacity-50"
             >
-              {exportMutation.isPending ? "Exporting..." : "Export CSV"}
+              {exportMutation.isPending
+                ? t("dataExplorer.ares.dqHistory.actions.exporting")
+                : t("dataExplorer.ares.dqHistory.actions.exportCsv")}
             </button>
           )}
         </div>
@@ -82,12 +91,6 @@ export default function DqHistoryView() {
         {/* Tab toggle */}
         <div className="flex gap-1 rounded-lg border border-border-default p-0.5">
           {(["trends", "heatmap", "sla", "overlay"] as const).map((tab) => {
-            const labels: Record<string, string> = {
-              trends: "Trends",
-              heatmap: "Heatmap",
-              sla: "SLA",
-              overlay: "Cross-Source",
-            };
             return (
               <button
                 key={tab}
@@ -97,7 +100,7 @@ export default function DqHistoryView() {
                   activeTab === tab ? "bg-success text-black" : "text-text-muted"
                 }`}
               >
-                {labels[tab]}
+                {tabLabel(tab)}
               </button>
             );
           })}
@@ -105,18 +108,26 @@ export default function DqHistoryView() {
       </div>
 
       {!selectedSourceId && activeTab !== "overlay" && (
-        <p className="py-10 text-center text-text-ghost">Select a source to view DQ history.</p>
+        <p className="py-10 text-center text-text-ghost">
+          {t("dataExplorer.ares.dqHistory.messages.selectSource")}
+        </p>
       )}
 
       {/* Trends tab */}
       {activeTab === "trends" && selectedSourceId && (
         <>
-          {trendsLoading && <p className="text-text-ghost">Loading DQ history...</p>}
+          {trendsLoading && (
+            <p className="text-text-ghost">
+              {t("dataExplorer.ares.dqHistory.messages.loadingHistory")}
+            </p>
+          )}
 
           {!trendsLoading && trends && (
             <>
               <div className="mb-6 rounded-lg border border-border-subtle bg-surface-raised p-4">
-                <h3 className="mb-3 text-sm font-medium text-text-primary">DQ Pass Rate Over Releases</h3>
+                <h3 className="mb-3 text-sm font-medium text-text-primary">
+                  {t("dataExplorer.ares.dqHistory.sections.passRate")}
+                </h3>
                 <DqTrendChart
                   data={trends}
                   sourceId={selectedSourceId}
@@ -127,7 +138,9 @@ export default function DqHistoryView() {
               {selectedReleaseId && (
                 <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
                   {deltasLoading ? (
-                    <p className="text-text-ghost">Loading deltas...</p>
+                    <p className="text-text-ghost">
+                      {t("dataExplorer.ares.dqHistory.messages.loadingDeltas")}
+                    </p>
                   ) : (
                     <DqDeltaTable
                       deltas={deltas ?? []}
@@ -144,8 +157,14 @@ export default function DqHistoryView() {
       {/* Heatmap tab */}
       {activeTab === "heatmap" && selectedSourceId && (
         <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
-          <h3 className="mb-3 text-sm font-medium text-text-primary">Category x Release Heatmap</h3>
-          {heatmapLoading && <p className="text-text-ghost">Loading heatmap...</p>}
+          <h3 className="mb-3 text-sm font-medium text-text-primary">
+            {t("dataExplorer.ares.dqHistory.sections.heatmap")}
+          </h3>
+          {heatmapLoading && (
+            <p className="text-text-ghost">
+              {t("dataExplorer.ares.dqHistory.messages.loadingHeatmap")}
+            </p>
+          )}
           {heatmapData && (
             <DqCategoryHeatmap
               releases={heatmapData.releases}
@@ -163,7 +182,9 @@ export default function DqHistoryView() {
       {/* SLA tab */}
       {activeTab === "sla" && selectedSourceId && (
         <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
-          <h3 className="mb-3 text-sm font-medium text-text-primary">SLA Compliance Dashboard</h3>
+          <h3 className="mb-3 text-sm font-medium text-text-primary">
+            {t("dataExplorer.ares.dqHistory.sections.sla")}
+          </h3>
           <DqSlaDashboard sourceId={selectedSourceId} />
         </div>
       )}
@@ -171,8 +192,14 @@ export default function DqHistoryView() {
       {/* Cross-source overlay tab */}
       {activeTab === "overlay" && (
         <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
-          <h3 className="mb-3 text-sm font-medium text-text-primary">Cross-Source DQ Overlay</h3>
-          {overlayLoading && <p className="text-text-ghost">Loading overlay data...</p>}
+          <h3 className="mb-3 text-sm font-medium text-text-primary">
+            {t("dataExplorer.ares.dqHistory.sections.overlay")}
+          </h3>
+          {overlayLoading && (
+            <p className="text-text-ghost">
+              {t("dataExplorer.ares.dqHistory.messages.loadingOverlay")}
+            </p>
+          )}
           {overlayData && overlayData.length > 0 && (
             <DqTrendChart
               data={[]}
@@ -180,7 +207,9 @@ export default function DqHistoryView() {
             />
           )}
           {overlayData && overlayData.length === 0 && (
-            <p className="py-10 text-center text-text-ghost">No DQ data available across sources.</p>
+            <p className="py-10 text-center text-text-ghost">
+              {t("dataExplorer.ares.dqHistory.messages.noOverlayData")}
+            </p>
           )}
         </div>
       )}

@@ -1,0 +1,17 @@
+{
+  "key": "fhir-ingestion",
+  "title": "FHIR 수집",
+  "description": "FHIR 수집은 FHIR R4 리소스를 OMOP CDM 형식으로 변환해 데이터베이스에 로드합니다. 단일 FHIR Bundle JSON 파일을 업로드하거나 여러 NDJSON 파일을 일괄 처리할 수 있습니다. 시스템은 FHIR 리소스(Patient, Condition, MedicationRequest 등)를 해당 OMOP CDM 테이블에 매핑하고 테이블별 상세 행 수를 보고합니다.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "파일 업로드 영역을 사용해 FHIR R4 Bundle JSON 파일을 업로드하거나 편의를 위해 끌어다 놓으세요.",
+    "대규모 데이터셋의 경우 일괄 모드로 여러 NDJSON 파일을 업로드하면 병렬로 처리됩니다.",
+    "수집 후 각 CDM 테이블(person, condition_occurrence, drug_exposure 등)에 몇 행이 삽입되었는지 보여 주는 테이블별 세부 내역을 검토하세요.",
+    "업로드를 시도하기 전에 상태 표시기를 확인해 FHIR 수집 서비스가 실행 중인지 확인하세요.",
+    "수집 기록은 로컬에 저장되므로 타임스탬프, 파일 이름, 행 수를 포함한 과거 가져오기를 검토할 수 있습니다.",
+    "결과 패널의 검색 및 필터 컨트롤을 사용해 특정 FHIR 리소스 유형이나 CDM 테이블을 찾으세요.",
+    "실패하거나 부분 실패한 수집은 FHIR 데이터의 문제를 식별하고 수정하는 데 도움이 되는 자세한 오류 정보를 표시합니다.",
+    "문서화하거나 FHIR 원천에서 OMOP CDM 목적지까지의 데이터 계보를 추적하려면 수집 보고서를 내보내세요."
+  ]
+}

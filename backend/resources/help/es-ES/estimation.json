@@ -1,0 +1,14 @@
+{
+  "key": "estimation",
+  "title": "Estimación a nivel poblacional",
+  "description": "La Estimación a nivel poblacional (PLE) calcula estimaciones comparativas de efectividad o seguridad entre una cohorte de tratamiento objetivo y una comparadora usando el paquete R CohortMethod de OHDSI. Los métodos incluyen emparejamiento, estratificación y ponderación por puntuación de propensión.",
+  "docs_url": "/docs/part4-analyses/12-population-level-estimation",
+  "video_url": null,
+  "tips": [
+    "PLE requiere que el entorno de ejecución HADES de Darkstar esté activo; revise Salud del sistema si la ejecución falla.",
+    "Los conjuntos grandes de covariables (más de 1000 características) mejoran el equilibrio de la puntuación de propensión, pero aumentan el tiempo de cómputo.",
+    "Revise el gráfico de distribución de puntuación de propensión antes de confiar en la estimación HR.",
+    "Los desenlaces de control negativo ayudan a calibrar valores p empíricos para corregir errores sistemáticos.",
+    "PLE consume muchos recursos de cómputo; envíelo durante horas de baja demanda en sistemas de producción."
+  ]
+}

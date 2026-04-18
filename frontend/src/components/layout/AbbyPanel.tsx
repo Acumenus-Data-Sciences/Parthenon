@@ -4,6 +4,8 @@ import { X, Send, Loader2, Trash2, ChevronRight, Clock, MessageSquare, ChevronLe
 import AbbyAvatar from "@/features/commons/components/abby/AbbyAvatar";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import type { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import { useAbbyStore } from "@/stores/abbyStore";
 import { useAbbyContext } from "@/hooks/useAbbyContext";
 import { useAuthStore } from "@/stores/authStore";
@@ -241,21 +243,28 @@ const CONTEXT_LABELS: Record<string, string> = {
   general: "General",
 };
 
-function formatRelativeTime(dateStr: string): string {
+function formatRelativeTime(dateStr: string, t: TFunction<"layout">): string {
   const now = new Date();
   const date = new Date(dateStr);
   const diffMs = now.getTime() - date.getTime();
   const diffMin = Math.floor(diffMs / 60000);
-  if (diffMin < 1) return "just now";
-  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffMin < 1) return t("abby.panel.time.justNow");
+  if (diffMin < 60) {
+    return t("abby.panel.time.minutesAgo", { count: diffMin });
+  }
   const diffHrs = Math.floor(diffMin / 60);
-  if (diffHrs < 24) return `${diffHrs}h ago`;
+  if (diffHrs < 24) {
+    return t("abby.panel.time.hoursAgo", { count: diffHrs });
+  }
   const diffDays = Math.floor(diffHrs / 24);
-  if (diffDays < 7) return `${diffDays}d ago`;
+  if (diffDays < 7) {
+    return t("abby.panel.time.daysAgo", { count: diffDays });
+  }
   return date.toLocaleDateString();
 }
 
 export function AbbyPanel() {
+  const { t } = useTranslation("layout");
   const { panelOpen, setPanelOpen, messages, addMessage, clearMessages, pageContext, isStreaming, setIsStreaming, streamingContent, setStreamingContent, appendStreamingContent, conversationId, setConversationId, conversationList, setConversationList } = useAbbyStore();
   const { pageName } = useAbbyContext();
   const user = useAuthStore((s) => s.user);
@@ -564,12 +573,12 @@ export function AbbyPanel() {
   return createPortal(
     <>
       <div className="drawer-backdrop" onClick={() => setPanelOpen(false)} />
-      <div className="drawer drawer-lg" role="dialog" aria-label="AI Assistant">
+      <div className="drawer drawer-lg" role="dialog" aria-label={t("abby.panel.dialogLabel")}>
         {/* Header */}
         <div className="ai-panel-header">
           <AbbyAvatar size="md" showStatus />
           <div style={{ flex: 1 }}>
-            <span className="text-panel-title">Abby AI</span>
+            <span className="text-panel-title">{t("abby.panel.title")}</span>
             <span
               style={{
                 marginLeft: 8,
@@ -587,23 +596,23 @@ export function AbbyPanel() {
           <button
             className="btn btn-ghost btn-icon btn-sm"
             onClick={() => setHistoryOpen(!historyOpen)}
-            aria-label="Conversation history"
-            title="Conversation history"
+            aria-label={t("abby.panel.conversationHistory")}
+            title={t("abby.panel.conversationHistory")}
           >
             <Clock size={14} />
           </button>
           <button
             className="btn btn-ghost btn-icon btn-sm"
             onClick={() => { clearMessages(); setHistoryOpen(false); }}
-            aria-label="New chat"
-            title="New chat"
+            aria-label={t("abby.panel.newChat")}
+            title={t("abby.panel.newChat")}
           >
             <Trash2 size={14} />
           </button>
           <button
             className="modal-close"
             onClick={() => setPanelOpen(false)}
-            aria-label="Close AI panel"
+            aria-label={t("abby.panel.closePanel")}
           >
             <X size={18} />
           </button>
@@ -638,12 +647,12 @@ export function AbbyPanel() {
               <button
                 className="btn btn-ghost btn-icon btn-sm"
                 onClick={() => setHistoryOpen(false)}
-                aria-label="Back to chat"
+                aria-label={t("abby.panel.backToChat")}
               >
                 <ChevronLeft size={16} />
               </button>
               <span style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--text-primary)" }}>
-                Conversation History
+                {t("abby.panel.conversationHistory")}
               </span>
             </div>
 
@@ -664,7 +673,7 @@ export function AbbyPanel() {
                     fontSize: "var(--text-sm)",
                   }}
                 >
-                  No past conversations
+                  {t("abby.panel.noPastConversations")}
                 </div>
               ) : (
                 conversationList.map((conv) => (
@@ -700,7 +709,7 @@ export function AbbyPanel() {
                           textOverflow: "ellipsis",
                         }}
                       >
-                        {conv.title || "Untitled"}
+                        {conv.title || t("abby.panel.untitledConversation")}
                       </div>
                       <div
                         style={{
@@ -709,15 +718,16 @@ export function AbbyPanel() {
                           marginTop: 2,
                         }}
                       >
-                        {formatRelativeTime(conv.created_at)}
-                        {conv.messages_count > 0 && ` · ${conv.messages_count} msgs`}
+                        {formatRelativeTime(conv.created_at, t)}
+                        {conv.messages_count > 0 &&
+                          ` · ${conv.messages_count} ${t("abby.panel.messagesAbbrev")}`}
                       </div>
                     </div>
                     <button
                       className="btn btn-ghost btn-icon btn-sm"
                       onClick={(e) => deleteConversation(conv.id, e)}
-                      aria-label="Delete conversation"
-                      title="Delete conversation"
+                      aria-label={t("abby.panel.deleteConversation")}
+                      title={t("abby.panel.deleteConversation")}
                       style={{ flexShrink: 0 }}
                     >
                       <X size={12} />
@@ -809,7 +819,7 @@ export function AbbyPanel() {
           {showSuggestions && (
             <div style={{ display: "flex", flexDirection: "column", gap: 6, paddingTop: 8 }}>
               <span style={{ fontSize: "var(--text-xs)", color: "var(--text-ghost)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                Suggested prompts
+                {t("abby.panel.suggestedPrompts")}
               </span>
               {suggestions.map((s) => (
                 <button
@@ -854,14 +864,16 @@ export function AbbyPanel() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={`Ask Abby about ${contextLabel.toLowerCase()}...`}
+              placeholder={t("abby.panel.inputPlaceholder", {
+                context: contextLabel.toLowerCase(),
+              })}
               rows={1}
             />
             <button
               className="ai-send-btn"
               onClick={() => sendMessage()}
               disabled={!input.trim() || isStreaming}
-              aria-label="Send message"
+              aria-label={t("abby.panel.sendMessage")}
             >
               <Send size={16} />
             </button>

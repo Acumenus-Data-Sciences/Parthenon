@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -23,21 +24,33 @@ export interface CovariateSettings {
 
 const DOMAIN_OPTIONS: {
   key: keyof CovariateSettings;
-  label: string;
+  labelKey: string;
   group: "core" | "extended" | "index";
 }[] = [
-  { key: "useDemographics", label: "Demographics", group: "core" },
-  { key: "useConditionOccurrence", label: "Condition Occurrence", group: "core" },
-  { key: "useDrugExposure", label: "Drug Exposure", group: "core" },
-  { key: "useProcedureOccurrence", label: "Procedure Occurrence", group: "core" },
-  { key: "useMeasurement", label: "Measurement", group: "core" },
-  { key: "useObservation", label: "Observation", group: "extended" },
-  { key: "useDeviceExposure", label: "Device Exposure", group: "extended" },
-  { key: "useVisitCount", label: "Visit Count", group: "extended" },
-  { key: "useCharlsonIndex", label: "Charlson Comorbidity", group: "index" },
-  { key: "useDcsi", label: "DCSI (Diabetes)", group: "index" },
-  { key: "useChads2", label: "CHADS2", group: "index" },
-  { key: "useChads2Vasc", label: "CHA2DS2-VASc", group: "index" },
+  { key: "useDemographics", labelKey: "demographics", group: "core" },
+  {
+    key: "useConditionOccurrence",
+    labelKey: "conditionOccurrence",
+    group: "core",
+  },
+  { key: "useDrugExposure", labelKey: "drugExposure", group: "core" },
+  {
+    key: "useProcedureOccurrence",
+    labelKey: "procedureOccurrence",
+    group: "core",
+  },
+  { key: "useMeasurement", labelKey: "measurement", group: "core" },
+  { key: "useObservation", labelKey: "observation", group: "extended" },
+  { key: "useDeviceExposure", labelKey: "deviceExposure", group: "extended" },
+  { key: "useVisitCount", labelKey: "visitCount", group: "extended" },
+  {
+    key: "useCharlsonIndex",
+    labelKey: "charlsonComorbidity",
+    group: "index",
+  },
+  { key: "useDcsi", labelKey: "dcsi", group: "index" },
+  { key: "useChads2", labelKey: "chads2", group: "index" },
+  { key: "useChads2Vasc", labelKey: "chads2Vasc", group: "index" },
 ];
 
 interface CovariateSettingsPanelProps {
@@ -55,6 +68,7 @@ export function CovariateSettingsPanel({
   visibleKeys,
   showTimeWindows = true,
 }: CovariateSettingsPanelProps) {
+  const { t } = useTranslation("app");
   const options = visibleKeys
     ? DOMAIN_OPTIONS.filter((o) => visibleKeys.includes(o.key))
     : DOMAIN_OPTIONS;
@@ -139,7 +153,7 @@ export function CovariateSettingsPanel({
                     </svg>
                   )}
                 </div>
-                {opt.label}
+                {t(`covariates.labels.${opt.labelKey}`)}
               </label>
             );
           })}
@@ -151,21 +165,21 @@ export function CovariateSettingsPanel({
   return (
     <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
       <h3 className="text-sm font-semibold text-text-primary">
-        Covariate Settings
+        {t("covariates.title")}
       </h3>
       <p className="text-xs text-text-muted">
-        Select which domains to include as covariates for FeatureExtraction.
+        {t("covariates.description")}
       </p>
 
-      {renderGroup("Core Domains", coreOptions)}
-      {renderGroup("Extended Domains", extendedOptions)}
-      {renderGroup("Comorbidity Indices", indexOptions)}
+      {renderGroup(t("covariates.groups.core"), coreOptions)}
+      {renderGroup(t("covariates.groups.extended"), extendedOptions)}
+      {renderGroup(t("covariates.groups.indices"), indexOptions)}
 
       {/* Time Windows */}
       {showTimeWindows && (
         <div className="mt-4">
           <label className="block text-xs font-medium text-text-muted mb-2">
-            Time Windows
+            {t("covariates.timeWindows")}
           </label>
           {timeWindows.map((tw, idx) => (
             <div key={idx} className="flex items-center gap-2 mb-2">
@@ -180,7 +194,9 @@ export function CovariateSettingsPanel({
                   "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
                 )}
               />
-              <span className="text-xs text-text-ghost">to</span>
+              <span className="text-xs text-text-ghost">
+                {t("covariates.to")}
+              </span>
               <input
                 type="number"
                 value={tw.end}
@@ -192,7 +208,9 @@ export function CovariateSettingsPanel({
                   "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
                 )}
               />
-              <span className="text-xs text-text-ghost">days</span>
+              <span className="text-xs text-text-ghost">
+                {t("covariates.days")}
+              </span>
               {timeWindows.length > 1 && (
                 <button
                   type="button"
@@ -209,7 +227,7 @@ export function CovariateSettingsPanel({
             onClick={addWindow}
             className="text-xs text-success hover:text-success-dark transition-colors"
           >
-            + Add time window
+            + {t("covariates.addTimeWindow")}
           </button>
         </div>
       )}

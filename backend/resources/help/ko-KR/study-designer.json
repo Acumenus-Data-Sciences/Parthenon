@@ -1,0 +1,17 @@
+{
+  "key": "study-designer",
+  "title": "연구 디자이너(AI)",
+  "description": "연구 디자이너는 AI를 사용해 관찰 연구 프로토콜 작성을 돕습니다. 연구 질문을 자연어로 설명하면 시스템이 이를 대상 모집단과 결과로 나누고 OHDSI 표현형 라이브러리에서 검증된 표현형 정의를 추천합니다. 또한 흔한 설계 오류를 잡기 위한 코호트 정의 linter를 포함합니다.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "연구 의도 탭에서 'Compare heart failure risk in patients on SGLT2 inhibitors vs DPP-4 inhibitors with type 2 diabetes.'와 같이 자연어로 연구 질문을 설명하는 것부터 시작하세요.",
+    "Analyze Study Intent를 클릭하면 AI가 설명을 대상 모집단과 결과로 분리합니다.",
+    "명시한 의도와의 관련성으로 점수화된 AI 순위 표현형 추천을 검토하세요.",
+    "Phenotype Search 탭을 사용해 OHDSI 라이브러리에서 특정 질환, 약물 또는 시술을 수동으로 검색하세요.",
+    "Cohort Lint 탭은 코호트 정의 JSON을 받아 washout 기간 누락, 빈 개념 세트, 뒤집힌 시간 창 같은 문제를 검사합니다.",
+    "표현형 추천에는 각 정의가 연구에 제안된 이유를 설명하는 근거가 포함됩니다.",
+    "추천과 검색 결과에는 표현형 라이브러리에서 전체 정의를 조회하는 데 사용할 수 있는 코호트 ID가 표시됩니다.",
+    "연구 개발 과정 초기에 설계 문제를 잡으려면 코호트 정의를 확정하기 전에 linter를 사용하세요."
+  ]
+}

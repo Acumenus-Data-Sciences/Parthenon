@@ -1,0 +1,14 @@
+{
+  "key": "incidence-rates",
+  "title": "Análisis de tasas de incidencia",
+  "description": "El análisis de Tasas de incidencia estima la tasa de un nuevo evento de desenlace en una población objetivo, opcionalmente estratificada por edad, sexo y año calendario. Mide con qué frecuencia ocurre un desenlace por cada 100 persona-años durante el periodo en riesgo.",
+  "docs_url": "/docs/part4-analyses/10-incidence-rates",
+  "video_url": null,
+  "tips": [
+    "La cohorte objetivo define la población en riesgo; la cohorte de desenlace define el evento que se mide.",
+    "Por lo general, una cohorte de desenlace debe usar Primer evento para evitar contar recurrencias.",
+    "Las ventanas limpias (inicio/fin del tiempo en riesgo) definen el periodo exacto durante el cual se observa a los pacientes para el desenlace.",
+    "Los resultados estratificados por edad/sexo están disponibles en la pestaña Desglose después de la ejecución.",
+    "Use múltiples cohortes de desenlace en un solo análisis para comparar eficientemente la incidencia entre desenlaces relacionados."
+  ]
+}

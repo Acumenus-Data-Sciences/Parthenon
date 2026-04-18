@@ -11,15 +11,15 @@
         "parent": null,
         "release": "df14",
         "coverage": {
-            "pct": 0.7471264367816092,
-            "bucket": "PARTIAL",
+            "pct": 1,
+            "bucket": "FULLY_MAPPED",
             "n_tokens_total": 87,
-            "n_tokens_resolved": 65
+            "n_tokens_resolved": 87
         },
         "conditions": null,
         "provenance": {
             "source_row": 4820,
-            "imported_at": "2026-04-17T00:17:56+00:00",
+            "imported_at": "2026-04-17T19:57:24+00:00",
             "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
             "importer_version": "1.0.0"
         },
@@ -191,8 +191,9 @@
         },
         "spec_version": "1.0",
         "pre_conditions": null,
-        "coverage_bucket": "PARTIAL",
+        "coverage_bucket": "FULLY_MAPPED",
         "sex_restriction": null,
+        "coverage_profile": "partial",
         "include_endpoints": [
             "AB1_SCHISTOSOMIASIS",
             "AB1_OTHER_FLUKE",
@@ -439,7 +440,8 @@
                 436340,
                 4145480,
                 436350,
-                444075
+                444075,
+                432251
             ]
         }
     },
@@ -447,7 +449,7 @@
     "is_public": true,
     "version": 1,
     "created_at": "2026-04-16T23:56:29.000000Z",
-    "updated_at": "2026-04-17T00:17:56.000000Z",
+    "updated_at": "2026-04-17T19:57:24.000000Z",
     "deleted_at": null,
     "tags": [
         "finngen-endpoint",
@@ -459,5 +461,6 @@
     "domain": "finngen-endpoint",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null
+    "superseded_by": null,
+    "coverage_profile": "partial"
 }

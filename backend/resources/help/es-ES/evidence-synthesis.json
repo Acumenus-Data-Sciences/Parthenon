@@ -1,0 +1,17 @@
+{
+  "key": "evidence-synthesis",
+  "title": "Síntesis de evidencia",
+  "description": "La Síntesis de evidencia combina estimaciones de efecto de múltiples fuentes de datos o sitios de estudio en un solo resultado agrupado. Esto es esencial para estudios de red OHDSI en los que cada sitio ejecuta el mismo análisis de forma independiente. Usted ingresa el logaritmo del riesgo relativo (logRR) y los valores de error estándar por sitio, y luego ejecuta un metaanálisis para producir una estimación de efecto combinada.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Agregue una fila por sitio de estudio e ingrese el nombre del sitio, el logaritmo del riesgo relativo (logRR) y el error estándar del logRR.",
+    "Elija entre métodos de síntesis bayesianos y frecuentistas según los requisitos de su protocolo de estudio.",
+    "Use valores negativos de logRR para representar efectos protectores y valores positivos para representar efectos dañinos.",
+    "Puede agregar o eliminar estimaciones de sitios en cualquier momento antes de ejecutar la síntesis.",
+    "Después de la ejecución, revise la estimación de efecto agrupada y los intervalos de confianza en la pestaña Resultados.",
+    "Haga clic en cualquier ejecución completada en la tabla Historial de ejecución para volver a examinar sus resultados.",
+    "La síntesis de evidencia suele ser el paso final después de ejecutar análisis comparativos (por ejemplo, CohortMethod o SCCS) en múltiples bases de datos.",
+    "Guarde el diseño del análisis para poder volver a ejecutarlo cuando estén disponibles nuevas estimaciones a nivel de sitio."
+  ]
+}

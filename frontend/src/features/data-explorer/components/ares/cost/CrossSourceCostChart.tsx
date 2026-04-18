@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useCrossSourceCost } from "../../../hooks/useCostData";
 
 interface CrossSourceCostChartProps {
@@ -15,14 +16,23 @@ export default function CrossSourceCostChart({
   domain = "all",
   costTypeId,
 }: CrossSourceCostChartProps) {
+  const { t } = useTranslation("app");
   const { data, isLoading } = useCrossSourceCost(domain, costTypeId);
 
   if (isLoading) {
-    return <div className="p-4 text-text-ghost">Loading cross-source comparison...</div>;
+    return (
+      <div className="p-4 text-text-ghost">
+        {t("dataExplorer.ares.cost.messages.loadingCrossSource")}
+      </div>
+    );
   }
 
   if (!data || data.sources.length === 0) {
-    return <div className="p-4 text-center text-text-ghost">No sources available for comparison.</div>;
+    return (
+      <div className="p-4 text-center text-text-ghost">
+        {t("dataExplorer.ares.cost.messages.noComparisonSources")}
+      </div>
+    );
   }
 
   const sourcesWithData = data.sources.filter((s) => s.has_cost_data && s.distribution);
@@ -31,7 +41,9 @@ export default function CrossSourceCostChart({
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-12">
         <div className="mb-2 text-3xl text-text-disabled">$</div>
-        <p className="text-sm text-text-ghost">No sources have cost data for comparison.</p>
+        <p className="text-sm text-text-ghost">
+          {t("dataExplorer.ares.cost.messages.noCrossSourceCostData")}
+        </p>
       </div>
     );
   }
@@ -44,7 +56,7 @@ export default function CrossSourceCostChart({
   return (
     <div className="space-y-3">
       <p className="text-xs text-text-ghost">
-        Box-and-whisker per source. Box = IQR (P25-P75), whiskers = P10-P90, gold line = median.
+        {t("dataExplorer.ares.cost.messages.crossSourceHelp")}
       </p>
       {sourcesWithData.map((source) => {
         const dist = source.distribution;
@@ -60,7 +72,10 @@ export default function CrossSourceCostChart({
             <div className="mb-2 flex items-center justify-between">
               <span className="text-sm font-medium text-text-primary">{source.source_name}</span>
               <span className="text-xs text-text-ghost">
-                Range: {formatCurrency(dist.min)} - {formatCurrency(dist.max)}
+                {t("dataExplorer.ares.cost.metrics.range", {
+                  min: formatCurrency(dist.min),
+                  max: formatCurrency(dist.max),
+                })}
               </span>
             </div>
 
@@ -105,7 +120,11 @@ export default function CrossSourceCostChart({
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-text-ghost">
               <span>P10: {formatCurrency(dist.p10)}</span>
               <span>P25: {formatCurrency(dist.p25)}</span>
-              <span className="text-accent">Median: {formatCurrency(dist.median)}</span>
+              <span className="text-accent">
+                {t("dataExplorer.ares.cost.metrics.medianValue", {
+                  value: formatCurrency(dist.median),
+                })}
+              </span>
               <span>P75: {formatCurrency(dist.p75)}</span>
               <span>P90: {formatCurrency(dist.p90)}</span>
             </div>

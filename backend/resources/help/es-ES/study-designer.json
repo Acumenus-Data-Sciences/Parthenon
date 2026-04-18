@@ -1,0 +1,17 @@
+{
+  "key": "study-designer",
+  "title": "Diseñador de estudios (IA)",
+  "description": "El Diseñador de estudios usa IA para ayudarle a formular protocolos de estudios observacionales. Describa su pregunta de investigación en lenguaje natural y el sistema la dividirá en una población objetivo y un desenlace, luego recomendará definiciones de fenotipos validadas de la Biblioteca de fenotipos OHDSI. También incluye un linter de definiciones de cohorte para detectar errores comunes de diseño.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Comience en la pestaña Intención del estudio describiendo su pregunta de investigación en lenguaje natural, como 'Compare heart failure risk in patients on SGLT2 inhibitors vs DPP-4 inhibitors with type 2 diabetes.'",
+    "Haga clic en Analizar intención del estudio para que la IA divida su descripción en una población objetivo y un desenlace.",
+    "Revise las recomendaciones de fenotipos ordenadas por IA, que se puntúan por relevancia para la intención declarada.",
+    "Use la pestaña Búsqueda de fenotipos para buscar manualmente condiciones, medicamentos o procedimientos específicos en la biblioteca OHDSI.",
+    "La pestaña Cohort Lint acepta un JSON de definición de cohorte y comprueba problemas como periodos de lavado faltantes, conjuntos de conceptos vacíos y ventanas temporales invertidas.",
+    "Las recomendaciones de fenotipos incluyen una justificación que explica por qué se sugirió cada definición para su estudio.",
+    "Las recomendaciones y resultados de búsqueda muestran IDs de cohorte que puede usar para consultar definiciones completas en la Biblioteca de fenotipos.",
+    "Use el linter antes de finalizar cualquier definición de cohorte para detectar problemas de diseño temprano en el proceso de desarrollo del estudio."
+  ]
+}

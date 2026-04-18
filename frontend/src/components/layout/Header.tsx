@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import type { Source } from "@/types/models";
 import apiClient from "@/lib/api-client";
-import { normalizeLocale, USER_SELECTABLE_LOCALES } from "@/i18n/locales";
+import { normalizeLocale, PUBLIC_SELECTABLE_LOCALES } from "@/i18n/locales";
 import { setActiveLocale } from "@/i18n/i18n";
 
 function UserDropdown() {
@@ -223,7 +223,7 @@ function LanguageSelector() {
         aria-label={t("language.preferred")}
         className="appearance-none rounded-md border border-border-default bg-surface-raised pl-2 pr-6 py-1 text-base text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30 disabled:opacity-60 cursor-pointer min-w-[170px]"
       >
-        {USER_SELECTABLE_LOCALES.map((locale) => (
+        {PUBLIC_SELECTABLE_LOCALES.map((locale) => (
           <option key={locale.code} value={locale.code}>
             {locale.nativeLabel}
           </option>

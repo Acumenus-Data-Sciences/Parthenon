@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Server,
   Plus,
@@ -22,6 +23,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Panel, MetricCard } from "@/components/ui";
+import { formatNumber } from "@/i18n/format";
 import {
   useFhirConnections,
   useCreateFhirConnection,
@@ -33,11 +35,9 @@ import {
 } from "../hooks/useFhirConnections";
 import type { FhirConnection, FhirConnectionPayload, FhirTestResult, FhirSyncRun } from "../api/adminApi";
 
-const VENDOR_LABELS: Record<string, string> = {
-  epic: "Epic",
-  cerner: "Cerner (Oracle Health)",
-  other: "Other FHIR R4",
-};
+function vendorLabelKey(vendor: string): string {
+  return vendor === "cerner" ? "cerner" : vendor === "other" ? "other" : "epic";
+}
 
 const STATUS_BADGE: Record<string, string> = {
   completed: "bg-success/15 text-success",
@@ -71,6 +71,7 @@ function formatDuration(start: string | null, end: string | null): string {
 // ──────────────────────────────────────────────────────────────────────────────
 
 function SyncRunRow({ run }: { run: FhirSyncRun }) {
+  const { t } = useTranslation("app");
   const isActive = ["pending", "exporting", "downloading", "processing"].includes(run.status);
 
   return (
@@ -82,18 +83,26 @@ function SyncRunRow({ run }: { run: FhirSyncRun }) {
       <span className="text-text-ghost min-w-[90px]">{formatDate(run.created_at)}</span>
       <span className="text-text-ghost min-w-[60px]">{formatDuration(run.started_at, run.finished_at)}</span>
       <div className="flex items-center gap-3 text-text-muted">
-        <span title="Extracted"><Download size={10} className="inline mr-0.5" />{run.records_extracted.toLocaleString()}</span>
-        <span title="Mapped"><BarChart3 size={10} className="inline mr-0.5" />{run.records_mapped.toLocaleString()}</span>
-        <span title="Written"><FileText size={10} className="inline mr-0.5" />{run.records_written.toLocaleString()}</span>
+        <span title={t("administration.fhirConnections.runMetrics.extracted")}><Download size={10} className="inline mr-0.5" />{formatNumber(run.records_extracted)}</span>
+        <span title={t("administration.fhirConnections.runMetrics.mapped")}><BarChart3 size={10} className="inline mr-0.5" />{formatNumber(run.records_mapped)}</span>
+        <span title={t("administration.fhirConnections.runMetrics.written")}><FileText size={10} className="inline mr-0.5" />{formatNumber(run.records_written)}</span>
         {run.records_failed > 0 && (
-          <span className="text-critical" title="Failed"><XCircle size={10} className="inline mr-0.5" />{run.records_failed.toLocaleString()}</span>
+          <span className="text-critical" title={t("administration.fhirConnections.runMetrics.failed")}><XCircle size={10} className="inline mr-0.5" />{formatNumber(run.records_failed)}</span>
         )}
         {run.mapping_coverage != null && (
-          <span title="Mapping coverage">{run.mapping_coverage}%</span>
+          <span title={t("administration.fhirConnections.runMetrics.mappingCoverage")}>
+            {t("administration.fhirConnections.values.percent", {
+              value: formatNumber(run.mapping_coverage),
+            })}
+          </span>
         )}
       </div>
       {run.triggered_by_user && (
-        <span className="ml-auto text-text-ghost">by {run.triggered_by_user.name}</span>
+        <span className="ml-auto text-text-ghost">
+          {t("administration.fhirConnections.values.byUser", {
+            name: run.triggered_by_user.name,
+          })}
+        </span>
       )}
       {run.error_message && (
         <span className="ml-auto text-critical truncate max-w-[200px]" title={run.error_message}>{run.error_message}</span>
@@ -107,6 +116,7 @@ function SyncRunRow({ run }: { run: FhirSyncRun }) {
 // ──────────────────────────────────────────────────────────────────────────────
 
 function SyncRunsPanel({ connectionId }: { connectionId: number }) {
+  const { t } = useTranslation("app");
   const { data: runs, isLoading } = useFhirSyncRuns(
     connectionId,
     // Auto-refresh every 10s if there are active runs
@@ -117,20 +127,20 @@ function SyncRunsPanel({ connectionId }: { connectionId: number }) {
   const displayRuns = liveRuns ?? runs;
 
   if (isLoading) {
-    return <div className="flex items-center gap-2 py-2 text-xs text-text-ghost"><Loader2 size={12} className="animate-spin" /> Loading sync history...</div>;
+    return <div className="flex items-center gap-2 py-2 text-xs text-text-ghost"><Loader2 size={12} className="animate-spin" /> {t("administration.fhirConnections.history.loading")}</div>;
   }
 
   if (!displayRuns || displayRuns.length === 0) {
-    return <p className="text-xs text-text-ghost py-2">No sync runs yet.</p>;
+    return <p className="text-xs text-text-ghost py-2">{t("administration.fhirConnections.history.empty")}</p>;
   }
 
   return (
     <div className="mt-2 rounded-md border border-border-subtle bg-surface-base/50 overflow-hidden">
       <div className="px-3 py-1.5 bg-surface-overlay/50 text-[10px] font-medium text-text-ghost uppercase tracking-wider flex items-center gap-3">
-        <span className="min-w-[80px]">Status</span>
-        <span className="min-w-[90px]">Started</span>
-        <span className="min-w-[60px]">Duration</span>
-        <span>Metrics</span>
+        <span className="min-w-[80px]">{t("administration.fhirConnections.history.status")}</span>
+        <span className="min-w-[90px]">{t("administration.fhirConnections.history.started")}</span>
+        <span className="min-w-[60px]">{t("administration.fhirConnections.history.duration")}</span>
+        <span>{t("administration.fhirConnections.history.metrics")}</span>
       </div>
       {displayRuns.slice(0, 10).map((run) => (
         <SyncRunRow key={run.id} run={run} />
@@ -150,6 +160,7 @@ function ConnectionDialog({
   conn?: FhirConnection;
   onClose: () => void;
 }) {
+  const { t } = useTranslation("app");
   const isEdit = !!conn;
   const create = useCreateFhirConnection();
   const update = useUpdateFhirConnection();
@@ -192,7 +203,9 @@ function ConnectionDialog({
       }
       onClose();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to save";
+      const msg = err instanceof Error
+        ? err.message
+        : t("administration.fhirConnections.messages.failedToSave");
       setError(msg);
     }
   }
@@ -209,87 +222,91 @@ function ConnectionDialog({
         <form onSubmit={handleSubmit}>
           <div className="px-6 py-4 border-b border-border-default">
             <h2 className="text-base font-semibold text-text-primary">
-              {isEdit ? "Edit FHIR Connection" : "Add FHIR Connection"}
+              {isEdit
+                ? t("administration.fhirConnections.dialog.editTitle")
+                : t("administration.fhirConnections.dialog.addTitle")}
             </h2>
             <p className="text-xs text-text-ghost mt-0.5">
-              Configure a SMART Backend Services connection to an EHR FHIR R4 endpoint.
+              {t("administration.fhirConnections.dialog.description")}
             </p>
           </div>
 
           <div className="px-6 py-4 space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className={labelCls}>Site Name</label>
-                <input className={inputCls} required value={form.site_name} onChange={(e) => set("site_name", e.target.value)} placeholder="Johns Hopkins Epic" />
+                <label className={labelCls}>{t("administration.fhirConnections.labels.siteName")}</label>
+                <input className={inputCls} required value={form.site_name} onChange={(e) => set("site_name", e.target.value)} placeholder={t("administration.fhirConnections.placeholders.siteName")} />
               </div>
               <div>
-                <label className={labelCls}>Site Key (slug)</label>
+                <label className={labelCls}>{t("administration.fhirConnections.labels.siteKey")}</label>
                 <input className={inputCls} required pattern="[a-z0-9-]+" value={form.site_key} onChange={(e) => set("site_key", e.target.value)} placeholder="jhu-epic" />
               </div>
             </div>
 
             <div>
-              <label className={labelCls}>EHR Vendor</label>
+              <label className={labelCls}>{t("administration.fhirConnections.labels.ehrVendor")}</label>
               <select className={inputCls} value={form.ehr_vendor} onChange={(e) => set("ehr_vendor", e.target.value)}>
-                <option value="epic">Epic</option>
-                <option value="cerner">Cerner (Oracle Health)</option>
-                <option value="other">Other FHIR R4</option>
+                <option value="epic">{t("administration.fhirConnections.vendors.epic")}</option>
+                <option value="cerner">{t("administration.fhirConnections.vendors.cerner")}</option>
+                <option value="other">{t("administration.fhirConnections.vendors.other")}</option>
               </select>
             </div>
 
             <div>
-              <label className={labelCls}>FHIR Base URL</label>
+              <label className={labelCls}>{t("administration.fhirConnections.labels.fhirBaseUrl")}</label>
               <input className={inputCls} required type="url" value={form.fhir_base_url} onChange={(e) => set("fhir_base_url", e.target.value)} placeholder="https://fhir.hospital.org/api/FHIR/R4" />
             </div>
             <div>
-              <label className={labelCls}>Token Endpoint</label>
+              <label className={labelCls}>{t("administration.fhirConnections.labels.tokenEndpoint")}</label>
               <input className={inputCls} required type="url" value={form.token_endpoint} onChange={(e) => set("token_endpoint", e.target.value)} placeholder="https://fhir.hospital.org/oauth2/token" />
             </div>
 
             <div>
-              <label className={labelCls}>Client ID</label>
+              <label className={labelCls}>{t("administration.fhirConnections.labels.clientId")}</label>
               <input className={inputCls} required value={form.client_id} onChange={(e) => set("client_id", e.target.value)} placeholder="parthenon-app-id" />
             </div>
 
             <div>
               <label className={labelCls}>
-                RSA Private Key (PEM)
+                {t("administration.fhirConnections.labels.rsaPrivateKey")}
                 {isEdit && conn?.has_private_key && (
-                  <span className="ml-2 text-success">Key uploaded</span>
+                  <span className="ml-2 text-success">{t("administration.fhirConnections.values.keyUploaded")}</span>
                 )}
               </label>
               <textarea
                 className={`${inputCls} font-mono text-xs h-24 resize-none`}
                 value={form.private_key_pem}
                 onChange={(e) => set("private_key_pem", e.target.value)}
-                placeholder={isEdit && conn?.has_private_key ? "Leave blank to keep existing key" : "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"}
+                placeholder={isEdit && conn?.has_private_key
+                  ? t("administration.fhirConnections.placeholders.keepExistingKey")
+                  : "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className={labelCls}>Scopes</label>
+                <label className={labelCls}>{t("administration.fhirConnections.labels.scopes")}</label>
                 <input className={inputCls} value={form.scopes} onChange={(e) => set("scopes", e.target.value)} />
               </div>
               <div>
-                <label className={labelCls}>Group ID (for Bulk Export)</label>
+                <label className={labelCls}>{t("administration.fhirConnections.labels.groupId")}</label>
                 <input className={inputCls} value={form.group_id} onChange={(e) => set("group_id", e.target.value)} placeholder="e1234567" />
               </div>
             </div>
 
             <div>
-              <label className={labelCls}>Export Resource Types (comma-separated, blank = all)</label>
-              <input className={inputCls} value={form.export_resource_types} onChange={(e) => set("export_resource_types", e.target.value)} placeholder="Patient,Condition,Encounter,MedicationRequest,Observation,Procedure" />
+              <label className={labelCls}>{t("administration.fhirConnections.labels.exportResourceTypes")}</label>
+              <input className={inputCls} value={form.export_resource_types} onChange={(e) => set("export_resource_types", e.target.value)} placeholder={t("administration.fhirConnections.placeholders.resourceTypes")} />
             </div>
 
             <div className="flex items-center gap-6">
               <label className="flex items-center gap-2 text-sm text-text-muted cursor-pointer">
                 <input type="checkbox" checked={form.is_active} onChange={(e) => set("is_active", e.target.checked)} className="accent-success" />
-                Active
+                {t("administration.fhirConnections.labels.active")}
               </label>
               <label className="flex items-center gap-2 text-sm text-text-muted cursor-pointer">
                 <input type="checkbox" checked={form.incremental_enabled} onChange={(e) => set("incremental_enabled", e.target.checked)} className="accent-success" />
-                Incremental sync
+                {t("administration.fhirConnections.labels.incrementalSync")}
               </label>
             </div>
 
@@ -302,11 +319,13 @@ function ConnectionDialog({
 
           <div className="px-6 py-3 border-t border-border-default flex justify-end gap-2">
             <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-text-muted hover:text-text-secondary transition-colors">
-              Cancel
+              {t("administration.fhirConnections.actions.cancel")}
             </button>
             <button type="submit" disabled={pending} className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors disabled:opacity-50">
               {pending && <Loader2 size={14} className="animate-spin" />}
-              {isEdit ? "Save Changes" : "Create Connection"}
+              {isEdit
+                ? t("administration.fhirConnections.actions.saveChanges")
+                : t("administration.fhirConnections.actions.createConnection")}
             </button>
           </div>
         </form>
@@ -326,6 +345,7 @@ function ConnectionCard({
   conn: FhirConnection;
   onEdit: (c: FhirConnection) => void;
 }) {
+  const { t } = useTranslation("app");
   const [expanded, setExpanded] = useState(false);
   const [showRuns, setShowRuns] = useState(false);
   const [showSyncMenu, setShowSyncMenu] = useState(false);
@@ -352,7 +372,9 @@ function ConnectionCard({
       await syncMut.mutateAsync({ id: conn.id, forceFull });
       setShowRuns(true);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to start sync";
+      const msg = err instanceof Error
+        ? err.message
+        : t("administration.fhirConnections.messages.failedToStartSync");
       setSyncError(msg);
     }
   }
@@ -368,11 +390,13 @@ function ConnectionCard({
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-semibold text-text-primary truncate">{conn.site_name}</h3>
               {conn.is_active && (
-                <span className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-success/15 text-success">Active</span>
+                <span className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-success/15 text-success">
+                  {t("administration.fhirConnections.labels.active")}
+                </span>
               )}
             </div>
             <p className="text-xs text-text-ghost mt-0.5">
-              {VENDOR_LABELS[conn.ehr_vendor]} · <span className="font-mono">{conn.site_key}</span>
+              {t(`administration.fhirConnections.vendors.${vendorLabelKey(conn.ehr_vendor)}`)} · <span className="font-mono">{conn.site_key}</span>
             </p>
             <p className="text-xs text-text-ghost mt-0.5 truncate font-mono max-w-md">{conn.fhir_base_url}</p>
           </div>
@@ -386,11 +410,21 @@ function ConnectionCard({
                 type="button"
                 onClick={() => handleSync(false)}
                 disabled={!canSync}
-                title={!conn.is_active ? "Activate connection first" : !conn.has_private_key ? "Upload a private key first" : isSyncing ? "Sync in progress" : conn.incremental_enabled && hasLastSync ? "Incremental Sync (only new data)" : "Full Sync"}
+                title={!conn.is_active
+                  ? t("administration.fhirConnections.sync.activateFirst")
+                  : !conn.has_private_key
+                    ? t("administration.fhirConnections.sync.uploadKeyFirst")
+                    : isSyncing
+                      ? t("administration.fhirConnections.sync.inProgress")
+                      : conn.incremental_enabled && hasLastSync
+                        ? t("administration.fhirConnections.sync.incrementalTitle")
+                        : t("administration.fhirConnections.sync.fullSync")}
                 className="inline-flex items-center gap-1 px-2 py-1.5 rounded-l text-xs font-medium bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 {syncMut.isPending || isSyncing ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
-                {conn.incremental_enabled && hasLastSync ? "Sync" : "Full Sync"}
+                {conn.incremental_enabled && hasLastSync
+                  ? t("administration.fhirConnections.sync.sync")
+                  : t("administration.fhirConnections.sync.fullSync")}
               </button>
               <button
                 type="button"
@@ -409,12 +443,14 @@ function ConnectionCard({
                   className="w-full px-3 py-2 text-left text-xs hover:bg-surface-overlay transition-colors rounded-t-lg"
                 >
                   <div className="font-medium text-text-primary">
-                    {conn.incremental_enabled && hasLastSync ? "Incremental Sync" : "Full Sync"}
+                    {conn.incremental_enabled && hasLastSync
+                      ? t("administration.fhirConnections.sync.incrementalSync")
+                      : t("administration.fhirConnections.sync.fullSync")}
                   </div>
                   <div className="text-[10px] text-text-ghost mt-0.5">
                     {conn.incremental_enabled && hasLastSync
-                      ? "Only new/updated data since last sync"
-                      : "Download all data from EHR"}
+                      ? t("administration.fhirConnections.sync.incrementalDescription")
+                      : t("administration.fhirConnections.sync.fullDescription")}
                   </div>
                 </button>
                 {conn.incremental_enabled && hasLastSync && (
@@ -423,25 +459,31 @@ function ConnectionCard({
                     onClick={() => handleSync(true)}
                     className="w-full px-3 py-2 text-left text-xs hover:bg-surface-overlay transition-colors border-t border-border-default rounded-b-lg"
                   >
-                    <div className="font-medium text-amber-400">Force Full Sync</div>
+                    <div className="font-medium text-amber-400">
+                      {t("administration.fhirConnections.sync.forceFullSync")}
+                    </div>
                     <div className="text-[10px] text-text-ghost mt-0.5">
-                      Re-download all data, dedup on write
+                      {t("administration.fhirConnections.sync.forceFullDescription")}
                     </div>
                   </button>
                 )}
               </div>
             )}
           </div>
-          <button type="button" onClick={handleTest} disabled={testMut.isPending} title="Test connection" className="p-1.5 rounded text-text-ghost hover:text-success hover:bg-success/10 transition-colors disabled:opacity-30">
+          <button type="button" onClick={handleTest} disabled={testMut.isPending} title={t("administration.fhirConnections.actions.testConnection")} className="p-1.5 rounded text-text-ghost hover:text-success hover:bg-success/10 transition-colors disabled:opacity-30">
             {testMut.isPending ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
           </button>
-          <button type="button" onClick={() => onEdit(conn)} title="Edit" className="p-1.5 rounded text-text-ghost hover:text-text-secondary hover:bg-surface-elevated transition-colors">
+          <button type="button" onClick={() => onEdit(conn)} title={t("administration.fhirConnections.actions.edit")} className="p-1.5 rounded text-text-ghost hover:text-text-secondary hover:bg-surface-elevated transition-colors">
             <Pencil size={14} />
           </button>
           <button
             type="button"
-            onClick={() => { if (confirm(`Delete "${conn.site_name}"?`)) deleteMut.mutate(conn.id); }}
-            title="Delete"
+            onClick={() => {
+              if (confirm(t("administration.fhirConnections.messages.deleteConfirm", { name: conn.site_name }))) {
+                deleteMut.mutate(conn.id);
+              }
+            }}
+            title={t("administration.fhirConnections.actions.delete")}
             className="p-1.5 rounded text-text-ghost hover:text-critical hover:bg-critical/10 transition-colors"
           >
             <Trash2 size={14} />
@@ -453,11 +495,15 @@ function ConnectionCard({
       <div className="flex items-center gap-4 mt-3 text-xs text-text-ghost">
         <div className="flex items-center gap-1">
           <KeyRound size={11} />
-          {conn.has_private_key ? <span className="text-success">Key uploaded</span> : <span className="text-critical">No key</span>}
+          {conn.has_private_key
+            ? <span className="text-success">{t("administration.fhirConnections.values.keyUploaded")}</span>
+            : <span className="text-critical">{t("administration.fhirConnections.values.noKey")}</span>}
         </div>
         <div className="flex items-center gap-1">
           <Clock size={11} />
-          Last sync: {formatDate(conn.last_sync_at)}
+          {t("administration.fhirConnections.values.lastSync", {
+            date: formatDate(conn.last_sync_at),
+          })}
         </div>
         {conn.last_sync_status && (
           <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${STATUS_BADGE[conn.last_sync_status] ?? "bg-surface-elevated text-text-muted"}`}>
@@ -466,15 +512,19 @@ function ConnectionCard({
           </span>
         )}
         {conn.last_sync_records > 0 && (
-          <span className="font-['IBM_Plex_Mono',monospace]">{conn.last_sync_records.toLocaleString()} records</span>
+          <span className="font-['IBM_Plex_Mono',monospace]">
+            {t("administration.fhirConnections.values.records", {
+              count: formatNumber(conn.last_sync_records),
+            })}
+          </span>
         )}
 
         <div className="ml-auto flex items-center gap-2">
           <button type="button" onClick={() => setShowRuns(!showRuns)} className="flex items-center gap-1 text-text-ghost hover:text-text-secondary transition-colors">
-            Sync History {showRuns ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+            {t("administration.fhirConnections.history.title")} {showRuns ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
           </button>
           <button type="button" onClick={() => setExpanded(!expanded)} className="flex items-center gap-1 text-text-ghost hover:text-text-secondary transition-colors">
-            Details {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+            {t("administration.fhirConnections.actions.details")} {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
           </button>
         </div>
       </div>
@@ -491,7 +541,10 @@ function ConnectionCard({
         <div className={`mt-3 rounded-md border px-3 py-2 text-xs ${testResult.success ? "border-success/20 bg-success/5 text-success" : "border-critical/20 bg-critical/5 text-critical"}`}>
           <div className="flex items-center gap-2 font-medium">
             {testResult.success ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
-            {testResult.message} ({testResult.elapsed_ms}ms)
+            {t("administration.fhirConnections.values.testElapsed", {
+              message: testResult.message,
+              elapsed: formatNumber(testResult.elapsed_ms),
+            })}
           </div>
           <div className="mt-1 space-y-0.5">
             {testResult.steps.map((s) => (
@@ -511,14 +564,28 @@ function ConnectionCard({
       {/* Expanded details */}
       {expanded && (
         <div className="mt-3 pt-3 border-t border-border-subtle grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
-          <div><span className="text-text-ghost">Token endpoint:</span> <span className="text-text-secondary font-mono break-all">{conn.token_endpoint}</span></div>
-          <div><span className="text-text-ghost">Client ID:</span> <span className="text-text-secondary font-mono">{conn.client_id}</span></div>
-          <div><span className="text-text-ghost">Scopes:</span> <span className="text-text-secondary">{conn.scopes}</span></div>
-          <div><span className="text-text-ghost">Group ID:</span> <span className="text-text-secondary font-mono">{conn.group_id || "—"}</span></div>
-          <div><span className="text-text-ghost">Resource types:</span> <span className="text-text-secondary">{conn.export_resource_types || "All supported"}</span></div>
-          <div><span className="text-text-ghost">Incremental:</span> <span className="text-text-secondary">{conn.incremental_enabled ? "Enabled" : "Disabled"}</span>{conn.incremental_enabled && conn.last_sync_at && <span className="text-text-ghost"> (since {formatDate(conn.last_sync_at)})</span>}</div>
-          <div><span className="text-text-ghost">Target source:</span> <span className="text-text-secondary">{conn.target_source?.source_name ?? "Not set"}</span></div>
-          <div><span className="text-text-ghost">Sync runs:</span> <span className="text-text-secondary">{conn.sync_runs_count ?? 0}</span></div>
+          <div><span className="text-text-ghost">{t("administration.fhirConnections.details.tokenEndpoint")}</span> <span className="text-text-secondary font-mono break-all">{conn.token_endpoint}</span></div>
+          <div><span className="text-text-ghost">{t("administration.fhirConnections.details.clientId")}</span> <span className="text-text-secondary font-mono">{conn.client_id}</span></div>
+          <div><span className="text-text-ghost">{t("administration.fhirConnections.details.scopes")}</span> <span className="text-text-secondary">{conn.scopes}</span></div>
+          <div><span className="text-text-ghost">{t("administration.fhirConnections.details.groupId")}</span> <span className="text-text-secondary font-mono">{conn.group_id || "—"}</span></div>
+          <div><span className="text-text-ghost">{t("administration.fhirConnections.details.resourceTypes")}</span> <span className="text-text-secondary">{conn.export_resource_types || t("administration.fhirConnections.values.allSupported")}</span></div>
+          <div>
+            <span className="text-text-ghost">{t("administration.fhirConnections.details.incremental")}</span>{" "}
+            <span className="text-text-secondary">
+              {conn.incremental_enabled
+                ? t("administration.fhirConnections.values.enabled")
+                : t("administration.fhirConnections.values.disabled")}
+            </span>
+            {conn.incremental_enabled && conn.last_sync_at && (
+              <span className="text-text-ghost">
+                {" "}{t("administration.fhirConnections.values.since", {
+                  date: formatDate(conn.last_sync_at),
+                })}
+              </span>
+            )}
+          </div>
+          <div><span className="text-text-ghost">{t("administration.fhirConnections.details.targetSource")}</span> <span className="text-text-secondary">{conn.target_source?.source_name ?? t("administration.fhirConnections.values.notSet")}</span></div>
+          <div><span className="text-text-ghost">{t("administration.fhirConnections.details.syncRuns")}</span> <span className="text-text-secondary">{formatNumber(conn.sync_runs_count ?? 0)}</span></div>
         </div>
       )}
     </Panel>
@@ -530,6 +597,7 @@ function ConnectionCard({
 // ──────────────────────────────────────────────────────────────────────────────
 
 export default function FhirConnectionsPage() {
+  const { t } = useTranslation("app");
   const { data: connections, isLoading } = useFhirConnections();
   const [dialogConn, setDialogConn] = useState<FhirConnection | undefined>(undefined);
   const [showDialog, setShowDialog] = useState(false);
@@ -546,9 +614,11 @@ export default function FhirConnectionsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">FHIR EHR Connections</h1>
+          <h1 className="text-2xl font-bold text-text-primary">
+            {t("administration.fhirConnections.title")}
+          </h1>
           <p className="mt-1 text-sm text-text-muted">
-            Configure SMART Backend Services connections for FHIR R4 Bulk Data extraction from Epic, Cerner, and other EHR systems.
+            {t("administration.fhirConnections.subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -557,7 +627,7 @@ export default function FhirConnectionsPage() {
             className="inline-flex items-center gap-2 rounded-lg border border-border-default px-4 py-2.5 text-sm font-medium text-text-secondary hover:bg-surface-elevated transition-colors"
           >
             <Activity size={16} />
-            Sync Monitor
+            {t("administration.fhirConnections.actions.syncMonitor")}
           </Link>
           <button
             type="button"
@@ -565,17 +635,17 @@ export default function FhirConnectionsPage() {
             className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors"
           >
             <Plus size={16} />
-            Add Connection
+            {t("administration.fhirConnections.actions.addConnection")}
           </button>
         </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <MetricCard label="Total Connections" value={connections?.length ?? 0} icon={<Server size={16} />} />
-        <MetricCard label="Active" value={activeCount} icon={<CheckCircle2 size={16} />} />
-        <MetricCard label="Keys Configured" value={withKey} icon={<Shield size={16} />} />
-        <MetricCard label="Last Sync" value={lastSync ? formatDate(lastSync) : "Never"} icon={<RefreshCw size={16} />} />
+        <MetricCard label={t("administration.fhirConnections.stats.totalConnections")} value={connections?.length ?? 0} icon={<Server size={16} />} />
+        <MetricCard label={t("administration.fhirConnections.stats.active")} value={activeCount} icon={<CheckCircle2 size={16} />} />
+        <MetricCard label={t("administration.fhirConnections.stats.keysConfigured")} value={withKey} icon={<Shield size={16} />} />
+        <MetricCard label={t("administration.fhirConnections.stats.lastSync")} value={lastSync ? formatDate(lastSync) : t("administration.fhirConnections.values.never")} icon={<RefreshCw size={16} />} />
       </div>
 
       {/* Connection list */}
@@ -586,8 +656,12 @@ export default function FhirConnectionsPage() {
       ) : !connections || connections.length === 0 ? (
         <Panel className="flex flex-col items-center justify-center py-14 text-text-ghost">
           <Server size={36} className="mb-3 opacity-40" />
-          <p className="text-sm font-medium text-text-muted">No FHIR connections configured</p>
-          <p className="text-xs mt-1">Add a connection to begin extracting clinical data from an EHR via FHIR R4 Bulk Data.</p>
+          <p className="text-sm font-medium text-text-muted">
+            {t("administration.fhirConnections.messages.noConnections")}
+          </p>
+          <p className="text-xs mt-1">
+            {t("administration.fhirConnections.messages.noConnectionsDescription")}
+          </p>
         </Panel>
       ) : (
         <div className="space-y-3">

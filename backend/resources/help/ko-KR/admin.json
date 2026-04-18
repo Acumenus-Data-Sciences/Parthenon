@@ -1,0 +1,14 @@
+{
+  "key": "admin",
+  "title": "관리",
+  "description": "관리 섹션은 사용자 계정, 역할 기반 접근 제어, 인증 제공자 구성, AI 제공자 설정, FHIR EHR 연결, 시스템 상태 모니터링을 포함해 Parthenon의 시스템 수준 관리를 제공합니다.",
+  "docs_url": "/docs/part8-administration/22-user-management",
+  "video_url": null,
+  "tips": [
+    "사용자와 역할 페이지에서 사용자를 관리하고, 역할을 배정하며, 접근 권한을 제어하세요.",
+    "인증 제공자 섹션에서 SAML 또는 OIDC를 통해 SSO 인증을 구성하세요.",
+    "의미 검색과 임상 AI 기능을 위해 AI 제공자(Ollama, OpenAI 등)를 설정하세요.",
+    "시스템 상태를 모니터링해 모든 서비스(데이터베이스, Redis, AI, Darkstar)가 정상 작동하는지 확인하세요.",
+    "FHIR 연결은 Epic, Cerner 및 기타 EHR 시스템에서 자동 데이터 동기화를 가능하게 합니다."
+  ]
+}

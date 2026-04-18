@@ -1,4 +1,6 @@
+import { useTranslation } from "react-i18next";
 import { X, Loader2, Hash } from "lucide-react";
+import { formatNumber } from "@/i18n/format";
 import { useConceptDrilldown } from "../hooks/useAchillesData";
 import { TemporalTrendChart } from "./charts/TemporalTrendChart";
 import { BoxPlotChart } from "./charts/BoxPlotChart";
@@ -21,9 +23,7 @@ interface ConceptDrilldownPanelProps {
 
 /** Format large numbers compactly */
 function formatCompact(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return n.toLocaleString();
+  return formatNumber(n, { notation: "compact", maximumFractionDigits: 1 });
 }
 
 const GENDER_COLORS: Record<string, string> = {
@@ -49,7 +49,7 @@ function MiniTooltip({
     <div className="rounded-lg border border-surface-highlight bg-surface-overlay px-3 py-2 shadow-lg">
       <p className="text-xs text-text-primary">{item.concept_name}</p>
       <p className="font-['IBM_Plex_Mono',monospace] text-xs text-success">
-        {item.count.toLocaleString()}
+        {formatNumber(item.count)}
       </p>
     </div>
   );
@@ -61,6 +61,7 @@ export function ConceptDrilldownPanel({
   conceptId,
   onClose,
 }: ConceptDrilldownPanelProps) {
+  const { t } = useTranslation("app");
   const { data, isLoading, error } = useConceptDrilldown(
     sourceId,
     domain,
@@ -86,7 +87,7 @@ export function ConceptDrilldownPanel({
             </>
           ) : (
             <h3 className="text-sm font-semibold text-text-primary">
-              Concept Details
+              {t("dataExplorer.concept.details")}
             </h3>
           )}
         </div>
@@ -111,7 +112,9 @@ export function ConceptDrilldownPanel({
 
         {error && (
           <div className="flex items-center justify-center py-16">
-            <p className="text-sm text-critical">Failed to load concept details</p>
+            <p className="text-sm text-critical">
+              {t("dataExplorer.concept.loadFailed")}
+            </p>
           </div>
         )}
 
@@ -121,7 +124,7 @@ export function ConceptDrilldownPanel({
             {data.genderSplit.length > 0 && (
               <div>
                 <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-muted">
-                  Gender Distribution
+                  {t("dataExplorer.concept.genderDistribution")}
                 </h4>
                 <div className="flex h-5 overflow-hidden rounded-full bg-surface-elevated">
                   {(() => {
@@ -138,7 +141,10 @@ export function ConceptDrilldownPanel({
                           backgroundColor:
                             GENDER_COLORS[g.concept_name] ?? DEFAULT_COLOR,
                         }}
-                        title={`${g.concept_name}: ${g.count.toLocaleString()}`}
+                        title={t("dataExplorer.concept.valueByLabel", {
+                          label: g.concept_name,
+                          value: formatNumber(g.count),
+                        })}
                       />
                     ));
                   })()}
@@ -169,7 +175,7 @@ export function ConceptDrilldownPanel({
             {data.temporalTrend.length > 0 && (
               <TemporalTrendChart
                 data={data.temporalTrend}
-                title="Temporal Trend"
+                title={t("dataExplorer.concept.temporalTrend")}
               />
             )}
 
@@ -177,7 +183,7 @@ export function ConceptDrilldownPanel({
             {data.typeDistribution.length > 0 && (
               <div className="rounded-xl border border-border-default bg-surface-raised p-4">
                 <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-muted">
-                  Type Distribution
+                  {t("dataExplorer.concept.typeDistribution")}
                 </h4>
                 <ResponsiveContainer width="100%" height={data.typeDistribution.length * 30 + 20}>
                   <BarChart
@@ -215,7 +221,7 @@ export function ConceptDrilldownPanel({
             {data.ageDistribution && (
               <BoxPlotChart
                 data={data.ageDistribution}
-                label="Age at First Occurrence"
+                label={t("dataExplorer.concept.ageAtFirstOccurrence")}
               />
             )}
           </>

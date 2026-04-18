@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   ArrowLeftRight,
@@ -22,6 +23,7 @@ import {
   Edit3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDate, formatNumber } from "@/i18n/format";
 import { toast } from "@/components/ui/Toast";
 import {
   mapTerms,
@@ -40,25 +42,9 @@ import {
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
-const VOCABULARY_OPTIONS = [
-  { value: "SNOMED", label: "SNOMED CT" },
-  { value: "ICD10CM", label: "ICD-10-CM" },
-  { value: "RxNorm", label: "RxNorm" },
-  { value: "LOINC", label: "LOINC" },
-  { value: "ICD9CM", label: "ICD-9-CM" },
-  { value: "CPT4", label: "CPT-4" },
-  { value: "HCPCS", label: "HCPCS" },
-  { value: "MedDRA", label: "MedDRA" },
-];
+const VOCABULARY_OPTIONS = ["SNOMED", "ICD10CM", "RxNorm", "LOINC", "ICD9CM", "CPT4", "HCPCS", "MedDRA"] as const;
 
-const DOMAIN_OPTIONS = [
-  { value: "Condition", label: "Condition" },
-  { value: "Drug", label: "Drug" },
-  { value: "Procedure", label: "Procedure" },
-  { value: "Measurement", label: "Measurement" },
-  { value: "Observation", label: "Observation" },
-  { value: "Device", label: "Device" },
-];
+const DOMAIN_OPTIONS = ["Condition", "Drug", "Procedure", "Measurement", "Observation", "Device"] as const;
 
 // ── Helper: accepted / rejected decisions ─────────────────────────────────
 
@@ -126,6 +112,7 @@ interface MultiSelectProps {
 }
 
 function MultiSelect({ label, options, selected, onChange }: MultiSelectProps) {
+  const { t } = useTranslation("app");
   const [open, setOpen] = useState(false);
 
   const toggle = (value: string) => {
@@ -152,8 +139,8 @@ function MultiSelect({ label, options, selected, onChange }: MultiSelectProps) {
           {selected.length === 0
             ? label
             : selected.length === 1
-              ? selected[0]
-              : `${selected.length} selected`}
+              ? (options.find((opt) => opt.value === selected[0])?.label ?? selected[0])
+              : t("vocabulary.mappingAssistant.filters.selectedCount", { count: selected.length })}
         </span>
         <ChevronDown
           className={cn("h-4 w-4 shrink-0 transition-transform", open && "rotate-180")}
@@ -204,7 +191,7 @@ function MultiSelect({ label, options, selected, onChange }: MultiSelectProps) {
                   onClick={() => onChange([])}
                   className="w-full px-3 py-1.5 text-xs text-text-ghost hover:text-text-secondary text-left transition-colors"
                 >
-                  Clear selection
+                  {t("vocabulary.mappingAssistant.filters.clearSelection")}
                 </button>
               </div>
             )}
@@ -224,6 +211,7 @@ interface DisambiguationDrawerProps {
 }
 
 function DisambiguationDrawer({ result, onClose, onSelectCandidate }: DisambiguationDrawerProps) {
+  const { t } = useTranslation("app");
   const [cleanRawText, setCleanRawText] = useState("");
   const [remapPending, setRemapPending] = useState(false);
   const cleanMutation = useMutation({
@@ -237,15 +225,20 @@ function DisambiguationDrawer({ result, onClose, onSelectCandidate }: Disambigua
       const mapped = data[0];
       if (mapped?.best_match) {
         onSelectCandidate(variables.sourceTerm, mapped.best_match);
-        toast.success(`Re-mapped "${variables.sourceTerm}" → ${mapped.best_match.concept_name}`);
+        toast.success(t("vocabulary.mappingAssistant.toasts.remapped", {
+          source: variables.sourceTerm,
+          concept: mapped.best_match.concept_name,
+        }));
         onClose();
       } else {
-        toast.error(`No match found for cleaned term "${variables.cleanedTerm}"`);
+        toast.error(t("vocabulary.mappingAssistant.toasts.noMatchForCleaned", {
+          term: variables.cleanedTerm,
+        }));
       }
       setRemapPending(false);
     },
     onError: () => {
-      toast.error("Re-mapping failed");
+      toast.error(t("vocabulary.mappingAssistant.toasts.remapFailed"));
       setRemapPending(false);
     },
   });
@@ -293,7 +286,7 @@ function DisambiguationDrawer({ result, onClose, onSelectCandidate }: Disambigua
         <div className="flex items-center justify-between px-5 py-4 border-b border-border-default shrink-0">
           <div className="min-w-0 flex-1">
             <div className="text-[10px] uppercase tracking-widest text-text-ghost mb-1">
-              Disambiguate
+              {t("vocabulary.mappingAssistant.drawer.disambiguate")}
             </div>
             <div className="text-base font-semibold text-text-primary truncate">
               {result.source_term}
@@ -311,12 +304,12 @@ function DisambiguationDrawer({ result, onClose, onSelectCandidate }: Disambigua
         {/* Candidates list */}
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-2">
           <div className="text-[10px] uppercase tracking-widest text-text-ghost mb-3">
-            {result.candidates.length} candidate{result.candidates.length !== 1 ? "s" : ""} — select the correct mapping
+            {t("vocabulary.mappingAssistant.drawer.candidateCount", { count: result.candidates.length })}
           </div>
 
           {result.candidates.length === 0 && (
             <div className="text-sm text-text-ghost italic py-8 text-center">
-              No candidates found. Try cleaning the term below.
+              {t("vocabulary.mappingAssistant.drawer.noCandidates")}
             </div>
           )}
 
@@ -353,14 +346,14 @@ function DisambiguationDrawer({ result, onClose, onSelectCandidate }: Disambigua
         {/* Clean term section */}
         <div className="border-t border-border-default px-5 py-4 space-y-3 shrink-0">
           <div className="text-[10px] uppercase tracking-widest text-text-ghost">
-            Clean & Re-map
+            {t("vocabulary.mappingAssistant.drawer.cleanRemap")}
           </div>
           <div className="flex gap-2">
             <input
               type="text"
               value={cleanRawText}
               onChange={(e) => setCleanRawText(e.target.value)}
-              placeholder="Edit term and re-map..."
+              placeholder={t("vocabulary.mappingAssistant.drawer.editPlaceholder")}
               className="flex-1 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30 font-mono transition-colors"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && cleanRawText.trim()) handleClean();
@@ -377,7 +370,7 @@ function DisambiguationDrawer({ result, onClose, onSelectCandidate }: Disambigua
               ) : (
                 <Wand2 className="h-3.5 w-3.5" />
               )}
-              Clean
+              {t("vocabulary.mappingAssistant.actions.clean")}
             </button>
           </div>
           {cleaned.length > 0 && (
@@ -402,7 +395,7 @@ function DisambiguationDrawer({ result, onClose, onSelectCandidate }: Disambigua
                     ) : (
                       <RefreshCw className="h-3 w-3" />
                     )}
-                    Re-map
+                    {t("vocabulary.mappingAssistant.actions.remap")}
                   </button>
                 </div>
               ))}
@@ -411,7 +404,7 @@ function DisambiguationDrawer({ result, onClose, onSelectCandidate }: Disambigua
           {cleanMutation.isError && (
             <div className="flex items-center gap-2 text-critical text-xs">
               <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-              <span>Cleanup failed.</span>
+              <span>{t("vocabulary.mappingAssistant.errors.cleanupFailed")}</span>
             </div>
           )}
         </div>
@@ -432,6 +425,7 @@ interface ResultRowProps {
 }
 
 function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapCandidate }: ResultRowProps) {
+  const { t } = useTranslation("app");
   const [showCandidates, setShowCandidates] = useState(false);
   const display = override ?? result.best_match;
 
@@ -471,11 +465,11 @@ function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapC
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="text-[10px] text-text-ghost">
-                {result.candidates.length} candidate{result.candidates.length !== 1 ? "s" : ""}
+                {t("vocabulary.mappingAssistant.results.candidateCount", { count: result.candidates.length })}
               </span>
               {override && (
                 <span className="text-[10px] text-accent font-medium">
-                  (overridden)
+                  {t("vocabulary.mappingAssistant.results.overridden")}
                 </span>
               )}
             </div>
@@ -492,7 +486,9 @@ function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapC
               </div>
             </div>
           ) : (
-            <span className="text-text-ghost text-sm italic">No match found</span>
+            <span className="text-text-ghost text-sm italic">
+              {t("vocabulary.mappingAssistant.results.noMatchFound")}
+            </span>
           )}
         </div>
 
@@ -501,7 +497,7 @@ function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapC
           {display ? (
             <ConfidenceBar value={display.confidence} />
           ) : (
-            <span className="text-text-ghost text-xs">&mdash;</span>
+            <span className="text-text-ghost text-xs">{t("vocabulary.mappingAssistant.labels.noValue")}</span>
           )}
         </div>
 
@@ -510,7 +506,7 @@ function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapC
           {display ? (
             <MatchTypeBadge type={display.match_type} />
           ) : (
-            <span className="text-text-ghost text-xs">&mdash;</span>
+            <span className="text-text-ghost text-xs">{t("vocabulary.mappingAssistant.labels.noValue")}</span>
           )}
         </div>
 
@@ -519,7 +515,7 @@ function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapC
           {display ? (
             <span className="text-xs text-text-muted">{display.vocabulary_id}</span>
           ) : (
-            <span className="text-text-ghost text-xs">&mdash;</span>
+            <span className="text-text-ghost text-xs">{t("vocabulary.mappingAssistant.labels.noValue")}</span>
           )}
         </div>
 
@@ -530,7 +526,7 @@ function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapC
         >
           <button
             type="button"
-            title="Accept mapping"
+            title={t("vocabulary.mappingAssistant.actions.acceptMapping")}
             onClick={() =>
               onDecide(result.source_term, decision === "accepted" ? null : "accepted")
             }
@@ -545,7 +541,7 @@ function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapC
           </button>
           <button
             type="button"
-            title="Reject mapping"
+            title={t("vocabulary.mappingAssistant.actions.rejectMapping")}
             onClick={() =>
               onDecide(result.source_term, decision === "rejected" ? null : "rejected")
             }
@@ -560,7 +556,7 @@ function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapC
           </button>
           <button
             type="button"
-            title="Disambiguate — view all candidates"
+            title={t("vocabulary.mappingAssistant.actions.disambiguateTitle")}
             onClick={() => onOpenDrawer(result)}
             className="h-7 w-7 rounded-md border border-border-default flex items-center justify-center text-text-ghost hover:border-accent/40 hover:text-accent hover:bg-accent/10 transition-colors"
           >
@@ -574,11 +570,11 @@ function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapC
         <div className="px-6 pb-4 pt-2 bg-surface-base border-t border-border-subtle space-y-1.5">
           <div className="text-[10px] uppercase tracking-widest text-text-ghost mb-2 flex items-center gap-2">
             <Repeat className="h-3 w-3" />
-            Select a candidate to override the mapping
+            {t("vocabulary.mappingAssistant.results.selectOverride")}
           </div>
           {result.candidates.length === 0 && (
             <div className="text-sm text-text-ghost italic py-2">
-              No additional candidates.
+              {t("vocabulary.mappingAssistant.results.noAdditionalCandidates")}
             </div>
           )}
           {result.candidates.map((c) => {
@@ -654,6 +650,7 @@ function exportCsv(
 // ── Main page ──────────────────────────────────────────────────────────────
 
 export default function MappingAssistantPage() {
+  const { t } = useTranslation("app");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Input state
@@ -757,8 +754,8 @@ export default function MappingAssistantPage() {
       const display = overrides.get(r.source_term) ?? r.best_match;
       return display && display.confidence >= threshold && decisions.get(r.source_term) !== "accepted";
     }).length;
-    toast.success(`Auto-accepted ${eligibleCount} high-confidence mapping${eligibleCount !== 1 ? "s" : ""}`);
-  }, [results, overrides, decisions]);
+    toast.success(t("vocabulary.mappingAssistant.toasts.autoAccepted", { count: eligibleCount }));
+  }, [results, overrides, decisions, t]);
 
   // ── Save / Load state ─────────────────────────────────────────────────────
   const [projectNameInput, setProjectNameInput] = useState("");
@@ -785,10 +782,10 @@ export default function MappingAssistantPage() {
   const saveMappingsMutation = useMutation({
     mutationFn: (entries: SaveMappingEntry[]) => saveMappings(entries),
     onSuccess: (data) => {
-      toast.success(`Saved ${data.saved} mapping${data.saved !== 1 ? "s" : ""} to source_to_concept_map`);
+      toast.success(t("vocabulary.mappingAssistant.toasts.savedMappings", { count: data.saved }));
     },
     onError: () => {
-      toast.error("Failed to save mappings");
+      toast.error(t("vocabulary.mappingAssistant.toasts.saveMappingsFailed"));
     },
   });
 
@@ -801,14 +798,14 @@ export default function MappingAssistantPage() {
         decisions: Object.fromEntries(decisions.entries()),
         target_vocabularies: targetVocabs.length > 0 ? targetVocabs : undefined,
         target_domains: targetDomains.length > 0 ? targetDomains : undefined,
-      }),
+    }),
     onSuccess: (data) => {
-      toast.success(`Project saved: ${data.name}`);
+      toast.success(t("vocabulary.mappingAssistant.toasts.projectSaved", { name: data.name }));
       setShowProjectNameInput(false);
       setProjectNameInput("");
     },
     onError: () => {
-      toast.error("Failed to save project");
+      toast.error(t("vocabulary.mappingAssistant.toasts.saveProjectFailed"));
     },
   });
 
@@ -830,12 +827,12 @@ export default function MappingAssistantPage() {
         setTermsText(project.source_terms.join("\n"));
         setShowProjectDropdown(false);
         setInputCollapsed(true);
-        toast.success(`Loaded project: ${project.name}`);
+        toast.success(t("vocabulary.mappingAssistant.toasts.projectLoaded", { name: project.name }));
       } catch {
-        toast.error("Failed to load project");
+        toast.error(t("vocabulary.mappingAssistant.toasts.loadProjectFailed"));
       }
     },
-    [setResults, setDecisions, setTargetVocabs, setTargetDomains, setTermsText],
+    [setResults, setDecisions, setTargetVocabs, setTargetDomains, setTermsText, t],
   );
 
   // Summary stats
@@ -850,6 +847,14 @@ export default function MappingAssistantPage() {
   }).length;
   const noMatch = results.filter((r) => (overrides.get(r.source_term) ?? r.best_match) === null).length;
   const accepted = Array.from(decisions.values()).filter((d) => d === "accepted").length;
+  const vocabularyOptions = VOCABULARY_OPTIONS.map((value) => ({
+    value,
+    label: t(`vocabulary.mappingAssistant.vocabularies.${value}`, { defaultValue: value }),
+  }));
+  const domainOptions = DOMAIN_OPTIONS.map((value) => ({
+    value,
+    label: t(`vocabulary.mappingAssistant.domains.${value}`, { defaultValue: value }),
+  }));
 
   return (
     <div className="space-y-6 pb-20">
@@ -872,15 +877,15 @@ export default function MappingAssistantPage() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold text-text-primary">
-                Concept Mapping Assistant
+                {t("vocabulary.mappingAssistant.title")}
               </h1>
               <span className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-critical">
                 <Sparkles className="h-3 w-3" />
-                Powered by Ariadne
+                {t("vocabulary.mappingAssistant.poweredBy")}
               </span>
             </div>
             <p className="text-sm text-text-muted mt-0.5">
-              Map source terms to OMOP standard concepts using verbatim, vector, and LLM matching
+              {t("vocabulary.mappingAssistant.subtitle")}
             </p>
           </div>
         </div>
@@ -895,7 +900,7 @@ export default function MappingAssistantPage() {
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5">
                 <ArrowLeftRight className="h-3.5 w-3.5 text-critical" />
                 <span className="text-sm font-medium text-critical">
-                  {parsedTerms.length} term{parsedTerms.length !== 1 ? "s" : ""} mapped
+                  {t("vocabulary.mappingAssistant.input.termsMapped", { count: parsedTerms.length })}
                 </span>
               </div>
               {/* Compact filters */}
@@ -920,13 +925,13 @@ export default function MappingAssistantPage() {
               className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-transparent px-3 py-1.5 text-xs text-text-muted hover:text-text-primary hover:border-surface-highlight transition-colors"
             >
               <Edit3 className="h-3.5 w-3.5" />
-              Edit terms
+              {t("vocabulary.mappingAssistant.input.editTerms")}
             </button>
           </div>
         ) : (
           <>
             <div className="text-[10px] uppercase tracking-widest text-text-ghost">
-              Source Terms
+              {t("vocabulary.mappingAssistant.input.sourceTerms")}
             </div>
 
             {/* Textarea + upload */}
@@ -934,7 +939,7 @@ export default function MappingAssistantPage() {
               <textarea
                 value={termsText}
                 onChange={(e) => setTermsText(e.target.value)}
-                placeholder={"Enter source terms, one per line...\n\ntype 2 diabetes mellitus\nacute myocardial infarction\nHTN\nASA 81mg"}
+                placeholder={t("vocabulary.mappingAssistant.input.termsPlaceholder")}
                 rows={7}
                 className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2.5 text-sm text-text-primary placeholder:text-text-ghost focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none font-mono transition-colors"
               />
@@ -945,7 +950,7 @@ export default function MappingAssistantPage() {
                   className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-transparent px-3 py-1.5 text-xs text-text-muted hover:text-text-primary hover:border-surface-highlight transition-colors"
                 >
                   <Upload className="h-3.5 w-3.5" />
-                  Upload CSV
+                  {t("vocabulary.mappingAssistant.actions.uploadCsv")}
                 </button>
                 <input
                   ref={fileInputRef}
@@ -963,7 +968,7 @@ export default function MappingAssistantPage() {
                     className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-transparent px-3 py-1.5 text-xs text-text-muted hover:text-text-primary hover:border-surface-highlight transition-colors"
                   >
                     <FolderOpen className="h-3.5 w-3.5" />
-                    Load Project
+                    {t("vocabulary.mappingAssistant.actions.loadProject")}
                   </button>
                   {showProjectDropdown && (
                     <>
@@ -975,17 +980,17 @@ export default function MappingAssistantPage() {
                         {projectsQuery.isLoading && (
                           <div className="flex items-center gap-2 px-3 py-3 text-xs text-text-ghost">
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            Loading projects...
+                            {t("vocabulary.mappingAssistant.projects.loading")}
                           </div>
                         )}
                         {projectsQuery.isError && (
                           <div className="px-3 py-3 text-xs text-critical">
-                            Failed to load projects
+                            {t("vocabulary.mappingAssistant.projects.loadFailed")}
                           </div>
                         )}
                         {projectsQuery.data && projectsQuery.data.length === 0 && (
                           <div className="px-3 py-3 text-xs text-text-ghost">
-                            No saved projects
+                            {t("vocabulary.mappingAssistant.projects.empty")}
                           </div>
                         )}
                         {projectsQuery.data?.map((p) => (
@@ -997,9 +1002,10 @@ export default function MappingAssistantPage() {
                           >
                             <div className="text-sm text-text-primary truncate">{p.name}</div>
                             <div className="text-[10px] text-text-ghost mt-0.5">
-                              {p.source_terms.length} terms
-                              {" -- "}
-                              {new Date(p.updated_at).toLocaleDateString()}
+                              {t("vocabulary.mappingAssistant.projects.projectMeta", {
+                                count: p.source_terms.length,
+                                date: formatDate(p.updated_at),
+                              })}
                             </div>
                           </button>
                         ))}
@@ -1010,7 +1016,7 @@ export default function MappingAssistantPage() {
 
                 {parsedTerms.length > 0 && (
                   <span className="text-xs text-text-ghost">
-                    {parsedTerms.length} term{parsedTerms.length !== 1 ? "s" : ""} entered
+                    {t("vocabulary.mappingAssistant.input.termsEntered", { count: parsedTerms.length })}
                   </span>
                 )}
               </div>
@@ -1019,20 +1025,20 @@ export default function MappingAssistantPage() {
             {/* Filters row */}
             <div className="flex flex-wrap items-center gap-3 pt-1">
               <div className="flex items-center gap-2 text-xs text-text-ghost">
-                Target Vocabulary:
+                {t("vocabulary.mappingAssistant.filters.targetVocabulary")}
               </div>
               <MultiSelect
-                label="All Vocabularies"
-                options={VOCABULARY_OPTIONS}
+                label={t("vocabulary.mappingAssistant.filters.allVocabularies")}
+                options={vocabularyOptions}
                 selected={targetVocabs}
                 onChange={setTargetVocabs}
               />
               <div className="flex items-center gap-2 text-xs text-text-ghost">
-                Target Domain:
+                {t("vocabulary.mappingAssistant.filters.targetDomain")}
               </div>
               <MultiSelect
-                label="All Domains"
-                options={DOMAIN_OPTIONS}
+                label={t("vocabulary.mappingAssistant.filters.allDomains")}
+                options={domainOptions}
                 selected={targetDomains}
                 onChange={setTargetDomains}
               />
@@ -1051,7 +1057,9 @@ export default function MappingAssistantPage() {
                 ) : (
                   <ArrowLeftRight className="h-4 w-4" />
                 )}
-                {mapMutation.isPending ? "Mapping..." : "Map Terms"}
+                {mapMutation.isPending
+                  ? t("vocabulary.mappingAssistant.actions.mapping")
+                  : t("vocabulary.mappingAssistant.actions.mapTerms")}
               </button>
 
               {results.length > 0 && (
@@ -1067,7 +1075,7 @@ export default function MappingAssistantPage() {
                   className="inline-flex items-center gap-1.5 text-xs text-text-ghost hover:text-text-secondary transition-colors"
                 >
                   <RefreshCw className="h-3 w-3" />
-                  Clear results
+                  {t("vocabulary.mappingAssistant.actions.clearResults")}
                 </button>
               )}
             </div>
@@ -1079,7 +1087,7 @@ export default function MappingAssistantPage() {
           <div className="flex items-center gap-2 rounded-lg border border-critical/30 bg-critical/10 px-4 py-3 text-sm text-critical">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>
-              Mapping failed. Verify the Ariadne service is running and reachable.
+              {t("vocabulary.mappingAssistant.errors.mappingFailed")}
             </span>
           </div>
         )}
@@ -1096,7 +1104,7 @@ export default function MappingAssistantPage() {
               </div>
               <div className="flex items-center gap-2 text-sm text-text-muted">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Mapping {parsedTerms.length} terms...
+                {t("vocabulary.mappingAssistant.progress.mappingTerms", { count: parsedTerms.length })}
               </div>
             </div>
           )}
@@ -1109,8 +1117,8 @@ export default function MappingAssistantPage() {
                   <ArrowLeftRight className="h-4 w-4 text-success" />
                 </div>
                 <div>
-                  <div className="text-xl font-bold text-text-primary">{totalMapped}</div>
-                  <div className="text-[11px] text-text-muted">Terms mapped</div>
+                  <div className="text-xl font-bold text-text-primary">{formatNumber(totalMapped)}</div>
+                  <div className="text-[11px] text-text-muted">{t("vocabulary.mappingAssistant.metrics.termsMapped")}</div>
                 </div>
               </div>
               <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3 flex items-center gap-3">
@@ -1118,8 +1126,8 @@ export default function MappingAssistantPage() {
                   <Check className="h-4 w-4 text-success" />
                 </div>
                 <div>
-                  <div className="text-xl font-bold text-text-primary">{highConf}</div>
-                  <div className="text-[11px] text-text-muted">High confidence</div>
+                  <div className="text-xl font-bold text-text-primary">{formatNumber(highConf)}</div>
+                  <div className="text-[11px] text-text-muted">{t("vocabulary.mappingAssistant.metrics.highConfidence")}</div>
                 </div>
               </div>
               <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3 flex items-center gap-3">
@@ -1127,8 +1135,8 @@ export default function MappingAssistantPage() {
                   <AlertCircle className="h-4 w-4 text-accent" />
                 </div>
                 <div>
-                  <div className="text-xl font-bold text-text-primary">{needReview}</div>
-                  <div className="text-[11px] text-text-muted">Need review</div>
+                  <div className="text-xl font-bold text-text-primary">{formatNumber(needReview)}</div>
+                  <div className="text-[11px] text-text-muted">{t("vocabulary.mappingAssistant.metrics.needReview")}</div>
                 </div>
               </div>
               <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3 flex items-center gap-3">
@@ -1136,8 +1144,8 @@ export default function MappingAssistantPage() {
                   <X className="h-4 w-4 text-critical" />
                 </div>
                 <div>
-                  <div className="text-xl font-bold text-text-primary">{noMatch}</div>
-                  <div className="text-[11px] text-text-muted">No match</div>
+                  <div className="text-xl font-bold text-text-primary">{formatNumber(noMatch)}</div>
+                  <div className="text-[11px] text-text-muted">{t("vocabulary.mappingAssistant.metrics.noMatch")}</div>
                 </div>
               </div>
             </div>
@@ -1149,7 +1157,7 @@ export default function MappingAssistantPage() {
               className="inline-flex items-center gap-2 rounded-lg border border-success/30 bg-success/10 px-4 py-2.5 text-sm font-medium text-success hover:bg-success/20 transition-colors shrink-0"
             >
               <Zap className="h-4 w-4" />
-              Accept all &ge; 90%
+              {t("vocabulary.mappingAssistant.actions.acceptAllThreshold")}
             </button>
           </div>
 
@@ -1158,12 +1166,12 @@ export default function MappingAssistantPage() {
             {/* Table header */}
             <div className="grid gap-3 px-4 py-3 border-b border-border-default text-[10px] font-semibold uppercase tracking-wider text-text-ghost grid-cols-[28px_1fr_1fr_100px_100px_80px_100px]">
               <div />
-              <div>Source Term</div>
-              <div>Best Match</div>
-              <div>Confidence</div>
-              <div>Match Type</div>
-              <div>Vocabulary</div>
-              <div className="text-right">Actions</div>
+              <div>{t("vocabulary.mappingAssistant.table.sourceTerm")}</div>
+              <div>{t("vocabulary.mappingAssistant.table.bestMatch")}</div>
+              <div>{t("vocabulary.mappingAssistant.table.confidence")}</div>
+              <div>{t("vocabulary.mappingAssistant.table.matchType")}</div>
+              <div>{t("vocabulary.mappingAssistant.table.vocabulary")}</div>
+              <div className="text-right">{t("vocabulary.mappingAssistant.table.actions")}</div>
             </div>
 
             {results.map((result, i) => (
@@ -1195,7 +1203,7 @@ export default function MappingAssistantPage() {
           </div>
           <div className="flex items-center gap-2 text-sm text-text-muted">
             <Loader2 className="h-4 w-4 animate-spin text-accent" />
-            Mapping {parsedTerms.length} terms...
+            {t("vocabulary.mappingAssistant.progress.mappingTerms", { count: parsedTerms.length })}
           </div>
         </div>
       )}
@@ -1205,15 +1213,15 @@ export default function MappingAssistantPage() {
         <div className="sticky bottom-0 z-30 -mx-6 px-6 py-3 border-t border-border-default bg-surface-base/90 backdrop-blur-md flex items-center justify-between gap-4">
           {/* Stats summary */}
           <div className="flex items-center gap-3 text-xs text-text-muted flex-wrap">
-            <span className="text-success">{totalMapped} mapped</span>
-            <span className="text-text-ghost">&middot;</span>
-            <span>{highConf} high</span>
-            <span className="text-text-ghost">&middot;</span>
-            <span className="text-accent">{needReview} review</span>
-            <span className="text-text-ghost">&middot;</span>
-            <span className="text-critical">{noMatch} no match</span>
-            <span className="text-text-ghost">&middot;</span>
-            <span className="text-success font-medium">{accepted} accepted</span>
+            <span className="text-success">{t("vocabulary.mappingAssistant.summary.mapped", { count: totalMapped })}</span>
+            <span className="text-text-ghost">{t("vocabulary.mappingAssistant.labels.separator")}</span>
+            <span>{t("vocabulary.mappingAssistant.summary.high", { count: highConf })}</span>
+            <span className="text-text-ghost">{t("vocabulary.mappingAssistant.labels.separator")}</span>
+            <span className="text-accent">{t("vocabulary.mappingAssistant.summary.review", { count: needReview })}</span>
+            <span className="text-text-ghost">{t("vocabulary.mappingAssistant.labels.separator")}</span>
+            <span className="text-critical">{t("vocabulary.mappingAssistant.summary.noMatch", { count: noMatch })}</span>
+            <span className="text-text-ghost">{t("vocabulary.mappingAssistant.labels.separator")}</span>
+            <span className="text-success font-medium">{t("vocabulary.mappingAssistant.summary.accepted", { count: accepted })}</span>
           </div>
 
           {/* Action buttons */}
@@ -1232,7 +1240,7 @@ export default function MappingAssistantPage() {
               ) : (
                 <Database className="h-4 w-4" />
               )}
-              Save to Vocabulary
+              {t("vocabulary.mappingAssistant.actions.saveToVocabulary")}
             </button>
 
             {!showProjectNameInput ? (
@@ -1242,7 +1250,7 @@ export default function MappingAssistantPage() {
                 className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm text-text-muted hover:text-text-primary hover:border-surface-highlight transition-colors"
               >
                 <Save className="h-4 w-4" />
-                Save Project
+                {t("vocabulary.mappingAssistant.actions.saveProject")}
               </button>
             ) : (
               <div className="flex items-center gap-2">
@@ -1250,7 +1258,7 @@ export default function MappingAssistantPage() {
                   type="text"
                   value={projectNameInput}
                   onChange={(e) => setProjectNameInput(e.target.value)}
-                  placeholder="Project name..."
+                  placeholder={t("vocabulary.mappingAssistant.projects.namePlaceholder")}
                   className="rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 w-48 transition-colors"
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && projectNameInput.trim()) {
@@ -1293,7 +1301,7 @@ export default function MappingAssistantPage() {
               className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm text-text-muted hover:text-text-primary hover:border-surface-highlight transition-colors"
             >
               <Download className="h-4 w-4" />
-              Export CSV
+              {t("vocabulary.mappingAssistant.actions.exportCsv")}
             </button>
           </div>
         </div>

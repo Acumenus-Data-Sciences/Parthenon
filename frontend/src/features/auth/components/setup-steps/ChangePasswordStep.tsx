@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { Lock, AlertCircle, Loader2, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import apiClient from "@/lib/api-client";
 import { useAuthStore } from "@/stores/authStore";
@@ -15,6 +16,7 @@ interface ChangePasswordResponse {
 }
 
 function StrengthBar({ password }: { password: string }) {
+  const { t } = useTranslation("auth");
   let score = 0;
   if (password.length >= 8) score++;
   if (password.length >= 12) score++;
@@ -22,7 +24,14 @@ function StrengthBar({ password }: { password: string }) {
   if (/[0-9]/.test(password)) score++;
   if (/[^A-Za-z0-9]/.test(password)) score++;
 
-  const labels = ["", "Weak", "Fair", "Good", "Strong", "Excellent"];
+  const labels = [
+    "",
+    t("setup.changePassword.strength.weak"),
+    t("setup.changePassword.strength.fair"),
+    t("setup.changePassword.strength.good"),
+    t("setup.changePassword.strength.strong"),
+    t("setup.changePassword.strength.excellent"),
+  ];
   const colors = [
     "",
     "bg-red-500",
@@ -47,12 +56,15 @@ function StrengthBar({ password }: { password: string }) {
           />
         ))}
       </div>
-      <p className="text-xs text-text-muted">{labels[score] || "Too short"}</p>
+      <p className="text-xs text-text-muted">
+        {labels[score] || t("setup.changePassword.strength.tooShort")}
+      </p>
     </div>
   );
 }
 
 export function ChangePasswordStep({ onPasswordChanged }: Props) {
+  const { t } = useTranslation("auth");
   const updateUser = useAuthStore((s) => s.updateUser);
 
   const [currentPw, setCurrentPw] = useState("");
@@ -68,15 +80,15 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
     setError("");
 
     if (newPw !== confirmPw) {
-      setError("Passwords do not match.");
+      setError(t("setup.changePassword.errors.mismatch"));
       return;
     }
     if (newPw.length < 8) {
-      setError("New password must be at least 8 characters.");
+      setError(t("setup.changePassword.errors.tooShort"));
       return;
     }
     if (newPw === currentPw) {
-      setError("New password must differ from the current password.");
+      setError(t("setup.changePassword.errors.same"));
       return;
     }
 
@@ -93,7 +105,7 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        "Password change failed. Please try again.";
+        t("setup.changePassword.errors.failed");
       setError(msg);
       setCurrentPw("");
     } finally {
@@ -108,9 +120,11 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
           <CheckCircle2 size={32} className="text-emerald-400" />
         </div>
         <div className="text-center">
-          <h3 className="text-lg font-semibold text-text-primary">Password updated</h3>
+          <h3 className="text-lg font-semibold text-text-primary">
+            {t("setup.changePassword.successTitle")}
+          </h3>
           <p className="mt-1 text-base text-text-muted">
-            Your account is secured. Continue to the next step.
+            {t("setup.changePassword.successDescription")}
           </p>
         </div>
       </div>
@@ -120,10 +134,11 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
   return (
     <div className="space-y-5">
       <div>
-        <h3 className="text-lg font-semibold text-text-primary">Secure Your Account</h3>
+        <h3 className="text-lg font-semibold text-text-primary">
+          {t("setup.changePassword.title")}
+        </h3>
         <p className="text-base text-text-muted">
-          A temporary password was generated during installation. Set a permanent password before
-          continuing.
+          {t("setup.changePassword.intro")}
         </p>
       </div>
 
@@ -131,11 +146,15 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
       <div className="flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3">
         <div className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-amber-400" />
         <div className="text-base">
-          <p className="font-medium text-amber-300">Temporary credentials were generated during install</p>
+          <p className="font-medium text-amber-300">
+            {t("setup.changePassword.temporaryTitle")}
+          </p>
           <p className="mt-0.5 text-sm text-amber-400/80">
-            Your temporary password is in{" "}
-            <code className="rounded bg-amber-500/15 px-1 font-mono">.install-credentials</code>{" "}
-            at the repo root. Enter it below, then choose a permanent password.
+            {t("setup.changePassword.temporaryPrefix")}{" "}
+            <code className="rounded bg-amber-500/15 px-1 font-mono">
+              {t("setup.changePassword.credentialsFile")}
+            </code>{" "}
+            {t("setup.changePassword.temporarySuffix")}
           </p>
         </div>
       </div>
@@ -151,7 +170,7 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
         {/* Current password */}
         <div>
           <label className="mb-1 block text-sm font-medium uppercase tracking-wide text-text-muted">
-            Current (temporary) password
+            {t("setup.changePassword.currentLabel")}
           </label>
           <div className="relative">
             <Lock
@@ -164,7 +183,7 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
               onChange={(e) => setCurrentPw(e.target.value)}
               required
               autoFocus
-              placeholder="Enter temporary password"
+              placeholder={t("setup.changePassword.currentPlaceholder")}
               className="w-full rounded-md border border-border-default bg-surface-base py-2 pl-9 pr-3 text-base text-text-primary placeholder:text-text-ghost focus:outline-none focus:ring-2 focus:ring-accent/50"
             />
           </div>
@@ -173,7 +192,7 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
         {/* New password */}
         <div>
           <label className="mb-1 block text-sm font-medium uppercase tracking-wide text-text-muted">
-            New password
+            {t("setup.changePassword.newLabel")}
           </label>
           <div className="relative">
             <Lock
@@ -185,13 +204,14 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
               value={newPw}
               onChange={(e) => setNewPw(e.target.value)}
               required
-              placeholder="Min 8 characters"
+              placeholder={t("setup.changePassword.newPlaceholder")}
               className="w-full rounded-md border border-border-default bg-surface-base py-2 pl-9 pr-10 text-base text-text-primary placeholder:text-text-ghost focus:outline-none focus:ring-2 focus:ring-accent/50"
             />
             <button
               type="button"
               className="absolute right-2 top-1/2 -translate-y-1/2 text-text-ghost hover:text-text-muted"
               onClick={() => setShowNew((v) => !v)}
+              aria-label={t("setup.changePassword.toggleNewVisibility")}
             >
               {showNew ? <EyeOff size={14} /> : <Eye size={14} />}
             </button>
@@ -202,7 +222,7 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
         {/* Confirm */}
         <div>
           <label className="mb-1 block text-sm font-medium uppercase tracking-wide text-text-muted">
-            Confirm new password
+            {t("setup.changePassword.confirmLabel")}
           </label>
           <div className="relative">
             <Lock
@@ -214,7 +234,7 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
               value={confirmPw}
               onChange={(e) => setConfirmPw(e.target.value)}
               required
-              placeholder="Repeat new password"
+              placeholder={t("setup.changePassword.confirmPlaceholder")}
               className={cn(
                 "w-full rounded-md border bg-surface-base py-2 pl-9 pr-3 text-base text-text-primary placeholder:text-text-ghost focus:outline-none focus:ring-2 focus:ring-accent/50",
                 confirmPw && newPw !== confirmPw
@@ -235,7 +255,7 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
           ) : (
             <Lock size={14} />
           )}
-          Set permanent password
+          {t("setup.changePassword.submit")}
         </button>
       </form>
     </div>

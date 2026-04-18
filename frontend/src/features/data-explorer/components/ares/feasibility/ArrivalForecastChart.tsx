@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import { formatNumber } from "@/i18n/format";
 import {
   ComposedChart,
   Line,
@@ -21,10 +23,12 @@ export default function ArrivalForecastChart({
   forecast,
   targetCount,
 }: ArrivalForecastChartProps) {
+  const { t } = useTranslation("app");
+
   if (forecast.historical.length === 0 && forecast.projected.length === 0) {
     return (
       <div className="flex h-48 items-center justify-center text-text-ghost">
-        Insufficient historical data for forecast (minimum 6 months required).
+        {t("dataExplorer.ares.feasibility.forecast.insufficientData")}
       </div>
     );
   }
@@ -66,17 +70,25 @@ export default function ArrivalForecastChart({
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h4 className="text-sm font-medium text-text-primary">
-            Patient Arrival Forecast: {forecast.source_name}
+            {t("dataExplorer.ares.feasibility.forecast.title", {
+              source: forecast.source_name,
+            })}
           </h4>
           <p className="text-[11px] text-text-ghost">
-            Monthly rate: {forecast.monthly_rate > 0 ? `+${forecast.monthly_rate}` : forecast.monthly_rate} patients/month
+            {t("dataExplorer.ares.feasibility.forecast.monthlyRate", {
+              rate: `${forecast.monthly_rate > 0 ? "+" : ""}${formatNumber(forecast.monthly_rate)}`,
+            })}
             {forecast.months_to_target !== null && forecast.months_to_target > 0 && (
               <span className="ml-2 text-accent">
-                Target reached in ~{forecast.months_to_target} months
+                {t("dataExplorer.ares.feasibility.forecast.targetReachedIn", {
+                  months: formatNumber(forecast.months_to_target),
+                })}
               </span>
             )}
             {forecast.months_to_target === 0 && (
-              <span className="ml-2 text-success">Target already reached</span>
+              <span className="ml-2 text-success">
+                {t("dataExplorer.ares.feasibility.forecast.targetAlreadyReached")}
+              </span>
             )}
           </p>
         </div>
@@ -100,7 +112,7 @@ export default function ArrivalForecastChart({
             <YAxis
               tick={{ fill: "var(--text-muted)", fontSize: 11 }}
               axisLine={{ stroke: "var(--surface-highlight)" }}
-              tickFormatter={(v: number) => v.toLocaleString()}
+              tickFormatter={(v: number) => formatNumber(v)}
             />
             <Tooltip
               contentStyle={{
@@ -114,19 +126,19 @@ export default function ArrivalForecastChart({
                 if (value === null) return ["-", name];
                 const label =
                   name === "historical"
-                    ? "Actual"
+                    ? t("dataExplorer.ares.feasibility.forecast.actual")
                     : name === "projected"
-                      ? "Projected"
+                      ? t("dataExplorer.ares.feasibility.forecast.projected")
                       : name;
-                return [value.toLocaleString(), label];
+                return [formatNumber(value), label];
               }) as never}
             />
             <Legend
               wrapperStyle={{ fontSize: 11, color: "var(--text-muted)" }}
               formatter={(value: string) => {
-                if (value === "historical") return "Actual";
-                if (value === "projected") return "Projected";
-                if (value === "confidenceBand") return "95% CI";
+                if (value === "historical") return t("dataExplorer.ares.feasibility.forecast.actual");
+                if (value === "projected") return t("dataExplorer.ares.feasibility.forecast.projected");
+                if (value === "confidenceBand") return t("dataExplorer.ares.feasibility.forecast.confidenceBand");
                 return value;
               }}
             />
@@ -179,7 +191,9 @@ export default function ArrivalForecastChart({
                 stroke="var(--critical)"
                 strokeDasharray="4 4"
                 label={{
-                  value: `Target: ${effectiveTarget.toLocaleString()}`,
+                  value: t("dataExplorer.ares.feasibility.forecast.targetLabel", {
+                    target: formatNumber(effectiveTarget),
+                  }),
                   fill: "var(--critical)",
                   fontSize: 11,
                   position: "insideTopRight",
@@ -191,7 +205,7 @@ export default function ArrivalForecastChart({
       </div>
 
       <p className="mt-2 text-[10px] text-text-ghost">
-        Projection based on linear regression of last 12 months. Confidence band widens with projection distance.
+        {t("dataExplorer.ares.feasibility.forecast.footnote")}
       </p>
     </div>
   );

@@ -1,0 +1,14 @@
+{
+  "key": "data-sources",
+  "title": "Fuentes de datos",
+  "description": "Las fuentes de datos representan conexiones a bases de datos OMOP CDM. Cada fuente tiene configuraciones daimon para esquemas CDM, vocabulario, resultados y temporales. La generación de cohortes y los análisis siempre se ejecutan contra una fuente específica.",
+  "docs_url": "/docs/part1-getting-started/02-data-sources",
+  "video_url": null,
+  "tips": [
+    "Una fuente necesita al menos un daimon CDM y un daimon de resultados para admitir generación de cohortes.",
+    "El daimon de vocabulario puede apuntar a un esquema compartido si varias fuentes usan la misma versión de vocabulario.",
+    "Probar conexión verifica credenciales y accesibilidad del esquema antes de ejecutar análisis.",
+    "Importar desde WebAPI trae configuraciones de fuentes desde una instancia Atlas existente; es útil durante migraciones.",
+    "El esquema de resultados debe ser escribible; asegúrese de que el usuario de DB tenga permisos INSERT/UPDATE/DELETE."
+  ]
+}

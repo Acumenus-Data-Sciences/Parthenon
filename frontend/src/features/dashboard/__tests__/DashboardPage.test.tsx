@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DashboardPage } from "../pages/DashboardPage";
+import { setActiveLocale } from "@/i18n/i18n";
 import type { DashboardStats } from "../api/dashboardApi";
 
 // Mock the useDashboard hook
@@ -89,8 +90,9 @@ function renderDashboard() {
 }
 
 describe("DashboardPage", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
+    await setActiveLocale("en-US");
   });
 
   it("renders page title and subtitle", () => {
@@ -166,6 +168,42 @@ describe("DashboardPage", () => {
     expect(screen.getByText("Create Cohort Definition")).toBeInTheDocument();
     expect(screen.getByText("Build Concept Set")).toBeInTheDocument();
     expect(screen.getByText("Explore Data Quality")).toBeInTheDocument();
+  });
+
+  it("renders dashboard shell in Spanish", async () => {
+    await setActiveLocale("es-ES");
+    mockedUseDashboardStats.mockReturnValue({
+      data: MOCK_STATS,
+      isLoading: false,
+      error: null,
+    } as ReturnType<typeof useDashboardStats>);
+
+    renderDashboard();
+
+    expect(screen.getByText("Panel")).toBeInTheDocument();
+    expect(
+      screen.getByText("Plataforma unificada de investigación de resultados"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Acciones rápidas")).toBeInTheDocument();
+    expect(
+      screen.getByText("Conectar una fuente de datos"),
+    ).toBeInTheDocument();
+  });
+
+  it("renders dashboard shell in Korean", async () => {
+    await setActiveLocale("ko-KR");
+    mockedUseDashboardStats.mockReturnValue({
+      data: MOCK_STATS,
+      isLoading: false,
+      error: null,
+    } as ReturnType<typeof useDashboardStats>);
+
+    renderDashboard();
+
+    expect(screen.getByText("대시보드")).toBeInTheDocument();
+    expect(screen.getByText("통합 성과 연구 플랫폼")).toBeInTheDocument();
+    expect(screen.getByText("빠른 작업")).toBeInTheDocument();
+    expect(screen.getByText("데이터 소스 연결")).toBeInTheDocument();
   });
 
   it("shows error alert when API call fails", () => {

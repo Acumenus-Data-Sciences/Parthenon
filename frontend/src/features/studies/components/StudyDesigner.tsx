@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   AlertTriangle,
   Bot,
@@ -13,6 +14,7 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
+import { formatDateTime } from "@/i18n/format";
 import { cn } from "@/lib/utils";
 import type { Study, StudyAnalysisEntry, StudyDesignAsset } from "../types/study";
 import {
@@ -38,22 +40,22 @@ import { useEstimations } from "@/features/estimation/hooks/useEstimations";
 import { usePredictions } from "@/features/prediction/hooks/usePredictions";
 
 const STUDY_TYPES = [
-  { value: "characterization", label: "Characterization" },
-  { value: "population_level_estimation", label: "Population-Level Estimation" },
-  { value: "patient_level_prediction", label: "Patient-Level Prediction" },
-  { value: "drug_utilization", label: "Drug Utilization" },
-  { value: "quality_improvement", label: "Quality Improvement" },
-  { value: "comparative_effectiveness", label: "Comparative Effectiveness" },
-  { value: "safety_surveillance", label: "Safety Surveillance" },
-  { value: "custom", label: "Custom" },
+  "characterization",
+  "population_level_estimation",
+  "patient_level_prediction",
+  "drug_utilization",
+  "quality_improvement",
+  "comparative_effectiveness",
+  "safety_surveillance",
+  "custom",
 ];
 
 const ANALYSIS_TYPES = [
-  { value: "characterization", label: "Characterization" },
-  { value: "incidence-rate", label: "Incidence Rate" },
-  { value: "pathway", label: "Pathway" },
-  { value: "estimation", label: "Estimation" },
-  { value: "prediction", label: "Prediction" },
+  "characterization",
+  "incidence-rate",
+  "pathway",
+  "estimation",
+  "prediction",
 ];
 
 interface StudyDesignerProps {
@@ -61,6 +63,7 @@ interface StudyDesignerProps {
 }
 
 export function StudyDesigner({ study }: StudyDesignerProps) {
+  const { t } = useTranslation("app");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [studyType, setStudyType] = useState("characterization");
@@ -160,7 +163,7 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
     const session = await createDesignSession.mutateAsync({
       slug: study.slug,
       payload: {
-        title: `${study.title} OHDSI design`,
+        title: t("studies.designer.defaultSessionTitle", { title: study.title }),
         source_mode: "study_designer",
       },
     });
@@ -236,18 +239,30 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
             <div className="flex items-center gap-2">
               <Bot size={18} style={{ color: "var(--accent)" }} />
               <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-                OHDSI Study Design Compiler
+                {t("studies.designer.title")}
               </h3>
             </div>
             <p className="mt-2 max-w-3xl" style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)" }}>
-              Turn a reviewed research question into traceable concept sets, cohorts, feasibility evidence, HADES-ready analysis plans, and a locked study package.
+              {t("studies.designer.subtitle")}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <span className="badge badge-info">Session {activeSession?.id ?? "new"}</span>
-            <span className="badge badge-success">Version {activeVersion?.version_number ?? "none"}</span>
+            <span className="badge badge-info">
+              {t("studies.designer.badges.session", {
+                value: activeSession?.id ?? t("studies.designer.messages.new"),
+              })}
+            </span>
+            <span className="badge badge-success">
+              {t("studies.designer.badges.version", {
+                value: activeVersion?.version_number ?? t("studies.designer.messages.none"),
+              })}
+            </span>
             <span className={cn("badge", activeVersion?.status === "locked" ? "badge-critical" : "badge-warning")}>
-              {activeVersion?.status ?? "not started"}
+              {activeVersion?.status
+                ? t(`studies.designer.versionStatuses.${activeVersion.status}`, {
+                  defaultValue: humanize(activeVersion.status),
+                })
+                : t("studies.designer.messages.notStarted")}
             </span>
           </div>
         </div>
@@ -255,13 +270,13 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
         <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.6fr)]">
           <div className="space-y-3">
             <div>
-              <label className="form-label">Research Question</label>
+              <label className="form-label">{t("studies.workbench.researchQuestion")}</label>
               <textarea
                 value={researchQuestion}
                 onChange={(event) => setResearchQuestion(event.target.value)}
                 rows={3}
                 className="form-input form-textarea"
-                placeholder="Among adults with..., does..., compared with..., reduce..."
+                placeholder={t("studies.designer.researchQuestionPlaceholder")}
               />
             </div>
             <div className="flex flex-wrap gap-2">
@@ -272,7 +287,7 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
                 className="btn btn-primary btn-sm"
               >
                 {generateIntent.isPending ? <Loader2 size={14} className="animate-spin" /> : <Bot size={14} />}
-                Generate Intent
+                {t("studies.workbench.generateIntent")}
               </button>
               <button
                 type="button"
@@ -281,7 +296,7 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
                 className="btn btn-secondary btn-sm"
               >
                 {importExistingDesign.isPending ? <Loader2 size={14} className="animate-spin" /> : <GitBranch size={14} />}
-                Import Current
+                {t("studies.workbench.actions.importCurrent")}
               </button>
               <button
                 type="button"
@@ -290,7 +305,7 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
                 className="btn btn-secondary btn-sm"
               >
                 {critiqueDesign.isPending ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
-                Critique
+                {t("studies.workbench.actions.critique")}
               </button>
               <button
                 type="button"
@@ -298,7 +313,7 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
                 disabled={designBusy || !activeVersion || activeVersion.status === "locked"}
                 className="btn btn-secondary btn-sm"
               >
-                Accept Intent
+                {t("studies.workbench.actions.acceptIntent")}
               </button>
               <button
                 type="button"
@@ -307,7 +322,7 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
                 className="btn btn-primary btn-sm"
               >
                 {lockDesign.isPending ? <Loader2 size={14} className="animate-spin" /> : <Lock size={14} />}
-                Lock Package
+                {t("studies.workbench.actions.lockPackage")}
               </button>
             </div>
           </div>
@@ -317,10 +332,10 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
             style={{ border: "1px solid var(--border-default)", background: "var(--surface-overlay)" }}
           >
             <div className="grid grid-cols-2 gap-3">
-              <CompilerMetric label="Assets" value={versionAssets.length} />
-              <CompilerMetric label="Verified" value={designAssetCounts.verified} />
-              <CompilerMetric label="Blocked" value={designAssetCounts.blocked} />
-              <CompilerMetric label="Reviewed" value={lockReadiness?.provenance_summary?.reviewed_assets ?? 0} />
+              <CompilerMetric label={t("studies.designer.metrics.assets")} value={versionAssets.length} />
+              <CompilerMetric label={t("studies.workbench.labels.verified")} value={designAssetCounts.verified} />
+              <CompilerMetric label={t("studies.workbench.labels.blocked")} value={designAssetCounts.blocked} />
+              <CompilerMetric label={t("studies.workbench.labels.reviewed")} value={lockReadiness?.provenance_summary?.reviewed_assets ?? 0} />
             </div>
             <div className="mt-3 space-y-2" style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
               {(lockReadiness?.blocking_reasons?.length ?? 0) > 0 ? (
@@ -328,11 +343,15 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
                   <p key={reason}>{reason}</p>
                 ))
               ) : (
-                <p>{lockReadiness?.ready ? "Ready to lock." : "Create or import a design to begin."}</p>
+                <p>
+                  {lockReadiness?.ready
+                    ? t("studies.workbench.messages.readyToLock")
+                    : t("studies.designer.messages.createOrImport")}
+                </p>
               )}
               {lockReadiness?.package_artifact?.url && (
                 <a className="link" href={lockReadiness.package_artifact.url}>
-                  Download locked package
+                  {t("studies.designer.actions.downloadLockedPackage")}
                 </a>
               )}
             </div>
@@ -350,39 +369,49 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
                 <AlertTriangle size={18} style={{ color: "var(--warning)" }} />
               )}
               <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-                Verification Gates
+                {t("studies.designer.sections.verificationGates")}
               </h3>
             </div>
             <p className="mt-2 max-w-3xl" style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)" }}>
-              Resolve blockers before locking the OHDSI package.
+              {t("studies.designer.descriptions.verificationGates")}
             </p>
           </div>
           <span className={cn("badge", lockReadiness?.ready ? "badge-success" : "badge-warning")}>
-            {lockReadiness?.ready ? "Ready" : "Needs evidence"}
+            {lockReadiness?.ready
+              ? t("studies.workbench.messages.ready")
+              : t("studies.designer.messages.needsEvidence")}
           </span>
         </div>
 
         <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.8fr)]">
           <div className="space-y-3">
             <GateRow
-              label="Design intent"
+              label={t("studies.designer.gates.designIntent")}
               ready={activeVersion?.status === "accepted" || activeVersion?.status === "locked"}
-              detail={activeVersion?.accepted_at ? `Accepted ${formatDateTime(activeVersion.accepted_at)}` : "Accept the reviewed research question."}
+              detail={activeVersion?.accepted_at
+                ? t("studies.designer.gates.acceptedAt", { time: formatDateTime(activeVersion.accepted_at) })
+                : t("studies.designer.gates.acceptResearchQuestion")}
             />
             <GateRow
-              label="Cohorts"
+              label={t("studies.workbench.labels.cohorts")}
               ready={lockReadiness?.cohorts?.ready ?? false}
-              detail={`${lockReadiness?.cohorts?.materialized_verified_count ?? 0} verified materialized cohort${(lockReadiness?.cohorts?.materialized_verified_count ?? 0) === 1 ? "" : "s"}`}
+              detail={t("studies.designer.gates.verifiedMaterializedCohorts", {
+                count: lockReadiness?.cohorts?.materialized_verified_count ?? 0,
+              })}
             />
             <GateRow
-              label="Feasibility"
+              label={t("studies.workbench.labels.feasibility")}
               ready={lockReadiness?.feasibility_ready ?? false}
-              detail={lockReadiness?.feasibility_ready ? "Verified feasibility evidence is ready." : "Run feasibility after cohorts verify."}
+              detail={lockReadiness?.feasibility_ready
+                ? t("studies.designer.gates.feasibilityReady")
+                : t("studies.designer.gates.runFeasibility")}
             />
             <GateRow
-              label="Analysis plan"
+              label={t("studies.designer.gates.analysisPlan")}
               ready={lockReadiness?.analysis_plan_ready ?? false}
-              detail={lockReadiness?.analysis_plan_ready ? "Verified HADES analysis plan is ready." : "Verify and materialize an analysis plan."}
+              detail={lockReadiness?.analysis_plan_ready
+                ? t("studies.designer.gates.analysisPlanReady")
+                : t("studies.designer.gates.verifyAnalysisPlan")}
             />
           </div>
 
@@ -393,19 +422,29 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
             <div className="flex items-center gap-2">
               <PackageCheck size={16} style={{ color: "var(--accent)" }} />
               <h4 style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)", fontWeight: 600 }}>
-                Package Provenance
+                {t("studies.designer.sections.packageProvenance")}
               </h4>
             </div>
             <dl className="mt-3 grid grid-cols-2 gap-3" style={{ fontSize: "var(--text-xs)" }}>
-              <ProvenanceItem label="Version" value={activeVersion ? `v${activeVersion.version_number} ${activeVersion.status}` : "No version"} />
-              <ProvenanceItem label="AI events" value={String(lockReadiness?.provenance_summary?.ai_events ?? 0)} />
-              <ProvenanceItem label="Verified assets" value={String(lockReadiness?.provenance_summary?.verified_assets ?? 0)} />
-              <ProvenanceItem label="Manifest" value={packageSha ? shortHash(packageSha) : "Pending"} />
+              <ProvenanceItem
+                label={t("studies.designer.labels.version")}
+                value={activeVersion
+                  ? t("studies.designer.labels.versionStatus", {
+                    version: activeVersion.version_number,
+                    status: t(`studies.designer.versionStatuses.${activeVersion.status}`, {
+                      defaultValue: humanize(activeVersion.status),
+                    }),
+                  })
+                  : t("studies.designer.messages.noVersion")}
+              />
+              <ProvenanceItem label={t("studies.workbench.labels.aiEvents")} value={String(lockReadiness?.provenance_summary?.ai_events ?? 0)} />
+              <ProvenanceItem label={t("studies.designer.labels.verifiedAssets")} value={String(lockReadiness?.provenance_summary?.verified_assets ?? 0)} />
+              <ProvenanceItem label={t("studies.workbench.labels.manifest")} value={packageSha ? shortHash(packageSha) : t("studies.workbench.messages.pending")} />
             </dl>
             {lockReadiness?.package_artifact?.url && (
               <a className="btn btn-secondary btn-sm mt-3" href={lockReadiness.package_artifact.url}>
                 <FileJson size={14} />
-                Download package
+                {t("studies.designer.actions.downloadPackage")}
               </a>
             )}
           </div>
@@ -431,20 +470,22 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-              Asset Evidence
+              {t("studies.designer.sections.assetEvidence")}
             </h3>
             <p className="mt-2 max-w-3xl" style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)" }}>
-              Review blocked verifier output before accepting a package.
+              {t("studies.designer.descriptions.assetEvidence")}
             </p>
           </div>
           <span className={cn("badge", blockedAssets.length > 0 ? "badge-critical" : "badge-success")}>
-            {blockedAssets.length > 0 ? `${blockedAssets.length} blocked` : "No blockers"}
+            {blockedAssets.length > 0
+              ? t("studies.designer.messages.blockedCount", { count: blockedAssets.length })
+              : t("studies.designer.messages.noBlockers")}
           </span>
         </div>
 
         {versionAssets.length === 0 ? (
           <p className="mt-4" style={{ fontSize: "var(--text-sm)", color: "var(--text-ghost)" }}>
-            Generate intent or import the current study to begin evidence review.
+            {t("studies.designer.messages.startEvidenceReview")}
           </p>
         ) : (
           <div className="mt-4 space-y-3">
@@ -458,39 +499,39 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
       {/* Name & Description */}
       <div className="panel">
         <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-          Basic Information
+          {t("studies.designer.sections.basicInformation")}
         </h3>
         <div className="space-y-3 mt-3">
           <div>
-            <label className="form-label">Title</label>
+            <label className="form-label">{t("studies.designer.labels.title")}</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Study title"
+              placeholder={t("studies.designer.placeholders.studyTitle")}
               className="form-input"
             />
           </div>
           <div>
-            <label className="form-label">Description</label>
+            <label className="form-label">{t("studies.designer.labels.description")}</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Optional description"
+              placeholder={t("studies.designer.placeholders.optionalDescription")}
               rows={2}
               className="form-input form-textarea"
             />
           </div>
           <div>
-            <label className="form-label">Study Type</label>
+            <label className="form-label">{t("studies.designer.labels.studyType")}</label>
             <select
               value={studyType}
               onChange={(e) => setStudyType(e.target.value)}
               className="form-input form-select"
             >
               {STUDY_TYPES.map((st) => (
-                <option key={st.value} value={st.value}>
-                  {st.label}
+                <option key={st} value={st}>
+                  {t(`studies.detail.studyTypes.${st}`)}
                 </option>
               ))}
             </select>
@@ -501,11 +542,11 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
       {/* Add Analysis */}
       <div className="panel">
         <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-          Add Analysis
+          {t("studies.designer.sections.addAnalysis")}
         </h3>
         <div className="flex items-end gap-3 mt-3">
           <div className="flex-1">
-            <label className="form-label">Analysis Type</label>
+            <label className="form-label">{t("studies.designer.labels.analysisType")}</label>
             <select
               value={addType}
               onChange={(e) => {
@@ -515,14 +556,14 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
               className="form-input form-select"
             >
               {ANALYSIS_TYPES.map((at) => (
-                <option key={at.value} value={at.value}>
-                  {at.label}
+                <option key={at} value={at}>
+                  {t(`studies.designer.analysisTypes.${at}`)}
                 </option>
               ))}
             </select>
           </div>
           <div className="flex-1">
-            <label className="form-label">Analysis</label>
+            <label className="form-label">{t("studies.designer.labels.analysis")}</label>
             <select
               value={addId ?? ""}
               onChange={(e) =>
@@ -530,7 +571,7 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
               }
               className="form-input form-select"
             >
-              <option value="">Select analysis...</option>
+              <option value="">{t("studies.designer.placeholders.selectAnalysis")}</option>
               {analysisOptions.map((a) => (
                 <option key={a.id} value={a.id}>
                   {a.name}
@@ -549,7 +590,7 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
             ) : (
               <Plus size={14} />
             )}
-            Add
+            {t("studies.designer.actions.add")}
           </button>
         </div>
       </div>
@@ -557,11 +598,11 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
       {/* Current Analyses */}
       <div className="panel">
         <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-          Study Analyses ({studyAnalyses?.length ?? 0})
+          {t("studies.designer.sections.studyAnalyses", { count: studyAnalyses?.length ?? 0 })}
         </h3>
         {!studyAnalyses || studyAnalyses.length === 0 ? (
           <p className="mt-2" style={{ fontSize: "var(--text-xs)", color: "var(--text-ghost)" }}>
-            No analyses added yet.
+            {t("studies.designer.messages.noAnalyses")}
           </p>
         ) : (
           <div className="space-y-2 mt-3">
@@ -585,7 +626,7 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
                     {entry.analysis_type}
                   </span>
                   <span style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)" }}>
-                    {entry.analysis?.name ?? `Analysis #${entry.analysis_id}`}
+                    {entry.analysis?.name ?? t("studies.designer.messages.analysisFallback", { id: entry.analysis_id })}
                   </span>
                 </div>
                 <button
@@ -617,7 +658,7 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
           ) : (
             <Save size={14} />
           )}
-          Save Changes
+          {t("studies.designer.actions.saveChanges")}
         </button>
       </div>
     </div>
@@ -678,6 +719,7 @@ function ProvenanceItem({ label, value }: { label: string; value: string }) {
 }
 
 function AssetEvidenceRow({ asset }: { asset: StudyDesignAsset }) {
+  const { t } = useTranslation("app");
   const checks = getChecks(asset.verification_json);
   const messages = getStringArray(asset.verification_json, "messages");
   const missingConceptIds = getNumberArray(asset.verification_json, "missing_concept_ids");
@@ -706,9 +748,13 @@ function AssetEvidenceRow({ asset }: { asset: StudyDesignAsset }) {
             {assetTitle(asset)}
           </div>
           <div style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
-            Asset #{asset.id}
-            {asset.materialized_id ? ` · materialized #${asset.materialized_id}` : ""}
-            {asset.verified_at ? ` · verified ${formatDateTime(asset.verified_at)}` : ""}
+            <span>{t("studies.designer.messages.assetId", { id: asset.id })}</span>
+            {asset.materialized_id && (
+              <span> · {t("studies.designer.messages.materializedId", { id: asset.materialized_id })}</span>
+            )}
+            {asset.verified_at && (
+              <span> · {t("studies.designer.messages.verifiedAt", { time: formatDateTime(asset.verified_at) })}</span>
+            )}
           </div>
         </div>
         {asset.verification_status === "verified" ? (
@@ -742,9 +788,9 @@ function AssetEvidenceRow({ asset }: { asset: StudyDesignAsset }) {
 
       {(missingConceptIds.length > 0 || invalidVocabularyIds.length > 0 || invalidLocalIds.length > 0) && (
         <div className="mt-3 grid gap-2 md:grid-cols-3">
-          <ConceptIdList label="Missing OMOP IDs" values={missingConceptIds} />
-          <ConceptIdList label="Deprecated OMOP IDs" values={invalidVocabularyIds} />
-          <ConceptIdList label="Invalid draft IDs" values={invalidLocalIds.map(String)} />
+          <ConceptIdList label={t("studies.designer.labels.missingOmopIds")} values={missingConceptIds} />
+          <ConceptIdList label={t("studies.designer.labels.deprecatedOmopIds")} values={invalidVocabularyIds} />
+          <ConceptIdList label={t("studies.designer.labels.invalidDraftIds")} values={invalidLocalIds.map(String)} />
         </div>
       )}
 
@@ -824,16 +870,4 @@ function humanize(value: string): string {
 
 function shortHash(value: string): string {
   return value.length > 12 ? `${value.slice(0, 12)}...` : value;
-}
-
-function formatDateTime(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-
-  return date.toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
 }

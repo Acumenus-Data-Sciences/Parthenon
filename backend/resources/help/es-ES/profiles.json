@@ -1,0 +1,13 @@
+{
+  "key": "profiles",
+  "title": "Perfiles de pacientes",
+  "description": "El módulo Perfiles de pacientes presenta una vista longitudinal a nivel de persona de eventos clínicos extraídos del modelo de datos OMOP, incluidas condiciones, exposiciones a medicamentos, procedimientos, mediciones y observaciones. Los investigadores usan líneas de tiempo de pacientes para validar definiciones de cohortes, investigar registros individuales por problemas de calidad de datos y desarrollar intuición sobre los recorridos clínicos representados en un conjunto de datos.",
+  "docs_url": "/docs/part7-patient-profiles/21-patient-timelines",
+  "video_url": null,
+  "tips": [
+    "Use el panel de filtros de dominio para enfocar la línea de tiempo en tipos de eventos clínicamente relevantes y reducir el desorden visual al revisar historias complejas.",
+    "Compare la línea de tiempo del paciente con sus criterios de inclusión de cohorte para verificar que eventos índice y periodos de lavado se capturen como se espera.",
+    "Evite usar perfiles de pacientes para cualquier propósito que requiera reidentificación; trabaje siempre dentro de las directrices de gobernanza de datos e IRB de su institución.",
+    "La vista de línea de tiempo respeta su selección actual de fuente de datos, así que cambie de fuente desde la navegación superior si el registro de un paciente no aparece como se espera."
+  ]
+}

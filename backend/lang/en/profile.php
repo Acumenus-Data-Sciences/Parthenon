@@ -7,4 +7,6 @@ return [
     'avatar_upload_failed' => 'Failed to save avatar file',
     'avatar_uploaded' => 'Avatar uploaded successfully',
     'avatar_removed' => 'Avatar removed successfully',
+    'theme_updated' => 'Theme preference updated',
+    'locale_updated' => 'Language preference updated',
 ];

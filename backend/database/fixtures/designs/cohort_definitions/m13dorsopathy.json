@@ -20,7 +20,7 @@
         "conditions": null,
         "provenance": {
             "source_row": 2535,
-            "imported_at": "2026-04-17T00:17:38+00:00",
+            "imported_at": "2026-04-17T19:57:03+00:00",
             "source_file": "FINNGEN_ENDPOINTS_DF14_Final_2026-02-13_public.xlsx",
             "importer_version": "1.0.0"
         },
@@ -116,6 +116,7 @@
         "pre_conditions": null,
         "coverage_bucket": "FULLY_MAPPED",
         "sex_restriction": null,
+        "coverage_profile": "partial",
         "include_endpoints": [
             "M13_DEFORMDORSO",
             "M13_SPONDYLOPATHY",
@@ -389,7 +390,6 @@
                 45543586,
                 45543587,
                 45543588,
-                45543589,
                 45543590,
                 45543592,
                 45543593,
@@ -609,7 +609,6 @@
                 45577278,
                 45577279,
                 45577281,
-                45577282,
                 45577283,
                 45577284,
                 45577285,
@@ -628,7 +627,9 @@
                 45582144,
                 45582145,
                 45582146,
-                45582147
+                45582147,
+                45582148,
+                45582150
             ],
             "conditions_standard": [
                 4001458,
@@ -840,7 +841,7 @@
     "is_public": true,
     "version": 1,
     "created_at": "2026-04-16T23:56:10.000000Z",
-    "updated_at": "2026-04-17T00:17:38.000000Z",
+    "updated_at": "2026-04-17T19:57:03.000000Z",
     "deleted_at": null,
     "tags": [
         "finngen-endpoint",
@@ -853,5 +854,6 @@
     "domain": "finngen-endpoint",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null
+    "superseded_by": null,
+    "coverage_profile": "partial"
 }

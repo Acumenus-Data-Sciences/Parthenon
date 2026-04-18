@@ -1,0 +1,150 @@
+---
+id: 00-dashboard
+title: "대시보드"
+sidebar_label: "대시보드"
+slug: /dashboard
+---
+
+# 대시보드
+
+**대시보드**는 로그인 후 처음 도착하는 페이지이며 Parthenon의 운영 지휘 센터 역할을 합니다. CDM 데이터 소스, 활성 연구 활동, 코호트 정의, 데이터 품질 상태를 한 화면에서 통합해 보여 줍니다. 연구자는 여기에서 연결된 데이터베이스 상태를 평가하고, 실행 중인 작업을 모니터링하며, 어떤 기능 모듈로든 바로 이동할 수 있습니다.
+
+대시보드는 빠른 상황 파악을 위해 설계되었습니다. 연구 코디네이터가 하루를 시작하며 Parthenon을 열면, 개별 모듈로 이동하지 않고도 연결된 소스 수, 실행 중인 작업 여부, 주의가 필요한 데이터 품질 문제가 있는지 즉시 확인할 수 있습니다.
+
+---
+
+## 모듈 아키텍처
+
+```
+DashboardPage
+ |
+ |-- 메트릭 카드 행
+ |    |-- CDM Sources (연결된 데이터베이스 수)
+ |    |-- Active Cohorts (정의된 코호트 수)
+ |    |-- Running Jobs (대기 중 또는 실행 중)
+ |    |-- DQD Failures (데이터 품질 검사 실패)
+ |    |-- Concept Sets (저장된 개념 세트 수)
+ |
+ |-- CDM Characterization 섹션
+ |    |-- SourceSelector (활성 소스를 고르는 드롭다운)
+ |    |-- CdmMetricCard x4 (Persons, Median Obs Duration, Total Events, Completeness)
+ |    |-- ProportionalBar (성별 분포)
+ |    |-- DemographicsPyramid (연령-성별 피라미드)
+ |    |-- Sparkline (관찰 시작 추세)
+ |
+ |-- 2열 패널 행 1
+ |    |-- Source Health (표: 소스 이름, dialect, 상태)
+ |    |-- Active Jobs (표: 작업 이름, 유형, 상태)
+ |
+ |-- 2열 패널 행 2
+ |    |-- Recent Cohort Activity (표: 코호트 이름, 대상자 수, 상태)
+ |    |-- Quick Actions (주요 워크플로 링크)
+```
+
+데이터는 두 개의 hook 계층을 통해 흐릅니다:
+
+- **`useDashboardStats`**는 TanStack Query를 통해 플랫폼 집계 통계(소스, 코호트, 작업, DQD 실패, 개념 세트)를 가져옵니다.
+- **Achilles hooks**(`useRecordCounts`, `useDemographics`, `useObservationPeriods`)는 현재 선택된 소스에 대한 CDM 특성화 데이터를 가져옵니다.
+
+---
+
+## 기능 둘러보기
+
+### 메트릭 카드
+
+상단 행은 단일 API 호출에서 로드되는 다섯 개의 요약 메트릭 카드를 표시합니다:
+
+| 메트릭 | 설명 | 시각적 표시 |
+|---|---|---|
+| **CDM Sources** | 연결된 OMOP 데이터베이스 수 | 데이터베이스 아이콘 |
+| **Active Cohorts** | 정의된 코호트 정의 총수 | 사용자 아이콘 |
+| **Running Jobs** | 현재 대기 중이거나 실행 중인 작업 | 0보다 크면 파란 정보 변형 |
+| **DQD Failures** | Data Quality Dashboard 검사 실패 | 0보다 크면 빨간 중요 변형, 0이면 녹색 |
+| **Concept Sets** | 시스템에 저장된 개념 세트 | 플라스크 아이콘 |
+
+### CDM 특성화
+
+메트릭 카드 아래의 CDM Characterization 섹션은 선택된 소스의 임상 데이터 프로필을 제공합니다. **Source Selector** 드롭다운으로 연결된 데이터베이스를 전환할 수 있습니다. 시스템은 초기 로드 시 기본 소스 또는 사용 가능한 첫 번째 소스를 자동으로 선택합니다.
+
+네 개의 CDM 메트릭 카드가 그리드에 표시됩니다:
+
+| 카드 | 데이터 소스 | 참고 |
+|---|---|---|
+| **Persons** | `person` 테이블 레코드 수 | 연도별 관찰 시작 추세 sparkline 포함 |
+| **Median Obs Duration** | 관찰 기간 지속 시간 분포 | 일 단위로 표시 |
+| **Total Events** | 모든 임상 이벤트 테이블 수의 합 | `person` 및 `observation_period` 제외 |
+| **Data Completeness** | 데이터가 있는 CDM 테이블의 비율 | `N/M tables` 부제 표시 |
+
+카드 아래에는 다음이 렌더링됩니다:
+
+- **Gender Distribution**: 각 성별 개념을 색상 구분 세그먼트로 보여 주는 비례 막대 차트.
+- **Demographics Pyramid**: 연령-성별 모집단 피라미드 시각화.
+
+"View Full" 링크는 더 깊은 특성화를 위해 데이터 탐색기로 이동합니다.
+
+### 소스 상태 패널
+
+최대 다섯 개의 연결된 데이터 소스를 표로 표시하며, 소스 이름, SQL dialect, 연결 상태를 보여 줍니다. "View All" 링크는 데이터 소스 관리 페이지로 이동합니다. 구성된 소스가 없으면 CDM 데이터베이스 연결을 안내하는 빈 상태가 표시됩니다.
+
+### 활성 작업 패널
+
+최근 작업을 이름, 유형(배지로 표시), 실행 상태와 함께 나열합니다. 실행 중인 작업은 애니메이션 spinner를 표시합니다. 활성 작업이 없으면 정보성 빈 상태가 표시됩니다.
+
+### 최근 코호트 활동 패널
+
+최근 수정된 코호트 정의를 대상자 수와 상태 배지(활성, 오류, 초안)와 함께 보여 줍니다. 코호트 정의 목록 페이지로 직접 이동하는 링크를 제공합니다.
+
+### 빠른 작업
+
+일반적인 워크플로를 위한 네 개의 바로가기 버튼입니다:
+
+- **Connect a Data Source**: 데이터 소스 구성으로 이동
+- **Create Cohort Definition**: 새 코호트 작성 시작
+- **Build Concept Set**: 개념 세트 빌더 열기
+- **Explore Data Quality**: 데이터 탐색기로 이동
+
+---
+
+## 로딩 상태와 오류 처리
+
+대시보드는 반응성 있는 경험을 제공하기 위해 포괄적인 로딩 및 오류 상태를 구현합니다:
+
+- **Skeleton 로딩**: 대시보드 통계 API 호출이 진행 중일 때 모든 메트릭 카드와 패널은 최종 레이아웃 크기와 일치하는 애니메이션 skeleton placeholder를 렌더링합니다. 데이터가 도착할 때 레이아웃 이동을 방지합니다.
+- **CDM 섹션 로딩**: 네 개의 CDM 메트릭 카드와 차트 패널은 선택된 소스에 대한 Achilles 데이터가 로드되는 동안 각각 독립적인 skeleton을 표시합니다.
+- **API 사용 불가**: 통계 API 호출이 실패하면 메트릭 카드 아래에 캐시된 데이터가 표시될 수 있음을 알리는 경고 배너가 나타납니다. 이 알림은 연구자를 안내하는 아이콘과 설명 텍스트를 포함합니다.
+- **빈 상태**: 각 패널(Source Health, Active Jobs, Recent Cohorts)은 아이콘, 제목, 메시지, 필요한 경우 행동 버튼이 있는 전용 빈 상태 구성 요소를 렌더링합니다. 예를 들어 데이터 소스가 구성되지 않은 경우 Source Health 패널은 "No data sources" 메시지와 "Add Source" 버튼을 표시합니다.
+- **선택된 소스 없음**: 사용 가능하거나 선택된 CDM 소스가 없으면 특성화 섹션은 데이터 소스를 선택하라는 안내와 함께 중앙 데이터베이스 아이콘을 표시합니다.
+
+:::tip
+대시보드의 데이터가 오래되어 보이면 TanStack Query가 창 포커스 시 자동으로 다시 가져옵니다. 다른 페이지로 이동했다가 돌아와도 새 로드를 트리거할 수 있습니다.
+:::
+
+---
+
+## API 참조
+
+| Endpoint | 메서드 | 설명 |
+|---|---|---|
+| `GET /api/v1/dashboard/stats` | GET | 대시보드 집계 통계(소스, 코호트 수, 작업 수, DQD 실패, 개념 세트, 최근 코호트, 최근 작업)를 반환합니다 |
+| `GET /api/v1/achilles/{sourceId}/record-counts` | GET | 소스별 CDM 테이블 레코드 수 |
+| `GET /api/v1/achilles/{sourceId}/demographics` | GET | 소스의 성별 및 연령 분포 |
+| `GET /api/v1/achilles/{sourceId}/observation-periods` | GET | 관찰 기간 지속 시간 및 시작일 분포 |
+
+:::tip
+대시보드는 로드 시 기본 소스를 자동 선택합니다. `is_default: true`로 구성된 소스가 있으면 수동 개입 없이 CDM Characterization 섹션에 미리 선택됩니다.
+:::
+
+:::warning
+API를 사용할 수 없으면 대시보드는 경고 알림을 표시하고 캐시된 데이터를 보여 주려고 시도합니다. 표시된 메트릭을 연구 의사결정에 사용하기 전에 backend 서비스가 실행 중이고 정상인지 확인하세요.
+:::
+
+---
+
+## 관련 페이지
+
+- [데이터 소스](/part1-getting-started/02-data-sources): CDM 데이터베이스 연결 구성 및 관리
+- [데이터 탐색기](/part6-data-explorer/18-characterization-achilles): Achilles 기반 전체 CDM 특성화
+- [코호트 정의](/part3-cohorts/06-building-cohorts): 코호트 정의 생성 및 관리
+- [개념 세트](/part2-vocabulary/04-concept-sets): 개념 세트 작성 및 유지
+- [Data Quality Dashboard](/part6-data-explorer/19-data-quality-dashboard): 상세 데이터 품질 평가
+- [사용자 관리](/part8-administration/22-user-management): 팀 구성원과 접근 권한 관리

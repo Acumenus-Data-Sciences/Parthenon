@@ -7,6 +7,7 @@ use App\Http\Requests\Api\LoginRequest;
 use App\Mail\TempPasswordMail;
 use App\Models\App\UserAuditLog;
 use App\Models\User;
+use App\Support\ApiMessage;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -32,7 +33,7 @@ class AuthController extends Controller
 
         // Always return the same message to prevent email enumeration
         if (User::where('email', $email)->exists()) {
-            return response()->json(['message' => __('auth.account_created')]);
+            return response()->json(ApiMessage::payload('auth.account_created'));
         }
 
         $tempPassword = $this->generateTempPassword();
@@ -59,7 +60,7 @@ class AuthController extends Controller
             ]);
         }
 
-        return response()->json(['message' => __('auth.account_created')]);
+        return response()->json(ApiMessage::payload('auth.account_created'));
     }
 
     public function login(LoginRequest $request): JsonResponse
@@ -70,7 +71,7 @@ class AuthController extends Controller
 
         // Same error for "not found" and "wrong password" to prevent enumeration
         if (! $user || ! Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => __('auth.invalid_credentials')], 401);
+            return response()->json(ApiMessage::payload('auth.invalid_credentials'), 401);
         }
 
         $token = $user->createToken('auth-token')->plainTextToken;
@@ -109,11 +110,11 @@ class AuthController extends Controller
         $user = $request->user();
 
         if (! Hash::check($request->current_password, $user->password)) {
-            return response()->json(['message' => __('auth.current_password_incorrect')], 401);
+            return response()->json(ApiMessage::payload('auth.current_password_incorrect'), 401);
         }
 
         if (Hash::check($request->new_password, $user->password)) {
-            return response()->json(['message' => __('auth.new_password_must_differ')], 422);
+            return response()->json(ApiMessage::payload('auth.new_password_must_differ'), 422);
         }
 
         $user->update([
@@ -129,7 +130,7 @@ class AuthController extends Controller
         ]);
 
         return response()->json([
-            'message' => __('auth.password_changed'),
+            ...ApiMessage::payload('auth.password_changed'),
             'user' => $this->formatUser($user->fresh()),
         ]);
     }
@@ -172,9 +173,7 @@ class AuthController extends Controller
             }
         }
 
-        return response()->json([
-            'message' => __('auth.temporary_password_sent'),
-        ]);
+        return response()->json(ApiMessage::payload('auth.temporary_password_sent'));
     }
 
     public function logout(Request $request): JsonResponse
@@ -191,7 +190,7 @@ class AuthController extends Controller
 
         $user->currentAccessToken()->delete();
 
-        return response()->json(['message' => __('auth.logged_out')]);
+        return response()->json(ApiMessage::payload('auth.logged_out'));
     }
 
     // ── Helpers ─────────────────────────────────────────────────────────────

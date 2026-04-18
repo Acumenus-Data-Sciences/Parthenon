@@ -8,5 +8,7 @@ return [
     'password_changed' => 'Contraseña cambiada correctamente',
     'temporary_password_sent' => 'Si existe una cuenta con ese correo, se ha enviado una nueva contraseña temporal.',
     'logged_out' => 'Sesión cerrada',
+    'unauthenticated' => 'Se requiere autenticación',
+    'forbidden' => 'No tienes permiso para realizar esta acción',
     'oidc_authentik_label' => 'Iniciar sesión con Authentik',
 ];
