@@ -1,0 +1,317 @@
+---
+id: 04-concept-sets
+title: "4. Conjuntos de conceptos"
+sidebar_label: "4. Conjuntos de conceptos"
+---
+
+# Conjuntos de conceptos
+
+Un **conjunto de conceptos** es una colección nombrada y reutilizable de conceptos OMOP que define un criterio clínico: un conjunto de condiciones, medicamentos, mediciones, procedimientos u otros eventos clínicos. Los conjuntos de conceptos son los bloques de construcción de las definiciones de cohortes y análisis en Parthenon. En lugar de enumerar concept IDs individuales en todos sus artefactos de investigación, crea un conjunto de conceptos una vez y lo referencia en todas partes.
+
+Por ejemplo, un conjunto llamado "Type 2 Diabetes Medications" podría incluir los ingredientes metformin, glipizide, sitagliptin, empagliflozin y liraglutide, cada uno con la bandera "Include descendants" activada para capturar automáticamente todas las formulaciones, concentraciones y productos de marca. Ese único conjunto puede referenciarse después en múltiples definiciones de cohortes, análisis de caracterización y estudios de rutas terapéuticas.
+
+## Crear un conjunto de conceptos
+
+1. Vaya a **Vocabulary > Concept Sets** en la navegación superior.
+2. Haga clic en **New Concept Set** en la parte superior derecha.
+3. Ingrese un **Name** descriptivo que comunique claramente la intención clínica, por ejemplo "T2DM first-line oral agents", "ACE inhibitors and ARBs" o "HbA1c measurements".
+4. Opcionalmente, agregue una **Description** para documentar la justificación, notas de versión o referencia a una biblioteca de fenotipos.
+5. El editor de conjuntos se abre con una lista de conceptos vacía. Use el **panel de búsqueda** de la derecha para encontrar y agregar conceptos.
+
+### Agregar conceptos
+
+El editor incluye un panel integrado de búsqueda de conceptos idéntico al [Navegador de vocabulario](./03-vocabulary-browser). Para agregar conceptos:
+
+1. Escriba un término en el panel de búsqueda, por ejemplo "metformin".
+2. Aplique filtros (dominio, vocabulario, concepto estándar) según sea necesario.
+3. Haga clic en el botón **+** de cualquier resultado para agregarlo al conjunto.
+4. El concepto aparece en la tabla de conceptos de la izquierda con banderas de inclusión predeterminadas.
+
+Puede agregar conceptos desde varias búsquedas sin guardar entre adiciones. La tabla del conjunto acumula todos los conceptos agregados.
+
+:::tip Agregar en lote desde el Vocabulary Browser
+También puede agregar conceptos a un conjunto existente directamente desde el Vocabulary Browser. Al explorar conceptos, seleccione uno o más resultados con las casillas y luego haga clic en **Add to Concept Set** y elija el conjunto destino en el desplegable. Esto es más rápido cuando está explorando el vocabulario y quiere recopilar conceptos a medida que los encuentra.
+:::
+
+## Banderas de inclusión
+
+Cada concepto de un conjunto tiene tres banderas que controlan cómo se resuelve en tiempo de consulta:
+
+### Include Descendants
+
+Cuando está marcada, el conjunto incluye automáticamente todos los conceptos que están jerárquicamente por debajo del concepto seleccionado en el vocabulario. Esta es la función más potente de los conjuntos de conceptos.
+
+**Ejemplo:** agregar "Diabetes mellitus" (concept 201820) con "Include descendants":
+
+- Incluye automáticamente Type 1 diabetes mellitus, Type 2 diabetes mellitus, diabetes gestacional y todos sus subtipos.
+- Captura cientos de condiciones específicas relacionadas con diabetes sin listarlas individualmente.
+- Si el vocabulario se actualiza con nuevos subtipos de diabetes, se incluyen automáticamente.
+
+**Cuándo usarlo:** casi siempre para condiciones e ingredientes de medicamentos. Un único concepto de ingrediente, por ejemplo "Metformin", con descendants captura cada forma de medicamento clínico, concentración, producto de marca y paquete que contiene metformin.
+
+**Cuándo no usarlo:** cuando necesita exactamente un concepto específico y no quiere ningún subtipo. Por ejemplo, si quiere solo "Type 2 diabetes mellitus" y no sus complicaciones, podría dejar descendants desmarcado, pero primero verifique la lista de descendientes con la vista previa.
+
+### Include Mapped
+
+Cuando está marcada, el conjunto incluye conceptos no estándar (de origen) que tienen una relación "Maps to" apuntando al concepto estándar seleccionado. Esto es útil cuando el análisis necesita capturar registros almacenados bajo source concept IDs.
+
+**Ejemplo:** agregar SNOMED "Type 2 diabetes mellitus" (201826) con "Include mapped":
+
+- Incluye ICD-10-CM E11.9, E11 y otros códigos de origen que mapean a este concepto SNOMED.
+- Es útil cuando se consultan columnas `*_source_concept_id` además de columnas de conceptos estándar.
+
+**Cuándo usarlo:** cuando el CDM tiene datos en columnas de conceptos de origen que quiere capturar, o cuando realiza análisis a nivel de código de origen.
+
+**Cuándo no usarlo:** en la mayoría de análisis estándar. El CDM almacena datos bajo concept IDs estándar, por lo que los conceptos mapeados no suelen ser necesarios para definiciones de cohortes típicas.
+
+:::info Los análisis estándar rara vez necesitan "Include Mapped"
+El proceso ETL de OMOP CDM mapea todos los datos de origen a conceptos estándar. Cuando consulta `condition_concept_id = 201826`, ya captura todos los pacientes cuyos códigos de origen (ICD-10, ICD-9, Read, etc.) se mapearon a SNOMED 201826 durante el ETL. La bandera "Include mapped" es para el caso menos común en que también quiere hacer coincidencia contra `condition_source_concept_id`.
+:::
+
+### Excluded
+
+Cuando está marcada, el concepto se **elimina** explícitamente del conjunto resuelto. Las exclusiones se aplican después de resolver descendants y mapped concepts, lo que las convierte en una herramienta precisa para restar conceptos específicos de una inclusión amplia.
+
+**Ejemplo:** construir un conjunto para "All diabetes medications except insulin":
+
+1. Agregue "Antidiabetic agent" (clase ATC) con "Include descendants" marcado.
+2. Agregue "Insulin" (ingrediente) con "Excluded" marcado e "Include descendants" marcado.
+3. El conjunto resuelto incluye todos los medicamentos antidiabéticos menos todas las formulaciones de insulina.
+
+**Cuándo usarlo:** cuando un concepto padre amplio incluye descendientes que quiere excluir, y es más fácil excluir elementos específicos que listar individualmente todos los deseados.
+
+### Combinaciones de banderas
+
+| Descendants | Mapped | Excluded | Efecto |
+|-------------|--------|----------|--------|
+| Off | Off | Off | Solo se incluye el concept ID exacto |
+| On | Off | Off | Se incluye el concepto y todos sus descendientes |
+| Off | On | Off | Se incluye el concepto y todos los conceptos de origen que mapean hacia él |
+| On | On | Off | Se incluye el concepto, sus descendientes y todos los conceptos de origen mapeados para cada uno |
+| Off | Off | On | El concept ID exacto se excluye del conjunto resuelto |
+| On | Off | On | El concepto y todos sus descendientes se excluyen |
+| On | On | On | El concepto, sus descendientes y sus conceptos mapeados se excluyen |
+
+## Editar entradas del conjunto
+
+El editor muestra una tabla de todos los conceptos incluidos con columnas para:
+
+- **Concept ID**: haga clic para abrir la vista de detalle del concepto.
+- **Concept Name**: etiqueta legible.
+- **Domain**: Condition, Drug, Measurement, etc.
+- **Vocabulary**: SNOMED, RxNorm, LOINC, etc.
+- **Standard**: insignia indicadora de concepto estándar.
+- **Descendants**: casilla de alternancia.
+- **Mapped**: casilla de alternancia.
+- **Excluded**: casilla de alternancia.
+- **Remove**: botón X para eliminar la entrada.
+
+Todas las banderas tienen efecto inmediato en el editor. Los cambios se persisten al hacer clic en **Save**.
+
+### Reordenar y organizar
+
+Las entradas se muestran en el orden en que se agregaron. Aunque el orden no afecta la resolución (el resultado siempre es un conjunto plano de concept IDs), mantener conceptos relacionados agrupados mejora la legibilidad:
+
+- Ingredientes de medicamentos de la misma clase terapéutica juntos.
+- Conceptos de condición de general a específico.
+- Conceptos excluidos al final para mayor visibilidad.
+
+## Resolución de conjuntos de conceptos
+
+La resolución es el proceso de expandir una definición de conjunto de conceptos a la lista plana de concept IDs que se usará en consultas SQL. Entender la resolución es crítico para verificar que el conjunto captura los criterios clínicos previstos.
+
+### Pasos de resolución
+
+1. **Comenzar con los conceptos listados directamente**: todos los concept IDs no excluidos forman el conjunto inicial.
+
+2. **Expandir descendants**: para cada entrada con "Include descendants" marcado, se consulta `concept_ancestor` para encontrar todos los concept IDs descendientes y agregarlos al conjunto.
+
+3. **Expandir mapped concepts**: para cada entrada con "Include mapped" marcado, se consulta `concept_relationship` para relaciones "Maps to" donde el concepto seleccionado es el destino, y se agregan los concept IDs de origen.
+
+4. **Aplicar exclusiones**: para cada entrada marcada como "Excluded", se elimina su concept ID del conjunto. Si la entrada excluida tiene "Include descendants" marcado, también se eliminan todos los concept IDs descendientes. Si "Include mapped" está marcado, también se eliminan los concept IDs de origen mapeados.
+
+5. **Deduplicar**: el conjunto final contiene solo concept IDs únicos.
+
+La lista resuelta de IDs se usa en cláusulas SQL `WHERE concept_id IN (...)` al generar cohortes o ejecutar análisis.
+
+### Previsualizar la resolución
+
+Haga clic en el botón **Preview** del editor para ver la lista de conceptos completamente resuelta. La vista previa muestra:
+
+- **Total resolved concept count**: número de concept IDs únicos después de la resolución.
+- **Resolved concept table**: cada concept ID con su nombre, dominio, vocabulario y entrada de origen.
+- **Entry contribution**: cuántos conceptos aportó cada entrada, útil para entender qué entradas tienen la mayor huella.
+
+:::warning Previsualice siempre antes de usar en cohortes
+Un conjunto con varias entradas e "Include descendants" puede resolverse a miles de concept IDs. Revise la lista resuelta para verificar que no haya inclusiones inesperadas. Un error común es agregar un concepto de alto nivel con descendientes que captura inadvertidamente eventos clínicos no relacionados. Por ejemplo, "Disorder" (raíz SNOMED) con descendants incluiría casi todas las condiciones del vocabulario.
+:::
+
+### La resolución depende del vocabulario
+
+La resolución consulta las tablas de vocabulario de la fuente de datos seleccionada. Esto significa:
+
+- La misma definición de conjunto puede resolverse a listas de concept IDs distintas contra versiones de vocabulario diferentes.
+- Un concepto obsoleto en una versión nueva del vocabulario se excluirá de la resolución.
+- Los nuevos descendientes agregados en una actualización de vocabulario se incluirán si "Include descendants" está marcado.
+
+:::danger La resolución cambia con actualizaciones de vocabulario
+Cuando el administrador carga una nueva versión de vocabulario, los concept IDs resueltos para los conjuntos existentes pueden cambiar. Vuelva siempre a previsualizar los conjuntos después de una actualización de vocabulario, especialmente los usados en definiciones de cohortes activas. Si la reproducibilidad es crítica, documente los concept IDs resueltos en el momento del análisis.
+:::
+
+## Compartir y reutilizar
+
+Los conjuntos de conceptos son recursos a nivel de organización visibles para todos los usuarios con al menos acceso **viewer**. Cualquier investigador puede usar cualquier conjunto en sus definiciones de cohortes y análisis.
+
+### Versionado de conjuntos en cohortes
+
+Cuando un conjunto de conceptos se referencia dentro de una expresión de cohorte, Parthenon guarda una **instantánea** de la definición del conjunto en el momento de la generación de la cohorte. Esto asegura reproducibilidad:
+
+- Los cambios al conjunto de origen **no** afectan retroactivamente cohortes generadas previamente.
+- Cada generación de cohorte registra el estado exacto del conjunto usado.
+- Puede comparar la definición actual del conjunto con la instantánea usada en una generación pasada.
+
+Este comportamiento de instantáneas permite evolucionar conjuntos con seguridad a lo largo del tiempo (agregar nuevos conceptos, ajustar banderas) sin preocuparse por invalidar resultados de investigación previos.
+
+### Propiedad de conjuntos de conceptos
+
+El usuario que crea un conjunto aparece como su creador. Cualquier usuario con rol **researcher** o superior puede editar cualquier conjunto. Si la organización necesita control de acceso más estricto, los conjuntos pueden usarse dentro del módulo Studies, donde aplican permisos a nivel de estudio.
+
+## Importación y exportación
+
+Los conjuntos de conceptos pueden exportarse como JSON compatible con OHDSI y reimportarse en cualquier instancia de Parthenon o Atlas. Esta interoperabilidad es esencial para estudios multi-sitio, intercambio de bibliotecas de fenotipos y migración.
+
+### Exportar un conjunto
+
+1. Abra la página de detalle del conjunto.
+2. Haga clic en **Export JSON** en la barra de herramientas.
+3. Se descarga un archivo JSON con la definición completa:
+
+```json
+{
+  "name": "Type 2 Diabetes Medications",
+  "id": 42,
+  "expression": {
+    "items": [
+      {
+        "concept": {
+          "CONCEPT_ID": 1503297,
+          "CONCEPT_NAME": "Metformin",
+          "DOMAIN_ID": "Drug",
+          "VOCABULARY_ID": "RxNorm",
+          "CONCEPT_CLASS_ID": "Ingredient",
+          "STANDARD_CONCEPT": "S",
+          "CONCEPT_CODE": "6809",
+          "INVALID_REASON": null
+        },
+        "isExcluded": false,
+        "includeDescendants": true,
+        "includeMapped": false
+      },
+      {
+        "concept": {
+          "CONCEPT_ID": 1560171,
+          "CONCEPT_NAME": "Glipizide",
+          "DOMAIN_ID": "Drug",
+          "VOCABULARY_ID": "RxNorm",
+          "CONCEPT_CLASS_ID": "Ingredient",
+          "STANDARD_CONCEPT": "S",
+          "CONCEPT_CODE": "4821",
+          "INVALID_REASON": null
+        },
+        "isExcluded": false,
+        "includeDescendants": true,
+        "includeMapped": false
+      }
+    ]
+  }
+}
+```
+
+Este formato JSON es idéntico al usado por OHDSI Atlas y la [OHDSI Phenotype Library](https://github.com/OHDSI/PhenotypeLibrary), lo que asegura interoperabilidad completa.
+
+### Importar un conjunto
+
+1. Vaya a **Vocabulary > Concept Sets**.
+2. Haga clic en **Import JSON** en la barra de herramientas.
+3. Seleccione un archivo JSON del sistema de archivos local o pegue el contenido JSON directamente.
+4. Revise el conjunto importado: todos los conceptos se muestran con sus banderas.
+5. Opcionalmente, cambie el nombre del conjunto o ajuste las banderas.
+6. Haga clic en **Save** para crear el conjunto.
+
+:::tip Importar desde OHDSI Phenotype Library
+La [OHDSI Phenotype Library](https://github.com/OHDSI/PhenotypeLibrary) publica definiciones validadas de conjuntos de conceptos para condiciones clínicas comunes. Descargue los archivos JSON de la biblioteca e impórtelos directamente en Parthenon. Esto ahorra tiempo significativo y aprovecha definiciones de fenotipos validadas por la comunidad.
+:::
+
+### Validación de importación
+
+Durante la importación, Parthenon valida cada concept ID contra el vocabulario de la fuente de datos actual:
+
+- Los **conceptos válidos** se importan normalmente.
+- Los **conceptos obsoletos** se marcan con advertencia pero aún se importan; no se resolverán en tiempo de consulta.
+- Los **concept IDs desconocidos** (no encontrados en el vocabulario) se marcan con error; pueden indicar una incompatibilidad de versión de vocabulario.
+
+## Mejores prácticas
+
+### Convenciones de nombres
+
+Use nombres claros y descriptivos que comuniquen la intención clínica:
+
+| Bueno | Malo |
+|-------|------|
+| "Type 2 Diabetes Mellitus — SNOMED" | "diabetes concepts" |
+| "ACE Inhibitors — Ingredients" | "my drug list" |
+| "HbA1c Lab Measurements" | "labs v2" |
+| "GI Bleed Events (broad)" | "concept set 47" |
+
+Incluya el alcance (amplio vs. estrecho), el vocabulario y el dominio cuando sea relevante.
+
+### Empezar amplio y luego excluir
+
+Por lo general es más fácil comenzar con un concepto padre amplio (con "Include descendants") y excluir subtipos específicos no deseados que listar manualmente cada concepto deseado:
+
+1. Agregue el concepto aplicable más amplio con "Include descendants".
+2. Previsualice la lista resuelta.
+3. Agregue cualquier descendiente no deseado como entrada excluida, con su propio "Include descendants" si es necesario.
+4. Vuelva a previsualizar para confirmar.
+
+### Un conjunto por criterio clínico
+
+Cree conjuntos enfocados que representen un único criterio clínico:
+
+- "T2DM Conditions" (solo condiciones).
+- "T2DM Medications" (solo medicamentos).
+- "HbA1c Measurements" (solo mediciones).
+
+Evite mezclar dominios en un solo conjunto. Los criterios de cohortes suelen filtrar un dominio a la vez, y mezclarlos dificulta la reutilización.
+
+### Documente su justificación
+
+Use el campo de descripción para documentar:
+
+- Por qué se incluyeron o excluyeron conceptos específicos.
+- La justificación clínica del alcance del conjunto.
+- Referencias a definiciones de fenotipos publicadas o guías clínicas.
+- La versión de vocabulario contra la que se validó el conjunto.
+
+### Revisar después de actualizaciones de vocabulario
+
+Después de cualquier actualización de vocabulario (consulte el [Capítulo 3: Navegador de vocabulario](./03-vocabulary-browser#vocabulary-versions)):
+
+1. Abra cada conjunto activo.
+2. Haga clic en **Preview** para ver la lista resuelta actual.
+3. Revise si hay nuevos descendientes agregados que puedan no ser intencionales.
+4. Revise si hay conceptos obsoletos que ya no se resuelven.
+5. Actualice banderas o agregue exclusiones según sea necesario.
+
+## Uso en definiciones de cohortes
+
+Los conjuntos de conceptos se referencian como criterios en expresiones de cohortes. Por ejemplo, una definición de cohorte para "Patients with T2DM on metformin" podría referenciar:
+
+- El conjunto "T2DM Conditions" como criterio de condición de **initial event**.
+- El conjunto "Metformin" como criterio de exposición a medicamento de **additional inclusion**.
+
+Cuando se genera la cohorte, cada conjunto se resuelve contra el vocabulario de la fuente de datos objetivo, y los concept IDs resultantes se usan en la consulta SQL. Consulte el [Capítulo 5: Expresiones de cohortes](../part3-cohorts/05-cohort-expressions) y el [Capítulo 6: Construcción de cohortes](../part3-cohorts/06-building-cohorts) para más detalles sobre el uso de conjuntos de conceptos en definiciones de cohortes.
+
+## Siguientes pasos
+
+Con los conjuntos de conceptos listos, puede construir cohortes de pacientes. Continúe con el [Capítulo 5: Expresiones de cohortes](../part3-cohorts/05-cohort-expressions) para aprender el lenguaje de expresiones de cohortes, o vaya directamente al [Capítulo 6: Construcción de cohortes](../part3-cohorts/06-building-cohorts) para una guía práctica sobre cómo crear su primera definición de cohorte.
