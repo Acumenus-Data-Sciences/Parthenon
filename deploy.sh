@@ -501,7 +501,9 @@ fi
 if $DO_FRONTEND; then
   echo ""
   echo "── Frontend: clearing build cache ──"
-  rm -rf frontend/dist
+  # Preserve frontend/dist/ directory inode so nginx bind mount stays valid.
+  mkdir -p frontend/dist
+  find frontend/dist -mindepth 1 -delete 2>/dev/null || true
   rm -f frontend/node_modules/.tmp/tsconfig.app.tsbuildinfo frontend/node_modules/.tmp/tsconfig.node.tsbuildinfo
   ok "Frontend build cache cleared"
 
@@ -512,7 +514,7 @@ if $DO_FRONTEND; then
   # The `node` service has `profiles: [dev]`, so service_exists / docker run
   # must opt into that profile explicitly to see it.
   if is_running node; then
-    if docker compose exec node sh -c "cd /app && npx vite build --mode production"; then
+    if docker compose exec -T node sh -c "cd /app && npx vite build --mode production"; then
       ok "Frontend built (Docker node container)"
     else
       fail "Docker node build failed"

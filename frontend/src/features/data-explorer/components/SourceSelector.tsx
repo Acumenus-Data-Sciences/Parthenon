@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Database, ChevronDown, Loader2, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -11,6 +12,7 @@ interface SourceSelectorProps {
 }
 
 export function SourceSelector({ value, onChange }: SourceSelectorProps) {
+  const { t } = useTranslation("app");
   const { data: sources, isLoading } = useQuery({
     queryKey: ["sources"],
     queryFn: fetchSources,
@@ -31,7 +33,9 @@ export function SourceSelector({ value, onChange }: SourceSelectorProps) {
     return (
       <div className="flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2">
         <Loader2 size={14} className="animate-spin text-text-muted" />
-        <span className="text-sm text-text-muted">Loading sources...</span>
+        <span className="text-sm text-text-muted">
+          {t("dataExplorer.sourceSelector.loading")}
+        </span>
       </div>
     );
   }
@@ -56,7 +60,7 @@ export function SourceSelector({ value, onChange }: SourceSelectorProps) {
           )}
         >
           <option value="" disabled>
-            Select a data source
+            {t("dataExplorer.sourceSelector.placeholder")}
           </option>
           {sources?.map((source) => (
             <option key={source.id} value={source.id}>

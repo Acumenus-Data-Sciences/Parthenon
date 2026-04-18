@@ -208,7 +208,9 @@ export const router = createBrowserRouter(
           },
           {
             path: "characterizations/:id",
-            errorElement: <AnalysisRouteError title="Characterization" />,
+            errorElement: (
+              <AnalysisRouteError titleKey="analysis.titles.characterization" />
+            ),
             lazy: () =>
               import(
                 "@/features/analyses/pages/CharacterizationDetailPage"
@@ -216,7 +218,9 @@ export const router = createBrowserRouter(
           },
           {
             path: "incidence-rates/:id",
-            errorElement: <AnalysisRouteError title="Incidence Rate Analysis" />,
+            errorElement: (
+              <AnalysisRouteError titleKey="analysis.titles.incidenceRate" />
+            ),
             lazy: () =>
               import(
                 "@/features/analyses/pages/IncidenceRateDetailPage"
@@ -224,7 +228,9 @@ export const router = createBrowserRouter(
           },
           {
             path: "pathways/:id",
-            errorElement: <AnalysisRouteError title="Pathway Analysis" />,
+            errorElement: (
+              <AnalysisRouteError titleKey="analysis.titles.pathway" />
+            ),
             lazy: () =>
               import(
                 "@/features/pathways/pages/PathwayDetailPage"
@@ -232,7 +238,9 @@ export const router = createBrowserRouter(
           },
           {
             path: "estimations/:id",
-            errorElement: <AnalysisRouteError title="Estimation Analysis" />,
+            errorElement: (
+              <AnalysisRouteError titleKey="analysis.titles.estimation" />
+            ),
             lazy: () =>
               import(
                 "@/features/estimation/pages/EstimationDetailPage"
@@ -240,7 +248,9 @@ export const router = createBrowserRouter(
           },
           {
             path: "predictions/:id",
-            errorElement: <AnalysisRouteError title="Prediction Analysis" />,
+            errorElement: (
+              <AnalysisRouteError titleKey="analysis.titles.prediction" />
+            ),
             lazy: () =>
               import(
                 "@/features/prediction/pages/PredictionDetailPage"
@@ -248,7 +258,9 @@ export const router = createBrowserRouter(
           },
           {
             path: "sccs/:id",
-            errorElement: <AnalysisRouteError title="SCCS Analysis" />,
+            errorElement: (
+              <AnalysisRouteError titleKey="analysis.titles.sccs" />
+            ),
             lazy: () =>
               import(
                 "@/features/sccs/pages/SccsDetailPage"
@@ -256,7 +268,9 @@ export const router = createBrowserRouter(
           },
           {
             path: "evidence-synthesis/:id",
-            errorElement: <AnalysisRouteError title="Evidence Synthesis Analysis" />,
+            errorElement: (
+              <AnalysisRouteError titleKey="analysis.titles.evidenceSynthesis" />
+            ),
             lazy: () =>
               import(
                 "@/features/evidence-synthesis/pages/EvidenceSynthesisDetailPage"

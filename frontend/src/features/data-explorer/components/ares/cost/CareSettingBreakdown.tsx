@@ -7,6 +7,8 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useTranslation } from "react-i18next";
+import { formatNumber } from "@/i18n/format";
 
 interface CareSettingItem {
   setting: string;
@@ -35,11 +37,12 @@ const CARE_COLORS: Record<string, string> = {
 };
 
 export default function CareSettingBreakdown({ settings }: CareSettingBreakdownProps) {
+  const { t } = useTranslation("app");
+
   if (settings.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-10 text-center text-sm text-text-ghost">
-        No care setting cost data available. Requires Visit-domain cost records joined with
-        visit_occurrence.
+        {t("dataExplorer.ares.cost.messages.noCareSettingData")}
       </div>
     );
   }
@@ -75,8 +78,10 @@ export default function CareSettingBreakdown({ settings }: CareSettingBreakdownP
                 borderRadius: "8px",
               }}
               labelStyle={{ color: "var(--text-primary)" }}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              formatter={((value: number | string) => [formatCurrency(Number(value)), "Total Cost"]) as any}
+              formatter={(value: number | string) => [
+                formatCurrency(Number(value)),
+                t("dataExplorer.ares.cost.metrics.totalCost"),
+              ]}
             />
             <Bar dataKey="total_cost" radius={[4, 4, 0, 0]}>
               {chartData.map((entry, index) => (
@@ -96,7 +101,10 @@ export default function CareSettingBreakdown({ settings }: CareSettingBreakdownP
             </p>
             <p className="text-sm font-semibold text-text-primary">{formatCurrency(s.total_cost)}</p>
             <p className="text-[10px] text-text-ghost">
-              {s.record_count.toLocaleString()} records | avg {formatCurrency(s.avg_cost)}
+              {t("dataExplorer.ares.cost.metrics.recordsAverage", {
+                records: formatNumber(s.record_count),
+                average: formatCurrency(s.avg_cost),
+              })}
             </p>
           </div>
         ))}

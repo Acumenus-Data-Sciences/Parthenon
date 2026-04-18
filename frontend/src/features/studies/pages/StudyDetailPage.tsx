@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   Loader2,
@@ -27,6 +28,7 @@ import {
   FileOutput,
   Globe2,
 } from "lucide-react";
+import { formatDate } from "@/i18n/format";
 import { cn } from "@/lib/utils";
 import { StudyDesigner } from "../components/StudyDesigner";
 import { StudyDashboard } from "../components/StudyDashboard";
@@ -59,54 +61,44 @@ import {
 // Status & Type styling
 // ---------------------------------------------------------------------------
 
-const STATUS_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  draft: { bg: "var(--surface-elevated)", text: "var(--text-muted)", dot: "var(--text-muted)" },
-  protocol_development: { bg: "#60A5FA15", text: "var(--info)", dot: "var(--info)" },
-  feasibility: { bg: "#A78BFA15", text: "var(--domain-observation)", dot: "var(--domain-observation)" },
-  irb_review: { bg: "#F59E0B15", text: "var(--warning)", dot: "var(--warning)" },
-  recruitment: { bg: "#2DD4BF15", text: "var(--success)", dot: "var(--success)" },
-  execution: { bg: "#34D39915", text: "var(--success)", dot: "var(--success)" },
-  analysis: { bg: "#60A5FA15", text: "var(--info)", dot: "var(--info)" },
-  synthesis: { bg: "#A78BFA15", text: "var(--domain-observation)", dot: "var(--domain-observation)" },
-  manuscript: { bg: "#FB923C15", text: "var(--domain-device)", dot: "var(--domain-device)" },
-  published: { bg: "#2DD4BF15", text: "var(--success)", dot: "var(--success)" },
-  archived: { bg: "#5A565015", text: "var(--text-ghost)", dot: "var(--text-ghost)" },
-  withdrawn: { bg: "#E85A6B15", text: "var(--critical)", dot: "var(--critical)" },
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  draft: "Draft",
-  protocol_development: "Protocol Development",
-  feasibility: "Feasibility",
-  irb_review: "IRB Review",
-  recruitment: "Recruitment",
-  execution: "Execution",
-  analysis: "Analysis",
-  synthesis: "Synthesis",
-  manuscript: "Manuscript",
-  published: "Published",
-  archived: "Archived",
-  withdrawn: "Withdrawn",
+const STATUS_COLORS: Record<string, { bg: string; fg: string; dot: string }> = {
+  draft: { bg: "var(--surface-elevated)", fg: "var(--text-muted)", dot: "var(--text-muted)" },
+  protocol_development: { bg: "#60A5FA15", fg: "var(--info)", dot: "var(--info)" },
+  feasibility: { bg: "#A78BFA15", fg: "var(--domain-observation)", dot: "var(--domain-observation)" },
+  irb_review: { bg: "#F59E0B15", fg: "var(--warning)", dot: "var(--warning)" },
+  recruitment: { bg: "#2DD4BF15", fg: "var(--success)", dot: "var(--success)" },
+  execution: { bg: "#34D39915", fg: "var(--success)", dot: "var(--success)" },
+  analysis: { bg: "#60A5FA15", fg: "var(--info)", dot: "var(--info)" },
+  synthesis: { bg: "#A78BFA15", fg: "var(--domain-observation)", dot: "var(--domain-observation)" },
+  manuscript: { bg: "#FB923C15", fg: "var(--domain-device)", dot: "var(--domain-device)" },
+  published: { bg: "#2DD4BF15", fg: "var(--success)", dot: "var(--success)" },
+  archived: { bg: "#5A565015", fg: "var(--text-ghost)", dot: "var(--text-ghost)" },
+  withdrawn: { bg: "#E85A6B15", fg: "var(--critical)", dot: "var(--critical)" },
 };
 
 type TabKey = "overview" | "design" | "analyses" | "results" | "progress" | "sites" | "team" | "cohorts" | "milestones" | "artifacts" | "activity" | "federated";
 
-const TABS: { key: TabKey; label: string; icon: typeof Settings }[] = [
-  { key: "overview", label: "Overview", icon: Settings },
-  { key: "design", label: "Design", icon: Edit3 },
-  { key: "analyses", label: "Analyses", icon: BarChart3 },
-  { key: "results", label: "Results", icon: Layers },
-  { key: "progress", label: "Progress", icon: Play },
-  { key: "sites", label: "Sites", icon: MapPin },
-  { key: "team", label: "Team", icon: Users },
-  { key: "cohorts", label: "Cohorts", icon: Target },
-  { key: "milestones", label: "Milestones", icon: Milestone },
-  { key: "artifacts", label: "Artifacts", icon: FileText },
-  { key: "activity", label: "Activity", icon: Activity },
-  { key: "federated", label: "Federated", icon: Globe2 },
+const TABS: { key: TabKey; icon: typeof Settings }[] = [
+  { key: "overview", icon: Settings },
+  { key: "design", icon: Edit3 },
+  { key: "analyses", icon: BarChart3 },
+  { key: "results", icon: Layers },
+  { key: "progress", icon: Play },
+  { key: "sites", icon: MapPin },
+  { key: "team", icon: Users },
+  { key: "cohorts", icon: Target },
+  { key: "milestones", icon: Milestone },
+  { key: "artifacts", icon: FileText },
+  { key: "activity", icon: Activity },
+  { key: "federated", icon: Globe2 },
 ];
 
+function humanizeToken(value: string): string {
+  return value.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 export default function StudyDetailPage() {
+  const { t } = useTranslation("app");
   const { id: slugOrId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const studyKey = slugOrId ?? null;
@@ -145,7 +137,7 @@ export default function StudyDetailPage() {
 
   const handleDelete = () => {
     if (!study) return;
-    if (window.confirm("Are you sure you want to delete this study? This action cannot be undone.")) {
+    if (window.confirm(t("studies.detail.confirmDelete"))) {
       deleteMutation.mutate(study.slug || study.id, {
         onSuccess: () => navigate("/studies"),
       });
@@ -172,7 +164,7 @@ export default function StudyDetailPage() {
     if (!study) return;
     createMutation.mutate(
       {
-        title: `Copy of ${study.title}`,
+        title: t("studies.detail.copyTitle", { title: study.title }),
         short_title: study.short_title ? `${study.short_title}-copy` : undefined,
         study_type: study.study_type,
         description: study.description ?? undefined,
@@ -199,13 +191,15 @@ export default function StudyDetailPage() {
 
   const handleArchive = () => {
     if (!study) return;
-    if (window.confirm("Archive this study? It can be restored later.")) {
+    if (window.confirm(t("studies.detail.confirmArchive"))) {
       transitionMutation.mutate({ slug: study.slug, status: "archived" });
     }
   };
 
   const statusStyle = STATUS_COLORS[study?.status ?? "draft"] ?? STATUS_COLORS.draft;
   const allowedTransitions = transitions?.allowed_transitions ?? [];
+  const statusLabel = (status: string) =>
+    t(`studies.detail.statuses.${status}`, { defaultValue: humanizeToken(status) });
 
   if (isLoading) {
     return (
@@ -219,9 +213,9 @@ export default function StudyDetailPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <p className="text-critical">Failed to load study</p>
+          <p className="text-critical">{t("studies.detail.loadFailed")}</p>
           <button type="button" onClick={() => navigate("/studies")} className="btn btn-ghost btn-sm mt-4">
-            Back to studies
+            {t("studies.detail.backToStudies")}
           </button>
         </div>
       </div>
@@ -233,7 +227,7 @@ export default function StudyDetailPage() {
       {/* Header */}
       <div className="space-y-3">
         <button type="button" onClick={() => navigate("/studies")} className="btn btn-ghost btn-sm">
-          <ArrowLeft size={14} /> Studies
+          <ArrowLeft size={14} /> {t("studies.detail.studies")}
         </button>
 
         <div className="flex items-start justify-between gap-4">
@@ -281,16 +275,18 @@ export default function StudyDetailPage() {
                   type="button"
                   onClick={() => setShowTransitions(!showTransitions)}
                   className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium transition-all hover:ring-1 hover:ring-white/10"
-                  style={{ backgroundColor: statusStyle.bg, color: statusStyle.text }}
+                  style={{ backgroundColor: statusStyle.bg, color: statusStyle.fg }}
                 >
                   <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: statusStyle.dot }} />
-                  {STATUS_LABELS[study.status] ?? study.status}
+                  {statusLabel(study.status)}
                   {allowedTransitions.length > 0 && <ChevronRight size={10} className={cn("transition-transform", showTransitions && "rotate-90")} />}
                 </button>
 
                 {showTransitions && allowedTransitions.length > 0 && (
                   <div className="absolute left-0 top-full mt-1 w-56 rounded-lg border border-border-default bg-surface-overlay shadow-xl z-50 py-1">
-                    <p className="px-3 py-1.5 text-[10px] text-text-ghost uppercase tracking-wider">Transition to</p>
+                    <p className="px-3 py-1.5 text-[10px] text-text-ghost uppercase tracking-wider">
+                      {t("studies.detail.actions.transitionTo")}
+                    </p>
                     {allowedTransitions.map((t) => {
                       const ts = STATUS_COLORS[t] ?? STATUS_COLORS.draft;
                       return (
@@ -302,7 +298,7 @@ export default function StudyDetailPage() {
                           className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-surface-elevated transition-colors"
                         >
                           <span className="w-2 h-2 rounded-full" style={{ backgroundColor: ts.dot }} />
-                          <span style={{ color: ts.text }}>{STATUS_LABELS[t] ?? t}</span>
+                          <span style={{ color: ts.fg }}>{statusLabel(t)}</span>
                         </button>
                       );
                     })}
@@ -312,7 +308,7 @@ export default function StudyDetailPage() {
 
               {study.study_type && (
                 <span className="px-2 py-0.5 rounded-md bg-success/10 text-xs text-success">
-                  {study.study_type.replace(/_/g, " ")}
+                  {t(`studies.detail.studyTypes.${study.study_type}`, { defaultValue: humanizeToken(study.study_type) })}
                 </span>
               )}
 
@@ -323,7 +319,7 @@ export default function StudyDetailPage() {
                   study.priority === "high" && "bg-warning/10 text-warning",
                   study.priority === "low" && "bg-text-muted/10 text-text-muted",
                 )}>
-                  {study.priority}
+                  {t(`studies.priorities.${study.priority}`, { defaultValue: humanizeToken(study.priority) })}
                 </span>
               )}
             </div>
@@ -338,10 +334,10 @@ export default function StudyDetailPage() {
                 type="button"
                 onClick={() => navigate(`/publish?studyId=${study.id}`)}
                 className="btn btn-ghost btn-sm flex items-center gap-1"
-                title="Generate manuscript from completed analyses"
+                title={t("studies.detail.actions.generateManuscriptTitle")}
               >
                 <FileOutput size={14} />
-                <span className="text-xs">Manuscript</span>
+                <span className="text-xs">{t("studies.detail.actions.manuscript")}</span>
               </button>
             )}
             <button
@@ -349,7 +345,7 @@ export default function StudyDetailPage() {
               onClick={handleDuplicate}
               disabled={createMutation.isPending}
               className="btn btn-ghost btn-sm"
-              title="Duplicate study"
+              title={t("studies.detail.actions.duplicateStudy")}
             >
               <Copy size={14} />
             </button>
@@ -357,7 +353,7 @@ export default function StudyDetailPage() {
               type="button"
               onClick={handleExportJson}
               className="btn btn-ghost btn-sm"
-              title="Export as JSON"
+              title={t("studies.detail.actions.exportJson")}
             >
               <Download size={14} />
             </button>
@@ -367,7 +363,7 @@ export default function StudyDetailPage() {
                 onClick={handleArchive}
                 disabled={transitionMutation.isPending}
                 className="btn btn-ghost btn-sm"
-                title="Archive study"
+                title={t("studies.detail.actions.archiveStudy")}
               >
                 <Archive size={14} />
               </button>
@@ -377,7 +373,7 @@ export default function StudyDetailPage() {
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
               className="btn btn-danger btn-sm"
-              title="Delete study"
+              title={t("studies.detail.actions.deleteStudy")}
             >
               <Trash2 size={14} />
             </button>
@@ -398,7 +394,7 @@ export default function StudyDetailPage() {
               className={cn("tab-item flex items-center gap-1.5 whitespace-nowrap", activeTab === tab.key && "active")}
             >
               <Icon size={14} />
-              {tab.label}
+              {t(`studies.detail.tabs.${tab.key}`)}
               {count != null && (
                 <span className="ml-0.5 text-[10px] font-medium text-text-ghost">
                   ({count})
@@ -443,33 +439,45 @@ function StudyOverview({
   analyses?: StudyAnalysisEntry[];
   progress?: StudyProgressType | null;
 }) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
       {/* Main column */}
       <div className="lg:col-span-2 space-y-5">
         {/* Description & Objectives */}
         <div className="panel">
-          <h3 className="text-sm font-semibold text-text-secondary mb-3">About</h3>
+          <h3 className="text-sm font-semibold text-text-secondary mb-3">
+            {t("studies.detail.sections.about")}
+          </h3>
           {study.description ? (
             <p className="text-sm text-text-muted leading-relaxed">{study.description}</p>
           ) : (
-            <p className="text-sm text-text-ghost italic">No description provided</p>
+            <p className="text-sm text-text-ghost italic">
+              {t("studies.detail.messages.noDescription")}
+            </p>
           )}
           {study.primary_objective && (
             <div className="mt-3 pt-3 border-t border-border-default">
-              <p className="text-xs text-text-ghost uppercase tracking-wider mb-1">Primary Objective</p>
+              <p className="text-xs text-text-ghost uppercase tracking-wider mb-1">
+                {t("studies.detail.labels.primaryObjective")}
+              </p>
               <p className="text-sm text-text-secondary">{study.primary_objective}</p>
             </div>
           )}
           {study.hypothesis && (
             <div className="mt-3 pt-3 border-t border-border-default">
-              <p className="text-xs text-text-ghost uppercase tracking-wider mb-1">Hypothesis</p>
+              <p className="text-xs text-text-ghost uppercase tracking-wider mb-1">
+                {t("studies.detail.labels.hypothesis")}
+              </p>
               <p className="text-sm text-text-secondary">{study.hypothesis}</p>
             </div>
           )}
           {study.secondary_objectives && study.secondary_objectives.length > 0 && (
             <div className="mt-3 pt-3 border-t border-border-default">
-              <p className="text-xs text-text-ghost uppercase tracking-wider mb-1">Secondary Objectives</p>
+              <p className="text-xs text-text-ghost uppercase tracking-wider mb-1">
+                {t("studies.detail.labels.secondaryObjectives")}
+              </p>
               <ul className="space-y-1">
                 {study.secondary_objectives.map((o, i) => (
                   <li key={i} className="text-sm text-text-muted flex gap-2">
@@ -485,7 +493,7 @@ function StudyOverview({
         {analyses && analyses.length > 0 && (
           <div className="panel">
             <h3 className="text-sm font-semibold text-text-secondary mb-3">
-              Analysis Pipeline ({analyses.length})
+              {t("studies.detail.sections.analysisPipeline", { count: analyses.length })}
             </h3>
             <div className="space-y-2">
               {analyses.slice(0, 5).map((entry) => (
@@ -507,7 +515,9 @@ function StudyOverview({
                 </div>
               ))}
               {analyses.length > 5 && (
-                <p className="text-xs text-text-ghost text-center">+{analyses.length - 5} more analyses</p>
+                <p className="text-xs text-text-ghost text-center">
+                  {t("studies.detail.messages.moreAnalyses", { count: analyses.length - 5 })}
+                </p>
               )}
             </div>
           </div>
@@ -516,7 +526,9 @@ function StudyOverview({
         {/* Progress Summary */}
         {progress && progress.total > 0 && (
           <div className="panel">
-            <h3 className="text-sm font-semibold text-text-secondary mb-3">Execution Progress</h3>
+            <h3 className="text-sm font-semibold text-text-secondary mb-3">
+              {t("studies.detail.sections.executionProgress")}
+            </h3>
             <div className="progress-bar mb-2">
               <div className="flex h-full">
                 {progress.completed > 0 && (
@@ -531,10 +543,10 @@ function StudyOverview({
               </div>
             </div>
             <div className="flex gap-4 text-xs text-text-muted">
-              <span>{progress.completed} completed</span>
-              <span>{progress.running} running</span>
-              <span>{progress.failed} failed</span>
-              <span>{progress.pending} pending</span>
+              <span>{t("studies.detail.progress.completed", { count: progress.completed })}</span>
+              <span>{t("studies.detail.progress.running", { count: progress.running })}</span>
+              <span>{t("studies.detail.progress.failed", { count: progress.failed })}</span>
+              <span>{t("studies.detail.progress.pending", { count: progress.pending })}</span>
             </div>
           </div>
         )}
@@ -544,13 +556,17 @@ function StudyOverview({
       <div className="space-y-5">
         {/* Metadata */}
         <div className="panel">
-          <h3 className="text-sm font-semibold text-text-secondary mb-3">Details</h3>
+          <h3 className="text-sm font-semibold text-text-secondary mb-3">
+            {t("studies.detail.sections.details")}
+          </h3>
           <dl className="space-y-2.5 text-sm">
             {study.principal_investigator && (
               <div className="flex items-start gap-2">
                 <User size={14} className="text-text-ghost shrink-0 mt-0.5" />
                 <div>
-                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">Principal Investigator</dt>
+                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">
+                    {t("studies.detail.labels.principalInvestigator")}
+                  </dt>
                   <dd className="text-text-secondary">{study.principal_investigator.name}</dd>
                 </div>
               </div>
@@ -559,7 +575,9 @@ function StudyOverview({
               <div className="flex items-start gap-2">
                 <User size={14} className="text-text-ghost shrink-0 mt-0.5" />
                 <div>
-                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">Lead Data Scientist</dt>
+                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">
+                    {t("studies.detail.labels.leadDataScientist")}
+                  </dt>
                   <dd className="text-text-secondary">{study.lead_data_scientist.name}</dd>
                 </div>
               </div>
@@ -568,8 +586,10 @@ function StudyOverview({
               <div className="flex items-start gap-2">
                 <Settings size={14} className="text-text-ghost shrink-0 mt-0.5" />
                 <div>
-                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">Study Design</dt>
-                  <dd className="text-text-secondary capitalize">{study.study_design.replace(/_/g, " ")}</dd>
+                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">
+                    {t("studies.detail.labels.studyDesign")}
+                  </dt>
+                  <dd className="text-text-secondary capitalize">{humanizeToken(study.study_design)}</dd>
                 </div>
               </div>
             )}
@@ -577,7 +597,9 @@ function StudyOverview({
               <div className="flex items-start gap-2">
                 <Milestone size={14} className="text-text-ghost shrink-0 mt-0.5" />
                 <div>
-                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">Phase</dt>
+                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">
+                    {t("studies.detail.labels.phase")}
+                  </dt>
                   <dd className="text-text-secondary">{study.phase}</dd>
                 </div>
               </div>
@@ -586,7 +608,9 @@ function StudyOverview({
               <div className="flex items-start gap-2">
                 <FileText size={14} className="text-text-ghost shrink-0 mt-0.5" />
                 <div>
-                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">Protocol Version</dt>
+                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">
+                    {t("studies.detail.labels.protocolVersion")}
+                  </dt>
                   <dd className="text-text-secondary">{study.protocol_version}</dd>
                 </div>
               </div>
@@ -595,7 +619,9 @@ function StudyOverview({
               <div className="flex items-start gap-2">
                 <ExternalLink size={14} className="text-text-ghost shrink-0 mt-0.5" />
                 <div>
-                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">Funding</dt>
+                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">
+                    {t("studies.detail.labels.funding")}
+                  </dt>
                   <dd className="text-text-secondary">{study.funding_source}</dd>
                 </div>
               </div>
@@ -604,7 +630,9 @@ function StudyOverview({
               <div className="flex items-start gap-2">
                 <ExternalLink size={14} className="text-text-ghost shrink-0 mt-0.5" />
                 <div>
-                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">ClinicalTrials.gov</dt>
+                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">
+                    {t("studies.detail.labels.clinicalTrialsGov")}
+                  </dt>
                   <dd className="text-success">{study.clinicaltrials_gov_id}</dd>
                 </div>
               </div>
@@ -614,33 +642,35 @@ function StudyOverview({
 
         {/* Timeline */}
         <div className="panel">
-          <h3 className="text-sm font-semibold text-text-secondary mb-3">Timeline</h3>
+          <h3 className="text-sm font-semibold text-text-secondary mb-3">
+            {t("studies.detail.sections.timeline")}
+          </h3>
           <dl className="space-y-2.5 text-sm">
             {study.study_start_date && (
               <div className="flex items-center gap-2">
                 <Calendar size={14} className="text-text-ghost" />
-                <dt className="text-text-ghost">Start:</dt>
-                <dd className="text-text-secondary">{new Date(study.study_start_date).toLocaleDateString()}</dd>
+                <dt className="text-text-ghost">{t("studies.detail.labels.start")}</dt>
+                <dd className="text-text-secondary">{formatDate(study.study_start_date)}</dd>
               </div>
             )}
             {study.study_end_date && (
               <div className="flex items-center gap-2">
                 <Calendar size={14} className="text-text-ghost" />
-                <dt className="text-text-ghost">End:</dt>
-                <dd className="text-text-secondary">{new Date(study.study_end_date).toLocaleDateString()}</dd>
+                <dt className="text-text-ghost">{t("studies.detail.labels.end")}</dt>
+                <dd className="text-text-secondary">{formatDate(study.study_end_date)}</dd>
               </div>
             )}
             {study.target_enrollment_sites != null && (
               <div className="flex items-center gap-2">
                 <MapPin size={14} className="text-text-ghost" />
-                <dt className="text-text-ghost">Target Sites:</dt>
+                <dt className="text-text-ghost">{t("studies.detail.labels.targetSites")}</dt>
                 <dd className="text-text-secondary">{study.actual_enrollment_sites} / {study.target_enrollment_sites}</dd>
               </div>
             )}
             <div className="flex items-center gap-2">
               <Calendar size={14} className="text-text-ghost" />
-              <dt className="text-text-ghost">Created:</dt>
-              <dd className="text-text-secondary">{new Date(study.created_at).toLocaleDateString()}</dd>
+              <dt className="text-text-ghost">{t("studies.detail.labels.created")}</dt>
+              <dd className="text-text-secondary">{formatDate(study.created_at)}</dd>
             </div>
           </dl>
         </div>
@@ -648,7 +678,9 @@ function StudyOverview({
         {/* Tags */}
         {study.tags && study.tags.length > 0 && (
           <div className="panel">
-            <h3 className="text-sm font-semibold text-text-secondary mb-2">Tags</h3>
+            <h3 className="text-sm font-semibold text-text-secondary mb-2">
+              {t("studies.detail.sections.tags")}
+            </h3>
             <div className="flex flex-wrap gap-1.5">
               {study.tags.map((tag) => (
                 <span key={tag} className="px-2 py-0.5 rounded-md bg-surface-elevated text-xs text-text-muted">
@@ -662,7 +694,9 @@ function StudyOverview({
         {/* Author */}
         {study.author && (
           <div className="panel">
-            <h3 className="text-sm font-semibold text-text-secondary mb-2">Created By</h3>
+            <h3 className="text-sm font-semibold text-text-secondary mb-2">
+              {t("studies.detail.sections.createdBy")}
+            </h3>
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-full bg-success/10 flex items-center justify-center text-xs font-medium text-success">
                 {study.author.name.charAt(0).toUpperCase()}

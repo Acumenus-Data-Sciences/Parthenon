@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Loader2,
   BarChart3,
@@ -14,6 +15,7 @@ import {
   Trash2,
   Filter,
 } from "lucide-react";
+import { formatDate, formatNumber } from "@/i18n/format";
 import {
   useStudyResults,
   useUpdateStudyResult,
@@ -50,6 +52,7 @@ interface StudyResultsTabProps {
 }
 
 export function StudyResultsTab({ slug }: StudyResultsTabProps) {
+  const { t } = useTranslation("app");
   const [resultType, setResultType] = useState<string>("");
   const [publishableOnly, setPublishableOnly] = useState(false);
   const [page, setPage] = useState(1);
@@ -113,7 +116,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-text-secondary">
-            Results ({totalResults})
+            {t("studies.results.sections.results", { count: totalResults })}
           </h3>
           <div className="flex items-center gap-2">
             <button
@@ -122,7 +125,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
               className="btn btn-primary btn-sm"
             >
               <Layers size={14} />
-              Synthesize
+              {t("studies.results.actions.synthesize")}
             </button>
           </div>
         </div>
@@ -136,9 +139,9 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
               onChange={(e) => { setResultType(e.target.value); setPage(1); }}
               className="input text-xs py-1 px-2 w-auto"
             >
-              <option value="">All types</option>
+              <option value="">{t("studies.results.filters.allTypes")}</option>
               {Object.entries(RESULT_TYPE_LABELS).map(([k, v]) => (
-                <option key={k} value={k}>{v}</option>
+                <option key={k} value={k}>{t(`studies.results.resultTypes.${k}`, { defaultValue: v })}</option>
               ))}
             </select>
           </div>
@@ -149,7 +152,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
               onChange={(e) => { setPublishableOnly(e.target.checked); setPage(1); }}
               className="rounded border-surface-highlight bg-surface-raised"
             />
-            Publishable only
+            {t("studies.results.filters.publishableOnly")}
           </label>
         </div>
 
@@ -160,9 +163,9 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
         ) : results.length === 0 ? (
           <div className="empty-state">
             <BarChart3 size={24} className="text-text-ghost mb-2" />
-            <h3 className="empty-title">No results yet</h3>
+            <h3 className="empty-title">{t("studies.results.empty.noResultsTitle")}</h3>
             <p className="empty-message">
-              Results will appear here after analyses are executed
+              {t("studies.results.empty.noResultsMessage")}
             </p>
           </div>
         ) : (
@@ -192,7 +195,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-info/10 text-info">
-                            {RESULT_TYPE_LABELS[r.result_type] ?? r.result_type}
+                            {t(`studies.results.resultTypes.${r.result_type}`, { defaultValue: r.result_type })}
                           </span>
                           {r.site?.source && (
                             <span className="text-xs text-text-ghost">
@@ -201,19 +204,19 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                           )}
                           {r.is_primary && (
                             <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-warning/10 text-warning">
-                              PRIMARY
+                              {t("studies.results.badges.primary")}
                             </span>
                           )}
                           {r.is_publishable && (
                             <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-success/10 text-success">
-                              PUBLISHABLE
+                              {t("studies.results.badges.publishable")}
                             </span>
                           )}
                         </div>
                         <p className="text-[10px] text-text-ghost mt-0.5">
-                          Result #{r.id} · {new Date(r.created_at).toLocaleDateString()}
+                          {t("studies.results.messages.resultCreated", { id: r.id, date: formatDate(r.created_at) })}
                           {r.reviewed_by_user && (
-                            <> · Reviewed by {r.reviewed_by_user.name}</>
+                            <> · {t("studies.results.messages.reviewedBy", { name: r.reviewed_by_user.name })}</>
                           )}
                         </p>
                       </div>
@@ -222,7 +225,9 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                           type="button"
                           onClick={() => handleTogglePrimary(r)}
                           className="p-1.5 text-text-ghost hover:text-warning"
-                          title={r.is_primary ? "Unmark primary" : "Mark as primary"}
+                          title={r.is_primary
+                            ? t("studies.results.actions.unmarkPrimary")
+                            : t("studies.results.actions.markPrimary")}
                         >
                           {r.is_primary ? <Star size={14} /> : <StarOff size={14} />}
                         </button>
@@ -230,7 +235,9 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                           type="button"
                           onClick={() => handleTogglePublishable(r)}
                           className="p-1.5 text-text-ghost hover:text-success"
-                          title={r.is_publishable ? "Unmark publishable" : "Mark as publishable"}
+                          title={r.is_publishable
+                            ? t("studies.results.actions.unmarkPublishable")
+                            : t("studies.results.actions.markPublishable")}
                         >
                           {r.is_publishable ? <Shield size={14} /> : <ShieldOff size={14} />}
                         </button>
@@ -248,25 +255,31 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                       <div className="border-t border-border-default p-4 space-y-3">
                         {r.summary_data && Object.keys(r.summary_data).length > 0 ? (
                           <div>
-                            <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">Summary</h4>
+                            <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">
+                              {t("studies.results.labels.summary")}
+                            </h4>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                               {Object.entries(r.summary_data).map(([key, val]) => (
                                 <div key={key} className="bg-surface-darkest rounded p-2">
                                   <p className="text-[9px] text-text-ghost uppercase">{key.replace(/_/g, " ")}</p>
                                   <p className="text-sm text-text-primary font-mono">
-                                    {typeof val === "number" ? val.toLocaleString() : String(val)}
+                                    {typeof val === "number" ? formatNumber(val) : String(val)}
                                   </p>
                                 </div>
                               ))}
                             </div>
                           </div>
                         ) : (
-                          <p className="text-xs text-text-ghost italic">No summary data available</p>
+                          <p className="text-xs text-text-ghost italic">
+                            {t("studies.results.empty.noSummaryData")}
+                          </p>
                         )}
 
                         {r.diagnostics && Object.keys(r.diagnostics).length > 0 && (
                           <div>
-                            <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">Diagnostics</h4>
+                            <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">
+                              {t("studies.results.labels.diagnostics")}
+                            </h4>
                             <pre className="text-[10px] text-text-muted bg-surface-darkest rounded p-3 overflow-x-auto">
                               {JSON.stringify(r.diagnostics, null, 2)}
                             </pre>
@@ -288,10 +301,10 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                   disabled={page <= 1}
                   className="btn btn-ghost btn-sm"
                 >
-                  Previous
+                  {t("studies.results.pagination.previous")}
                 </button>
                 <span className="text-xs text-text-ghost">
-                  Page {page} of {totalPages}
+                  {t("studies.results.pagination.page", { page, totalPages })}
                 </span>
                 <button
                   type="button"
@@ -299,7 +312,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                   disabled={page >= totalPages}
                   className="btn btn-ghost btn-sm"
                 >
-                  Next
+                  {t("studies.results.pagination.next")}
                 </button>
               </div>
             )}
@@ -313,18 +326,18 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-semibold text-success">
               <Layers size={14} className="inline mr-1.5" />
-              Create Synthesis
+              {t("studies.results.synthesis.createTitle")}
             </h4>
             <button
               type="button"
               onClick={() => { setShowSynthesisPanel(false); setSelectedResultIds([]); }}
               className="text-xs text-text-ghost hover:text-text-secondary"
             >
-              Cancel
+              {t("studies.results.actions.cancel")}
             </button>
           </div>
           <p className="text-xs text-text-muted">
-            Select 2 or more results above, then choose a synthesis method.
+            {t("studies.results.synthesis.instructions")}
           </p>
           <div className="flex items-center gap-3">
             <select
@@ -333,7 +346,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
               className="input text-xs py-1.5 px-2 w-auto"
             >
               {Object.entries(SYNTHESIS_TYPE_LABELS).map(([k, v]) => (
-                <option key={k} value={k}>{v}</option>
+                <option key={k} value={k}>{t(`studies.results.synthesisTypes.${k}`, { defaultValue: v })}</option>
               ))}
             </select>
             <button
@@ -347,7 +360,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
               ) : (
                 <Plus size={14} />
               )}
-              Create ({selectedResultIds.length} selected)
+              {t("studies.results.synthesis.createSelected", { count: selectedResultIds.length })}
             </button>
           </div>
         </div>
@@ -356,7 +369,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
       {/* Existing Syntheses */}
       <div className="space-y-4">
         <h3 className="text-sm font-semibold text-text-secondary">
-          Syntheses ({syntheses?.length ?? 0})
+          {t("studies.results.sections.syntheses", { count: syntheses?.length ?? 0 })}
         </h3>
 
         {loadingSyntheses ? (
@@ -366,9 +379,9 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
         ) : !syntheses || syntheses.length === 0 ? (
           <div className="empty-state">
             <Layers size={24} className="text-text-ghost mb-2" />
-            <h3 className="empty-title">No syntheses</h3>
+            <h3 className="empty-title">{t("studies.results.empty.noSynthesesTitle")}</h3>
             <p className="empty-message">
-              Combine results from multiple sites using meta-analysis
+              {t("studies.results.empty.noSynthesesMessage")}
             </p>
           </div>
         ) : (
@@ -378,7 +391,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                 key={s.id}
                 synthesis={s}
                 onDelete={() => {
-                  if (window.confirm("Delete this synthesis?")) {
+                  if (window.confirm(t("studies.results.synthesis.confirmDelete"))) {
                     deleteSynthesis.mutate({ slug, synthesisId: s.id });
                   }
                 }}
@@ -398,6 +411,7 @@ function SynthesisCard({
   synthesis: StudySynthesis;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation("app");
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -409,14 +423,14 @@ function SynthesisCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-sm text-text-primary font-medium">
-              {SYNTHESIS_TYPE_LABELS[s.synthesis_type] ?? s.synthesis_type}
+              {t(`studies.results.synthesisTypes.${s.synthesis_type}`, { defaultValue: s.synthesis_type })}
             </span>
             <span className="text-[10px] text-text-ghost">
-              {s.input_result_ids.length} results
+              {t("studies.results.synthesis.resultsCount", { count: s.input_result_ids.length })}
             </span>
           </div>
           <p className="text-[10px] text-text-ghost mt-0.5">
-            {s.generated_by_user?.name ?? "System"} · {new Date(s.created_at).toLocaleDateString()}
+            {s.generated_by_user?.name ?? t("studies.results.synthesis.system")} · {formatDate(s.created_at)}
           </p>
         </div>
         <div className="flex items-center gap-1">
@@ -441,7 +455,9 @@ function SynthesisCard({
         <div className="border-t border-border-default p-4 space-y-3">
           {s.method_settings && Object.keys(s.method_settings).length > 0 && (
             <div>
-              <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">Method Settings</h4>
+              <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">
+                {t("studies.results.synthesis.methodSettings")}
+              </h4>
               <pre className="text-[10px] text-text-muted bg-surface-darkest rounded p-3 overflow-x-auto">
                 {JSON.stringify(s.method_settings, null, 2)}
               </pre>
@@ -449,13 +465,17 @@ function SynthesisCard({
           )}
           {s.output && Object.keys(s.output).length > 0 ? (
             <div>
-              <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">Output</h4>
+              <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">
+                {t("studies.results.synthesis.output")}
+              </h4>
               <pre className="text-[10px] text-text-muted bg-surface-darkest rounded p-3 overflow-x-auto">
                 {JSON.stringify(s.output, null, 2)}
               </pre>
             </div>
           ) : (
-            <p className="text-xs text-text-ghost italic">No output generated yet</p>
+            <p className="text-xs text-text-ghost italic">
+              {t("studies.results.synthesis.noOutput")}
+            </p>
           )}
         </div>
       )}

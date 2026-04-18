@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import { formatNumber } from "@/i18n/format";
 import {
   LineChart,
   Line,
@@ -18,10 +20,12 @@ interface TemporalPrevalenceChartProps {
 }
 
 export default function TemporalPrevalenceChart({ sources, title }: TemporalPrevalenceChartProps) {
+  const { t } = useTranslation("app");
+
   if (sources.length === 0) {
     return (
       <div className="flex h-48 items-center justify-center text-text-ghost">
-        No temporal prevalence data available.
+        {t("dataExplorer.ares.conceptComparison.messages.noTemporalPrevalenceData")}
       </div>
     );
   }
@@ -57,7 +61,9 @@ export default function TemporalPrevalenceChart({ sources, title }: TemporalPrev
             <YAxis
               tick={{ fill: "var(--text-muted)", fontSize: 11 }}
               axisLine={{ stroke: "var(--surface-highlight)" }}
-              tickFormatter={(v: number) => `${v}/1k`}
+              tickFormatter={(v: number) =>
+                t("dataExplorer.ares.conceptComparison.metrics.perThousandShort", { value: formatNumber(v) })
+              }
             />
             <Tooltip
               contentStyle={{
@@ -67,12 +73,12 @@ export default function TemporalPrevalenceChart({ sources, title }: TemporalPrev
                 color: "var(--text-secondary)",
                 fontSize: 12,
               }}
-              /* eslint-disable @typescript-eslint/no-explicit-any */
-              formatter={((value: number | string) => [
-                `${Number(value).toFixed(2)} per 1,000`,
-                "Rate",
-              ]) as any}
-              /* eslint-enable @typescript-eslint/no-explicit-any */
+              formatter={(value: number | string) => [
+                t("dataExplorer.ares.conceptComparison.metrics.perThousandLong", {
+                  value: formatNumber(Number(value), { maximumFractionDigits: 2 }),
+                }),
+                t("dataExplorer.ares.conceptComparison.metrics.rate"),
+              ]}
             />
             <Legend wrapperStyle={{ fontSize: 11, color: "var(--text-muted)" }} />
 
@@ -92,7 +98,7 @@ export default function TemporalPrevalenceChart({ sources, title }: TemporalPrev
         </ResponsiveContainer>
       </div>
       <p className="mt-1 text-center text-[10px] text-text-ghost">
-        Prevalence rate per 1,000 across releases by source.
+        {t("dataExplorer.ares.conceptComparison.messages.temporalPrevalenceHelp")}
       </p>
     </div>
   );

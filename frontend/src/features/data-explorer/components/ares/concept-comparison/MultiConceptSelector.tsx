@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 import { useConceptSearch } from "../../../hooks/useNetworkData";
 import type { ConceptSearchResult } from "../../../types/ares";
@@ -18,6 +19,7 @@ export default function MultiConceptSelector({
   onRemove,
   maxConcepts = 5,
 }: MultiConceptSelectorProps) {
+  const { t } = useTranslation("app");
   const [query, setQuery] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -65,7 +67,10 @@ export default function MultiConceptSelector({
         <div className="relative">
           <input
             type="text"
-            placeholder={`Add concept (${selectedConcepts.length}/${maxConcepts})...`}
+            placeholder={t("dataExplorer.ares.conceptComparison.addConceptPlaceholder", {
+              selected: selectedConcepts.length,
+              max: maxConcepts,
+            })}
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -76,7 +81,9 @@ export default function MultiConceptSelector({
                        placeholder:text-text-ghost focus:border-accent focus:outline-none"
           />
           {isLoading && (
-            <span className="absolute right-3 top-2.5 text-xs text-text-ghost">Searching...</span>
+            <span className="absolute right-3 top-2.5 text-xs text-text-ghost">
+              {t("dataExplorer.ares.conceptComparison.messages.searching")}
+            </span>
           )}
 
           {showDropdown && searchResults && searchResults.length > 0 && (
@@ -93,7 +100,11 @@ export default function MultiConceptSelector({
                   >
                     <span className="text-text-primary">{concept.concept_name}</span>
                     <span className="text-[10px] text-text-ghost">
-                      {concept.domain_id} | {concept.vocabulary_id} | ID: {concept.concept_id}
+                      {t("dataExplorer.ares.conceptComparison.conceptMetadata", {
+                        domain: concept.domain_id,
+                        vocabulary: concept.vocabulary_id,
+                        id: concept.concept_id,
+                      })}
                     </span>
                   </button>
                 ))}

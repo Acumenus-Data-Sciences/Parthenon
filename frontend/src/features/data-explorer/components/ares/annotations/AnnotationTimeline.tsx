@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import { formatDateTime } from "@/i18n/format";
 import type { ChartAnnotation } from "../../../types/ares";
 
 interface AnnotationTimelineProps {
@@ -12,6 +14,7 @@ const TAG_COLORS: Record<string, string> = {
 };
 
 export default function AnnotationTimeline({ annotations }: AnnotationTimelineProps) {
+  const { t } = useTranslation("app");
   const sorted = [...annotations].sort(
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
@@ -19,7 +22,7 @@ export default function AnnotationTimeline({ annotations }: AnnotationTimelinePr
   if (sorted.length === 0) {
     return (
       <div className="flex items-center justify-center py-12 text-sm text-text-ghost">
-        No annotations to display in timeline.
+        {t("dataExplorer.ares.annotations.empty.noTimeline")}
       </div>
     );
   }
@@ -34,8 +37,7 @@ export default function AnnotationTimeline({ annotations }: AnnotationTimelinePr
           <div className="rounded-lg border border-border-subtle bg-surface-raised p-3">
             <div className="mb-1 flex items-center gap-2">
               <span className="text-xs text-text-ghost">
-                {new Date(ann.created_at).toLocaleDateString()} at{" "}
-                {new Date(ann.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                {formatDateTime(ann.created_at)}
               </span>
               {ann.tag && (
                 <span
@@ -43,15 +45,23 @@ export default function AnnotationTimeline({ annotations }: AnnotationTimelinePr
                     TAG_COLORS[ann.tag] ?? "border-border-default text-text-muted"
                   }`}
                 >
-                  {ann.tag}
+                  {t(`dataExplorer.ares.annotations.tags.${ann.tag}`, {
+                    defaultValue: ann.tag,
+                  })}
                 </span>
               )}
               <span className="text-xs text-text-ghost">{ann.chart_type}</span>
             </div>
             <p className="text-sm text-text-secondary">{ann.annotation_text}</p>
             <div className="mt-1 flex items-center gap-2 text-[10px] text-text-ghost">
-              <span>{ann.creator?.name ?? "System"}</span>
-              {ann.source?.source_name && <span>on {ann.source.source_name}</span>}
+              <span>{ann.creator?.name ?? t("dataExplorer.ares.annotations.tags.system")}</span>
+              {ann.source?.source_name && (
+                <span>
+                  {t("dataExplorer.ares.annotations.sourceContext", {
+                    source: ann.source.source_name,
+                  })}
+                </span>
+              )}
             </div>
           </div>
         </div>

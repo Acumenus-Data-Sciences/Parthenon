@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Loader2,
@@ -12,6 +13,7 @@ import {
   Activity,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDate, formatNumber } from "@/i18n/format";
 import {
   useDqdRuns,
   useDqdRun,
@@ -29,13 +31,14 @@ interface DqdTabProps {
   sourceId: number;
 }
 
-const CATEGORY_COLORS: Record<string, { bar: string; bg: string; label: string }> = {
-  completeness: { bar: "var(--info)", bg: "rgba(96,165,250,0.1)", label: "Completeness" },
-  conformance: { bar: "#A855F7", bg: "rgba(168,85,247,0.1)", label: "Conformance" },
-  plausibility: { bar: "var(--warning)", bg: "rgba(229,168,75,0.1)", label: "Plausibility" },
+const CATEGORY_COLORS: Record<string, { bar: string; bg: string }> = {
+  completeness: { bar: "var(--info)", bg: "rgba(96,165,250,0.1)" },
+  conformance: { bar: "#A855F7", bg: "rgba(168,85,247,0.1)" },
+  plausibility: { bar: "var(--warning)", bg: "rgba(229,168,75,0.1)" },
 };
 
 function ProgressPanel({ progress }: { progress: DqdProgress }) {
+  const { t } = useTranslation("app");
   const pct = progress.percentage;
 
   return (
@@ -49,10 +52,13 @@ function ProgressPanel({ progress }: { progress: DqdProgress }) {
             </div>
             <div>
               <h3 className="text-sm font-medium text-text-primary">
-                DQD Analysis Running
+                {t("dataExplorer.dqd.progress.title")}
               </h3>
               <p className="text-xs text-text-ghost mt-0.5">
-                {progress.completed} of {progress.total} checks completed
+                {t("dataExplorer.dqd.progress.checksCompleted", {
+                  completed: formatNumber(progress.completed),
+                  total: formatNumber(progress.total),
+                })}
               </p>
             </div>
           </div>
@@ -77,25 +83,31 @@ function ProgressPanel({ progress }: { progress: DqdProgress }) {
           <div className="flex items-center gap-1.5">
             <CheckCircle2 size={12} className="text-success" />
             <span className="text-xs font-['IBM_Plex_Mono',monospace] text-success">
-              {progress.passed}
+              {formatNumber(progress.passed)}
             </span>
-            <span className="text-xs text-text-ghost">passed</span>
+            <span className="text-xs text-text-ghost">
+              {t("dataExplorer.dqd.labels.passed")}
+            </span>
           </div>
           {progress.failed > 0 && (
             <div className="flex items-center gap-1.5">
               <XCircle size={12} className="text-critical" />
               <span className="text-xs font-['IBM_Plex_Mono',monospace] text-critical">
-                {progress.failed}
+                {formatNumber(progress.failed)}
               </span>
-              <span className="text-xs text-text-ghost">failed</span>
+              <span className="text-xs text-text-ghost">
+                {t("dataExplorer.dqd.labels.failed")}
+              </span>
             </div>
           )}
           <div className="flex items-center gap-1.5">
             <Shield size={12} className="text-text-ghost" />
             <span className="text-xs font-['IBM_Plex_Mono',monospace] text-text-muted">
-              {progress.total - progress.completed}
+              {formatNumber(progress.total - progress.completed)}
             </span>
-            <span className="text-xs text-text-ghost">remaining</span>
+            <span className="text-xs text-text-ghost">
+              {t("dataExplorer.dqd.labels.remaining")}
+            </span>
           </div>
         </div>
       </div>
@@ -106,7 +118,6 @@ function ProgressPanel({ progress }: { progress: DqdProgress }) {
           const meta = CATEGORY_COLORS[cat.category] ?? {
             bar: "var(--text-muted)",
             bg: "rgba(138,133,125,0.1)",
-            label: cat.category,
           };
           const catPct = cat.total > 0 ? (cat.completed / cat.total) * 100 : 0;
 
@@ -118,10 +129,12 @@ function ProgressPanel({ progress }: { progress: DqdProgress }) {
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium" style={{ color: meta.bar }}>
-                  {meta.label}
+                  {t(`dataExplorer.dqd.categories.${cat.category}`, {
+                    defaultValue: cat.category,
+                  })}
                 </span>
                 <span className="text-xs font-['IBM_Plex_Mono',monospace] text-text-muted">
-                  {cat.completed}/{cat.total}
+                  {formatNumber(cat.completed)}/{formatNumber(cat.total)}
                 </span>
               </div>
 
@@ -142,7 +155,7 @@ function ProgressPanel({ progress }: { progress: DqdProgress }) {
                   <div className="flex items-center gap-1">
                     <CheckCircle2 size={10} className="text-success" />
                     <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-success">
-                      {cat.passed}
+                      {formatNumber(cat.passed)}
                     </span>
                   </div>
                 )}
@@ -150,12 +163,14 @@ function ProgressPanel({ progress }: { progress: DqdProgress }) {
                   <div className="flex items-center gap-1">
                     <XCircle size={10} className="text-critical" />
                     <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-critical">
-                      {cat.failed}
+                      {formatNumber(cat.failed)}
                     </span>
                   </div>
                 )}
                 {cat.completed === 0 && (
-                  <span className="text-[10px] text-text-ghost">Waiting...</span>
+                  <span className="text-[10px] text-text-ghost">
+                    {t("dataExplorer.dqd.progress.waiting")}
+                  </span>
                 )}
               </div>
             </div>
@@ -167,7 +182,9 @@ function ProgressPanel({ progress }: { progress: DqdProgress }) {
       {progress.latest_check && (
         <div className="flex items-center gap-2 rounded-lg border border-border-default bg-surface-base px-4 py-2.5">
           <Loader2 size={12} className="animate-spin text-accent" />
-          <span className="text-xs text-text-ghost">Running:</span>
+          <span className="text-xs text-text-ghost">
+            {t("dataExplorer.dqd.progress.running")}
+          </span>
           <span className="text-xs font-['IBM_Plex_Mono',monospace] text-text-muted">
             {progress.latest_check.cdm_table}
             {progress.latest_check.cdm_column
@@ -189,6 +206,7 @@ function ProgressPanel({ progress }: { progress: DqdProgress }) {
 }
 
 export default function DqdTab({ sourceId }: DqdTabProps) {
+  const { t } = useTranslation("app");
   const queryClient = useQueryClient();
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const [activeRunId_live, setActiveRunIdLive] = useState<string | null>(null);
@@ -216,7 +234,9 @@ export default function DqdTab({ sourceId }: DqdTabProps) {
       detectProgress.data &&
       (detectProgress.data.status === "running" || detectProgress.data.status === "pending")
     ) {
-      setActiveRunIdLive(detectProgress.data.run_id);
+      queueMicrotask(() => {
+        setActiveRunIdLive(detectProgress.data.run_id);
+      });
     }
   }, [activeRunId_live, detectProgress.data]);
 
@@ -231,14 +251,16 @@ export default function DqdTab({ sourceId }: DqdTabProps) {
   useEffect(() => {
     if (progressQuery.data?.status === "completed" && activeRunId_live) {
       const completedRunId = activeRunId_live;
-      setActiveRunIdLive(null);
-      setSelectedRunId(completedRunId);
-      queryClient.invalidateQueries({ queryKey: ["dqd", "runs", sourceId] });
-      queryClient.invalidateQueries({
-        queryKey: ["dqd", "run", sourceId, completedRunId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["dqd", "results", sourceId, completedRunId],
+      queueMicrotask(() => {
+        setActiveRunIdLive(null);
+        setSelectedRunId(completedRunId);
+        queryClient.invalidateQueries({ queryKey: ["dqd", "runs", sourceId] });
+        queryClient.invalidateQueries({
+          queryKey: ["dqd", "run", sourceId, completedRunId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["dqd", "results", sourceId, completedRunId],
+        });
       });
     }
   }, [progressQuery.data?.status, activeRunId_live, sourceId, queryClient]);
@@ -292,7 +314,9 @@ export default function DqdTab({ sourceId }: DqdTabProps) {
           ) : (
             <PlayCircle size={14} />
           )}
-          {isRunning ? "Running..." : "Run DQD"}
+          {isRunning
+            ? t("dataExplorer.achilles.actions.running")
+            : t("dataExplorer.dqd.actions.runDqd")}
         </button>
 
         {/* Run history selector */}
@@ -305,8 +329,8 @@ export default function DqdTab({ sourceId }: DqdTabProps) {
             >
               <History size={14} className="text-text-muted" />
               {activeRunId
-                ? `Run ${activeRunId.slice(0, 8)}...`
-                : "Select run"}
+                ? t("dataExplorer.achilles.runShort", { id: activeRunId.slice(0, 8) })
+                : t("dataExplorer.achilles.actions.selectRun")}
               <ChevronDown size={12} className="text-text-muted" />
             </button>
             {showRunSelector && (
@@ -330,7 +354,7 @@ export default function DqdTab({ sourceId }: DqdTabProps) {
                       {run.run_id.slice(0, 12)}
                     </span>
                     <span className="text-xs text-text-ghost">
-                      {new Date(run.started_at).toLocaleDateString()}
+                      {formatDate(run.started_at)}
                     </span>
                   </button>
                 ))}
@@ -340,7 +364,9 @@ export default function DqdTab({ sourceId }: DqdTabProps) {
         )}
 
         {runMutation.isError && (
-          <span className="text-xs text-critical">Failed to dispatch DQD run</span>
+          <span className="text-xs text-critical">
+            {t("dataExplorer.dqd.dispatchFailed")}
+          </span>
         )}
       </div>
 
@@ -360,9 +386,11 @@ export default function DqdTab({ sourceId }: DqdTabProps) {
       {!isRunning && !dqdRun.isLoading && !dqdRun.data && !activeRunId && (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-16">
           <History size={32} className="text-text-ghost mb-3" />
-          <p className="text-sm text-text-muted">No DQD runs yet</p>
+          <p className="text-sm text-text-muted">
+            {t("dataExplorer.dqd.empty")}
+          </p>
           <p className="mt-1 text-xs text-text-ghost">
-            Click "Run DQD" to start a data quality analysis
+            {t("dataExplorer.dqd.emptyHelp")}
           </p>
         </div>
       )}

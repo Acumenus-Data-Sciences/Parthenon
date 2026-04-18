@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import { formatNumber } from "@/i18n/format";
 import {
   LineChart,
   Line,
@@ -33,6 +35,7 @@ interface DqTrendChartProps {
 }
 
 export default function DqTrendChart({ data, sourceId, onReleaseClick, overlayData }: DqTrendChartProps) {
+  const { t } = useTranslation("app");
   // Overlay mode: multiple sources on same timeline
   if (overlayData && overlayData.length > 0) {
     return <OverlayChart overlayData={overlayData} />;
@@ -41,7 +44,7 @@ export default function DqTrendChart({ data, sourceId, onReleaseClick, overlayDa
   if (data.length === 0) {
     return (
       <div className="flex h-64 items-center justify-center text-text-ghost">
-        No DQ history data available. Run DQD on at least two releases to see trends.
+        {t("dataExplorer.ares.dqHistory.messages.noTrendData")}
       </div>
     );
   }
@@ -84,7 +87,7 @@ export default function DqTrendChart({ data, sourceId, onReleaseClick, overlayDa
               domain={[0, 100]}
               tick={{ fill: "var(--text-muted)", fontSize: 11 }}
               axisLine={{ stroke: "var(--surface-highlight)" }}
-              tickFormatter={(v: number) => `${v}%`}
+              tickFormatter={(v: number) => t("dataExplorer.ares.networkOverview.percent", { value: formatNumber(v) })}
             />
             <Tooltip
               contentStyle={{
@@ -94,8 +97,12 @@ export default function DqTrendChart({ data, sourceId, onReleaseClick, overlayDa
                 color: "var(--text-secondary)",
                 fontSize: 12,
               }}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              formatter={((value: number | string) => [`${Number(value).toFixed(1)}%`, "Pass Rate"]) as any}
+              formatter={(value: number | string) => [
+                t("dataExplorer.ares.networkOverview.percent", {
+                  value: formatNumber(Number(value), { maximumFractionDigits: 1 }),
+                }),
+                t("dataExplorer.ares.dqHistory.passRate"),
+              ]}
             />
             {/* Good zone: >90% -- green */}
             <ReferenceArea y1={90} y2={100} fill="var(--success)" fillOpacity={0.05} ifOverflow="extendDomain" />
@@ -118,7 +125,7 @@ export default function DqTrendChart({ data, sourceId, onReleaseClick, overlayDa
           </LineChart>
         </ResponsiveContainer>
         <p className="mt-1 text-center text-[10px] text-text-ghost">
-          Click a release point to view delta details. Green &gt;90%, amber 80-90%, red &lt;80%.
+          {t("dataExplorer.ares.dqHistory.messages.trendHelp")}
         </p>
       </div>
     </div>
@@ -126,6 +133,7 @@ export default function DqTrendChart({ data, sourceId, onReleaseClick, overlayDa
 }
 
 function OverlayChart({ overlayData }: { overlayData: OverlaySource[] }) {
+  const { t } = useTranslation("app");
   // Merge all sources onto a unified timeline keyed by created_at
   const timelineMap = new Map<string, Record<string, unknown>>();
 
@@ -158,7 +166,7 @@ function OverlayChart({ overlayData }: { overlayData: OverlaySource[] }) {
             domain={[0, 100]}
             tick={{ fill: "var(--text-muted)", fontSize: 11 }}
             axisLine={{ stroke: "var(--surface-highlight)" }}
-            tickFormatter={(v: number) => `${v}%`}
+            tickFormatter={(v: number) => t("dataExplorer.ares.networkOverview.percent", { value: formatNumber(v) })}
           />
           <Tooltip
             contentStyle={{
@@ -190,7 +198,7 @@ function OverlayChart({ overlayData }: { overlayData: OverlaySource[] }) {
         </LineChart>
       </ResponsiveContainer>
       <p className="mt-1 text-center text-[10px] text-text-ghost">
-        DQ pass rates overlaid across all sources on a unified timeline.
+        {t("dataExplorer.ares.dqHistory.messages.overlayHelp")}
       </p>
     </div>
   );

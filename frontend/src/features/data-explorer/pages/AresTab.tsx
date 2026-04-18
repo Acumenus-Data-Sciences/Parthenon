@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { AresSection } from "../types/ares";
 import { AresBreadcrumb } from "../components/ares/AresBreadcrumb";
 import { AresHub } from "../components/ares/AresHub";
@@ -13,27 +14,31 @@ import FeasibilityView from "../components/ares/feasibility/FeasibilityView";
 import NetworkOverviewView from "../components/ares/network-overview/NetworkOverviewView";
 import CostView from "../components/ares/cost/CostView";
 
-const SECTION_LABELS: Record<AresSection, string> = {
-  hub: "Hub",
-  "network-overview": "Network Overview",
-  "concept-comparison": "Concept Comparison",
-  "dq-history": "DQ History",
-  coverage: "Coverage",
-  feasibility: "Feasibility",
-  diversity: "Diversity",
-  releases: "Releases",
-  "unmapped-codes": "Unmapped Codes",
-  cost: "Cost",
-  annotations: "Annotations",
+const SECTION_KEYS: Record<AresSection, string> = {
+  hub: "hub",
+  "network-overview": "networkOverview",
+  "concept-comparison": "conceptComparison",
+  "dq-history": "dqHistory",
+  coverage: "coverage",
+  feasibility: "feasibility",
+  diversity: "diversity",
+  releases: "releases",
+  "unmapped-codes": "unmappedCodes",
+  cost: "cost",
+  annotations: "annotations",
 };
 
 function ComingSoonPlaceholder({ section }: { section: AresSection }) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-20">
       <p className="text-lg font-semibold text-text-primary">
-        {SECTION_LABELS[section]}
+        {t(`dataExplorer.ares.sections.${SECTION_KEYS[section]}`)}
       </p>
-      <p className="mt-2 text-sm text-text-muted">Coming soon in a future phase</p>
+      <p className="mt-2 text-sm text-text-muted">
+        {t("dataExplorer.ares.comingSoon")}
+      </p>
     </div>
   );
 }

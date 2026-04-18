@@ -1,3 +1,6 @@
+import { useTranslation } from "react-i18next";
+import { formatNumber } from "@/i18n/format";
+
 interface HeatmapCell {
   release_id: number;
   category: string;
@@ -25,6 +28,7 @@ export default function DqCategoryHeatmap({
   cells,
   onCellClick,
 }: DqCategoryHeatmapProps) {
+  const { t } = useTranslation("app");
   const cellMap = new Map<string, number>();
   for (const cell of cells) {
     cellMap.set(`${cell.release_id}-${cell.category}`, cell.pass_rate);
@@ -33,7 +37,7 @@ export default function DqCategoryHeatmap({
   if (categories.length === 0 || releases.length === 0) {
     return (
       <div className="flex h-32 items-center justify-center text-text-ghost">
-        No heatmap data available. Run DQD on multiple releases to see category trends.
+        {t("dataExplorer.ares.dqHistory.messages.noHeatmapData")}
       </div>
     );
   }
@@ -44,7 +48,7 @@ export default function DqCategoryHeatmap({
         <thead>
           <tr>
             <th className="sticky left-0 bg-surface-raised px-3 py-2 text-left text-[11px] text-text-muted">
-              Category
+              {t("dataExplorer.ares.dqHistory.table.category")}
             </th>
             {releases.map((r) => (
               <th key={r.id} className="px-2 py-2 text-center text-[10px] text-text-ghost">
@@ -68,7 +72,11 @@ export default function DqCategoryHeatmap({
                         rate !== undefined ? getCellColor(rate) : "bg-surface-overlay"
                       } text-text-secondary`}
                     >
-                      {rate !== undefined ? `${rate}%` : "--"}
+                      {rate !== undefined
+                        ? t("dataExplorer.ares.networkOverview.percent", {
+                          value: formatNumber(rate),
+                        })
+                        : "--"}
                     </button>
                   </td>
                 );

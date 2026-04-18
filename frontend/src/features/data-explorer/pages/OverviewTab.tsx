@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Users,
   Calendar,
@@ -8,6 +9,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatNumber } from "@/i18n/format";
 import {
   useRecordCounts,
   useDemographics,
@@ -226,6 +228,7 @@ export default function OverviewTab({
   sourceId,
   onNavigateToDomain,
 }: OverviewTabProps) {
+  const { t } = useTranslation("app");
   const recordCounts = useRecordCounts(sourceId);
   const demographics = useDemographics(sourceId);
   const obsPeriods = useObservationPeriods(sourceId);
@@ -313,32 +316,50 @@ export default function OverviewTab({
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <MetricCard
               icon={Users}
-              label="Persons"
-              value={formatCompact(personCount)}
-              sub={`${personCount.toLocaleString()} total`}
+              label={t("dataExplorer.overview.metrics.persons")}
+              value={formatNumber(personCount, {
+                notation: "compact",
+                maximumFractionDigits: 1,
+              })}
+              sub={t("dataExplorer.overview.metrics.personsTotal", {
+                count: personCount,
+                value: formatNumber(personCount),
+              })}
               sparkData={obsSparkData}
               sparkColor={CHART.accent}
               onClick={() => onNavigateToDomain?.("person")}
             />
             <MetricCard
               icon={Calendar}
-              label="Median Obs Duration"
-              value={`${Math.round(avgObsPeriod).toLocaleString()} days`}
-              sub={`${obsCount.toLocaleString()} observation periods`}
+              label={t("dataExplorer.overview.metrics.medianObsDuration")}
+              value={t("dataExplorer.overview.metrics.durationDays", {
+                count: Math.round(avgObsPeriod),
+                value: formatNumber(Math.round(avgObsPeriod)),
+              })}
+              sub={t("dataExplorer.overview.metrics.observationPeriods", {
+                count: obsCount,
+                value: formatNumber(obsCount),
+              })}
               onClick={() => onNavigateToDomain?.("observation_period")}
             />
             <MetricCard
               icon={Activity}
-              label="Total Events"
-              value={formatCompact(totalEvents)}
-              sub="Across all CDM tables"
+              label={t("dataExplorer.overview.metrics.totalEvents")}
+              value={formatNumber(totalEvents, {
+                notation: "compact",
+                maximumFractionDigits: 1,
+              })}
+              sub={t("dataExplorer.overview.metrics.acrossAllCdmTables")}
               onClick={() => onNavigateToDomain?.("condition")}
             />
             <MetricCard
               icon={CheckCircle2}
-              label="Data Completeness"
+              label={t("dataExplorer.overview.metrics.dataCompleteness")}
               value={`${completeness}%`}
-              sub={`${recordCounts.data?.filter((d) => d.count > 0).length ?? 0}/${recordCounts.data?.length ?? 0} tables populated`}
+              sub={t("dataExplorer.overview.metrics.tablesPopulated", {
+                populated: recordCounts.data?.filter((d) => d.count > 0).length ?? 0,
+                total: recordCounts.data?.length ?? 0,
+              })}
               onClick={() => onNavigateToDomain?.("condition")}
             />
           </div>
@@ -347,7 +368,10 @@ export default function OverviewTab({
 
       {/* ── Section 2: Population Demographics ───────────────────────────── */}
       <section id="demographics">
-        <SectionHeader title="Population Demographics" icon={Users} />
+        <SectionHeader
+          title={t("dataExplorer.overview.sections.demographics")}
+          icon={Users}
+        />
 
         {demographics.isLoading ? (
           <div className="grid grid-cols-3 gap-4">
@@ -362,7 +386,7 @@ export default function OverviewTab({
               <div className="rounded-xl border border-border-default bg-surface-raised p-6">
                 {/* Gender section */}
                 <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-text-muted">
-                  Gender Distribution
+                  {t("dataExplorer.overview.cards.genderDistribution")}
                 </h3>
                 <ProportionalBar segments={genderSegments} height={24} />
 
@@ -371,7 +395,7 @@ export default function OverviewTab({
 
                 {/* Ethnicity section */}
                 <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-text-muted">
-                  Ethnicity
+                  {t("dataExplorer.overview.cards.ethnicity")}
                 </h3>
                 <ProportionalBar segments={ethnicitySegments} height={24} />
 
@@ -380,7 +404,10 @@ export default function OverviewTab({
 
                 {/* Race section */}
                 <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-text-muted">
-                  Race <span className="font-normal normal-case text-text-ghost">Top 10</span>
+                  {t("dataExplorer.overview.cards.race")}{" "}
+                  <span className="font-normal normal-case text-text-ghost">
+                    {t("dataExplorer.overview.cards.topTen")}
+                  </span>
                 </h3>
                 <RaceBarChart data={demographics.data.race} />
               </div>
@@ -397,8 +424,8 @@ export default function OverviewTab({
             {/* Year of Birth */}
             {demographics.data.yearOfBirth.length > 0 && (
               <ChartCard
-                title="Year of Birth Distribution"
-                subtitle="Histogram with smoothed density (gold)"
+                title={t("dataExplorer.overview.cards.yearOfBirthDistribution")}
+                subtitle={t("dataExplorer.overview.cards.yearOfBirthSubtitle")}
               >
                 <YearOfBirthHistogram data={demographics.data.yearOfBirth} />
               </ChartCard>
@@ -409,7 +436,10 @@ export default function OverviewTab({
 
       {/* ── Section 3: Observation Period Analysis ───────────────────────── */}
       <section id="observation-periods">
-        <SectionHeader title="Observation Period Analysis" icon={Calendar} />
+        <SectionHeader
+          title={t("dataExplorer.overview.sections.observationPeriods")}
+          icon={Calendar}
+        />
 
         {obsPeriods.isLoading ? (
           <div className="grid grid-cols-2 gap-4">
@@ -422,8 +452,8 @@ export default function OverviewTab({
               {/* KM-style cumulative observation curve */}
               {obsPeriods.data.durationDistribution && (
                 <ChartCard
-                  title="Cumulative Observation Duration"
-                  subtitle="Kaplan-Meier style: % of persons with observation >= X days"
+                  title={t("dataExplorer.overview.cards.cumulativeObservationDuration")}
+                  subtitle={t("dataExplorer.overview.cards.cumulativeObservationSubtitle")}
                 >
                   <CumulativeObservationCurve
                     distribution={obsPeriods.data.durationDistribution}
@@ -434,8 +464,8 @@ export default function OverviewTab({
               {/* Observation start/end temporal distribution */}
               {obsPeriods.data.startYearMonth.length > 0 && (
                 <ChartCard
-                  title="Observation Start / End Dates"
-                  subtitle="Temporal distribution of observation periods"
+                  title={t("dataExplorer.overview.cards.observationStartEndDates")}
+                  subtitle={t("dataExplorer.overview.cards.observationStartEndSubtitle")}
                 >
                   <DualAreaChart
                     primary={obsPeriods.data.startYearMonth}
@@ -450,15 +480,15 @@ export default function OverviewTab({
               {obsPeriods.data.durationDistribution && (
                 <BoxPlotChart
                   data={obsPeriods.data.durationDistribution}
-                  label="Observation Period Duration (days)"
+                  label={t("dataExplorer.overview.cards.observationPeriodDurationDays")}
                 />
               )}
 
               {/* Periods per person */}
               {obsPeriods.data.periodsByPerson.length > 0 && (
                 <ChartCard
-                  title="Observation Periods per Person"
-                  subtitle="Distribution of how many periods each person has"
+                  title={t("dataExplorer.overview.cards.observationPeriodsPerPerson")}
+                  subtitle={t("dataExplorer.overview.cards.observationPeriodsPerPersonSubtitle")}
                 >
                   <PeriodCountBar data={obsPeriods.data.periodsByPerson} />
                 </ChartCard>
@@ -470,14 +500,17 @@ export default function OverviewTab({
 
       {/* ── Section 4: Domain Record Proportions ─────────────────────────── */}
       <section id="domain-proportions">
-        <SectionHeader title="Domain Record Proportions" icon={Database} />
+        <SectionHeader
+          title={t("dataExplorer.overview.sections.domainRecordProportions")}
+          icon={Database}
+        />
 
         {recordCounts.isLoading ? (
           <Shimmer className="h-80" />
         ) : treemapData.length > 0 ? (
           <ChartCard
-            title="Clinical Data Domains"
-            subtitle="Sorted by record count — click a domain to explore its concepts"
+            title={t("dataExplorer.overview.cards.clinicalDataDomains")}
+            subtitle={t("dataExplorer.overview.cards.clinicalDataDomainsSubtitle")}
           >
             <DomainBarChart
               data={treemapData}
@@ -489,14 +522,17 @@ export default function OverviewTab({
 
       {/* ── Section 5: Data Density Heatmap ──────────────────────────────── */}
       <section id="data-density">
-        <SectionHeader title="Data Density Over Time" icon={BarChart3} />
+        <SectionHeader
+          title={t("dataExplorer.overview.sections.dataDensityOverTime")}
+          icon={BarChart3}
+        />
 
         {domainTrends.isLoading ? (
           <Shimmer className="h-60" />
         ) : heatmapData.length > 0 ? (
           <ChartCard
-            title="Records by Domain and Year"
-            subtitle="Color intensity indicates record volume per domain per year"
+            title={t("dataExplorer.overview.cards.recordsByDomainAndYear")}
+            subtitle={t("dataExplorer.overview.cards.recordsByDomainAndYearSubtitle")}
           >
             <HeatmapChart
               data={heatmapData}
@@ -506,7 +542,7 @@ export default function OverviewTab({
         ) : (
           <div className="flex items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-12">
             <p className="text-sm text-text-muted">
-              Run Achilles to generate temporal trend data
+              {t("dataExplorer.overview.messages.runAchillesForTemporalData")}
             </p>
           </div>
         )}
@@ -514,14 +550,17 @@ export default function OverviewTab({
 
       {/* ── Section 6: Record Distribution (Log Scale) ───────────────────── */}
       <section id="record-distribution">
-        <SectionHeader title="Record Distribution" icon={Activity} />
+        <SectionHeader
+          title={t("dataExplorer.overview.sections.recordDistribution")}
+          icon={Activity}
+        />
 
         {recordCounts.isLoading ? (
           <Shimmer className="h-96" />
         ) : recordCounts.data ? (
           <ChartCard
-            title="CDM Table Record Counts"
-            subtitle="Logarithmic scale — all tables visible regardless of magnitude"
+            title={t("dataExplorer.overview.cards.cdmTableRecordCounts")}
+            subtitle={t("dataExplorer.overview.cards.cdmTableRecordCountsSubtitle")}
           >
             <LogScaleBar data={recordCounts.data} />
           </ChartCard>

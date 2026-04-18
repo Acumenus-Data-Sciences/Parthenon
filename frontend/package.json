@@ -15,6 +15,7 @@
     "i18n:report": "node scripts/i18n-completeness.mjs --output reports/i18n-completeness.json",
     "i18n:scan": "node scripts/i18n-scan.mjs --output reports/i18n-scan-full.json",
     "i18n:scan:pr3-pr4": "node scripts/i18n-scan.mjs --paths src/components/layout,src/components/ui,src/features/auth,src/features/settings --output reports/i18n-scan-pr3-pr4.json",
+    "i18n:scan:app-priority": "node scripts/i18n-scan.mjs --paths src/app/router.tsx,src/components/ErrorBoundary.tsx,src/components/analysis,src/features/studies,src/features/jobs,src/features/administration,src/features/vocabulary,src/features/data-explorer --output reports/i18n-scan-app-priority.json",
     "i18n:export-assets": "node ../scripts/i18n/export-translation-assets.mjs",
     "i18n:validate-assets": "node ../scripts/i18n/validate-translation-assets.mjs",
     "i18n:import-assets": "node ../scripts/i18n/import-translation-assets.mjs",

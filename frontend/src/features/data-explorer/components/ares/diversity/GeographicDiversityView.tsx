@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import { formatNumber } from "@/i18n/format";
 import { useGeographicDiversity } from "../../../hooks/useNetworkData";
 import type { GeographicDiversity } from "../../../types/ares";
 
@@ -7,28 +9,34 @@ const STATE_BAR_COLORS = [
 ];
 
 function ADIRatingLabel({ median }: { median: number | null }) {
+  const { t } = useTranslation("app");
   if (median === null) return <span className="text-text-ghost">N/A</span>;
 
-  const label =
-    median <= 3 ? "Low deprivation" :
-    median <= 6 ? "Moderate deprivation" :
-    "High deprivation (underserved)";
+  const labelKey =
+    median <= 3 ? "low" :
+      median <= 6 ? "moderate" :
+        "high";
 
   const color =
     median <= 3 ? "text-success" :
     median <= 6 ? "text-accent" :
     "text-primary";
 
-  return <span className={color}>{label}</span>;
+  return <span className={color}>{t(`dataExplorer.ares.diversity.geographic.adiRatings.${labelKey}`)}</span>;
 }
 
 function StateDistributionBars({ data }: { data: Record<string, number> }) {
+  const { t } = useTranslation("app");
   const entries = Object.entries(data)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 15);
 
   if (entries.length === 0) {
-    return <p className="text-xs text-text-ghost">No location data available</p>;
+    return (
+      <p className="text-xs text-text-ghost">
+        {t("dataExplorer.ares.diversity.geographic.noLocationData")}
+      </p>
+    );
   }
 
   const maxCount = entries[0][1];
@@ -47,7 +55,7 @@ function StateDistributionBars({ data }: { data: Record<string, number> }) {
               }}
             />
           </div>
-          <span className="w-16 text-right text-[11px] text-text-muted">{count.toLocaleString()}</span>
+          <span className="w-16 text-right text-[11px] text-text-muted">{formatNumber(count)}</span>
         </div>
       ))}
     </div>
@@ -55,8 +63,13 @@ function StateDistributionBars({ data }: { data: Record<string, number> }) {
 }
 
 function ADIHistogram({ data }: { data: Record<string, number> }) {
+  const { t } = useTranslation("app");
   if (Object.keys(data).length === 0) {
-    return <p className="text-xs text-text-ghost">ADI data not available (GIS module may not have ADI loaded)</p>;
+    return (
+      <p className="text-xs text-text-ghost">
+        {t("dataExplorer.ares.diversity.geographic.noAdiData")}
+      </p>
+    );
   }
 
   // Fill in all deciles 1-10
@@ -80,7 +93,10 @@ function ADIHistogram({ data }: { data: Record<string, number> }) {
                   backgroundColor: isDisadvantaged ? "var(--primary)" : "var(--success)",
                   opacity: count > 0 ? 1 : 0.2,
                 }}
-                title={`Decile ${d}: ${count} ZIP codes`}
+                title={t("dataExplorer.ares.diversity.geographic.decileTitle", {
+                  decile: d,
+                  count: formatNumber(count),
+                })}
               />
             </div>
           );
@@ -92,25 +108,30 @@ function ADIHistogram({ data }: { data: Record<string, number> }) {
         ))}
       </div>
       <div className="flex justify-between text-[10px] text-text-ghost">
-        <span>Least deprived</span>
-        <span>ADI Decile</span>
-        <span>Most deprived</span>
+        <span>{t("dataExplorer.ares.diversity.geographic.leastDeprived")}</span>
+        <span>{t("dataExplorer.ares.diversity.geographic.adiDecile")}</span>
+        <span>{t("dataExplorer.ares.diversity.geographic.mostDeprived")}</span>
       </div>
     </div>
   );
 }
 
 export default function GeographicDiversityView() {
+  const { t } = useTranslation("app");
   const { data: geoData, isLoading } = useGeographicDiversity();
 
   if (isLoading) {
-    return <div className="p-4 text-text-ghost">Loading geographic diversity data...</div>;
+    return (
+      <div className="p-4 text-text-ghost">
+        {t("dataExplorer.ares.diversity.geographic.loading")}
+      </div>
+    );
   }
 
   if (!geoData || geoData.length === 0) {
     return (
       <div className="p-4 text-center text-text-ghost">
-        No geographic data available. Sources may not have location data in the person table.
+        {t("dataExplorer.ares.diversity.geographic.noGeographicData")}
       </div>
     );
   }
@@ -127,26 +148,33 @@ export default function GeographicDiversityView() {
       {/* Summary cards */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <div className="rounded-lg border border-border-subtle bg-surface-raised p-3">
-          <p className="text-2xl font-semibold text-success">{totalReach}</p>
-          <p className="mt-0.5 text-xs text-text-muted">States / regions covered</p>
+          <p className="text-2xl font-semibold text-success">{formatNumber(totalReach)}</p>
+          <p className="mt-0.5 text-xs text-text-muted">
+            {t("dataExplorer.ares.diversity.geographic.statesCovered")}
+          </p>
         </div>
         <div className="rounded-lg border border-border-subtle bg-surface-raised p-3">
           <p className="text-2xl font-semibold text-accent">
             {networkMedianAdi !== null ? networkMedianAdi : "N/A"}
           </p>
           <p className="mt-0.5 text-xs text-text-muted">
-            Network Median ADI: <ADIRatingLabel median={networkMedianAdi} />
+            {t("dataExplorer.ares.diversity.geographic.networkMedianAdi")}{" "}
+            <ADIRatingLabel median={networkMedianAdi} />
           </p>
         </div>
         <div className="rounded-lg border border-border-subtle bg-surface-raised p-3">
-          <p className="text-2xl font-semibold text-text-primary">{geoData.length}</p>
-          <p className="mt-0.5 text-xs text-text-muted">Sources with location data</p>
+          <p className="text-2xl font-semibold text-text-primary">{formatNumber(geoData.length)}</p>
+          <p className="mt-0.5 text-xs text-text-muted">
+            {t("dataExplorer.ares.diversity.geographic.sourcesWithLocation")}
+          </p>
         </div>
         <div className="rounded-lg border border-border-subtle bg-surface-raised p-3">
           <p className="text-2xl font-semibold text-text-primary">
-            {geoData.filter((s: GeographicDiversity) => Object.keys(s.adi_distribution).length > 0).length}
+            {formatNumber(geoData.filter((s: GeographicDiversity) => Object.keys(s.adi_distribution).length > 0).length)}
           </p>
-          <p className="mt-0.5 text-xs text-text-muted">Sources with ADI data</p>
+          <p className="mt-0.5 text-xs text-text-muted">
+            {t("dataExplorer.ares.diversity.geographic.sourcesWithAdi")}
+          </p>
         </div>
       </div>
 
@@ -157,11 +185,15 @@ export default function GeographicDiversityView() {
             <h3 className="text-sm font-medium text-text-primary">{source.source_name}</h3>
             <div className="flex items-center gap-3">
               <span className="text-xs text-text-muted">
-                {source.geographic_reach} states
+                {t("dataExplorer.ares.diversity.geographic.stateCount", {
+                  count: formatNumber(source.geographic_reach),
+                })}
               </span>
               {source.median_adi !== null && (
                 <span className="text-xs text-text-muted">
-                  Median ADI: {source.median_adi}
+                  {t("dataExplorer.ares.diversity.geographic.medianAdiValue", {
+                    value: formatNumber(source.median_adi),
+                  })}
                 </span>
               )}
             </div>
@@ -169,11 +201,15 @@ export default function GeographicDiversityView() {
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <p className="mb-2 text-[11px] uppercase text-text-ghost">Top States by Patient Count</p>
+              <p className="mb-2 text-[11px] uppercase text-text-ghost">
+                {t("dataExplorer.ares.diversity.geographic.topStates")}
+              </p>
               <StateDistributionBars data={source.state_distribution} />
             </div>
             <div>
-              <p className="mb-2 text-[11px] uppercase text-text-ghost">ADI Decile Distribution</p>
+              <p className="mb-2 text-[11px] uppercase text-text-ghost">
+                {t("dataExplorer.ares.diversity.geographic.adiDistribution")}
+              </p>
               <ADIHistogram data={source.adi_distribution} />
             </div>
           </div>

@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, lazy, Suspense } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -18,14 +19,7 @@ const AresTab = lazy(() => import("./AresTab"));
 
 type TabId = "overview" | "domains" | "dqd" | "temporal" | "heel" | "ares";
 
-const TABS: { id: TabId; label: string }[] = [
-  { id: "overview", label: "Overview" },
-  { id: "domains", label: "Domains" },
-  { id: "temporal", label: "Temporal" },
-  { id: "heel", label: "Achilles" },
-  { id: "dqd", label: "Data Quality" },
-  { id: "ares", label: "Ares" },
-];
+const TABS: TabId[] = ["overview", "domains", "temporal", "heel", "dqd", "ares"];
 
 function TabFallback() {
   return (
@@ -36,6 +30,7 @@ function TabFallback() {
 }
 
 export default function DataExplorerPage() {
+  const { t } = useTranslation("app");
   const { sourceId: sourceIdParam } = useParams<{ sourceId?: string }>();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabId>("overview");
@@ -72,9 +67,11 @@ export default function DataExplorerPage() {
       {/* Header bar */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Data Explorer</h1>
+          <h1 className="text-2xl font-bold text-text-primary">
+            {t("dataExplorer.page.title")}
+          </h1>
           <p className="mt-1 text-sm text-text-muted">
-            Explore Achilles characterization results and data quality
+            {t("dataExplorer.page.subtitle")}
           </p>
         </div>
 
@@ -85,20 +82,20 @@ export default function DataExplorerPage() {
 
       {/* Tab navigation */}
       <div className="flex items-center gap-1 border-b border-border-default">
-        {TABS.map((tab) => (
+        {TABS.map((tabId) => (
           <button
-            key={tab.id}
+            key={tabId}
             type="button"
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => setActiveTab(tabId)}
             className={cn(
               "relative px-4 py-2.5 text-sm uppercase tracking-wide transition-colors",
-              activeTab === tab.id
+              activeTab === tabId
                 ? "text-text-primary font-medium"
                 : "text-text-muted hover:text-text-secondary",
             )}
           >
-            {tab.label}
-            {activeTab === tab.id && (
+            {t(`dataExplorer.tabs.${tabId}`)}
+            {activeTab === tabId && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
             )}
           </button>
@@ -113,10 +110,10 @@ export default function DataExplorerPage() {
       ) : !sourceId || sourceId <= 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-20">
           <p className="text-lg font-semibold text-text-primary">
-            Select a data source
+            {t("dataExplorer.page.selectSourceTitle")}
           </p>
           <p className="mt-2 text-sm text-text-muted">
-            Choose a CDM source from the dropdown above to explore its data
+            {t("dataExplorer.page.selectSourceMessage")}
           </p>
         </div>
       ) : (

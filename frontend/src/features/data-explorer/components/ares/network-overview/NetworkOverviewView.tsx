@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { formatNumber } from "@/i18n/format";
 import { useAlerts, useNetworkOverview, useNetworkDqRadar } from "../../../hooks/useNetworkData";
 import type { NetworkDqSource } from "../../../types/ares";
 import Sparkline from "../shared/Sparkline";
@@ -33,6 +35,7 @@ function DomainRing({ count }: { count: number }) {
 }
 
 export default function NetworkOverviewView() {
+  const { t } = useTranslation("app");
   const [showRadar, setShowRadar] = useState(false);
   const { data: overview, isLoading } = useNetworkOverview();
   const { data: alerts } = useAlerts();
@@ -40,17 +43,27 @@ export default function NetworkOverviewView() {
   const navigate = useNavigate();
 
   if (isLoading) {
-    return <div className="p-4 text-text-ghost">Loading network overview...</div>;
+    return (
+      <div className="p-4 text-text-ghost">
+        {t("dataExplorer.ares.networkOverview.messages.loading")}
+      </div>
+    );
   }
 
   if (!overview) {
-    return <div className="p-4 text-center text-text-ghost">No network data available.</div>;
+    return (
+      <div className="p-4 text-center text-text-ghost">
+        {t("dataExplorer.ares.networkOverview.messages.noData")}
+      </div>
+    );
   }
 
   return (
     <div className="p-4">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-medium text-text-primary">Network Overview</h2>
+        <h2 className="text-lg font-medium text-text-primary">
+          {t("dataExplorer.ares.networkOverview.title")}
+        </h2>
         <button
           type="button"
           onClick={() => setShowRadar(!showRadar)}
@@ -60,7 +73,9 @@ export default function NetworkOverviewView() {
               : "border-border-default text-text-muted hover:border-surface-highlight"
           }`}
         >
-          {showRadar ? "Hide Radar" : "DQ Radar"}
+          {showRadar
+            ? t("dataExplorer.ares.networkOverview.actions.hideRadar")
+            : t("dataExplorer.ares.networkOverview.actions.dqRadar")}
         </button>
       </div>
 
@@ -77,28 +92,48 @@ export default function NetworkOverviewView() {
       {/* Summary stats */}
       <div className="mb-6 grid grid-cols-5 gap-3">
         <div className="rounded-lg border border-border-subtle bg-surface-raised p-3 text-center">
-          <p className="text-2xl font-semibold text-success">{overview.source_count}</p>
-          <p className="text-[11px] text-text-ghost">Data Sources</p>
+          <p className="text-2xl font-semibold text-success">{formatNumber(overview.source_count)}</p>
+          <p className="text-[11px] text-text-ghost">
+            {t("dataExplorer.ares.networkOverview.metrics.dataSources")}
+          </p>
         </div>
         <div className="rounded-lg border border-border-subtle bg-surface-raised p-3 text-center">
           <p className="text-2xl font-semibold text-accent">
-            {overview.avg_dq_score !== null ? `${overview.avg_dq_score.toFixed(1)}%` : "--"}
+            {overview.avg_dq_score !== null
+              ? t("dataExplorer.ares.networkOverview.percent", {
+                value: formatNumber(overview.avg_dq_score, { maximumFractionDigits: 1 }),
+              })
+              : "--"}
           </p>
-          <p className="text-[11px] text-text-ghost">Avg DQ Score</p>
+          <p className="text-[11px] text-text-ghost">
+            {t("dataExplorer.ares.networkOverview.metrics.avgDqScore")}
+          </p>
         </div>
         <div className="rounded-lg border border-border-subtle bg-surface-raised p-3 text-center">
-          <p className="text-2xl font-semibold text-primary">{overview.total_unmapped_codes.toLocaleString()}</p>
-          <p className="text-[11px] text-text-ghost">Unmapped Codes</p>
+          <p className="text-2xl font-semibold text-primary">
+            {formatNumber(overview.total_unmapped_codes)}
+          </p>
+          <p className="text-[11px] text-text-ghost">
+            {t("dataExplorer.ares.networkOverview.metrics.unmappedCodes")}
+          </p>
         </div>
         <div className="rounded-lg border border-border-subtle bg-surface-raised p-3 text-center">
-          <p className="text-2xl font-semibold text-text-primary">{overview.sources_needing_attention}</p>
-          <p className="text-[11px] text-text-ghost">Need Attention</p>
+          <p className="text-2xl font-semibold text-text-primary">
+            {formatNumber(overview.sources_needing_attention)}
+          </p>
+          <p className="text-[11px] text-text-ghost">
+            {t("dataExplorer.ares.networkOverview.metrics.needAttention")}
+          </p>
         </div>
         <div className="rounded-lg border border-border-subtle bg-surface-raised p-3 text-center">
           <p className="text-2xl font-semibold text-success">
-            {overview.network_person_count?.toLocaleString() ?? "--"}
+            {overview.network_person_count !== null && overview.network_person_count !== undefined
+              ? formatNumber(overview.network_person_count)
+              : "--"}
           </p>
-          <p className="text-[11px] text-text-ghost">Total Persons</p>
+          <p className="text-[11px] text-text-ghost">
+            {t("dataExplorer.ares.networkOverview.metrics.totalPersons")}
+          </p>
         </div>
       </div>
 
@@ -107,13 +142,27 @@ export default function NetworkOverviewView() {
         <table className="w-full text-sm">
           <thead className="bg-surface-overlay">
             <tr className="border-b border-border-subtle">
-              <th className="px-4 py-2 text-left text-[11px] font-medium uppercase text-text-muted">Source</th>
-              <th className="px-4 py-2 text-center text-[11px] font-medium uppercase text-text-muted">DQ Score</th>
-              <th className="px-4 py-2 text-center text-[11px] font-medium uppercase text-text-muted">DQ Trend</th>
-              <th className="px-4 py-2 text-center text-[11px] font-medium uppercase text-text-muted">Freshness</th>
-              <th className="px-4 py-2 text-center text-[11px] font-medium uppercase text-text-muted">Domains</th>
-              <th className="px-4 py-2 text-right text-[11px] font-medium uppercase text-text-muted">Persons</th>
-              <th className="px-4 py-2 text-left text-[11px] font-medium uppercase text-text-muted">Latest Release</th>
+              <th className="px-4 py-2 text-left text-[11px] font-medium uppercase text-text-muted">
+                {t("dataExplorer.ares.networkOverview.table.source")}
+              </th>
+              <th className="px-4 py-2 text-center text-[11px] font-medium uppercase text-text-muted">
+                {t("dataExplorer.ares.networkOverview.table.dqScore")}
+              </th>
+              <th className="px-4 py-2 text-center text-[11px] font-medium uppercase text-text-muted">
+                {t("dataExplorer.ares.networkOverview.table.dqTrend")}
+              </th>
+              <th className="px-4 py-2 text-center text-[11px] font-medium uppercase text-text-muted">
+                {t("dataExplorer.ares.networkOverview.table.freshness")}
+              </th>
+              <th className="px-4 py-2 text-center text-[11px] font-medium uppercase text-text-muted">
+                {t("dataExplorer.ares.networkOverview.table.domains")}
+              </th>
+              <th className="px-4 py-2 text-right text-[11px] font-medium uppercase text-text-muted">
+                {t("dataExplorer.ares.networkOverview.table.persons")}
+              </th>
+              <th className="px-4 py-2 text-left text-[11px] font-medium uppercase text-text-muted">
+                {t("dataExplorer.ares.networkOverview.table.latestRelease")}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -134,7 +183,11 @@ export default function NetworkOverviewView() {
                           : "bg-primary/20 text-critical"
                     }`}
                   >
-                    {source.pass_rate > 0 ? `${source.pass_rate.toFixed(1)}%` : "--"}
+                    {source.pass_rate > 0
+                      ? t("dataExplorer.ares.networkOverview.percent", {
+                        value: formatNumber(source.pass_rate, { maximumFractionDigits: 1 }),
+                      })
+                      : "--"}
                   </span>
                 </td>
                 <td className="px-4 py-2 text-center">
@@ -147,25 +200,35 @@ export default function NetworkOverviewView() {
                   <DomainRing count={source.domain_count} />
                 </td>
                 <td className="px-4 py-2 text-right text-xs text-text-secondary">
-                  {source.person_count.toLocaleString()}
+                  {formatNumber(source.person_count)}
                 </td>
-                <td className="px-4 py-2 text-xs text-text-muted">{source.release_name ?? "No releases"}</td>
+                <td className="px-4 py-2 text-xs text-text-muted">
+                  {source.release_name ?? t("dataExplorer.ares.networkOverview.messages.noReleases")}
+                </td>
               </tr>
             ))}
 
             {/* Network aggregate row */}
             <tr className="border-t-2 border-border-default bg-surface-overlay font-medium">
-              <td className="px-4 py-2 text-accent">Network Total</td>
+              <td className="px-4 py-2 text-accent">
+                {t("dataExplorer.ares.networkOverview.networkTotal")}
+              </td>
               <td className="px-4 py-2 text-center">
                 <span className="text-xs text-accent">
-                  {overview.avg_dq_score !== null ? `${overview.avg_dq_score.toFixed(1)}%` : "--"} avg
+                  {overview.avg_dq_score !== null
+                    ? t("dataExplorer.ares.networkOverview.averagePercent", {
+                      value: formatNumber(overview.avg_dq_score, { maximumFractionDigits: 1 }),
+                    })
+                    : "--"}
                 </span>
               </td>
               <td />
               <td />
               <td />
               <td className="px-4 py-2 text-right text-xs text-accent">
-                {overview.network_person_count?.toLocaleString() ?? "--"}
+                {overview.network_person_count !== null && overview.network_person_count !== undefined
+                  ? formatNumber(overview.network_person_count)
+                  : "--"}
               </td>
               <td />
             </tr>

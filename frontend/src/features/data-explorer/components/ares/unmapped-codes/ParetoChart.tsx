@@ -8,6 +8,8 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useTranslation } from "react-i18next";
+import { formatNumber } from "@/i18n/format";
 
 interface ParetoItem {
   source_code: string;
@@ -21,12 +23,15 @@ interface ParetoChartProps {
 }
 
 export default function ParetoChart({ data, top20Coverage }: ParetoChartProps) {
+  const { t } = useTranslation("app");
   const displayData = data.slice(0, 50); // Show top 50
 
   return (
     <div>
       <div className="mb-3 rounded-lg border border-accent/30 bg-accent/10 px-4 py-2 text-sm text-accent">
-        Top 20 codes cover {top20Coverage.toFixed(1)}% of all unmapped records
+        {t("dataExplorer.ares.unmapped.pareto.topCodesCoverage", {
+          percent: formatNumber(top20Coverage, { maximumFractionDigits: 1 }),
+        })}
       </div>
       <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
@@ -42,13 +47,17 @@ export default function ParetoChart({ data, top20Coverage }: ParetoChartProps) {
             <YAxis
               yAxisId="count"
               tick={{ fill: "var(--text-muted)", fontSize: 11 }}
-              tickFormatter={(v: number) => v.toLocaleString()}
+              tickFormatter={(v: number) => formatNumber(v)}
             />
             <YAxis
               yAxisId="pct"
               orientation="right"
               tick={{ fill: "var(--text-muted)", fontSize: 11 }}
-              tickFormatter={(v: number) => `${v}%`}
+              tickFormatter={(v: number) =>
+                t("dataExplorer.ares.unmapped.pareto.percent", {
+                  value: formatNumber(v, { maximumFractionDigits: 1 }),
+                })
+              }
               domain={[0, 100]}
             />
             <Tooltip
@@ -65,7 +74,7 @@ export default function ParetoChart({ data, top20Coverage }: ParetoChartProps) {
               dataKey="record_count"
               fill="var(--success)"
               radius={[2, 2, 0, 0]}
-              name="Records"
+              name={t("dataExplorer.ares.unmapped.table.records")}
             />
             <Line
               yAxisId="pct"
@@ -74,7 +83,7 @@ export default function ParetoChart({ data, top20Coverage }: ParetoChartProps) {
               stroke="var(--accent)"
               strokeWidth={2}
               dot={false}
-              name="Cumulative %"
+              name={t("dataExplorer.ares.unmapped.pareto.cumulativePercent")}
             />
           </ComposedChart>
         </ResponsiveContainer>

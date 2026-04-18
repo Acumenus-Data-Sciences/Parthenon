@@ -1,17 +1,19 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Trash2, MessageSquare, Search, List, Clock, Reply, Send } from "lucide-react";
+import { formatDate } from "@/i18n/format";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { useAnnotations, useCreateAnnotation, useDeleteAnnotation } from "../../../hooks/useAnnotationData";
 import AnnotationTimeline from "./AnnotationTimeline";
 import type { ChartAnnotation } from "../../../types/ares";
 
 const TAG_OPTIONS = [
-  { value: undefined, label: "All", color: "border-border-default text-text-muted", activeBg: "border-accent bg-accent/10 text-accent" },
-  { value: "data_event", label: "Data Event", color: "border-border-default text-text-muted", activeBg: "border-success bg-success/10 text-success" },
-  { value: "research_note", label: "Research Note", color: "border-border-default text-text-muted", activeBg: "border-accent bg-accent/10 text-accent" },
-  { value: "action_item", label: "Action Item", color: "border-border-default text-text-muted", activeBg: "border-primary bg-primary/10 text-primary" },
-  { value: "system", label: "System", color: "border-border-default text-text-muted", activeBg: "border-info bg-domain-observation/10 text-domain-observation" },
+  { value: undefined, labelKey: "all", color: "border-border-default text-text-muted", activeBg: "border-accent bg-accent/10 text-accent" },
+  { value: "data_event", labelKey: "dataEvent", color: "border-border-default text-text-muted", activeBg: "border-success bg-success/10 text-success" },
+  { value: "research_note", labelKey: "researchNote", color: "border-border-default text-text-muted", activeBg: "border-accent bg-accent/10 text-accent" },
+  { value: "action_item", labelKey: "actionItem", color: "border-border-default text-text-muted", activeBg: "border-primary bg-primary/10 text-primary" },
+  { value: "system", labelKey: "system", color: "border-border-default text-text-muted", activeBg: "border-info bg-domain-observation/10 text-domain-observation" },
 ] as const;
 
 const TAG_BADGE_COLORS: Record<string, string> = {
@@ -21,29 +23,31 @@ const TAG_BADGE_COLORS: Record<string, string> = {
   system: "bg-domain-observation/10 text-domain-observation",
 };
 
-const TAG_LABELS: Record<string, string> = {
-  data_event: "Data Event",
-  research_note: "Research Note",
-  action_item: "Action Item",
-  system: "System",
+const TAG_LABEL_KEYS: Record<string, string> = {
+  data_event: "dataEvent",
+  research_note: "researchNote",
+  action_item: "actionItem",
+  system: "system",
 };
 
 type ViewMode = "list" | "timeline";
 
 function ReplyCard({ reply, onDelete }: { reply: ChartAnnotation; onDelete: (id: number) => void }) {
+  const { t } = useTranslation("app");
   return (
     <div className="ml-6 flex items-start justify-between border-l-2 border-border-subtle pl-3 py-2">
       <div className="space-y-0.5">
         <p className="text-xs text-text-primary">{reply.annotation_text}</p>
         <div className="flex gap-2 text-[10px] text-text-muted">
           {reply.creator && <span>{reply.creator.name}</span>}
-          <span>{new Date(reply.created_at).toLocaleDateString()}</span>
+          <span>{formatDate(reply.created_at)}</span>
         </div>
       </div>
       <button
         type="button"
         onClick={() => onDelete(reply.id)}
         className="text-text-muted hover:text-primary transition-colors p-0.5 shrink-0"
+        title={t("dataExplorer.ares.annotations.actions.delete")}
       >
         <Trash2 size={11} />
       </button>
@@ -60,6 +64,7 @@ function ReplyForm({
   parentAnnotation: ChartAnnotation;
   onClose: () => void;
 }) {
+  const { t } = useTranslation("app");
   const [text, setText] = useState("");
   const createMutation = useCreateAnnotation(sourceId);
 
@@ -90,7 +95,7 @@ function ReplyForm({
         type="text"
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Write a reply..."
+        placeholder={t("dataExplorer.ares.annotations.replyPlaceholder")}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
@@ -113,6 +118,7 @@ function ReplyForm({
 }
 
 export function AnnotationsView() {
+  const { t } = useTranslation("app");
   const [selectedSourceId, setSelectedSourceId] = useState<number | null>(null);
   const [tagFilter, setTagFilter] = useState<string | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState("");
@@ -137,7 +143,7 @@ export function AnnotationsView() {
   const deleteMutation = useDeleteAnnotation(selectedSourceId ?? 0);
 
   const handleDelete = (annotationId: number) => {
-    if (!confirm("Delete this annotation?")) return;
+    if (!confirm(t("dataExplorer.ares.annotations.confirmDelete"))) return;
     deleteMutation.mutate(annotationId);
   };
 
@@ -150,7 +156,9 @@ export function AnnotationsView() {
           onChange={(e) => setSelectedSourceId(e.target.value ? Number(e.target.value) : null)}
           className="rounded-lg border border-border-subtle bg-surface-raised px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
         >
-          <option value="">All sources</option>
+          <option value="">
+            {t("dataExplorer.ares.annotations.filters.allSources")}
+          </option>
           {sources?.map((s) => (
             <option key={s.id} value={s.id}>{s.source_name}</option>
           ))}
@@ -168,7 +176,7 @@ export function AnnotationsView() {
             }`}
           >
             <List size={13} />
-            List
+            {t("dataExplorer.ares.annotations.viewModes.list")}
           </button>
           <button
             type="button"
@@ -180,7 +188,7 @@ export function AnnotationsView() {
             }`}
           >
             <Clock size={13} />
-            Timeline
+            {t("dataExplorer.ares.annotations.viewModes.timeline")}
           </button>
         </div>
       </div>
@@ -193,14 +201,14 @@ export function AnnotationsView() {
               const isActive = tagFilter === opt.value;
               return (
                 <button
-                  key={opt.label}
+                  key={opt.labelKey}
                   type="button"
                   onClick={() => setTagFilter(opt.value)}
                   className={`rounded-full border px-3 py-1 text-xs transition-colors ${
                     isActive ? opt.activeBg : opt.color + " hover:border-surface-highlight"
                   }`}
                 >
-                  {opt.label}
+                  {t(`dataExplorer.ares.annotations.tags.${opt.labelKey}`)}
                 </button>
               );
             })}
@@ -209,7 +217,7 @@ export function AnnotationsView() {
             <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-ghost" />
             <input
               type="text"
-              placeholder="Search annotations..."
+              placeholder={t("dataExplorer.ares.annotations.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="rounded-lg border border-border-subtle bg-surface-raised py-1.5 pl-8 pr-3 text-sm text-text-primary
@@ -230,14 +238,18 @@ export function AnnotationsView() {
       {!selectedSourceId && (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-16">
           <MessageSquare size={32} className="text-text-muted mb-3" />
-          <p className="text-sm text-text-muted">Select a source to view its annotations</p>
+          <p className="text-sm text-text-muted">
+            {t("dataExplorer.ares.annotations.empty.selectSource")}
+          </p>
         </div>
       )}
 
       {selectedSourceId && !isLoading && (!annotations || annotations.length === 0) && (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-16">
           <MessageSquare size={32} className="text-text-muted mb-3" />
-          <p className="text-sm text-text-muted">No annotations yet for this source</p>
+          <p className="text-sm text-text-muted">
+            {t("dataExplorer.ares.annotations.empty.noAnnotations")}
+          </p>
         </div>
       )}
 
@@ -261,19 +273,31 @@ export function AnnotationsView() {
                     </span>
                     {ann.tag && (
                       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${TAG_BADGE_COLORS[ann.tag] ?? "bg-surface-highlight/20 text-text-muted"}`}>
-                        {TAG_LABELS[ann.tag] ?? ann.tag}
+                        {TAG_LABEL_KEYS[ann.tag]
+                          ? t(`dataExplorer.ares.annotations.tags.${TAG_LABEL_KEYS[ann.tag]}`)
+                          : ann.tag}
                       </span>
                     )}
-                    <span className="text-xs text-text-muted">x = {ann.x_value}</span>
+                    <span className="text-xs text-text-muted">
+                      {t("dataExplorer.ares.annotations.coordinateValue", {
+                        axis: "x",
+                        value: ann.x_value,
+                      })}
+                    </span>
                     {ann.y_value != null && (
-                      <span className="text-xs text-text-muted">y = {ann.y_value}</span>
+                      <span className="text-xs text-text-muted">
+                        {t("dataExplorer.ares.annotations.coordinateValue", {
+                          axis: "y",
+                          value: ann.y_value,
+                        })}
+                      </span>
                     )}
                   </div>
                   <p className="text-sm text-text-primary">{ann.annotation_text}</p>
                   <div className="flex gap-3 text-xs text-text-muted">
                     {ann.creator && <span>{ann.creator.name}</span>}
                     {ann.source && <span>{ann.source.source_name}</span>}
-                    <span>{new Date(ann.created_at).toLocaleDateString()}</span>
+                    <span>{formatDate(ann.created_at)}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
@@ -281,7 +305,7 @@ export function AnnotationsView() {
                     type="button"
                     onClick={() => setReplyingTo(replyingTo === ann.id ? null : ann.id)}
                     className="text-text-muted hover:text-success transition-colors p-1"
-                    title="Reply"
+                    title={t("dataExplorer.ares.annotations.actions.reply")}
                   >
                     <Reply size={14} />
                   </button>

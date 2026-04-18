@@ -1,3 +1,6 @@
+import { useTranslation } from "react-i18next";
+import { formatNumber } from "@/i18n/format";
+
 interface MappingProgressProps {
   total: number;
   mapped: number;
@@ -7,10 +10,10 @@ interface MappingProgressProps {
 }
 
 const SEGMENTS = [
-  { key: "mapped" as const, label: "Mapped", color: "var(--success)" },
-  { key: "deferred" as const, label: "Deferred", color: "var(--accent)" },
-  { key: "excluded" as const, label: "Excluded", color: "var(--text-ghost)" },
-  { key: "pending" as const, label: "Pending", color: "var(--primary)" },
+  { key: "mapped" as const, labelKey: "mapped", color: "var(--success)" },
+  { key: "deferred" as const, labelKey: "deferred", color: "var(--accent)" },
+  { key: "excluded" as const, labelKey: "excluded", color: "var(--text-ghost)" },
+  { key: "pending" as const, labelKey: "pending", color: "var(--primary)" },
 ];
 
 export default function MappingProgressTracker({
@@ -20,12 +23,13 @@ export default function MappingProgressTracker({
   excluded,
   pending,
 }: MappingProgressProps) {
+  const { t } = useTranslation("app");
   const values: Record<string, number> = { mapped, deferred, excluded, pending };
 
   if (total === 0) {
     return (
       <div className="rounded-lg border border-border-subtle bg-surface-raised p-4 text-center text-sm text-text-ghost">
-        No unmapped codes to track.
+        {t("dataExplorer.ares.unmapped.progress.noCodes")}
       </div>
     );
   }
@@ -35,8 +39,14 @@ export default function MappingProgressTracker({
   return (
     <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
       <div className="mb-2 flex items-center justify-between">
-        <h4 className="text-sm font-medium text-text-primary">Mapping Progress</h4>
-        <span className="text-xs text-text-muted">{completionPct.toFixed(1)}% reviewed</span>
+        <h4 className="text-sm font-medium text-text-primary">
+          {t("dataExplorer.ares.unmapped.progress.title")}
+        </h4>
+        <span className="text-xs text-text-muted">
+          {t("dataExplorer.ares.unmapped.progress.reviewed", {
+            percent: formatNumber(completionPct, { maximumFractionDigits: 1 }),
+          })}
+        </span>
       </div>
 
       {/* Stacked progress bar */}
@@ -49,7 +59,11 @@ export default function MappingProgressTracker({
               key={seg.key}
               className="transition-all duration-300"
               style={{ width: `${pct}%`, backgroundColor: seg.color }}
-              title={`${seg.label}: ${values[seg.key]} (${pct.toFixed(1)}%)`}
+              title={t("dataExplorer.ares.unmapped.progress.segmentTitle", {
+                label: t(`dataExplorer.ares.unmapped.progress.status.${seg.labelKey}`),
+                count: formatNumber(values[seg.key]),
+                percent: formatNumber(pct, { maximumFractionDigits: 1 }),
+              })}
             />
           );
         })}
@@ -60,8 +74,12 @@ export default function MappingProgressTracker({
         {SEGMENTS.map((seg) => (
           <div key={seg.key} className="flex items-center gap-1.5 text-xs">
             <div className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: seg.color }} />
-            <span className="text-text-muted">{seg.label}:</span>
-            <span className="font-medium text-text-primary">{values[seg.key].toLocaleString()}</span>
+            <span className="text-text-muted">
+              {t("dataExplorer.ares.unmapped.progress.label", {
+                label: t(`dataExplorer.ares.unmapped.progress.status.${seg.labelKey}`),
+              })}
+            </span>
+            <span className="font-medium text-text-primary">{formatNumber(values[seg.key])}</span>
           </div>
         ))}
       </div>

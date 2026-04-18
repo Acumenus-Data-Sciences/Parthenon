@@ -1,4 +1,6 @@
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
+import { formatNumber } from "@/i18n/format";
 import { useCoverage, useCoverageExtended } from "../../../hooks/useNetworkData";
 import { fetchCoverageExport } from "../../../api/networkAresApi";
 import type { ExtendedCoverageCell } from "../../../types/ares";
@@ -18,14 +20,18 @@ function getCellTextColor(hasData: boolean, density: number): string {
   return "text-success/70";
 }
 
-function getExpectedIcon(expected: boolean, hasData: boolean): { icon: string; color: string; title: string } {
-  if (expected && hasData) return { icon: "check", color: "text-success", title: "Expected and present" };
-  if (expected && !hasData) return { icon: "!", color: "text-primary", title: "Expected but missing" };
-  if (!expected && hasData) return { icon: "+", color: "text-accent", title: "Unexpected bonus data" };
-  return { icon: "--", color: "text-text-ghost", title: "Not expected, not present" };
+function getExpectedIcon(
+  expected: boolean,
+  hasData: boolean,
+): { icon: string; color: string; titleKey: string } {
+  if (expected && hasData) return { icon: "check", color: "text-success", titleKey: "expectedPresent" };
+  if (expected && !hasData) return { icon: "!", color: "text-primary", titleKey: "expectedMissing" };
+  if (!expected && hasData) return { icon: "+", color: "text-accent", titleKey: "unexpectedBonus" };
+  return { icon: "--", color: "text-text-ghost", titleKey: "notExpectedAbsent" };
 }
 
 export default function CoverageMatrixView() {
+  const { t } = useTranslation("app");
   const { data: matrix, isLoading } = useCoverage();
   const { data: extended } = useCoverageExtended();
   const [viewMode, setViewMode] = useState<"records" | "per_person" | "date_range">("records");
@@ -56,11 +62,19 @@ export default function CoverageMatrixView() {
   }, []);
 
   if (isLoading) {
-    return <div className="p-4 text-text-ghost">Loading coverage matrix...</div>;
+    return (
+      <div className="p-4 text-text-ghost">
+        {t("dataExplorer.ares.coverage.messages.loading")}
+      </div>
+    );
   }
 
   if (!matrix || matrix.sources.length === 0) {
-    return <div className="p-4 text-center text-text-ghost">No sources available for coverage analysis.</div>;
+    return (
+      <div className="p-4 text-center text-text-ghost">
+        {t("dataExplorer.ares.coverage.messages.noSources")}
+      </div>
+    );
   }
 
   // Compute global earliest/latest for temporal bar scaling
@@ -83,23 +97,29 @@ export default function CoverageMatrixView() {
   return (
     <div className="p-4">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-medium text-text-primary">Coverage Matrix (Strand Report)</h2>
+        <h2 className="text-lg font-medium text-text-primary">
+          {t("dataExplorer.ares.coverage.title")}
+        </h2>
         <button
           type="button"
           onClick={handleExport}
           disabled={isExporting}
           className="flex items-center gap-1.5 rounded-lg border border-border-subtle bg-surface-raised px-3 py-1.5 text-xs text-text-muted transition-colors hover:border-accent/30 hover:text-accent disabled:opacity-50"
         >
-          {isExporting ? "Exporting..." : "Export CSV"}
+          {isExporting
+            ? t("dataExplorer.ares.coverage.actions.exporting")
+            : t("dataExplorer.ares.coverage.actions.exportCsv")}
         </button>
       </div>
       <p className="mb-4 text-xs text-text-ghost">
-        Domain availability across all data sources. Green = high density, amber = low density, red = no data.
+        {t("dataExplorer.ares.coverage.description")}
       </p>
 
       {/* View mode toggle */}
       <div className="mb-3 flex items-center gap-2">
-        <span className="text-xs text-text-ghost">View:</span>
+        <span className="text-xs text-text-ghost">
+          {t("dataExplorer.ares.coverage.filters.view")}
+        </span>
         {(["records", "per_person", "date_range"] as const).map((mode) => (
           <button
             key={mode}
@@ -111,7 +131,7 @@ export default function CoverageMatrixView() {
                 : "text-text-muted hover:text-text-primary"
             }`}
           >
-            {mode === "records" ? "Records" : mode === "per_person" ? "Per Person" : "Date Range"}
+            {t(`dataExplorer.ares.coverage.viewModes.${mode}`)}
           </button>
         ))}
         <span className="mx-2 text-text-disabled">|</span>
@@ -122,7 +142,7 @@ export default function CoverageMatrixView() {
             showExpected ? "bg-accent/20 text-accent" : "text-text-muted hover:text-text-primary"
           }`}
         >
-          Expected vs Actual
+          {t("dataExplorer.ares.coverage.actions.expectedVsActual")}
         </button>
       </div>
 
@@ -131,7 +151,7 @@ export default function CoverageMatrixView() {
           <thead className="bg-surface-overlay">
             <tr>
               <th className="sticky left-0 bg-surface-overlay px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">
-                Source
+                {t("dataExplorer.ares.coverage.table.source")}
               </th>
               {matrix.domains.map((domain) => {
                 const isObsPeriod = domain === "observation_period";
@@ -147,7 +167,7 @@ export default function CoverageMatrixView() {
                 );
               })}
               <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">
-                Domains
+                {t("dataExplorer.ares.coverage.table.domains")}
               </th>
             </tr>
           </thead>
@@ -195,10 +215,18 @@ export default function CoverageMatrixView() {
                       >
                         <div
                           className={`rounded px-2 py-1 text-xs font-mono ${getCellColor(cell.has_data, cell.density_per_person)} ${getCellTextColor(cell.has_data, cell.density_per_person)}`}
-                          title={`Density: ${cell.density_per_person} per person`}
+                          title={t("dataExplorer.ares.coverage.densityTitle", {
+                            density: formatNumber(cell.density_per_person, {
+                              maximumFractionDigits: 1,
+                            }),
+                          })}
                         >
-                          {viewMode === "records" && (cell.has_data ? cell.record_count.toLocaleString() : "---")}
-                          {viewMode === "per_person" && (cell.has_data ? cell.density_per_person.toFixed(1) : "---")}
+                          {viewMode === "records" && (cell.has_data ? formatNumber(cell.record_count) : "---")}
+                          {viewMode === "per_person" && (
+                            cell.has_data
+                              ? formatNumber(cell.density_per_person, { maximumFractionDigits: 1 })
+                              : "---"
+                          )}
                           {viewMode === "date_range" && extCell && (
                             <TemporalCoverageBar
                               earliest={extCell.earliest_date}
@@ -207,7 +235,9 @@ export default function CoverageMatrixView() {
                               globalLatest={globalLatest}
                             />
                           )}
-                          {viewMode === "date_range" && !extCell && (cell.has_data ? "Yes" : "---")}
+                          {viewMode === "date_range" && !extCell && (
+                            cell.has_data ? t("dataExplorer.ares.coverage.yes") : "---"
+                          )}
                         </div>
                         {showExpected && expectedForDomain !== undefined && (
                           <div className="mt-0.5">
@@ -216,7 +246,7 @@ export default function CoverageMatrixView() {
                               return (
                                 <span
                                   className={`text-[9px] font-bold ${info.color}`}
-                                  title={info.title}
+                                  title={t(`dataExplorer.ares.coverage.expectedStates.${info.titleKey}`)}
                                 >
                                   {info.icon === "check" ? "[OK]" : info.icon === "!" ? "[MISS]" : info.icon === "+" ? "[BONUS]" : "--"}
                                 </span>
@@ -238,12 +268,12 @@ export default function CoverageMatrixView() {
             {/* Domain summary row */}
             <tr className="border-t-2 border-border-default bg-surface-overlay">
               <td className="sticky left-0 bg-surface-overlay px-3 py-2 text-xs font-medium text-accent">
-                Network Total
+                {t("dataExplorer.ares.networkOverview.networkTotal")}
               </td>
               {matrix.domains.map((domain) => (
                 <td key={domain} className="px-2 py-1.5 text-center">
                   <span className="text-xs font-mono text-accent">
-                    {(matrix.domain_totals?.[domain] ?? 0).toLocaleString()}
+                    {formatNumber(matrix.domain_totals?.[domain] ?? 0)}
                   </span>
                 </td>
               ))}

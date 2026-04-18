@@ -62,6 +62,7 @@ const ignoredFiles = [
   /\.snapshot\.[cm]?[tj]sx?$/,
   /\.d\.ts$/,
   /\/i18n\/resources\.ts$/,
+  /\/i18n\/[A-Za-z0-9_-]+Resources\.ts$/,
   /\/i18n\/commonsResources\.ts$/,
   /\/i18n\/dashboardResources\.ts$/,
   /\/i18n\/locales\.ts$/,

@@ -1,13 +1,18 @@
 import { AlertTriangle, ArrowLeft } from "lucide-react";
 import { isRouteErrorResponse, useNavigate, useRouteError } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 interface AnalysisRouteErrorProps {
-  title: string;
+  titleKey: string;
 }
 
-function getErrorMessage(error: unknown): string {
+function getErrorMessage(
+  error: unknown,
+  routeErrorLabel: string,
+  pageFailedLabel: string,
+): string {
   if (isRouteErrorResponse(error)) {
-    return `${error.status} ${error.statusText || "Route error"}`.trim();
+    return `${error.status} ${error.statusText || routeErrorLabel}`.trim();
   }
 
   if (error instanceof Error && error.message) {
@@ -18,13 +23,18 @@ function getErrorMessage(error: unknown): string {
     return error;
   }
 
-  return "The page failed to render.";
+  return pageFailedLabel;
 }
 
-export function AnalysisRouteError({ title }: AnalysisRouteErrorProps) {
+export function AnalysisRouteError({ titleKey }: AnalysisRouteErrorProps) {
   const navigate = useNavigate();
   const error = useRouteError();
-  const message = getErrorMessage(error);
+  const { t } = useTranslation("app");
+  const message = getErrorMessage(
+    error,
+    t("errors.route.routeError"),
+    t("errors.route.pageFailed"),
+  );
 
   return (
     <div className="mx-auto flex min-h-[50vh] max-w-2xl items-center justify-center px-6">
@@ -34,16 +44,18 @@ export function AnalysisRouteError({ title }: AnalysisRouteErrorProps) {
             <AlertTriangle size={18} className="text-critical" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold text-text-primary">{title}</h1>
+            <h1 className="text-lg font-semibold text-text-primary">
+              {t(titleKey)}
+            </h1>
             <p className="text-sm text-text-muted">
-              This analysis page hit a render or route-loading error.
+              {t("errors.route.analysisDescription")}
             </p>
           </div>
         </div>
 
         <div className="rounded-xl border border-border-default bg-surface-base px-4 py-3">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-text-muted">
-            Error
+            {t("errors.route.label")}
           </p>
           <p className="mt-2 break-words text-sm text-text-primary">{message}</p>
         </div>
@@ -55,14 +67,14 @@ export function AnalysisRouteError({ title }: AnalysisRouteErrorProps) {
             className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-overlay px-4 py-2 text-sm text-text-secondary transition-colors hover:border-surface-highlight hover:text-text-primary"
           >
             <ArrowLeft size={14} />
-            Back To Analyses
+            {t("errors.route.backToAnalyses")}
           </button>
           <button
             type="button"
             onClick={() => window.location.reload()}
             className="rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success-dark"
           >
-            Reload Page
+            {t("errors.route.reloadPage")}
           </button>
         </div>
       </div>

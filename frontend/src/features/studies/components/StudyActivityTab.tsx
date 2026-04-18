@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Loader2, Activity, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { formatDateTime } from "@/i18n/format";
 import { useStudyActivity } from "../hooks/useStudies";
 
 const ACTION_COLORS: Record<string, string> = {
@@ -19,6 +21,7 @@ interface StudyActivityTabProps {
 }
 
 export function StudyActivityTab({ slug }: StudyActivityTabProps) {
+  const { t } = useTranslation("app");
   const [page, setPage] = useState(1);
   const { data, isLoading } = useStudyActivity(slug, page);
 
@@ -29,15 +32,22 @@ export function StudyActivityTab({ slug }: StudyActivityTabProps) {
     return <div className="flex items-center justify-center py-16"><Loader2 size={24} className="animate-spin text-text-muted" /></div>;
   }
 
+  const actionLabel = (action: string) =>
+    t(`studies.activity.actions.${action}`, { defaultValue: action.replace(/_/g, " ") });
+  const entityLabel = (entityType: string) =>
+    t(`studies.activity.entities.${entityType}`, { defaultValue: entityType });
+
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-semibold text-text-secondary">Activity Log</h3>
+      <h3 className="text-sm font-semibold text-text-secondary">
+        {t("studies.activity.title")}
+      </h3>
 
       {entries.length === 0 ? (
         <div className="empty-state">
           <Activity size={24} className="text-text-ghost mb-2" />
-          <h3 className="empty-title">No activity yet</h3>
-          <p className="empty-message">Actions taken on this study will appear here</p>
+          <h3 className="empty-title">{t("studies.activity.empty.title")}</h3>
+          <p className="empty-message">{t("studies.activity.empty.message")}</p>
         </div>
       ) : (
         <div className="space-y-1">
@@ -54,14 +64,14 @@ export function StudyActivityTab({ slug }: StudyActivityTabProps) {
                       <span className="text-text-secondary font-medium">{entry.user.name}</span>
                     )}
                     <span className="px-1.5 py-0.5 rounded text-[10px] font-medium" style={{ color, backgroundColor: `${color}15` }}>
-                      {entry.action.replace(/_/g, " ")}
+                      {actionLabel(entry.action)}
                     </span>
                     {entry.entity_type && (
-                      <span className="text-xs text-text-ghost">{entry.entity_type}</span>
+                      <span className="text-xs text-text-ghost">{entityLabel(entry.entity_type)}</span>
                     )}
                   </div>
                   <p className="text-[10px] text-text-ghost mt-0.5">
-                    {new Date(entry.occurred_at).toLocaleString()}
+                    {formatDateTime(entry.occurred_at)}
                   </p>
                 </div>
               </div>
@@ -79,10 +89,10 @@ export function StudyActivityTab({ slug }: StudyActivityTabProps) {
             disabled={page <= 1}
             className="btn btn-ghost btn-sm"
           >
-            <ChevronLeft size={14} /> Previous
+            <ChevronLeft size={14} /> {t("studies.activity.pagination.previous")}
           </button>
           <span className="text-xs text-text-ghost">
-            Page {page} of {totalPages}
+            {t("studies.activity.pagination.page", { page, totalPages })}
           </span>
           <button
             type="button"
@@ -90,7 +100,7 @@ export function StudyActivityTab({ slug }: StudyActivityTabProps) {
             disabled={page >= totalPages}
             className="btn btn-ghost btn-sm"
           >
-            Next <ChevronRight size={14} />
+            {t("studies.activity.pagination.next")} <ChevronRight size={14} />
           </button>
         </div>
       )}

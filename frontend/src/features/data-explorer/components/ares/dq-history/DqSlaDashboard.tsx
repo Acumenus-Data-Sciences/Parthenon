@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { formatNumber } from "@/i18n/format";
 import {
   BarChart,
   Bar,
@@ -35,6 +37,7 @@ function SlaForm({
   sourceId: number;
   existingTargets: Array<{ category: string; min_pass_rate: number }>;
 }) {
+  const { t } = useTranslation("app");
   const [targets, setTargets] = useState<DqSlaTargetInput[]>(
     existingTargets.length > 0
       ? existingTargets.map((t) => ({ category: t.category, min_pass_rate: t.min_pass_rate }))
@@ -56,7 +59,7 @@ function SlaForm({
   return (
     <div className="mb-4 rounded-lg border border-border-subtle bg-surface-base p-4">
       <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-text-muted">
-        SLA Targets (min pass rate %)
+        {t("dataExplorer.ares.dqHistory.sla.targetsTitle")}
       </h4>
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
         {targets.map((t, i) => (
@@ -83,20 +86,26 @@ function SlaForm({
         disabled={storeMutation.isPending}
         className="mt-3 rounded bg-success px-4 py-1.5 text-xs font-medium text-black transition-colors hover:bg-success/80 disabled:opacity-50"
       >
-        {storeMutation.isPending ? "Saving..." : "Save SLA Targets"}
+        {storeMutation.isPending
+          ? t("dataExplorer.ares.dqHistory.actions.saving")
+          : t("dataExplorer.ares.dqHistory.actions.saveSlaTargets")}
       </button>
       {storeMutation.isSuccess && (
-        <span className="ml-3 text-xs text-success">Saved</span>
+        <span className="ml-3 text-xs text-success">
+          {t("dataExplorer.ares.dqHistory.messages.saved")}
+        </span>
       )}
     </div>
   );
 }
 
 function ComplianceChart({ compliance }: { compliance: DqSlaCompliance[] }) {
+  const { t } = useTranslation("app");
+
   if (compliance.length === 0) {
     return (
       <p className="py-8 text-center text-sm text-text-ghost">
-        No SLA targets defined. Set targets above to see compliance.
+        {t("dataExplorer.ares.dqHistory.messages.noSlaTargets")}
       </p>
     );
   }
@@ -112,13 +121,18 @@ function ComplianceChart({ compliance }: { compliance: DqSlaCompliance[] }) {
   return (
     <div>
       <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-text-muted">
-        Current Compliance
+        {t("dataExplorer.ares.dqHistory.sla.currentCompliance")}
       </h4>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} layout="vertical" margin={{ left: 100, right: 20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--surface-accent)" horizontal={false} />
-            <XAxis type="number" domain={[0, 100]} tick={{ fill: "var(--text-muted)", fontSize: 11 }} tickFormatter={(v: number) => `${v}%`} />
+            <XAxis
+              type="number"
+              domain={[0, 100]}
+              tick={{ fill: "var(--text-muted)", fontSize: 11 }}
+              tickFormatter={(v: number) => t("dataExplorer.ares.networkOverview.percent", { value: formatNumber(v) })}
+            />
             <YAxis type="category" dataKey="category" tick={{ fill: "var(--text-muted)", fontSize: 11 }} width={90} />
             <Tooltip
               contentStyle={{
@@ -128,8 +142,10 @@ function ComplianceChart({ compliance }: { compliance: DqSlaCompliance[] }) {
               }}
               labelStyle={{ color: "var(--text-primary)" }}
               formatter={((value: number, name: string) => [
-                `${value}%`,
-                name === "actual" ? "Actual" : "Target",
+                t("dataExplorer.ares.networkOverview.percent", { value: formatNumber(value) }),
+                name === "actual"
+                  ? t("dataExplorer.ares.dqHistory.sla.actual")
+                  : t("dataExplorer.ares.dqHistory.sla.target"),
               ]) as never}
             />
             <Bar dataKey="actual" radius={[0, 4, 4, 0]}>
@@ -141,7 +157,12 @@ function ComplianceChart({ compliance }: { compliance: DqSlaCompliance[] }) {
               ))}
             </Bar>
             {chartData.length > 0 && (
-              <ReferenceLine x={chartData[0].target} stroke="var(--accent)" strokeDasharray="3 3" label={{ value: "Target", fill: "var(--accent)", fontSize: 10 }} />
+              <ReferenceLine
+                x={chartData[0].target}
+                stroke="var(--accent)"
+                strokeDasharray="3 3"
+                label={{ value: t("dataExplorer.ares.dqHistory.sla.target"), fill: "var(--accent)", fontSize: 10 }}
+              />
             )}
           </BarChart>
         </ResponsiveContainer>
@@ -150,7 +171,7 @@ function ComplianceChart({ compliance }: { compliance: DqSlaCompliance[] }) {
       {/* Error budget sparkline table */}
       <div className="mt-4">
         <h4 className="mb-2 text-xs font-medium uppercase tracking-wider text-text-muted">
-          Error Budget
+          {t("dataExplorer.ares.dqHistory.sla.errorBudget")}
         </h4>
         <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
           {compliance.map((c) => (
@@ -165,10 +186,15 @@ function ComplianceChart({ compliance }: { compliance: DqSlaCompliance[] }) {
               <p className="text-xs capitalize text-text-muted">{c.category.replace(/_/g, " ")}</p>
               <p className={`text-sm font-semibold ${c.compliant ? "text-success" : "text-critical"}`}>
                 {c.error_budget_remaining >= 0 ? "+" : ""}
-                {c.error_budget_remaining.toFixed(1)}%
+                {t("dataExplorer.ares.networkOverview.percent", {
+                  value: formatNumber(c.error_budget_remaining, { maximumFractionDigits: 1 }),
+                })}
               </p>
               <p className="text-[10px] text-text-ghost">
-                {c.actual.toFixed(1)}% / {c.target}% target
+                {t("dataExplorer.ares.dqHistory.sla.targetComparison", {
+                  actual: formatNumber(c.actual, { maximumFractionDigits: 1 }),
+                  target: formatNumber(c.target),
+                })}
               </p>
             </div>
           ))}

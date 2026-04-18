@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import { formatNumber } from "@/i18n/format";
 import type { DqDelta } from "../../../types/ares";
 
 interface DqDeltaTableProps {
@@ -7,19 +9,21 @@ interface DqDeltaTableProps {
 
 const STATUS_CONFIG: Record<
   DqDelta["delta_status"],
-  { label: string; bg: string; text: string }
+  { labelKey: string; bg: string; text: string }
 > = {
-  new: { label: "NEW", bg: "bg-primary/20", text: "text-critical" },
-  existing: { label: "EXISTING", bg: "bg-accent/20", text: "text-accent" },
-  resolved: { label: "RESOLVED", bg: "bg-success/20", text: "text-success" },
-  stable: { label: "STABLE", bg: "bg-surface-highlight/30", text: "text-text-muted" },
+  new: { labelKey: "new", bg: "bg-primary/20", text: "text-critical" },
+  existing: { labelKey: "existing", bg: "bg-accent/20", text: "text-accent" },
+  resolved: { labelKey: "resolved", bg: "bg-success/20", text: "text-success" },
+  stable: { labelKey: "stable", bg: "bg-surface-highlight/30", text: "text-text-muted" },
 };
 
 export default function DqDeltaTable({ deltas, releaseName }: DqDeltaTableProps) {
+  const { t } = useTranslation("app");
+
   if (deltas.length === 0) {
     return (
       <div className="py-8 text-center text-text-ghost">
-        No delta data available for this release.
+        {t("dataExplorer.ares.dqHistory.messages.noDeltaData")}
       </div>
     );
   }
@@ -34,12 +38,24 @@ export default function DqDeltaTable({ deltas, releaseName }: DqDeltaTableProps)
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-medium text-text-primary">Delta Report: {releaseName}</h3>
+        <h3 className="text-sm font-medium text-text-primary">
+          {t("dataExplorer.ares.dqHistory.deltaReportTitle", {
+            release: releaseName,
+          })}
+        </h3>
         <div className="flex gap-3 text-[11px]">
-          <span className="text-critical">{grouped.new.length} new</span>
-          <span className="text-accent">{grouped.existing.length} existing</span>
-          <span className="text-success">{grouped.resolved.length} resolved</span>
-          <span className="text-text-muted">{grouped.stable.length} stable</span>
+          <span className="text-critical">
+            {t("dataExplorer.ares.dqHistory.statusSummary.new", { count: formatNumber(grouped.new.length) })}
+          </span>
+          <span className="text-accent">
+            {t("dataExplorer.ares.dqHistory.statusSummary.existing", { count: formatNumber(grouped.existing.length) })}
+          </span>
+          <span className="text-success">
+            {t("dataExplorer.ares.dqHistory.statusSummary.resolved", { count: formatNumber(grouped.resolved.length) })}
+          </span>
+          <span className="text-text-muted">
+            {t("dataExplorer.ares.dqHistory.statusSummary.stable", { count: formatNumber(grouped.stable.length) })}
+          </span>
         </div>
       </div>
 
@@ -47,10 +63,18 @@ export default function DqDeltaTable({ deltas, releaseName }: DqDeltaTableProps)
         <table className="w-full text-sm">
           <thead className="sticky top-0 bg-surface-overlay">
             <tr className="border-b border-border-subtle">
-              <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">Status</th>
-              <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">Check ID</th>
-              <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">Current</th>
-              <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">Previous</th>
+              <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">
+                {t("dataExplorer.ares.dqHistory.table.status")}
+              </th>
+              <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">
+                {t("dataExplorer.ares.dqHistory.table.checkId")}
+              </th>
+              <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">
+                {t("dataExplorer.ares.dqHistory.table.current")}
+              </th>
+              <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">
+                {t("dataExplorer.ares.dqHistory.table.previous")}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -60,13 +84,15 @@ export default function DqDeltaTable({ deltas, releaseName }: DqDeltaTableProps)
                 <tr key={delta.id} className="border-b border-border-subtle hover:bg-surface-raised">
                   <td className="px-3 py-2">
                     <span className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase ${config.bg} ${config.text}`}>
-                      {config.label}
+                      {t(`dataExplorer.ares.dqHistory.status.${config.labelKey}`)}
                     </span>
                   </td>
                   <td className="px-3 py-2 font-mono text-xs text-text-secondary">{delta.check_id}</td>
                   <td className="px-3 py-2">
                     <span className={delta.current_passed ? "text-success" : "text-critical"}>
-                      {delta.current_passed ? "PASS" : "FAIL"}
+                      {delta.current_passed
+                        ? t("dataExplorer.ares.dqHistory.result.pass")
+                        : t("dataExplorer.ares.dqHistory.result.fail")}
                     </span>
                   </td>
                   <td className="px-3 py-2">
@@ -74,7 +100,9 @@ export default function DqDeltaTable({ deltas, releaseName }: DqDeltaTableProps)
                       <span className="text-text-ghost">N/A</span>
                     ) : (
                       <span className={delta.previous_passed ? "text-success" : "text-critical"}>
-                        {delta.previous_passed ? "PASS" : "FAIL"}
+                        {delta.previous_passed
+                          ? t("dataExplorer.ares.dqHistory.result.pass")
+                          : t("dataExplorer.ares.dqHistory.result.fail")}
                       </span>
                     )}
                   </td>

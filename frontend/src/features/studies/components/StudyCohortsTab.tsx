@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Loader2, Plus, Target, Trash2, Edit3, Save, X, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -26,6 +27,7 @@ interface StudyCohortsTabProps {
 }
 
 export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
+  const { t } = useTranslation("app");
   const { data: cohorts, isLoading } = useStudyCohorts(slug);
   const { data: cohortsData } = useCohortDefinitions();
   const addMutation = useAddStudyCohort();
@@ -93,6 +95,9 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
     );
   };
 
+  const roleLabel = (role: string) =>
+    t(`studies.cohorts.roles.${role}`, { defaultValue: role });
+
   if (isLoading) {
     return <div className="flex items-center justify-center py-16"><Loader2 size={24} className="animate-spin text-text-muted" /></div>;
   }
@@ -100,27 +105,33 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-text-secondary">Cohorts ({cohorts?.length ?? 0})</h3>
+        <h3 className="text-sm font-semibold text-text-secondary">
+          {t("studies.cohorts.sections.cohorts", { count: cohorts?.length ?? 0 })}
+        </h3>
         <button type="button" onClick={() => setShowAdd(true)} disabled={showAdd} className="btn btn-primary btn-sm">
-          <Plus size={14} /> Assign Cohort
+          <Plus size={14} /> {t("studies.cohorts.actions.assignCohort")}
         </button>
       </div>
 
       {/* Add cohort form */}
       {showAdd && (
         <div className="panel space-y-3">
-          <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">Assign Cohort Definition</p>
+          <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">
+            {t("studies.cohorts.form.assignTitle")}
+          </p>
 
           {/* Cohort search + select */}
           <div className="space-y-2">
-            <label className="text-[10px] text-text-ghost uppercase tracking-wider block">Cohort Definition</label>
+            <label className="text-[10px] text-text-ghost uppercase tracking-wider block">
+              {t("studies.cohorts.form.cohortDefinition")}
+            </label>
             <div className="relative">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost" />
               <input
                 type="text"
                 value={cohortSearch}
                 onChange={(e) => setCohortSearch(e.target.value)}
-                placeholder="Search cohort definitions..."
+                placeholder={t("studies.cohorts.form.searchPlaceholder")}
                 className="form-input pl-9 w-full"
                 autoFocus
               />
@@ -143,47 +154,57 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
               </div>
             ) : (
               <p className="text-xs text-text-ghost py-2">
-                {availableCohorts.length === 0 ? "All cohort definitions are already assigned" : "No matching cohorts"}
+                {availableCohorts.length === 0
+                  ? t("studies.cohorts.messages.allAssigned")
+                  : t("studies.cohorts.messages.noMatchingCohorts")}
               </p>
             )}
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">Role</label>
+              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">
+                {t("studies.cohorts.form.role")}
+              </label>
               <select value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)} className="form-input form-select w-full">
                 {COHORT_ROLES.map((r) => (
-                  <option key={r} value={r}>{r}</option>
+                  <option key={r} value={r}>{roleLabel(r)}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">Label *</label>
+              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">
+                {t("studies.cohorts.form.labelRequired")}
+              </label>
               <input
                 type="text"
                 value={newLabel}
                 onChange={(e) => setNewLabel(e.target.value)}
-                placeholder="e.g., T2DM target population"
+                placeholder={t("studies.cohorts.form.labelPlaceholder")}
                 className="form-input w-full"
               />
             </div>
             <div>
-              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">Description</label>
+              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">
+                {t("studies.cohorts.form.description")}
+              </label>
               <input
                 type="text"
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
-                placeholder="Optional"
+                placeholder={t("studies.cohorts.form.optional")}
                 className="form-input w-full"
               />
             </div>
           </div>
 
           <div className="flex gap-2 justify-end">
-            <button type="button" onClick={() => { setShowAdd(false); setCohortSearch(""); setSelectedCohortId(""); }} className="btn btn-ghost btn-sm">Cancel</button>
+            <button type="button" onClick={() => { setShowAdd(false); setCohortSearch(""); setSelectedCohortId(""); }} className="btn btn-ghost btn-sm">
+              {t("studies.cohorts.actions.cancel")}
+            </button>
             <button type="button" onClick={handleCreate} disabled={!selectedCohortId || !newLabel.trim() || addMutation.isPending} className="btn btn-primary btn-sm">
               {addMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-              Assign
+              {t("studies.cohorts.actions.assign")}
             </button>
           </div>
         </div>
@@ -192,8 +213,8 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
       {(!cohorts || cohorts.length === 0) ? (
         <div className="empty-state">
           <Target size={24} className="text-text-ghost mb-2" />
-          <h3 className="empty-title">No cohorts assigned</h3>
-          <p className="empty-message">Assign cohort definitions and specify their roles in this study</p>
+          <h3 className="empty-title">{t("studies.cohorts.empty.title")}</h3>
+          <p className="empty-message">{t("studies.cohorts.empty.message")}</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -213,7 +234,7 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
                       className="form-input form-select py-1 text-xs w-28"
                     >
                       {COHORT_ROLES.map((r) => (
-                        <option key={r} value={r}>{r}</option>
+                        <option key={r} value={r}>{roleLabel(r)}</option>
                       ))}
                     </select>
                   ) : (
@@ -221,12 +242,13 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
                       className="px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider shrink-0"
                       style={{ color, backgroundColor: `${color}15` }}
                     >
-                      {c.role}
+                      {roleLabel(c.role)}
                     </span>
                   )}
                   <div className="min-w-0 flex-1">
                     <p className="text-sm text-text-primary font-medium truncate">
-                      {c.cohort_definition?.name ?? `Cohort #${c.cohort_definition_id}`}
+                      {c.cohort_definition?.name
+                        ?? t("studies.cohorts.messages.cohortFallback", { id: c.cohort_definition_id })}
                     </p>
                     {isEditing ? (
                       <div className="flex gap-2 mt-1">
@@ -234,14 +256,14 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
                           type="text"
                           value={editPayload.label ?? ""}
                           onChange={(e) => setEditPayload({ ...editPayload, label: e.target.value })}
-                          placeholder="Label"
+                          placeholder={t("studies.cohorts.form.label")}
                           className="form-input py-0.5 text-xs flex-1"
                         />
                         <input
                           type="text"
                           value={editPayload.description ?? ""}
                           onChange={(e) => setEditPayload({ ...editPayload, description: e.target.value })}
-                          placeholder="Description"
+                          placeholder={t("studies.cohorts.form.description")}
                           className="form-input py-0.5 text-xs flex-1"
                         />
                       </div>
@@ -256,16 +278,23 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
                 <div className="flex items-center gap-1 shrink-0 ml-2">
                   {isEditing ? (
                     <>
-                      <button type="button" onClick={handleSave} className="p-1 text-success"><Save size={14} /></button>
-                      <button type="button" onClick={() => setEditId(null)} className="p-1 text-text-ghost hover:text-text-secondary"><X size={14} /></button>
+                      <button type="button" onClick={handleSave} className="p-1 text-success" title={t("studies.cohorts.actions.save")}>
+                        <Save size={14} />
+                      </button>
+                      <button type="button" onClick={() => setEditId(null)} className="p-1 text-text-ghost hover:text-text-secondary" title={t("studies.cohorts.actions.cancel")}>
+                        <X size={14} />
+                      </button>
                     </>
                   ) : (
                     <>
-                      <button type="button" onClick={() => startEdit(c)} className="p-1 text-text-ghost hover:text-text-secondary"><Edit3 size={14} /></button>
+                      <button type="button" onClick={() => startEdit(c)} className="p-1 text-text-ghost hover:text-text-secondary" title={t("studies.cohorts.actions.edit")}>
+                        <Edit3 size={14} />
+                      </button>
                       <button
                         type="button"
-                        onClick={() => { if (window.confirm("Remove this cohort assignment?")) removeMutation.mutate({ slug, cohortId: c.id }); }}
+                        onClick={() => { if (window.confirm(t("studies.cohorts.confirmRemove"))) removeMutation.mutate({ slug, cohortId: c.id }); }}
                         className="p-1 text-text-ghost hover:text-critical"
+                        title={t("studies.cohorts.actions.remove")}
                       >
                         <Trash2 size={14} />
                       </button>

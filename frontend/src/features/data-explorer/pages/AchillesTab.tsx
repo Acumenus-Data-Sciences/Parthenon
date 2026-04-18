@@ -1,4 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from "react";
+import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   PlayCircle,
@@ -13,6 +14,7 @@ import {
   Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDate, formatDateTime, formatNumber } from "@/i18n/format";
 import { useAchillesRuns, useRunAchilles } from "../hooks/useAchillesRun";
 import {
   useHeelResults,
@@ -33,10 +35,9 @@ interface AchillesTabProps {
 
 const SEVERITY_CONFIG: Record<
   HeelSeverity,
-  { label: string; icon: typeof AlertCircle; rowClass: string; badgeClass: string; iconClass: string; barColor: string }
+  { icon: typeof AlertCircle; rowClass: string; badgeClass: string; iconClass: string; barColor: string }
 > = {
   error: {
-    label: "Errors",
     icon: AlertCircle,
     rowClass: "border-critical/20 bg-critical/5",
     badgeClass: "bg-critical/15 text-critical border border-critical/30",
@@ -44,7 +45,6 @@ const SEVERITY_CONFIG: Record<
     barColor: "var(--critical)",
   },
   warning: {
-    label: "Warnings",
     icon: AlertCircle,
     rowClass: "border-accent/20 bg-accent/5",
     badgeClass: "bg-accent/15 text-accent border border-accent/30",
@@ -52,7 +52,6 @@ const SEVERITY_CONFIG: Record<
     barColor: "var(--accent)",
   },
   notification: {
-    label: "Notifications",
     icon: AlertCircle,
     rowClass: "border-info/20 bg-info/5",
     badgeClass: "bg-info/15 text-info border border-info/30",
@@ -62,23 +61,27 @@ const SEVERITY_CONFIG: Record<
 };
 
 function SeverityBadge({ severity }: { severity: HeelSeverity }) {
+  const { t } = useTranslation("app");
   const cfg = SEVERITY_CONFIG[severity];
   return (
     <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", cfg.badgeClass)}>
-      {severity}
+      {t(`dataExplorer.achilles.severities.${severity}`)}
     </span>
   );
 }
 
 function SeverityRow({ severity, count }: { severity: HeelSeverity; count: number }) {
+  const { t } = useTranslation("app");
   const cfg = SEVERITY_CONFIG[severity];
   const Icon = cfg.icon;
   if (count === 0) return null;
   return (
     <div className="flex items-center gap-2">
       <Icon size={13} className={cfg.iconClass} />
-      <span className="text-xs font-medium" style={{ color: cfg.barColor }}>{count}</span>
-      <span className="text-xs text-text-ghost">{cfg.label.toLowerCase()}</span>
+      <span className="text-xs font-medium" style={{ color: cfg.barColor }}>{formatNumber(count)}</span>
+      <span className="text-xs text-text-ghost">
+        {t(`dataExplorer.achilles.severityCounts.${severity}`, { count })}
+      </span>
     </div>
   );
 }
@@ -104,7 +107,7 @@ function HeelResultRow({ result }: { result: HeelResult }) {
         )}
       </div>
       <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary shrink-0">
-        {result.record_count.toLocaleString()}
+        {formatNumber(result.record_count)}
       </span>
     </div>
   );
@@ -113,6 +116,7 @@ function HeelResultRow({ result }: { result: HeelResult }) {
 // ── Heel Panel (right column) ────────────────────────────────────────────────
 
 function HeelPanel({ sourceId }: { sourceId: number }) {
+  const { t } = useTranslation("app");
   const queryClient = useQueryClient();
   const [activeRunIdLive, setActiveRunIdLive] = useState<string | null>(null);
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
@@ -126,7 +130,9 @@ function HeelPanel({ sourceId }: { sourceId: number }) {
   useEffect(() => {
     if (activeRunIdLive === null && detectProgress.data &&
         (detectProgress.data.status === "running" || detectProgress.data.status === "pending")) {
-      setActiveRunIdLive(detectProgress.data.run_id);
+      queueMicrotask(() => {
+        setActiveRunIdLive(detectProgress.data.run_id);
+      });
     }
   }, [activeRunIdLive, detectProgress.data]);
 
@@ -135,9 +141,11 @@ function HeelPanel({ sourceId }: { sourceId: number }) {
 
   useEffect(() => {
     if (progressQuery.data?.status === "completed" && activeRunIdLive) {
-      setActiveRunIdLive(null);
-      queryClient.invalidateQueries({ queryKey: ["achilles", "heel", sourceId] });
-      queryClient.invalidateQueries({ queryKey: ["heel", "runs", sourceId] });
+      queueMicrotask(() => {
+        setActiveRunIdLive(null);
+        queryClient.invalidateQueries({ queryKey: ["achilles", "heel", sourceId] });
+        queryClient.invalidateQueries({ queryKey: ["heel", "runs", sourceId] });
+      });
     }
   }, [progressQuery.data?.status, activeRunIdLive, sourceId, queryClient]);
 
@@ -163,7 +171,7 @@ function HeelPanel({ sourceId }: { sourceId: number }) {
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wide flex items-center gap-2">
           <ShieldCheck size={15} className="text-success" />
-          Heel Checks
+          {t("dataExplorer.achilles.heel.title")}
         </h3>
         <button
           type="button"
@@ -179,7 +187,9 @@ function HeelPanel({ sourceId }: { sourceId: number }) {
           ) : (
             <PlayCircle size={12} />
           )}
-          {isRunning ? "Running..." : "Run Heel Checks"}
+          {isRunning
+            ? t("dataExplorer.achilles.actions.running")
+            : t("dataExplorer.achilles.actions.runHeelChecks")}
         </button>
       </div>
 
@@ -192,7 +202,9 @@ function HeelPanel({ sourceId }: { sourceId: number }) {
             className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-3 py-1.5 text-xs text-text-secondary hover:bg-surface-overlay transition-colors w-full"
           >
             <History size={12} className="text-text-muted" />
-            {activeRunId ? `Run ${activeRunId.slice(0, 8)}...` : "Select run"}
+            {activeRunId
+              ? t("dataExplorer.achilles.runShort", { id: activeRunId.slice(0, 8) })
+              : t("dataExplorer.achilles.actions.selectRun")}
             <ChevronDown size={10} className="text-text-muted ml-auto" />
           </button>
           {showRunSelector && (
@@ -208,7 +220,7 @@ function HeelPanel({ sourceId }: { sourceId: number }) {
                   )}
                 >
                   <span className="font-['IBM_Plex_Mono',monospace]">{run.run_id.slice(0, 12)}</span>
-                  <span className="text-text-ghost">{new Date(run.started_at).toLocaleDateString()}</span>
+                  <span className="text-text-ghost">{formatDate(run.started_at)}</span>
                 </button>
               ))}
             </div>
@@ -217,7 +229,9 @@ function HeelPanel({ sourceId }: { sourceId: number }) {
       )}
 
       {runMutation.isError && (
-        <span className="text-xs text-critical">Failed to dispatch heel checks</span>
+        <span className="text-xs text-critical">
+          {t("dataExplorer.achilles.heel.dispatchFailed")}
+        </span>
       )}
 
       {/* Live progress */}
@@ -225,7 +239,9 @@ function HeelPanel({ sourceId }: { sourceId: number }) {
         <div className="rounded-xl border border-border-default bg-surface-raised p-4 space-y-3">
           <div className="flex items-center gap-2">
             <Activity size={14} className="text-accent animate-pulse" />
-            <span className="text-xs text-text-primary">Running heel checks...</span>
+            <span className="text-xs text-text-primary">
+              {t("dataExplorer.achilles.heel.running")}
+            </span>
             <span className="ml-auto font-['IBM_Plex_Mono',monospace] text-sm text-accent">
               {progressQuery.data.percentage.toFixed(1)}%
             </span>
@@ -255,7 +271,9 @@ function HeelPanel({ sourceId }: { sourceId: number }) {
       {!isRunning && !isLoading && !hasResults && (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-8">
           <ShieldCheck size={24} className="mb-2 text-text-ghost" />
-          <p className="text-xs text-text-muted">No heel checks run yet</p>
+          <p className="text-xs text-text-muted">
+            {t("dataExplorer.achilles.heel.empty")}
+          </p>
         </div>
       )}
 
@@ -272,8 +290,13 @@ function HeelPanel({ sourceId }: { sourceId: number }) {
             : <CheckCircle2 size={14} className="shrink-0 text-success" />}
           <p className="text-xs text-text-secondary">
             {totalIssues === 0
-              ? "All checks passed"
-              : `${totalIssues} issue${totalIssues !== 1 ? "s" : ""}: ${totalErrors}E / ${totalWarnings}W / ${totalNotifications}N`}
+              ? t("dataExplorer.achilles.heel.allPassed")
+              : t("dataExplorer.achilles.heel.issueSummary", {
+                  count: totalIssues,
+                  errors: totalErrors,
+                  warnings: totalWarnings,
+                  notifications: totalNotifications,
+                })}
           </p>
         </div>
       )}
@@ -295,6 +318,7 @@ function HeelPanel({ sourceId }: { sourceId: number }) {
 // ── Achilles Panel (left column) ─────────────────────────────────────────────
 
 function AchillesPanel({ sourceId }: { sourceId: number }) {
+  const { t } = useTranslation("app");
   const [showModal, setShowModal] = useState(false);
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
   const [totalAnalyses, setTotalAnalyses] = useState(0);
@@ -330,7 +354,7 @@ function AchillesPanel({ sourceId }: { sourceId: number }) {
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wide flex items-center gap-2">
           <Zap size={15} className="text-accent" />
-          Achilles Characterization
+          {t("dataExplorer.achilles.characterization.title")}
         </h3>
         <button
           type="button"
@@ -346,12 +370,14 @@ function AchillesPanel({ sourceId }: { sourceId: number }) {
           ) : (
             <PlayCircle size={12} />
           )}
-          Run Achilles
+          {t("dataExplorer.achilles.actions.runAchilles")}
         </button>
       </div>
 
       {runMutation.isError && (
-        <span className="text-xs text-critical">Failed to dispatch Achilles run</span>
+        <span className="text-xs text-critical">
+          {t("dataExplorer.achilles.characterization.dispatchFailed")}
+        </span>
       )}
 
       {/* Run history dropdown */}
@@ -364,8 +390,8 @@ function AchillesPanel({ sourceId }: { sourceId: number }) {
           >
             <History size={12} className="text-text-muted" />
             {displayRun
-              ? `${displayRun.started_at ? new Date(displayRun.started_at).toLocaleString() : displayRunId?.slice(0, 8)}`
-              : "Select run"}
+              ? `${displayRun.started_at ? formatDateTime(displayRun.started_at) : displayRunId?.slice(0, 8)}`
+              : t("dataExplorer.achilles.actions.selectRun")}
             <ChevronDown size={10} className="text-text-muted ml-auto" />
           </button>
           {showRunSelector && (
@@ -381,7 +407,7 @@ function AchillesPanel({ sourceId }: { sourceId: number }) {
                   )}
                 >
                   <span className="font-['IBM_Plex_Mono',monospace]">
-                    {run.started_at ? new Date(run.started_at).toLocaleString() : run.run_id.slice(0, 12)}
+                    {run.started_at ? formatDateTime(run.started_at) : run.run_id.slice(0, 12)}
                   </span>
                   <span className={cn(
                     "text-xs px-1.5 py-0.5 rounded",
@@ -390,7 +416,9 @@ function AchillesPanel({ sourceId }: { sourceId: number }) {
                       : run.status === "running" ? "text-accent bg-accent/10"
                       : "text-text-ghost",
                   )}>
-                    {run.status}
+                    {t(`dataExplorer.achilles.statuses.${run.status}`, {
+                      defaultValue: run.status,
+                    })}
                   </span>
                 </button>
               ))}
@@ -403,7 +431,9 @@ function AchillesPanel({ sourceId }: { sourceId: number }) {
       {displayRun && (
         <div className="rounded-xl border border-border-default bg-surface-raised p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-text-muted">Status</span>
+            <span className="text-xs text-text-muted">
+              {t("dataExplorer.achilles.labels.status")}
+            </span>
             <span className={cn(
               "text-xs font-medium px-2 py-0.5 rounded-full",
               displayRun.status === "completed" ? "text-success bg-success/10"
@@ -411,33 +441,46 @@ function AchillesPanel({ sourceId }: { sourceId: number }) {
                 : displayRun.status === "running" ? "text-accent bg-accent/10"
                 : "text-text-ghost bg-text-ghost/10",
             )}>
-              {displayRun.status}
+              {t(`dataExplorer.achilles.statuses.${displayRun.status}`, {
+                defaultValue: displayRun.status,
+              })}
             </span>
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div className="text-center">
               <div className="font-['IBM_Plex_Mono',monospace] text-lg text-text-primary">
-                {displayRun.total_analyses}
+                {formatNumber(displayRun.total_analyses)}
               </div>
-              <div className="text-xs text-text-ghost">total</div>
+              <div className="text-xs text-text-ghost">
+                {t("dataExplorer.achilles.labels.total")}
+              </div>
             </div>
             <div className="text-center">
               <div className="font-['IBM_Plex_Mono',monospace] text-lg text-success">
-                {displayRun.completed_analyses}
+                {formatNumber(displayRun.completed_analyses)}
               </div>
-              <div className="text-xs text-text-ghost">passed</div>
+              <div className="text-xs text-text-ghost">
+                {t("dataExplorer.achilles.labels.passed")}
+              </div>
             </div>
             <div className="text-center">
               <div className="font-['IBM_Plex_Mono',monospace] text-lg text-critical">
-                {displayRun.failed_analyses}
+                {formatNumber(displayRun.failed_analyses)}
               </div>
-              <div className="text-xs text-text-ghost">failed</div>
+              <div className="text-xs text-text-ghost">
+                {t("dataExplorer.achilles.labels.failed")}
+              </div>
             </div>
           </div>
           {displayRun.started_at && displayRun.completed_at && (
             <div className="flex items-center gap-1.5 text-xs text-text-ghost">
               <Clock size={11} />
-              Duration: {((new Date(displayRun.completed_at).getTime() - new Date(displayRun.started_at).getTime()) / 1000).toFixed(1)}s
+              {t("dataExplorer.achilles.labels.durationSeconds", {
+                value: formatNumber(
+                  (new Date(displayRun.completed_at).getTime() - new Date(displayRun.started_at).getTime()) / 1000,
+                  { maximumFractionDigits: 1 },
+                ),
+              })}
             </div>
           )}
           <button
@@ -450,7 +493,9 @@ function AchillesPanel({ sourceId }: { sourceId: number }) {
                 : "bg-surface-elevated text-text-secondary hover:bg-surface-accent",
             )}
           >
-            {displayRun.status === "running" ? "View Live Progress" : "View Details"}
+            {displayRun.status === "running"
+              ? t("dataExplorer.achilles.actions.viewLiveProgress")
+              : t("dataExplorer.achilles.actions.viewDetails")}
           </button>
         </div>
       )}
@@ -459,8 +504,12 @@ function AchillesPanel({ sourceId }: { sourceId: number }) {
       {(!achillesRuns.data || achillesRuns.data.length === 0) && !achillesRuns.isLoading && (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-8">
           <Zap size={24} className="mb-2 text-text-ghost" />
-          <p className="text-xs text-text-muted">No Achilles runs yet</p>
-          <p className="mt-0.5 text-xs text-text-ghost">Click "Run Achilles" to characterize your data</p>
+          <p className="text-xs text-text-muted">
+            {t("dataExplorer.achilles.characterization.empty")}
+          </p>
+          <p className="mt-0.5 text-xs text-text-ghost">
+            {t("dataExplorer.achilles.characterization.emptyHelp")}
+          </p>
         </div>
       )}
 

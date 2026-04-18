@@ -1,3 +1,6 @@
+import { useTranslation } from "react-i18next";
+import { formatNumber } from "@/i18n/format";
+
 interface BenchmarkOverlayProps {
   /** Label for the benchmark source (e.g., "US Census 2020") */
   label: string;
@@ -8,13 +11,16 @@ interface BenchmarkOverlayProps {
 }
 
 export default function BenchmarkOverlay({ label, benchmarks, actual }: BenchmarkOverlayProps) {
+  const { t } = useTranslation("app");
   const allLabels = Array.from(new Set([...Object.keys(benchmarks), ...Object.keys(actual)]));
 
   if (allLabels.length === 0) return null;
 
   return (
     <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
-      <h4 className="mb-3 text-sm font-medium text-text-primary">Benchmark: {label}</h4>
+      <h4 className="mb-3 text-sm font-medium text-text-primary">
+        {t("dataExplorer.ares.diversity.benchmark.title", { label })}
+      </h4>
       <div className="space-y-2">
         {allLabels.map((dim) => {
           const actualVal = actual[dim] ?? 0;
@@ -37,19 +43,26 @@ export default function BenchmarkOverlay({ label, benchmarks, actual }: Benchmar
                   <div
                     className="absolute inset-y-0 w-0.5 bg-accent"
                     style={{ left: `${Math.min(benchVal, 100)}%` }}
-                    title={`Benchmark: ${benchVal}%`}
+                    title={t("dataExplorer.ares.diversity.benchmark.title", {
+                      label: t("dataExplorer.ares.diversity.percentValue", {
+                        value: formatNumber(benchVal),
+                      }),
+                    })}
                   />
                 )}
               </div>
               <span className="w-16 text-right text-xs text-text-muted">
-                {actualVal.toFixed(1)}%
+                {t("dataExplorer.ares.diversity.percentValue", {
+                  value: formatNumber(actualVal, { maximumFractionDigits: 1 }),
+                })}
               </span>
               <span
                 className={`w-14 text-right text-xs font-mono ${
                   diff >= 0 ? "text-success" : "text-primary"
                 }`}
               >
-                {diff >= 0 ? "+" : ""}{diff.toFixed(1)}
+                {diff >= 0 ? "+" : ""}
+                {formatNumber(diff, { maximumFractionDigits: 1 })}
               </span>
             </div>
           );
@@ -57,10 +70,12 @@ export default function BenchmarkOverlay({ label, benchmarks, actual }: Benchmar
       </div>
       <div className="mt-3 flex gap-4 text-[10px] text-text-ghost">
         <span className="flex items-center gap-1">
-          <span className="inline-block h-3 w-3 rounded bg-success/30" /> Actual
+          <span className="inline-block h-3 w-3 rounded bg-success/30" />
+          {t("dataExplorer.ares.diversity.benchmark.actual")}
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-3 w-0.5 bg-accent" /> Benchmark
+          <span className="inline-block h-3 w-0.5 bg-accent" />
+          {t("dataExplorer.ares.diversity.benchmark.benchmark")}
         </span>
       </div>
     </div>

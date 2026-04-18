@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Loader2, Plus, FileText, Trash2, File, FileCode, FileImage, Edit3, Save, X, Link } from "lucide-react";
+import { formatDate, formatNumber } from "@/i18n/format";
 import {
   useStudyArtifacts,
   useCreateStudyArtifact,
@@ -45,6 +47,7 @@ interface StudyArtifactsTabProps {
 }
 
 export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
+  const { t } = useTranslation("app");
   const { data: artifacts, isLoading } = useStudyArtifacts(slug);
   const createMutation = useCreateStudyArtifact();
   const updateMutation = useUpdateStudyArtifact();
@@ -107,6 +110,9 @@ export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
     );
   };
 
+  const artifactTypeLabel = (type: string) =>
+    t(`studies.artifacts.types.${type}`, { defaultValue: type.replace(/_/g, " ") });
+
   if (isLoading) {
     return <div className="flex items-center justify-center py-16"><Loader2 size={24} className="animate-spin text-text-muted" /></div>;
   }
@@ -116,31 +122,39 @@ export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-text-secondary">Artifacts ({visibleArtifacts.length})</h3>
+        <h3 className="text-sm font-semibold text-text-secondary">
+          {t("studies.artifacts.sections.artifacts", { count: visibleArtifacts.length })}
+        </h3>
         <button type="button" onClick={() => setShowAdd(true)} disabled={showAdd} className="btn btn-primary btn-sm">
-          <Plus size={14} /> Add Artifact
+          <Plus size={14} /> {t("studies.artifacts.actions.addArtifact")}
         </button>
       </div>
 
       {/* Add artifact form */}
       {showAdd && (
         <div className="panel space-y-3">
-          <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">Add Study Artifact</p>
+          <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">
+            {t("studies.artifacts.form.addTitle")}
+          </p>
 
           <div className="grid grid-cols-3 gap-3">
             <div className="col-span-2">
-              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">Title *</label>
+              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">
+                {t("studies.artifacts.form.titleRequired")}
+              </label>
               <input
                 type="text"
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
-                placeholder="e.g., Study Protocol v2.1"
+                placeholder={t("studies.artifacts.form.titlePlaceholder")}
                 className="form-input w-full"
                 autoFocus
               />
             </div>
             <div>
-              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">Version</label>
+              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">
+                {t("studies.artifacts.form.version")}
+              </label>
               <input
                 type="text"
                 value={newVersion}
@@ -153,15 +167,19 @@ export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">Type</label>
+              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">
+                {t("studies.artifacts.form.type")}
+              </label>
               <select value={newType} onChange={(e) => setNewType(e.target.value)} className="form-input form-select w-full">
                 {ARTIFACT_TYPES.map((t) => (
-                  <option key={t} value={t}>{t.replace(/_/g, " ")}</option>
+                  <option key={t} value={t}>{artifactTypeLabel(t)}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">URL (optional)</label>
+              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">
+                {t("studies.artifacts.form.urlOptional")}
+              </label>
               <input
                 type="url"
                 value={newUrl}
@@ -173,21 +191,25 @@ export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
           </div>
 
           <div>
-            <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">Description (optional)</label>
+            <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">
+              {t("studies.artifacts.form.descriptionOptional")}
+            </label>
             <textarea
               value={newDescription}
               onChange={(e) => setNewDescription(e.target.value)}
-              placeholder="Brief description of this artifact..."
+              placeholder={t("studies.artifacts.form.descriptionPlaceholder")}
               className="form-input w-full resize-none"
               rows={2}
             />
           </div>
 
           <div className="flex gap-2 justify-end">
-            <button type="button" onClick={() => setShowAdd(false)} className="btn btn-ghost btn-sm">Cancel</button>
+            <button type="button" onClick={() => setShowAdd(false)} className="btn btn-ghost btn-sm">
+              {t("studies.artifacts.actions.cancel")}
+            </button>
             <button type="button" onClick={handleCreate} disabled={!newTitle.trim() || createMutation.isPending} className="btn btn-primary btn-sm">
               {createMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-              Create
+              {t("studies.artifacts.actions.create")}
             </button>
           </div>
         </div>
@@ -196,8 +218,8 @@ export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
       {visibleArtifacts.length === 0 ? (
         <div className="empty-state">
           <FileText size={24} className="text-text-ghost mb-2" />
-          <h3 className="empty-title">No artifacts</h3>
-          <p className="empty-message">Store protocols, analysis packages, and study documents</p>
+          <h3 className="empty-title">{t("studies.artifacts.empty.title")}</h3>
+          <p className="empty-message">{t("studies.artifacts.empty.message")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -213,7 +235,7 @@ export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
                       type="text"
                       value={editPayload.title ?? ""}
                       onChange={(e) => setEditPayload({ ...editPayload, title: e.target.value })}
-                      placeholder="Title"
+                      placeholder={t("studies.artifacts.form.title")}
                       className="form-input py-1 text-sm"
                     />
                     <div className="flex gap-2">
@@ -223,14 +245,14 @@ export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
                         className="form-input form-select py-1 text-xs flex-1"
                       >
                         {ARTIFACT_TYPES.map((t) => (
-                          <option key={t} value={t}>{t.replace(/_/g, " ")}</option>
+                          <option key={t} value={t}>{artifactTypeLabel(t)}</option>
                         ))}
                       </select>
                       <input
                         type="text"
                         value={editPayload.version ?? ""}
                         onChange={(e) => setEditPayload({ ...editPayload, version: e.target.value })}
-                        placeholder="Version"
+                        placeholder={t("studies.artifacts.form.version")}
                         className="form-input py-1 text-xs w-16"
                       />
                     </div>
@@ -238,7 +260,7 @@ export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
                   <textarea
                     value={editPayload.description ?? ""}
                     onChange={(e) => setEditPayload({ ...editPayload, description: e.target.value })}
-                    placeholder="Description"
+                    placeholder={t("studies.artifacts.form.description")}
                     className="form-input py-1 text-xs w-full resize-none"
                     rows={2}
                   />
@@ -246,12 +268,16 @@ export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
                     type="url"
                     value={editPayload.url ?? ""}
                     onChange={(e) => setEditPayload({ ...editPayload, url: e.target.value })}
-                    placeholder="URL (optional)"
+                    placeholder={t("studies.artifacts.form.urlOptional")}
                     className="form-input py-1 text-xs w-full"
                   />
                   <div className="flex gap-1 justify-end">
-                    <button type="button" onClick={handleSave} className="p-1 text-success"><Save size={14} /></button>
-                    <button type="button" onClick={() => setEditId(null)} className="p-1 text-text-ghost hover:text-text-secondary"><X size={14} /></button>
+                    <button type="button" onClick={handleSave} className="p-1 text-success" title={t("studies.artifacts.actions.save")}>
+                      <Save size={14} />
+                    </button>
+                    <button type="button" onClick={() => setEditId(null)} className="p-1 text-text-ghost hover:text-text-secondary" title={t("studies.artifacts.actions.cancel")}>
+                      <X size={14} />
+                    </button>
                   </div>
                 </div>
               );
@@ -266,32 +292,44 @@ export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
                   <div className="flex items-center gap-2">
                     <p className="text-sm text-text-primary font-medium truncate">{a.title}</p>
                     {a.is_current && (
-                      <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-success/10 text-success">CURRENT</span>
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-success/10 text-success">
+                        {t("studies.artifacts.badges.current")}
+                      </span>
                     )}
                   </div>
                   <div className="flex items-center gap-3 mt-1 text-xs text-text-ghost">
-                    <span className="capitalize">{a.artifact_type.replace(/_/g, " ")}</span>
-                    <span>v{a.version}</span>
-                    {a.file_size_bytes && <span>{(a.file_size_bytes / 1024).toFixed(0)} KB</span>}
+                    <span>{artifactTypeLabel(a.artifact_type)}</span>
+                    <span>{t("studies.artifacts.labels.versionValue", { version: a.version })}</span>
+                    {a.file_size_bytes && (
+                      <span>
+                        {t("studies.artifacts.labels.sizeKb", {
+                          size: formatNumber(a.file_size_bytes / 1024, { maximumFractionDigits: 0 }),
+                        })}
+                      </span>
+                    )}
                   </div>
                   {a.description && <p className="text-xs text-text-muted mt-1 line-clamp-2">{a.description}</p>}
                   {a.url && (
                     <a href={a.url} target="_blank" rel="noopener noreferrer" className="text-xs text-success hover:underline mt-1 inline-flex items-center gap-1">
-                      <Link size={10} /> Open link
+                      <Link size={10} /> {t("studies.artifacts.actions.openLink")}
                     </a>
                   )}
                   <p className="text-[10px] text-text-ghost mt-1">
-                    {a.uploaded_by_user?.name ?? "Unknown"} · {new Date(a.created_at).toLocaleDateString()}
+                    {t("studies.artifacts.messages.uploadedBy", {
+                      name: a.uploaded_by_user?.name ?? t("studies.artifacts.messages.unknown"),
+                      date: formatDate(a.created_at),
+                    })}
                   </p>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
-                  <button type="button" onClick={() => startEdit(a)} className="p-1 text-text-ghost hover:text-text-secondary">
+                  <button type="button" onClick={() => startEdit(a)} className="p-1 text-text-ghost hover:text-text-secondary" title={t("studies.artifacts.actions.edit")}>
                     <Edit3 size={14} />
                   </button>
                   <button
                     type="button"
-                    onClick={() => { if (window.confirm("Delete this artifact?")) deleteMutation.mutate({ slug, artifactId: a.id }); }}
+                    onClick={() => { if (window.confirm(t("studies.artifacts.confirmDelete"))) deleteMutation.mutate({ slug, artifactId: a.id }); }}
                     className="p-1 text-text-ghost hover:text-critical shrink-0"
+                    title={t("studies.artifacts.actions.delete")}
                   >
                     <Trash2 size={14} />
                   </button>

@@ -1,17 +1,18 @@
+import { useTranslation } from "react-i18next";
 import type { AresSection } from "../../types/ares";
 
-const SECTION_LABELS: Record<AresSection, string> = {
-  hub: "Hub",
-  "network-overview": "Network Overview",
-  "concept-comparison": "Concept Comparison",
-  "dq-history": "DQ History",
-  coverage: "Coverage",
-  feasibility: "Feasibility",
-  diversity: "Diversity",
-  releases: "Releases",
-  "unmapped-codes": "Unmapped Codes",
-  cost: "Cost",
-  annotations: "Annotations",
+const SECTION_KEYS: Record<AresSection, string> = {
+  hub: "hub",
+  "network-overview": "networkOverview",
+  "concept-comparison": "conceptComparison",
+  "dq-history": "dqHistory",
+  coverage: "coverage",
+  feasibility: "feasibility",
+  diversity: "diversity",
+  releases: "releases",
+  "unmapped-codes": "unmappedCodes",
+  cost: "cost",
+  annotations: "annotations",
 };
 
 interface AresBreadcrumbProps {
@@ -20,6 +21,8 @@ interface AresBreadcrumbProps {
 }
 
 export function AresBreadcrumb({ activeSection, onBack }: AresBreadcrumbProps) {
+  const { t } = useTranslation("app");
+
   if (activeSection === "hub") return null;
 
   return (
@@ -29,10 +32,14 @@ export function AresBreadcrumb({ activeSection, onBack }: AresBreadcrumbProps) {
         onClick={onBack}
         className="text-accent hover:text-accent transition-colors"
       >
-        Ares
+        {t("dataExplorer.ares.name")}
       </button>
-      <span className="text-text-muted">&rsaquo;</span>
-      <span className="text-text-primary">{SECTION_LABELS[activeSection]}</span>
+      <span className="text-text-muted">
+        {t("dataExplorer.ares.breadcrumbSeparator")}
+      </span>
+      <span className="text-text-primary">
+        {t(`dataExplorer.ares.sections.${SECTION_KEYS[activeSection]}`)}
+      </span>
     </div>
   );
 }

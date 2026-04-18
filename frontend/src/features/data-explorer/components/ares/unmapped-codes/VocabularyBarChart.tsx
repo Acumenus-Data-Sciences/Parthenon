@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import { formatNumber } from "@/i18n/format";
 import { formatCompact } from "../../charts/chartUtils";
 
 interface VocabularyItem {
@@ -16,6 +18,8 @@ const COLORS = [
 ];
 
 export default function VocabularyBarChart({ data }: VocabularyBarChartProps) {
+  const { t } = useTranslation("app");
+
   if (data.length === 0) return null;
 
   const sorted = [...data].sort((a, b) => b.value - a.value);
@@ -62,7 +66,9 @@ export default function VocabularyBarChart({ data }: VocabularyBarChartProps) {
                 {formatCompact(d.value)}
               </span>
               <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-text-ghost">
-                {d.code_count.toLocaleString()} codes
+                {t("dataExplorer.ares.unmapped.vocabulary.codeCount", {
+                  count: formatNumber(d.code_count),
+                })}
               </span>
               <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-text-ghost">
                 {pct.toFixed(1)}%
@@ -77,7 +83,7 @@ export default function VocabularyBarChart({ data }: VocabularyBarChartProps) {
         <div className="mt-1 flex items-center gap-3 border-t border-border-default px-2 pt-3">
           <div className="w-32 shrink-0">
             <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-              Total
+              {t("dataExplorer.ares.unmapped.vocabulary.total")}
             </span>
           </div>
           <div className="flex-1" />
@@ -86,7 +92,9 @@ export default function VocabularyBarChart({ data }: VocabularyBarChartProps) {
               {formatCompact(total)}
             </span>
             <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-text-ghost">
-              {sorted.reduce((s, d) => s + d.code_count, 0).toLocaleString()} codes
+              {t("dataExplorer.ares.unmapped.vocabulary.codeCount", {
+                count: formatNumber(sorted.reduce((s, d) => s + d.code_count, 0)),
+              })}
             </span>
             <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-text-ghost">
               100%

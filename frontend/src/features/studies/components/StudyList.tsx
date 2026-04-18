@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Loader2,
   ChevronLeft,
@@ -7,6 +8,7 @@ import {
   ChevronDown,
   Briefcase,
 } from "lucide-react";
+import { formatDate } from "@/i18n/format";
 import { cn } from "@/lib/utils";
 import type { Study } from "../types/study";
 
@@ -14,20 +16,6 @@ type SortKey = "title" | "study_type" | "status" | "priority" | "created_at";
 type SortDir = "asc" | "desc";
 
 const PRIORITY_ORDER: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-function formatStudyType(type: string): string {
-  return type
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-}
 
 const STATUS_COLORS: Record<string, string> = {
   draft: "var(--text-muted)",
@@ -109,6 +97,7 @@ export function StudyList({
   onPageChange,
   searchActive = false,
 }: StudyListProps) {
+  const { t } = useTranslation("app");
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
@@ -132,6 +121,13 @@ export function StudyList({
     });
   }, [studies, sortKey, sortDir]);
 
+  const studyTypeLabel = (type: string) =>
+    t(`studies.detail.studyTypes.${type}`, { defaultValue: type.replace(/_/g, " ") });
+  const statusLabel = (status: string) =>
+    t(`studies.detail.statuses.${status}`, { defaultValue: status.replace(/_/g, " ") });
+  const priorityLabel = (priority: string) =>
+    t(`studies.priorities.${priority}`, { defaultValue: priority });
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -143,7 +139,7 @@ export function StudyList({
   if (error) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-critical">Failed to load studies</p>
+        <p className="text-critical">{t("studies.list.loadFailed")}</p>
       </div>
     );
   }
@@ -155,12 +151,12 @@ export function StudyList({
           <Briefcase size={24} className="text-text-muted" />
         </div>
         <h3 className="text-lg font-semibold text-text-primary">
-          {searchActive ? "No matching studies" : "No studies yet"}
+          {searchActive ? t("studies.list.empty.noMatchingTitle") : t("studies.list.empty.noStudiesTitle")}
         </h3>
         <p className="mt-2 text-sm text-text-muted">
           {searchActive
-            ? "Try adjusting your search terms."
-            : "Create your first study to orchestrate federated research."}
+            ? t("studies.list.empty.tryAdjusting")
+            : t("studies.list.empty.createFirst")}
         </p>
       </div>
     );
@@ -173,14 +169,14 @@ export function StudyList({
         <table className="w-full">
           <thead>
             <tr className="bg-surface-overlay">
-              {renderSortHeader({ label: "Title", field: "title", sortKey, sortDir, onToggleSort: toggleSort })}
-              {renderSortHeader({ label: "Type", field: "study_type", sortKey, sortDir, onToggleSort: toggleSort })}
-              {renderSortHeader({ label: "Status", field: "status", sortKey, sortDir, onToggleSort: toggleSort })}
-              {renderSortHeader({ label: "Priority", field: "priority", sortKey, sortDir, onToggleSort: toggleSort })}
+              {renderSortHeader({ label: t("studies.list.table.title"), field: "title", sortKey, sortDir, onToggleSort: toggleSort })}
+              {renderSortHeader({ label: t("studies.list.table.type"), field: "study_type", sortKey, sortDir, onToggleSort: toggleSort })}
+              {renderSortHeader({ label: t("studies.list.table.status"), field: "status", sortKey, sortDir, onToggleSort: toggleSort })}
+              {renderSortHeader({ label: t("studies.list.table.priority"), field: "priority", sortKey, sortDir, onToggleSort: toggleSort })}
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                PI
+                {t("studies.list.table.pi")}
               </th>
-              {renderSortHeader({ label: "Created", field: "created_at", sortKey, sortDir, onToggleSort: toggleSort })}
+              {renderSortHeader({ label: t("studies.list.table.created"), field: "created_at", sortKey, sortDir, onToggleSort: toggleSort })}
             </tr>
           </thead>
           <tbody>
@@ -218,7 +214,7 @@ export function StudyList({
                   </td>
                   <td className="px-4 py-3">
                     <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium bg-success/10 text-success">
-                      {formatStudyType(study.study_type)}
+                      {studyTypeLabel(study.study_type)}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -233,7 +229,7 @@ export function StudyList({
                         className="w-1.5 h-1.5 rounded-full"
                         style={{ backgroundColor: statusColor }}
                       />
-                      {study.status.replace(/_/g, " ")}
+                      {statusLabel(study.status)}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -244,7 +240,7 @@ export function StudyList({
                         color: priorityColor,
                       }}
                     >
-                      {study.priority}
+                      {priorityLabel(study.priority)}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm text-text-muted">
@@ -264,8 +260,11 @@ export function StudyList({
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-1">
           <p className="text-xs text-text-muted">
-            Showing {(page - 1) * perPage + 1} –{" "}
-            {Math.min(page * perPage, total)} of {total}
+            {t("studies.list.pagination.showing", {
+              start: (page - 1) * perPage + 1,
+              end: Math.min(page * perPage, total),
+              total,
+            })}
           </p>
           <div className="flex items-center gap-1">
             <button
@@ -277,7 +276,7 @@ export function StudyList({
               <ChevronLeft size={16} />
             </button>
             <span className="text-xs text-text-secondary px-2">
-              {page} / {totalPages}
+              {t("studies.list.pagination.page", { page, totalPages })}
             </span>
             <button
               type="button"

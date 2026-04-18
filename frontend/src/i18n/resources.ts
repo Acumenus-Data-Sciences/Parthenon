@@ -1,4 +1,5 @@
 import type { Resource } from "i18next";
+import { appResources } from "./appResources";
 import { commonsResources } from "./commonsResources";
 import { dashboardResources } from "./dashboardResources";
 
@@ -4768,12 +4769,14 @@ function withProductResources(
   auth: MessageTree,
   dashboard: MessageTree,
   commons: MessageTree,
+  app: MessageTree,
 ): ParthenonNamespaces & {
   settings: MessageTree;
   help: MessageTree;
   auth: MessageTree;
   dashboard: MessageTree;
   commons: MessageTree;
+  app: MessageTree;
 } {
   return {
     ...namespaces,
@@ -4785,6 +4788,7 @@ function withProductResources(
     auth,
     dashboard,
     commons,
+    app,
   };
 }
 
@@ -4797,6 +4801,7 @@ export const resources: Resource = {
     withAuthSetup(enAuth, enAuthSetup),
     dashboardResources["en-US"],
     commonsResources["en-US"],
+    appResources["en-US"],
   ),
   "es-ES": withProductResources(
     withCommonUi(withAbbyLayout(esES, esAbbyLayout), esCommonUi),
@@ -4806,6 +4811,7 @@ export const resources: Resource = {
     withAuthSetup(esAuth, esAuthSetup),
     dashboardResources["es-ES"],
     commonsResources["es-ES"],
+    appResources["es-ES"],
   ),
   "fr-FR": withProductResources(
     withCommonUi(withAbbyLayout(frFR, enAbbyLayout), enCommonUi),
@@ -4815,6 +4821,7 @@ export const resources: Resource = {
     withAuthSetup(frAuth, enAuthSetup),
     dashboardResources["en-US"],
     commonsResources["en-US"],
+    appResources["en-US"],
   ),
   "de-DE": withProductResources(
     withCommonUi(withAbbyLayout(deDE, enAbbyLayout), enCommonUi),
@@ -4824,6 +4831,7 @@ export const resources: Resource = {
     withAuthSetup(deAuth, enAuthSetup),
     dashboardResources["en-US"],
     commonsResources["en-US"],
+    appResources["en-US"],
   ),
   "pt-BR": withProductResources(
     withCommonUi(withAbbyLayout(ptBR, enAbbyLayout), enCommonUi),
@@ -4833,6 +4841,7 @@ export const resources: Resource = {
     withAuthSetup(ptAuth, enAuthSetup),
     dashboardResources["en-US"],
     commonsResources["en-US"],
+    appResources["en-US"],
   ),
   "fi-FI": withProductResources(
     withCommonUi(withAbbyLayout(fiFI, enAbbyLayout), enCommonUi),
@@ -4842,6 +4851,7 @@ export const resources: Resource = {
     withAuthSetup(fiAuth, enAuthSetup),
     dashboardResources["en-US"],
     commonsResources["en-US"],
+    appResources["en-US"],
   ),
   "ja-JP": withProductResources(
     withCommonUi(withAbbyLayout(jaJP, enAbbyLayout), enCommonUi),
@@ -4851,6 +4861,7 @@ export const resources: Resource = {
     withAuthSetup(jaAuth, enAuthSetup),
     dashboardResources["en-US"],
     commonsResources["en-US"],
+    appResources["en-US"],
   ),
   "zh-Hans": withProductResources(
     withCommonUi(withAbbyLayout(zhHans, enAbbyLayout), enCommonUi),
@@ -4860,6 +4871,7 @@ export const resources: Resource = {
     withAuthSetup(zhAuth, enAuthSetup),
     dashboardResources["en-US"],
     commonsResources["en-US"],
+    appResources["en-US"],
   ),
   "ko-KR": withProductResources(
     withCommonUi(withAbbyLayout(koKR, koAbbyLayout), koCommonUi),
@@ -4869,6 +4881,7 @@ export const resources: Resource = {
     withAuthSetup(koAuth, koAuthSetup),
     dashboardResources["ko-KR"],
     commonsResources["ko-KR"],
+    appResources["ko-KR"],
   ),
   "hi-IN": withProductResources(
     withCommonUi(withAbbyLayout(hiIN, enAbbyLayout), enCommonUi),
@@ -4878,6 +4891,7 @@ export const resources: Resource = {
     withAuthSetup(hiAuth, enAuthSetup),
     dashboardResources["en-US"],
     commonsResources["en-US"],
+    appResources["en-US"],
   ),
   ar: withProductResources(
     withCommonUi(withAbbyLayout(ar, enAbbyLayout), enCommonUi),
@@ -4887,6 +4901,7 @@ export const resources: Resource = {
     withAuthSetup(arAuth, enAuthSetup),
     dashboardResources["en-US"],
     commonsResources["en-US"],
+    appResources["en-US"],
   ),
   "en-XA": withProductResources(
     withCommonUi(
@@ -4899,6 +4914,7 @@ export const resources: Resource = {
     withAuthSetup(pseudoTree(enAuth), pseudoTree(enAuthSetup)),
     pseudoTree(dashboardResources["en-US"]),
     pseudoTree(commonsResources["en-US"]),
+    pseudoTree(appResources["en-US"]),
   ),
 };
 
@@ -4910,4 +4926,5 @@ export const namespaces = [
   "auth",
   "dashboard",
   "commons",
+  "app",
 ];

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import { formatNumber } from "@/i18n/format";
 import {
   BarChart,
   Bar,
@@ -31,6 +33,7 @@ interface MultiComparisonChartProps {
 type ComparisonChartProps = SingleComparisonChartProps | MultiComparisonChartProps;
 
 export default function ComparisonChart(props: ComparisonChartProps) {
+  const { t } = useTranslation("app");
   const { metric, multiData } = props;
 
   // Multi-concept grouped bars
@@ -43,7 +46,7 @@ export default function ComparisonChart(props: ComparisonChartProps) {
   if (!data || data.length === 0) {
     return (
       <div className="flex h-48 items-center justify-center text-text-ghost">
-        No comparison data available.
+        {t("dataExplorer.ares.conceptComparison.messages.noComparisonData")}
       </div>
     );
   }
@@ -76,7 +79,9 @@ export default function ComparisonChart(props: ComparisonChartProps) {
             tick={{ fill: "var(--text-muted)", fontSize: 11 }}
             axisLine={{ stroke: "var(--surface-highlight)" }}
             tickFormatter={(v: number) =>
-              metric === "rate_per_1000" ? `${v}/1k` : v.toLocaleString()
+              metric === "rate_per_1000"
+                ? t("dataExplorer.ares.conceptComparison.metrics.perThousandShort", { value: formatNumber(v) })
+                : formatNumber(v)
             }
           />
           <Tooltip
@@ -87,14 +92,16 @@ export default function ComparisonChart(props: ComparisonChartProps) {
               color: "var(--text-secondary)",
               fontSize: 12,
             }}
-            /* eslint-disable @typescript-eslint/no-explicit-any */
-            formatter={((value: number | string) => [
+            formatter={(value: number | string) => [
               metric === "rate_per_1000"
-                ? `${Number(value).toFixed(2)} per 1,000`
-                : Number(value).toLocaleString(),
-              metric === "rate_per_1000" ? "Rate" : "Count",
-            ]) as any}
-            /* eslint-enable @typescript-eslint/no-explicit-any */
+                ? t("dataExplorer.ares.conceptComparison.metrics.perThousandLong", {
+                  value: formatNumber(Number(value), { maximumFractionDigits: 2 }),
+                })
+                : formatNumber(Number(value)),
+              metric === "rate_per_1000"
+                ? t("dataExplorer.ares.conceptComparison.metrics.rate")
+                : t("dataExplorer.ares.conceptComparison.metrics.count"),
+            ]}
           />
           {showBenchmark && (
             <ReferenceLine
@@ -103,7 +110,9 @@ export default function ComparisonChart(props: ComparisonChartProps) {
               strokeDasharray="8 4"
               strokeWidth={1.5}
               label={{
-                value: `CDC National Rate: ${benchmarkRate} per 1,000`,
+                value: t("dataExplorer.ares.conceptComparison.cdcNationalRate", {
+                  value: formatNumber(benchmarkRate),
+                }),
                 position: "top",
                 fill: "var(--critical)",
                 fontSize: 10,
@@ -128,10 +137,12 @@ function GroupedBars({
   multiData: MultiConceptComparison;
   metric: "count" | "rate_per_1000";
 }) {
+  const { t } = useTranslation("app");
+
   if (multiData.sources.length === 0) {
     return (
       <div className="flex h-48 items-center justify-center text-text-ghost">
-        No comparison data available.
+        {t("dataExplorer.ares.conceptComparison.messages.noComparisonData")}
       </div>
     );
   }
@@ -166,7 +177,9 @@ function GroupedBars({
             tick={{ fill: "var(--text-muted)", fontSize: 11 }}
             axisLine={{ stroke: "var(--surface-highlight)" }}
             tickFormatter={(v: number) =>
-              metric === "rate_per_1000" ? `${v}/1k` : v.toLocaleString()
+              metric === "rate_per_1000"
+                ? t("dataExplorer.ares.conceptComparison.metrics.perThousandShort", { value: formatNumber(v) })
+                : formatNumber(v)
             }
           />
           <Tooltip

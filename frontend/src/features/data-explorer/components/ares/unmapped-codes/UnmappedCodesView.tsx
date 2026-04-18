@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
+import { formatNumber } from "@/i18n/format";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import {
   useUnmappedCodes,
@@ -19,6 +21,7 @@ import MappingSuggestionPanel from "./MappingSuggestionPanel";
 type ViewMode = "table" | "pareto" | "vocabulary";
 
 export default function UnmappedCodesView() {
+  const { t } = useTranslation("app");
   const [selectedSourceId, setSelectedSourceId] = useState<number | null>(null);
   const [releaseId, setReleaseId] = useState<number | null>(null);
   const [tableFilter, setTableFilter] = useState<string>("");
@@ -50,6 +53,9 @@ export default function UnmappedCodesView() {
   // Extract unique tables from summary for filter dropdown
   const availableTables = summary?.map((s) => s.cdm_table) ?? [];
 
+  const viewModeLabel = (mode: ViewMode) =>
+    t(`dataExplorer.ares.unmapped.viewModes.${mode}`);
+
   const handleExport = async (format: "usagi" | "csv") => {
     if (!selectedSourceId || !activeReleaseId) return;
     setExporting(true);
@@ -76,7 +82,9 @@ export default function UnmappedCodesView() {
       {/* Filters row */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2">
-          <label className="text-sm text-text-muted">Source:</label>
+          <label className="text-sm text-text-muted">
+            {t("dataExplorer.ares.unmapped.filters.source")}
+          </label>
           <select
             value={selectedSourceId ?? ""}
             onChange={(e) => {
@@ -86,7 +94,9 @@ export default function UnmappedCodesView() {
             }}
             className="rounded border border-border-default bg-surface-overlay px-3 py-1.5 text-sm text-text-primary"
           >
-            <option value="">Select source...</option>
+            <option value="">
+              {t("dataExplorer.ares.unmapped.filters.selectSource")}
+            </option>
             {sources?.map((s) => (
               <option key={s.id} value={s.id}>{s.source_name}</option>
             ))}
@@ -95,7 +105,9 @@ export default function UnmappedCodesView() {
 
         {selectedSourceId && releases && releases.length > 0 && (
           <div className="flex items-center gap-2">
-            <label className="text-sm text-text-muted">Release:</label>
+            <label className="text-sm text-text-muted">
+              {t("dataExplorer.ares.unmapped.filters.release")}
+            </label>
             <select
               value={activeReleaseId ?? ""}
               onChange={(e) => {
@@ -125,7 +137,7 @@ export default function UnmappedCodesView() {
                     : "text-text-ghost hover:text-text-primary"
                 }`}
               >
-                {mode === "table" ? "Table" : mode === "pareto" ? "Pareto" : "Vocabulary"}
+                {viewModeLabel(mode)}
               </button>
             ))}
           </div>
@@ -139,7 +151,9 @@ export default function UnmappedCodesView() {
             disabled={exporting}
             className="rounded border border-border-default px-3 py-1.5 text-xs text-text-muted hover:border-surface-highlight hover:text-text-primary disabled:opacity-50"
           >
-            {exporting ? "Exporting..." : "Export Usagi CSV"}
+            {exporting
+              ? t("dataExplorer.ares.unmapped.actions.exporting")
+              : t("dataExplorer.ares.unmapped.actions.exportUsagiCsv")}
           </button>
         )}
       </div>
@@ -157,7 +171,9 @@ export default function UnmappedCodesView() {
           {availableTables.length > 0 && (
             <div className="mb-4 flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
-                <label className="text-sm text-text-muted">Table:</label>
+                <label className="text-sm text-text-muted">
+                  {t("dataExplorer.ares.unmapped.filters.table")}
+                </label>
                 <select
                   value={tableFilter}
                   onChange={(e) => {
@@ -166,7 +182,9 @@ export default function UnmappedCodesView() {
                   }}
                   className="rounded border border-border-default bg-surface-overlay px-3 py-1.5 text-sm text-text-primary"
                 >
-                  <option value="">All tables</option>
+                  <option value="">
+                    {t("dataExplorer.ares.unmapped.filters.allTables")}
+                  </option>
                   {availableTables.map((t) => (
                     <option key={t} value={t}>{t}</option>
                   ))}
@@ -175,7 +193,7 @@ export default function UnmappedCodesView() {
 
               <input
                 type="text"
-                placeholder="Search source codes..."
+                placeholder={t("dataExplorer.ares.unmapped.filters.searchPlaceholder")}
                 value={searchFilter}
                 onChange={(e) => {
                   setSearchFilter(e.target.value);
@@ -204,7 +222,11 @@ export default function UnmappedCodesView() {
                       : "border-border-default text-text-muted hover:border-surface-highlight"
                   }`}
                 >
-                  {s.cdm_table} ({s.code_count} codes, {Number(s.total_records).toLocaleString()} records)
+                  {t("dataExplorer.ares.unmapped.summaryBadge", {
+                    table: s.cdm_table,
+                    codes: formatNumber(s.code_count),
+                    records: formatNumber(Number(s.total_records)),
+                  })}
                 </button>
               ))}
             </div>
@@ -214,58 +236,72 @@ export default function UnmappedCodesView() {
 
       {/* Content area */}
       {!selectedSourceId && (
-        <p className="py-10 text-center text-text-ghost">Select a source to view unmapped codes.</p>
+        <p className="py-10 text-center text-text-ghost">
+          {t("dataExplorer.ares.unmapped.messages.selectSource")}
+        </p>
       )}
 
-      {isLoading && viewMode === "table" && <p className="text-text-ghost">Loading unmapped codes...</p>}
+      {isLoading && viewMode === "table" && (
+        <p className="text-text-ghost">
+          {t("dataExplorer.ares.unmapped.messages.loading")}
+        </p>
+      )}
 
       {/* Pareto view */}
       {viewMode === "pareto" && paretoData && paretoData.codes.length > 0 && (
         <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
-          <h3 className="mb-3 text-sm font-medium text-text-primary">Unmapped Codes Pareto Analysis</h3>
+          <h3 className="mb-3 text-sm font-medium text-text-primary">
+            {t("dataExplorer.ares.unmapped.sections.pareto")}
+          </h3>
           <ParetoChart data={paretoData.codes} top20Coverage={paretoData.top_20_coverage} />
         </div>
       )}
 
       {viewMode === "pareto" && paretoData && paretoData.codes.length === 0 && (
-        <p className="py-10 text-center text-text-ghost">No unmapped codes found for Pareto analysis.</p>
+        <p className="py-10 text-center text-text-ghost">
+          {t("dataExplorer.ares.unmapped.messages.emptyPareto")}
+        </p>
       )}
 
       {/* Vocabulary view */}
       {viewMode === "vocabulary" && treemapData && treemapData.length > 0 && (
         <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
-          <h3 className="mb-3 text-sm font-medium text-text-primary">Unmapped Codes by Vocabulary</h3>
+          <h3 className="mb-3 text-sm font-medium text-text-primary">
+            {t("dataExplorer.ares.unmapped.sections.vocabulary")}
+          </h3>
           <VocabularyBarChart data={treemapData} />
         </div>
       )}
 
       {viewMode === "vocabulary" && treemapData && treemapData.length === 0 && (
-        <p className="py-10 text-center text-text-ghost">No vocabulary data available.</p>
+        <p className="py-10 text-center text-text-ghost">
+          {t("dataExplorer.ares.unmapped.messages.emptyVocabulary")}
+        </p>
       )}
 
       {/* Table view */}
       {viewMode === "table" && codesData && codesData.data.length === 0 && (
         <p className="py-10 text-center text-text-ghost">
-          No unmapped source codes found. All codes are mapped to standard OMOP concepts.
+          {t("dataExplorer.ares.unmapped.messages.noneFound")}
         </p>
       )}
 
       {viewMode === "table" && codesData && codesData.data.length > 0 && (
         <>
           <p className="mb-3 text-xs text-text-ghost">
-            Sorted by impact score (record count x domain weight)
+            {t("dataExplorer.ares.unmapped.messages.sortedByImpact")}
           </p>
 
           <div className="overflow-hidden rounded-lg border border-border-subtle">
             <table className="w-full text-sm">
               <thead className="bg-surface-overlay">
                 <tr className="border-b border-border-subtle">
-                  <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">Source Code</th>
-                  <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">Vocabulary</th>
-                  <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">CDM Table</th>
-                  <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">CDM Field</th>
-                  <th className="px-3 py-2 text-right text-[11px] font-medium uppercase text-text-muted">Records</th>
-                  <th className="px-3 py-2 text-right text-[11px] font-medium uppercase text-text-muted">Impact Score</th>
+                  <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">{t("dataExplorer.ares.unmapped.table.sourceCode")}</th>
+                  <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">{t("dataExplorer.ares.unmapped.table.vocabulary")}</th>
+                  <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">{t("dataExplorer.ares.unmapped.table.cdmTable")}</th>
+                  <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">{t("dataExplorer.ares.unmapped.table.cdmField")}</th>
+                  <th className="px-3 py-2 text-right text-[11px] font-medium uppercase text-text-muted">{t("dataExplorer.ares.unmapped.table.records")}</th>
+                  <th className="px-3 py-2 text-right text-[11px] font-medium uppercase text-text-muted">{t("dataExplorer.ares.unmapped.table.impactScore")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -276,7 +312,7 @@ export default function UnmappedCodesView() {
                     <td className="px-3 py-2 text-xs text-text-muted">{code.cdm_table}</td>
                     <td className="px-3 py-2 text-xs text-text-muted">{code.cdm_field}</td>
                     <td className="px-3 py-2 text-right text-xs text-text-secondary">
-                      {code.record_count.toLocaleString()}
+                      {formatNumber(code.record_count)}
                     </td>
                     <td className="px-3 py-2 text-right text-xs">
                       <span className="flex items-center justify-end gap-1.5">
@@ -285,7 +321,9 @@ export default function UnmappedCodesView() {
                             #{idx + 1}
                           </span>
                         )}
-                        <span className="text-text-secondary">{Number(code.impact_score).toFixed(1)}</span>
+                        <span className="text-text-secondary">
+                          {formatNumber(Number(code.impact_score), { maximumFractionDigits: 1 })}
+                        </span>
                       </span>
                     </td>
                   </tr>
@@ -297,12 +335,18 @@ export default function UnmappedCodesView() {
           {/* AI Mapping Suggestion Panels */}
           {selectedSourceId && (
             <div className="mt-3 space-y-1">
-              <p className="mb-2 text-[11px] uppercase text-text-ghost">AI Mapping Suggestions</p>
+              <p className="mb-2 text-[11px] uppercase text-text-ghost">
+                {t("dataExplorer.ares.unmapped.sections.suggestions")}
+              </p>
               {codesData.data.map((code: UnmappedCode) => (
                 <div key={`suggest-${code.id}`} className="rounded-lg border border-border-subtle bg-surface-raised">
                   <div className="px-3 py-1.5 text-xs text-text-secondary">
                     <span className="font-mono">{code.source_code}</span>
-                    <span className="ml-2 text-text-ghost">({code.source_vocabulary_id})</span>
+                    <span className="ml-2 text-text-ghost">
+                      {t("dataExplorer.ares.unmapped.vocabularyValue", {
+                        vocabulary: code.source_vocabulary_id,
+                      })}
+                    </span>
                   </div>
                   <MappingSuggestionPanel code={code} sourceId={selectedSourceId} />
                 </div>
@@ -313,9 +357,11 @@ export default function UnmappedCodesView() {
           {/* Pagination */}
           <div className="mt-3 flex items-center justify-between text-xs text-text-muted">
             <span>
-              Showing {(codesData.meta.page - 1) * codesData.meta.per_page + 1}–
-              {Math.min(codesData.meta.page * codesData.meta.per_page, codesData.meta.total)} of{" "}
-              {codesData.meta.total.toLocaleString()}
+              {t("dataExplorer.ares.unmapped.messages.showing", {
+                start: formatNumber((codesData.meta.page - 1) * codesData.meta.per_page + 1),
+                end: formatNumber(Math.min(codesData.meta.page * codesData.meta.per_page, codesData.meta.total)),
+                total: formatNumber(codesData.meta.total),
+              })}
             </span>
             <div className="flex gap-2">
               <button
@@ -324,7 +370,7 @@ export default function UnmappedCodesView() {
                 disabled={page <= 1}
                 className="rounded border border-border-default px-3 py-1 disabled:opacity-30"
               >
-                Prev
+                {t("dataExplorer.ares.unmapped.actions.previous")}
               </button>
               <button
                 type="button"
@@ -332,7 +378,7 @@ export default function UnmappedCodesView() {
                 disabled={page >= codesData.meta.last_page}
                 className="rounded border border-border-default px-3 py-1 disabled:opacity-30"
               >
-                Next
+                {t("dataExplorer.ares.unmapped.actions.next")}
               </button>
             </div>
           </div>

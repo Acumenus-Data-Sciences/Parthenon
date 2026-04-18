@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchMappingSuggestions, acceptMappingSuggestion } from "../../../api/dqHistoryApi";
 import type { MappingSuggestion, UnmappedCode } from "../../../types/ares";
@@ -27,6 +28,7 @@ function ConfidenceBar({ score }: { score: number }) {
 }
 
 export default function MappingSuggestionPanel({ code, sourceId }: MappingSuggestionPanelProps) {
+  const { t } = useTranslation("app");
   const [expanded, setExpanded] = useState(false);
   const [acceptedId, setAcceptedId] = useState<number | null>(null);
   const queryClient = useQueryClient();
@@ -62,24 +64,26 @@ export default function MappingSuggestionPanel({ code, sourceId }: MappingSugges
         <span className={`transition-transform ${expanded ? "rotate-90" : ""}`}>
           {"\u25B6"}
         </span>
-        AI Mapping Suggestions
+        {t("dataExplorer.ares.unmapped.sections.suggestions")}
       </button>
 
       {expanded && (
         <div className="px-3 pb-3">
           {isLoading && (
-            <p className="text-xs text-text-ghost">Generating suggestions via pgvector similarity...</p>
+            <p className="text-xs text-text-ghost">
+              {t("dataExplorer.ares.unmapped.suggestions.generating")}
+            </p>
           )}
 
           {error && (
             <p className="text-xs text-primary">
-              Failed to load suggestions. The AI service or concept embeddings may not be available.
+              {t("dataExplorer.ares.unmapped.suggestions.failed")}
             </p>
           )}
 
           {suggestionData && suggestionData.length === 0 && (
             <p className="text-xs text-text-ghost">
-              No suggestions available. Concept embeddings may not be loaded.
+              {t("dataExplorer.ares.unmapped.suggestions.empty")}
             </p>
           )}
 
@@ -111,7 +115,9 @@ export default function MappingSuggestionPanel({ code, sourceId }: MappingSugges
                       </div>
                       <div className="mt-1 flex items-center gap-3">
                         <span className="text-[10px] text-text-ghost">
-                          ID: {suggestion.concept_id}
+                          {t("dataExplorer.ares.unmapped.suggestions.id", {
+                            id: suggestion.concept_id,
+                          })}
                         </span>
                         <ConfidenceBar score={suggestion.confidence_score} />
                       </div>
@@ -120,7 +126,7 @@ export default function MappingSuggestionPanel({ code, sourceId }: MappingSugges
                     <div className="ml-3 flex items-center gap-1">
                       {isAccepted ? (
                         <span className="rounded-full bg-success/20 px-3 py-1 text-[10px] font-medium text-success">
-                          Accepted
+                          {t("dataExplorer.ares.unmapped.suggestions.accepted")}
                         </span>
                       ) : (
                         <>
@@ -130,14 +136,16 @@ export default function MappingSuggestionPanel({ code, sourceId }: MappingSugges
                             disabled={acceptMutation.isPending || acceptedId !== null}
                             className="rounded border border-success/30 px-2 py-1 text-[10px] text-success hover:bg-success/10 disabled:opacity-30"
                           >
-                            {acceptMutation.isPending ? "..." : "Accept"}
+                            {acceptMutation.isPending
+                              ? "..."
+                              : t("dataExplorer.ares.unmapped.suggestions.accept")}
                           </button>
                           <button
                             type="button"
                             disabled={acceptedId !== null}
                             className="rounded border border-border-default px-2 py-1 text-[10px] text-text-ghost hover:text-text-muted disabled:opacity-30"
                           >
-                            Skip
+                            {t("dataExplorer.ares.unmapped.suggestions.skip")}
                           </button>
                         </>
                       )}

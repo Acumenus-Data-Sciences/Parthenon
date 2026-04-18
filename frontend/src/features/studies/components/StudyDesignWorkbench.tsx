@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck — unfinished feature with pervasive type drift; unblock CI build until feature is completed
 import { useMemo, useState, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, Brain, CheckCircle2, ChevronDown, ChevronRight, Loader2, Lock, Plus, Save, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -53,6 +54,7 @@ interface IntentFormState {
 }
 
 export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
+  const { t } = useTranslation("app");
   const slug = study.slug || String(study.id);
   const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
   const [researchQuestion, setResearchQuestion] = useState(
@@ -107,7 +109,7 @@ export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
     const session = await createSession.mutateAsync({
       slug,
       payload: {
-        title: "Study intent design",
+        title: t("studies.workbench.sessionTitle"),
         source_mode: "natural_language",
       },
     });
@@ -314,18 +316,18 @@ export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
           <div className="flex items-center gap-2">
             <Brain size={18} className="text-success" />
             <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-              Study Design Compiler
+              {t("studies.workbench.title")}
             </h3>
           </div>
           <p className="mt-1 text-sm text-text-muted">
-            Convert a research question into reviewed OHDSI-aligned study intent, then vet reusable phenotype assets before anything moves downstream.
+            {t("studies.workbench.subtitle")}
           </p>
         </div>
         <button
           type="button"
           onClick={() => {
             createSession.mutate(
-              { slug, payload: { title: "Study intent design", source_mode: "natural_language" } },
+              { slug, payload: { title: t("studies.workbench.sessionTitle"), source_mode: "natural_language" } },
               { onSuccess: (session) => setSelectedSessionId(session.id) },
             );
           }}
@@ -333,14 +335,16 @@ export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
           className="btn btn-ghost btn-sm shrink-0"
         >
           {createSession.isPending ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-          New Session
+          {t("studies.workbench.newSession")}
         </button>
       </div>
 
       {sessions.length > 0 && (
         <div className="grid gap-3 md:grid-cols-[minmax(0,240px)_1fr]">
           <div className="space-y-2">
-            <p className="text-[10px] text-text-ghost uppercase tracking-wider">Sessions</p>
+            <p className="text-[10px] text-text-ghost uppercase tracking-wider">
+              {t("studies.workbench.sessions")}
+            </p>
             <div className="space-y-1">
               {sessions.map((session) => (
                 <button
@@ -366,13 +370,13 @@ export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
 
           <div className="space-y-4">
             <div>
-              <label className="form-label">Research Question</label>
+              <label className="form-label">{t("studies.workbench.researchQuestion")}</label>
               <textarea
                 value={researchQuestion}
                 onChange={(event) => setResearchQuestion(event.target.value)}
                 rows={3}
                 className="form-input form-textarea"
-                placeholder="Compare recurrent MACE in post-MI patients initiating clopidogrel versus aspirin."
+                placeholder={t("studies.workbench.researchQuestionPlaceholder")}
               />
               <div className="mt-2 flex justify-end">
                 <button
@@ -382,7 +386,7 @@ export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
                   className="btn btn-primary btn-sm"
                 >
                   {generateIntent.isPending ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-                  Generate Intent
+                  {t("studies.workbench.generateIntent")}
                 </button>
               </div>
             </div>
@@ -496,7 +500,7 @@ export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
       {sessions.length === 0 && !sessionsQuery.isLoading && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <p className="text-sm text-text-secondary">
-            Start a design session, then generate a structured PICO intent from the study question.
+            {t("studies.workbench.startSession")}
           </p>
           <div className="mt-3">
             <textarea
@@ -504,7 +508,7 @@ export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
               onChange={(event) => setResearchQuestion(event.target.value)}
               rows={3}
               className="form-input form-textarea"
-              placeholder="Describe the study question..."
+              placeholder={t("studies.workbench.emptyQuestionPlaceholder")}
             />
             <button
               type="button"
@@ -513,7 +517,7 @@ export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
               className="btn btn-primary btn-sm mt-3"
             >
               {createSession.isPending || generateIntent.isPending ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-              Create Session and Generate Intent
+              {t("studies.workbench.createAndGenerate")}
             </button>
           </div>
         </div>
@@ -522,7 +526,7 @@ export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
       {sessionsQuery.isLoading && (
         <div className="flex items-center gap-2 text-sm text-text-muted">
           <Loader2 size={14} className="animate-spin" />
-          Loading design sessions...
+          {t("studies.workbench.loadingSessions")}
         </div>
       )}
 
@@ -552,6 +556,7 @@ function PhenotypeRecommendationPanel({
   onReview: (asset: StudyDesignAsset, decision: "accept" | "reject" | "defer") => void;
   canGenerate: boolean;
 }) {
+  const { t } = useTranslation("app");
   const recommendations = assets.filter((asset) =>
     ["phenotype_recommendation", "local_cohort", "local_concept_set"].includes(asset.asset_type),
   ).sort((left, right) =>
@@ -572,9 +577,11 @@ function PhenotypeRecommendationPanel({
     <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-text-secondary">Phenotype and Reuse Recommendations</p>
+          <p className="text-sm font-semibold text-text-secondary">
+            {t("studies.workbench.sections.phenotypeRecommendations")}
+          </p>
           <p className="text-xs text-text-ghost">
-            Review reusable Phenotype Library entries, local cohorts, and local concept sets before drafting anything new.
+            {t("studies.workbench.descriptions.recommendations")}
           </p>
         </div>
         <button
@@ -584,35 +591,35 @@ function PhenotypeRecommendationPanel({
           className="btn btn-primary btn-sm shrink-0"
         >
           {isGenerating ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-          Recommend
+          {t("studies.workbench.actions.recommend")}
         </button>
       </div>
 
       {recommendations.length > 0 && (
         <div className="grid gap-2 text-xs sm:grid-cols-4">
-          <EvidenceMetric label="Verified" value={evidenceCounts.verified} tone="success" />
-          <EvidenceMetric label="Needs check" value={evidenceCounts.partial + evidenceCounts.unverified} tone="warning" />
-          <EvidenceMetric label="Blocked" value={evidenceCounts.blocked} tone="critical" />
-          <EvidenceMetric label="Review queue" value={recommendations.length} tone="neutral" />
+          <EvidenceMetric label={t("studies.workbench.labels.verified")} value={evidenceCounts.verified} tone="success" />
+          <EvidenceMetric label={t("studies.workbench.labels.needsCheck")} value={evidenceCounts.partial + evidenceCounts.unverified} tone="warning" />
+          <EvidenceMetric label={t("studies.workbench.labels.blocked")} value={evidenceCounts.blocked} tone="critical" />
+          <EvidenceMetric label={t("studies.workbench.labels.reviewQueue")} value={recommendations.length} tone="neutral" />
         </div>
       )}
 
       {!canGenerate && (
         <p className="text-xs text-text-ghost">
-          Save a review-ready intent or accept the intent before requesting recommendations.
+          {t("studies.workbench.messages.saveOrAcceptBeforeRecommendations")}
         </p>
       )}
 
       {isLoading && (
         <div className="flex items-center gap-2 text-sm text-text-muted">
           <Loader2 size={14} className="animate-spin" />
-          Loading recommendations...
+          {t("studies.workbench.messages.loadingRecommendations")}
         </div>
       )}
 
       {!isLoading && recommendations.length === 0 && (
         <div className="rounded-md border border-border-default bg-surface-base p-3 text-sm text-text-muted">
-          No recommendations yet.
+          {t("studies.workbench.messages.noRecommendations")}
         </div>
       )}
 
@@ -657,6 +664,7 @@ function ConceptSetDraftPanel({
   onUpdate: (asset: StudyDesignAsset, concepts: StudyDesignDraftConcept[]) => void;
   onMaterialize: (asset: StudyDesignAsset) => void;
 }) {
+  const { t } = useTranslation("app");
   const acceptedInputs = assets.filter((asset) =>
     ["phenotype_recommendation", "local_cohort", "local_concept_set"].includes(asset.asset_type) &&
     asset.status === "accepted",
@@ -670,9 +678,11 @@ function ConceptSetDraftPanel({
     <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-text-secondary">Concept Set Drafts</p>
+          <p className="text-sm font-semibold text-text-secondary">
+            {t("studies.workbench.sections.conceptSetDrafts")}
+          </p>
           <p className="text-xs text-text-ghost">
-            Convert accepted evidence into vocabulary-checked drafts before creating native concept sets.
+            {t("studies.workbench.descriptions.conceptSets")}
           </p>
         </div>
         <button
@@ -682,19 +692,19 @@ function ConceptSetDraftPanel({
           className="btn btn-primary btn-sm shrink-0"
         >
           {isGenerating ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-          Draft Concept Sets
+          {t("studies.workbench.actions.draftConceptSets")}
         </button>
       </div>
 
       {!canGenerate && (
         <p className="text-xs text-text-ghost">
-          Accept at least one verified phenotype, cohort, or concept set recommendation first.
+          {t("studies.workbench.messages.acceptRecommendationFirst")}
         </p>
       )}
 
       {drafts.length === 0 && (
         <div className="rounded-md border border-border-default bg-surface-base p-3 text-sm text-text-muted">
-          No concept set drafts yet.
+          {t("studies.workbench.messages.noConceptSetDrafts")}
         </div>
       )}
 
@@ -741,6 +751,7 @@ function ConceptSetDraftCard({
   onUpdate: (asset: StudyDesignAsset, concepts: StudyDesignDraftConcept[]) => void;
   onMaterialize: (asset: StudyDesignAsset) => void;
 }) {
+  const { t } = useTranslation("app");
   const [expanded, setExpanded] = useState(asset.verification_status !== "verified");
   const [conceptQuery, setConceptQuery] = useState("");
   const [conceptResults, setConceptResults] = useState<Concept[]>([]);
@@ -796,7 +807,7 @@ function ConceptSetDraftCard({
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-md bg-success/10 px-2 py-0.5 text-[10px] uppercase tracking-wider text-success">
-              concept set draft
+              {t("studies.workbench.labels.conceptSetDraft")}
             </span>
             <VerificationBadge status={asset.verification_status} />
             <span className="text-[10px] text-text-muted">{asset.status}</span>
@@ -809,9 +820,9 @@ function ConceptSetDraftCard({
             <p className="mt-1 text-xs text-text-muted line-clamp-2">{payload.clinical_rationale}</p>
           )}
           <div className="mt-2 flex flex-wrap gap-2 text-[10px] text-text-ghost">
-            <span>{concepts.length} concepts</span>
+            <span>{t("studies.workbench.labels.conceptsCount", { count: concepts.length })}</span>
             {payload.domain && <span>{String(payload.domain)}</span>}
-            {materialized && <span>Native concept set #{asset.materialized_id}</span>}
+            {materialized && <span>{t("studies.workbench.labels.nativeConceptSet", { id: asset.materialized_id })}</span>}
           </div>
           {blockers.length > 0 && <p className="mt-2 text-xs text-critical">{blockers[0]}</p>}
           {blockers.length === 0 && warnings.length > 0 && <p className="mt-2 text-xs text-warning">{warnings[0]}</p>}
@@ -825,7 +836,7 @@ function ConceptSetDraftCard({
               disabled={isVerifying}
               className="btn btn-ghost btn-sm"
             >
-              Verify
+              {t("studies.workbench.actions.verify")}
             </button>
           )}
           {!materialized && asset.status === "needs_review" && (
@@ -834,10 +845,10 @@ function ConceptSetDraftCard({
                 type="button"
                 onClick={() => onReview(asset, "accept")}
                 disabled={isReviewing || !verified}
-                title={verified ? undefined : verification?.eligibility?.reason ?? "Only verified concept set drafts can be accepted."}
+                title={verified ? undefined : verification?.eligibility?.reason ?? t("studies.workbench.messages.onlyVerifiedConceptSetDrafts")}
                 className="btn btn-primary btn-sm"
               >
-                Accept
+                {t("studies.workbench.actions.accept")}
               </button>
               <button
                 type="button"
@@ -845,7 +856,7 @@ function ConceptSetDraftCard({
                 disabled={isReviewing}
                 className="btn btn-ghost btn-sm"
               >
-                Defer
+                {t("studies.workbench.actions.defer")}
               </button>
               <button
                 type="button"
@@ -853,7 +864,7 @@ function ConceptSetDraftCard({
                 disabled={isReviewing}
                 className="btn btn-ghost btn-sm"
               >
-                Reject
+                {t("studies.workbench.actions.reject")}
               </button>
             </>
           )}
@@ -864,12 +875,12 @@ function ConceptSetDraftCard({
               disabled={isMaterializing || !verified}
               className="btn btn-primary btn-sm"
             >
-              Materialize
+              {t("studies.workbench.actions.materialize")}
             </button>
           )}
           {materialized && (
             <a href={`/concept-sets/${asset.materialized_id}`} className="btn btn-ghost btn-sm">
-              Open Native Editor
+              {t("studies.workbench.actions.openNativeEditor")}
             </a>
           )}
         </div>
@@ -881,7 +892,7 @@ function ConceptSetDraftCard({
         className="mt-3 inline-flex items-center gap-1 text-xs text-text-muted hover:text-text-secondary"
       >
         {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
-        Concepts
+        {t("studies.workbench.labels.concepts")}
       </button>
 
       {expanded && (
@@ -899,7 +910,7 @@ function ConceptSetDraftCard({
                     }
                   }}
                   className="form-input"
-                  placeholder="Search OMOP vocabulary concepts"
+                  placeholder={t("studies.workbench.messages.searchConceptsPlaceholder")}
                 />
                 <button
                   type="button"
@@ -907,7 +918,7 @@ function ConceptSetDraftCard({
                   disabled={conceptQuery.trim().length < 2 || isSearchingConcepts}
                   className="btn btn-ghost btn-sm shrink-0"
                 >
-                  {isSearchingConcepts ? <Loader2 size={14} className="animate-spin" /> : "Search"}
+                  {isSearchingConcepts ? <Loader2 size={14} className="animate-spin" /> : t("studies.workbench.actions.search")}
                 </button>
               </div>
               {conceptResults.length > 0 && (
@@ -925,7 +936,7 @@ function ConceptSetDraftCard({
                           {concept.concept_id} · {concept.domain_id} · {concept.vocabulary_id}
                         </span>
                       </span>
-                      <span className="text-xs text-success">Add</span>
+                      <span className="text-xs text-success">{t("studies.workbench.actions.add")}</span>
                     </button>
                   ))}
                 </div>
@@ -937,11 +948,11 @@ function ConceptSetDraftCard({
           <table className="min-w-full text-left text-xs">
             <thead className="text-[10px] uppercase tracking-wider text-text-ghost">
               <tr>
-                <th className="py-2 pr-3 font-medium">Concept</th>
-                <th className="py-2 pr-3 font-medium">Domain</th>
-                <th className="py-2 pr-3 font-medium">Vocabulary</th>
-                <th className="py-2 pr-3 font-medium">Flags</th>
-                {canEdit && <th className="py-2 pr-3 font-medium">Actions</th>}
+                <th className="py-2 pr-3 font-medium">{t("studies.workbench.labels.concept")}</th>
+                <th className="py-2 pr-3 font-medium">{t("studies.workbench.labels.domain")}</th>
+                <th className="py-2 pr-3 font-medium">{t("studies.workbench.labels.vocabulary")}</th>
+                <th className="py-2 pr-3 font-medium">{t("studies.workbench.labels.flags")}</th>
+                {canEdit && <th className="py-2 pr-3 font-medium">{t("studies.workbench.labels.actions")}</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-border-default">
@@ -989,7 +1000,7 @@ function ConceptSetDraftCard({
                         disabled={isUpdating}
                         className="text-xs text-critical hover:underline"
                       >
-                        Remove
+                        {t("studies.workbench.actions.remove")}
                       </button>
                     </td>
                   )}
@@ -1033,6 +1044,7 @@ function CohortDraftPanel({
   onMaterialize: (asset: StudyDesignAsset) => void;
   onLink: (asset: StudyDesignAsset) => void;
 }) {
+  const { t } = useTranslation("app");
   const materializedConceptSets = assets.filter((asset) =>
     asset.asset_type === "concept_set_draft" &&
     asset.status === "materialized" &&
@@ -1049,9 +1061,11 @@ function CohortDraftPanel({
     <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-text-secondary">Cohort Drafts</p>
+          <p className="text-sm font-semibold text-text-secondary">
+            {t("studies.workbench.sections.cohortDrafts")}
+          </p>
           <p className="text-xs text-text-ghost">
-            Turn materialized concept sets into native cohort definition drafts.
+            {t("studies.workbench.descriptions.cohorts")}
           </p>
         </div>
         <button
@@ -1061,16 +1075,18 @@ function CohortDraftPanel({
           className="btn btn-primary btn-sm shrink-0"
         >
           {isGenerating ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-          Draft Cohorts
+          {t("studies.workbench.actions.draftCohorts")}
         </button>
       </div>
 
       <div className="border-t border-border-default pt-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <p className="text-xs font-semibold text-text-secondary">Study Cohort Readiness</p>
+            <p className="text-xs font-semibold text-text-secondary">
+              {t("studies.workbench.sections.cohortReadiness")}
+            </p>
             <p className="text-[11px] text-text-ghost">
-              {isReadinessLoading ? "Checking linked roles..." : roleLine ?? "No readiness signal yet."}
+              {isReadinessLoading ? t("studies.workbench.messages.checkingLinkedRoles") : roleLine ?? t("studies.workbench.messages.noReadinessSignal")}
             </p>
           </div>
           {readiness && (
@@ -1082,7 +1098,7 @@ function CohortDraftPanel({
                   : "bg-warning/10 text-warning",
               )}
             >
-              {readiness.ready_for_feasibility ? "Ready" : "Blocked"}
+              {readiness.ready_for_feasibility ? t("studies.workbench.messages.ready") : t("studies.workbench.messages.blocked")}
             </span>
           )}
         </div>
@@ -1094,22 +1110,22 @@ function CohortDraftPanel({
         )}
         {readiness && (
           <div className="mt-2 flex flex-wrap gap-2 text-[10px] text-text-ghost">
-            <span>{readiness.drafts.total} drafts</span>
-            <span>{readiness.drafts.materialized} materialized</span>
-            <span>{readiness.drafts.linked} linked</span>
+            <span>{t("studies.workbench.messages.drafts", { count: readiness.drafts.total })}</span>
+            <span>{t("studies.workbench.messages.materialized", { count: readiness.drafts.materialized })}</span>
+            <span>{t("studies.workbench.messages.linked", { count: readiness.drafts.linked })}</span>
           </div>
         )}
       </div>
 
       {materializedConceptSets.length === 0 && (
         <p className="text-xs text-text-ghost">
-          Materialize at least one verified concept set draft first.
+          {t("studies.workbench.messages.materializeConceptSetFirst")}
         </p>
       )}
 
       {drafts.length === 0 && (
         <div className="rounded-md border border-border-default bg-surface-base p-3 text-sm text-text-muted">
-          No cohort drafts yet.
+          {t("studies.workbench.messages.noCohortDrafts")}
         </div>
       )}
 
@@ -1152,6 +1168,7 @@ function CohortDraftCard({
   onMaterialize: (asset: StudyDesignAsset) => void;
   onLink: (asset: StudyDesignAsset) => void;
 }) {
+  const { t } = useTranslation("app");
   const [expanded, setExpanded] = useState(asset.verification_status !== "verified");
   const payload = asset.draft_payload_json;
   const verified = asset.verification_status === "verified";
@@ -1169,7 +1186,7 @@ function CohortDraftCard({
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-md bg-success/10 px-2 py-0.5 text-[10px] uppercase tracking-wider text-success">
-              cohort draft
+              {t("studies.workbench.labels.cohortDraft")}
             </span>
             <VerificationBadge status={asset.verification_status} />
             <span className="text-[10px] text-text-muted">{asset.status}</span>
@@ -1182,9 +1199,9 @@ function CohortDraftCard({
             <p className="mt-1 text-xs text-text-muted line-clamp-2">{payload.logic_description}</p>
           )}
           <div className="mt-2 flex flex-wrap gap-2 text-[10px] text-text-ghost">
-            <span>{conceptSetIds.length} concept sets</span>
-            {materialized && <span>Native cohort #{asset.materialized_id}</span>}
-            {studyCohortId != null && <span>Linked study cohort #{studyCohortId}</span>}
+            <span>{t("studies.workbench.labels.conceptSetsCount", { count: conceptSetIds.length })}</span>
+            {materialized && <span>{t("studies.workbench.labels.nativeCohort", { id: asset.materialized_id })}</span>}
+            {studyCohortId != null && <span>{t("studies.workbench.labels.linkedStudyCohort", { id: studyCohortId })}</span>}
           </div>
           {blockers.length > 0 && <p className="mt-2 text-xs text-critical">{blockers[0]}</p>}
           {blockers.length === 0 && warnings.length > 0 && <p className="mt-2 text-xs text-warning">{warnings[0]}</p>}
@@ -1193,7 +1210,7 @@ function CohortDraftCard({
         <div className="flex shrink-0 flex-wrap justify-end gap-1">
           {!materialized && asset.verification_status === "unverified" && (
             <button type="button" onClick={() => onVerify(asset)} disabled={isVerifying} className="btn btn-ghost btn-sm">
-              Verify
+              {t("studies.workbench.actions.verify")}
             </button>
           )}
           {!materialized && asset.status === "needs_review" && (
@@ -1204,13 +1221,13 @@ function CohortDraftCard({
                 disabled={isReviewing || !verified}
                 className="btn btn-primary btn-sm"
               >
-                Accept
+                {t("studies.workbench.actions.accept")}
               </button>
               <button type="button" onClick={() => onReview(asset, "defer")} disabled={isReviewing} className="btn btn-ghost btn-sm">
-                Defer
+                {t("studies.workbench.actions.defer")}
               </button>
               <button type="button" onClick={() => onReview(asset, "reject")} disabled={isReviewing} className="btn btn-ghost btn-sm">
-                Reject
+                {t("studies.workbench.actions.reject")}
               </button>
             </>
           )}
@@ -1221,7 +1238,7 @@ function CohortDraftCard({
               disabled={isMaterializing || !verified}
               className="btn btn-primary btn-sm"
             >
-              Materialize
+              {t("studies.workbench.actions.materialize")}
             </button>
           )}
           {materialized && (
@@ -1233,11 +1250,11 @@ function CohortDraftCard({
                   disabled={isLinking}
                   className="btn btn-primary btn-sm"
                 >
-                  Link to Study
+                  {t("studies.workbench.actions.linkToStudy")}
                 </button>
               )}
               <a href={`/cohort-definitions/${asset.materialized_id}`} className="btn btn-ghost btn-sm">
-                Open Native Editor
+                {t("studies.workbench.actions.openNativeEditor")}
               </a>
             </>
           )}
@@ -1250,7 +1267,7 @@ function CohortDraftCard({
         className="mt-3 inline-flex items-center gap-1 text-xs text-text-muted hover:text-text-secondary"
       >
         {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
-        Lint
+        {t("studies.workbench.labels.lint")}
       </button>
 
       {expanded && (
@@ -1288,6 +1305,7 @@ function FeasibilityDashboard({
   isRunning: boolean;
   onRun: (sourceIds: number[], minCellCount: number) => void;
 }) {
+  const { t } = useTranslation("app");
   const { data: sources = [], isLoading: sourcesLoading } = useQuery({
     queryKey: ["sources"],
     queryFn: fetchSources,
@@ -1317,9 +1335,11 @@ function FeasibilityDashboard({
     <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-text-secondary">Feasibility</p>
+          <p className="text-sm font-semibold text-text-secondary">
+            {t("studies.workbench.sections.feasibility")}
+          </p>
           <p className="text-xs text-text-ghost">
-            Check linked cohorts against selected CDM sources before analysis planning.
+            {t("studies.workbench.descriptions.feasibility")}
           </p>
         </div>
         <button
@@ -1329,23 +1349,25 @@ function FeasibilityDashboard({
           className="btn btn-primary btn-sm shrink-0"
         >
           {isRunning ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
-          Run Feasibility
+          {t("studies.workbench.actions.runFeasibility")}
         </button>
       </div>
 
       {readiness && !readiness.ready_for_feasibility && (
         <p className="text-xs text-warning">
-          Link required study cohorts before source feasibility.
+          {t("studies.workbench.messages.linkRequiredCohorts")}
         </p>
       )}
 
       <div className="grid gap-3 md:grid-cols-[1fr_auto]">
         <div>
-          <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-text-ghost">Sources</p>
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-text-ghost">
+            {t("studies.workbench.sections.sources")}
+          </p>
           {sourcesLoading ? (
-            <p className="text-xs text-text-muted">Loading sources...</p>
+            <p className="text-xs text-text-muted">{t("studies.workbench.messages.loadingSources")}</p>
           ) : sources.length === 0 ? (
-            <p className="text-xs text-text-muted">No CDM sources configured.</p>
+            <p className="text-xs text-text-muted">{t("studies.workbench.messages.noSources")}</p>
           ) : (
             <div className="flex flex-wrap gap-2">
               {sources.map((source) => {
@@ -1370,7 +1392,7 @@ function FeasibilityDashboard({
           )}
         </div>
         <label className="text-xs text-text-muted">
-          Small-cell threshold
+          {t("studies.workbench.messages.smallCellThreshold")}
           <input
             type="number"
             min={1}
@@ -1387,10 +1409,15 @@ function FeasibilityDashboard({
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <p className="text-xs font-semibold text-text-secondary">
-                {feasibility.ready_source_count}/{feasibility.source_count} sources ready
+                {t("studies.workbench.messages.sourcesReady", {
+                  ready: feasibility.ready_source_count,
+                  total: feasibility.source_count,
+                })}
               </p>
               <p className="text-[11px] text-text-ghost">
-                Ran {new Date(feasibility.ran_at).toLocaleString()}
+                {t("studies.workbench.messages.ranAt", {
+                  time: new Date(feasibility.ran_at).toLocaleString(),
+                })}
               </p>
             </div>
             <span
@@ -1414,13 +1441,13 @@ function FeasibilityDashboard({
             <table className="min-w-full text-left text-xs">
               <thead className="text-text-ghost">
                 <tr>
-                  <th className="py-1 pr-3 font-medium">Source</th>
-                  <th className="py-1 pr-3 font-medium">Status</th>
-                  <th className="py-1 pr-3 font-medium">Cohorts</th>
-                  <th className="py-1 pr-3 font-medium">Coverage</th>
-                  <th className="py-1 pr-3 font-medium">Domains</th>
-                  <th className="py-1 pr-3 font-medium">Freshness</th>
-                  <th className="py-1 pr-3 font-medium">DQD</th>
+                  <th className="py-1 pr-3 font-medium">{t("studies.workbench.labels.source")}</th>
+                  <th className="py-1 pr-3 font-medium">{t("studies.workbench.labels.status")}</th>
+                  <th className="py-1 pr-3 font-medium">{t("studies.workbench.labels.cohorts")}</th>
+                  <th className="py-1 pr-3 font-medium">{t("studies.workbench.labels.coverage")}</th>
+                  <th className="py-1 pr-3 font-medium">{t("studies.workbench.labels.domains")}</th>
+                  <th className="py-1 pr-3 font-medium">{t("studies.workbench.labels.freshness")}</th>
+                  <th className="py-1 pr-3 font-medium">{t("studies.workbench.labels.dqd")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1429,13 +1456,13 @@ function FeasibilityDashboard({
                     <td className="py-2 pr-3 text-text-secondary">{source.source_name}</td>
                     <td className="py-2 pr-3">
                       <span className={source.ready_for_analysis ? "text-success" : "text-warning"}>
-                        {source.ready_for_analysis ? "Ready" : "Review"}
+                        {source.ready_for_analysis ? t("studies.workbench.messages.ready") : t("studies.workbench.actions.review")}
                       </span>
                     </td>
                     <td className="py-2 pr-3 text-text-muted">
                       {source.cohorts.map((cohort) => (
                         <span key={cohort.study_cohort_id} className="mr-2 inline-block">
-                          {cohort.role}: {cohort.person_count_suppressed ? `<${feasibility.min_cell_count}` : cohort.person_count ?? "none"}
+                          {cohort.role}: {cohort.person_count_suppressed ? `<${feasibility.min_cell_count}` : cohort.person_count ?? t("studies.workbench.messages.none")}
                         </span>
                       ))}
                     </td>
@@ -1443,26 +1470,29 @@ function FeasibilityDashboard({
                       <span className="block">
                         {source.coverage?.date_coverage.start_date && source.coverage.date_coverage.end_date
                           ? `${source.coverage.date_coverage.start_date} to ${source.coverage.date_coverage.end_date}`
-                          : "No dates"}
+                          : t("studies.workbench.messages.noDates")}
                       </span>
                       <span className="block text-[11px] text-text-ghost">
-                        OP: {source.coverage?.observation_period.record_count ?? "none"}
+                        OP: {source.coverage?.observation_period.record_count ?? t("studies.workbench.messages.none")}
                       </span>
                     </td>
                     <td className="py-2 pr-3 text-text-muted">
                       {source.domain_availability
-                        ? `${source.domain_availability.available_role_count}/${source.domain_availability.role_count} roles`
-                        : "Unknown"}
+                        ? t("studies.workbench.messages.roles", {
+                          ready: source.domain_availability.available_role_count,
+                          total: source.domain_availability.role_count,
+                        })
+                        : t("studies.workbench.messages.unknown")}
                     </td>
                     <td className="py-2 pr-3 text-text-muted">
                       {!source.coverage || source.coverage.freshness.status === "unknown"
-                        ? "Unknown"
+                        ? t("studies.workbench.messages.unknown")
                         : `${source.coverage.freshness.status}${source.coverage.freshness.days_since_release == null ? "" : ` (${source.coverage.freshness.days_since_release}d)`}`}
                     </td>
                     <td className="py-2 pr-3 text-text-muted">
                       {source.source_quality.dqd.pass_rate == null
-                        ? "No DQD"
-                        : `${source.source_quality.dqd.pass_rate}% pass`}
+                        ? t("studies.workbench.messages.noDqd")
+                        : t("studies.workbench.messages.passRate", { rate: source.source_quality.dqd.pass_rate })}
                     </td>
                   </tr>
                 ))}
@@ -1471,7 +1501,7 @@ function FeasibilityDashboard({
           </div>
           {attritionSources.length > 0 && (
             <div className="mt-4 border-t border-border-default pt-3">
-              <p className="text-xs font-semibold text-text-secondary">Attrition</p>
+              <p className="text-xs font-semibold text-text-secondary">{t("studies.workbench.sections.attrition")}</p>
               <div className="mt-2 grid gap-2 md:grid-cols-2">
                 {attritionSources.map((source) => (
                   <div key={source.source_id} className="border-l border-border-default pl-3">
@@ -1482,7 +1512,7 @@ function FeasibilityDashboard({
                           <span className="font-medium text-text-secondary">{cohort.role}</span>
                           {(cohort.attrition ?? []).map((step) => (
                             <span key={`${cohort.study_cohort_id}-${step.name}`} className="ml-2 inline-block">
-                              {step.name}: {step.person_count_suppressed ? `<${feasibility.min_cell_count}` : step.person_count ?? "none"}
+                              {step.name}: {step.person_count_suppressed ? `<${feasibility.min_cell_count}` : step.person_count ?? t("studies.workbench.messages.none")}
                             </span>
                           ))}
                         </div>
@@ -1496,7 +1526,7 @@ function FeasibilityDashboard({
         </div>
       ) : (
         <p className="border-t border-border-default pt-3 text-xs text-text-ghost">
-          No feasibility evidence has been stored for this design version.
+          {t("studies.workbench.messages.noFeasibilityEvidence")}
         </p>
       )}
     </div>
@@ -1524,6 +1554,7 @@ function AnalysisPlanPanel({
   onVerify: (asset: StudyDesignAsset) => void;
   onMaterialize: (asset: StudyDesignAsset) => void;
 }) {
+  const { t } = useTranslation("app");
   const plans = assets
     .filter((asset) => asset.asset_type === "analysis_plan")
     .sort((left, right) => (right.rank_score ?? -1) - (left.rank_score ?? -1) || right.id - left.id);
@@ -1536,9 +1567,11 @@ function AnalysisPlanPanel({
     <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-text-secondary">Analysis Plans</p>
+          <p className="text-sm font-semibold text-text-secondary">
+            {t("studies.workbench.sections.analysisPlans")}
+          </p>
           <p className="text-xs text-text-ghost">
-            Compile feasible study cohorts into native HADES-compatible analysis designs.
+            {t("studies.workbench.descriptions.analysisPlans")}
           </p>
         </div>
         <button
@@ -1548,19 +1581,19 @@ function AnalysisPlanPanel({
           className="btn btn-primary btn-sm shrink-0"
         >
           {isGenerating ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-          Draft Plans
+          {t("studies.workbench.actions.draftPlans")}
         </button>
       </div>
 
       {!canGenerate && (
         <p className="text-xs text-text-ghost">
-          Run source feasibility before drafting analysis plans.
+          {t("studies.workbench.messages.runFeasibilityBeforePlans")}
         </p>
       )}
 
       {plans.length === 0 ? (
         <div className="rounded-md border border-border-default bg-surface-base p-3 text-sm text-text-muted">
-          No analysis plans yet.
+          {t("studies.workbench.messages.noAnalysisPlans")}
         </div>
       ) : (
         <div className="space-y-2">
@@ -1593,13 +1626,15 @@ function AnalysisPlanPanel({
                     <div className="mt-2 flex flex-wrap gap-2 text-[10px] text-text-ghost">
                       <span>{payload.hades_package ?? "HADES"}</span>
                       <span>{payload.hades_capability?.installed ? "installed" : "missing"}</span>
-                      <span>Feasibility: {payload.feasibility?.status ?? "unknown"}</span>
+                      <span>{t("studies.workbench.messages.feasibilityStatus", {
+                        status: payload.feasibility?.status ?? t("studies.workbench.messages.unknown"),
+                      })}</span>
                       {materialized && analysisPath && (
                         <a href={analysisPath} className="text-success hover:text-success-light">
-                          Native analysis #{asset.materialized_id}
+                          {t("studies.workbench.labels.nativeAnalysis", { id: asset.materialized_id })}
                         </a>
                       )}
-                      {materialized && !analysisPath && <span>Native analysis #{asset.materialized_id}</span>}
+                      {materialized && !analysisPath && <span>{t("studies.workbench.labels.nativeAnalysis", { id: asset.materialized_id })}</span>}
                     </div>
                     {blockers[0] && <p className="mt-2 text-xs text-critical">{blockers[0]}</p>}
                     {!blockers[0] && warnings[0] && <p className="mt-2 text-xs text-warning">{warnings[0]}</p>}
@@ -1613,7 +1648,7 @@ function AnalysisPlanPanel({
                         disabled={isVerifying}
                         className="btn btn-ghost btn-sm"
                       >
-                        Verify
+                        {t("studies.workbench.actions.verify")}
                       </button>
                     )}
                     {!materialized && asset.status === "needs_review" && (
@@ -1624,7 +1659,7 @@ function AnalysisPlanPanel({
                           disabled={isReviewing || !verified}
                           className="btn btn-primary btn-sm"
                         >
-                          Accept
+                          {t("studies.workbench.actions.accept")}
                         </button>
                         <button
                           type="button"
@@ -1632,7 +1667,7 @@ function AnalysisPlanPanel({
                           disabled={isReviewing}
                           className="btn btn-ghost btn-sm"
                         >
-                          Defer
+                          {t("studies.workbench.actions.defer")}
                         </button>
                       </>
                     )}
@@ -1643,7 +1678,7 @@ function AnalysisPlanPanel({
                         disabled={isMaterializing}
                         className="btn btn-primary btn-sm"
                       >
-                        Materialize
+                        {t("studies.workbench.actions.materialize")}
                       </button>
                     )}
                   </div>
@@ -1670,6 +1705,7 @@ function DesignLockPanel({
   versionStatus: string;
   onLock: () => void;
 }) {
+  const { t } = useTranslation("app");
   const blockers = readiness?.blockers ?? [];
   const warnings = readiness?.warnings ?? [];
   const summary = readiness?.summary;
@@ -1682,9 +1718,11 @@ function DesignLockPanel({
     <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-text-secondary">Package Lock</p>
+          <p className="text-sm font-semibold text-text-secondary">
+            {t("studies.workbench.sections.packageLock")}
+          </p>
           <p className="text-xs text-text-ghost">
-            Freeze accepted intent, concept sets, cohorts, feasibility, and native analyses into an auditable study package.
+            {t("studies.workbench.descriptions.packageLock")}
           </p>
         </div>
         <button
@@ -1694,20 +1732,20 @@ function DesignLockPanel({
           className="btn btn-primary btn-sm shrink-0"
         >
           {isLocking ? <Loader2 size={14} className="animate-spin" /> : <Lock size={14} />}
-          {locked ? "Locked" : "Lock Package"}
+          {locked ? t("studies.workbench.actions.locked") : t("studies.workbench.actions.lockPackage")}
         </button>
       </div>
 
       <div className="grid gap-2 sm:grid-cols-5">
-        <EvidenceMetric label="Concept Sets" value={summary?.materialized_concept_sets ?? 0} tone={summary?.materialized_concept_sets ? "success" : "warning"} />
-        <EvidenceMetric label="Cohorts" value={summary?.linked_cohorts ?? 0} tone={summary?.linked_cohorts ? "success" : "warning"} />
-        <EvidenceMetric label="Feasibility" value={summary?.feasibility_status ?? "missing"} tone={summary?.feasibility_status === "ready" ? "success" : "warning"} />
-        <EvidenceMetric label="Analyses" value={summary?.materialized_analysis_plans ?? 0} tone={summary?.materialized_analysis_plans ? "success" : "warning"} />
-        <EvidenceMetric label="Packages" value={summary?.package_assets ?? 0} tone={locked ? "success" : "warning"} />
+        <EvidenceMetric label={t("studies.workbench.labels.conceptSetsMetric")} value={summary?.materialized_concept_sets ?? 0} tone={summary?.materialized_concept_sets ? "success" : "warning"} />
+        <EvidenceMetric label={t("studies.workbench.labels.cohortsMetric")} value={summary?.linked_cohorts ?? 0} tone={summary?.linked_cohorts ? "success" : "warning"} />
+        <EvidenceMetric label={t("studies.workbench.labels.feasibility")} value={summary?.feasibility_status ?? t("studies.workbench.messages.unknown")} tone={summary?.feasibility_status === "ready" ? "success" : "warning"} />
+        <EvidenceMetric label={t("studies.workbench.labels.analysesMetric")} value={summary?.materialized_analysis_plans ?? 0} tone={summary?.materialized_analysis_plans ? "success" : "warning"} />
+        <EvidenceMetric label={t("studies.workbench.labels.packagesMetric")} value={summary?.package_assets ?? 0} tone={locked ? "success" : "warning"} />
       </div>
 
       {isLoading && (
-        <p className="text-xs text-text-ghost">Checking package readiness...</p>
+        <p className="text-xs text-text-ghost">{t("studies.workbench.messages.checkingPackageReadiness")}</p>
       )}
 
       {!isLoading && blockers[0] && (
@@ -1719,15 +1757,15 @@ function DesignLockPanel({
       )}
 
       {!isLoading && readiness?.status === "ready" && (
-        <p className="text-xs text-success">Ready to lock.</p>
+        <p className="text-xs text-success">{t("studies.workbench.messages.readyToLock")}</p>
       )}
 
       {!isLoading && locked && (
         <div className="space-y-2">
-          <p className="text-xs text-success">Locked package is available in study artifacts.</p>
+          <p className="text-xs text-success">{t("studies.workbench.messages.lockedPackageAvailable")}</p>
           {packageArtifact?.url && (
             <a href={packageArtifact.url} className="btn btn-ghost btn-sm inline-flex">
-              Download package summary
+              {t("studies.workbench.actions.downloadPackageSummary")}
             </a>
           )}
         </div>
@@ -1735,10 +1773,10 @@ function DesignLockPanel({
 
       {provenance && (
         <div className="grid gap-2 sm:grid-cols-4">
-          <EvidenceMetric label="AI Events" value={provenance.ai_events ?? 0} tone="neutral" />
-          <EvidenceMetric label="Reviewed" value={provenance.reviewed_assets ?? 0} tone="neutral" />
-          <EvidenceMetric label="Verified" value={provenance.verified_assets ?? 0} tone="success" />
-          <EvidenceMetric label="Manifest" value={provenance.package_manifest_sha256 ? "signed" : "pending"} tone={provenance.package_manifest_sha256 ? "success" : "neutral"} />
+          <EvidenceMetric label={t("studies.workbench.labels.aiEvents")} value={provenance.ai_events ?? 0} tone="neutral" />
+          <EvidenceMetric label={t("studies.workbench.labels.reviewed")} value={provenance.reviewed_assets ?? 0} tone="neutral" />
+          <EvidenceMetric label={t("studies.workbench.labels.verified")} value={provenance.verified_assets ?? 0} tone="success" />
+          <EvidenceMetric label={t("studies.workbench.labels.manifest")} value={provenance.package_manifest_sha256 ? t("studies.workbench.messages.signed") : t("studies.workbench.messages.pending")} tone={provenance.package_manifest_sha256 ? "success" : "neutral"} />
         </div>
       )}
     </div>
@@ -1760,6 +1798,7 @@ function BottomUpCompatibilityPanel({
   onImport: () => void;
   onCritique: () => void;
 }) {
+  const { t } = useTranslation("app");
   const importedAssets = assets.filter((asset) => asset.asset_type.startsWith("imported_"));
   const critiqueAssets = assets.filter((asset) => asset.asset_type === "design_critique");
   const latestCritique = critiqueAssets[0]?.draft_payload_json as { message?: string; severity?: string; code?: string } | undefined;
@@ -1768,9 +1807,11 @@ function BottomUpCompatibilityPanel({
     <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-text-secondary">Current Study Assets</p>
+          <p className="text-sm font-semibold text-text-secondary">
+            {t("studies.workbench.sections.currentAssets")}
+          </p>
           <p className="text-xs text-text-ghost">
-            Bring manually built cohorts and analyses into this design path, then review gaps without changing existing records.
+            {t("studies.workbench.descriptions.currentAssets")}
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap justify-end gap-2">
@@ -1781,7 +1822,7 @@ function BottomUpCompatibilityPanel({
             className="btn btn-ghost btn-sm"
           >
             {isImporting ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-            Import Current
+            {t("studies.workbench.actions.importCurrent")}
           </button>
           <button
             type="button"
@@ -1790,15 +1831,15 @@ function BottomUpCompatibilityPanel({
             className="btn btn-primary btn-sm"
           >
             {isCritiquing ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-            Critique
+            {t("studies.workbench.actions.critique")}
           </button>
         </div>
       </div>
 
       <div className="grid gap-2 sm:grid-cols-3">
-        <EvidenceMetric label="Imported" value={importedAssets.length} tone={importedAssets.length > 0 ? "success" : "neutral"} />
-        <EvidenceMetric label="Critiques" value={critiqueAssets.length} tone={critiqueAssets.length > 0 ? "warning" : "neutral"} />
-        <EvidenceMetric label="Blocked" value={critiqueAssets.filter((asset) => asset.draft_payload_json.severity === "blocking").length} tone="critical" />
+        <EvidenceMetric label={t("studies.workbench.labels.imported")} value={importedAssets.length} tone={importedAssets.length > 0 ? "success" : "neutral"} />
+        <EvidenceMetric label={t("studies.workbench.labels.critiques")} value={critiqueAssets.length} tone={critiqueAssets.length > 0 ? "warning" : "neutral"} />
+        <EvidenceMetric label={t("studies.workbench.labels.blocked")} value={critiqueAssets.filter((asset) => asset.draft_payload_json.severity === "blocking").length} tone="critical" />
       </div>
 
       {latestCritique?.message && (
@@ -1857,6 +1898,7 @@ function RecommendationCard({
   isReviewing: boolean;
   onReview: (asset: StudyDesignAsset, decision: "accept" | "reject" | "defer") => void;
 }) {
+  const { t } = useTranslation("app");
   const [expanded, setExpanded] = useState(asset.verification_status !== "verified");
   const payload = asset.draft_payload_json;
   const score = typeof payload.score === "number" ? Math.round(payload.score * 100) : null;
@@ -1872,7 +1914,7 @@ function RecommendationCard({
   const source = rawSource == null ? null : String(rawSource);
   const acceptDisabledReason = verified
     ? null
-    : verification?.eligibility?.reason ?? "Only deterministically verified recommendations can be accepted.";
+    : verification?.eligibility?.reason ?? t("studies.workbench.messages.onlyVerifiedRecommendations");
 
   return (
     <div className="rounded-lg border border-border-default bg-surface-base px-3 py-3">
@@ -1884,10 +1926,10 @@ function RecommendationCard({
             </span>
             {rankScore != null && (
               <span className="rounded-md border border-border-default px-2 py-0.5 text-[10px] uppercase tracking-wider text-text-muted">
-                Rank {rankScore}
+                {t("studies.workbench.labels.rank", { score: rankScore })}
               </span>
             )}
-            {score != null && <span className="text-[10px] text-text-ghost">{score}% match</span>}
+            {score != null && <span className="text-[10px] text-text-ghost">{t("studies.workbench.labels.match", { score })}</span>}
             <VerificationBadge status={asset.verification_status} />
             {asset.status !== "needs_review" && (
               <span className="text-[10px] text-text-muted">{asset.status}</span>
@@ -1904,10 +1946,10 @@ function RecommendationCard({
           )}
           <div className="mt-2 flex flex-wrap gap-2 text-[10px] text-text-ghost">
             {source && <span>{sourceLabel(source)}</span>}
-            {payload.external_id != null && <span>OHDSI #{String(payload.external_id)}</span>}
+            {payload.external_id != null && <span>{t("studies.workbench.labels.ohdsiId", { id: String(payload.external_id) })}</span>}
             {payload.domain && <span>{String(payload.domain)}</span>}
-            {payload.has_expression === true && <span>Computable</span>}
-            {payload.is_imported === true && <span>Imported</span>}
+            {payload.has_expression === true && <span>{t("studies.workbench.labels.computable")}</span>}
+            {payload.is_imported === true && <span>{t("studies.workbench.labels.imported")}</span>}
           </div>
           {blockers.length > 0 && (
             <p className="mt-2 text-xs text-critical">{blockers[0]}</p>
@@ -1929,7 +1971,7 @@ function RecommendationCard({
               title={acceptDisabledReason ?? undefined}
               className="btn btn-primary btn-sm"
             >
-              Accept
+              {t("studies.workbench.actions.accept")}
             </button>
             <button
               type="button"
@@ -1937,7 +1979,7 @@ function RecommendationCard({
               disabled={isReviewing}
               className="btn btn-ghost btn-sm"
             >
-              Defer
+              {t("studies.workbench.actions.defer")}
             </button>
             <button
               type="button"
@@ -1945,7 +1987,7 @@ function RecommendationCard({
               disabled={isReviewing}
               className="btn btn-ghost btn-sm"
             >
-              Reject
+              {t("studies.workbench.actions.reject")}
             </button>
           </div>
         )}
@@ -1957,27 +1999,27 @@ function RecommendationCard({
         className="mt-3 inline-flex items-center gap-1 text-xs text-text-muted hover:text-text-secondary"
       >
         {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
-        Evidence
+        {t("studies.workbench.labels.evidence")}
       </button>
 
       {expanded && (
         <div className="mt-3 border-t border-border-default pt-3">
           <div className="grid gap-3 md:grid-cols-2">
-            <EvidenceBlock title="Source">
-              <EvidenceLine label="Origin" value={source ? sourceLabel(source) : "Unknown"} />
-              <EvidenceLine label="Matched term" value={verification?.source_summary?.matched_term ?? null} />
-              <EvidenceLine label="Canonical record" value={verification?.canonical_summary?.title ?? "No canonical record"} />
+            <EvidenceBlock title={t("studies.workbench.sections.source")}>
+              <EvidenceLine label={t("studies.workbench.labels.origin")} value={source ? sourceLabel(source) : t("studies.workbench.messages.unknown")} />
+              <EvidenceLine label={t("studies.workbench.labels.matchedTerm")} value={verification?.source_summary?.matched_term ?? null} />
+              <EvidenceLine label={t("studies.workbench.labels.canonicalRecord")} value={verification?.canonical_summary?.title ?? t("studies.workbench.labels.noCanonicalRecord")} />
             </EvidenceBlock>
-            <EvidenceBlock title="Governance">
-              <EvidenceLine label="Eligibility" value={verification?.eligibility?.can_accept ? "Acceptable" : "Blocked or needs review"} />
-              <EvidenceLine label="Policy" value={verification?.acceptance_policy ?? asset.rank_score_json?.policy ?? null} />
-              <EvidenceLine label="Next actions" value={(verification?.accepted_downstream_actions ?? []).join(", ")} />
+            <EvidenceBlock title={t("studies.workbench.sections.governance")}>
+              <EvidenceLine label={t("studies.workbench.labels.eligibility")} value={verification?.eligibility?.can_accept ? t("studies.workbench.labels.acceptable") : t("studies.workbench.labels.blockedOrNeedsReview")} />
+              <EvidenceLine label={t("studies.workbench.labels.policy")} value={verification?.acceptance_policy ?? asset.rank_score_json?.policy ?? null} />
+              <EvidenceLine label={t("studies.workbench.labels.nextActions")} value={(verification?.accepted_downstream_actions ?? []).join(", ")} />
             </EvidenceBlock>
           </div>
 
           {asset.rank_score_json?.components && (
             <div className="mt-3">
-              <p className="text-[10px] uppercase tracking-wider text-text-ghost">Rank components</p>
+              <p className="text-[10px] uppercase tracking-wider text-text-ghost">{t("studies.workbench.labels.rankComponents")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {Object.entries(asset.rank_score_json.components).map(([name, value]) => (
                   <span
@@ -1993,7 +2035,7 @@ function RecommendationCard({
 
           {verificationChecks.length > 0 && (
             <div className="mt-3 space-y-1">
-              <p className="text-[10px] uppercase tracking-wider text-text-ghost">Verifier checks</p>
+              <p className="text-[10px] uppercase tracking-wider text-text-ghost">{t("studies.workbench.labels.verifierChecks")}</p>
               {verificationChecks.map((check) => (
                 <div
                   key={`${asset.id}-${check.name}`}
@@ -2056,13 +2098,14 @@ function analysisDetailPath(type: string | undefined, id: number | null): string
 }
 
 function VerificationBadge({ status }: { status: string }) {
+  const { t } = useTranslation("app");
   const label = status === "verified"
-    ? "Verified"
+    ? t("studies.workbench.labels.verified")
     : status === "partial"
-      ? "Needs check"
+      ? t("studies.workbench.labels.needsCheck")
       : status === "blocked"
-        ? "Blocked"
-        : "Unverified";
+        ? t("studies.workbench.labels.blocked")
+        : t("studies.workbench.labels.unverified");
   const tone = status === "verified" ? "success" : status === "blocked" ? "critical" : "warning";
 
   return (
@@ -2150,6 +2193,7 @@ function IntentReviewPanel({
   isSaving: boolean;
   isAccepting: boolean;
 }) {
+  const { t } = useTranslation("app");
   const [formState, setFormState] = useState(initialFormState);
   const lint = version.lint_results_json;
   const isImmutable = ["accepted", "compiled", "locked"].includes(version.status);
@@ -2159,8 +2203,15 @@ function IntentReviewPanel({
     <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-text-secondary">Intent Review</p>
-          <p className="text-xs text-text-ghost">Version {version.version_number} · {version.status}</p>
+          <p className="text-sm font-semibold text-text-secondary">
+            {t("studies.workbench.sections.intentReview")}
+          </p>
+          <p className="text-xs text-text-ghost">
+            {t("studies.workbench.labels.versionStatus", {
+              version: version.version_number,
+              status: version.status,
+            })}
+          </p>
         </div>
         <div className="flex gap-2">
           <button
@@ -2170,7 +2221,7 @@ function IntentReviewPanel({
             className="btn btn-ghost btn-sm"
           >
             {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-            Save Review
+            {t("studies.workbench.actions.saveReview")}
           </button>
           <button
             type="button"
@@ -2179,7 +2230,7 @@ function IntentReviewPanel({
             className="btn btn-primary btn-sm"
           >
             {isAccepting ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
-            Accept Intent
+            {t("studies.workbench.actions.acceptIntent")}
           </button>
         </div>
       </div>
@@ -2204,12 +2255,12 @@ function IntentReviewPanel({
       )}
 
       <div className="grid gap-3 md:grid-cols-2">
-        <Field label="Primary Objective" value={formState.primaryObjective} onChange={(value) => setFormState({ ...formState, primaryObjective: value })} />
-        <Field label="Population" value={formState.population} onChange={(value) => setFormState({ ...formState, population: value })} />
-        <Field label="Exposure" value={formState.exposure} onChange={(value) => setFormState({ ...formState, exposure: value })} />
-        <Field label="Comparator" value={formState.comparator} onChange={(value) => setFormState({ ...formState, comparator: value })} />
-        <Field label="Primary Outcome" value={formState.outcome} onChange={(value) => setFormState({ ...formState, outcome: value })} />
-        <Field label="Time At Risk" value={formState.time} onChange={(value) => setFormState({ ...formState, time: value })} />
+        <Field label={t("studies.workbench.labels.primaryObjective")} value={formState.primaryObjective} onChange={(value) => setFormState({ ...formState, primaryObjective: value })} />
+        <Field label={t("studies.workbench.labels.population")} value={formState.population} onChange={(value) => setFormState({ ...formState, population: value })} />
+        <Field label={t("studies.workbench.labels.exposure")} value={formState.exposure} onChange={(value) => setFormState({ ...formState, exposure: value })} />
+        <Field label={t("studies.workbench.labels.comparator")} value={formState.comparator} onChange={(value) => setFormState({ ...formState, comparator: value })} />
+        <Field label={t("studies.workbench.labels.primaryOutcome")} value={formState.outcome} onChange={(value) => setFormState({ ...formState, outcome: value })} />
+        <Field label={t("studies.workbench.labels.timeAtRisk")} value={formState.time} onChange={(value) => setFormState({ ...formState, time: value })} />
       </div>
     </div>
   );

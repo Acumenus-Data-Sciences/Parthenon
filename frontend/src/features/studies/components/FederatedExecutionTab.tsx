@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Loader2, Globe2, CheckCircle2, XCircle, Clock, Play, Eye, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { formatDate, formatDateTime, formatNumber } from "@/i18n/format";
 import { cn } from "@/lib/utils";
 import { useArachneNodes, useDistributeStudy, useArachneStatus, useArachneResults } from "../hooks/useArachne";
 import type { ArachneSubmission } from "../types/study";
@@ -8,23 +10,24 @@ import type { ArachneSubmission } from "../types/study";
 // Status badge helper
 // ---------------------------------------------------------------------------
 
-const SUBMISSION_STATUS_STYLE: Record<string, { bg: string; text: string; icon: typeof Clock }> = {
-  PENDING: { bg: "#8A857D15", text: "var(--text-muted)", icon: Clock },
-  EXECUTING: { bg: "#F59E0B15", text: "var(--warning)", icon: Loader2 },
-  COMPLETED: { bg: "#34D39915", text: "var(--success)", icon: CheckCircle2 },
-  FAILED: { bg: "#E85A6B15", text: "var(--critical)", icon: XCircle },
+const SUBMISSION_STATUS_STYLE: Record<string, { bg: string; fg: string; icon: typeof Clock }> = {
+  PENDING: { bg: "#8A857D15", fg: "var(--text-muted)", icon: Clock },
+  EXECUTING: { bg: "#F59E0B15", fg: "var(--warning)", icon: Loader2 },
+  COMPLETED: { bg: "#34D39915", fg: "var(--success)", icon: CheckCircle2 },
+  FAILED: { bg: "#E85A6B15", fg: "var(--critical)", icon: XCircle },
 };
 
 function SubmissionBadge({ status }: { status: string }) {
+  const { t } = useTranslation("app");
   const style = SUBMISSION_STATUS_STYLE[status] ?? SUBMISSION_STATUS_STYLE.PENDING;
   const Icon = style.icon;
   return (
     <span
       className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium"
-      style={{ backgroundColor: style.bg, color: style.text }}
+      style={{ backgroundColor: style.bg, color: style.fg }}
     >
       <Icon size={12} className={status === "EXECUTING" ? "animate-spin" : ""} />
-      {status}
+      {t(`studies.federated.statuses.${status}`, { defaultValue: status })}
     </span>
   );
 }
@@ -34,12 +37,13 @@ function SubmissionBadge({ status }: { status: string }) {
 // ---------------------------------------------------------------------------
 
 function ResultsPreview({ studySlug, executionId }: { studySlug: string; executionId: number }) {
+  const { t } = useTranslation("app");
   const { data, isLoading, error } = useArachneResults(studySlug, executionId);
 
   if (isLoading) {
     return (
       <div className="flex items-center gap-2 py-3 px-4 text-xs text-text-muted">
-        <Loader2 size={12} className="animate-spin" /> Loading results...
+        <Loader2 size={12} className="animate-spin" /> {t("studies.federated.loadingResults")}
       </div>
     );
   }
@@ -47,7 +51,9 @@ function ResultsPreview({ studySlug, executionId }: { studySlug: string; executi
   if (error) {
     return (
       <div className="py-3 px-4 text-xs text-critical">
-        Failed to load results: {error instanceof Error ? error.message : "Unknown error"}
+        {t("studies.federated.loadResultsFailed", {
+          error: error instanceof Error ? error.message : t("studies.federated.unknownError"),
+        })}
       </div>
     );
   }
@@ -66,6 +72,7 @@ function ResultsPreview({ studySlug, executionId }: { studySlug: string; executi
 // ---------------------------------------------------------------------------
 
 export function FederatedExecutionTab({ studySlug }: { studySlug: string }) {
+  const { t } = useTranslation("app");
   const { data: nodes, isLoading: nodesLoading, error: nodesError } = useArachneNodes();
   const { data: statusData, isLoading: statusLoading } = useArachneStatus(studySlug);
   const distributeMutation = useDistributeStudy();
@@ -87,7 +94,7 @@ export function FederatedExecutionTab({ studySlug }: { studySlug: string }) {
 
   const handleDistribute = () => {
     if (selectedNodes.size === 0) return;
-    if (!window.confirm(`Distribute study to ${selectedNodes.size} data node(s)?`)) return;
+    if (!window.confirm(t("studies.federated.confirmDistribute", { count: selectedNodes.size }))) return;
 
     distributeMutation.mutate({
       study_slug: studySlug,
@@ -103,7 +110,7 @@ export function FederatedExecutionTab({ studySlug }: { studySlug: string }) {
 
   if (nodesError) {
     const message =
-      nodesError instanceof Error ? nodesError.message : "Unknown error";
+      nodesError instanceof Error ? nodesError.message : t("studies.federated.unknownError");
     const isConnectionError =
       message.includes("Unable to connect") || message.includes("502");
 
@@ -113,12 +120,12 @@ export function FederatedExecutionTab({ studySlug }: { studySlug: string }) {
           <Globe2 size={32} className="text-text-ghost mb-3" />
           <p className="text-sm text-text-muted mb-1">
             {isConnectionError
-              ? "Arachne Central is not reachable"
-              : "Failed to load Arachne nodes"}
+              ? t("studies.federated.arachneNotReachable")
+              : t("studies.federated.loadNodesFailed")}
           </p>
           <p className="text-xs text-text-ghost max-w-md">
             {isConnectionError
-              ? "Set ARACHNE_URL in your environment to enable federated execution. Ensure Arachne Central is running and accessible."
+              ? t("studies.federated.arachneConnectionHelp")
               : message}
           </p>
         </div>
@@ -132,10 +139,12 @@ export function FederatedExecutionTab({ studySlug }: { studySlug: string }) {
       <div className="panel">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-text-secondary">Available Data Nodes</h3>
+            <h3 className="text-sm font-semibold text-text-secondary">
+              {t("studies.federated.availableDataNodes")}
+            </h3>
             <span className="inline-flex items-center gap-1 rounded-full border border-domain-observation/40 bg-domain-observation/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-domain-observation">
               <Sparkles className="h-3 w-3" />
-              Powered by Arachne
+              {t("studies.federated.poweredByArachne")}
             </span>
           </div>
           <button
@@ -154,7 +163,7 @@ export function FederatedExecutionTab({ studySlug }: { studySlug: string }) {
             ) : (
               <Play size={12} />
             )}
-            Distribute ({selectedNodes.size})
+            {t("studies.federated.distributeCount", { count: selectedNodes.size })}
           </button>
         </div>
 
@@ -165,8 +174,7 @@ export function FederatedExecutionTab({ studySlug }: { studySlug: string }) {
         ) : !nodes || nodes.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-sm text-text-ghost">
-              No Arachne nodes configured. Set ARACHNE_URL in environment to enable federated
-              execution.
+              {t("studies.federated.noNodes")}
             </p>
           </div>
         ) : (
@@ -175,11 +183,11 @@ export function FederatedExecutionTab({ studySlug }: { studySlug: string }) {
               <thead>
                 <tr className="text-left text-[10px] uppercase tracking-wider text-text-ghost border-b border-border-default">
                   <th className="pb-2 pr-3 w-8" />
-                  <th className="pb-2 pr-3">Name</th>
-                  <th className="pb-2 pr-3">Status</th>
-                  <th className="pb-2 pr-3">CDM Version</th>
-                  <th className="pb-2 pr-3 text-right">Patients</th>
-                  <th className="pb-2">Last Seen</th>
+                  <th className="pb-2 pr-3">{t("studies.federated.table.name")}</th>
+                  <th className="pb-2 pr-3">{t("studies.federated.table.status")}</th>
+                  <th className="pb-2 pr-3">{t("studies.federated.table.cdmVersion")}</th>
+                  <th className="pb-2 pr-3 text-right">{t("studies.federated.table.patients")}</th>
+                  <th className="pb-2">{t("studies.federated.table.lastSeen")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -218,11 +226,11 @@ export function FederatedExecutionTab({ studySlug }: { studySlug: string }) {
                     </td>
                     <td className="py-2.5 pr-3 text-text-muted">{node.cdm_version ?? "-"}</td>
                     <td className="py-2.5 pr-3 text-right text-text-muted">
-                      {node.patient_count?.toLocaleString() ?? "-"}
+                      {node.patient_count != null ? formatNumber(node.patient_count) : "-"}
                     </td>
                     <td className="py-2.5 text-text-ghost text-xs">
                       {node.last_seen_at
-                        ? new Date(node.last_seen_at).toLocaleDateString()
+                        ? formatDate(node.last_seen_at)
                         : "-"}
                     </td>
                   </tr>
@@ -234,23 +242,26 @@ export function FederatedExecutionTab({ studySlug }: { studySlug: string }) {
 
         {distributeMutation.isError && (
           <div className="mt-3 rounded-lg bg-critical/10 border border-critical/20 px-4 py-3 text-xs text-critical">
-            Distribution failed:{" "}
-            {distributeMutation.error instanceof Error
-              ? distributeMutation.error.message
-              : "Unknown error"}
+            {t("studies.federated.distributionFailed", {
+              error: distributeMutation.error instanceof Error
+                ? distributeMutation.error.message
+                : t("studies.federated.unknownError"),
+            })}
           </div>
         )}
 
         {distributeMutation.isSuccess && (
           <div className="mt-3 rounded-lg bg-success/10 border border-success/20 px-4 py-3 text-xs text-success">
-            Study distributed successfully. Monitoring status below.
+            {t("studies.federated.distributionSucceeded")}
           </div>
         )}
       </div>
 
       {/* Section 2: Federated Executions */}
       <div className="panel">
-        <h3 className="text-sm font-semibold text-text-secondary mb-4">Federated Executions</h3>
+        <h3 className="text-sm font-semibold text-text-secondary mb-4">
+          {t("studies.federated.federatedExecutions")}
+        </h3>
 
         {statusLoading ? (
           <div className="flex items-center justify-center py-8">
@@ -259,7 +270,7 @@ export function FederatedExecutionTab({ studySlug }: { studySlug: string }) {
         ) : executions.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-sm text-text-ghost">
-              No federated executions yet. Select data nodes above and distribute to begin.
+              {t("studies.federated.noExecutions")}
             </p>
           </div>
         ) : (
@@ -273,7 +284,7 @@ export function FederatedExecutionTab({ studySlug }: { studySlug: string }) {
                   <div className="flex items-center gap-3">
                     <span className="text-xs text-text-ghost font-mono">#{execution.id}</span>
                     <span className="text-xs text-text-muted">
-                      Arachne Analysis #{execution.arachne_analysis_id}
+                      {t("studies.federated.arachneAnalysis", { id: execution.arachne_analysis_id })}
                     </span>
                   </div>
                   <span className="text-xs text-text-ghost">{execution.status}</span>
@@ -284,10 +295,10 @@ export function FederatedExecutionTab({ studySlug }: { studySlug: string }) {
                     <table className="w-full text-xs">
                       <thead>
                         <tr className="text-left text-[10px] uppercase tracking-wider text-text-ghost">
-                          <th className="px-4 py-2">Node</th>
-                          <th className="px-4 py-2">Status</th>
-                          <th className="px-4 py-2">Submitted</th>
-                          <th className="px-4 py-2">Completed</th>
+                          <th className="px-4 py-2">{t("studies.federated.table.node")}</th>
+                          <th className="px-4 py-2">{t("studies.federated.table.status")}</th>
+                          <th className="px-4 py-2">{t("studies.federated.table.submitted")}</th>
+                          <th className="px-4 py-2">{t("studies.federated.table.completed")}</th>
                           <th className="px-4 py-2" />
                         </tr>
                       </thead>
@@ -299,11 +310,11 @@ export function FederatedExecutionTab({ studySlug }: { studySlug: string }) {
                               <SubmissionBadge status={sub.status} />
                             </td>
                             <td className="px-4 py-2 text-text-muted">
-                              {new Date(sub.submitted_at).toLocaleString()}
+                              {formatDateTime(sub.submitted_at)}
                             </td>
                             <td className="px-4 py-2 text-text-muted">
                               {sub.completed_at
-                                ? new Date(sub.completed_at).toLocaleString()
+                                ? formatDateTime(sub.completed_at)
                                 : "-"}
                             </td>
                             <td className="px-4 py-2 text-right">

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { SourceRelease, UpdateReleasePayload } from "../../../types/ares";
 
 interface ReleaseEditFormProps {
@@ -9,6 +10,7 @@ interface ReleaseEditFormProps {
 }
 
 export function ReleaseEditForm({ release, onSave, onCancel, isSaving }: ReleaseEditFormProps) {
+  const { t } = useTranslation("app");
   const [form, setForm] = useState<UpdateReleasePayload>({
     release_name: release.release_name,
     cdm_version: release.cdm_version ?? "",
@@ -36,54 +38,64 @@ export function ReleaseEditForm({ release, onSave, onCancel, isSaving }: Release
     <div className="mt-3 space-y-3 border-t border-border-subtle pt-3">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-[10px] uppercase text-text-muted">Release Name</label>
+          <label className="mb-1 block text-[10px] uppercase text-text-muted">
+            {t("dataExplorer.ares.releases.form.releaseName")}
+          </label>
           <input
             type="text"
             value={form.release_name ?? ""}
             onChange={(e) => setForm({ ...form, release_name: e.target.value })}
             className={inputClass}
-            placeholder="Release name"
+            placeholder={t("dataExplorer.ares.releases.form.releaseName")}
           />
         </div>
         <div>
-          <label className="mb-1 block text-[10px] uppercase text-text-muted">CDM Version</label>
+          <label className="mb-1 block text-[10px] uppercase text-text-muted">
+            {t("dataExplorer.ares.releases.form.cdmVersion")}
+          </label>
           <input
             type="text"
             value={form.cdm_version ?? ""}
             onChange={(e) => setForm({ ...form, cdm_version: e.target.value })}
             className={inputClass}
-            placeholder="e.g. 5.4"
+            placeholder={t("dataExplorer.ares.releases.form.cdmVersionPlaceholder")}
           />
         </div>
         <div>
-          <label className="mb-1 block text-[10px] uppercase text-text-muted">Vocabulary Version</label>
+          <label className="mb-1 block text-[10px] uppercase text-text-muted">
+            {t("dataExplorer.ares.releases.form.vocabularyVersion")}
+          </label>
           <input
             type="text"
             value={form.vocabulary_version ?? ""}
             onChange={(e) => setForm({ ...form, vocabulary_version: e.target.value })}
             className={inputClass}
-            placeholder="e.g. v5.0 20-JAN-2025"
+            placeholder={t("dataExplorer.ares.releases.form.vocabularyVersionPlaceholder")}
           />
         </div>
         <div>
-          <label className="mb-1 block text-[10px] uppercase text-text-muted">ETL Version</label>
+          <label className="mb-1 block text-[10px] uppercase text-text-muted">
+            {t("dataExplorer.ares.releases.form.etlVersion")}
+          </label>
           <input
             type="text"
             value={form.etl_version ?? ""}
             onChange={(e) => setForm({ ...form, etl_version: e.target.value })}
             className={inputClass}
-            placeholder="e.g. 2.1.0"
+            placeholder={t("dataExplorer.ares.releases.form.etlVersionPlaceholder")}
           />
         </div>
       </div>
       <div>
-        <label className="mb-1 block text-[10px] uppercase text-text-muted">Notes</label>
+        <label className="mb-1 block text-[10px] uppercase text-text-muted">
+          {t("dataExplorer.ares.releases.form.notes")}
+        </label>
         <textarea
           value={form.notes ?? ""}
           onChange={(e) => setForm({ ...form, notes: e.target.value })}
           rows={3}
           className={inputClass + " resize-none"}
-          placeholder="Release notes..."
+          placeholder={t("dataExplorer.ares.releases.form.notesPlaceholder")}
         />
       </div>
       <div className="flex gap-2">
@@ -93,14 +105,16 @@ export function ReleaseEditForm({ release, onSave, onCancel, isSaving }: Release
           disabled={isSaving}
           className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-accent-light disabled:opacity-50 transition-colors"
         >
-          {isSaving ? "Saving..." : "Save"}
+          {isSaving
+            ? t("dataExplorer.ares.releases.actions.saving")
+            : t("dataExplorer.ares.releases.actions.save")}
         </button>
         <button
           type="button"
           onClick={onCancel}
           className="rounded-lg border border-border-subtle px-4 py-2 text-sm text-text-muted hover:text-text-primary transition-colors"
         >
-          Cancel
+          {t("dataExplorer.ares.releases.actions.cancel")}
         </button>
       </div>
     </div>
