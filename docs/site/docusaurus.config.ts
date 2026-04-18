@@ -41,6 +41,8 @@ const localeConfigs = {
   },
 } as const;
 
+const publicDocusaurusLocales = ["en", "es", "ko"] as const;
+
 const config: Config = {
   title: "Parthenon",
   tagline: "Next-generation unified outcomes research platform",
@@ -59,7 +61,7 @@ const config: Config = {
 
   i18n: {
     defaultLocale: "en",
-    locales: Object.keys(localeConfigs),
+    locales: [...publicDocusaurusLocales],
     localeConfigs,
   },
 
@@ -197,6 +199,10 @@ const config: Config = {
         {
           href: "https://github.com/sudoshi/Parthenon",
           label: "GitHub",
+          position: "right",
+        },
+        {
+          type: "localeDropdown",
           position: "right",
         },
       ],

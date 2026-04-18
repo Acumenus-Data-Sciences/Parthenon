@@ -1,0 +1,82 @@
+{
+  "version.label": {
+    "message": "다음",
+    "description": "The label for version current"
+  },
+  "sidebar.userManual.category.Part I — Getting Started": {
+    "message": "파트 I — 시작하기",
+    "description": "The label for category Part I — Getting Started in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part II — Vocabulary": {
+    "message": "파트 II — 용어",
+    "description": "The label for category Part II — Vocabulary in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part III — Cohorts": {
+    "message": "파트 III — 코호트",
+    "description": "The label for category Part III — Cohorts in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part IV — Analyses & Studies": {
+    "message": "파트 IV — 분석 및 연구",
+    "description": "The label for category Part IV — Analyses & Studies in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part V — Data Ingestion & ETL": {
+    "message": "파트 V — 데이터 수집 및 ETL",
+    "description": "The label for category Part V — Data Ingestion & ETL in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part VI — Data Explorer": {
+    "message": "파트 VI — 데이터 탐색기",
+    "description": "The label for category Part VI — Data Explorer in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part VII — Patient Profiles & Care Gaps": {
+    "message": "파트 VII — 환자 프로필 및 진료 격차",
+    "description": "The label for category Part VII — Patient Profiles & Care Gaps in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part VIII — Administration": {
+    "message": "파트 VIII — 관리",
+    "description": "The label for category Part VIII — Administration in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part IX — Genomics": {
+    "message": "파트 IX — 유전체학",
+    "description": "The label for category Part IX — Genomics in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part X — Imaging": {
+    "message": "파트 X — 영상",
+    "description": "The label for category Part X — Imaging in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part XI — HEOR": {
+    "message": "파트 XI — HEOR",
+    "description": "The label for category Part XI — HEOR in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part XII — FHIR EHR Integration": {
+    "message": "파트 XII — FHIR EHR 통합",
+    "description": "The label for category Part XII — FHIR EHR Integration in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part XIII — GIS Explorer": {
+    "message": "파트 XIII — GIS 탐색기",
+    "description": "The label for category Part XIII — GIS Explorer in sidebar userManual"
+  },
+  "sidebar.userManual.category.Part XIV — Morpheus Inpatient Data": {
+    "message": "파트 XIV — Morpheus 입원 데이터",
+    "description": "The label for category Part XIV — Morpheus Inpatient Data in sidebar userManual"
+  },
+  "sidebar.userManual.category.Abby AI": {
+    "message": "Abby AI",
+    "description": "The label for category Abby AI in sidebar userManual"
+  },
+  "sidebar.userManual.category.Architecture": {
+    "message": "아키텍처",
+    "description": "The label for category Architecture in sidebar userManual"
+  },
+  "sidebar.userManual.category.Migration Guide (Atlas → Parthenon)": {
+    "message": "마이그레이션 가이드(Atlas → Parthenon)",
+    "description": "The label for category Migration Guide (Atlas → Parthenon) in sidebar userManual"
+  },
+  "sidebar.userManual.category.Appendices": {
+    "message": "부록",
+    "description": "The label for category Appendices in sidebar userManual"
+  },
+  "sidebar.userManual.doc.Overview": {
+    "message": "개요",
+    "description": "The label for the doc item Overview in sidebar userManual, linking to the doc intro"
+  }
+}
