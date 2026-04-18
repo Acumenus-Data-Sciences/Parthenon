@@ -665,6 +665,7 @@ Implementation update:
 - Added Spanish and Korean native MDX translations for `part6-data-explorer/18-characterization-achilles.mdx`, preserving Achilles schema, service, and analysis identifier names. Current coverage report: Spanish and Korean each have 8/91 docs translated, 0/55 blog posts translated, and 5/5 chrome catalogs present.
 - Added Spanish and Korean native MDX translations for `part6-data-explorer/19-data-quality-dashboard.mdx`, preserving DQD, Achilles Heel, and threshold terminology. Current coverage report: Spanish and Korean each have 9/91 docs translated, 0/55 blog posts translated, and 5/5 chrome catalogs present.
 - Added Spanish and Korean native MDX translations for `part8-administration/22-user-management.mdx`, preserving role, token, mail-driver, and Artisan command identifiers. Current coverage report: Spanish and Korean each have 10/91 docs translated, 0/55 blog posts translated, and 5/5 chrome catalogs present.
+- Added `docs/site/.npmrc` with `legacy-peer-deps=true` so plain `npm ci` in the docs package follows the documented React 19/local-search peer dependency workaround until the local-search package peer range catches up.
 
 ## Target Architecture
 
@@ -1615,7 +1616,7 @@ This section turns the strategy above into a branch-level implementation checkli
 
 - [x] Finish the high-visibility Docusaurus docs pilot for Spanish and Korean: Introduction, Data Sources, Vocabulary Browser, Concept Sets, Building Cohorts, Achilles Characterization, Data Quality Dashboard, and User Management are complete.
 - [x] Add Docusaurus translation coverage tracking that reports source docs/blog counts, translated Spanish/Korean counts, and missing files by locale without failing CI until thresholds are agreed.
-- [ ] Resolve or document the docs dependency install path: `docs/site` currently needs `npm ci --legacy-peer-deps` because React 19 conflicts with the local-search plugin peer range.
+- [x] Resolve or document the docs dependency install path: `docs/site` now has a package-scoped `.npmrc` so `npm ci` uses `legacy-peer-deps=true` for the React 19/local-search peer range conflict.
 - [ ] Run visual smoke screenshots for app Dashboard, topnav language selector, Dashboard contextual help, Docusaurus docs home, Docusaurus Dashboard docs page, and the Docusaurus locale dropdown in English, Spanish, and Korean.
 - [ ] Refresh or open the PR once the next docs slice is complete, with the branch story centered on native app i18n, per-user language preference, complete pilot contextual help, Docusaurus native locale chrome, and first translated docs pages.
 
