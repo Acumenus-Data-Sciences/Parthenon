@@ -3,6 +3,8 @@
 use App\Http\Controllers\Api\V1\HelpController;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\File;
+use PHPUnit\Framework\Assert;
 use Tests\TestCase;
 
 uses(TestCase::class);
@@ -67,4 +69,40 @@ it('returns localized not found messages for missing help topics', function () {
     expect($data['message_meta']['requested_locale'])->toBe('es-ES');
     expect($data['message_meta']['message_locale'])->toBe('es-ES');
     expect($data['message_meta']['fallback_used'])->toBeFalse();
+});
+
+it('has pilot locale help content for every English help topic', function () {
+    $helpPath = resource_path('help');
+    $sourceTopics = collect(File::files($helpPath))
+        ->filter(fn (SplFileInfo $file): bool => $file->getExtension() === 'json')
+        ->map(fn (SplFileInfo $file): string => $file->getFilename())
+        ->sort()
+        ->values();
+
+    expect($sourceTopics)->not->toBeEmpty();
+
+    foreach (['es-ES', 'ko-KR'] as $locale) {
+        $localePath = $helpPath.DIRECTORY_SEPARATOR.$locale;
+        $missingTopics = $sourceTopics
+            ->reject(fn (string $topic): bool => File::exists($localePath.DIRECTORY_SEPARATOR.$topic))
+            ->values()
+            ->all();
+
+        Assert::assertSame(
+            [],
+            $missingTopics,
+            "{$locale} missing localized help topic(s): ".implode(', ', $missingTopics),
+        );
+
+        foreach ($sourceTopics as $topic) {
+            $source = json_decode(File::get($helpPath.DIRECTORY_SEPARATOR.$topic), true);
+            $target = json_decode(File::get($localePath.DIRECTORY_SEPARATOR.$topic), true);
+
+            Assert::assertSame(
+                $source['key'] ?? null,
+                $target['key'] ?? null,
+                "{$locale}/{$topic} must keep the same help key as the English source.",
+            );
+        }
+    }
 });

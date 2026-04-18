@@ -650,6 +650,7 @@ Implementation update:
 - Smoke validation after the administration help pack reports 0 errors and 346 missing contextual-help warnings. Smoke import dry-run now previews 72 localized help files across Spanish and Korean.
 - Spanish and Korean contextual help now covers every English help topic in `backend/resources/help`, including care gaps, data ingestion, data sources, ETL/FHIR tooling, genomics, GIS, HEOR, imaging, Jupyter, mapping, patient profiles/timelines/similarity, publishing, query assistant, study designer, and study packages.
 - Smoke validation after the full help pack reports 0 errors and 0 warnings across the pilot translation asset bundle. Smoke import dry-run now previews 112 localized help files across Spanish and Korean, and `translation:draft-assets` reports 0 candidate rows.
+- Added a contextual-help regression test that requires every English help topic to have Spanish and Korean pilot files with matching help keys, so new help pages cannot silently fall back in the public pilot languages.
 
 ## Target Architecture
 
