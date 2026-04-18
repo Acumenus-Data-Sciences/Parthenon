@@ -6,6 +6,7 @@ use App\Http\Requests\Api\StoreSurveyCampaignRequest;
 use App\Models\Survey\SurveyCampaign;
 use App\Services\Survey\CampaignSeedService;
 use App\Services\Survey\SurveyImportService;
+use App\Support\ApiMessage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -64,9 +65,7 @@ class SurveyCampaignController extends Controller
     public function update(StoreSurveyCampaignRequest $request, SurveyCampaign $campaign): JsonResponse
     {
         if ($campaign->status !== 'draft') {
-            return response()->json([
-                'message' => 'Only draft campaigns can be updated.',
-            ], 422);
+            return response()->json(ApiMessage::payload('survey.campaigns.update_draft_only'), 422);
         }
 
         $campaign->update($request->validated());
@@ -84,9 +83,7 @@ class SurveyCampaignController extends Controller
     public function activate(SurveyCampaign $campaign): JsonResponse
     {
         if ($campaign->status !== 'draft') {
-            return response()->json([
-                'message' => 'Only draft campaigns can be activated.',
-            ], 422);
+            return response()->json(ApiMessage::payload('survey.campaigns.activate_draft_only'), 422);
         }
 
         $campaign->update([
@@ -100,9 +97,7 @@ class SurveyCampaignController extends Controller
     public function close(SurveyCampaign $campaign): JsonResponse
     {
         if ($campaign->status !== 'active') {
-            return response()->json([
-                'message' => 'Only active campaigns can be closed.',
-            ], 422);
+            return response()->json(ApiMessage::payload('survey.campaigns.close_active_only'), 422);
         }
 
         $campaign->update([

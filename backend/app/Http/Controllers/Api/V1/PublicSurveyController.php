@@ -6,6 +6,7 @@ use App\Models\Survey\SurveyCampaign;
 use App\Models\Survey\SurveyHonestBrokerInvitation;
 use App\Services\Survey\HonestBrokerService;
 use App\Services\Survey\SurveyResponseService;
+use App\Support\ApiMessage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -18,9 +19,7 @@ class PublicSurveyController extends Controller
         $campaign = $invitation?->campaign ?? $this->resolveActiveCampaign($token);
 
         if ($campaign === null) {
-            return response()->json([
-                'message' => 'This survey link is invalid or no longer active.',
-            ], 404);
+            return response()->json(ApiMessage::payload('survey.public.link_inactive'), 404);
         }
 
         if ($invitation !== null) {
@@ -47,9 +46,7 @@ class PublicSurveyController extends Controller
         $campaign = $invitation?->campaign ?? $this->resolveActiveCampaign($token);
 
         if ($campaign === null) {
-            return response()->json([
-                'message' => 'This survey link is invalid or no longer active.',
-            ], 404);
+            return response()->json(ApiMessage::payload('survey.public.link_inactive'), 404);
         }
 
         $validated = $request->validate([
@@ -64,39 +61,29 @@ class PublicSurveyController extends Controller
 
         if ($invitation !== null) {
             if ($invitation->revoked_at !== null || ($invitation->expires_at !== null && $invitation->expires_at->isPast())) {
-                return response()->json([
-                    'message' => 'This survey invitation is invalid or expired.',
-                ], 422);
+                return response()->json(ApiMessage::payload('survey.public.invitation_invalid'), 422);
             }
 
             if ($invitation->submitted_at !== null || in_array($invitation->delivery_status, ['submitted', 'revoked'], true)) {
-                return response()->json([
-                    'message' => 'This survey invitation has already been used.',
-                ], 422);
+                return response()->json(ApiMessage::payload('survey.public.invitation_used'), 422);
             }
 
             $brokerLink = $invitation->link;
         } elseif ($campaign->requires_honest_broker) {
             if ($respondentIdentifier === null || trim($respondentIdentifier) === '') {
-                return response()->json([
-                    'message' => 'This survey requires honest broker registration before submission.',
-                ], 422);
+                return response()->json(ApiMessage::payload('survey.public.honest_broker_required'), 422);
             }
 
             $brokerLink = $honestBrokerService->resolveCampaignParticipant($campaign, $respondentIdentifier);
 
             if ($brokerLink === null || $brokerLink->person_id === null) {
-                return response()->json([
-                    'message' => 'Respondent is not registered with the honest broker for this campaign.',
-                ], 422);
+                return response()->json(ApiMessage::payload('survey.public.respondent_not_registered'), 422);
             }
 
             if ($brokerLink->survey_conduct_id !== null) {
                 $existingConduct = $brokerLink->conduct;
                 if ($existingConduct !== null && $existingConduct->completion_status === 'complete') {
-                    return response()->json([
-                        'message' => 'A response has already been submitted for this participant.',
-                    ], 422);
+                    return response()->json(ApiMessage::payload('survey.public.response_already_submitted'), 422);
                 }
             }
         }
@@ -111,9 +98,7 @@ class PublicSurveyController extends Controller
             ]);
 
         if ($brokerLink !== null && $conduct->completion_status === 'complete') {
-            return response()->json([
-                'message' => 'A response has already been submitted for this participant.',
-            ], 422);
+            return response()->json(ApiMessage::payload('survey.public.response_already_submitted'), 422);
         }
 
         $result = $surveyResponseService->storeResponses(
