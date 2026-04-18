@@ -657,6 +657,7 @@ Implementation update:
 - Added Spanish and Korean native MDX translations for the Docusaurus user-manual entry page (`intro.mdx`) as the first docs-content slice. Locale build smoke checks pass when run sequentially; Docusaurus locale builds should not be run in parallel because they share the generated `.docusaurus` cache.
 - Added Spanish and Korean native MDX translations for the Docusaurus Dashboard page (`part1-getting-started/00-dashboard.mdx`) so the public pilot docs include a localized high-visibility feature page.
 - Added `scripts/i18n/report-docusaurus-coverage.mjs` and `cd docs/site && npm run i18n:coverage` to report docs/blog source counts, translated Spanish/Korean counts, missing files by locale, and Docusaurus chrome catalog presence. Current coverage report: 91 docs and 55 blog posts in source; Spanish and Korean each have 2/91 docs translated, 0/55 blog posts translated, 5/5 chrome catalogs present.
+- Added Spanish and Korean native MDX translations for `part1-getting-started/01-introduction.mdx`. Current coverage report: Spanish and Korean each have 3/91 docs translated, 0/55 blog posts translated, and 5/5 chrome catalogs present.
 
 ## Target Architecture
 
