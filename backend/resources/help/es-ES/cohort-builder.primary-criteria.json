@@ -1,0 +1,13 @@
+{
+  "key": "cohort-builder.primary-criteria",
+  "title": "Criterios del evento primario",
+  "description": "El evento primario define la fecha índice: el punto de anclaje desde el cual se miden todas las ventanas de inclusión/exclusión y las estrategias de salida. Cada paciente de la cohorte debe tener al menos una ocurrencia del evento primario durante el periodo de observación.",
+  "docs_url": "/docs/part3-cohorts/06-building-cohorts",
+  "video_url": null,
+  "tips": [
+    "Establezca Límite de ocurrencia en Primera para estudiar poblaciones de nuevos usuarios o incidencia.",
+    "Use Todos los eventos para estudios de prevalencia donde las ocurrencias repetidas importan.",
+    "La ventana de observación (Días previos / Días posteriores) define cuánto historial CDM debe existir alrededor del evento.",
+    "Múltiples criterios de dominio dentro de un evento primario se combinan con OR; cualquier evento calificante puede anclar la fecha índice."
+  ]
+}

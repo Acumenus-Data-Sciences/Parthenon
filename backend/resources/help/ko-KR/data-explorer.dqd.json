@@ -1,0 +1,14 @@
+{
+  "key": "data-explorer.dqd",
+  "title": "Data Quality Dashboard",
+  "description": "Data Quality Dashboard(DQD)는 모든 CDM 테이블에 대해 OHDSI의 표준화된 데이터 품질 검사를 실행합니다. 완전성, 개연성, 적합성 규칙을 평가하고 범주와 임계값별 실패를 요약합니다.",
+  "docs_url": "/docs/part6-data-explorer/19-data-quality-dashboard",
+  "video_url": null,
+  "tips": [
+    "대규모 데이터베이스에서 DQD 실행은 30-90분이 걸릴 수 있습니다. 사용량이 적은 시간대에 예약하세요.",
+    "개요 스코어카드는 Pass/Fail/Error 수를 보여 줍니다. 개별 검사 결과를 보려면 범주를 자세히 살펴보세요.",
+    "CDM_SOURCE 테이블 실패는 불완전한 ETL의 첫 신호인 경우가 많습니다. 이 테이블을 먼저 확인하세요.",
+    "개연성 검사는 생물학적으로 불가능한 값(예: 나이 > 150)을 표시합니다. 해당 필드를 분석에 사용하기 전에 조사하세요.",
+    "문서화하거나 데이터 엔지니어링 팀과 공유하려면 결과를 CSV로 내보내세요."
+  ]
+}

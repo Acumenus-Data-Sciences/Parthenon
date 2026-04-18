@@ -1,0 +1,14 @@
+{
+  "key": "cohort-builder.inclusion-rules",
+  "title": "Reglas de inclusión",
+  "description": "Las reglas de inclusión se aplican secuencialmente después del evento primario para filtrar aún más la población calificante. Cada regla especifica una condición (por ejemplo, rango de edad, diagnóstico, exposición a medicamentos) relativa a la fecha índice mediante ventanas temporales.",
+  "docs_url": "/docs/part3-cohorts/06-building-cohorts",
+  "video_url": null,
+  "tips": [
+    "Las reglas se combinan con AND; un paciente debe cumplir TODAS las reglas para permanecer en la cohorte.",
+    "Use ventanas temporales negativas (por ejemplo, -365 a -1) para exigir historial antes de la fecha índice.",
+    "La pestaña Atrición después de la generación muestra exactamente cuántos pacientes elimina cada regla.",
+    "Una regla de salida (por ejemplo, diagnóstico previo) usa una ventana negativa; una regla de entrada usa una positiva.",
+    "Evite ventanas muy largas sin verificaciones de cobertura CDM; los pacientes con periodos de observación insuficientes se eliminarán automáticamente."
+  ]
+}

@@ -644,6 +644,8 @@ Implementation update:
 - Korean Dashboard contextual help is localized. Help validation now reports 896 missing contextual-help rows instead of 904.
 - Spanish and Korean core contextual help is localized for Abby AI, Studies, Cohort Builder, Concept Set Builder, Data Explorer, Analyses, Jobs, Administration, and Vocabulary Search.
 - Smoke validation after the core help pack reports 0 errors and 762 missing contextual-help warnings. Smoke import dry-run now previews 20 localized help files across Spanish and Korean.
+- Spanish and Korean analysis/cohort/data-quality contextual help is localized for Characterization, Incidence Rates, Population-Level Estimation, Patient-Level Prediction, Treatment Pathways, Evidence Synthesis, SCCS, Cohort Builder primary criteria/inclusion/exit subpages, Data Quality Dashboard, Achilles Heel, and Source Profiler.
+- Smoke validation after the analysis/cohort/data-quality help pack reports 0 errors and 568 missing contextual-help warnings. Smoke import dry-run now previews 46 localized help files across Spanish and Korean.
 
 ## Target Architecture
 

@@ -1,0 +1,14 @@
+{
+  "key": "data-explorer.dqd",
+  "title": "Data Quality Dashboard",
+  "description": "Data Quality Dashboard (DQD) ejecuta las verificaciones estandarizadas de calidad de datos de OHDSI en todas las tablas CDM. Evalúa reglas de completitud, plausibilidad y conformidad, y resume fallos por categoría y umbral.",
+  "docs_url": "/docs/part6-data-explorer/19-data-quality-dashboard",
+  "video_url": null,
+  "tips": [
+    "Una ejecución de DQD puede tardar entre 30 y 90 minutos en bases de datos grandes; prográmela durante horas de baja demanda.",
+    "El panel de resumen muestra conteos Pass/Fail/Error; profundice en una categoría para ver resultados de verificaciones individuales.",
+    "Los fallos en la tabla CDM_SOURCE suelen ser la primera señal de un ETL incompleto; revise esta tabla primero.",
+    "Las verificaciones de plausibilidad señalan valores biológicamente implausibles (por ejemplo, edad > 150); investigue antes de usar ese campo en análisis.",
+    "Exporte los resultados a CSV para documentación o para compartirlos con equipos de ingeniería de datos."
+  ]
+}

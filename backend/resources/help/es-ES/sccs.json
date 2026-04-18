@@ -1,0 +1,17 @@
+{
+  "key": "sccs",
+  "title": "Serie de casos autocontrolada (SCCS)",
+  "description": "SCCS es un diseño de estudio dentro de la persona usado para vigilancia de seguridad de medicamentos. Cada paciente actúa como su propio control, eliminando la confusión invariante en el tiempo. Usted define una cohorte de exposición, una cohorte de desenlace y una o más ventanas de riesgo para estimar la incidencia relativa del desenlace durante periodos expuestos frente a no expuestos.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Seleccione una cohorte de exposición (por ejemplo, un medicamento de interés) y una cohorte de desenlace (por ejemplo, un evento adverso) desde sus definiciones de cohorte existentes.",
+    "Configure ventanas de riesgo con desplazamientos de inicio/fin anclados al comienzo o fin de la era para capturar el periodo de riesgo biológicamente plausible.",
+    "Defina un periodo ingenuo (predeterminado 365 días) en Configuración de población de estudio para asegurar que los pacientes tengan suficiente tiempo de observación antes de la primera exposición.",
+    "Active Solo primer desenlace para restringir el análisis a la primera ocurrencia del desenlace en cada paciente, que es lo estándar para eventos agudos.",
+    "Elija entre modelos SCCS simples y ponderados según necesite tener en cuenta periodos de observación dependientes del evento.",
+    "Agregue configuración de covariables para condiciones, medicamentos o procedimientos a fin de ajustar por factores de confusión que varían en el tiempo dentro del periodo de observación.",
+    "Después de guardar el diseño, seleccione una fuente de datos CDM y haga clic en Ejecutar para correr el análisis contra datos reales de pacientes.",
+    "Revise el historial de ejecución en la pestaña Resultados para comparar corridas entre distintas fuentes de datos o configuraciones de parámetros."
+  ]
+}
