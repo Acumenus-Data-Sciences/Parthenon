@@ -99,6 +99,7 @@ it('localizes protected public survey submission errors', function () {
 
 it('localizes authenticated survey campaign state errors from user preference', function () {
     $user = surveyContractUser('ko-KR');
+    $token = $user->createToken('survey-contract-test')->plainTextToken;
     $campaign = SurveyCampaign::create([
         'name' => 'Already Active',
         'survey_instrument_id' => surveyContractInstrument()->id,
@@ -106,7 +107,7 @@ it('localizes authenticated survey campaign state errors from user preference', 
         'publish_token' => str_repeat('t', 64),
     ]);
 
-    $this->actingAs($user)
+    $this->withHeader('Authorization', "Bearer {$token}")
         ->postJson("/api/v1/survey-campaigns/{$campaign->id}/activate")
         ->assertStatus(422)
         ->assertJsonPath('message', '초안 상태의 캠페인만 활성화할 수 있습니다.')
