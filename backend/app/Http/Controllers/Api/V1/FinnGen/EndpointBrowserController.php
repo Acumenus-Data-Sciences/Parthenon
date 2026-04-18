@@ -324,11 +324,36 @@ final class EndpointBrowserController extends Controller
             default => null,
         };
 
+        // Phase 13.2 D-04: upsert the FinnGenEndpointGeneration row BEFORE
+        // dispatching the Run so the controller has $generation->id to pass as
+        // `finngen_endpoint_generation_id` into run params. `->fresh()` reloads
+        // the row so the bigserial PK is guaranteed populated (defensive; Eloquent
+        // populates $generation->id after INSERT but fresh also catches any DB
+        // triggers / computed columns — see RESEARCH §Pitfall 3).
+        // `run_id` is nullable per Phase 13.2 Plan 01 migration; backfilled below.
+        $generation = FinnGenEndpointGeneration::updateOrCreate(
+            [
+                'endpoint_name' => (string) $row->name,
+                'source_key' => (string) $data['source_key'],
+            ],
+            [
+                'finngen_endpoint_name' => (string) $row->name,
+                'cohort_definition_id' => null,
+                'run_id' => null,
+                'last_status' => 'queued',
+                'last_subject_count' => null,
+            ],
+        )->fresh() ?? throw new \RuntimeException('Generation upsert did not return a model');
+
         $params = [
             // Phase 13.1: cohort_definition_id is null for new generations
             // (the endpoint is no longer an app.cohort_definitions row).
-            // The R worker keys on endpoint_name going forward.
+            // The R worker keys on finngen_endpoint_generation_id + offset instead.
             'cohort_definition_id' => null,
+            // Phase 13.2 D-01/D-02: primary key source for FinnGen cohorts.
+            // R worker computes cohort_def_id = finngen_endpoint_generation_id
+            // + FinnGenEndpointGeneration::OMOP_COHORT_ID_OFFSET (= 100_000_000_000).
+            'finngen_endpoint_generation_id' => (int) $generation->id,
             'condition_concept_ids' => $conditionConcepts,
             'drug_concept_ids' => $drugConcepts,
             'source_concept_ids' => $sourceConcepts,
@@ -344,30 +369,20 @@ final class EndpointBrowserController extends Controller
             params: $params,
         );
 
-        // Upsert generation tracking row keyed by (endpoint_name, source_key)
-        // — one row per pair, refreshed on every dispatch so the browser can
-        // surface "Generated on: SOURCE" badges with the latest run + status
-        // without joining {source_results}.cohort on every render.
-        // Phase 13.1 D-07: new rows populate finngen_endpoint_name (FK to
-        // finngen.endpoint_definitions.name); cohort_definition_id stays null.
-        FinnGenEndpointGeneration::updateOrCreate(
-            [
-                'endpoint_name' => (string) $row->name,
-                'source_key' => (string) $data['source_key'],
-            ],
-            [
-                'finngen_endpoint_name' => (string) $row->name,
-                'cohort_definition_id' => null,
-                'run_id' => (string) $run->id,
-                'last_status' => (string) $run->status,
-                'last_subject_count' => null,
-            ],
-        );
+        // Phase 13.2 D-04: backfill run_id and last_status on the generation row
+        // now that dispatch has returned. Two-phase pattern (upsert → dispatch →
+        // backfill) is the trade-off for giving the R worker its own id source
+        // without introducing a FinnGen-specific cohort table.
+        $generation->update([
+            'run_id' => (string) $run->id,
+            'last_status' => (string) $run->status,
+        ]);
 
         return response()->json([
             'data' => [
                 'run' => $run,
                 'cohort_definition_id' => null,
+                'finngen_endpoint_generation_id' => (int) $generation->id,
                 'endpoint_name' => $row->name,
                 'source_key' => (string) $data['source_key'],
                 'expected_concept_counts' => [
