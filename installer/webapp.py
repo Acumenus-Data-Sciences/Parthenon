@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from . import config, launcher, license, preflight, utils
+from . import config, contract, launcher, license, preflight, utils
 
 
 STATIC_DIR = launcher.resource_path("installer/web")
@@ -94,8 +94,11 @@ class InstallerBackend:
 
     def bootstrap(self) -> dict[str, Any]:
         defaults = config.build_config_defaults()
+        community_defaults = contract.normalize_defaults(community=True)
         return {
             "defaults": defaults,
+            "community_defaults": community_defaults,
+            "community_plan": contract.service_plan(community_defaults),
             "repo_path": launcher.default_repo_path(),
             "wsl_distro": launcher.default_wsl_distro(),
             "wsl_repo_path": launcher.default_wsl_repo_path(),

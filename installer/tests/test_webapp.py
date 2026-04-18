@@ -6,6 +6,23 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from installer.webapp import InstallerBackend
 
 
+def test_bootstrap_exposes_python_community_contract(monkeypatch):
+    monkeypatch.setattr("installer.config.utils.is_port_free", lambda port: True)
+
+    payload = InstallerBackend().bootstrap()
+
+    community = payload["community_defaults"]
+    plan = payload["community_plan"]
+    assert community["edition"] == "Community Edition"
+    assert community["experience"] == "Beginner"
+    assert community["modules"] == ["research", "ai_knowledge", "infrastructure"]
+    assert community["datasets"] == ["eunomia", "phenotype-library"]
+    assert community["enable_hecate"] is True
+    assert community["enable_blackrabbit"] is False
+    assert "hecate" in plan["compose_services"]
+    assert "blackrabbit" not in plan["compose_services"]
+
+
 def test_validate_launch_context_accepts_windows_wsl_only_path(monkeypatch):
     backend = InstallerBackend()
 
@@ -67,9 +84,8 @@ def test_web_installer_is_community_mvp_only():
     assert "frontier_api_key" not in app_js
     assert "install_ollama" not in app_js
     assert 'edition: "Community Edition"' in app_js
-    assert 'enable_hecate: true' in app_js
-    assert 'enable_qdrant: true' in app_js
-    assert 'datasets: ["eunomia", "phenotype-library"]' in app_js
+    assert "state.bootstrap?.community_defaults" in app_js
+    assert 'datasets: ["eunomia", "phenotype-library"]' not in app_js
 
 
 def test_install_landing_pages_match_release_bootstrap_regime():

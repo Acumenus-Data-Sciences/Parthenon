@@ -27,6 +27,17 @@ jobs:
         with:
           python-version: "3.11"
 
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Rust GUI system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgtk-3-dev \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
+
       - name: Validate source bootstrap scripts
         run: |
           sh -n installer/install.sh
@@ -35,7 +46,22 @@ jobs:
 
       - name: Validate Python installer entry points
         run: |
-          python -m py_compile install.py installer/bootstrap_remote.py installer/webapp.py
+          python -m py_compile install.py installer/bootstrap_remote.py installer/contract.py installer/webapp.py
+          python install.py --contract plan --community --contract-redact >/tmp/parthenon-community-contract.json
+
+      - name: Install Python installer test dependencies
+        run: python -m pip install --quiet pytest
+
+      - name: Run installer parity tests
+        run: python -m pytest installer/tests tests/installer
+
+      - name: Validate Rust installer GUI
+        working-directory: installer/rust-gui
+        run: |
+          cargo fmt --check
+          cargo test
+          cargo test python_contract_ -- --ignored
+          cargo clippy --all-targets -- -D warnings
 
       - name: Confirm release asset policy
         run: |
