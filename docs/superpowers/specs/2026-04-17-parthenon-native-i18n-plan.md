@@ -612,6 +612,7 @@ Implementation update:
 - Added `scripts/i18n/validate-translation-assets.mjs` as the first local asset QA gate.
 - Added `scripts/i18n/import-translation-assets.mjs` as the first safe reviewed-asset import/staging path.
 - Added provider-neutral backend translation contracts, DTOs, data-class policy, placeholder integrity checks, and a local provider that never calls an external service.
+- Added `translation:draft-assets` as a provider-backed Artisan command for drafting/reviewing exported message rows before import.
 - Default export locale set is the public pilot set: `en-US`, `es-ES`, and `ko-KR`.
 - Export outputs are written under `output/translation-assets/**` and are intentionally ignored build artifacts.
 - The exporter emits:
@@ -638,6 +639,8 @@ Implementation update:
 - Smoke validation result for the pilot set: 0 errors, with 904 expected contextual-help missing-translation warnings until help topics are translated beyond the Spanish dashboard pilot.
 - Smoke import dry-run result for the pilot set: validation passed, staged 2 frontend locale JSON files, 2 backend locale JSON files, 1 Spanish help topic, and 2 Docusaurus locale dropoff plans.
 - Backend translation contract tests pass with an in-memory test database: provider binding, source fallback behavior, placeholder/tag review, PHI blocking, and placeholder extraction.
+- Backend draft command tests pass with an in-memory test database: missing-row drafting, local source fallback marking, and fail-on-review placeholder enforcement.
+- Smoke provider draft result for the current pilot bundle: local provider drafted 904 missing contextual-help rows, with 0 review failures and 904 source-fallback warnings.
 
 ## Target Architecture
 
