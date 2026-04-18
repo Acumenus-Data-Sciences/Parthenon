@@ -3,9 +3,12 @@
 namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Tests\Concerns\SharesPdoAcrossTestConnections;
 
 abstract class TestCase extends BaseTestCase
 {
+    use SharesPdoAcrossTestConnections;
+
     /**
      * Connections RefreshDatabase/DatabaseTransactions wrap in a transaction
      * so per-connection writes roll back between tests.
@@ -17,11 +20,12 @@ abstract class TestCase extends BaseTestCase
      *
      * Phase 13.2-06: `finngen_testing` registered so FinnGen model writes
      * (routed via config('finngen.connection')) roll back cleanly between
-     * tests. Cross-connection FK checks (finngen.runs.user_id → app.users.id)
-     * fail between separate PDOs+transactions; tests that require that FK
-     * must seed the user explicitly on finngen_testing OR rely on a
-     * fixture user committed outside RefreshDatabase (documented per-test).
-     * Mirrors the `inpatient_testing` pattern established by Morpheus.
+     * tests.
+     *
+     * Phase 13.2-07: cross-connection FK checks (finngen.runs.user_id →
+     * app.users.id) now resolve because the shared-PDO trait rebinds the
+     * sibling *_testing PDOs to pgsql_testing's PDO — one backend, one
+     * transaction scope, one visibility frame.
      *
      * @var list<string>
      */
