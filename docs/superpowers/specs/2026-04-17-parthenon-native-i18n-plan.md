@@ -656,6 +656,7 @@ Implementation update:
 - Docusaurus locale build smoke checks pass for Spanish and Korean with `npx docusaurus build --locale es --out-dir build-es-smoke` and `npx docusaurus build --locale ko --out-dir build-ko-smoke`. Both builds report the existing `vscode-languageserver-types` dynamic require warning only.
 - Added Spanish and Korean native MDX translations for the Docusaurus user-manual entry page (`intro.mdx`) as the first docs-content slice. Locale build smoke checks pass when run sequentially; Docusaurus locale builds should not be run in parallel because they share the generated `.docusaurus` cache.
 - Added Spanish and Korean native MDX translations for the Docusaurus Dashboard page (`part1-getting-started/00-dashboard.mdx`) so the public pilot docs include a localized high-visibility feature page.
+- Added `scripts/i18n/report-docusaurus-coverage.mjs` and `cd docs/site && npm run i18n:coverage` to report docs/blog source counts, translated Spanish/Korean counts, missing files by locale, and Docusaurus chrome catalog presence. Current coverage report: 91 docs and 55 blog posts in source; Spanish and Korean each have 2/91 docs translated, 0/55 blog posts translated, 5/5 chrome catalogs present.
 
 ## Target Architecture
 
@@ -1601,6 +1602,14 @@ This section turns the strategy above into a branch-level implementation checkli
 - [x] Add hardcoded user-facing string scanner/reporting in warn-only mode.
 - [x] Add a translation completeness report for `en-US`, `es-ES`, `ko-KR`, `ar`, and `en-XA`.
 - [x] Run focused frontend and backend locale tests before expanding into more surfaces.
+
+#### Next Phase TODOs
+
+- [ ] Finish the high-visibility Docusaurus docs pilot for Spanish and Korean: Introduction, Data Sources, Vocabulary Browser, Concept Sets, Building Cohorts, Achilles Characterization, Data Quality Dashboard, and User Management.
+- [x] Add Docusaurus translation coverage tracking that reports source docs/blog counts, translated Spanish/Korean counts, and missing files by locale without failing CI until thresholds are agreed.
+- [ ] Resolve or document the docs dependency install path: `docs/site` currently needs `npm ci --legacy-peer-deps` because React 19 conflicts with the local-search plugin peer range.
+- [ ] Run visual smoke screenshots for app Dashboard, topnav language selector, Dashboard contextual help, Docusaurus docs home, Docusaurus Dashboard docs page, and the Docusaurus locale dropdown in English, Spanish, and Korean.
+- [ ] Refresh or open the PR once the next docs slice is complete, with the branch story centered on native app i18n, per-user language preference, complete pilot contextual help, Docusaurus native locale chrome, and first translated docs pages.
 
 Branch goals:
 
