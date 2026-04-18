@@ -43,6 +43,15 @@ suppressPackageStartupMessages({
 .STEP2_ROOT  <- "/opt/finngen-artifacts/gwas/step2"
 .REGENIE_BIN <- "/opt/regenie/regenie"
 
+# DatabaseConnector::bulkLoadPostgres uses the `psql` CLI via POSTGRES_PATH.
+# Docker sets ENV POSTGRES_PATH=/usr/bin in the Darkstar image, but the s6-overlay
+# plumber `run` script does not invoke `with-contenv`, so Dockerfile ENVs never
+# reach the R worker. Re-assert the value here so `bulkLoad = TRUE` survives
+# container restarts until the s6 run script is updated to propagate env.
+if (!nzchar(Sys.getenv("POSTGRES_PATH")) && file.exists("/usr/bin/psql")) {
+  Sys.setenv(POSTGRES_PATH = "/usr/bin")
+}
+
 .gwas_step1_cache_dir <- function(source_key_lower, cache_key) {
   file.path(.STEP1_ROOT, source_key_lower, cache_key)
 }
@@ -270,12 +279,18 @@ suppressPackageStartupMessages({
     }
     pc_keep <- intersect(pc_cols, colnames(pcs))
     if (length(pc_keep) > 0L) {
+      # merge() requires a shared key column. out$FID is "person_<id>" (character);
+      # pcs$person_id is integer. Join on a stripped integer key, then drop it so
+      # regenie's covariate file keeps its expected FID/IID/<covars> layout.
+      out$person_id <- as.integer(sub("^person_", "", out$FID))
       out <- merge(out,
                    pcs[, c("person_id", pc_keep), drop = FALSE],
-                   by.x = "FID", by.y = NULL,
+                   by = "person_id",
                    all.x = TRUE, sort = FALSE)
-      # Cleaner: merge by FID-stripped person_id
-      out <- out[, !duplicated(colnames(out))]
+      out$person_id <- NULL
+      # merge() moves the join column first; restore FID/IID as cols 1-2 so regenie
+      # can parse the covariate TSV.
+      out <- out[, c("FID", "IID", setdiff(colnames(out), c("FID", "IID"))), drop = FALSE]
     }
   } else if (length(pc_cols) > 0L) {
     # Fill PCs with NA so the column shape stays right.

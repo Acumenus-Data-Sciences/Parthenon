@@ -309,6 +309,15 @@ RUN R -e " \
 RUN apt-get update && apt-get install -y --no-install-recommends pandoc \
     && rm -rf /var/lib/apt/lists/*
 
+# postgresql-client provides `psql`, required by DatabaseConnector::bulkLoadPostgres
+# (COPY FROM STDIN via psql CLI). FinnGen GWAS writes millions of summary_stats rows
+# per run; parameterized INSERT is ~100× slower. POSTGRES_PATH is the env var
+# checkBulkLoadCredentials() looks for. Kept as a LATE layer so the R package
+# caches above stay warm.
+RUN apt-get update && apt-get install -y --no-install-recommends postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+ENV POSTGRES_PATH=/usr/bin
+
 # Python packages for PLP sklearn-based models — pinned versions
 # + PyTorch and deps for DeepPatientLevelPrediction (via reticulate)
 RUN pip3 install --break-system-packages \
