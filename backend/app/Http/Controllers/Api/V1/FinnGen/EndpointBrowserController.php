@@ -7,11 +7,27 @@ namespace App\Http\Controllers\Api\V1\FinnGen;
 use App\Enums\CoverageBucket;
 use App\Enums\CoverageProfile;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\FinnGen\DispatchEndpointGwasRequest;
 use App\Models\App\FinnGen\EndpointDefinition;
+use App\Models\App\FinnGen\EndpointGwasRun;
+use App\Models\App\FinnGen\GwasCovariateSet;
+use App\Models\App\FinnGen\SourceVariantIndex;
 use App\Models\App\FinnGenEndpointGeneration;
 use App\Models\App\FinnGenUnmappedCode;
 use App\Models\App\Source;
+use App\Services\FinnGen\Exceptions\ControlCohortNotPreparedException;
+use App\Services\FinnGen\Exceptions\CovariateSetNotFoundException;
+use App\Services\FinnGen\Exceptions\DuplicateRunException;
+use App\Services\FinnGen\Exceptions\EndpointNotMaterializedException;
+use App\Services\FinnGen\Exceptions\NotOwnedRunException;
+use App\Services\FinnGen\Exceptions\RunInFlightException;
+use App\Services\FinnGen\Exceptions\SourceNotFoundException;
+use App\Services\FinnGen\Exceptions\SourceNotPreparedException;
+use App\Services\FinnGen\Exceptions\UnresolvableConceptsException;
 use App\Services\FinnGen\FinnGenRunService;
+use App\Services\FinnGen\GwasRunService;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -54,6 +70,7 @@ final class EndpointBrowserController extends Controller
 
     public function __construct(
         private readonly FinnGenRunService $runs,
+        private readonly GwasRunService $gwasRunService,
     ) {}
 
     /**
@@ -235,11 +252,130 @@ final class EndpointBrowserController extends Controller
                     'source_concept_count' => count($resolved['source_concept_ids'] ?? []),
                     'truncated' => $resolved['truncated'] ?? false,
                 ],
+                // D-20 back-compat: existing generations field (last-run index from finngen.endpoint_generations) retained.
                 'generations' => $this->loadGenerationsFor($row->name),
+                // Phase 15 extensions (D-18, D-21, UI-SPEC Assumption 1).
+                'generation_runs' => $this->loadGenerationRunsFor($row->name),
+                'gwas_runs' => $this->loadGwasRunsFor($row->name),
+                'gwas_ready_sources' => $this->loadGwasReadySourcesFor($row->name),
                 'created_at' => $row->created_at?->toIso8601String(),
                 'updated_at' => $row->updated_at?->toIso8601String(),
             ],
         ]);
+    }
+
+    /**
+     * D-18: filtered finngen.runs query returning ALL historical generation runs
+     * per (endpoint × source). Replaces the "last-run index only" view served by
+     * {@see loadGenerationsFor}. Capped at 100 rows (server-enforced per §specifics).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function loadGenerationRunsFor(string $endpointName): array
+    {
+        return DB::connection('finngen')
+            ->table('runs')
+            ->select(['id', 'source_key', 'status', 'summary', 'finished_at', 'created_at'])
+            ->where('analysis_type', 'endpoint.generate')
+            ->whereRaw("params->>'endpoint_name' = ?", [$endpointName])
+            ->orderByDesc('created_at')
+            ->limit(100)
+            ->get()
+            ->map(static function ($r): array {
+                $summary = is_string($r->summary) ? (array) json_decode($r->summary, true) : (array) ($r->summary ?? []);
+
+                return [
+                    'run_id' => $r->id,
+                    'source_key' => $r->source_key,
+                    'status' => $r->status,
+                    'subject_count' => isset($summary['subject_count']) ? (int) $summary['subject_count'] : null,
+                    'created_at' => $r->created_at ? Carbon::parse((string) $r->created_at)->toIso8601String() : null,
+                    'finished_at' => $r->finished_at ? Carbon::parse((string) $r->finished_at)->toIso8601String() : null,
+                ];
+            })
+            ->all();
+    }
+
+    /**
+     * D-21: GWAS run history from finngen.endpoint_gwas_runs with joined
+     * control_cohort_name + covariate_set_label. Capped at 100 rows.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function loadGwasRunsFor(string $endpointName): array
+    {
+        /** @var \Illuminate\Database\Eloquent\Collection<int, EndpointGwasRun> $rows */
+        $rows = EndpointGwasRun::query()
+            ->where('endpoint_name', $endpointName)
+            ->orderByDesc('created_at')
+            ->limit(100)
+            ->get();
+
+        if ($rows->isEmpty()) {
+            return [];
+        }
+
+        $controlIds = $rows->pluck('control_cohort_id')->unique()->all();
+        $covariateIds = $rows->pluck('covariate_set_id')->unique()->all();
+
+        /** @var array<int, string> $controlNames */
+        $controlNames = DB::connection('pgsql')
+            ->table('cohort_definitions')
+            ->whereIn('id', $controlIds)
+            ->pluck('name', 'id')
+            ->all();
+
+        /** @var array<int, string> $covariateLabels */
+        $covariateLabels = GwasCovariateSet::query()
+            ->whereIn('id', $covariateIds)
+            ->pluck('name', 'id')
+            ->all();
+
+        return $rows->map(static function (EndpointGwasRun $r) use ($controlNames, $covariateLabels): array {
+            return [
+                'tracking_id' => (int) $r->id,
+                'run_id' => $r->run_id,
+                'step1_run_id' => $r->step1_run_id,
+                'source_key' => $r->source_key,
+                'control_cohort_id' => (int) $r->control_cohort_id,
+                'control_cohort_name' => $controlNames[(int) $r->control_cohort_id] ?? null,
+                'covariate_set_id' => (int) $r->covariate_set_id,
+                'covariate_set_label' => $covariateLabels[(int) $r->covariate_set_id] ?? null,
+                'case_n' => $r->case_n !== null ? (int) $r->case_n : null,
+                'control_n' => $r->control_n !== null ? (int) $r->control_n : null,
+                'top_hit_p_value' => $r->top_hit_p_value !== null ? (float) $r->top_hit_p_value : null,
+                'status' => $r->status,
+                'created_at' => $r->created_at?->toIso8601String(),
+                'finished_at' => $r->finished_at?->toIso8601String(),
+                'superseded_by_tracking_id' => $r->superseded_by_tracking_id !== null ? (int) $r->superseded_by_tracking_id : null,
+            ];
+        })->all();
+    }
+
+    /**
+     * UI-SPEC Assumption 1: source_keys that have BOTH a variant index AND a
+     * succeeded generation for this endpoint. Feeds the "Run GWAS" source picker.
+     *
+     * @return array<int, string>
+     */
+    private function loadGwasReadySourcesFor(string $endpointName): array
+    {
+        /** @var array<int, string> $indexed */
+        $indexed = SourceVariantIndex::query()
+            ->pluck('source_key')
+            ->map(static fn ($s) => strtoupper((string) $s))
+            ->all();
+
+        /** @var array<int, string> $generated */
+        $generated = FinnGenEndpointGeneration::query()
+            ->where('endpoint_name', $endpointName)
+            ->where('last_status', 'succeeded')
+            ->where('last_subject_count', '>', 0)
+            ->pluck('source_key')
+            ->map(static fn ($s) => strtoupper((string) $s))
+            ->all();
+
+        return array_values(array_intersect($indexed, $generated));
     }
 
     /**
@@ -392,6 +528,192 @@ final class EndpointBrowserController extends Controller
                 ],
             ],
         ], 202);
+    }
+
+    /**
+     * POST /api/v1/finngen/endpoints/{name}/gwas
+     *
+     * Phase 15 (GENOMICS-03) single-POST auto-chain dispatch. Delegates to
+     * {@see GwasRunService::dispatchFullGwas} which runs the D-04 precondition
+     * ladder, writes the tracking row pre-dispatch (D-15 phase 1), dispatches
+     * step-1 (if cache-miss) + step-2, backfills tracking row with real run ids.
+     *
+     * Returns 202 + the new tracking row (D-02 response body). Observer
+     * (FinnGenGwasRunObserver) backfills status / case_n / control_n / top_hit_p_value
+     * as the underlying runs transition.
+     *
+     * @bodyParam source_key string required e.g. PANCREAS
+     * @bodyParam control_cohort_id integer required e.g. 221
+     * @bodyParam covariate_set_id integer nullable Omit to auto-resolve the default.
+     * @bodyParam overwrite boolean nullable Set true to supersede a prior succeeded run.
+     *
+     * @response 202 {"data":{"gwas_run":{"id":17,"endpoint_name":"E4_DM2","source_key":"PANCREAS","control_cohort_id":221,"covariate_set_id":1,"run_id":"01JA...","step1_run_id":"01JB...","status":"queued","created_at":"2026-04-18T..."},"cached_step1":false}}
+     */
+    public function gwas(DispatchEndpointGwasRequest $request, string $name): JsonResponse
+    {
+        try {
+            $gwasRun = $this->gwasRunService->dispatchFullGwas(
+                userId: (int) $request->user()->id,
+                endpointName: $name,
+                sourceKey: (string) $request->input('source_key'),
+                controlCohortId: (int) $request->input('control_cohort_id'),
+                covariateSetId: $request->input('covariate_set_id') === null
+                    ? null
+                    : (int) $request->input('covariate_set_id'),
+                overwrite: (bool) $request->input('overwrite', false),
+            );
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => "Endpoint '{$name}' not found.",
+                'error_code' => 'endpoint_not_found',
+            ], 404);
+        } catch (UnresolvableConceptsException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'error_code' => 'unresolvable_concepts',
+                'coverage_bucket' => $e->coverageBucket,
+            ], 422);
+        } catch (SourceNotFoundException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'error_code' => 'source_not_found',
+                'source_key' => $e->sourceKey,
+            ], 404);
+        } catch (SourceNotPreparedException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'error_code' => 'source_not_prepared',
+                'source_key' => $e->sourceKey,
+                'hint' => "Run php artisan finngen:prepare-source-variants --source={$e->sourceKey} first",
+            ], 422);
+        } catch (EndpointNotMaterializedException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'error_code' => 'endpoint_not_materialized',
+                'endpoint' => $e->endpointName,
+                'source_key' => $e->sourceKey,
+                'hint' => "POST /finngen/endpoints/{$e->endpointName}/generate first",
+            ], 422);
+        } catch (ControlCohortNotPreparedException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'error_code' => 'control_cohort_not_prepared',
+                'control_cohort_id' => $e->controlCohortId,
+                'source_key' => $e->sourceKey,
+            ], 422);
+        } catch (CovariateSetNotFoundException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'error_code' => 'covariate_set_not_found',
+                'covariate_set_id' => $e->covariateSetId,
+            ], 422);
+        } catch (RunInFlightException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'error_code' => 'run_in_flight',
+                'existing_run_id' => $e->existingRunId,
+                'gwas_run_tracking_id' => $e->existingTrackingId,
+                'hint' => 'wait for completion or cancel the existing run',
+            ], 409);
+        } catch (DuplicateRunException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'error_code' => 'duplicate_run',
+                'existing_run_id' => $e->existingRunId,
+                'gwas_run_tracking_id' => $e->existingTrackingId,
+                'hint' => 'set overwrite=true to re-run',
+            ], 409);
+        } catch (NotOwnedRunException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'error_code' => 'not_owned_run',
+                'gwas_run_tracking_id' => $e->existingTrackingId,
+                'hint' => 'only the owner or an admin may overwrite',
+            ], 403);
+        }
+
+        return response()->json([
+            'data' => [
+                'gwas_run' => [
+                    'id' => (int) $gwasRun->id,
+                    'endpoint_name' => $gwasRun->endpoint_name,
+                    'source_key' => $gwasRun->source_key,
+                    'control_cohort_id' => (int) $gwasRun->control_cohort_id,
+                    'covariate_set_id' => (int) $gwasRun->covariate_set_id,
+                    'run_id' => $gwasRun->run_id,
+                    'step1_run_id' => $gwasRun->step1_run_id,
+                    'status' => $gwasRun->status,
+                    'created_at' => $gwasRun->created_at?->toIso8601String(),
+                ],
+                'cached_step1' => $gwasRun->step1_run_id === null,
+            ],
+        ], 202);
+    }
+
+    /**
+     * GET /api/v1/finngen/endpoints/{name}/eligible-controls?source_key=…
+     *
+     * Phase 15 (GENOMICS-14) — eligible control cohort picker.
+     * Filters: (a) cohort_definitions.id < 100_000_000_000 (excludes FinnGen-offset
+     * case cohorts); (b) a succeeded generation exists in {source}.cohort; (c)
+     * RBAC — caller must own the cohort OR hold admin/super-admin role (is_public
+     * support left for a future iteration pending cohort_definitions schema audit).
+     *
+     * @queryParam source_key string required e.g. PANCREAS
+     *
+     * @response 200 {"data":[{"cohort_definition_id":221,"name":"PANCREAS PDAC adults","subject_count":1450,"last_generated_at":"2026-04-14T..."}]}
+     */
+    public function eligibleControls(Request $request, string $name): JsonResponse
+    {
+        $validated = $request->validate([
+            'source_key' => ['required', 'string', 'max:64', 'regex:/^[A-Z][A-Z0-9_]*$/'],
+        ]);
+        $sourceKey = (string) $validated['source_key'];
+        $sourceLower = strtolower($sourceKey);
+
+        // T-15-10: schema-name allow-list before SQL interpolation.
+        if (preg_match('/^[a-z][a-z0-9_]*$/', $sourceLower) !== 1) {
+            return response()->json([
+                'message' => "Invalid source_key '{$sourceKey}'.",
+                'error_code' => 'source_not_found',
+            ], 404);
+        }
+
+        // Confirm endpoint exists (ModelNotFoundException → 404 via handler).
+        EndpointDefinition::query()->where('name', $name)->firstOrFail();
+
+        $user = $request->user();
+        $userId = (int) $user->id;
+        $isAdmin = $user->hasAnyRole(['admin', 'super-admin']);
+
+        $rows = DB::connection('pgsql')->select(
+            "
+            SELECT cd.id AS cohort_definition_id,
+                   cd.name,
+                   (SELECT COUNT(*) FROM {$sourceLower}.cohort c WHERE c.cohort_definition_id = cd.id) AS subject_count,
+                   (SELECT MAX(c.created_at) FROM {$sourceLower}.cohort c WHERE c.cohort_definition_id = cd.id) AS last_generated_at
+            FROM cohort_definitions cd
+            WHERE cd.id < 100000000000
+              AND EXISTS (SELECT 1 FROM {$sourceLower}.cohort c WHERE c.cohort_definition_id = cd.id)
+              AND (? = TRUE OR cd.owner_user_id = ?)
+            ORDER BY last_generated_at DESC NULLS LAST
+            LIMIT 100
+            ",
+            [$isAdmin, $userId],
+        );
+
+        $data = array_map(static function ($r): array {
+            return [
+                'cohort_definition_id' => (int) $r->cohort_definition_id,
+                'name' => (string) $r->name,
+                'subject_count' => (int) $r->subject_count,
+                'last_generated_at' => $r->last_generated_at
+                    ? Carbon::parse((string) $r->last_generated_at)->toIso8601String()
+                    : null,
+            ];
+        }, $rows);
+
+        return response()->json(['data' => $data]);
     }
 
     /**

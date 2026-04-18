@@ -1087,6 +1087,11 @@ Route::prefix('v1')->group(function () {
                 // Genomics #2 — materialize this endpoint against a source CDM
                 Route::post('/{name}/generate', [EndpointBrowserController::class, 'generate'])
                     ->middleware(['permission:finngen.workbench.use', 'finngen.idempotency', 'throttle:10,1']);
+                // Phase 15 (GENOMICS-03) — GWAS dispatch (single-POST auto-chain) + eligible controls picker
+                Route::post('/{name}/gwas', [EndpointBrowserController::class, 'gwas'])
+                    ->middleware(['permission:finngen.workbench.use', 'finngen.idempotency', 'throttle:10,1']);
+                Route::get('/{name}/eligible-controls', [EndpointBrowserController::class, 'eligibleControls'])
+                    ->middleware(['permission:finngen.workbench.use', 'throttle:60,1']);
             });
         });
 
