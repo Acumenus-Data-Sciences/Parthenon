@@ -76,7 +76,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   - `.planning/phases/13.1-finngen-schema-isolation/13.1-CONTEXT.md` §D-07, §D-12 (model wiring + FK split strategy)
   - `/app/api/finngen/cohort_ops.R` inside `parthenon-darkstar` container (lines 387-540) — target of the R worker edit
   - `backend/app/Http/Controllers/Api/V1/FinnGen/EndpointBrowserController.php` `generate()` method (Phase 13.1 rewrite reference point)
-**Plans**: TBD
+**Plans**: 5 plans
+- [ ] 13.2-01-PLAN.md — Wave 1: OMOP_COHORT_ID_OFFSET constant + run_id nullable migration + Mockery PHPStan fix
+- [ ] 13.2-02-PLAN.md — Wave 1: codify 13.1 role-split deviations (D4/D5/D6) as idempotent migration
+- [ ] 13.2-03-PLAN.md — Wave 2: R worker additive-param patch + controller reorder + new Pest test (SC-1/SC-2)
+- [ ] 13.2-04-PLAN.md — Wave 3: full FinnGen Pest suite green on parthenon_testing (SC-4, proves SC-10 from 13.1)
+- [ ] 13.2-05-PLAN.md — Wave 4: CHECKPOINT + DEV migration execution + PANCREAS smoke-gen E2E (SC-5/6/7)
 
 ### Phase 14: regenie GWAS Infrastructure
 **Goal**: A containerized regenie runtime is callable by Darkstar with summary statistics landing in an indexed per-source schema
@@ -93,7 +98,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] 14-03-PLAN.md — Wave 2: GwasCacheKeyHasher + GwasSchemaProvisioner + Eloquent models + observer (un-skips 13 Wave 0 tests)
 - [x] 14-04-PLAN.md — Wave 3: PrepareSourceVariantsCommand (VCF→PGEN + top-20 PCs + per-source schema)
 - [x] 14-05-PLAN.md — Wave 4: Darkstar regenie/plink2 binary COPY + gwas_regenie.R worker + routes + analysis-module seeder + GwasRunService
-- [ ] 14-06-PLAN.md — Wave 5: GwasSmokeTestCommand + GwasCachePruneCommand + mocked-Darkstar Pest suites
+- [x] 14-06-PLAN.md — Wave 5: GwasSmokeTestCommand + GwasCachePruneCommand + mocked-Darkstar Pest suites
 - [ ] 14-07-PLAN.md — Wave 6: phase gate — real E2E smoke against PANCREAS cohort 221 + GATE-EVIDENCE sign-off (CHECKPOINT)
 
 ### Phase 15: GWAS Dispatch, Run Tracking, and Generation History
@@ -155,7 +160,7 @@ Phase 18 depends on Phase 13 and can run in parallel with the entire 14-17 chain
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 13. FinnGen Endpoint Universalization (Standard-First Resolver) | 0/0 | Not started | - |
-| 14. regenie GWAS Infrastructure | 3/7 | In Progress|  |
+| 14. regenie GWAS Infrastructure | 4/7 | In Progress|  |
 | 15. GWAS Dispatch, Run Tracking, and Generation History | 0/0 | Not started | - |
 | 16. PheWeb-lite Results UI and Workbench Attribution | 0/0 | Not started | - |
 | 17. PGS Catalog Ingestion, PRS Scoring, and Distribution Viz | 0/0 | Not started | - |
