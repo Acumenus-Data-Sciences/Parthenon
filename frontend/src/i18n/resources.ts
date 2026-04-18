@@ -812,7 +812,7 @@ const koKR: ParthenonNamespaces = {
     },
     nav: {
       dashboard: "대시보드",
-      commons: "Commons",
+      commons: "공유재",
       data: "데이터",
       clinicalDataModels: "임상 데이터 모델",
       dataIngestion: "데이터 수집",
@@ -846,7 +846,7 @@ const koKR: ParthenonNamespaces = {
       administration: "관리",
       adminDashboard: "관리 대시보드",
       systemHealth: "시스템 상태",
-      honestBroker: "Honest Broker",
+      honestBroker: "정직한 중개인",
       users: "사용자",
       auditLog: "감사 로그",
       rolesPermissions: "역할 및 권한",
