@@ -654,6 +654,7 @@ Implementation update:
 - Added native Docusaurus i18n catalogs for Spanish (`es`) and Korean (`ko`) covering generated theme strings, navbar labels, footer labels, docs sidebar labels, and blog chrome.
 - Added the Docusaurus navbar locale dropdown and limited public docs-site locales to the current pilot set (`en`, `es`, `ko`) so unfinished QA-only locales are not exposed in the docs UI.
 - Docusaurus locale build smoke checks pass for Spanish and Korean with `npx docusaurus build --locale es --out-dir build-es-smoke` and `npx docusaurus build --locale ko --out-dir build-ko-smoke`. Both builds report the existing `vscode-languageserver-types` dynamic require warning only.
+- Added Spanish and Korean native MDX translations for the Docusaurus user-manual entry page (`intro.mdx`) as the first docs-content slice. Locale build smoke checks pass when run sequentially; Docusaurus locale builds should not be run in parallel because they share the generated `.docusaurus` cache.
 
 ## Target Architecture
 
