@@ -55,6 +55,7 @@ final class GwasSmokeTestCommand extends Command
         {--covariate-set-id= : Defaults to the is_default=true covariate set}
         {--assert-cache-hit-on-rerun : After step-2 success, re-run step-1 and assert cache_hit=true (GENOMICS-01 SC #2)}
         {--force-as-user= : Run as user id X (super-admin test bypass)}
+        {--seed-cohort-split : Materialize a 50/50 case/control split on the smoke cohort before dispatch (dev fixtures only)}
         {--timeout-minutes=30 : Poll timeout per step}';
 
     protected $description = 'End-to-end GWAS smoke test: step-1 → step-2 → summary_stats assertion (D-15)';
@@ -123,6 +124,22 @@ final class GwasSmokeTestCommand extends Command
                 $sourceUpper,
                 $sourceUpper
             ));
+
+            return self::FAILURE;
+        }
+
+        // 4a. Precondition: the case cohort must have both cases AND controls.
+        //     regenie aborts with `sd=0` on a case-only (or control-only) Y1
+        //     column (null-model fit collapses). The synthetic PANCREAS PGEN
+        //     generator ships a 361-of-361 case cohort by default — opt-in
+        //     --seed-cohort-split halves it to 180/181 for the smoke fixture.
+        $splitReport = $this->ensureCaseControlSplit(
+            $sourceLower,
+            $cohortId,
+            (bool) $this->option('seed-cohort-split')
+        );
+        if ($splitReport !== null) {
+            $this->error($splitReport);
 
             return self::FAILURE;
         }
@@ -355,6 +372,118 @@ final class GwasSmokeTestCommand extends Command
         }
 
         return null;
+    }
+
+    /**
+     * Verify the smoke cohort has both cases AND controls, optionally
+     * materializing a 50/50 split when --seed-cohort-split is passed.
+     *
+     * regenie's null model fit requires sd(Y1) > 0. A cohort that contains
+     * every row of {source}.person (as the synthetic PANCREAS generator
+     * currently produces for cohort 221) yields 100% cases / 0% controls
+     * and aborts step-1 with an opaque `phenotype 'Y1' has sd=0` error.
+     *
+     * Identifier interpolation is safe: $sourceLower has been validated by
+     * the same preg_match allow-list used elsewhere in this command.
+     *
+     * Returns null when the cohort is balanced (or was successfully split).
+     * Returns a human-readable error string on imbalance without --seed-.
+     */
+    private function ensureCaseControlSplit(string $sourceLower, int $cohortId, bool $seed): ?string
+    {
+        $cohortSchema = $sourceLower.'_results';
+        $cdmSchema = $sourceLower;
+
+        $counts = $this->countCaseControl($cdmSchema, $cohortSchema, $cohortId);
+        $cases = $counts['cases'];
+        $controls = $counts['controls'];
+
+        if ($cases > 0 && $controls > 0) {
+            return null;
+        }
+
+        if (! $seed) {
+            return sprintf(
+                'Cohort %d on source %s has %d cases and %d controls — regenie will abort with sd=0. '.
+                'Re-run with --seed-cohort-split to halve the cohort in-place, '.
+                'or fix the fixture (SQL: DELETE FROM %s.cohort WHERE cohort_definition_id=%d AND subject_id > '.
+                '(SELECT MAX(person_id)/2 FROM %s.person);).',
+                $cohortId,
+                strtoupper($sourceLower),
+                $cases,
+                $controls,
+                $cohortSchema,
+                $cohortId,
+                $cdmSchema,
+            );
+        }
+
+        // Safety: only allow auto-seed in dev/local/testing OR when the
+        // caller explicitly super-admin-forced. authorizedToRun() already
+        // enforced one of these before reaching here.
+        $this->warn(sprintf(
+            'Auto-materializing 50/50 case/control split on cohort %d (cases=%d controls=%d → halving).',
+            $cohortId,
+            $cases,
+            $controls
+        ));
+
+        // Halve the cohort by subject_id. Idempotent: if cohort already has
+        // controls, we return early above. DELETE uses parameterized bindings.
+        $deleted = DB::delete(
+            sprintf(
+                'DELETE FROM %s.cohort WHERE cohort_definition_id = ? '.
+                'AND subject_id > (SELECT COALESCE(MAX(person_id),0)/2 FROM %s.person)',
+                $cohortSchema,
+                $cdmSchema
+            ),
+            [$cohortId]
+        );
+
+        $post = $this->countCaseControl($cdmSchema, $cohortSchema, $cohortId);
+        $this->info(sprintf(
+            'Seeded smoke split: deleted %d cohort rows; now cases=%d controls=%d.',
+            $deleted,
+            $post['cases'],
+            $post['controls']
+        ));
+
+        if ($post['cases'] === 0 || $post['controls'] === 0) {
+            return sprintf(
+                'Auto-seed ran but cohort is still imbalanced (cases=%d controls=%d). Check %s.person population.',
+                $post['cases'],
+                $post['controls'],
+                $cdmSchema
+            );
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array{cases:int, controls:int}
+     */
+    private function countCaseControl(string $cdmSchema, string $cohortSchema, int $cohortId): array
+    {
+        $cases = (int) (DB::selectOne(
+            sprintf(
+                'SELECT COUNT(DISTINCT subject_id) AS c FROM %s.cohort WHERE cohort_definition_id = ?',
+                $cohortSchema
+            ),
+            [$cohortId]
+        )->c ?? 0);
+
+        $controls = (int) (DB::selectOne(
+            sprintf(
+                'SELECT COUNT(*) AS c FROM %s.person p '.
+                'WHERE NOT EXISTS (SELECT 1 FROM %s.cohort c WHERE c.cohort_definition_id = ? AND c.subject_id = p.person_id)',
+                $cdmSchema,
+                $cohortSchema
+            ),
+            [$cohortId]
+        )->c ?? 0);
+
+        return ['cases' => $cases, 'controls' => $controls];
     }
 
     /**

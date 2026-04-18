@@ -1,3 +1,7 @@
 #!/bin/sh
-# Drop privileges from root (PID 1) to ruser for the R process (HIGHSEC §4.1)
-exec s6-setuidgid ruser Rscript /app/valve_launcher.R
+# Drop privileges from root (PID 1) to ruser for the R process (HIGHSEC §4.1).
+# with-contenv propagates Dockerfile ENV (POSTGRES_PATH, DATABASECONNECTOR_JAR_FOLDER,
+# R_MAX_VSIZE, etc.) to the R worker. Without it, s6-setuidgid starts the service
+# with a minimal environment and the R worker falls back to defaults — which breaks
+# DatabaseConnector::bulkLoadPostgres (needs POSTGRES_PATH to locate psql).
+exec /command/with-contenv /command/s6-setuidgid ruser Rscript /app/valve_launcher.R

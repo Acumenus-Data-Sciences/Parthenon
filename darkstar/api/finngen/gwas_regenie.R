@@ -43,15 +43,6 @@ suppressPackageStartupMessages({
 .STEP2_ROOT  <- "/opt/finngen-artifacts/gwas/step2"
 .REGENIE_BIN <- "/opt/regenie/regenie"
 
-# DatabaseConnector::bulkLoadPostgres uses the `psql` CLI via POSTGRES_PATH.
-# Docker sets ENV POSTGRES_PATH=/usr/bin in the Darkstar image, but the s6-overlay
-# plumber `run` script does not invoke `with-contenv`, so Dockerfile ENVs never
-# reach the R worker. Re-assert the value here so `bulkLoad = TRUE` survives
-# container restarts until the s6 run script is updated to propagate env.
-if (!nzchar(Sys.getenv("POSTGRES_PATH")) && file.exists("/usr/bin/psql")) {
-  Sys.setenv(POSTGRES_PATH = "/usr/bin")
-}
-
 .gwas_step1_cache_dir <- function(source_key_lower, cache_key) {
   file.path(.STEP1_ROOT, source_key_lower, cache_key)
 }

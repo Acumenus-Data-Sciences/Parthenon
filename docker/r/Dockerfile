@@ -391,6 +391,14 @@ COPY darkstar/s6/scripts/finngen-artifacts-init.sh /etc/s6-overlay/scripts/finng
 RUN chmod +x /etc/s6-overlay/scripts/finngen-artifacts-init.sh && \
     touch /etc/s6-overlay/s6-rc.d/user/contents.d/finngen-artifacts-init
 
+# /app readability cont-init (oneshot) — defensive chmod o+r on bind-mounted
+# R sources so a host umask / editor drift cannot break the ruser-run plumber
+# service. plumber depends on this via darkstar/s6/plumber/dependencies.d/app-readable-init
+COPY darkstar/s6/app-readable-init/ /etc/s6-overlay/s6-rc.d/app-readable-init/
+COPY darkstar/s6/scripts/app-readable-init.sh /etc/s6-overlay/scripts/app-readable-init.sh
+RUN chmod +x /etc/s6-overlay/scripts/app-readable-init.sh && \
+    touch /etc/s6-overlay/s6-rc.d/user/contents.d/app-readable-init
+
 # Ensure JDBC driver directory is readable by ruser
 RUN chown -R ruser:ruser /opt/jdbc
 
