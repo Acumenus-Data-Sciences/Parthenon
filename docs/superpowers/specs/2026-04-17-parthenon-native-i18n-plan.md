@@ -659,6 +659,7 @@ Implementation update:
 - Added `scripts/i18n/report-docusaurus-coverage.mjs` and `cd docs/site && npm run i18n:coverage` to report docs/blog source counts, translated Spanish/Korean counts, missing files by locale, and Docusaurus chrome catalog presence. Current coverage report: 91 docs and 55 blog posts in source; Spanish and Korean each have 2/91 docs translated, 0/55 blog posts translated, 5/5 chrome catalogs present.
 - Added Spanish and Korean native MDX translations for `part1-getting-started/01-introduction.mdx`. Current coverage report: Spanish and Korean each have 3/91 docs translated, 0/55 blog posts translated, and 5/5 chrome catalogs present.
 - Added Spanish and Korean native MDX translations for `part1-getting-started/02-data-sources.mdx`, preserving stable in-page anchors for localized section headings. Current coverage report: Spanish and Korean each have 4/91 docs translated, 0/55 blog posts translated, and 5/5 chrome catalogs present.
+- Added Spanish and Korean native MDX translations for `part2-vocabulary/03-vocabulary-browser.mdx`, preserving the stable `#vocabulary-versions` anchor used by the Concept Sets page. Current coverage report: Spanish and Korean each have 5/91 docs translated, 0/55 blog posts translated, and 5/5 chrome catalogs present.
 
 ## Target Architecture
 
@@ -1607,7 +1608,7 @@ This section turns the strategy above into a branch-level implementation checkli
 
 #### Next Phase TODOs
 
-- [ ] Finish the high-visibility Docusaurus docs pilot for Spanish and Korean: Introduction and Data Sources are complete; remaining pages are Vocabulary Browser, Concept Sets, Building Cohorts, Achilles Characterization, Data Quality Dashboard, and User Management.
+- [ ] Finish the high-visibility Docusaurus docs pilot for Spanish and Korean: Introduction, Data Sources, and Vocabulary Browser are complete; remaining pages are Concept Sets, Building Cohorts, Achilles Characterization, Data Quality Dashboard, and User Management.
 - [x] Add Docusaurus translation coverage tracking that reports source docs/blog counts, translated Spanish/Korean counts, and missing files by locale without failing CI until thresholds are agreed.
 - [ ] Resolve or document the docs dependency install path: `docs/site` currently needs `npm ci --legacy-peer-deps` because React 19 conflicts with the local-search plugin peer range.
 - [ ] Run visual smoke screenshots for app Dashboard, topnav language selector, Dashboard contextual help, Docusaurus docs home, Docusaurus Dashboard docs page, and the Docusaurus locale dropdown in English, Spanish, and Korean.

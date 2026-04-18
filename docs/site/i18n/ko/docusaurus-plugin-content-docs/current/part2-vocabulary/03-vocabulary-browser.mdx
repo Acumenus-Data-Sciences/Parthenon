@@ -1,0 +1,292 @@
+---
+id: 03-vocabulary-browser
+title: "3. 용어 브라우저"
+sidebar_label: "3. 용어 브라우저"
+---
+
+# 용어 브라우저
+
+용어 브라우저는 OMOP 표준 용어를 탐색하는 기본 도구입니다. OMOP 표준 용어는 OMOP CDM 데이터베이스에 기록된 모든 임상 이벤트를 분류하는 통제된 용어 체계입니다. 이러한 용어를 이해하고 탐색하는 것은 OMOP 기반 연구의 핵심입니다. CDM의 모든 질환, 약물, 측정, 시술, 관찰, 기기는 고유한 정수 식별자를 가진 **concept**로 표현됩니다.
+
+Parthenon의 용어 브라우저는 전통적인 전문 검색과 AI 기반 의미 검색을 결합해, 키워드 일치뿐 아니라 임상적 의미로도 concept를 찾을 수 있게 합니다.
+
+## OMOP concept란 무엇인가요?
+
+OMOP concept는 표준 용어의 단일 항목이며 다음 속성을 가집니다:
+
+| 속성 | 설명 | 예 |
+|------|------|----|
+| **Concept ID** | 고유한 정수 식별자 | `201826` |
+| **Concept Name** | 사람이 읽을 수 있는 레이블 | Type 2 diabetes mellitus |
+| **Domain** | concept가 속한 임상 영역 | Condition |
+| **Vocabulary** | 원천 용어 체계 | SNOMED |
+| **Concept Class** | 해당 vocabulary 안의 세분화 수준 | Clinical Finding |
+| **Standard Concept** | 해당 도메인의 OMOP 표준 concept인지 여부 | Standard (S) |
+| **Concept Code** | 원천 vocabulary의 코드 | `44054006` |
+| **Valid Start/End** | concept의 유효 기간 | 2002-01-31 to 2099-12-31 |
+| **Invalid Reason** | 폐기된 경우 그 이유(D=deleted, U=upgraded) | NULL (valid) |
+
+OMOP vocabulary에는 SNOMED CT, RxNorm, RxNorm Extension, ICD-10-CM, ICD-10-PCS, LOINC, CPT4, HCPCS, ATC, MedDRA, UCUM 등 수십 개 vocabulary에서 온 720만 개 이상의 concept가 포함됩니다.
+
+## Vocabulary Browser로 이동하기
+
+상단 내비게이션에서 **Vocabulary > Browse Concepts**로 이동하세요. 브라우저는 빈 검색 필드와 필터 패널로 열립니다. 헤더의 소스 선택기는 어떤 데이터 소스의 vocabulary를 검색 중인지 보여 줍니다. 데이터 소스마다 로드된 vocabulary 버전이 다를 수 있습니다.
+
+## Concept 검색
+
+### 텍스트 검색
+
+검색 상자에 검색어를 입력하고 Enter를 누르거나 검색 아이콘을 클릭합니다. 검색은 concept name, concept code, concept synonym에 대한 전문 색인을 사용합니다.
+
+**검색 예:**
+
+| 쿼리 | 찾는 항목 |
+|------|-----------|
+| `diabetes` | 이름에 "diabetes"가 들어간 모든 concept |
+| `201826` | ID 201826인 concept 직접 조회 |
+| `E11.9` | ICD-10-CM 코드 E11.9(Type 2 diabetes mellitus, without complications) |
+| `metformin` | "metformin"을 포함하는 약물 concept |
+| `HbA1c` | hemoglobin A1c 측정 concept |
+
+검색은 부분 일치와 synonym 조회를 지원합니다. 예를 들어 "T2DM"을 검색하면 "T2DM"이 concept synonym으로 등록되어 있으므로 "Type 2 diabetes mellitus"가 반환됩니다. 마찬가지로 "heart attack"을 검색하면 synonym 관계를 통해 "Myocardial infarction"을 찾을 수 있습니다.
+
+:::tip Concept ID로 검색
+정확한 concept ID를 알고 있다면 검색 상자에 직접 입력하세요. Parthenon은 숫자 입력을 인식해 직접 ID 조회를 수행합니다. 이는 텍스트 검색보다 빠르며 항상 정확한 일치를 반환합니다.
+:::
+
+### AI 의미 검색
+
+AI provider가 구성되어 있으면([1장: 소개](../part1-getting-started/01-introduction) 참조), 검색 상자는 **의미 검색**도 지원합니다. 검색 필드 옆의 두뇌 아이콘으로 AI 검색 모드를 전환하세요.
+
+의미 검색 모드에서는 자연어로 임상 concept를 설명할 수 있습니다:
+
+| 자연어 쿼리 | 찾는 concept |
+|-------------|--------------|
+| "medications for lowering blood sugar" | Metformin, Glipizide, Sitagliptin, Insulin 등 |
+| "lab tests for kidney function" | Creatinine, eGFR, BUN, Cystatin C 등 |
+| "heart failure with reduced ejection fraction" | Systolic heart failure, HFrEF, 관련 SNOMED concept |
+| "drugs that cause QT prolongation" | Amiodarone, Sotalol, Haloperidol 등 |
+
+의미 검색은 MedGemma 모델 또는 구성된 AI provider를 사용해 쿼리 뒤의 임상 의도를 이해하고, concept 설명, 계층 관계, 의학 지식과 비교합니다.
+
+:::info 의미 검색 사용 가능 조건
+AI 의미 검색에는 **Admin > AI Providers**에서 구성된 활성 AI provider가 필요합니다. 활성 provider가 없으면 의미 검색 토글이 비활성화되고 텍스트 검색만 사용할 수 있습니다. 기본 Ollama/MedGemma 구성은 모든 쿼리를 온프레미스에 유지하므로 네트워크 밖으로 데이터가 나가지 않습니다.
+:::
+
+## 결과 필터링
+
+브라우저 왼쪽의 필터 패널을 사용하면 여러 기준으로 검색 결과를 좁힐 수 있습니다. 필터는 추가적으로 적용됩니다(AND 논리):
+
+### 도메인 필터
+
+하나 이상의 임상 도메인을 선택해 결과를 제한합니다:
+
+| 도메인 | 포함 내용 | 예시 concept |
+|--------|-----------|--------------|
+| **Condition** | 진단, 질병, 증상 | Type 2 diabetes, Pneumonia, Chest pain |
+| **Drug** | 약물, 성분, 임상 약물 | Metformin 500mg tablet, Aspirin |
+| **Measurement** | 검사, 활력 징후, 평가 | HbA1c, Blood pressure systolic, BMI |
+| **Procedure** | 수술 및 진단 시술 | Colonoscopy, Coronary angiography |
+| **Observation** | 임상 관찰, 사회력 | Tobacco use, Blood type |
+| **Device** | 의료기기 | Pacemaker, Insulin pump |
+| **Visit** | 진료 접촉 유형 | Inpatient, Outpatient, ER visit |
+| **Specimen** | 생물학적 검체 | Blood, Urine, Tissue biopsy |
+| **Unit** | 측정 단위 | mg/dL, mmol/L, kg |
+
+### Vocabulary 필터
+
+특정 원천 vocabulary를 선택합니다:
+
+- **SNOMED**: 질환, 시술, 관찰의 기본 vocabulary.
+- **RxNorm / RxNorm Extension**: 약물 성분, 임상 약물, 브랜드 약물.
+- **ICD-10-CM**: 진단 코드(미국 임상 수정판).
+- **ICD-10-PCS**: 시술 코드(미국 시술 코딩 체계).
+- **LOINC**: 검사 및 임상 관찰.
+- **CPT4 / HCPCS**: 시술 및 서비스 코드(미국 청구).
+- **ATC**: Anatomical Therapeutic Chemical 약물 분류.
+- **MedDRA**: Medical Dictionary for Regulatory Activities.
+- **UCUM**: Unified Code for Units of Measure.
+
+### Standard Concept 필터
+
+표준 분류로 필터링합니다:
+
+| 값 | 의미 | 사용 시점 |
+|----|------|-----------|
+| **Standard** | 해당 도메인의 OMOP 표준 concept | 코호트 기준의 기본 선택지입니다. CDM에 저장되는 concept입니다 |
+| **Classification** | 계층 구조에 사용되는 그룹 concept | vocabulary 트리를 탐색할 때 유용합니다 |
+| **Non-Standard** | 표준으로 매핑되는 원천 concept | 특정 원천 코드(ICD-10, CPT)를 찾아야 할 때 사용합니다 |
+
+### Concept Class 필터
+
+Vocabulary 안의 세분화 수준으로 필터링합니다. 예:
+
+- SNOMED: Clinical Finding, Procedure, Organism, Body Structure.
+- RxNorm: Ingredient, Clinical Drug, Branded Drug, Clinical Drug Form.
+- LOINC: Lab Test, Clinical Observation, Survey.
+
+### 유효성 필터
+
+- **Valid only**(기본값): 폐기되었거나 invalid인 concept를 제외합니다.
+- **Include invalid**: 폐기된 concept를 포함해 모든 concept를 표시합니다.
+
+:::warning 코호트 기준에는 항상 Standard concept를 사용하세요
+OMOP CDM은 표준 concept를 사용해 임상 데이터를 저장합니다. 코호트 포함 기준을 만들 때는 항상 **Standard** concept를 선택하세요(질환은 SNOMED, 약물은 RxNorm, 측정은 LOINC). 비표준 concept(ICD-10, CPT)는 source 필드에 나타나지만 기본 임상 데이터 쿼리에는 사용되지 않습니다. 용어 브라우저는 표준 concept를 파란색 "Standard" 배지로 강조합니다.
+:::
+
+## Concept 상세 보기
+
+검색 결과에서 concept를 클릭하면 전체 상세 보기가 열립니다. 이 패널은 여러 섹션으로 구성된 포괄적인 정보를 제공합니다:
+
+### 메타데이터 헤더
+
+Concept ID, 이름, 도메인, vocabulary, class, standard flag, concept code, 유효 날짜를 한눈에 보여 줍니다.
+
+### 계층: Ancestors
+
+Vocabulary 계층에서 선택한 concept보다 상위의 더 넓은 concept를 표시합니다. 위로 이동하면서 concept가 전체 분류에서 어디에 위치하는지 이해할 수 있습니다.
+
+**"Type 2 diabetes mellitus"(201826)의 예시 계층:**
+
+```
+Endocrine disease
+  └── Disorder of glucose metabolism
+        └── Diabetes mellitus
+              └── Type 2 diabetes mellitus  ← 선택됨
+```
+
+Ancestor를 클릭하면 해당 concept의 상세 보기로 이동합니다.
+
+### 계층: Descendants
+
+선택한 concept 아래의 더 좁고 구체적인 concept를 보여 줍니다. 이는 concept set에서 "Include descendants" 플래그가 무엇을 포착할지 이해하는 데 매우 중요합니다.
+
+**"Type 2 diabetes mellitus"(201826)의 descendant 예:**
+
+- Type 2 diabetes mellitus with ophthalmic complication
+- Type 2 diabetes mellitus with renal complication
+- Type 2 diabetes mellitus with neurological complication
+- Type 2 diabetes mellitus with peripheral circulatory complication
+- ... (잠재적으로 수백 개 이상)
+
+:::tip Concept set을 만들기 전에 descendants를 미리 확인하세요
+"Include descendants"를 선택해 concept를 concept set에 추가하기 전에 항상 상세 보기에서 descendants 목록을 검토하세요. 의도하지 않은 하위 유형이 포함될 수 있습니다. 예를 들어 "Diabetes mellitus"는 Type 1과 Type 2를 모두 포함합니다. Type 2만 원한다면 상위 concept 대신 concept 201826에서 시작하세요.
+:::
+
+### 관계
+
+`concept_relationship`에 정의된 모든 concept 관계를 표시합니다:
+
+| 관계 | 방향 | 예 |
+|------|------|----|
+| **Is a** | 상위 방향 | "Type 2 diabetes mellitus" Is a "Diabetes mellitus" |
+| **Maps to** | 표준 매핑 | ICD-10-CM E11.9 Maps to SNOMED 201826 |
+| **Has ingredient** | 약물 구성 | "Metformin 500mg tablet" Has ingredient "Metformin" |
+| **Has finding site** | 해부학적 연결 | "Pneumonia" Has finding site "Lung structure" |
+| **Subsumes** | 하위 방향 | "Diabetes mellitus" Subsumes "Type 2 diabetes mellitus" |
+
+### Synonyms
+
+`concept_synonym`의 concept 대체 이름을 나열합니다. Synonym은 검색 가능합니다. 등록된 synonym으로 concept를 찾을 수 있습니다.
+
+### Source Concepts
+
+표준 concept의 경우, 이 섹션은 그 concept로 매핑되는 모든 비표준 concept를 보여 줍니다. ETL 중 어떤 원천 코드(ICD-10, CPT 등)가 이 표준 concept로 해석되는지 이해하는 데 유용합니다.
+
+**예:** 표준 concept "Type 2 diabetes mellitus"(201826)는 다음 source concept에서 매핑됩니다:
+
+- ICD-10-CM E11.9 (Type 2 diabetes mellitus, without complications)
+- ICD-10-CM E11 (Type 2 diabetes mellitus)
+- ICD-9-CM 250.00 (Diabetes mellitus without mention of complication)
+- Read V2 C109. (Non-insulin dependent diabetes mellitus)
+
+## Concept 비교 도구
+
+Parthenon은 **Vocabulary > Compare Concepts**에서 나란히 보는 concept 비교 도구를 제공합니다(URL 경로 `/vocabulary/compare`로도 이동 가능). 이 도구는 concept set에 사용할 비슷한 concept 사이에서 결정해야 할 때 유용합니다.
+
+### 비교 도구 사용
+
+1. **Vocabulary > Compare Concepts**로 이동합니다.
+2. 비교할 concept 두 개 이상을 검색하고 선택합니다.
+3. 비교 보기는 concept를 열로, 각 속성을 행으로 표시합니다:
+   - 메타데이터(ID, 이름, 도메인, vocabulary, class, standard status).
+   - Ancestor 수와 계층 깊이.
+   - Descendant 수.
+   - 관계 수.
+   - Synonym 수.
+   - Source concept mapping 수.
+
+이 정보는 어떤 concept를 사용할지 판단하는 데 도움을 줍니다. 예를 들어 SNOMED와 ICD-10의 "Diabetes mellitus type 2"를 비교하면 어느 쪽이 더 많은 descendants와 source mappings를 갖고 있는지, 그리고 어느 것이 표준 concept인지 확인할 수 있습니다.
+
+## Standard concept와 source concept
+
+OMOP CDM을 효과적으로 사용하려면 standard concept와 source concept(비표준 concept)의 차이를 이해해야 합니다:
+
+### Standard Concepts
+
+- 각 도메인에는 하나의 vocabulary가 "standard"로 지정됩니다(예: 질환은 SNOMED, 약물은 RxNorm, 측정은 LOINC).
+- CDM의 임상 데이터는 기본 `*_concept_id` 컬럼에 standard concept ID로 저장됩니다.
+- **코호트 기준을 만들 때는 항상 standard concept를 사용하세요**. CDM 쿼리는 이 concept를 대상으로 실행됩니다.
+
+### Source Concepts
+
+- Source concept는 원천 데이터의 원래 용어(ICD-10, CPT, 로컬 코드)를 보존합니다.
+- 이들은 `*_source_concept_id` 컬럼과 `*_source_value` 텍스트 필드에 저장됩니다.
+- Source concept는 대응하는 standard concept를 가리키는 "Maps to" 관계를 가집니다.
+- 정확한 원천 코드 매칭이 필요할 때만 source concept를 사용하세요. 대부분의 연구에서는 드문 경우입니다.
+
+### Classification Concepts
+
+- Vocabulary 계층의 그룹 노드입니다(예: ATC 약물 class).
+- CDM 데이터 컬럼에 직접 사용되지 않습니다.
+- 계층을 탐색하고 concept 관계를 이해하는 데 유용합니다.
+
+## Vocabulary 버전 {#vocabulary-versions}
+
+각 데이터 소스에 로드된 vocabulary 버전은 소스가 선택되었을 때 브라우저 헤더에 표시됩니다. Athena의 vocabulary 릴리스는 날짜가 있으며(예: `v5.0 2026-02-25`) 주기적으로 다음을 포함합니다:
+
+- **새 concept**가 source vocabulary에 추가됩니다.
+- **폐기된 concept**가 `invalid_reason = 'D'`(deleted) 또는 `'U'`(upgraded/replaced)로 invalid 표시됩니다.
+- **재분류된 concept**가 도메인 또는 class 사이에서 이동합니다.
+- **새 관계**가 vocabulary 사이의 concept를 연결합니다.
+- **업데이트된 synonym**이 여러 언어로 제공됩니다.
+
+:::danger Vocabulary 업그레이드 후 concept set을 검토하세요
+관리자가 새 vocabulary 버전을 업로드하면 기존 concept set을 검토해야 합니다. standard였던 concept가 폐기되었거나, "Include descendants"가 켜진 concept set의 범위를 바꾸는 새 descendants가 추가되었을 수 있습니다. Vocabulary 업데이트 후에는 concept set의 **Preview** 기능을 사용해 해석된 concept ID를 확인하세요.
+:::
+
+### Vocabulary 버전 확인
+
+소스가 사용하는 vocabulary 버전을 확인하려면:
+
+1. **Data Sources**를 열고 소스를 클릭합니다.
+2. Vocabulary daimon metadata 아래에 vocabulary version이 표시됩니다.
+3. 또는 Vocabulary Browser에서 헤더 바의 소스 이름 옆에 버전이 표시됩니다.
+
+## 실무 워크플로
+
+### 질환에 맞는 concept 찾기
+
+1. 질환 이름을 검색합니다(예: "myocardial infarction").
+2. **Domain: Condition** 및 **Standard Concept: Standard**로 필터링합니다.
+3. 상위 결과를 검토하고 의도를 포착하는 가장 넓은 concept를 찾습니다.
+4. Concept 상세 보기를 열고 descendants를 검토해 범위를 이해합니다.
+5. 적절한 플래그와 함께 concept set에 추가합니다([4장: Concept Sets](./04-concept-sets) 참조).
+
+### Ingredient 수준의 약물 concept 찾기
+
+1. 약물 이름을 검색합니다(예: "metformin").
+2. **Domain: Drug** 및 **Concept Class: Ingredient**로 필터링합니다.
+3. Ingredient concept는 모든 제형, 함량, 브랜드를 포괄합니다.
+4. Concept set에서 "Include descendants"를 사용해 모든 clinical drug form을 자동으로 포함합니다.
+
+### 원천 코드를 standard concept로 매핑하기
+
+1. 원천 코드를 직접 검색합니다(예: ICD-10-CM의 "E11.9").
+2. Concept 상세 보기를 엽니다.
+3. **Relationships** 섹션에서 "Maps to" 관계를 확인합니다.
+4. "Maps to" 관계의 대상이 사용해야 할 standard concept입니다.
+
+## 다음 단계
+
+Vocabulary를 탐색하고 concept를 찾는 방법을 이해했으므로, [4장: Concept Sets](./04-concept-sets)으로 진행해 코호트 정의와 분석을 구동하는 재사용 가능한 목록으로 concept를 모으는 방법을 알아보세요.
