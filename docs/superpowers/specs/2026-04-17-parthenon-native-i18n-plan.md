@@ -642,6 +642,8 @@ Implementation update:
 - Backend draft command tests pass with an in-memory test database: missing-row drafting, local source fallback marking, and fail-on-review placeholder enforcement.
 - Smoke provider draft result for the current pilot bundle: local provider drafted 896 missing contextual-help rows, with 0 review failures and 896 source-fallback warnings.
 - Korean Dashboard contextual help is localized. Help validation now reports 896 missing contextual-help rows instead of 904.
+- Spanish and Korean core contextual help is localized for Abby AI, Studies, Cohort Builder, Concept Set Builder, Data Explorer, Analyses, Jobs, Administration, and Vocabulary Search.
+- Smoke validation after the core help pack reports 0 errors and 762 missing contextual-help warnings. Smoke import dry-run now previews 20 localized help files across Spanish and Korean.
 
 ## Target Architecture
 

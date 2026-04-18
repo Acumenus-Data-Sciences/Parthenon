@@ -1,0 +1,15 @@
+{
+  "key": "studies",
+  "title": "Paquetes de estudio",
+  "description": "Un paquete de estudio agrupa múltiples análisis relacionados (caracterización, tasas de incidencia, estimación, predicción) en una sola unidad que puede ejecutarse en conjunto y seguirse como un proyecto de investigación. Use los estudios para organizar protocolos de investigación con múltiples análisis.",
+  "docs_url": "/docs/part4-analyses/14-studies",
+  "video_url": null,
+  "tips": [
+    "Use la barra de búsqueda y los filtros (Estado, Tipo, Prioridad) para encontrar estudios rápidamente. Cambie entre las vistas de tabla y tarjetas.",
+    "Cree un nuevo estudio para agrupar todos los análisis de una pregunta de investigación en un paquete rastreable.",
+    "Dentro de un estudio, Ejecutar todo corre todos los análisis en secuencia en segundo plano; puede volver a ejecutar análisis individuales fallidos sin reiniciar los demás.",
+    "El progreso del estudio se controla por análisis, con indicadores que muestran cuáles están pendientes, en ejecución, completados o fallidos.",
+    "Exporte el estudio completo como un paquete JSON para reproducir o compartir el protocolo de análisis entre sitios de la red OHDSI.",
+    "Los estudios se corresponden directamente con los paquetes de estudio de OHDSI; úselos para coordinar estudios de red en múltiples sitios."
+  ]
+}

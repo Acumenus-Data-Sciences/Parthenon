@@ -1,0 +1,14 @@
+{
+  "key": "concept-set-builder",
+  "title": "Constructor de conjuntos de conceptos",
+  "description": "Los conjuntos de conceptos son colecciones reutilizables de conceptos del vocabulario OMOP (diagnósticos, medicamentos, procedimientos, mediciones) que se usan como bloques de construcción en definiciones de cohortes y análisis. Puede agregar conceptos individualmente, expandirlos para incluir descendientes o importarlos desde JSON en formato Atlas.",
+  "docs_url": "/docs/part2-vocabulary/04-concept-sets",
+  "video_url": null,
+  "tips": [
+    "Marque siempre Incluir descendientes para jerarquías de enfermedades o medicamentos; rara vez querrá solo el concepto exacto.",
+    "Use Excluir para quitar subconceptos específicos (por ejemplo, incluir todas las estatinas pero excluir rosuvastatina).",
+    "Busque primero en el vocabulario para confirmar que existe un concepto antes de crear el conjunto.",
+    "Exporte su conjunto de conceptos como JSON para compartirlo o importarlo en Atlas y mantener compatibilidad entre herramientas.",
+    "La vista Resolver muestra cada concept_id específico que se emparejará durante la consulta; verifíquelo antes de ejecutar la generación."
+  ]
+}

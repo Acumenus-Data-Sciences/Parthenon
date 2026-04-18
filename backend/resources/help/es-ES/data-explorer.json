@@ -1,0 +1,17 @@
+{
+  "key": "data-explorer",
+  "title": "Explorador de datos",
+  "description": "El Explorador de datos visualiza resultados de caracterización Achilles precalculados para una fuente de datos seleccionada. Proporciona un resumen de recuentos de pacientes, demografía, cobertura por dominios, métricas de calidad de datos y tendencias temporales sin ejecutar nuevas consultas.",
+  "docs_url": "/docs/part6-data-explorer/18-characterization-achilles",
+  "video_url": null,
+  "tips": [
+    "Seleccione una fuente en el menú desplegable para cargar sus resultados Achilles. Use Ejecutar Achilles para generar resultados actualizados si es necesario.",
+    "La pestaña Resumen muestra pacientes totales, años de observación, recuentos de registros por dominio y distribuciones demográficas (género, pirámide de edad).",
+    "El desglose por dominio (Condiciones, Medicamentos, etc.) muestra los conceptos más prevalentes; es útil para entender la cobertura de datos.",
+    "La pestaña Calidad de datos muestra resultados de DQD (Data Quality Dashboard) con verificaciones aprobadas o fallidas en dimensiones de completitud, conformidad y plausibilidad.",
+    "La pestaña Heel Checks muestra infracciones de reglas Achilles Heel: verificaciones automatizadas de integridad de datos que señalan posibles problemas.",
+    "La pestaña Temporal muestra la entrada y salida de pacientes a lo largo del tiempo; revísela para detectar truncamientos de datos o brechas de carga.",
+    "Los resultados solo están tan actualizados como la última ejecución de Achilles. Contacte a su administrador si los recuentos parecen obsoletos.",
+    "Los metadatos de análisis se indexan en Solr; use la búsqueda global (Cmd+K) para encontrar análisis rápidamente por nombre o categoría en todas las fuentes."
+  ]
+}

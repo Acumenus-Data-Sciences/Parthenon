@@ -1,0 +1,14 @@
+{
+  "key": "jobs",
+  "title": "Trabajos",
+  "description": "La página Trabajos muestra el estado de todas las tareas en segundo plano que se ejecutan en Parthenon, incluida la generación de cohortes, verificaciones de calidad de datos, importaciones de vocabulario, sincronizaciones FHIR y ejecuciones de análisis. Supervise el progreso, vea errores y controle la finalización.",
+  "docs_url": "/docs/part6-data-explorer/20-population-stats",
+  "video_url": null,
+  "tips": [
+    "Los trabajos se ejecutan de forma asíncrona mediante colas de Laravel Horizon; continúan aunque navegue a otra página.",
+    "Los trabajos fallidos muestran mensajes de error que pueden ayudar a diagnosticar problemas con los datos o la configuración.",
+    "Los trabajos de larga duración, como la generación completa de cohortes o la importación VCF, muestran porcentajes de progreso.",
+    "Puede reintentar trabajos fallidos si el problema subyacente ya se resolvió.",
+    "Revise la página Trabajos si una generación de cohorte o un análisis parece detenido."
+  ]
+}

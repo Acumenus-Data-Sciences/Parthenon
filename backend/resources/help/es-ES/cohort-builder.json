@@ -1,0 +1,14 @@
+{
+  "key": "cohort-builder",
+  "title": "Constructor de cohortes",
+  "description": "El Constructor de cohortes permite definir poblaciones de pacientes mediante lógica de expresiones CIRCE. Una definición de cohorte especifica quién califica (evento primario + reglas de inclusión) y durante cuánto tiempo (estrategias de salida). Las cohortes son la base de todos los análisis en Parthenon.",
+  "docs_url": "/docs/part3-cohorts/06-building-cohorts",
+  "video_url": null,
+  "tips": [
+    "Comience con el Evento primario; este fija la fecha índice para cada paciente que califica.",
+    "Las reglas de inclusión se combinan con AND; cada regla filtra aún más la población de la cohorte.",
+    "Revise el SQL generado en la pestaña SQL antes de ejecutar la generación para detectar errores de lógica temprano.",
+    "Use el botón Clonar para duplicar una definición cuando explore pequeñas variaciones de la misma cohorte.",
+    "Etiquete sus cohortes (por ejemplo, \"T2DM\", \"validación\") para encontrarlas rápidamente a medida que crece la biblioteca."
+  ]
+}

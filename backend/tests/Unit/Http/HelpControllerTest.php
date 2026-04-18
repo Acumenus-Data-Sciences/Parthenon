@@ -44,11 +44,11 @@ it('falls back to legacy English help content when locale content is missing', f
     App::setLocale('ko');
     Config::set('parthenon-locales.current', 'ko-KR');
 
-    $response = (new HelpController)->help('abby-ai');
+    $response = (new HelpController)->help('administration');
     $data = $response->getData(true);
 
     expect($response->getStatusCode())->toBe(200);
-    expect($data['title'])->toBe('Abby AI Assistant');
+    expect($data['title'])->toBe('Administration');
     expect($data['locale'])->toBe('en-US');
     expect($data['requested_locale'])->toBe('ko-KR');
     expect($data['fallback_used'])->toBeTrue();

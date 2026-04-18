@@ -1,0 +1,14 @@
+{
+  "key": "abby-ai",
+  "title": "Asistente Abby AI",
+  "description": "Abby es su asistente de investigación con IA, impulsado por MedGemma y una base de conocimiento vectorial en ChromaDB. La base de conocimiento contiene más de 39,000 fragmentos de documentación que informan cada respuesta. Abby ofrece respuestas basadas en la documentación, memoria de conversación por usuario que recuerda sus preguntas anteriores, un sistema de preguntas frecuentes compartidas para responder mejor y con más rapidez a dudas comunes, y contexto de referencia clínica en páginas médicas.",
+  "docs_url": "/docs/part8-administration/28-abby-ai-assistant",
+  "video_url": null,
+  "tips": [
+    "Abby se adapta a la página donde usted está: haga preguntas específicas del contexto para recibir respuestas más relevantes.",
+    "Su historial de conversación ayuda a Abby a ofrecer respuestas personalizadas con el tiempo.",
+    "Use el chat en streaming para ver respuestas en tiempo real mientras Abby genera la contestación.",
+    "Abby puede ayudar con diseño de cohortes, búsqueda de vocabulario, calidad de datos, analítica clínica y más.",
+    "Los administradores pueden iniciar actualizaciones de la base de conocimiento desde la API de gestión de ChromaDB."
+  ]
+}
