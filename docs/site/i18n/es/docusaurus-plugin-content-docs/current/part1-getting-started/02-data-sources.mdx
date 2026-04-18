@@ -1,0 +1,256 @@
+---
+id: 02-data-sources
+title: "2. Fuentes de datos"
+sidebar_label: "2. Fuentes de datos"
+---
+
+# Fuentes de datos
+
+Una **fuente de datos** en Parthenon representa una conexión a una base de datos OMOP CDM. Cada fuente tiene uno o más **daimons**: punteros con nombre a los esquemas PostgreSQL que contienen datos clínicos CDM, tablas de vocabulario, resultados Achilles y tablas temporales de trabajo. Esta arquitectura refleja el modelo fuente/daimon del OHDSI WebAPI heredado, lo que asegura compatibilidad con paquetes HADES, exportaciones Atlas y la cadena de herramientas OHDSI más amplia.
+
+Las fuentes de datos son la base de todo en Parthenon. Antes de explorar vocabularios, construir cohortes o ejecutar análisis, debe configurarse y conectarse al menos una fuente de datos.
+
+## El modelo Source/Daimon
+
+Cada fuente de datos consta de dos componentes:
+
+### Registro de fuente
+
+El registro de fuente define la conexión a la base de datos:
+
+- **Source Name**: una etiqueta legible, por ejemplo "Claims Database 2024" o "Eunomia Demo".
+- **Source Key**: un identificador corto en minúsculas usado en llamadas API y URLs, por ejemplo `claims-2024` o `eunomia`.
+- **Connection Details**: host, puerto, nombre de base de datos y credenciales del servidor PostgreSQL.
+- **CDM Version**: la versión OMOP CDM de los datos; v5.4 es el estándar actual.
+
+### Daimons
+
+Cada fuente tiene de uno a cuatro **daimons** que mapean categorías lógicas de datos a esquemas físicos de base de datos:
+
+| Tipo de daimon | Propósito | Esquema típico | Requerido |
+|----------------|-----------|----------------|-----------|
+| **CDM** | Tablas de datos clínicos: `person`, `condition_occurrence`, `drug_exposure`, `measurement`, `procedure_occurrence`, `observation`, `visit_occurrence`, etc. | `omop`, `cdm` o `eunomia` | Sí |
+| **Vocabulary** | Tablas de conceptos y terminología: `concept`, `concept_ancestor`, `concept_relationship`, `vocabulary`, `domain`, `concept_class`, `concept_synonym` | Igual que CDM (común) o un esquema dedicado `vocab` | Sí |
+| **Results** | Analítica precalculada: resultados Achilles, salidas Data Quality Dashboard, tablas de cohortes generadas (`cohort`, `cohort_inclusion`) | `achilles_results`, `results` o `eunomia_results` | Recomendado |
+| **Temp** | Espacio de trabajo para tablas intermedias de generación de cohortes y salidas temporales de análisis | `temp`, `scratch` o igual que results | Opcional |
+
+:::info Todos los daimons pueden apuntar al mismo esquema
+En muchas implementaciones OMOP CDM, especialmente las configuradas por Atlas o herramientas ETL, todas las tablas viven en un solo esquema. Es perfectamente válido, y común, que los cuatro daimons apunten al mismo nombre de esquema. Parthenon lo maneja correctamente.
+:::
+
+### Cómo se usan los daimons
+
+Cuando Parthenon ejecuta una consulta, establece dinámicamente el `search_path` de PostgreSQL según la configuración de daimons de la fuente seleccionada. Por ejemplo:
+
+- Una búsqueda de vocabulario establece el search path al esquema del daimon **vocabulary**.
+- La generación de cohortes escribe en el esquema del daimon **results**.
+- Las consultas de perfiles de pacientes leen desde el esquema del daimon **CDM**.
+- Los resultados Achilles se leen desde el esquema del daimon **results**.
+
+Este enfoque permite que una sola instancia de Parthenon trabaje con múltiples bases de datos que tienen distintos diseños de esquemas sin cambios de código.
+
+## Ver fuentes de datos
+
+Navegue a **Data Sources** en la barra superior. La lista de fuentes muestra todas las fuentes configuradas con:
+
+- **Nombre y clave de fuente**: haga clic para abrir la vista de detalle.
+- **Indicador de estado de conexión**: verde (conectada), amarillo (obsoleta) o rojo (fallida).
+- **Versión CDM**: la versión OMOP CDM informada por la fuente.
+- **Resumen de daimons**: iconos que muestran qué tipos de daimon están configurados.
+- **Conteo de pacientes**: total de personas en el CDM, desde Achilles si está disponible.
+
+### Vista de detalle de fuente
+
+Haga clic en cualquier fuente para abrir su panel de detalle, que incluye:
+
+- Metadatos completos de conexión: host, base de datos, dialecto, versión CDM.
+- Todos los daimons configurados con sus nombres de esquema y prioridades.
+- Versión de vocabulario cargada en la fuente, por ejemplo `v5.0 2026-02-25`.
+- Enlaces rápidos a:
+  - reportes de **Data Explorer** para esta fuente;
+  - resultados de **Data Quality Dashboard**;
+  - resumen de **Achilles Characterization**.
+
+## Agregar una fuente de datos
+
+:::warning Se requiere acceso de administrador
+Solo usuarios con rol **admin** o **super-admin** pueden crear, editar o eliminar fuentes de datos.
+:::
+
+Para agregar una nueva fuente de datos:
+
+1. Navegue a **Data Sources** y haga clic en **Add Data Source** en la parte superior derecha.
+
+2. Complete la **información básica**:
+   - **Source Name**: una etiqueta descriptiva y legible.
+   - **Source Key**: un identificador corto, solo letras minúsculas, números y guiones; sin espacios.
+   - **CDM Version**: seleccione la versión OMOP CDM; se recomienda v5.4.
+
+3. Configure la **conexión de base de datos**:
+   - **Host**: hostname o dirección IP del servidor PostgreSQL.
+   - **Port**: normalmente `5432`.
+   - **Database**: nombre de la base de datos, por ejemplo `ohdsi`.
+   - **Username**: usuario de base de datos con acceso de lectura a los esquemas CDM.
+   - **Password**: almacenada cifrada con AES-256 en la base de datos de aplicación.
+
+4. Agregue **daimons** haciendo clic en **+ Add Daimon** para cada mapeo de esquema:
+   - seleccione el **tipo de daimon** (CDM, Vocabulary, Results, Temp);
+   - ingrese el **nombre del esquema**, por ejemplo `omop`;
+   - establezca la **prioridad**; consulte [Prioridad de fuente](#source-priority).
+
+5. Haga clic en **Save**. Parthenon prueba automáticamente la conexión antes de guardar.
+
+:::tip Compatibilidad con cadenas de conexión
+Si está migrando desde Atlas, puede tener cadenas JDBC como `jdbc:postgresql://dbhost:5432/ohdsi?currentSchema=omop`. Parthenon las acepta por comodidad: extrae automáticamente host, puerto, base de datos y esquema predeterminado de la URL JDBC. También puede ingresar los detalles por separado usando los campos individuales.
+:::
+
+### Ejemplo: configuración de una base OMOP típica
+
+Para una base donde todas las tablas CDM, vocabulario y resultados viven en el esquema `omop`:
+
+| Campo | Valor |
+|-------|-------|
+| Source Name | Acumenus OMOP |
+| Source Key | acumenus-omop |
+| Host | pgsql.acumenus.net |
+| Port | 5432 |
+| Database | ohdsi |
+| CDM Daimon | Schema: `omop`, Priority: 1 |
+| Vocabulary Daimon | Schema: `omop`, Priority: 1 |
+| Results Daimon | Schema: `achilles_results`, Priority: 1 |
+
+### Ejemplo: esquemas CDM y vocabulary separados
+
+Para despliegues con esquemas distintos:
+
+| Campo | Valor |
+|-------|-------|
+| CDM Daimon | Schema: `cdm_data`, Priority: 1 |
+| Vocabulary Daimon | Schema: `vocabulary`, Priority: 1 |
+| Results Daimon | Schema: `results`, Priority: 1 |
+| Temp Daimon | Schema: `temp`, Priority: 1 |
+
+## Editar y eliminar fuentes
+
+- Haga clic en el **icono de lápiz** en cualquier fila de fuente para abrir el formulario de edición. Todos los campos excepto la clave de fuente pueden modificarse.
+- Haga clic en el **icono de papelera** para eliminar una fuente.
+
+:::danger Salvaguardas de eliminación
+Eliminar una fuente de datos es una operación destructiva. La eliminación se bloquea si alguna cohorte se generó contra esa fuente. Primero debe eliminar o reasignar generaciones de cohortes dependientes antes de retirar la fuente. Esto evita resultados de análisis huérfanos que referencian una fuente inexistente.
+:::
+
+## Prioridad de fuente {#source-priority}
+
+Cuando varias fuentes proporcionan el mismo tipo de daimon, el campo **prioridad** determina cuál se usa por defecto en desplegables y llamadas API que no especifican explícitamente una fuente. Los números más bajos tienen mayor prioridad.
+
+**Caso de uso:** puede configurar una base de producción (prioridad 1) y un entorno de desarrollo (prioridad 2). Los investigadores ven la base de producción por defecto, pero pueden cambiar al entorno de desarrollo para probar nuevas definiciones de cohortes sin afectar resultados de producción.
+
+| Fuente | Prioridad CDM | Prioridad Vocabulary | Prioridad Results |
+|--------|---------------|----------------------|-------------------|
+| Production Claims | 1 | 1 | 1 |
+| Development Sandbox | 2 | 2 | 2 |
+| Eunomia Demo | 3 | 3 | 3 |
+
+## Salud de conexión
+
+La lista de fuentes de datos muestra un **indicador de conexión** en vivo para cada fuente:
+
+| Indicador | Significado |
+|-----------|-------------|
+| Punto verde | Conexión probada correctamente en los últimos 5 minutos |
+| Punto amarillo | La última prueba exitosa fue hace más de 5 minutos |
+| Punto rojo | El intento de conexión más reciente falló |
+
+### Probar conexiones
+
+Haga clic en **Test Connection** en la página de detalle de una fuente para forzar una comprobación inmediata. La prueba verifica:
+
+1. Conectividad TCP al host y puerto de la base de datos.
+2. Autenticación con las credenciales proporcionadas.
+3. Acceso al esquema del daimon CDM.
+4. Presencia de la tabla `person` en el esquema CDM (validación CDM básica).
+5. Acceso al esquema del daimon vocabulary y presencia de la tabla `concept`.
+
+Si algún paso falla, se muestra un mensaje de error detallado que indica el punto específico de fallo.
+
+:::warning Firewall y configuración de red
+Si Parthenon se ejecuta en Docker, asegúrese de que el host de base de datos sea accesible desde dentro de la red Docker. Usar `localhost` o `127.0.0.1` como host intentará conectar con el propio contenedor Docker, no con la máquina anfitriona. Use la IP gateway del host Docker, normalmente `host.docker.internal` en macOS/Windows, o la IP real del servidor en Linux, o un hostname adecuado.
+:::
+
+## Arquitectura multi-fuente
+
+Parthenon está diseñado para entornos de investigación con múltiples fuentes. Puede configurar cualquier número de fuentes de datos, y la mayoría de funciones de la plataforma incluyen un **selector de fuente** para cambiar entre ellas:
+
+- **Vocabulary Browser**: los resultados de búsqueda de conceptos provienen del daimon de vocabulario de la fuente seleccionada. Diferentes fuentes pueden tener distintas versiones de vocabulario.
+- **Cohort Generation**: al generar una cohorte, selecciona contra qué fuente ejecutar. La misma definición de cohorte puede generarse en múltiples fuentes para estudios de red.
+- **Data Explorer**: los dashboards Achilles y reportes DQD son específicos de cada fuente. Un desplegable superior permite cambiar de fuente.
+- **Analyses**: cada configuración de análisis especifica sus fuentes objetivo. Los análisis multi-base, como Evidence Synthesis, pueden agregar resultados entre fuentes.
+
+### Consideraciones entre fuentes
+
+:::tip Consistencia de vocabulario
+Para comparaciones confiables entre fuentes, asegúrese de que todas usen la misma versión de vocabulario. Un conjunto de conceptos resuelto contra la versión `v5.0 2025-01-01` puede producir listas de concept ID ligeramente distintas contra la versión `v5.0 2025-06-01` por conceptos nuevos, términos obsoletos o dominios reclasificados. La versión de vocabulario de cada fuente se muestra en la vista de detalle de fuente y en el encabezado del Vocabulary Browser.
+:::
+
+## El conjunto de demostración Eunomia
+
+Parthenon incluye soporte integrado para el conjunto **OHDSI Eunomia**, una cohorte sintética GiBleed (sangrado gastrointestinal) de 2,694 pacientes diseñada para pruebas y demostración. Eunomia proporciona una base OMOP CDM v5.4 completa y autocontenida con:
+
+- 2,694 pacientes sintéticos con datos demográficos y clínicos.
+- Más de 343,000 filas de eventos clínicos en 20 tablas CDM.
+- Un subconjunto de vocabularios OMOP (444 conceptos, 480 relaciones) suficiente para los datos clínicos incluidos.
+- Resultados Achilles precalculados para dashboards de Data Explorer.
+
+### Configurar Eunomia
+
+Los administradores pueden cargar el conjunto Eunomia usando dos comandos Artisan:
+
+```bash
+# Cargar datos CDM Eunomia en el esquema eunomia
+php artisan parthenon:load-eunomia --fresh
+
+# Crear la fuente de datos Eunomia con configuración daimon correcta
+php artisan eunomia:seed-source
+```
+
+El indicador `--fresh` elimina y recrea el esquema Eunomia antes de cargar. El comando `eunomia:seed-source` crea una fuente llamada "OHDSI Eunomia" con daimons que apuntan a los esquemas `eunomia` y `eunomia_results`.
+
+:::tip Perfecto para formación y demostraciones
+Eunomia es ideal para incorporar nuevos investigadores que necesitan aprender la plataforma sin acceder a datos reales de pacientes. Proporciona escenarios clínicos realistas (eventos GI bleed, medicamentos relacionados, valores de laboratorio) que funcionan con todas las funciones de la plataforma: exploración de vocabulario, construcción de cohortes, caracterización y cálculos de tasas de incidencia.
+:::
+
+## Solución de problemas de fuentes de datos
+
+### Conexión rechazada
+
+- Verifique que el host de la base de datos sea accesible desde el servidor Parthenon o contenedor Docker.
+- Compruebe que PostgreSQL escuche en el puerto especificado.
+- Asegúrese de que las reglas de firewall de la base permitan conexiones entrantes desde la IP del servidor Parthenon.
+
+### Autenticación fallida
+
+- Revise nuevamente usuario y contraseña.
+- Verifique que el usuario de base de datos tenga privilegio `CONNECT` en la base objetivo.
+- Compruebe políticas de expiración de contraseña o bloqueo de cuenta.
+
+### Esquema no encontrado
+
+- Confirme que el nombre del esquema coincida exactamente; los nombres de esquemas PostgreSQL son sensibles a mayúsculas si están entrecomillados.
+- Verifique que el usuario de base de datos tenga privilegio `USAGE` sobre el esquema.
+- Ejecute `\dn` en psql para listar esquemas disponibles.
+
+### Tablas CDM faltantes
+
+- La prueba de conexión espera `person` en el esquema CDM y `concept` en el esquema vocabulary.
+- Asegúrese de que su ETL haya terminado y poblado las tablas requeridas.
+- Verifique que el search path del esquema se resuelva correctamente: `SHOW search_path;`
+
+### Resultados Achilles no aparecen
+
+- Verifique que el daimon results apunte al esquema correcto.
+- Confirme que Achilles se haya ejecutado contra esta fuente; revise filas en `achilles_results`.
+- Data Explorer requiere al menos los análisis principales (analysis IDs 1-5, 101-120) para renderizar dashboards.
+
+## Siguientes pasos
+
+Con sus fuentes de datos configuradas y conectadas, está listo para explorar los vocabularios clínicos. Continúe con el [Capítulo 3: Vocabulary Browser](../part2-vocabulary/03-vocabulary-browser) para aprender a buscar conceptos OMOP, navegar la jerarquía y entender la terminología que sostiene todas las definiciones de cohortes y análisis.
