@@ -12,43 +12,55 @@ import type {
   DemographicDistribution,
   AgeDistribution,
 } from "../../types/dataExplorer";
+import { formatNumber } from "@/i18n/format";
+
+type DemographicsPyramidLabels = {
+  title: string;
+  noData: string;
+  age: string;
+  male: string;
+  female: string;
+};
 
 interface DemographicsPyramidProps {
   gender: DemographicDistribution[];
   age: AgeDistribution[];
   height?: number;
+  labels?: DemographicsPyramidLabels;
 }
 
-/** Format large numbers compactly */
-function formatCompact(n: number): string {
-  const abs = Math.abs(n);
-  if (abs >= 1_000_000) return `${(abs / 1_000_000).toFixed(1)}M`;
-  if (abs >= 1_000) return `${(abs / 1_000).toFixed(1)}K`;
-  return abs.toLocaleString();
-}
+const DEFAULT_LABELS: DemographicsPyramidLabels = {
+  title: "Age Distribution",
+  noData: "No age distribution data",
+  age: "Age",
+  male: "Male",
+  female: "Female",
+};
 
 function CustomTooltip({
   active,
   payload,
+  labels,
 }: {
   active?: boolean;
   payload?: Array<{
     payload: { age_decile: string; male: number; female: number };
   }>;
+  labels: DemographicsPyramidLabels;
 }) {
   if (!active || !payload?.length) return null;
   const item = payload[0].payload;
   return (
     <div className="rounded-lg border border-surface-highlight bg-surface-overlay px-3 py-2 shadow-lg">
       <p className="text-sm font-medium text-text-primary">
-        Age {item.age_decile}
+        {labels.age} {item.age_decile}
       </p>
       <div className="mt-1 space-y-0.5">
         <p className="font-['IBM_Plex_Mono',monospace] text-xs text-info">
-          Male: {Math.abs(item.male).toLocaleString()}
+          {labels.male}: {formatNumber(Math.abs(item.male))}
         </p>
         <p className="font-['IBM_Plex_Mono',monospace] text-xs text-critical">
-          Female: {item.female.toLocaleString()}
+          {labels.female}: {formatNumber(item.female)}
         </p>
       </div>
     </div>
@@ -58,11 +70,12 @@ function CustomTooltip({
 export function DemographicsPyramid({
   age,
   height = 320,
+  labels = DEFAULT_LABELS,
 }: DemographicsPyramidProps) {
   if (!age.length) {
     return (
       <div className="flex items-center justify-center rounded-xl border border-border-default bg-surface-raised py-16">
-        <p className="text-sm text-text-muted">No age distribution data</p>
+        <p className="text-sm text-text-muted">{labels.noData}</p>
       </div>
     );
   }
@@ -81,7 +94,7 @@ export function DemographicsPyramid({
   if (pyramidData.length === 0) {
     return (
       <div className="flex items-center justify-center rounded-xl border border-border-default bg-surface-raised py-16">
-        <p className="text-sm text-text-muted">No age distribution data</p>
+        <p className="text-sm text-text-muted">{labels.noData}</p>
       </div>
     );
   }
@@ -89,7 +102,7 @@ export function DemographicsPyramid({
   return (
     <div className="rounded-xl border border-border-default bg-surface-raised p-6">
       <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-text-muted">
-        Age Distribution
+        {labels.title}
       </h3>
       <ResponsiveContainer width="100%" height={height}>
         <BarChart
@@ -101,7 +114,12 @@ export function DemographicsPyramid({
         >
           <XAxis
             type="number"
-            tickFormatter={formatCompact}
+            tickFormatter={(value) =>
+              formatNumber(Math.abs(Number(value)), {
+                notation: "compact",
+                maximumFractionDigits: 1,
+              })
+            }
             tick={{ fill: "var(--text-primary)", fontSize: 11 }}
             axisLine={{ stroke: "var(--surface-highlight)" }}
             tickLine={{ stroke: "var(--surface-highlight)" }}
@@ -115,7 +133,7 @@ export function DemographicsPyramid({
             tickLine={false}
           />
           <Tooltip
-            content={<CustomTooltip />}
+            content={<CustomTooltip labels={labels} />}
             cursor={{ fill: "rgba(255,255,255,0.03)" }}
           />
           <ReferenceLine x={0} stroke="var(--surface-highlight)" strokeWidth={1} />
@@ -134,11 +152,11 @@ export function DemographicsPyramid({
       <div className="mt-3 flex items-center justify-center gap-6">
         <div className="flex items-center gap-1.5">
           <div className="h-2.5 w-2.5 rounded-sm bg-info" />
-          <span className="text-xs text-text-secondary">Male</span>
+          <span className="text-xs text-text-secondary">{labels.male}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="h-2.5 w-2.5 rounded-sm bg-critical" />
-          <span className="text-xs text-text-secondary">Female</span>
+          <span className="text-xs text-text-secondary">{labels.female}</span>
         </div>
       </div>
     </div>

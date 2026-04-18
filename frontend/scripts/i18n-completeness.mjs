@@ -23,6 +23,7 @@ function loadTypeScript() {
 }
 
 const ts = loadTypeScript();
+const tsModuleCache = new Map();
 
 const args = process.argv.slice(2);
 const options = {
@@ -45,7 +46,12 @@ function toPosix(filePath) {
 }
 
 function loadTsModule(relativePath) {
-  const filename = path.resolve(root, relativePath);
+  const filename = path.isAbsolute(relativePath)
+    ? relativePath
+    : path.resolve(root, relativePath);
+  const cached = tsModuleCache.get(filename);
+  if (cached) return cached.exports;
+
   const source = fs
     .readFileSync(filename, "utf8")
     .replaceAll("import.meta.env.DEV", "false")
@@ -61,7 +67,34 @@ function loadTsModule(relativePath) {
   }).outputText;
 
   const module = { exports: {} };
-  const localRequire = createRequire(filename);
+  tsModuleCache.set(filename, module);
+  const nodeRequire = createRequire(filename);
+  const localRequire = (specifier) => {
+    if (specifier.startsWith(".") || specifier.startsWith("/")) {
+      const basePath = specifier.startsWith(".")
+        ? path.resolve(path.dirname(filename), specifier)
+        : specifier;
+      const candidates = path.extname(basePath)
+        ? [basePath]
+        : [
+            `${basePath}.ts`,
+            `${basePath}.tsx`,
+            `${basePath}.js`,
+            path.join(basePath, "index.ts"),
+            path.join(basePath, "index.tsx"),
+            path.join(basePath, "index.js"),
+          ];
+      const tsCandidate = candidates.find(
+        (candidate) =>
+          /\.(ts|tsx)$/.test(candidate) && fs.existsSync(candidate),
+      );
+
+      if (tsCandidate) return loadTsModule(tsCandidate);
+    }
+
+    return nodeRequire(specifier);
+  };
+  localRequire.resolve = nodeRequire.resolve;
   const fn = new Function(
     "exports",
     "require",
