@@ -70,6 +70,19 @@ struct InstallRequest {
     admin_password: String,
     app_url: String,
     timezone: String,
+    cdm_setup_mode: String,
+    cdm_existing_state: String,
+    cdm_dialect: String,
+    cdm_server: String,
+    cdm_database: String,
+    cdm_user: String,
+    cdm_password: String,
+    cdm_schema: String,
+    vocabulary_schema: String,
+    results_schema: String,
+    temp_schema: String,
+    vocabulary_setup: String,
+    vocab_zip_path: String,
     include_eunomia: bool,
     enable_solr: bool,
     enable_study_agent: bool,
@@ -556,6 +569,11 @@ fn format_install_summary(payload: &serde_json::Value) -> String {
     let admin = value_text(config, "admin_email", "admin@example.com");
     let app_url = value_text(config, "app_url", "http://localhost");
     let datasets = string_array(&plan["datasets"]);
+    let data_setup = &plan["data_setup"];
+    let data_target = value_text(data_setup, "target", "Local PostgreSQL");
+    let data_mode = value_text(data_setup, "mode", "Create local PostgreSQL OMOP database");
+    let data_dbms = value_text(data_setup, "dbms", "PostgreSQL");
+    let vocabulary = value_text(data_setup, "vocabulary_setup", "Use demo starter data");
     let services = string_array(&plan["compose_services"])
         .into_iter()
         .map(|service| friendly_service_name(&service).to_string())
@@ -577,6 +595,9 @@ fn format_install_summary(payload: &serde_json::Value) -> String {
         format!("Edition: {edition}"),
         format!("Admin: {admin}"),
         format!("URL: {app_url}"),
+        format!("OMOP target: {data_target} ({data_dbms})"),
+        format!("Data setup: {data_mode}"),
+        format!("Vocabulary: {vocabulary}"),
         format!("Starter data: {starter_data}"),
         format!("Services: {service_summary}"),
         "Passwords and internal defaults are handled by the installer.".to_string(),
@@ -738,6 +759,25 @@ fn build_seed(request: &InstallRequest) -> serde_json::Value {
         "admin_name": normalized_or(&request.admin_name, "Admin"),
         "admin_password": request.admin_password.trim(),
         "timezone": normalized_or(&request.timezone, "UTC"),
+        "cdm_setup_mode": normalized_or(
+            &request.cdm_setup_mode,
+            "Create local PostgreSQL OMOP database",
+        ),
+        "cdm_existing_state": normalized_or(
+            &request.cdm_existing_state,
+            "Empty database or schema",
+        ),
+        "cdm_dialect": normalized_or(&request.cdm_dialect, "PostgreSQL"),
+        "cdm_server": request.cdm_server.trim(),
+        "cdm_database": request.cdm_database.trim(),
+        "cdm_user": request.cdm_user.trim(),
+        "cdm_password": request.cdm_password.trim(),
+        "cdm_schema": normalized_or(&request.cdm_schema, "omop"),
+        "vocabulary_schema": normalized_or(&request.vocabulary_schema, "omop"),
+        "results_schema": normalized_or(&request.results_schema, "results"),
+        "temp_schema": normalized_or(&request.temp_schema, "scratch"),
+        "vocabulary_setup": normalized_or(&request.vocabulary_setup, "Use demo starter data"),
+        "vocab_zip_path": request.vocab_zip_path.trim(),
         "include_eunomia": request.include_eunomia,
         "datasets": datasets,
         "ollama_url": request.ollama_url.trim(),
@@ -958,6 +998,19 @@ mod tests {
             admin_password: "secret-password".to_string(),
             app_url: "http://localhost".to_string(),
             timezone: "UTC".to_string(),
+            cdm_setup_mode: "Create local PostgreSQL OMOP database".to_string(),
+            cdm_existing_state: "Empty database or schema".to_string(),
+            cdm_dialect: "PostgreSQL".to_string(),
+            cdm_server: "".to_string(),
+            cdm_database: "parthenon".to_string(),
+            cdm_user: "parthenon".to_string(),
+            cdm_password: "".to_string(),
+            cdm_schema: "omop".to_string(),
+            vocabulary_schema: "omop".to_string(),
+            results_schema: "results".to_string(),
+            temp_schema: "scratch".to_string(),
+            vocabulary_setup: "Use demo starter data".to_string(),
+            vocab_zip_path: "".to_string(),
             include_eunomia: true,
             enable_solr: true,
             enable_study_agent: false,
@@ -981,9 +1034,50 @@ mod tests {
         assert_eq!(seed["enable_hecate"], true);
         assert_eq!(seed["enable_qdrant"], true);
         assert_eq!(
+            seed["cdm_setup_mode"],
+            "Create local PostgreSQL OMOP database"
+        );
+        assert_eq!(seed["cdm_dialect"], "PostgreSQL");
+        assert_eq!(seed["vocabulary_setup"], "Use demo starter data");
+        assert_eq!(
             seed["datasets"],
             serde_json::json!(["eunomia", "phenotype-library"])
         );
+    }
+
+    #[test]
+    fn seed_contains_existing_database_setup_overrides() {
+        let mut request = request();
+        request.cdm_setup_mode = "Use an existing database server".to_string();
+        request.cdm_existing_state = "OMOP tables exist but vocabulary is missing".to_string();
+        request.cdm_dialect = "Snowflake".to_string();
+        request.cdm_server = "acme.snowflakecomputing.com".to_string();
+        request.cdm_database = "RESEARCH".to_string();
+        request.cdm_user = "parthenon_loader".to_string();
+        request.cdm_password = "secret".to_string();
+        request.cdm_schema = "CDM".to_string();
+        request.vocabulary_schema = "VOCAB".to_string();
+        request.results_schema = "RESULTS".to_string();
+        request.temp_schema = "SCRATCH".to_string();
+        request.vocabulary_setup = "Load later".to_string();
+
+        let seed = build_seed(&request);
+
+        assert_eq!(seed["cdm_setup_mode"], "Use an existing database server");
+        assert_eq!(
+            seed["cdm_existing_state"],
+            "OMOP tables exist but vocabulary is missing"
+        );
+        assert_eq!(seed["cdm_dialect"], "Snowflake");
+        assert_eq!(seed["cdm_server"], "acme.snowflakecomputing.com");
+        assert_eq!(seed["cdm_database"], "RESEARCH");
+        assert_eq!(seed["cdm_user"], "parthenon_loader");
+        assert_eq!(seed["cdm_password"], "secret");
+        assert_eq!(seed["cdm_schema"], "CDM");
+        assert_eq!(seed["vocabulary_schema"], "VOCAB");
+        assert_eq!(seed["results_schema"], "RESULTS");
+        assert_eq!(seed["temp_schema"], "SCRATCH");
+        assert_eq!(seed["vocabulary_setup"], "Load later");
     }
 
     #[test]
@@ -1173,12 +1267,20 @@ mod tests {
             },
             "plan": {
                 "datasets": ["eunomia", "phenotype-library"],
-                "compose_services": ["nginx", "postgres", "redis", "solr", "hecate", "qdrant"]
+                "compose_services": ["nginx", "postgres", "redis", "solr", "hecate", "qdrant"],
+                "data_setup": {
+                    "target": "Local PostgreSQL",
+                    "mode": "Create local PostgreSQL OMOP database",
+                    "dbms": "PostgreSQL",
+                    "vocabulary_setup": "Use demo starter data"
+                }
             }
         }));
 
         assert!(summary.contains("Installer plan"));
         assert!(summary.contains("Community Edition"));
+        assert!(summary.contains("OMOP target: Local PostgreSQL"));
+        assert!(summary.contains("Vocabulary: Use demo starter data"));
         assert!(summary.contains("Parthenon web app"));
         assert!(summary.contains("Hecate concept search"));
         assert!(!summary.contains('{'));

@@ -93,6 +93,101 @@
 
           <section class="form-section">
             <div>
+              <h2>OMOP Data</h2>
+              <p>Choose whether Parthenon should use a prepared CDM, prepare an existing database server, or create local PostgreSQL.</p>
+            </div>
+            <div class="field-grid">
+              <label>
+                CDM target
+                <select id="cdm-setup-mode" name="cdm_setup_mode">
+                  <option>Create local PostgreSQL OMOP database</option>
+                  <option>Use an existing database server</option>
+                  <option>Use an existing OMOP CDM</option>
+                </select>
+              </label>
+              <label>
+                Database platform
+                <select id="cdm-dialect" name="cdm_dialect">
+                  <option>PostgreSQL</option>
+                  <option>Microsoft SQL Server</option>
+                  <option>Oracle</option>
+                  <option>Amazon Redshift</option>
+                  <option>Snowflake</option>
+                  <option>Google BigQuery</option>
+                  <option>Apache Spark</option>
+                  <option>Azure Synapse Analytics Dedicated</option>
+                  <option>InterSystems IRIS</option>
+                  <option>DuckDB</option>
+                  <option>SQLite</option>
+                  <option>Not sure yet / will configure later</option>
+                </select>
+              </label>
+            </div>
+            <div id="cdm-state-fields" class="field-grid">
+              <label>
+                What exists now?
+                <select id="cdm-existing-state" name="cdm_existing_state">
+                  <option>Empty database or schema</option>
+                  <option>Schemas exist but OMOP tables are missing</option>
+                  <option>OMOP tables exist but vocabulary is missing</option>
+                  <option>Vocabulary is loaded but clinical data is pending</option>
+                  <option>Complete OMOP CDM exists</option>
+                </select>
+              </label>
+              <label>
+                Vocabulary
+                <select id="vocabulary-setup" name="vocabulary_setup">
+                  <option>Use demo starter data</option>
+                  <option>Use existing vocabulary</option>
+                  <option>Load Athena vocabulary ZIP</option>
+                  <option>Load later</option>
+                </select>
+              </label>
+            </div>
+            <div id="cdm-connection-fields" class="field-grid">
+              <label>
+                Server or connection host
+                <input id="cdm-server" name="cdm_server" placeholder="host, JDBC URL, or cloud endpoint" autocomplete="off" />
+              </label>
+              <label>
+                Database
+                <input id="cdm-database" name="cdm_database" placeholder="database, catalog, or project" autocomplete="off" />
+              </label>
+              <label>
+                User
+                <input id="cdm-user" name="cdm_user" autocomplete="off" />
+              </label>
+              <label>
+                Password
+                <input id="cdm-password" name="cdm_password" type="password" autocomplete="off" />
+              </label>
+            </div>
+            <div class="field-grid">
+              <label>
+                CDM schema
+                <input id="cdm-schema" name="cdm_schema" value="omop" autocomplete="off" />
+              </label>
+              <label>
+                Vocabulary schema
+                <input id="vocabulary-schema" name="vocabulary_schema" value="omop" autocomplete="off" />
+              </label>
+              <label>
+                Results schema
+                <input id="results-schema" name="results_schema" value="results" autocomplete="off" />
+              </label>
+              <label>
+                Temp schema
+                <input id="temp-schema" name="temp_schema" value="scratch" autocomplete="off" />
+              </label>
+            </div>
+            <label id="vocab-zip-field">
+              Athena vocabulary ZIP
+              <input id="vocab-zip-path" name="vocab_zip_path" placeholder="/path/to/AthenaVocabulary.zip" autocomplete="off" />
+            </label>
+          </section>
+
+          <section class="form-section">
+            <div>
               <h2>Ready To Install</h2>
               <p>Run the system check first. A real install writes files and starts Docker services.</p>
             </div>

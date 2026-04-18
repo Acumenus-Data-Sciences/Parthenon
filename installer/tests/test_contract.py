@@ -36,6 +36,10 @@ def test_community_contract_defaults_and_plan(monkeypatch):
     assert "qdrant" in plan["compose_services"]
     assert "blackrabbit" not in plan["compose_services"]
     assert plan["datasets"] == ["eunomia", "phenotype-library"]
+    assert plan["data_setup"]["mode"] == "Create local PostgreSQL OMOP database"
+    assert plan["data_setup"]["dbms"] == "PostgreSQL"
+    assert plan["data_setup"]["schemas"]["cdm"] == "omop"
+    assert any(phase["name"] == "Install OMOP CDM DDL" for phase in plan["data_setup"]["phases"])
 
 
 def test_contract_redacts_secrets(monkeypatch):
@@ -46,6 +50,7 @@ def test_contract_redacts_secrets(monkeypatch):
         community=True,
         overrides={
             "admin_password": "super-secret",
+            "cdm_password": "cdm-secret",
             "db_password": "db-secret",
             "umls_api_key": "umls-secret",
         },
@@ -53,8 +58,49 @@ def test_contract_redacts_secrets(monkeypatch):
     )
 
     assert payload["admin_password"] == "[redacted]"
+    assert payload["cdm_password"] == "[redacted]"
     assert payload["db_password"] == "[redacted]"
     assert payload["umls_api_key"] == "[redacted]"
+
+
+def test_contract_plans_existing_database_server_setup(monkeypatch):
+    monkeypatch.setattr("installer.config.utils.is_port_free", lambda port: True)
+
+    payload = contract.build_payload(
+        "plan",
+        community=True,
+        overrides={
+            "cdm_setup_mode": "Use an existing database server",
+            "cdm_existing_state": "OMOP tables exist but vocabulary is missing",
+            "cdm_dialect": "Snowflake",
+            "cdm_server": "acme.snowflakecomputing.com",
+            "cdm_database": "RESEARCH",
+            "cdm_user": "parthenon_loader",
+            "vocabulary_setup": "Load later",
+            "cdm_schema": "CDM",
+            "vocabulary_schema": "VOCAB",
+            "results_schema": "RESULTS",
+            "temp_schema": "SCRATCH",
+        },
+    )
+
+    setup = payload["plan"]["data_setup"]
+    assert setup["target"] == "Existing database server"
+    assert setup["dbms"] == "Snowflake"
+    assert setup["requires_connection_details"] is True
+    assert setup["schemas"] == {
+        "cdm": "CDM",
+        "vocabulary": "VOCAB",
+        "results": "RESULTS",
+        "temp": "SCRATCH",
+    }
+    assert [phase["name"] for phase in setup["phases"]] == [
+        "Connect to existing database server",
+        "Prepare OMOP target",
+        "Install missing OMOP CDM DDL",
+        "Defer vocabulary loading",
+        "Register Parthenon data source",
+    ]
 
 
 def test_contract_preflight_payload_shape(monkeypatch):

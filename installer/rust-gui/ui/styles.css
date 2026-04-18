@@ -142,7 +142,8 @@ label {
   font-size: 0.92rem;
 }
 
-input {
+input,
+select {
   width: 100%;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -152,7 +153,8 @@ input {
   font: inherit;
 }
 
-input:focus {
+input:focus,
+select:focus {
   border-color: var(--gold);
   outline: none;
 }
@@ -171,6 +173,11 @@ input[type="checkbox"] {
 
 .field-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.form-section > .field-grid,
+.form-section > label {
+  margin-top: 0.8rem;
 }
 
 .toggle-grid {

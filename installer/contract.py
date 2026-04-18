@@ -18,6 +18,7 @@ from . import config, docker_ops, preflight, utils
 SECRET_FIELDS = {
     "abby_analyst_password",
     "admin_password",
+    "cdm_password",
     "db_password",
     "enterprise_key",
     "frontier_api_key",
@@ -26,6 +27,28 @@ SECRET_FIELDS = {
     "redis_password",
     "umls_api_key",
 }
+
+
+HADES_SUPPORTED_DBMS = [
+    "PostgreSQL",
+    "Microsoft SQL Server",
+    "Oracle",
+    "Amazon Redshift",
+    "Snowflake",
+    "Google BigQuery",
+    "Apache Spark",
+    "Azure Synapse Analytics Dedicated",
+    "InterSystems IRIS",
+    "DuckDB",
+    "SQLite",
+]
+
+HADES_ADVANCED_DBMS = [
+    "Apache Hive",
+    "Apache Impala",
+    "IBM Netezza",
+    "Microsoft Parallel Data Warehouse",
+]
 
 
 def load_json(path: str | None) -> dict[str, Any]:
@@ -66,6 +89,106 @@ def service_plan(cfg: dict[str, Any]) -> dict[str, Any]:
         ],
         "datasets": list(cfg.get("datasets") or []),
         "modules": list(cfg.get("modules") or []),
+        "data_setup": data_setup_plan(cfg),
+    }
+
+
+def data_setup_plan(cfg: dict[str, Any]) -> dict[str, Any]:
+    mode = cfg.get("cdm_setup_mode") or "Create local PostgreSQL OMOP database"
+    dbms = cfg.get("cdm_dialect") or "PostgreSQL"
+    existing_state = cfg.get("cdm_existing_state") or "Empty database or schema"
+    vocabulary_setup = cfg.get("vocabulary_setup") or "Use demo starter data"
+    schemas = {
+        "cdm": cfg.get("cdm_schema") or "omop",
+        "vocabulary": cfg.get("vocabulary_schema") or "omop",
+        "results": cfg.get("results_schema") or "results",
+        "temp": cfg.get("temp_schema") or "scratch",
+    }
+
+    phases: list[dict[str, str]] = []
+    if mode == "Create local PostgreSQL OMOP database":
+        target = "Local PostgreSQL"
+        phases.extend([
+            {
+                "name": "Provision local PostgreSQL",
+                "detail": "Create or reuse the local PostgreSQL service managed by Parthenon.",
+            },
+            {
+                "name": "Create OMOP schemas",
+                "detail": f"Prepare {schemas['cdm']}, {schemas['results']}, and {schemas['temp']} schemas.",
+            },
+            {
+                "name": "Install OMOP CDM DDL",
+                "detail": "Create the OMOP CDM tables before clinical data is loaded.",
+            },
+        ])
+    elif mode == "Use an existing OMOP CDM":
+        target = "Existing OMOP CDM"
+        phases.extend([
+            {
+                "name": "Connect to existing OMOP CDM",
+                "detail": f"Use {dbms} and validate the configured schemas.",
+            },
+            {
+                "name": "Validate CDM readiness",
+                "detail": "Check OMOP tables, vocabulary tables, results schema, temp schema, and permissions.",
+            },
+        ])
+    else:
+        target = "Existing database server"
+        phases.extend([
+            {
+                "name": "Connect to existing database server",
+                "detail": f"Use {dbms} and inspect what has already been created.",
+            },
+            {
+                "name": "Prepare OMOP target",
+                "detail": f"Current state: {existing_state}. Create only the missing OMOP pieces.",
+            },
+        ])
+        if existing_state != "Complete OMOP CDM exists":
+            phases.append({
+                "name": "Install missing OMOP CDM DDL",
+                "detail": "Create schemas and tables when they are not already present.",
+            })
+
+    if vocabulary_setup == "Load Athena vocabulary ZIP":
+        phases.append({
+            "name": "Load Athena vocabulary",
+            "detail": "Use the user-provided Athena ZIP; restricted vocabularies still require the user's licensed download.",
+        })
+    elif vocabulary_setup == "Use existing vocabulary":
+        phases.append({
+            "name": "Validate existing vocabulary",
+            "detail": f"Confirm vocabulary tables are present in {schemas['vocabulary']}.",
+        })
+    elif vocabulary_setup == "Use demo starter data":
+        phases.append({
+            "name": "Load demo starter data",
+            "detail": "Use Eunomia and bundled starter content where selected.",
+        })
+    else:
+        phases.append({
+            "name": "Defer vocabulary loading",
+            "detail": "Install Parthenon now and guide the user to load Athena vocabulary later.",
+        })
+
+    phases.append({
+        "name": "Register Parthenon data source",
+        "detail": "Save the CDM, vocabulary, results, and temp schema mapping for Parthenon.",
+    })
+
+    return {
+        "mode": mode,
+        "target": target,
+        "dbms": dbms,
+        "existing_state": existing_state,
+        "vocabulary_setup": vocabulary_setup,
+        "schemas": schemas,
+        "requires_connection_details": mode != "Create local PostgreSQL OMOP database",
+        "hades_supported_dbms": HADES_SUPPORTED_DBMS,
+        "advanced_deprecated_dbms": HADES_ADVANCED_DBMS,
+        "phases": phases,
     }
 
 

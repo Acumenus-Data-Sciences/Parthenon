@@ -11,6 +11,11 @@ const dryRunEl = document.querySelector("#dry-run");
 const confirmEl = document.querySelector("#confirm-real-install");
 const windowsFields = document.querySelector("#windows-fields");
 const preflightBtn = document.querySelector("#preflight-btn");
+const cdmSetupEl = document.querySelector("#cdm-setup-mode");
+const cdmStateFields = document.querySelector("#cdm-state-fields");
+const cdmConnectionFields = document.querySelector("#cdm-connection-fields");
+const vocabZipField = document.querySelector("#vocab-zip-field");
+const vocabularySetupEl = document.querySelector("#vocabulary-setup");
 
 const state = {
   checks: [],
@@ -48,6 +53,19 @@ function readPayload() {
     admin_password: rawValue("#admin-password"),
     app_url: value("#app-url"),
     timezone: value("#timezone"),
+    cdm_setup_mode: value("#cdm-setup-mode"),
+    cdm_existing_state: value("#cdm-existing-state"),
+    cdm_dialect: value("#cdm-dialect"),
+    cdm_server: value("#cdm-server"),
+    cdm_database: value("#cdm-database"),
+    cdm_user: value("#cdm-user"),
+    cdm_password: rawValue("#cdm-password"),
+    cdm_schema: value("#cdm-schema"),
+    vocabulary_schema: value("#vocabulary-schema"),
+    results_schema: value("#results-schema"),
+    temp_schema: value("#temp-schema"),
+    vocabulary_setup: value("#vocabulary-setup"),
+    vocab_zip_path: value("#vocab-zip-path"),
     include_eunomia: checked("#include-eunomia"),
     enable_solr: checked("#enable-solr"),
     enable_study_agent: checked("#enable-study-agent"),
@@ -71,11 +89,20 @@ function renderReview() {
   const destination = state.platform === "windows"
     ? (payload.wsl_repo_path || payload.repo_path || "Select a checkout")
     : (payload.repo_path || "Select a checkout");
+  const dataTarget = payload.cdm_setup_mode === "Create local PostgreSQL OMOP database"
+    ? "Local PostgreSQL"
+    : `${payload.cdm_dialect || "Database"} · ${payload.cdm_database || "database not set"}`;
+  const dataStage = payload.cdm_setup_mode === "Use an existing OMOP CDM"
+    ? "Validate existing OMOP CDM"
+    : payload.cdm_existing_state;
 
   reviewEl.innerHTML = [
     reviewRow("Destination", destination),
     reviewRow("Admin", payload.admin_email || "admin@example.com"),
     reviewRow("URL", payload.app_url || "http://localhost"),
+    reviewRow("OMOP target", dataTarget),
+    reviewRow("CDM status", dataStage),
+    reviewRow("Vocabulary", payload.vocabulary_setup || "Use demo starter data"),
     reviewRow("Starter data", data),
     reviewRow("Services", services.join(", ")),
     reviewRow("Mode", mode),
@@ -133,11 +160,27 @@ function hasFailedCheck() {
 
 function updateInstallButton() {
   renderReview();
+  updateDataSetupVisibility();
   installBtn.textContent = dryRunEl.checked ? "Run Test" : "Install Parthenon";
   installBtn.disabled = state.running
     || !state.preflightRan
     || hasFailedCheck()
     || (!dryRunEl.checked && !confirmEl.checked);
+}
+
+function updateDataSetupVisibility() {
+  const setupMode = cdmSetupEl.value;
+  const vocabularyMode = vocabularySetupEl.value;
+  const usesLocalPostgres = setupMode === "Create local PostgreSQL OMOP database";
+  const usesCompleteCdm = setupMode === "Use an existing OMOP CDM";
+
+  cdmConnectionFields.hidden = usesLocalPostgres;
+  cdmStateFields.hidden = false;
+  vocabZipField.hidden = vocabularyMode !== "Load Athena vocabulary ZIP";
+
+  if (usesCompleteCdm && document.querySelector("#cdm-existing-state").value === "Empty database or schema") {
+    document.querySelector("#cdm-existing-state").value = "Complete OMOP CDM exists";
+  }
 }
 
 async function invoke(name, payload) {
@@ -243,5 +286,7 @@ form.addEventListener("input", () => {
 
 dryRunEl.addEventListener("change", updateInstallButton);
 confirmEl.addEventListener("change", updateInstallButton);
+cdmSetupEl.addEventListener("change", updateInstallButton);
+vocabularySetupEl.addEventListener("change", updateInstallButton);
 
 boot();

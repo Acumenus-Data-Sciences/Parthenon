@@ -16,6 +16,20 @@ and streams stdout/stderr back into the GUI.
 Plan summary, dry run, validation, and preflight use the Python installer
 contract so the desktop shell does not duplicate installer rules.
 
+## Data Setup Direction
+
+The next installer revision treats database setup as a first-class wizard path.
+The user can choose:
+
+- an existing database server that still needs OMOP CDM DDL and vocabulary work,
+- an existing, already-prepared OMOP CDM, or
+- a local PostgreSQL OMOP database managed by the installer.
+
+The current UI captures those choices and sends them through the shared Python
+contract as a plain-language setup plan. Actual cross-DB connection testing,
+OMOP DDL installation, Athena vocabulary import, and no-repo bootstrap bundle
+downloads are tracked in `docs/devlog/process/rust-installer-v2-bootstrapper-todo.md`.
+
 ## Run
 
 ```bash
