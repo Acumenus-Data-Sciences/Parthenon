@@ -1,20 +1,29 @@
+import { useTranslation } from "react-i18next";
 import { AlertTriangle, FileType } from "lucide-react";
+import { formatDate } from "@/i18n/format";
 import type { WikiLintIssue, WikiPageDetail } from "../../types/wiki";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 
 export function WikiPageView({
-  page, onNavigate, lintIssues, onViewSource,
+  page,
+  onNavigate,
+  lintIssues,
+  onViewSource,
 }: {
   page?: WikiPageDetail;
   onNavigate: (slug: string) => void;
   lintIssues: WikiLintIssue[];
   onViewSource?: (filename: string) => void;
 }) {
+  const { t } = useTranslation("commons");
+
   if (!page) {
     return (
       <div className="flex h-full items-center justify-center p-8 text-center">
         <div>
-          <p className="text-sm text-text-muted">Select a paper to view</p>
+          <p className="text-sm text-text-muted">
+            {t("wiki.pageView.selectPaper")}
+          </p>
         </div>
       </div>
     );
@@ -29,7 +38,9 @@ export function WikiPageView({
       <div className="border-b border-border-default bg-surface-overlay px-6 py-4">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <h2 className="text-xl font-bold text-text-primary">{page.title}</h2>
+            <h2 className="text-xl font-bold text-text-primary">
+              {page.title}
+            </h2>
             <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-muted">
               {page.first_author && <span>{page.first_author}</span>}
               {page.publication_year && <span>{page.publication_year}</span>}
@@ -41,13 +52,27 @@ export function WikiPageView({
               )}
             </div>
             <p className="mt-1.5 text-xs text-text-ghost">
-              Last updated {new Date(page.updated_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+              {t("wiki.pageView.lastUpdated", {
+                date: formatDate(page.updated_at, {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                }),
+              })}
             </p>
             {(page.doi || page.pmid || page.pmcid) && (
               <p className="mt-1 text-[11px] text-text-ghost">
                 {page.doi && <span>DOI {page.doi}</span>}
-                {page.pmid && <span>{page.doi ? " • " : ""}PMID {page.pmid}</span>}
-                {page.pmcid && <span>{page.doi || page.pmid ? " • " : ""}PMCID {page.pmcid}</span>}
+                {page.pmid && (
+                  <span>
+                    {page.doi ? " • " : ""}PMID {page.pmid}
+                  </span>
+                )}
+                {page.pmcid && (
+                  <span>
+                    {page.doi || page.pmid ? " • " : ""}PMCID {page.pmcid}
+                  </span>
+                )}
               </p>
             )}
           </div>
@@ -59,7 +84,7 @@ export function WikiPageView({
               className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-gradient-to-r from-success/20 to-[var(--domain-observation)]/20 border border-success/30 px-3 py-2 text-xs font-medium text-success transition-all hover:from-success/30 hover:to-[var(--domain-observation)]/30"
             >
               <FileType size={14} />
-              View PDF
+              {t("wiki.pageView.viewPdf")}
             </button>
           )}
         </div>
@@ -68,9 +93,19 @@ export function WikiPageView({
         {page.keywords.length > 0 && page.keywords[0] !== "source" && (
           <div className="mt-3 flex flex-wrap gap-1.5">
             {page.keywords
-              .filter((kw) => kw !== "source" && kw !== "summary" && kw !== "pdf" && kw !== "text" && kw !== "markdown")
+              .filter(
+                (kw) =>
+                  kw !== "source" &&
+                  kw !== "summary" &&
+                  kw !== "pdf" &&
+                  kw !== "text" &&
+                  kw !== "markdown",
+              )
               .map((kw) => (
-                <span key={kw} className="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-medium bg-info/15 text-info">
+                <span
+                  key={kw}
+                  className="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-medium bg-info/15 text-info"
+                >
                   {kw}
                 </span>
               ))}
@@ -82,10 +117,15 @@ export function WikiPageView({
       {pageIssues.length > 0 && (
         <div className="border-b border-accent/20 bg-accent/5 px-6 py-2">
           <div className="flex items-start gap-2">
-            <AlertTriangle size={14} className="mt-0.5 flex-shrink-0 text-accent" />
+            <AlertTriangle
+              size={14}
+              className="mt-0.5 flex-shrink-0 text-accent"
+            />
             <div className="space-y-0.5">
               {pageIssues.map((issue) => (
-                <p key={issue.message} className="text-xs text-accent/80">{issue.message}</p>
+                <p key={issue.message} className="text-xs text-accent/80">
+                  {issue.message}
+                </p>
               ))}
             </div>
           </div>

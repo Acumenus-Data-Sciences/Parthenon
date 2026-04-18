@@ -1,0 +1,30 @@
+{
+  "title": {
+    "message": "Parthenon",
+    "description": "The title in the navbar"
+  },
+  "logo.alt": {
+    "message": "Logotipo de Parthenon",
+    "description": "The alt text of navbar logo"
+  },
+  "item.label.User Manual": {
+    "message": "Manual de usuario",
+    "description": "Navbar item with label User Manual"
+  },
+  "item.label.API Reference": {
+    "message": "Referencia de API",
+    "description": "Navbar item with label API Reference"
+  },
+  "item.label.DB Architecture": {
+    "message": "Arquitectura de DB",
+    "description": "Navbar item with label DB Architecture"
+  },
+  "item.label.Dev Blog": {
+    "message": "Blog de desarrollo",
+    "description": "Navbar item with label Dev Blog"
+  },
+  "item.label.GitHub": {
+    "message": "GitHub",
+    "description": "Navbar item with label GitHub"
+  }
+}

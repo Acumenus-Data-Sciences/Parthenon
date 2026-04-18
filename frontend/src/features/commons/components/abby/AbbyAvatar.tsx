@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { AbbyAvatarProps } from "../../types/abby";
 
 const sizeClasses = {
@@ -11,17 +12,19 @@ export default function AbbyAvatar({
   showStatus = false,
   className = "",
 }: AbbyAvatarProps) {
+  const { t } = useTranslation("commons");
+
   return (
     <div className={`relative inline-flex shrink-0 ${className}`}>
       <img
         src="/Abby-AI.png"
-        alt="Abby"
+        alt={t("abby.avatarAlt")}
         className={`${sizeClasses[size]} rounded-full object-cover ring-1 ring-emerald-500/30`}
       />
       {showStatus && (
         <span
           className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-card"
-          title="Abby is online"
+          title={t("abby.avatarOnline")}
         />
       )}
     </div>

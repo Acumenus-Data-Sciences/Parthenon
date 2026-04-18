@@ -1,5 +1,14 @@
 import { useState, useRef, useEffect } from "react";
-import { MoreHorizontal, Pencil, Trash2, Reply, SmilePlus, Pin, ClipboardCheck } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import {
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  Reply,
+  SmilePlus,
+  Pin,
+  ClipboardCheck,
+} from "lucide-react";
 import { EmojiPicker } from "./EmojiPicker";
 
 interface MessageActionMenuProps {
@@ -23,6 +32,7 @@ export function MessageActionMenu({
   onPin,
   onRequestReview,
 }: MessageActionMenuProps) {
+  const { t } = useTranslation("commons");
   const [open, setOpen] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -50,56 +60,74 @@ export function MessageActionMenu({
       {open && (
         <div className="absolute right-0 top-full z-10 mt-1 min-w-[160px] rounded-lg border border-white/[0.08] bg-surface-overlay py-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.5)] backdrop-blur-xl">
           <button
-            onClick={() => { setShowEmojiPicker(true); setOpen(false); }}
+            onClick={() => {
+              setShowEmojiPicker(true);
+              setOpen(false);
+            }}
             className="flex w-full items-center gap-2 px-3 py-1.5 text-[13px] text-foreground/90 hover:bg-white/[0.06] transition-colors"
           >
             <SmilePlus className="h-3.5 w-3.5" />
-            React
+            {t("chat.actions.react")}
           </button>
 
           <button
-            onClick={() => { onReply(); setOpen(false); }}
+            onClick={() => {
+              onReply();
+              setOpen(false);
+            }}
             className="flex w-full items-center gap-2 px-3 py-1.5 text-[13px] text-foreground/90 hover:bg-white/[0.06] transition-colors"
           >
             <Reply className="h-3.5 w-3.5" />
-            Reply
+            {t("chat.actions.reply")}
           </button>
 
           <button
-            onClick={() => { onPin(); setOpen(false); }}
+            onClick={() => {
+              onPin();
+              setOpen(false);
+            }}
             className="flex w-full items-center gap-2 px-3 py-1.5 text-[13px] text-foreground/90 hover:bg-white/[0.06] transition-colors"
           >
             <Pin className="h-3.5 w-3.5" />
-            Pin
+            {t("chat.actions.pin")}
           </button>
 
           {onRequestReview && (
             <button
-              onClick={() => { onRequestReview(); setOpen(false); }}
+              onClick={() => {
+                onRequestReview();
+                setOpen(false);
+              }}
               className="flex w-full items-center gap-2 px-3 py-1.5 text-[13px] text-foreground/90 hover:bg-white/[0.06] transition-colors"
             >
               <ClipboardCheck className="h-3.5 w-3.5" />
-              Request Review
+              {t("chat.actions.requestReview")}
             </button>
           )}
 
           {isAuthor && (
             <button
-              onClick={() => { onEdit(); setOpen(false); }}
+              onClick={() => {
+                onEdit();
+                setOpen(false);
+              }}
               className="flex w-full items-center gap-2 px-3 py-1.5 text-[13px] text-foreground/90 hover:bg-white/[0.06] transition-colors"
             >
               <Pencil className="h-3.5 w-3.5" />
-              Edit
+              {t("chat.actions.edit")}
             </button>
           )}
 
           {(isAuthor || isAdmin) && (
             <button
-              onClick={() => { onDelete(); setOpen(false); }}
+              onClick={() => {
+                onDelete();
+                setOpen(false);
+              }}
               className="flex w-full items-center gap-2 px-3 py-1.5 text-[13px] text-red-400 hover:bg-white/[0.06] transition-colors"
             >
               <Trash2 className="h-3.5 w-3.5" />
-              Delete
+              {t("chat.actions.delete")}
             </button>
           )}
         </div>

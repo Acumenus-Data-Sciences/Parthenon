@@ -1,0 +1,13 @@
+{
+  "key": "cohort-builder.cohort-exit",
+  "title": "Estrategia de salida de la cohorte",
+  "description": "La estrategia de salida de la cohorte define cuándo un paciente abandona la cohorte después de calificar. Las opciones incluyen el fin del periodo de observación, un desplazamiento fijo desde la fecha índice o el fin de una era de medicamento / evento de fin de condición.",
+  "docs_url": "/docs/part3-cohorts/06-building-cohorts",
+  "video_url": null,
+  "tips": [
+    "Fin de observación es el valor predeterminado; los pacientes permanecen en la cohorte hasta que salen de la base de datos.",
+    "Use Duración fija para análisis que requieren una ventana de seguimiento específica (por ejemplo, 365 días).",
+    "La salida por era de medicamento es útil para diseños de nuevos usuarios donde el seguimiento termina cuando se suspende el tratamiento.",
+    "La ventana de persistencia (días de brecha) permite brechas cortas de tratamiento sin finalizar la pertenencia a la cohorte."
+  ]
+}

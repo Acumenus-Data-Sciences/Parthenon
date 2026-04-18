@@ -1,0 +1,17 @@
+{
+  "key": "mapping-assistant",
+  "title": "Asistente de mapeo (Ariadne)",
+  "description": "El Asistente de mapeo usa el servicio Ariadne para mapear términos fuente de sus datos crudos a conceptos estándar OMOP. Admite tres estrategias de coincidencia: literal (coincidencia exacta de texto), vectorial (similitud semántica por embeddings) y LLM (razonamiento de modelos de lenguaje grandes). Puede revisar candidatos, aceptar o rechazar mapeos y exportar resultados como CSV.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Ingrese términos fuente uno por línea en el área de texto, o cargue un archivo CSV donde la primera columna contenga los términos a mapear.",
+    "Use el filtro Vocabulario objetivo para restringir resultados a vocabularios específicos como SNOMED CT, ICD-10-CM, RxNorm o LOINC.",
+    "Use el filtro Dominio objetivo para limitar resultados a Condition, Drug, Procedure, Measurement u otros dominios OMOP.",
+    "Después del mapeo, revise la puntuación de confianza de cada resultado. Las puntuaciones superiores a 80% son de alta confianza; las inferiores requieren revisión manual.",
+    "Haga clic en cualquier fila de resultado para expandirla y ver todas las coincidencias candidatas, no solo la mejor, junto con su confianza y tipo de coincidencia.",
+    "Use los botones Aceptar/Rechazar en cada fila para curar sus mapeos. Sus decisiones se incluyen al exportar a CSV.",
+    "La sección Limpieza de términos (colapsable) normaliza abreviaturas y taquigrafías desordenadas antes del mapeo, mejorando la calidad de coincidencia.",
+    "Exporte sus mapeos finalizados como CSV usando el botón Exportar CSV para usarlos en pipelines ETL o documentación."
+  ]
+}

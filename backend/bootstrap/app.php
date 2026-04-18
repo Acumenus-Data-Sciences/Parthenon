@@ -11,6 +11,7 @@ use App\Support\ApiMessage;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -40,6 +41,10 @@ return Application::configure(basePath: dirname(__DIR__))
             ForceJsonResponse::class,
             ResolveLocale::class,
         ]);
+        $middleware->appendToPriorityList(
+            AuthenticatesRequests::class,
+            ResolveLocale::class,
+        );
         $middleware->appendToGroup('api', [
             RecordUserActivity::class,
         ]);

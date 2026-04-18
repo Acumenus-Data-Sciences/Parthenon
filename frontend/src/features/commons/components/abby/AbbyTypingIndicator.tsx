@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import AbbyAvatar from "./AbbyAvatar";
 import type { AbbyTypingIndicatorProps } from "../../types/abby";
 
@@ -10,6 +11,8 @@ function Spinner() {
 export default function AbbyTypingIndicator({
   pipelineState,
 }: AbbyTypingIndicatorProps) {
+  const { t } = useTranslation("commons");
+
   if (pipelineState.stage === "complete") {
     return null;
   }
@@ -20,7 +23,11 @@ export default function AbbyTypingIndicator({
         <AbbyAvatar size="md" />
         <div className="flex items-center gap-2 rounded-lg bg-red-500/10 px-3.5 py-2.5">
           <span className="text-[11px] text-red-400">
-            Something went wrong: {pipelineState.error_message ?? "Unknown error"}
+            {t("abby.typingIndicator.error", {
+              message:
+                pipelineState.error_message ??
+                t("abby.typingIndicator.unknownError"),
+            })}
           </span>
         </div>
       </div>
@@ -29,8 +36,8 @@ export default function AbbyTypingIndicator({
 
   const label =
     pipelineState.stage === "composing"
-      ? "Abby is replying..."
-      : "Abby is thinking...";
+      ? t("abby.typingIndicator.replying")
+      : t("abby.typingIndicator.thinking");
 
   return (
     <div className="flex gap-2.5 px-4 py-3">

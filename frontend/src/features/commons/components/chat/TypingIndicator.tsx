@@ -1,8 +1,12 @@
+import { useTranslation } from "react-i18next";
+
 interface TypingIndicatorProps {
   isTyping: boolean;
 }
 
 export function TypingIndicator({ isTyping }: TypingIndicatorProps) {
+  const { t } = useTranslation("commons");
+
   if (!isTyping) return null;
 
   return (
@@ -13,7 +17,7 @@ export function TypingIndicator({ isTyping }: TypingIndicatorProps) {
           <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:150ms]" />
           <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:300ms]" />
         </div>
-        <span>Someone is typing</span>
+        <span>{t("chat.messages.someoneTyping")}</span>
       </div>
     </div>
   );

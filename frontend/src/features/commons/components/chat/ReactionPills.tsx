@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import type { ReactionSummary } from "../../types";
 import { useToggleReaction } from "../../api";
@@ -11,6 +12,7 @@ interface ReactionPillsProps {
 }
 
 export function ReactionPills({ messageId, reactions }: ReactionPillsProps) {
+  const { t } = useTranslation("commons");
   const [showPicker, setShowPicker] = useState(false);
   const [hoveredEmoji, setHoveredEmoji] = useState<string | null>(null);
   const toggleReaction = useToggleReaction();
@@ -22,7 +24,7 @@ export function ReactionPills({ messageId, reactions }: ReactionPillsProps) {
   }
 
   const hasReactions = emojiKeys.some(
-    (key) => reactions[key]?.count > 0 && EMOJI_DISPLAY[key]
+    (key) => reactions[key]?.count > 0 && EMOJI_DISPLAY[key],
   );
 
   // Don't render anything if there are no reactions (the + button shows via the message action menu)
@@ -63,7 +65,7 @@ export function ReactionPills({ messageId, reactions }: ReactionPillsProps) {
       <div className="relative">
         <button
           onClick={() => setShowPicker(!showPicker)}
-          aria-label="Add reaction"
+          aria-label={t("chat.emoji.addReaction")}
           className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-dashed border-surface-highlight bg-surface-base text-muted-foreground opacity-0 transition-all group-hover:opacity-100 hover:border-text-disabled hover:bg-surface-overlay hover:text-foreground"
         >
           <Plus className="h-3 w-3" />

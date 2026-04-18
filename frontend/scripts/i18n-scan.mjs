@@ -62,6 +62,8 @@ const ignoredFiles = [
   /\.snapshot\.[cm]?[tj]sx?$/,
   /\.d\.ts$/,
   /\/i18n\/resources\.ts$/,
+  /\/i18n\/commonsResources\.ts$/,
+  /\/i18n\/dashboardResources\.ts$/,
   /\/i18n\/locales\.ts$/,
   /\/types\/api\.generated\.ts$/,
 ];
@@ -110,12 +112,17 @@ function toPosix(filePath) {
   return filePath.split(path.sep).join("/");
 }
 
-function walk(dir) {
-  if (!fs.existsSync(dir)) return [];
+function walk(targetPath) {
+  if (!fs.existsSync(targetPath)) return [];
 
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  const stats = fs.statSync(targetPath);
+  if (stats.isFile()) {
+    return /\.[cm]?[tj]sx?$/.test(targetPath) ? [targetPath] : [];
+  }
+
+  const entries = fs.readdirSync(targetPath, { withFileTypes: true });
   return entries.flatMap((entry) => {
-    const entryPath = path.join(dir, entry.name);
+    const entryPath = path.join(targetPath, entry.name);
     if (entry.isDirectory()) {
       if (entry.name === "node_modules" || entry.name === "dist") return [];
       return walk(entryPath);

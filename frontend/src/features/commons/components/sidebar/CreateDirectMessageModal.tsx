@@ -1,4 +1,5 @@
 import { useMemo, useState, type FormEvent } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Modal } from "@/components/ui/Modal";
 import { toast } from "@/components/ui/Toast";
@@ -12,6 +13,7 @@ interface CreateDirectMessageModalProps {
 export function CreateDirectMessageModal({
   onClose,
 }: CreateDirectMessageModalProps) {
+  const { t } = useTranslation("commons");
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
@@ -33,7 +35,7 @@ export function CreateDirectMessageModal({
         onClose();
       },
       onError: () => {
-        toast.error("Failed to start direct message");
+        toast.error(t("creation.directMessage.failed"));
       },
     });
   }
@@ -42,12 +44,12 @@ export function CreateDirectMessageModal({
     <Modal
       open
       onClose={onClose}
-      title="New Message"
+      title={t("creation.directMessage.title")}
       size="sm"
       footer={
         <>
           <button type="button" className="btn btn-ghost" onClick={onClose}>
-            Cancel
+            {t("creation.directMessage.cancel")}
           </button>
           <button
             type="submit"
@@ -55,14 +57,18 @@ export function CreateDirectMessageModal({
             className="btn btn-primary"
             disabled={!selectedUserId || createDm.isPending}
           >
-            {createDm.isPending ? "Starting…" : "Message"}
+            {createDm.isPending
+              ? t("creation.directMessage.starting")
+              : t("creation.directMessage.message")}
           </button>
         </>
       }
     >
       <form id="create-dm-form" onSubmit={handleSubmit} className="space-y-3">
         <div className="form-group">
-          <label className="form-label">Find a teammate</label>
+          <label className="form-label">
+            {t("creation.directMessage.teammate")}
+          </label>
           <input
             type="text"
             autoFocus
@@ -71,19 +77,23 @@ export function CreateDirectMessageModal({
               setQuery(e.target.value);
               setSelectedUserId(null);
             }}
-            placeholder="Search by name or email"
+            placeholder={t("creation.directMessage.searchPlaceholder")}
             className="form-input"
           />
         </div>
 
         {query.trim().length < 2 ? (
           <p className="text-xs text-muted-foreground">
-            Type at least 2 characters to search users.
+            {t("creation.directMessage.minChars")}
           </p>
         ) : isLoading ? (
-          <p className="text-xs text-muted-foreground">Searching…</p>
+          <p className="text-xs text-muted-foreground">
+            {t("creation.directMessage.searching")}
+          </p>
         ) : users.length === 0 ? (
-          <p className="text-xs text-muted-foreground">No users found.</p>
+          <p className="text-xs text-muted-foreground">
+            {t("creation.directMessage.noUsers")}
+          </p>
         ) : (
           <div className="max-h-64 overflow-y-auto rounded-md border border-border bg-muted/30">
             {users.map((user) => (
@@ -99,8 +109,12 @@ export function CreateDirectMessageModal({
               >
                 <UserAvatar user={user} />
                 <div className="min-w-0">
-                  <div className="truncate text-sm text-foreground">{user.name}</div>
-                  <div className="truncate text-xs text-muted-foreground">{user.email}</div>
+                  <div className="truncate text-sm text-foreground">
+                    {user.name}
+                  </div>
+                  <div className="truncate text-xs text-muted-foreground">
+                    {user.email}
+                  </div>
                 </div>
               </button>
             ))}
@@ -109,8 +123,14 @@ export function CreateDirectMessageModal({
 
         {selectedUser && (
           <p className="text-xs text-muted-foreground">
-            Starting a conversation with{" "}
-            <span className="font-medium text-foreground">{selectedUser.name}</span>.
+            <Trans
+              i18nKey="creation.directMessage.startingWith"
+              ns="commons"
+              values={{ name: selectedUser.name }}
+              components={{
+                name: <span className="font-medium text-foreground" />,
+              }}
+            />
           </p>
         )}
       </form>

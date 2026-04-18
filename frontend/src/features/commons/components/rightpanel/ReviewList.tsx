@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Check, X, Clock, ClipboardCheck } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useReviews, useResolveReview } from "../../api";
 import { UserAvatar } from "../UserAvatar";
 
@@ -8,22 +9,23 @@ interface ReviewListProps {
 }
 
 export function ReviewList({ slug }: ReviewListProps) {
+  const { t } = useTranslation("commons");
   const { data: reviews = [], isLoading } = useReviews(slug);
 
   const pending = reviews.filter((r) => r.status === "pending");
   const resolved = reviews.filter((r) => r.status !== "pending");
 
   if (isLoading) {
-    return <p className="p-4 text-sm text-muted-foreground">Loading...</p>;
+    return <p className="p-4 text-sm text-muted-foreground">{t("rightPanel.reviews.loading")}</p>;
   }
 
   if (reviews.length === 0) {
     return (
       <div className="m-3 flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border-default bg-surface-raised p-6 text-center">
         <ClipboardCheck className="h-8 w-8 text-muted-foreground/40" />
-        <p className="text-sm text-muted-foreground">No review requests yet</p>
+        <p className="text-sm text-muted-foreground">{t("rightPanel.reviews.emptyTitle")}</p>
         <p className="text-xs text-muted-foreground/60">
-          Use the message menu to request a review
+          {t("rightPanel.reviews.emptyMessage")}
         </p>
       </div>
     );
@@ -34,7 +36,7 @@ export function ReviewList({ slug }: ReviewListProps) {
       {pending.length > 0 && (
         <>
           <p className="px-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Pending ({pending.length})
+            {t("rightPanel.reviews.pending", { count: pending.length })}
           </p>
           {pending.map((review) => (
             <ReviewItem key={review.id} review={review} slug={slug} />
@@ -44,7 +46,7 @@ export function ReviewList({ slug }: ReviewListProps) {
       {resolved.length > 0 && (
         <>
           <p className="px-1 pt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Resolved ({resolved.length})
+            {t("rightPanel.reviews.resolved", { count: resolved.length })}
           </p>
           {resolved.map((review) => (
             <ReviewItem key={review.id} review={review} slug={slug} />
@@ -71,14 +73,30 @@ function ReviewItem({
   };
   slug: string;
 }) {
+  const { t } = useTranslation("commons");
   const resolve = useResolveReview();
   const [comment, setComment] = useState("");
   const [showResolve, setShowResolve] = useState(false);
 
   const statusConfig = {
-    pending: { icon: Clock, color: "text-amber-400", bg: "bg-amber-400/10", label: "Pending" },
-    approved: { icon: Check, color: "text-green-400", bg: "bg-green-400/10", label: "Approved" },
-    changes_requested: { icon: X, color: "text-red-400", bg: "bg-red-400/10", label: "Changes Requested" },
+    pending: {
+      icon: Clock,
+      color: "text-amber-400",
+      bg: "bg-amber-400/10",
+      label: t("rightPanel.reviews.status.pending"),
+    },
+    approved: {
+      icon: Check,
+      color: "text-green-400",
+      bg: "bg-green-400/10",
+      label: t("rightPanel.reviews.status.approved"),
+    },
+    changes_requested: {
+      icon: X,
+      color: "text-red-400",
+      bg: "bg-red-400/10",
+      label: t("rightPanel.reviews.status.changesRequested"),
+    },
   };
 
   const cfg = statusConfig[review.status];
@@ -94,7 +112,9 @@ function ReviewItem({
           <div className="flex items-center gap-1.5">
             <span className={`text-[10px] font-semibold ${cfg.color}`}>{cfg.label}</span>
             <span className="text-[10px] text-muted-foreground">
-              by {review.requester?.name ?? "Unknown"}
+              {t("rightPanel.reviews.by", {
+                name: review.requester?.name ?? t("rightPanel.reviews.unknown"),
+              })}
             </span>
           </div>
 
@@ -115,9 +135,9 @@ function ReviewItem({
 
           {review.comment && (
             <p className="mt-1 text-[11px] italic text-muted-foreground">
-              &ldquo;{review.comment}&rdquo;
+              {review.comment}
               {review.reviewer && (
-                <span className="ml-1 not-italic">— {review.reviewer.name}</span>
+                <span className="ml-1 not-italic">- {review.reviewer.name}</span>
               )}
             </p>
           )}
@@ -130,13 +150,13 @@ function ReviewItem({
                     onClick={() => resolve.mutate({ id: review.id, slug, status: "approved" })}
                     className="rounded bg-green-600/20 px-2 py-0.5 text-[10px] font-medium text-green-400 hover:bg-green-600/30"
                   >
-                    Approve
+                    {t("rightPanel.reviews.approve")}
                   </button>
                   <button
                     onClick={() => setShowResolve(true)}
                     className="rounded bg-red-600/20 px-2 py-0.5 text-[10px] font-medium text-red-400 hover:bg-red-600/30"
                   >
-                    Request Changes
+                    {t("rightPanel.reviews.requestChanges")}
                   </button>
                 </div>
               ) : (
@@ -145,7 +165,7 @@ function ReviewItem({
                   type="text"
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  placeholder="What needs to change?"
+                  placeholder={t("rightPanel.reviews.changePlaceholder")}
                     className="w-full rounded-xl border border-border-default bg-surface-overlay px-2.5 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                 />
                   <div className="flex gap-1.5">
@@ -157,13 +177,13 @@ function ReviewItem({
                       }}
                       className="rounded bg-red-600/20 px-2 py-0.5 text-[10px] font-medium text-red-400 hover:bg-red-600/30"
                     >
-                      Submit
+                      {t("rightPanel.reviews.submit")}
                     </button>
                     <button
                       onClick={() => { setShowResolve(false); setComment(""); }}
                       className="rounded px-2 py-0.5 text-[10px] text-muted-foreground hover:text-foreground"
                     >
-                      Cancel
+                      {t("rightPanel.reviews.cancel")}
                     </button>
                   </div>
                 </div>

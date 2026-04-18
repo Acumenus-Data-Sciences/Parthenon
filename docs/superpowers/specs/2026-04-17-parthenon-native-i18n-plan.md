@@ -8,6 +8,12 @@ Status: Implementation started
 
 Branch: `feature/parthenon-native-i18n`
 
+Unified merge branch: `codex/parthenon-i18n-unified`
+
+Merged source branches: `feature/parthenon-native-i18n`, `codex/parthenon-i18n-pr5-message-contract`
+
+Previous isolated Codex branch: `codex/parthenon-i18n-pr5-message-contract`
+
 ## Implementation Progress
 
 2026-04-17:
@@ -48,14 +54,19 @@ Branch: `feature/parthenon-native-i18n`
 - Added backend coverage for Korean public validation envelopes, Spanish authenticated validation envelopes, localized unauthenticated errors, help error message keys, and all-locale presence of core backend contract keys.
 - Deployed the PR5 backend contract update from the i18n worktree. Post-deploy smoke passed for `/`, `/login`, `/jobs`, Sanctum CSRF, API 404 handling, and HADES package readiness.
 - Live API contract smoke passed for Korean validation errors, Korean unauthenticated errors, Spanish invalid login errors, authenticated help not-found errors, and public/docs routes.
+- Fixed Docusaurus source links that used hard `/docs/...` prefixes so localized builds no longer generate doubled `/docs/{locale}/docs/...` routes. Rebuilt docs for English, Spanish, Korean, and Arabic, synced generated docs assets to the live static root, and verified blog/migration/source target routes return HTTP 200 across all four docs locales.
 - Continued PR5 on non-FinnGen study workflows only. `StudyController` create/update/delete/execute/add-analysis/remove-analysis/transition responses now emit localized `study.*` message keys and fallback metadata; domain exceptions keep a stable localized envelope plus diagnostic `detail`.
 - Added `study.php` backend language files for every backend i18n locale and frontend typing for study transition responses to extend `ApiMessageEnvelope`.
 - Added focused study message-contract tests for Spanish creation, Korean transitions with `message_params`, Spanish invalid transition errors, wrong-study analysis removal errors, and all-locale presence of the new study keys. The host Laravel test run is currently blocked by unrelated root-owned FinnGen files under active development, so the focused backend suite was verified in a temporary backend copy with readable FinnGen stubs and passed 8 tests / 124 assertions. No FinnGen source or tests were modified.
+- Extended PR5 to non-FinnGen survey workflows. Public survey link/submission errors and survey campaign state errors now preserve the existing `message` field while adding localized `survey.*` `message_key` and `message_meta` coverage.
+- Added `survey.php` backend language files for every backend i18n locale, including Spanish and Korean target copy. Focused survey/message-contract tests pass: 23 tests / 225 assertions against the protected testing database path.
+- Fixed API middleware priority so Sanctum-authenticated requests resolve the persisted user locale before localized API messages are rendered; public routes still resolve locale from `X-Parthenon-Locale`, query, and `Accept-Language`.
 - Added a warn-only frontend i18n scanner (`npm run i18n:scan`) that reports hardcoded JSX text, user-facing JSX attributes, and common display text properties without blocking feature branches. It writes the full baseline to `frontend/reports/i18n-scan-full.json`.
 - Added a scoped PR3/PR4 scanner command (`npm run i18n:scan:pr3-pr4`) for app shell, shared UI, auth, and settings extraction. It writes `frontend/reports/i18n-scan-pr3-pr4.json`. Initial baseline: 208 candidates across 57 files; full frontend baseline: 8,193 candidates across 1,068 files.
 - Extracted the first PR3 app-shell cluster: Abby panel chrome and About Abby modal copy now use layout translation keys, with Spanish and Korean public-locale copy and English fallback for hidden Wave 1 locales. Updated scanner baseline: 175 PR3/PR4 candidates and 8,160 full-frontend candidates.
 - Extracted the full PR3/PR4 scanner scope for app shell, shared UI, auth, and settings. Setup wizard/onboarding, auth setup steps, shared primitives, tag modals, job progress modal, notification settings header, and intentional non-translatable proper nouns/examples are now covered. Updated scanner baseline: 0 PR3/PR4 candidates across 57 files and 7,985 full-frontend candidates across 1,068 files.
 - Verified the current i18n branch with frontend i18n tests, TypeScript project check using the declared TypeScript 6 line, focused ESLint on touched frontend files, `git diff --check`, and backend locale/profile tests against local PostgreSQL 17 `parthenon_testing`.
+- Created the isolated Codex worktree `/home/smudoshi/Github/Parthenon-codex-i18n-pr5` on `codex/parthenon-i18n-pr5-message-contract`, transplanted only i18n-owned changes, and explicitly excluded active FinnGen work and generated cohort fixture changes. Clean branch verification passed: no uncommitted FinnGen/cohort fixture paths, `git diff --check`, PHP lint, frontend ESLint, TypeScript project check, i18n scanner/report, i18n Vitest suite, and focused Laravel API message-contract tests against PostgreSQL 17 (`42 passed`, `1 skipped`, `440 assertions`).
 
 ## Executive Summary
 
@@ -598,6 +609,67 @@ Recommended next implementation step:
 3. Add provider-neutral backend service interfaces and a no-op/local-file provider.
 4. Add a DeepL/OpenAI prototype behind feature flags for Class 0 strings only.
 5. Run the bakeoff before purchasing or committing to production provider credentials.
+
+Implementation update:
+
+- Added `scripts/i18n/export-translation-assets.mjs` as the first repo-managed `translation_assets` pipeline.
+- Added `scripts/i18n/validate-translation-assets.mjs` as the first local asset QA gate.
+- Added `scripts/i18n/import-translation-assets.mjs` as the first safe reviewed-asset import/staging path.
+- Added provider-neutral backend translation contracts, DTOs, data-class policy, placeholder integrity checks, and a local provider that never calls an external service.
+- Added `translation:draft-assets` as a provider-backed Artisan command for drafting/reviewing exported message rows before import.
+- Default export locale set is the public pilot set: `en-US`, `es-ES`, and `ko-KR`.
+- Export outputs are written under `output/translation-assets/**` and are intentionally ignored build artifacts.
+- The exporter emits:
+  - frontend i18next namespace JSON plus `messages.json` and `messages.csv`;
+  - backend Laravel lang JSON plus `messages.json` and `messages.csv`;
+  - contextual help JSON plus `messages.json` and `messages.csv`;
+  - Docusaurus source MDX/blog copies, `documents.json`, `documents.csv`, locale metadata, copied docs-site config/sidebar sources, and MDX protection notes.
+- The validator checks placeholder parity, HTML/MDX tag parity, protected-term warnings, Docusaurus copied source files, balanced code fences, preserved frontmatter, and generated-output leakage.
+- The importer validates first, stages frontend/backend reviewed JSON for review, supports deterministic help JSON apply, and supports Docusaurus translated MDX apply from `docusaurus/translated/{docusaurusLocale}/{docs|blog}/**`.
+- Generated docs surfaces are excluded: `docs/site/build/**`, `docs/dist/**`, and `docs/site/.docusaurus/**`.
+- The backend `finngen` namespace is excluded while FinnGen remains under active development.
+- Package shortcuts:
+  - `cd frontend && npm run i18n:export-assets`
+  - `cd frontend && npm run i18n:validate-assets`
+  - `cd frontend && npm run i18n:import-assets`
+  - `cd docs/site && npm run i18n:export-assets`
+  - `cd docs/site && npm run i18n:validate-assets`
+  - `cd docs/site && npm run i18n:import-assets`
+- Smoke export result for the pilot set:
+  - frontend: 951 source keys, 1,902 target rows;
+  - backend: 87 source keys, 174 target rows;
+  - help: 456 source strings, 912 target rows;
+  - Docusaurus: 146 source documents, including 91 docs pages and 55 blog posts.
+- Smoke validation result for the pilot set: 0 errors, with 896 expected contextual-help missing-translation warnings until help topics are translated beyond the Dashboard pilot.
+- Smoke import dry-run result for the pilot set: validation passed, staged 2 frontend locale JSON files, 2 backend locale JSON files, 1 Spanish help topic, and 2 Docusaurus locale dropoff plans.
+- Backend translation contract tests pass with an in-memory test database: provider binding, source fallback behavior, placeholder/tag review, PHI blocking, and placeholder extraction.
+- Backend draft command tests pass with an in-memory test database: missing-row drafting, local source fallback marking, and fail-on-review placeholder enforcement.
+- Smoke provider draft result for the current pilot bundle: local provider drafted 896 missing contextual-help rows, with 0 review failures and 896 source-fallback warnings.
+- Korean Dashboard contextual help is localized. Help validation now reports 896 missing contextual-help rows instead of 904.
+- Spanish and Korean core contextual help is localized for Abby AI, Studies, Cohort Builder, Concept Set Builder, Data Explorer, Analyses, Jobs, Administration, and Vocabulary Search.
+- Smoke validation after the core help pack reports 0 errors and 762 missing contextual-help warnings. Smoke import dry-run now previews 20 localized help files across Spanish and Korean.
+- Spanish and Korean analysis/cohort/data-quality contextual help is localized for Characterization, Incidence Rates, Population-Level Estimation, Patient-Level Prediction, Treatment Pathways, Evidence Synthesis, SCCS, Cohort Builder primary criteria/inclusion/exit subpages, Data Quality Dashboard, Achilles Heel, and Source Profiler.
+- Smoke validation after the analysis/cohort/data-quality help pack reports 0 errors and 568 missing contextual-help warnings. Smoke import dry-run now previews 46 localized help files across Spanish and Korean.
+- Spanish and Korean administration contextual help is localized for AI Providers, Auth Providers, FHIR Connections, FHIR Export, FHIR Sync Monitor, Notifications, Roles, Solr, System Health, Users, Vocabulary, WebAPI Registry, and the Administration overview.
+- Smoke validation after the administration help pack reports 0 errors and 346 missing contextual-help warnings. Smoke import dry-run now previews 72 localized help files across Spanish and Korean.
+- Spanish and Korean contextual help now covers every English help topic in `backend/resources/help`, including care gaps, data ingestion, data sources, ETL/FHIR tooling, genomics, GIS, HEOR, imaging, Jupyter, mapping, patient profiles/timelines/similarity, publishing, query assistant, study designer, and study packages.
+- Smoke validation after the full help pack reports 0 errors and 0 warnings across the pilot translation asset bundle. Smoke import dry-run now previews 112 localized help files across Spanish and Korean, and `translation:draft-assets` reports 0 candidate rows.
+- Added a contextual-help regression test that requires every English help topic to have Spanish and Korean pilot files with matching help keys, so new help pages cannot silently fall back in the public pilot languages.
+- Added native Docusaurus i18n catalogs for Spanish (`es`) and Korean (`ko`) covering generated theme strings, navbar labels, footer labels, docs sidebar labels, and blog chrome.
+- Added the Docusaurus navbar locale dropdown and limited public docs-site locales to the current pilot set (`en`, `es`, `ko`) so unfinished QA-only locales are not exposed in the docs UI.
+- Docusaurus locale build smoke checks pass for Spanish and Korean with `npx docusaurus build --locale es --out-dir build-es-smoke` and `npx docusaurus build --locale ko --out-dir build-ko-smoke`. Both builds report the existing `vscode-languageserver-types` dynamic require warning only.
+- Added Spanish and Korean native MDX translations for the Docusaurus user-manual entry page (`intro.mdx`) as the first docs-content slice. Locale build smoke checks pass when run sequentially; Docusaurus locale builds should not be run in parallel because they share the generated `.docusaurus` cache.
+- Added Spanish and Korean native MDX translations for the Docusaurus Dashboard page (`part1-getting-started/00-dashboard.mdx`) so the public pilot docs include a localized high-visibility feature page.
+- Added `scripts/i18n/report-docusaurus-coverage.mjs` and `cd docs/site && npm run i18n:coverage` to report docs/blog source counts, translated Spanish/Korean counts, missing files by locale, and Docusaurus chrome catalog presence. Current coverage report: 91 docs and 55 blog posts in source; Spanish and Korean each have 2/91 docs translated, 0/55 blog posts translated, 5/5 chrome catalogs present.
+- Added Spanish and Korean native MDX translations for `part1-getting-started/01-introduction.mdx`. Current coverage report: Spanish and Korean each have 3/91 docs translated, 0/55 blog posts translated, and 5/5 chrome catalogs present.
+- Added Spanish and Korean native MDX translations for `part1-getting-started/02-data-sources.mdx`, preserving stable in-page anchors for localized section headings. Current coverage report: Spanish and Korean each have 4/91 docs translated, 0/55 blog posts translated, and 5/5 chrome catalogs present.
+- Added Spanish and Korean native MDX translations for `part2-vocabulary/03-vocabulary-browser.mdx`, preserving the stable `#vocabulary-versions` anchor used by the Concept Sets page. Current coverage report: Spanish and Korean each have 5/91 docs translated, 0/55 blog posts translated, and 5/5 chrome catalogs present.
+- Added Spanish and Korean native MDX translations for `part2-vocabulary/04-concept-sets.mdx`, keeping the OHDSI/Atlas-compatible JSON export example unchanged. Current coverage report: Spanish and Korean each have 6/91 docs translated, 0/55 blog posts translated, and 5/5 chrome catalogs present.
+- Added Spanish and Korean native MDX translations for `part3-cohorts/06-building-cohorts.mdx`, preserving CIRCE, SQL, and example cohort identifiers. Current coverage report: Spanish and Korean each have 7/91 docs translated, 0/55 blog posts translated, and 5/5 chrome catalogs present.
+- Added Spanish and Korean native MDX translations for `part6-data-explorer/18-characterization-achilles.mdx`, preserving Achilles schema, service, and analysis identifier names. Current coverage report: Spanish and Korean each have 8/91 docs translated, 0/55 blog posts translated, and 5/5 chrome catalogs present.
+- Added Spanish and Korean native MDX translations for `part6-data-explorer/19-data-quality-dashboard.mdx`, preserving DQD, Achilles Heel, and threshold terminology. Current coverage report: Spanish and Korean each have 9/91 docs translated, 0/55 blog posts translated, and 5/5 chrome catalogs present.
+- Added Spanish and Korean native MDX translations for `part8-administration/22-user-management.mdx`, preserving role, token, mail-driver, and Artisan command identifiers. Current coverage report: Spanish and Korean each have 10/91 docs translated, 0/55 blog posts translated, and 5/5 chrome catalogs present.
+- Added `docs/site/.npmrc` with `legacy-peer-deps=true` so plain `npm ci` in the docs package follows the documented React 19/local-search peer dependency workaround until the local-search package peer range catches up.
 
 ## Target Architecture
 
@@ -1541,8 +1613,16 @@ This section turns the strategy above into a branch-level implementation checkli
 - [ ] Keep Arabic and `en-XA` in smoke tests for layout and direction only.
 - [x] Add missing-key telemetry in warn-only mode.
 - [x] Add hardcoded user-facing string scanner/reporting in warn-only mode.
-- [ ] Add a translation completeness report for `en-US`, `es-ES`, `ko-KR`, `ar`, and `en-XA`.
+- [x] Add a translation completeness report for `en-US`, `es-ES`, `ko-KR`, `ar`, and `en-XA`.
 - [x] Run focused frontend and backend locale tests before expanding into more surfaces.
+
+#### Next Phase TODOs
+
+- [x] Finish the high-visibility Docusaurus docs pilot for Spanish and Korean: Introduction, Data Sources, Vocabulary Browser, Concept Sets, Building Cohorts, Achilles Characterization, Data Quality Dashboard, and User Management are complete.
+- [x] Add Docusaurus translation coverage tracking that reports source docs/blog counts, translated Spanish/Korean counts, and missing files by locale without failing CI until thresholds are agreed.
+- [x] Resolve or document the docs dependency install path: `docs/site` now has a package-scoped `.npmrc` so `npm ci` uses `legacy-peer-deps=true` for the React 19/local-search peer range conflict.
+- [ ] Run visual smoke screenshots for app Dashboard, topnav language selector, Dashboard contextual help, Docusaurus docs home, Docusaurus Dashboard docs page, and the Docusaurus locale dropdown in English, Spanish, and Korean.
+- [ ] Refresh or open the PR once the next docs slice is complete, with the branch story centered on native app i18n, per-user language preference, complete pilot contextual help, Docusaurus native locale chrome, and first translated docs pages.
 
 Branch goals:
 
@@ -1731,7 +1811,7 @@ Verification:
 - API response snapshot tests for localized and fallback cases.
 - Contract documentation update.
 
-Status: In progress. The reusable `ApiMessage` envelope is implemented and wired through auth/profile/help/study responses while preserving existing `message` compatibility. Global API exception handling now standardizes validation, unauthenticated, and authorization failures with localized `message_key`, optional `message_params`, `message_meta`, and existing `errors` compatibility. Focused tests cover Spanish public auth localization, Korean public validation errors, Spanish authenticated validation errors, localized unauthenticated errors, profile/help/study message keys, replacement params, fallback metadata, and all-locale presence of core backend contract keys. FinnGen controller migration is intentionally deferred while that area is under active development. Remaining PR 5 work is the larger migration of domain-specific controller success/error strings across analyses, cohort authoring, public survey flows, study sub-resources, and admin operational endpoints.
+Status: In progress. The reusable `ApiMessage` envelope is implemented and wired through auth/profile/help/study responses while preserving existing `message` compatibility. Global API exception handling now standardizes validation, unauthenticated, and authorization failures with localized `message_key`, optional `message_params`, `message_meta`, and existing `errors` compatibility. Non-FinnGen survey public-link/submission errors and campaign state errors now use localized `survey.*` keys across every backend i18n locale. Focused tests cover Spanish public auth localization, Korean public validation errors, Spanish authenticated validation errors, localized unauthenticated errors, profile/help/study/survey message keys, replacement params, fallback metadata, and all-locale presence of core backend contract keys. FinnGen controller migration is intentionally deferred while that area is under active development. Remaining PR 5 work is the larger migration of domain-specific controller success/error strings across analyses, cohort authoring, study sub-resources, and admin operational endpoints.
 
 #### PR 6: Formatting Layer Migration
 

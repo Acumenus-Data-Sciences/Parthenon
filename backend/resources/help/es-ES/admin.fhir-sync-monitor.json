@@ -1,0 +1,17 @@
+{
+  "key": "admin.fhir-sync-monitor",
+  "title": "Monitor de sincronización FHIR",
+  "description": "Un panel de monitoreo de pipeline ETL en tiempo real que agrega actividad de sincronización en todas las conexiones FHIR. Muestra rendimiento de pipeline, tendencias de actividad de sincronización de los últimos 30 días, estado de salud por conexión y métricas detalladas de ejecuciones recientes.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "El panel se actualiza automáticamente cada 10 segundos cuando hay ejecuciones de sincronización activas, y cada 60 segundos cuando está inactivo.",
+    "Seis tarjetas de métricas principales muestran conexiones totales (activas/total), conteos de ejecuciones, registros escritos y cobertura promedio de mapeo de un vistazo.",
+    "El panel Rendimiento de pipeline muestra totales históricos en cuatro etapas: registros extraídos, mapeados, escritos y fallidos.",
+    "El gráfico Actividad de sincronización visualiza ejecuciones completadas y fallidas durante los últimos 30 días. Pase el cursor sobre cualquier barra para ver el desglose exacto de ese día.",
+    "El panel Salud de conexiones lista cada conexión FHIR con su último estado de sincronización, conteo de ejecuciones y marca de tiempo. Haga clic en una conexión para navegar a su página de detalle.",
+    "La tabla Sincronizaciones recientes muestra las últimas 20 ejecuciones en todas las conexiones, con estado, duración, conteos de registros y cobertura de mapeo.",
+    "La cobertura de mapeo se muestra como una barra de progreso codificada por color: verde para 80% o más, ámbar para 50-79% y rojo por debajo de 50%.",
+    "Haga clic en el icono de error de cualquier ejecución fallida para expandir y ver el mensaje completo de error para solución de problemas."
+  ]
+}

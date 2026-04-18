@@ -1,0 +1,13 @@
+{
+  "key": "publish",
+  "title": "Publicar y exportar",
+  "description": "El módulo Publicar permite a los equipos de investigación empaquetar y exportar definiciones de cohortes, conjuntos de conceptos, análisis y artefactos de estudio para compartir con colaboradores o enviar a repositorios externos. Los objetos de investigación finalizados pueden versionarse, anotarse con metadatos de procedencia y distribuirse en formatos estándar compatibles con el ecosistema OMOP más amplio.",
+  "docs_url": "/docs/part4-analyses/14-studies",
+  "video_url": null,
+  "tips": [
+    "Revise todos los conjuntos de conceptos y definiciones de cohortes dependientes antes de publicar para asegurar que el paquete exportado sea autocontenido.",
+    "Agregue notas de versión descriptivas al publicar para facilitar que colaboradores entiendan qué cambió entre iteraciones.",
+    "Use el paso de validación para confirmar que todas las conexiones de fuentes de datos referenciadas se resuelven correctamente antes de finalizar la exportación.",
+    "Los artefactos publicados retienen sus identificadores originales, de modo que los equipos importadores puedan conciliarlos contra su instancia local de Parthenon sin conflictos."
+  ]
+}

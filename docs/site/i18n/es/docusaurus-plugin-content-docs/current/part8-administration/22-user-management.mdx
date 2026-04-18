@@ -1,0 +1,134 @@
+---
+id: 22-user-management
+title: "22. Gestión de usuarios"
+sidebar_label: "22. Gestión de usuarios"
+---
+
+# Gestión de usuarios
+
+El sistema de gestión de usuarios de Parthenon controla quién puede acceder a la plataforma, qué roles tiene y cómo se autentica. Todas las funciones de gestión de usuarios requieren el rol **admin** o **super-admin** y se acceden desde la sección **Admin > Users**.
+
+## Lista de usuarios
+
+Vaya a **Admin > Users** para ver todos los usuarios registrados. La lista muestra una tabla ordenable y buscable:
+
+| Columna | Descripción |
+|---------|-------------|
+| **Name** | Nombre completo del usuario |
+| **Email** | Dirección de correo de inicio de sesión (identificador único) |
+| **Roles** | Roles asignados mostrados como insignias, por ejemplo `researcher`, `admin` |
+| **Status** | Active (verde) o Suspended (rojo) |
+| **Must Change Password** | Bandera que indica un cambio forzado de contraseña pendiente en el próximo inicio de sesión |
+| **Last Login** | Marca temporal de la autenticación exitosa más reciente |
+| **Created** | Fecha de creación de la cuenta |
+
+Use la barra de búsqueda para filtrar por nombre o correo. Haga clic en los encabezados de columna para ordenar. La lista admite paginación para organizaciones con muchos usuarios.
+
+## Crear un usuario
+
+1. Haga clic en **New User** en la esquina superior derecha.
+2. Ingrese el **Full Name** y **Email Address** del usuario.
+3. Asigne uno o más **Roles** (consulte el [Capítulo 23 -- Roles y permisos](23-roles-permissions)).
+4. Haga clic en **Create User**.
+
+### Generación y entrega de contraseña
+
+Cuando se crea un usuario, Parthenon:
+
+1. Genera una contraseña temporal criptográficamente aleatoria.
+2. Establece la bandera `must_change_password` en `true` en el registro de usuario.
+3. Envía la contraseña temporal al correo del usuario mediante el proveedor de correo configurado (consulte el [Capítulo 25 -- Configuración del sistema](25-system-configuration)).
+4. En el primer inicio de sesión del usuario, aparece un **modal no descartable de cambio de contraseña**, que exige definir una nueva contraseña antes de acceder a cualquier función de la plataforma.
+
+:::info Configuración de correo
+Si el correo está configurado con el driver `log` (modo desarrollo), las contraseñas temporales se escriben en el archivo de log de Laravel en lugar de enviarse por correo. En producción, configure un proveedor real de correo (Resend, SMTP, Mailgun o Amazon SES) para asegurar que los usuarios reciban sus credenciales.
+:::
+
+## Editar un usuario
+
+Haga clic en el icono **Edit** en cualquier fila de usuario para abrir el panel de edición:
+
+- **Change name or email**: actualice el nombre visible o la dirección de correo de inicio de sesión del usuario.
+- **Add or remove roles**: modifique asignaciones de roles; los cambios tienen efecto en la próxima llamada API del usuario.
+- **Reset password**: genera una nueva contraseña temporal, la envía por correo y establece `must_change_password = true`.
+- **Suspend or reactivate**: alterna el acceso a la cuenta (consulte abajo).
+
+## Suspender cuentas
+
+Los usuarios suspendidos no pueden iniciar sesión. Cuando se suspende una cuenta:
+
+1. Todos los tokens de sesión existentes (tokens de acceso personal de Sanctum) se invalidan inmediatamente.
+2. Cualquier sesión activa de navegador termina en la siguiente solicitud.
+3. El usuario ve un mensaje "Account suspended" si intenta iniciar sesión.
+
+La suspensión es **reversible**: haga clic en **Reactivate** para restaurar el acceso completo. Los datos del usuario, objetos creados (definiciones de cohortes, conjuntos de conceptos, análisis) e historial de auditoría se preservan.
+
+:::tip Use suspensión en lugar de eliminación
+Cuando un empleado cambia de rol, toma licencia o se transfiere a otro departamento, suspenda su cuenta en lugar de eliminarla. Esto preserva:
+
+- Sus definiciones de cohortes y conjuntos de conceptos creados.
+- Historial de ejecución de análisis.
+- Entradas del rastro de auditoría.
+- Configuración de roles y permisos para reactivación fácil.
+:::
+
+## Eliminar un usuario
+
+Eliminar un usuario remueve permanentemente su cuenta de Parthenon. Antes de la eliminación:
+
+- Los objetos que creó (definiciones de cohortes, conjuntos de conceptos, análisis) se **reasignan** al administrador que realiza la eliminación.
+- Las entradas de audit log que referencian a este usuario se preservan con su user ID original para cumplimiento.
+- Las sesiones activas y tokens se destruyen.
+
+Use eliminación solo cuando una cuenta se creó por error. En todos los demás casos, prefiera suspensión.
+
+:::warning Acción irreversible
+La eliminación de usuarios no puede deshacerse. Las credenciales de autenticación, asignaciones de roles y preferencias del usuario se eliminan permanentemente. Si el usuario necesita acceso nuevamente en el futuro, debe crearse una cuenta nueva.
+:::
+
+## Importación masiva
+
+Para incorporar equipos u organizaciones grandes, use la función **Import Users**:
+
+1. Haga clic en **Import Users** en la sección Admin > Users.
+2. Cargue un archivo CSV con las siguientes columnas:
+
+```csv
+name,email,role
+Jane Smith,jane.smith@hospital.org,researcher
+Bob Chen,bob.chen@hospital.org,viewer
+Alice Wong,alice.wong@hospital.org,admin
+```
+
+3. Parthenon valida el CSV:
+   - Comprueba direcciones de correo duplicadas (contra usuarios existentes y dentro del CSV).
+   - Valida nombres de roles contra los roles configurados.
+   - Marca formatos de correo inválidos.
+4. Haga clic en **Import** para crear todas las cuentas.
+5. Se generan contraseñas temporales y se envían a cada usuario mediante correo por lote.
+
+El resumen de importación muestra cuántas cuentas se crearon, omitieron (duplicados) y fallaron (errores de validación).
+
+## Autorregistro
+
+Si el administrador habilitó el autorregistro en [System Configuration](25-system-configuration), los nuevos usuarios pueden crear cuentas en la página `/register`:
+
+1. El usuario ingresa su **name** y **email address**.
+2. Parthenon genera una contraseña temporal y la envía por correo.
+3. El usuario inicia sesión con la contraseña temporal y debe cambiarla inmediatamente.
+4. Todas las cuentas autorregistradas reciben el rol **Viewer** por defecto.
+5. Un administrador debe actualizar manualmente el rol del usuario (a `researcher` o superior) para otorgar permisos adicionales.
+
+:::tip Restricción de correo institucional
+Por seguridad, considere restringir el autorregistro a dominios de correo específicos, por ejemplo `@yourhospital.org`. Esto evita que usuarios externos no autorizados creen cuentas. Configure la lista de dominios permitidos en **Admin > System Configuration > Registration Settings**.
+:::
+
+## Comando de seed de administrador
+
+Para configuración inicial o después de una migración de base de datos limpia, use el comando Artisan para crear la cuenta super-admin:
+
+```bash
+php artisan admin:seed
+```
+
+Este comando interactivo solicita el nombre, correo y contraseña del administrador. Usa lógica `upsert`: si ya existe una cuenta con el correo especificado, actualiza el registro existente en lugar de crear un duplicado. El admin sembrado tiene `must_change_password = false`, por lo que puede acceder al sistema inmediatamente.

@@ -1,0 +1,13 @@
+{
+  "key": "data-explorer.heel",
+  "title": "Achilles Heel 검사",
+  "description": "Achilles Heel은 미래 날짜, 불가능한 나이, 필수 개념 누락, 비정상적으로 높거나 낮은 레코드 수처럼 흔한 CDM 문제를 표시하는 규칙 기반 데이터 품질 검사 모음입니다. 결과는 Heel Checks 탭에 표시됩니다.",
+  "docs_url": "/docs/part6-data-explorer/18-characterization-achilles",
+  "video_url": null,
+  "tips": [
+    "단순 경고가 아닌 오류는 연구에 데이터베이스를 사용하기 전에 해결해야 합니다.",
+    "빈도가 높은 위반은 ETL 문제를 가리키는 경우가 많습니다. Heel 보고서를 데이터 엔지니어링 팀과 공유하세요.",
+    "새로 도입된 문제를 잡으려면 ETL 새로고침이나 용어 업데이트 후 Heel을 실행하세요.",
+    "rule_id 열은 문서화된 Achilles Heel 규칙에 매핑됩니다. 근본 원인을 이해하려면 해당 규칙을 찾아보세요."
+  ]
+}

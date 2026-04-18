@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Database,
@@ -28,24 +29,26 @@ import { useRecordCounts, useDemographics, useObservationPeriods } from "@/featu
 import { ProportionalBar } from "@/features/data-explorer/components/charts/ProportionalBar";
 import { DemographicsPyramid } from "@/features/data-explorer/components/charts/DemographicsPyramid";
 import { Sparkline } from "@/features/data-explorer/components/charts/Sparkline";
-import { formatCompact, GENDER_COLORS } from "@/features/data-explorer/components/charts/chartUtils";
+import { GENDER_COLORS } from "@/features/data-explorer/components/charts/chartUtils";
 import { HelpButton } from "@/features/help";
+import { formatNumber } from "@/i18n/format";
 
 // Domain table → display config
-const DOMAIN_CONFIG: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-  condition_occurrence: { label: "Conditions", icon: <HeartPulse size={14} />, color: "var(--critical)" },
-  drug_exposure: { label: "Drug Exposures", icon: <Pill size={14} />, color: "var(--info)" },
-  procedure_occurrence: { label: "Procedures", icon: <Syringe size={14} />, color: "var(--accent)" },
-  measurement: { label: "Measurements", icon: <Microscope size={14} />, color: "var(--success)" },
-  observation: { label: "Observations", icon: <Eye size={14} />, color: "var(--domain-observation)" },
-  visit_occurrence: { label: "Visits", icon: <CalendarDays size={14} />, color: "var(--domain-device)" },
-  drug_era: { label: "Drug Eras", icon: <Pill size={14} />, color: "#38BDF8" },
-  condition_era: { label: "Condition Eras", icon: <HeartPulse size={14} />, color: "#FB7185" },
-  device_exposure: { label: "Devices", icon: <Stethoscope size={14} />, color: "#4ADE80" },
-  death: { label: "Deaths", icon: <Skull size={14} />, color: "var(--text-muted)" },
+const DOMAIN_CONFIG: Record<string, { labelKey: string; icon: React.ReactNode; color: string }> = {
+  condition_occurrence: { labelKey: "cdm.domains.conditionOccurrence", icon: <HeartPulse size={14} />, color: "var(--critical)" },
+  drug_exposure: { labelKey: "cdm.domains.drugExposure", icon: <Pill size={14} />, color: "var(--info)" },
+  procedure_occurrence: { labelKey: "cdm.domains.procedureOccurrence", icon: <Syringe size={14} />, color: "var(--accent)" },
+  measurement: { labelKey: "cdm.domains.measurement", icon: <Microscope size={14} />, color: "var(--success)" },
+  observation: { labelKey: "cdm.domains.observation", icon: <Eye size={14} />, color: "var(--domain-observation)" },
+  visit_occurrence: { labelKey: "cdm.domains.visitOccurrence", icon: <CalendarDays size={14} />, color: "var(--domain-device)" },
+  drug_era: { labelKey: "cdm.domains.drugEra", icon: <Pill size={14} />, color: "#38BDF8" },
+  condition_era: { labelKey: "cdm.domains.conditionEra", icon: <HeartPulse size={14} />, color: "#FB7185" },
+  device_exposure: { labelKey: "cdm.domains.deviceExposure", icon: <Stethoscope size={14} />, color: "#4ADE80" },
+  death: { labelKey: "cdm.domains.death", icon: <Skull size={14} />, color: "var(--text-muted)" },
 };
 
 export function DashboardPage() {
+  const { t } = useTranslation("dashboard");
   const { data: stats, isLoading, error } = useDashboardStats();
   const navigate = useNavigate();
   const activeSourceId = useSourceStore((s) => s.activeSourceId);
@@ -75,8 +78,15 @@ export function DashboardPage() {
   const sparklineValues = sparklineData ? Object.values(sparklineData) : [];
 
   // Gender segments
+  const genderLabel = (conceptName: string) => {
+    const normalized = conceptName.trim().toLowerCase();
+    if (normalized === "male") return t("cdm.gender.male");
+    if (normalized === "female") return t("cdm.gender.female");
+    return conceptName;
+  };
+
   const genderSegments = demographics?.gender.map((g) => ({
-    label: g.concept_name,
+    label: genderLabel(g.concept_name),
     value: g.count,
     color: GENDER_COLORS[g.concept_name] ?? "var(--text-muted)",
   })) ?? [];
@@ -92,15 +102,26 @@ export function DashboardPage() {
   const maxDomainCount = domainCounts.length > 0 ? domainCounts[0].count : 1;
 
   const cdmLoading = recordsLoading || demoLoading || obsLoading;
+  const compactNumber = (value: number) =>
+    formatNumber(value, {
+      notation: "compact",
+      maximumFractionDigits: 1,
+    });
+  const wholeNumber = (value: number) =>
+    formatNumber(value, { maximumFractionDigits: 0 });
+  const personsText =
+    personCount > 0
+      ? t("metrics.descriptions.persons", { count: compactNumber(personCount) })
+      : t("metrics.descriptions.noCdmLoaded");
 
   return (
     <div>
       {/* Page header */}
       <div className="page-header" style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
         <div style={{ flex: 1 }}>
-          <h1 className="page-title">Dashboard</h1>
+          <h1 className="page-title">{t("page.title")}</h1>
           <p className="page-subtitle">
-            Unified Outcomes Research Platform
+            {t("page.subtitle")}
           </p>
         </div>
         <HelpButton helpKey="dashboard" />
@@ -116,31 +137,53 @@ export function DashboardPage() {
       ) : (
         <div className="grid grid-cols-4 gap-4" style={{ marginBottom: "var(--space-6)" }}>
           <MetricCard
-            label="CDM Sources"
+            label={t("metrics.cdmSources")}
             value={stats?.sources.length ?? 0}
-            description={`${stats?.sources.filter(s => s.source_dialect === "postgresql").length ?? 0} PostgreSQL · ${personCount > 0 ? formatCompact(personCount) + " persons" : "No CDM loaded"}`}
+            description={t("metrics.descriptions.cdmSources", {
+              postgresqlCount:
+                stats?.sources.filter((s) => s.source_dialect === "postgresql")
+                  .length ?? 0,
+              personsText,
+            })}
             icon={<Database size={18} />}
             to="/data-sources"
           />
           <MetricCard
-            label="Running Jobs"
+            label={t("metrics.runningJobs")}
             value={stats?.activeJobCount ?? 0}
-            description={`${stats?.recentJobs.filter(j => j.status === "completed").length ?? 0} completed recently · ${stats?.recentJobs.filter(j => j.status === "failed").length ?? 0} failed`}
+            description={t("metrics.descriptions.runningJobs", {
+              completedCount:
+                stats?.recentJobs.filter((j) => j.status === "completed")
+                  .length ?? 0,
+              failedCount:
+                stats?.recentJobs.filter((j) => j.status === "failed").length ??
+                0,
+            })}
             icon={<Briefcase size={18} />}
             variant={stats?.activeJobCount ? "info" : "default"}
             to="/jobs"
           />
           <MetricCard
-            label="Concept Sets"
+            label={t("metrics.conceptSets")}
             value={stats?.conceptSetCount ?? 0}
-            description={`${tablesWithData}/${totalTables} CDM tables populated · ${completeness}% complete`}
+            description={t("metrics.descriptions.conceptSets", {
+              populatedTables: tablesWithData,
+              totalTables,
+              completeness,
+            })}
             icon={<FlaskConical size={18} />}
             to="/concept-sets"
           />
           <MetricCard
-            label="Active Cohorts"
+            label={t("metrics.activeCohorts")}
             value={stats?.cohortCount ?? 0}
-            description={`${stats?.recentCohorts.filter(c => c.person_count != null && c.person_count > 0).length ?? 0} generated · ${stats?.conceptSetCount ?? 0} concept sets`}
+            description={t("metrics.descriptions.activeCohorts", {
+              generatedCount:
+                stats?.recentCohorts.filter(
+                  (c) => c.person_count != null && c.person_count > 0,
+                ).length ?? 0,
+              conceptSetCount: stats?.conceptSetCount ?? 0,
+            })}
             icon={<Users size={18} />}
             to="/cohort-definitions"
           />
@@ -151,9 +194,9 @@ export function DashboardPage() {
         <div className="alert-card alert-warning" style={{ marginBottom: "var(--space-6)" }}>
           <AlertTriangle size={18} className="alert-icon" />
           <div className="alert-content">
-            <div className="alert-title">Unable to load dashboard data</div>
+            <div className="alert-title">{t("error.title")}</div>
             <div className="alert-message">
-              The API may be unavailable. Displaying cached data if available.
+              {t("error.message")}
             </div>
           </div>
         </div>
@@ -163,15 +206,19 @@ export function DashboardPage() {
       <div className="rounded-xl border border-border-default bg-surface-base p-6" style={{ marginBottom: "var(--space-6)" }}>
         <div className="mb-5 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-text-primary">CDM Characterization</h2>
-            <p className="mt-0.5 text-sm text-text-muted">Clinical data profile for the selected source</p>
+            <h2 className="text-lg font-semibold text-text-primary">
+              {t("cdm.title")}
+            </h2>
+            <p className="mt-0.5 text-sm text-text-muted">
+              {t("cdm.subtitle")}
+            </p>
           </div>
           <div className="flex items-center gap-3">
             <Link
               to="/data-explorer"
               className="flex items-center gap-1 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-accent hover:border-accent/30 hover:text-accent"
             >
-              View Full <ArrowRight size={14} />
+              {t("cdm.viewFull")} <ArrowRight size={14} />
             </Link>
           </div>
         </div>
@@ -193,29 +240,34 @@ export function DashboardPage() {
               <div className="grid grid-cols-4 gap-4 mb-5">
                 <CdmMetricCard
                   icon={<Activity size={16} className="text-success" />}
-                  label="Persons"
-                  value={formatCompact(personCount)}
+                  label={t("cdm.metrics.persons")}
+                  value={compactNumber(personCount)}
                   sparkline={sparklineValues}
                   sparkColor="var(--success)"
                   onClick={() => navigate(`/data-explorer/${sourceId}`)}
                 />
                 <CdmMetricCard
                   icon={<Clock size={16} className="text-accent" />}
-                  label="Median Obs Duration"
-                  value={`${formatCompact(medianObsDuration)} days`}
+                  label={t("cdm.metrics.medianObservationDuration")}
+                  value={t("cdm.metrics.medianObservationDurationValue", {
+                    count: compactNumber(medianObsDuration),
+                  })}
                   onClick={() => navigate(`/data-explorer/${sourceId}`)}
                 />
                 <CdmMetricCard
                   icon={<BarChart3 size={16} className="text-info" />}
-                  label="Total Events"
-                  value={formatCompact(totalEvents)}
+                  label={t("cdm.metrics.totalEvents")}
+                  value={compactNumber(totalEvents)}
                   onClick={() => navigate(`/data-explorer/${sourceId}`)}
                 />
                 <CdmMetricCard
                   icon={<CheckCircle2 size={16} className="text-success" />}
-                  label="Data Completeness"
+                  label={t("cdm.metrics.dataCompleteness")}
                   value={`${completeness}%`}
-                  sub={`${tablesWithData}/${totalTables} tables`}
+                  sub={t("cdm.metrics.tableCount", {
+                    populatedTables: tablesWithData,
+                    totalTables,
+                  })}
                   onClick={() => navigate(`/data-explorer/${sourceId}`)}
                 />
               </div>
@@ -232,7 +284,7 @@ export function DashboardPage() {
                 {/* Left: Gender + Age Pyramid combined */}
                 <div className="rounded-lg border border-border-default bg-surface-raised p-4">
                   <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-muted">
-                    Demographics
+                    {t("cdm.demographics")}
                   </h3>
 
                   {/* Gender bar */}
@@ -247,13 +299,20 @@ export function DashboardPage() {
                     gender={demographics?.gender ?? []}
                     age={demographics?.age ?? []}
                     height={200}
+                    labels={{
+                      title: t("cdm.ageDistribution"),
+                      noData: t("cdm.noAgeDistributionData"),
+                      age: t("cdm.age"),
+                      male: t("cdm.gender.male"),
+                      female: t("cdm.gender.female"),
+                    }}
                   />
                 </div>
 
                 {/* Right: CDM Domain Counts */}
                 <div className="rounded-lg border border-border-default bg-surface-raised p-4">
                   <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-muted">
-                    CDM Domain Counts
+                    {t("cdm.domainCounts")}
                   </h3>
 
                   {domainCounts.length > 0 ? (
@@ -267,10 +326,12 @@ export function DashboardPage() {
                             <div className="mb-1 flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <span style={{ color: config.color }}>{config.icon}</span>
-                                <span className="text-xs font-medium text-text-secondary">{config.label}</span>
+                                <span className="text-xs font-medium text-text-secondary">
+                                  {t(config.labelKey)}
+                                </span>
                               </div>
                               <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-primary">
-                                {rc.count.toLocaleString()}
+                                {wholeNumber(rc.count)}
                               </span>
                             </div>
                             <div className="h-1.5 overflow-hidden rounded-full bg-surface-elevated">
@@ -284,7 +345,9 @@ export function DashboardPage() {
                       })}
                     </div>
                   ) : (
-                    <p className="text-sm text-text-ghost">No domain data available</p>
+                    <p className="text-sm text-text-ghost">
+                      {t("cdm.noDomainData")}
+                    </p>
                   )}
                 </div>
               </div>
@@ -293,7 +356,7 @@ export function DashboardPage() {
         ) : (
           <div className="flex flex-col items-center justify-center py-10">
             <Database size={32} className="mb-3 text-text-ghost" />
-            <p className="text-sm text-text-muted">Select a data source to view characterization</p>
+            <p className="text-sm text-text-muted">{t("cdm.noSource")}</p>
           </div>
         )}
       </div>
@@ -304,9 +367,11 @@ export function DashboardPage() {
         <Panel
           header={
             <>
-              <span className="panel-title">Recent Cohort Activity</span>
+              <span className="panel-title">
+                {t("panels.recentCohortActivity")}
+              </span>
               <Link to="/cohort-definitions" className="btn btn-ghost btn-sm" style={{ gap: "var(--space-1)" }}>
-                View All <ArrowRight size={14} />
+                {t("panels.viewAll")} <ArrowRight size={14} />
               </Link>
             </>
           }
@@ -319,9 +384,9 @@ export function DashboardPage() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Cohort</th>
-                  <th>Subjects</th>
-                  <th>Status</th>
+                  <th>{t("tables.cohort")}</th>
+                  <th>{t("tables.subjects")}</th>
+                  <th>{t("tables.status")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -329,7 +394,7 @@ export function DashboardPage() {
                   <tr key={cohort.id} className="clickable" onClick={() => navigate(`/cohort-definitions/${cohort.id}`)} style={{ cursor: "pointer" }} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") navigate(`/cohort-definitions/${cohort.id}`); }}>
                     <td style={{ color: "var(--text-primary)" }}>{cohort.name}</td>
                     <td className="mono">
-                      {cohort.person_count != null ? cohort.person_count.toLocaleString() : "\u2014"}
+                      {cohort.person_count != null ? wholeNumber(cohort.person_count) : "\u2014"}
                     </td>
                     <td>
                       <Badge
@@ -339,7 +404,9 @@ export function DashboardPage() {
                           "default"
                         }
                       >
-                        {cohort.status}
+                        {t(`statuses.cohort.${cohort.status}`, {
+                          defaultValue: cohort.status,
+                        })}
                       </Badge>
                     </td>
                   </tr>
@@ -349,11 +416,11 @@ export function DashboardPage() {
           ) : (
             <EmptyState
               icon={<Users size={32} />}
-              title="No cohorts yet"
-              message="Create your first cohort definition to begin research."
+              title={t("empty.noCohortsTitle")}
+              message={t("empty.noCohortsMessage")}
               action={
                 <Link to="/cohort-definitions" className="btn btn-primary btn-sm">
-                  New Cohort
+                  {t("empty.newCohort")}
                 </Link>
               }
             />
@@ -362,20 +429,20 @@ export function DashboardPage() {
 
         {/* Quick Actions */}
         <Panel
-          header={<span className="panel-title">Quick Actions</span>}
+          header={<span className="panel-title">{t("panels.quickActions")}</span>}
         >
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
             <Link to="/data-sources" className="btn btn-secondary" style={{ justifyContent: "flex-start" }}>
-              <Database size={16} /> Connect a Data Source
+              <Database size={16} /> {t("quickActions.connectDataSource")}
             </Link>
             <Link to="/cohort-definitions" className="btn btn-secondary" style={{ justifyContent: "flex-start" }}>
-              <Users size={16} /> Create Cohort Definition
+              <Users size={16} /> {t("quickActions.createCohortDefinition")}
             </Link>
             <Link to="/concept-sets" className="btn btn-secondary" style={{ justifyContent: "flex-start" }}>
-              <FlaskConical size={16} /> Build Concept Set
+              <FlaskConical size={16} /> {t("quickActions.buildConceptSet")}
             </Link>
             <Link to="/data-explorer" className="btn btn-secondary" style={{ justifyContent: "flex-start" }}>
-              <Database size={16} /> Explore Data Quality
+              <Database size={16} /> {t("quickActions.exploreDataQuality")}
             </Link>
           </div>
         </Panel>
@@ -386,9 +453,9 @@ export function DashboardPage() {
         <Panel
           header={
             <>
-              <span className="panel-title">Source Health</span>
+              <span className="panel-title">{t("panels.sourceHealth")}</span>
               <Link to="/data-sources" className="btn btn-ghost btn-sm" style={{ gap: "var(--space-1)" }}>
-                View All <ArrowRight size={14} />
+                {t("panels.viewAll")} <ArrowRight size={14} />
               </Link>
             </>
           }
@@ -401,9 +468,9 @@ export function DashboardPage() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Source</th>
-                  <th>Dialect</th>
-                  <th>Status</th>
+                  <th>{t("tables.source")}</th>
+                  <th>{t("tables.dialect")}</th>
+                  <th>{t("tables.status")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -416,7 +483,9 @@ export function DashboardPage() {
                     <td>
                       <span style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
                         <StatusDot status="healthy" />
-                        <span style={{ fontSize: "var(--text-sm)" }}>Healthy</span>
+                        <span style={{ fontSize: "var(--text-sm)" }}>
+                          {t("statuses.healthy")}
+                        </span>
                       </span>
                     </td>
                   </tr>
@@ -426,11 +495,11 @@ export function DashboardPage() {
           ) : (
             <EmptyState
               icon={<Database size={32} />}
-              title="No data sources"
-              message="Connect a CDM database to get started."
+              title={t("empty.noDataSourcesTitle")}
+              message={t("empty.noDataSourcesMessage")}
               action={
                 <Link to="/data-sources" className="btn btn-primary btn-sm">
-                  Add Source
+                  {t("empty.addSource")}
                 </Link>
               }
             />
@@ -440,9 +509,9 @@ export function DashboardPage() {
         <Panel
           header={
             <>
-              <span className="panel-title">Active Jobs</span>
+              <span className="panel-title">{t("panels.activeJobs")}</span>
               <Link to="/jobs" className="btn btn-ghost btn-sm" style={{ gap: "var(--space-1)" }}>
-                View All <ArrowRight size={14} />
+                {t("panels.viewAll")} <ArrowRight size={14} />
               </Link>
             </>
           }
@@ -455,9 +524,9 @@ export function DashboardPage() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Job</th>
-                  <th>Type</th>
-                  <th>Status</th>
+                  <th>{t("tables.job")}</th>
+                  <th>{t("tables.type")}</th>
+                  <th>{t("tables.status")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -474,7 +543,11 @@ export function DashboardPage() {
                         ) : (
                           <StatusDot status={job.status as "running" | "success" | "fail"} />
                         )}
-                        <span style={{ fontSize: "var(--text-sm)" }}>{job.status}</span>
+                        <span style={{ fontSize: "var(--text-sm)" }}>
+                          {t(`statuses.job.${job.status}`, {
+                            defaultValue: job.status,
+                          })}
+                        </span>
                       </span>
                     </td>
                   </tr>
@@ -484,8 +557,8 @@ export function DashboardPage() {
           ) : (
             <EmptyState
               icon={<Briefcase size={32} />}
-              title="No active jobs"
-              message="Jobs will appear here when analyses are running."
+              title={t("empty.noActiveJobsTitle")}
+              message={t("empty.noActiveJobsMessage")}
             />
           )}
         </Panel>

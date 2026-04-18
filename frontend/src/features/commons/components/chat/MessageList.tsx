@@ -1,6 +1,8 @@
 import { useEffect, useRef, useMemo, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { Hash } from "lucide-react";
+import { formatDate } from "@/i18n/format";
 import type { Message } from "../../types";
 import { MessageItem } from "./MessageItem";
 import { TypingIndicator } from "./TypingIndicator";
@@ -15,7 +17,7 @@ interface MessageListProps {
   lastReadAt?: string | null;
 }
 
-function formatDateLabel(dateStr: string): string {
+function formatDateLabel(dateStr: string, t: (key: string) => string): string {
   const date = new Date(dateStr);
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -23,15 +25,20 @@ function formatDateLabel(dateStr: string): string {
   yesterday.setDate(yesterday.getDate() - 1);
   const msgDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
-  if (msgDate.getTime() === today.getTime()) return "Today";
-  if (msgDate.getTime() === yesterday.getTime()) return "Yesterday";
-  return date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+  if (msgDate.getTime() === today.getTime()) return t("chat.messages.today");
+  if (msgDate.getTime() === yesterday.getTime())
+    return t("chat.messages.yesterday");
+  return formatDate(date, { weekday: "long", month: "long", day: "numeric" });
 }
 
 function isSameDay(a: string, b: string): boolean {
   const da = new Date(a);
   const db = new Date(b);
-  return da.getFullYear() === db.getFullYear() && da.getMonth() === db.getMonth() && da.getDate() === db.getDate();
+  return (
+    da.getFullYear() === db.getFullYear() &&
+    da.getMonth() === db.getMonth() &&
+    da.getDate() === db.getDate()
+  );
 }
 
 function DateSeparator({ label }: { label: string }) {
@@ -46,12 +53,12 @@ function DateSeparator({ label }: { label: string }) {
   );
 }
 
-function UnreadDivider() {
+function UnreadDivider({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-3 px-6 py-2">
       <div className="flex-1 h-px bg-red-500/40" />
       <span className="select-none rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-red-400">
-        New messages
+        {label}
       </span>
       <div className="flex-1 h-px bg-red-500/40" />
     </div>
@@ -67,20 +74,26 @@ export function MessageList({
   isTyping = false,
   lastReadAt,
 }: MessageListProps) {
+  const { t } = useTranslation("commons");
   const bottomRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const prevCountRef = useRef(messages.length);
   const msgRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const [searchParams, setSearchParams] = useSearchParams();
-  const highlightId = searchParams.get("highlight") ? Number(searchParams.get("highlight")) : null;
+  const highlightId = searchParams.get("highlight")
+    ? Number(searchParams.get("highlight"))
+    : null;
 
-  const setMsgRef = useCallback((id: number) => (el: HTMLDivElement | null) => {
-    if (el) {
-      msgRefs.current.set(id, el);
-    } else {
-      msgRefs.current.delete(id);
-    }
-  }, []);
+  const setMsgRef = useCallback(
+    (id: number) => (el: HTMLDivElement | null) => {
+      if (el) {
+        msgRefs.current.set(id, el);
+      } else {
+        msgRefs.current.delete(id);
+      }
+    },
+    [],
+  );
 
   // Auto-scroll to bottom when new messages arrive (if already at bottom)
   useEffect(() => {
@@ -88,7 +101,10 @@ export function MessageList({
       const container = containerRef.current;
       if (container) {
         const isAtBottom =
-          container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+          container.scrollHeight -
+            container.scrollTop -
+            container.clientHeight <
+          100;
         if (isAtBottom) {
           bottomRef.current?.scrollIntoView({ behavior: "smooth" });
         }
@@ -114,7 +130,13 @@ export function MessageList({
     const timer = setTimeout(() => {
       el.classList.remove("msg-highlight");
       // Remove the param from the URL so refreshing doesn't re-highlight
-      setSearchParams((prev) => { prev.delete("highlight"); return prev; }, { replace: true });
+      setSearchParams(
+        (prev) => {
+          prev.delete("highlight");
+          return prev;
+        },
+        { replace: true },
+      );
     }, 2000);
     return () => clearTimeout(timer);
   }, [highlightId, isLoading, setSearchParams]);
@@ -126,29 +148,38 @@ export function MessageList({
   const unreadIndex = useMemo(() => {
     if (!lastReadAt) return -1;
     const readTime = new Date(lastReadAt).getTime();
-    return sorted.findIndex((msg) => new Date(msg.created_at).getTime() > readTime);
+    return sorted.findIndex(
+      (msg) => new Date(msg.created_at).getTime() > readTime,
+    );
   }, [sorted, lastReadAt]);
 
   if (isLoading) {
     return (
       <div className="flex flex-1 items-center justify-center bg-[linear-gradient(180deg,rgba(255,255,255,0.02),transparent)]">
-        <p className="text-sm text-muted-foreground">Loading messages...</p>
+        <p className="text-sm text-muted-foreground">
+          {t("chat.messages.loading")}
+        </p>
       </div>
     );
   }
 
   return (
-    <div ref={containerRef} className="flex-1 overflow-y-auto bg-[linear-gradient(180deg,rgba(255,255,255,0.02),transparent_18%)]">
+    <div
+      ref={containerRef}
+      className="flex-1 overflow-y-auto bg-[linear-gradient(180deg,rgba(255,255,255,0.02),transparent_18%)]"
+    >
       {sorted.length === 0 ? (
         <div className="flex h-full items-center justify-center p-8">
           <div className="w-full max-w-lg rounded-3xl border border-border-default bg-surface-base px-8 py-10 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-border-default bg-surface-overlay">
-            <Hash className="h-8 w-8 text-muted-foreground/20" />
+              <Hash className="h-8 w-8 text-muted-foreground/20" />
             </div>
             <div className="mt-4">
-              <p className="text-[15px] font-medium text-foreground/85">No messages yet</p>
+              <p className="text-[15px] font-medium text-foreground/85">
+                {t("chat.messages.emptyTitle")}
+              </p>
               <p className="mt-1 text-[12px] leading-6 text-muted-foreground/70">
-                Be the first to start the conversation in this channel.
+                {t("chat.messages.emptyMessage")}
               </p>
             </div>
           </div>
@@ -156,13 +187,18 @@ export function MessageList({
       ) : (
         <div className="mx-auto w-full max-w-5xl px-3 py-5">
           {sorted.map((msg, i) => {
-            const showDateSep = i === 0 || !isSameDay(sorted[i - 1].created_at, msg.created_at);
+            const showDateSep =
+              i === 0 || !isSameDay(sorted[i - 1].created_at, msg.created_at);
             const showUnread = unreadIndex === i && i > 0;
 
             return (
               <div key={msg.id} ref={setMsgRef(msg.id)}>
-                {showDateSep && <DateSeparator label={formatDateLabel(msg.created_at)} />}
-                {showUnread && <UnreadDivider />}
+                {showDateSep && (
+                  <DateSeparator label={formatDateLabel(msg.created_at, t)} />
+                )}
+                {showUnread && (
+                  <UnreadDivider label={t("chat.messages.newMessages")} />
+                )}
                 <MessageItem
                   message={msg}
                   slug={slug}

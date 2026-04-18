@@ -1,0 +1,17 @@
+{
+  "key": "query-assistant",
+  "title": "Asistente de consultas",
+  "description": "El Asistente de consultas traduce preguntas en lenguaje natural sobre sus datos clínicos a consultas SQL contra OMOP CDM. Escriba una pregunta en lenguaje sencillo y la IA genera el SQL correspondiente con una explicación, clasificación de seguridad y lista de tablas referenciadas. También puede validar el SQL generado y explorar el esquema OMOP como referencia.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Escriba una pregunta como 'How many patients have diabetes?' y presione Ctrl+Enter o haga clic en Generar SQL para producir la consulta.",
+    "Pruebe los chips de preguntas de ejemplo debajo de la entrada para demostraciones rápidas de lo que puede hacer el asistente.",
+    "Cada consulta generada se clasifica como SAFE (solo lectura) o UNSAFE para que pueda verificar que no modificará datos antes de ejecutarla.",
+    "Haga clic en Validar SQL después de la generación para revisar sintaxis, nivel de complejidad y tablas referenciadas.",
+    "Expanda el Explorador de esquema OMOP CDM en el panel de resultados para ver tablas clínicas y de vocabulario disponibles, con sus columnas y uniones comunes.",
+    "Sus últimas 10 consultas se guardan en Historial de consultas en el panel izquierdo. Haga clic en cualquier consulta anterior para recargarla.",
+    "La sección de explicación describe en lenguaje sencillo qué hace el SQL generado, lo que ayuda a aprender patrones de consulta OMOP CDM.",
+    "Las etiquetas de Tablas referenciadas muestran exactamente qué tablas OMOP usa la consulta, ayudándole a entender el modelo de datos."
+  ]
+}

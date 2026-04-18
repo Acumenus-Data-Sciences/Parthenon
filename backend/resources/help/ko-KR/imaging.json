@@ -1,0 +1,15 @@
+{
+  "key": "imaging",
+  "title": "의료 영상",
+  "description": "영상 모듈은 DICOM 의료 영상을 OMOP CDM과 통합합니다. 영상 연구를 탐색하고, Cornerstone3D 임상 도구로 DICOM 이미지를 보고, AI/NLP 특징을 추출하며, 영상 기반 코호트 기준을 정의하고, 환자 모집단 전반의 영상 패턴을 분석할 수 있습니다.",
+  "docs_url": "/docs/part10-imaging/28-imaging-overview",
+  "video_url": null,
+  "tips": [
+    "연구 탭은 모든 DICOM 영상 연구를 나열합니다. 소스나 modality로 필터링하고 연구를 클릭하면 윈도잉, 확대/축소, 이동, 측정 도구가 있는 DICOM 뷰어가 열립니다.",
+    "로컬 업로드(.dcm 또는 ZIP)를 통해 DICOM 파일을 가져오거나 DICOMweb 호환 PACS 서버에 연결하세요.",
+    "AI Features 탭은 신뢰도 점수와 OMOP 개념 매핑이 포함된 추출 영상 특징(NLP findings, AI classifications, radiomics, 수동 주석)을 보여 줍니다.",
+    "Imaging Criteria 탭을 사용해 modality, 해부학, 정량 측정, AI 분류 또는 방사선 선량 임계값을 기반으로 재사용 가능한 코호트 기준을 정의하세요.",
+    "Population Analytics 탭은 영상 데이터 전반의 modality 분포, 신체 부위 범위, 주요 AI/NLP 특징별 집계 분석을 제공합니다.",
+    "영상 연구는 OMOP procedure_occurrence 기록에 연결되어 임상 데이터와 함께 코호트 수준 영상 분석을 가능하게 합니다."
+  ]
+}

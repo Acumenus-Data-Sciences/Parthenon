@@ -58,6 +58,9 @@ it('has localized contract keys for every backend i18n locale', function () {
             'study.created',
             'study.transitioned',
             'study.errors.invalid_status_transition',
+            'survey.public.link_inactive',
+            'survey.public.respondent_not_registered',
+            'survey.campaigns.activate_draft_only',
         ] as $key) {
             expect(ApiMessage::payload($key, [], $locale)['message_meta']['translation_missing'])
                 ->toBeFalse("Missing {$key} for {$locale}");

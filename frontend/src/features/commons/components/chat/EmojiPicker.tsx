@@ -1,12 +1,13 @@
 import { useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
-const EMOJI_MAP: Record<string, { emoji: string; label: string }> = {
-  thumbsup: { emoji: "\ud83d\udc4d", label: "Like" },
-  heart: { emoji: "\u2764\ufe0f", label: "Love" },
-  laugh: { emoji: "\ud83d\ude02", label: "Haha" },
-  surprised: { emoji: "\ud83d\ude2e", label: "Wow" },
-  celebrate: { emoji: "\ud83c\udf89", label: "Celebrate" },
-  eyes: { emoji: "\ud83d\udc40", label: "Looking" },
+const EMOJI_MAP: Record<string, { emoji: string; labelKey: string }> = {
+  thumbsup: { emoji: "\ud83d\udc4d", labelKey: "thumbsup" },
+  heart: { emoji: "\u2764\ufe0f", labelKey: "heart" },
+  laugh: { emoji: "\ud83d\ude02", labelKey: "laugh" },
+  surprised: { emoji: "\ud83d\ude2e", labelKey: "surprised" },
+  celebrate: { emoji: "\ud83c\udf89", labelKey: "celebrate" },
+  eyes: { emoji: "\ud83d\udc40", labelKey: "eyes" },
 };
 
 export const EMOJI_KEYS = Object.keys(EMOJI_MAP);
@@ -18,6 +19,7 @@ interface EmojiPickerProps {
 }
 
 export function EmojiPicker({ onSelect, onClose }: EmojiPickerProps) {
+  const { t } = useTranslation("commons");
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -42,7 +44,7 @@ export function EmojiPicker({ onSelect, onClose }: EmojiPickerProps) {
             onSelect(key);
             onClose();
           }}
-          title={EMOJI_MAP[key].label}
+          title={t(`chat.emoji.${EMOJI_MAP[key].labelKey}`)}
           className="flex h-8 w-8 items-center justify-center rounded-md text-lg hover:bg-muted"
         >
           {EMOJI_MAP[key].emoji}

@@ -1,11 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  AlertTriangle,
-  BookOpen,
-  History,
-  Search,
-  Upload,
-} from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { AlertTriangle, BookOpen, History, Search, Upload } from "lucide-react";
 import { toast } from "@/components/ui/Toast";
 import {
   streamWikiQuery,
@@ -35,6 +30,7 @@ const WORKSPACE = "platform";
 const EMPTY_CHAT: never[] = [];
 
 export function WikiPage() {
+  const { t } = useTranslation("commons");
   const userId = useAuthStore((s) => s.user?.id);
   const selectedPageSlug = useWikiStore((s) => s.selectedPageSlug);
   const searchQuery = useWikiStore((s) => s.searchQuery);
@@ -81,7 +77,8 @@ export function WikiPage() {
   const currentPage = pageQuery.data;
   const paperKey = currentPage?.source_slug ?? currentPage?.slug ?? WORKSPACE;
   const chatScopeId = userId ? `u${userId}:${paperKey}` : paperKey;
-  const chatMessages = useWikiStore((s) => s.chatMessagesByScope[chatScopeId]) ?? EMPTY_CHAT;
+  const chatMessages =
+    useWikiStore((s) => s.chatMessagesByScope[chatScopeId]) ?? EMPTY_CHAT;
 
   // Measured height of the chat messages content (reported by WikiChatPanel via ResizeObserver).
   // Used to size the chat wrapper so it claims exactly the space needed, up to 100%.
@@ -98,13 +95,16 @@ export function WikiPage() {
       if (selectedPageSlug) setSelectedPageSlug(null);
       return;
     }
-    if (selectedPageSlug && pages.some((p) => p.slug === selectedPageSlug)) return;
+    if (selectedPageSlug && pages.some((p) => p.slug === selectedPageSlug))
+      return;
 
     // 1. Latest ingested paper (highest ingested_at, prefer concept over source_summary)
     const withIngested = pages
       .filter((p) => p.ingested_at)
       .sort((a, b) => (b.ingested_at ?? "").localeCompare(a.ingested_at ?? ""));
-    const latestIngested = withIngested.find((p) => p.page_type !== "source_summary") ?? withIngested[0];
+    const latestIngested =
+      withIngested.find((p) => p.page_type !== "source_summary") ??
+      withIngested[0];
     if (latestIngested) {
       setSelectedPageSlug(latestIngested.slug);
       return;
@@ -117,39 +117,61 @@ export function WikiPage() {
     }
 
     // 3. Fallback: first concept page
-    const preferred = pages.find((p) => p.page_type !== "source_summary") ?? pages[0];
+    const preferred =
+      pages.find((p) => p.page_type !== "source_summary") ?? pages[0];
     setSelectedPageSlug(preferred.slug);
   }, [pages, selectedPageSlug, lastOpenedSlug, setSelectedPageSlug]);
 
   // Auto-lint on load
   useEffect(() => {
     if (pages.length > 0 && !lintResponse) {
-      lintMutation.mutate({ workspace: WORKSPACE }, { onSuccess: (r) => setLintResponse(r) });
+      lintMutation.mutate(
+        { workspace: WORKSPACE },
+        { onSuccess: (r) => setLintResponse(r) },
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pages.length > 0]);
 
-  function handleIngest(payload: { title?: string; rawContent?: string; file?: File | null }) {
+  function handleIngest(payload: {
+    title?: string;
+    rawContent?: string;
+    file?: File | null;
+  }) {
     ingestMutation.mutate(
-      { workspace: WORKSPACE, title: payload.title, rawContent: payload.rawContent, file: payload.file ?? null },
+      {
+        workspace: WORKSPACE,
+        title: payload.title,
+        rawContent: payload.rawContent,
+        file: payload.file ?? null,
+      },
       {
         onSuccess: (response) => {
-          const preferred = response.created_pages.find((p) => p.page_type !== "source_summary") ?? response.created_pages[0];
+          const preferred =
+            response.created_pages.find(
+              (p) => p.page_type !== "source_summary",
+            ) ?? response.created_pages[0];
           setSelectedPageSlug(preferred?.slug ?? null);
           setLintResponse(null);
           clearChat(response.source_slug);
           addChatMessage(response.source_slug, {
             id: chatId(),
             role: "assistant",
-            content: `I ingested **${response.source_title}** into the Knowledge Base. Ask me to summarize it, compare it to other papers, or walk through methods and findings.`,
-            citations: response.created_pages.filter((page) => page.source_slug === response.source_slug),
+            content: t("wiki.chat.ingestSuccess", {
+              title: response.source_title,
+            }),
+            citations: response.created_pages.filter(
+              (page) => page.source_slug === response.source_slug,
+            ),
             timestamp: new Date().toISOString(),
           });
           setIngestModalOpen(false);
           setChatDrawerOpen(true);
-          toast.success(`Ingested "${response.source_title}"`);
+          toast.success(
+            t("wiki.chat.ingestToast", { title: response.source_title }),
+          );
         },
-        onError: () => toast.error("Ingest failed"),
+        onError: () => toast.error(t("wiki.chat.ingestFailed")),
       },
     );
   }
@@ -191,7 +213,11 @@ export function WikiPage() {
         },
       },
     ).catch(() => {
-      appendToMessage(chatScopeId, assistantMsgId, "Sorry, I couldn't process that question.");
+      appendToMessage(
+        chatScopeId,
+        assistantMsgId,
+        t("wiki.chat.processFailed"),
+      );
       setStreaming(false);
     });
   }
@@ -201,7 +227,10 @@ export function WikiPage() {
   }
 
   const isEmpty = pages.length === 0 && !pagesQuery.isLoading;
-  const paperCount = totalPages > 0 ? totalPages : new Set(pages.map((p) => p.source_slug ?? p.slug)).size;
+  const paperCount =
+    totalPages > 0
+      ? totalPages
+      : new Set(pages.map((p) => p.source_slug ?? p.slug)).size;
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-surface-base">
@@ -209,9 +238,13 @@ export function WikiPage() {
       <div className="flex items-center gap-3 border-b border-border-default bg-surface-raised px-5 py-2.5">
         {/* Title */}
         <BookOpen size={18} className="text-success" />
-        <h1 className="text-base font-bold text-text-primary">Knowledge Base</h1>
+        <h1 className="text-base font-bold text-text-primary">
+          {t("wiki.title")}
+        </h1>
         {paperCount > 0 && (
-          <span className="text-xs text-text-ghost">{paperCount} paper{paperCount !== 1 ? "s" : ""}</span>
+          <span className="text-xs text-text-ghost">
+            {t("wiki.paperCount", { count: paperCount })}
+          </span>
         )}
 
         <div className="flex-1" />
@@ -223,14 +256,16 @@ export function WikiPage() {
           className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success"
         >
           <Upload size={14} />
-          Ingest
+          {t("wiki.ingest")}
         </button>
 
         {/* Lint badge */}
         {lintIssues.length > 0 && (
           <button
             type="button"
-            onClick={() => { if (lintIssues[0]) setSelectedPageSlug(lintIssues[0].page_slug); }}
+            onClick={() => {
+              if (lintIssues[0]) setSelectedPageSlug(lintIssues[0].page_slug);
+            }}
             className="inline-flex items-center gap-1 rounded-full border border-accent/20 bg-accent/5 px-2.5 py-1 text-[11px] font-medium text-accent transition-colors hover:bg-accent/10"
           >
             <AlertTriangle size={12} />
@@ -243,7 +278,7 @@ export function WikiPage() {
           type="button"
           onClick={() => setActivityDrawerOpen(true)}
           className="relative rounded-lg border border-border-default bg-surface-raised p-2 text-text-muted transition-colors hover:text-text-primary"
-          title="Activity log"
+          title={t("wiki.activityLog")}
         >
           <History size={16} />
           {activity.length > 0 && (
@@ -258,11 +293,15 @@ export function WikiPage() {
       {isEmpty ? (
         <div className="flex flex-1 items-center justify-center p-8">
           <div className="max-w-md text-center">
-            <BookOpen size={32} className="mx-auto mb-4 text-surface-highlight" />
-            <h2 className="text-xl font-bold text-text-primary">Knowledge Base</h2>
+            <BookOpen
+              size={32}
+              className="mx-auto mb-4 text-surface-highlight"
+            />
+            <h2 className="text-xl font-bold text-text-primary">
+              {t("wiki.emptyTitle")}
+            </h2>
             <p className="mt-2 text-sm leading-6 text-text-muted">
-              Upload research papers, clinical guidelines, or any document.
-              The AI will extract key information and make it searchable.
+              {t("wiki.emptyMessage")}
             </p>
             <button
               type="button"
@@ -271,7 +310,7 @@ export function WikiPage() {
               className="mt-6 inline-flex items-center gap-2 rounded-lg bg-success px-5 py-2.5 text-sm font-medium text-surface-base transition-colors hover:bg-success"
             >
               <Upload size={16} />
-              Add your first paper
+              {t("wiki.addFirstPaper")}
             </button>
           </div>
         </div>
@@ -282,16 +321,20 @@ export function WikiPage() {
             {/* Search + header (pinned) */}
             <div className="shrink-0 border-b border-border-default bg-surface-overlay px-3 py-2.5">
               <div className="relative">
-                <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost" />
+                <Search
+                  size={14}
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost"
+                />
                 <input
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search papers..."
+                  placeholder={t("wiki.searchPlaceholder")}
                   className="w-full rounded-lg border border-border-default bg-surface-base py-2 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-ghost outline-none transition-colors focus:border-success focus:ring-1 focus:ring-success/40"
                 />
               </div>
               <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                {isSearching ? "Results" : "Papers"} <span className="ml-1 text-text-ghost">{paperCount}</span>
+                {isSearching ? t("wiki.results") : t("wiki.papers")}{" "}
+                <span className="ml-1 text-text-ghost">{paperCount}</span>
               </p>
             </div>
             {/* Scrollable paper list */}
@@ -320,7 +363,10 @@ export function WikiPage() {
               className="flex min-h-0 flex-shrink-0 flex-col"
               style={
                 chatMessages.length > 0 && chatContentHeight > 0
-                  ? { flexBasis: `${chatContentHeight + INPUT_BAR_HEIGHT}px`, maxHeight: "calc(100% - 120px)" }
+                  ? {
+                      flexBasis: `${chatContentHeight + INPUT_BAR_HEIGHT}px`,
+                      maxHeight: "calc(100% - 120px)",
+                    }
                   : undefined
               }
             >
@@ -330,7 +376,9 @@ export function WikiPage() {
                 onSend={handleChatSend}
                 onNavigate={handleNavigate}
                 onExpandChat={() => setChatDrawerOpen(true)}
-                currentPageTitle={currentPage?.source_title ?? currentPage?.title}
+                currentPageTitle={
+                  currentPage?.source_title ?? currentPage?.title
+                }
                 onContentHeightChange={handleContentHeightChange}
               />
             </div>
@@ -340,13 +388,26 @@ export function WikiPage() {
 
       {/* ── Overlays ───────────────────────────────────────── */}
       {ingestModalOpen && (
-        <WikiIngestModal workspace={WORKSPACE} loading={ingestMutation.isPending} onSubmit={handleIngest} onClose={() => setIngestModalOpen(false)} />
+        <WikiIngestModal
+          workspace={WORKSPACE}
+          loading={ingestMutation.isPending}
+          onSubmit={handleIngest}
+          onClose={() => setIngestModalOpen(false)}
+        />
       )}
       {activityDrawerOpen && (
-        <WikiActivityDrawer activity={activity} onNavigate={handleNavigate} onClose={() => setActivityDrawerOpen(false)} />
+        <WikiActivityDrawer
+          activity={activity}
+          onNavigate={handleNavigate}
+          onClose={() => setActivityDrawerOpen(false)}
+        />
       )}
       {pdfModalFilename && (
-        <WikiPdfModal workspace={WORKSPACE} filename={pdfModalFilename} onClose={() => setPdfModalFilename(null)} />
+        <WikiPdfModal
+          workspace={WORKSPACE}
+          filename={pdfModalFilename}
+          onClose={() => setPdfModalFilename(null)}
+        />
       )}
       <WikiChatDrawer
         open={chatDrawerOpen}

@@ -1,0 +1,128 @@
+---
+id: 19-data-quality-dashboard
+title: "19. Data Quality Dashboard"
+sidebar_label: "19. Data Quality Dashboard"
+---
+
+# Data Quality Dashboard
+
+**Data Quality Dashboard**(DQD)는 [OHDSI Data Quality Dashboard specification](https://ohdsi.github.io/DataQualityDashboard/)에 따라 OMOP CDM 데이터의 conformance, completeness, plausibility를 평가합니다. 약 3,000개의 data quality check를 실행하고 결과를 category, CDM table, concept domain별로 요약합니다. Data quality assessment는 CDM을 연구에 사용하기 전 필수 전제 조건입니다. ETL 오류, source data 문제, 잠재적 bias를 식별하는 데 도움이 됩니다.
+
+## DQD check categories
+
+DQD framework는 check를 세 가지 category로 구성하며, 각 category는 data quality의 다른 차원을 대상으로 합니다:
+
+| Category | Description | Approximate Count | Examples |
+|----------|-------------|-------------------|----------|
+| **Conformance** | 데이터가 CDM structural requirement를 준수합니다 | ~1,200 | Valid concept IDs, correct data types, referential integrity, date ranges within bounds |
+| **Completeness** | 예상되는 column과 record가 채워져 있습니다 | ~800 | Non-null required fields, expected record counts per domain, observation period coverage |
+| **Plausibility** | 값이 임상적으로 합리적입니다 | ~1,000 | Age at death within lifespan, drug duration within expected range, lab values within physiological limits |
+
+각 check는 다음을 반환합니다:
+
+- **Pass/Fail status**: 구성된 failure threshold 기준.
+- **Failure count**: check를 위반한 record 수.
+- **Failure rate**: applicable record 중 실패한 비율.
+- **Violation sample**: 조사를 위한 최대 10개의 example record.
+
+**Overall DQD score**는 통과한 check의 가중 percentage이며, database quality를 하나의 숫자로 요약합니다.
+
+## DQD 결과 보기
+
+1. **Data Explorer**로 이동하고 드롭다운에서 Data Source를 선택합니다.
+2. **Data Quality** 탭(4번째 탭)을 클릭합니다.
+3. Summary panel은 다음을 보여 줍니다:
+   - 색상 gauge가 있는 overall pass rate(초록 > 90%, 노랑 70-90%, 빨강 < 70%).
+   - Category breakdown: Conformance, Completeness, Plausibility별 pass rate.
+   - CDM table breakdown: clinical table별로 그룹화된 pass rate.
+
+### Check detail table
+
+Summary 아래의 전체 check list는 모든 DQD check를 다음과 함께 표시합니다:
+
+| Column | Description |
+|--------|-------------|
+| **Check Name** | Quality check의 설명적인 이름 |
+| **Description** | Check가 평가하는 내용 |
+| **Category** | Conformance / Completeness / Plausibility |
+| **CDM Table** | 확인 중인 clinical table(예: `condition_occurrence`) |
+| **CDM Column** | 특정 column(예: `condition_concept_id`) |
+| **Threshold** | 구성 가능한 failure rate limit(기본값: 5%) |
+| **Failure Count** | 이 check에 실패한 record 수 |
+| **Failure Rate** | Applicable record 중 실패한 percentage |
+| **Status** | Pass / Fail icon |
+
+Check row를 클릭하면 violation detail panel이 확장되어 example record와 suggested remediation step을 보여 줍니다.
+
+## Filtering and searching
+
+Filter bar는 check list를 좁히기 위한 여러 차원을 제공합니다:
+
+- **Category**: Conformance / Completeness / Plausibility(toggle buttons).
+- **Status**: Passing / Failing / All(dropdown).
+- **CDM Table**: 특정 table 선택(예: `measurement`, `drug_exposure`).
+- **Concept Domain**: OMOP domain(Condition, Drug, Measurement 등)으로 필터링.
+- **Search**: check name과 description에 대한 free-text search.
+
+:::tip Prioritization
+먼저 **Failing** check로 필터링하고 **Failure Count** 내림차순으로 정렬하세요. 이렇게 하면 가장 영향이 큰 data quality issue가 먼저 드러납니다. 100,000개 failure가 있는 하나의 check는 failure가 5개씩 있는 10개 check보다 더 긴급합니다.
+:::
+
+## Achilles Heel checks
+
+**Achilles Heel** 탭(Data Explorer의 5번째 탭)은 Achilles analysis run의 일부로 생성되는 rule-based quality notification을 보여 줍니다. 이는 full DQD에 비해 더 단순하고 빠른 check입니다:
+
+| Severity | Icon | Description | Examples |
+|----------|------|-------------|----------|
+| **ERROR** | Red circle | 즉각적인 주의가 필요한 critical data quality issue | Future dates in observation period, negative drug exposure durations, orphaned records |
+| **WARNING** | Yellow triangle | Analysis validity에 영향을 줄 수 있는 potential issue | Birth year after death year, extremely long observation periods, unusual gender distributions |
+| **NOTIFICATION** | Blue info | Data characteristic에 대한 informational item | Low record counts in certain domains, single-value columns, vocabulary coverage gaps |
+
+Heel check는 `achilles_heel_results` table에 저장되며 Achilles가 다시 실행될 때마다 자동으로 업데이트됩니다. Full DQD execution보다 훨씬 빠릅니다(분이 아니라 초 단위).
+
+### Heel check table
+
+Heel 탭은 sortable, filterable table로 check를 표시합니다:
+
+- Severity(Error / Warning / Notification)로 필터링.
+- Message text로 검색.
+- Record count로 정렬해 가장 흔한 issue 찾기.
+- Check를 클릭해 이를 trigger한 underlying Achilles analysis 보기.
+
+## Full DQD check 실행
+
+1. **Admin > System > DQD Jobs**로 이동합니다(admin role 필요).
+2. 드롭다운에서 Data Source를 선택합니다.
+3. 선택적으로 다음을 구성합니다:
+   - **Failure threshold**: check가 failing으로 간주되는 percentage 기준(기본값: 5%).
+   - **Check categories**: 모든 category를 실행하거나 특정 category만 선택.
+   - **CDM tables**: 특정 table로 check 제한. ETL 수정 후 targeted re-evaluation에 유용합니다.
+4. **Run DQD**를 클릭합니다.
+5. DQD는 Laravel Horizon을 통해 background job으로 실행됩니다. 일반적인 실행 시간:
+   - Small CDM (< 10K patients): 5-15분.
+   - Medium CDM (10K-1M patients): 15-45분.
+   - Large CDM (> 1M patients): 30-90분.
+
+:::warning Failure thresholds
+기본 failure threshold는 **5%**입니다. Applicable record의 5%를 넘게 실패한 check는 "failing"으로 표시됩니다. 이 threshold는 data quality standard에 맞게 조정해야 합니다:
+
+- **Research networks**(OHDSI, PCORnet): 일반적으로 1-5% threshold를 사용합니다.
+- **Regulatory submissions**: 특정 check에는 0% tolerance가 필요할 수 있습니다.
+- **Exploratory analysis**: 초기 data assessment에는 10%가 허용될 수 있습니다.
+
+Threshold는 **Admin > System Configuration > Data Quality Settings**에서 조정합니다.
+:::
+
+## DQD results history
+
+Parthenon은 trend analysis를 위해 historical DQD result를 저장합니다. **Data Quality > History**로 이동해 다음을 봅니다:
+
+- **Score trend**: 시간에 따른 overall DQD score line chart.
+- **Category trends**: Conformance, Completeness, Plausibility별 individual trend line.
+- **Run comparison**: 두 DQD run의 side-by-side diff로 ETL update 후 어떤 check가 개선되거나 악화되었는지 확인.
+
+이 historical view는 successive ETL iteration을 거치며 data quality improvement를 추적하는 데 매우 유용합니다.
+
+:::danger Failing check를 무시하지 마세요
+Failing DQD check는 research result를 조용히 bias할 수 있습니다. 예를 들어 `condition_occurrence` record의 20%가 `condition_concept_id = 0`(unmapped)이면 prevalence estimate가 체계적으로 과소평가됩니다. Published research에 CDM을 사용하기 전에 항상 failing check를 검토하고 해결하세요.
+:::

@@ -62,7 +62,7 @@ Parthenon's care gap module, population risk scoring, and predictive analytics a
 
 ## Building in Public
 
-This blog will serve as a daily development journal. Every day, we'll document what was built, what broke, what we learned, and what's next. The first technical post — about the [five bugs we had to fix](/docs/blog/ohdsi-hades-r-runtime-lessons) before HADES analyses would run in production — is already live. It's the kind of hard-won knowledge that doesn't appear in any documentation, and we think sharing it openly makes the entire OHDSI ecosystem stronger.
+This blog will serve as a daily development journal. Every day, we'll document what was built, what broke, what we learned, and what's next. The first technical post — about the [five bugs we had to fix](./ohdsi-hades-r-runtime-lessons) before HADES analyses would run in production — is already live. It's the kind of hard-won knowledge that doesn't appear in any documentation, and we think sharing it openly makes the entire OHDSI ecosystem stronger.
 
 We're also automating this process. A Claude Code agent reviews the day's git history every night and generates a narrative dev log post — not just a commit list, but a story about what the code changes mean and why they matter.
 

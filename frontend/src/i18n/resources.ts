@@ -1,4 +1,6 @@
 import type { Resource } from "i18next";
+import { commonsResources } from "./commonsResources";
+import { dashboardResources } from "./dashboardResources";
 
 type MessageTree = {
   [key: string]: string | MessageTree;
@@ -811,7 +813,7 @@ const koKR: ParthenonNamespaces = {
     },
     nav: {
       dashboard: "대시보드",
-      commons: "Commons",
+      commons: "공유재",
       data: "데이터",
       clinicalDataModels: "임상 데이터 모델",
       dataIngestion: "데이터 수집",
@@ -845,7 +847,7 @@ const koKR: ParthenonNamespaces = {
       administration: "관리",
       adminDashboard: "관리 대시보드",
       systemHealth: "시스템 상태",
-      honestBroker: "Honest Broker",
+      honestBroker: "정직한 중개인",
       users: "사용자",
       auditLog: "감사 로그",
       rolesPermissions: "역할 및 권한",
@@ -4764,10 +4766,14 @@ function withProductResources(
   details: MessageTree,
   help: MessageTree,
   auth: MessageTree,
+  dashboard: MessageTree,
+  commons: MessageTree,
 ): ParthenonNamespaces & {
   settings: MessageTree;
   help: MessageTree;
   auth: MessageTree;
+  dashboard: MessageTree;
+  commons: MessageTree;
 } {
   return {
     ...namespaces,
@@ -4777,6 +4783,8 @@ function withProductResources(
     ),
     help,
     auth,
+    dashboard,
+    commons,
   };
 }
 
@@ -4787,6 +4795,8 @@ export const resources: Resource = {
     enSettingsDetails,
     enHelp,
     withAuthSetup(enAuth, enAuthSetup),
+    dashboardResources["en-US"],
+    commonsResources["en-US"],
   ),
   "es-ES": withProductResources(
     withCommonUi(withAbbyLayout(esES, esAbbyLayout), esCommonUi),
@@ -4794,6 +4804,8 @@ export const resources: Resource = {
     esSettingsDetails,
     esHelp,
     withAuthSetup(esAuth, esAuthSetup),
+    dashboardResources["es-ES"],
+    commonsResources["es-ES"],
   ),
   "fr-FR": withProductResources(
     withCommonUi(withAbbyLayout(frFR, enAbbyLayout), enCommonUi),
@@ -4801,6 +4813,8 @@ export const resources: Resource = {
     frSettingsDetails,
     frHelp,
     withAuthSetup(frAuth, enAuthSetup),
+    dashboardResources["en-US"],
+    commonsResources["en-US"],
   ),
   "de-DE": withProductResources(
     withCommonUi(withAbbyLayout(deDE, enAbbyLayout), enCommonUi),
@@ -4808,6 +4822,8 @@ export const resources: Resource = {
     deSettingsDetails,
     deHelp,
     withAuthSetup(deAuth, enAuthSetup),
+    dashboardResources["en-US"],
+    commonsResources["en-US"],
   ),
   "pt-BR": withProductResources(
     withCommonUi(withAbbyLayout(ptBR, enAbbyLayout), enCommonUi),
@@ -4815,6 +4831,8 @@ export const resources: Resource = {
     ptSettingsDetails,
     ptHelp,
     withAuthSetup(ptAuth, enAuthSetup),
+    dashboardResources["en-US"],
+    commonsResources["en-US"],
   ),
   "fi-FI": withProductResources(
     withCommonUi(withAbbyLayout(fiFI, enAbbyLayout), enCommonUi),
@@ -4822,6 +4840,8 @@ export const resources: Resource = {
     fiSettingsDetails,
     fiHelp,
     withAuthSetup(fiAuth, enAuthSetup),
+    dashboardResources["en-US"],
+    commonsResources["en-US"],
   ),
   "ja-JP": withProductResources(
     withCommonUi(withAbbyLayout(jaJP, enAbbyLayout), enCommonUi),
@@ -4829,6 +4849,8 @@ export const resources: Resource = {
     jaSettingsDetails,
     jaHelp,
     withAuthSetup(jaAuth, enAuthSetup),
+    dashboardResources["en-US"],
+    commonsResources["en-US"],
   ),
   "zh-Hans": withProductResources(
     withCommonUi(withAbbyLayout(zhHans, enAbbyLayout), enCommonUi),
@@ -4836,6 +4858,8 @@ export const resources: Resource = {
     zhSettingsDetails,
     zhHelp,
     withAuthSetup(zhAuth, enAuthSetup),
+    dashboardResources["en-US"],
+    commonsResources["en-US"],
   ),
   "ko-KR": withProductResources(
     withCommonUi(withAbbyLayout(koKR, koAbbyLayout), koCommonUi),
@@ -4843,6 +4867,8 @@ export const resources: Resource = {
     koSettingsDetails,
     koHelp,
     withAuthSetup(koAuth, koAuthSetup),
+    dashboardResources["ko-KR"],
+    commonsResources["ko-KR"],
   ),
   "hi-IN": withProductResources(
     withCommonUi(withAbbyLayout(hiIN, enAbbyLayout), enCommonUi),
@@ -4850,6 +4876,8 @@ export const resources: Resource = {
     hiSettingsDetails,
     hiHelp,
     withAuthSetup(hiAuth, enAuthSetup),
+    dashboardResources["en-US"],
+    commonsResources["en-US"],
   ),
   ar: withProductResources(
     withCommonUi(withAbbyLayout(ar, enAbbyLayout), enCommonUi),
@@ -4857,6 +4885,8 @@ export const resources: Resource = {
     arSettingsDetails,
     arHelp,
     withAuthSetup(arAuth, enAuthSetup),
+    dashboardResources["en-US"],
+    commonsResources["en-US"],
   ),
   "en-XA": withProductResources(
     withCommonUi(
@@ -4867,7 +4897,17 @@ export const resources: Resource = {
     pseudoTree(enSettingsDetails),
     pseudoTree(enHelp),
     withAuthSetup(pseudoTree(enAuth), pseudoTree(enAuthSetup)),
+    pseudoTree(dashboardResources["en-US"]),
+    pseudoTree(commonsResources["en-US"]),
   ),
 };
 
-export const namespaces = ["common", "layout", "settings", "help", "auth"];
+export const namespaces = [
+  "common",
+  "layout",
+  "settings",
+  "help",
+  "auth",
+  "dashboard",
+  "commons",
+];

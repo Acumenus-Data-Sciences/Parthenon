@@ -32,18 +32,6 @@ function getCommonsSlug(pathname: string): string | null {
   return slug || "general";
 }
 
-function buildActivity(user: PresenceUser): string {
-  if (user.status === "idle") {
-    return user.channelSlug ? `Idle in #${user.channelSlug}` : "Idle";
-  }
-
-  if (user.channelSlug) {
-    return `Viewing #${user.channelSlug}`;
-  }
-
-  return "In Commons";
-}
-
 function aggregatePresenceSessions(sessions: PresenceSession[]): PresenceUser[] {
   const byUser = new Map<number, PresenceSession[]>();
 
@@ -72,7 +60,6 @@ function aggregatePresenceSessions(sessions: PresenceSession[]): PresenceUser[] 
         lastActiveAt: latestActiveAt,
       };
 
-      user.activity = buildActivity(user);
       return user;
     })
     .sort((a, b) => {
@@ -89,19 +76,17 @@ function aggregatePresenceSessions(sessions: PresenceSession[]): PresenceUser[] 
 export function useGlobalPresence(): void {
   const location = useLocation();
   const channelRef = useRef<ReturnType<NonNullable<ReturnType<typeof getEcho>>["join"]> | null>(null);
-  const sessionIdRef = useRef<string>("");
+  const [sessionId] = useState(() =>
+    typeof window === "undefined" ? "" : getPresenceSessionId(),
+  );
   const lastSentAtRef = useRef(0);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const statusRef = useRef<"active" | "idle">("active");
   const channelSlugRef = useRef<string | null>(null);
 
-  if (!sessionIdRef.current && typeof window !== "undefined") {
-    sessionIdRef.current = getPresenceSessionId();
-  }
-
   const sendPresenceState = useCallback((force = false) => {
     const channel = channelRef.current;
-    if (!channel) return;
+    if (!channel || !sessionId) return;
 
     const now = Date.now();
     if (!force && statusRef.current === "active" && now - lastSentAtRef.current < ACTIVE_THROTTLE_MS) {
@@ -110,19 +95,20 @@ export function useGlobalPresence(): void {
 
     lastSentAtRef.current = now;
     channel.whisper("presence-state", {
-      session_id: sessionIdRef.current,
+      session_id: sessionId,
       status: statusRef.current,
       channel_slug: channelSlugRef.current,
       last_active_at: new Date(now).toISOString(),
     });
-  }, []);
+  }, [sessionId]);
 
   useEffect(() => {
     const echo = getEcho();
     if (!echo) return;
 
     channelRef.current = echo.join(PRESENCE_CHANNEL);
-    channelSlugRef.current = getCommonsSlug(location.pathname);
+    channelSlugRef.current =
+      typeof window === "undefined" ? null : getCommonsSlug(window.location.pathname);
     sendPresenceState(true);
 
     const scheduleIdle = () => {
@@ -186,11 +172,9 @@ export function useGlobalPresence(): void {
  */
 export function usePresence(): PresenceUser[] {
   const [presenceSessions, setPresenceSessions] = useState<PresenceSession[]>([]);
-  const localSessionIdRef = useRef<string>("");
-
-  if (!localSessionIdRef.current && typeof window !== "undefined") {
-    localSessionIdRef.current = getPresenceSessionId();
-  }
+  const [localSessionId] = useState(() =>
+    typeof window === "undefined" ? "" : getPresenceSessionId(),
+  );
 
   useEffect(() => {
     const echo = getEcho();
@@ -258,7 +242,7 @@ export function usePresence(): PresenceUser[] {
 
   return useMemo(() => {
     const sessions = presenceSessions.map((session) =>
-      session.session_id === localSessionIdRef.current && !session.last_active_at
+      session.session_id === localSessionId && !session.last_active_at
         ? {
             ...session,
             status: session.status ?? "active",
@@ -268,5 +252,5 @@ export function usePresence(): PresenceUser[] {
     );
 
     return aggregatePresenceSessions(sessions);
-  }, [presenceSessions]);
+  }, [localSessionId, presenceSessions]);
 }

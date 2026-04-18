@@ -1,0 +1,270 @@
+---
+id: 06-building-cohorts
+title: "6. 코호트 만들기"
+sidebar_label: "6. 코호트 만들기"
+---
+
+# 코호트 만들기
+
+이 장에서는 시각적 cohort builder를 사용해 Parthenon에서 완전한 cohort definition을 만드는 과정을 안내합니다. Builder는 JSON이나 SQL을 직접 작성하지 않고 CIRCE cohort expression을 구성할 수 있는 구조화된 form-driven interface를 제공합니다. OMOP cohort 개념이 처음이라면 먼저 [5장 --- Cohort Expressions](05-cohort-expressions)를 읽으세요.
+
+---
+
+## 새 cohort definition 만들기
+
+1. 상단 내비게이션에서 **Cohorts**로 이동합니다.
+2. **New Cohort Definition**을 클릭합니다.
+3. **Name**을 입력하고(예: "T2DM New Users --- Metformin") 선택적으로 **Description**을 입력합니다.
+4. Cohort builder가 cohort expression의 각 부분에 해당하는 접을 수 있는 섹션과 함께 열립니다.
+
+Builder는 다음 섹션으로 구성되며, 각 섹션은 접을 수 있는 패널로 표시됩니다:
+
+| 섹션 | 아이콘 | 목적 |
+|---|---|---|
+| Primary Criteria | Target | Index event 정의 |
+| Inclusion Rules | Filter | 자격 기준 추가 |
+| End Strategy | Clock | Cohort exit 구성 |
+| Demographic Filters | Users | 나이, 성별, 인종, 민족 |
+| Censoring Criteria | Shield | 관찰을 종료하는 이벤트 |
+| Genomic Criteria | DNA | 분자 biomarker 필터 |
+| Imaging Criteria | Scan | DICOM imaging 기반 필터 |
+| Settings | Settings | Qualified/expression limits, collapse |
+
+---
+
+## 탭 1: Index Event (Primary Criteria)
+
+Index event 탭에서는 환자가 cohort에 들어갈 자격을 갖추게 하는 임상 이벤트를 정의합니다. 이는 cohort design에서 가장 중요한 결정입니다.
+
+### Primary event 추가
+
+1. **Primary Criteria** 섹션을 확장합니다(기본으로 열려 있음).
+2. **Add Primary Event**를 클릭해 domain criterion을 추가합니다.
+3. Domain selector에서 **Domain**을 선택합니다:
+   - Condition Occurrence
+   - Drug Exposure
+   - Procedure Occurrence
+   - Measurement
+   - Observation
+   - Visit Occurrence
+   - Death
+4. 기존 concept set을 선택하거나 inline으로 새로 만들어 **Concept Set**을 연결합니다.
+
+### Domain-specific filter 구성
+
+각 domain은 고유한 filter option을 제공합니다:
+
+**모든 domain:**
+
+- **First occurrence only**: 환자별로 시간상 가장 이른 qualifying event로 제한합니다. New-user/incident cohort design에 필수적입니다.
+- **Date range**: 특정 calendar window로 event를 제한합니다. Enrollment period가 있는 연구에 유용합니다.
+- **Age at event**: event 시점 환자 나이에 대한 numeric range filter입니다.
+
+**Measurement-specific:**
+
+- **Value as number**: numeric threshold를 적용합니다(예: HbA1c >= 7.0). Operators: `>`, `>=`, `<`, `<=`, `=`, `between`.
+- **Value as concept**: result concept로 필터링합니다(예: "Positive", "Abnormal").
+- **Unit**: 특정 unit을 가진 measurement로 제한합니다.
+
+**Visit-specific:**
+
+- **Visit type**: event가 특정 visit context에서 발생하도록 요구합니다(inpatient, outpatient, ED, long-term care).
+
+### Observation window 설정
+
+Primary event criteria 아래에서 필요한 continuous observation을 구성합니다:
+
+- **Prior days**: index date _이전_ 최소 continuous observation 일수입니다. 예: 충분한 lookback을 위한 365일.
+- **Post days**: index date _이후_ 최소 continuous observation 일수입니다. 예: 최소 follow-up 요구 사항이 없으면 0.
+
+:::warning Observation window는 cohort size에 영향을 줍니다
+긴 observation window(예: prior 730 days)를 요구하면 환자가 전체 기간 동안 끊김 없는 enrollment를 가져야 하므로 cohort size가 크게 줄어듭니다. Annual enrollment가 있는 claims database에서는 365일만으로도 상당한 attrition이 발생할 수 있습니다. 긴 window를 설정하기 전에 데이터 소스의 enrollment pattern을 확인하세요.
+:::
+
+---
+
+## 탭 2: Inclusion Rules
+
+Inclusion rule은 index date를 기준으로 추가 임상 이벤트를 요구하거나 금지해 cohort를 정제합니다. 각 rule은 이름을 가지며 attrition report의 행으로 표시되므로 어떤 기준이 가장 큰 환자 손실을 일으키는지 쉽게 이해할 수 있습니다.
+
+### Inclusion rule 추가
+
+1. **Inclusion Rules** 섹션을 확장합니다.
+2. **+ Add Inclusion Rule**을 클릭합니다.
+3. 설명적인 **Rule Name**을 입력합니다. 예: "Has prior T2DM diagnosis", "No prior insulin use". 이 이름은 attrition report에 표시되므로 명확해야 합니다.
+4. **Group Logic**을 설정합니다:
+   - **ALL**: 이 rule의 모든 criterion을 충족해야 합니다.
+   - **ANY**: 최소 하나의 criterion을 충족해야 합니다.
+   - **AT_MOST_0**: 어떤 criterion도 충족하면 안 됩니다(exclusion logic).
+
+### Rule에 criteria 추가
+
+Rule 안의 각 criterion에 대해:
+
+1. **Add Criteria**를 클릭합니다.
+2. **Domain**을 선택합니다(Condition, Drug, Procedure, Measurement 등).
+3. **Concept Set**을 연결합니다.
+4. **Temporal Window**를 구성합니다. 이는 index date 기준 상대 일수입니다:
+   - 방향이 있는 Start 및 End days(index 이전 = negative coefficient, 이후 = positive).
+   - 예: Start = 365 days before, End = 1 day before는 window `[-365, -1]`을 의미합니다.
+5. **Occurrence Count**를 설정합니다:
+   - `At least N` (type 2): 예: "at least 1 diagnosis".
+   - `Exactly N` (type 0): 예: washout을 위한 "exactly 0 prior exposures".
+   - `At most N` (type 1): 예: "at most 2 prior visits".
+
+### Criteria group 중첩
+
+복잡한 logic의 경우 rule 안에 group을 중첩할 수 있습니다. 기존 group 안에서 **Add Group**을 클릭해 자체 ALL/ANY/AT_MOST_0 logic을 가진 sub-group을 만드세요. 다음과 같은 expression을 만들 수 있습니다:
+
+> "Has at least 1 T2DM diagnosis in the prior year AND (has HbA1c >= 7 OR has fasting glucose >= 126 mg/dL)"
+
+### 흔한 inclusion rule pattern
+
+| Pattern | Rule Name | Configuration |
+|---|---|---|
+| **Prior diagnosis** | "Has prior T2DM" | T2DM set의 ConditionOccurrence 최소 1개, [-365, -1] |
+| **New user washout** | "No prior metformin" | Metformin set의 DrugExposure 정확히 0개, [-365, -1] |
+| **Minimum follow-up** | "365 days follow-up" | Index 이후 observation 최소 365일 |
+| **Age restriction** | "Adults only" | Demographic filter: index 시 age >= 18 |
+| **Exclude outcome history** | "No prior MI" | Group type AT_MOST_0: MI set의 ConditionOccurrence, [-9999, -1] |
+| **Require lab value** | "Has baseline HbA1c" | HbA1c set의 Measurement 최소 1개와 값, [-180, 0] |
+| **Inpatient only** | "Inpatient setting" | Inpatient type의 VisitOccurrence 최소 1개, [0, 0] |
+
+:::tip Attrition을 위한 rule ordering
+Inclusion rule을 덜 제한적인 것에서 더 제한적인 순서로 배치하세요. 이렇게 하면 가장 큰 감소가 뒤쪽에 나타나는 attrition waterfall이 만들어져 어떤 기준이 가장 제한적인지 식별하기 쉽습니다. 90%의 환자를 제거하는 rule이 처음에 있으면 이후 rule은 오해를 부를 만큼 작은 감소로 보입니다.
+:::
+
+---
+
+## 탭 3: Cohort Exit
+
+Cohort exit strategy는 각 환자의 cohort membership period가 언제 끝나는지 결정합니다. 이는 results table에 기록되는 `cohort_end_date`에 직접 영향을 줍니다.
+
+### Exit strategy options
+
+1. **End of continuous observation** (기본값)
+   - 환자는 continuous observation period가 끝날 때까지 cohort에 남습니다. 예: 보험 탈퇴, health system 이탈, database coverage 종료.
+   - Pharmacoepidemiological study에서 가장 흔한 선택입니다.
+
+2. **Fixed duration after index**
+   - Index date 이후 고정 일수를 설정합니다.
+   - Anchor를 선택합니다: `StartDate`(index date) 또는 `EndDate`(index event 종료).
+   - 예: 90-day outcome window를 위해 drug dispensing start 후 90일.
+
+3. **Drug era end**
+   - Drug concept set을 선택하고 다음을 구성합니다:
+     - **Gap days**: consecutive exposure 사이에 허용되는 최대 gap입니다. 이 gap을 넘으면 era가 끝난 것으로 간주합니다(예: refill gap을 수용하기 위한 30일).
+     - **Offset**: era end date 이후 추가할 일수입니다(예: discontinuation 직후 event를 포착하기 위한 30일).
+   - Cohort membership이 active therapy와 일치해야 하는 treatment cohort에 이상적입니다.
+
+:::info Builder에는 event-based exit가 없습니다
+CIRCE specification은 event-based exit(cohort가 특정 clinical event 발생 시 종료)를 지원하지만, Parthenon은 현재 별도 event-based exit panel 대신 censoring criteria로 exit를 구현합니다. Death 또는 competing risk 같은 event에는 censoring criteria를 추가하세요.
+:::
+
+---
+
+## 추가 구성 섹션
+
+### Demographic Filters
+
+**Demographic Filters** 섹션을 확장해 patient-level constraint를 추가합니다:
+
+- **Age**: index date의 numeric range(예: 18 to 89).
+- **Gender**: Male, Female 또는 둘 다 선택.
+- **Race**: 하나 이상의 OMOP race concept 선택.
+- **Ethnicity**: 하나 이상의 OMOP ethnicity concept 선택.
+
+이 필터들은 inclusion rule과 독립적으로 적용되며 attrition waterfall에는 나타나지 않습니다.
+
+### Censoring Criteria
+
+**Censoring Criteria** 섹션을 확장해 continuous observation이 끝나지 않았더라도 환자의 cohort observation을 종료하는 event를 정의합니다:
+
+- Death, transplant, treatment switch 같은 event에 대해 domain criteria(primary criteria와 같은 interface)를 추가합니다.
+- 환자는 어떤 censoring event든 첫 발생 시점에 censor됩니다.
+
+### Settings (Limits and Collapse)
+
+**Settings** 섹션을 확장해 다음을 구성합니다:
+
+- **Qualified Limit**: `First`(환자별 가장 이른 qualifying event만) 또는 `All`(모든 qualifying event). 기본값: `First`.
+- **Expression Limit**: `First`(inclusion rule을 통과한 첫 event 유지) 또는 `All`. 기본값: `First`.
+- **Collapse Settings**: configurable `EraPad`(days 단위 gap)으로 era collapse를 활성화합니다. 활성화되면 `EraPad`일보다 짧게 떨어진 인접 cohort entry period가 하나의 continuous period로 병합됩니다.
+
+---
+
+## Genomic Criteria Panel (Phase 15)
+
+**Genomic Criteria** 섹션은 cohort definition에 molecular biomarker filter를 추가할 수 있게 합니다. 이는 precision medicine research를 위해 standard CIRCE format을 확장합니다.
+
+사용 가능한 criterion type:
+
+- **Gene mutation**: 특정 gene variant를 요구하거나 제외합니다(예: EGFR L858R).
+- **Tumor mutational burden (TMB)**: megabase당 mutation 수 threshold.
+- **Microsatellite instability (MSI)**: status filter(MSS, MSI-L, MSI-H).
+- **Gene fusion**: 특정 fusion event를 요구합니다(예: ALK-EML4).
+- **Pathogenicity**: ClinVar classification filter.
+
+각 criterion은 inclusion mode와 exclusion mode 사이에서 전환할 수 있습니다.
+
+---
+
+## Imaging Criteria Panel (Phase 16)
+
+**Imaging Criteria** 섹션은 cohort definition에 DICOM imaging 기반 filter를 추가합니다. 이는 oncology, radiology, multi-modal research study에 특히 유용합니다.
+
+사용 가능한 criterion type:
+
+- **Modality**: imaging modality로 필터링합니다(CT, MRI, PET, X-Ray, Ultrasound).
+- **Anatomy**: 검사된 body part로 필터링합니다.
+- **Quantitative**: radiomics feature에 대한 threshold입니다(예: tumor volume > 2 cm).
+- **AI classification**: 최소 confidence를 가진 특정 AI model classification을 요구합니다.
+- **Dose**: 최대 radiation dose constraint.
+
+:::info Imaging data requirements
+Imaging criteria는 DICOM metadata가 CDM extension table에 로드되어 있어야 합니다. 데이터 소스에 imaging data가 없으면 이러한 criteria는 환자 0명과 매칭됩니다. Imaging data pipeline은 **Admin > Imaging Sources**에서 구성합니다.
+:::
+
+---
+
+## Population Analytics 탭 (Phase 16)
+
+Cohort를 정의하고 데이터 소스에 대해 생성한 뒤 **Population Analytics** 탭은 생성된 cohort에 대한 aggregate statistics를 제공합니다:
+
+- 나이 및 성별 분포.
+- Observation period coverage.
+- Geographic distribution(사용 가능한 경우).
+- Calendar time에 따른 cohort entry temporal trends.
+
+이 탭은 읽기 전용이며 가장 최근 generation result를 반영합니다. 분석으로 진행하기 전에 cohort composition이 기대와 맞는지 빠르게 검증하는 데 도움이 됩니다.
+
+---
+
+## 저장과 versioning
+
+**Save**를 클릭해 cohort definition을 저장합니다. 주요 동작:
+
+- Definition은 `cohort_definitions` table의 `expression_json` column에 CIRCE JSON으로 저장됩니다.
+- 저장할 때마다 `version` number가 증가합니다.
+- Definition 자체에는 **patient data가 없습니다**. 순수한 specification입니다. Patient data는 generation 중에만 생성됩니다.
+- 저장된 definition은 public(모든 사용자에게 visible)으로 만들거나 private로 유지할 수 있습니다.
+
+:::tip Naming conventions
+Cohort definition에는 일관된 naming convention을 사용하세요. 권장 형식:
+
+```
+[Phenotype] --- [Design variant] --- [Version]
+```
+
+예:
+
+- `GI Hemorrhage --- Inpatient only --- v2`
+- `T2DM New Users --- 365d washout --- v1`
+- `NSCLC EGFR+ --- First-line --- v3`
+
+이렇게 하면 attrition report, study reference, publication을 특정 definition까지 추적하기 쉬워집니다.
+:::
+
+:::danger 생성된 cohort를 수정하지 마세요
+Cohort가 생성되어 downstream analysis에 사용된 뒤 definition을 수정하고 다시 생성하면 이를 참조하는 모든 analysis result가 무효화됩니다. 대신 definition을 clone하고 새 version을 만드세요.
+:::

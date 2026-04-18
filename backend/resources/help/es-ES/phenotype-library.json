@@ -1,0 +1,17 @@
+{
+  "key": "phenotype-library",
+  "title": "Biblioteca de fenotipos",
+  "description": "La Biblioteca de fenotipos proporciona acceso a más de 300 definiciones de fenotipos OHDSI curadas que puede explorar, buscar, filtrar por dominio e importar a su espacio de trabajo como definiciones de cohorte con un solo clic. Cada fenotipo incluye metadatos como dominio, gravedad, etiquetas y una descripción detallada de la lógica.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Use la barra de búsqueda para encontrar fenotipos por nombre o descripción, como 'type 2 diabetes' o 'heart failure'.",
+    "Filtre por dominio clínico (Condition, Drug, Measurement, Procedure, Observation, Device) usando el desplegable de dominio.",
+    "Haga clic en cualquier fila para expandirla y ver la descripción completa y detalles de lógica de esa definición de fenotipo.",
+    "Haga clic en el botón Importar para crear una definición de cohorte local desde cualquier fenotipo que tenga JSON de expresión disponible.",
+    "Una vez importada, la fila muestra una insignia Importado que enlaza directamente a su definición de cohorte local para edición posterior.",
+    "Las tarjetas de estadísticas superiores muestran fenotipos totales, cuántos tienen expresiones computables, dominios cubiertos y cuántos ya ha importado.",
+    "Los fenotipos sin JSON de expresión (botón Importar atenuado) son solo descriptivos y no pueden importarse como definiciones de cohorte ejecutables.",
+    "Use la paginación inferior para recorrer toda la biblioteca, o reduzca resultados primero con búsqueda y filtros de dominio."
+  ]
+}

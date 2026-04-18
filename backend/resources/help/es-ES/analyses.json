@@ -1,0 +1,14 @@
+{
+  "key": "analyses",
+  "title": "Análisis",
+  "description": "El módulo de Análisis permite diseñar y ejecutar estimación de efectos a nivel poblacional, predicción a nivel de paciente, cálculos de tasas de incidencia, análisis de rutas de tratamiento, caracterizaciones y más. Cada tipo de análisis se configura contra una cohorte y una fuente de datos.",
+  "docs_url": "/docs/part4-analyses/09-characterization",
+  "video_url": null,
+  "tips": [
+    "Comience seleccionando un tipo de análisis en las pestañas: Caracterización, Tasas de incidencia, Rutas de tratamiento, Estimación, Predicción, SCCS o Síntesis de evidencia.",
+    "La mayoría de los análisis requieren definir primero al menos una cohorte objetivo y una fuente de datos.",
+    "Use la barra de estadísticas superior para ver recuentos de todos los tipos de análisis.",
+    "Los análisis de estimación comparan desenlaces entre cohortes objetivo y comparadoras mediante métodos de puntuación de propensión.",
+    "Los análisis de predicción usan aprendizaje automático para predecir desenlaces a nivel de paciente."
+  ]
+}

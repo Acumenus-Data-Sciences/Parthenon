@@ -1,0 +1,317 @@
+---
+id: 04-concept-sets
+title: "4. Concept Sets"
+sidebar_label: "4. Concept Sets"
+---
+
+# Concept Sets
+
+**Concept set**은 임상 기준을 정의하는, 이름이 붙은 재사용 가능한 OMOP concept 모음입니다. 여기에는 질환, 약물, 측정, 시술 또는 기타 임상 이벤트의 집합이 포함될 수 있습니다. Concept set은 Parthenon에서 코호트 정의와 분석을 만드는 기본 구성 요소입니다. 연구 산출물 곳곳에 개별 concept ID를 반복해 나열하는 대신 concept set을 한 번 만들고 어디서나 참조합니다.
+
+예를 들어 "Type 2 Diabetes Medications"라는 concept set에는 metformin, glipizide, sitagliptin, empagliflozin, liraglutide 성분을 포함할 수 있습니다. 각 항목에 "Include descendants" 플래그를 켜 두면 모든 제형, 함량, 브랜드 제품이 자동으로 포착됩니다. 이 단일 concept set은 여러 코호트 정의, 특성화 분석, 치료 경로 연구에서 다시 사용할 수 있습니다.
+
+## Concept set 만들기
+
+1. 상단 내비게이션에서 **Vocabulary > Concept Sets**로 이동합니다.
+2. 오른쪽 상단의 **New Concept Set**을 클릭합니다.
+3. 임상 의도를 명확히 전달하는 설명적인 **Name**을 입력합니다. 예: "T2DM first-line oral agents", "ACE inhibitors and ARBs", "HbA1c measurements".
+4. 선택적으로 **Description**을 추가해 근거, 버전 메모 또는 phenotype library 참조를 문서화합니다.
+5. Concept set editor가 빈 concept 목록으로 열립니다. 오른쪽의 **search panel**을 사용해 concept를 찾아 추가합니다.
+
+### Concept 추가
+
+Concept set editor에는 [용어 브라우저](./03-vocabulary-browser)와 동일한 통합 concept 검색 패널이 포함되어 있습니다. Concept를 추가하려면:
+
+1. 검색 패널에 검색어를 입력합니다. 예: "metformin".
+2. 필요에 따라 필터(domain, vocabulary, standard concept)를 적용합니다.
+3. 검색 결과의 **+** 버튼을 클릭해 concept set에 추가합니다.
+4. Concept는 왼쪽 concept set table에 기본 inclusion flag와 함께 표시됩니다.
+
+저장하지 않고도 여러 검색에서 concept를 계속 추가할 수 있습니다. Concept set table은 추가된 모든 concept를 누적합니다.
+
+:::tip Vocabulary Browser에서 일괄 추가
+Vocabulary Browser에서 기존 concept set으로 concept를 직접 추가할 수도 있습니다. Concept를 탐색하는 중에 체크박스로 하나 이상의 결과를 선택한 뒤 **Add to Concept Set**을 클릭하고 드롭다운에서 대상 concept set을 선택하세요. Vocabulary를 탐색하면서 concept를 발견할 때마다 모으고 싶을 때 더 빠릅니다.
+:::
+
+## Inclusion flags
+
+Concept set 안의 각 concept에는 쿼리 시점의 해석 방식을 제어하는 세 가지 flag가 있습니다:
+
+### Include Descendants
+
+선택하면 concept set이 vocabulary 계층에서 선택 concept 아래에 있는 모든 concept를 자동으로 포함합니다. 이는 concept set의 가장 강력한 기능입니다.
+
+**예:** "Diabetes mellitus"(concept 201820)를 "Include descendants"와 함께 추가하면:
+
+- Type 1 diabetes mellitus, Type 2 diabetes mellitus, gestational diabetes 및 모든 하위 유형을 자동으로 포함합니다.
+- 관련 당뇨 질환 수백 개를 개별적으로 나열하지 않고 포착합니다.
+- Vocabulary가 새 당뇨 하위 유형으로 업데이트되면 자동으로 포함됩니다.
+
+**사용할 때:** 질환과 약물 성분에는 거의 항상 사용합니다. 예를 들어 "Metformin" 같은 단일 ingredient concept에 descendants를 포함하면 metformin을 포함하는 모든 clinical drug form, 함량, 브랜드 제품, pack을 포착합니다.
+
+**사용하지 않을 때:** 정확히 하나의 특정 concept만 필요하고 하위 유형을 원하지 않을 때입니다. 예를 들어 "Type 2 diabetes mellitus"만 원하고 합병증은 원하지 않는다면 descendants를 끌 수 있습니다. 다만 먼저 descendants 목록을 preview로 확인하세요.
+
+### Include Mapped
+
+선택하면 concept set이 선택한 standard concept를 가리키는 "Maps to" 관계를 가진 non-standard(source) concept를 포함합니다. 이는 분석이 source concept ID 아래 저장된 기록을 포착해야 할 때 유용합니다.
+
+**예:** SNOMED "Type 2 diabetes mellitus"(201826)를 "Include mapped"와 함께 추가하면:
+
+- 이 SNOMED concept로 매핑되는 ICD-10-CM E11.9, E11 및 기타 source code를 포함합니다.
+- Standard concept 컬럼뿐 아니라 `*_source_concept_id` 컬럼도 쿼리할 때 유용합니다.
+
+**사용할 때:** CDM의 source concept 컬럼에 포착하고 싶은 데이터가 있거나 source code 수준 분석을 수행할 때 사용합니다.
+
+**사용하지 않을 때:** 대부분의 표준 분석에서는 사용하지 않습니다. CDM은 standard concept ID 아래 데이터를 저장하므로 일반적인 코호트 정의에는 mapped concept가 필요하지 않습니다.
+
+:::info 표준 분석에서는 "Include Mapped"가 거의 필요하지 않습니다
+OMOP CDM ETL 과정은 모든 source data를 standard concept로 매핑합니다. `condition_concept_id = 201826`을 쿼리하면 ETL 중 SNOMED 201826으로 매핑된 source code(ICD-10, ICD-9, Read 등)를 가진 모든 환자를 이미 포착합니다. "Include mapped" flag는 `condition_source_concept_id`에도 매칭하고 싶은 드문 경우를 위한 것입니다.
+:::
+
+### Excluded
+
+선택하면 concept가 resolved concept set에서 명시적으로 **제거**됩니다. Exclusion은 descendants와 mapped concepts가 해석된 뒤 적용되므로 넓은 포함 범위에서 특정 concept를 빼는 정밀한 도구입니다.
+
+**예:** "All diabetes medications except insulin" concept set 만들기:
+
+1. "Antidiabetic agent"(ATC class)를 "Include descendants"와 함께 추가합니다.
+2. "Insulin"(ingredient)을 "Excluded"와 "Include descendants"와 함께 추가합니다.
+3. Resolved set은 모든 antidiabetic drug에서 모든 insulin formulation을 뺀 목록을 포함합니다.
+
+**사용할 때:** 넓은 parent concept가 제외하고 싶은 descendants를 포함하고 있고, 원하는 항목을 모두 개별적으로 나열하는 것보다 특정 항목을 제외하는 편이 쉬울 때 사용합니다.
+
+### Flag 조합
+
+| Descendants | Mapped | Excluded | 효과 |
+|-------------|--------|----------|------|
+| Off | Off | Off | 정확한 concept ID만 포함됩니다 |
+| On | Off | Off | concept와 모든 descendants가 포함됩니다 |
+| Off | On | Off | concept와 그 concept로 매핑되는 모든 source concept가 포함됩니다 |
+| On | On | Off | concept, descendants, 각 항목의 mapped source concept가 포함됩니다 |
+| Off | Off | On | 정확한 concept ID가 resolved set에서 제외됩니다 |
+| On | Off | On | concept와 모든 descendants가 제외됩니다 |
+| On | On | On | concept, descendants, mapped concept가 모두 제외됩니다 |
+
+## Concept set entry 편집
+
+Concept set editor는 포함된 모든 concept를 다음 컬럼이 있는 테이블로 표시합니다:
+
+- **Concept ID**: 클릭하면 concept 상세 보기가 열립니다.
+- **Concept Name**: 사람이 읽을 수 있는 레이블.
+- **Domain**: Condition, Drug, Measurement 등.
+- **Vocabulary**: SNOMED, RxNorm, LOINC 등.
+- **Standard**: standard concept indicator badge.
+- **Descendants**: 토글 체크박스.
+- **Mapped**: 토글 체크박스.
+- **Excluded**: 토글 체크박스.
+- **Remove**: entry 삭제용 X 버튼.
+
+모든 flag 토글은 editor에서 즉시 반영됩니다. 변경 사항은 **Save**를 클릭할 때 저장됩니다.
+
+### 순서 조정과 정리
+
+Concept set entry는 추가된 순서대로 표시됩니다. 순서는 resolution에 영향을 주지 않지만(결과는 항상 concept ID의 평면 set입니다), 관련 concept를 함께 묶으면 읽기 쉬워집니다:
+
+- 같은 치료 계열의 약물 성분끼리 묶기.
+- 질환 concept를 일반적인 것에서 구체적인 것으로 정렬하기.
+- 제외 concept를 잘 보이도록 아래쪽에 두기.
+
+## Concept set resolution
+
+Resolution은 concept set 정의를 SQL 쿼리에 사용할 concept ID의 평면 목록으로 확장하는 과정입니다. Concept set이 의도한 임상 기준을 포착하는지 검증하려면 resolution을 이해하는 것이 중요합니다.
+
+### Resolution 단계
+
+1. **직접 나열된 concept에서 시작**: excluded가 아닌 모든 concept ID가 초기 set을 이룹니다.
+
+2. **Descendants 확장**: "Include descendants"가 선택된 각 entry에 대해 `concept_ancestor`를 쿼리해 모든 descendant concept ID를 찾아 set에 추가합니다.
+
+3. **Mapped concepts 확장**: "Include mapped"가 선택된 각 entry에 대해 선택 concept가 target인 "Maps to" 관계를 `concept_relationship`에서 쿼리하고 source concept ID를 추가합니다.
+
+4. **Exclusions 적용**: "Excluded"로 표시된 각 entry에 대해 해당 concept ID를 set에서 제거합니다. Excluded entry에 "Include descendants"가 선택되어 있으면 모든 descendant concept ID도 제거합니다. "Include mapped"가 선택되어 있으면 mapped source concept ID도 제거합니다.
+
+5. **Deduplicate**: 최종 set에는 고유한 concept ID만 남습니다.
+
+Resolved ID 목록은 코호트를 생성하거나 분석을 실행할 때 SQL `WHERE concept_id IN (...)` 절에 사용됩니다.
+
+### Resolution preview
+
+Concept set editor의 **Preview** 버튼을 클릭하면 완전히 resolved된 concept 목록을 볼 수 있습니다. Preview는 다음을 보여 줍니다:
+
+- **Total resolved concept count**: resolution 후 고유 concept ID 수.
+- **Resolved concept table**: 각 concept ID와 이름, domain, vocabulary, 어떤 entry에서 왔는지.
+- **Entry contribution**: 각 entry가 몇 개 concept를 기여했는지. 가장 큰 footprint를 가진 entry를 이해하는 데 유용합니다.
+
+:::warning 코호트에 사용하기 전에 항상 preview하세요
+여러 entry와 "Include descendants"가 있는 concept set은 수천 개의 concept ID로 resolve될 수 있습니다. 예상치 못한 포함이 없는지 resolved list를 확인하세요. 흔한 실수는 high-level concept에 descendants를 포함해 관련 없는 임상 이벤트까지 의도치 않게 포착하는 것입니다. 예를 들어 "Disorder"(SNOMED root)에 descendants를 포함하면 vocabulary의 거의 모든 condition이 포함됩니다.
+:::
+
+### Resolution은 vocabulary에 따라 달라집니다
+
+Concept set resolution은 선택한 데이터 소스의 vocabulary table을 쿼리합니다. 이는 다음을 의미합니다:
+
+- 같은 concept set 정의라도 vocabulary 버전이 다르면 다른 concept ID 목록으로 resolve될 수 있습니다.
+- 새 vocabulary 버전에서 폐기된 concept는 resolution에서 제외됩니다.
+- Vocabulary 업데이트로 새 descendants가 추가되면 "Include descendants"가 선택된 경우 포함됩니다.
+
+:::danger Vocabulary 업데이트에 따라 resolution이 바뀝니다
+관리자가 새 vocabulary 버전을 업로드하면 기존 concept set의 resolved concept ID가 바뀔 수 있습니다. Vocabulary 업데이트 후, 특히 활성 코호트 정의에 사용되는 concept set은 항상 다시 preview하세요. 재현성이 중요하다면 분석 시점의 resolved concept ID를 문서화하세요.
+:::
+
+## 공유와 재사용
+
+Concept set은 조직 수준 리소스이며 최소 **viewer** 접근 권한을 가진 모든 사용자에게 보입니다. 모든 연구자는 자신의 코호트 정의와 분석에서 어떤 concept set이든 사용할 수 있습니다.
+
+### 코호트의 concept set versioning
+
+Concept set이 cohort expression 안에서 참조되면 Parthenon은 코호트 생성 시점의 concept set 정의 **snapshot**을 저장합니다. 이는 재현성을 보장합니다:
+
+- 원본 concept set 변경은 이전에 생성된 cohort에 소급 적용되지 **않습니다**.
+- 각 cohort generation은 사용된 정확한 concept set 상태를 기록합니다.
+- 현재 concept set 정의와 과거 generation에 사용된 snapshot을 비교할 수 있습니다.
+
+이 snapshot 동작 덕분에 concept set을 시간이 지남에 따라 안전하게 발전시킬 수 있습니다. 새 concept를 추가하거나 flag를 조정해도 과거 연구 결과를 무효화할 걱정이 없습니다.
+
+### Concept set ownership
+
+Concept set을 만든 사용자가 creator로 표시됩니다. **researcher** 역할 이상을 가진 사용자는 어떤 concept set이든 편집할 수 있습니다. 조직에 더 엄격한 접근 제어가 필요하다면 study-level permission이 적용되는 Studies module 안에서 concept set을 사용할 수 있습니다.
+
+## Import와 export
+
+Concept set은 OHDSI 호환 JSON으로 export하고 Parthenon 또는 Atlas 인스턴스에 다시 import할 수 있습니다. 이 상호운용성은 다기관 연구, phenotype library 공유, migration에 필수적입니다.
+
+### Concept set export
+
+1. Concept set 상세 페이지를 엽니다.
+2. 툴바에서 **Export JSON**을 클릭합니다.
+3. 전체 concept set 정의를 포함하는 JSON 파일이 다운로드됩니다:
+
+```json
+{
+  "name": "Type 2 Diabetes Medications",
+  "id": 42,
+  "expression": {
+    "items": [
+      {
+        "concept": {
+          "CONCEPT_ID": 1503297,
+          "CONCEPT_NAME": "Metformin",
+          "DOMAIN_ID": "Drug",
+          "VOCABULARY_ID": "RxNorm",
+          "CONCEPT_CLASS_ID": "Ingredient",
+          "STANDARD_CONCEPT": "S",
+          "CONCEPT_CODE": "6809",
+          "INVALID_REASON": null
+        },
+        "isExcluded": false,
+        "includeDescendants": true,
+        "includeMapped": false
+      },
+      {
+        "concept": {
+          "CONCEPT_ID": 1560171,
+          "CONCEPT_NAME": "Glipizide",
+          "DOMAIN_ID": "Drug",
+          "VOCABULARY_ID": "RxNorm",
+          "CONCEPT_CLASS_ID": "Ingredient",
+          "STANDARD_CONCEPT": "S",
+          "CONCEPT_CODE": "4821",
+          "INVALID_REASON": null
+        },
+        "isExcluded": false,
+        "includeDescendants": true,
+        "includeMapped": false
+      }
+    ]
+  }
+}
+```
+
+이 JSON 형식은 OHDSI Atlas와 [OHDSI Phenotype Library](https://github.com/OHDSI/PhenotypeLibrary)에서 사용하는 형식과 동일하므로 완전한 상호운용성을 보장합니다.
+
+### Concept set import
+
+1. **Vocabulary > Concept Sets**로 이동합니다.
+2. 툴바에서 **Import JSON**을 클릭합니다.
+3. 로컬 파일 시스템에서 JSON 파일을 선택하거나 JSON 내용을 직접 붙여 넣습니다.
+4. Import된 concept set을 검토합니다. 모든 concept가 flag와 함께 표시됩니다.
+5. 선택적으로 concept set 이름을 바꾸거나 flag를 조정합니다.
+6. **Save**를 클릭해 concept set을 생성합니다.
+
+:::tip OHDSI Phenotype Library에서 import
+[OHDSI Phenotype Library](https://github.com/OHDSI/PhenotypeLibrary)는 흔한 임상 질환에 대한 검증된 concept set 정의를 게시합니다. Library에서 JSON 파일을 다운로드해 Parthenon으로 직접 import하세요. 상당한 시간을 절약하고 커뮤니티에서 검증한 phenotype definition을 활용할 수 있습니다.
+:::
+
+### Import validation
+
+Import 중 Parthenon은 현재 데이터 소스의 vocabulary에 대해 각 concept ID를 검증합니다:
+
+- **Valid concepts**는 정상적으로 import됩니다.
+- **Deprecated concepts**는 경고와 함께 표시되지만 import는 됩니다. 쿼리 시점에는 resolve되지 않습니다.
+- **Unknown concept IDs**(vocabulary에서 찾을 수 없음)는 오류로 표시됩니다. Vocabulary version mismatch를 나타낼 수 있습니다.
+
+## Best practices
+
+### Naming conventions
+
+임상 의도를 전달하는 명확하고 설명적인 이름을 사용하세요:
+
+| 좋은 예 | 나쁜 예 |
+|---------|---------|
+| "Type 2 Diabetes Mellitus — SNOMED" | "diabetes concepts" |
+| "ACE Inhibitors — Ingredients" | "my drug list" |
+| "HbA1c Lab Measurements" | "labs v2" |
+| "GI Bleed Events (broad)" | "concept set 47" |
+
+관련이 있으면 범위(broad vs. narrow), vocabulary, domain을 포함하세요.
+
+### 넓게 시작한 뒤 제외하기
+
+원하는 모든 concept를 수동으로 나열하는 것보다 넓은 parent concept("Include descendants"와 함께)에서 시작한 뒤 원하지 않는 특정 하위 유형을 제외하는 편이 보통 더 쉽습니다:
+
+1. 가장 넓게 적용 가능한 concept를 "Include descendants"와 함께 추가합니다.
+2. Resolved list를 preview합니다.
+3. 원하지 않는 descendant를 excluded entry로 추가합니다. 필요하면 해당 entry에도 "Include descendants"를 적용합니다.
+4. 다시 preview해 확인합니다.
+
+### 임상 기준 하나당 concept set 하나
+
+하나의 임상 기준을 나타내는 집중된 concept set을 만드세요:
+
+- "T2DM Conditions"(condition만).
+- "T2DM Medications"(drug만).
+- "HbA1c Measurements"(measurement만).
+
+하나의 concept set에 여러 domain을 섞지 마세요. Cohort criteria는 보통 한 번에 하나의 domain을 필터링하며, domain을 섞으면 재사용이 어려워집니다.
+
+### 근거 문서화
+
+Description 필드를 사용해 다음을 문서화하세요:
+
+- 특정 concept를 포함하거나 제외한 이유.
+- Concept set 범위에 대한 임상적 근거.
+- 게시된 phenotype definition 또는 임상 가이드라인 참조.
+- Concept set을 검증한 vocabulary version.
+
+### Vocabulary 업데이트 후 검토
+
+Vocabulary 업데이트 후에는([3장: 용어 브라우저](./03-vocabulary-browser#vocabulary-versions) 참조):
+
+1. 활성 concept set을 각각 엽니다.
+2. **Preview**를 클릭해 현재 resolved list를 봅니다.
+3. 새로 추가된 descendants가 의도하지 않은 것인지 확인합니다.
+4. 더 이상 resolve되지 않는 deprecated concept가 있는지 확인합니다.
+5. 필요에 따라 flag를 업데이트하거나 exclusion을 추가합니다.
+
+## Cohort definition에서 사용
+
+Concept set은 cohort expression에서 criteria로 참조됩니다. 예를 들어 "Patients with T2DM on metformin" 코호트 정의는 다음을 참조할 수 있습니다:
+
+- "T2DM Conditions" concept set을 **initial event** condition criterion으로 사용.
+- "Metformin" concept set을 **additional inclusion** drug exposure criterion으로 사용.
+
+Cohort가 생성되면 각 concept set은 대상 데이터 소스의 vocabulary에 대해 resolve되고, 결과 concept ID가 SQL 쿼리에 사용됩니다. Cohort definition에서 concept set을 사용하는 자세한 방법은 [5장: Cohort Expressions](../part3-cohorts/05-cohort-expressions)와 [6장: Building Cohorts](../part3-cohorts/06-building-cohorts)를 참조하세요.
+
+## 다음 단계
+
+Concept set이 준비되었으면 이제 환자 cohort를 만들 수 있습니다. [5장: Cohort Expressions](../part3-cohorts/05-cohort-expressions)로 진행해 cohort expression language를 배우거나, [6장: Building Cohorts](../part3-cohorts/06-building-cohorts)로 바로 이동해 첫 cohort definition을 만드는 실습 안내를 확인하세요.

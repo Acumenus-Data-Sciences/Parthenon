@@ -1,0 +1,17 @@
+{
+  "key": "admin.fhir-export",
+  "title": "FHIR 내보내기",
+  "description": "다른 의료 시스템과의 상호운용성을 위해 OMOP CDM 데이터를 FHIR R4 NDJSON 파일로 내보냅니다. 데이터 소스와 내보낼 FHIR 리소스 유형을 선택한 뒤 작업이 완료되면 결과 NDJSON 파일을 다운로드하세요.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "내보낼 OMOP CDM 데이터 소스의 소스 ID를 선택한 다음 포함할 FHIR 리소스 유형을 선택하세요.",
+    "지원되는 리소스 유형에는 Patient, Condition, Encounter, Observation, MedicationStatement, Procedure, Immunization, AllergyIntolerance가 포함됩니다.",
+    "내보내기에 포함할 리소스 유형을 빠르게 구성하려면 모두 선택 / 모두 선택 해제 토글을 사용하세요.",
+    "내보내기는 백그라운드 작업으로 실행됩니다. 상태 섹션은 3초마다 폴링하므로 진행 상황을 실시간으로 볼 수 있습니다.",
+    "내보내기가 완료되면 각 리소스 유형에 대해 리소스 수가 포함된 개별 NDJSON 파일 다운로드 링크가 나타납니다.",
+    "각 NDJSON 파일은 효율적인 스트리밍과 처리를 위해 한 줄에 하나의 JSON 리소스를 포함하는 FHIR Bulk Data 사양을 따릅니다.",
+    "내보내기가 실패하면 오류 메시지가 상태 섹션에 표시됩니다. 문제를 수정한 뒤 새 내보내기를 시작하세요.",
+    "상태 섹션 하단의 새 내보내기 시작을 클릭해 다른 내보내기 작업을 구성하고 실행하세요."
+  ]
+}

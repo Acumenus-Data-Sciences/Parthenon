@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useDeleteMessage } from "../../api";
 import { Modal } from "@/components/ui/Modal";
 
@@ -12,6 +13,7 @@ export function DeleteConfirmation({
   onCancel,
   onDeleted,
 }: DeleteConfirmationProps) {
+  const { t } = useTranslation("commons");
   const deleteMessage = useDeleteMessage();
 
   function handleDelete() {
@@ -24,25 +26,27 @@ export function DeleteConfirmation({
     <Modal
       open
       onClose={onCancel}
-      title="Delete Message"
+      title={t("chat.deleteConfirm.title")}
       size="sm"
       footer={
         <>
           <button className="btn btn-ghost" onClick={onCancel}>
-            Cancel
+            {t("chat.deleteConfirm.cancel")}
           </button>
           <button
             className="btn btn-danger"
             onClick={handleDelete}
             disabled={deleteMessage.isPending}
           >
-            {deleteMessage.isPending ? "Deleting…" : "Delete"}
+            {deleteMessage.isPending
+              ? t("chat.deleteConfirm.deleting")
+              : t("chat.deleteConfirm.delete")}
           </button>
         </>
       }
     >
       <p style={{ color: "var(--text-secondary)", fontSize: "var(--text-sm)" }}>
-        This message will be removed from the conversation. This action cannot be undone.
+        {t("chat.deleteConfirm.body")}
       </p>
     </Modal>
   );

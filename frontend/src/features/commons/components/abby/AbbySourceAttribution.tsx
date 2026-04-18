@@ -1,23 +1,24 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { AbbySourceAttributionProps, AbbySource } from "../../types/abby";
 
-const COLLECTION_LABELS: Record<string, string> = {
-  docs: "Parthenon Documentation",
-  conv: "Previous Conversation",
-  faq: "FAQ",
-  clinical: "Clinical Reference",
-  ohdsi: "OHDSI Research Literature",
-  textbook: "Medical Textbook Reference",
-  wiki: "Knowledge Base",
-  commons_messages: "Discussion",
-  review_decisions: "Review decision",
-  wiki_articles: "Wiki",
-  cohort_definitions: "Cohort",
-  concept_sets: "Concept set",
-  study_designs: "Study",
-  analysis_results: "Analysis",
-  announcements: "Announcement",
-  object_discussions: "Discussion",
+const COLLECTION_LABEL_KEYS: Record<string, string> = {
+  docs: "abby.sourceAttribution.collections.docs",
+  conv: "abby.sourceAttribution.collections.conv",
+  faq: "abby.sourceAttribution.collections.faq",
+  clinical: "abby.sourceAttribution.collections.clinical",
+  ohdsi: "abby.sourceAttribution.collections.ohdsi",
+  textbook: "abby.sourceAttribution.collections.textbook",
+  wiki: "abby.sourceAttribution.collections.wiki",
+  commons_messages: "abby.sourceAttribution.collections.commonsMessages",
+  review_decisions: "abby.sourceAttribution.collections.reviewDecisions",
+  wiki_articles: "abby.sourceAttribution.collections.wikiArticles",
+  cohort_definitions: "abby.sourceAttribution.collections.cohortDefinitions",
+  concept_sets: "abby.sourceAttribution.collections.conceptSets",
+  study_designs: "abby.sourceAttribution.collections.studyDesigns",
+  analysis_results: "abby.sourceAttribution.collections.analysisResults",
+  announcements: "abby.sourceAttribution.collections.announcements",
+  object_discussions: "abby.sourceAttribution.collections.objectDiscussions",
 };
 
 function clampScore(score?: number): number | null {
@@ -25,18 +26,30 @@ function clampScore(score?: number): number | null {
   return Math.max(8, Math.min(100, Math.round(score * 100)));
 }
 
-function getSourceLabel(source: AbbySource): string {
-  return source.label?.trim()
-    || source.metadata?.channel_name
-    || COLLECTION_LABELS[source.collection]
-    || source.collection;
+function getSourceLabel(
+  source: AbbySource,
+  t: (key: string, options?: { defaultValue?: string }) => string,
+): string {
+  return (
+    source.label?.trim() ||
+    source.metadata?.channel_name ||
+    t(COLLECTION_LABEL_KEYS[source.collection] ?? source.collection, {
+      defaultValue: source.collection,
+    }) ||
+    source.collection
+  );
 }
 
-function getSourceTitle(source: AbbySource): string {
-  return source.title?.trim()
-    || source.document_id?.trim()
-    || source.metadata?.channel_name
-    || getSourceLabel(source);
+function getSourceTitle(
+  source: AbbySource,
+  t: (key: string, options?: { defaultValue?: string }) => string,
+): string {
+  return (
+    source.title?.trim() ||
+    source.document_id?.trim() ||
+    source.metadata?.channel_name ||
+    getSourceLabel(source, t)
+  );
 }
 
 function getSourcePath(source: AbbySource): string | null {
@@ -52,12 +65,13 @@ function getSourceSubline(source: AbbySource): string {
 }
 
 function SourceScore({ score }: { score?: number }) {
+  const { t } = useTranslation("commons");
   const pct = clampScore(score);
   if (pct === null) return null;
 
   return (
     <span className="inline-flex items-center gap-1.5 text-[10px] text-muted-foreground">
-      <span>Match {pct}%</span>
+      <span>{t("abby.sourceAttribution.match", { pct })}</span>
       <span className="inline-block h-[3px] w-10 overflow-hidden rounded-full bg-muted">
         <span
           className="block h-full rounded-full bg-emerald-500 transition-all duration-300"
@@ -77,8 +91,9 @@ function SourceCard({
   rank: number;
   onClick?: () => void;
 }) {
-  const label = getSourceLabel(source);
-  const title = getSourceTitle(source);
+  const { t } = useTranslation("commons");
+  const label = getSourceLabel(source, t);
+  const title = getSourceTitle(source, t);
   const subline = getSourceSubline(source);
   const path = getSourcePath(source);
   const hasExternalLink = Boolean(source.url?.trim());
@@ -111,7 +126,7 @@ function SourceCard({
                 className="text-emerald-400 underline-offset-2 hover:underline"
                 onClick={(event) => event.stopPropagation()}
               >
-                Open reference
+                {t("abby.sourceAttribution.openReference")}
               </a>
             )}
           </div>
@@ -148,6 +163,7 @@ export default function AbbySourceAttribution({
   defaultExpanded = false,
   onSourceClick,
 }: AbbySourceAttributionProps) {
+  const { t } = useTranslation("commons");
   const [expanded, setExpanded] = useState(defaultExpanded);
 
   if (!sources.length) return null;
@@ -165,7 +181,7 @@ export default function AbbySourceAttribution({
         >
           ▸
         </span>
-        {sources.length} {sources.length === 1 ? "source" : "sources"}
+        {t("abby.sourceAttribution.sourceCount", { count: sources.length })}
       </button>
 
       {expanded && (

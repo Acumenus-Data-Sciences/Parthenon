@@ -1,0 +1,14 @@
+{
+  "key": "characterization",
+  "title": "Caracterización de cohortes",
+  "description": "La Caracterización de cohortes calcula estadísticas descriptivas para una o más cohortes: distribución demográfica, prevalencia de comorbilidades, uso de medicamentos, frecuencias de procedimientos y más. Los resultados incluyen diferencias medias estandarizadas (SMD) para comparar cohortes.",
+  "docs_url": "/docs/part4-analyses/09-characterization",
+  "video_url": null,
+  "tips": [
+    "Agregue una cohorte comparadora para calcular SMD; los valores > 0.1 indican un desequilibrio significativo.",
+    "Seleccione Todas las características para calcular el conjunto completo de características estándar OMOP, o elija dominios específicos para acelerar la ejecución.",
+    "La caracterización se ejecuta en segundo plano (cola Horizon); recibirá una notificación cuando termine.",
+    "Exporte los resultados a CSV para informes o como entrada a herramientas posteriores como CohortMethod en R.",
+    "Las características con ventanas temporales (por ejemplo, 365 días antes del índice) son más significativas clínicamente que las características de todo el historial."
+  ]
+}

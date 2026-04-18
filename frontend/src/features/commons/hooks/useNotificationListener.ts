@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { getEcho } from "@/lib/echo";
@@ -9,12 +10,12 @@ import { markCommonsMessageToast } from "./commonsToastDeduper";
 
 const NOTIFICATIONS_KEY = "commons-notifications";
 
-const TYPE_LABEL: Record<string, string> = {
-  mention: "mentioned you",
-  dm: "sent you a message",
-  thread_reply: "replied to your message",
-  review_assigned: "requested your review",
-  review_resolved: "resolved a review",
+const TYPE_LABEL_KEYS: Record<string, string> = {
+  mention: "notifications.labels.mention",
+  dm: "notifications.labels.dm",
+  thread_reply: "notifications.labels.threadReply",
+  review_assigned: "notifications.labels.reviewAssigned",
+  review_resolved: "notifications.labels.reviewResolved",
 };
 
 /**
@@ -28,6 +29,7 @@ const TYPE_LABEL: Record<string, string> = {
  *      the relevant channel.
  */
 export function useNotificationListener(): void {
+  const { t } = useTranslation("commons");
   const userId = useAuthStore((s) => s.user?.id);
   const qc = useQueryClient();
   const navigate = useNavigate();
@@ -53,26 +55,26 @@ export function useNotificationListener(): void {
         });
 
         // 2. Increment unread count
-        qc.setQueryData<number>([NOTIFICATIONS_KEY, "unread-count"], (old) =>
-          (old ?? 0) + 1,
+        qc.setQueryData<number>(
+          [NOTIFICATIONS_KEY, "unread-count"],
+          (old) => (old ?? 0) + 1,
         );
 
         // 3. Toast
-        const label = TYPE_LABEL[n.type] ?? "notification";
-        const message = n.actor
-          ? `${n.actor.name} ${label}`
-          : n.title;
+        const label = t(
+          TYPE_LABEL_KEYS[n.type] ?? "notifications.labels.fallback",
+        );
+        const message = n.actor ? `${n.actor.name} ${label}` : n.title;
 
-        const action =
-          n.channel?.slug
-            ? {
-                label: "View",
-                onClick: () =>
-                  navigate(
-                    `/commons/${n.channel!.slug}${n.message_id ? `?highlight=${n.message_id}` : ""}`,
-                  ),
-              }
-            : undefined;
+        const action = n.channel?.slug
+          ? {
+              label: t("notifications.view"),
+              onClick: () =>
+                navigate(
+                  `/commons/${n.channel!.slug}${n.message_id ? `?highlight=${n.message_id}` : ""}`,
+                ),
+            }
+          : undefined;
 
         markCommonsMessageToast(n.message_id);
         toast.info(message, action);
@@ -82,5 +84,5 @@ export function useNotificationListener(): void {
     return () => {
       echo.leave(`App.Models.User.${userId}`);
     };
-  }, [userId, qc, navigate]);
+  }, [userId, qc, navigate, t]);
 }
