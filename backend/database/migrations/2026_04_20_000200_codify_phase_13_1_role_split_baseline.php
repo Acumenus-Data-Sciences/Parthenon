@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Phase 13.2 — Codify 3 role-split deviations (D4 + D5 + D6 from
@@ -33,6 +34,12 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Skip in CI / environments without the custom role split.
+        $hasRoles = DB::selectOne("SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_migrator'");
+        if (! $hasRoles) {
+            return;
+        }
+
         // Statement 1 (D5): transfer ownership of app.cohort_definitions to
         // parthenon_migrator. Guarded so a second run is a no-op.
         DB::statement(<<<'SQL'
