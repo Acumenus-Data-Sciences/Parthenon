@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Context\SourceContext;
+use App\Contracts\TranslationProviderInterface;
 use App\Events\AchillesRunCompleted;
 use App\Events\DqdRunCompleted;
 use App\Events\ReleaseCreated;
@@ -83,6 +84,9 @@ use App\Services\FinnGen\FinnGenArtifactService;
 use App\Services\FinnGen\FinnGenClient;
 use App\Services\FinnGen\FinnGenIdempotencyStore;
 use App\Services\SqlRenderer\SqlRendererService;
+use App\Services\Translation\PlaceholderIntegrityService;
+use App\Services\Translation\Providers\LocalFileTranslationProvider;
+use App\Services\Translation\TranslationPolicyService;
 use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
@@ -122,6 +126,17 @@ class AppServiceProvider extends ServiceProvider
 
         // AI services
         $this->app->singleton(AbbyAiService::class);
+
+        // Translation services
+        $this->app->singleton(PlaceholderIntegrityService::class);
+        $this->app->singleton(TranslationPolicyService::class);
+        $this->app->singleton(LocalFileTranslationProvider::class);
+        $this->app->singleton(TranslationProviderInterface::class, function ($app) {
+            $provider = (string) config('translation.primary', 'local');
+            $providerClass = config("translation.providers.{$provider}.class", LocalFileTranslationProvider::class);
+
+            return $app->make($providerClass);
+        });
 
         // Analysis services
         $this->app->singleton(CareGapService::class);
