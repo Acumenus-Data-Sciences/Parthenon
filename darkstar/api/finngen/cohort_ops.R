@@ -389,7 +389,24 @@ finngen_endpoint_generate_execute <- function(source_envelope, run_id, export_fo
   progress_path <- file.path(export_folder, "progress.json")
 
   run_with_classification(export_folder, function() {
-    cohort_def_id   <- as.integer(params$cohort_definition_id)
+    # Phase 13.2 — FinnGen endpoint generations use an offset-derived key.
+    # Matching constant in PHP: App\Models\App\FinnGenEndpointGeneration::OMOP_COHORT_ID_OFFSET = 100_000_000_000.
+    # Using numeric (double) NOT R integer (32-bit) — offset > INT_MAX (2^31).
+    # See: .planning/phases/13.2-finish-finngen-cutover/13.2-RESEARCH.md §Pitfall 4
+    OMOP_COHORT_ID_OFFSET <- 100000000000
+
+    gen_id_raw <- params$finngen_endpoint_generation_id %||% NA
+    gen_id     <- suppressWarnings(as.numeric(gen_id_raw))
+    legacy_cid <- suppressWarnings(as.numeric(params$cohort_definition_id))
+
+    cohort_def_id <- if (!is.na(gen_id) && gen_id > 0) {
+      gen_id + OMOP_COHORT_ID_OFFSET
+    } else if (!is.na(legacy_cid) && legacy_cid > 0) {
+      legacy_cid
+    } else {
+      NA_real_
+    }
+
     condition_ids   <- as.integer(params$condition_concept_ids %||% integer(0))
     drug_ids        <- as.integer(params$drug_concept_ids %||% integer(0))
     source_ids      <- as.integer(params$source_concept_ids %||% integer(0))
@@ -397,7 +414,7 @@ finngen_endpoint_generate_execute <- function(source_envelope, run_id, export_fo
     overwrite       <- isTRUE(params$overwrite_existing)
 
     if (is.na(cohort_def_id) || cohort_def_id <= 0)
-      stop("endpoint.generate: cohort_definition_id required")
+      stop("endpoint.generate: either finngen_endpoint_generation_id or cohort_definition_id required")
     if (length(condition_ids) == 0 && length(drug_ids) == 0 && length(source_ids) == 0)
       stop("endpoint.generate: no resolved concepts — endpoint cannot be materialized (CONTROL_ONLY?)")
 
@@ -415,7 +432,7 @@ finngen_endpoint_generate_execute <- function(source_envelope, run_id, export_fo
     write_progress(progress_path, list(step = "check_existing", pct = 12))
     existing_df <- DatabaseConnector::querySql(
       connection,
-      sprintf("SELECT COUNT(*) AS c FROM %s.cohort WHERE cohort_definition_id = %d",
+      sprintf("SELECT COUNT(*) AS c FROM %s.cohort WHERE cohort_definition_id = %.0f",
               cohort_schema, cohort_def_id)
     )
     names(existing_df) <- tolower(names(existing_df))
@@ -428,11 +445,11 @@ finngen_endpoint_generate_execute <- function(source_envelope, run_id, export_fo
         ))
         DatabaseConnector::executeSql(
           connection,
-          sprintf("DELETE FROM %s.cohort WHERE cohort_definition_id = %d",
+          sprintf("DELETE FROM %s.cohort WHERE cohort_definition_id = %.0f",
                   cohort_schema, cohort_def_id)
         )
       } else {
-        stop(sprintf("endpoint.generate: cohort_definition_id %d already has %d rows in %s.cohort — re-run with overwrite_existing=true",
+        stop(sprintf("endpoint.generate: cohort_definition_id %.0f already has %d rows in %s.cohort — re-run with overwrite_existing=true",
                      cohort_def_id, existing_count, cohort_schema))
       }
     }
@@ -496,7 +513,7 @@ finngen_endpoint_generate_execute <- function(source_envelope, run_id, export_fo
     write_progress(progress_path, list(step = "insert_subjects", pct = 35, message = "Materializing endpoint"))
     insert_sql <- sprintf(
       "INSERT INTO %s.cohort (cohort_definition_id, subject_id, cohort_start_date, cohort_end_date)
-       SELECT %d AS cohort_definition_id,
+       SELECT %.0f AS cohort_definition_id,
               q.subject_id,
               MIN(q.event_date) AS cohort_start_date,
               MAX(q.event_date) AS cohort_end_date
@@ -513,7 +530,7 @@ finngen_endpoint_generate_execute <- function(source_envelope, run_id, export_fo
     write_progress(progress_path, list(step = "count_subjects", pct = 85))
     cnt_df <- DatabaseConnector::querySql(
       connection,
-      sprintf("SELECT COUNT(*) AS c FROM %s.cohort WHERE cohort_definition_id = %d",
+      sprintf("SELECT COUNT(*) AS c FROM %s.cohort WHERE cohort_definition_id = %.0f",
               cohort_schema, cohort_def_id)
     )
     names(cnt_df) <- tolower(names(cnt_df))
