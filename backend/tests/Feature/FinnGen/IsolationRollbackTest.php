@@ -62,7 +62,7 @@ it('migrate→rollback→migrate preserves schema and round-trips row counts', f
     // 2026_04_18_000200_create_finngen_endpoint_expressions_pre_phase13_table.php
     // and moved to finngen.* by the 13.1 migration.
     foreach ($fixtures as $idx => $fx) {
-        DB::connection('finngen')->table('endpoint_expressions_pre_phase13')->insert([
+        DB::connection(config('finngen.connection', 'finngen'))->table('endpoint_expressions_pre_phase13')->insert([
             // Unique bigint PK per row — real Phase 13 data used cohort_definitions.id.
             'cohort_definition_id' => 9_000_000 + $idx,
             'name' => $fx->name,
