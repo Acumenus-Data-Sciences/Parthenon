@@ -9,6 +9,7 @@ use App\Services\FinnGen\FinnGenConceptResolver;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
+use Mockery\MockInterface;
 
 uses(RefreshDatabase::class);
 
@@ -40,19 +41,23 @@ uses(RefreshDatabase::class);
  */
 function finngenStubResolver(): FinnGenConceptResolver
 {
+    /** @var FinnGenConceptResolver&MockInterface $mock */
     $mock = Mockery::mock(FinnGenConceptResolver::class);
+    // @phpstan-ignore method.notFound (Mockery shouldReceive()->andReturnUsing chain: PHPStan narrows to ExpectationInterface|HigherOrderMessage and loses Expectation under treatPhpDocTypesAsCertain=false; 13.2-01 D-08)
     $mock->shouldReceive('resolveIcd10')->andReturnUsing(fn (array $p) => $p === []
         ? ['standard' => [], 'source' => [], 'truncated' => false]
         : ['standard' => [201826], 'source' => [45533014], 'truncated' => false]);
+    // @phpstan-ignore method.notFound
     $mock->shouldReceive('resolveIcd9')->andReturnUsing(fn (array $p) => $p === []
         ? ['standard' => [], 'source' => [], 'truncated' => false]
         : ['standard' => [4193704], 'source' => [44819123], 'truncated' => false]);
+    // @phpstan-ignore method.notFound
     $mock->shouldReceive('resolveAtc')->andReturnUsing(fn (array $p) => $p === []
         ? ['standard' => [], 'source' => [], 'truncated' => false]
         : ['standard' => [1503297], 'source' => [21600712], 'truncated' => false]);
+    // @phpstan-ignore method.notFound
     $mock->shouldReceive('resolveIcd8')->andReturn(['standard' => [], 'source' => [], 'truncated' => false]);
 
-    /** @var FinnGenConceptResolver $mock */
     return $mock;
 }
 
