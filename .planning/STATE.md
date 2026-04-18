@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 13 context gathered (FinnGen endpoint universalization reframe)
-last_updated: "2026-04-17T18:27:58.637Z"
-last_activity: 2026-04-17 -- Phase 13 planning complete
+last_updated: "2026-04-18T18:27:44.607Z"
+last_activity: 2026-04-18 -- Phase 15 execution started
 progress:
-  total_phases: 6
-  completed_phases: 0
-  total_plans: 8
-  completed_plans: 0
-  percent: 0
+  total_phases: 8
+  completed_phases: 1
+  total_plans: 35
+  completed_plans: 20
+  percent: 57
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-16 — Milestone v1.0 FinnGen Genomics)
 
 **Core value:** A researcher can pick any of 5,161 FinnGen-aligned phenotypes from the catalog, materialize a cohort against any source CDM, run a GWAS on that cohort, see Manhattan-plot results in the browser, compute polygenic risk scores against PGS Catalog summary stats, and inspect Risteys-style mortality / comorbidity dashboards — all without leaving Parthenon.
-**Current focus:** Defining requirements + roadmapping (Phase 13+ continuing IRSF numbering)
+**Current focus:** Phase 15 — GWAS Dispatch, Run Tracking, and Generation History
 
 ## Current Position
 
-Phase: Not started — defining requirements
-Plan: —
-Status: Ready to execute
-Last activity: 2026-04-17 -- Phase 13 planning complete
+Phase: 15 (GWAS Dispatch, Run Tracking, and Generation History) — EXECUTING
+Plan: 1 of 9
+Status: Executing Phase 15
+Last activity: 2026-04-18 -- Phase 15 execution started
 
 Progress: [░░░░░░░░░░] 0%
 

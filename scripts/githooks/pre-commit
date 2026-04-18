@@ -60,15 +60,26 @@ if [ "$HAS_PHP" -gt 0 ]; then
 fi
 
 # ── PHP: PHPStan (static analysis) ──────────────────────────────────────────
-# Run in the php container so devs without a host PHP install (e.g. macOS)
-# match CI behavior — same as Pint above.
+# Run on the host PHP to avoid the php container memory ceiling (2G limit fills
+# up at runtime, leaving no headroom for PHPStan). Host PHP 8.4 is required.
 if [ "$HAS_PHP" -gt 0 ]; then
     echo "Pre-commit: PHPStan..."
-    if docker compose exec -T php sh -c "cd /var/www/html && vendor/bin/phpstan analyse --memory-limit=512M --no-progress" > /dev/null 2>&1; then
-        echo "  ✓ PHPStan"
+    if command -v php > /dev/null 2>&1; then
+        if php -d memory_limit=-1 "$REPO_ROOT/backend/vendor/bin/phpstan" analyse \
+               -c "$REPO_ROOT/backend/phpstan.neon" --no-progress > /dev/null 2>&1; then
+            echo "  ✓ PHPStan"
+        else
+            echo "  ✗ PHPStan — run: cd backend && php -d memory_limit=-1 vendor/bin/phpstan analyse"
+            ERRORS=$((ERRORS + 1))
+        fi
     else
-        echo "  ✗ PHPStan — run: docker compose exec php sh -c 'cd /var/www/html && vendor/bin/phpstan analyse'"
-        ERRORS=$((ERRORS + 1))
+        # Fallback: container (may OOM on memory-constrained systems)
+        if docker compose exec -T php sh -c "cd /var/www/html && vendor/bin/phpstan analyse --memory-limit=1G --no-progress" > /dev/null 2>&1; then
+            echo "  ✓ PHPStan"
+        else
+            echo "  ✗ PHPStan — run: docker compose exec php sh -c 'cd /var/www/html && vendor/bin/phpstan analyse'"
+            ERRORS=$((ERRORS + 1))
+        fi
     fi
 fi
 

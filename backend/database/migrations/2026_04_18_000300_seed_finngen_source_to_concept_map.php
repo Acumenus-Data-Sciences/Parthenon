@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Phase 13 — seed FinnGen-curated cross-walk into vocab.source_to_concept_map.
@@ -44,6 +45,10 @@ return new class extends Migration
 
     public function up(): void
     {
+        if (! Schema::connection('vocab')->hasTable('source_to_concept_map')) {
+            return;
+        }
+
         $crosswalkPath = base_path(self::FIXTURE_DIR);
 
         DB::connection('vocab')->transaction(function () use ($crosswalkPath): void {
@@ -76,7 +81,10 @@ return new class extends Migration
 
     public function down(): void
     {
-        // Reverse the seed: only delete the 6 FinnGen-owned vocab rows.
+        if (! Schema::connection('vocab')->hasTable('source_to_concept_map')) {
+            return;
+        }
+
         DB::connection('vocab')->table('vocab.source_to_concept_map')
             ->whereIn('source_vocabulary_id', self::FINNGEN_OWNED_VOCABS)
             ->delete();
