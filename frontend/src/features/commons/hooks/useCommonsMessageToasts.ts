@@ -1,10 +1,14 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getEcho } from "@/lib/echo";
 import { toast } from "@/components/ui/Toast";
 import { useAuthStore } from "@/stores/authStore";
 import { useChannels, useDirectMessages } from "../api";
-import { hasRecentCommonsMessageToast, markCommonsMessageToast } from "./commonsToastDeduper";
+import {
+  hasRecentCommonsMessageToast,
+  markCommonsMessageToast,
+} from "./commonsToastDeduper";
 
 interface BroadcastMessage {
   id: number;
@@ -15,6 +19,7 @@ interface BroadcastMessage {
 }
 
 export function useCommonsMessageToasts(): void {
+  const { t } = useTranslation("commons");
   const navigate = useNavigate();
   const location = useLocation();
   const currentUserId = useAuthStore((s) => s.user?.id);
@@ -39,7 +44,7 @@ export function useCommonsMessageToasts(): void {
     for (const dm of dms) {
       channelMap.set(dm.id, {
         slug: dm.slug,
-        label: dm.other_user?.name ?? "Direct message",
+        label: dm.other_user?.name ?? t("chat.toasts.directMessage"),
       });
     }
 
@@ -54,9 +59,9 @@ export function useCommonsMessageToasts(): void {
       const meta = channelMap.get(channelId);
       if (!meta) continue;
 
-      echo.private(`commons.channel.${channelId}`).listen(
-        "MessageSent",
-        (event: { message: BroadcastMessage }) => {
+      echo
+        .private(`commons.channel.${channelId}`)
+        .listen("MessageSent", (event: { message: BroadcastMessage }) => {
           const { message } = event;
           if (!message || message.user.id === currentUserId) return;
 
@@ -65,17 +70,21 @@ export function useCommonsMessageToasts(): void {
           if (!outsideCommons || !differentChannel) return;
           if (hasRecentCommonsMessageToast(message.id)) return;
 
-          const preview = message.body.trim() || "sent a file";
+          const preview = message.body.trim() || t("chat.toasts.sentFile");
           markCommonsMessageToast(message.id);
           toast.info(
-            `New message in ${meta.label} from ${message.user.name}: ${preview.slice(0, 80)}`,
+            t("chat.toasts.newMessage", {
+              channel: meta.label,
+              user: message.user.name,
+              preview: preview.slice(0, 80),
+            }),
             {
-              label: "View",
-              onClick: () => navigate(`/commons/${meta.slug}?highlight=${message.id}`),
+              label: t("chat.toasts.view"),
+              onClick: () =>
+                navigate(`/commons/${meta.slug}?highlight=${message.id}`),
             },
           );
-        },
-      );
+        });
     }
 
     return () => {
@@ -83,5 +92,5 @@ export function useCommonsMessageToasts(): void {
         echo.leave(`commons.channel.${channelId}`);
       }
     };
-  }, [channels, currentUserId, dms, location.pathname, navigate]);
+  }, [channels, currentUserId, dms, location.pathname, navigate, t]);
 }

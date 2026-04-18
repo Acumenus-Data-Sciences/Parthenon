@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import AbbyTypingIndicator from "./AbbyTypingIndicator";
 import AbbyResponseCard from "./AbbyResponseCard";
 import { useAbbyQuery, useAbbyMention } from "../../hooks/useAbby";
 import { submitFeedback } from "../../services/abbyService";
-import type { AbbyMentionHandlerProps, AbbyFeedbackRequest } from "../../types/abby";
+import type {
+  AbbyMentionHandlerProps,
+  AbbyFeedbackRequest,
+} from "../../types/abby";
 
 export default function AbbyMentionHandler({
   channelId,
@@ -13,6 +17,7 @@ export default function AbbyMentionHandler({
   onQueryComplete,
   onQueryError,
 }: AbbyMentionHandlerProps) {
+  const { t } = useTranslation("commons");
   const { response, pipelineState, isLoading, error, sendQuery } =
     useAbbyQuery();
   const { extractQuery, containsMention } = useAbbyMention();
@@ -34,7 +39,14 @@ export default function AbbyMentionHandler({
         parent_message_id: parentMessageId,
       });
     },
-    [channelId, channelName, parentMessageId, extractQuery, sendQuery, onQueryStart]
+    [
+      channelId,
+      channelName,
+      parentMessageId,
+      extractQuery,
+      sendQuery,
+      onQueryStart,
+    ],
   );
 
   useEffect(() => {
@@ -60,7 +72,8 @@ export default function AbbyMentionHandler({
   // Listen for message-sent custom events
   useEffect(() => {
     const handler = (e: Event) => {
-      const detail = (e as CustomEvent<{ text: string; userName: string }>).detail;
+      const detail = (e as CustomEvent<{ text: string; userName: string }>)
+        .detail;
       if (containsMention(detail.text)) {
         handleMessageWithMention(detail.text, detail.userName);
       }
@@ -105,7 +118,7 @@ export default function AbbyMentionHandler({
         <div className="flex gap-2.5 px-4 py-3">
           <div className="ml-10 px-3 py-2 bg-red-500/10 rounded-lg">
             <p className="text-[12px] text-red-400">
-              Abby couldn't process your question: {error.message}
+              {t("abby.mentionError", { message: error.message })}
             </p>
             <button
               className="mt-1.5 text-[11px] text-red-400 underline cursor-pointer hover:text-red-300"
@@ -115,12 +128,12 @@ export default function AbbyMentionHandler({
                     query: pendingText,
                     channel_id: channelId,
                     channel_name: channelName,
-                    user_name: "Unknown",
+                    user_name: t("abby.unknownUser"),
                   });
                 }
               }}
             >
-              Try again
+              {t("abby.tryAgain")}
             </button>
           </div>
         </div>
@@ -133,6 +146,6 @@ export function dispatchAbbyMentionEvent(text: string, userName: string) {
   window.dispatchEvent(
     new CustomEvent("commons:message-sent", {
       detail: { text, userName },
-    })
+    }),
   );
 }

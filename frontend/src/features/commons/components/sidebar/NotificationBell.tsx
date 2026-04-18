@@ -1,15 +1,28 @@
 import { useState, useRef, useEffect } from "react";
-import { Bell, MessageSquare, AtSign, ClipboardCheck, Reply } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import {
+  Bell,
+  MessageSquare,
+  AtSign,
+  ClipboardCheck,
+  Reply,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/Button";
-import { useNotifications, useUnreadNotificationCount, useMarkNotificationsRead } from "../../api";
+import { formatDate } from "@/i18n/format";
+import {
+  useNotifications,
+  useUnreadNotificationCount,
+  useMarkNotificationsRead,
+} from "../../api";
 import { UserAvatar } from "../UserAvatar";
 import type { CommonsNotification } from "../../types";
 
 const PANEL_WIDTH = 384;
 
 export function NotificationBell() {
+  const { t } = useTranslation("commons");
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -80,10 +93,10 @@ export function NotificationBell() {
         variant="ghost"
         size="sm"
         icon
-        aria-label="Notifications"
+        aria-label={t("notifications.title")}
         aria-expanded={open}
         aria-haspopup="dialog"
-        title="Notifications"
+        title={t("notifications.title")}
       >
         <Bell className="h-4 w-4" />
         {count > 0 && (
@@ -93,44 +106,47 @@ export function NotificationBell() {
         )}
       </Button>
 
-      {open && createPortal(
-        <div
-          ref={panelRef}
-          className="fixed z-[220] w-96 overflow-hidden rounded-2xl border border-white/10 bg-surface-overlay shadow-[0_24px_80px_rgba(0,0,0,0.55)] ring-1 ring-black/35 backdrop-blur-xl"
-          role="dialog"
-          aria-label="Notifications"
-        >
-          <div className="flex items-center justify-between border-b border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.01))] px-4 py-3">
-            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground/90">
-              Notifications
-            </span>
-            {notifications.some((n) => !n.read_at) && (
-              <button
-                onClick={() => markRead.mutate(undefined)}
-                className="text-[11px] font-medium text-primary transition-colors hover:text-primary/80"
-              >
-                Mark all read
-              </button>
-            )}
-          </div>
-          <div className="max-h-[28rem] overflow-y-auto bg-surface-overlay">
-            {notifications.length === 0 ? (
-              <p className="p-6 text-center text-xs text-muted-foreground">
-                No notifications yet
-              </p>
-            ) : (
-              notifications.slice(0, 20).map((n) => (
-                <NotificationItem
-                  key={n.id}
-                  notification={n}
-                  onClick={() => handleClick(n)}
-                />
-              ))
-            )}
-          </div>
-        </div>,
-        document.body,
-      )}
+      {open &&
+        createPortal(
+          <div
+            ref={panelRef}
+            className="fixed z-[220] w-96 overflow-hidden rounded-2xl border border-white/10 bg-surface-overlay shadow-[0_24px_80px_rgba(0,0,0,0.55)] ring-1 ring-black/35 backdrop-blur-xl"
+            role="dialog"
+            aria-label={t("notifications.title")}
+          >
+            <div className="flex items-center justify-between border-b border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.01))] px-4 py-3">
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground/90">
+                {t("notifications.title")}
+              </span>
+              {notifications.some((n) => !n.read_at) && (
+                <button
+                  onClick={() => markRead.mutate(undefined)}
+                  className="text-[11px] font-medium text-primary transition-colors hover:text-primary/80"
+                >
+                  {t("notifications.markAllRead")}
+                </button>
+              )}
+            </div>
+            <div className="max-h-[28rem] overflow-y-auto bg-surface-overlay">
+              {notifications.length === 0 ? (
+                <p className="p-6 text-center text-xs text-muted-foreground">
+                  {t("notifications.empty")}
+                </p>
+              ) : (
+                notifications
+                  .slice(0, 20)
+                  .map((n) => (
+                    <NotificationItem
+                      key={n.id}
+                      notification={n}
+                      onClick={() => handleClick(n)}
+                    />
+                  ))
+              )}
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
@@ -152,7 +168,7 @@ function NotificationItem({
 }) {
   const Icon = TYPE_ICON[n.type] ?? Bell;
   const isUnread = !n.read_at;
-  const time = new Date(n.created_at).toLocaleTimeString([], {
+  const time = formatDate(n.created_at, {
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -173,7 +189,9 @@ function NotificationItem({
       )}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
-          <span className={`text-xs ${isUnread ? "font-semibold text-foreground" : "text-foreground/80"}`}>
+          <span
+            className={`text-xs ${isUnread ? "font-semibold text-foreground" : "text-foreground/80"}`}
+          >
             {n.title}
           </span>
         </div>
