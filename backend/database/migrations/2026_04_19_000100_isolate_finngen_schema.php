@@ -55,7 +55,17 @@ return new class extends Migration
         // ------------------------------------------------------------------
         // Block 1: CREATE SCHEMA finngen
         // ------------------------------------------------------------------
-        DB::statement('CREATE SCHEMA IF NOT EXISTS finngen AUTHORIZATION parthenon_owner');
+        DB::statement("
+            DO \$\$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_owner') THEN
+                    CREATE SCHEMA IF NOT EXISTS finngen AUTHORIZATION parthenon_owner;
+                ELSE
+                    CREATE SCHEMA IF NOT EXISTS finngen;
+                END IF;
+            END
+            \$\$
+        ");
 
         // ------------------------------------------------------------------
         // Block 1b (Phase 13.2-04 idempotency guard): drop any residual
