@@ -27,6 +27,7 @@ use App\Services\FinnGen\Exceptions\UnresolvableConceptsException;
 use App\Services\FinnGen\FinnGenRunService;
 use App\Services\FinnGen\GwasRunService;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -304,7 +305,7 @@ final class EndpointBrowserController extends Controller
      */
     private function loadGwasRunsFor(string $endpointName): array
     {
-        /** @var \Illuminate\Database\Eloquent\Collection<int, EndpointGwasRun> $rows */
+        /** @var Collection<int, EndpointGwasRun> $rows */
         $rows = EndpointGwasRun::query()
             ->where('endpoint_name', $endpointName)
             ->orderByDesc('created_at')
