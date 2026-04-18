@@ -250,6 +250,65 @@ class FinnGenAnalysisModuleSeeder extends Seeder
                 ],
                 'result_component' => null,
             ],
+            // Phase 14 (D-13) — regenie GWAS step-1 (null model + LOCO predictions)
+            [
+                'key' => 'gwas.regenie.step1',
+                'label' => 'regenie GWAS (step 1 — null model)',
+                'description' => 'Fits the whole-genome mixed model and caches LOCO predictions per (cohort × covariate-set × source). 30-90 min on biobank-scale data.',
+                'darkstar_endpoint' => '/finngen/gwas/regenie/step1',
+                'min_role' => 'researcher',
+                'settings_schema' => [
+                    'type' => 'object',
+                    'required' => ['cohort_definition_id', 'covariate_set_id', 'source_key'],
+                    'properties' => [
+                        'cohort_definition_id' => ['type' => 'integer', 'title' => 'Cohort'],
+                        'covariate_set_id' => ['type' => 'integer', 'title' => 'Covariate set'],
+                        'source_key' => ['type' => 'string', 'title' => 'CDM source key'],
+                        'covariate_set_version_hash' => ['type' => 'string', 'title' => 'Covariate-set version hash (auto)'],
+                        'cache_key' => ['type' => 'string', 'title' => 'LOCO artifact cache key (auto)'],
+                    ],
+                ],
+                'default_settings' => (object) [],
+                'result_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'cache_key' => ['type' => 'string'],
+                        'cache_hit' => ['type' => 'boolean'],
+                        'loco_count' => ['type' => 'integer'],
+                    ],
+                ],
+                'result_component' => null,
+            ],
+            // Phase 14 (D-13) — regenie GWAS step-2 (per-variant association scan)
+            [
+                'key' => 'gwas.regenie.step2',
+                'label' => 'regenie GWAS (step 2 — association scan)',
+                'description' => 'Runs per-variant association tests against a pre-computed step-1 LOCO cache; writes summary_stats.',
+                'darkstar_endpoint' => '/finngen/gwas/regenie/step2',
+                'min_role' => 'researcher',
+                'settings_schema' => [
+                    'type' => 'object',
+                    'required' => ['cohort_definition_id', 'covariate_set_id', 'source_key'],
+                    'properties' => [
+                        'cohort_definition_id' => ['type' => 'integer', 'title' => 'Cohort'],
+                        'covariate_set_id' => ['type' => 'integer', 'title' => 'Covariate set'],
+                        'source_key' => ['type' => 'string', 'title' => 'CDM source key'],
+                        'covariate_set_version_hash' => ['type' => 'string', 'title' => 'Covariate-set version hash (auto)'],
+                        'cache_key' => ['type' => 'string', 'title' => 'LOCO artifact cache key (auto)'],
+                    ],
+                ],
+                'default_settings' => (object) [],
+                'result_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'run_id' => ['type' => 'string'],
+                        'rows_written' => ['type' => 'integer'],
+                        'cache_key_used' => ['type' => 'string'],
+                        'warnings' => ['type' => 'array', 'items' => ['type' => 'string']],
+                    ],
+                ],
+                'result_component' => null,
+            ],
             // Genomics #2 — Materialize a FinnGen endpoint definition against a CDM
             [
                 'key' => 'endpoint.generate',
