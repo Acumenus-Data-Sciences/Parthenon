@@ -1,4 +1,5 @@
 import type { Resource } from "i18next";
+import { commonsResources } from "./commonsResources";
 import { dashboardResources } from "./dashboardResources";
 
 type MessageTree = {
@@ -4766,11 +4767,13 @@ function withProductResources(
   help: MessageTree,
   auth: MessageTree,
   dashboard: MessageTree,
+  commons: MessageTree,
 ): ParthenonNamespaces & {
   settings: MessageTree;
   help: MessageTree;
   auth: MessageTree;
   dashboard: MessageTree;
+  commons: MessageTree;
 } {
   return {
     ...namespaces,
@@ -4781,6 +4784,7 @@ function withProductResources(
     help,
     auth,
     dashboard,
+    commons,
   };
 }
 
@@ -4792,6 +4796,7 @@ export const resources: Resource = {
     enHelp,
     withAuthSetup(enAuth, enAuthSetup),
     dashboardResources["en-US"],
+    commonsResources["en-US"],
   ),
   "es-ES": withProductResources(
     withCommonUi(withAbbyLayout(esES, esAbbyLayout), esCommonUi),
@@ -4800,6 +4805,7 @@ export const resources: Resource = {
     esHelp,
     withAuthSetup(esAuth, esAuthSetup),
     dashboardResources["es-ES"],
+    commonsResources["es-ES"],
   ),
   "fr-FR": withProductResources(
     withCommonUi(withAbbyLayout(frFR, enAbbyLayout), enCommonUi),
@@ -4808,6 +4814,7 @@ export const resources: Resource = {
     frHelp,
     withAuthSetup(frAuth, enAuthSetup),
     dashboardResources["en-US"],
+    commonsResources["en-US"],
   ),
   "de-DE": withProductResources(
     withCommonUi(withAbbyLayout(deDE, enAbbyLayout), enCommonUi),
@@ -4816,6 +4823,7 @@ export const resources: Resource = {
     deHelp,
     withAuthSetup(deAuth, enAuthSetup),
     dashboardResources["en-US"],
+    commonsResources["en-US"],
   ),
   "pt-BR": withProductResources(
     withCommonUi(withAbbyLayout(ptBR, enAbbyLayout), enCommonUi),
@@ -4824,6 +4832,7 @@ export const resources: Resource = {
     ptHelp,
     withAuthSetup(ptAuth, enAuthSetup),
     dashboardResources["en-US"],
+    commonsResources["en-US"],
   ),
   "fi-FI": withProductResources(
     withCommonUi(withAbbyLayout(fiFI, enAbbyLayout), enCommonUi),
@@ -4832,6 +4841,7 @@ export const resources: Resource = {
     fiHelp,
     withAuthSetup(fiAuth, enAuthSetup),
     dashboardResources["en-US"],
+    commonsResources["en-US"],
   ),
   "ja-JP": withProductResources(
     withCommonUi(withAbbyLayout(jaJP, enAbbyLayout), enCommonUi),
@@ -4840,6 +4850,7 @@ export const resources: Resource = {
     jaHelp,
     withAuthSetup(jaAuth, enAuthSetup),
     dashboardResources["en-US"],
+    commonsResources["en-US"],
   ),
   "zh-Hans": withProductResources(
     withCommonUi(withAbbyLayout(zhHans, enAbbyLayout), enCommonUi),
@@ -4848,6 +4859,7 @@ export const resources: Resource = {
     zhHelp,
     withAuthSetup(zhAuth, enAuthSetup),
     dashboardResources["en-US"],
+    commonsResources["en-US"],
   ),
   "ko-KR": withProductResources(
     withCommonUi(withAbbyLayout(koKR, koAbbyLayout), koCommonUi),
@@ -4856,6 +4868,7 @@ export const resources: Resource = {
     koHelp,
     withAuthSetup(koAuth, koAuthSetup),
     dashboardResources["ko-KR"],
+    commonsResources["ko-KR"],
   ),
   "hi-IN": withProductResources(
     withCommonUi(withAbbyLayout(hiIN, enAbbyLayout), enCommonUi),
@@ -4864,6 +4877,7 @@ export const resources: Resource = {
     hiHelp,
     withAuthSetup(hiAuth, enAuthSetup),
     dashboardResources["en-US"],
+    commonsResources["en-US"],
   ),
   ar: withProductResources(
     withCommonUi(withAbbyLayout(ar, enAbbyLayout), enCommonUi),
@@ -4872,6 +4886,7 @@ export const resources: Resource = {
     arHelp,
     withAuthSetup(arAuth, enAuthSetup),
     dashboardResources["en-US"],
+    commonsResources["en-US"],
   ),
   "en-XA": withProductResources(
     withCommonUi(
@@ -4883,6 +4898,7 @@ export const resources: Resource = {
     pseudoTree(enHelp),
     withAuthSetup(pseudoTree(enAuth), pseudoTree(enAuthSetup)),
     pseudoTree(dashboardResources["en-US"]),
+    pseudoTree(commonsResources["en-US"]),
   ),
 };
 
@@ -4893,4 +4909,5 @@ export const namespaces = [
   "help",
   "auth",
   "dashboard",
+  "commons",
 ];

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import type { Channel } from "../../types";
 import { useUnreadCounts, useDirectMessages } from "../../api";
@@ -14,6 +15,7 @@ interface ChannelListProps {
 }
 
 export function ChannelList({ channels, activeSlug }: ChannelListProps) {
+  const { t } = useTranslation("commons");
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const { data: unreadCounts = {} } = useUnreadCounts();
@@ -38,11 +40,11 @@ export function ChannelList({ channels, activeSlug }: ChannelListProps) {
 
       <div className="flex items-center justify-between px-4 pt-4 pb-1">
         <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-          Channels
+          {t("sidebar.channels")}
         </p>
         <button
           onClick={() => setShowCreateModal(true)}
-          title="Create channel"
+          title={t("sidebar.createChannel")}
           className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
           <Plus className="h-3.5 w-3.5" />
@@ -59,7 +61,7 @@ export function ChannelList({ channels, activeSlug }: ChannelListProps) {
       ))}
 
       {/* AI Assistant */}
-      <SectionLabel>AI Assistant</SectionLabel>
+      <SectionLabel>{t("sidebar.aiAssistant")}</SectionLabel>
       <button
         onClick={() => navigate("/commons/ask-abby")}
         className={`flex items-center gap-2 py-1.5 px-4 text-[13px] transition-colors ${
@@ -74,7 +76,7 @@ export function ChannelList({ channels, activeSlug }: ChannelListProps) {
 
       {studyChannels.length > 0 && (
         <>
-          <SectionLabel>Study Channels</SectionLabel>
+          <SectionLabel>{t("sidebar.studyChannels")}</SectionLabel>
           {studyChannels.map((ch) => (
             <ChannelItem
               key={ch.id}
@@ -88,10 +90,10 @@ export function ChannelList({ channels, activeSlug }: ChannelListProps) {
       )}
 
       <div className="flex items-center justify-between px-4 pt-4 pb-1">
-        <SectionLabel noPadding>Direct Messages</SectionLabel>
+        <SectionLabel noPadding>{t("sidebar.directMessages")}</SectionLabel>
         <button
           onClick={() => setShowDmModal(true)}
-          title="New message"
+          title={t("sidebar.newMessage")}
           className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
           <Plus className="h-3.5 w-3.5" />
@@ -99,7 +101,7 @@ export function ChannelList({ channels, activeSlug }: ChannelListProps) {
       </div>
       {dms.length === 0 ? (
         <p className="px-4 text-xs italic text-muted-foreground/60">
-          Start a conversation from the + button or the online roster
+          {t("sidebar.emptyDirectMessages")}
         </p>
       ) : (
         dms.map((dm) => {
@@ -121,7 +123,7 @@ export function ChannelList({ channels, activeSlug }: ChannelListProps) {
               <UserAvatar user={dm.other_user} size="sm" />
             )}
             <span className="truncate">
-              {dm.other_user?.name ?? "Unknown"}
+              {dm.other_user?.name ?? t("sidebar.unknownUser")}
             </span>
             {hasUnread && (
               <span className="ml-auto shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold leading-none text-primary-foreground min-w-[18px] text-center">

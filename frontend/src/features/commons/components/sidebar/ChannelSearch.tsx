@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Search } from "lucide-react";
 
 interface ChannelSearchProps {
@@ -6,6 +7,7 @@ interface ChannelSearchProps {
 }
 
 export function ChannelSearch({ onSearch }: ChannelSearchProps) {
+  const { t } = useTranslation("commons");
   const [query, setQuery] = useState("");
 
   return (
@@ -13,7 +15,7 @@ export function ChannelSearch({ onSearch }: ChannelSearchProps) {
       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <input
         type="text"
-        placeholder="Search channels..."
+        placeholder={t("sidebar.searchPlaceholder")}
         value={query}
         onChange={(e) => {
           setQuery(e.target.value);

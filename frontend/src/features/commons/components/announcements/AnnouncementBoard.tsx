@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Megaphone, Pin, Bookmark, Plus, Trash2 } from "lucide-react";
 import {
   useAnnouncements,
@@ -10,6 +11,7 @@ import { UserAvatar } from "../UserAvatar";
 import type { Announcement } from "../../types";
 import { useAuthStore } from "@/stores/authStore";
 import { Modal } from "@/components/ui/Modal";
+import { formatDate } from "@/i18n/format";
 
 /** Ensure all links in server-rendered HTML open in a new tab. */
 function externalLinks(html: string): string {
@@ -21,19 +23,19 @@ function externalLinks(html: string): string {
 // ---------------------------------------------------------------------------
 
 const CATEGORIES = [
-  { value: "general",          label: "General",          badge: "badge-info"     },
-  { value: "study_recruitment",label: "Study Recruitment",badge: "badge-success"  },
-  { value: "data_update",      label: "Data Update",      badge: "badge-warning"  },
-  { value: "milestone",        label: "Milestone",        badge: "badge-accent"   },
-  { value: "policy",           label: "Policy",           badge: "badge-critical" },
+  { value: "general", labelKey: "announcements.categories.general", badge: "badge-info" },
+  { value: "study_recruitment", labelKey: "announcements.categories.studyRecruitment", badge: "badge-success" },
+  { value: "data_update", labelKey: "announcements.categories.dataUpdate", badge: "badge-warning" },
+  { value: "milestone", labelKey: "announcements.categories.milestone", badge: "badge-accent" },
+  { value: "policy", labelKey: "announcements.categories.policy", badge: "badge-critical" },
 ] as const;
 
 function getCategoryBadge(category: string): string {
   return CATEGORIES.find((c) => c.value === category)?.badge ?? "badge-default";
 }
 
-function getCategoryLabel(category: string): string {
-  return CATEGORIES.find((c) => c.value === category)?.label ?? category;
+function getCategoryLabelKey(category: string): string | null {
+  return CATEGORIES.find((c) => c.value === category)?.labelKey ?? null;
 }
 
 // ---------------------------------------------------------------------------
@@ -53,7 +55,9 @@ function AnnouncementCard({
   onDelete,
   onBookmark,
 }: AnnouncementCardProps) {
-  const time = new Date(announcement.created_at).toLocaleDateString([], {
+  const { t } = useTranslation("commons");
+  const categoryLabelKey = getCategoryLabelKey(announcement.category);
+  const time = formatDate(announcement.created_at, {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -68,14 +72,18 @@ function AnnouncementCard({
             <Pin size={13} style={{ color: "var(--warning)", flexShrink: 0 }} />
           )}
           <span className={`badge ${getCategoryBadge(announcement.category)}`}>
-            {getCategoryLabel(announcement.category)}
+            {categoryLabelKey ? t(categoryLabelKey) : announcement.category}
           </span>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-1)" }}>
           <button
             onClick={() => onBookmark(announcement.id)}
-            title={announcement.is_bookmarked ? "Remove bookmark" : "Bookmark"}
+            title={
+              announcement.is_bookmarked
+                ? t("announcements.removeBookmark")
+                : t("announcements.bookmark")
+            }
             className="btn btn-ghost btn-icon btn-sm"
           >
             <Bookmark
@@ -91,7 +99,7 @@ function AnnouncementCard({
           {announcement.user_id === currentUserId && (
             <button
               onClick={() => onDelete(announcement.id)}
-              title="Delete"
+              title={t("announcements.delete")}
               className="btn btn-ghost btn-icon btn-sm"
             >
               <Trash2 size={13} />
@@ -148,7 +156,9 @@ function AnnouncementCard({
         <span style={{ fontSize: "var(--text-xs)", color: "var(--text-ghost)" }}>{time}</span>
         {announcement.expires_at && (
           <span className="badge badge-warning" style={{ fontSize: 10 }}>
-            Expires {new Date(announcement.expires_at).toLocaleDateString()}
+            {t("announcements.expires", {
+              date: formatDate(announcement.expires_at),
+            })}
           </span>
         )}
       </div>
@@ -167,6 +177,7 @@ interface CreateAnnouncementModalProps {
 }
 
 function CreateAnnouncementModal({ open, onClose, channelSlug }: CreateAnnouncementModalProps) {
+  const { t } = useTranslation("commons");
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [category, setCategory] = useState("general");
@@ -194,12 +205,12 @@ function CreateAnnouncementModal({ open, onClose, channelSlug }: CreateAnnouncem
     <Modal
       open={open}
       onClose={onClose}
-      title="New Announcement"
+      title={t("announcements.modal.title")}
       size="md"
       footer={
         <>
           <button type="button" className="btn btn-ghost" onClick={onClose}>
-            Cancel
+            {t("announcements.modal.cancel")}
           </button>
           <button
             type="submit"
@@ -207,30 +218,32 @@ function CreateAnnouncementModal({ open, onClose, channelSlug }: CreateAnnouncem
             className="btn btn-primary"
             disabled={!title.trim() || !body.trim() || createMutation.isPending}
           >
-            {createMutation.isPending ? "Posting…" : "Post Announcement"}
+            {createMutation.isPending
+              ? t("announcements.modal.posting")
+              : t("announcements.modal.post")}
           </button>
         </>
       }
     >
       <form id="create-announcement-form" onSubmit={handleSubmit}>
         <div className="form-group">
-          <label className="form-label">Title</label>
+          <label className="form-label">{t("announcements.form.title")}</label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Announcement title"
+            placeholder={t("announcements.form.titlePlaceholder")}
             autoFocus
             className="form-input"
           />
         </div>
 
         <div className="form-group">
-          <label className="form-label">Body</label>
+          <label className="form-label">{t("announcements.form.body")}</label>
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            placeholder="Write your announcement…"
+            placeholder={t("announcements.form.bodyPlaceholder")}
             rows={5}
             className="form-input form-textarea"
           />
@@ -238,14 +251,14 @@ function CreateAnnouncementModal({ open, onClose, channelSlug }: CreateAnnouncem
 
         <div style={{ display: "flex", gap: "var(--space-4)" }}>
           <div className="form-group" style={{ flex: 1 }}>
-            <label className="form-label">Category</label>
+            <label className="form-label">{t("announcements.form.category")}</label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="form-input form-select"
             >
               {CATEGORIES.map((c) => (
-                <option key={c.value} value={c.value}>{c.label}</option>
+                <option key={c.value} value={c.value}>{t(c.labelKey)}</option>
               ))}
             </select>
           </div>
@@ -257,7 +270,7 @@ function CreateAnnouncementModal({ open, onClose, channelSlug }: CreateAnnouncem
                 checked={isPinned}
                 onChange={(e) => setIsPinned(e.target.checked)}
               />
-              <span>Pin to top</span>
+              <span>{t("announcements.form.pinToTop")}</span>
             </label>
           </div>
         </div>
@@ -275,6 +288,7 @@ interface AnnouncementBoardProps {
 }
 
 export function AnnouncementBoard({ channelSlug }: AnnouncementBoardProps) {
+  const { t } = useTranslation("commons");
   const [showCreate, setShowCreate] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string>("");
   const { data: announcements = [], isLoading } = useAnnouncements(
@@ -300,7 +314,7 @@ export function AnnouncementBoard({ channelSlug }: AnnouncementBoardProps) {
         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
           <Megaphone size={15} style={{ color: "var(--primary)" }} />
           <span style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--text-primary)" }}>
-            Announcements
+            {t("announcements.title")}
           </span>
         </div>
 
@@ -311,9 +325,9 @@ export function AnnouncementBoard({ channelSlug }: AnnouncementBoardProps) {
             className="form-input form-select"
             style={{ minHeight: 30, fontSize: "var(--text-xs)", padding: "var(--space-1) var(--space-6) var(--space-1) var(--space-2)" }}
           >
-            <option value="">All categories</option>
+            <option value="">{t("announcements.allCategories")}</option>
             {CATEGORIES.map((c) => (
-              <option key={c.value} value={c.value}>{c.label}</option>
+              <option key={c.value} value={c.value}>{t(c.labelKey)}</option>
             ))}
           </select>
 
@@ -323,7 +337,7 @@ export function AnnouncementBoard({ channelSlug }: AnnouncementBoardProps) {
             style={{ display: "flex", alignItems: "center", gap: "var(--space-1)" }}
           >
             <Plus size={13} />
-            New
+            {t("announcements.new")}
           </button>
         </div>
       </div>
@@ -331,7 +345,9 @@ export function AnnouncementBoard({ channelSlug }: AnnouncementBoardProps) {
       {/* List */}
       <div style={{ flex: 1, overflowY: "auto", padding: "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
         {isLoading && (
-          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)" }}>Loading…</p>
+          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)" }}>
+            {t("announcements.loading")}
+          </p>
         )}
 
         {!isLoading && announcements.length === 0 && (
@@ -346,9 +362,11 @@ export function AnnouncementBoard({ channelSlug }: AnnouncementBoardProps) {
             textAlign: "center",
           }}>
             <Megaphone size={40} style={{ color: "var(--text-ghost)", opacity: 0.4 }} />
-            <p style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)" }}>No announcements yet</p>
+            <p style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)" }}>
+              {t("announcements.emptyTitle")}
+            </p>
             <p style={{ fontSize: "var(--text-xs)", color: "var(--text-ghost)" }}>
-              Post updates, study recruitment notices, and milestones
+              {t("announcements.emptyMessage")}
             </p>
           </div>
         )}
