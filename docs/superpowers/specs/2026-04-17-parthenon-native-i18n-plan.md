@@ -606,6 +606,27 @@ Recommended next implementation step:
 4. Add a DeepL/OpenAI prototype behind feature flags for Class 0 strings only.
 5. Run the bakeoff before purchasing or committing to production provider credentials.
 
+Implementation update:
+
+- Added `scripts/i18n/export-translation-assets.mjs` as the first repo-managed `translation_assets` pipeline.
+- Default export locale set is the public pilot set: `en-US`, `es-ES`, and `ko-KR`.
+- Export outputs are written under `output/translation-assets/**` and are intentionally ignored build artifacts.
+- The exporter emits:
+  - frontend i18next namespace JSON plus `messages.json` and `messages.csv`;
+  - backend Laravel lang JSON plus `messages.json` and `messages.csv`;
+  - contextual help JSON plus `messages.json` and `messages.csv`;
+  - Docusaurus source MDX/blog copies, `documents.json`, `documents.csv`, locale metadata, copied docs-site config/sidebar sources, and MDX protection notes.
+- Generated docs surfaces are excluded: `docs/site/build/**`, `docs/dist/**`, and `docs/site/.docusaurus/**`.
+- The backend `finngen` namespace is excluded while FinnGen remains under active development.
+- Package shortcuts:
+  - `cd frontend && npm run i18n:export-assets`
+  - `cd docs/site && npm run i18n:export-assets`
+- Smoke export result for the pilot set:
+  - frontend: 951 source keys, 1,902 target rows;
+  - backend: 87 source keys, 174 target rows;
+  - help: 456 source strings, 912 target rows;
+  - Docusaurus: 146 source documents, including 91 docs pages and 55 blog posts.
+
 ## Target Architecture
 
 ### Frontend Locale Module
@@ -1548,7 +1569,7 @@ This section turns the strategy above into a branch-level implementation checkli
 - [ ] Keep Arabic and `en-XA` in smoke tests for layout and direction only.
 - [x] Add missing-key telemetry in warn-only mode.
 - [x] Add hardcoded user-facing string scanner/reporting in warn-only mode.
-- [ ] Add a translation completeness report for `en-US`, `es-ES`, `ko-KR`, `ar`, and `en-XA`.
+- [x] Add a translation completeness report for `en-US`, `es-ES`, `ko-KR`, `ar`, and `en-XA`.
 - [x] Run focused frontend and backend locale tests before expanding into more surfaces.
 
 Branch goals:
