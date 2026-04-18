@@ -1,0 +1,15 @@
+{
+  "key": "patient-timeline",
+  "title": "Línea de tiempo del paciente",
+  "description": "La Línea de tiempo del paciente muestra una vista longitudinal de los eventos clínicos de un solo paciente en todos los dominios CDM: condiciones, exposiciones a medicamentos, procedimientos, mediciones, visitas y observaciones. Requiere el rol PHI Access.",
+  "docs_url": "/docs/part7-patient-profiles/21-patient-timelines",
+  "video_url": null,
+  "tips": [
+    "El acceso a líneas de tiempo de pacientes se registra en la pista de auditoría; acceda solo a registros que tenga necesidad clínica de ver.",
+    "Use los filtros de dominio para enfocarse en tipos específicos de eventos, por ejemplo, solo medicamentos.",
+    "Al pasar el cursor sobre cualquier evento se muestra el nombre completo del concepto, valor fuente y visita asociada.",
+    "La línea de tiempo es de solo lectura; refleja el CDM tal como está y no puede editarse.",
+    "Los ID de pacientes son person_ids internos de CDM; no son MRN de pacientes ni identificadores hospitalarios.",
+    "Los eventos clínicos se indexan en Solr para búsqueda entre pacientes; use la búsqueda global (Cmd+K) para encontrar eventos por nombre de concepto en todos los pacientes y fuentes."
+  ]
+}

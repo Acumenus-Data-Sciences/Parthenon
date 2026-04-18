@@ -1,0 +1,16 @@
+{
+  "key": "patient-similarity",
+  "title": "Similitud de pacientes",
+  "description": "Similitud de pacientes permite comparar perfiles de cohortes, encontrar pacientes clínicamente similares y ejecutar emparejamiento por puntuación de propensión en fuentes OMOP CDM. Opera en dos modos:\n\n**Modo Comparar** compara dos cohortes existentes cara a cara para evaluar cuán diferentes son y si son adecuadas para investigación de efectividad comparativa. Seleccione una cohorte objetivo y una cohorte comparadora, luego ejecute el pipeline: Comparación de perfiles → Balance de covariables (Love plot + SMD) → Emparejamiento por puntuación de propensión → Paisaje UMAP.\n\n**Modo Expandir** comienza con una sola cohorte semilla y encuentra nuevos pacientes fuera de ella que son clínicamente similares. Seleccione una cohorte semilla y luego ejecute: Perfil centroide → Pacientes similares → Paisaje UMAP → Descubrimiento de fenotipos.\n\nEn breve: Comparar = '¿qué tan diferentes son A y B?' y Expandir = 'encuéntrame más pacientes como A.'",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Use el modo Comparar para estudios de efectividad comparativa de nuevos usuarios, por ejemplo, Clopidogrel vs Aspirina post-MI.",
+    "Use el modo Expandir para hacer crecer una cohorte pequeña, construir brazos de control externos o encontrar pacientes omitidos.",
+    "El paso PSM (Propensity Score Matching) se recomienda cuando el panel de balance de covariables muestra covariables desequilibradas (SMD > 0.1).",
+    "El Paisaje UMAP proyecta pacientes en un gráfico 3D; active Colores de clúster para ver agrupamientos K-means.",
+    "Pase el cursor sobre puntos en el paisaje para ver demografía del paciente, pertenencia a clúster y estado de cohorte.",
+    "El Love plot muestra diferencias medias estandarizadas (SMD) para cada covariable. Después de PSM, los puntos 'después' (teal) deberían estar más cerca de cero que los puntos 'antes' (crimson).",
+    "Las cohortes grandes (>5,000 miembros) se muestrean automáticamente para balance de covariables y PSM a fin de mantener el rendimiento."
+  ]
+}

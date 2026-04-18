@@ -1,0 +1,17 @@
+{
+  "key": "genomics",
+  "title": "분자 유전체학",
+  "description": "유전체학 모듈은 OMOP CDM 프레임워크 안에서 유전체 변이 데이터를 수집, 주석화, 분석하는 완전한 워크플로를 제공합니다. VCF 또는 MAF 파일을 업로드하고, ClinVar 참조 데이터베이스와 대조해 변이를 주석화하며, 샘플을 OMOP 환자 기록에 매칭하고, 모집단 수준 변이-결과 분석을 실행할 수 있습니다.",
+  "docs_url": "/docs/part9-genomics/27-genomics-overview",
+  "video_url": null,
+  "tips": [
+    "ClinVar 참조 데이터베이스(ClinVar Reference 탭)를 동기화하는 것부터 시작하세요. 빠른 시드에는 P/LP Only를, 440만 개 전체 변이에는 Full Sync를 사용하세요.",
+    "Upload Variants를 통해 VCF 또는 MAF 파일을 업로드하세요. 10 MB 미만 파일은 즉시 파싱되고 더 큰 파일은 큐에 들어갑니다.",
+    "업로드 후 각 업로드 행의 반짝이 아이콘을 클릭해 ClinVar 임상적 의의, 유전자 기호, 질병 연관성으로 변이를 주석화하세요.",
+    "업로드를 열어 변이 상세 테이블을 확인하세요. Match Persons를 사용해 유전체 샘플을 OMOP person 기록과 연결한 뒤 Import to OMOP으로 변이를 MEASUREMENT 테이블에 기록합니다.",
+    "변이가 주석화되면 메인 페이지에 Top Mutated Genes 섹션이 나타나 모든 업로드에서 가장 자주 변이된 유전자를 보여 줍니다.",
+    "모집단 수준 분석에는 Analysis Suite를 사용하세요: Mutation-Survival(Kaplan-Meier 곡선), Treatment-Variant Matrix(유전자별 약물 반응), Genomic Characterization(유전자 waterfall, 변이 유형, 변이 부하).",
+    "Tumor Board는 임상 의사결정 지원을 위한 환자 수준 분자 근거 패널을 제공합니다.",
+    "병원성 및 병원성 가능성이 높은 변이는 자동으로 표시됩니다. 불확실한 의의와 상충되는 변이는 검토 대상으로 표시됩니다."
+  ]
+}

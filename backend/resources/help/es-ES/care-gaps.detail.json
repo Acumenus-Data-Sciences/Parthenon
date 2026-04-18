@@ -1,0 +1,17 @@
+{
+  "key": "care-gaps.detail",
+  "title": "Detalle del paquete de brechas de atención",
+  "description": "Vea y gestione un paquete de condiciones de brechas de atención con tres pestañas: Diseño para configurar las medidas del paquete, Resultados de cumplimiento para evaluar el cumplimiento de pacientes contra una fuente de datos, y Reglas de superposición para definir cómo interactúan las medidas. Incluye un anillo de cumplimiento general y un historial completo de evaluaciones.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "La pestaña Diseño permite configurar las medidas y criterios que definen este paquete de brechas de atención usando el Diseñador de paquetes.",
+    "Use la pestaña Resultados de cumplimiento para evaluar el paquete contra una fuente de datos específica. Seleccione una fuente y haga clic en Evaluar para ejecutar el análisis.",
+    "Los resultados de cumplimiento muestran un porcentaje general de cumplimiento, pacientes totales, brechas cumplidas, brechas abiertas y conteos de pacientes excluidos.",
+    "El anillo de cumplimiento en el encabezado le da una vista rápida del porcentaje general de cumplimiento de la evaluación más reciente.",
+    "La Tabla de cumplimiento de medidas desglosa el cumplimiento por medida individual para identificar qué brechas específicas requieren atención.",
+    "La pestaña Reglas de superposición permite definir cómo interactúan múltiples medidas dentro del paquete y cómo manejar escenarios de superposición de pacientes.",
+    "Cada evaluación se guarda en la sección Historial de evaluación. Haga clic en cualquier evaluación anterior para revisar sus resultados sin volver a ejecutarla.",
+    "Las insignias de categoría de enfermedad y código del paquete en el encabezado ayudan a identificar y clasificar rápidamente el paquete de condición."
+  ]
+}

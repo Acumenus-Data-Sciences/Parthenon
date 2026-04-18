@@ -1,0 +1,17 @@
+{
+  "key": "study-packages",
+  "title": "연구 패키지(Strategus)",
+  "description": "연구 패키지는 Strategus를 사용해 다중 분석 OHDSI 연구 패키지를 만들고 실행할 수 있게 합니다. 안내형 5단계 마법사는 연구 이름 지정, 분석 모듈 선택(CohortGenerator, CohortMethod, PatientLevelPrediction 등), 공유 코호트 할당, 명세 검증, CDM 데이터 소스에 대한 실행 과정을 안내합니다.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "CohortGenerator는 모든 분석 모듈 실행 전에 코호트를 인스턴스화하는 데 필요하므로 항상 자동으로 포함됩니다.",
+    "모듈 선택 단계에서 CohortMethod, PatientLevelPrediction, SelfControlledCaseSeries 등 사용 가능한 OHDSI 분석 모듈을 선택하세요.",
+    "공유 코호트 단계에서 공유 코호트를 추가하고 각 코호트에 target, comparator 또는 outcome 역할을 할당하세요. 대부분의 모듈은 최소 하나의 대상 코호트가 필요합니다.",
+    "실행에 들어가기 전에 검토 및 검증 단계를 사용해 명세의 구성 문제를 확인하세요.",
+    "저장된 연구 설계를 복원하려면 페이지 헤더의 Import JSON 버튼으로 이전에 내보낸 Strategus JSON 명세를 가져오세요.",
+    "협업자와 공유하거나 보관하려면 Export JSON 버튼을 사용해 언제든 현재 명세를 JSON으로 내보낼 수 있습니다.",
+    "실행 단계에서 CDM 데이터 소스를 선택하고 Strategus가 모듈 실행을 조율하는 동안 진행률 막대를 모니터링하세요.",
+    "실행이 완료되면 실행된 모듈, 경과 시간, 결과 파일 수, 출력 디렉터리를 보여 주는 요약을 검토하세요."
+  ]
+}

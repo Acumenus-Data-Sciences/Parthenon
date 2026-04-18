@@ -1,0 +1,17 @@
+{
+  "key": "study-packages",
+  "title": "Paquetes de estudio (Strategus)",
+  "description": "Paquetes de estudio permite construir y ejecutar paquetes de estudio OHDSI con múltiples análisis usando Strategus. Un asistente guiado de 5 pasos le conduce por nombrar el estudio, seleccionar módulos de análisis (CohortGenerator, CohortMethod, PatientLevelPrediction, etc.), asignar cohortes compartidas, validar la especificación y ejecutar contra una fuente de datos CDM.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "CohortGenerator siempre se incluye automáticamente porque es necesario para instanciar cohortes antes de que cualquier módulo de análisis pueda ejecutarse.",
+    "En el paso Seleccionar módulos, elija entre módulos de análisis OHDSI disponibles como CohortMethod, PatientLevelPrediction, SelfControlledCaseSeries y más.",
+    "Agregue cohortes compartidas en el paso Cohortes compartidas, asignando a cada una un rol de objetivo, comparadora o desenlace. La mayoría de los módulos requieren al menos una cohorte objetivo.",
+    "Use el paso Revisar y validar para comprobar problemas de configuración en su especificación antes de comprometerse a la ejecución.",
+    "Importe una especificación Strategus JSON exportada anteriormente usando el botón Importar JSON en el encabezado de la página para restaurar un diseño de estudio guardado.",
+    "Exporte su especificación actual como JSON en cualquier momento usando el botón Exportar JSON para compartir con colaboradores o archivar.",
+    "En el paso Ejecutar, seleccione una fuente de datos CDM y monitoree la barra de progreso mientras Strategus orquesta la ejecución de módulos.",
+    "Después de completar la ejecución, revise el resumen que muestra módulos ejecutados, tiempo transcurrido, conteo de archivos de resultados y directorio de salida."
+  ]
+}

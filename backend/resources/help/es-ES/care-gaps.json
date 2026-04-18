@@ -1,0 +1,13 @@
+{
+  "key": "care-gaps",
+  "title": "Brechas de atención",
+  "description": "El módulo Brechas de atención identifica poblaciones de pacientes que no han recibido servicios preventivos, tamizajes o tratamientos recomendados según medidas clínicas de calidad. Investigadores y gestores de atención pueden usar esta función para priorizar alcance, cerrar brechas de calidad y monitorear la mejora a lo largo del tiempo contra puntos de referencia estandarizados.",
+  "docs_url": "/docs/part3-cohorts/05-cohort-expressions",
+  "video_url": null,
+  "tips": [
+    "Defina con precisión su cohorte de población elegible antes de configurar una medida de brecha de atención para evitar incluir pacientes realmente exentos de la recomendación.",
+    "Aproveche conjuntos de conceptos existentes para criterios de procedimientos y observaciones, de modo que las definiciones de brechas de atención sean coherentes con otros análisis de su estudio.",
+    "Ejecute análisis de brechas de atención en múltiples fuentes de datos para entender si las brechas reflejan patrones clínicos reales o problemas de completitud de datos en un sitio específico.",
+    "Programe evaluaciones recurrentes de brechas con una cadencia fija para que se acumulen datos de tendencia y pueda cuantificarse la mejora a lo largo del tiempo."
+  ]
+}

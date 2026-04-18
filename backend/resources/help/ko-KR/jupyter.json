@@ -1,0 +1,15 @@
+{
+  "key": "jupyter",
+  "title": "Jupyter",
+  "description": "Jupyter는 탐색적 분석, 맞춤형 그림, 코호트 진단, 연구별 워크플로를 위해 Parthenon 안에 완전한 notebook 작업 공간을 임베드합니다. 임베드된 lab은 output/jupyter-notebook에 기반한 지속 notebook 작업 공간을 마운트하고, 연구자가 플랫폼을 떠나지 않고 코호트와 연구 워크플로에서 코드로 이동할 수 있도록 시작용 Parthenon notebook을 제공합니다.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "인터랙티브 탐색에는 임베드된 lab을 사용하고, 더 넓은 화면이 필요할 때는 같은 작업 공간을 새 탭에서 여세요.",
+    "notebook 작업 공간은 output/jupyter-notebook에 지속되므로 Jupyter에 저장하는 모든 항목은 저장소에 남고 버전 관리할 수 있습니다.",
+    "환경을 확인하고 권장 워크플로를 익히려면 시드된 Parthenon Research Workbench notebook부터 시작하세요.",
+    "전용 제품 기능으로 만들기에는 작은 맞춤형 하위그룹 확인, 민감도 분석, GIS 조인, 일회성 차트에는 Jupyter를 사용하세요.",
+    "notebook은 연구 중심으로 유지하세요. 파일 이름을 명확히 지정하고 결과 산출물을 관련 연구 또는 출판 워크플로에 첨부하세요.",
+    "컨테이너는 고급 스크립트 워크플로를 위해 환경 변수를 통해 Parthenon API 및 데이터베이스 연결 힌트를 노출합니다."
+  ]
+}

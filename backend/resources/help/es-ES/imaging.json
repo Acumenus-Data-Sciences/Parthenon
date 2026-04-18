@@ -1,0 +1,15 @@
+{
+  "key": "imaging",
+  "title": "Imágenes médicas",
+  "description": "El módulo Imágenes integra imágenes médicas DICOM con OMOP CDM. Explore estudios de imágenes, vea imágenes DICOM con herramientas clínicas Cornerstone3D, extraiga características AI/NLP, defina criterios de cohorte basados en imágenes y analice patrones de imágenes en poblaciones de pacientes.",
+  "docs_url": "/docs/part10-imaging/28-imaging-overview",
+  "video_url": null,
+  "tips": [
+    "La pestaña Estudios lista todos los estudios de imágenes DICOM. Filtre por fuente o modalidad, y haga clic en un estudio para abrir el visor DICOM con herramientas de ventana, zoom, desplazamiento y medición.",
+    "Importe archivos DICOM mediante carga local (.dcm o ZIP) o conéctese a un servidor PACS compatible con DICOMweb.",
+    "La pestaña Características de IA muestra características de imágenes extraídas (hallazgos NLP, clasificaciones AI, radiomics, anotaciones manuales) con puntuaciones de confianza y mapeos a conceptos OMOP.",
+    "Use la pestaña Criterios de imágenes para definir criterios de cohorte reutilizables basados en modalidad, anatomía, medidas cuantitativas, clasificaciones AI o umbrales de dosis de radiación.",
+    "La pestaña Analítica poblacional ofrece análisis agregado por distribución de modalidad, cobertura de región corporal y principales características AI/NLP en sus datos de imágenes.",
+    "Los estudios de imágenes se vinculan a registros OMOP procedure_occurrence, lo que permite análisis de imágenes a nivel de cohorte junto con datos clínicos."
+  ]
+}
