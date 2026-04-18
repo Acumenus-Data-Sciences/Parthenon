@@ -385,6 +385,15 @@ RUN chmod +x /etc/s6-overlay/scripts/finngen-artifacts-init.sh && \
 # Ensure JDBC driver directory is readable by ruser
 RUN chown -R ruser:ruser /opt/jdbc
 
+# Phase 14 D-14/D-23 — pull regenie v4.1 + PLINK2 alpha 6.33 binaries from
+# the multi-stage builder layers above. This lands them in the Darkstar
+# runtime image so the R worker's processx::run("/opt/regenie/regenie", …)
+# and PrepareSourceVariantsCommand's "plink2" invocations find the binaries
+# without docker.sock or sibling-container dispatch (HIGHSEC §4.3).
+COPY --from=regenie-builder /opt/regenie /opt/regenie
+COPY --from=plink2-builder /opt/plink2/plink2 /opt/regenie/plink2
+RUN chown -R ruser:ruser /opt/regenie && chmod +x /opt/regenie/plink2 /opt/regenie/regenie_* /opt/regenie/regenie
+
 EXPOSE 8787
 
 # s6-overlay as PID 1 — manages Valve which manages Plumber processes
