@@ -1,0 +1,17 @@
+{
+  "key": "admin.vocabulary",
+  "title": "Administración de vocabulario",
+  "description": "Cargue y gestione paquetes de vocabulario OMOP descargados de Athena (athena.ohdsi.org). La importación se ejecuta como un trabajo en segundo plano y admite archivos ZIP de hasta 5 GB. Puede seguir el progreso de importación en tiempo real, ver registros y mantener un historial completo de todas las importaciones de vocabulario.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Descargue primero su paquete de vocabulario desde athena.ohdsi.org: inicie sesión, seleccione los dominios que necesita (SNOMED, RxNorm, LOINC, etc.) y descargue el archivo ZIP que Athena le envía por correo.",
+    "Arrastre y suelte el archivo ZIP de Athena en la zona de carga, o haga clic para buscarlo. Solo se aceptan archivos .zip.",
+    "Solo una importación de vocabulario puede ejecutarse a la vez. El formulario de carga se deshabilita mientras una importación está en curso.",
+    "Opcionalmente seleccione una fuente CDM objetivo para controlar qué esquema de vocabulario recibe los datos importados. Si no se selecciona ninguna fuente, se usa el esquema vocab predeterminado.",
+    "Los trabajos de importación se ejecutan en segundo plano y pueden tardar de 15 a 60 minutos según el tamaño del paquete de vocabulario.",
+    "Expanda la sección Import Log en cualquier tarjeta de importación para ver salida detallada de progreso y solucionar problemas.",
+    "La lista de importaciones se actualiza automáticamente cada 10 segundos para que pueda monitorear trabajos activos sin actualizar manualmente.",
+    "Las importaciones completadas o fallidas pueden eliminarse del historial con el botón Remove de cada tarjeta."
+  ]
+}

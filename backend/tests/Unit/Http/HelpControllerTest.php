@@ -41,16 +41,16 @@ it('returns Korean help content when a locale file exists', function () {
 });
 
 it('falls back to legacy English help content when locale content is missing', function () {
-    App::setLocale('ko');
-    Config::set('parthenon-locales.current', 'ko-KR');
+    App::setLocale('fr');
+    Config::set('parthenon-locales.current', 'fr-FR');
 
-    $response = (new HelpController)->help('administration');
+    $response = (new HelpController)->help('dashboard');
     $data = $response->getData(true);
 
     expect($response->getStatusCode())->toBe(200);
-    expect($data['title'])->toBe('Administration');
+    expect($data['title'])->toBe('Dashboard');
     expect($data['locale'])->toBe('en-US');
-    expect($data['requested_locale'])->toBe('ko-KR');
+    expect($data['requested_locale'])->toBe('fr-FR');
     expect($data['fallback_used'])->toBeTrue();
 });
 

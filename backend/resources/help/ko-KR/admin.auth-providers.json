@@ -1,0 +1,14 @@
+{
+  "key": "admin.auth-providers",
+  "title": "인증 제공자",
+  "description": "싱글 사인온(SSO)을 위한 외부 인증 제공자를 구성합니다. Parthenon은 SAML 2.0 및 OIDC 프로토콜을 지원하여 Azure AD, Okta, Google Workspace 같은 기업 ID 제공자와 통합할 수 있습니다.",
+  "docs_url": "/docs/part8-administration/24-authentication-providers",
+  "video_url": null,
+  "tips": [
+    "연결을 테스트하기 전에 제공자를 활성화하고 자격 증명을 구성하세요.",
+    "사용자에게 활성화하기 전에 테스트 버튼으로 제공자가 올바르게 응답하는지 확인하세요.",
+    "SAML 제공자는 ID 제공자의 메타데이터 URL 또는 XML 구성이 필요합니다.",
+    "OIDC 제공자는 클라이언트 ID, 클라이언트 시크릿, 검색 URL이 필요합니다.",
+    "기본 로그인 방법은 하나의 제공자만 될 수 있지만 여러 제공자를 동시에 활성화할 수 있습니다."
+  ]
+}

@@ -646,6 +646,8 @@ Implementation update:
 - Smoke validation after the core help pack reports 0 errors and 762 missing contextual-help warnings. Smoke import dry-run now previews 20 localized help files across Spanish and Korean.
 - Spanish and Korean analysis/cohort/data-quality contextual help is localized for Characterization, Incidence Rates, Population-Level Estimation, Patient-Level Prediction, Treatment Pathways, Evidence Synthesis, SCCS, Cohort Builder primary criteria/inclusion/exit subpages, Data Quality Dashboard, Achilles Heel, and Source Profiler.
 - Smoke validation after the analysis/cohort/data-quality help pack reports 0 errors and 568 missing contextual-help warnings. Smoke import dry-run now previews 46 localized help files across Spanish and Korean.
+- Spanish and Korean administration contextual help is localized for AI Providers, Auth Providers, FHIR Connections, FHIR Export, FHIR Sync Monitor, Notifications, Roles, Solr, System Health, Users, Vocabulary, WebAPI Registry, and the Administration overview.
+- Smoke validation after the administration help pack reports 0 errors and 346 missing contextual-help warnings. Smoke import dry-run now previews 72 localized help files across Spanish and Korean.
 
 ## Target Architecture
 

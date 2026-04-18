@@ -1,0 +1,14 @@
+{
+  "key": "admin.notifications",
+  "title": "Notificaciones",
+  "description": "Configure ajustes de notificación del sistema, incluidas alertas por correo electrónico, notificaciones dentro de la aplicación e integraciones webhook. Configure alertas para finalizaciones de trabajos, problemas de salud del sistema y actividad importante de usuarios.",
+  "docs_url": "/docs/part8-administration/25-system-configuration",
+  "video_url": null,
+  "tips": [
+    "Las notificaciones por correo electrónico requieren un proveedor de correo configurado (Resend, SMTP, etc.).",
+    "Las notificaciones dentro de la aplicación aparecen en el icono de campana del encabezado.",
+    "Configure URLs de webhook para integrarse con Slack, Teams u otros sistemas de notificación.",
+    "Defina preferencias de notificación por tipo de evento para evitar fatiga por alertas.",
+    "Las alertas críticas del sistema, como problemas de conectividad de base de datos, siempre se envían independientemente de las preferencias."
+  ]
+}

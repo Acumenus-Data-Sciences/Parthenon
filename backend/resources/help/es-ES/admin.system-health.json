@@ -1,0 +1,16 @@
+{
+  "key": "admin.system-health",
+  "title": "Salud del sistema",
+  "description": "Un panel de monitoreo en tiempo real que muestra el estado en vivo de todos los servicios de Parthenon. Cada servicio informa si está saludable, degradado o caído, con un banner de estado general del servidor en la parte superior. El panel se actualiza automáticamente cada 30 segundos e incluye una sección de Gestión de datos GIS.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "El panel se actualiza automáticamente cada 30 segundos, pero puede hacer clic en Actualizar en cualquier momento para obtener un estado inmediato.",
+    "El estado general del servidor muestra Necesita atención si algún servicio individual está degradado o caído.",
+    "Haga clic en cualquier tarjeta de servicio para ver su página de estado detallada con diagnósticos adicionales.",
+    "Los servicios de cola muestran conteos de trabajos pendientes y fallidos directamente en la tarjeta para detectar acumulaciones de un vistazo.",
+    "La tarjeta del servicio Solr muestra el conteo de cores y el total de documentos indexados cuando está disponible.",
+    "La tarjeta del servicio Orthanc DICOM muestra conteo de estudios, conteo de instancias y métricas de uso de disco.",
+    "El panel de Gestión de datos GIS en la parte inferior proporciona herramientas para administrar datos de sistemas de información geográfica."
+  ]
+}
