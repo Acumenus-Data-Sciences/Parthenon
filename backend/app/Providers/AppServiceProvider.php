@@ -48,6 +48,7 @@ use App\Observers\DesignProtection\IncidenceRateAnalysisProtectionObserver;
 use App\Observers\DesignProtection\PathwayAnalysisProtectionObserver;
 use App\Observers\DesignProtection\PredictionAnalysisProtectionObserver;
 use App\Observers\DesignProtection\SccsAnalysisProtectionObserver;
+use App\Observers\FinnGen\FinnGenGwasRunObserver;
 use App\Observers\FinnGen\GwasCovariateSetObserver;
 use App\Observers\StudyObserver;
 use App\Observers\StudySubResourceObserver;
@@ -297,6 +298,11 @@ class AppServiceProvider extends ServiceProvider
         // (seeder bypasses this via DB::table updateOrInsert; runtime writes
         // go through Eloquent where this observer fires).
         GwasCovariateSet::observe(GwasCovariateSetObserver::class);
+
+        // Phase 15 — backfill EndpointGwasRun tracking rows from finngen.runs status
+        // transitions. Observer is tight-loop-safe (every DB op try-catch-wrapped,
+        // never re-throws per CLAUDE.md Gotcha #12 — transaction poisoning guard).
+        Run::observe(FinnGenGwasRunObserver::class);
 
         // Design Protection observers — audit log + fixture export for all 10 design entity types
         CohortDefinition::observe(CohortDefinitionProtectionObserver::class);
