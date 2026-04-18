@@ -7,6 +7,13 @@ return [
     // against parthenon_testing through TestCase::$connectionsToTransact.
     'connection' => env('FINNGEN_DB_CONNECTION', 'finngen'),
 
+    // Phase 13.2-06: read-only connection for EndpointBrowserController and
+    // any other finngen read path. Defaults to 'finngen_ro' (parthenon_finngen_ro
+    // role on live DEV parthenon); overridden to 'finngen_ro_testing' via
+    // FINNGEN_RO_DB_CONNECTION in phpunit.xml so read-path tests see rows
+    // created in-transaction by factories on the finngen_testing connection.
+    'ro_connection' => env('FINNGEN_RO_DB_CONNECTION', 'finngen_ro'),
+
     'pg_ro_password' => env('FINNGEN_PG_RO_PASSWORD'),
     'pg_rw_password' => env('FINNGEN_PG_RW_PASSWORD'),
 

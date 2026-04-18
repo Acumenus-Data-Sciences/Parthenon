@@ -264,6 +264,37 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        // Phase 13.2-06: test-scope analog of finngen_ro. Same role+permission
+        // model as finngen_ro (SELECT-only via parthenon_finngen_ro) but
+        // targets parthenon_testing via DB_TEST_* so the Pest suite's read
+        // path (EndpointBrowserController, etc.) sees the in-transaction test
+        // rows created by factories through finngen_testing. Needed because
+        // Laravel connection definitions are static (no APP_ENV branching).
+        // Controllers pick this via config('finngen.ro_connection'), which
+        // resolves to 'finngen_ro_testing' via FINNGEN_RO_DB_CONNECTION in
+        // phpunit.xml.
+        //
+        // NOTE: test bootstrap uses the same claude_dev superuser as
+        // pgsql_testing (DB_TEST_USERNAME fallback), not parthenon_finngen_ro.
+        // This is intentional — the RO role doesn't exist on parthenon_testing
+        // by default; the test suite exercises the READ PATH, not the role
+        // boundary. Role-boundary tests (GwasSchemaGrantsTest etc.) assert
+        // grants through a separate mechanism and are unaffected.
+        'finngen_ro_testing' => [
+            'driver' => 'pgsql',
+            'url' => env('DB_TEST_URL'),
+            'host' => env('DB_TEST_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('DB_TEST_PORT', env('DB_PORT', '5432')),
+            'database' => env('DB_TEST_DATABASE', 'parthenon_testing'),
+            'username' => env('DB_TEST_USERNAME', env('DB_USERNAME', 'DB_USERNAME_NOT_SET')),
+            'password' => env('DB_TEST_PASSWORD', env('DB_PASSWORD', '')),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'finngen,vocab,php',
+            'sslmode' => 'prefer',
+        ],
+
         // Morpheus inpatient CDM — schema-isolated OMOP CDM for inpatient
         // clinical data. Extension tables in inpatient_ext, shared vocabulary
         // from vocab schema.

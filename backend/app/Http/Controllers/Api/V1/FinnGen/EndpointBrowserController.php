@@ -77,7 +77,7 @@ final class EndpointBrowserController extends Controller
         $bucket = trim((string) $request->query('bucket', ''));
         $release = trim((string) $request->query('release', ''));
 
-        $query = EndpointDefinition::on('finngen_ro')
+        $query = EndpointDefinition::on(config('finngen.ro_connection', 'finngen_ro'))
             ->orderBy('name');
 
         if ($q !== '') {
@@ -140,7 +140,7 @@ final class EndpointBrowserController extends Controller
      */
     public function stats(): JsonResponse
     {
-        $base = EndpointDefinition::on('finngen_ro');
+        $base = EndpointDefinition::on(config('finngen.ro_connection', 'finngen_ro'));
 
         $byBucket = (clone $base)
             ->selectRaw('COALESCE(coverage_bucket, ?) AS bucket, COUNT(*) AS n', ['UNKNOWN'])
@@ -149,7 +149,7 @@ final class EndpointBrowserController extends Controller
 
         // Top 20 tags excluding the boilerplate ones (finngen:dfXX release tags
         // and any historical 'finngen-endpoint' sentinel rows).
-        $topTags = DB::connection('finngen_ro')->select("
+        $topTags = DB::connection(config('finngen.ro_connection', 'finngen_ro'))->select("
             SELECT tag, COUNT(*) AS n
               FROM (
                 SELECT jsonb_array_elements_text(tags) AS tag
@@ -195,7 +195,7 @@ final class EndpointBrowserController extends Controller
     public function show(string $name): JsonResponse
     {
         /** @var EndpointDefinition $row */
-        $row = EndpointDefinition::on('finngen_ro')
+        $row = EndpointDefinition::on(config('finngen.ro_connection', 'finngen_ro'))
             ->where('name', $name)
             ->firstOrFail();
 
@@ -263,7 +263,7 @@ final class EndpointBrowserController extends Controller
         // Write path uses the default finngen rw connection (EndpointDefinition
         // is also queryable here, but generate reads need no special privilege).
         /** @var EndpointDefinition $row */
-        $row = EndpointDefinition::on('finngen_ro')
+        $row = EndpointDefinition::on(config('finngen.ro_connection', 'finngen_ro'))
             ->where('name', $name)
             ->firstOrFail();
 
