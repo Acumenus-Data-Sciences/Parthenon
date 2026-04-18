@@ -77,10 +77,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   - `/app/api/finngen/cohort_ops.R` inside `parthenon-darkstar` container (lines 387-540) — target of the R worker edit
   - `backend/app/Http/Controllers/Api/V1/FinnGen/EndpointBrowserController.php` `generate()` method (Phase 13.1 rewrite reference point)
 **Plans**: 5 plans
-- [ ] 13.2-01-PLAN.md — Wave 1: OMOP_COHORT_ID_OFFSET constant + run_id nullable migration + Mockery PHPStan fix
-- [ ] 13.2-02-PLAN.md — Wave 1: codify 13.1 role-split deviations (D4/D5/D6) as idempotent migration
-- [ ] 13.2-03-PLAN.md — Wave 2: R worker additive-param patch + controller reorder + new Pest test (SC-1/SC-2)
-- [ ] 13.2-04-PLAN.md — Wave 3: full FinnGen Pest suite green on parthenon_testing (SC-4, proves SC-10 from 13.1)
+- [x] 13.2-01-PLAN.md — Wave 1: OMOP_COHORT_ID_OFFSET constant + run_id nullable migration + Mockery PHPStan fix
+- [x] 13.2-02-PLAN.md — Wave 1: codify 13.1 role-split deviations (D4/D5/D6) as idempotent migration
+- [x] 13.2-03-PLAN.md — Wave 2: R worker additive-param patch + controller reorder + new Pest test (SC-1/SC-2)
+- [x] 13.2-04-PLAN.md — Wave 3: full FinnGen Pest suite green on parthenon_testing (SC-4, proves SC-10 from 13.1)
 - [ ] 13.2-05-PLAN.md — Wave 4: CHECKPOINT + DEV migration execution + PANCREAS smoke-gen E2E (SC-5/6/7)
 
 ### Phase 14: regenie GWAS Infrastructure

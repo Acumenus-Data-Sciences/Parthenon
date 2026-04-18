@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 13 context gathered (FinnGen endpoint universalization reframe)
-last_updated: "2026-04-17T18:27:58.637Z"
-last_activity: 2026-04-17 -- Phase 13 planning complete
+stopped_at: Phase 13.2 context gathered
+last_updated: "2026-04-18T03:28:24.533Z"
+last_activity: 2026-04-18 -- Phase 13.2 execution started
 progress:
-  total_phases: 6
-  completed_phases: 0
-  total_plans: 8
-  completed_plans: 0
-  percent: 0
+  total_phases: 8
+  completed_phases: 1
+  total_plans: 25
+  completed_plans: 16
+  percent: 64
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-16 — Milestone v1.0 FinnGen Genomics)
 
 **Core value:** A researcher can pick any of 5,161 FinnGen-aligned phenotypes from the catalog, materialize a cohort against any source CDM, run a GWAS on that cohort, see Manhattan-plot results in the browser, compute polygenic risk scores against PGS Catalog summary stats, and inspect Risteys-style mortality / comorbidity dashboards — all without leaving Parthenon.
-**Current focus:** Defining requirements + roadmapping (Phase 13+ continuing IRSF numbering)
+**Current focus:** Phase 13.2 — finish-finngen-cutover
 
 ## Current Position
 
-Phase: Not started — defining requirements
-Plan: —
-Status: Ready to execute
-Last activity: 2026-04-17 -- Phase 13 planning complete
+Phase: 13.2 (finish-finngen-cutover) — EXECUTING
+Plan: 1 of 5
+Status: Executing Phase 13.2
+Last activity: 2026-04-18 -- Phase 13.2 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -197,6 +197,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-17T17:21:39.972Z
-Stopped at: Phase 13 context gathered (FinnGen endpoint universalization reframe)
-Resume file: .planning/phases/13-finngen-endpoint-universalization/13-CONTEXT.md
+Last session: 2026-04-18T02:53:10.964Z
+Stopped at: Phase 13.2 context gathered
+Resume file: .planning/phases/13.2-finish-finngen-cutover/13.2-CONTEXT.md
