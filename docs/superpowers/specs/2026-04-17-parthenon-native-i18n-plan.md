@@ -609,6 +609,7 @@ Recommended next implementation step:
 Implementation update:
 
 - Added `scripts/i18n/export-translation-assets.mjs` as the first repo-managed `translation_assets` pipeline.
+- Added `scripts/i18n/validate-translation-assets.mjs` as the first local asset QA gate.
 - Default export locale set is the public pilot set: `en-US`, `es-ES`, and `ko-KR`.
 - Export outputs are written under `output/translation-assets/**` and are intentionally ignored build artifacts.
 - The exporter emits:
@@ -616,16 +617,20 @@ Implementation update:
   - backend Laravel lang JSON plus `messages.json` and `messages.csv`;
   - contextual help JSON plus `messages.json` and `messages.csv`;
   - Docusaurus source MDX/blog copies, `documents.json`, `documents.csv`, locale metadata, copied docs-site config/sidebar sources, and MDX protection notes.
+- The validator checks placeholder parity, HTML/MDX tag parity, protected-term warnings, Docusaurus copied source files, balanced code fences, preserved frontmatter, and generated-output leakage.
 - Generated docs surfaces are excluded: `docs/site/build/**`, `docs/dist/**`, and `docs/site/.docusaurus/**`.
 - The backend `finngen` namespace is excluded while FinnGen remains under active development.
 - Package shortcuts:
   - `cd frontend && npm run i18n:export-assets`
+  - `cd frontend && npm run i18n:validate-assets`
   - `cd docs/site && npm run i18n:export-assets`
+  - `cd docs/site && npm run i18n:validate-assets`
 - Smoke export result for the pilot set:
   - frontend: 951 source keys, 1,902 target rows;
   - backend: 87 source keys, 174 target rows;
   - help: 456 source strings, 912 target rows;
   - Docusaurus: 146 source documents, including 91 docs pages and 55 blog posts.
+- Smoke validation result for the pilot set: 0 errors, with 904 expected contextual-help missing-translation warnings until help topics are translated beyond the Spanish dashboard pilot.
 
 ## Target Architecture
 

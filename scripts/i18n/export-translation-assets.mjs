@@ -14,6 +14,19 @@ const sourceLocale = "en-US";
 const defaultOutput = "output/translation-assets/latest";
 const allAssetGroups = ["frontend", "backend", "help", "docusaurus"];
 const backendNamespacesPausedForActiveDevelopment = new Set(["finngen"]);
+const colonPlaceholderNames = [
+    "attribute",
+    "date",
+    "input",
+    "max",
+    "min",
+    "other",
+    "seconds",
+    "size",
+    "status",
+    "value",
+    "values",
+];
 
 const rootRequire = createRequire(import.meta.url);
 const frontendRequire = createRequire(path.join(frontendRoot, "package.json"));
@@ -252,8 +265,9 @@ function wordCount(text) {
 }
 
 function placeholdersFor(text) {
+    const colonPattern = colonPlaceholderNames.join("|");
     const matches = String(text ?? "").match(
-        /{{\s*[\w.]+\s*}}|:[A-Za-z_][\w.]*|%[sdif]/g,
+        new RegExp(`{{\\s*[\\w.]+\\s*}}|:(${colonPattern})|%[sdif]`, "g"),
     );
     return [...new Set(matches ?? [])].sort();
 }

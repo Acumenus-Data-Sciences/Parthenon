@@ -15,6 +15,7 @@
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
     "i18n:export-assets": "node ../../scripts/i18n/export-translation-assets.mjs --only docusaurus",
+    "i18n:validate-assets": "node ../../scripts/i18n/validate-translation-assets.mjs --only docusaurus",
     "write-heading-ids": "docusaurus write-heading-ids",
     "version": "docusaurus docs:version"
   },
