@@ -636,11 +636,12 @@ Implementation update:
   - backend: 87 source keys, 174 target rows;
   - help: 456 source strings, 912 target rows;
   - Docusaurus: 146 source documents, including 91 docs pages and 55 blog posts.
-- Smoke validation result for the pilot set: 0 errors, with 904 expected contextual-help missing-translation warnings until help topics are translated beyond the Spanish dashboard pilot.
+- Smoke validation result for the pilot set: 0 errors, with 896 expected contextual-help missing-translation warnings until help topics are translated beyond the Dashboard pilot.
 - Smoke import dry-run result for the pilot set: validation passed, staged 2 frontend locale JSON files, 2 backend locale JSON files, 1 Spanish help topic, and 2 Docusaurus locale dropoff plans.
 - Backend translation contract tests pass with an in-memory test database: provider binding, source fallback behavior, placeholder/tag review, PHI blocking, and placeholder extraction.
 - Backend draft command tests pass with an in-memory test database: missing-row drafting, local source fallback marking, and fail-on-review placeholder enforcement.
-- Smoke provider draft result for the current pilot bundle: local provider drafted 904 missing contextual-help rows, with 0 review failures and 904 source-fallback warnings.
+- Smoke provider draft result for the current pilot bundle: local provider drafted 896 missing contextual-help rows, with 0 review failures and 896 source-fallback warnings.
+- Korean Dashboard contextual help is localized. Help validation now reports 896 missing contextual-help rows instead of 904.
 
 ## Target Architecture
 

@@ -26,7 +26,7 @@ it('returns localized help content when a locale file exists', function () {
     expect($data['fallback_used'])->toBeFalse();
 });
 
-it('falls back to legacy English help content when locale content is missing', function () {
+it('returns Korean help content when a locale file exists', function () {
     App::setLocale('ko');
     Config::set('parthenon-locales.current', 'ko-KR');
 
@@ -34,7 +34,21 @@ it('falls back to legacy English help content when locale content is missing', f
     $data = $response->getData(true);
 
     expect($response->getStatusCode())->toBe(200);
-    expect($data['title'])->toBe('Dashboard');
+    expect($data['title'])->toBe('대시보드');
+    expect($data['locale'])->toBe('ko-KR');
+    expect($data['requested_locale'])->toBe('ko-KR');
+    expect($data['fallback_used'])->toBeFalse();
+});
+
+it('falls back to legacy English help content when locale content is missing', function () {
+    App::setLocale('ko');
+    Config::set('parthenon-locales.current', 'ko-KR');
+
+    $response = (new HelpController)->help('abby-ai');
+    $data = $response->getData(true);
+
+    expect($response->getStatusCode())->toBe(200);
+    expect($data['title'])->toBe('Abby AI Assistant');
     expect($data['locale'])->toBe('en-US');
     expect($data['requested_locale'])->toBe('ko-KR');
     expect($data['fallback_used'])->toBeTrue();
