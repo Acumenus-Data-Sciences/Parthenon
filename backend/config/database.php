@@ -244,6 +244,26 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        // Phase 13.2-06: mirrors 'finngen' but targets parthenon_testing via DB_TEST_*
+        // env vars so Pest tests can transact FinnGen writes through
+        // $connectionsToTransact. FinnGen models pick their connection via
+        // config('finngen.connection'), which resolves to 'finngen_testing' in the
+        // testing environment via FINNGEN_DB_CONNECTION in phpunit.xml.
+        'finngen_testing' => [
+            'driver' => 'pgsql',
+            'url' => env('DB_TEST_URL'),
+            'host' => env('DB_TEST_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('DB_TEST_PORT', env('DB_PORT', '5432')),
+            'database' => env('DB_TEST_DATABASE', 'parthenon_testing'),
+            'username' => env('DB_TEST_USERNAME', env('DB_USERNAME', 'DB_USERNAME_NOT_SET')),
+            'password' => env('DB_TEST_PASSWORD', env('DB_PASSWORD', '')),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'finngen,vocab,php',
+            'sslmode' => 'prefer',
+        ],
+
         // Morpheus inpatient CDM — schema-isolated OMOP CDM for inpatient
         // clinical data. Extension tables in inpatient_ext, shared vocabulary
         // from vocab schema.

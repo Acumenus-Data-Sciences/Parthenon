@@ -1,6 +1,12 @@
 <?php
 
 return [
+    // Phase 13.2-06: Laravel connection name for FinnGen models. Defaults to
+    // 'finngen' (live DEV parthenon) but is overridden to 'finngen_testing'
+    // in phpunit.xml via FINNGEN_DB_CONNECTION so Pest tests transact writes
+    // against parthenon_testing through TestCase::$connectionsToTransact.
+    'connection' => env('FINNGEN_DB_CONNECTION', 'finngen'),
+
     'pg_ro_password' => env('FINNGEN_PG_RO_PASSWORD'),
     'pg_rw_password' => env('FINNGEN_PG_RW_PASSWORD'),
 
