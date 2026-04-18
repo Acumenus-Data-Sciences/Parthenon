@@ -281,16 +281,19 @@ def write_sample_map(path: Path, subjects: List[int]) -> None:
     """Map VCF sample name -> FID / IID = person_{person_id}.
 
     plink2 --update-ids syntax: OLD_FID OLD_IID NEW_FID NEW_IID.
-    Our VCF header uses just the integer person_id as the sample name; plink2
-    interprets that as FID=IID=<integer>. The update-ids file rewrites both
-    to the canonical person_{id} form expected by prepare-source-variants.
+    When loading a VCF, plink2 assigns OLD_FID="0" (literal zero) and
+    OLD_IID=<vcf-sample-name>; the integer is NOT used as FID. The
+    update-ids file therefore pairs OLD_FID="0" with OLD_IID=<integer>
+    to match the loaded sample identity. Fix post-Wave-1 (the earlier
+    version paired OLD_FID=<integer> and saw "0 samples updated" from
+    plink2 alpha 6.33).
     """
 
     with path.open("w") as fh:
         for pid in subjects:
-            old = str(pid)
+            old_iid = str(pid)
             new = f"person_{pid}"
-            fh.write(f"{old}\t{old}\t{new}\t{new}\n")
+            fh.write(f"0\t{old_iid}\t{new}\t{new}\n")
 
 
 def run_plink2_make_pgen(
