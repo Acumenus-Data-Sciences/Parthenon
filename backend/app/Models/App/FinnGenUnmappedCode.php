@@ -17,8 +17,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class FinnGenUnmappedCode extends Model
 {
-    protected $connection = 'finngen';
-
     protected $table = 'unmapped_codes';
 
     /**
@@ -34,6 +32,15 @@ class FinnGenUnmappedCode extends Model
         'code_column',
         'observed_count',
     ];
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->setConnection(config('finngen.connection', 'finngen'));
+    }
 
     /**
      * @return array<string, string>
