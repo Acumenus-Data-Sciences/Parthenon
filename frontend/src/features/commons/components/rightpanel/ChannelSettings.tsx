@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import type { Channel, ChannelMember } from "../../types";
 import { useUpdateChannel, useUpdateNotificationPreference } from "../../api";
 
@@ -9,6 +10,7 @@ interface ChannelSettingsProps {
 }
 
 export function ChannelSettings({ channel, currentMember, slug }: ChannelSettingsProps) {
+  const { t } = useTranslation("commons");
   const updateChannel = useUpdateChannel();
   const updatePref = useUpdateNotificationPreference();
 
@@ -35,7 +37,9 @@ export function ChannelSettings({ channel, currentMember, slug }: ChannelSetting
     <div className="flex-1 space-y-4 overflow-y-auto px-3 py-3">
       {/* Notification Preferences */}
       <div className="rounded-2xl border border-border-default bg-surface-raised p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
-        <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Notifications</h3>
+        <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          {t("rightPanel.settingsPanel.notifications")}
+        </h3>
         <div className="space-y-1">
           {(["all", "mentions", "none"] as const).map((pref) => (
             <button
@@ -47,9 +51,11 @@ export function ChannelSettings({ channel, currentMember, slug }: ChannelSetting
                   : "border-border-default text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
             >
-              <span className="capitalize">{pref === "all" ? "All messages" : pref === "mentions" ? "Mentions only" : "Nothing"}</span>
+              <span>{t(`rightPanel.settingsPanel.preferences.${pref}`)}</span>
               {currentMember?.notification_preference === pref && (
-                <span className="ml-auto text-[10px] text-primary">Active</span>
+                <span className="ml-auto text-[10px] text-primary">
+                  {t("rightPanel.settingsPanel.active")}
+                </span>
               )}
             </button>
           ))}
@@ -62,9 +68,13 @@ export function ChannelSettings({ channel, currentMember, slug }: ChannelSetting
           onSubmit={handleSave}
           className="space-y-3 rounded-2xl border border-border-default bg-surface-raised p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
         >
-          <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Channel Settings</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            {t("rightPanel.settingsPanel.channelSettings")}
+          </h3>
           <div>
-            <label className="mb-1 block text-[11px] font-medium text-muted-foreground">Name</label>
+            <label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+              {t("rightPanel.settingsPanel.name")}
+            </label>
             <input
               type="text"
               value={name}
@@ -73,7 +83,9 @@ export function ChannelSettings({ channel, currentMember, slug }: ChannelSetting
             />
           </div>
           <div>
-            <label className="mb-1 block text-[11px] font-medium text-muted-foreground">Description</label>
+            <label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+              {t("rightPanel.settingsPanel.description")}
+            </label>
             <textarea
               value={description}
               onChange={(e) => { setDescription(e.target.value); setSaved(false); }}
@@ -87,27 +99,47 @@ export function ChannelSettings({ channel, currentMember, slug }: ChannelSetting
               disabled={updateChannel.isPending}
               className="rounded-xl bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
-              {updateChannel.isPending ? "Saving..." : "Save"}
+              {updateChannel.isPending
+                ? t("rightPanel.settingsPanel.saving")
+                : t("rightPanel.settingsPanel.save")}
             </button>
-            {saved && <span className="text-[11px] text-green-400">Saved</span>}
+            {saved && (
+              <span className="text-[11px] text-green-400">
+                {t("rightPanel.settingsPanel.saved")}
+              </span>
+            )}
           </div>
 
           <div className="border-t border-border-default pt-3">
             <p className="text-[11px] text-muted-foreground">
-              Type: <span className="text-foreground capitalize">{channel.type}</span>
+              {t("rightPanel.settingsPanel.type")}:{" "}
+              <span className="text-foreground">
+                {t(`rightPanel.settingsPanel.types.${channel.type}`)}
+              </span>
               {" / "}
-              Visibility: <span className="text-foreground capitalize">{channel.visibility}</span>
+              {t("rightPanel.settingsPanel.visibility")}:{" "}
+              <span className="text-foreground">
+                {t(`rightPanel.settingsPanel.visibilityValues.${channel.visibility}`)}
+              </span>
             </p>
           </div>
         </form>
       ) : (
         <div className="space-y-2 rounded-2xl border border-border-default bg-surface-raised p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
-          <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Channel Info</h3>
-          <p className="text-xs text-muted-foreground">{channel.description || "No description"}</p>
+          <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            {t("rightPanel.settingsPanel.channelInfo")}
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            {channel.description || t("rightPanel.settingsPanel.noDescription")}
+          </p>
           <p className="text-[11px] text-muted-foreground">
-            Type: <span className="capitalize">{channel.type}</span>
+            {t("rightPanel.settingsPanel.type")}:{" "}
+            <span>{t(`rightPanel.settingsPanel.types.${channel.type}`)}</span>
             {" / "}
-            Visibility: <span className="capitalize">{channel.visibility}</span>
+            {t("rightPanel.settingsPanel.visibility")}:{" "}
+            <span>
+              {t(`rightPanel.settingsPanel.visibilityValues.${channel.visibility}`)}
+            </span>
           </p>
         </div>
       )}

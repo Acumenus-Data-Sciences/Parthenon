@@ -1,4 +1,5 @@
 import { Pin, Search, Users, Settings, ClipboardCheck, Zap } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { Channel, ChannelMember, PresenceUser } from "../../types";
 import { PinnedList } from "./PinnedList";
 import { SearchPanel } from "./SearchPanel";
@@ -8,12 +9,12 @@ import { ReviewList } from "./ReviewList";
 import { ActivityFeed } from "./ActivityFeed";
 
 const TABS = [
-  { key: "activity", label: "Activity", icon: Zap },
-  { key: "pinned",   label: "Pinned",   icon: Pin },
-  { key: "search",   label: "Search",   icon: Search },
-  { key: "reviews",  label: "Reviews",  icon: ClipboardCheck },
-  { key: "members",  label: "Members",  icon: Users },
-  { key: "settings", label: "Settings", icon: Settings },
+  { key: "activity", labelKey: "rightPanel.tabs.activity", icon: Zap },
+  { key: "pinned", labelKey: "rightPanel.tabs.pinned", icon: Pin },
+  { key: "search", labelKey: "rightPanel.tabs.search", icon: Search },
+  { key: "reviews", labelKey: "rightPanel.tabs.reviews", icon: ClipboardCheck },
+  { key: "members", labelKey: "rightPanel.tabs.members", icon: Users },
+  { key: "settings", labelKey: "rightPanel.tabs.settings", icon: Settings },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -37,6 +38,8 @@ export function RightPanel({
   channel,
   currentMember,
 }: RightPanelProps) {
+  const { t } = useTranslation("commons");
+
   return (
     <div className="flex w-[396px] shrink-0 flex-col overflow-hidden rounded-2xl border border-border-default bg-surface-raised shadow-[0_16px_48px_rgba(0,0,0,0.26)]">
       <div className="border-b border-white/[0.06] bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.05),transparent_45%),#17171c] px-3 py-3">
@@ -44,7 +47,7 @@ export function RightPanel({
           <>
             <div className="min-w-0">
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/80">
-                Channel Panel
+                {t("rightPanel.title")}
               </p>
               <div className="mt-1 flex items-baseline gap-2">
                 <span className="truncate text-[15px] font-semibold text-foreground">
@@ -62,12 +65,13 @@ export function RightPanel({
               {TABS.map((tab) => {
                 const Icon = tab.icon;
                 const selected = activeTab === tab.key;
+                const label = t(tab.labelKey);
                 return (
                   <button
                     type="button"
                     key={tab.key}
                     onClick={() => onTabChange(tab.key)}
-                    title={tab.label}
+                    title={label}
                     className={`flex items-center gap-1.5 rounded-xl border px-2 py-2 text-[11px] font-medium transition-colors ${
                       selected
                         ? "border-primary/30 bg-primary/12 text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
@@ -75,7 +79,7 @@ export function RightPanel({
                     }`}
                   >
                     <Icon className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">{tab.label}</span>
+                    <span className="truncate">{label}</span>
                   </button>
                 );
               })}

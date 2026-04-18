@@ -1,4 +1,6 @@
 import { useNavigate } from "react-router-dom";
+import type { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import { toast } from "@/components/ui/Toast";
 import { useAuthStore } from "@/stores/authStore";
 import type { PresenceUser } from "../../types";
@@ -10,6 +12,7 @@ interface OnlineUsersProps {
 }
 
 export function OnlineUsers({ users }: OnlineUsersProps) {
+  const { t } = useTranslation("commons");
   const navigate = useNavigate();
   const createDm = useCreateDirectMessage();
   const currentUser = useAuthStore((s) => s.user);
@@ -17,7 +20,7 @@ export function OnlineUsers({ users }: OnlineUsersProps) {
 
   function handleClick(userId: number) {
     if (userId === currentUserId) {
-      toast.warning("Choose another person to start a direct message");
+      toast.warning(t("presence.chooseAnotherPerson"));
       return;
     }
 
@@ -26,7 +29,7 @@ export function OnlineUsers({ users }: OnlineUsersProps) {
         navigate(`/commons/${channel.slug}`);
       },
       onError: () => {
-        toast.error("Failed to start direct message");
+        toast.error(t("presence.directMessageFailed"));
       },
     });
   }
@@ -38,7 +41,7 @@ export function OnlineUsers({ users }: OnlineUsersProps) {
   return (
     <div className="border-t border-white/[0.06] px-3 py-3">
       <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-        Others in Commons — {visibleUsers.length}
+        {t("presence.title", { count: visibleUsers.length })}
       </p>
 
       {currentUser && (
@@ -46,15 +49,11 @@ export function OnlineUsers({ users }: OnlineUsersProps) {
           <div className="flex items-center gap-2">
             <UserAvatar user={currentUser} size="sm" />
             <div className="min-w-0">
-              <p className="text-xs font-medium text-foreground">You</p>
+              <p className="text-xs font-medium text-foreground">{t("presence.you")}</p>
               <p className="text-[11px] text-muted-foreground">
                 {!isCurrentUserOnline
-                  ? "Presence unavailable"
-                  : currentPresence?.channelSlug
-                    ? `${currentPresence.status === "active" ? "Viewing" : "Idle in"} #${currentPresence.channelSlug}`
-                    : currentPresence?.status === "active"
-                      ? "Online in Commons"
-                      : "Idle in Commons"}
+                  ? t("presence.presenceUnavailable")
+                  : formatPresenceStatus(currentPresence, t)}
               </p>
             </div>
             {isCurrentUserOnline && (
@@ -63,8 +62,8 @@ export function OnlineUsers({ users }: OnlineUsersProps) {
           </div>
           <p className="mt-2 text-[11px] leading-5 text-muted-foreground">
             {currentPresence?.sessionCount && currentPresence.sessionCount > 1
-              ? `${currentPresence.sessionCount} active sessions on this account are grouped as one person.`
-              : "Multiple devices on the same account are grouped as one person for presence."}
+              ? t("presence.groupedSessions", { count: currentPresence.sessionCount })
+              : t("presence.groupedDevices")}
           </p>
         </div>
       )}
@@ -72,13 +71,13 @@ export function OnlineUsers({ users }: OnlineUsersProps) {
       <div className="flex flex-col gap-0.5">
         {visibleUsers.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border-default bg-surface-raised px-3 py-3 text-[12px] text-muted-foreground">
-            No other users are active in Commons right now.
+            {t("presence.nobodyActive")}
           </div>
         ) : (
           visibleUsers.map((user) => (
             <button
               key={user.id}
-              title={`Message ${user.name}`}
+              title={t("presence.messageUser", { name: user.name })}
               onClick={() => handleClick(user.id)}
               className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-[13px] transition-colors hover:bg-muted/50"
             >
@@ -87,19 +86,34 @@ export function OnlineUsers({ users }: OnlineUsersProps) {
                 <span className="absolute -bottom-px -right-px h-[7px] w-[7px] rounded-full bg-green-500 ring-1 ring-card" />
               </div>
               <span className="truncate text-foreground">{user.name}</span>
-              {user.activity && (
-                <span
-                  className={`ml-auto shrink-0 text-[11px] ${
-                    user.status === "active" ? "text-muted-foreground" : "text-amber-300"
-                  }`}
-                >
-                  {user.activity}
-                </span>
-              )}
+              <span
+                className={`ml-auto shrink-0 text-[11px] ${
+                  user.status === "active" ? "text-muted-foreground" : "text-amber-300"
+                }`}
+              >
+                {formatPresenceStatus(user, t)}
+              </span>
             </button>
           ))
         )}
       </div>
     </div>
   );
+}
+
+function formatPresenceStatus(
+  user: PresenceUser | undefined,
+  t: TFunction<"commons">,
+): string {
+  if (!user) return t("presence.presenceUnavailable");
+
+  if (user.status === "idle") {
+    return user.channelSlug
+      ? t("presence.idleInChannel", { channel: user.channelSlug })
+      : t("presence.idleInCommons");
+  }
+
+  return user.channelSlug
+    ? t("presence.viewingChannel", { channel: user.channelSlug })
+    : t("presence.onlineInCommons");
 }

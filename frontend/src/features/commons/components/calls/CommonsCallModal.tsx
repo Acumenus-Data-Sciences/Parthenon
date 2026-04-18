@@ -5,6 +5,7 @@ import {
   VideoConference,
 } from "@livekit/components-react";
 import "@livekit/components-styles";
+import { useTranslation } from "react-i18next";
 import { toast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
 import { useCallToken } from "../../api";
@@ -23,6 +24,7 @@ export function CommonsCallModal({
   call,
   onClose,
 }: CommonsCallModalProps) {
+  const { t } = useTranslation("commons");
   const tokenMutation = useCallToken();
   const [token, setToken] = useState<string>();
   const [serverUrl, setServerUrl] = useState<string>();
@@ -45,7 +47,8 @@ export function CommonsCallModal({
       stream.getTracks().forEach((track) => track.stop());
       setPermissionGranted(true);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Browser access to microphone/camera was denied.";
+      const message =
+        error instanceof Error ? error.message : t("call.modal.permissionDenied");
       setPermissionGranted(false);
       setPermissionError(message);
     } finally {
@@ -66,7 +69,7 @@ export function CommonsCallModal({
         onError: (error) => {
           setToken(undefined);
           setServerUrl(undefined);
-          toast.error(error.message || "Unable to join LiveKit call");
+          toast.error(error.message || t("call.modal.joinFailed"));
         },
       },
     );
@@ -86,7 +89,7 @@ export function CommonsCallModal({
     <Modal
       open={open}
       onClose={onClose}
-      title={call ? `#${slug} call` : "Channel call"}
+      title={call ? t("call.modal.channelTitle", { slug }) : t("call.modal.channelCall")}
       size="full"
       className="max-w-[min(1280px,96vw)]"
     >
@@ -109,10 +112,15 @@ export function CommonsCallModal({
           <div className="flex h-full items-center justify-center">
             <div className="max-w-md rounded-2xl border border-border-default bg-surface-raised px-6 py-5 text-center">
               <p className="text-sm font-medium text-foreground">
-                Allow {call.call_type === "video" ? "camera and microphone" : "microphone"} access
+                {t("call.modal.allowDevices", {
+                  devices:
+                    call.call_type === "video"
+                      ? t("call.modal.devicesVideo")
+                      : t("call.modal.devicesAudio"),
+                })}
               </p>
               <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                Parthenon needs browser permission before joining this LiveKit call.
+                {t("call.modal.permissionMessage")}
               </p>
               {permissionError ? (
                 <p className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-200">
@@ -126,8 +134,13 @@ export function CommonsCallModal({
                 className="mt-4 inline-flex items-center rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
               >
                 {permissionRequesting
-                  ? "Requesting access..."
-                  : `Enable ${call.call_type === "video" ? "camera & microphone" : "microphone"}`}
+                  ? t("call.modal.requestAccess")
+                  : t("call.modal.enableDevices", {
+                      devices:
+                        call.call_type === "video"
+                          ? t("call.modal.enableDevicesVideo")
+                          : t("call.modal.enableDevicesAudio"),
+                    })}
               </button>
             </div>
           </div>
@@ -135,10 +148,12 @@ export function CommonsCallModal({
           <div className="flex h-full items-center justify-center">
             <div className="rounded-2xl border border-border-default bg-surface-raised px-6 py-5 text-center">
               <p className="text-sm font-medium text-foreground">
-                {tokenMutation.isPending ? "Joining call..." : "Preparing room..."}
+                {tokenMutation.isPending
+                  ? t("call.modal.joining")
+                  : t("call.modal.preparing")}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                LiveKit session setup should only take a moment.
+                {t("call.modal.setupMessage")}
               </p>
             </div>
           </div>

@@ -1,4 +1,6 @@
 import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { formatDate } from "@/i18n/format";
 import { usePins, useUnpinMessage } from "../../api";
 
 interface PinnedListProps {
@@ -6,13 +8,14 @@ interface PinnedListProps {
 }
 
 export function PinnedList({ slug }: PinnedListProps) {
+  const { t } = useTranslation("commons");
   const { data: pins = [], isLoading } = usePins(slug);
   const unpin = useUnpinMessage();
 
   if (isLoading) {
     return (
       <div className="flex flex-1 items-center justify-center px-4">
-        <p className="text-xs text-muted-foreground">Loading pins...</p>
+        <p className="text-xs text-muted-foreground">{t("rightPanel.pins.loading")}</p>
       </div>
     );
   }
@@ -21,9 +24,11 @@ export function PinnedList({ slug }: PinnedListProps) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-2 px-5 text-center">
         <div className="w-full rounded-2xl border border-dashed border-border-default bg-surface-base px-4 py-6">
-          <p className="text-[13px] font-medium text-muted-foreground">No pinned messages</p>
+          <p className="text-[13px] font-medium text-muted-foreground">
+            {t("rightPanel.pins.emptyTitle")}
+          </p>
           <p className="mt-1 text-xs leading-5 text-muted-foreground/60">
-            Pin important messages from the action menu
+            {t("rightPanel.pins.emptyMessage")}
           </p>
         </div>
       </div>
@@ -42,15 +47,14 @@ export function PinnedList({ slug }: PinnedListProps) {
               {pin.message.body}
             </div>
             <div className="mt-2 text-[11px] text-muted-foreground">
-              {pin.message.user.name} · Pinned{" "}
-              {new Date(pin.pinned_at).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
+              {pin.message.user.name} ·{" "}
+              {t("rightPanel.pins.pinnedDate", {
+                date: formatDate(pin.pinned_at, { month: "short", day: "numeric" }),
               })}
             </div>
             <button
               onClick={() => unpin.mutate({ slug, pinId: pin.id })}
-              title="Unpin"
+              title={t("rightPanel.pins.unpin")}
               className="absolute right-2 top-2 shrink-0 rounded-lg p-1 text-muted-foreground opacity-0 transition-all hover:bg-muted hover:text-foreground group-hover:opacity-100"
             >
               <X className="h-3 w-3" />
