@@ -71,6 +71,15 @@ suppressPackageStartupMessages({
         analysis_settings = spec$params %||% spec$analysis_settings
       )
     },
+    "finngen.co2.endpoint_profile" = function(spec) {
+      source("/app/api/finngen/common.R"); source("/app/api/finngen/co2_analysis.R")
+      finngen_endpoint_profile_execute(
+        source_envelope   = spec$source,
+        run_id            = spec$run_id,
+        export_folder     = file.path("/opt/finngen-artifacts/runs", spec$run_id),
+        analysis_settings = spec$params %||% spec$analysis_settings
+      )
+    },
     "finngen.cohort.generate" = function(spec) {
       source("/app/api/finngen/common.R"); source("/app/api/finngen/cohort_ops.R")
       finngen_cohort_generate_execute(
@@ -306,6 +315,12 @@ function(body, response) {
 #* @serializer unboxedJSON
 function(body, response) {
   .dispatch_async("finngen.co2.demographics", body, response)
+}
+
+#* @post /finngen/co2/endpoint-profile
+#* @serializer unboxedJSON
+function(body, response) {
+  .dispatch_async("finngen.co2.endpoint_profile", body, response)
 }
 
 #* @post /finngen/cohort/generate
