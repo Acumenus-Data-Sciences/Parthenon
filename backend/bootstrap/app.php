@@ -6,6 +6,7 @@ use App\Http\Middleware\RecordUserActivity;
 use App\Http\Middleware\RequireSourceContext;
 use App\Http\Middleware\ResolveLocale;
 use App\Http\Middleware\ResolveSourceContext;
+use App\Http\Middleware\TrackEndpointProfileAccess;
 use App\Jobs\Analysis\CareGapNightlyRefreshJob;
 use App\Support\ApiMessage;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -56,6 +57,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'source.resolve' => ResolveSourceContext::class,
             'source.require' => RequireSourceContext::class,
             'finngen.idempotency' => EnforceFinnGenIdempotency::class,
+            'finngen.endpoint_profile_access' => TrackEndpointProfileAccess::class,
         ]);
     })
     ->withSchedule(function (Schedule $schedule) {
