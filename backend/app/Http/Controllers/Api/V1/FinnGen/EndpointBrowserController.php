@@ -7,8 +7,10 @@ namespace App\Http\Controllers\Api\V1\FinnGen;
 use App\Enums\CoverageBucket;
 use App\Enums\CoverageProfile;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\FinnGen\ComputeEndpointProfileRequest;
 use App\Http\Requests\FinnGen\ComputePrsRequest;
 use App\Http\Requests\FinnGen\DispatchEndpointGwasRequest;
+use App\Http\Requests\FinnGen\ReadEndpointProfileRequest;
 use App\Models\App\FinnGen\EndpointDefinition;
 use App\Models\App\FinnGen\EndpointGwasRun;
 use App\Models\App\FinnGen\GwasCovariateSet;
@@ -17,6 +19,9 @@ use App\Models\App\FinnGenEndpointGeneration;
 use App\Models\App\FinnGenUnmappedCode;
 use App\Models\App\Source;
 use App\Models\User;
+use App\Services\FinnGen\Co2SchemaProvisioner;
+use App\Services\FinnGen\EndpointExpressionHasher;
+use App\Services\FinnGen\EndpointProfileDispatchService;
 use App\Services\FinnGen\Exceptions\ControlCohortNotPreparedException;
 use App\Services\FinnGen\Exceptions\CovariateSetNotFoundException;
 use App\Services\FinnGen\Exceptions\DuplicateRunException;
@@ -32,6 +37,7 @@ use App\Services\FinnGen\PrsDispatchService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -833,6 +839,207 @@ final class EndpointBrowserController extends Controller
         }, $rows);
 
         return response()->json(['data' => $data]);
+    }
+
+    /**
+     * Phase 18 GENOMICS-09/10/11 — POST /api/v1/finngen/endpoints/{name}/profile.
+     *
+     * Dispatches a `co2.endpoint_profile` run via FinnGenRunService. Returns
+     * 202 + run envelope; the Darkstar R worker (Plan 18-05) writes into
+     * `{source}_co2_results.*` on completion.
+     *
+     * Permission enforced at route level: `finngen.endpoint_profile.compute`.
+     * Input validated by ComputeEndpointProfileRequest (source_key regex +
+     * optional min_subjects). Schema is provisioned lazily on every dispatch
+     * per D-09 (idempotent CREATE ... IF NOT EXISTS; safe to call repeatedly).
+     */
+    public function profile(
+        ComputeEndpointProfileRequest $request,
+        string $name,
+        EndpointProfileDispatchService $dispatcher,
+        Co2SchemaProvisioner $provisioner,
+    ): JsonResponse {
+        // REVIEW §WR-02 defence-in-depth — auth:sanctum is the first layer.
+        $user = $request->user();
+        if (! $user instanceof User) {
+            abort(401);
+        }
+        $userId = (int) $user->getKey();
+
+        $validated = $request->validated();
+        $sourceKey = (string) $validated['source_key'];
+
+        /** @var array{source_key: string, min_subjects?: int} $input */
+        $input = [
+            'source_key' => $sourceKey,
+        ];
+        if (isset($validated['min_subjects'])) {
+            $input['min_subjects'] = (int) $validated['min_subjects'];
+        }
+
+        // Lazy schema provisioning per D-09 (idempotent — safe every dispatch).
+        $provisioner->provision($sourceKey);
+
+        $result = $dispatcher->dispatch(
+            userId: $userId,
+            endpointName: $name,
+            input: $input,
+        );
+
+        return response()->json([
+            'data' => [
+                'run_id' => $result['run']->id,
+                'endpoint_name' => $result['endpoint_name'],
+                'source_key' => $result['source_key'],
+                'expression_hash' => $result['expression_hash'],
+            ],
+        ], 202);
+    }
+
+    /**
+     * Phase 18 GENOMICS-09/10/11 — GET /api/v1/finngen/endpoints/{name}/profile?source_key={key}.
+     *
+     * Returns one of 3 envelope shapes per 18-UI-SPEC.md:
+     *   - status=cached: full summary + km_points + comorbidities + drug_classes + meta
+     *   - status=needs_compute: reason + dispatch_url (frontend auto-dispatches per D-10)
+     *   - status=ineligible: error_code + message
+     *
+     * Permission enforced at route level: `finngen.endpoint_profile.view`.
+     * Input shape enforced by ReadEndpointProfileRequest (Warning 4 hardening —
+     * no inline preg_match on source_key in the controller).
+     *
+     * Partial-provisioning fallback (Warning 3): if the schema exists but a
+     * sibling table is missing (SQLSTATE 42P01 = undefined_table), returns
+     * status=needs_compute with reason=partial_provision so the frontend
+     * auto-dispatches a fresh compute instead of surfacing a 500.
+     */
+    public function showProfile(
+        ReadEndpointProfileRequest $request,
+        string $name,
+        EndpointExpressionHasher $hasher,
+    ): JsonResponse {
+        $validated = $request->validated();
+        $sourceKey = (string) $validated['source_key'];
+
+        $schema = strtolower($sourceKey).'_co2_results';
+        // Defense-in-depth: re-validate the derived schema name before SQL
+        // interpolation. ReadEndpointProfileRequest already enforces the
+        // uppercase regex upstream; this second check is belt-and-suspenders.
+        if (preg_match('/^[a-z][a-z0-9_]*$/', $schema) !== 1) {
+            return response()->json([
+                'status' => 'ineligible',
+                'error_code' => 'source_ineligible',
+                'message' => 'Unsafe source_key',
+            ], 200);
+        }
+
+        // Compute the current expression hash from finngen.endpoint_definitions.
+        /** @var EndpointDefinition|null $endpoint */
+        $endpoint = EndpointDefinition::query()->where('name', $name)->first();
+        if ($endpoint === null) {
+            return response()->json([
+                'status' => 'ineligible',
+                'error_code' => 'endpoint_not_resolvable',
+                'message' => "Endpoint {$name} not found",
+            ], 200);
+        }
+        $expressionArray = is_array($endpoint->qualifying_event_spec)
+            ? $endpoint->qualifying_event_spec
+            : [];
+        $currentHash = $hasher->hash($expressionArray);
+
+        $dispatchUrl = "/api/v1/finngen/endpoints/{$name}/profile";
+
+        // Check if {source}_co2_results schema exists (provisioned lazily on
+        // first dispatch per D-09). Missing schema → status=needs_compute.
+        $schemaExists = DB::selectOne(
+            'SELECT 1 AS ok FROM information_schema.schemata WHERE schema_name = ?',
+            [$schema]
+        );
+        if ($schemaExists === null) {
+            return response()->json([
+                'status' => 'needs_compute',
+                'reason' => 'no_cache',
+                'dispatch_url' => $dispatchUrl,
+            ], 200);
+        }
+
+        // Warning 3 — partial-provisioning guard. Wrap the 4 data reads in a
+        // single try-catch; if any sibling table is missing (SQLSTATE 42P01
+        // = undefined_table), surface a needs_compute envelope so the
+        // frontend auto-dispatches a re-provision + compute.
+        try {
+            $summary = DB::selectOne(
+                "SELECT * FROM {$schema}.endpoint_profile_summary
+                 WHERE endpoint_name = ? AND source_key = ?
+                 ORDER BY computed_at DESC LIMIT 1",
+                [$name, $sourceKey]
+            );
+            if ($summary === null) {
+                return response()->json([
+                    'status' => 'needs_compute',
+                    'reason' => 'no_cache',
+                    'dispatch_url' => $dispatchUrl,
+                ], 200);
+            }
+            if ($summary->expression_hash !== $currentHash) {
+                return response()->json([
+                    'status' => 'needs_compute',
+                    'reason' => 'stale_hash',
+                    'dispatch_url' => $dispatchUrl,
+                ], 200);
+            }
+
+            $kmPoints = DB::select(
+                "SELECT time_days, survival_prob, at_risk, events
+                   FROM {$schema}.endpoint_profile_km_points
+                  WHERE endpoint_name = ? AND source_key = ? AND expression_hash = ?
+                  ORDER BY time_days",
+                [$name, $sourceKey, $currentHash]
+            );
+            $comorbidities = DB::select(
+                "SELECT comorbid_endpoint AS comorbid_endpoint_name,
+                        NULL              AS comorbid_endpoint_display_name,
+                        phi_coef, odds_ratio, or_ci_low, or_ci_high, co_count, rank
+                   FROM {$schema}.endpoint_profile_comorbidities
+                  WHERE index_endpoint = ? AND source_key = ? AND expression_hash = ?
+                  ORDER BY rank",
+                [$name, $sourceKey, $currentHash]
+            );
+            $drugClasses = DB::select(
+                "SELECT atc3_code, atc3_name, subjects_on_drug, subjects_total, pct_on_drug, rank
+                   FROM {$schema}.endpoint_profile_drug_classes
+                  WHERE endpoint_name = ? AND source_key = ? AND expression_hash = ?
+                  ORDER BY rank",
+                [$name, $sourceKey, $currentHash]
+            );
+        } catch (QueryException $e) {
+            // SQLSTATE 42P01 = undefined_table. Schema exists but a sibling
+            // was dropped / never created (partial provisioning). Treat as
+            // cache-miss so the frontend re-dispatches a provision + compute.
+            if ($e->getCode() === '42P01' || str_contains($e->getMessage(), 'undefined_table')) {
+                return response()->json([
+                    'status' => 'needs_compute',
+                    'reason' => 'partial_provision',
+                    'dispatch_url' => $dispatchUrl,
+                ], 200);
+            }
+            throw $e;
+        }
+
+        return response()->json([
+            'status' => 'cached',
+            'summary' => (array) $summary,
+            'km_points' => $kmPoints,
+            'comorbidities' => $comorbidities,
+            'drug_classes' => $drugClasses,
+            'meta' => [
+                'universe_size' => (int) ($summary->universe_size ?? 0),
+                'min_subjects' => (int) ($summary->min_subjects ?? 0),
+                'source_has_death_data' => (bool) ($summary->source_has_death_data ?? false),
+                'source_has_drug_data' => (bool) ($summary->source_has_drug_data ?? false),
+            ],
+        ], 200);
     }
 
     /**

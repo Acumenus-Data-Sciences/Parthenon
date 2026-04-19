@@ -1113,6 +1113,11 @@ Route::prefix('v1')->group(function () {
                 // Phase 17 (GENOMICS-07) — compute PRS for (endpoint × source × PGS score)
                 Route::post('/{name}/prs', [EndpointBrowserController::class, 'prs'])
                     ->middleware(['permission:finngen.prs.compute', 'finngen.idempotency', 'throttle:10,1']);
+                // Phase 18 (GENOMICS-09/10/11) — Risteys-style endpoint profile
+                Route::post('/{name}/profile', [EndpointBrowserController::class, 'profile'])
+                    ->middleware(['permission:finngen.endpoint_profile.compute', 'finngen.idempotency', 'throttle:10,1']);
+                Route::get('/{name}/profile', [EndpointBrowserController::class, 'showProfile'])
+                    ->middleware(['permission:finngen.endpoint_profile.view', 'finngen.endpoint_profile_access', 'throttle:120,1']);
             });
 
             // Phase 16 (GENOMICS-04) — PheWeb-lite Manhattan + regional views
