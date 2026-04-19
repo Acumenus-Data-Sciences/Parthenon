@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 18-02-PLAN.md
-last_updated: "2026-04-19T18:25:16.141Z"
+stopped_at: Completed 18-03-PLAN.md
+last_updated: "2026-04-19T18:33:14.966Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 58
-  completed_plans: 47
-  percent: 81
+  completed_plans: 48
+  percent: 83
 ---
 
 # Project State
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-04-16 — Milestone v1.0 FinnGen Genomic
 ## Current Position
 
 Phase: 18 (risteys-style-endpoint-dashboard) — EXECUTING
-Plan: 3 of 7 (Plan 18-02 complete — Wave 1 foundation shipped)
-Status: Ready to execute Plan 18-03
-Last activity: 2026-04-19 — Plan 18-02 complete (endpoint_profile_access table + permissions)
+Plan: 4 of 7 (Plan 18-02 complete — Wave 1 foundation shipped)
+Status: Ready to execute
+Last activity: 2026-04-19
 
 Progress: [████████░░] 81%
 
@@ -91,6 +91,7 @@ Progress: [████████░░] 81%
 | Phase 15 P11 | 8 | 2 tasks | 5 files |
 | Phase 18 P01 | 12min | 2 tasks | 10 files |
 | Phase 18 P02 | 10min | 2 tasks | 4 files |
+| Phase 18 P03 | 5min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -185,6 +186,10 @@ Recent decisions affecting current work:
 - [Phase 18]: [Phase 18-02] EndpointProfileAccess.$primaryKey declared as scalar 'endpoint_name' (not list) — PHPStan level-8 covariant with Model::$primaryKey; DB composite PK (endpoint_name, source_key) enforced by the migration's PRIMARY KEY constraint; upserts pass both columns as match criteria
 - [Phase 18]: [Phase 18-02] viewer role GETS finngen.endpoint_profile.view (aggregate profile data is non-PHI per D-08/D-09) but NOT .compute — matches finngen.prs.compute precedent from Phase 17
 - [Phase 18]: [Phase 18-02] Pre-commit migration gate enforced — every backend/database/migrations/* commit now requires a paired docs/devlog/ or CHANGELOG entry. Created docs/devlog/modules/finngen/phase18-02-endpoint-profile-access-and-permissions.md as the pattern for future Phase 18 migrations
+- [Phase 18]: [Phase 18-03] Scalar primaryKey=expression_hash on all 4 EndpointProfile* Eloquent models — DB enforces real composite PK via table constraints; satisfies PHPStan level-8 covariance with Model::$primaryKey. Upserts in Plans 18-04/05 must match on all PK columns.
+- [Phase 18]: [Phase 18-03] Regex allow-list /^[a-z][a-z0-9_]*$/ duplicated on each Eloquent model's onSource() factory (not factored into a trait) — each factory is an entry-point into the {source}_co2_results trust boundary; auditors grep one file per boundary rather than follow trait indirection.
+- [Phase 18]: [Phase 18-03] EndpointExpressionHasher normalizes integral floats with threshold |v| < PHP_INT_MAX (not just floor==value) — prevents overflow when very large doubles roundtrip through json_decode/encode; concept_ids are positive OMOP int64 so safe.
+- [Phase 18]: [Phase 18-03] uses(TestCase::class) explicit binding in tests/Unit/FinnGen/* required because backend/tests/Pest.php auto-binds only Feature/Integration/Unit/Services/Unit/Seeders — did NOT widen Pest.php to avoid side-effects on other Unit/FinnGen tests.
 
 ### Pending Todos
 
@@ -232,6 +237,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-19T18:23:39.219Z
-Stopped at: Completed 18-02-PLAN.md
+Last session: 2026-04-19T18:33:00.244Z
+Stopped at: Completed 18-03-PLAN.md
 Resume file: None
