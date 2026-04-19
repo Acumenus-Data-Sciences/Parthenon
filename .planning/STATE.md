@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 15-06-PLAN.md
-last_updated: "2026-04-19T00:35:05.006Z"
+stopped_at: Completed 15-07-PLAN.md
+last_updated: "2026-04-19T00:46:44.219Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 8
   completed_phases: 1
   total_plans: 42
-  completed_plans: 29
-  percent: 69
+  completed_plans: 30
+  percent: 71
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-16 — Milestone v1.0 FinnGen Genomic
 ## Current Position
 
 Phase: 15 (GWAS Dispatch, Run Tracking, and Generation History) — EXECUTING
-Plan: 3 of 9
+Plan: 4 of 9
 Status: Ready to execute
 Last activity: 2026-04-19
 
@@ -82,6 +82,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 260411-qux P01 | 13min | 2 tasks | 624 files |
 | Phase 15 P05 | 15 | 2 tasks | 6 files |
 | Phase 15 P06 | 9 | 3 tasks | 8 files |
+| Phase 15 P07 | 8 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -156,6 +157,8 @@ Recent decisions affecting current work:
 - [Phase 15]: Dual-key invalidation on useDispatchGwas success (detail + eligible-controls)
 - [Phase 15]: [Phase 15-06] RunStatusBadge widened via local type = FinnGenRunStatus | superseded; foundation union stays unchanged
 - [Phase 15]: [Phase 15-06] 2-weight typography contract: zero font-medium across Phase 15 UI code
+- [Phase 15]: [15-07] Cast path (b) chosen — local EndpointDetail widening in drawer body, not in-place EndpointDetail mutation; preserves back-compat for other consumers
+- [Phase 15]: [15-07] Phase 16 stub route path is nested-relative (finngen-endpoints/:name/gwas/:run_id) under workbench group — matchRoutes test asserts composed URL invariant
 
 ### Pending Todos
 
@@ -203,6 +206,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-19T00:34:45.575Z
-Stopped at: Completed 15-06-PLAN.md
+Last session: 2026-04-19T00:46:44.217Z
+Stopped at: Completed 15-07-PLAN.md
 Resume file: None
