@@ -30,6 +30,7 @@ import { CohortOverlapPanel } from "../components/CohortOverlapPanel";
 import { CohortPatientListPanel } from "../components/CohortPatientListPanel";
 import { CirceSqlPanel } from "../components/CirceSqlPanel";
 import { PrsDistributionPanel } from "../components/PrsDistributionPanel";
+import { ComputePrsModal } from "../components/ComputePrsModal";
 import {
   useCohortDefinition,
   useUpdateCohortDefinition,
@@ -724,6 +725,22 @@ export default function CohortDefinitionDetailPage() {
           cohortId={cohortId}
           open={shareOpen}
           onClose={() => setShareOpen(false)}
+        />
+      )}
+
+      {/* Compute PRS Modal — v1 only works for FinnGen-promoted cohorts,
+          which are not yet surfaced as a cohort.endpoint_name field;
+          pass null and the modal will show the v1 limitation notice. */}
+      {cohortId && (
+        <ComputePrsModal
+          open={showComputePrsModal}
+          onClose={() => setShowComputePrsModal(false)}
+          cohortId={cohortId}
+          endpointName={null}
+          sourceKey={
+            definition.generation_sources?.find((g) => g.source_key)
+              ?.source_key ?? null
+          }
         />
       )}
     </div>
