@@ -161,7 +161,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] 18-01-PLAN.md — Wave 0: 9 failing TDD test stubs (5 Pest + 4 Vitest) for GENOMICS-09/10/11 preconditions
 - [x] 18-02-PLAN.md — Wave 1: finngen.endpoint_profile_access table + seed 2 Spatie permissions (view/compute) + RolePermissionSeeder extension + EndpointProfileAccess model
 - [x] 18-03-PLAN.md — Wave 1: Co2SchemaProvisioner (per-source 4-table schema + HIGHSEC grants) + EndpointExpressionHasher + 4 Eloquent result models
-- [ ] 18-04-PLAN.md — Wave 2: EndpointProfileDispatchService + TrackEndpointProfileAccess middleware + ComputeEndpointProfileRequest + 2 EndpointBrowserController methods + routes
+- [x] 18-04-PLAN.md — Wave 2: EndpointProfileDispatchService + TrackEndpointProfileAccess middleware + ComputeEndpointProfileRequest + 2 EndpointBrowserController methods + routes
 - [ ] 18-05-PLAN.md — Wave 3: finngen_endpoint_profile_execute() R worker (KM survfit + Matrix::crossprod phi + ATC3 SQL) + routes.R dispatcher
 - [ ] 18-06-PLAN.md — Wave 4: React — api.ts types + 3 hooks + 5 Profile panels + heatmap-helpers + FinnGenEndpointBrowserPage tab wiring
 - [ ] 18-07-PLAN.md — Wave 5: WarmEndpointProfilesCommand + SmokeEndpointProfileCommand + scheduler + live PANCREAS × E4_DM2 smoke + DEPLOY-LOG sign-off (CHECKPOINT)
@@ -182,4 +182,4 @@ Phase 18 depends on Phase 13 and can run in parallel with the entire 14-17 chain
 | 15. GWAS Dispatch, Run Tracking, and Generation History | 11/11 | Complete    | 2026-04-19 |
 | 16. PheWeb-lite Results UI and Workbench Attribution | 7/7 | Complete    | 2026-04-19 |
 | 17. PGS Catalog Ingestion, PRS Scoring, and Distribution Viz | 7/7 | Complete    | 2026-04-19 |
-| 18. Risteys-style Endpoint Dashboard | 3/7 | In Progress|  |
+| 18. Risteys-style Endpoint Dashboard | 4/7 | In Progress|  |

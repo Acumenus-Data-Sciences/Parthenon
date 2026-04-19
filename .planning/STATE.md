@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 18-03-PLAN.md
-last_updated: "2026-04-19T18:33:14.966Z"
+stopped_at: Completed 18-04-PLAN.md
+last_updated: "2026-04-19T18:46:54.017Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 58
-  completed_plans: 48
-  percent: 83
+  completed_plans: 49
+  percent: 84
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-16 — Milestone v1.0 FinnGen Genomic
 ## Current Position
 
 Phase: 18 (risteys-style-endpoint-dashboard) — EXECUTING
-Plan: 4 of 7 (Plan 18-02 complete — Wave 1 foundation shipped)
+Plan: 5 of 7 (Plan 18-02 complete — Wave 1 foundation shipped)
 Status: Ready to execute
 Last activity: 2026-04-19
 
@@ -92,6 +92,7 @@ Progress: [████████░░] 81%
 | Phase 18 P01 | 12min | 2 tasks | 10 files |
 | Phase 18 P02 | 10min | 2 tasks | 4 files |
 | Phase 18 P03 | 5min | 2 tasks | 8 files |
+| Phase 18 P04 | 7min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -190,6 +191,10 @@ Recent decisions affecting current work:
 - [Phase 18]: [Phase 18-03] Regex allow-list /^[a-z][a-z0-9_]*$/ duplicated on each Eloquent model's onSource() factory (not factored into a trait) — each factory is an entry-point into the {source}_co2_results trust boundary; auditors grep one file per boundary rather than follow trait indirection.
 - [Phase 18]: [Phase 18-03] EndpointExpressionHasher normalizes integral floats with threshold |v| < PHP_INT_MAX (not just floor==value) — prevents overflow when very large doubles roundtrip through json_decode/encode; concept_ids are positive OMOP int64 so safe.
 - [Phase 18]: [Phase 18-03] uses(TestCase::class) explicit binding in tests/Unit/FinnGen/* required because backend/tests/Pest.php auto-binds only Feature/Integration/Unit/Services/Unit/Seeders — did NOT widen Pest.php to avoid side-effects on other Unit/FinnGen tests.
+- [Phase 18]: [Phase 18-04] showProfile uses ReadEndpointProfileRequest FormRequest (no inline preg_match) per Warning 4 — regex enforced before controller executes
+- [Phase 18]: [Phase 18-04] Precondition 2 uses D-15 OR semantics: death>0 OR observation_period>0 (not AND) — sources with partial CDM still eligible
+- [Phase 18]: [Phase 18-04] TrackEndpointProfileAccess middleware try-catch Throwable — T-18-05 mitigation live; dropped-access-log test asserts dispatch still 202
+- [Phase 18]: [Phase 18-04] Warning 3 42P01 partial-provision guard in showProfile returns needs_compute reason=partial_provision instead of 500; DROP-table test case locks the guard
 
 ### Pending Todos
 
@@ -237,6 +242,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-19T18:33:00.244Z
-Stopped at: Completed 18-03-PLAN.md
+Last session: 2026-04-19T18:46:54.015Z
+Stopped at: Completed 18-04-PLAN.md
 Resume file: None
