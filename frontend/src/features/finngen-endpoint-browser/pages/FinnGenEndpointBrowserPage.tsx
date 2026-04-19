@@ -14,6 +14,7 @@ import {
 import type {
   CoverageBucket,
   EndpointDetail,
+  EndpointDetailWithPhase15,
   EndpointGeneration,
   EndpointSummary,
 } from "../api";
@@ -522,7 +523,7 @@ function GenerationBadge({ g }: { g: EndpointGeneration }) {
   );
 }
 
-function EndpointDetailBody({ d }: { d: EndpointDetail }) {
+function EndpointDetailBody({ d }: { d: EndpointDetailWithPhase15 }) {
   const meta = BUCKET_META[d.coverage_bucket ?? "UNKNOWN"];
   const pct =
     d.coverage?.pct != null ? Math.round((d.coverage.pct as number) * 100) : null;
