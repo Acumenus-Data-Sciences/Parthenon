@@ -116,7 +116,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] 15-03-PLAN.md — Wave 1: FinnGenGwasRunObserver + registration (D-16/D-17 + CLAUDE.md Gotcha #12 try-catch posture)
 - [x] 15-04-PLAN.md — Wave 2: DispatchEndpointGwasRequest + EndpointBrowserController::gwas()/eligibleControls() + show() extension + routes + OpenAPI regen (D-01/D-02/D-21/D-30)
 - [x] 15-05-PLAN.md — Wave 3: api.ts types + 3 TanStack Query hooks (useDispatchGwas/useEligibleControlCohorts/useCovariateSets)
-- [ ] 15-06-PLAN.md — Wave 3: RunStatusBadge superseded + font-semibold promotion + GenerationHistorySection + GwasRunsSection + RunGwasPanel (D-22/D-23/D-24/D-25 + UI-SPEC 2-weight typography)
+- [x] 15-06-PLAN.md — Wave 3: RunStatusBadge superseded + font-semibold promotion + GenerationHistorySection + GwasRunsSection + RunGwasPanel (D-22/D-23/D-24/D-25 + UI-SPEC 2-weight typography)
 - [ ] 15-07-PLAN.md — Wave 4: FinnGenEndpointBrowserPage drawer wiring + Phase 16 stub route
 - [ ] 15-08-PLAN.md — Wave 5: 6 Pest feature + 1 Pest unit + 5 Vitest tests (D-26/D-27/D-28)
 - [ ] 15-09-PLAN.md — Wave 6: GwasSmokeTestCommand --via-http extension + real E2E on PANCREAS cohort 221 + GATE-EVIDENCE sign-off (CHECKPOINT, D-29/SC-4)
@@ -170,7 +170,7 @@ Phase 18 depends on Phase 13 and can run in parallel with the entire 14-17 chain
 |-------|----------------|--------|-----------|
 | 13. FinnGen Endpoint Universalization (Standard-First Resolver) | 0/0 | Not started | - |
 | 14. regenie GWAS Infrastructure | 4/7 | In Progress|  |
-| 15. GWAS Dispatch, Run Tracking, and Generation History | 5/9 | In Progress|  |
+| 15. GWAS Dispatch, Run Tracking, and Generation History | 6/9 | In Progress|  |
 | 16. PheWeb-lite Results UI and Workbench Attribution | 0/0 | Not started | - |
-| 17. PGS Catalog Ingestion, PRS Scoring, and Distribution Viz | 0/0 | Not started | - |
+| 17. PGS Catalog Ingestion, PRS Scoring, and Distribution Viz | 3/7 | In Progress|  |
 | 18. Risteys-style Endpoint Dashboard | 0/0 | Not started | - |
