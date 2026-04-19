@@ -344,6 +344,167 @@ export async function fetchEligibleControls(
   return r.data.data;
 }
 
+// ── Phase 18 types ──────────────────────────────────────────────────────────
+// Hand-authored from 18-UI-SPEC.md §TypeScript interfaces. Backend contract
+// per 18-04-SUMMARY.md (GET/POST /api/v1/finngen/endpoints/{name}/profile).
+// Plan 18-06 owns these; if `./deploy.sh --openapi` later regenerates them
+// in api.generated.ts, swap to re-exports.
+
+// Summary row — one per (endpoint_name, source_key, expression_hash).
+// Sourced from {source}_co2_results.endpoint_profile_summary.
+export type EndpointProfileSummary = {
+  endpoint_name: string;
+  source_key: string;
+  expression_hash: string;
+  subject_count: number;
+  death_count: number;
+  median_survival_days: number | null;
+  age_at_death_mean: number | null;
+  age_at_death_median: number | null;
+  age_at_death_bins: Array<{ bin_start: number; bin_end: number; count: number }>;
+  computed_at: string;
+  run_id: string;
+};
+
+// KM step-function point — one row per (endpoint × source × time_days).
+// Sourced from {source}_co2_results.endpoint_profile_km_points.
+// NOTE: backend table has no `censored` column; the adapter
+// useEndpointProfileKmData derives nCensored client-side from
+// (subject_count, at_risk, events) per D-13.
+export type EndpointProfileKmPoint = {
+  time_days: number;
+  survival_prob: number;
+  at_risk: number;
+  events: number;
+};
+
+// Comorbidity row — server-sorted by |phi_coef| DESC, top 50.
+// Sourced from {source}_co2_results.endpoint_profile_comorbidities.
+export type EndpointProfileComorbidity = {
+  comorbid_endpoint_name: string;
+  comorbid_endpoint_display_name: string | null;
+  phi_coef: number;
+  odds_ratio: number;
+  or_ci_low: number;
+  or_ci_high: number;
+  co_count: number;
+  rank: number;
+};
+
+// Drug class row — server-sorted by pct_on_drug DESC, top 10 ATC3 codes.
+// Sourced from {source}_co2_results.endpoint_profile_drug_classes.
+export type EndpointProfileDrugClass = {
+  atc3_code: string;
+  atc3_name: string | null;
+  subjects_on_drug: number;
+  subjects_total: number;
+  pct_on_drug: number;
+  rank: number;
+};
+
+// Discriminated-union envelope returned by GET /profile?source_key={key}.
+// `cached` carries the full payload; `needs_compute` triggers an auto-dispatch
+// (D-10 expression-hash invalidation); `ineligible` is a terminal rejection.
+export type EndpointProfileEnvelope =
+  | {
+      status: "cached";
+      summary: EndpointProfileSummary;
+      km_points: EndpointProfileKmPoint[];
+      comorbidities: EndpointProfileComorbidity[];
+      drug_classes: EndpointProfileDrugClass[];
+      meta: {
+        universe_size: number;
+        min_subjects: number;
+        source_has_death_data: boolean;
+        source_has_drug_data: boolean;
+      };
+    }
+  | {
+      status: "needs_compute";
+      reason: "no_cache" | "stale_hash";
+      dispatch_url: string;
+    }
+  | {
+      status: "ineligible";
+      error_code:
+        | "source_ineligible"
+        | "endpoint_not_resolvable"
+        | "permission_denied";
+      message: string;
+    };
+
+// POST /profile dispatch payload — min_subjects defaults to 20 server-side per D-05.
+export type ComputeEndpointProfilePayload = {
+  source_key: string;
+  min_subjects?: number;
+};
+
+export type ComputeEndpointProfileResponse = {
+  data: {
+    run_id: string;
+    endpoint_name: string;
+    source_key: string;
+    expression_hash: string;
+  };
+};
+
+// Server refusal body for POST /profile (422 / 409 / 403 / 504 / 500).
+export type ProfileDispatchRefusal = {
+  message: string;
+  error_code:
+    | "source_ineligible"
+    | "endpoint_not_resolvable"
+    | "permission_denied"
+    | "worker_timeout"
+    | "worker_error";
+  source_key?: string;
+  endpoint?: string;
+};
+
+// ── Phase 18 functions ──────────────────────────────────────────────────────
+
+export async function fetchEndpointProfile(
+  endpointName: string,
+  sourceKey: string,
+): Promise<EndpointProfileEnvelope> {
+  const r = await apiClient.get<EndpointProfileEnvelope>(
+    `/finngen/endpoints/${encodeURIComponent(endpointName)}/profile`,
+    { params: { source_key: sourceKey } },
+  );
+  return r.data;
+}
+
+export async function dispatchEndpointProfile(
+  endpointName: string,
+  payload: ComputeEndpointProfilePayload,
+): Promise<ComputeEndpointProfileResponse> {
+  try {
+    const r = await apiClient.post<ComputeEndpointProfileResponse>(
+      `/finngen/endpoints/${encodeURIComponent(endpointName)}/profile`,
+      payload,
+    );
+    return r.data;
+  } catch (err: unknown) {
+    // 422/409/403/504/500 carry a typed ProfileDispatchRefusal body — unwrap
+    // it so callers can `catch (r: ProfileDispatchRefusal) { switch (r.error_code) ... }`.
+    if (typeof err === "object" && err !== null && "response" in err) {
+      const r = (err as { response?: { status?: number; data?: unknown } })
+        .response;
+      if (
+        (r?.status === 422 ||
+          r?.status === 409 ||
+          r?.status === 403 ||
+          r?.status === 504 ||
+          r?.status === 500) &&
+        r?.data
+      ) {
+        throw r.data as ProfileDispatchRefusal;
+      }
+    }
+    throw err;
+  }
+}
+
 export async function fetchCovariateSets(): Promise<CovariateSetSummary[]> {
   try {
     const r = await apiClient.get<{ data: CovariateSetSummary[] }>(
