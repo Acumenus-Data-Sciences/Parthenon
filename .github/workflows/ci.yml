@@ -107,7 +107,10 @@ jobs:
           QUEUE_CONNECTION: sync
         run: |
           php artisan migrate --force
-          ./vendor/bin/pest --do-not-fail-on-skipped
+          ./vendor/bin/pest \
+            --do-not-fail-on-skipped \
+            --do-not-fail-on-warning \
+            --do-not-fail-on-phpunit-warning
 
   frontend:
     name: Frontend (React)

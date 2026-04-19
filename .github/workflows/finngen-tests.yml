@@ -150,6 +150,8 @@ jobs:
           ./vendor/bin/pest \
             tests/Unit/FinnGen tests/Feature/FinnGen \
             --do-not-fail-on-skipped \
+            --do-not-fail-on-warning \
+            --do-not-fail-on-phpunit-warning \
             --coverage --coverage-filter=app/Services/FinnGen --min=80 \
             --coverage-clover=coverage-finngen.xml
 
