@@ -27,7 +27,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 13.2: Finish FinnGen Cutover — R Worker Integration + Role Grants Codification + E2E Verification** [INSERTED] - Close the loop on 13.1: update the Darkstar R worker (`finngen_endpoint_generate_execute`) to use `finngen.endpoint_generations.id + 100_000_000_000` as the OMOP `{cohort_schema}.cohort.cohort_definition_id`; codify the 3 dev-applied role-split grants (GRANT CREATE on DB to parthenon_migrator, ALTER TABLE app.cohort_definitions OWNER TO parthenon_migrator, re-GRANT DML on app.cohort_definitions to parthenon_app); run full FinnGen Pest suite against `parthenon_testing` (proves SC 10 from 13.1); verify PANCREAS smoke-gen end-to-end (E4_DM2 → status=succeeded with subject_count > 0)
 - [ ] **Phase 14: regenie GWAS Infrastructure** - Containerize regenie, wire Darkstar async dispatch, and ship the per-source `{source}_gwas_results` schema with indexed summary-stat tables
 - [x] **Phase 15: GWAS Dispatch, Run Tracking, and Generation History** - Endpoint x source GWAS dispatch API, run-history catalog per (endpoint x source x covariate-set), and multi-run generation history view (completed 2026-04-19)
-- [ ] **Phase 16: PheWeb-lite Results UI and Workbench Attribution** - Manhattan plot, regional/LocusZoom-lite views, top-variants drawer, plus the one-tweak workbench attribution badge for FinnGen-seeded sessions
+- [x] **Phase 16: PheWeb-lite Results UI and Workbench Attribution** - Manhattan plot, regional/LocusZoom-lite views, top-variants drawer, plus the one-tweak workbench attribution badge for FinnGen-seeded sessions (completed 2026-04-19)
 - [x] **Phase 17: PGS Catalog Ingestion, PRS Scoring, and Distribution Viz** - `parthenon:load-pgs-catalog` command, per-cohort PRS dispatch, and histogram + quintile visualization in the cohort detail drawer (completed 2026-04-19)
 - [ ] **Phase 18: Risteys-style Endpoint Dashboard** - Per-endpoint Kaplan-Meier survival, comorbidity matrix, and pre-index drug-use timeline via the `co2.endpoint_profile` module
 
@@ -171,6 +171,6 @@ Phase 18 depends on Phase 13 and can run in parallel with the entire 14-17 chain
 | 13. FinnGen Endpoint Universalization (Standard-First Resolver) | 0/0 | Not started | - |
 | 14. regenie GWAS Infrastructure | 4/7 | In Progress|  |
 | 15. GWAS Dispatch, Run Tracking, and Generation History | 9/9 | Complete   | 2026-04-19 |
-| 16. PheWeb-lite Results UI and Workbench Attribution | 0/0 | Not started | - |
+| 16. PheWeb-lite Results UI and Workbench Attribution | 7/7 | Complete    | 2026-04-19 |
 | 17. PGS Catalog Ingestion, PRS Scoring, and Distribution Viz | 7/7 | Complete    | 2026-04-19 |
 | 18. Risteys-style Endpoint Dashboard | 0/0 | Not started | - |
