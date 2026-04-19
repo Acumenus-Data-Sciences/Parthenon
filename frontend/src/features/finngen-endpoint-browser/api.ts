@@ -75,6 +75,11 @@ export type EndpointDetail = {
     source_concept_count: number;
     truncated: boolean;
   };
+  /**
+   * @deprecated Phase 15: use `generation_runs` on EndpointDetailWithPhase15
+   * instead. This field is retained for back-compat with the catalog list
+   * card (FinnGenEndpointBrowserPage row.generations badges).
+   */
   generations: EndpointGeneration[];
   created_at: string | null;
   updated_at: string | null;
@@ -125,8 +130,8 @@ export async function fetchEndpoints(
   return r.data;
 }
 
-export async function fetchEndpoint(name: string): Promise<EndpointDetail> {
-  const r = await apiClient.get<{ data: EndpointDetail }>(
+export async function fetchEndpoint(name: string): Promise<EndpointDetailWithPhase15> {
+  const r = await apiClient.get<{ data: EndpointDetailWithPhase15 }>(
     `/finngen/endpoints/${encodeURIComponent(name)}`,
   );
   return r.data.data;

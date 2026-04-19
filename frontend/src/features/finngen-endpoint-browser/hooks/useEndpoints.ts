@@ -6,6 +6,7 @@ import {
   fetchEndpointStats,
   fetchEndpoints,
   generateEndpoint,
+  type EndpointDetailWithPhase15,
   type GenerateEndpointPayload,
   type ListEndpointsParams,
 } from "../api";
@@ -28,7 +29,7 @@ export function useEndpointList(params: ListEndpointsParams) {
 }
 
 export function useEndpointDetail(name: string | null) {
-  return useQuery({
+  return useQuery<EndpointDetailWithPhase15>({
     queryKey: ["finngen-endpoints", "detail", name],
     queryFn: () => fetchEndpoint(name ?? ""),
     enabled: !!name,

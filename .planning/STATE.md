@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 15-09-PLAN.md (Task 1 shipped; Task 2 SC-4 smoke deferred to 15-HUMAN-UAT.md)
-last_updated: "2026-04-19T16:03:34.396Z"
+stopped_at: Completed 15-10-PLAN.md
+last_updated: "2026-04-19T17:29:34.724Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 8
-  completed_phases: 4
-  total_plans: 49
-  completed_plans: 43
-  percent: 88
+  completed_phases: 3
+  total_plans: 56
+  completed_plans: 44
+  percent: 79
 ---
 
 # Project State
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-16 — Milestone v1.0 FinnGen Genomics)
 
 **Core value:** A researcher can pick any of 5,161 FinnGen-aligned phenotypes from the catalog, materialize a cohort against any source CDM, run a GWAS on that cohort, see Manhattan-plot results in the browser, compute polygenic risk scores against PGS Catalog summary stats, and inspect Risteys-style mortality / comorbidity dashboards — all without leaving Parthenon.
-**Current focus:** Phase 15 — GWAS Dispatch, Run Tracking, and Generation History
+**Current focus:** Phase 15 — gwas-dispatch-run-tracking-and-generation-history
 
 ## Current Position
 
-Phase: 17
-Plan: Not started
+Phase: 15 (gwas-dispatch-run-tracking-and-generation-history) — EXECUTING
+Plan: 2 of 11
 Status: Ready to execute
 Last activity: 2026-04-19
 
@@ -86,6 +86,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 15 P06 | 9 | 3 tasks | 8 files |
 | Phase 15 P07 | 8 | 2 tasks | 6 files |
 | Phase 15 P08 | 89 | 3 tasks | 15 files |
+| Phase 15 P10 | 45 | 4 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -166,6 +167,10 @@ Recent decisions affecting current work:
 - [Phase 15]: Plan 15-08: FinnGenGwasRunObserver's MIN(p_value) probe wrapped in savepoint to prevent PG 25P02 transaction poisoning
 - [Phase 15]: Plan 15-08: EndpointBrowserController::eligibleControls now references app.cohort_definitions.author_id + is_public (owner_user_id did not exist)
 - [Phase 15]: Plan 15-09: SC-4 real E2E smoke deferred to 15-HUMAN-UAT.md at researcher approval — Phase 14 infra not available at phase-close; UAT debt not failure; nyquist_compliant stays false until evidence captured
+- [Phase 15]: eligibleControls uses single-CTE GROUP BY aggregation (not 300 scalar subqueries) — one scan of {source}.cohort per request
+- [Phase 15]: admin bypass split into two explicit PHP SELECT branches — no PG bool-placeholder ambiguity (WR-01)
+- [Phase 15]: GwasSmokeTestCommand token TTL is 1h not 8h HIGHSEC default — smoke tests do not need full session lifetime (WR-05)
+- [Phase 15]: WR-06 narrowed TestCase catch surfaces pre-existing pgsql_testing infrastructure issue — do not re-widen
 
 ### Pending Todos
 
@@ -213,6 +218,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-19T03:04:49.255Z
-Stopped at: Completed 15-09-PLAN.md (Task 1 shipped; Task 2 SC-4 smoke deferred to 15-HUMAN-UAT.md)
+Last session: 2026-04-19T17:29:34.722Z
+Stopped at: Completed 15-10-PLAN.md
 Resume file: None

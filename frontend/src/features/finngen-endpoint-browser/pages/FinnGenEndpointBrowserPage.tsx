@@ -15,8 +15,6 @@ import type {
   CoverageBucket,
   EndpointDetail,
   EndpointGeneration,
-  EndpointGenerationRun,
-  EndpointGwasRun,
   EndpointSummary,
 } from "../api";
 import { CoverageProfileBadge } from "../components/CoverageProfileBadge";
@@ -671,14 +669,16 @@ function EndpointDetailBody({ d }: { d: EndpointDetail }) {
             3. Run GWAS (dispatch panel, collapsed by default)
           The legacy inline `d.generations.map(…)` block is intentionally gone;
           `d.generations` remains for back-compat on list rows elsewhere. */}
+      {/* Phase 15 drawer sections — order per UI-SPEC §D-22:
+          1. Generation history (grouped-by-source disclosures)
+          2. GWAS runs (flat newest-first)
+          3. Run GWAS (dispatch panel, collapsed by default)
+          `d` is typed as EndpointDetailWithPhase15 at the hook layer (WR-07 fix);
+          the legacy inline cast is gone. The Phase 15 arrays are optional so a
+          pre-Phase-15 server response still renders with empty sections. */}
       {(() => {
-        const phase15 = d as EndpointDetail & {
-          generation_runs?: EndpointGenerationRun[];
-          gwas_runs?: EndpointGwasRun[];
-          gwas_ready_sources?: string[];
-        };
-        const generationRuns = phase15.generation_runs ?? [];
-        const gwasRuns = phase15.gwas_runs ?? [];
+        const generationRuns = d.generation_runs ?? [];
+        const gwasRuns = d.gwas_runs ?? [];
         return (
           <>
             <GenerationHistorySection
@@ -688,7 +688,7 @@ function EndpointDetailBody({ d }: { d: EndpointDetail }) {
               runs={generationRuns}
             />
             <GwasRunsSection endpointName={d.name} runs={gwasRuns} />
-            <RunGwasPanel endpoint={phase15} generationRuns={generationRuns} />
+            <RunGwasPanel endpoint={d} generationRuns={generationRuns} />
           </>
         );
       })()}
