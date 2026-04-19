@@ -15,6 +15,7 @@ on:
       - ".github/workflows/build-rust-installer-gui.yml"
       - ".env.example"
       - "backend/.env.example"
+      - "docker-compose.community.yml"
       - "docker-compose.yml"
       - "docker/**"
       - "frontend/.env.example"
@@ -119,6 +120,12 @@ jobs:
         run: |
           python -m py_compile install.py installer/bundle_manifest.py installer/contract.py installer/data_probe.py installer/webapp.py installer/docker_ops.py
           python -m py_compile installer/build_cosmo.py
+          if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+            cp backend/.env.example backend/.env
+            docker compose -f docker-compose.community.yml config >/dev/null
+          else
+            echo "Docker Compose not available on this runner; skipping runtime compose config validation."
+          fi
           python install.py --contract validate --community --contract-redact --contract-pretty
           python install.py --contract plan --community --contract-redact --contract-pretty >/dev/null
           python install.py --contract data-check --community --contract-redact --contract-pretty >/dev/null

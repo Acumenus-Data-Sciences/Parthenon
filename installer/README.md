@@ -114,7 +114,7 @@ python3 install.py --contract bundle-manifest --community --contract-redact
 file list, sizes, SHA-256 hashes, validation results, and bundle digest. It is
 the source of truth for the Rust app's no-repo bootstrapper work.
 
-Create and verify the source-backed installer bundle artifact with:
+Create and verify the Community runtime installer bundle artifact with:
 
 ```bash
 python3 -m installer.bundle_manifest --validate --bundle-dir dist/installer-bundle
@@ -129,6 +129,9 @@ python3 -m installer.bundle_manifest \
 
 The Rust desktop installer can consume the resulting `.tar.gz` from a local
 path or URL, verify it, and run the Python installer from the extracted bundle.
+Bundle-based installs set `PARTHENON_RUNTIME_PROFILE=community-release`, which
+selects `docker-compose.community.yml` and uses prebuilt Community runtime
+images instead of backend/frontend source bind mounts.
 
 ## Modules
 

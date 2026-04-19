@@ -185,10 +185,11 @@ def _check_disk() -> CheckResult:
 
 
 def _check_repo() -> CheckResult:
-    compose = utils.REPO_ROOT / "docker-compose.yml"
+    compose_name = utils.active_compose_file()
+    compose = utils.REPO_ROOT / compose_name
     if compose.exists():
         return CheckResult("Repo complete", "ok", str(utils.REPO_ROOT))
-    return CheckResult("Repo complete", "fail", "docker-compose.yml not found — run from Parthenon repo root")
+    return CheckResult("Repo complete", "fail", f"{compose_name} not found — run from Parthenon repo root")
 
 
 def _check_existing_install() -> CheckResult:

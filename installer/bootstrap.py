@@ -36,17 +36,21 @@ def run_laravel_bootstrap() -> None:
     console.rule("[bold]Phase 4 — Laravel Bootstrap[/bold]")
 
     # Step 1 — composer install
-    # The PHP Dockerfile installs vendor/ into the image, but docker-compose bind-mounts
-    # ./backend:/var/www/html at runtime, which shadows the image's vendor/. On a fresh
-    # clone the host backend/vendor/ doesn't exist, so artisan fails immediately.
-    console.print("[bold]Step 1/7:[/bold] Installing PHP dependencies (composer install)…")
-    rc = utils.run_stream(
-        ["docker", "compose", "exec", "-T", "php",
-         "composer", "install", "--no-dev", "--optimize-autoloader", "--no-interaction"]
-    )
-    if rc != 0:
-        console.print("[red]composer install failed.[/red]")
-        sys.exit(1)
+    # The PHP Dockerfile installs vendor/ into the image. Source-backed installs
+    # bind-mount ./backend over that image path, so they still need composer
+    # install on a fresh checkout. Release-runtime installs keep the baked app
+    # and vendor tree from the image, so this step would only add network risk.
+    if utils.release_runtime_enabled():
+        console.print("[bold]Step 1/7:[/bold] PHP dependencies are packaged in the runtime image.")
+    else:
+        console.print("[bold]Step 1/7:[/bold] Installing PHP dependencies (composer install)…")
+        rc = utils.run_stream(
+            ["docker", "compose", "exec", "-T", "php",
+             "composer", "install", "--no-dev", "--optimize-autoloader", "--no-interaction"]
+        )
+        if rc != 0:
+            console.print("[red]composer install failed.[/red]")
+            sys.exit(1)
 
     # Step 2 — key:generate (skip if already set — re-generating would invalidate
     # encrypted DB data if Phase 4 is being resumed after a partial run).

@@ -49,6 +49,10 @@ def _clear_state() -> None:
 
 def _build_frontend() -> None:
     console.rule("[bold]Phase 6 — Frontend Build[/bold]")
+    if utils.release_runtime_enabled():
+        console.print("[dim]Using frontend assets packaged in the Community runtime image.[/dim]\n")
+        return
+
     console.print("  [cyan]▶[/cyan] Building React frontend via ./deploy.sh --frontend…")
     rc = utils.run_stream(
         ["env", "DEPLOY_SKIP_SMOKE=true", "bash", "./deploy.sh", "--frontend"]
@@ -147,8 +151,11 @@ def _print_summary(cfg: dict[str, Any]) -> None:
 
     next_steps = [
         f"  • Open {display_url} to log in",
-        "  • Run [bold]./deploy.sh[/bold] after code changes",
     ]
+    if utils.release_runtime_enabled():
+        next_steps.append("  • Update by downloading a newer installer release or pulling newer Community runtime images")
+    else:
+        next_steps.append("  • Run [bold]./deploy.sh[/bold] after code changes")
     if not cfg.get("vocab_zip_path"):
         next_steps.append(
             "  • [bold]Load OMOP vocabulary:[/bold] download from https://athena.ohdsi.org,\n"
