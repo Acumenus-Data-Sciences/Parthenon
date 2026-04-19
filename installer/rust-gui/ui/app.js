@@ -11,6 +11,9 @@ const dryRunEl = document.querySelector("#dry-run");
 const confirmEl = document.querySelector("#confirm-real-install");
 const windowsFields = document.querySelector("#windows-fields");
 const preflightBtn = document.querySelector("#preflight-btn");
+const sourceModeEl = document.querySelector("#source-mode");
+const repoPathField = document.querySelector("#repo-path-field");
+const bundleFields = document.querySelector("#bundle-fields");
 const cdmSetupEl = document.querySelector("#cdm-setup-mode");
 const cdmStateFields = document.querySelector("#cdm-state-fields");
 const cdmConnectionFields = document.querySelector("#cdm-connection-fields");
@@ -45,9 +48,14 @@ function readPayload() {
   const rawValue = (selector) => document.querySelector(selector)?.value || "";
   const checked = (selector) => document.querySelector(selector)?.checked || false;
   return {
+    source_mode: value("#source-mode"),
     repo_path: value("#repo-path"),
     wsl_distro: value("#wsl-distro"),
     wsl_repo_path: value("#wsl-repo-path"),
+    bundle_url: value("#bundle-url"),
+    bundle_archive_path: value("#bundle-archive-path"),
+    bundle_sha256: value("#bundle-sha256"),
+    bundle_install_dir: value("#bundle-install-dir"),
     admin_email: value("#admin-email"),
     admin_name: value("#admin-name"),
     admin_password: rawValue("#admin-password"),
@@ -86,9 +94,13 @@ function renderReview() {
 
   const data = payload.include_eunomia ? "Eunomia and Phenotype Library" : "No starter data";
   const mode = payload.dry_run ? "Test run only" : "Real install";
-  const destination = state.platform === "windows"
-    ? (payload.wsl_repo_path || payload.repo_path || "Select a checkout")
-    : (payload.repo_path || "Select a checkout");
+  const usesBundle = payload.source_mode === "Use installer bundle";
+  const source = usesBundle ? "Verified installer bundle" : "Existing checkout";
+  const destination = usesBundle
+    ? (payload.bundle_install_dir || payload.wsl_repo_path || "Installer cache")
+    : state.platform === "windows"
+      ? (payload.wsl_repo_path || payload.repo_path || "Select a checkout")
+      : (payload.repo_path || "Select a checkout");
   const dataTarget = payload.cdm_setup_mode === "Create local PostgreSQL OMOP database"
     ? "Local PostgreSQL"
     : `${payload.cdm_dialect || "Database"} · ${payload.cdm_database || "database not set"}`;
@@ -97,6 +109,7 @@ function renderReview() {
     : payload.cdm_existing_state;
 
   reviewEl.innerHTML = [
+    reviewRow("Source", source),
     reviewRow("Destination", destination),
     reviewRow("Admin", payload.admin_email || "admin@example.com"),
     reviewRow("URL", payload.app_url || "http://localhost"),
@@ -160,6 +173,7 @@ function hasFailedCheck() {
 
 function updateInstallButton() {
   renderReview();
+  updateSourceVisibility();
   updateDataSetupVisibility();
   installBtn.textContent = dryRunEl.checked ? "Run Test" : "Install Parthenon";
   installBtn.disabled = state.running
@@ -183,6 +197,12 @@ function updateDataSetupVisibility() {
   }
 }
 
+function updateSourceVisibility() {
+  const usesBundle = sourceModeEl.value === "Use installer bundle";
+  repoPathField.hidden = usesBundle;
+  bundleFields.hidden = !usesBundle;
+}
+
 async function invoke(name, payload) {
   if (!tauriCore) {
     throw new Error("Tauri API is not available. Run this UI inside the Rust desktop app.");
@@ -197,6 +217,8 @@ async function boot() {
     const data = await invoke("bootstrap", {});
     state.platform = data.platform || "";
     document.querySelector("#repo-path").value = data.repo_path || "";
+    document.querySelector("#bundle-url").value = data.bundle_url || "";
+    document.querySelector("#bundle-install-dir").value = data.bundle_install_dir || "";
     windowsFields.hidden = !data.windows;
     setStatus(`Ready on ${data.platform}${data.python ? ` with ${data.python}` : ""}`);
     renderReview();
@@ -224,7 +246,7 @@ async function runPreflight() {
   updateInstallButton();
   preflightBtn.disabled = true;
   setStatus("Checking system...");
-  preflightEl.textContent = "Checking Python, Docker, ports, and selected services.";
+  preflightEl.textContent = "Checking Python, Docker, installer source, ports, and selected services.";
   try {
     const checks = await invoke("validate_environment", { request: readPayload() });
     state.checks = checks;
@@ -288,5 +310,6 @@ dryRunEl.addEventListener("change", updateInstallButton);
 confirmEl.addEventListener("change", updateInstallButton);
 cdmSetupEl.addEventListener("change", updateInstallButton);
 vocabularySetupEl.addEventListener("change", updateInstallButton);
+sourceModeEl.addEventListener("change", updateInstallButton);
 
 boot();

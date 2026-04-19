@@ -17,6 +17,13 @@ Plan summary, dry run, validation, machine preflight, and OMOP data readiness
 checks use the Python installer contract so the desktop shell does not
 duplicate installer rules.
 
+The app can run from an existing Parthenon checkout or a verified installer
+bundle. In bundle mode it accepts a bundle URL or local `.tar.gz`, verifies the
+optional archive SHA-256, extracts the bundle into the installer cache, validates
+every file against `installer-bundle-manifest.json`, and then runs the Python
+installer from that verified directory. On Windows, bundle mode prepares the
+bundle inside WSL from a URL before launching the Linux installer path.
+
 ## Data Setup Direction
 
 The next installer revision treats database setup as a first-class wizard path.
@@ -32,9 +39,10 @@ non-destructive OMOP checks, including PostgreSQL probes when possible and clear
 warnings for DBMSs that will route through the HADES DatabaseConnector helper.
 The shared contract also exposes a versioned bundle manifest with file
 checksums as the foundation for no-repo downloads, and the system check reports
-that bundle readiness without showing the raw manifest. OMOP DDL installation,
-Athena vocabulary import, and bundle download execution are tracked in
-`docs/devlog/process/rust-installer-v2-bootstrapper-todo.md`.
+that bundle readiness without showing the raw manifest. Bundle download and
+checksum verification are wired into the desktop installer. OMOP DDL
+installation, Athena vocabulary import, and full phase resume/rollback are
+tracked in `docs/devlog/process/rust-installer-v2-bootstrapper-todo.md`.
 
 ## Run
 

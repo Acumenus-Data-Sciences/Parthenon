@@ -1,8 +1,11 @@
+use flate2::read::GzDecoder;
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::{
     env, fs,
-    io::{BufRead, BufReader, Read, Write},
-    path::{Path, PathBuf},
+    fs::File,
+    io::{self, BufRead, BufReader, Read, Write},
+    path::{Component, Path, PathBuf},
     process::{Command, Stdio},
     sync::Mutex,
     thread,
@@ -21,6 +24,8 @@ struct BootstrapPayload {
     platform: String,
     python: Option<String>,
     windows: bool,
+    bundle_url: String,
+    bundle_install_dir: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -61,6 +66,21 @@ struct ContractManifestValidation {
 }
 
 #[derive(Debug, Deserialize)]
+struct InstallerBundleManifest {
+    bundle_name: String,
+    bundle_version: String,
+    bundle_digest: String,
+    files: Vec<InstallerBundleFile>,
+}
+
+#[derive(Debug, Deserialize)]
+struct InstallerBundleFile {
+    path: String,
+    size: u64,
+    sha256: String,
+}
+
+#[derive(Debug, Deserialize)]
 struct ContractPreflight {
     checks: Vec<ContractCheck>,
 }
@@ -87,9 +107,14 @@ struct InstallFinished {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 struct InstallRequest {
+    source_mode: String,
     repo_path: String,
     wsl_distro: Option<String>,
     wsl_repo_path: Option<String>,
+    bundle_url: String,
+    bundle_archive_path: String,
+    bundle_sha256: String,
+    bundle_install_dir: String,
     admin_email: String,
     admin_name: String,
     admin_password: String,
@@ -128,29 +153,49 @@ fn bootstrap() -> BootstrapPayload {
         platform: env::consts::OS.to_string(),
         python: resolve_python(),
         windows: cfg!(target_os = "windows"),
+        bundle_url: env::var("PARTHENON_INSTALLER_BUNDLE_URL").unwrap_or_default(),
+        bundle_install_dir: env::var("PARTHENON_INSTALLER_BUNDLE_DIR")
+            .ok()
+            .or_else(|| default_bundle_cache_dir().map(|path| path.to_string_lossy().to_string()))
+            .unwrap_or_default(),
     }
 }
 
 #[tauri::command]
 fn validate_environment(request: InstallRequest) -> Vec<CheckResult> {
-    match contract_validation_check(&request) {
-        Ok(validation_check) => match contract_preflight_checks(&request) {
+    let (contract_request, source_check) = match resolve_install_source(None, &request) {
+        Ok(resolved) => resolved,
+        Err(err) => {
+            let mut checks = fallback_environment_checks(&request);
+            checks.push(CheckResult::fail("Installer source", err));
+            return checks;
+        }
+    };
+
+    match contract_validation_check(&contract_request) {
+        Ok(validation_check) => match contract_preflight_checks(&contract_request) {
             Ok(mut checks) => {
                 checks.insert(0, validation_check);
-                match contract_bundle_manifest_check(&request) {
+                if let Some(source_check) = source_check {
+                    checks.insert(1, source_check);
+                }
+                match contract_bundle_manifest_check(&contract_request) {
                     Ok(bundle_check) => checks.insert(1, bundle_check),
                     Err(err) => checks.push(CheckResult::fail("Installer bundle", err)),
                 }
-                match contract_data_checks(&request) {
+                match contract_data_checks(&contract_request) {
                     Ok(mut data_checks) => checks.append(&mut data_checks),
                     Err(err) => checks.push(CheckResult::fail("OMOP data readiness", err)),
                 }
                 checks
             }
             Err(err) => {
-                let mut checks = fallback_environment_checks(&request);
+                let mut checks = fallback_environment_checks(&contract_request);
                 checks.push(validation_check);
-                match contract_bundle_manifest_check(&request) {
+                if let Some(source_check) = source_check {
+                    checks.push(source_check);
+                }
+                match contract_bundle_manifest_check(&contract_request) {
                     Ok(bundle_check) => checks.push(bundle_check),
                     Err(err) => checks.push(CheckResult::fail("Installer bundle", err)),
                 }
@@ -159,10 +204,430 @@ fn validate_environment(request: InstallRequest) -> Vec<CheckResult> {
             }
         },
         Err(err) => {
-            let mut checks = fallback_environment_checks(&request);
+            let mut checks = fallback_environment_checks(&contract_request);
+            if let Some(source_check) = source_check {
+                checks.push(source_check);
+            }
             checks.push(CheckResult::fail("Python installer validation", err));
             checks
         }
+    }
+}
+
+fn resolve_install_source(
+    app: Option<&AppHandle>,
+    request: &InstallRequest,
+) -> Result<(InstallRequest, Option<CheckResult>), String> {
+    if !uses_installer_bundle(request) {
+        return Ok((request.clone(), None));
+    }
+
+    if cfg!(target_os = "windows") {
+        let prepared = prepare_wsl_bundle(app, request)?;
+        let mut resolved = request.clone();
+        resolved.wsl_repo_path = Some(prepared.clone());
+        return Ok((
+            resolved,
+            Some(CheckResult::pass(
+                "Installer source",
+                format!("Verified installer bundle in WSL at {prepared}"),
+            )),
+        ));
+    }
+
+    let prepared = prepare_local_bundle(app, request)?;
+    let mut resolved = request.clone();
+    resolved.repo_path = prepared.to_string_lossy().to_string();
+    Ok((
+        resolved,
+        Some(CheckResult::pass(
+            "Installer source",
+            format!("Verified installer bundle at {}", prepared.display()),
+        )),
+    ))
+}
+
+fn uses_installer_bundle(request: &InstallRequest) -> bool {
+    request.source_mode.trim() == "Use installer bundle"
+}
+
+fn prepare_local_bundle(
+    app: Option<&AppHandle>,
+    request: &InstallRequest,
+) -> Result<PathBuf, String> {
+    let cache_dir = local_bundle_cache_dir(request)?;
+    fs::create_dir_all(&cache_dir)
+        .map_err(|err| format!("Could not create installer bundle cache: {err}"))?;
+    emit_optional_log(app, "stdout", "Preparing installer bundle.");
+
+    let archive_path = if !request.bundle_archive_path.trim().is_empty() {
+        if looks_like_url(request.bundle_archive_path.trim()) {
+            return Err(
+                "Put bundle URLs in the Bundle URL field, not Local bundle archive.".to_string(),
+            );
+        }
+        PathBuf::from(request.bundle_archive_path.trim())
+    } else {
+        download_bundle_archive(app, request, &cache_dir)?
+    };
+
+    if !archive_path.is_file() {
+        return Err(format!(
+            "Installer bundle archive was not found: {}",
+            archive_path.display()
+        ));
+    }
+    verify_archive_checksum(&archive_path, request.bundle_sha256.trim())?;
+    emit_optional_log(app, "stdout", "Extracting installer bundle.");
+
+    let staging = unique_temp_path(&cache_dir, "extracting");
+    fs::create_dir_all(&staging)
+        .map_err(|err| format!("Could not create extraction directory: {err}"))?;
+    if let Err(err) = extract_bundle_archive(&archive_path, &staging) {
+        let _ = fs::remove_dir_all(&staging);
+        return Err(err);
+    }
+
+    let manifest = read_extracted_bundle_manifest(&staging)?;
+    validate_extracted_bundle(&staging, &manifest)?;
+    let digest = short_digest(&manifest.bundle_digest);
+    let final_dir = cache_dir.join(format!(
+        "{}-{}-{}",
+        manifest.bundle_name, manifest.bundle_version, digest
+    ));
+
+    if final_dir.exists() {
+        let existing_manifest = read_extracted_bundle_manifest(&final_dir)?;
+        validate_extracted_bundle(&final_dir, &existing_manifest)?;
+        let _ = fs::remove_dir_all(&staging);
+        emit_optional_log(
+            app,
+            "stdout",
+            &format!(
+                "Using verified installer bundle at {}.",
+                final_dir.display()
+            ),
+        );
+        return Ok(final_dir);
+    }
+
+    fs::rename(&staging, &final_dir)
+        .map_err(|err| format!("Could not move verified installer bundle into place: {err}"))?;
+    emit_optional_log(
+        app,
+        "stdout",
+        &format!("Verified installer bundle at {}.", final_dir.display()),
+    );
+    Ok(final_dir)
+}
+
+fn prepare_wsl_bundle(app: Option<&AppHandle>, request: &InstallRequest) -> Result<String, String> {
+    let bundle_url = request.bundle_url.trim();
+    if bundle_url.is_empty() {
+        return Err("Windows bundle installs need a bundle URL that WSL can download.".to_string());
+    }
+    if !request.bundle_archive_path.trim().is_empty() {
+        return Err(
+            "Windows bundle installs currently use a bundle URL; local Windows archive paths cannot be mounted safely yet."
+                .to_string(),
+        );
+    }
+    let install_dir = request
+        .wsl_repo_path
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .map(shell_quote)
+        .unwrap_or_else(|| "\"$HOME/parthenon-installer\"".to_string());
+    let sha = request.bundle_sha256.trim();
+    emit_optional_log(app, "stdout", "Preparing installer bundle inside WSL.");
+
+    let script = format!(
+        r#"set -e
+install_dir={install_dir}
+bundle_url={bundle_url}
+expected_sha={expected_sha}
+mkdir -p "$install_dir/downloads"
+archive="$install_dir/downloads/parthenon-community-bootstrap.tar.gz"
+python3 - "$bundle_url" "$archive" <<'PARTHENON_DOWNLOAD'
+import sys
+import urllib.request
+
+url, dest = sys.argv[1], sys.argv[2]
+urllib.request.urlretrieve(url, dest)
+PARTHENON_DOWNLOAD
+if [ -n "$expected_sha" ]; then
+python3 - "$archive" "$expected_sha" <<'PARTHENON_SHA'
+import hashlib
+import sys
+
+archive, expected = sys.argv[1], sys.argv[2].lower()
+digest = hashlib.sha256()
+with open(archive, "rb") as handle:
+    for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+        digest.update(chunk)
+actual = digest.hexdigest()
+if actual != expected:
+    raise SystemExit(f"bundle checksum mismatch: expected {{expected}}, got {{actual}}")
+PARTHENON_SHA
+fi
+extract_dir="$install_dir/current"
+tmp_dir="$install_dir/extracting.$$"
+rm -rf "$tmp_dir"
+mkdir -p "$tmp_dir"
+tar -xzf "$archive" -C "$tmp_dir"
+(cd "$tmp_dir" && python3 -m installer.bundle_manifest \
+  --manifest "$tmp_dir/installer-bundle-manifest.json" \
+  --repo-root "$tmp_dir" \
+  --validate >/dev/null)
+rm -rf "$extract_dir"
+mv "$tmp_dir" "$extract_dir"
+echo "PARTHENON_BUNDLE_ROOT=$extract_dir"
+"#,
+        install_dir = install_dir,
+        bundle_url = shell_quote(bundle_url),
+        expected_sha = shell_quote(sha),
+    );
+
+    let mut command = Command::new("wsl.exe");
+    if let Some(distro) = request
+        .wsl_distro
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+    {
+        command.args(["-d", distro]);
+    }
+    let output = command
+        .args(["bash", "-lc", &script])
+        .output()
+        .map_err(|err| format!("Could not prepare installer bundle inside WSL: {err}"))?;
+    if !output.status.success() {
+        return Err(format!(
+            "WSL bundle preparation failed: {}",
+            String::from_utf8_lossy(&output.stderr).trim()
+        ));
+    }
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    stdout
+        .lines()
+        .find_map(|line| {
+            line.strip_prefix("PARTHENON_BUNDLE_ROOT=")
+                .map(str::to_string)
+        })
+        .ok_or_else(|| "WSL did not report the prepared installer bundle path".to_string())
+}
+
+fn local_bundle_cache_dir(request: &InstallRequest) -> Result<PathBuf, String> {
+    if !request.bundle_install_dir.trim().is_empty() {
+        return Ok(PathBuf::from(request.bundle_install_dir.trim()));
+    }
+    default_bundle_cache_dir()
+        .ok_or_else(|| "Could not determine an installer bundle cache directory".to_string())
+}
+
+fn default_bundle_cache_dir() -> Option<PathBuf> {
+    env::var("PARTHENON_INSTALLER_BUNDLE_DIR")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+        .map(PathBuf::from)
+        .or_else(|| {
+            let mut path = env::temp_dir();
+            path.push("parthenon-installer");
+            path.push("bundles");
+            Some(path)
+        })
+}
+
+fn download_bundle_archive(
+    app: Option<&AppHandle>,
+    request: &InstallRequest,
+    cache_dir: &Path,
+) -> Result<PathBuf, String> {
+    let url = request.bundle_url.trim();
+    if url.is_empty() {
+        return Err("Provide either a bundle URL or a local bundle archive path.".to_string());
+    }
+    if !looks_like_url(url) {
+        return Err("Bundle URL must start with http:// or https://.".to_string());
+    }
+
+    let archive_path = cache_dir.join("parthenon-community-bootstrap.tar.gz");
+    emit_optional_log(
+        app,
+        "stdout",
+        &format!("Downloading installer bundle from {url}."),
+    );
+    let response = ureq::get(url)
+        .call()
+        .map_err(|err| format!("Could not download installer bundle: {err}"))?;
+    let mut reader = response.into_reader();
+    let mut file = File::create(&archive_path)
+        .map_err(|err| format!("Could not create installer bundle archive: {err}"))?;
+    io::copy(&mut reader, &mut file)
+        .map_err(|err| format!("Could not save installer bundle archive: {err}"))?;
+    Ok(archive_path)
+}
+
+fn verify_archive_checksum(path: &Path, expected: &str) -> Result<(), String> {
+    if expected.is_empty() {
+        return Ok(());
+    }
+    let actual = sha256_file(path)?;
+    if actual.eq_ignore_ascii_case(expected) {
+        Ok(())
+    } else {
+        Err(format!(
+            "Installer bundle checksum mismatch: expected {expected}, got {actual}"
+        ))
+    }
+}
+
+fn extract_bundle_archive(archive_path: &Path, destination: &Path) -> Result<(), String> {
+    let file = File::open(archive_path)
+        .map_err(|err| format!("Could not open installer bundle archive: {err}"))?;
+    let decoder = GzDecoder::new(file);
+    let mut archive = tar::Archive::new(decoder);
+    for entry in archive
+        .entries()
+        .map_err(|err| format!("Could not read installer bundle archive: {err}"))?
+    {
+        let mut entry =
+            entry.map_err(|err| format!("Could not read installer bundle entry: {err}"))?;
+        let relative_path = entry
+            .path()
+            .map_err(|err| format!("Could not read installer bundle entry path: {err}"))?
+            .to_path_buf();
+        let target = safe_bundle_path(destination, &relative_path)?;
+        let kind = entry.header().entry_type();
+        if kind.is_dir() {
+            fs::create_dir_all(&target)
+                .map_err(|err| format!("Could not create bundle directory: {err}"))?;
+        } else if kind.is_file() {
+            if let Some(parent) = target.parent() {
+                fs::create_dir_all(parent)
+                    .map_err(|err| format!("Could not create bundle directory: {err}"))?;
+            }
+            entry
+                .unpack(&target)
+                .map_err(|err| format!("Could not extract installer bundle file: {err}"))?;
+        } else {
+            return Err(format!(
+                "Installer bundle contains an unsupported entry: {}",
+                relative_path.display()
+            ));
+        }
+    }
+    Ok(())
+}
+
+fn read_extracted_bundle_manifest(root: &Path) -> Result<InstallerBundleManifest, String> {
+    let manifest_path = root.join("installer-bundle-manifest.json");
+    let payload = fs::read_to_string(&manifest_path)
+        .map_err(|err| format!("Could not read installer bundle manifest: {err}"))?;
+    serde_json::from_str(&payload)
+        .map_err(|err| format!("Could not parse installer bundle manifest: {err}"))
+}
+
+fn validate_extracted_bundle(
+    root: &Path,
+    manifest: &InstallerBundleManifest,
+) -> Result<(), String> {
+    for file in &manifest.files {
+        let path = safe_bundle_path(root, Path::new(&file.path))?;
+        if !path.is_file() {
+            return Err(format!("Installer bundle is missing {}", file.path));
+        }
+        let actual_size = path
+            .metadata()
+            .map_err(|err| format!("Could not inspect bundle file {}: {err}", file.path))?
+            .len();
+        if actual_size != file.size {
+            return Err(format!(
+                "Installer bundle file size mismatch for {}: expected {}, got {}",
+                file.path, file.size, actual_size
+            ));
+        }
+        let actual_sha = sha256_file(&path)?;
+        if !actual_sha.eq_ignore_ascii_case(&file.sha256) {
+            return Err(format!(
+                "Installer bundle checksum mismatch for {}",
+                file.path
+            ));
+        }
+    }
+    if !root.join("install.py").is_file() {
+        return Err("Verified bundle does not contain install.py".to_string());
+    }
+    Ok(())
+}
+
+fn safe_bundle_path(root: &Path, relative_path: &Path) -> Result<PathBuf, String> {
+    let mut clean = PathBuf::new();
+    for component in relative_path.components() {
+        match component {
+            Component::Normal(value) => clean.push(value),
+            Component::CurDir => {}
+            Component::ParentDir | Component::RootDir | Component::Prefix(_) => {
+                return Err(format!(
+                    "Installer bundle contains an unsafe path: {}",
+                    relative_path.display()
+                ));
+            }
+        }
+    }
+    if clean.as_os_str().is_empty() {
+        return Err("Installer bundle contains an empty path".to_string());
+    }
+    Ok(root.join(clean))
+}
+
+fn sha256_file(path: &Path) -> Result<String, String> {
+    let mut file = File::open(path)
+        .map_err(|err| format!("Could not open {} for checksum: {err}", path.display()))?;
+    let mut digest = Sha256::new();
+    let mut buffer = [0_u8; 1024 * 64];
+    loop {
+        let read = file
+            .read(&mut buffer)
+            .map_err(|err| format!("Could not read {} for checksum: {err}", path.display()))?;
+        if read == 0 {
+            break;
+        }
+        digest.update(&buffer[..read]);
+    }
+    Ok(hex_digest(&digest.finalize()))
+}
+
+fn hex_digest(bytes: &[u8]) -> String {
+    const HEX: &[u8; 16] = b"0123456789abcdef";
+    let mut out = String::with_capacity(bytes.len() * 2);
+    for byte in bytes {
+        out.push(HEX[(byte >> 4) as usize] as char);
+        out.push(HEX[(byte & 0x0f) as usize] as char);
+    }
+    out
+}
+
+fn unique_temp_path(parent: &Path, label: &str) -> PathBuf {
+    let timestamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|duration| duration.as_nanos())
+        .unwrap_or_default();
+    parent.join(format!("{label}-{}-{timestamp}", std::process::id()))
+}
+
+fn short_digest(value: &str) -> String {
+    value.chars().take(12).collect()
+}
+
+fn looks_like_url(value: &str) -> bool {
+    value.starts_with("https://") || value.starts_with("http://")
+}
+
+fn emit_optional_log(app: Option<&AppHandle>, stream: &str, message: &str) {
+    if let Some(app) = app {
+        emit_log(app, stream, message);
     }
 }
 
@@ -170,7 +635,14 @@ fn fallback_environment_checks(request: &InstallRequest) -> Vec<CheckResult> {
     let mut checks = Vec::new();
 
     if cfg!(target_os = "windows") {
-        if request.repo_path.trim().is_empty()
+        if uses_installer_bundle(request) {
+            if request.bundle_url.trim().is_empty() {
+                checks.push(CheckResult::fail(
+                    "Installer bundle",
+                    "Provide a bundle URL that WSL can download",
+                ));
+            }
+        } else if request.repo_path.trim().is_empty()
             && request
                 .wsl_repo_path
                 .as_deref()
@@ -216,7 +688,11 @@ fn fallback_environment_checks(request: &InstallRequest) -> Vec<CheckResult> {
             ));
         }
     } else {
-        checks.push(local_repo_check(request.repo_path.trim()));
+        if uses_installer_bundle(request) {
+            checks.push(bundle_source_field_check(request));
+        } else {
+            checks.push(local_repo_check(request.repo_path.trim()));
+        }
         checks.push(match resolve_python() {
             Some(python) => command_check("Python", &python, &["--version"]),
             None => CheckResult::fail("Python", "python3 or python was not found on PATH"),
@@ -230,6 +706,17 @@ fn fallback_environment_checks(request: &InstallRequest) -> Vec<CheckResult> {
     }
 
     checks
+}
+
+fn bundle_source_field_check(request: &InstallRequest) -> CheckResult {
+    if request.bundle_archive_path.trim().is_empty() && request.bundle_url.trim().is_empty() {
+        CheckResult::fail(
+            "Installer bundle",
+            "Provide a bundle URL or local bundle archive path",
+        )
+    } else {
+        CheckResult::pass("Installer bundle", "Installer bundle source is configured")
+    }
 }
 
 fn local_repo_check(repo_path: &str) -> CheckResult {
@@ -250,7 +737,8 @@ fn local_repo_check(repo_path: &str) -> CheckResult {
 
 #[tauri::command]
 fn preview_defaults(request: InstallRequest) -> Result<String, String> {
-    install_summary_text(&request)
+    let (resolved_request, _) = resolve_install_source(None, &request)?;
+    install_summary_text(&resolved_request)
 }
 
 #[tauri::command]
@@ -302,13 +790,15 @@ fn start_install(
 }
 
 fn run_install(app: AppHandle, request: InstallRequest) -> Result<(), String> {
+    let (resolved_request, _) = resolve_install_source(Some(&app), &request)?;
+
     if request.dry_run {
         emit_log(
             &app,
             "stdout",
             "Test run selected. No files were changed and no Docker services were started.",
         );
-        let summary = install_summary_text(&request)?;
+        let summary = install_summary_text(&resolved_request)?;
         for line in summary.lines() {
             emit_log(&app, "stdout", line);
         }
@@ -323,11 +813,11 @@ fn run_install(app: AppHandle, request: InstallRequest) -> Result<(), String> {
         return Ok(());
     }
 
-    let defaults_json = contract_defaults_json(&request, false)?;
+    let defaults_json = contract_defaults_json(&resolved_request, false)?;
     let mut command_plan = if cfg!(target_os = "windows") {
-        build_windows_wsl_command(&request, &defaults_json)?
+        build_windows_wsl_command(&resolved_request, &defaults_json)?
     } else {
-        build_local_command(&request, &defaults_json)?
+        build_local_command(&resolved_request, &defaults_json)?
     };
 
     emit_log(
@@ -1091,11 +1581,82 @@ fn main() {
 mod tests {
     use super::*;
 
+    fn test_temp_dir(label: &str) -> PathBuf {
+        let timestamp = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("system clock")
+            .as_nanos();
+        let path = env::temp_dir().join(format!(
+            "parthenon-installer-test-{label}-{}-{timestamp}",
+            std::process::id()
+        ));
+        fs::create_dir_all(&path).expect("test temp dir");
+        path
+    }
+
+    fn write_test_bundle(root: &Path) -> Result<(PathBuf, String), String> {
+        let install_py = b"print('hello from bundle')\n";
+        let install_sha = sha256_bytes(install_py);
+        let manifest = serde_json::json!({
+            "bundle_name": "parthenon-community-bootstrap",
+            "bundle_version": "0.1.0-test",
+            "bundle_digest": install_sha.clone(),
+            "files": [
+                {
+                    "path": "install.py",
+                    "size": install_py.len(),
+                    "sha256": install_sha
+                }
+            ]
+        });
+        let manifest_bytes = serde_json::to_vec_pretty(&manifest).map_err(|err| err.to_string())?;
+        let archive_path = root.join("bundle.tar.gz");
+        let archive_file = File::create(&archive_path).map_err(|err| err.to_string())?;
+        let encoder = flate2::write::GzEncoder::new(archive_file, flate2::Compression::default());
+        let mut builder = tar::Builder::new(encoder);
+        append_tar_file(&mut builder, "install.py", install_py)?;
+        append_tar_file(
+            &mut builder,
+            "installer-bundle-manifest.json",
+            &manifest_bytes,
+        )?;
+        builder.finish().map_err(|err| err.to_string())?;
+        let encoder = builder.into_inner().map_err(|err| err.to_string())?;
+        encoder.finish().map_err(|err| err.to_string())?;
+        let archive_sha = sha256_file(&archive_path)?;
+        Ok((archive_path, archive_sha))
+    }
+
+    fn append_tar_file<W: Write>(
+        builder: &mut tar::Builder<W>,
+        path: &str,
+        payload: &[u8],
+    ) -> Result<(), String> {
+        let mut header = tar::Header::new_gnu();
+        header.set_size(payload.len() as u64);
+        header.set_mode(0o644);
+        header.set_cksum();
+        builder
+            .append_data(&mut header, path, payload)
+            .map_err(|err| err.to_string())
+    }
+
+    fn sha256_bytes(payload: &[u8]) -> String {
+        let mut digest = Sha256::new();
+        digest.update(payload);
+        hex_digest(&digest.finalize())
+    }
+
     fn request() -> InstallRequest {
         InstallRequest {
+            source_mode: "Use existing checkout".to_string(),
             repo_path: "/tmp/Parthenon".to_string(),
             wsl_distro: None,
             wsl_repo_path: None,
+            bundle_url: "".to_string(),
+            bundle_archive_path: "".to_string(),
+            bundle_sha256: "".to_string(),
+            bundle_install_dir: "".to_string(),
             admin_email: "admin@example.com".to_string(),
             admin_name: "Admin".to_string(),
             admin_password: "secret-password".to_string(),
@@ -1215,6 +1776,64 @@ mod tests {
 
         cleanup_temp_file(Some(first));
         cleanup_temp_file(Some(second));
+    }
+
+    #[test]
+    fn local_bundle_archive_resolves_to_verified_install_root() {
+        let temp_root = test_temp_dir("bundle-resolve");
+        let source_root = temp_root.join("source");
+        let cache_root = temp_root.join("cache");
+        fs::create_dir_all(&source_root).expect("source root");
+        fs::create_dir_all(&cache_root).expect("cache root");
+        let (archive, archive_sha) = write_test_bundle(&source_root).expect("test bundle");
+        let mut request = request();
+        request.source_mode = "Use installer bundle".to_string();
+        request.bundle_archive_path = archive.to_string_lossy().to_string();
+        request.bundle_sha256 = archive_sha;
+        request.bundle_install_dir = cache_root.to_string_lossy().to_string();
+
+        let (resolved, source_check) =
+            resolve_install_source(None, &request).expect("resolved bundle");
+        let resolved_root = PathBuf::from(&resolved.repo_path);
+
+        assert!(source_check
+            .expect("source check")
+            .detail
+            .contains("Verified"));
+        assert!(resolved_root.join("install.py").is_file());
+        assert!(resolved_root
+            .join("installer-bundle-manifest.json")
+            .is_file());
+
+        let _ = fs::remove_dir_all(temp_root);
+    }
+
+    #[test]
+    fn local_bundle_archive_rejects_wrong_archive_checksum() {
+        let temp_root = test_temp_dir("bundle-wrong-sha");
+        let source_root = temp_root.join("source");
+        let cache_root = temp_root.join("cache");
+        fs::create_dir_all(&source_root).expect("source root");
+        let (archive, _) = write_test_bundle(&source_root).expect("test bundle");
+        let mut request = request();
+        request.source_mode = "Use installer bundle".to_string();
+        request.bundle_archive_path = archive.to_string_lossy().to_string();
+        request.bundle_sha256 = "0".repeat(64);
+        request.bundle_install_dir = cache_root.to_string_lossy().to_string();
+
+        let error = resolve_install_source(None, &request).expect_err("checksum failure");
+
+        assert!(error.contains("checksum mismatch"));
+        let _ = fs::remove_dir_all(temp_root);
+    }
+
+    #[test]
+    fn bundle_paths_reject_parent_traversal() {
+        let root = PathBuf::from("/tmp/parthenon-bundle");
+
+        assert!(safe_bundle_path(&root, Path::new("../install.py")).is_err());
+        assert!(safe_bundle_path(&root, Path::new("/tmp/install.py")).is_err());
+        assert!(safe_bundle_path(&root, Path::new("install.py")).is_ok());
     }
 
     #[test]

@@ -26,19 +26,46 @@
           <section class="form-section">
             <div>
               <h2>Workspace</h2>
-              <p>Use the Parthenon checkout folder.</p>
+              <p>Use an existing checkout, or use a verified installer bundle.</p>
             </div>
-            <label>
-              Parthenon repo path
-              <input id="repo-path" name="repo_path" autocomplete="off" />
-            </label>
+            <div class="field-grid">
+              <label>
+                Install source
+                <select id="source-mode" name="source_mode">
+                  <option>Use existing checkout</option>
+                  <option>Use installer bundle</option>
+                </select>
+              </label>
+              <label id="repo-path-field">
+                Parthenon repo path
+                <input id="repo-path" name="repo_path" autocomplete="off" />
+              </label>
+            </div>
+            <div id="bundle-fields" class="field-grid" hidden>
+              <label>
+                Bundle URL
+                <input id="bundle-url" name="bundle_url" placeholder="https://github.com/.../parthenon-community-bootstrap.tar.gz" autocomplete="off" />
+              </label>
+              <label>
+                Local bundle archive
+                <input id="bundle-archive-path" name="bundle_archive_path" placeholder="/path/to/parthenon-community-bootstrap.tar.gz" autocomplete="off" />
+              </label>
+              <label>
+                Bundle SHA-256
+                <input id="bundle-sha256" name="bundle_sha256" placeholder="Optional archive checksum" autocomplete="off" />
+              </label>
+              <label>
+                Install folder
+                <input id="bundle-install-dir" name="bundle_install_dir" placeholder="Leave blank to use the installer cache" autocomplete="off" />
+              </label>
+            </div>
             <div id="windows-fields" class="windows-fields" hidden>
               <label>
                 WSL distro
                 <input id="wsl-distro" name="wsl_distro" placeholder="Ubuntu-24.04" autocomplete="off" />
               </label>
               <label>
-                WSL repo path
+                WSL install path
                 <input id="wsl-repo-path" name="wsl_repo_path" placeholder="/home/user/Parthenon" autocomplete="off" />
               </label>
             </div>

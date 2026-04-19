@@ -127,6 +127,9 @@ python3 -m installer.bundle_manifest \
   --validate
 ```
 
+The Rust desktop installer can consume the resulting `.tar.gz` from a local
+path or URL, verify it, and run the Python installer from the extracted bundle.
+
 ## Modules
 
 - `bootstrap.py`

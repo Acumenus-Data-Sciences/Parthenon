@@ -17,9 +17,9 @@ target, and guide vocabulary loading without requiring a repo checkout.
       phases, and DBMS support tiers.
 - [x] Build and validate a source-backed installer bundle artifact in CI from
       the manifest.
-- [ ] Download a versioned installer bundle containing only required compose
+- [x] Download a versioned installer bundle containing only required compose
       files, templates, helper scripts, and manifests.
-- [ ] Verify downloaded installer bundle checksums before running any phase.
+- [x] Verify downloaded installer bundle checksums before running any phase.
 - [ ] Keep technical JSON and internal config files behind advanced details.
 
 ## Data Setup Paths
@@ -56,6 +56,8 @@ target, and guide vocabulary loading without requiring a repo checkout.
       plan, DBMS support, phase definitions, and health checks.
 - [ ] Add Rust phase state: preflight, download, verify, configure,
       prepare-data-target, start-services, health-check, finalize.
+- [x] Add Rust install-source mode for existing checkout versus verified
+      installer bundle.
 - [x] Show the manifest-backed installer bundle readiness check in the Rust
       system check without exposing JSON.
 - [ ] Add resume/rollback for each phase.
