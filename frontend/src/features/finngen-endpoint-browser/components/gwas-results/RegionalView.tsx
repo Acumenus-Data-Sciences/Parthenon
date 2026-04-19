@@ -49,8 +49,8 @@ export function RegionalView({
     return { start: rawStart, end: rawStart + window };
   }, [center]);
 
-  const regionQuery = useManhattanRegion(runId, chrom, start, end);
-  const genesQuery = useGencodeGenes(chrom, start, end);
+  const regionQuery = useManhattanRegion({ runId, chrom, start, end });
+  const genesQuery = useGencodeGenes({ chrom, start, end });
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const variants: RegionVariant[] = regionQuery.data?.variants ?? [];

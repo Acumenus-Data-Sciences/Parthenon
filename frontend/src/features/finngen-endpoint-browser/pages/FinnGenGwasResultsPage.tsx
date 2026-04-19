@@ -42,7 +42,12 @@ export default function FinnGenGwasResultsPage(): JSX.Element {
     null,
   );
 
-  const topVariantsQuery = useTopVariants(runId, "p_value", "asc", 50);
+  const topVariantsQuery = useTopVariants({
+    runId,
+    sort: "p_value",
+    dir: "asc",
+    limit: 50,
+  });
 
   if (runId === "" || name === "") {
     return (

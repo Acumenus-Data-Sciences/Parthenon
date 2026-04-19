@@ -8,6 +8,7 @@
 // consumers (GenomicPanel.tsx). Named export added for new callers per
 // global named-exports convention.
 import { useMemo, useRef, type MouseEvent } from "react";
+import type { ScaleLinear } from "d3";
 import { useThemeStore } from "@/stores/themeStore";
 import {
   MANHATTAN_MARGIN,
@@ -139,12 +140,8 @@ export function ManhattanPlot({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const theme = useThemeStore((state) => state.theme);
   const pointsRef = useRef<PreparedPoint[]>([]);
-  const xScaleRef = useRef<ReturnType<typeof import("d3").scaleLinear> | null>(
-    null,
-  );
-  const yScaleRef = useRef<ReturnType<typeof import("d3").scaleLinear> | null>(
-    null,
-  );
+  const xScaleRef = useRef<ScaleLinear<number, number> | null>(null);
+  const yScaleRef = useRef<ScaleLinear<number, number> | null>(null);
 
   const { points, chrBoundaries } = useMemo(() => prepareData(data), [data]);
 
