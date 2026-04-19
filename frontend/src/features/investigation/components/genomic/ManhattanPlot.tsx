@@ -1,20 +1,53 @@
-import { useEffect, useRef } from "react";
-import * as d3 from "d3";
+// Phase 16 (Plan 16-04) — refactored to delegate Canvas+d3 draw loop to
+// `useManhattanCanvas` hook. Catalog-upload consumers (legacy) still pass
+// `data: Array<{chr, pos, p}>` — `prepareData()` converts to PreparedPoint[].
+// Live GWAS-run consumers (FinnGenManhattanPanel) may pass `negLogP` directly
+// to skip re-computation, and set `preThinned` to bypass the 500k filter.
+//
+// Backward-compat contract: default export preserved for existing catalog
+// consumers (GenomicPanel.tsx). Named export added for new callers per
+// global named-exports convention.
+import { useMemo, useRef, type MouseEvent } from "react";
 import { useThemeStore } from "@/stores/themeStore";
+import {
+  MANHATTAN_MARGIN,
+  useManhattanCanvas,
+  type ChromosomeBoundary,
+  type PreparedPoint,
+} from "./useManhattanCanvas";
+
+export interface ManhattanPlotDataItem {
+  chr: string;
+  pos: number;
+  p: number;
+  /**
+   * Optional pre-computed `-log10(p)`. When provided, `prepareData` skips the
+   * Math.log10 step for this item. Phase 16 live GWAS-run consumers pass
+   * `neg_log_p` from the server to avoid redundant CPU work at 100k+ points.
+   */
+  negLogP?: number;
+}
 
 export interface ManhattanPlotProps {
-  data: Array<{ chr: string; pos: number; p: number }>;
+  data: ManhattanPlotDataItem[];
   significanceThreshold?: number;
   suggestiveThreshold?: number;
   width?: number;
   height?: number;
+  /**
+   * Legacy catalog-upload callback. Signature preserved for backward compat
+   * with `GenomicPanel.tsx`. New consumers should prefer `onPointClick`, which
+   * exposes the full PreparedPoint (including negLogP) for drawer wiring.
+   */
   onLocusClick?: (chr: string, pos: number) => void;
-}
-
-const MARGIN = { top: 30, right: 30, bottom: 50, left: 60 };
-
-function themeColor(styles: CSSStyleDeclaration, name: string, fallback: string): string {
-  return styles.getPropertyValue(name).trim() || fallback;
+  /** Receives the nearest PreparedPoint (≤5px canvas hit). Phase 16 peak-drawer entry. */
+  onPointClick?: (point: PreparedPoint) => void;
+  /**
+   * Bypass the client-side `negLogP < 1` thinning filter. Set to `true` when
+   * the payload has already been thinned server-side (Phase 16 /manhattan
+   * endpoint). Default `false` preserves legacy catalog-upload behavior.
+   */
+  preThinned?: boolean;
 }
 
 // Chromosome order: 1–22, X=23, Y=24
@@ -26,25 +59,15 @@ function chrToNum(chr: string): number {
   return isNaN(n) ? 25 : n;
 }
 
-function chrLabel(num: number): string {
-  if (num === 23) return "X";
-  if (num === 24) return "Y";
-  return String(num);
-}
-
-interface PreparedPoint {
-  chr: string;
-  chrNum: number;
-  pos: number;
-  p: number;
-  negLogP: number;
-  cumPos: number;
-}
-
-function prepareData(
-  raw: Array<{ chr: string; pos: number; p: number }>,
-): { points: PreparedPoint[]; chrBoundaries: Map<number, { start: number; end: number; mid: number }> } {
-  // Sort by chromosome then position
+/**
+ * Transform consumer-provided data into PreparedPoint[] with cumulative
+ * positions. Uses the item's `negLogP` when provided (Phase 16 fast path)
+ * or computes it from `p` (legacy catalog-upload path).
+ */
+function prepareData(raw: ManhattanPlotDataItem[]): {
+  points: PreparedPoint[];
+  chrBoundaries: Map<number, ChromosomeBoundary>;
+} {
   const sorted = [...raw].sort((a, b) => {
     const ca = chrToNum(a.chr);
     const cb = chrToNum(b.chr);
@@ -52,7 +75,6 @@ function prepareData(
     return a.pos - b.pos;
   });
 
-  // Compute per-chromosome max position
   const chrMaxPos = new Map<number, number>();
   for (const d of sorted) {
     const cn = chrToNum(d.chr);
@@ -60,14 +82,12 @@ function prepareData(
     if (d.pos > cur) chrMaxPos.set(cn, d.pos);
   }
 
-  // Sorted unique chromosome numbers
   const chrNums = Array.from(chrMaxPos.keys()).sort((a, b) => a - b);
 
-  // Cumulative offsets per chromosome
   const chrOffset = new Map<number, number>();
-  const chrBoundaries = new Map<number, { start: number; end: number; mid: number }>();
+  const chrBoundaries = new Map<number, ChromosomeBoundary>();
   let cumulative = 0;
-  const GAP = 2_000_000; // small gap between chromosomes
+  const GAP = 2_000_000;
   for (const cn of chrNums) {
     const len = (chrMaxPos.get(cn) ?? 1) + GAP;
     chrOffset.set(cn, cumulative);
@@ -82,13 +102,17 @@ function prepareData(
   const points: PreparedPoint[] = sorted.map((d) => {
     const cn = chrToNum(d.chr);
     const offset = chrOffset.get(cn) ?? 0;
-    const p = Math.max(d.p, 1e-300); // guard against log(0)
+    const p = Math.max(d.p, 1e-300);
+    const negLogP =
+      typeof d.negLogP === "number" && isFinite(d.negLogP)
+        ? d.negLogP
+        : -Math.log10(p);
     return {
       chr: d.chr,
       chrNum: cn,
       pos: d.pos,
       p,
-      negLogP: -Math.log10(p),
+      negLogP,
       cumPos: offset + d.pos,
     };
   });
@@ -96,235 +120,81 @@ function prepareData(
   return { points, chrBoundaries };
 }
 
-export default function ManhattanPlot({
+function formatPForAria(p: number): string {
+  if (!isFinite(p)) return "n/a";
+  if (p === 0) return "<1e-300";
+  return p.toExponential(2);
+}
+
+export function ManhattanPlot({
   data,
   significanceThreshold = 5e-8,
   suggestiveThreshold = 1e-5,
   width = 800,
   height = 400,
   onLocusClick,
+  onPointClick,
+  preThinned = false,
 }: ManhattanPlotProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const theme = useThemeStore((state) => state.theme);
-  // Store prepared data for click handling
   const pointsRef = useRef<PreparedPoint[]>([]);
-  const xScaleRef = useRef<d3.ScaleLinear<number, number> | null>(null);
-  const yScaleRef = useRef<d3.ScaleLinear<number, number> | null>(null);
+  const xScaleRef = useRef<ReturnType<typeof import("d3").scaleLinear> | null>(
+    null,
+  );
+  const yScaleRef = useRef<ReturnType<typeof import("d3").scaleLinear> | null>(
+    null,
+  );
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || data.length === 0) return;
+  const { points, chrBoundaries } = useMemo(() => prepareData(data), [data]);
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    // High-DPI support
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
-    ctx.scale(dpr, dpr);
-
-    const plotWidth = width - MARGIN.left - MARGIN.right;
-    const plotHeight = height - MARGIN.top - MARGIN.bottom;
-    const styles = getComputedStyle(document.documentElement);
-    const colorBg = themeColor(styles, "--surface-base", "#0E0E11");
-    const colorPrimary = themeColor(styles, "--primary", "#9B1B30");
-    const colorAccent = themeColor(styles, "--accent", "#C9A227");
-    const colorSuccess = themeColor(styles, "--success", "#2DD4BF");
-    const colorText = themeColor(styles, "--text-primary", "#d4d4d8");
-    const colorMuted = themeColor(styles, "--text-muted", "#71717a");
-    const colorAxis = themeColor(styles, "--border-default", "#52525b");
-    const colorSubtle = themeColor(styles, "--border-subtle", "#27272a");
-    const colorBand = themeColor(styles, "--surface-overlay", "#1A1A1F");
-
-    // --- Data preparation ---
-    const { points: allPoints, chrBoundaries } = prepareData(data);
-
-    // Performance thinning: for large datasets, skip non-significant low points
-    let points = allPoints;
-    if (allPoints.length > 500_000) {
-      points = allPoints.filter((d) => d.negLogP >= 1);
-    }
-    pointsRef.current = points;
-
+  // A11y floor (Q9 RESOLVED): describe the plot contents for screen readers.
+  // Computed once per data change; Canvas itself is non-interactive for AT.
+  const ariaLabel = useMemo(() => {
+    if (points.length === 0) return "Manhattan plot: no variants";
     const sigLine = -Math.log10(significanceThreshold);
-    const sugLine = -Math.log10(suggestiveThreshold);
-    const maxNegLogP = Math.max(d3.max(points, (d) => d.negLogP) ?? sigLine + 2, sigLine + 2);
-
-    // Cumulative total length
-    const chrNums = Array.from(chrBoundaries.keys()).sort((a, b) => a - b);
-    const totalCumLen = chrBoundaries.get(chrNums[chrNums.length - 1])?.end ?? 1;
-
-    const xScale = d3.scaleLinear().domain([0, totalCumLen]).range([0, plotWidth]);
-    const yScale = d3.scaleLinear().domain([0, maxNegLogP * 1.05]).range([plotHeight, 0]);
-    xScaleRef.current = xScale;
-    yScaleRef.current = yScale;
-
-    // --- Clear & background ---
-    ctx.fillStyle = colorBg;
-    ctx.fillRect(0, 0, width, height);
-
-    ctx.save();
-    ctx.translate(MARGIN.left, MARGIN.top);
-
-    // --- Chromosome separators and labels ---
-    ctx.font = "10px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillStyle = colorMuted;
-
-    for (const cn of chrNums) {
-      const bnd = chrBoundaries.get(cn)!;
-      const xStart = xScale(bnd.start);
-      const xEnd = xScale(bnd.end);
-      const xMid = xScale(bnd.mid);
-
-      // Alternate band shading
-      if (cn % 2 === 0) {
-        ctx.save();
-        ctx.globalAlpha = 0.35;
-        ctx.fillStyle = colorBand;
-        ctx.fillRect(xStart, 0, xEnd - xStart, plotHeight);
-        ctx.restore();
-        ctx.fillStyle = colorMuted;
-      }
-
-      // Chromosome separator line (right edge of each chr)
-      if (cn !== chrNums[chrNums.length - 1]) {
-        ctx.beginPath();
-        ctx.strokeStyle = colorSubtle;
-        ctx.lineWidth = 0.5;
-        ctx.moveTo(xEnd, 0);
-        ctx.lineTo(xEnd, plotHeight);
-        ctx.stroke();
-      }
-
-      // Chromosome label below x-axis
-      ctx.fillStyle = colorMuted;
-      ctx.fillText(chrLabel(cn), xMid, plotHeight + 18);
-    }
-
-    // --- Suggestive threshold line (gold, dashed) ---
-    const ySug = yScale(sugLine);
-    ctx.beginPath();
-    ctx.strokeStyle = colorAccent;
-    ctx.lineWidth = 1;
-    ctx.setLineDash([5, 4]);
-    ctx.moveTo(0, ySug);
-    ctx.lineTo(plotWidth, ySug);
-    ctx.stroke();
-
-    // --- Significance threshold line (crimson, dashed) ---
-    const ySig = yScale(sigLine);
-    ctx.beginPath();
-    ctx.strokeStyle = colorPrimary;
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([6, 4]);
-    ctx.moveTo(0, ySig);
-    ctx.lineTo(plotWidth, ySig);
-    ctx.stroke();
-
-    ctx.setLineDash([]);
-
-    // --- Data points ---
+    let gwsCount = 0;
+    let top: PreparedPoint | null = null;
     for (const pt of points) {
-      const x = xScale(pt.cumPos);
-      const y = yScale(pt.negLogP);
-
-      const aboveSig = pt.negLogP >= sigLine;
-      const aboveSug = pt.negLogP >= sugLine;
-
-      let color: string;
-      if (aboveSig) {
-        color = colorPrimary;
-      } else if (pt.chrNum % 2 === 1) {
-        color = colorSuccess;
-      } else {
-        color = colorMuted;
-      }
-
-      const radius = aboveSig ? 3 : aboveSug ? 2.5 : 2;
-
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, Math.PI * 2);
-      ctx.fillStyle = color;
-      if (aboveSig) {
-        ctx.globalAlpha = 1;
-      } else {
-        ctx.globalAlpha = 0.75;
-      }
-      ctx.fill();
-      ctx.globalAlpha = 1;
+      if (pt.negLogP >= sigLine) gwsCount += 1;
+      if (!top || pt.negLogP > top.negLogP) top = pt;
     }
+    const topStr = top
+      ? `top peak at chr${top.chr}:${top.pos.toLocaleString()}, p=${formatPForAria(top.p)}`
+      : "no peaks";
+    return `Manhattan plot: ${points.length.toLocaleString()} variants, ${gwsCount.toLocaleString()} genome-wide significant, ${topStr}`;
+  }, [points, significanceThreshold]);
 
-    // --- Y-axis ---
-    const yTicks = yScale.ticks(6);
-    ctx.strokeStyle = colorAxis;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(0, plotHeight);
-    ctx.stroke();
+  useManhattanCanvas(
+    {
+      canvasRef,
+      points,
+      chrBoundaries,
+      width,
+      height,
+      significanceThreshold,
+      suggestiveThreshold,
+      preThinned,
+      themeKey: theme,
+    },
+    { pointsRef, xScaleRef, yScaleRef },
+  );
 
-    ctx.font = "10px sans-serif";
-    ctx.fillStyle = colorText;
-    ctx.textAlign = "right";
-    for (const tick of yTicks) {
-      const ty = yScale(tick);
-      ctx.beginPath();
-      ctx.strokeStyle = colorAxis;
-      ctx.lineWidth = 0.5;
-      ctx.moveTo(-4, ty);
-      ctx.lineTo(plotWidth, ty);
-      ctx.stroke();
-
-      ctx.fillStyle = colorText;
-      ctx.fillText(String(tick), -8, ty + 3.5);
-    }
-
-    // Y-axis label (rotated)
-    ctx.save();
-    ctx.translate(-40, plotHeight / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.textAlign = "center";
-    ctx.font = "11px sans-serif";
-    ctx.fillStyle = colorText;
-    ctx.fillText("-log\u2081\u2080(p-value)", 0, 0);
-    ctx.restore();
-
-    // --- X-axis baseline ---
-    ctx.beginPath();
-    ctx.strokeStyle = colorAxis;
-    ctx.lineWidth = 1;
-    ctx.moveTo(0, plotHeight);
-    ctx.lineTo(plotWidth, plotHeight);
-    ctx.stroke();
-
-    // X-axis label
-    ctx.textAlign = "center";
-    ctx.font = "11px sans-serif";
-    ctx.fillStyle = colorText;
-    ctx.fillText("Chromosome", plotWidth / 2, plotHeight + 36);
-
-    ctx.restore();
-  }, [data, significanceThreshold, suggestiveThreshold, width, height, theme]);
-
-  function handleCanvasClick(e: React.MouseEvent<HTMLCanvasElement>) {
-    if (!onLocusClick || pointsRef.current.length === 0) return;
+  function handleCanvasClick(e: MouseEvent<HTMLCanvasElement>) {
+    if (!onLocusClick && !onPointClick) return;
+    if (pointsRef.current.length === 0) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
-    const px = e.clientX - rect.left - MARGIN.left;
-    const py = e.clientY - rect.top - MARGIN.top;
+    const px = e.clientX - rect.left - MANHATTAN_MARGIN.left;
+    const py = e.clientY - rect.top - MANHATTAN_MARGIN.top;
 
     const xScale = xScaleRef.current;
     const yScale = yScaleRef.current;
     if (!xScale || !yScale) return;
 
-    // Find nearest point within 5px (canvas coordinates)
     let closest: PreparedPoint | null = null;
     let minDist = Infinity;
 
@@ -339,7 +209,8 @@ export default function ManhattanPlot({
     }
 
     if (closest && minDist <= 5) {
-      onLocusClick(closest.chr, closest.pos);
+      onPointClick?.(closest);
+      onLocusClick?.(closest.chr, closest.pos);
     }
   }
 
@@ -348,6 +219,8 @@ export default function ManhattanPlot({
       <div
         className="flex items-center justify-center text-text-ghost text-sm rounded border border-border-default"
         style={{ width, height }}
+        role="img"
+        aria-label="Manhattan plot: no GWAS data available"
       >
         No GWAS data available
       </div>
@@ -358,7 +231,14 @@ export default function ManhattanPlot({
     <canvas
       ref={canvasRef}
       onClick={handleCanvasClick}
-      style={{ cursor: onLocusClick ? "crosshair" : "default", display: "block" }}
+      role="img"
+      aria-label={ariaLabel}
+      style={{
+        cursor: onLocusClick || onPointClick ? "crosshair" : "default",
+        display: "block",
+      }}
     />
   );
 }
+
+export default ManhattanPlot;
