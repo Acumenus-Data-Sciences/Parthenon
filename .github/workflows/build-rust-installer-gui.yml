@@ -13,17 +13,59 @@ on:
   pull_request:
     paths:
       - ".github/workflows/build-rust-installer-gui.yml"
+      - ".env.example"
+      - "backend/.env.example"
+      - "docker-compose.yml"
+      - "docker/**"
+      - "frontend/.env.example"
       - "install.py"
+      - "installer/*.py"
       - "installer/contract.py"
       - "installer/docker_ops.py"
+      - "installer/installer_manifest.json"
       - "installer/preflight.py"
       - "installer/config.py"
+      - "installer/web/**"
       - "installer/rust-gui/**"
 
 permissions:
   contents: read
 
 jobs:
+  installer-bundle:
+    name: Build installer bundle
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.ref || github.ref }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Build and verify source-backed bundle
+        shell: bash
+        run: |
+          mkdir -p dist/installer-bundle
+          python -m installer.bundle_manifest --validate --bundle-dir dist/installer-bundle --pretty > dist/installer-bundle/build-result.json
+          bundle="$(find dist/installer-bundle -name 'parthenon-community-bootstrap-*.tar.gz' -print -quit)"
+          test -n "$bundle"
+          mkdir -p /tmp/parthenon-installer-bundle-check
+          tar -xzf "$bundle" -C /tmp/parthenon-installer-bundle-check
+          python -m installer.bundle_manifest \
+            --manifest /tmp/parthenon-installer-bundle-check/installer-bundle-manifest.json \
+            --repo-root /tmp/parthenon-installer-bundle-check \
+            --validate \
+            --pretty > dist/installer-bundle/extracted-validation.json
+
+      - name: Upload source-backed installer bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: parthenon-community-bootstrap-bundle
+          if-no-files-found: error
+          path: dist/installer-bundle/*
+
   build:
     name: Build ${{ matrix.label }}
     runs-on: ${{ matrix.runner }}
@@ -76,6 +118,7 @@ jobs:
         shell: bash
         run: |
           python -m py_compile install.py installer/bundle_manifest.py installer/contract.py installer/data_probe.py installer/webapp.py installer/docker_ops.py
+          python -m py_compile installer/build_cosmo.py
           python install.py --contract validate --community --contract-redact --contract-pretty
           python install.py --contract plan --community --contract-redact --contract-pretty >/dev/null
           python install.py --contract data-check --community --contract-redact --contract-pretty >/dev/null

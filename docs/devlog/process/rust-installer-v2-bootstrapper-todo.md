@@ -15,6 +15,8 @@ target, and guide vocabulary loading without requiring a repo checkout.
       installing.
 - [x] Define the first versioned installer bundle manifest with checksums,
       phases, and DBMS support tiers.
+- [x] Build and validate a source-backed installer bundle artifact in CI from
+      the manifest.
 - [ ] Download a versioned installer bundle containing only required compose
       files, templates, helper scripts, and manifests.
 - [ ] Verify downloaded installer bundle checksums before running any phase.
@@ -54,6 +56,8 @@ target, and guide vocabulary loading without requiring a repo checkout.
       plan, DBMS support, phase definitions, and health checks.
 - [ ] Add Rust phase state: preflight, download, verify, configure,
       prepare-data-target, start-services, health-check, finalize.
+- [x] Show the manifest-backed installer bundle readiness check in the Rust
+      system check without exposing JSON.
 - [ ] Add resume/rollback for each phase.
 - [ ] Store secrets in the OS keychain where available.
 - [ ] Export a diagnostics bundle on failure.

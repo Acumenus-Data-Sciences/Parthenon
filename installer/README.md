@@ -109,8 +109,21 @@ python3 install.py --contract bundle-manifest --community --contract-redact
 ```
 
 `bundle-manifest` expands `installer/installer_manifest.json` into the current
-file list, sizes, SHA-256 hashes, and bundle digest. It is the source of truth
-for the Rust app's no-repo bootstrapper work.
+file list, sizes, SHA-256 hashes, validation results, and bundle digest. It is
+the source of truth for the Rust app's no-repo bootstrapper work.
+
+Create and verify the source-backed installer bundle artifact with:
+
+```bash
+python3 -m installer.bundle_manifest --validate --bundle-dir dist/installer-bundle
+mkdir -p /tmp/parthenon-installer-bundle-check
+tar -xzf dist/installer-bundle/parthenon-community-bootstrap-*.tar.gz \
+  -C /tmp/parthenon-installer-bundle-check
+python3 -m installer.bundle_manifest \
+  --manifest /tmp/parthenon-installer-bundle-check/installer-bundle-manifest.json \
+  --repo-root /tmp/parthenon-installer-bundle-check \
+  --validate
+```
 
 ## Modules
 

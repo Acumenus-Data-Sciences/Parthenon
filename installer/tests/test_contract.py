@@ -1,10 +1,18 @@
 from pathlib import Path
 import subprocess
 import sys
+import tarfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from installer import bundle_manifest, contract, docker_ops
+
+
+def extract_test_archive(archive: tarfile.TarFile, target: Path) -> None:
+    try:
+        archive.extractall(target, filter="data")
+    except TypeError:
+        archive.extractall(target)
 
 
 def test_community_contract_defaults_and_plan(monkeypatch):
@@ -233,5 +241,49 @@ def test_contract_bundle_manifest_payload_shape():
     file_paths = {file["path"] for file in manifest["files"]}
     assert manifest["repo_root"] == str(root)
     assert manifest["bundle_name"] == "parthenon-community-bootstrap"
+    assert manifest["validation"]["failures"] == 0
     assert "install.py" in file_paths
     assert "installer/web/app.js" in file_paths
+
+
+def test_bundle_archive_extracts_and_validates(tmp_path):
+    root = Path(__file__).resolve().parents[2]
+
+    bundle = bundle_manifest.create_bundle(output_dir=tmp_path, repo_root=root)
+    archive_path = Path(bundle["path"])
+
+    assert archive_path.exists()
+    assert bundle["sha256"]
+    assert bundle["manifest_path"] == bundle_manifest.BUNDLE_MANIFEST_NAME
+
+    extract_root = tmp_path / "extract"
+    extract_root.mkdir()
+    with tarfile.open(archive_path, "r:gz") as archive:
+        extract_test_archive(archive, extract_root)
+
+    saved_manifest = bundle_manifest.load_manifest(
+        extract_root / bundle_manifest.BUNDLE_MANIFEST_NAME
+    )
+    checks = bundle_manifest.validate_manifest(saved_manifest, repo_root=extract_root)
+
+    assert saved_manifest["repo_root"] == "."
+    assert all(check["status"] == "ok" for check in checks)
+
+
+def test_bundle_manifest_validation_detects_tampering(tmp_path):
+    root = Path(__file__).resolve().parents[2]
+    bundle = bundle_manifest.create_bundle(output_dir=tmp_path, repo_root=root)
+    extract_root = tmp_path / "extract"
+    extract_root.mkdir()
+    with tarfile.open(bundle["path"], "r:gz") as archive:
+        extract_test_archive(archive, extract_root)
+
+    (extract_root / "install.py").write_text("# tampered\n")
+    saved_manifest = bundle_manifest.load_manifest(
+        extract_root / bundle_manifest.BUNDLE_MANIFEST_NAME
+    )
+    checks = bundle_manifest.validate_manifest(saved_manifest, repo_root=extract_root)
+    names = {check["name"]: check for check in checks}
+
+    assert names["install.py"]["status"] == "fail"
+    assert names["install.py"]["detail"] == "checksum mismatch"

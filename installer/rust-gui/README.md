@@ -31,7 +31,8 @@ contract as a plain-language setup plan. The readiness step now adds
 non-destructive OMOP checks, including PostgreSQL probes when possible and clear
 warnings for DBMSs that will route through the HADES DatabaseConnector helper.
 The shared contract also exposes a versioned bundle manifest with file
-checksums as the foundation for no-repo downloads. OMOP DDL installation,
+checksums as the foundation for no-repo downloads, and the system check reports
+that bundle readiness without showing the raw manifest. OMOP DDL installation,
 Athena vocabulary import, and bundle download execution are tracked in
 `docs/devlog/process/rust-installer-v2-bootstrapper-todo.md`.
 
@@ -81,6 +82,7 @@ produce archived workflow artifacts named:
 - `parthenon-installer-macos-x64`
 - `parthenon-installer-macos-arm64`
 - `parthenon-installer-windows-x64`
+- `parthenon-community-bootstrap-bundle`
 
 ## Linux Prerequisites
 

@@ -41,6 +41,26 @@ struct ContractDataCheckPayload {
 }
 
 #[derive(Debug, Deserialize)]
+struct ContractBundleManifestPayload {
+    manifest: ContractBundleManifest,
+}
+
+#[derive(Debug, Deserialize)]
+struct ContractBundleManifest {
+    bundle_name: String,
+    bundle_version: String,
+    file_count: usize,
+    total_size: u64,
+    bundle_digest: String,
+    validation: Option<ContractManifestValidation>,
+}
+
+#[derive(Debug, Deserialize)]
+struct ContractManifestValidation {
+    failures: usize,
+}
+
+#[derive(Debug, Deserialize)]
 struct ContractPreflight {
     checks: Vec<ContractCheck>,
 }
@@ -117,6 +137,10 @@ fn validate_environment(request: InstallRequest) -> Vec<CheckResult> {
         Ok(validation_check) => match contract_preflight_checks(&request) {
             Ok(mut checks) => {
                 checks.insert(0, validation_check);
+                match contract_bundle_manifest_check(&request) {
+                    Ok(bundle_check) => checks.insert(1, bundle_check),
+                    Err(err) => checks.push(CheckResult::fail("Installer bundle", err)),
+                }
                 match contract_data_checks(&request) {
                     Ok(mut data_checks) => checks.append(&mut data_checks),
                     Err(err) => checks.push(CheckResult::fail("OMOP data readiness", err)),
@@ -126,6 +150,10 @@ fn validate_environment(request: InstallRequest) -> Vec<CheckResult> {
             Err(err) => {
                 let mut checks = fallback_environment_checks(&request);
                 checks.push(validation_check);
+                match contract_bundle_manifest_check(&request) {
+                    Ok(bundle_check) => checks.push(bundle_check),
+                    Err(err) => checks.push(CheckResult::fail("Installer bundle", err)),
+                }
                 checks.push(CheckResult::fail("Python installer preflight", err));
                 checks
             }
@@ -483,6 +511,11 @@ fn contract_data_checks(request: &InstallRequest) -> Result<Vec<CheckResult>, St
     parse_contract_data_checks(&payload)
 }
 
+fn contract_bundle_manifest_check(request: &InstallRequest) -> Result<CheckResult, String> {
+    let payload = contract_payload_json(request, "bundle-manifest", true)?;
+    parse_contract_bundle_manifest_check(&payload)
+}
+
 fn contract_validation_check(request: &InstallRequest) -> Result<CheckResult, String> {
     let payload = contract_payload_json(request, "validate", true)?;
     parse_contract_validation_check(&payload)
@@ -525,6 +558,35 @@ fn parse_contract_data_checks(payload: &str) -> Result<Vec<CheckResult>, String>
         .collect())
 }
 
+fn parse_contract_bundle_manifest_check(payload: &str) -> Result<CheckResult, String> {
+    let payload: ContractBundleManifestPayload = serde_json::from_str(payload)
+        .map_err(|err| format!("Could not parse installer bundle manifest JSON: {err}"))?;
+    let manifest = payload.manifest;
+    let digest = manifest.bundle_digest.chars().take(12).collect::<String>();
+    let detail = format!(
+        "{} {} includes {} files ({}) with bundle digest {}",
+        manifest.bundle_name,
+        manifest.bundle_version,
+        manifest.file_count,
+        format_bytes(manifest.total_size),
+        digest
+    );
+    if manifest
+        .validation
+        .as_ref()
+        .map(|validation| validation.failures)
+        .unwrap_or(0)
+        > 0
+    {
+        Ok(CheckResult::fail(
+            "Installer bundle",
+            format!("{detail}; checksum validation failed"),
+        ))
+    } else {
+        Ok(CheckResult::pass("Installer bundle", detail))
+    }
+}
+
 fn parse_contract_validation_check(payload: &str) -> Result<CheckResult, String> {
     let payload: serde_json::Value = serde_json::from_str(payload)
         .map_err(|err| format!("Could not parse installer validation JSON: {err}"))?;
@@ -542,6 +604,21 @@ fn parse_contract_validation_check(payload: &str) -> Result<CheckResult, String>
         return Ok(CheckResult::fail("Installer config validation", error));
     }
     Err("Installer validation response did not include an ok flag".to_string())
+}
+
+fn format_bytes(bytes: u64) -> String {
+    const UNITS: [&str; 4] = ["B", "KB", "MB", "GB"];
+    let mut value = bytes as f64;
+    let mut unit = 0;
+    while value >= 1024.0 && unit < UNITS.len() - 1 {
+        value /= 1024.0;
+        unit += 1;
+    }
+    if unit == 0 {
+        format!("{bytes} {}", UNITS[unit])
+    } else {
+        format!("{value:.1} {}", UNITS[unit])
+    }
 }
 
 fn run_capture(mut command_plan: CommandPlan) -> Result<String, String> {
@@ -1350,6 +1427,54 @@ mod tests {
 
         assert_eq!(failed.status, "fail");
         assert_eq!(failed.detail, "admin_email is required");
+    }
+
+    #[test]
+    fn contract_bundle_manifest_json_maps_to_ui_check() {
+        let check = parse_contract_bundle_manifest_check(
+            r#"{
+              "manifest": {
+                "bundle_name": "parthenon-community-bootstrap",
+                "bundle_version": "0.1.0",
+                "file_count": 65,
+                "total_size": 15360,
+                "bundle_digest": "1234567890abcdef",
+                "validation": {"failures": 0}
+              }
+            }"#,
+        )
+        .expect("bundle manifest check");
+
+        assert_eq!(check.name, "Installer bundle");
+        assert_eq!(check.status, "pass");
+        assert!(check.detail.contains("0.1.0"));
+        assert!(check.detail.contains("65 files"));
+        assert!(check.detail.contains("15.0 KB"));
+        assert!(check.detail.contains("1234567890ab"));
+
+        let failed = parse_contract_bundle_manifest_check(
+            r#"{
+              "manifest": {
+                "bundle_name": "parthenon-community-bootstrap",
+                "bundle_version": "0.1.0",
+                "file_count": 65,
+                "total_size": 15360,
+                "bundle_digest": "1234567890abcdef",
+                "validation": {"failures": 1}
+              }
+            }"#,
+        )
+        .expect("failed bundle manifest check");
+
+        assert_eq!(failed.status, "fail");
+        assert!(failed.detail.contains("checksum validation failed"));
+    }
+
+    #[test]
+    fn format_bytes_uses_readable_units() {
+        assert_eq!(format_bytes(512), "512 B");
+        assert_eq!(format_bytes(1536), "1.5 KB");
+        assert_eq!(format_bytes(2 * 1024 * 1024), "2.0 MB");
     }
 
     #[test]

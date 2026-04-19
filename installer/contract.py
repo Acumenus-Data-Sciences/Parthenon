@@ -236,7 +236,13 @@ def data_check_payload(
 
 
 def bundle_manifest_payload(*, repo_root: str | None = None) -> dict[str, Any]:
-    return bundle_manifest.build_manifest(repo_root=repo_root)
+    manifest = bundle_manifest.build_manifest(repo_root=repo_root)
+    checks = bundle_manifest.validate_manifest(manifest, repo_root=repo_root)
+    manifest["validation"] = {
+        "failures": sum(1 for check in checks if check["status"] == "fail"),
+        "checks": checks,
+    }
+    return manifest
 
 
 def build_payload(
