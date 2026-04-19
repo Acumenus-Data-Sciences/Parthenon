@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 18-01-PLAN.md
-last_updated: "2026-04-19T18:08:15.259Z"
-last_activity: 2026-04-19 — Plan 18-01 complete (Wave 0 RED test stubs committed)
+stopped_at: Completed 18-02-PLAN.md
+last_updated: "2026-04-19T18:23:50.083Z"
+last_activity: 2026-04-19
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 58
-  completed_plans: 46
-  percent: 79
+  completed_plans: 47
+  percent: 81
 ---
 
 # Project State
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-04-16 — Milestone v1.0 FinnGen Genomic
 ## Current Position
 
 Phase: 18 (risteys-style-endpoint-dashboard) — EXECUTING
-Plan: 2 of 7 (Plan 18-01 complete)
-Status: Executing Phase 18
-Last activity: 2026-04-19 — Plan 18-01 complete (Wave 0 RED test stubs committed)
+Plan: 3 of 7 (Plan 18-01 complete)
+Status: Ready to execute
+Last activity: 2026-04-19
 
 Progress: [████████░░] 79%
 
@@ -90,6 +90,7 @@ Progress: [████████░░] 79%
 | Phase 15 P10 | 45 | 4 tasks | 5 files |
 | Phase 15 P11 | 8 | 2 tasks | 5 files |
 | Phase 18 P01 | 12min | 2 tasks | 10 files |
+| Phase 18 P02 | 10min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -181,6 +182,9 @@ Recent decisions affecting current work:
 - [Phase 18]: Plan 18-01: Vitest stubs use dynamic import() with .resolves.toBeTruthy() — Vite import-analysis catches missing modules at transform time for RED signal
 - [Phase 18]: Plan 18-01: Task 2 committed with --no-verify because Wave 0 RED is structurally incompatible with pre-commit Vitest GREEN-only gate (all other gates passed independently)
 - [Phase 18]: Plan 18-01: 18-VALIDATION.md nyquist_compliant flipped true; wave_0_complete stays false until plans 18-02..07 land GREEN implementations
+- [Phase 18]: [Phase 18-02] EndpointProfileAccess.$primaryKey declared as scalar 'endpoint_name' (not list) — PHPStan level-8 covariant with Model::$primaryKey; DB composite PK (endpoint_name, source_key) enforced by the migration's PRIMARY KEY constraint; upserts pass both columns as match criteria
+- [Phase 18]: [Phase 18-02] viewer role GETS finngen.endpoint_profile.view (aggregate profile data is non-PHI per D-08/D-09) but NOT .compute — matches finngen.prs.compute precedent from Phase 17
+- [Phase 18]: [Phase 18-02] Pre-commit migration gate enforced — every backend/database/migrations/* commit now requires a paired docs/devlog/ or CHANGELOG entry. Created docs/devlog/modules/finngen/phase18-02-endpoint-profile-access-and-permissions.md as the pattern for future Phase 18 migrations
 
 ### Pending Todos
 
@@ -228,6 +232,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-19T18:07:54.777Z
-Stopped at: Completed 18-01-PLAN.md
+Last session: 2026-04-19T18:23:39.219Z
+Stopped at: Completed 18-02-PLAN.md
 Resume file: None
