@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 13 context gathered (FinnGen endpoint universalization reframe)
-last_updated: "2026-04-18T18:27:44.607Z"
-last_activity: 2026-04-18 -- Phase 15 execution started
+stopped_at: Completed 15-05-PLAN.md
+last_updated: "2026-04-19T00:19:52.752Z"
+last_activity: 2026-04-19
 progress:
   total_phases: 8
   completed_phases: 1
-  total_plans: 35
-  completed_plans: 20
-  percent: 57
+  total_plans: 42
+  completed_plans: 26
+  percent: 62
 ---
 
 # Project State
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-04-16 — Milestone v1.0 FinnGen Genomic
 ## Current Position
 
 Phase: 15 (GWAS Dispatch, Run Tracking, and Generation History) — EXECUTING
-Plan: 1 of 9
-Status: Executing Phase 15
-Last activity: 2026-04-18 -- Phase 15 execution started
+Plan: 2 of 9
+Status: Ready to execute
+Last activity: 2026-04-19
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -80,6 +80,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 12 P02 | 3min | 3 tasks | 3 files |
 | Phase 12 P03 | 4min | 2 tasks | 2 files |
 | Phase 260411-qux P01 | 13min | 2 tasks | 624 files |
+| Phase 15 P05 | 15 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -150,6 +151,8 @@ Recent decisions affecting current work:
 - [Phase 12]: unmapped_concept and deprecated_remapped classified as warnings (not errors) for rejection rate; error rate = 0% for drug_exposure vs 15.3% total
 - [Phase quick-1]: source_to_concept_map is clinical data (moved to irsf schema), not shared vocab; load-vocab.sh reads from irsf schema
 - [Phase 260411-qux]: Used color-mix(in srgb) for 8-char alpha hex values; kept CSS fallback pattern var(--x, #hex) in AboutAbbyModal
+- [Phase 15]: Hand-authored Phase 15 types in api.ts (OpenAPI regen deferred by 15-04)
+- [Phase 15]: Dual-key invalidation on useDispatchGwas success (detail + eligible-controls)
 
 ### Pending Todos
 
@@ -197,6 +200,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-17T17:21:39.972Z
-Stopped at: Phase 13 context gathered (FinnGen endpoint universalization reframe)
-Resume file: .planning/phases/13-finngen-endpoint-universalization/13-CONTEXT.md
+Last session: 2026-04-19T00:19:47.634Z
+Stopped at: Completed 15-05-PLAN.md
+Resume file: None

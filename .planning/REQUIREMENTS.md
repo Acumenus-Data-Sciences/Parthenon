@@ -44,7 +44,7 @@ recorded here so this milestone's roadmap can build on top of them.
   `se`, `p_value`, `case_n`, `control_n`, `cohort_definition_id`,
   `gwas_run_id`. Indexed by `(chrom, pos)` and `(cohort_definition_id,
   p_value)` for top-hits and Manhattan-plot lookups.
-- [ ] **GENOMICS-03**: `POST /api/v1/finngen/endpoints/{name}/gwas` with
+- [x] **GENOMICS-03**: `POST /api/v1/finngen/endpoints/{name}/gwas` with
   body `{source_key, control_cohort_id, covariate_set_id?, overwrite?}`.
   Validates the endpoint has resolvable concepts AND that the source has
   variant data (VCF index registered). Returns 202 + Run record.
@@ -53,7 +53,7 @@ recorded here so this milestone's roadmap can build on top of them.
   (chrom × -log10(p)), regional view (zoom into a hit window),
   LocusZoom-lite (LD-colored region with gene track), top-50 variants
   table with sortable columns, per-variant detail drawer.
-- [ ] **GENOMICS-05**: GWAS run-history view per endpoint showing
+- [x] **GENOMICS-05**: GWAS run-history view per endpoint showing
   completed runs across (source × control_cohort_id × covariate_set)
   with subject counts, p-value of top hit, and direct links to the
   PheWeb-lite UI. Persist via `app.finngen_endpoint_gwas_runs` tracking
@@ -119,7 +119,7 @@ recorded here so this milestone's roadmap can build on top of them.
   session has `session_state.seeded_from.kind === "finngen-endpoint"`,
   render a "From FinnGen {endpoint_name}" pill at the top of the
   operation tree. Link back to the endpoint browser detail drawer.
-- [ ] **GENOMICS-14**: Generation history view that surfaces multiple
+- [x] **GENOMICS-14**: Generation history view that surfaces multiple
   runs per (endpoint × source) pair, not just the latest. Adds a
   `finngen_endpoint_generation_runs` table OR queries `finngen_runs`
   filtered by `analysis_type = 'endpoint.generate'` and the
@@ -156,9 +156,9 @@ Coverage: 14 / 14 GENOMICS-* requirements mapped (100%).
 |--------------|-----------|---------|
 | GENOMICS-01  | Phase 14  | pending |
 | GENOMICS-02  | Phase 14  | pending |
-| GENOMICS-03  | Phase 15  | pending |
+| GENOMICS-03  | Phase 15  | Complete |
 | GENOMICS-04  | Phase 16  | pending |
-| GENOMICS-05  | Phase 15  | pending |
+| GENOMICS-05  | Phase 15  | Complete |
 | GENOMICS-06  | Phase 17  | pending |
 | GENOMICS-07  | Phase 17  | pending |
 | GENOMICS-08  | Phase 17  | pending |
@@ -168,7 +168,7 @@ Coverage: 14 / 14 GENOMICS-* requirements mapped (100%).
 | GENOMICS-12a | Phase 13  | pending |
 | GENOMICS-12b | Phase 18.5 (deferred) | deferred |
 | GENOMICS-13  | Phase 16  | pending |
-| GENOMICS-14  | Phase 15  | pending |
+| GENOMICS-14  | Phase 15  | Complete |
 
 ## Validated traceability
 
