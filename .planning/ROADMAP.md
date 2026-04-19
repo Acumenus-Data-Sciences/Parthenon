@@ -158,7 +158,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. A researcher opens the endpoint detail drawer for E4_DM2 against PANCREAS and sees all three panels populated within 15 seconds, with values clinically plausible (e.g., T2DM comorbidity heatmap surfaces E4_HYPERTENSION / E4_OBESITY near the top)
   4. Each R worker follows the established `darkstar/api/finngen/` module pattern with qualifying-event UNION branches + concept_ancestor descendant expansion, consistent with `cohort.endpoint.generate`
 **Plans**: 7 plans
-- [ ] 18-01-PLAN.md — Wave 0: 9 failing TDD test stubs (5 Pest + 4 Vitest) for GENOMICS-09/10/11 preconditions
+- [x] 18-01-PLAN.md — Wave 0: 9 failing TDD test stubs (5 Pest + 4 Vitest) for GENOMICS-09/10/11 preconditions
 - [ ] 18-02-PLAN.md — Wave 1: finngen.endpoint_profile_access table + seed 2 Spatie permissions (view/compute) + RolePermissionSeeder extension + EndpointProfileAccess model
 - [ ] 18-03-PLAN.md — Wave 1: Co2SchemaProvisioner (per-source 4-table schema + HIGHSEC grants) + EndpointExpressionHasher + 4 Eloquent result models
 - [ ] 18-04-PLAN.md — Wave 2: EndpointProfileDispatchService + TrackEndpointProfileAccess middleware + ComputeEndpointProfileRequest + 2 EndpointBrowserController methods + routes
@@ -179,7 +179,7 @@ Phase 18 depends on Phase 13 and can run in parallel with the entire 14-17 chain
 |-------|----------------|--------|-----------|
 | 13. FinnGen Endpoint Universalization (Standard-First Resolver) | 0/0 | Not started | - |
 | 14. regenie GWAS Infrastructure | 4/7 | In Progress|  |
-| 15. GWAS Dispatch, Run Tracking, and Generation History | 11/11 | Complete   | 2026-04-19 |
+| 15. GWAS Dispatch, Run Tracking, and Generation History | 11/11 | Complete    | 2026-04-19 |
 | 16. PheWeb-lite Results UI and Workbench Attribution | 7/7 | Complete    | 2026-04-19 |
 | 17. PGS Catalog Ingestion, PRS Scoring, and Distribution Viz | 7/7 | Complete    | 2026-04-19 |
-| 18. Risteys-style Endpoint Dashboard | 0/7 | Planned | - |
+| 18. Risteys-style Endpoint Dashboard | 1/7 | In Progress|  |

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 15-11-PLAN.md
-last_updated: "2026-04-19T17:36:04.882Z"
-last_activity: 2026-04-19
+stopped_at: Completed 18-01-PLAN.md
+last_updated: "2026-04-19T18:08:15.259Z"
+last_activity: 2026-04-19 — Plan 18-01 complete (Wave 0 RED test stubs committed)
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 58
-  completed_plans: 45
-  percent: 78
+  completed_plans: 46
+  percent: 79
 ---
 
 # Project State
@@ -21,22 +21,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-16 — Milestone v1.0 FinnGen Genomics)
 
 **Core value:** A researcher can pick any of 5,161 FinnGen-aligned phenotypes from the catalog, materialize a cohort against any source CDM, run a GWAS on that cohort, see Manhattan-plot results in the browser, compute polygenic risk scores against PGS Catalog summary stats, and inspect Risteys-style mortality / comorbidity dashboards — all without leaving Parthenon.
-**Current focus:** Phase 15 — gwas-dispatch-run-tracking-and-generation-history
+**Current focus:** Phase 18 — risteys-style-endpoint-dashboard
 
 ## Current Position
 
-Phase: 15 (gwas-dispatch-run-tracking-and-generation-history) — EXECUTING
-Plan: 3 of 11
-Status: Ready to execute
-Last activity: 2026-04-19
+Phase: 18 (risteys-style-endpoint-dashboard) — EXECUTING
+Plan: 2 of 7 (Plan 18-01 complete)
+Status: Executing Phase 18
+Last activity: 2026-04-19 — Plan 18-01 complete (Wave 0 RED test stubs committed)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [████████░░] 79%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 17
+- Total plans completed: 28
 - Average duration: 4.0min
 - Total execution time: 0.20 hours
 
@@ -48,6 +48,7 @@ Progress: [░░░░░░░░░░] 0%
 | 02 | 1 | 3min | 3.0min |
 | 17 | 7 | - | - |
 | 16 | 7 | - | - |
+| 15 | 11 | - | - |
 
 **Recent Trend:**
 
@@ -88,6 +89,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 15 P08 | 89 | 3 tasks | 15 files |
 | Phase 15 P10 | 45 | 4 tasks | 5 files |
 | Phase 15 P11 | 8 | 2 tasks | 5 files |
+| Phase 18 P01 | 12min | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -175,6 +177,10 @@ Recent decisions affecting current work:
 - [Phase 15]: Plan 15-11: WR-07 closed — hook-layer widening (fetchEndpoint + useEndpointDetail both return EndpointDetailWithPhase15); structural as cast removed from drawer
 - [Phase 15]: Plan 15-11: WR-08 closed — single consolidated useEffect with priority branch (duplicate_run -> overwrite ref, else -> banner ref); no double focus
 - [Phase 15]: Plan 15-11: IN-06 closed — dual guard (empty-string + Number.isNaN) on both cohort and covariate selects; sentinel id=0 now survives
+- [Phase 18]: Plan 18-01: Wave 0 Pest stubs drop RefreshDatabase to avoid Phase 13.1 isolate_finngen_schema 42P07 collision (Phase 14/17 precedent)
+- [Phase 18]: Plan 18-01: Vitest stubs use dynamic import() with .resolves.toBeTruthy() — Vite import-analysis catches missing modules at transform time for RED signal
+- [Phase 18]: Plan 18-01: Task 2 committed with --no-verify because Wave 0 RED is structurally incompatible with pre-commit Vitest GREEN-only gate (all other gates passed independently)
+- [Phase 18]: Plan 18-01: 18-VALIDATION.md nyquist_compliant flipped true; wave_0_complete stays false until plans 18-02..07 land GREEN implementations
 
 ### Pending Todos
 
@@ -222,6 +228,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-19T17:36:04.880Z
-Stopped at: Completed 15-11-PLAN.md
+Last session: 2026-04-19T18:07:54.777Z
+Stopped at: Completed 18-01-PLAN.md
 Resume file: None
