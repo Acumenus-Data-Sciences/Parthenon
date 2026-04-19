@@ -1,0 +1,223 @@
+---
+id: study-designer
+title: Study Designer
+sidebar_label: Study Designer
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Study Designer
+
+The **Study Designer** is Parthenon's OHDSI-aligned, AI-assisted workspace for authoring, validating, and packaging observational research studies. It enforces a structured lifecycle — from research intent through verified cohort materialization, feasibility evidence, and analysis planning — before producing a locked, portable study package.
+
+---
+
+## Overview
+
+Study Designer sessions are durable, versioned workspaces. Each session progresses through a series of gated stages that correspond to the OHDSI research cycle:
+
+| Stage | Description |
+|---|---|
+| **Intent Generation** | AI-assisted research question scoping and PICO framing |
+| **Concept Set Drafting** | Build and verify OMOP concept sets against the live vocabulary |
+| **Cohort Drafting** | Author or import target, comparator, and outcome cohorts |
+| **Feasibility Evidence** | Run record-count checks before committing to full generation |
+| **Analysis Planning** | Select and configure OHDSI analysis modules (PLE, PLP, IR, Characterization) |
+| **Readiness Check** | Automated pre-flight validation across all session assets |
+| **Package Lock** | Produce a signed, downloadable study package artifact |
+
+---
+
+## Creating a Study Design Session
+
+1. Navigate to **Analyses → Study Designer** in the left navigation.
+2. Click **New Study Session**.
+3. Enter a study name, optional description, and select a primary data source.
+4. Click **Create Session**.
+
+Sessions persist across logins. All changes are versioned; you can review the full edit history from the **Versions** tab within the session.
+
+---
+
+## Stage 1 — Intent Generation
+
+The Intent stage captures your research question in structured form. Abby AI assists by suggesting PICO elements (Population, Intervention, Comparator, Outcome) and flagging ambiguous terminology.
+
+- Click **Generate Intent** to open the AI-assisted intent panel.
+- Review and edit the suggested PICO framing.
+- Click **Accept Intent** to advance. An accepted intent is required before the session can proceed to package lock.
+
+:::tip
+You can re-open and revise the intent at any point before the package is locked. Changing the intent after cohorts are materialized will prompt a re-verification warning.
+:::
+
+---
+
+## Stage 2 — Concept Set Drafts
+
+Concept sets authored or imported in this stage are subject to strict vocabulary verification:
+
+- Every concept ID in a draft must be a **positive integer** that exists in `vocab.concept`.
+- **Deprecated concepts** (those with `invalid_reason IS NOT NULL` in the OMOP vocabulary) block materialization and are flagged inline with a warning badge.
+- **Missing concept IDs** (not present in the loaded vocabulary) are surfaced in the **Verifier Diagnostics** panel on the right-hand side.
+
+### Verifier Diagnostics Panel
+
+The Verifier Diagnostics panel lists every issue preventing a concept set from being considered verified:
+
+| Severity | Condition | Action Required |
+|---|---|---|
+| 🔴 Error | Concept ID not found in `vocab.concept` | Remove or replace the concept |
+| 🔴 Error | Concept is deprecated (`invalid_reason` is set) | Map to a current equivalent |
+| 🟡 Warning | Concept domain does not match expected domain | Review and confirm intentional inclusion |
+
+Until all errors are resolved, the concept set status remains **Unverified**. Verified concept sets display a green checkmark in the session asset list.
+
+---
+
+## Stage 3 — Cohort Drafts
+
+Cohorts can be authored from scratch using the embedded Cohort Expression editor, or imported from existing Parthenon cohorts.
+
+### Importing Existing Cohorts
+
+1. Click **Import Cohort** within the Cohort Drafts section.
+2. Search for a cohort by name or ID.
+3. Select the cohort and assign a role: **Target**, **Comparator**, or **Outcome**.
+
+:::warning Deprecated Concept Sets in Imported Cohorts
+If an imported cohort references concept sets that contain deprecated OMOP concepts, the cohort is marked **Blocked**. Blocked cohorts prevent feasibility checks and package lock from proceeding. Resolve deprecations in the originating concept sets or re-author the cohort with corrected concept sets.
+:::
+
+### Cohort Verification Rules
+
+- All concept sets referenced by a cohort draft must be in **Verified** status.
+- Cohorts with unresolved verifier errors cannot be materialized.
+- Materialization status is displayed per cohort in the session asset table.
+
+---
+
+## Stage 4 — Feasibility Evidence
+
+Before committing to full cohort generation, Feasibility Evidence runs lightweight record-count checks against your selected data source.
+
+1. Confirm all cohort drafts show **Verified** status.
+2. Click **Run Feasibility Checks**.
+3. Review the returned index event counts and date distributions.
+4. Mark feasibility as **Accepted** to advance.
+
+Feasibility results are stored as session assets and are included in the final study package for audit purposes.
+
+:::info
+Feasibility checks use approximate counts and do not write to cohort tables. Full cohort generation occurs separately via the standard Cohort Generation workflow.
+:::
+
+---
+
+## Stage 5 — Analysis Plan
+
+Select one or more OHDSI analysis modules to include in the study:
+
+| Module | Description |
+|---|---|
+| **Characterization** | Baseline covariate profiles for target and comparator cohorts |
+| **Incidence Rates** | Outcome incidence within at-risk time windows |
+| **Population-Level Estimation (PLE)** | Comparative effectiveness using PS methods |
+| **Patient-Level Prediction (PLP)** | ML-based risk prediction models |
+| **SCCS** | Self-Controlled Case Series |
+
+Each module requires at minimum one cohort assignment. The Analysis Plan is submitted for AI critique via the **Critique Analysis Plan** button, which returns structured feedback on methodological gaps.
+
+Once you are satisfied with the plan, click **Verify Analysis Plan**. A verified analysis plan is required for package lock.
+
+---
+
+## Stage 6 — Readiness Check
+
+The Readiness Check panel provides an automated pre-flight summary before locking the package. All of the following must be satisfied:
+
+- ✅ Intent accepted
+- ✅ All concept set drafts verified (no missing or deprecated concept IDs)
+- ✅ All cohort drafts verified and materialized
+- ✅ No deprecated concepts in any referenced imported cohort
+- ✅ Feasibility evidence accepted
+- ✅ Analysis plan verified
+
+Items that are incomplete are listed with a direct link to the relevant stage for remediation.
+
+---
+
+## Stage 7 — Package Lock
+
+Once the Readiness Check passes, click **Lock Package** to produce the study package artifact.
+
+### What the Package Contains
+
+| Artifact | Description |
+|---|---|
+| `study-intent.json` | Accepted research intent and PICO framing |
+| `concept-sets/` | Verified concept set definitions (CIRCE JSON) |
+| `cohorts/` | Verified cohort expressions (CIRCE JSON) |
+| `feasibility-evidence.json` | Record-count summaries per cohort |
+| `analysis-plan.json` | Module configurations and cohort assignments |
+| `provenance.json` | Session ID, version hash, lock timestamp, and locking user |
+
+### Downloading the Package
+
+After locking, click **Download Package** to save a `.zip` archive. Download is restricted to users with ownership of the study session or the `study_package_download` permission.
+
+Package provenance (session ID, version, lock time, and locking user) is displayed in the **Package Provenance** panel and recorded in the audit log.
+
+:::note
+A locked package is immutable. To make changes, create a new version of the session. The previous locked package remains available for download from the **Versions** tab.
+:::
+
+---
+
+## Session Versions
+
+Every significant change to a session (intent acceptance, concept set verification, package lock) creates a new version record. To view version history:
+
+1. Open the session.
+2. Click the **Versions** tab.
+3. Select any previous version to view a read-only snapshot of its assets.
+
+Versions are labeled with a timestamp and the action that triggered them.
+
+---
+
+## AI Event Log
+
+All AI interactions within a session (intent generation, concept set suggestions, analysis plan critique) are recorded in the **AI Event Log** tab. Each entry includes:
+
+- Timestamp
+- AI action type
+- Input prompt summary
+- Response summary
+- Accepting user
+
+This log is included in the locked study package under `provenance.json`.
+
+---
+
+## Permissions
+
+| Action | Required Role |
+|---|---|
+| Create / edit a session | `researcher` or higher |
+| Run feasibility checks | `researcher` or higher |
+| Lock a package | Session owner or `study_admin` |
+| Download a locked package | Session owner or `study_package_download` |
+| View any session | `viewer` or higher |
+
+See [Roles & Permissions](../part8-administration/23-roles-permissions) for full role definitions.
+
+---
+
+## Relationship to Other Parthenon Modules
+
+- **Concept Sets** — Concept sets authored in Study Designer are independent drafts. To promote a verified draft to the shared concept set library, use **Save to Library** from the concept set editor.
+- **Cohorts** — Materialized cohorts are written to the standard cohort tables and appear in the Cohort Management view.
+- **Studies** — A locked Study Designer package can be linked to a formal Study record. See [Studies](14-studies).
+- **Phenotype Library** — Cohort drafts can be submitted to the Phenotype Library directly from the session. See [Phenotype Library](14e-phenotype-library).
