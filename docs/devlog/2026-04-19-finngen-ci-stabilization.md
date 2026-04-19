@@ -14,6 +14,7 @@ Stabilized the FinnGen and installer CI path after the FinnGen development merge
 - Expanded the FinnGen GitHub Actions database bootstrap to create every schema used by the migration stack.
 - Scoped the FinnGen coverage gate to `app/Services/FinnGen`, matching the CI job's service-package intent instead of measuring the full Laravel app tree.
 - Fixed the Ares coverage matrix test setup so it creates source daimon metadata and always performs structural assertions.
+- Made backend CI tolerate intentional environment skips while preserving assertion failures.
 
 ## Validation
 
@@ -22,4 +23,5 @@ Stabilized the FinnGen and installer CI path after the FinnGen development merge
 - Focused RegionalView Vitest passed: 6 tests.
 - Frontend TypeScript check passed with `npx tsc --noEmit`.
 - Ares coverage service Pest test passed: 3 tests, 38 assertions.
+- Focused Co2 schema provisioner Pest test passed with `--do-not-fail-on-skipped`: 1 skipped, 3 passed, exit 0.
 - Pint passed for the updated Ares test.

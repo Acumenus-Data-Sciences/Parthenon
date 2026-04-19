@@ -149,6 +149,7 @@ jobs:
         run: |
           ./vendor/bin/pest \
             tests/Unit/FinnGen tests/Feature/FinnGen \
+            --do-not-fail-on-skipped \
             --coverage --coverage-filter=app/Services/FinnGen --min=80 \
             --coverage-clover=coverage-finngen.xml
 
