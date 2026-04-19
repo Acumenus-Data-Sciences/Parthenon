@@ -115,15 +115,21 @@ export function RunGwasPanel({ endpoint, generationRuns: _generationRuns }: RunG
       ? (dispatchError as GwasDispatchRefusal)
       : null;
 
+  // REVIEW §WR-08 — consolidated into one effect to prevent double focus on
+  // duplicate_run refusals (two effects would fire in the same render,
+  // flickering the focus ring from banner → checkbox and double-announcing
+  // via screen reader). Priority: overwrite checkbox on duplicate_run
+  // (the more actionable target — user must tick to retry), banner otherwise.
   useEffect(() => {
-    if (refusal && bannerRef.current) bannerRef.current.focus();
-  }, [refusal]);
-
-  useEffect(() => {
-    if (refusal?.error_code === "duplicate_run" && overwriteRef.current) {
+    if (!refusal) return;
+    if (refusal.error_code === "duplicate_run" && overwriteRef.current) {
       overwriteRef.current.focus();
+      return;
     }
-  }, [refusal?.error_code]);
+    if (bannerRef.current) {
+      bannerRef.current.focus();
+    }
+  }, [refusal]);
 
   const submit = () => {
     if (!sourceKey || !controlCohortId || activeCovariateSetId === null) return;
@@ -226,9 +232,15 @@ export function RunGwasPanel({ endpoint, generationRuns: _generationRuns }: RunG
             <select
               id="run-gwas-control"
               value={controlCohortId ?? ""}
-              onChange={(e) =>
-                setControlCohortId(Number(e.target.value) || null)
-              }
+              onChange={(e) => {
+                // IN-06: `Number("") === 0`, not NaN, so an empty option must branch
+                // explicitly to null; and `Number("0") || null` used to drop legitimate
+                // 0 values (matters for the covariate_set_id fallback sentinel below).
+                const v = e.target.value;
+                if (v === "") { setControlCohortId(null); return; }
+                const n = Number(v);
+                setControlCohortId(Number.isNaN(n) ? null : n);
+              }}
               disabled={!sourceKey || eligibleControls.isLoading}
               className="w-full rounded-md border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-slate-200 focus:border-teal-500/60 focus:outline-none focus:ring-1 focus:ring-teal-500/40 disabled:cursor-not-allowed disabled:opacity-60"
             >
@@ -281,9 +293,12 @@ export function RunGwasPanel({ endpoint, generationRuns: _generationRuns }: RunG
               <select
                 aria-label="Covariate set"
                 value={covariateSetId ?? ""}
-                onChange={(e) =>
-                  setCovariateSetId(Number(e.target.value) || null)
-                }
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v === "") { setCovariateSetId(null); return; }
+                  const n = Number(v);
+                  setCovariateSetId(Number.isNaN(n) ? null : n);
+                }}
                 className="w-full rounded-md border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-slate-200 focus:border-teal-500/60 focus:outline-none focus:ring-1 focus:ring-teal-500/40"
               >
                 {covariateSets.data?.map((s) => (

@@ -7,7 +7,7 @@
 //
 // Tests stub the hook modules to keep the panel isolated from TanStack Query
 // internals and the apiClient.
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 
@@ -203,5 +203,36 @@ describe("RunGwasPanel", () => {
     expect(
       screen.getByText(/Check "Overwrite existing run"/),
     ).toBeInTheDocument();
+  });
+
+  it("focuses the overwrite checkbox, NOT the banner, on duplicate_run refusal (WR-08)", async () => {
+    // Render expanded (no error) first so refs are mounted, then re-render
+    // with the duplicate_run refusal to trigger the consolidated useEffect.
+    // The consolidated effect (WR-08 fix) branches on error_code === "duplicate_run"
+    // first, focusing overwriteRef, then returns — so bannerRef.focus() never runs.
+    const { rerender } = render(
+      wrap(<RunGwasPanel endpoint={endpoint} generationRuns={[generationRun]} />),
+    );
+    // Expand the panel so all refs (overwriteRef, bannerRef) are mounted.
+    fireEvent.click(screen.getByRole("button", { name: /Dispatch a new GWAS run/ }));
+
+    // Now inject the duplicate_run refusal and re-render — this changes
+    // `refusal` from null to a value, triggering the useEffect dependency.
+    dispatchState.error = {
+      message: "A run with identical parameters is already completed.",
+      error_code: "duplicate_run",
+      existing_run_id: "01HYZ-duplicate",
+    } satisfies GwasDispatchRefusal;
+    rerender(
+      wrap(<RunGwasPanel endpoint={endpoint} generationRuns={[generationRun]} />),
+    );
+
+    // The overwrite checkbox must receive focus (most actionable — user must tick to retry).
+    const overwrite = screen.getByRole("checkbox", { name: /overwrite/i });
+    await waitFor(() => expect(overwrite).toHaveFocus());
+
+    // The banner (role="alert") must NOT have focus — only one element gets focus.
+    const banner = screen.getByRole("alert");
+    expect(banner).not.toHaveFocus();
   });
 });
