@@ -1829,6 +1829,7 @@ mod tests {
         cleanup_temp_file(Some(second));
     }
 
+    #[cfg(not(target_os = "windows"))]
     #[test]
     fn local_bundle_archive_resolves_to_verified_install_root() {
         let temp_root = test_temp_dir("bundle-resolve");
@@ -1859,6 +1860,7 @@ mod tests {
         let _ = fs::remove_dir_all(temp_root);
     }
 
+    #[cfg(not(target_os = "windows"))]
     #[test]
     fn local_bundle_archive_rejects_wrong_archive_checksum() {
         let temp_root = test_temp_dir("bundle-wrong-sha");

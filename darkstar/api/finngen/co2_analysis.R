@@ -907,3 +907,849 @@ finngen_co2_demographics_execute <- function(source_envelope, run_id, export_fol
     list(total = total)
   })
 }
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Phase 18 GENOMICS-09 / GENOMICS-10 / GENOMICS-11 — Risteys-style endpoint
+# profile worker.
+#
+# Inputs (analysis_settings — keys set by EndpointProfileDispatchService in PHP):
+#   endpoint_name                   — FinnGen endpoint code (e.g. "E4_DM2")
+#   source_key                      — Parthenon source key (e.g. "PANCREAS")
+#   expression_hash                 — SHA-256 from EndpointExpressionHasher
+#   min_subjects                    — Comorbidity universe filter (default 20L)
+#   cohort_definition_id            — numeric (nullable); when present it
+#                                      carries the Phase 13.2 100B offset
+#                                      already applied in PHP
+#   finngen_endpoint_generation_id  — nullable; provenance only
+#   condition_concept_ids           — integer list (qualifying conditions)
+#   drug_concept_ids                — integer list
+#   source_concept_ids              — integer list
+#   source_has_death_data           — bool (precondition echo)
+#   source_has_drug_data            — bool
+#
+# Outputs:
+#   INSERTs into {source}_co2_results.endpoint_profile_summary /
+#   _km_points / _comorbidities / _drug_classes with ON CONFLICT DO UPDATE.
+#
+# Pitfalls mitigated:
+#   Pitfall 1 — cohort_definition_id is numeric (not integer); SQL uses %.0f.
+#   Pitfall 2 — comorbidity uses vectorized Matrix::crossprod, not fisher.test.
+#   Pitfall 7 — ATC3 aggregates via SELECT DISTINCT (subject_id, atc3_code)
+#               before COUNT so multi-parent ATC drugs don't double-count.
+#   Pitfall 8 — if death_count == 0, skip survfit entirely and return empty
+#               km_points + median=NA.
+#   T-18-03  — source_key + every interpolated schema name re-validated
+#              against /^[a-z][a-z0-9_]*$/ before any SQL interpolation.
+# ═══════════════════════════════════════════════════════════════════════════
+
+suppressPackageStartupMessages({
+  library(survival)
+  library(Matrix)
+})
+
+# Compute KM for the endpoint cohort per D-01/D-02/D-03.
+#
+# Dual-mode cohort resolution (research §Dual-mode):
+#   1. If cohort_def_id is a non-NA numeric AND at least one row exists for it
+#      in {cohort_schema}.cohort, use it as the subject set.
+#   2. Else recompute qualifying events on-the-fly via the
+#      condition/drug/source_concept UNION (same pattern as
+#      cohort_ops.R::finngen_endpoint_generate_execute).
+#
+# Returns list(
+#   km_points,                 # data.frame(time_days, survival_prob, at_risk, events)
+#   death_count,               # integer — # of subjects with death event
+#   subject_count,             # integer — # of subjects in cohort
+#   median_survival_days,      # numeric — NA if all-censored
+#   age_at_death_mean,         # numeric — NA if 0 deaths
+#   age_at_death_median,       # numeric — NA if 0 deaths
+#   age_at_death_bins,         # list of list(age_bin, count) for 0-4, 5-9, ..., 95+
+#   resolution_mode            # "cohort_table" | "on_the_fly"
+# )
+.compute_km_for_cohort <- function(connection, cohort_schema, cdm_schema, vocab_schema,
+                                   cohort_def_id, endpoint_name,
+                                   condition_ids, drug_ids, source_ids,
+                                   progress_path) {
+
+  # ── Decide resolution mode ──
+  use_cohort_table <- FALSE
+  if (!is.na(cohort_def_id) && cohort_def_id > 0) {
+    cnt_df <- DatabaseConnector::querySql(
+      connection,
+      sprintf("SELECT COUNT(*) AS c FROM %s.cohort WHERE cohort_definition_id = %.0f",
+              cohort_schema, cohort_def_id)
+    )
+    names(cnt_df) <- tolower(names(cnt_df))
+    cohort_row_count <- as.integer(cnt_df$c[1])
+    if (!is.na(cohort_row_count) && cohort_row_count > 0) {
+      use_cohort_table <- TRUE
+    }
+  }
+
+  if (use_cohort_table) {
+    write_progress(progress_path, list(step = "km_fetch_cohort_table", pct = 18,
+                                        message = sprintf("Using cohort_definition_id=%.0f", cohort_def_id)))
+    subj_sql <- sprintf(
+      "SELECT c.subject_id,
+              c.cohort_start_date AS index_date,
+              d.death_date,
+              p.birth_datetime,
+              p.year_of_birth,
+              op.end_date AS obs_end
+         FROM %s.cohort c
+         JOIN %s.person p ON p.person_id = c.subject_id
+         LEFT JOIN %s.death d ON d.person_id = c.subject_id
+         LEFT JOIN (
+           SELECT person_id, MAX(observation_period_end_date) AS end_date
+             FROM %s.observation_period
+            GROUP BY person_id
+         ) op ON op.person_id = c.subject_id
+        WHERE c.cohort_definition_id = %.0f",
+      cohort_schema, cdm_schema, cdm_schema, cdm_schema, cohort_def_id
+    )
+    resolution_mode <- "cohort_table"
+  } else {
+    write_progress(progress_path, list(step = "km_compute_on_the_fly", pct = 18,
+                                        message = "No generation cohort — recomputing qualifying events"))
+    # Build the qualifying-event UNION (same branch logic as cohort_ops.R:460-500).
+    branches <- character(0)
+    if (length(condition_ids) > 0) {
+      cond_list <- paste(condition_ids, collapse = ",")
+      branches <- c(branches, sprintf(
+        "SELECT co.person_id AS subject_id, co.condition_start_date AS event_date
+           FROM %s.condition_occurrence co
+          WHERE co.condition_concept_id IN (
+            SELECT descendant_concept_id FROM %s.concept_ancestor
+             WHERE ancestor_concept_id IN (%s)
+          )",
+        cdm_schema, vocab_schema, cond_list
+      ))
+    }
+    if (length(drug_ids) > 0) {
+      drug_list <- paste(drug_ids, collapse = ",")
+      branches <- c(branches, sprintf(
+        "SELECT de.person_id AS subject_id, de.drug_exposure_start_date AS event_date
+           FROM %s.drug_exposure de
+          WHERE de.drug_concept_id IN (
+            SELECT descendant_concept_id FROM %s.concept_ancestor
+             WHERE ancestor_concept_id IN (%s)
+          )",
+        cdm_schema, vocab_schema, drug_list
+      ))
+    }
+    if (length(source_ids) > 0) {
+      src_list <- paste(source_ids, collapse = ",")
+      branches <- c(branches, sprintf(
+        "SELECT co.person_id AS subject_id, co.condition_start_date AS event_date
+           FROM %s.condition_occurrence co
+          WHERE co.condition_source_concept_id IN (%s)",
+        cdm_schema, src_list
+      ))
+    }
+    if (length(branches) == 0) {
+      return(list(
+        km_points = data.frame(time_days = integer(0), survival_prob = numeric(0),
+                               at_risk = integer(0), events = integer(0)),
+        death_count = 0L, subject_count = 0L,
+        median_survival_days = NA_real_,
+        age_at_death_mean = NA_real_, age_at_death_median = NA_real_,
+        age_at_death_bins = list(),
+        resolution_mode = "no_concepts"
+      ))
+    }
+    qualifying_cte <- paste(branches, collapse = "\nUNION\n")
+    subj_sql <- sprintf(
+      "SELECT q.subject_id,
+              MIN(q.event_date) AS index_date,
+              d.death_date,
+              p.birth_datetime,
+              p.year_of_birth,
+              op.end_date AS obs_end
+         FROM ( %s ) q
+         JOIN %s.person p ON p.person_id = q.subject_id
+         LEFT JOIN %s.death d ON d.person_id = q.subject_id
+         LEFT JOIN (
+           SELECT person_id, MAX(observation_period_end_date) AS end_date
+             FROM %s.observation_period
+            GROUP BY person_id
+         ) op ON op.person_id = q.subject_id
+        GROUP BY q.subject_id, d.death_date, p.birth_datetime, p.year_of_birth, op.end_date",
+      qualifying_cte, cdm_schema, cdm_schema, cdm_schema
+    )
+    resolution_mode <- "on_the_fly"
+  }
+
+  df <- DatabaseConnector::querySql(connection, subj_sql)
+  names(df) <- tolower(names(df))
+  if (nrow(df) == 0) {
+    return(list(
+      km_points = data.frame(time_days = integer(0), survival_prob = numeric(0),
+                             at_risk = integer(0), events = integer(0)),
+      death_count = 0L, subject_count = 0L,
+      median_survival_days = NA_real_,
+      age_at_death_mean = NA_real_, age_at_death_median = NA_real_,
+      age_at_death_bins = list(),
+      resolution_mode = resolution_mode
+    ))
+  }
+
+  subject_count <- as.integer(nrow(df))
+
+  # Time-from-index (days) + event indicator.
+  df$index_date_d <- as.Date(df$index_date)
+  df$death_date_d <- as.Date(df$death_date)
+  df$obs_end_d    <- as.Date(df$obs_end)
+
+  df$has_death <- !is.na(df$death_date_d)
+  # End date = death_date when dead, else obs_end. If both missing, drop the row.
+  df$end_date <- df$death_date_d
+  df$end_date[!df$has_death] <- df$obs_end_d[!df$has_death]
+
+  # Censor at observation_period_end_date; drop rows missing end info or pre-index.
+  df <- df[!is.na(df$index_date_d) & !is.na(df$end_date) & df$end_date >= df$index_date_d, ]
+  if (nrow(df) == 0) {
+    return(list(
+      km_points = data.frame(time_days = integer(0), survival_prob = numeric(0),
+                             at_risk = integer(0), events = integer(0)),
+      death_count = 0L, subject_count = 0L,
+      median_survival_days = NA_real_,
+      age_at_death_mean = NA_real_, age_at_death_median = NA_real_,
+      age_at_death_bins = list(),
+      resolution_mode = resolution_mode
+    ))
+  }
+
+  df$time_days <- as.integer(df$end_date - df$index_date_d)
+  df$event     <- as.integer(df$has_death)
+
+  death_count <- as.integer(sum(df$event))
+
+  # Age at death bins (5-year: 0-4, 5-9, ..., 95+) per D-03.
+  age_at_death_bins <- list()
+  age_mean <- NA_real_
+  age_median <- NA_real_
+  if (death_count > 0L) {
+    d_rows <- df[df$event == 1L, ]
+    # Prefer birth_datetime; fall back to year_of_birth as midyear.
+    bdt <- as.Date(d_rows$birth_datetime)
+    no_bdt <- is.na(bdt)
+    if (any(no_bdt) && "year_of_birth" %in% names(d_rows)) {
+      yob <- suppressWarnings(as.integer(d_rows$year_of_birth[no_bdt]))
+      yob[is.na(yob) | yob <= 0] <- NA_integer_
+      bdt[no_bdt] <- as.Date(sprintf("%d-07-01", yob))
+    }
+    age_years <- as.numeric(d_rows$death_date_d - bdt) / 365.25
+    age_years <- age_years[!is.na(age_years) & age_years >= 0 & age_years < 130]
+    if (length(age_years) > 0) {
+      age_mean   <- as.numeric(mean(age_years))
+      age_median <- as.numeric(stats::median(age_years))
+      # Bin to 5-year buckets 0-4,5-9,...,95+
+      bin_start <- pmin(95L, as.integer(floor(age_years / 5)) * 5L)
+      bin_tab <- table(bin_start)
+      age_at_death_bins <- lapply(names(bin_tab), function(lo) {
+        lo_i <- as.integer(lo)
+        label <- if (lo_i >= 95L) "95+" else sprintf("%d-%d", lo_i, lo_i + 4L)
+        list(age_bin = label, bin_start = lo_i, count = as.integer(bin_tab[[lo]]))
+      })
+    }
+  }
+
+  # Pitfall 8: all-censored → skip survfit; return empty km_points.
+  if (death_count == 0L) {
+    return(list(
+      km_points = data.frame(time_days = integer(0), survival_prob = numeric(0),
+                             at_risk = integer(0), events = integer(0)),
+      death_count = 0L,
+      subject_count = subject_count,
+      median_survival_days = NA_real_,
+      age_at_death_mean = NA_real_,
+      age_at_death_median = NA_real_,
+      age_at_death_bins = list(),
+      resolution_mode = resolution_mode
+    ))
+  }
+
+  write_progress(progress_path, list(step = "km_survfit", pct = 30))
+  surv_obj <- survival::Surv(time = df$time_days, event = df$event)
+  km <- survival::survfit(surv_obj ~ 1)
+
+  km_points <- data.frame(
+    time_days     = as.numeric(km$time),
+    survival_prob = as.numeric(km$surv),
+    at_risk       = as.integer(km$n.risk),
+    events        = as.integer(km$n.event)
+  )
+
+  median_days <- tryCatch({
+    sm <- summary(km)$table
+    # survival::survfit summary $table layout: "records", "n.max", "n.start",
+    # "events", "*rmean", "*se(rmean)", "median", "0.95LCL", "0.95UCL".
+    if (is.matrix(sm)) as.numeric(sm[, "median"][1]) else as.numeric(sm["median"])
+  }, error = function(e) NA_real_)
+
+  list(
+    km_points            = km_points,
+    death_count          = death_count,
+    subject_count        = subject_count,
+    median_survival_days = median_days,
+    age_at_death_mean    = age_mean,
+    age_at_death_median  = age_median,
+    age_at_death_bins    = age_at_death_bins,
+    resolution_mode      = resolution_mode
+  )
+}
+
+# Compute top-50 comorbidities via vectorized phi (Pitfall 2).
+#
+# Builds a sparse dgCMatrix M of (subjects × endpoints) where a 1 indicates
+# the subject is a member of that endpoint's generation cohort. Uses
+# Matrix::crossprod(M) to get the pairwise co-occurrence matrix in one BLAS
+# call. Derives phi + Haldane-Anscombe OR + 95% CI in closed form.
+#
+# Universe = FinnGen endpoint generations on this source with
+#   last_status='succeeded' AND last_subject_count >= min_subjects.
+# Cohort IDs follow the Phase 13.2 convention: generation.id + 100B offset.
+#
+# Returns data.frame(comorbid_endpoint, phi_coef, odds_ratio, or_ci_low,
+# or_ci_high, co_count, rank) — rows where comorbid_endpoint != index_endpoint
+# AND n_self >= min_subjects. Sorted by |phi| desc, top 50.
+.compute_comorbidity_phi <- function(connection, cohort_schema, cdm_schema,
+                                     index_endpoint_name, source_key,
+                                     min_subjects) {
+  OMOP_COHORT_ID_OFFSET <- 100000000000
+
+  # Fetch eligible generations for this source. source_key is stored on the
+  # app.finngen_endpoint_generations row as an app.sources key — we filter by
+  # it but quote parameterized to avoid injection.
+  elig_sql <- sprintf(
+    "SELECT geg.id + %.0f AS cohort_definition_id,
+            geg.endpoint_name,
+            geg.last_subject_count
+       FROM finngen.endpoint_generations geg
+       JOIN app.sources s ON s.id = geg.source_id
+      WHERE UPPER(s.source_key) = UPPER('%s')
+        AND geg.last_status = 'succeeded'
+        AND geg.last_subject_count >= %d",
+    OMOP_COHORT_ID_OFFSET,
+    gsub("'", "''", source_key, fixed = TRUE),
+    as.integer(min_subjects)
+  )
+
+  gens <- tryCatch(DatabaseConnector::querySql(connection, elig_sql),
+                   error = function(e) NULL)
+  if (is.null(gens)) return(data.frame())
+  names(gens) <- tolower(names(gens))
+  if (nrow(gens) == 0L) return(data.frame())
+
+  # Always include the index endpoint row (may or may not already be in `gens`).
+  idx_sql <- sprintf(
+    "SELECT geg.id + %.0f AS cohort_definition_id,
+            geg.endpoint_name,
+            geg.last_subject_count
+       FROM finngen.endpoint_generations geg
+       JOIN app.sources s ON s.id = geg.source_id
+      WHERE UPPER(s.source_key) = UPPER('%s')
+        AND UPPER(geg.endpoint_name) = UPPER('%s')
+        AND geg.last_status = 'succeeded'
+      ORDER BY geg.id DESC
+      LIMIT 1",
+    OMOP_COHORT_ID_OFFSET,
+    gsub("'", "''", source_key, fixed = TRUE),
+    gsub("'", "''", index_endpoint_name, fixed = TRUE)
+  )
+  idx_row <- tryCatch(DatabaseConnector::querySql(connection, idx_sql),
+                      error = function(e) NULL)
+  if (is.null(idx_row) || nrow(idx_row) == 0L) {
+    # Without an index-endpoint generation, we can't compute phi (no subject set).
+    return(data.frame())
+  }
+  names(idx_row) <- tolower(names(idx_row))
+
+  # De-dup: index_row may already be present.
+  all_gens <- rbind(
+    idx_row[, c("cohort_definition_id", "endpoint_name", "last_subject_count")],
+    gens[, c("cohort_definition_id", "endpoint_name", "last_subject_count")]
+  )
+  all_gens <- all_gens[!duplicated(all_gens$cohort_definition_id), ]
+
+  index_cid <- all_gens$cohort_definition_id[1]
+
+  # Fetch (subject_id, cohort_definition_id) for all eligible cohorts.
+  ids_str <- paste(sprintf("%.0f", all_gens$cohort_definition_id), collapse = ",")
+  mem_sql <- sprintf(
+    "SELECT DISTINCT subject_id, cohort_definition_id
+       FROM %s.cohort
+      WHERE cohort_definition_id IN (%s)",
+    cohort_schema, ids_str
+  )
+  mdf <- tryCatch(DatabaseConnector::querySql(connection, mem_sql),
+                  error = function(e) NULL)
+  if (is.null(mdf) || nrow(mdf) == 0L) return(data.frame())
+  names(mdf) <- tolower(names(mdf))
+  mdf$cohort_definition_id <- as.numeric(mdf$cohort_definition_id)
+
+  # Build sparse subject × endpoint matrix. Keep the index endpoint as col 1.
+  subjects <- sort(unique(mdf$subject_id))
+  endpoints_cid <- c(index_cid, all_gens$cohort_definition_id[all_gens$cohort_definition_id != index_cid])
+  endpoints_name <- c(all_gens$endpoint_name[all_gens$cohort_definition_id == index_cid][1],
+                      all_gens$endpoint_name[all_gens$cohort_definition_id != index_cid])
+
+  subj_idx <- match(mdf$subject_id, subjects)
+  ep_idx   <- match(mdf$cohort_definition_id, endpoints_cid)
+  keep <- !is.na(subj_idx) & !is.na(ep_idx)
+  if (!any(keep)) return(data.frame())
+
+  M <- Matrix::sparseMatrix(
+    i = subj_idx[keep],
+    j = ep_idx[keep],
+    x = 1,
+    dims = c(length(subjects), length(endpoints_cid))
+  )
+
+  N <- nrow(M)
+  n <- Matrix::colSums(M)
+  n_i <- as.numeric(n[1])
+  if (n_i <= 0) return(data.frame())
+
+  # crossprod returns a symmetric sparse matrix. We only need row 1 (index).
+  co_row <- as.numeric((Matrix::crossprod(M[, 1, drop = FALSE], M))[1, ])
+  n_j    <- as.numeric(n)
+
+  # Closed-form phi for 2×2 contingency.
+  denom <- suppressWarnings(sqrt(n_i * n_j * (N - n_i) * (N - n_j)))
+  phi <- ifelse(is.na(denom) | denom <= 0, 0,
+                (N * co_row - n_i * n_j) / denom)
+
+  # Haldane-Anscombe continuity correction for OR + 95% CI.
+  a <- co_row + 0.5
+  b <- (n_i - co_row) + 0.5
+  c <- (n_j - co_row) + 0.5
+  d <- (N - n_i - n_j + co_row) + 0.5
+  or <- (a * d) / (b * c)
+  log_or <- log(or)
+  se_log_or <- sqrt(1 / a + 1 / b + 1 / c + 1 / d)
+  or_ci_low  <- exp(log_or - 1.96 * se_log_or)
+  or_ci_high <- exp(log_or + 1.96 * se_log_or)
+
+  out <- data.frame(
+    endpoint_cid      = endpoints_cid,
+    comorbid_endpoint = as.character(endpoints_name),
+    phi_coef          = as.numeric(phi),
+    odds_ratio        = as.numeric(or),
+    or_ci_low         = as.numeric(or_ci_low),
+    or_ci_high        = as.numeric(or_ci_high),
+    co_count          = as.integer(co_row),
+    n_self            = as.integer(n_j),
+    stringsAsFactors  = FALSE
+  )
+
+  # Drop index row + universe-filter on n_self + sort + top-50.
+  out <- out[out$endpoint_cid != index_cid & out$n_self >= min_subjects, ]
+  if (nrow(out) == 0L) return(data.frame())
+  out <- out[order(-abs(out$phi_coef)), ]
+  out <- head(out, 50L)
+  out$rank <- seq_len(nrow(out))
+  out[, c("comorbid_endpoint", "phi_coef", "odds_ratio",
+          "or_ci_low", "or_ci_high", "co_count", "rank")]
+}
+
+# Compute top-10 ATC3 drug classes in the 90-day pre-index window per D-14.
+# Uses DISTINCT (subject_id, atc3_code) before aggregation (Pitfall 7) so
+# multi-parent ATC memberships don't double-count subjects in one class.
+# Denominator excludes subjects with zero drug_exposure rows in the window
+# (D-14 "absence of recording ≠ absence of treatment").
+#
+# Returns data.frame(atc3_code, atc3_name, subjects_on_drug, subjects_total,
+# pct_on_drug, rank). LIMIT 10.
+.compute_drug_classes_atc3 <- function(connection, cohort_schema, cdm_schema,
+                                       vocab_schema, cohort_def_id) {
+  if (is.na(cohort_def_id) || cohort_def_id <= 0) return(data.frame())
+
+  # Guard: if cohort_def_id has no rows, nothing to aggregate.
+  cnt_df <- DatabaseConnector::querySql(
+    connection,
+    sprintf("SELECT COUNT(*) AS c FROM %s.cohort WHERE cohort_definition_id = %.0f",
+            cohort_schema, cohort_def_id)
+  )
+  names(cnt_df) <- tolower(names(cnt_df))
+  if (as.integer(cnt_df$c[1]) == 0L) return(data.frame())
+
+  sql <- sprintf(
+    "WITH index_events AS (
+       SELECT c.subject_id, c.cohort_start_date AS index_date
+         FROM %s.cohort c
+        WHERE c.cohort_definition_id = %.0f
+     ),
+     window_drugs AS (
+       SELECT DISTINCT ie.subject_id, de.drug_concept_id
+         FROM index_events ie
+         JOIN %s.drug_exposure de
+           ON de.person_id = ie.subject_id
+          AND de.drug_exposure_start_date
+              BETWEEN ie.index_date - INTERVAL '90 days'
+                  AND ie.index_date - INTERVAL '1 day'
+     ),
+     subjects_with_any_drug AS (
+       SELECT DISTINCT subject_id FROM window_drugs
+     ),
+     atc3_per_subject AS (
+       SELECT DISTINCT wd.subject_id, c.concept_code AS atc3_code,
+                       c.concept_name AS atc3_name
+         FROM window_drugs wd
+         JOIN %s.concept_ancestor ca
+           ON ca.descendant_concept_id = wd.drug_concept_id
+         JOIN %s.concept c
+           ON c.concept_id = ca.ancestor_concept_id
+        WHERE c.vocabulary_id = 'ATC'
+          AND c.concept_class_id = 'ATC 3rd'
+     )
+     SELECT a.atc3_code,
+            a.atc3_name,
+            COUNT(DISTINCT a.subject_id) AS subjects_on_drug,
+            (SELECT COUNT(*) FROM subjects_with_any_drug) AS subjects_total,
+            (COUNT(DISTINCT a.subject_id) * 100.0)
+              / NULLIF((SELECT COUNT(*) FROM subjects_with_any_drug), 0) AS pct_on_drug,
+            ROW_NUMBER() OVER (ORDER BY COUNT(DISTINCT a.subject_id) DESC) AS rank
+       FROM atc3_per_subject a
+      GROUP BY a.atc3_code, a.atc3_name
+      ORDER BY subjects_on_drug DESC
+      LIMIT 10",
+    cohort_schema, cohort_def_id, cdm_schema, vocab_schema, vocab_schema
+  )
+
+  df <- tryCatch(DatabaseConnector::querySql(connection, sql),
+                 error = function(e) NULL)
+  if (is.null(df) || nrow(df) == 0L) return(data.frame())
+  names(df) <- tolower(names(df))
+  data.frame(
+    atc3_code        = as.character(df$atc3_code),
+    atc3_name        = as.character(df$atc3_name),
+    subjects_on_drug = as.integer(df$subjects_on_drug),
+    subjects_total   = as.integer(df$subjects_total),
+    pct_on_drug      = as.numeric(df$pct_on_drug),
+    rank             = as.integer(df$rank),
+    stringsAsFactors = FALSE
+  )
+}
+
+# Persist all 4 result tables. DELETE existing rows for the composite
+# (endpoint_name, source_key, expression_hash) key first so stale rows don't
+# survive when the new payload is smaller than the cached one. Summary row
+# uses ON CONFLICT DO UPDATE as a safety net.
+.persist_profile_results <- function(connection, results_schema,
+                                     endpoint_name, source_key, expression_hash,
+                                     run_id, subject_count, death_count,
+                                     median_survival_days,
+                                     age_at_death_mean, age_at_death_median,
+                                     age_at_death_bins,
+                                     universe_size, min_subjects,
+                                     source_has_death_data, source_has_drug_data,
+                                     km_points, comorb_df, drug_df) {
+
+  # Escape helpers — these values already passed regex validation upstream,
+  # but we still single-quote-escape to be safe.
+  sq <- function(x) gsub("'", "''", as.character(x), fixed = TRUE)
+  ep_esc   <- sq(endpoint_name)
+  sk_esc   <- sq(source_key)
+  hash_esc <- sq(expression_hash)
+  run_esc  <- sq(run_id)
+
+  nullable_num <- function(x) {
+    if (is.null(x) || length(x) == 0 || is.na(x) || !is.finite(x)) "NULL" else sprintf("%.6f", as.numeric(x))
+  }
+
+  # ── Clear existing rows for this (endpoint, source, hash) key ──
+  for (t in c("endpoint_profile_km_points", "endpoint_profile_drug_classes")) {
+    DatabaseConnector::executeSql(
+      connection,
+      sprintf(
+        "DELETE FROM %s.%s WHERE endpoint_name = '%s' AND source_key = '%s' AND expression_hash = '%s'",
+        results_schema, t, ep_esc, sk_esc, hash_esc
+      ),
+      progressBar = FALSE, reportOverallTime = FALSE
+    )
+  }
+  DatabaseConnector::executeSql(
+    connection,
+    sprintf(
+      "DELETE FROM %s.endpoint_profile_comorbidities WHERE index_endpoint = '%s' AND source_key = '%s' AND expression_hash = '%s'",
+      results_schema, ep_esc, sk_esc, hash_esc
+    ),
+    progressBar = FALSE, reportOverallTime = FALSE
+  )
+
+  # ── 1. Summary row (ON CONFLICT DO UPDATE) ──
+  age_bins_json <- jsonlite::toJSON(age_at_death_bins, auto_unbox = TRUE,
+                                    null = "null", force = TRUE)
+  # Postgres JSON literal — escape single quotes.
+  age_bins_esc <- gsub("'", "''", as.character(age_bins_json), fixed = TRUE)
+
+  summary_sql <- sprintf(
+    "INSERT INTO %s.endpoint_profile_summary (
+        endpoint_name, source_key, expression_hash,
+        subject_count, death_count, median_survival_days,
+        age_at_death_mean, age_at_death_median, age_at_death_bins,
+        universe_size, min_subjects,
+        source_has_death_data, source_has_drug_data,
+        run_id, computed_at
+      ) VALUES (
+        '%s', '%s', '%s',
+        %d, %d, %s,
+        %s, %s, '%s'::jsonb,
+        %d, %d,
+        %s, %s,
+        '%s', CURRENT_TIMESTAMP
+      )
+      ON CONFLICT (endpoint_name, source_key, expression_hash)
+      DO UPDATE SET
+        subject_count = EXCLUDED.subject_count,
+        death_count = EXCLUDED.death_count,
+        median_survival_days = EXCLUDED.median_survival_days,
+        age_at_death_mean = EXCLUDED.age_at_death_mean,
+        age_at_death_median = EXCLUDED.age_at_death_median,
+        age_at_death_bins = EXCLUDED.age_at_death_bins,
+        universe_size = EXCLUDED.universe_size,
+        min_subjects = EXCLUDED.min_subjects,
+        source_has_death_data = EXCLUDED.source_has_death_data,
+        source_has_drug_data = EXCLUDED.source_has_drug_data,
+        run_id = EXCLUDED.run_id,
+        computed_at = CURRENT_TIMESTAMP",
+    results_schema,
+    ep_esc, sk_esc, hash_esc,
+    as.integer(subject_count), as.integer(death_count),
+    nullable_num(median_survival_days),
+    nullable_num(age_at_death_mean), nullable_num(age_at_death_median), age_bins_esc,
+    as.integer(universe_size), as.integer(min_subjects),
+    if (isTRUE(source_has_death_data)) "TRUE" else "FALSE",
+    if (isTRUE(source_has_drug_data))  "TRUE" else "FALSE",
+    run_esc
+  )
+  DatabaseConnector::executeSql(connection, summary_sql,
+                                progressBar = FALSE, reportOverallTime = FALSE)
+
+  # ── 2. KM points (batch INSERT) ──
+  if (nrow(km_points) > 0) {
+    # Dedup by time_days keeping the first row, since (endpoint_name,
+    # source_key, expression_hash, time_days) is the composite PK.
+    km_points <- km_points[!duplicated(km_points$time_days), ]
+    # Build VALUES in chunks of 500 to stay under query-size limits.
+    chunks <- split(seq_len(nrow(km_points)),
+                    ceiling(seq_len(nrow(km_points)) / 500L))
+    for (ch in chunks) {
+      vals <- paste(sprintf("('%s', '%s', '%s', %.6f, %.8f, %d, %d)",
+                            ep_esc, sk_esc, hash_esc,
+                            as.numeric(km_points$time_days[ch]),
+                            as.numeric(km_points$survival_prob[ch]),
+                            as.integer(km_points$at_risk[ch]),
+                            as.integer(km_points$events[ch])),
+                    collapse = ",\n")
+      DatabaseConnector::executeSql(
+        connection,
+        sprintf(
+          "INSERT INTO %s.endpoint_profile_km_points (
+             endpoint_name, source_key, expression_hash,
+             time_days, survival_prob, at_risk, events
+           ) VALUES %s
+           ON CONFLICT (endpoint_name, source_key, expression_hash, time_days)
+           DO UPDATE SET
+             survival_prob = EXCLUDED.survival_prob,
+             at_risk = EXCLUDED.at_risk,
+             events = EXCLUDED.events",
+          results_schema, vals
+        ),
+        progressBar = FALSE, reportOverallTime = FALSE
+      )
+    }
+  }
+
+  # ── 3. Comorbidities (batch INSERT) ──
+  if (nrow(comorb_df) > 0) {
+    fnum <- function(x) {
+      x <- as.numeric(x)
+      x[is.na(x) | !is.finite(x)] <- 0
+      x
+    }
+    rows <- paste(sprintf(
+      "('%s', '%s', '%s', '%s', %.6f, %.6f, %.6f, %.6f, %d, %d)",
+      ep_esc, sk_esc, hash_esc,
+      vapply(comorb_df$comorbid_endpoint, sq, character(1)),
+      fnum(comorb_df$phi_coef),
+      fnum(comorb_df$odds_ratio),
+      fnum(comorb_df$or_ci_low),
+      fnum(comorb_df$or_ci_high),
+      as.integer(comorb_df$co_count),
+      as.integer(comorb_df$rank)
+    ), collapse = ",\n")
+    DatabaseConnector::executeSql(
+      connection,
+      sprintf(
+        "INSERT INTO %s.endpoint_profile_comorbidities (
+           index_endpoint, source_key, expression_hash, comorbid_endpoint,
+           phi_coef, odds_ratio, or_ci_low, or_ci_high, co_count, rank
+         ) VALUES %s
+         ON CONFLICT (index_endpoint, source_key, expression_hash, comorbid_endpoint)
+         DO UPDATE SET
+           phi_coef   = EXCLUDED.phi_coef,
+           odds_ratio = EXCLUDED.odds_ratio,
+           or_ci_low  = EXCLUDED.or_ci_low,
+           or_ci_high = EXCLUDED.or_ci_high,
+           co_count   = EXCLUDED.co_count,
+           rank       = EXCLUDED.rank",
+        results_schema, rows
+      ),
+      progressBar = FALSE, reportOverallTime = FALSE
+    )
+  }
+
+  # ── 4. Drug classes (batch INSERT) ──
+  if (nrow(drug_df) > 0) {
+    rows <- paste(sprintf(
+      "('%s', '%s', '%s', '%s', %s, %d, %d, %.6f, %d)",
+      ep_esc, sk_esc, hash_esc,
+      vapply(as.character(drug_df$atc3_code), sq, character(1)),
+      ifelse(is.na(drug_df$atc3_name), "NULL",
+             sprintf("'%s'", vapply(as.character(drug_df$atc3_name), sq, character(1)))),
+      as.integer(drug_df$subjects_on_drug),
+      as.integer(drug_df$subjects_total),
+      as.numeric(drug_df$pct_on_drug),
+      as.integer(drug_df$rank)
+    ), collapse = ",\n")
+    DatabaseConnector::executeSql(
+      connection,
+      sprintf(
+        "INSERT INTO %s.endpoint_profile_drug_classes (
+           endpoint_name, source_key, expression_hash, atc3_code,
+           atc3_name, subjects_on_drug, subjects_total, pct_on_drug, rank
+         ) VALUES %s
+         ON CONFLICT (endpoint_name, source_key, expression_hash, atc3_code)
+         DO UPDATE SET
+           atc3_name        = EXCLUDED.atc3_name,
+           subjects_on_drug = EXCLUDED.subjects_on_drug,
+           subjects_total   = EXCLUDED.subjects_total,
+           pct_on_drug      = EXCLUDED.pct_on_drug,
+           rank             = EXCLUDED.rank",
+        results_schema, rows
+      ),
+      progressBar = FALSE, reportOverallTime = FALSE
+    )
+  }
+
+  invisible(NULL)
+}
+
+finngen_endpoint_profile_execute <- function(source_envelope, run_id, export_folder,
+                                             analysis_settings) {
+  dir.create(export_folder, recursive = TRUE, showWarnings = FALSE)
+  progress_path <- file.path(export_folder, "progress.json")
+
+  run_with_classification(export_folder, function() {
+    write_progress(progress_path, list(step = "validate_params", pct = 2))
+
+    # ── Parse params (Pitfall 1: cohort_definition_id as numeric, NOT integer) ──
+    endpoint_name   <- as.character(analysis_settings$endpoint_name)
+    source_key      <- as.character(analysis_settings$source_key)
+    expression_hash <- as.character(analysis_settings$expression_hash)
+    min_subjects    <- as.integer(analysis_settings$min_subjects %||% 20L)
+    condition_ids   <- as.integer(analysis_settings$condition_concept_ids %||% integer(0))
+    drug_ids        <- as.integer(analysis_settings$drug_concept_ids     %||% integer(0))
+    source_ids      <- as.integer(analysis_settings$source_concept_ids   %||% integer(0))
+    # NOTE: numeric, NOT integer — 100B + generation.id exceeds R int32 INT_MAX.
+    cohort_def_id   <- suppressWarnings(as.numeric(analysis_settings$cohort_definition_id))
+
+    source_has_death <- isTRUE(as.logical(analysis_settings$source_has_death_data %||% TRUE))
+    source_has_drug  <- isTRUE(as.logical(analysis_settings$source_has_drug_data  %||% TRUE))
+
+    if (!nzchar(endpoint_name)) stop("endpoint_profile: endpoint_name is required")
+    if (!nzchar(source_key))    stop("endpoint_profile: source_key is required")
+    if (!nzchar(expression_hash)) stop("endpoint_profile: expression_hash is required")
+
+    # ── T-18-03: regex allow-list on source_key BEFORE any interpolation ──
+    source_key_lc <- tolower(source_key)
+    if (!grepl("^[a-z][a-z0-9_]*$", source_key_lc)) {
+      stop(sprintf("endpoint_profile: unsafe source_key: %s", source_key))
+    }
+
+    cdm_schema    <- source_envelope$schemas$cdm
+    vocab_schema  <- source_envelope$schemas$vocab %||% "vocab"
+    cohort_schema <- source_envelope$schemas$cohort
+    results_schema <- paste0(source_key_lc, "_co2_results")
+
+    for (pair in list(c("cdm_schema", cdm_schema),
+                      c("vocab_schema", vocab_schema),
+                      c("cohort_schema", cohort_schema),
+                      c("results_schema", results_schema))) {
+      if (!grepl("^[a-z][a-z0-9_]*$", pair[2])) {
+        stop(sprintf("endpoint_profile: unsafe %s: %s", pair[1], pair[2]))
+      }
+    }
+
+    connection <- .finngen_open_connection(source_envelope)
+    on.exit(tryCatch(DatabaseConnector::disconnect(connection),
+                     error = function(e) NULL), add = TRUE)
+
+    # ── 1. KM survival + age-at-death bins (D-01/D-02/D-03, Pitfall 8) ──
+    write_progress(progress_path, list(step = "km_start", pct = 10))
+    km <- .compute_km_for_cohort(
+      connection, cohort_schema, cdm_schema, vocab_schema,
+      cohort_def_id, endpoint_name,
+      condition_ids, drug_ids, source_ids,
+      progress_path
+    )
+
+    # ── 2. Comorbidity phi (vectorized — Pitfall 2) ──
+    write_progress(progress_path, list(step = "comorbidity_start", pct = 45))
+    comorb_df <- .compute_comorbidity_phi(
+      connection, cohort_schema, cdm_schema,
+      endpoint_name, source_key, min_subjects
+    )
+    universe_size <- as.integer(nrow(comorb_df))
+
+    # ── 3. Drug classes ATC3 (D-14 90-day pre-index, Pitfall 7) ──
+    write_progress(progress_path, list(step = "drug_classes_start", pct = 70))
+    drug_df <- if (source_has_drug) {
+      .compute_drug_classes_atc3(
+        connection, cohort_schema, cdm_schema, vocab_schema, cohort_def_id
+      )
+    } else {
+      data.frame()
+    }
+
+    # ── 4. Persist results ──
+    write_progress(progress_path, list(step = "persist_results", pct = 85))
+    .persist_profile_results(
+      connection, results_schema,
+      endpoint_name, source_key, expression_hash, run_id,
+      km$subject_count, km$death_count, km$median_survival_days,
+      km$age_at_death_mean, km$age_at_death_median, km$age_at_death_bins,
+      universe_size, min_subjects,
+      source_has_death, source_has_drug,
+      km$km_points, comorb_df, drug_df
+    )
+
+    .write_summary(export_folder, list(
+      analysis_type        = "co2.endpoint_profile",
+      endpoint_name        = endpoint_name,
+      source_key           = source_key,
+      expression_hash      = expression_hash,
+      subject_count        = as.integer(km$subject_count),
+      death_count          = as.integer(km$death_count),
+      median_survival_days = km$median_survival_days,
+      age_at_death_mean    = km$age_at_death_mean,
+      age_at_death_median  = km$age_at_death_median,
+      universe_size        = universe_size,
+      n_km_points          = as.integer(nrow(km$km_points)),
+      n_comorbidities      = as.integer(nrow(comorb_df)),
+      n_drug_classes       = as.integer(nrow(drug_df)),
+      resolution_mode      = km$resolution_mode
+    ))
+    write_progress(progress_path, list(step = "done", pct = 100))
+    list(
+      subject_count   = as.integer(km$subject_count),
+      death_count     = as.integer(km$death_count),
+      n_km_points     = as.integer(nrow(km$km_points)),
+      n_comorbidities = as.integer(nrow(comorb_df)),
+      n_drug_classes  = as.integer(nrow(drug_df)),
+      resolution_mode = km$resolution_mode
+    )
+  })
+}
