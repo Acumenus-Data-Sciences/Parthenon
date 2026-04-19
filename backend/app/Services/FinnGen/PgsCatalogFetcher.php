@@ -175,14 +175,18 @@ final class PgsCatalogFetcher
         $variants = [];
 
         try {
-            // Pass 1: consume '##' header comment lines until the column header row.
+            // Pass 1: consume '#' comment lines until the column header row.
+            // Real PGS Catalog format uses '#key=value' for metadata (single hash)
+            // and '##SECTION HEADER' for visual section separators (double hash).
+            // Both must be treated as comments; the first non-'#' row is the TSV header.
             while (($line = gzgets($fh)) !== false) {
                 $line = rtrim($line, "\r\n");
                 if ($line === '') {
                     continue;
                 }
-                if (str_starts_with($line, '##')) {
-                    $trimmed = substr($line, 2);
+                if (str_starts_with($line, '#')) {
+                    // Strip leading '#' or '##' delimiters for metadata parse.
+                    $trimmed = ltrim($line, '#');
                     if (str_contains($trimmed, '=')) {
                         [$k, $v] = explode('=', $trimmed, 2);
                         $headerMeta[trim($k)] = trim($v);
@@ -190,7 +194,7 @@ final class PgsCatalogFetcher
 
                     continue;
                 }
-                // First non-## line is the column header row.
+                // First non-'#' line is the column header row.
                 $columns = explode("\t", $line);
                 break;
             }

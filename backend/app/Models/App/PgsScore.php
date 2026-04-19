@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\App;
 
+use App\Casts\PgArray;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -50,7 +51,7 @@ final class PgsScore extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'trait_efo_ids' => 'array',          // PG TEXT[]
+        'trait_efo_ids' => PgArray::class,   // PG TEXT[] (not JSON array)
         'ancestry_distribution' => 'array',  // JSONB
         'variants_number' => 'integer',
         'loaded_at' => 'datetime',
