@@ -34,6 +34,11 @@ return new class extends Migration
 {
     public function up(): void
     {
+        $hasRole = DB::selectOne("SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_migrator'");
+        if (! $hasRole) {
+            return;
+        }
+
         // Attempt the grant. If the current role cannot grant (e.g. running as
         // parthenon_migrator on fresh envs), PG raises insufficient_privilege
         // — catch and fall through to the verify below which will throw with
