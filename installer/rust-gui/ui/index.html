@@ -12,30 +12,70 @@
         <div class="intro">
           <p class="eyebrow">Community Edition</p>
           <h1>Install Parthenon</h1>
-          <p>Choose the local checkout, confirm the default Community stack, and launch the existing Python installer with a generated defaults file.</p>
+          <p>Set the admin account, check the machine, then start the Community installer. The app handles the installer details for you.</p>
         </div>
 
+        <nav class="stepper" aria-label="Installer progress">
+          <div class="step active" data-step="configure"><span>1</span> Configure</div>
+          <div class="step" data-step="check"><span>2</span> Check</div>
+          <div class="step" data-step="install"><span>3</span> Install</div>
+          <div class="step" data-step="done"><span>4</span> Done</div>
+        </nav>
+
         <form id="installer-form" class="installer-form">
-          <fieldset>
-            <legend>Workspace</legend>
-            <label>
-              Parthenon repo path
-              <input id="repo-path" name="repo_path" autocomplete="off" />
-            </label>
+          <section class="form-section">
+            <div>
+              <h2>Workspace</h2>
+              <p>Use an existing checkout, or use a verified installer bundle.</p>
+            </div>
+            <div class="field-grid">
+              <label>
+                Install source
+                <select id="source-mode" name="source_mode">
+                  <option>Use existing checkout</option>
+                  <option>Use installer bundle</option>
+                </select>
+              </label>
+              <label id="repo-path-field">
+                Parthenon repo path
+                <input id="repo-path" name="repo_path" autocomplete="off" />
+              </label>
+            </div>
+            <div id="bundle-fields" class="field-grid" hidden>
+              <label>
+                Bundle URL
+                <input id="bundle-url" name="bundle_url" placeholder="https://github.com/.../parthenon-community-bootstrap.tar.gz" autocomplete="off" />
+              </label>
+              <label>
+                Local bundle archive
+                <input id="bundle-archive-path" name="bundle_archive_path" placeholder="/path/to/parthenon-community-bootstrap.tar.gz" autocomplete="off" />
+              </label>
+              <label>
+                Bundle SHA-256
+                <input id="bundle-sha256" name="bundle_sha256" placeholder="Optional archive checksum" autocomplete="off" />
+              </label>
+              <label>
+                Install folder
+                <input id="bundle-install-dir" name="bundle_install_dir" placeholder="Leave blank to use the installer cache" autocomplete="off" />
+              </label>
+            </div>
             <div id="windows-fields" class="windows-fields" hidden>
               <label>
                 WSL distro
                 <input id="wsl-distro" name="wsl_distro" placeholder="Ubuntu-24.04" autocomplete="off" />
               </label>
               <label>
-                WSL repo path
+                WSL install path
                 <input id="wsl-repo-path" name="wsl_repo_path" placeholder="/home/user/Parthenon" autocomplete="off" />
               </label>
             </div>
-          </fieldset>
+          </section>
 
-          <fieldset>
-            <legend>Administrator</legend>
+          <section class="form-section">
+            <div>
+              <h2>Administrator</h2>
+              <p>This account is created during installation.</p>
+            </div>
             <div class="field-grid">
               <label>
                 Admin email
@@ -54,10 +94,13 @@
                 <input id="timezone" name="timezone" value="UTC" />
               </label>
             </div>
-          </fieldset>
+          </section>
 
-          <fieldset>
-            <legend>Community Stack</legend>
+          <section class="form-section">
+            <div>
+              <h2>Community Stack</h2>
+              <p>These defaults stand up the Community edition with search and starter data.</p>
+            </div>
             <div class="field-grid">
               <label>
                 App URL
@@ -65,51 +108,140 @@
               </label>
               <label>
                 Ollama URL
-                <input id="ollama-url" name="ollama_url" value="http://host.docker.internal:11434" />
+                <input id="ollama-url" name="ollama_url" placeholder="Optional: http://host.docker.internal:11434" />
               </label>
             </div>
             <div class="toggle-grid">
               <label><input id="include-eunomia" type="checkbox" checked /> Eunomia demo data</label>
               <label><input id="enable-solr" type="checkbox" checked /> Solr search</label>
-              <label><input id="enable-study-agent" type="checkbox" checked /> Study Agent</label>
-              <label><input id="enable-blackrabbit" type="checkbox" checked /> BlackRabbit profiler</label>
-              <label><input id="enable-fhir-to-cdm" type="checkbox" checked /> FHIR-to-CDM</label>
               <label><input id="enable-hecate" type="checkbox" checked /> Hecate concept search</label>
-              <label><input id="enable-orthanc" type="checkbox" /> Orthanc imaging</label>
             </div>
-          </fieldset>
+          </section>
 
-          <fieldset>
-            <legend>Launch</legend>
+          <section class="form-section">
+            <div>
+              <h2>OMOP Data</h2>
+              <p>Choose whether Parthenon should use a prepared CDM, prepare an existing database server, or create local PostgreSQL.</p>
+            </div>
+            <div class="field-grid">
+              <label>
+                CDM target
+                <select id="cdm-setup-mode" name="cdm_setup_mode">
+                  <option>Create local PostgreSQL OMOP database</option>
+                  <option>Use an existing database server</option>
+                  <option>Use an existing OMOP CDM</option>
+                </select>
+              </label>
+              <label>
+                Database platform
+                <select id="cdm-dialect" name="cdm_dialect">
+                  <option>PostgreSQL</option>
+                  <option>Microsoft SQL Server</option>
+                  <option>Oracle</option>
+                  <option>Amazon Redshift</option>
+                  <option>Snowflake</option>
+                  <option>Google BigQuery</option>
+                  <option>Apache Spark</option>
+                  <option>Azure Synapse Analytics Dedicated</option>
+                  <option>InterSystems IRIS</option>
+                  <option>DuckDB</option>
+                  <option>SQLite</option>
+                  <option>Not sure yet / will configure later</option>
+                </select>
+              </label>
+            </div>
+            <div id="cdm-state-fields" class="field-grid">
+              <label>
+                What exists now?
+                <select id="cdm-existing-state" name="cdm_existing_state">
+                  <option>Empty database or schema</option>
+                  <option>Schemas exist but OMOP tables are missing</option>
+                  <option>OMOP tables exist but vocabulary is missing</option>
+                  <option>Vocabulary is loaded but clinical data is pending</option>
+                  <option>Complete OMOP CDM exists</option>
+                </select>
+              </label>
+              <label>
+                Vocabulary
+                <select id="vocabulary-setup" name="vocabulary_setup">
+                  <option>Use demo starter data</option>
+                  <option>Use existing vocabulary</option>
+                  <option>Load Athena vocabulary ZIP</option>
+                  <option>Load later</option>
+                </select>
+              </label>
+            </div>
+            <div id="cdm-connection-fields" class="field-grid">
+              <label>
+                Server or connection host
+                <input id="cdm-server" name="cdm_server" placeholder="host, JDBC URL, or cloud endpoint" autocomplete="off" />
+              </label>
+              <label>
+                Database
+                <input id="cdm-database" name="cdm_database" placeholder="database, catalog, or project" autocomplete="off" />
+              </label>
+              <label>
+                User
+                <input id="cdm-user" name="cdm_user" autocomplete="off" />
+              </label>
+              <label>
+                Password
+                <input id="cdm-password" name="cdm_password" type="password" autocomplete="off" />
+              </label>
+            </div>
+            <div class="field-grid">
+              <label>
+                CDM schema
+                <input id="cdm-schema" name="cdm_schema" value="omop" autocomplete="off" />
+              </label>
+              <label>
+                Vocabulary schema
+                <input id="vocabulary-schema" name="vocabulary_schema" value="omop" autocomplete="off" />
+              </label>
+              <label>
+                Results schema
+                <input id="results-schema" name="results_schema" value="results" autocomplete="off" />
+              </label>
+              <label>
+                Temp schema
+                <input id="temp-schema" name="temp_schema" value="scratch" autocomplete="off" />
+              </label>
+            </div>
+            <label id="vocab-zip-field">
+              Athena vocabulary ZIP
+              <input id="vocab-zip-path" name="vocab_zip_path" placeholder="/path/to/AthenaVocabulary.zip" autocomplete="off" />
+            </label>
+          </section>
+
+          <section class="form-section">
+            <div>
+              <h2>Ready To Install</h2>
+              <p>Run the system check first. A real install writes files and starts Docker services.</p>
+            </div>
+            <div id="review" class="review-list"></div>
             <div class="launch-options">
-              <label><input id="dry-run" type="checkbox" checked /> Dry run only</label>
-              <label><input id="confirm-real-install" type="checkbox" /> I understand real install will write files and start Docker services</label>
+              <label><input id="dry-run" type="checkbox" checked /> Test run only</label>
+              <label><input id="confirm-real-install" type="checkbox" /> I am ready to start Docker services and write installer files</label>
             </div>
             <div class="button-row">
-              <button id="preflight-btn" type="button">Run Preflight</button>
-              <button id="preview-btn" type="button">Preview Defaults</button>
-              <button id="install-btn" class="primary" type="submit">Start</button>
+              <button id="preflight-btn" type="button">Check System</button>
+              <button id="install-btn" class="primary" type="submit">Run Test</button>
             </div>
-          </fieldset>
+          </section>
         </form>
       </section>
 
       <aside class="status-panel">
-        <section>
+        <section class="status-card">
           <h2>Status</h2>
           <div id="status" class="status">Ready</div>
         </section>
-        <section>
-          <h2>Preflight</h2>
-          <div id="preflight" class="preflight-list">Run preflight before starting the installer.</div>
+        <section class="status-card">
+          <h2>System Check</h2>
+          <div id="preflight" class="preflight-list">Check the system before starting the installer.</div>
         </section>
-        <section>
-          <h2>Defaults Preview</h2>
-          <p class="panel-note">Secrets are redacted in preview and dry-run output.</p>
-          <pre id="preview" class="preview">No defaults generated yet.</pre>
-        </section>
-        <section>
-          <h2>Installer Log</h2>
+        <section class="status-card">
+          <h2>Progress</h2>
           <pre id="log" class="log">Waiting for installer output.</pre>
         </section>
       </aside>

@@ -28,11 +28,13 @@ python3 clickme.py
 
 ## Release Packaging Policy
 
-GitHub releases should publish only GitHub's generated source archives. Do not
-attach PyInstaller, Cosmopolitan, Rust GUI, `.deb`, `.snap`, Winget, or checksum
-assets until those installers are signed, reproducible, and covered by install
-smoke tests. The supported remote install path is `installer/install.sh`, which
-obtains the requested source ref and runs the in-repo Python installer.
+GitHub Actions may publish temporary workflow artifacts for the Rust GUI
+packages and the source-backed Community bootstrap bundle. Do not attach
+PyInstaller, Cosmopolitan, Rust GUI, `.deb`, `.snap`, Winget, or checksum assets
+as GitHub Release assets until those installers are signed, reproducible, and
+covered by install smoke tests. The supported remote install path remains
+`installer/install.sh`, which obtains the requested source ref and runs the
+in-repo Python installer.
 
 The browser-based installer now begins with a required onboarding gate:
 
@@ -94,11 +96,48 @@ Installers can consume that bundle with either:
 Desktop packaging experiments can remain local, but they are not release
 assets until they satisfy the packaging policy above.
 
+## Shared Contract
+
+Installer shells should use the Python contract instead of reimplementing
+installer rules:
+
+```bash
+python3 install.py --contract defaults --community --contract-redact
+python3 install.py --contract validate --community --contract-redact
+python3 install.py --contract plan --community --contract-redact
+python3 install.py --contract preflight --community --contract-redact
+python3 install.py --contract data-check --community --contract-redact
+python3 install.py --contract bundle-manifest --community --contract-redact
+```
+
+`bundle-manifest` expands `installer/installer_manifest.json` into the current
+file list, sizes, SHA-256 hashes, validation results, and bundle digest. It is
+the source of truth for the Rust app's no-repo bootstrapper work.
+
+Create and verify the source-backed installer bundle artifact with:
+
+```bash
+python3 -m installer.bundle_manifest --validate --bundle-dir dist/installer-bundle
+mkdir -p /tmp/parthenon-installer-bundle-check
+tar -xzf dist/installer-bundle/parthenon-community-bootstrap-*.tar.gz \
+  -C /tmp/parthenon-installer-bundle-check
+python3 -m installer.bundle_manifest \
+  --manifest /tmp/parthenon-installer-bundle-check/installer-bundle-manifest.json \
+  --repo-root /tmp/parthenon-installer-bundle-check \
+  --validate
+```
+
+The Rust desktop installer can consume the resulting `.tar.gz` from a local
+path or URL, verify it, and run the Python installer from the extracted bundle.
+
 ## Modules
 
 - `bootstrap.py`
+- `bundle_manifest.py`
 - `cli.py`
 - `config.py`
+- `contract.py`
+- `data_probe.py`
 - `demo_data.py`
 - `docker_ops.py`
 - `etl_mbu_patient.py`

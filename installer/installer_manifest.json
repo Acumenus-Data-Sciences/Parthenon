@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "bundle_name": "parthenon-community-bootstrap",
+  "bundle_version": "0.1.0",
+  "target_edition": "Community Edition",
+  "checksum_algorithm": "sha256",
+  "description": "Source-backed bootstrap manifest for the Parthenon Community installer. The Rust installer will use this contract as the boundary for downloading and verifying a minimal installer bundle.",
+  "source_policy": {
+    "goal": "Stop requiring end users to clone the full Parthenon repository before install.",
+    "current_mode": "source-backed",
+    "next_mode": "prebuilt-image bundle",
+    "known_gap": "The current compose file still has source bind mounts for backend, frontend, and selected service contexts. A prebuilt-image compose profile is the next step before the bundle can be truly repo-free."
+  },
+  "file_groups": [
+    {
+      "name": "entrypoints",
+      "role": "entrypoint",
+      "required": true,
+      "include": [
+        "install.py",
+        "installer/install.sh",
+        "installer/installer_manifest.json"
+      ]
+    },
+    {
+      "name": "installer-python",
+      "role": "python",
+      "required": true,
+      "include": [
+        "installer/*.py"
+      ],
+      "exclude": [
+        "installer/test_*.py"
+      ]
+    },
+    {
+      "name": "installer-web",
+      "role": "web-ui",
+      "required": true,
+      "include": [
+        "installer/web/*"
+      ]
+    },
+    {
+      "name": "compose",
+      "role": "compose",
+      "required": true,
+      "include": [
+        "docker-compose.yml",
+        ".env.example",
+        "backend/.env.example",
+        "frontend/.env.example"
+      ]
+    },
+    {
+      "name": "docker-support",
+      "role": "docker-support",
+      "required": true,
+      "include": [
+        "docker/**/*"
+      ]
+    }
+  ],
+  "phases": [
+    {
+      "name": "preflight",
+      "detail": "Check OS, Python, Docker, disk, ports, and selected services before download or install."
+    },
+    {
+      "name": "download",
+      "detail": "Download the versioned installer bundle selected by the user or release channel."
+    },
+    {
+      "name": "verify",
+      "detail": "Verify every bundle file against the manifest checksum before execution."
+    },
+    {
+      "name": "configure",
+      "detail": "Collect Community defaults and keep generated JSON/internal files out of the default user experience."
+    },
+    {
+      "name": "prepare-data-target",
+      "detail": "Connect to, create, or inspect the OMOP CDM target before services start."
+    },
+    {
+      "name": "start-services",
+      "detail": "Start selected Docker services and wait for health checks."
+    },
+    {
+      "name": "finalize",
+      "detail": "Create the admin account, register data source mappings, and write diagnostics."
+    }
+  ],
+  "dbms_support": [
+    {"dbms": "PostgreSQL", "tier": "first-class"},
+    {"dbms": "Microsoft SQL Server", "tier": "hades-helper"},
+    {"dbms": "Oracle", "tier": "hades-helper"},
+    {"dbms": "Amazon Redshift", "tier": "hades-helper"},
+    {"dbms": "Snowflake", "tier": "hades-helper"},
+    {"dbms": "Google BigQuery", "tier": "hades-helper"},
+    {"dbms": "Apache Spark", "tier": "hades-helper"},
+    {"dbms": "Azure Synapse Analytics Dedicated", "tier": "hades-helper"},
+    {"dbms": "InterSystems IRIS", "tier": "hades-helper"},
+    {"dbms": "DuckDB", "tier": "hades-helper"},
+    {"dbms": "SQLite", "tier": "hades-helper"},
+    {"dbms": "Apache Hive", "tier": "advanced-deprecated"},
+    {"dbms": "Apache Impala", "tier": "advanced-deprecated"},
+    {"dbms": "IBM Netezza", "tier": "advanced-deprecated"},
+    {"dbms": "Microsoft Parallel Data Warehouse", "tier": "advanced-deprecated"}
+  ]
+}

@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from . import config, launcher, license, preflight, utils
+from . import config, contract, data_probe, launcher, license, preflight, utils
 
 
 STATIC_DIR = launcher.resource_path("installer/web")
@@ -94,8 +94,11 @@ class InstallerBackend:
 
     def bootstrap(self) -> dict[str, Any]:
         defaults = config.build_config_defaults()
+        community_defaults = contract.normalize_defaults(community=True)
         return {
             "defaults": defaults,
+            "community_defaults": community_defaults,
+            "community_plan": contract.service_plan(community_defaults),
             "repo_path": launcher.default_repo_path(),
             "wsl_distro": launcher.default_wsl_distro(),
             "wsl_repo_path": launcher.default_wsl_repo_path(),
@@ -119,12 +122,22 @@ class InstallerBackend:
         repo_path = str(payload.get("repo_path") or "")
         with self._use_repo_root(repo_path) as resolved:
             checks = preflight.run_checks(payload)
+            data_checks = data_probe.run_checks(payload, repo_root=str(resolved))["checks"]
 
-        def section(items: list[preflight.CheckResult], title: str, action: str) -> dict[str, Any]:
+        def check_dict(check: preflight.CheckResult | dict[str, Any]) -> dict[str, str]:
+            if isinstance(check, dict):
+                return {
+                    "name": str(check.get("name", "")),
+                    "status": str(check.get("status", "")),
+                    "detail": str(check.get("detail", "")),
+                }
+            return {"name": check.name, "status": check.status, "detail": check.detail}
+
+        def section(items: list[preflight.CheckResult] | list[dict[str, Any]], title: str, action: str) -> dict[str, Any]:
             return {
                 "title": title,
                 "action": action,
-                "checks": [{"name": c.name, "status": c.status, "detail": c.detail} for c in items],
+                "checks": [check_dict(c) for c in items],
             }
 
         runtime = [
@@ -144,14 +157,17 @@ class InstallerBackend:
         ports = [c for c in checks if c.name.startswith("Port ")]
         failures = [c for c in checks if c.status == "fail"]
         warnings = [c for c in checks if c.status == "warn"]
+        data_failures = [c for c in data_checks if c["status"] == "fail"]
+        data_warnings = [c for c in data_checks if c["status"] == "warn"]
         return {
             "repo_root": str(resolved),
-            "failures": len(failures),
-            "warnings": len(warnings),
+            "failures": len(failures) + len(data_failures),
+            "warnings": len(warnings) + len(data_warnings),
             "sections": [
                 section(runtime, "Runtime Dependencies", "Fix Docker, Compose, Python, or Linux docker-group issues before installation."),
                 section(workspace, "Workspace Readiness", "Confirm the selected repo, free disk, and whether an existing install is acceptable."),
                 section(ports, "Port Availability", "Free these ports or change the mapped ports later in the wizard."),
+                section(data_checks, "OMOP Data Readiness", "Confirm the selected database path, vocabulary plan, and schema readiness."),
             ],
         }
 

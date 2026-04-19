@@ -76,7 +76,30 @@ CDM_DIALECT_CHOICES = [
     "Amazon Redshift",
     "Snowflake",
     "Oracle",
+    "DuckDB",
+    "SQLite",
+    "Apache Spark",
+    "Azure Synapse Analytics Dedicated",
+    "InterSystems IRIS",
     "Not sure yet / will configure later",
+]
+CDM_SETUP_MODE_CHOICES = [
+    "Use an existing database server",
+    "Use an existing OMOP CDM",
+    "Create local PostgreSQL OMOP database",
+]
+CDM_EXISTING_STATE_CHOICES = [
+    "Empty database or schema",
+    "Schemas exist but OMOP tables are missing",
+    "OMOP tables exist but vocabulary is missing",
+    "Vocabulary is loaded but clinical data is pending",
+    "Complete OMOP CDM exists",
+]
+VOCABULARY_SETUP_CHOICES = [
+    "Use existing vocabulary",
+    "Load Athena vocabulary ZIP",
+    "Load later",
+    "Use demo starter data",
 ]
 ENV_CHOICES = ["local", "production"]
 MODULE_CHOICES = ["research", "commons", "ai_knowledge", "data_pipeline", "infrastructure"]
@@ -217,6 +240,29 @@ def build_config_defaults(overrides: dict[str, Any] | None = None) -> dict[str, 
             choices=CDM_DIALECT_CHOICES,
             default="PostgreSQL",
         ),
+        "cdm_setup_mode": _validated_choice(
+            seed.get("cdm_setup_mode"),
+            choices=CDM_SETUP_MODE_CHOICES,
+            default="Create local PostgreSQL OMOP database",
+        ),
+        "cdm_existing_state": _validated_choice(
+            seed.get("cdm_existing_state"),
+            choices=CDM_EXISTING_STATE_CHOICES,
+            default="Empty database or schema",
+        ),
+        "cdm_server": (seed.get("cdm_server") or "").strip(),
+        "cdm_database": (seed.get("cdm_database") or "").strip(),
+        "cdm_user": (seed.get("cdm_user") or "").strip(),
+        "cdm_password": seed.get("cdm_password") or "",
+        "cdm_schema": (seed.get("cdm_schema") or "omop").strip(),
+        "vocabulary_schema": (seed.get("vocabulary_schema") or "omop").strip(),
+        "results_schema": (seed.get("results_schema") or "results").strip(),
+        "temp_schema": (seed.get("temp_schema") or "scratch").strip(),
+        "vocabulary_setup": _validated_choice(
+            seed.get("vocabulary_setup"),
+            choices=VOCABULARY_SETUP_CHOICES,
+            default="Use demo starter data",
+        ),
         "app_url": app_url,
         "env": _validated_choice(seed.get("env"), choices=ENV_CHOICES, default="local"),
         "db_password": seed.get("db_password") or _generate_password(24),
@@ -280,7 +326,8 @@ def build_config_defaults(overrides: dict[str, Any] | None = None) -> dict[str, 
         if not seed.get("edition"):
             cfg["edition"] = "Community Edition"
         cfg["enterprise_key"] = ""
-        cfg["vocab_zip_path"] = None
+        if cfg["vocabulary_setup"] != "Load Athena vocabulary ZIP":
+            cfg["vocab_zip_path"] = None
     if cfg["edition"] == "Community Edition":
         cfg["enterprise_key"] = ""
 
@@ -315,6 +362,17 @@ def build_community_mvp_defaults(overrides: dict[str, Any] | None = None) -> dic
         "umls_api_key": "",
         "vocab_zip_path": None,
         "cdm_dialect": "PostgreSQL",
+        "cdm_setup_mode": "Create local PostgreSQL OMOP database",
+        "cdm_existing_state": "Empty database or schema",
+        "cdm_server": "",
+        "cdm_database": "parthenon",
+        "cdm_user": "parthenon",
+        "cdm_password": "",
+        "cdm_schema": "omop",
+        "vocabulary_schema": "omop",
+        "results_schema": "results",
+        "temp_schema": "scratch",
+        "vocabulary_setup": "Use demo starter data",
         "app_url": "http://localhost",
         "env": "local",
         "timezone": "UTC",
@@ -359,6 +417,22 @@ def validate_config(cfg: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("umls_api_key is required for vocabulary imports")
     if normalized["cdm_dialect"] not in CDM_DIALECT_CHOICES:
         raise ValueError("cdm_dialect is not a supported option")
+    if normalized["cdm_setup_mode"] not in CDM_SETUP_MODE_CHOICES:
+        raise ValueError("cdm_setup_mode is not a supported option")
+    if normalized["cdm_existing_state"] not in CDM_EXISTING_STATE_CHOICES:
+        raise ValueError("cdm_existing_state is not a supported option")
+    if normalized["vocabulary_setup"] not in VOCABULARY_SETUP_CHOICES:
+        raise ValueError("vocabulary_setup is not a supported option")
+    for key in ["cdm_schema", "vocabulary_schema", "results_schema", "temp_schema"]:
+        if not normalized[key]:
+            raise ValueError(f"{key} is required")
+    if normalized["cdm_setup_mode"] != "Create local PostgreSQL OMOP database":
+        if not normalized["cdm_server"]:
+            raise ValueError("cdm_server is required for existing database targets")
+        if not normalized["cdm_database"]:
+            raise ValueError("cdm_database is required for existing database targets")
+    if normalized["vocabulary_setup"] == "Load Athena vocabulary ZIP" and not normalized["vocab_zip_path"]:
+        raise ValueError("vocab_zip_path is required when loading an Athena vocabulary ZIP")
     if normalized["env"] not in ENV_CHOICES:
         raise ValueError("env must be 'local' or 'production'")
     if not normalized["app_url"]:
@@ -398,7 +472,7 @@ def validate_config(cfg: dict[str, Any]) -> dict[str, Any]:
         if not normalized["livekit_api_secret"]:
             raise ValueError("livekit_api_secret is required when LiveKit is enabled")
 
-    if normalized["experience"] == "Experienced" and normalized["vocab_zip_path"]:
+    if normalized["vocab_zip_path"]:
         vocab_check = _validate_vocab_zip(normalized["vocab_zip_path"])
         if vocab_check is not True:
             raise ValueError(str(vocab_check))
