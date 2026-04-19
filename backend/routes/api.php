@@ -64,6 +64,7 @@ use App\Http\Controllers\Api\V1\FinnGen\ArtifactController;
 use App\Http\Controllers\Api\V1\FinnGen\CodeExplorerController;
 use App\Http\Controllers\Api\V1\FinnGen\EndpointBrowserController;
 use App\Http\Controllers\Api\V1\FinnGen\GwasManhattanController;
+use App\Http\Controllers\Api\V1\FinnGen\GwasTopVariantsController;
 use App\Http\Controllers\Api\V1\FinnGen\RunController;
 use App\Http\Controllers\Api\V1\FinnGen\SyncReadController;
 use App\Http\Controllers\Api\V1\FinnGen\WorkbenchSessionController;
@@ -1121,6 +1122,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/runs/{run}/manhattan/region', [GwasManhattanController::class, 'region'])
                 ->middleware(['permission:finngen.workbench.use', 'throttle:120,1'])
                 ->name('finngen.runs.manhattan.region');
+            // Phase 16-03 (GENOMICS-04) — Top-variants endpoint for PheWeb-lite variants table
+            Route::get('/runs/{run}/top-variants', [GwasTopVariantsController::class, 'index'])
+                ->middleware(['permission:finngen.workbench.use', 'throttle:120,1'])
+                ->name('finngen.runs.top-variants');
         });
 
         // Phase 16 (GENOMICS-04) — GENCODE gene-track reference data

@@ -14,13 +14,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
  * Asserts:
  *   Layer 1 (auth:sanctum)   — unauthenticated → 401 on every route
  *   Layer 2 (permission gate)— viewer (no finngen.workbench.use) → 403 on the
- *                               2 finngen routes; viewer → 200/422 (NOT 403)
+ *                               3 finngen routes; viewer → 200/422 (NOT 403)
  *                               on /gencode/genes since viewer has cohorts.view.
  *
- * (Ownership invariant is covered by GwasManhattanControllerTest +
- * GwasManhattanRegionTest directly.)
+ * (Ownership invariant is covered by GwasManhattanControllerTest,
+ * GwasManhattanRegionTest, and TopVariantsControllerTest directly.)
  *
- * Top-variants route is intentionally out of scope here — Plan 03 ships it.
+ * Plan 03 extends the finngenRoutes dataset to include the top-variants route.
  */
 uses(RefreshDatabase::class);
 
@@ -46,6 +46,7 @@ dataset('finngenRoutes', function () {
     return [
         'manhattan thinned' => ['path' => '/api/v1/finngen/runs/__RUN__/manhattan'],
         'manhattan region' => ['path' => '/api/v1/finngen/runs/__RUN__/manhattan/region?chrom=1&start=1&end=1000'],
+        'top-variants' => ['path' => '/api/v1/finngen/runs/__RUN__/top-variants'],
     ];
 });
 

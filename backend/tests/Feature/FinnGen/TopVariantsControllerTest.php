@@ -186,11 +186,11 @@ it('flips to descending beta when sort=beta&dir=desc', function () {
     );
 
     // Mutate beta deterministically so ORDER BY beta DESC has a real signal.
-    DB::connection()->statement("
+    DB::connection()->statement('
         UPDATE pancreas_gwas_results.summary_stats
            SET beta = pos::float / 1000000.0
          WHERE gwas_run_id = ?
-    ", [$run->id]);
+    ', [$run->id]);
 
     $resp = $this->actingAs($this->researcher)
         ->getJson("/api/v1/finngen/runs/{$run->id}/top-variants?sort=beta&dir=desc&limit=10")
