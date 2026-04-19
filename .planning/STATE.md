@@ -4,7 +4,7 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 18-02-PLAN.md
-last_updated: "2026-04-19T18:23:50.083Z"
+last_updated: "2026-04-19T18:25:16.141Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 8
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-16 — Milestone v1.0 FinnGen Genomic
 ## Current Position
 
 Phase: 18 (risteys-style-endpoint-dashboard) — EXECUTING
-Plan: 3 of 7 (Plan 18-01 complete)
-Status: Ready to execute
-Last activity: 2026-04-19
+Plan: 3 of 7 (Plan 18-02 complete — Wave 1 foundation shipped)
+Status: Ready to execute Plan 18-03
+Last activity: 2026-04-19 — Plan 18-02 complete (endpoint_profile_access table + permissions)
 
-Progress: [████████░░] 79%
+Progress: [████████░░] 81%
 
 ## Performance Metrics
 
