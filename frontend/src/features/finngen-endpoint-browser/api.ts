@@ -191,3 +191,176 @@ export async function generateEndpoint(
     throw err;
   }
 }
+
+// ── Phase 15 types ──────────────────────────────────────────────────────────
+// Hand-authored from 15-UI-SPEC.md §TypeScript interfaces (lines 293-396).
+// Plan 15-04 did NOT run `./deploy.sh --openapi`, so these live here for now.
+// If/when OpenAPI regen produces matching entries in `api.generated.ts`, swap
+// these for re-exports. See 15-04-SUMMARY.md §"OpenAPI Regen (Deferred)".
+
+export type EndpointRunStatus =
+  | "queued"
+  | "running"
+  | "canceling"
+  | "succeeded"
+  | "failed"
+  | "canceled"
+  | "superseded";
+
+export type EndpointGenerationRun = {
+  run_id: string;
+  source_key: string;
+  status: EndpointRunStatus;
+  subject_count: number | null;
+  created_at: string;
+  finished_at: string | null;
+};
+
+export type EndpointGwasRun = {
+  tracking_id: number;
+  run_id: string;
+  step1_run_id: string | null;
+  source_key: string;
+  control_cohort_id: number;
+  control_cohort_name: string | null;
+  covariate_set_id: number;
+  covariate_set_label: string | null;
+  case_n: number | null;
+  control_n: number | null;
+  top_hit_p_value: number | null;
+  status: EndpointRunStatus;
+  created_at: string;
+  finished_at: string | null;
+  superseded_by_tracking_id: number | null;
+};
+
+export type EligibleControlCohort = {
+  cohort_definition_id: number;
+  name: string;
+  subject_count: number;
+  last_generated_at: string;
+};
+
+export type CovariateSetSummary = {
+  id: number;
+  name: string;
+  is_default: boolean;
+  description: string | null;
+};
+
+export type DispatchGwasPayload = {
+  source_key: string;
+  control_cohort_id: number;
+  covariate_set_id?: number | null;
+  overwrite?: boolean;
+};
+
+export type DispatchGwasResponse = {
+  data: {
+    gwas_run: EndpointGwasRun;
+    cached_step1: boolean;
+  };
+};
+
+export type GwasDispatchRefusalErrorCode =
+  | "unresolvable_concepts"
+  | "source_not_found"
+  | "source_not_prepared"
+  | "endpoint_not_materialized"
+  | "control_cohort_not_prepared"
+  | "covariate_set_not_found"
+  | "duplicate_run"
+  | "run_in_flight"
+  | "not_owned_run"
+  | "endpoint_not_found";
+
+export type GwasDispatchRefusal = {
+  message: string;
+  error_code: GwasDispatchRefusalErrorCode;
+  coverage_bucket?: string;
+  source_key?: string;
+  endpoint?: string;
+  hint?: string;
+  existing_run_id?: string;
+  gwas_run_tracking_id?: number;
+  control_cohort_id?: number;
+  covariate_set_id?: number;
+};
+
+// EndpointDetail extension — Plan 15-04's show() now appends three Phase 15
+// arrays. They're optional so cached/pre-Phase-15 responses still typecheck.
+export type EndpointDetailWithPhase15 = EndpointDetail & {
+  generation_runs?: EndpointGenerationRun[];
+  gwas_runs?: EndpointGwasRun[];
+  gwas_ready_sources?: string[];
+};
+
+// ── Phase 15 functions ──────────────────────────────────────────────────────
+
+export async function dispatchGwas(
+  name: string,
+  payload: DispatchGwasPayload,
+): Promise<DispatchGwasResponse> {
+  try {
+    const r = await apiClient.post<DispatchGwasResponse>(
+      `/finngen/endpoints/${encodeURIComponent(name)}/gwas`,
+      payload,
+    );
+    return r.data;
+  } catch (err: unknown) {
+    // 422/409/403/404 carry a typed GwasDispatchRefusal body — unwrap it so
+    // callers can `catch (r: GwasDispatchRefusal) { switch (r.error_code) ... }`
+    // without reaching into axios internals. See 15-04-SUMMARY.md exception map.
+    if (typeof err === "object" && err !== null && "response" in err) {
+      const r = (err as { response?: { status?: number; data?: unknown } })
+        .response;
+      if (
+        (r?.status === 422 ||
+          r?.status === 409 ||
+          r?.status === 403 ||
+          r?.status === 404) &&
+        r?.data
+      ) {
+        throw r.data as GwasDispatchRefusal;
+      }
+    }
+    throw err;
+  }
+}
+
+export async function fetchEligibleControls(
+  name: string,
+  sourceKey: string,
+): Promise<EligibleControlCohort[]> {
+  const r = await apiClient.get<{ data: EligibleControlCohort[] }>(
+    `/finngen/endpoints/${encodeURIComponent(name)}/eligible-controls`,
+    { params: { source_key: sourceKey } },
+  );
+  return r.data.data;
+}
+
+export async function fetchCovariateSets(): Promise<CovariateSetSummary[]> {
+  try {
+    const r = await apiClient.get<{ data: CovariateSetSummary[] }>(
+      `/finngen/gwas-covariate-sets`,
+    );
+    return r.data.data;
+  } catch (err: unknown) {
+    // UI-SPEC Assumption 10: if the list endpoint doesn't exist yet, return a
+    // single hard-coded default so RunGwasPanel still renders a sensible picker.
+    if (typeof err === "object" && err !== null && "response" in err) {
+      const r = (err as { response?: { status?: number } }).response;
+      if (r?.status === 404) {
+        return [
+          {
+            id: 0,
+            name: "Default: age + sex + 10 PCs",
+            is_default: true,
+            description: null,
+          },
+        ];
+      }
+    }
+    throw err;
+  }
+}
