@@ -28,6 +28,13 @@ beforeEach(function () {
     $this->seed(FinnGenTestingSeeder::class);
 
     $this->admin = User::where('email', 'finngen-test-admin@test.local')->firstOrFail();
+    // REVIEW §WR-03 — plain researcher (no admin/super-admin role) needed
+    // to exercise the non-admin branch of eligibleControls. The 'researcher'
+    // role has `finngen.workbench.use` but not admin/super-admin, matching the
+    // real-world caller that Plan 15-10's admin/non-admin SQL split protects.
+    // FinnGenTestingSeeder creates finngen-test-researcher@test.local; fall
+    // back to an ad-hoc researcher user if the seeder fixture is ever removed.
+    $this->nonAdmin = User::where('email', 'finngen-test-researcher@test.local')->firstOrFail();
 
     FinnGenEndpointGeneration::query()->where('endpoint_name', 'E4_DM2')->delete();
     EndpointDefinition::query()->where('name', 'E4_DM2')->delete();
@@ -53,13 +60,13 @@ beforeEach(function () {
 
     // Clear any leftover cohort_definitions from prior tests at the ids we use.
     DB::connection('pgsql')->table('cohort_definitions')
-        ->whereIn('id', [777, 778, 100_000_000_221])
+        ->whereIn('id', [777, 778, 779, 780, 100_000_000_221])
         ->delete();
 });
 
 afterEach(function () {
     DB::connection('pgsql')->table('cohort_definitions')
-        ->whereIn('id', [777, 778, 100_000_000_221])
+        ->whereIn('id', [777, 778, 779, 780, 100_000_000_221])
         ->delete();
     DB::connection('pgsql')->statement('DROP TABLE IF EXISTS pancreas.cohort');
 });
@@ -150,4 +157,71 @@ it('returns expected shape for an eligible cohort', function () {
     expect($row)->toHaveKeys(['cohort_definition_id', 'name', 'subject_count', 'last_generated_at']);
     expect($row['subject_count'])->toBe(2);
     expect($row['name'])->toBe('Healthy controls PANCREAS');
+});
+
+it('includes an is_public cohort owned by another user for a non-admin caller', function () {
+    // REVIEW §WR-03b — cohort 779 is owned by admin but flagged is_public.
+    // A plain researcher (non-admin) must still see it as an eligible control,
+    // proving the `OR cd.is_public = TRUE` branch is honoured in the non-admin
+    // SQL path after the Plan 15-10 admin/non-admin split.
+    DB::connection('pgsql')->table('cohort_definitions')->insert([
+        'id' => 779,
+        'name' => 'Public PANCREAS control',
+        'author_id' => $this->admin->id, // owned by admin, not by $this->nonAdmin
+        'is_public' => true,
+        'domain' => 'cohort',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    DB::connection('pgsql')->table('pancreas.cohort')->insert([
+        ['cohort_definition_id' => 779, 'subject_id' => 1, 'cohort_start_date' => '2020-01-01', 'cohort_end_date' => '2023-01-01'],
+    ]);
+
+    $response = $this->actingAs($this->nonAdmin)
+        ->getJson('/api/v1/finngen/endpoints/E4_DM2/eligible-controls?source_key=PANCREAS');
+
+    $response->assertStatus(200);
+    $ids = array_column($response->json('data'), 'cohort_definition_id');
+    expect($ids)->toContain(779);
+});
+
+it('excludes a NULL author_id non-public cohort for a non-admin caller but surfaces it to an admin', function () {
+    // REVIEW §WR-03c — cohort 780 is a legacy seeded cohort: author_id IS NULL,
+    // is_public is FALSE. By design the non-admin caller MUST NOT see it; the
+    // admin caller MUST see it. Proves the admin/non-admin branch split
+    // (REVIEW §WR-01 Option B) is wired correctly.
+    //
+    // app.cohort_definitions.author_id is declared NOT NULL in the migration,
+    // but legacy seeded rows in older environments exist with NULL — that is
+    // the exact production risk this test guards against. Drop the NOT NULL
+    // constraint inline so the simulated legacy row can be inserted; the
+    // RefreshDatabase rollback at test teardown restores it.
+    DB::connection('pgsql')->statement('ALTER TABLE cohort_definitions ALTER COLUMN author_id DROP NOT NULL');
+
+    DB::connection('pgsql')->table('cohort_definitions')->insert([
+        'id' => 780,
+        'name' => 'Legacy seeded cohort (NULL author)',
+        'author_id' => null,
+        'is_public' => false,
+        'domain' => 'cohort',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    DB::connection('pgsql')->table('pancreas.cohort')->insert([
+        ['cohort_definition_id' => 780, 'subject_id' => 1, 'cohort_start_date' => '2020-01-01', 'cohort_end_date' => '2023-01-01'],
+    ]);
+
+    // Non-admin — must be hidden.
+    $nonAdminResp = $this->actingAs($this->nonAdmin)
+        ->getJson('/api/v1/finngen/endpoints/E4_DM2/eligible-controls?source_key=PANCREAS');
+    $nonAdminResp->assertStatus(200);
+    expect(array_column($nonAdminResp->json('data'), 'cohort_definition_id'))
+        ->not->toContain(780);
+
+    // Admin — must be visible.
+    $adminResp = $this->actingAs($this->admin)
+        ->getJson('/api/v1/finngen/endpoints/E4_DM2/eligible-controls?source_key=PANCREAS');
+    $adminResp->assertStatus(200);
+    expect(array_column($adminResp->json('data'), 'cohort_definition_id'))
+        ->toContain(780);
 });
