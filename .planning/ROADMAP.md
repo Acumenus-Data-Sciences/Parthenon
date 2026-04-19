@@ -111,11 +111,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. The endpoint browser detail drawer's "Generation history" section shows every historical endpoint-generation run per (endpoint x source) pair -- not just the latest -- with timestamp, subject_count, and status, sourced from a filtered query on the existing `finngen.runs` table (per D-18)
   4. A researcher submits a GWAS run from the endpoint browser and sees `status=succeeded` with summary_stats row count > 0 in `{source}_gwas_results.summary_stats` within 30 minutes of dispatch
 **Plans**: 9 plans
-- [ ] 15-01-PLAN.md — Wave 0: finngen.endpoint_gwas_runs migration + EndpointGwasRun model + 8 typed exceptions (D-12/D-13/D-14/D-19 + HIGHSEC grants)
-- [ ] 15-02-PLAN.md — Wave 1: GwasRunService::dispatchStep2AfterStep1 + dispatchFullGwas orchestrator (D-03/D-04/D-05/D-10/D-15 + Open Q5 ownership check)
-- [ ] 15-03-PLAN.md — Wave 1: FinnGenGwasRunObserver + registration (D-16/D-17 + CLAUDE.md Gotcha #12 try-catch posture)
-- [ ] 15-04-PLAN.md — Wave 2: DispatchEndpointGwasRequest + EndpointBrowserController::gwas()/eligibleControls() + show() extension + routes + OpenAPI regen (D-01/D-02/D-21/D-30)
-- [ ] 15-05-PLAN.md — Wave 3: api.ts types + 3 TanStack Query hooks (useDispatchGwas/useEligibleControlCohorts/useCovariateSets)
+- [x] 15-01-PLAN.md — Wave 0: finngen.endpoint_gwas_runs migration + EndpointGwasRun model + 8 typed exceptions (D-12/D-13/D-14/D-19 + HIGHSEC grants)
+- [x] 15-02-PLAN.md — Wave 1: GwasRunService::dispatchStep2AfterStep1 + dispatchFullGwas orchestrator (D-03/D-04/D-05/D-10/D-15 + Open Q5 ownership check)
+- [x] 15-03-PLAN.md — Wave 1: FinnGenGwasRunObserver + registration (D-16/D-17 + CLAUDE.md Gotcha #12 try-catch posture)
+- [x] 15-04-PLAN.md — Wave 2: DispatchEndpointGwasRequest + EndpointBrowserController::gwas()/eligibleControls() + show() extension + routes + OpenAPI regen (D-01/D-02/D-21/D-30)
+- [x] 15-05-PLAN.md — Wave 3: api.ts types + 3 TanStack Query hooks (useDispatchGwas/useEligibleControlCohorts/useCovariateSets)
 - [ ] 15-06-PLAN.md — Wave 3: RunStatusBadge superseded + font-semibold promotion + GenerationHistorySection + GwasRunsSection + RunGwasPanel (D-22/D-23/D-24/D-25 + UI-SPEC 2-weight typography)
 - [ ] 15-07-PLAN.md — Wave 4: FinnGenEndpointBrowserPage drawer wiring + Phase 16 stub route
 - [ ] 15-08-PLAN.md — Wave 5: 6 Pest feature + 1 Pest unit + 5 Vitest tests (D-26/D-27/D-28)
@@ -170,7 +170,7 @@ Phase 18 depends on Phase 13 and can run in parallel with the entire 14-17 chain
 |-------|----------------|--------|-----------|
 | 13. FinnGen Endpoint Universalization (Standard-First Resolver) | 0/0 | Not started | - |
 | 14. regenie GWAS Infrastructure | 4/7 | In Progress|  |
-| 15. GWAS Dispatch, Run Tracking, and Generation History | 0/9 | Not started | - |
+| 15. GWAS Dispatch, Run Tracking, and Generation History | 5/9 | In Progress|  |
 | 16. PheWeb-lite Results UI and Workbench Attribution | 0/0 | Not started | - |
 | 17. PGS Catalog Ingestion, PRS Scoring, and Distribution Viz | 0/0 | Not started | - |
 | 18. Risteys-style Endpoint Dashboard | 0/0 | Not started | - |
