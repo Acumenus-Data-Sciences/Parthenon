@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ChevronRight, ChevronDown, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { ConceptHierarchyNode } from "../types/vocabulary";
 
@@ -100,6 +101,8 @@ export function HierarchyTree({
   isLoading,
   currentConceptId,
 }: HierarchyTreeProps) {
+  const { t } = useTranslation("app");
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -111,7 +114,9 @@ export function HierarchyTree({
   if (!tree) {
     return (
       <div className="flex items-center justify-center py-8">
-        <p className="text-xs text-text-ghost">No hierarchy data available</p>
+        <p className="text-xs text-text-ghost">
+          {t("vocabulary.hierarchyTree.empty.noData")}
+        </p>
       </div>
     );
   }

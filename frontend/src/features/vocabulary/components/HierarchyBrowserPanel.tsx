@@ -1,6 +1,8 @@
 import { useState, useMemo, useCallback } from "react";
 import { ChevronDown, ChevronRight, FolderTree, Loader2, Search, Info, X, LayoutGrid, List } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { formatNumber } from "@/i18n/format";
 import { useConceptTree } from "../hooks/useConceptTree";
 import { useClinicalGroupings } from "../hooks/useClinicalGroupings";
 import { useGroupingPrevalence } from "../hooks/useGroupingPrevalence";
@@ -43,6 +45,7 @@ export function HierarchyBrowserPanel({
   onSelectConcept,
   selectedConceptId,
 }: HierarchyBrowserPanelProps) {
+  const { t } = useTranslation("app");
   const [parentId, setParentId] = useState(0);
   const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbEntry[]>([]);
   const [filterText, setFilterText] = useState("");
@@ -221,7 +224,7 @@ export function HierarchyBrowserPanel({
             breadcrumbs.length === 0 ? "text-accent font-medium" : "text-text-muted",
           )}
         >
-          All Domains
+          {t("vocabulary.hierarchyBrowser.breadcrumb.allDomains")}
         </button>
         {breadcrumbs.map((bc, i) => (
           <span key={bc.concept_id} className="flex items-center gap-1">
@@ -249,8 +252,12 @@ export function HierarchyBrowserPanel({
           <div className="flex items-center gap-3">
             <span className="text-[10px] text-text-ghost">
               {shouldShowGroupings
-                ? `${groupings?.length ?? 0} clinical groupings`
-                : `${sortedAndFilteredNodes.length} concepts`}
+                ? t("vocabulary.hierarchyBrowser.counts.clinicalGroupings", {
+                  count: formatNumber(groupings?.length ?? 0),
+                })
+                : t("vocabulary.hierarchyBrowser.counts.concepts", {
+                  count: formatNumber(sortedAndFilteredNodes.length),
+                })}
             </span>
             {shouldShowGroupings && sources && sources.length > 0 && (
               <div className="relative">
@@ -259,7 +266,7 @@ export function HierarchyBrowserPanel({
                   onChange={(e) => setSelectedSourceId(e.target.value ? Number(e.target.value) : null)}
                   className="appearance-none rounded border border-border-default bg-surface-overlay px-2 py-0.5 pr-5 text-[10px] text-text-muted focus:border-accent/50 focus:outline-none cursor-pointer"
                 >
-                  <option value="">All Sources</option>
+                  <option value="">{t("vocabulary.hierarchyBrowser.filters.allSources")}</option>
                   {sources.map((s) => (
                     <option key={s.id} value={s.id}>{s.source_name}</option>
                   ))}
@@ -276,12 +283,12 @@ export function HierarchyBrowserPanel({
             {shouldShowGroupings ? (
               <>
                 <List size={10} />
-                Show all concepts
+                {t("vocabulary.hierarchyBrowser.actions.showAllConcepts")}
               </>
             ) : (
               <>
                 <LayoutGrid size={10} />
-                Show groupings
+                {t("vocabulary.hierarchyBrowser.actions.showGroupings")}
               </>
             )}
           </button>
@@ -297,7 +304,9 @@ export function HierarchyBrowserPanel({
               type="text"
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
-              placeholder={`Filter ${nodes?.length ?? 0} items...`}
+              placeholder={t("vocabulary.hierarchyBrowser.filters.itemPlaceholder", {
+                count: formatNumber(nodes?.length ?? 0),
+              })}
               className="w-full rounded-md border border-border-default bg-surface-overlay py-1.5 pl-7 pr-7 text-xs text-text-primary placeholder:text-text-ghost focus:border-accent/50 focus:outline-none focus:ring-1 focus:ring-accent/25"
             />
             {filterText && (
@@ -318,8 +327,13 @@ export function HierarchyBrowserPanel({
         <div className="px-4 py-1.5 border-b border-border-default bg-surface-base/50 shrink-0">
           <span className="text-[10px] text-text-ghost">
             {filterText
-              ? `${sortedAndFilteredNodes.length} of ${nodes?.length ?? 0} items`
-              : `${sortedAndFilteredNodes.length} items`}
+              ? t("vocabulary.hierarchyBrowser.counts.filteredItems", {
+                shown: formatNumber(sortedAndFilteredNodes.length),
+                total: formatNumber(nodes?.length ?? 0),
+              })
+              : t("vocabulary.hierarchyBrowser.counts.items", {
+                count: formatNumber(sortedAndFilteredNodes.length),
+              })}
           </span>
         </div>
       )}
@@ -337,7 +351,10 @@ export function HierarchyBrowserPanel({
           /* HLGT sub-grouping cards */
           <div className="space-y-2 p-1">
             <p className="px-2 py-1 text-[10px] text-text-ghost">
-              {activeParentGrouping.name} — {activeParentGrouping.children.length} sub-categories
+              {t("vocabulary.hierarchyBrowser.counts.namedSubCategories", {
+                name: activeParentGrouping.name,
+                count: formatNumber(activeParentGrouping.children.length),
+              })}
             </p>
             <GroupingsGrid
               groupings={activeParentGrouping.children}
@@ -357,7 +374,9 @@ export function HierarchyBrowserPanel({
         ) : sortedAndFilteredNodes.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 gap-2">
             <p className="text-xs text-text-ghost">
-              {filterText ? "No matching concepts" : "No concepts found"}
+              {filterText
+                ? t("vocabulary.hierarchyBrowser.empty.noMatchingConcepts")
+                : t("vocabulary.hierarchyBrowser.empty.noConcepts")}
             </p>
             {filterText && (
               <button
@@ -365,7 +384,7 @@ export function HierarchyBrowserPanel({
                 onClick={() => setFilterText("")}
                 className="text-[10px] text-accent hover:text-warning transition-colors"
               >
-                Clear filter
+                {t("vocabulary.hierarchyBrowser.actions.clearFilter")}
               </button>
             )}
           </div>
@@ -395,7 +414,9 @@ export function HierarchyBrowserPanel({
                   </div>
                   <div className="flex items-center justify-between w-full">
                     <span className="text-[10px] text-text-ghost">
-                      {(node.descendant_count ?? node.child_count).toLocaleString()} concepts
+                      {t("vocabulary.hierarchyBrowser.counts.concepts", {
+                        count: formatNumber(node.descendant_count ?? node.child_count),
+                      })}
                     </span>
                     <ChevronRight size={12} className="text-text-ghost group-hover:text-text-muted transition-colors" />
                   </div>
@@ -461,7 +482,7 @@ export function HierarchyBrowserPanel({
                     {/* Child count */}
                     {hasChildren && (
                       <span className="text-[9px] text-text-muted shrink-0">
-                        ({node.child_count.toLocaleString()})
+                        ({formatNumber(node.child_count)})
                       </span>
                     )}
                   </div>
@@ -470,10 +491,12 @@ export function HierarchyBrowserPanel({
                   {node.concept_id > 0 && hasChildren && (
                     <button
                       type="button"
-                      aria-label={`View details for ${node.concept_name}`}
+                      aria-label={t("vocabulary.hierarchyBrowser.actions.viewDetailsFor", {
+                        conceptName: node.concept_name,
+                      })}
                       onClick={(e) => handleInfoClick(e, node)}
                       className="shrink-0 px-2 py-2 text-text-ghost transition-colors hover:text-success opacity-0 group-hover:opacity-100"
-                      title="View concept details"
+                      title={t("vocabulary.hierarchyBrowser.actions.viewConceptDetails")}
                     >
                       <Info size={12} />
                     </button>
@@ -497,9 +520,7 @@ export function HierarchyBrowserPanel({
 }
 
 function formatCount(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return n.toLocaleString();
+  return formatNumber(n, { notation: "compact", maximumFractionDigits: 1 });
 }
 
 /** Grid of clinical grouping cards */
@@ -514,6 +535,8 @@ function GroupingsGrid({
   prevalenceMap?: Map<number, GroupingPrevalence>;
   prevalenceLoading?: boolean;
 }) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="grid grid-cols-2 gap-2 p-1">
       {groupings.map((g) => {
@@ -544,10 +567,15 @@ function GroupingsGrid({
                 <div className="flex items-center justify-between mt-1">
                   <span className="text-[9px] text-text-ghost">
                     {g.children && g.children.length > 0
-                      ? `${g.children.length} sub-categories`
+                      ? t("vocabulary.hierarchyBrowser.counts.subCategories", {
+                        count: formatNumber(g.children.length),
+                      })
                       : g.anchors.length > 1
-                        ? `${g.anchors.length} subcategories`
-                        : g.anchors[0]?.concept_name ?? "1 anchor"}
+                        ? t("vocabulary.hierarchyBrowser.counts.subcategories", {
+                          count: formatNumber(g.anchors.length),
+                        })
+                        : g.anchors[0]?.concept_name
+                          ?? t("vocabulary.hierarchyBrowser.counts.oneAnchor")}
                   </span>
                   <ChevronRight
                     size={10}
@@ -564,12 +592,16 @@ function GroupingsGrid({
                   <div className="flex gap-2 mt-1">
                     {prev.person_count > 0 && (
                       <span className="text-[9px] text-text-ghost">
-                        {formatCount(prev.person_count)} persons
+                        {t("vocabulary.hierarchyBrowser.counts.persons", {
+                          count: formatCount(prev.person_count),
+                        })}
                       </span>
                     )}
                     {prev.record_count > 0 && (
                       <span className="text-[9px] text-text-ghost">
-                        {formatCount(prev.record_count)} records
+                        {t("vocabulary.hierarchyBrowser.counts.records", {
+                          count: formatCount(prev.record_count),
+                        })}
                       </span>
                     )}
                   </div>
@@ -595,12 +627,16 @@ function AnchorsList({
   domainId: string;
   onAnchorClick: (anchor: AnchorDetail) => void;
 }) {
+  const { t } = useTranslation("app");
   const color = DOMAIN_COLORS[domainId] ?? "var(--text-muted)";
 
   return (
     <div className="space-y-1 p-1">
       <p className="px-2 py-1 text-[10px] text-text-ghost">
-        {groupingName} covers {anchors.length} subcategories
+        {t("vocabulary.hierarchyBrowser.counts.groupingCoversSubcategories", {
+          groupingName,
+          count: formatNumber(anchors.length),
+        })}
       </p>
       {anchors.map((anchor) => (
         <button

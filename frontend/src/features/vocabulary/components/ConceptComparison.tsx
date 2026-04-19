@@ -1,9 +1,20 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, X, Loader2, Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useConceptComparison, useDebounce } from "../hooks/useVocabularySearch";
 import { searchConcepts } from "../api/vocabularyApi";
 import type { Concept } from "../types/vocabulary";
+
+type ComparisonField =
+  | "conceptCode"
+  | "domain"
+  | "vocabulary"
+  | "conceptClass"
+  | "standard"
+  | "validStart"
+  | "validEnd"
+  | "invalidReason";
 
 function ConceptCard({
   entry,
@@ -15,21 +26,26 @@ function ConceptCard({
     ancestors: { concept_id: number; concept_name: string; domain_id: string; vocabulary_id: string; min_levels_of_separation: number }[];
     relationships: { relationship_id: string; concept_id_2: number; concept_name: string; domain_id: string; vocabulary_id: string }[];
   };
-  allFields: string[];
+  allFields: readonly ComparisonField[];
   onRemove: () => void;
 }) {
+  const { t } = useTranslation("app");
   const c = entry.concept;
   const isStandard = c.standard_concept === "S";
 
-  const fieldValues: Record<string, string> = {
-    "Concept Code": c.concept_code,
-    Domain: c.domain_id,
-    Vocabulary: c.vocabulary_id,
-    "Concept Class": c.concept_class_id,
-    Standard: c.standard_concept === "S" ? "Standard" : c.standard_concept === "C" ? "Classification" : "Non-standard",
-    "Valid Start": c.valid_start_date ?? "--",
-    "Valid End": c.valid_end_date ?? "--",
-    "Invalid Reason": c.invalid_reason ?? "Valid",
+  const fieldValues: Record<ComparisonField, string> = {
+    conceptCode: c.concept_code,
+    domain: c.domain_id,
+    vocabulary: c.vocabulary_id,
+    conceptClass: c.concept_class_id,
+    standard: c.standard_concept === "S"
+      ? t("vocabulary.conceptComparison.values.standard")
+      : c.standard_concept === "C"
+        ? t("vocabulary.conceptComparison.values.classification")
+        : t("vocabulary.conceptComparison.values.nonStandard"),
+    validStart: c.valid_start_date ?? "--",
+    validEnd: c.valid_end_date ?? "--",
+    invalidReason: c.invalid_reason ?? t("vocabulary.conceptComparison.values.valid"),
   };
 
   return (
@@ -44,7 +60,7 @@ function ConceptCard({
               </span>
               {isStandard && (
                 <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-success/15 text-success">
-                  Standard
+                  {t("vocabulary.conceptComparison.values.standard")}
                 </span>
               )}
             </div>
@@ -67,7 +83,7 @@ function ConceptCard({
         {allFields.map((field) => (
           <div key={field} className="px-4 py-2 flex items-center justify-between gap-2">
             <span className="text-[10px] uppercase tracking-wider text-text-ghost font-semibold shrink-0">
-              {field}
+              {t(`vocabulary.conceptComparison.fields.${field}`)}
             </span>
             <span className="text-xs text-text-primary text-right truncate">
               {fieldValues[field] ?? "--"}
@@ -81,13 +97,17 @@ function ConceptCard({
         <div className="border-t border-border-default">
           <div className="px-4 py-2 bg-surface-overlay">
             <span className="text-[10px] uppercase tracking-wider text-text-muted font-semibold">
-              Ancestors (2 levels)
+              {t("vocabulary.conceptComparison.sections.ancestors")}
             </span>
           </div>
           <div className="px-4 py-2 space-y-1">
             {entry.ancestors.map((a) => (
               <div key={a.concept_id} className="flex items-center gap-2">
-                <span className="text-[10px] text-text-ghost">L{a.min_levels_of_separation}</span>
+                <span className="text-[10px] text-text-ghost">
+                  {t("vocabulary.conceptComparison.values.level", {
+                    level: a.min_levels_of_separation,
+                  })}
+                </span>
                 <span className="text-xs text-text-primary truncate">{a.concept_name}</span>
                 <span className="shrink-0 inline-flex items-center rounded px-1 py-0.5 text-[8px] font-medium bg-accent/15 text-accent">
                   {a.vocabulary_id}
@@ -103,7 +123,7 @@ function ConceptCard({
         <div className="border-t border-border-default">
           <div className="px-4 py-2 bg-surface-overlay">
             <span className="text-[10px] uppercase tracking-wider text-text-muted font-semibold">
-              Relationships
+              {t("vocabulary.conceptComparison.sections.relationships")}
             </span>
           </div>
           <div className="px-4 py-2 space-y-1 max-h-40 overflow-y-auto">
@@ -129,6 +149,7 @@ function ConceptQuickSearch({
   onSelect: (id: number) => void;
   excludeIds: number[];
 }) {
+  const { t } = useTranslation("app");
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Concept[]>([]);
   const [searching, setSearching] = useState(false);
@@ -171,7 +192,7 @@ function ConceptQuickSearch({
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search concept to add..."
+          placeholder={t("vocabulary.conceptComparison.search.placeholder")}
           className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-border-default bg-surface-overlay text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-accent/50"
         />
         {searching && (
@@ -203,17 +224,18 @@ function ConceptQuickSearch({
 }
 
 const ALL_FIELDS = [
-  "Concept Code",
-  "Domain",
-  "Vocabulary",
-  "Concept Class",
-  "Standard",
-  "Valid Start",
-  "Valid End",
-  "Invalid Reason",
-];
+  "conceptCode",
+  "domain",
+  "vocabulary",
+  "conceptClass",
+  "standard",
+  "validStart",
+  "validEnd",
+  "invalidReason",
+] as const satisfies readonly ComparisonField[];
 
 export function ConceptComparison() {
+  const { t } = useTranslation("app");
   const [searchParams, setSearchParams] = useSearchParams();
   const idsParam = searchParams.getAll("ids").map(Number).filter(Boolean);
   const [selectedIds, setSelectedIds] = useState<number[]>(
@@ -242,9 +264,11 @@ export function ConceptComparison() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-bold text-text-primary">Compare Concepts</h1>
+        <h1 className="text-2xl font-bold text-text-primary">
+          {t("vocabulary.conceptComparison.title")}
+        </h1>
         <p className="mt-1 text-sm text-text-muted">
-          Side-by-side comparison of 2-4 OMOP concepts with attributes, ancestors, and relationships
+          {t("vocabulary.conceptComparison.subtitle")}
         </p>
       </div>
 
@@ -261,7 +285,9 @@ export function ConceptComparison() {
       {/* Selected IDs pills */}
       {selectedIds.length > 0 && selectedIds.length < 2 && (
         <div className="flex items-center gap-2">
-          <span className="text-xs text-text-muted">Selected:</span>
+          <span className="text-xs text-text-muted">
+            {t("vocabulary.conceptComparison.values.selected")}
+          </span>
           {selectedIds.map((id) => (
             <span key={id} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs bg-accent/15 text-accent">
               {id}
@@ -270,7 +296,9 @@ export function ConceptComparison() {
               </button>
             </span>
           ))}
-          <span className="text-[10px] text-text-ghost">Add at least one more to compare</span>
+          <span className="text-[10px] text-text-ghost">
+            {t("vocabulary.conceptComparison.values.addOneMore")}
+          </span>
         </div>
       )}
 
@@ -295,7 +323,9 @@ export function ConceptComparison() {
             <div className="shrink-0 w-48 flex items-center justify-center rounded-lg border border-dashed border-border-default bg-surface-raised">
               <div className="text-center">
                 <Plus size={20} className="mx-auto text-text-ghost mb-2" />
-                <p className="text-[10px] text-text-ghost">Add concept</p>
+                <p className="text-[10px] text-text-ghost">
+                  {t("vocabulary.conceptComparison.actions.addConcept")}
+                </p>
               </div>
             </div>
           )}
@@ -305,9 +335,11 @@ export function ConceptComparison() {
       {selectedIds.length === 0 && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-12 text-center">
           <Search size={32} className="mx-auto text-text-ghost mb-4" />
-          <p className="text-sm text-text-muted">Search for concepts to compare</p>
+          <p className="text-sm text-text-muted">
+            {t("vocabulary.conceptComparison.empty.prompt")}
+          </p>
           <p className="mt-1 text-xs text-text-ghost">
-            Select 2-4 concepts to see a side-by-side comparison of their attributes, ancestors, and relationships
+            {t("vocabulary.conceptComparison.empty.help")}
           </p>
         </div>
       )}

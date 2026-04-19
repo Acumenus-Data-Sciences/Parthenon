@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, Sparkles, FolderTree } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { VocabularySearchPanel } from "../components/VocabularySearchPanel";
 import { ConceptDetailPanel } from "../components/ConceptDetailPanel";
@@ -11,6 +12,7 @@ import { HelpButton } from "@/features/help";
 type SearchTab = "keyword" | "semantic" | "browse";
 
 export default function VocabularyPage() {
+  const { t } = useTranslation("app");
   const [searchParams] = useSearchParams();
   const conceptParam = searchParams.get("concept");
 
@@ -20,32 +22,34 @@ export default function VocabularyPage() {
   const [activeTab, setActiveTab] = useState<SearchTab>("keyword");
 
   // If the URL changes (e.g., navigated from a profile link), update selection
+  /* eslint-disable react-hooks/set-state-in-effect -- URL concept params are an external navigation source for the detail pane. */
   useEffect(() => {
     if (conceptParam) {
       const id = Number(conceptParam);
       if (id > 0) setSelectedConceptId(id);
     }
   }, [conceptParam]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // When a concept is selected from semantic search, also show its detail
   const handleSelectConcept = (id: number) => {
     setSelectedConceptId(id);
   };
 
-  const tabs: { id: SearchTab; label: string; icon: React.ReactNode }[] = [
+  const tabs: { id: SearchTab; labelKey: string; icon: React.ReactNode }[] = [
     {
       id: "keyword",
-      label: "Keyword Search",
+      labelKey: "keyword",
       icon: <Search size={13} />,
     },
     {
       id: "semantic",
-      label: "Semantic Search",
+      labelKey: "semantic",
       icon: <Sparkles size={13} />,
     },
     {
       id: "browse" as const,
-      label: "Browse Hierarchy",
+      labelKey: "browse",
       icon: <FolderTree size={13} />,
     },
   ];
@@ -56,10 +60,10 @@ export default function VocabularyPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text-primary">
-            Vocabulary Browser
+            {t("vocabulary.page.title")}
           </h1>
           <p className="mt-1 text-sm text-text-muted">
-            Search, explore, and navigate the OMOP standardized vocabulary
+            {t("vocabulary.page.subtitle")}
           </p>
         </div>
         <HelpButton helpKey="vocabulary-search" />
@@ -90,7 +94,7 @@ export default function VocabularyPage() {
                   )}
                 >
                   {tab.icon}
-                  {tab.label}
+                  {t(`vocabulary.page.tabs.${tab.labelKey}`)}
                 </button>
               ))}
             </div>

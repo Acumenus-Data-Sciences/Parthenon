@@ -1,7 +1,9 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Search, Loader2, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { formatNumber } from "@/i18n/format";
 import { toast } from "@/components/ui/Toast";
 import {
   useConceptSets,
@@ -30,6 +32,7 @@ export function AddToConceptSetModal({
   conceptName,
   searchContext,
 }: AddToConceptSetModalProps) {
+  const { t } = useTranslation("app");
   const navigate = useNavigate();
   const [filter, setFilter] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -85,11 +88,11 @@ export function AddToConceptSetModal({
       },
       {
         onSuccess: () => {
-          toast.success(`Added to "${setName}"`);
+          toast.success(t("vocabulary.addToConceptSet.toasts.addedToSet", { setName }));
           onClose();
         },
         onError: () => {
-          toast.error("Failed to add concept to set");
+          toast.error(t("vocabulary.addToConceptSet.toasts.addFailed"));
         },
       },
     );
@@ -107,7 +110,7 @@ export function AddToConceptSetModal({
               : 0;
 
           if (!setId) {
-            toast.error("Failed to retrieve new concept set ID");
+            toast.error(t("vocabulary.addToConceptSet.toasts.missingSetId"));
             return;
           }
 
@@ -123,12 +126,12 @@ export function AddToConceptSetModal({
             },
             {
               onSuccess: () => {
-                toast.success(`Created "${name}" and added concept`);
+                toast.success(t("vocabulary.addToConceptSet.toasts.createdAndAdded", { name }));
                 onClose();
                 navigate(`/concept-sets/${setId}${buildContextParams()}`);
               },
               onError: () => {
-                toast.error("Set created but failed to add concept");
+                toast.error(t("vocabulary.addToConceptSet.toasts.createdAddFailed"));
                 onClose();
                 navigate(`/concept-sets/${setId}`);
               },
@@ -136,7 +139,7 @@ export function AddToConceptSetModal({
           );
         },
         onError: () => {
-          toast.error("Failed to create concept set");
+          toast.error(t("vocabulary.addToConceptSet.toasts.createFailed"));
         },
       },
     );
@@ -173,7 +176,7 @@ export function AddToConceptSetModal({
         <div className="flex items-start justify-between px-5 pt-5 pb-4 border-b border-white/10">
           <div className="min-w-0 pr-4">
             <h2 className="text-base font-semibold text-text-primary">
-              Add to Concept Set
+              {t("vocabulary.addToConceptSet.title")}
             </h2>
             <p className="text-xs text-text-muted mt-0.5 truncate">
               <span className="font-['IBM_Plex_Mono',monospace] text-accent">
@@ -211,10 +214,10 @@ export function AddToConceptSetModal({
                 </div>
                 <div>
                   <p className="text-sm font-medium text-success">
-                    Create New Concept Set
+                    {t("vocabulary.addToConceptSet.create.title")}
                   </p>
                   <p className="text-[10px] text-text-ghost">
-                    Add concept and open in Builder
+                    {t("vocabulary.addToConceptSet.create.help")}
                   </p>
                 </div>
               </button>
@@ -226,7 +229,7 @@ export function AddToConceptSetModal({
                 )}
               >
                 <label className="text-[10px] font-medium text-success uppercase tracking-wide">
-                  New Concept Set Name
+                  {t("vocabulary.addToConceptSet.create.nameLabel")}
                 </label>
                 <input
                   type="text"
@@ -260,14 +263,14 @@ export function AddToConceptSetModal({
                     {isPending && (
                       <Loader2 size={11} className="animate-spin" />
                     )}
-                    Create
+                    {t("vocabulary.addToConceptSet.actions.create")}
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowCreateForm(false)}
                     className="px-3 py-1.5 rounded-md text-xs text-text-muted hover:text-text-primary hover:bg-white/5 transition-colors"
                   >
-                    Cancel
+                    {t("vocabulary.addToConceptSet.actions.cancel")}
                   </button>
                 </div>
               </div>
@@ -278,7 +281,7 @@ export function AddToConceptSetModal({
           <div className="flex items-center gap-2">
             <div className="flex-1 h-px bg-white/10" />
             <span className="text-[10px] text-text-ghost uppercase tracking-wide">
-              or add to existing
+              {t("vocabulary.addToConceptSet.divider")}
             </span>
             <div className="flex-1 h-px bg-white/10" />
           </div>
@@ -293,7 +296,7 @@ export function AddToConceptSetModal({
               type="text"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              placeholder="Filter concept sets..."
+              placeholder={t("vocabulary.addToConceptSet.filter.placeholder")}
               className={cn(
                 "w-full rounded-lg pl-9 pr-3 py-2 text-sm",
                 "bg-surface-base border border-border-default",
@@ -312,7 +315,9 @@ export function AddToConceptSetModal({
             ) : filtered.length === 0 ? (
               <div className="py-6 text-center">
                 <p className="text-xs text-text-ghost">
-                  {filter ? "No matching concept sets" : "No concept sets found"}
+                  {filter
+                    ? t("vocabulary.addToConceptSet.empty.noMatching")
+                    : t("vocabulary.addToConceptSet.empty.noSets")}
                 </p>
               </div>
             ) : (
@@ -359,7 +364,7 @@ export function AddToConceptSetModal({
                       {/* Item count badge */}
                       {cs.items_count !== undefined && (
                         <span className="shrink-0 mt-0.5 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-medium bg-surface-elevated text-text-muted">
-                          {cs.items_count}
+                          {formatNumber(cs.items_count)}
                         </span>
                       )}
                     </div>
@@ -373,14 +378,14 @@ export function AddToConceptSetModal({
         {/* Footer */}
         <div className="px-5 py-3 border-t border-white/10 flex items-center justify-between">
           <p className="text-[10px] text-text-ghost">
-            Adds with Include Descendants
+            {t("vocabulary.addToConceptSet.footer.includeDescendants")}
           </p>
           <button
             type="button"
             onClick={handleOpenBuilder}
             className="text-[10px] text-accent hover:text-accent-dark transition-colors"
           >
-            Open Builder with current search →
+            {t("vocabulary.addToConceptSet.actions.openBuilderWithSearch")}
           </button>
         </div>
       </div>

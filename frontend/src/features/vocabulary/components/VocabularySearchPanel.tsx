@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Search, Loader2, X, Filter, ChevronDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { formatNumber } from "@/i18n/format";
 import {
   useVocabularySearch,
   useConceptSuggest,
@@ -44,6 +46,7 @@ export function VocabularySearchPanel({
   initialQuery,
   initialFilters,
 }: VocabularySearchPanelProps) {
+  const { t } = useTranslation("app");
   const resolvedMode = mode ?? 'browse';
   const [query, setQuery] = useState(initialQuery ?? "");
   const [showFilters, setShowFilters] = useState(false);
@@ -103,6 +106,7 @@ export function VocabularySearchPanel({
   const applySuggestion = useCallback((text: string) => {
     setQuery(text);
     setShowSuggestions(false);
+    setSelectedSuggestionIdx(-1);
     inputRef.current?.focus();
   }, []);
 
@@ -165,10 +169,11 @@ export function VocabularySearchPanel({
             onChange={(e) => {
               setQuery(e.target.value);
               setShowSuggestions(true);
+              setSelectedSuggestionIdx(-1);
             }}
             onFocus={() => query.length >= 2 && setShowSuggestions(true)}
             onKeyDown={handleKeyDown}
-            placeholder="Search concepts..."
+            placeholder={t("vocabulary.searchPanel.placeholder")}
             className={cn(
               "w-full rounded-lg pl-9 pr-8 py-2.5 text-sm",
               "bg-surface-base border border-border-default",
@@ -229,7 +234,7 @@ export function VocabularySearchPanel({
             )}
           >
             <Filter size={12} />
-            Filters
+            {t("vocabulary.searchPanel.filters.toggle")}
             {hasActiveFilters && (
               <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-success/15 text-[9px] font-bold text-success">
                 {activeFilterCount}
@@ -247,7 +252,7 @@ export function VocabularySearchPanel({
           {/* Standard Concepts Toggle */}
           <label className="flex items-center gap-1.5 cursor-pointer">
             <span className={cn("text-xs transition-colors", standardOnly ? "text-success" : "text-text-ghost")}>
-              Standard
+              {t("vocabulary.searchPanel.filters.standardOnly")}
             </span>
             <button
               type="button"
@@ -283,12 +288,17 @@ export function VocabularySearchPanel({
                 "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
               )}
             >
-              <option value="">All Domains</option>
+              <option value="">{t("vocabulary.searchPanel.filters.allDomains")}</option>
               {domains?.map((d) => {
                 const count = facets?.domain_id?.[d.domain_id];
                 return (
                   <option key={d.domain_id} value={d.domain_id}>
-                    {d.domain_name}{count != null ? ` (${count.toLocaleString()})` : ""}
+                    {d.domain_name}
+                    {count != null
+                      ? t("vocabulary.searchPanel.filters.countSuffix", {
+                        count: formatNumber(count),
+                      })
+                      : ""}
                   </option>
                 );
               })}
@@ -305,12 +315,17 @@ export function VocabularySearchPanel({
                 "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
               )}
             >
-              <option value="">All Vocabularies</option>
+              <option value="">{t("vocabulary.searchPanel.filters.allVocabularies")}</option>
               {vocabularies?.map((v) => {
                 const count = facets?.vocabulary_id?.[v.vocabulary_id];
                 return (
                   <option key={v.vocabulary_id} value={v.vocabulary_id}>
-                    {v.vocabulary_name}{count != null ? ` (${count.toLocaleString()})` : ""}
+                    {v.vocabulary_name}
+                    {count != null
+                      ? t("vocabulary.searchPanel.filters.countSuffix", {
+                        count: formatNumber(count),
+                      })
+                      : ""}
                   </option>
                 );
               })}
@@ -327,10 +342,13 @@ export function VocabularySearchPanel({
                 "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
               )}
             >
-              <option value="">All Concept Classes</option>
+              <option value="">{t("vocabulary.searchPanel.filters.allConceptClasses")}</option>
               {conceptClassOptions.map(([name, count]) => (
                 <option key={name} value={name}>
-                  {name} ({count.toLocaleString()})
+                  {name}
+                  {t("vocabulary.searchPanel.filters.countSuffix", {
+                    count: formatNumber(count),
+                  })}
                 </option>
               ))}
             </select>
@@ -342,7 +360,7 @@ export function VocabularySearchPanel({
                 onClick={clearFilters}
                 className="text-xs text-critical hover:text-critical transition-colors"
               >
-                Clear all filters
+                {t("vocabulary.searchPanel.actions.clearAllFilters")}
               </button>
             )}
           </div>
@@ -358,15 +376,15 @@ export function VocabularySearchPanel({
         ) : !query || query.length < 2 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center px-4">
             <Search size={28} className="text-text-ghost mb-3" />
-            <p className="text-sm text-text-muted">Search the OMOP Vocabulary</p>
+            <p className="text-sm text-text-muted">{t("vocabulary.searchPanel.empty.prompt")}</p>
             <p className="mt-1 text-xs text-text-ghost">
-              Type at least 2 characters to search concepts by name, code, or ID
+              {t("vocabulary.searchPanel.empty.help")}
             </p>
           </div>
         ) : !results || results.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center px-4">
             <p className="text-sm text-text-muted">
-              No concepts found for &ldquo;{query}&rdquo;
+              {t("vocabulary.searchPanel.empty.noResults", { query })}
             </p>
             {hasActiveFilters && (
               <button
@@ -374,7 +392,7 @@ export function VocabularySearchPanel({
                 onClick={clearFilters}
                 className="mt-2 text-xs text-success hover:text-success-dark transition-colors"
               >
-                Try clearing filters
+                {t("vocabulary.searchPanel.actions.tryClearingFilters")}
               </button>
             )}
           </div>
@@ -383,7 +401,10 @@ export function VocabularySearchPanel({
             {/* Result count + engine indicator */}
             <div className="px-4 py-2 border-b border-border-default flex items-center justify-between">
               <p className="text-[10px] text-text-ghost">
-                Showing {results.length} of {total.toLocaleString()} results
+                {t("vocabulary.searchPanel.results.showingCount", {
+                  shown: formatNumber(results.length),
+                  total: formatNumber(total),
+                })}
               </p>
               {engine && (
                 <span
@@ -400,7 +421,9 @@ export function VocabularySearchPanel({
                       engine === "solr" ? "bg-success" : "bg-text-muted",
                     )}
                   />
-                  {engine === "solr" ? "Solr" : "PG"}
+                  {t(engine === "solr"
+                    ? "vocabulary.searchPanel.engine.solr"
+                    : "vocabulary.searchPanel.engine.pg")}
                 </span>
               )}
             </div>
@@ -424,7 +447,7 @@ export function VocabularySearchPanel({
                     )}
                   >
                     {name}
-                    <span className="text-info/50">{count.toLocaleString()}</span>
+                    <span className="text-info/50">{formatNumber(count)}</span>
                   </button>
                 ))}
                 {/* Vocabulary chips */}
@@ -443,7 +466,7 @@ export function VocabularySearchPanel({
                     )}
                   >
                     {name}
-                    <span className="text-accent/50">{count.toLocaleString()}</span>
+                    <span className="text-accent/50">{formatNumber(count)}</span>
                   </button>
                 ))}
                 {/* Concept class chips */}
@@ -462,7 +485,7 @@ export function VocabularySearchPanel({
                     )}
                   >
                     {name}
-                    <span className="text-text-muted/50">{count.toLocaleString()}</span>
+                    <span className="text-text-muted/50">{formatNumber(count)}</span>
                   </button>
                 ))}
               </div>
@@ -504,14 +527,14 @@ export function VocabularySearchPanel({
                       </span>
                       {isStandard && (
                         <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-success/15 text-success">
-                          S
+                          {t("vocabulary.searchPanel.values.standardAbbrev")}
                         </span>
                       )}
                       <span className="flex-1" />
                       {resolvedMode === 'build' ? (
                         isInSet ? (
                           <span className="shrink-0 rounded bg-teal-500/10 px-2 py-0.5 text-xs text-teal-400">
-                            In set
+                            {t("vocabulary.searchPanel.values.inSet")}
                           </span>
                         ) : (
                           <button
@@ -565,10 +588,10 @@ export function VocabularySearchPanel({
                   {isFetchingNextPage ? (
                     <span className="inline-flex items-center gap-2">
                       <Loader2 size={12} className="animate-spin" />
-                      Loading...
+                      {t("vocabulary.searchPanel.actions.loading")}
                     </span>
                   ) : (
-                    "Load more results"
+                    t("vocabulary.searchPanel.actions.loadMoreResults")
                   )}
                 </button>
               </div>

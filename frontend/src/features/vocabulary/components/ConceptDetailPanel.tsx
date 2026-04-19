@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Loader2, ExternalLink, ChevronLeft, ChevronRight, Copy, Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { formatNumber } from "@/i18n/format";
 import {
   useConcept,
   useConceptRelationships,
@@ -14,11 +16,11 @@ import { toast } from "@/components/ui/Toast";
 
 type Tab = "info" | "relationships" | "maps-from" | "hierarchy";
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: "info", label: "Info" },
-  { id: "relationships", label: "Relationships" },
-  { id: "maps-from", label: "Maps From" },
-  { id: "hierarchy", label: "Hierarchy" },
+const TABS: { id: Tab; labelKey: string }[] = [
+  { id: "info", labelKey: "info" },
+  { id: "relationships", labelKey: "relationships" },
+  { id: "maps-from", labelKey: "mapsFrom" },
+  { id: "hierarchy", labelKey: "hierarchy" },
 ];
 
 interface ConceptDetailPanelProps {
@@ -46,9 +48,17 @@ function InfoField({
 }
 
 export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetailPanelProps) {
+  const { t } = useTranslation("app");
   const [activeTab, setActiveTab] = useState<Tab>("info");
-  const [relPage, setRelPage] = useState(1);
+  const [relPageState, setRelPageState] = useState<{
+    conceptId: number | null;
+    page: number;
+  }>({ conceptId: null, page: 1 });
   const [showAddToSet, setShowAddToSet] = useState(false);
+  const relPage = relPageState.conceptId === conceptId ? relPageState.page : 1;
+  const setRelPageForConcept = (page: number) => {
+    setRelPageState({ conceptId, page });
+  };
 
   const searchContext = {
     query: new URL(window.location.href).searchParams.get("q") ?? undefined,
@@ -56,11 +66,6 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
     vocabulary: new URL(window.location.href).searchParams.get("vocabulary") ?? undefined,
     standard: new URL(window.location.href).searchParams.get("standard") ?? undefined,
   };
-
-  // Reset relationship page when concept changes
-  useEffect(() => {
-    setRelPage(1);
-  }, [conceptId]);
 
   const { data: concept, isLoading } = useConcept(conceptId);
   const { data: relationships, isLoading: isLoadingRels } =
@@ -80,9 +85,9 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
     return (
       <div className="flex flex-col items-center justify-center h-full px-8">
         <ExternalLink size={32} className="text-text-ghost mb-4" />
-        <p className="text-sm text-text-muted">Select a concept to view details</p>
+        <p className="text-sm text-text-muted">{t("vocabulary.conceptDetail.empty.title")}</p>
         <p className="mt-1 text-xs text-text-ghost">
-          Search and click a concept from the left panel
+          {t("vocabulary.conceptDetail.empty.subtitle")}
         </p>
       </div>
     );
@@ -99,7 +104,7 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
   if (!concept) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p className="text-sm text-critical">Failed to load concept</p>
+        <p className="text-sm text-critical">{t("vocabulary.conceptDetail.errors.failedLoad")}</p>
       </div>
     );
   }
@@ -118,16 +123,16 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
             type="button"
             onClick={() => {
               navigator.clipboard.writeText(String(concept.concept_id));
-              toast.success("Concept ID copied");
+              toast.success(t("vocabulary.conceptDetail.toasts.conceptIdCopied"));
             }}
             className="p-0.5 rounded text-text-ghost hover:text-accent transition-colors"
-            title="Copy concept ID"
+            title={t("vocabulary.conceptDetail.actions.copyConceptId")}
           >
             <Copy size={12} />
           </button>
           {isStandard && (
             <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-success/15 text-success">
-              Standard
+              {t("vocabulary.conceptDetail.values.standard")}
             </span>
           )}
         </div>
@@ -150,7 +155,7 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
             className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium bg-success/15 text-success hover:bg-success/25 transition-colors ml-auto"
           >
             <Plus size={12} />
-            Add to Set
+            {t("vocabulary.conceptDetail.actions.addToSet")}
           </button>
         </div>
       </div>
@@ -169,7 +174,7 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
                 : "text-text-muted hover:text-text-secondary",
             )}
           >
-            {tab.label}
+            {t(`vocabulary.conceptDetail.tabs.${tab.labelKey}`)}
             {activeTab === tab.id && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
             )}
@@ -184,36 +189,36 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
             {/* Basic Info */}
             <section>
               <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">
-                Basic Information
+                {t("vocabulary.conceptDetail.sections.basicInformation")}
               </h3>
               <div className="grid grid-cols-2 gap-4 rounded-lg border border-border-default bg-surface-overlay p-4">
-                <InfoField label="Concept Code" value={concept.concept_code} />
-                <InfoField label="Domain" value={concept.domain_id} />
-                <InfoField label="Vocabulary" value={concept.vocabulary_id} />
+                <InfoField label={t("vocabulary.conceptDetail.fields.conceptCode")} value={concept.concept_code} />
+                <InfoField label={t("vocabulary.conceptDetail.fields.domain")} value={concept.domain_id} />
+                <InfoField label={t("vocabulary.conceptDetail.fields.vocabulary")} value={concept.vocabulary_id} />
                 <InfoField
-                  label="Concept Class"
+                  label={t("vocabulary.conceptDetail.fields.conceptClass")}
                   value={concept.concept_class_id}
                 />
                 <InfoField
-                  label="Standard Concept"
+                  label={t("vocabulary.conceptDetail.fields.standardConcept")}
                   value={
                     concept.standard_concept === "S"
-                      ? "Standard"
+                      ? t("vocabulary.conceptDetail.values.standard")
                       : concept.standard_concept === "C"
-                        ? "Classification"
-                        : "Non-standard"
+                        ? t("vocabulary.conceptDetail.values.classification")
+                        : t("vocabulary.conceptDetail.values.nonStandard")
                   }
                 />
                 <InfoField
-                  label="Invalid Reason"
-                  value={concept.invalid_reason ?? "Valid"}
+                  label={t("vocabulary.conceptDetail.fields.invalidReason")}
+                  value={concept.invalid_reason ?? t("vocabulary.conceptDetail.values.valid")}
                 />
                 <InfoField
-                  label="Valid Start Date"
+                  label={t("vocabulary.conceptDetail.fields.validStartDate")}
                   value={concept.valid_start_date}
                 />
                 <InfoField
-                  label="Valid End Date"
+                  label={t("vocabulary.conceptDetail.fields.validEndDate")}
                   value={concept.valid_end_date}
                 />
               </div>
@@ -223,7 +228,7 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
             {concept.synonyms && concept.synonyms.length > 0 && (
               <section>
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">
-                  Synonyms
+                  {t("vocabulary.conceptDetail.sections.synonyms")}
                 </h3>
                 <div className="rounded-lg border border-border-default bg-surface-overlay p-4">
                   <ul className="space-y-1">
@@ -240,7 +245,7 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
             {/* Ancestors */}
             <section>
               <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">
-                Ancestors
+                {t("vocabulary.conceptDetail.sections.ancestors")}
               </h3>
               {isLoadingAnc ? (
                 <div className="flex items-center justify-center py-6">
@@ -250,23 +255,23 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
                   />
                 </div>
               ) : !ancestors || ancestors.length === 0 ? (
-                <p className="text-xs text-text-ghost">No ancestors found</p>
+                <p className="text-xs text-text-ghost">{t("vocabulary.conceptDetail.empty.noAncestors")}</p>
               ) : (
                 <div className="rounded-lg border border-border-default bg-surface-overlay overflow-hidden">
                   <table className="w-full">
                     <thead>
                       <tr className="bg-surface-overlay">
                         <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-                          ID
+                          {t("vocabulary.conceptDetail.table.id")}
                         </th>
                         <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-                          Name
+                          {t("vocabulary.conceptDetail.table.name")}
                         </th>
                         <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-                          Domain
+                          {t("vocabulary.conceptDetail.table.domain")}
                         </th>
                         <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-                          Vocabulary
+                          {t("vocabulary.conceptDetail.table.vocabulary")}
                         </th>
                       </tr>
                     </thead>
@@ -312,7 +317,7 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
           return (
             <div>
               <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">
-                Relationships
+                {t("vocabulary.conceptDetail.sections.relationships")}
               </h3>
               {isLoadingRels ? (
                 <div className="flex items-center justify-center py-8">
@@ -323,7 +328,7 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
                 </div>
               ) : !relationships?.items || relationships.items.length === 0 ? (
                 <p className="text-xs text-text-ghost">
-                  No relationships found
+                  {t("vocabulary.conceptDetail.empty.noRelationships")}
                 </p>
               ) : (
                 <div className="rounded-lg border border-border-default bg-surface-overlay overflow-hidden">
@@ -331,19 +336,19 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
                     <thead>
                       <tr className="bg-surface-overlay">
                         <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-                          Relationship
+                          {t("vocabulary.conceptDetail.table.relationship")}
                         </th>
                         <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-                          Related ID
+                          {t("vocabulary.conceptDetail.table.relatedId")}
                         </th>
                         <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-                          Related Name
+                          {t("vocabulary.conceptDetail.table.relatedName")}
                         </th>
                         <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-                          Domain
+                          {t("vocabulary.conceptDetail.table.domain")}
                         </th>
                         <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-                          Vocabulary
+                          {t("vocabulary.conceptDetail.table.vocabulary")}
                         </th>
                       </tr>
                     </thead>
@@ -386,14 +391,17 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
                   {/* Pagination */}
                   <div className="flex items-center justify-between px-3 py-2 border-t border-border-default">
                     <p className="text-[10px] text-text-ghost">
-                      Showing {(relPage - 1) * relationships.limit + 1}–{Math.min(relPage * relationships.limit, relationships.total)} of{" "}
-                      {relationships.total}
+                      {t("vocabulary.conceptDetail.pagination.showingRange", {
+                        start: formatNumber((relPage - 1) * relationships.limit + 1),
+                        end: formatNumber(Math.min(relPage * relationships.limit, relationships.total)),
+                        total: formatNumber(relationships.total),
+                      })}
                     </p>
                     {totalPages > 1 && (
                       <div className="flex items-center gap-1">
                         <button
                           type="button"
-                          onClick={() => setRelPage((p) => Math.max(1, p - 1))}
+                          onClick={() => setRelPageForConcept(Math.max(1, relPage - 1))}
                           disabled={relPage <= 1}
                           className="p-1 rounded text-text-muted hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
@@ -404,7 +412,7 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
                         </span>
                         <button
                           type="button"
-                          onClick={() => setRelPage((p) => Math.min(totalPages, p + 1))}
+                          onClick={() => setRelPageForConcept(Math.min(totalPages, relPage + 1))}
                           disabled={relPage >= totalPages}
                           className="p-1 rounded text-text-muted hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
@@ -422,10 +430,10 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
         {activeTab === "maps-from" && (
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">
-              Source Codes Mapping To This Concept
+              {t("vocabulary.conceptDetail.sections.mapsFrom")}
             </h3>
             <p className="text-[10px] text-text-ghost mb-3">
-              Source vocabulary codes (ICD-10, SNOMED, RxNorm, etc.) that map to this standard concept
+              {t("vocabulary.conceptDetail.sections.mapsFromDescription")}
             </p>
             {isLoadingMapsFrom ? (
               <div className="flex items-center justify-center py-8">
@@ -437,7 +445,7 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
             ) : !mapsFrom?.data || mapsFrom.data.length === 0 ? (
               <div className="rounded-lg border border-border-default bg-surface-overlay p-6 text-center">
                 <p className="text-xs text-text-ghost">
-                  No source codes map to this concept
+                  {t("vocabulary.conceptDetail.empty.noSourceCodes")}
                 </p>
               </div>
             ) : (
@@ -446,16 +454,16 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
                   <thead>
                     <tr className="bg-surface-overlay">
                       <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-                        Code
+                        {t("vocabulary.conceptDetail.table.code")}
                       </th>
                       <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-                        Name
+                        {t("vocabulary.conceptDetail.table.name")}
                       </th>
                       <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-                        Vocabulary
+                        {t("vocabulary.conceptDetail.table.vocabulary")}
                       </th>
                       <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-                        Class
+                        {t("vocabulary.conceptDetail.table.class")}
                       </th>
                     </tr>
                   </thead>
@@ -491,7 +499,10 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
                 {mapsFrom.total > mapsFrom.data.length && (
                   <div className="px-3 py-2 border-t border-border-default text-center">
                     <p className="text-[10px] text-text-ghost">
-                      Showing {mapsFrom.data.length} of {mapsFrom.total} source codes
+                      {t("vocabulary.conceptDetail.pagination.showingSourceCodes", {
+                        shown: formatNumber(mapsFrom.data.length),
+                        total: formatNumber(mapsFrom.total),
+                      })}
                     </p>
                   </div>
                 )}
@@ -503,7 +514,7 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
         {activeTab === "hierarchy" && (
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">
-              Concept Hierarchy
+              {t("vocabulary.conceptDetail.sections.hierarchy")}
             </h3>
             <HierarchyTree
               tree={hierarchy ?? null}

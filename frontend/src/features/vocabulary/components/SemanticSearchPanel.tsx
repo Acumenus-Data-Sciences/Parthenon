@@ -9,7 +9,9 @@ import {
   PlusCircle,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { formatNumber } from "@/i18n/format";
 import { AddToConceptSetModal } from "./AddToConceptSetModal";
 import { semanticSearch } from "../api/hecateApi";
 import type {
@@ -105,6 +107,8 @@ function VocabBadge({ vocab }: { vocab: string }) {
 // ---------------------------------------------------------------------------
 
 function StandardBadge({ value }: { value: string | null }) {
+  const { t } = useTranslation("app");
+
   if (!value) return null;
   const isStandard = value === "S";
   const isClass = value === "C";
@@ -119,7 +123,9 @@ function StandardBadge({ value }: { value: string | null }) {
           : "bg-text-muted/15 text-text-muted",
       )}
     >
-      {isStandard ? "Standard" : "Classification"}
+      {isStandard
+        ? t("vocabulary.semanticSearch.badges.standard")
+        : t("vocabulary.semanticSearch.badges.classification")}
     </span>
   );
 }
@@ -147,6 +153,8 @@ function ResultRow({
   conceptSetItemIds,
   onAddToSetBuild,
 }: ResultRowProps) {
+  const { t } = useTranslation("app");
+
   return (
     <div
       role="button"
@@ -173,7 +181,7 @@ function ResultRow({
           {resolvedMode === 'build' ? (
             conceptSetItemIds?.has(result.concept_id) ? (
               <span className="ml-auto shrink-0 rounded bg-teal-500/10 px-2 py-0.5 text-xs text-teal-400">
-                In set
+                {t("vocabulary.semanticSearch.values.inSet")}
               </span>
             ) : (
               <button
@@ -197,7 +205,7 @@ function ResultRow({
               className="ml-auto inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[9px] text-primary hover:text-critical-dark hover:bg-primary/10 transition-colors"
             >
               <PlusCircle size={10} />
-              Add to Set
+              {t("vocabulary.semanticSearch.actions.addToSet")}
             </button>
           )}
         </div>
@@ -251,6 +259,7 @@ export function SemanticSearchPanel({
   initialQuery,
   initialFilters,
 }: SemanticSearchPanelProps) {
+  const { t } = useTranslation("app");
   const resolvedMode = mode ?? 'browse';
   const [query, setQuery] = useState(initialQuery ?? "");
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -315,10 +324,6 @@ export function SemanticSearchPanel({
   // ---------------------------------------------------------------------------
 
   useEffect(() => {
-    setSelectedSuggestionIdx(-1);
-  }, [debouncedAutocompleteQuery]);
-
-  useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (
         suggestionsRef.current &&
@@ -335,6 +340,7 @@ export function SemanticSearchPanel({
 
   const applySuggestion = useCallback((text: string) => {
     setQuery(text);
+    setSelectedSuggestionIdx(-1);
     setShowSuggestions(false);
     inputRef.current?.focus();
   }, []);
@@ -390,10 +396,10 @@ export function SemanticSearchPanel({
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-1 rounded-full border border-success/40 bg-success/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-success">
             <Sparkles className="h-3 w-3" />
-            Powered by Hecate
+            {t("vocabulary.semanticSearch.poweredBy")}
           </span>
           <span className="text-[10px] text-text-ghost">
-            vector-powered concept discovery
+            {t("vocabulary.semanticSearch.tagline")}
           </span>
         </div>
 
@@ -409,11 +415,12 @@ export function SemanticSearchPanel({
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
+              setSelectedSuggestionIdx(-1);
               setShowSuggestions(true);
             }}
             onFocus={() => query.length >= 2 && setShowSuggestions(true)}
             onKeyDown={handleKeyDown}
-            placeholder="Enter a clinical term to search semantically..."
+            placeholder={t("vocabulary.semanticSearch.placeholder")}
             className={cn(
               "w-full rounded-lg pl-9 pr-8 py-2.5 text-sm",
               "bg-surface-base border border-border-default",
@@ -479,7 +486,7 @@ export function SemanticSearchPanel({
                 "transition-colors",
               )}
             >
-              <option value="">All Domains</option>
+              <option value="">{t("vocabulary.semanticSearch.filters.allDomains")}</option>
               {DOMAINS.map((d) => (
                 <option key={d} value={d}>
                   {d}
@@ -505,7 +512,7 @@ export function SemanticSearchPanel({
                 "transition-colors",
               )}
             >
-              <option value="">All Vocabularies</option>
+              <option value="">{t("vocabulary.semanticSearch.filters.allVocabularies")}</option>
               {VOCABULARIES.map((v) => (
                 <option key={v} value={v}>
                   {v}
@@ -522,10 +529,10 @@ export function SemanticSearchPanel({
           <div className="flex rounded-lg border border-border-default overflow-hidden shrink-0">
             {(
               [
-                { value: "all", label: "All" },
-                { value: "S", label: "S" },
-                { value: "C", label: "C" },
-              ] as { value: StandardConceptFilter; label: string }[]
+                { value: "all", labelKey: "all" },
+                { value: "S", labelKey: "standard" },
+                { value: "C", labelKey: "classification" },
+              ] as { value: StandardConceptFilter; labelKey: string }[]
             ).map((opt) => (
               <button
                 key={opt.value}
@@ -538,7 +545,7 @@ export function SemanticSearchPanel({
                     : "text-text-ghost hover:text-text-secondary bg-surface-base",
                 )}
               >
-                {opt.label}
+                {t(`vocabulary.semanticSearch.filters.standard.${opt.labelKey}`)}
               </button>
             ))}
           </div>
@@ -555,7 +562,7 @@ export function SemanticSearchPanel({
             }}
             className="text-[10px] text-critical hover:text-critical transition-colors"
           >
-            Clear filters
+            {t("vocabulary.semanticSearch.actions.clearFilters")}
           </button>
         )}
       </div>
@@ -573,11 +580,10 @@ export function SemanticSearchPanel({
         {isError && !isLoading && (
           <div className="flex flex-col items-center justify-center py-12 text-center px-4 space-y-3">
             <p className="text-sm text-critical">
-              Semantic search is unavailable.
+              {t("vocabulary.semanticSearch.errors.unavailable")}
             </p>
             <p className="text-xs text-text-ghost">
-              Ensure the Hecate AI service is running and ChromaDB is
-              initialized.
+              {t("vocabulary.semanticSearch.errors.serviceHelp")}
             </p>
             <button
               type="button"
@@ -585,7 +591,7 @@ export function SemanticSearchPanel({
               className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-text-secondary border border-border-default hover:border-success/30 hover:text-success transition-colors"
             >
               <RefreshCw size={12} />
-              Retry
+              {t("vocabulary.semanticSearch.actions.retry")}
             </button>
           </div>
         )}
@@ -597,11 +603,10 @@ export function SemanticSearchPanel({
               <Sparkles size={18} className="text-success/70" />
             </div>
             <p className="text-sm text-text-muted">
-              Enter a clinical term to search semantically
+              {t("vocabulary.semanticSearch.empty.prompt")}
             </p>
             <p className="text-xs text-text-ghost max-w-xs leading-relaxed">
-              Hecate uses vector embeddings to find conceptually similar OMOP
-              concepts, even when exact keyword matches fail.
+              {t("vocabulary.semanticSearch.empty.help")}
             </p>
           </div>
         )}
@@ -614,7 +619,9 @@ export function SemanticSearchPanel({
           results.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16 text-center px-4 space-y-2">
               <p className="text-sm text-text-muted">
-                No semantic matches found for &ldquo;{debouncedQuery}&rdquo;
+                {t("vocabulary.semanticSearch.empty.noResults", {
+                  query: debouncedQuery,
+                })}
               </p>
               {hasFilters && (
                 <button
@@ -626,7 +633,7 @@ export function SemanticSearchPanel({
                   }}
                   className="text-xs text-success hover:text-success-dark transition-colors"
                 >
-                  Try clearing filters
+                  {t("vocabulary.semanticSearch.actions.tryClearingFilters")}
                 </button>
               )}
             </div>
@@ -638,18 +645,23 @@ export function SemanticSearchPanel({
             {/* Result count header */}
             <div className="px-4 py-2 border-b border-border-default flex items-center justify-between">
               <p className="text-[10px] text-text-ghost">
-                {results.length} semantic{" "}
-                {results.length === 1 ? "match" : "matches"}
+                {results.length === 1
+                  ? t("vocabulary.semanticSearch.results.matchCountOne", {
+                      count: formatNumber(results.length),
+                    })
+                  : t("vocabulary.semanticSearch.results.matchCountMany", {
+                      count: formatNumber(results.length),
+                    })}
                 {isFetching && !isLoading && (
                   <span className="ml-2 inline-flex items-center gap-1">
                     <Loader2 size={9} className="animate-spin" />
-                    Updating...
+                    {t("vocabulary.semanticSearch.results.updating")}
                   </span>
                 )}
               </p>
               <span className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-medium bg-success/10 text-success">
                 <span className="w-1.5 h-1.5 rounded-full bg-success" />
-                Hecate
+                {t("vocabulary.semanticSearch.hecate")}
               </span>
             </div>
 
