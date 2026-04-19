@@ -92,7 +92,10 @@ it('migrate→rollback→migrate preserves schema and round-trips row counts', f
         expect($preCoverageCol)->toBeNull('coverage_profile should NOT exist on app.cohort_definitions after the up() migration');
 
         // ─── Phase B: Rollback ───────────────────────────────────────────────
-        Artisan::call('migrate:rollback', ['--path' => $path, '--force' => true]);
+        // Call the migration directly instead of Artisan's batch-based rollback.
+        // Full-suite tests may run later no-op migrations, which changes the
+        // latest batch and makes `migrate:rollback --path` skip this migration.
+        (require base_path($path))->down();
 
         $postRollbackSchema = DB::selectOne("SELECT 1 AS ok FROM pg_namespace WHERE nspname = 'finngen'");
         expect($postRollbackSchema)->toBeNull('finngen schema should be dropped after rollback');
@@ -122,7 +125,7 @@ it('migrate→rollback→migrate preserves schema and round-trips row counts', f
         expect($rehydratedNames)->toEqualCanonicalizing($fixtureNames);
 
         // ─── Phase C: Re-migrate ─────────────────────────────────────────────
-        Artisan::call('migrate', ['--path' => $path, '--force' => true]);
+        (require base_path($path))->up();
 
         $postRemigrateSchema = DB::selectOne("SELECT 1 AS ok FROM pg_namespace WHERE nspname = 'finngen'");
         expect($postRemigrateSchema)->not->toBeNull('finngen schema should be re-created after re-migrate');
