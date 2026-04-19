@@ -108,7 +108,7 @@ it('rejects window > 2 Mb with 422 (T-16-S4)', function () {
 
 it('returns full-resolution variants for valid window', function () {
     $resp = $this->actingAs($this->researcher)
-        ->getJson("/api/v1/finngen/runs/{$this->run->id}/manhattan/region?chrom=1&start=0&end=600000");
+        ->getJson("/api/v1/finngen/runs/{$this->run->id}/manhattan/region?chrom=1&start=1&end=600000");
 
     $resp->assertOk()->assertJsonStructure([
         'variants',

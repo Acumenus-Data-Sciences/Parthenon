@@ -63,9 +63,11 @@ use App\Http\Controllers\Api\V1\FinnGen\AnalysisModuleController;
 use App\Http\Controllers\Api\V1\FinnGen\ArtifactController;
 use App\Http\Controllers\Api\V1\FinnGen\CodeExplorerController;
 use App\Http\Controllers\Api\V1\FinnGen\EndpointBrowserController;
+use App\Http\Controllers\Api\V1\FinnGen\GwasManhattanController;
 use App\Http\Controllers\Api\V1\FinnGen\RunController;
 use App\Http\Controllers\Api\V1\FinnGen\SyncReadController;
 use App\Http\Controllers\Api\V1\FinnGen\WorkbenchSessionController;
+use App\Http\Controllers\Api\V1\GencodeController;
 use App\Http\Controllers\Api\V1\GenomicEvidenceController;
 use App\Http\Controllers\Api\V1\GenomicsController;
 use App\Http\Controllers\Api\V1\GisAirQualityController;
@@ -1111,6 +1113,21 @@ Route::prefix('v1')->group(function () {
                 Route::post('/{name}/prs', [EndpointBrowserController::class, 'prs'])
                     ->middleware(['permission:finngen.prs.compute', 'finngen.idempotency', 'throttle:10,1']);
             });
+
+            // Phase 16 (GENOMICS-04) — PheWeb-lite Manhattan + regional views
+            Route::get('/runs/{run}/manhattan', [GwasManhattanController::class, 'show'])
+                ->middleware(['permission:finngen.workbench.use', 'throttle:120,1'])
+                ->name('finngen.runs.manhattan');
+            Route::get('/runs/{run}/manhattan/region', [GwasManhattanController::class, 'region'])
+                ->middleware(['permission:finngen.workbench.use', 'throttle:120,1'])
+                ->name('finngen.runs.manhattan.region');
+        });
+
+        // Phase 16 (GENOMICS-04) — GENCODE gene-track reference data
+        Route::prefix('gencode')->group(function () {
+            Route::get('/genes', [GencodeController::class, 'index'])
+                ->middleware(['permission:cohorts.view', 'throttle:120,1'])
+                ->name('gencode.genes');
         });
 
         // Jupyter workbench
