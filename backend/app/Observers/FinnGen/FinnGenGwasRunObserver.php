@@ -125,6 +125,12 @@ final class FinnGenGwasRunObserver
     /**
      * D-16 top_hit_p_value rollup — bounded MIN(p_value) on the per-source summary_stats.
      *
+     * Queries the source-specific {schema}.summary_stats for the MIN(p_value)
+     * of the given gwas_run_id. Returns the p-value as a float, or null if
+     * no rows / null min / any query error. A SELECT failure here does NOT
+     * poison the surrounding PG transaction — only DML does — so no
+     * SAVEPOINT wrapper is required (REVIEW §WR-04).
+     *
      * Hits the existing (cohort_definition_id, p_value) BTREE on summary_stats — Index Scan.
      * Schema name is regex-allow-listed before interpolation (T-15-10).
      * Returns null (and logs warning) on any query failure.
@@ -143,18 +149,26 @@ final class FinnGenGwasRunObserver
             return null;
         }
 
-        // CLAUDE.md Gotcha #12: PG transaction poisoning — if the MIN query fails
-        // (e.g., {source}_gwas_results schema missing for a new source), the enclosing
-        // PG transaction enters SQLSTATE 25P02 and ALL subsequent statements fail.
-        // Wrap in a SAVEPOINT so a query error only rolls back THIS probe.
         $conn = DB::connection('pgsql');
-        $conn->beginTransaction();
+
+        // REVIEW §WR-04 — previous implementation wrapped this SELECT in a
+        // manually managed SAVEPOINT (explicit open/commit/rollback). The
+        // drift risk under TestCase::syncTransactionCounter (shared PDO)
+        // made that pattern fragile.
+        //
+        // A missing-schema SELECT raises SQLSTATE 3F000 which DOES leave the
+        // enclosing PG transaction in the 25P02 "aborted" state when callers
+        // are inside an outer transaction (RefreshDatabase; any future
+        // DB::transaction() wrapper on Horizon jobs). A savepoint is
+        // therefore still required. Laravel's managed `$conn->transaction(fn)`
+        // delegates the nested savepoint counter to the framework — no
+        // hand-rolled open/commit/rollback, no counter-drift risk — while
+        // keeping the outer tx alive on SELECT failure.
         try {
-            $row = $conn->selectOne(
+            $row = $conn->transaction(fn () => $conn->selectOne(
                 sprintf('SELECT MIN(p_value) AS p FROM %s.summary_stats WHERE gwas_run_id = ?', $schema),
                 [$gwasRunId],
-            );
-            $conn->commit();
+            ));
 
             if ($row === null || $row->p === null) {
                 return null;
@@ -162,12 +176,6 @@ final class FinnGenGwasRunObserver
 
             return (float) $row->p;
         } catch (Throwable $e) {
-            // Roll back the SAVEPOINT so the outer transaction stays alive.
-            try {
-                $conn->rollBack();
-            } catch (Throwable) {
-                // Best-effort; if the rollback itself fails we still don't re-throw.
-            }
             Log::warning('finngen.gwas_run_observer.top_hit_query_failed', [
                 'source_key' => $sourceKey,
                 'gwas_run_id' => $gwasRunId,
