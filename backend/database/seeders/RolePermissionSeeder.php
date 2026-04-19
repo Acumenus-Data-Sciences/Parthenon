@@ -89,6 +89,9 @@ class RolePermissionSeeder extends Seeder
 
         // ── FinnGen Cohort Workbench (SP4) ───────────────────────────────
         'finngen.workbench' => ['use'],
+
+        // ── FinnGen endpoint profile dashboard (Phase 18) ────────────────
+        'finngen.endpoint_profile' => ['view', 'compute'],
     ];
 
     /**
@@ -119,6 +122,8 @@ class RolePermissionSeeder extends Seeder
             'wiki.view', 'wiki.ingest', 'wiki.lint', 'wiki.manage',
             'finngen.code-explorer.view', 'finngen.code-explorer.setup',
             'finngen.workbench.use',
+            'finngen.endpoint_profile.view',
+            'finngen.endpoint_profile.compute',
         ],
 
         // Clinical/epidemiological researcher — primary user persona.
@@ -142,6 +147,8 @@ class RolePermissionSeeder extends Seeder
             'wiki.view', 'wiki.ingest', 'wiki.lint',
             'finngen.code-explorer.view',
             'finngen.workbench.use',
+            'finngen.endpoint_profile.view',
+            'finngen.endpoint_profile.compute',
         ],
 
         // Responsible for data pipelines and CDM quality.
@@ -160,6 +167,8 @@ class RolePermissionSeeder extends Seeder
             'imaging.view', 'imaging.create', 'imaging.run',
             'genomics.view', 'genomics.upload', 'genomics.run',
             'wiki.view', 'wiki.ingest', 'wiki.lint', 'wiki.manage',
+            'finngen.endpoint_profile.view',
+            'finngen.endpoint_profile.compute',
         ],
 
         // Reviews and approves AI concept mapping suggestions.
@@ -192,6 +201,7 @@ class RolePermissionSeeder extends Seeder
             'genomics.view',
             'wiki.view',
             'finngen.code-explorer.view',
+            'finngen.endpoint_profile.view',
         ],
     ];
 
