@@ -33,8 +33,20 @@ abstract class TestCase extends BaseTestCase
             // the transaction counter so Laravel issues a SAVEPOINT instead.
             // Works because all three connections share the same PDO handle.
             $this->syncTransactionCounter();
-        } catch (\Throwable) {
-            // If finngen connection isn't configured, skip silently
+        } catch (\InvalidArgumentException) {
+            // If the `finngen` connection isn't configured in the active
+            // environment, Laravel throws InvalidArgumentException from
+            // ConnectionFactory::make(). This is expected in minimal
+            // unit-test bootstraps and must stay silent (REVIEW §WR-06).
+        } catch (\Throwable $e) {
+            // Anything else (PDO connection failure, reflection API change,
+            // missing search_path schema) is a real bug that used to be
+            // masked by the blanket catch. Surface it loudly so the cause is
+            // visible at the top of the test run, then re-throw so the test
+            // bails fast.
+            fwrite(STDERR, "TestCase::setUp PDO-sharing failed: {$e->getMessage()}\n");
+
+            throw $e;
         }
     }
 

@@ -289,6 +289,15 @@ final class GwasSmokeTestCommand extends Command
      */
     private function handleViaHttp(): int
     {
+        // HIGHSEC §5.3 — the plaintext Sanctum token lives in memory for the
+        // full 30-minute poll window. An APP_DEBUG=true exception render or a
+        // Sentry stack trace would leak it. Refuse early with remediation hint.
+        if (config('app.debug') === true) {
+            $this->error('[smoke] refusing to run --via-http with APP_DEBUG=true — set APP_DEBUG=false in .env (HIGHSEC §5.3).');
+
+            return self::FAILURE;
+        }
+
         $endpoint = (string) ($this->option('endpoint') ?? '');
         $sourceRaw = (string) ($this->option('source') ?? '');
         $controlCohort = (int) ($this->option('control-cohort') ?? 0);
@@ -345,7 +354,10 @@ final class GwasSmokeTestCommand extends Command
         }
 
         $this->line("[smoke] minting Sanctum token for {$userEmail}");
-        $tokenRecord = $user->createToken('finngen-gwas-smoke');
+        // HIGHSEC §1.2 default is 8h (480min); a 30-min smoke test does not
+        // need that much. Cap at 1 hour so a leaked token cannot outlive the
+        // command (REVIEW §WR-05).
+        $tokenRecord = $user->createToken('finngen-gwas-smoke', ['*'], now()->addHour());
         // HIGHSEC §5.2 — never echo $tokenRecord->plainTextToken.
         $token = $tokenRecord->plainTextToken;
 
@@ -391,6 +403,13 @@ final class GwasSmokeTestCommand extends Command
                 $step1RunId !== '' ? $step1RunId : '—',
                 $cached ? 'true' : 'false'
             ));
+
+            // REVIEW §WR-05 — the poll loop reads tracking state via
+            // EndpointGwasRun::find($trackingId) (DB, not HTTP). The plaintext
+            // token is no longer needed — drop it from memory to shrink the
+            // leak window. The $tokenRecord Eloquent row stays so the finally
+            // block can still delete the DB token.
+            unset($token);
 
             // Poll loop — every 30s until terminal or deadline.
             $deadline = $dispatchedAt->addMinutes($timeoutMinutes);
@@ -480,7 +499,11 @@ final class GwasSmokeTestCommand extends Command
                 $tokenRecord->accessToken?->delete();
                 $this->line('[smoke] token cleanup: ok');
             } catch (Throwable $e) {
-                $this->warn('[smoke] token cleanup failed: '.$e->getMessage());
+                // REVIEW §WR-05 — log the DB row id (NEVER the plaintext) so
+                // an operator can run `php artisan tinker` and delete the
+                // lingering token manually.
+                $tokenId = $tokenRecord->accessToken?->id ?? 'unknown';
+                $this->warn("[smoke] token cleanup failed (tokenRecord id={$tokenId}): ".$e->getMessage());
             }
         }
     }
