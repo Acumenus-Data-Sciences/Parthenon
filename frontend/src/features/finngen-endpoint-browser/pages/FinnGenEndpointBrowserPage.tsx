@@ -10,15 +10,21 @@ import {
   useEndpointList,
   useEndpointStats,
   useGenerateEndpoint,
-  useOpenInWorkbench,
 } from "../hooks/useEndpoints";
 import type {
   CoverageBucket,
   EndpointDetail,
   EndpointGeneration,
+  EndpointGenerationRun,
+  EndpointGwasRun,
   EndpointSummary,
 } from "../api";
 import { CoverageProfileBadge } from "../components/CoverageProfileBadge";
+// Phase 15 Plan 07 — drawer body composes these three components over the
+// Plan 04 show() arrays (generation_runs / gwas_runs / gwas_ready_sources).
+import { GenerationHistorySection } from "../components/GenerationHistorySection";
+import { GwasRunsSection } from "../components/GwasRunsSection";
+import { RunGwasPanel } from "../components/RunGwasPanel";
 
 /**
  * Phase 13 — source keys whose CDM carries Finnish source vocabs
@@ -489,65 +495,10 @@ function EndpointDetailDrawer({
   );
 }
 
-function GenerationHistoryRow({
-  generation,
-  endpointName,
-  longname,
-  cohortDefinitionId,
-}: {
-  generation: EndpointGeneration;
-  endpointName: string;
-  longname: string | null;
-  cohortDefinitionId: number;
-}) {
-  const navigate = useNavigate();
-  const open = useOpenInWorkbench();
-
-  const handleOpen = () => {
-    open.mutate(
-      {
-        endpointName,
-        longname,
-        cohortDefinitionId,
-        sourceKey: generation.source_key,
-      },
-      {
-        onSuccess: (session) => {
-          navigate(`/workbench/cohorts/${session.id}`);
-        },
-      },
-    );
-  };
-
-  return (
-    <div className="flex items-center justify-between rounded border border-slate-800 bg-slate-950/60 px-3 py-2 text-xs">
-      <div className="flex items-center gap-2">
-        <GenerationBadge g={generation} />
-        {generation.subject_count != null && (
-          <span className="text-slate-300">
-            {generation.subject_count.toLocaleString()} subjects
-          </span>
-        )}
-      </div>
-      <div className="flex items-center gap-3">
-        {generation.finished_at && (
-          <span className="font-mono text-[10px] text-slate-600">
-            {new Date(generation.finished_at).toLocaleString()}
-          </span>
-        )}
-        {generation.status === "succeeded" && (
-          <button
-            onClick={handleOpen}
-            disabled={open.isPending}
-            className="rounded border border-teal-500/40 bg-teal-500/10 px-2 py-1 text-[10px] font-semibold text-teal-300 hover:border-teal-400/60 hover:bg-teal-500/20 disabled:opacity-50"
-          >
-            {open.isPending ? "Opening…" : "Open in Workbench →"}
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
+// Phase 15 Plan 07 — GenerationHistoryRow removed; drawer body now renders
+// GenerationHistorySection which consumes the Plan 04 `generation_runs` array.
+// GenerationBadge stays — still used by EndpointRow for per-source chips on
+// the list page.
 
 function GenerationBadge({ g }: { g: EndpointGeneration }) {
   const statusTone =
@@ -710,27 +661,42 @@ function EndpointDetailBody({ d }: { d: EndpointDetail }) {
         </div>
       )}
 
-      {/* Generation history */}
-      {d.generations && d.generations.length > 0 && (
-        <div>
-          <p className="text-xs uppercase tracking-wider text-slate-500">
-            Generation history
-          </p>
-          <div className="mt-2 space-y-1.5">
-            {d.generations.map((g) => (
-              <GenerationHistoryRow
-                key={`${g.source_key}-${g.run_id ?? ""}`}
-                generation={g}
-                endpointName={d.name}
-                longname={d.longname}
-                cohortDefinitionId={d.id}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Phase 15 Plan 07 — drawer sections.
+          Consume the Plan 04 show() arrays (generation_runs / gwas_runs /
+          gwas_ready_sources). Narrow through EndpointDetailWithPhase15;
+          default to empty arrays so a pre-Phase-15 server response still
+          renders gracefully. Order matches UI-SPEC §D-22:
+            1. Generation history (grouped-by-source disclosures)
+            2. GWAS runs (flat newest-first)
+            3. Run GWAS (dispatch panel, collapsed by default)
+          The legacy inline `d.generations.map(…)` block is intentionally gone;
+          `d.generations` remains for back-compat on list rows elsewhere. */}
+      {(() => {
+        const phase15 = d as EndpointDetail & {
+          generation_runs?: EndpointGenerationRun[];
+          gwas_runs?: EndpointGwasRun[];
+          gwas_ready_sources?: string[];
+        };
+        const generationRuns = phase15.generation_runs ?? [];
+        const gwasRuns = phase15.gwas_runs ?? [];
+        return (
+          <>
+            <GenerationHistorySection
+              endpointName={d.name}
+              longname={d.longname ?? null}
+              cohortDefinitionId={d.id}
+              runs={generationRuns}
+            />
+            <GwasRunsSection endpointName={d.name} runs={gwasRuns} />
+            <RunGwasPanel endpoint={phase15} generationRuns={generationRuns} />
+          </>
+        );
+      })()}
 
-      {/* CTA — Generate against a CDM (Genomics #2) */}
+      {/* CTA — Generate against a CDM (Genomics #2)
+          Existing sticky-bottom endpoint-materialization form; Phase 15 keeps
+          it untouched and appends RunGwasPanel ABOVE it inside the scroll flow
+          per UI-SPEC §Section 3 note. */}
       <GeneratePanel endpoint={d} canGenerate={generatable} />
     </div>
   );
