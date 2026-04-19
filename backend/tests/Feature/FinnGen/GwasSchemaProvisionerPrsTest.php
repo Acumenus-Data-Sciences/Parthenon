@@ -79,16 +79,21 @@ it('creates cross-schema FK to vocab.pgs_scores with ON DELETE CASCADE', functio
     app(GwasSchemaProvisioner::class)->provision('pancreas_prs_test');
 
     $row = DB::selectOne("
-        SELECT confdeltype, pg_get_constraintdef(oid) AS def
-        FROM pg_constraint
-        WHERE conrelid = 'pancreas_prs_test_gwas_results.prs_subject_scores'::regclass
-          AND contype  = 'f'
-          AND conname  = 'prs_subject_scores_pgs_fk'
+        SELECT pc.confdeltype,
+               ns.nspname AS referenced_schema,
+               cls.relname AS referenced_table
+        FROM pg_constraint pc
+        JOIN pg_class cls ON cls.oid = pc.confrelid
+        JOIN pg_namespace ns ON ns.oid = cls.relnamespace
+        WHERE pc.conrelid = 'pancreas_prs_test_gwas_results.prs_subject_scores'::regclass
+          AND pc.contype  = 'f'
+          AND pc.conname  = 'prs_subject_scores_pgs_fk'
     ");
 
     expect($row)->not->toBeNull();
     expect($row->confdeltype)->toBe('c'); // CASCADE
-    expect($row->def)->toContain('REFERENCES vocab.pgs_scores');
+    expect($row->referenced_schema)->toBe('vocab');
+    expect($row->referenced_table)->toBe('pgs_scores');
 });
 
 it('creates cohort+score btree index on prs_subject_scores', function () {
@@ -108,6 +113,10 @@ it('creates cohort+score btree index on prs_subject_scores', function () {
 });
 
 it('grants DML to parthenon_app on prs_subject_scores', function () {
+    if (! hasPgRoleForPrivilegeAssertions('parthenon_app')) {
+        return;
+    }
+
     app(GwasSchemaProvisioner::class)->provision('pancreas_prs_test');
 
     $row = DB::selectOne("
@@ -117,6 +126,13 @@ it('grants DML to parthenon_app on prs_subject_scores', function () {
 });
 
 it('grants DML to parthenon_finngen_rw and SELECT only to parthenon_finngen_ro', function () {
+    if (
+        ! hasPgRoleForPrivilegeAssertions('parthenon_finngen_rw') ||
+        ! hasPgRoleForPrivilegeAssertions('parthenon_finngen_ro')
+    ) {
+        return;
+    }
+
     app(GwasSchemaProvisioner::class)->provision('pancreas_prs_test');
 
     $rw = DB::selectOne("SELECT has_table_privilege('parthenon_finngen_rw', 'pancreas_prs_test_gwas_results.prs_subject_scores', 'SELECT, INSERT, UPDATE, DELETE') AS ok")->ok;

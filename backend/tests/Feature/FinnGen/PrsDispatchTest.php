@@ -80,6 +80,15 @@ uses()->beforeEach(function (): void {
     // Seed a cohort row on PANCREAS for cohort_definition_id = 4242
     // so precondition #4 passes. Clean first to keep runs independent.
     $cohortId = 4242;
+    DB::connection('pgsql')->statement('CREATE SCHEMA IF NOT EXISTS pancreas_results');
+    DB::connection('pgsql')->statement(
+        'CREATE TABLE IF NOT EXISTS pancreas_results.cohort (
+            cohort_definition_id BIGINT NOT NULL,
+            subject_id BIGINT NOT NULL,
+            cohort_start_date DATE NOT NULL,
+            cohort_end_date DATE NULL
+        )'
+    );
     DB::connection('pgsql')->statement(
         'DELETE FROM pancreas_results.cohort WHERE cohort_definition_id = ?',
         [$cohortId]
