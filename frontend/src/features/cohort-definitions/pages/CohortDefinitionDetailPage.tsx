@@ -29,6 +29,7 @@ import { CohortDiagnosticsPanel } from "../components/CohortDiagnosticsPanel";
 import { CohortOverlapPanel } from "../components/CohortOverlapPanel";
 import { CohortPatientListPanel } from "../components/CohortPatientListPanel";
 import { CirceSqlPanel } from "../components/CirceSqlPanel";
+import { PrsDistributionPanel } from "../components/PrsDistributionPanel";
 import {
   useCohortDefinition,
   useUpdateCohortDefinition,
@@ -78,6 +79,7 @@ export default function CohortDefinitionDetailPage() {
   const [shareOpen, setShareOpen] = useState(false);
   const [tagInput, setTagInput] = useState("");
   const [isAddingTag, setIsAddingTag] = useState(false);
+  const [showComputePrsModal, setShowComputePrsModal] = useState(false);
 
   // Load expression from API into store
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -682,6 +684,17 @@ export default function CohortDefinitionDetailPage() {
           {cohortId && <CohortDiagnosticsPanel definitionId={cohortId} />}
           <CohortGenerationPanel definitionId={cohortId} />
           <GenerationHistoryTable definitionId={cohortId} />
+          {cohortId && (
+            <section className="mt-8">
+              <h3 className="text-sm font-semibold text-text-primary mb-3">
+                Polygenic Risk Score Distribution
+              </h3>
+              <PrsDistributionPanel
+                cohortId={cohortId}
+                onCompute={() => setShowComputePrsModal(true)}
+              />
+            </section>
+          )}
         </div>
       ) : activeTab === "overlap" ? (
         <CohortOverlapPanel
