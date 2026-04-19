@@ -33,6 +33,7 @@ use App\Http\Controllers\Api\V1\ClinicalCoherenceController;
 use App\Http\Controllers\Api\V1\CohortAuthoringArtifactController;
 use App\Http\Controllers\Api\V1\CohortDefinitionController;
 use App\Http\Controllers\Api\V1\CohortDiagnosticsController;
+use App\Http\Controllers\Api\V1\CohortPrsController;
 use App\Http\Controllers\Api\V1\Commons\ActivityController;
 use App\Http\Controllers\Api\V1\Commons\AnnouncementController;
 use App\Http\Controllers\Api\V1\Commons\AttachmentController;
@@ -104,6 +105,7 @@ use App\Http\Controllers\Api\V1\PathwayController;
 use App\Http\Controllers\Api\V1\PatientProfileController;
 use App\Http\Controllers\Api\V1\PatientSimilarityController;
 use App\Http\Controllers\Api\V1\PhenotypeLibraryController;
+use App\Http\Controllers\Api\V1\PgsCatalogController;
 use App\Http\Controllers\Api\V1\PhenotypeValidationController;
 use App\Http\Controllers\Api\V1\PopulationCharacterizationController;
 use App\Http\Controllers\Api\V1\PopulationRiskScoreController;
@@ -611,6 +613,19 @@ Route::prefix('v1')->group(function () {
             ->middleware('permission:analyses.run');
         Route::post('/cohort-definitions/{cohortDefinition}/deprecate', [CohortDefinitionController::class, 'deprecate']);
         Route::post('/cohort-definitions/{cohortDefinition}/restore-active', [CohortDefinitionController::class, 'restoreActive']);
+
+        // Phase 17 GENOMICS-08 — cohort PRS read API (histogram + CSV download)
+        Route::get('/cohort-definitions/{id}/prs', [CohortPrsController::class, 'index'])
+            ->whereNumber('id')
+            ->middleware(['permission:profiles.view', 'throttle:120,1']);
+        Route::get('/cohort-definitions/{id}/prs/{scoreId}/download', [CohortPrsController::class, 'download'])
+            ->whereNumber('id')
+            ->where('scoreId', '^PGS\d{6,}$')
+            ->middleware(['permission:profiles.view', 'throttle:10,1']);
+
+        // Phase 17 GENOMICS-08 — PGS Catalog score picker
+        Route::get('/pgs-catalog/scores', [PgsCatalogController::class, 'scores'])
+            ->middleware(['permission:profiles.view', 'throttle:120,1']);
 
         // Analysis Stats (must be before resource routes)
         Route::get('analyses/stats', AnalysisStatsController::class);
