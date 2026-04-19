@@ -368,15 +368,17 @@ export const router = createBrowserRouter(
               ).then((m) => ({ Component: m.default })),
           },
           {
-            // Phase 15 Plan 07 — reserved Phase 16 PheWeb-lite deep-link path.
-            // Drawer GwasRunsSection <Link>s target this route; stub renders an
-            // EmptyState until Phase 16 ships the real results UI. Lives inside
-            // the workbench group so the existing auth wrapper (ProtectedLayout)
-            // gates it (HIGHSEC §2 three-layer model; threat T-15-22).
+            // Phase 16 Plan 05 Task 3 — live GWAS results page.
+            // Replaces the Phase 15 stub at the same path. 3-panel layout:
+            // FinnGenManhattanPanel (Plan 04) + TopVariantsTable (Plan 05)
+            // + lazy-mounted RegionalView on peak click. Each panel is
+            // wrapped in an ErrorBoundary so a Canvas crash doesn't take
+            // down the page (Q8 RESOLVED). Auth gated by ProtectedLayout
+            // (HIGHSEC §2 three-layer model).
             path: "finngen-endpoints/:name/gwas/:run_id",
             lazy: () =>
               import(
-                "@/features/finngen-endpoint-browser/pages/FinnGenGwasResultsStubPage"
+                "@/features/finngen-endpoint-browser/pages/FinnGenGwasResultsPage"
               ).then((m) => ({ Component: m.default })),
           },
           {
