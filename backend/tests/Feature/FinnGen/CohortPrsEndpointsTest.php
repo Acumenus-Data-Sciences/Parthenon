@@ -234,3 +234,56 @@ it('returns 401 for unauthenticated GET /pgs-catalog/scores', function (): void 
     $response = $this->getJson('/api/v1/pgs-catalog/scores');
     $response->assertStatus(401);
 });
+
+// ─── GET /api/v1/cohort-definitions/{id}/prs/{scoreId}/download ─────────────
+
+it('streams CSV download with header + row-per-subject', function (): void {
+    $id = PRS_SENTINEL_COHORT_ID;
+    $scoreId = PRS_SENTINEL_SCORE_ID;
+
+    $response = $this->actingAs($this->researcher)
+        ->get("/api/v1/cohort-definitions/{$id}/prs/{$scoreId}/download");
+    $response->assertStatus(200);
+    expect($response->headers->get('Content-Type'))->toStartWith('text/csv');
+    expect($response->headers->get('Content-Disposition'))
+        ->toContain("prs-{$scoreId}-cohort-{$id}.csv")
+        ->toStartWith('attachment');
+
+    $body = $response->streamedContent();
+    $lines = array_values(array_filter(preg_split('/\r?\n/', $body) ?: []));
+
+    // Header + N data rows.
+    expect($lines[0])->toBe('score_id,subject_id,raw_score');
+    expect(count($lines))->toBe(PRS_SENTINEL_SUBJECT_COUNT + 1);
+
+    // Spot-check the first data row starts with the sentinel score_id.
+    expect($lines[1])->toStartWith("{$scoreId},");
+});
+
+it('returns 404 when no PRS rows exist for (cohort, score)', function (): void {
+    $id = PRS_SENTINEL_COHORT_ID;
+    $response = $this->actingAs($this->researcher)
+        ->get("/api/v1/cohort-definitions/{$id}/prs/PGS999999/download");
+    $response->assertStatus(404);
+});
+
+it('returns 404 for missing cohort_definition_id', function (): void {
+    $response = $this->actingAs($this->researcher)
+        ->get('/api/v1/cohort-definitions/999888777/prs/PGS000001/download');
+    $response->assertStatus(404);
+});
+
+it('returns 404 for invalid scoreId (route constraint)', function (): void {
+    $id = PRS_SENTINEL_COHORT_ID;
+    // Route ->where('scoreId', '^PGS\d{6,}$') rejects NOT_A_PGS → 404
+    // (Laravel returns 404 when the URL pattern fails, not 422).
+    $response = $this->actingAs($this->researcher)
+        ->get("/api/v1/cohort-definitions/{$id}/prs/NOT_A_PGS/download");
+    $response->assertStatus(404);
+});
+
+it('returns 401 for unauthenticated CSV download', function (): void {
+    $id = PRS_SENTINEL_COHORT_ID;
+    $response = $this->get("/api/v1/cohort-definitions/{$id}/prs/PGS000001/download");
+    $response->assertStatus(401);
+});
