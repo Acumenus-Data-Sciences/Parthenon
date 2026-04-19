@@ -563,6 +563,13 @@ final class EndpointBrowserController extends Controller
      */
     public function prs(ComputePrsRequest $request, string $name): JsonResponse
     {
+        // REVIEW §WR-02 defence-in-depth (prs method, same pattern as gwas/generate/eligibleControls).
+        $user = $request->user();
+        if (! $user instanceof User) {
+            abort(401); // Defence-in-depth; auth:sanctum middleware normally catches this.
+        }
+        $userId = (int) $user->getKey();
+
         $validated = $request->validated();
 
         /** @var array{source_key:string, score_id:string, cohort_definition_id:int|null, overwrite_existing?:bool} $input */
@@ -576,7 +583,7 @@ final class EndpointBrowserController extends Controller
         ];
 
         $result = app(PrsDispatchService::class)
-            ->dispatch((int) $request->user()->id, $name, $input);
+            ->dispatch($userId, $name, $input);
 
         return response()->json([
             'data' => [
