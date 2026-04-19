@@ -81,7 +81,7 @@ jobs:
 
       - name: Confirm release asset policy
         run: |
-          echo "Release downloads include the source-backed installer bundle until the prebuilt-image bundle is ready."
+          echo "Workflow artifacts include the source-backed installer bundle until signed release assets are ready."
 
       - name: Upload source-backed installer bundle
         uses: actions/upload-artifact@v7

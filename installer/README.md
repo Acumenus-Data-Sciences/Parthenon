@@ -28,11 +28,13 @@ python3 clickme.py
 
 ## Release Packaging Policy
 
-GitHub releases should publish only GitHub's generated source archives. Do not
-attach PyInstaller, Cosmopolitan, Rust GUI, `.deb`, `.snap`, Winget, or checksum
-assets until those installers are signed, reproducible, and covered by install
-smoke tests. The supported remote install path is `installer/install.sh`, which
-obtains the requested source ref and runs the in-repo Python installer.
+GitHub Actions may publish temporary workflow artifacts for the Rust GUI
+packages and the source-backed Community bootstrap bundle. Do not attach
+PyInstaller, Cosmopolitan, Rust GUI, `.deb`, `.snap`, Winget, or checksum assets
+as GitHub Release assets until those installers are signed, reproducible, and
+covered by install smoke tests. The supported remote install path remains
+`installer/install.sh`, which obtains the requested source ref and runs the
+in-repo Python installer.
 
 The browser-based installer now begins with a required onboarding gate:
 
