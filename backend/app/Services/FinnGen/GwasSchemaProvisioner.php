@@ -63,7 +63,12 @@ final class GwasSchemaProvisioner
         $schema = "{$normalized}_gwas_results";
 
         DB::transaction(function () use ($schema) {
-            DB::statement("CREATE SCHEMA IF NOT EXISTS {$schema} AUTHORIZATION parthenon_migrator");
+            $hasOwnerRole = DB::selectOne("SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_migrator'");
+            if ($hasOwnerRole) {
+                DB::statement("CREATE SCHEMA IF NOT EXISTS {$schema} AUTHORIZATION parthenon_migrator");
+            } else {
+                DB::statement("CREATE SCHEMA IF NOT EXISTS {$schema}");
+            }
 
             DB::statement("
                 CREATE TABLE IF NOT EXISTS {$schema}.summary_stats (

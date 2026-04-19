@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\App\FinnGen\EndpointDefinition;
 use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 use function Pest\Laravel\actingAs;
@@ -25,6 +26,7 @@ uses(RefreshDatabase::class);
  * @note RED until Plan 13.1-02 migration + Plan 13.1-03 controller rewrite ship.
  */
 it('GET /api/v1/finngen/endpoints reads from finngen.endpoint_definitions', function (): void {
+    $this->seed(RolePermissionSeeder::class);
     $user = User::factory()->create();
     $user->assignRole('super-admin');
 

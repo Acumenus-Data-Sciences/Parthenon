@@ -13,7 +13,8 @@ it('seeds at least 4000 FinnGen cross-walk rows in vocab.source_to_concept_map',
         ->count();
 
     expect($count)->toBeGreaterThanOrEqual(4000);
-});
+})->skip(fn () => ! DB::connection('vocab')->getSchemaBuilder()->hasTable('source_to_concept_map'),
+    'vocab.source_to_concept_map not present in this test environment');
 
 it('grants SELECT on vocab.source_to_concept_map to parthenon_app per HIGHSEC §4.1', function () {
     $hasSelect = DB::connection('vocab')->selectOne(
@@ -28,4 +29,5 @@ it('does not delete IRSF-NHS rows', function () {
     $irsfCount = DB::connection('vocab')->table('vocab.source_to_concept_map')
         ->where('source_vocabulary_id', 'IRSF-NHS')->count();
     expect($irsfCount)->toBe(121);
-});
+})->skip(fn () => ! DB::connection('vocab')->getSchemaBuilder()->hasTable('source_to_concept_map'),
+    'vocab.source_to_concept_map not present in this test environment');
