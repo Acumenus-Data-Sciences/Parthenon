@@ -18,7 +18,7 @@ beforeEach(function () {
     DB::statement('DROP SCHEMA IF EXISTS pancreas_prs_test_gwas_results CASCADE');
 });
 
-afterAll(function () {
+afterEach(function () {
     DB::statement('DROP SCHEMA IF EXISTS pancreas_prs_test_gwas_results CASCADE');
 });
 
