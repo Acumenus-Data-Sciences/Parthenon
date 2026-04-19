@@ -121,7 +121,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] 15-08-PLAN.md — Wave 5: 6 Pest feature + 1 Pest unit + 5 Vitest tests (D-26/D-27/D-28)
 - [x] 15-09-PLAN.md — Wave 6: GwasSmokeTestCommand --via-http extension + real E2E on PANCREAS cohort 221 + GATE-EVIDENCE sign-off (CHECKPOINT, D-29/SC-4)
 - [x] 15-10-PLAN.md — Gap closure (wave 1, parallel): backend hardening — CR-01 eligibleControls CTE rewrite + WR-01/02/03/04/05/06 (EndpointBrowserController, FinnGenGwasRunObserver, GwasSmokeTestCommand, TestCase, EligibleControlsEndpointTest)
-- [ ] 15-11-PLAN.md — Gap closure (wave 1, parallel): frontend hardening — WR-07 widen useEndpointDetail return type + WR-08 consolidate RunGwasPanel focus effect + IN-06 0-safe numeric setters
+- [x] 15-11-PLAN.md — Gap closure (wave 1, parallel): frontend hardening — WR-07 widen useEndpointDetail return type + WR-08 consolidate RunGwasPanel focus effect + IN-06 0-safe numeric setters
 **UI hint**: yes
 
 ### Phase 16: PheWeb-lite Results UI and Workbench Attribution
@@ -157,7 +157,14 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. The endpoint detail drawer renders a Kaplan-Meier plot, a top-50 comorbidity matrix (co-occurring FinnGen endpoints sorted by lift / phi-coefficient, displayed as a click-through heatmap), and a stacked horizontal bar chart of top ATC classes prescribed in the 90-day pre-index window
   3. A researcher opens the endpoint detail drawer for E4_DM2 against PANCREAS and sees all three panels populated within 15 seconds, with values clinically plausible (e.g., T2DM comorbidity heatmap surfaces E4_HYPERTENSION / E4_OBESITY near the top)
   4. Each R worker follows the established `darkstar/api/finngen/` module pattern with qualifying-event UNION branches + concept_ancestor descendant expansion, consistent with `cohort.endpoint.generate`
-**Plans**: TBD
+**Plans**: 7 plans
+- [ ] 18-01-PLAN.md — Wave 0: 9 failing TDD test stubs (5 Pest + 4 Vitest) for GENOMICS-09/10/11 preconditions
+- [ ] 18-02-PLAN.md — Wave 1: finngen.endpoint_profile_access table + seed 2 Spatie permissions (view/compute) + RolePermissionSeeder extension + EndpointProfileAccess model
+- [ ] 18-03-PLAN.md — Wave 1: Co2SchemaProvisioner (per-source 4-table schema + HIGHSEC grants) + EndpointExpressionHasher + 4 Eloquent result models
+- [ ] 18-04-PLAN.md — Wave 2: EndpointProfileDispatchService + TrackEndpointProfileAccess middleware + ComputeEndpointProfileRequest + 2 EndpointBrowserController methods + routes
+- [ ] 18-05-PLAN.md — Wave 3: finngen_endpoint_profile_execute() R worker (KM survfit + Matrix::crossprod phi + ATC3 SQL) + routes.R dispatcher
+- [ ] 18-06-PLAN.md — Wave 4: React — api.ts types + 3 hooks + 5 Profile panels + heatmap-helpers + FinnGenEndpointBrowserPage tab wiring
+- [ ] 18-07-PLAN.md — Wave 5: WarmEndpointProfilesCommand + SmokeEndpointProfileCommand + scheduler + live PANCREAS × E4_DM2 smoke + DEPLOY-LOG sign-off (CHECKPOINT)
 **UI hint**: yes
 
 ## Progress
@@ -172,7 +179,7 @@ Phase 18 depends on Phase 13 and can run in parallel with the entire 14-17 chain
 |-------|----------------|--------|-----------|
 | 13. FinnGen Endpoint Universalization (Standard-First Resolver) | 0/0 | Not started | - |
 | 14. regenie GWAS Infrastructure | 4/7 | In Progress|  |
-| 15. GWAS Dispatch, Run Tracking, and Generation History | 10/11 | In Progress|  |
+| 15. GWAS Dispatch, Run Tracking, and Generation History | 11/11 | Complete   | 2026-04-19 |
 | 16. PheWeb-lite Results UI and Workbench Attribution | 7/7 | Complete    | 2026-04-19 |
 | 17. PGS Catalog Ingestion, PRS Scoring, and Distribution Viz | 7/7 | Complete    | 2026-04-19 |
-| 18. Risteys-style Endpoint Dashboard | 0/0 | Not started | - |
+| 18. Risteys-style Endpoint Dashboard | 0/7 | Planned | - |

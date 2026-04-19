@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 15-10-PLAN.md
-last_updated: "2026-04-19T17:29:34.724Z"
+stopped_at: Completed 15-11-PLAN.md
+last_updated: "2026-04-19T17:36:04.882Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 8
-  completed_phases: 3
-  total_plans: 56
-  completed_plans: 44
-  percent: 79
+  completed_phases: 4
+  total_plans: 58
+  completed_plans: 45
+  percent: 78
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-16 — Milestone v1.0 FinnGen Genomic
 ## Current Position
 
 Phase: 15 (gwas-dispatch-run-tracking-and-generation-history) — EXECUTING
-Plan: 2 of 11
+Plan: 3 of 11
 Status: Ready to execute
 Last activity: 2026-04-19
 
@@ -87,6 +87,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 15 P07 | 8 | 2 tasks | 6 files |
 | Phase 15 P08 | 89 | 3 tasks | 15 files |
 | Phase 15 P10 | 45 | 4 tasks | 5 files |
+| Phase 15 P11 | 8 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -171,6 +172,9 @@ Recent decisions affecting current work:
 - [Phase 15]: admin bypass split into two explicit PHP SELECT branches — no PG bool-placeholder ambiguity (WR-01)
 - [Phase 15]: GwasSmokeTestCommand token TTL is 1h not 8h HIGHSEC default — smoke tests do not need full session lifetime (WR-05)
 - [Phase 15]: WR-06 narrowed TestCase catch surfaces pre-existing pgsql_testing infrastructure issue — do not re-widen
+- [Phase 15]: Plan 15-11: WR-07 closed — hook-layer widening (fetchEndpoint + useEndpointDetail both return EndpointDetailWithPhase15); structural as cast removed from drawer
+- [Phase 15]: Plan 15-11: WR-08 closed — single consolidated useEffect with priority branch (duplicate_run -> overwrite ref, else -> banner ref); no double focus
+- [Phase 15]: Plan 15-11: IN-06 closed — dual guard (empty-string + Number.isNaN) on both cohort and covariate selects; sentinel id=0 now survives
 
 ### Pending Todos
 
@@ -218,6 +222,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-19T17:29:34.722Z
-Stopped at: Completed 15-10-PLAN.md
+Last session: 2026-04-19T17:36:04.880Z
+Stopped at: Completed 15-11-PLAN.md
 Resume file: None
