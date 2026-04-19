@@ -40,7 +40,14 @@ describe("FinnGenEndpointBrowserPage — Generate CTA disablement for finland_on
       </QueryClientProvider>
     );
 
-    const generateBtn = await screen.findByRole("button", { name: /generate/i });
+    // Phase 15 Plan 07 — drawer body now also renders RunGwasPanel whose
+    // collapsed trigger includes the word "generate" in its helper copy
+    // ("Generate this endpoint first (no source ready)."). Disambiguate by
+    // matching the full GeneratePanel CTA text so we target the cohort-
+    // generation button specifically, not the GWAS dispatch trigger.
+    const generateBtn = await screen.findByRole("button", {
+      name: /generate cohort/i,
+    });
     expect(generateBtn).toBeDisabled();
     expect(generateBtn.getAttribute("title") ?? "").toMatch(/requires Finnish CDM data/i);
   });
