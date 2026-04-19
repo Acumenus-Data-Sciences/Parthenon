@@ -86,6 +86,8 @@ use App\Services\Cohort\Schema\CohortExpressionSchema;
 use App\Services\FinnGen\FinnGenArtifactService;
 use App\Services\FinnGen\FinnGenClient;
 use App\Services\FinnGen\FinnGenIdempotencyStore;
+use App\Services\FinnGen\GencodeService;
+use App\Services\FinnGen\ManhattanAggregationService;
 use App\Services\SqlRenderer\SqlRendererService;
 use App\Services\Translation\PlaceholderIntegrityService;
 use App\Services\Translation\Providers\LocalFileTranslationProvider;
@@ -218,6 +220,14 @@ class AppServiceProvider extends ServiceProvider
             FinnGenClient::class,
             fn () => FinnGenClient::forContainer(),
         );
+
+        // Phase 16-01 — PheWeb-style GWAS visualization services.
+        // ManhattanAggregationService: stateless but benefits from singleton
+        // binding so the container doesn't reconstruct it on every request.
+        // GencodeService: MUST be a singleton — it memoizes ~60k gene rows
+        // in a static property per PHP-FPM worker lifetime.
+        $this->app->singleton(ManhattanAggregationService::class);
+        $this->app->singleton(GencodeService::class);
     }
 
     /**

@@ -70,6 +70,9 @@ function seedRunForManhattan(string $sourceKey = 'PANCREAS'): Run
     $run->analysis_type = 'gwas.step_2';
     $run->params = ['cohort_definition_id' => 1];
     $run->status = Run::STATUS_SUCCEEDED;
+    // DB-level CHECK constraint: terminal statuses require a finished_at.
+    $run->finished_at = now();
+    $run->started_at = now()->subSeconds(10);
     $run->save();
 
     return $run;
