@@ -22,7 +22,8 @@ bundle. In bundle mode it accepts a bundle URL or local `.tar.gz`, verifies the
 optional archive SHA-256, extracts the bundle into the installer cache, validates
 every file against `installer-bundle-manifest.json`, and then runs the Python
 installer from that verified directory. On Windows, bundle mode prepares the
-bundle inside WSL from a URL before launching the Linux installer path.
+bundle inside WSL from a URL or local archive path before launching the Linux
+installer path.
 
 ## Data Setup Direction
 

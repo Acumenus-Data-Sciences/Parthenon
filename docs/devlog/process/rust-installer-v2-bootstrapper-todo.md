@@ -58,6 +58,8 @@ target, and guide vocabulary loading without requiring a repo checkout.
       prepare-data-target, start-services, health-check, finalize.
 - [x] Add Rust install-source mode for existing checkout versus verified
       installer bundle.
+- [x] Support Windows bundle setup through WSL from either a URL or local
+      archive path.
 - [x] Show the manifest-backed installer bundle readiness check in the Rust
       system check without exposing JSON.
 - [ ] Add resume/rollback for each phase.

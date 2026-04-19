@@ -322,16 +322,40 @@ fn prepare_local_bundle(
 }
 
 fn prepare_wsl_bundle(app: Option<&AppHandle>, request: &InstallRequest) -> Result<String, String> {
-    let bundle_url = request.bundle_url.trim();
-    if bundle_url.is_empty() {
-        return Err("Windows bundle installs need a bundle URL that WSL can download.".to_string());
+    emit_optional_log(app, "stdout", "Preparing installer bundle inside WSL.");
+    let script = build_wsl_bundle_prepare_script(request)?;
+
+    let mut command = Command::new("wsl.exe");
+    if let Some(distro) = request
+        .wsl_distro
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+    {
+        command.args(["-d", distro]);
     }
-    if !request.bundle_archive_path.trim().is_empty() {
-        return Err(
-            "Windows bundle installs currently use a bundle URL; local Windows archive paths cannot be mounted safely yet."
-                .to_string(),
-        );
+    let output = command
+        .args(["bash", "-lc", &script])
+        .output()
+        .map_err(|err| format!("Could not prepare installer bundle inside WSL: {err}"))?;
+    if !output.status.success() {
+        return Err(format!(
+            "WSL bundle preparation failed: {}",
+            String::from_utf8_lossy(&output.stderr).trim()
+        ));
     }
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    stdout
+        .lines()
+        .find_map(|line| {
+            line.strip_prefix("PARTHENON_BUNDLE_ROOT=")
+                .map(str::to_string)
+        })
+        .ok_or_else(|| "WSL did not report the prepared installer bundle path".to_string())
+}
+
+fn build_wsl_bundle_prepare_script(request: &InstallRequest) -> Result<String, String> {
+    let acquire_bundle = wsl_bundle_acquire_script(request)?;
     let install_dir = request
         .wsl_repo_path
         .as_deref()
@@ -340,22 +364,14 @@ fn prepare_wsl_bundle(app: Option<&AppHandle>, request: &InstallRequest) -> Resu
         .map(shell_quote)
         .unwrap_or_else(|| "\"$HOME/parthenon-installer\"".to_string());
     let sha = request.bundle_sha256.trim();
-    emit_optional_log(app, "stdout", "Preparing installer bundle inside WSL.");
 
-    let script = format!(
+    Ok(format!(
         r#"set -e
 install_dir={install_dir}
-bundle_url={bundle_url}
 expected_sha={expected_sha}
 mkdir -p "$install_dir/downloads"
 archive="$install_dir/downloads/parthenon-community-bootstrap.tar.gz"
-python3 - "$bundle_url" "$archive" <<'PARTHENON_DOWNLOAD'
-import sys
-import urllib.request
-
-url, dest = sys.argv[1], sys.argv[2]
-urllib.request.urlretrieve(url, dest)
-PARTHENON_DOWNLOAD
+{acquire_bundle}
 if [ -n "$expected_sha" ]; then
 python3 - "$archive" "$expected_sha" <<'PARTHENON_SHA'
 import hashlib
@@ -385,37 +401,46 @@ mv "$tmp_dir" "$extract_dir"
 echo "PARTHENON_BUNDLE_ROOT=$extract_dir"
 "#,
         install_dir = install_dir,
-        bundle_url = shell_quote(bundle_url),
         expected_sha = shell_quote(sha),
-    );
+        acquire_bundle = acquire_bundle,
+    ))
+}
 
-    let mut command = Command::new("wsl.exe");
-    if let Some(distro) = request
-        .wsl_distro
-        .as_deref()
-        .map(str::trim)
-        .filter(|value| !value.is_empty())
-    {
-        command.args(["-d", distro]);
-    }
-    let output = command
-        .args(["bash", "-lc", &script])
-        .output()
-        .map_err(|err| format!("Could not prepare installer bundle inside WSL: {err}"))?;
-    if !output.status.success() {
-        return Err(format!(
-            "WSL bundle preparation failed: {}",
-            String::from_utf8_lossy(&output.stderr).trim()
+fn wsl_bundle_acquire_script(request: &InstallRequest) -> Result<String, String> {
+    let archive = request.bundle_archive_path.trim();
+    if !archive.is_empty() {
+        if looks_like_url(archive) {
+            return Err(
+                "Put bundle URLs in the Bundle URL field, not Local bundle archive.".to_string(),
+            );
+        }
+        return Ok(format!(
+            r#"windows_archive={archive}
+local_archive="$(wslpath -a "$windows_archive" 2>/dev/null || printf '%s' "$windows_archive")"
+cp "$local_archive" "$archive"
+"#,
+            archive = shell_quote(archive),
         ));
     }
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    stdout
-        .lines()
-        .find_map(|line| {
-            line.strip_prefix("PARTHENON_BUNDLE_ROOT=")
-                .map(str::to_string)
-        })
-        .ok_or_else(|| "WSL did not report the prepared installer bundle path".to_string())
+
+    let bundle_url = request.bundle_url.trim();
+    if bundle_url.is_empty() {
+        return Err(
+            "Provide either a bundle URL or a local bundle archive path for WSL.".to_string(),
+        );
+    }
+    Ok(format!(
+        r#"bundle_url={bundle_url}
+python3 - "$bundle_url" "$archive" <<'PARTHENON_DOWNLOAD'
+import sys
+import urllib.request
+
+url, dest = sys.argv[1], sys.argv[2]
+urllib.request.urlretrieve(url, dest)
+PARTHENON_DOWNLOAD
+"#,
+        bundle_url = shell_quote(bundle_url),
+    ))
 }
 
 fn local_bundle_cache_dir(request: &InstallRequest) -> Result<PathBuf, String> {
@@ -2252,6 +2277,46 @@ mod tests {
         assert!(args[4].contains("python3 install.py --contract data-check --community"));
         assert!(args[4].contains("--contract-repo-root '/home/alice'\\''s/Parthenon'"));
         assert!(args[4].contains("--contract-redact"));
+    }
+
+    #[test]
+    fn wsl_bundle_script_can_copy_local_windows_archive() {
+        let mut request = request();
+        request.source_mode = "Use installer bundle".to_string();
+        request.bundle_archive_path = r"C:\Users\Alice\Downloads\bundle.tar.gz".to_string();
+        request.bundle_sha256 = "a".repeat(64);
+        request.wsl_repo_path = Some("/home/alice/parthenon".to_string());
+
+        let script = build_wsl_bundle_prepare_script(&request).expect("wsl script");
+
+        assert!(script.contains("windows_archive='C:\\Users\\Alice\\Downloads\\bundle.tar.gz'"));
+        assert!(script.contains("wslpath -a \"$windows_archive\""));
+        assert!(script.contains("cp \"$local_archive\" \"$archive\""));
+        assert!(!script.contains("urllib.request.urlretrieve"));
+        assert!(script.contains("expected_sha='aaaaaaaa"));
+    }
+
+    #[test]
+    fn wsl_bundle_script_can_download_url() {
+        let mut request = request();
+        request.source_mode = "Use installer bundle".to_string();
+        request.bundle_url = "https://example.org/bundle.tar.gz".to_string();
+
+        let script = build_wsl_bundle_prepare_script(&request).expect("wsl script");
+
+        assert!(script.contains("bundle_url='https://example.org/bundle.tar.gz'"));
+        assert!(script.contains("urllib.request.urlretrieve"));
+        assert!(!script.contains("wslpath -a"));
+    }
+
+    #[test]
+    fn wsl_bundle_script_requires_archive_or_url() {
+        let mut request = request();
+        request.source_mode = "Use installer bundle".to_string();
+
+        let error = build_wsl_bundle_prepare_script(&request).expect_err("missing bundle source");
+
+        assert!(error.contains("bundle URL or a local bundle archive"));
     }
 
     #[test]
