@@ -15,6 +15,7 @@ Stabilized the FinnGen and installer CI path after the FinnGen development merge
 - Scoped the FinnGen coverage gate to `app/Services/FinnGen`, matching the CI job's service-package intent instead of measuring the full Laravel app tree.
 - Fixed the Ares coverage matrix test setup so it creates source daimon metadata and always performs structural assertions.
 - Made backend CI tolerate intentional non-failure issue statuses from optional suites while preserving assertion failures and risky-test failures.
+- Added a Pest summary guard so CI still fails on failed/errored/risky tests or coverage below minimum, but continues when the only non-zero exit cause is optional-suite issue status.
 
 ## Validation
 

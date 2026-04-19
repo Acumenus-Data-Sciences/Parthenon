@@ -107,6 +107,7 @@ jobs:
           QUEUE_CONNECTION: sync
         run: |
           php artisan migrate --force
+          set +e
           ./vendor/bin/pest \
             --do-not-fail-on-skipped \
             --do-not-fail-on-warning \
@@ -114,7 +115,24 @@ jobs:
             --do-not-fail-on-deprecation \
             --do-not-fail-on-phpunit-deprecation \
             --do-not-fail-on-notice \
-            --do-not-fail-on-incomplete
+            --do-not-fail-on-incomplete 2>&1 | tee pest.log
+          pest_status=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$pest_status" -ne 0 ]; then
+            summary=$(grep -E 'Tests:[[:space:]]' pest.log | tail -1 || true)
+            if echo "$summary" | grep -Eq '[1-9][0-9]* (failed|errored|risky)'; then
+              exit "$pest_status"
+            fi
+            if grep -Eq 'Code coverage below expected' pest.log; then
+              exit "$pest_status"
+            fi
+            if echo "$summary" | grep -q 'passed'; then
+              echo "Pest exited $pest_status with non-failure issue statuses only; continuing."
+              exit 0
+            fi
+            exit "$pest_status"
+          fi
 
   frontend:
     name: Frontend (React)

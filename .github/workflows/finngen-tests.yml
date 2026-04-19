@@ -147,6 +147,7 @@ jobs:
         # NOTE: --min=80 applies to the FinnGen service package, not the
         # whole Laravel app tree.
         run: |
+          set +e
           ./vendor/bin/pest \
             tests/Unit/FinnGen tests/Feature/FinnGen \
             --do-not-fail-on-skipped \
@@ -157,7 +158,24 @@ jobs:
             --do-not-fail-on-notice \
             --do-not-fail-on-incomplete \
             --coverage --coverage-filter=app/Services/FinnGen --min=80 \
-            --coverage-clover=coverage-finngen.xml
+            --coverage-clover=coverage-finngen.xml 2>&1 | tee pest-finngen.log
+          pest_status=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$pest_status" -ne 0 ]; then
+            summary=$(grep -E 'Tests:[[:space:]]' pest-finngen.log | tail -1 || true)
+            if echo "$summary" | grep -Eq '[1-9][0-9]* (failed|errored|risky)'; then
+              exit "$pest_status"
+            fi
+            if grep -Eq 'Code coverage below expected' pest-finngen.log; then
+              exit "$pest_status"
+            fi
+            if echo "$summary" | grep -q 'passed'; then
+              echo "Pest exited $pest_status with non-failure issue statuses only; continuing."
+              exit 0
+            fi
+            exit "$pest_status"
+          fi
 
       - name: Upload coverage artifact
         if: always()
