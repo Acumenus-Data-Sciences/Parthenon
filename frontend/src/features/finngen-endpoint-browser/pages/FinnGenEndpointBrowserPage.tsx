@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
+import { TabBar, TabPanel, type Tab } from "@/components/ui/Tabs";
 import {
   useEndpointDetail,
   useEndpointList,
@@ -24,6 +25,8 @@ import { CoverageProfileBadge } from "../components/CoverageProfileBadge";
 import { GenerationHistorySection } from "../components/GenerationHistorySection";
 import { GwasRunsSection } from "../components/GwasRunsSection";
 import { RunGwasPanel } from "../components/RunGwasPanel";
+// Phase 18 Plan 06 — Profile tab (Risteys-style endpoint dashboard).
+import { ProfilePanel } from "../components/profile/ProfilePanel";
 
 /**
  * Phase 13 — source keys whose CDM carries Finnish source vocabs
@@ -453,6 +456,24 @@ function EndpointDetailDrawer({
 }) {
   const detail = useEndpointDetail(name);
   const open = !!name;
+  // Phase 18 — read tab + source from URL so deep-link / click-through
+  // navigation (?open=...&tab=profile&source=PANCREAS) works.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get("tab");
+  const sourceKey = searchParams.get("source") ?? "PANCREAS";
+  const activeTab = tabParam === "profile" ? "profile" : "overview";
+
+  const handleTabChange = (next: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (next === "profile") {
+      params.set("tab", "profile");
+      if (!params.has("source")) params.set("source", sourceKey);
+    } else {
+      params.delete("tab");
+    }
+    setSearchParams(params, { replace: true });
+  };
+
   return (
     <div
       className={`fixed inset-0 z-50 transition ${
@@ -488,7 +509,14 @@ function EndpointDetailDrawer({
         {detail.isLoading && (
           <div className="px-6 py-12 text-sm text-slate-500">Loading…</div>
         )}
-        {detail.data && <EndpointDetailBody d={detail.data} />}
+        {detail.data && (
+          <EndpointDetailBody
+            d={detail.data}
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+            sourceKey={sourceKey}
+          />
+        )}
       </aside>
     </div>
   );
@@ -523,7 +551,26 @@ function GenerationBadge({ g }: { g: EndpointGeneration }) {
   );
 }
 
-function EndpointDetailBody({ d }: { d: EndpointDetailWithPhase15 }) {
+// Phase 18 Plan 06 — drawer body now hosts a TabBar.
+// "Overview" carries the existing Phase 13/15 sections (Coverage badge +
+// Generation history + GWAS runs + Run GWAS + Generate panel).
+// "Profile" carries the new Risteys-style 3-panel dashboard.
+const DRAWER_TABS: Tab[] = [
+  { id: "overview", label: "Overview" },
+  { id: "profile", label: "Profile" },
+];
+
+function EndpointDetailBody({
+  d,
+  activeTab,
+  onTabChange,
+  sourceKey,
+}: {
+  d: EndpointDetailWithPhase15;
+  activeTab: string;
+  onTabChange: (id: string) => void;
+  sourceKey: string;
+}) {
   const meta = BUCKET_META[d.coverage_bucket ?? "UNKNOWN"];
   const pct =
     d.coverage?.pct != null ? Math.round((d.coverage.pct as number) * 100) : null;
@@ -538,7 +585,24 @@ function EndpointDetailBody({ d }: { d: EndpointDetailWithPhase15 }) {
     d.coverage_bucket !== "CONTROL_ONLY" && d.coverage_bucket !== "UNMAPPED";
 
   return (
-    <div className="space-y-6 px-6 py-5">
+    <div className="px-6 py-5">
+      <div className="mb-4">
+        <TabBar
+          tabs={DRAWER_TABS}
+          activeTab={activeTab}
+          onTabChange={onTabChange}
+        />
+      </div>
+
+      <TabPanel id="profile" active={activeTab === "profile"}>
+        <ProfilePanel
+          endpointName={d.name}
+          endpointDisplayName={d.longname ?? d.name}
+          sourceKey={sourceKey}
+        />
+      </TabPanel>
+
+      <TabPanel id="overview" active={activeTab === "overview"} className="space-y-6">
       {d.longname && (
         <div>
           <p className="text-xs uppercase tracking-wider text-slate-500">
@@ -699,6 +763,7 @@ function EndpointDetailBody({ d }: { d: EndpointDetailWithPhase15 }) {
           it untouched and appends RunGwasPanel ABOVE it inside the scroll flow
           per UI-SPEC §Section 3 note. */}
       <GeneratePanel endpoint={d} canGenerate={generatable} />
+      </TabPanel>
     </div>
   );
 }
