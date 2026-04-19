@@ -368,6 +368,18 @@ export const router = createBrowserRouter(
               ).then((m) => ({ Component: m.default })),
           },
           {
+            // Phase 15 Plan 07 — reserved Phase 16 PheWeb-lite deep-link path.
+            // Drawer GwasRunsSection <Link>s target this route; stub renders an
+            // EmptyState until Phase 16 ships the real results UI. Lives inside
+            // the workbench group so the existing auth wrapper (ProtectedLayout)
+            // gates it (HIGHSEC §2 three-layer model; threat T-15-22).
+            path: "finngen-endpoints/:name/gwas/:run_id",
+            lazy: () =>
+              import(
+                "@/features/finngen-endpoint-browser/pages/FinnGenGwasResultsStubPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
             path: "community-sdk-demo",
             lazy: () =>
               import(
