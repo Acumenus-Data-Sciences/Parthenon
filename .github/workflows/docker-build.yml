@@ -14,7 +14,11 @@ on:
     branches: [main]
     paths:
       - 'docker/**'
+      - 'backend/**'
+      - 'frontend/**'
+      - 'ai/**'
       - 'blackrabbit/**'
+      - 'solr/**'
       - '.github/workflows/docker-build.yml'
       # Dependency files — rebuild base images when deps change
       - 'backend/composer.json'
@@ -34,9 +38,11 @@ on:
         type: choice
         options:
           - all
+          - nginx
           - php
           - node
           - postgres
+          - solr
           - python-ai
           - study-agent
           - jupyterhub
@@ -82,9 +88,11 @@ jobs:
           IMAGES='[]'
 
           IMAGE_NAMES=(
+            nginx
             php
             node
             postgres
+            solr
             python-ai
             study-agent
             jupyterhub
@@ -97,14 +105,16 @@ jobs:
           )
 
           declare -A WATCH_PATHS=(
-            [php]="docker/php"
-            [node]="docker/node"
+            [nginx]="docker/nginx frontend docs/site docs/blog backend/public/docs/openapi.yaml"
+            [php]="docker/php backend"
+            [node]="docker/node frontend"
             [postgres]="docker/postgres"
-            [python-ai]="docker/python"
-            [study-agent]="docker/study-agent"
+            [solr]="docker/solr solr/configsets"
+            [python-ai]="docker/python ai backend/resources/help docs GIS OHDSI-scraper scripts"
+            [study-agent]="docker/study-agent study-agent"
             [jupyterhub]="docker/jupyterhub"
             [jupyter-user]="docker/jupyter-user"
-            [darkstar]="docker/r"
+            [darkstar]="docker/r darkstar"
             [hecate]="docker/hecate"
             [blackrabbit]="docker/blackrabbit blackrabbit"
             [fhir-to-cdm]="docker/fhir-to-cdm"
@@ -161,6 +171,7 @@ jobs:
                 add_image "php"
               fi
               if path_changed "frontend/package.json" "frontend/package-lock.json"; then
+                add_image "nginx"
                 add_image "node"
               fi
               if path_changed "ai/requirements.txt" "ai/requirements-dev.txt"; then
@@ -202,9 +213,11 @@ jobs:
 
           # Map image name to Dockerfile path and build context
           case "$NAME" in
+            nginx)           DOCKERFILE="docker/nginx/Dockerfile";         CONTEXT="." ;;
             php)              DOCKERFILE="docker/php/Dockerfile";           CONTEXT="." ;;
             node)             DOCKERFILE="docker/node/Dockerfile";          CONTEXT="." ;;
             postgres)         DOCKERFILE="docker/postgres/Dockerfile";      CONTEXT="." ;;
+            solr)             DOCKERFILE="docker/solr/Dockerfile";          CONTEXT="." ;;
             python-ai)        DOCKERFILE="docker/python/Dockerfile";        CONTEXT="." ;;
             study-agent)      DOCKERFILE="docker/study-agent/Dockerfile";   CONTEXT="." ;;
             jupyterhub)       DOCKERFILE="docker/jupyterhub/Dockerfile";    CONTEXT="." ;;

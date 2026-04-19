@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
   pull-requests: write
 
 jobs:
@@ -46,7 +47,7 @@ jobs:
         uses: anthropics/claude-code-action@beta
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          prompt: |
+          direct_prompt: |
             You are reviewing a pull request for the Parthenon project.
             Read the review guidelines in .github/prompts/review-pr.md.
 

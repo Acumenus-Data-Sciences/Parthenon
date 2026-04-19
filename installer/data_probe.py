@@ -7,6 +7,8 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+from . import utils
+
 
 LOCAL_POSTGRES_MODE = "Create local PostgreSQL OMOP database"
 EXISTING_CDM_MODE = "Use an existing OMOP CDM"
@@ -176,12 +178,13 @@ def _postgres_checks(cfg: dict[str, Any], *, repo_root: Path) -> list[dict[str, 
 
 
 def _local_postgres_check(repo_root: Path) -> dict[str, str]:
-    compose_file = repo_root / "docker-compose.yml"
+    compose_name = utils.active_compose_file()
+    compose_file = repo_root / compose_name
     if not compose_file.exists():
         return _check(
             "Local PostgreSQL service",
             "warn",
-            "docker-compose.yml was not found; bundle download will need to provide the local database service.",
+            f"{compose_name} was not found; bundle download will need to provide the local database service.",
         )
     if shutil.which("docker") is None:
         return _check(

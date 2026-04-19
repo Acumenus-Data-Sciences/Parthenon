@@ -11,7 +11,7 @@ target, and guide vocabulary loading without requiring a repo checkout.
       states.
 - [x] Offer local PostgreSQL as the default alternative when the user does not
       have a target database server.
-- [ ] Stop requiring users to clone the full Parthenon repository before
+- [x] Stop requiring users to clone the full Parthenon repository before
       installing.
 - [x] Define the first versioned installer bundle manifest with checksums,
       phases, and DBMS support tiers.
@@ -20,7 +20,7 @@ target, and guide vocabulary loading without requiring a repo checkout.
 - [x] Download a versioned installer bundle containing only required compose
       files, templates, helper scripts, and manifests.
 - [x] Verify downloaded installer bundle checksums before running any phase.
-- [ ] Keep technical JSON and internal config files behind advanced details.
+- [x] Keep technical JSON and internal config files behind advanced details.
 
 ## Data Setup Paths
 
@@ -60,6 +60,8 @@ target, and guide vocabulary loading without requiring a repo checkout.
       installer bundle.
 - [x] Support Windows bundle setup through WSL from either a URL or local
       archive path.
+- [x] Use the verified bundle path with a prebuilt-image Community runtime
+      compose profile instead of backend/frontend source bind mounts.
 - [x] Show the manifest-backed installer bundle readiness check in the Rust
       system check without exposing JSON.
 - [ ] Add resume/rollback for each phase.

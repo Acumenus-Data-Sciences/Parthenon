@@ -11,6 +11,47 @@ from pathlib import Path
 from typing import Optional
 
 REPO_ROOT = Path(__file__).parent.parent
+COMMUNITY_RUNTIME_COMPOSE_FILE = "docker-compose.community.yml"
+
+
+# ---------------------------------------------------------------------------
+# Runtime profile helpers
+# ---------------------------------------------------------------------------
+
+def runtime_profile() -> str:
+    return os.environ.get("PARTHENON_RUNTIME_PROFILE", "").strip().lower()
+
+
+def release_runtime_enabled() -> bool:
+    profile = runtime_profile()
+    if profile in {"community", "community-release", "release", "bundle"}:
+        return True
+    return os.environ.get("PARTHENON_RELEASE_COMPOSE", "").strip().lower() in {"1", "true", "yes"}
+
+
+def active_compose_file() -> str:
+    explicit = (
+        os.environ.get("PARTHENON_COMPOSE_FILE")
+        or os.environ.get("COMPOSE_FILE")
+        or ""
+    ).strip()
+    if explicit:
+        return explicit
+    if release_runtime_enabled():
+        return COMMUNITY_RUNTIME_COMPOSE_FILE
+    return "docker-compose.yml"
+
+
+def configure_runtime_environment() -> None:
+    compose_file = active_compose_file()
+    if (
+        (release_runtime_enabled() or os.environ.get("PARTHENON_COMPOSE_FILE"))
+        and "COMPOSE_FILE" not in os.environ
+    ):
+        os.environ["COMPOSE_FILE"] = compose_file
+
+
+configure_runtime_environment()
 
 
 # ---------------------------------------------------------------------------

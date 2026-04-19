@@ -116,11 +116,17 @@ def pull(cfg: dict[str, Any] | None = None) -> None:
     console.print(f"[cyan][1/3] Pulling Docker images for {len(services)} service(s)…[/cyan]")
     rc = utils.run_stream(["docker", "compose", "pull", *services])
     if rc != 0:
+        if utils.release_runtime_enabled():
+            console.print("[red]✗ Could not pull required release images.[/red]")
+            sys.exit(1)
         console.print("[yellow]⚠ Some images failed to pull — continuing with local images.[/yellow]")
 
 
 def build(cfg: dict[str, Any] | None = None) -> None:
     """docker compose build — only builds services we'll actually start."""
+    if utils.release_runtime_enabled():
+        console.print("[cyan][2/3] Using prebuilt Community runtime images.[/cyan]")
+        return
     services = _compose_service_names(cfg)
     console.print(f"[cyan][2/3] Building Docker images for {len(services)} service(s)…[/cyan]")
     rc = utils.run_stream(["docker", "compose", "build", *services])

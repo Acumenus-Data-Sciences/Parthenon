@@ -105,6 +105,9 @@ struct InstallFinished {
     message: String,
 }
 
+const COMMUNITY_RUNTIME_PROFILE: &str = "community-release";
+const COMMUNITY_RUNTIME_COMPOSE_FILE: &str = "docker-compose.community.yml";
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 struct InstallRequest {
     source_mode: String,
@@ -249,6 +252,21 @@ fn resolve_install_source(
 
 fn uses_installer_bundle(request: &InstallRequest) -> bool {
     request.source_mode.trim() == "Use installer bundle"
+}
+
+fn apply_runtime_profile_env(command: &mut Command, request: &InstallRequest) {
+    if uses_installer_bundle(request) {
+        command.env("PARTHENON_RUNTIME_PROFILE", COMMUNITY_RUNTIME_PROFILE);
+        command.env("PARTHENON_COMPOSE_FILE", COMMUNITY_RUNTIME_COMPOSE_FILE);
+    }
+}
+
+fn runtime_profile_exports(request: &InstallRequest) -> &'static str {
+    if uses_installer_bundle(request) {
+        "export PARTHENON_RUNTIME_PROFILE=community-release\nexport PARTHENON_COMPOSE_FILE=docker-compose.community.yml\n"
+    } else {
+        ""
+    }
 }
 
 fn prepare_local_bundle(
@@ -951,6 +969,7 @@ fn build_local_command(
     command.args(["install.py", "--defaults-file"]);
     command.arg(&defaults_path);
     command.arg("--non-interactive");
+    apply_runtime_profile_env(&mut command, request);
 
     Ok(CommandPlan {
         command,
@@ -973,6 +992,7 @@ fn build_windows_wsl_command(
             "Windows installs require a WSL repo path, such as /home/user/Parthenon".to_string()
         })?;
 
+    let runtime_exports = runtime_profile_exports(request);
     let script = format!(
         r#"set -e
 defaults_file=$(mktemp)
@@ -980,6 +1000,7 @@ cat > "$defaults_file" <<'PARTHENON_DEFAULTS'
 {defaults_json}
 PARTHENON_DEFAULTS
 cd {repo}
+{runtime_exports}
 set +e
 python3 install.py --defaults-file "$defaults_file" --non-interactive
 rc=$?
@@ -987,6 +1008,7 @@ rm -f "$defaults_file"
 exit "$rc"
 "#,
         repo = shell_quote(repo_linux),
+        runtime_exports = runtime_exports,
     );
 
     let mut command = Command::new("wsl.exe");
@@ -1291,6 +1313,7 @@ fn build_local_contract_command(
         command.arg("--contract-redact");
     }
     command.arg("--contract-pretty");
+    apply_runtime_profile_env(&mut command, request);
 
     Ok(CommandPlan {
         command,
@@ -1323,6 +1346,7 @@ fn build_windows_contract_command(
             String::new()
         };
 
+    let runtime_exports = runtime_profile_exports(request);
     let script = format!(
         r#"set -e
 contract_input=$(mktemp)
@@ -1330,6 +1354,7 @@ cat > "$contract_input" <<'PARTHENON_CONTRACT_INPUT'
 {seed_json}
 PARTHENON_CONTRACT_INPUT
 cd {repo}
+{runtime_exports}
 set +e
 python3 install.py --contract {action} --community --contract-input "$contract_input"{repo_root_flag}{redact_flag} --contract-pretty
 rc=$?
@@ -1337,6 +1362,7 @@ rm -f "$contract_input"
 exit "$rc"
 "#,
         repo = shell_quote(repo_linux),
+        runtime_exports = runtime_exports,
     );
 
     let mut command = Command::new("wsl.exe");
@@ -1893,6 +1919,43 @@ mod tests {
     }
 
     #[test]
+    fn local_bundle_command_sets_release_runtime_env() {
+        let mut request = request();
+        let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../..")
+            .canonicalize()
+            .expect("repo root");
+        request.repo_path = repo_root.to_string_lossy().to_string();
+        request.source_mode = "Use installer bundle".to_string();
+
+        let command_plan =
+            build_local_command(&request, r#"{"edition":"Community Edition"}"#).expect("command");
+        let envs = command_plan
+            .command
+            .get_envs()
+            .filter_map(|(key, value)| {
+                value.map(|value| {
+                    (
+                        key.to_string_lossy().to_string(),
+                        value.to_string_lossy().to_string(),
+                    )
+                })
+            })
+            .collect::<Vec<_>>();
+
+        assert!(envs.contains(&(
+            "PARTHENON_RUNTIME_PROFILE".to_string(),
+            "community-release".to_string(),
+        )));
+        assert!(envs.contains(&(
+            "PARTHENON_COMPOSE_FILE".to_string(),
+            "docker-compose.community.yml".to_string(),
+        )));
+
+        cleanup_temp_file(command_plan.temp_defaults);
+    }
+
+    #[test]
     fn local_contract_command_uses_python_contract() {
         let mut request = request();
         let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -2222,6 +2285,26 @@ mod tests {
         assert_eq!(args[3], "-lc");
         assert!(args[4].contains("cd '/home/alice'\\''s/Parthenon'"));
         assert!(args[4].contains("python3 install.py --defaults-file"));
+    }
+
+    #[test]
+    fn windows_bundle_command_exports_release_runtime_env() {
+        let mut request = request();
+        request.source_mode = "Use installer bundle".to_string();
+        request.wsl_distro = Some("Ubuntu-24.04".to_string());
+        request.wsl_repo_path = Some("/home/alice/Parthenon".to_string());
+
+        let command_plan =
+            build_windows_wsl_command(&request, r#"{"edition":"Community Edition"}"#)
+                .expect("wsl command");
+        let args = command_plan
+            .command
+            .get_args()
+            .map(|value| value.to_string_lossy().to_string())
+            .collect::<Vec<_>>();
+
+        assert!(args[4].contains("export PARTHENON_RUNTIME_PROFILE=community-release"));
+        assert!(args[4].contains("export PARTHENON_COMPOSE_FILE=docker-compose.community.yml"));
     }
 
     #[test]
