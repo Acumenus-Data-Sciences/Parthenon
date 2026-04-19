@@ -1632,6 +1632,7 @@ fn main() {
 mod tests {
     use super::*;
 
+    #[cfg(not(target_os = "windows"))]
     fn test_temp_dir(label: &str) -> PathBuf {
         let timestamp = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -1645,6 +1646,7 @@ mod tests {
         path
     }
 
+    #[cfg(not(target_os = "windows"))]
     fn write_test_bundle(root: &Path) -> Result<(PathBuf, String), String> {
         let install_py = b"print('hello from bundle')\n";
         let install_sha = sha256_bytes(install_py);
@@ -1678,6 +1680,7 @@ mod tests {
         Ok((archive_path, archive_sha))
     }
 
+    #[cfg(not(target_os = "windows"))]
     fn append_tar_file<W: Write>(
         builder: &mut tar::Builder<W>,
         path: &str,
@@ -1692,6 +1695,7 @@ mod tests {
             .map_err(|err| err.to_string())
     }
 
+    #[cfg(not(target_os = "windows"))]
     fn sha256_bytes(payload: &[u8]) -> String {
         let mut digest = Sha256::new();
         digest.update(payload);
