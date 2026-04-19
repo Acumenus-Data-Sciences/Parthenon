@@ -16,6 +16,7 @@ use App\Models\App\FinnGen\SourceVariantIndex;
 use App\Models\App\FinnGenEndpointGeneration;
 use App\Models\App\FinnGenUnmappedCode;
 use App\Models\App\Source;
+use App\Models\User;
 use App\Services\FinnGen\Exceptions\ControlCohortNotPreparedException;
 use App\Services\FinnGen\Exceptions\CovariateSetNotFoundException;
 use App\Services\FinnGen\Exceptions\DuplicateRunException;
@@ -484,6 +485,14 @@ final class EndpointBrowserController extends Controller
             ],
         )->fresh() ?? throw new \RuntimeException('Generation upsert did not return a model');
 
+        // REVIEW §WR-02 defence-in-depth — auth:sanctum is the first layer;
+        // this guard is the second layer for PHPStan L8 + future-proofing.
+        $user = $request->user();
+        if (! $user instanceof User) {
+            abort(401);
+        }
+        $userId = (int) $user->getKey();
+
         $params = [
             // Phase 13.1: cohort_definition_id is null for new generations
             // (the endpoint is no longer an app.cohort_definitions row).
@@ -502,7 +511,7 @@ final class EndpointBrowserController extends Controller
         ];
 
         $run = $this->runs->create(
-            userId: (int) $request->user()->id,
+            userId: $userId,
             sourceKey: (string) $data['source_key'],
             analysisType: 'endpoint.generate',
             params: $params,
@@ -603,9 +612,17 @@ final class EndpointBrowserController extends Controller
      */
     public function gwas(DispatchEndpointGwasRequest $request, string $name): JsonResponse
     {
+        // REVIEW §WR-02 defence-in-depth — auth:sanctum is the first layer;
+        // this guard is the second layer for PHPStan L8 + future-proofing.
+        $user = $request->user();
+        if (! $user instanceof User) {
+            abort(401);
+        }
+        $userId = (int) $user->getKey();
+
         try {
             $gwasRun = $this->gwasRunService->dispatchFullGwas(
-                userId: (int) $request->user()->id,
+                userId: $userId,
                 endpointName: $name,
                 sourceKey: (string) $request->input('source_key'),
                 controlCohortId: (int) $request->input('control_cohort_id'),
@@ -707,9 +724,13 @@ final class EndpointBrowserController extends Controller
      *
      * Phase 15 (GENOMICS-14) — eligible control cohort picker.
      * Filters: (a) cohort_definitions.id < 100_000_000_000 (excludes FinnGen-offset
-     * case cohorts); (b) a succeeded generation exists in {source}.cohort; (c)
-     * RBAC — caller must own the cohort OR hold admin/super-admin role (is_public
-     * support left for a future iteration pending cohort_definitions schema audit).
+     * case cohorts); (b) a succeeded generation exists in {source}.cohort (enforced
+     * by the inner JOIN to cohort_counts — only cohorts with rows appear); (c)
+     * RBAC — admin/super-admin see every cohort; other users see only cohorts they
+     * own (cd.author_id = user.id) or cohorts flagged is_public=TRUE. Legacy cohorts
+     * with NULL author_id that are not is_public are intentionally hidden from
+     * non-admin users by this policy; the legacy bool-placeholder bypass was
+     * removed (REVIEW §WR-01).
      *
      * @queryParam source_key string required e.g. PANCREAS
      *
@@ -734,25 +755,64 @@ final class EndpointBrowserController extends Controller
         // Confirm endpoint exists (ModelNotFoundException → 404 via handler).
         EndpointDefinition::query()->where('name', $name)->firstOrFail();
 
+        // REVIEW §WR-02 defence-in-depth — auth:sanctum is the first layer;
+        // this guard is the second layer for PHPStan L8 + future-proofing.
         $user = $request->user();
-        $userId = (int) $user->id;
+        if (! $user instanceof User) {
+            abort(401);
+        }
+        $userId = (int) $user->getKey();
         $isAdmin = $user->hasAnyRole(['admin', 'super-admin']);
 
-        $rows = DB::connection('pgsql')->select(
-            "
-            SELECT cd.id AS cohort_definition_id,
-                   cd.name,
-                   (SELECT COUNT(*) FROM {$sourceLower}.cohort c WHERE c.cohort_definition_id = cd.id) AS subject_count,
-                   (SELECT MAX(c.created_at) FROM {$sourceLower}.cohort c WHERE c.cohort_definition_id = cd.id) AS last_generated_at
-            FROM cohort_definitions cd
-            WHERE cd.id < 100000000000
-              AND EXISTS (SELECT 1 FROM {$sourceLower}.cohort c WHERE c.cohort_definition_id = cd.id)
-              AND (? = TRUE OR cd.author_id = ? OR cd.is_public = TRUE)
-            ORDER BY last_generated_at DESC NULLS LAST
-            LIMIT 100
-            ",
-            [$isAdmin, $userId],
+        // Single CTE pre-aggregates {source}.cohort counts + last_generated_at per
+        // cohort_definition_id — one scan of the source cohort table instead of
+        // up to 300 scalar subqueries at LIMIT=100 (REVIEW §CR-01). $sourceLower
+        // is already regex-validated above; interpolate via sprintf, bind scalars.
+        $cteSql = sprintf(
+            'WITH cohort_counts AS (
+                 SELECT cohort_definition_id,
+                        COUNT(*)          AS subject_count,
+                        MAX(created_at)   AS last_generated_at
+                   FROM %s.cohort
+                  GROUP BY cohort_definition_id
+             )',
+            $sourceLower
         );
+
+        if ($isAdmin) {
+            // Admin branch: no RBAC filter, no bound user id. Excludes only the
+            // FinnGen-offset (>= 100_000_000_000) case cohorts.
+            $rows = DB::connection('pgsql')->select(
+                $cteSql.'
+                 SELECT cd.id AS cohort_definition_id,
+                        cd.name,
+                        cc.subject_count,
+                        cc.last_generated_at
+                   FROM cohort_definitions cd
+                   JOIN cohort_counts cc ON cc.cohort_definition_id = cd.id
+                  WHERE cd.id < 100000000000
+                  ORDER BY cc.last_generated_at DESC NULLS LAST
+                  LIMIT 100',
+                []
+            );
+        } else {
+            // Non-admin branch: RBAC filter on author_id OR is_public. NULL author_id
+            // cohorts that are NOT is_public are intentionally excluded (REVIEW §WR-03).
+            $rows = DB::connection('pgsql')->select(
+                $cteSql.'
+                 SELECT cd.id AS cohort_definition_id,
+                        cd.name,
+                        cc.subject_count,
+                        cc.last_generated_at
+                   FROM cohort_definitions cd
+                   JOIN cohort_counts cc ON cc.cohort_definition_id = cd.id
+                  WHERE cd.id < 100000000000
+                    AND (cd.author_id = ? OR cd.is_public = TRUE)
+                  ORDER BY cc.last_generated_at DESC NULLS LAST
+                  LIMIT 100',
+                [$userId]
+            );
+        }
 
         $data = array_map(static function ($r): array {
             return [
