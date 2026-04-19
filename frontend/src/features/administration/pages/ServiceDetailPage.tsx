@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, RefreshCw, Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Panel, Badge, StatusDot, Button, type BadgeVariant, type StatusDotVariant } from "@/components/ui";
+import { formatDateTime, formatNumber } from "@/i18n/format";
 import { useServiceDetail } from "../hooks/useAiProviders";
 import {
   usePacsConnections,
@@ -31,6 +33,7 @@ const LEVEL_COLORS: Record<string, string> = {
 };
 
 export default function ServiceDetailPage() {
+  const { t } = useTranslation("app");
   const { key = "" } = useParams<{ key: string }>();
   const { data, isLoading, isFetching, refetch } = useServiceDetail(key);
 
@@ -48,10 +51,13 @@ export default function ServiceDetailPage() {
     return (
       <div className="space-y-6">
         <Link to="/admin/system-health" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-4 w-4" /> Back to System Health
+          <ArrowLeft className="h-4 w-4" />
+          {t("administration.serviceDetail.actions.backToSystemHealth")}
         </Link>
         <Panel>
-          <p className="text-muted-foreground">Service not found.</p>
+          <p className="text-muted-foreground">
+            {t("administration.serviceDetail.empty.serviceNotFound")}
+          </p>
         </Panel>
       </div>
     );
@@ -69,7 +75,8 @@ export default function ServiceDetailPage() {
       <div className="flex items-start justify-between">
         <div>
           <Link to="/admin/system-health" className="mb-2 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-4 w-4" /> System Health
+            <ArrowLeft className="h-4 w-4" />
+            {t("administration.serviceDetail.actions.systemHealth")}
           </Link>
           <h1 className="text-2xl font-bold text-foreground">{service.name}</h1>
           <p className="mt-1 text-muted-foreground">{service.message}</p>
@@ -83,7 +90,7 @@ export default function ServiceDetailPage() {
             disabled={isFetching}
           >
             <RefreshCw className={`mr-1 h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
-            Refresh
+            {t("administration.serviceDetail.actions.refresh")}
           </Button>
         </div>
       </div>
@@ -96,7 +103,13 @@ export default function ServiceDetailPage() {
           <Badge variant={badge}>{service.status}</Badge>
           {data.checked_at && (
             <span className="ml-auto text-xs text-muted-foreground">
-              Checked at {new Date(data.checked_at).toLocaleTimeString()}
+              {t("administration.serviceDetail.values.checkedAt", {
+                time: formatDateTime(data.checked_at, {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                }),
+              })}
             </span>
           )}
         </div>
@@ -107,7 +120,7 @@ export default function ServiceDetailPage() {
         <div>
           <Link to="/admin/solr">
             <Button variant="primary" size="sm">
-              Manage Solr Cores
+              {t("administration.serviceDetail.actions.manageSolrCores")}
             </Button>
           </Link>
         </div>
@@ -125,13 +138,15 @@ export default function ServiceDetailPage() {
       {/* Metrics */}
       {metricEntries.length > 0 && (
         <div>
-          <h2 className="mb-3 text-lg font-semibold text-foreground">Metrics</h2>
+          <h2 className="mb-3 text-lg font-semibold text-foreground">
+            {t("administration.serviceDetail.sections.metrics")}
+          </h2>
           <Panel>
             <div className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
               {metricEntries.map(([k, v]) => (
                 <div key={k}>
                   <p className="text-xs text-muted-foreground">{formatLabel(k)}</p>
-                  <p className="font-medium text-foreground">{formatValue(v)}</p>
+                  <p className="font-medium text-foreground">{formatValue(v, t)}</p>
                 </div>
               ))}
             </div>
@@ -152,12 +167,12 @@ export default function ServiceDetailPage() {
                     {Object.entries(vals as Record<string, unknown>).map(([mk, mv]) => (
                       <div key={mk} className="flex justify-between">
                         <span className="text-muted-foreground">{formatLabel(mk)}</span>
-                        <span className="font-medium text-foreground">{formatValue(mv)}</span>
+                        <span className="font-medium text-foreground">{formatValue(mv, t)}</span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-foreground">{formatValue(vals)}</p>
+                  <p className="text-sm text-foreground">{formatValue(vals, t)}</p>
                 )}
               </Panel>
             ))}
@@ -168,12 +183,18 @@ export default function ServiceDetailPage() {
       {/* Logs */}
       <div>
         <h2 className="mb-3 text-lg font-semibold text-foreground">
-          Recent Logs
-          <span className="ml-2 text-sm font-normal text-muted-foreground">({logs.length} entries)</span>
+          {t("administration.serviceDetail.sections.recentLogs")}
+          <span className="ml-2 text-sm font-normal text-muted-foreground">
+            {t("administration.serviceDetail.values.entriesCount", {
+              count: formatNumber(logs.length),
+            })}
+          </span>
         </h2>
         {logs.length === 0 ? (
           <Panel>
-            <p className="text-sm text-muted-foreground">No recent log entries available.</p>
+            <p className="text-sm text-muted-foreground">
+              {t("administration.serviceDetail.empty.noLogs")}
+            </p>
           </Panel>
         ) : (
           <Panel className="max-h-[600px] overflow-y-auto">
@@ -196,6 +217,7 @@ export default function ServiceDetailPage() {
 }
 
 function PacsManagementSection() {
+  const { t } = useTranslation("app");
   const { data: connections, isLoading } = usePacsConnections();
   const testMut = useTestPacsConnection();
   const refreshMut = useRefreshPacsStats();
@@ -228,10 +250,12 @@ function PacsManagementSection() {
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-foreground">PACS Connections</h2>
+        <h2 className="text-lg font-semibold text-foreground">
+          {t("administration.serviceDetail.pacs.title")}
+        </h2>
         <Button variant="primary" size="sm" onClick={() => setEditConn(undefined)}>
           <Plus className="mr-1 h-4 w-4" />
-          Add Connection
+          {t("administration.serviceDetail.pacs.addConnection")}
         </Button>
       </div>
 
@@ -260,7 +284,9 @@ function PacsManagementSection() {
         </div>
       ) : (
         <Panel>
-          <p className="text-sm text-muted-foreground">No PACS connections configured.</p>
+          <p className="text-sm text-muted-foreground">
+            {t("administration.serviceDetail.pacs.empty")}
+          </p>
         </Panel>
       )}
 
@@ -279,6 +305,7 @@ function PacsManagementSection() {
 }
 
 function DarkstarPackagesPanel({ metrics }: { metrics: Record<string, unknown> }) {
+  const { t } = useTranslation("app");
   const ohdsiPkgs = metrics.ohdsi_packages as Record<string, string> | undefined;
   const positPkgs = metrics.posit_packages as Record<string, string> | undefined;
 
@@ -289,9 +316,11 @@ function DarkstarPackagesPanel({ metrics }: { metrics: Record<string, unknown> }
       {ohdsiPkgs && Object.keys(ohdsiPkgs).length > 0 && (
         <div>
           <h2 className="mb-3 text-lg font-semibold text-foreground">
-            OHDSI HADES Packages
+            {t("administration.serviceDetail.darkstar.ohdsiPackages")}
             <span className="ml-2 text-sm font-normal text-muted-foreground">
-              ({Object.keys(ohdsiPkgs).length} installed)
+              {t("administration.serviceDetail.darkstar.installedCount", {
+                count: formatNumber(Object.keys(ohdsiPkgs).length),
+              })}
             </span>
           </h2>
           <Panel>
@@ -310,9 +339,11 @@ function DarkstarPackagesPanel({ metrics }: { metrics: Record<string, unknown> }
       {positPkgs && Object.keys(positPkgs).length > 0 && (
         <div>
           <h2 className="mb-3 text-lg font-semibold text-foreground">
-            Posit / CRAN Packages
+            {t("administration.serviceDetail.darkstar.positPackages")}
             <span className="ml-2 text-sm font-normal text-muted-foreground">
-              ({Object.keys(positPkgs).length} installed)
+              {t("administration.serviceDetail.darkstar.installedCount", {
+                count: formatNumber(Object.keys(positPkgs).length),
+              })}
             </span>
           </h2>
           <Panel>
@@ -338,9 +369,13 @@ function formatLabel(key: string): string {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-function formatValue(v: unknown): string {
-  if (typeof v === "boolean") return v ? "Yes" : "No";
-  if (typeof v === "number") return v.toLocaleString();
+function formatValue(v: unknown, t: (key: string) => string): string {
+  if (typeof v === "boolean") {
+    return v
+      ? t("administration.serviceDetail.values.yes")
+      : t("administration.serviceDetail.values.no");
+  }
+  if (typeof v === "number") return formatNumber(v);
   return String(v ?? "—");
 }
 
@@ -348,7 +383,7 @@ function formatTimestamp(ts: string): string {
   try {
     const d = new Date(ts);
     if (isNaN(d.getTime())) return ts;
-    return d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    return formatDateTime(d, { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   } catch {
     return ts;
   }

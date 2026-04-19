@@ -1359,6 +1359,128 @@ const enApp: MessageTree = {
         saveFailed: "Failed to save connection",
       },
     },
+    users: {
+      title: "Users",
+      summary: {
+        totalAccounts: "total accounts",
+      },
+      empty: {
+        loading: "Loading...",
+        noUsers: "No users found",
+        adjustFilters: "Try adjusting your search or filters.",
+      },
+      deleteModal: {
+        title: "Delete user?",
+        description:
+          "will be permanently deleted and all their API tokens revoked.",
+        irreversible: "This cannot be undone.",
+      },
+      actions: {
+        cancel: "Cancel",
+        deleting: "Deleting...",
+        delete: "Delete",
+        adminEmailer: "Admin Emailer",
+        newUser: "New User",
+        editUser: "Edit user",
+        deleteUser: "Delete user",
+      },
+      filters: {
+        searchPlaceholder: "Search name or email...",
+        allRoles: "All roles",
+      },
+      table: {
+        name: "Name",
+        email: "Email",
+        lastActive: "Last Active",
+        joined: "Joined",
+        roles: "Roles",
+      },
+      values: {
+        never: "Never",
+      },
+      pagination: {
+        page: "Page",
+        of: "of",
+        users: "users",
+      },
+    },
+    userAudit: {
+      title: "User Audit Log",
+      subtitle:
+        "Track login events, feature access, and security actions across all users.",
+      actions: {
+        login: "Login",
+        logout: "Logout",
+        passwordChanged: "Password Changed",
+        passwordReset: "Password Reset",
+        featureAccess: "Feature Access",
+      },
+      empty: {
+        noMatching: "No matching events",
+        noEvents: "No audit events yet",
+        adjustFilters: "Try adjusting your filters or date range.",
+        description:
+          "Audit events are recorded as users log in and access platform features.",
+      },
+      stats: {
+        loginsToday: "Logins Today",
+        activeUsers7d: "Active Users (7d)",
+        totalEvents: "Total Events",
+        topFeature: "Top Feature",
+      },
+      sections: {
+        mostAccessedFeatures: "Most Accessed Features - Last 7 Days",
+      },
+      filters: {
+        searchPlaceholder: "Search user, feature, IP...",
+        allActions: "All actions",
+        clearAll: "Clear all",
+      },
+      table: {
+        time: "Time",
+        user: "User",
+        action: "Action",
+        feature: "Feature",
+        ipAddress: "IP Address",
+      },
+      pagination: {
+        page: "Page",
+        of: "of",
+        events: "events",
+      },
+    },
+    serviceDetail: {
+      actions: {
+        backToSystemHealth: "Back to System Health",
+        systemHealth: "System Health",
+        refresh: "Refresh",
+        manageSolrCores: "Manage Solr Cores",
+      },
+      empty: {
+        serviceNotFound: "Service not found.",
+        noLogs: "No recent log entries available.",
+      },
+      values: {
+        checkedAt: "Checked at {{time}}",
+        entriesCount: "({{count}} entries)",
+        yes: "Yes",
+        no: "No",
+      },
+      sections: {
+        metrics: "Metrics",
+        recentLogs: "Recent Logs",
+      },
+      pacs: {
+        title: "PACS Connections",
+        addConnection: "Add Connection",
+        empty: "No PACS connections configured.",
+      },
+      darkstar: {
+        ohdsiPackages: "OHDSI HADES Packages",
+        positPackages: "Posit / CRAN Packages",
+        installedCount: "({{count}} installed)",
+      },
+    },
     atlasMigration: {
       steps: {
         connect: "Connect",
@@ -4763,6 +4885,128 @@ const esApp: MessageTree = {
       errors: {
         testRequestFailed: "La solicitud de prueba falló",
         saveFailed: "No se pudo guardar la conexión",
+      },
+    },
+    users: {
+      title: "Usuarios",
+      summary: {
+        totalAccounts: "cuentas totales",
+      },
+      empty: {
+        loading: "Cargando...",
+        noUsers: "No se encontraron usuarios",
+        adjustFilters: "Prueba ajustar tu búsqueda o filtros.",
+      },
+      deleteModal: {
+        title: "¿Eliminar usuario?",
+        description:
+          "se eliminará permanentemente y todos sus tokens de API serán revocados.",
+        irreversible: "Esto no se puede deshacer.",
+      },
+      actions: {
+        cancel: "Cancelar",
+        deleting: "Eliminando...",
+        delete: "Eliminar",
+        adminEmailer: "Correo administrativo",
+        newUser: "Nuevo usuario",
+        editUser: "Editar usuario",
+        deleteUser: "Eliminar usuario",
+      },
+      filters: {
+        searchPlaceholder: "Buscar nombre o correo...",
+        allRoles: "Todos los roles",
+      },
+      table: {
+        name: "Nombre",
+        email: "Correo",
+        lastActive: "Última actividad",
+        joined: "Ingreso",
+        roles: "Roles",
+      },
+      values: {
+        never: "Nunca",
+      },
+      pagination: {
+        page: "Página",
+        of: "de",
+        users: "usuarios",
+      },
+    },
+    userAudit: {
+      title: "Registro de auditoría de usuarios",
+      subtitle:
+        "Rastrea inicios de sesión, acceso a funciones y acciones de seguridad de todos los usuarios.",
+      actions: {
+        login: "Inicio de sesión",
+        logout: "Cierre de sesión",
+        passwordChanged: "Contraseña cambiada",
+        passwordReset: "Restablecimiento de contraseña",
+        featureAccess: "Acceso a función",
+      },
+      empty: {
+        noMatching: "No hay eventos coincidentes",
+        noEvents: "Aún no hay eventos de auditoría",
+        adjustFilters: "Prueba ajustar tus filtros o rango de fechas.",
+        description:
+          "Los eventos de auditoría se registran cuando los usuarios inician sesión y acceden a funciones de la plataforma.",
+      },
+      stats: {
+        loginsToday: "Inicios de sesión hoy",
+        activeUsers7d: "Usuarios activos (7 d)",
+        totalEvents: "Eventos totales",
+        topFeature: "Función principal",
+      },
+      sections: {
+        mostAccessedFeatures: "Funciones más accedidas - últimos 7 días",
+      },
+      filters: {
+        searchPlaceholder: "Buscar usuario, función, IP...",
+        allActions: "Todas las acciones",
+        clearAll: "Limpiar todo",
+      },
+      table: {
+        time: "Hora",
+        user: "Usuario",
+        action: "Acción",
+        feature: "Función",
+        ipAddress: "Dirección IP",
+      },
+      pagination: {
+        page: "Página",
+        of: "de",
+        events: "eventos",
+      },
+    },
+    serviceDetail: {
+      actions: {
+        backToSystemHealth: "Volver al estado del sistema",
+        systemHealth: "Estado del sistema",
+        refresh: "Actualizar",
+        manageSolrCores: "Gestionar núcleos Solr",
+      },
+      empty: {
+        serviceNotFound: "Servicio no encontrado.",
+        noLogs: "No hay entradas recientes de log disponibles.",
+      },
+      values: {
+        checkedAt: "Comprobado a las {{time}}",
+        entriesCount: "({{count}} entradas)",
+        yes: "Sí",
+        no: "No",
+      },
+      sections: {
+        metrics: "Métricas",
+        recentLogs: "Logs recientes",
+      },
+      pacs: {
+        title: "Conexiones PACS",
+        addConnection: "Agregar conexión",
+        empty: "No hay conexiones PACS configuradas.",
+      },
+      darkstar: {
+        ohdsiPackages: "Paquetes OHDSI HADES",
+        positPackages: "Paquetes Posit / CRAN",
+        installedCount: "({{count}} instalados)",
       },
     },
     atlasMigration: {
@@ -8177,6 +8421,127 @@ const koApp: MessageTree = {
       errors: {
         testRequestFailed: "테스트 요청에 실패했습니다",
         saveFailed: "연결을 저장하지 못했습니다",
+      },
+    },
+    users: {
+      title: "사용자",
+      summary: {
+        totalAccounts: "전체 계정",
+      },
+      empty: {
+        loading: "로딩 중...",
+        noUsers: "사용자를 찾을 수 없습니다",
+        adjustFilters: "검색어나 필터를 조정해 보세요.",
+      },
+      deleteModal: {
+        title: "사용자를 삭제하시겠습니까?",
+        description: "영구적으로 삭제되고 모든 API 토큰이 취소됩니다.",
+        irreversible: "이 작업은 되돌릴 수 없습니다.",
+      },
+      actions: {
+        cancel: "취소",
+        deleting: "삭제 중...",
+        delete: "삭제",
+        adminEmailer: "관리자 이메일",
+        newUser: "새 사용자",
+        editUser: "사용자 편집",
+        deleteUser: "사용자 삭제",
+      },
+      filters: {
+        searchPlaceholder: "이름 또는 이메일 검색...",
+        allRoles: "모든 역할",
+      },
+      table: {
+        name: "이름",
+        email: "이메일",
+        lastActive: "최근 활동",
+        joined: "가입일",
+        roles: "역할",
+      },
+      values: {
+        never: "없음",
+      },
+      pagination: {
+        page: "페이지",
+        of: "/",
+        users: "사용자",
+      },
+    },
+    userAudit: {
+      title: "사용자 감사 로그",
+      subtitle:
+        "모든 사용자의 로그인 이벤트, 기능 접근, 보안 작업을 추적합니다.",
+      actions: {
+        login: "로그인",
+        logout: "로그아웃",
+        passwordChanged: "비밀번호 변경",
+        passwordReset: "비밀번호 재설정",
+        featureAccess: "기능 접근",
+      },
+      empty: {
+        noMatching: "일치하는 이벤트가 없습니다",
+        noEvents: "아직 감사 이벤트가 없습니다",
+        adjustFilters: "필터 또는 날짜 범위를 조정해 보세요.",
+        description:
+          "사용자가 로그인하고 플랫폼 기능에 접근하면 감사 이벤트가 기록됩니다.",
+      },
+      stats: {
+        loginsToday: "오늘 로그인",
+        activeUsers7d: "활성 사용자(7일)",
+        totalEvents: "전체 이벤트",
+        topFeature: "상위 기능",
+      },
+      sections: {
+        mostAccessedFeatures: "가장 많이 접근한 기능 - 최근 7일",
+      },
+      filters: {
+        searchPlaceholder: "사용자, 기능, IP 검색...",
+        allActions: "모든 작업",
+        clearAll: "모두 지우기",
+      },
+      table: {
+        time: "시간",
+        user: "사용자",
+        action: "작업",
+        feature: "기능",
+        ipAddress: "IP 주소",
+      },
+      pagination: {
+        page: "페이지",
+        of: "/",
+        events: "이벤트",
+      },
+    },
+    serviceDetail: {
+      actions: {
+        backToSystemHealth: "시스템 상태로 돌아가기",
+        systemHealth: "시스템 상태",
+        refresh: "새로고침",
+        manageSolrCores: "Solr 코어 관리",
+      },
+      empty: {
+        serviceNotFound: "서비스를 찾을 수 없습니다.",
+        noLogs: "사용 가능한 최근 로그 항목이 없습니다.",
+      },
+      values: {
+        checkedAt: "{{time}}에 확인됨",
+        entriesCount: "(항목 {{count}}개)",
+        yes: "예",
+        no: "아니요",
+      },
+      sections: {
+        metrics: "지표",
+        recentLogs: "최근 로그",
+      },
+      pacs: {
+        title: "PACS 연결",
+        addConnection: "연결 추가",
+        empty: "구성된 PACS 연결이 없습니다.",
+      },
+      darkstar: {
+        ohdsiPackages: "OHDSI HADES 패키지",
+        positPackages: "Posit / CRAN 패키지",
+        installedCount: "(설치됨 {{count}}개)",
       },
     },
     atlasMigration: {

@@ -3,19 +3,22 @@ import {
   LogIn, LogOut, KeyRound, Activity, Shield,
   ChevronLeft, ChevronRight, Search, X, Loader2, ScrollText,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { formatDateTime, formatNumber } from "@/i18n/format";
 import { useAuditLog, useAuditSummary } from "../hooks/useUserAudit";
 import type { UserAuditEntry, AuditFilters } from "../api/adminApi";
 
 // ── Design tokens ────────────────────────────────────────────────────────────
 type LucideIcon = React.ComponentType<{ size?: number; style?: React.CSSProperties; className?: string }>;
-const ACTION_CONFIG: Record<string, { color: string; icon: LucideIcon; label: string }> = {
-  login:            { color: "var(--success)", icon: LogIn,     label: "Login" },
-  logout:           { color: "var(--text-muted)", icon: LogOut,    label: "Logout" },
-  password_changed: { color: "var(--accent)", icon: KeyRound,  label: "Password Changed" },
-  password_reset:   { color: "var(--critical)", icon: Shield,    label: "Password Reset" },
-  api_access:       { color: "var(--info)", icon: Activity,  label: "Feature Access" },
+const ACTION_CONFIG: Record<string, { color: string; icon: LucideIcon; labelKey: string }> = {
+  login:            { color: "var(--success)", icon: LogIn,     labelKey: "login" },
+  logout:           { color: "var(--text-muted)", icon: LogOut,    labelKey: "logout" },
+  password_changed: { color: "var(--accent)", icon: KeyRound,  labelKey: "passwordChanged" },
+  password_reset:   { color: "var(--critical)", icon: Shield,    labelKey: "passwordReset" },
+  api_access:       { color: "var(--info)", icon: Activity,  labelKey: "featureAccess" },
 };
+const TABLE_HEADERS = ["time", "user", "action", "feature", "ipAddress"] as const;
 
 // ── Sub-components ───────────────────────────────────────────────────────────
 
@@ -49,7 +52,8 @@ function StatCard({
 }
 
 function ActionBadge({ action }: { action: string }) {
-  const cfg = ACTION_CONFIG[action] ?? { color: "var(--text-muted)", icon: Activity, label: action };
+  const { t } = useTranslation("app");
+  const cfg = ACTION_CONFIG[action] ?? { color: "var(--text-muted)", icon: Activity, labelKey: "" };
   const Icon = cfg.icon;
   return (
     <span
@@ -57,24 +61,30 @@ function ActionBadge({ action }: { action: string }) {
       style={{ backgroundColor: `${cfg.color}15`, color: cfg.color }}
     >
       <Icon size={10} />
-      {cfg.label}
+      {cfg.labelKey
+        ? t(`administration.userAudit.actions.${cfg.labelKey}`)
+        : action}
     </span>
   );
 }
 
 function EmptyState({ filtered }: { filtered: boolean }) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
       <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-surface-overlay">
         <ScrollText size={24} className="text-text-muted" />
       </div>
       <h3 className="text-lg font-semibold text-text-primary">
-        {filtered ? "No matching events" : "No audit events yet"}
+        {filtered
+          ? t("administration.userAudit.empty.noMatching")
+          : t("administration.userAudit.empty.noEvents")}
       </h3>
       <p className="mt-2 max-w-md text-center text-sm text-text-muted">
         {filtered
-          ? "Try adjusting your filters or date range."
-          : "Audit events are recorded as users log in and access platform features."}
+          ? t("administration.userAudit.empty.adjustFilters")
+          : t("administration.userAudit.empty.description")}
       </p>
     </div>
   );
@@ -83,6 +93,7 @@ function EmptyState({ filtered }: { filtered: boolean }) {
 // ── Main page ────────────────────────────────────────────────────────────────
 
 export default function UserAuditPage() {
+  const { t } = useTranslation("app");
   const [filters, setFilters] = useState<AuditFilters>({ page: 1, per_page: 50 });
   const [search, setSearch] = useState("");
 
@@ -109,34 +120,36 @@ export default function UserAuditPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-text-primary">User Audit Log</h1>
+        <h1 className="text-2xl font-bold text-text-primary">
+          {t("administration.userAudit.title")}
+        </h1>
         <p className="mt-1 text-sm text-text-muted">
-          Track login events, feature access, and security actions across all users.
+          {t("administration.userAudit.subtitle")}
         </p>
       </div>
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard
-          label="Logins Today"
+          label={t("administration.userAudit.stats.loginsToday")}
           value={summary?.logins_today ?? "—"}
           color="var(--success)"
           icon={LogIn}
         />
         <StatCard
-          label="Active Users (7d)"
+          label={t("administration.userAudit.stats.activeUsers7d")}
           value={summary?.active_users_week ?? "—"}
           color="var(--info)"
           icon={Activity}
         />
         <StatCard
-          label="Total Events"
+          label={t("administration.userAudit.stats.totalEvents")}
           value={data?.meta.total ?? "—"}
           color="var(--text-secondary)"
           icon={ScrollText}
         />
         <StatCard
-          label="Top Feature"
+          label={t("administration.userAudit.stats.topFeature")}
           value={summary?.top_features[0]?.feature ?? "—"}
           color="var(--accent)"
           icon={Shield}
@@ -147,7 +160,7 @@ export default function UserAuditPage() {
       {summary?.top_features && summary.top_features.length > 0 && (
         <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3">
           <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-text-ghost">
-            Most Accessed Features — Last 7 Days
+            {t("administration.userAudit.sections.mostAccessedFeatures")}
           </p>
           <div className="flex flex-wrap gap-2">
             {summary.top_features.map((f) => (
@@ -174,7 +187,7 @@ export default function UserAuditPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search user, feature, IP…"
+            placeholder={t("administration.userAudit.filters.searchPlaceholder")}
             className="w-full rounded-lg border border-border-default bg-surface-raised py-2 pl-9 pr-8 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40 transition-colors"
           />
           {search && (
@@ -196,12 +209,12 @@ export default function UserAuditPage() {
           }
           className="rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-secondary focus:border-success focus:outline-none transition-colors"
         >
-          <option value="">All actions</option>
-          <option value="login">Login</option>
-          <option value="logout">Logout</option>
-          <option value="password_changed">Password Changed</option>
-          <option value="password_reset">Password Reset</option>
-          <option value="api_access">Feature Access</option>
+          <option value="">{t("administration.userAudit.filters.allActions")}</option>
+          <option value="login">{t("administration.userAudit.actions.login")}</option>
+          <option value="logout">{t("administration.userAudit.actions.logout")}</option>
+          <option value="password_changed">{t("administration.userAudit.actions.passwordChanged")}</option>
+          <option value="password_reset">{t("administration.userAudit.actions.passwordReset")}</option>
+          <option value="api_access">{t("administration.userAudit.actions.featureAccess")}</option>
         </select>
 
         {/* Date from */}
@@ -234,7 +247,7 @@ export default function UserAuditPage() {
             }}
             className="text-sm text-text-ghost transition-colors hover:text-text-muted"
           >
-            Clear all
+            {t("administration.userAudit.filters.clearAll")}
           </button>
         )}
       </div>
@@ -251,12 +264,12 @@ export default function UserAuditPage() {
           <table className="w-full">
             <thead>
               <tr className="bg-surface-overlay">
-                {["Time", "User", "Action", "Feature", "IP Address"].map((h) => (
+                {TABLE_HEADERS.map((h) => (
                   <th
                     key={h}
                     className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted"
                   >
-                    {h}
+                    {t(`administration.userAudit.table.${h}`)}
                   </th>
                 ))}
               </tr>
@@ -273,7 +286,7 @@ export default function UserAuditPage() {
                   {/* Time */}
                   <td className="px-4 py-3">
                     <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">
-                      {new Date(entry.occurred_at).toLocaleString("en-US", {
+                      {formatDateTime(entry.occurred_at, {
                         month: "short", day: "numeric",
                         hour: "2-digit", minute: "2-digit", second: "2-digit",
                       })}
@@ -333,19 +346,19 @@ export default function UserAuditPage() {
       {data && data.meta.last_page > 1 && (
         <div className="flex items-center justify-between text-sm text-text-ghost">
           <span>
-            Page{" "}
+            {t("administration.userAudit.pagination.page")}{" "}
             <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
               {data.meta.current_page}
             </span>{" "}
-            of{" "}
+            {t("administration.userAudit.pagination.of")}{" "}
             <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
               {data.meta.last_page}
             </span>
             {" "}·{" "}
             <span className="font-['IBM_Plex_Mono',monospace] text-text-secondary">
-              {data.meta.total.toLocaleString()}
+              {formatNumber(data.meta.total)}
             </span>{" "}
-            events
+            {t("administration.userAudit.pagination.events")}
           </span>
           <div className="flex items-center gap-2">
             <button

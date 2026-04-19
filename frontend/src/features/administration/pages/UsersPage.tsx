@@ -3,7 +3,9 @@ import {
   Plus, ChevronLeft, ChevronRight, Pencil, Trash2, Circle,
   Search, X, Loader2, UsersRound, ChevronUp, ChevronDown, Mail,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { formatDate, formatDateTime, formatNumber } from "@/i18n/format";
 import { useUsers, useDeleteUser, useAvailableRoles } from "../hooks/useAdminUsers";
 import { UserModal } from "../components/UserModal";
 import { BroadcastEmailModal } from "../components/BroadcastEmailModal";
@@ -43,16 +45,22 @@ function SortIcon({ active, dir }: { active: boolean; dir: "asc" | "desc" }) {
 }
 
 function EmptyState({ loading }: { loading: boolean }) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
       <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-surface-overlay">
         <UsersRound size={24} className="text-text-muted" />
       </div>
       <h3 className="text-lg font-semibold text-text-primary">
-        {loading ? "Loading…" : "No users found"}
+        {loading
+          ? t("administration.users.empty.loading")
+          : t("administration.users.empty.noUsers")}
       </h3>
       {!loading && (
-        <p className="mt-2 text-sm text-text-muted">Try adjusting your search or filters.</p>
+        <p className="mt-2 text-sm text-text-muted">
+          {t("administration.users.empty.adjustFilters")}
+        </p>
       )}
     </div>
   );
@@ -71,6 +79,8 @@ function DeleteConfirmModal({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
@@ -82,7 +92,9 @@ function DeleteConfirmModal({
       <div className="relative z-10 w-full max-w-sm rounded-xl border border-border-default bg-surface-overlay shadow-xl">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border-default px-5 py-4">
-          <h2 className="text-base font-semibold text-text-primary">Delete user?</h2>
+          <h2 className="text-base font-semibold text-text-primary">
+            {t("administration.users.deleteModal.title")}
+          </h2>
           <button
             type="button"
             onClick={onCancel}
@@ -98,8 +110,10 @@ function DeleteConfirmModal({
             <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">
               ({user.email})
             </span>{" "}
-            will be permanently deleted and all their API tokens revoked.{" "}
-            <span className="text-critical">This cannot be undone.</span>
+            {t("administration.users.deleteModal.description")}{" "}
+            <span className="text-critical">
+              {t("administration.users.deleteModal.irreversible")}
+            </span>
           </p>
         </div>
         {/* Footer */}
@@ -109,7 +123,7 @@ function DeleteConfirmModal({
             onClick={onCancel}
             className="rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm text-text-muted transition-colors hover:border-surface-highlight hover:text-text-secondary"
           >
-            Cancel
+            {t("administration.users.actions.cancel")}
           </button>
           <button
             type="button"
@@ -117,7 +131,9 @@ function DeleteConfirmModal({
             onClick={onConfirm}
             className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-light disabled:opacity-50"
           >
-            {isPending ? "Deleting…" : "Delete"}
+            {isPending
+              ? t("administration.users.actions.deleting")
+              : t("administration.users.actions.delete")}
           </button>
         </div>
       </div>
@@ -127,14 +143,15 @@ function DeleteConfirmModal({
 
 // ── Main page ────────────────────────────────────────────────────────────────
 
-const SORTABLE: Array<{ key: string; label: string }> = [
-  { key: "name", label: "Name" },
-  { key: "email", label: "Email" },
-  { key: "last_active_at", label: "Last Active" },
-  { key: "created_at", label: "Joined" },
+const SORTABLE: Array<{ key: string; labelKey: string }> = [
+  { key: "name", labelKey: "name" },
+  { key: "email", labelKey: "email" },
+  { key: "last_active_at", labelKey: "lastActive" },
+  { key: "created_at", labelKey: "joined" },
 ];
 
 export default function UsersPage() {
+  const { t } = useTranslation("app");
   const [filters, setFilters] = useState<UserFilters>({
     page: 1, per_page: 20, sort_by: "created_at", sort_dir: "desc",
   });
@@ -164,12 +181,14 @@ export default function UsersPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Users</h1>
+          <h1 className="text-2xl font-bold text-text-primary">
+            {t("administration.users.title")}
+          </h1>
           <p className="mt-1 text-sm text-text-muted">
             <span className="font-['IBM_Plex_Mono',monospace] text-text-secondary">
-              {data?.total ?? 0}
+              {formatNumber(data?.total ?? 0)}
             </span>{" "}
-            total accounts
+            {t("administration.users.summary.totalAccounts")}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -180,7 +199,7 @@ export default function UsersPage() {
               className="inline-flex items-center gap-2 rounded-lg border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition-colors hover:bg-accent/20"
             >
               <Mail size={16} />
-              Admin Emailer
+              {t("administration.users.actions.adminEmailer")}
             </button>
           )}
           <button
@@ -189,7 +208,7 @@ export default function UsersPage() {
             className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-semibold text-surface-base transition-colors hover:bg-success-dark"
           >
             <Plus size={16} />
-            New User
+            {t("administration.users.actions.newUser")}
           </button>
         </div>
       </div>
@@ -203,7 +222,7 @@ export default function UsersPage() {
             type="text"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setFilters((f) => ({ ...f, page: 1 })); }}
-            placeholder="Search name or email…"
+            placeholder={t("administration.users.filters.searchPlaceholder")}
             className="w-full rounded-lg border border-border-default bg-surface-raised py-2 pl-9 pr-8 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40 transition-colors"
           />
           {search && (
@@ -223,7 +242,7 @@ export default function UsersPage() {
           onChange={(e) => setFilters((f) => ({ ...f, role: e.target.value || undefined, page: 1 }))}
           className="rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-secondary focus:border-success focus:outline-none transition-colors"
         >
-          <option value="">All roles</option>
+          <option value="">{t("administration.users.filters.allRoles")}</option>
           {roles?.map((r) => (
             <option key={r.id} value={r.name}>{r.name}</option>
           ))}
@@ -238,7 +257,7 @@ export default function UsersPage() {
           <table className="w-full">
             <thead>
               <tr className="bg-surface-overlay">
-                {SORTABLE.map(({ key, label }) => (
+                {SORTABLE.map(({ key, labelKey }) => (
                   <th
                     key={key}
                     className="px-4 py-2.5 text-left"
@@ -248,7 +267,7 @@ export default function UsersPage() {
                       onClick={() => handleSort(key)}
                       className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-text-muted transition-colors hover:text-text-secondary"
                     >
-                      {label}
+                      {t(`administration.users.table.${labelKey}`)}
                       <SortIcon
                         active={filters.sort_by === key}
                         dir={filters.sort_dir as "asc" | "desc"}
@@ -257,7 +276,7 @@ export default function UsersPage() {
                   </th>
                 ))}
                 <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                  Roles
+                  {t("administration.users.table.roles")}
                 </th>
                 <th className="w-20 px-4 py-2.5" />
               </tr>
@@ -306,10 +325,14 @@ export default function UsersPage() {
                           }}
                         />
                         <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">
-                          {activeAt ? new Date(activeAt).toLocaleString("en-US", {
-                            month: "short", day: "numeric",
-                            hour: "2-digit", minute: "2-digit",
-                          }) : "Never"}
+                          {activeAt
+                            ? formatDateTime(activeAt, {
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                            : t("administration.users.values.never")}
                         </span>
                       </span>
                     </td>
@@ -317,7 +340,7 @@ export default function UsersPage() {
                     {/* Joined */}
                     <td className="px-4 py-3">
                       <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">
-                        {new Date(user.created_at).toLocaleDateString("en-US", {
+                        {formatDate(user.created_at, {
                           month: "short", day: "numeric", year: "numeric",
                         })}
                       </span>
@@ -343,7 +366,7 @@ export default function UsersPage() {
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); setModalState({ open: true, user }); }}
-                          title="Edit user"
+                          title={t("administration.users.actions.editUser")}
                           className="flex h-7 w-7 items-center justify-center rounded-md text-text-ghost transition-colors hover:bg-surface-elevated hover:text-text-muted"
                         >
                           <Pencil size={14} />
@@ -351,7 +374,7 @@ export default function UsersPage() {
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); setDeleteConfirm(user); }}
-                          title="Delete user"
+                          title={t("administration.users.actions.deleteUser")}
                           className="flex h-7 w-7 items-center justify-center rounded-md text-text-ghost transition-colors hover:bg-primary/15 hover:text-critical"
                         >
                           <Trash2 size={14} />
@@ -370,19 +393,19 @@ export default function UsersPage() {
       {data && data.last_page > 1 && (
         <div className="flex items-center justify-between text-sm text-text-ghost">
           <span>
-            Page{" "}
+            {t("administration.users.pagination.page")}{" "}
             <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
               {data.current_page}
             </span>{" "}
-            of{" "}
+            {t("administration.users.pagination.of")}{" "}
             <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
               {data.last_page}
             </span>
             {" "}·{" "}
             <span className="font-['IBM_Plex_Mono',monospace] text-text-secondary">
-              {data.total.toLocaleString()}
+              {formatNumber(data.total)}
             </span>{" "}
-            users
+            {t("administration.users.pagination.users")}
           </span>
           <div className="flex items-center gap-2">
             <button
