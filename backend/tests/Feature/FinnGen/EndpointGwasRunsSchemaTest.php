@@ -37,6 +37,10 @@ it('enforces the status CHECK constraint', function () {
 });
 
 it('grants parthenon_app SELECT/INSERT/UPDATE/DELETE on finngen.endpoint_gwas_runs', function () {
+    if (! hasPgRoleForPrivilegeAssertions('parthenon_app')) {
+        return;
+    }
+
     $grants = DB::connection('pgsql')->select(
         "SELECT privilege_type
            FROM information_schema.role_table_grants

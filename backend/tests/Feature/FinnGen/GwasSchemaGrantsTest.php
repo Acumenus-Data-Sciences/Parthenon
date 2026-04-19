@@ -11,6 +11,10 @@ beforeEach(function () {
 });
 
 it('grants DML to parthenon_app on summary_stats', function () {
+    if (! hasPgRoleForPrivilegeAssertions('parthenon_app')) {
+        return;
+    }
+
     $row = DB::selectOne("
         SELECT has_table_privilege('parthenon_app', 'pancreas_gwas_results.summary_stats', 'SELECT, INSERT, UPDATE, DELETE') AS ok
     ");
@@ -18,6 +22,10 @@ it('grants DML to parthenon_app on summary_stats', function () {
 });
 
 it('grants DML to parthenon_finngen_rw on summary_stats', function () {
+    if (! hasPgRoleForPrivilegeAssertions('parthenon_finngen_rw')) {
+        return;
+    }
+
     $row = DB::selectOne("
         SELECT has_table_privilege('parthenon_finngen_rw', 'pancreas_gwas_results.summary_stats', 'SELECT, INSERT, UPDATE, DELETE') AS ok
     ");
@@ -25,6 +33,10 @@ it('grants DML to parthenon_finngen_rw on summary_stats', function () {
 });
 
 it('grants only SELECT to parthenon_finngen_ro on summary_stats', function () {
+    if (! hasPgRoleForPrivilegeAssertions('parthenon_finngen_ro')) {
+        return;
+    }
+
     $can_select = DB::selectOne("SELECT has_table_privilege('parthenon_finngen_ro', 'pancreas_gwas_results.summary_stats', 'SELECT') AS ok")->ok;
     $can_insert = DB::selectOne("SELECT has_table_privilege('parthenon_finngen_ro', 'pancreas_gwas_results.summary_stats', 'INSERT') AS ok")->ok;
     expect($can_select)->toBeTrue();

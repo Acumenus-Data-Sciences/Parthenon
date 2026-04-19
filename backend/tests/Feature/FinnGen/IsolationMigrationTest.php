@@ -23,13 +23,17 @@ it('creates the finngen schema owned with USAGE grant for parthenon_app', functi
     $exists = DB::selectOne("SELECT 1 AS ok FROM pg_namespace WHERE nspname = 'finngen'");
     expect($exists)->not->toBeNull();
 
+    if (! hasPgRoleForPrivilegeAssertions('parthenon_app')) {
+        return;
+    }
+
     $priv = DB::selectOne("SELECT has_schema_privilege('parthenon_app', 'finngen', 'USAGE') AS ok");
     expect((bool) $priv->ok)->toBeTrue();
 });
 
-it('relocates the 7 FinnGen tables into finngen schema without finngen_ prefix', function (): void {
-    // Per CONTEXT.md scope: the 6 existing app.finngen_* tables plus the new
-    // finngen.endpoint_definitions table yield 7 tables under the finngen schema.
+it('relocates the baseline FinnGen tables into finngen schema without finngen_ prefix', function (): void {
+    // Later migrations add more finngen-owned tables; this assertion covers
+    // the Phase 13.1 relocation contract without making the suite order brittle.
     $expected = [
         'analysis_modules',
         'endpoint_definitions',
@@ -42,7 +46,15 @@ it('relocates the 7 FinnGen tables into finngen schema without finngen_ prefix',
     $actual = collect(DB::select(
         "SELECT table_name FROM information_schema.tables WHERE table_schema='finngen' ORDER BY 1"
     ))->pluck('table_name')->all();
-    expect($actual)->toBe($expected);
+    foreach ($expected as $table) {
+        expect($actual)->toContain($table);
+    }
+
+    $prefixed = array_values(array_filter(
+        $actual,
+        fn (string $table): bool => str_starts_with($table, 'finngen_')
+    ));
+    expect($prefixed)->toBe([]);
 });
 
 it('migrates endpoint rows out of app.cohort_definitions into finngen.endpoint_definitions', function (): void {

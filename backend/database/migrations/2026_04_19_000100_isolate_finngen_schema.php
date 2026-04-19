@@ -233,30 +233,41 @@ SQL);
         // ------------------------------------------------------------------
         DB::statement(<<<'SQL'
             DO $grants$
+            DECLARE
+                migrator_exists BOOLEAN;
             BEGIN
+                SELECT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_migrator')
+                  INTO migrator_exists;
+
                 IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_app') THEN
                     GRANT USAGE, CREATE ON SCHEMA finngen TO parthenon_app;
                     GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA finngen TO parthenon_app;
                     GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA finngen TO parthenon_app;
-                    ALTER DEFAULT PRIVILEGES FOR ROLE parthenon_migrator IN SCHEMA finngen
-                        GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO parthenon_app;
-                    ALTER DEFAULT PRIVILEGES FOR ROLE parthenon_migrator IN SCHEMA finngen
-                        GRANT USAGE, SELECT ON SEQUENCES TO parthenon_app;
+                    IF migrator_exists THEN
+                        ALTER DEFAULT PRIVILEGES FOR ROLE parthenon_migrator IN SCHEMA finngen
+                            GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO parthenon_app;
+                        ALTER DEFAULT PRIVILEGES FOR ROLE parthenon_migrator IN SCHEMA finngen
+                            GRANT USAGE, SELECT ON SEQUENCES TO parthenon_app;
+                    END IF;
                 END IF;
                 IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_finngen_ro') THEN
                     GRANT USAGE ON SCHEMA finngen TO parthenon_finngen_ro;
                     GRANT SELECT ON ALL TABLES IN SCHEMA finngen TO parthenon_finngen_ro;
-                    ALTER DEFAULT PRIVILEGES FOR ROLE parthenon_migrator IN SCHEMA finngen
-                        GRANT SELECT ON TABLES TO parthenon_finngen_ro;
+                    IF migrator_exists THEN
+                        ALTER DEFAULT PRIVILEGES FOR ROLE parthenon_migrator IN SCHEMA finngen
+                            GRANT SELECT ON TABLES TO parthenon_finngen_ro;
+                    END IF;
                 END IF;
                 IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_finngen_rw') THEN
                     GRANT USAGE, CREATE ON SCHEMA finngen TO parthenon_finngen_rw;
                     GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA finngen TO parthenon_finngen_rw;
                     GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA finngen TO parthenon_finngen_rw;
-                    ALTER DEFAULT PRIVILEGES FOR ROLE parthenon_migrator IN SCHEMA finngen
-                        GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO parthenon_finngen_rw;
-                    ALTER DEFAULT PRIVILEGES FOR ROLE parthenon_migrator IN SCHEMA finngen
-                        GRANT USAGE, SELECT ON SEQUENCES TO parthenon_finngen_rw;
+                    IF migrator_exists THEN
+                        ALTER DEFAULT PRIVILEGES FOR ROLE parthenon_migrator IN SCHEMA finngen
+                            GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO parthenon_finngen_rw;
+                        ALTER DEFAULT PRIVILEGES FOR ROLE parthenon_migrator IN SCHEMA finngen
+                            GRANT USAGE, SELECT ON SEQUENCES TO parthenon_finngen_rw;
+                    END IF;
                 END IF;
             END
             $grants$

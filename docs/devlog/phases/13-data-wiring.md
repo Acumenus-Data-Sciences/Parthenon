@@ -312,3 +312,7 @@ psql ohdsi -c "SELECT email, must_change_password FROM app.users"
 - **Bug 8 (Jobs page):** Requires `JobController` + unified job tracking table — deferred to future phase
 - **Multi-source support:** `AchillesResultReaderService` and `VocabularyController` use hardcoded connections; need Source daimon resolution for multi-source deployments
 - **Query performance:** May need GIN trigram index on `omop.concept.concept_name` for substring search at scale
+
+## 2026-04-19 — Migration guard fix
+
+`isolate_finngen_schema.php`: wrapped `ALTER DEFAULT PRIVILEGES FOR ROLE parthenon_migrator` in `IF migrator_exists THEN` block. Community / development databases without the `parthenon_migrator` role no longer fail migration on first bootstrap. The `HIGHSEC` production role split is preserved for hardened deployments.
