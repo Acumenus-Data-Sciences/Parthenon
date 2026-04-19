@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 18-04-PLAN.md
-last_updated: "2026-04-19T18:46:54.017Z"
+stopped_at: Completed 18-06-PLAN.md
+last_updated: "2026-04-19T20:48:44.548Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 58
-  completed_plans: 49
-  percent: 84
+  completed_plans: 51
+  percent: 88
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-16 — Milestone v1.0 FinnGen Genomic
 ## Current Position
 
 Phase: 18 (risteys-style-endpoint-dashboard) — EXECUTING
-Plan: 5 of 7 (Plan 18-02 complete — Wave 1 foundation shipped)
+Plan: 6 of 7 (Plan 18-02 complete — Wave 1 foundation shipped)
 Status: Ready to execute
 Last activity: 2026-04-19
 
@@ -93,6 +93,7 @@ Progress: [████████░░] 81%
 | Phase 18 P02 | 10min | 2 tasks | 4 files |
 | Phase 18 P03 | 5min | 2 tasks | 8 files |
 | Phase 18 P04 | 7min | 2 tasks | 9 files |
+| Phase 18 P06 | 552 | 2 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -195,6 +196,9 @@ Recent decisions affecting current work:
 - [Phase 18]: [Phase 18-04] Precondition 2 uses D-15 OR semantics: death>0 OR observation_period>0 (not AND) — sources with partial CDM still eligible
 - [Phase 18]: [Phase 18-04] TrackEndpointProfileAccess middleware try-catch Throwable — T-18-05 mitigation live; dropped-access-log test asserts dispatch still 202
 - [Phase 18]: [Phase 18-04] Warning 3 42P01 partial-provision guard in showProfile returns needs_compute reason=partial_provision instead of 500; DROP-table test case locks the guard
+- [Phase 18]: [Phase 18-06] TabBar inserted into EndpointDetailBody to make Profile a peer to Coverage/Generation/GWAS — drawer URL syncs ?tab=profile&source via useSearchParams; Overview tab wraps existing Phase 13/15 sections
+- [Phase 18]: [Phase 18-06] useEndpointProfileKmData adapter mirrors KaplanMeierPoint locally (KaplanMeierPlot.tsx exports neither the type nor the component edits per D-13) and derives nCensored client-side from (subject_count, at_risk, events) since backend table has no censored column — Math.max(0, ...) clamps pathological data
+- [Phase 18]: [Phase 18-06] D-07 enforced via heatmap-helpers.getPhiCellClass — negative phi uses bg-teal-400 (= #2DD4BF) NOT bg-teal-500; ComputeProfileCta + ComorbidityMatrixPanel hover/focus rings also use teal-400 for visual hue consistency
 
 ### Pending Todos
 
@@ -242,6 +246,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-19T18:46:54.015Z
-Stopped at: Completed 18-04-PLAN.md
+Last session: 2026-04-19T20:48:44.544Z
+Stopped at: Completed 18-06-PLAN.md
 Resume file: None
