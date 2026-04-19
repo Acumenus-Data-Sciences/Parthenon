@@ -747,7 +747,7 @@ final class EndpointBrowserController extends Controller
             FROM cohort_definitions cd
             WHERE cd.id < 100000000000
               AND EXISTS (SELECT 1 FROM {$sourceLower}.cohort c WHERE c.cohort_definition_id = cd.id)
-              AND (? = TRUE OR cd.owner_user_id = ?)
+              AND (? = TRUE OR cd.author_id = ? OR cd.is_public = TRUE)
             ORDER BY last_generated_at DESC NULLS LAST
             LIMIT 100
             ",
