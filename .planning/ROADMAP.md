@@ -28,7 +28,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 14: regenie GWAS Infrastructure** - Containerize regenie, wire Darkstar async dispatch, and ship the per-source `{source}_gwas_results` schema with indexed summary-stat tables
 - [ ] **Phase 15: GWAS Dispatch, Run Tracking, and Generation History** - Endpoint x source GWAS dispatch API, run-history catalog per (endpoint x source x covariate-set), and multi-run generation history view
 - [ ] **Phase 16: PheWeb-lite Results UI and Workbench Attribution** - Manhattan plot, regional/LocusZoom-lite views, top-variants drawer, plus the one-tweak workbench attribution badge for FinnGen-seeded sessions
-- [ ] **Phase 17: PGS Catalog Ingestion, PRS Scoring, and Distribution Viz** - `parthenon:load-pgs-catalog` command, per-cohort PRS dispatch, and histogram + quintile visualization in the cohort detail drawer
+- [x] **Phase 17: PGS Catalog Ingestion, PRS Scoring, and Distribution Viz** - `parthenon:load-pgs-catalog` command, per-cohort PRS dispatch, and histogram + quintile visualization in the cohort detail drawer (completed 2026-04-19)
 - [ ] **Phase 18: Risteys-style Endpoint Dashboard** - Per-endpoint Kaplan-Meier survival, comorbidity matrix, and pre-index drug-use timeline via the `co2.endpoint_profile` module
 
 ## Phase Details
@@ -172,5 +172,5 @@ Phase 18 depends on Phase 13 and can run in parallel with the entire 14-17 chain
 | 14. regenie GWAS Infrastructure | 4/7 | In Progress|  |
 | 15. GWAS Dispatch, Run Tracking, and Generation History | 8/9 | In Progress|  |
 | 16. PheWeb-lite Results UI and Workbench Attribution | 0/0 | Not started | - |
-| 17. PGS Catalog Ingestion, PRS Scoring, and Distribution Viz | 6/7 | In Progress|  |
+| 17. PGS Catalog Ingestion, PRS Scoring, and Distribution Viz | 7/7 | Complete    | 2026-04-19 |
 | 18. Risteys-style Endpoint Dashboard | 0/0 | Not started | - |
