@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 15-08-PLAN.md
-last_updated: "2026-04-19T02:42:00.838Z"
+stopped_at: Completed 15-09-PLAN.md (Task 1 shipped; Task 2 SC-4 smoke deferred to 15-HUMAN-UAT.md)
+last_updated: "2026-04-19T03:04:58.885Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 8
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 42
-  completed_plans: 35
-  percent: 83
+  completed_plans: 36
+  percent: 86
 ---
 
 # Project State
@@ -164,6 +164,7 @@ Recent decisions affecting current work:
 - [Phase 15]: Plan 15-08: TestCase shares pgsql PDO + transaction counter with pgsql_testing, unblocking all future cross-connection HTTP tests
 - [Phase 15]: Plan 15-08: FinnGenGwasRunObserver's MIN(p_value) probe wrapped in savepoint to prevent PG 25P02 transaction poisoning
 - [Phase 15]: Plan 15-08: EndpointBrowserController::eligibleControls now references app.cohort_definitions.author_id + is_public (owner_user_id did not exist)
+- [Phase 15]: Plan 15-09: SC-4 real E2E smoke deferred to 15-HUMAN-UAT.md at researcher approval — Phase 14 infra not available at phase-close; UAT debt not failure; nyquist_compliant stays false until evidence captured
 
 ### Pending Todos
 
@@ -211,6 +212,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-19T02:19:22.989Z
-Stopped at: Completed 15-08-PLAN.md
+Last session: 2026-04-19T03:04:49.255Z
+Stopped at: Completed 15-09-PLAN.md (Task 1 shipped; Task 2 SC-4 smoke deferred to 15-HUMAN-UAT.md)
 Resume file: None
