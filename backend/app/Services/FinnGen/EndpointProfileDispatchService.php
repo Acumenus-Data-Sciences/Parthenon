@@ -36,7 +36,7 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
  * ANALYSIS_TYPE is a hard-coded class constant so no user-controlled string
  * flows into the R dispatcher.
  */
-final class EndpointProfileDispatchService
+class EndpointProfileDispatchService
 {
     public const ANALYSIS_TYPE = 'co2.endpoint_profile';
 

@@ -24,3 +24,15 @@ Schedule::command('commons:sync-ohdsi-announcements')
     ->onFailure(function () {
         Log::error('commons:sync-ohdsi-announcements scheduled run failed.');
     });
+
+// Phase 18 D-11 — warm recently-accessed endpoint profiles daily at 02:00 local.
+// Reads finngen.endpoint_profile_access for (endpoint, source) pairs touched in
+// the last 14 days and dispatches a fresh compute whenever the cached row is
+// missing or its expression_hash is stale (D-10 invalidation).
+Schedule::command('finngen:warm-endpoint-profiles --source=PANCREAS --since=14d')
+    ->dailyAt('02:00')
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->onFailure(function () {
+        Log::error('finngen:warm-endpoint-profiles scheduled run failed.');
+    });
