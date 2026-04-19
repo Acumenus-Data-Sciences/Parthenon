@@ -1181,6 +1181,184 @@ const enApp: MessageTree = {
         openWizard: "Open wizard",
       },
     },
+    chromaStudio: {
+      title: "Chroma Collection Studio",
+      subtitle:
+        "Inspect vector collections, run semantic queries, and manage ingestion",
+      values: {
+        collectionCount: "{{count}} collections",
+        loading: "loading",
+        loadingEllipsis: "Loading...",
+        countSuffix: "({{count}})",
+        sampledSuffix: "({{count}} sampled)",
+      },
+      actions: {
+        refreshCollections: "Refresh collections",
+        ingestDocs: "Ingest Docs",
+        ingestClinical: "Ingest Clinical",
+        promoteFaq: "Promote FAQ",
+        ingestOhdsiPapers: "Ingest OHDSI Papers",
+        ingestOhdsiKnowledge: "Ingest OHDSI Knowledge",
+        ingestTextbooks: "Ingest Textbooks",
+      },
+      stats: {
+        vectors: "Vectors",
+        sampled: "Sampled",
+        dimensions: "Dimensions",
+        metaFields: "Meta Fields",
+      },
+      messages: {
+        loadingCollectionData: "Loading collection data...",
+      },
+      empty: {
+        title: "This collection is empty",
+        description:
+          "Use the Ingest actions above to populate \"{{collection}}\" with documents.",
+        noRecords: "No records in this collection.",
+        noDocumentReturned: "No document returned.",
+        noDocumentText: "No document text available.",
+      },
+      tabs: {
+        overview: "Overview",
+        retrieval: "Retrieval",
+      },
+      search: {
+        placeholder: "Semantic query...",
+        recentQueries: "Recent queries",
+        kLabel: "K:",
+        queryAction: "Query",
+        empty: "Enter a query above and click Query to inspect retrieval results.",
+        queryLabel: "Query:",
+        resultsCount: "{{count}} results",
+        querying: "Querying...",
+        distance: "distance",
+      },
+      overview: {
+        facetDistribution: "Facet Distribution",
+        sampleRecords: "Sample Records",
+        collectionMetadata: "Collection Metadata",
+      },
+    },
+    vectorExplorer: {
+      title: "Vector Explorer",
+      semanticMapTitle: "{{dimensions}}D Semantic Map",
+      loading: {
+        computingProjection: "Computing projection",
+        runningProjection: "Running PCA->UMAP on {{sample}} vectors...",
+        recomputingProjection: "Recomputing projection...",
+      },
+      values: {
+        all: "all",
+        loadingEllipsis: "Loading...",
+        countSuffix: "({{count}})",
+        sampled: "{{count}} sampled",
+        dimensions: "{{dimensions}}D",
+        knnEdges: "k={{neighbors}} - {{edges}} edges",
+        seconds: "{{seconds}}s",
+        points: "{{count}} pts",
+        cachedSuffix: " - cached",
+        fallbackSuffix: " - fallback",
+        timeSuffix: " - {{seconds}}s",
+      },
+      empty: {
+        selectCollection: "Select a collection to visualize embeddings.",
+      },
+      tooltips: {
+        requiresAiService: "Requires AI service connection",
+      },
+      search: {
+        placeholder: "Search within the vector space",
+        searching: "Searching...",
+        search: "Search",
+        visibleResults:
+          "{{visible}} of {{total}} results visible in this projection",
+      },
+      sections: {
+        overlays: "Overlays",
+        clusterProfile: "Cluster Profile",
+        inspector: "Inspector",
+      },
+      overlays: {
+        clusterHulls: {
+          label: "Cluster hulls",
+          help: "Convex envelopes around clusters",
+        },
+        topologyLines: {
+          label: "Topology lines",
+          help: "k-NN links between nearby points",
+        },
+        queryRays: {
+          label: "Query rays",
+          help: "Anchor-to-result similarity links",
+        },
+      },
+      stats: {
+        totalVectors: "Total vectors",
+        sampled: "Sampled",
+        projection: "Projection",
+        knnGraph: "k-NN graph",
+        source: "Source",
+        projectionTime: "Projection time",
+        indexed: "Indexed",
+      },
+      sources: {
+        solrCached: "Solr (cached)",
+        clientFallback: "Client fallback",
+        liveUmap: "Live UMAP",
+      },
+      actions: {
+        recomputeProjection: "Re-compute projection",
+        expand: "Expand",
+      },
+    },
+    pacsConnectionModal: {
+      title: {
+        add: "Add PACS Connection",
+        edit: "Edit PACS Connection",
+      },
+      description: "Configure a DICOM imaging server connection.",
+      fields: {
+        name: "Name",
+        type: "Type",
+        authType: "Auth Type",
+        baseUrl: "Base URL",
+        username: "Username",
+        password: "Password",
+        bearerToken: "Bearer Token",
+        linkedSource: "Linked Source (optional)",
+        active: "Active",
+      },
+      placeholders: {
+        name: "Main PACS Server",
+        keepExisting: "Leave blank to keep existing",
+        password: "password",
+        token: "token",
+      },
+      types: {
+        orthanc: "Orthanc",
+        dicomweb: "DICOMweb",
+        googleHealthcare: "Google Healthcare",
+        cloud: "Cloud",
+      },
+      auth: {
+        none: "None",
+        basic: "Basic Auth",
+        bearer: "Bearer Token",
+      },
+      values: {
+        latency: "({{ms}}ms)",
+      },
+      actions: {
+        testConnection: "Test Connection",
+        cancel: "Cancel",
+        saveChanges: "Save Changes",
+        createConnection: "Create Connection",
+      },
+      errors: {
+        testRequestFailed: "Test request failed",
+        saveFailed: "Failed to save connection",
+      },
+    },
     atlasMigration: {
       steps: {
         connect: "Connect",
@@ -4406,6 +4584,185 @@ const esApp: MessageTree = {
       actions: {
         open: "Abrir",
         openWizard: "Abrir asistente",
+      },
+    },
+    chromaStudio: {
+      title: "Estudio de colecciones Chroma",
+      subtitle:
+        "Inspecciona colecciones vectoriales, ejecuta consultas semánticas y gestiona la ingesta",
+      values: {
+        collectionCount: "{{count}} colecciones",
+        loading: "cargando",
+        loadingEllipsis: "Cargando...",
+        countSuffix: "({{count}})",
+        sampledSuffix: "({{count}} muestreados)",
+      },
+      actions: {
+        refreshCollections: "Actualizar colecciones",
+        ingestDocs: "Ingerir docs",
+        ingestClinical: "Ingerir datos clínicos",
+        promoteFaq: "Promover FAQ",
+        ingestOhdsiPapers: "Ingerir artículos OHDSI",
+        ingestOhdsiKnowledge: "Ingerir conocimiento OHDSI",
+        ingestTextbooks: "Ingerir libros de texto",
+      },
+      stats: {
+        vectors: "Vectores",
+        sampled: "Muestreados",
+        dimensions: "Dimensiones",
+        metaFields: "Campos meta",
+      },
+      messages: {
+        loadingCollectionData: "Cargando datos de la colección...",
+      },
+      empty: {
+        title: "Esta colección está vacía",
+        description:
+          "Usa las acciones de ingesta de arriba para poblar \"{{collection}}\" con documentos.",
+        noRecords: "No hay registros en esta colección.",
+        noDocumentReturned: "No se devolvió ningún documento.",
+        noDocumentText: "No hay texto de documento disponible.",
+      },
+      tabs: {
+        overview: "Resumen",
+        retrieval: "Recuperación",
+      },
+      search: {
+        placeholder: "Consulta semántica...",
+        recentQueries: "Consultas recientes",
+        kLabel: "K:",
+        queryAction: "Consultar",
+        empty:
+          "Ingresa una consulta arriba y haz clic en Consultar para inspeccionar resultados de recuperación.",
+        queryLabel: "Consulta:",
+        resultsCount: "{{count}} resultados",
+        querying: "Consultando...",
+        distance: "distancia",
+      },
+      overview: {
+        facetDistribution: "Distribución de facetas",
+        sampleRecords: "Registros de muestra",
+        collectionMetadata: "Metadatos de la colección",
+      },
+    },
+    vectorExplorer: {
+      title: "Explorador vectorial",
+      semanticMapTitle: "Mapa semántico {{dimensions}}D",
+      loading: {
+        computingProjection: "Calculando proyección",
+        runningProjection: "Ejecutando PCA->UMAP en {{sample}} vectores...",
+        recomputingProjection: "Recalculando proyección...",
+      },
+      values: {
+        all: "todos",
+        loadingEllipsis: "Cargando...",
+        countSuffix: "({{count}})",
+        sampled: "{{count}} muestreados",
+        dimensions: "{{dimensions}}D",
+        knnEdges: "k={{neighbors}} - {{edges}} aristas",
+        seconds: "{{seconds}} s",
+        points: "{{count}} pts",
+        cachedSuffix: " - en caché",
+        fallbackSuffix: " - alternativo",
+        timeSuffix: " - {{seconds}} s",
+      },
+      empty: {
+        selectCollection: "Selecciona una colección para visualizar embeddings.",
+      },
+      tooltips: {
+        requiresAiService: "Requiere conexión al servicio de IA",
+      },
+      search: {
+        placeholder: "Buscar dentro del espacio vectorial",
+        searching: "Buscando...",
+        search: "Buscar",
+        visibleResults:
+          "{{visible}} de {{total}} resultados visibles en esta proyección",
+      },
+      sections: {
+        overlays: "Capas",
+        clusterProfile: "Perfil de clúster",
+        inspector: "Inspector",
+      },
+      overlays: {
+        clusterHulls: {
+          label: "Envolventes de clúster",
+          help: "Envolventes convexas alrededor de los clústeres",
+        },
+        topologyLines: {
+          label: "Líneas de topología",
+          help: "Enlaces k-NN entre puntos cercanos",
+        },
+        queryRays: {
+          label: "Rayos de consulta",
+          help: "Enlaces de similitud entre ancla y resultado",
+        },
+      },
+      stats: {
+        totalVectors: "Vectores totales",
+        sampled: "Muestreados",
+        projection: "Proyección",
+        knnGraph: "Grafo k-NN",
+        source: "Fuente",
+        projectionTime: "Tiempo de proyección",
+        indexed: "Indexado",
+      },
+      sources: {
+        solrCached: "Solr (en caché)",
+        clientFallback: "Alternativa del cliente",
+        liveUmap: "UMAP en vivo",
+      },
+      actions: {
+        recomputeProjection: "Recalcular proyección",
+        expand: "Expandir",
+      },
+    },
+    pacsConnectionModal: {
+      title: {
+        add: "Agregar conexión PACS",
+        edit: "Editar conexión PACS",
+      },
+      description: "Configura una conexión a servidor de imágenes DICOM.",
+      fields: {
+        name: "Nombre",
+        type: "Tipo",
+        authType: "Tipo de autenticación",
+        baseUrl: "URL base",
+        username: "Usuario",
+        password: "Contraseña",
+        bearerToken: "Token Bearer",
+        linkedSource: "Fuente vinculada (opcional)",
+        active: "Activa",
+      },
+      placeholders: {
+        name: "Servidor PACS principal",
+        keepExisting: "Deja en blanco para mantener el existente",
+        password: "contraseña",
+        token: "token",
+      },
+      types: {
+        orthanc: "Orthanc",
+        dicomweb: "DICOMweb",
+        googleHealthcare: "Google Healthcare",
+        cloud: "Nube",
+      },
+      auth: {
+        none: "Ninguna",
+        basic: "Autenticación básica",
+        bearer: "Token Bearer",
+      },
+      values: {
+        latency: "({{ms}} ms)",
+      },
+      actions: {
+        testConnection: "Probar conexión",
+        cancel: "Cancelar",
+        saveChanges: "Guardar cambios",
+        createConnection: "Crear conexión",
+      },
+      errors: {
+        testRequestFailed: "La solicitud de prueba falló",
+        saveFailed: "No se pudo guardar la conexión",
       },
     },
     atlasMigration: {
@@ -7643,6 +8000,183 @@ const koApp: MessageTree = {
       actions: {
         open: "열기",
         openWizard: "마법사 열기",
+      },
+    },
+    chromaStudio: {
+      title: "Chroma 컬렉션 스튜디오",
+      subtitle: "벡터 컬렉션을 검사하고 시맨틱 쿼리를 실행하며 수집을 관리합니다",
+      values: {
+        collectionCount: "컬렉션 {{count}}개",
+        loading: "로딩 중",
+        loadingEllipsis: "로딩 중...",
+        countSuffix: "({{count}})",
+        sampledSuffix: "(샘플 {{count}}개)",
+      },
+      actions: {
+        refreshCollections: "컬렉션 새로고침",
+        ingestDocs: "문서 수집",
+        ingestClinical: "임상 데이터 수집",
+        promoteFaq: "FAQ 승격",
+        ingestOhdsiPapers: "OHDSI 논문 수집",
+        ingestOhdsiKnowledge: "OHDSI 지식 수집",
+        ingestTextbooks: "교과서 수집",
+      },
+      stats: {
+        vectors: "벡터",
+        sampled: "샘플",
+        dimensions: "차원",
+        metaFields: "메타 필드",
+      },
+      messages: {
+        loadingCollectionData: "컬렉션 데이터를 불러오는 중...",
+      },
+      empty: {
+        title: "이 컬렉션은 비어 있습니다",
+        description:
+          "위의 수집 작업을 사용해 \"{{collection}}\"에 문서를 채우세요.",
+        noRecords: "이 컬렉션에 레코드가 없습니다.",
+        noDocumentReturned: "반환된 문서가 없습니다.",
+        noDocumentText: "사용 가능한 문서 텍스트가 없습니다.",
+      },
+      tabs: {
+        overview: "개요",
+        retrieval: "검색",
+      },
+      search: {
+        placeholder: "시맨틱 쿼리...",
+        recentQueries: "최근 쿼리",
+        kLabel: "K:",
+        queryAction: "쿼리",
+        empty: "위에 쿼리를 입력하고 쿼리를 클릭해 검색 결과를 검사하세요.",
+        queryLabel: "쿼리:",
+        resultsCount: "결과 {{count}}개",
+        querying: "쿼리 중...",
+        distance: "거리",
+      },
+      overview: {
+        facetDistribution: "패싯 분포",
+        sampleRecords: "샘플 레코드",
+        collectionMetadata: "컬렉션 메타데이터",
+      },
+    },
+    vectorExplorer: {
+      title: "벡터 탐색기",
+      semanticMapTitle: "{{dimensions}}D 시맨틱 맵",
+      loading: {
+        computingProjection: "프로젝션 계산 중",
+        runningProjection: "{{sample}}개 벡터에서 PCA->UMAP 실행 중...",
+        recomputingProjection: "프로젝션 다시 계산 중...",
+      },
+      values: {
+        all: "전체",
+        loadingEllipsis: "로딩 중...",
+        countSuffix: "({{count}})",
+        sampled: "샘플 {{count}}개",
+        dimensions: "{{dimensions}}D",
+        knnEdges: "k={{neighbors}} - 엣지 {{edges}}개",
+        seconds: "{{seconds}}초",
+        points: "{{count}} pts",
+        cachedSuffix: " - 캐시됨",
+        fallbackSuffix: " - 대체",
+        timeSuffix: " - {{seconds}}초",
+      },
+      empty: {
+        selectCollection: "임베딩을 시각화할 컬렉션을 선택하세요.",
+      },
+      tooltips: {
+        requiresAiService: "AI 서비스 연결이 필요합니다",
+      },
+      search: {
+        placeholder: "벡터 공간 내 검색",
+        searching: "검색 중...",
+        search: "검색",
+        visibleResults:
+          "이 프로젝션에서 결과 {{total}}개 중 {{visible}}개 표시",
+      },
+      sections: {
+        overlays: "오버레이",
+        clusterProfile: "클러스터 프로필",
+        inspector: "검사기",
+      },
+      overlays: {
+        clusterHulls: {
+          label: "클러스터 외곽",
+          help: "클러스터 주변의 볼록 외피",
+        },
+        topologyLines: {
+          label: "토폴로지 선",
+          help: "가까운 점 사이의 k-NN 링크",
+        },
+        queryRays: {
+          label: "쿼리 광선",
+          help: "앵커와 결과 사이의 유사도 링크",
+        },
+      },
+      stats: {
+        totalVectors: "전체 벡터",
+        sampled: "샘플",
+        projection: "프로젝션",
+        knnGraph: "k-NN 그래프",
+        source: "소스",
+        projectionTime: "프로젝션 시간",
+        indexed: "인덱싱됨",
+      },
+      sources: {
+        solrCached: "Solr(캐시됨)",
+        clientFallback: "클라이언트 대체",
+        liveUmap: "라이브 UMAP",
+      },
+      actions: {
+        recomputeProjection: "프로젝션 다시 계산",
+        expand: "확대",
+      },
+    },
+    pacsConnectionModal: {
+      title: {
+        add: "PACS 연결 추가",
+        edit: "PACS 연결 편집",
+      },
+      description: "DICOM 영상 서버 연결을 구성합니다.",
+      fields: {
+        name: "이름",
+        type: "유형",
+        authType: "인증 유형",
+        baseUrl: "기본 URL",
+        username: "사용자 이름",
+        password: "비밀번호",
+        bearerToken: "Bearer 토큰",
+        linkedSource: "연결된 소스(선택 사항)",
+        active: "활성",
+      },
+      placeholders: {
+        name: "기본 PACS 서버",
+        keepExisting: "기존 값을 유지하려면 비워 두세요",
+        password: "비밀번호",
+        token: "토큰",
+      },
+      types: {
+        orthanc: "Orthanc",
+        dicomweb: "DICOMweb",
+        googleHealthcare: "Google Healthcare",
+        cloud: "클라우드",
+      },
+      auth: {
+        none: "없음",
+        basic: "기본 인증",
+        bearer: "Bearer 토큰",
+      },
+      values: {
+        latency: "({{ms}}ms)",
+      },
+      actions: {
+        testConnection: "연결 테스트",
+        cancel: "취소",
+        saveChanges: "변경 사항 저장",
+        createConnection: "연결 만들기",
+      },
+      errors: {
+        testRequestFailed: "테스트 요청에 실패했습니다",
+        saveFailed: "연결을 저장하지 못했습니다",
       },
     },
     atlasMigration: {

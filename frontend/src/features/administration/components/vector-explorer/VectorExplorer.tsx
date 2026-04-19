@@ -1,7 +1,9 @@
 import { useMemo, type FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { Maximize2, Minimize2, Loader2, WifiOff, RefreshCw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Panel } from "@/components/ui";
+import { formatDate, formatNumber } from "@/i18n/format";
 import type { CollectionOverview, CollectionSummary } from "../../api/chromaStudioApi";
 import { useVectorExplorer } from "./useVectorExplorer";
 import ThreeScene from "./ThreeScene";
@@ -30,6 +32,7 @@ export default function VectorExplorer({
   loadingCollections,
   onCollectionChange,
 }: VectorExplorerProps) {
+  const { t } = useTranslation("app");
   const explorer = useVectorExplorer(collectionName, overview?.count);
   const { projectionData, activeMode, isExpanded, isLoading, isFallback, error } = explorer;
   const collectionTheme = useMemo(() => getCollectionTheme(collectionName), [collectionName]);
@@ -82,6 +85,12 @@ export default function VectorExplorer({
     () => clusters.find((cluster) => cluster.id === explorer.selectedClusterId) ?? null,
     [clusters, explorer.selectedClusterId],
   );
+  const aiServiceTooltip = t("administration.vectorExplorer.tooltips.requiresAiService");
+  const sourceLabel = stats?.source === "solr"
+    ? t("administration.vectorExplorer.sources.solrCached")
+    : stats?.source === "fallback"
+      ? t("administration.vectorExplorer.sources.clientFallback")
+      : t("administration.vectorExplorer.sources.liveUmap");
 
   if (isLoading && !projectionData) {
     return (
@@ -89,9 +98,15 @@ export default function VectorExplorer({
         <div className="flex flex-col items-center gap-3 py-12 text-center">
           <Loader2 className="h-6 w-6 animate-spin" style={{ color: collectionTheme.accent }} />
           <div>
-            <p className="text-sm font-medium text-text-secondary">Computing projection</p>
+            <p className="text-sm font-medium text-text-secondary">
+              {t("administration.vectorExplorer.loading.computingProjection")}
+            </p>
             <p className="mt-1 text-xs text-text-ghost">
-              Running PCA→UMAP on {explorer.sampleSize === 0 ? "all" : explorer.sampleSize.toLocaleString()} vectors...
+              {t("administration.vectorExplorer.loading.runningProjection", {
+                sample: explorer.sampleSize === 0
+                  ? t("administration.vectorExplorer.values.all")
+                  : formatNumber(explorer.sampleSize),
+              })}
             </p>
           </div>
         </div>
@@ -103,7 +118,7 @@ export default function VectorExplorer({
     return (
       <Panel>
         <p className="py-8 text-center text-sm text-text-ghost">
-          Select a collection to visualize embeddings.
+          {t("administration.vectorExplorer.empty.selectCollection")}
         </p>
       </Panel>
     );
@@ -137,7 +152,9 @@ export default function VectorExplorer({
         <div className="flex flex-1 flex-col">
           <div className="flex items-center justify-between border-b border-border-default bg-surface-base px-4 py-2">
             <div className="flex items-center gap-4">
-              <h2 className="text-sm font-semibold text-text-primary">Vector Explorer</h2>
+              <h2 className="text-sm font-semibold text-text-primary">
+                {t("administration.vectorExplorer.title")}
+              </h2>
               <div className="flex items-center gap-2">
                 <select
                   value={collectionName ?? ""}
@@ -145,10 +162,16 @@ export default function VectorExplorer({
                   disabled={loadingCollections}
                   className="rounded border border-border-default bg-surface-raised px-2.5 py-1.5 text-sm text-text-primary outline-none transition focus:border-accent/50 disabled:opacity-50"
                 >
-                  {loadingCollections ? <option value="">Loading...</option> : null}
+                  {loadingCollections
+                    ? <option value="">{t("administration.vectorExplorer.values.loadingEllipsis")}</option>
+                    : null}
                   {collections.map((collection) => (
                     <option key={collection.name} value={collection.name}>
-                      {collection.name} {collection.count != null ? `(${collection.count.toLocaleString()})` : ""}
+                      {collection.name} {collection.count != null
+                        ? t("administration.vectorExplorer.values.countSuffix", {
+                          count: formatNumber(collection.count),
+                        })
+                        : ""}
                     </option>
                   ))}
                 </select>
@@ -157,7 +180,9 @@ export default function VectorExplorer({
                     className="rounded px-2 py-0.5 text-xs"
                     style={{ background: collectionTheme.bg, color: collectionTheme.text }}
                   >
-                    {(stats?.sampled ?? 0).toLocaleString()} sampled
+                    {t("administration.vectorExplorer.values.sampled", {
+                      count: formatNumber(stats?.sampled ?? 0),
+                    })}
                   </span>
                 )}
               </div>
@@ -167,7 +192,7 @@ export default function VectorExplorer({
                 accentColor={collectionTheme.text}
                 accentBg={collectionTheme.bg}
                 disabled={isFallback}
-                disabledTooltip="Requires AI service connection"
+                disabledTooltip={aiServiceTooltip}
               />
             </div>
             <div className="flex items-center gap-3">
@@ -177,7 +202,7 @@ export default function VectorExplorer({
                 accentColor={collectionTheme.text}
                 accentBg={collectionTheme.bg}
                 disabled={isFallback}
-                disabledTooltip="Requires AI service connection"
+                disabledTooltip={aiServiceTooltip}
               />
               <SampleSlider
                 value={explorer.sampleSize}
@@ -217,7 +242,7 @@ export default function VectorExplorer({
                 <input
                   value={explorer.queryText}
                   onChange={(event) => explorer.setQueryText(event.target.value)}
-                  placeholder="Search within the vector space"
+                  placeholder={t("administration.vectorExplorer.search.placeholder")}
                   className="flex-1 rounded border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-accent/50"
                 />
                 <button
@@ -226,12 +251,17 @@ export default function VectorExplorer({
                   className="rounded px-3 py-2 text-sm font-medium disabled:opacity-40"
                   style={{ background: collectionTheme.bg, color: collectionTheme.text }}
                 >
-                  {explorer.isQueryLoading ? "Searching..." : "Search"}
+                  {explorer.isQueryLoading
+                    ? t("administration.vectorExplorer.search.searching")
+                    : t("administration.vectorExplorer.search.search")}
                 </button>
               </form>
               <div className="mt-2 flex items-center justify-between text-xs">
                 <span className="text-text-ghost">
-                  {visibleQueryCount} of {(explorer.queryResults?.items.length ?? 0).toLocaleString()} results visible in this projection
+                  {t("administration.vectorExplorer.search.visibleResults", {
+                    visible: formatNumber(visibleQueryCount),
+                    total: formatNumber(explorer.queryResults?.items.length ?? 0),
+                  })}
                 </span>
                 {explorer.queryError && (
                   <span className="text-critical">{explorer.queryError}</span>
@@ -247,7 +277,9 @@ export default function VectorExplorer({
           {isLoading && (
             <div className="flex items-center gap-2 border-t border-border-default bg-surface-base px-4 py-1">
               <Loader2 className="h-3 w-3 animate-spin" style={{ color: collectionTheme.accent }} />
-              <span className="text-xs text-text-ghost">Recomputing projection...</span>
+              <span className="text-xs text-text-ghost">
+                {t("administration.vectorExplorer.loading.recomputingProjection")}
+              </span>
             </div>
           )}
         </div>
@@ -274,25 +306,25 @@ export default function VectorExplorer({
 
           <div className="space-y-1 border-t border-border-default pt-3">
             <h4 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-              Overlays
+              {t("administration.vectorExplorer.sections.overlays")}
             </h4>
             {[
               {
                 key: "hulls" as const,
-                label: "Cluster hulls",
-                help: "Convex envelopes around clusters",
+                labelKey: "clusterHulls",
+                helpKey: "clusterHulls",
                 enabled: activeMode === "clusters",
               },
               {
                 key: "topology" as const,
-                label: "Topology lines",
-                help: "k-NN links between nearby points",
+                labelKey: "topologyLines",
+                helpKey: "topologyLines",
                 enabled: activeMode === "clusters",
               },
               {
                 key: "queryRays" as const,
-                label: "Query rays",
-                help: "Anchor-to-result similarity links",
+                labelKey: "queryRays",
+                helpKey: "queryRays",
                 enabled: activeMode === "query",
               },
             ].map((item) => {
@@ -310,8 +342,12 @@ export default function VectorExplorer({
                   }`}
                 >
                   <div className="min-w-0">
-                    <div className="text-sm text-text-secondary">{item.label}</div>
-                    <div className="text-xs text-text-ghost">{item.help}</div>
+                    <div className="text-sm text-text-secondary">
+                      {t(`administration.vectorExplorer.overlays.${item.labelKey}.label`)}
+                    </div>
+                    <div className="text-xs text-text-ghost">
+                      {t(`administration.vectorExplorer.overlays.${item.helpKey}.help`)}
+                    </div>
                   </div>
                   <div
                     className={`relative h-5 w-9 rounded-full border transition-colors ${
@@ -339,7 +375,7 @@ export default function VectorExplorer({
           {activeMode === "clusters" && (
             <div>
               <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-muted">
-                Cluster Profile
+                {t("administration.vectorExplorer.sections.clusterProfile")}
               </h4>
               <ClusterProfile
                 cluster={selectedCluster}
@@ -350,7 +386,7 @@ export default function VectorExplorer({
 
           <div>
             <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-muted">
-              Inspector
+              {t("administration.vectorExplorer.sections.inspector")}
             </h4>
             <PointInspector
               points={inspectorPoints}
@@ -367,54 +403,71 @@ export default function VectorExplorer({
           {stats && (
             <div className="space-y-1 border-t border-border-default pt-3">
               <div className="flex justify-between text-xs">
-                <span className="text-text-ghost">Total vectors</span>
+                <span className="text-text-ghost">
+                  {t("administration.vectorExplorer.stats.totalVectors")}
+                </span>
                 <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
-                  {stats.total_vectors.toLocaleString()}
+                  {formatNumber(stats.total_vectors)}
                 </span>
               </div>
               <div className="flex justify-between text-xs">
-                <span className="text-text-ghost">Sampled</span>
+                <span className="text-text-ghost">
+                  {t("administration.vectorExplorer.stats.sampled")}
+                </span>
                 <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
-                  {stats.sampled.toLocaleString()}
+                  {formatNumber(stats.sampled)}
                 </span>
               </div>
               <div className="flex justify-between text-xs">
-                <span className="text-text-ghost">Projection</span>
+                <span className="text-text-ghost">
+                  {t("administration.vectorExplorer.stats.projection")}
+                </span>
                 <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
-                  {explorer.dimensions}D
+                  {t("administration.vectorExplorer.values.dimensions", {
+                    dimensions: explorer.dimensions,
+                  })}
                 </span>
               </div>
               {stats.knn_neighbors ? (
                 <div className="flex justify-between text-xs">
-                  <span className="text-text-ghost">k-NN graph</span>
+                  <span className="text-text-ghost">
+                    {t("administration.vectorExplorer.stats.knnGraph")}
+                  </span>
                   <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
-                    k={stats.knn_neighbors} · {edgeCount.toLocaleString()} edges
+                    {t("administration.vectorExplorer.values.knnEdges", {
+                      neighbors: stats.knn_neighbors,
+                      edges: formatNumber(edgeCount),
+                    })}
                   </span>
                 </div>
               ) : null}
               <div className="flex justify-between text-xs">
-                <span className="text-text-ghost">Source</span>
+                <span className="text-text-ghost">
+                  {t("administration.vectorExplorer.stats.source")}
+                </span>
                 <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
-                  {stats.source === "solr"
-                    ? "Solr (cached)"
-                    : stats.source === "fallback"
-                      ? "Client fallback"
-                      : "Live UMAP"}
+                  {sourceLabel}
                 </span>
               </div>
               {stats.source !== "solr" && stats.source !== "fallback" && (
                 <div className="flex justify-between text-xs">
-                  <span className="text-text-ghost">Projection time</span>
+                  <span className="text-text-ghost">
+                    {t("administration.vectorExplorer.stats.projectionTime")}
+                  </span>
                   <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
-                    {(stats.projection_time_ms / 1000).toFixed(1)}s
+                    {t("administration.vectorExplorer.values.seconds", {
+                      seconds: (stats.projection_time_ms / 1000).toFixed(1),
+                    })}
                   </span>
                 </div>
               )}
               {stats.indexed_at && (
                 <div className="flex justify-between text-xs">
-                  <span className="text-text-ghost">Indexed</span>
+                  <span className="text-text-ghost">
+                    {t("administration.vectorExplorer.stats.indexed")}
+                  </span>
                   <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
-                    {new Date(stats.indexed_at).toLocaleDateString()}
+                    {formatDate(stats.indexed_at)}
                   </span>
                 </div>
               )}
@@ -430,24 +483,30 @@ export default function VectorExplorer({
     <Panel>
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-base font-semibold text-text-primary">
-          {explorer.dimensions}D Semantic Map
+          {t("administration.vectorExplorer.semanticMapTitle", {
+            dimensions: explorer.dimensions,
+          })}
         </h3>
         <div className="flex items-center gap-2">
           {stats && (
             <span className="text-xs text-text-ghost">
-              {stats.sampled.toLocaleString()} pts
+              {t("administration.vectorExplorer.values.points", {
+                count: formatNumber(stats.sampled),
+              })}
               {stats.source === "solr"
-                ? " · cached"
+                ? t("administration.vectorExplorer.values.cachedSuffix")
                 : stats.source === "fallback"
-                  ? " · fallback"
-                  : ` · ${(stats.projection_time_ms / 1000).toFixed(1)}s`}
+                  ? t("administration.vectorExplorer.values.fallbackSuffix")
+                  : t("administration.vectorExplorer.values.timeSuffix", {
+                    seconds: (stats.projection_time_ms / 1000).toFixed(1),
+                  })}
             </span>
           )}
           {isLoading && <Loader2 className="h-3 w-3 animate-spin" style={{ color: collectionTheme.accent }} />}
           <button
             onClick={explorer.refresh}
             disabled={isLoading}
-            title="Re-compute projection"
+            title={t("administration.vectorExplorer.actions.recomputeProjection")}
             className="rounded p-1 hover:bg-surface-elevated disabled:opacity-40"
             style={{ color: collectionTheme.text }}
           >
@@ -459,7 +518,7 @@ export default function VectorExplorer({
             style={{ background: collectionTheme.bg, color: collectionTheme.text }}
           >
             <Maximize2 className="h-3 w-3" />
-            Expand
+            {t("administration.vectorExplorer.actions.expand")}
           </button>
         </div>
       </div>
@@ -474,7 +533,7 @@ export default function VectorExplorer({
           <input
             value={explorer.queryText}
             onChange={(event) => explorer.setQueryText(event.target.value)}
-            placeholder="Search within the vector space"
+            placeholder={t("administration.vectorExplorer.search.placeholder")}
             className="flex-1 rounded border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-accent/50"
           />
           <button
@@ -483,14 +542,19 @@ export default function VectorExplorer({
             className="rounded px-3 py-2 text-sm font-medium disabled:opacity-40"
             style={{ background: collectionTheme.bg, color: collectionTheme.text }}
           >
-            {explorer.isQueryLoading ? "Searching..." : "Search"}
+            {explorer.isQueryLoading
+              ? t("administration.vectorExplorer.search.searching")
+              : t("administration.vectorExplorer.search.search")}
           </button>
         </form>
       )}
       {activeMode === "query" && (explorer.queryError || explorer.queryResults) && (
         <div className="mb-2 flex items-center justify-between text-xs text-text-ghost">
           <span>
-            {visibleQueryCount} of {(explorer.queryResults?.items.length ?? 0).toLocaleString()} results visible in this projection
+            {t("administration.vectorExplorer.search.visibleResults", {
+              visible: formatNumber(visibleQueryCount),
+              total: formatNumber(explorer.queryResults?.items.length ?? 0),
+            })}
           </span>
           {explorer.queryError && (
             <span className="text-critical">{explorer.queryError}</span>

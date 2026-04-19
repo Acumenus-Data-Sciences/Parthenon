@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { X, Loader2, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { useTestPacsConnection } from "../hooks/usePacsConnections";
@@ -18,6 +19,7 @@ export default function PacsConnectionFormModal({
   onClose,
   editConnection,
 }: PacsConnectionFormModalProps) {
+  const { t } = useTranslation("app");
   const isEdit = editConnection != null;
   const createMut = useCreatePacsConnection();
   const updateMut = useUpdatePacsConnection();
@@ -82,7 +84,11 @@ export default function PacsConnectionFormModal({
       const result = await testMut.mutateAsync(editConnection.id);
       setTestResult(result);
     } catch {
-      setTestResult({ success: false, message: "Test request failed", latency_ms: null });
+      setTestResult({
+        success: false,
+        message: t("administration.pacsConnectionModal.errors.testRequestFailed"),
+        latency_ms: null,
+      });
     }
   }
 
@@ -116,7 +122,9 @@ export default function PacsConnectionFormModal({
       }
       onClose();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to save connection";
+      const msg = err instanceof Error
+        ? err.message
+        : t("administration.pacsConnectionModal.errors.saveFailed");
       setError(msg);
     }
   }
@@ -137,10 +145,12 @@ export default function PacsConnectionFormModal({
           <div className="flex items-center justify-between px-6 py-4 border-b border-border-default">
             <div>
               <h2 className="text-base font-semibold text-text-primary">
-                {isEdit ? "Edit PACS Connection" : "Add PACS Connection"}
+                {isEdit
+                  ? t("administration.pacsConnectionModal.title.edit")
+                  : t("administration.pacsConnectionModal.title.add")}
               </h2>
               <p className="text-xs text-text-ghost mt-0.5">
-                Configure a DICOM imaging server connection.
+                {t("administration.pacsConnectionModal.description")}
               </p>
             </div>
             <button
@@ -155,46 +165,54 @@ export default function PacsConnectionFormModal({
           {/* Body */}
           <div className="px-6 py-4 space-y-4">
             <div>
-              <label className={labelCls}>Name</label>
+              <label className={labelCls}>
+                {t("administration.pacsConnectionModal.fields.name")}
+              </label>
               <input
                 className={inputCls}
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Main PACS Server"
+                placeholder={t("administration.pacsConnectionModal.placeholders.name")}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className={labelCls}>Type</label>
+                <label className={labelCls}>
+                  {t("administration.pacsConnectionModal.fields.type")}
+                </label>
                 <select
                   className={inputCls}
                   value={type}
                   onChange={(e) => setType(e.target.value)}
                 >
-                  <option value="orthanc">Orthanc</option>
-                  <option value="dicomweb">DICOMweb</option>
-                  <option value="google_healthcare">Google Healthcare</option>
-                  <option value="cloud">Cloud</option>
+                  <option value="orthanc">{t("administration.pacsConnectionModal.types.orthanc")}</option>
+                  <option value="dicomweb">{t("administration.pacsConnectionModal.types.dicomweb")}</option>
+                  <option value="google_healthcare">{t("administration.pacsConnectionModal.types.googleHealthcare")}</option>
+                  <option value="cloud">{t("administration.pacsConnectionModal.types.cloud")}</option>
                 </select>
               </div>
               <div>
-                <label className={labelCls}>Auth Type</label>
+                <label className={labelCls}>
+                  {t("administration.pacsConnectionModal.fields.authType")}
+                </label>
                 <select
                   className={inputCls}
                   value={authType}
                   onChange={(e) => setAuthType(e.target.value)}
                 >
-                  <option value="none">None</option>
-                  <option value="basic">Basic Auth</option>
-                  <option value="bearer">Bearer Token</option>
+                  <option value="none">{t("administration.pacsConnectionModal.auth.none")}</option>
+                  <option value="basic">{t("administration.pacsConnectionModal.auth.basic")}</option>
+                  <option value="bearer">{t("administration.pacsConnectionModal.auth.bearer")}</option>
                 </select>
               </div>
             </div>
 
             <div>
-              <label className={labelCls}>Base URL</label>
+              <label className={labelCls}>
+                {t("administration.pacsConnectionModal.fields.baseUrl")}
+              </label>
               <input
                 className={inputCls}
                 required
@@ -209,7 +227,9 @@ export default function PacsConnectionFormModal({
             {authType === "basic" && (
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={labelCls}>Username</label>
+                  <label className={labelCls}>
+                    {t("administration.pacsConnectionModal.fields.username")}
+                  </label>
                   <input
                     className={inputCls}
                     value={username}
@@ -218,13 +238,17 @@ export default function PacsConnectionFormModal({
                   />
                 </div>
                 <div>
-                  <label className={labelCls}>Password</label>
+                  <label className={labelCls}>
+                    {t("administration.pacsConnectionModal.fields.password")}
+                  </label>
                   <input
                     className={inputCls}
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder={isEdit ? "Leave blank to keep existing" : "password"}
+                    placeholder={isEdit
+                      ? t("administration.pacsConnectionModal.placeholders.keepExisting")
+                      : t("administration.pacsConnectionModal.placeholders.password")}
                   />
                 </div>
               </div>
@@ -232,19 +256,25 @@ export default function PacsConnectionFormModal({
 
             {authType === "bearer" && (
               <div>
-                <label className={labelCls}>Bearer Token</label>
+                <label className={labelCls}>
+                  {t("administration.pacsConnectionModal.fields.bearerToken")}
+                </label>
                 <input
                   className={inputCls}
                   type="password"
                   value={token}
                   onChange={(e) => setToken(e.target.value)}
-                  placeholder={isEdit ? "Leave blank to keep existing" : "token"}
+                  placeholder={isEdit
+                    ? t("administration.pacsConnectionModal.placeholders.keepExisting")
+                    : t("administration.pacsConnectionModal.placeholders.token")}
                 />
               </div>
             )}
 
             <div>
-              <label className={labelCls}>Linked Source (optional)</label>
+              <label className={labelCls}>
+                {t("administration.pacsConnectionModal.fields.linkedSource")}
+              </label>
               <select
                 className={inputCls}
                 value={sourceId ?? ""}
@@ -252,7 +282,7 @@ export default function PacsConnectionFormModal({
                   setSourceId(e.target.value ? Number(e.target.value) : undefined)
                 }
               >
-                <option value="">None</option>
+                <option value="">{t("administration.pacsConnectionModal.auth.none")}</option>
                 {sources.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.source_name}
@@ -268,7 +298,7 @@ export default function PacsConnectionFormModal({
                 onChange={(e) => setIsActive(e.target.checked)}
                 className="accent-success"
               />
-              Active
+              {t("administration.pacsConnectionModal.fields.active")}
             </label>
 
             {/* Test result */}
@@ -289,7 +319,9 @@ export default function PacsConnectionFormModal({
                 <span>{testResult.message}</span>
                 {testResult.latency_ms != null && (
                   <span className="font-['IBM_Plex_Mono',monospace]">
-                    ({testResult.latency_ms}ms)
+                    {t("administration.pacsConnectionModal.values.latency", {
+                      ms: testResult.latency_ms,
+                    })}
                   </span>
                 )}
               </div>
@@ -316,7 +348,7 @@ export default function PacsConnectionFormModal({
                   {testMut.isPending && (
                     <Loader2 size={14} className="animate-spin" />
                   )}
-                  Test Connection
+                  {t("administration.pacsConnectionModal.actions.testConnection")}
                 </button>
               )}
             </div>
@@ -326,7 +358,7 @@ export default function PacsConnectionFormModal({
                 onClick={onClose}
                 className="px-4 py-2 text-sm text-text-muted hover:text-text-secondary transition-colors"
               >
-                Cancel
+                {t("administration.pacsConnectionModal.actions.cancel")}
               </button>
               <button
                 type="submit"
@@ -334,7 +366,9 @@ export default function PacsConnectionFormModal({
                 className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors disabled:opacity-50"
               >
                 {pending && <Loader2 size={14} className="animate-spin" />}
-                {isEdit ? "Save Changes" : "Create Connection"}
+                {isEdit
+                  ? t("administration.pacsConnectionModal.actions.saveChanges")
+                  : t("administration.pacsConnectionModal.actions.createConnection")}
               </button>
             </div>
           </div>

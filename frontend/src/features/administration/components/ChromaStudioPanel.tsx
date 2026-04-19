@@ -15,7 +15,9 @@ import {
   BookOpen,
   FileText,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Panel, Button, Badge } from "@/components/ui";
+import { formatNumber } from "@/i18n/format";
 import {
   fetchCollections,
   fetchCollectionOverview,
@@ -39,22 +41,23 @@ import { getCollectionTheme } from "./vector-explorer/constants";
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const ADMIN_ACTIONS = [
-  { key: "ingest-docs", label: "Ingest Docs", icon: Upload, fn: () => ingestDocs() },
-  { key: "ingest-clinical", label: "Ingest Clinical", icon: Stethoscope, fn: () => ingestClinical() },
-  { key: "promote-faq", label: "Promote FAQ", icon: MessageSquare, fn: () => promoteFaq() },
-  { key: "ingest-ohdsi-papers", label: "Ingest OHDSI Papers", icon: FileText, fn: () => ingestOhdsiPapers() },
-  { key: "ingest-ohdsi-knowledge", label: "Ingest OHDSI Knowledge", icon: BookOpen, fn: () => ingestOhdsiKnowledge() },
-  { key: "ingest-textbooks", label: "Ingest Textbooks", icon: BookOpen, fn: () => ingestTextbooks() },
+  { key: "ingest-docs", labelKey: "ingestDocs", icon: Upload, fn: () => ingestDocs() },
+  { key: "ingest-clinical", labelKey: "ingestClinical", icon: Stethoscope, fn: () => ingestClinical() },
+  { key: "promote-faq", labelKey: "promoteFaq", icon: MessageSquare, fn: () => promoteFaq() },
+  { key: "ingest-ohdsi-papers", labelKey: "ingestOhdsiPapers", icon: FileText, fn: () => ingestOhdsiPapers() },
+  { key: "ingest-ohdsi-knowledge", labelKey: "ingestOhdsiKnowledge", icon: BookOpen, fn: () => ingestOhdsiKnowledge() },
+  { key: "ingest-textbooks", labelKey: "ingestTextbooks", icon: BookOpen, fn: () => ingestTextbooks() },
 ] as const;
 
 const TABS = [
-  { key: "overview" as const, label: "Overview", icon: BarChart3 },
-  { key: "search" as const, label: "Retrieval", icon: Eye },
+  { key: "overview" as const, labelKey: "overview", icon: BarChart3 },
+  { key: "search" as const, labelKey: "retrieval", icon: Eye },
 ] as const;
 
 // ── Main Component ───────────────────────────────────────────────────────────
 
 export default function ChromaStudioPanel() {
+  const { t } = useTranslation("app");
   const [collections, setCollections] = useState<CollectionSummary[]>([]);
   const [selectedCollection, setSelectedCollection] = useState("");
   const [overview, setOverview] = useState<CollectionOverview | null>(null);
@@ -203,14 +206,20 @@ export default function ChromaStudioPanel() {
           <div className="flex items-center gap-3">
             <Database className="h-5 w-5" style={{ color: selectedTheme.accent }} />
             <div>
-              <p className="font-semibold text-text-primary">Chroma Collection Studio</p>
+              <p className="font-semibold text-text-primary">
+                {t("administration.chromaStudio.title")}
+              </p>
               <p className="mt-0.5 text-sm text-text-muted">
-                Inspect vector collections, run semantic queries, and manage ingestion
+                {t("administration.chromaStudio.subtitle")}
               </p>
             </div>
           </div>
           <Badge variant={hasCollections ? "success" : "warning"}>
-            {hasCollections ? `${collections.length} collections` : "loading"}
+            {hasCollections
+              ? t("administration.chromaStudio.values.collectionCount", {
+                count: formatNumber(collections.length),
+              })
+              : t("administration.chromaStudio.values.loading")}
           </Badge>
         </div>
 
@@ -221,10 +230,16 @@ export default function ChromaStudioPanel() {
             onChange={(e) => setSelectedCollection(e.target.value)}
             className="rounded border border-border-default bg-surface-base px-2.5 py-1.5 text-sm text-text-primary outline-none transition focus:border-accent/50"
           >
-            {loadingCollections ? <option>Loading...</option> : null}
+            {loadingCollections
+              ? <option>{t("administration.chromaStudio.values.loadingEllipsis")}</option>
+              : null}
             {collections.map((c) => (
               <option key={c.name} value={c.name}>
-                {c.name} {c.count != null ? `(${c.count.toLocaleString()})` : ""}
+                {c.name} {c.count != null
+                  ? t("administration.chromaStudio.values.countSuffix", {
+                    count: formatNumber(c.count),
+                  })
+                  : ""}
               </option>
             ))}
           </select>
@@ -233,7 +248,7 @@ export default function ChromaStudioPanel() {
           <button
             onClick={() => loadCollections()}
             disabled={loadingCollections}
-            title="Refresh collections"
+            title={t("administration.chromaStudio.actions.refreshCollections")}
             className="inline-flex items-center gap-1 rounded px-2 py-1 text-sm text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-40"
           >
             {loadingCollections
@@ -251,7 +266,7 @@ export default function ChromaStudioPanel() {
               {actionLoading === action.key
                 ? <Loader2 size={14} className="animate-spin" />
                 : <action.icon size={14} />}
-              {action.label}
+              {t(`administration.chromaStudio.actions.${action.labelKey}`)}
             </button>
           ))}
         </div>
@@ -260,10 +275,10 @@ export default function ChromaStudioPanel() {
         {stats && (
           <div className="mt-3 grid grid-cols-4 gap-2">
             {[
-              { label: "Vectors", value: fmt(stats.totalVectors) },
-              { label: "Sampled", value: fmt(stats.sampleCount) },
-              { label: "Dimensions", value: stats.dimension ? fmt(stats.dimension) : "--" },
-              { label: "Meta Fields", value: fmt(stats.metadataFieldCount) },
+              { label: t("administration.chromaStudio.stats.vectors"), value: fmt(stats.totalVectors) },
+              { label: t("administration.chromaStudio.stats.sampled"), value: fmt(stats.sampleCount) },
+              { label: t("administration.chromaStudio.stats.dimensions"), value: stats.dimension ? fmt(stats.dimension) : "--" },
+              { label: t("administration.chromaStudio.stats.metaFields"), value: fmt(stats.metadataFieldCount) },
             ].map((cell) => (
               <div key={cell.label} className="rounded-lg bg-surface-base px-2.5 py-2 text-center">
                 <div className="text-sm font-medium text-text-primary font-['IBM_Plex_Mono',monospace]">
@@ -278,7 +293,7 @@ export default function ChromaStudioPanel() {
         {loadingOverview && (
           <div className="mt-3 flex items-center gap-2 text-sm text-text-muted">
             <Loader2 className="h-3 w-3 animate-spin" />
-            Loading collection data...
+            {t("administration.chromaStudio.messages.loadingCollectionData")}
           </div>
         )}
       </Panel>
@@ -312,10 +327,12 @@ export default function ChromaStudioPanel() {
             <Database className="h-8 w-8 text-text-ghost" />
             <div>
               <p className="text-sm font-medium text-text-secondary">
-                This collection is empty
+                {t("administration.chromaStudio.empty.title")}
               </p>
               <p className="mt-1 text-sm text-text-ghost">
-                Use the Ingest actions above to populate &ldquo;{selectedCollection}&rdquo; with documents.
+                {t("administration.chromaStudio.empty.description", {
+                  collection: selectedCollection,
+                })}
               </p>
             </div>
           </div>
@@ -339,7 +356,7 @@ export default function ChromaStudioPanel() {
                   style={activeTab === tab.key ? { background: selectedTheme.bg, color: selectedTheme.text } : undefined}
                 >
                   <tab.icon size={14} />
-                  {tab.label}
+                  {t(`administration.chromaStudio.tabs.${tab.labelKey}`)}
                 </button>
               ))}
             </div>
@@ -352,14 +369,17 @@ export default function ChromaStudioPanel() {
                   onKeyDown={(e) => e.key === "Enter" && runQuery()}
                   onFocus={() => queryHistory.length > 0 && setShowHistory(true)}
                   onBlur={() => setTimeout(() => setShowHistory(false), 200)}
-                  placeholder="Semantic query..."
+                  placeholder={t("administration.chromaStudio.search.placeholder")}
                   className="w-full rounded border border-border-default bg-surface-base py-1.5 pl-8 pr-2.5 text-sm text-text-primary outline-none transition focus:border-accent/50"
                 />
                 {/* Query history dropdown */}
                 {showHistory && queryHistory.length > 0 && (
                   <div className="absolute left-0 top-full z-30 mt-1 w-full rounded border border-border-default bg-surface-raised shadow-xl">
                     <div className="flex items-center justify-between px-2.5 py-1.5 text-xs text-text-ghost">
-                      <span className="flex items-center gap-1"><Clock size={10} /> Recent queries</span>
+                      <span className="flex items-center gap-1">
+                        <Clock size={10} />
+                        {t("administration.chromaStudio.search.recentQueries")}
+                      </span>
                       <button
                         onMouseDown={(e) => { e.preventDefault(); setQueryHistory([]); setShowHistory(false); }}
                         className="text-text-ghost hover:text-critical"
@@ -380,7 +400,9 @@ export default function ChromaStudioPanel() {
                 )}
               </div>
               <div className="flex items-center gap-1">
-                <span className="text-xs text-text-ghost">K:</span>
+                <span className="text-xs text-text-ghost">
+                  {t("administration.chromaStudio.search.kLabel")}
+                </span>
                 <input
                   type="number"
                   min={1}
@@ -397,7 +419,7 @@ export default function ChromaStudioPanel() {
                 disabled={queryLoading || !selectedCollection || !searchText.trim()}
               >
                 {queryLoading ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <Search className="mr-1 h-3.5 w-3.5" />}
-                Query
+                {t("administration.chromaStudio.search.queryAction")}
               </Button>
             </div>
           </div>
@@ -414,12 +436,16 @@ export default function ChromaStudioPanel() {
 // ── Overview Section ─────────────────────────────────────────────────────────
 
 function OverviewSection({ overview }: { overview: CollectionOverview }) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="space-y-4">
       {/* Facets */}
       {overview.facets.length > 0 && (
         <Panel>
-          <h3 className="mb-3 text-base font-semibold text-text-primary">Facet Distribution</h3>
+          <h3 className="mb-3 text-base font-semibold text-text-primary">
+            {t("administration.chromaStudio.overview.facetDistribution")}
+          </h3>
           <div className="grid gap-3 md:grid-cols-2">
             {overview.facets.map((facet) => (
               <FacetCard key={facet.key} facet={facet} />
@@ -431,13 +457,17 @@ function OverviewSection({ overview }: { overview: CollectionOverview }) {
       {/* Sample records */}
       <Panel>
         <h3 className="mb-3 text-base font-semibold text-text-primary">
-          Sample Records
+          {t("administration.chromaStudio.overview.sampleRecords")}
           <span className="ml-2 text-sm font-normal text-text-ghost">
-            ({overview.sampleRecords.length} sampled)
+            {t("administration.chromaStudio.values.sampledSuffix", {
+              count: formatNumber(overview.sampleRecords.length),
+            })}
           </span>
         </h3>
         {overview.sampleRecords.length === 0 ? (
-          <p className="text-sm text-text-ghost">No records in this collection.</p>
+          <p className="text-sm text-text-ghost">
+            {t("administration.chromaStudio.empty.noRecords")}
+          </p>
         ) : (
           <div className="space-y-2">
             {overview.sampleRecords.slice(0, 8).map((record) => (
@@ -450,7 +480,9 @@ function OverviewSection({ overview }: { overview: CollectionOverview }) {
       {/* Collection metadata */}
       {Object.keys(overview.collectionMetadata ?? {}).length > 0 && (
         <Panel>
-          <h3 className="mb-3 text-base font-semibold text-text-primary">Collection Metadata</h3>
+          <h3 className="mb-3 text-base font-semibold text-text-primary">
+            {t("administration.chromaStudio.overview.collectionMetadata")}
+          </h3>
           <div className="space-y-1.5">
             {Object.entries(overview.collectionMetadata ?? {}).map(([k, v]) => (
               <div key={k} className="flex items-center justify-between rounded bg-surface-base px-2.5 py-1.5 text-sm">
@@ -472,12 +504,16 @@ function SearchSection({ searchResults, queryLoading, searchText }: {
   queryLoading: boolean;
   searchText: string;
 }) {
+  const { t } = useTranslation("app");
+
   if (!searchResults && !queryLoading) {
     return (
       <Panel>
         <div className="flex flex-col items-center gap-3 py-8 text-center">
           <Search className="h-6 w-6 text-text-ghost" />
-          <p className="text-sm text-text-muted">Enter a query above and click Query to inspect retrieval results.</p>
+          <p className="text-sm text-text-muted">
+            {t("administration.chromaStudio.search.empty")}
+          </p>
         </div>
       </Panel>
     );
@@ -488,18 +524,25 @@ function SearchSection({ searchResults, queryLoading, searchText }: {
       {/* Summary */}
       {searchResults && (
         <div className="flex items-center gap-3 text-sm text-text-muted">
-          <span>Query: <span className="text-text-primary">{searchText}</span></span>
+          <span>
+            {t("administration.chromaStudio.search.queryLabel")}{" "}
+            <span className="text-text-primary">{searchText}</span>
+          </span>
           <span className="rounded bg-surface-base px-1.5 py-0.5 font-['IBM_Plex_Mono',monospace] text-success">
             {searchResults.elapsedMs ?? "--"} ms
           </span>
-          <span>{searchResults.items.length} results</span>
+          <span>
+            {t("administration.chromaStudio.search.resultsCount", {
+              count: formatNumber(searchResults.items.length),
+            })}
+          </span>
         </div>
       )}
 
       {queryLoading && (
         <div className="flex items-center gap-2 text-sm text-text-muted">
           <Loader2 className="h-3 w-3 animate-spin" />
-          Querying...
+          {t("administration.chromaStudio.search.querying")}
         </div>
       )}
 
@@ -515,11 +558,13 @@ function SearchSection({ searchResults, queryLoading, searchText }: {
                 <span className="truncate font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">{item.id}</span>
               </div>
               <p className="line-clamp-3 text-sm leading-relaxed text-text-secondary">
-                {item.document || "No document returned."}
+                {item.document || t("administration.chromaStudio.empty.noDocumentReturned")}
               </p>
             </div>
             <div className="shrink-0 rounded bg-surface-base px-2.5 py-1.5 text-center">
-              <div className="text-xs text-text-ghost">distance</div>
+              <div className="text-xs text-text-ghost">
+                {t("administration.chromaStudio.search.distance")}
+              </div>
               <div className="font-['IBM_Plex_Mono',monospace] text-sm font-medium text-text-primary">
                 {typeof item.distance === "number" ? item.distance.toFixed(4) : "--"}
               </div>
@@ -566,13 +611,15 @@ function FacetCard({ facet }: { facet: MetadataFacet }) {
 }
 
 function RecordCard({ record }: { record: SampleRecord }) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="rounded border border-border-default bg-surface-base p-3">
       <div className="mb-1.5 font-['IBM_Plex_Mono',monospace] text-xs text-success truncate">
         {record.id}
       </div>
       <p className="line-clamp-2 text-sm leading-relaxed text-text-muted">
-        {record.document || "No document text available."}
+        {record.document || t("administration.chromaStudio.empty.noDocumentText")}
       </p>
       {record.metadata && Object.keys(record.metadata).length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1">
@@ -612,5 +659,5 @@ function compact(value: unknown): string {
 }
 
 function fmt(value: number): string {
-  return new Intl.NumberFormat().format(value);
+  return formatNumber(value);
 }
