@@ -8,11 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (Schema::connection('omop')->hasTable('relationship')) {
+        if (Schema::connection('vocab')->hasTable('relationship')) {
             return;
         }
 
-        Schema::connection('omop')->create('relationship', function (Blueprint $table) {
+        Schema::connection('vocab')->create('relationship', function (Blueprint $table) {
             $table->string('relationship_id', 20)->primary();
             $table->string('relationship_name', 255);
             $table->string('is_hierarchical', 1);
@@ -24,6 +24,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::connection('omop')->dropIfExists('relationship');
+        Schema::connection('vocab')->dropIfExists('relationship');
     }
 };

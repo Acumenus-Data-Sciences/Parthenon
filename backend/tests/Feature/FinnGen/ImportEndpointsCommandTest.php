@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\FinnGen\FinnGenConceptResolver;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Mockery\MockInterface;
 
@@ -75,6 +76,10 @@ beforeEach(function () {
 
     // Replace the resolver in the container so the command's DI picks up the stub.
     $this->app->bind(FinnGenConceptResolver::class, fn () => finngenStubResolver());
+
+    EndpointDefinition::query()->delete();
+    FinnGenUnmappedCode::query()->delete();
+    DB::connection('finngen')->table('endpoint_expressions_pre_phase13')->delete();
 
     // Ensure the storage dir is clean for each run so we can assert on fresh reports.
     $reportDir = storage_path('app/finngen-endpoints');

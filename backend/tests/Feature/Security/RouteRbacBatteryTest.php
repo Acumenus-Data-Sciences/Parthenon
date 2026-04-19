@@ -116,7 +116,7 @@ function substituteRouteParams(string $uri, array $wheres = []): string
         // Prefer a value that matches the constraint regex if one exists.
         if ($constraint !== null) {
             // Try common candidates in order of specificity.
-            foreach (['1', 'abc', 'a1', 'a', 'name', 'token'] as $candidate) {
+            foreach (['1', 'PGS000001', 'abc', 'a1', 'a', 'name', 'token'] as $candidate) {
                 if (@preg_match('/^(?:'.$constraint.')$/', $candidate) === 1) {
                     return $candidate;
                 }

@@ -180,13 +180,13 @@ SQL);
                 cd.expression_json->>'longname',
                 cd.description,
                 COALESCE(cd.expression_json->>'release', 'df14'),
-                COALESCE(cd.coverage_profile, cd.expression_json->>'coverage_profile'),
-                COALESCE(cd.expression_json->>'coverage_bucket', (cd.expression_json->'coverage'->>'bucket')),
+                COALESCE(cd.coverage_profile, cd.expression_json->>'coverage_profile', 'finland_only'),
+                COALESCE(cd.expression_json->>'coverage_bucket', (cd.expression_json->'coverage'->>'bucket'), 'CONTROL_ONLY'),
                 (cd.expression_json->'coverage'->>'pct')::numeric * 100.0,
-                (cd.expression_json->'coverage'->>'n_tokens_total')::int,
-                (cd.expression_json->'coverage'->>'n_tokens_resolved')::int,
+                COALESCE((cd.expression_json->'coverage'->>'n_tokens_total')::int, 0),
+                COALESCE((cd.expression_json->'coverage'->>'n_tokens_resolved')::int, 0),
                 COALESCE(cd.tags, '[]'::jsonb),
-                cd.expression_json->'source_codes',
+                cd.expression_json,
                 cd.created_at, cd.updated_at
               FROM app.cohort_definitions cd
              WHERE cd.domain = 'finngen-endpoint'
@@ -223,6 +223,7 @@ SQL);
         // `cohort_definition_id` column stays for historical rows.
         // ------------------------------------------------------------------
         DB::statement('ALTER TABLE finngen.endpoint_generations ADD COLUMN finngen_endpoint_name TEXT NULL REFERENCES finngen.endpoint_definitions(name) ON DELETE RESTRICT');
+        DB::statement('ALTER TABLE finngen.endpoint_generations ALTER COLUMN cohort_definition_id DROP NOT NULL');
         DB::statement('CREATE INDEX endpoint_generations_finngen_endpoint_name_idx ON finngen.endpoint_generations (finngen_endpoint_name)');
 
         // ------------------------------------------------------------------
@@ -301,7 +302,20 @@ SQL);
                 (id, name, description, expression_json, author_id, is_public, version, tags, domain, quality_tier, coverage_profile, created_at, updated_at)
             SELECT
                 s.cohort_definition_id, s.name, e.description,
-                s.expression_json,
+                jsonb_strip_nulls(
+                    COALESCE(s.expression_json, '{}'::jsonb)
+                    || jsonb_build_object(
+                        'release', e.release,
+                        'coverage_profile', e.coverage_profile,
+                        'coverage_bucket', e.coverage_bucket,
+                        'coverage', jsonb_build_object(
+                            'bucket', e.coverage_bucket,
+                            'n_tokens_total', e.total_tokens,
+                            'n_tokens_resolved', e.resolved_tokens,
+                            'pct', e.universal_pct / 100.0
+                        )
+                    )
+                ),
                 COALESCE((SELECT id FROM app.users WHERE email='admin@acumenus.net'), 1),
                 TRUE, 1, COALESCE(e.tags, '[]'::jsonb), 'finngen-endpoint', 'draft',
                 e.coverage_profile,
@@ -342,6 +356,12 @@ SQL);
         DB::statement('ALTER TABLE finngen.finngen_workbench_sessions               SET SCHEMA app');
         DB::statement('ALTER TABLE finngen.finngen_runs                             SET SCHEMA app');
         DB::statement('ALTER TABLE finngen.finngen_analysis_modules                 SET SCHEMA app');
+
+        // Later FinnGen migrations may already have created isolated-schema
+        // tables. Remove them so this rollback can be run after the full
+        // migration stack has been applied.
+        DB::statement('DROP TABLE IF EXISTS finngen.endpoint_gwas_runs CASCADE');
+        DB::statement('DROP TABLE IF EXISTS finngen.endpoint_profile_access CASCADE');
 
         // ------------------------------------------------------------------
         // Reverse Block 1: drop the now-empty finngen schema.

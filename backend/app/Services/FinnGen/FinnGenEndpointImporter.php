@@ -577,21 +577,11 @@ final class FinnGenEndpointImporter
     }
 
     /**
-     * Phase 13.1: the rollback snapshot table moved from
-     * (legacy) app finngen_endpoint_expressions_pre_phase13 to
-     * finngen.endpoint_expressions_pre_phase13 via ALTER TABLE SET SCHEMA
-     * (Plan 02). The 5,161-row snapshot captured by the Phase 13 importer
-     * is preserved through v1.0 ship for rollback. After Plan 02 migration,
-     * `app.cohort_definitions WHERE domain='finngen-endpoint'` returns zero
-     * rows (all moved to finngen.endpoint_definitions), so this INSERT is
-     * effectively a no-op. Kept as defense-in-depth: if any FINNGEN_ENDPOINT
-     * rows leak back into app.cohort_definitions (shouldn't happen), the
-     * snapshot keeps capturing them before --overwrite rewrites expression_json.
+     * Snapshot current endpoint definitions before an overwrite import.
      *
-     * Idempotent via ON CONFLICT — re-running --overwrite refreshes the
-     * snapshot without duplicating rows.
-     *
-     * Returns the total snapshot row count (post-upsert) for logging.
+     * The legacy snapshot table still uses the old cohort_definition_id
+     * primary key shape, so post-13.1 endpoint rows receive a deterministic
+     * synthetic id in the FinnGen offset range.
      */
     private function snapshotPrePhase13(): int
     {
@@ -599,15 +589,19 @@ final class FinnGenEndpointImporter
 INSERT INTO finngen.endpoint_expressions_pre_phase13
     (cohort_definition_id, name, expression_json, coverage_bucket, created_at, snapshotted_at)
 SELECT
-    id, name, expression_json, expression_json->>'coverage_bucket', created_at, NOW()
-  FROM app.cohort_definitions
- WHERE domain = ?
+    100000000000 + row_number() OVER (ORDER BY name),
+    name,
+    qualifying_event_spec,
+    coverage_bucket,
+    created_at,
+    NOW()
+  FROM finngen.endpoint_definitions
 ON CONFLICT (cohort_definition_id) DO UPDATE
    SET expression_json = EXCLUDED.expression_json,
        coverage_bucket = EXCLUDED.coverage_bucket,
        snapshotted_at  = EXCLUDED.snapshotted_at
 SQL;
-        DB::statement($sql, ['finngen-endpoint']);
+        DB::statement($sql);
 
         $countRow = DB::selectOne('SELECT COUNT(*) AS n FROM finngen.endpoint_expressions_pre_phase13');
 

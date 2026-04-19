@@ -85,13 +85,13 @@ it('all() cache is refreshed after flush()', function () {
         'min_role' => 'researcher',
     ]);
 
-    // Without flush, cache still shows 12 (4 CO2 + 2 romopapi + cohort.match + cohort.materialize + endpoint.generate + gwas.regenie.step1 + gwas.regenie.step2 + finngen.prs.compute)
+    // Without flush, cache still shows the seeded module set.
     expect($this->registry->all())->toHaveCount(12);
 
     $this->registry->flush();
 
     // After flush, new row is visible
-    expect($this->registry->all())->toHaveCount(10);
+    expect($this->registry->all())->toHaveCount(13);
 });
 
 it('validateParams() passes for enabled module + arbitrary params (SP1 stub)', function () {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\App\CohortDefinition;
 use App\Models\User;
+use App\Services\FinnGen\GwasSchemaProvisioner;
 use Database\Seeders\Testing\FinnGenTestingSeeder;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
@@ -32,6 +33,7 @@ const PRS_SENTINEL_SUBJECT_COUNT = 100;
 
 uses()->beforeEach(function (): void {
     $this->seed(FinnGenTestingSeeder::class);
+    app(GwasSchemaProvisioner::class)->provision('pancreas');
 
     // Plan 17-01's migration seeds `finngen.prs.compute` but RolePermissionSeeder
     // (called inside FinnGenTestingSeeder) re-syncs and drops it. Re-attach both

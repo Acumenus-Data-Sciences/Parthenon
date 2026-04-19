@@ -30,10 +30,10 @@ return new class extends Migration
 {
     public function up(): void
     {
-        $finngenExists = DB::selectOne(
-            "SELECT 1 AS ok FROM pg_namespace WHERE nspname = 'finngen'"
+        $endpointDefinitionsExist = DB::selectOne(
+            "SELECT to_regclass('finngen.endpoint_definitions') AS table_name"
         );
-        if ($finngenExists === null) {
+        if ($endpointDefinitionsExist?->table_name === null) {
             return;
         }
 

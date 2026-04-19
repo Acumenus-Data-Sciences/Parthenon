@@ -3,8 +3,21 @@
 declare(strict_types=1);
 
 use App\Models\App\FinnGen\EndpointDefinition;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+
+uses(RefreshDatabase::class);
+
+beforeEach(function (): void {
+    User::factory()->create([
+        'email' => 'admin@acumenus.net',
+        'name' => 'Test Admin',
+    ]);
+    EndpointDefinition::query()->delete();
+    DB::connection('finngen')->table('endpoint_expressions_pre_phase13')->delete();
+});
 
 /**
  * Phase 13 `--overwrite` semantics (preserved through 13.1): a second

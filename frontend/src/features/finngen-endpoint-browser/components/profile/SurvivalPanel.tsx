@@ -180,9 +180,10 @@ export function SurvivalPanel({
                   formatter={
                     ((v: number) => [`${v.toLocaleString()} deaths`, ""]) as never
                   }
-                  labelFormatter={(label: number) =>
-                    `Age ${label}–${label + 4}`
-                  }
+                  labelFormatter={(label) => {
+                    const age = Number(label);
+                    return Number.isFinite(age) ? `Age ${age}–${age + 4}` : "";
+                  }}
                 />
               </BarChart>
             </ResponsiveContainer>

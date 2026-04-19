@@ -108,7 +108,7 @@ export function DrugClassesPanel({
                     "",
                   ]) as never
                 }
-                labelFormatter={(label: string) => label}
+                labelFormatter={(label) => String(label ?? "")}
               />
             </BarChart>
           </ResponsiveContainer>

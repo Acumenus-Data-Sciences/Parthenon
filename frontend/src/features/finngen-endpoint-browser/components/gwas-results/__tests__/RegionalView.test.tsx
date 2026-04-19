@@ -80,17 +80,17 @@ describe("RegionalView", () => {
     );
 
     // 43_500_000 - 500_000 = 43_000_000 → 44_000_000 = 1 Mb window
-    expect(useManhattanRegion).toHaveBeenCalledWith(
-      "01JABC",
-      "17",
-      43_000_000,
-      44_000_000,
-    );
-    expect(useGencodeGenes).toHaveBeenCalledWith(
-      "17",
-      43_000_000,
-      44_000_000,
-    );
+    expect(useManhattanRegion).toHaveBeenCalledWith({
+      runId: "01JABC",
+      chrom: "17",
+      start: 43_000_000,
+      end: 44_000_000,
+    });
+    expect(useGencodeGenes).toHaveBeenCalledWith({
+      chrom: "17",
+      start: 43_000_000,
+      end: 44_000_000,
+    });
   });
 
   it("renders the axis label with locale-formatted start/end", () => {
@@ -254,7 +254,7 @@ describe("RegionalView", () => {
       ),
     );
 
-    const [, , start] = vi.mocked(useManhattanRegion).mock.calls[0];
-    expect(start).toBe(1);
+    const [params] = vi.mocked(useManhattanRegion).mock.calls[0];
+    expect(params.start).toBe(1);
   });
 });

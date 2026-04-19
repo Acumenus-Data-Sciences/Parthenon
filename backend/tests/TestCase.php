@@ -18,6 +18,7 @@ abstract class TestCase extends BaseTestCase
         try {
             $pdo = DB::connection()->getPdo();
             DB::connection('finngen')->setPdo($pdo);
+            DB::connection('finngen_ro')->setPdo($pdo);
             // Phase 15 Plan 08: the Phase 15 controllers use `DB::connection('pgsql')`
             // explicitly for cross-connection reads (eligible-controls joins onto
             // app.cohort_definitions + {source}.cohort). Share PDO here so those
@@ -63,7 +64,7 @@ abstract class TestCase extends BaseTestCase
         if ($outer < 1) {
             return;
         }
-        foreach (['finngen', 'pgsql'] as $name) {
+        foreach (['finngen', 'finngen_ro', 'pgsql'] as $name) {
             $conn = DB::connection($name);
             $refConn = new \ReflectionObject($conn);
             if ($refConn->hasProperty('transactions')) {

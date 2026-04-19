@@ -6,6 +6,7 @@ use App\Models\App\FinnGen\EndpointGwasRun;
 use App\Models\App\FinnGen\Run;
 use App\Models\User;
 use App\Services\FinnGen\GwasRunService;
+use App\Services\FinnGen\GwasSchemaProvisioner;
 use Database\Seeders\Testing\FinnGenTestingSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +28,7 @@ uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
     $this->seed(FinnGenTestingSeeder::class);
+    app(GwasSchemaProvisioner::class)->provision('pancreas');
     $this->user = User::where('email', 'finngen-test-researcher@test.local')->firstOrFail();
 
     // Clear any residual tracking rows from prior runs.
