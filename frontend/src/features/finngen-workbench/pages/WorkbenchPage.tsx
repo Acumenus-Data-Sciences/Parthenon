@@ -14,6 +14,7 @@ import { ImportCohortsStep } from "../components/ImportCohortsStep";
 import { AutosaveBadge } from "../components/AutosaveBadge";
 import { RecentRunsPanel } from "../components/RecentRunsPanel";
 import { WorkbenchStepper } from "../components/WorkbenchStepper";
+import { FinnGenSeededPill } from "../components/FinnGenSeededPill";
 import { WORKBENCH_STEPS, type WorkbenchStepKey } from "../lib/workbenchSteps";
 import {
   useAutosaveWorkbenchSession,
@@ -134,6 +135,10 @@ export default function WorkbenchPage() {
               >
                 {session.source_key}
               </span>
+              {/* GENOMICS-13 — attribution pill rendered only when
+                  session_state.seeded_from.kind === 'finngen-endpoint'.
+                  Reader for the useOpenInWorkbench writer (useEndpoints.ts:69-72). */}
+              <FinnGenSeededPill seededFrom={sessionState.seeded_from} />
             </div>
             <p className="text-[10px] text-text-ghost">
               session {session.id.slice(0, 8)}…
