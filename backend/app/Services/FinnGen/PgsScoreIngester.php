@@ -120,7 +120,7 @@ final class PgsScoreIngester
                     'allele_frequency' => $v['allele_frequency'] ?? null,
                 ];
             }
-            $inserted += DB::connection('omop')
+            $inserted += DB::connection('vocab')
                 ->table('vocab.pgs_score_variants')
                 ->insertOrIgnore($rows);
         }
