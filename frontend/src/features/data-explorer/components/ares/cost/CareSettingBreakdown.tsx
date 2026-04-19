@@ -78,10 +78,10 @@ export default function CareSettingBreakdown({ settings }: CareSettingBreakdownP
                 borderRadius: "8px",
               }}
               labelStyle={{ color: "var(--text-primary)" }}
-              formatter={(value: number | string) => [
+              formatter={((value: number | string) => [
                 formatCurrency(Number(value)),
                 t("dataExplorer.ares.cost.metrics.totalCost"),
-              ]}
+              ]) as never}
             />
             <Bar dataKey="total_cost" radius={[4, 4, 0, 0]}>
               {chartData.map((entry, index) => (

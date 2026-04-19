@@ -73,12 +73,12 @@ export default function TemporalPrevalenceChart({ sources, title }: TemporalPrev
                 color: "var(--text-secondary)",
                 fontSize: 12,
               }}
-              formatter={(value: number | string) => [
+              formatter={((value: number | string) => [
                 t("dataExplorer.ares.conceptComparison.metrics.perThousandLong", {
                   value: formatNumber(Number(value), { maximumFractionDigits: 2 }),
                 }),
                 t("dataExplorer.ares.conceptComparison.metrics.rate"),
-              ]}
+              ]) as never}
             />
             <Legend wrapperStyle={{ fontSize: 11, color: "var(--text-muted)" }} />
 

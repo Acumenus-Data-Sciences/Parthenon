@@ -92,7 +92,7 @@ export default function ComparisonChart(props: ComparisonChartProps) {
               color: "var(--text-secondary)",
               fontSize: 12,
             }}
-            formatter={(value: number | string) => [
+            formatter={((value: number | string) => [
               metric === "rate_per_1000"
                 ? t("dataExplorer.ares.conceptComparison.metrics.perThousandLong", {
                   value: formatNumber(Number(value), { maximumFractionDigits: 2 }),
@@ -101,7 +101,7 @@ export default function ComparisonChart(props: ComparisonChartProps) {
               metric === "rate_per_1000"
                 ? t("dataExplorer.ares.conceptComparison.metrics.rate")
                 : t("dataExplorer.ares.conceptComparison.metrics.count"),
-            ]}
+            ]) as never}
           />
           {showBenchmark && (
             <ReferenceLine

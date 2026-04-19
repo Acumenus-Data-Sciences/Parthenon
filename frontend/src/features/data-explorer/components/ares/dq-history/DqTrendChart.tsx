@@ -97,12 +97,12 @@ export default function DqTrendChart({ data, sourceId, onReleaseClick, overlayDa
                 color: "var(--text-secondary)",
                 fontSize: 12,
               }}
-              formatter={(value: number | string) => [
+              formatter={((value: number | string) => [
                 t("dataExplorer.ares.networkOverview.percent", {
                   value: formatNumber(Number(value), { maximumFractionDigits: 1 }),
                 }),
                 t("dataExplorer.ares.dqHistory.passRate"),
-              ]}
+              ]) as never}
             />
             {/* Good zone: >90% -- green */}
             <ReferenceArea y1={90} y2={100} fill="var(--success)" fillOpacity={0.05} ifOverflow="extendDomain" />

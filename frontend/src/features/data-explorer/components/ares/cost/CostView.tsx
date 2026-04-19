@@ -225,10 +225,10 @@ export default function CostView() {
                           borderRadius: "8px",
                         }}
                         labelStyle={{ color: "var(--text-primary)" }}
-                        formatter={(value: number | string) => [
+                        formatter={((value: number | string) => [
                           formatCurrency(Number(value)),
                           t("dataExplorer.ares.cost.metrics.totalCost"),
-                        ]}
+                        ]) as never}
                       />
                       <Bar dataKey="total_cost" fill="var(--success)" radius={[4, 4, 0, 0]} />
                     </BarChart>
@@ -315,10 +315,10 @@ export default function CostView() {
                         borderRadius: "8px",
                       }}
                       labelStyle={{ color: "var(--text-primary)" }}
-                      formatter={(value: number | string) => [
+                      formatter={((value: number | string) => [
                         formatCurrency(Number(value)),
                         t("dataExplorer.ares.cost.metrics.totalCost"),
-                      ]}
+                      ]) as never}
                     />
                     <Line
                       type="monotone"
