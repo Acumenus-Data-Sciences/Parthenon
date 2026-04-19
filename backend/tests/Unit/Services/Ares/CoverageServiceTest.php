@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\App\Source;
+use App\Models\App\SourceDaimon;
 use App\Services\Ares\CoverageService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
@@ -14,8 +15,20 @@ beforeEach(function () {
     $this->service = app(CoverageService::class);
 });
 
+function createCoverageMatrixSource(): Source
+{
+    $source = Source::factory()->create();
+    SourceDaimon::factory()
+        ->results()
+        ->for($source)
+        ->create();
+
+    return $source;
+}
+
 it('returns sources, domains, and matrix keys', function () {
-    Source::factory()->count(2)->create();
+    createCoverageMatrixSource();
+    createCoverageMatrixSource();
 
     $matrix = $this->service->getMatrix();
 
@@ -28,7 +41,7 @@ it('returns sources, domains, and matrix keys', function () {
 });
 
 it('returns standard CDM domains', function () {
-    Source::factory()->create();
+    createCoverageMatrixSource();
 
     $matrix = $this->service->getMatrix();
 
@@ -40,10 +53,11 @@ it('returns standard CDM domains', function () {
 });
 
 it('returns cells with expected structure', function () {
-    Source::factory()->create();
+    createCoverageMatrixSource();
 
     $matrix = $this->service->getMatrix();
 
+    expect($matrix['matrix'])->not->toBeEmpty();
     foreach ($matrix['matrix'] as $row) {
         foreach ($row as $cell) {
             expect($cell)->toHaveKeys(['record_count', 'has_data', 'density_per_person']);

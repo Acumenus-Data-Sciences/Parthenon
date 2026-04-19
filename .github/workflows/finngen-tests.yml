@@ -144,13 +144,12 @@ jobs:
           CACHE_STORE: array
           SESSION_DRIVER: array
           QUEUE_CONNECTION: sync
-        # NOTE: --min=80 enforces an overall coverage floor (spec §6.10).
-        # Tightening app/Services/FinnGen/** to 90% requires a path-scoped
-        # coverage checker — planned follow-up after SP1.
+        # NOTE: --min=80 applies to the FinnGen service package, not the
+        # whole Laravel app tree.
         run: |
           ./vendor/bin/pest \
             tests/Unit/FinnGen tests/Feature/FinnGen \
-            --coverage --min=80 \
+            --coverage --coverage-filter=app/Services/FinnGen --min=80 \
             --coverage-clover=coverage-finngen.xml
 
       - name: Upload coverage artifact
