@@ -131,23 +131,30 @@ final class FinnGenGwasRunObserver
      */
     private function computeTopHitPValue(string $sourceKey, string $gwasRunId): ?float
     {
+        $schema = strtolower($sourceKey).'_gwas_results';
+
+        // T-15-10: allow-list schema name before string interpolation.
+        if (preg_match('/^[a-z][a-z0-9_]*$/', $schema) !== 1) {
+            Log::warning('finngen.gwas_run_observer.schema_name_rejected', [
+                'schema' => $schema,
+                'source_key' => $sourceKey,
+            ]);
+
+            return null;
+        }
+
+        // CLAUDE.md Gotcha #12: PG transaction poisoning — if the MIN query fails
+        // (e.g., {source}_gwas_results schema missing for a new source), the enclosing
+        // PG transaction enters SQLSTATE 25P02 and ALL subsequent statements fail.
+        // Wrap in a SAVEPOINT so a query error only rolls back THIS probe.
+        $conn = DB::connection('pgsql');
+        $conn->beginTransaction();
         try {
-            $schema = strtolower($sourceKey).'_gwas_results';
-
-            // T-15-10: allow-list schema name before string interpolation.
-            if (preg_match('/^[a-z][a-z0-9_]*$/', $schema) !== 1) {
-                Log::warning('finngen.gwas_run_observer.schema_name_rejected', [
-                    'schema' => $schema,
-                    'source_key' => $sourceKey,
-                ]);
-
-                return null;
-            }
-
-            $row = DB::connection('pgsql')->selectOne(
+            $row = $conn->selectOne(
                 sprintf('SELECT MIN(p_value) AS p FROM %s.summary_stats WHERE gwas_run_id = ?', $schema),
                 [$gwasRunId],
             );
+            $conn->commit();
 
             if ($row === null || $row->p === null) {
                 return null;
@@ -155,6 +162,12 @@ final class FinnGenGwasRunObserver
 
             return (float) $row->p;
         } catch (Throwable $e) {
+            // Roll back the SAVEPOINT so the outer transaction stays alive.
+            try {
+                $conn->rollBack();
+            } catch (Throwable) {
+                // Best-effort; if the rollback itself fails we still don't re-throw.
+            }
             Log::warning('finngen.gwas_run_observer.top_hit_query_failed', [
                 'source_key' => $sourceKey,
                 'gwas_run_id' => $gwasRunId,
