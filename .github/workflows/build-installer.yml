@@ -46,9 +46,10 @@ jobs:
 
       - name: Validate Python installer entry points
         run: |
-          python -m py_compile install.py installer/bootstrap_remote.py installer/contract.py installer/data_probe.py installer/webapp.py
+          python -m py_compile install.py installer/bootstrap_remote.py installer/bundle_manifest.py installer/contract.py installer/data_probe.py installer/webapp.py
           python install.py --contract plan --community --contract-redact >/tmp/parthenon-community-contract.json
           python install.py --contract data-check --community --contract-redact >/tmp/parthenon-community-data-check.json
+          python install.py --contract bundle-manifest --community --contract-redact >/tmp/parthenon-community-bundle-manifest.json
 
       - name: Install Python installer test dependencies
         run: python -m pip install --quiet pytest

@@ -691,7 +691,7 @@ fn build_local_contract_command(
         "--contract-input",
     ]);
     command.arg(&input_path);
-    if action == "preflight" || action == "data-check" {
+    if action == "preflight" || action == "data-check" || action == "bundle-manifest" {
         command.arg("--contract-repo-root");
         command.arg(&repo_path);
     }
@@ -724,11 +724,12 @@ fn build_windows_contract_command(
             "Windows installs require a WSL repo path, such as /home/user/Parthenon".to_string()
         })?;
     let redact_flag = if redact { " --contract-redact" } else { "" };
-    let repo_root_flag = if action == "preflight" || action == "data-check" {
-        format!(" --contract-repo-root {}", shell_quote(repo_linux))
-    } else {
-        String::new()
-    };
+    let repo_root_flag =
+        if action == "preflight" || action == "data-check" || action == "bundle-manifest" {
+            format!(" --contract-repo-root {}", shell_quote(repo_linux))
+        } else {
+            String::new()
+        };
 
     let script = format!(
         r#"set -e
@@ -767,7 +768,7 @@ exit "$rc"
 
 fn validate_contract_action(action: &str) -> Result<(), String> {
     match action {
-        "defaults" | "validate" | "plan" | "preflight" | "data-check" => Ok(()),
+        "defaults" | "validate" | "plan" | "preflight" | "data-check" | "bundle-manifest" => Ok(()),
         _ => Err(format!("Unsupported installer contract action: {action}")),
     }
 }
@@ -1260,6 +1261,35 @@ mod tests {
             .collect::<Vec<_>>();
 
         assert_eq!(args[2], "data-check");
+        assert!(args.contains(&"--contract-repo-root".to_string()));
+        assert!(args.contains(&repo_root.to_string_lossy().to_string()));
+
+        cleanup_temp_file(command_plan.temp_defaults);
+    }
+
+    #[test]
+    fn local_bundle_manifest_contract_command_passes_repo_root() {
+        let mut request = request();
+        let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../..")
+            .canonicalize()
+            .expect("repo root");
+        request.repo_path = repo_root.to_string_lossy().to_string();
+
+        let command_plan = build_local_contract_command(
+            &request,
+            "bundle-manifest",
+            r#"{"admin_email":"admin@example.com"}"#,
+            true,
+        )
+        .expect("contract command");
+        let args = command_plan
+            .command
+            .get_args()
+            .map(|value| value.to_string_lossy().to_string())
+            .collect::<Vec<_>>();
+
+        assert_eq!(args[2], "bundle-manifest");
         assert!(args.contains(&"--contract-repo-root".to_string()));
         assert!(args.contains(&repo_root.to_string_lossy().to_string()));
 

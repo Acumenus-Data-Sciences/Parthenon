@@ -94,11 +94,32 @@ Installers can consume that bundle with either:
 Desktop packaging experiments can remain local, but they are not release
 assets until they satisfy the packaging policy above.
 
+## Shared Contract
+
+Installer shells should use the Python contract instead of reimplementing
+installer rules:
+
+```bash
+python3 install.py --contract defaults --community --contract-redact
+python3 install.py --contract validate --community --contract-redact
+python3 install.py --contract plan --community --contract-redact
+python3 install.py --contract preflight --community --contract-redact
+python3 install.py --contract data-check --community --contract-redact
+python3 install.py --contract bundle-manifest --community --contract-redact
+```
+
+`bundle-manifest` expands `installer/installer_manifest.json` into the current
+file list, sizes, SHA-256 hashes, and bundle digest. It is the source of truth
+for the Rust app's no-repo bootstrapper work.
+
 ## Modules
 
 - `bootstrap.py`
+- `bundle_manifest.py`
 - `cli.py`
 - `config.py`
+- `contract.py`
+- `data_probe.py`
 - `demo_data.py`
 - `docker_ops.py`
 - `etl_mbu_patient.py`

@@ -13,9 +13,11 @@ target, and guide vocabulary loading without requiring a repo checkout.
       have a target database server.
 - [ ] Stop requiring users to clone the full Parthenon repository before
       installing.
+- [x] Define the first versioned installer bundle manifest with checksums,
+      phases, and DBMS support tiers.
 - [ ] Download a versioned installer bundle containing only required compose
       files, templates, helper scripts, and manifests.
-- [ ] Verify installer bundle checksums before running any phase.
+- [ ] Verify downloaded installer bundle checksums before running any phase.
 - [ ] Keep technical JSON and internal config files behind advanced details.
 
 ## Data Setup Paths
@@ -48,7 +50,7 @@ target, and guide vocabulary loading without requiring a repo checkout.
 
 ## Installer Engine
 
-- [ ] Define `installer_manifest.json` for version, files, checksums, service
+- [x] Define `installer_manifest.json` for version, files, checksums, service
       plan, DBMS support, phase definitions, and health checks.
 - [ ] Add Rust phase state: preflight, download, verify, configure,
       prepare-data-target, start-services, health-check, finalize.

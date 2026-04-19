@@ -97,7 +97,7 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--contract",
-        choices=["defaults", "validate", "plan", "preflight", "data-check"],
+        choices=["defaults", "validate", "plan", "preflight", "data-check", "bundle-manifest"],
         default=None,
         help="Emit machine-readable installer contract JSON and exit",
     )

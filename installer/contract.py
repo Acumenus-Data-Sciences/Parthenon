@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from . import config, data_probe, docker_ops, preflight, utils
+from . import bundle_manifest, config, data_probe, docker_ops, preflight, utils
 
 
 SECRET_FIELDS = {
@@ -235,6 +235,10 @@ def data_check_payload(
     return data_probe.run_checks(cfg, repo_root=repo_root)
 
 
+def bundle_manifest_payload(*, repo_root: str | None = None) -> dict[str, Any]:
+    return bundle_manifest.build_manifest(repo_root=repo_root)
+
+
 def build_payload(
     action: str,
     *,
@@ -267,6 +271,10 @@ def build_payload(
             "config": cfg,
             "data_check": data_check_payload(cfg, repo_root=repo_root),
         }
+    elif action == "bundle-manifest":
+        payload = {
+            "manifest": bundle_manifest_payload(repo_root=repo_root),
+        }
     else:
         raise ValueError(f"Unsupported contract action: {action}")
 
@@ -287,7 +295,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Parthenon installer contract")
     parser.add_argument(
         "action",
-        choices=["defaults", "validate", "plan", "preflight", "data-check"],
+        choices=["defaults", "validate", "plan", "preflight", "data-check", "bundle-manifest"],
         help="Contract payload to emit",
     )
     parser.add_argument("--community", action="store_true", help="Use Community MVP defaults")

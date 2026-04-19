@@ -27,9 +27,12 @@ CACHE_DIR = Path.home() / ".cache" / "cosmofy"
 # Files to include from the installer package
 INSTALLER_PY_FILES = [
     "__init__.py",
+    "bundle_manifest.py",
     "bootstrap_remote.py",
     "webapp.py",
     "config.py",
+    "contract.py",
+    "data_probe.py",
     "preflight.py",
     "launcher.py",
     "utils.py",
@@ -38,8 +41,11 @@ INSTALLER_PY_FILES = [
     "docker_ops.py",
     "demo_data.py",
     "eunomia.py",
+    "hecate_bootstrap.py",
+    "license.py",
     "etl_mbu_patient.py",
     "install.sh",
+    "installer_manifest.json",
 ]
 
 # Static web assets

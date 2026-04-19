@@ -4,7 +4,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from installer import contract, docker_ops
+from installer import bundle_manifest, contract, docker_ops
 
 
 def test_community_contract_defaults_and_plan(monkeypatch):
@@ -195,3 +195,43 @@ def test_contract_data_check_fails_incomplete_existing_postgres_cdm(monkeypatch,
     assert names["PostgreSQL connection probe"]["status"] == "ok"
     assert names["PostgreSQL OMOP tables"]["status"] == "fail"
     assert names["PostgreSQL work schemas"]["status"] == "fail"
+
+
+def test_bundle_manifest_expands_files_with_checksums():
+    root = Path(__file__).resolve().parents[2]
+
+    manifest = bundle_manifest.build_manifest(repo_root=root)
+
+    files = {file["path"]: file for file in manifest["files"]}
+    assert manifest["schema_version"] == 1
+    assert manifest["checksum_algorithm"] == "sha256"
+    assert manifest["file_count"] == len(manifest["files"])
+    assert manifest["bundle_digest"]
+    assert "install.py" in files
+    assert "docker-compose.yml" in files
+    assert "installer/data_probe.py" in files
+    assert "installer/installer_manifest.json" in files
+    assert "installer/test_cosmo_compat.py" not in files
+    assert len(files["install.py"]["sha256"]) == 64
+    assert files["install.py"]["size"] > 0
+
+    checks = bundle_manifest.validate_manifest(manifest, repo_root=root)
+    assert checks
+    assert all(check["status"] == "ok" for check in checks)
+
+
+def test_contract_bundle_manifest_payload_shape():
+    root = Path(__file__).resolve().parents[2]
+
+    payload = contract.build_payload(
+        "bundle-manifest",
+        community=True,
+        repo_root=str(root),
+    )
+
+    manifest = payload["manifest"]
+    file_paths = {file["path"] for file in manifest["files"]}
+    assert manifest["repo_root"] == str(root)
+    assert manifest["bundle_name"] == "parthenon-community-bootstrap"
+    assert "install.py" in file_paths
+    assert "installer/web/app.js" in file_paths
