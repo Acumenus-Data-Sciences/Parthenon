@@ -1092,6 +1092,9 @@ Route::prefix('v1')->group(function () {
                     ->middleware(['permission:finngen.workbench.use', 'finngen.idempotency', 'throttle:10,1']);
                 Route::get('/{name}/eligible-controls', [EndpointBrowserController::class, 'eligibleControls'])
                     ->middleware(['permission:finngen.workbench.use', 'throttle:60,1']);
+                // Phase 17 (GENOMICS-07) — compute PRS for (endpoint × source × PGS score)
+                Route::post('/{name}/prs', [EndpointBrowserController::class, 'prs'])
+                    ->middleware(['permission:finngen.prs.compute', 'finngen.idempotency', 'throttle:10,1']);
             });
         });
 

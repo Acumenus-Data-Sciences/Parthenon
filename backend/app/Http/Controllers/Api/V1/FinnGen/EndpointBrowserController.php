@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\V1\FinnGen;
 use App\Enums\CoverageBucket;
 use App\Enums\CoverageProfile;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\FinnGen\ComputePrsRequest;
 use App\Http\Requests\FinnGen\DispatchEndpointGwasRequest;
 use App\Models\App\FinnGen\EndpointDefinition;
 use App\Models\App\FinnGen\EndpointGwasRun;
@@ -26,6 +27,7 @@ use App\Services\FinnGen\Exceptions\SourceNotPreparedException;
 use App\Services\FinnGen\Exceptions\UnresolvableConceptsException;
 use App\Services\FinnGen\FinnGenRunService;
 use App\Services\FinnGen\GwasRunService;
+use App\Services\FinnGen\PrsDispatchService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -527,6 +529,55 @@ final class EndpointBrowserController extends Controller
                     'drugs' => count($drugConcepts),
                     'source' => count($sourceConcepts),
                 ],
+            ],
+        ], 202);
+    }
+
+    /**
+     * POST /api/v1/finngen/endpoints/{name}/prs
+     *
+     * Phase 17 GENOMICS-07 D-10/D-15 — dispatches a Darkstar
+     * finngen.prs.compute run against a (source × PGS Catalog score × cohort)
+     * tuple. Returns 202 + run envelope. All precondition checks live in
+     * {@see PrsDispatchService::dispatch}; controller just unpacks the
+     * validated FormRequest and forwards to the service.
+     *
+     * 422 paths (via abort() inside PrsDispatchService):
+     *   - score_id not ingested in vocab.pgs_scores
+     *   - source_key does not resolve to an enabled Source
+     *   - source has no variant_index (Phase 14 prerequisite missing)
+     *   - cohort has 0 rows for the resolved cohort_definition_id
+     *   - no FinnGenEndpointGeneration when cohort_definition_id is omitted
+     *
+     * Route middleware: auth:sanctum, permission:finngen.prs.compute,
+     * finngen.idempotency, throttle:10,1.
+     */
+    public function prs(ComputePrsRequest $request, string $name): JsonResponse
+    {
+        $validated = $request->validated();
+
+        /** @var array{source_key:string, score_id:string, cohort_definition_id:int|null, overwrite_existing?:bool} $input */
+        $input = [
+            'source_key' => (string) $validated['source_key'],
+            'score_id' => (string) $validated['score_id'],
+            'cohort_definition_id' => isset($validated['cohort_definition_id'])
+                ? (int) $validated['cohort_definition_id']
+                : null,
+            'overwrite_existing' => (bool) ($validated['overwrite_existing'] ?? false),
+        ];
+
+        $result = app(PrsDispatchService::class)
+            ->dispatch((int) $request->user()->id, $name, $input);
+
+        return response()->json([
+            'data' => [
+                'run' => $result['run'],
+                'analysis_type' => PrsDispatchService::ANALYSIS_TYPE,
+                'cohort_definition_id' => $result['cohort_definition_id'],
+                'score_id' => $result['score_id'],
+                'source_key' => $result['source_key'],
+                'finngen_endpoint_generation_id' => $result['finngen_endpoint_generation_id'],
+                'endpoint_name' => $name,
             ],
         ], 202);
     }
