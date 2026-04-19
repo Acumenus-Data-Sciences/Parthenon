@@ -18,6 +18,7 @@ source("/app/api/finngen/co2_analysis.R")
 source("/app/api/finngen/cohort_ops.R")
 source("/app/api/finngen/romopapi_async.R")
 source("/app/api/finngen/gwas_regenie.R")  # Phase 14 D-01/D-13/D-14/D-22
+source("/app/api/finngen/prs_compute.R")   # Phase 17 GENOMICS-07
 source("/app/R/async_jobs.R")  # provides submit_job()
 
 suppressPackageStartupMessages({
@@ -136,6 +137,17 @@ suppressPackageStartupMessages({
     "finngen.gwas.regenie.step2" = function(spec) {
       source("/app/api/finngen/common.R"); source("/app/api/finngen/gwas_regenie.R")
       finngen_gwas_regenie_step2_execute(
+        source_envelope = spec$source,
+        run_id          = spec$run_id,
+        export_folder   = file.path("/opt/finngen-artifacts/runs", spec$run_id),
+        params          = spec$params
+      )
+    },
+    "finngen.prs.compute" = function(spec) {
+      source("/app/api/finngen/common.R")
+      source("/app/api/finngen/cohort_ops.R")   # provides .finngen_open_connection
+      source("/app/api/finngen/prs_compute.R")
+      finngen_prs_compute_execute(
         source_envelope = spec$source,
         run_id          = spec$run_id,
         export_folder   = file.path("/opt/finngen-artifacts/runs", spec$run_id),
@@ -342,4 +354,10 @@ function(body, response) {
 #* @serializer unboxedJSON
 function(body, response) {
   .dispatch_async("finngen.gwas.regenie.step2", body, response)
+}
+
+#* @post /finngen/prs/compute
+#* @serializer unboxedJSON
+function(body, response) {
+  .dispatch_async("finngen.prs.compute", body, response)
 }
