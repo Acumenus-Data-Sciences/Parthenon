@@ -25,9 +25,31 @@ it('grants SELECT on vocab.source_to_concept_map to parthenon_app per HIGHSEC §
     'parthenon_app role not present in this test environment');
 
 it('does not delete IRSF-NHS rows', function () {
+    DB::connection('vocab')->table('vocab.source_to_concept_map')
+        ->where('source_code', 'CI_IRSF_NHS_SENTINEL')
+        ->where('source_vocabulary_id', 'IRSF-NHS')
+        ->delete();
+
+    DB::connection('vocab')->table('vocab.source_to_concept_map')->insert([
+        'source_code' => 'CI_IRSF_NHS_SENTINEL',
+        'source_concept_id' => 9_900_001,
+        'source_vocabulary_id' => 'IRSF-NHS',
+        'source_code_description' => 'CI sentinel for non-FinnGen STCM rows',
+        'target_concept_id' => 9_900_002,
+        'target_vocabulary_id' => 'SNOMED',
+        'valid_start_date' => '1970-01-01',
+        'valid_end_date' => '2099-12-31',
+        'invalid_reason' => null,
+    ]);
+
+    $before = DB::connection('vocab')->table('vocab.source_to_concept_map')
+        ->where('source_vocabulary_id', 'IRSF-NHS')
+        ->count();
+
     Artisan::call('migrate', ['--force' => true]);
+
     $irsfCount = DB::connection('vocab')->table('vocab.source_to_concept_map')
         ->where('source_vocabulary_id', 'IRSF-NHS')->count();
-    expect($irsfCount)->toBe(121);
+    expect($irsfCount)->toBe($before);
 })->skip(fn () => ! DB::connection('vocab')->getSchemaBuilder()->hasTable('source_to_concept_map'),
     'vocab.source_to_concept_map not present in this test environment');

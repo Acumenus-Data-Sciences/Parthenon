@@ -2,17 +2,24 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        if (Schema::hasTable('finngen_runs')) {
+        $currentRuntimeExists = DB::selectOne("SELECT to_regclass('finngen.runs') AS table_name");
+        if ($currentRuntimeExists?->table_name !== null) {
             return;
         }
 
-        Schema::create('finngen_runs', function (Blueprint $table) {
+        $legacyExists = DB::selectOne("SELECT to_regclass('app.finngen_runs') AS table_name");
+        if ($legacyExists?->table_name !== null) {
+            return;
+        }
+
+        Schema::create('app.finngen_runs', function (Blueprint $table) {
             $table->id();
             $table->string('service_name', 80);
             $table->string('status', 20)->default('ok');
@@ -34,6 +41,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('finngen_runs');
+        Schema::dropIfExists('app.finngen_runs');
     }
 };
