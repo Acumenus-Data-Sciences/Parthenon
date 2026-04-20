@@ -4,9 +4,11 @@ Date: 2026-04-17
 
 Owner: Product/Engineering
 
-Status: Implementation started
+Status: Implementation in progress on `main`
 
-Branch: `feature/parthenon-native-i18n`
+Current active branch: `main`
+
+Original implementation branch: `feature/parthenon-native-i18n`
 
 Unified merge branch: `codex/parthenon-i18n-unified`
 
@@ -80,11 +82,12 @@ Previous isolated Codex branch: `codex/parthenon-i18n-pr5-message-contract`
 - Next language-pack expansion should begin with `fr-FR`, `de-DE`, and `pt-BR` after the English/Spanish/Korean visual smoke checklist and current app-priority PR refresh. Arabic remains an RTL canary, not the next public production language.
 - Per direction, moved the app-priority i18n baseline back onto `main` and stopped the stacked PR branch workflow for follow-on i18n work.
 - Started the hidden Wave 1 language-pack pass for French, German, and Brazilian Portuguese on `main`. Dashboard resources now have native Wave 1 drafts; shared common UI chrome, Abby panel chrome, route/error copy, analysis labels, and the Administration/Auth Providers app surface have targeted Wave 1 drafts. `npm run i18n:report` now shows `fr-FR` at 12.61% distinct values, `de-DE` at 12.56%, and `pt-BR` at 12.90%, with 100% key presence and 0 missing keys. `npm run i18n:scan:app-priority` remains at 0 candidates across 214 files.
-- Remaining Wave 1 language-pack work before public selection: translate the `commons` namespace, setup/onboarding auth strings, and the remaining app namespace keys beyond the targeted administration/auth-provider draft; then run visual smoke for `fr-FR`, `de-DE`, and `pt-BR` while they are still hidden.
+- At that checkpoint, remaining Wave 1 language-pack work before public selection was setup/onboarding auth strings, the `commons` namespace, and the remaining app namespace keys beyond the targeted administration/auth-provider draft; then hidden-locale visual smoke for `fr-FR`, `de-DE`, and `pt-BR`.
 - Pushed the i18n baseline and Wave 1 draft work directly to `origin/main`, closed obsolete PR #215, deleted the remote i18n branch, and pruned local i18n branch references.
 - Continued from `main` with a Commons shell draft for French, German, and Brazilian Portuguese. `commons` now has native coverage for channel shell, presence, calls, right-panel collaboration chrome, channel/direct-message creation, chat basics, notifications, and announcements while deeper Abby/wiki Commons content remains on English fallback. Current report: `fr-FR` 18.75%, `de-DE` 18.80%, and `pt-BR` 19.33% distinct values with 100% key presence and 0 missing keys. `npm run i18n:scan:app-priority` remains at 0 candidates.
 - Closed out the remaining PR queue against `main`: merged the clean Dependabot PRs for FastAPI and GitHub Actions updates, then landed the i18next 26.0.6 bump directly on `main` with the required `initAsync` initialization update. Local frontend validation passed with `npm ci --legacy-peer-deps`, `npx tsc --noEmit`, `npm run lint` (warnings only, existing backlog), `npx vitest run`, focused i18n Vitest, `npm run i18n:report`, and `npm run build`.
 - Completed the Wave 1 setup/auth pass for French, German, and Brazilian Portuguese, including setup wizard controls, welcome checklist, password setup, system health, AI provider, authentication provider, onboarding tour, data-source import, and completion copy. Remaining identical auth strings are intentional protocol/product/filename terms such as HEOR, OMOP CDM, LDAP/OAuth/OIDC/SAML, `.install-credentials`, `daimon`, and Basic auth. Current report: `fr-FR` 23.26%, `de-DE` 23.29%, and `pt-BR` 23.81% distinct values with 100% key presence and 0 missing keys.
+- Completed the full Wave 1 Commons namespace pass for French, German, and Brazilian Portuguese, including channel shell, presence, calls, collaboration panels, channel/direct-message creation, chat composer/actions/reactions/object references, notifications, announcements, Abby institutional-memory UI, source attribution, and wiki ingestion/chat/PDF/activity surfaces. `commons` now reports 99.49% distinct values for each Wave 1 locale; the only identical keys are intentional proper/model identifiers (`abby.name`, `abby.modelLabel`). Current overall report: `fr-FR` 27.43%, `de-DE` 27.35%, and `pt-BR` 27.69% distinct values with 100% key presence and 0 missing keys.
 
 ## Executive Summary
 
