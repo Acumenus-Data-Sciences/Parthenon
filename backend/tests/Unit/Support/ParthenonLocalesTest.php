@@ -39,12 +39,15 @@ it('publishes the initial rollout metadata contract', function () {
     ]);
 });
 
-it('limits persisted user-selectable locales to English, Spanish, and Korean', function () {
+it('limits persisted user-selectable locales to completed public app locales', function () {
     expect(ParthenonLocales::normalizeSelectable('en'))->toBe('en-US')
         ->and(ParthenonLocales::normalizeSelectable('es'))->toBe('es-ES')
+        ->and(ParthenonLocales::normalizeSelectable('fr'))->toBe('fr-FR')
+        ->and(ParthenonLocales::normalizeSelectable('de'))->toBe('de-DE')
+        ->and(ParthenonLocales::normalizeSelectable('pt'))->toBe('pt-BR')
         ->and(ParthenonLocales::normalizeSelectable('ko'))->toBe('ko-KR')
         ->and(ParthenonLocales::normalizeSelectable('ar'))->toBeNull()
-        ->and(ParthenonLocales::normalizeSelectable('fr'))->toBeNull()
+        ->and(ParthenonLocales::normalizeSelectable('fi'))->toBeNull()
         ->and(ParthenonLocales::normalizeSelectable('en-XA'))->toBeNull();
 });
 

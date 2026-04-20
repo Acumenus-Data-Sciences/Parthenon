@@ -66,17 +66,20 @@ describe("i18n locale support", () => {
     });
   });
 
-  it("limits public language choices to English, Spanish, and Korean", () => {
+  it("publishes completed app languages in the public picker", () => {
     expect(PUBLIC_SELECTABLE_LOCALES.map((locale) => locale.code)).toEqual([
       "en-US",
       "es-ES",
+      "fr-FR",
+      "de-DE",
+      "pt-BR",
       "ko-KR",
     ]);
     expect(getLocaleMetadata("ar")).toMatchObject({
       qaOnly: true,
       selectable: false,
     });
-    expect(getLocaleMetadata("fr-FR").selectable).toBe(false);
+    expect(getLocaleMetadata("fi-FI").selectable).toBe(false);
   });
 
   it("keeps QA canary locales available in development and test selectors", () => {

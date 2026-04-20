@@ -93,6 +93,7 @@ Previous isolated Codex branch: `codex/parthenon-i18n-pr5-message-contract`
 - Completed the Wave 1 app-namespace `dataExplorer` pass for French, German, and Brazilian Portuguese. The pass covers Data Explorer page chrome, tabs, source selector, OMOP domains, overview metrics/cards, charts, domain/concept/temporal panels, Achilles/Heel, DQD, and all Ares surfaces including network overview, feasibility, annotations, coverage, DQ history, unmapped codes, concept comparison, releases, diversity, and cost. Remaining identical data-explorer keys are intentional product/standard names, compact graph labels, placeholder-only formats, chart percentile markers, and true same-spelling clinical/UI tokens such as `Ares`, `Achilles`, `SLA`, `ETL`, `CDM`, `P10`/`P25`/`P75`/`P90`, placeholder formats, and language-native cognates. Current overall report: `fr-FR` 52.66%, `de-DE` 52.90%, and `pt-BR` 53.29% distinct values with 100% key presence and 0 missing keys; app namespace distinct coverage is now `fr-FR` 39.10%, `de-DE` 39.31%, and `pt-BR` 39.59%. Remaining app fallback groups are `administration` and `studies`.
 - Completed the Wave 1 app-namespace `studies` pass for French, German, and Brazilian Portuguese. The pass covers studies list/search/table states, creation wizard, study detail/dashboard tabs, analyses/results/synthesis surfaces, federated Arachne execution, artifacts, sites, cohorts, team, milestones, activity, OHDSI Study Design Compiler, and the study workbench path. Remaining identical studies keys are intentional product/standard identifiers, placeholder-only formats, phase labels, and true same-spelling clinical/UI terms such as `Solr`, `PLE`, `PLP`, `SCCS`, `CDM`, `DQD`, `IRB`, `ClinicalTrials.gov`, `OHDSI #{{id}}`, `{{label}} ({{count}})`, `{{size}} KB`, and language-native cognates. Current overall report: `fr-FR` 70.94%, `de-DE` 71.39%, and `pt-BR` 72.25% distinct values with 100% key presence and 0 missing keys; app namespace distinct coverage is now `fr-FR` 63.45%, `de-DE` 63.94%, and `pt-BR` 64.85%. Remaining app fallback group is `administration`.
 - Completed the Wave 1 app-namespace `administration` pass for French, German, and Brazilian Portuguese. The pass preserves existing non-English admin translations and fills the remaining dashboard, users/roles, auth providers, LiveKit, FHIR, PACS/Orthanc, Solr, GIS, Chroma/vector, Atlas migration, vocabulary import, system health, FHIR sync/export, Acropolis services, user audit, broadcast email, service detail, and honest-broker administration surfaces. Remaining identical app keys are now the intentional technical/proper/format/cognate tail across completed app groups, including service/product names, code identifiers, fixed URLs, masked secrets, units, placeholder-only formats, and native same-spelling labels. Current overall report: `fr-FR` 93.44%, `de-DE` 94.05%, and `pt-BR` 95.65% distinct values with 100% key presence and 0 missing keys; app namespace distinct coverage is now `fr-FR` 93.43%, `de-DE` 94.13%, and `pt-BR` 96.02%. There is no remaining large untranslated Wave 1 app fallback group for these three locales.
+- Promoted completed Wave 1 app locales `fr-FR`, `de-DE`, and `pt-BR` to public-selectable app languages in frontend and backend locale metadata. User preference persistence now accepts those locales; remaining hidden preview locales are `fi-FI`, `ja-JP`, `zh-Hans`, and `hi-IN`, with `ar` and `en-XA` still internal QA/canary locales. Docusaurus public docs locales remain `en`, `es`, and `ko` until docs-content translation catches up.
 
 ## Executive Summary
 
@@ -330,6 +331,9 @@ Current public-selectable languages:
 
 - `en-US`: English baseline.
 - `es-ES`: Spanish production pilot.
+- `fr-FR`: French Wave 1 app candidate.
+- `de-DE`: German Wave 1 app candidate.
+- `pt-BR`: Brazilian Portuguese Wave 1 app candidate.
 - `ko-KR`: Korean production candidate.
 
 Current internal/QA-only languages:
@@ -339,7 +343,7 @@ Current internal/QA-only languages:
 
 Current metadata-enabled but hidden Wave 1 candidates:
 
-- `fr-FR`, `de-DE`, `pt-BR`, `fi-FI`, `ja-JP`, `zh-Hans`, `hi-IN`.
+- `fi-FI`, `ja-JP`, `zh-Hans`, `hi-IN`.
 
 Rationale:
 
@@ -1657,7 +1661,7 @@ Current ordering: adhere to the original app-first plan. Product/app surfaces ta
 - [ ] Triage the full frontend scanner backlog into release-blocking user surfaces, generated/static data surfaces, intentional non-translatable strings, and later extraction waves. Current largest non-FinnGen clusters: ETL/CDM schema labels, cohort validation/diagnostics, Standard PRO instruments, imaging, data-source setup, Strategus, genomics, profiles, HEOR, Morpheus constants, prediction, and patient-similarity.
 - [x] Run visual smoke screenshots for app Dashboard, topnav language selector, Dashboard contextual help, route/error states, and the next translated app surface in English, Spanish, and Korean. `e2e/tests/i18n-visual-smoke.spec.ts` covers `en-US`, `es-ES`, and `ko-KR`; Chromium passed 3/3 with screenshots under `e2e/screenshots/i18n-visual-smoke/`.
 - [x] Refresh or open the PR once the next app-surface slice is complete, with the branch story centered on native app i18n, per-user language preference, complete pilot contextual help, and Docusaurus native locale infrastructure/chrome as supporting proof rather than the main thrust. Opened PR #215 from `codex/parthenon-i18n-app-priority`.
-- [ ] Start the next hidden Wave 1 language-pack drafting pass for `fr-FR`, `de-DE`, and `pt-BR` after the English/Spanish/Korean visual smoke checklist and PR refresh. Keep Arabic as an RTL canary until right-to-left visual certification is complete.
+- [x] Complete the Wave 1 language-pack drafting pass for `fr-FR`, `de-DE`, and `pt-BR`; app-priority resources now report greater than 93% distinct overall coverage for each locale and the three locales are public-selectable app languages. Keep Arabic as an RTL canary until right-to-left visual certification is complete.
 
 Branch goals:
 
@@ -1754,7 +1758,7 @@ Verification:
 - Frontend language selector tests.
 - Manual smoke: change language in topnav, refresh, log out, log back in, confirm preference.
 
-Status: Complete for the initial implementation slice. Canonical metadata, backend normalization, frontend metadata tests, backend unit tests, DB-backed profile feature tests, Docusaurus locale config, targeted production migration, frontend deploy, PHP deploy, and live admin preference smoke are complete. Public user-facing selectors expose only `en-US`, `es-ES`, and `ko-KR`; hidden Wave 1 and QA locales remain available to metadata/tooling.
+Status: Complete for the initial implementation slice, with the first Wave 1 app promotion now layered on top. Canonical metadata, backend normalization, frontend metadata tests, backend unit tests, DB-backed profile feature tests, Docusaurus locale config, targeted production migration, frontend deploy, PHP deploy, and live admin preference smoke are complete. Public app user-facing selectors expose `en-US`, `es-ES`, `fr-FR`, `de-DE`, `pt-BR`, and `ko-KR`; remaining hidden Wave 1 and QA locales stay available to metadata/tooling.
 
 #### PR 2: Frontend i18n Runtime Hardening
 

@@ -43,7 +43,7 @@ return [
             'fallbacks' => ['fr', 'en-US', 'en'],
             'release_tier' => 'wave-1-candidate',
             'enabled' => true,
-            'selectable' => false,
+            'selectable' => true,
         ],
         'de-DE' => [
             'label' => 'German (Germany)',
@@ -56,7 +56,7 @@ return [
             'fallbacks' => ['de', 'en-US', 'en'],
             'release_tier' => 'wave-1-candidate',
             'enabled' => true,
-            'selectable' => false,
+            'selectable' => true,
         ],
         'pt-BR' => [
             'label' => 'Portuguese (Brazil)',
@@ -69,7 +69,7 @@ return [
             'fallbacks' => ['pt-BR', 'pt', 'en-US', 'en'],
             'release_tier' => 'wave-1-candidate',
             'enabled' => true,
-            'selectable' => false,
+            'selectable' => true,
         ],
         'fi-FI' => [
             'label' => 'Finnish (Finland)',

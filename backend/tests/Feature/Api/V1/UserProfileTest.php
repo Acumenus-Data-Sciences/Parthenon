@@ -120,7 +120,7 @@ it('allows nullable optional fields on profile update', function () {
 // ── Update Locale ───────────────────────────────────────────────────────────
 
 it('requires authentication to update locale', function () {
-    $this->putJson('/api/v1/user/locale', ['locale' => 'fr-FR'])
+    $this->putJson('/api/v1/user/locale', ['locale' => 'de-DE'])
         ->assertStatus(401);
 });
 
@@ -140,6 +140,22 @@ it('updates user locale with a supported language', function () {
     ]);
 });
 
+it('updates user locale with a completed Wave 1 app language', function () {
+    $user = User::factory()->create(['locale' => 'en-US']);
+    $user->assignRole('viewer');
+
+    $this->actingAs($user)
+        ->putJson('/api/v1/user/locale', ['locale' => 'pt-BR'])
+        ->assertOk()
+        ->assertJsonPath('locale', 'pt-BR')
+        ->assertJsonPath('message_key', 'profile.locale_updated');
+
+    $this->assertDatabaseHas('users', [
+        'id' => $user->id,
+        'locale' => 'pt-BR',
+    ]);
+});
+
 it('rejects unsupported locales', function () {
     $user = User::factory()->create(['locale' => 'en-US']);
     $user->assignRole('viewer');
@@ -155,7 +171,7 @@ it('rejects supported but uncertified preview locales for persisted user prefere
     $user->assignRole('viewer');
 
     $this->actingAs($user)
-        ->putJson('/api/v1/user/locale', ['locale' => 'fr-FR'])
+        ->putJson('/api/v1/user/locale', ['locale' => 'fi-FI'])
         ->assertStatus(422)
         ->assertJsonValidationErrors(['locale']);
 

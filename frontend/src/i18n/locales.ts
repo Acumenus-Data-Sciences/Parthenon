@@ -42,7 +42,7 @@ export const SUPPORTED_LOCALES = [
     fallbackLocales: ["fr", "en-US", "en"],
     releaseTier: "wave-1-candidate",
     enabled: true,
-    selectable: false,
+    selectable: true,
   },
   {
     code: "de-DE",
@@ -56,7 +56,7 @@ export const SUPPORTED_LOCALES = [
     fallbackLocales: ["de", "en-US", "en"],
     releaseTier: "wave-1-candidate",
     enabled: true,
-    selectable: false,
+    selectable: true,
   },
   {
     code: "pt-BR",
@@ -70,7 +70,7 @@ export const SUPPORTED_LOCALES = [
     fallbackLocales: ["pt-BR", "pt", "en-US", "en"],
     releaseTier: "wave-1-candidate",
     enabled: true,
-    selectable: false,
+    selectable: true,
   },
   {
     code: "fi-FI",
