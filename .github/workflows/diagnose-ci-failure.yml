@@ -30,7 +30,7 @@ jobs:
 
       - name: Download CI failure logs
         id: logs
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const run_id = context.payload.workflow_run.id;

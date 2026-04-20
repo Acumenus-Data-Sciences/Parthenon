@@ -28,7 +28,7 @@ jobs:
           echo "branch=$BRANCH" >> "$GITHUB_ENV"
 
       - name: Acknowledge issue
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             await github.rest.issues.createComment({
@@ -82,7 +82,7 @@ jobs:
 
       - name: Create Pull Request
         if: env.pushed == 'true'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const issue = context.payload.issue;
@@ -108,7 +108,7 @@ jobs:
 
       - name: Comment if no fix
         if: env.pushed != 'true'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             await github.rest.issues.createComment({

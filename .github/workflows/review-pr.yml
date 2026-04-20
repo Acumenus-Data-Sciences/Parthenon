@@ -63,7 +63,7 @@ jobs:
 
       - name: Post review comment
         if: steps.diff.outputs.changed_files != '0'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const review = `${{ steps.review.outputs.response }}`;
