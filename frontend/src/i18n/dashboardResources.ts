@@ -720,11 +720,356 @@ const ptDashboard: MessageTree = mergeMessageTrees(enDashboard, {
   },
 });
 
+const fiDashboard: MessageTree = mergeMessageTrees(enDashboard, {
+  page: {
+    title: "Koontinäyttö",
+    subtitle: "Yhtenäinen vaikuttavuustutkimuksen alusta",
+  },
+  metrics: {
+    cdmSources: "CDM-lähteet",
+    runningJobs: "Käynnissä olevat työt",
+    conceptSets: "Käsitejoukot",
+    activeCohorts: "Aktiiviset kohortit",
+    descriptions: {
+      cdmSources: "{{postgresqlCount}} PostgreSQL · {{personsText}}",
+      persons: "{{count}} henkilöä",
+      noCdmLoaded: "CDM:ää ei ole ladattu",
+      runningJobs:
+        "{{completedCount}} valmistunut hiljattain · {{failedCount}} epäonnistunut",
+      conceptSets:
+        "{{populatedTables}}/{{totalTables}} CDM-taulua täytetty · {{completeness}} % valmis",
+      activeCohorts:
+        "{{generatedCount}} luotu · {{conceptSetCount}} käsitejoukkoa",
+    },
+  },
+  error: {
+    title: "Koontinäytön tietoja ei voitu ladata",
+    message:
+      "API ei ehkä ole käytettävissä. Välimuistissa olevat tiedot näytetään, jos niitä on.",
+  },
+  cdm: {
+    title: "CDM-karakterisointi",
+    subtitle: "Valitun lähteen kliininen dataprofiili",
+    viewFull: "Näytä kaikki",
+    noSource: "Valitse tietolähde nähdäksesi karakterisoinnin",
+    noDomainData: "Domeenitietoja ei ole saatavilla",
+    metrics: {
+      persons: "Henkilöt",
+      medianObservationDuration: "Havaintoajan mediaani",
+      medianObservationDurationValue: "{{count}} päivää",
+      totalEvents: "Tapahtumia yhteensä",
+      dataCompleteness: "Datan täydellisyys",
+      tableCount: "{{populatedTables}}/{{totalTables}} taulua",
+    },
+    demographics: "Demografia",
+    ageDistribution: "Ikäjakauma",
+    noAgeDistributionData: "Ikäjakaumatietoja ei ole saatavilla",
+    age: "Ikä",
+    gender: {
+      male: "Mies",
+      female: "Nainen",
+    },
+    domainCounts: "CDM-domeenien määrät",
+    domains: {
+      conditionOccurrence: "Sairaudet",
+      drugExposure: "Lääkealtistukset",
+      procedureOccurrence: "Toimenpiteet",
+      measurement: "Mittaukset",
+      observation: "Havainnot",
+      visitOccurrence: "Käynnit",
+      drugEra: "Lääkejakso",
+      conditionEra: "Sairausjakso",
+      deviceExposure: "Laitteet",
+      death: "Kuolemat",
+    },
+  },
+  panels: {
+    recentCohortActivity: "Viimeaikainen kohorttitoiminta",
+    quickActions: "Pikatoiminnot",
+    sourceHealth: "Lähteen tila",
+    activeJobs: "Aktiiviset työt",
+    viewAll: "Näytä kaikki",
+  },
+  tables: {
+    cohort: "Kohortti",
+    subjects: "Henkilöt",
+    status: "Tila",
+    source: "Lähde",
+    dialect: "Murre",
+    job: "Työ",
+    type: "Tyyppi",
+  },
+  empty: {
+    noCohortsTitle: "Ei vielä kohortteja",
+    noCohortsMessage:
+      "Luo ensimmäinen kohorttimäärityksesi aloittaaksesi tutkimuksen.",
+    newCohort: "Uusi kohortti",
+    noDataSourcesTitle: "Ei tietolähteitä",
+    noDataSourcesMessage: "Yhdistä CDM-tietokanta aloittaaksesi.",
+    addSource: "Lisää lähde",
+    noActiveJobsTitle: "Ei aktiivisia töitä",
+    noActiveJobsMessage:
+      "Työt näkyvät täällä, kun analyyseja suoritetaan.",
+  },
+  quickActions: {
+    connectDataSource: "Yhdistä tietolähde",
+    createCohortDefinition: "Luo kohorttimääritys",
+    buildConceptSet: "Rakenna käsitejoukko",
+    exploreDataQuality: "Tutki datan laatua",
+  },
+  statuses: {
+    healthy: "Terve",
+    cohort: {
+      active: "aktiivinen",
+      error: "virhe",
+      draft: "luonnos",
+      pending: "odottaa",
+    },
+    job: {
+      running: "käynnissä",
+      completed: "valmis",
+      failed: "epäonnistui",
+      success: "onnistui",
+      fail: "epäonnistui",
+      queued: "jonossa",
+    },
+  },
+});
+
+const jaDashboard: MessageTree = mergeMessageTrees(enDashboard, {
+  page: {
+    title: "ダッシュボード",
+    subtitle: "統合アウトカム研究プラットフォーム",
+  },
+  metrics: {
+    cdmSources: "CDM ソース",
+    runningJobs: "実行中のジョブ",
+    conceptSets: "コンセプトセット",
+    activeCohorts: "アクティブなコホート",
+    descriptions: {
+      cdmSources: "{{postgresqlCount}} PostgreSQL · {{personsText}}",
+      persons: "{{count}} 人",
+      noCdmLoaded: "CDM は読み込まれていません",
+      runningJobs:
+        "最近完了 {{completedCount}} 件 · 失敗 {{failedCount}} 件",
+      conceptSets:
+        "CDM テーブル {{populatedTables}}/{{totalTables}} 件入力済み · {{completeness}}% 完了",
+      activeCohorts:
+        "生成済み {{generatedCount}} 件 · コンセプトセット {{conceptSetCount}} 件",
+    },
+  },
+  error: {
+    title: "ダッシュボードデータを読み込めません",
+    message:
+      "API が利用できない可能性があります。利用可能な場合はキャッシュデータを表示します。",
+  },
+  cdm: {
+    title: "CDM 特性評価",
+    subtitle: "選択したソースの臨床データプロファイル",
+    viewFull: "すべて表示",
+    noSource: "特性評価を表示するにはデータソースを選択してください",
+    noDomainData: "利用可能なドメインデータがありません",
+    metrics: {
+      persons: "対象者",
+      medianObservationDuration: "観察期間中央値",
+      medianObservationDurationValue: "{{count}} 日",
+      totalEvents: "総イベント数",
+      dataCompleteness: "データ完全性",
+      tableCount: "{{populatedTables}}/{{totalTables}} テーブル",
+    },
+    demographics: "人口統計",
+    ageDistribution: "年齢分布",
+    noAgeDistributionData: "年齢分布データがありません",
+    age: "年齢",
+    gender: {
+      male: "男性",
+      female: "女性",
+    },
+    domainCounts: "CDM ドメイン件数",
+    domains: {
+      conditionOccurrence: "疾患",
+      drugExposure: "薬剤曝露",
+      procedureOccurrence: "処置",
+      measurement: "測定",
+      observation: "観察",
+      visitOccurrence: "来院",
+      drugEra: "薬剤期間",
+      conditionEra: "疾患期間",
+      deviceExposure: "デバイス",
+      death: "死亡",
+    },
+  },
+  panels: {
+    recentCohortActivity: "最近のコホート活動",
+    quickActions: "クイックアクション",
+    sourceHealth: "ソース状態",
+    activeJobs: "アクティブなジョブ",
+    viewAll: "すべて表示",
+  },
+  tables: {
+    cohort: "コホート",
+    subjects: "対象者",
+    status: "状態",
+    source: "ソース",
+    dialect: "方言",
+    job: "ジョブ",
+    type: "タイプ",
+  },
+  empty: {
+    noCohortsTitle: "まだコホートがありません",
+    noCohortsMessage: "研究を始めるには最初のコホート定義を作成してください。",
+    newCohort: "新規コホート",
+    noDataSourcesTitle: "データソースがありません",
+    noDataSourcesMessage: "開始するには CDM データベースを接続してください。",
+    addSource: "ソースを追加",
+    noActiveJobsTitle: "アクティブなジョブはありません",
+    noActiveJobsMessage:
+      "解析が実行されると、ジョブがここに表示されます。",
+  },
+  quickActions: {
+    connectDataSource: "データソースを接続",
+    createCohortDefinition: "コホート定義を作成",
+    buildConceptSet: "コンセプトセットを作成",
+    exploreDataQuality: "データ品質を探索",
+  },
+  statuses: {
+    healthy: "正常",
+    cohort: {
+      active: "アクティブ",
+      error: "エラー",
+      draft: "下書き",
+      pending: "保留中",
+    },
+    job: {
+      running: "実行中",
+      completed: "完了",
+      failed: "失敗",
+      success: "成功",
+      fail: "失敗",
+      queued: "キュー済み",
+    },
+  },
+});
+
+const zhDashboard: MessageTree = mergeMessageTrees(enDashboard, {
+  page: {
+    title: "仪表板",
+    subtitle: "统一的结局研究平台",
+  },
+  metrics: {
+    cdmSources: "CDM 数据源",
+    runningJobs: "运行中的作业",
+    conceptSets: "概念集",
+    activeCohorts: "活跃队列",
+    descriptions: {
+      cdmSources: "{{postgresqlCount}} PostgreSQL · {{personsText}}",
+      persons: "{{count}} 人",
+      noCdmLoaded: "未加载 CDM",
+      runningJobs: "最近完成 {{completedCount}} 个 · 失败 {{failedCount}} 个",
+      conceptSets:
+        "已填充 {{populatedTables}}/{{totalTables}} 个 CDM 表 · 完成 {{completeness}}%",
+      activeCohorts: "已生成 {{generatedCount}} 个 · 概念集 {{conceptSetCount}} 个",
+    },
+  },
+  error: {
+    title: "无法加载仪表板数据",
+    message: "API 可能不可用。如有缓存数据，将显示缓存数据。",
+  },
+  cdm: {
+    title: "CDM 特征描述",
+    subtitle: "所选数据源的临床数据概况",
+    viewFull: "查看全部",
+    noSource: "选择数据源以查看特征描述",
+    noDomainData: "没有可用的域数据",
+    metrics: {
+      persons: "人员",
+      medianObservationDuration: "观察期中位数",
+      medianObservationDurationValue: "{{count}} 天",
+      totalEvents: "事件总数",
+      dataCompleteness: "数据完整性",
+      tableCount: "{{populatedTables}}/{{totalTables}} 个表",
+    },
+    demographics: "人口统计",
+    ageDistribution: "年龄分布",
+    noAgeDistributionData: "没有年龄分布数据",
+    age: "年龄",
+    gender: {
+      male: "男性",
+      female: "女性",
+    },
+    domainCounts: "CDM 域计数",
+    domains: {
+      conditionOccurrence: "疾病",
+      drugExposure: "药物暴露",
+      procedureOccurrence: "操作",
+      measurement: "测量",
+      observation: "观察",
+      visitOccurrence: "就诊",
+      drugEra: "药物时期",
+      conditionEra: "疾病时期",
+      deviceExposure: "器械",
+      death: "死亡",
+    },
+  },
+  panels: {
+    recentCohortActivity: "最近的队列活动",
+    quickActions: "快捷操作",
+    sourceHealth: "数据源健康",
+    activeJobs: "活跃作业",
+    viewAll: "查看全部",
+  },
+  tables: {
+    cohort: "队列",
+    subjects: "对象",
+    status: "状态",
+    source: "数据源",
+    dialect: "方言",
+    job: "作业",
+    type: "类型",
+  },
+  empty: {
+    noCohortsTitle: "还没有队列",
+    noCohortsMessage: "创建你的第一个队列定义以开始研究。",
+    newCohort: "新建队列",
+    noDataSourcesTitle: "没有数据源",
+    noDataSourcesMessage: "连接 CDM 数据库以开始。",
+    addSource: "添加数据源",
+    noActiveJobsTitle: "没有活跃作业",
+    noActiveJobsMessage: "分析运行时，作业会显示在这里。",
+  },
+  quickActions: {
+    connectDataSource: "连接数据源",
+    createCohortDefinition: "创建队列定义",
+    buildConceptSet: "构建概念集",
+    exploreDataQuality: "探索数据质量",
+  },
+  statuses: {
+    healthy: "健康",
+    cohort: {
+      active: "活跃",
+      error: "错误",
+      draft: "草稿",
+      pending: "待处理",
+    },
+    job: {
+      running: "运行中",
+      completed: "已完成",
+      failed: "失败",
+      success: "成功",
+      fail: "失败",
+      queued: "排队中",
+    },
+  },
+});
+
 export const dashboardResources: Record<string, MessageTree> = {
   "en-US": enDashboard,
   "es-ES": esDashboard,
   "fr-FR": frDashboard,
   "de-DE": deDashboard,
   "pt-BR": ptDashboard,
+  "fi-FI": fiDashboard,
+  "ja-JP": jaDashboard,
+  "zh-Hans": zhDashboard,
   "ko-KR": koDashboard,
 };

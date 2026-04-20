@@ -3896,6 +3896,78 @@ const ptAbbyLayout: MessageTree = mergeMessageTrees(enAbbyLayout, {
   },
 });
 
+const fiAbbyLayout: MessageTree = mergeMessageTrees(enAbbyLayout, {
+  panel: {
+    dialogLabel: "Tekoälyavustaja",
+    title: "Abby AI",
+    conversationHistory: "Keskusteluhistoria",
+    newChat: "Uusi keskustelu",
+    closePanel: "Sulje tekoälypaneeli",
+    backToChat: "Takaisin chattiin",
+    noPastConversations: "Ei aiempia keskusteluja",
+    deleteConversation: "Poista keskustelu",
+    suggestedPrompts: "Ehdotetut kehotteet",
+    sendMessage: "Lähetä viesti",
+    untitledConversation: "Nimetön",
+    messagesAbbrev: "viestiä",
+    inputPlaceholder: "Kysy Abbylta aiheesta {{context}}...",
+    time: {
+      justNow: "juuri nyt",
+      minutesAgo: "{{count}} min sitten",
+      hoursAgo: "{{count}} h sitten",
+      daysAgo: "{{count}} pv sitten",
+    },
+  },
+});
+
+const jaAbbyLayout: MessageTree = mergeMessageTrees(enAbbyLayout, {
+  panel: {
+    dialogLabel: "AI アシスタント",
+    title: "Abby AI",
+    conversationHistory: "会話履歴",
+    newChat: "新しいチャット",
+    closePanel: "AI パネルを閉じる",
+    backToChat: "チャットに戻る",
+    noPastConversations: "過去の会話はありません",
+    deleteConversation: "会話を削除",
+    suggestedPrompts: "おすすめプロンプト",
+    sendMessage: "メッセージを送信",
+    untitledConversation: "無題",
+    messagesAbbrev: "件",
+    inputPlaceholder: "{{context}} について Abby に質問...",
+    time: {
+      justNow: "たった今",
+      minutesAgo: "{{count}} 分前",
+      hoursAgo: "{{count}} 時間前",
+      daysAgo: "{{count}} 日前",
+    },
+  },
+});
+
+const zhAbbyLayout: MessageTree = mergeMessageTrees(enAbbyLayout, {
+  panel: {
+    dialogLabel: "AI 助手",
+    title: "Abby AI",
+    conversationHistory: "会话历史",
+    newChat: "新建聊天",
+    closePanel: "关闭 AI 面板",
+    backToChat: "返回聊天",
+    noPastConversations: "没有历史会话",
+    deleteConversation: "删除会话",
+    suggestedPrompts: "建议提示",
+    sendMessage: "发送消息",
+    untitledConversation: "未命名",
+    messagesAbbrev: "条消息",
+    inputPlaceholder: "向 Abby 询问 {{context}}...",
+    time: {
+      justNow: "刚刚",
+      minutesAgo: "{{count}} 分钟前",
+      hoursAgo: "{{count}} 小时前",
+      daysAgo: "{{count}} 天前",
+    },
+  },
+});
+
 function withAbbyLayout(
   namespaces: ParthenonNamespaces,
   abbyLayout: MessageTree,
@@ -4124,6 +4196,117 @@ const ptCommonUi: MessageTree = mergeMessageTrees(enCommonUi, {
     sort: {
       selectedFirst: "Selecionados primeiro",
       byCount: "Por contagem",
+    },
+  },
+});
+
+const fiCommonUi: MessageTree = mergeMessageTrees(enCommonUi, {
+  aria: {
+    breadcrumb: "Murupolku",
+    copyCode: "Kopioi koodi",
+    close: "Sulje",
+    dismiss: "Hylkää",
+  },
+  codeFallback: "Koodi",
+  job: {
+    status: {
+      pending: "Odottaa",
+      running: "Käynnissä",
+      completed: "Valmis",
+      failed: "Epäonnistui",
+    },
+    progress: "Edistyminen",
+    duration: "Kesto",
+    elapsed: "Kulunut",
+    completedSuccessfully: "Työ valmistui onnistuneesti.",
+  },
+  tags: {
+    filterByTag: "Suodata tunnisteella:",
+    more: "{{count}} lisää",
+    search: "Hae",
+    clearAll: "Tyhjennä kaikki",
+    browseTags: "Selaa tunnisteita ({{count}})",
+    selected: "{{count}} valittu",
+    noMatches: "Mikään tunniste ei vastaa hakua \"{{query}}\"",
+    done: "Valmis",
+    searchPlaceholder: "Hae tunnisteita...",
+    sort: {
+      selectedFirst: "Valitut ensin",
+      byCount: "Määrän mukaan",
+    },
+  },
+});
+
+const jaCommonUi: MessageTree = mergeMessageTrees(enCommonUi, {
+  aria: {
+    breadcrumb: "パンくず",
+    copyCode: "コードをコピー",
+    close: "閉じる",
+    dismiss: "閉じる",
+  },
+  codeFallback: "コード",
+  job: {
+    status: {
+      pending: "保留中",
+      running: "実行中",
+      completed: "完了",
+      failed: "失敗",
+    },
+    progress: "進捗",
+    duration: "期間",
+    elapsed: "経過時間",
+    completedSuccessfully: "ジョブが正常に完了しました。",
+  },
+  tags: {
+    filterByTag: "タグでフィルター:",
+    more: "ほか {{count}} 件",
+    search: "検索",
+    clearAll: "すべてクリア",
+    browseTags: "タグを参照 ({{count}})",
+    selected: "{{count}} 件選択",
+    noMatches: "\"{{query}}\" に一致するタグはありません",
+    done: "完了",
+    searchPlaceholder: "タグを検索...",
+    sort: {
+      selectedFirst: "選択済みを先に",
+      byCount: "件数順",
+    },
+  },
+});
+
+const zhCommonUi: MessageTree = mergeMessageTrees(enCommonUi, {
+  aria: {
+    breadcrumb: "面包屑",
+    copyCode: "复制代码",
+    close: "关闭",
+    dismiss: "忽略",
+  },
+  codeFallback: "代码",
+  job: {
+    status: {
+      pending: "待处理",
+      running: "运行中",
+      completed: "已完成",
+      failed: "失败",
+    },
+    progress: "进度",
+    duration: "持续时间",
+    elapsed: "已用时间",
+    completedSuccessfully: "作业已成功完成。",
+  },
+  tags: {
+    filterByTag: "按标签筛选:",
+    more: "还有 {{count}} 个",
+    search: "搜索",
+    clearAll: "全部清除",
+    browseTags: "浏览标签 ({{count}})",
+    selected: "已选择 {{count}} 个",
+    noMatches: "没有标签匹配 \"{{query}}\"",
+    done: "完成",
+    searchPlaceholder: "搜索标签...",
+    sort: {
+      selectedFirst: "已选优先",
+      byCount: "按数量",
     },
   },
 });
@@ -5757,6 +5940,804 @@ const ptAuthSetup: MessageTree = mergeMessageTrees(enAuthSetup, {
   },
 });
 
+const fiAuthSetup: MessageTree = mergeMessageTrees(enAuthSetup, {
+  setup: {
+    wizard: {
+      steps: {
+        welcome: "Tervetuloa",
+        security: "Tietoturva",
+        health: "Tila",
+        ai: "Tekoäly",
+        auth: "Tunnistautuminen",
+        dataSources: "Tietolähteet",
+        complete: "Valmis",
+      },
+      close: "Sulje",
+      skipSetup: "Ohita käyttöönotto - palaa milloin tahansa hallinnasta",
+      previous: "Edellinen",
+      next: "Seuraava",
+      skip: "Ohita",
+      skipStep: "Ohita tämä vaihe - määritä myöhemmin hallinnassa",
+    },
+    welcome: {
+      title: "Tervetuloa Parthenoniin",
+      intro:
+        "Määritetään tutkimusalustasi. Tämä ohjattu käyttöönotto käy läpi tärkeimmät vaiheet; jokaisen voi ohittaa ja avata myöhemmin hallintapaneelista.",
+      configureTitle: "Mitä määritämme",
+      beforeTitle: "Ennen kuin aloitat",
+      optionalNote: "Mikään valinnaisista vaiheista ei ole pakollinen.",
+      overview: {
+        systemHealth: {
+          label: "Järjestelmän tila",
+          description: "Varmista, että kaikki alustan palvelut toimivat oikein.",
+        },
+        aiProvider: {
+          label: "Tekoälypalvelu",
+          description: "Määritä, mikä tekoälytausta käyttää Abbya.",
+        },
+        authentication: {
+          label: "Tunnistautuminen",
+          description:
+            "Määritä SSO-palvelut, kuten LDAP, OAuth tai OIDC.",
+        },
+        dataSources: {
+          label: "Tietolähteet",
+          description:
+            "Yhdistä CDM-tietokantoja tai tuo lähteitä vanhasta WebAPIsta.",
+        },
+      },
+      before: {
+        cdm: "OMOP CDM -tietokantasi on saavutettavissa tältä palvelimelta",
+        docker:
+          "Docker ja kaikki kontit ovat käynnissä (tarkistetaan seuraavassa vaiheessa)",
+        ollama:
+          "Ollama on käynnissä paikallisesti, jos haluat käyttää tekoälyominaisuuksia (valinnainen)",
+        sso: "Sinulla on organisaatiosi SSO-tiedot, jos otat kertakirjautumisen käyttöön (valinnainen)",
+      },
+    },
+    changePassword: {
+      strength: {
+        weak: "Heikko",
+        fair: "Kohtalainen",
+        good: "Hyvä",
+        strong: "Vahva",
+        excellent: "Erinomainen",
+        tooShort: "Liian lyhyt",
+      },
+      errors: {
+        mismatch: "Salasanat eivät täsmää.",
+        tooShort: "Uuden salasanan on oltava vähintään 8 merkkiä.",
+        same: "Uuden salasanan on oltava eri kuin nykyinen salasana.",
+        failed: "Salasanan vaihto epäonnistui. Yritä uudelleen.",
+      },
+      successTitle: "Salasana päivitetty",
+      successDescription:
+        "Tilisi on suojattu. Jatka seuraavaan vaiheeseen.",
+      title: "Suojaa tilisi",
+      intro:
+        "Asennuksen aikana luotiin väliaikainen salasana. Aseta pysyvä salasana ennen jatkamista.",
+      temporaryTitle:
+        "Asennuksen aikana luotiin väliaikaiset tunnistetiedot",
+      temporaryPrefix: "Väliaikainen salasanasi on tiedostossa",
+      temporarySuffix:
+        "repositoriojuuressa. Syötä se alle ja valitse pysyvä salasana.",
+      currentLabel: "Nykyinen (väliaikainen) salasana",
+      currentPlaceholder: "Syötä väliaikainen salasana",
+      newLabel: "Uusi salasana",
+      newPlaceholder: "Vähintään 8 merkkiä",
+      toggleNewVisibility: "Näytä tai piilota uusi salasana",
+      confirmLabel: "Vahvista uusi salasana",
+      confirmPlaceholder: "Toista uusi salasana",
+      submit: "Aseta pysyvä salasana",
+    },
+    systemHealth: {
+      status: {
+        healthy: "Terve",
+        degraded: "Heikentynyt",
+        down: "Alhaalla",
+      },
+      queue: {
+        pending: "Odottaa",
+        failed: "Epäonnistui",
+      },
+      aiUnhealthy:
+        "Abby AI ei vastaa - määritä palvelu seuraavassa vaiheessa.",
+      configureAi: "Määritä tekoäly",
+      title: "Järjestelmän tilatarkistus",
+      intro: "Varmistetaan, että kaikki alustan palvelut toimivat oikein.",
+      refresh: "Päivitä",
+      checking: "Tarkistetaan palveluja...",
+      overall: "Järjestelmä {{status}}",
+      lastChecked: "Viimeksi tarkistettu {{time}}",
+      autoRefresh: "Päivittyy automaattisesti 30 sekunnin välein.",
+    },
+    aiProvider: {
+      regions: {
+        local: "Paikallinen",
+        us: "Yhdysvallat",
+        china: "Kiina",
+        eu: "EU",
+      },
+      switchToThis: "Vaihda tähän",
+      testFailed: "Yhteystesti epäonnistui.",
+      loading: "Ladataan tekoälypalveluja...",
+      title: "Tekoälypalvelun määritys",
+      intro:
+        "Määritä, mikä tekoälytausta käyttää Abbya, tutkimusavustajaa. Vain yksi palvelu voi olla aktiivinen kerrallaan.",
+      activeProvider: "Aktiivinen palvelu:",
+      model: "Malli",
+      modelPlaceholder: "Mallin nimi",
+      apiKey: "API-avain",
+      baseUrl: "Perus-URL",
+      save: "Tallenna",
+      testConnection: "Testaa yhteys",
+      hideOtherProviders: "Piilota muut palvelut ({{count}})",
+      showOtherProviders: "Näytä muut palvelut ({{count}})",
+    },
+    authentication: {
+      providers: {
+        ldap: {
+          label: "LDAP / Active Directory",
+          description:
+            "Tunnistaudu AD:tä tai mitä tahansa LDAP v3 -hakemistoa vasten.",
+        },
+        oauth2: {
+          label: "OAuth 2.0",
+          description:
+            "Delegoi tunnistautuminen GitHubiin, Googleen, Microsoftiin tai mukautettuun palveluun.",
+        },
+        saml2: {
+          label: "SAML 2.0",
+          description:
+            "Yritystason SSO Oktan, Azure AD:n, ADFS:n jne. kautta.",
+        },
+        oidc: {
+          label: "OpenID Connect",
+          description: "Moderni SSO PKCE:n ja OIDC-discoveryn avulla.",
+        },
+      },
+      enabled: "Käytössä",
+      disabled: "Poissa käytöstä",
+      configure: "Määritä",
+      testConnection: "Testaa yhteys",
+      connectionSuccessful: "Yhteys onnistui",
+      connectionFailed: "Yhteys epäonnistui",
+      loading: "Ladataan tunnistautumispalveluja...",
+      title: "Tunnistautumispalvelut",
+      intro:
+        "Määritä ulkoiset identiteettipalvelut kertakirjautumista varten. Tämä vaihe on valinnainen; paikallinen käyttäjätunnus- ja salasanakirjautuminen on aina käytettävissä.",
+      usernamePassword: "Käyttäjätunnus ja salasana",
+      builtIn: "Sisäänrakennettu Sanctum-tunnistautuminen - aina käytössä.",
+      alwaysOn: "Aina käytössä",
+    },
+    onboarding: {
+      tour: {
+        sidebarTitle: "Navigointisivupalkki",
+        sidebarContent:
+          "Kaikki tutkimustyökalusi ovat täällä: Data Explorer, sanasto, kohorttimääritykset, käsitejoukot, analyysit ja paljon muuta.",
+        commandTitle: "Komentopaletti (Cmd K)",
+        commandContent:
+          "Siirry nopeasti mille tahansa sivulle tai toimintoon ilman valikoiden läpikäyntiä. Kokeile Cmd K (tai Ctrl+K) ja hae 'cohort'.",
+        dataSourcesTitle: "Tietolähteet",
+        dataSourcesContent:
+          "Yhdistä CDM-lähteesi täällä. Kaikki analyysit suoritetaan näitä tietolähteitä vasten.",
+        cohortDefinitionsTitle: "Kohorttimääritykset",
+        cohortDefinitionsContent:
+          "Rakenna OHDSI-yhteensopivia kohorttimäärityksiä sisäänotto- ja poissulkukriteereillä ja luo laskennat mihin tahansa yhdistettyyn CDM:ään.",
+        vocabularyTitle: "Sanastoselain",
+        vocabularyContent:
+          "Hae yli 7 miljoonasta OMOP-käsitteestä, selaa hierarkioita ja rakenna käsitejoukkoja kohorttimäärityksiä varten.",
+      },
+      cards: {
+        vocabularyTitle: "Tutki sanastoa",
+        vocabularyDescription:
+          "Hae yli 7 miljoonasta OMOP-käsitteestä ja rakenna käsitejoukkoja.",
+        cohortTitle: "Rakenna kohortti",
+        cohortDescription:
+          "Määritä sisäänotto- ja poissulkukriteerit ja luo laskennat.",
+        quickStartTitle: "Lue pika-aloitus",
+        quickStartDescription: "Nollasta kohorttilaskentaan 15 minuutissa.",
+      },
+      skipAria: "Ohita perehdytys",
+      title: "Tervetuloa Parthenoniin",
+      intro:
+        "Moderni OMOP-pohjainen vaikuttavuustutkimuksen alusta. Aloitetaan.",
+      startTour: "Aloita pikakierros",
+      skip: "Tunnen jo tämän - ohita",
+    },
+    dataSources: {
+      demoTitle: "Eunomia GiBleed -demodatajoukko ladattu",
+      demoPrefix: "Synteettinen OMOP CDM -datajoukko, jossa on",
+      demoPatients: "2 694 potilasta",
+      demoSuffix:
+        "ja ruoansulatuskanavan verenvuotojaksoja. Turvallinen kohorttimäärityksiin ja karakterisointianalyyseihin; ihanteellinen Parthenonin tutkimiseen ennen oman CDM:n yhdistämistä.",
+      loading: "Ladataan tietolähteitä...",
+      title: "Tietolähteet",
+      intro:
+        "Yhdistä CDM-tietokantoja kohorttimääritysten ja analyysien suorittamista varten. Voit myös tuoda lähteitä vanhasta OHDSI WebAPI -instanssista.",
+      configuredSources: "Määritetyt lähteet ({{count}})",
+      emptyTitle: "Ei vielä tietolähteitä",
+      emptyDescription:
+        "Tuo vanhasta WebAPI-instanssista tai lisää lähteitä myöhemmin Tietolähteet-sivulta.",
+      importToggle: "Tuo vanhasta WebAPIsta",
+      webApiUrl: "WebAPI-URL",
+      authType: "Tunnistautumistyyppi",
+      auth: {
+        none: "Ei mitään",
+        basic: "Basic",
+        bearer: "Bearer-token",
+        basicCredentials: "Käyttäjätunnus:Salasana",
+        bearerCredentials: "Token",
+        basicPlaceholder: "käyttäjä:salasana",
+        bearerPlaceholder: "Bearer-token",
+      },
+      importSources: "Tuo lähteet",
+      importSuccess: "Tuotiin {{count}} {{label}}",
+      importSkipped: ", {{count}} ohitettiin (ovat jo olemassa)",
+      sourceSingular: "lähde",
+      sourcePlural: "lähdettä",
+      importFailed: "Tuonti epäonnistui. Tarkista URL ja yritä uudelleen.",
+      managePrefix: "Hallitse tietolähteitä milloin tahansa kohdasta",
+      manageLink: "Asetukset > Tietolähteet",
+    },
+    complete: {
+      summaryItems: {
+        accountSecured: "Tili suojattu",
+        systemHealthVerified: "Järjestelmän tila tarkistettu",
+        aiProviderConfigured: "Tekoälypalvelu määritetty",
+        authenticationConfigured: "Tunnistautuminen määritetty",
+        dataSourcesConnected: "Tietolähteet yhdistetty",
+      },
+      nextSteps: {
+        exploreDemoData: "Tutki demodataa",
+        exploreDemoDataDescription: "Selaa Eunomia GiBleed -datajoukkoa",
+        createFirstCohort: "Luo ensimmäinen kohorttisi",
+        createFirstCohortDescription: "Rakenna potilaskohortin määritys",
+        inviteTeam: "Kutsu tiimin jäseniä",
+        inviteTeamDescription: "Lisää käyttäjiä ja määritä rooleja",
+      },
+      title: "Parthenon on valmis",
+      allDone:
+        "Kaikki käyttöönoton vaiheet on suoritettu. Voit palata tähän ohjattuun toimintoon milloin tahansa hallinnasta.",
+      partialDone:
+        "{{completed}}/{{total}} vaihetta suoritettu - ohitetut vaiheet voi määrittää milloin tahansa.",
+      setupSummary: "Käyttöönoton yhteenveto",
+      skipped: "(ohitettu)",
+      goBackTitle: "Palaa kohtaan {{label}}",
+      fix: "Korjaa",
+      nextTitle: "Mitä seuraavaksi",
+      launch: "Käynnistä Parthenon",
+    },
+  },
+});
+
+const jaAuthSetup: MessageTree = mergeMessageTrees(enAuthSetup, {
+  setup: {
+    wizard: {
+      steps: {
+        welcome: "ようこそ",
+        security: "セキュリティ",
+        health: "ヘルス",
+        ai: "AI",
+        auth: "認証",
+        dataSources: "データソース",
+        complete: "完了",
+      },
+      close: "閉じる",
+      skipSetup: "セットアップをスキップ - 管理からいつでも戻れます",
+      previous: "前へ",
+      next: "次へ",
+      skip: "スキップ",
+      skipStep: "このステップをスキップ - 後で管理から設定",
+    },
+    welcome: {
+      title: "Parthenon へようこそ",
+      intro:
+        "研究プラットフォームを設定しましょう。このウィザードでは必須の設定ステップを案内します。各ステップはスキップでき、管理パネルからいつでも再開できます。",
+      configureTitle: "設定する内容",
+      beforeTitle: "始める前に",
+      optionalNote: "続行するために必須の任意ステップはありません。",
+      overview: {
+        systemHealth: {
+          label: "システムヘルス",
+          description:
+            "すべてのプラットフォームサービスが正しく稼働していることを確認します。",
+        },
+        aiProvider: {
+          label: "AI プロバイダー",
+          description: "Abby を動かす AI バックエンドを設定します。",
+        },
+        authentication: {
+          label: "認証",
+          description:
+            "LDAP、OAuth、OIDC などの SSO プロバイダーを設定します。",
+        },
+        dataSources: {
+          label: "データソース",
+          description:
+            "CDM データベースを接続するか、レガシー WebAPI からインポートします。",
+        },
+      },
+      before: {
+        cdm: "このサーバーから OMOP CDM データベースにアクセスできる",
+        docker:
+          "Docker とすべてのコンテナが実行中である (次のステップで確認)",
+        ollama:
+          "AI 機能を使う場合、Ollama がローカルで実行されている (任意)",
+        sso: "シングルサインオンを有効にする場合、組織の SSO 詳細がある (任意)",
+      },
+    },
+    changePassword: {
+      strength: {
+        weak: "弱い",
+        fair: "普通",
+        good: "良い",
+        strong: "強い",
+        excellent: "非常に強い",
+        tooShort: "短すぎます",
+      },
+      errors: {
+        mismatch: "パスワードが一致しません。",
+        tooShort: "新しいパスワードは 8 文字以上にしてください。",
+        same: "新しいパスワードは現在のパスワードと異なる必要があります。",
+        failed: "パスワード変更に失敗しました。もう一度お試しください。",
+      },
+      successTitle: "パスワードを更新しました",
+      successDescription:
+        "アカウントは保護されました。次のステップに進んでください。",
+      title: "アカウントを保護",
+      intro:
+        "インストール中に一時パスワードが生成されました。続行する前に恒久パスワードを設定してください。",
+      temporaryTitle:
+        "インストール中に一時認証情報が生成されました",
+      temporaryPrefix: "一時パスワードは",
+      temporarySuffix:
+        "リポジトリルートにあります。下に入力し、恒久パスワードを選択してください。",
+      currentLabel: "現在の (一時) パスワード",
+      currentPlaceholder: "一時パスワードを入力",
+      newLabel: "新しいパスワード",
+      newPlaceholder: "8 文字以上",
+      toggleNewVisibility: "新しいパスワードの表示/非表示",
+      confirmLabel: "新しいパスワードを確認",
+      confirmPlaceholder: "新しいパスワードを再入力",
+      submit: "恒久パスワードを設定",
+    },
+    systemHealth: {
+      status: {
+        healthy: "正常",
+        degraded: "低下",
+        down: "停止",
+      },
+      queue: {
+        pending: "保留中",
+        failed: "失敗",
+      },
+      aiUnhealthy:
+        "Abby AI が応答していません - 次のステップでプロバイダーを設定してください。",
+      configureAi: "AI を設定",
+      title: "システムヘルスチェック",
+      intro:
+        "すべてのプラットフォームサービスが正しく稼働していることを確認しています。",
+      refresh: "更新",
+      checking: "サービスを確認中...",
+      overall: "システム {{status}}",
+      lastChecked: "{{time}} に最終確認",
+      autoRefresh: "30 秒ごとに自動更新されます。",
+    },
+    aiProvider: {
+      regions: {
+        local: "ローカル",
+        us: "米国",
+        china: "中国",
+        eu: "EU",
+      },
+      switchToThis: "これに切り替え",
+      testFailed: "接続テストに失敗しました。",
+      loading: "AI プロバイダーを読み込み中...",
+      title: "AI プロバイダー設定",
+      intro:
+        "研究アシスタント Abby を動かす AI バックエンドを設定します。同時にアクティブにできるプロバイダーは 1 つだけです。",
+      activeProvider: "アクティブなプロバイダー:",
+      model: "モデル",
+      modelPlaceholder: "モデル名",
+      apiKey: "API キー",
+      baseUrl: "ベース URL",
+      save: "保存",
+      testConnection: "接続をテスト",
+      hideOtherProviders: "他のプロバイダーを隠す ({{count}})",
+      showOtherProviders: "他のプロバイダーを表示 ({{count}})",
+    },
+    authentication: {
+      providers: {
+        ldap: {
+          label: "LDAP / Active Directory",
+          description:
+            "AD または任意の LDAP v3 ディレクトリで認証します。",
+        },
+        oauth2: {
+          label: "OAuth 2.0",
+          description:
+            "GitHub、Google、Microsoft、またはカスタムプロバイダーに認証を委任します。",
+        },
+        saml2: {
+          label: "SAML 2.0",
+          description: "Okta、Azure AD、ADFS などによるエンタープライズ SSO。",
+        },
+        oidc: {
+          label: "OpenID Connect",
+          description: "PKCE と OIDC discovery によるモダン SSO。",
+        },
+      },
+      enabled: "有効",
+      disabled: "無効",
+      configure: "設定",
+      testConnection: "接続をテスト",
+      connectionSuccessful: "接続に成功しました",
+      connectionFailed: "接続に失敗しました",
+      loading: "認証プロバイダーを読み込み中...",
+      title: "認証プロバイダー",
+      intro:
+        "シングルサインオン用の外部 ID プロバイダーを設定します。このステップは任意です。ローカルのユーザー名/パスワード認証は常に利用できます。",
+      usernamePassword: "ユーザー名とパスワード",
+      builtIn: "組み込み Sanctum 認証 - 常に有効。",
+      alwaysOn: "常に有効",
+    },
+    onboarding: {
+      tour: {
+        sidebarTitle: "ナビゲーションサイドバー",
+        sidebarContent:
+          "研究ツールはすべてここにあります: データエクスプローラー、語彙、コホート定義、コンセプトセット、解析など。",
+        commandTitle: "コマンドパレット (Cmd K)",
+        commandContent:
+          "メニューをたどらず、任意のページやアクションへすばやく移動できます。Cmd K (または Ctrl+K) を試し、'cohort' を検索してください。",
+        dataSourcesTitle: "データソース",
+        dataSourcesContent:
+          "ここで CDM ソースを接続します。すべての解析はこれらのデータソースに対して実行されます。",
+        cohortDefinitionsTitle: "コホート定義",
+        cohortDefinitionsContent:
+          "組み入れ/除外基準を使って OHDSI 互換のコホート定義を作成し、接続済み CDM に対して件数を生成します。",
+        vocabularyTitle: "語彙エクスプローラー",
+        vocabularyContent:
+          "700 万件以上の OMOP コンセプトを検索し、階層を参照し、コホート定義で使うコンセプトセットを作成します。",
+      },
+      cards: {
+        vocabularyTitle: "語彙を探索",
+        vocabularyDescription:
+          "700 万件以上の OMOP コンセプトを検索し、コンセプトセットを作成します。",
+        cohortTitle: "コホートを作成",
+        cohortDescription: "組み入れ/除外基準を定義し、件数を生成します。",
+        quickStartTitle: "クイックスタートを読む",
+        quickStartDescription: "ゼロから 15 分でコホート件数まで。",
+      },
+      skipAria: "オンボーディングをスキップ",
+      title: "Parthenon へようこそ",
+      intro: "モダンな OMOP アウトカム研究プラットフォームです。始めましょう。",
+      startTour: "クイックツアーを開始",
+      skip: "すでに知っています - スキップ",
+    },
+    dataSources: {
+      demoTitle: "Eunomia GiBleed デモデータセットを読み込みました",
+      demoPrefix: "合成 OMOP CDM データセットで、",
+      demoPatients: "2,694 人の患者",
+      demoSuffix:
+        "と消化管出血エピソードを含みます。コホート定義と特性評価解析を安全に実行でき、本物の CDM を接続する前に Parthenon を探索するのに最適です。",
+      loading: "データソースを読み込み中...",
+      title: "データソース",
+      intro:
+        "CDM データベースを接続してコホート定義と解析を実行します。レガシー OHDSI WebAPI インスタンスからソースをインポートすることもできます。",
+      configuredSources: "設定済みソース ({{count}})",
+      emptyTitle: "まだデータソースがありません",
+      emptyDescription:
+        "レガシー WebAPI インスタンスからインポートするか、後でデータソースページから追加してください。",
+      importToggle: "レガシー WebAPI からインポート",
+      webApiUrl: "WebAPI URL",
+      authType: "認証タイプ",
+      auth: {
+        none: "なし",
+        basic: "Basic",
+        bearer: "Bearer トークン",
+        basicCredentials: "ユーザー名:パスワード",
+        bearerCredentials: "トークン",
+        basicPlaceholder: "user:password",
+        bearerPlaceholder: "Bearer トークン",
+      },
+      importSources: "ソースをインポート",
+      importSuccess: "{{count}} {{label}} をインポートしました",
+      importSkipped: "、{{count}} 件をスキップしました (既に存在)",
+      sourceSingular: "ソース",
+      sourcePlural: "ソース",
+      importFailed: "インポートに失敗しました。URL を確認して再試行してください。",
+      managePrefix: "データソースはいつでも次から管理できます:",
+      manageLink: "設定 > データソース",
+    },
+    complete: {
+      summaryItems: {
+        accountSecured: "アカウント保護済み",
+        systemHealthVerified: "システムヘルス確認済み",
+        aiProviderConfigured: "AI プロバイダー設定済み",
+        authenticationConfigured: "認証設定済み",
+        dataSourcesConnected: "データソース接続済み",
+      },
+      nextSteps: {
+        exploreDemoData: "デモデータを探索",
+        exploreDemoDataDescription: "Eunomia GiBleed データセットを参照",
+        createFirstCohort: "最初のコホートを作成",
+        createFirstCohortDescription: "患者コホート定義を作成",
+        inviteTeam: "チームメンバーを招待",
+        inviteTeamDescription: "ユーザーを追加してロールを割り当て",
+      },
+      title: "Parthenon の準備ができました",
+      allDone:
+        "すべてのセットアップステップが完了しました。このウィザードには管理からいつでも戻れます。",
+      partialDone:
+        "{{total}} ステップ中 {{completed}} ステップ完了 - スキップしたステップはいつでも設定できます。",
+      setupSummary: "セットアップ概要",
+      skipped: "(スキップ済み)",
+      goBackTitle: "{{label}} に戻る",
+      fix: "修正",
+      nextTitle: "次に行うこと",
+      launch: "Parthenon を起動",
+    },
+  },
+});
+
+const zhAuthSetup: MessageTree = mergeMessageTrees(enAuthSetup, {
+  setup: {
+    wizard: {
+      steps: {
+        welcome: "欢迎",
+        security: "安全",
+        health: "健康",
+        ai: "AI",
+        auth: "认证",
+        dataSources: "数据源",
+        complete: "完成",
+      },
+      close: "关闭",
+      skipSetup: "跳过设置 - 可随时从管理中返回",
+      previous: "上一步",
+      next: "下一步",
+      skip: "跳过",
+      skipStep: "跳过此步骤 - 稍后在管理中配置",
+    },
+    welcome: {
+      title: "欢迎使用 Parthenon",
+      intro:
+        "让我们配置你的研究平台。此向导会带你完成必要的设置步骤；每一步都可以跳过，并可随时从管理面板重新访问。",
+      configureTitle: "我们将配置什么",
+      beforeTitle: "开始之前",
+      optionalNote: "所有可选步骤都不是继续所必需的。",
+      overview: {
+        systemHealth: {
+          label: "系统健康",
+          description: "验证所有平台服务是否正常运行。",
+        },
+        aiProvider: {
+          label: "AI 提供方",
+          description: "配置为 Abby 提供能力的 AI 后端。",
+        },
+        authentication: {
+          label: "认证",
+          description: "设置 LDAP、OAuth 或 OIDC 等 SSO 提供方。",
+        },
+        dataSources: {
+          label: "数据源",
+          description: "连接 CDM 数据库，或从旧版 WebAPI 导入。",
+        },
+      },
+      before: {
+        cdm: "此服务器可以访问你的 OMOP CDM 数据库",
+        docker: "Docker 和所有容器正在运行 (下一步会验证)",
+        ollama: "如果要使用 AI 功能，Ollama 已在本地运行 (可选)",
+        sso: "如果启用单点登录，你已准备好组织的 SSO 详细信息 (可选)",
+      },
+    },
+    changePassword: {
+      strength: {
+        weak: "弱",
+        fair: "一般",
+        good: "良好",
+        strong: "强",
+        excellent: "极强",
+        tooShort: "太短",
+      },
+      errors: {
+        mismatch: "密码不匹配。",
+        tooShort: "新密码必须至少 8 个字符。",
+        same: "新密码必须不同于当前密码。",
+        failed: "密码更改失败。请重试。",
+      },
+      successTitle: "密码已更新",
+      successDescription: "你的账户已受到保护。继续下一步。",
+      title: "保护你的账户",
+      intro: "安装期间生成了临时密码。继续之前请设置永久密码。",
+      temporaryTitle: "安装期间生成了临时凭据",
+      temporaryPrefix: "你的临时密码位于",
+      temporarySuffix: "仓库根目录。请在下方输入，然后选择永久密码。",
+      currentLabel: "当前 (临时) 密码",
+      currentPlaceholder: "输入临时密码",
+      newLabel: "新密码",
+      newPlaceholder: "至少 8 个字符",
+      toggleNewVisibility: "显示或隐藏新密码",
+      confirmLabel: "确认新密码",
+      confirmPlaceholder: "再次输入新密码",
+      submit: "设置永久密码",
+    },
+    systemHealth: {
+      status: {
+        healthy: "健康",
+        degraded: "降级",
+        down: "不可用",
+      },
+      queue: {
+        pending: "待处理",
+        failed: "失败",
+      },
+      aiUnhealthy: "Abby AI 无响应 - 请在下一步配置提供方。",
+      configureAi: "配置 AI",
+      title: "系统健康检查",
+      intro: "正在验证所有平台服务是否正常运行。",
+      refresh: "刷新",
+      checking: "正在检查服务...",
+      overall: "系统 {{status}}",
+      lastChecked: "最后检查时间 {{time}}",
+      autoRefresh: "每 30 秒自动刷新。",
+    },
+    aiProvider: {
+      regions: {
+        local: "本地",
+        us: "美国",
+        china: "中国",
+        eu: "欧盟",
+      },
+      switchToThis: "切换到此项",
+      testFailed: "连接测试失败。",
+      loading: "正在加载 AI 提供方...",
+      title: "AI 提供方配置",
+      intro:
+        "配置为研究助手 Abby 提供能力的 AI 后端。一次只能有一个提供方处于活动状态。",
+      activeProvider: "活动提供方:",
+      model: "模型",
+      modelPlaceholder: "模型名称",
+      apiKey: "API 密钥",
+      baseUrl: "基础 URL",
+      save: "保存",
+      testConnection: "测试连接",
+      hideOtherProviders: "隐藏其他提供方 ({{count}})",
+      showOtherProviders: "显示其他提供方 ({{count}})",
+    },
+    authentication: {
+      providers: {
+        ldap: {
+          label: "LDAP / Active Directory",
+          description: "使用 AD 或任何 LDAP v3 目录进行认证。",
+        },
+        oauth2: {
+          label: "OAuth 2.0",
+          description:
+            "将认证委托给 GitHub、Google、Microsoft 或自定义提供方。",
+        },
+        saml2: {
+          label: "SAML 2.0",
+          description: "通过 Okta、Azure AD、ADFS 等实现企业 SSO。",
+        },
+        oidc: {
+          label: "OpenID Connect",
+          description: "使用 PKCE 和 OIDC discovery 的现代 SSO。",
+        },
+      },
+      enabled: "已启用",
+      disabled: "已禁用",
+      configure: "配置",
+      testConnection: "测试连接",
+      connectionSuccessful: "连接成功",
+      connectionFailed: "连接失败",
+      loading: "正在加载认证提供方...",
+      title: "认证提供方",
+      intro:
+        "为单点登录配置外部身份提供方。此步骤是可选的；本地用户名/密码认证始终可用。",
+      usernamePassword: "用户名和密码",
+      builtIn: "内置 Sanctum 认证 - 始终启用。",
+      alwaysOn: "始终启用",
+    },
+    onboarding: {
+      tour: {
+        sidebarTitle: "导航侧边栏",
+        sidebarContent:
+          "你的所有研究工具都在这里: 数据浏览器、词汇、队列定义、概念集、分析等。",
+        commandTitle: "命令面板 (Cmd K)",
+        commandContent:
+          "无需逐级点击菜单即可快速跳转到任何页面或操作。试试 Cmd K (或 Ctrl+K)，并搜索 'cohort'。",
+        dataSourcesTitle: "数据源",
+        dataSourcesContent:
+          "在这里连接你的 CDM 数据源。所有分析都会针对这些数据源运行。",
+        cohortDefinitionsTitle: "队列定义",
+        cohortDefinitionsContent:
+          "使用纳入/排除标准构建兼容 OHDSI 的队列定义，然后针对任何已连接的 CDM 生成计数。",
+        vocabularyTitle: "词汇浏览器",
+        vocabularyContent:
+          "搜索 700 多万个 OMOP 概念，浏览层级，并构建用于队列定义的概念集。",
+      },
+      cards: {
+        vocabularyTitle: "探索词汇",
+        vocabularyDescription: "搜索 700 多万个 OMOP 概念并构建概念集。",
+        cohortTitle: "构建队列",
+        cohortDescription: "定义纳入/排除标准并生成计数。",
+        quickStartTitle: "阅读快速开始",
+        quickStartDescription: "从零开始，15 分钟得到队列计数。",
+      },
+      skipAria: "跳过引导",
+      title: "欢迎使用 Parthenon",
+      intro: "现代化的 OMOP 结局研究平台。让我们开始吧。",
+      startTour: "开始快速导览",
+      skip: "我已经熟悉 - 跳过",
+    },
+    dataSources: {
+      demoTitle: "Eunomia GiBleed 演示数据集已加载",
+      demoPrefix: "一个合成 OMOP CDM 数据集，包含",
+      demoPatients: "2,694 名患者",
+      demoSuffix:
+        "和胃肠道出血事件。可安全用于运行队列定义和特征描述分析，是连接真实 CDM 前探索 Parthenon 的理想选择。",
+      loading: "正在加载数据源...",
+      title: "数据源",
+      intro:
+        "连接 CDM 数据库以运行队列定义和分析。你也可以从旧版 OHDSI WebAPI 实例导入数据源。",
+      configuredSources: "已配置的数据源 ({{count}})",
+      emptyTitle: "还没有数据源",
+      emptyDescription:
+        "从旧版 WebAPI 实例导入，或稍后从数据源页面添加。",
+      importToggle: "从旧版 WebAPI 导入",
+      webApiUrl: "WebAPI URL",
+      authType: "认证类型",
+      auth: {
+        none: "无",
+        basic: "Basic",
+        bearer: "Bearer 令牌",
+        basicCredentials: "用户名:密码",
+        bearerCredentials: "令牌",
+        basicPlaceholder: "user:password",
+        bearerPlaceholder: "Bearer 令牌",
+      },
+      importSources: "导入数据源",
+      importSuccess: "已导入 {{count}} 个 {{label}}",
+      importSkipped: "，跳过 {{count}} 个 (已存在)",
+      sourceSingular: "数据源",
+      sourcePlural: "数据源",
+      importFailed: "导入失败。请检查 URL 并重试。",
+      managePrefix: "可随时从这里管理数据源:",
+      manageLink: "设置 > 数据源",
+    },
+    complete: {
+      summaryItems: {
+        accountSecured: "账户已保护",
+        systemHealthVerified: "系统健康已验证",
+        aiProviderConfigured: "AI 提供方已配置",
+        authenticationConfigured: "认证已配置",
+        dataSourcesConnected: "数据源已连接",
+      },
+      nextSteps: {
+        exploreDemoData: "探索演示数据",
+        exploreDemoDataDescription: "浏览 Eunomia GiBleed 数据集",
+        createFirstCohort: "创建你的第一个队列",
+        createFirstCohortDescription: "构建患者队列定义",
+        inviteTeam: "邀请团队成员",
+        inviteTeamDescription: "添加用户并分配角色",
+      },
+      title: "Parthenon 已准备就绪",
+      allDone:
+        "所有设置步骤已完成。你可以随时从管理中返回此向导。",
+      partialDone:
+        "已完成 {{completed}}/{{total}} 个步骤 - 跳过的步骤可随时配置。",
+      setupSummary: "设置摘要",
+      skipped: "(已跳过)",
+      goBackTitle: "返回 {{label}}",
+      fix: "修复",
+      nextTitle: "下一步做什么",
+      launch: "启动 Parthenon",
+    },
+  },
+});
+
 function withAuthSetup(auth: MessageTree, setup: MessageTree): MessageTree {
   return mergeMessageTrees(auth, setup);
 }
@@ -5851,32 +6832,32 @@ export const resources: Resource = {
     appResources["pt-BR"],
   ),
   "fi-FI": withProductResources(
-    withCommonUi(withAbbyLayout(fiFI, enAbbyLayout), enCommonUi),
+    withCommonUi(withAbbyLayout(fiFI, fiAbbyLayout), fiCommonUi),
     fiSettings,
     fiSettingsDetails,
     fiHelp,
-    withAuthSetup(fiAuth, enAuthSetup),
-    dashboardResources["en-US"],
+    withAuthSetup(fiAuth, fiAuthSetup),
+    dashboardResources["fi-FI"],
     commonsResources["en-US"],
     appResources["en-US"],
   ),
   "ja-JP": withProductResources(
-    withCommonUi(withAbbyLayout(jaJP, enAbbyLayout), enCommonUi),
+    withCommonUi(withAbbyLayout(jaJP, jaAbbyLayout), jaCommonUi),
     jaSettings,
     jaSettingsDetails,
     jaHelp,
-    withAuthSetup(jaAuth, enAuthSetup),
-    dashboardResources["en-US"],
+    withAuthSetup(jaAuth, jaAuthSetup),
+    dashboardResources["ja-JP"],
     commonsResources["en-US"],
     appResources["en-US"],
   ),
   "zh-Hans": withProductResources(
-    withCommonUi(withAbbyLayout(zhHans, enAbbyLayout), enCommonUi),
+    withCommonUi(withAbbyLayout(zhHans, zhAbbyLayout), zhCommonUi),
     zhSettings,
     zhSettingsDetails,
     zhHelp,
-    withAuthSetup(zhAuth, enAuthSetup),
-    dashboardResources["en-US"],
+    withAuthSetup(zhAuth, zhAuthSetup),
+    dashboardResources["zh-Hans"],
     commonsResources["en-US"],
     appResources["en-US"],
   ),
