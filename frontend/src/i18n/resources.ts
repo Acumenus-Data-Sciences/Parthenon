@@ -2752,7 +2752,7 @@ const frAuth: MessageTree = {
       cohortDefinitions: "Définitions de cohortes",
       characterization: "Caractérisation",
       incidenceRates: "Taux d'incidence",
-      estimation: "Estimation",
+      estimation: "Estimation populationnelle",
       prediction: "Prédiction",
       pathways: "Parcours",
       genomics: "Génomique",
@@ -2782,7 +2782,7 @@ const frAuth: MessageTree = {
     successBody:
       "Si cet e-mail est nouveau dans Parthenon, un mot de passe temporaire a été envoyé. Utilisez-le pour vous connecter. Vous devrez définir un mot de passe permanent lors de la première connexion.",
     goToSignIn: "Aller à la connexion",
-    namePlaceholder: "Jane Smith",
+    namePlaceholder: "Jeanne Martin",
     alreadyHaveAccount: "Vous avez déjà un compte ?",
     sending: "Envoi...",
   },
@@ -2857,7 +2857,7 @@ const deAuth: MessageTree = {
       genomics: "Genomik",
       imaging: "Bildgebung",
       heor: "HEOR",
-      gis: "GIS",
+      gis: "Geoinformatik",
     },
     cdmVersion: "OMOP CDM v5.4",
   },
@@ -2881,7 +2881,7 @@ const deAuth: MessageTree = {
     successBody:
       "Wenn diese E-Mail neu in Parthenon ist, wurde ein temporäres Passwort gesendet. Verwenden Sie es zur Anmeldung. Beim ersten Login müssen Sie ein dauerhaftes Passwort festlegen.",
     goToSignIn: "Zur Anmeldung",
-    namePlaceholder: "Jane Smith",
+    namePlaceholder: "Max Mustermann",
     alreadyHaveAccount: "Sie haben bereits ein Konto?",
     sending: "Senden...",
   },
@@ -2956,7 +2956,7 @@ const ptAuth: MessageTree = {
       genomics: "Genômica",
       imaging: "Imagem",
       heor: "HEOR",
-      gis: "GIS",
+      gis: "SIG",
     },
     cdmVersion: "OMOP CDM v5.4",
   },
@@ -2979,7 +2979,7 @@ const ptAuth: MessageTree = {
     successBody:
       "Se este e-mail for novo no Parthenon, uma senha temporária foi enviada. Use-a para entrar. Você deverá criar uma senha permanente no primeiro login.",
     goToSignIn: "Ir para entrar",
-    namePlaceholder: "Jane Smith",
+    namePlaceholder: "Ana Silva",
     alreadyHaveAccount: "Já tem uma conta?",
     sending: "Enviando...",
   },
@@ -4933,6 +4933,830 @@ const koAuthSetup: MessageTree = mergeMessageTrees(enAuthSetup, {
   },
 });
 
+const frAuthSetup: MessageTree = mergeMessageTrees(enAuthSetup, {
+  setup: {
+    wizard: {
+      steps: {
+        welcome: "Accueil",
+        security: "Sécurité",
+        health: "État",
+        ai: "IA",
+        auth: "Authentification",
+        dataSources: "Sources de données",
+        complete: "Terminé",
+      },
+      close: "Fermer",
+      skipSetup:
+        "Ignorer la configuration - revenez-y à tout moment depuis Administration",
+      previous: "Précédent",
+      next: "Suivant",
+      skip: "Ignorer",
+      skipStep:
+        "Ignorer cette étape - configurez-la plus tard dans Administration",
+    },
+    welcome: {
+      title: "Bienvenue dans Parthenon",
+      intro:
+        "Configurons votre plateforme de recherche. Cet assistant parcourt les étapes essentielles ; chacune peut être ignorée et reprise plus tard depuis le panneau Administration.",
+      configureTitle: "Ce que nous allons configurer",
+      beforeTitle: "Avant de commencer",
+      optionalNote: "Aucune étape facultative n'est requise pour continuer.",
+      overview: {
+        systemHealth: {
+          label: "État du système",
+          description:
+            "Vérifier que tous les services de la plateforme fonctionnent correctement.",
+        },
+        aiProvider: {
+          label: "Fournisseur IA",
+          description: "Configurer le backend IA qui alimente Abby.",
+        },
+        authentication: {
+          label: "Authentification",
+          description:
+            "Configurer des fournisseurs SSO comme LDAP, OAuth ou OIDC.",
+        },
+        dataSources: {
+          label: "Sources de données",
+          description:
+            "Connecter des bases CDM ou importer depuis un ancien WebAPI.",
+        },
+      },
+      before: {
+        cdm: "Votre base OMOP CDM est accessible depuis ce serveur",
+        docker:
+          "Docker et tous les conteneurs sont en cours d'exécution (vérifié à l'étape suivante)",
+        ollama:
+          "Ollama s'exécute localement si vous souhaitez utiliser les fonctions IA (facultatif)",
+        sso: "Vous disposez des informations SSO de votre organisation si vous activez l'authentification unique (facultatif)",
+      },
+    },
+    changePassword: {
+      strength: {
+        weak: "Faible",
+        fair: "Correcte",
+        good: "Bonne",
+        strong: "Forte",
+        excellent: "Excellente",
+        tooShort: "Trop courte",
+      },
+      errors: {
+        mismatch: "Les mots de passe ne correspondent pas.",
+        tooShort: "Le nouveau mot de passe doit contenir au moins 8 caractères.",
+        same: "Le nouveau mot de passe doit être différent du mot de passe actuel.",
+        failed: "Échec du changement de mot de passe. Veuillez réessayer.",
+      },
+      successTitle: "Mot de passe mis à jour",
+      successDescription:
+        "Votre compte est sécurisé. Continuez à l'étape suivante.",
+      title: "Sécuriser votre compte",
+      intro:
+        "Un mot de passe temporaire a été généré pendant l'installation. Définissez un mot de passe permanent avant de continuer.",
+      temporaryTitle:
+        "Des identifiants temporaires ont été générés pendant l'installation",
+      temporaryPrefix: "Votre mot de passe temporaire se trouve dans",
+      temporarySuffix:
+        "à la racine du dépôt. Saisissez-le ci-dessous, puis choisissez un mot de passe permanent.",
+      currentLabel: "Mot de passe actuel (temporaire)",
+      currentPlaceholder: "Saisir le mot de passe temporaire",
+      newLabel: "Nouveau mot de passe",
+      newPlaceholder: "Minimum 8 caractères",
+      toggleNewVisibility: "Afficher ou masquer le nouveau mot de passe",
+      confirmLabel: "Confirmer le nouveau mot de passe",
+      confirmPlaceholder: "Répéter le nouveau mot de passe",
+      submit: "Définir le mot de passe permanent",
+    },
+    systemHealth: {
+      status: {
+        healthy: "Sain",
+        degraded: "Dégradé",
+        down: "Indisponible",
+      },
+      queue: {
+        pending: "En attente",
+        failed: "Échec",
+      },
+      aiUnhealthy:
+        "Abby IA ne répond pas - configurez le fournisseur à l'étape suivante.",
+      configureAi: "Configurer l'IA",
+      title: "Vérification de l'état du système",
+      intro:
+        "Vérification que tous les services de la plateforme fonctionnent correctement.",
+      refresh: "Actualiser",
+      checking: "Vérification des services...",
+      overall: "Système {{status}}",
+      lastChecked: "Dernière vérification à {{time}}",
+      autoRefresh: "Actualisation automatique toutes les 30 secondes.",
+    },
+    aiProvider: {
+      regions: {
+        local: "Local",
+        us: "États-Unis",
+        china: "Chine",
+        eu: "UE",
+      },
+      switchToThis: "Basculer vers celui-ci",
+      testFailed: "Le test de connexion a échoué.",
+      loading: "Chargement des fournisseurs IA...",
+      title: "Configuration du fournisseur IA",
+      intro:
+        "Configurez le backend IA qui alimente Abby, l'assistante de recherche. Un seul fournisseur est actif à la fois.",
+      activeProvider: "Fournisseur actif :",
+      model: "Modèle",
+      modelPlaceholder: "Nom du modèle",
+      apiKey: "Clé API",
+      baseUrl: "URL de base",
+      save: "Enregistrer",
+      testConnection: "Tester la connexion",
+      hideOtherProviders: "Masquer les autres fournisseurs ({{count}})",
+      showOtherProviders: "Afficher les autres fournisseurs ({{count}})",
+    },
+    authentication: {
+      providers: {
+        ldap: {
+          label: "LDAP / Active Directory",
+          description:
+            "Authentifier avec AD ou tout annuaire LDAP v3.",
+        },
+        oauth2: {
+          label: "OAuth 2.0",
+          description:
+            "Déléguer l'authentification à GitHub, Google, Microsoft ou un fournisseur personnalisé.",
+        },
+        saml2: {
+          label: "SAML 2.0",
+          description:
+            "SSO d'entreprise via Okta, Azure AD, ADFS, etc.",
+        },
+        oidc: {
+          label: "OpenID Connect",
+          description: "SSO moderne avec PKCE et découverte OIDC.",
+        },
+      },
+      enabled: "Activé",
+      disabled: "Désactivé",
+      configure: "Configurer",
+      testConnection: "Tester la connexion",
+      connectionSuccessful: "Connexion réussie",
+      connectionFailed: "Connexion échouée",
+      loading: "Chargement des fournisseurs d'authentification...",
+      title: "Fournisseurs d'authentification",
+      intro:
+        "Configurez des fournisseurs d'identité externes pour l'authentification unique. Cette étape est facultative ; l'authentification locale par nom d'utilisateur et mot de passe reste toujours disponible.",
+      usernamePassword: "Nom d'utilisateur et mot de passe",
+      builtIn: "Authentification Sanctum intégrée - toujours active.",
+      alwaysOn: "Toujours actif",
+    },
+    onboarding: {
+      tour: {
+        sidebarTitle: "Barre latérale de navigation",
+        sidebarContent:
+          "Tous vos outils de recherche se trouvent ici : Explorateur de données, Vocabulaire, Définitions de cohortes, Jeux de concepts, Analyses et plus encore.",
+        commandTitle: "Palette de commandes (Cmd K)",
+        commandContent:
+          "Accédez rapidement à n'importe quelle page ou action sans parcourir les menus. Essayez Cmd K (ou Ctrl+K) et recherchez « cohort ».",
+        dataSourcesTitle: "Sources de données",
+        dataSourcesContent:
+          "Connectez vos sources CDM ici. Toutes les analyses s'exécutent sur ces sources de données.",
+        cohortDefinitionsTitle: "Définitions de cohortes",
+        cohortDefinitionsContent:
+          "Créez des définitions de cohortes compatibles OHDSI avec des critères d'inclusion/exclusion, puis générez des effectifs sur tout CDM connecté.",
+        vocabularyTitle: "Explorateur de vocabulaire",
+        vocabularyContent:
+          "Recherchez plus de 7 millions de concepts OMOP, parcourez les hiérarchies et créez des jeux de concepts pour vos définitions de cohortes.",
+      },
+      cards: {
+        vocabularyTitle: "Explorer le vocabulaire",
+        vocabularyDescription:
+          "Rechercher plus de 7 millions de concepts OMOP et créer des jeux de concepts.",
+        cohortTitle: "Créer une cohorte",
+        cohortDescription:
+          "Définir des critères d'inclusion/exclusion et générer des effectifs.",
+        quickStartTitle: "Lire le démarrage rapide",
+        quickStartDescription:
+          "Du départ à un effectif de cohorte en 15 minutes.",
+      },
+      skipAria: "Ignorer la prise en main",
+      title: "Bienvenue dans Parthenon",
+      intro:
+        "Une plateforme moderne de recherche sur les résultats basée sur OMOP. Commençons.",
+      startTour: "Démarrer la visite rapide",
+      skip: "Je connais déjà - ignorer",
+    },
+    dataSources: {
+      demoTitle: "Jeu de données de démonstration Eunomia GiBleed chargé",
+      demoPrefix: "Un jeu de données OMOP CDM synthétique avec",
+      demoPatients: "2 694 patients",
+      demoSuffix:
+        "et des épisodes d'hémorragie gastro-intestinale. Sûr pour exécuter des définitions de cohortes et des analyses de caractérisation, idéal pour explorer Parthenon avant de connecter votre vrai CDM.",
+      loading: "Chargement des sources de données...",
+      title: "Sources de données",
+      intro:
+        "Connectez des bases CDM pour exécuter des définitions de cohortes et des analyses. Vous pouvez aussi importer des sources depuis une ancienne instance OHDSI WebAPI.",
+      configuredSources: "Sources configurées ({{count}})",
+      emptyTitle: "Aucune source de données pour le moment",
+      emptyDescription:
+        "Importez depuis une ancienne instance WebAPI ou ajoutez des sources plus tard depuis la page Sources de données.",
+      importToggle: "Importer depuis l'ancien WebAPI",
+      webApiUrl: "URL WebAPI",
+      authType: "Type d'authentification",
+      auth: {
+        none: "Aucune",
+        basic: "Basic",
+        bearer: "Jeton Bearer",
+        basicCredentials: "Nom d'utilisateur:Mot de passe",
+        bearerCredentials: "Jeton",
+        basicPlaceholder: "utilisateur:motdepasse",
+        bearerPlaceholder: "Jeton Bearer",
+      },
+      importSources: "Importer les sources",
+      importSuccess: "{{count}} {{label}} importées",
+      importSkipped: ", {{count}} ignorées (existent déjà)",
+      sourceSingular: "source de données",
+      sourcePlural: "sources de données",
+      importFailed: "Échec de l'import. Vérifiez l'URL et réessayez.",
+      managePrefix: "Gérez les sources de données à tout moment depuis",
+      manageLink: "Paramètres > Sources de données",
+    },
+    complete: {
+      summaryItems: {
+        accountSecured: "Compte sécurisé",
+        systemHealthVerified: "État du système vérifié",
+        aiProviderConfigured: "Fournisseur IA configuré",
+        authenticationConfigured: "Authentification configurée",
+        dataSourcesConnected: "Sources de données connectées",
+      },
+      nextSteps: {
+        exploreDemoData: "Explorer les données de démonstration",
+        exploreDemoDataDescription: "Parcourir le jeu de données Eunomia GiBleed",
+        createFirstCohort: "Créer votre première cohorte",
+        createFirstCohortDescription:
+          "Créer une définition de cohorte de patients",
+        inviteTeam: "Inviter l'équipe",
+        inviteTeamDescription: "Ajouter des utilisateurs et attribuer des rôles",
+      },
+      title: "Parthenon est prêt",
+      allDone:
+        "Toutes les étapes de configuration sont terminées. Vous pouvez revenir à cet assistant à tout moment depuis Administration.",
+      partialDone:
+        "{{completed}} étapes sur {{total}} terminées - les étapes ignorées peuvent être configurées à tout moment.",
+      setupSummary: "Résumé de configuration",
+      skipped: "(ignoré)",
+      goBackTitle: "Retour à {{label}}",
+      fix: "Corriger",
+      nextTitle: "Prochaines étapes",
+      launch: "Lancer Parthenon",
+    },
+  },
+});
+
+const deAuthSetup: MessageTree = mergeMessageTrees(enAuthSetup, {
+  setup: {
+    wizard: {
+      steps: {
+        welcome: "Willkommen",
+        security: "Sicherheit",
+        health: "Status",
+        ai: "KI",
+        auth: "Authentifizierung",
+        dataSources: "Datenquellen",
+        complete: "Fertig",
+      },
+      close: "Schließen",
+      skipSetup:
+        "Einrichtung überspringen - jederzeit über Administration zurückkehren",
+      previous: "Zurück",
+      next: "Weiter",
+      skip: "Überspringen",
+      skipStep:
+        "Diesen Schritt überspringen - später in Administration konfigurieren",
+    },
+    welcome: {
+      title: "Willkommen bei Parthenon",
+      intro:
+        "Richten wir Ihre Forschungsplattform ein. Dieser Assistent führt durch die wichtigsten Schritte; jeder kann übersprungen und später im Administrationsbereich erneut geöffnet werden.",
+      configureTitle: "Was wir konfigurieren",
+      beforeTitle: "Bevor Sie beginnen",
+      optionalNote: "Keine der optionalen Schritte ist erforderlich.",
+      overview: {
+        systemHealth: {
+          label: "Systemstatus",
+          description: "Prüfen, ob alle Plattformdienste korrekt laufen.",
+        },
+        aiProvider: {
+          label: "KI-Anbieter",
+          description: "Konfigurieren, welches KI-Backend Abby antreibt.",
+        },
+        authentication: {
+          label: "Authentifizierung",
+          description:
+            "SSO-Anbieter wie LDAP, OAuth oder OIDC einrichten.",
+        },
+        dataSources: {
+          label: "Datenquellen",
+          description:
+            "CDM-Datenbanken verbinden oder aus einer alten WebAPI importieren.",
+        },
+      },
+      before: {
+        cdm: "Ihre OMOP-CDM-Datenbank ist von diesem Server aus erreichbar",
+        docker:
+          "Docker und alle Container laufen (wird im nächsten Schritt geprüft)",
+        ollama:
+          "Ollama läuft lokal, falls Sie KI-Funktionen nutzen möchten (optional)",
+        sso: "Die SSO-Daten Ihrer Organisation liegen vor, falls Single Sign-On aktiviert wird (optional)",
+      },
+    },
+    changePassword: {
+      strength: {
+        weak: "Schwach",
+        fair: "Ausreichend",
+        good: "Gut",
+        strong: "Stark",
+        excellent: "Sehr stark",
+        tooShort: "Zu kurz",
+      },
+      errors: {
+        mismatch: "Die Passwörter stimmen nicht überein.",
+        tooShort: "Das neue Passwort muss mindestens 8 Zeichen lang sein.",
+        same: "Das neue Passwort muss sich vom aktuellen Passwort unterscheiden.",
+        failed: "Passwortänderung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      },
+      successTitle: "Passwort aktualisiert",
+      successDescription:
+        "Ihr Konto ist geschützt. Fahren Sie mit dem nächsten Schritt fort.",
+      title: "Konto sichern",
+      intro:
+        "Während der Installation wurde ein temporäres Passwort erzeugt. Legen Sie ein dauerhaftes Passwort fest, bevor Sie fortfahren.",
+      temporaryTitle:
+        "Während der Installation wurden temporäre Zugangsdaten erzeugt",
+      temporaryPrefix: "Ihr temporäres Passwort befindet sich in",
+      temporarySuffix:
+        "im Repository-Stammverzeichnis. Geben Sie es unten ein und wählen Sie dann ein dauerhaftes Passwort.",
+      currentLabel: "Aktuelles (temporäres) Passwort",
+      currentPlaceholder: "Temporäres Passwort eingeben",
+      newLabel: "Neues Passwort",
+      newPlaceholder: "Mindestens 8 Zeichen",
+      toggleNewVisibility: "Neues Passwort anzeigen oder ausblenden",
+      confirmLabel: "Neues Passwort bestätigen",
+      confirmPlaceholder: "Neues Passwort wiederholen",
+      submit: "Dauerhaftes Passwort festlegen",
+    },
+    systemHealth: {
+      status: {
+        healthy: "Gesund",
+        degraded: "Beeinträchtigt",
+        down: "Ausgefallen",
+      },
+      queue: {
+        pending: "Ausstehend",
+        failed: "Fehlgeschlagen",
+      },
+      aiUnhealthy:
+        "Abby KI antwortet nicht - konfigurieren Sie den Anbieter im nächsten Schritt.",
+      configureAi: "KI konfigurieren",
+      title: "Systemstatusprüfung",
+      intro: "Prüft, ob alle Plattformdienste korrekt laufen.",
+      refresh: "Aktualisieren",
+      checking: "Dienste werden geprüft...",
+      overall: "Systemstatus: {{status}}",
+      lastChecked: "Zuletzt geprüft um {{time}}",
+      autoRefresh: "Wird alle 30 Sekunden automatisch aktualisiert.",
+    },
+    aiProvider: {
+      regions: {
+        local: "Lokal",
+        us: "USA",
+        china: "China",
+        eu: "EU",
+      },
+      switchToThis: "Zu diesem wechseln",
+      testFailed: "Verbindungstest fehlgeschlagen.",
+      loading: "KI-Anbieter werden geladen...",
+      title: "KI-Anbieter-Konfiguration",
+      intro:
+        "Konfigurieren Sie das KI-Backend für Abby, den Forschungsassistenten. Es ist jeweils nur ein Anbieter aktiv.",
+      activeProvider: "Aktiver Anbieter:",
+      model: "Modell",
+      modelPlaceholder: "Modellname",
+      apiKey: "API-Schlüssel",
+      baseUrl: "Basis-URL",
+      save: "Speichern",
+      testConnection: "Verbindung testen",
+      hideOtherProviders: "Andere Anbieter ausblenden ({{count}})",
+      showOtherProviders: "Andere Anbieter anzeigen ({{count}})",
+    },
+    authentication: {
+      providers: {
+        ldap: {
+          label: "LDAP / Active Directory",
+          description:
+            "Authentifizierung gegen AD oder ein LDAP-v3-Verzeichnis.",
+        },
+        oauth2: {
+          label: "OAuth 2.0",
+          description:
+            "Authentifizierung an GitHub, Google, Microsoft oder einen benutzerdefinierten Anbieter delegieren.",
+        },
+        saml2: {
+          label: "SAML 2.0",
+          description: "Enterprise-SSO über Okta, Azure AD, ADFS usw.",
+        },
+        oidc: {
+          label: "OpenID Connect",
+          description: "Modernes SSO mit PKCE und OIDC-Discovery.",
+        },
+      },
+      enabled: "Aktiviert",
+      disabled: "Deaktiviert",
+      configure: "Konfigurieren",
+      testConnection: "Verbindung testen",
+      connectionSuccessful: "Verbindung erfolgreich",
+      connectionFailed: "Verbindung fehlgeschlagen",
+      loading: "Authentifizierungsanbieter werden geladen...",
+      title: "Authentifizierungsanbieter",
+      intro:
+        "Konfigurieren Sie externe Identitätsanbieter für Single Sign-On. Dieser Schritt ist optional; lokale Benutzername/Passwort-Authentifizierung bleibt immer verfügbar.",
+      usernamePassword: "Benutzername und Passwort",
+      builtIn: "Integrierte Sanctum-Authentifizierung - immer aktiv.",
+      alwaysOn: "Immer aktiv",
+    },
+    onboarding: {
+      tour: {
+        sidebarTitle: "Navigationsseitenleiste",
+        sidebarContent:
+          "Alle Ihre Forschungswerkzeuge befinden sich hier: Daten-Explorer, Vokabular, Kohortendefinitionen, Konzeptsets, Analysen und mehr.",
+        commandTitle: "Befehlspalette (Cmd K)",
+        commandContent:
+          "Springen Sie schnell zu jeder Seite oder Aktion, ohne durch Menüs zu klicken. Probieren Sie Cmd K (oder Ctrl+K) und suchen Sie nach 'cohort'.",
+        dataSourcesTitle: "Datenquellen",
+        dataSourcesContent:
+          "Verbinden Sie hier Ihre CDM-Quellen. Alle Analysen laufen gegen diese Datenquellen.",
+        cohortDefinitionsTitle: "Kohortendefinitionen",
+        cohortDefinitionsContent:
+          "Erstellen Sie OHDSI-kompatible Kohortendefinitionen mit Einschluss-/Ausschlusskriterien und generieren Sie Zählungen gegen jedes verbundene CDM.",
+        vocabularyTitle: "Vokabular-Explorer",
+        vocabularyContent:
+          "Durchsuchen Sie über 7 Mio. OMOP-Konzepte, navigieren Sie Hierarchien und erstellen Sie Konzeptsets für Ihre Kohortendefinitionen.",
+      },
+      cards: {
+        vocabularyTitle: "Vokabular erkunden",
+        vocabularyDescription:
+          "Über 7 Mio. OMOP-Konzepte durchsuchen und Konzeptsets erstellen.",
+        cohortTitle: "Kohorte erstellen",
+        cohortDescription:
+          "Einschluss-/Ausschlusskriterien definieren und Zählungen generieren.",
+        quickStartTitle: "Quickstart lesen",
+        quickStartDescription: "Von null zur Kohortenzählung in 15 Minuten.",
+      },
+      skipAria: "Einführung überspringen",
+      title: "Willkommen bei Parthenon",
+      intro:
+        "Eine moderne OMOP-Plattform für Outcomes-Forschung. Legen wir los.",
+      startTour: "Kurztour starten",
+      skip: "Ich kenne mich schon aus - überspringen",
+    },
+    dataSources: {
+      demoTitle: "Eunomia-GiBleed-Demodatensatz geladen",
+      demoPrefix: "Ein synthetischer OMOP-CDM-Datensatz mit",
+      demoPatients: "2.694 Patienten",
+      demoSuffix:
+        "und Episoden gastrointestinaler Blutungen. Sicher für Kohortendefinitionen und Charakterisierungsanalysen, ideal zum Erkunden von Parthenon vor dem Verbinden eines echten CDM.",
+      loading: "Datenquellen werden geladen...",
+      title: "Datenquellen",
+      intro:
+        "Verbinden Sie CDM-Datenbanken, um Kohortendefinitionen und Analysen auszuführen. Sie können auch Quellen aus einer alten OHDSI-WebAPI importieren.",
+      configuredSources: "Konfigurierte Quellen ({{count}})",
+      emptyTitle: "Noch keine Datenquellen",
+      emptyDescription:
+        "Importieren Sie aus einer alten WebAPI-Instanz oder fügen Sie Quellen später auf der Seite Datenquellen hinzu.",
+      importToggle: "Aus alter WebAPI importieren",
+      webApiUrl: "WebAPI-URL",
+      authType: "Authentifizierungstyp",
+      auth: {
+        none: "Keine",
+        basic: "Basic",
+        bearer: "Bearer-Token",
+        basicCredentials: "Benutzername:Passwort",
+        bearerCredentials: "Bearer-Token",
+        basicPlaceholder: "benutzer:passwort",
+        bearerPlaceholder: "Bearer-Token",
+      },
+      importSources: "Quellen importieren",
+      importSuccess: "{{count}} {{label}} importiert",
+      importSkipped: ", {{count}} übersprungen (existieren bereits)",
+      sourceSingular: "Quelle",
+      sourcePlural: "Quellen",
+      importFailed: "Import fehlgeschlagen. Prüfen Sie die URL und versuchen Sie es erneut.",
+      managePrefix: "Datenquellen jederzeit verwalten unter",
+      manageLink: "Einstellungen > Datenquellen",
+    },
+    complete: {
+      summaryItems: {
+        accountSecured: "Konto gesichert",
+        systemHealthVerified: "Systemstatus geprüft",
+        aiProviderConfigured: "KI-Anbieter konfiguriert",
+        authenticationConfigured: "Authentifizierung konfiguriert",
+        dataSourcesConnected: "Datenquellen verbunden",
+      },
+      nextSteps: {
+        exploreDemoData: "Demodaten erkunden",
+        exploreDemoDataDescription: "Eunomia-GiBleed-Datensatz durchsuchen",
+        createFirstCohort: "Erste Kohorte erstellen",
+        createFirstCohortDescription: "Patientenkohortendefinition erstellen",
+        inviteTeam: "Teammitglieder einladen",
+        inviteTeamDescription: "Benutzer hinzufügen und Rollen zuweisen",
+      },
+      title: "Parthenon ist bereit",
+      allDone:
+        "Alle Einrichtungsschritte sind abgeschlossen. Sie können jederzeit über Administration zu diesem Assistenten zurückkehren.",
+      partialDone:
+        "{{completed}} von {{total}} Schritten abgeschlossen - übersprungene Schritte können jederzeit konfiguriert werden.",
+      setupSummary: "Einrichtungsübersicht",
+      skipped: "(übersprungen)",
+      goBackTitle: "Zurück zu {{label}}",
+      fix: "Korrigieren",
+      nextTitle: "Nächste Schritte",
+      launch: "Parthenon starten",
+    },
+  },
+});
+
+const ptAuthSetup: MessageTree = mergeMessageTrees(enAuthSetup, {
+  setup: {
+    wizard: {
+      steps: {
+        welcome: "Boas-vindas",
+        security: "Segurança",
+        health: "Saúde",
+        ai: "IA",
+        auth: "Autenticação",
+        dataSources: "Fontes de dados",
+        complete: "Concluído",
+      },
+      close: "Fechar",
+      skipSetup:
+        "Pular configuração - volte a qualquer momento pela Administração",
+      previous: "Anterior",
+      next: "Próximo",
+      skip: "Pular",
+      skipStep:
+        "Pular esta etapa - configure mais tarde na Administração",
+    },
+    welcome: {
+      title: "Boas-vindas ao Parthenon",
+      intro:
+        "Vamos configurar sua plataforma de pesquisa. Este assistente percorre as etapas essenciais; cada uma pode ser pulada e retomada depois pelo painel de Administração.",
+      configureTitle: "O que vamos configurar",
+      beforeTitle: "Antes de começar",
+      optionalNote: "Nenhuma etapa opcional é obrigatória para continuar.",
+      overview: {
+        systemHealth: {
+          label: "Saúde do sistema",
+          description:
+            "Verificar se todos os serviços da plataforma estão funcionando corretamente.",
+        },
+        aiProvider: {
+          label: "Provedor de IA",
+          description: "Configurar qual backend de IA alimenta a Abby.",
+        },
+        authentication: {
+          label: "Autenticação",
+          description:
+            "Configurar provedores SSO como LDAP, OAuth ou OIDC.",
+        },
+        dataSources: {
+          label: "Fontes de dados",
+          description:
+            "Conectar bancos CDM ou importar de um WebAPI legado.",
+        },
+      },
+      before: {
+        cdm: "Seu banco OMOP CDM está acessível a partir deste servidor",
+        docker:
+          "Docker e todos os contêineres estão em execução (verificado na próxima etapa)",
+        ollama:
+          "Ollama está rodando localmente se você quiser recursos de IA (opcional)",
+        sso: "Você tem os dados de SSO da organização se for habilitar single sign-on (opcional)",
+      },
+    },
+    changePassword: {
+      strength: {
+        weak: "Fraca",
+        fair: "Razoável",
+        good: "Boa",
+        strong: "Forte",
+        excellent: "Excelente",
+        tooShort: "Curta demais",
+      },
+      errors: {
+        mismatch: "As senhas não coincidem.",
+        tooShort: "A nova senha deve ter pelo menos 8 caracteres.",
+        same: "A nova senha deve ser diferente da senha atual.",
+        failed: "Falha ao alterar senha. Tente novamente.",
+      },
+      successTitle: "Senha atualizada",
+      successDescription:
+        "Sua conta está protegida. Continue para a próxima etapa.",
+      title: "Proteja sua conta",
+      intro:
+        "Uma senha temporária foi gerada durante a instalação. Defina uma senha permanente antes de continuar.",
+      temporaryTitle:
+        "Credenciais temporárias foram geradas durante a instalação",
+      temporaryPrefix: "Sua senha temporária está em",
+      temporarySuffix:
+        "na raiz do repositório. Digite-a abaixo e escolha uma senha permanente.",
+      currentLabel: "Senha atual (temporária)",
+      currentPlaceholder: "Digite a senha temporária",
+      newLabel: "Nova senha",
+      newPlaceholder: "Mínimo de 8 caracteres",
+      toggleNewVisibility: "Mostrar ou ocultar nova senha",
+      confirmLabel: "Confirmar nova senha",
+      confirmPlaceholder: "Repita a nova senha",
+      submit: "Definir senha permanente",
+    },
+    systemHealth: {
+      status: {
+        healthy: "Saudável",
+        degraded: "Degradado",
+        down: "Indisponível",
+      },
+      queue: {
+        pending: "Pendente",
+        failed: "Falhou",
+      },
+      aiUnhealthy:
+        "Abby IA não está respondendo - configure o provedor na próxima etapa.",
+      configureAi: "Configurar IA",
+      title: "Verificação de saúde do sistema",
+      intro:
+        "Verificando se todos os serviços da plataforma estão funcionando corretamente.",
+      refresh: "Atualizar",
+      checking: "Verificando serviços...",
+      overall: "Sistema {{status}}",
+      lastChecked: "Última verificação às {{time}}",
+      autoRefresh: "Atualiza automaticamente a cada 30 segundos.",
+    },
+    aiProvider: {
+      regions: {
+        local: "Local",
+        us: "EUA",
+        china: "China",
+        eu: "UE",
+      },
+      switchToThis: "Alternar para este",
+      testFailed: "Teste de conexão falhou.",
+      loading: "Carregando provedores de IA...",
+      title: "Configuração do provedor de IA",
+      intro:
+        "Configure qual backend de IA alimenta a Abby, a assistente de pesquisa. Apenas um provedor fica ativo por vez.",
+      activeProvider: "Provedor ativo:",
+      model: "Modelo",
+      modelPlaceholder: "Nome do modelo",
+      apiKey: "Chave de API",
+      baseUrl: "URL base",
+      save: "Salvar",
+      testConnection: "Testar conexão",
+      hideOtherProviders: "Ocultar outros provedores ({{count}})",
+      showOtherProviders: "Mostrar outros provedores ({{count}})",
+    },
+    authentication: {
+      providers: {
+        ldap: {
+          label: "LDAP / Active Directory",
+          description:
+            "Autentique com AD ou qualquer diretório LDAP v3.",
+        },
+        oauth2: {
+          label: "OAuth 2.0",
+          description:
+            "Delegue autenticação para GitHub, Google, Microsoft ou personalizado.",
+        },
+        saml2: {
+          label: "SAML 2.0",
+          description: "SSO corporativo via Okta, Azure AD, ADFS, etc.",
+        },
+        oidc: {
+          label: "OpenID Connect",
+          description: "SSO moderno com PKCE e descoberta OIDC.",
+        },
+      },
+      enabled: "Ativado",
+      disabled: "Desativado",
+      configure: "Configurar",
+      testConnection: "Testar conexão",
+      connectionSuccessful: "Conexão bem-sucedida",
+      connectionFailed: "Falha na conexão",
+      loading: "Carregando provedores de autenticação...",
+      title: "Provedores de autenticação",
+      intro:
+        "Configure provedores de identidade externos para single sign-on. Esta etapa é opcional; autenticação local por usuário/senha está sempre disponível.",
+      usernamePassword: "Usuário e senha",
+      builtIn: "Autenticação Sanctum integrada - sempre ativa.",
+      alwaysOn: "Sempre ativo",
+    },
+    onboarding: {
+      tour: {
+        sidebarTitle: "Barra lateral de navegação",
+        sidebarContent:
+          "Todas as suas ferramentas de pesquisa ficam aqui: Explorador de dados, Vocabulário, Definições de coorte, Conjuntos de conceitos, Análises e muito mais.",
+        commandTitle: "Paleta de comandos (Cmd K)",
+        commandContent:
+          "Vá rapidamente para qualquer página ou ação sem clicar pelos menus. Experimente Cmd K (ou Ctrl+K) e pesquise 'cohort'.",
+        dataSourcesTitle: "Fontes de dados",
+        dataSourcesContent:
+          "Conecte suas fontes CDM aqui. Todas as análises são executadas contra essas fontes de dados.",
+        cohortDefinitionsTitle: "Definições de coorte",
+        cohortDefinitionsContent:
+          "Crie definições de coorte compatíveis com OHDSI usando critérios de inclusão/exclusão e gere contagens contra qualquer CDM conectado.",
+        vocabularyTitle: "Explorador de vocabulário",
+        vocabularyContent:
+          "Pesquise mais de 7 milhões de conceitos OMOP, navegue por hierarquias e crie conjuntos de conceitos para suas definições de coorte.",
+      },
+      cards: {
+        vocabularyTitle: "Explorar vocabulário",
+        vocabularyDescription:
+          "Pesquise mais de 7 milhões de conceitos OMOP e crie conjuntos de conceitos.",
+        cohortTitle: "Criar uma coorte",
+        cohortDescription:
+          "Defina critérios de inclusão/exclusão e gere contagens.",
+        quickStartTitle: "Ler início rápido",
+        quickStartDescription:
+          "Do zero a uma contagem de coorte em 15 minutos.",
+      },
+      skipAria: "Pular integração",
+      title: "Boas-vindas ao Parthenon",
+      intro:
+        "Uma plataforma moderna de pesquisa de desfechos baseada em OMOP. Vamos começar.",
+      startTour: "Iniciar tour rápido",
+      skip: "Já conheço - pular",
+    },
+    dataSources: {
+      demoTitle: "Dataset demo Eunomia GiBleed carregado",
+      demoPrefix: "Um dataset OMOP CDM sintético com",
+      demoPatients: "2.694 pacientes",
+      demoSuffix:
+        "e episódios de sangramento gastrointestinal. Seguro para executar definições de coorte e análises de caracterização, ideal para explorar o Parthenon antes de conectar seu CDM real.",
+      loading: "Carregando fontes de dados...",
+      title: "Fontes de dados",
+      intro:
+        "Conecte bancos CDM para executar definições de coorte e análises. Você também pode importar fontes de uma instância OHDSI WebAPI legada.",
+      configuredSources: "Fontes configuradas ({{count}})",
+      emptyTitle: "Ainda não há fontes de dados",
+      emptyDescription:
+        "Importe de uma instância WebAPI legada ou adicione fontes depois pela página Fontes de dados.",
+      importToggle: "Importar de WebAPI legado",
+      webApiUrl: "URL do WebAPI",
+      authType: "Tipo de autenticação",
+      auth: {
+        none: "Nenhum",
+        basic: "Basic",
+        bearer: "Token Bearer",
+        basicCredentials: "Usuário:Senha",
+        bearerCredentials: "Token Bearer",
+        basicPlaceholder: "usuario:senha",
+        bearerPlaceholder: "Token Bearer",
+      },
+      importSources: "Importar fontes",
+      importSuccess: "{{count}} {{label}} importadas",
+      importSkipped: ", {{count}} ignoradas (já existem)",
+      sourceSingular: "fonte",
+      sourcePlural: "fontes",
+      importFailed: "Importação falhou. Verifique a URL e tente novamente.",
+      managePrefix: "Gerencie fontes de dados a qualquer momento em",
+      manageLink: "Configurações > Fontes de dados",
+    },
+    complete: {
+      summaryItems: {
+        accountSecured: "Conta protegida",
+        systemHealthVerified: "Saúde do sistema verificada",
+        aiProviderConfigured: "Provedor de IA configurado",
+        authenticationConfigured: "Autenticação configurada",
+        dataSourcesConnected: "Fontes de dados conectadas",
+      },
+      nextSteps: {
+        exploreDemoData: "Explorar dados demo",
+        exploreDemoDataDescription: "Navegar pelo dataset Eunomia GiBleed",
+        createFirstCohort: "Criar sua primeira coorte",
+        createFirstCohortDescription: "Criar uma definição de coorte de pacientes",
+        inviteTeam: "Convidar equipe",
+        inviteTeamDescription: "Adicionar usuários e atribuir funções",
+      },
+      title: "Parthenon está pronto",
+      allDone:
+        "Todas as etapas de configuração foram concluídas. Você pode voltar a este assistente a qualquer momento pela Administração.",
+      partialDone:
+        "{{completed}} de {{total}} etapas concluídas - etapas puladas podem ser configuradas a qualquer momento.",
+      setupSummary: "Resumo da configuração",
+      skipped: "(pulado)",
+      goBackTitle: "Voltar para {{label}}",
+      fix: "Corrigir",
+      nextTitle: "O que fazer agora",
+      launch: "Iniciar Parthenon",
+    },
+  },
+});
+
 function withAuthSetup(auth: MessageTree, setup: MessageTree): MessageTree {
   return mergeMessageTrees(auth, setup);
 }
@@ -5001,7 +5825,7 @@ export const resources: Resource = {
     frSettings,
     frSettingsDetails,
     frHelp,
-    withAuthSetup(frAuth, enAuthSetup),
+    withAuthSetup(frAuth, frAuthSetup),
     dashboardResources["fr-FR"],
     commonsResources["fr-FR"],
     appResources["fr-FR"],
@@ -5011,7 +5835,7 @@ export const resources: Resource = {
     deSettings,
     deSettingsDetails,
     deHelp,
-    withAuthSetup(deAuth, enAuthSetup),
+    withAuthSetup(deAuth, deAuthSetup),
     dashboardResources["de-DE"],
     commonsResources["de-DE"],
     appResources["de-DE"],
@@ -5021,7 +5845,7 @@ export const resources: Resource = {
     ptSettings,
     ptSettingsDetails,
     ptHelp,
-    withAuthSetup(ptAuth, enAuthSetup),
+    withAuthSetup(ptAuth, ptAuthSetup),
     dashboardResources["pt-BR"],
     commonsResources["pt-BR"],
     appResources["pt-BR"],
