@@ -13,12 +13,17 @@ const windowsFields = document.querySelector("#windows-fields");
 const preflightBtn = document.querySelector("#preflight-btn");
 const sourceModeEl = document.querySelector("#source-mode");
 const repoPathField = document.querySelector("#repo-path-field");
+const repoPathLabel = document.querySelector("#repo-path-label");
 const bundleFields = document.querySelector("#bundle-fields");
+const liveDbChoiceEl = document.querySelector("#live-db-choice");
 const cdmSetupEl = document.querySelector("#cdm-setup-mode");
 const cdmStateFields = document.querySelector("#cdm-state-fields");
+const cdmExistingStateLabel = document.querySelector("#cdm-existing-state")?.closest("label");
 const cdmConnectionFields = document.querySelector("#cdm-connection-fields");
+const localPostgresNote = document.querySelector("#local-postgres-note");
 const vocabZipField = document.querySelector("#vocab-zip-field");
 const vocabularySetupEl = document.querySelector("#vocabulary-setup");
+const includeEunomiaEl = document.querySelector("#include-eunomia");
 
 const state = {
   checks: [],
@@ -56,6 +61,7 @@ function readPayload() {
     bundle_archive_path: value("#bundle-archive-path"),
     bundle_sha256: value("#bundle-sha256"),
     bundle_install_dir: value("#bundle-install-dir"),
+    install_target_dir: value("#install-target-dir"),
     admin_email: value("#admin-email"),
     admin_name: value("#admin-name"),
     admin_password: rawValue("#admin-password"),
@@ -88,7 +94,7 @@ function readPayload() {
 
 function renderReview() {
   const payload = readPayload();
-  const services = ["Parthenon web app", "PostgreSQL", "Redis"];
+  const services = ["Parthenon web app", "PostgreSQL", "Redis", "Darkstar OHDSI analytics"];
   if (payload.enable_solr) services.push("Solr search");
   if (payload.enable_hecate) services.push("Hecate", "Qdrant");
 
@@ -97,10 +103,13 @@ function renderReview() {
   const usesBundle = payload.source_mode === "Use installer bundle";
   const source = usesBundle ? "Verified installer bundle" : "Existing checkout";
   const destination = usesBundle
-    ? (payload.bundle_install_dir || payload.wsl_repo_path || "Installer cache")
+    ? (payload.install_target_dir || payload.wsl_repo_path || "Select a persistent Parthenon folder")
     : state.platform === "windows"
       ? (payload.wsl_repo_path || payload.repo_path || "Select a checkout")
       : (payload.repo_path || "Select a checkout");
+  const installerWorkspace = usesBundle
+    ? (payload.bundle_install_dir || "Installer download folder not set")
+    : "";
   const dataTarget = payload.cdm_setup_mode === "Create local PostgreSQL OMOP database"
     ? "Local PostgreSQL"
     : `${payload.cdm_dialect || "Database"} · ${payload.cdm_database || "database not set"}`;
@@ -110,6 +119,7 @@ function renderReview() {
 
   reviewEl.innerHTML = [
     reviewRow("Source", source),
+    usesBundle ? reviewRow("Installer workspace", installerWorkspace) : "",
     reviewRow("Destination", destination),
     reviewRow("Admin", payload.admin_email || "admin@example.com"),
     reviewRow("URL", payload.app_url || "http://localhost"),
@@ -119,7 +129,7 @@ function renderReview() {
     reviewRow("Starter data", data),
     reviewRow("Services", services.join(", ")),
     reviewRow("Mode", mode),
-  ].join("");
+  ].filter(Boolean).join("");
 }
 
 function reviewRow(label, value) {
@@ -172,9 +182,9 @@ function hasFailedCheck() {
 }
 
 function updateInstallButton() {
-  renderReview();
   updateSourceVisibility();
   updateDataSetupVisibility();
+  renderReview();
   installBtn.textContent = dryRunEl.checked ? "Run Test" : "Install Parthenon";
   installBtn.disabled = state.running
     || !state.preflightRan
@@ -183,17 +193,43 @@ function updateInstallButton() {
 }
 
 function updateDataSetupVisibility() {
-  const setupMode = cdmSetupEl.value;
+  const setupMode = setupModeFromLiveDbChoice();
+  cdmSetupEl.value = setupMode;
   const vocabularyMode = vocabularySetupEl.value;
   const usesLocalPostgres = setupMode === "Create local PostgreSQL OMOP database";
   const usesCompleteCdm = setupMode === "Use an existing OMOP CDM";
 
   cdmConnectionFields.hidden = usesLocalPostgres;
+  localPostgresNote.hidden = !usesLocalPostgres;
   cdmStateFields.hidden = false;
+  if (cdmExistingStateLabel) {
+    cdmExistingStateLabel.hidden = usesLocalPostgres;
+  }
   vocabZipField.hidden = vocabularyMode !== "Load Athena vocabulary ZIP";
+  document.querySelector("#cdm-dialect").disabled = usesLocalPostgres;
+
+  if (usesLocalPostgres) {
+    document.querySelector("#cdm-dialect").value = "PostgreSQL";
+    document.querySelector("#cdm-existing-state").value = "Empty database or schema";
+  }
 
   if (usesCompleteCdm && document.querySelector("#cdm-existing-state").value === "Empty database or schema") {
     document.querySelector("#cdm-existing-state").value = "Complete OMOP CDM exists";
+  }
+
+  if (vocabularyMode === "Use demo starter data") {
+    includeEunomiaEl.checked = true;
+  }
+}
+
+function setupModeFromLiveDbChoice() {
+  switch (liveDbChoiceEl.value) {
+    case "server":
+      return "Use an existing database server";
+    case "cdm":
+      return "Use an existing OMOP CDM";
+    default:
+      return "Create local PostgreSQL OMOP database";
   }
 }
 
@@ -201,6 +237,9 @@ function updateSourceVisibility() {
   const usesBundle = sourceModeEl.value === "Use installer bundle";
   repoPathField.hidden = usesBundle;
   bundleFields.hidden = !usesBundle;
+  if (repoPathLabel) {
+    repoPathLabel.textContent = usesBundle ? "Existing Parthenon checkout" : "Existing Parthenon checkout";
+  }
 }
 
 async function invoke(name, payload) {
@@ -208,6 +247,27 @@ async function invoke(name, payload) {
     throw new Error("Tauri API is not available. Run this UI inside the Rust desktop app.");
   }
   return tauriCore.invoke(name, payload);
+}
+
+async function browsePath(button) {
+  const input = document.querySelector(button.dataset.target);
+  if (!input) return;
+
+  const command = button.dataset.browse === "file" ? "browse_file" : "browse_directory";
+  const title = input.closest("label")?.textContent.replace(/\s+/g, " ").trim() || "Select path";
+  try {
+    const selected = await invoke(command, {
+      title,
+      currentPath: input.value,
+    });
+    if (selected) {
+      input.value = selected;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+  } catch (err) {
+    setStatus(String(err), "error");
+  }
 }
 
 async function boot() {
@@ -219,6 +279,7 @@ async function boot() {
     document.querySelector("#repo-path").value = data.repo_path || "";
     document.querySelector("#bundle-url").value = data.bundle_url || "";
     document.querySelector("#bundle-install-dir").value = data.bundle_install_dir || "";
+    document.querySelector("#install-target-dir").value = data.install_target_dir || "";
     windowsFields.hidden = !data.windows;
     setStatus(`Ready on ${data.platform}${data.python ? ` with ${data.python}` : ""}`);
     renderReview();
@@ -309,7 +370,11 @@ form.addEventListener("input", () => {
 dryRunEl.addEventListener("change", updateInstallButton);
 confirmEl.addEventListener("change", updateInstallButton);
 cdmSetupEl.addEventListener("change", updateInstallButton);
+liveDbChoiceEl.addEventListener("change", updateInstallButton);
 vocabularySetupEl.addEventListener("change", updateInstallButton);
 sourceModeEl.addEventListener("change", updateInstallButton);
+document.querySelectorAll("[data-browse]").forEach((button) => {
+  button.addEventListener("click", () => browsePath(button));
+});
 
 boot();

@@ -20,11 +20,11 @@ CORE_PORT_FIELDS = [
     ("nginx_port", "NGINX"),
     ("postgres_port", "Postgres"),
     ("redis_port", "Redis"),
+    ("r_port", "Darkstar"),
 ]
 FULL_ADDITION_PORT_FIELDS = [
     ("ai_port", "AI"),
     ("jupyter_port", "JupyterHub"),
-    ("r_port", "Darkstar"),
 ]
 OPTIONAL_PORTS = [
     ("enable_solr", "solr_port", "Solr"),

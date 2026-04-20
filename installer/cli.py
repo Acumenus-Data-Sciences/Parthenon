@@ -177,7 +177,8 @@ def _print_summary(cfg: dict[str, Any]) -> None:
     lines.append("")
     lines.append("  [bold]Database layout[/bold] (single [cyan]parthenon[/cyan] DB, schema-isolated):")
     lines.append("    app.*             — Application tables (users, roles, cohorts)")
-    lines.append("    omop.*            — OMOP CDM + Vocabulary tables (empty until data loaded)")
+    lines.append("    omop.*            — OMOP CDM clinical tables (empty until data loaded)")
+    lines.append("    vocab.*           — OMOP vocabulary tables")
     lines.append("    results.*         — Achilles/DQD output + analysis catalog")
     if cfg.get("include_eunomia"):
         lines.append("    eunomia.*         — GiBleed demo CDM (2,694 patients)")

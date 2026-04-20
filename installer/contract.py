@@ -100,7 +100,7 @@ def data_setup_plan(cfg: dict[str, Any]) -> dict[str, Any]:
     vocabulary_setup = cfg.get("vocabulary_setup") or "Use demo starter data"
     schemas = {
         "cdm": cfg.get("cdm_schema") or "omop",
-        "vocabulary": cfg.get("vocabulary_schema") or "omop",
+        "vocabulary": cfg.get("vocabulary_schema") or "vocab",
         "results": cfg.get("results_schema") or "results",
         "temp": cfg.get("temp_schema") or "scratch",
     }
@@ -115,7 +115,7 @@ def data_setup_plan(cfg: dict[str, Any]) -> dict[str, Any]:
             },
             {
                 "name": "Create OMOP schemas",
-                "detail": f"Prepare {schemas['cdm']}, {schemas['results']}, and {schemas['temp']} schemas.",
+                "detail": f"Prepare {schemas['cdm']}, {schemas['vocabulary']}, {schemas['results']}, and {schemas['temp']} schemas.",
             },
             {
                 "name": "Install OMOP CDM DDL",

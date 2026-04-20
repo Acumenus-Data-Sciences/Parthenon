@@ -129,6 +129,8 @@ python3 -m installer.bundle_manifest \
 
 The Rust desktop installer can consume the resulting `.tar.gz` from a local
 path or URL, verify it, and run the Python installer from the extracted bundle.
+Release builds publish the stable bundle URL used by the desktop autofill:
+`https://github.com/sudoshi/Parthenon/releases/latest/download/parthenon-community-bootstrap.tar.gz`.
 Bundle-based installs set `PARTHENON_RUNTIME_PROFILE=community-release`, which
 selects `docker-compose.community.yml` and uses prebuilt Community runtime
 images instead of backend/frontend source bind mounts.

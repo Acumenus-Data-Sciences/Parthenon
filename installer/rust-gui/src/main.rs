@@ -21,6 +21,7 @@ struct InstallerState {
 #[derive(Debug, Serialize)]
 struct BootstrapPayload {
     repo_path: String,
+    install_target_dir: String,
     platform: String,
     python: Option<String>,
     windows: bool,
@@ -107,6 +108,8 @@ struct InstallFinished {
 
 const COMMUNITY_RUNTIME_PROFILE: &str = "community-release";
 const COMMUNITY_RUNTIME_COMPOSE_FILE: &str = "docker-compose.community.yml";
+const DEFAULT_INSTALLER_BUNDLE_URL: &str =
+    "https://github.com/sudoshi/Parthenon/releases/latest/download/parthenon-community-bootstrap.tar.gz";
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 struct InstallRequest {
@@ -118,6 +121,7 @@ struct InstallRequest {
     bundle_archive_path: String,
     bundle_sha256: String,
     bundle_install_dir: String,
+    install_target_dir: String,
     admin_email: String,
     admin_name: String,
     admin_password: String,
@@ -153,10 +157,16 @@ fn bootstrap() -> BootstrapPayload {
         repo_path: find_repo_root()
             .map(|path| path.to_string_lossy().to_string())
             .unwrap_or_default(),
+        install_target_dir: default_install_target_dir()
+            .map(|path| path.to_string_lossy().to_string())
+            .unwrap_or_default(),
         platform: env::consts::OS.to_string(),
         python: resolve_python(),
         windows: cfg!(target_os = "windows"),
-        bundle_url: env::var("PARTHENON_INSTALLER_BUNDLE_URL").unwrap_or_default(),
+        bundle_url: env::var("PARTHENON_INSTALLER_BUNDLE_URL")
+            .ok()
+            .filter(|value| !value.trim().is_empty())
+            .unwrap_or_else(|| DEFAULT_INSTALLER_BUNDLE_URL.to_string()),
         bundle_install_dir: env::var("PARTHENON_INSTALLER_BUNDLE_DIR")
             .ok()
             .or_else(|| default_bundle_cache_dir().map(|path| path.to_string_lossy().to_string()))
@@ -276,6 +286,9 @@ fn prepare_local_bundle(
     let cache_dir = local_bundle_cache_dir(request)?;
     fs::create_dir_all(&cache_dir)
         .map_err(|err| format!("Could not create installer bundle cache: {err}"))?;
+    let download_dir = cache_dir.join("downloads");
+    fs::create_dir_all(&download_dir)
+        .map_err(|err| format!("Could not create installer bundle download folder: {err}"))?;
     emit_optional_log(app, "stdout", "Preparing installer bundle.");
 
     let archive_path = if !request.bundle_archive_path.trim().is_empty() {
@@ -286,7 +299,7 @@ fn prepare_local_bundle(
         }
         PathBuf::from(request.bundle_archive_path.trim())
     } else {
-        download_bundle_archive(app, request, &cache_dir)?
+        download_bundle_archive(app, request, &download_dir)?
     };
 
     if !archive_path.is_file() {
@@ -308,25 +321,42 @@ fn prepare_local_bundle(
 
     let manifest = read_extracted_bundle_manifest(&staging)?;
     validate_extracted_bundle(&staging, &manifest)?;
-    let digest = short_digest(&manifest.bundle_digest);
-    let final_dir = cache_dir.join(format!(
-        "{}-{}-{}",
-        manifest.bundle_name, manifest.bundle_version, digest
-    ));
+    let final_dir = local_bundle_target_dir(request, &cache_dir, &manifest);
 
     if final_dir.exists() {
-        let existing_manifest = read_extracted_bundle_manifest(&final_dir)?;
-        validate_extracted_bundle(&final_dir, &existing_manifest)?;
-        let _ = fs::remove_dir_all(&staging);
-        emit_optional_log(
-            app,
-            "stdout",
-            &format!(
-                "Using verified installer bundle at {}.",
+        if final_dir.join("installer-bundle-manifest.json").is_file() {
+            let existing_manifest = read_extracted_bundle_manifest(&final_dir)?;
+            validate_extracted_bundle(&final_dir, &existing_manifest)?;
+            if existing_manifest.bundle_digest == manifest.bundle_digest {
+                let _ = fs::remove_dir_all(&staging);
+                emit_optional_log(
+                    app,
+                    "stdout",
+                    &format!(
+                        "Using verified installer bundle at {}.",
+                        final_dir.display()
+                    ),
+                );
+                return Ok(final_dir);
+            }
+            let _ = fs::remove_dir_all(&staging);
+            return Err(format!(
+                "The selected Parthenon folder already contains a different installer bundle: {}",
                 final_dir.display()
-            ),
-        );
-        return Ok(final_dir);
+            ));
+        }
+        if !is_empty_directory(&final_dir)? {
+            let _ = fs::remove_dir_all(&staging);
+            return Err(format!(
+                "The selected Parthenon folder is not empty and does not contain a verified installer bundle: {}",
+                final_dir.display()
+            ));
+        }
+        fs::remove_dir(&final_dir)
+            .map_err(|err| format!("Could not prepare empty install target: {err}"))?;
+    } else if let Some(parent) = final_dir.parent() {
+        fs::create_dir_all(parent)
+            .map_err(|err| format!("Could not create install target parent: {err}"))?;
     }
 
     fs::rename(&staging, &final_dir)
@@ -374,21 +404,22 @@ fn prepare_wsl_bundle(app: Option<&AppHandle>, request: &InstallRequest) -> Resu
 
 fn build_wsl_bundle_prepare_script(request: &InstallRequest) -> Result<String, String> {
     let acquire_bundle = wsl_bundle_acquire_script(request)?;
-    let install_dir = request
+    let target_dir = request
         .wsl_repo_path
         .as_deref()
         .map(str::trim)
         .filter(|value| !value.is_empty())
         .map(shell_quote)
-        .unwrap_or_else(|| "\"$HOME/parthenon-installer\"".to_string());
+        .unwrap_or_else(|| "\"$HOME/Parthenon\"".to_string());
     let sha = request.bundle_sha256.trim();
 
     Ok(format!(
         r#"set -e
-install_dir={install_dir}
+target_dir={target_dir}
+workspace_dir="$HOME/.cache/acropolis-installer"
 expected_sha={expected_sha}
-mkdir -p "$install_dir/downloads"
-archive="$install_dir/downloads/parthenon-community-bootstrap.tar.gz"
+mkdir -p "$workspace_dir/downloads"
+archive="$workspace_dir/downloads/parthenon-community-bootstrap.tar.gz"
 {acquire_bundle}
 if [ -n "$expected_sha" ]; then
 python3 - "$archive" "$expected_sha" <<'PARTHENON_SHA'
@@ -405,8 +436,7 @@ if actual != expected:
     raise SystemExit(f"bundle checksum mismatch: expected {{expected}}, got {{actual}}")
 PARTHENON_SHA
 fi
-extract_dir="$install_dir/current"
-tmp_dir="$install_dir/extracting.$$"
+tmp_dir="$workspace_dir/extracting.$$"
 rm -rf "$tmp_dir"
 mkdir -p "$tmp_dir"
 tar -xzf "$archive" -C "$tmp_dir"
@@ -414,11 +444,26 @@ tar -xzf "$archive" -C "$tmp_dir"
   --manifest "$tmp_dir/installer-bundle-manifest.json" \
   --repo-root "$tmp_dir" \
   --validate >/dev/null)
-rm -rf "$extract_dir"
-mv "$tmp_dir" "$extract_dir"
-echo "PARTHENON_BUNDLE_ROOT=$extract_dir"
+if [ -f "$target_dir/installer-bundle-manifest.json" ]; then
+  (cd "$target_dir" && python3 -m installer.bundle_manifest \
+    --manifest "$target_dir/installer-bundle-manifest.json" \
+    --repo-root "$target_dir" \
+    --validate >/dev/null)
+  rm -rf "$tmp_dir"
+  echo "PARTHENON_BUNDLE_ROOT=$target_dir"
+  exit 0
+fi
+if [ -d "$target_dir" ] && [ -n "$(find "$target_dir" -mindepth 1 -maxdepth 1 -print -quit)" ]; then
+  echo "selected WSL Parthenon folder is not empty: $target_dir" >&2
+  rm -rf "$tmp_dir"
+  exit 1
+fi
+rm -rf "$target_dir"
+mkdir -p "$(dirname "$target_dir")"
+mv "$tmp_dir" "$target_dir"
+echo "PARTHENON_BUNDLE_ROOT=$target_dir"
 "#,
-        install_dir = install_dir,
+        target_dir = target_dir,
         expected_sha = shell_quote(sha),
         acquire_bundle = acquire_bundle,
     ))
@@ -469,6 +514,27 @@ fn local_bundle_cache_dir(request: &InstallRequest) -> Result<PathBuf, String> {
         .ok_or_else(|| "Could not determine an installer bundle cache directory".to_string())
 }
 
+fn local_bundle_target_dir(
+    request: &InstallRequest,
+    cache_dir: &Path,
+    manifest: &InstallerBundleManifest,
+) -> PathBuf {
+    if !request.install_target_dir.trim().is_empty() {
+        return PathBuf::from(request.install_target_dir.trim());
+    }
+    let digest = short_digest(&manifest.bundle_digest);
+    cache_dir.join(format!(
+        "{}-{}-{}",
+        manifest.bundle_name, manifest.bundle_version, digest
+    ))
+}
+
+fn is_empty_directory(path: &Path) -> Result<bool, String> {
+    let mut entries = fs::read_dir(path)
+        .map_err(|err| format!("Could not inspect install target folder: {err}"))?;
+    Ok(entries.next().is_none())
+}
+
 fn default_bundle_cache_dir() -> Option<PathBuf> {
     env::var("PARTHENON_INSTALLER_BUNDLE_DIR")
         .ok()
@@ -476,10 +542,19 @@ fn default_bundle_cache_dir() -> Option<PathBuf> {
         .map(PathBuf::from)
         .or_else(|| {
             let mut path = env::temp_dir();
-            path.push("parthenon-installer");
-            path.push("bundles");
+            path.push("acropolis-installer");
             Some(path)
         })
+}
+
+fn default_install_target_dir() -> Option<PathBuf> {
+    home_dir().map(|path| path.join("Parthenon"))
+}
+
+fn home_dir() -> Option<PathBuf> {
+    env::var_os("HOME")
+        .or_else(|| env::var_os("USERPROFILE"))
+        .map(PathBuf::from)
 }
 
 fn download_bundle_archive(
@@ -776,6 +851,123 @@ fn local_repo_check(repo_path: &str) -> CheckResult {
             "install.py was not found in the selected directory",
         )
     }
+}
+
+#[tauri::command]
+fn browse_directory(title: String, current_path: Option<String>) -> Result<Option<String>, String> {
+    browse_path(PathPickerMode::Directory, &title, current_path.as_deref())
+}
+
+#[tauri::command]
+fn browse_file(title: String, current_path: Option<String>) -> Result<Option<String>, String> {
+    browse_path(PathPickerMode::File, &title, current_path.as_deref())
+}
+
+#[derive(Clone, Copy)]
+enum PathPickerMode {
+    Directory,
+    File,
+}
+
+fn browse_path(
+    mode: PathPickerMode,
+    title: &str,
+    current_path: Option<&str>,
+) -> Result<Option<String>, String> {
+    if cfg!(target_os = "macos") {
+        return browse_path_macos(mode, title);
+    }
+    if cfg!(target_os = "windows") {
+        return browse_path_windows(mode, title);
+    }
+    browse_path_linux(mode, title, current_path)
+}
+
+fn browse_path_linux(
+    mode: PathPickerMode,
+    title: &str,
+    current_path: Option<&str>,
+) -> Result<Option<String>, String> {
+    let start = current_path
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .unwrap_or(".");
+
+    if command_available("zenity") {
+        let mut args = vec!["--file-selection".to_string(), format!("--title={title}")];
+        match mode {
+            PathPickerMode::Directory => args.push("--directory".to_string()),
+            PathPickerMode::File => {}
+        }
+        args.push(format!("--filename={start}"));
+        return run_picker("zenity", &args);
+    }
+
+    if command_available("kdialog") {
+        let mut args = match mode {
+            PathPickerMode::Directory => vec!["--getexistingdirectory".to_string()],
+            PathPickerMode::File => vec!["--getopenfilename".to_string()],
+        };
+        args.push(start.to_string());
+        args.push("--title".to_string());
+        args.push(title.to_string());
+        return run_picker("kdialog", &args);
+    }
+
+    Err(
+        "No native file picker was found. Install zenity or kdialog, or type the path directly."
+            .to_string(),
+    )
+}
+
+fn browse_path_macos(mode: PathPickerMode, title: &str) -> Result<Option<String>, String> {
+    let prompt = applescript_quote(title);
+    let command = match mode {
+        PathPickerMode::Directory => format!("POSIX path of (choose folder with prompt {prompt})"),
+        PathPickerMode::File => format!("POSIX path of (choose file with prompt {prompt})"),
+    };
+    run_picker("osascript", &["-e".to_string(), command])
+}
+
+fn browse_path_windows(mode: PathPickerMode, title: &str) -> Result<Option<String>, String> {
+    let escaped_title = title.replace('\'', "''");
+    let dialog_script = match mode {
+        PathPickerMode::Directory => format!(
+            "Add-Type -AssemblyName System.Windows.Forms; $d = New-Object System.Windows.Forms.FolderBrowserDialog; $d.Description = '{escaped_title}'; if ($d.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {{ $d.SelectedPath }}"
+        ),
+        PathPickerMode::File => format!(
+            "Add-Type -AssemblyName System.Windows.Forms; $d = New-Object System.Windows.Forms.OpenFileDialog; $d.Title = '{escaped_title}'; $d.Filter = 'Installer archives (*.tar.gz;*.tgz;*.zip)|*.tar.gz;*.tgz;*.zip|All files (*.*)|*.*'; if ($d.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {{ $d.FileName }}"
+        ),
+    };
+    run_picker(
+        "powershell.exe",
+        &[
+            "-NoProfile".to_string(),
+            "-STA".to_string(),
+            "-Command".to_string(),
+            dialog_script,
+        ],
+    )
+}
+
+fn run_picker(program: &str, args: &[String]) -> Result<Option<String>, String> {
+    let output = Command::new(program)
+        .args(args)
+        .output()
+        .map_err(|err| format!("Could not open native file picker: {err}"))?;
+    if !output.status.success() {
+        return Ok(None);
+    }
+    let selected = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    if selected.is_empty() {
+        Ok(None)
+    } else {
+        Ok(Some(selected))
+    }
+}
+
+fn applescript_quote(value: &str) -> String {
+    format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
 }
 
 #[tauri::command]
@@ -1417,7 +1609,7 @@ fn build_seed(request: &InstallRequest) -> serde_json::Value {
         "cdm_user": request.cdm_user.trim(),
         "cdm_password": request.cdm_password.trim(),
         "cdm_schema": normalized_or(&request.cdm_schema, "omop"),
-        "vocabulary_schema": normalized_or(&request.vocabulary_schema, "omop"),
+        "vocabulary_schema": normalized_or(&request.vocabulary_schema, "vocab"),
         "results_schema": normalized_or(&request.results_schema, "results"),
         "temp_schema": normalized_or(&request.temp_schema, "scratch"),
         "vocabulary_setup": normalized_or(&request.vocabulary_setup, "Use demo starter data"),
@@ -1620,6 +1812,8 @@ fn main() {
         .manage(InstallerState::default())
         .invoke_handler(tauri::generate_handler![
             bootstrap,
+            browse_directory,
+            browse_file,
             validate_environment,
             preview_defaults,
             start_install
@@ -1712,6 +1906,7 @@ mod tests {
             bundle_archive_path: "".to_string(),
             bundle_sha256: "".to_string(),
             bundle_install_dir: "".to_string(),
+            install_target_dir: "".to_string(),
             admin_email: "admin@example.com".to_string(),
             admin_name: "Admin".to_string(),
             admin_password: "secret-password".to_string(),
@@ -1725,7 +1920,7 @@ mod tests {
             cdm_user: "parthenon".to_string(),
             cdm_password: "".to_string(),
             cdm_schema: "omop".to_string(),
-            vocabulary_schema: "omop".to_string(),
+            vocabulary_schema: "vocab".to_string(),
             results_schema: "results".to_string(),
             temp_schema: "scratch".to_string(),
             vocabulary_setup: "Use demo starter data".to_string(),
@@ -1757,6 +1952,9 @@ mod tests {
             "Create local PostgreSQL OMOP database"
         );
         assert_eq!(seed["cdm_dialect"], "PostgreSQL");
+        assert_eq!(seed["cdm_schema"], "omop");
+        assert_eq!(seed["vocabulary_schema"], "vocab");
+        assert_eq!(seed["results_schema"], "results");
         assert_eq!(seed["vocabulary_setup"], "Use demo starter data");
         assert_eq!(
             seed["datasets"],

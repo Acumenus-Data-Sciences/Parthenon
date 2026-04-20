@@ -706,8 +706,8 @@ services:
       - PG_DATABASE=${FHIR_CDM_PG_DATABASE:-ohdsi}
       - PG_USER=${FHIR_CDM_PG_USER:-smudoshi}
       - PG_PASSWORD=${FHIR_CDM_PG_PASSWORD:-}
-      - CDM_SCHEMA=${FHIR_CDM_SCHEMA:-cdm}
-      - VOCAB_SCHEMA=${FHIR_VOCAB_SCHEMA:-omop}
+      - CDM_SCHEMA=${FHIR_CDM_SCHEMA:-omop}
+      - VOCAB_SCHEMA=${FHIR_VOCAB_SCHEMA:-vocab}
       - FHIR_CDM_BINARY=/app/dotnet/FHIRtoCDM
       - FHIR_INPUT_DIR=/tmp/fhir_input
       - CDM_OUTPUT_DIR=/tmp/cdm_output

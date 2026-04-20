@@ -19,6 +19,8 @@ def test_bootstrap_exposes_python_community_contract(monkeypatch):
     assert community["datasets"] == ["eunomia", "phenotype-library"]
     assert community["enable_hecate"] is True
     assert community["enable_blackrabbit"] is False
+    assert community["vocabulary_schema"] == "vocab"
+    assert "darkstar" in plan["compose_services"]
     assert "hecate" in plan["compose_services"]
     assert "blackrabbit" not in plan["compose_services"]
 

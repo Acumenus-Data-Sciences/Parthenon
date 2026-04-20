@@ -324,7 +324,7 @@ def _split_postgres_server(server: str) -> tuple[str, str | None, str]:
 
 def _postgres_probe_query(cfg: dict[str, Any]) -> str:
     cdm_schema = _setting(cfg, "cdm_schema", "omop")
-    vocab_schema = _setting(cfg, "vocabulary_schema", cdm_schema)
+    vocab_schema = _setting(cfg, "vocabulary_schema", "vocab")
     results_schema = _setting(cfg, "results_schema", "results")
     temp_schema = _setting(cfg, "temp_schema", "scratch")
     expressions = [

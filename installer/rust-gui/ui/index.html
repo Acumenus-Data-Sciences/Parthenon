@@ -26,37 +26,55 @@
           <section class="form-section">
             <div>
               <h2>Workspace</h2>
-              <p>Use an existing checkout, or use a verified installer bundle.</p>
+              <p>Download the verified Community bundle, then keep the installed Parthenon files in a persistent folder.</p>
             </div>
-            <div class="field-grid">
+            <div class="sequence-fields">
               <label>
                 Install source
                 <select id="source-mode" name="source_mode">
-                  <option>Use existing checkout</option>
                   <option>Use installer bundle</option>
+                  <option>Use existing checkout</option>
                 </select>
               </label>
               <label id="repo-path-field">
-                Parthenon repo path
-                <input id="repo-path" name="repo_path" autocomplete="off" />
+                <span id="repo-path-label">Existing Parthenon checkout</span>
+                <span class="input-action">
+                  <input id="repo-path" name="repo_path" autocomplete="off" />
+                  <button class="browse-button" type="button" data-browse="directory" data-target="#repo-path">Browse</button>
+                </span>
               </label>
             </div>
-            <div id="bundle-fields" class="field-grid" hidden>
+            <div id="bundle-fields" class="sequence-fields" hidden>
               <label>
                 Bundle URL
                 <input id="bundle-url" name="bundle_url" placeholder="https://github.com/.../parthenon-community-bootstrap.tar.gz" autocomplete="off" />
               </label>
               <label>
-                Local bundle archive
-                <input id="bundle-archive-path" name="bundle_archive_path" placeholder="/path/to/parthenon-community-bootstrap.tar.gz" autocomplete="off" />
+                Local bundle archive, optional
+                <span class="input-action">
+                  <input id="bundle-archive-path" name="bundle_archive_path" placeholder="/path/to/parthenon-community-bootstrap.tar.gz" autocomplete="off" />
+                  <button class="browse-button" type="button" data-browse="file" data-target="#bundle-archive-path">Browse</button>
+                </span>
               </label>
               <label>
                 Bundle SHA-256
                 <input id="bundle-sha256" name="bundle_sha256" placeholder="Optional archive checksum" autocomplete="off" />
               </label>
               <label>
-                Install folder
-                <input id="bundle-install-dir" name="bundle_install_dir" placeholder="Leave blank to use the installer cache" autocomplete="off" />
+                Installer download folder
+                <span class="input-action">
+                  <input id="bundle-install-dir" name="bundle_install_dir" placeholder="/tmp/acropolis-installer" autocomplete="off" />
+                  <button class="browse-button" type="button" data-browse="directory" data-target="#bundle-install-dir">Browse</button>
+                </span>
+                <span class="field-help">Used for the downloaded bundle and temporary extraction files.</span>
+              </label>
+              <label>
+                Final Parthenon folder
+                <span class="input-action">
+                  <input id="install-target-dir" name="install_target_dir" placeholder="/home/user/Parthenon" autocomplete="off" />
+                  <button class="browse-button" type="button" data-browse="directory" data-target="#install-target-dir">Browse</button>
+                </span>
+                <span class="field-help">This folder persists after installation and becomes the local Parthenon root.</span>
               </label>
             </div>
             <div id="windows-fields" class="windows-fields" hidden>
@@ -99,7 +117,7 @@
           <section class="form-section">
             <div>
               <h2>Community Stack</h2>
-              <p>These defaults stand up the Community edition with search and starter data.</p>
+              <p>These defaults stand up the Community edition with OHDSI analytics, search, and starter data.</p>
             </div>
             <div class="field-grid">
               <label>
@@ -121,19 +139,20 @@
           <section class="form-section">
             <div>
               <h2>OMOP Data</h2>
-              <p>Choose whether Parthenon should use a prepared CDM, prepare an existing database server, or create local PostgreSQL.</p>
+              <p>Start with the database you already have. If you do not have one, the installer creates local PostgreSQL and uses Eunomia until a vocabulary is ready.</p>
             </div>
-            <div class="field-grid">
+            <div class="sequence-fields">
               <label>
-                CDM target
-                <select id="cdm-setup-mode" name="cdm_setup_mode">
-                  <option>Create local PostgreSQL OMOP database</option>
-                  <option>Use an existing database server</option>
-                  <option>Use an existing OMOP CDM</option>
+                1. Do you already have a live database?
+                <select id="live-db-choice" name="live_db_choice">
+                  <option value="local">No. Install PostgreSQL locally.</option>
+                  <option value="server">Yes. I have a database server.</option>
+                  <option value="cdm">Yes. I have a ready OMOP CDM.</option>
                 </select>
               </label>
+              <input id="cdm-setup-mode" name="cdm_setup_mode" type="hidden" value="Create local PostgreSQL OMOP database" />
               <label>
-                Database platform
+                2. Which database platform?
                 <select id="cdm-dialect" name="cdm_dialect">
                   <option>PostgreSQL</option>
                   <option>Microsoft SQL Server</option>
@@ -150,9 +169,30 @@
                 </select>
               </label>
             </div>
-            <div id="cdm-state-fields" class="field-grid">
+            <div id="local-postgres-note" class="info-panel">
+              Local PostgreSQL will be installed with the Community stack. The OMOP CDM schema is <strong>omop</strong>, the vocabulary schema is <strong>vocab</strong>, and the results schema is <strong>results</strong>.
+            </div>
+            <div id="cdm-connection-fields" class="sequence-fields">
               <label>
-                What exists now?
+                3. Server or connection host
+                <input id="cdm-server" name="cdm_server" placeholder="host, JDBC URL, or cloud endpoint" autocomplete="off" />
+              </label>
+              <label>
+                4. Database
+                <input id="cdm-database" name="cdm_database" placeholder="database, catalog, or project" autocomplete="off" />
+              </label>
+              <label>
+                5. User
+                <input id="cdm-user" name="cdm_user" autocomplete="off" />
+              </label>
+              <label>
+                6. Password
+                <input id="cdm-password" name="cdm_password" type="password" autocomplete="off" />
+              </label>
+            </div>
+            <div id="cdm-state-fields" class="sequence-fields">
+              <label>
+                7. What exists now?
                 <select id="cdm-existing-state" name="cdm_existing_state">
                   <option>Empty database or schema</option>
                   <option>Schemas exist but OMOP tables are missing</option>
@@ -162,41 +202,23 @@
                 </select>
               </label>
               <label>
-                Vocabulary
+                8. Do you have an OMOP vocabulary?
                 <select id="vocabulary-setup" name="vocabulary_setup">
-                  <option>Use demo starter data</option>
-                  <option>Use existing vocabulary</option>
-                  <option>Load Athena vocabulary ZIP</option>
-                  <option>Load later</option>
+                  <option value="Use demo starter data">No. Use Eunomia for now.</option>
+                  <option value="Use existing vocabulary">Yes. Use an existing vocabulary.</option>
+                  <option value="Load Athena vocabulary ZIP">Yes. Load an Athena vocabulary ZIP.</option>
+                  <option value="Load later">Load vocabulary later.</option>
                 </select>
               </label>
             </div>
-            <div id="cdm-connection-fields" class="field-grid">
-              <label>
-                Server or connection host
-                <input id="cdm-server" name="cdm_server" placeholder="host, JDBC URL, or cloud endpoint" autocomplete="off" />
-              </label>
-              <label>
-                Database
-                <input id="cdm-database" name="cdm_database" placeholder="database, catalog, or project" autocomplete="off" />
-              </label>
-              <label>
-                User
-                <input id="cdm-user" name="cdm_user" autocomplete="off" />
-              </label>
-              <label>
-                Password
-                <input id="cdm-password" name="cdm_password" type="password" autocomplete="off" />
-              </label>
-            </div>
-            <div class="field-grid">
+            <div class="field-grid schema-grid">
               <label>
                 CDM schema
                 <input id="cdm-schema" name="cdm_schema" value="omop" autocomplete="off" />
               </label>
               <label>
                 Vocabulary schema
-                <input id="vocabulary-schema" name="vocabulary_schema" value="omop" autocomplete="off" />
+                <input id="vocabulary-schema" name="vocabulary_schema" value="vocab" autocomplete="off" />
               </label>
               <label>
                 Results schema
@@ -209,7 +231,10 @@
             </div>
             <label id="vocab-zip-field">
               Athena vocabulary ZIP
-              <input id="vocab-zip-path" name="vocab_zip_path" placeholder="/path/to/AthenaVocabulary.zip" autocomplete="off" />
+              <span class="input-action">
+                <input id="vocab-zip-path" name="vocab_zip_path" placeholder="/path/to/AthenaVocabulary.zip" autocomplete="off" />
+                <button class="browse-button" type="button" data-browse="file" data-target="#vocab-zip-path">Browse</button>
+              </span>
             </label>
           </section>
 

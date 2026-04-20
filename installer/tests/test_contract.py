@@ -48,6 +48,9 @@ def test_community_contract_defaults_and_plan(monkeypatch):
     assert plan["data_setup"]["mode"] == "Create local PostgreSQL OMOP database"
     assert plan["data_setup"]["dbms"] == "PostgreSQL"
     assert plan["data_setup"]["schemas"]["cdm"] == "omop"
+    assert plan["data_setup"]["schemas"]["vocabulary"] == "vocab"
+    assert plan["data_setup"]["schemas"]["results"] == "results"
+    assert "darkstar" in plan["compose_services"]
     assert any(phase["name"] == "Install OMOP CDM DDL" for phase in plan["data_setup"]["phases"])
 
 

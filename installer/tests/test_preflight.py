@@ -19,6 +19,9 @@ def test_community_mvp_defaults_include_hecate_and_quick_start_data():
     assert cfg["enable_qdrant"] is True
     assert cfg["enable_blackrabbit"] is False
     assert cfg["enable_fhir_to_cdm"] is False
+    assert cfg["cdm_schema"] == "omop"
+    assert cfg["vocabulary_schema"] == "vocab"
+    assert cfg["results_schema"] == "results"
 
 
 def test_community_sidecar_env_matches_compose_service_ports():
@@ -101,6 +104,7 @@ def test_required_ports_respects_enabled_services_and_custom_mappings():
         (18082, "NGINX"),
         (15480, "Postgres"),
         (16381, "Redis"),
+        (18787, "Darkstar"),
         (18090, "BlackRabbit"),
         (18088, "Hecate"),
         (6333, "Qdrant API"),
@@ -144,7 +148,7 @@ def test_run_checks_only_checks_selected_ports(monkeypatch):
         }
     )
 
-    assert seen_ports == [8082, 5480, 6381]
+    assert seen_ports == [8082, 5480, 6381, 8787]
     assert not any(check.name == "Port 8983 free" for check in checks)
 
 
@@ -247,7 +251,7 @@ def test_required_ports_includes_full_service_ports_for_enterprise():
         (18082, "NGINX"),
         (15480, "Postgres"),
         (16381, "Redis"),
+        (18787, "Darkstar"),
         (18002, "AI"),
         (18888, "JupyterHub"),
-        (18787, "Darkstar"),
     ]

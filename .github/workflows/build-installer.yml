@@ -12,7 +12,7 @@ on:
         type: string
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   source-installer-check:
@@ -59,6 +59,8 @@ jobs:
           python -m installer.bundle_manifest --validate --bundle-dir dist/installer-bundle --pretty > dist/installer-bundle/build-result.json
           bundle="$(find dist/installer-bundle -name 'parthenon-community-bootstrap-*.tar.gz' -print -quit)"
           test -n "$bundle"
+          cp "$bundle" dist/installer-bundle/parthenon-community-bootstrap.tar.gz
+          sha256sum dist/installer-bundle/parthenon-community-bootstrap.tar.gz > dist/installer-bundle/parthenon-community-bootstrap.tar.gz.sha256
           mkdir -p /tmp/parthenon-installer-bundle-check
           tar -xzf "$bundle" -C /tmp/parthenon-installer-bundle-check
           python -m installer.bundle_manifest \
@@ -83,7 +85,18 @@ jobs:
 
       - name: Confirm release asset policy
         run: |
-          echo "Workflow artifacts include the source-backed installer bundle until signed release assets are ready."
+          echo "Workflow artifacts include the source-backed installer bundle until signed native installers are ready."
+
+      - name: Publish source-backed installer bundle
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${{ github.event.release.tag_name }}" \
+            dist/installer-bundle/parthenon-community-bootstrap.tar.gz \
+            dist/installer-bundle/parthenon-community-bootstrap.tar.gz.sha256 \
+            --repo "${{ github.repository }}" \
+            --clobber
 
       - name: Upload source-backed installer bundle
         uses: actions/upload-artifact@v7

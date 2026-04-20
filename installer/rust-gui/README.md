@@ -18,12 +18,13 @@ checks use the Python installer contract so the desktop shell does not
 duplicate installer rules.
 
 The app can run from an existing Parthenon checkout or a verified installer
-bundle. In bundle mode it accepts a bundle URL or local `.tar.gz`, verifies the
-optional archive SHA-256, extracts the bundle into the installer cache, validates
-every file against `installer-bundle-manifest.json`, and then runs the Python
-installer from that verified directory. On Windows, bundle mode prepares the
-bundle inside WSL from a URL or local archive path before launching the Linux
-installer path.
+bundle. In bundle mode it autofills the latest source-backed bundle URL,
+accepts a local `.tar.gz` override, verifies the optional archive SHA-256,
+uses a temporary installer download folder, validates every file against
+`installer-bundle-manifest.json`, and then runs the Python installer from the
+persistent Parthenon folder selected by the user. On Windows, bundle mode
+prepares the bundle inside WSL from a URL or local archive path before launching
+the Linux installer path.
 
 ## Data Setup Direction
 

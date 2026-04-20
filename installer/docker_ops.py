@@ -14,7 +14,7 @@ from . import utils
 
 console = Console()
 
-# Minimum service set needed to reach the login page.
+# Required Community service set.
 # Community Edition fast-boot uses this list verbatim.
 # Horizon is deliberately excluded from the core set — it bind-mounts the host
 # backend/ dir and requires vendor/autoload.php, which only exists after Phase 4
@@ -24,6 +24,7 @@ CE_CORE_SERVICES = [
     ("redis",    "parthenon-redis",    30),
     ("php",      "parthenon-php",     120),
     ("nginx",    "parthenon-nginx",    30),
+    ("darkstar", "parthenon-darkstar", 120),
 ]
 
 HORIZON_SERVICE = ("horizon", "parthenon-horizon", 30)
@@ -33,7 +34,6 @@ FULL_ADDITIONS = [
     ("horizon",    "parthenon-horizon",     30),
     ("python-ai",  "python-ai",            120),
     ("jupyterhub", "parthenon-jupyterhub",  60),
-    ("darkstar",   "parthenon-darkstar",   120),
 ]
 
 SOLR_SERVICE = ("solr", "parthenon-solr", 60)
