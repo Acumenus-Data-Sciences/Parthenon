@@ -398,7 +398,7 @@ services:
       - CORS_ORIGINS=http://nginx:80
       - OPENAI_BASE_URL=http://host.docker.internal:11434/v1
       - OPENAI_API_KEY=not-needed
-      - PG__USER=${HECATE_PG_USER:-parthenon}
+      - PG__USER=${HECATE_PG_USER:-claude_dev}
       - PG__PASSWORD=${HECATE_PG_PASSWORD:-}
       - PG__HOST=host.docker.internal
       - PG__PORT=5432
@@ -617,7 +617,7 @@ services:
       - ORTHANC__LIMIT_FIND_INSTANCES=50
       - ORTHANC__CONCURRENT_JOBS=4
       # PostgreSQL index — concurrent query support for 926K+ instances
-      - ORTHANC__POSTGRESQL__ENABLE_INDEX=true
+      - ORTHANC__POSTGRESQL__ENABLE_INDEX=${ORTHANC_POSTGRESQL_ENABLE_INDEX:-true}
       - ORTHANC__POSTGRESQL__ENABLE_STORAGE=false
       - ORTHANC__POSTGRESQL__HOST=${ORTHANC_DB_HOST:-postgres}
       - ORTHANC__POSTGRESQL__PORT=${ORTHANC_DB_PORT:-5432}

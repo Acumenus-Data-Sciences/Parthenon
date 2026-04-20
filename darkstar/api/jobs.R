@@ -102,5 +102,13 @@ function(job_id, response) {
 #* @get /jobs/list
 #* @serializer unboxedJSON
 function() {
-  list(jobs = list_jobs())
+  jobs <- list_jobs()
+
+  # plumber2/jsonlite can choke on a nested bare list() here. Use an empty
+  # atomic vector so the public JSON contract remains {"jobs":[]}.
+  if (length(jobs) == 0) {
+    jobs <- character(0)
+  }
+
+  list(jobs = jobs)
 }
