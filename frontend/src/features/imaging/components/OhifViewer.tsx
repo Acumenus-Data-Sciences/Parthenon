@@ -9,7 +9,7 @@
  * imaging measurement API.
  */
 
-import { useState, useRef, useEffect, useLayoutEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from "react";
 import { Loader2, ExternalLink, AlertCircle, Save, CheckCircle2 } from "lucide-react";
 import { imagingApi } from "../api/imagingApi";
 
@@ -39,6 +39,7 @@ interface PendingMeasurement {
 
 interface OhifViewerProps {
   studyInstanceUid: string;
+  seriesInstanceUids?: string[];
   studyId?: number;
   personId?: number | null;
   className?: string;
@@ -47,6 +48,7 @@ interface OhifViewerProps {
 
 export default function OhifViewer({
   studyInstanceUid,
+  seriesInstanceUids = [],
   studyId,
   className = "",
   onMeasurementSaved,
@@ -167,8 +169,32 @@ export default function OhifViewer({
     if (count > 0) onMeasurementSaved?.();
   }, [studyId, pending, onMeasurementSaved]);
 
-  const ohifUrl = `/ohif/viewer?StudyInstanceUIDs=${encodeURIComponent(studyInstanceUid)}`;
-  const ohifMprUrl = `/ohif/viewer?StudyInstanceUIDs=${encodeURIComponent(studyInstanceUid)}&hangingProtocolId=${encodeURIComponent("@ohif/mnGrid")}`;
+  const scopedSeriesInstanceUids = useMemo(
+    () => Array.from(new Set(seriesInstanceUids.filter(Boolean))),
+    [seriesInstanceUids],
+  );
+
+  const buildOhifUrl = useCallback(
+    (hangingProtocolId?: string) => {
+      const params = new URLSearchParams();
+      params.set("StudyInstanceUIDs", studyInstanceUid);
+
+      if (scopedSeriesInstanceUids.length > 0) {
+        params.set("SeriesInstanceUIDs", scopedSeriesInstanceUids.join(","));
+      }
+
+      if (hangingProtocolId) {
+        params.set("hangingProtocolId", hangingProtocolId);
+      }
+
+      return `/ohif/viewer?${params.toString()}`;
+    },
+    [scopedSeriesInstanceUids, studyInstanceUid],
+  );
+
+  const ohifUrl = buildOhifUrl();
+  const ohifMprUrl = buildOhifUrl("mpr");
+  const ohif3dUrl = buildOhifUrl("mprAnd3DVolumeViewport");
 
   return (
     <div ref={containerRef} className={`relative rounded-lg border border-border-subtle overflow-hidden ${className}`}>
@@ -253,7 +279,21 @@ export default function OhifViewer({
           </div>
         )}
 
-        {/* Expand to new tab */}
+        {/* 3D volume layout */}
+        {!loading && !error && (
+          <a
+            href={ohif3dUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 rounded-md bg-surface-base/80 px-2 py-1 text-[10px] text-info hover:text-info transition-colors backdrop-blur-sm"
+            title="Open OHIF in 3D volume layout"
+          >
+            3D
+            <ExternalLink size={10} />
+          </a>
+        )}
+
+        {/* MPR layout */}
         {!loading && !error && (
           <a
             href={ohifMprUrl}

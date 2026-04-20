@@ -36,7 +36,10 @@ class ImagingStudy extends Model
     /** @return HasMany<ImagingSeries, $this> */
     public function series(): HasMany
     {
-        return $this->hasMany(ImagingSeries::class, 'study_id');
+        return $this->hasMany(ImagingSeries::class, 'study_id')
+            ->orderByRaw('series_number IS NULL')
+            ->orderBy('series_number')
+            ->orderBy('id');
     }
 
     /** @return HasMany<ImagingProcedureOmopXref, $this> */

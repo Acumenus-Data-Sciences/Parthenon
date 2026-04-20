@@ -150,6 +150,7 @@ export default function ImagingStudyPage() {
       {activeTab === "viewer" && study.status === "indexed" && (
         <OhifViewer
           studyInstanceUid={study.study_instance_uid}
+          seriesInstanceUids={study.series?.map((series) => series.series_instance_uid) ?? []}
           studyId={studyId}
           personId={study.person_id}
         />

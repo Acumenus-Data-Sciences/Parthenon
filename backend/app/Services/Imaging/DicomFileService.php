@@ -29,6 +29,8 @@ class DicomFileService
         0x00080016 => 'SOPClassUID',
         0x00080018 => 'SOPInstanceUID',
         0x00080020 => 'StudyDate',
+        0x00080021 => 'SeriesDate',
+        0x00080031 => 'SeriesTime',
         0x00080060 => 'Modality',
         0x00080080 => 'InstitutionName',
         0x00081030 => 'StudyDescription',
@@ -43,12 +45,16 @@ class DicomFileService
         0x00181164 => 'PixelSpacing',
         0x0020000D => 'StudyInstanceUID',
         0x0020000E => 'SeriesInstanceUID',
+        0x00200011 => 'SeriesNumber',
+        0x00200012 => 'AcquisitionNumber',
         0x00200013 => 'InstanceNumber',
+        0x00200032 => 'ImagePositionPatient',
+        0x00200037 => 'ImageOrientationPatient',
+        0x00200052 => 'FrameOfReferenceUID',
         0x00201041 => 'SliceLocation',
         0x00280010 => 'Rows',
         0x00280011 => 'Columns',
         0x00280030 => 'PixelSpacing', // also at 0028,0030
-        0x00081164 => 'FrameOfReferenceUID',
     ];
 
     // VRs that use 4-byte length (explicit VR long form)
