@@ -13,7 +13,7 @@ export function TimelineLegend({
   observationPeriods,
 }: TimelineLegendProps) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2 border-t border-border-default bg-surface-overlay">
+    <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2 border-t border-border-default bg-[var(--patient-timeline-toolbar-bg)]">
       <div className="flex flex-wrap gap-3">
         {activeDomains.map((domain) => {
           const config = DOMAIN_CONFIG[domain];

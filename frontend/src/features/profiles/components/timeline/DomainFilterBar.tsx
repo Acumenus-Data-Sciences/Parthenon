@@ -16,7 +16,7 @@ export function DomainFilterBar({
   onToggleHide,
 }: DomainFilterBarProps) {
   return (
-    <div className="flex items-center gap-1.5 px-4 py-2 bg-surface-raised border-b border-border-default overflow-x-auto">
+    <div className="flex items-center gap-1.5 px-4 py-2 bg-[var(--patient-timeline-panel-bg)] border-b border-border-default overflow-x-auto">
       <span className="text-[10px] text-text-ghost shrink-0 mr-1">Domains:</span>
       {allPresentDomains.map((domain) => {
         const cfg = DOMAIN_CONFIG[domain];

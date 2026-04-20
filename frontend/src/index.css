@@ -114,6 +114,25 @@
   --font-mono: 'IBM Plex Mono', Consolas, monospace;
 }
 
+/* Timeline panel surfaces: keep dark mode unchanged; restore warm light-mode paneling. */
+:root {
+  --patient-timeline-panel-bg: var(--surface-raised);
+  --patient-timeline-toolbar-bg: var(--surface-overlay);
+  --patient-timeline-track-bg: var(--surface-base);
+  --patient-timeline-lane-opacity: 0.04;
+  --patient-timeline-viewport-fill: rgba(255, 255, 255, 0.05);
+  --patient-timeline-viewport-stroke: rgba(255, 255, 255, 0.25);
+}
+
+html.light {
+  --patient-timeline-panel-bg: var(--surface-overlay);
+  --patient-timeline-toolbar-bg: var(--surface-elevated);
+  --patient-timeline-track-bg: var(--surface-base);
+  --patient-timeline-lane-opacity: 0.065;
+  --patient-timeline-viewport-fill: rgba(122, 21, 38, 0.05);
+  --patient-timeline-viewport-stroke: rgba(122, 21, 38, 0.22);
+}
+
 /* ============================================================
    Base styles
    ============================================================ */

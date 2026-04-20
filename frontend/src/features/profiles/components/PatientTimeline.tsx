@@ -376,14 +376,14 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
 
   if (events.length === 0) {
     return (
-      <div className="flex items-center justify-center h-48 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
+      <div className="flex items-center justify-center h-48 rounded-lg border border-dashed border-surface-highlight bg-[var(--patient-timeline-panel-bg)]">
         <p className="text-sm text-text-muted">No clinical events to display</p>
       </div>
     );
   }
 
   return (
-    <div className="relative rounded-lg border border-border-default bg-surface-raised overflow-hidden">
+    <div className="relative rounded-lg border border-border-default bg-[var(--patient-timeline-panel-bg)] overflow-hidden">
       <TimelineToolbar
         eventCount={events.length}
         activeDomainCount={activeDomains.length}
@@ -412,7 +412,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
 
       {/* Year quick-nav */}
       {years.length > 1 && (
-        <div className="flex items-center gap-1 px-4 py-1.5 bg-surface-base border-b border-border-subtle overflow-x-auto">
+        <div className="flex items-center gap-1 px-4 py-1.5 bg-[var(--patient-timeline-track-bg)] border-b border-border-subtle overflow-x-auto">
           <span className="text-[10px] text-text-ghost shrink-0 mr-1">Jump:</span>
           {years.map((y) => (
             <button
@@ -430,7 +430,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
       {/* SVG Timeline */}
       <div
         ref={containerRef}
-        className="overflow-hidden cursor-grab active:cursor-grabbing"
+        className="overflow-hidden cursor-grab active:cursor-grabbing bg-[var(--patient-timeline-track-bg)]"
         tabIndex={0}
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
@@ -470,6 +470,8 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
               />
             </pattern>
           </defs>
+
+          <rect x={0} y={0} width={svgWidth} height={svgHeight} fill="var(--patient-timeline-track-bg)" />
 
           {/* Observation period bands (behind everything) */}
           <g clipPath={`url(#${clipId})`}>
@@ -569,7 +571,8 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                   y={y}
                   width={svgWidth}
                   height={height}
-                  fill={`${config.color}04`}
+                  fill={config.color}
+                  opacity="var(--patient-timeline-lane-opacity)"
                 />
                 <line
                   x1={0}

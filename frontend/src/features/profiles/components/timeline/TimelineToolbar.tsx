@@ -26,7 +26,7 @@ export function TimelineToolbar({
   onReset,
 }: TimelineToolbarProps) {
   return (
-    <div className="flex items-center justify-between gap-3 px-4 py-2 bg-surface-overlay border-b border-border-default flex-wrap">
+    <div className="flex items-center justify-between gap-3 px-4 py-2 bg-[var(--patient-timeline-toolbar-bg)] border-b border-border-default flex-wrap">
       <div className="flex items-center gap-2">
         <span className="text-xs text-text-muted">
           {eventCount} events · {activeDomainCount} domains

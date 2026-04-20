@@ -29,7 +29,7 @@ export function DensityMinimap({
   onMinimapClick,
 }: DensityMinimapProps) {
   return (
-    <div className="relative bg-surface-base border-b border-border-subtle" style={{ height: 32 }}>
+    <div className="relative bg-[var(--patient-timeline-track-bg)] border-b border-border-subtle" style={{ height: 32 }}>
       <svg
         width="100%"
         height={32}
@@ -55,8 +55,7 @@ export function DensityMinimap({
           y={1}
           width={Math.max(minimapViewport.x2 - minimapViewport.x1, 4)}
           height={30}
-          fill="white"
-          opacity={0.05}
+          fill="var(--patient-timeline-viewport-fill)"
           rx={1}
         />
         <rect
@@ -65,9 +64,8 @@ export function DensityMinimap({
           width={Math.max(minimapViewport.x2 - minimapViewport.x1, 4)}
           height={30}
           fill="none"
-          stroke="white"
+          stroke="var(--patient-timeline-viewport-stroke)"
           strokeWidth={0.8}
-          opacity={0.25}
           rx={1}
         />
         {/* Axis line */}
