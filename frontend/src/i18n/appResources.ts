@@ -12890,8 +12890,943 @@ const koApp: MessageTree = {
   },
 };
 
+function mergeMessageTrees(base: MessageTree, overrides: MessageTree): MessageTree {
+  return Object.fromEntries(
+    Object.entries(base).map(([key, baseValue]) => {
+      const overrideValue = overrides[key];
+      if (
+        baseValue &&
+        typeof baseValue === "object" &&
+        !Array.isArray(baseValue)
+      ) {
+        return [
+          key,
+          mergeMessageTrees(
+            baseValue,
+            overrideValue &&
+              typeof overrideValue === "object" &&
+              !Array.isArray(overrideValue)
+              ? overrideValue
+              : {},
+          ),
+        ];
+      }
+
+      return [key, overrideValue ?? baseValue];
+    }),
+  );
+}
+
+const frApp: MessageTree = mergeMessageTrees(enApp, {
+  errors: {
+    boundary: {
+      title: "Une erreur est survenue",
+      message: "Une erreur inattendue s'est produite. Essayez de recharger la page.",
+      reloadPage: "Recharger la page",
+    },
+    route: {
+      routeError: "Erreur de route",
+      pageFailed: "La page n'a pas pu s'afficher.",
+      analysisDescription:
+        "Cette page d'analyse a rencontré une erreur de rendu ou de chargement de route.",
+      label: "Erreur",
+      backToAnalyses: "Retour aux analyses",
+      reloadPage: "Recharger la page",
+    },
+  },
+  analysis: {
+    titles: {
+      characterization: "Caractérisation",
+      incidenceRate: "Analyse du taux d'incidence",
+      pathway: "Analyse des parcours",
+      estimation: "Analyse d'estimation",
+      prediction: "Analyse de prédiction",
+      sccs: "Analyse SCCS",
+      evidenceSynthesis: "Analyse de synthèse des preuves",
+    },
+  },
+  administration: {
+    dashboard: {
+      title: "Administration",
+      subtitle:
+        "Gérez les utilisateurs, les rôles, les autorisations et la configuration du système.",
+      panels: {
+        platform: "Plateforme",
+        usersAccess: "Utilisateurs et accès",
+        dataSources: "Sources de données",
+        aiResearch: "IA et recherche",
+      },
+      status: {
+        allHealthy: "Tout est sain",
+        degraded: "Dégradé",
+        warning: "Avertissement",
+      },
+      labels: {
+        services: "Services",
+        queue: "File",
+        redis: "Redis",
+        totalUsers: "Utilisateurs",
+        roles: "Rôles",
+        authProviders: "Fournisseurs d'authentification",
+        tokenExpiry: "Expiration du jeton",
+        solr: "Solr",
+        aiProvider: "Fournisseur IA",
+        model: "Modèle",
+        abby: "Abby",
+        researchRuntime: "R / HADES",
+      },
+      values: {
+        servicesUp: "{{healthy}}/{{total}} actifs",
+        queueSummary: "{{pending}} en attente / {{failed}} en échec",
+        enabledCount: "{{count}} activés",
+        none: "Aucun",
+        online: "En ligne",
+      },
+      messages: {
+        noCdmSources: "Aucune source CDM configurée",
+      },
+      nav: {
+        userManagement: {
+          title: "Gestion des utilisateurs",
+          description:
+            "Créez, modifiez et désactivez les comptes. Attribuez des rôles pour contrôler l'accès.",
+        },
+        rolesPermissions: {
+          title: "Rôles et autorisations",
+          description:
+            "Définissez des rôles personnalisés et ajustez les autorisations dans tous les domaines.",
+        },
+        authProviders: {
+          title: "Fournisseurs d'authentification",
+          description:
+            "Activez et configurez LDAP, OAuth 2.0, SAML 2.0 ou OIDC pour le SSO.",
+        },
+        aiProviders: {
+          title: "Configuration du fournisseur IA",
+          description:
+            "Basculez le backend d'Abby entre Ollama local, Anthropic, OpenAI, Gemini et plus.",
+        },
+        systemHealth: {
+          title: "État du système",
+          description:
+            "Statut en direct des services Parthenon : Redis, IA, Darkstar, Solr, Orthanc PACS et files de tâches.",
+        },
+        vocabularyManagement: {
+          title: "Gestion du vocabulaire",
+          description:
+            "Mettez à jour les tables OMOP en téléversant un nouveau ZIP Athena.",
+        },
+        fhirConnections: {
+          title: "Connexions FHIR EHR",
+          description:
+            "Gérez les connexions FHIR R4 vers Epic, Cerner et d'autres systèmes EHR pour l'import massif.",
+        },
+      },
+      setupWizard: {
+        title: "Assistant de configuration de la plateforme",
+        description:
+          "Relancez la configuration guidée : état, fournisseur IA, authentification et sources de données.",
+      },
+      atlasMigration: {
+        title: "Migrer depuis Atlas",
+        description:
+          "Importez des définitions de cohortes, des jeux de concepts et des analyses depuis une installation OHDSI Atlas.",
+      },
+      actions: {
+        open: "Ouvrir",
+        openWizard: "Ouvrir l'assistant",
+      },
+    },
+    authProviders: {
+      title: "Fournisseurs d'authentification",
+      subtitle:
+        "Activez un ou plusieurs fournisseurs d'identité externes pour le SSO. Le nom d'utilisateur/mot de passe Sanctum reste toujours disponible en secours.",
+      providers: {
+        ldap: {
+          label: "LDAP / Active Directory",
+          description:
+            "Authentifiez avec Microsoft Active Directory ou tout annuaire LDAP v3. Prend en charge TLS, la synchronisation des groupes et le mappage des attributs.",
+        },
+        oauth2: {
+          label: "OAuth 2.0",
+          description:
+            "Déléguez l'authentification à GitHub, Google, Microsoft ou tout fournisseur OAuth 2.0 personnalisé.",
+        },
+        saml2: {
+          label: "SAML 2.0",
+          description:
+            "SSO d'entreprise via un fournisseur d'identité SAML 2.0 (Okta, Azure AD, ADFS, etc.).",
+        },
+        oidc: {
+          label: "OpenID Connect",
+          description:
+            "SSO moderne via la découverte OIDC. Prend en charge PKCE et tout IdP conforme aux standards.",
+        },
+      },
+      enabled: "Activé",
+      disabled: "Désactivé",
+      configure: "Configurer",
+      testConnection: "Tester la connexion",
+      connectionSuccessful: "Connexion réussie",
+      connectionFailed: "Connexion échouée",
+      usernamePassword: "Nom d'utilisateur et mot de passe",
+      alwaysOn: "Toujours actif",
+      builtIn: "Authentification Sanctum intégrée - toujours active.",
+      loading: "Chargement des fournisseurs...",
+      formActions: {
+        saving: "Enregistrement...",
+        save: "Enregistrer",
+        saved: "Enregistré",
+      },
+      oauthForm: {
+        drivers: {
+          github: "GitHub",
+          google: "Google",
+          microsoft: "Microsoft / Azure AD",
+          custom: "OAuth 2.0 personnalisé",
+        },
+        sections: {
+          customEndpoints: "Points de terminaison personnalisés",
+        },
+        labels: {
+          provider: "Fournisseur",
+          clientId: "ID client",
+          clientSecret: "Secret client",
+          redirectUri: "URI de redirection",
+          scopes: "Portées",
+          authorizationUrl: "URL d'autorisation",
+          tokenUrl: "URL de jeton",
+          userInfoUrl: "URL d'informations utilisateur",
+        },
+        hints: {
+          redirectUri: "Doit correspondre à l'URI enregistrée chez votre fournisseur OAuth",
+          scopes: "Liste séparée par des espaces",
+        },
+        placeholders: {
+          clientId: "ID client / application",
+          redirectUri: "/api/v1/auth/oauth2/callback",
+          scopes: "openid profile email",
+        },
+      },
+      oidcForm: {
+        labels: {
+          discoveryUrl: "URL de découverte",
+          clientId: "ID client",
+          clientSecret: "Secret client",
+          redirectUri: "URI de redirection",
+          scopes: "Portées",
+          pkceEnabled: "Activer PKCE (recommandé - nécessite un client public)",
+        },
+        hints: {
+          discoveryUrl:
+            "Le point de terminaison /.well-known/openid-configuration de votre IdP",
+          redirectUri: "Doit correspondre à ce qui est enregistré dans votre IdP",
+          scopes: "Séparées par des espaces",
+        },
+      },
+      samlForm: {
+        sections: {
+          identityProvider: "Fournisseur d'identité (IdP)",
+          serviceProvider: "Fournisseur de service (SP)",
+          attributeMapping: "Mappage des attributs",
+        },
+        labels: {
+          idpEntityId: "ID d'entité IdP",
+          ssoUrl: "URL SSO",
+          sloUrl: "URL SLO",
+          idpCertificate: "Certificat IdP",
+          spEntityId: "ID d'entité SP",
+          acsUrl: "URL ACS",
+          nameIdFormat: "Format NameID",
+          signAssertions:
+            "Signer les assertions (nécessite la clé privée SP - à configurer côté serveur)",
+          emailAttribute: "Attribut e-mail",
+          displayNameAttribute: "Attribut nom affiché",
+        },
+        hints: {
+          ssoUrl: "Point de terminaison Single Sign-On",
+          sloUrl: "Point de terminaison Single Logout (facultatif)",
+          idpCertificate:
+            "Collez le certificat X.509 (format PEM, avec ou sans en-têtes)",
+          spEntityId:
+            "URL de votre instance Parthenon - doit correspondre à celle enregistrée dans l'IdP",
+          acsUrl: "Assertion Consumer Service",
+        },
+        attributeMappingDescription:
+          "Mappez les attributs d'assertion SAML vers les champs utilisateur de Parthenon.",
+      },
+      ldapForm: {
+        sections: {
+          connection: "Connexion",
+          bindCredentials: "Identifiants de liaison",
+          userSearch: "Recherche d'utilisateurs",
+          attributeMapping: "Mappage des attributs",
+          groupSync: "Synchronisation des groupes",
+        },
+        labels: {
+          host: "Hôte",
+          port: "Port",
+          useSsl: "Utiliser SSL (LDAPS)",
+          useTls: "Utiliser StartTLS",
+          timeout: "Délai (s)",
+          bindDn: "DN de liaison",
+          bindPassword: "Mot de passe de liaison",
+          baseDn: "DN de base",
+          userSearchBase: "Base de recherche utilisateur",
+          userFilter: "Filtre utilisateur",
+          usernameField: "Champ nom d'utilisateur",
+          emailField: "Champ e-mail",
+          displayNameField: "Champ nom affiché",
+          syncGroups: "Synchroniser les groupes LDAP vers les rôles Parthenon",
+          groupSearchBase: "Base de recherche des groupes",
+          groupFilter: "Filtre de groupe",
+        },
+        hints: {
+          host: "Nom d'hôte ou IP du serveur LDAP",
+          bindDn: "DN du compte de service utilisé pour interroger l'annuaire",
+          userFilter: "{username} est remplacé au moment de la connexion",
+        },
+        actions: {
+          saving: "Enregistrement...",
+          save: "Enregistrer",
+          saved: "Enregistré",
+        },
+      },
+    },
+    aiProviders: {
+      title: "Configuration du fournisseur IA",
+      subtitle:
+        "Choisissez le backend IA qui alimente Abby. Un seul fournisseur est actif à la fois. Les clés API sont stockées chiffrées.",
+      activeProvider: "Fournisseur actif :",
+      fields: {
+        model: "Modèle",
+        apiKey: "Clé API",
+        ollamaBaseUrl: "URL de base Ollama",
+      },
+      values: {
+        active: "Actif",
+        enabled: "Activé",
+        disabled: "Désactivé",
+        noModelSelected: "Aucun modèle sélectionné",
+      },
+      actions: {
+        currentlyActive: "Actuellement actif",
+        setAsActive: "Définir comme actif",
+        save: "Enregistrer",
+        testConnection: "Tester la connexion",
+      },
+      messages: {
+        requestFailed: "La requête a échoué.",
+      },
+    },
+  },
+});
+
+const deApp: MessageTree = mergeMessageTrees(enApp, {
+  errors: {
+    boundary: {
+      title: "Etwas ist schiefgelaufen",
+      message: "Ein unerwarteter Fehler ist aufgetreten. Laden Sie die Seite neu.",
+      reloadPage: "Seite neu laden",
+    },
+    route: {
+      routeError: "Routenfehler",
+      pageFailed: "Die Seite konnte nicht gerendert werden.",
+      analysisDescription:
+        "Diese Analyseseite hatte einen Render- oder Routenladefehler.",
+      label: "Fehler",
+      backToAnalyses: "Zurück zu Analysen",
+      reloadPage: "Seite neu laden",
+    },
+  },
+  analysis: {
+    titles: {
+      characterization: "Charakterisierung",
+      incidenceRate: "Inzidenzratenanalyse",
+      pathway: "Pfadanalyse",
+      estimation: "Schätzungsanalyse",
+      prediction: "Prädiktionsanalyse",
+      sccs: "SCCS-Analyse",
+      evidenceSynthesis: "Evidenzsynthese-Analyse",
+    },
+  },
+  administration: {
+    dashboard: {
+      title: "Administration",
+      subtitle:
+        "Benutzer, Rollen, Berechtigungen und Systemkonfiguration verwalten.",
+      panels: {
+        platform: "Plattform",
+        usersAccess: "Benutzer und Zugriff",
+        dataSources: "Datenquellen",
+        aiResearch: "KI und Forschung",
+      },
+      status: {
+        allHealthy: "Alles gesund",
+        degraded: "Beeinträchtigt",
+        warning: "Warnung",
+      },
+      labels: {
+        services: "Dienste",
+        queue: "Warteschlange",
+        redis: "Redis",
+        totalUsers: "Benutzer gesamt",
+        roles: "Rollen",
+        authProviders: "Authentifizierungsanbieter",
+        tokenExpiry: "Token-Ablauf",
+        solr: "Solr",
+        aiProvider: "KI-Anbieter",
+        model: "Modell",
+        abby: "Abby",
+        researchRuntime: "R / HADES",
+      },
+      values: {
+        servicesUp: "{{healthy}}/{{total}} aktiv",
+        queueSummary: "{{pending}} ausstehend / {{failed}} fehlgeschlagen",
+        enabledCount: "{{count}} aktiviert",
+        none: "Keine",
+        online: "Online",
+      },
+      messages: {
+        noCdmSources: "Keine CDM-Quellen konfiguriert",
+      },
+      nav: {
+        userManagement: {
+          title: "Benutzerverwaltung",
+          description:
+            "Benutzerkonten erstellen, bearbeiten und deaktivieren. Rollen steuern den Zugriff.",
+        },
+        rolesPermissions: {
+          title: "Rollen und Berechtigungen",
+          description:
+            "Benutzerdefinierte Rollen definieren und Berechtigungen domänenübergreifend anpassen.",
+        },
+        authProviders: {
+          title: "Authentifizierungsanbieter",
+          description:
+            "LDAP, OAuth 2.0, SAML 2.0 oder OIDC für SSO aktivieren und konfigurieren.",
+        },
+        aiProviders: {
+          title: "KI-Anbieter-Konfiguration",
+          description:
+            "Abbys Backend zwischen lokalem Ollama, Anthropic, OpenAI, Gemini und weiteren wechseln.",
+        },
+        systemHealth: {
+          title: "Systemstatus",
+          description:
+            "Live-Status aller Parthenon-Dienste: Redis, KI, Darkstar, Solr, Orthanc PACS und Job-Warteschlangen.",
+        },
+        vocabularyManagement: {
+          title: "Vokabularverwaltung",
+          description:
+            "OMOP-Vokabulartabellen durch Hochladen einer neuen Athena-ZIP-Datei aktualisieren.",
+        },
+        fhirConnections: {
+          title: "FHIR-EHR-Verbindungen",
+          description:
+            "FHIR-R4-Verbindungen zu Epic, Cerner und anderen EHR-Systemen für Massenimporte verwalten.",
+        },
+      },
+      setupWizard: {
+        title: "Plattform-Einrichtungsassistent",
+        description:
+          "Die geführte Einrichtung erneut starten: Statusprüfung, KI-Anbieter, Authentifizierung und Datenquellen.",
+      },
+      atlasMigration: {
+        title: "Aus Atlas migrieren",
+        description:
+          "Kohortendefinitionen, Konzeptsets und Analysen aus einer bestehenden OHDSI-Atlas-Installation importieren.",
+      },
+      actions: {
+        open: "Öffnen",
+        openWizard: "Assistent öffnen",
+      },
+    },
+    authProviders: {
+      title: "Authentifizierungsanbieter",
+      subtitle:
+        "Aktivieren Sie externe Identitätsanbieter für Single Sign-On. Sanctum-Benutzername/Passwort bleibt immer als Rückfall verfügbar.",
+      providers: {
+        ldap: {
+          label: "LDAP / Active Directory",
+          description:
+            "Authentifizierung gegen Microsoft Active Directory oder ein LDAP-v3-Verzeichnis. Unterstützt TLS, Gruppensynchronisierung und Attributzuordnung.",
+        },
+        oauth2: {
+          label: "OAuth 2.0",
+          description:
+            "Authentifizierung an GitHub, Google, Microsoft oder einen benutzerdefinierten OAuth-2.0-Anbieter delegieren.",
+        },
+        saml2: {
+          label: "SAML 2.0",
+          description:
+            "Enterprise-SSO über einen SAML-2.0-Identitätsanbieter (Okta, Azure AD, ADFS usw.).",
+        },
+        oidc: {
+          label: "OpenID Connect",
+          description:
+            "Modernes SSO über OIDC-Discovery. Unterstützt PKCE und jeden standardkonformen IdP.",
+        },
+      },
+      enabled: "Aktiviert",
+      disabled: "Deaktiviert",
+      configure: "Konfigurieren",
+      testConnection: "Verbindung testen",
+      connectionSuccessful: "Verbindung erfolgreich",
+      connectionFailed: "Verbindung fehlgeschlagen",
+      usernamePassword: "Benutzername und Passwort",
+      alwaysOn: "Immer aktiv",
+      builtIn: "Integrierte Sanctum-Authentifizierung - immer aktiv.",
+      loading: "Anbieter werden geladen...",
+      formActions: {
+        saving: "Speichern...",
+        save: "Speichern",
+        saved: "Gespeichert",
+      },
+      oauthForm: {
+        drivers: {
+          github: "GitHub",
+          google: "Google",
+          microsoft: "Microsoft / Azure AD",
+          custom: "Benutzerdefiniertes OAuth 2.0",
+        },
+        sections: {
+          customEndpoints: "Benutzerdefinierte Endpunkte",
+        },
+        labels: {
+          provider: "Anbieter",
+          clientId: "Client-ID",
+          clientSecret: "Client-Secret",
+          redirectUri: "Redirect-URI",
+          scopes: "Scopes",
+          authorizationUrl: "Autorisierungs-URL",
+          tokenUrl: "Token-URL",
+          userInfoUrl: "User-Info-URL",
+        },
+        hints: {
+          redirectUri: "Muss der beim OAuth-Anbieter registrierten URI entsprechen",
+          scopes: "Leerzeichengetrennte Liste",
+        },
+      },
+      oidcForm: {
+        labels: {
+          discoveryUrl: "Discovery-URL",
+          clientId: "Client-ID",
+          clientSecret: "Client-Secret",
+          redirectUri: "Redirect-URI",
+          scopes: "Scopes",
+          pkceEnabled: "PKCE aktivieren (empfohlen - erfordert öffentlichen Client)",
+        },
+        hints: {
+          discoveryUrl:
+            "Der /.well-known/openid-configuration-Endpunkt Ihres IdP",
+          redirectUri: "Muss der Registrierung im IdP entsprechen",
+          scopes: "Leerzeichengetrennt",
+        },
+      },
+      samlForm: {
+        sections: {
+          identityProvider: "Identitätsanbieter (IdP)",
+          serviceProvider: "Service Provider (SP)",
+          attributeMapping: "Attributzuordnung",
+        },
+        labels: {
+          idpEntityId: "IdP-Entity-ID",
+          ssoUrl: "SSO-URL",
+          sloUrl: "SLO-URL",
+          idpCertificate: "IdP-Zertifikat",
+          spEntityId: "SP-Entity-ID",
+          acsUrl: "ACS-URL",
+          nameIdFormat: "NameID-Format",
+          signAssertions:
+            "Assertions signieren (erfordert privaten SP-Schlüssel - in der Serverumgebung konfigurieren)",
+          emailAttribute: "E-Mail-Attribut",
+          displayNameAttribute: "Anzeigename-Attribut",
+        },
+        hints: {
+          ssoUrl: "Single-Sign-On-Endpunkt",
+          sloUrl: "Single-Logout-Endpunkt (optional)",
+          idpCertificate:
+            "X.509-Zertifikat einfügen (PEM-Format, mit oder ohne Header)",
+          spEntityId:
+            "URL Ihrer Parthenon-Instanz - muss der IdP-Registrierung entsprechen",
+          acsUrl: "Assertion Consumer Service",
+        },
+        attributeMappingDescription:
+          "Ordnen Sie SAML-Assertion-Attribute Parthenon-Benutzerfeldern zu.",
+      },
+      ldapForm: {
+        sections: {
+          connection: "Verbindung",
+          bindCredentials: "Bind-Anmeldedaten",
+          userSearch: "Benutzersuche",
+          attributeMapping: "Attributzuordnung",
+          groupSync: "Gruppensynchronisierung",
+        },
+        labels: {
+          host: "Host",
+          port: "Port",
+          useSsl: "SSL verwenden (LDAPS)",
+          useTls: "StartTLS verwenden",
+          timeout: "Timeout (s)",
+          bindDn: "Bind-DN",
+          bindPassword: "Bind-Passwort",
+          baseDn: "Base-DN",
+          userSearchBase: "Basis für Benutzersuche",
+          userFilter: "Benutzerfilter",
+          usernameField: "Benutzernamenfeld",
+          emailField: "E-Mail-Feld",
+          displayNameField: "Anzeigename-Feld",
+          syncGroups: "LDAP-Gruppen mit Parthenon-Rollen synchronisieren",
+          groupSearchBase: "Basis für Gruppensuche",
+          groupFilter: "Gruppenfilter",
+        },
+        hints: {
+          host: "Hostname oder IP des LDAP-Servers",
+          bindDn: "Servicekonto-DN für Verzeichnisabfragen",
+          userFilter: "{username} wird bei der Anmeldung ersetzt",
+        },
+        actions: {
+          saving: "Speichern...",
+          save: "Speichern",
+          saved: "Gespeichert",
+        },
+      },
+    },
+    aiProviders: {
+      title: "KI-Anbieter-Konfiguration",
+      subtitle:
+        "Wählen Sie das KI-Backend für Abby. Es ist jeweils nur ein Anbieter aktiv. API-Schlüssel werden verschlüsselt gespeichert.",
+      activeProvider: "Aktiver Anbieter:",
+      fields: {
+        model: "Modell",
+        apiKey: "API-Schlüssel",
+        ollamaBaseUrl: "Ollama-Basis-URL",
+      },
+      values: {
+        active: "Aktiv",
+        enabled: "Aktiviert",
+        disabled: "Deaktiviert",
+        noModelSelected: "Kein Modell ausgewählt",
+      },
+      actions: {
+        currentlyActive: "Derzeit aktiv",
+        setAsActive: "Als aktiv festlegen",
+        save: "Speichern",
+        testConnection: "Verbindung testen",
+      },
+      messages: {
+        requestFailed: "Anfrage fehlgeschlagen.",
+      },
+    },
+  },
+});
+
+const ptApp: MessageTree = mergeMessageTrees(enApp, {
+  errors: {
+    boundary: {
+      title: "Algo deu errado",
+      message: "Ocorreu um erro inesperado. Tente recarregar a página.",
+      reloadPage: "Recarregar página",
+    },
+    route: {
+      routeError: "Erro de rota",
+      pageFailed: "A página não pôde ser renderizada.",
+      analysisDescription:
+        "Esta página de análise encontrou um erro de renderização ou carregamento de rota.",
+      label: "Erro",
+      backToAnalyses: "Voltar para análises",
+      reloadPage: "Recarregar página",
+    },
+  },
+  analysis: {
+    titles: {
+      characterization: "Caracterização",
+      incidenceRate: "Análise de taxa de incidência",
+      pathway: "Análise de trajetória",
+      estimation: "Análise de estimativa",
+      prediction: "Análise de predição",
+      sccs: "Análise SCCS",
+      evidenceSynthesis: "Análise de síntese de evidências",
+    },
+  },
+  administration: {
+    dashboard: {
+      title: "Administração",
+      subtitle:
+        "Gerencie usuários, funções, permissões e configuração do sistema.",
+      panels: {
+        platform: "Plataforma",
+        usersAccess: "Usuários e acesso",
+        dataSources: "Fontes de dados",
+        aiResearch: "IA e pesquisa",
+      },
+      status: {
+        allHealthy: "Tudo saudável",
+        degraded: "Degradado",
+        warning: "Aviso",
+      },
+      labels: {
+        services: "Serviços",
+        queue: "Fila",
+        redis: "Redis",
+        totalUsers: "Total de usuários",
+        roles: "Funções",
+        authProviders: "Provedores de autenticação",
+        tokenExpiry: "Expiração do token",
+        solr: "Solr",
+        aiProvider: "Provedor de IA",
+        model: "Modelo",
+        abby: "Abby",
+        researchRuntime: "R / HADES",
+      },
+      values: {
+        servicesUp: "{{healthy}}/{{total}} ativos",
+        queueSummary: "{{pending}} pendentes / {{failed}} com falha",
+        enabledCount: "{{count}} ativados",
+        none: "Nenhum",
+        online: "Online",
+      },
+      messages: {
+        noCdmSources: "Nenhuma fonte CDM configurada",
+      },
+      nav: {
+        userManagement: {
+          title: "Gerenciamento de usuários",
+          description:
+            "Crie, edite e desative contas. Atribua funções para controlar o acesso.",
+        },
+        rolesPermissions: {
+          title: "Funções e permissões",
+          description:
+            "Defina funções personalizadas e ajuste permissões em todos os domínios.",
+        },
+        authProviders: {
+          title: "Provedores de autenticação",
+          description:
+            "Ative e configure LDAP, OAuth 2.0, SAML 2.0 ou OIDC para SSO.",
+        },
+        aiProviders: {
+          title: "Configuração do provedor de IA",
+          description:
+            "Alterne o backend da Abby entre Ollama local, Anthropic, OpenAI, Gemini e outros.",
+        },
+        systemHealth: {
+          title: "Integridade do sistema",
+          description:
+            "Status em tempo real dos serviços Parthenon: Redis, IA, Darkstar, Solr, Orthanc PACS e filas de tarefas.",
+        },
+        vocabularyManagement: {
+          title: "Gerenciamento de vocabulário",
+          description:
+            "Atualize tabelas de vocabulário OMOP enviando um novo ZIP Athena.",
+        },
+        fhirConnections: {
+          title: "Conexões FHIR EHR",
+          description:
+            "Gerencie conexões FHIR R4 com Epic, Cerner e outros EHRs para importação em massa.",
+        },
+      },
+      setupWizard: {
+        title: "Assistente de configuração da plataforma",
+        description:
+          "Execute novamente a configuração guiada: saúde, provedor de IA, autenticação e fontes de dados.",
+      },
+      atlasMigration: {
+        title: "Migrar do Atlas",
+        description:
+          "Importe definições de coorte, conjuntos de conceitos e análises de uma instalação OHDSI Atlas existente.",
+      },
+      actions: {
+        open: "Abrir",
+        openWizard: "Abrir assistente",
+      },
+    },
+    authProviders: {
+      title: "Provedores de autenticação",
+      subtitle:
+        "Ative um ou mais provedores de identidade externos para single sign-on. Usuário/senha Sanctum permanece sempre disponível como fallback.",
+      providers: {
+        ldap: {
+          label: "LDAP / Active Directory",
+          description:
+            "Autentique com Microsoft Active Directory ou qualquer diretório LDAP v3. Suporta TLS, sincronização de grupos e mapeamento de atributos.",
+        },
+        oauth2: {
+          label: "OAuth 2.0",
+          description:
+            "Delegue autenticação ao GitHub, Google, Microsoft ou a qualquer provedor OAuth 2.0 personalizado.",
+        },
+        saml2: {
+          label: "SAML 2.0",
+          description:
+            "SSO corporativo por um provedor de identidade SAML 2.0 (Okta, Azure AD, ADFS, etc.).",
+        },
+        oidc: {
+          label: "OpenID Connect",
+          description:
+            "SSO moderno por descoberta OIDC. Suporta PKCE e qualquer IdP compatível com padrões.",
+        },
+      },
+      enabled: "Ativado",
+      disabled: "Desativado",
+      configure: "Configurar",
+      testConnection: "Testar conexão",
+      connectionSuccessful: "Conexão bem-sucedida",
+      connectionFailed: "Falha na conexão",
+      usernamePassword: "Usuário e senha",
+      alwaysOn: "Sempre ativo",
+      builtIn: "Autenticação Sanctum integrada - sempre ativa.",
+      loading: "Carregando provedores...",
+      formActions: {
+        saving: "Salvando...",
+        save: "Salvar",
+        saved: "Salvo",
+      },
+      oauthForm: {
+        drivers: {
+          github: "GitHub",
+          google: "Google",
+          microsoft: "Microsoft / Azure AD",
+          custom: "OAuth 2.0 personalizado",
+        },
+        sections: {
+          customEndpoints: "Endpoints personalizados",
+        },
+        labels: {
+          provider: "Provedor",
+          clientId: "ID do cliente",
+          clientSecret: "Segredo do cliente",
+          redirectUri: "URI de redirecionamento",
+          scopes: "Escopos",
+          authorizationUrl: "URL de autorização",
+          tokenUrl: "URL do token",
+          userInfoUrl: "URL de informações do usuário",
+        },
+        hints: {
+          redirectUri: "Deve corresponder à URI registrada no provedor OAuth",
+          scopes: "Lista separada por espaços",
+        },
+      },
+      oidcForm: {
+        labels: {
+          discoveryUrl: "URL de descoberta",
+          clientId: "ID do cliente",
+          clientSecret: "Segredo do cliente",
+          redirectUri: "URI de redirecionamento",
+          scopes: "Escopos",
+          pkceEnabled: "Ativar PKCE (recomendado - requer cliente público)",
+        },
+        hints: {
+          discoveryUrl:
+            "O endpoint /.well-known/openid-configuration do seu IdP",
+          redirectUri: "Deve corresponder ao que está registrado no IdP",
+          scopes: "Separados por espaços",
+        },
+      },
+      samlForm: {
+        sections: {
+          identityProvider: "Provedor de identidade (IdP)",
+          serviceProvider: "Provedor de serviço (SP)",
+          attributeMapping: "Mapeamento de atributos",
+        },
+        labels: {
+          idpEntityId: "ID de entidade IdP",
+          ssoUrl: "URL SSO",
+          sloUrl: "URL SLO",
+          idpCertificate: "Certificado IdP",
+          spEntityId: "ID de entidade SP",
+          acsUrl: "URL ACS",
+          nameIdFormat: "Formato NameID",
+          signAssertions:
+            "Assinar assertions (requer chave privada SP - configure no ambiente do servidor)",
+          emailAttribute: "Atributo de e-mail",
+          displayNameAttribute: "Atributo de nome exibido",
+        },
+        hints: {
+          ssoUrl: "Endpoint de Single Sign-On",
+          sloUrl: "Endpoint de Single Logout (opcional)",
+          idpCertificate:
+            "Cole o certificado X.509 (formato PEM, com ou sem cabeçalhos)",
+          spEntityId:
+            "URL da sua instância Parthenon - deve corresponder ao registrado no IdP",
+          acsUrl: "Assertion Consumer Service",
+        },
+        attributeMappingDescription:
+          "Mapeie atributos da assertion SAML para campos de usuário do Parthenon.",
+      },
+      ldapForm: {
+        sections: {
+          connection: "Conexão",
+          bindCredentials: "Credenciais de bind",
+          userSearch: "Busca de usuário",
+          attributeMapping: "Mapeamento de atributos",
+          groupSync: "Sincronização de grupos",
+        },
+        labels: {
+          host: "Host",
+          port: "Porta",
+          useSsl: "Usar SSL (LDAPS)",
+          useTls: "Usar StartTLS",
+          timeout: "Tempo limite (s)",
+          bindDn: "DN de bind",
+          bindPassword: "Senha de bind",
+          baseDn: "DN base",
+          userSearchBase: "Base de busca de usuário",
+          userFilter: "Filtro de usuário",
+          usernameField: "Campo de usuário",
+          emailField: "Campo de e-mail",
+          displayNameField: "Campo de nome exibido",
+          syncGroups: "Sincronizar grupos LDAP com funções do Parthenon",
+          groupSearchBase: "Base de busca de grupos",
+          groupFilter: "Filtro de grupo",
+        },
+        hints: {
+          host: "Nome do host ou IP do servidor LDAP",
+          bindDn: "DN da conta de serviço usada para consultas ao diretório",
+          userFilter: "{username} é substituído no login",
+        },
+        actions: {
+          saving: "Salvando...",
+          save: "Salvar",
+          saved: "Salvo",
+        },
+      },
+    },
+    aiProviders: {
+      title: "Configuração do provedor de IA",
+      subtitle:
+        "Escolha qual backend de IA alimenta a Abby. Apenas um provedor fica ativo por vez. Chaves de API são armazenadas criptografadas.",
+      activeProvider: "Provedor ativo:",
+      fields: {
+        model: "Modelo",
+        apiKey: "Chave de API",
+        ollamaBaseUrl: "URL base do Ollama",
+      },
+      values: {
+        active: "Ativo",
+        enabled: "Ativado",
+        disabled: "Desativado",
+        noModelSelected: "Nenhum modelo selecionado",
+      },
+      actions: {
+        currentlyActive: "Ativo no momento",
+        setAsActive: "Definir como ativo",
+        save: "Salvar",
+        testConnection: "Testar conexão",
+      },
+      messages: {
+        requestFailed: "A requisição falhou.",
+      },
+    },
+  },
+});
+
 export const appResources: Record<string, MessageTree> = {
   "en-US": enApp,
   "es-ES": esApp,
+  "fr-FR": frApp,
+  "de-DE": deApp,
+  "pt-BR": ptApp,
   "ko-KR": koApp,
 };

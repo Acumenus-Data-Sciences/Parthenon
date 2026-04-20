@@ -2,6 +2,33 @@ type MessageTree = {
   [key: string]: string | MessageTree;
 };
 
+function mergeMessageTrees(base: MessageTree, overrides: MessageTree): MessageTree {
+  return Object.fromEntries(
+    Object.entries(base).map(([key, baseValue]) => {
+      const overrideValue = overrides[key];
+      if (
+        baseValue &&
+        typeof baseValue === "object" &&
+        !Array.isArray(baseValue)
+      ) {
+        return [
+          key,
+          mergeMessageTrees(
+            baseValue,
+            overrideValue &&
+              typeof overrideValue === "object" &&
+              !Array.isArray(overrideValue)
+              ? overrideValue
+              : {},
+          ),
+        ];
+      }
+
+      return [key, overrideValue ?? baseValue];
+    }),
+  );
+}
+
 const enDashboard: MessageTree = {
   page: {
     title: "Dashboard",
@@ -344,8 +371,360 @@ const koDashboard: MessageTree = {
   },
 };
 
+const frDashboard: MessageTree = mergeMessageTrees(enDashboard, {
+  page: {
+    title: "Tableau de bord",
+    subtitle: "Plateforme unifiée de recherche sur les résultats",
+  },
+  metrics: {
+    cdmSources: "Sources CDM",
+    runningJobs: "Tâches en cours",
+    conceptSets: "Jeux de concepts",
+    activeCohorts: "Cohortes actives",
+    descriptions: {
+      cdmSources: "{{postgresqlCount}} PostgreSQL · {{personsText}}",
+      persons: "{{count}} personnes",
+      noCdmLoaded: "Aucun CDM chargé",
+      runningJobs:
+        "{{completedCount}} terminées récemment · {{failedCount}} en échec",
+      conceptSets:
+        "{{populatedTables}}/{{totalTables}} tables CDM remplies · {{completeness}} % complet",
+      activeCohorts:
+        "{{generatedCount}} générées · {{conceptSetCount}} jeux de concepts",
+    },
+  },
+  error: {
+    title: "Impossible de charger les données du tableau de bord",
+    message:
+      "L'API peut être indisponible. Les données mises en cache seront affichées si elles existent.",
+  },
+  cdm: {
+    title: "Caractérisation du CDM",
+    subtitle: "Profil des données cliniques pour la source sélectionnée",
+    viewFull: "Voir tout",
+    noSource:
+      "Sélectionnez une source de données pour afficher la caractérisation",
+    noDomainData: "Aucune donnée de domaine disponible",
+    metrics: {
+      persons: "Personnes",
+      medianObservationDuration: "Durée médiane d'observation",
+      medianObservationDurationValue: "{{count}} jours",
+      totalEvents: "Événements totaux",
+      dataCompleteness: "Complétude des données",
+      tableCount: "{{populatedTables}}/{{totalTables}} tables",
+    },
+    demographics: "Démographie",
+    ageDistribution: "Répartition par âge",
+    noAgeDistributionData: "Aucune donnée de répartition par âge",
+    age: "Âge",
+    gender: {
+      male: "Hommes",
+      female: "Femmes",
+    },
+    domainCounts: "Volumes par domaine CDM",
+    domains: {
+      conditionOccurrence: "Affections",
+      drugExposure: "Expositions aux médicaments",
+      procedureOccurrence: "Procédures",
+      measurement: "Mesures",
+      observation: "Observations",
+      visitOccurrence: "Visites",
+      drugEra: "Périodes de traitement",
+      conditionEra: "Périodes d'affection",
+      deviceExposure: "Dispositifs",
+      death: "Décès",
+    },
+  },
+  panels: {
+    recentCohortActivity: "Activité récente des cohortes",
+    quickActions: "Actions rapides",
+    sourceHealth: "État des sources",
+    activeJobs: "Tâches actives",
+    viewAll: "Tout afficher",
+  },
+  tables: {
+    cohort: "Cohorte",
+    subjects: "Sujets",
+    status: "Statut",
+    source: "Source",
+    dialect: "Dialecte",
+    job: "Tâche",
+    type: "Type",
+  },
+  empty: {
+    noCohortsTitle: "Aucune cohorte pour le moment",
+    noCohortsMessage:
+      "Créez votre première définition de cohorte pour commencer la recherche.",
+    newCohort: "Nouvelle cohorte",
+    noDataSourcesTitle: "Aucune source de données",
+    noDataSourcesMessage: "Connectez une base CDM pour commencer.",
+    addSource: "Ajouter une source",
+    noActiveJobsTitle: "Aucune tâche active",
+    noActiveJobsMessage:
+      "Les tâches apparaîtront ici lorsque des analyses seront en cours.",
+  },
+  quickActions: {
+    connectDataSource: "Connecter une source de données",
+    createCohortDefinition: "Créer une définition de cohorte",
+    buildConceptSet: "Créer un jeu de concepts",
+    exploreDataQuality: "Explorer la qualité des données",
+  },
+  statuses: {
+    healthy: "Sain",
+    cohort: {
+      active: "active",
+      error: "erreur",
+      draft: "brouillon",
+      pending: "en attente",
+    },
+    job: {
+      running: "en cours",
+      completed: "terminée",
+      failed: "échec",
+      success: "succès",
+      fail: "échec",
+      queued: "en file d'attente",
+    },
+  },
+});
+
+const deDashboard: MessageTree = mergeMessageTrees(enDashboard, {
+  page: {
+    title: "Dashboard",
+    subtitle: "Vereinheitlichte Plattform für Outcomes-Forschung",
+  },
+  metrics: {
+    cdmSources: "CDM-Quellen",
+    runningJobs: "Laufende Jobs",
+    conceptSets: "Konzeptsets",
+    activeCohorts: "Aktive Kohorten",
+    descriptions: {
+      cdmSources: "{{postgresqlCount}} PostgreSQL · {{personsText}}",
+      persons: "{{count}} Personen",
+      noCdmLoaded: "Kein CDM geladen",
+      runningJobs:
+        "{{completedCount}} kürzlich abgeschlossen · {{failedCount}} fehlgeschlagen",
+      conceptSets:
+        "{{populatedTables}}/{{totalTables}} CDM-Tabellen befüllt · {{completeness}} % vollständig",
+      activeCohorts:
+        "{{generatedCount}} generiert · {{conceptSetCount}} Konzeptsets",
+    },
+  },
+  error: {
+    title: "Dashboard-Daten konnten nicht geladen werden",
+    message:
+      "Die API ist möglicherweise nicht verfügbar. Zwischengespeicherte Daten werden angezeigt, falls vorhanden.",
+  },
+  cdm: {
+    title: "CDM-Charakterisierung",
+    subtitle: "Klinisches Datenprofil für die ausgewählte Quelle",
+    viewFull: "Vollständig anzeigen",
+    noSource: "Wählen Sie eine Datenquelle aus, um die Charakterisierung anzuzeigen",
+    noDomainData: "Keine Domänendaten verfügbar",
+    metrics: {
+      persons: "Personen",
+      medianObservationDuration: "Mediane Beobachtungsdauer",
+      medianObservationDurationValue: "{{count}} Tage",
+      totalEvents: "Ereignisse insgesamt",
+      dataCompleteness: "Datenvollständigkeit",
+      tableCount: "{{populatedTables}}/{{totalTables}} Tabellen",
+    },
+    demographics: "Demografie",
+    ageDistribution: "Altersverteilung",
+    noAgeDistributionData: "Keine Daten zur Altersverteilung",
+    age: "Alter",
+    gender: {
+      male: "Männlich",
+      female: "Weiblich",
+    },
+    domainCounts: "CDM-Domänenzählungen",
+    domains: {
+      conditionOccurrence: "Erkrankungen",
+      drugExposure: "Arzneimittelexpositionen",
+      procedureOccurrence: "Prozeduren",
+      measurement: "Messungen",
+      observation: "Beobachtungen",
+      visitOccurrence: "Besuche",
+      drugEra: "Arzneimittel-Episoden",
+      conditionEra: "Erkrankungs-Episoden",
+      deviceExposure: "Medizinprodukte",
+      death: "Todesfälle",
+    },
+  },
+  panels: {
+    recentCohortActivity: "Aktuelle Kohortenaktivität",
+    quickActions: "Schnellaktionen",
+    sourceHealth: "Quellenstatus",
+    activeJobs: "Aktive Jobs",
+    viewAll: "Alle anzeigen",
+  },
+  tables: {
+    cohort: "Kohorte",
+    subjects: "Subjekte",
+    status: "Status",
+    source: "Quelle",
+    dialect: "Dialekt",
+    job: "Job",
+    type: "Typ",
+  },
+  empty: {
+    noCohortsTitle: "Noch keine Kohorten",
+    noCohortsMessage:
+      "Erstellen Sie Ihre erste Kohortendefinition, um mit der Forschung zu beginnen.",
+    newCohort: "Neue Kohorte",
+    noDataSourcesTitle: "Keine Datenquellen",
+    noDataSourcesMessage: "Verbinden Sie eine CDM-Datenbank, um zu beginnen.",
+    addSource: "Quelle hinzufügen",
+    noActiveJobsTitle: "Keine aktiven Jobs",
+    noActiveJobsMessage:
+      "Jobs erscheinen hier, wenn Analysen ausgeführt werden.",
+  },
+  quickActions: {
+    connectDataSource: "Datenquelle verbinden",
+    createCohortDefinition: "Kohortendefinition erstellen",
+    buildConceptSet: "Konzeptset erstellen",
+    exploreDataQuality: "Datenqualität untersuchen",
+  },
+  statuses: {
+    healthy: "Gesund",
+    cohort: {
+      active: "aktiv",
+      error: "Fehler",
+      draft: "Entwurf",
+      pending: "ausstehend",
+    },
+    job: {
+      running: "läuft",
+      completed: "abgeschlossen",
+      failed: "fehlgeschlagen",
+      success: "erfolgreich",
+      fail: "fehlgeschlagen",
+      queued: "in Warteschlange",
+    },
+  },
+});
+
+const ptDashboard: MessageTree = mergeMessageTrees(enDashboard, {
+  page: {
+    title: "Painel",
+    subtitle: "Plataforma unificada de pesquisa de desfechos",
+  },
+  metrics: {
+    cdmSources: "Fontes CDM",
+    runningJobs: "Tarefas em execução",
+    conceptSets: "Conjuntos de conceitos",
+    activeCohorts: "Coortes ativas",
+    descriptions: {
+      cdmSources: "{{postgresqlCount}} PostgreSQL · {{personsText}}",
+      persons: "{{count}} pessoas",
+      noCdmLoaded: "Nenhum CDM carregado",
+      runningJobs:
+        "{{completedCount}} concluídas recentemente · {{failedCount}} com falha",
+      conceptSets:
+        "{{populatedTables}}/{{totalTables}} tabelas CDM preenchidas · {{completeness}}% concluído",
+      activeCohorts:
+        "{{generatedCount}} geradas · {{conceptSetCount}} conjuntos de conceitos",
+    },
+  },
+  error: {
+    title: "Não foi possível carregar os dados do painel",
+    message:
+      "A API pode estar indisponível. Dados em cache serão exibidos se estiverem disponíveis.",
+  },
+  cdm: {
+    title: "Caracterização do CDM",
+    subtitle: "Perfil de dados clínicos para a fonte selecionada",
+    viewFull: "Ver tudo",
+    noSource: "Selecione uma fonte de dados para ver a caracterização",
+    noDomainData: "Nenhum dado de domínio disponível",
+    metrics: {
+      persons: "Pessoas",
+      medianObservationDuration: "Duração mediana de observação",
+      medianObservationDurationValue: "{{count}} dias",
+      totalEvents: "Eventos totais",
+      dataCompleteness: "Completude dos dados",
+      tableCount: "{{populatedTables}}/{{totalTables}} tabelas",
+    },
+    demographics: "Demografia",
+    ageDistribution: "Distribuição etária",
+    noAgeDistributionData: "Nenhum dado de distribuição etária",
+    age: "Idade",
+    gender: {
+      male: "Masculino",
+      female: "Feminino",
+    },
+    domainCounts: "Contagens por domínio CDM",
+    domains: {
+      conditionOccurrence: "Condições",
+      drugExposure: "Exposições a medicamentos",
+      procedureOccurrence: "Procedimentos",
+      measurement: "Medições",
+      observation: "Observações",
+      visitOccurrence: "Visitas",
+      drugEra: "Eras de medicamento",
+      conditionEra: "Eras de condição",
+      deviceExposure: "Dispositivos",
+      death: "Óbitos",
+    },
+  },
+  panels: {
+    recentCohortActivity: "Atividade recente de coortes",
+    quickActions: "Ações rápidas",
+    sourceHealth: "Integridade da fonte",
+    activeJobs: "Tarefas ativas",
+    viewAll: "Ver tudo",
+  },
+  tables: {
+    cohort: "Coorte",
+    subjects: "Sujeitos",
+    status: "Status",
+    source: "Fonte",
+    dialect: "Dialeto",
+    job: "Tarefa",
+    type: "Tipo",
+  },
+  empty: {
+    noCohortsTitle: "Ainda não há coortes",
+    noCohortsMessage:
+      "Crie sua primeira definição de coorte para começar a pesquisa.",
+    newCohort: "Nova coorte",
+    noDataSourcesTitle: "Nenhuma fonte de dados",
+    noDataSourcesMessage: "Conecte um banco CDM para começar.",
+    addSource: "Adicionar fonte",
+    noActiveJobsTitle: "Nenhuma tarefa ativa",
+    noActiveJobsMessage:
+      "As tarefas aparecerão aqui quando as análises estiverem em execução.",
+  },
+  quickActions: {
+    connectDataSource: "Conectar uma fonte de dados",
+    createCohortDefinition: "Criar definição de coorte",
+    buildConceptSet: "Criar conjunto de conceitos",
+    exploreDataQuality: "Explorar qualidade dos dados",
+  },
+  statuses: {
+    healthy: "Saudável",
+    cohort: {
+      active: "ativa",
+      error: "erro",
+      draft: "rascunho",
+      pending: "pendente",
+    },
+    job: {
+      running: "em execução",
+      completed: "concluída",
+      failed: "falhou",
+      success: "sucesso",
+      fail: "falhou",
+      queued: "na fila",
+    },
+  },
+});
+
 export const dashboardResources: Record<string, MessageTree> = {
   "en-US": enDashboard,
   "es-ES": esDashboard,
+  "fr-FR": frDashboard,
+  "de-DE": deDashboard,
+  "pt-BR": ptDashboard,
   "ko-KR": koDashboard,
 };

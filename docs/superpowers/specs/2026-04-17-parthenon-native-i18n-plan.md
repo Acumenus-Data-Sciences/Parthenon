@@ -78,6 +78,9 @@ Previous isolated Codex branch: `codex/parthenon-i18n-pr5-message-contract`
 - With the app-priority scanner at 0 candidates and the English/Spanish/Korean visual smoke passing, the current i18n branch is ready for the app-priority PR refresh/open step before hidden Wave 1 language-pack drafting.
 - Opened app-priority PR #215 from `codex/parthenon-i18n-app-priority`, centered on native app i18n, per-user language preference, pilot contextual help, and Docusaurus native locale infrastructure/chrome as supporting proof. The PR diff contains no FinnGen paths.
 - Next language-pack expansion should begin with `fr-FR`, `de-DE`, and `pt-BR` after the English/Spanish/Korean visual smoke checklist and current app-priority PR refresh. Arabic remains an RTL canary, not the next public production language.
+- Per direction, moved the app-priority i18n baseline back onto `main` and stopped the stacked PR branch workflow for follow-on i18n work.
+- Started the hidden Wave 1 language-pack pass for French, German, and Brazilian Portuguese on `main`. Dashboard resources now have native Wave 1 drafts; shared common UI chrome, Abby panel chrome, route/error copy, analysis labels, and the Administration/Auth Providers app surface have targeted Wave 1 drafts. `npm run i18n:report` now shows `fr-FR` at 12.61% distinct values, `de-DE` at 12.56%, and `pt-BR` at 12.90%, with 100% key presence and 0 missing keys. `npm run i18n:scan:app-priority` remains at 0 candidates across 214 files.
+- Remaining Wave 1 language-pack work before public selection: translate the `commons` namespace, setup/onboarding auth strings, and the remaining app namespace keys beyond the targeted administration/auth-provider draft; then run visual smoke for `fr-FR`, `de-DE`, and `pt-BR` while they are still hidden.
 
 ## Executive Summary
 

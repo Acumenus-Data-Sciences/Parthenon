@@ -3824,6 +3824,78 @@ const koAbbyLayout: MessageTree = mergeMessageTrees(enAbbyLayout, {
   },
 });
 
+const frAbbyLayout: MessageTree = mergeMessageTrees(enAbbyLayout, {
+  panel: {
+    dialogLabel: "Assistant IA",
+    title: "Abby IA",
+    conversationHistory: "Historique des conversations",
+    newChat: "Nouvelle conversation",
+    closePanel: "Fermer le panneau IA",
+    backToChat: "Retour au chat",
+    noPastConversations: "Aucune conversation précédente",
+    deleteConversation: "Supprimer la conversation",
+    suggestedPrompts: "Suggestions",
+    sendMessage: "Envoyer le message",
+    untitledConversation: "Sans titre",
+    messagesAbbrev: "msg",
+    inputPlaceholder: "Demandez à Abby au sujet de {{context}}...",
+    time: {
+      justNow: "à l'instant",
+      minutesAgo: "il y a {{count}} min",
+      hoursAgo: "il y a {{count}} h",
+      daysAgo: "il y a {{count}} j",
+    },
+  },
+});
+
+const deAbbyLayout: MessageTree = mergeMessageTrees(enAbbyLayout, {
+  panel: {
+    dialogLabel: "KI-Assistent",
+    title: "Abby KI",
+    conversationHistory: "Konversationsverlauf",
+    newChat: "Neuer Chat",
+    closePanel: "KI-Bereich schließen",
+    backToChat: "Zurück zum Chat",
+    noPastConversations: "Keine früheren Konversationen",
+    deleteConversation: "Konversation löschen",
+    suggestedPrompts: "Vorgeschlagene Fragen",
+    sendMessage: "Nachricht senden",
+    untitledConversation: "Ohne Titel",
+    messagesAbbrev: "Nachr.",
+    inputPlaceholder: "Fragen Sie Abby zu {{context}}...",
+    time: {
+      justNow: "gerade eben",
+      minutesAgo: "vor {{count}} Min.",
+      hoursAgo: "vor {{count}} Std.",
+      daysAgo: "vor {{count}} Tg.",
+    },
+  },
+});
+
+const ptAbbyLayout: MessageTree = mergeMessageTrees(enAbbyLayout, {
+  panel: {
+    dialogLabel: "Assistente de IA",
+    title: "Abby IA",
+    conversationHistory: "Histórico de conversas",
+    newChat: "Nova conversa",
+    closePanel: "Fechar painel de IA",
+    backToChat: "Voltar ao chat",
+    noPastConversations: "Nenhuma conversa anterior",
+    deleteConversation: "Excluir conversa",
+    suggestedPrompts: "Sugestões",
+    sendMessage: "Enviar mensagem",
+    untitledConversation: "Sem título",
+    messagesAbbrev: "msgs",
+    inputPlaceholder: "Pergunte à Abby sobre {{context}}...",
+    time: {
+      justNow: "agora mesmo",
+      minutesAgo: "há {{count}} min",
+      hoursAgo: "há {{count}} h",
+      daysAgo: "há {{count}} d",
+    },
+  },
+});
+
 function withAbbyLayout(
   namespaces: ParthenonNamespaces,
   abbyLayout: MessageTree,
@@ -3941,6 +4013,117 @@ const koCommonUi: MessageTree = mergeMessageTrees(enCommonUi, {
     sort: {
       selectedFirst: "선택 항목 먼저",
       byCount: "개수순",
+    },
+  },
+});
+
+const frCommonUi: MessageTree = mergeMessageTrees(enCommonUi, {
+  aria: {
+    breadcrumb: "Fil d'Ariane",
+    copyCode: "Copier le code",
+    close: "Fermer",
+    dismiss: "Ignorer",
+  },
+  codeFallback: "Code",
+  job: {
+    status: {
+      pending: "En attente",
+      running: "En cours",
+      completed: "Terminée",
+      failed: "Échec",
+    },
+    progress: "Progression",
+    duration: "Durée",
+    elapsed: "Écoulé",
+    completedSuccessfully: "Tâche terminée avec succès.",
+  },
+  tags: {
+    filterByTag: "Filtrer par tag :",
+    more: "{{count}} de plus",
+    search: "Rechercher",
+    clearAll: "Tout effacer",
+    browseTags: "Parcourir les tags ({{count}})",
+    selected: "{{count}} sélectionnés",
+    noMatches: "Aucun tag ne correspond à \"{{query}}\"",
+    done: "Terminé",
+    searchPlaceholder: "Rechercher des tags...",
+    sort: {
+      selectedFirst: "Sélectionnés d'abord",
+      byCount: "Par nombre",
+    },
+  },
+});
+
+const deCommonUi: MessageTree = mergeMessageTrees(enCommonUi, {
+  aria: {
+    breadcrumb: "Breadcrumb",
+    copyCode: "Code kopieren",
+    close: "Schließen",
+    dismiss: "Ausblenden",
+  },
+  codeFallback: "Code",
+  job: {
+    status: {
+      pending: "Ausstehend",
+      running: "Läuft",
+      completed: "Abgeschlossen",
+      failed: "Fehlgeschlagen",
+    },
+    progress: "Fortschritt",
+    duration: "Dauer",
+    elapsed: "Vergangen",
+    completedSuccessfully: "Job erfolgreich abgeschlossen.",
+  },
+  tags: {
+    filterByTag: "Nach Tag filtern:",
+    more: "{{count}} weitere",
+    search: "Suchen",
+    clearAll: "Alle löschen",
+    browseTags: "Tags durchsuchen ({{count}})",
+    selected: "{{count}} ausgewählt",
+    noMatches: "Keine Tags passen zu \"{{query}}\"",
+    done: "Fertig",
+    searchPlaceholder: "Tags suchen...",
+    sort: {
+      selectedFirst: "Ausgewählte zuerst",
+      byCount: "Nach Anzahl",
+    },
+  },
+});
+
+const ptCommonUi: MessageTree = mergeMessageTrees(enCommonUi, {
+  aria: {
+    breadcrumb: "Caminho de navegação",
+    copyCode: "Copiar código",
+    close: "Fechar",
+    dismiss: "Dispensar",
+  },
+  codeFallback: "Código",
+  job: {
+    status: {
+      pending: "Pendente",
+      running: "Em execução",
+      completed: "Concluída",
+      failed: "Falhou",
+    },
+    progress: "Progresso",
+    duration: "Duração",
+    elapsed: "Decorrido",
+    completedSuccessfully: "Tarefa concluída com sucesso.",
+  },
+  tags: {
+    filterByTag: "Filtrar por tag:",
+    more: "mais {{count}}",
+    search: "Pesquisar",
+    clearAll: "Limpar tudo",
+    browseTags: "Explorar tags ({{count}})",
+    selected: "{{count}} selecionados",
+    noMatches: "Nenhuma tag corresponde a \"{{query}}\"",
+    done: "Concluído",
+    searchPlaceholder: "Pesquisar tags...",
+    sort: {
+      selectedFirst: "Selecionados primeiro",
+      byCount: "Por contagem",
     },
   },
 });
@@ -4814,34 +4997,34 @@ export const resources: Resource = {
     appResources["es-ES"],
   ),
   "fr-FR": withProductResources(
-    withCommonUi(withAbbyLayout(frFR, enAbbyLayout), enCommonUi),
+    withCommonUi(withAbbyLayout(frFR, frAbbyLayout), frCommonUi),
     frSettings,
     frSettingsDetails,
     frHelp,
     withAuthSetup(frAuth, enAuthSetup),
-    dashboardResources["en-US"],
+    dashboardResources["fr-FR"],
     commonsResources["en-US"],
-    appResources["en-US"],
+    appResources["fr-FR"],
   ),
   "de-DE": withProductResources(
-    withCommonUi(withAbbyLayout(deDE, enAbbyLayout), enCommonUi),
+    withCommonUi(withAbbyLayout(deDE, deAbbyLayout), deCommonUi),
     deSettings,
     deSettingsDetails,
     deHelp,
     withAuthSetup(deAuth, enAuthSetup),
-    dashboardResources["en-US"],
+    dashboardResources["de-DE"],
     commonsResources["en-US"],
-    appResources["en-US"],
+    appResources["de-DE"],
   ),
   "pt-BR": withProductResources(
-    withCommonUi(withAbbyLayout(ptBR, enAbbyLayout), enCommonUi),
+    withCommonUi(withAbbyLayout(ptBR, ptAbbyLayout), ptCommonUi),
     ptSettings,
     ptSettingsDetails,
     ptHelp,
     withAuthSetup(ptAuth, enAuthSetup),
-    dashboardResources["en-US"],
+    dashboardResources["pt-BR"],
     commonsResources["en-US"],
-    appResources["en-US"],
+    appResources["pt-BR"],
   ),
   "fi-FI": withProductResources(
     withCommonUi(withAbbyLayout(fiFI, enAbbyLayout), enCommonUi),
