@@ -5003,7 +5003,7 @@ export const resources: Resource = {
     frHelp,
     withAuthSetup(frAuth, enAuthSetup),
     dashboardResources["fr-FR"],
-    commonsResources["en-US"],
+    commonsResources["fr-FR"],
     appResources["fr-FR"],
   ),
   "de-DE": withProductResources(
@@ -5013,7 +5013,7 @@ export const resources: Resource = {
     deHelp,
     withAuthSetup(deAuth, enAuthSetup),
     dashboardResources["de-DE"],
-    commonsResources["en-US"],
+    commonsResources["de-DE"],
     appResources["de-DE"],
   ),
   "pt-BR": withProductResources(
@@ -5023,7 +5023,7 @@ export const resources: Resource = {
     ptHelp,
     withAuthSetup(ptAuth, enAuthSetup),
     dashboardResources["pt-BR"],
-    commonsResources["en-US"],
+    commonsResources["pt-BR"],
     appResources["pt-BR"],
   ),
   "fi-FI": withProductResources(
