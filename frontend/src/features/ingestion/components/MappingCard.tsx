@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Check, X, Search, ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ConceptMapping, MappingAction } from "@/types/ingestion";
@@ -18,26 +19,26 @@ interface MappingCardProps {
   onOpenBrowser?: () => void;
 }
 
-const TIER_STYLES: Record<string, { bg: string; text: string; label: string }> = {
+const TIER_STYLES: Record<string, { bg: string; text: string; labelKey: string }> = {
   auto_accepted: {
     bg: "bg-success/15",
     text: "text-success",
-    label: "Auto-Accepted",
+    labelKey: "ingestion.mappingCard.autoAccepted",
   },
   quick_review: {
     bg: "bg-warning/15",
     text: "text-warning",
-    label: "Quick Review",
+    labelKey: "ingestion.mappingCard.quickReview",
   },
   full_review: {
     bg: "bg-critical/15",
     text: "text-critical",
-    label: "Full Review",
+    labelKey: "ingestion.mappingCard.fullReview",
   },
   unmappable: {
     bg: "bg-surface-highlight",
     text: "text-text-ghost",
-    label: "Unmappable",
+    labelKey: "ingestion.mappingCard.unmappable",
   },
 };
 
@@ -50,6 +51,7 @@ export function MappingCard({
   onToggleSelect,
   onOpenBrowser,
 }: MappingCardProps) {
+  const { t } = useTranslation("app");
   const topCandidate = mapping.candidates?.[0];
   const tier = mapping.review_tier
     ? TIER_STYLES[mapping.review_tier]
@@ -116,7 +118,7 @@ export function MappingCard({
             )}
             {mapping.source_frequency !== null && mapping.source_frequency > 0 && (
               <span className="text-xs text-text-muted">
-                Freq:{" "}
+                {t("ingestion.mappingCard.frequency")}{" "}
                 <span className="text-text-secondary tabular-nums font-['IBM_Plex_Mono',monospace]">
                   {mapping.source_frequency.toLocaleString()}
                 </span>
@@ -154,7 +156,7 @@ export function MappingCard({
                 tier.text,
               )}
             >
-              {tier.label}
+              {t(tier.labelKey)}
             </span>
           )}
 
@@ -177,7 +179,7 @@ export function MappingCard({
                 topCandidate?.target_concept_id,
               )
             }
-            title="Accept top candidate"
+            title={t("ingestion.mappingCard.acceptTopCandidate")}
             className={cn(
               "inline-flex items-center justify-center w-8 h-8 rounded-md transition-colors",
               "text-success hover:bg-success/15",
@@ -188,7 +190,7 @@ export function MappingCard({
           <button
             type="button"
             onClick={() => onReview(mapping.id, "reject")}
-            title="Reject mapping"
+            title={t("ingestion.mappingCard.rejectMapping")}
             className={cn(
               "inline-flex items-center justify-center w-8 h-8 rounded-md transition-colors",
               "text-critical hover:bg-critical/15",
@@ -199,7 +201,7 @@ export function MappingCard({
           <button
             type="button"
             onClick={onOpenBrowser}
-            title="Search for concept"
+            title={t("ingestion.mappingCard.searchForConcept")}
             className={cn(
               "inline-flex items-center justify-center w-8 h-8 rounded-md transition-colors",
               "text-text-muted hover:text-text-primary hover:bg-surface-overlay",
@@ -214,7 +216,9 @@ export function MappingCard({
       {isExpanded && mapping.candidates && mapping.candidates.length > 0 && (
         <div className="border-t border-border-default px-4 py-2 space-y-0.5">
           <p className="text-[10px] uppercase tracking-wider text-text-ghost font-medium mb-1 px-3">
-            Candidates ({mapping.candidates.length})
+            {t("ingestion.common.candidates", {
+              count: mapping.candidates.length,
+            })}
           </p>
           {mapping.candidates.map((candidate) => (
             <CandidateRow
@@ -233,7 +237,7 @@ export function MappingCard({
         (!mapping.candidates || mapping.candidates.length === 0) && (
           <div className="border-t border-border-default px-4 py-6 text-center">
             <p className="text-xs text-text-ghost">
-              No alternative candidates available
+              {t("ingestion.mappingCard.noAlternatives")}
             </p>
           </div>
         )}

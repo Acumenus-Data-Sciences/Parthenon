@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Loader2, AlertCircle, X } from "lucide-react";
 import { useStagingPreview } from "../hooks/useIngestionProjects";
 
@@ -8,13 +9,16 @@ interface StagingPreviewProps {
 }
 
 export function StagingPreview({ projectId, tableName, onClose }: StagingPreviewProps) {
+  const { t } = useTranslation("app");
   const { data, isLoading, error } = useStagingPreview(projectId, tableName);
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8 bg-surface-raised rounded-b-lg">
         <Loader2 size={18} className="animate-spin text-text-muted" />
-        <span className="ml-2 text-sm text-text-muted">Loading preview...</span>
+        <span className="ml-2 text-sm text-text-muted">
+          {t("ingestion.stagingPreview.loading")}
+        </span>
       </div>
     );
   }
@@ -23,7 +27,9 @@ export function StagingPreview({ projectId, tableName, onClose }: StagingPreview
     return (
       <div className="flex items-center justify-center gap-2 py-8 bg-surface-raised rounded-b-lg">
         <AlertCircle size={16} className="text-critical" />
-        <span className="text-sm text-critical">Failed to load preview</span>
+        <span className="text-sm text-critical">
+          {t("ingestion.stagingPreview.loadFailed")}
+        </span>
       </div>
     );
   }
@@ -31,7 +37,9 @@ export function StagingPreview({ projectId, tableName, onClose }: StagingPreview
   if (data.rows.length === 0) {
     return (
       <div className="flex items-center justify-center py-8 bg-surface-raised rounded-b-lg">
-        <span className="text-sm text-text-muted">No rows in staging table</span>
+        <span className="text-sm text-text-muted">
+          {t("ingestion.stagingPreview.noRows")}
+        </span>
       </div>
     );
   }
@@ -78,9 +86,16 @@ export function StagingPreview({ projectId, tableName, onClose }: StagingPreview
       {/* Footer */}
       <div className="flex items-center justify-between px-3 py-2 border-t border-border-default bg-surface-overlay">
         <span className="text-[11px] text-text-muted">
-          Showing 1&ndash;{showing} of {(data.total ?? 0).toLocaleString()} total rows
-          {" · "}{data.columns.length} columns
-          {" · "}scroll horizontally to see all
+          {t("ingestion.stagingPreview.showing", { count: showing })}{" "}
+          {t("ingestion.stagingPreview.ofTotalRows", {
+            count: (data.total ?? 0).toLocaleString(),
+          })}
+          {" · "}
+          {t("ingestion.schemaMapping.columns", {
+            count: data.columns.length,
+          })}
+          {" · "}
+          {t("ingestion.stagingPreview.scrollHint")}
         </span>
         {onClose && (
           <button
@@ -89,7 +104,7 @@ export function StagingPreview({ projectId, tableName, onClose }: StagingPreview
             className="inline-flex items-center gap-1 text-[11px] text-text-muted hover:text-text-primary transition-colors shrink-0"
           >
             <X size={12} />
-            Close
+            {t("ingestion.actions.close")}
           </button>
         )}
       </div>

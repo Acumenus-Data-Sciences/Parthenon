@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   CheckCircle2,
   XCircle,
@@ -20,20 +21,20 @@ interface ValidationReportProps {
 
 const CATEGORY_META: Record<
   CheckCategory,
-  { label: string; icon: typeof Shield; color: string }
+  { labelKey: string; icon: typeof Shield; color: string }
 > = {
   completeness: {
-    label: "Completeness",
+    labelKey: "ingestion.validation.dimensions.completeness",
     icon: Shield,
     color: "text-info",
   },
   conformance: {
-    label: "Conformance",
+    labelKey: "ingestion.validation.dimensions.conformance",
     icon: CheckCircle2,
     color: "text-domain-observation",
   },
   plausibility: {
-    label: "Plausibility",
+    labelKey: "ingestion.validation.dimensions.plausibility",
     icon: AlertTriangle,
     color: "text-warning",
   },
@@ -41,15 +42,15 @@ const CATEGORY_META: Record<
 
 const SEVERITY_META: Record<
   CheckSeverity,
-  { label: string; bg: string; text: string }
+  { labelKey: string; bg: string; text: string }
 > = {
-  error: { label: "Error", bg: "bg-critical/15", text: "text-critical" },
+  error: { labelKey: "ingestion.validation.severities.error", bg: "bg-critical/15", text: "text-critical" },
   warning: {
-    label: "Warning",
+    labelKey: "ingestion.validation.severities.warning",
     bg: "bg-warning/15",
     text: "text-warning",
   },
-  info: { label: "Info", bg: "bg-info/15", text: "text-info" },
+  info: { labelKey: "ingestion.validation.severities.info", bg: "bg-info/15", text: "text-info" },
 };
 
 function ScoreRing({
@@ -105,6 +106,7 @@ function ScoreRing({
 }
 
 export function ValidationReport({ results, summary }: ValidationReportProps) {
+  const { t } = useTranslation("app");
   const groupedResults = useMemo(() => {
     const groups: Record<CheckCategory, ValidationResult[]> = {
       completeness: [],
@@ -123,9 +125,11 @@ export function ValidationReport({ results, summary }: ValidationReportProps) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border border-border-default bg-surface-raised py-16">
         <Shield className="h-10 w-10 text-text-ghost mb-3" />
-        <p className="text-sm text-text-muted">No validation results yet</p>
+        <p className="text-sm text-text-muted">
+          {t("ingestion.validation.noResultsTitle")}
+        </p>
         <p className="mt-1 text-xs text-text-ghost">
-          Validation runs after CDM data writing completes
+          {t("ingestion.validation.noResultsMessage")}
         </p>
       </div>
     );
@@ -142,7 +146,9 @@ export function ValidationReport({ results, summary }: ValidationReportProps) {
         {/* Overall Score */}
         <div className="col-span-1 flex flex-col items-center justify-center rounded-xl border border-border-default bg-surface-raised py-6">
           <ScoreRing passed={passedChecks} total={totalChecks} size={96} />
-          <span className="mt-2 text-sm text-text-muted">Overall Score</span>
+          <span className="mt-2 text-sm text-text-muted">
+            {t("ingestion.validation.overallScore")}
+          </span>
         </div>
 
         {/* Category Scores */}
@@ -167,10 +173,15 @@ export function ValidationReport({ results, summary }: ValidationReportProps) {
               <ScoreRing passed={catData.passed} total={catData.total} size={72} />
               <div className="mt-2 flex items-center gap-1.5">
                 <Icon className={cn("h-3.5 w-3.5", meta.color)} />
-                <span className="text-sm text-text-secondary">{meta.label}</span>
+                <span className="text-sm text-text-secondary">
+                  {t(meta.labelKey)}
+                </span>
               </div>
               <span className="mt-0.5 text-xs text-text-ghost">
-                {catData.passed}/{catData.total} passed
+                {t("ingestion.validation.passedOfTotal", {
+                  passed: catData.passed,
+                  total: catData.total,
+                })}
               </span>
             </div>
           );
@@ -184,14 +195,18 @@ export function ValidationReport({ results, summary }: ValidationReportProps) {
           <span className="text-sm font-['IBM_Plex_Mono',monospace] text-success">
             {passedChecks}
           </span>
-          <span className="text-sm text-text-muted">Passed</span>
+          <span className="text-sm text-text-muted">
+            {t("ingestion.validation.passed")}
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <XCircle className="h-4 w-4 text-critical" />
           <span className="text-sm font-['IBM_Plex_Mono',monospace] text-critical">
             {failedChecks}
           </span>
-          <span className="text-sm text-text-muted">Failed</span>
+          <span className="text-sm text-text-muted">
+            {t("ingestion.validation.failed")}
+          </span>
         </div>
         <div className="flex-1">
           <div className="flex h-2 overflow-hidden rounded-full bg-surface-overlay">
@@ -227,10 +242,12 @@ export function ValidationReport({ results, summary }: ValidationReportProps) {
               <div className="flex items-center gap-3 border-b border-border-default bg-surface-overlay px-6 py-3">
                 <Icon className={cn("h-4 w-4", meta.color)} />
                 <h3 className="text-sm font-semibold text-text-primary">
-                  {meta.label}
+                  {t(meta.labelKey)}
                 </h3>
                 <span className="rounded-full bg-surface-elevated px-2 py-0.5 text-xs text-text-muted">
-                  {categoryResults.length} checks
+                  {t("ingestion.validation.checkCount", {
+                    count: categoryResults.length,
+                  })}
                 </span>
               </div>
 
@@ -238,15 +255,21 @@ export function ValidationReport({ results, summary }: ValidationReportProps) {
                 <thead>
                   <tr className="border-b border-border-default text-xs text-text-ghost">
                     <th className="px-6 py-2 text-left font-medium w-8" />
-                    <th className="px-3 py-2 text-left font-medium">Check</th>
-                    <th className="px-3 py-2 text-left font-medium">Table</th>
                     <th className="px-3 py-2 text-left font-medium">
-                      Severity
+                      {t("ingestion.validation.check")}
+                    </th>
+                    <th className="px-3 py-2 text-left font-medium">
+                      {t("ingestion.common.table")}
+                    </th>
+                    <th className="px-3 py-2 text-left font-medium">
+                      {t("ingestion.common.severity")}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
-                      Violated
+                      {t("ingestion.common.violated")}
                     </th>
-                    <th className="px-3 py-2 text-right font-medium">Total</th>
+                    <th className="px-3 py-2 text-right font-medium">
+                      {t("ingestion.common.total")}
+                    </th>
                     <th className="px-3 py-2 text-right font-medium">%</th>
                   </tr>
                 </thead>
@@ -295,7 +318,7 @@ export function ValidationReport({ results, summary }: ValidationReportProps) {
                               severity.text,
                             )}
                           >
-                            {severity.label}
+                            {t(severity.labelKey)}
                           </span>
                         </td>
                         <td className="px-3 py-2.5 text-right font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">

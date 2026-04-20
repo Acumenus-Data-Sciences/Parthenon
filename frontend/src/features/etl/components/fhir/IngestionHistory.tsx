@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Clock,
   ChevronUp,
@@ -25,6 +26,7 @@ export function IngestionHistory({
   onClear: () => void;
   selectedId: string | null;
 }) {
+  const { t } = useTranslation("app");
   const [expanded, setExpanded] = useState(true);
 
   if (history.length === 0) return null;
@@ -38,7 +40,7 @@ export function IngestionHistory({
       >
         <Clock size={14} className="text-text-muted" />
         <span className="flex-1 text-sm font-medium text-text-primary">
-          Ingestion History
+          {t("ingestion.fhirIngestion.history")}
         </span>
         <span className="text-[11px] text-text-ghost">{history.length}</span>
         {expanded ? (
@@ -75,12 +77,16 @@ export function IngestionHistory({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-xs font-medium text-text-primary truncate">
-                      {entry.resourceCount} resources \u2192{" "}
-                      {fmtNumber(entry.recordsCreated)} records
+                      {t("ingestion.fhirIngestion.historyResourceRecords", {
+                        resources: entry.resourceCount,
+                        records: fmtNumber(entry.recordsCreated),
+                      })}
                     </p>
                     {entry.errorCount > 0 && (
                       <span className="text-[10px] text-critical">
-                        {entry.errorCount} err
+                        {t("ingestion.fhirIngestion.errorShort", {
+                          count: entry.errorCount,
+                        })}
                       </span>
                     )}
                   </div>
@@ -108,7 +114,7 @@ export function IngestionHistory({
               onClick={onClear}
               className="text-[11px] text-text-ghost hover:text-critical transition-colors"
             >
-              Clear all history
+              {t("ingestion.fhirIngestion.clearHistory")}
             </button>
           </div>
         </div>

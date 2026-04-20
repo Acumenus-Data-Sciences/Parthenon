@@ -1,9 +1,11 @@
+import { useTranslation } from "react-i18next";
 import { Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FHIR_RESOURCE_ICONS, fmtNumber } from "../../lib/fhir-utils";
 import type { ResourcePreview } from "../../lib/fhir-utils";
 
 export function ResourcePreviewPanel({ preview }: { preview: ResourcePreview[] }) {
+  const { t } = useTranslation("app");
   const totalResources = preview.reduce((s, p) => s + p.count, 0);
 
   return (
@@ -11,10 +13,14 @@ export function ResourcePreviewPanel({ preview }: { preview: ResourcePreview[] }
       <div className="px-4 py-3 bg-surface-overlay border-b border-border-default flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Layers size={14} className="text-text-muted" />
-          <h4 className="text-sm font-medium text-text-primary">Resource Preview</h4>
+          <h4 className="text-sm font-medium text-text-primary">
+            {t("ingestion.fhirIngestion.resourcePreview")}
+          </h4>
         </div>
         <span className="text-xs text-text-muted">
-          {fmtNumber(totalResources)} resource{totalResources !== 1 ? "s" : ""} detected
+          {t("ingestion.fhirIngestion.resourcesDetected", {
+            count: fmtNumber(totalResources),
+          })}
         </span>
       </div>
       <div className="divide-y divide-border-subtle">
@@ -45,7 +51,7 @@ export function ResourcePreviewPanel({ preview }: { preview: ResourcePreview[] }
                         : "bg-critical/10 text-critical",
                   )}
                 >
-                  {idPct}% IDs
+                  {t("ingestion.fhirIngestion.idPercent", { value: idPct })}
                 </span>
                 <span
                   className={cn(
@@ -57,7 +63,9 @@ export function ResourcePreviewPanel({ preview }: { preview: ResourcePreview[] }
                         : "bg-surface-elevated text-text-ghost",
                   )}
                 >
-                  {codePct}% coded
+                  {t("ingestion.fhirIngestion.codedPercent", {
+                    value: codePct,
+                  })}
                 </span>
               </div>
             </div>

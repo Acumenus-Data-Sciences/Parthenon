@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   useQuery,
   useMutation,
@@ -31,12 +32,12 @@ import { BatchReviewToolbar } from "../components/BatchReviewToolbar";
 
 type FilterTab = "all" | "quick_review" | "full_review" | "unmappable" | "reviewed";
 
-const FILTER_TABS: { key: FilterTab; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "quick_review", label: "Quick Review" },
-  { key: "full_review", label: "Full Review" },
-  { key: "unmappable", label: "Unmappable" },
-  { key: "reviewed", label: "Reviewed" },
+const FILTER_TABS: { key: FilterTab; labelKey: string }[] = [
+  { key: "all", labelKey: "ingestion.mappingReview.filters.all" },
+  { key: "quick_review", labelKey: "ingestion.mappingReview.filters.quickReview" },
+  { key: "full_review", labelKey: "ingestion.mappingReview.filters.fullReview" },
+  { key: "unmappable", labelKey: "ingestion.mappingReview.filters.unmappable" },
+  { key: "reviewed", labelKey: "ingestion.mappingReview.filters.reviewed" },
 ];
 
 interface Toast {
@@ -46,6 +47,7 @@ interface Toast {
 }
 
 export default function MappingReviewPage() {
+  const { t } = useTranslation("app");
   const { jobId } = useParams<{ jobId: string }>();
   const queryClient = useQueryClient();
   const id = Number(jobId);
@@ -123,10 +125,10 @@ export default function MappingReviewPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["mappings", id] });
       queryClient.invalidateQueries({ queryKey: ["mapping-stats", id] });
-      showToast("Review submitted successfully");
+      showToast(t("ingestion.mappingReview.reviewSubmitted"));
     },
     onError: () => {
-      showToast("Failed to submit review", "error");
+      showToast(t("ingestion.mappingReview.reviewFailed"), "error");
     },
   });
 
@@ -152,10 +154,14 @@ export default function MappingReviewPage() {
       queryClient.invalidateQueries({ queryKey: ["mappings", id] });
       queryClient.invalidateQueries({ queryKey: ["mapping-stats", id] });
       setSelectedIds(new Set());
-      showToast(`Batch review: ${data.reviewed} mappings updated`);
+      showToast(
+        t("ingestion.mappingReview.batchUpdated", {
+          count: data.reviewed,
+        }),
+      );
     },
     onError: () => {
-      showToast("Batch review failed", "error");
+      showToast(t("ingestion.mappingReview.batchFailed"), "error");
     },
   });
 
@@ -243,12 +249,14 @@ export default function MappingReviewPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-3">
         <AlertCircle size={32} className="text-critical" />
-        <p className="text-critical">Failed to load mappings</p>
+        <p className="text-critical">
+          {t("ingestion.mappingReview.loadFailed")}
+        </p>
         <Link
           to={`/ingestion/jobs/${jobId}`}
           className="text-sm text-text-muted hover:text-text-primary underline"
         >
-          Back to job
+          {t("ingestion.actions.backToJob")}
         </Link>
       </div>
     );
@@ -291,10 +299,11 @@ export default function MappingReviewPage() {
         </Link>
         <div>
           <h1 className="text-xl font-bold text-text-primary">
-            Mapping Review
+            {t("ingestion.mappingReview.title")}
           </h1>
           <p className="text-sm text-text-muted">
-            Job #{jobId} &mdash; Review and approve concept mappings
+            {t("ingestion.mappingReview.jobPrefix", { id: jobId })}{" "}
+            {t("ingestion.mappingReview.jobDescription")}
           </p>
         </div>
       </div>
@@ -335,7 +344,7 @@ export default function MappingReviewPage() {
                     : "text-text-muted hover:text-text-secondary",
                 )}
               >
-                {tab.label}
+                {t(tab.labelKey)}
                 {solrFacets?.facets?.review_tier &&
                   tab.key !== "all" &&
                   tab.key !== "reviewed" &&
@@ -366,7 +375,7 @@ export default function MappingReviewPage() {
             {!mappings || mappings.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-lg border border-border-default bg-surface-raised py-16">
                 <p className="text-sm text-text-ghost">
-                  No mappings found for this filter
+                  {t("ingestion.mappingReview.emptyFilter")}
                 </p>
               </div>
             ) : (
@@ -397,14 +406,16 @@ export default function MappingReviewPage() {
             {/* Close bar */}
             <div className="flex items-center justify-between px-4 py-2 border-b border-border-default bg-surface-base">
               <span className="text-xs text-text-muted">
-                Remap for mapping #{browserMappingId}
+                {t("ingestion.mappingReview.remapForMapping", {
+                  id: browserMappingId,
+                })}
               </span>
               <button
                 type="button"
                 onClick={() => setBrowserMappingId(null)}
                 className="text-xs text-text-ghost hover:text-text-primary transition-colors"
               >
-                Close
+                {t("ingestion.actions.close")}
               </button>
             </div>
             <ConceptBrowser onSelectConcept={handleBrowserSelect} />

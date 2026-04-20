@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { Plus, Trash2, FolderOpen, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -12,13 +13,13 @@ interface ProjectListViewProps {
   onSelectProject: (id: number) => void;
 }
 
-const STATUS_STYLES: Record<IngestionProject["status"], { label: string; classes: string }> = {
-  draft: { label: "Draft", classes: "bg-surface-accent text-text-muted" },
-  profiling: { label: "Profiling", classes: "bg-blue-900/30 text-blue-400 animate-pulse" },
-  ready: { label: "Ready", classes: "bg-teal-900/30 text-success" },
-  mapping: { label: "Mapping", classes: "bg-amber-900/30 text-accent" },
-  completed: { label: "Completed", classes: "bg-green-900/30 text-green-400" },
-  failed: { label: "Failed", classes: "bg-red-900/30 text-red-400" },
+const STATUS_STYLES: Record<IngestionProject["status"], { labelKey: string; classes: string }> = {
+  draft: { labelKey: "ingestion.statuses.draft", classes: "bg-surface-accent text-text-muted" },
+  profiling: { labelKey: "ingestion.statuses.profiling", classes: "bg-blue-900/30 text-blue-400 animate-pulse" },
+  ready: { labelKey: "ingestion.statuses.ready", classes: "bg-teal-900/30 text-success" },
+  mapping: { labelKey: "ingestion.statuses.mapping", classes: "bg-amber-900/30 text-accent" },
+  completed: { labelKey: "ingestion.statuses.completed", classes: "bg-green-900/30 text-green-400" },
+  failed: { labelKey: "ingestion.statuses.failed", classes: "bg-red-900/30 text-red-400" },
 };
 
 function formatBytes(bytes: number | null | undefined): string {
@@ -37,6 +38,7 @@ function formatDate(iso: string): string {
 }
 
 export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
+  const { t } = useTranslation("app");
   const { data, isLoading } = useIngestionProjects();
   const createMutation = useCreateIngestionProject();
   const deleteMutation = useDeleteIngestionProject();
@@ -75,14 +77,16 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-text-primary">Ingestion Projects</h2>
+        <h2 className="text-lg font-semibold text-text-primary">
+          {t("ingestion.projectList.title")}
+        </h2>
         <button
           type="button"
           onClick={() => setShowForm((v) => !v)}
           className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-light"
         >
           <Plus size={16} />
-          New Project
+          {t("ingestion.actions.newProject")}
         </button>
       </div>
 
@@ -93,7 +97,7 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
             type="text"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            placeholder="Project name..."
+            placeholder={t("ingestion.projectList.projectNamePlaceholder")}
             className="flex-1 rounded-md border border-surface-highlight bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none"
             onKeyDown={(e) => {
               if (e.key === "Enter") handleCreate();
@@ -110,7 +114,7 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
             {createMutation.isPending ? (
               <Loader2 size={16} className="animate-spin" />
             ) : (
-              "Create"
+              t("dataSources.actions.create")
             )}
           </button>
           <button
@@ -118,7 +122,7 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
             onClick={() => setShowForm(false)}
             className="rounded-md px-3 py-2 text-sm text-text-muted hover:text-text-primary transition-colors"
           >
-            Cancel
+            {t("ingestion.actions.cancel")}
           </button>
         </div>
       )}
@@ -135,7 +139,7 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
         <div className="flex flex-col items-center justify-center rounded-lg border border-border-default bg-surface-raised py-16 text-center">
           <FolderOpen size={40} className="mb-3 text-text-ghost" />
           <p className="text-sm text-text-muted">
-            No ingestion projects yet. Create one to start uploading source data.
+            {t("ingestion.projectList.empty")}
           </p>
         </div>
       )}
@@ -147,22 +151,22 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
             <thead>
               <tr className="border-b border-border-default bg-surface-raised">
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-text-muted">
-                  Name
+                  {t("ingestion.common.name")}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-text-muted">
-                  Status
+                  {t("ingestion.common.status")}
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-text-muted">
-                  Files
+                  {t("ingestion.common.files")}
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-text-muted">
-                  Size
+                  {t("ingestion.common.size")}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-text-muted">
-                  Created
+                  {t("ingestion.common.created")}
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-text-muted">
-                  Actions
+                  {t("ingestion.common.actions")}
                 </th>
               </tr>
             </thead>
@@ -185,7 +189,7 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
                           status.classes,
                         )}
                       >
-                        {status.label}
+                        {t(status.labelKey)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right text-sm text-text-muted">
@@ -207,7 +211,7 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
                           }}
                           className="rounded-md px-2 py-1 text-xs text-success hover:bg-surface-overlay transition-colors"
                         >
-                          Open
+                          {t("ingestion.actions.open")}
                         </button>
                         {confirmDeleteId === project.id ? (
                           <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
@@ -217,14 +221,16 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
                               disabled={deleteMutation.isPending}
                               className="rounded-md px-2 py-1 text-xs text-red-400 hover:bg-red-900/20 transition-colors"
                             >
-                              {deleteMutation.isPending ? "..." : "Confirm"}
+                              {deleteMutation.isPending
+                                ? "..."
+                                : t("ingestion.actions.confirmDelete")}
                             </button>
                             <button
                               type="button"
                               onClick={() => setConfirmDeleteId(null)}
                               className="rounded-md px-2 py-1 text-xs text-text-muted hover:bg-surface-overlay transition-colors"
                             >
-                              Cancel
+                              {t("ingestion.actions.cancel")}
                             </button>
                           </div>
                         ) : (
@@ -235,7 +241,7 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
                               setConfirmDeleteId(project.id);
                             }}
                             className="rounded-md p-1 text-text-muted hover:text-red-400 hover:bg-surface-overlay transition-colors"
-                            aria-label="Delete project"
+                            aria-label={t("ingestion.projectList.deleteProject")}
                           >
                             <Trash2 size={14} />
                           </button>

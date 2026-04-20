@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { ArrowLeft, Loader2, Upload, ChevronDown } from "lucide-react";
@@ -10,6 +11,7 @@ import { FileUploadZone } from "../components/FileUploadZone";
 import type { Source } from "@/types/models";
 
 export default function UploadPage() {
+  const { t } = useTranslation("app");
   const navigate = useNavigate();
   const [selectedSource, setSelectedSource] = useState<Source | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -50,10 +52,10 @@ export default function UploadPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-text-primary">
-            Upload Source File
+            {t("ingestion.upload.title")}
           </h1>
           <p className="mt-1 text-sm text-text-muted">
-            Select a data source and upload a file to begin profiling
+            {t("ingestion.upload.subtitle")}
           </p>
         </div>
       </div>
@@ -61,7 +63,7 @@ export default function UploadPage() {
       {/* Source Selector */}
       <div className="space-y-2">
         <label className="block text-sm font-medium text-text-secondary">
-          Data Source
+          {t("ingestion.common.dataSource")}
         </label>
         <div className="relative">
           <button
@@ -78,10 +80,10 @@ export default function UploadPage() {
           >
             <span className={selectedSource ? "text-text-primary" : "text-text-ghost"}>
               {sourcesLoading
-                ? "Loading sources..."
+                ? t("dataSources.list.loading")
                 : selectedSource
                   ? selectedSource.source_name
-                  : "Select a data source"}
+                  : t("ingestion.upload.selectDataSource")}
             </span>
             <ChevronDown
               size={16}
@@ -96,7 +98,7 @@ export default function UploadPage() {
             <div className="absolute z-10 mt-1 w-full rounded-lg border border-border-default bg-surface-overlay shadow-lg overflow-hidden">
               {sources.length === 0 ? (
                 <div className="px-4 py-3 text-sm text-text-muted">
-                  No sources available
+                  {t("ingestion.upload.noSources")}
                 </div>
               ) : (
                 sources.map((source) => (
@@ -129,7 +131,7 @@ export default function UploadPage() {
       {/* File Upload Zone */}
       <div className="space-y-2">
         <label className="block text-sm font-medium text-text-secondary">
-          Source File
+          {t("ingestion.common.sourceFile")}
         </label>
         <FileUploadZone
           onFileSelect={setSelectedFile}
@@ -144,7 +146,7 @@ export default function UploadPage() {
           <p className="text-sm text-critical">
             {uploadMutation.error instanceof Error
               ? uploadMutation.error.message
-              : "Upload failed. Please try again."}
+              : t("ingestion.upload.failed")}
           </p>
         </div>
       )}
@@ -164,12 +166,12 @@ export default function UploadPage() {
         {uploadMutation.isPending ? (
           <>
             <Loader2 size={16} className="animate-spin" />
-            Uploading...
+            {t("ingestion.actions.uploading")}
           </>
         ) : (
           <>
             <Upload size={16} />
-            Upload & Profile
+            {t("ingestion.actions.uploadAndProfile")}
           </>
         )}
       </button>

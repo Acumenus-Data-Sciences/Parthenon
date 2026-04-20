@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Upload, FileText, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,7 @@ export function FileUploadZone({
   selectedFile,
   onRemove,
 }: FileUploadZoneProps) {
+  const { t } = useTranslation("app");
   const [isDragOver, setIsDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -92,7 +94,7 @@ export function FileUploadZone({
             type="button"
             onClick={onRemove}
             className="flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-critical hover:bg-surface-overlay transition-colors"
-            aria-label="Remove file"
+            aria-label={t("ingestion.actions.removeFile")}
           >
             <X size={16} />
           </button>
@@ -134,9 +136,11 @@ export function FileUploadZone({
       </div>
 
       <p className="text-sm font-medium text-text-primary">
-        Drag & drop your file here
+        {t("ingestion.upload.dragFile")}
       </p>
-      <p className="mt-1 text-xs text-text-muted">or click to browse</p>
+      <p className="mt-1 text-xs text-text-muted">
+        {t("ingestion.upload.browse")}
+      </p>
 
       <div className="flex items-center gap-2 mt-5">
         {["CSV", "JSON", "HL7", "TSV", "XLSX"].map((fmt) => (

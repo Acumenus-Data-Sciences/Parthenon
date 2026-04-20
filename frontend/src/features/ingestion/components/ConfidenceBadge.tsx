@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 
 interface ConfidenceBadgeProps {
@@ -5,7 +6,8 @@ interface ConfidenceBadgeProps {
 }
 
 export function ConfidenceBadge({ score }: ConfidenceBadgeProps) {
-  const { bg, text, label } = getScoreStyle(score);
+  const { t } = useTranslation("app");
+  const { bg, text, labelKey } = getScoreStyle(score);
 
   return (
     <span
@@ -18,7 +20,7 @@ export function ConfidenceBadge({ score }: ConfidenceBadgeProps) {
       <span className="font-['IBM_Plex_Mono',monospace] tabular-nums">
         {score > 0 ? score.toFixed(2) : "--"}
       </span>
-      <span>{label}</span>
+      <span>{t(labelKey)}</span>
     </span>
   );
 }
@@ -28,26 +30,26 @@ function getScoreStyle(score: number) {
     return {
       bg: "bg-success/20",
       text: "text-success",
-      label: "High",
+      labelKey: "ingestion.confidence.high",
     };
   }
   if (score >= 0.7) {
     return {
       bg: "bg-warning/20",
       text: "text-warning",
-      label: "Medium",
+      labelKey: "ingestion.confidence.medium",
     };
   }
   if (score > 0) {
     return {
       bg: "bg-critical/20",
       text: "text-critical",
-      label: "Low",
+      labelKey: "ingestion.confidence.low",
     };
   }
   return {
     bg: "bg-surface-highlight",
     text: "text-text-ghost",
-    label: "None",
+    labelKey: "ingestion.confidence.none",
   };
 }

@@ -11,10 +11,10 @@ npm run i18n:scan
 
 Current scanner output:
 
-- Full frontend scanner: 5,705 candidates across 1,103 scanned files.
+- Full frontend scanner: 5,265 candidates across 1,103 scanned files.
 - FinnGen paths excluded from this i18n track: 372 candidates.
-- Non-FinnGen backlog for this triage: 5,333 candidates.
-- Candidate kinds after FinnGen exclusion: 3,478 JSX text, 1,518 object properties, 337 JSX attributes.
+- Non-FinnGen backlog for this triage: 4,893 candidates.
+- Candidate kinds after FinnGen exclusion: 3,208 JSX text, 1,369 object properties, 316 JSX attributes.
 
 The app-priority scanner remains the release gate for the already-promoted language picker work. It currently reports 0 candidates across 214 files. The backlog below is therefore not a blocker for the current public app language selector, but it is the remaining work before Parthenon can claim broad native-language coverage across every product surface.
 
@@ -24,7 +24,7 @@ The app-priority scanner remains the release gate for the already-promoted langu
 | --- | ---: | ---: | --- |
 | Cohort authoring and diagnostics | 687 | 51 | Release-blocking for native cohort-builder claims. Extract next if cohort authoring is the next public i18n promise. |
 | Analysis design and results | 725 | 53 | Release-blocking for native analytics workflows. Extract as a focused analysis wave because designers/results share terminology. |
-| Data source setup and ingestion | 440 | 38 | Release-blocking for first-run/admin data onboarding. Extract before claiming native setup beyond the already-localized setup wizard. |
+| Data source setup and ingestion | 0 | 46 | Completed for `src/features/data-sources`, `src/features/ingestion`, and FHIR ingestion/export chrome. Focused wave scanner reports 0 candidates. |
 | Standard PROs UI | 247 | 13 | Release-blocking for Standard PROs+ workflows. Keep instrument content separate from UI chrome. |
 | Imaging and radiogenomics | 266 | 12 | Release-blocking for imaging workflows. Protect DICOM/OHIF/PACS terminology and measurement units. |
 | Strategus and study packages | 104 | 3 | Release-blocking for native study-package authoring. Protect JSON/module names and OHDSI package identifiers. |
@@ -50,7 +50,6 @@ The app-priority scanner remains the release gate for the already-promoted langu
 | 68 | `src/features/standard-pros/components/builder/BuilderTab.tsx` |
 | 55 | `src/features/cohort-definitions/components/CohortDiagnosticsPanel.tsx` |
 | 54 | `src/features/imaging/pages/ImagingPage.tsx` |
-| 50 | `src/features/data-sources/components/add-source-steps/ConnectionStep.tsx` |
 | 50 | `src/features/strategus/pages/StudyPackagePage.tsx` |
 | 49 | `src/features/strategus/components/ModuleConfigPanels.tsx` |
 | 48 | `src/features/imaging/components/MeasurementPanel.tsx` |
@@ -58,12 +57,14 @@ The app-priority scanner remains the release gate for the already-promoted langu
 | 45 | `src/features/genomics/pages/GenomicsPage.tsx` |
 | 39 | `src/features/profiles/pages/PatientProfilePage.tsx` |
 | 37 | `src/features/estimation/components/EstimationResults.tsx` |
-| 37 | `src/features/ingestion/pages/FhirProjectWorkspacePage.tsx` |
+| 37 | `src/features/investigation/components/clinical/ConfigDrawer.tsx` |
+| 37 | `src/features/radiogenomics/components/PrecisionMedicineTab.tsx` |
+| 37 | `src/features/risk-scores/pages/RiskScoreHubPage.tsx` |
 
 ## Recommended Extraction Order
 
-1. Data-source setup and ingestion.
-   This is the best next release-facing wave because it sits close to onboarding and affects first-run success. Scope: `src/features/data-sources`, `src/features/ingestion`, and FHIR ingestion/export chrome. Keep source names, schema names, auth schemes, URLs, and examples protected.
+1. Data-source setup and ingestion. Completed 2026-04-20.
+   Scope completed: `src/features/data-sources`, `src/features/ingestion`, and FHIR ingestion/export chrome. Source names, schema names, auth schemes, URLs, examples, FHIR/OMOP/CDM tokens, and visual separators were kept protected.
 
 2. Cohort authoring and diagnostics.
    Scope: cohort-definition list/detail, expression editor, validation, diagnostics, attrition, patient list, Circe SQL panel, and phenotype-library pages. Protect clinical concept/source labels, generated SQL, JSON, and OHDSI/Circe identifiers.

@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { FileText, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,7 @@ function formatFileSize(bytes: number): string {
 }
 
 /** Derive a valid table name from a filename */
+// eslint-disable-next-line react-refresh/only-export-components
 export function deriveTableName(filename: string): string {
   // Strip extension
   const base = filename.replace(/\.[^.]+$/, "");
@@ -40,11 +42,12 @@ export function FileReviewList({
   onStageAll,
   isStaging,
 }: FileReviewListProps) {
+  const { t } = useTranslation("app");
   const validationErrors = useMemo(() => {
     return tableNames.map((name) => {
-      if (!name) return "Table name is required";
+      if (!name) return "ingestion.projectDetail.tableNameRequired";
       if (!TABLE_NAME_REGEX.test(name)) {
-        return "Must start with a letter, only lowercase alphanumeric and underscores, max 63 chars";
+        return "ingestion.projectDetail.tableNameRules";
       }
       return null;
     });
@@ -71,13 +74,13 @@ export function FileReviewList({
         {/* Header */}
         <div className="flex items-center gap-4 border-b border-border-default bg-surface-raised px-4 py-2">
           <span className="flex-[2] text-xs font-medium uppercase tracking-wider text-text-muted">
-            Original File
+            {t("ingestion.projectDetail.originalFile")}
           </span>
           <span className="flex-[2] text-xs font-medium uppercase tracking-wider text-text-muted">
-            Table Name
+            {t("ingestion.common.tableName")}
           </span>
           <span className="w-20 text-right text-xs font-medium uppercase tracking-wider text-text-muted">
-            Size
+            {t("ingestion.common.size")}
           </span>
           <span className="w-10" />
         </div>
@@ -115,10 +118,12 @@ export function FileReviewList({
                   placeholder="table_name"
                 />
                 {error && (
-                  <p className="mt-1 text-xs text-red-400">{error}</p>
+                  <p className="mt-1 text-xs text-red-400">{t(error)}</p>
                 )}
                 {isDuplicate && !error && (
-                  <p className="mt-1 text-xs text-red-400">Duplicate table name</p>
+                  <p className="mt-1 text-xs text-red-400">
+                    {t("ingestion.projectDetail.duplicateTableName")}
+                  </p>
                 )}
               </div>
 
@@ -133,7 +138,9 @@ export function FileReviewList({
                 onClick={() => onRemove(index)}
                 disabled={isStaging}
                 className="w-10 flex items-center justify-center pt-1 text-text-muted hover:text-critical transition-colors disabled:opacity-50"
-                aria-label={`Remove ${file.name}`}
+                aria-label={t("ingestion.projectDetail.removeNamedFile", {
+                  name: file.name,
+                })}
               >
                 <X size={16} />
               </button>
@@ -151,7 +158,9 @@ export function FileReviewList({
           className="flex items-center gap-2 rounded-md bg-success px-6 py-2.5 text-sm font-medium text-surface-base transition-colors hover:bg-success-dark disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isStaging && <Loader2 size={16} className="animate-spin" />}
-          {isStaging ? "Staging..." : "Stage All"}
+          {isStaging
+            ? t("ingestion.projectDetail.staging")
+            : t("ingestion.projectDetail.stageAll")}
         </button>
       </div>
     </div>

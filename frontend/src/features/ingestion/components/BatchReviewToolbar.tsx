@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { CheckCheck, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,8 @@ export function BatchReviewToolbar({
   onBatchReject,
   isAllSelected,
 }: BatchReviewToolbarProps) {
+  const { t } = useTranslation("app");
+
   return (
     <div
       className={cn(
@@ -34,7 +37,7 @@ export function BatchReviewToolbar({
           className="h-4 w-4 rounded border-surface-highlight bg-surface-base text-primary focus:ring-primary focus:ring-offset-0 accent-primary"
         />
         <span className="text-xs font-medium text-text-secondary">
-          Select All in View
+          {t("ingestion.actions.selectAllInView")}
         </span>
       </label>
 
@@ -46,7 +49,7 @@ export function BatchReviewToolbar({
         <span className="font-medium text-text-primary tabular-nums font-['IBM_Plex_Mono',monospace]">
           {selectedCount}
         </span>{" "}
-        selected
+        {t("ingestion.mappingReview.selected")}
       </span>
 
       {/* Spacer */}
@@ -64,7 +67,7 @@ export function BatchReviewToolbar({
         )}
       >
         <CheckCheck size={14} />
-        Accept All Selected
+        {t("ingestion.actions.acceptAllSelected")}
       </button>
 
       <button
@@ -78,7 +81,7 @@ export function BatchReviewToolbar({
         )}
       >
         <XCircle size={14} />
-        Reject All Selected
+        {t("ingestion.actions.rejectAllSelected")}
       </button>
     </div>
   );

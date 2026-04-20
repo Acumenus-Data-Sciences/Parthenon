@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -7,6 +8,7 @@ interface MultiFileUploadZoneProps {
 }
 
 export function MultiFileUploadZone({ onFilesSelect }: MultiFileUploadZoneProps) {
+  const { t } = useTranslation("app");
   const [isDragOver, setIsDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -92,9 +94,11 @@ export function MultiFileUploadZone({ onFilesSelect }: MultiFileUploadZoneProps)
       </div>
 
       <p className="text-sm font-medium text-text-primary">
-        Drag & drop files here
+        {t("ingestion.upload.dragFiles")}
       </p>
-      <p className="mt-1 text-xs text-text-muted">or click to browse</p>
+      <p className="mt-1 text-xs text-text-muted">
+        {t("ingestion.upload.browse")}
+      </p>
 
       <div className="flex items-center gap-2 mt-5">
         {["CSV", "TSV", "XLSX"].map((fmt) => (

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Database, Pencil, Unplug, Loader2 } from "lucide-react";
 import type { IngestionProject, DbConnectionConfig, DbTableInfo } from "../api/ingestionApi";
 import { useConnectDatabase, useConfirmTables, useStageDatabase } from "../hooks/useIngestionProjects";
@@ -9,6 +10,7 @@ interface ConnectDatabaseColumnProps {
 }
 
 export default function ConnectDatabaseColumn({ project }: ConnectDatabaseColumnProps) {
+  const { t } = useTranslation("app");
   const [modalOpen, setModalOpen] = useState(false);
   const connectMutation = useConnectDatabase(project.id);
   const confirmMutation = useConfirmTables(project.id);
@@ -63,14 +65,14 @@ export default function ConnectDatabaseColumn({ project }: ConnectDatabaseColumn
             onClick={() => setModalOpen(true)}
             className="inline-flex items-center gap-1.5 rounded-md border border-surface-highlight px-3 py-1.5 text-xs text-text-muted hover:text-text-primary transition-colors"
           >
-            <Pencil size={12} /> Change
+          <Pencil size={12} /> {t("ingestion.actions.change")}
           </button>
           <button
             type="button"
             onClick={handleDisconnect}
             className="inline-flex items-center gap-1.5 rounded-md border border-surface-highlight px-3 py-1.5 text-xs text-text-muted hover:text-critical transition-colors"
           >
-            <Unplug size={12} /> Disconnect
+            <Unplug size={12} /> {t("ingestion.actions.disconnect")}
           </button>
           <button
             type="button"
@@ -79,13 +81,15 @@ export default function ConnectDatabaseColumn({ project }: ConnectDatabaseColumn
             className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary-light disabled:opacity-40 transition-colors ml-auto"
           >
             {stageMutation.isPending ? <Loader2 size={12} className="animate-spin" /> : <Database size={12} />}
-            Profile & Stage
+            {t("ingestion.actions.profileAndStage")}
           </button>
         </div>
 
         {stageMutation.isError && (
           <p className="text-xs text-critical">
-            {stageMutation.error instanceof Error ? stageMutation.error.message : "Staging failed"}
+            {stageMutation.error instanceof Error
+              ? stageMutation.error.message
+              : t("ingestion.projectDetail.stagingFailed")}
           </p>
         )}
 
@@ -112,9 +116,11 @@ export default function ConnectDatabaseColumn({ project }: ConnectDatabaseColumn
         onClick={() => setModalOpen(true)}
         className="rounded-lg bg-success/15 px-5 py-2.5 text-sm font-medium text-success hover:bg-success/25 transition-colors"
       >
-        Connect to Database
+        {t("ingestion.actions.connectToDatabase")}
       </button>
-      <p className="mt-2 text-xs text-text-ghost">Connect to any supported database to browse and select tables</p>
+      <p className="mt-2 text-xs text-text-ghost">
+        {t("ingestion.projectDetail.connectCardDescription")}
+      </p>
 
       <ConnectDatabaseModal
         isOpen={modalOpen}

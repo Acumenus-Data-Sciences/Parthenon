@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Upload, Loader2, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useImportFromWebApi } from "../hooks/useSources";
 import type { WebApiImportResult } from "@/types/models";
 
 export function WebApiImportPanel() {
+  const { t } = useTranslation("app");
   const [url, setUrl] = useState("");
   const [authType, setAuthType] = useState<"none" | "basic" | "bearer">("none");
   const [credentials, setCredentials] = useState("");
@@ -30,19 +32,18 @@ export function WebApiImportPanel() {
       <div className="flex items-center gap-2">
         <Upload size={16} className="text-accent" />
         <h3 className="text-sm font-semibold text-text-primary">
-          Import from Legacy WebAPI
+          {t("dataSources.webApiImport.title")}
         </h3>
       </div>
       <p className="text-xs text-text-muted">
-        Connect to an existing OHDSI WebAPI instance and import its configured
-        data sources into Parthenon.
+        {t("dataSources.webApiImport.description")}
       </p>
 
       <div className="grid gap-3">
         {/* URL */}
         <div>
           <label className="block text-xs font-medium text-text-muted mb-1">
-            WebAPI Base URL
+            {t("dataSources.webApiImport.baseUrl")}
           </label>
           <input
             type="url"
@@ -57,22 +58,24 @@ export function WebApiImportPanel() {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">
-              Authentication
+              {t("dataSources.webApiImport.authentication")}
             </label>
             <select
               value={authType}
               onChange={(e) => setAuthType(e.target.value as "none" | "basic" | "bearer")}
               className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30"
             >
-              <option value="none">None</option>
-              <option value="basic">Basic Auth</option>
-              <option value="bearer">Bearer Token</option>
+              <option value="none">{t("dataSources.auth.none")}</option>
+              <option value="basic">{t("dataSources.auth.basic")}</option>
+              <option value="bearer">{t("dataSources.auth.bearer")}</option>
             </select>
           </div>
           {authType !== "none" && (
             <div>
               <label className="block text-xs font-medium text-text-muted mb-1">
-                {authType === "basic" ? "Credentials (user:pass)" : "Token"}
+                {authType === "basic"
+                  ? t("dataSources.webApiImport.credentials")
+                  : t("dataSources.webApiImport.token")}
               </label>
               <input
                 type="password"
@@ -101,7 +104,7 @@ export function WebApiImportPanel() {
         ) : (
           <Upload size={14} />
         )}
-        Import Sources
+        {t("dataSources.actions.importSources")}
       </button>
 
       {/* Error */}
@@ -109,7 +112,8 @@ export function WebApiImportPanel() {
         <div className="flex items-center gap-2 rounded-lg border border-critical/30 bg-critical/10 px-3 py-2">
           <XCircle size={14} className="text-critical shrink-0" />
           <p className="text-xs text-critical">
-            {(importMutation.error as Error)?.message ?? "Import failed"}
+            {(importMutation.error as Error)?.message ??
+              t("dataSources.webApiImport.importFailed")}
           </p>
         </div>
       )}
@@ -120,12 +124,16 @@ export function WebApiImportPanel() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5 text-xs text-success">
               <CheckCircle size={12} />
-              {result.imported} imported
+              {t("dataSources.webApiImport.importedCount", {
+                count: result.imported,
+              })}
             </div>
             {result.skipped > 0 && (
               <div className="flex items-center gap-1.5 text-xs text-accent">
                 <AlertTriangle size={12} />
-                {result.skipped} skipped
+                {t("dataSources.webApiImport.skippedCount", {
+                  count: result.skipped,
+                })}
               </div>
             )}
           </div>
@@ -135,9 +143,15 @@ export function WebApiImportPanel() {
               <table className="w-full text-xs">
                 <thead>
                   <tr className="border-b border-border-default bg-surface-base">
-                    <th className="px-3 py-2 text-left font-medium text-text-muted">Source Key</th>
-                    <th className="px-3 py-2 text-left font-medium text-text-muted">Source Name</th>
-                    <th className="px-3 py-2 text-left font-medium text-text-muted">Status</th>
+                    <th className="px-3 py-2 text-left font-medium text-text-muted">
+                      {t("dataSources.common.sourceKey")}
+                    </th>
+                    <th className="px-3 py-2 text-left font-medium text-text-muted">
+                      {t("dataSources.common.sourceName")}
+                    </th>
+                    <th className="px-3 py-2 text-left font-medium text-text-muted">
+                      {t("dataSources.common.status")}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>

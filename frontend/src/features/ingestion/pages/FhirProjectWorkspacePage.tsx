@@ -1,4 +1,5 @@
 import { lazy, Suspense, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Activity,
   ChevronDown,
@@ -32,29 +33,34 @@ const FhirIngestionPanel = lazy(
 
 /* ── Status maps ──────────────────────────────────────────────────── */
 
-const SYNC_STATUS: Record<string, { label: string; variant: "success" | "warning" | "info" | "critical" | "inactive" }> = {
-  pending: { label: "Pending", variant: "inactive" },
-  exporting: { label: "Exporting", variant: "info" },
-  downloading: { label: "Downloading", variant: "info" },
-  processing: { label: "Processing", variant: "warning" },
-  completed: { label: "Completed", variant: "success" },
-  ready: { label: "Ready", variant: "success" },
-  failed: { label: "Failed", variant: "critical" },
+type Translate = (key: string, options?: Record<string, unknown>) => string;
+
+const SYNC_STATUS: Record<string, { labelKey: string; variant: "success" | "warning" | "info" | "critical" | "inactive" }> = {
+  pending: { labelKey: "ingestion.statuses.pending", variant: "inactive" },
+  exporting: { labelKey: "ingestion.statuses.exporting", variant: "info" },
+  downloading: { labelKey: "ingestion.statuses.downloading", variant: "info" },
+  processing: { labelKey: "ingestion.statuses.processing", variant: "warning" },
+  completed: { labelKey: "ingestion.statuses.completed", variant: "success" },
+  ready: { labelKey: "ingestion.statuses.ready", variant: "success" },
+  failed: { labelKey: "ingestion.statuses.failed", variant: "critical" },
 };
 
 const ACTIVE_STATUSES = ["pending", "exporting", "downloading", "processing"];
 
-function statusBadge(status: string | null | undefined) {
-  const s = SYNC_STATUS[status ?? ""] ?? { label: status ?? "Unconfigured", variant: "inactive" as const };
-  return <Badge variant={s.variant}>{s.label}</Badge>;
+function statusBadge(status: string | null | undefined, t: Translate) {
+  const s = SYNC_STATUS[status ?? ""];
+  const label = s ? t(s.labelKey) : (status ?? t("ingestion.fhirWorkspace.unconfigured"));
+  return <Badge variant={s?.variant ?? "inactive"}>{label}</Badge>;
 }
 
 /* ── Helpers ───────────────────────────────────────────────────────── */
 
-function formatDateTime(value: string | null | undefined): string {
-  if (!value) return "Never";
+function formatDateTime(value: string | null | undefined, t: Translate): string {
+  if (!value) return t("ingestion.fhirWorkspace.never");
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? "Never" : date.toLocaleString();
+  return Number.isNaN(date.getTime())
+    ? t("ingestion.fhirWorkspace.never")
+    : date.toLocaleString();
 }
 
 function isActiveRun(run: Pick<FhirSyncRun, "status">): boolean {
@@ -89,6 +95,7 @@ export default function FhirProjectWorkspacePage({
 /* ── Project picker (no project selected) ──────────────────────────── */
 
 function ProjectPicker({ onSelect }: { onSelect: (id: number) => void }) {
+  const { t } = useTranslation("app");
   const { data: projectsData, isLoading } = useIngestionProjects();
   const projects = projectsData?.data ?? [];
 
@@ -96,9 +103,11 @@ function ProjectPicker({ onSelect }: { onSelect: (id: number) => void }) {
     <Panel
       header={
         <div>
-          <h2 className="text-lg font-semibold text-text-primary">Vulcan</h2>
+          <h2 className="text-lg font-semibold text-text-primary">
+            {t("ingestion.fhirWorkspace.title")}
+          </h2>
           <p className="mt-1 text-sm text-text-muted">
-            Connection-backed FHIR bulk sync. Attach a FHIR server to an ingestion project and run incremental or full exports.
+            {t("ingestion.fhirWorkspace.subtitle")}
           </p>
         </div>
       }
@@ -106,13 +115,13 @@ function ProjectPicker({ onSelect }: { onSelect: (id: number) => void }) {
       {isLoading ? (
         <div className="flex items-center gap-2 py-8 text-sm text-text-muted">
           <Loader2 size={16} className="animate-spin" />
-          Loading projects...
+          {t("ingestion.fhirWorkspace.loadingProjects")}
         </div>
       ) : projects.length === 0 ? (
         <EmptyState
           icon={<Database size={36} />}
-          title="No ingestion projects"
-          message="Create an ingestion project in the Ingestion tab first, then return here to attach a FHIR connection."
+          title={t("ingestion.fhirWorkspace.noProjectsTitle")}
+          message={t("ingestion.fhirWorkspace.noProjectsMessage")}
         />
       ) : (
         <div className="grid gap-3 md:grid-cols-2">
@@ -128,9 +137,11 @@ function ProjectPicker({ onSelect }: { onSelect: (id: number) => void }) {
                   {project.name}
                 </div>
                 <div className="mt-1 flex items-center gap-2 text-xs text-text-muted">
-                  {statusBadge(project.last_fhir_sync_status ?? project.status)}
+                  {statusBadge(project.last_fhir_sync_status ?? project.status, t)}
                   {project.fhir_connection_id && (
-                    <span className="text-success">FHIR linked</span>
+                    <span className="text-success">
+                      {t("ingestion.fhirWorkspace.linked")}
+                    </span>
                   )}
                 </div>
               </div>
@@ -152,6 +163,7 @@ function WorkspaceView({
   projectId: number;
   onBack: () => void;
 }) {
+  const { t } = useTranslation("app");
   const workspaceQuery = useProjectFhirWorkspace(projectId);
   const attachMutation = useAttachProjectFhirConnection(projectId);
   const syncMutation = useStartProjectFhirSync(projectId);
@@ -169,15 +181,15 @@ function WorkspaceView({
     return (
       <Panel>
         <EmptyState
-          title="Failed to load workspace"
-          message="Could not load the FHIR workspace for this project."
+          title={t("ingestion.fhirWorkspace.loadFailedTitle")}
+          message={t("ingestion.fhirWorkspace.loadFailedMessage")}
           action={
             <button
               type="button"
               onClick={onBack}
               className="mt-3 text-sm text-success hover:underline"
             >
-              Back to projects
+              {t("ingestion.actions.backToProjects")}
             </button>
           }
         />
@@ -197,7 +209,7 @@ function WorkspaceView({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <h2 className="text-lg font-semibold text-text-primary">{project.name}</h2>
-          {statusBadge(project.last_fhir_sync_status ?? project.status)}
+          {statusBadge(project.last_fhir_sync_status ?? project.status, t)}
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -206,14 +218,14 @@ function WorkspaceView({
             className="inline-flex items-center gap-2 rounded-lg border border-surface-highlight px-3 py-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
           >
             <RefreshCw size={14} />
-            Refresh
+            {t("ingestion.actions.refresh")}
           </button>
           <button
             type="button"
             onClick={onBack}
             className="inline-flex items-center gap-2 rounded-lg border border-surface-highlight px-3 py-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
           >
-            All Projects
+            {t("ingestion.common.allProjects")}
           </button>
         </div>
       </div>
@@ -252,10 +264,10 @@ function WorkspaceView({
             <Upload size={16} className="text-text-muted" />
             <div>
               <div className="text-sm font-medium text-text-primary">
-                Bundle / NDJSON Sandbox
+                {t("ingestion.fhirWorkspace.sandboxTitle")}
               </div>
               <div className="mt-0.5 text-xs text-text-muted">
-                Ad-hoc upload for local validation and mapper spot checks
+                {t("ingestion.fhirWorkspace.sandboxSubtitle")}
               </div>
             </div>
           </div>
@@ -271,7 +283,7 @@ function WorkspaceView({
               fallback={
                 <div className="flex items-center gap-2 py-6 text-sm text-text-muted">
                   <Loader2 size={16} className="animate-spin" />
-                  Loading sandbox...
+                  {t("ingestion.fhirWorkspace.loadingSandbox")}
                 </div>
               }
             >
@@ -301,6 +313,7 @@ function ConnectedView({
   syncInProgress: boolean;
   onSync: (forceFull: boolean) => void;
 }) {
+  const { t } = useTranslation("app");
   const project = workspace.project;
   const lastSyncAt = project.last_fhir_sync_at ?? connection.last_sync_at;
 
@@ -311,7 +324,9 @@ function ConnectedView({
         header={
           <div className="flex items-center gap-2">
             <Link2 size={16} className="text-success" />
-            <span className="text-sm font-medium text-text-primary">Attached Connection</span>
+            <span className="text-sm font-medium text-text-primary">
+              {t("ingestion.common.attachedConnection")}
+            </span>
           </div>
         }
       >
@@ -321,27 +336,34 @@ function ConnectedView({
               {connection.site_name}
             </div>
             <div className="mt-1 text-xs text-text-muted">
+              {/* i18n-exempt: visual separator between FHIR site identifiers. */}
               {connection.site_key} &middot; {connection.ehr_vendor}
               {connection.auth_mode === "none" && (
-                <span className="ml-2 text-accent">anonymous</span>
+                <span className="ml-2 text-accent">
+                  {t("ingestion.fhirWorkspace.anonymous")}
+                </span>
               )}
             </div>
           </div>
-          {statusBadge(connection.last_sync_status ?? (connection.is_active ? "ready" : "failed"))}
+          {statusBadge(connection.last_sync_status ?? (connection.is_active ? "ready" : "failed"), t)}
         </div>
 
         {/* Metric row */}
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           <MetricCard
-            label="Last Sync"
-            value={formatDateTime(lastSyncAt)}
+            label={t("ingestion.fhirWorkspace.lastSync")}
+            value={formatDateTime(lastSyncAt, t)}
           />
           <MetricCard
-            label="Incremental"
-            value={connection.incremental_enabled ? "Enabled" : "Disabled"}
+            label={t("ingestion.fhirWorkspace.incremental")}
+            value={
+              connection.incremental_enabled
+                ? t("ingestion.fhirWorkspace.enabled")
+                : t("ingestion.fhirWorkspace.disabled")
+            }
           />
           <MetricCard
-            label="Last Records"
+            label={t("ingestion.fhirWorkspace.lastRecords")}
             value={connection.last_sync_records?.toLocaleString?.() ?? "0"}
           />
         </div>
@@ -359,7 +381,7 @@ function ConnectedView({
             ) : (
               <Play size={14} />
             )}
-            Incremental Sync
+            {t("ingestion.actions.incrementalSync")}
           </button>
           <button
             type="button"
@@ -368,14 +390,14 @@ function ConnectedView({
             className="inline-flex items-center gap-2 rounded-lg border border-surface-highlight px-4 py-2 text-sm text-text-secondary transition-colors hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50"
           >
             <RefreshCw size={14} />
-            Full Sync
+            {t("ingestion.actions.fullSync")}
           </button>
         </div>
 
         {activeRun && (
           <div className="mt-3 flex items-center gap-2 rounded-md bg-surface-overlay px-3 py-2 text-xs text-accent">
             <Loader2 size={12} className="animate-spin" />
-            Sync in progress — auto-refreshing every 10 seconds
+            {t("ingestion.fhirWorkspace.syncInProgress")}
           </div>
         )}
       </Panel>
@@ -397,6 +419,7 @@ function AttachConnectionView({
   isPending: boolean;
   onAttach: (connectionId: number) => void;
 }) {
+  const { t } = useTranslation("app");
   const [selectedId, setSelectedId] = useState<string>("");
 
   return (
@@ -404,15 +427,17 @@ function AttachConnectionView({
       header={
         <div className="flex items-center gap-2">
           <Link2 size={16} className="text-text-muted" />
-          <span className="text-sm font-medium text-text-primary">FHIR Connection</span>
+          <span className="text-sm font-medium text-text-primary">
+            {t("ingestion.fhirWorkspace.connectionTitle")}
+          </span>
         </div>
       }
     >
       {availableConnections.length === 0 ? (
         <EmptyState
           icon={<Database size={28} />}
-          title="No FHIR connections available"
-          message="Ask an administrator to create a FHIR connection in Admin before attaching one here."
+          title={t("ingestion.fhirWorkspace.noConnectionsTitle")}
+          message={t("ingestion.fhirWorkspace.noConnectionsMessage")}
         />
       ) : (
         <div className="flex flex-wrap items-center gap-3">
@@ -421,7 +446,7 @@ function AttachConnectionView({
             onChange={(e) => setSelectedId(e.target.value)}
             className="min-w-[280px] rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-accent"
           >
-            <option value="">Select a FHIR connection</option>
+            <option value="">{t("ingestion.fhirWorkspace.selectConnection")}</option>
             {availableConnections.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.site_name} ({c.site_key})
@@ -439,7 +464,7 @@ function AttachConnectionView({
             ) : (
               <Database size={14} />
             )}
-            Attach Connection
+            {t("dataSources.actions.attachConnection")}
           </button>
         </div>
       )}
@@ -450,33 +475,37 @@ function AttachConnectionView({
 /* ── Sync runs table ───────────────────────────────────────────────── */
 
 function SyncRunsTable({ runs }: { runs: FhirSyncRun[] }) {
+  const { t } = useTranslation("app");
+
   return (
     <Panel
       header={
         <div className="flex items-center gap-2">
           <Activity size={16} className="text-accent" />
-          <span className="text-sm font-medium text-text-primary">Recent Sync Runs</span>
+          <span className="text-sm font-medium text-text-primary">
+            {t("ingestion.fhirWorkspace.recentRuns")}
+          </span>
         </div>
       }
     >
       {runs.length === 0 ? (
         <EmptyState
           icon={<Activity size={28} />}
-          title="No sync runs yet"
-          message="Start a sync to begin pulling data from the attached FHIR server."
+          title={t("ingestion.fhirWorkspace.noRunsTitle")}
+          message={t("ingestion.fhirWorkspace.noRunsMessage")}
         />
       ) : (
         <div className="overflow-hidden rounded-lg border border-border-default">
           <table className="w-full">
             <thead>
               <tr className="border-b border-border-default bg-surface-raised">
-                <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-text-muted">Run</th>
-                <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-text-muted">Status</th>
-                <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-text-muted">Extracted</th>
-                <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-text-muted">Mapped</th>
-                <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-text-muted">Written</th>
-                <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-text-muted">Coverage</th>
-                <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-text-muted">Started</th>
+                <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-text-muted">{t("ingestion.common.run")}</th>
+                <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-text-muted">{t("ingestion.common.status")}</th>
+                <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-text-muted">{t("ingestion.common.extracted")}</th>
+                <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-text-muted">{t("ingestion.common.mapped")}</th>
+                <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-text-muted">{t("ingestion.common.written")}</th>
+                <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-text-muted">{t("ingestion.common.coverage")}</th>
+                <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-text-muted">{t("ingestion.common.started")}</th>
               </tr>
             </thead>
             <tbody>
@@ -489,7 +518,7 @@ function SyncRunsTable({ runs }: { runs: FhirSyncRun[] }) {
                   )}
                 >
                   <td className="px-4 py-2.5 text-sm font-mono text-text-muted">#{run.id}</td>
-                  <td className="px-4 py-2.5">{statusBadge(run.status)}</td>
+                  <td className="px-4 py-2.5">{statusBadge(run.status, t)}</td>
                   <td className="px-4 py-2.5 text-right text-sm text-text-primary">
                     {run.records_extracted.toLocaleString()}
                   </td>
@@ -503,7 +532,7 @@ function SyncRunsTable({ runs }: { runs: FhirSyncRun[] }) {
                     {run.mapping_coverage == null ? "—" : `${run.mapping_coverage}%`}
                   </td>
                   <td className="px-4 py-2.5 text-sm text-text-muted">
-                    {formatDateTime(run.created_at)}
+                    {formatDateTime(run.created_at, t)}
                   </td>
                 </tr>
               ))}

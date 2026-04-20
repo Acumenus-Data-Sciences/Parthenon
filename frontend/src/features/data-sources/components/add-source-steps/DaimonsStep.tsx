@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Database, BookOpen, BarChart2, Clock } from "lucide-react";
 
 export interface DaimonsData {
@@ -15,50 +16,54 @@ interface Props {
 const DAIMON_ROWS = [
   {
     key: "cdm" as const,
-    label: "CDM",
+    labelKey: "dataSources.wizard.daimons.labels.cdm",
     icon: Database,
     placeholder: "omop",
     required: true,
-    description: "Clinical data — person, condition_occurrence, drug_exposure, etc.",
+    descriptionKey: "dataSources.wizard.daimons.descriptions.cdm",
   },
   {
     key: "vocabulary" as const,
-    label: "Vocabulary",
+    labelKey: "dataSources.wizard.daimons.labels.vocabulary",
     icon: BookOpen,
     placeholder: "omop",
     required: true,
-    description: "OMOP vocabularies — concept, concept_ancestor, vocabulary, domain, etc.",
+    descriptionKey: "dataSources.wizard.daimons.descriptions.vocabulary",
   },
   {
     key: "results" as const,
-    label: "Results",
+    labelKey: "dataSources.wizard.daimons.labels.results",
     icon: BarChart2,
     placeholder: "achilles_results",
     required: true,
-    description: "Achilles characterization results and cohort counts.",
+    descriptionKey: "dataSources.wizard.daimons.descriptions.results",
   },
   {
     key: "temp" as const,
-    label: "Temp",
+    labelKey: "dataSources.wizard.daimons.labels.temp",
     icon: Clock,
     placeholder: "temp",
     required: false,
-    description: "Temporary schema for cohort generation (optional — leave empty to skip).",
+    descriptionKey: "dataSources.wizard.daimons.descriptions.temp",
   },
 ];
 
 export function DaimonsStep({ data, onChange }: Props) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-lg font-semibold text-text-primary">Schema Qualifiers (Daimons)</h2>
+        <h2 className="text-lg font-semibold text-text-primary">
+          {t("dataSources.wizard.daimons.title")}
+        </h2>
         <p className="mt-1 text-sm text-text-muted">
-          Each daimon tells Parthenon which PostgreSQL schema holds that type of data.
+          {t("dataSources.wizard.daimons.subtitle")}
         </p>
       </div>
 
       <div className="space-y-3">
-        {DAIMON_ROWS.map(({ key, label, icon: Icon, placeholder, required, description }) => (
+        {DAIMON_ROWS.map(({ key, labelKey, icon: Icon, placeholder, required, descriptionKey }) => (
           <div key={key} className="rounded-lg border border-border-default bg-surface-base px-4 py-3">
             <div className="flex items-start gap-3">
               <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border-default bg-surface-raised">
@@ -66,16 +71,18 @@ export function DaimonsStep({ data, onChange }: Props) {
               </div>
               <div className="flex-1 min-w-0 space-y-1.5">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-medium text-text-secondary">{label}</span>
+                  <span className="text-sm font-medium text-text-secondary">
+                    {t(labelKey)}
+                  </span>
                   {required ? (
                     <span className="text-critical text-xs">*</span>
                   ) : (
                     <span className="rounded-full bg-surface-elevated px-1.5 py-0.5 text-[9px] font-medium text-text-ghost">
-                      Optional
+                      {t("dataSources.wizard.daimons.optional")}
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-text-ghost">{description}</p>
+                <p className="text-xs text-text-ghost">{t(descriptionKey)}</p>
                 <input
                   type="text"
                   value={data[key]}

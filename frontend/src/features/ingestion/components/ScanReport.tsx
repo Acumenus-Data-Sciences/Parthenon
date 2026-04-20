@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { FieldProfile } from "@/types/ingestion";
@@ -7,13 +8,19 @@ interface ScanReportProps {
 }
 
 const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
+  // i18n-exempt: design tokens and CSS colors are not user-facing text.
   string: { bg: "var(--surface-accent)", text: "var(--text-secondary)" },
+  // i18n-exempt: design tokens and CSS colors are not user-facing text.
   integer: { bg: "rgba(96,165,250,0.15)", text: "var(--info)" },
+  // i18n-exempt: design tokens and CSS colors are not user-facing text.
   float: { bg: "rgba(96,165,250,0.15)", text: "var(--info)" },
+  // i18n-exempt: design tokens and CSS colors are not user-facing text.
   number: { bg: "rgba(96,165,250,0.15)", text: "var(--info)" },
   date: { bg: "rgba(168,85,247,0.15)", text: "#A855F7" },
   datetime: { bg: "rgba(168,85,247,0.15)", text: "#A855F7" },
+  // i18n-exempt: design tokens and CSS colors are not user-facing text.
   boolean: { bg: "rgba(45,212,191,0.15)", text: "var(--success)" },
+  // i18n-exempt: design tokens and CSS colors are not user-facing text.
   code: { bg: "rgba(201,162,39,0.15)", text: "var(--accent)" },
 };
 
@@ -23,10 +30,12 @@ function getTypeColor(type: string) {
 }
 
 export function ScanReport({ fields }: ScanReportProps) {
+  const { t } = useTranslation("app");
+
   if (!fields || fields.length === 0) {
     return (
       <div className="flex items-center justify-center py-12 text-text-muted text-sm">
-        No field profiles available.
+        {t("ingestion.scanReport.noProfiles")}
       </div>
     );
   }
@@ -38,22 +47,22 @@ export function ScanReport({ fields }: ScanReportProps) {
           <thead>
             <tr className="bg-surface-overlay">
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Column Name
+                {t("ingestion.scanReport.columnName")}
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Type
+                {t("ingestion.common.type")}
               </th>
               <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Non-null %
+                {t("ingestion.scanReport.nonNullPercent")}
               </th>
               <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Distinct %
+                {t("ingestion.scanReport.distinctPercent")}
               </th>
               <th className="px-4 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 PII
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Sample Values
+                {t("ingestion.scanReport.sampleValues")}
               </th>
             </tr>
           </thead>

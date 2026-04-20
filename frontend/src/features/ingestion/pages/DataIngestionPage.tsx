@@ -1,4 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from "react";
+import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -20,12 +21,12 @@ const PoseidonPage = lazy(
 
 type TabId = "upload" | "profiler" | "aqueduct" | "poseidon" | "fhir";
 
-const TABS: { id: TabId; label: string }[] = [
-  { id: "upload", label: "Ingestion" },
-  { id: "profiler", label: "Source Profiler" },
-  { id: "aqueduct", label: "Aqueduct" },
-  { id: "poseidon", label: "Poseidon" },
-  { id: "fhir", label: "Vulcan" },
+const TABS: { id: TabId; labelKey: string }[] = [
+  { id: "upload", labelKey: "ingestion.dashboard.tabs.ingestion" },
+  { id: "profiler", labelKey: "ingestion.dashboard.tabs.profiler" },
+  { id: "aqueduct", labelKey: "ingestion.dashboard.tabs.aqueduct" },
+  { id: "poseidon", labelKey: "ingestion.dashboard.tabs.poseidon" },
+  { id: "fhir", labelKey: "ingestion.dashboard.tabs.vulcan" },
 ];
 
 function TabFallback() {
@@ -37,6 +38,7 @@ function TabFallback() {
 }
 
 export default function DataIngestionPage() {
+  const { t } = useTranslation("app");
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
 
@@ -59,9 +61,11 @@ export default function DataIngestionPage() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Data Ingestion</h1>
+          <h1 className="text-2xl font-bold text-text-primary">
+            {t("ingestion.dashboard.title")}
+          </h1>
           <p className="mt-1 text-sm text-text-muted">
-            Upload files, profile sources, design ETL mappings, and import FHIR data
+            {t("ingestion.dashboard.subtitle")}
           </p>
         </div>
       </div>
@@ -80,7 +84,7 @@ export default function DataIngestionPage() {
                 : "text-text-muted hover:text-text-secondary",
             )}
           >
-            {tab.label}
+            {t(tab.labelKey)}
             {activeTab === tab.id && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
             )}

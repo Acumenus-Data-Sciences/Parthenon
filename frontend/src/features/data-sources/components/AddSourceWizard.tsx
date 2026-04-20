@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Check, X, ArrowLeft, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCreateSource } from "../hooks/useSources";
@@ -16,10 +17,10 @@ interface WizardState {
 }
 
 const STEPS = [
-  { key: "database", label: "Database" },
-  { key: "connection", label: "Connection" },
-  { key: "daimons", label: "Daimons" },
-  { key: "review", label: "Review" },
+  { key: "database", labelKey: "dataSources.wizard.steps.database" },
+  { key: "connection", labelKey: "dataSources.wizard.steps.connection" },
+  { key: "daimons", labelKey: "dataSources.wizard.steps.daimons" },
+  { key: "review", labelKey: "dataSources.wizard.steps.review" },
 ] as const;
 
 type StepKey = typeof STEPS[number]["key"];
@@ -31,6 +32,8 @@ interface Props {
 // ── Step indicator ────────────────────────────────────────────────────────────
 
 function StepIndicator({ currentStep }: { currentStep: number }) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="flex items-center justify-between pl-8 pr-14 pt-6 pb-2">
       {STEPS.map((s, index) => {
@@ -60,7 +63,7 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
                   isPending && "text-text-ghost",
                 )}
               >
-                {s.label}
+                {t(s.labelKey)}
               </span>
             </div>
             {!isLast && (
@@ -91,6 +94,7 @@ const EMPTY_CONNECTION: ConnectionData = {
 };
 
 export function AddSourceWizard({ onClose }: Props) {
+  const { t } = useTranslation("app");
   const [currentStep, setCurrentStep] = useState(0);
   const [slideDir, setSlideDir] = useState<"forward" | "back">("forward");
   const [animKey, setAnimKey] = useState(0);
@@ -171,7 +175,9 @@ export function AddSourceWizard({ onClose }: Props) {
       if (e?.response?.data?.errors) {
         setSubmitError(Object.values(e.response.data.errors).flat().join(" "));
       } else {
-        setSubmitError(e?.response?.data?.message ?? "Failed to create source. Please check your inputs.");
+        setSubmitError(
+          e?.response?.data?.message ?? t("dataSources.wizard.createFailed"),
+        );
       }
     }
   }
@@ -265,7 +271,7 @@ export function AddSourceWizard({ onClose }: Props) {
               )}
             >
               <ArrowLeft size={14} />
-              Back
+              {t("dataSources.actions.back")}
             </button>
 
             {!isLastStep && (
@@ -280,7 +286,7 @@ export function AddSourceWizard({ onClose }: Props) {
                     : "cursor-not-allowed bg-surface-elevated text-text-ghost",
                 )}
               >
-                Next
+                {t("dataSources.actions.next")}
                 <ArrowRight size={14} />
               </button>
             )}

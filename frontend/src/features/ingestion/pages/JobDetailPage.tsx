@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
@@ -14,12 +15,12 @@ import { ScanReport } from "../components/ScanReport";
 import type { IngestionStep } from "@/types/ingestion";
 
 const STEP_LABELS: Record<IngestionStep, string> = {
-  profiling: "Profiling",
-  schema_mapping: "Schema Mapping",
-  concept_mapping: "Concept Mapping",
-  review: "Review",
-  cdm_writing: "CDM Writing",
-  validation: "Validation",
+  profiling: "ingestion.pipeline.profiling",
+  schema_mapping: "ingestion.pipeline.schemaMapping",
+  concept_mapping: "ingestion.pipeline.conceptMapping",
+  review: "ingestion.pipeline.review",
+  cdm_writing: "ingestion.pipeline.cdmWriting",
+  validation: "ingestion.pipeline.validation",
 };
 
 function formatDateTime(iso: string | null): string {
@@ -35,6 +36,7 @@ function formatDateTime(iso: string | null): string {
 }
 
 export default function JobDetailPage() {
+  const { t } = useTranslation("app");
   const { jobId } = useParams<{ jobId: string }>();
   const queryClient = useQueryClient();
   const id = Number(jobId);
@@ -86,12 +88,12 @@ export default function JobDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-3">
         <AlertCircle size={32} className="text-critical" />
-        <p className="text-critical">Failed to load job details</p>
+        <p className="text-critical">{t("ingestion.jobDetail.loadFailed")}</p>
         <Link
           to="/ingestion"
           className="text-sm text-text-muted hover:text-text-primary underline"
         >
-          Back to jobs
+          {t("ingestion.actions.backToJobs")}
         </Link>
       </div>
     );
@@ -118,7 +120,7 @@ export default function JobDetailPage() {
             <div className="flex items-center gap-4 mt-1">
               {job.source && (
                 <span className="text-sm text-text-muted">
-                  Source:{" "}
+                  {t("ingestion.common.sourceColon")}{" "}
                   <span className="text-text-secondary">
                     {job.source.source_name}
                   </span>
@@ -145,7 +147,7 @@ export default function JobDetailPage() {
             <AlertCircle size={18} className="text-critical shrink-0" />
             <div>
               <p className="text-sm font-medium text-critical">
-                Pipeline failed
+                {t("ingestion.jobDetail.pipelineFailed")}
               </p>
               {job.error_message && (
                 <p className="mt-1 text-sm text-critical/80">
@@ -165,7 +167,7 @@ export default function JobDetailPage() {
             ) : (
               <RotateCcw size={14} />
             )}
-            Retry
+            {t("ingestion.actions.retry")}
           </button>
         </div>
       )}
@@ -185,10 +187,10 @@ export default function JobDetailPage() {
         <div className="flex flex-col items-center justify-center rounded-lg border border-border-default bg-surface-raised py-16">
           <Loader2 size={32} className="animate-spin text-primary mb-4" />
           <p className="text-sm font-medium text-text-primary">
-            Profiling in progress...
+            {t("ingestion.jobDetail.profilingInProgress")}
           </p>
           <p className="mt-1 text-xs text-text-muted">
-            Analyzing file structure and field characteristics
+            {t("ingestion.jobDetail.analyzing")}
           </p>
           <div className="mt-4 flex items-center gap-2">
             <div className="h-1.5 w-32 rounded-full bg-surface-elevated overflow-hidden">
@@ -221,13 +223,13 @@ export default function JobDetailPage() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-text-primary">
-              Field Profiles
+              {t("ingestion.common.fieldProfiles")}
             </h2>
             {profile && (
               <div className="flex items-center gap-4 text-xs text-text-muted">
                 {profile.row_count !== null && (
                   <span>
-                    Rows:{" "}
+                    {t("ingestion.common.rows")}:
                     <span className="text-text-secondary tabular-nums">
                       {profile.row_count.toLocaleString()}
                     </span>
@@ -235,14 +237,14 @@ export default function JobDetailPage() {
                 )}
                 {profile.column_count !== null && (
                   <span>
-                    Columns:{" "}
+                    {t("ingestion.common.columns")}:
                     <span className="text-text-secondary tabular-nums">
                       {profile.column_count}
                     </span>
                   </span>
                 )}
                 <span>
-                  Format:{" "}
+                  {t("ingestion.common.format")}:
                   <span className="text-text-secondary uppercase">
                     {profile.file_format}
                   </span>
@@ -255,7 +257,7 @@ export default function JobDetailPage() {
             <ScanReport fields={fields} />
           ) : (
             <div className="flex items-center justify-center rounded-lg border border-border-default bg-surface-raised py-12 text-sm text-text-muted">
-              No field data available
+              {t("ingestion.jobDetail.noFieldData")}
             </div>
           )}
 
@@ -275,10 +277,10 @@ export default function JobDetailPage() {
         <div className="flex flex-col items-center justify-center rounded-lg border border-border-default bg-surface-raised py-16">
           <Clock size={32} className="text-text-muted mb-4" />
           <p className="text-sm font-medium text-text-primary">
-            Waiting to start...
+            {t("ingestion.jobDetail.waiting")}
           </p>
           <p className="mt-1 text-xs text-text-muted">
-            This job is queued and will begin shortly
+            {t("ingestion.jobDetail.queued")}
           </p>
         </div>
       );
@@ -289,7 +291,8 @@ export default function JobDetailPage() {
 }
 
 function StepPlaceholder({ step }: { step: IngestionStep }) {
-  const label = STEP_LABELS[step];
+  const { t } = useTranslation("app");
+  const label = t(STEP_LABELS[step]);
 
   return (
     <div
@@ -297,7 +300,7 @@ function StepPlaceholder({ step }: { step: IngestionStep }) {
       style={{ background: "rgba(255,255,255,0.03)" }}
     >
       <p className="text-sm font-medium text-text-muted">
-        {label} will be available in a future update
+        {t("ingestion.jobDetail.futureUpdateForStep", { step: label })}
       </p>
     </div>
   );

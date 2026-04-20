@@ -1,20 +1,21 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { X, Loader2, Database, CheckCircle2, AlertTriangle } from "lucide-react";
 import type { DbConnectionConfig, DbTableInfo } from "../api/ingestionApi";
 
 const DIALECT_OPTIONS = [
-  { value: "postgresql", label: "PostgreSQL", defaultPort: 5432 },
-  { value: "sql server", label: "SQL Server", defaultPort: 1433 },
-  { value: "oracle", label: "Oracle", defaultPort: 1521 },
-  { value: "mysql", label: "MySQL", defaultPort: 3306 },
-  { value: "mariadb", label: "MariaDB", defaultPort: 3306 },
-  { value: "bigquery", label: "BigQuery", defaultPort: 443 },
-  { value: "redshift", label: "Redshift", defaultPort: 5439 },
-  { value: "snowflake", label: "Snowflake", defaultPort: 443 },
-  { value: "spark", label: "Spark / Databricks", defaultPort: 443 },
-  { value: "duckdb", label: "DuckDB", defaultPort: 0 },
-  { value: "sqlite", label: "SQLite", defaultPort: 0 },
-  { value: "synapse", label: "Synapse", defaultPort: 1433 },
+  { value: "postgresql", displayName: "PostgreSQL", defaultPort: 5432 },
+  { value: "sql server", displayName: "SQL Server", defaultPort: 1433 },
+  { value: "oracle", displayName: "Oracle", defaultPort: 1521 },
+  { value: "mysql", displayName: "MySQL", defaultPort: 3306 },
+  { value: "mariadb", displayName: "MariaDB", defaultPort: 3306 },
+  { value: "bigquery", displayName: "BigQuery", defaultPort: 443 },
+  { value: "redshift", displayName: "Redshift", defaultPort: 5439 },
+  { value: "snowflake", displayName: "Snowflake", defaultPort: 443 },
+  { value: "spark", displayName: "Spark / Databricks", defaultPort: 443 },
+  { value: "duckdb", displayName: "DuckDB", defaultPort: 0 },
+  { value: "sqlite", displayName: "SQLite", defaultPort: 0 },
+  { value: "synapse", displayName: "Synapse", defaultPort: 1433 },
 ] as const;
 
 interface ConnectDatabaseModalProps {
@@ -36,6 +37,7 @@ export default function ConnectDatabaseModal({
   initialSelectedTables,
   isConnecting,
 }: ConnectDatabaseModalProps) {
+  const { t } = useTranslation("app");
   const [dbms, setDbms] = useState(initialConfig?.dbms ?? "postgresql");
   const [host, setHost] = useState(initialConfig?.host ?? "");
   const [port, setPort] = useState(initialConfig?.port ?? 5432);
@@ -84,7 +86,7 @@ export default function ConnectDatabaseModal({
       setConnected(true);
       setSelectedTables(new Set(result.tables.map((t) => t.name)));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Connection failed");
+      setError(e instanceof Error ? e.message : t("dataSources.wizard.connection.connectionFailed"));
       setConnected(false);
       setTables([]);
     }
@@ -125,7 +127,9 @@ export default function ConnectDatabaseModal({
           <div className="flex items-center justify-between px-6 py-4 border-b border-border-default">
             <div className="flex items-center gap-3">
               <Database size={20} className="text-success" />
-              <h2 className="text-lg font-semibold text-text-primary">Connect to Database</h2>
+              <h2 className="text-lg font-semibold text-text-primary">
+                {t("ingestion.actions.connectToDatabase")}
+              </h2>
             </div>
             <button type="button" onClick={onClose} className="p-1 text-text-ghost hover:text-text-primary">
               <X size={18} />
@@ -135,35 +139,49 @@ export default function ConnectDatabaseModal({
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
-                <label className="block text-xs font-medium text-text-muted mb-1">Database Type</label>
+                <label className="block text-xs font-medium text-text-muted mb-1">
+                  {t("dataSources.common.databaseType")}
+                </label>
                 <select className={inputCls} value={dbms} onChange={(e) => handleDialectChange(e.target.value)}>
                   {DIALECT_OPTIONS.map((d) => (
-                    <option key={d.value} value={d.value}>{d.label}</option>
+                    <option key={d.value} value={d.value}>{d.displayName}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-text-muted mb-1">Host / IP</label>
+                <label className="block text-xs font-medium text-text-muted mb-1">
+                  {t("dataSources.common.hostIp")}
+                </label>
                 <input className={inputCls} value={host} onChange={(e) => setHost(e.target.value)} placeholder="localhost" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-text-muted mb-1">Port</label>
+                <label className="block text-xs font-medium text-text-muted mb-1">
+                  {t("dataSources.common.port")}
+                </label>
                 <input className={inputCls} type="number" value={port} onChange={(e) => setPort(Number(e.target.value))} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-text-muted mb-1">Username</label>
+                <label className="block text-xs font-medium text-text-muted mb-1">
+                  {t("dataSources.common.username")}
+                </label>
                 <input className={inputCls} value={user} onChange={(e) => setUser(e.target.value)} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-text-muted mb-1">Password</label>
+                <label className="block text-xs font-medium text-text-muted mb-1">
+                  {t("dataSources.common.password")}
+                </label>
                 <input className={inputCls} type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-text-muted mb-1">Database</label>
+                <label className="block text-xs font-medium text-text-muted mb-1">
+                  {t("dataSources.common.database")}
+                </label>
                 <input className={inputCls} value={database} onChange={(e) => setDatabase(e.target.value)} placeholder="parthenon" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-text-muted mb-1">Schema</label>
+                <label className="block text-xs font-medium text-text-muted mb-1">
+                  {t("dataSources.common.schema")}
+                </label>
                 <input className={inputCls} value={schema} onChange={(e) => setSchema(e.target.value)} placeholder="public" />
               </div>
             </div>
@@ -176,11 +194,12 @@ export default function ConnectDatabaseModal({
                 className="inline-flex items-center gap-2 rounded-lg bg-success/15 px-4 py-2 text-sm font-medium text-success hover:bg-success/25 disabled:opacity-40 transition-colors"
               >
                 {isConnecting ? <Loader2 size={14} className="animate-spin" /> : <Database size={14} />}
-                Test Connection
+                {t("dataSources.actions.testConnection")}
               </button>
               {connected && (
                 <span className="flex items-center gap-1 text-sm text-success">
-                  <CheckCircle2 size={14} /> Connected — {tables.length} tables found
+                  <CheckCircle2 size={14} /> {t("ingestion.common.connected")}{" "}
+                  {t("dataSources.common.tablesFound", { count: tables.length })}
                 </span>
               )}
             </div>
@@ -196,25 +215,34 @@ export default function ConnectDatabaseModal({
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-text-muted">
-                    Select Tables ({selectedTables.size} / {tables.length})
+                    {t("ingestion.common.selectTables", {
+                      count: `${selectedTables.size} / ${tables.length}`,
+                    })}
                   </span>
                   <button type="button" onClick={handleSelectAll} className="text-xs text-success hover:text-success/80">
-                    {selectedTables.size === tables.length ? "Deselect All" : "Select All"}
+                    {selectedTables.size === tables.length
+                      ? t("ingestion.actions.deselectAll")
+                      : t("ingestion.actions.selectAll")}
                   </button>
                 </div>
                 <div className="max-h-60 overflow-y-auto rounded-lg border border-border-default divide-y divide-border-subtle">
-                  {tables.map((t) => (
-                    <label key={t.name} className="flex items-center gap-3 px-3 py-2 hover:bg-surface-overlay cursor-pointer transition-colors">
+                  {tables.map((table) => (
+                    <label key={table.name} className="flex items-center gap-3 px-3 py-2 hover:bg-surface-overlay cursor-pointer transition-colors">
                       <input
                         type="checkbox"
-                        checked={selectedTables.has(t.name)}
-                        onChange={() => handleToggleTable(t.name)}
+                        checked={selectedTables.has(table.name)}
+                        onChange={() => handleToggleTable(table.name)}
                         className="rounded border-surface-highlight bg-surface-base text-success focus:ring-success/30"
                       />
-                      <span className="text-sm text-text-primary flex-1">{t.name}</span>
+                      <span className="text-sm text-text-primary flex-1">{table.name}</span>
                       <span className="text-xs text-text-ghost font-mono">
-                        {t.column_count} cols
-                        {t.row_count != null && ` · ${t.row_count.toLocaleString()} rows`}
+                        {t("ingestion.common.columnCountShort", {
+                          count: table.column_count,
+                        })}
+                        {table.row_count != null &&
+                          ` · ${t("ingestion.common.rowCount", {
+                            count: table.row_count.toLocaleString(),
+                          })}`}
                       </span>
                     </label>
                   ))}
@@ -225,7 +253,7 @@ export default function ConnectDatabaseModal({
 
           <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border-default">
             <button type="button" onClick={onClose} className="rounded-lg border border-surface-highlight px-4 py-2 text-sm text-text-muted hover:text-text-primary transition-colors">
-              Cancel
+              {t("ingestion.actions.cancel")}
             </button>
             <button
               type="button"
@@ -233,7 +261,7 @@ export default function ConnectDatabaseModal({
               disabled={selectedTables.size === 0}
               className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-light disabled:opacity-40 transition-colors"
             >
-              Confirm ({selectedTables.size} tables)
+              {t("ingestion.actions.confirm", { count: selectedTables.size })}
             </button>
           </div>
         </div>

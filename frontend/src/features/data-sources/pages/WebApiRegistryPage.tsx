@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Globe,
   Plus,
@@ -19,6 +20,7 @@ import {
 import type { WebApiImportResult } from "@/types/models";
 
 export function WebApiRegistryPage() {
+  const { t } = useTranslation("app");
   const { data: registries, isLoading } = useWebApiRegistries();
   const createMutation = useCreateWebApiRegistry();
   const deleteMutation = useDeleteWebApiRegistry();
@@ -72,11 +74,10 @@ export function WebApiRegistryPage() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-text-primary">
-            Legacy WebAPI Registry
+            {t("dataSources.registry.title")}
           </h1>
           <p className="mt-1 text-sm text-text-muted">
-            Manage connections to legacy OHDSI WebAPI instances for source
-            migration and compatibility.
+            {t("dataSources.registry.subtitle")}
           </p>
         </div>
         <button
@@ -85,7 +86,7 @@ export function WebApiRegistryPage() {
           className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-surface-base hover:bg-accent transition-colors"
         >
           <Plus size={14} />
-          Add Registry
+          {t("dataSources.actions.addRegistry")}
         </button>
       </div>
 
@@ -94,17 +95,21 @@ export function WebApiRegistryPage() {
         <div className="rounded-lg border border-accent/30 bg-surface-raised p-5 space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1">Name</label>
+              <label className="block text-xs font-medium text-text-muted mb-1">
+                {t("dataSources.common.name")}
+              </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Production WebAPI"
+                placeholder={t("dataSources.registry.namePlaceholder")}
                 className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1">Base URL</label>
+              <label className="block text-xs font-medium text-text-muted mb-1">
+                {t("dataSources.common.baseUrl")}
+              </label>
               <input
                 type="url"
                 value={baseUrl}
@@ -116,21 +121,25 @@ export function WebApiRegistryPage() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1">Auth Type</label>
+              <label className="block text-xs font-medium text-text-muted mb-1">
+                {t("dataSources.common.authType")}
+              </label>
               <select
                 value={authType}
                 onChange={(e) => setAuthType(e.target.value as "none" | "basic" | "bearer")}
                 className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
               >
-                <option value="none">None</option>
-                <option value="basic">Basic Auth</option>
-                <option value="bearer">Bearer Token</option>
+                <option value="none">{t("dataSources.auth.none")}</option>
+                <option value="basic">{t("dataSources.auth.basic")}</option>
+                <option value="bearer">{t("dataSources.auth.bearer")}</option>
               </select>
             </div>
             {authType !== "none" && (
               <div>
                 <label className="block text-xs font-medium text-text-muted mb-1">
-                  {authType === "basic" ? "Credentials (user:pass)" : "Token"}
+                  {authType === "basic"
+                    ? t("dataSources.webApiImport.credentials")
+                    : t("dataSources.webApiImport.token")}
                 </label>
                 <input
                   type="password"
@@ -149,14 +158,14 @@ export function WebApiRegistryPage() {
               className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-surface-base hover:bg-accent disabled:opacity-50"
             >
               {createMutation.isPending ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
-              Create
+              {t("dataSources.actions.create")}
             </button>
             <button
               type="button"
               onClick={() => setShowForm(false)}
               className="rounded-lg px-3 py-1.5 text-xs font-medium text-text-muted hover:text-text-secondary"
             >
-              Cancel
+              {t("dataSources.actions.cancel")}
             </button>
           </div>
         </div>
@@ -187,17 +196,22 @@ export function WebApiRegistryPage() {
                         : "bg-text-muted/10 text-text-muted",
                     )}
                   >
-                    {reg.is_active ? "Active" : "Inactive"}
+                    {reg.is_active
+                      ? t("dataSources.registry.active")
+                      : t("dataSources.registry.inactive")}
                   </span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 text-xs text-text-muted">
-                <span>Auth: {reg.auth_type}</span>
+                <span>
+                  {t("dataSources.common.auth")}: {reg.auth_type}
+                </span>
                 {reg.last_synced_at && (
                   <span className="flex items-center gap-1">
                     <Clock size={10} />
-                    Last synced: {new Date(reg.last_synced_at).toLocaleString()}
+                    {t("dataSources.common.lastSynced")}:{" "}
+                    {new Date(reg.last_synced_at).toLocaleString()}
                   </span>
                 )}
               </div>
@@ -214,12 +228,18 @@ export function WebApiRegistryPage() {
                   ) : (
                     <RefreshCw size={12} />
                   )}
-                  Sync Sources
+                  {t("dataSources.actions.syncSources")}
                 </button>
                 <button
                   type="button"
                   onClick={() => {
-                    if (confirm(`Delete registry "${reg.name}"?`)) {
+                    if (
+                      confirm(
+                        t("dataSources.registry.deleteConfirm", {
+                          name: reg.name,
+                        }),
+                      )
+                    ) {
                       deleteMutation.mutate(reg.id);
                     }
                   }}
@@ -227,7 +247,7 @@ export function WebApiRegistryPage() {
                   className="inline-flex items-center gap-1.5 rounded-lg border border-critical/20 px-3 py-1.5 text-xs font-medium text-critical hover:bg-critical/10 transition-colors disabled:opacity-50"
                 >
                   <Trash2 size={12} />
-                  Delete
+                  {t("dataSources.actions.delete")}
                 </button>
               </div>
 
@@ -237,12 +257,16 @@ export function WebApiRegistryPage() {
                   <div className="flex items-center gap-3 text-xs">
                     <span className="flex items-center gap-1 text-success">
                       <CheckCircle size={12} />
-                      {syncResult.result.imported} imported
+                      {t("dataSources.webApiImport.importedCount", {
+                        count: syncResult.result.imported,
+                      })}
                     </span>
                     {syncResult.result.skipped > 0 && (
                       <span className="flex items-center gap-1 text-accent">
                         <XCircle size={12} />
-                        {syncResult.result.skipped} skipped
+                        {t("dataSources.webApiImport.skippedCount", {
+                          count: syncResult.result.skipped,
+                        })}
                       </span>
                     )}
                   </div>
@@ -250,7 +274,7 @@ export function WebApiRegistryPage() {
                     <div className="text-[11px] text-text-muted space-y-0.5">
                       {syncResult.result.sources.map((s, i) => (
                         <div key={i}>
-                          <span className="font-mono">{s.source_key}</span> — {s.status}
+                          <span className="font-mono">{s.source_key}</span> - {s.status}
                         </div>
                       ))}
                     </div>
@@ -263,9 +287,11 @@ export function WebApiRegistryPage() {
       ) : (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-12">
           <Globe size={24} className="text-text-ghost mb-3" />
-          <p className="text-sm text-text-muted">No WebAPI registries configured</p>
+          <p className="text-sm text-text-muted">
+            {t("dataSources.registry.emptyTitle")}
+          </p>
           <p className="mt-1 text-xs text-text-ghost">
-            Add a legacy WebAPI instance to import data sources.
+            {t("dataSources.registry.emptyMessage")}
           </p>
         </div>
       )}

@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import {
@@ -80,11 +81,13 @@ type InputMode = "json" | "file";
 // ──────────────────────────────────────────────────────────────────────────────
 
 function HealthBadge({ status }: { status: FhirHealthStatus | undefined; isLoading: boolean; isError: boolean } & { isLoading: boolean; isError: boolean }) {
+  const { t } = useTranslation("app");
+
   if (status === undefined) {
     return (
       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-surface-elevated text-text-muted">
         <span className="w-1.5 h-1.5 rounded-full bg-text-muted" />
-        Unknown
+        {t("ingestion.fhirIngestion.unknown")}
       </span>
     );
   }
@@ -106,7 +109,9 @@ function HealthBadge({ status }: { status: FhirHealthStatus | undefined; isLoadi
           isHealthy ? "bg-success animate-pulse" : "bg-critical",
         )}
       />
-      {isHealthy ? "Service Online" : "Service Offline"}
+      {isHealthy
+        ? t("ingestion.fhirIngestion.serviceOnline")
+        : t("ingestion.fhirIngestion.serviceOffline")}
     </span>
   );
 }
@@ -163,6 +168,7 @@ interface ErrorLogProps {
 }
 
 function ErrorLog({ errors }: ErrorLogProps) {
+  const { t } = useTranslation("app");
   const [open, setOpen] = useState(false);
 
   if (errors.length === 0) return null;
@@ -176,7 +182,9 @@ function ErrorLog({ errors }: ErrorLogProps) {
       >
         <AlertTriangle size={14} className="shrink-0 text-critical" />
         <span className="flex-1 text-sm font-medium text-critical">
-          {errors.length} resource{errors.length !== 1 ? "s" : ""} failed
+          {t("ingestion.fhirIngestion.resourceFailures", {
+            count: errors.length,
+          })}
         </span>
         {open ? (
           <ChevronDown size={14} className="text-critical" />
@@ -206,6 +214,7 @@ function ErrorLog({ errors }: ErrorLogProps) {
 // ──────────────────────────────────────────────────────────────────────────────
 
 export default function FhirIngestionPanel() {
+  const { t } = useTranslation("app");
   const [inputMode, setInputMode] = useState<InputMode>("json");
   const [jsonText, setJsonText] = useState("");
   const [jsonError, setJsonError] = useState<string | null>(null);
@@ -278,18 +287,18 @@ export default function FhirIngestionPanel() {
     if (inputMode === "json") {
       const raw = jsonText.trim();
       if (!raw) {
-        setJsonError("Please enter a FHIR Bundle JSON.");
+        setJsonError(t("ingestion.fhirIngestion.errors.enterBundle"));
         return;
       }
       let parsed: unknown;
       try {
         parsed = JSON.parse(raw);
       } catch {
-        setJsonError("Invalid JSON — please check your input.");
+        setJsonError(t("ingestion.fhirIngestion.errors.invalidJson"));
         return;
       }
       if (typeof parsed !== "object" || parsed === null) {
-        setJsonError("Input must be a JSON object.");
+        setJsonError(t("ingestion.fhirIngestion.errors.mustBeObject"));
         return;
       }
       bundleMutation.mutate(parsed as object);
@@ -323,7 +332,7 @@ export default function FhirIngestionPanel() {
         } catch {
           bundleMutation.reset();
           batchMutation.reset();
-          setJsonError("Could not parse file as JSON or NDJSON.");
+          setJsonError(t("ingestion.fhirIngestion.errors.fileParseFailed"));
           return;
         }
         bundleMutation.mutate(parsed as object);
@@ -342,14 +351,14 @@ export default function FhirIngestionPanel() {
         <div>
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-bold text-text-primary">
-              FHIR → OMOP Ingestion
+              {t("ingestion.fhirIngestion.title")}
             </h2>
             <span className="px-2 py-0.5 rounded text-xs font-bold tracking-wider bg-accent/15 text-accent border border-accent/30">
-              FHIR R4
+              {t("ingestion.fhirIngestion.fhirR4")}
             </span>
           </div>
           <p className="mt-1 text-sm text-text-muted">
-            Convert FHIR Bundle or NDJSON resources into OMOP CDM records
+            {t("ingestion.fhirIngestion.subtitle")}
           </p>
         </div>
 
@@ -357,7 +366,7 @@ export default function FhirIngestionPanel() {
           {healthLoading ? (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-surface-elevated text-text-muted">
               <Loader2 size={10} className="animate-spin" />
-              Checking…
+              {t("ingestion.fhirIngestion.checking")}
             </span>
           ) : (
             <HealthBadge
@@ -369,7 +378,7 @@ export default function FhirIngestionPanel() {
           <button
             type="button"
             onClick={() => void refetchHealth()}
-            title="Refresh health"
+            title={t("ingestion.fhirIngestion.refreshHealth")}
             className="p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors"
           >
             <RefreshCw size={13} />
@@ -402,7 +411,9 @@ export default function FhirIngestionPanel() {
               ) : (
                 <Upload size={14} />
               )}
-              {mode === "json" ? "Paste JSON" : "Upload File"}
+              {mode === "json"
+                ? t("ingestion.fhirIngestion.pasteJson")
+                : t("ingestion.fhirIngestion.uploadFile")}
             </button>
           ))}
         </div>
@@ -412,7 +423,7 @@ export default function FhirIngestionPanel() {
           {inputMode === "json" ? (
             <div className="space-y-2">
               <label className="block text-xs font-medium text-text-muted uppercase tracking-wider">
-                FHIR Bundle JSON
+                {t("ingestion.fhirIngestion.bundleJson")}
               </label>
               <textarea
                 value={jsonText}
@@ -440,7 +451,7 @@ export default function FhirIngestionPanel() {
           ) : (
             <div className="space-y-3">
               <label className="block text-xs font-medium text-text-muted uppercase tracking-wider">
-                FHIR File (.json or .ndjson)
+                {t("ingestion.fhirIngestion.fileLabel")}
               </label>
 
               {/* Drop zone */}
@@ -477,7 +488,7 @@ export default function FhirIngestionPanel() {
                         {fileName}
                       </p>
                       <p className="mt-0.5 text-xs text-text-muted">
-                        Click to replace
+                        {t("ingestion.fhirIngestion.clickToReplace")}
                       </p>
                     </div>
                   </>
@@ -486,10 +497,10 @@ export default function FhirIngestionPanel() {
                     <Upload size={28} className="text-text-ghost" />
                     <div className="text-center">
                       <p className="text-sm font-medium text-text-secondary">
-                        Drop a FHIR file here
+                        {t("ingestion.fhirIngestion.dropFile")}
                       </p>
                       <p className="mt-0.5 text-xs text-text-muted">
-                        or click to browse — .json (Bundle) or .ndjson (batch)
+                        {t("ingestion.fhirIngestion.browseFile")}
                       </p>
                     </div>
                   </>
@@ -519,12 +530,12 @@ export default function FhirIngestionPanel() {
               {isPending ? (
                 <>
                   <Loader2 size={15} className="animate-spin" />
-                  Processing FHIR resources…
+                  {t("ingestion.fhirIngestion.processing")}
                 </>
               ) : (
                 <>
                   <Activity size={15} />
-                  Ingest
+                  {t("ingestion.fhirIngestion.ingest")}
                 </>
               )}
             </button>
@@ -539,7 +550,7 @@ export default function FhirIngestionPanel() {
                 }}
                 className="text-xs text-text-muted hover:text-text-secondary transition-colors"
               >
-                Clear results
+                {t("ingestion.fhirIngestion.clearResults")}
               </button>
             )}
           </div>
@@ -551,11 +562,13 @@ export default function FhirIngestionPanel() {
         <div className="flex items-start gap-2 rounded-lg border border-critical/30 bg-critical/5 px-4 py-3">
           <XCircle size={15} className="mt-0.5 shrink-0 text-critical" />
           <div className="text-sm">
-            <p className="font-medium text-critical">Ingestion failed</p>
+            <p className="font-medium text-critical">
+              {t("ingestion.fhirIngestion.failedTitle")}
+            </p>
             <p className="mt-0.5 text-xs text-text-secondary">
               {mutationError instanceof Error
                 ? mutationError.message
-                : "An unexpected error occurred. Check the service logs."}
+                : t("ingestion.fhirIngestion.unexpectedError")}
             </p>
           </div>
         </div>
@@ -568,7 +581,7 @@ export default function FhirIngestionPanel() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Status
+                {t("ingestion.common.status")}
               </p>
               <p
                 className={cn(
@@ -586,7 +599,7 @@ export default function FhirIngestionPanel() {
 
             <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Resources Processed
+                {t("ingestion.fhirIngestion.resourcesProcessed")}
               </p>
               <p className="mt-1 text-lg font-bold tabular-nums text-text-primary">
                 {result.resources_processed.toLocaleString()}
@@ -595,7 +608,7 @@ export default function FhirIngestionPanel() {
 
             <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                CDM Records Created
+                {t("ingestion.fhirIngestion.cdmRecordsCreated")}
               </p>
               <p className="mt-1 text-lg font-bold tabular-nums text-success">
                 {totalRecords.toLocaleString()}
@@ -604,7 +617,7 @@ export default function FhirIngestionPanel() {
 
             <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Elapsed
+                {t("ingestion.fhirIngestion.elapsed")}
               </p>
               <p className="mt-1 text-lg font-bold tabular-nums text-text-primary">
                 {result.elapsed_seconds.toFixed(2)}s
@@ -616,7 +629,7 @@ export default function FhirIngestionPanel() {
           {totalRecords > 0 && (
             <div className="rounded-lg border border-border-default bg-surface-raised p-4">
               <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-text-muted">
-                CDM Records by Table
+                {t("ingestion.fhirIngestion.cdmRecordsByTable")}
               </h3>
               <RecordsBarChart records={result.records_created} />
             </div>
@@ -630,7 +643,9 @@ export default function FhirIngestionPanel() {
             <div className="flex items-center gap-2 rounded-lg border border-success/20 bg-success/5 px-4 py-3">
               <CheckCircle2 size={15} className="shrink-0 text-success" />
               <p className="text-sm text-success">
-                All resources ingested successfully — {totalRecords.toLocaleString()} CDM records created.
+                {t("ingestion.fhirIngestion.successMessage", {
+                  count: totalRecords.toLocaleString(),
+                })}
               </p>
             </div>
           )}
@@ -640,12 +655,12 @@ export default function FhirIngestionPanel() {
       {/* ── Footer link ──────────────────────────────────────────────── */}
       <div className="flex items-center gap-2 text-xs text-text-ghost">
         <Activity size={11} />
-        <span>Configure FHIR Server connections in</span>
+        <span>{t("ingestion.fhirIngestion.configurePrefix")}</span>
         <Link
           to="/admin/fhir-connections"
           className="inline-flex items-center gap-0.5 text-accent hover:text-accent-light transition-colors"
         >
-          Admin → FHIR Connections
+          {t("ingestion.fhirIngestion.adminFhirConnections")}
           <ArrowRight size={11} />
         </Link>
       </div>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   AlertTriangle,
   ChevronDown,
@@ -11,6 +12,7 @@ import { FHIR_RESOURCE_ICONS } from "../../lib/fhir-utils";
 import type { FhirIngestResult } from "../../api/fhirApi";
 
 export function ErrorLog({ errors }: { errors: FhirIngestResult["errors"] }) {
+  const { t } = useTranslation("app");
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -41,7 +43,9 @@ export function ErrorLog({ errors }: { errors: FhirIngestResult["errors"] }) {
       >
         <AlertTriangle size={14} className="shrink-0 text-critical" />
         <span className="flex-1 text-sm font-medium text-critical">
-          {errors.length} resource{errors.length !== 1 ? "s" : ""} failed
+          {t("ingestion.fhirIngestion.resourceFailures", {
+            count: errors.length,
+          })}
         </span>
         {open ? (
           <ChevronDown size={14} className="text-critical" />
@@ -64,7 +68,7 @@ export function ErrorLog({ errors }: { errors: FhirIngestResult["errors"] }) {
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Filter errors..."
+                  placeholder={t("ingestion.fhirIngestion.filterErrors")}
                   className="w-full rounded bg-surface-base border border-critical/20 pl-7 pr-7 py-1.5 text-xs text-text-secondary placeholder:text-text-ghost outline-none focus:border-critical/40"
                 />
                 {search && (
@@ -88,7 +92,9 @@ export function ErrorLog({ errors }: { errors: FhirIngestResult["errors"] }) {
                     {FHIR_RESOURCE_ICONS[type] ?? "\u{1F4C4}"} {type}
                   </span>
                   <span className="text-[10px] text-text-muted">
-                    ({errs.length} error{errs.length !== 1 ? "s" : ""})
+                    {t("ingestion.fhirIngestion.errorCount", {
+                      count: errs.length,
+                    })}
                   </span>
                 </div>
                 {errs.map((err, i) => (
@@ -106,7 +112,9 @@ export function ErrorLog({ errors }: { errors: FhirIngestResult["errors"] }) {
             ))}
             {filtered.length === 0 && search && (
               <p className="text-xs text-text-muted text-center py-2">
-                No errors matching &quot;{search}&quot;
+                {t("ingestion.fhirIngestion.noErrorsMatching", {
+                  query: search,
+                })}
               </p>
             )}
           </div>

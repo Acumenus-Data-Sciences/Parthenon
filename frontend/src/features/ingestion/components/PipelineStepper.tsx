@@ -1,14 +1,15 @@
+import { useTranslation } from "react-i18next";
 import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { IngestionStep, ExecutionStatus } from "@/types/ingestion";
 
-const STEPS: { key: IngestionStep; label: string }[] = [
-  { key: "profiling", label: "Profiling" },
-  { key: "schema_mapping", label: "Schema Mapping" },
-  { key: "concept_mapping", label: "Concept Mapping" },
-  { key: "review", label: "Review" },
-  { key: "cdm_writing", label: "CDM Writing" },
-  { key: "validation", label: "Validation" },
+const STEPS: { key: IngestionStep; labelKey: string }[] = [
+  { key: "profiling", labelKey: "ingestion.pipeline.profiling" },
+  { key: "schema_mapping", labelKey: "ingestion.pipeline.schemaMapping" },
+  { key: "concept_mapping", labelKey: "ingestion.pipeline.conceptMapping" },
+  { key: "review", labelKey: "ingestion.pipeline.review" },
+  { key: "cdm_writing", labelKey: "ingestion.pipeline.cdmWriting" },
+  { key: "validation", labelKey: "ingestion.pipeline.validation" },
 ];
 
 interface PipelineStepperProps {
@@ -17,6 +18,7 @@ interface PipelineStepperProps {
 }
 
 export function PipelineStepper({ currentStep, status }: PipelineStepperProps) {
+  const { t } = useTranslation("app");
   const currentIndex = currentStep
     ? STEPS.findIndex((s) => s.key === currentStep)
     : -1;
@@ -71,7 +73,7 @@ export function PipelineStepper({ currentStep, status }: PipelineStepperProps) {
                   state === "failed" && "text-critical",
                 )}
               >
-                {step.label}
+                {t(step.labelKey)}
               </span>
             </div>
 

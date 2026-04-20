@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { MappingStats } from "@/types/ingestion";
 
 interface ReviewStatsBarProps {
@@ -7,16 +8,17 @@ interface ReviewStatsBarProps {
 
 const SEGMENTS: {
   key: keyof Pick<MappingStats, "auto_accepted" | "quick_review" | "full_review" | "unmappable">;
-  label: string;
+  labelKey: string;
   color: string;
 }[] = [
-  { key: "auto_accepted", label: "Auto-Accepted", color: "var(--success)" },
-  { key: "quick_review", label: "Quick Review", color: "var(--warning)" },
-  { key: "full_review", label: "Full Review", color: "var(--critical)" },
-  { key: "unmappable", label: "Unmappable", color: "var(--text-ghost)" },
+  { key: "auto_accepted", labelKey: "ingestion.mappingCard.autoAccepted", color: "var(--success)" },
+  { key: "quick_review", labelKey: "ingestion.mappingCard.quickReview", color: "var(--warning)" },
+  { key: "full_review", labelKey: "ingestion.mappingCard.fullReview", color: "var(--critical)" },
+  { key: "unmappable", labelKey: "ingestion.mappingCard.unmappable", color: "var(--text-ghost)" },
 ];
 
 export function ReviewStatsBar({ stats, onSegmentClick }: ReviewStatsBarProps) {
+  const { t } = useTranslation("app");
   const total = stats.total || 1;
 
   return (
@@ -27,12 +29,14 @@ export function ReviewStatsBar({ stats, onSegmentClick }: ReviewStatsBarProps) {
           <span className="text-text-primary font-medium tabular-nums">
             {stats.reviewed}
           </span>{" "}
-          of{" "}
+          {t("ingestion.mappingReview.of")}{" "}
           <span className="text-text-secondary tabular-nums">{stats.total}</span>{" "}
-          reviewed
+          {t("ingestion.mappingReview.reviewed")}
         </span>
         <span className="tabular-nums">
-          {stats.pending} pending
+          {t("ingestion.mappingReview.pendingCount", {
+            count: stats.pending,
+          })}
         </span>
       </div>
 
@@ -58,7 +62,7 @@ export function ReviewStatsBar({ stats, onSegmentClick }: ReviewStatsBarProps) {
 
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
-        {SEGMENTS.map(({ key, label, color }) => (
+        {SEGMENTS.map(({ key, labelKey, color }) => (
           <div
             key={key}
             className="flex items-center gap-1.5 text-xs transition-colors hover:text-text-primary cursor-pointer"
@@ -71,7 +75,7 @@ export function ReviewStatsBar({ stats, onSegmentClick }: ReviewStatsBarProps) {
               className="inline-block h-2.5 w-2.5 rounded-sm shrink-0"
               style={{ backgroundColor: color }}
             />
-            <span className="text-text-muted">{label}</span>
+            <span className="text-text-muted">{t(labelKey)}</span>
             <span className="font-medium text-text-secondary tabular-nums font-['IBM_Plex_Mono',monospace]">
               {stats[key]}
             </span>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Shield, Check, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUpdateSource } from "../hooks/useSources";
@@ -18,16 +19,19 @@ interface SourceAccessControlProps {
 }
 
 export function SourceAccessControl({ source }: SourceAccessControlProps) {
+  const { t } = useTranslation("app");
   const [selectedRoles, setSelectedRoles] = useState<string[]>(
     source.restricted_to_roles ?? [],
   );
   const [dirty, setDirty] = useState(false);
   const updateMutation = useUpdateSource();
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setSelectedRoles(source.restricted_to_roles ?? []);
     setDirty(false);
   }, [source.restricted_to_roles]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const toggleRole = (role: string) => {
     setSelectedRoles((prev) => {
@@ -63,7 +67,7 @@ export function SourceAccessControl({ source }: SourceAccessControlProps) {
         <div className="flex items-center gap-2">
           <Shield size={14} className="text-info" />
           <h4 className="text-xs font-semibold text-text-primary">
-            Access Control
+            {t("dataSources.common.accessControl")}
           </h4>
         </div>
         <span
@@ -74,14 +78,16 @@ export function SourceAccessControl({ source }: SourceAccessControlProps) {
               : "bg-success/10 text-success",
           )}
         >
-          {isRestricted ? "Restricted" : "Unrestricted"}
+          {isRestricted
+            ? t("dataSources.accessControl.restricted")
+            : t("dataSources.accessControl.unrestricted")}
         </span>
       </div>
 
       <p className="text-[11px] text-text-muted">
         {isRestricted
-          ? "Only users with the selected roles can access this source."
-          : "All authenticated users can access this source. Select roles below to restrict."}
+          ? t("dataSources.accessControl.restrictedHelp")
+          : t("dataSources.accessControl.unrestrictedHelp")}
       </p>
 
       <div className="flex flex-wrap gap-2">
@@ -118,7 +124,7 @@ export function SourceAccessControl({ source }: SourceAccessControlProps) {
           ) : (
             <Check size={12} />
           )}
-          Save Access Control
+          {t("dataSources.actions.saveAccessControl")}
         </button>
       )}
     </div>

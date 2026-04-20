@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Info, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import apiClient from "@/lib/api-client";
 
@@ -34,11 +35,11 @@ function toScreamingSnakeCase(str: string): string {
 
 interface FieldDef {
   key: string;
-  label: string;
-  placeholder: string;
+  labelKey: string;
+  placeholderValue: string;
   mono?: boolean;
   type?: "password" | "text" | "number";
-  helper?: string;
+  helperKey?: string;
   optionKey?: string; // maps into db_options instead of top-level field
   required?: boolean;
 }
@@ -57,70 +58,70 @@ function getDialectFields(dialect: string): FieldDef[] {
     case "postgresql":
     case "redshift":
       return [
-        { key: "db_host", label: "Host", placeholder: "db.example.com", required: true },
-        { key: "db_port", label: "Port", placeholder: DEFAULT_PORTS[dialect] ?? "5432", type: "number", required: true },
-        { key: "db_database", label: "Database", placeholder: "ohdsi", required: true },
-        { key: "username", label: "Username", placeholder: "ohdsi_user", required: true },
-        { key: "password", label: "Password", placeholder: "••••••••", type: "password", required: true },
+        { key: "db_host", labelKey: "dataSources.wizard.connection.fields.host", placeholderValue: "db.example.com", required: true },
+        { key: "db_port", labelKey: "dataSources.wizard.connection.fields.port", placeholderValue: DEFAULT_PORTS[dialect] ?? "5432", type: "number", required: true },
+        { key: "db_database", labelKey: "dataSources.wizard.connection.fields.database", placeholderValue: "ohdsi", required: true },
+        { key: "username", labelKey: "dataSources.wizard.connection.fields.username", placeholderValue: "ohdsi_user", required: true },
+        { key: "password", labelKey: "dataSources.wizard.connection.fields.password", placeholderValue: "••••••••", type: "password", required: true },
       ];
 
     case "oracle":
       return [
-        { key: "db_host", label: "Host", placeholder: "oracle.example.com", required: true },
-        { key: "db_port", label: "Port", placeholder: "1521", type: "number", required: true },
-        { key: "db_database", label: "Service Name / SID", placeholder: "OHDSI", required: true },
-        { key: "username", label: "Username", placeholder: "ohdsi_user", required: true },
-        { key: "password", label: "Password", placeholder: "••••••••", type: "password", required: true },
+        { key: "db_host", labelKey: "dataSources.wizard.connection.fields.host", placeholderValue: "oracle.example.com", required: true },
+        { key: "db_port", labelKey: "dataSources.wizard.connection.fields.port", placeholderValue: "1521", type: "number", required: true },
+        { key: "db_database", labelKey: "dataSources.wizard.connection.fields.serviceNameSid", placeholderValue: "OHDSI", required: true },
+        { key: "username", labelKey: "dataSources.wizard.connection.fields.username", placeholderValue: "ohdsi_user", required: true },
+        { key: "password", labelKey: "dataSources.wizard.connection.fields.password", placeholderValue: "••••••••", type: "password", required: true },
       ];
 
     case "sqlserver":
     case "synapse":
       return [
-        { key: "db_host", label: "Host", placeholder: dialect === "synapse" ? "workspace.sql.azuresynapse.net" : "sqlserver.example.com", required: true },
-        { key: "db_port", label: "Port", placeholder: "1433", type: "number", required: true },
-        { key: "db_database", label: "Database", placeholder: "OHDSI", required: true },
-        { key: "username", label: "Username", placeholder: "ohdsi_user", required: true },
-        { key: "password", label: "Password", placeholder: "••••••••", type: "password", required: true },
+        { key: "db_host", labelKey: "dataSources.wizard.connection.fields.host", placeholderValue: dialect === "synapse" ? "workspace.sql.azuresynapse.net" : "sqlserver.example.com", required: true },
+        { key: "db_port", labelKey: "dataSources.wizard.connection.fields.port", placeholderValue: "1433", type: "number", required: true },
+        { key: "db_database", labelKey: "dataSources.wizard.connection.fields.database", placeholderValue: "OHDSI", required: true },
+        { key: "username", labelKey: "dataSources.wizard.connection.fields.username", placeholderValue: "ohdsi_user", required: true },
+        { key: "password", labelKey: "dataSources.wizard.connection.fields.password", placeholderValue: "••••••••", type: "password", required: true },
       ];
 
     case "snowflake":
       return [
-        { key: "db_host", label: "Account Identifier", placeholder: "xy12345.us-east-1", optionKey: "account", required: true, helper: "Your Snowflake account locator (without .snowflakecomputing.com)" },
-        { key: "db_database", label: "Database", placeholder: "OHDSI", required: true },
-        { key: "username", label: "Username", placeholder: "ohdsi_user", required: true },
-        { key: "password", label: "Password", placeholder: "••••••••", type: "password", required: true },
-        { key: "db_options.warehouse", label: "Warehouse", placeholder: "COMPUTE_WH", optionKey: "warehouse", required: true },
-        { key: "db_options.role", label: "Role", placeholder: "OHDSI_ROLE", optionKey: "role", required: false },
+        { key: "db_host", labelKey: "dataSources.wizard.connection.fields.accountIdentifier", placeholderValue: "xy12345.us-east-1", optionKey: "account", required: true, helperKey: "dataSources.wizard.connection.helpers.snowflakeAccount" },
+        { key: "db_database", labelKey: "dataSources.wizard.connection.fields.database", placeholderValue: "OHDSI", required: true },
+        { key: "username", labelKey: "dataSources.wizard.connection.fields.username", placeholderValue: "ohdsi_user", required: true },
+        { key: "password", labelKey: "dataSources.wizard.connection.fields.password", placeholderValue: "••••••••", type: "password", required: true },
+        { key: "db_options.warehouse", labelKey: "dataSources.wizard.connection.fields.warehouse", placeholderValue: "COMPUTE_WH", optionKey: "warehouse", required: true },
+        { key: "db_options.role", labelKey: "dataSources.wizard.connection.fields.role", placeholderValue: "OHDSI_ROLE", optionKey: "role", required: false },
       ];
 
     case "databricks":
       return [
-        { key: "db_host", label: "Server Hostname", placeholder: "adb-1234567890.7.azuredatabricks.net", required: true },
-        { key: "db_database", label: "Catalog / Database", placeholder: "hive_metastore", required: true },
-        { key: "db_options.http_path", label: "HTTP Path", placeholder: "/sql/1.0/warehouses/abc123", optionKey: "http_path", required: true, helper: "Found in SQL Warehouse > Connection Details" },
-        { key: "password", label: "Personal Access Token", placeholder: "dapi…", type: "password", required: true },
+        { key: "db_host", labelKey: "dataSources.wizard.connection.fields.serverHostname", placeholderValue: "adb-1234567890.7.azuredatabricks.net", required: true },
+        { key: "db_database", labelKey: "dataSources.wizard.connection.fields.catalogDatabase", placeholderValue: "hive_metastore", required: true },
+        { key: "db_options.http_path", labelKey: "dataSources.wizard.connection.fields.httpPath", placeholderValue: "/sql/1.0/warehouses/abc123", optionKey: "http_path", required: true, helperKey: "dataSources.wizard.connection.helpers.databricksHttpPath" },
+        { key: "password", labelKey: "dataSources.wizard.connection.fields.personalAccessToken", placeholderValue: "dapi...", type: "password", required: true },
       ];
 
     case "duckdb":
       return [
-        { key: "db_host", label: "Database File Path", placeholder: "/data/duckdb/eunomia.duckdb", required: true, helper: "Path accessible from inside the Parthenon Docker container. Use :memory: for an in-memory database." },
+        { key: "db_host", labelKey: "dataSources.wizard.connection.fields.databaseFilePath", placeholderValue: "/data/duckdb/eunomia.duckdb", required: true, helperKey: "dataSources.wizard.connection.helpers.duckdbPath" },
       ];
 
     case "bigquery":
       return [
-        { key: "db_database", label: "GCP Project ID", placeholder: "my-project-123456", required: true },
-        { key: "db_options.dataset", label: "Default Dataset", placeholder: "omop", optionKey: "dataset", required: true },
-        { key: "db_options.location", label: "Location", placeholder: "US", optionKey: "location", required: false, helper: "BigQuery data location (e.g. US, EU, asia-northeast1)" },
-        { key: "password", label: "Service Account JSON Key Path", placeholder: "/secrets/sa-key.json", type: "password", required: true, helper: "Path to service account JSON file inside the Docker container, or paste the JSON contents." },
+        { key: "db_database", labelKey: "dataSources.wizard.connection.fields.gcpProjectId", placeholderValue: "my-project-123456", required: true },
+        { key: "db_options.dataset", labelKey: "dataSources.wizard.connection.fields.defaultDataset", placeholderValue: "omop", optionKey: "dataset", required: true },
+        { key: "db_options.location", labelKey: "dataSources.wizard.connection.fields.location", placeholderValue: "US", optionKey: "location", required: false, helperKey: "dataSources.wizard.connection.helpers.bigqueryLocation" },
+        { key: "password", labelKey: "dataSources.wizard.connection.fields.serviceAccountJsonKeyPath", placeholderValue: "/secrets/sa-key.json", type: "password", required: true, helperKey: "dataSources.wizard.connection.helpers.serviceAccount" },
       ];
 
     case "mysql":
       return [
-        { key: "db_host", label: "Host", placeholder: "mysql.example.com", required: true },
-        { key: "db_port", label: "Port", placeholder: "3306", type: "number", required: true },
-        { key: "db_database", label: "Database", placeholder: "ohdsi", required: true },
-        { key: "username", label: "Username", placeholder: "ohdsi_user", required: true },
-        { key: "password", label: "Password", placeholder: "••••••••", type: "password", required: true },
+        { key: "db_host", labelKey: "dataSources.wizard.connection.fields.host", placeholderValue: "mysql.example.com", required: true },
+        { key: "db_port", labelKey: "dataSources.wizard.connection.fields.port", placeholderValue: "3306", type: "number", required: true },
+        { key: "db_database", labelKey: "dataSources.wizard.connection.fields.database", placeholderValue: "ohdsi", required: true },
+        { key: "username", labelKey: "dataSources.wizard.connection.fields.username", placeholderValue: "ohdsi_user", required: true },
+        { key: "password", labelKey: "dataSources.wizard.connection.fields.password", placeholderValue: "••••••••", type: "password", required: true },
       ];
 
     default:
@@ -138,6 +139,7 @@ interface TestResult {
 }
 
 export function ConnectionStep({ dialect, data, onChange }: Props) {
+  const { t } = useTranslation("app");
   const [keyManuallyEdited, setKeyManuallyEdited] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<TestResult | null>(null);
@@ -183,7 +185,11 @@ export function ConnectionStep({ dialect, data, onChange }: Props) {
       setTestResult(res);
     } catch (err: unknown) {
       const e = err as { response?: { data?: { error?: string } } };
-      setTestResult({ success: false, latency_ms: 0, error: e?.response?.data?.error ?? "Connection failed" });
+      setTestResult({
+        success: false,
+        latency_ms: 0,
+        error: e?.response?.data?.error ?? t("dataSources.wizard.connection.connectionFailed"),
+      });
     } finally {
       setTesting(false);
     }
@@ -194,22 +200,25 @@ export function ConnectionStep({ dialect, data, onChange }: Props) {
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-lg font-semibold text-text-primary">Connection Details</h2>
+        <h2 className="text-lg font-semibold text-text-primary">
+          {t("dataSources.wizard.connection.title")}
+        </h2>
         <p className="mt-1 text-sm text-text-muted">
-          Configure how Parthenon identifies and connects to this source.
+          {t("dataSources.wizard.connection.subtitle")}
         </p>
       </div>
 
       {/* Source Name */}
       <div className="space-y-1.5">
         <label className="block text-sm font-medium text-text-secondary">
-          Source Name <span className="text-critical">*</span>
+          {t("dataSources.wizard.connection.sourceName")}{" "}
+          <span className="text-critical">*</span>
         </label>
         <input
           type="text"
           value={data.source_name}
           onChange={(e) => handleNameChange(e.target.value)}
-          placeholder="e.g. Acumenus Production CDM"
+          placeholder={t("dataSources.wizard.connection.sourceNamePlaceholder")}
           className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none"
         />
       </div>
@@ -217,7 +226,8 @@ export function ConnectionStep({ dialect, data, onChange }: Props) {
       {/* Source Key */}
       <div className="space-y-1.5">
         <label className="block text-sm font-medium text-text-secondary">
-          Source Key <span className="text-critical">*</span>
+          {t("dataSources.wizard.connection.sourceKey")}{" "}
+          <span className="text-critical">*</span>
         </label>
         <input
           type="text"
@@ -231,7 +241,7 @@ export function ConnectionStep({ dialect, data, onChange }: Props) {
         />
         <p className="flex items-center gap-1 text-xs text-text-ghost">
           <Info size={10} />
-          Stable identifier — cannot be changed after creation.
+          {t("dataSources.wizard.connection.sourceKeyHelp")}
         </p>
       </div>
 
@@ -239,26 +249,28 @@ export function ConnectionStep({ dialect, data, onChange }: Props) {
       {fields.length > 0 && (
         <div className="rounded-lg border border-border-default bg-surface-base p-4 space-y-3">
           <p className="text-xs font-semibold uppercase tracking-wider text-text-ghost">
-            {dialect.charAt(0).toUpperCase() + dialect.slice(1)} Connection
+            {t("dataSources.wizard.connection.connectionLabel", {
+              dialect: dialect.charAt(0).toUpperCase() + dialect.slice(1),
+            })}
           </p>
           <div className="grid grid-cols-2 gap-3">
             {fields.map((f) => (
               <div key={f.key} className={`space-y-1 ${f.key === "db_host" || f.key.includes("path") || f.key.includes("hostname") ? "col-span-2" : ""}`}>
                 <label className="block text-xs font-medium text-text-secondary">
-                  {f.label}
+                  {t(f.labelKey)}
                   {f.required && <span className="ml-0.5 text-critical">*</span>}
                 </label>
                 <input
                   type={f.type ?? "text"}
                   value={getFieldValue(f)}
                   onChange={(e) => setFieldValue(f, e.target.value)}
-                  placeholder={f.placeholder}
+                  placeholder={f.placeholderValue}
                   className={`w-full rounded-md border border-border-default bg-surface-raised px-3 py-1.5 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none ${f.mono ? "font-mono" : ""}`}
                 />
-                {f.helper && (
+                {f.helperKey && (
                   <p className="flex items-start gap-1 text-[10px] text-text-ghost leading-tight">
                     <Info size={9} className="mt-0.5 shrink-0" />
-                    {f.helper}
+                    {t(f.helperKey)}
                   </p>
                 )}
               </div>
@@ -274,7 +286,7 @@ export function ConnectionStep({ dialect, data, onChange }: Props) {
               className="flex items-center gap-1.5 rounded-md border border-surface-highlight px-3 py-1.5 text-xs font-medium text-text-secondary hover:border-accent hover:text-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               {testing && <Loader2 size={11} className="animate-spin" />}
-              Test Connection
+              {t("dataSources.actions.testConnection")}
             </button>
             {testResult && (
               <div className={`flex items-center gap-1.5 text-xs ${testResult.success ? "text-success" : "text-critical"}`}>
@@ -283,8 +295,10 @@ export function ConnectionStep({ dialect, data, onChange }: Props) {
                   : <XCircle size={12} />}
                 {testResult.success
                   ? testResult.note
-                    ? "R-service verified"
-                    : `Connected (${testResult.latency_ms}ms)`
+                    ? t("dataSources.wizard.connection.rServiceVerified")
+                    : t("dataSources.wizard.connection.connected", {
+                        latency: testResult.latency_ms,
+                      })
                   : testResult.error}
               </div>
             )}
@@ -295,7 +309,9 @@ export function ConnectionStep({ dialect, data, onChange }: Props) {
       {/* Legacy named connection — only shown when no db_host-based approach */}
       {fields.length === 0 && (
         <div className="space-y-1.5">
-          <label className="block text-sm font-medium text-text-secondary">Laravel Connection Name</label>
+          <label className="block text-sm font-medium text-text-secondary">
+            {t("dataSources.wizard.connection.laravelConnectionName")}
+          </label>
           <input
             type="text"
             value={data.source_connection}
@@ -309,8 +325,12 @@ export function ConnectionStep({ dialect, data, onChange }: Props) {
       {/* Cache toggle */}
       <div className="flex items-center justify-between rounded-lg border border-border-default bg-surface-base px-4 py-3">
         <div>
-          <p className="text-sm font-medium text-text-secondary">Enable Query Cache</p>
-          <p className="text-xs text-text-ghost">Cache Achilles results for faster dashboard loads</p>
+          <p className="text-sm font-medium text-text-secondary">
+            {t("dataSources.wizard.connection.enableQueryCache")}
+          </p>
+          <p className="text-xs text-text-ghost">
+            {t("dataSources.wizard.connection.queryCacheHelp")}
+          </p>
         </div>
         <button
           type="button"

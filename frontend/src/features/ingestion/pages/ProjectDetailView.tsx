@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   ChevronDown,
@@ -32,13 +33,13 @@ interface ProjectDetailViewProps {
   onBack: () => void;
 }
 
-const STATUS_STYLES: Record<IngestionProject["status"], { label: string; classes: string }> = {
-  draft: { label: "Draft", classes: "bg-surface-accent text-text-muted" },
-  profiling: { label: "Profiling", classes: "bg-blue-900/30 text-blue-400 animate-pulse" },
-  ready: { label: "Ready", classes: "bg-teal-900/30 text-success" },
-  mapping: { label: "Mapping", classes: "bg-amber-900/30 text-accent" },
-  completed: { label: "Completed", classes: "bg-green-900/30 text-green-400" },
-  failed: { label: "Failed", classes: "bg-red-900/30 text-red-400" },
+const STATUS_STYLES: Record<IngestionProject["status"], { labelKey: string; classes: string }> = {
+  draft: { labelKey: "ingestion.statuses.draft", classes: "bg-surface-accent text-text-muted" },
+  profiling: { labelKey: "ingestion.statuses.profiling", classes: "bg-blue-900/30 text-blue-400 animate-pulse" },
+  ready: { labelKey: "ingestion.statuses.ready", classes: "bg-teal-900/30 text-success" },
+  mapping: { labelKey: "ingestion.statuses.mapping", classes: "bg-amber-900/30 text-accent" },
+  completed: { labelKey: "ingestion.statuses.completed", classes: "bg-green-900/30 text-green-400" },
+  failed: { labelKey: "ingestion.statuses.failed", classes: "bg-red-900/30 text-red-400" },
 };
 
 const JOB_STATUS_ICON: Record<string, React.ReactNode> = {
@@ -89,6 +90,7 @@ function getJobPiiFlag(job: IngestionJob): boolean | null {
 }
 
 export default function ProjectDetailView({ projectId, onBack }: ProjectDetailViewProps) {
+  const { t } = useTranslation("app");
   const { data: project, isLoading, error } = useIngestionProject(projectId);
   const stageFilesMutation = useStageFiles(projectId);
   const removeFileMutation = useRemoveProjectFile(projectId);
@@ -156,10 +158,12 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
           className="flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition-colors"
         >
           <ArrowLeft size={14} />
-          Back to Projects
+          {t("ingestion.actions.backToProjects")}
         </button>
         <div className="flex items-center justify-center py-16">
-          <p className="text-sm text-critical">Failed to load project</p>
+          <p className="text-sm text-critical">
+            {t("ingestion.projectDetail.loadFailed")}
+          </p>
         </div>
       </div>
     );
@@ -179,7 +183,7 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
           className="flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition-colors"
         >
           <ArrowLeft size={14} />
-          Back to Projects
+          {t("ingestion.actions.backToProjects")}
         </button>
 
         <div className="flex items-center justify-between">
@@ -191,7 +195,7 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
                 statusStyle.classes,
               )}
             >
-              {statusStyle.label}
+              {t(statusStyle.labelKey)}
             </span>
           </div>
           <a
@@ -208,19 +212,25 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
                 : "bg-surface-overlay text-text-ghost border border-surface-highlight pointer-events-none",
             )}
           >
-            Open in Aqueduct
+            {t("ingestion.actions.openInAqueduct")}
             <ExternalLink size={12} />
           </a>
         </div>
 
         <div className="flex items-center gap-4 text-xs text-text-muted">
-          <span>{project.file_count} file{project.file_count !== 1 ? "s" : ""}</span>
+          <span>
+            {t("ingestion.projectDetail.fileCount", {
+              count: project.file_count,
+            })}
+          </span>
           <span className="w-px h-3 bg-surface-highlight" />
           <span>{formatBytes(project.total_size_bytes)}</span>
           {project.source && (
             <>
               <span className="w-px h-3 bg-surface-highlight" />
-              <span>Source: {project.source.source_name}</span>
+              <span>
+                {t("ingestion.common.sourceColon")} {project.source.source_name}
+              </span>
             </>
           )}
         </div>
@@ -231,7 +241,9 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
         {/* Left column: Connect to Database */}
         <div className="rounded-lg border border-border-default bg-surface-raised p-5">
           <div className="flex items-center gap-2 mb-4">
-            <h3 className="text-sm font-medium text-text-primary">Connect to Database</h3>
+            <h3 className="text-sm font-medium text-text-primary">
+              {t("ingestion.actions.connectToDatabase")}
+            </h3>
           </div>
           <ConnectDatabaseColumn project={project} />
         </div>
@@ -249,10 +261,12 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
               </div>
               <div>
                 <span className="text-sm font-medium text-text-primary">
-                  {isDraft ? "Upload Source Files" : "Add More Files"}
+                  {isDraft
+                    ? t("ingestion.projectDetail.uploadSourceFiles")
+                    : t("ingestion.actions.addMoreFiles")}
                 </span>
                 <p className="text-xs text-text-muted">
-                  Select CSV, TSV, or Excel files to stage into the project
+                  {t("ingestion.projectDetail.uploadHelp")}
                 </p>
               </div>
             </div>
@@ -283,7 +297,7 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
                   <p className="text-sm text-critical">
                     {stageFilesMutation.error instanceof Error
                       ? stageFilesMutation.error.message
-                      : "Staging failed. Please try again."}
+                      : t("ingestion.projectDetail.stagingFailed")}
                   </p>
                 </div>
               )}
@@ -296,29 +310,29 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
       {stagedJobs.length > 0 && (
         <div className="space-y-3">
           <h3 className="text-sm font-medium text-text-muted uppercase tracking-wider">
-            Staged Files
+            {t("ingestion.projectDetail.stagedFiles")}
           </h3>
           <div className="rounded-lg border border-border-default overflow-hidden">
             <table className="w-full">
               <thead>
                 <tr className="bg-surface-raised border-b border-border-default">
                   <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                    Table Name
+                    {t("ingestion.common.tableName")}
                   </th>
                   <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                    Rows
+                    {t("ingestion.common.rows")}
                   </th>
                   <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                    Columns
+                    {t("ingestion.common.columns")}
                   </th>
                   <th className="px-4 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                    Status
+                    {t("ingestion.common.status")}
                   </th>
                   <th className="px-4 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                     PII
                   </th>
                   <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                    Actions
+                    {t("ingestion.common.actions")}
                   </th>
                 </tr>
               </thead>
@@ -361,7 +375,7 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-12">
           <FileText size={24} className="text-text-muted mb-3" />
           <p className="text-sm text-text-muted">
-            No staged files yet. Upload files above to get started.
+            {t("ingestion.projectDetail.emptyStagedFiles")}
           </p>
         </div>
       )}
@@ -375,7 +389,7 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
             className="inline-flex items-center gap-2 rounded-lg border border-surface-highlight bg-surface-overlay px-5 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface-elevated"
           >
             <Plus size={14} />
-            Add more files
+            {t("ingestion.actions.addMoreFiles")}
           </button>
         </div>
       )}
@@ -414,6 +428,7 @@ function StagedFileRow({
   onDelete,
   isDeleting,
 }: StagedFileRowProps) {
+  const { t } = useTranslation("app");
   const statusIcon = JOB_STATUS_ICON[job.status] ?? null;
   const isConfirmingDelete = confirmDeleteJobId === job.id;
 
@@ -448,7 +463,7 @@ function StagedFileRow({
                 title={job.error_message}
               >
                 <AlertTriangle size={10} className="inline mr-0.5" />
-                error
+                {t("ingestion.common.error")}
               </span>
             </div>
           )}
@@ -459,14 +474,17 @@ function StagedFileRow({
           {pii === null ? (
             <span className="text-xs text-text-ghost">--</span>
           ) : pii ? (
-            <span className="inline-flex items-center gap-1 text-xs text-amber-400" title="PII detected">
+            <span
+              className="inline-flex items-center gap-1 text-xs text-amber-400"
+              title={t("ingestion.projectDetail.piiDetected")}
+            >
               <AlertTriangle size={12} />
-              Yes
+              {t("dataSources.common.yes")}
             </span>
           ) : (
             <span className="inline-flex items-center gap-1 text-xs text-success">
               <Check size={12} />
-              No
+              {t("dataSources.common.no")}
             </span>
           )}
         </td>
@@ -484,7 +502,11 @@ function StagedFileRow({
                   ? "text-accent bg-accent/10"
                   : "text-text-muted hover:text-text-primary hover:bg-surface-elevated",
               )}
-              title={isPreviewOpen ? "Hide preview" : "Preview data"}
+              title={
+                isPreviewOpen
+                  ? t("ingestion.projectDetail.hidePreview")
+                  : t("ingestion.projectDetail.previewData")
+              }
             >
               {isPreviewOpen ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
@@ -498,14 +520,14 @@ function StagedFileRow({
                   disabled={isDeleting}
                   className="rounded-md px-2 py-1 text-xs text-red-400 hover:bg-red-900/20 transition-colors"
                 >
-                  {isDeleting ? "..." : "Confirm"}
+                  {isDeleting ? "..." : t("ingestion.actions.confirmDelete")}
                 </button>
                 <button
                   type="button"
                   onClick={() => onConfirmDelete(null)}
                   className="rounded-md px-2 py-1 text-xs text-text-muted hover:bg-surface-overlay transition-colors"
                 >
-                  Cancel
+                  {t("ingestion.actions.cancel")}
                 </button>
               </div>
             ) : (
@@ -513,7 +535,7 @@ function StagedFileRow({
                 type="button"
                 onClick={() => onConfirmDelete(job.id)}
                 className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-critical hover:bg-surface-elevated transition-colors"
-                title="Remove file"
+                title={t("ingestion.actions.removeFile")}
               >
                 <Trash2 size={15} />
               </button>

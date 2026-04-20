@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Search, Loader2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -17,6 +18,7 @@ interface ConceptBrowserProps {
 }
 
 export function ConceptBrowser({ onSelectConcept }: ConceptBrowserProps) {
+  const { t } = useTranslation("app");
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [debounceTimer, setDebounceTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
@@ -55,7 +57,7 @@ export function ConceptBrowser({ onSelectConcept }: ConceptBrowserProps) {
       {/* Header */}
       <div className="px-4 py-3 border-b border-border-default">
         <h3 className="text-sm font-semibold text-text-primary mb-2">
-          Concept Browser
+          {t("ingestion.conceptBrowser.title")}
         </h3>
 
         {/* Search input */}
@@ -68,7 +70,7 @@ export function ConceptBrowser({ onSelectConcept }: ConceptBrowserProps) {
             type="text"
             value={query}
             onChange={(e) => handleQueryChange(e.target.value)}
-            placeholder="Search concepts..."
+            placeholder={t("ingestion.conceptBrowser.searchPlaceholder")}
             className={cn(
               "w-full rounded-lg pl-9 pr-8 py-2 text-sm",
               "bg-surface-base border border-border-default",
@@ -102,13 +104,15 @@ export function ConceptBrowser({ onSelectConcept }: ConceptBrowserProps) {
           <div className="flex flex-col items-center justify-center py-12 text-center px-4">
             <Search size={24} className="text-text-ghost mb-3" />
             <p className="text-xs text-text-ghost">
-              Type at least 2 characters to search OMOP concepts
+              {t("ingestion.conceptBrowser.minCharacters")}
             </p>
           </div>
         ) : !results || results.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center px-4">
             <p className="text-xs text-text-ghost">
-              No concepts found for &ldquo;{debouncedQuery}&rdquo;
+              {t("ingestion.conceptBrowser.noConcepts", {
+                query: debouncedQuery,
+              })}
             </p>
           </div>
         ) : (
@@ -136,7 +140,7 @@ export function ConceptBrowser({ onSelectConcept }: ConceptBrowserProps) {
                     </span>
                     {isStandard && (
                       <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-success/15 text-success">
-                        S
+                        {t("ingestion.conceptBrowser.standardAbbrev")}
                       </span>
                     )}
                   </div>

@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -32,15 +33,16 @@ const CDM_TABLES = [
   "observation",
 ] as const;
 
-const LOGIC_LABELS: Record<MappingLogic, { label: string; color: string }> = {
-  direct: { label: "Direct", color: "text-success" },
-  transform: { label: "Transform", color: "text-domain-observation" },
-  concat: { label: "Concat", color: "text-info" },
-  lookup: { label: "Lookup", color: "text-warning" },
-  constant: { label: "Constant", color: "text-text-muted" },
+const LOGIC_LABELS: Record<MappingLogic, { labelKey: string; color: string }> = {
+  direct: { labelKey: "ingestion.schemaMapping.methods.direct", color: "text-success" },
+  transform: { labelKey: "ingestion.schemaMapping.methods.transform", color: "text-domain-observation" },
+  concat: { labelKey: "ingestion.schemaMapping.methods.concat", color: "text-info" },
+  lookup: { labelKey: "ingestion.schemaMapping.methods.lookup", color: "text-warning" },
+  constant: { labelKey: "ingestion.schemaMapping.methods.constant", color: "text-text-muted" },
 };
 
 export default function SchemaMappingPage() {
+  const { t } = useTranslation("app");
   const { jobId } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -140,10 +142,10 @@ export default function SchemaMappingPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-text-primary">
-            Schema Mapping
+            {t("ingestion.schemaMapping.title")}
           </h1>
           <p className="mt-1 text-sm text-text-muted">
-            Map source columns to OMOP CDM tables and fields
+            {t("ingestion.schemaMapping.subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -157,7 +159,7 @@ export default function SchemaMappingPage() {
             ) : (
               <Sparkles className="h-4 w-4" />
             )}
-            AI Suggest
+            {t("ingestion.actions.aiSuggest")}
           </button>
           <button
             onClick={() => confirmMutation.mutate()}
@@ -165,7 +167,7 @@ export default function SchemaMappingPage() {
             className="flex items-center gap-2 rounded-lg bg-success/10 border border-success/30 px-4 py-2 text-sm font-medium text-success transition hover:bg-success/20 disabled:opacity-50"
           >
             <Check className="h-4 w-4" />
-            Confirm All
+            {t("ingestion.actions.confirmAll")}
           </button>
         </div>
       </div>
@@ -176,21 +178,27 @@ export default function SchemaMappingPage() {
           <span className="text-2xl font-semibold font-['IBM_Plex_Mono',monospace] text-text-primary">
             {stats.total}
           </span>
-          <span className="ml-2 text-sm text-text-muted">Mappings</span>
+          <span className="ml-2 text-sm text-text-muted">
+            {t("ingestion.common.mappings")}
+          </span>
         </div>
         <div className="h-8 w-px bg-surface-elevated" />
         <div>
           <span className="text-2xl font-semibold font-['IBM_Plex_Mono',monospace] text-success">
             {stats.confirmed}
           </span>
-          <span className="ml-2 text-sm text-text-muted">Confirmed</span>
+          <span className="ml-2 text-sm text-text-muted">
+            {t("ingestion.schemaMapping.confirmed")}
+          </span>
         </div>
         <div className="h-8 w-px bg-surface-elevated" />
         <div>
           <span className="text-2xl font-semibold font-['IBM_Plex_Mono',monospace] text-info">
             {stats.highConf}
           </span>
-          <span className="ml-2 text-sm text-text-muted">High Confidence</span>
+          <span className="ml-2 text-sm text-text-muted">
+            {t("ingestion.common.highConfidence")}
+          </span>
         </div>
         {stats.total > 0 && (
           <>
@@ -215,10 +223,12 @@ export default function SchemaMappingPage() {
           <div className="flex items-center gap-2 mb-4">
             <Columns className="h-4 w-4 text-warning" />
             <h2 className="text-sm font-medium text-text-primary">
-              Source Columns
+              {t("ingestion.common.sourceColumns")}
             </h2>
             <span className="text-xs text-text-muted">
-              ({profile.fields.length} columns detected)
+              {t("ingestion.schemaMapping.columnsDetected", {
+                count: profile.fields.length,
+              })}
             </span>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
@@ -237,9 +247,11 @@ export default function SchemaMappingPage() {
             ))}
           </div>
           <p className="mt-4 text-sm text-text-muted">
-            Click{" "}
-            <span className="text-primary font-medium">AI Suggest</span> to
-            auto-generate schema mappings from source columns to CDM tables.
+            {t("ingestion.schemaMapping.promptPrefix")}{" "}
+            <span className="text-primary font-medium">
+              {t("ingestion.actions.aiSuggest")}
+            </span>{" "}
+            {t("ingestion.schemaMapping.promptSuffix")}
           </p>
         </div>
       )}
@@ -256,7 +268,9 @@ export default function SchemaMappingPage() {
               {table}
             </h3>
             <span className="rounded-full bg-surface-elevated px-2 py-0.5 text-xs text-text-muted">
-              {groupedMappings[table].length} columns
+              {t("ingestion.schemaMapping.columns", {
+                count: groupedMappings[table].length,
+              })}
             </span>
           </div>
           <div className="divide-y divide-border-default">
@@ -326,7 +340,7 @@ export default function SchemaMappingPage() {
                     >
                       {Object.entries(LOGIC_LABELS).map(([k, v]) => (
                         <option key={k} value={k}>
-                          {v.label}
+                          {t(v.labelKey)}
                         </option>
                       ))}
                     </select>
@@ -358,7 +372,9 @@ export default function SchemaMappingPage() {
                           "text-text-muted",
                       )}
                     >
-                      {LOGIC_LABELS[mapping.mapping_logic]?.label ||
+                      {LOGIC_LABELS[mapping.mapping_logic]?.labelKey
+                        ? t(LOGIC_LABELS[mapping.mapping_logic].labelKey)
+                        :
                         mapping.mapping_logic}
                     </span>
                     <ChevronDown className="h-3 w-3 text-text-ghost opacity-0 group-hover:opacity-100 transition" />
@@ -386,9 +402,11 @@ export default function SchemaMappingPage() {
       {mappings.length === 0 && !profile?.fields?.length && (
         <div className="flex flex-col items-center justify-center rounded-xl border border-border-default bg-surface-raised py-16">
           <Database className="h-10 w-10 text-text-ghost mb-3" />
-          <p className="text-sm text-text-muted">No schema mappings yet</p>
+          <p className="text-sm text-text-muted">
+            {t("ingestion.schemaMapping.emptyTitle")}
+          </p>
           <p className="mt-1 text-xs text-text-ghost">
-            Upload and profile a file first, then generate AI suggestions
+            {t("ingestion.schemaMapping.emptyMessage")}
           </p>
         </div>
       )}
@@ -399,13 +417,13 @@ export default function SchemaMappingPage() {
           onClick={() => navigate(`/ingestion/jobs/${jobId}`)}
           className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary transition"
         >
-          Back to Job
+          {t("ingestion.actions.backToJob")}
         </button>
         <button
           onClick={() => navigate(`/ingestion/jobs/${jobId}/review`)}
           className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/80"
         >
-          Continue to Concept Mapping
+          {t("ingestion.actions.continueToConceptMapping")}
         </button>
       </div>
     </div>

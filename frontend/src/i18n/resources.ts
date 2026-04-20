@@ -2,6 +2,7 @@ import type { Resource } from "i18next";
 import { appResources } from "./appResources";
 import { commonsResources } from "./commonsResources";
 import { dashboardResources } from "./dashboardResources";
+import { dataSourceIngestionResources } from "./dataSourceIngestionResources";
 
 type MessageTree = {
   [key: string]: string | MessageTree;
@@ -7123,6 +7124,15 @@ function withProductResources(
   };
 }
 
+function appForLocale(locale: string): MessageTree {
+  const baseApp = appResources[locale] ?? appResources["en-US"];
+  const waveApp =
+    dataSourceIngestionResources[locale] ??
+    dataSourceIngestionResources["en-US"];
+
+  return mergeMessageTrees(baseApp, waveApp);
+}
+
 export const resources: Resource = {
   "en-US": withProductResources(
     withCommonUi(withAbbyLayout(enUS, enAbbyLayout), enCommonUi),
@@ -7132,7 +7142,7 @@ export const resources: Resource = {
     withAuthSetup(enAuth, enAuthSetup),
     dashboardResources["en-US"],
     commonsResources["en-US"],
-    appResources["en-US"],
+    appForLocale("en-US"),
   ),
   "es-ES": withProductResources(
     withCommonUi(withAbbyLayout(esES, esAbbyLayout), esCommonUi),
@@ -7142,7 +7152,7 @@ export const resources: Resource = {
     withAuthSetup(esAuth, esAuthSetup),
     dashboardResources["es-ES"],
     commonsResources["es-ES"],
-    appResources["es-ES"],
+    appForLocale("es-ES"),
   ),
   "fr-FR": withProductResources(
     withCommonUi(withAbbyLayout(frFR, frAbbyLayout), frCommonUi),
@@ -7152,7 +7162,7 @@ export const resources: Resource = {
     withAuthSetup(frAuth, frAuthSetup),
     dashboardResources["fr-FR"],
     commonsResources["fr-FR"],
-    appResources["fr-FR"],
+    appForLocale("fr-FR"),
   ),
   "de-DE": withProductResources(
     withCommonUi(withAbbyLayout(deDE, deAbbyLayout), deCommonUi),
@@ -7162,7 +7172,7 @@ export const resources: Resource = {
     withAuthSetup(deAuth, deAuthSetup),
     dashboardResources["de-DE"],
     commonsResources["de-DE"],
-    appResources["de-DE"],
+    appForLocale("de-DE"),
   ),
   "pt-BR": withProductResources(
     withCommonUi(withAbbyLayout(ptBR, ptAbbyLayout), ptCommonUi),
@@ -7172,7 +7182,7 @@ export const resources: Resource = {
     withAuthSetup(ptAuth, ptAuthSetup),
     dashboardResources["pt-BR"],
     commonsResources["pt-BR"],
-    appResources["pt-BR"],
+    appForLocale("pt-BR"),
   ),
   "fi-FI": withProductResources(
     withCommonUi(withAbbyLayout(fiFI, fiAbbyLayout), fiCommonUi),
@@ -7182,7 +7192,7 @@ export const resources: Resource = {
     withAuthSetup(fiAuth, fiAuthSetup),
     dashboardResources["fi-FI"],
     commonsResources["fi-FI"],
-    appResources["fi-FI"],
+    appForLocale("fi-FI"),
   ),
   "ja-JP": withProductResources(
     withCommonUi(withAbbyLayout(jaJP, jaAbbyLayout), jaCommonUi),
@@ -7192,7 +7202,7 @@ export const resources: Resource = {
     withAuthSetup(jaAuth, jaAuthSetup),
     dashboardResources["ja-JP"],
     commonsResources["ja-JP"],
-    appResources["ja-JP"],
+    appForLocale("ja-JP"),
   ),
   "zh-Hans": withProductResources(
     withCommonUi(withAbbyLayout(zhHans, zhAbbyLayout), zhCommonUi),
@@ -7202,7 +7212,7 @@ export const resources: Resource = {
     withAuthSetup(zhAuth, zhAuthSetup),
     dashboardResources["zh-Hans"],
     commonsResources["zh-Hans"],
-    appResources["zh-Hans"],
+    appForLocale("zh-Hans"),
   ),
   "ko-KR": withProductResources(
     withCommonUi(withAbbyLayout(koKR, koAbbyLayout), koCommonUi),
@@ -7212,7 +7222,7 @@ export const resources: Resource = {
     withAuthSetup(koAuth, koAuthSetup),
     dashboardResources["ko-KR"],
     commonsResources["ko-KR"],
-    appResources["ko-KR"],
+    appForLocale("ko-KR"),
   ),
   "hi-IN": withProductResources(
     withCommonUi(withAbbyLayout(hiIN, hiAbbyLayout), hiCommonUi),
@@ -7222,7 +7232,7 @@ export const resources: Resource = {
     withAuthSetup(hiAuth, hiAuthSetup),
     dashboardResources["hi-IN"],
     commonsResources["hi-IN"],
-    appResources["hi-IN"],
+    appForLocale("hi-IN"),
   ),
   ar: withProductResources(
     withCommonUi(withAbbyLayout(ar, enAbbyLayout), enCommonUi),
@@ -7232,7 +7242,7 @@ export const resources: Resource = {
     withAuthSetup(arAuth, enAuthSetup),
     dashboardResources["en-US"],
     commonsResources["en-US"],
-    appResources["en-US"],
+    appForLocale("ar"),
   ),
   "en-XA": withProductResources(
     withCommonUi(
@@ -7245,7 +7255,7 @@ export const resources: Resource = {
     withAuthSetup(pseudoTree(enAuth), pseudoTree(enAuthSetup)),
     pseudoTree(dashboardResources["en-US"]),
     pseudoTree(commonsResources["en-US"]),
-    pseudoTree(appResources["en-US"]),
+    pseudoTree(appForLocale("en-US")),
   ),
 };
 

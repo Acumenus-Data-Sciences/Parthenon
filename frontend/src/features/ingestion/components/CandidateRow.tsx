@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { MappingCandidate } from "@/types/ingestion";
 
@@ -19,6 +20,7 @@ export function CandidateRow({
   onSelect,
   isSelected,
 }: CandidateRowProps) {
+  const { t } = useTranslation("app");
   const color = scoreColor(candidate.score);
   const isStandard = candidate.standard_concept === "S";
 
@@ -61,7 +63,7 @@ export function CandidateRow({
           {/* Standard badge */}
           {isStandard && (
             <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-success/15 text-success">
-              Standard
+              {t("ingestion.conceptBrowser.standard")}
             </span>
           )}
         </div>

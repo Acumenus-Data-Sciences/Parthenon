@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Database, Shield, Upload, ChevronDown, ChevronRight, Plus, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSources, useSetDefaultSource, useClearDefaultSource } from "../hooks/useSources";
@@ -9,6 +10,7 @@ import { AddSourceWizard } from "../components/AddSourceWizard";
 import { useAuthStore } from "@/stores/authStore";
 
 export function SourcesListPage() {
+  const { t } = useTranslation("app");
   const { data: sources, isLoading, error } = useSources();
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
   const [showImport, setShowImport] = useState(false);
@@ -29,7 +31,7 @@ export function SourcesListPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-text-muted">Loading sources...</p>
+        <p className="text-text-muted">{t("dataSources.list.loading")}</p>
       </div>
     );
   }
@@ -37,7 +39,7 @@ export function SourcesListPage() {
   if (error) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-critical">Failed to load sources</p>
+        <p className="text-critical">{t("dataSources.list.loadFailed")}</p>
       </div>
     );
   }
@@ -46,9 +48,11 @@ export function SourcesListPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Clinical Data Models</h1>
+          <h1 className="text-2xl font-bold text-text-primary">
+            {t("dataSources.list.title")}
+          </h1>
           <p className="mt-1 text-sm text-text-muted">
-            Manage CDM connections and set your default data model
+            {t("dataSources.list.subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -59,7 +63,7 @@ export function SourcesListPage() {
             className="flex items-center gap-1.5 rounded-lg bg-primary-light px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-critical transition-colors"
           >
             <Plus size={14} />
-            Add Source
+            {t("dataSources.actions.addSource")}
           </button>
           <button
             type="button"
@@ -72,7 +76,7 @@ export function SourcesListPage() {
             )}
           >
             <Upload size={14} />
-            Import from WebAPI
+            {t("dataSources.actions.importFromWebApi")}
           </button>
         </div>
       </div>
@@ -114,13 +118,13 @@ export function SourcesListPage() {
                         </span>
                         {source.imported_from_webapi && (
                           <span className="inline-flex items-center rounded-full bg-info/10 px-1.5 py-0.5 text-[9px] font-medium text-info">
-                            WebAPI
+                            {t("dataSources.common.webApi")}
                           </span>
                         )}
                         {userDefaultSourceId === source.id && (
                           <span className="inline-flex items-center gap-0.5 rounded-full bg-accent/10 px-1.5 py-0.5 text-[9px] font-medium text-accent">
                             <Star size={8} className="fill-accent" />
-                            My Default
+                            {t("dataSources.common.myDefault")}
                           </span>
                         )}
                       </div>
@@ -132,7 +136,9 @@ export function SourcesListPage() {
                       </span>
                       <div className="flex items-center gap-2 justify-end">
                         <span className="text-xs text-text-ghost">
-                          {source.daimons?.length ?? 0} daimons
+                          {t("dataSources.list.daimonCount", {
+                            count: source.daimons?.length ?? 0,
+                          })}
                         </span>
                         {isRestricted && (
                           <Shield size={12} className="text-info" />
@@ -145,7 +151,11 @@ export function SourcesListPage() {
                   <button
                     type="button"
                     onClick={() => handleToggleDefault(source.id, userDefaultSourceId === source.id)}
-                    title={userDefaultSourceId === source.id ? "Remove as your default CDM" : "Set as your default CDM"}
+                    title={
+                      userDefaultSourceId === source.id
+                        ? t("dataSources.list.removeDefaultTitle")
+                        : t("dataSources.list.setDefaultTitle")
+                    }
                     className={cn(
                       "shrink-0 inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-all border",
                       userDefaultSourceId === source.id
@@ -169,7 +179,7 @@ export function SourcesListPage() {
                         )}
                       />
                     </div>
-                    My Default
+                    {t("dataSources.common.myDefault")}
                   </button>
                 </div>
 
@@ -180,7 +190,7 @@ export function SourcesListPage() {
                     {source.daimons && source.daimons.length > 0 && (
                       <div>
                         <h4 className="text-xs font-semibold text-text-muted mb-2">
-                          Daimons
+                          {t("dataSources.common.daimons")}
                         </h4>
                         <div className="grid grid-cols-3 gap-2">
                           {source.daimons.map((d) => (
@@ -203,7 +213,7 @@ export function SourcesListPage() {
                     {/* Connection */}
                     <div>
                       <h4 className="text-xs font-semibold text-text-muted mb-1">
-                        Connection
+                        {t("dataSources.common.connection")}
                       </h4>
                       <p className="text-xs font-mono text-text-ghost break-all">
                         {source.source_connection}
@@ -214,7 +224,7 @@ export function SourcesListPage() {
                     {source.imported_from_webapi && (
                       <div>
                         <h4 className="text-xs font-semibold text-text-muted mb-1">
-                          Imported From
+                          {t("dataSources.common.importedFrom")}
                         </h4>
                         <p className="text-xs font-mono text-info">
                           {source.imported_from_webapi}
@@ -234,11 +244,10 @@ export function SourcesListPage() {
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-12">
           <Database size={24} className="text-text-ghost" />
           <h3 className="mt-4 text-lg font-semibold text-text-primary">
-            No data sources
+            {t("dataSources.list.emptyTitle")}
           </h3>
           <p className="mt-2 text-sm text-text-muted">
-            Get started by adding your first CDM data source or importing from a
-            legacy WebAPI instance.
+            {t("dataSources.list.emptyMessage")}
           </p>
         </div>
       )}

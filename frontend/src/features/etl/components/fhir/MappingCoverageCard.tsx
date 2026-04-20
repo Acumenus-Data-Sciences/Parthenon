@@ -1,8 +1,10 @@
+import { useTranslation } from "react-i18next";
 import { Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { FhirIngestResult } from "../../api/fhirApi";
 
 export function MappingCoverageCard({ result }: { result: FhirIngestResult }) {
+  const { t } = useTranslation("app");
   const totalRecords = Object.values(result.records_created).reduce(
     (a, b) => a + b,
     0,
@@ -20,13 +22,17 @@ export function MappingCoverageCard({ result }: { result: FhirIngestResult }) {
     <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
       <div className="flex items-center gap-2">
         <Shield size={14} className="text-text-muted" />
-        <h4 className="text-sm font-medium text-text-primary">Mapping Coverage</h4>
+        <h4 className="text-sm font-medium text-text-primary">
+          {t("ingestion.fhirIngestion.mappingCoverage")}
+        </h4>
       </div>
 
       <div className="space-y-2">
         {/* Records per resource ratio */}
         <div className="flex items-center justify-between">
-          <span className="text-xs text-text-muted">CDM records / FHIR resource</span>
+          <span className="text-xs text-text-muted">
+            {t("ingestion.fhirIngestion.cdmRecordsPerResource")}
+          </span>
           <span className="text-xs font-mono font-semibold text-text-primary">
             {ratio.toFixed(2)}x
           </span>
@@ -43,7 +49,9 @@ export function MappingCoverageCard({ result }: { result: FhirIngestResult }) {
 
         {/* Success rate */}
         <div className="flex items-center justify-between mt-2">
-          <span className="text-xs text-text-muted">Success rate</span>
+          <span className="text-xs text-text-muted">
+            {t("ingestion.fhirIngestion.successRate")}
+          </span>
           <span
             className={cn(
               "text-xs font-mono font-semibold",
@@ -74,7 +82,9 @@ export function MappingCoverageCard({ result }: { result: FhirIngestResult }) {
 
         {/* CDM table count */}
         <div className="flex items-center justify-between mt-2">
-          <span className="text-xs text-text-muted">CDM tables populated</span>
+          <span className="text-xs text-text-muted">
+            {t("ingestion.fhirIngestion.cdmTablesPopulated")}
+          </span>
           <span className="text-xs font-mono font-semibold text-info">
             {Object.keys(result.records_created).filter((k) => result.records_created[k] > 0).length}
           </span>

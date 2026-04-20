@@ -1,12 +1,15 @@
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { FhirHealthStatus } from "../../api/fhirApi";
 
 export function HealthBadge({ status }: { status: FhirHealthStatus | undefined }) {
+  const { t } = useTranslation("app");
+
   if (!status) {
     return (
       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-surface-elevated text-text-muted">
         <span className="w-1.5 h-1.5 rounded-full bg-text-muted" />
-        Checking...
+        {t("ingestion.fhirIngestion.checking")}
       </span>
     );
   }
@@ -28,7 +31,9 @@ export function HealthBadge({ status }: { status: FhirHealthStatus | undefined }
           isHealthy ? "bg-success animate-pulse" : "bg-critical",
         )}
       />
-      {isHealthy ? "Service Online" : "Service Offline"}
+      {isHealthy
+        ? t("ingestion.fhirIngestion.serviceOnline")
+        : t("ingestion.fhirIngestion.serviceOffline")}
     </span>
   );
 }
