@@ -13128,6 +13128,392 @@ const frApp: MessageTree = mergeMessageTrees(enApp, {
       },
     },
   },
+  vocabulary: {
+    mappingAssistant: {
+      title: "Assistant de mappage de concepts",
+      poweredBy: "Alimenté par Ariadne",
+      subtitle:
+        "Mappez les termes sources vers les concepts standard OMOP avec une correspondance verbatim, vectorielle et LLM",
+      filters: {
+        selectedCount: "{{count}} sélectionnés",
+        clearSelection: "Effacer la sélection",
+        targetVocabulary: "Vocabulaire cible :",
+        allVocabularies: "Tous les vocabulaires",
+        targetDomain: "Domaine cible :",
+        allDomains: "Tous les domaines",
+      },
+      drawer: {
+        disambiguate: "Désambiguïser",
+        candidateCount: "{{count}} candidats - sélectionnez le bon mappage",
+        noCandidates: "Aucun candidat trouvé. Essayez de nettoyer le terme ci-dessous.",
+        cleanRemap: "Nettoyer et remapper",
+        editPlaceholder: "Modifier le terme et remapper...",
+      },
+      actions: {
+        clean: "Nettoyer",
+        remap: "Remapper",
+        acceptMapping: "Accepter le mappage",
+        rejectMapping: "Rejeter le mappage",
+        disambiguateTitle: "Désambiguïser - voir tous les candidats",
+        uploadCsv: "Téléverser un CSV",
+        loadProject: "Charger un projet",
+        mapping: "Mappage...",
+        mapTerms: "Mapper les termes",
+        clearResults: "Effacer les résultats",
+        acceptAllThreshold: "Tout accepter >= 90 %",
+        saveToVocabulary: "Enregistrer dans le vocabulaire",
+        saveProject: "Enregistrer le projet",
+        exportCsv: "Exporter en CSV",
+      },
+      toasts: {
+        remapped: "\"{{source}}\" remappé vers {{concept}}",
+        noMatchForCleaned: "Aucune correspondance trouvée pour le terme nettoyé \"{{term}}\"",
+        remapFailed: "Échec du remappage",
+        autoAccepted: "{{count}} mappages à forte confiance acceptés automatiquement",
+        savedMappings: "{{count}} mappages enregistrés dans source_to_concept_map",
+        saveMappingsFailed: "Échec de l'enregistrement des mappages",
+        projectSaved: "Projet enregistré : {{name}}",
+        saveProjectFailed: "Échec de l'enregistrement du projet",
+        projectLoaded: "Projet chargé : {{name}}",
+        loadProjectFailed: "Échec du chargement du projet",
+      },
+      errors: {
+        cleanupFailed: "Échec du nettoyage.",
+        mappingFailed:
+          "Échec du mappage. Vérifiez que le service Ariadne est en cours d'exécution et joignable.",
+      },
+      results: {
+        candidateCount: "{{count}} candidats",
+        overridden: "(remplacé)",
+        noMatchFound: "Aucune correspondance trouvée",
+        selectOverride: "Sélectionnez un candidat pour remplacer le mappage",
+        noAdditionalCandidates: "Aucun candidat supplémentaire.",
+      },
+      labels: {
+        noValue: "-",
+        separator: "-",
+      },
+      input: {
+        termsMapped: "{{count}} termes mappés",
+        editTerms: "Modifier les termes",
+        sourceTerms: "Termes sources",
+        termsPlaceholder:
+          "Saisissez les termes sources, un par ligne...\n\ndiabète de type 2\ninfarctus aigu du myocarde\nHTA\naspirine 81 mg",
+        termsEntered: "{{count}} termes saisis",
+      },
+      projects: {
+        loading: "Chargement des projets...",
+        loadFailed: "Échec du chargement des projets",
+        empty: "Aucun projet enregistré",
+        projectMeta: "{{count}} termes -- {{date}}",
+        namePlaceholder: "Nom du projet...",
+      },
+      vocabularies: {
+        SNOMED: "SNOMED CT",
+        ICD10CM: "ICD-10-CM",
+        RxNorm: "RxNorm",
+        LOINC: "LOINC",
+        ICD9CM: "ICD-9-CM",
+        CPT4: "CPT-4",
+        HCPCS: "HCPCS",
+        MedDRA: "MedDRA",
+      },
+      domains: {
+        Condition: "Affection",
+        Drug: "Médicament",
+        Procedure: "Procédure",
+        Measurement: "Mesure",
+        Observation: "Observation",
+        Device: "Dispositif",
+      },
+      progress: {
+        mappingTerms: "Mappage de {{count}} termes...",
+      },
+      metrics: {
+        termsMapped: "Termes mappés",
+        highConfidence: "Forte confiance",
+        needReview: "À examiner",
+        noMatch: "Sans correspondance",
+      },
+      table: {
+        sourceTerm: "Terme source",
+        bestMatch: "Meilleure correspondance",
+        confidence: "Confiance",
+        matchType: "Type de correspondance",
+        vocabulary: "Vocabulaire",
+        actions: "Opérations",
+      },
+      summary: {
+        mapped: "{{count}} mappés",
+        high: "{{count}} forts",
+        review: "{{count}} à examiner",
+        noMatch: "{{count}} sans correspondance",
+        accepted: "{{count}} acceptés",
+      },
+    },
+    conceptDetail: {
+      tabs: {
+        info: "Infos",
+        relationships: "Relations",
+        mapsFrom: "Mappages depuis",
+        hierarchy: "Hiérarchie",
+      },
+      empty: {
+        title: "Sélectionnez un concept pour voir les détails",
+        subtitle: "Recherchez puis cliquez sur un concept dans le panneau de gauche",
+        noAncestors: "Aucun ancêtre trouvé",
+        noRelationships: "Aucune relation trouvée",
+        noSourceCodes: "Aucun code source ne mappe vers ce concept",
+      },
+      errors: {
+        failedLoad: "Échec du chargement du concept",
+      },
+      toasts: {
+        conceptIdCopied: "ID de concept copié",
+      },
+      actions: {
+        copyConceptId: "Copier l'ID de concept",
+        addToSet: "Ajouter au jeu",
+      },
+      values: {
+        standard: "Concept standard",
+        classification: "Classification",
+        nonStandard: "Non standard",
+        valid: "Valide",
+      },
+      sections: {
+        basicInformation: "Informations de base",
+        synonyms: "Synonymes",
+        ancestors: "Ancêtres",
+        relationships: "Relations",
+        mapsFrom: "Codes sources mappés vers ce concept",
+        mapsFromDescription:
+          "Codes de vocabulaires sources (ICD-10, SNOMED, RxNorm, etc.) qui mappent vers ce concept standard",
+        hierarchy: "Hiérarchie du concept",
+      },
+      fields: {
+        conceptCode: "Code du concept",
+        domain: "Domaine",
+        vocabulary: "Vocabulaire",
+        conceptClass: "Classe de concept",
+        standardConcept: "Concept standard",
+        invalidReason: "Motif d'invalidité",
+        validStartDate: "Date de début de validité",
+        validEndDate: "Date de fin de validité",
+      },
+      table: {
+        id: "Identifiant",
+        name: "Nom",
+        domain: "Domaine",
+        vocabulary: "Vocabulaire",
+        relationship: "Relation",
+        relatedId: "ID lié",
+        relatedName: "Nom lié",
+        code: "Code",
+        class: "Classe",
+      },
+      pagination: {
+        showingRange: "Affichage de {{start}} à {{end}} sur {{total}}",
+        showingSourceCodes: "Affichage de {{shown}} sur {{total}} codes sources",
+      },
+    },
+    semanticSearch: {
+      hecate: "Hecate",
+      poweredBy: "Alimenté par Hecate",
+      tagline: "découverte de concepts alimentée par vecteurs",
+      placeholder: "Saisissez un terme clinique pour une recherche sémantique...",
+      filters: {
+        allDomains: "Tous les domaines",
+        allVocabularies: "Tous les vocabulaires",
+        standard: {
+          all: "Tous",
+          standard: "S",
+          classification: "C",
+        },
+      },
+      badges: {
+        standard: "Concept standard",
+        classification: "Classification OMOP",
+      },
+      values: {
+        inSet: "Dans le jeu",
+        standardAbbrev: "S",
+      },
+      actions: {
+        addToSet: "Ajouter au jeu",
+        clearFilters: "Effacer les filtres",
+        retry: "Réessayer",
+        tryClearingFilters: "Essayez d'effacer les filtres",
+      },
+      errors: {
+        unavailable: "La recherche sémantique n'est pas disponible.",
+        serviceHelp:
+          "Assurez-vous que le service IA Hecate est en cours d'exécution et que ChromaDB est initialisé.",
+      },
+      empty: {
+        prompt: "Saisissez un terme clinique pour lancer une recherche sémantique",
+        help:
+          "Hecate utilise des embeddings vectoriels pour trouver des concepts OMOP similaires sur le plan conceptuel, même lorsque les correspondances exactes par mots-clés échouent.",
+        noResults: "Aucune correspondance sémantique trouvée pour \"{{query}}\"",
+      },
+      results: {
+        matchCountOne: "{{count}} correspondance sémantique",
+        matchCountMany: "{{count}} correspondances sémantiques",
+        updating: "Mise à jour...",
+      },
+    },
+    searchPanel: {
+      placeholder: "Rechercher des concepts...",
+      filters: {
+        toggle: "Filtres",
+        standardOnly: "Concepts standard",
+        allDomains: "Tous les domaines",
+        allVocabularies: "Tous les vocabulaires",
+        allConceptClasses: "Toutes les classes de concept",
+        countSuffix: " ({{count}})",
+      },
+      actions: {
+        clearAllFilters: "Effacer tous les filtres",
+        tryClearingFilters: "Essayez d'effacer les filtres",
+        loading: "Chargement...",
+        loadMoreResults: "Charger plus de résultats",
+      },
+      empty: {
+        prompt: "Rechercher dans le vocabulaire OMOP",
+        help: "Saisissez au moins 2 caractères pour rechercher les concepts par nom, code ou ID",
+        noResults: "Aucun concept trouvé pour \"{{query}}\"",
+      },
+      results: {
+        showingCount: "Affichage de {{shown}} sur {{total}} résultats",
+      },
+      engine: {
+        solr: "Solr",
+        pg: "PG",
+      },
+      values: {
+        inSet: "Dans le jeu",
+      },
+    },
+    conceptComparison: {
+      title: "Comparer les concepts",
+      subtitle:
+        "Comparaison côte à côte de 2 à 4 concepts OMOP avec attributs, ancêtres et relations",
+      search: {
+        placeholder: "Rechercher un concept à ajouter...",
+      },
+      sections: {
+        ancestors: "Ancêtres (2 niveaux)",
+        relationships: "Relations",
+      },
+      fields: {
+        conceptCode: "Code du concept",
+        domain: "Domaine",
+        vocabulary: "Vocabulaire",
+        conceptClass: "Classe de concept",
+        standard: "Statut standard",
+        validStart: "Début de validité",
+        validEnd: "Fin de validité",
+        invalidReason: "Motif d'invalidité",
+      },
+      actions: {
+        addConcept: "Ajouter un concept",
+      },
+      empty: {
+        prompt: "Recherchez des concepts à comparer",
+        help:
+          "Sélectionnez 2 à 4 concepts pour voir une comparaison côte à côte de leurs attributs, ancêtres et relations",
+      },
+      values: {
+        standard: "Concept standard",
+        classification: "Classification OMOP",
+        nonStandard: "Non standard",
+        valid: "Valide",
+        level: "N{{level}}",
+        selected: "Sélectionnés :",
+        addOneMore: "Ajoutez au moins un concept de plus pour comparer",
+      },
+    },
+    addToConceptSet: {
+      title: "Ajouter au jeu de concepts",
+      create: {
+        title: "Créer un nouveau jeu de concepts",
+        help: "Ajouter le concept et l'ouvrir dans le Builder",
+        nameLabel: "Nom du nouveau jeu de concepts",
+      },
+      actions: {
+        create: "Créer",
+        cancel: "Annuler",
+        openBuilderWithSearch: "Ouvrir le Builder avec la recherche actuelle",
+      },
+      divider: "ou ajouter à un jeu existant",
+      filter: {
+        placeholder: "Filtrer les jeux de concepts...",
+      },
+      empty: {
+        noMatching: "Aucun jeu de concepts correspondant",
+        noSets: "Aucun jeu de concepts trouvé",
+      },
+      footer: {
+        includeDescendants: "Ajout avec l'option Inclure les descendants",
+      },
+      toasts: {
+        addedToSet: "Ajouté à \"{{setName}}\"",
+        addFailed: "Échec de l'ajout du concept au jeu",
+        missingSetId: "Échec de la récupération de l'ID du nouveau jeu de concepts",
+        createdAndAdded: "\"{{name}}\" créé et concept ajouté",
+        createdAddFailed: "Jeu créé, mais l'ajout du concept a échoué",
+        createFailed: "Échec de la création du jeu de concepts",
+      },
+    },
+    page: {
+      title: "Navigateur de vocabulaire",
+      subtitle: "Recherchez, explorez et parcourez le vocabulaire standardisé OMOP",
+      tabs: {
+        keyword: "Recherche par mot-clé",
+        semantic: "Recherche sémantique",
+        browse: "Parcourir la hiérarchie",
+      },
+    },
+    hierarchyBrowser: {
+      breadcrumb: {
+        allDomains: "Tous les domaines",
+      },
+      filters: {
+        allSources: "Toutes les sources",
+        itemPlaceholder: "Filtrer {{count}} éléments...",
+      },
+      actions: {
+        showAllConcepts: "Afficher tous les concepts",
+        showGroupings: "Afficher les regroupements",
+        clearFilter: "Effacer le filtre",
+        viewDetailsFor: "Voir les détails de {{conceptName}}",
+        viewConceptDetails: "Voir les détails du concept",
+      },
+      empty: {
+        noMatchingConcepts: "Aucun concept correspondant",
+        noConcepts: "Aucun concept trouvé",
+      },
+      counts: {
+        clinicalGroupings: "{{count}} regroupements cliniques",
+        concepts: "{{count}} concepts",
+        items: "{{count}} éléments",
+        filteredItems: "{{shown}} sur {{total}} éléments",
+        namedSubCategories: "{{name}} - {{count}} sous-catégories",
+        subCategories: "{{count}} sous-catégories",
+        subcategories: "{{count}} sous-catégories",
+        oneAnchor: "1 ancre",
+        persons: "{{count}} personnes",
+        records: "{{count}} enregistrements",
+        groupingCoversSubcategories:
+          "{{groupingName}} couvre {{count}} sous-catégories",
+      },
+    },
+    hierarchyTree: {
+      empty: {
+        noData: "Aucune donnée de hiérarchie disponible",
+      },
+    },
+  },
   administration: {
     dashboard: {
       title: "Administration",
@@ -13616,6 +14002,392 @@ const deApp: MessageTree = mergeMessageTrees(enApp, {
       },
     },
   },
+  vocabulary: {
+    mappingAssistant: {
+      title: "Konzept-Mapping-Assistent",
+      poweredBy: "Bereitgestellt von Ariadne",
+      subtitle:
+        "Quellbegriffe OMOP-Standardkonzepten mit wörtlichem, Vektor- und LLM-Matching zuordnen",
+      filters: {
+        selectedCount: "{{count}} ausgewählt",
+        clearSelection: "Auswahl löschen",
+        targetVocabulary: "Zielvokabular:",
+        allVocabularies: "Alle Vokabulare",
+        targetDomain: "Zieldomäne:",
+        allDomains: "Alle Domänen",
+      },
+      drawer: {
+        disambiguate: "Disambiguieren",
+        candidateCount: "{{count}} Kandidaten - wählen Sie das richtige Mapping",
+        noCandidates: "Keine Kandidaten gefunden. Bereinigen Sie den Begriff unten.",
+        cleanRemap: "Bereinigen und erneut mappen",
+        editPlaceholder: "Begriff bearbeiten und erneut mappen...",
+      },
+      actions: {
+        clean: "Bereinigen",
+        remap: "Erneut mappen",
+        acceptMapping: "Mapping akzeptieren",
+        rejectMapping: "Mapping ablehnen",
+        disambiguateTitle: "Disambiguieren - alle Kandidaten anzeigen",
+        uploadCsv: "CSV hochladen",
+        loadProject: "Projekt laden",
+        mapping: "Wird gemappt...",
+        mapTerms: "Begriffe mappen",
+        clearResults: "Ergebnisse löschen",
+        acceptAllThreshold: "Alle >= 90 % akzeptieren",
+        saveToVocabulary: "Im Vokabular speichern",
+        saveProject: "Projekt speichern",
+        exportCsv: "CSV exportieren",
+      },
+      toasts: {
+        remapped: "\"{{source}}\" erneut auf {{concept}} gemappt",
+        noMatchForCleaned: "Keine Übereinstimmung für bereinigten Begriff \"{{term}}\" gefunden",
+        remapFailed: "Erneutes Mapping fehlgeschlagen",
+        autoAccepted: "{{count}} Mappings mit hoher Konfidenz automatisch akzeptiert",
+        savedMappings: "{{count}} Mappings in source_to_concept_map gespeichert",
+        saveMappingsFailed: "Mappings konnten nicht gespeichert werden",
+        projectSaved: "Projekt gespeichert: {{name}}",
+        saveProjectFailed: "Projekt konnte nicht gespeichert werden",
+        projectLoaded: "Projekt geladen: {{name}}",
+        loadProjectFailed: "Projekt konnte nicht geladen werden",
+      },
+      errors: {
+        cleanupFailed: "Bereinigung fehlgeschlagen.",
+        mappingFailed:
+          "Mapping fehlgeschlagen. Prüfen Sie, ob der Ariadne-Dienst läuft und erreichbar ist.",
+      },
+      results: {
+        candidateCount: "{{count}} Kandidaten",
+        overridden: "(überschrieben)",
+        noMatchFound: "Keine Übereinstimmung gefunden",
+        selectOverride: "Wählen Sie einen Kandidaten, um das Mapping zu überschreiben",
+        noAdditionalCandidates: "Keine weiteren Kandidaten.",
+      },
+      labels: {
+        noValue: "-",
+        separator: "-",
+      },
+      input: {
+        termsMapped: "{{count}} Begriffe gemappt",
+        editTerms: "Begriffe bearbeiten",
+        sourceTerms: "Quellbegriffe",
+        termsPlaceholder:
+          "Quellbegriffe eingeben, einen pro Zeile...\n\nDiabetes mellitus Typ 2\nakuter Myokardinfarkt\nHypertonie\nASS 81 mg",
+        termsEntered: "{{count}} Begriffe eingegeben",
+      },
+      projects: {
+        loading: "Projekte werden geladen...",
+        loadFailed: "Projekte konnten nicht geladen werden",
+        empty: "Keine gespeicherten Projekte",
+        projectMeta: "{{count}} Begriffe -- {{date}}",
+        namePlaceholder: "Projektname...",
+      },
+      vocabularies: {
+        SNOMED: "SNOMED CT",
+        ICD10CM: "ICD-10-CM",
+        RxNorm: "RxNorm",
+        LOINC: "LOINC",
+        ICD9CM: "ICD-9-CM",
+        CPT4: "CPT-4",
+        HCPCS: "HCPCS",
+        MedDRA: "MedDRA",
+      },
+      domains: {
+        Condition: "Erkrankung",
+        Drug: "Arzneimittel",
+        Procedure: "Prozedur",
+        Measurement: "Messung",
+        Observation: "Beobachtung",
+        Device: "Medizinprodukt",
+      },
+      progress: {
+        mappingTerms: "{{count}} Begriffe werden gemappt...",
+      },
+      metrics: {
+        termsMapped: "Begriffe gemappt",
+        highConfidence: "Hohe Konfidenz",
+        needReview: "Prüfung nötig",
+        noMatch: "Keine Übereinstimmung",
+      },
+      table: {
+        sourceTerm: "Quellbegriff",
+        bestMatch: "Beste Übereinstimmung",
+        confidence: "Konfidenz",
+        matchType: "Übereinstimmungstyp",
+        vocabulary: "Vokabular",
+        actions: "Aktionen",
+      },
+      summary: {
+        mapped: "{{count}} gemappt",
+        high: "{{count}} hoch",
+        review: "{{count}} prüfen",
+        noMatch: "{{count}} ohne Treffer",
+        accepted: "{{count}} akzeptiert",
+      },
+    },
+    conceptDetail: {
+      tabs: {
+        info: "Information",
+        relationships: "Beziehungen",
+        mapsFrom: "Zugeordnet aus",
+        hierarchy: "Hierarchie",
+      },
+      empty: {
+        title: "Wählen Sie ein Konzept aus, um Details anzuzeigen",
+        subtitle: "Suchen Sie im linken Bereich nach einem Konzept und klicken Sie darauf",
+        noAncestors: "Keine Vorfahren gefunden",
+        noRelationships: "Keine Beziehungen gefunden",
+        noSourceCodes: "Keine Quellcodes sind diesem Konzept zugeordnet",
+      },
+      errors: {
+        failedLoad: "Konzept konnte nicht geladen werden",
+      },
+      toasts: {
+        conceptIdCopied: "Konzept-ID kopiert",
+      },
+      actions: {
+        copyConceptId: "Konzept-ID kopieren",
+        addToSet: "Zum Set hinzufügen",
+      },
+      values: {
+        standard: "Standardkonzept",
+        classification: "Klassifikation",
+        nonStandard: "Nichtstandard",
+        valid: "Gültig",
+      },
+      sections: {
+        basicInformation: "Basisinformationen",
+        synonyms: "Synonyme",
+        ancestors: "Vorfahren",
+        relationships: "Beziehungen",
+        mapsFrom: "Quellcodes, die diesem Konzept zugeordnet sind",
+        mapsFromDescription:
+          "Quellvokabularcodes (ICD-10, SNOMED, RxNorm usw.), die diesem Standardkonzept zugeordnet sind",
+        hierarchy: "Konzepthierarchie",
+      },
+      fields: {
+        conceptCode: "Konzeptcode",
+        domain: "Domäne",
+        vocabulary: "Vokabular",
+        conceptClass: "Konzeptklasse",
+        standardConcept: "Standardkonzept",
+        invalidReason: "Ungültigkeitsgrund",
+        validStartDate: "Gültig ab",
+        validEndDate: "Gültig bis",
+      },
+      table: {
+        id: "Kennung",
+        name: "Bezeichnung",
+        domain: "Domäne",
+        vocabulary: "Vokabular",
+        relationship: "Beziehung",
+        relatedId: "Verknüpfte ID",
+        relatedName: "Verknüpfter Name",
+        code: "Code",
+        class: "Klasse",
+      },
+      pagination: {
+        showingRange: "{{start}}-{{end}} von {{total}} werden angezeigt",
+        showingSourceCodes: "{{shown}} von {{total}} Quellcodes werden angezeigt",
+      },
+    },
+    semanticSearch: {
+      hecate: "Hecate",
+      poweredBy: "Bereitgestellt von Hecate",
+      tagline: "vektorbasierte Konzeptsuche",
+      placeholder: "Klinischen Begriff für die semantische Suche eingeben...",
+      filters: {
+        allDomains: "Alle Domänen",
+        allVocabularies: "Alle Vokabulare",
+        standard: {
+          all: "Alle",
+          standard: "S",
+          classification: "C",
+        },
+      },
+      badges: {
+        standard: "Standardkonzept",
+        classification: "Klassifikation",
+      },
+      values: {
+        inSet: "Im Set",
+        standardAbbrev: "S",
+      },
+      actions: {
+        addToSet: "Zum Set hinzufügen",
+        clearFilters: "Filter löschen",
+        retry: "Erneut versuchen",
+        tryClearingFilters: "Versuchen Sie, die Filter zu löschen",
+      },
+      errors: {
+        unavailable: "Semantische Suche ist nicht verfügbar.",
+        serviceHelp:
+          "Stellen Sie sicher, dass der Hecate-KI-Dienst läuft und ChromaDB initialisiert ist.",
+      },
+      empty: {
+        prompt: "Geben Sie einen klinischen Begriff für die semantische Suche ein",
+        help:
+          "Hecate nutzt Vektor-Embeddings, um konzeptuell ähnliche OMOP-Konzepte zu finden, auch wenn exakte Schlüsselworttreffer fehlen.",
+        noResults: "Keine semantischen Treffer für \"{{query}}\" gefunden",
+      },
+      results: {
+        matchCountOne: "{{count}} semantischer Treffer",
+        matchCountMany: "{{count}} semantische Treffer",
+        updating: "Aktualisierung...",
+      },
+    },
+    searchPanel: {
+      placeholder: "Konzepte suchen...",
+      filters: {
+        toggle: "Filter",
+        standardOnly: "Nur Standardkonzepte",
+        allDomains: "Alle Domänen",
+        allVocabularies: "Alle Vokabulare",
+        allConceptClasses: "Alle Konzeptklassen",
+        countSuffix: " ({{count}})",
+      },
+      actions: {
+        clearAllFilters: "Alle Filter löschen",
+        tryClearingFilters: "Versuchen Sie, die Filter zu löschen",
+        loading: "Wird geladen...",
+        loadMoreResults: "Weitere Ergebnisse laden",
+      },
+      empty: {
+        prompt: "OMOP-Vokabular durchsuchen",
+        help: "Geben Sie mindestens 2 Zeichen ein, um Konzepte nach Name, Code oder ID zu suchen",
+        noResults: "Keine Konzepte für \"{{query}}\" gefunden",
+      },
+      results: {
+        showingCount: "{{shown}} von {{total}} Ergebnissen werden angezeigt",
+      },
+      engine: {
+        solr: "Solr",
+        pg: "PG",
+      },
+      values: {
+        inSet: "Im Set",
+      },
+    },
+    conceptComparison: {
+      title: "Konzepte vergleichen",
+      subtitle:
+        "Nebeneinander-Vergleich von 2 bis 4 OMOP-Konzepten mit Attributen, Vorfahren und Beziehungen",
+      search: {
+        placeholder: "Konzept zum Hinzufügen suchen...",
+      },
+      sections: {
+        ancestors: "Vorfahren (2 Ebenen)",
+        relationships: "Beziehungen",
+      },
+      fields: {
+        conceptCode: "Konzeptcode",
+        domain: "Domäne",
+        vocabulary: "Vokabular",
+        conceptClass: "Konzeptklasse",
+        standard: "Standardstatus",
+        validStart: "Gültig ab",
+        validEnd: "Gültig bis",
+        invalidReason: "Ungültigkeitsgrund",
+      },
+      actions: {
+        addConcept: "Konzept hinzufügen",
+      },
+      empty: {
+        prompt: "Suchen Sie nach Konzepten zum Vergleichen",
+        help:
+          "Wählen Sie 2 bis 4 Konzepte aus, um Attribute, Vorfahren und Beziehungen nebeneinander zu vergleichen",
+      },
+      values: {
+        standard: "Standardkonzept",
+        classification: "Klassifikation",
+        nonStandard: "Nichtstandard",
+        valid: "Gültig",
+        level: "E{{level}}",
+        selected: "Ausgewählt:",
+        addOneMore: "Fügen Sie mindestens ein weiteres Konzept zum Vergleich hinzu",
+      },
+    },
+    addToConceptSet: {
+      title: "Zum Konzeptset hinzufügen",
+      create: {
+        title: "Neues Konzeptset erstellen",
+        help: "Konzept hinzufügen und im Builder öffnen",
+        nameLabel: "Name des neuen Konzeptsets",
+      },
+      actions: {
+        create: "Erstellen",
+        cancel: "Abbrechen",
+        openBuilderWithSearch: "Builder mit aktueller Suche öffnen",
+      },
+      divider: "oder zu vorhandenem hinzufügen",
+      filter: {
+        placeholder: "Konzeptsets filtern...",
+      },
+      empty: {
+        noMatching: "Keine passenden Konzeptsets",
+        noSets: "Keine Konzeptsets gefunden",
+      },
+      footer: {
+        includeDescendants: "Wird mit Nachfahren einbeziehen hinzugefügt",
+      },
+      toasts: {
+        addedToSet: "Zu \"{{setName}}\" hinzugefügt",
+        addFailed: "Konzept konnte nicht zum Set hinzugefügt werden",
+        missingSetId: "Neue Konzeptset-ID konnte nicht abgerufen werden",
+        createdAndAdded: "\"{{name}}\" erstellt und Konzept hinzugefügt",
+        createdAddFailed: "Set erstellt, aber Konzept konnte nicht hinzugefügt werden",
+        createFailed: "Konzeptset konnte nicht erstellt werden",
+      },
+    },
+    page: {
+      title: "Vokabularbrowser",
+      subtitle: "Das standardisierte OMOP-Vokabular suchen, erkunden und navigieren",
+      tabs: {
+        keyword: "Schlüsselwortsuche",
+        semantic: "Semantische Suche",
+        browse: "Hierarchie durchsuchen",
+      },
+    },
+    hierarchyBrowser: {
+      breadcrumb: {
+        allDomains: "Alle Domänen",
+      },
+      filters: {
+        allSources: "Alle Quellen",
+        itemPlaceholder: "{{count}} Elemente filtern...",
+      },
+      actions: {
+        showAllConcepts: "Alle Konzepte anzeigen",
+        showGroupings: "Gruppierungen anzeigen",
+        clearFilter: "Filter löschen",
+        viewDetailsFor: "Details zu {{conceptName}} anzeigen",
+        viewConceptDetails: "Konzeptdetails anzeigen",
+      },
+      empty: {
+        noMatchingConcepts: "Keine passenden Konzepte",
+        noConcepts: "Keine Konzepte gefunden",
+      },
+      counts: {
+        clinicalGroupings: "{{count}} klinische Gruppierungen",
+        concepts: "{{count}} Konzepte",
+        items: "{{count}} Elemente",
+        filteredItems: "{{shown}} von {{total}} Elementen",
+        namedSubCategories: "{{name}} - {{count}} Unterkategorien",
+        subCategories: "{{count}} Unterkategorien",
+        subcategories: "{{count}} Unterkategorien",
+        oneAnchor: "1 Anker",
+        persons: "{{count}} Personen",
+        records: "{{count}} Datensätze",
+        groupingCoversSubcategories:
+          "{{groupingName}} deckt {{count}} Unterkategorien ab",
+      },
+    },
+    hierarchyTree: {
+      empty: {
+        noData: "Keine Hierarchiedaten verfügbar",
+      },
+    },
+  },
   administration: {
     dashboard: {
       title: "Administration",
@@ -14096,6 +14868,392 @@ const ptApp: MessageTree = mergeMessageTrees(enApp, {
         runningCount: "{{count}} em execução",
         ofTotal: "de {{count}}",
         records: "{{count}} registros",
+      },
+    },
+  },
+  vocabulary: {
+    mappingAssistant: {
+      title: "Assistente de mapeamento de conceitos",
+      poweredBy: "Fornecido por Ariadne",
+      subtitle:
+        "Mapeie termos de origem para conceitos-padrão OMOP usando correspondência literal, vetorial e por LLM",
+      filters: {
+        selectedCount: "{{count}} selecionados",
+        clearSelection: "Limpar seleção",
+        targetVocabulary: "Vocabulário de destino:",
+        allVocabularies: "Todos os vocabulários",
+        targetDomain: "Domínio de destino:",
+        allDomains: "Todos os domínios",
+      },
+      drawer: {
+        disambiguate: "Desambiguar",
+        candidateCount: "{{count}} candidatos - selecione o mapeamento correto",
+        noCandidates: "Nenhum candidato encontrado. Tente limpar o termo abaixo.",
+        cleanRemap: "Limpar e remapear",
+        editPlaceholder: "Edite o termo e remapeie...",
+      },
+      actions: {
+        clean: "Limpar",
+        remap: "Remapear",
+        acceptMapping: "Aceitar mapeamento",
+        rejectMapping: "Rejeitar mapeamento",
+        disambiguateTitle: "Desambiguar - ver todos os candidatos",
+        uploadCsv: "Enviar CSV",
+        loadProject: "Carregar projeto",
+        mapping: "Mapeando...",
+        mapTerms: "Mapear termos",
+        clearResults: "Limpar resultados",
+        acceptAllThreshold: "Aceitar todos >= 90%",
+        saveToVocabulary: "Salvar no vocabulário",
+        saveProject: "Salvar projeto",
+        exportCsv: "Exportar CSV",
+      },
+      toasts: {
+        remapped: "\"{{source}}\" remapeado para {{concept}}",
+        noMatchForCleaned: "Nenhuma correspondência encontrada para o termo limpo \"{{term}}\"",
+        remapFailed: "Falha ao remapear",
+        autoAccepted: "{{count}} mapeamentos de alta confiança aceitos automaticamente",
+        savedMappings: "{{count}} mapeamentos salvos em source_to_concept_map",
+        saveMappingsFailed: "Falha ao salvar mapeamentos",
+        projectSaved: "Projeto salvo: {{name}}",
+        saveProjectFailed: "Falha ao salvar projeto",
+        projectLoaded: "Projeto carregado: {{name}}",
+        loadProjectFailed: "Falha ao carregar projeto",
+      },
+      errors: {
+        cleanupFailed: "Falha na limpeza.",
+        mappingFailed:
+          "Falha no mapeamento. Verifique se o serviço Ariadne está em execução e acessível.",
+      },
+      results: {
+        candidateCount: "{{count}} candidatos",
+        overridden: "(substituído)",
+        noMatchFound: "Nenhuma correspondência encontrada",
+        selectOverride: "Selecione um candidato para substituir o mapeamento",
+        noAdditionalCandidates: "Nenhum candidato adicional.",
+      },
+      labels: {
+        noValue: "-",
+        separator: "-",
+      },
+      input: {
+        termsMapped: "{{count}} termos mapeados",
+        editTerms: "Editar termos",
+        sourceTerms: "Termos de origem",
+        termsPlaceholder:
+          "Digite termos de origem, um por linha...\n\ndiabetes mellitus tipo 2\ninfarto agudo do miocárdio\nHAS\nAAS 81 mg",
+        termsEntered: "{{count}} termos inseridos",
+      },
+      projects: {
+        loading: "Carregando projetos...",
+        loadFailed: "Falha ao carregar projetos",
+        empty: "Nenhum projeto salvo",
+        projectMeta: "{{count}} termos -- {{date}}",
+        namePlaceholder: "Nome do projeto...",
+      },
+      vocabularies: {
+        SNOMED: "SNOMED CT",
+        ICD10CM: "ICD-10-CM",
+        RxNorm: "RxNorm",
+        LOINC: "LOINC",
+        ICD9CM: "ICD-9-CM",
+        CPT4: "CPT-4",
+        HCPCS: "HCPCS",
+        MedDRA: "MedDRA",
+      },
+      domains: {
+        Condition: "Condição",
+        Drug: "Medicamento",
+        Procedure: "Procedimento",
+        Measurement: "Medição",
+        Observation: "Observação",
+        Device: "Dispositivo",
+      },
+      progress: {
+        mappingTerms: "Mapeando {{count}} termos...",
+      },
+      metrics: {
+        termsMapped: "Termos mapeados",
+        highConfidence: "Alta confiança",
+        needReview: "Precisa de revisão",
+        noMatch: "Sem correspondência",
+      },
+      table: {
+        sourceTerm: "Termo de origem",
+        bestMatch: "Melhor correspondência",
+        confidence: "Confiança",
+        matchType: "Tipo de correspondência",
+        vocabulary: "Vocabulário",
+        actions: "Ações",
+      },
+      summary: {
+        mapped: "{{count}} mapeados",
+        high: "{{count}} altos",
+        review: "{{count}} para revisar",
+        noMatch: "{{count}} sem correspondência",
+        accepted: "{{count}} aceitos",
+      },
+    },
+    conceptDetail: {
+      tabs: {
+        info: "Informações",
+        relationships: "Relacionamentos",
+        mapsFrom: "Mapeado a partir de",
+        hierarchy: "Hierarquia",
+      },
+      empty: {
+        title: "Selecione um conceito para ver detalhes",
+        subtitle: "Pesquise e clique em um conceito no painel à esquerda",
+        noAncestors: "Nenhum ancestral encontrado",
+        noRelationships: "Nenhum relacionamento encontrado",
+        noSourceCodes: "Nenhum código de origem mapeia para este conceito",
+      },
+      errors: {
+        failedLoad: "Falha ao carregar conceito",
+      },
+      toasts: {
+        conceptIdCopied: "ID do conceito copiado",
+      },
+      actions: {
+        copyConceptId: "Copiar ID do conceito",
+        addToSet: "Adicionar ao conjunto",
+      },
+      values: {
+        standard: "Padrão",
+        classification: "Classificação",
+        nonStandard: "Não padrão",
+        valid: "Válido",
+      },
+      sections: {
+        basicInformation: "Informações básicas",
+        synonyms: "Sinônimos",
+        ancestors: "Ancestrais",
+        relationships: "Relacionamentos",
+        mapsFrom: "Códigos de origem mapeados para este conceito",
+        mapsFromDescription:
+          "Códigos de vocabulários de origem (ICD-10, SNOMED, RxNorm, etc.) que mapeiam para este conceito padrão",
+        hierarchy: "Hierarquia do conceito",
+      },
+      fields: {
+        conceptCode: "Código do conceito",
+        domain: "Domínio",
+        vocabulary: "Vocabulário",
+        conceptClass: "Classe do conceito",
+        standardConcept: "Conceito padrão",
+        invalidReason: "Motivo de invalidade",
+        validStartDate: "Data inicial de validade",
+        validEndDate: "Data final de validade",
+      },
+      table: {
+        id: "Identificador",
+        name: "Nome",
+        domain: "Domínio",
+        vocabulary: "Vocabulário",
+        relationship: "Relacionamento",
+        relatedId: "ID relacionado",
+        relatedName: "Nome relacionado",
+        code: "Código",
+        class: "Classe",
+      },
+      pagination: {
+        showingRange: "Exibindo {{start}}-{{end}} de {{total}}",
+        showingSourceCodes: "Exibindo {{shown}} de {{total}} códigos de origem",
+      },
+    },
+    semanticSearch: {
+      hecate: "Hecate",
+      poweredBy: "Fornecido por Hecate",
+      tagline: "descoberta de conceitos com vetores",
+      placeholder: "Digite um termo clínico para pesquisar semanticamente...",
+      filters: {
+        allDomains: "Todos os domínios",
+        allVocabularies: "Todos os vocabulários",
+        standard: {
+          all: "Todos",
+          standard: "S",
+          classification: "C",
+        },
+      },
+      badges: {
+        standard: "Padrão",
+        classification: "Classificação",
+      },
+      values: {
+        inSet: "No conjunto",
+        standardAbbrev: "S",
+      },
+      actions: {
+        addToSet: "Adicionar ao conjunto",
+        clearFilters: "Limpar filtros",
+        retry: "Tentar novamente",
+        tryClearingFilters: "Tente limpar os filtros",
+      },
+      errors: {
+        unavailable: "A pesquisa semântica está indisponível.",
+        serviceHelp:
+          "Verifique se o serviço de IA Hecate está em execução e se o ChromaDB foi inicializado.",
+      },
+      empty: {
+        prompt: "Digite um termo clínico para pesquisar semanticamente",
+        help:
+          "Hecate usa embeddings vetoriais para encontrar conceitos OMOP conceitualmente semelhantes, mesmo quando correspondências exatas por palavra-chave falham.",
+        noResults: "Nenhuma correspondência semântica encontrada para \"{{query}}\"",
+      },
+      results: {
+        matchCountOne: "{{count}} correspondência semântica",
+        matchCountMany: "{{count}} correspondências semânticas",
+        updating: "Atualizando...",
+      },
+    },
+    searchPanel: {
+      placeholder: "Pesquisar conceitos...",
+      filters: {
+        toggle: "Filtros",
+        standardOnly: "Padrão",
+        allDomains: "Todos os domínios",
+        allVocabularies: "Todos os vocabulários",
+        allConceptClasses: "Todas as classes de conceito",
+        countSuffix: " ({{count}})",
+      },
+      actions: {
+        clearAllFilters: "Limpar todos os filtros",
+        tryClearingFilters: "Tente limpar os filtros",
+        loading: "Carregando...",
+        loadMoreResults: "Carregar mais resultados",
+      },
+      empty: {
+        prompt: "Pesquisar no vocabulário OMOP",
+        help: "Digite pelo menos 2 caracteres para pesquisar conceitos por nome, código ou ID",
+        noResults: "Nenhum conceito encontrado para \"{{query}}\"",
+      },
+      results: {
+        showingCount: "Exibindo {{shown}} de {{total}} resultados",
+      },
+      engine: {
+        solr: "Solr",
+        pg: "PG",
+      },
+      values: {
+        inSet: "No conjunto",
+      },
+    },
+    conceptComparison: {
+      title: "Comparar conceitos",
+      subtitle:
+        "Comparação lado a lado de 2 a 4 conceitos OMOP com atributos, ancestrais e relacionamentos",
+      search: {
+        placeholder: "Pesquisar conceito para adicionar...",
+      },
+      sections: {
+        ancestors: "Ancestrais (2 níveis)",
+        relationships: "Relacionamentos",
+      },
+      fields: {
+        conceptCode: "Código do conceito",
+        domain: "Domínio",
+        vocabulary: "Vocabulário",
+        conceptClass: "Classe do conceito",
+        standard: "Padrão",
+        validStart: "Início da validade",
+        validEnd: "Fim da validade",
+        invalidReason: "Motivo de invalidade",
+      },
+      actions: {
+        addConcept: "Adicionar conceito",
+      },
+      empty: {
+        prompt: "Pesquise conceitos para comparar",
+        help:
+          "Selecione 2 a 4 conceitos para ver uma comparação lado a lado de seus atributos, ancestrais e relacionamentos",
+      },
+      values: {
+        standard: "Padrão",
+        classification: "Classificação",
+        nonStandard: "Não padrão",
+        valid: "Válido",
+        level: "N{{level}}",
+        selected: "Selecionados:",
+        addOneMore: "Adicione pelo menos mais um para comparar",
+      },
+    },
+    addToConceptSet: {
+      title: "Adicionar ao conjunto de conceitos",
+      create: {
+        title: "Criar novo conjunto de conceitos",
+        help: "Adicionar conceito e abrir no Builder",
+        nameLabel: "Nome do novo conjunto de conceitos",
+      },
+      actions: {
+        create: "Criar",
+        cancel: "Cancelar",
+        openBuilderWithSearch: "Abrir Builder com a pesquisa atual",
+      },
+      divider: "ou adicionar a existente",
+      filter: {
+        placeholder: "Filtrar conjuntos de conceitos...",
+      },
+      empty: {
+        noMatching: "Nenhum conjunto de conceitos correspondente",
+        noSets: "Nenhum conjunto de conceitos encontrado",
+      },
+      footer: {
+        includeDescendants: "Adiciona com Incluir descendentes",
+      },
+      toasts: {
+        addedToSet: "Adicionado a \"{{setName}}\"",
+        addFailed: "Falha ao adicionar conceito ao conjunto",
+        missingSetId: "Falha ao recuperar o ID do novo conjunto de conceitos",
+        createdAndAdded: "\"{{name}}\" criado e conceito adicionado",
+        createdAddFailed: "Conjunto criado, mas falha ao adicionar conceito",
+        createFailed: "Falha ao criar conjunto de conceitos",
+      },
+    },
+    page: {
+      title: "Navegador de vocabulário",
+      subtitle: "Pesquise, explore e navegue pelo vocabulário padronizado OMOP",
+      tabs: {
+        keyword: "Pesquisa por palavra-chave",
+        semantic: "Pesquisa semântica",
+        browse: "Navegar pela hierarquia",
+      },
+    },
+    hierarchyBrowser: {
+      breadcrumb: {
+        allDomains: "Todos os domínios",
+      },
+      filters: {
+        allSources: "Todas as fontes",
+        itemPlaceholder: "Filtrar {{count}} itens...",
+      },
+      actions: {
+        showAllConcepts: "Mostrar todos os conceitos",
+        showGroupings: "Mostrar agrupamentos",
+        clearFilter: "Limpar filtro",
+        viewDetailsFor: "Ver detalhes de {{conceptName}}",
+        viewConceptDetails: "Ver detalhes do conceito",
+      },
+      empty: {
+        noMatchingConcepts: "Nenhum conceito correspondente",
+        noConcepts: "Nenhum conceito encontrado",
+      },
+      counts: {
+        clinicalGroupings: "{{count}} agrupamentos clínicos",
+        concepts: "{{count}} conceitos",
+        items: "{{count}} itens",
+        filteredItems: "{{shown}} de {{total}} itens",
+        namedSubCategories: "{{name}} - {{count}} subcategorias",
+        subCategories: "{{count}} subcategorias",
+        subcategories: "{{count}} subcategorias",
+        oneAnchor: "1 âncora",
+        persons: "{{count}} pessoas",
+        records: "{{count}} registros",
+        groupingCoversSubcategories:
+          "{{groupingName}} cobre {{count}} subcategorias",
+      },
+    },
+    hierarchyTree: {
+      empty: {
+        noData: "Nenhum dado de hierarquia disponível",
       },
     },
   },
