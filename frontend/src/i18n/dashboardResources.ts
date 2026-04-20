@@ -1062,6 +1062,117 @@ const zhDashboard: MessageTree = mergeMessageTrees(enDashboard, {
   },
 });
 
+const hiDashboard: MessageTree = mergeMessageTrees(enDashboard, {
+  "page": {
+    "title": "डैशबोर्ड",
+    "subtitle": "एकीकृत परिणाम अनुसंधान मंच"
+  },
+  "metrics": {
+    "cdmSources": "CDM स्रोत",
+    "runningJobs": "चल रही नौकरियाँ",
+    "conceptSets": "संकल्पना सेट",
+    "activeCohorts": "सक्रिय समूह",
+    "descriptions": {
+      "cdmSources": "{{postgresqlCount}} PostgreSQL · {{personsText}}",
+      "persons": "{{count}} व्यक्ति",
+      "noCdmLoaded": "कोई CDM लोड नहीं हुआ",
+      "runningJobs": "{{completedCount}} हाल ही में पूरा हुआ · {{failedCount}} विफल रहा",
+      "conceptSets": "{{populatedTables}}/{{totalTables}} CDM तालिकाएँ भरी गईं · {{completeness}}% पूर्ण",
+      "activeCohorts": "{{generatedCount}} उत्पन्न · {{conceptSetCount}} अवधारणा सेट"
+    }
+  },
+  "error": {
+    "title": "डैशबोर्ड डेटा लोड करने में असमर्थ",
+    "message": "API अनुपलब्ध हो सकता है। यदि उपलब्ध हो तो कैश्ड डेटा प्रदर्शित करना।"
+  },
+  "cdm": {
+    "title": "CDM लक्षण वर्णन",
+    "subtitle": "चयनित स्रोत के लिए नैदानिक ​​डेटा प्रोफ़ाइल",
+    "viewFull": "पूरा देखें",
+    "noSource": "लक्षण वर्णन देखने के लिए डेटा स्रोत का चयन करें",
+    "noDomainData": "कोई डोमेन डेटा उपलब्ध नहीं है",
+    "metrics": {
+      "persons": "व्यक्तियों",
+      "medianObservationDuration": "माध्य अवलोकन अवधि",
+      "medianObservationDurationValue": "{{count}} दिन",
+      "totalEvents": "कुल घटनाएँ",
+      "dataCompleteness": "डेटा पूर्णता",
+      "tableCount": "{{populatedTables}}/{{totalTables}} तालिकाएँ"
+    },
+    "demographics": "जनसांख्यिकी",
+    "ageDistribution": "आयु संवितरण",
+    "noAgeDistributionData": "कोई आयु वितरण डेटा नहीं",
+    "age": "आयु",
+    "gender": {
+      "male": "पुरुष",
+      "female": "महिला"
+    },
+    "domainCounts": "CDM डोमेन गणना",
+    "domains": {
+      "conditionOccurrence": "स्थितियाँ",
+      "drugExposure": "नशीली दवाओं का एक्सपोजर",
+      "procedureOccurrence": "प्रक्रियाओं",
+      "measurement": "मापन",
+      "observation": "टिप्पणियों",
+      "visitOccurrence": "दौरा",
+      "drugEra": "औषध युग",
+      "conditionEra": "शर्त युग",
+      "deviceExposure": "उपकरण",
+      "death": "मौतें"
+    }
+  },
+  "panels": {
+    "recentCohortActivity": "हाल की समूह गतिविधि",
+    "quickActions": "त्वरित कार्रवाई",
+    "sourceHealth": "स्रोत स्वास्थ्य",
+    "activeJobs": "सक्रिय नौकरियाँ",
+    "viewAll": "सभी को देखें"
+  },
+  "tables": {
+    "cohort": "समूह",
+    "subjects": "विषयों",
+    "status": "स्थिति",
+    "source": "स्रोत",
+    "dialect": "बोली",
+    "job": "काम",
+    "type": "प्रकार"
+  },
+  "empty": {
+    "noCohortsTitle": "अभी तक कोई दल नहीं",
+    "noCohortsMessage": "अनुसंधान शुरू करने के लिए अपनी पहली समूह परिभाषा बनाएं।",
+    "newCohort": "नया समूह",
+    "noDataSourcesTitle": "कोई डेटा स्रोत नहीं",
+    "noDataSourcesMessage": "आरंभ करने के लिए CDM डेटाबेस कनेक्ट करें।",
+    "addSource": "स्रोत जोड़ें",
+    "noActiveJobsTitle": "कोई सक्रिय नौकरियाँ नहीं",
+    "noActiveJobsMessage": "जब विश्लेषण चल रहा होगा तो नौकरियाँ यहाँ दिखाई देंगी।"
+  },
+  "quickActions": {
+    "connectDataSource": "डेटा स्रोत कनेक्ट करें",
+    "createCohortDefinition": "समूह परिभाषा बनाएँ",
+    "buildConceptSet": "कॉन्सेप्ट सेट बनाएं",
+    "exploreDataQuality": "डेटा गुणवत्ता का अन्वेषण करें"
+  },
+  "statuses": {
+    "healthy": "स्वस्थ",
+    "cohort": {
+      "active": "सक्रिय",
+      "error": "गलती",
+      "draft": "मसौदा",
+      "pending": "लंबित"
+    },
+    "job": {
+      "running": "दौड़ना",
+      "completed": "पुरा होना",
+      "failed": "असफल",
+      "success": "सफलता",
+      "fail": "असफल",
+      "queued": "कतारबद्ध"
+    }
+  }
+});
+
+
 export const dashboardResources: Record<string, MessageTree> = {
   "en-US": enDashboard,
   "es-ES": esDashboard,
@@ -1072,4 +1183,5 @@ export const dashboardResources: Record<string, MessageTree> = {
   "ja-JP": jaDashboard,
   "zh-Hans": zhDashboard,
   "ko-KR": koDashboard,
+  "hi-IN": hiDashboard,
 };

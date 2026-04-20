@@ -134,7 +134,7 @@ return [
             'fallbacks' => ['hi', 'en-US', 'en'],
             'release_tier' => 'wave-1-candidate',
             'enabled' => true,
-            'selectable' => false,
+            'selectable' => true,
         ],
         'ar' => [
             'label' => 'Arabic',

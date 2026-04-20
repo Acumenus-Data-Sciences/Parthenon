@@ -145,14 +145,14 @@ it('updates user locale with a completed Wave 1 app language', function () {
     $user->assignRole('viewer');
 
     $this->actingAs($user)
-        ->putJson('/api/v1/user/locale', ['locale' => 'zh-Hans'])
+        ->putJson('/api/v1/user/locale', ['locale' => 'hi-IN'])
         ->assertOk()
-        ->assertJsonPath('locale', 'zh-Hans')
+        ->assertJsonPath('locale', 'hi-IN')
         ->assertJsonPath('message_key', 'profile.locale_updated');
 
     $this->assertDatabaseHas('users', [
         'id' => $user->id,
-        'locale' => 'zh-Hans',
+        'locale' => 'hi-IN',
     ]);
 });
 
@@ -166,12 +166,12 @@ it('rejects unsupported locales', function () {
         ->assertJsonValidationErrors(['locale']);
 });
 
-it('rejects supported but uncertified preview locales for persisted user preference', function () {
+it('rejects supported QA canary locales for persisted user preference', function () {
     $user = User::factory()->create(['locale' => 'en-US']);
     $user->assignRole('viewer');
 
     $this->actingAs($user)
-        ->putJson('/api/v1/user/locale', ['locale' => 'hi-IN'])
+        ->putJson('/api/v1/user/locale', ['locale' => 'ar'])
         ->assertStatus(422)
         ->assertJsonValidationErrors(['locale']);
 

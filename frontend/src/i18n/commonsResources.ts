@@ -4989,6 +4989,543 @@ const zhCommons: MessageTree = mergeMessageTrees(enCommons, {
   },
 });
 
+const hiCommons: MessageTree = mergeMessageTrees(enCommons, {
+  "page": {
+    "title": "लोक",
+    "loading": "लोड हो रहा है...",
+    "whatsNew": "नया क्या है",
+    "announcements": "घोषणाएं",
+    "knowledgeBase": "ज्ञानधार"
+  },
+  "channel": {
+    "label": "कॉमन्स चैनल",
+    "fallbackDescription": "विचारों पर चर्चा करें, फ़ाइलें साझा करें और बाकी कॉमन्स के साथ सहयोग करें।",
+    "members": "सदस्यों",
+    "active": "सक्रिय"
+  },
+  "call": {
+    "start": "कॉल प्रारंभ करें",
+    "starting": "शुरू हो रहा है...",
+    "join": "कॉल में शामिल हों",
+    "ending": "समाप्त...",
+    "end": "अंत",
+    "startFailed": "LiveKit कॉल प्रारंभ करने में असमर्थ",
+    "endFailed": "LiveKit कॉल समाप्त करने में असमर्थ",
+    "banner": {
+      "inProgress": "लाइव {{callType}} कॉल जारी है",
+      "startedBy": "{{name}} द्वारा प्रारंभ किया गया",
+      "fallbackStarter": "एक चैनल सदस्य"
+    },
+    "modal": {
+      "channelCall": "चैनल कॉल",
+      "channelTitle": "#{{slug}} कॉल करें",
+      "allowDevices": "{{devices}} पहुंच की अनुमति दें",
+      "devicesVideo": "कैमरा और माइक्रोफोन",
+      "devicesAudio": "माइक्रोफ़ोन",
+      "permissionMessage": "Parthenon को इस LiveKit कॉल में शामिल होने से पहले ब्राउज़र की अनुमति की आवश्यकता है।",
+      "permissionDenied": "microphone/camera तक ब्राउज़र पहुंच अस्वीकृत कर दी गई थी।",
+      "requestAccess": "पहुंच का अनुरोध किया जा रहा है...",
+      "enableDevices": "{{devices}} सक्षम करें",
+      "enableDevicesVideo": "कैमरा और माइक्रोफोन",
+      "enableDevicesAudio": "माइक्रोफ़ोन",
+      "joinFailed": "LiveKit कॉल में शामिल होने में असमर्थ",
+      "joining": "कॉल में शामिल होना...",
+      "preparing": "कमरा तैयार हो रहा है...",
+      "setupMessage": "LiveKit सत्र सेटअप में केवल एक क्षण लगना चाहिए।"
+    }
+  },
+  "sidebar": {
+    "searchPlaceholder": "चैनल खोजें...",
+    "channels": "चैनल",
+    "createChannel": "चैनल बनाएं",
+    "aiAssistant": "AI सहायक",
+    "studyChannels": "अध्ययन चैनल",
+    "directMessages": "सीधे संदेश",
+    "newMessage": "नया सन्देश",
+    "emptyDirectMessages": "+ बटन या ऑनलाइन रोस्टर से बातचीत शुरू करें",
+    "unknownUser": "अज्ञात"
+  },
+  "presence": {
+    "title": "कॉमन्स में अन्य - {{count}}",
+    "you": "आप",
+    "chooseAnotherPerson": "सीधा संदेश प्रारंभ करने के लिए किसी अन्य व्यक्ति को चुनें",
+    "directMessageFailed": "सीधा संदेश प्रारंभ करने में विफल",
+    "messageUser": "संदेश {{name}}",
+    "presenceUnavailable": "उपस्थिति अनुपलब्ध",
+    "viewingChannel": "#{{channel}} देखना",
+    "idleInChannel": "#{{channel}} में निष्क्रिय",
+    "onlineInCommons": "कॉमन्स में ऑनलाइन",
+    "inCommons": "कॉमन्स में",
+    "idleInCommons": "कॉमन्स में निष्क्रिय",
+    "idle": "निठल्ला",
+    "groupedSessions": "{{count}} इस खाते पर सक्रिय सत्रों को एक व्यक्ति के रूप में समूहीकृत किया गया है।",
+    "groupedDevices": "एक ही खाते पर एकाधिक डिवाइसों को उपस्थिति के लिए एक व्यक्ति के रूप में समूहीकृत किया जाता है।",
+    "nobodyActive": "अभी कॉमन्स में कोई अन्य उपयोगकर्ता सक्रिय नहीं है।"
+  },
+  "rightPanel": {
+    "title": "चैनल पैनल",
+    "tabs": {
+      "activity": "गतिविधि",
+      "pinned": "पिन की गई",
+      "search": "खोज",
+      "reviews": "समीक्षा",
+      "members": "सदस्यों",
+      "settings": "सेटिंग्स"
+    },
+    "activity": {
+      "loading": "लोड हो रहा है...",
+      "emptyTitle": "अभी तक कोई गतिविधि नहीं",
+      "emptyMessage": "चैनल के कार्यक्रम यहां दिखाई देंगे",
+      "fallbackUser": "कोई",
+      "callTypes": {
+        "audio": "ऑडियो",
+        "video": "वीडियो"
+      },
+      "events": {
+        "callStarted": {
+          "title": "{{user}} ने {{callType}} कॉल प्रारंभ की",
+          "description": "लाइव कॉल अब #{{channel}} में सक्रिय है"
+        },
+        "callEnded": {
+          "title": "{{user}} ने कॉल समाप्त कर दी",
+          "description": "लाइव कॉल समाप्त हो गई है"
+        },
+        "channelCreated": {
+          "title": "चैनल बनाया गया"
+        },
+        "memberJoined": {
+          "title": "{{user}} शामिल हुए"
+        },
+        "messagePinned": {
+          "title": "संदेश पिन किया गया"
+        },
+        "reviewCreated": {
+          "title": "समीक्षा का अनुरोध किया गया"
+        },
+        "reviewResolved": {
+          "title": "समीक्षा हल हो गई"
+        },
+        "fileShared": {
+          "title": "फ़ाइल साझा की गई"
+        }
+      }
+    },
+    "pins": {
+      "loading": "पिन लोड हो रहे हैं...",
+      "emptyTitle": "कोई पिन किया हुआ संदेश नहीं",
+      "emptyMessage": "क्रिया मेनू से महत्वपूर्ण संदेशों को पिन करें",
+      "pinnedDate": "पिन किया गया {{date}}",
+      "unpin": "अनपिन"
+    },
+    "searchPanel": {
+      "placeholder": "संदेश खोजें...",
+      "emptyTitle": "संदेश खोजें",
+      "emptyMessage": "खोजने के लिए कम से कम 2 अक्षर टाइप करें",
+      "searching": "खोज रहे हैं...",
+      "noResults": "\"{{query}}\" के लिए कोई संदेश नहीं मिला",
+      "inChannel": "#{{channel}} में"
+    },
+    "membersPanel": {
+      "empty": "कोई सदस्य नहीं",
+      "count_one": "{{count}} सदस्य",
+      "count_other": "{{count}} सदस्य",
+      "away": "दूर",
+      "viewingChannel": "#{{channel}} देखना",
+      "idleInChannel": "#{{channel}} में निष्क्रिय",
+      "inCommonsNow": "अब कॉमन्स में",
+      "idle": "निठल्ला",
+      "messageUser": "संदेश {{name}}",
+      "directMessageFailed": "सीधा संदेश प्रारंभ करने में विफल",
+      "roles": {
+        "owner": "मालिक",
+        "admin": "व्यवस्थापक",
+        "member": "सदस्य"
+      }
+    },
+    "reviews": {
+      "loading": "लोड हो रहा है...",
+      "emptyTitle": "अभी तक कोई समीक्षा अनुरोध नहीं",
+      "emptyMessage": "समीक्षा का अनुरोध करने के लिए संदेश मेनू का उपयोग करें",
+      "pending": "लंबित ({{count}})",
+      "resolved": "समाधान किया गया ({{count}})",
+      "by": "{{name}} द्वारा",
+      "unknown": "अज्ञात",
+      "status": {
+        "pending": "लंबित",
+        "approved": "अनुमत",
+        "changesRequested": "परिवर्तन का अनुरोध किया गया"
+      },
+      "approve": "मंज़ूरी देना",
+      "requestChanges": "परिवर्तन का अनुरोध करें",
+      "changePlaceholder": "क्या बदलने की जरूरत है?",
+      "submit": "जमा करना",
+      "cancel": "रद्द करना"
+    },
+    "settingsPanel": {
+      "notifications": "सूचनाएं",
+      "preferences": {
+        "all": "सभी संदेश",
+        "mentions": "केवल उल्लेख है",
+        "none": "कुछ नहीं"
+      },
+      "active": "सक्रिय",
+      "channelSettings": "चैनल सेटिंग्स",
+      "name": "नाम",
+      "description": "विवरण",
+      "saving": "सहेजा जा रहा है...",
+      "save": "बचाना",
+      "saved": "सहेजा गया",
+      "type": "प्रकार",
+      "visibility": "दृश्यता",
+      "channelInfo": "चैनल की जानकारी",
+      "noDescription": "कोई विवरण नहीं",
+      "types": {
+        "topic": "विषय",
+        "study": "अध्ययन",
+        "custom": "रिवाज़",
+        "dm": "सीधा संदेश"
+      },
+      "visibilityValues": {
+        "public": "जनता",
+        "private": "निजी"
+      }
+    }
+  },
+  "abby": {
+    "name": "Abby",
+    "aiAssistant": "AI सहायक",
+    "aiAssistantShort": "AI",
+    "institutionalMemory": "संस्थागत स्मृति",
+    "tagline": "AI अनुसंधान साथी - संस्थागत स्मृति",
+    "modelLabel": "MedGemma 1.5 - 4बी",
+    "online": "ऑनलाइन",
+    "typing": "टाइपिंग...",
+    "researcherFallback": "शोधकर्ता",
+    "unknownUser": "अज्ञात",
+    "history": "इतिहास",
+    "newChat": "नई चैट",
+    "noPastConversations": "कोई पिछली बातचीत नहीं",
+    "conversationFallback": "बातचीत - {{date}}",
+    "messageCount_one": "{{count}} संदेश",
+    "messageCount_other": "{{count}} संदेश",
+    "welcome": {
+      "title": "नमस्ते! मैं Abby हूं, आपका शोध साथी।",
+      "tagline": "AI सहायक - संस्थागत स्मृति",
+      "body": "मेरे पास इस नेटवर्क की संस्थागत मेमोरी तक पहुंच है: पिछली चर्चाएं, समूह डिजाइन, अध्ययन परिणाम, समीक्षा निर्णय और विकी लेख। अपने शोध के बारे में मुझसे कुछ भी पूछें, और इस टीम ने जो सीखा है, मैं उससे सीखूंगा।",
+      "prompts": {
+        "cohortPatterns": "मधुमेह अध्ययन के लिए कौन से समूह पैटर्न ने काम किया है?",
+        "reviewDecisions": "हाल के समीक्षा निर्णयों का सारांश प्रस्तुत करें",
+        "conceptSets": "दिल की विफलता के लिए कौन से अवधारणा सेट मौजूद हैं?",
+        "studyDesign": "एक नया अवलोकन अध्ययन डिज़ाइन करने में मेरी सहायता करें"
+      }
+    },
+    "askTitle": "पूछें Abby",
+    "conversationHistory": "बातचीत का इतिहास",
+    "researchProfile": "मेरी शोध प्रोफ़ाइल",
+    "analyzingData": "डेटा का विश्लेषण किया जा रहा है...",
+    "errorTryAgain": "कुछ गड़बड़ हुई है। कृपया दोबारा प्रयास करें।",
+    "dataQuestionError": "आपके डेटा प्रश्न का विश्लेषण करते समय एक त्रुटि उत्पन्न हुई।",
+    "askPlaceholder": "अपने शोध नेटवर्क के बारे में Abby से कुछ भी पूछें...",
+    "askButton": "पूछना",
+    "avatarAlt": "Abby",
+    "avatarOnline": "Abby ऑनलाइन है",
+    "mentionError": "Abby आपके प्रश्न पर कार्रवाई नहीं कर सका: {{message}}",
+    "tryAgain": "पुनः प्रयास करें",
+    "feedback": {
+      "helpful": "मददगार",
+      "notHelpful": "मददगार नहीं",
+      "thankYou": "आपकी प्रतिक्रिया के लिए आपका धन्यवाद",
+      "improve": "क्या सुधार किया जा सकता है?",
+      "notePlaceholder": "वैकल्पिक: एक नोट जोड़ें...",
+      "submit": "जमा करना",
+      "categories": {
+        "inaccurateRecall": "ग़लत स्मरण",
+        "wrongSource": "ग़लत स्रोत उद्धृत किया गया",
+        "missingContext": "अनुपलब्ध संदर्भ",
+        "tooVerbose": "बहुत वाचाल",
+        "hallucination": "कुछ बनाया",
+        "other": "अन्य"
+      }
+    },
+    "sourceAttribution": {
+      "match": "मिलान {{pct}}%",
+      "openReference": "संदर्भ खोलें",
+      "sourceCount_one": "{{count}} स्रोत",
+      "sourceCount_other": "{{count}} स्रोत",
+      "collections": {
+        "docs": "Parthenon दस्तावेज़ीकरण",
+        "conv": "पिछली बातचीत",
+        "faq": "FAQ",
+        "clinical": "नैदानिक ​​संदर्भ",
+        "ohdsi": "OHDSI अनुसंधान साहित्य",
+        "textbook": "चिकित्सा पाठ्यपुस्तक संदर्भ",
+        "wiki": "ज्ञानधार",
+        "commonsMessages": "बहस",
+        "reviewDecisions": "निर्णय की समीक्षा करें",
+        "wikiArticles": "विकि",
+        "cohortDefinitions": "समूह",
+        "conceptSets": "संकल्पना सेट",
+        "studyDesigns": "अध्ययन",
+        "analysisResults": "विश्लेषण",
+        "announcements": "घोषणा",
+        "objectDiscussions": "बहस"
+      }
+    },
+    "refTypes": {
+      "cohortDefinition": "समूह",
+      "conceptSet": "संकल्पना सेट",
+      "study": "अध्ययन",
+      "analysisResult": "विश्लेषण",
+      "dataSource": "डेटा स्रोत",
+      "dqReport": "DQ रिपोर्ट"
+    },
+    "typingIndicator": {
+      "thinking": "Abby सोच रहा है...",
+      "replying": "Abby उत्तर दे रहा है...",
+      "error": "कुछ गलत हुआ: {{message}}",
+      "unknownError": "अज्ञात त्रुटि"
+    }
+  },
+  "creation": {
+    "channel": {
+      "title": "चैनल बनाएं",
+      "cancel": "रद्द करना",
+      "creating": "बनाया जा रहा है...",
+      "create": "चैनल बनाएं",
+      "failed": "चैनल बनाने में विफल",
+      "name": "चैनल का नाम",
+      "namePlaceholder": "e.g. आधार सामग्री की गुणवत्ता",
+      "slug": "स्लग:",
+      "description": "विवरण",
+      "optional": "(वैकल्पिक)",
+      "descriptionPlaceholder": "यह चैनल किस बारे में है?",
+      "type": "प्रकार",
+      "visibility": "दृश्यता",
+      "types": {
+        "topic": "विषय",
+        "custom": "रिवाज़"
+      },
+      "visibilityValues": {
+        "public": "जनता",
+        "private": "निजी"
+      }
+    },
+    "directMessage": {
+      "title": "नया सन्देश",
+      "cancel": "रद्द करना",
+      "starting": "शुरू हो रहा है...",
+      "message": "संदेश",
+      "failed": "सीधा संदेश प्रारंभ करने में विफल",
+      "teammate": "एक साथी खोजें",
+      "searchPlaceholder": "नाम या ईमेल से खोजें",
+      "minChars": "उपयोगकर्ताओं को खोजने के लिए कम से कम 2 अक्षर टाइप करें।",
+      "searching": "खोज रहे हैं...",
+      "noUsers": "कोई उपयोगकर्ता नहीं मिला.",
+      "startingWith": "{{name}} के साथ बातचीत शुरू करना।"
+    }
+  },
+  "chat": {
+    "composer": {
+      "messagePrefix": "संदेश",
+      "messageSuffix": "और संरचना के लिए मार्कडाउन का उपयोग करें",
+      "enterToSend": "भेजने के लिए दर्ज करें",
+      "placeholder": "एक सन्देश लिखिए...",
+      "send": "भेजना",
+      "toolbar": {
+        "bold": "बोल्ड",
+        "italic": "तिरछा",
+        "code": "कोड",
+        "referenceObject": "संदर्भ वस्तु",
+        "attachFile": "फ़ाइल जोड़ें"
+      },
+      "fallbackAttachment": "(फ़ाइल अनुलग्नक)"
+    },
+    "actions": {
+      "react": "प्रतिक्रिया",
+      "reply": "जवाब",
+      "pin": "नत्थी करना",
+      "requestReview": "समीक्षा का अनुरोध करें",
+      "edit": "संपादन करना",
+      "delete": "मिटाना"
+    },
+    "emoji": {
+      "thumbsup": "पसंद",
+      "heart": "प्यार",
+      "laugh": "हाहा",
+      "surprised": "बहुत खूब",
+      "celebrate": "जश्न मनाना",
+      "eyes": "देखना",
+      "addReaction": "प्रतिक्रिया जोड़ें"
+    },
+    "referencePicker": {
+      "title": "किसी वस्तु का संदर्भ लें",
+      "placeholder": "समूह, अवधारणा सेट, अध्ययन खोजें...",
+      "minChars": "कम से कम 2 अक्षर टाइप करें",
+      "searching": "खोज रहे हैं...",
+      "noResults": "कोई परिणाम नहीं"
+    },
+    "objectReference": {
+      "cohortDefinition": "समूह",
+      "conceptSet": "संकल्पना सेट",
+      "study": "अध्ययन",
+      "source": "डेटा स्रोत"
+    },
+    "messages": {
+      "edited": "(संपादित)",
+      "deleted": "[संदेश हटा दिया गया]",
+      "reviewRequested": "समीक्षा का अनुरोध किया गया",
+      "viewThread": "थ्रेड देखें",
+      "replyCount_one": "{{count}} उत्तर",
+      "replyCount_other": "{{count}} उत्तर",
+      "newMessages": "नए संदेश",
+      "loading": "संदेश लोड हो रहे हैं...",
+      "emptyTitle": "अभी तक कोई संदेश नहीं",
+      "emptyMessage": "इस चैनल में बातचीत शुरू करने वाले पहले व्यक्ति बनें।",
+      "today": "आज",
+      "yesterday": "कल",
+      "someoneTyping": "कोई टाइप कर रहा है"
+    },
+    "thread": {
+      "title": "धागा",
+      "loading": "लोड हो रहा है...",
+      "placeholder": "जवाब..."
+    },
+    "deleteConfirm": {
+      "title": "संदेश को हटाएं",
+      "cancel": "रद्द करना",
+      "deleting": "हटाया जा रहा है...",
+      "delete": "मिटाना",
+      "body": "यह संदेश वार्तालाप से हटा दिया जाएगा. इस एक्शन को वापस नहीं किया जा सकता।"
+    },
+    "edit": {
+      "cancel": "रद्द करना",
+      "save": "बचाना",
+      "helper": "रद्द करने के लिए एस्केप - सहेजने के लिए दर्ज करें"
+    },
+    "toasts": {
+      "directMessage": "सीधा संदेश",
+      "sentFile": "एक फ़ाइल भेजी",
+      "newMessage": "{{channel}} में {{user}} से नया संदेश: {{preview}}",
+      "view": "देखना"
+    }
+  },
+  "notifications": {
+    "title": "सूचनाएं",
+    "markAllRead": "सभी को पढ़ा दिखाएं",
+    "empty": "अभी तक कोई सूचना नहीं",
+    "labels": {
+      "mention": "आपका उल्लेख किया",
+      "dm": "आपको एक संदेश भेजा",
+      "threadReply": "आपके संदेश का उत्तर दिया",
+      "reviewAssigned": "आपकी समीक्षा का अनुरोध किया",
+      "reviewResolved": "एक समीक्षा का समाधान किया",
+      "fallback": "अधिसूचना"
+    },
+    "view": "देखना"
+  },
+  "wiki": {
+    "title": "ज्ञानधार",
+    "paperCount_one": "{{count}} पेपर",
+    "paperCount_other": "{{count}} कागजात",
+    "ingest": "निगलना",
+    "activityLog": "गतिविधि लॉग",
+    "emptyTitle": "ज्ञानधार",
+    "emptyMessage": "शोध पत्र, नैदानिक ​​​​दिशानिर्देश, या कोई दस्तावेज़ अपलोड करें। AI मुख्य जानकारी निकालेगा और उसे खोजने योग्य बनाएगा।",
+    "addFirstPaper": "अपना पहला पेपर जोड़ें",
+    "searchPlaceholder": "कागजात खोजें...",
+    "results": "परिणाम",
+    "papers": "पत्रों",
+    "ingestModal": {
+      "title": "निगलना स्रोत",
+      "intro": "एक पेपर अपलोड करें या महत्वपूर्ण टेक्स्ट को {{workspace}} में पेस्ट करें",
+      "description": "Abby स्रोत को संरचित विकि पृष्ठों में पार्स करेगा, ज्ञान को SapBERT के साथ एम्बेड करेगा, और इसे नॉलेज बेस और कॉमन्स Abby में चैट के लिए तैयार करेगा।",
+      "titlePlaceholder": "वैकल्पिक शीर्षक ओवरराइड",
+      "uploadPaper": "पेपर अपलोड करें",
+      "pasteText": "पाठ चिपकाएँ",
+      "textPlaceholder": "स्रोत पाठ या मार्कडाउन चिपकाएँ...",
+      "attachFile": "एक फ़ाइल संलग्न करें (.md,.txt,.pdf)",
+      "help": "प्रति सेवन एक स्रोत का उपयोग करें। पीडीएफ को पाठ निकाला जाता है, विकी पृष्ठों में संक्षेपित किया जाता है, और अर्थ पुनर्प्राप्ति के लिए SapBERT के साथ एम्बेड किया जाता है।",
+      "cancel": "रद्द करना",
+      "ingesting": "निगलना...",
+      "submit": "निगलना"
+    },
+    "chat": {
+      "scopedTo": "इसका दायरा: {{title}}",
+      "askKnowledge": "अर्जित ज्ञान के बारे में प्रश्न पूछें",
+      "tryAsking": "पूछने का प्रयास करें:",
+      "prompts": {
+        "omopEtl": "OMOP CDM के लिए ETL के मुख्य दृष्टिकोण क्या हैं?",
+        "cancerRwd": "कैंसर अनुसंधान के लिए वास्तविक दुनिया के डेटा का उपयोग कैसे किया जाता है?",
+        "ohdsiDataQuality": "OHDSI में डेटा गुणवत्ता मूल्यांकन के लिए कौन से उपकरण मौजूद हैं?",
+        "treatmentPathways": "पूरे नेटवर्क में उपचार मार्गों के निष्कर्षों का सारांश प्रस्तुत करें"
+      },
+      "generating": "प्रतिक्रिया उत्पन्न हो रही है...",
+      "placeholder": "विकी से पूछें...",
+      "askAboutPlaceholder": "\"{{title}}\" के बारे में पूछें...",
+      "knowledgePlaceholder": "ज्ञान आधार से पूछें...",
+      "shortcut": "{{count}}/2000 - भेजने के लिए Ctrl+Enter",
+      "searching": "खोज रहे हैं...",
+      "ask": "पूछना",
+      "scopedHelp": "Abby का दायरा इस पेपर और इसके संबंधित विकि पृष्ठों तक है।",
+      "expand": "चैट का विस्तार करें",
+      "ingestSuccess": "मैंने **{{title}}** को नॉलेज बेस में शामिल किया। मुझसे इसे सारांशित करने, अन्य पेपरों से इसकी तुलना करने, या तरीकों और निष्कर्षों के बारे में जानने के लिए कहें।",
+      "ingestToast": "अंतर्ग्रहण \"{{title}}\"",
+      "ingestFailed": "निगलना विफल रहा",
+      "processFailed": "क्षमा करें, मैं उस प्रश्न पर कार्रवाई नहीं कर सका।"
+    },
+    "pageView": {
+      "selectPaper": "देखने के लिए एक पेपर चुनें",
+      "lastUpdated": "अंतिम अद्यतन {{date}}",
+      "viewPdf": "देखेंPDF"
+    },
+    "pdf": {
+      "failed": "PDF लोड करने में विफल।",
+      "download": "डाउनलोड करना",
+      "previewUnavailable": "PDF पूर्वावलोकन इस ब्राउज़र में उपलब्ध नहीं है।",
+      "downloadPdf": "डाउनलोड करें PDF",
+      "loading": "लोड हो रहा है PDF..."
+    },
+    "activity": {
+      "title": "गतिविधि",
+      "empty": "अभी तक कोई गतिविधि नहीं."
+    }
+  },
+  "announcements": {
+    "title": "घोषणाएं",
+    "allCategories": "सभी श्रेणियां",
+    "new": "नया",
+    "loading": "लोड हो रहा है...",
+    "emptyTitle": "अभी तक कोई घोषणा नहीं",
+    "emptyMessage": "अपडेट, अध्ययन भर्ती सूचनाएं और मील के पत्थर पोस्ट करें",
+    "bookmark": "बुकमार्क",
+    "removeBookmark": "बुकमार्क हटाएँ",
+    "delete": "मिटाना",
+    "expires": "समाप्त हो रहा है {{date}}",
+    "modal": {
+      "title": "नई घोषणा",
+      "cancel": "रद्द करना",
+      "posting": "पोस्ट किया जा रहा है...",
+      "post": "घोषणा पोस्ट करें"
+    },
+    "form": {
+      "title": "शीर्षक",
+      "titlePlaceholder": "घोषणा शीर्षक",
+      "body": "शरीर",
+      "bodyPlaceholder": "अपनी घोषणा लिखें...",
+      "category": "वर्ग",
+      "pinToTop": "शीर्ष पर पिन करें"
+    },
+    "categories": {
+      "general": "सामान्य",
+      "studyRecruitment": "अध्ययन भर्ती",
+      "dataUpdate": "डेटा अद्यतन",
+      "milestone": "मील का पत्थर",
+      "policy": "नीति"
+    }
+  }
+});
+
+
 export const commonsResources: Record<string, MessageTree> = {
   "en-US": enCommons,
   "es-ES": esCommons,
@@ -4999,4 +5536,5 @@ export const commonsResources: Record<string, MessageTree> = {
   "ja-JP": jaCommons,
   "zh-Hans": zhCommons,
   "ko-KR": koCommons,
+  "hi-IN": hiCommons,
 };

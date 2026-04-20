@@ -140,7 +140,7 @@ export const SUPPORTED_LOCALES = [
     fallbackLocales: ["hi", "en-US", "en"],
     releaseTier: "wave-1-candidate",
     enabled: true,
-    selectable: false,
+    selectable: true,
   },
   {
     code: "ar",

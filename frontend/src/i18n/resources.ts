@@ -3968,6 +3968,64 @@ const zhAbbyLayout: MessageTree = mergeMessageTrees(enAbbyLayout, {
   },
 });
 
+const hiAbbyLayout: MessageTree = mergeMessageTrees(enAbbyLayout, {
+  "panel": {
+    "dialogLabel": "AI सहायक",
+    "title": "Abby AI",
+    "conversationHistory": "बातचीत का इतिहास",
+    "newChat": "नई चैट",
+    "closePanel": "AI पैनल बंद करें",
+    "backToChat": "चैट पर वापस जाएँ",
+    "noPastConversations": "कोई पिछली बातचीत नहीं",
+    "deleteConversation": "बातचीत मिटाएं",
+    "suggestedPrompts": "सुझाए गए संकेत",
+    "sendMessage": "मेसेज भेजें",
+    "untitledConversation": "शीर्षकहीन",
+    "messagesAbbrev": "संदेश",
+    "inputPlaceholder": "Abby से {{context}} के बारे में पूछें...",
+    "time": {
+      "justNow": "बस अब",
+      "minutesAgo": "{{count}}m पहले",
+      "hoursAgo": "{{count}}h पहले",
+      "daysAgo": "{{count}}d पहले"
+    }
+  },
+  "about": {
+    "title": "Abby के बारे में",
+    "images": {
+      "abigailAlt": "Abigail A. Geisinger (1827-1921)",
+      "abbyAlt": "Abby - Parthenon AI सहायक",
+      "abigailCaption": "Abigail A. Geisinger, 1827-1921",
+      "abbyCaption": "Abby - AI अनुसंधान सहायक"
+    },
+    "subtitle": "Parthenon के AI अनुसंधान सहायक",
+    "dedication": {
+      "title": "Abigail Geisinger की स्मृति में",
+      "namedPrefix": "Abby का नाम किसके सम्मान में रखा गया है?",
+      "namedName": "Abigail A. Geisinger",
+      "namedSuffix": "(1827-1921), अग्रणी परोपकारी जिन्होंने अमेरिका की सबसे नवीन स्वास्थ्य देखभाल प्रणालियों में से एक की स्थापना की।",
+      "age85": "85 साल की उम्र में, विधवा और निःसंतान, अबीगैल ने Danville, Pennsylvania के अपने ग्रामीण समुदाय को देखा, और एक ऐसी समस्या देखी जिसे कोई और हल नहीं कर रहा था: कोई अस्पताल नहीं था। जो लोग बीमार पड़ गए उन्हें गाड़ी से - और बाद में उनकी निजी Hupmobile द्वारा - Sunbury में निकटतम सुविधा तक ले जाना पड़ा। उसने निर्णय लिया कि वह इसे ठीक करेगी।",
+      "founding": "1912 में, उन्होंने लोगों के एक समूह को इकट्ठा किया और अपनी दृष्टि को गति प्रदान की। उसने स्वयं Mayo भाइयों से अपने अस्पताल का नेतृत्व करने के योग्य चिकित्सक की सिफारिश करने का आह्वान किया। उन्होंने डॉ. Harold Foss को भेजा, जो Candle, Alaska में Kiwalik River के जमे हुए किनारे पर चिकित्सा का अभ्यास कर रहे थे। उसने उसे Pennsylvania में आने के लिए मना लिया। आधारशिला 1913 में रखी गई थी। जब George F. Geisinger Memorial Hospital 12 सितंबर, 1915 को खोला गया, तो केवल दो सप्ताह पहले ही Danville में टाइफाइड महामारी फैल गई थी - और उसका अस्पताल पहले से ही लोगों की जान बचा रहा था।",
+      "mottoIntro": "निर्माण के दौरान उनका आदर्श वाक्य अटल था:",
+      "motto": "\"मेरे अस्पताल को सही बनाओ। इसे सर्वश्रेष्ठ बनाओ।\"",
+      "service": "वह केवल चेक लिखने वाली दानदाता नहीं थी। वह मरीजों से मिलती थी और अपने बगीचे से फूल लाती थी। क्रिसमस पर, उसने पूरे समुदाय में फलों की टोकरियाँ वितरित कीं। प्रथम विश्व युद्ध के दौरान, उन्होंने स्वेच्छा से घायल सैनिकों की देखभाल की और अपने अस्पताल की सेवाओं की पेशकश करने के लिए व्यक्तिगत रूप से राष्ट्रीय नेताओं से संपर्क किया। आधारशिला समारोह की तस्वीरों में वह अपना सिर पीछे झुकाए हुए, हंसते हुए दिखाई दे रही हैं - गर्मजोशी, हास्य और दृढ़ निश्चय वाली महिला।",
+      "legacy": "जब Abigail Geisinger की 94 वर्ष की आयु में 8 जुलाई 1921 को मृत्यु हो गई, तो उन्होंने यह सुनिश्चित करने के लिए एक मिलियन डॉलर से अधिक छोड़ दिया कि उनका अस्पताल चलता रहे। उन्हें एक कब्रिस्तान में दफ़नाया गया है, जहां उनके द्वारा बनाई गई संस्था दिखती है - एक शांत प्रहरी जो उनके जीवन की सबसे बड़ी उपलब्धि को देख रहा है क्योंकि यह 44 बिस्तरों और 13 एकड़ से बढ़कर एक स्वास्थ्य प्रणाली बन गई है जो दस अस्पतालों में फैली हुई है, चिकित्सकों की पीढ़ियों को प्रशिक्षण दे रही है और लाखों लोगों के जीवन को छू रही है।"
+    },
+    "why": {
+      "title": "हमने उसका नाम Abby क्यों रखा?",
+      "problem": "Abigail Geisinger ने देखा कि स्वास्थ्य सेवा बहुत खंडित थी, बहुत दुर्गम थी, और उन लोगों के लिए बहुत कठिन थी जिन्हें इसकी सबसे अधिक आवश्यकता थी। उसने इसे वैसे स्वीकार नहीं किया जैसा कि चीजें होनी थीं। उसने कुछ बेहतर बनाया।",
+      "parthenon": "Parthenon इसी कारण से मौजूद है। OHDSI पारिस्थितिकी तंत्र - Atlas, WebAPI, Achilles, और एक दर्जन अन्य उपकरण - शक्तिशाली लेकिन खंडित है। शोधकर्ता नैदानिक ​​प्रश्नों का उत्तर देने की तुलना में टूलींग के साथ संघर्ष करने में अधिक समय बिताते हैं। Parthenon यह सब एक ही छत के नीचे लाता है, जैसे अबीगैल एक ऐसे समुदाय में आधुनिक चिकित्सा लेकर आई जिसके पास कोई नहीं था।",
+      "abbyPrefix": "Abby, हमारी AI सहायक, अपने नाम की भावना रखती है: वह शोधकर्ताओं को सादे अंग्रेजी में समूहों का वर्णन करने में मदद करती है, शब्दावली में अवधारणाओं को मानचित्रित करती है, और परिसर को सुलभ बनाने के लिए काम करती है। वह उस महिला को हमारी छोटी सी श्रद्धांजलि है जिसने एक असंभव समस्या को देखा और कहा, सरलता से,",
+      "abbyQuote": "\"मैं इसे ठीक करने जा रहा हूँ।\""
+    },
+    "footer": {
+      "dedication": "Abigail A. Geisinger (1827-1921) की स्मृति में प्रशंसा सहित समर्पित",
+      "founder": "Geisinger Medical Center के संस्थापक - Danville, Pennsylvania"
+    }
+  }
+});
+
+
 function withAbbyLayout(
   namespaces: ParthenonNamespaces,
   abbyLayout: MessageTree,
@@ -4310,6 +4368,44 @@ const zhCommonUi: MessageTree = mergeMessageTrees(enCommonUi, {
     },
   },
 });
+
+const hiCommonUi: MessageTree = mergeMessageTrees(enCommonUi, {
+  "aria": {
+    "breadcrumb": "ब्रेडक्रम्ब",
+    "copyCode": "कोड कॉपी करें",
+    "close": "बंद करें",
+    "dismiss": "नकार देना"
+  },
+  "codeFallback": "कोड",
+  "job": {
+    "status": {
+      "pending": "लंबित",
+      "running": "दौड़ना",
+      "completed": "पुरा होना।",
+      "failed": "असफल"
+    },
+    "progress": "प्रगति",
+    "duration": "अवधि",
+    "elapsed": "बीत गया",
+    "completedSuccessfully": "कार्य सफलतापूर्वक पूरा हुआ."
+  },
+  "tags": {
+    "filterByTag": "टैग द्वारा फ़िल्टर करें:",
+    "more": "{{count}} और अधिक",
+    "search": "खोज",
+    "clearAll": "सभी साफ करें",
+    "browseTags": "टैग ब्राउज़ करें ({{count}})",
+    "selected": "{{count}} चयनित",
+    "noMatches": "कोई टैग \"{{query}}\" से मेल नहीं खाता",
+    "done": "हो गया",
+    "searchPlaceholder": "टैग खोजें...",
+    "sort": {
+      "selectedFirst": "पहले चुना गया",
+      "byCount": "गिनती से"
+    }
+  }
+});
+
 
 function withCommonUi(
   namespaces: ParthenonNamespaces,
@@ -6738,6 +6834,253 @@ const zhAuthSetup: MessageTree = mergeMessageTrees(enAuthSetup, {
   },
 });
 
+const hiAuthSetup: MessageTree = mergeMessageTrees(enAuthSetup, {
+  "setup": {
+  "wizard": {
+    "steps": {
+      "welcome": "स्वागत",
+      "security": "सुरक्षा",
+      "health": "स्वास्थ्य",
+      "ai": "AI",
+      "auth": "प्रमाणीकरण",
+      "dataSources": "डेटा स्रोत",
+      "complete": "पूरा"
+    },
+    "close": "बंद करें",
+    "skipSetup": "सेटअप छोड़ें - प्रशासन के माध्यम से किसी भी समय वापस लौटें",
+    "previous": "पिछला",
+    "next": "अगला",
+    "skip": "छोड़ें",
+    "skipStep": "इस चरण को छोड़ें - प्रशासन में बाद में कॉन्फ़िगर करें"
+  },
+  "welcome": {
+    "title": "Parthenon में आपका स्वागत है",
+    "intro": "आइए आपके शोध प्लेटफ़ॉर्म को कॉन्फ़िगर करें। यह विज़ार्ड आवश्यक सेटअप चरणों से गुजरता है - प्रत्येक को प्रशासन पैनल से किसी भी समय छोड़ा और दोबारा देखा जा सकता है।",
+    "configureTitle": "हम क्या कॉन्फ़िगर करेंगे",
+    "beforeTitle": "आपके शुरू करने से पहले",
+    "optionalNote": "आगे बढ़ने के लिए किसी भी वैकल्पिक कदम की आवश्यकता नहीं है।",
+    "overview": {
+      "systemHealth": {
+        "label": "सिस्टम स्वास्थ्य",
+        "description": "सत्यापित करें कि सभी प्लेटफ़ॉर्म सेवाएँ सही ढंग से चल रही हैं।"
+      },
+      "aiProvider": {
+        "label": "AI प्रदाता",
+        "description": "कॉन्फ़िगर करें कि कौन सी AI बैकएंड शक्तियां Abby हैं।"
+      },
+      "authentication": {
+        "label": "प्रमाणीकरण",
+        "description": "SSO प्रदाताओं जैसे LDAP, OAuth, या OIDC को सेट करें।"
+      },
+      "dataSources": {
+        "label": "डेटा स्रोत",
+        "description": "CDM डेटाबेस कनेक्ट करें या विरासत WebAPI से आयात करें।"
+      }
+    },
+    "before": {
+      "cdm": "आपका OMOP CDM डेटाबेस इस सर्वर से पहुंच योग्य है",
+      "docker": "डॉकर और सभी कंटेनर चल रहे हैं (अगले चरण में सत्यापित)",
+      "ollama": "यदि आप AI सुविधाएं चाहते हैं तो Ollama स्थानीय रूप से चल रहा है (वैकल्पिक)",
+      "sso": "एकल साइन-ऑन सक्षम करने पर आपके पास अपने संगठन का SSO विवरण है (वैकल्पिक)"
+    }
+  },
+  "changePassword": {
+    "strength": {
+      "weak": "कमज़ोर",
+      "fair": "ठीक-ठाक",
+      "good": "अच्छा",
+      "strong": "मज़बूत",
+      "excellent": "उत्कृष्ट",
+      "tooShort": "बहुत छोटा"
+    },
+    "errors": {
+      "mismatch": "पासवर्ड मेल नहीं खाते।",
+      "tooShort": "नया पासवर्ड कम से कम 8 अक्षर का होना चाहिए.",
+      "same": "नया पासवर्ड वर्तमान पासवर्ड से भिन्न होना चाहिए.",
+      "failed": "पासवर्ड बदलने में विफल। कृपया फिर प्रयास करें।"
+    },
+    "successTitle": "पासवर्ड अपडेट किया गया",
+    "successDescription": "आपका खाता सुरक्षित है. अगले कदम के लिए आगे बढ़ें।",
+    "title": "अपने खाते को सुरक्षित करें",
+    "intro": "इंस्टालेशन के दौरान एक अस्थायी पासवर्ड उत्पन्न हुआ था। जारी रखने से पहले एक स्थायी पासवर्ड सेट करें।",
+    "temporaryTitle": "इंस्टॉल के दौरान अस्थायी क्रेडेंशियल उत्पन्न किए गए थे",
+    "temporaryPrefix": "आपका अस्थायी पासवर्ड अंदर है",
+    "credentialsFile": ".install-credentials",
+    "temporarySuffix": "रेपो रूट पर. इसे नीचे दर्ज करें, फिर एक स्थायी पासवर्ड चुनें।",
+    "currentLabel": "वर्तमान (अस्थायी) पासवर्ड",
+    "currentPlaceholder": "अस्थायी पासवर्ड दर्ज करें",
+    "newLabel": "नया पासवर्ड",
+    "newPlaceholder": "न्यूनतम 8 अक्षर",
+    "toggleNewVisibility": "नया पासवर्ड दिखाएँ या छुपाएँ",
+    "confirmLabel": "नए पासवर्ड की पुष्टि करें",
+    "confirmPlaceholder": "नया पासवर्ड दोहराएँ",
+    "submit": "स्थायी पासवर्ड सेट करें"
+  },
+  "systemHealth": {
+    "status": {
+      "healthy": "स्वस्थ",
+      "degraded": "अपमानित",
+      "down": "नीचे"
+    },
+    "queue": {
+      "pending": "लंबित",
+      "failed": "असफल"
+    },
+    "aiUnhealthy": "Abby AI प्रतिसाद नहीं दे रहा है - अगले चरण में प्रदाता को कॉन्फ़िगर करें।",
+    "configureAi": "कॉन्फ़िगर करें AI",
+    "title": "सिस्टम स्वास्थ्य जांच",
+    "intro": "यह सत्यापित करना कि सभी प्लेटफ़ॉर्म सेवाएँ सही ढंग से चल रही हैं।",
+    "refresh": "ताज़ा करना",
+    "checking": "सेवाओं की जाँच की जा रही है...",
+    "overall": "सिस्टम {{status}}",
+    "lastChecked": "अंतिम बार {{time}} पर जाँच की गई",
+    "autoRefresh": "हर 30 सेकंड में स्वतः ताज़ा हो जाता है।"
+  },
+  "aiProvider": {
+    "regions": {
+      "local": "स्थानीय",
+      "us": "US",
+      "china": "चीन",
+      "eu": "EU"
+    },
+    "switchToThis": "इस पर स्विच करें",
+    "testFailed": "कनेक्शन परीक्षण विफल रहा.",
+    "loading": "AI प्रदाता लोड हो रहे हैं...",
+    "title": "AI प्रदाता कॉन्फ़िगरेशन",
+    "intro": "कॉन्फ़िगर करें कि कौन सा AI बैकएंड पावर Abby, अनुसंधान सहायक है। एक समय में केवल एक ही प्रदाता सक्रिय होता है।",
+    "activeProvider": "सक्रिय प्रदाता:",
+    "model": "नमूना",
+    "modelPlaceholder": "मॉडल नाम",
+    "apiKey": "API कुंजी",
+    "baseUrl": "आधार URL",
+    "save": "बचाना",
+    "testConnection": "परीक्षण कनेक्शन",
+    "hideOtherProviders": "अन्य प्रदाता छुपाएं ({{count}})",
+    "showOtherProviders": "अन्य प्रदाता दिखाएँ ({{count}})"
+  },
+  "authentication": {
+    "providers": {
+      "ldap": {
+        "label": "LDAP / Active Directory",
+        "description": "AD या किसी LDAP v3 निर्देशिका के विरुद्ध प्रमाणित करें।"
+      },
+      "oauth2": {
+        "label": "OAuth 2.0",
+        "description": "GitHub, Google, Microsoft, या कस्टम को अधिकार सौंपें।"
+      },
+      "saml2": {
+        "label": "SAML 2.0",
+        "description": "एंटरप्राइज़ SSO के माध्यम से Okta, Azure AD, ADFS, आदि।"
+      },
+      "oidc": {
+        "label": "OpenID Connect",
+        "description": "आधुनिक SSO PKCE और OIDC खोज के साथ।"
+      }
+    },
+    "enabled": "सक्रिय",
+    "disabled": "अक्षम",
+    "configure": "कॉन्फ़िगर",
+    "testConnection": "परीक्षण कनेक्शन",
+    "connectionSuccessful": "कनेक्शन सफल",
+    "connectionFailed": "कनेक्शन विफल",
+    "loading": "प्रमाणीकरण प्रदाता लोड हो रहा है...",
+    "title": "प्रमाणीकरण प्रदाता",
+    "intro": "एकल साइन-ऑन के लिए बाहरी पहचान प्रदाताओं को कॉन्फ़िगर करें। यह चरण वैकल्पिक है - स्थानीय username/password प्रमाणीकरण हमेशा उपलब्ध है।",
+    "usernamePassword": "प्रयोक्ता नाम पासवर्ड",
+    "builtIn": "अंतर्निहित Sanctum प्रमाणीकरण - हमेशा सक्रिय।",
+    "alwaysOn": "हमेशा बने रहें"
+  },
+  "onboarding": {
+    "tour": {
+      "sidebarTitle": "नेविगेशन साइडबार",
+      "sidebarContent": "आपके सभी शोध उपकरण यहां रहते हैं: डेटा एक्सप्लोरर, शब्दावली, समूह परिभाषाएँ, अवधारणा सेट, विश्लेषण, और बहुत कुछ।",
+      "commandTitle": "कमांड पैलेट (Cmd K)",
+      "commandContent": "मेनू पर क्लिक किए बिना तुरंत किसी भी पेज या कार्रवाई पर पहुंचें। Cmd K (या Ctrl+K) आज़माएँ और 'cohort' खोजें।",
+      "dataSourcesTitle": "डेटा स्रोत",
+      "dataSourcesContent": "अपने CDM स्रोतों को यहां कनेक्ट करें। सभी विश्लेषण इन डेटा स्रोतों के विरुद्ध चलते हैं।",
+      "cohortDefinitionsTitle": "समूह परिभाषाएँ",
+      "cohortDefinitionsContent": "inclusion/exclusion मानदंड का उपयोग करके OHDSI-संगत समूह परिभाषाएँ बनाएं, फिर किसी भी जुड़े CDM के विरुद्ध गिनती उत्पन्न करें।",
+      "vocabularyTitle": "शब्दावली अन्वेषक",
+      "vocabularyContent": "7M+ OMOP अवधारणाओं को खोजें, पदानुक्रम ब्राउज़ करें, और अपने समूह परिभाषाओं में उपयोग करने के लिए अवधारणा सेट बनाएं।"
+    },
+    "cards": {
+      "vocabularyTitle": "शब्दावली का अन्वेषण करें",
+      "vocabularyDescription": "7M+ OMOP अवधारणाएँ खोजें और अवधारणा सेट बनाएँ।",
+      "cohortTitle": "एक समूह बनाएँ",
+      "cohortDescription": "inclusion/exclusion मानदंड परिभाषित करें और गिनती उत्पन्न करें।",
+      "quickStartTitle": "त्वरित प्रारंभ पढ़ें",
+      "quickStartDescription": "15 मिनट में शून्य से एक समूह तक की गिनती।"
+    },
+    "skipAria": "ऑनबोर्डिंग छोड़ें",
+    "title": "Parthenon में आपका स्वागत है",
+    "intro": "एक आधुनिक OMOP परिणाम अनुसंधान मंच। आइए हम आपको आरंभ करें.",
+    "startTour": "त्वरित यात्रा प्रारंभ करें",
+    "skip": "मैं पहले से ही परिचित हूँ - छोड़ें"
+  },
+  "dataSources": {
+    "demoTitle": "Eunomia GiBleed डेमो डेटासेट लोड किया गया",
+    "demoPrefix": "एक सिंथेटिक OMOP CDM डेटासेट",
+    "demoPatients": "2,694 मरीज",
+    "demoSuffix": "और गैस्ट्रोइंटेस्टाइनल रक्तस्राव एपिसोड। समूह परिभाषाओं और लक्षण वर्णन विश्लेषण को चलाने के लिए सुरक्षित - अपने वास्तविक CDM को जोड़ने से पहले Parthenon की खोज के लिए आदर्श।",
+    "loading": "डेटा स्रोत लोड हो रहे हैं...",
+    "title": "डेटा स्रोत",
+    "intro": "समूह परिभाषाओं और विश्लेषणों को चलाने के लिए CDM डेटाबेस कनेक्ट करें। आप पुराने OHDSI WebAPI उदाहरण से भी स्रोत आयात कर सकते हैं।",
+    "configuredSources": "कॉन्फ़िगर किए गए स्रोत ({{count}})",
+    "daimon": "डेमॉन",
+    "daimons": "डेमोंस",
+    "emptyTitle": "अभी तक कोई डेटा स्रोत नहीं",
+    "emptyDescription": "विरासत WebAPI उदाहरण से आयात करें या बाद में डेटा स्रोत पृष्ठ से स्रोत जोड़ें।",
+    "importToggle": "लीगेसी से आयात WebAPI",
+    "webApiUrl": "WebAPI URL",
+    "authType": "प्रामाणिक प्रकार",
+    "auth": {
+      "none": "कोई नहीं",
+      "basic": "Basic",
+      "bearer": "Bearer टोकन",
+      "basicCredentials": "प्रयोक्ता नाम पासवर्ड",
+      "bearerCredentials": "टोकन",
+      "basicPlaceholder": "user:password",
+      "bearerPlaceholder": "Bearer टोकन"
+    },
+    "importSources": "आयात स्रोत",
+    "importSuccess": "आयातित {{count}} {{label}}",
+    "importSkipped": ", {{count}} छोड़ दिया गया (पहले से मौजूद है)",
+    "sourceSingular": "स्रोत",
+    "sourcePlural": "स्रोत",
+    "importFailed": "आयात विफल. कृपया URL जांचें और पुनः प्रयास करें।",
+    "managePrefix": "किसी भी समय से डेटा स्रोत प्रबंधित करें",
+    "manageLink": "सेटिंग्स > डेटा स्रोत"
+  },
+  "complete": {
+    "summaryItems": {
+      "accountSecured": "खाता सुरक्षित",
+      "systemHealthVerified": "सिस्टम स्वास्थ्य सत्यापित",
+      "aiProviderConfigured": "AI प्रदाता कॉन्फ़िगर किया गया",
+      "authenticationConfigured": "प्रमाणीकरण कॉन्फ़िगर किया गया",
+      "dataSourcesConnected": "डेटा स्रोत जुड़े हुए"
+    },
+    "nextSteps": {
+      "exploreDemoData": "डेमो डेटा का अन्वेषण करें",
+      "exploreDemoDataDescription": "Eunomia GiBleed डेटासेट ब्राउज़ करें",
+      "createFirstCohort": "अपना पहला समूह बनाएं",
+      "createFirstCohortDescription": "रोगी समूह की परिभाषा बनाएं",
+      "inviteTeam": "टीम के सदस्यों को आमंत्रित करें",
+      "inviteTeamDescription": "उपयोगकर्ता जोड़ें और भूमिकाएँ निर्दिष्ट करें"
+    },
+    "title": "Parthenon तैयार है!",
+    "allDone": "सभी सेटअप चरण पूरे हो गए. आप किसी भी समय प्रशासन के माध्यम से इस विज़ार्ड पर वापस लौट सकते हैं।",
+    "partialDone": "{{total}} में से {{completed}} चरण पूरे हो गए - छोड़े गए चरणों को किसी भी समय कॉन्फ़िगर किया जा सकता है।",
+    "setupSummary": "सेटअप सारांश",
+    "skipped": "(छोड़ दिया गया)",
+    "goBackTitle": "{{label}} पर वापस जाएँ",
+    "fix": "ठीक करें",
+    "nextTitle": "आगे क्या करना है",
+    "launch": "लॉन्च करें Parthenon"
+  }
+  }
+});
+
+
 function withAuthSetup(auth: MessageTree, setup: MessageTree): MessageTree {
   return mergeMessageTrees(auth, setup);
 }
@@ -6872,14 +7215,14 @@ export const resources: Resource = {
     appResources["ko-KR"],
   ),
   "hi-IN": withProductResources(
-    withCommonUi(withAbbyLayout(hiIN, enAbbyLayout), enCommonUi),
+    withCommonUi(withAbbyLayout(hiIN, hiAbbyLayout), hiCommonUi),
     hiSettings,
     hiSettingsDetails,
     hiHelp,
-    withAuthSetup(hiAuth, enAuthSetup),
-    dashboardResources["en-US"],
-    commonsResources["en-US"],
-    appResources["en-US"],
+    withAuthSetup(hiAuth, hiAuthSetup),
+    dashboardResources["hi-IN"],
+    commonsResources["hi-IN"],
+    appResources["hi-IN"],
   ),
   ar: withProductResources(
     withCommonUi(withAbbyLayout(ar, enAbbyLayout), enCommonUi),

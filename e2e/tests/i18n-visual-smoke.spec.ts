@@ -30,6 +30,7 @@ const SMOKE_LOCALES: SmokeLocale[] = [
   { locale: "ja-JP", dir: "ltr" },
   { locale: "zh-Hans", dir: "ltr" },
   { locale: "ko-KR", dir: "ltr" },
+  { locale: "hi-IN", dir: "ltr" },
 ];
 
 const HELP_BUTTON_NAME = new RegExp(
@@ -52,6 +53,9 @@ const HELP_BUTTON_NAME = new RegExp(
     "打开上下文帮助",
     "打开帮助",
     "帮助",
+    "संदर्भ सहायता खोलें",
+    "सहायता खोलें",
+    "सहायता",
   ].join("|"),
   "i",
 );

@@ -37862,6 +37862,4118 @@ const zhApp: MessageTree = mergeMessageTrees(enApp, {
   },
 });
 
+const hiApp: MessageTree = mergeMessageTrees(enApp, {
+  "analysis": {
+    "titles": {
+      "characterization": "निस्र्पण",
+      "incidenceRate": "घटना दर विश्लेषण",
+      "pathway": "मार्ग विश्लेषण",
+      "estimation": "अनुमान विश्लेषण",
+      "prediction": "भविष्यवाणी विश्लेषण",
+      "sccs": "SCCS विश्लेषण",
+      "evidenceSynthesis": "साक्ष्य संश्लेषण विश्लेषण"
+    }
+  },
+  "errors": {
+    "boundary": {
+      "title": "कुछ गलत हो गया",
+      "message": "एक अप्रत्याशित त्रुटि हुई। पृष्ठ को पुनः लोड करने का प्रयास करें.",
+      "reloadPage": "पृष्ठ पुनः लोड करें"
+    },
+    "route": {
+      "routeError": "मार्ग त्रुटि",
+      "pageFailed": "पेज प्रस्तुत करने में विफल रहा.",
+      "analysisDescription": "इस विश्लेषण पृष्ठ में रेंडर या रूट-लोडिंग त्रुटि हुई।",
+      "label": "गलती",
+      "backToAnalyses": "विश्लेषण पर वापस जाएँ",
+      "reloadPage": "पृष्ठ पुनः लोड करें"
+    }
+  },
+  "covariates": {
+    "title": "सहसंयोजक सेटिंग्स",
+    "description": "फ़ीचरएक्सट्रैक्शन के लिए सहसंयोजक के रूप में शामिल करने के लिए कौन से डोमेन का चयन करें।",
+    "groups": {
+      "core": "कोर डोमेन",
+      "extended": "विस्तारित डोमेन",
+      "indices": "सहरुग्णता सूचकांक"
+    },
+    "labels": {
+      "demographics": "जनसांख्यिकी",
+      "conditionOccurrence": "स्थिति घटना",
+      "drugExposure": "नशीली दवाओं का एक्सपोजर",
+      "procedureOccurrence": "प्रक्रिया घटना",
+      "measurement": "माप",
+      "observation": "अवलोकन",
+      "deviceExposure": "डिवाइस एक्सपोज़र",
+      "visitCount": "गिनती पर जाएँ",
+      "charlsonComorbidity": "चार्लसन सहरुग्णता",
+      "dcsi": "DCSI (मधुमेह)",
+      "chads2": "CHADS2",
+      "chads2Vasc": "CHA2DS2-VASc"
+    },
+    "timeWindows": "समय विंडोज़",
+    "to": "को",
+    "days": "दिन",
+    "addTimeWindow": "समय विंडो जोड़ें"
+  },
+  "studies": {
+    "list": {
+      "title": "अध्ययन करते हैं",
+      "subtitle": "फ़ेडरेटेड अनुसंधान अध्ययनों का आयोजन और प्रबंधन करें",
+      "tableView": "तालिका दृश्य",
+      "cardView": "कार्ड दृश्य",
+      "searchPlaceholder": "अध्ययन खोजें...",
+      "noSearchMatches": "कोई भी अध्ययन \"{{query}}\" से मेल नहीं खाता",
+      "typeToFilter": "फ़िल्टर करने के लिए टाइप करें {{count}} अध्ययन",
+      "newStudy": "नया अध्ययन",
+      "solr": "Solr",
+      "drilldownTitle": "{{phase}} अध्ययन",
+      "filterLabels": {
+        "status": "स्थिति",
+        "type": "प्रकार",
+        "priority": "प्राथमिकता"
+      },
+      "loadFailed": "अध्ययन लोड करने में विफल",
+      "clear": "स्पष्ट",
+      "empty": {
+        "noMatchingTitle": "कोई मिलान अध्ययन नहीं",
+        "noStudiesTitle": "अभी कोई पढ़ाई नहीं",
+        "noResultsFor": "\"{{query}}\" के लिए कोई अध्ययन नहीं मिला",
+        "tryAdjusting": "अपने खोज शब्दों को समायोजित करने का प्रयास करें.",
+        "createFirst": "फ़ेडरेटेड अनुसंधान को व्यवस्थित करने के लिए अपना पहला अध्ययन बनाएं।"
+      },
+      "table": {
+        "title": "शीर्षक",
+        "type": "प्रकार",
+        "status": "स्थिति",
+        "priority": "प्राथमिकता",
+        "pi": "PI",
+        "created": "बनाया था"
+      },
+      "pagination": {
+        "showing": "{{start}} - {{end}} में से {{total}} दिखाया जा रहा है",
+        "page": "{{page}} / {{totalPages}}"
+      }
+    },
+    "metrics": {
+      "total": "कुल",
+      "active": "सक्रिय",
+      "preStudy": "पूर्व अध्ययन",
+      "inProgress": "प्रगति पर है",
+      "postStudy": "पोस्ट-अध्ययन"
+    },
+    "studyTypes": {
+      "characterization": "निस्र्पण",
+      "populationLevelEstimation": "PLE",
+      "patientLevelPrediction": "PLP",
+      "comparativeEffectiveness": "तुलनात्मक",
+      "safetySurveillance": "सुरक्षा",
+      "drugUtilization": "औषध उपयोगिता",
+      "qualityImprovement": "QI",
+      "custom": "रिवाज़"
+    },
+    "statuses": {
+      "draft": "मसौदा",
+      "protocol_development": "प्रोटोकॉल देव",
+      "feasibility": "साध्यता",
+      "irb_review": "IRB समीक्षा",
+      "execution": "कार्यान्वयन",
+      "analysis": "विश्लेषण",
+      "published": "प्रकाशित",
+      "archived": "संग्रहीत"
+    },
+    "priorities": {
+      "critical": "गंभीर",
+      "high": "उच्च",
+      "medium": "मध्यम",
+      "low": "कम"
+    },
+    "phases": {
+      "activeMetric": "सक्रिय",
+      "pre_study": "पूर्व अध्ययन",
+      "active": "प्रगति पर है",
+      "post_study": "पोस्ट-अध्ययन"
+    },
+    "create": {
+      "backToStudies": "अध्ययन करते हैं",
+      "title": "अध्ययन बनाएँ",
+      "subtitle": "अपने शोध अध्ययन को चरण दर चरण कॉन्फ़िगर करें",
+      "previous": "पिछला",
+      "next": "अगला",
+      "createAsDraft": "ड्राफ्ट के रूप में बनाएं",
+      "steps": {
+        "basics": "Basics",
+        "science": "वैज्ञानिक डिज़ाइन",
+        "team": "टीम और समयरेखा",
+        "review": "समीक्षा करें और बनाएं"
+      },
+      "studyTypes": {
+        "characterization": {
+          "label": "निस्र्पण",
+          "description": "रोगी आबादी और उपचार पैटर्न का वर्णन करें"
+        },
+        "populationLevelEstimation": {
+          "label": "Population-Level Estimation",
+          "description": "अवलोकन संबंधी डेटा का उपयोग करके कारणात्मक प्रभावों का अनुमान लगाएं"
+        },
+        "patientLevelPrediction": {
+          "label": "Patient-Level Prediction",
+          "description": "व्यक्तिगत रोगी परिणामों की भविष्यवाणी करें"
+        },
+        "comparativeEffectiveness": {
+          "label": "Comparative Effectiveness",
+          "description": "वास्तविक दुनिया की सेटिंग में उपचारों की तुलना करें"
+        },
+        "safetySurveillance": {
+          "label": "Safety Surveillance",
+          "description": "बाज़ार के बाद दवा सुरक्षा संकेतों की निगरानी करें"
+        },
+        "drugUtilization": {
+          "label": "औषधि उपयोग",
+          "description": "दवा के उपयोग के पैटर्न और रुझान का विश्लेषण करें"
+        },
+        "qualityImprovement": {
+          "label": "Quality Improvement",
+          "description": "देखभाल की गुणवत्ता और दिशानिर्देशों के पालन का आकलन करें"
+        },
+        "custom": {
+          "label": "रिवाज़",
+          "description": "एक कस्टम अध्ययन प्रकार को परिभाषित करें"
+        }
+      },
+      "designs": {
+        "select": "डिज़ाइन चुनें...",
+        "retrospectiveCohort": "पूर्वव्यापी समूह",
+        "prospectiveCohort": "भावी समूह",
+        "caseControl": "केस-कंट्रोल",
+        "crossSectional": "क्रॉस अनुभागीय",
+        "selfControlled": "स्व-नियंत्रित केस श्रृंखला",
+        "nestedCaseControl": "नेस्टेड केस-कंट्रोल",
+        "metaAnalysis": "मेटा-एनालिसिस",
+        "networkStudy": "नेटवर्क अध्ययन",
+        "methodological": "methodological"
+      },
+      "phases": {
+        "select": "चरण चुनें...",
+        "phaseI": "चरण 1",
+        "phaseII": "चरण II",
+        "phaseIII": "चरण III",
+        "phaseIV": "चरण IV",
+        "notApplicable": "लागू नहीं"
+      },
+      "basics": {
+        "studyType": "टाइप करना सीखो *",
+        "title": "शीर्षक *",
+        "titlePlaceholder": "e.g., T2DM में हृदय संबंधी परिणामों पर स्टैटिन का प्रभाव",
+        "shortTitle": "लघु शीर्षक",
+        "shortTitlePlaceholder": "e.g., LEGEND-T2DM",
+        "priority": "प्राथमिकता",
+        "studyDesign": "पढ़ाई की सरंचना",
+        "description": "विवरण",
+        "descriptionPlaceholder": "अध्ययन का संक्षिप्त विवरण...",
+        "tags": "टैग",
+        "tagsPlaceholder": "टैग जोड़ें और Enter दबाएँ...",
+        "addTag": "टैग जोड़ें"
+      },
+      "science": {
+        "aiPrompt": "आइए AI को आपके अध्ययन शीर्षक के आधार पर वैज्ञानिक डिजाइन क्षेत्रों का सुझाव दें",
+        "generating": "उत्पन्न हो रहा है...",
+        "generateWithAi": "AI के साथ उत्पन्न करें",
+        "aiUnavailable": "AI सेवा अनुपलब्ध है। कृपया फ़ील्ड मैन्युअल रूप से भरें.",
+        "rationale": "वैज्ञानिक तर्क",
+        "rationalePlaceholder": "इस अध्ययन की आवश्यकता क्यों है? यह ज्ञान के किस अंतर को संबोधित करता है?",
+        "hypothesis": "परिकल्पना",
+        "hypothesisPlaceholder": "परीक्षण की जा रही प्राथमिक परिकल्पना बताएं...",
+        "primaryObjective": "प्राथमिक ऑब्जेक्ट",
+        "primaryObjectivePlaceholder": "इस अध्ययन का मुख्य उद्देश्य क्या है?",
+        "secondaryObjectives": "माध्यमिक उद्देश्य",
+        "secondaryObjectivePlaceholder": "उद्देश्य जोड़ें और Enter दबाएँ...",
+        "addSecondaryObjective": "द्वितीयक उद्देश्य जोड़ें",
+        "fundingSource": "फंडिंग स्रोत",
+        "fundingSourcePlaceholder": "e.g., NIH R01, PCORI, उद्योग-प्रायोजित"
+      },
+      "team": {
+        "startDate": "अध्ययन आरंभ तिथि",
+        "endDate": "अध्ययन समाप्ति तिथि",
+        "endDateAfterStart": "समाप्ति तिथि आरंभ तिथि के बाद की होनी चाहिए",
+        "targetSites": "लक्ष्य नामांकन साइटें",
+        "targetSitesPlaceholder": "e.g., 10",
+        "studyPhase": "अध्ययन चरण",
+        "nctId": "ClinicalTrials.gov ID",
+        "nctIdPlaceholder": "e.g., NCT12345678",
+        "note": "अध्ययन डैशबोर्ड से अध्ययन तैयार होने के बाद टीम के सदस्यों, साइटों और समूहों को कॉन्फ़िगर किया जा सकता है।"
+      },
+      "review": {
+        "basics": "Basics",
+        "scientificDesign": "वैज्ञानिक डिज़ाइन",
+        "timelineRegistration": "समयरेखा और पंजीकरण",
+        "labels": {
+          "title": "शीर्षक:",
+          "shortTitle": "संक्षिप्त शीर्षक:",
+          "type": "प्रकार:",
+          "priority": "प्राथमिकता:",
+          "design": "डिज़ाइन:",
+          "rationale": "तर्क:",
+          "hypothesis": "परिकल्पना:",
+          "primaryObjective": "प्राथमिक ऑब्जेक्ट:",
+          "secondaryObjectives": "माध्यमिक उद्देश्य:",
+          "start": "शुरू करना:",
+          "end": "अंत:",
+          "targetSites": "लक्ष्य साइटें:",
+          "phase": "चरण:",
+          "nctId": "NCT ID:",
+          "funding": "फंडिंग:"
+        }
+      }
+    },
+    "detail": {
+      "loadFailed": "अध्ययन लोड करने में विफल",
+      "backToStudies": "पढ़ाई पर वापस",
+      "studies": "अध्ययन करते हैं",
+      "confirmDelete": "क्या आप वाकई इस अध्ययन को हटाना चाहते हैं? इस एक्शन को वापस नहीं किया जा सकता।",
+      "confirmArchive": "इस अध्ययन को संग्रहीत करें? इसे बाद में बहाल किया जा सकता है.",
+      "copyTitle": "{{title}} की प्रति",
+      "tabs": {
+        "overview": "सिंहावलोकन",
+        "design": "डिज़ाइन",
+        "analyses": "विश्लेषण",
+        "results": "परिणाम",
+        "progress": "प्रगति",
+        "sites": "साइटों",
+        "team": "टीम",
+        "cohorts": "समानता रखने वाले लोग",
+        "milestones": "मील के पत्थर",
+        "artifacts": "कलाकृतियों",
+        "activity": "गतिविधि",
+        "federated": "संघीय"
+      },
+      "statuses": {
+        "draft": "मसौदा",
+        "protocol_development": "प्रोटोकॉल विकास",
+        "feasibility": "साध्यता",
+        "irb_review": "IRB समीक्षा",
+        "recruitment": "भर्ती",
+        "execution": "कार्यान्वयन",
+        "analysis": "विश्लेषण",
+        "synthesis": "संश्लेषण",
+        "manuscript": "हस्तलिपि",
+        "published": "प्रकाशित",
+        "archived": "संग्रहीत",
+        "withdrawn": "वापस लिया गया"
+      },
+      "studyTypes": {
+        "characterization": "निस्र्पण",
+        "population_level_estimation": "Population-Level Estimation",
+        "patient_level_prediction": "Patient-Level Prediction",
+        "comparative_effectiveness": "Comparative Effectiveness",
+        "safety_surveillance": "Safety Surveillance",
+        "drug_utilization": "औषधि उपयोग",
+        "quality_improvement": "Quality Improvement",
+        "custom": "रिवाज़"
+      },
+      "actions": {
+        "transitionTo": "में संक्रमण",
+        "generateManuscriptTitle": "पूर्ण किए गए विश्लेषणों से पांडुलिपि तैयार करें",
+        "manuscript": "हस्तलिपि",
+        "duplicateStudy": "डुप्लिकेट अध्ययन",
+        "exportJson": "JSON के रूप में निर्यात करें",
+        "archiveStudy": "पुरालेख अध्ययन",
+        "deleteStudy": "अध्ययन हटाएँ"
+      },
+      "sections": {
+        "about": "के बारे में",
+        "analysisPipeline": "विश्लेषण पाइपलाइन ({{count}})",
+        "executionProgress": "निष्पादन की प्रगति",
+        "details": "विवरण",
+        "timeline": "समय",
+        "tags": "टैग",
+        "createdBy": "के द्वारा बनाई गई"
+      },
+      "labels": {
+        "primaryObjective": "प्राथमिक ऑब्जेक्ट",
+        "hypothesis": "परिकल्पना",
+        "secondaryObjectives": "माध्यमिक उद्देश्य",
+        "principalInvestigator": "प्रमुख अन्वेषक",
+        "leadDataScientist": "प्रमुख डेटा वैज्ञानिक",
+        "studyDesign": "पढ़ाई की सरंचना",
+        "phase": "चरण",
+        "protocolVersion": "प्रोटोकॉल संस्करण",
+        "funding": "अनुदान",
+        "clinicalTrialsGov": "ClinicalTrials.gov",
+        "start": "शुरू करना:",
+        "end": "अंत:",
+        "targetSites": "लक्ष्य साइटें:",
+        "created": "बनाया था:"
+      },
+      "messages": {
+        "noDescription": "कोई विवरण नहीं दिया गया",
+        "moreAnalyses": "+{{count}} अधिक विश्लेषण"
+      },
+      "progress": {
+        "completed": "{{count}} पूरा हुआ",
+        "running": "{{count}} चल रहा है",
+        "failed": "{{count}} विफल",
+        "pending": "{{count}} लंबित"
+      }
+    },
+    "dashboard": {
+      "progressSummary": "{{total}} में से {{completed}} का विश्लेषण पूरा हुआ",
+      "stats": {
+        "total": "कुल",
+        "pending": "लंबित",
+        "running": "दौड़ना",
+        "completed": "पुरा होना।",
+        "failed": "असफल"
+      },
+      "sections": {
+        "studyAnalyses": "अध्ययन विश्लेषण"
+      },
+      "table": {
+        "type": "प्रकार",
+        "name": "नाम",
+        "status": "स्थिति"
+      },
+      "messages": {
+        "notExecuted": "निष्पादित नहीं किया गया"
+      },
+      "empty": {
+        "title": "इस अध्ययन में कोई विश्लेषण नहीं",
+        "message": "आरंभ करने के लिए डिज़ाइन टैब में विश्लेषण जोड़ें।"
+      }
+    },
+    "analyses": {
+      "selectSource": "स्रोत चुनें...",
+      "executeAll": "सभी को निष्पादित करें",
+      "addAnalysisToStudy": "अध्ययन में विश्लेषण जोड़ें",
+      "emptyMessage": "अपनी विश्लेषण पाइपलाइन बनाने के लिए लक्षण वर्णन, अनुमान, पूर्वानुमान और बहुत कुछ जोड़ें",
+      "groupHeader": "{{label}} ({{count}})",
+      "openAnalysisDetail": "विश्लेषण विवरण खोलें",
+      "confirmRemove": "इस विश्लेषण को अध्ययन से हटा दें?",
+      "removeFromStudy": "पढ़ाई से हटाओ",
+      "analysisId": "विश्लेषण ID",
+      "lastRun": "आखरी बार",
+      "error": "गलती",
+      "viewFullDetail": "पूर्ण विवरण देखें"
+    },
+    "results": {
+      "sections": {
+        "results": "परिणाम ({{count}})",
+        "syntheses": "संश्लेषण ({{count}})"
+      },
+      "actions": {
+        "synthesize": "synthesize",
+        "markPrimary": "प्राथमिक के रूप में चिह्नित करें",
+        "unmarkPrimary": "प्राथमिक अचिह्नित करें",
+        "markPublishable": "प्रकाशन योग्य के रूप में चिह्नित करें",
+        "unmarkPublishable": "प्रकाशन योग्य अचिह्नित करें",
+        "cancel": "रद्द करना"
+      },
+      "filters": {
+        "allTypes": "सभी प्रकार के",
+        "publishableOnly": "केवल प्रकाशन योग्य"
+      },
+      "empty": {
+        "noResultsTitle": "अभी तक कोई परिणाम नहीं",
+        "noResultsMessage": "विश्लेषण निष्पादित होने के बाद परिणाम यहां दिखाई देंगे",
+        "noSummaryData": "कोई सारांश डेटा उपलब्ध नहीं है",
+        "noSynthesesTitle": "कोई संश्लेषण नहीं",
+        "noSynthesesMessage": "मेटा-विश्लेषण का उपयोग करके अनेक साइटों से परिणामों को संयोजित करें"
+      },
+      "resultTypes": {
+        "cohort_count": "समूह गणना",
+        "characterization": "निस्र्पण",
+        "incidence_rate": "घटना दर",
+        "effect_estimate": "प्रभाव का अनुमान",
+        "prediction_performance": "पूर्वानुमान प्रदर्शन",
+        "pathway": "मार्ग",
+        "sccs": "SCCS",
+        "custom": "रिवाज़"
+      },
+      "synthesisTypes": {
+        "fixed_effects_meta": "निश्चित-प्रभाव मेटा-विश्लेषण",
+        "random_effects_meta": "यादृच्छिक-प्रभाव मेटा-विश्लेषण",
+        "bayesian_meta": "बायेसियन मेटा-विश्लेषण",
+        "forest_plot": "वन भूखंड",
+        "heterogeneity_analysis": "विषमता विश्लेषण",
+        "funnel_plot": "फ़नल प्लॉट",
+        "evidence_synthesis": "साक्ष्य संश्लेषण",
+        "custom": "रिवाज़"
+      },
+      "badges": {
+        "primary": "प्राथमिक",
+        "publishable": "प्रकाशन योग्य"
+      },
+      "messages": {
+        "resultCreated": "परिणाम #{{id}} · {{date}}",
+        "reviewedBy": "{{name}} द्वारा समीक्षित"
+      },
+      "labels": {
+        "summary": "सारांश",
+        "diagnostics": "निदान"
+      },
+      "pagination": {
+        "previous": "पिछला",
+        "next": "अगला",
+        "page": "पेज {{page}} का {{totalPages}}"
+      },
+      "synthesis": {
+        "createTitle": "संश्लेषण बनाएँ",
+        "instructions": "ऊपर 2 या अधिक परिणाम चुनें, फिर संश्लेषण विधि चुनें।",
+        "createSelected": "बनाएं ({{count}} चयनित)",
+        "confirmDelete": "यह संश्लेषण हटाएँ?",
+        "resultsCount": "{{count}} परिणाम",
+        "system": "प्रणाली",
+        "methodSettings": "विधि सेटिंग्स",
+        "output": "उत्पादन",
+        "noOutput": "अभी तक कोई आउटपुट उत्पन्न नहीं हुआ"
+      }
+    },
+    "federated": {
+      "loadingResults": "परिणाम लोड हो रहे हैं...",
+      "loadResultsFailed": "परिणाम लोड करने में विफल: {{error}}",
+      "unknownError": "अज्ञात त्रुटि",
+      "confirmDistribute": "अध्ययन को {{count}} डेटा नोड(नों) में वितरित करें?",
+      "arachneNotReachable": "अर्चन सेंट्रल पहुंच योग्य नहीं है",
+      "loadNodesFailed": "अर्चन नोड्स लोड करने में विफल",
+      "arachneConnectionHelp": "फ़ेडरेटेड निष्पादन को सक्षम करने के लिए अपने परिवेश में ARACHNE_URL सेट करें। सुनिश्चित करें कि अर्चन सेंट्रल चल रहा है और पहुंच योग्य है।",
+      "availableDataNodes": "उपलब्ध डेटा नोड्स",
+      "poweredByArachne": "अर्चन द्वारा संचालित",
+      "distributeCount": "वितरित करें ({{count}})",
+      "noNodes": "कोई अर्चन नोड्स कॉन्फ़िगर नहीं किया गया। फ़ेडरेटेड निष्पादन को सक्षम करने के लिए परिवेश में ARACHNE_URL सेट करें।",
+      "distributionFailed": "वितरण विफल: {{error}}",
+      "distributionSucceeded": "अध्ययन सफलतापूर्वक वितरित किया गया. नीचे निगरानी स्थिति.",
+      "federatedExecutions": "संघीय निष्पादन",
+      "noExecutions": "अभी तक कोई फ़ेडरेटेड निष्पादन नहीं। ऊपर दिए गए डेटा नोड्स का चयन करें और शुरू करने के लिए वितरित करें।",
+      "arachneAnalysis": "अर्चन विश्लेषण #{{id}}",
+      "statuses": {
+        "PENDING": "लंबित",
+        "EXECUTING": "निष्पादित",
+        "COMPLETED": "पुरा होना।",
+        "FAILED": "असफल"
+      },
+      "table": {
+        "name": "नाम",
+        "status": "स्थिति",
+        "cdmVersion": "CDM संस्करण",
+        "patients": "मरीजों",
+        "lastSeen": "अंतिम बार देखा गया",
+        "node": "नोड",
+        "submitted": "प्रस्तुत किया गया",
+        "completed": "पुरा होना।"
+      }
+    },
+    "artifacts": {
+      "sections": {
+        "artifacts": "कलाकृतियाँ ({{count}})"
+      },
+      "actions": {
+        "addArtifact": "विरूपण साक्ष्य जोड़ें",
+        "cancel": "रद्द करना",
+        "create": "बनाएं",
+        "save": "बचाना",
+        "edit": "आर्टिफैक्ट संपादित करें",
+        "delete": "आर्टिफैक्ट हटाएं",
+        "openLink": "खुला लिंक"
+      },
+      "form": {
+        "addTitle": "अध्ययन कलाकृति जोड़ें",
+        "title": "शीर्षक",
+        "titleRequired": "शीर्षक *",
+        "titlePlaceholder": "e.g., अध्ययन प्रोटोकॉल v2.1",
+        "version": "संस्करण",
+        "type": "प्रकार",
+        "urlOptional": "URL (वैकल्पिक)",
+        "description": "विवरण",
+        "descriptionOptional": "विवरण (वैकल्पिक)",
+        "descriptionPlaceholder": "इस कलाकृति का संक्षिप्त विवरण..."
+      },
+      "empty": {
+        "title": "कोई कलाकृतियाँ नहीं",
+        "message": "प्रोटोकॉल, विश्लेषण पैकेज और अध्ययन दस्तावेज़ संग्रहीत करें"
+      },
+      "badges": {
+        "current": "मौजूदा"
+      },
+      "labels": {
+        "versionValue": "v{{version}}",
+        "sizeKb": "{{size}} KB"
+      },
+      "messages": {
+        "unknown": "अज्ञात",
+        "uploadedBy": "{{name}} · {{date}}"
+      },
+      "confirmDelete": "यह कलाकृति हटाएँ?",
+      "types": {
+        "protocol": "शिष्टाचार",
+        "sap": "सांख्यिकीय विश्लेषण योजना",
+        "irb_submission": "IRB सबमिशन",
+        "cohort_json": "समूह JSON",
+        "analysis_package_r": "आर विश्लेषण पैकेज",
+        "analysis_package_python": "पायथन विश्लेषण पैकेज",
+        "results_report": "परिणाम रिपोर्ट",
+        "manuscript_draft": "पाण्डुलिपि प्रारूप",
+        "supplementary": "अनुपूरक सामग्री",
+        "presentation": "प्रस्तुति",
+        "data_dictionary": "डेटा डिक्शनरी",
+        "study_package_zip": "अध्ययन पैकेज ZIP",
+        "other": "अन्य"
+      }
+    },
+    "sites": {
+      "sections": {
+        "sites": "साइटें ({{count}})"
+      },
+      "actions": {
+        "addSite": "साइट जोड़ें",
+        "cancel": "रद्द करना",
+        "save": "बचाना",
+        "edit": "साइट संपादित करें",
+        "remove": "साइट हटाएँ"
+      },
+      "form": {
+        "addTitle": "डेटा पार्टनर साइट जोड़ें",
+        "sourceSearchPlaceholder": "डेटा स्रोत खोजें...",
+        "siteRole": "साइट भूमिका",
+        "irbProtocol": "IRB प्रोटोकॉल #",
+        "notes": "टिप्पणियाँ",
+        "optional": "वैकल्पिक"
+      },
+      "empty": {
+        "title": "कोई साइट नामांकित नहीं",
+        "message": "इस अध्ययन में डेटा पार्टनर साइटें जोड़ें"
+      },
+      "table": {
+        "source": "स्रोत",
+        "role": "भूमिका",
+        "status": "स्थिति",
+        "irb": "IRB #",
+        "patients": "मरीजों",
+        "cdm": "CDM"
+      },
+      "messages": {
+        "allSourcesAssigned": "सभी स्रोत पहले से ही असाइन किए गए हैं",
+        "noMatchingSources": "कोई मेल खाता स्रोत नहीं",
+        "sourceFallback": "स्रोत #{{id}}"
+      },
+      "confirmRemove": "क्या आप इस साइट को हटाना चाहते हैं?",
+      "roles": {
+        "data_partner": "डेटा पार्टनर",
+        "coordinating_center": "समन्वय केंद्र",
+        "analytics_node": "एनालिटिक्स नोड",
+        "observer": "प्रेक्षक"
+      },
+      "statuses": {
+        "pending": "लंबित",
+        "invited": "आमंत्रित",
+        "approved": "अनुमत",
+        "active": "सक्रिय",
+        "completed": "पुरा होना।",
+        "withdrawn": "वापस लिया गया"
+      }
+    },
+    "cohorts": {
+      "sections": {
+        "cohorts": "समूह ({{count}})"
+      },
+      "actions": {
+        "assignCohort": "समूह को असाइन करें",
+        "assign": "सौंपना",
+        "cancel": "रद्द करना",
+        "save": "बचाना",
+        "edit": "समूह असाइनमेंट संपादित करें",
+        "remove": "समूह असाइनमेंट हटाएँ"
+      },
+      "form": {
+        "assignTitle": "समूह परिभाषा निर्दिष्ट करें",
+        "cohortDefinition": "समूह परिभाषा",
+        "searchPlaceholder": "समूह परिभाषाएँ खोजें...",
+        "role": "भूमिका",
+        "label": "लेबल",
+        "labelRequired": "लेबल *",
+        "labelPlaceholder": "e.g., T2DM लक्षित जनसंख्या",
+        "description": "विवरण",
+        "optional": "वैकल्पिक"
+      },
+      "empty": {
+        "title": "कोई दल नियुक्त नहीं किया गया",
+        "message": "समूह की परिभाषाएँ निर्दिष्ट करें और इस अध्ययन में उनकी भूमिकाएँ निर्दिष्ट करें"
+      },
+      "messages": {
+        "allAssigned": "सभी समूह परिभाषाएँ पहले से ही निर्दिष्ट हैं",
+        "noMatchingCohorts": "कोई मेल खाने वाला समूह नहीं",
+        "cohortFallback": "समूह #{{id}}"
+      },
+      "confirmRemove": "इस समूह असाइनमेंट को हटाएँ?",
+      "roles": {
+        "target": "लक्ष्य",
+        "comparator": "तुलनित्र",
+        "outcome": "नतीजा",
+        "exclusion": "बहिष्करण",
+        "subgroup": "उपसमूह",
+        "event": "आयोजन"
+      }
+    },
+    "team": {
+      "sections": {
+        "members": "टीम के सदस्य ({{count}})"
+      },
+      "actions": {
+        "addMember": "सदस्य जोड़ें",
+        "cancel": "रद्द करना",
+        "save": "बचाना",
+        "edit": "टीम सदस्य संपादित करें",
+        "remove": "टीम सदस्य को हटाएँ"
+      },
+      "form": {
+        "addTitle": "टीम सदस्य जोड़ें",
+        "user": "उपयोगकर्ता",
+        "userSearchPlaceholder": "उपयोगकर्ताओं को नाम या ईमेल से खोजें...",
+        "role": "भूमिका"
+      },
+      "empty": {
+        "title": "कोई टीम सदस्य नहीं",
+        "message": "इस अध्ययन में शोधकर्ताओं और सहयोगियों को जोड़ें"
+      },
+      "table": {
+        "name": "नाम",
+        "email": "ईमेल",
+        "role": "भूमिका",
+        "status": "स्थिति",
+        "joined": "सम्मिलित हुए"
+      },
+      "messages": {
+        "allUsersAssigned": "सभी उपयोगकर्ता पहले से ही टीम के सदस्य हैं",
+        "noMatchingUsers": "कोई मेल खाता उपयोगकर्ता नहीं",
+        "userFallback": "उपयोगकर्ता #{{id}}"
+      },
+      "confirmRemove": "इस टीम सदस्य को हटाएं?",
+      "statuses": {
+        "active": "सक्रिय",
+        "inactive": "निष्क्रिय"
+      },
+      "roles": {
+        "principal_investigator": "प्रमुख अन्वेषक",
+        "co_investigator": "सह अन्वेषक",
+        "data_scientist": "डेटा वैज्ञानिक",
+        "statistician": "सांख्यिकीविद",
+        "site_lead": "साइट लीड",
+        "data_analyst": "डेटा विश्लेषक",
+        "research_coordinator": "अनुसंधान समन्वयक",
+        "irb_liaison": "IRB संपर्क",
+        "project_manager": "प्रोजेक्ट मैनेजर",
+        "observer": "प्रेक्षक"
+      },
+      "roleDescriptions": {
+        "principal_investigator": "अध्ययन के लिए जिम्मेदार प्रमुख शोधकर्ता",
+        "co_investigator": "अध्ययन निरीक्षण में शोधकर्ता का योगदान करना",
+        "data_scientist": "विश्लेषणात्मक पाइपलाइनों का विकास और संचालन करता है",
+        "statistician": "सांख्यिकीय विश्लेषण और कार्यप्रणाली",
+        "site_lead": "डेटा पार्टनर साइट संचालन का प्रबंधन करता है",
+        "data_analyst": "डेटा प्रोसेसिंग और गुणवत्ता जांच",
+        "research_coordinator": "निर्देशांक लॉजिस्टिक्स और समयसीमा का अध्ययन करते हैं",
+        "irb_liaison": "IRB सबमिशन और अनुपालन का प्रबंधन करता है",
+        "project_manager": "समग्र परियोजना योजना और ट्रैकिंग",
+        "observer": "अध्ययन सामग्री तक केवल पढ़ने के लिए पहुंच"
+      }
+    },
+    "milestones": {
+      "sections": {
+        "milestones": "मील के पत्थर ({{count}})"
+      },
+      "actions": {
+        "addMilestone": "मील का पत्थर जोड़ें",
+        "cancel": "रद्द करना",
+        "create": "बनाएं",
+        "save": "बचाना",
+        "edit": "मील का पत्थर संपादित करें",
+        "delete": "मील का पत्थर हटाएँ"
+      },
+      "form": {
+        "titlePlaceholder": "मील का पत्थर शीर्षक..."
+      },
+      "empty": {
+        "title": "कोई मील का पत्थर नहीं",
+        "message": "मील के पत्थर और लक्ष्य तिथियों के साथ अध्ययन की प्रगति को ट्रैक करें"
+      },
+      "labels": {
+        "target": "लक्ष्य: {{date}}",
+        "targetCompleted": "लक्ष्य: {{target}} | पूर्ण: {{completed}}"
+      },
+      "confirmDelete": "यह मील का पत्थर हटाएं?",
+      "types": {
+        "protocol": "शिष्टाचार",
+        "irb": "IRB",
+        "data_access": "डेटा एक्सेस",
+        "analysis": "विश्लेषण",
+        "review": "समीक्षा",
+        "publication": "प्रकाशन",
+        "custom": "रिवाज़"
+      },
+      "statuses": {
+        "pending": "लंबित",
+        "in_progress": "प्रगति पर है",
+        "completed": "पुरा होना।",
+        "overdue": "अतिदेय",
+        "cancelled": "रद्द कर दिया गया"
+      }
+    },
+    "activity": {
+      "title": "गतिविधि लॉग",
+      "empty": {
+        "title": "अभी तक कोई गतिविधि नहीं",
+        "message": "इस अध्ययन पर की गई कार्रवाइयां यहां दिखाई देंगी"
+      },
+      "pagination": {
+        "previous": "पिछला",
+        "next": "अगला",
+        "page": "पेज {{page}} का {{totalPages}}"
+      },
+      "actions": {
+        "created": "बनाया था",
+        "updated": "अद्यतन",
+        "deleted": "हटाए गए",
+        "status_changed": "स्थिति बदल गई",
+        "member_added": "सदस्य जोड़ा गया",
+        "member_removed": "सदस्य हटाया गया",
+        "site_added": "साइट जोड़ी गई",
+        "analysis_added": "विश्लेषण जोड़ा गया",
+        "executed": "निष्पादित"
+      },
+      "entities": {
+        "study": "अध्ययन",
+        "study_analysis": "अध्ययन विश्लेषण",
+        "study_artifact": "कलाकृति का अध्ययन करें",
+        "study_cohort": "अध्ययन समूह",
+        "study_milestone": "अध्ययन मील का पत्थर",
+        "study_site": "अध्ययन स्थल",
+        "study_team_member": "अध्ययन दल सदस्य"
+      }
+    },
+    "designer": {
+      "defaultSessionTitle": "{{title}} OHDSI डिज़ाइन",
+      "title": "OHDSI अध्ययन डिज़ाइन कंपाइलर",
+      "subtitle": "एक समीक्षा किए गए शोध प्रश्न को पता लगाने योग्य अवधारणा सेट, समूह, व्यवहार्यता साक्ष्य, HADES-तैयार विश्लेषण योजनाओं और एक लॉक किए गए अध्ययन पैकेज में बदलें।",
+      "researchQuestionPlaceholder": "वयस्कों में..., करता है..., की तुलना में..., कम करता है...",
+      "badges": {
+        "session": "सत्र {{value}}",
+        "version": "संस्करण {{value}}"
+      },
+      "versionStatuses": {
+        "generated": "जनरेट किया गया",
+        "review_ready": "समीक्षा तैयार",
+        "accepted": "स्वीकृत",
+        "locked": "बंद"
+      },
+      "metrics": {
+        "assets": "संपत्ति"
+      },
+      "actions": {
+        "downloadLockedPackage": "लॉक्ड पैकेज डाउनलोड करें",
+        "downloadPackage": "पैकेज डाउनलोड करें",
+        "add": "जोड़ना",
+        "saveChanges": "परिवर्तनों को सुरक्षित करें"
+      },
+      "sections": {
+        "verificationGates": "सत्यापन द्वार",
+        "packageProvenance": "पैकेज उद्गम",
+        "assetEvidence": "संपत्ति साक्ष्य",
+        "basicInformation": "Basic जानकारी",
+        "addAnalysis": "विश्लेषण जोड़ें",
+        "studyAnalyses": "अध्ययन विश्लेषण ({{count}})"
+      },
+      "descriptions": {
+        "verificationGates": "OHDSI पैकेज को लॉक करने से पहले अवरोधकों का समाधान करें।",
+        "assetEvidence": "किसी पैकेज को स्वीकार करने से पहले अवरुद्ध सत्यापनकर्ता आउटपुट की समीक्षा करें।"
+      },
+      "gates": {
+        "designIntent": "डिज़ाइन का इरादा",
+        "acceptedAt": "स्वीकृत {{time}}",
+        "acceptResearchQuestion": "समीक्षित शोध प्रश्न स्वीकार करें.",
+        "verifiedMaterializedCohorts": "{{count}} सत्यापित भौतिक समूह",
+        "feasibilityReady": "सत्यापित व्यवहार्यता साक्ष्य तैयार है.",
+        "runFeasibility": "साथियों के सत्यापन के बाद व्यवहार्यता चलाएँ।",
+        "analysisPlan": "विश्लेषण योजना",
+        "analysisPlanReady": "सत्यापित HADES विश्लेषण योजना तैयार है।",
+        "verifyAnalysisPlan": "एक विश्लेषण योजना को सत्यापित करें और उसे मूर्त रूप दें।"
+      },
+      "labels": {
+        "version": "संस्करण",
+        "versionStatus": "v{{version}} {{status}}",
+        "verifiedAssets": "सत्यापित संपत्ति",
+        "title": "शीर्षक",
+        "description": "विवरण",
+        "studyType": "टाइप करना सीखो",
+        "analysisType": "विश्लेषण प्रकार",
+        "analysis": "विश्लेषण",
+        "missingOmopIds": "गुम OMOP आईडी",
+        "deprecatedOmopIds": "अस्वीकृत OMOP आईडी",
+        "invalidDraftIds": "अमान्य ड्राफ्ट आईडी"
+      },
+      "placeholders": {
+        "studyTitle": "अध्ययन शीर्षक",
+        "optionalDescription": "वैकल्पिक विवरण",
+        "selectAnalysis": "विश्लेषण चुनें..."
+      },
+      "analysisTypes": {
+        "characterization": "निस्र्पण",
+        "incidence-rate": "घटना दर",
+        "pathway": "मार्ग",
+        "estimation": "अनुमान",
+        "prediction": "भविष्यवाणी"
+      },
+      "messages": {
+        "new": "नया",
+        "none": "कोई नहीं",
+        "notStarted": "शुरू नहीं",
+        "createOrImport": "आरंभ करने के लिए एक डिज़ाइन बनाएं या आयात करें।",
+        "needsEvidence": "सबूत चाहिए",
+        "noVersion": "कोई संस्करण नहीं",
+        "blockedCount": "{{count}} अवरुद्ध",
+        "noBlockers": "कोई अवरोधक नहीं",
+        "startEvidenceReview": "साक्ष्य समीक्षा शुरू करने के लिए इरादा उत्पन्न करें या वर्तमान अध्ययन को आयात करें।",
+        "noAnalyses": "अभी तक कोई विश्लेषण नहीं जोड़ा गया.",
+        "analysisFallback": "विश्लेषण #{{id}}",
+        "assetId": "संपत्ति #{{id}}",
+        "materializedId": "साकार #{{id}}",
+        "verifiedAt": "सत्यापित {{time}}"
+      }
+    },
+    "workbench": {
+      "sessionTitle": "आशय डिज़ाइन का अध्ययन करें",
+      "title": "अध्ययन डिजाइन संकलक",
+      "subtitle": "एक शोध प्रश्न को समीक्षा किए गए OHDSI-संरेखित अध्ययन इरादे में परिवर्तित करें, फिर कुछ भी नीचे की ओर जाने से पहले पुन: प्रयोज्य फेनोटाइप संपत्तियों की जांच करें।",
+      "newSession": "नया सत्र",
+      "sessions": "सत्र",
+      "researchQuestion": "प्रश्न का अनुसंधान",
+      "researchQuestionPlaceholder": "क्लोपिडोग्रेल बनाम एस्पिरिन शुरू करने वाले MI रोगियों में आवर्ती MACE की तुलना करें।",
+      "emptyQuestionPlaceholder": "अध्ययन प्रश्न का वर्णन करें...",
+      "generateIntent": "इरादा उत्पन्न करें",
+      "startSession": "एक डिज़ाइन सत्र प्रारंभ करें, फिर अध्ययन प्रश्न से एक संरचित PICO आशय उत्पन्न करें।",
+      "createAndGenerate": "सत्र बनाएँ और आशय उत्पन्न करें",
+      "loadingSessions": "डिज़ाइन सत्र लोड हो रहे हैं...",
+      "sections": {
+        "phenotypeRecommendations": "फेनोटाइप और पुन: उपयोग की सिफ़ारिशें",
+        "conceptSetDrafts": "संकल्पना सेट ड्राफ्ट",
+        "cohortDrafts": "समूह ड्राफ्ट",
+        "cohortReadiness": "समूह की तैयारी का अध्ययन करें",
+        "feasibility": "साध्यता",
+        "sources": "स्रोत",
+        "attrition": "संघर्षण",
+        "analysisPlans": "विश्लेषण योजनाएँ",
+        "packageLock": "पैकेज लॉक",
+        "currentAssets": "वर्तमान अध्ययन संपत्ति",
+        "intentReview": "आशय की समीक्षा",
+        "source": "स्रोत",
+        "governance": "शासन"
+      },
+      "descriptions": {
+        "recommendations": "कुछ भी नया मसौदा तैयार करने से पहले पुन: प्रयोज्य फेनोटाइप लाइब्रेरी प्रविष्टियों, स्थानीय समूहों और स्थानीय अवधारणा सेटों की समीक्षा करें।",
+        "conceptSets": "मूल अवधारणा सेट बनाने से पहले स्वीकृत साक्ष्य को शब्दावली-जाँचे गए ड्राफ्ट में परिवर्तित करें।",
+        "cohorts": "भौतिकीकृत अवधारणा सेटों को मूल समूह परिभाषा ड्राफ्ट में बदलें।",
+        "feasibility": "विश्लेषण योजना से पहले चयनित CDM स्रोतों से जुड़े समूहों की जाँच करें।",
+        "analysisPlans": "व्यवहार्य अध्ययन समूहों को मूल HADES-संगत विश्लेषण डिज़ाइनों में संकलित करें।",
+        "packageLock": "एक श्रव्य अध्ययन पैकेज में स्वीकृत इरादे, अवधारणा सेट, समूह, व्यवहार्यता और मूल विश्लेषण को फ्रीज करें।",
+        "currentAssets": "इस डिज़ाइन पथ में मैन्युअल रूप से निर्मित समूह और विश्लेषण लाएँ, फिर मौजूदा रिकॉर्ड को बदले बिना अंतराल की समीक्षा करें।"
+      },
+      "actions": {
+        "recommend": "अनुशंसा करना",
+        "draftConceptSets": "ड्राफ्ट संकल्पना सेट",
+        "draftCohorts": "ड्राफ्ट समूह",
+        "runFeasibility": "व्यवहार्यता चलाएँ",
+        "draftPlans": "मसौदा योजनाएँ",
+        "importCurrent": "वर्तमान आयात करें",
+        "critique": "आलोचना",
+        "verify": "सत्यापित करें",
+        "review": "समीक्षा",
+        "accept": "स्वीकार करना",
+        "defer": "आस्थगित करें",
+        "reject": "अस्वीकार करना",
+        "materialize": "अमल में लाना",
+        "openNativeEditor": "मूल संपादक खोलें",
+        "linkToStudy": "अध्ययन के लिए लिंक",
+        "search": "खोज",
+        "add": "जोड़ना",
+        "remove": "निकालना",
+        "saveReview": "समीक्षा सहेजें",
+        "acceptIntent": "इरादा स्वीकार करें",
+        "lockPackage": "लॉक पैकेज",
+        "locked": "बंद",
+        "downloadPackageSummary": "पैकेज सारांश डाउनलोड करें"
+      },
+      "labels": {
+        "verified": "सत्यापित",
+        "needsCheck": "जांच की जरूरत है",
+        "blocked": "अवरोधित",
+        "unverified": "असत्यापित",
+        "reviewQueue": "समीक्षा कतार",
+        "conceptSetDraft": "संकल्पना सेट ड्राफ्ट",
+        "cohortDraft": "समूह मसौदा",
+        "concepts": "अवधारणाओं",
+        "concept": "अवधारणा",
+        "domain": "डोमेन",
+        "vocabulary": "शब्दावली",
+        "flags": "झंडे",
+        "actions": "कार्रवाई",
+        "lint": "एक प्रकार का वृक्ष",
+        "source": "स्रोत",
+        "status": "स्थिति",
+        "cohorts": "समानता रखने वाले लोग",
+        "coverage": "कवरेज",
+        "domains": "डोमेन",
+        "freshness": "ताज़गी",
+        "dqd": "DQD",
+        "attrition": "संघर्षण",
+        "nativeConceptSet": "मूल अवधारणा सेट #{{id}}",
+        "nativeCohort": "मूलनिवासी समूह #{{id}}",
+        "linkedStudyCohort": "लिंक किया गया अध्ययन समूह #{{id}}",
+        "conceptsCount": "{{count}} अवधारणाएँ",
+        "conceptSetsCount": "{{count}} अवधारणा सेट",
+        "nativeAnalysis": "मूल विश्लेषण #{{id}}",
+        "feasibility": "साध्यता",
+        "rank": "रैंक {{score}}",
+        "match": "{{score}}% मिलान",
+        "ohdsiId": "OHDSI #{{id}}",
+        "computable": "गणना कर सका",
+        "imported": "आयातित",
+        "evidence": "प्रमाण",
+        "origin": "मूल",
+        "matchedTerm": "सुमेलित पद",
+        "canonicalRecord": "विहित अभिलेख",
+        "noCanonicalRecord": "कोई कैनॉनिकल रिकॉर्ड नहीं",
+        "eligibility": "पात्रता",
+        "acceptable": "स्वीकार्य",
+        "blockedOrNeedsReview": "अवरोधित किया गया है या समीक्षा की आवश्यकता है",
+        "policy": "नीति",
+        "nextActions": "अगली कार्रवाई",
+        "rankComponents": "रैंक घटक",
+        "verifierChecks": "सत्यापनकर्ता जाँच करता है",
+        "versionStatus": "संस्करण {{version}} · {{status}}",
+        "primaryObjective": "प्राथमिक ऑब्जेक्ट",
+        "population": "जनसंख्या",
+        "exposure": "खुलासा",
+        "comparator": "तुलनित्र",
+        "primaryOutcome": "प्राथमिक परिणाम",
+        "timeAtRisk": "जोखिम में समय",
+        "conceptSetsMetric": "संकल्पना सेट",
+        "cohortsMetric": "समानता रखने वाले लोग",
+        "analysesMetric": "विश्लेषण",
+        "packagesMetric": "संकुल",
+        "aiEvents": "AI घटनाएँ",
+        "reviewed": "समीक्षित",
+        "manifest": "घोषणापत्र",
+        "critiques": "आलोचनाओं"
+      },
+      "messages": {
+        "saveOrAcceptBeforeRecommendations": "अनुशंसाओं का अनुरोध करने से पहले समीक्षा-तैयार आशय सहेजें या आशय स्वीकार करें।",
+        "loadingRecommendations": "सिफ़ारिशें लोड हो रही हैं...",
+        "noRecommendations": "अभी तक कोई अनुशंसा नहीं.",
+        "acceptRecommendationFirst": "पहले कम से कम एक सत्यापित फेनोटाइप, समूह, या अवधारणा सेट अनुशंसा स्वीकार करें।",
+        "noConceptSetDrafts": "अभी तक कोई अवधारणा सेट ड्राफ्ट नहीं है।",
+        "onlyVerifiedConceptSetDrafts": "केवल सत्यापित अवधारणा सेट ड्राफ्ट ही स्वीकार किए जा सकते हैं।",
+        "searchConceptsPlaceholder": "OMOP शब्दावली अवधारणाएँ खोजें",
+        "materializeConceptSetFirst": "पहले कम से कम एक सत्यापित अवधारणा सेट ड्राफ्ट को मूर्त रूप दें।",
+        "noCohortDrafts": "अभी तक कोई समूह ड्राफ्ट नहीं है.",
+        "checkingLinkedRoles": "लिंक की गई भूमिकाओं की जाँच की जा रही है...",
+        "noReadinessSignal": "अभी तक कोई तैयारी का संकेत नहीं.",
+        "ready": "तैयार",
+        "blocked": "अवरोधित",
+        "drafts": "{{count}} ड्राफ्ट",
+        "materialized": "{{count}} साकार हुआ",
+        "linked": "{{count}} जुड़ा हुआ",
+        "linkRequiredCohorts": "स्रोत व्यवहार्यता से पहले आवश्यक अध्ययन समूहों को लिंक करें।",
+        "loadingSources": "स्रोत लोड हो रहे हैं...",
+        "noSources": "कोई CDM स्रोत कॉन्फ़िगर नहीं किया गया।",
+        "smallCellThreshold": "लघु-कोशिका दहलीज",
+        "sourcesReady": "{{ready}}/{{total}} स्रोत तैयार",
+        "ranAt": "दौड़ा {{time}}",
+        "noDates": "कोई तारीख़ नहीं",
+        "none": "कोई नहीं",
+        "roles": "{{ready}}/{{total}} भूमिकाएँ",
+        "unknown": "अज्ञात",
+        "noDqd": "नहीं DQD",
+        "passRate": "{{rate}}% उत्तीर्ण",
+        "noFeasibilityEvidence": "इस डिज़ाइन संस्करण के लिए कोई व्यवहार्यता साक्ष्य संग्रहीत नहीं किया गया है।",
+        "runFeasibilityBeforePlans": "विश्लेषण योजनाओं का मसौदा तैयार करने से पहले स्रोत व्यवहार्यता चलाएँ।",
+        "noAnalysisPlans": "अभी तक कोई विश्लेषण योजना नहीं है.",
+        "feasibilityStatus": "व्यवहार्यता: {{status}}",
+        "checkingPackageReadiness": "पैकेज की तैयारी की जाँच की जा रही है...",
+        "readyToLock": "लॉक करने के लिए तैयार.",
+        "lockedPackageAvailable": "अध्ययन कलाकृतियों में लॉक्ड पैकेज उपलब्ध है।",
+        "signed": "पर हस्ताक्षर किए",
+        "pending": "लंबित",
+        "onlyVerifiedRecommendations": "केवल नियतात्मक रूप से सत्यापित अनुशंसाएँ ही स्वीकार की जा सकती हैं।"
+      }
+    }
+  },
+  "administration": {
+    "dashboard": {
+      "title": "प्रशासन",
+      "subtitle": "उपयोगकर्ताओं, भूमिकाओं, अनुमतियों और सिस्टम कॉन्फ़िगरेशन को प्रबंधित करें।",
+      "panels": {
+        "platform": "प्लैटफ़ॉर्म",
+        "usersAccess": "उपयोगकर्ता और पहुंच",
+        "dataSources": "डेटा स्रोत",
+        "aiResearch": "AI एवं अनुसंधान"
+      },
+      "status": {
+        "allHealthy": "सभी स्वस्थ",
+        "degraded": "अपमानित",
+        "warning": "चेतावनी"
+      },
+      "labels": {
+        "services": "सेवाएं",
+        "queue": "कतार",
+        "redis": "रेडिस",
+        "totalUsers": "कुल उपयोगकर्ता",
+        "roles": "भूमिकाएँ",
+        "authProviders": "प्रामाणिक प्रदाता",
+        "tokenExpiry": "टोकन समाप्ति",
+        "solr": "Solr",
+        "aiProvider": "AI प्रदाता",
+        "model": "नमूना",
+        "abby": "Abby",
+        "researchRuntime": "आर / HADES"
+      },
+      "values": {
+        "servicesUp": "{{healthy}}/{{total}} चालू",
+        "queueSummary": "{{pending}} लंबित / {{failed}} विफल",
+        "enabledCount": "{{count}} सक्षम",
+        "tokenExpiry": "8 घंटे",
+        "cdmCount": "{{count}} CDM",
+        "solrSummary": "{{docs}} दस्तावेज़ / {{cores}} कोर",
+        "none": "कोई नहीं",
+        "online": "ऑनलाइन"
+      },
+      "messages": {
+        "noCdmSources": "कोई CDM स्रोत कॉन्फ़िगर नहीं किया गया"
+      },
+      "nav": {
+        "userManagement": {
+          "title": "प्रयोक्ता प्रबंधन",
+          "description": "उपयोगकर्ता खाते बनाएं, संपादित करें और निष्क्रिय करें। पहुंच को नियंत्रित करने के लिए भूमिकाएँ निर्दिष्ट करें।"
+        },
+        "rolesPermissions": {
+          "title": "भूमिकाएँ एवं अनुमतियाँ",
+          "description": "सभी डोमेन में कस्टम भूमिकाएँ परिभाषित करें और अनुमति असाइनमेंट को ठीक करें।"
+        },
+        "authProviders": {
+          "title": "प्रमाणीकरण प्रदाता",
+          "description": "LDAP, OAuth 2.0, SAML 2.0, या OIDC को SSO के लिए सक्षम और कॉन्फ़िगर करें।"
+        },
+        "aiProviders": {
+          "title": "AI प्रदाता कॉन्फ़िगरेशन",
+          "description": "Abby के बैकएंड को स्थानीय Ollama, एंथ्रोपिक, ओपनएआई, जेमिनी और अन्य के बीच स्विच करें।"
+        },
+        "systemHealth": {
+          "title": "सिस्टम स्वास्थ्य",
+          "description": "सभी Parthenon सेवाओं की लाइव स्थिति: रेडिस, AI, डार्कस्टार, Solr, Orthanc PACS, नौकरी कतारें।"
+        },
+        "vocabularyManagement": {
+          "title": "शब्दावली प्रबंधन",
+          "description": "एक नई एथेना शब्दावली ZIP फ़ाइल अपलोड करके OMOP शब्दावली तालिकाएँ अपडेट करें।"
+        },
+        "fhirConnections": {
+          "title": "FHIR EHR कनेक्शन",
+          "description": "Bulk data import के लिए Epic, Cerner और अन्य EHR सिस्टम से FHIR R4 connections प्रबंधित करें।"
+        }
+      },
+      "setupWizard": {
+        "title": "प्लेटफ़ॉर्म सेटअप विज़ार्ड",
+        "description": "निर्देशित सेटअप को फिर से चलाएँ: स्वास्थ्य जाँच, AI प्रदाता, प्रमाणीकरण, और डेटा स्रोत।"
+      },
+      "atlasMigration": {
+        "title": "Atlas से माइग्रेट करें",
+        "description": "मौजूदा OHDSI Atlas इंस्टॉलेशन से समूह परिभाषाएँ, अवधारणा सेट और विश्लेषण आयात करें।"
+      },
+      "actions": {
+        "open": "खुला",
+        "openWizard": "विज़ार्ड खोलें"
+      }
+    },
+    "acropolisServices": {
+      "descriptions": {
+        "authentik": "पहचान प्रदाता और पहुंच पोर्टल",
+        "wazuh": "सुरक्षा निगरानी और SIEM डैशबोर्ड",
+        "grafana": "मेट्रिक्स और अवलोकनीयता डैशबोर्ड",
+        "portainer": "कंटेनर और स्टैक संचालन",
+        "pgadmin": "PostgreSQL प्रशासन कंसोल",
+        "n8n": "वर्कफ़्लो ऑर्केस्ट्रेशन और स्वचालन",
+        "superset": "BI और तदर्थ विश्लेषिकी कार्यक्षेत्र",
+        "datahub": "मेटाडेटा कैटलॉग और वंश एक्सप्लोरर"
+      },
+      "openService": "सेवा खोलें"
+    },
+    "grafana": {
+      "openDashboard": "डैशबोर्ड खोलें"
+    },
+    "broadcastEmail": {
+      "title": "प्रसारण ईमेल",
+      "descriptionPrefix": "यह प्रत्येक को एक व्यक्तिगत ईमेल भेजेगा",
+      "descriptionSuffix": "पंजीकृत उपयोगकर्ता।",
+      "subject": "विषय",
+      "subjectPlaceholder": "ईमेल विषय पंक्ति...",
+      "message": "संदेश",
+      "messagePlaceholder": "यहां अपना संदेश लिखें...",
+      "close": "बंद करें",
+      "cancel": "रद्द करना",
+      "sending": "भेजा जा रहा है...",
+      "sendToAll": "सभी उपयोगकर्ताओं को भेजें",
+      "resultWithRecipients": "{{message}} ({{count}} प्राप्तकर्ता)",
+      "unknownError": "अज्ञात त्रुटि"
+    },
+    "userModal": {
+      "titles": {
+        "editUser": "यूजर को संपादित करो",
+        "newUser": "नए उपयोगकर्ता"
+      },
+      "fields": {
+        "fullName": "पूरा नाम",
+        "email": "ईमेल",
+        "password": "पासवर्ड",
+        "roles": "भूमिकाएँ"
+      },
+      "hints": {
+        "keepCurrentPassword": "(वर्तमान रखने के लिए खाली छोड़ें)"
+      },
+      "placeholders": {
+        "maskedPassword": "••••••••",
+        "passwordRequirements": "न्यूनतम 8 वर्ण, मिश्रित केस + संख्या"
+      },
+      "actions": {
+        "cancel": "रद्द करना",
+        "saving": "सहेजा जा रहा है...",
+        "saveChanges": "परिवर्तनों को सुरक्षित करें",
+        "createUser": "उपयोगकर्ता बनाएं"
+      },
+      "errors": {
+        "generic": "एक त्रुटि पाई गई।",
+        "passwordRequired": "पासवर्ड आवश्यक है."
+      }
+    },
+    "liveKit": {
+      "loadingConfiguration": "कॉन्फ़िगरेशन लोड हो रहा है...",
+      "provider": "प्रदाता",
+      "providerBadges": {
+        "cloud": "बादल",
+        "self-hosted": "स्व की मेजबानी की",
+        "env": "पर्यावरण"
+      },
+      "providerOptions": {
+        "environment": "पर्यावरण",
+        "liveKitCloud": "LiveKit बादल",
+        "selfHosted": "स्व की मेजबानी की"
+      },
+      "providerDescriptions": {
+        "useEnvFile": ".env फ़ाइल का उपयोग करें",
+        "hostedByLiveKit": "LiveKit द्वारा होस्ट किया गया",
+        "yourOwnServer": "आपका अपना सर्वर"
+      },
+      "env": {
+        "usingEnvConfiguration": ".env कॉन्फ़िगरेशन का उपयोग करना",
+        "url": "URL:",
+        "apiKey": "API कुंजी:",
+        "apiSecret": "API रहस्य:",
+        "notSet": "सेट नहीं",
+        "missing": "गुम",
+        "editPrefix": "संपादन करना",
+        "editSuffix": "और बदलने के लिए PHP को पुनरारंभ करें।"
+      },
+      "fields": {
+        "cloudUrl": "LiveKit बादल URL",
+        "serverUrl": "सर्वर URL",
+        "apiKey": "API कुंजी",
+        "apiSecret": "API रहस्य"
+      },
+      "placeholders": {
+        "savedKey": "सहेजा गया; इसे बदलने के लिए एक नई कुंजी दर्ज करें",
+        "savedSecret": "सहेजा गया; इसे बदलने के लिए एक नया रहस्य दर्ज करें",
+        "enterApiKey": "API कुंजी दर्ज करें",
+        "enterApiSecret": "API रहस्य दर्ज करें"
+      },
+      "actions": {
+        "hideConfiguration": "कॉन्फ़िगरेशन छिपाएँ",
+        "configureLiveKit": "कॉन्फ़िगर करें LiveKit",
+        "testConnection": "कनेक्शन का परीक्षण करें",
+        "saveConfiguration": "कॉन्फ़िगरेशन सहेजें",
+        "useEnvDefaults": ".env डिफ़ॉल्ट का उपयोग करें"
+      },
+      "toasts": {
+        "noUrlToTest": "परीक्षण के लिए कोई URL नहीं",
+        "connectionSuccessful": "कनेक्शन सफल",
+        "connectionFailed": "कनेक्शन विफल",
+        "configurationSaved": "LiveKit कॉन्फ़िगरेशन सहेजा गया",
+        "saveFailed": "कॉन्फ़िगरेशन सहेजने में विफल"
+      }
+    },
+    "authProviders": {
+      "title": "प्रमाणीकरण प्रदाता",
+      "subtitle": "एकल साइन-ऑन के लिए एक या अधिक बाहरी पहचान प्रदाताओं को सक्षम करें। Sanctum username/password हमेशा फ़ॉलबैक के रूप में उपलब्ध है।",
+      "providers": {
+        "ldap": {
+          "label": "LDAP / Active Directory",
+          "description": "Microsoft Active Directory या किसी LDAP v3 निर्देशिका के विरुद्ध प्रमाणित करें। TLS, ग्रुप सिंक और एट्रिब्यूट मैपिंग का समर्थन करता है।"
+        },
+        "oauth2": {
+          "label": "OAuth 2.0",
+          "description": "प्रमाणीकरण को GitHub, Google, Microsoft, या किसी कस्टम OAuth 2.0 प्रदाता को सौंपें।"
+        },
+        "saml2": {
+          "label": "SAML 2.0",
+          "description": "एंटरप्राइज़ SSO एक SAML 2.0 पहचान प्रदाता (Okta, Azure AD, ADFS, आदि) के माध्यम से।"
+        },
+        "oidc": {
+          "label": "OpenID Connect",
+          "description": "आधुनिक SSO OIDC खोज के माध्यम से। PKCE और किसी भी मानक-अनुपालक IdP का समर्थन करता है।"
+        }
+      },
+      "enabled": "सक्रिय",
+      "disabled": "अक्षम",
+      "configure": "कॉन्फ़िगर",
+      "testConnection": "परीक्षण कनेक्शन",
+      "connectionSuccessful": "कनेक्शन सफल",
+      "connectionFailed": "कनेक्शन विफल",
+      "usernamePassword": "प्रयोक्ता नाम पासवर्ड",
+      "alwaysOn": "हमेशा बने रहें",
+      "builtIn": "अंतर्निहित Sanctum प्रमाणीकरण - हमेशा सक्रिय।",
+      "loading": "प्रदाता लोड हो रहे हैं...",
+      "formActions": {
+        "saving": "सहेजा जा रहा है...",
+        "save": "बचाना",
+        "saved": "सहेजा गया"
+      },
+      "oauthForm": {
+        "drivers": {
+          "github": "GitHub",
+          "google": "Google",
+          "microsoft": "Microsoft / Azure AD",
+          "custom": "कस्टम OAuth 2.0"
+        },
+        "sections": {
+          "customEndpoints": "कस्टम समापनबिंदु"
+        },
+        "labels": {
+          "provider": "प्रदाता",
+          "clientId": "Client ID",
+          "clientSecret": "Client secret",
+          "redirectUri": "रीडायरेक्ट URI",
+          "scopes": "स्कोप",
+          "authorizationUrl": "प्राधिकरण URL",
+          "tokenUrl": "टोकन URL",
+          "userInfoUrl": "उपयोगकर्ता जानकारी URL"
+        },
+        "hints": {
+          "redirectUri": "आपके OAuth प्रदाता में पंजीकृत URI से मेल खाना चाहिए",
+          "scopes": "स्थान-पृथक सूची"
+        },
+        "placeholders": {
+          "clientId": "ग्राहक/एप्लिकेशन ID",
+          "redirectUri": "/api/v1/auth/oauth2/callback",
+          "scopes": "openid profile email"
+        }
+      },
+      "oidcForm": {
+        "labels": {
+          "discoveryUrl": "डिस्कवरी URL",
+          "clientId": "Client ID",
+          "clientSecret": "Client secret",
+          "redirectUri": "रीडायरेक्ट URI",
+          "scopes": "स्कोप",
+          "pkceEnabled": "PKCE सक्षम करें (अनुशंसित - सार्वजनिक क्लाइंट की आवश्यकता है)"
+        },
+        "hints": {
+          "discoveryUrl": "आपके IdP का /.well-known/openid-configuration endpoint",
+          "redirectUri": "आपके आईडीपी में जो पंजीकृत है उससे मेल खाना चाहिए",
+          "scopes": "अंतरिक्ष से अलग की गई"
+        },
+        "placeholders": {
+          "discoveryUrl": "https://accounts.google.com/.well-known/openid-configuration",
+          "clientId": "आपका-ग्राहक-आईडी",
+          "redirectUri": "/api/v1/auth/oidc/callback",
+          "scopes": "openid profile email"
+        }
+      },
+      "samlForm": {
+        "sections": {
+          "identityProvider": "पहचान प्रदाता (आईडीपी)",
+          "serviceProvider": "सेवा प्रदाता (SP)",
+          "attributeMapping": "गुण मानचित्रण"
+        },
+        "labels": {
+          "idpEntityId": "आईडीपी इकाई ID",
+          "ssoUrl": "SSO URL",
+          "sloUrl": "SLO URL",
+          "idpCertificate": "आईडीपी प्रमाणपत्र",
+          "spEntityId": "SP इकाई ID",
+          "acsUrl": "ACS URL",
+          "nameIdFormat": "नाम आईडी प्रारूप",
+          "signAssertions": "अभिकथन पर हस्ताक्षर करें (SP निजी कुंजी की आवश्यकता है - सर्वर एनवी में कॉन्फ़िगर करें)",
+          "emailAttribute": "ईमेल विशेषता",
+          "displayNameAttribute": "प्रदर्शन नाम विशेषता"
+        },
+        "hints": {
+          "ssoUrl": "एकल साइन-ऑन समापन बिंदु",
+          "sloUrl": "एकल लॉगआउट समापन बिंदु (वैकल्पिक)",
+          "idpCertificate": "X.509 प्रमाणपत्र चिपकाएँ (PEM प्रारूप, हेडर के साथ या उसके बिना)",
+          "spEntityId": "आपका Parthenon उदाहरण URL - आईडीपी द्वारा पंजीकृत से मेल खाना चाहिए",
+          "acsUrl": "अभिकथन उपभोक्ता सेवा"
+        },
+        "placeholders": {
+          "certificate": "-----BEGIN CERTIFICATE----\nMIIDxTCC...\n-----END CERTIFICATE-----",
+          "acsUrl": "/api/v1/auth/saml2/callback",
+          "sloUrl": "/api/v1/auth/saml2/logout",
+          "displayName": "प्रदर्शित होने वाला नाम"
+        },
+        "attributeMappingDescription": "मानचित्र SAML अभिकथन विशेषता नाम Parthenon उपयोगकर्ता फ़ील्ड के लिए।"
+      },
+      "ldapForm": {
+        "sections": {
+          "connection": "संबंध",
+          "bindCredentials": "क्रेडेंशियल बाइंड करें",
+          "userSearch": "उपयोगकर्ता खोज",
+          "attributeMapping": "गुण मानचित्रण",
+          "groupSync": "समूह समन्वयन"
+        },
+        "labels": {
+          "host": "मेज़बान",
+          "port": "पत्तन",
+          "useSsl": "SSL (LDAPS) का उपयोग करें",
+          "useTls": "प्रारंभTLS का उपयोग करें",
+          "timeout": "टाइमआउट",
+          "bindDn": "बाइंड DN",
+          "bindPassword": "पासवर्ड बाइंड करें",
+          "baseDn": "आधार DN",
+          "userSearchBase": "उपयोगकर्ता खोज आधार",
+          "userFilter": "उपयोगकर्ता फ़िल्टर",
+          "usernameField": "उपयोक्तानाम फ़ील्ड",
+          "emailField": "ईमेल फ़ील्ड",
+          "displayNameField": "नाम फ़ील्ड प्रदर्शित करें",
+          "syncGroups": "LDAP समूहों को Parthenon भूमिकाओं में सिंक करें",
+          "groupSearchBase": "समूह खोज आधार",
+          "groupFilter": "समूह फ़िल्टर"
+        },
+        "hints": {
+          "host": "LDAP सर्वर होस्टनाम या IP",
+          "bindDn": "सेवा खाता DN निर्देशिका प्रश्नों के लिए उपयोग किया जाता है",
+          "userFilter": "लॉगिन समय पर {उपयोगकर्ता नाम} बदल दिया जाता है"
+        },
+        "placeholders": {
+          "bindDn": "cn=svc-पार्थेनॉन,dc=उदाहरण,dc=com",
+          "baseDn": "dc=उदाहरण,dc=com",
+          "userSearchBase": "कहां=उपयोगकर्ता, डीसी=उदाहरण, डीसी=कॉम",
+          "userFilter": "(uid={उपयोगकर्ता नाम})",
+          "groupSearchBase": "ou=समूह,dc=उदाहरण,dc=com",
+          "groupFilter": "(ऑब्जेक्टक्लास=ग्रुपऑफनेम्स)"
+        },
+        "actions": {
+          "saving": "सहेजा जा रहा है...",
+          "save": "बचाना",
+          "saved": "सहेजा गया"
+        }
+      }
+    },
+    "roles": {
+      "title": "भूमिकाएँ एवं अनुमतियाँ",
+      "subtitle": "कस्टम भूमिकाएँ परिभाषित करें और अनुमति असाइनमेंट को ठीक करें। बड़े पैमाने पर संपादन के लिए मैट्रिक्स का उपयोग करें.",
+      "tabs": {
+        "roleList": "भूमिका सूची",
+        "permissionMatrix": "अनुमति मैट्रिक्स"
+      },
+      "permissionMatrix": {
+        "instructions": "अनुमतियों को टॉगल करने के लिए सेल पर क्लिक करें · सभी भूमिकाओं पर लागू करने के लिए पंक्ति हेडर · किसी भूमिका के लिए कॉलम हेडर grant/revoke पर।",
+        "saveAllChangesOne": "सभी परिवर्तन सहेजें ({{count}} भूमिका)",
+        "saveAllChangesOther": "सभी परिवर्तन सहेजें ({{count}} भूमिकाएँ)",
+        "permission": "अनुमति",
+        "columnTitle": "{{role}} के लिए सभी अनुमतियाँ टॉगल करें",
+        "permissionCount": "{{count}} पर्म",
+        "saving": "सहेजा जा रहा है...",
+        "saved": "सहेजा गया ✓",
+        "save": "बचाना",
+        "domainTitle": "सभी भूमिकाओं में सभी {{domain}} अनुमतियों को टॉगल करें",
+        "rowTitle": "सभी भूमिकाओं के लिए {{permission}} टॉगल करें",
+        "cellTitleGrant": "अनुदान {{permission}} से {{role}}",
+        "cellTitleRevoke": "{{permission}} को {{role}} से निरस्त करें"
+      },
+      "editor": {
+        "roleName": "भूमिका का नाम",
+        "roleNamePlaceholder": "e.g. स्थल समन्वयक",
+        "permissions": "अनुमतियां",
+        "selectedCount": "({{count}} चयनित)"
+      },
+      "actions": {
+        "newRole": "नयी भूमिका",
+        "cancel": "रद्द करना",
+        "saving": "सहेजा जा रहा है...",
+        "saveRole": "भूमिका सहेजें",
+        "editRole": "भूमिका संपादित करें",
+        "deleteRole": "भूमिका हटाएँ",
+        "deleting": "हटाया जा रहा है...",
+        "delete": "मिटाना"
+      },
+      "values": {
+        "builtIn": "निर्मित में",
+        "userCountOne": "{{count}} उपयोगकर्ता",
+        "userCountOther": "{{count}} उपयोगकर्ता",
+        "permissionCountOne": "{{count}} अनुमति",
+        "permissionCountOther": "{{count}} अनुमतियाँ",
+        "more": "+{{count}} और अधिक"
+      },
+      "deleteModal": {
+        "title": "भूमिका हटाएँ?",
+        "prefix": "भूमिका",
+        "suffix": "स्थायी रूप से हटा दिया जाएगा. जिन उपयोगकर्ताओं को केवल यह भूमिका सौंपी गई है वे सभी अनुमतियाँ खो देंगे।"
+      }
+    },
+    "pacs": {
+      "studyBrowser": {
+        "browseTitle": "ब्राउज़ करें: {{name}}",
+        "filters": {
+          "patientName": "मरीज का नाम",
+          "patientId": "रोगी ID",
+          "allModalities": "सभी तौर-तरीके"
+        },
+        "empty": {
+          "noStudies": "कोई अध्ययन नहीं मिला"
+        },
+        "table": {
+          "patientName": "मरीज का नाम",
+          "patientId": "रोगी ID",
+          "date": "तारीख",
+          "modality": "साधन",
+          "description": "विवरण",
+          "series": "शृंखला",
+          "instances": "उदाहरण."
+        },
+        "pagination": {
+          "range": "{{start}}-{{end}}",
+          "ofStudies": "{{total}} अध्ययन का",
+          "previous": "पिछला",
+          "next": "अगला"
+        }
+      },
+      "connectionCard": {
+        "defaultConnection": "डिफ़ॉल्ट कनेक्शन",
+        "setAsDefault": "डिफाल्ट के रूप में सेट",
+        "deleteConfirm": "\"{{name}}\" हटाएं?",
+        "never": "कभी नहीं",
+        "seriesByModality": "मोडेलिटी द्वारा श्रृंखला",
+        "statsUpdated": "अद्यतन आँकड़े {{date}}",
+        "stats": {
+          "patients": "मरीजों",
+          "studies": "अध्ययन करते हैं",
+          "series": "शृंखला",
+          "instances": "उदाहरण",
+          "disk": "डिस्क"
+        },
+        "actions": {
+          "edit": "संपादन करना",
+          "delete": "मिटाना",
+          "test": "परीक्षा",
+          "stats": "आँकड़े",
+          "browse": "ब्राउज़"
+        }
+      }
+    },
+    "solrAdmin": {
+      "title": "Solr खोज प्रशासन",
+      "subtitle": "Solr खोज कोर प्रबंधित करें, रीइंडेक्सिंग ट्रिगर करें और स्थिति की निगरानी करें।",
+      "loadingCoreStatus": "मुख्य स्थिति लोड हो रही है...",
+      "status": {
+        "healthy": "स्वस्थ",
+        "unavailable": "अनुपलब्ध"
+      },
+      "labels": {
+        "documents": "दस्तावेज़",
+        "lastIndexed": "अंतिम अनुक्रमित",
+        "duration": "अवधि"
+      },
+      "values": {
+        "never": "कभी नहीं",
+        "seconds": "{{seconds}}s"
+      },
+      "actions": {
+        "reindexAll": "सभी कोर को पुनः अनुक्रमित करें",
+        "reindex": "फिर से सूचकांक",
+        "fullReindex": "पूर्ण पुन: अनुक्रमणिका",
+        "clear": "स्पष्ट"
+      },
+      "messages": {
+        "fetchFailed": "Solr स्थिति लाने में विफल",
+        "reindexCompleted": "'{{core}}' का रीइंडेक्स पूरा हुआ",
+        "reindexFailed": "'{{core}}' को पुनः अनुक्रमित करने में विफल",
+        "reindexAllCompleted": "पुनः अनुक्रमणिका-सभी पूर्ण",
+        "reindexAllFailed": "सभी कोर को पुनः अनुक्रमित करने में विफल",
+        "clearConfirm": "क्या आप वाकई '{{core}}' से सभी दस्तावेज़ साफ़ करना चाहते हैं? इसे असंपादित नहीं किया जा सकता है।",
+        "clearCompleted": "कोर '{{core}}' साफ़ हो गया",
+        "clearFailed": "'{{core}}' साफ़ करने में विफल"
+      }
+    },
+    "aiProviders": {
+      "title": "AI प्रदाता कॉन्फ़िगरेशन",
+      "subtitle": "चुनें कि कौन सी AI बैकएंड शक्तियां Abby हैं। एक समय में केवल एक ही प्रदाता सक्रिय होता है। API कुंजियाँ एन्क्रिप्टेड संग्रहीत हैं।",
+      "activeProvider": "सक्रिय प्रदाता:",
+      "fields": {
+        "model": "नमूना",
+        "apiKey": "API कुंजी",
+        "ollamaBaseUrl": "Ollama आधार URL"
+      },
+      "placeholders": {
+        "modelName": "मॉडल नाम"
+      },
+      "values": {
+        "active": "सक्रिय",
+        "enabled": "सक्रिय",
+        "disabled": "अक्षम",
+        "noModelSelected": "कोई मॉडल चयनित नहीं"
+      },
+      "actions": {
+        "currentlyActive": "वर्तमान में सक्रिय",
+        "setAsActive": "सक्रिय के रूप में सेट करें",
+        "save": "बचाना",
+        "testConnection": "परीक्षण कनेक्शन"
+      },
+      "messages": {
+        "requestFailed": "अनुरोध विफल रहा।"
+      }
+    },
+    "gisImport": {
+      "steps": {
+        "upload": "अपलोड करें",
+        "analyze": "विश्लेषण करें",
+        "mapColumns": "मानचित्र स्तंभ",
+        "configure": "कॉन्फ़िगर",
+        "validate": "मान्य",
+        "import": "आयात"
+      },
+      "analyze": {
+        "analysisFailed": "Abby को इस फ़ाइल का विश्लेषण करने में एक समस्या का सामना करना पड़ा।",
+        "unknownError": "अज्ञात त्रुटि",
+        "retry": "पुन: प्रयास करें",
+        "analyzing": "Abby आपके डेटा का विश्लेषण कर रहा है...",
+        "detecting": "स्तंभ प्रकार, भूगोल कोड और मूल्य शब्दार्थ का पता लगाना"
+      },
+      "upload": {
+        "uploading": "अपलोड हो रहा है...",
+        "dropPrompt": "यहां एक फ़ाइल छोड़ें या ब्राउज़ करने के लिए क्लिक करें",
+        "acceptedFormats": "CSV, TSV, एक्सेल, शेपफाइल (.zip), जियोJSON, KML, जियोपैकेज - अधिकतम {{maxSize}}MB",
+        "largeFiles": "बड़ी फ़ाइलों के लिए (> {{maxSize}}MB)",
+        "fileTooLarge": "फ़ाइल {{maxSize}}MB से अधिक है। CLI का उपयोग करें: php कारीगर जीआईएस: आयात {{filename}}",
+        "uploadFailed": "अपलोड विफल रहा"
+      },
+      "configure": {
+        "fields": {
+          "layerName": "परत का नाम",
+          "exposureType": "एक्सपोज़र प्रकार",
+          "geographyLevel": "भूगोल स्तर",
+          "valueType": "मान प्रकार",
+          "aggregation": "एकत्रीकरण"
+        },
+        "placeholders": {
+          "layerName": "e.g., सामाजिक भेद्यता सूचकांक",
+          "exposureType": "e.g., svi_समग्र"
+        },
+        "geographyLevels": {
+          "county": "काउंटी",
+          "tract": "गणना प्रणाली",
+          "state": "राज्य",
+          "country": "देश",
+          "custom": "रिवाज़"
+        },
+        "valueTypes": {
+          "continuous": "निरंतर (कोरोप्लेथ)",
+          "categorical": "श्रेणीबद्ध (अलग-अलग रंग)",
+          "binary": "बाइनरी (presence/absence)"
+        },
+        "aggregations": {
+          "mean": "अर्थ",
+          "sum": "जोड़",
+          "maximum": "अधिकतम",
+          "minimum": "न्यूनतम",
+          "latest": "नवीनतम"
+        },
+        "saving": "सहेजा जा रहा है...",
+        "continue": "जारी रखना"
+      },
+      "mapping": {
+        "title": "कॉलम मैपिंग",
+        "subtitle": "प्रत्येक स्रोत स्तंभ को उसके उद्देश्य के अनुसार मानचित्रित करें",
+        "purposes": {
+          "geographyCode": "भूगोल संहिता",
+          "geographyName": "भूगोल नाम",
+          "latitude": "अक्षांश",
+          "longitude": "देशान्तर",
+          "valueMetric": "मान (मीट्रिक)",
+          "metadata": "मेटाडाटा",
+          "skip": "छोड़ें"
+        },
+        "confidence": {
+          "high": "उच्च",
+          "medium": "मध्यम",
+          "low": "कम"
+        },
+        "askAbby": "पूछें Abby",
+        "abbyOnColumn": "Abby \"{{column}}\" पर:",
+        "thinking": "सोच...",
+        "saving": "सहेजा जा रहा है...",
+        "continue": "जारी रखना"
+      },
+      "validate": {
+        "validating": "सत्यापन किया जा रहा है...",
+        "validationFailed": "प्रमाणीकरण विफल रहा:",
+        "unknownError": "अज्ञात त्रुटि",
+        "results": "सत्यापन परिणाम",
+        "stats": {
+          "totalRows": "कुल पंक्तियाँ",
+          "uniqueGeographies": "अद्वितीय भूगोल",
+          "matched": "मेल खाने वाले",
+          "unmatched": "बेजोड़ (स्टब्स)",
+          "matchRate": "मिलान दर",
+          "geographyType": "भूगोल प्रकार"
+        },
+        "unmatchedWarning": "{{count}} भूगोल डेटाबेस में नहीं मिला। स्टब प्रविष्टियाँ बनाई जाएंगी (कोई सीमा ज्यामिति नहीं)।",
+        "backToMapping": "मैपिंग पर वापस जाएँ",
+        "proceedWithImport": "आयात के साथ आगे बढ़ें"
+      },
+      "import": {
+        "starting": "शुरू हो रहा है...",
+        "startImport": "आयात प्रारंभ करें",
+        "importing": "आयात हो रहा है... {{progress}}%",
+        "complete": "आयात पूर्ण",
+        "rowsImported": "{{count}} पंक्तियाँ आयात की गईं",
+        "saveLearningPrompt": "मैपिंग सहेजें ताकि Abby अगली बार सीख सके",
+        "saveToAbby": "Abby में सहेजें",
+        "viewInGisExplorer": "GIS एक्सप्लोरर में देखें",
+        "importAnother": "दूसरा आयात करें",
+        "failed": "आयात विफल",
+        "startOver": "प्रारंभ करें"
+      }
+    },
+    "chromaStudio": {
+      "title": "Chroma संग्रह स्टूडियो",
+      "subtitle": "वेक्टर संग्रहों का निरीक्षण करें, सिमेंटिक क्वेरीज़ चलाएँ और अंतर्ग्रहण प्रबंधित करें",
+      "values": {
+        "collectionCount": "{{count}} संग्रह",
+        "loading": "लोड हो रहा है",
+        "loadingEllipsis": "लोड हो रहा है...",
+        "countSuffix": "({{count}})",
+        "sampledSuffix": "({{count}} नमूना)"
+      },
+      "actions": {
+        "refreshCollections": "संग्रह ताज़ा करें",
+        "ingestDocs": "निगलना दस्तावेज़",
+        "ingestClinical": "निगलना क्लिनिकल",
+        "promoteFaq": "प्रचार करें FAQ",
+        "ingestOhdsiPapers": "निगलना OHDSI कागजात",
+        "ingestOhdsiKnowledge": "OHDSI ज्ञान ग्रहण करें",
+        "ingestTextbooks": "पाठ्यपुस्तकें ग्रहण करें"
+      },
+      "stats": {
+        "vectors": "वैक्टर",
+        "sampled": "नमूना",
+        "dimensions": "DIMENSIONS",
+        "metaFields": "मेटा फ़ील्ड्स"
+      },
+      "messages": {
+        "loadingCollectionData": "संग्रहण डेटा लोड हो रहा है..."
+      },
+      "empty": {
+        "title": "यह संग्रह खाली है",
+        "description": "\"{{collection}}\" को दस्तावेज़ों से भरने के लिए उपरोक्त इनजेस्ट क्रियाओं का उपयोग करें।",
+        "noRecords": "इस संग्रह में कोई रिकॉर्ड नहीं.",
+        "noDocumentReturned": "कोई दस्तावेज़ वापस नहीं आया.",
+        "noDocumentText": "कोई दस्तावेज़ पाठ उपलब्ध नहीं है."
+      },
+      "tabs": {
+        "overview": "सिंहावलोकन",
+        "retrieval": "पुनर्प्राप्ति"
+      },
+      "search": {
+        "placeholder": "अर्थ संबंधी प्रश्न...",
+        "recentQueries": "हाल के प्रश्न",
+        "kLabel": "K:",
+        "queryAction": "क्वेरी",
+        "empty": "ऊपर एक क्वेरी दर्ज करें और पुनर्प्राप्ति परिणामों का निरीक्षण करने के लिए क्वेरी पर क्लिक करें।",
+        "queryLabel": "क्वेरी:",
+        "resultsCount": "{{count}} परिणाम",
+        "querying": "क्वेरी कर रहे हैं...",
+        "distance": "दूरी"
+      },
+      "overview": {
+        "facetDistribution": "पहलू वितरण",
+        "sampleRecords": "नमूना रिकॉर्ड",
+        "collectionMetadata": "संग्रह मेटाडेटा"
+      }
+    },
+    "vectorExplorer": {
+      "title": "वेक्टर एक्सप्लोरर",
+      "semanticMapTitle": "{{dimensions}}D सिमेंटिक मानचित्र",
+      "loading": {
+        "computingProjection": "कंप्यूटिंग प्रक्षेपण",
+        "runningProjection": "PCA->UMAP को {{sample}} वैक्टर पर चला रहा हूं...",
+        "recomputingProjection": "प्रक्षेपण की पुनर्गणना..."
+      },
+      "values": {
+        "all": "सभी",
+        "loadingEllipsis": "लोड हो रहा है...",
+        "countSuffix": "({{count}})",
+        "sampled": "{{count}} नमूना",
+        "dimensions": "{{dimensions}}D",
+        "knnEdges": "k={{neighbors}} - {{edges}} किनारे",
+        "seconds": "{{seconds}}s",
+        "points": "{{count}} अंक",
+        "cachedSuffix": "- कैश्ड",
+        "fallbackSuffix": "- मैदान छोड़ना",
+        "timeSuffix": "- {{seconds}}s"
+      },
+      "modes": {
+        "clusters": "कलस्टरों",
+        "query": "क्वेरी",
+        "qa": "QA"
+      },
+      "sample": {
+        "label": "नमूना",
+        "confirmLoadAll": "सभी {{count}} वैक्टर लोड करें? इसमें काफ़ी अधिक समय लग सकता है.",
+        "steps": {
+          "all": "सभी"
+        }
+      },
+      "empty": {
+        "selectCollection": "एम्बेडिंग को देखने के लिए एक संग्रह का चयन करें।"
+      },
+      "tooltips": {
+        "requiresAiService": "AI सेवा कनेक्शन की आवश्यकता है"
+      },
+      "controls": {
+        "colorBy": "द्वारा रंग",
+        "modeDefault": "मोड डिफ़ॉल्ट"
+      },
+      "search": {
+        "placeholder": "सदिश स्थान के भीतर खोजें",
+        "searching": "खोज रहे हैं...",
+        "search": "खोज",
+        "visibleResults": "इस प्रक्षेपण में {{total}} में से {{visible}} परिणाम दिखाई दे रहे हैं"
+      },
+      "query": {
+        "anchor": "प्रश्न एंकर"
+      },
+      "sections": {
+        "overlays": "ओवरले",
+        "clusterProfile": "क्लस्टर प्रोफ़ाइल",
+        "inspector": "इंस्पेक्टर"
+      },
+      "inspector": {
+        "selectPoint": "निरीक्षण करने के लिए किसी बिंदु पर क्लिक करें.",
+        "loadingDetails": "पूर्ण विवरण लोड हो रहा है...",
+        "flags": {
+          "outlier": "ग़ैर",
+          "duplicate": "डुप्लिकेट",
+          "orphan": "अनाथ"
+        }
+      },
+      "overlays": {
+        "clusterHulls": {
+          "label": "क्लस्टर पतवार",
+          "help": "गुच्छों के चारों ओर उत्तल आवरण"
+        },
+        "topologyLines": {
+          "label": "टोपोलॉजी लाइनें",
+          "help": "k-NN निकटवर्ती बिंदुओं के बीच लिंक"
+        },
+        "queryRays": {
+          "label": "प्रश्न किरणें",
+          "help": "एंकर-टू-परिणाम समानता लिंक"
+        }
+      },
+      "stats": {
+        "totalVectors": "कुल सदिश",
+        "sampled": "नमूना",
+        "projection": "प्रक्षेपण",
+        "knnGraph": "k-NN ग्राफ़",
+        "source": "स्रोत",
+        "projectionTime": "प्रक्षेपण समय",
+        "indexed": "इंडेक्स किए गए"
+      },
+      "sources": {
+        "solrCached": "Solr (कैश्ड)",
+        "clientFallback": "ग्राहक फ़ॉलबैक",
+        "liveUmap": "लाइव UMAP"
+      },
+      "actions": {
+        "recomputeProjection": "प्रक्षेपण की पुन: गणना करें",
+        "expand": "बढ़ाना"
+      },
+      "legend": {
+        "clusters": "कलस्टरों",
+        "quality": "गुणवत्ता",
+        "similarity": "समानता",
+        "hide": "छिपाना",
+        "show": "दिखाओ"
+      },
+      "quality": {
+        "outliers": "बाहरी कारकों के कारण",
+        "duplicates": "डुप्लिकेट",
+        "duplicatePairs": "डुप्लिकेट जोड़े",
+        "orphans": "अनाथों",
+        "normal": "सामान्य",
+        "outOfSampled": "{{count}} में से नमूना लिया गया",
+        "exportCsv": "CSV निर्यात करें"
+      },
+      "clusterProfile": {
+        "selectCluster": "इसके प्रमुख मेटाडेटा का निरीक्षण करने के लिए एक क्लस्टर का चयन करें।",
+        "clusterSize": "क्लस्टर का आकार",
+        "dominantMetadata": "प्रमुख मेटाडेटा",
+        "representativeTitles": "प्रतिनिधि उपाधियाँ"
+      }
+    },
+    "pacsConnectionModal": {
+      "title": {
+        "add": "PACS कनेक्शन जोड़ें",
+        "edit": "संपादित करें PACS कनेक्शन"
+      },
+      "description": "DICOM इमेजिंग सर्वर कनेक्शन कॉन्फ़िगर करें।",
+      "fields": {
+        "name": "नाम",
+        "type": "प्रकार",
+        "authType": "प्रामाणिक प्रकार",
+        "baseUrl": "आधार URL",
+        "username": "उपयोगकर्ता नाम",
+        "password": "पासवर्ड",
+        "bearerToken": "Bearer टोकन",
+        "linkedSource": "लिंक्ड स्रोत (वैकल्पिक)",
+        "active": "सक्रिय"
+      },
+      "placeholders": {
+        "name": "मुख्य PACS सर्वर",
+        "keepExisting": "मौजूदा बनाए रखने के लिए खाली छोड़ें",
+        "password": "पासवर्ड",
+        "token": "टोकन"
+      },
+      "types": {
+        "orthanc": "ऑर्थैंक",
+        "dicomweb": "DICOMवेब",
+        "googleHealthcare": "Google हेल्थकेयर",
+        "cloud": "बादल"
+      },
+      "auth": {
+        "none": "कोई नहीं",
+        "basic": "Basic प्रामाणिक",
+        "bearer": "Bearer टोकन"
+      },
+      "values": {
+        "latency": "({{ms}}ms)"
+      },
+      "actions": {
+        "testConnection": "परीक्षण कनेक्शन",
+        "cancel": "रद्द करना",
+        "saveChanges": "परिवर्तनों को सुरक्षित करें",
+        "createConnection": "कनेक्शन बनाएँ"
+      },
+      "errors": {
+        "testRequestFailed": "परीक्षण अनुरोध विफल रहा",
+        "saveFailed": "कनेक्शन सहेजने में विफल"
+      }
+    },
+    "users": {
+      "title": "उपयोगकर्ताओं",
+      "summary": {
+        "totalAccounts": "कुल खाते"
+      },
+      "empty": {
+        "loading": "लोड हो रहा है...",
+        "noUsers": "कोई उपयोगकर्ता नहीं मिला",
+        "adjustFilters": "अपनी खोज या फ़िल्टर समायोजित करने का प्रयास करें."
+      },
+      "deleteModal": {
+        "title": "उपयोगकर्ता हटाएं?",
+        "description": "स्थायी रूप से हटा दिया जाएगा और उनके सभी API टोकन रद्द कर दिए जाएंगे।",
+        "irreversible": "इसे असंपादित नहीं किया जा सकता है।"
+      },
+      "actions": {
+        "cancel": "रद्द करना",
+        "deleting": "हटाया जा रहा है...",
+        "delete": "मिटाना",
+        "adminEmailer": "व्यवस्थापक ईमेलकर्ता",
+        "newUser": "नए उपयोगकर्ता",
+        "editUser": "यूजर को संपादित करो",
+        "deleteUser": "उपयोगकर्ता हटाएँ"
+      },
+      "filters": {
+        "searchPlaceholder": "नाम या ईमेल खोजें...",
+        "allRoles": "सभी भूमिकाएँ"
+      },
+      "table": {
+        "name": "नाम",
+        "email": "ईमेल",
+        "lastActive": "अंतिम सक्रिय",
+        "joined": "सम्मिलित हुए",
+        "roles": "भूमिकाएँ"
+      },
+      "values": {
+        "never": "कभी नहीं"
+      },
+      "pagination": {
+        "page": "पेज",
+        "of": "का",
+        "users": "उपयोगकर्ताओं"
+      }
+    },
+    "userAudit": {
+      "title": "उपयोगकर्ता ऑडिट लॉग",
+      "subtitle": "सभी उपयोगकर्ताओं के लिए लॉगिन ईवेंट, सुविधा पहुंच और सुरक्षा कार्रवाइयां ट्रैक करें।",
+      "actions": {
+        "login": "लॉग इन करें",
+        "logout": "लॉग आउट",
+        "passwordChanged": "पासवर्ड बदला गया",
+        "passwordReset": "पासवर्ड रीसेट",
+        "featureAccess": "फ़ीचर एक्सेस"
+      },
+      "empty": {
+        "noMatching": "कोई मेल खाने वाला ईवेंट नहीं",
+        "noEvents": "अभी तक कोई ऑडिट इवेंट नहीं",
+        "adjustFilters": "अपने फ़िल्टर या दिनांक सीमा को समायोजित करने का प्रयास करें।",
+        "description": "जैसे ही उपयोगकर्ता लॉग इन करते हैं और प्लेटफ़ॉर्म सुविधाओं तक पहुँचते हैं, ऑडिट ईवेंट रिकॉर्ड किए जाते हैं।"
+      },
+      "stats": {
+        "loginsToday": "आज ही लॉगिन करें",
+        "activeUsers7d": "सक्रिय उपयोगकर्ता (7 दिन)",
+        "totalEvents": "कुल घटनाएँ",
+        "topFeature": "शीर्ष विशेषता"
+      },
+      "sections": {
+        "mostAccessedFeatures": "सर्वाधिक पहुँच योग्य सुविधाएँ - पिछले 7 दिन"
+      },
+      "filters": {
+        "searchPlaceholder": "उपयोगकर्ता खोजें, सुविधा, IP...",
+        "allActions": "सभी क्रियाएं",
+        "clearAll": "सभी साफ करें"
+      },
+      "table": {
+        "time": "समय",
+        "user": "उपयोगकर्ता",
+        "action": "कार्रवाई",
+        "feature": "विशेषता",
+        "ipAddress": "IP पता"
+      },
+      "pagination": {
+        "page": "पेज",
+        "of": "का",
+        "events": "घटनाएँ"
+      }
+    },
+    "serviceDetail": {
+      "actions": {
+        "backToSystemHealth": "सिस्टम स्वास्थ्य पर वापस",
+        "systemHealth": "सिस्टम स्वास्थ्य",
+        "refresh": "ताज़ा करना",
+        "manageSolrCores": "Solr करोड़ प्रबंधित करें"
+      },
+      "empty": {
+        "serviceNotFound": "सेवा नहीं मिली।",
+        "noLogs": "कोई हालिया लॉग प्रविष्टियाँ उपलब्ध नहीं हैं."
+      },
+      "values": {
+        "checkedAt": "{{time}} पर जाँच की गई",
+        "entriesCount": "({{count}} प्रविष्टियाँ)",
+        "yes": "हाँ",
+        "no": "नहीं"
+      },
+      "sections": {
+        "metrics": "मेट्रिक्स",
+        "recentLogs": "हाल के लॉग"
+      },
+      "pacs": {
+        "title": "PACS कनेक्शन",
+        "addConnection": "कनेक्शन जोड़ें",
+        "empty": "कोई PACS कनेक्शन कॉन्फ़िगर नहीं किया गया।"
+      },
+      "darkstar": {
+        "ohdsiPackages": "OHDSI HADES पैकेज",
+        "positPackages": "स्थिति / CRAN पैकेज",
+        "installedCount": "({{count}} स्थापित)"
+      }
+    },
+    "atlasMigration": {
+      "steps": {
+        "connect": "जोड़ना",
+        "discover": "खोज करना",
+        "select": "चुनना",
+        "import": "आयात",
+        "summary": "सारांश"
+      },
+      "entityTypes": {
+        "conceptSets": "संकल्पना सेट",
+        "cohortDefinitions": "समूह परिभाषाएँ",
+        "incidenceRates": "घटना दर",
+        "characterizations": "चरित्र चित्रण",
+        "pathways": "रास्ते",
+        "estimations": "अनुमानों",
+        "predictions": "भविष्यवाणियों"
+      },
+      "connect": {
+        "title": "Atlas WebAPI से कनेक्ट करें",
+        "description": "अपने मौजूदा OHDSI WebAPI उदाहरण का आधार URL दर्ज करें। Parthenon माइग्रेशन के लिए सभी उपलब्ध संस्थाओं को कनेक्ट और सूचीबद्ध करेगा।",
+        "webapiUrl": "WebAPI आधार URL",
+        "authentication": "प्रमाणीकरण",
+        "auth": {
+          "none": "कोई नहीं (सार्वजनिक WebAPI)",
+          "basic": "Basic प्रमाणीकरण",
+          "bearer": "Bearer टोकन"
+        },
+        "credentials": "क्रेडेंशियल (उपयोगकर्ता नाम: पासवर्ड)",
+        "bearerToken": "Bearer टोकन",
+        "testConnection": "परीक्षण कनेक्शन",
+        "webapiVersion": "WebAPI संस्करण: {{version}}"
+      },
+      "discover": {
+        "discovering": "संस्थाओं की खोज की जा रही है...",
+        "querying": "सभी WebAPI समापन बिंदुओं को समानांतर में क्वेरी करना",
+        "title": "Atlas इन्वेंटरी",
+        "summary": "{{count}} को {{categories}} श्रेणियों में प्रवास योग्य संस्थाएँ मिलीं।",
+        "sourcesFound": "{{count}} डेटा स्रोत भी मिले।"
+      },
+      "select": {
+        "title": "माइग्रेट करने के लिए संस्थाओं का चयन करें",
+        "description": "चुनें कि कौन सी इकाइयाँ आयात करनी हैं। निर्भरताएँ स्वचालित रूप से हल हो जाती हैं।",
+        "analysisWarning": "विश्लेषण इकाइयाँ समूह परिभाषाओं और अवधारणा सेटों को ID द्वारा संदर्भित कर सकती हैं। Parthenon आयात के दौरान इन संदर्भों को स्वचालित रूप से रीमैप करेगा। सर्वोत्तम परिणामों के लिए, अपने चयन में संदर्भित समूह और अवधारणा सेट शामिल करें।",
+        "selectedCount": "{{selected}}/{{total}} चयनित",
+        "totalSelected": "माइग्रेशन के लिए {{count}} संस्थाओं का चयन किया गया"
+      },
+      "import": {
+        "starting": "माइग्रेशन प्रारंभ हो रहा है...",
+        "importing": "इकाइयां आयात की जा रही हैं...",
+        "complete": "माइग्रेशन पूर्ण",
+        "failed": "माइग्रेशन विफल",
+        "processed": "सभी चयनित इकाइयों पर कार्रवाई कर दी गई है.",
+        "error": "माइग्रेशन के दौरान एक त्रुटि उत्पन्न हुई.",
+        "percentComplete": "{{percent}}% पूर्ण",
+        "polling": "अपडेट के लिए मतदान..."
+      },
+      "summary": {
+        "successful": "प्रवास सफल",
+        "completedWithWarnings": "चेतावनियों के साथ माइग्रेशन पूरा हुआ",
+        "failed": "माइग्रेशन विफल",
+        "from": "से",
+        "duration": "अवधि: {{duration}}"
+      },
+      "metrics": {
+        "total": "कुल",
+        "imported": "आयातित",
+        "skipped": "छोड़ा गया",
+        "failed": "असफल"
+      },
+      "table": {
+        "entityType": "इकाई प्रकार",
+        "category": "वर्ग"
+      },
+      "actions": {
+        "selectAll": "सबका चयन करें",
+        "deselectAll": "सबको अचयनित करो",
+        "retryFailed": "पुनः प्रयास विफल ({{count}})",
+        "done": "हो गया",
+        "closeTitle": "बंद करें - प्रशासन के माध्यम से किसी भी समय वापसी",
+        "previous": "पिछला",
+        "startMigration": "माइग्रेशन प्रारंभ करें",
+        "next": "अगला"
+      },
+      "errors": {
+        "connectionFailed": "कनेक्शन विफल",
+        "discoveryFailed": "खोज विफल रही"
+      }
+    },
+    "fhirExport": {
+      "title": "FHIR Bulk Export",
+      "subtitle": "इंटरऑपरेबिलिटी के लिए OMOP CDM डेटा को FHIR R4 NDJSON फ़ाइलों के रूप में निर्यात करें।",
+      "comingSoon": "जल्द आ रहा है",
+      "description": "FHIR Bulk Export ($export) विकासाधीन है। यह सुविधा इंटरऑपरेबिलिटी के लिए OMOP CDM डेटा को FHIR R4 NDJSON फ़ाइलों के रूप में निर्यात करने की अनुमति देगी।",
+      "backendPending": "इस सुविधा के लिए बैकएंड एंडपॉइंट अभी तक लागू नहीं किया गया है।"
+    },
+    "fhirConnections": {
+      "title": "FHIR EHR कनेक्शन",
+      "subtitle": "Epic, Cerner और अन्य EHR सिस्टम से FHIR R4 Bulk Data extraction के लिए SMART Backend Services connections कॉन्फ़िगर करें।",
+      "runMetrics": {
+        "extracted": "निकाले",
+        "mapped": "मैप किए गए",
+        "written": "लिखा हुआ",
+        "failed": "असफल",
+        "mappingCoverage": "मानचित्रण कवरेज"
+      },
+      "history": {
+        "loading": "समन्वयन इतिहास लोड हो रहा है...",
+        "empty": "अभी तक कोई सिंक नहीं चलता.",
+        "status": "स्थिति",
+        "started": "शुरू कर दिया",
+        "duration": "अवधि",
+        "metrics": "मेट्रिक्स",
+        "title": "सिंक इतिहास"
+      },
+      "dialog": {
+        "editTitle": "संपादित करें FHIR कनेक्शन",
+        "addTitle": "FHIR कनेक्शन जोड़ें",
+        "description": "SMART बैकएंड सर्विसेज कनेक्शन को EHR FHIR R4 एंडपॉइंट पर कॉन्फ़िगर करें।"
+      },
+      "labels": {
+        "siteName": "जगह का नाम",
+        "siteKey": "साइट कुंजी (स्लग)",
+        "ehrVendor": "EHR विक्रेता",
+        "fhirBaseUrl": "FHIR आधार URL",
+        "tokenEndpoint": "टोकन समापनबिंदु",
+        "clientId": "Client ID",
+        "rsaPrivateKey": "RSA निजी कुंजी (PEM)",
+        "scopes": "स्कोप",
+        "groupId": "समूह ID (थोक निर्यात के लिए)",
+        "exportResourceTypes": "निर्यात संसाधन प्रकार (अल्पविराम से अलग, रिक्त = सभी)",
+        "active": "सक्रिय",
+        "incrementalSync": "वृद्धिशील सिंक"
+      },
+      "vendors": {
+        "epic": "महाकाव्य",
+        "cerner": "सर्नर (ओरेकल हेल्थ)",
+        "other": "अन्य FHIR R4"
+      },
+      "placeholders": {
+        "siteName": "जॉन्स हॉपकिन्स महाकाव्य",
+        "keepExistingKey": "मौजूदा कुंजी रखने के लिए खाली छोड़ दें",
+        "resourceTypes": "रोगी, हालत, मुलाक़ात, दवा अनुरोध, निरीक्षण, प्रक्रिया"
+      },
+      "actions": {
+        "cancel": "रद्द करना",
+        "saveChanges": "परिवर्तनों को सुरक्षित करें",
+        "createConnection": "कनेक्शन बनाएँ",
+        "testConnection": "कनेक्शन का परीक्षण करें",
+        "edit": "संपादन करना",
+        "delete": "मिटाना",
+        "details": "विवरण",
+        "syncMonitor": "सिंक मॉनिटर",
+        "addConnection": "कनेक्शन जोड़ें"
+      },
+      "messages": {
+        "failedToSave": "सहेजने में विफल",
+        "failedToStartSync": "समन्वयन प्रारंभ करने में विफल",
+        "deleteConfirm": "\"{{name}}\" हटाएं?",
+        "noConnections": "कोई FHIR कनेक्शन कॉन्फ़िगर नहीं किया गया",
+        "noConnectionsDescription": "EHR से FHIR R4 बल्क डेटा के माध्यम से क्लिनिकल डेटा निकालना शुरू करने के लिए एक कनेक्शन जोड़ें।"
+      },
+      "sync": {
+        "activateFirst": "पहले कनेक्शन सक्रिय करें",
+        "uploadKeyFirst": "पहले एक निजी कुंजी अपलोड करें",
+        "inProgress": "समन्वयन प्रगति पर है",
+        "incrementalTitle": "वृद्धिशील सिंक (केवल नया डेटा)",
+        "fullSync": "पूर्ण समन्वयन",
+        "sync": "साथ-साथ करना",
+        "incrementalSync": "वृद्धिशील सिंक",
+        "incrementalDescription": "अंतिम सिंक के बाद से केवल new/updated डेटा",
+        "fullDescription": "EHR से सभी डेटा डाउनलोड करें",
+        "forceFullSync": "पूर्ण सिंक को बलपूर्वक लागू करें",
+        "forceFullDescription": "सभी डेटा को दोबारा डाउनलोड करें, लिखने पर डुप्लीकेट बनाएं"
+      },
+      "values": {
+        "percent": "{{value}}%",
+        "byUser": "{{name}} द्वारा",
+        "keyUploaded": "कुंजी अपलोड की गई",
+        "noKey": "चाभी नहीं",
+        "lastSync": "अंतिम सिंक: {{date}}",
+        "records": "{{count}} रिकॉर्ड",
+        "testElapsed": "{{message}} ({{elapsed}}ms)",
+        "allSupported": "सभी ने समर्थन किया",
+        "enabled": "सक्रिय",
+        "disabled": "अक्षम",
+        "since": "({{date}} से)",
+        "notSet": "सेट नहीं",
+        "never": "कभी नहीं"
+      },
+      "details": {
+        "tokenEndpoint": "टोकन समापन बिंदु:",
+        "clientId": "Client ID:",
+        "scopes": "दायरा:",
+        "groupId": "समूह ID:",
+        "resourceTypes": "संसाधन प्रकार:",
+        "incremental": "वृद्धिशील:",
+        "targetSource": "लक्ष्य स्रोत:",
+        "syncRuns": "सिंक चलता है:"
+      },
+      "stats": {
+        "totalConnections": "कुल कनेक्शन",
+        "active": "सक्रिय",
+        "keysConfigured": "कुंजियाँ कॉन्फ़िगर की गईं",
+        "lastSync": "अंतिम सिंक"
+      }
+    },
+    "vocabulary": {
+      "title": "शब्दावली प्रबंधन",
+      "subtitle": "एथेना डाउनलोड ZIP से OMOP शब्दावली तालिकाओं को अपडेट करें।",
+      "status": {
+        "pending": "कतारबद्ध",
+        "running": "दौड़ना",
+        "completed": "पुरा होना।",
+        "failed": "असफल"
+      },
+      "log": {
+        "title": "लॉग आयात करें",
+        "noOutput": "(अभी तक कोई आउटपुट नहीं)"
+      },
+      "labels": {
+        "schema": "स्कीमा:",
+        "source": "स्रोत:",
+        "rowsLoaded": "पंक्तियाँ लोड की गईं:",
+        "duration": "अवधि:",
+        "by": "द्वारा:",
+        "progress": "प्रगति",
+        "optional": "(वैकल्पिक)"
+      },
+      "values": {
+        "seconds": "{{value}}s"
+      },
+      "actions": {
+        "refresh": "ताज़ा करना",
+        "remove": "निकालना",
+        "uploading": "अपलोड हो रहा है...",
+        "startImport": "आयात प्रारंभ करें"
+      },
+      "upload": {
+        "title": "एथेना शब्दावली अपलोड करें ZIP",
+        "descriptionPrefix": "यहां से शब्दावली बंडल डाउनलोड करें",
+        "descriptionMiddle": "और इसे यहां अपलोड करें.",
+        "descriptionSuffix": "आयात पृष्ठभूमि कार्य के रूप में चलता है और शब्दावली के आकार के आधार पर इसमें 15-60 मिनट लग सकते हैं।",
+        "maxFileSize": "5 GB तक की फ़ाइलें समर्थित हैं",
+        "dropHere": "एथेना ZIP को यहां छोड़ें",
+        "browse": "या ब्राउज़ करने के लिए क्लिक करें",
+        "targetSource": "लक्ष्य CDM स्रोत",
+        "defaultSchema": "डिफ़ॉल्ट शब्दावली स्कीमा",
+        "sourceHelpPrefix": "यह चुनता है कि आयात किस स्रोत की शब्दावली स्कीमा को पॉप्युलेट करेगा। यदि कोई स्रोत नहीं चुना गया है, तो डिफ़ॉल्ट",
+        "sourceHelpSuffix": "कनेक्शन स्कीमा का उपयोग किया जाता है."
+      },
+      "instructions": {
+        "title": "एथेना से शब्दावली ZIP कैसे प्राप्त करें",
+        "signInPrefix": "मिलने जाना",
+        "signInSuffix": "और साइन इन करें.",
+        "selectDomains": "आपके लिए आवश्यक शब्दावली डोमेन और संस्करण चुनें (e.g. SNOMED, RxNorm, LOINC)।",
+        "clickPrefix": "क्लिक",
+        "downloadVocabularies": "शब्दावलियाँ डाउनलोड करें",
+        "clickSuffix": "- एथेना आपको एक डाउनलोड लिंक ईमेल करेगी।",
+        "uploadZip": "ZIP (आमतौर पर 500 MB-3 GB) डाउनलोड करें और इसे नीचे अपलोड करें।"
+      },
+      "messages": {
+        "deleteConfirm": "यह आयात रिकॉर्ड हटाएं?",
+        "uploadFailed": "अपलोड विफल: {{message}}",
+        "unknownError": "अज्ञात त्रुटि",
+        "uploadSuccess": "ZIP सफलतापूर्वक अपलोड हो गया। आयात कार्य कतारबद्ध है - प्रगति के लिए नीचे देखें।",
+        "importRunning": "एक आयात वर्तमान में चल रहा है. इसके पूरा होने तक नए अपलोड अक्षम हैं।"
+      },
+      "history": {
+        "title": "आयात इतिहास",
+        "loading": "लोड हो रहा है...",
+        "empty": "अभी तक कोई शब्दावली आयात नहीं हुई है. आरंभ करने के लिए ऊपर एथेना ZIP अपलोड करें।"
+      }
+    },
+    "systemHealth": {
+      "title": "सिस्टम स्वास्थ्य",
+      "subtitle": "सभी Parthenon सेवाओं की लाइव स्थिति। हर 30 सेकंड में स्वतः ताज़ा हो जाता है।",
+      "serverStatus": "सर्वर की स्थिति",
+      "lastChecked": "अंतिम बार {{time}} पर जाँच की गई",
+      "polling": "मतदान सेवाएँ...",
+      "gisDataManagement": "GIS डेटा प्रबंधन",
+      "status": {
+        "healthy": "स्वस्थ",
+        "degraded": "अपमानित",
+        "down": "नीचे"
+      },
+      "overall": {
+        "healthy": "स्वस्थ",
+        "needsAttention": "ध्यान देने की जरूरत है"
+      },
+      "labels": {
+        "pending": "लंबित:",
+        "failed": "असफल:",
+        "cores": "कोर:",
+        "documents": "दस्तावेज़:",
+        "dagster": "Dagster:",
+        "graphql": "ग्राफक्यूएल:",
+        "studies": "अध्ययन करते हैं:",
+        "instances": "उदाहरण:",
+        "disk": "डिस्क:"
+      },
+      "actions": {
+        "refresh": "ताज़ा करना",
+        "openService": "सेवा खोलें",
+        "viewDetails": "विवरण देखें"
+      },
+      "tiers": {
+        "corePlatform": "कोर प्लेटफार्म",
+        "dataSearch": "डेटा एवं खोज",
+        "aiAnalytics": "AI और एनालिटिक्स",
+        "clinicalServices": "नैदानिक ​​सेवाएँ",
+        "monitoringCommunications": "निगरानी एवं संचार",
+        "acropolisInfrastructure": "एक्रोपोलिस इन्फ्रास्ट्रक्चर",
+        "unknown": "अन्य सेवाएँ"
+      },
+      "hades": {
+        "title": "OHDSI पैकेज समता",
+        "subtitle": "प्रथम श्रेणी, देशी और अनुकूलता कार्य के लिए डार्कस्टार पैकेज कवरेज।",
+        "checking": "डार्कस्टार पैकेज की जाँच हो रही है...",
+        "unavailable": "डार्कस्टार पैकेज सूची अनुपलब्ध है।",
+        "installed": "स्थापित:",
+        "missing": "गुम:",
+        "total": "कुल:",
+        "requiredMissing": "आवश्यक लापता:",
+        "shinyPolicy": "विरासत चमकदार नीति",
+        "notExposed": "उजागर नहीं",
+        "shinyPolicyDescription": "होस्ट किए गए शाइनी ऐप्स, आईफ़्रेम एम्बेडिंग और उपयोगकर्ता द्वारा प्रदत्त ऐप पथ अक्षम हैं। OHDSI शाइनी पैकेज केवल रनटाइम संगतता कलाकृतियाँ बने रहते हैं।",
+        "replacement": "प्रतिस्थापन: {{surface}}",
+        "package": "पैकेट",
+        "capability": "क्षमता",
+        "priority": "प्राथमिकता",
+        "surface": "सतह",
+        "source": "स्रोत",
+        "runtime": "क्रम",
+        "status": {
+          "complete": "पूरा",
+          "partial": "आंशिक"
+        }
+      }
+    },
+    "fhirSync": {
+      "title": "FHIR सिंक मॉनिटर",
+      "subtitle": "सभी FHIR कनेक्शनों पर वास्तविक समय ETL पाइपलाइन निगरानी",
+      "status": {
+        "completed": "पुरा होना।",
+        "running": "दौड़ना",
+        "pending": "लंबित",
+        "exporting": "निर्यात",
+        "downloading": "डाउनलोड",
+        "processing": "प्रसंस्करण",
+        "failed": "असफल"
+      },
+      "timeline": {
+        "empty": "पिछले 30 दिनों में कोई समन्वयन गतिविधि नहीं",
+        "tooltip": "{{date}}: {{completed}} पूर्ण, {{failed}} विफल",
+        "hoverSummary": "{{completed}} ठीक / {{failed}} विफल"
+      },
+      "metrics": {
+        "extracted": "निकाले",
+        "mapped": "मैप किए गए",
+        "written": "लिखा हुआ",
+        "failed": "असफल",
+        "averageMappingCoverage": "औसत मैपिंग कवरेज"
+      },
+      "actions": {
+        "viewError": "त्रुटि देखें"
+      },
+      "values": {
+        "runs": "{{count}} चलता है",
+        "never": "कभी नहीं",
+        "activeRuns": "{{count}} सक्रिय",
+        "refreshInterval": "{{seconds}}s ताज़ा करें",
+        "allTimeTotals": "सर्वकालिक योग",
+        "lastRuns": "सभी कनेक्शनों में अंतिम 20"
+      },
+      "messages": {
+        "failedToLoad": "डैशबोर्ड डेटा लोड करने में विफल.",
+        "noConnections": "कोई कनेक्शन कॉन्फ़िगर नहीं किया गया",
+        "noRuns": "अभी तक कोई सिंक नहीं चलता"
+      },
+      "stats": {
+        "connections": "कनेक्शन",
+        "totalRuns": "कुल रन",
+        "completed": "पुरा होना।",
+        "failed": "असफल",
+        "recordsWritten": "अभिलेख लिखे गए",
+        "avgCoverage": "औसत कवरेज"
+      },
+      "panels": {
+        "pipelineThroughput": "पाइपलाइन थ्रूपुट",
+        "syncActivity": "सिंक गतिविधि (30 दिन)",
+        "connectionHealth": "कनेक्शन स्वास्थ्य",
+        "recentRuns": "हालिया सिंक रन"
+      },
+      "table": {
+        "status": "स्थिति",
+        "connection": "संबंध",
+        "started": "शुरू कर दिया",
+        "duration": "अवधि",
+        "metrics": "मेट्रिक्स"
+      }
+    },
+    "gisData": {
+      "title": "GIS सीमा डेटा",
+      "subtitle": "GIS एक्सप्लोरर के लिए भौगोलिक सीमा डेटासेट प्रबंधित करें",
+      "status": {
+        "loaded": "भरा हुआ",
+        "empty": "खाली"
+      },
+      "tabs": {
+        "boundaries": "सीमाएँ",
+        "dataImport": "डेटा आयात"
+      },
+      "messages": {
+        "checking": "सीमा डेटा की जाँच की जा रही है...",
+        "noBoundaryData": "कोई सीमा डेटा लोड नहीं किया गया. शुरू करने के लिए नीचे एक स्रोत और स्तर चुनें।"
+      },
+      "labels": {
+        "boundaries": "सीमाएँ:",
+        "countries": "देश:"
+      },
+      "load": {
+        "title": "सीमाएँ लोड करें",
+        "adminLevels": "लोड करने के लिए व्यवस्थापक स्तर:"
+      },
+      "sources": {
+        "gadm": {
+          "name": "GADM v4.1",
+          "description": "वैश्विक प्रशासनिक क्षेत्र - 6 प्रशासनिक स्तरों पर 356K सीमाएँ"
+        },
+        "geoboundaries": {
+          "name": "भू सीमाएँ CGAZ",
+          "description": "कार्टोग्राफिक स्थिरता के लिए सरलीकृत सीमाएँ (ADM0-2)"
+        }
+      },
+      "levels": {
+        "adm0": "देश (ADM0)",
+        "adm1": "राज्य/प्रांत (ADM1)",
+        "adm2": "जिले/काउंटी (ADM2)",
+        "adm3": "उप-जिले (ADM3)"
+      },
+      "actions": {
+        "preparing": "तैयारी...",
+        "generateLoadCommand": "लोड कमांड जनरेट करें",
+        "refreshStats": "आँकड़े ताज़ा करें",
+        "copyToClipboard": "क्लिपबोर्ड पर कॉपी करें",
+        "close": "बंद करें"
+      },
+      "modal": {
+        "runOnHost": "होस्ट पर चलाएँ",
+        "description": "GIS डेटा सीधे स्थानीय पर लोड होता है PostgreSQL 17. इस कमांड को प्रोजेक्ट रूट से चलाएँ:",
+        "datasetFlagPrefix": "",
+        "datasetFlagSuffix": "ध्वज प्रगति ट्रैकिंग को सक्षम बनाता है। स्क्रिप्ट पूरी होने के बाद आँकड़े ताज़ा करें।"
+      },
+      "job": {
+        "title": "लोड हो रहा है GIS सीमाएँ",
+        "description": "स्रोत: {{source}} | स्तर: {{levels}}"
+      },
+      "values": {
+        "all": "सभी"
+      }
+    },
+    "honestBroker": {
+      "title": "ईमानदार दलाल",
+      "subtitle": "दृष्टिबाधित सर्वेक्षण प्रतिभागियों को पंजीकृत करें, उन्हें OMOP व्यक्ति_आईडी रिकॉर्ड से लिंक करें, और शोधकर्ताओं को कच्ची प्रतिवादी पहचान उजागर किए बिना सबमिशन स्थिति की निगरानी करें।",
+      "actions": {
+        "cancel": "रद्द करना",
+        "registerParticipant": "प्रतिभागी को पंजीकृत करें",
+        "sendInvitation": "निमंत्रण भेजना",
+        "sendInvite": "आमंत्रण भेजो",
+        "refresh": "ताज़ा करना",
+        "copyLink": "लिंक की प्रतिलिपि करें",
+        "openSurvey": "सर्वेक्षण खोलें",
+        "resend": "पुन: भेजें",
+        "revoke": "रद्द करना"
+      },
+      "labels": {
+        "personId": "व्यक्ति ID",
+        "notes": "टिप्पणियाँ",
+        "participant": "प्रतिभागी",
+        "deliveryEmail": "डिलिवरी ईमेल",
+        "unknown": "अज्ञात",
+        "unknownInstrument": "अज्ञात यंत्र",
+        "notYet": "अभी तक नहीं",
+        "notRecorded": "रिकॉर्ड नहीं किया गया",
+        "system": "प्रणाली",
+        "statusToken": "{{status}} · {{token}}",
+        "tokenReference": "...{{token}}"
+      },
+      "metrics": {
+        "brokerCampaigns": "दलाल अभियान",
+        "registeredParticipants": "पंजीकृत प्रतिभागी",
+        "submitted": "प्रस्तुत किया गया",
+        "invitationsSent": "निमंत्रण भेजा गया",
+        "complete": "पूरा",
+        "pending": "लंबित",
+        "seeded": "वरीयता प्राप्त",
+        "registered": "दर्ज कराई",
+        "completion": "समापन",
+        "completionPercent": "{{value}}%"
+      },
+      "campaignStatuses": {
+        "draft": "मसौदा",
+        "active": "सक्रिय",
+        "closed": "बंद किया हुआ"
+      },
+      "matchStatuses": {
+        "submitted": "प्रस्तुत किया गया",
+        "registered": "दर्ज कराई",
+        "pending": "लंबित",
+        "matched": "मेल खाने वाले"
+      },
+      "deliveryStatuses": {
+        "pending": "लंबित",
+        "queued": "कतारबद्ध",
+        "sent": "भेजा",
+        "opened": "खोला गया",
+        "submitted": "प्रस्तुत किया गया",
+        "revoked": "निरस्त किया गया",
+        "failed": "असफल"
+      },
+      "unauthorized": {
+        "title": "ईमानदार ब्रोकर की पहुंच आवश्यक है",
+        "description": "यह कार्यक्षेत्र डेटा प्रबंधकों और प्रशासकों तक ही सीमित है क्योंकि यह अंध सर्वेक्षण पहचान को रोगी रिकॉर्ड से जोड़ता है।"
+      },
+      "registerModal": {
+        "title": "प्रतिभागी को पंजीकृत करें",
+        "titleWithCampaign": "प्रतिभागी पंजीकृत करें · {{campaign}}",
+        "registering": "पंजीकरण हो रहा है...",
+        "description": "एक ब्लाइंड रजिस्ट्री प्रविष्टि बनाएं जो इस सर्वेक्षण अभियान के लिए प्रतिवादी पहचानकर्ता को रोगी रिकॉर्ड में मैप करती है।",
+        "respondentIdentifier": "प्रतिवादी पहचानकर्ता",
+        "respondentPlaceholder": "MRN, अध्ययन कोड, या आमंत्रण कोड",
+        "personIdPlaceholder": "ज्ञात OMOP व्यक्ति_आईडी",
+        "notesPlaceholder": "वैकल्पिक ब्रोकर नोट्स"
+      },
+      "inviteModal": {
+        "title": "निमंत्रण भेजना",
+        "titleWithCampaign": "निमंत्रण भेजें · {{campaign}}",
+        "sending": "भेजा जा रहा है...",
+        "description": "एक बार का ब्रोकर-प्रबंधित सर्वेक्षण लिंक भेजें। केवल दलाल ही डिलीवरी पता और हिरासत की श्रृंखला बरकरार रखता है।",
+        "selectParticipant": "प्रतिभागी का चयन करें",
+        "participantWithPerson": "{{blindedId}} · व्यक्ति {{personId}}",
+        "emailPlaceholder": "patient@example.org",
+        "lastInvitation": "अंतिम निमंत्रण: {{status}} · टोकन समाप्ति {{token}}"
+      },
+      "campaignRegistry": {
+        "title": "अभियान रजिस्ट्री",
+        "subtitle": "केवल ईमानदार-दलाल-सक्षम अभियान।",
+        "loading": "अभियान लोड हो रहे हैं...",
+        "emptyPrefix": "अभी तक कोई ईमानदार-दलाल अभियान नहीं। सक्षम",
+        "requireHonestBroker": "ईमानदार ब्रोकर की आवश्यकता है",
+        "emptySuffix": "पहले एक सर्वेक्षण अभियान पर."
+      },
+      "messages": {
+        "selectCampaignManage": "ब्रोकर पंजीकरण प्रबंधित करने के लिए एक अभियान चुनें।",
+        "selectCampaignReview": "ब्रोकर पंजीकरण की समीक्षा करने के लिए एक अभियान चुनें।"
+      },
+      "participants": {
+        "title": "पंजीकृत प्रतिभागी",
+        "subtitle": "चयनित सर्वेक्षण अभियान के लिए रजिस्ट्री प्रविष्टियों की पहचान रद्द की गई।",
+        "searchPlaceholder": "ब्लाइंड आईडी, व्यक्ति आईडी, नोट्स खोजें...",
+        "loading": "पंजीकरण लोड हो रहा है...",
+        "noMatches": "कोई भी ब्रोकर पंजीकरण वर्तमान फ़िल्टर से मेल नहीं खाता।"
+      },
+      "invitations": {
+        "title": "निमंत्रण बही",
+        "subtitle": "ब्रोकर-प्रबंधित सर्वेक्षण आमंत्रणों के लिए हिरासत की आउटबाउंड और इनबाउंड श्रृंखला।",
+        "loading": "आमंत्रण लोड हो रहे हैं...",
+        "empty": "इस अभियान के लिए अभी तक कोई निमंत्रण नहीं भेजा गया है."
+      },
+      "audit": {
+        "title": "लेखापरीक्षा",
+        "subtitle": "प्रतिभागी पंजीकरण, आउटबाउंड आमंत्रण और इनबाउंड प्रतिक्रिया घटनाओं के लिए हिरासत की अपरिवर्तनीय ब्रोकर-साइड श्रृंखला।",
+        "loading": "ऑडिट ट्रेल लोड हो रहा है...",
+        "empty": "अभी तक कोई ब्रोकर ऑडिट इवेंट दर्ज नहीं किया गया है।"
+      },
+      "latest": {
+        "title": "नवीनतम मिलान रिकॉर्ड",
+        "blindedId": "अंधा ID",
+        "created": "बनाया था"
+      },
+      "table": {
+        "blindedParticipant": "अंधा प्रतिभागी",
+        "conductId": "आचरण ID",
+        "status": "स्थिति",
+        "submitted": "प्रस्तुत किया गया",
+        "contact": "संपर्क",
+        "latestInvite": "नवीनतम आमंत्रण",
+        "destination": "गंतव्य",
+        "sent": "भेजा",
+        "opened": "खोला गया",
+        "reference": "संदर्भ",
+        "actions": "कार्रवाई",
+        "time": "समय",
+        "action": "कार्रवाई",
+        "actor": "अभिनेता",
+        "inviteRef": "रेफरी को आमंत्रित करें",
+        "metadata": "मेटाडाटा"
+      },
+      "auditActions": {
+        "participant_registered": "प्रतिभागी पंजीकृत",
+        "invitation_sent": "निमंत्रण भेजा गया",
+        "invitation_resent": "निमंत्रण पुनः भेजा गया",
+        "invitation_revoked": "आमंत्रण निरस्त किया गया",
+        "response_submitted": "जवाब प्रस्तुत किया गया",
+        "status_changed": "स्थिति बदल गई"
+      },
+      "confirmRevoke": "{{token}} को समाप्त होने वाला आमंत्रण रद्द करें?",
+      "toasts": {
+        "publishLinkCopied": "प्रकाशित लिंक कॉपी किया गया",
+        "publishLinkCopyFailed": "प्रकाशित लिंक की प्रतिलिपि बनाने में विफल",
+        "participantRegistered": "प्रतिभागी पंजीकृत",
+        "participantRegisterFailed": "प्रतिभागी का पंजीकरण करने में विफल",
+        "invitationSent": "निमंत्रण भेजा गया · टोकन समाप्ति {{token}}",
+        "invitationSendFailed": "आमंत्रण भेजने में विफल",
+        "invitationResent": "आमंत्रण पुनः भेजा गया · टोकन समाप्ति {{token}}",
+        "invitationResendFailed": "आमंत्रण पुनः भेजने में विफल",
+        "invitationRevoked": "आमंत्रण रद्द कर दिया गया · टोकन समाप्ति {{token}}",
+        "invitationRevokeFailed": "आमंत्रण रद्द करने में विफल"
+      }
+    }
+  },
+  "vocabulary": {
+    "mappingAssistant": {
+      "title": "संकल्पना मानचित्रण सहायक",
+      "poweredBy": "Ariadne द्वारा संचालित",
+      "subtitle": "शब्दशः, वेक्टर और LLM मिलान का उपयोग करके OMOP मानक अवधारणाओं के लिए स्रोत शब्दों को मैप करें",
+      "filters": {
+        "selectedCount": "{{count}} चयनित",
+        "clearSelection": "स्पष्ट चयन",
+        "targetVocabulary": "लक्ष्य शब्दावली:",
+        "allVocabularies": "सभी शब्दावलियाँ",
+        "targetDomain": "लक्ष्य डोमेन:",
+        "allDomains": "सभी डोमेन"
+      },
+      "drawer": {
+        "disambiguate": "स्पष्ट करने",
+        "candidateCount": "{{count}} अभ्यर्थी - सही मैपिंग का चयन करें",
+        "noCandidates": "कोई उम्मीदवार नहीं मिला. नीचे दिए गए शब्द को साफ़ करने का प्रयास करें.",
+        "cleanRemap": "साफ़ करें और दोबारा मानचित्र बनाएं",
+        "editPlaceholder": "शब्द संपादित करें और पुनः मानचित्र बनाएं..."
+      },
+      "actions": {
+        "clean": "साफ",
+        "remap": "पुनः नक्शा",
+        "acceptMapping": "मैपिंग स्वीकार करें",
+        "rejectMapping": "मैपिंग अस्वीकार करें",
+        "disambiguateTitle": "स्पष्ट करें - सभी उम्मीदवारों को देखें",
+        "uploadCsv": "अपलोड करें CSV",
+        "loadProject": "प्रोजेक्ट लोड करें",
+        "mapping": "मानचित्रण...",
+        "mapTerms": "मानचित्र की शर्तें",
+        "clearResults": "स्पष्ट परिणाम",
+        "acceptAllThreshold": "सभी स्वीकार करें >=90%",
+        "saveToVocabulary": "शब्दावली में सहेजें",
+        "saveProject": "प्रोजेक्ट सहेजें",
+        "exportCsv": "CSV निर्यात करें"
+      },
+      "toasts": {
+        "remapped": "\"{{source}}\" को पुनः मैप किया गया -> {{concept}}",
+        "noMatchForCleaned": "साफ़ किए गए शब्द \"{{term}}\" के लिए कोई मिलान नहीं मिला",
+        "remapFailed": "पुनः मानचित्रण विफल रहा",
+        "autoAccepted": "स्वतः स्वीकृत {{count}} उच्च-आत्मविश्वास मैपिंग",
+        "savedMappings": "{{count}} मैपिंग को source_to_concept_map में सहेजा गया",
+        "saveMappingsFailed": "मैपिंग सहेजने में विफल",
+        "projectSaved": "प्रोजेक्ट सहेजा गया: {{name}}",
+        "saveProjectFailed": "प्रोजेक्ट सहेजने में विफल",
+        "projectLoaded": "लोडेड प्रोजेक्ट: {{name}}",
+        "loadProjectFailed": "प्रोजेक्ट लोड करने में विफल"
+      },
+      "errors": {
+        "cleanupFailed": "सफ़ाई विफल रही.",
+        "mappingFailed": "मैपिंग विफल. सत्यापित करें कि Ariadne सेवा चल रही है और पहुंच योग्य है।"
+      },
+      "results": {
+        "candidateCount": "{{count}} उम्मीदवार",
+        "overridden": "(ओवरराइड)",
+        "noMatchFound": "कोई मेल नहीं मिला",
+        "selectOverride": "मैपिंग को ओवरराइड करने के लिए एक उम्मीदवार का चयन करें",
+        "noAdditionalCandidates": "कोई अतिरिक्त उम्मीदवार नहीं."
+      },
+      "labels": {
+        "noValue": "-",
+        "separator": "-"
+      },
+      "input": {
+        "termsMapped": "{{count}} शब्द मैप किए गए",
+        "editTerms": "शर्तें संपादित करें",
+        "sourceTerms": "स्रोत शर्तें",
+        "termsPlaceholder": "स्रोत शब्द दर्ज करें, प्रति पंक्ति एक... टाइप 2 मधुमेह मेलेटस\nतीव्र रोधगलन\nHTN\nASA 81 मिलीग्राम",
+        "termsEntered": "{{count}} शर्तें दर्ज की गईं"
+      },
+      "projects": {
+        "loading": "प्रोजेक्ट लोड हो रहे हैं...",
+        "loadFailed": "प्रोजेक्ट लोड करने में विफल",
+        "empty": "कोई सहेजा गया प्रोजेक्ट नहीं",
+        "projectMeta": "{{count}} शर्तें -- {{date}}",
+        "namePlaceholder": "प्रोजेक्ट का नाम..."
+      },
+      "vocabularies": {
+        "SNOMED": "SNOMED CT",
+        "ICD10CM": "ICD-10-CM",
+        "RxNorm": "RxNorm",
+        "LOINC": "LOINC",
+        "ICD9CM": "ICD-9-CM",
+        "CPT4": "CPT-4",
+        "HCPCS": "HCPCS",
+        "MedDRA": "MedDRA"
+      },
+      "domains": {
+        "Condition": "स्थिति",
+        "Drug": "दवाई",
+        "Procedure": "प्रक्रिया",
+        "Measurement": "माप",
+        "Observation": "अवलोकन",
+        "Device": "उपकरण"
+      },
+      "progress": {
+        "mappingTerms": "{{count}} शब्दों का मानचित्रण..."
+      },
+      "metrics": {
+        "termsMapped": "शर्तें मैप की गईं",
+        "highConfidence": "उच्च आत्मविश्वास",
+        "needReview": "समीक्षा की जरूरत है",
+        "noMatch": "कोई मेल नहीं"
+      },
+      "table": {
+        "sourceTerm": "स्रोत अवधि",
+        "bestMatch": "सबसे अच्छा मैच",
+        "confidence": "आत्मविश्वास",
+        "matchType": "मिलान के प्रकार",
+        "vocabulary": "शब्दावली",
+        "actions": "कार्रवाई"
+      },
+      "summary": {
+        "mapped": "{{count}} मैप किया गया",
+        "high": "{{count}} ऊँचा",
+        "review": "{{count}} समीक्षा",
+        "noMatch": "{{count}} कोई मुकाबला नहीं",
+        "accepted": "{{count}} स्वीकृत"
+      }
+    },
+    "conceptDetail": {
+      "tabs": {
+        "info": "जानकारी",
+        "relationships": "रिश्ते",
+        "mapsFrom": "से मानचित्र",
+        "hierarchy": "पदानुक्रम"
+      },
+      "empty": {
+        "title": "विवरण देखने के लिए एक अवधारणा का चयन करें",
+        "subtitle": "बाएं पैनल से एक अवधारणा खोजें और क्लिक करें",
+        "noAncestors": "कोई पूर्वज नहीं मिला",
+        "noRelationships": "कोई रिश्ता नहीं मिला",
+        "noSourceCodes": "कोई भी स्रोत कोड इस अवधारणा से मेल नहीं खाता"
+      },
+      "errors": {
+        "failedLoad": "अवधारणा लोड करने में विफल"
+      },
+      "toasts": {
+        "conceptIdCopied": "संकल्पना ID की प्रतिलिपि बनाई गई"
+      },
+      "actions": {
+        "copyConceptId": "अवधारणा की प्रतिलिपि बनाएँ ID",
+        "addToSet": "सेट करने के लिए जोड़ें"
+      },
+      "values": {
+        "standard": "मानक",
+        "classification": "वर्गीकरण",
+        "nonStandard": "गैर मानक",
+        "valid": "वैध"
+      },
+      "sections": {
+        "basicInformation": "Basic जानकारी",
+        "synonyms": "समानार्थी शब्द",
+        "ancestors": "पूर्वज",
+        "relationships": "रिश्ते",
+        "mapsFrom": "स्रोत कोड इस अवधारणा का मानचित्रण करते हैं",
+        "mapsFromDescription": "स्रोत शब्दावली कोड (ICD-10, SNOMED, RxNorm, आदि) जो इस मानक अवधारणा को दर्शाते हैं",
+        "hierarchy": "संकल्पना पदानुक्रम"
+      },
+      "fields": {
+        "conceptCode": "संकल्पना कोड",
+        "domain": "डोमेन",
+        "vocabulary": "शब्दावली",
+        "conceptClass": "संकल्पना वर्ग",
+        "standardConcept": "मानक संकल्पना",
+        "invalidReason": "अमान्य कारण",
+        "validStartDate": "वैध आरंभ तिथि",
+        "validEndDate": "वैध समाप्ति तिथि"
+      },
+      "table": {
+        "id": "ID",
+        "name": "नाम",
+        "domain": "डोमेन",
+        "vocabulary": "शब्दावली",
+        "relationship": "संबंध",
+        "relatedId": "संबंधित ID",
+        "relatedName": "संबंधित नाम",
+        "code": "कोड",
+        "class": "कक्षा"
+      },
+      "pagination": {
+        "showingRange": "{{total}} में से {{start}}-{{end}} दिखा रहा है",
+        "showingSourceCodes": "{{total}} स्रोत कोड में से {{shown}} दिखाया जा रहा है"
+      }
+    },
+    "semanticSearch": {
+      "hecate": "Hecate",
+      "poweredBy": "Hecate द्वारा संचालित",
+      "tagline": "वेक्टर-संचालित अवधारणा खोज",
+      "placeholder": "शब्दार्थ रूप से खोजने के लिए एक नैदानिक ​​शब्द दर्ज करें...",
+      "filters": {
+        "allDomains": "सभी डोमेन",
+        "allVocabularies": "सभी शब्दावलियाँ",
+        "standard": {
+          "all": "सभी",
+          "standard": "S",
+          "classification": "C"
+        }
+      },
+      "badges": {
+        "standard": "मानक",
+        "classification": "वर्गीकरण"
+      },
+      "values": {
+        "inSet": "सेट में",
+        "standardAbbrev": "S"
+      },
+      "actions": {
+        "addToSet": "सेट करने के लिए जोड़ें",
+        "clearFilters": "फ़िल्टर साफ़ करें",
+        "retry": "पुन: प्रयास करें",
+        "tryClearingFilters": "फ़िल्टर साफ़ करने का प्रयास करें"
+      },
+      "errors": {
+        "unavailable": "सिमेंटिक खोज अनुपलब्ध है.",
+        "serviceHelp": "सुनिश्चित करें कि Hecate AI सेवा चल रही है और ChromaDB प्रारंभ हो गई है।"
+      },
+      "empty": {
+        "prompt": "शब्दार्थ रूप से खोजने के लिए एक नैदानिक ​​शब्द दर्ज करें",
+        "help": "Hecate वैचारिक रूप से समान OMOP अवधारणाओं को खोजने के लिए वेक्टर एम्बेडिंग का उपयोग करता है, तब भी जब सटीक कीवर्ड मिलान विफल हो जाते हैं।",
+        "noResults": "\"{{query}}\" के लिए कोई अर्थ संबंधी मिलान नहीं मिला"
+      },
+      "results": {
+        "matchCountOne": "{{count}} अर्थपूर्ण मिलान",
+        "matchCountMany": "{{count}} सिमेंटिक मिलान",
+        "updating": "अद्यतन किया जा रहा है..."
+      }
+    },
+    "searchPanel": {
+      "placeholder": "अवधारणाएँ खोजें...",
+      "filters": {
+        "toggle": "फिल्टर",
+        "standardOnly": "मानक",
+        "allDomains": "सभी डोमेन",
+        "allVocabularies": "सभी शब्दावलियाँ",
+        "allConceptClasses": "सभी अवधारणा वर्ग",
+        "countSuffix": " ({{count}})"
+      },
+      "actions": {
+        "clearAllFilters": "सभी फ़िल्टर साफ़ करें",
+        "tryClearingFilters": "फ़िल्टर साफ़ करने का प्रयास करें",
+        "loading": "लोड हो रहा है...",
+        "loadMoreResults": "अधिक परिणाम लोड करें"
+      },
+      "empty": {
+        "prompt": "OMOP शब्दावली खोजें",
+        "help": "नाम, कोड या ID द्वारा अवधारणाओं को खोजने के लिए कम से कम 2 अक्षर टाइप करें",
+        "noResults": "\"{{query}}\" के लिए कोई अवधारणा नहीं मिली"
+      },
+      "results": {
+        "showingCount": "{{total}} में से {{shown}} परिणाम दिखाए जा रहे हैं"
+      },
+      "engine": {
+        "solr": "Solr",
+        "pg": "PG"
+      },
+      "values": {
+        "inSet": "सेट में"
+      }
+    },
+    "conceptComparison": {
+      "title": "अवधारणाओं की तुलना करें",
+      "subtitle": "गुणों, पूर्वजों और रिश्तों के साथ 2-4 OMOP अवधारणाओं की साथ-साथ तुलना",
+      "search": {
+        "placeholder": "जोड़ने के लिए अवधारणा खोजें..."
+      },
+      "sections": {
+        "ancestors": "पूर्वज (2 स्तर)",
+        "relationships": "रिश्ते"
+      },
+      "fields": {
+        "conceptCode": "संकल्पना कोड",
+        "domain": "डोमेन",
+        "vocabulary": "शब्दावली",
+        "conceptClass": "संकल्पना वर्ग",
+        "standard": "मानक",
+        "validStart": "वैध प्रारंभ",
+        "validEnd": "वैध अंत",
+        "invalidReason": "अमान्य कारण"
+      },
+      "actions": {
+        "addConcept": "अवधारणा जोड़ें"
+      },
+      "empty": {
+        "prompt": "तुलना करने के लिए अवधारणाएँ खोजें",
+        "help": "उनकी विशेषताओं, पूर्वजों और संबंधों की साथ-साथ तुलना देखने के लिए 2-4 अवधारणाओं का चयन करें"
+      },
+      "values": {
+        "standard": "मानक",
+        "classification": "वर्गीकरण",
+        "nonStandard": "गैर मानक",
+        "valid": "वैध",
+        "level": "L{{level}}",
+        "selected": "चयनित:",
+        "addOneMore": "तुलना करने के लिए कम से कम एक और जोड़ें"
+      }
+    },
+    "addToConceptSet": {
+      "title": "संकल्पना सेट में जोड़ें",
+      "create": {
+        "title": "नया कॉन्सेप्ट सेट बनाएं",
+        "help": "अवधारणा जोड़ें और बिल्डर में खोलें",
+        "nameLabel": "नए कॉन्सेप्ट सेट का नाम"
+      },
+      "actions": {
+        "create": "बनाएं",
+        "cancel": "रद्द करना",
+        "openBuilderWithSearch": "वर्तमान खोज के साथ बिल्डर खोलें"
+      },
+      "divider": "या मौजूदा में जोड़ें",
+      "filter": {
+        "placeholder": "फ़िल्टर अवधारणा सेट..."
+      },
+      "empty": {
+        "noMatching": "कोई मेल खाता अवधारणा सेट नहीं",
+        "noSets": "कोई अवधारणा सेट नहीं मिला"
+      },
+      "footer": {
+        "includeDescendants": "वंशजों को शामिल करने के साथ जोड़ता है"
+      },
+      "toasts": {
+        "addedToSet": "\"{{setName}}\" में जोड़ा गया",
+        "addFailed": "सेट में अवधारणा जोड़ने में विफल",
+        "missingSetId": "नया कॉन्सेप्ट सेट ID पुनर्प्राप्त करने में विफल",
+        "createdAndAdded": "\"{{name}}\" बनाया और अवधारणा जोड़ी",
+        "createdAddFailed": "सेट बनाया गया लेकिन अवधारणा जोड़ने में विफल रहा",
+        "createFailed": "अवधारणा सेट बनाने में विफल"
+      }
+    },
+    "page": {
+      "title": "शब्दावली ब्राउज़र",
+      "subtitle": "OMOP मानकीकृत शब्दावली खोजें, अन्वेषण करें और नेविगेट करें",
+      "tabs": {
+        "keyword": "कीवर्ड खोज",
+        "semantic": "अर्थ संबंधी खोज",
+        "browse": "पदानुक्रम ब्राउज़ करें"
+      }
+    },
+    "hierarchyBrowser": {
+      "breadcrumb": {
+        "allDomains": "सभी डोमेन"
+      },
+      "filters": {
+        "allSources": "सभी स्रोत",
+        "itemPlaceholder": "फ़िल्टर {{count}} आइटम..."
+      },
+      "actions": {
+        "showAllConcepts": "सभी अवधारणाएँ दिखाएँ",
+        "showGroupings": "समूहीकरण दिखाएँ",
+        "clearFilter": "फ़िल्टर साफ़ करें",
+        "viewDetailsFor": "{{conceptName}} के लिए विवरण देखें",
+        "viewConceptDetails": "अवधारणा विवरण देखें"
+      },
+      "empty": {
+        "noMatchingConcepts": "कोई मेल खाती अवधारणा नहीं",
+        "noConcepts": "कोई अवधारणा नहीं मिली"
+      },
+      "counts": {
+        "clinicalGroupings": "{{count}} क्लिनिकल समूह",
+        "concepts": "{{count}} अवधारणाएँ",
+        "items": "{{count}} आइटम",
+        "filteredItems": "{{shown}} में से {{total}} आइटम",
+        "namedSubCategories": "{{name}} - {{count}} उप-श्रेणियाँ",
+        "subCategories": "{{count}} उप-श्रेणियाँ",
+        "subcategories": "{{count}} उपश्रेणियाँ",
+        "oneAnchor": "1 लंगर",
+        "persons": "{{count}} व्यक्ति",
+        "records": "{{count}} रिकॉर्ड",
+        "groupingCoversSubcategories": "{{groupingName}} {{count}} उपश्रेणियाँ शामिल करता है"
+      }
+    },
+    "hierarchyTree": {
+      "empty": {
+        "noData": "कोई पदानुक्रम डेटा उपलब्ध नहीं है"
+      }
+    }
+  },
+  "dataExplorer": {
+    "page": {
+      "title": "डेटा एक्सप्लोरर",
+      "subtitle": "Achilles लक्षण वर्णन परिणाम और डेटा गुणवत्ता का अन्वेषण करें",
+      "selectSourceTitle": "एक डेटा स्रोत चुनें",
+      "selectSourceMessage": "इसके डेटा का पता लगाने के लिए ऊपर दिए गए ड्रॉपडाउन से CDM स्रोत चुनें"
+    },
+    "tabs": {
+      "overview": "सिंहावलोकन",
+      "domains": "डोमेन",
+      "temporal": "लौकिक",
+      "heel": "Achilles",
+      "dqd": "आधार सामग्री की गुणवत्ता",
+      "ares": "Ares"
+    },
+    "sourceSelector": {
+      "loading": "स्रोत लोड हो रहे हैं...",
+      "placeholder": "एक डेटा स्रोत चुनें"
+    },
+    "domains": {
+      "condition": "स्थितियाँ",
+      "drug": "ड्रग्स",
+      "procedure": "प्रक्रियाओं",
+      "measurement": "मापन",
+      "observation": "टिप्पणियों",
+      "visit": "दौरा"
+    },
+    "overview": {
+      "metrics": {
+        "persons": "व्यक्तियों",
+        "personsTotal": "{{value}} कुल",
+        "medianObsDuration": "माध्य अवलोकन अवधि",
+        "durationDays": "{{value}} दिन",
+        "observationPeriods": "{{value}} अवलोकन अवधि",
+        "totalEvents": "कुल घटनाएँ",
+        "acrossAllCdmTables": "सभी CDM तालिकाओं में",
+        "dataCompleteness": "डेटा पूर्णता",
+        "tablesPopulated": "{{populated}}/{{total}} तालिकाएँ भरी गईं"
+      },
+      "sections": {
+        "demographics": "जनसंख्या जनसांख्यिकी",
+        "observationPeriods": "अवलोकन अवधि विश्लेषण",
+        "domainRecordProportions": "डोमेन रिकॉर्ड अनुपात",
+        "dataDensityOverTime": "समय के साथ डेटा घनत्व",
+        "recordDistribution": "रिकॉर्ड वितरण"
+      },
+      "cards": {
+        "genderDistribution": "लिंग वितरण",
+        "ethnicity": "जातीयता",
+        "race": "दौड़",
+        "topTen": "सर्वोत्तम 10",
+        "yearOfBirthDistribution": "जन्म वितरण का वर्ष",
+        "yearOfBirthSubtitle": "चिकने घनत्व के साथ हिस्टोग्राम (सोना)",
+        "cumulativeObservationDuration": "संचयी अवलोकन अवधि",
+        "cumulativeObservationSubtitle": "कपलान-मेयर शैली: अवलोकन वाले व्यक्तियों का % >= X दिन",
+        "observationStartEndDates": "अवलोकन प्रारंभ/समाप्ति तिथियाँ",
+        "observationStartEndSubtitle": "अवलोकन अवधि का अस्थायी वितरण",
+        "observationPeriodDurationDays": "अवलोकन अवधि अवधि (दिन)",
+        "observationPeriodsPerPerson": "प्रति व्यक्ति अवलोकन अवधि",
+        "observationPeriodsPerPersonSubtitle": "प्रत्येक व्यक्ति के पास कितनी अवधियाँ हैं इसका वितरण",
+        "clinicalDataDomains": "क्लिनिकल डेटा डोमेन",
+        "clinicalDataDomainsSubtitle": "रिकॉर्ड संख्या के आधार पर क्रमबद्ध - किसी डोमेन की अवधारणाओं का पता लगाने के लिए उस पर क्लिक करें",
+        "recordsByDomainAndYear": "डोमेन और वर्ष के अनुसार रिकॉर्ड",
+        "recordsByDomainAndYearSubtitle": "रंग की तीव्रता प्रति वर्ष प्रति डोमेन रिकॉर्ड मात्रा को इंगित करती है",
+        "cdmTableRecordCounts": "CDM तालिका रिकॉर्ड गिनती",
+        "cdmTableRecordCountsSubtitle": "लघुगणकीय पैमाना - परिमाण की परवाह किए बिना सभी तालिकाएँ दिखाई देती हैं"
+      },
+      "messages": {
+        "runAchillesForTemporalData": "अस्थायी रुझान डेटा उत्पन्न करने के लिए Achilles चलाएँ"
+      }
+    },
+    "charts": {
+      "common": {
+        "records": "{{count}} रिकॉर्ड",
+        "persons": "{{count}} व्यक्ति",
+        "total": "कुल",
+        "separator": "·"
+      },
+      "boxPlot": {
+        "noDistributionData": "कोई वितरण डेटा नहीं",
+        "ariaLabel": "रेखा - चित्र",
+        "labels": {
+          "p25": "P25: {{value}}",
+          "median": "माध्यिका: {{value}}",
+          "p75": "P75: {{value}}"
+        }
+      },
+      "cumulativeObservation": {
+        "tooltipValue": "{{days}} दिन - {{pct}}% व्यक्ति",
+        "xAxisLabel": "अवलोकन अवधि (दिन)",
+        "labels": {
+          "min": "मिन",
+          "p10": "P10",
+          "p25": "P25",
+          "median": "मंझला",
+          "p75": "P75",
+          "p90": "P90",
+          "max": "अधिकतम"
+        }
+      },
+      "demographics": {
+        "ageDistribution": "आयु संवितरण",
+        "noAgeData": "कोई आयु वितरण डेटा नहीं",
+        "age": "आयु",
+        "male": "पुरुष",
+        "female": "महिला"
+      },
+      "heatmap": {
+        "ariaLabel": "डेटा घनत्व हीटमैप"
+      },
+      "hierarchy": {
+        "noData": "कोई पदानुक्रम डेटा उपलब्ध नहीं है",
+        "classificationHierarchy": "वर्गीकरण पदानुक्रम",
+        "back": "पीछे"
+      },
+      "periodCount": {
+        "observationPeriods": "{{count}} अवलोकन अवधि"
+      },
+      "recordCounts": {
+        "noData": "कोई रिकॉर्ड गणना डेटा उपलब्ध नहीं है",
+        "title": "CDM तालिका द्वारा रिकॉर्ड गिनती"
+      },
+      "temporalTrend": {
+        "events": "घटनाएँ",
+        "secondary": "माध्यमिक"
+      },
+      "topConcepts": {
+        "noData": "कोई अवधारणा डेटा उपलब्ध नहीं है",
+        "title": "शीर्ष अवधारणाएँ",
+        "id": "ID: {{id}}",
+        "prevalence": "व्यापकता: {{value}}%"
+      },
+      "yearOfBirth": {
+        "year": "वर्ष: {{year}}"
+      }
+    },
+    "domain": {
+      "metrics": {
+        "totalRecords": "कुल रिकॉर्ड",
+        "distinctConcepts": "विशिष्ट अवधारणाएँ"
+      },
+      "loadFailed": "{{domain}} डेटा लोड करने में विफल",
+      "temporalTrendTitle": "{{domain}} अस्थायी प्रवृत्ति"
+    },
+    "temporal": {
+      "domainsLabel": "डोमेन:",
+      "multiDomainOverlay": "मल्टी-डोमेन टेम्पोरल ओवरले",
+      "emptyTitle": "कोई अस्थायी डेटा उपलब्ध नहीं है",
+      "emptyHelp": "उपरोक्त डोमेन चुनें और सुनिश्चित करें कि Achilles चलाया गया है"
+    },
+    "concept": {
+      "details": "संकल्पना विवरण",
+      "loadFailed": "अवधारणा विवरण लोड करने में विफल",
+      "genderDistribution": "लिंग वितरण",
+      "temporalTrend": "अस्थायी प्रवृत्ति",
+      "typeDistribution": "वितरण प्रकार",
+      "ageAtFirstOccurrence": "प्रथम घटना पर आयु",
+      "valueByLabel": "{{label}}: {{value}}"
+    },
+    "achilles": {
+      "severities": {
+        "error": "गलती",
+        "warning": "चेतावनी",
+        "notification": "अधिसूचना"
+      },
+      "severityCounts": {
+        "error": "त्रुटियाँ",
+        "warning": "चेतावनियाँ",
+        "notification": "सूचनाएं"
+      },
+      "actions": {
+        "running": "दौड़ना...",
+        "runHeelChecks": "Heel चेक चलाएँ",
+        "runAchilles": "Achilles चलाएँ",
+        "selectRun": "चलाएँ का चयन करें",
+        "viewLiveProgress": "लाइव प्रगति देखें",
+        "viewDetails": "विवरण देखें"
+      },
+      "runShort": "चलाएँ {{id}}...",
+      "statuses": {
+        "completed": "पुरा होना।",
+        "failed": "असफल",
+        "running": "दौड़ना",
+        "pending": "लंबित"
+      },
+      "labels": {
+        "status": "स्थिति",
+        "total": "कुल",
+        "passed": "उत्तीर्ण",
+        "failed": "असफल",
+        "durationSeconds": "अवधि: {{value}}s"
+      },
+      "heel": {
+        "title": "Heel जाँच करता है",
+        "dispatchFailed": "हील चेक भेजने में विफल",
+        "running": "चल रही एड़ी की जाँच...",
+        "empty": "अभी तक कोई हील जांच नहीं हुई है",
+        "allPassed": "सभी चेक पास हो गए",
+        "issueSummary": "{{count}} मुद्दे: {{errors}}E / {{warnings}}W / {{notifications}}N"
+      },
+      "characterization": {
+        "title": "Achilles लक्षण वर्णन",
+        "dispatchFailed": "Achilles रन भेजने में विफल",
+        "empty": "अभी तक कोई Achilles नहीं चलता",
+        "emptyHelp": "अपने डेटा को चिह्नित करने के लिए \"रन Achilles\" पर क्लिक करें"
+      },
+      "runModal": {
+        "completedIn": "{{duration}} में पूरा हुआ",
+        "analysisProgress": "{{total}} में से {{done}} विश्लेषण करता है",
+        "elapsed": "बीत गया:",
+        "passedCount": "{{count}} उत्तीर्ण",
+        "failedCount": "{{count}} विफल",
+        "totalDuration": "{{duration}} कुल",
+        "remaining": "~{{duration}} शेष",
+        "waiting": "विश्लेषण शुरू होने की प्रतीक्षा की जा रही है...",
+        "done": "हो गया",
+        "runInBackground": "पृष्ठभूमि में चलो"
+      }
+    },
+    "dqd": {
+      "categories": {
+        "completeness": "संपूर्णता",
+        "conformance": "अनुरूपता",
+        "plausibility": "दिखावट",
+        "overall": "कुल मिलाकर"
+      },
+      "progress": {
+        "title": "DQD विश्लेषण चल रहा है",
+        "checksCompleted": "{{total}} में से {{completed}} जांचें पूरी हो गईं",
+        "waiting": "इंतज़ार में...",
+        "running": "दौड़ना:"
+      },
+      "labels": {
+        "passed": "उत्तीर्ण",
+        "failed": "असफल",
+        "remaining": "शेष",
+        "warnings": "चेतावनियाँ"
+      },
+      "severity": {
+        "error": "गलती",
+        "warning": "चेतावनी",
+        "info": "जानकारी"
+      },
+      "categoryPanel": {
+        "checkCount": "{{count}} जाँच करता है",
+        "passRate": "{{percent}}% उत्तीर्ण दर",
+        "table": {
+          "check": "जाँच करना",
+          "table": "मेज़",
+          "column": "स्तंभ",
+          "severity": "गंभीरता",
+          "violationPercent": "उल्लंघन %"
+        }
+      },
+      "scorecard": {
+        "emptyTitle": "कोई DQD परिणाम उपलब्ध नहीं है",
+        "emptyDescription": "परिणाम देखने के लिए डेटा गुणवत्ता डैशबोर्ड विश्लेषण चलाएँ",
+        "overallScore": "समग्र प्राप्तांक",
+        "passedFraction": "{{passed}}/{{total}} उत्तीर्ण"
+      },
+      "tableGrid": {
+        "noResults": "प्रदर्शित करने के लिए कोई DQD परिणाम नहीं",
+        "title": "तालिका x श्रेणी हीटमैप",
+        "cdmTable": "CDM तालिका"
+      },
+      "actions": {
+        "runDqd": "DQD चलाएँ"
+      },
+      "dispatchFailed": "DQD रन भेजने में विफल",
+      "empty": "अभी तक कोई DQD नहीं चलता",
+      "emptyHelp": "डेटा गुणवत्ता विश्लेषण शुरू करने के लिए \"रन DQD\" पर क्लिक करें"
+    },
+    "ares": {
+      "name": "Ares",
+      "breadcrumbSeparator": ">",
+      "comingSoon": "भविष्य के चरण में जल्द ही आ रहा है",
+      "sections": {
+        "hub": "केंद्र",
+        "networkOverview": "नेटवर्क अवलोकन",
+        "conceptComparison": "संकल्पना तुलना",
+        "dqHistory": "DQ इतिहास",
+        "coverage": "कवरेज",
+        "coverageMatrix": "कवरेज मैट्रिक्स",
+        "feasibility": "साध्यता",
+        "diversity": "विविधता",
+        "releases": "विज्ञप्ति",
+        "unmappedCodes": "अनमैप्ड कोड",
+        "cost": "लागत",
+        "costAnalysis": "लागत विश्लेषण",
+        "annotations": "एनोटेशन"
+      },
+      "cards": {
+        "sourcesBelowDq": "{{value}} स्रोत 80% से नीचे DQ",
+        "networkOverviewDescription": "स्रोत स्वास्थ्य, DQ स्कोर, प्रवृत्ति संकेतक",
+        "conceptComparisonDescription": "सभी स्रोतों में अवधारणा की व्यापकता की तुलना करें",
+        "dqHistoryDescription": "रिलीज़ पर औसत नेटवर्क DQ स्कोर",
+        "coverageDescription": "डोमेन x स्रोत उपलब्धता",
+        "feasibilityDescription": "क्या आपका नेटवर्क किसी अध्ययन का समर्थन कर सकता है?",
+        "diversityDescription": "स्रोतों में जनसांख्यिकीय समानता",
+        "releasesDescription": "प्रति स्रोत संस्करण इतिहास",
+        "unmappedCodesDescription": "मानक मैपिंग के बिना स्रोत कोड",
+        "annotationsDescription": "सभी स्रोतों में चार्ट नोट्स",
+        "costDescription": "डोमेन और समय के अनुसार लागत डेटा"
+      },
+      "networkOverview": {
+        "title": "नेटवर्क अवलोकन",
+        "networkTotal": "नेटवर्क कुल",
+        "percent": "{{value}}%",
+        "averagePercent": "{{value}}% औसत",
+        "actions": {
+          "dqRadar": "DQ रडार",
+          "hideRadar": "राडार छिपाएँ"
+        },
+        "metrics": {
+          "dataSources": "डेटा स्रोत",
+          "avgDqScore": "औसत DQ स्कोर",
+          "unmappedCodes": "अनमैप्ड कोड",
+          "needAttention": "ध्यान देने की जरूरत",
+          "totalPersons": "कुल व्यक्ति"
+        },
+        "table": {
+          "source": "स्रोत",
+          "dqScore": "DQ स्कोर",
+          "dqTrend": "DQ प्रवृत्ति",
+          "freshness": "ताज़गी",
+          "domains": "डोमेन",
+          "persons": "व्यक्तियों",
+          "latestRelease": "नवीनतम रिलीज"
+        },
+        "messages": {
+          "loading": "नेटवर्क अवलोकन लोड हो रहा है...",
+          "noData": "कोई नेटवर्क डेटा उपलब्ध नहीं है.",
+          "noReleases": "कोई रिलीज़ नहीं"
+        },
+        "radar": {
+          "title": "DQ रडार प्रोफाइल (काह्न आयाम)",
+          "description": "पांच काह्न डेटा गुणवत्ता आयामों में दरें पास करें। उच्च मान बेहतर गुणवत्ता का संकेत देते हैं।",
+          "noData": "कोई DQ रडार डेटा उपलब्ध नहीं है।",
+          "dimensions": {
+            "completeness": "संपूर्णता",
+            "conformanceValue": "अनुरूपता (मूल्य)",
+            "conformanceRelational": "अनुरूपता (संबंधपरक)",
+            "plausibilityAtemporal": "संभाव्यता (अस्थायी)",
+            "plausibilityTemporal": "संभाव्यता (अस्थायी)"
+          }
+        }
+      },
+      "feasibility": {
+        "title": "व्यवहार्यता आकलन",
+        "assessmentMeta": "{{date}} | {{sources}} स्रोतों का मूल्यांकन किया गया",
+        "passedSummary": "{{passed}}/{{total}} उत्तीर्ण",
+        "resultsTitle": "परिणाम: {{name}}",
+        "scoreLabel": "{{score}}% स्कोर",
+        "empty": "अभी तक कोई आकलन नहीं. यह मूल्यांकन करने के लिए एक बनाएं कि क्या आपका नेटवर्क प्रस्तावित अध्ययन का समर्थन कर सकता है।",
+        "actions": {
+          "newAssessment": "+ नया मूल्यांकन",
+          "running": "दौड़ना...",
+          "runAssessment": "मूल्यांकन चलाएँ",
+          "hide": "छिपाना",
+          "forecast": "पूर्वानुमान"
+        },
+        "filters": {
+          "view": "देखना:"
+        },
+        "detailViews": {
+          "table": "स्कोर तालिका",
+          "impact": "प्रभाव विश्लेषण",
+          "consort": "CONSORT प्रवाह"
+        },
+        "criteria": {
+          "domains": "डोमेन",
+          "concepts": "अवधारणाओं",
+          "visitTypes": "विज़िट के प्रकार",
+          "dateRange": "दिनांक सीमा",
+          "patientCount": "मरीज़ों की संख्या"
+        },
+        "forecast": {
+          "insufficientData": "पूर्वानुमान के लिए अपर्याप्त ऐतिहासिक डेटा (न्यूनतम 6 महीने आवश्यक)।",
+          "title": "रोगी के आगमन का पूर्वानुमान: {{source}}",
+          "monthlyRate": "मासिक दर: {{rate}} patients/month",
+          "targetReachedIn": "~{{months}} महीने में लक्ष्य पूरा हो गया",
+          "targetAlreadyReached": "लक्ष्य पहले ही पूरा हो चुका है",
+          "actual": "वास्तविक",
+          "projected": "अनुमानित",
+          "confidenceBand": "95% CI",
+          "targetLabel": "लक्ष्य: {{target}}",
+          "footnote": "पिछले 12 महीनों के रैखिक प्रतिगमन पर आधारित प्रक्षेपण। प्रक्षेपण दूरी के साथ कॉन्फिडेंस बैंड चौड़ा होता जाता है।"
+        },
+        "consort": {
+          "allSources": "सभी स्रोत",
+          "noResults": "CONSORT आरेख प्रदर्शित करने के लिए कोई परिणाम नहीं।",
+          "title": "CONSORT-स्टाइल एट्रिशन फ्लो",
+          "description": "दिखाता है कि कैसे प्रत्येक मानदंड द्वार से स्रोतों को उत्तरोत्तर बाहर रखा जाता है।",
+          "sources": "{{count}} स्रोत",
+          "excluded": "-{{count}} को बाहर रखा गया"
+        },
+        "impact": {
+          "noData": "कोई मानदंड प्रभाव डेटा उपलब्ध नहीं है।",
+          "title": "मानदंड प्रभाव विश्लेषण",
+          "description": "दिखाता है कि यदि प्रत्येक मानदंड हटा दिया जाए तो कितने अतिरिक्त स्रोत पास होंगे। बेसलाइन: {{passed}}/{{total}} पास।",
+          "sourcesRecovered": "+{{count}} स्रोत",
+          "guidance": "सबसे प्रभावशाली मानदंड वह है जिसके हटाने से सबसे अधिक स्रोत पुनर्प्राप्त होंगे। यदि बहुत कम स्रोत अर्हता प्राप्त करते हैं तो उच्च प्रभाव वाले मानदंडों में ढील देने पर विचार करें।"
+        },
+        "templates": {
+          "loading": "टेम्प्लेट लोड हो रहे हैं...",
+          "startFrom": "टेम्पलेट से प्रारंभ करें"
+        },
+        "table": {
+          "source": "स्रोत",
+          "domains": "डोमेन",
+          "concepts": "अवधारणाओं",
+          "visits": "दौरा",
+          "dates": "खजूर",
+          "patients": "मरीजों",
+          "score": "अंक",
+          "overall": "कुल मिलाकर",
+          "forecast": "पूर्वानुमान"
+        },
+        "status": {
+          "eligible": "ELIGIBLE",
+          "ineligible": "INELIGIBLE"
+        },
+        "form": {
+          "title": "नई व्यवहार्यता आकलन",
+          "assessmentName": "मूल्यांकन नाम",
+          "assessmentNamePlaceholder": "e.g. मधुमेह परिणाम अध्ययन",
+          "requiredDomains": "आवश्यक डोमेन",
+          "minPatientCount": "न्यूनतम रोगी संख्या (वैकल्पिक)",
+          "minPatientCountPlaceholder": "e.g. 1000",
+          "domains": {
+            "condition": "स्थितियाँ",
+            "drug": "ड्रग्स",
+            "procedure": "प्रक्रियाओं",
+            "measurement": "मापन",
+            "observation": "टिप्पणियों",
+            "visit": "दौरा"
+          }
+        }
+      },
+      "annotations": {
+        "filters": {
+          "allSources": "सभी स्रोत"
+        },
+        "tags": {
+          "all": "सभी",
+          "dataEvent": "डेटा इवेंट",
+          "researchNote": "अनुसंधान नोट",
+          "actionItem": "एक्शन आइटम",
+          "system": "प्रणाली"
+        },
+        "viewModes": {
+          "list": "सूची",
+          "timeline": "समय"
+        },
+        "actions": {
+          "reply": "जवाब",
+          "delete": "मिटाना"
+        },
+        "replyPlaceholder": "उत्तर लिखें...",
+        "searchPlaceholder": "एनोटेशन खोजें...",
+        "confirmDelete": "यह एनोटेशन हटाएं?",
+        "coordinateValue": "{{axis}} = {{value}}",
+        "sourceContext": "{{source}} पर",
+        "empty": {
+          "selectSource": "इसके एनोटेशन देखने के लिए किसी स्रोत का चयन करें",
+          "noAnnotations": "इस स्रोत के लिए अभी तक कोई टिप्पणी नहीं",
+          "noTimeline": "टाइमलाइन में प्रदर्शित करने के लिए कोई एनोटेशन नहीं."
+        }
+      },
+      "coverage": {
+        "title": "कवरेज मैट्रिक्स (स्ट्रैंड रिपोर्ट)",
+        "description": "सभी डेटा स्रोतों में डोमेन उपलब्धता। हरा = उच्च घनत्व, एम्बर = कम घनत्व, लाल = कोई डेटा नहीं।",
+        "yes": "हाँ",
+        "densityTitle": "घनत्व: {{density}} प्रति व्यक्ति",
+        "filters": {
+          "view": "देखना:"
+        },
+        "viewModes": {
+          "records": "अभिलेख",
+          "per_person": "प्रति व्यक्ति",
+          "date_range": "दिनांक सीमा"
+        },
+        "actions": {
+          "exporting": "निर्यात किया जा रहा है...",
+          "exportCsv": "CSV निर्यात करें",
+          "expectedVsActual": "अपेक्षित बनाम वास्तविक"
+        },
+        "table": {
+          "source": "स्रोत",
+          "domains": "डोमेन"
+        },
+        "expectedStates": {
+          "expectedPresent": "अपेक्षित और वर्तमान",
+          "expectedMissing": "अपेक्षित लेकिन नदारद",
+          "unexpectedBonus": "अप्रत्याशित बोनस डेटा",
+          "notExpectedAbsent": "अपेक्षित नहीं, वर्तमान नहीं"
+        },
+        "messages": {
+          "loading": "कवरेज मैट्रिक्स लोड हो रहा है...",
+          "noSources": "कवरेज विश्लेषण के लिए कोई स्रोत उपलब्ध नहीं है."
+        }
+      },
+      "dqHistory": {
+        "filters": {
+          "source": "स्रोत:",
+          "selectSource": "स्रोत चुनें..."
+        },
+        "tabs": {
+          "trends": "प्रवृत्तियों",
+          "heatmap": "हीटमैप",
+          "sla": "SLA",
+          "overlay": "क्रॉस-स्रोत"
+        },
+        "sections": {
+          "passRate": "DQ रिलीज़ से अधिक पास दर",
+          "heatmap": "श्रेणी x रिलीज़ हीटमैप",
+          "sla": "SLA अनुपालन डैशबोर्ड",
+          "overlay": "क्रॉस-सोर्स DQ ओवरले"
+        },
+        "passRate": "पास दर",
+        "deltaReportTitle": "डेल्टा रिपोर्ट: {{release}}",
+        "status": {
+          "new": "NEW",
+          "existing": "EXISTING",
+          "resolved": "RESOLVED",
+          "stable": "STABLE"
+        },
+        "result": {
+          "pass": "PASS",
+          "fail": "FAIL"
+        },
+        "statusSummary": {
+          "new": "{{count}} नया",
+          "existing": "{{count}} विद्यमान",
+          "resolved": "{{count}} हल हो गया",
+          "stable": "{{count}} स्थिर"
+        },
+        "table": {
+          "category": "वर्ग",
+          "status": "स्थिति",
+          "checkId": "जाँचें ID",
+          "current": "मौजूदा",
+          "previous": "पिछला"
+        },
+        "sla": {
+          "targetsTitle": "SLA लक्ष्य (न्यूनतम उत्तीर्ण दर%)",
+          "currentCompliance": "वर्तमान अनुपालन",
+          "actual": "वास्तविक",
+          "target": "लक्ष्य",
+          "errorBudget": "त्रुटि बजट",
+          "targetComparison": "{{actual}}% / {{target}}% लक्ष्य"
+        },
+        "messages": {
+          "selectSource": "DQ इतिहास देखने के लिए एक स्रोत चुनें।",
+          "loadingHistory": "DQ इतिहास लोड हो रहा है...",
+          "loadingDeltas": "डेल्टा लोड हो रहा है...",
+          "loadingHeatmap": "हीटमैप लोड हो रहा है...",
+          "loadingOverlay": "ओवरले डेटा लोड हो रहा है...",
+          "noOverlayData": "सभी स्रोतों पर कोई DQ डेटा उपलब्ध नहीं है।",
+          "noHeatmapData": "कोई हीटमैप डेटा उपलब्ध नहीं है. श्रेणी रुझान देखने के लिए एकाधिक रिलीज़ पर DQD चलाएँ।",
+          "noDeltaData": "इस रिलीज़ के लिए कोई डेल्टा डेटा उपलब्ध नहीं है।",
+          "saved": "सहेजा गया",
+          "noSlaTargets": "कोई SLA लक्ष्य परिभाषित नहीं। अनुपालन देखने के लिए उपरोक्त लक्ष्य निर्धारित करें।",
+          "noTrendData": "कोई DQ इतिहास डेटा उपलब्ध नहीं है। रुझान देखने के लिए कम से कम दो रिलीज़ पर DQD चलाएँ।",
+          "trendHelp": "डेल्टा विवरण देखने के लिए रिलीज़ बिंदु पर क्लिक करें। हरा >90%, एम्बर 80-90%, लाल <80%।",
+          "overlayHelp": "DQ पास दरें एक एकीकृत समयरेखा पर सभी स्रोतों पर लागू होती हैं।"
+        },
+        "actions": {
+          "exporting": "निर्यात किया जा रहा है...",
+          "exportCsv": "CSV निर्यात करें",
+          "saving": "सहेजा जा रहा है...",
+          "saveSlaTargets": "SLA लक्ष्य सहेजें"
+        }
+      },
+      "unmapped": {
+        "filters": {
+          "source": "स्रोत:",
+          "selectSource": "स्रोत चुनें...",
+          "release": "मुक्त करना:",
+          "table": "मेज़:",
+          "allTables": "सभी तालिकाएँ",
+          "searchPlaceholder": "स्रोत कोड खोजें..."
+        },
+        "viewModes": {
+          "table": "मेज़",
+          "pareto": "परेटो",
+          "vocabulary": "शब्दावली"
+        },
+        "actions": {
+          "exporting": "निर्यात किया जा रहा है...",
+          "exportUsagiCsv": "Usagi CSV निर्यात करें",
+          "previous": "पिछला",
+          "next": "अगला"
+        },
+        "summaryBadge": "{{table}} ({{codes}} कोड, {{records}} रिकॉर्ड)",
+        "vocabularyValue": "({{vocabulary}})",
+        "progress": {
+          "noCodes": "समीक्षा के लिए कोई अनमैप्ड कोड नहीं।",
+          "title": "मानचित्रण प्रगति",
+          "reviewed": "{{percent}}% की समीक्षा की गई",
+          "segmentTitle": "{{label}}: {{count}} ({{percent}}%)",
+          "label": "{{label}}:",
+          "status": {
+            "mapped": "मैप किए गए",
+            "deferred": "स्थगित",
+            "excluded": "छोड़ा गया",
+            "pending": "लंबित"
+          }
+        },
+        "sections": {
+          "pareto": "अनमैप्ड कोड पेरेटो विश्लेषण",
+          "vocabulary": "शब्दावली के अनुसार अनमैप्ड कोड",
+          "suggestions": "AI सुझावों का मानचित्रण"
+        },
+        "suggestions": {
+          "generating": "पीजीवेक्टर समानता के माध्यम से सुझाव उत्पन्न करना...",
+          "failed": "सुझाव लोड करने में विफल. AI सेवा या अवधारणा एम्बेडिंग उपलब्ध नहीं हो सकती है।",
+          "empty": "कोई सुझाव उपलब्ध नहीं है. संकल्पना एम्बेडिंग लोड नहीं की जा सकती.",
+          "id": "ID: {{id}}",
+          "accepted": "स्वीकृत",
+          "accept": "स्वीकार करना",
+          "skip": "छोड़ें"
+        },
+        "pareto": {
+          "topCodesCoverage": "शीर्ष 20 कोड सभी अनमैप्ड रिकॉर्ड्स के {{percent}}% को कवर करते हैं",
+          "percent": "{{value}}%",
+          "cumulativePercent": "संचयी %"
+        },
+        "vocabulary": {
+          "total": "कुल",
+          "codeCount": "{{count}} कोड"
+        },
+        "messages": {
+          "selectSource": "अनमैप्ड कोड देखने के लिए एक स्रोत का चयन करें।",
+          "loading": "अनमैप्ड कोड लोड हो रहे हैं...",
+          "emptyPareto": "पेरेटो विश्लेषण के लिए कोई अनमैप्ड कोड नहीं मिला।",
+          "emptyVocabulary": "कोई शब्दावली डेटा उपलब्ध नहीं है.",
+          "noneFound": "कोई अनमैप्ड स्रोत कोड नहीं मिला. सभी कोड मानक OMOP अवधारणाओं पर मैप किए गए हैं।",
+          "sortedByImpact": "प्रभाव स्कोर के आधार पर क्रमबद्ध (रिकॉर्ड गणना x डोमेन भार)",
+          "showing": "{{total}} में से {{start}}-{{end}} दिखा रहा है"
+        },
+        "table": {
+          "sourceCode": "सोर्स कोड",
+          "vocabulary": "शब्दावली",
+          "cdmTable": "CDM तालिका",
+          "cdmField": "CDM फ़ील्ड",
+          "records": "अभिलेख",
+          "impactScore": "प्रभाव स्कोर"
+        }
+      },
+      "conceptComparison": {
+        "title": "सभी स्रोतों में संकल्पना तुलना",
+        "searchPlaceholder": "एक अवधारणा खोजें (e.g. 'टाइप 2 मधुमेह', 'मेटफॉर्मिन')...",
+        "conceptMetadata": "{{domain}} | {{vocabulary}} | ID: {{id}}",
+        "selectedConceptMetadata": "{{domain}} | {{vocabulary}} | संकल्पना ID: {{id}}",
+        "temporalTrendTitle": "अस्थायी रुझान: {{concept}}",
+        "addConceptPlaceholder": "एक और अवधारणा जोड़ें ({{selected}}/{{max}} चयनित)...",
+        "cdcNationalRate": "CDC राष्ट्रीय दर: {{value}}/1000",
+        "viewModes": {
+          "single": "अकेला",
+          "temporal": "लौकिक",
+          "multi": "मल्टी संकल्पना",
+          "funnel": "एट्रिशन फ़नल"
+        },
+        "rateModes": {
+          "crude": "क्रूड रेट",
+          "standardized": "आयु-लिंग समायोजित"
+        },
+        "metrics": {
+          "rate": "Rate/1000",
+          "count": "गिनती करना",
+          "perThousandShort": "{{value}}/1k",
+          "perThousandLong": "{{value}} प्रति 1,000"
+        },
+        "messages": {
+          "noComparisonData": "कोई तुलना डेटा उपलब्ध नहीं है.",
+          "noTemporalPrevalenceData": "कोई अस्थायी प्रसार डेटा उपलब्ध नहीं है।",
+          "selectTwoConcepts": "तुलना करने के लिए कम से कम 2 अवधारणाओं का चयन करें।",
+          "searching": "खोज रहे हैं...",
+          "loadingComparison": "तुलना डेटा लोड हो रहा है...",
+          "standardizedNote": "प्रत्यक्ष आयु-लिंग मानकीकरण का उपयोग करके US जनगणना 2020 जनसंख्या के लिए मानकीकृत।",
+          "searchToCompare": "सभी डेटा स्रोतों में इसकी व्यापकता की तुलना करने के लिए उपरोक्त अवधारणा खोजें।",
+          "loadingTemporal": "अस्थायी व्यापकता लोड हो रही है...",
+          "noTemporalData": "इस अवधारणा के लिए कोई अस्थायी डेटा उपलब्ध नहीं है।",
+          "searchForTemporal": "सभी रिलीज़ों में इसकी अस्थायी व्यापकता की प्रवृत्ति को देखने के लिए उपरोक्त अवधारणा की खोज करें।",
+          "loadingMulti": "बहु-अवधारणा तुलना लोड हो रही है...",
+          "loadingFunnel": "एट्रिशन फ़नल लोड हो रहा है...",
+          "noAttritionData": "चयनित अवधारणाओं के लिए कोई क्षय डेटा उपलब्ध नहीं है।",
+          "temporalPrevalenceHelp": "समय के साथ प्रति 1,000 व्यक्तियों की दर."
+        }
+      },
+      "releases": {
+        "releaseTypes": {
+          "etl": "ETL",
+          "scheduledEtl": "शेड्यूल किया गया ETL",
+          "snapshot": "स्नैपशॉट"
+        },
+        "cdmVersion": "CDM {{version}}",
+        "vocabularyVersion": "शब्दावली {{version}}",
+        "personCount": "{{value}} व्यक्ति",
+        "recordCount": "{{value}} रिकॉर्ड",
+        "actions": {
+          "showDiff": "अंतर दिखाएँ",
+          "editRelease": "रिलीज़ संपादित करें",
+          "createRelease": "रिलीज़ बनाएँ",
+          "creating": "बनाया जा रहा है...",
+          "create": "बनाएं",
+          "saving": "सहेजा जा रहा है...",
+          "save": "बचाना",
+          "cancel": "रद्द करना"
+        },
+        "etl": {
+          "provenance": "ETL उद्गम",
+          "ranBy": "द्वारा चलाया गया:",
+          "codeVersion": "कोड संस्करण:",
+          "duration": "अवधि:",
+          "started": "शुरू कर दिया:",
+          "parameters": "पैरामीटर:"
+        },
+        "duration": {
+          "hoursMinutes": "{{hours}}h {{minutes}}m",
+          "minutesSeconds": "{{minutes}}m {{seconds}}s",
+          "seconds": "{{seconds}}s"
+        },
+        "confirmDelete": "यह रिलीज़ हटाएं?",
+        "tabs": {
+          "list": "विज्ञप्ति",
+          "swimlane": "स्विमलेन",
+          "calendar": "कैलेंडर"
+        },
+        "timelineTitle": "रिलीज टाइमलाइन (सभी स्रोत)",
+        "calendarTitle": "कैलेंडर जारी करें",
+        "selectSource": "एक स्रोत चुनें",
+        "form": {
+          "releaseName": "रिलीज़ नाम",
+          "cdmVersion": "CDM संस्करण",
+          "vocabularyVersion": "शब्दावली संस्करण",
+          "etlVersion": "ETL संस्करण",
+          "notes": "टिप्पणियाँ",
+          "notesPlaceholder": "रिलीज नोट्स...",
+          "cdmVersionOptional": "CDM संस्करण (वैकल्पिक)",
+          "vocabularyVersionOptional": "शब्दावली संस्करण (वैकल्पिक)",
+          "cdmVersionPlaceholder": "CDM v5.4",
+          "vocabularyVersionPlaceholder": "2024-11-01",
+          "etlVersionPlaceholder": "v1.2.3"
+        },
+        "empty": {
+          "selectSource": "इसकी रिलीज़ देखने के लिए किसी स्रोत का चयन करें",
+          "noReleases": "इस स्रोत के लिए अभी तक कोई रिलीज़ नहीं हुई है",
+          "noReleaseData": "कोई रिलीज़ डेटा उपलब्ध नहीं है."
+        },
+        "calendar": {
+          "noEvents": "कोई रिलीज़ इवेंट नहीं.",
+          "dayEvents": "{{date}}: {{count}} रिलीज़",
+          "less": "कम",
+          "more": "अधिक"
+        },
+        "diff": {
+          "computing": "कंप्यूटिंग में अंतर...",
+          "title": "रिलीज डिफ",
+          "initialRelease": "आरंभिक रिलीज़--तुलना के लिए कोई पिछला डेटा नहीं।",
+          "persons": "व्यक्ति:",
+          "records": "रिकॉर्ड्स:",
+          "dqScore": "DQ स्कोर:",
+          "unmapped": "अनमैप्ड:",
+          "vocabUpdated": "वोकैब अपडेट किया गया",
+          "domainDeltas": "डोमेन डेल्टा:"
+        }
+      },
+      "diversity": {
+        "title": "विविधता रिपोर्ट",
+        "description": "डेटा स्रोतों में जनसांख्यिकीय अनुपात। जनसंख्या आकार के अनुसार क्रमबद्ध स्रोत।",
+        "ratings": {
+          "very_high": "बहुत ऊँचा",
+          "high": "उच्च",
+          "moderate": "मध्यम",
+          "low": "कम"
+        },
+        "percentValue": "{{value}}%",
+        "labelPercentValue": "{{label}}: {{value}}%",
+        "personCount": "{{value}} व्यक्ति",
+        "labels": {
+          "gender": "लिंग",
+          "race": "दौड़",
+          "ethnicity": "जातीयता",
+          "male": "पुरुष",
+          "female": "महिला"
+        },
+        "dimensions": {
+          "composite": "कम्पोजिट",
+          "gender": "लिंग",
+          "race": "दौड़",
+          "ethnicity": "जातीयता"
+        },
+        "tabs": {
+          "overview": "सिंहावलोकन",
+          "pyramid": "आयु पिरामिड",
+          "dap": "DAP गैप",
+          "pooled": "जमा",
+          "geographic": "ज्योग्राफिक",
+          "trends": "प्रवृत्तियों"
+        },
+        "filters": {
+          "selectSource": "एक स्रोत चुनें"
+        },
+        "benchmarks": {
+          "usCensus2020": "US जनगणना 2020"
+        },
+        "dap": {
+          "title": "FDA DAP नामांकन अंतर विश्लेषण",
+          "description": "नामांकन अंतराल की पहचान करने के लिए स्रोत जनसांख्यिकी की तुलना US जनगणना 2020 बेंचमार्क से की जाती है।",
+          "tooltip": "वास्तविक: {{actual}}% | लक्ष्य: {{target}}% | गैप: {{gap}}%",
+          "status": {
+            "met": "मिले (2% के भीतर)",
+            "gap": "अंतर (2-10%)",
+            "critical": "गंभीर (>10%)"
+          }
+        },
+        "agePyramid": {
+          "title": "{{source}} -- आयु वितरण"
+        },
+        "benchmark": {
+          "title": "बेंचमार्क: {{label}}",
+          "actual": "वास्तविक",
+          "benchmark": "बेंचमार्क"
+        },
+        "trends": {
+          "title": "विविधता रुझान: {{source}}",
+          "description": "प्रति रिलीज सिम्पसन की विविधता सूचकांक (0 = सजातीय, 1 = अधिकतम विविध)"
+        },
+        "geographic": {
+          "loading": "भौगोलिक विविधता डेटा लोड हो रहा है...",
+          "noLocationData": "कोई स्थान डेटा उपलब्ध नहीं है",
+          "noAdiData": "ADI डेटा उपलब्ध नहीं है (GIS मॉड्यूल में ADI लोड नहीं हो सकता है)",
+          "noGeographicData": "कोई भौगोलिक डेटा उपलब्ध नहीं है. स्रोतों में व्यक्ति तालिका में स्थान डेटा नहीं हो सकता है।",
+          "statesCovered": "राज्यों/क्षेत्रों को शामिल किया गया",
+          "networkMedianAdi": "नेटवर्क माध्य ADI:",
+          "sourcesWithLocation": "स्थान डेटा वाले स्रोत",
+          "sourcesWithAdi": "ADI डेटा वाले स्रोत",
+          "stateCount": "{{count}} बताता है",
+          "medianAdiValue": "माध्यिका ADI: {{value}}",
+          "topStates": "रोगी संख्या के अनुसार शीर्ष राज्य",
+          "adiDistribution": "ADI दशमलव वितरण",
+          "leastDeprived": "सबसे कम वंचित",
+          "adiDecile": "ADI डेसील",
+          "mostDeprived": "सर्वाधिक वंचित",
+          "decileTitle": "डेसील {{decile}}: {{count}} ZIP कोड",
+          "adiRatings": {
+            "low": "कम अभाव",
+            "moderate": "मध्यम अभाव",
+            "high": "उच्च अभाव (अंडरसर्व्ड)"
+          }
+        },
+        "pooled": {
+          "title": "एकत्रित जनसांख्यिकी",
+          "description": "भारित-मर्ज किए गए जनसांख्यिकीय प्रोफ़ाइल देखने के लिए एकाधिक स्रोतों का चयन करें।",
+          "summary": "कुल: {{sources}} स्रोतों में {{persons}} व्यक्ति"
+        },
+        "messages": {
+          "loading": "विविधता डेटा लोड हो रहा है...",
+          "noSources": "विविधता विश्लेषण के लिए कोई स्रोत उपलब्ध नहीं है।",
+          "noData": "कोई डेटा नहीं",
+          "noTrendData": "विविधता रुझानों के लिए कोई रिलीज़ डेटा उपलब्ध नहीं है।",
+          "noTrendReleases": "इस स्रोत के लिए कोई रिलीज़ नहीं मिली. विविधता के रुझानों को ट्रैक करने के लिए रिलीज़ बनाएं।"
+        }
+      },
+      "cost": {
+        "empty": {
+          "title": "कोई लागत डेटा उपलब्ध नहीं है",
+          "message": "लागत डेटा के लिए दावा-आधारित डेटासेट (e.g., MarketScan, Optum, PharMetrics) की आवश्यकता होती है। EHR-व्युत्पन्न डेटासेट जैसे SynPUF, MIMIC-IV, और अधिकांश शैक्षणिक चिकित्सा केंद्र डेटा आमतौर पर OMOP लागत तालिका को पॉप्युलेट नहीं करते हैं।"
+        },
+        "filters": {
+          "source": "स्रोत:",
+          "selectSource": "स्रोत चुनें..."
+        },
+        "tabs": {
+          "overview": "सिंहावलोकन",
+          "distribution": "वितरण",
+          "care-setting": "देखभाल सेटिंग",
+          "trends": "प्रवृत्तियों",
+          "drivers": "लागत चालक",
+          "cross-source": "क्रॉस-स्रोत"
+        },
+        "messages": {
+          "selectSource": "लागत डेटा देखने के लिए एक स्रोत चुनें.",
+          "loading": "लागत डेटा लोड हो रहा है...",
+          "distributionHelp": "लागत प्रसार दर्शाने वाले बॉक्स-एंड-व्हिस्कर प्लॉट। बॉक्स = IQR (P25-P75), मूंछें = P10-P90, सोने की रेखा = माध्यिका, लाल बिंदु = माध्य।",
+          "noDistributionData": "कोई वितरण डेटा उपलब्ध नहीं है.",
+          "noCareSettingData": "कोई देखभाल सेटिंग लागत डेटा उपलब्ध नहीं है। Visit_occurrence के साथ जुड़े विज़िट-डोमेन लागत रिकॉर्ड की आवश्यकता है।",
+          "selectSourceForDrivers": "लागत चालकों को देखने के लिए एक स्रोत का चयन करें।",
+          "loadingDrivers": "लागत ड्राइवर लोड हो रहे हैं...",
+          "noDriverData": "इस स्रोत के लिए कोई लागत ड्राइवर डेटा उपलब्ध नहीं है।",
+          "costDriversHelp": "कुल लागत के अनुसार शीर्ष 10 अवधारणाएँ। अवधारणा विवरण के लिए एक बार पर क्लिक करें।",
+          "loadingCrossSource": "क्रॉस-सोर्स तुलना लोड हो रही है...",
+          "noComparisonSources": "तुलना के लिए कोई स्रोत उपलब्ध नहीं है.",
+          "noCrossSourceCostData": "तुलना के लिए किसी भी स्रोत के पास लागत डेटा नहीं है।",
+          "crossSourceHelp": "प्रति स्रोत बॉक्स-एंड-व्हिस्कर। बॉक्स = IQR (P25-P75), मूंछें = P10-P90, सोने की रेखा = माध्यिका।"
+        },
+        "metrics": {
+          "totalCost": "कुल लागत",
+          "perPatientPerYear": "प्रति-रोगी-प्रति-वर्ष",
+          "persons": "व्यक्तियों",
+          "observationYears": "{{value}} वर्ष",
+          "avgObservation": "औसत अवलोकन",
+          "recordsAverage": "{{records}} रिकॉर्ड | औसत {{average}}",
+          "recordCount": "{{count}} रिकॉर्ड",
+          "patientCount": "{{count}} मरीज़",
+          "averagePerRecord": "औसत: {{value}}/record",
+          "medianValue": "माध्यिका: {{value}}",
+          "meanValue": "मतलब: {{value}}",
+          "percent": "{{value}}%",
+          "range": "रेंज: {{min}} - {{max}}"
+        },
+        "costTypeFilter": {
+          "title": "एकाधिक लागत प्रकारों का पता चला.",
+          "message": "इस स्रोत में {{count}} विभिन्न लागत प्रकार की अवधारणाएँ हैं। चार्ज की गई रकम को भुगतान की गई रकम के साथ मिलाने से भ्रामक आंकड़े पैदा होते हैं। सटीक विश्लेषण के लिए लागत प्रकार के अनुसार फ़िल्टर करें।",
+          "allTypes": "सभी प्रकार",
+          "option": "{{name}} ({{count}})"
+        },
+        "sections": {
+          "costByDomain": "डोमेन द्वारा लागत",
+          "distributionByDomain": "डोमेन द्वारा लागत वितरण",
+          "costByCareSetting": "देखभाल सेटिंग के अनुसार लागत",
+          "monthlyTrends": "मासिक लागत रुझान",
+          "topCostDrivers": "शीर्ष लागत वाले ड्राइवर",
+          "crossSourceComparison": "क्रॉस-सोर्स लागत तुलना"
+        }
+      }
+    }
+  },
+  "jobs": {
+    "page": {
+      "title": "नौकरियाँ",
+      "subtitle": "पृष्ठभूमि नौकरियों और कतार की स्थिति की निगरानी करें",
+      "empty": {
+        "title": "कोई नौकरी नहीं मिली",
+        "archived": "24 घंटे से अधिक पुरानी कोई भी संग्रहीत नौकरियाँ नहीं।",
+        "filtered": "{{status}} स्थिति वाली कोई नौकरी नहीं। कोई भिन्न फ़िल्टर आज़माएँ.",
+        "recent": "पिछले 24 घंटों में कोई नौकरी नहीं. पुरानी नौकरियों के लिए संग्रहित की जाँच करें।"
+      },
+      "table": {
+        "job": "काम",
+        "type": "प्रकार",
+        "source": "स्रोत",
+        "started": "शुरू कर दिया",
+        "duration": "अवधि",
+        "status": "स्थिति",
+        "actions": "कार्रवाई"
+      },
+      "pagination": "पेज {{current}} में से {{last}} · {{total}} नौकरियाँ"
+    },
+    "filters": {
+      "statuses": {
+        "all": "सभी (24 घंटे)",
+        "pending": "लंबित",
+        "queued": "कतारबद्ध",
+        "running": "दौड़ना",
+        "completed": "पुरा होना।",
+        "failed": "असफल",
+        "cancelled": "रद्द कर दिया गया",
+        "archived": "संग्रहीत"
+      },
+      "types": {
+        "all": "सभी प्रकार",
+        "analysis": "विश्लेषण",
+        "characterization": "निस्र्पण",
+        "incidenceRate": "घटना दर",
+        "estimation": "अनुमान",
+        "prediction": "भविष्यवाणी",
+        "pathway": "मार्ग",
+        "sccs": "SCCS",
+        "evidenceSynthesis": "साक्ष्य संश्लेषण",
+        "cohortGeneration": "समूह पीढ़ी",
+        "careGaps": "देखभाल अंतराल",
+        "achilles": "Achilles",
+        "dataQuality": "आधार सामग्री की गुणवत्ता",
+        "heelChecks": "Heel जाँच करता है",
+        "ingestion": "घूस",
+        "vocabulary": "शब्दावली",
+        "genomicParse": "जीनोमिक पार्स",
+        "poseidon": "Poseidon ETL",
+        "fhirExport": "FHIR निर्यात",
+        "fhirSync": "FHIR सिंक",
+        "gisImport": "GIS आयात",
+        "gisBoundaries": "GIS सीमाएँ"
+      }
+    },
+    "actions": {
+      "retry": "पुन: प्रयास करें",
+      "retryJob": "कार्य पुनः प्रयास करें",
+      "cancel": "रद्द करना",
+      "cancelJob": "नौकरी रद्द करें",
+      "previous": "पिछला",
+      "next": "अगला"
+    },
+    "drawer": {
+      "titleFallback": "नौकरी का विवरण",
+      "loadError": "कार्य विवरण लोड करने में विफल.",
+      "sections": {
+        "executionLog": "निष्पादन लॉग",
+        "analysis": "विश्लेषण",
+        "cohort": "समूह",
+        "ingestionPipeline": "अंतर्ग्रहण पाइपलाइन",
+        "fhirSync": "FHIR सिंक",
+        "dataQuality": "आधार सामग्री की गुणवत्ता",
+        "heelChecks": "Heel जाँच करता है",
+        "achillesAnalyses": "Achilles विश्लेषण करता है",
+        "genomicParse": "जीनोमिक पार्स",
+        "poseidonEtl": "Poseidon ETL",
+        "careGapEvaluation": "केयर गैप मूल्यांकन",
+        "gisBoundaries": "GIS सीमाएँ",
+        "gisImport": "GIS आयात",
+        "vocabularyImport": "शब्दावली आयात",
+        "fhirExport": "FHIR निर्यात",
+        "overview": "सिंहावलोकन",
+        "output": "उत्पादन"
+      },
+      "labels": {
+        "analysis": "विश्लेषण",
+        "createdBy": "के द्वारा बनाई गई",
+        "parameters": "पैरामीटर",
+        "cohort": "समूह",
+        "personCount": "व्यक्ति गणना",
+        "source": "स्रोत",
+        "sourceKey": "स्रोत कुंजी",
+        "stage": "अवस्था",
+        "project": "परियोजना",
+        "file": "फ़ाइल",
+        "fileSize": "फ़ाइल का साइज़",
+        "mappingCoverage": "मैपिंग कवरेज",
+        "processed": "प्रसंस्कृत",
+        "failed": "असफल",
+        "filesDownloaded": "फ़ाइलें डाउनलोड की गईं",
+        "recordsExtracted": "रिकॉर्ड निकाले गए",
+        "recordsMapped": "रिकॉर्ड मैप किए गए",
+        "recordsWritten": "अभिलेख लिखे गए",
+        "recordsFailed": "रिकॉर्ड विफल",
+        "passed": "उत्तीर्ण",
+        "passRate": "पास दर",
+        "expectedChecks": "अपेक्षित जाँचें",
+        "executionTime": "निष्पादन का समय",
+        "failingChecks": "असफल जाँच",
+        "totalRules": "कुल नियम",
+        "rulesTriggered": "नियम ट्रिगर",
+        "totalViolations": "कुल उल्लंघन",
+        "topViolations": "शीर्ष उल्लंघन",
+        "completed": "पुरा होना।",
+        "byCategory": "श्रेणी के अनुसार",
+        "failedSteps": "असफल कदम",
+        "format": "प्रारूप",
+        "totalVariants": "कुल वेरिएंट",
+        "mappedVariants": "मैप किए गए वेरिएंट",
+        "samples": "नमूने",
+        "runType": "रन प्रकार",
+        "dagsterRunId": "Dagster चलाएँ ID",
+        "stats": "आँकड़े",
+        "bundle": "बंडल",
+        "complianceSummary": "अनुपालन सारांश",
+        "dataset": "डेटासेट",
+        "dataType": "डेटा प्रकार",
+        "version": "संस्करण",
+        "geometry": "ज्यामिति",
+        "features": "विशेषताएँ",
+        "tablesLoaded": "तालिकाएँ लोड की गईं",
+        "recordsLoaded": "रिकॉर्ड लोड किए गए",
+        "outputFormat": "आउटपुट स्वरूप",
+        "type": "प्रकार",
+        "triggeredBy": "द्वारा सक्रिय करना",
+        "duration": "अवधि",
+        "started": "शुरू कर दिया",
+        "created": "बनाया था",
+        "error": "गलती"
+      },
+      "messages": {
+        "stalled": "1 घंटे का समय समाप्त होने के बाद यह कार्य रुक गया और विफल के रूप में चिह्नित किया गया।",
+        "failedCount": "{{count}} विफल",
+        "runningCount": "{{count}} चल रहा है",
+        "ofTotal": "{{count}} का",
+        "records": "{{count}} रिकॉर्ड"
+      }
+    }
+  }
+});
+
+
 export const appResources: Record<string, MessageTree> = {
   "en-US": enApp,
   "es-ES": esApp,
@@ -37872,4 +41984,5 @@ export const appResources: Record<string, MessageTree> = {
   "ja-JP": jaApp,
   "zh-Hans": zhApp,
   "ko-KR": koApp,
+  "hi-IN": hiApp,
 };
