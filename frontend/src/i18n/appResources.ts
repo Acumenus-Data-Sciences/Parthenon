@@ -12945,6 +12945,995 @@ const frApp: MessageTree = mergeMessageTrees(enApp, {
       evidenceSynthesis: "Analyse de synthèse des preuves",
     },
   },
+  studies: {
+    list: {
+      title: "Études",
+      subtitle: "Orchestrer et gérer les études de recherche fédérées",
+      tableView: "Vue tableau",
+      cardView: "Vue carte",
+      searchPlaceholder: "Rechercher des études...",
+      noSearchMatches: "Aucune étude ne correspond à \"{{query}}\"",
+      typeToFilter: "Tapez pour filtrer les études {{count}}",
+      newStudy: "Nouvelle étude",
+      solr: "Solr",
+      drilldownTitle: "Études {{phase}}",
+      filterLabels: {
+        status: "Statut",
+        type: "Catégorie",
+        priority: "Priorité"
+      },
+      loadFailed: "Échec du chargement des études",
+      clear: "Effacer",
+      empty: {
+        noMatchingTitle: "Aucune étude correspondante",
+        noStudiesTitle: "Pas encore d'études",
+        noResultsFor: "Aucune étude trouvée pour \"{{query}}\"",
+        tryAdjusting: "Essayez d'ajuster vos termes de recherche.",
+        createFirst: "Créez votre première étude pour orchestrer la recherche fédérée."
+      },
+      table: {
+        title: "Titre",
+        type: "Catégorie",
+        status: "Statut",
+        priority: "Priorité",
+        pi: "IP",
+        created: "Créé"
+      },
+      pagination: {
+        showing: "Montrant {{start}} - {{end}} de {{total}}",
+        page: "{{page}} / {{totalPages}}"
+      }
+    },
+    metrics: {
+      total: "Total général",
+      active: "Actif",
+      preStudy: "Pré-étude",
+      inProgress: "En cours",
+      postStudy: "Post-étude"
+    },
+    studyTypes: {
+      characterization: "Caractérisation",
+      populationLevelEstimation: "PLE",
+      patientLevelPrediction: "PLP",
+      comparativeEffectiveness: "Comparatif",
+      safetySurveillance: "Sécurité",
+      drugUtilization: "Util. médicaments",
+      qualityImprovement: "AQ",
+      custom: "Personnalisé"
+    },
+    statuses: {
+      draft: "Brouillon",
+      protocol_development: "Développement de protocole",
+      feasibility: "Faisabilité",
+      irb_review: "Examen par le comité d'éthique",
+      execution: "Exécution",
+      analysis: "Analyse",
+      published: "Publié",
+      archived: "Archivé"
+    },
+    priorities: {
+      critical: "Critique",
+      high: "Élevée",
+      medium: "Moyenne",
+      low: "Faible"
+    },
+    phases: {
+      activeMetric: "Actif",
+      pre_study: "Pré-étude",
+      active: "En cours",
+      post_study: "Post-étude"
+    },
+    create: {
+      backToStudies: "Études",
+      title: "Créer une étude",
+      subtitle: "Configurez votre étude de recherche étape par étape",
+      previous: "Précédent",
+      next: "Suivant",
+      createAsDraft: "Créer en brouillon",
+      steps: {
+        basics: "Informations de base",
+        science: "Conception scientifique",
+        team: "Équipe et chronologie",
+        review: "Vérifier et créer"
+      },
+      studyTypes: {
+        characterization: {
+          label: "Caractérisation",
+          description: "Décrire les populations de patients et les modèles de traitement"
+        },
+        populationLevelEstimation: {
+          label: "Estimation au niveau de la population",
+          description: "Estimer les effets causals à l’aide de données d’observation"
+        },
+        patientLevelPrediction: {
+          label: "Prédiction au niveau du patient",
+          description: "Prédire les résultats individuels des patients"
+        },
+        comparativeEffectiveness: {
+          label: "Efficacité comparative",
+          description: "Comparez les traitements dans des contextes réels"
+        },
+        safetySurveillance: {
+          label: "Surveillance de la sécurité",
+          description: "Surveiller les signaux de sécurité des médicaments après la commercialisation"
+        },
+        drugUtilization: {
+          label: "Utilisation des médicaments",
+          description: "Analyser les modèles et les tendances de consommation de médicaments"
+        },
+        qualityImprovement: {
+          label: "Amélioration de la qualité",
+          description: "Évaluer la qualité des soins et le respect des directives"
+        },
+        custom: {
+          label: "Personnalisé",
+          description: "Définir un type d'étude personnalisé"
+        }
+      },
+      designs: {
+        select: "Sélectionner une conception...",
+        retrospectiveCohort: "Cohorte rétrospective",
+        prospectiveCohort: "Cohorte prospective",
+        caseControl: "Cas-témoin",
+        crossSectional: "Transversale",
+        selfControlled: "Série de cas auto-contrôlés",
+        nestedCaseControl: "Cas-témoins imbriqués",
+        metaAnalysis: "Méta-analyse",
+        networkStudy: "Étude en réseau",
+        methodological: "Méthodologique"
+      },
+      phases: {
+        select: "Sélectionnez la phase...",
+        phaseI: "Phase I",
+        phaseII: "Phase II",
+        phaseIII: "Phase III",
+        phaseIV: "Phase IV",
+        notApplicable: "Sans objet"
+      },
+      basics: {
+        studyType: "Type d'étude *",
+        title: "Titre *",
+        titlePlaceholder: "par exemple, effet des statines sur les résultats cardiovasculaires dans T2DM",
+        shortTitle: "Titre court",
+        shortTitlePlaceholder: "par exemple, LEGEND-T2DM",
+        priority: "Priorité",
+        studyDesign: "Conception de l'étude",
+        description: "Descriptif",
+        descriptionPlaceholder: "Brève description de l'étude...",
+        tags: "Mots-clés",
+        tagsPlaceholder: "Ajoutez un mot-clé et appuyez sur Entrée...",
+        addTag: "Ajouter un mot-clé"
+      },
+      science: {
+        aiPrompt: "Laissez l'IA suggérer les champs de conception scientifique à partir du titre de votre étude",
+        generating: "Génération en cours...",
+        generateWithAi: "Générer avec l'IA",
+        aiUnavailable: "Le service d'IA est indisponible. Veuillez remplir les champs manuellement.",
+        rationale: "Justification scientifique",
+        rationalePlaceholder: "Pourquoi cette étude est-elle nécessaire ? À quelle lacune de connaissances répond-elle ?",
+        hypothesis: "Hypothèse",
+        hypothesisPlaceholder: "Énoncez l’hypothèse principale testée…",
+        primaryObjective: "Objectif principal",
+        primaryObjectivePlaceholder: "Quel est l’objectif principal de cette étude ?",
+        secondaryObjectives: "Objectifs secondaires",
+        secondaryObjectivePlaceholder: "Ajoutez un objectif et appuyez sur Entrée...",
+        addSecondaryObjective: "Ajouter un objectif secondaire",
+        fundingSource: "Source de financement",
+        fundingSourcePlaceholder: "par exemple, NIH R01, PCORI, sponsorisé par l'industrie"
+      },
+      team: {
+        startDate: "Date de début de l'étude",
+        endDate: "Date de fin de l'étude",
+        endDateAfterStart: "La date de fin doit être postérieure à la date de début",
+        targetSites: "Sites d'inscription cibles",
+        targetSitesPlaceholder: "par exemple, 10",
+        studyPhase: "Phase d'étude",
+        nctId: "ID ClinicalTrials.gov",
+        nctIdPlaceholder: "par exemple, NCT12345678",
+        note: "Les membres de l'équipe, les sites et les cohortes peuvent être configurés une fois l'étude créée à partir du tableau de bord de l'étude."
+      },
+      review: {
+        basics: "Informations de base",
+        scientificDesign: "Conception scientifique",
+        timelineRegistration: "Chronologie et inscription",
+        labels: {
+          title: "Titre :",
+          shortTitle: "Titre court :",
+          type: "Catégorie :",
+          priority: "Priorité :",
+          design: "Conception :",
+          rationale: "Justification :",
+          hypothesis: "Hypothèse :",
+          primaryObjective: "Objectif principal :",
+          secondaryObjectives: "Objectifs secondaires :",
+          start: "Début :",
+          end: "Fin :",
+          targetSites: "Sites cibles :",
+          phase: "Phase :",
+          nctId: "ID NCT :",
+          funding: "Financement :"
+        }
+      }
+    },
+    detail: {
+      loadFailed: "Échec du chargement de l'étude",
+      backToStudies: "Retour aux études",
+      studies: "Études",
+      confirmDelete: "Êtes-vous sûr de vouloir supprimer cette étude ? Cette action ne peut pas être annulée.",
+      confirmArchive: "Archiver cette étude ? Il pourra être restauré ultérieurement.",
+      copyTitle: "Copie de {{title}}",
+      tabs: {
+        overview: "Aperçu",
+        design: "Conception",
+        analyses: "Analyses",
+        results: "Résultats",
+        progress: "Avancement",
+        sites: "Centres",
+        team: "Équipe",
+        cohorts: "Cohortes",
+        milestones: "Jalons",
+        artifacts: "Livrables",
+        activity: "Activité",
+        federated: "Fédéré"
+      },
+      statuses: {
+        draft: "Brouillon",
+        protocol_development: "Développement de protocole",
+        feasibility: "Faisabilité",
+        irb_review: "Examen par le comité d'éthique",
+        recruitment: "Recrutement",
+        execution: "Exécution",
+        analysis: "Analyse",
+        synthesis: "Synthèse",
+        manuscript: "Manuscrit",
+        published: "Publié",
+        archived: "Archivé",
+        withdrawn: "Retiré"
+      },
+      studyTypes: {
+        characterization: "Caractérisation",
+        population_level_estimation: "Estimation au niveau de la population",
+        patient_level_prediction: "Prédiction au niveau du patient",
+        comparative_effectiveness: "Efficacité comparative",
+        safety_surveillance: "Surveillance de la sécurité",
+        drug_utilization: "Utilisation des médicaments",
+        quality_improvement: "Amélioration de la qualité",
+        custom: "Personnalisé"
+      },
+      actions: {
+        transitionTo: "Transition vers",
+        generateManuscriptTitle: "Générer un manuscrit à partir d'analyses terminées",
+        manuscript: "Manuscrit",
+        duplicateStudy: "Étude en double",
+        exportJson: "Exporter en tant que JSON",
+        archiveStudy: "Etude d'archives",
+        deleteStudy: "Supprimer l'étude"
+      },
+      sections: {
+        about: "À propos",
+        analysisPipeline: "Pipeline d’analyse ({{count}})",
+        executionProgress: "Progression de l'exécution",
+        details: "Détails",
+        timeline: "Chronologie",
+        tags: "Mots-clés",
+        createdBy: "Créé par"
+      },
+      labels: {
+        primaryObjective: "Objectif principal",
+        hypothesis: "Hypothèse",
+        secondaryObjectives: "Objectifs secondaires",
+        principalInvestigator: "Chercheur principal",
+        leadDataScientist: "Responsable science des données",
+        studyDesign: "Conception de l'étude",
+        phase: "Phase",
+        protocolVersion: "Version du protocole",
+        funding: "Financement",
+        clinicalTrialsGov: "ClinicalTrials.gov",
+        start: "Début :",
+        end: "Fin :",
+        targetSites: "Sites cibles :",
+        created: "Créé :"
+      },
+      messages: {
+        noDescription: "Aucune description fournie",
+        moreAnalyses: "+{{count}} plus d'analyses"
+      },
+      progress: {
+        completed: "{{count}} terminé",
+        running: "{{count}} en marche",
+        failed: "Échec du {{count}}",
+        pending: "{{count}} en attente"
+      }
+    },
+    dashboard: {
+      progressSummary: "{{completed}} analyses terminées sur {{total}}",
+      stats: {
+        total: "Total général",
+        pending: "En attente",
+        running: "En cours",
+        completed: "Terminé",
+        failed: "Échec"
+      },
+      sections: {
+        studyAnalyses: "Analyses de l'étude"
+      },
+      table: {
+        type: "Catégorie",
+        name: "Nom",
+        status: "Statut"
+      },
+      messages: {
+        notExecuted: "Non exécuté"
+      },
+      empty: {
+        title: "Aucune analyse dans cette étude",
+        message: "Ajoutez des analyses dans l'onglet Conception pour commencer."
+      }
+    },
+    analyses: {
+      selectSource: "Sélectionnez la source...",
+      executeAll: "Tout exécuter",
+      addAnalysisToStudy: "Ajouter une analyse à l'étude",
+      emptyMessage: "Ajoutez des caractérisations, des estimations, des prédictions et bien plus encore pour créer votre pipeline d'analyse",
+      groupHeader: "{{label}} ({{count}})",
+      openAnalysisDetail: "Ouvrir le détail de l'analyse",
+      confirmRemove: "Supprimer cette analyse de l’étude ?",
+      removeFromStudy: "Supprimer de l'étude",
+      analysisId: "ID d'analyse",
+      lastRun: "Dernière exécution",
+      error: "Erreur",
+      viewFullDetail: "Voir tous les détails"
+    },
+    results: {
+      sections: {
+        results: "Résultats ({{count}})",
+        syntheses: "Synthèses ({{count}})"
+      },
+      actions: {
+        synthesize: "Synthétiser",
+        markPrimary: "Marquer comme principal",
+        unmarkPrimary: "Retirer le marquage principal",
+        markPublishable: "Marquer comme publiable",
+        unmarkPublishable: "Retirer le marquage publiable",
+        cancel: "Annuler"
+      },
+      filters: {
+        allTypes: "Tous types",
+        publishableOnly: "Publiable uniquement"
+      },
+      empty: {
+        noResultsTitle: "Aucun résultat pour l'instant",
+        noResultsMessage: "Les résultats apparaîtront ici une fois les analyses exécutées",
+        noSummaryData: "Aucune donnée récapitulative disponible",
+        noSynthesesTitle: "Pas de synthèses",
+        noSynthesesMessage: "Combinez les résultats de plusieurs sites à l’aide d’une méta-analyse"
+      },
+      resultTypes: {
+        cohort_count: "Effectif de cohorte",
+        characterization: "Caractérisation",
+        incidence_rate: "Taux d'incidence",
+        effect_estimate: "Estimation de l'effet",
+        prediction_performance: "Performance prédictive",
+        pathway: "Chemin",
+        sccs: "SCCS",
+        custom: "Personnalisé"
+      },
+      synthesisTypes: {
+        fixed_effects_meta: "Méta-analyse à effets fixes",
+        random_effects_meta: "Méta-analyse à effets aléatoires",
+        bayesian_meta: "Méta-analyse bayésienne",
+        forest_plot: "Diagramme en forêt",
+        heterogeneity_analysis: "Analyse d'hétérogénéité",
+        funnel_plot: "Diagramme en entonnoir",
+        evidence_synthesis: "Synthèse des preuves",
+        custom: "Personnalisé"
+      },
+      badges: {
+        primary: "Primaire",
+        publishable: "Publiable"
+      },
+      messages: {
+        resultCreated: "Résultat n° {{id}} · {{date}}",
+        reviewedBy: "Évalué par {{name}}"
+      },
+      labels: {
+        summary: "Résumé",
+        diagnostics: "Diagnostic"
+      },
+      pagination: {
+        previous: "Précédent",
+        next: "Suivant",
+        page: "Page {{page}} de {{totalPages}}"
+      },
+      synthesis: {
+        createTitle: "Créer une synthèse",
+        instructions: "Sélectionnez 2 résultats ou plus ci-dessus, puis choisissez une méthode de synthèse.",
+        createSelected: "Créer ({{count}} sélectionnés)",
+        confirmDelete: "Supprimer cette synthèse ?",
+        resultsCount: "{{count}} résultats",
+        system: "Système",
+        methodSettings: "Paramètres de méthode",
+        output: "Sortie",
+        noOutput: "Aucune sortie générée pour l'instant"
+      }
+    },
+    federated: {
+      loadingResults: "Chargement des résultats...",
+      loadResultsFailed: "Échec du chargement des résultats : {{error}}",
+      unknownError: "Erreur inconnue",
+      confirmDistribute: "Distribuer l'étude aux nœuds de données {{count}} ?",
+      arachneNotReachable: "Arachne Central n'est pas accessible",
+      loadNodesFailed: "Échec du chargement des nœuds Arachne",
+      arachneConnectionHelp: "Définissez ARACHNE_URL dans votre environnement pour activer l'exécution fédérée. Vérifiez qu'Arachne Central est en cours d'exécution et accessible.",
+      availableDataNodes: "Nœuds de données disponibles",
+      poweredByArachne: "Alimenté par Arachne",
+      distributeCount: "Distribuer ({{count}})",
+      noNodes: "Aucun nœud Arachne configuré. Définissez ARACHNE_URL dans l'environnement pour activer l'exécution fédérée.",
+      distributionFailed: "Échec de la distribution : {{error}}",
+      distributionSucceeded: "Étude distribuée avec succès. Statut de surveillance ci-dessous.",
+      federatedExecutions: "Exécutions fédérées",
+      noExecutions: "Aucune exécution fédérée pour le moment. Sélectionnez les nœuds de données ci-dessus et distribuez pour commencer.",
+      arachneAnalysis: "Analyse Arachne #{{id}}",
+      statuses: {
+        PENDING: "En attente",
+        EXECUTING: "Exécution",
+        COMPLETED: "Terminé",
+        FAILED: "Échec"
+      },
+      table: {
+        name: "Nom",
+        status: "Statut",
+        cdmVersion: "Version CDM",
+        patients: "Patients",
+        lastSeen: "Dernière activité",
+        node: "Nœud",
+        submitted: "Soumis",
+        completed: "Terminé"
+      }
+    },
+    artifacts: {
+      sections: {
+        artifacts: "Artefacts ({{count}})"
+      },
+      actions: {
+        addArtifact: "Ajouter un livrable",
+        cancel: "Annuler",
+        create: "Créer",
+        save: "Sauvegarder",
+        edit: "Modifier le livrable",
+        delete: "Supprimer le livrable",
+        openLink: "Ouvrir le lien"
+      },
+      form: {
+        addTitle: "Ajouter un livrable d'étude",
+        title: "Titre",
+        titleRequired: "Titre *",
+        titlePlaceholder: "par exemple, protocole d'étude v2.1",
+        version: "Version",
+        type: "Catégorie",
+        urlOptional: "URL (facultative)",
+        description: "Descriptif",
+        descriptionOptional: "Descriptif (facultatif)",
+        descriptionPlaceholder: "Brève description de cet artefact..."
+      },
+      empty: {
+        title: "Aucun livrable",
+        message: "Stockez les protocoles, les packages d'analyse et les documents de l'étude"
+      },
+      badges: {
+        current: "En vigueur"
+      },
+      labels: {
+        versionValue: "v{{version}}",
+        sizeKb: "{{size}} KB"
+      },
+      messages: {
+        unknown: "Inconnu",
+        uploadedBy: "{{name}} · {{date}}"
+      },
+      confirmDelete: "Supprimer ce livrable ?",
+      types: {
+        protocol: "Protocole",
+        sap: "Plan d'analyse statistique",
+        irb_submission: "Soumission IRB",
+        cohort_json: "Cohorte JSON",
+        analysis_package_r: "Package d'analyse R",
+        analysis_package_python: "Package d'analyse Python",
+        results_report: "Rapport de résultats",
+        manuscript_draft: "Brouillon de manuscrit",
+        supplementary: "Matériel supplémentaire",
+        presentation: "Présentation",
+        data_dictionary: "Dictionnaire de données",
+        study_package_zip: "Dossier d'étude ZIP",
+        other: "Autre"
+      }
+    },
+    sites: {
+      sections: {
+        sites: "Centres ({{count}})"
+      },
+      actions: {
+        addSite: "Ajouter un centre",
+        cancel: "Annuler",
+        save: "Sauvegarder",
+        edit: "Modifier le centre",
+        remove: "Retirer le centre"
+      },
+      form: {
+        addTitle: "Ajouter un centre partenaire de données",
+        sourceSearchPlaceholder: "Rechercher des sources de données...",
+        siteRole: "Rôle du centre",
+        irbProtocol: "Protocole IRB n°",
+        notes: "Remarques",
+        optional: "Facultatif"
+      },
+      empty: {
+        title: "Aucun centre inscrit",
+        message: "Ajoutez des centres partenaires de données à cette étude"
+      },
+      table: {
+        source: "Source de données",
+        role: "Rôle",
+        status: "Statut",
+        irb: "IRB #",
+        patients: "Patients",
+        cdm: "CDM"
+      },
+      messages: {
+        allSourcesAssigned: "Toutes les sources sont déjà attribuées",
+        noMatchingSources: "Aucune source correspondante",
+        sourceFallback: "Source n° {{id}}"
+      },
+      confirmRemove: "Retirer ce centre ?",
+      roles: {
+        data_partner: "Partenaire de données",
+        coordinating_center: "Centre de coordination",
+        analytics_node: "Nœud d'analyse",
+        observer: "Observateur"
+      },
+      statuses: {
+        pending: "En attente",
+        invited: "Invité",
+        approved: "Approuvé",
+        active: "Actif",
+        completed: "Terminé",
+        withdrawn: "Retiré"
+      }
+    },
+    cohorts: {
+      sections: {
+        cohorts: "Cohortes ({{count}})"
+      },
+      actions: {
+        assignCohort: "Attribuer une cohorte",
+        assign: "Attribuer",
+        cancel: "Annuler",
+        save: "Sauvegarder",
+        edit: "Modifier l'affectation de la cohorte",
+        remove: "Supprimer l'affectation de cohorte"
+      },
+      form: {
+        assignTitle: "Attribuer une définition de cohorte",
+        cohortDefinition: "Définition de la cohorte",
+        searchPlaceholder: "Rechercher des définitions de cohortes...",
+        role: "Rôle",
+        label: "Libellé",
+        labelRequired: "Libellé *",
+        labelPlaceholder: "p. ex., population cible T2DM",
+        description: "Descriptif",
+        optional: "Facultatif"
+      },
+      empty: {
+        title: "Aucune cohorte attribuée",
+        message: "Attribuer des définitions de cohorte et préciser leurs rôles dans cette étude"
+      },
+      messages: {
+        allAssigned: "Toutes les définitions de cohorte sont déjà attribuées",
+        noMatchingCohorts: "Aucune cohorte correspondante",
+        cohortFallback: "Cohorte #{{id}}"
+      },
+      confirmRemove: "Supprimer cette affectation de cohorte ?",
+      roles: {
+        target: "Cible",
+        comparator: "Comparateur",
+        outcome: "Résultat",
+        exclusion: "Exclusion",
+        subgroup: "Sous-groupe",
+        event: "Événement"
+      }
+    },
+    team: {
+      sections: {
+        members: "Membres de l'équipe ({{count}})"
+      },
+      actions: {
+        addMember: "Ajouter un membre",
+        cancel: "Annuler",
+        save: "Sauvegarder",
+        edit: "Modifier un membre de l'équipe",
+        remove: "Supprimer un membre de l'équipe"
+      },
+      form: {
+        addTitle: "Ajouter un membre de l'équipe",
+        user: "Utilisateur",
+        userSearchPlaceholder: "Rechercher des utilisateurs par nom ou par e-mail...",
+        role: "Rôle"
+      },
+      empty: {
+        title: "Aucun membre de l'équipe",
+        message: "Ajouter des chercheurs et des collaborateurs à cette étude"
+      },
+      table: {
+        name: "Nom",
+        email: "E-mail",
+        role: "Rôle",
+        status: "Statut",
+        joined: "Inscrit"
+      },
+      messages: {
+        allUsersAssigned: "Tous les utilisateurs sont déjà membres de l'équipe",
+        noMatchingUsers: "Aucun utilisateur correspondant",
+        userFallback: "Utilisateur #{{id}}"
+      },
+      confirmRemove: "Supprimer ce membre de l'équipe ?",
+      statuses: {
+        active: "Actif",
+        inactive: "Inactif"
+      },
+      roles: {
+        principal_investigator: "Chercheur principal",
+        co_investigator: "Co-investigateur",
+        data_scientist: "Spécialiste des données",
+        statistician: "Statisticien",
+        site_lead: "Responsable de centre",
+        data_analyst: "Analyste de données",
+        research_coordinator: "Coordinateur de recherche",
+        irb_liaison: "Coordinateur IRB",
+        project_manager: "Chef de projet",
+        observer: "Observateur"
+      },
+      roleDescriptions: {
+        principal_investigator: "Chercheur principal responsable de l’étude",
+        co_investigator: "Chercheur collaborateur à la supervision de l’étude",
+        data_scientist: "Développe et gère des pipelines analytiques",
+        statistician: "Analyse statistique et méthodologie",
+        site_lead: "Gère les opérations des centres partenaires de données",
+        data_analyst: "Traitement des données et contrôles qualité",
+        research_coordinator: "Coordonne la logistique et les délais de l’étude",
+        irb_liaison: "Gère les soumissions et la conformité IRB",
+        project_manager: "Planification et suivi global du projet",
+        observer: "Accès en lecture seule aux documents de l'étude"
+      }
+    },
+    milestones: {
+      sections: {
+        milestones: "Jalons ({{count}})"
+      },
+      actions: {
+        addMilestone: "Ajouter un jalon",
+        cancel: "Annuler",
+        create: "Créer",
+        save: "Sauvegarder",
+        edit: "Modifier le jalon",
+        delete: "Supprimer un jalon"
+      },
+      form: {
+        titlePlaceholder: "Titre du jalon..."
+      },
+      empty: {
+        title: "Aucun jalon",
+        message: "Suivez la progression de l’étude avec des jalons et des dates cibles"
+      },
+      labels: {
+        target: "Cible : {{date}}",
+        targetCompleted: "Cible : {{target}} | Terminé : {{completed}}"
+      },
+      confirmDelete: "Supprimer ce jalon ?",
+      types: {
+        protocol: "Protocole",
+        irb: "IRB",
+        data_access: "Accès aux données",
+        analysis: "Analyse",
+        review: "Revue",
+        publication: "Publication",
+        custom: "Personnalisé"
+      },
+      statuses: {
+        pending: "En attente",
+        in_progress: "En cours",
+        completed: "Terminé",
+        overdue: "En retard",
+        cancelled: "Annulé"
+      }
+    },
+    activity: {
+      title: "Journal d'activité",
+      empty: {
+        title: "Aucune activité pour le moment",
+        message: "Les actions effectuées dans cette étude apparaîtront ici"
+      },
+      pagination: {
+        previous: "Précédent",
+        next: "Suivant",
+        page: "Page {{page}} de {{totalPages}}"
+      },
+      actions: {
+        created: "Créé",
+        updated: "Mis à jour",
+        deleted: "Supprimé",
+        status_changed: "Statut modifié",
+        member_added: "Membre ajouté",
+        member_removed: "Membre retiré",
+        site_added: "Centre ajouté",
+        analysis_added: "Analyse ajoutée",
+        executed: "Exécuté"
+      },
+      entities: {
+        study: "Étude",
+        study_analysis: "Analyse de l'étude",
+        study_artifact: "Livrable d'étude",
+        study_cohort: "Cohorte d’étude",
+        study_milestone: "Jalon de l’étude",
+        study_site: "Centre d'étude",
+        study_team_member: "Membre de l'équipe d'étude"
+      }
+    },
+    designer: {
+      defaultSessionTitle: "Conception {{title}} OHDSI",
+      title: "Compilateur OHDSI de conception d'étude",
+      subtitle: "Transformez une question de recherche examinée en ensembles de concepts traçables, en cohortes, en preuves de faisabilité, en plans d'analyse prêts pour HADES et en un ensemble d'études verrouillé.",
+      researchQuestionPlaceholder: "Chez les adultes avec..., est-ce que..., par rapport à..., réduit...",
+      badges: {
+        session: "Session {{value}}",
+        version: "Version n° {{value}}"
+      },
+      versionStatuses: {
+        generated: "Généré",
+        review_ready: "Prêt à examiner",
+        accepted: "Accepté",
+        locked: "Verrouillé"
+      },
+      metrics: {
+        assets: "Actifs"
+      },
+      actions: {
+        downloadLockedPackage: "Télécharger le package verrouillé",
+        downloadPackage: "Télécharger le package",
+        add: "Ajouter",
+        saveChanges: "Enregistrer les modifications"
+      },
+      sections: {
+        verificationGates: "Points de vérification",
+        packageProvenance: "Provenance du package",
+        assetEvidence: "Preuves des actifs",
+        basicInformation: "Informations de base",
+        addAnalysis: "Ajouter une analyse",
+        studyAnalyses: "Analyses d'étude ({{count}})"
+      },
+      descriptions: {
+        verificationGates: "Résolvez les bloqueurs avant de verrouiller le package OHDSI.",
+        assetEvidence: "Examinez les résultats bloqués du vérificateur avant d’accepter un package."
+      },
+      gates: {
+        designIntent: "Intention de conception",
+        acceptedAt: "Accepté {{time}}",
+        acceptResearchQuestion: "Acceptez la question de recherche examinée.",
+        verifiedMaterializedCohorts: "{{count}} cohorte matérialisée vérifiée",
+        feasibilityReady: "Les preuves de faisabilité vérifiées sont prêtes.",
+        runFeasibility: "Exécutez la faisabilité après vérification des cohortes.",
+        analysisPlan: "Plan d'analyse",
+        analysisPlanReady: "Le plan d’analyse HADES vérifié est prêt.",
+        verifyAnalysisPlan: "Vérifier et matérialiser un plan d'analyse."
+      },
+      labels: {
+        version: "Version",
+        versionStatus: "v{{version}} - {{status}}",
+        verifiedAssets: "Actifs vérifiés",
+        title: "Titre",
+        description: "Descriptif",
+        studyType: "Type d'étude",
+        analysisType: "Type d'analyse",
+        analysis: "Analyse",
+        missingOmopIds: "ID OMOP manquants",
+        deprecatedOmopIds: "ID OMOP obsolètes",
+        invalidDraftIds: "ID de brouillon non valides"
+      },
+      placeholders: {
+        studyTitle: "Titre de l'étude",
+        optionalDescription: "Description facultative",
+        selectAnalysis: "Sélectionnez l'analyse..."
+      },
+      analysisTypes: {
+        characterization: "Caractérisation",
+        "incidence-rate": "Taux d'incidence",
+        pathway: "Chemin",
+        estimation: "Estimation statistique",
+        prediction: "Prédiction"
+      },
+      messages: {
+        new: "nouveau",
+        none: "aucun",
+        notStarted: "pas commencé",
+        createOrImport: "Créez ou importez une conception pour commencer.",
+        needsEvidence: "Preuves requises",
+        noVersion: "Aucune version",
+        blockedCount: "{{count}} bloqués",
+        noBlockers: "Aucun blocage",
+        startEvidenceReview: "Générez une intention ou importez l’étude en cours pour commencer l’examen des preuves.",
+        noAnalyses: "Aucune analyse ajoutée pour l'instant.",
+        analysisFallback: "Analyse n° {{id}}",
+        assetId: "Actif n° {{id}}",
+        materializedId: "matérialisé n° {{id}}",
+        verifiedAt: "vérifié {{time}}"
+      }
+    },
+    workbench: {
+      sessionTitle: "Conception de l'intention d'étude",
+      title: "Compilateur de conception d'étude",
+      subtitle: "Convertissez une question de recherche en une intention d'étude révisée alignée sur OHDSI, puis examinez les actifs phénotypiques réutilisables avant que quoi que ce soit ne se déplace en aval.",
+      newSession: "Nouvelle session",
+      sessions: "Sessions",
+      researchQuestion: "Question de recherche",
+      researchQuestionPlaceholder: "Comparez MACE récurrent chez les patients post-MI commençant le clopidogrel par rapport à l'aspirine.",
+      emptyQuestionPlaceholder: "Décrivez la question d'étude...",
+      generateIntent: "Générer l'intention",
+      startSession: "Démarrez une session de conception, puis générez une intention PICO structurée à partir de la question d'étude.",
+      createAndGenerate: "Créer une session et générer une intention",
+      loadingSessions: "Chargement des sessions de conception...",
+      sections: {
+        phenotypeRecommendations: "Recommandations sur le phénotype et la réutilisation",
+        conceptSetDrafts: "Brouillons d’ensemble de concepts",
+        cohortDrafts: "Brouillons de cohortes",
+        cohortReadiness: "Préparation de la cohorte d’étude",
+        feasibility: "Faisabilité",
+        sources: "Sources de données",
+        attrition: "Attrition",
+        analysisPlans: "Plans d'analyse",
+        packageLock: "Verrouillage du package",
+        currentAssets: "Actifs actuels de l'étude",
+        intentReview: "Revue de l'intention",
+        source: "Source de données",
+        governance: "Gouvernance"
+      },
+      descriptions: {
+        recommendations: "Examinez les entrées réutilisables de la bibliothèque de phénotypes, les cohortes locales et les ensembles de concepts locaux avant de rédiger quoi que ce soit de nouveau.",
+        conceptSets: "Convertissez les preuves acceptées en brouillons vérifiés par le vocabulaire avant de créer des ensembles de concepts natifs.",
+        cohorts: "Transformez des ensembles de concepts matérialisés en ébauches de définitions de cohortes natives.",
+        feasibility: "Vérifiez les cohortes liées par rapport aux sources CDM sélectionnées avant de planifier l'analyse.",
+        analysisPlans: "Compilez des cohortes d’études réalisables dans des conceptions d’analyse natives compatibles avec HADES.",
+        packageLock: "Gelez l’intention acceptée, les ensembles de concepts, les cohortes, la faisabilité et les analyses natives dans un package d’étude vérifiable.",
+        currentAssets: "Intégrez des cohortes et des analyses créées manuellement dans ce chemin de conception, puis examinez les lacunes sans modifier les enregistrements existants."
+      },
+      actions: {
+        recommend: "Recommander",
+        draftConceptSets: "Brouillonner les ensembles de concepts",
+        draftCohorts: "Brouillonner les cohortes",
+        runFeasibility: "Exécuter la faisabilité",
+        draftPlans: "Brouillonner les plans",
+        importCurrent: "Importer l'existant",
+        critique: "Critiquer",
+        verify: "Vérifier",
+        review: "Revue",
+        accept: "Accepter",
+        defer: "Différer",
+        reject: "Rejeter",
+        materialize: "Matérialiser",
+        openNativeEditor: "Ouvrir l'éditeur natif",
+        linkToStudy: "Lier à l'étude",
+        search: "Recherche",
+        add: "Ajouter",
+        remove: "Retirer",
+        saveReview: "Enregistrer la revue",
+        acceptIntent: "Accepter l'intention",
+        lockPackage: "Verrouiller le package",
+        locked: "Verrouillé",
+        downloadPackageSummary: "Télécharger le résumé du package"
+      },
+      labels: {
+        verified: "Vérifié",
+        needsCheck: "À vérifier",
+        blocked: "Bloqué",
+        unverified: "Non vérifié",
+        reviewQueue: "File d'attente de révision",
+        conceptSetDraft: "brouillon d’ensemble de concepts",
+        cohortDraft: "brouillon de cohorte",
+        concepts: "Concepts",
+        concept: "Concept",
+        domain: "Domaine",
+        vocabulary: "Vocabulaire",
+        flags: "Indicateurs",
+        actions: "Actions",
+        lint: "Contrôle lint",
+        source: "Source de données",
+        status: "Statut",
+        cohorts: "Cohortes",
+        coverage: "Couverture",
+        domains: "Domaines",
+        freshness: "Fraîcheur",
+        dqd: "DQD",
+        attrition: "Attrition",
+        nativeConceptSet: "Ensemble de concepts natif n° {{id}}",
+        nativeCohort: "Cohorte native n° {{id}}",
+        linkedStudyCohort: "Cohorte d'étude liée n° {{id}}",
+        conceptsCount: "{{count}} concepts",
+        conceptSetsCount: "{{count}} ensembles de concepts",
+        nativeAnalysis: "Analyse native n° {{id}}",
+        feasibility: "Faisabilité",
+        rank: "Rang {{score}}",
+        match: "{{score}} % de correspondance",
+        ohdsiId: "OHDSI #{{id}}",
+        computable: "Calculable",
+        imported: "Importé",
+        evidence: "Preuve",
+        origin: "Origine",
+        matchedTerm: "Terme correspondant",
+        canonicalRecord: "Enregistrement canonique",
+        noCanonicalRecord: "Aucun enregistrement canonique",
+        eligibility: "Éligibilité",
+        acceptable: "Acceptable",
+        blockedOrNeedsReview: "Bloqué ou à revoir",
+        policy: "Politique",
+        nextActions: "Actions suivantes",
+        rankComponents: "Composantes du rang",
+        verifierChecks: "Contrôles du vérificateur",
+        versionStatus: "Version {{version}} · {{status}}",
+        primaryObjective: "Objectif principal",
+        population: "Population",
+        exposure: "Exposition",
+        comparator: "Comparateur",
+        primaryOutcome: "Résultat principal",
+        timeAtRisk: "Temps à risque",
+        conceptSetsMetric: "Ensembles de concepts",
+        cohortsMetric: "Cohortes",
+        analysesMetric: "Analyses",
+        packagesMetric: "Packages",
+        aiEvents: "Événements d'IA",
+        reviewed: "Revu",
+        manifest: "Manifeste",
+        critiques: "Critiques enregistrées"
+      },
+      messages: {
+        saveOrAcceptBeforeRecommendations: "Enregistrez une intention prête à être révisée ou acceptez-la avant de demander des recommandations.",
+        loadingRecommendations: "Chargement des recommandations...",
+        noRecommendations: "Aucune recommandation pour l'instant.",
+        acceptRecommendationFirst: "Acceptez d’abord au moins une recommandation vérifiée de phénotype, de cohorte ou d’ensemble de concepts.",
+        noConceptSetDrafts: "Aucune ébauche de concept pour l’instant.",
+        onlyVerifiedConceptSetDrafts: "Seules les ébauches d’ensembles de concepts vérifiés peuvent être acceptées.",
+        searchConceptsPlaceholder: "Rechercher des concepts de vocabulaire OMOP",
+        materializeConceptSetFirst: "Matérialisez d’abord au moins une ébauche d’ensemble de concepts vérifié.",
+        noCohortDrafts: "Aucune ébauche de cohorte pour l’instant.",
+        checkingLinkedRoles: "Vérification des rôles liés...",
+        noReadinessSignal: "Aucun signal de préparation pour l’instant.",
+        ready: "Prêt",
+        blocked: "Bloqué",
+        drafts: "{{count}} brouillons",
+        materialized: "{{count}} matérialisés",
+        linked: "{{count}} liés",
+        linkRequiredCohorts: "Reliez les cohortes d’étude requises avant la faisabilité de la source.",
+        loadingSources: "Chargement des sources...",
+        noSources: "Aucune source CDM configurée.",
+        smallCellThreshold: "Seuil des petites cellules",
+        sourcesReady: "Sources {{ready}}/{{total}} prêtes",
+        ranAt: "Exécuté {{time}}",
+        noDates: "Aucune date",
+        none: "aucun",
+        roles: "Rôles {{ready}}/{{total}}",
+        unknown: "Inconnu",
+        noDqd: "Aucun DQD",
+        passRate: "{{rate}}% de réussite",
+        noFeasibilityEvidence: "Aucune preuve de faisabilité n'a été stockée pour cette version de conception.",
+        runFeasibilityBeforePlans: "Exécutez la faisabilité source avant de rédiger des plans d’analyse.",
+        noAnalysisPlans: "Aucun plan d’analyse pour l’instant.",
+        feasibilityStatus: "Faisabilité : {{status}}",
+        checkingPackageReadiness: "Vérification de la préparation du package...",
+        readyToLock: "Prêt à verrouiller.",
+        lockedPackageAvailable: "Le package verrouillé est disponible dans les livrables de l'étude.",
+        signed: "signé",
+        pending: "en attente",
+        onlyVerifiedRecommendations: "Seules les recommandations vérifiées de manière déterministe peuvent être acceptées."
+      }
+    }
+  },
   covariates: {
     title: "Paramètres des covariables",
     description:
@@ -14798,6 +15787,995 @@ const deApp: MessageTree = mergeMessageTrees(enApp, {
       evidenceSynthesis: "Evidenzsynthese-Analyse",
     },
   },
+  studies: {
+    list: {
+      title: "Studien",
+      subtitle: "Orchestrieren und verwalten Sie Verbundforschungsstudien",
+      tableView: "Tabellenansicht",
+      cardView: "Kartenansicht",
+      searchPlaceholder: "Studien durchsuchen...",
+      noSearchMatches: "Keine Studien passen zu „{{query}}“",
+      typeToFilter: "Geben Sie ein, um {{count}}-Studien zu filtern",
+      newStudy: "Neue Studie",
+      solr: "Solr",
+      drilldownTitle: "{{phase}}-Studien",
+      filterLabels: {
+        status: "Stand",
+        type: "Art",
+        priority: "Priorität"
+      },
+      loadFailed: "Studien konnten nicht geladen werden",
+      clear: "Zurücksetzen",
+      empty: {
+        noMatchingTitle: "Keine passenden Studien",
+        noStudiesTitle: "Noch keine Studien",
+        noResultsFor: "Keine Studien für „{{query}}“ gefunden",
+        tryAdjusting: "Versuchen Sie, Ihre Suchbegriffe anzupassen.",
+        createFirst: "Erstellen Sie Ihre erste Studie, um Verbundforschung zu orchestrieren."
+      },
+      table: {
+        title: "Titel",
+        type: "Art",
+        status: "Stand",
+        priority: "Priorität",
+        pi: "Hauptprüfer",
+        created: "Erstellt"
+      },
+      pagination: {
+        showing: "Zeigt {{start}} - {{end}} von {{total}}",
+        page: "{{page}} / {{totalPages}}"
+      }
+    },
+    metrics: {
+      total: "Gesamt",
+      active: "Aktiv",
+      preStudy: "Vor der Studie",
+      inProgress: "Im Gange",
+      postStudy: "Nach der Studie"
+    },
+    studyTypes: {
+      characterization: "Charakterisierung",
+      populationLevelEstimation: "PLE",
+      patientLevelPrediction: "PLP",
+      comparativeEffectiveness: "Vergleichend",
+      safetySurveillance: "Sicherheit",
+      drugUtilization: "Arzneimittelnutzung",
+      qualityImprovement: "QI",
+      custom: "Benutzerdefiniert"
+    },
+    statuses: {
+      draft: "Entwurf",
+      protocol_development: "Protokollentwicklung",
+      feasibility: "Durchführbarkeit",
+      irb_review: "IRB-Prüfung",
+      execution: "Ausführung",
+      analysis: "Analyse",
+      published: "Veröffentlicht",
+      archived: "Archiviert"
+    },
+    priorities: {
+      critical: "Kritisch",
+      high: "Hoch",
+      medium: "Mittel",
+      low: "Niedrig"
+    },
+    phases: {
+      activeMetric: "Aktiv",
+      pre_study: "Vor der Studie",
+      active: "Im Gange",
+      post_study: "Nach der Studie"
+    },
+    create: {
+      backToStudies: "Studien",
+      title: "Studie erstellen",
+      subtitle: "Konfigurieren Sie Ihre Forschungsstudie Schritt für Schritt",
+      previous: "Vorherige",
+      next: "Nächste",
+      createAsDraft: "Als Entwurf anlegen",
+      steps: {
+        basics: "Grundlagen",
+        science: "Wissenschaftliches Design",
+        team: "Team & Zeitleiste",
+        review: "Überprüfen und erstellen"
+      },
+      studyTypes: {
+        characterization: {
+          label: "Charakterisierung",
+          description: "Beschreiben Sie Patientenpopulationen und Behandlungsmuster"
+        },
+        populationLevelEstimation: {
+          label: "Schätzung auf Bevölkerungsebene",
+          description: "Schätzen Sie kausale Effekte anhand von Beobachtungsdaten ab"
+        },
+        patientLevelPrediction: {
+          label: "Vorhersage auf Patientenebene",
+          description: "Prognostizieren Sie die Ergebnisse einzelner Patienten"
+        },
+        comparativeEffectiveness: {
+          label: "Vergleichende Wirksamkeit",
+          description: "Vergleichen Sie Behandlungen in realen Umgebungen"
+        },
+        safetySurveillance: {
+          label: "Sicherheitsüberwachung",
+          description: "Überwachen Sie die Signale zur Arzneimittelsicherheit nach der Markteinführung"
+        },
+        drugUtilization: {
+          label: "Arzneimittelnutzung",
+          description: "Analysieren Sie Muster und Trends beim Medikamentenkonsum"
+        },
+        qualityImprovement: {
+          label: "Qualitätsverbesserung",
+          description: "Bewerten Sie die Qualität der Pflege und die Einhaltung der Leitlinien"
+        },
+        custom: {
+          label: "Benutzerdefiniert",
+          description: "Definieren Sie einen benutzerdefinierten Studientyp"
+        }
+      },
+      designs: {
+        select: "Design auswählen...",
+        retrospectiveCohort: "Retrospektive Kohorte",
+        prospectiveCohort: "Prospektive Kohorte",
+        caseControl: "Fallkontrolle",
+        crossSectional: "Querschnitt",
+        selfControlled: "Selbstkontrollierte Fallserie",
+        nestedCaseControl: "Verschachtelte Fallkontrolle",
+        metaAnalysis: "Meta-Analyse",
+        networkStudy: "Netzwerkstudie",
+        methodological: "Methodisch"
+      },
+      phases: {
+        select: "Phase auswählen...",
+        phaseI: "Phase I",
+        phaseII: "Phase II",
+        phaseIII: "Phase III",
+        phaseIV: "Phase IV",
+        notApplicable: "Nicht zutreffend"
+      },
+      basics: {
+        studyType: "Studienart *",
+        title: "Titel *",
+        titlePlaceholder: "z. B. Wirkung von Statinen auf kardiovaskuläre Ergebnisse bei T2DM",
+        shortTitle: "Kurztitel",
+        shortTitlePlaceholder: "z. B. LEGEND-T2DM",
+        priority: "Priorität",
+        studyDesign: "Studiendesign",
+        description: "Beschreibung",
+        descriptionPlaceholder: "Kurze Beschreibung der Studie...",
+        tags: "Schlagworte",
+        tagsPlaceholder: "Tag hinzufügen und Enter drücken...",
+        addTag: "Tag hinzufügen"
+      },
+      science: {
+        aiPrompt: "Lassen Sie die KI anhand Ihres Studientitels wissenschaftliche Designfelder vorschlagen",
+        generating: "Generieren...",
+        generateWithAi: "Mit KI generieren",
+        aiUnavailable: "Der KI-Dienst ist nicht verfügbar. Bitte füllen Sie die Felder manuell aus.",
+        rationale: "Wissenschaftliche Begründung",
+        rationalePlaceholder: "Warum wird diese Studie benötigt? Welche Wissenslücke wird damit geschlossen?",
+        hypothesis: "Hypothese",
+        hypothesisPlaceholder: "Geben Sie die primäre Hypothese an, die getestet wird ...",
+        primaryObjective: "Hauptziel",
+        primaryObjectivePlaceholder: "Was ist das Hauptziel dieser Studie?",
+        secondaryObjectives: "Sekundäre Ziele",
+        secondaryObjectivePlaceholder: "Ziel hinzufügen und Enter drücken...",
+        addSecondaryObjective: "Sekundäres Ziel hinzufügen",
+        fundingSource: "Finanzierungsquelle",
+        fundingSourcePlaceholder: "z. B. NIH R01, PCORI, von der Industrie gesponsert"
+      },
+      team: {
+        startDate: "Studienbeginndatum",
+        endDate: "Enddatum der Studie",
+        endDateAfterStart: "Das Enddatum muss nach dem Startdatum liegen",
+        targetSites: "Target-Registrierungsseiten",
+        targetSitesPlaceholder: "z.B. 10",
+        studyPhase: "Studienphase",
+        nctId: "ClinicalTrials.gov-ID",
+        nctIdPlaceholder: "z. B. NCT12345678",
+        note: "Teammitglieder, Standorte und Kohorten können nach der Erstellung der Studie über das Studien-Dashboard konfiguriert werden."
+      },
+      review: {
+        basics: "Grundlagen",
+        scientificDesign: "Wissenschaftliches Design",
+        timelineRegistration: "Zeitleiste und Registrierung",
+        labels: {
+          title: "Titel:",
+          shortTitle: "Kurztitel:",
+          type: "Typ:",
+          priority: "Priorität:",
+          design: "Studiendesign:",
+          rationale: "Begründung:",
+          hypothesis: "Hypothese:",
+          primaryObjective: "Hauptziel:",
+          secondaryObjectives: "Sekundäre Ziele:",
+          start: "Beginn:",
+          end: "Ende:",
+          targetSites: "Zielseiten:",
+          phase: "Phase:",
+          nctId: "NCT-ID:",
+          funding: "Finanzierung:"
+        }
+      }
+    },
+    detail: {
+      loadFailed: "Studie konnte nicht geladen werden",
+      backToStudies: "Zurück zu Studien",
+      studies: "Studien",
+      confirmDelete: "Sind Sie sicher, dass Sie diese Studie löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      confirmArchive: "Diese Studie archivieren? Es kann später wiederhergestellt werden.",
+      copyTitle: "Kopie von {{title}}",
+      tabs: {
+        overview: "Überblick",
+        design: "Studiendesign",
+        analyses: "Analysen",
+        results: "Ergebnisse",
+        progress: "Fortschritt",
+        sites: "Standorte",
+        team: "Studienteam",
+        cohorts: "Kohorten",
+        milestones: "Meilensteine",
+        artifacts: "Artefakte",
+        activity: "Aktivität",
+        federated: "Verbunden"
+      },
+      statuses: {
+        draft: "Entwurf",
+        protocol_development: "Protokollentwicklung",
+        feasibility: "Durchführbarkeit",
+        irb_review: "IRB-Prüfung",
+        recruitment: "Werbung",
+        execution: "Ausführung",
+        analysis: "Analyse",
+        synthesis: "Synthese",
+        manuscript: "Manuskript",
+        published: "Veröffentlicht",
+        archived: "Archiviert",
+        withdrawn: "Zurückgezogen"
+      },
+      studyTypes: {
+        characterization: "Charakterisierung",
+        population_level_estimation: "Schätzung auf Bevölkerungsebene",
+        patient_level_prediction: "Vorhersage auf Patientenebene",
+        comparative_effectiveness: "Vergleichende Wirksamkeit",
+        safety_surveillance: "Sicherheitsüberwachung",
+        drug_utilization: "Arzneimittelnutzung",
+        quality_improvement: "Qualitätsverbesserung",
+        custom: "Benutzerdefiniert"
+      },
+      actions: {
+        transitionTo: "Übergang zu",
+        generateManuscriptTitle: "Erstellen Sie Manuskripte aus abgeschlossenen Analysen",
+        manuscript: "Manuskript",
+        duplicateStudy: "Doppelte Studie",
+        exportJson: "Als JSON exportieren",
+        archiveStudy: "Archivstudie",
+        deleteStudy: "Studie löschen"
+      },
+      sections: {
+        about: "Um",
+        analysisPipeline: "Analysepipeline ({{count}})",
+        executionProgress: "Ausführungsfortschritt",
+        details: "Einzelheiten",
+        timeline: "Zeitleiste",
+        tags: "Schlagworte",
+        createdBy: "Erstellt von"
+      },
+      labels: {
+        primaryObjective: "Hauptziel",
+        hypothesis: "Hypothese",
+        secondaryObjectives: "Sekundäre Ziele",
+        principalInvestigator: "Hauptermittler",
+        leadDataScientist: "Leitender Datenwissenschaftler",
+        studyDesign: "Studiendesign",
+        phase: "Phase",
+        protocolVersion: "Protokollversion",
+        funding: "Finanzierung",
+        clinicalTrialsGov: "ClinicalTrials.gov",
+        start: "Beginn:",
+        end: "Ende:",
+        targetSites: "Zielseiten:",
+        created: "Erstellt:"
+      },
+      messages: {
+        noDescription: "Keine Beschreibung angegeben",
+        moreAnalyses: "+{{count}} weitere Analysen"
+      },
+      progress: {
+        completed: "{{count}} abgeschlossen",
+        running: "{{count}} läuft",
+        failed: "{{count}} ist fehlgeschlagen",
+        pending: "{{count}} ausstehend"
+      }
+    },
+    dashboard: {
+      progressSummary: "{{completed}} von {{total}} Analysen abgeschlossen",
+      stats: {
+        total: "Gesamt",
+        pending: "Ausstehend",
+        running: "Läuft",
+        completed: "Abgeschlossen",
+        failed: "Fehlgeschlagen"
+      },
+      sections: {
+        studyAnalyses: "Studienanalysen"
+      },
+      table: {
+        type: "Art",
+        name: "Name",
+        status: "Stand"
+      },
+      messages: {
+        notExecuted: "Nicht ausgeführt"
+      },
+      empty: {
+        title: "Keine Analysen in dieser Studie",
+        message: "Fügen Sie Analysen auf der Registerkarte „Design“ hinzu, um loszulegen."
+      }
+    },
+    analyses: {
+      selectSource: "Quelle auswählen...",
+      executeAll: "Alle ausführen",
+      addAnalysisToStudy: "Analyse zur Studie hinzufügen",
+      emptyMessage: "Fügen Sie Charakterisierungen, Schätzungen, Vorhersagen und mehr hinzu, um Ihre Analysepipeline aufzubauen",
+      groupHeader: "{{label}} ({{count}})",
+      openAnalysisDetail: "Analysedetail öffnen",
+      confirmRemove: "Diese Analyse aus der Studie entfernen?",
+      removeFromStudy: "Aus der Studie entfernen",
+      analysisId: "Analyse-ID",
+      lastRun: "Letzter Lauf",
+      error: "Fehler",
+      viewFullDetail: "Vollständige Details anzeigen"
+    },
+    results: {
+      sections: {
+        results: "Ergebnisse ({{count}})",
+        syntheses: "Synthesen ({{count}})"
+      },
+      actions: {
+        synthesize: "Synthetisieren",
+        markPrimary: "Als primär markieren",
+        unmarkPrimary: "Primärmarkierung entfernen",
+        markPublishable: "Als veröffentlichbar markieren",
+        unmarkPublishable: "Veröffentlichungsmarkierung entfernen",
+        cancel: "Abbrechen"
+      },
+      filters: {
+        allTypes: "Alle Arten",
+        publishableOnly: "Nur veröffentlichbar"
+      },
+      empty: {
+        noResultsTitle: "Noch keine Ergebnisse",
+        noResultsMessage: "Die Ergebnisse werden hier angezeigt, nachdem die Analysen ausgeführt wurden",
+        noSummaryData: "Keine zusammenfassenden Daten verfügbar",
+        noSynthesesTitle: "Keine Synthesen",
+        noSynthesesMessage: "Kombinieren Sie Ergebnisse aus mehreren Standorten mithilfe einer Metaanalyse"
+      },
+      resultTypes: {
+        cohort_count: "Kohortenanzahl",
+        characterization: "Charakterisierung",
+        incidence_rate: "Inzidenzrate",
+        effect_estimate: "Effektschätzung",
+        prediction_performance: "Vorhersageleistung",
+        pathway: "Weg",
+        sccs: "SCCS",
+        custom: "Benutzerdefiniert"
+      },
+      synthesisTypes: {
+        fixed_effects_meta: "Fixed-Effects-Metaanalyse",
+        random_effects_meta: "Metaanalyse zufälliger Effekte",
+        bayesian_meta: "Bayesianische Metaanalyse",
+        forest_plot: "Forest-Plot",
+        heterogeneity_analysis: "Heterogenitätsanalyse",
+        funnel_plot: "Funnel-Plot",
+        evidence_synthesis: "Beweissynthese",
+        custom: "Benutzerdefiniert"
+      },
+      badges: {
+        primary: "Primär",
+        publishable: "Veröffentlichbar"
+      },
+      messages: {
+        resultCreated: "Ergebnis #{{id}} · {{date}}",
+        reviewedBy: "Bewertet von {{name}}"
+      },
+      labels: {
+        summary: "Zusammenfassung",
+        diagnostics: "Diagnose"
+      },
+      pagination: {
+        previous: "Vorherige",
+        next: "Nächste",
+        page: "Seite {{page}} von {{totalPages}}"
+      },
+      synthesis: {
+        createTitle: "Synthese erstellen",
+        instructions: "Wählen Sie oben zwei oder mehr Ergebnisse aus und wählen Sie dann eine Synthesemethode aus.",
+        createSelected: "Erstellen ({{count}} ausgewählt)",
+        confirmDelete: "Diese Synthese löschen?",
+        resultsCount: "{{count}} Ergebnisse",
+        system: "Systembereich",
+        methodSettings: "Methodeneinstellungen",
+        output: "Ausgabe",
+        noOutput: "Es wurde noch keine Ausgabe generiert"
+      }
+    },
+    federated: {
+      loadingResults: "Ergebnisse werden geladen...",
+      loadResultsFailed: "Ergebnisse konnten nicht geladen werden: {{error}}",
+      unknownError: "Unbekannter Fehler",
+      confirmDistribute: "Studie an {{count}}-Datenknoten verteilen?",
+      arachneNotReachable: "Arachne Central ist nicht erreichbar",
+      loadNodesFailed: "Fehler beim Laden der Arachne-Knoten",
+      arachneConnectionHelp: "Legen Sie ARACHNE_URL in Ihrer Umgebung fest, um die Verbundausführung zu ermöglichen. Stellen Sie sicher, dass Arachne Central ausgeführt wird und zugänglich ist.",
+      availableDataNodes: "Verfügbare Datenknoten",
+      poweredByArachne: "Unterstützt von Arachne",
+      distributeCount: "Verteilen ({{count}})",
+      noNodes: "Keine Arachne-Knoten konfiguriert. Legen Sie ARACHNE_URL in der Umgebung fest, um die Verbundausführung zu ermöglichen.",
+      distributionFailed: "Verteilung fehlgeschlagen: {{error}}",
+      distributionSucceeded: "Studie erfolgreich verteilt. Überwachungsstatus unten.",
+      federatedExecutions: "Föderierte Ausführungen",
+      noExecutions: "Noch keine föderierten Ausführungen. Wählen Sie oben Datenknoten aus und verteilen Sie die Studie, um zu beginnen.",
+      arachneAnalysis: "Arachne-Analyse #{{id}}",
+      statuses: {
+        PENDING: "Ausstehend",
+        EXECUTING: "Ausführen",
+        COMPLETED: "Abgeschlossen",
+        FAILED: "Fehlgeschlagen"
+      },
+      table: {
+        name: "Name",
+        status: "Stand",
+        cdmVersion: "CDM-Version",
+        patients: "Patienten",
+        lastSeen: "Zuletzt gesehen",
+        node: "Knoten",
+        submitted: "Eingereicht",
+        completed: "Abgeschlossen"
+      }
+    },
+    artifacts: {
+      sections: {
+        artifacts: "Artefakte ({{count}})"
+      },
+      actions: {
+        addArtifact: "Artefakt hinzufügen",
+        cancel: "Abbrechen",
+        create: "Erstellen",
+        save: "Speichern",
+        edit: "Artefakt bearbeiten",
+        delete: "Artefakt löschen",
+        openLink: "Link öffnen"
+      },
+      form: {
+        addTitle: "Studienartefakt hinzufügen",
+        title: "Titel",
+        titleRequired: "Titel *",
+        titlePlaceholder: "z. B. Studienprotokoll v2.1",
+        version: "Version",
+        type: "Art",
+        urlOptional: "URL (optional)",
+        description: "Beschreibung",
+        descriptionOptional: "Beschreibung (optional)",
+        descriptionPlaceholder: "Kurze Beschreibung dieses Artefakts..."
+      },
+      empty: {
+        title: "Keine Artefakte",
+        message: "Speichern Sie Protokolle, Analysepakete und Studiendokumente"
+      },
+      badges: {
+        current: "Aktuell"
+      },
+      labels: {
+        versionValue: "v{{version}}",
+        sizeKb: "{{size}} KB"
+      },
+      messages: {
+        unknown: "Unbekannt",
+        uploadedBy: "{{name}} · {{date}}"
+      },
+      confirmDelete: "Dieses Artefakt löschen?",
+      types: {
+        protocol: "Protokoll",
+        sap: "Statistischer Analyseplan",
+        irb_submission: "IRB-Einreichung",
+        cohort_json: "Kohorte JSON",
+        analysis_package_r: "R-Analysepaket",
+        analysis_package_python: "Python-Analysepaket",
+        results_report: "Ergebnisbericht",
+        manuscript_draft: "Manuskriptentwurf",
+        supplementary: "Ergänzendes Material",
+        presentation: "Präsentation",
+        data_dictionary: "Datenwörterbuch",
+        study_package_zip: "Studienpaket ZIP",
+        other: "Andere"
+      }
+    },
+    sites: {
+      sections: {
+        sites: "Standorte ({{count}})"
+      },
+      actions: {
+        addSite: "Standort hinzufügen",
+        cancel: "Abbrechen",
+        save: "Speichern",
+        edit: "Standort bearbeiten",
+        remove: "Standort entfernen"
+      },
+      form: {
+        addTitle: "Datenpartner-Standort hinzufügen",
+        sourceSearchPlaceholder: "Datenquellen durchsuchen...",
+        siteRole: "Standortrolle",
+        irbProtocol: "IRB-Protokoll #",
+        notes: "Notizen",
+        optional: "Optionales Feld"
+      },
+      empty: {
+        title: "Keine Standorte registriert",
+        message: "Fügen Sie dieser Studie Datenpartnerstandorte hinzu"
+      },
+      table: {
+        source: "Quelle",
+        role: "Rolle",
+        status: "Stand",
+        irb: "IRB #",
+        patients: "Patienten",
+        cdm: "CDM"
+      },
+      messages: {
+        allSourcesAssigned: "Alle Quellen sind bereits vergeben",
+        noMatchingSources: "Keine passenden Quellen",
+        sourceFallback: "Quelle #{{id}}"
+      },
+      confirmRemove: "Diesen Standort entfernen?",
+      roles: {
+        data_partner: "Datenpartner",
+        coordinating_center: "Koordinierungszentrum",
+        analytics_node: "Analytics-Knoten",
+        observer: "Beobachter"
+      },
+      statuses: {
+        pending: "Ausstehend",
+        invited: "Eingeladen",
+        approved: "Genehmigt",
+        active: "Aktiv",
+        completed: "Abgeschlossen",
+        withdrawn: "Zurückgezogen"
+      }
+    },
+    cohorts: {
+      sections: {
+        cohorts: "Kohorten ({{count}})"
+      },
+      actions: {
+        assignCohort: "Kohorte zuweisen",
+        assign: "Zuordnen",
+        cancel: "Abbrechen",
+        save: "Speichern",
+        edit: "Kohortenzuordnung bearbeiten",
+        remove: "Kohortenzuordnung entfernen"
+      },
+      form: {
+        assignTitle: "Kohortendefinition zuweisen",
+        cohortDefinition: "Kohortendefinition",
+        searchPlaceholder: "Kohortendefinitionen durchsuchen...",
+        role: "Rolle",
+        label: "Etikett",
+        labelRequired: "Etikett *",
+        labelPlaceholder: "z. B. T2DM-Zielpopulation",
+        description: "Beschreibung",
+        optional: "Optionales Feld"
+      },
+      empty: {
+        title: "Keine Kohorten zugeordnet",
+        message: "Weisen Sie Kohortendefinitionen zu und geben Sie deren Rollen in dieser Studie an"
+      },
+      messages: {
+        allAssigned: "Alle Kohortendefinitionen sind bereits zugewiesen",
+        noMatchingCohorts: "Keine passenden Kohorten",
+        cohortFallback: "Kohorte #{{id}}"
+      },
+      confirmRemove: "Diese Kohortenzuordnung entfernen?",
+      roles: {
+        target: "Ziel",
+        comparator: "Komparator",
+        outcome: "Ergebnis",
+        exclusion: "Ausschluss",
+        subgroup: "Untergruppe",
+        event: "Ereignis"
+      }
+    },
+    team: {
+      sections: {
+        members: "Teammitglieder ({{count}})"
+      },
+      actions: {
+        addMember: "Mitglied hinzufügen",
+        cancel: "Abbrechen",
+        save: "Speichern",
+        edit: "Teammitglied bearbeiten",
+        remove: "Teammitglied entfernen"
+      },
+      form: {
+        addTitle: "Teammitglied hinzufügen",
+        user: "Benutzer",
+        userSearchPlaceholder: "Benutzer nach Namen oder E-Mail suchen...",
+        role: "Rolle"
+      },
+      empty: {
+        title: "Keine Teammitglieder",
+        message: "Fügen Sie dieser Studie Forscher und Mitarbeiter hinzu"
+      },
+      table: {
+        name: "Name",
+        email: "E-Mail",
+        role: "Rolle",
+        status: "Stand",
+        joined: "Beigetreten"
+      },
+      messages: {
+        allUsersAssigned: "Alle Benutzer sind bereits Teammitglieder",
+        noMatchingUsers: "Keine passenden Benutzer",
+        userFallback: "Benutzer #{{id}}"
+      },
+      confirmRemove: "Dieses Teammitglied entfernen?",
+      statuses: {
+        active: "Aktiv",
+        inactive: "Inaktiv"
+      },
+      roles: {
+        principal_investigator: "Hauptermittler",
+        co_investigator: "Co-Ermittler",
+        data_scientist: "Datenwissenschaftler",
+        statistician: "Statistiker",
+        site_lead: "Standortleitung",
+        data_analyst: "Datenanalyst",
+        research_coordinator: "Forschungskoordinator",
+        irb_liaison: "IRB-Verbindung",
+        project_manager: "Projektmanager",
+        observer: "Beobachter"
+      },
+      roleDescriptions: {
+        principal_investigator: "Leitender Forscher, der für die Studie verantwortlich ist",
+        co_investigator: "Mitwirkender Forscher mit Studienaufsicht",
+        data_scientist: "Entwickelt und betreibt analytische Pipelines",
+        statistician: "Statistische Analyse und Methodik",
+        site_lead: "Verwaltet den Betrieb von Datenpartnerstandorten",
+        data_analyst: "Datenverarbeitung und Qualitätsprüfungen",
+        research_coordinator: "Koordiniert Studienlogistik und Zeitpläne",
+        irb_liaison: "Verwaltet IRB-Einreichungen und Compliance",
+        project_manager: "Gesamtprojektplanung und -verfolgung",
+        observer: "Lesezugriff auf Studienmaterialien"
+      }
+    },
+    milestones: {
+      sections: {
+        milestones: "Meilensteine ({{count}})"
+      },
+      actions: {
+        addMilestone: "Meilenstein hinzufügen",
+        cancel: "Abbrechen",
+        create: "Erstellen",
+        save: "Speichern",
+        edit: "Meilenstein bearbeiten",
+        delete: "Meilenstein löschen"
+      },
+      form: {
+        titlePlaceholder: "Meilensteintitel..."
+      },
+      empty: {
+        title: "Keine Meilensteine",
+        message: "Verfolgen Sie den Studienfortschritt mit Meilensteinen und Zieldaten"
+      },
+      labels: {
+        target: "Ziel: {{date}}",
+        targetCompleted: "Ziel: {{target}} | Abgeschlossen: {{completed}}"
+      },
+      confirmDelete: "Diesen Meilenstein löschen?",
+      types: {
+        protocol: "Protokoll",
+        irb: "IRB",
+        data_access: "Datenzugriff",
+        analysis: "Analyse",
+        review: "Prüfung",
+        publication: "Veröffentlichung",
+        custom: "Benutzerdefiniert"
+      },
+      statuses: {
+        pending: "Ausstehend",
+        in_progress: "Im Gange",
+        completed: "Abgeschlossen",
+        overdue: "Überfällig",
+        cancelled: "Abgesagt"
+      }
+    },
+    activity: {
+      title: "Aktivitätsprotokoll",
+      empty: {
+        title: "Noch keine Aktivität",
+        message: "Die im Rahmen dieser Studie ergriffenen Maßnahmen werden hier angezeigt"
+      },
+      pagination: {
+        previous: "Vorherige",
+        next: "Nächste",
+        page: "Seite {{page}} von {{totalPages}}"
+      },
+      actions: {
+        created: "Erstellt",
+        updated: "Aktualisiert",
+        deleted: "Gelöscht",
+        status_changed: "Status geändert",
+        member_added: "Mitglied hinzugefügt",
+        member_removed: "Mitglied entfernt",
+        site_added: "Standort hinzugefügt",
+        analysis_added: "Analyse hinzugefügt",
+        executed: "Ausgeführt"
+      },
+      entities: {
+        study: "Studie",
+        study_analysis: "Studienanalyse",
+        study_artifact: "Studienartefakt",
+        study_cohort: "Studienkohorte",
+        study_milestone: "Studienmeilenstein",
+        study_site: "Studienstandort",
+        study_team_member: "Mitglied des Studienteams"
+      }
+    },
+    designer: {
+      defaultSessionTitle: "{{title}} OHDSI-Design",
+      title: "OHDSI-Studiendesign-Compiler",
+      subtitle: "Verwandeln Sie eine überprüfte Forschungsfrage in nachvollziehbare Konzeptsätze, Kohorten, Machbarkeitsnachweise, HADES-fähige Analysepläne und ein verschlossenes Studienpaket.",
+      researchQuestionPlaceholder: "Bei Erwachsenen mit..., senkt..., verglichen mit..., ...",
+      badges: {
+        session: "Sitzung {{value}}",
+        version: "Version Nr. {{value}}"
+      },
+      versionStatuses: {
+        generated: "Generiert",
+        review_ready: "Prüfbereit",
+        accepted: "Akzeptiert",
+        locked: "Gesperrt"
+      },
+      metrics: {
+        assets: "Ressourcen"
+      },
+      actions: {
+        downloadLockedPackage: "Gesperrtes Paket herunterladen",
+        downloadPackage: "Paket herunterladen",
+        add: "Hinzufügen",
+        saveChanges: "Änderungen speichern"
+      },
+      sections: {
+        verificationGates: "Prüfpunkte",
+        packageProvenance: "Herkunft des Pakets",
+        assetEvidence: "Asset-Evidenz",
+        basicInformation: "Grundlegende Informationen",
+        addAnalysis: "Analyse hinzufügen",
+        studyAnalyses: "Studienanalysen ({{count}})"
+      },
+      descriptions: {
+        verificationGates: "Lösen Sie Blocker auf, bevor Sie das OHDSI-Paket sperren.",
+        assetEvidence: "Überprüfen Sie die Ausgabe des blockierten Verifizierers, bevor Sie ein Paket annehmen."
+      },
+      gates: {
+        designIntent: "Designabsicht",
+        acceptedAt: "Akzeptiert {{time}}",
+        acceptResearchQuestion: "Akzeptieren Sie die überprüfte Forschungsfrage.",
+        verifiedMaterializedCohorts: "{{count}} verifizierte materialisierte Kohorte",
+        feasibilityReady: "Verifizierte Machbarkeitsnachweise liegen vor.",
+        runFeasibility: "Führen Sie die Machbarkeit durch, nachdem die Kohorten überprüft haben.",
+        analysisPlan: "Analyseplan",
+        analysisPlanReady: "Der verifizierte HADES-Analyseplan ist fertig.",
+        verifyAnalysisPlan: "Einen Analyseplan prüfen und materialisieren."
+      },
+      labels: {
+        version: "Version",
+        versionStatus: "v{{version}} - {{status}}",
+        verifiedAssets: "Verifizierte Assets",
+        title: "Titel",
+        description: "Beschreibung",
+        studyType: "Studientyp",
+        analysisType: "Analysetyp",
+        analysis: "Analyse",
+        missingOmopIds: "Fehlende OMOP-IDs",
+        deprecatedOmopIds: "Veraltete OMOP-IDs",
+        invalidDraftIds: "Ungültige Entwurfs-IDs"
+      },
+      placeholders: {
+        studyTitle: "Studientitel",
+        optionalDescription: "Optionale Beschreibung",
+        selectAnalysis: "Analyse auswählen..."
+      },
+      analysisTypes: {
+        characterization: "Charakterisierung",
+        "incidence-rate": "Inzidenzrate",
+        pathway: "Weg",
+        estimation: "Schätzung",
+        prediction: "Vorhersage"
+      },
+      messages: {
+        new: "neu",
+        none: "keiner",
+        notStarted: "nicht gestartet",
+        createOrImport: "Erstellen oder importieren Sie zunächst ein Design.",
+        needsEvidence: "Evidenz erforderlich",
+        noVersion: "Keine Version",
+        blockedCount: "{{count}} blockiert",
+        noBlockers: "Keine Blocker",
+        startEvidenceReview: "Generieren Sie eine Absicht oder importieren Sie die aktuelle Studie, um mit der Beweisüberprüfung zu beginnen.",
+        noAnalyses: "Noch keine Analysen hinzugefügt.",
+        analysisFallback: "Analyse #{{id}}",
+        assetId: "Asset #{{id}}",
+        materializedId: "materialisiert #{{id}}",
+        verifiedAt: "verifiziert {{time}}"
+      }
+    },
+    workbench: {
+      sessionTitle: "Design der Studienabsicht",
+      title: "Studiendesign-Compiler",
+      subtitle: "Wandeln Sie eine Forschungsfrage in eine geprüfte, OHDSI-konforme Studienabsicht um und prüfen Sie wiederverwendbare Phänotyp-Assets, bevor etwas weitergegeben wird.",
+      newSession: "Neue Sitzung",
+      sessions: "Sitzungen",
+      researchQuestion: "Forschungsfrage",
+      researchQuestionPlaceholder: "Vergleichen Sie rezidivierendes MACE bei Patienten nach MI, die mit Clopidogrel beginnen, mit Aspirin.",
+      emptyQuestionPlaceholder: "Beschreiben Sie die Studienfrage...",
+      generateIntent: "Absicht generieren",
+      startSession: "Starten Sie eine Designsitzung und generieren Sie dann aus der Studienfrage eine strukturierte PICO-Absicht.",
+      createAndGenerate: "Sitzung erstellen und Absicht generieren",
+      loadingSessions: "Designsitzungen werden geladen...",
+      sections: {
+        phenotypeRecommendations: "Phänotyp- und Wiederverwendungsempfehlungen",
+        conceptSetDrafts: "Konzept-Set-Entwürfe",
+        cohortDrafts: "Kohortenentwürfe",
+        cohortReadiness: "Bereitschaft der Studienkohorte",
+        feasibility: "Durchführbarkeit",
+        sources: "Quellen",
+        attrition: "Ausfall",
+        analysisPlans: "Analysepläne",
+        packageLock: "Paketsperre",
+        currentAssets: "Aktuelle Studienressourcen",
+        intentReview: "Absichtsüberprüfung",
+        source: "Quelle",
+        governance: "Governance"
+      },
+      descriptions: {
+        recommendations: "Überprüfen Sie wiederverwendbare Phänotypbibliothekseinträge, lokale Kohorten und lokale Konzeptsätze, bevor Sie etwas Neues entwerfen.",
+        conceptSets: "Konvertieren Sie akzeptierte Beweise in wortschatzgeprüfte Entwürfe, bevor Sie native Konzeptsätze erstellen.",
+        cohorts: "Verwandeln Sie materialisierte Konzeptsätze in native Kohortendefinitionsentwürfe.",
+        feasibility: "Überprüfen Sie verknüpfte Kohorten vor der Analyseplanung mit ausgewählten CDM-Quellen.",
+        analysisPlans: "Stellen Sie machbare Studienkohorten in nativen HADES-kompatiblen Analysedesigns zusammen.",
+        packageLock: "Fixieren Sie akzeptierte Absichten, Konzeptsätze, Kohorten, Machbarkeits- und native Analysen in einem überprüfbaren Studienpaket.",
+        currentAssets: "Integrieren Sie manuell erstellte Kohorten und Analysen in diesen Entwurfspfad und überprüfen Sie dann Lücken, ohne vorhandene Datensätze zu ändern."
+      },
+      actions: {
+        recommend: "Empfehlen",
+        draftConceptSets: "Konzeptsets entwerfen",
+        draftCohorts: "Kohorten entwerfen",
+        runFeasibility: "Machbarkeit prüfen",
+        draftPlans: "Pläne entwerfen",
+        importCurrent: "Aktuellen Stand importieren",
+        critique: "Kritik",
+        verify: "Verifizieren",
+        review: "Prüfung",
+        accept: "Akzeptieren",
+        defer: "Verschieben",
+        reject: "Ablehnen",
+        materialize: "Materialisieren",
+        openNativeEditor: "Nativen Editor öffnen",
+        linkToStudy: "Mit Studie verknüpfen",
+        search: "Suchen",
+        add: "Hinzufügen",
+        remove: "Entfernen",
+        saveReview: "Bewertung speichern",
+        acceptIntent: "Absicht akzeptieren",
+        lockPackage: "Paket sperren",
+        locked: "Gesperrt",
+        downloadPackageSummary: "Paketzusammenfassung herunterladen"
+      },
+      labels: {
+        verified: "Verifiziert",
+        needsCheck: "Muss überprüft werden",
+        blocked: "Blockiert",
+        unverified: "Nicht bestätigt",
+        reviewQueue: "Überprüfungswarteschlange",
+        conceptSetDraft: "Konzeptentwurf",
+        cohortDraft: "Kohortenentwurf",
+        concepts: "Konzepte",
+        concept: "Konzept",
+        domain: "Domäne",
+        vocabulary: "Vokabular",
+        flags: "Kennzeichen",
+        actions: "Aktionen",
+        lint: "Lint-Prüfung",
+        source: "Quelle",
+        status: "Stand",
+        cohorts: "Kohorten",
+        coverage: "Abdeckung",
+        domains: "Domänen",
+        freshness: "Aktualität",
+        dqd: "DQD",
+        attrition: "Ausfall",
+        nativeConceptSet: "Natives Konzeptset #{{id}}",
+        nativeCohort: "Native Kohorte #{{id}}",
+        linkedStudyCohort: "Verknüpfte Studienkohorte #{{id}}",
+        conceptsCount: "{{count}}-Konzepte",
+        conceptSetsCount: "{{count}}-Konzeptsätze",
+        nativeAnalysis: "Native Analyse #{{id}}",
+        feasibility: "Durchführbarkeit",
+        rank: "Rang {{score}}",
+        match: "{{score}}% Übereinstimmung",
+        ohdsiId: "OHDSI #{{id}}",
+        computable: "Berechenbar",
+        imported: "Importiert",
+        evidence: "Evidenz",
+        origin: "Herkunft",
+        matchedTerm: "Passender Begriff",
+        canonicalRecord: "Kanonischer Datensatz",
+        noCanonicalRecord: "Kein kanonischer Datensatz",
+        eligibility: "Teilnahmeberechtigung",
+        acceptable: "Akzeptabel",
+        blockedOrNeedsReview: "Blockiert oder muss überprüft werden",
+        policy: "Richtlinie",
+        nextActions: "Nächste Aktionen",
+        rankComponents: "Rangkomponenten",
+        verifierChecks: "Prüfkontrollen",
+        versionStatus: "Version {{version}} · {{status}}",
+        primaryObjective: "Hauptziel",
+        population: "Population",
+        exposure: "Exposition",
+        comparator: "Komparator",
+        primaryOutcome: "Primärer Endpunkt",
+        timeAtRisk: "Risikozeit",
+        conceptSetsMetric: "Konzeptsätze",
+        cohortsMetric: "Kohorten",
+        analysesMetric: "Analysen",
+        packagesMetric: "Pakete",
+        aiEvents: "KI-Ereignisse",
+        reviewed: "Bewertet",
+        manifest: "Manifestdatei",
+        critiques: "Kritiken"
+      },
+      messages: {
+        saveOrAcceptBeforeRecommendations: "Speichern Sie eine zur Überprüfung bereitstehende Absicht oder akzeptieren Sie die Absicht, bevor Sie Empfehlungen anfordern.",
+        loadingRecommendations: "Empfehlungen werden geladen...",
+        noRecommendations: "Noch keine Empfehlungen.",
+        acceptRecommendationFirst: "Akzeptieren Sie zunächst mindestens eine verifizierte Phänotyp-, Kohorten- oder Konzeptsatzempfehlung.",
+        noConceptSetDrafts: "Noch keine Konzept-Set-Entwürfe.",
+        onlyVerifiedConceptSetDrafts: "Es können nur verifizierte Konzeptsatzentwürfe akzeptiert werden.",
+        searchConceptsPlaceholder: "Durchsuchen Sie OMOP-Vokabularkonzepte",
+        materializeConceptSetFirst: "Materialisieren Sie zuerst mindestens einen verifizierten Konzeptsatzentwurf.",
+        noCohortDrafts: "Noch keine Kohortenentwürfe.",
+        checkingLinkedRoles: "Verknüpfte Rollen werden überprüft...",
+        noReadinessSignal: "Noch kein Bereitschaftssignal.",
+        ready: "Bereit",
+        blocked: "Blockiert",
+        drafts: "{{count}}-Entwürfe",
+        materialized: "{{count}} materialisiert",
+        linked: "{{count}} verknüpft",
+        linkRequiredCohorts: "Verknüpfen Sie die erforderlichen Studienkohorten, bevor Sie die Quelle für die Machbarkeit prüfen.",
+        loadingSources: "Quellen werden geladen...",
+        noSources: "Keine CDM-Quellen konfiguriert.",
+        smallCellThreshold: "Schwelle für kleine Zellen",
+        sourcesReady: "{{ready}}/{{total}}-Quellen bereit",
+        ranAt: "Ausgeführt {{time}}",
+        noDates: "Keine Termine",
+        none: "keiner",
+        roles: "{{ready}}/{{total}}-Rollen",
+        unknown: "Unbekannt",
+        noDqd: "Kein DQD",
+        passRate: "{{rate}}% bestanden",
+        noFeasibilityEvidence: "Für diese Entwurfsvariante sind keine Machbarkeitsnachweise hinterlegt.",
+        runFeasibilityBeforePlans: "Führen Sie eine Machbarkeitsanalyse durch, bevor Sie Analysepläne entwerfen.",
+        noAnalysisPlans: "Noch keine Analysepläne.",
+        feasibilityStatus: "Machbarkeit: {{status}}",
+        checkingPackageReadiness: "Paketbereitschaft prüfen...",
+        readyToLock: "Bereit zum Sperren.",
+        lockedPackageAvailable: "Das gesperrte Paket ist in Studienartefakten verfügbar.",
+        signed: "unterzeichnet",
+        pending: "ausstehend",
+        onlyVerifiedRecommendations: "Es können nur deterministisch verifizierte Empfehlungen akzeptiert werden."
+      }
+    }
+  },
   covariates: {
     title: "Kovariaten-Einstellungen",
     description:
@@ -16645,6 +18623,995 @@ const ptApp: MessageTree = mergeMessageTrees(enApp, {
       sccs: "Análise SCCS",
       evidenceSynthesis: "Análise de síntese de evidências",
     },
+  },
+  studies: {
+    list: {
+      title: "Estudos",
+      subtitle: "Orquestre e gerencie estudos de pesquisa federados",
+      tableView: "Visualização de tabela",
+      cardView: "Visualização de cartão",
+      searchPlaceholder: "Pesquisar estudos...",
+      noSearchMatches: "Nenhum estudo corresponde a \"{{query}}\"",
+      typeToFilter: "Digite para filtrar estudos {{count}}",
+      newStudy: "Novo estudo",
+      solr: "Solr",
+      drilldownTitle: "Estudos {{phase}}",
+      filterLabels: {
+        status: "Situação",
+        type: "Tipo",
+        priority: "Prioridade"
+      },
+      loadFailed: "Falha ao carregar estudos",
+      clear: "Claro",
+      empty: {
+        noMatchingTitle: "Nenhum estudo correspondente",
+        noStudiesTitle: "Ainda não há estudos",
+        noResultsFor: "Nenhum estudo encontrado para \"{{query}}\"",
+        tryAdjusting: "Tente ajustar seus termos de pesquisa.",
+        createFirst: "Crie seu primeiro estudo para orquestrar pesquisas federadas."
+      },
+      table: {
+        title: "Título",
+        type: "Tipo",
+        status: "Situação",
+        priority: "Prioridade",
+        pi: "IP",
+        created: "Criado"
+      },
+      pagination: {
+        showing: "Mostrando {{start}} - {{end}} de {{total}}",
+        page: "{{page}}/{{totalPages}}"
+      }
+    },
+    metrics: {
+      total: "Total geral",
+      active: "Ativo",
+      preStudy: "Pré-estudo",
+      inProgress: "Em andamento",
+      postStudy: "Pós-estudo"
+    },
+    studyTypes: {
+      characterization: "Caracterização",
+      populationLevelEstimation: "PLE",
+      patientLevelPrediction: "PLP",
+      comparativeEffectiveness: "Comparativo",
+      safetySurveillance: "Segurança",
+      drugUtilization: "Uso de medicamentos",
+      qualityImprovement: "MQ",
+      custom: "Personalizado"
+    },
+    statuses: {
+      draft: "Rascunho",
+      protocol_development: "Desenv. do protocolo",
+      feasibility: "Viabilidade",
+      irb_review: "Revisão pelo CEP/IRB",
+      execution: "Execução",
+      analysis: "Análise",
+      published: "Publicado",
+      archived: "Arquivado"
+    },
+    priorities: {
+      critical: "Crítico",
+      high: "Alto",
+      medium: "Médio",
+      low: "Baixo"
+    },
+    phases: {
+      activeMetric: "Ativo",
+      pre_study: "Pré-estudo",
+      active: "Em andamento",
+      post_study: "Pós-estudo"
+    },
+    create: {
+      backToStudies: "Estudos",
+      title: "Criar estudo",
+      subtitle: "Configure seu estudo de pesquisa passo a passo",
+      previous: "Anterior",
+      next: "Próximo",
+      createAsDraft: "Criar como rascunho",
+      steps: {
+        basics: "Noções básicas",
+        science: "Design Científico",
+        team: "Equipe e cronograma",
+        review: "Revise e crie"
+      },
+      studyTypes: {
+        characterization: {
+          label: "Caracterização",
+          description: "Descrever populações de pacientes e padrões de tratamento"
+        },
+        populationLevelEstimation: {
+          label: "Estimativa de nível populacional",
+          description: "Estimar efeitos causais usando dados observacionais"
+        },
+        patientLevelPrediction: {
+          label: "Previsão em nível de paciente",
+          description: "Preveja resultados individuais de pacientes"
+        },
+        comparativeEffectiveness: {
+          label: "Eficácia Comparativa",
+          description: "Compare tratamentos em ambientes reais"
+        },
+        safetySurveillance: {
+          label: "Vigilância de Segurança",
+          description: "Monitore os sinais de segurança de medicamentos pós-comercialização"
+        },
+        drugUtilization: {
+          label: "Uso de medicamentos",
+          description: "Analise padrões e tendências de uso de medicamentos"
+        },
+        qualityImprovement: {
+          label: "Melhoria da Qualidade",
+          description: "Avaliar a qualidade do atendimento e a adesão às diretrizes"
+        },
+        custom: {
+          label: "Personalizado",
+          description: "Defina um tipo de estudo personalizado"
+        }
+      },
+      designs: {
+        select: "Selecione o desenho...",
+        retrospectiveCohort: "Coorte Retrospectiva",
+        prospectiveCohort: "Coorte prospectiva",
+        caseControl: "Caso-Controle",
+        crossSectional: "Seccional",
+        selfControlled: "Série de casos autocontrolados",
+        nestedCaseControl: "Controle de caso aninhado",
+        metaAnalysis: "Metanálise",
+        networkStudy: "Estudo de rede",
+        methodological: "Metodológico"
+      },
+      phases: {
+        select: "Selecione a fase...",
+        phaseI: "Fase I",
+        phaseII: "Fase II",
+        phaseIII: "Fase III",
+        phaseIV: "Fase IV",
+        notApplicable: "Não aplicável"
+      },
+      basics: {
+        studyType: "Tipo de estudo *",
+        title: "Título *",
+        titlePlaceholder: "por exemplo, efeito das estatinas nos resultados cardiovasculares em T2DM",
+        shortTitle: "Título curto",
+        shortTitlePlaceholder: "por exemplo, LEGEND-T2DM",
+        priority: "Prioridade",
+        studyDesign: "Desenho do Estudo",
+        description: "Descrição",
+        descriptionPlaceholder: "Breve descrição do estudo...",
+        tags: "Etiquetas",
+        tagsPlaceholder: "Adicione a tag e pressione Enter...",
+        addTag: "Adicionar etiqueta"
+      },
+      science: {
+        aiPrompt: "Deixe a IA sugerir campos de desenho científico com base no título do estudo",
+        generating: "Gerando...",
+        generateWithAi: "Gerar com IA",
+        aiUnavailable: "O serviço de IA está indisponível. Preencha os campos manualmente.",
+        rationale: "Justificativa Científica",
+        rationalePlaceholder: "Por que este estudo é necessário? Que lacuna no conhecimento ela aborda?",
+        hypothesis: "Hipótese",
+        hypothesisPlaceholder: "Indique a hipótese primária que está sendo testada...",
+        primaryObjective: "Objetivo Primário",
+        primaryObjectivePlaceholder: "Qual é o objetivo principal deste estudo?",
+        secondaryObjectives: "Objetivos Secundários",
+        secondaryObjectivePlaceholder: "Adicione o objetivo e pressione Enter...",
+        addSecondaryObjective: "Adicionar objetivo secundário",
+        fundingSource: "Fonte de financiamento",
+        fundingSourcePlaceholder: "por exemplo, NIH R01, PCORI, patrocinado pela indústria"
+      },
+      team: {
+        startDate: "Data de início do estudo",
+        endDate: "Data de término do estudo",
+        endDateAfterStart: "A data de término deve ser posterior à data de início",
+        targetSites: "Sites de inscrição alvo",
+        targetSitesPlaceholder: "por exemplo, 10",
+        studyPhase: "Fase de Estudo",
+        nctId: "ID do ClinicalTrials.gov",
+        nctIdPlaceholder: "por exemplo, NCT12345678",
+        note: "Os membros da equipe, sites e coortes podem ser configurados após a criação do estudo no painel do estudo."
+      },
+      review: {
+        basics: "Noções básicas",
+        scientificDesign: "Design Científico",
+        timelineRegistration: "Cronograma e registro",
+        labels: {
+          title: "Título:",
+          shortTitle: "Título curto:",
+          type: "Tipo:",
+          priority: "Prioridade:",
+          design: "Projeto:",
+          rationale: "Justificativa:",
+          hypothesis: "Hipótese:",
+          primaryObjective: "Objetivo Primário:",
+          secondaryObjectives: "Objetivos Secundários:",
+          start: "Começar:",
+          end: "Fim:",
+          targetSites: "Sites alvo:",
+          phase: "Fase:",
+          nctId: "ID NCT:",
+          funding: "Financiamento:"
+        }
+      }
+    },
+    detail: {
+      loadFailed: "Falha ao carregar o estudo",
+      backToStudies: "De volta aos estudos",
+      studies: "Estudos",
+      confirmDelete: "Tem certeza de que deseja excluir este estudo? Esta ação não pode ser desfeita.",
+      confirmArchive: "Arquivar este estudo? Ele pode ser restaurado mais tarde.",
+      copyTitle: "Cópia de {{title}}",
+      tabs: {
+        overview: "Visão geral",
+        design: "Projeto",
+        analyses: "Análises",
+        results: "Resultados",
+        progress: "Progresso",
+        sites: "Centros",
+        team: "Equipe",
+        cohorts: "Coortes",
+        milestones: "Conquistas",
+        artifacts: "Artefatos",
+        activity: "Atividade",
+        federated: "Federado"
+      },
+      statuses: {
+        draft: "Rascunho",
+        protocol_development: "Desenvolvimento de protocolo",
+        feasibility: "Viabilidade",
+        irb_review: "Revisão pelo CEP/IRB",
+        recruitment: "Recrutamento",
+        execution: "Execução",
+        analysis: "Análise",
+        synthesis: "Síntese",
+        manuscript: "Manuscrito",
+        published: "Publicado",
+        archived: "Arquivado",
+        withdrawn: "Retirado"
+      },
+      studyTypes: {
+        characterization: "Caracterização",
+        population_level_estimation: "Estimativa de nível populacional",
+        patient_level_prediction: "Previsão em nível de paciente",
+        comparative_effectiveness: "Eficácia Comparativa",
+        safety_surveillance: "Vigilância de Segurança",
+        drug_utilization: "Uso de medicamentos",
+        quality_improvement: "Melhoria da Qualidade",
+        custom: "Personalizado"
+      },
+      actions: {
+        transitionTo: "Transição para",
+        generateManuscriptTitle: "Gerar manuscrito a partir de análises concluídas",
+        manuscript: "Manuscrito",
+        duplicateStudy: "Duplicar estudo",
+        exportJson: "Exportar como JSON",
+        archiveStudy: "Arquivar estudo",
+        deleteStudy: "Excluir estudo"
+      },
+      sections: {
+        about: "Sobre",
+        analysisPipeline: "Pipeline de análise ({{count}})",
+        executionProgress: "Progresso da execução",
+        details: "Detalhes",
+        timeline: "Linha do tempo",
+        tags: "Etiquetas",
+        createdBy: "Criado por"
+      },
+      labels: {
+        primaryObjective: "Objetivo Primário",
+        hypothesis: "Hipótese",
+        secondaryObjectives: "Objetivos Secundários",
+        principalInvestigator: "Investigador Principal",
+        leadDataScientist: "Cientista de Dados Líder",
+        studyDesign: "Desenho do Estudo",
+        phase: "Fase",
+        protocolVersion: "Versão do protocolo",
+        funding: "Financiamento",
+        clinicalTrialsGov: "ClinicalTrials.gov",
+        start: "Começar:",
+        end: "Fim:",
+        targetSites: "Sites alvo:",
+        created: "Criado:"
+      },
+      messages: {
+        noDescription: "Nenhuma descrição fornecida",
+        moreAnalyses: "+{{count}} mais análises"
+      },
+      progress: {
+        completed: "{{count}} concluído",
+        running: "{{count}} em execução",
+        failed: "{{count}} falhou",
+        pending: "{{count}} pendente"
+      }
+    },
+    dashboard: {
+      progressSummary: "{{completed}} de {{total}} análises concluídas",
+      stats: {
+        total: "Total geral",
+        pending: "Pendente",
+        running: "Em execução",
+        completed: "Concluído",
+        failed: "Com falha"
+      },
+      sections: {
+        studyAnalyses: "Análises de estudo"
+      },
+      table: {
+        type: "Tipo",
+        name: "Nome",
+        status: "Situação"
+      },
+      messages: {
+        notExecuted: "Não executado"
+      },
+      empty: {
+        title: "Nenhuma análise neste estudo",
+        message: "Adicione análises na guia Design para começar."
+      }
+    },
+    analyses: {
+      selectSource: "Selecione a fonte...",
+      executeAll: "Executar tudo",
+      addAnalysisToStudy: "Adicionar análise ao estudo",
+      emptyMessage: "Adicione caracterizações, estimativas, previsões e muito mais para construir seu pipeline de análise",
+      groupHeader: "{{label}} ({{count}})",
+      openAnalysisDetail: "Abrir detalhe da análise",
+      confirmRemove: "Remover esta análise do estudo?",
+      removeFromStudy: "Remover do estudo",
+      analysisId: "ID da análise",
+      lastRun: "Última execução",
+      error: "Erro",
+      viewFullDetail: "Ver detalhes completos"
+    },
+    results: {
+      sections: {
+        results: "Resultados ({{count}})",
+        syntheses: "Sínteses ({{count}})"
+      },
+      actions: {
+        synthesize: "Sintetizar",
+        markPrimary: "Marcar como principal",
+        unmarkPrimary: "Remover marcação principal",
+        markPublishable: "Marcar como publicável",
+        unmarkPublishable: "Remover marcação de publicável",
+        cancel: "Cancelar"
+      },
+      filters: {
+        allTypes: "Todos os tipos",
+        publishableOnly: "Somente publicável"
+      },
+      empty: {
+        noResultsTitle: "Ainda não há resultados",
+        noResultsMessage: "Os resultados aparecerão aqui após a execução das análises",
+        noSummaryData: "Não há dados resumidos disponíveis",
+        noSynthesesTitle: "Sem sínteses",
+        noSynthesesMessage: "Combine resultados de vários sites usando meta-análise"
+      },
+      resultTypes: {
+        cohort_count: "Contagem de coorte",
+        characterization: "Caracterização",
+        incidence_rate: "Taxa de incidência",
+        effect_estimate: "Estimativa de efeito",
+        prediction_performance: "Desempenho de previsão",
+        pathway: "Caminho",
+        sccs: "SCCS",
+        custom: "Personalizado"
+      },
+      synthesisTypes: {
+        fixed_effects_meta: "Meta-análise de efeitos fixos",
+        random_effects_meta: "Meta-análise de efeitos aleatórios",
+        bayesian_meta: "Metanálise Bayesiana",
+        forest_plot: "Gráfico de floresta",
+        heterogeneity_analysis: "Análise de Heterogeneidade",
+        funnel_plot: "Gráfico de funil",
+        evidence_synthesis: "Síntese de Evidências",
+        custom: "Personalizado"
+      },
+      badges: {
+        primary: "Primário",
+        publishable: "Publicável"
+      },
+      messages: {
+        resultCreated: "Resultado #{{id}} · {{date}}",
+        reviewedBy: "Avaliado por {{name}}"
+      },
+      labels: {
+        summary: "Resumo",
+        diagnostics: "Diagnóstico"
+      },
+      pagination: {
+        previous: "Anterior",
+        next: "Próximo",
+        page: "Página {{page}} de {{totalPages}}"
+      },
+      synthesis: {
+        createTitle: "Criar Síntese",
+        instructions: "Selecione 2 ou mais resultados acima e escolha um método de síntese.",
+        createSelected: "Criar ({{count}} selecionado)",
+        confirmDelete: "Excluir esta síntese?",
+        resultsCount: "{{count}} resultados",
+        system: "Sistema",
+        methodSettings: "Configurações do método",
+        output: "Saída",
+        noOutput: "Nenhuma saída gerada ainda"
+      }
+    },
+    federated: {
+      loadingResults: "Carregando resultados...",
+      loadResultsFailed: "Falha ao carregar resultados: {{error}}",
+      unknownError: "Erro desconhecido",
+      confirmDistribute: "Distribuir estudo para nó(s) de dados {{count}}?",
+      arachneNotReachable: "Arachne Central não está acessível",
+      loadNodesFailed: "Falha ao carregar nós Arachne",
+      arachneConnectionHelp: "Configure ARACHNE_URL em seu ambiente para permitir a execução federada. Certifique-se de que o Arachne Central esteja em execução e acessível.",
+      availableDataNodes: "Nós de dados disponíveis",
+      poweredByArachne: "Desenvolvido por Arachne",
+      distributeCount: "Distribuir ({{count}})",
+      noNodes: "Nenhum nó Arachne configurado. Defina ARACHNE_URL no ambiente para permitir a execução federada.",
+      distributionFailed: "Falha na distribuição: {{error}}",
+      distributionSucceeded: "Estudo distribuído com sucesso. Status de monitoramento abaixo.",
+      federatedExecutions: "Execuções Federadas",
+      noExecutions: "Ainda não há execuções federadas. Selecione os nós de dados acima e distribua para começar.",
+      arachneAnalysis: "Análise Arachne #{{id}}",
+      statuses: {
+        PENDING: "Pendente",
+        EXECUTING: "Executando",
+        COMPLETED: "Concluído",
+        FAILED: "Com falha"
+      },
+      table: {
+        name: "Nome",
+        status: "Situação",
+        cdmVersion: "Versão do CDM",
+        patients: "Pacientes",
+        lastSeen: "Visto pela última vez",
+        node: "Nó",
+        submitted: "Enviado",
+        completed: "Concluído"
+      }
+    },
+    artifacts: {
+      sections: {
+        artifacts: "Artefatos ({{count}})"
+      },
+      actions: {
+        addArtifact: "Adicionar artefato",
+        cancel: "Cancelar",
+        create: "Criar",
+        save: "Salvar",
+        edit: "Editar artefato",
+        delete: "Excluir artefato",
+        openLink: "Abrir link"
+      },
+      form: {
+        addTitle: "Adicionar artefato de estudo",
+        title: "Título",
+        titleRequired: "Título *",
+        titlePlaceholder: "por exemplo, Protocolo de Estudo v2.1",
+        version: "Versão",
+        type: "Tipo",
+        urlOptional: "URL (opcional)",
+        description: "Descrição",
+        descriptionOptional: "Descrição (opcional)",
+        descriptionPlaceholder: "Breve descrição deste artefato..."
+      },
+      empty: {
+        title: "Sem artefatos",
+        message: "Armazene protocolos, pacotes de análise e documentos de estudo"
+      },
+      badges: {
+        current: "Atual"
+      },
+      labels: {
+        versionValue: "v{{version}}",
+        sizeKb: "{{size}} KB"
+      },
+      messages: {
+        unknown: "Desconhecido",
+        uploadedBy: "{{name}} · {{date}}"
+      },
+      confirmDelete: "Excluir este artefato?",
+      types: {
+        protocol: "Protocolo",
+        sap: "Plano de Análise Estatística",
+        irb_submission: "Envio IRB",
+        cohort_json: "Coorte JSON",
+        analysis_package_r: "Pacote de análise R",
+        analysis_package_python: "Pacote de análise Python",
+        results_report: "Relatório de resultados",
+        manuscript_draft: "Rascunho do Manuscrito",
+        supplementary: "Material Suplementar",
+        presentation: "Apresentação",
+        data_dictionary: "Dicionário de dados",
+        study_package_zip: "Pacote ZIP do estudo",
+        other: "Outro"
+      }
+    },
+    sites: {
+      sections: {
+        sites: "Centros ({{count}})"
+      },
+      actions: {
+        addSite: "Adicionar centro",
+        cancel: "Cancelar",
+        save: "Salvar",
+        edit: "Editar centro",
+        remove: "Remover centro"
+      },
+      form: {
+        addTitle: "Adicionar site de parceiro de dados",
+        sourceSearchPlaceholder: "Pesquisar fontes de dados...",
+        siteRole: "Função do centro",
+        irbProtocol: "Protocolo IRB",
+        notes: "Notas",
+        optional: "Opcional"
+      },
+      empty: {
+        title: "Nenhum centro inscrito",
+        message: "Adicione centros parceiros de dados a este estudo"
+      },
+      table: {
+        source: "Fonte",
+        role: "Papel",
+        status: "Situação",
+        irb: "IRB nº",
+        patients: "Pacientes",
+        cdm: "CDM"
+      },
+      messages: {
+        allSourcesAssigned: "Todas as fontes já estão atribuídas",
+        noMatchingSources: "Nenhuma fonte correspondente",
+        sourceFallback: "Fonte nº {{id}}"
+      },
+      confirmRemove: "Remover este centro?",
+      roles: {
+        data_partner: "Parceiro de dados",
+        coordinating_center: "Centro de Coordenação",
+        analytics_node: "Nó analítico",
+        observer: "Observador"
+      },
+      statuses: {
+        pending: "Pendente",
+        invited: "Convidado",
+        approved: "Aprovado",
+        active: "Ativo",
+        completed: "Concluído",
+        withdrawn: "Retirado"
+      }
+    },
+    cohorts: {
+      sections: {
+        cohorts: "Coortes ({{count}})"
+      },
+      actions: {
+        assignCohort: "Atribuir coorte",
+        assign: "Atribuir",
+        cancel: "Cancelar",
+        save: "Salvar",
+        edit: "Editar atribuição de coorte",
+        remove: "Remover atribuição de coorte"
+      },
+      form: {
+        assignTitle: "Atribuir definição de coorte",
+        cohortDefinition: "Definição de coorte",
+        searchPlaceholder: "Pesquisar definições de coorte...",
+        role: "Papel",
+        label: "Rótulo",
+        labelRequired: "Rótulo *",
+        labelPlaceholder: "por exemplo, população-alvo T2DM",
+        description: "Descrição",
+        optional: "Opcional"
+      },
+      empty: {
+        title: "Nenhuma coorte atribuída",
+        message: "Atribua definições de coorte e especifique suas funções neste estudo"
+      },
+      messages: {
+        allAssigned: "Todas as definições de coorte já estão atribuídas",
+        noMatchingCohorts: "Nenhuma coorte correspondente",
+        cohortFallback: "Coorte #{{id}}"
+      },
+      confirmRemove: "Remover esta atribuição de coorte?",
+      roles: {
+        target: "Alvo",
+        comparator: "Comparador",
+        outcome: "Resultado",
+        exclusion: "Exclusão",
+        subgroup: "Subgrupo",
+        event: "Evento"
+      }
+    },
+    team: {
+      sections: {
+        members: "Membros da equipe ({{count}})"
+      },
+      actions: {
+        addMember: "Adicionar membro",
+        cancel: "Cancelar",
+        save: "Salvar",
+        edit: "Editar membro da equipe",
+        remove: "Remover membro da equipe"
+      },
+      form: {
+        addTitle: "Adicionar membro da equipe",
+        user: "Usuário",
+        userSearchPlaceholder: "Pesquisar usuários por nome ou e-mail...",
+        role: "Papel"
+      },
+      empty: {
+        title: "Nenhum membro da equipe",
+        message: "Adicione pesquisadores e colaboradores a este estudo"
+      },
+      table: {
+        name: "Nome",
+        email: "E-mail",
+        role: "Papel",
+        status: "Situação",
+        joined: "Ingressou"
+      },
+      messages: {
+        allUsersAssigned: "Todos os usuários já são membros da equipe",
+        noMatchingUsers: "Nenhum usuário correspondente",
+        userFallback: "Usuário #{{id}}"
+      },
+      confirmRemove: "Remover este membro da equipe?",
+      statuses: {
+        active: "Ativo",
+        inactive: "Inativo"
+      },
+      roles: {
+        principal_investigator: "Investigador Principal",
+        co_investigator: "Co-Investigador",
+        data_scientist: "Cientista de Dados",
+        statistician: "Estatístico",
+        site_lead: "Responsável pelo centro",
+        data_analyst: "Analista de Dados",
+        research_coordinator: "Coordenador de Pesquisa",
+        irb_liaison: "Contato IRB",
+        project_manager: "Gestor de projeto",
+        observer: "Observador"
+      },
+      roleDescriptions: {
+        principal_investigator: "Pesquisador principal responsável pelo estudo",
+        co_investigator: "Pesquisador colaborador com supervisão do estudo",
+        data_scientist: "Desenvolve e executa pipelines analíticos",
+        statistician: "Análise estatística e metodologia",
+        site_lead: "Gerencia as operações do site do parceiro de dados",
+        data_analyst: "Processamento de dados e verificações de qualidade",
+        research_coordinator: "Coordena a logística e os cronogramas do estudo",
+        irb_liaison: "Gerencia envios e conformidade do IRB",
+        project_manager: "Planejamento e acompanhamento geral do projeto",
+        observer: "Acesso somente leitura aos materiais de estudo"
+      }
+    },
+    milestones: {
+      sections: {
+        milestones: "Marcos ({{count}})"
+      },
+      actions: {
+        addMilestone: "Adicionar marco",
+        cancel: "Cancelar",
+        create: "Criar",
+        save: "Salvar",
+        edit: "Editar marco",
+        delete: "Excluir marco"
+      },
+      form: {
+        titlePlaceholder: "Título do marco..."
+      },
+      empty: {
+        title: "Sem marcos",
+        message: "Acompanhe o progresso do estudo com marcos e datas previstas"
+      },
+      labels: {
+        target: "Alvo: {{date}}",
+        targetCompleted: "Alvo: {{target}} | Concluído: {{completed}}"
+      },
+      confirmDelete: "Excluir este marco?",
+      types: {
+        protocol: "Protocolo",
+        irb: "IRB",
+        data_access: "Acesso a dados",
+        analysis: "Análise",
+        review: "Análise",
+        publication: "Publicação",
+        custom: "Personalizado"
+      },
+      statuses: {
+        pending: "Pendente",
+        in_progress: "Em andamento",
+        completed: "Concluído",
+        overdue: "Atrasado",
+        cancelled: "Cancelado"
+      }
+    },
+    activity: {
+      title: "Registro de atividades",
+      empty: {
+        title: "Nenhuma atividade ainda",
+        message: "As ações realizadas neste estudo aparecerão aqui"
+      },
+      pagination: {
+        previous: "Anterior",
+        next: "Próximo",
+        page: "Página {{page}} de {{totalPages}}"
+      },
+      actions: {
+        created: "Criado",
+        updated: "Atualizado",
+        deleted: "Excluído",
+        status_changed: "Situação alterada",
+        member_added: "Membro adicionado",
+        member_removed: "Membro removido",
+        site_added: "Centro adicionado",
+        analysis_added: "Análise adicionada",
+        executed: "Executado"
+      },
+      entities: {
+        study: "Estudo",
+        study_analysis: "Análise do Estudo",
+        study_artifact: "Artefato do estudo",
+        study_cohort: "Coorte do estudo",
+        study_milestone: "Marco do estudo",
+        study_site: "Centro do estudo",
+        study_team_member: "Membro da equipe do estudo"
+      }
+    },
+    designer: {
+      defaultSessionTitle: "Projeto {{title}} OHDSI",
+      title: "Compilador de design de estudo OHDSI",
+      subtitle: "Transforme uma questão de pesquisa revisada em conjuntos de conceitos rastreáveis, coortes, evidências de viabilidade, planos de análise prontos para HADES e um pacote de estudo bloqueado.",
+      researchQuestionPlaceholder: "Entre adultos com..., ..., em comparação com..., reduz...",
+      badges: {
+        session: "Sessão {{value}}",
+        version: "Versão {{value}}"
+      },
+      versionStatuses: {
+        generated: "Gerado",
+        review_ready: "Revisão pronta",
+        accepted: "Aceito",
+        locked: "Bloqueado"
+      },
+      metrics: {
+        assets: "Recursos"
+      },
+      actions: {
+        downloadLockedPackage: "Baixar pacote bloqueado",
+        downloadPackage: "Baixar pacote",
+        add: "Adicionar",
+        saveChanges: "Salvar alterações"
+      },
+      sections: {
+        verificationGates: "Etapas de verificação",
+        packageProvenance: "Proveniência do pacote",
+        assetEvidence: "Evidência dos recursos",
+        basicInformation: "Informações básicas",
+        addAnalysis: "Adicionar análise",
+        studyAnalyses: "Análises de Estudo ({{count}})"
+      },
+      descriptions: {
+        verificationGates: "Resolva os bloqueadores antes de bloquear o pacote OHDSI.",
+        assetEvidence: "Revise a saída do verificador bloqueado antes de aceitar um pacote."
+      },
+      gates: {
+        designIntent: "Intenção do desenho",
+        acceptedAt: "Aceito {{time}}",
+        acceptResearchQuestion: "Aceite a questão de pesquisa revisada.",
+        verifiedMaterializedCohorts: "{{count}} coorte materializada verificada",
+        feasibilityReady: "A evidência de viabilidade verificada está pronta.",
+        runFeasibility: "Execute a viabilidade após a verificação das coortes.",
+        analysisPlan: "Plano de análise",
+        analysisPlanReady: "O plano de análise HADES verificado está pronto.",
+        verifyAnalysisPlan: "Verifique e materialize um plano de análise."
+      },
+      labels: {
+        version: "Versão",
+        versionStatus: "v{{version}} - {{status}}",
+        verifiedAssets: "Recursos verificados",
+        title: "Título",
+        description: "Descrição",
+        studyType: "Tipo de estudo",
+        analysisType: "Tipo de análise",
+        analysis: "Análise",
+        missingOmopIds: "IDs OMOP ausentes",
+        deprecatedOmopIds: "IDs OMOP obsoletos",
+        invalidDraftIds: "IDs de rascunho inválidos"
+      },
+      placeholders: {
+        studyTitle: "Título do estudo",
+        optionalDescription: "Descrição opcional",
+        selectAnalysis: "Selecione análise..."
+      },
+      analysisTypes: {
+        characterization: "Caracterização",
+        "incidence-rate": "Taxa de incidência",
+        pathway: "Caminho",
+        estimation: "Estimativa",
+        prediction: "Previsão"
+      },
+      messages: {
+        new: "novo",
+        none: "nenhum",
+        notStarted: "não começou",
+        createOrImport: "Crie ou importe um design para começar.",
+        needsEvidence: "Precisa de evidências",
+        noVersion: "Nenhuma versão",
+        blockedCount: "{{count}} bloqueado",
+        noBlockers: "Sem bloqueios",
+        startEvidenceReview: "Gere intenção ou importe o estudo atual para iniciar a revisão das evidências.",
+        noAnalyses: "Nenhuma análise adicionada ainda.",
+        analysisFallback: "Análise #{{id}}",
+        assetId: "Ativo #{{id}}",
+        materializedId: "materializado #{{id}}",
+        verifiedAt: "verificado {{time}}"
+      }
+    },
+    workbench: {
+      sessionTitle: "Desenho de intenção de estudo",
+      title: "Compilador de design de estudo",
+      subtitle: "Converta uma pergunta de pesquisa em uma intenção de estudo revisada e alinhada ao OHDSI; depois, avalie ativos de fenótipo reutilizáveis antes que qualquer item avance no fluxo.",
+      newSession: "Nova sessão",
+      sessions: "Sessões",
+      researchQuestion: "Pergunta de pesquisa",
+      researchQuestionPlaceholder: "Compare MACE recorrente em pacientes pós-MI iniciando clopidogrel versus aspirina.",
+      emptyQuestionPlaceholder: "Descreva a questão do estudo...",
+      generateIntent: "Gerar intenção",
+      startSession: "Inicie uma sessão de design e, em seguida, gere uma intenção PICO estruturada a partir da questão do estudo.",
+      createAndGenerate: "Criar sessão e gerar intenção",
+      loadingSessions: "Carregando sessões de design...",
+      sections: {
+        phenotypeRecommendations: "Recomendações de fenótipo e reutilização",
+        conceptSetDrafts: "Rascunhos do conjunto de conceitos",
+        cohortDrafts: "Rascunhos de coorte",
+        cohortReadiness: "Preparação da coorte de estudo",
+        feasibility: "Viabilidade",
+        sources: "Fontes",
+        attrition: "Atrito",
+        analysisPlans: "Planos de Análise",
+        packageLock: "Bloqueio de pacote",
+        currentAssets: "Recursos atuais do estudo",
+        intentReview: "Revisão de intenção",
+        source: "Fonte",
+        governance: "Governança"
+      },
+      descriptions: {
+        recommendations: "Revise as entradas reutilizáveis ​​da Biblioteca de Fenótipos, coortes locais e conjuntos de conceitos locais antes de redigir qualquer coisa nova.",
+        conceptSets: "Converta evidências aceitas em rascunhos verificados com vocabulário antes de criar conjuntos de conceitos nativos.",
+        cohorts: "Transforme conjuntos de conceitos materializados em rascunhos de definição de coorte nativos.",
+        feasibility: "Verifique as coortes vinculadas em relação às fontes CDM selecionadas antes do planejamento da análise.",
+        analysisPlans: "Compile coortes de estudo viáveis ​​em projetos de análise nativos compatíveis com HADES.",
+        packageLock: "Congele intenções aceitas, conjuntos de conceitos, coortes, viabilidade e análises nativas em um pacote de estudo auditável.",
+        currentAssets: "Traga coortes e análises criadas manualmente para esse caminho de design e, em seguida, revise as lacunas sem alterar os registros existentes."
+      },
+      actions: {
+        recommend: "Recomendar",
+        draftConceptSets: "Rascunhar conjuntos de conceitos",
+        draftCohorts: "Rascunhar coortes",
+        runFeasibility: "Executar viabilidade",
+        draftPlans: "Rascunhar planos",
+        importCurrent: "Importar atual",
+        critique: "Crítica",
+        verify: "Verificar",
+        review: "Análise",
+        accept: "Aceitar",
+        defer: "Adiar",
+        reject: "Rejeitar",
+        materialize: "Materializar",
+        openNativeEditor: "Abrir editor nativo",
+        linkToStudy: "Vincular ao estudo",
+        search: "Procurar",
+        add: "Adicionar",
+        remove: "Remover",
+        saveReview: "Salvar revisão",
+        acceptIntent: "Aceitar intenção",
+        lockPackage: "Bloquear pacote",
+        locked: "Bloqueado",
+        downloadPackageSummary: "Baixar resumo do pacote"
+      },
+      labels: {
+        verified: "Verificado",
+        needsCheck: "Precisa de verificação",
+        blocked: "Bloqueado",
+        unverified: "Não verificado",
+        reviewQueue: "Fila de revisão",
+        conceptSetDraft: "rascunho do conjunto de conceitos",
+        cohortDraft: "rascunho de coorte",
+        concepts: "Conceitos",
+        concept: "Conceito",
+        domain: "Domínio",
+        vocabulary: "Vocabulário",
+        flags: "Sinalizadores",
+        actions: "Ações",
+        lint: "Lint",
+        source: "Fonte",
+        status: "Situação",
+        cohorts: "Coortes",
+        coverage: "Cobertura",
+        domains: "Domínios",
+        freshness: "Atualidade",
+        dqd: "DQD",
+        attrition: "Atrito",
+        nativeConceptSet: "Conjunto de conceito nativo #{{id}}",
+        nativeCohort: "Coorte nativa #{{id}}",
+        linkedStudyCohort: "Coorte de estudo vinculada #{{id}}",
+        conceptsCount: "{{count}} conceitos",
+        conceptSetsCount: "{{count}} conjuntos de conceitos",
+        nativeAnalysis: "Análise nativa #{{id}}",
+        feasibility: "Viabilidade",
+        rank: "Classificação {{score}}",
+        match: "Correspondência de {{score}}%",
+        ohdsiId: "OHDSI #{{id}}",
+        computable: "Computável",
+        imported: "Importado",
+        evidence: "Evidência",
+        origin: "Origem",
+        matchedTerm: "Termo correspondente",
+        canonicalRecord: "Registro canônico",
+        noCanonicalRecord: "Nenhum registro canônico",
+        eligibility: "Elegibilidade",
+        acceptable: "Aceitável",
+        blockedOrNeedsReview: "Bloqueado ou precisa de revisão",
+        policy: "Política",
+        nextActions: "Próximas ações",
+        rankComponents: "Componentes de classificação",
+        verifierChecks: "Verificações do verificador",
+        versionStatus: "Versão {{version}} · {{status}}",
+        primaryObjective: "Objetivo Primário",
+        population: "População",
+        exposure: "Exposição",
+        comparator: "Comparador",
+        primaryOutcome: "Resultado Primário",
+        timeAtRisk: "Tempo em risco",
+        conceptSetsMetric: "Conjuntos de conceitos",
+        cohortsMetric: "Coortes",
+        analysesMetric: "Análises",
+        packagesMetric: "Pacotes",
+        aiEvents: "Eventos de IA",
+        reviewed: "Revisado",
+        manifest: "Manifesto",
+        critiques: "Críticas"
+      },
+      messages: {
+        saveOrAcceptBeforeRecommendations: "Salve uma intenção pronta para revisão ou aceite-a antes de solicitar recomendações.",
+        loadingRecommendations: "Carregando recomendações...",
+        noRecommendations: "Nenhuma recomendação ainda.",
+        acceptRecommendationFirst: "Aceite primeiro pelo menos uma recomendação verificada de fenótipo, coorte ou conjunto de conceitos.",
+        noConceptSetDrafts: "Nenhum rascunho de conceito definido ainda.",
+        onlyVerifiedConceptSetDrafts: "Somente rascunhos de conjuntos de conceitos verificados podem ser aceitos.",
+        searchConceptsPlaceholder: "Pesquise conceitos de vocabulário OMOP",
+        materializeConceptSetFirst: "Materialize primeiro pelo menos um rascunho de conjunto de conceitos verificado.",
+        noCohortDrafts: "Ainda não há rascunhos de coorte.",
+        checkingLinkedRoles: "Verificando funções vinculadas...",
+        noReadinessSignal: "Nenhum sinal de prontidão ainda.",
+        ready: "Pronto",
+        blocked: "Bloqueado",
+        drafts: "{{count}} rascunhos",
+        materialized: "{{count}} materializados",
+        linked: "{{count}} vinculados",
+        linkRequiredCohorts: "Vincular coortes de estudo necessárias antes da viabilidade da fonte.",
+        loadingSources: "Carregando fontes...",
+        noSources: "Nenhuma fonte CDM configurada.",
+        smallCellThreshold: "Limiar de células pequenas",
+        sourcesReady: "Fontes {{ready}}/{{total}} prontas",
+        ranAt: "Executado {{time}}",
+        noDates: "Sem datas",
+        none: "nenhum",
+        roles: "Funções {{ready}}/{{total}}",
+        unknown: "Desconhecido",
+        noDqd: "Sem DQD",
+        passRate: "{{rate}}% aprovado",
+        noFeasibilityEvidence: "Nenhuma evidência de viabilidade foi armazenada para esta versão do projeto.",
+        runFeasibilityBeforePlans: "Execute a viabilidade da fonte antes de elaborar planos de análise.",
+        noAnalysisPlans: "Ainda não há planos de análise.",
+        feasibilityStatus: "Viabilidade: {{status}}",
+        checkingPackageReadiness: "Verificando a prontidão do pacote...",
+        readyToLock: "Pronto para bloquear.",
+        lockedPackageAvailable: "O pacote bloqueado está disponível nos artefatos do estudo.",
+        signed: "assinado",
+        pending: "pendente",
+        onlyVerifiedRecommendations: "Somente recomendações verificadas deterministicamente podem ser aceitas."
+      }
+    }
   },
   covariates: {
     title: "Configurações de covariáveis",
