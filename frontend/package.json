@@ -52,7 +52,7 @@
     "date-fns": "^4.1.0",
     "deck.gl": "^9.2.11",
     "framer-motion": "^12.38.0",
-    "i18next": "^25.10.4",
+    "i18next": "^26.0.6",
     "laravel-echo": "^2.3.4",
     "livekit-client": "^2.18.3",
     "lucide-react": "^0.577.0",

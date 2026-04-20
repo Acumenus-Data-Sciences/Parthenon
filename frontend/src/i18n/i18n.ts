@@ -60,7 +60,7 @@ void i18next.use(initReactI18next).init({
   react: {
     useSuspense: false,
   },
-  initImmediate: false,
+  initAsync: false,
   saveMissing: import.meta.env.DEV,
   missingKeyHandler: (lng, ns, key) => {
     const missingKey = recordMissingTranslationKey(lng, ns, key);

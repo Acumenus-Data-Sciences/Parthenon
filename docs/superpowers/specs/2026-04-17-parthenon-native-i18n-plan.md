@@ -83,6 +83,7 @@ Previous isolated Codex branch: `codex/parthenon-i18n-pr5-message-contract`
 - Remaining Wave 1 language-pack work before public selection: translate the `commons` namespace, setup/onboarding auth strings, and the remaining app namespace keys beyond the targeted administration/auth-provider draft; then run visual smoke for `fr-FR`, `de-DE`, and `pt-BR` while they are still hidden.
 - Pushed the i18n baseline and Wave 1 draft work directly to `origin/main`, closed obsolete PR #215, deleted the remote i18n branch, and pruned local i18n branch references.
 - Continued from `main` with a Commons shell draft for French, German, and Brazilian Portuguese. `commons` now has native coverage for channel shell, presence, calls, right-panel collaboration chrome, channel/direct-message creation, chat basics, notifications, and announcements while deeper Abby/wiki Commons content remains on English fallback. Current report: `fr-FR` 18.75%, `de-DE` 18.80%, and `pt-BR` 19.33% distinct values with 100% key presence and 0 missing keys. `npm run i18n:scan:app-priority` remains at 0 candidates.
+- Closed out the remaining PR queue against `main`: merged the clean Dependabot PRs for FastAPI and GitHub Actions updates, then landed the i18next 26.0.6 bump directly on `main` with the required `initAsync` initialization update. Local frontend validation passed with `npm ci --legacy-peer-deps`, `npx tsc --noEmit`, `npm run lint` (warnings only, existing backlog), `npx vitest run`, focused i18n Vitest, `npm run i18n:report`, and `npm run build`.
 
 ## Executive Summary
 
