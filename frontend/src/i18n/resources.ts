@@ -6838,7 +6838,7 @@ export const resources: Resource = {
     fiHelp,
     withAuthSetup(fiAuth, fiAuthSetup),
     dashboardResources["fi-FI"],
-    commonsResources["en-US"],
+    commonsResources["fi-FI"],
     appResources["en-US"],
   ),
   "ja-JP": withProductResources(
@@ -6848,7 +6848,7 @@ export const resources: Resource = {
     jaHelp,
     withAuthSetup(jaAuth, jaAuthSetup),
     dashboardResources["ja-JP"],
-    commonsResources["en-US"],
+    commonsResources["ja-JP"],
     appResources["en-US"],
   ),
   "zh-Hans": withProductResources(
@@ -6858,7 +6858,7 @@ export const resources: Resource = {
     zhHelp,
     withAuthSetup(zhAuth, zhAuthSetup),
     dashboardResources["zh-Hans"],
-    commonsResources["en-US"],
+    commonsResources["zh-Hans"],
     appResources["en-US"],
   ),
   "ko-KR": withProductResources(
