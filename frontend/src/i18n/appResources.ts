@@ -13514,6 +13514,985 @@ const frApp: MessageTree = mergeMessageTrees(enApp, {
       },
     },
   },
+  dataExplorer: {
+    page: {
+      title: "Explorateur de données",
+      subtitle: "Explorez les résultats de caractérisation Achilles et la qualité des données",
+      selectSourceTitle: "Sélectionner une source de données",
+      selectSourceMessage:
+        "Choisissez une source CDM dans la liste déroulante ci-dessus pour explorer ses données",
+    },
+    tabs: {
+      overview: "Vue d'ensemble",
+      domains: "Domaines",
+      temporal: "Temporel",
+      heel: "Achilles",
+      dqd: "Qualité des données",
+      ares: "Ares",
+    },
+    sourceSelector: {
+      loading: "Chargement des sources...",
+      placeholder: "Sélectionner une source de données",
+    },
+    domains: {
+      condition: "Affections",
+      drug: "Médicaments",
+      procedure: "Procédures",
+      measurement: "Mesures",
+      observation: "Observations",
+      visit: "Visites",
+    },
+    overview: {
+      metrics: {
+        persons: "Personnes",
+        personsTotal: "{{value}} au total",
+        medianObsDuration: "Durée médiane d'observation",
+        durationDays: "{{value}} jours",
+        observationPeriods: "{{value}} périodes d'observation",
+        totalEvents: "Événements totaux",
+        acrossAllCdmTables: "Dans toutes les tables CDM",
+        dataCompleteness: "Complétude des données",
+        tablesPopulated: "{{populated}}/{{total}} tables renseignées",
+      },
+      sections: {
+        demographics: "Démographie de la population",
+        observationPeriods: "Analyse des périodes d'observation",
+        domainRecordProportions: "Proportions d'enregistrements par domaine",
+        dataDensityOverTime: "Densité des données dans le temps",
+        recordDistribution: "Distribution des enregistrements",
+      },
+      cards: {
+        genderDistribution: "Distribution par genre",
+        ethnicity: "Ethnicité",
+        race: "Origine raciale",
+        topTen: "Top 10",
+        yearOfBirthDistribution: "Distribution de l'année de naissance",
+        yearOfBirthSubtitle: "Histogramme avec densité lissée (or)",
+        cumulativeObservationDuration: "Durée d'observation cumulée",
+        cumulativeObservationSubtitle:
+          "Style Kaplan-Meier : % de personnes avec observation >= X jours",
+        observationStartEndDates: "Dates de début / fin d'observation",
+        observationStartEndSubtitle:
+          "Distribution temporelle des périodes d'observation",
+        observationPeriodDurationDays: "Durée de la période d'observation (jours)",
+        observationPeriodsPerPerson: "Périodes d'observation par personne",
+        observationPeriodsPerPersonSubtitle:
+          "Distribution du nombre de périodes par personne",
+        clinicalDataDomains: "Domaines de données cliniques",
+        clinicalDataDomainsSubtitle:
+          "Triés par nombre d'enregistrements - cliquez sur un domaine pour explorer ses concepts",
+        recordsByDomainAndYear: "Enregistrements par domaine et par année",
+        recordsByDomainAndYearSubtitle:
+          "L'intensité de la couleur indique le volume d'enregistrements par domaine et par année",
+        cdmTableRecordCounts: "Nombre d'enregistrements des tables CDM",
+        cdmTableRecordCountsSubtitle:
+          "Échelle logarithmique - toutes les tables restent visibles quelle que soit leur magnitude",
+      },
+      messages: {
+        runAchillesForTemporalData:
+          "Exécutez Achilles pour générer les données de tendance temporelle",
+      },
+    },
+    charts: {
+      common: {
+        records: "{{count}} enregistrements",
+        persons: "{{count}} personnes",
+        total: "Total",
+        separator: "·",
+      },
+      boxPlot: {
+        noDistributionData: "Aucune donnée de distribution",
+        ariaLabel: "Boîte à moustaches",
+        labels: {
+          p25: "P25 : {{value}}",
+          median: "Médiane : {{value}}",
+          p75: "P75 : {{value}}",
+        },
+      },
+      cumulativeObservation: {
+        tooltipValue: "{{days}} jours - {{pct}} % des personnes",
+        xAxisLabel: "Durée d'observation (jours)",
+        labels: {
+          min: "Min.",
+          p10: "P10",
+          p25: "P25",
+          median: "Médiane",
+          p75: "P75",
+          p90: "P90",
+          max: "Max.",
+        },
+      },
+      demographics: {
+        ageDistribution: "Distribution de l'âge",
+        noAgeData: "Aucune donnée de distribution de l'âge",
+        age: "Âge",
+        male: "Masculin",
+        female: "Féminin",
+      },
+      heatmap: {
+        ariaLabel: "Carte thermique de densité des données",
+      },
+      hierarchy: {
+        noData: "Aucune donnée de hiérarchie disponible",
+        classificationHierarchy: "Hiérarchie de classification",
+        back: "Retour",
+      },
+      periodCount: {
+        observationPeriods: "{{count}} période(s) d'observation",
+      },
+      recordCounts: {
+        noData: "Aucune donnée de comptage d'enregistrements disponible",
+        title: "Nombre d'enregistrements par table CDM",
+      },
+      temporalTrend: {
+        events: "Événements",
+        secondary: "Secondaire",
+      },
+      topConcepts: {
+        noData: "Aucune donnée de concept disponible",
+        title: "Principaux concepts",
+        id: "ID : {{id}}",
+        prevalence: "Prévalence : {{value}} %",
+      },
+      yearOfBirth: {
+        year: "Année : {{year}}",
+      },
+    },
+    domain: {
+      metrics: {
+        totalRecords: "Enregistrements totaux",
+        distinctConcepts: "Concepts distincts",
+      },
+      loadFailed: "Impossible de charger les données {{domain}}",
+      temporalTrendTitle: "Tendance temporelle {{domain}}",
+    },
+    temporal: {
+      domainsLabel: "Domaines :",
+      multiDomainOverlay: "Superposition temporelle multidomaine",
+      emptyTitle: "Aucune donnée temporelle disponible",
+      emptyHelp: "Sélectionnez des domaines ci-dessus et vérifiez qu'Achilles a été exécuté",
+    },
+    concept: {
+      details: "Détails du concept",
+      loadFailed: "Impossible de charger les détails du concept",
+      genderDistribution: "Distribution par genre",
+      temporalTrend: "Tendance temporelle",
+      typeDistribution: "Distribution par type",
+      ageAtFirstOccurrence: "Âge à la première occurrence",
+      valueByLabel: "{{label}} : {{value}}",
+    },
+    achilles: {
+      severities: {
+        error: "Erreur",
+        warning: "Avertissement",
+        notification: "Notification",
+      },
+      severityCounts: {
+        error: "erreurs",
+        warning: "avertissements",
+        notification: "notifications",
+      },
+      actions: {
+        running: "Exécution...",
+        runHeelChecks: "Exécuter les vérifications Heel",
+        runAchilles: "Exécuter Achilles",
+        selectRun: "Sélectionner l'exécution",
+        viewLiveProgress: "Voir la progression en direct",
+        viewDetails: "Voir les détails",
+      },
+      runShort: "Exécution {{id}}...",
+      statuses: {
+        completed: "Terminée",
+        failed: "Échouée",
+        running: "En cours",
+        pending: "En attente",
+      },
+      labels: {
+        status: "Statut",
+        total: "total",
+        passed: "réussis",
+        failed: "échoués",
+        durationSeconds: "Durée : {{value}} s",
+      },
+      heel: {
+        title: "Vérifications Heel",
+        dispatchFailed: "Impossible de lancer les vérifications Heel",
+        running: "Exécution des vérifications Heel...",
+        empty: "Aucune vérification Heel exécutée pour l'instant",
+        allPassed: "Toutes les vérifications ont réussi",
+        issueSummary:
+          "{{count}} problèmes : {{errors}}E / {{warnings}}A / {{notifications}}N",
+      },
+      characterization: {
+        title: "Caractérisation Achilles",
+        dispatchFailed: "Impossible de lancer l'exécution Achilles",
+        empty: "Aucune exécution Achilles pour l'instant",
+        emptyHelp: 'Cliquez sur "Exécuter Achilles" pour caractériser vos données',
+      },
+      runModal: {
+        completedIn: "Terminée en {{duration}}",
+        analysisProgress: "{{done}} analyses sur {{total}}",
+        elapsed: "Écoulé :",
+        passedCount: "{{count}} réussies",
+        failedCount: "{{count}} échouées",
+        totalDuration: "{{duration}} au total",
+        remaining: "~{{duration}} restantes",
+        waiting: "En attente du démarrage des analyses...",
+        done: "Terminé",
+        runInBackground: "Exécuter en arrière-plan",
+      },
+    },
+    dqd: {
+      categories: {
+        completeness: "Complétude",
+        conformance: "Conformité",
+        plausibility: "Plausibilité",
+        overall: "Global",
+      },
+      progress: {
+        title: "Analyse DQD en cours",
+        checksCompleted: "{{completed}} contrôles sur {{total}} terminés",
+        waiting: "En attente...",
+        running: "En cours :",
+      },
+      labels: {
+        passed: "réussis",
+        failed: "échoués",
+        remaining: "restants",
+        warnings: "Avertissements",
+      },
+      severity: {
+        error: "Erreur",
+        warning: "Avertissement",
+        info: "Info",
+      },
+      categoryPanel: {
+        checkCount: "{{count}} contrôles",
+        passRate: "{{percent}} % de réussite",
+        table: {
+          check: "Contrôle",
+          table: "Tableau",
+          column: "Colonne",
+          severity: "Sévérité",
+          violationPercent: "% de violation",
+        },
+      },
+      scorecard: {
+        emptyTitle: "Aucun résultat DQD disponible",
+        emptyDescription: "Exécutez une analyse Data Quality Dashboard pour voir les résultats",
+        overallScore: "Score global",
+        passedFraction: "{{passed}}/{{total}} réussis",
+      },
+      tableGrid: {
+        noResults: "Aucun résultat DQD à afficher",
+        title: "Carte thermique table x catégorie",
+        cdmTable: "Table CDM",
+      },
+      actions: {
+        runDqd: "Exécuter DQD",
+      },
+      dispatchFailed: "Impossible de lancer l'exécution DQD",
+      empty: "Aucune exécution DQD pour l'instant",
+      emptyHelp: 'Cliquez sur "Exécuter DQD" pour lancer une analyse de qualité des données',
+    },
+    ares: {
+      name: "Ares",
+      breadcrumbSeparator: ">",
+      comingSoon: "Bientôt disponible dans une phase future",
+      sections: {
+        hub: "Centre",
+        networkOverview: "Vue d'ensemble du réseau",
+        conceptComparison: "Comparaison de concepts",
+        dqHistory: "Historique DQ",
+        coverage: "Couverture",
+        coverageMatrix: "Matrice de couverture",
+        feasibility: "Faisabilité",
+        diversity: "Diversité",
+        releases: "Versions",
+        unmappedCodes: "Codes non mappés",
+        cost: "Coût",
+        costAnalysis: "Analyse des coûts",
+        annotations: "Notes",
+      },
+      cards: {
+        sourcesBelowDq: "{{value}} sources sous 80 % DQ",
+        networkOverviewDescription:
+          "Santé des sources, scores DQ et indicateurs de tendance",
+        conceptComparisonDescription:
+          "Comparer la prévalence des concepts entre les sources",
+        dqHistoryDescription: "Score DQ moyen du réseau par version",
+        coverageDescription: "Disponibilité domaine x source",
+        feasibilityDescription: "Votre réseau peut-il soutenir une étude ?",
+        diversityDescription: "Parité démographique entre les sources",
+        releasesDescription: "Historique des versions par source",
+        unmappedCodesDescription:
+          "Codes sources sans mappage standard",
+        annotationsDescription: "Notes de graphique sur toutes les sources",
+        costDescription: "Données de coût par domaine et dans le temps",
+      },
+      networkOverview: {
+        title: "Vue d'ensemble du réseau",
+        networkTotal: "Total réseau",
+        percent: "{{value}} %",
+        averagePercent: "{{value}} % moy.",
+        actions: {
+          dqRadar: "Radar DQ",
+          hideRadar: "Masquer le radar",
+        },
+        metrics: {
+          dataSources: "Sources de données",
+          avgDqScore: "Score DQ moyen",
+          unmappedCodes: "Codes non mappés",
+          needAttention: "À surveiller",
+          totalPersons: "Personnes totales",
+        },
+        table: {
+          source: "Source",
+          dqScore: "Score DQ",
+          dqTrend: "Tendance DQ",
+          freshness: "Fraîcheur",
+          domains: "Domaines",
+          persons: "Personnes",
+          latestRelease: "Dernière version",
+        },
+        messages: {
+          loading: "Chargement de la vue d'ensemble du réseau...",
+          noData: "Aucune donnée réseau disponible.",
+          noReleases: "Aucune version",
+        },
+        radar: {
+          title: "Profil radar DQ (dimensions de Kahn)",
+          description:
+            "Taux de réussite sur les cinq dimensions de qualité des données de Kahn. Les valeurs plus élevées indiquent une meilleure qualité.",
+          noData: "Aucune donnée de radar DQ disponible.",
+          dimensions: {
+            completeness: "Complétude",
+            conformanceValue: "Conformité (valeur)",
+            conformanceRelational: "Conformité (relationnelle)",
+            plausibilityAtemporal: "Plausibilité (atemporelle)",
+            plausibilityTemporal: "Plausibilité (temporelle)",
+          },
+        },
+      },
+      feasibility: {
+        title: "Évaluations de faisabilité",
+        assessmentMeta: "{{date}} | {{sources}} sources évaluées",
+        passedSummary: "{{passed}}/{{total}} réussies",
+        resultsTitle: "Résultats : {{name}}",
+        scoreLabel: "score {{score}} %",
+        empty:
+          "Aucune évaluation pour l'instant. Créez-en une pour vérifier si votre réseau peut soutenir l'étude proposée.",
+        actions: {
+          newAssessment: "+ Nouvelle évaluation",
+          running: "Exécution...",
+          runAssessment: "Exécuter l'évaluation",
+          hide: "Masquer",
+          forecast: "Prévision",
+        },
+        filters: {
+          view: "Vue :",
+        },
+        detailViews: {
+          table: "Tableau des scores",
+          impact: "Analyse d'impact",
+          consort: "Flux CONSORT",
+        },
+        criteria: {
+          domains: "Domaines",
+          concepts: "Concepts",
+          visitTypes: "Types de visite",
+          dateRange: "Plage de dates",
+          patientCount: "Nombre de patients",
+        },
+        forecast: {
+          insufficientData:
+            "Données historiques insuffisantes pour la prévision (minimum 6 mois requis).",
+          title: "Prévision d'arrivée de patients : {{source}}",
+          monthlyRate: "Taux mensuel : {{rate}} patients/mois",
+          targetReachedIn: "Cible atteinte dans ~{{months}} mois",
+          targetAlreadyReached: "Cible déjà atteinte",
+          actual: "Réel",
+          projected: "Projeté",
+          confidenceBand: "IC 95 %",
+          targetLabel: "Cible : {{target}}",
+          footnote:
+            "Projection fondée sur une régression linéaire des 12 derniers mois. La bande de confiance s'élargit avec la distance de projection.",
+        },
+        consort: {
+          allSources: "Toutes les sources",
+          noResults: "Aucun résultat pour afficher le diagramme CONSORT.",
+          title: "Flux d'attrition de style CONSORT",
+          description:
+            "Montre comment les sources sont progressivement exclues à chaque critère.",
+          sources: "{{count}} sources",
+          excluded: "-{{count}} exclues",
+        },
+        impact: {
+          noData: "Aucune donnée d'impact des critères disponible.",
+          title: "Analyse d'impact des critères",
+          description:
+            "Montre combien de sources supplémentaires réussiraient si chaque critère était retiré. Référence : {{passed}}/{{total}} réussies.",
+          sourcesRecovered: "+{{count}} sources",
+          guidance:
+            "Le critère le plus influent est celui dont le retrait récupérerait le plus de sources. Envisagez d'assouplir les critères à fort impact si trop peu de sources sont éligibles.",
+        },
+        templates: {
+          loading: "Chargement des modèles...",
+          startFrom: "Commencer à partir d'un modèle",
+        },
+        table: {
+          source: "Source",
+          domains: "Domaines",
+          concepts: "Concepts",
+          visits: "Visites",
+          dates: "Dates",
+          patients: "Patients",
+          score: "Score",
+          overall: "Global",
+          forecast: "Prévision",
+        },
+        status: {
+          eligible: "ÉLIGIBLE",
+          ineligible: "NON ÉLIGIBLE",
+        },
+        form: {
+          title: "Nouvelle évaluation de faisabilité",
+          assessmentName: "Nom de l'évaluation",
+          assessmentNamePlaceholder: "p. ex. Étude des résultats du diabète",
+          requiredDomains: "Domaines requis",
+          minPatientCount: "Nombre minimal de patients (facultatif)",
+          minPatientCountPlaceholder: "p. ex. 1000",
+          domains: {
+            condition: "Affections",
+            drug: "Médicaments",
+            procedure: "Procédures",
+            measurement: "Mesures",
+            observation: "Observations",
+            visit: "Visites",
+          },
+        },
+      },
+      annotations: {
+        filters: {
+          allSources: "Toutes les sources",
+        },
+        tags: {
+          all: "Toutes",
+          dataEvent: "Événement de données",
+          researchNote: "Note de recherche",
+          actionItem: "Action à mener",
+          system: "Système",
+        },
+        viewModes: {
+          list: "Liste",
+          timeline: "Chronologie",
+        },
+        actions: {
+          reply: "Répondre",
+          delete: "Supprimer",
+        },
+        replyPlaceholder: "Rédiger une réponse...",
+        searchPlaceholder: "Rechercher des annotations...",
+        confirmDelete: "Supprimer cette annotation ?",
+        coordinateValue: "{{axis}} = {{value}}",
+        sourceContext: "sur {{source}}",
+        empty: {
+          selectSource: "Sélectionnez une source pour voir ses annotations",
+          noAnnotations: "Aucune annotation pour cette source",
+          noTimeline: "Aucune annotation à afficher dans la chronologie.",
+        },
+      },
+      coverage: {
+        title: "Matrice de couverture (rapport Strand)",
+        description:
+          "Disponibilité des domaines sur toutes les sources de données. Vert = forte densité, ambre = faible densité, rouge = aucune donnée.",
+        yes: "Oui",
+        densityTitle: "Densité : {{density}} par personne",
+        filters: {
+          view: "Vue :",
+        },
+        viewModes: {
+          records: "Enregistrements",
+          per_person: "Par personne",
+          date_range: "Plage de dates",
+        },
+        actions: {
+          exporting: "Export...",
+          exportCsv: "Exporter CSV",
+          expectedVsActual: "Attendu vs réel",
+        },
+        table: {
+          source: "Source",
+          domains: "Domaines",
+        },
+        expectedStates: {
+          expectedPresent: "Attendu et présent",
+          expectedMissing: "Attendu mais manquant",
+          unexpectedBonus: "Données bonus inattendues",
+          notExpectedAbsent: "Non attendu, absent",
+        },
+        messages: {
+          loading: "Chargement de la matrice de couverture...",
+          noSources: "Aucune source disponible pour l'analyse de couverture.",
+        },
+      },
+      dqHistory: {
+        filters: {
+          source: "Source :",
+          selectSource: "Sélectionner une source...",
+        },
+        tabs: {
+          trends: "Tendances",
+          heatmap: "Carte thermique",
+          sla: "SLA",
+          overlay: "Inter-sources",
+        },
+        sections: {
+          passRate: "Taux de réussite DQ par version",
+          heatmap: "Carte thermique catégorie x version",
+          sla: "Tableau de conformité SLA",
+          overlay: "Superposition DQ inter-sources",
+        },
+        passRate: "Taux de réussite",
+        deltaReportTitle: "Rapport delta : {{release}}",
+        status: {
+          new: "NOUVEAU",
+          existing: "EXISTANT",
+          resolved: "RÉSOLU",
+          stable: "STABLE",
+        },
+        result: {
+          pass: "RÉUSSITE",
+          fail: "ÉCHEC",
+        },
+        statusSummary: {
+          new: "{{count}} nouveaux",
+          existing: "{{count}} existants",
+          resolved: "{{count}} résolus",
+          stable: "{{count}} stables",
+        },
+        table: {
+          category: "Catégorie",
+          status: "Statut",
+          checkId: "ID du contrôle",
+          current: "Actuel",
+          previous: "Précédent",
+        },
+        sla: {
+          targetsTitle: "Cibles SLA (taux de réussite min. %)",
+          currentCompliance: "Conformité actuelle",
+          actual: "Réel",
+          target: "Cible",
+          errorBudget: "Budget d'erreur",
+          targetComparison: "{{actual}} % / cible {{target}} %",
+        },
+        messages: {
+          selectSource: "Sélectionnez une source pour voir l'historique DQ.",
+          loadingHistory: "Chargement de l'historique DQ...",
+          loadingDeltas: "Chargement des deltas...",
+          loadingHeatmap: "Chargement de la carte thermique...",
+          loadingOverlay: "Chargement des données de superposition...",
+          noOverlayData: "Aucune donnée DQ disponible entre les sources.",
+          noHeatmapData:
+            "Aucune donnée de carte thermique disponible. Exécutez DQD sur plusieurs versions pour voir les tendances par catégorie.",
+          noDeltaData: "Aucune donnée delta disponible pour cette version.",
+          saved: "Enregistré",
+          noSlaTargets:
+            "Aucune cible SLA définie. Définissez les cibles ci-dessus pour voir la conformité.",
+          noTrendData:
+            "Aucune donnée d'historique DQ disponible. Exécutez DQD sur au moins deux versions pour voir les tendances.",
+          trendHelp:
+            "Cliquez sur un point de version pour voir les détails du delta. Vert >90 %, ambre 80-90 %, rouge <80 %.",
+          overlayHelp:
+            "Taux de réussite DQ superposés sur toutes les sources dans une chronologie unifiée.",
+        },
+        actions: {
+          exporting: "Export...",
+          exportCsv: "Exporter CSV",
+          saving: "Enregistrement...",
+          saveSlaTargets: "Enregistrer les cibles SLA",
+        },
+      },
+      unmapped: {
+        filters: {
+          source: "Source :",
+          selectSource: "Sélectionner une source...",
+          release: "Version :",
+          table: "Table :",
+          allTables: "Toutes les tables",
+          searchPlaceholder: "Rechercher des codes sources...",
+        },
+        viewModes: {
+          table: "Tableau",
+          pareto: "Pareto",
+          vocabulary: "Vocabulaire",
+        },
+        actions: {
+          exporting: "Export...",
+          exportUsagiCsv: "Exporter CSV Usagi",
+          previous: "Préc.",
+          next: "Suiv.",
+        },
+        summaryBadge: "{{table}} ({{codes}} codes, {{records}} enregistrements)",
+        vocabularyValue: "({{vocabulary}})",
+        progress: {
+          noCodes: "Aucun code non mappé à examiner.",
+          title: "Progression du mappage",
+          reviewed: "{{percent}} % examinés",
+          segmentTitle: "{{label}} : {{count}} ({{percent}} %)",
+          label: "{{label}} :",
+          status: {
+            mapped: "Mappé",
+            deferred: "Différé",
+            excluded: "Exclu",
+            pending: "En attente",
+          },
+        },
+        sections: {
+          pareto: "Analyse Pareto des codes non mappés",
+          vocabulary: "Codes non mappés par vocabulaire",
+          suggestions: "Suggestions de mappage IA",
+        },
+        suggestions: {
+          generating: "Génération de suggestions via similarité pgvector...",
+          failed:
+            "Impossible de charger les suggestions. Le service IA ou les embeddings de concepts peuvent être indisponibles.",
+          empty: "Aucune suggestion disponible. Les embeddings de concepts ne sont peut-être pas chargés.",
+          id: "ID : {{id}}",
+          accepted: "Accepté",
+          accept: "Accepter",
+          skip: "Ignorer",
+        },
+        pareto: {
+          topCodesCoverage:
+            "Les 20 principaux codes couvrent {{percent}} % de tous les enregistrements non mappés",
+          percent: "{{value}} %",
+          cumulativePercent: "% cumulé",
+        },
+        vocabulary: {
+          total: "Total",
+          codeCount: "{{count}} codes",
+        },
+        messages: {
+          selectSource: "Sélectionnez une source pour voir les codes non mappés.",
+          loading: "Chargement des codes non mappés...",
+          emptyPareto: "Aucun code non mappé trouvé pour l'analyse Pareto.",
+          emptyVocabulary: "Aucune donnée de vocabulaire disponible.",
+          noneFound:
+            "Aucun code source non mappé trouvé. Tous les codes sont mappés vers des concepts standard OMOP.",
+          sortedByImpact: "Trié par score d'impact (nombre d'enregistrements x poids du domaine)",
+          showing: "Affichage de {{start}} à {{end}} sur {{total}}",
+        },
+        table: {
+          sourceCode: "Code source",
+          vocabulary: "Vocabulaire",
+          cdmTable: "Table CDM",
+          cdmField: "Champ CDM",
+          records: "Enregistrements",
+          impactScore: "Score d'impact",
+        },
+      },
+      conceptComparison: {
+        title: "Comparaison de concepts entre sources",
+        searchPlaceholder:
+          "Rechercher un concept (p. ex. 'Diabète de type 2', 'Metformine')...",
+        conceptMetadata: "{{domain}} | {{vocabulary}} | ID : {{id}}",
+        selectedConceptMetadata:
+          "{{domain}} | {{vocabulary}} | ID du concept : {{id}}",
+        temporalTrendTitle: "Tendance temporelle : {{concept}}",
+        addConceptPlaceholder: "Ajouter un autre concept ({{selected}}/{{max}} sélectionnés)...",
+        cdcNationalRate: "Taux national CDC : {{value}}/1000",
+        viewModes: {
+          single: "Unique",
+          temporal: "Temporel",
+          multi: "Multi-concept",
+          funnel: "Entonnoir d'attrition",
+        },
+        rateModes: {
+          crude: "Taux brut",
+          standardized: "Ajusté âge-sexe",
+        },
+        metrics: {
+          rate: "Taux/1000",
+          count: "Nombre",
+          perThousandShort: "{{value}}/1k",
+          perThousandLong: "{{value}} pour 1 000",
+        },
+        messages: {
+          noComparisonData: "Aucune donnée de comparaison disponible.",
+          noTemporalPrevalenceData: "Aucune donnée de prévalence temporelle disponible.",
+          selectTwoConcepts: "Sélectionnez au moins 2 concepts à comparer.",
+          searching: "Recherche...",
+          loadingComparison: "Chargement des données de comparaison...",
+          standardizedNote:
+            "Standardisé sur la population du recensement américain 2020 avec standardisation directe âge-sexe.",
+          searchToCompare:
+            "Recherchez un concept ci-dessus pour comparer sa prévalence dans toutes les sources de données.",
+          loadingTemporal: "Chargement de la prévalence temporelle...",
+          noTemporalData: "Aucune donnée temporelle disponible pour ce concept.",
+          searchForTemporal:
+            "Recherchez un concept ci-dessus pour voir sa tendance de prévalence temporelle entre les versions.",
+          loadingMulti: "Chargement de la comparaison multi-concepts...",
+          loadingFunnel: "Chargement de l'entonnoir d'attrition...",
+          noAttritionData:
+            "Aucune donnée d'attrition disponible pour les concepts sélectionnés.",
+          temporalPrevalenceHelp:
+            "Taux pour 1 000 personnes dans le temps.",
+        },
+      },
+      releases: {
+        releaseTypes: {
+          etl: "ETL",
+          scheduledEtl: "ETL planifié",
+          snapshot: "Instantané",
+        },
+        cdmVersion: "CDM {{version}}",
+        vocabularyVersion: "Vocabulaire {{version}}",
+        personCount: "{{value}} personnes",
+        recordCount: "{{value}} enregistrements",
+        actions: {
+          showDiff: "Afficher le diff",
+          editRelease: "Modifier la version",
+          createRelease: "Créer une version",
+          creating: "Création...",
+          create: "Créer",
+          saving: "Enregistrement...",
+          save: "Enregistrer",
+          cancel: "Annuler",
+        },
+        etl: {
+          provenance: "Provenance ETL",
+          ranBy: "Exécuté par :",
+          codeVersion: "Version du code :",
+          duration: "Durée :",
+          started: "Démarré :",
+          parameters: "Paramètres :",
+        },
+        duration: {
+          hoursMinutes: "{{hours}} h {{minutes}} min",
+          minutesSeconds: "{{minutes}} min {{seconds}} s",
+          seconds: "{{seconds}} s",
+        },
+        confirmDelete: "Supprimer cette version ?",
+        tabs: {
+          list: "Versions",
+          swimlane: "Couloirs",
+          calendar: "Calendrier",
+        },
+        timelineTitle: "Chronologie des versions (toutes les sources)",
+        calendarTitle: "Calendrier des versions",
+        selectSource: "Sélectionner une source",
+        form: {
+          releaseName: "Nom de la version",
+          cdmVersion: "Version CDM",
+          vocabularyVersion: "Version du vocabulaire",
+          etlVersion: "Version ETL",
+          notes: "Notes",
+          notesPlaceholder: "Notes de version...",
+          cdmVersionOptional: "Version CDM (facultative)",
+          vocabularyVersionOptional: "Version du vocabulaire (facultative)",
+          cdmVersionPlaceholder: "CDM v5.4",
+          vocabularyVersionPlaceholder: "2024-11-01",
+          etlVersionPlaceholder: "v1.2.3",
+        },
+        empty: {
+          selectSource: "Sélectionnez une source pour voir ses versions",
+          noReleases: "Aucune version pour cette source",
+          noReleaseData: "Aucune donnée de version disponible.",
+        },
+        calendar: {
+          noEvents: "Aucun événement de version.",
+          dayEvents: "{{date}} : {{count}} versions",
+          less: "Moins",
+          more: "Plus",
+        },
+        diff: {
+          computing: "Calcul du diff...",
+          title: "Diff de version",
+          initialRelease: "Version initiale -- aucune donnée précédente à comparer.",
+          persons: "Personnes :",
+          records: "Enregistrements :",
+          dqScore: "Score DQ :",
+          unmapped: "Non mappés :",
+          vocabUpdated: "Vocabulaire mis à jour",
+          domainDeltas: "Deltas par domaine :",
+        },
+      },
+      diversity: {
+        title: "Rapport de diversité",
+        description:
+          "Proportions démographiques entre les sources de données. Sources triées par taille de population.",
+        ratings: {
+          very_high: "très élevée",
+          high: "élevée",
+          moderate: "modérée",
+          low: "faible",
+        },
+        percentValue: "{{value}} %",
+        labelPercentValue: "{{label}} : {{value}} %",
+        personCount: "{{value}} personnes",
+        labels: {
+          gender: "Genre",
+          race: "Origine raciale",
+          ethnicity: "Ethnicité",
+          male: "Masculin",
+          female: "Féminin",
+        },
+        dimensions: {
+          composite: "Indice composite",
+          gender: "Genre",
+          race: "Origine raciale",
+          ethnicity: "Ethnicité",
+        },
+        tabs: {
+          overview: "Vue d'ensemble",
+          pyramid: "Pyramide des âges",
+          dap: "Écart DAP",
+          pooled: "Regroupé",
+          geographic: "Géographique",
+          trends: "Tendances",
+        },
+        filters: {
+          selectSource: "Sélectionner une source",
+        },
+        benchmarks: {
+          usCensus2020: "Recensement des États-Unis 2020",
+        },
+        dap: {
+          title: "Analyse des écarts d'inscription FDA DAP",
+          description:
+            "Compare la démographie des sources aux références du recensement des États-Unis 2020 afin d'identifier les écarts d'inscription.",
+          tooltip: "Réel : {{actual}} % | Cible : {{target}} % | Écart : {{gap}} %",
+          status: {
+            met: "Atteint (dans 2 %)",
+            gap: "Écart (2-10 %)",
+            critical: "Critique (>10 %)",
+          },
+        },
+        agePyramid: {
+          title: "{{source}} -- Distribution par âge",
+        },
+        benchmark: {
+          title: "Référence : {{label}}",
+          actual: "Réel",
+          benchmark: "Référence",
+        },
+        trends: {
+          title: "Tendances de diversité : {{source}}",
+          description:
+            "Indice de diversité de Simpson par version (0 = homogène, 1 = diversité maximale)",
+        },
+        geographic: {
+          loading: "Chargement des données de diversité géographique...",
+          noLocationData: "Aucune donnée de localisation disponible",
+          noAdiData:
+            "Données ADI indisponibles (le module GIS n'a peut-être pas chargé ADI)",
+          noGeographicData:
+            "Aucune donnée géographique disponible. Les sources n'ont peut-être pas de données de localisation dans la table person.",
+          statesCovered: "États / régions couverts",
+          networkMedianAdi: "ADI médian du réseau :",
+          sourcesWithLocation: "Sources avec données de localisation",
+          sourcesWithAdi: "Sources avec données ADI",
+          stateCount: "{{count}} États",
+          medianAdiValue: "ADI médian : {{value}}",
+          topStates: "Principaux États par nombre de patients",
+          adiDistribution: "Distribution des déciles ADI",
+          leastDeprived: "Moins défavorisé",
+          adiDecile: "Décile ADI",
+          mostDeprived: "Plus défavorisé",
+          decileTitle: "Décile {{decile}} : {{count}} codes ZIP",
+          adiRatings: {
+            low: "Faible défavorisation",
+            moderate: "Défavorisation modérée",
+            high: "Forte défavorisation (sous-desservi)",
+          },
+        },
+        pooled: {
+          title: "Démographie regroupée",
+          description:
+            "Sélectionnez plusieurs sources pour voir des profils démographiques fusionnés et pondérés.",
+          summary: "Total : {{persons}} personnes sur {{sources}} sources",
+        },
+        messages: {
+          loading: "Chargement des données de diversité...",
+          noSources: "Aucune source disponible pour l'analyse de diversité.",
+          noData: "Aucune donnée",
+          noTrendData: "Aucune donnée de version disponible pour les tendances de diversité.",
+          noTrendReleases:
+            "Aucune version trouvée pour cette source. Créez des versions pour suivre les tendances de diversité.",
+        },
+      },
+      cost: {
+        empty: {
+          title: "Aucune donnée de coût disponible",
+          message:
+            "Les données de coût nécessitent des jeux de données fondés sur des demandes de remboursement (p. ex. MarketScan, Optum, PharMetrics). Les jeux de données dérivés d'EHR comme SynPUF, MIMIC-IV et la plupart des données de centres médicaux universitaires ne renseignent généralement pas la table OMOP cost.",
+        },
+        filters: {
+          source: "Source :",
+          selectSource: "Sélectionner une source...",
+        },
+        tabs: {
+          overview: "Vue d'ensemble",
+          distribution: "Répartition",
+          "care-setting": "Cadre de soins",
+          trends: "Tendances",
+          drivers: "Facteurs de coût",
+          "cross-source": "Inter-sources",
+        },
+        messages: {
+          selectSource: "Sélectionnez une source pour voir les données de coût.",
+          loading: "Chargement des données de coût...",
+          distributionHelp:
+            "Boîtes à moustaches montrant la dispersion des coûts. Boîte = IQR (P25-P75), moustaches = P10-P90, ligne or = médiane, point rouge = moyenne.",
+          noDistributionData: "Aucune donnée de distribution disponible.",
+          noCareSettingData:
+            "Aucune donnée de coût par cadre de soins disponible. Nécessite des enregistrements de coût du domaine Visit joints à visit_occurrence.",
+          selectSourceForDrivers: "Sélectionnez une source pour voir les facteurs de coût.",
+          loadingDrivers: "Chargement des facteurs de coût...",
+          noDriverData: "Aucune donnée de facteur de coût disponible pour cette source.",
+          costDriversHelp:
+            "Top 10 des concepts par coût total. Cliquez sur une barre pour voir le détail du concept.",
+          loadingCrossSource: "Chargement de la comparaison inter-sources...",
+          noComparisonSources: "Aucune source disponible pour la comparaison.",
+          noCrossSourceCostData:
+            "Aucune source ne dispose de données de coût pour la comparaison.",
+          crossSourceHelp:
+            "Boîte à moustaches par source. Boîte = IQR (P25-P75), moustaches = P10-P90, ligne or = médiane.",
+        },
+        metrics: {
+          totalCost: "Coût total",
+          perPatientPerYear: "Par patient et par an",
+          persons: "Personnes",
+          observationYears: "{{value}} an(s)",
+          avgObservation: "Observation moyenne",
+          recordsAverage: "{{records}} enregistrements | moy. {{average}}",
+          recordCount: "{{count}} enregistrements",
+          patientCount: "{{count}} patients",
+          averagePerRecord: "Moy. : {{value}}/enregistrement",
+          medianValue: "Médiane : {{value}}",
+          meanValue: "Moyenne : {{value}}",
+          percent: "{{value}} %",
+          range: "Plage : {{min}} - {{max}}",
+        },
+        costTypeFilter: {
+          title: "Plusieurs types de coût détectés.",
+          message:
+            "Cette source comporte {{count}} concepts de type de coût différents. Mélanger montants facturés et montants payés produit des statistiques trompeuses. Filtrez par type de coût pour une analyse exacte.",
+          allTypes: "Tous les types",
+          option: "{{name}} ({{count}})",
+        },
+        sections: {
+          costByDomain: "Coût par domaine",
+          distributionByDomain: "Distribution des coûts par domaine",
+          costByCareSetting: "Coût par cadre de soins",
+          monthlyTrends: "Tendances mensuelles des coûts",
+          topCostDrivers: "Principaux facteurs de coût",
+          crossSourceComparison: "Comparaison des coûts entre sources",
+        },
+      },
+    },
+  },
   administration: {
     dashboard: {
       title: "Administration",
@@ -14388,6 +15367,985 @@ const deApp: MessageTree = mergeMessageTrees(enApp, {
       },
     },
   },
+  dataExplorer: {
+    page: {
+      title: "Daten-Explorer",
+      subtitle: "Achilles-Charakterisierungsergebnisse und Datenqualität erkunden",
+      selectSourceTitle: "Datenquelle auswählen",
+      selectSourceMessage:
+        "Wählen Sie oben in der Dropdownliste eine CDM-Quelle aus, um ihre Daten zu erkunden",
+    },
+    tabs: {
+      overview: "Übersicht",
+      domains: "Domänen",
+      temporal: "Zeitlich",
+      heel: "Achilles",
+      dqd: "Datenqualität",
+      ares: "Ares",
+    },
+    sourceSelector: {
+      loading: "Quellen werden geladen...",
+      placeholder: "Datenquelle auswählen",
+    },
+    domains: {
+      condition: "Erkrankungen",
+      drug: "Arzneimittel",
+      procedure: "Prozeduren",
+      measurement: "Messungen",
+      observation: "Beobachtungen",
+      visit: "Besuche",
+    },
+    overview: {
+      metrics: {
+        persons: "Personen",
+        personsTotal: "{{value}} gesamt",
+        medianObsDuration: "Median der Beobachtungsdauer",
+        durationDays: "{{value}} Tage",
+        observationPeriods: "{{value}} Beobachtungsperioden",
+        totalEvents: "Ereignisse gesamt",
+        acrossAllCdmTables: "Über alle CDM-Tabellen",
+        dataCompleteness: "Datenvollständigkeit",
+        tablesPopulated: "{{populated}}/{{total}} Tabellen befüllt",
+      },
+      sections: {
+        demographics: "Populationsdemografie",
+        observationPeriods: "Analyse der Beobachtungsperioden",
+        domainRecordProportions: "Datensatzanteile nach Domäne",
+        dataDensityOverTime: "Datendichte über die Zeit",
+        recordDistribution: "Datensatzverteilung",
+      },
+      cards: {
+        genderDistribution: "Geschlechterverteilung",
+        ethnicity: "Ethnizität",
+        race: "Ethnie",
+        topTen: "Top 10",
+        yearOfBirthDistribution: "Verteilung des Geburtsjahrs",
+        yearOfBirthSubtitle: "Histogramm mit geglätteter Dichte (gold)",
+        cumulativeObservationDuration: "Kumulative Beobachtungsdauer",
+        cumulativeObservationSubtitle:
+          "Kaplan-Meier-Stil: % der Personen mit Beobachtung >= X Tage",
+        observationStartEndDates: "Beobachtungs-Start-/Enddaten",
+        observationStartEndSubtitle:
+          "Zeitliche Verteilung der Beobachtungsperioden",
+        observationPeriodDurationDays: "Dauer der Beobachtungsperiode (Tage)",
+        observationPeriodsPerPerson: "Beobachtungsperioden pro Person",
+        observationPeriodsPerPersonSubtitle:
+          "Verteilung, wie viele Perioden jede Person hat",
+        clinicalDataDomains: "Klinische Datendomänen",
+        clinicalDataDomainsSubtitle:
+          "Nach Datensatzanzahl sortiert - klicken Sie auf eine Domäne, um ihre Konzepte zu erkunden",
+        recordsByDomainAndYear: "Datensätze nach Domäne und Jahr",
+        recordsByDomainAndYearSubtitle:
+          "Die Farbintensität zeigt das Datensatzvolumen je Domäne und Jahr",
+        cdmTableRecordCounts: "Datensatzanzahlen der CDM-Tabellen",
+        cdmTableRecordCountsSubtitle:
+          "Logarithmische Skala - alle Tabellen bleiben unabhängig von der Größenordnung sichtbar",
+      },
+      messages: {
+        runAchillesForTemporalData:
+          "Führen Sie Achilles aus, um zeitliche Trenddaten zu erzeugen",
+      },
+    },
+    charts: {
+      common: {
+        records: "{{count}} Datensätze",
+        persons: "{{count}} Personen",
+        total: "Gesamt",
+        separator: "·",
+      },
+      boxPlot: {
+        noDistributionData: "Keine Verteilungsdaten",
+        ariaLabel: "Boxplot",
+        labels: {
+          p25: "P25: {{value}}",
+          median: "Median: {{value}}",
+          p75: "P75: {{value}}",
+        },
+      },
+      cumulativeObservation: {
+        tooltipValue: "{{days}} Tage - {{pct}} % der Personen",
+        xAxisLabel: "Beobachtungsdauer (Tage)",
+        labels: {
+          min: "Min.",
+          p10: "P10",
+          p25: "P25",
+          median: "Median",
+          p75: "P75",
+          p90: "P90",
+          max: "Max.",
+        },
+      },
+      demographics: {
+        ageDistribution: "Altersverteilung",
+        noAgeData: "Keine Altersverteilungsdaten",
+        age: "Alter",
+        male: "Männlich",
+        female: "Weiblich",
+      },
+      heatmap: {
+        ariaLabel: "Heatmap der Datendichte",
+      },
+      hierarchy: {
+        noData: "Keine Hierarchiedaten verfügbar",
+        classificationHierarchy: "Klassifikationshierarchie",
+        back: "Zurück",
+      },
+      periodCount: {
+        observationPeriods: "{{count}} Beobachtungsperiode(n)",
+      },
+      recordCounts: {
+        noData: "Keine Datensatzanzahldaten verfügbar",
+        title: "Datensatzanzahlen nach CDM-Tabelle",
+      },
+      temporalTrend: {
+        events: "Ereignisse",
+        secondary: "Sekundär",
+      },
+      topConcepts: {
+        noData: "Keine Konzeptdaten verfügbar",
+        title: "Häufigste Konzepte",
+        id: "ID: {{id}}",
+        prevalence: "Prävalenz: {{value}} %",
+      },
+      yearOfBirth: {
+        year: "Jahr: {{year}}",
+      },
+    },
+    domain: {
+      metrics: {
+        totalRecords: "Datensätze gesamt",
+        distinctConcepts: "Eindeutige Konzepte",
+      },
+      loadFailed: "{{domain}}-Daten konnten nicht geladen werden",
+      temporalTrendTitle: "{{domain}} Zeittrend",
+    },
+    temporal: {
+      domainsLabel: "Domänen:",
+      multiDomainOverlay: "Zeitliche Überlagerung mehrerer Domänen",
+      emptyTitle: "Keine zeitlichen Daten verfügbar",
+      emptyHelp: "Wählen Sie oben Domänen aus und stellen Sie sicher, dass Achilles ausgeführt wurde",
+    },
+    concept: {
+      details: "Konzeptdetails",
+      loadFailed: "Konzeptdetails konnten nicht geladen werden",
+      genderDistribution: "Geschlechterverteilung",
+      temporalTrend: "Zeittrend",
+      typeDistribution: "Typverteilung",
+      ageAtFirstOccurrence: "Alter beim ersten Auftreten",
+      valueByLabel: "{{label}}: {{value}}",
+    },
+    achilles: {
+      severities: {
+        error: "Fehler",
+        warning: "Warnung",
+        notification: "Benachrichtigung",
+      },
+      severityCounts: {
+        error: "Fehler",
+        warning: "Warnungen",
+        notification: "Benachrichtigungen",
+      },
+      actions: {
+        running: "Läuft...",
+        runHeelChecks: "Heel-Prüfungen ausführen",
+        runAchilles: "Achilles ausführen",
+        selectRun: "Ausführung auswählen",
+        viewLiveProgress: "Live-Fortschritt anzeigen",
+        viewDetails: "Details anzeigen",
+      },
+      runShort: "Ausführung {{id}}...",
+      statuses: {
+        completed: "Abgeschlossen",
+        failed: "Fehlgeschlagen",
+        running: "Läuft",
+        pending: "Ausstehend",
+      },
+      labels: {
+        status: "Zustand",
+        total: "gesamt",
+        passed: "bestanden",
+        failed: "fehlgeschlagen",
+        durationSeconds: "Dauer: {{value}} s",
+      },
+      heel: {
+        title: "Heel-Prüfungen",
+        dispatchFailed: "Heel-Prüfungen konnten nicht gestartet werden",
+        running: "Heel-Prüfungen laufen...",
+        empty: "Noch keine Heel-Prüfungen ausgeführt",
+        allPassed: "Alle Prüfungen bestanden",
+        issueSummary:
+          "{{count}} Probleme: {{errors}}F / {{warnings}}W / {{notifications}}B",
+      },
+      characterization: {
+        title: "Achilles-Charakterisierung",
+        dispatchFailed: "Achilles-Ausführung konnte nicht gestartet werden",
+        empty: "Noch keine Achilles-Ausführungen",
+        emptyHelp: 'Klicken Sie auf "Achilles ausführen", um Ihre Daten zu charakterisieren',
+      },
+      runModal: {
+        completedIn: "Abgeschlossen in {{duration}}",
+        analysisProgress: "{{done}} von {{total}} Analysen",
+        elapsed: "Verstrichen:",
+        passedCount: "{{count}} bestanden",
+        failedCount: "{{count}} fehlgeschlagen",
+        totalDuration: "{{duration}} gesamt",
+        remaining: "~{{duration}} verbleibend",
+        waiting: "Warten auf den Start der Analysen...",
+        done: "Fertig",
+        runInBackground: "Im Hintergrund ausführen",
+      },
+    },
+    dqd: {
+      categories: {
+        completeness: "Vollständigkeit",
+        conformance: "Konformität",
+        plausibility: "Plausibilität",
+        overall: "Gesamt",
+      },
+      progress: {
+        title: "DQD-Analyse läuft",
+        checksCompleted: "{{completed}} von {{total}} Prüfungen abgeschlossen",
+        waiting: "Warten...",
+        running: "Läuft:",
+      },
+      labels: {
+        passed: "bestanden",
+        failed: "fehlgeschlagen",
+        remaining: "verbleibend",
+        warnings: "Warnungen",
+      },
+      severity: {
+        error: "Fehler",
+        warning: "Warnung",
+        info: "Information",
+      },
+      categoryPanel: {
+        checkCount: "{{count}} Prüfungen",
+        passRate: "{{percent}} % Bestehensrate",
+        table: {
+          check: "Prüfung",
+          table: "Tabelle",
+          column: "Spalte",
+          severity: "Schweregrad",
+          violationPercent: "Verstoß %",
+        },
+      },
+      scorecard: {
+        emptyTitle: "Keine DQD-Ergebnisse verfügbar",
+        emptyDescription: "Führen Sie eine Data Quality Dashboard-Analyse aus, um Ergebnisse zu sehen",
+        overallScore: "Gesamtpunktzahl",
+        passedFraction: "{{passed}}/{{total}} bestanden",
+      },
+      tableGrid: {
+        noResults: "Keine DQD-Ergebnisse zum Anzeigen",
+        title: "Tabelle-x-Kategorie-Heatmap",
+        cdmTable: "CDM-Tabelle",
+      },
+      actions: {
+        runDqd: "DQD ausführen",
+      },
+      dispatchFailed: "DQD-Ausführung konnte nicht gestartet werden",
+      empty: "Noch keine DQD-Ausführungen",
+      emptyHelp: 'Klicken Sie auf "DQD ausführen", um eine Datenqualitätsanalyse zu starten',
+    },
+    ares: {
+      name: "Ares",
+      breadcrumbSeparator: ">",
+      comingSoon: "In einer künftigen Phase verfügbar",
+      sections: {
+        hub: "Zentrale",
+        networkOverview: "Netzwerkübersicht",
+        conceptComparison: "Konzeptvergleich",
+        dqHistory: "DQ-Verlauf",
+        coverage: "Abdeckung",
+        coverageMatrix: "Abdeckungsmatrix",
+        feasibility: "Machbarkeit",
+        diversity: "Diversität",
+        releases: "Versionen",
+        unmappedCodes: "Nicht gemappte Codes",
+        cost: "Kosten",
+        costAnalysis: "Kostenanalyse",
+        annotations: "Annotationen",
+      },
+      cards: {
+        sourcesBelowDq: "{{value}} Quellen unter 80 % DQ",
+        networkOverviewDescription:
+          "Quellengesundheit, DQ-Scores und Trendindikatoren",
+        conceptComparisonDescription:
+          "Konzeptprävalenz über Quellen hinweg vergleichen",
+        dqHistoryDescription: "Durchschnittlicher Netzwerk-DQ-Score je Release",
+        coverageDescription: "Domäne x Quellenverfügbarkeit",
+        feasibilityDescription: "Kann Ihr Netzwerk eine Studie unterstützen?",
+        diversityDescription: "Demografische Parität zwischen Quellen",
+        releasesDescription: "Versionsverlauf je Quelle",
+        unmappedCodesDescription:
+          "Quellcodes ohne Standard-Mappings",
+        annotationsDescription: "Diagrammnotizen über alle Quellen",
+        costDescription: "Kostendaten nach Domäne und über die Zeit",
+      },
+      networkOverview: {
+        title: "Netzwerkübersicht",
+        networkTotal: "Netzwerk gesamt",
+        percent: "{{value}} %",
+        averagePercent: "{{value}} % durchschn.",
+        actions: {
+          dqRadar: "DQ-Radar",
+          hideRadar: "Radar ausblenden",
+        },
+        metrics: {
+          dataSources: "Datenquellen",
+          avgDqScore: "Durchschn. DQ-Score",
+          unmappedCodes: "Nicht gemappte Codes",
+          needAttention: "Aufmerksamkeit nötig",
+          totalPersons: "Personen gesamt",
+        },
+        table: {
+          source: "Quelle",
+          dqScore: "DQ-Score",
+          dqTrend: "DQ-Trend",
+          freshness: "Aktualität",
+          domains: "Domänen",
+          persons: "Personen",
+          latestRelease: "Aktuellstes Release",
+        },
+        messages: {
+          loading: "Netzwerkübersicht wird geladen...",
+          noData: "Keine Netzwerkdaten verfügbar.",
+          noReleases: "Keine Releases",
+        },
+        radar: {
+          title: "DQ-Radarprofil (Kahn-Dimensionen)",
+          description:
+            "Bestehensraten über die fünf Kahn-Datenqualitätsdimensionen. Höhere Werte bedeuten bessere Qualität.",
+          noData: "Keine DQ-Radardaten verfügbar.",
+          dimensions: {
+            completeness: "Vollständigkeit",
+            conformanceValue: "Konformität (Wert)",
+            conformanceRelational: "Konformität (relational)",
+            plausibilityAtemporal: "Plausibilität (atemporal)",
+            plausibilityTemporal: "Plausibilität (zeitlich)",
+          },
+        },
+      },
+      feasibility: {
+        title: "Machbarkeitsbewertungen",
+        assessmentMeta: "{{date}} | {{sources}} Quellen bewertet",
+        passedSummary: "{{passed}}/{{total}} bestanden",
+        resultsTitle: "Ergebnisse: {{name}}",
+        scoreLabel: "{{score}} % Score",
+        empty:
+          "Noch keine Bewertungen. Erstellen Sie eine, um zu bewerten, ob Ihr Netzwerk eine vorgeschlagene Studie unterstützen kann.",
+        actions: {
+          newAssessment: "+ Neue Bewertung",
+          running: "Läuft...",
+          runAssessment: "Bewertung ausführen",
+          hide: "Ausblenden",
+          forecast: "Prognose",
+        },
+        filters: {
+          view: "Ansicht:",
+        },
+        detailViews: {
+          table: "Score-Tabelle",
+          impact: "Auswirkungsanalyse",
+          consort: "CONSORT-Fluss",
+        },
+        criteria: {
+          domains: "Domänen",
+          concepts: "Konzepte",
+          visitTypes: "Besuchstypen",
+          dateRange: "Datumsbereich",
+          patientCount: "Patientenzahl",
+        },
+        forecast: {
+          insufficientData:
+            "Unzureichende historische Daten für Prognose (mindestens 6 Monate erforderlich).",
+          title: "Patientenzugangsprognose: {{source}}",
+          monthlyRate: "Monatliche Rate: {{rate}} Patienten/Monat",
+          targetReachedIn: "Ziel in ~{{months}} Monaten erreicht",
+          targetAlreadyReached: "Ziel bereits erreicht",
+          actual: "Ist",
+          projected: "Prognostiziert",
+          confidenceBand: "95 %-KI",
+          targetLabel: "Ziel: {{target}}",
+          footnote:
+            "Projektion basiert auf linearer Regression der letzten 12 Monate. Das Konfidenzband wird mit zunehmender Projektionsdistanz breiter.",
+        },
+        consort: {
+          allSources: "Alle Quellen",
+          noResults: "Keine Ergebnisse zum Anzeigen des CONSORT-Diagramms.",
+          title: "Attritionsfluss im CONSORT-Stil",
+          description:
+            "Zeigt, wie Quellen durch jedes Kriterientor schrittweise ausgeschlossen werden.",
+          sources: "{{count}} Quellen",
+          excluded: "-{{count}} ausgeschlossen",
+        },
+        impact: {
+          noData: "Keine Daten zur Kriterienauswirkung verfügbar.",
+          title: "Kriterien-Auswirkungsanalyse",
+          description:
+            "Zeigt, wie viele zusätzliche Quellen bestehen würden, wenn jedes Kriterium entfernt würde. Ausgangswert: {{passed}}/{{total}} bestanden.",
+          sourcesRecovered: "+{{count}} Quellen",
+          guidance:
+            "Das wirkungsvollste Kriterium ist dasjenige, dessen Entfernung die meisten Quellen zurückgewinnen würde. Erwägen Sie, Kriterien mit hoher Wirkung zu lockern, wenn zu wenige Quellen qualifizieren.",
+        },
+        templates: {
+          loading: "Vorlagen werden geladen...",
+          startFrom: "Aus Vorlage starten",
+        },
+        table: {
+          source: "Quelle",
+          domains: "Domänen",
+          concepts: "Konzepte",
+          visits: "Besuche",
+          dates: "Daten",
+          patients: "Patienten",
+          score: "Score",
+          overall: "Gesamt",
+          forecast: "Prognose",
+        },
+        status: {
+          eligible: "GEEIGNET",
+          ineligible: "NICHT GEEIGNET",
+        },
+        form: {
+          title: "Neue Machbarkeitsbewertung",
+          assessmentName: "Bewertungsname",
+          assessmentNamePlaceholder: "z. B. Diabetes-Outcomes-Studie",
+          requiredDomains: "Erforderliche Domänen",
+          minPatientCount: "Minimale Patientenzahl (optional)",
+          minPatientCountPlaceholder: "z. B. 1000",
+          domains: {
+            condition: "Erkrankungen",
+            drug: "Arzneimittel",
+            procedure: "Prozeduren",
+            measurement: "Messungen",
+            observation: "Beobachtungen",
+            visit: "Besuche",
+          },
+        },
+      },
+      annotations: {
+        filters: {
+          allSources: "Alle Quellen",
+        },
+        tags: {
+          all: "Alle",
+          dataEvent: "Datenereignis",
+          researchNote: "Forschungsnotiz",
+          actionItem: "Aufgabe",
+          system: "System",
+        },
+        viewModes: {
+          list: "Liste",
+          timeline: "Zeitachse",
+        },
+        actions: {
+          reply: "Antworten",
+          delete: "Löschen",
+        },
+        replyPlaceholder: "Antwort schreiben...",
+        searchPlaceholder: "Annotationen suchen...",
+        confirmDelete: "Diese Annotation löschen?",
+        coordinateValue: "{{axis}} = {{value}}",
+        sourceContext: "auf {{source}}",
+        empty: {
+          selectSource: "Wählen Sie eine Quelle aus, um ihre Annotationen anzuzeigen",
+          noAnnotations: "Noch keine Annotationen für diese Quelle",
+          noTimeline: "Keine Annotationen für die Zeitachse.",
+        },
+      },
+      coverage: {
+        title: "Abdeckungsmatrix (Strand-Bericht)",
+        description:
+          "Domänenverfügbarkeit über alle Datenquellen. Grün = hohe Dichte, gelb = niedrige Dichte, rot = keine Daten.",
+        yes: "Ja",
+        densityTitle: "Dichte: {{density}} pro Person",
+        filters: {
+          view: "Ansicht:",
+        },
+        viewModes: {
+          records: "Datensätze",
+          per_person: "Pro Person",
+          date_range: "Datumsbereich",
+        },
+        actions: {
+          exporting: "Exportiert...",
+          exportCsv: "CSV exportieren",
+          expectedVsActual: "Erwartet vs. tatsächlich",
+        },
+        table: {
+          source: "Quelle",
+          domains: "Domänen",
+        },
+        expectedStates: {
+          expectedPresent: "Erwartet und vorhanden",
+          expectedMissing: "Erwartet, aber fehlend",
+          unexpectedBonus: "Unerwartete Zusatzdaten",
+          notExpectedAbsent: "Nicht erwartet, nicht vorhanden",
+        },
+        messages: {
+          loading: "Abdeckungsmatrix wird geladen...",
+          noSources: "Keine Quellen für die Abdeckungsanalyse verfügbar.",
+        },
+      },
+      dqHistory: {
+        filters: {
+          source: "Quelle:",
+          selectSource: "Quelle auswählen...",
+        },
+        tabs: {
+          trends: "Verläufe",
+          heatmap: "Wärmekarte",
+          sla: "SLA",
+          overlay: "Quellenübergreifend",
+        },
+        sections: {
+          passRate: "DQ-Bestehensrate über Releases",
+          heatmap: "Kategorie-x-Release-Heatmap",
+          sla: "SLA-Compliance-Dashboard",
+          overlay: "Quellenübergreifende DQ-Überlagerung",
+        },
+        passRate: "Bestehensrate",
+        deltaReportTitle: "Delta-Bericht: {{release}}",
+        status: {
+          new: "NEU",
+          existing: "BESTEHEND",
+          resolved: "GELÖST",
+          stable: "STABIL",
+        },
+        result: {
+          pass: "BESTANDEN",
+          fail: "FEHLGESCHLAGEN",
+        },
+        statusSummary: {
+          new: "{{count}} neu",
+          existing: "{{count}} bestehend",
+          resolved: "{{count}} gelöst",
+          stable: "{{count}} stabil",
+        },
+        table: {
+          category: "Kategorie",
+          status: "Status",
+          checkId: "Prüfungs-ID",
+          current: "Aktuell",
+          previous: "Vorherig",
+        },
+        sla: {
+          targetsTitle: "SLA-Ziele (min. Bestehensrate %)",
+          currentCompliance: "Aktuelle Compliance",
+          actual: "Ist",
+          target: "Ziel",
+          errorBudget: "Fehlerbudget",
+          targetComparison: "{{actual}} % / {{target}} % Ziel",
+        },
+        messages: {
+          selectSource: "Wählen Sie eine Quelle aus, um den DQ-Verlauf anzuzeigen.",
+          loadingHistory: "DQ-Verlauf wird geladen...",
+          loadingDeltas: "Deltas werden geladen...",
+          loadingHeatmap: "Heatmap wird geladen...",
+          loadingOverlay: "Überlagerungsdaten werden geladen...",
+          noOverlayData: "Keine DQ-Daten über Quellen hinweg verfügbar.",
+          noHeatmapData:
+            "Keine Heatmap-Daten verfügbar. Führen Sie DQD auf mehreren Releases aus, um Kategorietrends zu sehen.",
+          noDeltaData: "Keine Delta-Daten für dieses Release verfügbar.",
+          saved: "Gespeichert",
+          noSlaTargets:
+            "Keine SLA-Ziele definiert. Legen Sie oben Ziele fest, um Compliance zu sehen.",
+          noTrendData:
+            "Keine DQ-Verlaufsdaten verfügbar. Führen Sie DQD auf mindestens zwei Releases aus, um Trends zu sehen.",
+          trendHelp:
+            "Klicken Sie auf einen Release-Punkt, um Delta-Details zu sehen. Grün >90 %, gelb 80-90 %, rot <80 %.",
+          overlayHelp:
+            "DQ-Bestehensraten über alle Quellen auf einer gemeinsamen Zeitachse.",
+        },
+        actions: {
+          exporting: "Exportiert...",
+          exportCsv: "CSV exportieren",
+          saving: "Speichert...",
+          saveSlaTargets: "SLA-Ziele speichern",
+        },
+      },
+      unmapped: {
+        filters: {
+          source: "Quelle:",
+          selectSource: "Quelle auswählen...",
+          release: "Version:",
+          table: "Tabelle:",
+          allTables: "Alle Tabellen",
+          searchPlaceholder: "Quellcodes suchen...",
+        },
+        viewModes: {
+          table: "Tabelle",
+          pareto: "Pareto",
+          vocabulary: "Vokabular",
+        },
+        actions: {
+          exporting: "Exportiert...",
+          exportUsagiCsv: "Usagi-CSV exportieren",
+          previous: "Zurück",
+          next: "Weiter",
+        },
+        summaryBadge: "{{table}} ({{codes}} Codes, {{records}} Datensätze)",
+        vocabularyValue: "({{vocabulary}})",
+        progress: {
+          noCodes: "Keine nicht gemappten Codes zu prüfen.",
+          title: "Mapping-Fortschritt",
+          reviewed: "{{percent}} % geprüft",
+          segmentTitle: "{{label}}: {{count}} ({{percent}} %)",
+          label: "{{label}}:",
+          status: {
+            mapped: "Gemappt",
+            deferred: "Zurückgestellt",
+            excluded: "Ausgeschlossen",
+            pending: "Ausstehend",
+          },
+        },
+        sections: {
+          pareto: "Pareto-Analyse nicht gemappter Codes",
+          vocabulary: "Nicht gemappte Codes nach Vokabular",
+          suggestions: "KI-Mapping-Vorschläge",
+        },
+        suggestions: {
+          generating: "Vorschläge werden über pgvector-Ähnlichkeit erzeugt...",
+          failed:
+            "Vorschläge konnten nicht geladen werden. Der KI-Dienst oder Konzept-Embeddings sind möglicherweise nicht verfügbar.",
+          empty: "Keine Vorschläge verfügbar. Konzept-Embeddings sind möglicherweise nicht geladen.",
+          id: "ID: {{id}}",
+          accepted: "Akzeptiert",
+          accept: "Akzeptieren",
+          skip: "Überspringen",
+        },
+        pareto: {
+          topCodesCoverage:
+            "Die Top-20-Codes decken {{percent}} % aller nicht gemappten Datensätze ab",
+          percent: "{{value}} %",
+          cumulativePercent: "Kumuliert %",
+        },
+        vocabulary: {
+          total: "Gesamt",
+          codeCount: "{{count}} Codes",
+        },
+        messages: {
+          selectSource: "Wählen Sie eine Quelle aus, um nicht gemappte Codes anzuzeigen.",
+          loading: "Nicht gemappte Codes werden geladen...",
+          emptyPareto: "Keine nicht gemappten Codes für die Pareto-Analyse gefunden.",
+          emptyVocabulary: "Keine Vokabulardaten verfügbar.",
+          noneFound:
+            "Keine nicht gemappten Quellcodes gefunden. Alle Codes sind OMOP-Standardkonzepten zugeordnet.",
+          sortedByImpact: "Nach Auswirkungsscore sortiert (Datensatzanzahl x Domänengewicht)",
+          showing: "{{start}}-{{end}} von {{total}} werden angezeigt",
+        },
+        table: {
+          sourceCode: "Quellcode",
+          vocabulary: "Vokabular",
+          cdmTable: "CDM-Tabelle",
+          cdmField: "CDM-Feld",
+          records: "Datensätze",
+          impactScore: "Auswirkungsscore",
+        },
+      },
+      conceptComparison: {
+        title: "Konzeptvergleich über Quellen hinweg",
+        searchPlaceholder:
+          "Konzept suchen (z. B. 'Typ-2-Diabetes', 'Metformin')...",
+        conceptMetadata: "{{domain}} | {{vocabulary}} | ID: {{id}}",
+        selectedConceptMetadata:
+          "{{domain}} | {{vocabulary}} | Konzept-ID: {{id}}",
+        temporalTrendTitle: "Zeittrend: {{concept}}",
+        addConceptPlaceholder: "Weiteres Konzept hinzufügen ({{selected}}/{{max}} ausgewählt)...",
+        cdcNationalRate: "Nationale CDC-Rate: {{value}}/1000",
+        viewModes: {
+          single: "Einzeln",
+          temporal: "Zeitlich",
+          multi: "Multi-Konzept",
+          funnel: "Attritions-Funnel",
+        },
+        rateModes: {
+          crude: "Rohrate",
+          standardized: "Alters-/Geschlechtsadjustiert",
+        },
+        metrics: {
+          rate: "Häufigkeit/1000",
+          count: "Anzahl",
+          perThousandShort: "{{value}}/1k",
+          perThousandLong: "{{value}} pro 1.000",
+        },
+        messages: {
+          noComparisonData: "Keine Vergleichsdaten verfügbar.",
+          noTemporalPrevalenceData: "Keine zeitlichen Prävalenzdaten verfügbar.",
+          selectTwoConcepts: "Wählen Sie mindestens 2 Konzepte zum Vergleich aus.",
+          searching: "Suche...",
+          loadingComparison: "Vergleichsdaten werden geladen...",
+          standardizedNote:
+            "Standardisiert auf die US-Census-2020-Population mittels direkter Alters-/Geschlechtsstandardisierung.",
+          searchToCompare:
+            "Suchen Sie oben nach einem Konzept, um seine Prävalenz über alle Datenquellen zu vergleichen.",
+          loadingTemporal: "Zeitliche Prävalenz wird geladen...",
+          noTemporalData: "Keine zeitlichen Daten für dieses Konzept verfügbar.",
+          searchForTemporal:
+            "Suchen Sie oben nach einem Konzept, um seinen zeitlichen Prävalenztrend über Releases hinweg zu sehen.",
+          loadingMulti: "Multi-Konzeptvergleich wird geladen...",
+          loadingFunnel: "Attritions-Funnel wird geladen...",
+          noAttritionData:
+            "Keine Attritionsdaten für die ausgewählten Konzepte verfügbar.",
+          temporalPrevalenceHelp:
+            "Rate pro 1.000 Personen im Zeitverlauf.",
+        },
+      },
+      releases: {
+        releaseTypes: {
+          etl: "ETL",
+          scheduledEtl: "Geplante ETL",
+          snapshot: "Momentaufnahme",
+        },
+        cdmVersion: "CDM {{version}}",
+        vocabularyVersion: "Vokabular {{version}}",
+        personCount: "{{value}} Personen",
+        recordCount: "{{value}} Datensätze",
+        actions: {
+          showDiff: "Diff anzeigen",
+          editRelease: "Release bearbeiten",
+          createRelease: "Release erstellen",
+          creating: "Erstellt...",
+          create: "Erstellen",
+          saving: "Speichert...",
+          save: "Speichern",
+          cancel: "Abbrechen",
+        },
+        etl: {
+          provenance: "ETL-Provenienz",
+          ranBy: "Ausgeführt von:",
+          codeVersion: "Codeversion:",
+          duration: "Dauer:",
+          started: "Gestartet:",
+          parameters: "Parameter:",
+        },
+        duration: {
+          hoursMinutes: "{{hours}} h {{minutes}} min",
+          minutesSeconds: "{{minutes}} min {{seconds}} s",
+          seconds: "{{seconds}} s",
+        },
+        confirmDelete: "Dieses Release löschen?",
+        tabs: {
+          list: "Versionen",
+          swimlane: "Bahnen",
+          calendar: "Kalender",
+        },
+        timelineTitle: "Release-Zeitachse (alle Quellen)",
+        calendarTitle: "Release-Kalender",
+        selectSource: "Quelle auswählen",
+        form: {
+          releaseName: "Release-Name",
+          cdmVersion: "CDM-Version",
+          vocabularyVersion: "Vokabularversion",
+          etlVersion: "ETL-Version",
+          notes: "Notizen",
+          notesPlaceholder: "Release-Notizen...",
+          cdmVersionOptional: "CDM-Version (optional)",
+          vocabularyVersionOptional: "Vokabularversion (optional)",
+          cdmVersionPlaceholder: "CDM v5.4",
+          vocabularyVersionPlaceholder: "2024-11-01",
+          etlVersionPlaceholder: "v1.2.3",
+        },
+        empty: {
+          selectSource: "Wählen Sie eine Quelle aus, um ihre Releases anzuzeigen",
+          noReleases: "Noch keine Releases für diese Quelle",
+          noReleaseData: "Keine Release-Daten verfügbar.",
+        },
+        calendar: {
+          noEvents: "Keine Release-Ereignisse.",
+          dayEvents: "{{date}}: {{count}} Releases",
+          less: "Weniger",
+          more: "Mehr",
+        },
+        diff: {
+          computing: "Diff wird berechnet...",
+          title: "Release-Diff",
+          initialRelease: "Initiales Release -- keine vorherigen Daten zum Vergleichen.",
+          persons: "Personen:",
+          records: "Datensätze:",
+          dqScore: "DQ-Score:",
+          unmapped: "Nicht gemappt:",
+          vocabUpdated: "Vokabular aktualisiert",
+          domainDeltas: "Domänen-Deltas:",
+        },
+      },
+      diversity: {
+        title: "Diversitätsbericht",
+        description:
+          "Demografische Anteile über Datenquellen hinweg. Quellen nach Populationsgröße sortiert.",
+        ratings: {
+          very_high: "sehr hoch",
+          high: "hoch",
+          moderate: "moderat",
+          low: "niedrig",
+        },
+        percentValue: "{{value}} %",
+        labelPercentValue: "{{label}}: {{value}} %",
+        personCount: "{{value}} Personen",
+        labels: {
+          gender: "Geschlecht",
+          race: "Ethnie",
+          ethnicity: "Ethnizität",
+          male: "Männlich",
+          female: "Weiblich",
+        },
+        dimensions: {
+          composite: "Gesamt",
+          gender: "Geschlecht",
+          race: "Ethnie",
+          ethnicity: "Ethnizität",
+        },
+        tabs: {
+          overview: "Übersicht",
+          pyramid: "Alterspyramide",
+          dap: "DAP-Lücke",
+          pooled: "Gepoolt",
+          geographic: "Geografisch",
+          trends: "Verläufe",
+        },
+        filters: {
+          selectSource: "Quelle auswählen",
+        },
+        benchmarks: {
+          usCensus2020: "US Census 2020",
+        },
+        dap: {
+          title: "FDA-DAP-Analyse von Einschlusslücken",
+          description:
+            "Vergleicht Quelldemografie mit US-Census-2020-Benchmarks, um Einschlusslücken zu erkennen.",
+          tooltip: "Ist: {{actual}} % | Ziel: {{target}} % | Lücke: {{gap}} %",
+          status: {
+            met: "Erfüllt (innerhalb 2 %)",
+            gap: "Lücke (2-10 %)",
+            critical: "Kritisch (>10 %)",
+          },
+        },
+        agePyramid: {
+          title: "{{source}} -- Altersverteilung",
+        },
+        benchmark: {
+          title: "Vergleichswert: {{label}}",
+          actual: "Ist",
+          benchmark: "Vergleichswert",
+        },
+        trends: {
+          title: "Diversitätstrends: {{source}}",
+          description:
+            "Simpson-Diversitätsindex je Release (0 = homogen, 1 = maximal divers)",
+        },
+        geographic: {
+          loading: "Geografische Diversitätsdaten werden geladen...",
+          noLocationData: "Keine Standortdaten verfügbar",
+          noAdiData:
+            "ADI-Daten nicht verfügbar (GIS-Modul hat ADI möglicherweise nicht geladen)",
+          noGeographicData:
+            "Keine geografischen Daten verfügbar. Quellen haben möglicherweise keine Standortdaten in der person-Tabelle.",
+          statesCovered: "Abgedeckte Bundesstaaten / Regionen",
+          networkMedianAdi: "Netzwerk-Median-ADI:",
+          sourcesWithLocation: "Quellen mit Standortdaten",
+          sourcesWithAdi: "Quellen mit ADI-Daten",
+          stateCount: "{{count}} Bundesstaaten",
+          medianAdiValue: "Median-ADI: {{value}}",
+          topStates: "Top-Bundesstaaten nach Patientenzahl",
+          adiDistribution: "ADI-Dezil-Verteilung",
+          leastDeprived: "Am wenigsten benachteiligt",
+          adiDecile: "ADI-Dezil",
+          mostDeprived: "Am stärksten benachteiligt",
+          decileTitle: "Dezil {{decile}}: {{count}} ZIP-Codes",
+          adiRatings: {
+            low: "Geringe Benachteiligung",
+            moderate: "Moderate Benachteiligung",
+            high: "Hohe Benachteiligung (unterversorgt)",
+          },
+        },
+        pooled: {
+          title: "Gepoolte Demografie",
+          description:
+            "Wählen Sie mehrere Quellen aus, um gewichtet zusammengeführte demografische Profile zu sehen.",
+          summary: "Gesamt: {{persons}} Personen über {{sources}} Quellen",
+        },
+        messages: {
+          loading: "Diversitätsdaten werden geladen...",
+          noSources: "Keine Quellen für Diversitätsanalyse verfügbar.",
+          noData: "Keine Daten",
+          noTrendData: "Keine Release-Daten für Diversitätstrends verfügbar.",
+          noTrendReleases:
+            "Für diese Quelle wurden keine Releases gefunden. Erstellen Sie Releases, um Diversitätstrends zu verfolgen.",
+        },
+      },
+      cost: {
+        empty: {
+          title: "Keine Kostendaten verfügbar",
+          message:
+            "Kostendaten erfordern claims-basierte Datensätze (z. B. MarketScan, Optum, PharMetrics). Aus EHR abgeleitete Datensätze wie SynPUF, MIMIC-IV und die meisten Daten akademischer medizinischer Zentren befüllen die OMOP-cost-Tabelle in der Regel nicht.",
+        },
+        filters: {
+          source: "Quelle:",
+          selectSource: "Quelle auswählen...",
+        },
+        tabs: {
+          overview: "Übersicht",
+          distribution: "Verteilung",
+          "care-setting": "Versorgungssetting",
+          trends: "Verläufe",
+          drivers: "Kostentreiber",
+          "cross-source": "Quellenübergreifend",
+        },
+        messages: {
+          selectSource: "Wählen Sie eine Quelle aus, um Kostendaten anzuzeigen.",
+          loading: "Kostendaten werden geladen...",
+          distributionHelp:
+            "Box-and-Whisker-Plots zeigen die Kostenstreuung. Box = IQR (P25-P75), Whisker = P10-P90, goldene Linie = Median, roter Punkt = Mittelwert.",
+          noDistributionData: "Keine Verteilungsdaten verfügbar.",
+          noCareSettingData:
+            "Keine Kostendaten nach Versorgungssetting verfügbar. Erfordert Visit-Domänen-Kostendatensätze, die mit visit_occurrence verknüpft sind.",
+          selectSourceForDrivers: "Wählen Sie eine Quelle aus, um Kostentreiber anzuzeigen.",
+          loadingDrivers: "Kostentreiber werden geladen...",
+          noDriverData: "Keine Kostentreiberdaten für diese Quelle verfügbar.",
+          costDriversHelp:
+            "Top-10-Konzepte nach Gesamtkosten. Klicken Sie auf einen Balken, um Konzeptdetails zu sehen.",
+          loadingCrossSource: "Quellenübergreifender Vergleich wird geladen...",
+          noComparisonSources: "Keine Quellen für den Vergleich verfügbar.",
+          noCrossSourceCostData:
+            "Keine Quellen haben Kostendaten für den Vergleich.",
+          crossSourceHelp:
+            "Box-and-Whisker je Quelle. Box = IQR (P25-P75), Whisker = P10-P90, goldene Linie = Median.",
+        },
+        metrics: {
+          totalCost: "Gesamtkosten",
+          perPatientPerYear: "Pro Patient und Jahr",
+          persons: "Personen",
+          observationYears: "{{value}} J.",
+          avgObservation: "Durchschn. Beobachtung",
+          recordsAverage: "{{records}} Datensätze | durchschn. {{average}}",
+          recordCount: "{{count}} Datensätze",
+          patientCount: "{{count}} Patienten",
+          averagePerRecord: "Durchschn.: {{value}}/Datensatz",
+          medianValue: "Medianwert: {{value}}",
+          meanValue: "Mittelwert: {{value}}",
+          percent: "{{value}} %",
+          range: "Bereich: {{min}} - {{max}}",
+        },
+        costTypeFilter: {
+          title: "Mehrere Kostentypen erkannt.",
+          message:
+            "Diese Quelle hat {{count}} verschiedene Kostentypkonzepte. Das Vermischen berechneter Beträge mit bezahlten Beträgen erzeugt irreführende Statistiken. Filtern Sie nach Kostentyp für eine genaue Analyse.",
+          allTypes: "Alle Typen",
+          option: "{{name}} ({{count}})",
+        },
+        sections: {
+          costByDomain: "Kosten nach Domäne",
+          distributionByDomain: "Kostenverteilung nach Domäne",
+          costByCareSetting: "Kosten nach Versorgungssetting",
+          monthlyTrends: "Monatliche Kostentrends",
+          topCostDrivers: "Wichtigste Kostentreiber",
+          crossSourceComparison: "Quellenübergreifender Kostenvergleich",
+        },
+      },
+    },
+  },
   administration: {
     dashboard: {
       title: "Administration",
@@ -15254,6 +17212,985 @@ const ptApp: MessageTree = mergeMessageTrees(enApp, {
     hierarchyTree: {
       empty: {
         noData: "Nenhum dado de hierarquia disponível",
+      },
+    },
+  },
+  dataExplorer: {
+    page: {
+      title: "Explorador de dados",
+      subtitle: "Explore resultados de caracterização Achilles e qualidade dos dados",
+      selectSourceTitle: "Selecione uma fonte de dados",
+      selectSourceMessage:
+        "Escolha uma fonte CDM no menu acima para explorar seus dados",
+    },
+    tabs: {
+      overview: "Visão geral",
+      domains: "Domínios",
+      temporal: "Tempo",
+      heel: "Achilles",
+      dqd: "Qualidade dos dados",
+      ares: "Ares",
+    },
+    sourceSelector: {
+      loading: "Carregando fontes...",
+      placeholder: "Selecione uma fonte de dados",
+    },
+    domains: {
+      condition: "Condições",
+      drug: "Medicamentos",
+      procedure: "Procedimentos",
+      measurement: "Medições",
+      observation: "Observações",
+      visit: "Visitas",
+    },
+    overview: {
+      metrics: {
+        persons: "Pessoas",
+        personsTotal: "{{value}} no total",
+        medianObsDuration: "Duração mediana da observação",
+        durationDays: "{{value}} dias",
+        observationPeriods: "{{value}} períodos de observação",
+        totalEvents: "Total de eventos",
+        acrossAllCdmTables: "Em todas as tabelas CDM",
+        dataCompleteness: "Completude dos dados",
+        tablesPopulated: "{{populated}}/{{total}} tabelas preenchidas",
+      },
+      sections: {
+        demographics: "Demografia da população",
+        observationPeriods: "Análise de períodos de observação",
+        domainRecordProportions: "Proporções de registros por domínio",
+        dataDensityOverTime: "Densidade dos dados ao longo do tempo",
+        recordDistribution: "Distribuição de registros",
+      },
+      cards: {
+        genderDistribution: "Distribuição por gênero",
+        ethnicity: "Etnia",
+        race: "Raça",
+        topTen: "Top 10",
+        yearOfBirthDistribution: "Distribuição do ano de nascimento",
+        yearOfBirthSubtitle: "Histograma com densidade suavizada (dourado)",
+        cumulativeObservationDuration: "Duração cumulativa da observação",
+        cumulativeObservationSubtitle:
+          "Estilo Kaplan-Meier: % de pessoas com observação >= X dias",
+        observationStartEndDates: "Datas de início / fim da observação",
+        observationStartEndSubtitle:
+          "Distribuição temporal dos períodos de observação",
+        observationPeriodDurationDays: "Duração do período de observação (dias)",
+        observationPeriodsPerPerson: "Períodos de observação por pessoa",
+        observationPeriodsPerPersonSubtitle:
+          "Distribuição de quantos períodos cada pessoa possui",
+        clinicalDataDomains: "Domínios de dados clínicos",
+        clinicalDataDomainsSubtitle:
+          "Ordenados por contagem de registros - clique em um domínio para explorar seus conceitos",
+        recordsByDomainAndYear: "Registros por domínio e ano",
+        recordsByDomainAndYearSubtitle:
+          "A intensidade da cor indica o volume de registros por domínio e ano",
+        cdmTableRecordCounts: "Contagens de registros das tabelas CDM",
+        cdmTableRecordCountsSubtitle:
+          "Escala logarítmica - todas as tabelas visíveis independentemente da magnitude",
+      },
+      messages: {
+        runAchillesForTemporalData:
+          "Execute Achilles para gerar dados de tendência temporal",
+      },
+    },
+    charts: {
+      common: {
+        records: "{{count}} registros",
+        persons: "{{count}} pessoas",
+        total: "Geral",
+        separator: "·",
+      },
+      boxPlot: {
+        noDistributionData: "Nenhum dado de distribuição",
+        ariaLabel: "Diagrama de caixa",
+        labels: {
+          p25: "P25: {{value}}",
+          median: "Mediana: {{value}}",
+          p75: "P75: {{value}}",
+        },
+      },
+      cumulativeObservation: {
+        tooltipValue: "{{days}} dias - {{pct}}% das pessoas",
+        xAxisLabel: "Duração da observação (dias)",
+        labels: {
+          min: "Mín.",
+          p10: "P10",
+          p25: "P25",
+          median: "Mediana",
+          p75: "P75",
+          p90: "P90",
+          max: "Máx.",
+        },
+      },
+      demographics: {
+        ageDistribution: "Distribuição etária",
+        noAgeData: "Nenhum dado de distribuição etária",
+        age: "Idade",
+        male: "Masculino",
+        female: "Feminino",
+      },
+      heatmap: {
+        ariaLabel: "Mapa de calor de densidade dos dados",
+      },
+      hierarchy: {
+        noData: "Nenhum dado de hierarquia disponível",
+        classificationHierarchy: "Hierarquia de classificação",
+        back: "Voltar",
+      },
+      periodCount: {
+        observationPeriods: "{{count}} período(s) de observação",
+      },
+      recordCounts: {
+        noData: "Nenhum dado de contagem de registros disponível",
+        title: "Contagens de registros por tabela CDM",
+      },
+      temporalTrend: {
+        events: "Eventos",
+        secondary: "Secundário",
+      },
+      topConcepts: {
+        noData: "Nenhum dado de conceito disponível",
+        title: "Principais conceitos",
+        id: "ID: {{id}}",
+        prevalence: "Prevalência: {{value}}%",
+      },
+      yearOfBirth: {
+        year: "Ano: {{year}}",
+      },
+    },
+    domain: {
+      metrics: {
+        totalRecords: "Total de registros",
+        distinctConcepts: "Conceitos distintos",
+      },
+      loadFailed: "Falha ao carregar dados de {{domain}}",
+      temporalTrendTitle: "Tendência temporal de {{domain}}",
+    },
+    temporal: {
+      domainsLabel: "Domínios:",
+      multiDomainOverlay: "Sobreposição temporal multidomínio",
+      emptyTitle: "Nenhum dado temporal disponível",
+      emptyHelp: "Selecione domínios acima e verifique se Achilles foi executado",
+    },
+    concept: {
+      details: "Detalhes do conceito",
+      loadFailed: "Falha ao carregar detalhes do conceito",
+      genderDistribution: "Distribuição por gênero",
+      temporalTrend: "Tendência temporal",
+      typeDistribution: "Distribuição por tipo",
+      ageAtFirstOccurrence: "Idade na primeira ocorrência",
+      valueByLabel: "{{label}}: {{value}}",
+    },
+    achilles: {
+      severities: {
+        error: "Erro",
+        warning: "Aviso",
+        notification: "Notificação",
+      },
+      severityCounts: {
+        error: "erros",
+        warning: "avisos",
+        notification: "notificações",
+      },
+      actions: {
+        running: "Executando...",
+        runHeelChecks: "Executar verificações Heel",
+        runAchilles: "Executar Achilles",
+        selectRun: "Selecionar execução",
+        viewLiveProgress: "Ver progresso em tempo real",
+        viewDetails: "Ver detalhes",
+      },
+      runShort: "Execução {{id}}...",
+      statuses: {
+        completed: "Concluída",
+        failed: "Com falha",
+        running: "Em execução",
+        pending: "Pendente",
+      },
+      labels: {
+        status: "Situação",
+        total: "geral",
+        passed: "aprovadas",
+        failed: "com falha",
+        durationSeconds: "Duração: {{value}}s",
+      },
+      heel: {
+        title: "Verificações Heel",
+        dispatchFailed: "Falha ao disparar verificações Heel",
+        running: "Executando verificações Heel...",
+        empty: "Nenhuma verificação Heel executada ainda",
+        allPassed: "Todas as verificações foram aprovadas",
+        issueSummary:
+          "{{count}} problemas: {{errors}}E / {{warnings}}A / {{notifications}}N",
+      },
+      characterization: {
+        title: "Caracterização Achilles",
+        dispatchFailed: "Falha ao disparar execução Achilles",
+        empty: "Nenhuma execução Achilles ainda",
+        emptyHelp: 'Clique em "Executar Achilles" para caracterizar seus dados',
+      },
+      runModal: {
+        completedIn: "Concluída em {{duration}}",
+        analysisProgress: "{{done}} de {{total}} análises",
+        elapsed: "Decorrido:",
+        passedCount: "{{count}} aprovadas",
+        failedCount: "{{count}} com falha",
+        totalDuration: "{{duration}} no total",
+        remaining: "~{{duration}} restantes",
+        waiting: "Aguardando o início das análises...",
+        done: "Concluído",
+        runInBackground: "Executar em segundo plano",
+      },
+    },
+    dqd: {
+      categories: {
+        completeness: "Completude",
+        conformance: "Conformidade",
+        plausibility: "Plausibilidade",
+        overall: "Geral",
+      },
+      progress: {
+        title: "Análise DQD em execução",
+        checksCompleted: "{{completed}} de {{total}} verificações concluídas",
+        waiting: "Aguardando...",
+        running: "Executando:",
+      },
+      labels: {
+        passed: "aprovadas",
+        failed: "com falha",
+        remaining: "restantes",
+        warnings: "Avisos",
+      },
+      severity: {
+        error: "Erro",
+        warning: "Aviso",
+        info: "Informação",
+      },
+      categoryPanel: {
+        checkCount: "{{count}} verificações",
+        passRate: "{{percent}}% de aprovação",
+        table: {
+          check: "Verificação",
+          table: "Tabela",
+          column: "Coluna",
+          severity: "Severidade",
+          violationPercent: "% de violação",
+        },
+      },
+      scorecard: {
+        emptyTitle: "Nenhum resultado DQD disponível",
+        emptyDescription: "Execute uma análise Data Quality Dashboard para ver resultados",
+        overallScore: "Pontuação geral",
+        passedFraction: "{{passed}}/{{total}} aprovadas",
+      },
+      tableGrid: {
+        noResults: "Nenhum resultado DQD para exibir",
+        title: "Mapa de calor tabela x categoria",
+        cdmTable: "Tabela CDM",
+      },
+      actions: {
+        runDqd: "Executar DQD",
+      },
+      dispatchFailed: "Falha ao disparar execução DQD",
+      empty: "Nenhuma execução DQD ainda",
+      emptyHelp: 'Clique em "Executar DQD" para iniciar uma análise de qualidade dos dados',
+    },
+    ares: {
+      name: "Ares",
+      breadcrumbSeparator: ">",
+      comingSoon: "Em breve em uma fase futura",
+      sections: {
+        hub: "Central",
+        networkOverview: "Visão geral da rede",
+        conceptComparison: "Comparação de conceitos",
+        dqHistory: "Histórico de QD",
+        coverage: "Cobertura",
+        coverageMatrix: "Matriz de cobertura",
+        feasibility: "Viabilidade",
+        diversity: "Diversidade",
+        releases: "Versões",
+        unmappedCodes: "Códigos não mapeados",
+        cost: "Custo",
+        costAnalysis: "Análise de custos",
+        annotations: "Anotações",
+      },
+      cards: {
+        sourcesBelowDq: "{{value}} fontes abaixo de 80% QD",
+        networkOverviewDescription:
+          "Saúde das fontes, pontuações QD e indicadores de tendência",
+        conceptComparisonDescription:
+          "Compare prevalência de conceitos entre fontes",
+        dqHistoryDescription: "Pontuação QD média da rede por versão",
+        coverageDescription: "Disponibilidade domínio x fonte",
+        feasibilityDescription: "Sua rede consegue apoiar um estudo?",
+        diversityDescription: "Paridade demográfica entre fontes",
+        releasesDescription: "Histórico de versões por fonte",
+        unmappedCodesDescription:
+          "Códigos de origem sem mapeamentos padrão",
+        annotationsDescription: "Notas de gráfico em todas as fontes",
+        costDescription: "Dados de custo por domínio e ao longo do tempo",
+      },
+      networkOverview: {
+        title: "Visão geral da rede",
+        networkTotal: "Total da rede",
+        percent: "{{value}} por cento",
+        averagePercent: "{{value}}% em média",
+        actions: {
+          dqRadar: "Radar QD",
+          hideRadar: "Ocultar radar",
+        },
+        metrics: {
+          dataSources: "Fontes de dados",
+          avgDqScore: "Pontuação QD média",
+          unmappedCodes: "Códigos não mapeados",
+          needAttention: "Precisam de atenção",
+          totalPersons: "Total de pessoas",
+        },
+        table: {
+          source: "Fonte",
+          dqScore: "Pontuação QD",
+          dqTrend: "Tendência QD",
+          freshness: "Atualidade",
+          domains: "Domínios",
+          persons: "Pessoas",
+          latestRelease: "Versão mais recente",
+        },
+        messages: {
+          loading: "Carregando visão geral da rede...",
+          noData: "Nenhum dado de rede disponível.",
+          noReleases: "Nenhuma versão",
+        },
+        radar: {
+          title: "Perfil de radar QD (dimensões de Kahn)",
+          description:
+            "Taxas de aprovação nas cinco dimensões de qualidade dos dados de Kahn. Valores maiores indicam melhor qualidade.",
+          noData: "Nenhum dado de radar QD disponível.",
+          dimensions: {
+            completeness: "Completude",
+            conformanceValue: "Conformidade (valor)",
+            conformanceRelational: "Conformidade (relacional)",
+            plausibilityAtemporal: "Plausibilidade (atemporal)",
+            plausibilityTemporal: "Plausibilidade (temporal)",
+          },
+        },
+      },
+      feasibility: {
+        title: "Avaliações de viabilidade",
+        assessmentMeta: "{{date}} | {{sources}} fontes avaliadas",
+        passedSummary: "{{passed}}/{{total}} aprovadas",
+        resultsTitle: "Resultados: {{name}}",
+        scoreLabel: "{{score}}% de pontuação",
+        empty:
+          "Nenhuma avaliação ainda. Crie uma para avaliar se sua rede consegue apoiar um estudo proposto.",
+        actions: {
+          newAssessment: "+ Nova avaliação",
+          running: "Executando...",
+          runAssessment: "Executar avaliação",
+          hide: "Ocultar",
+          forecast: "Previsão",
+        },
+        filters: {
+          view: "Visualização:",
+        },
+        detailViews: {
+          table: "Tabela de pontuação",
+          impact: "Análise de impacto",
+          consort: "Fluxo CONSORT",
+        },
+        criteria: {
+          domains: "Domínios",
+          concepts: "Conceitos",
+          visitTypes: "Tipos de visita",
+          dateRange: "Intervalo de datas",
+          patientCount: "Contagem de pacientes",
+        },
+        forecast: {
+          insufficientData:
+            "Dados históricos insuficientes para previsão (mínimo de 6 meses necessário).",
+          title: "Previsão de chegada de pacientes: {{source}}",
+          monthlyRate: "Taxa mensal: {{rate}} pacientes/mês",
+          targetReachedIn: "Meta alcançada em ~{{months}} meses",
+          targetAlreadyReached: "Meta já alcançada",
+          actual: "Real",
+          projected: "Projetado",
+          confidenceBand: "IC 95%",
+          targetLabel: "Meta: {{target}}",
+          footnote:
+            "Projeção baseada em regressão linear dos últimos 12 meses. A banda de confiança aumenta com a distância da projeção.",
+        },
+        consort: {
+          allSources: "Todas as fontes",
+          noResults: "Nenhum resultado para exibir o diagrama CONSORT.",
+          title: "Fluxo de atrito no estilo CONSORT",
+          description:
+            "Mostra como fontes são progressivamente excluídas por cada critério.",
+          sources: "{{count}} fontes",
+          excluded: "-{{count}} excluídas",
+        },
+        impact: {
+          noData: "Nenhum dado de impacto de critérios disponível.",
+          title: "Análise de impacto de critérios",
+          description:
+            "Mostra quantas fontes adicionais seriam aprovadas se cada critério fosse removido. Linha de base: {{passed}}/{{total}} aprovadas.",
+          sourcesRecovered: "+{{count}} fontes",
+          guidance:
+            "O critério de maior impacto é aquele cuja remoção recuperaria mais fontes. Considere flexibilizar critérios de alto impacto se poucas fontes se qualificarem.",
+        },
+        templates: {
+          loading: "Carregando modelos...",
+          startFrom: "Começar a partir de modelo",
+        },
+        table: {
+          source: "Fonte",
+          domains: "Domínios",
+          concepts: "Conceitos",
+          visits: "Visitas",
+          dates: "Datas",
+          patients: "Pacientes",
+          score: "Pontuação",
+          overall: "Geral",
+          forecast: "Previsão",
+        },
+        status: {
+          eligible: "ELEGÍVEL",
+          ineligible: "INELEGÍVEL",
+        },
+        form: {
+          title: "Nova avaliação de viabilidade",
+          assessmentName: "Nome da avaliação",
+          assessmentNamePlaceholder: "ex.: Estudo de desfechos em diabetes",
+          requiredDomains: "Domínios obrigatórios",
+          minPatientCount: "Contagem mínima de pacientes (opcional)",
+          minPatientCountPlaceholder: "ex.: 1000",
+          domains: {
+            condition: "Condições",
+            drug: "Medicamentos",
+            procedure: "Procedimentos",
+            measurement: "Medições",
+            observation: "Observações",
+            visit: "Visitas",
+          },
+        },
+      },
+      annotations: {
+        filters: {
+          allSources: "Todas as fontes",
+        },
+        tags: {
+          all: "Todas",
+          dataEvent: "Evento de dados",
+          researchNote: "Nota de pesquisa",
+          actionItem: "Item de ação",
+          system: "Sistema",
+        },
+        viewModes: {
+          list: "Lista",
+          timeline: "Linha do tempo",
+        },
+        actions: {
+          reply: "Responder",
+          delete: "Excluir",
+        },
+        replyPlaceholder: "Escreva uma resposta...",
+        searchPlaceholder: "Pesquisar anotações...",
+        confirmDelete: "Excluir esta anotação?",
+        coordinateValue: "{{axis}} = {{value}}",
+        sourceContext: "em {{source}}",
+        empty: {
+          selectSource: "Selecione uma fonte para ver suas anotações",
+          noAnnotations: "Nenhuma anotação ainda para esta fonte",
+          noTimeline: "Nenhuma anotação para exibir na linha do tempo.",
+        },
+      },
+      coverage: {
+        title: "Matriz de cobertura (relatório Strand)",
+        description:
+          "Disponibilidade de domínios em todas as fontes de dados. Verde = alta densidade, âmbar = baixa densidade, vermelho = sem dados.",
+        yes: "Sim",
+        densityTitle: "Densidade: {{density}} por pessoa",
+        filters: {
+          view: "Visualização:",
+        },
+        viewModes: {
+          records: "Registros",
+          per_person: "Por pessoa",
+          date_range: "Intervalo de datas",
+        },
+        actions: {
+          exporting: "Exportando...",
+          exportCsv: "Exportar CSV",
+          expectedVsActual: "Esperado vs. real",
+        },
+        table: {
+          source: "Fonte",
+          domains: "Domínios",
+        },
+        expectedStates: {
+          expectedPresent: "Esperado e presente",
+          expectedMissing: "Esperado, mas ausente",
+          unexpectedBonus: "Dados extras inesperados",
+          notExpectedAbsent: "Não esperado, ausente",
+        },
+        messages: {
+          loading: "Carregando matriz de cobertura...",
+          noSources: "Nenhuma fonte disponível para análise de cobertura.",
+        },
+      },
+      dqHistory: {
+        filters: {
+          source: "Fonte:",
+          selectSource: "Selecionar fonte...",
+        },
+        tabs: {
+          trends: "Tendências",
+          heatmap: "Mapa de calor",
+          sla: "SLA",
+          overlay: "Entre fontes",
+        },
+        sections: {
+          passRate: "Taxa de aprovação QD por versão",
+          heatmap: "Mapa de calor categoria x versão",
+          sla: "Painel de conformidade SLA",
+          overlay: "Sobreposição QD entre fontes",
+        },
+        passRate: "Taxa de aprovação",
+        deltaReportTitle: "Relatório delta: {{release}}",
+        status: {
+          new: "NOVO",
+          existing: "EXISTENTE",
+          resolved: "RESOLVIDO",
+          stable: "ESTÁVEL",
+        },
+        result: {
+          pass: "APROVADO",
+          fail: "FALHOU",
+        },
+        statusSummary: {
+          new: "{{count}} novos",
+          existing: "{{count}} existentes",
+          resolved: "{{count}} resolvidos",
+          stable: "{{count}} estáveis",
+        },
+        table: {
+          category: "Categoria",
+          status: "Situação",
+          checkId: "ID da verificação",
+          current: "Atual",
+          previous: "Anterior",
+        },
+        sla: {
+          targetsTitle: "Metas SLA (taxa mínima de aprovação %)",
+          currentCompliance: "Conformidade atual",
+          actual: "Real",
+          target: "Meta",
+          errorBudget: "Orçamento de erro",
+          targetComparison: "{{actual}}% / meta {{target}}%",
+        },
+        messages: {
+          selectSource: "Selecione uma fonte para ver o histórico QD.",
+          loadingHistory: "Carregando histórico QD...",
+          loadingDeltas: "Carregando deltas...",
+          loadingHeatmap: "Carregando mapa de calor...",
+          loadingOverlay: "Carregando dados de sobreposição...",
+          noOverlayData: "Nenhum dado QD disponível entre fontes.",
+          noHeatmapData:
+            "Nenhum dado de mapa de calor disponível. Execute DQD em várias versões para ver tendências por categoria.",
+          noDeltaData: "Nenhum dado delta disponível para esta versão.",
+          saved: "Salvo",
+          noSlaTargets:
+            "Nenhuma meta SLA definida. Defina metas acima para ver conformidade.",
+          noTrendData:
+            "Nenhum dado de histórico QD disponível. Execute DQD em pelo menos duas versões para ver tendências.",
+          trendHelp:
+            "Clique em um ponto de versão para ver detalhes delta. Verde >90%, âmbar 80-90%, vermelho <80%.",
+          overlayHelp:
+            "Taxas de aprovação QD sobrepostas entre todas as fontes em uma linha do tempo unificada.",
+        },
+        actions: {
+          exporting: "Exportando...",
+          exportCsv: "Exportar CSV",
+          saving: "Salvando...",
+          saveSlaTargets: "Salvar metas SLA",
+        },
+      },
+      unmapped: {
+        filters: {
+          source: "Fonte:",
+          selectSource: "Selecionar fonte...",
+          release: "Versão:",
+          table: "Tabela:",
+          allTables: "Todas as tabelas",
+          searchPlaceholder: "Pesquisar códigos de origem...",
+        },
+        viewModes: {
+          table: "Tabela",
+          pareto: "Pareto",
+          vocabulary: "Vocabulário",
+        },
+        actions: {
+          exporting: "Exportando...",
+          exportUsagiCsv: "Exportar CSV Usagi",
+          previous: "Anterior",
+          next: "Próximo",
+        },
+        summaryBadge: "{{table}} ({{codes}} códigos, {{records}} registros)",
+        vocabularyValue: "({{vocabulary}})",
+        progress: {
+          noCodes: "Nenhum código não mapeado para revisar.",
+          title: "Progresso do mapeamento",
+          reviewed: "{{percent}}% revisados",
+          segmentTitle: "{{label}}: {{count}} ({{percent}}%)",
+          label: "{{label}}:",
+          status: {
+            mapped: "Mapeado",
+            deferred: "Adiado",
+            excluded: "Excluído",
+            pending: "Pendente",
+          },
+        },
+        sections: {
+          pareto: "Análise Pareto de códigos não mapeados",
+          vocabulary: "Códigos não mapeados por vocabulário",
+          suggestions: "Sugestões de mapeamento por IA",
+        },
+        suggestions: {
+          generating: "Gerando sugestões por similaridade pgvector...",
+          failed:
+            "Falha ao carregar sugestões. O serviço de IA ou os embeddings de conceitos podem estar indisponíveis.",
+          empty: "Nenhuma sugestão disponível. Embeddings de conceitos podem não estar carregados.",
+          id: "ID: {{id}}",
+          accepted: "Aceito",
+          accept: "Aceitar",
+          skip: "Pular",
+        },
+        pareto: {
+          topCodesCoverage:
+            "Os 20 principais códigos cobrem {{percent}}% de todos os registros não mapeados",
+          percent: "{{value}}%",
+          cumulativePercent: "% cumulativo",
+        },
+        vocabulary: {
+          total: "Geral",
+          codeCount: "{{count}} códigos",
+        },
+        messages: {
+          selectSource: "Selecione uma fonte para ver códigos não mapeados.",
+          loading: "Carregando códigos não mapeados...",
+          emptyPareto: "Nenhum código não mapeado encontrado para análise Pareto.",
+          emptyVocabulary: "Nenhum dado de vocabulário disponível.",
+          noneFound:
+            "Nenhum código de origem não mapeado encontrado. Todos os códigos estão mapeados para conceitos-padrão OMOP.",
+          sortedByImpact: "Ordenado por pontuação de impacto (contagem de registros x peso do domínio)",
+          showing: "Exibindo {{start}}-{{end}} de {{total}}",
+        },
+        table: {
+          sourceCode: "Código de origem",
+          vocabulary: "Vocabulário",
+          cdmTable: "Tabela CDM",
+          cdmField: "Campo CDM",
+          records: "Registros",
+          impactScore: "Pontuação de impacto",
+        },
+      },
+      conceptComparison: {
+        title: "Comparação de conceitos entre fontes",
+        searchPlaceholder:
+          "Pesquisar um conceito (ex.: 'Diabetes tipo 2', 'Metformina')...",
+        conceptMetadata: "{{domain}} | {{vocabulary}} | ID: {{id}}",
+        selectedConceptMetadata:
+          "{{domain}} | {{vocabulary}} | ID do conceito: {{id}}",
+        temporalTrendTitle: "Tendência temporal: {{concept}}",
+        addConceptPlaceholder: "Adicionar outro conceito ({{selected}}/{{max}} selecionados)...",
+        cdcNationalRate: "Taxa nacional CDC: {{value}}/1000",
+        viewModes: {
+          single: "Único",
+          temporal: "Ao longo do tempo",
+          multi: "Multiconceito",
+          funnel: "Funil de atrito",
+        },
+        rateModes: {
+          crude: "Taxa bruta",
+          standardized: "Ajustada por idade e sexo",
+        },
+        metrics: {
+          rate: "Taxa/1000",
+          count: "Contagem",
+          perThousandShort: "{{value}}/1 mil",
+          perThousandLong: "{{value}} por 1.000",
+        },
+        messages: {
+          noComparisonData: "Nenhum dado de comparação disponível.",
+          noTemporalPrevalenceData: "Nenhum dado de prevalência temporal disponível.",
+          selectTwoConcepts: "Selecione pelo menos 2 conceitos para comparar.",
+          searching: "Pesquisando...",
+          loadingComparison: "Carregando dados de comparação...",
+          standardizedNote:
+            "Padronizado para a população do Censo dos EUA de 2020 usando padronização direta por idade e sexo.",
+          searchToCompare:
+            "Pesquise um conceito acima para comparar sua prevalência em todas as fontes de dados.",
+          loadingTemporal: "Carregando prevalência temporal...",
+          noTemporalData: "Nenhum dado temporal disponível para este conceito.",
+          searchForTemporal:
+            "Pesquise um conceito acima para ver sua tendência de prevalência temporal entre versões.",
+          loadingMulti: "Carregando comparação multiconceito...",
+          loadingFunnel: "Carregando funil de atrito...",
+          noAttritionData:
+            "Nenhum dado de atrito disponível para os conceitos selecionados.",
+          temporalPrevalenceHelp:
+            "Taxa por 1.000 pessoas ao longo do tempo.",
+        },
+      },
+      releases: {
+        releaseTypes: {
+          etl: "ETL",
+          scheduledEtl: "ETL agendado",
+          snapshot: "Instantâneo",
+        },
+        cdmVersion: "CDM {{version}}",
+        vocabularyVersion: "Vocabulário {{version}}",
+        personCount: "{{value}} pessoas",
+        recordCount: "{{value}} registros",
+        actions: {
+          showDiff: "Mostrar diff",
+          editRelease: "Editar versão",
+          createRelease: "Criar versão",
+          creating: "Criando...",
+          create: "Criar",
+          saving: "Salvando...",
+          save: "Salvar",
+          cancel: "Cancelar",
+        },
+        etl: {
+          provenance: "Proveniência ETL",
+          ranBy: "Executado por:",
+          codeVersion: "Versão do código:",
+          duration: "Duração:",
+          started: "Iniciado:",
+          parameters: "Parâmetros:",
+        },
+        duration: {
+          hoursMinutes: "{{hours}}h {{minutes}}min",
+          minutesSeconds: "{{minutes}}min {{seconds}}s",
+          seconds: "{{seconds}}s",
+        },
+        confirmDelete: "Excluir esta versão?",
+        tabs: {
+          list: "Versões",
+          swimlane: "Raias",
+          calendar: "Calendário",
+        },
+        timelineTitle: "Linha do tempo de versões (todas as fontes)",
+        calendarTitle: "Calendário de versões",
+        selectSource: "Selecionar uma fonte",
+        form: {
+          releaseName: "Nome da versão",
+          cdmVersion: "Versão CDM",
+          vocabularyVersion: "Versão do vocabulário",
+          etlVersion: "Versão ETL",
+          notes: "Notas",
+          notesPlaceholder: "Notas da versão...",
+          cdmVersionOptional: "Versão CDM (opcional)",
+          vocabularyVersionOptional: "Versão do vocabulário (opcional)",
+          cdmVersionPlaceholder: "CDM v5.4",
+          vocabularyVersionPlaceholder: "2024-11-01",
+          etlVersionPlaceholder: "v1.2.3",
+        },
+        empty: {
+          selectSource: "Selecione uma fonte para ver suas versões",
+          noReleases: "Nenhuma versão ainda para esta fonte",
+          noReleaseData: "Nenhum dado de versão disponível.",
+        },
+        calendar: {
+          noEvents: "Nenhum evento de versão.",
+          dayEvents: "{{date}}: {{count}} versões",
+          less: "Menos",
+          more: "Mais",
+        },
+        diff: {
+          computing: "Calculando diff...",
+          title: "Diff da versão",
+          initialRelease: "Versão inicial -- nenhum dado anterior para comparar.",
+          persons: "Pessoas:",
+          records: "Registros:",
+          dqScore: "Pontuação QD:",
+          unmapped: "Não mapeados:",
+          vocabUpdated: "Vocabulário atualizado",
+          domainDeltas: "Deltas por domínio:",
+        },
+      },
+      diversity: {
+        title: "Relatório de diversidade",
+        description:
+          "Proporções demográficas entre fontes de dados. Fontes ordenadas por tamanho da população.",
+        ratings: {
+          very_high: "muito alta",
+          high: "alta",
+          moderate: "moderada",
+          low: "baixa",
+        },
+        percentValue: "{{value}}%",
+        labelPercentValue: "{{label}}: {{value}}%",
+        personCount: "{{value}} pessoas",
+        labels: {
+          gender: "Gênero",
+          race: "Raça",
+          ethnicity: "Etnia",
+          male: "Masculino",
+          female: "Feminino",
+        },
+        dimensions: {
+          composite: "Composto",
+          gender: "Gênero",
+          race: "Raça",
+          ethnicity: "Etnia",
+        },
+        tabs: {
+          overview: "Visão geral",
+          pyramid: "Pirâmide etária",
+          dap: "Lacuna DAP",
+          pooled: "Agrupado",
+          geographic: "Geográfico",
+          trends: "Tendências",
+        },
+        filters: {
+          selectSource: "Selecionar uma fonte",
+        },
+        benchmarks: {
+          usCensus2020: "Censo dos EUA 2020",
+        },
+        dap: {
+          title: "Análise de lacunas de inscrição FDA DAP",
+          description:
+            "Compara a demografia da fonte com referências do Censo dos EUA de 2020 para identificar lacunas de inscrição.",
+          tooltip: "Real: {{actual}}% | Meta: {{target}}% | Lacuna: {{gap}}%",
+          status: {
+            met: "Atendida (dentro de 2%)",
+            gap: "Lacuna (2-10%)",
+            critical: "Crítica (>10%)",
+          },
+        },
+        agePyramid: {
+          title: "{{source}} -- Distribuição etária",
+        },
+        benchmark: {
+          title: "Referência: {{label}}",
+          actual: "Real",
+          benchmark: "Referência",
+        },
+        trends: {
+          title: "Tendências de diversidade: {{source}}",
+          description:
+            "Índice de diversidade de Simpson por versão (0 = homogêneo, 1 = diversidade máxima)",
+        },
+        geographic: {
+          loading: "Carregando dados de diversidade geográfica...",
+          noLocationData: "Nenhum dado de localização disponível",
+          noAdiData:
+            "Dados ADI indisponíveis (o módulo GIS pode não ter ADI carregado)",
+          noGeographicData:
+            "Nenhum dado geográfico disponível. As fontes podem não ter dados de localização na tabela person.",
+          statesCovered: "Estados / regiões cobertos",
+          networkMedianAdi: "ADI mediano da rede:",
+          sourcesWithLocation: "Fontes com dados de localização",
+          sourcesWithAdi: "Fontes com dados ADI",
+          stateCount: "{{count}} estados",
+          medianAdiValue: "ADI mediano: {{value}}",
+          topStates: "Principais estados por contagem de pacientes",
+          adiDistribution: "Distribuição de decis ADI",
+          leastDeprived: "Menor privação",
+          adiDecile: "Decil ADI",
+          mostDeprived: "Maior privação",
+          decileTitle: "Decil {{decile}}: {{count}} códigos ZIP",
+          adiRatings: {
+            low: "Baixa privação",
+            moderate: "Privação moderada",
+            high: "Alta privação (subatendida)",
+          },
+        },
+        pooled: {
+          title: "Demografia agrupada",
+          description:
+            "Selecione várias fontes para ver perfis demográficos mesclados e ponderados.",
+          summary: "Total: {{persons}} pessoas em {{sources}} fontes",
+        },
+        messages: {
+          loading: "Carregando dados de diversidade...",
+          noSources: "Nenhuma fonte disponível para análise de diversidade.",
+          noData: "Nenhum dado",
+          noTrendData: "Nenhum dado de versão disponível para tendências de diversidade.",
+          noTrendReleases:
+            "Nenhuma versão encontrada para esta fonte. Crie versões para acompanhar tendências de diversidade.",
+        },
+      },
+      cost: {
+        empty: {
+          title: "Nenhum dado de custo disponível",
+          message:
+            "Dados de custo exigem conjuntos baseados em sinistros/claims (ex.: MarketScan, Optum, PharMetrics). Conjuntos derivados de EHR como SynPUF, MIMIC-IV e a maioria dos dados de centros médicos acadêmicos normalmente não preenchem a tabela OMOP cost.",
+        },
+        filters: {
+          source: "Fonte:",
+          selectSource: "Selecionar fonte...",
+        },
+        tabs: {
+          overview: "Visão geral",
+          distribution: "Distribuição",
+          "care-setting": "Cenário de cuidado",
+          trends: "Tendências",
+          drivers: "Direcionadores de custo",
+          "cross-source": "Entre fontes",
+        },
+        messages: {
+          selectSource: "Selecione uma fonte para ver dados de custo.",
+          loading: "Carregando dados de custo...",
+          distributionHelp:
+            "Box plots mostrando dispersão de custo. Caixa = IQR (P25-P75), hastes = P10-P90, linha dourada = mediana, ponto vermelho = média.",
+          noDistributionData: "Nenhum dado de distribuição disponível.",
+          noCareSettingData:
+            "Nenhum dado de custo por cenário de cuidado disponível. Requer registros de custo do domínio Visit unidos a visit_occurrence.",
+          selectSourceForDrivers: "Selecione uma fonte para ver direcionadores de custo.",
+          loadingDrivers: "Carregando direcionadores de custo...",
+          noDriverData: "Nenhum dado de direcionador de custo disponível para esta fonte.",
+          costDriversHelp:
+            "Top 10 conceitos por custo total. Clique em uma barra para ver detalhes do conceito.",
+          loadingCrossSource: "Carregando comparação entre fontes...",
+          noComparisonSources: "Nenhuma fonte disponível para comparação.",
+          noCrossSourceCostData:
+            "Nenhuma fonte tem dados de custo para comparação.",
+          crossSourceHelp:
+            "Box plot por fonte. Caixa = IQR (P25-P75), hastes = P10-P90, linha dourada = mediana.",
+        },
+        metrics: {
+          totalCost: "Custo total",
+          perPatientPerYear: "Por paciente por ano",
+          persons: "Pessoas",
+          observationYears: "{{value}} ano(s)",
+          avgObservation: "Observação média",
+          recordsAverage: "{{records}} registros | média {{average}}",
+          recordCount: "{{count}} registros",
+          patientCount: "{{count}} pacientes",
+          averagePerRecord: "Média: {{value}}/registro",
+          medianValue: "Mediana: {{value}}",
+          meanValue: "Média: {{value}}",
+          percent: "{{value}}%",
+          range: "Intervalo: {{min}} - {{max}}",
+        },
+        costTypeFilter: {
+          title: "Vários tipos de custo detectados.",
+          message:
+            "Esta fonte tem {{count}} conceitos de tipo de custo diferentes. Misturar valores cobrados com valores pagos produz estatísticas enganosas. Filtre por tipo de custo para uma análise precisa.",
+          allTypes: "Todos os tipos",
+          option: "{{name}} ({{count}})",
+        },
+        sections: {
+          costByDomain: "Custo por domínio",
+          distributionByDomain: "Distribuição de custos por domínio",
+          costByCareSetting: "Custo por cenário de cuidado",
+          monthlyTrends: "Tendências mensais de custo",
+          topCostDrivers: "Principais direcionadores de custo",
+          crossSourceComparison: "Comparação de custos entre fontes",
+        },
       },
     },
   },
