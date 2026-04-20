@@ -45,9 +45,12 @@ it('limits persisted user-selectable locales to completed public app locales', f
         ->and(ParthenonLocales::normalizeSelectable('fr'))->toBe('fr-FR')
         ->and(ParthenonLocales::normalizeSelectable('de'))->toBe('de-DE')
         ->and(ParthenonLocales::normalizeSelectable('pt'))->toBe('pt-BR')
+        ->and(ParthenonLocales::normalizeSelectable('fi'))->toBe('fi-FI')
+        ->and(ParthenonLocales::normalizeSelectable('ja'))->toBe('ja-JP')
+        ->and(ParthenonLocales::normalizeSelectable('zh'))->toBe('zh-Hans')
         ->and(ParthenonLocales::normalizeSelectable('ko'))->toBe('ko-KR')
         ->and(ParthenonLocales::normalizeSelectable('ar'))->toBeNull()
-        ->and(ParthenonLocales::normalizeSelectable('fi'))->toBeNull()
+        ->and(ParthenonLocales::normalizeSelectable('hi'))->toBeNull()
         ->and(ParthenonLocales::normalizeSelectable('en-XA'))->toBeNull();
 });
 

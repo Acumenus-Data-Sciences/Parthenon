@@ -26,6 +26,9 @@ const SCREENSHOT_DIR = path.join(
 const SMOKE_LOCALES: SmokeLocale[] = [
   { locale: "en-US", dir: "ltr" },
   { locale: "es-ES", dir: "ltr" },
+  { locale: "fi-FI", dir: "ltr" },
+  { locale: "ja-JP", dir: "ltr" },
+  { locale: "zh-Hans", dir: "ltr" },
   { locale: "ko-KR", dir: "ltr" },
 ];
 
@@ -40,6 +43,15 @@ const HELP_BUTTON_NAME = new RegExp(
     "상황별 도움말 열기",
     "도움말 열기",
     "도움말",
+    "avaa kontekstiohje",
+    "avaa ohje",
+    "ohje",
+    "コンテキストヘルプを開く",
+    "ヘルプを開く",
+    "ヘルプ",
+    "打开上下文帮助",
+    "打开帮助",
+    "帮助",
   ].join("|"),
   "i",
 );
@@ -52,19 +64,10 @@ async function currentUser(page: Page): Promise<AuthUser> {
   return (await response.json()) as AuthUser;
 }
 
-async function saveLocale(page: Page, locale: string): Promise<void> {
-  const response = await page.request.put(`${BASE}/api/v1/user/locale`, {
-    headers: {
-      ...authHeaders(),
-      "Content-Type": "application/json",
-    },
-    data: { locale },
-  });
-  expect(response.status()).toBe(200);
-}
+let cachedUser: AuthUser | null = null;
 
 async function seedStoredLocale(page: Page, locale: string): Promise<void> {
-  const user = await currentUser(page);
+  cachedUser ??= await currentUser(page);
   const token = getToken();
 
   await page.addInitScript(
@@ -82,7 +85,7 @@ async function seedStoredLocale(page: Page, locale: string): Promise<void> {
         }),
       );
     },
-    { seededToken: token, seededUser: user, seededLocale: locale },
+    { seededToken: token, seededUser: cachedUser, seededLocale: locale },
   );
 }
 
@@ -113,7 +116,6 @@ async function openLocalizedRoute(
   locale: SmokeLocale,
   route: string,
 ): Promise<void> {
-  await saveLocale(page, locale.locale);
   await seedStoredLocale(page, locale.locale);
   await page.goto(`${BASE}${route}`, { waitUntil: "domcontentloaded" });
   await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => undefined);
@@ -132,10 +134,6 @@ async function writeScreenshot(page: Page, fileName: string): Promise<void> {
 test.describe("i18n visual smoke", () => {
   test.beforeAll(() => {
     fs.mkdirSync(SCREENSHOT_DIR, { recursive: true });
-  });
-
-  test.afterEach(async ({ page }) => {
-    await saveLocale(page, "en-US");
   });
 
   for (const locale of SMOKE_LOCALES) {

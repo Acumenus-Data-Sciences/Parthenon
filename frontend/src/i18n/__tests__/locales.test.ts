@@ -73,13 +73,16 @@ describe("i18n locale support", () => {
       "fr-FR",
       "de-DE",
       "pt-BR",
+      "fi-FI",
+      "ja-JP",
+      "zh-Hans",
       "ko-KR",
     ]);
     expect(getLocaleMetadata("ar")).toMatchObject({
       qaOnly: true,
       selectable: false,
     });
-    expect(getLocaleMetadata("fi-FI").selectable).toBe(false);
+    expect(getLocaleMetadata("hi-IN").selectable).toBe(false);
   });
 
   it("keeps QA canary locales available in development and test selectors", () => {

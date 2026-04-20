@@ -82,7 +82,7 @@ return [
             'fallbacks' => ['fi', 'en-US', 'en'],
             'release_tier' => 'wave-1-candidate',
             'enabled' => true,
-            'selectable' => false,
+            'selectable' => true,
         ],
         'ja-JP' => [
             'label' => 'Japanese (Japan)',
@@ -95,7 +95,7 @@ return [
             'fallbacks' => ['ja', 'en-US', 'en'],
             'release_tier' => 'wave-1-candidate',
             'enabled' => true,
-            'selectable' => false,
+            'selectable' => true,
         ],
         'zh-Hans' => [
             'label' => 'Chinese (Simplified)',
@@ -108,7 +108,7 @@ return [
             'fallbacks' => ['zh-Hans', 'zh', 'en-US', 'en'],
             'release_tier' => 'wave-1-candidate',
             'enabled' => true,
-            'selectable' => false,
+            'selectable' => true,
         ],
         'ko-KR' => [
             'label' => 'Korean (South Korea)',

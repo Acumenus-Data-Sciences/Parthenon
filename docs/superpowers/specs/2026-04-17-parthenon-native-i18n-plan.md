@@ -101,6 +101,7 @@ Previous isolated Codex branch: `codex/parthenon-i18n-pr5-message-contract`
 - Completed the next hidden Wave 1 app-namespace `dataExplorer` pass for Finnish, Japanese, and Simplified Chinese. The pass covers Data Explorer page chrome, tabs, source selector, OMOP domains, overview metrics/cards, charts, domain/concept/temporal panels, Achilles/Heel, DQD, and all Ares surfaces including network overview, feasibility, annotations, coverage, DQ history, unmapped codes, concept comparison, releases, diversity, and cost. Remaining identical data-explorer keys are intentional product/standard names, compact graph labels, placeholder-only formats, chart percentile markers, and protocol tokens such as Ares, Achilles, DQD, DQ, CDM, ETL, FHIR, GIS, SLA, ADI, CONSORT, US Census 2020, P10/P25/P75/P90, and model/code identifiers. Current `npm run i18n:report` shows `fi-FI` at 48.60%, `ja-JP` at 48.68%, and `zh-Hans` at 48.73% distinct values with 100% key presence and 0 missing keys; app namespace distinct coverage is now `fi-FI` 33.79%, `ja-JP` 33.68%, and `zh-Hans` 33.72%. Remaining app fallback groups are `studies` and `administration`.
 - Completed the next hidden Wave 1 app-namespace `studies` pass for Finnish, Japanese, and Simplified Chinese. The pass covers studies list/search/table states, creation wizard, study detail/dashboard tabs, analyses/results/synthesis surfaces, federated Arachne execution, artifacts, sites, cohorts, team, milestones, activity, OHDSI Study Design Compiler, and the study workbench path. Remaining identical studies keys are intentional product/standard identifiers, placeholder-only formats, phase labels, and protocol terms such as Solr, PLE, PLP, SCCS, CDM, DQD, IRB, ClinicalTrials.gov, OHDSI #{{id}}, {{label}} ({{count}}), {{size}} KB, and HADES/OHDSI/Arachne identifiers. Current `npm run i18n:report` shows `fi-FI` at 67.32%, `ja-JP` at 67.48%, and `zh-Hans` at 67.61% distinct values with 100% key presence and 0 missing keys; app namespace distinct coverage is now `fi-FI` 58.74%, `ja-JP` 58.74%, and `zh-Hans` 58.87%. Remaining app fallback group is `administration`.
 - Completed the next hidden Wave 1 app-namespace `administration` pass for Finnish, Japanese, and Simplified Chinese. The pass covers dashboard/admin navigation, Acropolis services, broadcast email, user modal, LiveKit, authentication providers, roles and permissions, PACS/Orthanc, Solr, AI providers, GIS import, Chroma/vector administration, Atlas migration, vocabulary import, system health, FHIR connections/sync/export, honest broker, user audit, service detail, and related operations surfaces. Remaining identical app keys are the intentional technical/proper/format tail across completed app groups, including service/product names, code identifiers, fixed URLs, masked secrets, units, placeholder-only formats, and standards/protocol tokens. Current `npm run i18n:report` shows `fi-FI` at 93.34%, `ja-JP` at 94.49%, and `zh-Hans` at 94.60% distinct values with 100% key presence and 0 missing keys; app namespace distinct coverage is now `fi-FI` 93.40%, `ja-JP` 94.72%, and `zh-Hans` 94.83%. There is no remaining large untranslated Wave 1 app fallback group for these three locales; remaining work before public selection is hidden-locale visual smoke and locale metadata promotion.
+- Promoted completed next Wave 1 app locales `fi-FI`, `ja-JP`, and `zh-Hans` to public-selectable app languages in frontend and backend locale metadata, and expanded the i18n visual smoke matrix to cover them alongside English, Spanish, and Korean. User preference persistence now accepts Finnish, Japanese, and Simplified Chinese; remaining hidden preview locale is `hi-IN`, with `ar` and `en-XA` still internal QA/canary locales. `npx playwright test tests/i18n-visual-smoke.spec.ts --project=chromium` passed 6/6 after the production frontend deploy. Docusaurus public docs locales remain `en`, `es`, and `ko` until docs-content translation catches up.
 
 ## Executive Summary
 
@@ -341,16 +342,16 @@ Current public-selectable languages:
 - `fr-FR`: French Wave 1 app candidate.
 - `de-DE`: German Wave 1 app candidate.
 - `pt-BR`: Brazilian Portuguese Wave 1 app candidate.
+- `fi-FI`: Finnish Wave 1 app candidate.
+- `ja-JP`: Japanese Wave 1 app candidate.
+- `zh-Hans`: Simplified Chinese Wave 1 app candidate.
 - `ko-KR`: Korean production candidate.
 
-Current internal/QA-only languages:
+Current internal/QA-only and hidden-preview languages:
 
+- `hi-IN`: hidden Wave 1 preview candidate.
 - `ar`: RTL canary for layout, bidirectional text, and Docusaurus/docs readiness.
 - `en-XA`: pseudolocale for expansion and missing extraction checks.
-
-Current metadata-enabled but hidden Wave 1 candidates:
-
-- `fi-FI`, `ja-JP`, `zh-Hans`, `hi-IN`.
 
 Rationale:
 
@@ -1669,7 +1670,7 @@ Current ordering: adhere to the original app-first plan. Product/app surfaces ta
 - [x] Run visual smoke screenshots for app Dashboard, topnav language selector, Dashboard contextual help, route/error states, and the next translated app surface in English, Spanish, and Korean. `e2e/tests/i18n-visual-smoke.spec.ts` covers `en-US`, `es-ES`, and `ko-KR`; Chromium passed 3/3 with screenshots under `e2e/screenshots/i18n-visual-smoke/`.
 - [x] Refresh or open the PR once the next app-surface slice is complete, with the branch story centered on native app i18n, per-user language preference, complete pilot contextual help, and Docusaurus native locale infrastructure/chrome as supporting proof rather than the main thrust. Opened PR #215 from `codex/parthenon-i18n-app-priority`.
 - [x] Complete the Wave 1 language-pack drafting pass for `fr-FR`, `de-DE`, and `pt-BR`; app-priority resources now report greater than 93% distinct overall coverage for each locale and the three locales are public-selectable app languages. Keep Arabic as an RTL canary until right-to-left visual certification is complete.
-- [ ] Complete the next hidden Wave 1 language-pack drafting pass for `fi-FI`, `ja-JP`, and `zh-Hans`, following the same namespace order: setup/shared shell, `commons`, app `covariates`/`jobs`, `vocabulary`, `dataExplorer`, `studies`, then `administration`.
+- [x] Complete the next hidden Wave 1 language-pack drafting pass for `fi-FI`, `ja-JP`, and `zh-Hans`, following the same namespace order: setup/shared shell, `commons`, app `covariates`/`jobs`, `vocabulary`, `dataExplorer`, `studies`, then `administration`; these three locales now report greater than 93% distinct overall coverage and are public-selectable app languages.
 
 Branch goals:
 
