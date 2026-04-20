@@ -37,7 +37,7 @@
     "@react-three/fiber": "^9.6.0",
     "@rjsf/core": "^6.4.2",
     "@rjsf/utils": "^6.4.2",
-    "@rjsf/validator-ajv8": "^6.4.2",
+    "@rjsf/validator-ajv8": "^6.5.1",
     "@tailwindcss/vite": "^4.2.2",
     "@tanstack/react-query": "^5.99.0",
     "@tanstack/react-table": "^8.21.3",
