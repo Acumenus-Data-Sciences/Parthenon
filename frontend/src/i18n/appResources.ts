@@ -15485,18 +15485,17 @@ const frApp: MessageTree = mergeMessageTrees(enApp, {
   administration: {
     dashboard: {
       title: "Administration",
-      subtitle:
-        "Gérez les utilisateurs, les rôles, les autorisations et la configuration du système.",
+      subtitle: "Gérez les utilisateurs, les rôles, les autorisations et la configuration du système.",
       panels: {
         platform: "Plateforme",
         usersAccess: "Utilisateurs et accès",
         dataSources: "Sources de données",
-        aiResearch: "IA et recherche",
+        aiResearch: "IA et recherche"
       },
       status: {
         allHealthy: "Tout est sain",
         degraded: "Dégradé",
-        warning: "Avertissement",
+        warning: "Avertissement"
       },
       labels: {
         services: "Services",
@@ -15510,95 +15509,199 @@ const frApp: MessageTree = mergeMessageTrees(enApp, {
         aiProvider: "Fournisseur IA",
         model: "Modèle",
         abby: "Abby",
-        researchRuntime: "R / HADES",
+        researchRuntime: "R / HADES"
       },
       values: {
         servicesUp: "{{healthy}}/{{total}} actifs",
         queueSummary: "{{pending}} en attente / {{failed}} en échec",
         enabledCount: "{{count}} activés",
+        tokenExpiry: "8h",
+        cdmCount: "{{count}} CDM",
+        solrSummary: "Documents {{docs}} / cœurs {{cores}}",
         none: "Aucun",
-        online: "En ligne",
+        online: "En ligne"
       },
       messages: {
-        noCdmSources: "Aucune source CDM configurée",
+        noCdmSources: "Aucune source CDM configurée"
       },
       nav: {
         userManagement: {
           title: "Gestion des utilisateurs",
-          description:
-            "Créez, modifiez et désactivez les comptes. Attribuez des rôles pour contrôler l'accès.",
+          description: "Créez, modifiez et désactivez les comptes. Attribuez des rôles pour contrôler l'accès."
         },
         rolesPermissions: {
           title: "Rôles et autorisations",
-          description:
-            "Définissez des rôles personnalisés et ajustez les autorisations dans tous les domaines.",
+          description: "Définissez des rôles personnalisés et ajustez les autorisations dans tous les domaines."
         },
         authProviders: {
           title: "Fournisseurs d'authentification",
-          description:
-            "Activez et configurez LDAP, OAuth 2.0, SAML 2.0 ou OIDC pour le SSO.",
+          description: "Activez et configurez LDAP, OAuth 2.0, SAML 2.0 ou OIDC pour le SSO."
         },
         aiProviders: {
           title: "Configuration du fournisseur IA",
-          description:
-            "Basculez le backend d'Abby entre Ollama local, Anthropic, OpenAI, Gemini et plus.",
+          description: "Basculez le backend d'Abby entre Ollama local, Anthropic, OpenAI, Gemini et plus."
         },
         systemHealth: {
           title: "État du système",
-          description:
-            "Statut en direct des services Parthenon : Redis, IA, Darkstar, Solr, Orthanc PACS et files de tâches.",
+          description: "Statut en direct des services Parthenon : Redis, IA, Darkstar, Solr, Orthanc PACS et files de tâches."
         },
         vocabularyManagement: {
           title: "Gestion du vocabulaire",
-          description:
-            "Mettez à jour les tables OMOP en téléversant un nouveau ZIP Athena.",
+          description: "Mettez à jour les tables OMOP en téléversant un nouveau ZIP Athena."
         },
         fhirConnections: {
           title: "Connexions FHIR EHR",
-          description:
-            "Gérez les connexions FHIR R4 vers Epic, Cerner et d'autres systèmes EHR pour l'import massif.",
-        },
+          description: "Gérez les connexions FHIR R4 vers Epic, Cerner et d'autres systèmes EHR pour l'import massif."
+        }
       },
       setupWizard: {
         title: "Assistant de configuration de la plateforme",
-        description:
-          "Relancez la configuration guidée : état, fournisseur IA, authentification et sources de données.",
+        description: "Relancez la configuration guidée : état, fournisseur IA, authentification et sources de données."
       },
       atlasMigration: {
         title: "Migrer depuis Atlas",
-        description:
-          "Importez des définitions de cohortes, des jeux de concepts et des analyses depuis une installation OHDSI Atlas.",
+        description: "Importez des définitions de cohortes, des jeux de concepts et des analyses depuis une installation OHDSI Atlas."
       },
       actions: {
         open: "Ouvrir",
-        openWizard: "Ouvrir l'assistant",
+        openWizard: "Ouvrir l'assistant"
+      }
+    },
+    acropolisServices: {
+      descriptions: {
+        authentik: "Fournisseur d'identité et portail d'accès",
+        wazuh: "Surveillance de la sécurité et tableau de bord SIEM",
+        grafana: "Tableaux de bord de métriques et d’observabilité",
+        portainer: "Opérations de conteneurs et de piles",
+        pgadmin: "console d'administration PostgreSQL",
+        n8n: "Orchestration et automatisation des flux de travail",
+        superset: "BI et espace de travail d'analyse ad hoc",
+        datahub: "Catalogue de métadonnées et explorateur de lignée"
       },
+      openService: "Service ouvert"
+    },
+    grafana: {
+      openDashboard: "Ouvrir le tableau de bord"
+    },
+    broadcastEmail: {
+      title: "E-mail de diffusion",
+      descriptionPrefix: "Cela enverra un e-mail individuel à chacun des",
+      descriptionSuffix: "utilisateurs enregistrés.",
+      subject: "Sujet",
+      subjectPlaceholder: "Objet de l'e-mail...",
+      message: "Message",
+      messagePlaceholder: "Écrivez votre message ici...",
+      close: "Fermer",
+      cancel: "Annuler",
+      sending: "Envoi...",
+      sendToAll: "Envoyer à tous les utilisateurs",
+      resultWithRecipients: "{{message}} (destinataires {{count}})",
+      unknownError: "Erreur inconnue"
+    },
+    userModal: {
+      titles: {
+        editUser: "Modifier l'utilisateur",
+        newUser: "Nouvel utilisateur"
+      },
+      fields: {
+        fullName: "Nom et prénom",
+        email: "E-mail",
+        password: "Mot de passe",
+        roles: "Rôles"
+      },
+      hints: {
+        keepCurrentPassword: "(laisser vide pour rester à jour)"
+      },
+      placeholders: {
+        maskedPassword: "••••••••",
+        passwordRequirements: "Min 8 caractères, casse mixte + numéro"
+      },
+      actions: {
+        cancel: "Annuler",
+        saving: "Économie...",
+        saveChanges: "Enregistrer les modifications",
+        createUser: "Créer un utilisateur"
+      },
+      errors: {
+        generic: "Une erreur s'est produite.",
+        passwordRequired: "Un mot de passe est requis."
+      }
+    },
+    liveKit: {
+      loadingConfiguration: "Chargement de la configuration...",
+      provider: "Fournisseur",
+      providerBadges: {
+        cloud: "Nuage",
+        "self-hosted": "Auto-hébergé",
+        env: "Env."
+      },
+      providerOptions: {
+        environment: "Environnement",
+        liveKitCloud: "LiveKit Nuage",
+        selfHosted: "Auto-hébergé"
+      },
+      providerDescriptions: {
+        useEnvFile: "Utiliser le fichier .env",
+        hostedByLiveKit: "Hébergé par LiveKit",
+        yourOwnServer: "Votre propre serveur"
+      },
+      env: {
+        usingEnvConfiguration: "Utilisation de la configuration .env",
+        url: "URL :",
+        apiKey: "Clé API :",
+        apiSecret: "Secret API :",
+        notSet: "Non défini",
+        missing: "Manquant",
+        editPrefix: "Modifier",
+        editSuffix: "et redémarrez PHP pour changer."
+      },
+      fields: {
+        cloudUrl: "LiveKit Nuage URL",
+        serverUrl: "Serveur URL",
+        apiKey: "Clé API",
+        apiSecret: "API secret"
+      },
+      placeholders: {
+        savedKey: "Enregistré ; entrez une nouvelle clé pour la remplacer",
+        savedSecret: "Enregistré ; entrez un nouveau secret pour le remplacer",
+        enterApiKey: "Entrez la clé API",
+        enterApiSecret: "Entrez le secret API"
+      },
+      actions: {
+        hideConfiguration: "Masquer la configuration",
+        configureLiveKit: "Configurer LiveKit",
+        testConnection: "Tester la connexion",
+        saveConfiguration: "Enregistrer la configuration",
+        useEnvDefaults: "Utiliser les valeurs par défaut de .env"
+      },
+      toasts: {
+        noUrlToTest: "Pas de URL à tester",
+        connectionSuccessful: "Connexion réussie",
+        connectionFailed: "La connexion a échoué",
+        configurationSaved: "configuration LiveKit enregistrée",
+        saveFailed: "Échec de l'enregistrement de la configuration"
+      }
     },
     authProviders: {
       title: "Fournisseurs d'authentification",
-      subtitle:
-        "Activez un ou plusieurs fournisseurs d'identité externes pour le SSO. Le nom d'utilisateur/mot de passe Sanctum reste toujours disponible en secours.",
+      subtitle: "Activez un ou plusieurs fournisseurs d'identité externes pour le SSO. Le nom d'utilisateur/mot de passe Sanctum reste toujours disponible en secours.",
       providers: {
         ldap: {
           label: "LDAP / Active Directory",
-          description:
-            "Authentifiez avec Microsoft Active Directory ou tout annuaire LDAP v3. Prend en charge TLS, la synchronisation des groupes et le mappage des attributs.",
+          description: "Authentifiez avec Microsoft Active Directory ou tout annuaire LDAP v3. Prend en charge TLS, la synchronisation des groupes et le mappage des attributs."
         },
         oauth2: {
           label: "OAuth 2.0",
-          description:
-            "Déléguez l'authentification à GitHub, Google, Microsoft ou tout fournisseur OAuth 2.0 personnalisé.",
+          description: "Déléguez l'authentification à GitHub, Google, Microsoft ou tout fournisseur OAuth 2.0 personnalisé."
         },
         saml2: {
           label: "SAML 2.0",
-          description:
-            "SSO d'entreprise via un fournisseur d'identité SAML 2.0 (Okta, Azure AD, ADFS, etc.).",
+          description: "SSO d'entreprise via un fournisseur d'identité SAML 2.0 (Okta, Azure AD, ADFS, etc.)."
         },
         oidc: {
-          label: "OpenID Connect",
-          description:
-            "SSO moderne via la découverte OIDC. Prend en charge PKCE et tout IdP conforme aux standards.",
-        },
+          label: "Connexion OpenID",
+          description: "SSO moderne via la découverte OIDC. Prend en charge PKCE et tout IdP conforme aux standards."
+        }
       },
       enabled: "Activé",
       disabled: "Désactivé",
@@ -15613,17 +15716,17 @@ const frApp: MessageTree = mergeMessageTrees(enApp, {
       formActions: {
         saving: "Enregistrement...",
         save: "Enregistrer",
-        saved: "Enregistré",
+        saved: "Enregistré"
       },
       oauthForm: {
         drivers: {
           github: "GitHub",
           google: "Google",
-          microsoft: "Microsoft / Azure AD",
-          custom: "OAuth 2.0 personnalisé",
+          microsoft: "Microsoft/Azure AD",
+          custom: "OAuth 2.0 personnalisé"
         },
         sections: {
-          customEndpoints: "Points de terminaison personnalisés",
+          customEndpoints: "Points de terminaison personnalisés"
         },
         labels: {
           provider: "Fournisseur",
@@ -15633,17 +15736,17 @@ const frApp: MessageTree = mergeMessageTrees(enApp, {
           scopes: "Portées",
           authorizationUrl: "URL d'autorisation",
           tokenUrl: "URL de jeton",
-          userInfoUrl: "URL d'informations utilisateur",
+          userInfoUrl: "URL d'informations utilisateur"
         },
         hints: {
           redirectUri: "Doit correspondre à l'URI enregistrée chez votre fournisseur OAuth",
-          scopes: "Liste séparée par des espaces",
+          scopes: "Liste séparée par des espaces"
         },
         placeholders: {
           clientId: "ID client / application",
-          redirectUri: "/api/v1/auth/oauth2/callback",
-          scopes: "openid profile email",
-        },
+          redirectUri: "/api/v1/auth/oauth2/rappel",
+          scopes: "email de profil openid"
+        }
       },
       oidcForm: {
         labels: {
@@ -15652,20 +15755,25 @@ const frApp: MessageTree = mergeMessageTrees(enApp, {
           clientSecret: "Secret client",
           redirectUri: "URI de redirection",
           scopes: "Portées",
-          pkceEnabled: "Activer PKCE (recommandé - nécessite un client public)",
+          pkceEnabled: "Activer PKCE (recommandé - nécessite un client public)"
         },
         hints: {
-          discoveryUrl:
-            "Le point de terminaison /.well-known/openid-configuration de votre IdP",
+          discoveryUrl: "Le point de terminaison /.well-known/openid-configuration de votre IdP",
           redirectUri: "Doit correspondre à ce qui est enregistré dans votre IdP",
-          scopes: "Séparées par des espaces",
+          scopes: "Séparées par des espaces"
         },
+        placeholders: {
+          discoveryUrl: "https://accounts.google.com/.well-known/openid-configuration",
+          clientId: "votre-identifiant-client",
+          redirectUri: "/api/v1/auth/oidc/callback",
+          scopes: "email de profil openid"
+        }
       },
       samlForm: {
         sections: {
           identityProvider: "Fournisseur d'identité (IdP)",
           serviceProvider: "Fournisseur de service (SP)",
-          attributeMapping: "Mappage des attributs",
+          attributeMapping: "Mappage des attributs"
         },
         labels: {
           idpEntityId: "ID d'entité IdP",
@@ -15675,22 +15783,24 @@ const frApp: MessageTree = mergeMessageTrees(enApp, {
           spEntityId: "ID d'entité SP",
           acsUrl: "URL ACS",
           nameIdFormat: "Format NameID",
-          signAssertions:
-            "Signer les assertions (nécessite la clé privée SP - à configurer côté serveur)",
+          signAssertions: "Signer les assertions (nécessite la clé privée SP - à configurer côté serveur)",
           emailAttribute: "Attribut e-mail",
-          displayNameAttribute: "Attribut nom affiché",
+          displayNameAttribute: "Attribut nom affiché"
         },
         hints: {
           ssoUrl: "Point de terminaison Single Sign-On",
           sloUrl: "Point de terminaison Single Logout (facultatif)",
-          idpCertificate:
-            "Collez le certificat X.509 (format PEM, avec ou sans en-têtes)",
-          spEntityId:
-            "URL de votre instance Parthenon - doit correspondre à celle enregistrée dans l'IdP",
-          acsUrl: "Assertion Consumer Service",
+          idpCertificate: "Collez le certificat X.509 (format PEM, avec ou sans en-têtes)",
+          spEntityId: "URL de votre instance Parthenon - doit correspondre à celle enregistrée dans l'IdP",
+          acsUrl: "Service consommateur d’assertions"
         },
-        attributeMappingDescription:
-          "Mappez les attributs d'assertion SAML vers les champs utilisateur de Parthenon.",
+        placeholders: {
+          certificate: "-----BEGIN CERTIFICATE-----\nMIIDxTCC...\n-----END CERTIFICATE-----",
+          acsUrl: "/api/v1/auth/saml2/callback",
+          sloUrl: "/api/v1/auth/saml2/logout",
+          displayName: "displayName"
+        },
+        attributeMappingDescription: "Mappez les attributs d'assertion SAML vers les champs utilisateur de Parthenon."
       },
       ldapForm: {
         sections: {
@@ -15698,7 +15808,7 @@ const frApp: MessageTree = mergeMessageTrees(enApp, {
           bindCredentials: "Identifiants de liaison",
           userSearch: "Recherche d'utilisateurs",
           attributeMapping: "Mappage des attributs",
-          groupSync: "Synchronisation des groupes",
+          groupSync: "Synchronisation des groupes"
         },
         labels: {
           host: "Hôte",
@@ -15716,46 +15826,1268 @@ const frApp: MessageTree = mergeMessageTrees(enApp, {
           displayNameField: "Champ nom affiché",
           syncGroups: "Synchroniser les groupes LDAP vers les rôles Parthenon",
           groupSearchBase: "Base de recherche des groupes",
-          groupFilter: "Filtre de groupe",
+          groupFilter: "Filtre de groupe"
         },
         hints: {
           host: "Nom d'hôte ou IP du serveur LDAP",
           bindDn: "DN du compte de service utilisé pour interroger l'annuaire",
-          userFilter: "{username} est remplacé au moment de la connexion",
+          userFilter: "{username} est remplacé au moment de la connexion"
+        },
+        placeholders: {
+          bindDn: "cn=svc-parthénon,dc=exemple,dc=com",
+          baseDn: "dc=exemple,dc=com",
+          userSearchBase: "ou=utilisateurs,dc=exemple,dc=com",
+          userFilter: "(uid={nom d'utilisateur})",
+          groupSearchBase: "ou=groupes,dc=exemple,dc=com",
+          groupFilter: "(objectClass=groupOfNames)"
         },
         actions: {
           saving: "Enregistrement...",
           save: "Enregistrer",
-          saved: "Enregistré",
-        },
+          saved: "Enregistré"
+        }
+      }
+    },
+    roles: {
+      title: "Rôles et autorisations",
+      subtitle: "Définissez des rôles personnalisés et affinez les attributions d'autorisations. Utilisez la matrice pour les modifications groupées.",
+      tabs: {
+        roleList: "Liste des rôles",
+        permissionMatrix: "Matrice d'autorisation"
       },
+      permissionMatrix: {
+        instructions: "Cliquez sur les cellules pour basculer les autorisations · En-têtes de ligne à appliquer à tous les rôles · En-têtes de colonne pour accorder/révoquer tout pour un rôle.",
+        saveAllChangesOne: "Enregistrer toutes les modifications (rôle {{count}})",
+        saveAllChangesOther: "Enregistrer toutes les modifications (rôles {{count}})",
+        permission: "Autorisation",
+        columnTitle: "Basculer toutes les autorisations pour {{role}}",
+        permissionCount: "{{count}} perms",
+        saving: "économie...",
+        saved: "enregistré ✓",
+        save: "sauvegarder",
+        domainTitle: "Basculer toutes les autorisations {{domain}} sur tous les rôles",
+        rowTitle: "Activer {{permission}} pour tous les rôles",
+        cellTitleGrant: "Accorder {{permission}} à {{role}}",
+        cellTitleRevoke: "Révoquer {{permission}} de {{role}}"
+      },
+      editor: {
+        roleName: "Nom du rôle",
+        roleNamePlaceholder: "par ex. coordinateur de chantier",
+        permissions: "Autorisations",
+        selectedCount: "({{count}} sélectionné)"
+      },
+      actions: {
+        newRole: "Nouveau rôle",
+        cancel: "Annuler",
+        saving: "Économie...",
+        saveRole: "Enregistrer le rôle",
+        editRole: "Modifier le rôle",
+        deleteRole: "Supprimer le rôle",
+        deleting: "Suppression...",
+        delete: "Supprimer"
+      },
+      values: {
+        builtIn: "intégré",
+        userCountOne: "utilisateur {{count}}",
+        userCountOther: "utilisateurs {{count}}",
+        permissionCountOne: "autorisation {{count}}",
+        permissionCountOther: "autorisations {{count}}",
+        more: "+{{count}} plus"
+      },
+      deleteModal: {
+        title: "Supprimer le rôle ?",
+        prefix: "Le rôle",
+        suffix: "sera définitivement supprimé. Les utilisateurs affectés uniquement à ce rôle perdront toutes les autorisations."
+      }
+    },
+    pacs: {
+      studyBrowser: {
+        browseTitle: "Parcourir : {{name}}",
+        filters: {
+          patientName: "Nom du patient",
+          patientId: "Patient ID",
+          allModalities: "Toutes les modalités"
+        },
+        empty: {
+          noStudies: "Aucune étude trouvée"
+        },
+        table: {
+          patientName: "Nom du patient",
+          patientId: "Patient ID",
+          date: "Date",
+          modality: "Modalité",
+          description: "Description",
+          series: "Série",
+          instances: "Inst."
+        },
+        pagination: {
+          range: "{{start}}-{{end}}",
+          ofStudies: "des études {{total}}",
+          previous: "Précédent",
+          next: "Suivant"
+        }
+      },
+      connectionCard: {
+        defaultConnection: "Connexion par défaut",
+        setAsDefault: "Définir par défaut",
+        deleteConfirm: "Supprimer \"{{name}}\" ?",
+        never: "Jamais",
+        seriesByModality: "Série par modalité",
+        statsUpdated: "Statistiques mises à jour {{date}}",
+        stats: {
+          patients: "Patients",
+          studies: "Études",
+          series: "Série",
+          instances: "Instances",
+          disk: "Disque"
+        },
+        actions: {
+          edit: "Modifier",
+          delete: "Supprimer",
+          test: "Test",
+          stats: "Statistiques",
+          browse: "Parcourir"
+        }
+      }
+    },
+    solrAdmin: {
+      title: "Administration de la recherche Solr",
+      subtitle: "Gérez les cœurs de recherche Solr, déclenchez la réindexation et surveillez l'état.",
+      loadingCoreStatus: "Chargement de l'état du noyau...",
+      status: {
+        healthy: "En bonne santé",
+        unavailable: "Indisponible"
+      },
+      labels: {
+        documents: "Documents",
+        lastIndexed: "Dernier indexé",
+        duration: "Durée"
+      },
+      values: {
+        never: "Jamais",
+        seconds: "{{seconds}}s"
+      },
+      actions: {
+        reindexAll: "Réindexer tous les cœurs",
+        reindex: "Réindexer",
+        fullReindex: "Réindexation complète",
+        clear: "Effacer"
+      },
+      messages: {
+        fetchFailed: "Échec de la récupération du statut Solr",
+        reindexCompleted: "Réindexation de '{{core}}' terminée",
+        reindexFailed: "Échec de la réindexation de '{{core}}'",
+        reindexAllCompleted: "Réindexation - tout est terminé",
+        reindexAllFailed: "Échec de la réindexation de tous les cœurs",
+        clearConfirm: "Êtes-vous sûr de vouloir effacer tous les documents de « {{core}} » ? Cela ne peut pas être annulé.",
+        clearCompleted: "Noyau '{{core}}' effacé",
+        clearFailed: "Échec de la suppression de « {{core}} »"
+      }
     },
     aiProviders: {
       title: "Configuration du fournisseur IA",
-      subtitle:
-        "Choisissez le backend IA qui alimente Abby. Un seul fournisseur est actif à la fois. Les clés API sont stockées chiffrées.",
+      subtitle: "Choisissez le backend IA qui alimente Abby. Un seul fournisseur est actif à la fois. Les clés API sont stockées chiffrées.",
       activeProvider: "Fournisseur actif :",
       fields: {
         model: "Modèle",
         apiKey: "Clé API",
-        ollamaBaseUrl: "URL de base Ollama",
+        ollamaBaseUrl: "URL de base Ollama"
+      },
+      placeholders: {
+        modelName: "Nom du modèle"
       },
       values: {
         active: "Actif",
         enabled: "Activé",
         disabled: "Désactivé",
-        noModelSelected: "Aucun modèle sélectionné",
+        noModelSelected: "Aucun modèle sélectionné"
       },
       actions: {
         currentlyActive: "Actuellement actif",
         setAsActive: "Définir comme actif",
         save: "Enregistrer",
-        testConnection: "Tester la connexion",
+        testConnection: "Tester la connexion"
       },
       messages: {
-        requestFailed: "La requête a échoué.",
-      },
+        requestFailed: "La requête a échoué."
+      }
     },
+    gisImport: {
+      steps: {
+        upload: "Télécharger",
+        analyze: "Analyser",
+        mapColumns: "Colonnes de la carte",
+        configure: "Configurer",
+        validate: "Valider",
+        import: "Importer"
+      },
+      analyze: {
+        analysisFailed: "Abby a rencontré un problème lors de l'analyse de ce fichier.",
+        unknownError: "Erreur inconnue",
+        retry: "Réessayer",
+        analyzing: "Abby analyse vos données...",
+        detecting: "Détection des types de colonnes, des codes géographiques et de la sémantique des valeurs"
+      },
+      upload: {
+        uploading: "Téléchargement...",
+        dropPrompt: "Déposez un fichier ici ou cliquez pour parcourir",
+        acceptedFormats: "CSV, TSV, Excel, Shapefile (.zip), GeoJSON, KML, GeoPackage - max {{maxSize}}MB",
+        largeFiles: "Pour les gros fichiers (> {{maxSize}}MB)",
+        fileTooLarge: "Le fichier dépasse {{maxSize}}MB. Utilisez CLI : php artisan gis:import {{filename}}",
+        uploadFailed: "Échec du téléchargement"
+      },
+      configure: {
+        fields: {
+          layerName: "Nom du calque",
+          exposureType: "Type d'exposition",
+          geographyLevel: "Niveau Géographie",
+          valueType: "Type de valeur",
+          aggregation: "Agrégation"
+        },
+        placeholders: {
+          layerName: "par exemple, indice de vulnérabilité sociale",
+          exposureType: "par exemple, svi_overall"
+        },
+        geographyLevels: {
+          county: "Comté",
+          tract: "Secteur de recensement",
+          state: "État",
+          country: "Pays",
+          custom: "Personnalisé"
+        },
+        valueTypes: {
+          continuous: "Continu (choroplèthe)",
+          categorical: "Catégorique (couleurs discrètes)",
+          binary: "Binaire (présence/absence)"
+        },
+        aggregations: {
+          mean: "Signifier",
+          sum: "Somme",
+          maximum: "Maximum",
+          minimum: "Minimum",
+          latest: "Dernier"
+        },
+        saving: "Économie...",
+        continue: "Continuer"
+      },
+      mapping: {
+        title: "Mappage de colonnes",
+        subtitle: "Mappez chaque colonne source à son objectif",
+        purposes: {
+          geographyCode: "Code de géographie",
+          geographyName: "Nom géographique",
+          latitude: "Latitude",
+          longitude: "Longitude",
+          valueMetric: "Valeur (métrique)",
+          metadata: "Métadonnées",
+          skip: "Sauter"
+        },
+        confidence: {
+          high: "Haut",
+          medium: "Moyen",
+          low: "Faible"
+        },
+        askAbby: "Demandez à Abby",
+        abbyOnColumn: "Abby sur \"{{column}}\" :",
+        thinking: "Pensée...",
+        saving: "Économie...",
+        continue: "Continuer"
+      },
+      validate: {
+        validating: "Validation...",
+        validationFailed: "Échec de la validation :",
+        unknownError: "Erreur inconnue",
+        results: "Résultats de validation",
+        stats: {
+          totalRows: "Total des lignes",
+          uniqueGeographies: "Géographies uniques",
+          matched: "Correspondant",
+          unmatched: "Sans correspondance (bouts)",
+          matchRate: "Taux de correspondance",
+          geographyType: "Type de géographie"
+        },
+        unmatchedWarning: "Géographies {{count}} introuvables dans la base de données. Des entrées de stub seront créées (pas de géométrie de limite).",
+        backToMapping: "Retour à la cartographie",
+        proceedWithImport: "Procéder à l'importation"
+      },
+      import: {
+        starting: "Départ...",
+        startImport: "Démarrer l'importation",
+        importing: "Importation... {{progress}}%",
+        complete: "Importation terminée",
+        rowsImported: "lignes {{count}} importées",
+        saveLearningPrompt: "Enregistrez les mappages pour que Abby apprenne pour la prochaine fois",
+        saveToAbby: "Enregistrer sur Abby",
+        viewInGisExplorer: "Afficher dans l'explorateur GIS",
+        importAnother: "Importer un autre",
+        failed: "Échec de l'importation",
+        startOver: "Recommencer"
+      }
+    },
+    chromaStudio: {
+      title: "Chroma Collection Studio",
+      subtitle: "Inspectez les collections de vecteurs, exécutez des requêtes sémantiques et gérez l'ingestion",
+      values: {
+        collectionCount: "collections {{count}}",
+        loading: "chargement",
+        loadingEllipsis: "Chargement...",
+        countSuffix: "({{count}})",
+        sampledSuffix: "({{count}} échantillonné)"
+      },
+      actions: {
+        refreshCollections: "Actualiser les collections",
+        ingestDocs: "Ingérer des documents",
+        ingestClinical: "Ingérer clinique",
+        promoteFaq: "Promouvoir FAQ",
+        ingestOhdsiPapers: "Ingérer des papiers OHDSI",
+        ingestOhdsiKnowledge: "Ingérer les connaissances OHDSI",
+        ingestTextbooks: "Ingérer des manuels"
+      },
+      stats: {
+        vectors: "Vectors",
+        sampled: "Échantillonné",
+        dimensions: "Dimensions",
+        metaFields: "Champs méta"
+      },
+      messages: {
+        loadingCollectionData: "Chargement des données de collecte..."
+      },
+      empty: {
+        title: "Cette collection est vide",
+        description: "Utilisez les actions d'ingestion ci-dessus pour remplir \"{{collection}}\" avec des documents.",
+        noRecords: "Aucun enregistrement dans cette collection.",
+        noDocumentReturned: "Aucun document retourné.",
+        noDocumentText: "Aucun texte de document disponible."
+      },
+      tabs: {
+        overview: "Aperçu",
+        retrieval: "Récupération"
+      },
+      search: {
+        placeholder: "Requête sémantique...",
+        recentQueries: "Requêtes récentes",
+        kLabel: "K :",
+        queryAction: "Requête",
+        empty: "Saisissez une requête ci-dessus et cliquez sur Requête pour inspecter les résultats de récupération.",
+        queryLabel: "Requête:",
+        resultsCount: "résultats {{count}}",
+        querying: "Interrogation...",
+        distance: "distance"
+      },
+      overview: {
+        facetDistribution: "Distribution des facettes",
+        sampleRecords: "Exemples d'enregistrements",
+        collectionMetadata: "Métadonnées de collecte"
+      }
+    },
+    vectorExplorer: {
+      title: "Explorateur Vector",
+      semanticMapTitle: "Carte sémantique {{dimensions}}D",
+      loading: {
+        computingProjection: "Projection informatique",
+        runningProjection: "Exécution de PCA->UMAP sur des vecteurs {{sample}}...",
+        recomputingProjection: "Recalcul de la projection..."
+      },
+      values: {
+        all: "tous",
+        loadingEllipsis: "Chargement...",
+        countSuffix: "({{count}})",
+        sampled: "{{count}} échantillonné",
+        dimensions: "{{dimensions}}D",
+        knnEdges: "k={{neighbors}} - bords {{edges}}",
+        seconds: "{{seconds}}s",
+        points: "{{count}} pts",
+        cachedSuffix: "- mis en cache",
+        fallbackSuffix: "- retomber",
+        timeSuffix: "- {{seconds}}s"
+      },
+      modes: {
+        clusters: "Groupes",
+        query: "Requête",
+        qa: "QA"
+      },
+      sample: {
+        label: "Échantillon",
+        confirmLoadAll: "Charger tous les vecteurs {{count}} ? Cela peut prendre sensiblement plus de temps.",
+        steps: {
+          all: "Tous"
+        }
+      },
+      empty: {
+        selectCollection: "Sélectionnez une collection pour visualiser les intégrations."
+      },
+      tooltips: {
+        requiresAiService: "Nécessite une connexion au service IA"
+      },
+      controls: {
+        colorBy: "Couleur par",
+        modeDefault: "Mode par défaut"
+      },
+      search: {
+        placeholder: "Rechercher dans l'espace vectoriel",
+        searching: "Recherche...",
+        search: "Rechercher",
+        visibleResults: "Résultats {{visible}} de {{total}} visibles dans cette projection"
+      },
+      query: {
+        anchor: "Ancre de requête"
+      },
+      sections: {
+        overlays: "Superpositions",
+        clusterProfile: "Profil de cluster",
+        inspector: "Inspecteur"
+      },
+      inspector: {
+        selectPoint: "Cliquez sur un point à inspecter.",
+        loadingDetails: "Chargement de tous les détails...",
+        flags: {
+          outlier: "Valeur aberrante",
+          duplicate: "Double",
+          orphan: "Orphelin"
+        }
+      },
+      overlays: {
+        clusterHulls: {
+          label: "Coques de cluster",
+          help: "Enveloppes convexes autour des clusters"
+        },
+        topologyLines: {
+          label: "Lignes de topologie",
+          help: "liens k-NN entre les points proches"
+        },
+        queryRays: {
+          label: "Rayons de requête",
+          help: "Liens de similarité ancre-résultat"
+        }
+      },
+      stats: {
+        totalVectors: "Total des vecteurs",
+        sampled: "Échantillonné",
+        projection: "Projection",
+        knnGraph: "graphique k-NN",
+        source: "Source",
+        projectionTime: "Temps de projection",
+        indexed: "Indexé"
+      },
+      sources: {
+        solrCached: "Solr (mis en cache)",
+        clientFallback: "Repli client",
+        liveUmap: "En direct UMAP"
+      },
+      actions: {
+        recomputeProjection: "Recalculer la projection",
+        expand: "Développer"
+      },
+      legend: {
+        clusters: "Groupes",
+        quality: "Qualité",
+        similarity: "Similarité",
+        hide: "Cacher",
+        show: "Montrer"
+      },
+      quality: {
+        outliers: "Valeurs aberrantes",
+        duplicates: "Doublons",
+        duplicatePairs: "Paires en double",
+        orphans: "Orphelins",
+        normal: "Normale",
+        outOfSampled: "sur {{count}} échantillonné",
+        exportCsv: "Exporter CSV"
+      },
+      clusterProfile: {
+        selectCluster: "Sélectionnez un cluster pour inspecter ses métadonnées dominantes.",
+        clusterSize: "Taille du cluster",
+        dominantMetadata: "Métadonnées dominantes",
+        representativeTitles: "Titres représentatifs"
+      }
+    },
+    pacsConnectionModal: {
+      title: {
+        add: "Ajouter une connexion PACS",
+        edit: "Modifier la connexion PACS"
+      },
+      description: "Configurez une connexion au serveur d'imagerie DICOM.",
+      fields: {
+        name: "Nom",
+        type: "Catégorie",
+        authType: "Type d'authentification",
+        baseUrl: "Base URL",
+        username: "Nom d'utilisateur",
+        password: "Mot de passe",
+        bearerToken: "Jeton du porteur",
+        linkedSource: "Source liée (facultatif)",
+        active: "Actif"
+      },
+      placeholders: {
+        name: "Serveur principal PACS",
+        keepExisting: "Laisser vide pour conserver l'existant",
+        password: "mot de passe",
+        token: "jeton"
+      },
+      types: {
+        orthanc: "Orthanc",
+        dicomweb: "DICOMweb",
+        googleHealthcare: "Google Santé",
+        cloud: "Nuage"
+      },
+      auth: {
+        none: "Aucun",
+        basic: "Authentification de base",
+        bearer: "Jeton du porteur"
+      },
+      values: {
+        latency: "({{ms}}ms)"
+      },
+      actions: {
+        testConnection: "Tester la connexion",
+        cancel: "Annuler",
+        saveChanges: "Enregistrer les modifications",
+        createConnection: "Créer une connexion"
+      },
+      errors: {
+        testRequestFailed: "La demande de test a échoué",
+        saveFailed: "Échec de l'enregistrement de la connexion"
+      }
+    },
+    users: {
+      title: "Utilisateurs",
+      summary: {
+        totalAccounts: "comptes totaux"
+      },
+      empty: {
+        loading: "Chargement...",
+        noUsers: "Aucun utilisateur trouvé",
+        adjustFilters: "Essayez d'ajuster votre recherche ou vos filtres."
+      },
+      deleteModal: {
+        title: "Supprimer l'utilisateur ?",
+        description: "seront définitivement supprimés et tous leurs jetons API révoqués.",
+        irreversible: "Cela ne peut pas être annulé."
+      },
+      actions: {
+        cancel: "Annuler",
+        deleting: "Suppression...",
+        delete: "Supprimer",
+        adminEmailer: "Envoyeur de courrier électronique pour l'administrateur",
+        newUser: "Nouvel utilisateur",
+        editUser: "Modifier l'utilisateur",
+        deleteUser: "Supprimer un utilisateur"
+      },
+      filters: {
+        searchPlaceholder: "Rechercher un nom ou une adresse e-mail...",
+        allRoles: "Tous les rôles"
+      },
+      table: {
+        name: "Nom",
+        email: "E-mail",
+        lastActive: "Dernier actif",
+        joined: "Rejoint",
+        roles: "Rôles"
+      },
+      values: {
+        never: "Jamais"
+      },
+      pagination: {
+        page: "Page",
+        of: "de",
+        users: "utilisateurs"
+      }
+    },
+    userAudit: {
+      title: "Journal d'audit des utilisateurs",
+      subtitle: "Suivez les événements de connexion, l'accès aux fonctionnalités et les actions de sécurité pour tous les utilisateurs.",
+      actions: {
+        login: "Se connecter",
+        logout: "Déconnexion",
+        passwordChanged: "Mot de passe modifié",
+        passwordReset: "Réinitialisation du mot de passe",
+        featureAccess: "Accès aux fonctionnalités"
+      },
+      empty: {
+        noMatching: "Aucun événement correspondant",
+        noEvents: "Aucun événement d'audit pour l'instant",
+        adjustFilters: "Essayez d'ajuster vos filtres ou votre plage de dates.",
+        description: "Les événements d'audit sont enregistrés au fur et à mesure que les utilisateurs se connectent et accèdent aux fonctionnalités de la plateforme."
+      },
+      stats: {
+        loginsToday: "Connexions aujourd'hui",
+        activeUsers7d: "Utilisateurs actifs (7j)",
+        totalEvents: "Total des événements",
+        topFeature: "Fonctionnalité supérieure"
+      },
+      sections: {
+        mostAccessedFeatures: "Fonctionnalités les plus consultées – 7 derniers jours"
+      },
+      filters: {
+        searchPlaceholder: "Rechercher un utilisateur, une fonctionnalité, IP...",
+        allActions: "Toutes les actions",
+        clearAll: "Tout effacer"
+      },
+      table: {
+        time: "Temps",
+        user: "Utilisateur",
+        action: "Action",
+        feature: "Fonctionnalité",
+        ipAddress: "Adresse IP"
+      },
+      pagination: {
+        page: "Page",
+        of: "de",
+        events: "événements"
+      }
+    },
+    serviceDetail: {
+      actions: {
+        backToSystemHealth: "Retour à l'état du système",
+        systemHealth: "Santé du système",
+        refresh: "Rafraîchir",
+        manageSolrCores: "Gérer les cœurs Solr"
+      },
+      empty: {
+        serviceNotFound: "Service introuvable.",
+        noLogs: "Aucune entrée de journal récente disponible."
+      },
+      values: {
+        checkedAt: "Vérifié à {{time}}",
+        entriesCount: "(entrées {{count}})",
+        yes: "Oui",
+        no: "Non"
+      },
+      sections: {
+        metrics: "Métrique",
+        recentLogs: "Journaux récents"
+      },
+      pacs: {
+        title: "Connexions PACS",
+        addConnection: "Ajouter une connexion",
+        empty: "Aucune connexion PACS configurée."
+      },
+      darkstar: {
+        ohdsiPackages: "OHDSI HADES Forfaits",
+        positPackages: "Forfaits Posit/CRAN",
+        installedCount: "({{count}} installé)"
+      }
+    },
+    atlasMigration: {
+      steps: {
+        connect: "Connecter",
+        discover: "Découvrir",
+        select: "Sélectionner",
+        import: "Importer",
+        summary: "Résumé"
+      },
+      entityTypes: {
+        conceptSets: "Ensembles de concepts",
+        cohortDefinitions: "Définitions des cohortes",
+        incidenceRates: "Taux d'incidence",
+        characterizations: "Caractérisations",
+        pathways: "Voies",
+        estimations: "Estimations",
+        predictions: "Prédictions"
+      },
+      connect: {
+        title: "Se connecter à Atlas WebAPI",
+        description: "Entrez le URL de base de votre instance OHDSI WebAPI existante. Parthenon se connectera et inventoriera toutes les entités disponibles pour la migration.",
+        webapiUrl: "WebAPI Base URL",
+        authentication: "Authentication",
+        auth: {
+          none: "Aucun (WebAPI public)",
+          basic: "Authentication de base",
+          bearer: "Jeton du porteur"
+        },
+        credentials: "Identifiants (nom d'utilisateur : mot de passe)",
+        bearerToken: "Jeton du porteur",
+        testConnection: "Tester la connexion",
+        webapiVersion: "Version WebAPI : {{version}}"
+      },
+      discover: {
+        discovering: "Découverte d'entités...",
+        querying: "Interroger tous les points de terminaison WebAPI en parallèle",
+        title: "Inventaire Atlas",
+        summary: "Trouvé des entités migratoires {{count}} dans les catégories {{categories}}.",
+        sourcesFound: "Source(s) de données {{count}} également trouvée."
+      },
+      select: {
+        title: "Sélectionnez les entités à migrer",
+        description: "Choisissez les entités à importer. Les dépendances sont résolues automatiquement.",
+        analysisWarning: "Les entités d'analyse peuvent faire référence à des définitions de cohortes et à des ensembles de concepts par ID. Parthenon remappera automatiquement ces références lors de l'importation. Pour de meilleurs résultats, incluez les cohortes et les ensembles de concepts référencés dans votre sélection.",
+        selectedCount: "{{selected}}/{{total}} sélectionné",
+        totalSelected: "Entités {{count}} sélectionnées pour la migration"
+      },
+      import: {
+        starting: "Début de la migration...",
+        importing: "Importation d'entités...",
+        complete: "Migration terminée",
+        failed: "Échec de la migration",
+        processed: "Toutes les entités sélectionnées ont été traitées.",
+        error: "Une erreur s'est produite lors de la migration.",
+        percentComplete: "{{percent}}% terminé",
+        polling: "Sondage pour les mises à jour..."
+      },
+      summary: {
+        successful: "Migration réussie",
+        completedWithWarnings: "Migration terminée avec des avertissements",
+        failed: "Échec de la migration",
+        from: "Depuis",
+        duration: "Durée : {{duration}}"
+      },
+      metrics: {
+        total: "Total",
+        imported: "Importé",
+        skipped: "Sauté",
+        failed: "Échec"
+      },
+      table: {
+        entityType: "Type d'entité",
+        category: "Catégorie"
+      },
+      actions: {
+        selectAll: "Sélectionner tout",
+        deselectAll: "Désélectionner tout",
+        retryFailed: "Échec de la nouvelle tentative ({{count}})",
+        done: "Fait",
+        closeTitle: "Fermer - revenez à tout moment via l'administration",
+        previous: "Précédent",
+        startMigration: "Démarrer la migration",
+        next: "Suivant"
+      },
+      errors: {
+        connectionFailed: "La connexion a échoué",
+        discoveryFailed: "Échec de la découverte"
+      }
+    },
+    fhirExport: {
+      title: "FHIR Exportation groupée",
+      subtitle: "Exportez les données OMOP CDM sous forme de fichiers FHIR R4 NDJSON pour l'interopérabilité.",
+      comingSoon: "À venir",
+      description: "FHIR Bulk Export ($export) est en cours de développement. Cette fonctionnalité permettra d'exporter les données OMOP CDM sous forme de fichiers FHIR R4 NDJSON pour l'interopérabilité.",
+      backendPending: "Les points de terminaison backend pour cette fonctionnalité n'ont pas encore été implémentés."
+    },
+    fhirConnections: {
+      title: "FHIR EHR Connexions",
+      subtitle: "Configurez les connexions des services backend SMART pour l'extraction de données en masse FHIR R4 à partir d'Epic, Cerner et d'autres systèmes EHR ms.",
+      runMetrics: {
+        extracted: "Extrait",
+        mapped: "Cartographié",
+        written: "Écrit",
+        failed: "Échec",
+        mappingCoverage: "Couverture cartographique"
+      },
+      history: {
+        loading: "Chargement de l'historique de synchronisation...",
+        empty: "Aucune synchronisation n'est encore exécutée.",
+        status: "Statut",
+        started: "Commencé",
+        duration: "Durée",
+        metrics: "Métrique",
+        title: "Historique de synchronisation"
+      },
+      dialog: {
+        editTitle: "Modifier la connexion FHIR",
+        addTitle: "Ajouter une connexion FHIR",
+        description: "Configurez une connexion aux services backend SMART à un point de terminaison EHR FHIR R4."
+      },
+      labels: {
+        siteName: "Nom du site",
+        siteKey: "Clé du site (slug)",
+        ehrVendor: "Fournisseur EHR",
+        fhirBaseUrl: "FHIR Base URL",
+        tokenEndpoint: "Point de terminaison du jeton",
+        clientId: "Client ID",
+        rsaPrivateKey: "Clé privée RSA (PEM)",
+        scopes: "Portées",
+        groupId: "Groupe ID (pour l'exportation en masse)",
+        exportResourceTypes: "Exporter les types de ressources (séparés par des virgules, vide = tous)",
+        active: "Actif",
+        incrementalSync: "Synchronisation incrémentielle"
+      },
+      vendors: {
+        epic: "Épique",
+        cerner: "Cerner (Oracle Santé)",
+        other: "Autre FHIR R4"
+      },
+      placeholders: {
+        siteName: "L'épopée de Johns Hopkins",
+        keepExistingKey: "Laisser vide pour conserver la clé existante",
+        resourceTypes: "Patient, état, rencontre, demande de médicament, observation, procédure"
+      },
+      actions: {
+        cancel: "Annuler",
+        saveChanges: "Enregistrer les modifications",
+        createConnection: "Créer une connexion",
+        testConnection: "Tester la connexion",
+        edit: "Modifier",
+        delete: "Supprimer",
+        details: "Détails",
+        syncMonitor: "Moniteur de synchronisation",
+        addConnection: "Ajouter une connexion"
+      },
+      messages: {
+        failedToSave: "Échec de l'enregistrement",
+        failedToStartSync: "Échec du démarrage de la synchronisation",
+        deleteConfirm: "Supprimer \"{{name}}\" ?",
+        noConnections: "Aucune connexion FHIR configurée",
+        noConnectionsDescription: "Ajoutez une connexion pour commencer à extraire les données cliniques d'un EHR via FHIR R4 Bulk Data."
+      },
+      sync: {
+        activateFirst: "Activez d'abord la connexion",
+        uploadKeyFirst: "Téléchargez d'abord une clé privée",
+        inProgress: "Synchronisation en cours",
+        incrementalTitle: "Synchronisation incrémentielle (uniquement les nouvelles données)",
+        fullSync: "Synchronisation complète",
+        sync: "Synchroniser",
+        incrementalSync: "Synchronisation incrémentielle",
+        incrementalDescription: "Uniquement les données nouvelles/mises à jour depuis la dernière synchronisation",
+        fullDescription: "Téléchargez toutes les données de EHR",
+        forceFullSync: "Forcer la synchronisation complète",
+        forceFullDescription: "Re-télécharger toutes les données, dédupliquer en écriture"
+      },
+      values: {
+        percent: "{{value}}%",
+        byUser: "par {{name}}",
+        keyUploaded: "Clé téléchargée",
+        noKey: "Pas de clé",
+        lastSync: "Dernière synchronisation : {{date}}",
+        records: "enregistrements {{count}}",
+        testElapsed: "{{message}} ({{elapsed}}ms)",
+        allSupported: "Tous pris en charge",
+        enabled: "Activé",
+        disabled: "Désactivé",
+        since: "(depuis {{date}})",
+        notSet: "Non défini",
+        never: "Jamais"
+      },
+      details: {
+        tokenEndpoint: "Point de terminaison du jeton :",
+        clientId: "Client ID :",
+        scopes: "Portées :",
+        groupId: "Groupe ID :",
+        resourceTypes: "Types de ressources :",
+        incremental: "Incrémentiel :",
+        targetSource: "Source cible :",
+        syncRuns: "Exécutions de synchronisation :"
+      },
+      stats: {
+        totalConnections: "Connexions totales",
+        active: "Actif",
+        keysConfigured: "Clés configurées",
+        lastSync: "Dernière synchronisation"
+      }
+    },
+    vocabulary: {
+      title: "Gestion du vocabulaire",
+      subtitle: "Mettez à jour les tables de vocabulaire OMOP à partir d'un téléchargement Athena ZIP.",
+      status: {
+        pending: "En file d'attente",
+        running: "En cours",
+        completed: "Complété",
+        failed: "Échec"
+      },
+      log: {
+        title: "Journal d'importation",
+        noOutput: "(pas encore de sortie)"
+      },
+      labels: {
+        schema: "Schéma:",
+        source: "Source:",
+        rowsLoaded: "Lignes chargées :",
+        duration: "Durée:",
+        by: "Par:",
+        progress: "Progrès",
+        optional: "(facultatif)"
+      },
+      values: {
+        seconds: "{{value}}s"
+      },
+      actions: {
+        refresh: "Rafraîchir",
+        remove: "Retirer",
+        uploading: "Téléchargement...",
+        startImport: "Démarrer l'importation"
+      },
+      upload: {
+        title: "Télécharger le vocabulaire Athena ZIP",
+        descriptionPrefix: "Téléchargez un ensemble de vocabulaire à partir de",
+        descriptionMiddle: "et téléchargez-le ici.",
+        descriptionSuffix: "L'importation s'exécute en arrière-plan et peut prendre 15 à 60 minutes selon la taille du vocabulaire.",
+        maxFileSize: "Les fichiers jusqu'à 5 GB sont pris en charge",
+        dropHere: "Déposez Athena ZIP ici",
+        browse: "ou cliquez pour parcourir",
+        targetSource: "Source CDM cible",
+        defaultSchema: "Schéma de vocabulaire par défaut",
+        sourceHelpPrefix: "Sélectionne le schéma de vocabulaire de la source que l'importation remplira. Si aucune source n'est choisie, la valeur par défaut",
+        sourceHelpSuffix: "le schéma de connexion est utilisé."
+      },
+      instructions: {
+        title: "Comment obtenir un vocabulaire ZIP d'Athena",
+        signInPrefix: "Visite",
+        signInSuffix: "et connectez-vous.",
+        selectDomains: "Sélectionnez les domaines de vocabulaire et les versions dont vous avez besoin (par exemple SNOMED, RxNorm, LOINC).",
+        clickPrefix: "Cliquez",
+        downloadVocabularies: "Télécharger les vocabulaires",
+        clickSuffix: "- Athena vous enverra par e-mail un lien de téléchargement.",
+        uploadZip: "Téléchargez le ZIP (généralement 500 MB-3 GB) et téléchargez-le ci-dessous."
+      },
+      messages: {
+        deleteConfirm: "Supprimer cet enregistrement d'importation ?",
+        uploadFailed: "Échec du téléchargement : {{message}}",
+        unknownError: "Erreur inconnue",
+        uploadSuccess: "ZIP téléchargé avec succès. La tâche d'importation est en file d'attente - vérifiez ci-dessous la progression.",
+        importRunning: "Une importation est actuellement en cours. Les nouveaux téléchargements sont désactivés jusqu'à ce qu'ils soient terminés."
+      },
+      history: {
+        title: "Historique d'importation",
+        loading: "Chargement...",
+        empty: "Aucune importation de vocabulaire pour l'instant. Téléchargez un Athena ZIP ci-dessus pour commencer."
+      }
+    },
+    systemHealth: {
+      title: "Santé du système",
+      subtitle: "Statut en direct de tous les services Parthenon. Actualisation automatique toutes les 30 secondes.",
+      serverStatus: "Statut du serveur",
+      lastChecked: "Dernière vérification à {{time}}",
+      polling: "Services de sondage...",
+      gisDataManagement: "Gestion des données GIS",
+      status: {
+        healthy: "En bonne santé",
+        degraded: "Dégradé",
+        down: "Vers le bas"
+      },
+      overall: {
+        healthy: "En bonne santé",
+        needsAttention: "A besoin d'attention"
+      },
+      labels: {
+        pending: "En attente:",
+        failed: "Échoué:",
+        cores: "Noyaux :",
+        documents: "Documents :",
+        dagster: "Dagster :",
+        graphql: "GraphQL :",
+        studies: "Études:",
+        instances: "Exemples :",
+        disk: "Disque:"
+      },
+      actions: {
+        refresh: "Rafraîchir",
+        openService: "Service ouvert",
+        viewDetails: "Afficher les détails"
+      },
+      tiers: {
+        corePlatform: "Plateforme principale",
+        dataSearch: "Données et recherche",
+        aiAnalytics: "IA et analytique",
+        clinicalServices: "Services cliniques",
+        monitoringCommunications: "Surveillance et communications",
+        acropolisInfrastructure: "Infrastructure Acropolis",
+        unknown: "Autres services"
+      },
+      hades: {
+        title: "Parité du paquet OHDSI",
+        subtitle: "Couverture du package Darkstar pour un travail de première classe, natif et de compatibilité.",
+        checking: "Vérification des packages Darkstar...",
+        unavailable: "L'inventaire des packages Darkstar n'est pas disponible.",
+        installed: "Installé:",
+        missing: "Manquant:",
+        total: "Total:",
+        requiredMissing: "Manquant obligatoire :",
+        shinyPolicy: "Politique brillante héritée",
+        notExposed: "non exposé",
+        shinyPolicyDescription: "Les applications Shiny hébergées, l'intégration d'iframe et les chemins d'application fournis par l'utilisateur sont désactivés. Les packages OHDSI Shiny restent uniquement des artefacts de compatibilité d’exécution.",
+        replacement: "Remplacement : {{surface}}",
+        package: "Emballer",
+        capability: "Capacité",
+        priority: "Priorité",
+        surface: "Surface",
+        source: "Source",
+        runtime: "durée d'exécution",
+        status: {
+          complete: "Complet",
+          partial: "Partiel"
+        }
+      }
+    },
+    fhirSync: {
+      title: "Moniteur FHIR Sync",
+      subtitle: "Surveillance du pipeline ETL en temps réel sur toutes les connexions FHIR",
+      status: {
+        completed: "Complété",
+        running: "En cours",
+        pending: "En attente",
+        exporting: "Exportation",
+        downloading: "Téléchargement",
+        processing: "Traitement",
+        failed: "Échec"
+      },
+      timeline: {
+        empty: "Aucune activité de synchronisation au cours des 30 derniers jours",
+        tooltip: "{{date}} : {{completed}} terminé, {{failed}} échoué",
+        hoverSummary: "{{completed}} ok / {{failed}} échoue"
+      },
+      metrics: {
+        extracted: "Extrait",
+        mapped: "Cartographié",
+        written: "Écrit",
+        failed: "Échec",
+        averageMappingCoverage: "Couverture cartographique moyenne"
+      },
+      actions: {
+        viewError: "Afficher l'erreur"
+      },
+      values: {
+        runs: "{{count}} s'exécute",
+        never: "Jamais",
+        activeRuns: "{{count}} actif",
+        refreshInterval: "Actualisation {{seconds}}s",
+        allTimeTotals: "Totaux de tous les temps",
+        lastRuns: "20 derniers sur toutes les connexions"
+      },
+      messages: {
+        failedToLoad: "Échec du chargement des données du tableau de bord.",
+        noConnections: "Aucune connexion configurée",
+        noRuns: "Aucune synchronisation n'est encore exécutée"
+      },
+      stats: {
+        connections: "Relations",
+        totalRuns: "Nombre total de courses",
+        completed: "Complété",
+        failed: "Échec",
+        recordsWritten: "Dossiers écrits",
+        avgCoverage: "Couverture moyenne"
+      },
+      panels: {
+        pipelineThroughput: "Débit des pipelines",
+        syncActivity: "Activité de synchronisation (30 jours)",
+        connectionHealth: "Santé de la connexion",
+        recentRuns: "Exécutions de synchronisation récentes"
+      },
+      table: {
+        status: "Statut",
+        connection: "Connexion",
+        started: "Commencé",
+        duration: "Durée",
+        metrics: "Métrique"
+      }
+    },
+    gisData: {
+      title: "Données de limite GIS",
+      subtitle: "Gérer les ensembles de données de limites géographiques pour l'explorateur GIS",
+      status: {
+        loaded: "chargé",
+        empty: "vide"
+      },
+      tabs: {
+        boundaries: "Frontières",
+        dataImport: "Importation de données"
+      },
+      messages: {
+        checking: "Vérification des données de limite...",
+        noBoundaryData: "Aucune donnée de limite chargée. Sélectionnez une source et des niveaux ci-dessous pour commencer."
+      },
+      labels: {
+        boundaries: "Frontières:",
+        countries: "Pays :"
+      },
+      load: {
+        title: "Limites de charge",
+        adminLevels: "Niveaux d'administrateur à charger :"
+      },
+      sources: {
+        gadm: {
+          name: "GADM v4.1",
+          description: "Zones administratives mondiales : 356 000 limites réparties sur 6 niveaux d'administration"
+        },
+        geoboundaries: {
+          name: "Limites géographiques CGAZ",
+          description: "Limites simplifiées pour la cohérence cartographique (ADM0-2)"
+        }
+      },
+      levels: {
+        adm0: "Pays (ADM0)",
+        adm1: "États/Provinces (ADM1)",
+        adm2: "Districts/comtés (ADM2)",
+        adm3: "Sous-districts (ADM3)"
+      },
+      actions: {
+        preparing: "Préparation...",
+        generateLoadCommand: "Générer une commande de chargement",
+        refreshStats: "Actualiser les statistiques",
+        copyToClipboard: "Copier dans le presse-papier",
+        close: "Fermer"
+      },
+      modal: {
+        runOnHost: "Exécuter sur l'hôte",
+        description: "Les données GIS se chargent directement sur PostgreSQL 17 local. Exécutez cette commande à partir de la racine du projet :",
+        datasetFlagPrefix: "Le",
+        datasetFlagSuffix: "le drapeau permet le suivi des progrès. Actualisez les statistiques une fois le script terminé."
+      },
+      job: {
+        title: "Chargement des limites GIS",
+        description: "Source : {{source}} | Niveaux : {{levels}}"
+      },
+      values: {
+        all: "tous"
+      }
+    },
+    honestBroker: {
+      title: "Courtier honnête",
+      subtitle: "Enregistrez les participants à l'enquête en aveugle, associez-les aux enregistrements OMOP person_id et surveillez l'état de soumission sans exposer l'identité brute des répondants aux chercheurs.",
+      actions: {
+        cancel: "Annuler",
+        registerParticipant: "Inscrire un participant",
+        sendInvitation: "Envoyer une invitation",
+        sendInvite: "Envoyer une invitation",
+        refresh: "Rafraîchir",
+        copyLink: "Copier le lien",
+        openSurvey: "Enquête ouverte",
+        resend: "Renvoyer",
+        revoke: "Révoquer"
+      },
+      labels: {
+        personId: "Personne ID",
+        notes: "Remarques",
+        participant: "Participant",
+        deliveryEmail: "E-mail de livraison",
+        unknown: "Inconnu",
+        unknownInstrument: "Instrument inconnu",
+        notYet: "Pas encore",
+        notRecorded: "Non enregistré",
+        system: "Système",
+        statusToken: "{{status}} · {{token}}",
+        tokenReference: "...{{token}}"
+      },
+      metrics: {
+        brokerCampaigns: "Campagnes de courtier",
+        registeredParticipants: "Participants inscrits",
+        submitted: "Soumis",
+        invitationsSent: "Invitations envoyées",
+        complete: "Complet",
+        pending: "En attente",
+        seeded: "Semé",
+        registered: "Inscrit",
+        completion: "Achèvement",
+        completionPercent: "{{value}}%"
+      },
+      campaignStatuses: {
+        draft: "Brouillon",
+        active: "Actif",
+        closed: "Fermé"
+      },
+      matchStatuses: {
+        submitted: "Soumis",
+        registered: "Inscrit",
+        pending: "En attente",
+        matched: "Correspondant"
+      },
+      deliveryStatuses: {
+        pending: "En attente",
+        queued: "En file d'attente",
+        sent: "Envoyé",
+        opened: "Ouvert",
+        submitted: "Soumis",
+        revoked: "Révoqué",
+        failed: "Échec"
+      },
+      unauthorized: {
+        title: "Accès honnête au courtier requis",
+        description: "Cet espace de travail est réservé aux gestionnaires de données et aux administrateurs, car il relie les identités des enquêtes en aveugle aux dossiers des patients."
+      },
+      registerModal: {
+        title: "Inscrire un participant",
+        titleWithCampaign: "Inscrire un participant · {{campaign}}",
+        registering: "Enregistrement...",
+        description: "Créez une entrée de registre en aveugle qui mappe un identifiant de répondant à un dossier patient pour cette campagne d'enquête.",
+        respondentIdentifier: "Identifiant du répondant",
+        respondentPlaceholder: "MRN, code d'étude ou code d'invitation",
+        personIdPlaceholder: "OMOP personne_id connu",
+        notesPlaceholder: "Notes de courtier facultatives"
+      },
+      inviteModal: {
+        title: "Envoyer une invitation",
+        titleWithCampaign: "Envoyer une invitation · {{campaign}}",
+        sending: "Envoi...",
+        description: "Envoyez un lien d’enquête unique géré par le courtier. Seul le courtier conserve l'adresse de livraison et la chaîne de traçabilité.",
+        selectParticipant: "Sélectionner un participant",
+        participantWithPerson: "{{blindedId}} · personne {{personId}}",
+        emailPlaceholder: "patient@exemple.org",
+        lastInvitation: "Dernière invitation : {{status}} · jeton se terminant par {{token}}"
+      },
+      campaignRegistry: {
+        title: "Registre de campagne",
+        subtitle: "Campagnes activées par un courtier honnête uniquement.",
+        loading: "Chargement des campagnes...",
+        emptyPrefix: "Aucune campagne de courtier honnête pour l'instant. Activer",
+        requireHonestBroker: "Exiger un courtier honnête",
+        emptySuffix: "d'abord sur une campagne d'enquête."
+      },
+      messages: {
+        selectCampaignManage: "Sélectionnez une campagne pour gérer les inscriptions des courtiers.",
+        selectCampaignReview: "Sélectionnez une campagne pour examiner les inscriptions des courtiers."
+      },
+      participants: {
+        title: "Participants inscrits",
+        subtitle: "Entrées de registre anonymisées pour la campagne d'enquête sélectionnée.",
+        searchPlaceholder: "Rechercher un identifiant en aveugle, un identifiant de personne, des notes...",
+        loading: "Chargement des inscriptions...",
+        noMatches: "Aucune inscription de courtier ne correspond au filtre actuel."
+      },
+      invitations: {
+        title: "Registre des invitations",
+        subtitle: "Chaîne de contrôle sortante et entrante pour les invitations à des enquêtes gérées par les courtiers.",
+        loading: "Chargement des invitations...",
+        empty: "Aucune invitation envoyée pour cette campagne pour le moment."
+      },
+      audit: {
+        title: "Piste d'audit",
+        subtitle: "Chaîne de contrôle immuable côté courtier pour l’inscription des participants, les invitations sortantes et les événements de réponse entrants.",
+        loading: "Chargement de la piste d'audit...",
+        empty: "Aucun événement d'audit de courtier n'a encore été enregistré."
+      },
+      latest: {
+        title: "Dernier enregistrement correspondant",
+        blindedId: "ID aveuglé",
+        created: "Créé"
+      },
+      table: {
+        blindedParticipant: "Participant aveugle",
+        conductId: "Conduire ID",
+        status: "Statut",
+        submitted: "Soumis",
+        contact: "Contact",
+        latestInvite: "Dernière invitation",
+        destination: "Destination",
+        sent: "Envoyé",
+        opened: "Ouvert",
+        reference: "Référence",
+        actions: "Actes",
+        time: "Temps",
+        action: "Action",
+        actor: "Acteur",
+        inviteRef: "Réf d'invitation",
+        metadata: "Métadonnées"
+      },
+      auditActions: {
+        participant_registered: "Participant inscrit",
+        invitation_sent: "Invitation envoyée",
+        invitation_resent: "Invitation renvoyée",
+        invitation_revoked: "Invitation révoquée",
+        response_submitted: "Réponse soumise",
+        status_changed: "Statut modifié"
+      },
+      confirmRevoke: "Révoquer l'invitation se terminant par {{token}} ?",
+      toasts: {
+        publishLinkCopied: "Lien de publication copié",
+        publishLinkCopyFailed: "Échec de la copie du lien de publication",
+        participantRegistered: "Participant inscrit",
+        participantRegisterFailed: "Échec de l'inscription du participant",
+        invitationSent: "Invitation envoyée · jeton se terminant par {{token}}",
+        invitationSendFailed: "Échec de l'envoi de l'invitation",
+        invitationResent: "Invitation renvoyée · jeton se terminant par {{token}}",
+        invitationResendFailed: "Échec du renvoi de l'invitation",
+        invitationRevoked: "Invitation révoquée · jeton se terminant par {{token}}",
+        invitationRevokeFailed: "Échec de la révocation de l'invitation"
+      }
+    }
   },
 });
 
@@ -18326,19 +19658,18 @@ const deApp: MessageTree = mergeMessageTrees(enApp, {
   },
   administration: {
     dashboard: {
-      title: "Administration",
-      subtitle:
-        "Benutzer, Rollen, Berechtigungen und Systemkonfiguration verwalten.",
+      title: "Verwaltung",
+      subtitle: "Benutzer, Rollen, Berechtigungen und Systemkonfiguration verwalten.",
       panels: {
         platform: "Plattform",
         usersAccess: "Benutzer und Zugriff",
         dataSources: "Datenquellen",
-        aiResearch: "KI und Forschung",
+        aiResearch: "KI und Forschung"
       },
       status: {
         allHealthy: "Alles gesund",
         degraded: "Beeinträchtigt",
-        warning: "Warnung",
+        warning: "Warnung"
       },
       labels: {
         services: "Dienste",
@@ -18352,95 +19683,199 @@ const deApp: MessageTree = mergeMessageTrees(enApp, {
         aiProvider: "KI-Anbieter",
         model: "Modell",
         abby: "Abby",
-        researchRuntime: "R / HADES",
+        researchRuntime: "R / HADES"
       },
       values: {
         servicesUp: "{{healthy}}/{{total}} aktiv",
         queueSummary: "{{pending}} ausstehend / {{failed}} fehlgeschlagen",
         enabledCount: "{{count}} aktiviert",
+        tokenExpiry: "8h",
+        cdmCount: "{{count}} CDM",
+        solrSummary: "{{docs}}-Dokumente / {{cores}}-Kerne",
         none: "Keine",
-        online: "Online",
+        online: "Online"
       },
       messages: {
-        noCdmSources: "Keine CDM-Quellen konfiguriert",
+        noCdmSources: "Keine CDM-Quellen konfiguriert"
       },
       nav: {
         userManagement: {
           title: "Benutzerverwaltung",
-          description:
-            "Benutzerkonten erstellen, bearbeiten und deaktivieren. Rollen steuern den Zugriff.",
+          description: "Benutzerkonten erstellen, bearbeiten und deaktivieren. Rollen steuern den Zugriff."
         },
         rolesPermissions: {
           title: "Rollen und Berechtigungen",
-          description:
-            "Benutzerdefinierte Rollen definieren und Berechtigungen domänenübergreifend anpassen.",
+          description: "Benutzerdefinierte Rollen definieren und Berechtigungen domänenübergreifend anpassen."
         },
         authProviders: {
           title: "Authentifizierungsanbieter",
-          description:
-            "LDAP, OAuth 2.0, SAML 2.0 oder OIDC für SSO aktivieren und konfigurieren.",
+          description: "LDAP, OAuth 2.0, SAML 2.0 oder OIDC für SSO aktivieren und konfigurieren."
         },
         aiProviders: {
           title: "KI-Anbieter-Konfiguration",
-          description:
-            "Abbys Backend zwischen lokalem Ollama, Anthropic, OpenAI, Gemini und weiteren wechseln.",
+          description: "Abbys Backend zwischen lokalem Ollama, Anthropic, OpenAI, Gemini und weiteren wechseln."
         },
         systemHealth: {
           title: "Systemstatus",
-          description:
-            "Live-Status aller Parthenon-Dienste: Redis, KI, Darkstar, Solr, Orthanc PACS und Job-Warteschlangen.",
+          description: "Live-Status aller Parthenon-Dienste: Redis, KI, Darkstar, Solr, Orthanc PACS und Job-Warteschlangen."
         },
         vocabularyManagement: {
           title: "Vokabularverwaltung",
-          description:
-            "OMOP-Vokabulartabellen durch Hochladen einer neuen Athena-ZIP-Datei aktualisieren.",
+          description: "OMOP-Vokabulartabellen durch Hochladen einer neuen Athena-ZIP-Datei aktualisieren."
         },
         fhirConnections: {
           title: "FHIR-EHR-Verbindungen",
-          description:
-            "FHIR-R4-Verbindungen zu Epic, Cerner und anderen EHR-Systemen für Massenimporte verwalten.",
-        },
+          description: "FHIR-R4-Verbindungen zu Epic, Cerner und anderen EHR-Systemen für Massenimporte verwalten."
+        }
       },
       setupWizard: {
         title: "Plattform-Einrichtungsassistent",
-        description:
-          "Die geführte Einrichtung erneut starten: Statusprüfung, KI-Anbieter, Authentifizierung und Datenquellen.",
+        description: "Die geführte Einrichtung erneut starten: Statusprüfung, KI-Anbieter, Authentifizierung und Datenquellen."
       },
       atlasMigration: {
         title: "Aus Atlas migrieren",
-        description:
-          "Kohortendefinitionen, Konzeptsets und Analysen aus einer bestehenden OHDSI-Atlas-Installation importieren.",
+        description: "Kohortendefinitionen, Konzeptsets und Analysen aus einer bestehenden OHDSI-Atlas-Installation importieren."
       },
       actions: {
         open: "Öffnen",
-        openWizard: "Assistent öffnen",
+        openWizard: "Assistent öffnen"
+      }
+    },
+    acropolisServices: {
+      descriptions: {
+        authentik: "Identitätsanbieter und Zugangsportal",
+        wazuh: "Sicherheitsüberwachung und SIEM-Dashboard",
+        grafana: "Metriken und Beobachtbarkeits-Dashboards",
+        portainer: "Container- und Stack-Operationen",
+        pgadmin: "PostgreSQL-Verwaltungskonsole",
+        n8n: "Workflow-Orchestrierung und Automatisierung",
+        superset: "BI und Ad-hoc-Analyse-Arbeitsbereich",
+        datahub: "Metadatenkatalog und Herkunfts-Explorer"
       },
+      openService: "Offener Dienst"
+    },
+    grafana: {
+      openDashboard: "Öffnen Sie das Dashboard"
+    },
+    broadcastEmail: {
+      title: "E-Mail senden",
+      descriptionPrefix: "Dadurch wird an jeden eine individuelle E-Mail gesendet",
+      descriptionSuffix: "registrierte Benutzer.",
+      subject: "Thema",
+      subjectPlaceholder: "E-Mail-Betreffzeile...",
+      message: "Nachricht",
+      messagePlaceholder: "Schreiben Sie hier Ihre Nachricht...",
+      close: "Schließen",
+      cancel: "Abbrechen",
+      sending: "Senden...",
+      sendToAll: "An alle Benutzer senden",
+      resultWithRecipients: "{{message}} ({{count}}-Empfänger)",
+      unknownError: "Unbekannter Fehler"
+    },
+    userModal: {
+      titles: {
+        editUser: "Benutzer bearbeiten",
+        newUser: "Neuer Benutzer"
+      },
+      fields: {
+        fullName: "Vollständiger Name",
+        email: "E-Mail",
+        password: "Passwort",
+        roles: "Rollen"
+      },
+      hints: {
+        keepCurrentPassword: "(Leer lassen, um auf dem neuesten Stand zu bleiben)"
+      },
+      placeholders: {
+        maskedPassword: "••••••••",
+        passwordRequirements: "Mindestens 8 Zeichen, Groß-/Kleinschreibung + Zahl gemischt"
+      },
+      actions: {
+        cancel: "Abbrechen",
+        saving: "Sparen...",
+        saveChanges: "Änderungen speichern",
+        createUser: "Benutzer erstellen"
+      },
+      errors: {
+        generic: "Es ist ein Fehler aufgetreten.",
+        passwordRequired: "Passwort ist erforderlich."
+      }
+    },
+    liveKit: {
+      loadingConfiguration: "Konfiguration wird geladen...",
+      provider: "Anbieter",
+      providerBadges: {
+        cloud: "Wolke",
+        "self-hosted": "Selbst gehostet",
+        env: "Env"
+      },
+      providerOptions: {
+        environment: "Umfeld",
+        liveKitCloud: "LiveKit Cloud",
+        selfHosted: "Selbst gehostet"
+      },
+      providerDescriptions: {
+        useEnvFile: "Verwenden Sie die .env-Datei",
+        hostedByLiveKit: "Gehostet von LiveKit",
+        yourOwnServer: "Ihr eigener Server"
+      },
+      env: {
+        usingEnvConfiguration: "Verwendung der .env-Konfiguration",
+        url: "URL:",
+        apiKey: "API-Schlüssel:",
+        apiSecret: "API-Geheimnis:",
+        notSet: "Nicht festgelegt",
+        missing: "Fehlen",
+        editPrefix: "Bearbeiten",
+        editSuffix: "und starten Sie PHP neu, um Änderungen vorzunehmen."
+      },
+      fields: {
+        cloudUrl: "LiveKit Wolke URL",
+        serverUrl: "Server URL",
+        apiKey: "API-Schlüssel",
+        apiSecret: "API-Geheimnis"
+      },
+      placeholders: {
+        savedKey: "Gespeichert; Geben Sie einen neuen Schlüssel ein, um ihn zu ersetzen",
+        savedSecret: "Gespeichert; Geben Sie ein neues Geheimnis ein, um es zu ersetzen",
+        enterApiKey: "Geben Sie den API-Schlüssel ein",
+        enterApiSecret: "Geben Sie das API-Geheimnis ein"
+      },
+      actions: {
+        hideConfiguration: "Konfiguration ausblenden",
+        configureLiveKit: "Konfigurieren Sie LiveKit",
+        testConnection: "Testverbindung",
+        saveConfiguration: "Konfiguration speichern",
+        useEnvDefaults: "Verwenden Sie die .env-Standardeinstellungen"
+      },
+      toasts: {
+        noUrlToTest: "Kein URL zum Testen",
+        connectionSuccessful: "Verbindung erfolgreich",
+        connectionFailed: "Verbindung fehlgeschlagen",
+        configurationSaved: "LiveKit-Konfiguration gespeichert",
+        saveFailed: "Konfiguration konnte nicht gespeichert werden"
+      }
     },
     authProviders: {
       title: "Authentifizierungsanbieter",
-      subtitle:
-        "Aktivieren Sie externe Identitätsanbieter für Single Sign-On. Sanctum-Benutzername/Passwort bleibt immer als Rückfall verfügbar.",
+      subtitle: "Aktivieren Sie externe Identitätsanbieter für Single Sign-On. Sanctum-Benutzername/Passwort bleibt immer als Rückfall verfügbar.",
       providers: {
         ldap: {
           label: "LDAP / Active Directory",
-          description:
-            "Authentifizierung gegen Microsoft Active Directory oder ein LDAP-v3-Verzeichnis. Unterstützt TLS, Gruppensynchronisierung und Attributzuordnung.",
+          description: "Authentifizierung gegen Microsoft Active Directory oder ein LDAP-v3-Verzeichnis. Unterstützt TLS, Gruppensynchronisierung und Attributzuordnung."
         },
         oauth2: {
           label: "OAuth 2.0",
-          description:
-            "Authentifizierung an GitHub, Google, Microsoft oder einen benutzerdefinierten OAuth-2.0-Anbieter delegieren.",
+          description: "Authentifizierung an GitHub, Google, Microsoft oder einen benutzerdefinierten OAuth-2.0-Anbieter delegieren."
         },
         saml2: {
           label: "SAML 2.0",
-          description:
-            "Enterprise-SSO über einen SAML-2.0-Identitätsanbieter (Okta, Azure AD, ADFS usw.).",
+          description: "Enterprise-SSO über einen SAML-2.0-Identitätsanbieter (Okta, Azure AD, ADFS usw.)."
         },
         oidc: {
           label: "OpenID Connect",
-          description:
-            "Modernes SSO über OIDC-Discovery. Unterstützt PKCE und jeden standardkonformen IdP.",
-        },
+          description: "Modernes SSO über OIDC-Discovery. Unterstützt PKCE und jeden standardkonformen IdP."
+        }
       },
       enabled: "Aktiviert",
       disabled: "Deaktiviert",
@@ -18455,32 +19890,37 @@ const deApp: MessageTree = mergeMessageTrees(enApp, {
       formActions: {
         saving: "Speichern...",
         save: "Speichern",
-        saved: "Gespeichert",
+        saved: "Gespeichert"
       },
       oauthForm: {
         drivers: {
           github: "GitHub",
           google: "Google",
           microsoft: "Microsoft / Azure AD",
-          custom: "Benutzerdefiniertes OAuth 2.0",
+          custom: "Benutzerdefiniertes OAuth 2.0"
         },
         sections: {
-          customEndpoints: "Benutzerdefinierte Endpunkte",
+          customEndpoints: "Benutzerdefinierte Endpunkte"
         },
         labels: {
           provider: "Anbieter",
           clientId: "Client-ID",
           clientSecret: "Client-Secret",
           redirectUri: "Redirect-URI",
-          scopes: "Scopes",
+          scopes: "Bereiche",
           authorizationUrl: "Autorisierungs-URL",
           tokenUrl: "Token-URL",
-          userInfoUrl: "User-Info-URL",
+          userInfoUrl: "User-Info-URL"
         },
         hints: {
           redirectUri: "Muss der beim OAuth-Anbieter registrierten URI entsprechen",
-          scopes: "Leerzeichengetrennte Liste",
+          scopes: "Leerzeichengetrennte Liste"
         },
+        placeholders: {
+          clientId: "Client / Anwendung ID",
+          redirectUri: "/api/v1/auth/oauth2/callback",
+          scopes: "openid-Profil-E-Mail"
+        }
       },
       oidcForm: {
         labels: {
@@ -18488,21 +19928,26 @@ const deApp: MessageTree = mergeMessageTrees(enApp, {
           clientId: "Client-ID",
           clientSecret: "Client-Secret",
           redirectUri: "Redirect-URI",
-          scopes: "Scopes",
-          pkceEnabled: "PKCE aktivieren (empfohlen - erfordert öffentlichen Client)",
+          scopes: "Bereiche",
+          pkceEnabled: "PKCE aktivieren (empfohlen - erfordert öffentlichen Client)"
         },
         hints: {
-          discoveryUrl:
-            "Der /.well-known/openid-configuration-Endpunkt Ihres IdP",
+          discoveryUrl: "Der /.well-known/openid-configuration-Endpunkt Ihres IdP",
           redirectUri: "Muss der Registrierung im IdP entsprechen",
-          scopes: "Leerzeichengetrennt",
+          scopes: "Leerzeichengetrennt"
         },
+        placeholders: {
+          discoveryUrl: "https://accounts.google.com/.well-known/openid-configuration",
+          clientId: "Ihre-Kunden-ID",
+          redirectUri: "/api/v1/auth/oidc/callback",
+          scopes: "openid-Profil-E-Mail"
+        }
       },
       samlForm: {
         sections: {
           identityProvider: "Identitätsanbieter (IdP)",
-          serviceProvider: "Service Provider (SP)",
-          attributeMapping: "Attributzuordnung",
+          serviceProvider: "Dienstanbieter (SP)",
+          attributeMapping: "Attributzuordnung"
         },
         labels: {
           idpEntityId: "IdP-Entity-ID",
@@ -18512,22 +19957,24 @@ const deApp: MessageTree = mergeMessageTrees(enApp, {
           spEntityId: "SP-Entity-ID",
           acsUrl: "ACS-URL",
           nameIdFormat: "NameID-Format",
-          signAssertions:
-            "Assertions signieren (erfordert privaten SP-Schlüssel - in der Serverumgebung konfigurieren)",
+          signAssertions: "Assertions signieren (erfordert privaten SP-Schlüssel - in der Serverumgebung konfigurieren)",
           emailAttribute: "E-Mail-Attribut",
-          displayNameAttribute: "Anzeigename-Attribut",
+          displayNameAttribute: "Anzeigename-Attribut"
         },
         hints: {
           ssoUrl: "Single-Sign-On-Endpunkt",
           sloUrl: "Single-Logout-Endpunkt (optional)",
-          idpCertificate:
-            "X.509-Zertifikat einfügen (PEM-Format, mit oder ohne Header)",
-          spEntityId:
-            "URL Ihrer Parthenon-Instanz - muss der IdP-Registrierung entsprechen",
-          acsUrl: "Assertion Consumer Service",
+          idpCertificate: "X.509-Zertifikat einfügen (PEM-Format, mit oder ohne Header)",
+          spEntityId: "URL Ihrer Parthenon-Instanz - muss der IdP-Registrierung entsprechen",
+          acsUrl: "Assertion Consumer Service"
         },
-        attributeMappingDescription:
-          "Ordnen Sie SAML-Assertion-Attribute Parthenon-Benutzerfeldern zu.",
+        placeholders: {
+          certificate: "-----BEGIN CERTIFICATE-----\nMIIDxTCC...\n-----END CERTIFICATE-----",
+          acsUrl: "/api/v1/auth/saml2/callback",
+          sloUrl: "/api/v1/auth/saml2/logout",
+          displayName: "Anzeigename"
+        },
+        attributeMappingDescription: "Ordnen Sie SAML-Assertion-Attribute Parthenon-Benutzerfeldern zu."
       },
       ldapForm: {
         sections: {
@@ -18535,14 +19982,14 @@ const deApp: MessageTree = mergeMessageTrees(enApp, {
           bindCredentials: "Bind-Anmeldedaten",
           userSearch: "Benutzersuche",
           attributeMapping: "Attributzuordnung",
-          groupSync: "Gruppensynchronisierung",
+          groupSync: "Gruppensynchronisierung"
         },
         labels: {
-          host: "Host",
-          port: "Port",
+          host: "Gastgeber",
+          port: "Hafen",
           useSsl: "SSL verwenden (LDAPS)",
           useTls: "StartTLS verwenden",
-          timeout: "Timeout (s)",
+          timeout: "Timeout(s)",
           bindDn: "Bind-DN",
           bindPassword: "Bind-Passwort",
           baseDn: "Base-DN",
@@ -18553,46 +20000,1268 @@ const deApp: MessageTree = mergeMessageTrees(enApp, {
           displayNameField: "Anzeigename-Feld",
           syncGroups: "LDAP-Gruppen mit Parthenon-Rollen synchronisieren",
           groupSearchBase: "Basis für Gruppensuche",
-          groupFilter: "Gruppenfilter",
+          groupFilter: "Gruppenfilter"
         },
         hints: {
           host: "Hostname oder IP des LDAP-Servers",
           bindDn: "Servicekonto-DN für Verzeichnisabfragen",
-          userFilter: "{username} wird bei der Anmeldung ersetzt",
+          userFilter: "{username} wird bei der Anmeldung ersetzt"
+        },
+        placeholders: {
+          bindDn: "cn=svc-parthenon,dc=example,dc=com",
+          baseDn: "dc=Beispiel,dc=com",
+          userSearchBase: "ou=Benutzer,dc=Beispiel,dc=com",
+          userFilter: "(uid={Benutzername})",
+          groupSearchBase: "ou=groups,dc=example,dc=com",
+          groupFilter: "(objectClass=groupOfNames)"
         },
         actions: {
           saving: "Speichern...",
           save: "Speichern",
-          saved: "Gespeichert",
-        },
+          saved: "Gespeichert"
+        }
+      }
+    },
+    roles: {
+      title: "Rollen und Berechtigungen",
+      subtitle: "Definieren Sie benutzerdefinierte Rollen und optimieren Sie die Berechtigungszuweisungen. Verwenden Sie die Matrix für Massenbearbeitungen.",
+      tabs: {
+        roleList: "Rollenliste",
+        permissionMatrix: "Berechtigungsmatrix"
       },
+      permissionMatrix: {
+        instructions: "Klicken Sie auf Zellen, um Berechtigungen umzuschalten, Zeilenüberschriften, um sie auf alle Rollen anzuwenden, und Spaltenüberschriften, um alle Berechtigungen für eine Rolle zu erteilen/entziehen.",
+        saveAllChangesOne: "Alle Änderungen speichern ({{count}}-Rolle)",
+        saveAllChangesOther: "Alle Änderungen speichern ({{count}}-Rollen)",
+        permission: "Erlaubnis",
+        columnTitle: "Schalten Sie alle Berechtigungen für {{role}} um",
+        permissionCount: "{{count}} perms",
+        saving: "sparen...",
+        saved: "gespeichert ✓",
+        save: "speichern",
+        domainTitle: "Schalten Sie alle {{domain}}-Berechtigungen für alle Rollen um",
+        rowTitle: "Schalten Sie {{permission}} für alle Rollen um",
+        cellTitleGrant: "Gewähren Sie {{permission}} bis {{role}}",
+        cellTitleRevoke: "Widerrufen Sie {{permission}} von {{role}}"
+      },
+      editor: {
+        roleName: "Rollenname",
+        roleNamePlaceholder: "z.B. Standortkoordinator",
+        permissions: "Berechtigungen",
+        selectedCount: "({{count}} ausgewählt)"
+      },
+      actions: {
+        newRole: "Neue Rolle",
+        cancel: "Abbrechen",
+        saving: "Sparen...",
+        saveRole: "Rolle speichern",
+        editRole: "Rolle bearbeiten",
+        deleteRole: "Rolle löschen",
+        deleting: "Löschen...",
+        delete: "Löschen"
+      },
+      values: {
+        builtIn: "eingebaut",
+        userCountOne: "{{count}}-Benutzer",
+        userCountOther: "{{count}}-Benutzer",
+        permissionCountOne: "{{count}}-Berechtigung",
+        permissionCountOther: "{{count}}-Berechtigungen",
+        more: "+{{count}} mehr"
+      },
+      deleteModal: {
+        title: "Rolle löschen?",
+        prefix: "Die Rolle",
+        suffix: "wird dauerhaft gelöscht. Benutzer, denen nur diese Rolle zugewiesen ist, verlieren alle Berechtigungen."
+      }
+    },
+    pacs: {
+      studyBrowser: {
+        browseTitle: "Durchsuchen: {{name}}",
+        filters: {
+          patientName: "Patientenname",
+          patientId: "Patient ID",
+          allModalities: "Alle Modalitäten"
+        },
+        empty: {
+          noStudies: "Keine Studien gefunden"
+        },
+        table: {
+          patientName: "Patientenname",
+          patientId: "Patient ID",
+          date: "Datum",
+          modality: "Modalität",
+          description: "Beschreibung",
+          series: "Serie",
+          instances: "Inst."
+        },
+        pagination: {
+          range: "{{start}}-{{end}}",
+          ofStudies: "von {{total}}-Studien",
+          previous: "Vorherige",
+          next: "Nächste"
+        }
+      },
+      connectionCard: {
+        defaultConnection: "Standardverbindung",
+        setAsDefault: "Als Standard festlegen",
+        deleteConfirm: "„{{name}}“ löschen?",
+        never: "Niemals",
+        seriesByModality: "Serie von Modality",
+        statsUpdated: "Statistiken aktualisiert {{date}}",
+        stats: {
+          patients: "Patienten",
+          studies: "Studien",
+          series: "Serie",
+          instances: "Instanzen",
+          disk: "Scheibe"
+        },
+        actions: {
+          edit: "Bearbeiten",
+          delete: "Löschen",
+          test: "Prüfen",
+          stats: "Statistiken",
+          browse: "Durchsuchen"
+        }
+      }
+    },
+    solrAdmin: {
+      title: "Solr-Suchverwaltung",
+      subtitle: "Verwalten Sie Solr-Suchkerne, lösen Sie eine Neuindizierung aus und überwachen Sie den Status.",
+      loadingCoreStatus: "Kernstatus wird geladen...",
+      status: {
+        healthy: "Gesund",
+        unavailable: "Nicht verfügbar"
+      },
+      labels: {
+        documents: "Unterlagen",
+        lastIndexed: "Zuletzt indiziert",
+        duration: "Dauer"
+      },
+      values: {
+        never: "Niemals",
+        seconds: "{{seconds}}s"
+      },
+      actions: {
+        reindexAll: "Alle Kerne neu indizieren",
+        reindex: "Neu indizieren",
+        fullReindex: "Vollständige Neuindizierung",
+        clear: "Zurücksetzen"
+      },
+      messages: {
+        fetchFailed: "Der Solr-Status konnte nicht abgerufen werden",
+        reindexCompleted: "Neuindizierung von „{{core}}“ abgeschlossen",
+        reindexFailed: "„{{core}}“ konnte nicht neu indiziert werden",
+        reindexAllCompleted: "Neuindizierung – alles abgeschlossen",
+        reindexAllFailed: "Es konnten nicht alle Kerne neu indiziert werden",
+        clearConfirm: "Sind Sie sicher, dass Sie alle Dokumente aus „{{core}}“ löschen möchten? Dies kann nicht rückgängig gemacht werden.",
+        clearCompleted: "Kern '{{core}}' gelöscht",
+        clearFailed: "„{{core}}“ konnte nicht gelöscht werden"
+      }
     },
     aiProviders: {
       title: "KI-Anbieter-Konfiguration",
-      subtitle:
-        "Wählen Sie das KI-Backend für Abby. Es ist jeweils nur ein Anbieter aktiv. API-Schlüssel werden verschlüsselt gespeichert.",
+      subtitle: "Wählen Sie das KI-Backend für Abby. Es ist jeweils nur ein Anbieter aktiv. API-Schlüssel werden verschlüsselt gespeichert.",
       activeProvider: "Aktiver Anbieter:",
       fields: {
         model: "Modell",
         apiKey: "API-Schlüssel",
-        ollamaBaseUrl: "Ollama-Basis-URL",
+        ollamaBaseUrl: "Ollama-Basis-URL"
+      },
+      placeholders: {
+        modelName: "Modellname"
       },
       values: {
         active: "Aktiv",
         enabled: "Aktiviert",
         disabled: "Deaktiviert",
-        noModelSelected: "Kein Modell ausgewählt",
+        noModelSelected: "Kein Modell ausgewählt"
       },
       actions: {
         currentlyActive: "Derzeit aktiv",
         setAsActive: "Als aktiv festlegen",
         save: "Speichern",
-        testConnection: "Verbindung testen",
+        testConnection: "Verbindung testen"
       },
       messages: {
-        requestFailed: "Anfrage fehlgeschlagen.",
-      },
+        requestFailed: "Anfrage fehlgeschlagen."
+      }
     },
+    gisImport: {
+      steps: {
+        upload: "Hochladen",
+        analyze: "Analysieren",
+        mapColumns: "Kartenspalten",
+        configure: "Konfigurieren",
+        validate: "Bestätigen",
+        import: "Import"
+      },
+      analyze: {
+        analysisFailed: "Abby hat bei der Analyse dieser Datei ein Problem festgestellt.",
+        unknownError: "Unbekannter Fehler",
+        retry: "Wiederholen",
+        analyzing: "Abby analysiert Ihre Daten...",
+        detecting: "Erkennen von Spaltentypen, geografischen Codes und Wertesemantik"
+      },
+      upload: {
+        uploading: "Hochladen...",
+        dropPrompt: "Legen Sie hier eine Datei ab oder klicken Sie zum Durchsuchen",
+        acceptedFormats: "CSV, TSV, Excel, Shapefile (.zip), GeoJSON, KML, GeoPackage – max. {{maxSize}}MB",
+        largeFiles: "Für große Dateien (> {{maxSize}}MB)",
+        fileTooLarge: "Datei überschreitet {{maxSize}}MB. Verwenden Sie CLI: php artisan gis:import {{filename}}",
+        uploadFailed: "Der Upload ist fehlgeschlagen"
+      },
+      configure: {
+        fields: {
+          layerName: "Layername",
+          exposureType: "Belichtungstyp",
+          geographyLevel: "Geographie-Ebene",
+          valueType: "Werttyp",
+          aggregation: "Aggregation"
+        },
+        placeholders: {
+          layerName: "z. B. Social Vulnerability Index",
+          exposureType: "z. B. svi_overall"
+        },
+        geographyLevels: {
+          county: "County",
+          tract: "Volkszählungsgebiet",
+          state: "Zustand",
+          country: "Land",
+          custom: "Benutzerdefiniert"
+        },
+        valueTypes: {
+          continuous: "Kontinuierlich (Choropleth)",
+          categorical: "Kategorisch (diskrete Farben)",
+          binary: "Binär (Anwesenheit/Abwesenheit)"
+        },
+        aggregations: {
+          mean: "Bedeuten",
+          sum: "Summe",
+          maximum: "Maximal",
+          minimum: "Minimum",
+          latest: "Letzte"
+        },
+        saving: "Sparen...",
+        continue: "Weitermachen"
+      },
+      mapping: {
+        title: "Spaltenzuordnung",
+        subtitle: "Ordnen Sie jede Quellspalte ihrem Zweck zu",
+        purposes: {
+          geographyCode: "Geographie-Code",
+          geographyName: "Geografischer Name",
+          latitude: "Breite",
+          longitude: "Länge",
+          valueMetric: "Wert (Metrik)",
+          metadata: "Metadaten",
+          skip: "Überspringen"
+        },
+        confidence: {
+          high: "Hoch",
+          medium: "Medium",
+          low: "Niedrig"
+        },
+        askAbby: "Fragen Sie Abby",
+        abbyOnColumn: "Abby auf „{{column}}“:",
+        thinking: "Denken...",
+        saving: "Sparen...",
+        continue: "Weitermachen"
+      },
+      validate: {
+        validating: "Validierung...",
+        validationFailed: "Validierung fehlgeschlagen:",
+        unknownError: "Unbekannter Fehler",
+        results: "Validierungsergebnisse",
+        stats: {
+          totalRows: "Gesamtzahl der Zeilen",
+          uniqueGeographies: "Einzigartige Geografien",
+          matched: "Passend",
+          unmatched: "Nicht übereinstimmend (Stubs)",
+          matchRate: "Übereinstimmungsrate",
+          geographyType: "Geographietyp"
+        },
+        unmatchedWarning: "{{count}}-Geografien wurden nicht in der Datenbank gefunden. Es werden Stub-Einträge erstellt (keine Grenzgeometrie).",
+        backToMapping: "Zurück zur Zuordnung",
+        proceedWithImport: "Fahren Sie mit dem Import fort"
+      },
+      import: {
+        starting: "Beginnt...",
+        startImport: "Starten Sie den Import",
+        importing: "Importiert... {{progress}}%",
+        complete: "Import abgeschlossen",
+        rowsImported: "{{count}}-Zeilen importiert",
+        saveLearningPrompt: "Speichern Sie Zuordnungen, damit Abby für das nächste Mal lernt",
+        saveToAbby: "Speichern Sie auf Abby",
+        viewInGisExplorer: "Im GIS-Explorer anzeigen",
+        importAnother: "Andere importieren",
+        failed: "Import fehlgeschlagen",
+        startOver: "Beginnen Sie von vorne"
+      }
+    },
+    chromaStudio: {
+      title: "Chroma Collection Studio",
+      subtitle: "Untersuchen Sie Vektorsammlungen, führen Sie semantische Abfragen aus und verwalten Sie die Aufnahme",
+      values: {
+        collectionCount: "{{count}}-Sammlungen",
+        loading: "Laden",
+        loadingEllipsis: "Laden...",
+        countSuffix: "({{count}})",
+        sampledSuffix: "({{count}} abgetastet)"
+      },
+      actions: {
+        refreshCollections: "Sammlungen aktualisieren",
+        ingestDocs: "Dokumente aufnehmen",
+        ingestClinical: "Klinisch einnehmen",
+        promoteFaq: "Bewerben Sie FAQ",
+        ingestOhdsiPapers: "Nehmen Sie OHDSI-Papiere auf",
+        ingestOhdsiKnowledge: "Nehmen Sie OHDSI-Wissen auf",
+        ingestTextbooks: "Lehrbücher aufnehmen"
+      },
+      stats: {
+        vectors: "Vectors",
+        sampled: "Probiert",
+        dimensions: "Abmessungen",
+        metaFields: "Metafelder"
+      },
+      messages: {
+        loadingCollectionData: "Sammlungsdaten werden geladen..."
+      },
+      empty: {
+        title: "Diese Sammlung ist leer",
+        description: "Verwenden Sie die oben genannten Ingest-Aktionen, um „{{collection}}“ mit Dokumenten zu füllen.",
+        noRecords: "Keine Datensätze in dieser Sammlung.",
+        noDocumentReturned: "Kein Dokument zurückgegeben.",
+        noDocumentText: "Kein Dokumenttext verfügbar."
+      },
+      tabs: {
+        overview: "Überblick",
+        retrieval: "Abruf"
+      },
+      search: {
+        placeholder: "Semantische Abfrage...",
+        recentQueries: "Aktuelle Anfragen",
+        kLabel: "K:",
+        queryAction: "Abfrage",
+        empty: "Geben Sie oben eine Abfrage ein und klicken Sie auf Abfrage, um die Abrufergebnisse zu überprüfen.",
+        queryLabel: "Abfrage:",
+        resultsCount: "{{count}}-Ergebnisse",
+        querying: "Abfrage...",
+        distance: "Distanz"
+      },
+      overview: {
+        facetDistribution: "Facettenverteilung",
+        sampleRecords: "Beispielaufzeichnungen",
+        collectionMetadata: "Sammlungsmetadaten"
+      }
+    },
+    vectorExplorer: {
+      title: "Vector Explorer",
+      semanticMapTitle: "{{dimensions}}D Semantische Karte",
+      loading: {
+        computingProjection: "Computerprojektion",
+        runningProjection: "PCA->UMAP auf {{sample}}-Vektoren ausführen ...",
+        recomputingProjection: "Projektion wird neu berechnet..."
+      },
+      values: {
+        all: "alle",
+        loadingEllipsis: "Laden...",
+        countSuffix: "({{count}})",
+        sampled: "{{count}} abgetastet",
+        dimensions: "{{dimensions}}D",
+        knnEdges: "k={{neighbors}} - {{edges}} Kanten",
+        seconds: "{{seconds}}s",
+        points: "{{count}} Pkt",
+        cachedSuffix: "- zwischengespeichert",
+        fallbackSuffix: "- zurückgreifen",
+        timeSuffix: "- {{seconds}}s"
+      },
+      modes: {
+        clusters: "Cluster",
+        query: "Abfrage",
+        qa: "QA"
+      },
+      sample: {
+        label: "Probe",
+        confirmLoadAll: "Alle {{count}}-Vektoren laden? Dies kann merklich länger dauern.",
+        steps: {
+          all: "Alle"
+        }
+      },
+      empty: {
+        selectCollection: "Wählen Sie eine Sammlung aus, um Einbettungen zu visualisieren."
+      },
+      tooltips: {
+        requiresAiService: "Erfordert Verbindung zum KI-Dienst"
+      },
+      controls: {
+        colorBy: "Malen nach",
+        modeDefault: "Modus-Standard"
+      },
+      search: {
+        placeholder: "Suche im Vektorraum",
+        searching: "Suche...",
+        search: "Suchen",
+        visibleResults: "{{visible}} von {{total}} ergibt in dieser Projektion sichtbare Ergebnisse"
+      },
+      query: {
+        anchor: "Abfrageanker"
+      },
+      sections: {
+        overlays: "Überlagerungen",
+        clusterProfile: "Clusterprofil",
+        inspector: "Inspektor"
+      },
+      inspector: {
+        selectPoint: "Klicken Sie auf einen Punkt, um ihn zu überprüfen.",
+        loadingDetails: "Vollständige Details werden geladen...",
+        flags: {
+          outlier: "Ausreißer",
+          duplicate: "Duplikat",
+          orphan: "Waise"
+        }
+      },
+      overlays: {
+        clusterHulls: {
+          label: "Cluster-Rümpfe",
+          help: "Konvexe Hüllen um Cluster"
+        },
+        topologyLines: {
+          label: "Topologielinien",
+          help: "k-NN-Verbindungen zwischen nahegelegenen Punkten"
+        },
+        queryRays: {
+          label: "Strahlen abfragen",
+          help: "Ähnlichkeitslinks zwischen Anker und Ergebnis"
+        }
+      },
+      stats: {
+        totalVectors: "Gesamtvektoren",
+        sampled: "Probiert",
+        projection: "Vorsprung",
+        knnGraph: "k-NN-Diagramm",
+        source: "Quelle",
+        projectionTime: "Projektionszeit",
+        indexed: "Indiziert"
+      },
+      sources: {
+        solrCached: "Solr (zwischengespeichert)",
+        clientFallback: "Client-Fallback",
+        liveUmap: "Live UMAP"
+      },
+      actions: {
+        recomputeProjection: "Berechnen Sie die Projektion neu",
+        expand: "Expandieren"
+      },
+      legend: {
+        clusters: "Cluster",
+        quality: "Qualität",
+        similarity: "Ähnlichkeit",
+        hide: "Verstecken",
+        show: "Zeigen"
+      },
+      quality: {
+        outliers: "Ausreißer",
+        duplicates: "Duplikate",
+        duplicatePairs: "Doppelte Paare",
+        orphans: "Waisen",
+        normal: "Normal",
+        outOfSampled: "aus {{count}} abgetastet",
+        exportCsv: "CSV exportieren"
+      },
+      clusterProfile: {
+        selectCluster: "Wählen Sie einen Cluster aus, um seine dominanten Metadaten zu überprüfen.",
+        clusterSize: "Clustergröße",
+        dominantMetadata: "Dominante Metadaten",
+        representativeTitles: "Repräsentative Titel"
+      }
+    },
+    pacsConnectionModal: {
+      title: {
+        add: "PACS-Verbindung hinzufügen",
+        edit: "Bearbeiten Sie die PACS-Verbindung"
+      },
+      description: "Konfigurieren Sie eine DICOM-Imaging-Serververbindung.",
+      fields: {
+        name: "Name",
+        type: "Typ",
+        authType: "Authentifizierungstyp",
+        baseUrl: "Basis URL",
+        username: "Benutzername",
+        password: "Passwort",
+        bearerToken: "Inhabertoken",
+        linkedSource: "Verlinkte Quelle (optional)",
+        active: "Aktiv"
+      },
+      placeholders: {
+        name: "Haupt-PACS-Server",
+        keepExisting: "Lassen Sie das Feld leer, damit es bestehen bleibt",
+        password: "Passwort",
+        token: "Token"
+      },
+      types: {
+        orthanc: "Orthanc",
+        dicomweb: "DICOMweb",
+        googleHealthcare: "Google Healthcare",
+        cloud: "Wolke"
+      },
+      auth: {
+        none: "Keiner",
+        basic: "Grundlegende Auth",
+        bearer: "Inhabertoken"
+      },
+      values: {
+        latency: "({{ms}}ms)"
+      },
+      actions: {
+        testConnection: "Testverbindung",
+        cancel: "Abbrechen",
+        saveChanges: "Änderungen speichern",
+        createConnection: "Verbindung herstellen"
+      },
+      errors: {
+        testRequestFailed: "Die Testanforderung ist fehlgeschlagen",
+        saveFailed: "Die Verbindung konnte nicht gespeichert werden"
+      }
+    },
+    users: {
+      title: "Benutzer",
+      summary: {
+        totalAccounts: "Gesamtkonten"
+      },
+      empty: {
+        loading: "Laden...",
+        noUsers: "Keine Benutzer gefunden",
+        adjustFilters: "Versuchen Sie, Ihre Suche oder Filter anzupassen."
+      },
+      deleteModal: {
+        title: "Benutzer löschen?",
+        description: "werden dauerhaft gelöscht und alle ihre API-Tokens widerrufen.",
+        irreversible: "Dies kann nicht rückgängig gemacht werden."
+      },
+      actions: {
+        cancel: "Abbrechen",
+        deleting: "Löschen...",
+        delete: "Löschen",
+        adminEmailer: "Admin-E-Mailer",
+        newUser: "Neuer Benutzer",
+        editUser: "Benutzer bearbeiten",
+        deleteUser: "Benutzer löschen"
+      },
+      filters: {
+        searchPlaceholder: "Name oder E-Mail suchen...",
+        allRoles: "Alle Rollen"
+      },
+      table: {
+        name: "Name",
+        email: "E-Mail",
+        lastActive: "Zuletzt aktiv",
+        joined: "Beigetreten",
+        roles: "Rollen"
+      },
+      values: {
+        never: "Niemals"
+      },
+      pagination: {
+        page: "Seite",
+        of: "von",
+        users: "Benutzer"
+      }
+    },
+    userAudit: {
+      title: "Benutzerüberwachungsprotokoll",
+      subtitle: "Verfolgen Sie Anmeldeereignisse, Funktionszugriff und Sicherheitsaktionen für alle Benutzer.",
+      actions: {
+        login: "Login",
+        logout: "Abmelden",
+        passwordChanged: "Passwort geändert",
+        passwordReset: "Passwort zurücksetzen",
+        featureAccess: "Funktionszugriff"
+      },
+      empty: {
+        noMatching: "Keine passenden Ereignisse",
+        noEvents: "Noch keine Audit-Ereignisse",
+        adjustFilters: "Versuchen Sie, Ihre Filter oder den Datumsbereich anzupassen.",
+        description: "Prüfereignisse werden aufgezeichnet, wenn sich Benutzer anmelden und auf Plattformfunktionen zugreifen."
+      },
+      stats: {
+        loginsToday: "Anmeldungen heute",
+        activeUsers7d: "Aktive Benutzer (7 Tage)",
+        totalEvents: "Gesamtzahl der Ereignisse",
+        topFeature: "Top-Feature"
+      },
+      sections: {
+        mostAccessedFeatures: "Am häufigsten aufgerufene Funktionen – Letzte 7 Tage"
+      },
+      filters: {
+        searchPlaceholder: "Benutzer, Funktion, IP suchen...",
+        allActions: "Alle Aktionen",
+        clearAll: "Alles löschen"
+      },
+      table: {
+        time: "Zeit",
+        user: "Benutzer",
+        action: "Aktion",
+        feature: "Besonderheit",
+        ipAddress: "IP-Adresse"
+      },
+      pagination: {
+        page: "Seite",
+        of: "von",
+        events: "Ereignisse"
+      }
+    },
+    serviceDetail: {
+      actions: {
+        backToSystemHealth: "Zurück zur Systemgesundheit",
+        systemHealth: "Systemgesundheit",
+        refresh: "Aktualisieren",
+        manageSolrCores: "Verwalten Sie Solr-Kerne"
+      },
+      empty: {
+        serviceNotFound: "Dienst nicht gefunden.",
+        noLogs: "Keine aktuellen Protokolleinträge verfügbar."
+      },
+      values: {
+        checkedAt: "Bei {{time}} überprüft",
+        entriesCount: "({{count}}-Einträge)",
+        yes: "Ja",
+        no: "NEIN"
+      },
+      sections: {
+        metrics: "Metriken",
+        recentLogs: "Aktuelle Protokolle"
+      },
+      pacs: {
+        title: "PACS-Verbindungen",
+        addConnection: "Verbindung hinzufügen",
+        empty: "Keine PACS-Verbindungen konfiguriert."
+      },
+      darkstar: {
+        ohdsiPackages: "OHDSI HADES Pakete",
+        positPackages: "Posit / CRAN-Pakete",
+        installedCount: "({{count}} installiert)"
+      }
+    },
+    atlasMigration: {
+      steps: {
+        connect: "Verbinden",
+        discover: "Entdecken",
+        select: "Wählen",
+        import: "Import",
+        summary: "Zusammenfassung"
+      },
+      entityTypes: {
+        conceptSets: "Konzeptsätze",
+        cohortDefinitions: "Kohortendefinitionen",
+        incidenceRates: "Inzidenzraten",
+        characterizations: "Charakterisierungen",
+        pathways: "Wege",
+        estimations: "Schätzungen",
+        predictions: "Vorhersagen"
+      },
+      connect: {
+        title: "Verbinden Sie sich mit Atlas WebAPI",
+        description: "Geben Sie den Basiswert URL Ihrer vorhandenen OHDSI WebAPI-Instanz ein. Parthenon verbindet und inventarisiert alle verfügbaren Entitäten für die Migration.",
+        webapiUrl: "WebAPI Basis URL",
+        authentication: "Authentication",
+        auth: {
+          none: "Keine (öffentliches WebAPI)",
+          basic: "Grundlegendes Authentication",
+          bearer: "Inhabertoken"
+        },
+        credentials: "Anmeldeinformationen (Benutzername:Passwort)",
+        bearerToken: "Inhabertoken",
+        testConnection: "Testverbindung",
+        webapiVersion: "WebAPI-Version: {{version}}"
+      },
+      discover: {
+        discovering: "Entitäten entdecken...",
+        querying: "Alle WebAPI-Endpunkte parallel abfragen",
+        title: "Atlas-Inventar",
+        summary: "Migrationsfähige {{count}}-Entitäten in allen {{categories}}-Kategorien gefunden.",
+        sourcesFound: "Außerdem wurden {{count}}-Datenquellen gefunden."
+      },
+      select: {
+        title: "Wählen Sie die zu migrierenden Entitäten aus",
+        description: "Wählen Sie aus, welche Entitäten importiert werden sollen. Abhängigkeiten werden automatisch aufgelöst.",
+        analysisWarning: "Analyseentitäten können durch ID auf Kohortendefinitionen und Konzeptsätze verweisen. Parthenon ordnet diese Referenzen beim Import automatisch neu zu. Um optimale Ergebnisse zu erzielen, beziehen Sie die referenzierten Kohorten und Konzeptsätze in Ihre Auswahl ein.",
+        selectedCount: "{{selected}}/{{total}} ausgewählt",
+        totalSelected: "Für die Migration ausgewählte {{count}}-Entitäten"
+      },
+      import: {
+        starting: "Migration wird gestartet...",
+        importing: "Entitäten importieren...",
+        complete: "Migration abgeschlossen",
+        failed: "Migration fehlgeschlagen",
+        processed: "Alle ausgewählten Entitäten wurden verarbeitet.",
+        error: "Bei der Migration ist ein Fehler aufgetreten.",
+        percentComplete: "{{percent}}% abgeschlossen",
+        polling: "Abfrage nach Updates..."
+      },
+      summary: {
+        successful: "Migration erfolgreich",
+        completedWithWarnings: "Migration mit Warnungen abgeschlossen",
+        failed: "Migration fehlgeschlagen",
+        from: "Aus",
+        duration: "Dauer: {{duration}}"
+      },
+      metrics: {
+        total: "Gesamt",
+        imported: "Importiert",
+        skipped: "Übersprungen",
+        failed: "Fehlgeschlagen"
+      },
+      table: {
+        entityType: "Entitätstyp",
+        category: "Kategorie"
+      },
+      actions: {
+        selectAll: "Wählen Sie „Alle“ aus",
+        deselectAll: "Alle abwählen",
+        retryFailed: "Wiederholung fehlgeschlagen ({{count}})",
+        done: "Erledigt",
+        closeTitle: "Schließen – jederzeit über die Verwaltung zurückkehren",
+        previous: "Vorherige",
+        startMigration: "Starten Sie die Migration",
+        next: "Nächste"
+      },
+      errors: {
+        connectionFailed: "Verbindung fehlgeschlagen",
+        discoveryFailed: "Die Ermittlung ist fehlgeschlagen"
+      }
+    },
+    fhirExport: {
+      title: "FHIR Massenexport",
+      subtitle: "Exportieren Sie OMOP CDM-Daten als FHIR R4 NDJSON-Dateien für die Interoperabilität.",
+      comingSoon: "Demnächst verfügbar",
+      description: "Der FHIR-Massenexport ($export) befindet sich in der Entwicklung. Diese Funktion ermöglicht den Export von OMOP CDM-Daten als FHIR R4 NDJSON-Dateien für die Interoperabilität.",
+      backendPending: "Die Backend-Endpunkte für diese Funktion wurden noch nicht implementiert."
+    },
+    fhirConnections: {
+      title: "FHIR EHR Verbindungen",
+      subtitle: "Konfigurieren Sie SMART-Backend-Services-Verbindungen für FHIR R4-Massendatenextraktion von Epic, Cerner und anderen EHR-Systemen.",
+      runMetrics: {
+        extracted: "Extrahiert",
+        mapped: "Kartiert",
+        written: "Geschrieben",
+        failed: "Fehlgeschlagen",
+        mappingCoverage: "Kartierungsabdeckung"
+      },
+      history: {
+        loading: "Synchronisierungsverlauf wird geladen...",
+        empty: "Es wird noch keine Synchronisierung ausgeführt.",
+        status: "Status",
+        started: "Begonnen",
+        duration: "Dauer",
+        metrics: "Metriken",
+        title: "Verlauf synchronisieren"
+      },
+      dialog: {
+        editTitle: "Bearbeiten Sie die FHIR-Verbindung",
+        addTitle: "FHIR-Verbindung hinzufügen",
+        description: "Konfigurieren Sie eine SMART-Backend-Services-Verbindung zu einem EHR FHIR R4-Endpunkt."
+      },
+      labels: {
+        siteName: "Site-Name",
+        siteKey: "Site-Schlüssel (Slug)",
+        ehrVendor: "EHR-Anbieter",
+        fhirBaseUrl: "FHIR Basis URL",
+        tokenEndpoint: "Token-Endpunkt",
+        clientId: "Client ID",
+        rsaPrivateKey: "RSA privater Schlüssel (PEM)",
+        scopes: "Bereiche",
+        groupId: "Gruppe ID (für Massenexport)",
+        exportResourceTypes: "Ressourcentypen exportieren (durch Kommas getrennt, leer = alle)",
+        active: "Aktiv",
+        incrementalSync: "Inkrementelle Synchronisierung"
+      },
+      vendors: {
+        epic: "Epos",
+        cerner: "Cerner (Oracle Health)",
+        other: "Andere FHIR R4"
+      },
+      placeholders: {
+        siteName: "Johns Hopkins-Epos",
+        keepExistingKey: "Lassen Sie das Feld leer, um den vorhandenen Schlüssel beizubehalten",
+        resourceTypes: "Patient, Zustand, Begegnung, Medikamentenanfrage, Beobachtung, Verfahren"
+      },
+      actions: {
+        cancel: "Abbrechen",
+        saveChanges: "Änderungen speichern",
+        createConnection: "Verbindung herstellen",
+        testConnection: "Testverbindung",
+        edit: "Bearbeiten",
+        delete: "Löschen",
+        details: "Einzelheiten",
+        syncMonitor: "Synchronisierungsmonitor",
+        addConnection: "Verbindung hinzufügen"
+      },
+      messages: {
+        failedToSave: "Speichern fehlgeschlagen",
+        failedToStartSync: "Die Synchronisierung konnte nicht gestartet werden",
+        deleteConfirm: "„{{name}}“ löschen?",
+        noConnections: "Keine FHIR-Verbindungen konfiguriert",
+        noConnectionsDescription: "Fügen Sie eine Verbindung hinzu, um mit der Extraktion klinischer Daten von einem EHR über FHIR R4 Bulk Data zu beginnen."
+      },
+      sync: {
+        activateFirst: "Zuerst die Verbindung aktivieren",
+        uploadKeyFirst: "Laden Sie zunächst einen privaten Schlüssel hoch",
+        inProgress: "Synchronisierung läuft",
+        incrementalTitle: "Inkrementelle Synchronisierung (nur neue Daten)",
+        fullSync: "Vollständige Synchronisierung",
+        sync: "Synchronisieren",
+        incrementalSync: "Inkrementelle Synchronisierung",
+        incrementalDescription: "Nur neue/aktualisierte Daten seit der letzten Synchronisierung",
+        fullDescription: "Laden Sie alle Daten von EHR herunter",
+        forceFullSync: "Vollständige Synchronisierung erzwingen",
+        forceFullDescription: "Laden Sie alle Daten erneut herunter und deduplizieren Sie sie beim Schreiben"
+      },
+      values: {
+        percent: "{{value}}%",
+        byUser: "von {{name}}",
+        keyUploaded: "Schlüssel hochgeladen",
+        noKey: "Kein Schlüssel",
+        lastSync: "Letzte Synchronisierung: {{date}}",
+        records: "{{count}}-Datensätze",
+        testElapsed: "{{message}} ({{elapsed}}ms)",
+        allSupported: "Alle unterstützt",
+        enabled: "Aktiviert",
+        disabled: "Deaktiviert",
+        since: "(seit {{date}})",
+        notSet: "Nicht festgelegt",
+        never: "Niemals"
+      },
+      details: {
+        tokenEndpoint: "Token-Endpunkt:",
+        clientId: "Client ID:",
+        scopes: "Geltungsbereiche:",
+        groupId: "Gruppe ID:",
+        resourceTypes: "Ressourcentypen:",
+        incremental: "Inkrementell:",
+        targetSource: "Zielquelle:",
+        syncRuns: "Synchronisierung läuft:"
+      },
+      stats: {
+        totalConnections: "Gesamtzahl der Verbindungen",
+        active: "Aktiv",
+        keysConfigured: "Schlüssel konfiguriert",
+        lastSync: "Letzte Synchronisierung"
+      }
+    },
+    vocabulary: {
+      title: "Vokabelmanagement",
+      subtitle: "Aktualisieren Sie OMOP-Vokabulartabellen von einem Athena-Download ZIP.",
+      status: {
+        pending: "In der Warteschlange",
+        running: "Läuft",
+        completed: "Vollendet",
+        failed: "Fehlgeschlagen"
+      },
+      log: {
+        title: "Protokoll importieren",
+        noOutput: "(noch keine Ausgabe)"
+      },
+      labels: {
+        schema: "Schema:",
+        source: "Quelle:",
+        rowsLoaded: "Geladene Zeilen:",
+        duration: "Dauer:",
+        by: "Von:",
+        progress: "Fortschritt",
+        optional: "(optional)"
+      },
+      values: {
+        seconds: "{{value}}s"
+      },
+      actions: {
+        refresh: "Aktualisieren",
+        remove: "Entfernen",
+        uploading: "Hochladen...",
+        startImport: "Starten Sie den Import"
+      },
+      upload: {
+        title: "Laden Sie den Athena-Vokabular ZIP hoch",
+        descriptionPrefix: "Laden Sie ein Vokabelpaket herunter von",
+        descriptionMiddle: "und lade es hier hoch.",
+        descriptionSuffix: "Der Import läuft als Hintergrundjob und kann je nach Vokabulargröße 15–60 Minuten dauern.",
+        maxFileSize: "Dateien bis zu 5 GB werden unterstützt",
+        dropHere: "Lassen Sie Athena ZIP hier fallen",
+        browse: "oder klicken Sie zum Durchsuchen",
+        targetSource: "Ziel CDM Quelle",
+        defaultSchema: "Standardvokabularschema",
+        sourceHelpPrefix: "Wählt das Vokabularschema der Quelle aus, das durch den Import gefüllt wird. Wenn keine Quelle ausgewählt ist, wird die Standardeinstellung verwendet",
+        sourceHelpSuffix: "Verbindungsschema verwendet wird."
+      },
+      instructions: {
+        title: "So erhalten Sie ein Vokabular ZIP von Athena",
+        signInPrefix: "Besuchen",
+        signInSuffix: "und melden Sie sich an.",
+        selectDomains: "Wählen Sie die Vokabulardomänen und -versionen aus, die Sie benötigen (z. B. SNOMED, RxNorm, LOINC).",
+        clickPrefix: "Klicken",
+        downloadVocabularies: "Vokabeln herunterladen",
+        clickSuffix: "- Athena sendet Ihnen per E-Mail einen Download-Link.",
+        uploadZip: "Laden Sie ZIP herunter (normalerweise 500 MB-3 GB) und laden Sie es unten hoch."
+      },
+      messages: {
+        deleteConfirm: "Diesen Importdatensatz löschen?",
+        uploadFailed: "Hochladen fehlgeschlagen: {{message}}",
+        unknownError: "Unbekannter Fehler",
+        uploadSuccess: "ZIP erfolgreich hochgeladen. Der Importauftrag befindet sich in der Warteschlange. Überprüfen Sie unten den Fortschritt.",
+        importRunning: "Derzeit läuft ein Import. Neue Uploads werden bis zum Abschluss deaktiviert."
+      },
+      history: {
+        title: "Importverlauf",
+        loading: "Laden...",
+        empty: "Noch keine Vokabelimporte. Laden Sie oben ein Athena ZIP hoch, um loszulegen."
+      }
+    },
+    systemHealth: {
+      title: "Systemgesundheit",
+      subtitle: "Live-Status aller Parthenon-Dienste. Automatische Aktualisierung alle 30 Sekunden.",
+      serverStatus: "Serverstatus",
+      lastChecked: "Zuletzt überprüft bei {{time}}",
+      polling: "Umfragedienste...",
+      gisDataManagement: "GIS-Datenverwaltung",
+      status: {
+        healthy: "Gesund",
+        degraded: "Degradiert",
+        down: "Runter"
+      },
+      overall: {
+        healthy: "Gesund",
+        needsAttention: "Aufmerksamkeit erforderlich"
+      },
+      labels: {
+        pending: "Ausstehend:",
+        failed: "Fehlgeschlagen:",
+        cores: "Kerne:",
+        documents: "Unterlagen:",
+        dagster: "Dolch:",
+        graphql: "GraphQL:",
+        studies: "Studien:",
+        instances: "Instanzen:",
+        disk: "Scheibe:"
+      },
+      actions: {
+        refresh: "Aktualisieren",
+        openService: "Offener Dienst",
+        viewDetails: "Details anzeigen"
+      },
+      tiers: {
+        corePlatform: "Kernplattform",
+        dataSearch: "Daten & Suche",
+        aiAnalytics: "KI und Analytik",
+        clinicalServices: "Klinische Dienstleistungen",
+        monitoringCommunications: "Überwachung und Kommunikation",
+        acropolisInfrastructure: "Acropolis-Infrastruktur",
+        unknown: "Andere Dienstleistungen"
+      },
+      hades: {
+        title: "OHDSI-Paketparität",
+        subtitle: "Darkstar-Paketabdeckung für erstklassige, native und Kompatibilitätsarbeit.",
+        checking: "Darkstar-Pakete werden überprüft...",
+        unavailable: "Das Darkstar-Paketinventar ist nicht verfügbar.",
+        installed: "Installiert:",
+        missing: "Fehlen:",
+        total: "Gesamt:",
+        requiredMissing: "Erforderlich fehlt:",
+        shinyPolicy: "Legacy-Shiny-Richtlinie",
+        notExposed: "nicht ausgesetzt",
+        shinyPolicyDescription: "Gehostete Shiny-Apps, Iframe-Einbettung und vom Benutzer bereitgestellte App-Pfade sind deaktiviert. OHDSI Shiny-Pakete bleiben nur Laufzeitkompatibilitätsartefakte.",
+        replacement: "Ersatz: {{surface}}",
+        package: "Paket",
+        capability: "Fähigkeit",
+        priority: "Priorität",
+        surface: "Oberfläche",
+        source: "Quelle",
+        runtime: "Laufzeit",
+        status: {
+          complete: "Vollständig",
+          partial: "Teilweise"
+        }
+      }
+    },
+    fhirSync: {
+      title: "FHIR Sync-Monitor",
+      subtitle: "Echtzeit-Überwachung der ETL-Pipeline über alle FHIR-Verbindungen hinweg",
+      status: {
+        completed: "Vollendet",
+        running: "Läuft",
+        pending: "Ausstehend",
+        exporting: "Exportieren",
+        downloading: "Herunterladen",
+        processing: "Verarbeitung",
+        failed: "Fehlgeschlagen"
+      },
+      timeline: {
+        empty: "Keine Synchronisierungsaktivität in den letzten 30 Tagen",
+        tooltip: "{{date}}: {{completed}} abgeschlossen, {{failed}} fehlgeschlagen",
+        hoverSummary: "{{completed}} ok / {{failed}} fehlgeschlagen"
+      },
+      metrics: {
+        extracted: "Extrahiert",
+        mapped: "Kartiert",
+        written: "Geschrieben",
+        failed: "Fehlgeschlagen",
+        averageMappingCoverage: "Durchschnittliche Kartenabdeckung"
+      },
+      actions: {
+        viewError: "Fehler anzeigen"
+      },
+      values: {
+        runs: "{{count}} läuft",
+        never: "Niemals",
+        activeRuns: "{{count}} aktiv",
+        refreshInterval: "{{seconds}}s aktualisieren",
+        allTimeTotals: "Gesamtsummen aller Zeiten",
+        lastRuns: "Letzte 20 über alle Verbindungen"
+      },
+      messages: {
+        failedToLoad: "Das Laden der Dashboard-Daten ist fehlgeschlagen.",
+        noConnections: "Keine Verbindungen konfiguriert",
+        noRuns: "Es wird noch keine Synchronisierung ausgeführt"
+      },
+      stats: {
+        connections: "Verbindungen",
+        totalRuns: "Gesamtanzahl der Läufe",
+        completed: "Vollendet",
+        failed: "Fehlgeschlagen",
+        recordsWritten: "Aufzeichnungen geschrieben",
+        avgCoverage: "Durchschnittliche Abdeckung"
+      },
+      panels: {
+        pipelineThroughput: "Pipeline-Durchsatz",
+        syncActivity: "Synchronisierungsaktivität (30 Tage)",
+        connectionHealth: "Verbindungszustand",
+        recentRuns: "Letzte Synchronisierungsläufe"
+      },
+      table: {
+        status: "Status",
+        connection: "Verbindung",
+        started: "Begonnen",
+        duration: "Dauer",
+        metrics: "Metriken"
+      }
+    },
+    gisData: {
+      title: "GIS-Grenzdaten",
+      subtitle: "Verwalten Sie geografische Grenzdatensätze für den GIS Explorer",
+      status: {
+        loaded: "geladen",
+        empty: "leer"
+      },
+      tabs: {
+        boundaries: "Grenzen",
+        dataImport: "Datenimport"
+      },
+      messages: {
+        checking: "Grenzdaten werden überprüft...",
+        noBoundaryData: "Keine Grenzdaten geladen. Wählen Sie unten eine Quelle und Ebenen aus, um zu beginnen."
+      },
+      labels: {
+        boundaries: "Grenzen:",
+        countries: "Länder:"
+      },
+      load: {
+        title: "Grenzen laden",
+        adminLevels: "Zu ladende Admin-Level:"
+      },
+      sources: {
+        gadm: {
+          name: "GADM v4.1",
+          description: "Globale Verwaltungsbereiche – 356.000 Grenzen auf 6 Verwaltungsebenen"
+        },
+        geoboundaries: {
+          name: "geoBoundaries CGAZ",
+          description: "Vereinfachte Grenzen für kartografische Konsistenz (ADM0-2)"
+        }
+      },
+      levels: {
+        adm0: "Länder (ADM0)",
+        adm1: "Staaten / Provinzen (ADM1)",
+        adm2: "Bezirke / Landkreise (ADM2)",
+        adm3: "Unterbezirke (ADM3)"
+      },
+      actions: {
+        preparing: "Vorbereiten...",
+        generateLoadCommand: "Ladebefehl generieren",
+        refreshStats: "Statistiken aktualisieren",
+        copyToClipboard: "In die Zwischenablage kopieren",
+        close: "Schließen"
+      },
+      modal: {
+        runOnHost: "Auf Host ausführen",
+        description: "GIS-Daten werden direkt in das lokale PostgreSQL 17 geladen. Führen Sie diesen Befehl im Projektstammverzeichnis aus:",
+        datasetFlagPrefix: "Der",
+        datasetFlagSuffix: "Flag ermöglicht die Fortschrittsverfolgung. Aktualisieren Sie die Statistiken, nachdem das Skript abgeschlossen ist."
+      },
+      job: {
+        title: "GIS-Grenzen werden geladen",
+        description: "Quelle: {{source}} | Level: {{levels}}"
+      },
+      values: {
+        all: "alle"
+      }
+    },
+    honestBroker: {
+      title: "Ehrlicher Makler",
+      subtitle: "Registrieren Sie verblindete Umfrageteilnehmer, verknüpfen Sie sie mit OMOP-Personen-ID-Datensätzen und überwachen Sie den Einreichungsstatus, ohne den Forschern die Rohdaten der Befragten preiszugeben.",
+      actions: {
+        cancel: "Abbrechen",
+        registerParticipant: "Teilnehmer registrieren",
+        sendInvitation: "Einladung senden",
+        sendInvite: "Einladung senden",
+        refresh: "Aktualisieren",
+        copyLink: "Link kopieren",
+        openSurvey: "Umfrage öffnen",
+        resend: "Erneut senden",
+        revoke: "Widerrufen"
+      },
+      labels: {
+        personId: "Person ID",
+        notes: "Notizen",
+        participant: "Teilnehmer",
+        deliveryEmail: "Liefer-E-Mail",
+        unknown: "Unbekannt",
+        unknownInstrument: "Unbekanntes Instrument",
+        notYet: "Noch nicht",
+        notRecorded: "Nicht aufgezeichnet",
+        system: "System",
+        statusToken: "{{status}} · {{token}}",
+        tokenReference: "...{{token}}"
+      },
+      metrics: {
+        brokerCampaigns: "Broker-Kampagnen",
+        registeredParticipants: "Registrierte Teilnehmer",
+        submitted: "Eingereicht",
+        invitationsSent: "Einladungen gesendet",
+        complete: "Vollständig",
+        pending: "Ausstehend",
+        seeded: "Gesät",
+        registered: "Eingetragen",
+        completion: "Fertigstellung",
+        completionPercent: "{{value}}%"
+      },
+      campaignStatuses: {
+        draft: "Entwurf",
+        active: "Aktiv",
+        closed: "Geschlossen"
+      },
+      matchStatuses: {
+        submitted: "Eingereicht",
+        registered: "Eingetragen",
+        pending: "Ausstehend",
+        matched: "Passend"
+      },
+      deliveryStatuses: {
+        pending: "Ausstehend",
+        queued: "In der Warteschlange",
+        sent: "Gesendet",
+        opened: "Geöffnet",
+        submitted: "Eingereicht",
+        revoked: "Widerrufen",
+        failed: "Fehlgeschlagen"
+      },
+      unauthorized: {
+        title: "Ehrlicher Broker-Zugang erforderlich",
+        description: "Dieser Arbeitsbereich ist auf Datenverwalter und Administratoren beschränkt, da er blinde Umfrageidentitäten mit Patientenakten verknüpft."
+      },
+      registerModal: {
+        title: "Teilnehmer registrieren",
+        titleWithCampaign: "Teilnehmer registrieren · {{campaign}}",
+        registering: "Registrieren...",
+        description: "Erstellen Sie für diese Umfragekampagne einen blinden Registrierungseintrag, der eine Befragten-ID einem Patientendatensatz zuordnet.",
+        respondentIdentifier: "Befragten-ID",
+        respondentPlaceholder: "MRN, Lerncode oder Einladungscode",
+        personIdPlaceholder: "Bekannte OMOP person_id",
+        notesPlaceholder: "Optionale Maklerhinweise"
+      },
+      inviteModal: {
+        title: "Einladung senden",
+        titleWithCampaign: "Einladung senden · {{campaign}}",
+        sending: "Senden...",
+        description: "Senden Sie einen einmaligen, vom Broker verwalteten Umfragelink. Nur der Makler behält die Lieferadresse und die Lieferkette.",
+        selectParticipant: "Teilnehmer auswählen",
+        participantWithPerson: "{{blindedId}} · Person {{personId}}",
+        emailPlaceholder: "patient@example.org",
+        lastInvitation: "Letzte Einladung: {{status}} · Token mit der Endung {{token}}"
+      },
+      campaignRegistry: {
+        title: "Kampagnenregister",
+        subtitle: "Nur von ehrlichen Brokern unterstützte Kampagnen.",
+        loading: "Kampagnen werden geladen...",
+        emptyPrefix: "Noch keine Ehrlich-Makler-Kampagnen. Aktivieren",
+        requireHonestBroker: "Erfordern Sie einen ehrlichen Makler",
+        emptySuffix: "zunächst auf einer Umfragekampagne."
+      },
+      messages: {
+        selectCampaignManage: "Wählen Sie eine Kampagne aus, um Broker-Registrierungen zu verwalten.",
+        selectCampaignReview: "Wählen Sie eine Kampagne aus, um Broker-Registrierungen zu überprüfen."
+      },
+      participants: {
+        title: "Registrierte Teilnehmer",
+        subtitle: "Anonymisierte Registrierungseinträge für die ausgewählte Umfragekampagne.",
+        searchPlaceholder: "Suche nach Blind-ID, Personen-ID, Notizen ...",
+        loading: "Anmeldungen werden geladen...",
+        noMatches: "Keine Broker-Registrierungen entsprechen dem aktuellen Filter."
+      },
+      invitations: {
+        title: "Einladungsbuch",
+        subtitle: "Outbound- und Inbound-Chain-of-Custody für von Brokern verwaltete Umfrageeinladungen.",
+        loading: "Einladungen werden geladen...",
+        empty: "Für diese Kampagne wurden noch keine Einladungen verschickt."
+      },
+      audit: {
+        title: "Prüfpfad",
+        subtitle: "Unveränderliche, maklerseitige Überwachungskette für Teilnehmerregistrierung, ausgehende Einladungen und eingehende Antwortereignisse.",
+        loading: "Audit-Trail wird geladen...",
+        empty: "Es wurden noch keine Broker-Audit-Ereignisse aufgezeichnet."
+      },
+      latest: {
+        title: "Neuester übereinstimmender Datensatz",
+        blindedId: "Geblendeter ID",
+        created: "Erstellt"
+      },
+      table: {
+        blindedParticipant: "Geblendeter Teilnehmer",
+        conductId: "Führen Sie ID durch",
+        status: "Status",
+        submitted: "Eingereicht",
+        contact: "Kontakt",
+        latestInvite: "Letzte Einladung",
+        destination: "Ziel",
+        sent: "Gesendet",
+        opened: "Geöffnet",
+        reference: "Referenz",
+        actions: "Aktionen",
+        time: "Zeit",
+        action: "Aktion",
+        actor: "Schauspieler",
+        inviteRef: "Ref. einladen",
+        metadata: "Metadaten"
+      },
+      auditActions: {
+        participant_registered: "Teilnehmer registriert",
+        invitation_sent: "Einladung gesendet",
+        invitation_resent: "Einladung erneut gesendet",
+        invitation_revoked: "Einladung widerrufen",
+        response_submitted: "Antwort gesendet",
+        status_changed: "Status geändert"
+      },
+      confirmRevoke: "Einladung widerrufen bis {{token}}?",
+      toasts: {
+        publishLinkCopied: "Veröffentlichungslink kopiert",
+        publishLinkCopyFailed: "Der Veröffentlichungslink konnte nicht kopiert werden",
+        participantRegistered: "Teilnehmer angemeldet",
+        participantRegisterFailed: "Teilnehmer konnte nicht registriert werden",
+        invitationSent: "Einladung gesendet · Token mit der Endung {{token}}",
+        invitationSendFailed: "Einladung konnte nicht gesendet werden",
+        invitationResent: "Einladung erneut gesendet · Token endet {{token}}",
+        invitationResendFailed: "Die Einladung konnte nicht erneut gesendet werden",
+        invitationRevoked: "Einladung widerrufen · Token endet {{token}}",
+        invitationRevokeFailed: "Die Einladung konnte nicht widerrufen werden"
+      }
+    }
   },
 });
 
@@ -21164,18 +23833,17 @@ const ptApp: MessageTree = mergeMessageTrees(enApp, {
   administration: {
     dashboard: {
       title: "Administração",
-      subtitle:
-        "Gerencie usuários, funções, permissões e configuração do sistema.",
+      subtitle: "Gerencie usuários, funções, permissões e configuração do sistema.",
       panels: {
         platform: "Plataforma",
         usersAccess: "Usuários e acesso",
         dataSources: "Fontes de dados",
-        aiResearch: "IA e pesquisa",
+        aiResearch: "IA e pesquisa"
       },
       status: {
         allHealthy: "Tudo saudável",
         degraded: "Degradado",
-        warning: "Aviso",
+        warning: "Aviso"
       },
       labels: {
         services: "Serviços",
@@ -21189,95 +23857,199 @@ const ptApp: MessageTree = mergeMessageTrees(enApp, {
         aiProvider: "Provedor de IA",
         model: "Modelo",
         abby: "Abby",
-        researchRuntime: "R / HADES",
+        researchRuntime: "R / HADES"
       },
       values: {
         servicesUp: "{{healthy}}/{{total}} ativos",
         queueSummary: "{{pending}} pendentes / {{failed}} com falha",
         enabledCount: "{{count}} ativados",
+        tokenExpiry: "8h",
+        cdmCount: "{{count}} CDM",
+        solrSummary: "documentos {{docs}} / núcleos {{cores}}",
         none: "Nenhum",
-        online: "Online",
+        online: "On-line"
       },
       messages: {
-        noCdmSources: "Nenhuma fonte CDM configurada",
+        noCdmSources: "Nenhuma fonte CDM configurada"
       },
       nav: {
         userManagement: {
           title: "Gerenciamento de usuários",
-          description:
-            "Crie, edite e desative contas. Atribua funções para controlar o acesso.",
+          description: "Crie, edite e desative contas. Atribua funções para controlar o acesso."
         },
         rolesPermissions: {
           title: "Funções e permissões",
-          description:
-            "Defina funções personalizadas e ajuste permissões em todos os domínios.",
+          description: "Defina funções personalizadas e ajuste permissões em todos os domínios."
         },
         authProviders: {
           title: "Provedores de autenticação",
-          description:
-            "Ative e configure LDAP, OAuth 2.0, SAML 2.0 ou OIDC para SSO.",
+          description: "Ative e configure LDAP, OAuth 2.0, SAML 2.0 ou OIDC para SSO."
         },
         aiProviders: {
           title: "Configuração do provedor de IA",
-          description:
-            "Alterne o backend da Abby entre Ollama local, Anthropic, OpenAI, Gemini e outros.",
+          description: "Alterne o backend da Abby entre Ollama local, Anthropic, OpenAI, Gemini e outros."
         },
         systemHealth: {
           title: "Integridade do sistema",
-          description:
-            "Status em tempo real dos serviços Parthenon: Redis, IA, Darkstar, Solr, Orthanc PACS e filas de tarefas.",
+          description: "Status em tempo real dos serviços Parthenon: Redis, IA, Darkstar, Solr, Orthanc PACS e filas de tarefas."
         },
         vocabularyManagement: {
           title: "Gerenciamento de vocabulário",
-          description:
-            "Atualize tabelas de vocabulário OMOP enviando um novo ZIP Athena.",
+          description: "Atualize tabelas de vocabulário OMOP enviando um novo ZIP Athena."
         },
         fhirConnections: {
           title: "Conexões FHIR EHR",
-          description:
-            "Gerencie conexões FHIR R4 com Epic, Cerner e outros EHRs para importação em massa.",
-        },
+          description: "Gerencie conexões FHIR R4 com Epic, Cerner e outros EHRs para importação em massa."
+        }
       },
       setupWizard: {
         title: "Assistente de configuração da plataforma",
-        description:
-          "Execute novamente a configuração guiada: saúde, provedor de IA, autenticação e fontes de dados.",
+        description: "Execute novamente a configuração guiada: saúde, provedor de IA, autenticação e fontes de dados."
       },
       atlasMigration: {
         title: "Migrar do Atlas",
-        description:
-          "Importe definições de coorte, conjuntos de conceitos e análises de uma instalação OHDSI Atlas existente.",
+        description: "Importe definições de coorte, conjuntos de conceitos e análises de uma instalação OHDSI Atlas existente."
       },
       actions: {
         open: "Abrir",
-        openWizard: "Abrir assistente",
+        openWizard: "Abrir assistente"
+      }
+    },
+    acropolisServices: {
+      descriptions: {
+        authentik: "Provedor de identidade e portal de acesso",
+        wazuh: "Monitoramento de segurança e painel SIEM",
+        grafana: "Painéis de métricas e observabilidade",
+        portainer: "Operações de contêiner e pilha",
+        pgadmin: "console de administração PostgreSQL",
+        n8n: "Orquestração e automação de fluxo de trabalho",
+        superset: "Espaço de trabalho de análise BI e ad hoc",
+        datahub: "Catálogo de metadados e explorador de linhagem"
       },
+      openService: "Serviço aberto"
+    },
+    grafana: {
+      openDashboard: "Abrir painel"
+    },
+    broadcastEmail: {
+      title: "E-mail de transmissão",
+      descriptionPrefix: "Isso enviará um e-mail individual para cada um dos",
+      descriptionSuffix: "usuários cadastrados.",
+      subject: "Assunto",
+      subjectPlaceholder: "Linha de assunto do e-mail...",
+      message: "Mensagem",
+      messagePlaceholder: "Escreva aqui sua mensagem...",
+      close: "Fechar",
+      cancel: "Cancelar",
+      sending: "Enviando...",
+      sendToAll: "Enviar para todos os usuários",
+      resultWithRecipients: "{{message}} (destinatários {{count}})",
+      unknownError: "Erro desconhecido"
+    },
+    userModal: {
+      titles: {
+        editUser: "Editar usuário",
+        newUser: "Novo usuário"
+      },
+      fields: {
+        fullName: "Nome completo",
+        email: "E-mail",
+        password: "Senha",
+        roles: "Funções"
+      },
+      hints: {
+        keepCurrentPassword: "(deixe em branco para se manter atualizado)"
+      },
+      placeholders: {
+        maskedPassword: "••••••••",
+        passwordRequirements: "Mínimo de 8 caracteres, letras maiúsculas e minúsculas + número"
+      },
+      actions: {
+        cancel: "Cancelar",
+        saving: "Salvando...",
+        saveChanges: "Salvar alterações",
+        createUser: "Criar usuário"
+      },
+      errors: {
+        generic: "Ocorreu um erro.",
+        passwordRequired: "A senha é obrigatória."
+      }
+    },
+    liveKit: {
+      loadingConfiguration: "Carregando configuração...",
+      provider: "Provedor",
+      providerBadges: {
+        cloud: "Nuvem",
+        "self-hosted": "Auto-hospedado",
+        env: "Ambiente"
+      },
+      providerOptions: {
+        environment: "Ambiente",
+        liveKitCloud: "Nuvem LiveKit",
+        selfHosted: "Auto-hospedado"
+      },
+      providerDescriptions: {
+        useEnvFile: "Usar arquivo .env",
+        hostedByLiveKit: "Hospedado por LiveKit",
+        yourOwnServer: "Seu próprio servidor"
+      },
+      env: {
+        usingEnvConfiguration: "Usando configuração .env",
+        url: "URL:",
+        apiKey: "Chave API:",
+        apiSecret: "Segredo API:",
+        notSet: "Não definido",
+        missing: "Ausente",
+        editPrefix: "Editar",
+        editSuffix: "e reinicie o PHP para mudar."
+      },
+      fields: {
+        cloudUrl: "LiveKit Nuvem URL",
+        serverUrl: "Servidor URL",
+        apiKey: "Chave API",
+        apiSecret: "Segredo API"
+      },
+      placeholders: {
+        savedKey: "Salvo; insira uma nova chave para substituí-la",
+        savedSecret: "Salvo; insira um novo segredo para substituí-lo",
+        enterApiKey: "Digite a chave API",
+        enterApiSecret: "Digite o segredo API"
+      },
+      actions: {
+        hideConfiguration: "Ocultar configuração",
+        configureLiveKit: "Configurar LiveKit",
+        testConnection: "Conexão de teste",
+        saveConfiguration: "Salvar configuração",
+        useEnvDefaults: "Use padrões .env"
+      },
+      toasts: {
+        noUrlToTest: "Não há URL para testar",
+        connectionSuccessful: "Conexão bem-sucedida",
+        connectionFailed: "Falha na conexão",
+        configurationSaved: "Configuração LiveKit salva",
+        saveFailed: "Falha ao salvar a configuração"
+      }
     },
     authProviders: {
       title: "Provedores de autenticação",
-      subtitle:
-        "Ative um ou mais provedores de identidade externos para single sign-on. Usuário/senha Sanctum permanece sempre disponível como fallback.",
+      subtitle: "Ative um ou mais provedores de identidade externos para single sign-on. Usuário/senha Sanctum permanece sempre disponível como fallback.",
       providers: {
         ldap: {
-          label: "LDAP / Active Directory",
-          description:
-            "Autentique com Microsoft Active Directory ou qualquer diretório LDAP v3. Suporta TLS, sincronização de grupos e mapeamento de atributos.",
+          label: "LDAP/Diretório Ativo",
+          description: "Autentique com Microsoft Active Directory ou qualquer diretório LDAP v3. Suporta TLS, sincronização de grupos e mapeamento de atributos."
         },
         oauth2: {
           label: "OAuth 2.0",
-          description:
-            "Delegue autenticação ao GitHub, Google, Microsoft ou a qualquer provedor OAuth 2.0 personalizado.",
+          description: "Delegue autenticação ao GitHub, Google, Microsoft ou a qualquer provedor OAuth 2.0 personalizado."
         },
         saml2: {
           label: "SAML 2.0",
-          description:
-            "SSO corporativo por um provedor de identidade SAML 2.0 (Okta, Azure AD, ADFS, etc.).",
+          description: "SSO corporativo por um provedor de identidade SAML 2.0 (Okta, Azure AD, ADFS, etc.)."
         },
         oidc: {
-          label: "OpenID Connect",
-          description:
-            "SSO moderno por descoberta OIDC. Suporta PKCE e qualquer IdP compatível com padrões.",
-        },
+          label: "Conexão OpenID",
+          description: "SSO moderno por descoberta OIDC. Suporta PKCE e qualquer IdP compatível com padrões."
+        }
       },
       enabled: "Ativado",
       disabled: "Desativado",
@@ -21292,17 +24064,17 @@ const ptApp: MessageTree = mergeMessageTrees(enApp, {
       formActions: {
         saving: "Salvando...",
         save: "Salvar",
-        saved: "Salvo",
+        saved: "Salvo"
       },
       oauthForm: {
         drivers: {
           github: "GitHub",
           google: "Google",
-          microsoft: "Microsoft / Azure AD",
-          custom: "OAuth 2.0 personalizado",
+          microsoft: "Microsoft/Azure AD",
+          custom: "OAuth 2.0 personalizado"
         },
         sections: {
-          customEndpoints: "Endpoints personalizados",
+          customEndpoints: "Endpoints personalizados"
         },
         labels: {
           provider: "Provedor",
@@ -21312,12 +24084,17 @@ const ptApp: MessageTree = mergeMessageTrees(enApp, {
           scopes: "Escopos",
           authorizationUrl: "URL de autorização",
           tokenUrl: "URL do token",
-          userInfoUrl: "URL de informações do usuário",
+          userInfoUrl: "URL de informações do usuário"
         },
         hints: {
           redirectUri: "Deve corresponder à URI registrada no provedor OAuth",
-          scopes: "Lista separada por espaços",
+          scopes: "Lista separada por espaços"
         },
+        placeholders: {
+          clientId: "Cliente/Aplicativo ID",
+          redirectUri: "/api/v1/auth/oauth2/retorno de chamada",
+          scopes: "e-mail de perfil openid"
+        }
       },
       oidcForm: {
         labels: {
@@ -21326,20 +24103,25 @@ const ptApp: MessageTree = mergeMessageTrees(enApp, {
           clientSecret: "Segredo do cliente",
           redirectUri: "URI de redirecionamento",
           scopes: "Escopos",
-          pkceEnabled: "Ativar PKCE (recomendado - requer cliente público)",
+          pkceEnabled: "Ativar PKCE (recomendado - requer cliente público)"
         },
         hints: {
-          discoveryUrl:
-            "O endpoint /.well-known/openid-configuration do seu IdP",
+          discoveryUrl: "O endpoint /.well-known/openid-configuration do seu IdP",
           redirectUri: "Deve corresponder ao que está registrado no IdP",
-          scopes: "Separados por espaços",
+          scopes: "Separados por espaços"
         },
+        placeholders: {
+          discoveryUrl: "https://accounts.google.com/.well-known/openid-configuration",
+          clientId: "seu-ID-cliente",
+          redirectUri: "/api/v1/auth/oidc/callback",
+          scopes: "e-mail de perfil openid"
+        }
       },
       samlForm: {
         sections: {
           identityProvider: "Provedor de identidade (IdP)",
           serviceProvider: "Provedor de serviço (SP)",
-          attributeMapping: "Mapeamento de atributos",
+          attributeMapping: "Mapeamento de atributos"
         },
         labels: {
           idpEntityId: "ID de entidade IdP",
@@ -21349,22 +24131,24 @@ const ptApp: MessageTree = mergeMessageTrees(enApp, {
           spEntityId: "ID de entidade SP",
           acsUrl: "URL ACS",
           nameIdFormat: "Formato NameID",
-          signAssertions:
-            "Assinar assertions (requer chave privada SP - configure no ambiente do servidor)",
+          signAssertions: "Assinar assertions (requer chave privada SP - configure no ambiente do servidor)",
           emailAttribute: "Atributo de e-mail",
-          displayNameAttribute: "Atributo de nome exibido",
+          displayNameAttribute: "Atributo de nome exibido"
         },
         hints: {
           ssoUrl: "Endpoint de Single Sign-On",
           sloUrl: "Endpoint de Single Logout (opcional)",
-          idpCertificate:
-            "Cole o certificado X.509 (formato PEM, com ou sem cabeçalhos)",
-          spEntityId:
-            "URL da sua instância Parthenon - deve corresponder ao registrado no IdP",
-          acsUrl: "Assertion Consumer Service",
+          idpCertificate: "Cole o certificado X.509 (formato PEM, com ou sem cabeçalhos)",
+          spEntityId: "URL da sua instância Parthenon - deve corresponder ao registrado no IdP",
+          acsUrl: "Afirmação de Atendimento ao Consumidor"
         },
-        attributeMappingDescription:
-          "Mapeie atributos da assertion SAML para campos de usuário do Parthenon.",
+        placeholders: {
+          certificate: "-----BEGIN CERTIFICATE-----\nMIIDxTCC...\n-----END CERTIFICATE-----",
+          acsUrl: "/api/v1/auth/saml2/retorno de chamada",
+          sloUrl: "/api/v1/auth/saml2/logout",
+          displayName: "nome de exibição"
+        },
+        attributeMappingDescription: "Mapeie atributos da assertion SAML para campos de usuário do Parthenon."
       },
       ldapForm: {
         sections: {
@@ -21372,10 +24156,10 @@ const ptApp: MessageTree = mergeMessageTrees(enApp, {
           bindCredentials: "Credenciais de bind",
           userSearch: "Busca de usuário",
           attributeMapping: "Mapeamento de atributos",
-          groupSync: "Sincronização de grupos",
+          groupSync: "Sincronização de grupos"
         },
         labels: {
-          host: "Host",
+          host: "Hospedar",
           port: "Porta",
           useSsl: "Usar SSL (LDAPS)",
           useTls: "Usar StartTLS",
@@ -21390,46 +24174,1268 @@ const ptApp: MessageTree = mergeMessageTrees(enApp, {
           displayNameField: "Campo de nome exibido",
           syncGroups: "Sincronizar grupos LDAP com funções do Parthenon",
           groupSearchBase: "Base de busca de grupos",
-          groupFilter: "Filtro de grupo",
+          groupFilter: "Filtro de grupo"
         },
         hints: {
           host: "Nome do host ou IP do servidor LDAP",
           bindDn: "DN da conta de serviço usada para consultas ao diretório",
-          userFilter: "{username} é substituído no login",
+          userFilter: "{username} é substituído no login"
+        },
+        placeholders: {
+          bindDn: "cn=svc-parthenon,dc=exemplo,dc=com",
+          baseDn: "dc=exemplo,dc=com",
+          userSearchBase: "ou=usuários,dc=exemplo,dc=com",
+          userFilter: "(uid={nome de usuário})",
+          groupSearchBase: "ou=grupos,dc=exemplo,dc=com",
+          groupFilter: "(objectClass=grupoDeNomes)"
         },
         actions: {
           saving: "Salvando...",
           save: "Salvar",
-          saved: "Salvo",
-        },
+          saved: "Salvo"
+        }
+      }
+    },
+    roles: {
+      title: "Funções e permissões",
+      subtitle: "Defina funções personalizadas e ajuste as atribuições de permissões. Use a matriz para edições em massa.",
+      tabs: {
+        roleList: "Lista de funções",
+        permissionMatrix: "Matriz de permissão"
       },
+      permissionMatrix: {
+        instructions: "Clique nas células para alternar permissões · cabeçalhos de linha para aplicar a todas as funções · cabeçalhos de coluna para conceder/revogar tudo para uma função.",
+        saveAllChangesOne: "Salvar todas as alterações (função {{count}})",
+        saveAllChangesOther: "Salvar todas as alterações (funções {{count}})",
+        permission: "Permissão",
+        columnTitle: "Alternar todas as permissões para {{role}}",
+        permissionCount: "{{count}} perms",
+        saving: "salvando...",
+        saved: "salvo ✓",
+        save: "salvar",
+        domainTitle: "Alternar todas as permissões {{domain}} em todas as funções",
+        rowTitle: "Alternar {{permission}} para todas as funções",
+        cellTitleGrant: "Conceder {{permission}} a {{role}}",
+        cellTitleRevoke: "Revogar {{permission}} de {{role}}"
+      },
+      editor: {
+        roleName: "Nome da função",
+        roleNamePlaceholder: "por exemplo coordenador de site",
+        permissions: "Permissões",
+        selectedCount: "({{count}} selecionado)"
+      },
+      actions: {
+        newRole: "Nova função",
+        cancel: "Cancelar",
+        saving: "Salvando...",
+        saveRole: "Salvar função",
+        editRole: "Editar função",
+        deleteRole: "Excluir função",
+        deleting: "Excluindo...",
+        delete: "Excluir"
+      },
+      values: {
+        builtIn: "embutido",
+        userCountOne: "usuário {{count}}",
+        userCountOther: "usuários {{count}}",
+        permissionCountOne: "permissão {{count}}",
+        permissionCountOther: "permissões {{count}}",
+        more: "+{{count}} mais"
+      },
+      deleteModal: {
+        title: "Excluir função?",
+        prefix: "O papel",
+        suffix: "será excluído permanentemente. Os usuários atribuídos apenas a esta função perderão todas as permissões."
+      }
+    },
+    pacs: {
+      studyBrowser: {
+        browseTitle: "Navegar: {{name}}",
+        filters: {
+          patientName: "Nome do paciente",
+          patientId: "Paciente ID",
+          allModalities: "Todas as Modalidades"
+        },
+        empty: {
+          noStudies: "Nenhum estudo encontrado"
+        },
+        table: {
+          patientName: "Nome do paciente",
+          patientId: "Paciente ID",
+          date: "Data",
+          modality: "Modalidade",
+          description: "Descrição",
+          series: "Série",
+          instances: "Inst."
+        },
+        pagination: {
+          range: "{{start}}-{{end}}",
+          ofStudies: "de estudos {{total}}",
+          previous: "Anterior",
+          next: "Próximo"
+        }
+      },
+      connectionCard: {
+        defaultConnection: "Conexão padrão",
+        setAsDefault: "Definir como padrão",
+        deleteConfirm: "Excluir \"{{name}}\"?",
+        never: "Nunca",
+        seriesByModality: "Séries por Modalidade",
+        statsUpdated: "Estatísticas atualizadas {{date}}",
+        stats: {
+          patients: "Pacientes",
+          studies: "Estudos",
+          series: "Série",
+          instances: "Instâncias",
+          disk: "Disco"
+        },
+        actions: {
+          edit: "Editar",
+          delete: "Excluir",
+          test: "Teste",
+          stats: "Estatísticas",
+          browse: "Navegar"
+        }
+      }
+    },
+    solrAdmin: {
+      title: "Administração de pesquisa Solr",
+      subtitle: "Gerencie núcleos de pesquisa Solr, acione a reindexação e monitore o status.",
+      loadingCoreStatus: "Carregando status principal...",
+      status: {
+        healthy: "Saudável",
+        unavailable: "Indisponível"
+      },
+      labels: {
+        documents: "Documentos",
+        lastIndexed: "Última indexação",
+        duration: "Duração"
+      },
+      values: {
+        never: "Nunca",
+        seconds: "{{seconds}}s"
+      },
+      actions: {
+        reindexAll: "Reindexar todos os núcleos",
+        reindex: "Reindexar",
+        fullReindex: "Reindexação completa",
+        clear: "Limpar"
+      },
+      messages: {
+        fetchFailed: "Falha ao buscar o status Solr",
+        reindexCompleted: "Reindexação de '{{core}}' concluída",
+        reindexFailed: "Falha ao reindexar '{{core}}'",
+        reindexAllCompleted: "Reindexação concluída",
+        reindexAllFailed: "Falha ao reindexar todos os núcleos",
+        clearConfirm: "Tem certeza de que deseja limpar todos os documentos de '{{core}}'? Isto não pode ser desfeito.",
+        clearCompleted: "Núcleo '{{core}}' limpo",
+        clearFailed: "Falha ao limpar '{{core}}'"
+      }
     },
     aiProviders: {
       title: "Configuração do provedor de IA",
-      subtitle:
-        "Escolha qual backend de IA alimenta a Abby. Apenas um provedor fica ativo por vez. Chaves de API são armazenadas criptografadas.",
+      subtitle: "Escolha qual backend de IA alimenta a Abby. Apenas um provedor fica ativo por vez. Chaves de API são armazenadas criptografadas.",
       activeProvider: "Provedor ativo:",
       fields: {
         model: "Modelo",
         apiKey: "Chave de API",
-        ollamaBaseUrl: "URL base do Ollama",
+        ollamaBaseUrl: "URL base do Ollama"
+      },
+      placeholders: {
+        modelName: "Nome do modelo"
       },
       values: {
         active: "Ativo",
         enabled: "Ativado",
         disabled: "Desativado",
-        noModelSelected: "Nenhum modelo selecionado",
+        noModelSelected: "Nenhum modelo selecionado"
       },
       actions: {
         currentlyActive: "Ativo no momento",
         setAsActive: "Definir como ativo",
         save: "Salvar",
-        testConnection: "Testar conexão",
+        testConnection: "Testar conexão"
       },
       messages: {
-        requestFailed: "A requisição falhou.",
-      },
+        requestFailed: "A requisição falhou."
+      }
     },
+    gisImport: {
+      steps: {
+        upload: "Carregar",
+        analyze: "Analisar",
+        mapColumns: "Colunas do mapa",
+        configure: "Configurar",
+        validate: "Validar",
+        import: "Importar"
+      },
+      analyze: {
+        analysisFailed: "Abby encontrou um problema ao analisar este arquivo.",
+        unknownError: "Erro desconhecido",
+        retry: "Tentar novamente",
+        analyzing: "Abby está analisando seus dados...",
+        detecting: "Detectando tipos de colunas, códigos geográficos e semântica de valores"
+      },
+      upload: {
+        uploading: "Fazendo upload...",
+        dropPrompt: "Solte um arquivo aqui ou clique para navegar",
+        acceptedFormats: "CSV, TSV, Excel, Shapefile (.zip), GeoJSON, KML, GeoPackage - máximo {{maxSize}}MB",
+        largeFiles: "Para arquivos grandes (> {{maxSize}}MB)",
+        fileTooLarge: "O arquivo excede {{maxSize}}MB. Use CLI: php artesão gis:import {{filename}}",
+        uploadFailed: "Falha no upload"
+      },
+      configure: {
+        fields: {
+          layerName: "Nome da camada",
+          exposureType: "Tipo de exposição",
+          geographyLevel: "Nível geográfico",
+          valueType: "Tipo de valor",
+          aggregation: "Agregação"
+        },
+        placeholders: {
+          layerName: "por exemplo, Índice de Vulnerabilidade Social",
+          exposureType: "por exemplo, svi_overall"
+        },
+        geographyLevels: {
+          county: "Condado",
+          tract: "Setor Censitário",
+          state: "Estado",
+          country: "País",
+          custom: "Personalizado"
+        },
+        valueTypes: {
+          continuous: "Contínuo (coropleto)",
+          categorical: "Categórico (cores discretas)",
+          binary: "Binário (presença/ausência)"
+        },
+        aggregations: {
+          mean: "Significar",
+          sum: "Soma",
+          maximum: "Máximo",
+          minimum: "Mínimo",
+          latest: "Mais recente"
+        },
+        saving: "Salvando...",
+        continue: "Continuar"
+      },
+      mapping: {
+        title: "Mapeamento de colunas",
+        subtitle: "Mapeie cada coluna de origem de acordo com sua finalidade",
+        purposes: {
+          geographyCode: "Código Geográfico",
+          geographyName: "Nome geográfico",
+          latitude: "Latitude",
+          longitude: "Longitude",
+          valueMetric: "Valor (métrica)",
+          metadata: "Metadados",
+          skip: "Pular"
+        },
+        confidence: {
+          high: "Alto",
+          medium: "Médio",
+          low: "Baixo"
+        },
+        askAbby: "Pergunte ao Abby",
+        abbyOnColumn: "Abby em \"{{column}}\":",
+        thinking: "Pensamento...",
+        saving: "Salvando...",
+        continue: "Continuar"
+      },
+      validate: {
+        validating: "Validando...",
+        validationFailed: "Falha na validação:",
+        unknownError: "Erro desconhecido",
+        results: "Resultados de validação",
+        stats: {
+          totalRows: "Total de linhas",
+          uniqueGeographies: "Geografias Únicas",
+          matched: "Correspondido",
+          unmatched: "Incomparável (stubs)",
+          matchRate: "Taxa de correspondência",
+          geographyType: "Tipo de geografia"
+        },
+        unmatchedWarning: "Geografias {{count}} não encontradas no banco de dados. Serão criadas entradas de stub (sem geometria de limite).",
+        backToMapping: "Voltar ao Mapeamento",
+        proceedWithImport: "Prossiga com a importação"
+      },
+      import: {
+        starting: "Começando...",
+        startImport: "Iniciar importação",
+        importing: "Importando... {{progress}}%",
+        complete: "Importação concluída",
+        rowsImported: "Linhas {{count}} importadas",
+        saveLearningPrompt: "Salve os mapeamentos para que o Abby aprenda para a próxima vez",
+        saveToAbby: "Salvar em Abby",
+        viewInGisExplorer: "Ver no GIS Explorer",
+        importAnother: "Importar outro",
+        failed: "Falha na importação",
+        startOver: "Recomeçar"
+      }
+    },
+    chromaStudio: {
+      title: "Estúdio de Coleção Chroma",
+      subtitle: "Inspecione coleções de vetores, execute consultas semânticas e gerencie a ingestão",
+      values: {
+        collectionCount: "coleções {{count}}",
+        loading: "carregando",
+        loadingEllipsis: "Carregando...",
+        countSuffix: "({{count}})",
+        sampledSuffix: "({{count}} amostrado)"
+      },
+      actions: {
+        refreshCollections: "Atualizar coleções",
+        ingestDocs: "Ingerir documentos",
+        ingestClinical: "Ingerir Clínica",
+        promoteFaq: "Promova FAQ",
+        ingestOhdsiPapers: "Ingerir documentos OHDSI",
+        ingestOhdsiKnowledge: "Ingerir conhecimento OHDSI",
+        ingestTextbooks: "Ingerir livros didáticos"
+      },
+      stats: {
+        vectors: "Vectors",
+        sampled: "Amostrado",
+        dimensions: "Dimensões",
+        metaFields: "Metacampos"
+      },
+      messages: {
+        loadingCollectionData: "Carregando dados de coleta..."
+      },
+      empty: {
+        title: "Esta coleção está vazia",
+        description: "Use as ações de ingestão acima para preencher \"{{collection}}\" com documentos.",
+        noRecords: "Não há registros nesta coleção.",
+        noDocumentReturned: "Nenhum documento foi devolvido.",
+        noDocumentText: "Nenhum texto do documento disponível."
+      },
+      tabs: {
+        overview: "Visão geral",
+        retrieval: "Recuperação"
+      },
+      search: {
+        placeholder: "Consulta semântica...",
+        recentQueries: "Consultas recentes",
+        kLabel: "K:",
+        queryAction: "Consulta",
+        empty: "Insira uma consulta acima e clique em Consulta para inspecionar os resultados da recuperação.",
+        queryLabel: "Consulta:",
+        resultsCount: "resultados {{count}}",
+        querying: "Consultando...",
+        distance: "distância"
+      },
+      overview: {
+        facetDistribution: "Distribuição de facetas",
+        sampleRecords: "Registros de amostra",
+        collectionMetadata: "Metadados de coleção"
+      }
+    },
+    vectorExplorer: {
+      title: "Explorador Vector",
+      semanticMapTitle: "Mapa Semântico {{dimensions}}D",
+      loading: {
+        computingProjection: "Projeção computacional",
+        runningProjection: "Executando PCA->UMAP em vetores {{sample}} ...",
+        recomputingProjection: "Recalculando projeção..."
+      },
+      values: {
+        all: "todos",
+        loadingEllipsis: "Carregando...",
+        countSuffix: "({{count}})",
+        sampled: "{{count}} amostrado",
+        dimensions: "{{dimensions}}D",
+        knnEdges: "k={{neighbors}} - arestas {{edges}}",
+        seconds: "{{seconds}}s",
+        points: "{{count}} pontos",
+        cachedSuffix: "- em cache",
+        fallbackSuffix: "- cair pra trás",
+        timeSuffix: "- {{seconds}}s"
+      },
+      modes: {
+        clusters: "Aglomerados",
+        query: "Consulta",
+        qa: "QA"
+      },
+      sample: {
+        label: "Amostra",
+        confirmLoadAll: "Carregar todos os vetores {{count}}? Isso pode levar muito mais tempo.",
+        steps: {
+          all: "Todos"
+        }
+      },
+      empty: {
+        selectCollection: "Selecione uma coleção para visualizar os embeddings."
+      },
+      tooltips: {
+        requiresAiService: "Requer conexão com o serviço de IA"
+      },
+      controls: {
+        colorBy: "Colorir por",
+        modeDefault: "Modo padrão"
+      },
+      search: {
+        placeholder: "Pesquise dentro do espaço vetorial",
+        searching: "Procurando...",
+        search: "Pesquisar",
+        visibleResults: "resultados {{visible}} de {{total}} visíveis nesta projeção"
+      },
+      query: {
+        anchor: "Âncora de consulta"
+      },
+      sections: {
+        overlays: "Sobreposições",
+        clusterProfile: "Perfil de cluster",
+        inspector: "Inspetor"
+      },
+      inspector: {
+        selectPoint: "Clique em um ponto para inspecionar.",
+        loadingDetails: "Carregando detalhes completos...",
+        flags: {
+          outlier: "Atípico",
+          duplicate: "Duplicado",
+          orphan: "Órfão"
+        }
+      },
+      overlays: {
+        clusterHulls: {
+          label: "Cascos de cluster",
+          help: "Envelopes convexos em torno de clusters"
+        },
+        topologyLines: {
+          label: "Linhas de topologia",
+          help: "links k-NN entre pontos próximos"
+        },
+        queryRays: {
+          label: "Consultar raios",
+          help: "Links de similaridade âncora-resultado"
+        }
+      },
+      stats: {
+        totalVectors: "Vetores totais",
+        sampled: "Amostrado",
+        projection: "Projeção",
+        knnGraph: "gráfico k-NN",
+        source: "Fonte",
+        projectionTime: "Tempo de projeção",
+        indexed: "Indexado"
+      },
+      sources: {
+        solrCached: "Solr (em cache)",
+        clientFallback: "Reserva de cliente",
+        liveUmap: "Ao vivo UMAP"
+      },
+      actions: {
+        recomputeProjection: "Recalcular a projeção",
+        expand: "Expandir"
+      },
+      legend: {
+        clusters: "Aglomerados",
+        quality: "Qualidade",
+        similarity: "Semelhança",
+        hide: "Esconder",
+        show: "Mostrar"
+      },
+      quality: {
+        outliers: "Valores discrepantes",
+        duplicates: "Duplicatas",
+        duplicatePairs: "Pares duplicados",
+        orphans: "Órfãos",
+        normal: "Normal",
+        outOfSampled: "fora de {{count}} amostrado",
+        exportCsv: "Exportar CSV"
+      },
+      clusterProfile: {
+        selectCluster: "Selecione um cluster para inspecionar seus metadados dominantes.",
+        clusterSize: "Tamanho do cluster",
+        dominantMetadata: "Metadados dominantes",
+        representativeTitles: "Títulos Representativos"
+      }
+    },
+    pacsConnectionModal: {
+      title: {
+        add: "Adicionar conexão PACS",
+        edit: "Editar conexão PACS"
+      },
+      description: "Configure uma conexão do servidor de imagem DICOM.",
+      fields: {
+        name: "Nome",
+        type: "Tipo",
+        authType: "Tipo de autenticação",
+        baseUrl: "Base URL",
+        username: "Nome de usuário",
+        password: "Senha",
+        bearerToken: "Token do Portador",
+        linkedSource: "Fonte vinculada (opcional)",
+        active: "Ativo"
+      },
+      placeholders: {
+        name: "Servidor PACS principal",
+        keepExisting: "Deixe em branco para continuar existindo",
+        password: "senha",
+        token: "ficha"
+      },
+      types: {
+        orthanc: "Orthanc",
+        dicomweb: "DICOMweb",
+        googleHealthcare: "Google Saúde",
+        cloud: "Nuvem"
+      },
+      auth: {
+        none: "Nenhum",
+        basic: "Autenticação Básica",
+        bearer: "Token do Portador"
+      },
+      values: {
+        latency: "({{ms}}ms)"
+      },
+      actions: {
+        testConnection: "Conexão de teste",
+        cancel: "Cancelar",
+        saveChanges: "Salvar alterações",
+        createConnection: "Criar conexão"
+      },
+      errors: {
+        testRequestFailed: "Falha na solicitação de teste",
+        saveFailed: "Falha ao salvar conexão"
+      }
+    },
+    users: {
+      title: "Usuários",
+      summary: {
+        totalAccounts: "total de contas"
+      },
+      empty: {
+        loading: "Carregando...",
+        noUsers: "Nenhum usuário encontrado",
+        adjustFilters: "Tente ajustar sua pesquisa ou filtros."
+      },
+      deleteModal: {
+        title: "Excluir usuário?",
+        description: "serão excluídos permanentemente e todos os seus tokens API revogados.",
+        irreversible: "Isto não pode ser desfeito."
+      },
+      actions: {
+        cancel: "Cancelar",
+        deleting: "Excluindo...",
+        delete: "Excluir",
+        adminEmailer: "E-mail do administrador",
+        newUser: "Novo usuário",
+        editUser: "Editar usuário",
+        deleteUser: "Excluir usuário"
+      },
+      filters: {
+        searchPlaceholder: "Pesquisar nome ou e-mail...",
+        allRoles: "Todas as funções"
+      },
+      table: {
+        name: "Nome",
+        email: "E-mail",
+        lastActive: "Último ativo",
+        joined: "Ingressou",
+        roles: "Funções"
+      },
+      values: {
+        never: "Nunca"
+      },
+      pagination: {
+        page: "Página",
+        of: "de",
+        users: "Usuários"
+      }
+    },
+    userAudit: {
+      title: "Registro de auditoria do usuário",
+      subtitle: "Rastreie eventos de login, acesso a recursos e ações de segurança em todos os usuários.",
+      actions: {
+        login: "Conecte-se",
+        logout: "Sair",
+        passwordChanged: "Senha alterada",
+        passwordReset: "Redefinição de senha",
+        featureAccess: "Acesso a recursos"
+      },
+      empty: {
+        noMatching: "Nenhum evento correspondente",
+        noEvents: "Nenhum evento de auditoria ainda",
+        adjustFilters: "Tente ajustar seus filtros ou intervalo de datas.",
+        description: "Os eventos de auditoria são registrados à medida que os usuários fazem login e acessam os recursos da plataforma."
+      },
+      stats: {
+        loginsToday: "Logins hoje",
+        activeUsers7d: "Usuários ativos (7d)",
+        totalEvents: "Total de eventos",
+        topFeature: "Recurso principal"
+      },
+      sections: {
+        mostAccessedFeatures: "Recursos mais acessados ​​– últimos 7 dias"
+      },
+      filters: {
+        searchPlaceholder: "Pesquisar usuário, recurso, IP...",
+        allActions: "Todas as ações",
+        clearAll: "Limpar tudo"
+      },
+      table: {
+        time: "Tempo",
+        user: "Usuário",
+        action: "Ação",
+        feature: "Recurso",
+        ipAddress: "Endereço IP"
+      },
+      pagination: {
+        page: "Página",
+        of: "de",
+        events: "eventos"
+      }
+    },
+    serviceDetail: {
+      actions: {
+        backToSystemHealth: "Voltar para a integridade do sistema",
+        systemHealth: "Saúde do sistema",
+        refresh: "Atualizar",
+        manageSolrCores: "Gerenciar núcleos Solr"
+      },
+      empty: {
+        serviceNotFound: "Serviço não encontrado.",
+        noLogs: "Nenhuma entrada de registro recente disponível."
+      },
+      values: {
+        checkedAt: "Verificado em {{time}}",
+        entriesCount: "(entradas {{count}})",
+        yes: "Sim",
+        no: "Não"
+      },
+      sections: {
+        metrics: "Métricas",
+        recentLogs: "Registros recentes"
+      },
+      pacs: {
+        title: "Conexões PACS",
+        addConnection: "Adicionar conexão",
+        empty: "Nenhuma conexão PACS configurada."
+      },
+      darkstar: {
+        ohdsiPackages: "Pacotes OHDSI HADES",
+        positPackages: "Pacotes Posit/CRAN",
+        installedCount: "({{count}} instalado)"
+      }
+    },
+    atlasMigration: {
+      steps: {
+        connect: "Conectar",
+        discover: "Descobrir",
+        select: "Selecione",
+        import: "Importar",
+        summary: "Resumo"
+      },
+      entityTypes: {
+        conceptSets: "Conjuntos de conceitos",
+        cohortDefinitions: "Definições de coorte",
+        incidenceRates: "Taxas de incidência",
+        characterizations: "Caracterizações",
+        pathways: "Caminhos",
+        estimations: "Estimativas",
+        predictions: "Previsões"
+      },
+      connect: {
+        title: "Conecte-se ao Atlas WebAPI",
+        description: "Insira o URL base da sua instância OHDSI WebAPI existente. Parthenon conectará e inventariará todas as entidades disponíveis para migração.",
+        webapiUrl: "WebAPIBase URL",
+        authentication: "Authentication",
+        auth: {
+          none: "Nenhum (WebAPI público)",
+          basic: "XPh0x básico",
+          bearer: "Token do Portador"
+        },
+        credentials: "Credenciais (nome de usuário:senha)",
+        bearerToken: "Token do Portador",
+        testConnection: "Conexão de teste",
+        webapiVersion: "Versão WebAPI: {{version}}"
+      },
+      discover: {
+        discovering: "Descobrindo entidades...",
+        querying: "Consultando todos os endpoints WebAPI em paralelo",
+        title: "Inventário Atlas",
+        summary: "Foram encontradas entidades migráveis ​​{{count}} nas categorias {{categories}}.",
+        sourcesFound: "Também foram encontradas fontes de dados {{count}}."
+      },
+      select: {
+        title: "Selecione entidades para migrar",
+        description: "Escolha quais entidades importar. As dependências são resolvidas automaticamente.",
+        analysisWarning: "As entidades de análise podem fazer referência a definições de coorte e conjuntos de conceitos por ID. Parthenon remapeará essas referências automaticamente durante a importação. Para obter melhores resultados, inclua as coortes e conjuntos de conceitos referenciados em sua seleção.",
+        selectedCount: "{{selected}}/{{total}} selecionado",
+        totalSelected: "Entidades {{count}} selecionadas para migração"
+      },
+      import: {
+        starting: "Iniciando migração...",
+        importing: "Importando Entidades...",
+        complete: "Migração concluída",
+        failed: "Falha na migração",
+        processed: "Todas as entidades selecionadas foram processadas.",
+        error: "Ocorreu um erro durante a migração.",
+        percentComplete: "{{percent}}% concluído",
+        polling: "Pesquisando atualizações..."
+      },
+      summary: {
+        successful: "Migração bem-sucedida",
+        completedWithWarnings: "Migração concluída com avisos",
+        failed: "Falha na migração",
+        from: "De",
+        duration: "Duração: {{duration}}"
+      },
+      metrics: {
+        total: "Total",
+        imported: "Importado",
+        skipped: "Ignorado",
+        failed: "Com falha"
+      },
+      table: {
+        entityType: "Tipo de entidade",
+        category: "Categoria"
+      },
+      actions: {
+        selectAll: "Selecionar tudo",
+        deselectAll: "Desmarcar tudo",
+        retryFailed: "Falha na nova tentativa ({{count}})",
+        done: "Feito",
+        closeTitle: "Fechar - retornar a qualquer momento via Administração",
+        previous: "Anterior",
+        startMigration: "Iniciar migração",
+        next: "Próximo"
+      },
+      errors: {
+        connectionFailed: "Falha na conexão",
+        discoveryFailed: "Falha na descoberta"
+      }
+    },
+    fhirExport: {
+      title: "Exportação em massa FHIR",
+      subtitle: "Exporte dados OMOP CDM como arquivos FHIR R4 NDJSON para interoperabilidade.",
+      comingSoon: "Em breve",
+      description: "A exportação em massa FHIR ($export) está em desenvolvimento. Este recurso permitirá exportar dados OMOP CDM como arquivos FHIR R4 NDJSON para interoperabilidade.",
+      backendPending: "Os endpoints de back-end para este recurso ainda não foram implementados."
+    },
+    fhirConnections: {
+      title: "Conexões FHIR EHR",
+      subtitle: "Configure conexões de serviços de back-end SMART para extração de dados em massa FHIR R4 de Epic, Cerner e outros EHR systems.",
+      runMetrics: {
+        extracted: "Extraído",
+        mapped: "Mapeado",
+        written: "Escrito",
+        failed: "Com falha",
+        mappingCoverage: "Cobertura de mapeamento"
+      },
+      history: {
+        loading: "Carregando histórico de sincronização...",
+        empty: "Nenhuma sincronização foi executada ainda.",
+        status: "Situação",
+        started: "Iniciado",
+        duration: "Duração",
+        metrics: "Métricas",
+        title: "Histórico de sincronização"
+      },
+      dialog: {
+        editTitle: "Editar conexão FHIR",
+        addTitle: "Adicionar conexão FHIR",
+        description: "Configure uma conexão de serviços de backend SMART com um endpoint EHR FHIR R4."
+      },
+      labels: {
+        siteName: "Nome do site",
+        siteKey: "Chave do site (slug)",
+        ehrVendor: "Fornecedor EHR",
+        fhirBaseUrl: "FHIRBase URL",
+        tokenEndpoint: "Ponto final do token",
+        clientId: "Cliente ID",
+        rsaPrivateKey: "Chave privada RSA (PEM)",
+        scopes: "Escopos",
+        groupId: "Grupo ID (para exportação em massa)",
+        exportResourceTypes: "Exportar tipos de recursos (separados por vírgula, em branco = todos)",
+        active: "Ativo",
+        incrementalSync: "Sincronização incremental"
+      },
+      vendors: {
+        epic: "Épico",
+        cerner: "Cerner (Oracle Health)",
+        other: "Outros FHIR R4"
+      },
+      placeholders: {
+        siteName: "Épico Johns Hopkins",
+        keepExistingKey: "Deixe em branco para manter a chave existente",
+        resourceTypes: "Paciente,Condição,Encontro,Solicitação de Medicamentos,Observação,Procedimento"
+      },
+      actions: {
+        cancel: "Cancelar",
+        saveChanges: "Salvar alterações",
+        createConnection: "Criar conexão",
+        testConnection: "Conexão de teste",
+        edit: "Editar",
+        delete: "Excluir",
+        details: "Detalhes",
+        syncMonitor: "Monitor de sincronização",
+        addConnection: "Adicionar conexão"
+      },
+      messages: {
+        failedToSave: "Falha ao salvar",
+        failedToStartSync: "Falha ao iniciar a sincronização",
+        deleteConfirm: "Excluir \"{{name}}\"?",
+        noConnections: "Nenhuma conexão FHIR configurada",
+        noConnectionsDescription: "Adicione uma conexão para começar a extrair dados clínicos de um EHR por meio de FHIR R4 Bulk Data."
+      },
+      sync: {
+        activateFirst: "Ative a conexão primeiro",
+        uploadKeyFirst: "Faça upload de uma chave privada primeiro",
+        inProgress: "Sincronização em andamento",
+        incrementalTitle: "Sincronização Incremental (somente novos dados)",
+        fullSync: "Sincronização completa",
+        sync: "Sincronizar",
+        incrementalSync: "Sincronização Incremental",
+        incrementalDescription: "Somente dados novos/atualizados desde a última sincronização",
+        fullDescription: "Baixe todos os dados do EHR",
+        forceFullSync: "Forçar sincronização completa",
+        forceFullDescription: "Baixe novamente todos os dados, desduplicar na gravação"
+      },
+      values: {
+        percent: "{{value}}%",
+        byUser: "por {{name}}",
+        keyUploaded: "Chave enviada",
+        noKey: "Sem chave",
+        lastSync: "Última sincronização: {{date}}",
+        records: "registros {{count}}",
+        testElapsed: "{{message}} ({{elapsed}}ms)",
+        allSupported: "Todos suportados",
+        enabled: "Habilitado",
+        disabled: "Desabilitado",
+        since: "(desde {{date}})",
+        notSet: "Não definido",
+        never: "Nunca"
+      },
+      details: {
+        tokenEndpoint: "Ponto final do token:",
+        clientId: "Cliente ID:",
+        scopes: "Escopos:",
+        groupId: "Grupo ID:",
+        resourceTypes: "Tipos de recursos:",
+        incremental: "Incremental:",
+        targetSource: "Fonte alvo:",
+        syncRuns: "Execuções de sincronização:"
+      },
+      stats: {
+        totalConnections: "Total de conexões",
+        active: "Ativo",
+        keysConfigured: "Chaves configuradas",
+        lastSync: "Última sincronização"
+      }
+    },
+    vocabulary: {
+      title: "Gerenciamento de vocabulário",
+      subtitle: "Atualize as tabelas de vocabulário OMOP de um download do Athena ZIP.",
+      status: {
+        pending: "Na fila",
+        running: "Em execução",
+        completed: "Concluído",
+        failed: "Com falha"
+      },
+      log: {
+        title: "Registro de importação",
+        noOutput: "(sem saída ainda)"
+      },
+      labels: {
+        schema: "Esquema:",
+        source: "Fonte:",
+        rowsLoaded: "Linhas carregadas:",
+        duration: "Duração:",
+        by: "Por:",
+        progress: "Progresso",
+        optional: "(opcional)"
+      },
+      values: {
+        seconds: "{{value}}s"
+      },
+      actions: {
+        refresh: "Atualizar",
+        remove: "Remover",
+        uploading: "Fazendo upload...",
+        startImport: "Iniciar importação"
+      },
+      upload: {
+        title: "Carregar o vocabulário Athena ZIP",
+        descriptionPrefix: "Baixe um pacote de vocabulário em",
+        descriptionMiddle: "e carregue-o aqui.",
+        descriptionSuffix: "A importação é executada como um trabalho em segundo plano e pode levar de 15 a 60 minutos, dependendo do tamanho do vocabulário.",
+        maxFileSize: "Arquivos de até 5 GB são suportados",
+        dropHere: "Solte Athena ZIP aqui",
+        browse: "ou clique para navegar",
+        targetSource: "Fonte CDM alvo",
+        defaultSchema: "Esquema de vocabulário padrão",
+        sourceHelpPrefix: "Seleciona qual esquema de vocabulário de origem a importação preencherá. Se nenhuma fonte for escolhida, o padrão",
+        sourceHelpSuffix: "esquema de conexão é usado."
+      },
+      instructions: {
+        title: "Como obter um vocabulário ZIP de Athena",
+        signInPrefix: "Visita",
+        signInSuffix: "e faça login.",
+        selectDomains: "Selecione os domínios de vocabulário e as versões necessárias (por exemplo, SNOMED, RxNorm, LOINC).",
+        clickPrefix: "Clique",
+        downloadVocabularies: "Baixar vocabulários",
+        clickSuffix: "- Athena enviará a você um link para download por e-mail.",
+        uploadZip: "Baixe o ZIP (normalmente 500 MB-3 GB) e carregue-o abaixo."
+      },
+      messages: {
+        deleteConfirm: "Excluir este registro de importação?",
+        uploadFailed: "Falha no upload: {{message}}",
+        unknownError: "Erro desconhecido",
+        uploadSuccess: "ZIP carregado com sucesso. O trabalho de importação está na fila - verifique o progresso abaixo.",
+        importRunning: "Uma importação está em execução. Novos uploads são desativados até serem concluídos."
+      },
+      history: {
+        title: "Histórico de importação",
+        loading: "Carregando...",
+        empty: "Nenhuma importação de vocabulário ainda. Carregue um Athena ZIP acima para começar."
+      }
+    },
+    systemHealth: {
+      title: "Saúde do sistema",
+      subtitle: "Status ativo de todos os serviços Parthenon. Atualização automática a cada 30 segundos.",
+      serverStatus: "Status do servidor",
+      lastChecked: "Última verificação em {{time}}",
+      polling: "Serviços de votação...",
+      gisDataManagement: "Gerenciamento de dados GIS",
+      status: {
+        healthy: "Saudável",
+        degraded: "Degradado",
+        down: "Abaixo"
+      },
+      overall: {
+        healthy: "Saudável",
+        needsAttention: "Precisa de atenção"
+      },
+      labels: {
+        pending: "Pendente:",
+        failed: "Com falha:",
+        cores: "Núcleos:",
+        documents: "Documentos:",
+        dagster: "Punhal:",
+        graphql: "GráficoQL:",
+        studies: "Estudos:",
+        instances: "Instâncias:",
+        disk: "Disco:"
+      },
+      actions: {
+        refresh: "Atualizar",
+        openService: "Serviço aberto",
+        viewDetails: "Ver detalhes"
+      },
+      tiers: {
+        corePlatform: "Plataforma Central",
+        dataSearch: "Dados e pesquisa",
+        aiAnalytics: "IA e análises",
+        clinicalServices: "Serviços Clínicos",
+        monitoringCommunications: "Monitoramento e Comunicações",
+        acropolisInfrastructure: "Infraestrutura Acropolis",
+        unknown: "Outros serviços"
+      },
+      hades: {
+        title: "Paridade do pacote OHDSI",
+        subtitle: "Cobertura do pacote Darkstar para trabalho de primeira classe, nativo e de compatibilidade.",
+        checking: "Verificando pacotes Darkstar...",
+        unavailable: "O inventário do pacote Darkstar não está disponível.",
+        installed: "Instalado:",
+        missing: "Ausente:",
+        total: "Total:",
+        requiredMissing: "Obrigatório faltando:",
+        shinyPolicy: "Política Brilhante Legada",
+        notExposed: "não exposto",
+        shinyPolicyDescription: "Aplicativos Shiny hospedados, incorporação de iframe e caminhos de aplicativos fornecidos pelo usuário estão desativados. Os pacotes OHDSI Shiny permanecem apenas como artefatos de compatibilidade de tempo de execução.",
+        replacement: "Substituição: {{surface}}",
+        package: "Pacote",
+        capability: "Capacidade",
+        priority: "Prioridade",
+        surface: "Superfície",
+        source: "Fonte",
+        runtime: "tempo de execução",
+        status: {
+          complete: "Completo",
+          partial: "Parcial"
+        }
+      }
+    },
+    fhirSync: {
+      title: "Monitor FHIR Sync",
+      subtitle: "Monitoramento de pipeline ETL em tempo real em todas as conexões FHIR",
+      status: {
+        completed: "Concluído",
+        running: "Em execução",
+        pending: "Pendente",
+        exporting: "Exportador",
+        downloading: "Baixando",
+        processing: "Processamento",
+        failed: "Com falha"
+      },
+      timeline: {
+        empty: "Nenhuma atividade de sincronização nos últimos 30 dias",
+        tooltip: "{{date}}: {{completed}} concluído, {{failed}} falhou",
+        hoverSummary: "{{completed}} ok / {{failed}} falha"
+      },
+      metrics: {
+        extracted: "Extraído",
+        mapped: "Mapeado",
+        written: "Escrito",
+        failed: "Com falha",
+        averageMappingCoverage: "Cobertura média de mapeamento"
+      },
+      actions: {
+        viewError: "Ver erro"
+      },
+      values: {
+        runs: "{{count}} é executado",
+        never: "Nunca",
+        activeRuns: "{{count}} ativo",
+        refreshInterval: "atualização {{seconds}}s",
+        allTimeTotals: "Totais de todos os tempos",
+        lastRuns: "Últimos 20 em todas as conexões"
+      },
+      messages: {
+        failedToLoad: "Falha ao carregar dados do painel.",
+        noConnections: "Nenhuma conexão configurada",
+        noRuns: "Nenhuma sincronização foi executada ainda"
+      },
+      stats: {
+        connections: "Conexões",
+        totalRuns: "Total de corridas",
+        completed: "Concluído",
+        failed: "Com falha",
+        recordsWritten: "Registros escritos",
+        avgCoverage: "Cobertura média"
+      },
+      panels: {
+        pipelineThroughput: "Taxa de transferência do pipeline",
+        syncActivity: "Atividade de sincronização (30 dias)",
+        connectionHealth: "Integridade da conexão",
+        recentRuns: "Execuções de sincronização recentes"
+      },
+      table: {
+        status: "Situação",
+        connection: "Conexão",
+        started: "Iniciado",
+        duration: "Duração",
+        metrics: "Métricas"
+      }
+    },
+    gisData: {
+      title: "Dados de limite GIS",
+      subtitle: "Gerencie conjuntos de dados de limites geográficos para o GIS Explorer",
+      status: {
+        loaded: "carregado",
+        empty: "vazio"
+      },
+      tabs: {
+        boundaries: "Limites",
+        dataImport: "Importação de dados"
+      },
+      messages: {
+        checking: "Verificando dados de limite...",
+        noBoundaryData: "Nenhum dado de limite carregado. Selecione uma fonte e níveis abaixo para começar."
+      },
+      labels: {
+        boundaries: "Limites:",
+        countries: "Países:"
+      },
+      load: {
+        title: "Limites de carga",
+        adminLevels: "Níveis de administrador para carregar:"
+      },
+      sources: {
+        gadm: {
+          name: "GADM v4.1",
+          description: "Áreas Administrativas Globais - 356 mil limites em 6 níveis de administração"
+        },
+        geoboundaries: {
+          name: "limites geográficos CGAZ",
+          description: "Limites simplificados para consistência cartográfica (ADM0-2)"
+        }
+      },
+      levels: {
+        adm0: "Países (ADM0)",
+        adm1: "Estados/Províncias (ADM1)",
+        adm2: "Distritos/Condados (ADM2)",
+        adm3: "Subdistritos (ADM3)"
+      },
+      actions: {
+        preparing: "Preparando...",
+        generateLoadCommand: "Gerar comando de carregamento",
+        refreshStats: "Atualizar estatísticas",
+        copyToClipboard: "Copiar para a área de transferência",
+        close: "Fechar"
+      },
+      modal: {
+        runOnHost: "Executar no host",
+        description: "Os dados GIS são carregados diretamente no PostgreSQL local 17. Execute este comando na raiz do projeto:",
+        datasetFlagPrefix: "O",
+        datasetFlagSuffix: "sinalizador permite o rastreamento do progresso. Atualize as estatísticas após a conclusão do script."
+      },
+      job: {
+        title: "Carregando limites GIS",
+        description: "Fonte: {{source}} | Níveis: {{levels}}"
+      },
+      values: {
+        all: "todos"
+      }
+    },
+    honestBroker: {
+      title: "Corretor honesto",
+      subtitle: "Registre participantes cegos da pesquisa, vincule-os aos registros person_id OMOP e monitore o status do envio sem expor as identidades brutas dos entrevistados aos pesquisadores.",
+      actions: {
+        cancel: "Cancelar",
+        registerParticipant: "Cadastrar participante",
+        sendInvitation: "Enviar convite",
+        sendInvite: "Enviar convite",
+        refresh: "Atualizar",
+        copyLink: "Copiar link",
+        openSurvey: "Abrir pesquisa",
+        resend: "Reenviar",
+        revoke: "Revogar"
+      },
+      labels: {
+        personId: "Pessoa ID",
+        notes: "Notas",
+        participant: "Participante",
+        deliveryEmail: "E-mail de entrega",
+        unknown: "Desconhecido",
+        unknownInstrument: "Instrumento desconhecido",
+        notYet: "Ainda não",
+        notRecorded: "Não registrado",
+        system: "Sistema",
+        statusToken: "{{status}} · {{token}}",
+        tokenReference: "...{{token}}"
+      },
+      metrics: {
+        brokerCampaigns: "Campanhas de corretor",
+        registeredParticipants: "Participantes registrados",
+        submitted: "Enviado",
+        invitationsSent: "Convites enviados",
+        complete: "Completo",
+        pending: "Pendente",
+        seeded: "Semeado",
+        registered: "Registrado",
+        completion: "Conclusão",
+        completionPercent: "{{value}}%"
+      },
+      campaignStatuses: {
+        draft: "Rascunho",
+        active: "Ativo",
+        closed: "Fechado"
+      },
+      matchStatuses: {
+        submitted: "Enviado",
+        registered: "Registrado",
+        pending: "Pendente",
+        matched: "Correspondido"
+      },
+      deliveryStatuses: {
+        pending: "Pendente",
+        queued: "Na fila",
+        sent: "Enviado",
+        opened: "Aberto",
+        submitted: "Enviado",
+        revoked: "Revogado",
+        failed: "Com falha"
+      },
+      unauthorized: {
+        title: "É necessário acesso honesto do corretor",
+        description: "Este espaço de trabalho é restrito a administradores e administradores de dados porque vincula identidades de pesquisas cegas a registros de pacientes."
+      },
+      registerModal: {
+        title: "Cadastrar participante",
+        titleWithCampaign: "Cadastrar participante · {{campaign}}",
+        registering: "Registrando...",
+        description: "Crie uma entrada de registro oculta que mapeie um identificador de respondente para um registro de paciente para esta campanha de pesquisa.",
+        respondentIdentifier: "Identificador do Respondente",
+        respondentPlaceholder: "MRN, código de estudo ou código de convite",
+        personIdPlaceholder: "OMOP person_id conhecido",
+        notesPlaceholder: "Notas opcionais do corretor"
+      },
+      inviteModal: {
+        title: "Enviar convite",
+        titleWithCampaign: "Enviar convite · {{campaign}}",
+        sending: "Enviando...",
+        description: "Envie um link de pesquisa único gerenciado pelo corretor. Somente o corretor retém o endereço de entrega e a cadeia de custódia.",
+        selectParticipant: "Selecione o participante",
+        participantWithPerson: "{{blindedId}} · pessoa {{personId}}",
+        emailPlaceholder: "paciente@exemplo.org",
+        lastInvitation: "Último convite: {{status}} · token terminando em {{token}}"
+      },
+      campaignRegistry: {
+        title: "Registro de campanha",
+        subtitle: "Somente campanhas habilitadas para corretores honestos.",
+        loading: "Carregando campanhas...",
+        emptyPrefix: "Ainda não há campanhas de corretores honestos. Habilitar",
+        requireHonestBroker: "Exigir corretor honesto",
+        emptySuffix: "primeiro em uma campanha de pesquisa."
+      },
+      messages: {
+        selectCampaignManage: "Selecione uma campanha para gerenciar registros de corretores.",
+        selectCampaignReview: "Selecione uma campanha para revisar os registros do corretor."
+      },
+      participants: {
+        title: "Participantes registrados",
+        subtitle: "Entradas de registro desidentificadas para a campanha de pesquisa selecionada.",
+        searchPlaceholder: "Pesquise ID cego, ID de pessoa, notas...",
+        loading: "Carregando inscrições...",
+        noMatches: "Nenhum registro de corretor corresponde ao filtro atual."
+      },
+      invitations: {
+        title: "Livro de convites",
+        subtitle: "Cadeia de custódia de entrada e saída para convites de pesquisa gerenciados por corretores.",
+        loading: "Carregando convites...",
+        empty: "Nenhum convite enviado para esta campanha ainda."
+      },
+      audit: {
+        title: "Trilha de auditoria",
+        subtitle: "Cadeia de custódia imutável do lado do corretor para registro de participantes, convites de saída e eventos de resposta de entrada.",
+        loading: "Carregando trilha de auditoria...",
+        empty: "Nenhum evento de auditoria de corretor registrado ainda."
+      },
+      latest: {
+        title: "Último registro de correspondência",
+        blindedId: "Cego ID",
+        created: "Criado"
+      },
+      table: {
+        blindedParticipant: "Participante cego",
+        conductId: "Conduzir ID",
+        status: "Situação",
+        submitted: "Enviado",
+        contact: "Contato",
+        latestInvite: "Último convite",
+        destination: "Destino",
+        sent: "Enviado",
+        opened: "Aberto",
+        reference: "Referência",
+        actions: "Ações",
+        time: "Tempo",
+        action: "Ação",
+        actor: "Ator",
+        inviteRef: "Convidar referência",
+        metadata: "Metadados"
+      },
+      auditActions: {
+        participant_registered: "Participante registrado",
+        invitation_sent: "Convite enviado",
+        invitation_resent: "Convite reenviado",
+        invitation_revoked: "Convite revogado",
+        response_submitted: "Resposta enviada",
+        status_changed: "Status alterado"
+      },
+      confirmRevoke: "Revogar convite com final {{token}}?",
+      toasts: {
+        publishLinkCopied: "Link de publicação copiado",
+        publishLinkCopyFailed: "Falha ao copiar o link de publicação",
+        participantRegistered: "Participante cadastrado",
+        participantRegisterFailed: "Falha ao registrar participante",
+        invitationSent: "Convite enviado · token final {{token}}",
+        invitationSendFailed: "Falha ao enviar convite",
+        invitationResent: "Convite reenviado · token terminando em {{token}}",
+        invitationResendFailed: "Falha ao reenviar o convite",
+        invitationRevoked: "Convite revogado · token terminando em {{token}}",
+        invitationRevokeFailed: "Falha ao revogar o convite"
+      }
+    }
   },
 });
 
