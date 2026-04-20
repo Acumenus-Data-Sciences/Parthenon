@@ -592,7 +592,7 @@ services:
     ports:
       - "${ORTHANC_PORT:-8042}:8042"
     volumes:
-      - /mnt/md0/orthanc-data-pg:/var/lib/orthanc/db       # All DICOM files (937K instances, NVMe RAID0)
+      - ${ORTHANC_DATA_PATH:-/mnt/md0/orthanc-data-pg}:/var/lib/orthanc/db
       - ./dicom_samples:/dicom_samples:ro
     environment:
       - ORTHANC__NAME=Parthenon Orthanc
@@ -609,9 +609,8 @@ services:
       - ORTHANC__DICOM_WEB__WADO_ROOT=/wado
       - ORTHANC__DICOM_WEB__STUDIES_METADATA=MainDicomTags
       - ORTHANC__DICOM_WEB__ENABLE_METADATA_CACHE=true
-      # Transcoding: serve compressed pixel data to reduce transfer size
+      # Decode on demand while preserving source transfer syntaxes on ingest.
       - ORTHANC__BUILTIN_DECODER_TRANSCODER_ORDER=After
-      - ORTHANC__INGEST_TRANSCODING=1.2.840.10008.1.2.1
       # Query limits — prevent full-table scans on large datasets
       - ORTHANC__LIMIT_FIND_RESULTS=100
       - ORTHANC__LIMIT_FIND_INSTANCES=50

@@ -70,21 +70,52 @@ Additional DICOMweb smoke checks sampled six studies and fetched one series meta
 
 First uncached metadata generation can take tens of seconds for large series. A repeated cached call returned in under one second.
 
-## Production cutover outline
+## Production cutover
 
-Production has not been switched to this candidate yet.
+Production was switched to this candidate on 2026-04-20.
 
-Recommended cutover:
+The compose mount now reads `ORTHANC_DATA_PATH` from `.env`; on this host it is set to:
+
+```text
+/mnt/md0/orthanc-data-clean-native-20260420-012411
+```
+
+Post-cutover production stats:
+
+```json
+{
+  "CountInstances": 546462,
+  "CountPatients": 1762,
+  "CountSeries": 8077,
+  "CountStudies": 2232,
+  "TotalDiskSizeMB": 336525
+}
+```
+
+Post-cutover verification:
+
+```text
+direct_prod_qido=1
+direct_prod_series=14
+direct_metadata_ok=14
+direct_metadata_fail=0
+vhost_metadata_ok=14
+vhost_metadata_fail=0
+```
+
+No new `The specified path does not point to a regular file` errors were present in the Orthanc logs after the verification pass.
+
+Rollback path:
 
 1. Capture current production stats and a timestamped note.
 2. Stop only the production Orthanc container.
-3. Point the production Orthanc storage mount at `/mnt/md0/orthanc-data-clean-native-20260420-012411`.
+3. Point `ORTHANC_DATA_PATH` back at `/mnt/md0/orthanc-data-pg`.
 4. Start Orthanc.
 5. Verify:
    - `/system`
    - `/statistics`
    - `/dicom-web/studies?limit=10`
    - the originally failing study and all 14 series metadata endpoints
-6. Keep the previous storage directories intact until OHIF and DICOMweb have been exercised through the vhost.
+6. Keep both storage directories intact until OHIF and DICOMweb have been exercised through the vhost.
 
 Do not delete `/mnt/md0/orthanc-data-pg` or `/mnt/md0/orthanc-data` during the first cutover.
