@@ -6839,7 +6839,7 @@ export const resources: Resource = {
     withAuthSetup(fiAuth, fiAuthSetup),
     dashboardResources["fi-FI"],
     commonsResources["fi-FI"],
-    appResources["en-US"],
+    appResources["fi-FI"],
   ),
   "ja-JP": withProductResources(
     withCommonUi(withAbbyLayout(jaJP, jaAbbyLayout), jaCommonUi),
@@ -6849,7 +6849,7 @@ export const resources: Resource = {
     withAuthSetup(jaAuth, jaAuthSetup),
     dashboardResources["ja-JP"],
     commonsResources["ja-JP"],
-    appResources["en-US"],
+    appResources["ja-JP"],
   ),
   "zh-Hans": withProductResources(
     withCommonUi(withAbbyLayout(zhHans, zhAbbyLayout), zhCommonUi),
@@ -6859,7 +6859,7 @@ export const resources: Resource = {
     withAuthSetup(zhAuth, zhAuthSetup),
     dashboardResources["zh-Hans"],
     commonsResources["zh-Hans"],
-    appResources["en-US"],
+    appResources["zh-Hans"],
   ),
   "ko-KR": withProductResources(
     withCommonUi(withAbbyLayout(koKR, koAbbyLayout), koCommonUi),
