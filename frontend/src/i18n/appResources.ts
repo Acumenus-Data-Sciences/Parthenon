@@ -25468,6 +25468,396 @@ const fiApp: MessageTree = mergeMessageTrees(enApp, {
     days: "päivää",
     addTimeWindow: "Lisää aikaikkuna",
   },
+  vocabulary: {
+    mappingAssistant: {
+      title: "Käsitteiden kartoitusavustaja",
+      poweredBy: "Ariadnen tukema",
+      subtitle:
+        "Kartoita lähdetermit OMOP-standardikäsitteisiin sanamuoto-, vektori- ja LLM-vastaavuuksilla",
+      filters: {
+        selectedCount: "{{count}} valittu",
+        clearSelection: "Tyhjennä valinta",
+        targetVocabulary: "Kohdesanasto:",
+        allVocabularies: "Kaikki sanastot",
+        targetDomain: "Kohdealue:",
+        allDomains: "Kaikki alueet",
+      },
+      drawer: {
+        disambiguate: "Täsmennä",
+        candidateCount: "{{count}} ehdokasta - valitse oikea kartoitus",
+        noCandidates: "Ehdokkaita ei löytynyt. Puhdista termi alla.",
+        cleanRemap: "Puhdista ja kartoita uudelleen",
+        editPlaceholder: "Muokkaa termiä ja kartoita uudelleen...",
+      },
+      actions: {
+        clean: "Puhdista",
+        remap: "Kartoita uudelleen",
+        acceptMapping: "Hyväksy kartoitus",
+        rejectMapping: "Hylkää kartoitus",
+        disambiguateTitle: "Täsmennä - näytä kaikki ehdokkaat",
+        uploadCsv: "Lataa CSV",
+        loadProject: "Lataa projekti",
+        mapping: "Kartoitetaan...",
+        mapTerms: "Kartoita termit",
+        clearResults: "Tyhjennä tulokset",
+        acceptAllThreshold: "Hyväksy kaikki >= 90 %",
+        saveToVocabulary: "Tallenna sanastoon",
+        saveProject: "Tallenna projekti",
+        exportCsv: "Vie CSV",
+      },
+      toasts: {
+        remapped: 'Kartoitettiin uudelleen "{{source}}" -> {{concept}}',
+        noMatchForCleaned: 'Puhdistetulle termille "{{term}}" ei löytynyt osumaa',
+        remapFailed: "Uudelleenkartoitus epäonnistui",
+        autoAccepted:
+          "{{count}} korkean luottamuksen kartoitusta hyväksyttiin automaattisesti",
+        savedMappings:
+          "{{count}} kartoitusta tallennettiin source_to_concept_map-tauluun",
+        saveMappingsFailed: "Kartoitusten tallennus epäonnistui",
+        projectSaved: "Projekti tallennettu: {{name}}",
+        saveProjectFailed: "Projektin tallennus epäonnistui",
+        projectLoaded: "Projekti ladattu: {{name}}",
+        loadProjectFailed: "Projektin lataus epäonnistui",
+      },
+      errors: {
+        cleanupFailed: "Puhdistus epäonnistui.",
+        mappingFailed:
+          "Kartoitus epäonnistui. Varmista, että Ariadne-palvelu on käynnissä ja saavutettavissa.",
+      },
+      results: {
+        candidateCount: "{{count}} ehdokasta",
+        overridden: "(ohitettu)",
+        noMatchFound: "Osumaa ei löytynyt",
+        selectOverride: "Valitse ehdokas korvaamaan kartoitus",
+        noAdditionalCandidates: "Ei muita ehdokkaita.",
+      },
+      labels: {
+        noValue: "-",
+        separator: "-",
+      },
+      input: {
+        termsMapped: "{{count}} termiä kartoitettu",
+        editTerms: "Muokkaa termejä",
+        sourceTerms: "Lähdetermit",
+        termsPlaceholder:
+          "Syötä lähdetermit, yksi per rivi...\n\ntype 2 diabetes mellitus\nacute myocardial infarction\nHTN\nASA 81mg",
+        termsEntered: "{{count}} termiä syötetty",
+      },
+      projects: {
+        loading: "Ladataan projekteja...",
+        loadFailed: "Projektien lataus epäonnistui",
+        empty: "Ei tallennettuja projekteja",
+        projectMeta: "{{count}} termiä -- {{date}}",
+        namePlaceholder: "Projektin nimi...",
+      },
+      vocabularies: {
+        SNOMED: "SNOMED CT",
+        ICD10CM: "ICD-10-CM",
+        RxNorm: "RxNorm",
+        LOINC: "LOINC",
+        ICD9CM: "ICD-9-CM",
+        CPT4: "CPT-4",
+        HCPCS: "HCPCS",
+        MedDRA: "MedDRA",
+      },
+      domains: {
+        Condition: "Sairaus",
+        Drug: "Lääke",
+        Procedure: "Toimenpide",
+        Measurement: "Mittaus",
+        Observation: "Havainto",
+        Device: "Laite",
+      },
+      progress: {
+        mappingTerms: "Kartoitetaan {{count}} termiä...",
+      },
+      metrics: {
+        termsMapped: "Termit kartoitettu",
+        highConfidence: "Korkea luottamus",
+        needReview: "Vaatii tarkistusta",
+        noMatch: "Ei osumaa",
+      },
+      table: {
+        sourceTerm: "Lähdetermi",
+        bestMatch: "Paras osuma",
+        confidence: "Luottamus",
+        matchType: "Osumatyyppi",
+        vocabulary: "Sanasto",
+        actions: "Toiminnot",
+      },
+      summary: {
+        mapped: "{{count}} kartoitettu",
+        high: "{{count}} korkea",
+        review: "{{count}} tarkistettava",
+        noMatch: "{{count}} ilman osumaa",
+        accepted: "{{count}} hyväksytty",
+      },
+    },
+    conceptDetail: {
+      tabs: {
+        info: "Tiedot",
+        relationships: "Suhteet",
+        mapsFrom: "Kartoitukset lähteistä",
+        hierarchy: "Hierarkia",
+      },
+      empty: {
+        title: "Valitse käsite nähdäksesi tiedot",
+        subtitle: "Hae ja napsauta käsitettä vasemmasta paneelista",
+        noAncestors: "Esivanhempia ei löytynyt",
+        noRelationships: "Suhteita ei löytynyt",
+        noSourceCodes: "Yksikään lähdekoodi ei kartoitu tähän käsitteeseen",
+      },
+      errors: {
+        failedLoad: "Käsitteen lataus epäonnistui",
+      },
+      toasts: {
+        conceptIdCopied: "Käsite-ID kopioitu",
+      },
+      actions: {
+        copyConceptId: "Kopioi käsite-ID",
+        addToSet: "Lisää joukkoon",
+      },
+      values: {
+        standard: "Standardi",
+        classification: "Luokitus",
+        nonStandard: "Ei-standardi",
+        valid: "Voimassa",
+      },
+      sections: {
+        basicInformation: "Perustiedot",
+        synonyms: "Synonyymit",
+        ancestors: "Esivanhemmat",
+        relationships: "Suhteet",
+        mapsFrom: "Tähän käsitteeseen kartoittuvat lähdekoodit",
+        mapsFromDescription:
+          "Lähdesanastojen koodit (ICD-10, SNOMED, RxNorm jne.), jotka kartoittuvat tähän standardikäsitteeseen",
+        hierarchy: "Käsitehierarkia",
+      },
+      fields: {
+        conceptCode: "Käsitekoodi",
+        domain: "Alue",
+        vocabulary: "Sanasto",
+        conceptClass: "Käsiteluokka",
+        standardConcept: "Standardikäsite",
+        invalidReason: "Virheellisyyden syy",
+        validStartDate: "Voimassaolon alku",
+        validEndDate: "Voimassaolon loppu",
+      },
+      table: {
+        id: "ID",
+        name: "Nimi",
+        domain: "Alue",
+        vocabulary: "Sanasto",
+        relationship: "Suhde",
+        relatedId: "Liittyvä ID",
+        relatedName: "Liittyvä nimi",
+        code: "Koodi",
+        class: "Luokka",
+      },
+      pagination: {
+        showingRange: "Näytetään {{start}}-{{end}} / {{total}}",
+        showingSourceCodes:
+          "Näytetään {{shown}} / {{total}} lähdekoodia",
+      },
+    },
+    semanticSearch: {
+      hecate: "Hecate",
+      poweredBy: "Hecaten tukema",
+      tagline: "vektoripohjainen käsitteiden löytäminen",
+      placeholder: "Syötä kliininen termi semanttista hakua varten...",
+      filters: {
+        allDomains: "Kaikki alueet",
+        allVocabularies: "Kaikki sanastot",
+        standard: {
+          all: "Kaikki",
+          standard: "S",
+          classification: "C",
+        },
+      },
+      badges: {
+        standard: "Standardi",
+        classification: "Luokitus",
+      },
+      values: {
+        inSet: "Joukossa",
+        standardAbbrev: "S",
+      },
+      actions: {
+        addToSet: "Lisää joukkoon",
+        clearFilters: "Tyhjennä suodattimet",
+        retry: "Yritä uudelleen",
+        tryClearingFilters: "Kokeile suodattimien tyhjennystä",
+      },
+      errors: {
+        unavailable: "Semanttinen haku ei ole käytettävissä.",
+        serviceHelp:
+          "Varmista, että Hecate-AI-palvelu on käynnissä ja ChromaDB on alustettu.",
+      },
+      empty: {
+        prompt: "Syötä kliininen termi semanttista hakua varten",
+        help:
+          "Hecate käyttää vektoriupotuksia löytääkseen käsitteellisesti samankaltaisia OMOP-käsitteitä, vaikka tarkka avainsanahaku epäonnistuisi.",
+        noResults: 'Semanttisia osumia ei löytynyt haulle "{{query}}"',
+      },
+      results: {
+        matchCountOne: "{{count}} semanttinen osuma",
+        matchCountMany: "{{count}} semanttista osumaa",
+        updating: "Päivitetään...",
+      },
+    },
+    searchPanel: {
+      placeholder: "Hae käsitteitä...",
+      filters: {
+        toggle: "Suodattimet",
+        standardOnly: "Standardi",
+        allDomains: "Kaikki alueet",
+        allVocabularies: "Kaikki sanastot",
+        allConceptClasses: "Kaikki käsiteluokat",
+        countSuffix: " ({{count}})",
+      },
+      actions: {
+        clearAllFilters: "Tyhjennä kaikki suodattimet",
+        tryClearingFilters: "Kokeile suodattimien tyhjennystä",
+        loading: "Ladataan...",
+        loadMoreResults: "Lataa lisää tuloksia",
+      },
+      empty: {
+        prompt: "Hae OMOP-sanastosta",
+        help: "Kirjoita vähintään 2 merkkiä hakeaksesi käsitteitä nimellä, koodilla tai ID:llä",
+        noResults: 'Käsitteitä ei löytynyt haulle "{{query}}"',
+      },
+      results: {
+        showingCount: "Näytetään {{shown}} / {{total}} tulosta",
+      },
+      engine: {
+        solr: "Solr",
+        pg: "PG",
+      },
+      values: {
+        inSet: "Joukossa",
+      },
+    },
+    conceptComparison: {
+      title: "Vertaa käsitteitä",
+      subtitle:
+        "2-4 OMOP-käsitteen rinnakkainen vertailu attribuuteilla, esivanhemmilla ja suhteilla",
+      search: {
+        placeholder: "Hae lisättävä käsite...",
+      },
+      sections: {
+        ancestors: "Esivanhemmat (2 tasoa)",
+        relationships: "Suhteet",
+      },
+      fields: {
+        conceptCode: "Käsitekoodi",
+        domain: "Alue",
+        vocabulary: "Sanasto",
+        conceptClass: "Käsiteluokka",
+        standard: "Standardi",
+        validStart: "Voimassaolon alku",
+        validEnd: "Voimassaolon loppu",
+        invalidReason: "Virheellisyyden syy",
+      },
+      actions: {
+        addConcept: "Lisää käsite",
+      },
+      empty: {
+        prompt: "Hae vertailtavia käsitteitä",
+        help:
+          "Valitse 2-4 käsitettä nähdäksesi rinnakkaisen vertailun niiden attribuuteista, esivanhemmista ja suhteista",
+      },
+      values: {
+        standard: "Standardi",
+        classification: "Luokitus",
+        nonStandard: "Ei-standardi",
+        valid: "Voimassa",
+        level: "T{{level}}",
+        selected: "Valittu:",
+        addOneMore: "Lisää vähintään yksi vertailtava",
+      },
+    },
+    addToConceptSet: {
+      title: "Lisää käsitejoukkoon",
+      create: {
+        title: "Luo uusi käsitejoukko",
+        help: "Lisää käsite ja avaa Builderissa",
+        nameLabel: "Uuden käsitejoukon nimi",
+      },
+      actions: {
+        create: "Luo",
+        cancel: "Peruuta",
+        openBuilderWithSearch: "Avaa Builder nykyisellä haulla",
+      },
+      divider: "tai lisää olemassa olevaan",
+      filter: {
+        placeholder: "Suodata käsitejoukkoja...",
+      },
+      empty: {
+        noMatching: "Ei vastaavia käsitejoukkoja",
+        noSets: "Käsitejoukkoja ei löytynyt",
+      },
+      footer: {
+        includeDescendants: "Lisää Include Descendants -asetuksella",
+      },
+      toasts: {
+        addedToSet: 'Lisätty joukkoon "{{setName}}"',
+        addFailed: "Käsitteen lisääminen joukkoon epäonnistui",
+        missingSetId: "Uuden käsitejoukon ID:tä ei voitu hakea",
+        createdAndAdded: 'Luotiin "{{name}}" ja lisättiin käsite',
+        createdAddFailed:
+          "Joukko luotiin, mutta käsitteen lisääminen epäonnistui",
+        createFailed: "Käsitejoukon luonti epäonnistui",
+      },
+    },
+    page: {
+      title: "Sanastoselain",
+      subtitle: "Hae, tutki ja selaa OMOP-standardoitua sanastoa",
+      tabs: {
+        keyword: "Avainsanahaku",
+        semantic: "Semanttinen haku",
+        browse: "Selaa hierarkiaa",
+      },
+    },
+    hierarchyBrowser: {
+      breadcrumb: {
+        allDomains: "Kaikki alueet",
+      },
+      filters: {
+        allSources: "Kaikki lähteet",
+        itemPlaceholder: "Suodata {{count}} kohdetta...",
+      },
+      actions: {
+        showAllConcepts: "Näytä kaikki käsitteet",
+        showGroupings: "Näytä ryhmittelyt",
+        clearFilter: "Tyhjennä suodatin",
+        viewDetailsFor: "Näytä käsitteen {{conceptName}} tiedot",
+        viewConceptDetails: "Näytä käsitteen tiedot",
+      },
+      empty: {
+        noMatchingConcepts: "Ei vastaavia käsitteitä",
+        noConcepts: "Käsitteitä ei löytynyt",
+      },
+      counts: {
+        clinicalGroupings: "{{count}} kliinistä ryhmittelyä",
+        concepts: "{{count}} käsitettä",
+        items: "{{count}} kohdetta",
+        filteredItems: "{{shown}} / {{total}} kohdetta",
+        namedSubCategories: "{{name}} - {{count}} alakategoriaa",
+        subCategories: "{{count}} alakategoriaa",
+        subcategories: "{{count}} alakategoriaa",
+        oneAnchor: "1 ankkuri",
+        persons: "{{count}} henkilöä",
+        records: "{{count}} tietuetta",
+        groupingCoversSubcategories:
+          "{{groupingName}} kattaa {{count}} alakategoriaa",
+      },
+    },
+    hierarchyTree: {
+      empty: {
+        noData: "Hierarkiatietoja ei ole saatavilla",
+      },
+    },
+  },
   jobs: {
     page: {
       title: "Työt",
@@ -25650,9 +26040,400 @@ const jaApp: MessageTree = mergeMessageTrees(enApp, {
       chads2Vasc: "CHA2DS2-VASc",
     },
     timeWindows: "時間ウィンドウ",
-    to: "から",
+    to: "まで",
     days: "日",
     addTimeWindow: "時間ウィンドウを追加",
+  },
+  vocabulary: {
+    mappingAssistant: {
+      title: "コンセプトマッピングアシスタント",
+      poweredBy: "Ariadne による支援",
+      subtitle:
+        "逐語、ベクトル、LLM マッチングを使ってソース用語を OMOP 標準コンセプトへマッピングします",
+      filters: {
+        selectedCount: "{{count}} 件選択",
+        clearSelection: "選択をクリア",
+        targetVocabulary: "対象ボキャブラリ:",
+        allVocabularies: "すべてのボキャブラリ",
+        targetDomain: "対象ドメイン:",
+        allDomains: "すべてのドメイン",
+      },
+      drawer: {
+        disambiguate: "曖昧性を解消",
+        candidateCount: "{{count}} 件の候補 - 正しいマッピングを選択",
+        noCandidates: "候補が見つかりません。下の用語をクリーンアップしてください。",
+        cleanRemap: "クリーンアップして再マッピング",
+        editPlaceholder: "用語を編集して再マッピング...",
+      },
+      actions: {
+        clean: "クリーンアップ",
+        remap: "再マッピング",
+        acceptMapping: "マッピングを承認",
+        rejectMapping: "マッピングを却下",
+        disambiguateTitle: "曖昧性を解消 - すべての候補を表示",
+        uploadCsv: "CSV をアップロード",
+        loadProject: "プロジェクトを読み込み",
+        mapping: "マッピング中...",
+        mapTerms: "用語をマッピング",
+        clearResults: "結果をクリア",
+        acceptAllThreshold: "90% 以上をすべて承認",
+        saveToVocabulary: "ボキャブラリに保存",
+        saveProject: "プロジェクトを保存",
+        exportCsv: "CSV をエクスポート",
+      },
+      toasts: {
+        remapped: '"{{source}}" を再マッピングしました -> {{concept}}',
+        noMatchForCleaned:
+          'クリーンアップ済み用語 "{{term}}" の一致は見つかりません',
+        remapFailed: "再マッピングに失敗しました",
+        autoAccepted: "{{count}} 件の高信頼マッピングを自動承認しました",
+        savedMappings:
+          "{{count}} 件のマッピングを source_to_concept_map に保存しました",
+        saveMappingsFailed: "マッピングの保存に失敗しました",
+        projectSaved: "プロジェクトを保存しました: {{name}}",
+        saveProjectFailed: "プロジェクトの保存に失敗しました",
+        projectLoaded: "プロジェクトを読み込みました: {{name}}",
+        loadProjectFailed: "プロジェクトの読み込みに失敗しました",
+      },
+      errors: {
+        cleanupFailed: "クリーンアップに失敗しました。",
+        mappingFailed:
+          "マッピングに失敗しました。Ariadne サービスが起動して到達可能か確認してください。",
+      },
+      results: {
+        candidateCount: "{{count}} 件の候補",
+        overridden: "(上書き済み)",
+        noMatchFound: "一致が見つかりません",
+        selectOverride: "マッピングを上書きする候補を選択してください",
+        noAdditionalCandidates: "追加候補はありません。",
+      },
+      labels: {
+        noValue: "-",
+        separator: "-",
+      },
+      input: {
+        termsMapped: "{{count}} 件の用語をマッピング済み",
+        editTerms: "用語を編集",
+        sourceTerms: "ソース用語",
+        termsPlaceholder:
+          "ソース用語を 1 行に 1 つ入力...\n\ntype 2 diabetes mellitus\nacute myocardial infarction\nHTN\nASA 81mg",
+        termsEntered: "{{count}} 件の用語を入力済み",
+      },
+      projects: {
+        loading: "プロジェクトを読み込み中...",
+        loadFailed: "プロジェクトを読み込めませんでした",
+        empty: "保存済みプロジェクトはありません",
+        projectMeta: "{{count}} 件の用語 -- {{date}}",
+        namePlaceholder: "プロジェクト名...",
+      },
+      vocabularies: {
+        SNOMED: "SNOMED CT",
+        ICD10CM: "ICD-10-CM",
+        RxNorm: "RxNorm",
+        LOINC: "LOINC",
+        ICD9CM: "ICD-9-CM",
+        CPT4: "CPT-4",
+        HCPCS: "HCPCS",
+        MedDRA: "MedDRA",
+      },
+      domains: {
+        Condition: "疾患",
+        Drug: "薬剤",
+        Procedure: "処置",
+        Measurement: "測定",
+        Observation: "観察",
+        Device: "デバイス",
+      },
+      progress: {
+        mappingTerms: "{{count}} 件の用語をマッピング中...",
+      },
+      metrics: {
+        termsMapped: "マッピング済み用語",
+        highConfidence: "高信頼",
+        needReview: "レビュー要",
+        noMatch: "一致なし",
+      },
+      table: {
+        sourceTerm: "ソース用語",
+        bestMatch: "最良一致",
+        confidence: "信頼度",
+        matchType: "一致タイプ",
+        vocabulary: "ボキャブラリ",
+        actions: "操作",
+      },
+      summary: {
+        mapped: "{{count}} 件マッピング済み",
+        high: "{{count}} 件高信頼",
+        review: "{{count}} 件レビュー",
+        noMatch: "{{count}} 件一致なし",
+        accepted: "{{count}} 件承認済み",
+      },
+    },
+    conceptDetail: {
+      tabs: {
+        info: "情報",
+        relationships: "関係",
+        mapsFrom: "マップ元",
+        hierarchy: "階層",
+      },
+      empty: {
+        title: "詳細を表示するコンセプトを選択",
+        subtitle: "左パネルでコンセプトを検索してクリックしてください",
+        noAncestors: "祖先が見つかりません",
+        noRelationships: "関係が見つかりません",
+        noSourceCodes:
+          "このコンセプトにマッピングされるソースコードはありません",
+      },
+      errors: {
+        failedLoad: "コンセプトを読み込めませんでした",
+      },
+      toasts: {
+        conceptIdCopied: "コンセプト ID をコピーしました",
+      },
+      actions: {
+        copyConceptId: "コンセプト ID をコピー",
+        addToSet: "セットに追加",
+      },
+      values: {
+        standard: "標準",
+        classification: "分類",
+        nonStandard: "非標準",
+        valid: "有効",
+      },
+      sections: {
+        basicInformation: "基本情報",
+        synonyms: "同義語",
+        ancestors: "祖先",
+        relationships: "関係",
+        mapsFrom: "このコンセプトにマッピングされるソースコード",
+        mapsFromDescription:
+          "この標準コンセプトにマッピングされるソースボキャブラリコード (ICD-10、SNOMED、RxNorm など)",
+        hierarchy: "コンセプト階層",
+      },
+      fields: {
+        conceptCode: "コンセプトコード",
+        domain: "ドメイン",
+        vocabulary: "ボキャブラリ",
+        conceptClass: "コンセプトクラス",
+        standardConcept: "標準コンセプト",
+        invalidReason: "無効理由",
+        validStartDate: "有効開始日",
+        validEndDate: "有効終了日",
+      },
+      table: {
+        id: "ID",
+        name: "名前",
+        domain: "ドメイン",
+        vocabulary: "ボキャブラリ",
+        relationship: "関係",
+        relatedId: "関連 ID",
+        relatedName: "関連名",
+        code: "コード",
+        class: "クラス",
+      },
+      pagination: {
+        showingRange: "{{start}}-{{end}} / {{total}} を表示",
+        showingSourceCodes:
+          "{{total}} 件中 {{shown}} 件のソースコードを表示",
+      },
+    },
+    semanticSearch: {
+      hecate: "Hecate",
+      poweredBy: "Hecate による支援",
+      tagline: "ベクトル駆動のコンセプト探索",
+      placeholder: "意味検索する臨床用語を入力...",
+      filters: {
+        allDomains: "すべてのドメイン",
+        allVocabularies: "すべてのボキャブラリ",
+        standard: {
+          all: "すべて",
+          standard: "S",
+          classification: "C",
+        },
+      },
+      badges: {
+        standard: "標準",
+        classification: "分類",
+      },
+      values: {
+        inSet: "セット内",
+        standardAbbrev: "S",
+      },
+      actions: {
+        addToSet: "セットに追加",
+        clearFilters: "フィルターをクリア",
+        retry: "再試行",
+        tryClearingFilters: "フィルターのクリアを試す",
+      },
+      errors: {
+        unavailable: "意味検索は利用できません。",
+        serviceHelp:
+          "Hecate AI サービスが稼働し、ChromaDB が初期化されていることを確認してください。",
+      },
+      empty: {
+        prompt: "意味検索する臨床用語を入力",
+        help:
+          "Hecate はベクトル埋め込みを使い、完全なキーワード一致が失敗しても概念的に近い OMOP コンセプトを見つけます。",
+        noResults: '"{{query}}" の意味一致は見つかりません',
+      },
+      results: {
+        matchCountOne: "{{count}} 件の意味一致",
+        matchCountMany: "{{count}} 件の意味一致",
+        updating: "更新中...",
+      },
+    },
+    searchPanel: {
+      placeholder: "コンセプトを検索...",
+      filters: {
+        toggle: "フィルター",
+        standardOnly: "標準",
+        allDomains: "すべてのドメイン",
+        allVocabularies: "すべてのボキャブラリ",
+        allConceptClasses: "すべてのコンセプトクラス",
+        countSuffix: " ({{count}})",
+      },
+      actions: {
+        clearAllFilters: "すべてのフィルターをクリア",
+        tryClearingFilters: "フィルターのクリアを試す",
+        loading: "読み込み中...",
+        loadMoreResults: "さらに結果を読み込み",
+      },
+      empty: {
+        prompt: "OMOP Vocabulary を検索",
+        help: "名前、コード、ID でコンセプトを検索するには 2 文字以上入力してください",
+        noResults: '"{{query}}" のコンセプトは見つかりません',
+      },
+      results: {
+        showingCount: "{{total}} 件中 {{shown}} 件を表示",
+      },
+      engine: {
+        solr: "Solr",
+        pg: "PG",
+      },
+      values: {
+        inSet: "セット内",
+      },
+    },
+    conceptComparison: {
+      title: "コンセプトを比較",
+      subtitle:
+        "2-4 件の OMOP コンセプトを属性、祖先、関係とともに横並びで比較",
+      search: {
+        placeholder: "追加するコンセプトを検索...",
+      },
+      sections: {
+        ancestors: "祖先 (2 レベル)",
+        relationships: "関係",
+      },
+      fields: {
+        conceptCode: "コンセプトコード",
+        domain: "ドメイン",
+        vocabulary: "ボキャブラリ",
+        conceptClass: "コンセプトクラス",
+        standard: "標準",
+        validStart: "有効開始",
+        validEnd: "有効終了",
+        invalidReason: "無効理由",
+      },
+      actions: {
+        addConcept: "コンセプトを追加",
+      },
+      empty: {
+        prompt: "比較するコンセプトを検索",
+        help:
+          "2-4 件のコンセプトを選択し、属性、祖先、関係を横並びで比較します",
+      },
+      values: {
+        standard: "標準",
+        classification: "分類",
+        nonStandard: "非標準",
+        valid: "有効",
+        level: "L{{level}}",
+        selected: "選択済み:",
+        addOneMore: "比較するには少なくとももう 1 件追加してください",
+      },
+    },
+    addToConceptSet: {
+      title: "コンセプトセットに追加",
+      create: {
+        title: "新しいコンセプトセットを作成",
+        help: "コンセプトを追加して Builder で開く",
+        nameLabel: "新しいコンセプトセット名",
+      },
+      actions: {
+        create: "作成",
+        cancel: "キャンセル",
+        openBuilderWithSearch: "現在の検索で Builder を開く",
+      },
+      divider: "または既存に追加",
+      filter: {
+        placeholder: "コンセプトセットを絞り込み...",
+      },
+      empty: {
+        noMatching: "一致するコンセプトセットはありません",
+        noSets: "コンセプトセットが見つかりません",
+      },
+      footer: {
+        includeDescendants: "Include Descendants 付きで追加",
+      },
+      toasts: {
+        addedToSet: '"{{setName}}" に追加しました',
+        addFailed: "コンセプトセットへの追加に失敗しました",
+        missingSetId: "新しいコンセプトセット ID を取得できませんでした",
+        createdAndAdded: '"{{name}}" を作成してコンセプトを追加しました',
+        createdAddFailed:
+          "セットは作成されましたが、コンセプトの追加に失敗しました",
+        createFailed: "コンセプトセットの作成に失敗しました",
+      },
+    },
+    page: {
+      title: "Vocabulary Browser",
+      subtitle: "OMOP 標準化ボキャブラリを検索、探索、ナビゲート",
+      tabs: {
+        keyword: "キーワード検索",
+        semantic: "意味検索",
+        browse: "階層を参照",
+      },
+    },
+    hierarchyBrowser: {
+      breadcrumb: {
+        allDomains: "すべてのドメイン",
+      },
+      filters: {
+        allSources: "すべてのソース",
+        itemPlaceholder: "{{count}} 件の項目を絞り込み...",
+      },
+      actions: {
+        showAllConcepts: "すべてのコンセプトを表示",
+        showGroupings: "グループを表示",
+        clearFilter: "フィルターをクリア",
+        viewDetailsFor: "{{conceptName}} の詳細を表示",
+        viewConceptDetails: "コンセプト詳細を表示",
+      },
+      empty: {
+        noMatchingConcepts: "一致するコンセプトはありません",
+        noConcepts: "コンセプトが見つかりません",
+      },
+      counts: {
+        clinicalGroupings: "{{count}} 件の臨床グループ",
+        concepts: "{{count}} 件のコンセプト",
+        items: "{{count}} 件の項目",
+        filteredItems: "{{total}} 件中 {{shown}} 件の項目",
+        namedSubCategories: "{{name}} - {{count}} 件のサブカテゴリ",
+        subCategories: "{{count}} 件のサブカテゴリ",
+        subcategories: "{{count}} 件のサブカテゴリ",
+        oneAnchor: "1 件のアンカー",
+        persons: "{{count}} 人",
+        records: "{{count}} 件のレコード",
+        groupingCoversSubcategories:
+          "{{groupingName}} は {{count}} 件のサブカテゴリを含みます",
+      },
+    },
+    hierarchyTree: {
+      empty: {
+        noData: "階層データは利用できません",
+      },
+    },
   },
   jobs: {
     page: {
@@ -25838,6 +26619,388 @@ const zhApp: MessageTree = mergeMessageTrees(enApp, {
     to: "至",
     days: "天",
     addTimeWindow: "添加时间窗口",
+  },
+  vocabulary: {
+    mappingAssistant: {
+      title: "概念映射助手",
+      poweredBy: "由 Ariadne 提供支持",
+      subtitle: "使用逐字、向量和 LLM 匹配将源术语映射到 OMOP 标准概念",
+      filters: {
+        selectedCount: "已选择 {{count}} 个",
+        clearSelection: "清除选择",
+        targetVocabulary: "目标词汇表:",
+        allVocabularies: "所有词汇表",
+        targetDomain: "目标领域:",
+        allDomains: "所有领域",
+      },
+      drawer: {
+        disambiguate: "消歧",
+        candidateCount: "{{count}} 个候选 - 选择正确映射",
+        noCandidates: "未找到候选。请先清理下面的术语。",
+        cleanRemap: "清理并重新映射",
+        editPlaceholder: "编辑术语并重新映射...",
+      },
+      actions: {
+        clean: "清理",
+        remap: "重新映射",
+        acceptMapping: "接受映射",
+        rejectMapping: "拒绝映射",
+        disambiguateTitle: "消歧 - 查看所有候选",
+        uploadCsv: "上传 CSV",
+        loadProject: "加载项目",
+        mapping: "正在映射...",
+        mapTerms: "映射术语",
+        clearResults: "清除结果",
+        acceptAllThreshold: "接受所有 >= 90%",
+        saveToVocabulary: "保存到词汇表",
+        saveProject: "保存项目",
+        exportCsv: "导出 CSV",
+      },
+      toasts: {
+        remapped: '已重新映射 "{{source}}" -> {{concept}}',
+        noMatchForCleaned: '清理后的术语 "{{term}}" 未找到匹配',
+        remapFailed: "重新映射失败",
+        autoAccepted: "已自动接受 {{count}} 个高置信度映射",
+        savedMappings: "已将 {{count}} 个映射保存到 source_to_concept_map",
+        saveMappingsFailed: "保存映射失败",
+        projectSaved: "项目已保存: {{name}}",
+        saveProjectFailed: "保存项目失败",
+        projectLoaded: "已加载项目: {{name}}",
+        loadProjectFailed: "加载项目失败",
+      },
+      errors: {
+        cleanupFailed: "清理失败。",
+        mappingFailed: "映射失败。请确认 Ariadne 服务正在运行且可访问。",
+      },
+      results: {
+        candidateCount: "{{count}} 个候选",
+        overridden: "(已覆盖)",
+        noMatchFound: "未找到匹配",
+        selectOverride: "选择一个候选来覆盖映射",
+        noAdditionalCandidates: "没有其他候选。",
+      },
+      labels: {
+        noValue: "-",
+        separator: "-",
+      },
+      input: {
+        termsMapped: "已映射 {{count}} 个术语",
+        editTerms: "编辑术语",
+        sourceTerms: "源术语",
+        termsPlaceholder:
+          "输入源术语，每行一个...\n\ntype 2 diabetes mellitus\nacute myocardial infarction\nHTN\nASA 81mg",
+        termsEntered: "已输入 {{count}} 个术语",
+      },
+      projects: {
+        loading: "正在加载项目...",
+        loadFailed: "加载项目失败",
+        empty: "没有保存的项目",
+        projectMeta: "{{count}} 个术语 -- {{date}}",
+        namePlaceholder: "项目名称...",
+      },
+      vocabularies: {
+        SNOMED: "SNOMED CT",
+        ICD10CM: "ICD-10-CM",
+        RxNorm: "RxNorm",
+        LOINC: "LOINC",
+        ICD9CM: "ICD-9-CM",
+        CPT4: "CPT-4",
+        HCPCS: "HCPCS",
+        MedDRA: "MedDRA",
+      },
+      domains: {
+        Condition: "疾病",
+        Drug: "药物",
+        Procedure: "操作",
+        Measurement: "测量",
+        Observation: "观察",
+        Device: "设备",
+      },
+      progress: {
+        mappingTerms: "正在映射 {{count}} 个术语...",
+      },
+      metrics: {
+        termsMapped: "已映射术语",
+        highConfidence: "高置信度",
+        needReview: "需要审阅",
+        noMatch: "无匹配",
+      },
+      table: {
+        sourceTerm: "源术语",
+        bestMatch: "最佳匹配",
+        confidence: "置信度",
+        matchType: "匹配类型",
+        vocabulary: "词汇表",
+        actions: "操作",
+      },
+      summary: {
+        mapped: "已映射 {{count}} 个",
+        high: "{{count}} 个高置信度",
+        review: "{{count}} 个待审阅",
+        noMatch: "{{count}} 个无匹配",
+        accepted: "已接受 {{count}} 个",
+      },
+    },
+    conceptDetail: {
+      tabs: {
+        info: "信息",
+        relationships: "关系",
+        mapsFrom: "映射来源",
+        hierarchy: "层级",
+      },
+      empty: {
+        title: "选择一个概念以查看详情",
+        subtitle: "在左侧面板中搜索并点击概念",
+        noAncestors: "未找到祖先",
+        noRelationships: "未找到关系",
+        noSourceCodes: "没有源代码映射到此概念",
+      },
+      errors: {
+        failedLoad: "加载概念失败",
+      },
+      toasts: {
+        conceptIdCopied: "概念 ID 已复制",
+      },
+      actions: {
+        copyConceptId: "复制概念 ID",
+        addToSet: "添加到集合",
+      },
+      values: {
+        standard: "标准",
+        classification: "分类",
+        nonStandard: "非标准",
+        valid: "有效",
+      },
+      sections: {
+        basicInformation: "基本信息",
+        synonyms: "同义词",
+        ancestors: "祖先",
+        relationships: "关系",
+        mapsFrom: "映射到此概念的源代码",
+        mapsFromDescription:
+          "映射到此标准概念的源词汇表代码 (ICD-10、SNOMED、RxNorm 等)",
+        hierarchy: "概念层级",
+      },
+      fields: {
+        conceptCode: "概念代码",
+        domain: "领域",
+        vocabulary: "词汇表",
+        conceptClass: "概念类别",
+        standardConcept: "标准概念",
+        invalidReason: "无效原因",
+        validStartDate: "有效开始日期",
+        validEndDate: "有效结束日期",
+      },
+      table: {
+        id: "ID",
+        name: "名称",
+        domain: "领域",
+        vocabulary: "词汇表",
+        relationship: "关系",
+        relatedId: "相关 ID",
+        relatedName: "相关名称",
+        code: "代码",
+        class: "类别",
+      },
+      pagination: {
+        showingRange: "显示 {{start}}-{{end}} / {{total}}",
+        showingSourceCodes: "显示 {{shown}} / {{total}} 个源代码",
+      },
+    },
+    semanticSearch: {
+      hecate: "Hecate",
+      poweredBy: "由 Hecate 提供支持",
+      tagline: "向量驱动的概念发现",
+      placeholder: "输入临床术语以进行语义搜索...",
+      filters: {
+        allDomains: "所有领域",
+        allVocabularies: "所有词汇表",
+        standard: {
+          all: "全部",
+          standard: "S",
+          classification: "C",
+        },
+      },
+      badges: {
+        standard: "标准",
+        classification: "分类",
+      },
+      values: {
+        inSet: "在集合中",
+        standardAbbrev: "S",
+      },
+      actions: {
+        addToSet: "添加到集合",
+        clearFilters: "清除筛选器",
+        retry: "重试",
+        tryClearingFilters: "尝试清除筛选器",
+      },
+      errors: {
+        unavailable: "语义搜索不可用。",
+        serviceHelp:
+          "请确保 Hecate AI 服务正在运行且 ChromaDB 已初始化。",
+      },
+      empty: {
+        prompt: "输入临床术语以进行语义搜索",
+        help:
+          "Hecate 使用向量嵌入查找概念上相似的 OMOP 概念，即使精确关键词匹配失败也可以。",
+        noResults: '未找到 "{{query}}" 的语义匹配',
+      },
+      results: {
+        matchCountOne: "{{count}} 个语义匹配",
+        matchCountMany: "{{count}} 个语义匹配",
+        updating: "正在更新...",
+      },
+    },
+    searchPanel: {
+      placeholder: "搜索概念...",
+      filters: {
+        toggle: "筛选器",
+        standardOnly: "标准",
+        allDomains: "所有领域",
+        allVocabularies: "所有词汇表",
+        allConceptClasses: "所有概念类别",
+        countSuffix: " ({{count}})",
+      },
+      actions: {
+        clearAllFilters: "清除所有筛选器",
+        tryClearingFilters: "尝试清除筛选器",
+        loading: "正在加载...",
+        loadMoreResults: "加载更多结果",
+      },
+      empty: {
+        prompt: "搜索 OMOP 词汇表",
+        help: "输入至少 2 个字符，按名称、代码或 ID 搜索概念",
+        noResults: '未找到 "{{query}}" 的概念',
+      },
+      results: {
+        showingCount: "显示 {{shown}} / {{total}} 个结果",
+      },
+      engine: {
+        solr: "Solr",
+        pg: "PG",
+      },
+      values: {
+        inSet: "在集合中",
+      },
+    },
+    conceptComparison: {
+      title: "比较概念",
+      subtitle: "并排比较 2-4 个 OMOP 概念及其属性、祖先和关系",
+      search: {
+        placeholder: "搜索要添加的概念...",
+      },
+      sections: {
+        ancestors: "祖先 (2 级)",
+        relationships: "关系",
+      },
+      fields: {
+        conceptCode: "概念代码",
+        domain: "领域",
+        vocabulary: "词汇表",
+        conceptClass: "概念类别",
+        standard: "标准",
+        validStart: "有效开始",
+        validEnd: "有效结束",
+        invalidReason: "无效原因",
+      },
+      actions: {
+        addConcept: "添加概念",
+      },
+      empty: {
+        prompt: "搜索要比较的概念",
+        help: "选择 2-4 个概念，以并排比较它们的属性、祖先和关系",
+      },
+      values: {
+        standard: "标准",
+        classification: "分类",
+        nonStandard: "非标准",
+        valid: "有效",
+        level: "L{{level}}",
+        selected: "已选择:",
+        addOneMore: "至少再添加一个用于比较",
+      },
+    },
+    addToConceptSet: {
+      title: "添加到概念集",
+      create: {
+        title: "创建新概念集",
+        help: "添加概念并在 Builder 中打开",
+        nameLabel: "新概念集名称",
+      },
+      actions: {
+        create: "创建",
+        cancel: "取消",
+        openBuilderWithSearch: "使用当前搜索打开 Builder",
+      },
+      divider: "或添加到现有集合",
+      filter: {
+        placeholder: "筛选概念集...",
+      },
+      empty: {
+        noMatching: "没有匹配的概念集",
+        noSets: "未找到概念集",
+      },
+      footer: {
+        includeDescendants: "使用 Include Descendants 添加",
+      },
+      toasts: {
+        addedToSet: '已添加到 "{{setName}}"',
+        addFailed: "添加概念到集合失败",
+        missingSetId: "无法检索新概念集 ID",
+        createdAndAdded: '已创建 "{{name}}" 并添加概念',
+        createdAddFailed: "集合已创建，但添加概念失败",
+        createFailed: "创建概念集失败",
+      },
+    },
+    page: {
+      title: "词汇表浏览器",
+      subtitle: "搜索、探索并浏览 OMOP 标准化词汇表",
+      tabs: {
+        keyword: "关键词搜索",
+        semantic: "语义搜索",
+        browse: "浏览层级",
+      },
+    },
+    hierarchyBrowser: {
+      breadcrumb: {
+        allDomains: "所有领域",
+      },
+      filters: {
+        allSources: "所有来源",
+        itemPlaceholder: "筛选 {{count}} 个项目...",
+      },
+      actions: {
+        showAllConcepts: "显示所有概念",
+        showGroupings: "显示分组",
+        clearFilter: "清除筛选器",
+        viewDetailsFor: "查看 {{conceptName}} 的详情",
+        viewConceptDetails: "查看概念详情",
+      },
+      empty: {
+        noMatchingConcepts: "没有匹配的概念",
+        noConcepts: "未找到概念",
+      },
+      counts: {
+        clinicalGroupings: "{{count}} 个临床分组",
+        concepts: "{{count}} 个概念",
+        items: "{{count}} 个项目",
+        filteredItems: "{{shown}} / {{total}} 个项目",
+        namedSubCategories: "{{name}} - {{count}} 个子类别",
+        subCategories: "{{count}} 个子类别",
+        subcategories: "{{count}} 个子类别",
+        oneAnchor: "1 个锚点",
+        persons: "{{count}} 人",
+        records: "{{count}} 条记录",
+        groupingCoversSubcategories:
+          "{{groupingName}} 覆盖 {{count}} 个子类别",
+      },
+    },
+    hierarchyTree: {
+      empty: {
+        noData: "没有可用的层级数据",
+      },
+    },
   },
   jobs: {
     page: {
