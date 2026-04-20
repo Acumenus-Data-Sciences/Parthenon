@@ -105,6 +105,68 @@ vhost_metadata_fail=0
 
 No new `The specified path does not point to a regular file` errors were present in the Orthanc logs after the verification pass.
 
+## Performance follow-up
+
+After cutover, OHIF loaded images but first-view performance was poor. The issue was cold DICOMweb metadata generation plus conservative Orthanc defaults:
+
+- DICOMweb WADO-RS file loading was using 1 thread.
+- Orthanc's explicit storage cache setting was absent from compose.
+- The nginx DICOMweb proxy cache was only 2 GB.
+
+Applied runtime tuning:
+
+```text
+ORTHANC__HTTP_THREADS_COUNT=100
+ORTHANC__MAXIMUM_STORAGE_CACHE_SIZE=1024
+ORTHANC__DICOM_WEB__WADO_RS_LOADER_THREADS_COUNT=8
+ORTHANC__DICOM_WEB__METADATA_WORKER_THREADS_COUNT=8
+ORTHANC__DICOM_WEB__ENABLE_PERFORMANCE_LOGS=true
+```
+
+The Orthanc startup log confirmed:
+
+```text
+The DICOMweb plugin will use 8 threads to load DICOM files for WADO-RS queries
+```
+
+The nginx DICOMweb cache was increased:
+
+```text
+keys_zone=dicom_cache:100m
+max_size=20g
+inactive=24h
+```
+
+Post-tuning cached checks for the originally failing study:
+
+```text
+direct series metadata: 200 in ~0.19s
+vhost series metadata: 200 in ~0.04s, X-Cache-Status=HIT
+direct WADO-RS instance: 200 in ~0.08s
+vhost WADO-RS instance: 200 in ~0.12s
+```
+
+A resumable DICOMweb metadata cache prewarm is available:
+
+```bash
+python3 scripts/orthanc-prewarm-dicomweb-cache.py \
+  --target http://127.0.0.1:8042 \
+  --auth-header "$ORTHANC_AUTH_HEADER" \
+  --state /mnt/md0/orthanc-rebuild/dicomweb-cache-prewarm-20260420.sqlite \
+  --workers 3 \
+  --timeout 1200
+```
+
+Initial pilot:
+
+```text
+30/30 studies prewarmed
+0 failures
+average study duration ~135s
+```
+
+The full prewarm is intentionally resumable because it can run for many hours. During active user testing, keep concurrency conservative to avoid competing with interactive OHIF requests.
+
 Rollback path:
 
 1. Capture current production stats and a timestamped note.

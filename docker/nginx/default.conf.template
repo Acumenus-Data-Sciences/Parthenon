@@ -9,8 +9,8 @@
 # trigger re-resolution on every request, respecting the resolver TTL.
 
 # Cache zone for DICOMweb responses (WADO-RS pixel data, metadata)
-proxy_cache_path /tmp/nginx-dicom-cache levels=1:2 keys_zone=dicom_cache:10m
-                 max_size=2g inactive=1h use_temp_path=off;
+proxy_cache_path /tmp/nginx-dicom-cache levels=1:2 keys_zone=dicom_cache:100m
+                 max_size=20g inactive=24h use_temp_path=off;
 
 server {
     listen 80;
