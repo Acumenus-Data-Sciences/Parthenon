@@ -146,6 +146,117 @@ direct WADO-RS instance: 200 in ~0.08s
 vhost WADO-RS instance: 200 in ~0.12s
 ```
 
+## PostgreSQL index performance cutover
+
+The prior high-volume Orthanc devlogs showed that native/SQLite indexing becomes
+the performance ceiling at large instance counts. A PG-indexed candidate was
+rebuilt from the clean native store instead of enabling the existing empty PG
+index in place.
+
+Runtime tuning applied before the PG cutover:
+
+```text
+ORTHANC__HTTP_THREADS_COUNT=200
+ORTHANC__MAXIMUM_STORAGE_CACHE_SIZE=2048
+ORTHANC__DICOM_WEB__WADO_RS_LOADER_THREADS_COUNT=16
+ORTHANC__DICOM_WEB__METADATA_WORKER_THREADS_COUNT=16
+ORTHANC__CONCURRENT_JOBS=8
+ORTHANC__GDCM__THROTTLING=8
+ORTHANC__POSTGRESQL__INDEX_CONNECTIONS_COUNT=10
+Orthanc container memory limit: 8G
+```
+
+PG-indexed sidecar candidate:
+
+```text
+Container:    parthenon-orthanc-pg-rebuild
+Endpoint:     http://127.0.0.1:8045
+Source:       /mnt/md0/orthanc-data-clean-native-20260420-012411
+Storage:      /mnt/md0/orthanc-data-pg-indexed-20260420-143029
+PG database:  orthanc_clean_index_20260420_143029
+Import state: /mnt/md0/orthanc-rebuild/import-state-pg-indexed-20260420-143029.sqlite
+Import log:   /mnt/md0/orthanc-rebuild/import-pg-indexed-20260420-143029.log
+```
+
+The first sidecar import attempt used a 4G container cap and was killed by the
+kernel with Docker exit 137 after 11,999 instances. The failed state rows were
+transient connection failures after the sidecar died; they were reset to
+`pending`, the sidecar memory cap was raised to 16G, and the import resumed with
+8 workers.
+
+Final PG-indexed import:
+
+```text
+Processed: 534,463
+Imported:  534,463
+Duplicate: 0
+Failed:    0
+Rate:      249.8/sec
+Final target instances: 546,462
+State DB status: success=546,462
+```
+
+Post-import sidecar statistics matched production:
+
+```json
+{
+  "CountInstances": 546462,
+  "CountPatients": 1762,
+  "CountSeries": 8077,
+  "CountStudies": 2232,
+  "TotalDiskSizeMB": 336651
+}
+```
+
+Sidecar DICOMweb benchmark before cutover:
+
+```text
+tools/find limit 10:      0.024s
+DICOMweb studies limit 10: 0.015s
+target study QIDO:         0.009s
+target series list:        0.047s
+14 metadata endpoints:     0.112s wall, 14/14 ok
+```
+
+Production cutover:
+
+```text
+ORTHANC_DATA_PATH=/mnt/md0/orthanc-data-pg-indexed-20260420-143029
+ORTHANC_POSTGRESQL_ENABLE_INDEX=true
+ORTHANC_DB_DATABASE=orthanc_clean_index_20260420_143029
+```
+
+Post-cutover production verification:
+
+```text
+DatabaseBackendPlugin: /usr/share/orthanc/plugins/libOrthancPostgreSQLIndex.so
+CountInstances: 546,462
+CountPatients: 1,762
+CountSeries: 8,077
+CountStudies: 2,232
+Jobs: []
+```
+
+Post-cutover benchmark:
+
+```text
+direct statistics:          0.008s
+direct tools/find limit 10: 0.026s
+direct studies limit 10:    0.021s
+direct target QIDO:         0.013s
+direct target series list:  0.163s
+direct 14 metadata calls:   0.141s wall, 14/14 ok
+
+vhost statistics:           0.053s
+vhost studies limit 10:     0.040s
+vhost target QIDO:          0.023s
+vhost target series list:   0.029s
+vhost 14 metadata calls:    0.086s wall, 14/14 ok
+```
+
+Keep `/mnt/md0/orthanc-data-clean-native-20260420-012411` intact as the rollback
+source until the PG-indexed deployment has had several days of OHIF use.
+
 A resumable DICOMweb metadata cache prewarm is available:
 
 ```bash

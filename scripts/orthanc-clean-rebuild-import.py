@@ -11,6 +11,7 @@ The importer is intentionally conservative:
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 import os
 import sqlite3
@@ -153,7 +154,46 @@ def extract_file_meta_sop_instance_uid(data: bytes) -> str | None:
     return None
 
 
-def target_has_sop_instance(target_url: str, sop_instance_uid: str) -> bool:
+def load_env_file(path: Path | None) -> dict[str, str]:
+    if not path or not path.exists():
+        return {}
+    values: dict[str, str] = {}
+    for line in path.read_text().splitlines():
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        values[key] = value
+    return values
+
+
+def build_auth_header(args: argparse.Namespace, env_file: dict[str, str]) -> str | None:
+    if args.auth_header:
+        return args.auth_header
+    if args.username and args.password is not None:
+        token = base64.b64encode(f"{args.username}:{args.password}".encode()).decode()
+        return f"Basic {token}"
+    if os.environ.get("ORTHANC_AUTH_HEADER"):
+        return os.environ["ORTHANC_AUTH_HEADER"]
+    if env_file.get("ORTHANC_AUTH_HEADER"):
+        return env_file["ORTHANC_AUTH_HEADER"]
+    username = os.environ.get("ORTHANC_USER") or env_file.get("ORTHANC_USER")
+    password = os.environ.get("ORTHANC_PASSWORD") or env_file.get("ORTHANC_PASSWORD")
+    if username and password is not None:
+        token = base64.b64encode(f"{username}:{password}".encode()).decode()
+        return f"Basic {token}"
+    return None
+
+
+def add_auth_header(request: urllib.request.Request, auth_header: str | None) -> None:
+    if auth_header:
+        request.add_header("Authorization", auth_header)
+
+
+def target_has_sop_instance(
+    target_url: str,
+    auth_header: str | None,
+    sop_instance_uid: str,
+) -> bool:
     payload = json.dumps(
         {"Level": "Instance", "Query": {"SOPInstanceUID": sop_instance_uid}}
     ).encode()
@@ -163,12 +203,17 @@ def target_has_sop_instance(target_url: str, sop_instance_uid: str) -> bool:
         method="POST",
         headers={"Content-Type": "application/json"},
     )
+    add_auth_header(request, auth_header)
     with urllib.request.urlopen(request, timeout=30) as response:
         matches = json.loads(response.read())
     return bool(matches)
 
 
-def upload_file(target_url: str, candidate: Candidate) -> tuple[str, str, str]:
+def upload_file(
+    target_url: str,
+    auth_header: str | None,
+    candidate: Candidate,
+) -> tuple[str, str, str]:
     data = b""
     try:
         data = candidate.path.read_bytes()
@@ -178,6 +223,7 @@ def upload_file(target_url: str, candidate: Candidate) -> tuple[str, str, str]:
             method="POST",
             headers={"Content-Type": "application/dicom"},
         )
+        add_auth_header(request, auth_header)
         with urllib.request.urlopen(request, timeout=180) as response:
             body = json.loads(response.read())
         status = str(body.get("Status", "Unknown"))
@@ -189,7 +235,7 @@ def upload_file(target_url: str, candidate: Candidate) -> tuple[str, str, str]:
             sop_instance_uid = extract_file_meta_sop_instance_uid(data)
             if sop_instance_uid:
                 try:
-                    if target_has_sop_instance(target_url, sop_instance_uid):
+                    if target_has_sop_instance(target_url, auth_header, sop_instance_uid):
                         return (
                             candidate.key,
                             "already_stored",
@@ -202,8 +248,10 @@ def upload_file(target_url: str, candidate: Candidate) -> tuple[str, str, str]:
         return candidate.key, "failed", str(exc)[:500]
 
 
-def get_stats(target_url: str) -> dict:
-    with urllib.request.urlopen(f"{target_url.rstrip('/')}/statistics", timeout=10) as response:
+def get_stats(target_url: str, auth_header: str | None) -> dict:
+    request = urllib.request.Request(f"{target_url.rstrip('/')}/statistics")
+    add_auth_header(request, auth_header)
+    with urllib.request.urlopen(request, timeout=10) as response:
         return json.loads(response.read())
 
 
@@ -225,11 +273,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--batch-size", type=int, default=250)
     parser.add_argument("--max-files", type=int, default=None)
     parser.add_argument("--scan-only", action="store_true")
+    parser.add_argument("--env-file", default=".env", help="Optional dotenv file for Orthanc auth")
+    parser.add_argument("--auth-header", default=os.environ.get("ORTHANC_AUTH_HEADER"))
+    parser.add_argument("--username", default=os.environ.get("ORTHANC_USER"))
+    parser.add_argument("--password", default=os.environ.get("ORTHANC_PASSWORD"))
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
+    env_file = load_env_file(Path(args.env_file) if args.env_file else None)
+    auth_header = build_auth_header(args, env_file)
     sources = [Path(source) for source in args.source]
     missing_sources = [source for source in sources if not source.exists()]
     if missing_sources:
@@ -272,7 +326,7 @@ def main() -> int:
         return 0
 
     try:
-        stats = get_stats(args.target)
+        stats = get_stats(args.target, auth_header)
         print(f"Initial target instances: {stats.get('CountInstances', '?'):,}")
     except Exception as exc:  # noqa: BLE001
         print(f"Cannot reach target Orthanc: {exc}", file=sys.stderr)
@@ -289,7 +343,10 @@ def main() -> int:
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
         for batch_start in range(0, len(candidates), args.batch_size):
             batch = candidates[batch_start : batch_start + args.batch_size]
-            futures = [pool.submit(upload_file, args.target, candidate) for candidate in batch]
+            futures = [
+                pool.submit(upload_file, args.target, auth_header, candidate)
+                for candidate in batch
+            ]
             results: list[tuple[str, str, str]] = []
             for future in as_completed(futures):
                 key, status, detail = future.result()
@@ -317,7 +374,7 @@ def main() -> int:
                 )
                 last_report = now
 
-    final_stats = get_stats(args.target)
+    final_stats = get_stats(args.target, auth_header)
     elapsed = time.time() - started
     print()
     print(f"Processed: {processed:,}")
