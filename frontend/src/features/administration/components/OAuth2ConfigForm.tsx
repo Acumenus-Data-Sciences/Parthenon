@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { OAuth2Settings } from "@/types/models";
 
 const DRIVERS = [
-  { value: "github",    label: "GitHub" },
-  { value: "google",    label: "Google" },
-  { value: "microsoft", label: "Microsoft / Azure AD" },
-  { value: "custom",    label: "Custom OAuth 2.0" },
+  { value: "github", labelKey: "github" },
+  { value: "google", labelKey: "google" },
+  { value: "microsoft", labelKey: "microsoft" },
+  { value: "custom", labelKey: "custom" },
 ] as const;
 
 interface Props {
@@ -39,50 +40,75 @@ function Inp({ value, onChange, type = "text", placeholder = "" }: {
 }
 
 export function OAuth2ConfigForm({ settings, onSave, isPending, saveSuccess }: Props) {
+  const { t } = useTranslation("app");
   const [s, setS] = useState<OAuth2Settings>({ ...settings });
   const set = <K extends keyof OAuth2Settings>(k: K, v: OAuth2Settings[K]) =>
     setS((p) => ({ ...p, [k]: v }));
 
   return (
     <div className="space-y-5">
-      <Field label="Provider">
+      <Field label={t("administration.authProviders.oauthForm.labels.provider")}>
         <select
           value={s.driver}
           onChange={(e) => set("driver", e.target.value as OAuth2Settings["driver"])}
           className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         >
-          {DRIVERS.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
+          {DRIVERS.map((d) => (
+            <option key={d.value} value={d.value}>
+              {t(`administration.authProviders.oauthForm.drivers.${d.labelKey}`)}
+            </option>
+          ))}
         </select>
       </Field>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Client ID">
-          <Inp value={s.client_id} onChange={(v) => set("client_id", v)} placeholder="Client / Application ID" />
+        <Field label={t("administration.authProviders.oauthForm.labels.clientId")}>
+          <Inp
+            value={s.client_id}
+            onChange={(v) => set("client_id", v)}
+            placeholder={t("administration.authProviders.oauthForm.placeholders.clientId")}
+          />
         </Field>
-        <Field label="Client Secret">
+        <Field label={t("administration.authProviders.oauthForm.labels.clientSecret")}>
           <Inp value={s.client_secret} onChange={(v) => set("client_secret", v)} type="password" placeholder="••••••••" />
         </Field>
       </div>
 
-      <Field label="Redirect URI" hint="Must match the URI registered in your OAuth provider">
-        <Inp value={s.redirect_uri} onChange={(v) => set("redirect_uri", v)} placeholder="/api/v1/auth/oauth2/callback" />
+      <Field
+        label={t("administration.authProviders.oauthForm.labels.redirectUri")}
+        hint={t("administration.authProviders.oauthForm.hints.redirectUri")}
+      >
+        <Inp
+          value={s.redirect_uri}
+          onChange={(v) => set("redirect_uri", v)}
+          placeholder={t("administration.authProviders.oauthForm.placeholders.redirectUri")}
+        />
       </Field>
 
-      <Field label="Scopes" hint="Space-separated list">
-        <Inp value={s.scopes.join(" ")} onChange={(v) => set("scopes", v.split(/\s+/).filter(Boolean))} placeholder="openid profile email" />
+      <Field
+        label={t("administration.authProviders.oauthForm.labels.scopes")}
+        hint={t("administration.authProviders.oauthForm.hints.scopes")}
+      >
+        <Inp
+          value={s.scopes.join(" ")}
+          onChange={(v) => set("scopes", v.split(/\s+/).filter(Boolean))}
+          placeholder={t("administration.authProviders.oauthForm.placeholders.scopes")}
+        />
       </Field>
 
       {s.driver === "custom" && (
         <>
           <hr className="border-border" />
-          <p className="text-sm font-semibold text-foreground">Custom Endpoints</p>
-          <Field label="Authorization URL">
+          <p className="text-sm font-semibold text-foreground">
+            {t("administration.authProviders.oauthForm.sections.customEndpoints")}
+          </p>
+          <Field label={t("administration.authProviders.oauthForm.labels.authorizationUrl")}>
             <Inp value={s.auth_url} onChange={(v) => set("auth_url", v)} placeholder="https://idp.example.com/oauth/authorize" />
           </Field>
-          <Field label="Token URL">
+          <Field label={t("administration.authProviders.oauthForm.labels.tokenUrl")}>
             <Inp value={s.token_url} onChange={(v) => set("token_url", v)} placeholder="https://idp.example.com/oauth/token" />
           </Field>
-          <Field label="User Info URL">
+          <Field label={t("administration.authProviders.oauthForm.labels.userInfoUrl")}>
             <Inp value={s.userinfo_url} onChange={(v) => set("userinfo_url", v)} placeholder="https://idp.example.com/oauth/userinfo" />
           </Field>
         </>
@@ -94,11 +120,14 @@ export function OAuth2ConfigForm({ settings, onSave, isPending, saveSuccess }: P
           disabled={isPending}
           className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
-          {isPending ? "Saving…" : "Save"}
+          {isPending
+            ? t("administration.authProviders.formActions.saving")
+            : t("administration.authProviders.formActions.save")}
         </button>
         {saveSuccess && (
           <span className="flex items-center gap-1 text-xs text-green-600">
-            <CheckCircle2 className="h-4 w-4" /> Saved
+            <CheckCircle2 className="h-4 w-4" />{" "}
+            {t("administration.authProviders.formActions.saved")}
           </span>
         )}
       </div>

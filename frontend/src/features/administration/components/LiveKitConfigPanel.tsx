@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Phone, Cloud, Server, Wifi, WifiOff, Check, Loader2, Settings2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Panel, Badge, StatusDot, Button, FormInput, toast } from "@/components/ui";
 import type { SystemHealthService } from "@/types/models";
 import {
@@ -13,6 +14,12 @@ interface LiveKitConfigPanelProps {
 }
 
 type Provider = "cloud" | "self-hosted" | "env";
+type ProviderOption = {
+  value: Provider;
+  labelKey: string;
+  descriptionKey: string;
+  icon: typeof Server;
+};
 
 const STATUS_MAP = {
   healthy: { badge: "success" as const, dot: "healthy" as const },
@@ -20,7 +27,31 @@ const STATUS_MAP = {
   down: { badge: "critical" as const, dot: "critical" as const },
 };
 
+const LIVEKIT_ENV_PATH = "backend/.env";
+
+const PROVIDER_OPTIONS: ProviderOption[] = [
+  {
+    value: "env",
+    labelKey: "environment",
+    icon: Server,
+    descriptionKey: "useEnvFile",
+  },
+  {
+    value: "cloud",
+    labelKey: "liveKitCloud",
+    icon: Cloud,
+    descriptionKey: "hostedByLiveKit",
+  },
+  {
+    value: "self-hosted",
+    labelKey: "selfHosted",
+    icon: Server,
+    descriptionKey: "yourOwnServer",
+  },
+];
+
 export function LiveKitConfigPanel({ service }: LiveKitConfigPanelProps) {
+  const { t } = useTranslation("app");
   const { data: config, isLoading } = useLiveKitConfig();
   const updateConfig = useUpdateLiveKitConfig();
   const testConnection = useTestLiveKitConnection();
@@ -44,19 +75,19 @@ export function LiveKitConfigPanel({ service }: LiveKitConfigPanelProps) {
   const handleTest = () => {
     const testUrl = provider === "env" ? (config?.env_url ?? "") : url;
     if (!testUrl) {
-      toast.warning("No URL to test");
+      toast.warning(t("administration.liveKit.toasts.noUrlToTest"));
       return;
     }
     testConnection.mutate(testUrl, {
       onSuccess: (data) => {
         if (data.reachable) {
-          toast.success("Connection successful");
+          toast.success(t("administration.liveKit.toasts.connectionSuccessful"));
         } else {
-          toast.error("Connection failed");
+          toast.error(t("administration.liveKit.toasts.connectionFailed"));
         }
       },
       onError: () => {
-        toast.error("Connection failed");
+        toast.error(t("administration.liveKit.toasts.connectionFailed"));
       },
     });
   };
@@ -66,12 +97,12 @@ export function LiveKitConfigPanel({ service }: LiveKitConfigPanelProps) {
       { provider, url, api_key: apiKey || undefined, api_secret: apiSecret || undefined },
       {
         onSuccess: () => {
-          toast.success("LiveKit configuration saved");
+          toast.success(t("administration.liveKit.toasts.configurationSaved"));
           setApiKey("");
           setApiSecret("");
         },
         onError: () => {
-          toast.error("Failed to save configuration");
+          toast.error(t("administration.liveKit.toasts.saveFailed"));
         },
       },
     );
@@ -94,10 +125,10 @@ export function LiveKitConfigPanel({ service }: LiveKitConfigPanelProps) {
         <div className="flex items-center gap-2">
           {details?.provider && (
             <Badge variant="info">
-              {details.provider === "cloud" ? "Cloud" : details.provider === "self-hosted" ? "Self-hosted" : "Env"}
+              {t(`administration.liveKit.providerBadges.${details.provider}`)}
             </Badge>
           )}
-          <Badge variant={badge}>{service.status}</Badge>
+          <Badge variant={badge}>{t(`administration.systemHealth.status.${service.status}`)}</Badge>
         </div>
       </div>
 
@@ -108,7 +139,9 @@ export function LiveKitConfigPanel({ service }: LiveKitConfigPanelProps) {
           className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
         >
           <Settings2 className="h-3.5 w-3.5" />
-          {expanded ? "Hide configuration" : "Configure LiveKit"}
+          {expanded
+            ? t("administration.liveKit.actions.hideConfiguration")
+            : t("administration.liveKit.actions.configureLiveKit")}
         </button>
       </div>
 
@@ -118,19 +151,17 @@ export function LiveKitConfigPanel({ service }: LiveKitConfigPanelProps) {
           {isLoading ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
-              Loading configuration...
+              {t("administration.liveKit.loadingConfiguration")}
             </div>
           ) : (
             <>
               {/* Provider selector */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">Provider</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">
+                  {t("administration.liveKit.provider")}
+                </label>
                 <div className="grid grid-cols-3 gap-2">
-                  {([
-                    { value: "env", label: "Environment", icon: Server, desc: "Use .env file" },
-                    { value: "cloud", label: "LiveKit Cloud", icon: Cloud, desc: "Hosted by LiveKit" },
-                    { value: "self-hosted", label: "Self-hosted", icon: Server, desc: "Your own server" },
-                  ] as const).map((opt) => (
+                  {PROVIDER_OPTIONS.map((opt) => (
                     <button
                       key={opt.value}
                       onClick={() => setProvider(opt.value)}
@@ -141,8 +172,12 @@ export function LiveKitConfigPanel({ service }: LiveKitConfigPanelProps) {
                       }`}
                     >
                       <opt.icon className={`mb-1 h-4 w-4 ${provider === opt.value ? "text-primary" : "text-muted-foreground"}`} />
-                      <p className="text-sm font-medium text-foreground">{opt.label}</p>
-                      <p className="text-xs text-muted-foreground">{opt.desc}</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {t(`administration.liveKit.providerOptions.${opt.labelKey}`)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {t(`administration.liveKit.providerDescriptions.${opt.descriptionKey}`)}
+                      </p>
                     </button>
                   ))}
                 </div>
@@ -151,14 +186,41 @@ export function LiveKitConfigPanel({ service }: LiveKitConfigPanelProps) {
               {/* Env info */}
               {provider === "env" && (
                 <div className="rounded-lg border border-border bg-muted/50 p-3 text-sm">
-                  <p className="font-medium text-foreground">Using .env configuration</p>
+                  <p className="font-medium text-foreground">
+                    {t("administration.liveKit.env.usingEnvConfiguration")}
+                  </p>
                   <div className="mt-2 space-y-1 text-muted-foreground">
-                    <p>URL: <span className="font-mono text-foreground">{config?.env_url || "Not set"}</span></p>
-                    <p>API Key: {config?.env_has_key ? <Check className="inline h-3.5 w-3.5 text-emerald-500" /> : <span className="text-destructive">Missing</span>}</p>
-                    <p>API Secret: {config?.env_has_secret ? <Check className="inline h-3.5 w-3.5 text-emerald-500" /> : <span className="text-destructive">Missing</span>}</p>
+                    <p>
+                      {t("administration.liveKit.env.url")}{" "}
+                      <span className="font-mono text-foreground">
+                        {config?.env_url || t("administration.liveKit.env.notSet")}
+                      </span>
+                    </p>
+                    <p>
+                      {t("administration.liveKit.env.apiKey")}{" "}
+                      {config?.env_has_key ? (
+                        <Check className="inline h-3.5 w-3.5 text-emerald-500" />
+                      ) : (
+                        <span className="text-destructive">
+                          {t("administration.liveKit.env.missing")}
+                        </span>
+                      )}
+                    </p>
+                    <p>
+                      {t("administration.liveKit.env.apiSecret")}{" "}
+                      {config?.env_has_secret ? (
+                        <Check className="inline h-3.5 w-3.5 text-emerald-500" />
+                      ) : (
+                        <span className="text-destructive">
+                          {t("administration.liveKit.env.missing")}
+                        </span>
+                      )}
+                    </p>
                   </div>
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Edit <code className="rounded bg-muted px-1">backend/.env</code> and restart PHP to change.
+                    {t("administration.liveKit.env.editPrefix")}{" "}
+                    <code className="rounded bg-muted px-1">{LIVEKIT_ENV_PATH}</code>{" "}
+                    {t("administration.liveKit.env.editSuffix")}
                   </p>
                 </div>
               )}
@@ -167,23 +229,35 @@ export function LiveKitConfigPanel({ service }: LiveKitConfigPanelProps) {
               {provider !== "env" && (
                 <div className="space-y-3">
                   <FormInput
-                    label={provider === "cloud" ? "LiveKit Cloud URL" : "Server URL"}
+                    label={
+                      provider === "cloud"
+                        ? t("administration.liveKit.fields.cloudUrl")
+                        : t("administration.liveKit.fields.serverUrl")
+                    }
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     placeholder={provider === "cloud" ? "wss://your-project.livekit.cloud" : "wss://livekit.yourdomain.com"}
                   />
                   <FormInput
-                    label="API Key"
+                    label={t("administration.liveKit.fields.apiKey")}
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
-                    placeholder={config?.has_api_key ? "••••••• (saved, enter new to replace)" : "Enter API key"}
+                    placeholder={
+                      config?.has_api_key
+                        ? t("administration.liveKit.placeholders.savedKey")
+                        : t("administration.liveKit.placeholders.enterApiKey")
+                    }
                   />
                   <FormInput
-                    label="API Secret"
+                    label={t("administration.liveKit.fields.apiSecret")}
                     type="password"
                     value={apiSecret}
                     onChange={(e) => setApiSecret(e.target.value)}
-                    placeholder={config?.has_api_secret ? "••••••• (saved, enter new to replace)" : "Enter API secret"}
+                    placeholder={
+                      config?.has_api_secret
+                        ? t("administration.liveKit.placeholders.savedSecret")
+                        : t("administration.liveKit.placeholders.enterApiSecret")
+                    }
                   />
                 </div>
               )}
@@ -205,7 +279,7 @@ export function LiveKitConfigPanel({ service }: LiveKitConfigPanelProps) {
                   ) : (
                     <Wifi className="mr-1 h-3.5 w-3.5" />
                   )}
-                  Test connection
+                  {t("administration.liveKit.actions.testConnection")}
                 </Button>
                 {provider !== "env" && (
                   <Button
@@ -214,13 +288,13 @@ export function LiveKitConfigPanel({ service }: LiveKitConfigPanelProps) {
                     disabled={updateConfig.isPending || !url}
                   >
                     {updateConfig.isPending && <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />}
-                    Save configuration
+                    {t("administration.liveKit.actions.saveConfiguration")}
                   </Button>
                 )}
                 {provider === "env" && (
                   <Button size="sm" onClick={handleSave} disabled={updateConfig.isPending}>
                     {updateConfig.isPending && <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />}
-                    Use .env defaults
+                    {t("administration.liveKit.actions.useEnvDefaults")}
                   </Button>
                 )}
               </div>

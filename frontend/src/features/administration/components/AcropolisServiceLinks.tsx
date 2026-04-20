@@ -1,10 +1,11 @@
 import { ExternalLink, ShieldCheck, BarChart2, Boxes, Workflow, Database, LockKeyhole, Shield, type LucideIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Panel } from "@/components/ui";
 
 type AcropolisServiceDefinition = {
   key: string;
-  name: string;
-  description: string;
+  displayName: string;
+  descriptionKey: string;
   subdomain: string;
   icon: LucideIcon;
 };
@@ -12,57 +13,57 @@ type AcropolisServiceDefinition = {
 const ACROPOLIS_SERVICES: AcropolisServiceDefinition[] = [
   {
     key: "authentik",
-    name: "Authentik",
-    description: "Identity provider and access portal",
+    displayName: "Authentik",
+    descriptionKey: "authentik",
     subdomain: "auth",
     icon: LockKeyhole,
   },
   {
     key: "wazuh",
-    name: "Wazuh",
-    description: "Security monitoring and SIEM dashboard",
+    displayName: "Wazuh",
+    descriptionKey: "wazuh",
     subdomain: "wazuh",
     icon: Shield,
   },
   {
     key: "grafana",
-    name: "Grafana",
-    description: "Metrics and observability dashboards",
+    displayName: "Grafana",
+    descriptionKey: "grafana",
     subdomain: "grafana",
     icon: BarChart2,
   },
   {
     key: "portainer",
-    name: "Portainer",
-    description: "Container and stack operations",
+    displayName: "Portainer",
+    descriptionKey: "portainer",
     subdomain: "portainer",
     icon: Boxes,
   },
   {
     key: "pgadmin",
-    name: "pgAdmin",
-    description: "PostgreSQL administration console",
+    displayName: "pgAdmin",
+    descriptionKey: "pgadmin",
     subdomain: "pgadmin",
     icon: Database,
   },
   {
     key: "n8n",
-    name: "n8n",
-    description: "Workflow orchestration and automation",
+    displayName: "n8n",
+    descriptionKey: "n8n",
     subdomain: "n8n",
     icon: Workflow,
   },
   {
     key: "superset",
-    name: "Superset",
-    description: "BI and ad hoc analytics workspace",
+    displayName: "Superset",
+    descriptionKey: "superset",
     subdomain: "superset",
     icon: BarChart2,
   },
   {
     key: "datahub",
-    name: "DataHub",
-    description: "Metadata catalog and lineage explorer",
+    displayName: "DataHub",
+    descriptionKey: "datahub",
     subdomain: "datahub",
     icon: ShieldCheck,
   },
@@ -83,6 +84,7 @@ export function buildAcropolisServiceUrl(
 }
 
 export function AcropolisServiceLinks() {
+  const { t } = useTranslation("app");
   const locationLike = window.location;
 
   return (
@@ -99,8 +101,10 @@ export function AcropolisServiceLinks() {
                   <Icon className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <p className="font-semibold text-foreground">{service.name}</p>
-                  <p className="mt-0.5 text-sm text-muted-foreground">{service.description}</p>
+                  <p className="font-semibold text-foreground">{service.displayName}</p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">
+                    {t(`administration.acropolisServices.descriptions.${service.descriptionKey}`)}
+                  </p>
                 </div>
               </div>
             </div>
@@ -112,7 +116,7 @@ export function AcropolisServiceLinks() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
               >
-                Open Service
+                {t("administration.acropolisServices.openService")}
                 <ExternalLink className="h-3.5 w-3.5" />
               </a>
             </div>

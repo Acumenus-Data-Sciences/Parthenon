@@ -7,6 +7,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 import { formatYearMonth, formatCompact } from "./chartUtils";
 
 interface TemporalTrendChartProps {
@@ -48,10 +49,14 @@ export function TemporalTrendChart({
   secondarySeries,
   secondaryLabel,
 }: TemporalTrendChartProps) {
+  const { t } = useTranslation("app");
+
   if (!data.length) {
     return (
       <div className="flex items-center justify-center rounded-xl border border-border-default bg-surface-raised py-16">
-        <p className="text-sm text-text-muted">No temporal data available</p>
+        <p className="text-sm text-text-muted">
+          {t("dataExplorer.temporal.emptyTitle")}
+        </p>
       </div>
     );
   }
@@ -105,7 +110,7 @@ export function TemporalTrendChart({
           <Line
             type="monotone"
             dataKey="count"
-            name="Events"
+            name={t("dataExplorer.charts.temporalTrend.events")}
             stroke="var(--success)"
             strokeWidth={2}
             dot={false}
@@ -115,7 +120,7 @@ export function TemporalTrendChart({
             <Line
               type="monotone"
               dataKey="secondary"
-              name={secondaryLabel ?? "Secondary"}
+              name={secondaryLabel ?? t("dataExplorer.charts.temporalTrend.secondary")}
               stroke="var(--accent)"
               strokeWidth={2}
               dot={false}

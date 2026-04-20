@@ -8,6 +8,7 @@ import {
   ReferenceLine,
   Cell,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 import type {
   DemographicDistribution,
   AgeDistribution,
@@ -28,14 +29,6 @@ interface DemographicsPyramidProps {
   height?: number;
   labels?: DemographicsPyramidLabels;
 }
-
-const DEFAULT_LABELS: DemographicsPyramidLabels = {
-  title: "Age Distribution",
-  noData: "No age distribution data",
-  age: "Age",
-  male: "Male",
-  female: "Female",
-};
 
 function CustomTooltip({
   active,
@@ -70,12 +63,21 @@ function CustomTooltip({
 export function DemographicsPyramid({
   age,
   height = 320,
-  labels = DEFAULT_LABELS,
+  labels,
 }: DemographicsPyramidProps) {
+  const { t } = useTranslation("app");
+  const resolvedLabels: DemographicsPyramidLabels = labels ?? {
+    title: t("dataExplorer.charts.demographics.ageDistribution"),
+    noData: t("dataExplorer.charts.demographics.noAgeData"),
+    age: t("dataExplorer.charts.demographics.age"),
+    male: t("dataExplorer.charts.demographics.male"),
+    female: t("dataExplorer.charts.demographics.female"),
+  };
+
   if (!age.length) {
     return (
       <div className="flex items-center justify-center rounded-xl border border-border-default bg-surface-raised py-16">
-        <p className="text-sm text-text-muted">{labels.noData}</p>
+        <p className="text-sm text-text-muted">{resolvedLabels.noData}</p>
       </div>
     );
   }
@@ -94,7 +96,7 @@ export function DemographicsPyramid({
   if (pyramidData.length === 0) {
     return (
       <div className="flex items-center justify-center rounded-xl border border-border-default bg-surface-raised py-16">
-        <p className="text-sm text-text-muted">{labels.noData}</p>
+        <p className="text-sm text-text-muted">{resolvedLabels.noData}</p>
       </div>
     );
   }
@@ -102,7 +104,7 @@ export function DemographicsPyramid({
   return (
     <div className="rounded-xl border border-border-default bg-surface-raised p-6">
       <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-text-muted">
-        {labels.title}
+        {resolvedLabels.title}
       </h3>
       <ResponsiveContainer width="100%" height={height}>
         <BarChart
@@ -133,7 +135,7 @@ export function DemographicsPyramid({
             tickLine={false}
           />
           <Tooltip
-            content={<CustomTooltip labels={labels} />}
+            content={<CustomTooltip labels={resolvedLabels} />}
             cursor={{ fill: "rgba(255,255,255,0.03)" }}
           />
           <ReferenceLine x={0} stroke="var(--surface-highlight)" strokeWidth={1} />
@@ -152,11 +154,11 @@ export function DemographicsPyramid({
       <div className="mt-3 flex items-center justify-center gap-6">
         <div className="flex items-center gap-1.5">
           <div className="h-2.5 w-2.5 rounded-sm bg-info" />
-          <span className="text-xs text-text-secondary">{labels.male}</span>
+          <span className="text-xs text-text-secondary">{resolvedLabels.male}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="h-2.5 w-2.5 rounded-sm bg-critical" />
-          <span className="text-xs text-text-secondary">{labels.female}</span>
+          <span className="text-xs text-text-secondary">{resolvedLabels.female}</span>
         </div>
       </div>
     </div>

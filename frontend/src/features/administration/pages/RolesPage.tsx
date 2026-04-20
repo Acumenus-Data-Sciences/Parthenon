@@ -3,6 +3,7 @@ import {
   Plus, ChevronDown, ChevronRight, Pencil, Trash2,
   ShieldCheck, Grid3x3, Loader2, X,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useRoles, usePermissions, useCreateRole, useUpdateRole, useDeleteRole } from "../hooks/useAdminRoles";
 import { PermissionMatrix } from "../components/PermissionMatrix";
@@ -11,8 +12,8 @@ import type { Role } from "@/types/models";
 const PROTECTED = ["super-admin", "admin", "researcher", "data-steward", "mapping-reviewer", "viewer"];
 
 const TABS = [
-  { id: "roles", label: "Role List", icon: <ShieldCheck size={14} /> },
-  { id: "matrix", label: "Permission Matrix", icon: <Grid3x3 size={14} /> },
+  { id: "roles", labelKey: "roleList", icon: <ShieldCheck size={14} /> },
+  { id: "matrix", labelKey: "permissionMatrix", icon: <Grid3x3 size={14} /> },
 ];
 
 // ── Inline role editor ─────────────────────────────────────────────────────
@@ -30,6 +31,7 @@ function RoleEditor({
   onCancel: () => void;
   isPending: boolean;
 }) {
+  const { t } = useTranslation("app");
   const [name, setName] = useState(initial.name);
   const [selected, setSelected] = useState<Set<string>>(new Set(initial.permissions));
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -64,20 +66,24 @@ function RoleEditor({
     <div className="rounded-lg border border-success/30 bg-surface-raised p-5">
       <div className="mb-4">
         <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-          Role Name
+          {t("administration.roles.editor.roleName")}
         </label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="e.g. site-coordinator"
+          placeholder={t("administration.roles.editor.roleNamePlaceholder")}
           className="mt-1.5 w-full rounded-lg border border-surface-highlight bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-success/30"
         />
       </div>
 
       <div className="mb-5">
         <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-muted">
-          Permissions{" "}
-          <span className="text-success">({selected.size} selected)</span>
+          {t("administration.roles.editor.permissions")}{" "}
+          <span className="text-success">
+            {t("administration.roles.editor.selectedCount", {
+              count: selected.size,
+            })}
+          </span>
         </p>
         <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
           {Object.entries(permissionsByDomain)
@@ -141,7 +147,7 @@ function RoleEditor({
           onClick={onCancel}
           className="rounded-lg border border-surface-highlight px-4 py-2 text-sm text-text-muted transition-colors hover:border-text-ghost hover:text-text-primary"
         >
-          Cancel
+          {t("administration.roles.actions.cancel")}
         </button>
         <button
           type="button"
@@ -150,7 +156,9 @@ function RoleEditor({
           className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success-dark disabled:opacity-50"
         >
           {isPending && <Loader2 size={14} className="animate-spin" />}
-          {isPending ? "Saving…" : "Save Role"}
+          {isPending
+            ? t("administration.roles.actions.saving")
+            : t("administration.roles.actions.saveRole")}
         </button>
       </div>
     </div>
@@ -160,6 +168,7 @@ function RoleEditor({
 // ── Main page ──────────────────────────────────────────────────────────────
 
 export default function RolesPage() {
+  const { t } = useTranslation("app");
   const { data: roles, isLoading } = useRoles();
   const { data: permsByDomain } = usePermissions();
   const createRole = useCreateRole();
@@ -176,9 +185,11 @@ export default function RolesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Roles &amp; Permissions</h1>
+          <h1 className="text-2xl font-bold text-text-primary">
+            {t("administration.roles.title")}
+          </h1>
           <p className="mt-1 text-sm text-text-muted">
-            Define custom roles and fine-tune permission assignments. Use the matrix for bulk edits.
+            {t("administration.roles.subtitle")}
           </p>
         </div>
         {tab === "roles" && (
@@ -188,14 +199,14 @@ export default function RolesPage() {
             className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-surface-base transition-colors hover:bg-success-dark"
           >
             <Plus size={16} />
-            New Role
+            {t("administration.roles.actions.newRole")}
           </button>
         )}
       </div>
 
       {/* Tab switcher */}
       <div className="flex w-fit items-center gap-1 rounded-lg border border-border-default bg-surface-base p-0.5">
-        {TABS.map(({ id, label, icon }) => (
+        {TABS.map(({ id, labelKey, icon }) => (
           <button
             key={id}
             type="button"
@@ -208,7 +219,7 @@ export default function RolesPage() {
             )}
           >
             {icon}
-            {label}
+            {t(`administration.roles.tabs.${labelKey}`)}
           </button>
         ))}
       </div>
@@ -275,13 +286,24 @@ export default function RolesPage() {
                                 <p className="font-semibold text-text-primary">{role.name}</p>
                                 {isProtected && (
                                   <span className="inline-flex items-center rounded-full border border-surface-highlight bg-surface-overlay px-2 py-0.5 text-[10px] font-medium text-text-muted">
-                                    built-in
+                                    {t("administration.roles.values.builtIn")}
                                   </span>
                                 )}
                               </div>
                               <p className="mt-0.5 text-xs text-text-ghost">
-                                {role.users_count ?? 0} user{role.users_count !== 1 ? "s" : ""}{" "}
-                                · {role.permissions?.length ?? 0} permissions
+                                {t(
+                                  (role.users_count ?? 0) === 1
+                                    ? "administration.roles.values.userCountOne"
+                                    : "administration.roles.values.userCountOther",
+                                  { count: role.users_count ?? 0 },
+                                )}{" "}
+                                ·{" "}
+                                {t(
+                                  (role.permissions?.length ?? 0) === 1
+                                    ? "administration.roles.values.permissionCountOne"
+                                    : "administration.roles.values.permissionCountOther",
+                                  { count: role.permissions?.length ?? 0 },
+                                )}
                               </p>
                               <div className="mt-2 flex flex-wrap gap-1">
                                 {role.permissions?.slice(0, 8).map((p) => (
@@ -294,7 +316,9 @@ export default function RolesPage() {
                                 ))}
                                 {(role.permissions?.length ?? 0) > 8 && (
                                   <span className="text-[10px] text-text-ghost">
-                                    +{(role.permissions?.length ?? 0) - 8} more
+                                    {t("administration.roles.values.more", {
+                                      count: (role.permissions?.length ?? 0) - 8,
+                                    })}
                                   </span>
                                 )}
                               </div>
@@ -305,7 +329,7 @@ export default function RolesPage() {
                               <button
                                 type="button"
                                 onClick={() => setEditing(role)}
-                                title="Edit role"
+                                title={t("administration.roles.actions.editRole")}
                                 className="rounded-md p-1.5 text-text-ghost transition-colors hover:bg-surface-elevated hover:text-text-primary"
                               >
                                 <Pencil className="h-4 w-4" />
@@ -315,7 +339,7 @@ export default function RolesPage() {
                               <button
                                 type="button"
                                 onClick={() => setDeleteConfirm(role)}
-                                title="Delete role"
+                                title={t("administration.roles.actions.deleteRole")}
                                 className="rounded-md p-1.5 text-text-ghost transition-colors hover:bg-critical/10 hover:text-critical"
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -342,7 +366,9 @@ export default function RolesPage() {
           />
           <div className="relative z-10 w-full max-w-sm rounded-xl border border-surface-highlight bg-surface-raised p-6 shadow-2xl">
             <div className="mb-4 flex items-start justify-between">
-              <h2 className="text-base font-semibold text-text-primary">Delete role?</h2>
+              <h2 className="text-base font-semibold text-text-primary">
+                {t("administration.roles.deleteModal.title")}
+              </h2>
               <button
                 type="button"
                 onClick={() => setDeleteConfirm(null)}
@@ -352,9 +378,9 @@ export default function RolesPage() {
               </button>
             </div>
             <p className="mb-6 text-sm text-text-muted">
-              The role{" "}
-              <strong className="text-text-primary">{deleteConfirm.name}</strong> will be permanently
-              deleted. Users assigned only this role will lose all permissions.
+              {t("administration.roles.deleteModal.prefix")}{" "}
+              <strong className="text-text-primary">{deleteConfirm.name}</strong>{" "}
+              {t("administration.roles.deleteModal.suffix")}
             </p>
             <div className="flex justify-end gap-2">
               <button
@@ -362,7 +388,7 @@ export default function RolesPage() {
                 onClick={() => setDeleteConfirm(null)}
                 className="rounded-lg border border-surface-highlight px-4 py-2 text-sm text-text-muted transition-colors hover:border-text-ghost hover:text-text-primary"
               >
-                Cancel
+                {t("administration.roles.actions.cancel")}
               </button>
               <button
                 type="button"
@@ -375,7 +401,9 @@ export default function RolesPage() {
                 className="inline-flex items-center gap-2 rounded-lg bg-critical px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-critical-light disabled:opacity-50"
               >
                 {deleteRole.isPending && <Loader2 size={14} className="animate-spin" />}
-                {deleteRole.isPending ? "Deleting…" : "Delete"}
+                {deleteRole.isPending
+                  ? t("administration.roles.actions.deleting")
+                  : t("administration.roles.actions.delete")}
               </button>
             </div>
           </div>

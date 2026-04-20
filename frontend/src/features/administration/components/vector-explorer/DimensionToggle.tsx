@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 interface DimensionToggleProps {
   value: 2 | 3;
   onChange: (value: 2 | 3) => void;
@@ -17,9 +19,13 @@ export default function DimensionToggle({
   disabled,
   disabledTooltip,
 }: DimensionToggleProps) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="flex items-center gap-1 rounded border border-border-default bg-surface-base p-0.5">
-      <span className="px-1 text-xs text-text-ghost">Projection</span>
+      <span className="px-1 text-xs text-text-ghost">
+        {t("administration.vectorExplorer.stats.projection")}
+      </span>
       {dimensions.map((dimension) => (
         <button
           key={dimension}
@@ -35,7 +41,7 @@ export default function DimensionToggle({
           }`}
           style={value === dimension ? { background: accentBg, color: accentColor } : undefined}
         >
-          {dimension}D
+          {t("administration.vectorExplorer.values.dimensions", { dimensions: dimension })}
         </button>
       ))}
     </div>

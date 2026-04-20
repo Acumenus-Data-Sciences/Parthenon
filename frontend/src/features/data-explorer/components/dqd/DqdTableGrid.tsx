@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { DqdCheckResult } from "../../types/dataExplorer";
 
@@ -13,12 +14,6 @@ interface CellData {
 }
 
 const CATEGORIES = ["completeness", "conformance", "plausibility"] as const;
-const CATEGORY_LABELS: Record<string, string> = {
-  completeness: "Completeness",
-  conformance: "Conformance",
-  plausibility: "Plausibility",
-  overall: "Overall",
-};
 
 function getCellColor(passRate: number): string {
   if (passRate >= 90) return "bg-success/15 text-success";
@@ -27,6 +22,7 @@ function getCellColor(passRate: number): string {
 }
 
 export function DqdTableGrid({ results }: DqdTableGridProps) {
+  const { t } = useTranslation("app");
   const { grid } = useMemo(() => {
     // Group by table and category
     const grouped = new Map<string, Map<string, CellData>>();
@@ -81,7 +77,9 @@ export function DqdTableGrid({ results }: DqdTableGridProps) {
   if (!results.length) {
     return (
       <div className="flex items-center justify-center rounded-xl border border-border-default bg-surface-raised py-16">
-        <p className="text-sm text-text-muted">No DQD results to display</p>
+        <p className="text-sm text-text-muted">
+          {t("dataExplorer.dqd.tableGrid.noResults")}
+        </p>
       </div>
     );
   }
@@ -90,7 +88,7 @@ export function DqdTableGrid({ results }: DqdTableGridProps) {
     <div className="rounded-xl border border-border-default bg-surface-raised overflow-hidden">
       <div className="border-b border-border-default bg-surface-overlay px-6 py-3">
         <h3 className="text-sm font-semibold text-text-primary">
-          Table x Category Heatmap
+          {t("dataExplorer.dqd.tableGrid.title")}
         </h3>
       </div>
       <div className="overflow-x-auto">
@@ -98,14 +96,14 @@ export function DqdTableGrid({ results }: DqdTableGridProps) {
           <thead>
             <tr className="border-b border-border-default text-xs text-text-ghost">
               <th className="px-6 py-2 text-left font-medium min-w-[180px]">
-                CDM Table
+                {t("dataExplorer.dqd.tableGrid.cdmTable")}
               </th>
               {[...CATEGORIES, "overall" as const].map((cat) => (
                 <th
                   key={cat}
                   className="px-4 py-2 text-center font-medium min-w-[110px]"
                 >
-                  {CATEGORY_LABELS[cat]}
+                  {t(`dataExplorer.dqd.categories.${cat}`)}
                 </th>
               ))}
             </tr>

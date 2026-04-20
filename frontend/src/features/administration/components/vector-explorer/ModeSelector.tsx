@@ -1,4 +1,5 @@
 import { MODE_LABELS, type ExplorerMode } from "./constants";
+import { useTranslation } from "react-i18next";
 
 interface ModeSelectorProps {
   activeMode: ExplorerMode;
@@ -19,6 +20,8 @@ export default function ModeSelector({
   disabled,
   disabledTooltip,
 }: ModeSelectorProps) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="flex gap-1 rounded-lg border border-border-default bg-surface-base p-1">
       {modes.map((mode) => (
@@ -36,7 +39,9 @@ export default function ModeSelector({
           }`}
           style={activeMode === mode ? { background: accentBg, color: accentColor } : undefined}
         >
-          {MODE_LABELS[mode]}
+          {t(`administration.vectorExplorer.modes.${mode}`, {
+            defaultValue: MODE_LABELS[mode],
+          })}
         </button>
       ))}
     </div>

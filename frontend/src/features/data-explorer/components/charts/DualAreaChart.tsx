@@ -97,13 +97,13 @@ export function DualAreaChart({
           dataKey="year_month"
           tickFormatter={formatYearMonth}
           interval={tickInterval}
-          tick={{ fill: CHART.text, fontSize: 10 }}
+          tick={{ fill: CHART.textPrimary, fontSize: 10 }}
           axisLine={{ stroke: CHART.grid }}
           tickLine={{ stroke: CHART.grid }}
         />
         <YAxis
           tickFormatter={formatCompact}
-          tick={{ fill: CHART.text, fontSize: 11 }}
+          tick={{ fill: CHART.textPrimary, fontSize: 11 }}
           axisLine={false}
           tickLine={false}
           width={55}

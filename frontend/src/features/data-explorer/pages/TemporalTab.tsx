@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import {
   LineChart,
@@ -13,7 +14,6 @@ import {
 } from "recharts";
 import { useTemporalTrends } from "../hooks/useAchillesData";
 import type { Domain } from "../types/dataExplorer";
-import { DOMAIN_LABELS } from "../types/dataExplorer";
 import { formatYearMonth, formatCompact } from "../components/charts/chartUtils";
 
 interface TemporalTabProps {
@@ -67,6 +67,7 @@ function MultiLineTooltip({
 }
 
 export default function TemporalTab({ sourceId }: TemporalTabProps) {
+  const { t } = useTranslation("app");
   const [enabledDomains, setEnabledDomains] = useState<Set<Domain>>(
     new Set(["condition", "drug", "procedure"]),
   );
@@ -131,7 +132,7 @@ export default function TemporalTab({ sourceId }: TemporalTabProps) {
       {/* Domain checkboxes */}
       <div className="flex flex-wrap items-center gap-3">
         <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-          Domains:
+          {t("dataExplorer.temporal.domainsLabel")}
         </span>
         {DOMAINS.map((domain) => (
           <label
@@ -169,7 +170,7 @@ export default function TemporalTab({ sourceId }: TemporalTabProps) {
                     : "var(--text-ghost)",
                 }}
               />
-              {DOMAIN_LABELS[domain]}
+              {t(`dataExplorer.domains.${domain}`)}
             </div>
           </label>
         ))}
@@ -186,7 +187,7 @@ export default function TemporalTab({ sourceId }: TemporalTabProps) {
       {mergedData.length > 0 && (
         <div className="rounded-xl border border-border-default bg-surface-raised p-6">
           <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-text-muted">
-            Multi-Domain Temporal Overlay
+            {t("dataExplorer.temporal.multiDomainOverlay")}
           </h3>
           <ResponsiveContainer width="100%" height={360}>
             <LineChart
@@ -225,7 +226,7 @@ export default function TemporalTab({ sourceId }: TemporalTabProps) {
                   key={domain}
                   type="monotone"
                   dataKey={domain}
-                  name={DOMAIN_LABELS[domain]}
+                  name={t(`dataExplorer.domains.${domain}`)}
                   stroke={DOMAIN_COLORS[domain]}
                   strokeWidth={2}
                   dot={false}
@@ -246,9 +247,11 @@ export default function TemporalTab({ sourceId }: TemporalTabProps) {
       {/* Empty state */}
       {!isAnyLoading && mergedData.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-16">
-          <p className="text-sm text-text-muted">No temporal data available</p>
+          <p className="text-sm text-text-muted">
+            {t("dataExplorer.temporal.emptyTitle")}
+          </p>
           <p className="mt-1 text-xs text-text-ghost">
-            Select domains above and ensure Achilles has been run
+            {t("dataExplorer.temporal.emptyHelp")}
           </p>
         </div>
       )}

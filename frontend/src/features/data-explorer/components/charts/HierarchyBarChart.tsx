@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { ChevronRight, CornerLeftUp } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { formatCompact, CHART } from "./chartUtils";
 import type { HierarchyNode } from "../../types/dataExplorer";
 
@@ -20,6 +21,7 @@ interface HierarchyBarChartProps {
 }
 
 export function HierarchyBarChart({ data, hasHierarchy, domain }: HierarchyBarChartProps) {
+  const { t } = useTranslation("app");
   const [path, setPath] = useState<string[]>([]);
 
   // Reset path when domain changes
@@ -71,7 +73,9 @@ export function HierarchyBarChart({ data, hasHierarchy, domain }: HierarchyBarCh
   if (!data.length) {
     return (
       <div className="flex items-center justify-center rounded-xl border border-border-default bg-surface-raised py-12">
-        <p className="text-sm text-text-muted">No hierarchy data available</p>
+        <p className="text-sm text-text-muted">
+          {t("dataExplorer.charts.hierarchy.noData")}
+        </p>
       </div>
     );
   }
@@ -82,7 +86,7 @@ export function HierarchyBarChart({ data, hasHierarchy, domain }: HierarchyBarCh
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-1.5 text-sm">
           <span className="font-semibold uppercase tracking-wider text-text-muted">
-            {hasHierarchy ? "Classification Hierarchy" : "Top Concepts"}
+            {t(hasHierarchy ? "dataExplorer.charts.hierarchy.classificationHierarchy" : "dataExplorer.charts.topConcepts.title")}
           </span>
           {path.length > 0 && (
             <>
@@ -108,7 +112,7 @@ export function HierarchyBarChart({ data, hasHierarchy, domain }: HierarchyBarCh
             className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-text-muted transition-colors hover:bg-surface-elevated hover:text-text-secondary"
           >
             <CornerLeftUp size={12} />
-            Back
+            {t("dataExplorer.charts.hierarchy.back")}
           </button>
         )}
       </div>
@@ -186,7 +190,7 @@ export function HierarchyBarChart({ data, hasHierarchy, domain }: HierarchyBarCh
         <div className="mt-2 flex items-center gap-3 border-t border-border-default px-2 pt-3">
           <div className="w-44 shrink-0">
             <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-              Total
+              {t("dataExplorer.charts.common.total")}
             </span>
           </div>
           <div className="flex-1" />

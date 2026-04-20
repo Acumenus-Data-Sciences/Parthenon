@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useDomainSummary, useTemporalTrends, useConceptHierarchy } from "../hooks/useAchillesData";
 import { TopConceptsBar } from "../components/charts/TopConceptsBar";
@@ -7,7 +8,6 @@ import { HierarchyBarChart } from "../components/charts/HierarchyBarChart";
 import { TemporalTrendChart } from "../components/charts/TemporalTrendChart";
 import { ConceptDrilldownPanel } from "../components/ConceptDrilldownPanel";
 import type { Domain } from "../types/dataExplorer";
-import { DOMAIN_LABELS } from "../types/dataExplorer";
 
 interface DomainTabProps {
   sourceId: number;
@@ -24,6 +24,7 @@ const DOMAINS: Domain[] = [
 ];
 
 export default function DomainTab({ sourceId, initialDomain }: DomainTabProps) {
+  const { t } = useTranslation("app");
   const [activeDomain, setActiveDomain] = useState<Domain>(initialDomain ?? "condition");
   const [selectedConceptId, setSelectedConceptId] = useState<number | null>(null);
 
@@ -60,7 +61,7 @@ export default function DomainTab({ sourceId, initialDomain }: DomainTabProps) {
                   : "text-text-muted hover:text-text-secondary",
               )}
             >
-              {DOMAIN_LABELS[domain]}
+              {t(`dataExplorer.domains.${domain}`)}
               {activeDomain === domain && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
               )}
@@ -73,7 +74,7 @@ export default function DomainTab({ sourceId, initialDomain }: DomainTabProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="rounded-xl border border-border-default bg-surface-raised p-4">
               <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-                Total Records
+                {t("dataExplorer.domain.metrics.totalRecords")}
               </p>
               <p className="mt-1 font-serif text-xl font-bold text-text-primary">
                 {domainSummary.data.totalRecords.toLocaleString()}
@@ -81,7 +82,7 @@ export default function DomainTab({ sourceId, initialDomain }: DomainTabProps) {
             </div>
             <div className="rounded-xl border border-border-default bg-surface-raised p-4">
               <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-                Distinct Concepts
+                {t("dataExplorer.domain.metrics.distinctConcepts")}
               </p>
               <p className="mt-1 font-serif text-xl font-bold text-text-primary">
                 {domainSummary.data.totalConcepts.toLocaleString()}
@@ -101,7 +102,9 @@ export default function DomainTab({ sourceId, initialDomain }: DomainTabProps) {
         {domainSummary.error && (
           <div className="flex items-center justify-center py-16">
             <p className="text-sm text-critical">
-              Failed to load {DOMAIN_LABELS[activeDomain]} data
+              {t("dataExplorer.domain.loadFailed", {
+                domain: t(`dataExplorer.domains.${activeDomain}`),
+              })}
             </p>
           </div>
         )}
@@ -127,7 +130,9 @@ export default function DomainTab({ sourceId, initialDomain }: DomainTabProps) {
         {temporalTrends.data && temporalTrends.data.length > 0 && (
           <TemporalTrendChart
             data={temporalTrends.data}
-            title={`${DOMAIN_LABELS[activeDomain]} Temporal Trend`}
+            title={t("dataExplorer.domain.temporalTrendTitle", {
+              domain: t(`dataExplorer.domains.${activeDomain}`),
+            })}
           />
         )}
       </div>

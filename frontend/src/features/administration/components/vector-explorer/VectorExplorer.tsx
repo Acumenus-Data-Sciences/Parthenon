@@ -178,7 +178,7 @@ export default function VectorExplorer({
                 {overview && (
                   <span
                     className="rounded px-2 py-0.5 text-xs"
-                    style={{ background: collectionTheme.bg, color: collectionTheme.text }}
+                    style={{ background: collectionTheme.bg, color: collectionTheme.textColor }}
                   >
                     {t("administration.vectorExplorer.values.sampled", {
                       count: formatNumber(stats?.sampled ?? 0),
@@ -189,7 +189,7 @@ export default function VectorExplorer({
               <ModeSelector
                 activeMode={activeMode}
                 onChange={explorer.setMode}
-                accentColor={collectionTheme.text}
+                accentColor={collectionTheme.textColor}
                 accentBg={collectionTheme.bg}
                 disabled={isFallback}
                 disabledTooltip={aiServiceTooltip}
@@ -199,7 +199,7 @@ export default function VectorExplorer({
               <DimensionToggle
                 value={explorer.dimensions}
                 onChange={explorer.setDimensions}
-                accentColor={collectionTheme.text}
+                accentColor={collectionTheme.textColor}
                 accentBg={collectionTheme.bg}
                 disabled={isFallback}
                 disabledTooltip={aiServiceTooltip}
@@ -208,7 +208,7 @@ export default function VectorExplorer({
                 value={explorer.sampleSize}
                 steps={sampleSteps}
                 onChange={explorer.setSampleSize}
-                accentColor={collectionTheme.text}
+                accentColor={collectionTheme.textColor}
                 accentBg={collectionTheme.bg}
               />
               <MetadataColorPicker
@@ -249,7 +249,7 @@ export default function VectorExplorer({
                   type="submit"
                   disabled={explorer.isQueryLoading || explorer.queryText.trim().length === 0}
                   className="rounded px-3 py-2 text-sm font-medium disabled:opacity-40"
-                  style={{ background: collectionTheme.bg, color: collectionTheme.text }}
+                  style={{ background: collectionTheme.bg, color: collectionTheme.textColor }}
                 >
                   {explorer.isQueryLoading
                     ? t("administration.vectorExplorer.search.searching")
@@ -363,7 +363,7 @@ export default function VectorExplorer({
                       className="absolute top-0.5 h-3.5 w-3.5 rounded-full transition-all"
                       style={{
                         left: active ? "18px" : "2px",
-                        background: active ? collectionTheme.text : "var(--text-muted)",
+                        background: active ? collectionTheme.textColor : "var(--text-muted)",
                       }}
                     />
                   </div>
@@ -379,7 +379,7 @@ export default function VectorExplorer({
               </h4>
               <ClusterProfile
                 cluster={selectedCluster}
-                accentColor={collectionTheme.text}
+                accentColor={collectionTheme.textColor}
               />
             </div>
           )}
@@ -391,7 +391,7 @@ export default function VectorExplorer({
             <PointInspector
               points={inspectorPoints}
               selectedIds={explorer.selectedPoints}
-              accentColor={collectionTheme.text}
+              accentColor={collectionTheme.textColor}
               outlierIds={outlierIds}
               duplicateIds={duplicateIds}
               orphanIds={orphanIds}
@@ -508,14 +508,14 @@ export default function VectorExplorer({
             disabled={isLoading}
             title={t("administration.vectorExplorer.actions.recomputeProjection")}
             className="rounded p-1 hover:bg-surface-elevated disabled:opacity-40"
-            style={{ color: collectionTheme.text }}
+            style={{ color: collectionTheme.textColor }}
           >
             <RefreshCw className="h-3 w-3" />
           </button>
           <button
             onClick={() => explorer.setExpanded(true)}
             className="flex items-center gap-1 rounded px-2 py-1 text-xs hover:opacity-85"
-            style={{ background: collectionTheme.bg, color: collectionTheme.text }}
+            style={{ background: collectionTheme.bg, color: collectionTheme.textColor }}
           >
             <Maximize2 className="h-3 w-3" />
             {t("administration.vectorExplorer.actions.expand")}
@@ -540,7 +540,7 @@ export default function VectorExplorer({
             type="submit"
             disabled={explorer.isQueryLoading || explorer.queryText.trim().length === 0}
             className="rounded px-3 py-2 text-sm font-medium disabled:opacity-40"
-            style={{ background: collectionTheme.bg, color: collectionTheme.text }}
+            style={{ background: collectionTheme.bg, color: collectionTheme.textColor }}
           >
             {explorer.isQueryLoading
               ? t("administration.vectorExplorer.search.searching")

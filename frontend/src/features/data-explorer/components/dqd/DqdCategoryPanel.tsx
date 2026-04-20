@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   XCircle,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { DqdCheckResult } from "../../types/dataExplorer";
 
@@ -13,19 +14,20 @@ interface DqdCategoryPanelProps {
   checks: DqdCheckResult[];
 }
 
-const SEVERITY_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  error: { bg: "bg-critical/15", text: "text-critical", label: "Error" },
-  warning: { bg: "bg-warning/15", text: "text-warning", label: "Warning" },
-  info: { bg: "bg-info/15", text: "text-info", label: "Info" },
+const SEVERITY_STYLES: Record<string, { bg: string; text: string; labelKey: string }> = {
+  error: { bg: "bg-critical/15", text: "text-critical", labelKey: "error" },
+  warning: { bg: "bg-warning/15", text: "text-warning", labelKey: "warning" },
+  info: { bg: "bg-info/15", text: "text-info", labelKey: "info" },
 };
 
-const CATEGORY_LABELS: Record<string, string> = {
-  completeness: "Completeness",
-  conformance: "Conformance",
-  plausibility: "Plausibility",
+const CATEGORY_LABEL_KEYS: Record<string, string> = {
+  completeness: "completeness",
+  conformance: "conformance",
+  plausibility: "plausibility",
 };
 
 export function DqdCategoryPanel({ category, checks }: DqdCategoryPanelProps) {
+  const { t } = useTranslation("app");
   const [expanded, setExpanded] = useState(false);
 
   const passed = checks.filter((c) => c.passed).length;
@@ -35,7 +37,10 @@ export function DqdCategoryPanel({ category, checks }: DqdCategoryPanelProps) {
   const passRateColor =
     passRate >= 90 ? "text-success" : passRate >= 70 ? "text-warning" : "text-critical";
 
-  const label = CATEGORY_LABELS[category] ?? category;
+  const labelKey = CATEGORY_LABEL_KEYS[category];
+  const label = labelKey
+    ? t(`dataExplorer.dqd.categories.${labelKey}`)
+    : category;
 
   return (
     <div className="rounded-xl border border-border-default bg-surface-raised overflow-hidden">
@@ -52,10 +57,12 @@ export function DqdCategoryPanel({ category, checks }: DqdCategoryPanelProps) {
         )}
         <h3 className="text-sm font-semibold text-text-primary">{label}</h3>
         <span className="rounded-full bg-surface-elevated px-2 py-0.5 text-xs text-text-muted">
-          {total} checks
+          {t("dataExplorer.dqd.categoryPanel.checkCount", { count: total })}
         </span>
         <span className={cn("ml-auto font-['IBM_Plex_Mono',monospace] text-sm font-semibold", passRateColor)}>
-          {passRate.toFixed(0)}% pass rate
+          {t("dataExplorer.dqd.categoryPanel.passRate", {
+            percent: passRate.toFixed(0),
+          })}
         </span>
         <span className="text-xs text-text-ghost">
           ({passed}/{total})
@@ -68,11 +75,21 @@ export function DqdCategoryPanel({ category, checks }: DqdCategoryPanelProps) {
           <thead>
             <tr className="border-b border-border-default text-xs text-text-ghost">
               <th className="px-6 py-2 text-left font-medium w-8" />
-              <th className="px-3 py-2 text-left font-medium">Check</th>
-              <th className="px-3 py-2 text-left font-medium">Table</th>
-              <th className="px-3 py-2 text-left font-medium">Column</th>
-              <th className="px-3 py-2 text-left font-medium">Severity</th>
-              <th className="px-3 py-2 text-right font-medium">Violation %</th>
+              <th className="px-3 py-2 text-left font-medium">
+                {t("dataExplorer.dqd.categoryPanel.table.check")}
+              </th>
+              <th className="px-3 py-2 text-left font-medium">
+                {t("dataExplorer.dqd.categoryPanel.table.table")}
+              </th>
+              <th className="px-3 py-2 text-left font-medium">
+                {t("dataExplorer.dqd.categoryPanel.table.column")}
+              </th>
+              <th className="px-3 py-2 text-left font-medium">
+                {t("dataExplorer.dqd.categoryPanel.table.severity")}
+              </th>
+              <th className="px-3 py-2 text-right font-medium">
+                {t("dataExplorer.dqd.categoryPanel.table.violationPercent")}
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border-default">
@@ -123,7 +140,7 @@ export function DqdCategoryPanel({ category, checks }: DqdCategoryPanelProps) {
                         severity.text,
                       )}
                     >
-                      {severity.label}
+                      {t(`dataExplorer.dqd.severity.${severity.labelKey}`)}
                     </span>
                   </td>
                   <td className="px-3 py-2.5 text-right">

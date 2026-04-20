@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { ProjectedPoint3D } from "../../api/chromaStudioApi";
 
 interface PointInspectorProps {
@@ -21,11 +22,14 @@ export default function PointInspector({
   loadingIds,
   error,
 }: PointInspectorProps) {
+  const { t } = useTranslation("app");
   const selected = points.filter((p) => selectedIds.has(p.id));
 
   if (selected.length === 0) {
     return (
-      <div className="text-sm text-text-ghost">Click a point to inspect.</div>
+      <div className="text-sm text-text-ghost">
+        {t("administration.vectorExplorer.inspector.selectPoint")}
+      </div>
     );
   }
 
@@ -37,10 +41,10 @@ export default function PointInspector({
         </div>
       )}
       {selected.map((point) => {
-        const flags: string[] = [];
-        if (outlierIds?.has(point.id)) flags.push("Outlier");
-        if (duplicateIds?.has(point.id)) flags.push("Duplicate");
-        if (orphanIds?.has(point.id)) flags.push("Orphan");
+        const flags: Array<"outlier" | "duplicate" | "orphan"> = [];
+        if (outlierIds?.has(point.id)) flags.push("outlier");
+        if (duplicateIds?.has(point.id)) flags.push("duplicate");
+        if (orphanIds?.has(point.id)) flags.push("orphan");
         const isLoading = loadingIds?.has(point.id) ?? false;
 
         return (
@@ -55,11 +59,11 @@ export default function PointInspector({
                     key={f}
                     className="rounded-full px-2 py-0.5 text-xs font-medium"
                     style={{
-                      background: f === "Outlier" ? "#E85A6B20" : f === "Duplicate" ? "#F59E0B20" : "#5A565020",
-                      color: f === "Outlier" ? "var(--critical)" : f === "Duplicate" ? "var(--warning)" : "var(--text-ghost)",
+                      background: f === "outlier" ? "#E85A6B20" : f === "duplicate" ? "#F59E0B20" : "#5A565020",
+                      color: f === "outlier" ? "var(--critical)" : f === "duplicate" ? "var(--warning)" : "var(--text-ghost)",
                     }}
                   >
-                    {f}
+                    {t(`administration.vectorExplorer.inspector.flags.${f}`)}
                   </span>
                 ))}
               </div>
@@ -75,7 +79,9 @@ export default function PointInspector({
               </div>
             )}
             {isLoading && (
-              <div className="mt-2 text-xs text-text-ghost">Loading full details...</div>
+              <div className="mt-2 text-xs text-text-ghost">
+                {t("administration.vectorExplorer.inspector.loadingDetails")}
+              </div>
             )}
             <div className="mt-2 font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">
               ({point.x.toFixed(3)}, {point.y.toFixed(3)}, {point.z.toFixed(3)})

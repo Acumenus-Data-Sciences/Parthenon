@@ -1,16 +1,19 @@
 import { useState, useRef, useCallback } from "react";
 import { Upload, FileUp, FileText } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useUploadGisFile } from "../../hooks/useGisImport";
 import type { UploadResult } from "../../types/gisImport";
 
 const ACCEPTED_TYPES = ".csv,.tsv,.xlsx,.xls,.json,.geojson,.zip,.kml,.kmz,.gpkg";
 const MAX_SIZE_MB = 50;
+const GIS_IMPORT_CLI_COMMAND = "php artisan gis:import <path-to-file>";
 
 interface Props {
   onComplete: (result: UploadResult) => void;
 }
 
 export function UploadStep({ onComplete }: Props) {
+  const { t } = useTranslation("app");
   const [isDragOver, setIsDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -22,7 +25,10 @@ export function UploadStep({ onComplete }: Props) {
 
       if (file.size > MAX_SIZE_MB * 1024 * 1024) {
         setError(
-          `File exceeds ${MAX_SIZE_MB}MB. Use CLI: php artisan gis:import ${file.name}`,
+          t("administration.gisImport.upload.fileTooLarge", {
+            maxSize: MAX_SIZE_MB,
+            filename: file.name,
+          }),
         );
         return;
       }
@@ -31,10 +37,14 @@ export function UploadStep({ onComplete }: Props) {
         const result = await upload.mutateAsync(file);
         onComplete(result);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Upload failed");
+        setError(
+          e instanceof Error
+            ? e.message
+            : t("administration.gisImport.upload.uploadFailed"),
+        );
       }
     },
-    [upload, onComplete],
+    [upload, onComplete, t],
   );
 
   const handleDrop = useCallback(
@@ -63,14 +73,20 @@ export function UploadStep({ onComplete }: Props) {
         {upload.isPending ? (
           <>
             <FileUp className="mb-2 h-8 w-8 animate-pulse text-accent" />
-            <p className="text-sm text-text-muted">Uploading...</p>
+            <p className="text-sm text-text-muted">
+              {t("administration.gisImport.upload.uploading")}
+            </p>
           </>
         ) : (
           <>
             <Upload className="mb-2 h-8 w-8 text-text-ghost" />
-            <p className="text-sm text-text-primary">Drop a file here or click to browse</p>
+            <p className="text-sm text-text-primary">
+              {t("administration.gisImport.upload.dropPrompt")}
+            </p>
             <p className="mt-1 text-xs text-text-ghost">
-              CSV, TSV, Excel, Shapefile (.zip), GeoJSON, KML, GeoPackage — max {MAX_SIZE_MB}MB
+              {t("administration.gisImport.upload.acceptedFormats", {
+                maxSize: MAX_SIZE_MB,
+              })}
             </p>
           </>
         )}
@@ -95,10 +111,12 @@ export function UploadStep({ onComplete }: Props) {
       <div className="rounded border border-border-default bg-surface-base p-4">
         <h4 className="mb-2 flex items-center gap-2 text-xs font-medium text-text-muted">
           <FileText className="h-3.5 w-3.5" />
-          For large files (&gt;{MAX_SIZE_MB}MB)
+          {t("administration.gisImport.upload.largeFiles", {
+            maxSize: MAX_SIZE_MB,
+          })}
         </h4>
         <code className="block rounded bg-surface-overlay px-3 py-2 text-xs text-text-primary">
-          php artisan gis:import &lt;path-to-file&gt;
+          {GIS_IMPORT_CLI_COMMAND}
         </code>
       </div>
     </div>

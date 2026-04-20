@@ -81,7 +81,7 @@ export function LogScaleBar({ data }: LogScaleBarProps) {
           scale="log"
           domain={[100, "auto"]}
           tickFormatter={(v: number) => formatCompact(v)}
-          tick={{ fill: CHART.text, fontSize: 10 }}
+          tick={{ fill: CHART.textPrimary, fontSize: 10 }}
           axisLine={{ stroke: CHART.grid }}
           tickLine={{ stroke: CHART.grid }}
           allowDataOverflow

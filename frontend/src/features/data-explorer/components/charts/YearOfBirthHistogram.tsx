@@ -8,6 +8,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 import { formatCompact, CHART, TOOLTIP_CLS } from "./chartUtils";
 
 interface YearOfBirthHistogramProps {
@@ -39,14 +40,20 @@ function CustomTooltip({
   payload?: Array<{ value: number; dataKey: string }>;
   label?: string;
 }) {
+  const { t } = useTranslation("app");
+
   if (!active || !payload?.length) return null;
   const bar = payload.find((p) => p.dataKey === "count");
   return (
     <div className={TOOLTIP_CLS}>
-      <p className="text-xs text-text-muted">Year: {label}</p>
+      <p className="text-xs text-text-muted">
+        {t("dataExplorer.charts.yearOfBirth.year", { year: label })}
+      </p>
       {bar && (
         <p className="mt-0.5 font-['IBM_Plex_Mono',monospace] text-xs text-text-primary">
-          {bar.value.toLocaleString()} persons
+          {t("dataExplorer.charts.common.persons", {
+            count: bar.value.toLocaleString(),
+          })}
         </p>
       )}
     </div>
@@ -72,14 +79,14 @@ export function YearOfBirthHistogram({ data }: YearOfBirthHistogramProps) {
         />
         <XAxis
           dataKey="year"
-          tick={{ fill: CHART.text, fontSize: 10 }}
+          tick={{ fill: CHART.textPrimary, fontSize: 10 }}
           axisLine={{ stroke: CHART.grid }}
           tickLine={{ stroke: CHART.grid }}
           interval="preserveStartEnd"
         />
         <YAxis
           tickFormatter={formatCompact}
-          tick={{ fill: CHART.text, fontSize: 11 }}
+          tick={{ fill: CHART.textPrimary, fontSize: 11 }}
           axisLine={false}
           tickLine={false}
           width={55}

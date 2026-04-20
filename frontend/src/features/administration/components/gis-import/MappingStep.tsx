@@ -1,16 +1,17 @@
 import { useState, useCallback } from "react";
 import { MessageSquare } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useSaveMapping, useAskAbbyColumn } from "../../hooks/useGisImport";
 import type { ColumnSuggestion, ColumnMapping, ColumnPurpose } from "../../types/gisImport";
 
-const PURPOSE_OPTIONS: { value: ColumnPurpose; label: string }[] = [
-  { value: "geography_code", label: "Geography Code" },
-  { value: "geography_name", label: "Geography Name" },
-  { value: "latitude", label: "Latitude" },
-  { value: "longitude", label: "Longitude" },
-  { value: "value", label: "Value (metric)" },
-  { value: "metadata", label: "Metadata" },
-  { value: "skip", label: "Skip" },
+const PURPOSE_OPTIONS: { value: ColumnPurpose; labelKey: string }[] = [
+  { value: "geography_code", labelKey: "geographyCode" },
+  { value: "geography_name", labelKey: "geographyName" },
+  { value: "latitude", labelKey: "latitude" },
+  { value: "longitude", labelKey: "longitude" },
+  { value: "value", labelKey: "valueMetric" },
+  { value: "metadata", labelKey: "metadata" },
+  { value: "skip", labelKey: "skip" },
 ];
 
 interface Props {
@@ -22,6 +23,7 @@ interface Props {
 }
 
 export function MappingStep({ importId, headers, suggestions, mapping: initialMapping, onComplete }: Props) {
+  const { t } = useTranslation("app");
   const [mapping, setMapping] = useState<ColumnMapping>(initialMapping);
   const [askingColumn, setAskingColumn] = useState<string | null>(null);
   const [abbyAnswer, setAbbyAnswer] = useState<string | null>(null);
@@ -60,17 +62,37 @@ export function MappingStep({ importId, headers, suggestions, mapping: initialMa
   );
 
   const confidenceBadge = (confidence: number) => {
-    if (confidence >= 0.9) return <span className="rounded bg-green-500/20 px-1.5 py-0.5 text-[10px] text-green-400">High</span>;
-    if (confidence >= 0.5) return <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] text-amber-400">Medium</span>;
-    return <span className="rounded bg-red-500/20 px-1.5 py-0.5 text-[10px] text-red-400">Low</span>;
+    if (confidence >= 0.9) {
+      return (
+        <span className="rounded bg-green-500/20 px-1.5 py-0.5 text-[10px] text-green-400">
+          {t("administration.gisImport.mapping.confidence.high")}
+        </span>
+      );
+    }
+    if (confidence >= 0.5) {
+      return (
+        <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] text-amber-400">
+          {t("administration.gisImport.mapping.confidence.medium")}
+        </span>
+      );
+    }
+    return (
+      <span className="rounded bg-red-500/20 px-1.5 py-0.5 text-[10px] text-red-400">
+        {t("administration.gisImport.mapping.confidence.low")}
+      </span>
+    );
   };
 
   return (
     <div className="space-y-4">
       <div className="rounded border border-border-default bg-surface-base">
         <div className="border-b border-border-default px-4 py-2">
-          <h3 className="text-sm font-medium text-text-primary">Column Mapping</h3>
-          <p className="text-xs text-text-ghost">Map each source column to its purpose</p>
+          <h3 className="text-sm font-medium text-text-primary">
+            {t("administration.gisImport.mapping.title")}
+          </h3>
+          <p className="text-xs text-text-ghost">
+            {t("administration.gisImport.mapping.subtitle")}
+          </p>
         </div>
 
         <div className="divide-y divide-border-default">
@@ -97,7 +119,9 @@ export function MappingStep({ importId, headers, suggestions, mapping: initialMa
                   className="rounded border border-surface-highlight bg-surface-overlay px-2 py-1 text-sm text-text-primary"
                 >
                   {PURPOSE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    <option key={opt.value} value={opt.value}>
+                      {t(`administration.gisImport.mapping.purposes.${opt.labelKey}`)}
+                    </option>
                   ))}
                 </select>
 
@@ -112,7 +136,7 @@ export function MappingStep({ importId, headers, suggestions, mapping: initialMa
                 <button
                   onClick={() => handleAskAbby(col)}
                   className="ml-auto shrink-0 rounded border border-surface-highlight p-1 text-text-ghost hover:text-accent"
-                  title="Ask Abby"
+                  title={t("administration.gisImport.mapping.askAbby")}
                 >
                   <MessageSquare className="h-3.5 w-3.5" />
                 </button>
@@ -125,9 +149,15 @@ export function MappingStep({ importId, headers, suggestions, mapping: initialMa
       {/* Abby answer panel */}
       {askingColumn && (
         <div className="rounded border border-accent/30 bg-accent/5 p-3">
-          <p className="text-xs font-medium text-accent">Abby on &quot;{askingColumn}&quot;:</p>
+          <p className="text-xs font-medium text-accent">
+            {t("administration.gisImport.mapping.abbyOnColumn", {
+              column: askingColumn,
+            })}
+          </p>
           {askMutation.isPending ? (
-            <p className="mt-1 text-xs text-text-muted">Thinking...</p>
+            <p className="mt-1 text-xs text-text-muted">
+              {t("administration.gisImport.mapping.thinking")}
+            </p>
           ) : abbyAnswer ? (
             <p className="mt-1 text-xs text-text-primary">{abbyAnswer}</p>
           ) : null}
@@ -141,7 +171,9 @@ export function MappingStep({ importId, headers, suggestions, mapping: initialMa
           disabled={saveMutation.isPending}
           className="rounded bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-accent/90 disabled:opacity-50"
         >
-          {saveMutation.isPending ? "Saving..." : "Continue"}
+          {saveMutation.isPending
+            ? t("administration.gisImport.mapping.saving")
+            : t("administration.gisImport.mapping.continue")}
         </button>
       </div>
     </div>

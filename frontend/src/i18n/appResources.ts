@@ -1181,6 +1181,585 @@ const enApp: MessageTree = {
         openWizard: "Open wizard",
       },
     },
+    acropolisServices: {
+      descriptions: {
+        authentik: "Identity provider and access portal",
+        wazuh: "Security monitoring and SIEM dashboard",
+        grafana: "Metrics and observability dashboards",
+        portainer: "Container and stack operations",
+        pgadmin: "PostgreSQL administration console",
+        n8n: "Workflow orchestration and automation",
+        superset: "BI and ad hoc analytics workspace",
+        datahub: "Metadata catalog and lineage explorer",
+      },
+      openService: "Open Service",
+    },
+    grafana: {
+      openDashboard: "Open Dashboard",
+    },
+    broadcastEmail: {
+      title: "Broadcast Email",
+      descriptionPrefix: "This will send an individual email to each of",
+      descriptionSuffix: "registered users.",
+      subject: "Subject",
+      subjectPlaceholder: "Email subject line...",
+      message: "Message",
+      messagePlaceholder: "Write your message here...",
+      close: "Close",
+      cancel: "Cancel",
+      sending: "Sending...",
+      sendToAll: "Send to All Users",
+      resultWithRecipients: "{{message}} ({{count}} recipients)",
+      unknownError: "Unknown error",
+    },
+    userModal: {
+      titles: {
+        editUser: "Edit User",
+        newUser: "New User",
+      },
+      fields: {
+        fullName: "Full Name",
+        email: "Email",
+        password: "Password",
+        roles: "Roles",
+      },
+      hints: {
+        keepCurrentPassword: "(leave blank to keep current)",
+      },
+      placeholders: {
+        maskedPassword: "••••••••",
+        passwordRequirements: "Min 8 chars, mixed case + number",
+      },
+      actions: {
+        cancel: "Cancel",
+        saving: "Saving...",
+        saveChanges: "Save Changes",
+        createUser: "Create User",
+      },
+      errors: {
+        generic: "An error occurred.",
+        passwordRequired: "Password is required.",
+      },
+    },
+    liveKit: {
+      loadingConfiguration: "Loading configuration...",
+      provider: "Provider",
+      providerBadges: {
+        cloud: "Cloud",
+        "self-hosted": "Self-hosted",
+        env: "Env",
+      },
+      providerOptions: {
+        environment: "Environment",
+        liveKitCloud: "LiveKit Cloud",
+        selfHosted: "Self-hosted",
+      },
+      providerDescriptions: {
+        useEnvFile: "Use .env file",
+        hostedByLiveKit: "Hosted by LiveKit",
+        yourOwnServer: "Your own server",
+      },
+      env: {
+        usingEnvConfiguration: "Using .env configuration",
+        url: "URL:",
+        apiKey: "API Key:",
+        apiSecret: "API Secret:",
+        notSet: "Not set",
+        missing: "Missing",
+        editPrefix: "Edit",
+        editSuffix: "and restart PHP to change.",
+      },
+      fields: {
+        cloudUrl: "LiveKit Cloud URL",
+        serverUrl: "Server URL",
+        apiKey: "API Key",
+        apiSecret: "API Secret",
+      },
+      placeholders: {
+        savedKey: "Saved; enter a new key to replace it",
+        savedSecret: "Saved; enter a new secret to replace it",
+        enterApiKey: "Enter API key",
+        enterApiSecret: "Enter API secret",
+      },
+      actions: {
+        hideConfiguration: "Hide configuration",
+        configureLiveKit: "Configure LiveKit",
+        testConnection: "Test connection",
+        saveConfiguration: "Save configuration",
+        useEnvDefaults: "Use .env defaults",
+      },
+      toasts: {
+        noUrlToTest: "No URL to test",
+        connectionSuccessful: "Connection successful",
+        connectionFailed: "Connection failed",
+        configurationSaved: "LiveKit configuration saved",
+        saveFailed: "Failed to save configuration",
+      },
+    },
+    authProviders: {
+      title: "Authentication Providers",
+      subtitle:
+        "Enable one or more external identity providers for single sign-on. Sanctum username/password is always available as a fallback.",
+      providers: {
+        ldap: {
+          label: "LDAP / Active Directory",
+          description:
+            "Authenticate against Microsoft Active Directory or any LDAP v3 directory. Supports TLS, group sync, and attribute mapping.",
+        },
+        oauth2: {
+          label: "OAuth 2.0",
+          description:
+            "Delegate authentication to GitHub, Google, Microsoft, or any custom OAuth 2.0 provider.",
+        },
+        saml2: {
+          label: "SAML 2.0",
+          description:
+            "Enterprise SSO via a SAML 2.0 Identity Provider (Okta, Azure AD, ADFS, etc.).",
+        },
+        oidc: {
+          label: "OpenID Connect",
+          description:
+            "Modern SSO via OIDC discovery. Supports PKCE and any standards-compliant IdP.",
+        },
+      },
+      enabled: "Enabled",
+      disabled: "Disabled",
+      configure: "Configure",
+      testConnection: "Test Connection",
+      connectionSuccessful: "Connection successful",
+      connectionFailed: "Connection failed",
+      usernamePassword: "Username & Password",
+      alwaysOn: "Always on",
+      builtIn: "Built-in Sanctum authentication - always active.",
+      loading: "Loading providers...",
+      formActions: {
+        saving: "Saving...",
+        save: "Save",
+        saved: "Saved",
+      },
+      oauthForm: {
+        drivers: {
+          github: "GitHub",
+          google: "Google",
+          microsoft: "Microsoft / Azure AD",
+          custom: "Custom OAuth 2.0",
+        },
+        sections: {
+          customEndpoints: "Custom Endpoints",
+        },
+        labels: {
+          provider: "Provider",
+          clientId: "Client ID",
+          clientSecret: "Client Secret",
+          redirectUri: "Redirect URI",
+          scopes: "Scopes",
+          authorizationUrl: "Authorization URL",
+          tokenUrl: "Token URL",
+          userInfoUrl: "User Info URL",
+        },
+        hints: {
+          redirectUri: "Must match the URI registered in your OAuth provider",
+          scopes: "Space-separated list",
+        },
+        placeholders: {
+          clientId: "Client / Application ID",
+          redirectUri: "/api/v1/auth/oauth2/callback",
+          scopes: "openid profile email",
+        },
+      },
+      oidcForm: {
+        labels: {
+          discoveryUrl: "Discovery URL",
+          clientId: "Client ID",
+          clientSecret: "Client Secret",
+          redirectUri: "Redirect URI",
+          scopes: "Scopes",
+          pkceEnabled: "Enable PKCE (recommended - requires public client)",
+        },
+        hints: {
+          discoveryUrl:
+            "The /.well-known/openid-configuration endpoint of your IdP",
+          redirectUri: "Must match what is registered in your IdP",
+          scopes: "Space-separated",
+        },
+        placeholders: {
+          discoveryUrl:
+            "https://accounts.google.com/.well-known/openid-configuration",
+          clientId: "your-client-id",
+          redirectUri: "/api/v1/auth/oidc/callback",
+          scopes: "openid profile email",
+        },
+      },
+      samlForm: {
+        sections: {
+          identityProvider: "Identity Provider (IdP)",
+          serviceProvider: "Service Provider (SP)",
+          attributeMapping: "Attribute Mapping",
+        },
+        labels: {
+          idpEntityId: "IdP Entity ID",
+          ssoUrl: "SSO URL",
+          sloUrl: "SLO URL",
+          idpCertificate: "IdP Certificate",
+          spEntityId: "SP Entity ID",
+          acsUrl: "ACS URL",
+          nameIdFormat: "NameID Format",
+          signAssertions:
+            "Sign assertions (requires SP private key - configure in server env)",
+          emailAttribute: "Email attribute",
+          displayNameAttribute: "Display name attribute",
+        },
+        hints: {
+          ssoUrl: "Single Sign-On endpoint",
+          sloUrl: "Single Logout endpoint (optional)",
+          idpCertificate:
+            "Paste the X.509 certificate (PEM format, with or without headers)",
+          spEntityId:
+            "Your Parthenon instance URL - must match what the IdP has registered",
+          acsUrl: "Assertion Consumer Service",
+        },
+        placeholders: {
+          certificate:
+            "-----BEGIN CERTIFICATE-----\nMIIDxTCC...\n-----END CERTIFICATE-----",
+          acsUrl: "/api/v1/auth/saml2/callback",
+          sloUrl: "/api/v1/auth/saml2/logout",
+          displayName: "displayName",
+        },
+        attributeMappingDescription:
+          "Map SAML assertion attribute names to Parthenon user fields.",
+      },
+      ldapForm: {
+        sections: {
+          connection: "Connection",
+          bindCredentials: "Bind Credentials",
+          userSearch: "User Search",
+          attributeMapping: "Attribute Mapping",
+          groupSync: "Group Sync",
+        },
+        labels: {
+          host: "Host",
+          port: "Port",
+          useSsl: "Use SSL (LDAPS)",
+          useTls: "Use StartTLS",
+          timeout: "Timeout (s)",
+          bindDn: "Bind DN",
+          bindPassword: "Bind Password",
+          baseDn: "Base DN",
+          userSearchBase: "User Search Base",
+          userFilter: "User Filter",
+          usernameField: "Username field",
+          emailField: "Email field",
+          displayNameField: "Display name field",
+          syncGroups: "Sync LDAP groups to Parthenon roles",
+          groupSearchBase: "Group Search Base",
+          groupFilter: "Group Filter",
+        },
+        hints: {
+          host: "LDAP server hostname or IP",
+          bindDn: "Service account DN used for directory queries",
+          userFilter: "{username} is replaced at login time",
+        },
+        placeholders: {
+          bindDn: "cn=svc-parthenon,dc=example,dc=com",
+          baseDn: "dc=example,dc=com",
+          userSearchBase: "ou=users,dc=example,dc=com",
+          userFilter: "(uid={username})",
+          groupSearchBase: "ou=groups,dc=example,dc=com",
+          groupFilter: "(objectClass=groupOfNames)",
+        },
+        actions: {
+          saving: "Saving...",
+          save: "Save",
+          saved: "Saved",
+        },
+      },
+    },
+    roles: {
+      title: "Roles & Permissions",
+      subtitle:
+        "Define custom roles and fine-tune permission assignments. Use the matrix for bulk edits.",
+      tabs: {
+        roleList: "Role List",
+        permissionMatrix: "Permission Matrix",
+      },
+      permissionMatrix: {
+        instructions:
+          "Click cells to toggle permissions · row headers to apply across all roles · column headers to grant/revoke all for a role.",
+        saveAllChangesOne: "Save All Changes ({{count}} role)",
+        saveAllChangesOther: "Save All Changes ({{count}} roles)",
+        permission: "Permission",
+        columnTitle: "Toggle all permissions for {{role}}",
+        permissionCount: "{{count}} perms",
+        saving: "saving...",
+        saved: "saved ✓",
+        save: "save",
+        domainTitle:
+          "Toggle all {{domain}} permissions across all roles",
+        rowTitle: "Toggle {{permission}} for all roles",
+        cellTitleGrant: "Grant {{permission}} to {{role}}",
+        cellTitleRevoke: "Revoke {{permission}} from {{role}}",
+      },
+      editor: {
+        roleName: "Role Name",
+        roleNamePlaceholder: "e.g. site-coordinator",
+        permissions: "Permissions",
+        selectedCount: "({{count}} selected)",
+      },
+      actions: {
+        newRole: "New Role",
+        cancel: "Cancel",
+        saving: "Saving...",
+        saveRole: "Save Role",
+        editRole: "Edit role",
+        deleteRole: "Delete role",
+        deleting: "Deleting...",
+        delete: "Delete",
+      },
+      values: {
+        builtIn: "built-in",
+        userCountOne: "{{count}} user",
+        userCountOther: "{{count}} users",
+        permissionCountOne: "{{count}} permission",
+        permissionCountOther: "{{count}} permissions",
+        more: "+{{count}} more",
+      },
+      deleteModal: {
+        title: "Delete role?",
+        prefix: "The role",
+        suffix:
+          "will be permanently deleted. Users assigned only this role will lose all permissions.",
+      },
+    },
+    pacs: {
+      studyBrowser: {
+        browseTitle: "Browse: {{name}}",
+        filters: {
+          patientName: "Patient Name",
+          patientId: "Patient ID",
+          allModalities: "All Modalities",
+        },
+        empty: {
+          noStudies: "No studies found",
+        },
+        table: {
+          patientName: "Patient Name",
+          patientId: "Patient ID",
+          date: "Date",
+          modality: "Modality",
+          description: "Description",
+          series: "Series",
+          instances: "Inst.",
+        },
+        pagination: {
+          range: "{{start}}-{{end}}",
+          ofStudies: "of {{total}} studies",
+          previous: "Previous",
+          next: "Next",
+        },
+      },
+      connectionCard: {
+        defaultConnection: "Default connection",
+        setAsDefault: "Set as default",
+        deleteConfirm: "Delete \"{{name}}\"?",
+        never: "Never",
+        seriesByModality: "Series by Modality",
+        statsUpdated: "Stats updated {{date}}",
+        stats: {
+          patients: "Patients",
+          studies: "Studies",
+          series: "Series",
+          instances: "Instances",
+          disk: "Disk",
+        },
+        actions: {
+          edit: "Edit",
+          delete: "Delete",
+          test: "Test",
+          stats: "Stats",
+          browse: "Browse",
+        },
+      },
+    },
+    solrAdmin: {
+      title: "Solr Search Administration",
+      subtitle: "Manage Solr search cores, trigger reindexing, and monitor status.",
+      loadingCoreStatus: "Loading core status...",
+      status: {
+        healthy: "Healthy",
+        unavailable: "Unavailable",
+      },
+      labels: {
+        documents: "Documents",
+        lastIndexed: "Last Indexed",
+        duration: "Duration",
+      },
+      values: {
+        never: "Never",
+        seconds: "{{seconds}}s",
+      },
+      actions: {
+        reindexAll: "Re-index All Cores",
+        reindex: "Re-index",
+        fullReindex: "Full Re-index",
+        clear: "Clear",
+      },
+      messages: {
+        fetchFailed: "Failed to fetch Solr status",
+        reindexCompleted: "Reindex of '{{core}}' completed",
+        reindexFailed: "Failed to reindex '{{core}}'",
+        reindexAllCompleted: "Reindex-all completed",
+        reindexAllFailed: "Failed to reindex all cores",
+        clearConfirm:
+          "Are you sure you want to clear all documents from '{{core}}'? This cannot be undone.",
+        clearCompleted: "Core '{{core}}' cleared",
+        clearFailed: "Failed to clear '{{core}}'",
+      },
+    },
+    aiProviders: {
+      title: "AI Provider Configuration",
+      subtitle:
+        "Choose which AI backend powers Abby. Only one provider is active at a time. API keys are stored encrypted.",
+      activeProvider: "Active provider:",
+      fields: {
+        model: "Model",
+        apiKey: "API Key",
+        ollamaBaseUrl: "Ollama Base URL",
+      },
+      placeholders: {
+        modelName: "Model name",
+      },
+      values: {
+        active: "Active",
+        enabled: "Enabled",
+        disabled: "Disabled",
+        noModelSelected: "No model selected",
+      },
+      actions: {
+        currentlyActive: "Currently Active",
+        setAsActive: "Set as Active",
+        save: "Save",
+        testConnection: "Test Connection",
+      },
+      messages: {
+        requestFailed: "Request failed.",
+      },
+    },
+    gisImport: {
+      steps: {
+        upload: "Upload",
+        analyze: "Analyze",
+        mapColumns: "Map Columns",
+        configure: "Configure",
+        validate: "Validate",
+        import: "Import",
+      },
+      analyze: {
+        analysisFailed: "Abby encountered an issue analyzing this file.",
+        unknownError: "Unknown error",
+        retry: "Retry",
+        analyzing: "Abby is analyzing your data...",
+        detecting:
+          "Detecting column types, geography codes, and value semantics",
+      },
+      upload: {
+        uploading: "Uploading...",
+        dropPrompt: "Drop a file here or click to browse",
+        acceptedFormats:
+          "CSV, TSV, Excel, Shapefile (.zip), GeoJSON, KML, GeoPackage - max {{maxSize}}MB",
+        largeFiles: "For large files (> {{maxSize}}MB)",
+        fileTooLarge:
+          "File exceeds {{maxSize}}MB. Use CLI: php artisan gis:import {{filename}}",
+        uploadFailed: "Upload failed",
+      },
+      configure: {
+        fields: {
+          layerName: "Layer Name",
+          exposureType: "Exposure Type",
+          geographyLevel: "Geography Level",
+          valueType: "Value Type",
+          aggregation: "Aggregation",
+        },
+        placeholders: {
+          layerName: "e.g., Social Vulnerability Index",
+          exposureType: "e.g., svi_overall",
+        },
+        geographyLevels: {
+          county: "County",
+          tract: "Census Tract",
+          state: "State",
+          country: "Country",
+          custom: "Custom",
+        },
+        valueTypes: {
+          continuous: "Continuous (choropleth)",
+          categorical: "Categorical (discrete colors)",
+          binary: "Binary (presence/absence)",
+        },
+        aggregations: {
+          mean: "Mean",
+          sum: "Sum",
+          maximum: "Maximum",
+          minimum: "Minimum",
+          latest: "Latest",
+        },
+        saving: "Saving...",
+        continue: "Continue",
+      },
+      mapping: {
+        title: "Column Mapping",
+        subtitle: "Map each source column to its purpose",
+        purposes: {
+          geographyCode: "Geography Code",
+          geographyName: "Geography Name",
+          latitude: "Latitude",
+          longitude: "Longitude",
+          valueMetric: "Value (metric)",
+          metadata: "Metadata",
+          skip: "Skip",
+        },
+        confidence: {
+          high: "High",
+          medium: "Medium",
+          low: "Low",
+        },
+        askAbby: "Ask Abby",
+        abbyOnColumn: "Abby on \"{{column}}\":",
+        thinking: "Thinking...",
+        saving: "Saving...",
+        continue: "Continue",
+      },
+      validate: {
+        validating: "Validating...",
+        validationFailed: "Validation failed:",
+        unknownError: "Unknown error",
+        results: "Validation Results",
+        stats: {
+          totalRows: "Total Rows",
+          uniqueGeographies: "Unique Geographies",
+          matched: "Matched",
+          unmatched: "Unmatched (stubs)",
+          matchRate: "Match Rate",
+          geographyType: "Geography Type",
+        },
+        unmatchedWarning:
+          "{{count}} geographies not found in the database. Stub entries will be created (no boundary geometry).",
+        backToMapping: "Back to Mapping",
+        proceedWithImport: "Proceed with Import",
+      },
+      import: {
+        starting: "Starting...",
+        startImport: "Start Import",
+        importing: "Importing... {{progress}}%",
+        complete: "Import Complete",
+        rowsImported: "{{count}} rows imported",
+        saveLearningPrompt: "Save mappings so Abby learns for next time",
+        saveToAbby: "Save to Abby",
+        viewInGisExplorer: "View in GIS Explorer",
+        importAnother: "Import Another",
+        failed: "Import Failed",
+        startOver: "Start Over",
+      },
+    },
     chromaStudio: {
       title: "Chroma Collection Studio",
       subtitle:
@@ -1260,11 +1839,28 @@ const enApp: MessageTree = {
         fallbackSuffix: " - fallback",
         timeSuffix: " - {{seconds}}s",
       },
+      modes: {
+        clusters: "Clusters",
+        query: "Query",
+        qa: "QA",
+      },
+      sample: {
+        label: "Sample",
+        confirmLoadAll:
+          "Load all {{count}} vectors? This may take noticeably longer.",
+        steps: {
+          all: "All",
+        },
+      },
       empty: {
         selectCollection: "Select a collection to visualize embeddings.",
       },
       tooltips: {
         requiresAiService: "Requires AI service connection",
+      },
+      controls: {
+        colorBy: "Color by",
+        modeDefault: "Mode default",
       },
       search: {
         placeholder: "Search within the vector space",
@@ -1273,10 +1869,22 @@ const enApp: MessageTree = {
         visibleResults:
           "{{visible}} of {{total}} results visible in this projection",
       },
+      query: {
+        anchor: "Query anchor",
+      },
       sections: {
         overlays: "Overlays",
         clusterProfile: "Cluster Profile",
         inspector: "Inspector",
+      },
+      inspector: {
+        selectPoint: "Click a point to inspect.",
+        loadingDetails: "Loading full details...",
+        flags: {
+          outlier: "Outlier",
+          duplicate: "Duplicate",
+          orphan: "Orphan",
+        },
       },
       overlays: {
         clusterHulls: {
@@ -1309,6 +1917,28 @@ const enApp: MessageTree = {
       actions: {
         recomputeProjection: "Re-compute projection",
         expand: "Expand",
+      },
+      legend: {
+        clusters: "Clusters",
+        quality: "Quality",
+        similarity: "Similarity",
+        hide: "Hide",
+        show: "Show",
+      },
+      quality: {
+        outliers: "Outliers",
+        duplicates: "Duplicates",
+        duplicatePairs: "Duplicate pairs",
+        orphans: "Orphans",
+        normal: "Normal",
+        outOfSampled: "out of {{count}} sampled",
+        exportCsv: "Export CSV",
+      },
+      clusterProfile: {
+        selectCluster: "Select a cluster to inspect its dominant metadata.",
+        clusterSize: "Cluster size",
+        dominantMetadata: "Dominant Metadata",
+        representativeTitles: "Representative Titles",
       },
     },
     pacsConnectionModal: {
@@ -1572,6 +2202,16 @@ const enApp: MessageTree = {
         connectionFailed: "Connection failed",
         discoveryFailed: "Discovery failed",
       },
+    },
+    fhirExport: {
+      title: "FHIR Bulk Export",
+      subtitle:
+        "Export OMOP CDM data as FHIR R4 NDJSON files for interoperability.",
+      comingSoon: "Coming Soon",
+      description:
+        "FHIR Bulk Export ($export) is under development. This feature will allow exporting OMOP CDM data as FHIR R4 NDJSON files for interoperability.",
+      backendPending:
+        "The backend endpoints for this feature have not been implemented yet.",
     },
     fhirConnections: {
       title: "FHIR EHR Connections",
@@ -2530,6 +3170,14 @@ const enApp: MessageTree = {
       loading: "Loading sources...",
       placeholder: "Select a data source",
     },
+    domains: {
+      condition: "Conditions",
+      drug: "Drugs",
+      procedure: "Procedures",
+      measurement: "Measurements",
+      observation: "Observations",
+      visit: "Visits",
+    },
     overview: {
       metrics: {
         persons: "Persons",
@@ -2580,6 +3228,85 @@ const enApp: MessageTree = {
         runAchillesForTemporalData:
           "Run Achilles to generate temporal trend data",
       },
+    },
+    charts: {
+      common: {
+        records: "{{count}} records",
+        persons: "{{count}} persons",
+        total: "Total",
+        separator: "·",
+      },
+      boxPlot: {
+        noDistributionData: "No distribution data",
+        ariaLabel: "Box plot",
+        labels: {
+          p25: "P25: {{value}}",
+          median: "Median: {{value}}",
+          p75: "P75: {{value}}",
+        },
+      },
+      cumulativeObservation: {
+        tooltipValue: "{{days}} days - {{pct}}% of persons",
+        xAxisLabel: "Observation Duration (days)",
+        labels: {
+          min: "Min",
+          p10: "P10",
+          p25: "P25",
+          median: "Median",
+          p75: "P75",
+          p90: "P90",
+          max: "Max",
+        },
+      },
+      demographics: {
+        ageDistribution: "Age Distribution",
+        noAgeData: "No age distribution data",
+        age: "Age",
+        male: "Male",
+        female: "Female",
+      },
+      heatmap: {
+        ariaLabel: "Data density heatmap",
+      },
+      hierarchy: {
+        noData: "No hierarchy data available",
+        classificationHierarchy: "Classification Hierarchy",
+        back: "Back",
+      },
+      periodCount: {
+        observationPeriods: "{{count}} observation period(s)",
+      },
+      recordCounts: {
+        noData: "No record count data available",
+        title: "Record Counts by CDM Table",
+      },
+      temporalTrend: {
+        events: "Events",
+        secondary: "Secondary",
+      },
+      topConcepts: {
+        noData: "No concept data available",
+        title: "Top Concepts",
+        id: "ID: {{id}}",
+        prevalence: "Prevalence: {{value}}%",
+      },
+      yearOfBirth: {
+        year: "Year: {{year}}",
+      },
+    },
+    domain: {
+      metrics: {
+        totalRecords: "Total Records",
+        distinctConcepts: "Distinct Concepts",
+      },
+      loadFailed: "Failed to load {{domain}} data",
+      temporalTrendTitle: "{{domain}} Temporal Trend",
+    },
+    temporal: {
+      domainsLabel: "Domains:",
+      multiDomainOverlay: "Multi-Domain Temporal Overlay",
+      emptyTitle: "No temporal data available",
+      emptyHelp: "Select domains above and ensure Achilles has been run",
     },
     concept: {
       details: "Concept Details",
@@ -2638,12 +3365,25 @@ const enApp: MessageTree = {
         empty: "No Achilles runs yet",
         emptyHelp: 'Click "Run Achilles" to characterize your data',
       },
+      runModal: {
+        completedIn: "Completed in {{duration}}",
+        analysisProgress: "{{done}} of {{total}} analyses",
+        elapsed: "Elapsed:",
+        passedCount: "{{count}} passed",
+        failedCount: "{{count}} failed",
+        totalDuration: "{{duration}} total",
+        remaining: "~{{duration}} remaining",
+        waiting: "Waiting for analyses to start...",
+        done: "Done",
+        runInBackground: "Run in Background",
+      },
     },
     dqd: {
       categories: {
         completeness: "Completeness",
         conformance: "Conformance",
         plausibility: "Plausibility",
+        overall: "Overall",
       },
       progress: {
         title: "DQD Analysis Running",
@@ -2655,6 +3395,34 @@ const enApp: MessageTree = {
         passed: "passed",
         failed: "failed",
         remaining: "remaining",
+        warnings: "Warnings",
+      },
+      severity: {
+        error: "Error",
+        warning: "Warning",
+        info: "Info",
+      },
+      categoryPanel: {
+        checkCount: "{{count}} checks",
+        passRate: "{{percent}}% pass rate",
+        table: {
+          check: "Check",
+          table: "Table",
+          column: "Column",
+          severity: "Severity",
+          violationPercent: "Violation %",
+        },
+      },
+      scorecard: {
+        emptyTitle: "No DQD results available",
+        emptyDescription: "Run a Data Quality Dashboard analysis to see results",
+        overallScore: "Overall Score",
+        passedFraction: "{{passed}}/{{total}} passed",
+      },
+      tableGrid: {
+        noResults: "No DQD results to display",
+        title: "Table x Category Heatmap",
+        cdmTable: "CDM Table",
       },
       actions: {
         runDqd: "Run DQD",
@@ -4708,6 +5476,588 @@ const esApp: MessageTree = {
         openWizard: "Abrir asistente",
       },
     },
+    acropolisServices: {
+      descriptions: {
+        authentik: "Proveedor de identidad y portal de acceso",
+        wazuh: "Panel de monitoreo de seguridad y SIEM",
+        grafana: "Paneles de métricas y observabilidad",
+        portainer: "Operaciones de contenedores y stacks",
+        pgadmin: "Consola de administración de PostgreSQL",
+        n8n: "Orquestación y automatización de flujos de trabajo",
+        superset: "Espacio de BI y analítica ad hoc",
+        datahub: "Catálogo de metadatos y explorador de linaje",
+      },
+      openService: "Abrir servicio",
+    },
+    grafana: {
+      openDashboard: "Abrir panel",
+    },
+    broadcastEmail: {
+      title: "Correo masivo",
+      descriptionPrefix: "Esto enviará un correo individual a cada uno de los",
+      descriptionSuffix: "usuarios registrados.",
+      subject: "Asunto",
+      subjectPlaceholder: "Línea de asunto del correo...",
+      message: "Mensaje",
+      messagePlaceholder: "Escribe tu mensaje aquí...",
+      close: "Cerrar",
+      cancel: "Cancelar",
+      sending: "Enviando...",
+      sendToAll: "Enviar a todos los usuarios",
+      resultWithRecipients: "{{message}} ({{count}} destinatarios)",
+      unknownError: "Error desconocido",
+    },
+    userModal: {
+      titles: {
+        editUser: "Editar usuario",
+        newUser: "Nuevo usuario",
+      },
+      fields: {
+        fullName: "Nombre completo",
+        email: "Correo",
+        password: "Contraseña",
+        roles: "Roles",
+      },
+      hints: {
+        keepCurrentPassword: "(deja en blanco para conservar la actual)",
+      },
+      placeholders: {
+        maskedPassword: "••••••••",
+        passwordRequirements:
+          "Mínimo 8 caracteres, mayúsculas/minúsculas y número",
+      },
+      actions: {
+        cancel: "Cancelar",
+        saving: "Guardando...",
+        saveChanges: "Guardar cambios",
+        createUser: "Crear usuario",
+      },
+      errors: {
+        generic: "Ocurrió un error.",
+        passwordRequired: "La contraseña es obligatoria.",
+      },
+    },
+    liveKit: {
+      loadingConfiguration: "Cargando configuración...",
+      provider: "Proveedor",
+      providerBadges: {
+        cloud: "Nube",
+        "self-hosted": "Autoalojado",
+        env: "Entorno",
+      },
+      providerOptions: {
+        environment: "Entorno",
+        liveKitCloud: "LiveKit Cloud",
+        selfHosted: "Autoalojado",
+      },
+      providerDescriptions: {
+        useEnvFile: "Usar archivo .env",
+        hostedByLiveKit: "Alojado por LiveKit",
+        yourOwnServer: "Tu propio servidor",
+      },
+      env: {
+        usingEnvConfiguration: "Usando configuración .env",
+        url: "URL:",
+        apiKey: "Clave API:",
+        apiSecret: "Secreto API:",
+        notSet: "No configurado",
+        missing: "Falta",
+        editPrefix: "Edita",
+        editSuffix: "y reinicia PHP para cambiar.",
+      },
+      fields: {
+        cloudUrl: "URL de LiveKit Cloud",
+        serverUrl: "URL del servidor",
+        apiKey: "Clave API",
+        apiSecret: "Secreto API",
+      },
+      placeholders: {
+        savedKey: "Guardada; introduce una clave nueva para reemplazarla",
+        savedSecret: "Guardado; introduce un secreto nuevo para reemplazarlo",
+        enterApiKey: "Introduce la clave API",
+        enterApiSecret: "Introduce el secreto API",
+      },
+      actions: {
+        hideConfiguration: "Ocultar configuración",
+        configureLiveKit: "Configurar LiveKit",
+        testConnection: "Probar conexión",
+        saveConfiguration: "Guardar configuración",
+        useEnvDefaults: "Usar valores .env",
+      },
+      toasts: {
+        noUrlToTest: "No hay URL para probar",
+        connectionSuccessful: "Conexión correcta",
+        connectionFailed: "Conexión fallida",
+        configurationSaved: "Configuración de LiveKit guardada",
+        saveFailed: "No se pudo guardar la configuración",
+      },
+    },
+    authProviders: {
+      title: "Proveedores de autenticación",
+      subtitle:
+        "Habilita uno o más proveedores de identidad externos para inicio de sesión único. El usuario y contraseña de Sanctum siempre están disponibles como alternativa.",
+      providers: {
+        ldap: {
+          label: "LDAP / Active Directory",
+          description:
+            "Autentica contra Microsoft Active Directory o cualquier directorio LDAP v3. Admite TLS, sincronización de grupos y mapeo de atributos.",
+        },
+        oauth2: {
+          label: "OAuth 2.0",
+          description:
+            "Delega la autenticación en GitHub, Google, Microsoft o cualquier proveedor OAuth 2.0 personalizado.",
+        },
+        saml2: {
+          label: "SAML 2.0",
+          description:
+            "SSO empresarial mediante un proveedor de identidad SAML 2.0 (Okta, Azure AD, ADFS, etc.).",
+        },
+        oidc: {
+          label: "OpenID Connect",
+          description:
+            "SSO moderno mediante descubrimiento OIDC. Admite PKCE y cualquier IdP compatible con estándares.",
+        },
+      },
+      enabled: "Habilitado",
+      disabled: "Deshabilitado",
+      configure: "Configurar",
+      testConnection: "Probar conexión",
+      connectionSuccessful: "Conexión correcta",
+      connectionFailed: "Conexión fallida",
+      usernamePassword: "Usuario y contraseña",
+      alwaysOn: "Siempre activo",
+      builtIn: "Autenticación Sanctum integrada - siempre activa.",
+      loading: "Cargando proveedores...",
+      formActions: {
+        saving: "Guardando...",
+        save: "Guardar",
+        saved: "Guardado",
+      },
+      oauthForm: {
+        drivers: {
+          github: "GitHub",
+          google: "Google",
+          microsoft: "Microsoft / Azure AD",
+          custom: "OAuth 2.0 personalizado",
+        },
+        sections: {
+          customEndpoints: "Endpoints personalizados",
+        },
+        labels: {
+          provider: "Proveedor",
+          clientId: "ID de cliente",
+          clientSecret: "Secreto de cliente",
+          redirectUri: "URI de redirección",
+          scopes: "Alcances",
+          authorizationUrl: "URL de autorización",
+          tokenUrl: "URL de token",
+          userInfoUrl: "URL de información de usuario",
+        },
+        hints: {
+          redirectUri: "Debe coincidir con el URI registrado en tu proveedor OAuth",
+          scopes: "Lista separada por espacios",
+        },
+        placeholders: {
+          clientId: "ID de cliente / aplicación",
+          redirectUri: "/api/v1/auth/oauth2/callback",
+          scopes: "openid profile email",
+        },
+      },
+      oidcForm: {
+        labels: {
+          discoveryUrl: "URL de descubrimiento",
+          clientId: "ID de cliente",
+          clientSecret: "Secreto de cliente",
+          redirectUri: "URI de redirección",
+          scopes: "Alcances",
+          pkceEnabled:
+            "Habilitar PKCE (recomendado - requiere cliente público)",
+        },
+        hints: {
+          discoveryUrl:
+            "El endpoint /.well-known/openid-configuration de tu IdP",
+          redirectUri: "Debe coincidir con lo registrado en tu IdP",
+          scopes: "Separados por espacios",
+        },
+        placeholders: {
+          discoveryUrl:
+            "https://accounts.google.com/.well-known/openid-configuration",
+          clientId: "tu-id-de-cliente",
+          redirectUri: "/api/v1/auth/oidc/callback",
+          scopes: "openid profile email",
+        },
+      },
+      samlForm: {
+        sections: {
+          identityProvider: "Proveedor de identidad (IdP)",
+          serviceProvider: "Proveedor de servicio (SP)",
+          attributeMapping: "Mapeo de atributos",
+        },
+        labels: {
+          idpEntityId: "ID de entidad IdP",
+          ssoUrl: "URL SSO",
+          sloUrl: "URL SLO",
+          idpCertificate: "Certificado IdP",
+          spEntityId: "ID de entidad SP",
+          acsUrl: "URL ACS",
+          nameIdFormat: "Formato NameID",
+          signAssertions:
+            "Firmar aserciones (requiere clave privada SP - configurar en el entorno del servidor)",
+          emailAttribute: "Atributo de correo",
+          displayNameAttribute: "Atributo de nombre visible",
+        },
+        hints: {
+          ssoUrl: "Endpoint de inicio de sesión único",
+          sloUrl: "Endpoint de cierre de sesión único (opcional)",
+          idpCertificate:
+            "Pega el certificado X.509 (formato PEM, con o sin encabezados)",
+          spEntityId:
+            "URL de tu instancia de Parthenon - debe coincidir con lo registrado en el IdP",
+          acsUrl: "Servicio consumidor de aserciones",
+        },
+        placeholders: {
+          certificate:
+            "-----BEGIN CERTIFICATE-----\nMIIDxTCC...\n-----END CERTIFICATE-----",
+          acsUrl: "/api/v1/auth/saml2/callback",
+          sloUrl: "/api/v1/auth/saml2/logout",
+          displayName: "displayName",
+        },
+        attributeMappingDescription:
+          "Mapea nombres de atributos de aserción SAML a campos de usuario de Parthenon.",
+      },
+      ldapForm: {
+        sections: {
+          connection: "Conexión",
+          bindCredentials: "Credenciales de enlace",
+          userSearch: "Búsqueda de usuarios",
+          attributeMapping: "Mapeo de atributos",
+          groupSync: "Sincronización de grupos",
+        },
+        labels: {
+          host: "Host",
+          port: "Puerto",
+          useSsl: "Usar SSL (LDAPS)",
+          useTls: "Usar StartTLS",
+          timeout: "Tiempo de espera (s)",
+          bindDn: "DN de enlace",
+          bindPassword: "Contraseña de enlace",
+          baseDn: "DN base",
+          userSearchBase: "Base de búsqueda de usuarios",
+          userFilter: "Filtro de usuario",
+          usernameField: "Campo de usuario",
+          emailField: "Campo de correo",
+          displayNameField: "Campo de nombre visible",
+          syncGroups: "Sincronizar grupos LDAP con roles de Parthenon",
+          groupSearchBase: "Base de búsqueda de grupos",
+          groupFilter: "Filtro de grupo",
+        },
+        hints: {
+          host: "Nombre de host o IP del servidor LDAP",
+          bindDn: "DN de cuenta de servicio usado para consultas de directorio",
+          userFilter: "{username} se reemplaza al iniciar sesión",
+        },
+        placeholders: {
+          bindDn: "cn=svc-parthenon,dc=example,dc=com",
+          baseDn: "dc=example,dc=com",
+          userSearchBase: "ou=users,dc=example,dc=com",
+          userFilter: "(uid={username})",
+          groupSearchBase: "ou=groups,dc=example,dc=com",
+          groupFilter: "(objectClass=groupOfNames)",
+        },
+        actions: {
+          saving: "Guardando...",
+          save: "Guardar",
+          saved: "Guardado",
+        },
+      },
+    },
+    roles: {
+      title: "Roles y permisos",
+      subtitle:
+        "Define roles personalizados y ajusta asignaciones de permisos. Usa la matriz para ediciones masivas.",
+      tabs: {
+        roleList: "Lista de roles",
+        permissionMatrix: "Matriz de permisos",
+      },
+      permissionMatrix: {
+        instructions:
+          "Haz clic en celdas para alternar permisos · encabezados de fila para aplicar a todos los roles · encabezados de columna para conceder/revocar todo en un rol.",
+        saveAllChangesOne: "Guardar todos los cambios ({{count}} rol)",
+        saveAllChangesOther: "Guardar todos los cambios ({{count}} roles)",
+        permission: "Permiso",
+        columnTitle: "Alternar todos los permisos para {{role}}",
+        permissionCount: "{{count}} permisos",
+        saving: "guardando...",
+        saved: "guardado ✓",
+        save: "guardar",
+        domainTitle:
+          "Alternar todos los permisos de {{domain}} en todos los roles",
+        rowTitle: "Alternar {{permission}} para todos los roles",
+        cellTitleGrant: "Conceder {{permission}} a {{role}}",
+        cellTitleRevoke: "Revocar {{permission}} de {{role}}",
+      },
+      editor: {
+        roleName: "Nombre del rol",
+        roleNamePlaceholder: "p. ej., coordinador-sitio",
+        permissions: "Permisos",
+        selectedCount: "({{count}} seleccionados)",
+      },
+      actions: {
+        newRole: "Nuevo rol",
+        cancel: "Cancelar",
+        saving: "Guardando...",
+        saveRole: "Guardar rol",
+        editRole: "Editar rol",
+        deleteRole: "Eliminar rol",
+        deleting: "Eliminando...",
+        delete: "Eliminar",
+      },
+      values: {
+        builtIn: "integrado",
+        userCountOne: "{{count}} usuario",
+        userCountOther: "{{count}} usuarios",
+        permissionCountOne: "{{count}} permiso",
+        permissionCountOther: "{{count}} permisos",
+        more: "+{{count}} más",
+      },
+      deleteModal: {
+        title: "¿Eliminar rol?",
+        prefix: "El rol",
+        suffix:
+          "se eliminará permanentemente. Los usuarios asignados solo a este rol perderán todos los permisos.",
+      },
+    },
+    pacs: {
+      studyBrowser: {
+        browseTitle: "Explorar: {{name}}",
+        filters: {
+          patientName: "Nombre del paciente",
+          patientId: "ID del paciente",
+          allModalities: "Todas las modalidades",
+        },
+        empty: {
+          noStudies: "No se encontraron estudios",
+        },
+        table: {
+          patientName: "Nombre del paciente",
+          patientId: "ID del paciente",
+          date: "Fecha",
+          modality: "Modalidad",
+          description: "Descripción",
+          series: "Series",
+          instances: "Inst.",
+        },
+        pagination: {
+          range: "{{start}}-{{end}}",
+          ofStudies: "de {{total}} estudios",
+          previous: "Anterior",
+          next: "Siguiente",
+        },
+      },
+      connectionCard: {
+        defaultConnection: "Conexión predeterminada",
+        setAsDefault: "Establecer como predeterminada",
+        deleteConfirm: "¿Eliminar \"{{name}}\"?",
+        never: "Nunca",
+        seriesByModality: "Series por modalidad",
+        statsUpdated: "Estadísticas actualizadas {{date}}",
+        stats: {
+          patients: "Pacientes",
+          studies: "Estudios",
+          series: "Series",
+          instances: "Instancias",
+          disk: "Disco",
+        },
+        actions: {
+          edit: "Editar",
+          delete: "Eliminar",
+          test: "Probar",
+          stats: "Estadísticas",
+          browse: "Explorar",
+        },
+      },
+    },
+    solrAdmin: {
+      title: "Administración de búsqueda Solr",
+      subtitle:
+        "Gestiona núcleos de búsqueda Solr, lanza reindexaciones y monitorea el estado.",
+      loadingCoreStatus: "Cargando estado de núcleos...",
+      status: {
+        healthy: "Saludable",
+        unavailable: "No disponible",
+      },
+      labels: {
+        documents: "Documentos",
+        lastIndexed: "Última indexación",
+        duration: "Duración",
+      },
+      values: {
+        never: "Nunca",
+        seconds: "{{seconds}} s",
+      },
+      actions: {
+        reindexAll: "Reindexar todos los núcleos",
+        reindex: "Reindexar",
+        fullReindex: "Reindexación completa",
+        clear: "Vaciar",
+      },
+      messages: {
+        fetchFailed: "No se pudo obtener el estado de Solr",
+        reindexCompleted: "Reindexación de '{{core}}' completada",
+        reindexFailed: "No se pudo reindexar '{{core}}'",
+        reindexAllCompleted: "Reindexación completa de todos los núcleos",
+        reindexAllFailed: "No se pudieron reindexar todos los núcleos",
+        clearConfirm:
+          "¿Seguro que quieres eliminar todos los documentos de '{{core}}'? Esta acción no se puede deshacer.",
+        clearCompleted: "Núcleo '{{core}}' vaciado",
+        clearFailed: "No se pudo vaciar '{{core}}'",
+      },
+    },
+    aiProviders: {
+      title: "Configuración de proveedores de IA",
+      subtitle:
+        "Elige qué backend de IA impulsa a Abby. Solo un proveedor puede estar activo a la vez. Las claves API se almacenan cifradas.",
+      activeProvider: "Proveedor activo:",
+      fields: {
+        model: "Modelo",
+        apiKey: "Clave API",
+        ollamaBaseUrl: "URL base de Ollama",
+      },
+      placeholders: {
+        modelName: "Nombre del modelo",
+      },
+      values: {
+        active: "Activo",
+        enabled: "Habilitado",
+        disabled: "Deshabilitado",
+        noModelSelected: "Ningún modelo seleccionado",
+      },
+      actions: {
+        currentlyActive: "Activo actualmente",
+        setAsActive: "Establecer como activo",
+        save: "Guardar",
+        testConnection: "Probar conexión",
+      },
+      messages: {
+        requestFailed: "La solicitud falló.",
+      },
+    },
+    gisImport: {
+      steps: {
+        upload: "Cargar",
+        analyze: "Analizar",
+        mapColumns: "Mapear columnas",
+        configure: "Configurar",
+        validate: "Validar",
+        import: "Importar",
+      },
+      analyze: {
+        analysisFailed: "Abby encontró un problema al analizar este archivo.",
+        unknownError: "Error desconocido",
+        retry: "Reintentar",
+        analyzing: "Abby está analizando tus datos...",
+        detecting:
+          "Detectando tipos de columna, códigos geográficos y semántica de valores",
+      },
+      upload: {
+        uploading: "Cargando...",
+        dropPrompt: "Suelta un archivo aquí o haz clic para explorar",
+        acceptedFormats:
+          "CSV, TSV, Excel, Shapefile (.zip), GeoJSON, KML, GeoPackage - máximo {{maxSize}} MB",
+        largeFiles: "Para archivos grandes (> {{maxSize}} MB)",
+        fileTooLarge:
+          "El archivo supera {{maxSize}} MB. Usa CLI: php artisan gis:import {{filename}}",
+        uploadFailed: "La carga falló",
+      },
+      configure: {
+        fields: {
+          layerName: "Nombre de capa",
+          exposureType: "Tipo de exposición",
+          geographyLevel: "Nivel geográfico",
+          valueType: "Tipo de valor",
+          aggregation: "Agregación",
+        },
+        placeholders: {
+          layerName: "p. ej., Índice de vulnerabilidad social",
+          exposureType: "p. ej., svi_overall",
+        },
+        geographyLevels: {
+          county: "Condado",
+          tract: "Tracto censal",
+          state: "Estado",
+          country: "País",
+          custom: "Personalizado",
+        },
+        valueTypes: {
+          continuous: "Continuo (coropleta)",
+          categorical: "Categórico (colores discretos)",
+          binary: "Binario (presencia/ausencia)",
+        },
+        aggregations: {
+          mean: "Media",
+          sum: "Suma",
+          maximum: "Máximo",
+          minimum: "Mínimo",
+          latest: "Más reciente",
+        },
+        saving: "Guardando...",
+        continue: "Continuar",
+      },
+      mapping: {
+        title: "Mapeo de columnas",
+        subtitle: "Mapea cada columna de origen con su propósito",
+        purposes: {
+          geographyCode: "Código geográfico",
+          geographyName: "Nombre geográfico",
+          latitude: "Latitud",
+          longitude: "Longitud",
+          valueMetric: "Valor (métrica)",
+          metadata: "Metadatos",
+          skip: "Omitir",
+        },
+        confidence: {
+          high: "Alta",
+          medium: "Media",
+          low: "Baja",
+        },
+        askAbby: "Preguntar a Abby",
+        abbyOnColumn: "Abby sobre \"{{column}}\":",
+        thinking: "Pensando...",
+        saving: "Guardando...",
+        continue: "Continuar",
+      },
+      validate: {
+        validating: "Validando...",
+        validationFailed: "La validación falló:",
+        unknownError: "Error desconocido",
+        results: "Resultados de validación",
+        stats: {
+          totalRows: "Filas totales",
+          uniqueGeographies: "Geografías únicas",
+          matched: "Coincidentes",
+          unmatched: "Sin coincidencia (stubs)",
+          matchRate: "Tasa de coincidencia",
+          geographyType: "Tipo de geografía",
+        },
+        unmatchedWarning:
+          "{{count}} geografías no se encontraron en la base de datos. Se crearán entradas stub (sin geometría de límites).",
+        backToMapping: "Volver al mapeo",
+        proceedWithImport: "Continuar con importación",
+      },
+      import: {
+        starting: "Iniciando...",
+        startImport: "Iniciar importación",
+        importing: "Importando... {{progress}}%",
+        complete: "Importación completa",
+        rowsImported: "{{count}} filas importadas",
+        saveLearningPrompt: "Guardar mapeos para que Abby aprenda para la próxima vez",
+        saveToAbby: "Guardar en Abby",
+        viewInGisExplorer: "Ver en el explorador GIS",
+        importAnother: "Importar otro",
+        failed: "Importación fallida",
+        startOver: "Empezar de nuevo",
+      },
+    },
     chromaStudio: {
       title: "Estudio de colecciones Chroma",
       subtitle:
@@ -4788,11 +6138,28 @@ const esApp: MessageTree = {
         fallbackSuffix: " - alternativo",
         timeSuffix: " - {{seconds}} s",
       },
+      modes: {
+        clusters: "Clústeres",
+        query: "Consulta",
+        qa: "QA",
+      },
+      sample: {
+        label: "Muestra",
+        confirmLoadAll:
+          "¿Cargar los {{count}} vectores? Puede tardar bastante más.",
+        steps: {
+          all: "Todos",
+        },
+      },
       empty: {
         selectCollection: "Selecciona una colección para visualizar embeddings.",
       },
       tooltips: {
         requiresAiService: "Requiere conexión al servicio de IA",
+      },
+      controls: {
+        colorBy: "Colorear por",
+        modeDefault: "Predeterminado del modo",
       },
       search: {
         placeholder: "Buscar dentro del espacio vectorial",
@@ -4801,10 +6168,22 @@ const esApp: MessageTree = {
         visibleResults:
           "{{visible}} de {{total}} resultados visibles en esta proyección",
       },
+      query: {
+        anchor: "Ancla de consulta",
+      },
       sections: {
         overlays: "Capas",
         clusterProfile: "Perfil de clúster",
         inspector: "Inspector",
+      },
+      inspector: {
+        selectPoint: "Haz clic en un punto para inspeccionarlo.",
+        loadingDetails: "Cargando detalles completos...",
+        flags: {
+          outlier: "Atípico",
+          duplicate: "Duplicado",
+          orphan: "Huérfano",
+        },
       },
       overlays: {
         clusterHulls: {
@@ -4837,6 +6216,28 @@ const esApp: MessageTree = {
       actions: {
         recomputeProjection: "Recalcular proyección",
         expand: "Expandir",
+      },
+      legend: {
+        clusters: "Clústeres",
+        quality: "Calidad",
+        similarity: "Similitud",
+        hide: "Ocultar",
+        show: "Mostrar",
+      },
+      quality: {
+        outliers: "Atípicos",
+        duplicates: "Duplicados",
+        duplicatePairs: "Pares duplicados",
+        orphans: "Huérfanos",
+        normal: "Normal",
+        outOfSampled: "de {{count}} muestreados",
+        exportCsv: "Exportar CSV",
+      },
+      clusterProfile: {
+        selectCluster: "Selecciona un clúster para inspeccionar sus metadatos dominantes.",
+        clusterSize: "Tamaño del clúster",
+        dominantMetadata: "Metadatos dominantes",
+        representativeTitles: "Títulos representativos",
       },
     },
     pacsConnectionModal: {
@@ -5100,6 +6501,16 @@ const esApp: MessageTree = {
         connectionFailed: "La conexión falló",
         discoveryFailed: "El descubrimiento falló",
       },
+    },
+    fhirExport: {
+      title: "Exportación FHIR Bulk",
+      subtitle:
+        "Exporta datos OMOP CDM como archivos NDJSON FHIR R4 para interoperabilidad.",
+      comingSoon: "Próximamente",
+      description:
+        "FHIR Bulk Export ($export) está en desarrollo. Esta función permitirá exportar datos OMOP CDM como archivos NDJSON FHIR R4 para interoperabilidad.",
+      backendPending:
+        "Los endpoints backend para esta función aún no se han implementado.",
     },
     fhirConnections: {
       title: "Conexiones FHIR EHR",
@@ -6073,6 +7484,14 @@ const esApp: MessageTree = {
       loading: "Cargando fuentes...",
       placeholder: "Selecciona una fuente de datos",
     },
+    domains: {
+      condition: "Afecciones",
+      drug: "Fármacos",
+      procedure: "Procedimientos",
+      measurement: "Mediciones",
+      observation: "Observaciones",
+      visit: "Visitas",
+    },
     overview: {
       metrics: {
         persons: "Personas",
@@ -6125,6 +7544,86 @@ const esApp: MessageTree = {
         runAchillesForTemporalData:
           "Ejecuta Achilles para generar datos de tendencia temporal",
       },
+    },
+    charts: {
+      common: {
+        records: "{{count}} registros",
+        persons: "{{count}} personas",
+        total: "Total",
+        separator: "·",
+      },
+      boxPlot: {
+        noDistributionData: "No hay datos de distribución",
+        ariaLabel: "Diagrama de caja",
+        labels: {
+          p25: "P25: {{value}}",
+          median: "Mediana: {{value}}",
+          p75: "P75: {{value}}",
+        },
+      },
+      cumulativeObservation: {
+        tooltipValue: "{{days}} días - {{pct}}% de personas",
+        xAxisLabel: "Duración de observación (días)",
+        labels: {
+          min: "Mín",
+          p10: "P10",
+          p25: "P25",
+          median: "Mediana",
+          p75: "P75",
+          p90: "P90",
+          max: "Máx",
+        },
+      },
+      demographics: {
+        ageDistribution: "Distribución de edad",
+        noAgeData: "No hay datos de distribución de edad",
+        age: "Edad",
+        male: "Masculino",
+        female: "Femenino",
+      },
+      heatmap: {
+        ariaLabel: "Mapa de calor de densidad de datos",
+      },
+      hierarchy: {
+        noData: "No hay datos de jerarquía disponibles",
+        classificationHierarchy: "Jerarquía de clasificación",
+        back: "Atrás",
+      },
+      periodCount: {
+        observationPeriods: "{{count}} período(s) de observación",
+      },
+      recordCounts: {
+        noData: "No hay datos de conteo de registros disponibles",
+        title: "Conteos de registros por tabla CDM",
+      },
+      temporalTrend: {
+        events: "Eventos",
+        secondary: "Secundaria",
+      },
+      topConcepts: {
+        noData: "No hay datos de conceptos disponibles",
+        title: "Conceptos principales",
+        id: "ID: {{id}}",
+        prevalence: "Prevalencia: {{value}}%",
+      },
+      yearOfBirth: {
+        year: "Año: {{year}}",
+      },
+    },
+    domain: {
+      metrics: {
+        totalRecords: "Registros totales",
+        distinctConcepts: "Conceptos distintos",
+      },
+      loadFailed: "No se pudieron cargar datos de {{domain}}",
+      temporalTrendTitle: "Tendencia temporal de {{domain}}",
+    },
+    temporal: {
+      domainsLabel: "Dominios:",
+      multiDomainOverlay: "Superposición temporal multidominio",
+      emptyTitle: "No hay datos temporales disponibles",
+      emptyHelp:
+        "Selecciona dominios arriba y asegúrate de que Achilles se haya ejecutado",
     },
     concept: {
       details: "Detalles del concepto",
@@ -6183,12 +7682,25 @@ const esApp: MessageTree = {
         empty: "Aún no hay ejecuciones de Achilles",
         emptyHelp: 'Haz clic en "Ejecutar Achilles" para caracterizar tus datos',
       },
+      runModal: {
+        completedIn: "Completada en {{duration}}",
+        analysisProgress: "{{done}} de {{total}} análisis",
+        elapsed: "Transcurrido:",
+        passedCount: "{{count}} aprobadas",
+        failedCount: "{{count}} fallidas",
+        totalDuration: "{{duration}} total",
+        remaining: "Quedan ~{{duration}}",
+        waiting: "Esperando a que comiencen los análisis...",
+        done: "Listo",
+        runInBackground: "Ejecutar en segundo plano",
+      },
     },
     dqd: {
       categories: {
         completeness: "Completitud",
         conformance: "Conformidad",
         plausibility: "Plausibilidad",
+        overall: "General",
       },
       progress: {
         title: "Análisis DQD en ejecución",
@@ -6200,6 +7712,35 @@ const esApp: MessageTree = {
         passed: "aprobadas",
         failed: "fallidas",
         remaining: "restantes",
+        warnings: "Advertencias",
+      },
+      severity: {
+        error: "Error",
+        warning: "Advertencia",
+        info: "Info",
+      },
+      categoryPanel: {
+        checkCount: "{{count}} validaciones",
+        passRate: "{{percent}}% de aprobación",
+        table: {
+          check: "Validación",
+          table: "Tabla",
+          column: "Columna",
+          severity: "Severidad",
+          violationPercent: "% de violación",
+        },
+      },
+      scorecard: {
+        emptyTitle: "No hay resultados DQD disponibles",
+        emptyDescription:
+          "Ejecuta un análisis Data Quality Dashboard para ver resultados",
+        overallScore: "Puntuación general",
+        passedFraction: "{{passed}}/{{total}} aprobadas",
+      },
+      tableGrid: {
+        noResults: "No hay resultados DQD para mostrar",
+        title: "Mapa de calor tabla x categoría",
+        cdmTable: "Tabla CDM",
       },
       actions: {
         runDqd: "Ejecutar DQD",
@@ -8246,6 +9787,583 @@ const koApp: MessageTree = {
         openWizard: "마법사 열기",
       },
     },
+    acropolisServices: {
+      descriptions: {
+        authentik: "ID 제공자 및 접근 포털",
+        wazuh: "보안 모니터링 및 SIEM 대시보드",
+        grafana: "메트릭 및 관측성 대시보드",
+        portainer: "컨테이너 및 스택 운영",
+        pgadmin: "PostgreSQL 관리 콘솔",
+        n8n: "워크플로 오케스트레이션 및 자동화",
+        superset: "BI 및 임시 분석 작업 공간",
+        datahub: "메타데이터 카탈로그 및 계보 탐색기",
+      },
+      openService: "서비스 열기",
+    },
+    grafana: {
+      openDashboard: "대시보드 열기",
+    },
+    broadcastEmail: {
+      title: "전체 이메일",
+      descriptionPrefix: "등록된 사용자",
+      descriptionSuffix: "명에게 각각 이메일을 보냅니다.",
+      subject: "제목",
+      subjectPlaceholder: "이메일 제목...",
+      message: "메시지",
+      messagePlaceholder: "메시지를 입력하세요...",
+      close: "닫기",
+      cancel: "취소",
+      sending: "보내는 중...",
+      sendToAll: "모든 사용자에게 보내기",
+      resultWithRecipients: "{{message}} (수신자 {{count}}명)",
+      unknownError: "알 수 없는 오류",
+    },
+    userModal: {
+      titles: {
+        editUser: "사용자 편집",
+        newUser: "새 사용자",
+      },
+      fields: {
+        fullName: "전체 이름",
+        email: "이메일",
+        password: "비밀번호",
+        roles: "역할",
+      },
+      hints: {
+        keepCurrentPassword: "(현재 값을 유지하려면 비워 두세요)",
+      },
+      placeholders: {
+        maskedPassword: "••••••••",
+        passwordRequirements: "최소 8자, 대소문자와 숫자 포함",
+      },
+      actions: {
+        cancel: "취소",
+        saving: "저장 중...",
+        saveChanges: "변경 사항 저장",
+        createUser: "사용자 만들기",
+      },
+      errors: {
+        generic: "오류가 발생했습니다.",
+        passwordRequired: "비밀번호가 필요합니다.",
+      },
+    },
+    liveKit: {
+      loadingConfiguration: "구성을 불러오는 중...",
+      provider: "제공자",
+      providerBadges: {
+        cloud: "클라우드",
+        "self-hosted": "자체 호스팅",
+        env: "환경",
+      },
+      providerOptions: {
+        environment: "환경",
+        liveKitCloud: "LiveKit Cloud",
+        selfHosted: "자체 호스팅",
+      },
+      providerDescriptions: {
+        useEnvFile: ".env 파일 사용",
+        hostedByLiveKit: "LiveKit에서 호스팅",
+        yourOwnServer: "자체 서버",
+      },
+      env: {
+        usingEnvConfiguration: ".env 구성 사용 중",
+        url: "URL:",
+        apiKey: "API 키:",
+        apiSecret: "API 비밀:",
+        notSet: "설정되지 않음",
+        missing: "누락",
+        editPrefix: "수정:",
+        editSuffix: "변경하려면 PHP를 다시 시작하세요.",
+      },
+      fields: {
+        cloudUrl: "LiveKit Cloud URL",
+        serverUrl: "서버 URL",
+        apiKey: "API 키",
+        apiSecret: "API 비밀",
+      },
+      placeholders: {
+        savedKey: "저장됨; 새 키를 입력하면 교체됩니다",
+        savedSecret: "저장됨; 새 비밀을 입력하면 교체됩니다",
+        enterApiKey: "API 키 입력",
+        enterApiSecret: "API 비밀 입력",
+      },
+      actions: {
+        hideConfiguration: "구성 숨기기",
+        configureLiveKit: "LiveKit 구성",
+        testConnection: "연결 테스트",
+        saveConfiguration: "구성 저장",
+        useEnvDefaults: ".env 기본값 사용",
+      },
+      toasts: {
+        noUrlToTest: "테스트할 URL이 없습니다",
+        connectionSuccessful: "연결 성공",
+        connectionFailed: "연결 실패",
+        configurationSaved: "LiveKit 구성이 저장되었습니다",
+        saveFailed: "구성을 저장하지 못했습니다",
+      },
+    },
+    authProviders: {
+      title: "인증 제공자",
+      subtitle:
+        "SSO를 위해 하나 이상의 외부 ID 제공자를 활성화합니다. Sanctum 사용자 이름/비밀번호는 항상 대체 수단으로 사용할 수 있습니다.",
+      providers: {
+        ldap: {
+          label: "LDAP / Active Directory",
+          description:
+            "Microsoft Active Directory 또는 LDAP v3 디렉터리에 인증합니다. TLS, 그룹 동기화 및 속성 매핑을 지원합니다.",
+        },
+        oauth2: {
+          label: "OAuth 2.0",
+          description:
+            "GitHub, Google, Microsoft 또는 사용자 지정 OAuth 2.0 제공자에 인증을 위임합니다.",
+        },
+        saml2: {
+          label: "SAML 2.0",
+          description:
+            "SAML 2.0 ID 제공자(Okta, Azure AD, ADFS 등)를 통한 엔터프라이즈 SSO입니다.",
+        },
+        oidc: {
+          label: "OpenID Connect",
+          description:
+            "OIDC discovery를 통한 현대적 SSO입니다. PKCE 및 표준 호환 IdP를 지원합니다.",
+        },
+      },
+      enabled: "활성화",
+      disabled: "비활성화",
+      configure: "구성",
+      testConnection: "연결 테스트",
+      connectionSuccessful: "연결 성공",
+      connectionFailed: "연결 실패",
+      usernamePassword: "사용자 이름 및 비밀번호",
+      alwaysOn: "항상 켜짐",
+      builtIn: "내장 Sanctum 인증 - 항상 활성화됩니다.",
+      loading: "제공자를 불러오는 중...",
+      formActions: {
+        saving: "저장 중...",
+        save: "저장",
+        saved: "저장됨",
+      },
+      oauthForm: {
+        drivers: {
+          github: "GitHub",
+          google: "Google",
+          microsoft: "Microsoft / Azure AD",
+          custom: "사용자 지정 OAuth 2.0",
+        },
+        sections: {
+          customEndpoints: "사용자 지정 엔드포인트",
+        },
+        labels: {
+          provider: "제공자",
+          clientId: "클라이언트 ID",
+          clientSecret: "클라이언트 비밀",
+          redirectUri: "리디렉션 URI",
+          scopes: "범위",
+          authorizationUrl: "인증 URL",
+          tokenUrl: "토큰 URL",
+          userInfoUrl: "사용자 정보 URL",
+        },
+        hints: {
+          redirectUri: "OAuth 제공자에 등록된 URI와 일치해야 합니다",
+          scopes: "공백으로 구분된 목록",
+        },
+        placeholders: {
+          clientId: "클라이언트 / 애플리케이션 ID",
+          redirectUri: "/api/v1/auth/oauth2/callback",
+          scopes: "openid profile email",
+        },
+      },
+      oidcForm: {
+        labels: {
+          discoveryUrl: "Discovery URL",
+          clientId: "클라이언트 ID",
+          clientSecret: "클라이언트 비밀",
+          redirectUri: "리디렉션 URI",
+          scopes: "범위",
+          pkceEnabled: "PKCE 활성화(권장 - 공개 클라이언트 필요)",
+        },
+        hints: {
+          discoveryUrl:
+            "IdP의 /.well-known/openid-configuration 엔드포인트",
+          redirectUri: "IdP에 등록된 값과 일치해야 합니다",
+          scopes: "공백으로 구분",
+        },
+        placeholders: {
+          discoveryUrl:
+            "https://accounts.google.com/.well-known/openid-configuration",
+          clientId: "your-client-id",
+          redirectUri: "/api/v1/auth/oidc/callback",
+          scopes: "openid profile email",
+        },
+      },
+      samlForm: {
+        sections: {
+          identityProvider: "ID 제공자(IdP)",
+          serviceProvider: "서비스 제공자(SP)",
+          attributeMapping: "속성 매핑",
+        },
+        labels: {
+          idpEntityId: "IdP 엔터티 ID",
+          ssoUrl: "SSO URL",
+          sloUrl: "SLO URL",
+          idpCertificate: "IdP 인증서",
+          spEntityId: "SP 엔터티 ID",
+          acsUrl: "ACS URL",
+          nameIdFormat: "NameID 형식",
+          signAssertions:
+            "어서션 서명(SP 개인 키 필요 - 서버 환경에서 구성)",
+          emailAttribute: "이메일 속성",
+          displayNameAttribute: "표시 이름 속성",
+        },
+        hints: {
+          ssoUrl: "싱글 사인온 엔드포인트",
+          sloUrl: "싱글 로그아웃 엔드포인트(선택 사항)",
+          idpCertificate:
+            "X.509 인증서를 붙여넣으세요(PEM 형식, 헤더 포함 또는 제외)",
+          spEntityId:
+            "Parthenon 인스턴스 URL - IdP에 등록된 값과 일치해야 합니다",
+          acsUrl: "어서션 소비자 서비스",
+        },
+        placeholders: {
+          certificate:
+            "-----BEGIN CERTIFICATE-----\nMIIDxTCC...\n-----END CERTIFICATE-----",
+          acsUrl: "/api/v1/auth/saml2/callback",
+          sloUrl: "/api/v1/auth/saml2/logout",
+          displayName: "displayName",
+        },
+        attributeMappingDescription:
+          "SAML 어서션 속성 이름을 Parthenon 사용자 필드에 매핑합니다.",
+      },
+      ldapForm: {
+        sections: {
+          connection: "연결",
+          bindCredentials: "바인드 자격 증명",
+          userSearch: "사용자 검색",
+          attributeMapping: "속성 매핑",
+          groupSync: "그룹 동기화",
+        },
+        labels: {
+          host: "호스트",
+          port: "포트",
+          useSsl: "SSL(LDAPS) 사용",
+          useTls: "StartTLS 사용",
+          timeout: "시간 제한(초)",
+          bindDn: "바인드 DN",
+          bindPassword: "바인드 비밀번호",
+          baseDn: "기본 DN",
+          userSearchBase: "사용자 검색 기준",
+          userFilter: "사용자 필터",
+          usernameField: "사용자 이름 필드",
+          emailField: "이메일 필드",
+          displayNameField: "표시 이름 필드",
+          syncGroups: "LDAP 그룹을 Parthenon 역할에 동기화",
+          groupSearchBase: "그룹 검색 기준",
+          groupFilter: "그룹 필터",
+        },
+        hints: {
+          host: "LDAP 서버 호스트 이름 또는 IP",
+          bindDn: "디렉터리 쿼리에 사용하는 서비스 계정 DN",
+          userFilter: "로그인 시 {username}이 대체됩니다",
+        },
+        placeholders: {
+          bindDn: "cn=svc-parthenon,dc=example,dc=com",
+          baseDn: "dc=example,dc=com",
+          userSearchBase: "ou=users,dc=example,dc=com",
+          userFilter: "(uid={username})",
+          groupSearchBase: "ou=groups,dc=example,dc=com",
+          groupFilter: "(objectClass=groupOfNames)",
+        },
+        actions: {
+          saving: "저장 중...",
+          save: "저장",
+          saved: "저장됨",
+        },
+      },
+    },
+    roles: {
+      title: "역할 및 권한",
+      subtitle:
+        "사용자 지정 역할을 정의하고 권한 배정을 세밀하게 조정합니다. 대량 편집에는 매트릭스를 사용하세요.",
+      tabs: {
+        roleList: "역할 목록",
+        permissionMatrix: "권한 매트릭스",
+      },
+      permissionMatrix: {
+        instructions:
+          "셀을 클릭해 권한을 전환하고, 행 머리글로 모든 역할에 적용하며, 열 머리글로 역할의 모든 권한을 부여/회수합니다.",
+        saveAllChangesOne: "모든 변경 사항 저장(역할 {{count}}개)",
+        saveAllChangesOther: "모든 변경 사항 저장(역할 {{count}}개)",
+        permission: "권한",
+        columnTitle: "{{role}}의 모든 권한 전환",
+        permissionCount: "권한 {{count}}개",
+        saving: "저장 중...",
+        saved: "저장됨 ✓",
+        save: "저장",
+        domainTitle: "모든 역할에서 {{domain}} 권한 전환",
+        rowTitle: "모든 역할에 대해 {{permission}} 전환",
+        cellTitleGrant: "{{role}}에 {{permission}} 부여",
+        cellTitleRevoke: "{{role}}에서 {{permission}} 회수",
+      },
+      editor: {
+        roleName: "역할 이름",
+        roleNamePlaceholder: "예: site-coordinator",
+        permissions: "권한",
+        selectedCount: "({{count}}개 선택됨)",
+      },
+      actions: {
+        newRole: "새 역할",
+        cancel: "취소",
+        saving: "저장 중...",
+        saveRole: "역할 저장",
+        editRole: "역할 편집",
+        deleteRole: "역할 삭제",
+        deleting: "삭제 중...",
+        delete: "삭제",
+      },
+      values: {
+        builtIn: "내장",
+        userCountOne: "사용자 {{count}}명",
+        userCountOther: "사용자 {{count}}명",
+        permissionCountOne: "권한 {{count}}개",
+        permissionCountOther: "권한 {{count}}개",
+        more: "+{{count}}개 더",
+      },
+      deleteModal: {
+        title: "역할을 삭제할까요?",
+        prefix: "역할",
+        suffix:
+          "이 영구 삭제됩니다. 이 역할만 배정된 사용자는 모든 권한을 잃게 됩니다.",
+      },
+    },
+    pacs: {
+      studyBrowser: {
+        browseTitle: "찾아보기: {{name}}",
+        filters: {
+          patientName: "환자 이름",
+          patientId: "환자 ID",
+          allModalities: "모든 모달리티",
+        },
+        empty: {
+          noStudies: "스터디를 찾을 수 없습니다",
+        },
+        table: {
+          patientName: "환자 이름",
+          patientId: "환자 ID",
+          date: "날짜",
+          modality: "모달리티",
+          description: "설명",
+          series: "시리즈",
+          instances: "Inst.",
+        },
+        pagination: {
+          range: "{{start}}-{{end}}",
+          ofStudies: "전체 {{total}}개 스터디 중",
+          previous: "이전",
+          next: "다음",
+        },
+      },
+      connectionCard: {
+        defaultConnection: "기본 연결",
+        setAsDefault: "기본값으로 설정",
+        deleteConfirm: "\"{{name}}\"을 삭제할까요?",
+        never: "없음",
+        seriesByModality: "모달리티별 시리즈",
+        statsUpdated: "통계 업데이트 {{date}}",
+        stats: {
+          patients: "환자",
+          studies: "스터디",
+          series: "시리즈",
+          instances: "인스턴스",
+          disk: "디스크",
+        },
+        actions: {
+          edit: "편집",
+          delete: "삭제",
+          test: "테스트",
+          stats: "통계",
+          browse: "찾아보기",
+        },
+      },
+    },
+    solrAdmin: {
+      title: "Solr 검색 관리",
+      subtitle: "Solr 검색 코어를 관리하고, 재색인을 실행하며, 상태를 모니터링합니다.",
+      loadingCoreStatus: "코어 상태를 불러오는 중...",
+      status: {
+        healthy: "정상",
+        unavailable: "사용 불가",
+      },
+      labels: {
+        documents: "문서",
+        lastIndexed: "마지막 색인",
+        duration: "소요 시간",
+      },
+      values: {
+        never: "없음",
+        seconds: "{{seconds}}초",
+      },
+      actions: {
+        reindexAll: "모든 코어 재색인",
+        reindex: "재색인",
+        fullReindex: "전체 재색인",
+        clear: "비우기",
+      },
+      messages: {
+        fetchFailed: "Solr 상태를 가져오지 못했습니다",
+        reindexCompleted: "'{{core}}' 재색인이 완료되었습니다",
+        reindexFailed: "'{{core}}'을 재색인하지 못했습니다",
+        reindexAllCompleted: "전체 재색인이 완료되었습니다",
+        reindexAllFailed: "모든 코어를 재색인하지 못했습니다",
+        clearConfirm:
+          "'{{core}}'의 모든 문서를 비울까요? 이 작업은 되돌릴 수 없습니다.",
+        clearCompleted: "'{{core}}' 코어를 비웠습니다",
+        clearFailed: "'{{core}}' 코어를 비우지 못했습니다",
+      },
+    },
+    aiProviders: {
+      title: "AI 제공자 구성",
+      subtitle:
+        "Abby를 구동할 AI 백엔드를 선택합니다. 한 번에 하나의 제공자만 활성화됩니다. API 키는 암호화되어 저장됩니다.",
+      activeProvider: "활성 제공자:",
+      fields: {
+        model: "모델",
+        apiKey: "API 키",
+        ollamaBaseUrl: "Ollama 기본 URL",
+      },
+      placeholders: {
+        modelName: "모델 이름",
+      },
+      values: {
+        active: "활성",
+        enabled: "활성화",
+        disabled: "비활성화",
+        noModelSelected: "선택된 모델 없음",
+      },
+      actions: {
+        currentlyActive: "현재 활성",
+        setAsActive: "활성으로 설정",
+        save: "저장",
+        testConnection: "연결 테스트",
+      },
+      messages: {
+        requestFailed: "요청이 실패했습니다.",
+      },
+    },
+    gisImport: {
+      steps: {
+        upload: "업로드",
+        analyze: "분석",
+        mapColumns: "열 매핑",
+        configure: "구성",
+        validate: "검증",
+        import: "가져오기",
+      },
+      analyze: {
+        analysisFailed: "Abby가 이 파일을 분석하는 중 문제가 발생했습니다.",
+        unknownError: "알 수 없는 오류",
+        retry: "다시 시도",
+        analyzing: "Abby가 데이터를 분석하는 중...",
+        detecting: "열 유형, 지리 코드, 값 의미를 감지하는 중",
+      },
+      upload: {
+        uploading: "업로드 중...",
+        dropPrompt: "파일을 여기에 놓거나 클릭하여 찾아보세요",
+        acceptedFormats:
+          "CSV, TSV, Excel, Shapefile(.zip), GeoJSON, KML, GeoPackage - 최대 {{maxSize}}MB",
+        largeFiles: "대용량 파일(> {{maxSize}}MB)",
+        fileTooLarge:
+          "파일이 {{maxSize}}MB를 초과합니다. CLI 사용: php artisan gis:import {{filename}}",
+        uploadFailed: "업로드 실패",
+      },
+      configure: {
+        fields: {
+          layerName: "레이어 이름",
+          exposureType: "노출 유형",
+          geographyLevel: "지리 수준",
+          valueType: "값 유형",
+          aggregation: "집계",
+        },
+        placeholders: {
+          layerName: "예: Social Vulnerability Index",
+          exposureType: "예: svi_overall",
+        },
+        geographyLevels: {
+          county: "카운티",
+          tract: "인구조사 구역",
+          state: "주",
+          country: "국가",
+          custom: "사용자 지정",
+        },
+        valueTypes: {
+          continuous: "연속형(코로플레스)",
+          categorical: "범주형(불연속 색상)",
+          binary: "이진형(있음/없음)",
+        },
+        aggregations: {
+          mean: "평균",
+          sum: "합계",
+          maximum: "최대",
+          minimum: "최소",
+          latest: "최신",
+        },
+        saving: "저장 중...",
+        continue: "계속",
+      },
+      mapping: {
+        title: "열 매핑",
+        subtitle: "각 원본 열을 목적에 매핑합니다",
+        purposes: {
+          geographyCode: "지리 코드",
+          geographyName: "지리 이름",
+          latitude: "위도",
+          longitude: "경도",
+          valueMetric: "값(메트릭)",
+          metadata: "메타데이터",
+          skip: "건너뛰기",
+        },
+        confidence: {
+          high: "높음",
+          medium: "중간",
+          low: "낮음",
+        },
+        askAbby: "Abby에게 묻기",
+        abbyOnColumn: "\"{{column}}\"에 대한 Abby:",
+        thinking: "생각 중...",
+        saving: "저장 중...",
+        continue: "계속",
+      },
+      validate: {
+        validating: "검증 중...",
+        validationFailed: "검증 실패:",
+        unknownError: "알 수 없는 오류",
+        results: "검증 결과",
+        stats: {
+          totalRows: "전체 행",
+          uniqueGeographies: "고유 지리",
+          matched: "매칭됨",
+          unmatched: "미매칭(stub)",
+          matchRate: "매칭률",
+          geographyType: "지리 유형",
+        },
+        unmatchedWarning:
+          "데이터베이스에서 찾지 못한 지리 {{count}}개가 있습니다. Stub 항목이 생성됩니다(경계 기하 없음).",
+        backToMapping: "매핑으로 돌아가기",
+        proceedWithImport: "가져오기 진행",
+      },
+      import: {
+        starting: "시작 중...",
+        startImport: "가져오기 시작",
+        importing: "가져오는 중... {{progress}}%",
+        complete: "가져오기 완료",
+        rowsImported: "{{count}}행 가져옴",
+        saveLearningPrompt: "다음번을 위해 Abby가 배울 수 있도록 매핑 저장",
+        saveToAbby: "Abby에 저장",
+        viewInGisExplorer: "GIS 탐색기에서 보기",
+        importAnother: "다른 항목 가져오기",
+        failed: "가져오기 실패",
+        startOver: "처음부터 시작",
+      },
+    },
     chromaStudio: {
       title: "Chroma 컬렉션 스튜디오",
       subtitle: "벡터 컬렉션을 검사하고 시맨틱 쿼리를 실행하며 수집을 관리합니다",
@@ -8324,11 +10442,28 @@ const koApp: MessageTree = {
         fallbackSuffix: " - 대체",
         timeSuffix: " - {{seconds}}초",
       },
+      modes: {
+        clusters: "클러스터",
+        query: "쿼리",
+        qa: "QA",
+      },
+      sample: {
+        label: "샘플",
+        confirmLoadAll:
+          "벡터 {{count}}개를 모두 불러올까요? 시간이 더 오래 걸릴 수 있습니다.",
+        steps: {
+          all: "전체",
+        },
+      },
       empty: {
         selectCollection: "임베딩을 시각화할 컬렉션을 선택하세요.",
       },
       tooltips: {
         requiresAiService: "AI 서비스 연결이 필요합니다",
+      },
+      controls: {
+        colorBy: "색상 기준",
+        modeDefault: "모드 기본값",
       },
       search: {
         placeholder: "벡터 공간 내 검색",
@@ -8337,10 +10472,22 @@ const koApp: MessageTree = {
         visibleResults:
           "이 프로젝션에서 결과 {{total}}개 중 {{visible}}개 표시",
       },
+      query: {
+        anchor: "쿼리 앵커",
+      },
       sections: {
         overlays: "오버레이",
         clusterProfile: "클러스터 프로필",
         inspector: "검사기",
+      },
+      inspector: {
+        selectPoint: "점 하나를 클릭해 검사하세요.",
+        loadingDetails: "전체 세부 정보를 불러오는 중...",
+        flags: {
+          outlier: "이상치",
+          duplicate: "중복",
+          orphan: "고아 항목",
+        },
       },
       overlays: {
         clusterHulls: {
@@ -8373,6 +10520,28 @@ const koApp: MessageTree = {
       actions: {
         recomputeProjection: "프로젝션 다시 계산",
         expand: "확대",
+      },
+      legend: {
+        clusters: "클러스터",
+        quality: "품질",
+        similarity: "유사도",
+        hide: "숨기기",
+        show: "표시",
+      },
+      quality: {
+        outliers: "이상치",
+        duplicates: "중복",
+        duplicatePairs: "중복 쌍",
+        orphans: "고아 항목",
+        normal: "정상",
+        outOfSampled: "샘플 {{count}}개 중",
+        exportCsv: "CSV 내보내기",
+      },
+      clusterProfile: {
+        selectCluster: "클러스터를 선택해 주요 메타데이터를 확인하세요.",
+        clusterSize: "클러스터 크기",
+        dominantMetadata: "주요 메타데이터",
+        representativeTitles: "대표 제목",
       },
     },
     pacsConnectionModal: {
@@ -8635,6 +10804,16 @@ const koApp: MessageTree = {
         connectionFailed: "연결 실패",
         discoveryFailed: "검색 실패",
       },
+    },
+    fhirExport: {
+      title: "FHIR Bulk 내보내기",
+      subtitle:
+        "상호운용성을 위해 OMOP CDM 데이터를 FHIR R4 NDJSON 파일로 내보냅니다.",
+      comingSoon: "곧 제공 예정",
+      description:
+        "FHIR Bulk Export($export)는 개발 중입니다. 이 기능은 상호운용성을 위해 OMOP CDM 데이터를 FHIR R4 NDJSON 파일로 내보낼 수 있게 합니다.",
+      backendPending:
+        "이 기능의 백엔드 엔드포인트는 아직 구현되지 않았습니다.",
     },
     fhirConnections: {
       title: "FHIR EHR 연결",
@@ -9596,6 +11775,14 @@ const koApp: MessageTree = {
       loading: "소스를 불러오는 중...",
       placeholder: "데이터 소스 선택",
     },
+    domains: {
+      condition: "질환",
+      drug: "약물",
+      procedure: "시술",
+      measurement: "측정",
+      observation: "관찰",
+      visit: "방문",
+    },
     overview: {
       metrics: {
         persons: "사람",
@@ -9645,6 +11832,85 @@ const koApp: MessageTree = {
         runAchillesForTemporalData:
           "시간 추세 데이터를 생성하려면 Achilles를 실행하세요",
       },
+    },
+    charts: {
+      common: {
+        records: "기록 {{count}}개",
+        persons: "사람 {{count}}명",
+        total: "전체",
+        separator: "·",
+      },
+      boxPlot: {
+        noDistributionData: "분포 데이터가 없습니다",
+        ariaLabel: "상자 그림",
+        labels: {
+          p25: "P25: {{value}}",
+          median: "중앙값: {{value}}",
+          p75: "P75: {{value}}",
+        },
+      },
+      cumulativeObservation: {
+        tooltipValue: "{{days}}일 - 사람의 {{pct}}%",
+        xAxisLabel: "관찰 기간(일)",
+        labels: {
+          min: "최소",
+          p10: "P10",
+          p25: "P25",
+          median: "중앙값",
+          p75: "P75",
+          p90: "P90",
+          max: "최대",
+        },
+      },
+      demographics: {
+        ageDistribution: "나이 분포",
+        noAgeData: "나이 분포 데이터가 없습니다",
+        age: "나이",
+        male: "남성",
+        female: "여성",
+      },
+      heatmap: {
+        ariaLabel: "데이터 밀도 히트맵",
+      },
+      hierarchy: {
+        noData: "사용 가능한 계층 데이터가 없습니다",
+        classificationHierarchy: "분류 계층",
+        back: "뒤로",
+      },
+      periodCount: {
+        observationPeriods: "관찰 기간 {{count}}개",
+      },
+      recordCounts: {
+        noData: "사용 가능한 기록 수 데이터가 없습니다",
+        title: "CDM 테이블별 기록 수",
+      },
+      temporalTrend: {
+        events: "이벤트",
+        secondary: "보조",
+      },
+      topConcepts: {
+        noData: "사용 가능한 개념 데이터가 없습니다",
+        title: "상위 개념",
+        id: "ID: {{id}}",
+        prevalence: "유병률: {{value}}%",
+      },
+      yearOfBirth: {
+        year: "연도: {{year}}",
+      },
+    },
+    domain: {
+      metrics: {
+        totalRecords: "전체 기록",
+        distinctConcepts: "고유 개념",
+      },
+      loadFailed: "{{domain}} 데이터를 불러오지 못했습니다",
+      temporalTrendTitle: "{{domain}} 시간 추세",
+    },
+    temporal: {
+      domainsLabel: "도메인:",
+      multiDomainOverlay: "다중 도메인 시간 오버레이",
+      emptyTitle: "사용 가능한 시간 데이터가 없습니다",
+      emptyHelp: "위에서 도메인을 선택하고 Achilles가 실행되었는지 확인하세요",
     },
     concept: {
       details: "개념 세부 정보",
@@ -9703,12 +11969,25 @@ const koApp: MessageTree = {
         empty: "아직 Achilles 실행이 없습니다",
         emptyHelp: '"Achilles 실행"을 클릭해 데이터를 특성화하세요',
       },
+      runModal: {
+        completedIn: "{{duration}} 만에 완료됨",
+        analysisProgress: "분석 {{total}}개 중 {{done}}개",
+        elapsed: "경과:",
+        passedCount: "{{count}}개 통과",
+        failedCount: "{{count}}개 실패",
+        totalDuration: "총 {{duration}}",
+        remaining: "약 {{duration}} 남음",
+        waiting: "분석 시작을 기다리는 중...",
+        done: "완료",
+        runInBackground: "백그라운드에서 실행",
+      },
     },
     dqd: {
       categories: {
         completeness: "완전성",
         conformance: "적합성",
         plausibility: "개연성",
+        overall: "전체",
       },
       progress: {
         title: "DQD 분석 실행 중",
@@ -9720,6 +11999,34 @@ const koApp: MessageTree = {
         passed: "통과",
         failed: "실패",
         remaining: "남음",
+        warnings: "경고",
+      },
+      severity: {
+        error: "오류",
+        warning: "경고",
+        info: "정보",
+      },
+      categoryPanel: {
+        checkCount: "검사 {{count}}개",
+        passRate: "통과율 {{percent}}%",
+        table: {
+          check: "검사",
+          table: "테이블",
+          column: "열",
+          severity: "심각도",
+          violationPercent: "위반 %",
+        },
+      },
+      scorecard: {
+        emptyTitle: "사용 가능한 DQD 결과가 없습니다",
+        emptyDescription: "결과를 보려면 Data Quality Dashboard 분석을 실행하세요",
+        overallScore: "전체 점수",
+        passedFraction: "{{total}}개 중 {{passed}}개 통과",
+      },
+      tableGrid: {
+        noResults: "표시할 DQD 결과가 없습니다",
+        title: "테이블 x 범주 히트맵",
+        cdmTable: "CDM 테이블",
       },
       actions: {
         runDqd: "DQD 실행",

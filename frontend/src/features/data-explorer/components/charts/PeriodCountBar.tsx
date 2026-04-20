@@ -7,6 +7,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 import { formatCompact, CHART, TOOLTIP_CLS } from "./chartUtils";
 
 interface PeriodCountBarProps {
@@ -20,13 +21,21 @@ function CustomTooltip({
   active?: boolean;
   payload?: Array<{ payload: { label: string; persons: number } }>;
 }) {
+  const { t } = useTranslation("app");
+
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
     <div className={TOOLTIP_CLS}>
-      <p className="text-xs text-text-muted">{d.label} observation period(s)</p>
+      <p className="text-xs text-text-muted">
+        {t("dataExplorer.charts.periodCount.observationPeriods", {
+          count: d.label,
+        })}
+      </p>
       <p className="mt-0.5 font-['IBM_Plex_Mono',monospace] text-xs text-text-primary">
-        {d.persons.toLocaleString()} persons
+        {t("dataExplorer.charts.common.persons", {
+          count: d.persons.toLocaleString(),
+        })}
       </p>
     </div>
   );
@@ -69,14 +78,14 @@ export function PeriodCountBar({ data }: PeriodCountBarProps) {
         <XAxis
           type="number"
           tickFormatter={formatCompact}
-          tick={{ fill: CHART.text, fontSize: 10 }}
+          tick={{ fill: CHART.textPrimary, fontSize: 10 }}
           axisLine={{ stroke: CHART.grid }}
           tickLine={{ stroke: CHART.grid }}
         />
         <YAxis
           type="category"
           dataKey="label"
-          tick={{ fill: CHART.text, fontSize: 11 }}
+          tick={{ fill: CHART.textPrimary, fontSize: 11 }}
           axisLine={false}
           tickLine={false}
           width={30}

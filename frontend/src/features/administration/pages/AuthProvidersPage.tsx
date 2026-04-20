@@ -5,6 +5,7 @@ import {
   Loader2, FlaskConical,
   type LucideIcon,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Panel, Badge, Button } from "@/components/ui";
 import { useAuthProviders, useToggleAuthProvider, useUpdateAuthProvider, useTestAuthProvider } from "../hooks/useAuthProviders";
 import { LdapConfigForm } from "../components/LdapConfigForm";
@@ -15,38 +16,30 @@ import type { AuthProviderSetting, AuthProviderType } from "@/types/models";
 import type { TestResult } from "../api/adminApi";
 
 const META: Record<AuthProviderType, {
-  label: string;
   icon: LucideIcon;
-  description: string;
   color: string;
 }> = {
   ldap: {
-    label: "LDAP / Active Directory",
     icon: Server,
-    description: "Authenticate against Microsoft Active Directory or any LDAP v3 directory. Supports TLS, group sync, and attribute mapping.",
     color: "text-blue-500",
   },
   oauth2: {
-    label: "OAuth 2.0",
     icon: Globe,
-    description: "Delegate authentication to GitHub, Google, Microsoft, or any custom OAuth 2.0 provider.",
     color: "text-green-500",
   },
   saml2: {
-    label: "SAML 2.0",
     icon: FileKey,
-    description: "Enterprise SSO via a SAML 2.0 Identity Provider (Okta, Azure AD, ADFS, etc.).",
     color: "text-purple-500",
   },
   oidc: {
-    label: "OpenID Connect",
     icon: Fingerprint,
-    description: "Modern SSO via OIDC discovery. Supports PKCE and any standards-compliant IdP.",
     color: "text-amber-500",
   },
 };
 
 function TestResultBadge({ result }: { result: TestResult }) {
+  const { t } = useTranslation("app");
+
   return (
     <div
       className={`mt-3 flex items-start gap-2 rounded-md px-3 py-2 text-sm ${
@@ -61,7 +54,11 @@ function TestResultBadge({ result }: { result: TestResult }) {
         <XCircle className="mt-0.5 h-4 w-4 shrink-0" />
       )}
       <div>
-        <p className="font-medium">{result.success ? "Connection successful" : "Connection failed"}</p>
+        <p className="font-medium">
+          {result.success
+            ? t("administration.authProviders.connectionSuccessful")
+            : t("administration.authProviders.connectionFailed")}
+        </p>
         <p className="mt-0.5 text-xs opacity-80">{result.message}</p>
         {result.details && (
           <pre className="mt-2 text-xs opacity-70 whitespace-pre-wrap">
@@ -74,6 +71,7 @@ function TestResultBadge({ result }: { result: TestResult }) {
 }
 
 function ProviderCard({ provider }: { provider: AuthProviderSetting }) {
+  const { t } = useTranslation("app");
   const meta = META[provider.provider_type];
   const [open, setOpen] = useState(false);
   const [testResult, setTestResult] = useState<TestResult | null>(null);
@@ -113,12 +111,18 @@ function ProviderCard({ provider }: { provider: AuthProviderSetting }) {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <p className="font-medium text-foreground">{meta.label}</p>
+              <p className="font-medium text-foreground">
+                {t(`administration.authProviders.providers.${provider.provider_type}.label`)}
+              </p>
               <Badge variant={provider.is_enabled ? "success" : "inactive"}>
-                {provider.is_enabled ? "Enabled" : "Disabled"}
+                {provider.is_enabled
+                  ? t("administration.authProviders.enabled")
+                  : t("administration.authProviders.disabled")}
               </Badge>
             </div>
-            <p className="text-xs text-muted-foreground">{meta.description}</p>
+            <p className="text-xs text-muted-foreground">
+              {t(`administration.authProviders.providers.${provider.provider_type}.description`)}
+            </p>
           </div>
         </div>
 
@@ -149,7 +153,8 @@ function ProviderCard({ provider }: { provider: AuthProviderSetting }) {
 
           {/* Expand / collapse */}
           <Button variant="secondary" size="sm" onClick={() => setOpen((o) => !o)}>
-            Configure {open ? <ChevronUp className="h-3 w-3 ml-1" /> : <ChevronDown className="h-3 w-3 ml-1" />}
+            {t("administration.authProviders.configure")}{" "}
+            {open ? <ChevronUp className="h-3 w-3 ml-1" /> : <ChevronDown className="h-3 w-3 ml-1" />}
           </Button>
         </div>
       </div>
@@ -178,7 +183,7 @@ function ProviderCard({ provider }: { provider: AuthProviderSetting }) {
                 ) : (
                   <FlaskConical className="h-4 w-4 mr-1" />
                 )}
-                Test Connection
+                {t("administration.authProviders.testConnection")}
               </Button>
               {testResult && <TestResultBadge result={testResult} />}
             </div>
@@ -190,6 +195,7 @@ function ProviderCard({ provider }: { provider: AuthProviderSetting }) {
 }
 
 export default function AuthProvidersPage() {
+  const { t } = useTranslation("app");
   const { data: providers, isLoading } = useAuthProviders();
 
   const ordered = [...(providers ?? [])].sort((a, b) => a.priority - b.priority);
@@ -197,10 +203,11 @@ export default function AuthProvidersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Authentication Providers</h1>
+        <h1 className="text-2xl font-bold text-foreground">
+          {t("administration.authProviders.title")}
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Enable one or more external identity providers for single sign-on. Sanctum
-          username/password is always available as a fallback.
+          {t("administration.authProviders.subtitle")}
         </p>
       </div>
 
@@ -212,18 +219,24 @@ export default function AuthProvidersPage() {
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <p className="font-medium text-foreground">Username &amp; Password</p>
-              <Badge variant="success">Always on</Badge>
+              <p className="font-medium text-foreground">
+                {t("administration.authProviders.usernamePassword")}
+              </p>
+              <Badge variant="success">
+                {t("administration.authProviders.alwaysOn")}
+              </Badge>
             </div>
             <p className="text-xs text-muted-foreground">
-              Built-in Sanctum authentication — always active.
+              {t("administration.authProviders.builtIn")}
             </p>
           </div>
         </div>
       </Panel>
 
       {isLoading ? (
-        <p className="text-muted-foreground">Loading providers…</p>
+        <p className="text-muted-foreground">
+          {t("administration.authProviders.loading")}
+        </p>
       ) : (
         <div className="space-y-4">
           {ordered.map((p) => <ProviderCard key={p.provider_type} provider={p} />)}

@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { Upload, Brain, Columns3, Settings, CheckCircle2, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type {
   ImportWizardState,
   ColumnSuggestion,
@@ -16,15 +17,16 @@ import { ValidateStep } from "./ValidateStep";
 import { ImportStep } from "./ImportStep";
 
 const STEPS = [
-  { label: "Upload", icon: Upload },
-  { label: "Analyze", icon: Brain },
-  { label: "Map Columns", icon: Columns3 },
-  { label: "Configure", icon: Settings },
-  { label: "Validate", icon: CheckCircle2 },
-  { label: "Import", icon: Loader2 },
+  { labelKey: "upload", icon: Upload },
+  { labelKey: "analyze", icon: Brain },
+  { labelKey: "mapColumns", icon: Columns3 },
+  { labelKey: "configure", icon: Settings },
+  { labelKey: "validate", icon: CheckCircle2 },
+  { labelKey: "import", icon: Loader2 },
 ];
 
 export function ImportWizard() {
+  const { t } = useTranslation("app");
   const [state, setState] = useState<ImportWizardState>({
     step: 0,
     importId: null,
@@ -101,7 +103,7 @@ export function ImportWizard() {
           const isActive = i === state.step;
           const isDone = i < state.step;
           return (
-            <div key={s.label} className="flex items-center">
+            <div key={s.labelKey} className="flex items-center">
               <button
                 onClick={() => i < state.step && goTo(i)}
                 disabled={i >= state.step}
@@ -114,7 +116,7 @@ export function ImportWizard() {
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />
-                {s.label}
+                {t(`administration.gisImport.steps.${s.labelKey}`)}
               </button>
               {i < STEPS.length - 1 && (
                 <div className={`mx-1 h-px w-4 ${isDone ? "bg-success" : "bg-surface-highlight"}`} />

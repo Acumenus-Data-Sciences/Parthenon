@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Bot, ChevronDown, ChevronUp, Eye, EyeOff, Loader2, Radio } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Panel, Badge, Button } from "@/components/ui";
 import type { AiProviderSetting } from "@/types/models";
 import {
@@ -88,6 +89,7 @@ interface TestResult {
 }
 
 function ProviderCard({ provider }: { provider: AiProviderSetting }) {
+  const { t } = useTranslation("app");
   const meta = PROVIDER_META[provider.provider_type] ?? {
     region: "US" as const,
     regionBadge: "info" as const,
@@ -132,7 +134,11 @@ function ProviderCard({ provider }: { provider: AiProviderSetting }) {
     const runTest = () => {
       testMutation.mutate(provider.provider_type, {
         onSuccess: (r) => setTestResult(r),
-        onError: () => setTestResult({ success: false, message: "Request failed." }),
+        onError: () =>
+          setTestResult({
+            success: false,
+            message: t("administration.aiProviders.messages.requestFailed"),
+          }),
       });
     };
 
@@ -168,10 +174,16 @@ function ProviderCard({ provider }: { provider: AiProviderSetting }) {
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-foreground">{provider.display_name}</span>
-            {provider.is_active && <Badge variant="primary">Active</Badge>}
+            {provider.is_active && (
+              <Badge variant="primary">
+                {t("administration.aiProviders.values.active")}
+              </Badge>
+            )}
             <Badge variant={meta.regionBadge}>{meta.region}</Badge>
           </div>
-          <p className="text-sm text-muted-foreground">{provider.model || "No model selected"}</p>
+          <p className="text-sm text-muted-foreground">
+            {provider.model || t("administration.aiProviders.values.noModelSelected")}
+          </p>
         </div>
 
         {/* Enable toggle */}
@@ -189,7 +201,9 @@ function ProviderCard({ provider }: { provider: AiProviderSetting }) {
           />
           <div className="peer h-5 w-9 rounded-full bg-muted after:absolute after:left-[2px] after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-4" />
           <span className="ml-2 text-sm text-muted-foreground">
-            {provider.is_enabled ? "Enabled" : "Disabled"}
+            {provider.is_enabled
+              ? t("administration.aiProviders.values.enabled")
+              : t("administration.aiProviders.values.disabled")}
           </span>
         </label>
 
@@ -206,7 +220,9 @@ function ProviderCard({ provider }: { provider: AiProviderSetting }) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {/* Model selector */}
             <div>
-              <label className="mb-1 block text-sm font-medium text-foreground">Model</label>
+              <label className="mb-1 block text-sm font-medium text-foreground">
+                {t("administration.aiProviders.fields.model")}
+              </label>
               {meta.models.length > 0 ? (
                 <select
                   className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
@@ -229,7 +245,7 @@ function ProviderCard({ provider }: { provider: AiProviderSetting }) {
                     setModel(e.target.value);
                     setDirty(true);
                   }}
-                  placeholder="Model name"
+                  placeholder={t("administration.aiProviders.placeholders.modelName")}
                 />
               )}
             </div>
@@ -237,7 +253,9 @@ function ProviderCard({ provider }: { provider: AiProviderSetting }) {
             {/* API key or base URL */}
             {meta.hasApiKey && (
               <div>
-                <label className="mb-1 block text-sm font-medium text-foreground">API Key</label>
+                <label className="mb-1 block text-sm font-medium text-foreground">
+                  {t("administration.aiProviders.fields.apiKey")}
+                </label>
                 <div className="relative">
                   <input
                     type={showKey ? "text" : "password"}
@@ -264,7 +282,7 @@ function ProviderCard({ provider }: { provider: AiProviderSetting }) {
             {meta.hasBaseUrl && (
               <div>
                 <label className="mb-1 block text-sm font-medium text-foreground">
-                  Ollama Base URL
+                  {t("administration.aiProviders.fields.ollamaBaseUrl")}
                 </label>
                 <input
                   type="text"
@@ -302,19 +320,21 @@ function ProviderCard({ provider }: { provider: AiProviderSetting }) {
               disabled={provider.is_active || activateMutation.isPending}
             >
               <Radio className="h-3.5 w-3.5 mr-1" />
-              {provider.is_active ? "Currently Active" : "Set as Active"}
+              {provider.is_active
+                ? t("administration.aiProviders.actions.currentlyActive")
+                : t("administration.aiProviders.actions.setAsActive")}
             </Button>
 
             {dirty && (
               <Button variant="primary" size="sm" onClick={handleSave} disabled={isSaving}>
                 {isSaving && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />}
-                Save
+                {t("administration.aiProviders.actions.save")}
               </Button>
             )}
 
             <Button variant="secondary" size="sm" onClick={handleTest} disabled={isTesting}>
               {isTesting && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />}
-              Test Connection
+              {t("administration.aiProviders.actions.testConnection")}
             </Button>
           </div>
         </div>
@@ -326,6 +346,7 @@ function ProviderCard({ provider }: { provider: AiProviderSetting }) {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function AiProvidersPage() {
+  const { t } = useTranslation("app");
   const { data: providers, isLoading } = useAiProviders();
 
   const activeProvider = providers?.find((p) => p.is_active);
@@ -333,10 +354,11 @@ export default function AiProvidersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">AI Provider Configuration</h1>
+        <h1 className="text-2xl font-bold text-foreground">
+          {t("administration.aiProviders.title")}
+        </h1>
         <p className="mt-1 text-muted-foreground">
-          Choose which AI backend powers Abby. Only one provider is active at a time. API keys are
-          stored encrypted.
+          {t("administration.aiProviders.subtitle")}
         </p>
       </div>
 
@@ -346,7 +368,7 @@ export default function AiProvidersPage() {
           <div className="flex items-center gap-3">
             <div className="h-2 w-2 rounded-full bg-emerald-500" />
             <span className="text-sm font-medium text-foreground">
-              Active provider:{" "}
+              {t("administration.aiProviders.activeProvider")}{" "}
               <span className="font-semibold">{activeProvider.display_name}</span>
               {activeProvider.model && (
                 <span className="ml-2 font-normal text-muted-foreground">
@@ -354,7 +376,9 @@ export default function AiProvidersPage() {
                 </span>
               )}
             </span>
-            <Badge variant="success">Active</Badge>
+            <Badge variant="success">
+              {t("administration.aiProviders.values.active")}
+            </Badge>
           </div>
         </Panel>
       )}

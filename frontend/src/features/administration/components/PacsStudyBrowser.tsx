@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { X, Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { usePacsStudies } from "../hooks/usePacsConnections";
 import type { PacsConnection, PacsStudyFilters } from "../api/pacsApi";
@@ -17,6 +18,7 @@ export default function PacsStudyBrowser({
   connection,
   onClose,
 }: PacsStudyBrowserProps) {
+  const { t } = useTranslation("app");
   const [patientName, setPatientName] = useState("");
   const [patientId, setPatientId] = useState("");
   const [modality, setModality] = useState("");
@@ -98,7 +100,9 @@ export default function PacsStudyBrowser({
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border-default">
           <h2 className="text-sm font-semibold text-text-primary truncate">
-            Browse: {connection.name}
+            {t("administration.pacs.studyBrowser.browseTitle", {
+              name: connection.name,
+            })}
           </h2>
           <button
             type="button"
@@ -115,7 +119,7 @@ export default function PacsStudyBrowser({
             <div>
               <input
                 className={inputCls}
-                placeholder="Patient Name"
+                placeholder={t("administration.pacs.studyBrowser.filters.patientName")}
                 value={patientName}
                 onChange={(e) => setPatientName(e.target.value)}
               />
@@ -123,7 +127,7 @@ export default function PacsStudyBrowser({
             <div>
               <input
                 className={inputCls}
-                placeholder="Patient ID"
+                placeholder={t("administration.pacs.studyBrowser.filters.patientId")}
                 value={patientId}
                 onChange={(e) => setPatientId(e.target.value)}
               />
@@ -134,7 +138,9 @@ export default function PacsStudyBrowser({
                 value={modality}
                 onChange={(e) => setModality(e.target.value)}
               >
-                <option value="">All Modalities</option>
+                <option value="">
+                  {t("administration.pacs.studyBrowser.filters.allModalities")}
+                </option>
                 {MODALITY_OPTIONS.filter(Boolean).map((m) => (
                   <option key={m} value={m}>
                     {m}
@@ -154,7 +160,9 @@ export default function PacsStudyBrowser({
           ) : studies.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-text-ghost">
               <Search size={32} className="mb-3 opacity-40" />
-              <p className="text-sm font-medium text-text-muted">No studies found</p>
+              <p className="text-sm font-medium text-text-muted">
+                {t("administration.pacs.studyBrowser.empty.noStudies")}
+              </p>
             </div>
           ) : (
             <>
@@ -162,13 +170,27 @@ export default function PacsStudyBrowser({
               <table className="w-full text-xs">
                 <thead>
                   <tr className="border-b border-border-default text-[10px] font-medium text-text-ghost uppercase tracking-wider">
-                    <th className="px-3 py-2 text-left">Patient Name</th>
-                    <th className="px-3 py-2 text-left">Patient ID</th>
-                    <th className="px-3 py-2 text-left">Date</th>
-                    <th className="px-3 py-2 text-left">Modality</th>
-                    <th className="px-3 py-2 text-left">Description</th>
-                    <th className="px-3 py-2 text-right">Series</th>
-                    <th className="px-3 py-2 text-right">Inst.</th>
+                    <th className="px-3 py-2 text-left">
+                      {t("administration.pacs.studyBrowser.table.patientName")}
+                    </th>
+                    <th className="px-3 py-2 text-left">
+                      {t("administration.pacs.studyBrowser.table.patientId")}
+                    </th>
+                    <th className="px-3 py-2 text-left">
+                      {t("administration.pacs.studyBrowser.table.date")}
+                    </th>
+                    <th className="px-3 py-2 text-left">
+                      {t("administration.pacs.studyBrowser.table.modality")}
+                    </th>
+                    <th className="px-3 py-2 text-left">
+                      {t("administration.pacs.studyBrowser.table.description")}
+                    </th>
+                    <th className="px-3 py-2 text-right">
+                      {t("administration.pacs.studyBrowser.table.series")}
+                    </th>
+                    <th className="px-3 py-2 text-right">
+                      {t("administration.pacs.studyBrowser.table.instances")}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -212,14 +234,18 @@ export default function PacsStudyBrowser({
               {/* Pagination */}
               <div className="flex items-center justify-between px-4 py-3 border-t border-border-default">
                 <span className="text-xs text-text-ghost">
-                  {offset + 1}–{offset + studies.length}
+                  {t("administration.pacs.studyBrowser.pagination.range", {
+                    start: offset + 1,
+                    end: offset + studies.length,
+                  })}
                   {totalStudies != null && (
                     <>
-                      {" "}of{" "}
+                      {" "}
                       <span className="font-['IBM_Plex_Mono',monospace]">
-                        {totalStudies.toLocaleString()}
+                        {t("administration.pacs.studyBrowser.pagination.ofStudies", {
+                          total: totalStudies.toLocaleString(),
+                        })}
                       </span>
-                      {" "}studies
                     </>
                   )}
                 </span>
@@ -231,7 +257,7 @@ export default function PacsStudyBrowser({
                     className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     <ChevronLeft size={12} />
-                    Previous
+                    {t("administration.pacs.studyBrowser.pagination.previous")}
                   </button>
                   <button
                     type="button"
@@ -239,7 +265,7 @@ export default function PacsStudyBrowser({
                     disabled={!hasNext}
                     className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                   >
-                    Next
+                    {t("administration.pacs.studyBrowser.pagination.next")}
                     <ChevronRight size={12} />
                   </button>
                 </div>

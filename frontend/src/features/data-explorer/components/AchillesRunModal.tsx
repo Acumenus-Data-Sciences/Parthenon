@@ -10,6 +10,7 @@ import {
   Activity,
   Zap,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useAchillesProgress } from "../hooks/useAchillesRun";
 import type { AchillesRunCategory, AchillesRunStep } from "../api/achillesRunApi";
@@ -101,6 +102,7 @@ function StepRow({ step }: { step: AchillesRunStep }) {
 }
 
 function CategorySection({ category, isHistorical }: { category: AchillesRunCategory; isHistorical: boolean }) {
+  const { t } = useTranslation("app");
   const isDone = category.completed + category.failed >= category.total;
   const hasRunning = category.running > 0;
   const [collapsed, setCollapsed] = useState(false);
@@ -137,7 +139,9 @@ function CategorySection({ category, isHistorical }: { category: AchillesRunCate
         </span>
         {category.failed > 0 && (
           <span className="font-['IBM_Plex_Mono',monospace] text-xs text-critical">
-            {category.failed} failed
+            {t("dataExplorer.achilles.runModal.failedCount", {
+              count: category.failed,
+            })}
           </span>
         )}
       </button>
@@ -158,6 +162,7 @@ export default function AchillesRunModal({
   totalAnalyses,
   onClose,
 }: AchillesRunModalProps) {
+  const { t } = useTranslation("app");
   const { data: progress } = useAchillesProgress(sourceId, runId);
 
   const completed = progress?.completed_analyses ?? 0;
@@ -196,15 +201,20 @@ export default function AchillesRunModal({
             )}
             <div>
               <h2 className="text-base font-semibold text-text-primary">
-                Achilles Characterization
+                {t("dataExplorer.achilles.characterization.title")}
               </h2>
               <p className="text-xs text-text-ghost">
                 {isFinished
-                  ? `Completed in ${formatDuration(elapsedTotal)}`
-                  : `${done} of ${total} analyses`}
+                  ? t("dataExplorer.achilles.runModal.completedIn", {
+                      duration: formatDuration(elapsedTotal),
+                    })
+                  : t("dataExplorer.achilles.runModal.analysisProgress", {
+                      done,
+                      total,
+                    })}
                 {!isFinished && startedAt && (
                   <span className="ml-2 text-text-muted">
-                    Elapsed: <LiveTimer startedAt={progress!.started_at!} className="text-xs text-text-muted font-['IBM_Plex_Mono',monospace] tabular-nums" />
+                    {t("dataExplorer.achilles.runModal.elapsed")} <LiveTimer startedAt={progress!.started_at!} className="text-xs text-text-muted font-['IBM_Plex_Mono',monospace] tabular-nums" />
                   </span>
                 )}
               </p>
@@ -228,22 +238,22 @@ export default function AchillesRunModal({
             <div className="flex items-center gap-4">
               {completed > 0 && (
                 <span className="flex items-center gap-1 text-xs text-success">
-                  <CheckCircle2 size={12} /> {completed} passed
+                  <CheckCircle2 size={12} /> {t("dataExplorer.achilles.runModal.passedCount", { count: completed })}
                 </span>
               )}
               {failed > 0 && (
                 <span className="flex items-center gap-1 text-xs text-critical">
-                  <AlertCircle size={12} /> {failed} failed
+                  <AlertCircle size={12} /> {t("dataExplorer.achilles.runModal.failedCount", { count: failed })}
                 </span>
               )}
               {isFinished && elapsedTotal > 0 && (
                 <span className="flex items-center gap-1 text-xs text-text-muted">
-                  <Clock size={12} /> {formatDuration(elapsedTotal)} total
+                  <Clock size={12} /> {t("dataExplorer.achilles.runModal.totalDuration", { duration: formatDuration(elapsedTotal) })}
                 </span>
               )}
               {!isFinished && remaining > 0 && (
                 <span className="flex items-center gap-1 text-xs text-text-muted">
-                  <Clock size={12} /> ~{formatDuration(remaining)} remaining
+                  <Clock size={12} /> {t("dataExplorer.achilles.runModal.remaining", { duration: formatDuration(remaining) })}
                 </span>
               )}
             </div>
@@ -270,7 +280,9 @@ export default function AchillesRunModal({
           ) : (
             <div className="flex items-center justify-center py-12">
               <Loader2 size={20} className="animate-spin text-text-muted" />
-              <span className="ml-2 text-sm text-text-ghost">Waiting for analyses to start...</span>
+              <span className="ml-2 text-sm text-text-ghost">
+                {t("dataExplorer.achilles.runModal.waiting")}
+              </span>
             </div>
           )}
         </div>
@@ -287,7 +299,7 @@ export default function AchillesRunModal({
                 : "bg-surface-overlay text-text-secondary hover:bg-surface-elevated",
             )}
           >
-            {isFinished ? "Done" : "Run in Background"}
+            {t(isFinished ? "dataExplorer.achilles.runModal.done" : "dataExplorer.achilles.runModal.runInBackground")}
           </button>
         </div>
       </div>

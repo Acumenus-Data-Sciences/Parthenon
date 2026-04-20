@@ -1,4 +1,5 @@
 import { ExternalLink, BarChart2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Panel, Badge, StatusDot, type BadgeVariant, type StatusDotVariant } from "@/components/ui";
 import type { SystemHealthService } from "@/types/models";
 
@@ -14,6 +15,7 @@ interface GrafanaLaunchCardProps {
 }
 
 export function GrafanaLaunchCard({ service, grafanaUrl }: GrafanaLaunchCardProps) {
+  const { t } = useTranslation("app");
   const { badge, dot } = STATUS_MAP[service.status] ?? STATUS_MAP.down;
 
   return (
@@ -37,7 +39,7 @@ export function GrafanaLaunchCard({ service, grafanaUrl }: GrafanaLaunchCardProp
           className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
         >
           <BarChart2 className="h-3.5 w-3.5" />
-          Open Dashboard
+          {t("administration.grafana.openDashboard")}
           <ExternalLink className="h-3 w-3" />
         </a>
       </div>

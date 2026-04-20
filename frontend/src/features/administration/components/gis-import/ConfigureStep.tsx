@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useSaveConfig } from "../../hooks/useGisImport";
 import type { ImportConfig, ColumnSuggestion } from "../../types/gisImport";
 
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function ConfigureStep({ importId, suggestions, onComplete }: Props) {
+  const { t } = useTranslation("app");
   const valueSuggestion = suggestions.find((s) => s.purpose === "value");
   const geoSuggestion = suggestions.find((s) => s.purpose === "geography_code");
 
@@ -39,59 +41,85 @@ export function ConfigureStep({ importId, suggestions, onComplete }: Props) {
   return (
     <div className="space-y-4">
       <div className="rounded border border-border-default bg-surface-base p-4 space-y-4">
-        {field("Layer Name", (
+        {field(t("administration.gisImport.configure.fields.layerName"), (
           <input
             type="text"
             value={config.layer_name}
             onChange={(e) => setConfig((c) => ({ ...c, layer_name: e.target.value }))}
-            placeholder="e.g., Social Vulnerability Index"
+            placeholder={t("administration.gisImport.configure.placeholders.layerName")}
             className={inputClass}
           />
         ))}
-        {field("Exposure Type", (
+        {field(t("administration.gisImport.configure.fields.exposureType"), (
           <input
             type="text"
             value={config.exposure_type}
             onChange={(e) => setConfig((c) => ({ ...c, exposure_type: e.target.value }))}
-            placeholder="e.g., svi_overall"
+            placeholder={t("administration.gisImport.configure.placeholders.exposureType")}
             className={inputClass}
           />
         ))}
-        {field("Geography Level", (
+        {field(t("administration.gisImport.configure.fields.geographyLevel"), (
           <select
             value={config.geography_level}
             onChange={(e) => setConfig((c) => ({ ...c, geography_level: e.target.value }))}
             className={inputClass}
           >
-            <option value="county">County</option>
-            <option value="tract">Census Tract</option>
-            <option value="state">State</option>
-            <option value="country">Country</option>
-            <option value="custom">Custom</option>
+            <option value="county">
+              {t("administration.gisImport.configure.geographyLevels.county")}
+            </option>
+            <option value="tract">
+              {t("administration.gisImport.configure.geographyLevels.tract")}
+            </option>
+            <option value="state">
+              {t("administration.gisImport.configure.geographyLevels.state")}
+            </option>
+            <option value="country">
+              {t("administration.gisImport.configure.geographyLevels.country")}
+            </option>
+            <option value="custom">
+              {t("administration.gisImport.configure.geographyLevels.custom")}
+            </option>
           </select>
         ))}
-        {field("Value Type", (
+        {field(t("administration.gisImport.configure.fields.valueType"), (
           <select
             value={config.value_type}
             onChange={(e) => setConfig((c) => ({ ...c, value_type: e.target.value as ImportConfig["value_type"] }))}
             className={inputClass}
           >
-            <option value="continuous">Continuous (choropleth)</option>
-            <option value="categorical">Categorical (discrete colors)</option>
-            <option value="binary">Binary (presence/absence)</option>
+            <option value="continuous">
+              {t("administration.gisImport.configure.valueTypes.continuous")}
+            </option>
+            <option value="categorical">
+              {t("administration.gisImport.configure.valueTypes.categorical")}
+            </option>
+            <option value="binary">
+              {t("administration.gisImport.configure.valueTypes.binary")}
+            </option>
           </select>
         ))}
-        {field("Aggregation", (
+        {field(t("administration.gisImport.configure.fields.aggregation"), (
           <select
             value={config.aggregation}
             onChange={(e) => setConfig((c) => ({ ...c, aggregation: e.target.value as ImportConfig["aggregation"] }))}
             className={inputClass}
           >
-            <option value="mean">Mean</option>
-            <option value="sum">Sum</option>
-            <option value="max">Maximum</option>
-            <option value="min">Minimum</option>
-            <option value="latest">Latest</option>
+            <option value="mean">
+              {t("administration.gisImport.configure.aggregations.mean")}
+            </option>
+            <option value="sum">
+              {t("administration.gisImport.configure.aggregations.sum")}
+            </option>
+            <option value="max">
+              {t("administration.gisImport.configure.aggregations.maximum")}
+            </option>
+            <option value="min">
+              {t("administration.gisImport.configure.aggregations.minimum")}
+            </option>
+            <option value="latest">
+              {t("administration.gisImport.configure.aggregations.latest")}
+            </option>
           </select>
         ))}
       </div>
@@ -102,7 +130,9 @@ export function ConfigureStep({ importId, suggestions, onComplete }: Props) {
           disabled={saveMutation.isPending || !config.layer_name || !config.exposure_type}
           className="rounded bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-accent/90 disabled:opacity-50"
         >
-          {saveMutation.isPending ? "Saving..." : "Continue"}
+          {saveMutation.isPending
+            ? t("administration.gisImport.configure.saving")
+            : t("administration.gisImport.configure.continue")}
         </button>
       </div>
     </div>

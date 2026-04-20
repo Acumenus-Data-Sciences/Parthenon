@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useCreateUser, useUpdateUser } from "../hooks/useAdminUsers";
 import type { User, Role } from "@/types/models";
 
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function UserModal({ user, roles, onClose }: Props) {
+  const { t } = useTranslation("app");
   const isEdit = user !== null;
   const createUser = useCreateUser();
   const updateUser = useUpdateUser();
@@ -50,7 +52,7 @@ export function UserModal({ user, roles, onClose }: Props) {
       onSuccess: onClose,
       onError: (err: unknown) => {
         const msg = (err as { response?: { data?: { message?: string } } })
-          ?.response?.data?.message ?? "An error occurred.";
+          ?.response?.data?.message ?? t("administration.userModal.errors.generic");
         setError(msg);
       },
     };
@@ -58,7 +60,7 @@ export function UserModal({ user, roles, onClose }: Props) {
     if (isEdit) {
       updateUser.mutate({ id: user.id, data: payload }, opts);
     } else {
-      if (!form.password) { setError("Password is required."); return; }
+      if (!form.password) { setError(t("administration.userModal.errors.passwordRequired")); return; }
       createUser.mutate(payload as Parameters<typeof createUser.mutate>[0], opts);
     }
   };
@@ -78,7 +80,7 @@ export function UserModal({ user, roles, onClose }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border-default px-6 py-4">
           <h2 className="text-base font-semibold text-text-primary">
-            {isEdit ? "Edit User" : "New User"}
+            {t(isEdit ? "administration.userModal.titles.editUser" : "administration.userModal.titles.newUser")}
           </h2>
           <button
             type="button"
@@ -101,7 +103,7 @@ export function UserModal({ user, roles, onClose }: Props) {
             {/* Name */}
             <label className="block">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-                Full Name
+                {t("administration.userModal.fields.fullName")}
               </span>
               <input
                 required
@@ -114,7 +116,7 @@ export function UserModal({ user, roles, onClose }: Props) {
             {/* Email */}
             <label className="block">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-                Email
+                {t("administration.userModal.fields.email")}
               </span>
               <input
                 type="email"
@@ -129,17 +131,17 @@ export function UserModal({ user, roles, onClose }: Props) {
           {/* Password */}
           <label className="block">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-              Password{" "}
+              {t("administration.userModal.fields.password")}{" "}
               {isEdit && (
                 <span className="normal-case font-normal text-text-disabled">
-                  (leave blank to keep current)
+                  {t("administration.userModal.hints.keepCurrentPassword")}
                 </span>
               )}
             </span>
             <input
               type="password"
               required={!isEdit}
-              placeholder={isEdit ? "••••••••" : "Min 8 chars, mixed case + number"}
+              placeholder={t(isEdit ? "administration.userModal.placeholders.maskedPassword" : "administration.userModal.placeholders.passwordRequirements")}
               value={form.password}
               onChange={(e) => set("password", e.target.value)}
               className="mt-1.5 w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40 transition-colors"
@@ -149,7 +151,7 @@ export function UserModal({ user, roles, onClose }: Props) {
           {/* Roles */}
           <div>
             <span className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-              Roles
+              {t("administration.userModal.fields.roles")}
             </span>
             <div className="mt-2 grid grid-cols-2 gap-2">
               {roles.map((r) => {
@@ -190,7 +192,7 @@ export function UserModal({ user, roles, onClose }: Props) {
             onClick={onClose}
             className="rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm text-text-muted transition-colors hover:border-surface-highlight hover:text-text-secondary"
           >
-            Cancel
+            {t("administration.userModal.actions.cancel")}
           </button>
           <button
             type="button"
@@ -201,7 +203,9 @@ export function UserModal({ user, roles, onClose }: Props) {
             }}
             className="rounded-lg bg-success px-4 py-2 text-sm font-semibold text-surface-base transition-colors hover:bg-success-dark disabled:opacity-50"
           >
-            {isPending ? "Saving…" : isEdit ? "Save Changes" : "Create User"}
+            {isPending
+              ? t("administration.userModal.actions.saving")
+              : t(isEdit ? "administration.userModal.actions.saveChanges" : "administration.userModal.actions.createUser")}
           </button>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import type { ClusterInfo } from "../../api/chromaStudioApi";
+import { useTranslation } from "react-i18next";
 
 interface ClusterProfileProps {
   cluster: ClusterInfo | null;
@@ -9,9 +10,13 @@ export default function ClusterProfile({
   cluster,
   accentColor = "var(--accent)",
 }: ClusterProfileProps) {
+  const { t } = useTranslation("app");
+
   if (! cluster) {
     return (
-      <div className="text-sm text-text-ghost">Select a cluster to inspect its dominant metadata.</div>
+      <div className="text-sm text-text-ghost">
+        {t("administration.vectorExplorer.clusterProfile.selectCluster")}
+      </div>
     );
   }
 
@@ -25,7 +30,9 @@ export default function ClusterProfile({
       </div>
 
       <div className="flex items-center justify-between text-xs">
-        <span className="text-text-muted">Cluster size</span>
+        <span className="text-text-muted">
+          {t("administration.vectorExplorer.clusterProfile.clusterSize")}
+        </span>
         <span className="font-['IBM_Plex_Mono',monospace]" style={{ color: accentColor }}>
           {cluster.size.toLocaleString()}
         </span>
@@ -34,7 +41,7 @@ export default function ClusterProfile({
       {cluster.summary?.dominant_metadata?.length ? (
         <div className="space-y-2">
           <div className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-            Dominant Metadata
+            {t("administration.vectorExplorer.clusterProfile.dominantMetadata")}
           </div>
           <div className="space-y-1.5">
             {cluster.summary.dominant_metadata.map((item) => (
@@ -55,7 +62,7 @@ export default function ClusterProfile({
       {cluster.summary?.representative_titles?.length ? (
         <div className="space-y-2">
           <div className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-            Representative Titles
+            {t("administration.vectorExplorer.clusterProfile.representativeTitles")}
           </div>
           <div className="space-y-1">
             {cluster.summary.representative_titles.map((title) => (

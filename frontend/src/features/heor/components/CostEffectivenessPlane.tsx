@@ -203,7 +203,7 @@ export default function CostEffectivenessPlane({ results, wtp = 50000 }: Props) 
             <text
               x={scaleX(p.x) + 10}
               y={scaleY(p.y) - 10}
-              fill={CHART.text}
+              fill={CHART.textPrimary}
               fontSize={10}
               fontWeight={500}
             >

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { scaleSequential } from "d3-scale";
 import { interpolateViridis } from "d3-scale-chromatic";
+import { useTranslation } from "react-i18next";
 import { formatCompact, CHART } from "./chartUtils";
 
 interface HeatmapDataPoint {
@@ -20,6 +21,7 @@ export function HeatmapChart({
   data,
   rowColors,
 }: HeatmapChartProps) {
+  const { t } = useTranslation("app");
   const [hovered, setHovered] = useState<{ row: string; col: string } | null>(null);
 
   const { rows, cols, valueMap, maxVal } = useMemo(() => {
@@ -68,7 +70,7 @@ export function HeatmapChart({
         height={svgH}
         className="block"
         role="img"
-        aria-label="Data density heatmap"
+        aria-label={t("dataExplorer.charts.heatmap.ariaLabel")}
       >
         {/* Column headers */}
         {cols.map((col, ci) => (
@@ -113,7 +115,7 @@ export function HeatmapChart({
                   height={cellH - 2}
                   rx={3}
                   fill={val > 0 ? colorScale(val) : CHART.bgDarker}
-                  stroke={isHov ? CHART.text : "none"}
+                  stroke={isHov ? CHART.textPrimary : "none"}
                   strokeWidth={isHov ? 1.5 : 0}
                   opacity={val > 0 ? 0.85 : 0.3}
                   onMouseEnter={() => setHovered({ row, col })}
@@ -130,11 +132,14 @@ export function HeatmapChart({
       {hovered && hoveredVal !== null && (
         <div className="mt-2 inline-flex items-center gap-2 rounded-lg border border-surface-highlight bg-surface-overlay px-3 py-1.5">
           <span className="text-xs text-text-muted">
-            {hovered.row.charAt(0).toUpperCase() + hovered.row.slice(1)} &middot;{" "}
+            {hovered.row.charAt(0).toUpperCase() + hovered.row.slice(1)}{" "}
+            {t("dataExplorer.charts.common.separator")}{" "}
             {hovered.col}
           </span>
           <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-primary">
-            {formatCompact(hoveredVal)} records
+            {t("dataExplorer.charts.common.records", {
+              count: formatCompact(hoveredVal),
+            })}
           </span>
         </div>
       )}

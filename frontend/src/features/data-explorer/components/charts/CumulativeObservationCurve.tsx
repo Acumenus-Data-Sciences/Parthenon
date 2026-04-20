@@ -8,6 +8,7 @@ import {
   CartesianGrid,
   ReferenceLine,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 import type { BoxPlotData } from "../../types/dataExplorer";
 import { formatCompact, CHART, TOOLTIP_CLS } from "./chartUtils";
 
@@ -22,13 +23,18 @@ function CustomTooltip({
   active?: boolean;
   payload?: Array<{ payload: { days: number; pct: number; label: string } }>;
 }) {
+  const { t } = useTranslation("app");
+
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
     <div className={TOOLTIP_CLS}>
       <p className="text-xs text-text-muted">{d.label}</p>
       <p className="font-['IBM_Plex_Mono',monospace] text-xs text-text-primary">
-        {formatCompact(d.days)} days — {d.pct}% of persons
+        {t("dataExplorer.charts.cumulativeObservation.tooltipValue", {
+          days: formatCompact(d.days),
+          pct: d.pct,
+        })}
       </p>
     </div>
   );
@@ -37,18 +43,19 @@ function CustomTooltip({
 export function CumulativeObservationCurve({
   distribution,
 }: CumulativeObservationCurveProps) {
+  const { t } = useTranslation("app");
   const { min, p10, p25, median, p75, p90, max } = distribution;
 
   // Build KM-style data: at each percentile threshold, what % of the population
   // has observation duration >= that value
   const data = [
-    { days: min, pct: 100, label: "Min" },
-    { days: p10, pct: 90, label: "P10" },
-    { days: p25, pct: 75, label: "P25" },
-    { days: median, pct: 50, label: "Median" },
-    { days: p75, pct: 25, label: "P75" },
-    { days: p90, pct: 10, label: "P90" },
-    { days: max, pct: 0, label: "Max" },
+    { days: min, pct: 100, label: t("dataExplorer.charts.cumulativeObservation.labels.min") },
+    { days: p10, pct: 90, label: t("dataExplorer.charts.cumulativeObservation.labels.p10") },
+    { days: p25, pct: 75, label: t("dataExplorer.charts.cumulativeObservation.labels.p25") },
+    { days: median, pct: 50, label: t("dataExplorer.charts.cumulativeObservation.labels.median") },
+    { days: p75, pct: 25, label: t("dataExplorer.charts.cumulativeObservation.labels.p75") },
+    { days: p90, pct: 10, label: t("dataExplorer.charts.cumulativeObservation.labels.p90") },
+    { days: max, pct: 0, label: t("dataExplorer.charts.cumulativeObservation.labels.max") },
   ];
 
   return (
@@ -72,11 +79,11 @@ export function CumulativeObservationCurve({
           dataKey="days"
           type="number"
           tickFormatter={(v: number) => formatCompact(v)}
-          tick={{ fill: CHART.text, fontSize: 10 }}
+          tick={{ fill: CHART.textPrimary, fontSize: 10 }}
           axisLine={{ stroke: CHART.grid }}
           tickLine={{ stroke: CHART.grid }}
           label={{
-            value: "Observation Duration (days)",
+            value: t("dataExplorer.charts.cumulativeObservation.xAxisLabel"),
             position: "insideBottom",
             offset: -4,
             fill: CHART.textMuted,
@@ -86,7 +93,7 @@ export function CumulativeObservationCurve({
         <YAxis
           tickFormatter={(v: number) => `${v}%`}
           domain={[0, 100]}
-          tick={{ fill: CHART.text, fontSize: 11 }}
+          tick={{ fill: CHART.textPrimary, fontSize: 11 }}
           axisLine={false}
           tickLine={false}
           width={45}

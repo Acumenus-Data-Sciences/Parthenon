@@ -7,6 +7,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 import type { RecordCount } from "../../types/dataExplorer";
 
 interface RecordCountsPanelProps {
@@ -35,23 +36,31 @@ function CustomTooltip({
   active?: boolean;
   payload?: Array<{ payload: { displayName: string; count: number } }>;
 }) {
+  const { t } = useTranslation("app");
+
   if (!active || !payload?.length) return null;
   const item = payload[0].payload;
   return (
     <div className="rounded-lg border border-surface-highlight bg-surface-overlay px-3 py-2 shadow-lg">
       <p className="text-sm font-medium text-text-primary">{item.displayName}</p>
       <p className="mt-0.5 font-['IBM_Plex_Mono',monospace] text-xs text-success">
-        {item.count.toLocaleString()} records
+        {t("dataExplorer.charts.common.records", {
+          count: item.count.toLocaleString(),
+        })}
       </p>
     </div>
   );
 }
 
 export function RecordCountsPanel({ data }: RecordCountsPanelProps) {
+  const { t } = useTranslation("app");
+
   if (!data.length) {
     return (
       <div className="flex items-center justify-center rounded-xl border border-border-default bg-surface-raised py-16">
-        <p className="text-sm text-text-muted">No record count data available</p>
+        <p className="text-sm text-text-muted">
+          {t("dataExplorer.charts.recordCounts.noData")}
+        </p>
       </div>
     );
   }
@@ -69,7 +78,7 @@ export function RecordCountsPanel({ data }: RecordCountsPanelProps) {
   return (
     <div className="rounded-xl border border-border-default bg-surface-raised p-6">
       <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-text-muted">
-        Record Counts by CDM Table
+        {t("dataExplorer.charts.recordCounts.title")}
       </h3>
       <ResponsiveContainer width="100%" height={chartHeight}>
         <BarChart

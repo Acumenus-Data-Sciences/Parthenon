@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { Saml2Settings } from "@/types/models";
 
 interface Props {
@@ -37,48 +38,53 @@ const NAME_ID_FORMATS = [
 ];
 
 export function Saml2ConfigForm({ settings, onSave, isPending, saveSuccess }: Props) {
+  const { t } = useTranslation("app");
   const [s, setS] = useState<Saml2Settings>({ ...settings });
   const set = <K extends keyof Saml2Settings>(k: K, v: Saml2Settings[K]) =>
     setS((p) => ({ ...p, [k]: v }));
 
   return (
     <div className="space-y-5">
-      <p className="text-sm font-semibold text-foreground">Identity Provider (IdP)</p>
-      <Field label="IdP Entity ID">
+      <p className="text-sm font-semibold text-foreground">
+        {t("administration.authProviders.samlForm.sections.identityProvider")}
+      </p>
+      <Field label={t("administration.authProviders.samlForm.labels.idpEntityId")}>
         <Inp value={s.idp_entity_id} onChange={(v) => set("idp_entity_id", v)} placeholder="https://idp.example.com/entity" />
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="SSO URL" hint="Single Sign-On endpoint">
+        <Field label={t("administration.authProviders.samlForm.labels.ssoUrl")} hint={t("administration.authProviders.samlForm.hints.ssoUrl")}>
           <Inp value={s.idp_sso_url} onChange={(v) => set("idp_sso_url", v)} placeholder="https://idp.example.com/sso" />
         </Field>
-        <Field label="SLO URL" hint="Single Logout endpoint (optional)">
+        <Field label={t("administration.authProviders.samlForm.labels.sloUrl")} hint={t("administration.authProviders.samlForm.hints.sloUrl")}>
           <Inp value={s.idp_slo_url} onChange={(v) => set("idp_slo_url", v)} placeholder="https://idp.example.com/slo" />
         </Field>
       </div>
-      <Field label="IdP Certificate" hint="Paste the X.509 certificate (PEM format, with or without headers)">
+      <Field label={t("administration.authProviders.samlForm.labels.idpCertificate")} hint={t("administration.authProviders.samlForm.hints.idpCertificate")}>
         <textarea
           rows={6}
           value={s.idp_certificate}
           onChange={(e) => set("idp_certificate", e.target.value)}
-          placeholder="-----BEGIN CERTIFICATE-----&#10;MIIDxTCC...&#10;-----END CERTIFICATE-----"
+          placeholder={t("administration.authProviders.samlForm.placeholders.certificate")}
           className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-ring"
         />
       </Field>
 
       <hr className="border-border" />
-      <p className="text-sm font-semibold text-foreground">Service Provider (SP)</p>
-      <Field label="SP Entity ID" hint="Your Parthenon instance URL — must match what the IdP has registered">
+      <p className="text-sm font-semibold text-foreground">
+        {t("administration.authProviders.samlForm.sections.serviceProvider")}
+      </p>
+      <Field label={t("administration.authProviders.samlForm.labels.spEntityId")} hint={t("administration.authProviders.samlForm.hints.spEntityId")}>
         <Inp value={s.sp_entity_id} onChange={(v) => set("sp_entity_id", v)} placeholder="https://parthenon.example.com" />
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="ACS URL" hint="Assertion Consumer Service">
-          <Inp value={s.sp_acs_url} onChange={(v) => set("sp_acs_url", v)} placeholder="/api/v1/auth/saml2/callback" />
+        <Field label={t("administration.authProviders.samlForm.labels.acsUrl")} hint={t("administration.authProviders.samlForm.hints.acsUrl")}>
+          <Inp value={s.sp_acs_url} onChange={(v) => set("sp_acs_url", v)} placeholder={t("administration.authProviders.samlForm.placeholders.acsUrl")} />
         </Field>
-        <Field label="SLO URL">
-          <Inp value={s.sp_slo_url} onChange={(v) => set("sp_slo_url", v)} placeholder="/api/v1/auth/saml2/logout" />
+        <Field label={t("administration.authProviders.samlForm.labels.sloUrl")}>
+          <Inp value={s.sp_slo_url} onChange={(v) => set("sp_slo_url", v)} placeholder={t("administration.authProviders.samlForm.placeholders.sloUrl")} />
         </Field>
       </div>
-      <Field label="NameID Format">
+      <Field label={t("administration.authProviders.samlForm.labels.nameIdFormat")}>
         <select
           value={s.name_id_format}
           onChange={(e) => set("name_id_format", e.target.value)}
@@ -89,18 +95,22 @@ export function Saml2ConfigForm({ settings, onSave, isPending, saveSuccess }: Pr
       </Field>
       <label className="flex cursor-pointer items-center gap-2 text-sm">
         <input type="checkbox" checked={s.sign_assertions} onChange={(e) => set("sign_assertions", e.target.checked)} className="accent-primary" />
-        Sign assertions (requires SP private key — configure in server env)
+        {t("administration.authProviders.samlForm.labels.signAssertions")}
       </label>
 
       <hr className="border-border" />
-      <p className="text-sm font-semibold text-foreground">Attribute Mapping</p>
-      <p className="text-xs text-muted-foreground">Map SAML assertion attribute names to Parthenon user fields.</p>
+      <p className="text-sm font-semibold text-foreground">
+        {t("administration.authProviders.samlForm.sections.attributeMapping")}
+      </p>
+      <p className="text-xs text-muted-foreground">
+        {t("administration.authProviders.samlForm.attributeMappingDescription")}
+      </p>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Email attribute">
+        <Field label={t("administration.authProviders.samlForm.labels.emailAttribute")}>
           <Inp value={s.attribute_mapping.email} onChange={(v) => set("attribute_mapping", { ...s.attribute_mapping, email: v })} placeholder="email" />
         </Field>
-        <Field label="Display name attribute">
-          <Inp value={s.attribute_mapping.name} onChange={(v) => set("attribute_mapping", { ...s.attribute_mapping, name: v })} placeholder="displayName" />
+        <Field label={t("administration.authProviders.samlForm.labels.displayNameAttribute")}>
+          <Inp value={s.attribute_mapping.name} onChange={(v) => set("attribute_mapping", { ...s.attribute_mapping, name: v })} placeholder={t("administration.authProviders.samlForm.placeholders.displayName")} />
         </Field>
       </div>
 
@@ -110,11 +120,14 @@ export function Saml2ConfigForm({ settings, onSave, isPending, saveSuccess }: Pr
           disabled={isPending}
           className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
-          {isPending ? "Saving…" : "Save"}
+          {isPending
+            ? t("administration.authProviders.formActions.saving")
+            : t("administration.authProviders.formActions.save")}
         </button>
         {saveSuccess && (
           <span className="flex items-center gap-1 text-xs text-green-600">
-            <CheckCircle2 className="h-4 w-4" /> Saved
+            <CheckCircle2 className="h-4 w-4" />{" "}
+            {t("administration.authProviders.formActions.saved")}
           </span>
         )}
       </div>

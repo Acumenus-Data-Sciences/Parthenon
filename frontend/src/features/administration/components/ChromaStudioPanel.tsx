@@ -305,7 +305,7 @@ export default function ChromaStudioPanel() {
           style={{
             border: `1px solid ${selectedTheme.border}`,
             background: selectedTheme.bg,
-            color: selectedTheme.text,
+            color: selectedTheme.textColor,
           }}
         >
           <RefreshCw size={14} />
@@ -353,7 +353,7 @@ export default function ChromaStudioPanel() {
                       ? ""
                       : "text-text-ghost hover:text-text-muted"
                   }`}
-                  style={activeTab === tab.key ? { background: selectedTheme.bg, color: selectedTheme.text } : undefined}
+                  style={activeTab === tab.key ? { background: selectedTheme.bg, color: selectedTheme.textColor } : undefined}
                 >
                   <tab.icon size={14} />
                   {t(`administration.chromaStudio.tabs.${tab.labelKey}`)}

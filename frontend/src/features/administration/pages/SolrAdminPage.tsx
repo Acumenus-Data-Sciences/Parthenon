@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import apiClient from "@/lib/api-client";
 import { RefreshCw, Trash2, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Panel, Badge, StatusDot, Button } from "@/components/ui";
 import { HelpButton } from "@/features/help";
 
@@ -14,6 +15,7 @@ interface CoreStatus {
 }
 
 export default function SolrAdminPage() {
+  const { t } = useTranslation("app");
   const [statuses, setStatuses] = useState<Record<string, CoreStatus>>({});
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -24,11 +26,11 @@ export default function SolrAdminPage() {
       const res = await apiClient.get<{ data: Record<string, CoreStatus> }>("/admin/solr/status");
       setStatuses(res.data.data ?? {});
     } catch {
-      setMessage({ type: "error", text: "Failed to fetch Solr status" });
+      setMessage({ type: "error", text: t("administration.solrAdmin.messages.fetchFailed") });
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchStatus();
@@ -44,10 +46,16 @@ export default function SolrAdminPage() {
         `/admin/solr/reindex/${core}`,
         { fresh },
       );
-      setMessage({ type: "success", text: res.data.message ?? `Reindex of '${core}' completed` });
+      setMessage({
+        type: "success",
+        text: res.data.message ?? t("administration.solrAdmin.messages.reindexCompleted", { core }),
+      });
       fetchStatus();
     } catch {
-      setMessage({ type: "error", text: `Failed to reindex '${core}'` });
+      setMessage({
+        type: "error",
+        text: t("administration.solrAdmin.messages.reindexFailed", { core }),
+      });
     } finally {
       setActionLoading(null);
     }
@@ -58,25 +66,37 @@ export default function SolrAdminPage() {
     setMessage(null);
     try {
       const res = await apiClient.post<{ message: string }>("/admin/solr/reindex-all");
-      setMessage({ type: "success", text: res.data.message ?? "Reindex-all completed" });
+      setMessage({
+        type: "success",
+        text: res.data.message ?? t("administration.solrAdmin.messages.reindexAllCompleted"),
+      });
       fetchStatus();
     } catch {
-      setMessage({ type: "error", text: "Failed to reindex all cores" });
+      setMessage({
+        type: "error",
+        text: t("administration.solrAdmin.messages.reindexAllFailed"),
+      });
     } finally {
       setActionLoading(null);
     }
   };
 
   const clearCore = async (core: string) => {
-    if (!confirm(`Are you sure you want to clear all documents from '${core}'? This cannot be undone.`)) return;
+    if (!confirm(t("administration.solrAdmin.messages.clearConfirm", { core }))) return;
     setActionLoading(`clear-${core}`);
     setMessage(null);
     try {
       await apiClient.post(`/admin/solr/clear/${core}`);
-      setMessage({ type: "success", text: `Core '${core}' cleared` });
+      setMessage({
+        type: "success",
+        text: t("administration.solrAdmin.messages.clearCompleted", { core }),
+      });
       fetchStatus();
     } catch {
-      setMessage({ type: "error", text: `Failed to clear '${core}'` });
+      setMessage({
+        type: "error",
+        text: t("administration.solrAdmin.messages.clearFailed", { core }),
+      });
     } finally {
       setActionLoading(null);
     }
@@ -86,8 +106,12 @@ export default function SolrAdminPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Solr Search Administration</h1>
-          <p className="mt-1 text-muted-foreground">Loading core status...</p>
+          <h1 className="text-2xl font-bold text-foreground">
+            {t("administration.solrAdmin.title")}
+          </h1>
+          <p className="mt-1 text-muted-foreground">
+            {t("administration.solrAdmin.loadingCoreStatus")}
+          </p>
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -102,9 +126,11 @@ export default function SolrAdminPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Solr Search Administration</h1>
+          <h1 className="text-2xl font-bold text-foreground">
+            {t("administration.solrAdmin.title")}
+          </h1>
           <p className="mt-1 text-muted-foreground">
-            Manage Solr search cores, trigger reindexing, and monitor status.
+            {t("administration.solrAdmin.subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -120,7 +146,7 @@ export default function SolrAdminPage() {
             ) : (
               <RefreshCw className="mr-1 h-4 w-4" />
             )}
-            Re-index All Cores
+            {t("administration.solrAdmin.actions.reindexAll")}
           </Button>
         </div>
       </div>
@@ -150,27 +176,41 @@ export default function SolrAdminPage() {
                 </div>
               </div>
               <Badge variant={status.available ? "success" : "critical"}>
-                {status.available ? "Healthy" : "Unavailable"}
+                {status.available
+                  ? t("administration.solrAdmin.status.healthy")
+                  : t("administration.solrAdmin.status.unavailable")}
               </Badge>
             </div>
 
             <div className="mb-4 grid grid-cols-3 gap-3 text-sm">
               <div>
-                <p className="text-muted-foreground">Documents</p>
+                <p className="text-muted-foreground">
+                  {t("administration.solrAdmin.labels.documents")}
+                </p>
                 <p className="text-lg font-semibold text-foreground">
                   {status.document_count !== null ? status.document_count.toLocaleString() : "—"}
                 </p>
               </div>
               <div>
-                <p className="text-muted-foreground">Last Indexed</p>
+                <p className="text-muted-foreground">
+                  {t("administration.solrAdmin.labels.lastIndexed")}
+                </p>
                 <p className="text-foreground">
-                  {status.last_indexed_at ? new Date(status.last_indexed_at).toLocaleString() : "Never"}
+                  {status.last_indexed_at
+                    ? new Date(status.last_indexed_at).toLocaleString()
+                    : t("administration.solrAdmin.values.never")}
                 </p>
               </div>
               <div>
-                <p className="text-muted-foreground">Duration</p>
+                <p className="text-muted-foreground">
+                  {t("administration.solrAdmin.labels.duration")}
+                </p>
                 <p className="text-foreground">
-                  {status.last_index_duration_seconds ? `${status.last_index_duration_seconds}s` : "—"}
+                  {status.last_index_duration_seconds
+                    ? t("administration.solrAdmin.values.seconds", {
+                        seconds: status.last_index_duration_seconds,
+                      })
+                    : "—"}
                 </p>
               </div>
             </div>
@@ -187,7 +227,7 @@ export default function SolrAdminPage() {
                 ) : (
                   <RefreshCw className="mr-1 h-3.5 w-3.5" />
                 )}
-                Re-index
+                {t("administration.solrAdmin.actions.reindex")}
               </Button>
               <Button
                 variant="secondary"
@@ -195,7 +235,7 @@ export default function SolrAdminPage() {
                 onClick={() => reindex(name, true)}
                 disabled={actionLoading !== null || !status.available}
               >
-                Full Re-index
+                {t("administration.solrAdmin.actions.fullReindex")}
               </Button>
               <Button
                 variant="ghost"
@@ -209,7 +249,7 @@ export default function SolrAdminPage() {
                 ) : (
                   <Trash2 className="mr-1 h-3.5 w-3.5" />
                 )}
-                Clear
+                {t("administration.solrAdmin.actions.clear")}
               </Button>
             </div>
           </Panel>

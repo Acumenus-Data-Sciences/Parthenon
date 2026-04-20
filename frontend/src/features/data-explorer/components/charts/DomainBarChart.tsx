@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { formatCompact, DOMAIN_COLORS } from "./chartUtils";
 
 interface DomainBarChartProps {
@@ -6,6 +7,8 @@ interface DomainBarChartProps {
 }
 
 export function DomainBarChart({ data, onDomainClick }: DomainBarChartProps) {
+  const { t } = useTranslation("app");
+
   if (!data.length) return null;
 
   const sorted = [...data].sort((a, b) => b.size - a.size);
@@ -77,7 +80,7 @@ export function DomainBarChart({ data, onDomainClick }: DomainBarChartProps) {
       <div className="mt-1 flex items-center gap-3 border-t border-border-default px-2 pt-3">
         <div className="w-28 shrink-0">
           <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-            Total
+            {t("dataExplorer.charts.common.total")}
           </span>
         </div>
         <div className="flex-1" />

@@ -7,6 +7,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 import type { ConceptSummary } from "../../types/dataExplorer";
 
 interface TopConceptsBarProps {
@@ -51,6 +52,8 @@ function CustomTooltip({
   active?: boolean;
   payload?: Array<{ payload: ConceptSummary }>;
 }) {
+  const { t } = useTranslation("app");
+
   if (!active || !payload?.length) return null;
   const item = payload[0].payload;
   return (
@@ -59,14 +62,18 @@ function CustomTooltip({
         {item.concept_name}
       </p>
       <p className="mt-0.5 font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">
-        ID: {item.concept_id}
+        {t("dataExplorer.charts.topConcepts.id", { id: item.concept_id })}
       </p>
       <p className="font-['IBM_Plex_Mono',monospace] text-xs text-success">
-        {item.count.toLocaleString()} records
+        {t("dataExplorer.charts.common.records", {
+          count: item.count.toLocaleString(),
+        })}
       </p>
       {item.prevalence != null && (
         <p className="font-['IBM_Plex_Mono',monospace] text-xs text-accent">
-          Prevalence: {(item.prevalence * 100).toFixed(2)}%
+          {t("dataExplorer.charts.topConcepts.prevalence", {
+            value: (item.prevalence * 100).toFixed(2),
+          })}
         </p>
       )}
     </div>
@@ -74,10 +81,14 @@ function CustomTooltip({
 }
 
 export function TopConceptsBar({ data, onConceptClick }: TopConceptsBarProps) {
+  const { t } = useTranslation("app");
+
   if (!data.length) {
     return (
       <div className="flex items-center justify-center rounded-xl border border-border-default bg-surface-raised py-16">
-        <p className="text-sm text-text-muted">No concept data available</p>
+        <p className="text-sm text-text-muted">
+          {t("dataExplorer.charts.topConcepts.noData")}
+        </p>
       </div>
     );
   }
@@ -100,7 +111,7 @@ export function TopConceptsBar({ data, onConceptClick }: TopConceptsBarProps) {
   return (
     <div className="rounded-xl border border-border-default bg-surface-raised p-6">
       <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-text-muted">
-        Top Concepts
+        {t("dataExplorer.charts.topConcepts.title")}
       </h3>
       <ResponsiveContainer width="100%" height={chartHeight}>
         <BarChart

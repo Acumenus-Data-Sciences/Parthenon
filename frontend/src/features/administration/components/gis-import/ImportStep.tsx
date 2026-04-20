@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { CheckCircle2, Loader2, ExternalLink, BookOpen } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useExecuteImport, useImportStatus } from "../../hooks/useGisImport";
 import { storeAbbyLearning } from "../../api/gisImportApi";
 import type { ColumnMapping } from "../../types/gisImport";
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function ImportStep({ importId, mapping, onReset }: Props) {
+  const { t } = useTranslation("app");
   const [started, setStarted] = useState(false);
   const [saveLearning, setSaveLearning] = useState(true);
   const execute = useExecuteImport();
@@ -33,7 +35,9 @@ export function ImportStep({ importId, mapping, onReset }: Props) {
           disabled={execute.isPending}
           className="rounded bg-accent px-6 py-3 text-sm font-medium text-surface-base hover:bg-accent/90 disabled:opacity-50"
         >
-          {execute.isPending ? "Starting..." : "Start Import"}
+          {execute.isPending
+            ? t("administration.gisImport.import.starting")
+            : t("administration.gisImport.import.startImport")}
         </button>
       </div>
     );
@@ -46,7 +50,11 @@ export function ImportStep({ importId, mapping, onReset }: Props) {
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Loader2 className="h-4 w-4 animate-spin text-accent" />
-            <span className="text-sm text-text-primary">Importing... {status?.progress_percentage ?? 0}%</span>
+            <span className="text-sm text-text-primary">
+              {t("administration.gisImport.import.importing", {
+                progress: status?.progress_percentage ?? 0,
+              })}
+            </span>
           </div>
           <div className="h-2 rounded-full bg-surface-elevated">
             <div
@@ -72,8 +80,14 @@ export function ImportStep({ importId, mapping, onReset }: Props) {
           <div className="flex items-center gap-2 rounded border border-green-500/30 bg-green-500/10 p-3">
             <CheckCircle2 className="h-5 w-5 text-green-400" />
             <div>
-              <p className="text-sm font-medium text-green-400">Import Complete</p>
-              <p className="text-xs text-green-300/70">{status.row_count} rows imported</p>
+              <p className="text-sm font-medium text-green-400">
+                {t("administration.gisImport.import.complete")}
+              </p>
+              <p className="text-xs text-green-300/70">
+                {t("administration.gisImport.import.rowsImported", {
+                  count: status.row_count,
+                })}
+              </p>
             </div>
           </div>
 
@@ -87,7 +101,7 @@ export function ImportStep({ importId, mapping, onReset }: Props) {
                 className="rounded border-surface-highlight"
               />
               <BookOpen className="h-3.5 w-3.5 text-accent" />
-              Save mappings so Abby learns for next time
+              {t("administration.gisImport.import.saveLearningPrompt")}
             </label>
             {saveLearning && (
               <button
@@ -100,9 +114,9 @@ export function ImportStep({ importId, mapping, onReset }: Props) {
                   }));
                   await storeAbbyLearning(importId, learnings);
                 }}
-                className="mt-2 rounded bg-surface-elevated px-3 py-1 text-xs text-accent hover:bg-surface-highlight"
-              >
-                Save to Abby
+              className="mt-2 rounded bg-surface-elevated px-3 py-1 text-xs text-accent hover:bg-surface-highlight"
+            >
+                {t("administration.gisImport.import.saveToAbby")}
               </button>
             )}
           </div>
@@ -113,13 +127,13 @@ export function ImportStep({ importId, mapping, onReset }: Props) {
               className="flex items-center gap-1.5 rounded bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-accent/90"
             >
               <ExternalLink className="h-3.5 w-3.5" />
-              View in GIS Explorer
+              {t("administration.gisImport.import.viewInGisExplorer")}
             </a>
             <button
               onClick={onReset}
               className="rounded border border-surface-highlight px-4 py-2 text-sm text-text-muted hover:border-text-ghost"
             >
-              Import Another
+              {t("administration.gisImport.import.importAnother")}
             </button>
           </div>
         </div>
@@ -128,7 +142,9 @@ export function ImportStep({ importId, mapping, onReset }: Props) {
       {/* Failed */}
       {isFailed && (
         <div className="rounded border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-400">
-          <p className="font-medium">Import Failed</p>
+          <p className="font-medium">
+            {t("administration.gisImport.import.failed")}
+          </p>
           {status.error_log?.map((e, i) => (
             <p key={i} className="mt-1 text-xs">{e.message}</p>
           ))}
@@ -136,7 +152,7 @@ export function ImportStep({ importId, mapping, onReset }: Props) {
             onClick={onReset}
             className="mt-3 rounded border border-red-500/30 px-3 py-1 text-xs hover:bg-red-500/10"
           >
-            Start Over
+            {t("administration.gisImport.import.startOver")}
           </button>
         </div>
       )}

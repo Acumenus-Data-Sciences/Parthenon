@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Html } from "@react-three/drei";
+import { useTranslation } from "react-i18next";
 import * as THREE from "three";
 import type { ProjectedPoint3D, QueryResultItem } from "../../api/chromaStudioApi";
 import { SIMILARITY_GRADIENT } from "./constants";
@@ -35,6 +36,7 @@ export default function QueryVisuals({
   results,
   accentColor,
 }: QueryVisualsProps) {
+  const { t } = useTranslation("app");
   const visible = useMemo(() => {
     const pointMap = new Map(points.map((point) => [point.id, point]));
 
@@ -137,7 +139,7 @@ export default function QueryVisuals({
         style={{ pointerEvents: "none" }}
       >
         <div className="rounded border border-border-default bg-surface-raised/95 px-2 py-1 text-xs text-text-secondary shadow-xl backdrop-blur">
-          Query anchor
+          {t("administration.vectorExplorer.query.anchor")}
         </div>
       </Html>
     </group>

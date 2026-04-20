@@ -66,7 +66,7 @@ export const CHART = {
   bgDarker: "var(--surface-base)",
   border: "var(--surface-elevated)",
   grid: "var(--surface-highlight)",
-  text: "var(--text-primary)",
+  textPrimary: "var(--text-primary)",
   textSec: "var(--text-secondary)",
   textMuted: "var(--text-muted)",
   textDim: "var(--text-ghost)",

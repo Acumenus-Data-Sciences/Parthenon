@@ -1,4 +1,5 @@
 import type { QualityReport, ProjectionStats } from "../../api/chromaStudioApi";
+import { useTranslation } from "react-i18next";
 
 interface QualitySummaryProps {
   quality: QualityReport;
@@ -8,10 +9,11 @@ interface QualitySummaryProps {
 }
 
 export default function QualitySummary({ quality, stats, qaLayers, onToggle }: QualitySummaryProps) {
+  const { t } = useTranslation("app");
   const items = [
-    { key: "outliers" as const, label: "Outliers", count: quality.outlier_ids.length, color: "var(--critical)" },
-    { key: "duplicates" as const, label: "Duplicate pairs", count: quality.duplicate_pairs.length, color: "var(--warning)" },
-    { key: "orphans" as const, label: "Orphans", count: quality.orphan_ids.length, color: "var(--text-ghost)" },
+    { key: "outliers" as const, labelKey: "outliers", count: quality.outlier_ids.length, color: "var(--critical)" },
+    { key: "duplicates" as const, labelKey: "duplicatePairs", count: quality.duplicate_pairs.length, color: "var(--warning)" },
+    { key: "orphans" as const, labelKey: "orphans", count: quality.orphan_ids.length, color: "var(--text-ghost)" },
   ];
 
   function handleExport() {
@@ -44,17 +46,21 @@ export default function QualitySummary({ quality, stats, qaLayers, onToggle }: Q
         >
           <span className="h-2 w-2 rounded-full" style={{ background: item.color }} />
           <span className="text-text-secondary">{item.count}</span>
-          <span className="text-text-ghost">{item.label}</span>
+          <span className="text-text-ghost">
+            {t(`administration.vectorExplorer.quality.${item.labelKey}`)}
+          </span>
         </button>
       ))}
       <span className="text-xs text-text-ghost">
-        out of {stats.sampled.toLocaleString()} sampled
+        {t("administration.vectorExplorer.quality.outOfSampled", {
+          count: stats.sampled.toLocaleString(),
+        })}
       </span>
       <button
         onClick={handleExport}
         className="ml-auto text-xs text-accent hover:text-accent/80"
       >
-        Export CSV
+        {t("administration.vectorExplorer.quality.exportCsv")}
       </button>
     </div>
   );

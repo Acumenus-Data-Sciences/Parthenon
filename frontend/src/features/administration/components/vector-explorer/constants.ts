@@ -14,12 +14,13 @@ export interface CollectionTheme {
   accent: string;
   bg: string;
   border: string;
-  text: string;
+  textColor: string;
   palette: readonly string[];
 }
 
 export interface SampleStep {
   label: string;
+  labelKey?: "all";
   value: number;
   effectiveValue: number;
 }
@@ -34,42 +35,42 @@ export const COLLECTION_THEMES: Record<string, CollectionTheme> = {
     accent: "var(--success)",
     bg: "rgba(45, 212, 191, 0.10)",
     border: "rgba(45, 212, 191, 0.25)",
-    text: "var(--success)",
+    textColor: "var(--success)",
     palette: buildPalette("var(--success)", [...CLUSTER_PALETTE]),
   },
   ohdsi_papers: {
     accent: "var(--accent)",
     bg: "rgba(201, 162, 39, 0.12)",
     border: "rgba(201, 162, 39, 0.28)",
-    text: "var(--accent)",
+    textColor: "var(--accent)",
     palette: buildPalette("var(--accent)", [...CLUSTER_PALETTE]),
   },
   medical_textbooks: {
     accent: "var(--info)",
     bg: "rgba(96, 165, 250, 0.12)",
     border: "rgba(96, 165, 250, 0.28)",
-    text: "var(--info)",
+    textColor: "var(--info)",
     palette: buildPalette("var(--info)", [...CLUSTER_PALETTE]),
   },
   clinical_reference: {
     accent: "var(--primary)",
     bg: "rgba(155, 27, 48, 0.12)",
     border: "rgba(155, 27, 48, 0.28)",
-    text: "var(--critical)",
+    textColor: "var(--critical)",
     palette: buildPalette("var(--primary)", [...CLUSTER_PALETTE]),
   },
   faq_shared: {
     accent: "var(--domain-observation)",
     bg: "rgba(167, 139, 250, 0.12)",
     border: "rgba(167, 139, 250, 0.28)",
-    text: "var(--domain-observation)",
+    textColor: "var(--domain-observation)",
     palette: buildPalette("var(--domain-observation)", [...CLUSTER_PALETTE]),
   },
   conversation_memory: {
     accent: "var(--domain-device)",
     bg: "rgba(251, 146, 60, 0.12)",
     border: "rgba(251, 146, 60, 0.28)",
-    text: "var(--domain-device)",
+    textColor: "var(--domain-device)",
     palette: buildPalette("var(--domain-device)", [...CLUSTER_PALETTE]),
   },
 };
@@ -82,7 +83,7 @@ export function getCollectionTheme(collectionName: string | null | undefined): C
     accent: "var(--success)",
     bg: "rgba(45, 212, 191, 0.10)",
     border: "rgba(45, 212, 191, 0.25)",
-    text: "var(--success)",
+    textColor: "var(--success)",
     palette: CLUSTER_PALETTE,
   };
 }
@@ -116,7 +117,7 @@ const FALLBACK_SAMPLE_STEPS = [
   { label: "1K", value: 1000 },
   { label: "5K", value: 5000 },
   { label: "15K", value: 15000 },
-  { label: "All", value: 0 },
+  { label: "", labelKey: "all", value: 0 },
 ] as const;
 
 export const DEFAULT_SAMPLE_SIZE = 5000;
@@ -158,7 +159,8 @@ export function getAdaptiveSampleSteps(totalCount: number): SampleStep[] {
   return [
     ...steps,
     {
-      label: "All",
+      label: "",
+      labelKey: "all" as const,
       value: 0,
       effectiveValue: totalCount,
     },

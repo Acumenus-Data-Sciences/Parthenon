@@ -12,6 +12,7 @@ import {
   Search,
   Loader2,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { PacsConnection } from "../api/pacsApi";
 
@@ -29,8 +30,8 @@ function formatDiskMb(mb: number | null | undefined): string {
   return `${Math.round(mb)} MB`;
 }
 
-function formatDate(iso: string | null): string {
-  if (!iso) return "Never";
+function formatDate(iso: string | null, neverLabel: string): string {
+  if (!iso) return neverLabel;
   return new Date(iso).toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
@@ -104,6 +105,7 @@ export default function PacsConnectionCard({
   isTesting,
   isRefreshing,
 }: PacsConnectionCardProps) {
+  const { t } = useTranslation("app");
   const stats = connection.metadata_cache;
 
   return (
@@ -135,7 +137,11 @@ export default function PacsConnectionCard({
           <button
             type="button"
             onClick={() => onSetDefault(connection.id)}
-            title={connection.is_default ? "Default connection" : "Set as default"}
+            title={
+              connection.is_default
+                ? t("administration.pacs.connectionCard.defaultConnection")
+                : t("administration.pacs.connectionCard.setAsDefault")
+            }
             className="flex-shrink-0"
           >
             <Star
@@ -158,7 +164,7 @@ export default function PacsConnectionCard({
           <button
             type="button"
             onClick={() => onEdit(connection)}
-            title="Edit"
+            title={t("administration.pacs.connectionCard.actions.edit")}
             className="p-2 rounded text-text-ghost hover:text-text-secondary hover:bg-surface-elevated transition-colors"
           >
             <Pencil size={16} />
@@ -166,9 +172,17 @@ export default function PacsConnectionCard({
           <button
             type="button"
             onClick={() => {
-              if (confirm(`Delete "${connection.name}"?`)) onDelete(connection.id);
+              if (
+                confirm(
+                  t("administration.pacs.connectionCard.deleteConfirm", {
+                    name: connection.name,
+                  }),
+                )
+              ) {
+                onDelete(connection.id);
+              }
             }}
-            title="Delete"
+            title={t("administration.pacs.connectionCard.actions.delete")}
             className="p-2 rounded text-text-ghost hover:text-critical hover:bg-critical/10 transition-colors"
           >
             <Trash2 size={16} />
@@ -179,21 +193,23 @@ export default function PacsConnectionCard({
       {/* Stats row */}
       <div className="mt-4 grid grid-cols-5 gap-3">
         {[
-          { label: "Patients", value: formatCount(stats?.count_patients), icon: Users },
-          { label: "Studies", value: formatCount(stats?.count_studies), icon: Database },
-          { label: "Series", value: formatCount(stats?.count_series), icon: Film },
-          { label: "Instances", value: formatCount(stats?.count_instances), icon: Image },
-          { label: "Disk", value: formatDiskMb(stats?.total_disk_size_mb), icon: HardDrive },
+          { labelKey: "patients", value: formatCount(stats?.count_patients), icon: Users },
+          { labelKey: "studies", value: formatCount(stats?.count_studies), icon: Database },
+          { labelKey: "series", value: formatCount(stats?.count_series), icon: Film },
+          { labelKey: "instances", value: formatCount(stats?.count_instances), icon: Image },
+          { labelKey: "disk", value: formatDiskMb(stats?.total_disk_size_mb), icon: HardDrive },
         ].map((cell) => (
           <div
-            key={cell.label}
+            key={cell.labelKey}
             className="rounded-lg bg-surface-base px-3 py-3 text-center"
           >
             <cell.icon size={16} className="mx-auto text-text-ghost mb-1.5" />
             <div className="text-sm font-semibold text-text-primary font-['IBM_Plex_Mono',monospace]">
               {cell.value}
             </div>
-            <div className="text-xs text-text-muted mt-0.5">{cell.label}</div>
+            <div className="text-xs text-text-muted mt-0.5">
+              {t(`administration.pacs.connectionCard.stats.${cell.labelKey}`)}
+            </div>
           </div>
         ))}
       </div>
@@ -201,7 +217,9 @@ export default function PacsConnectionCard({
       {/* Modality breakdown */}
       {stats?.modalities && Object.keys(stats.modalities).length > 0 && (
         <div className="mt-3 rounded-lg bg-surface-base px-4 py-3">
-          <div className="text-xs font-medium text-text-muted mb-2">Series by Modality</div>
+          <div className="text-xs font-medium text-text-muted mb-2">
+            {t("administration.pacs.connectionCard.seriesByModality")}
+          </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-1.5">
             {Object.entries(stats.modalities).map(([mod, count]) => (
               <div key={mod} className="flex items-baseline justify-between gap-2">
@@ -223,7 +241,12 @@ export default function PacsConnectionCard({
       {/* Footer */}
       <div className="mt-4 flex items-center justify-between">
         <span className="text-sm text-text-ghost">
-          Stats updated {formatDate(connection.metadata_cached_at)}
+          {t("administration.pacs.connectionCard.statsUpdated", {
+            date: formatDate(
+              connection.metadata_cached_at,
+              t("administration.pacs.connectionCard.never"),
+            ),
+          })}
         </span>
         <div className="flex items-center gap-1.5">
           <button
@@ -237,7 +260,7 @@ export default function PacsConnectionCard({
             ) : (
               <Play size={14} />
             )}
-            Test
+            {t("administration.pacs.connectionCard.actions.test")}
           </button>
           <button
             type="button"
@@ -250,7 +273,7 @@ export default function PacsConnectionCard({
             ) : (
               <RefreshCw size={14} />
             )}
-            Stats
+            {t("administration.pacs.connectionCard.actions.stats")}
           </button>
           <button
             type="button"
@@ -258,7 +281,7 @@ export default function PacsConnectionCard({
             className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-success hover:bg-success/10 transition-colors"
           >
             <Search size={14} />
-            Browse
+            {t("administration.pacs.connectionCard.actions.browse")}
           </button>
         </div>
       </div>

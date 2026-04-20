@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Brain, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAnalyzeImport } from "../../hooks/useGisImport";
 import type { ColumnSuggestion } from "../../types/gisImport";
 
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function AnalyzeStep({ importId, onComplete }: Props) {
+  const { t } = useTranslation("app");
   const analyze = useAnalyzeImport();
 
   useEffect(() => {
@@ -24,13 +26,13 @@ export function AnalyzeStep({ importId, onComplete }: Props) {
   if (analyze.isError) {
     return (
       <div className="rounded border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-400">
-        <p>Abby encountered an issue analyzing this file.</p>
-        <p className="mt-1 text-xs">{analyze.error instanceof Error ? analyze.error.message : "Unknown error"}</p>
+        <p>{t("administration.gisImport.analyze.analysisFailed")}</p>
+        <p className="mt-1 text-xs">{analyze.error instanceof Error ? analyze.error.message : t("administration.gisImport.analyze.unknownError")}</p>
         <button
           onClick={() => analyze.mutate(importId, { onSuccess: (d) => onComplete(d.suggestions || []) })}
           className="mt-2 rounded bg-surface-elevated px-3 py-1 text-xs text-text-primary hover:bg-surface-highlight"
         >
-          Retry
+          {t("administration.gisImport.analyze.retry")}
         </button>
       </div>
     );
@@ -45,8 +47,8 @@ export function AnalyzeStep({ importId, onComplete }: Props) {
           <Brain className="h-8 w-8 text-accent" />
         )}
       </div>
-      <p className="text-sm text-text-primary">Abby is analyzing your data...</p>
-      <p className="mt-1 text-xs text-text-ghost">Detecting column types, geography codes, and value semantics</p>
+      <p className="text-sm text-text-primary">{t("administration.gisImport.analyze.analyzing")}</p>
+      <p className="mt-1 text-xs text-text-ghost">{t("administration.gisImport.analyze.detecting")}</p>
     </div>
   );
 }

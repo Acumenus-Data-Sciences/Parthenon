@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { BoxPlotData } from "../../types/dataExplorer";
 
 interface BoxPlotChartProps {
@@ -13,10 +14,14 @@ function formatCompact(n: number): string {
 }
 
 export function BoxPlotChart({ data, label }: BoxPlotChartProps) {
+  const { t } = useTranslation("app");
+
   if (!data) {
     return (
       <div className="flex items-center justify-center rounded-xl border border-border-default bg-surface-raised py-16">
-        <p className="text-sm text-text-muted">No distribution data</p>
+        <p className="text-sm text-text-muted">
+          {t("dataExplorer.charts.boxPlot.noDistributionData")}
+        </p>
       </div>
     );
   }
@@ -48,7 +53,7 @@ export function BoxPlotChart({ data, label }: BoxPlotChartProps) {
         viewBox={`0 0 ${plotW} ${plotH + 40}`}
         className="w-full"
         role="img"
-        aria-label={label ?? "Box plot"}
+        aria-label={label ?? t("dataExplorer.charts.boxPlot.ariaLabel")}
       >
         {/* Whisker line: min to max */}
         <line
@@ -130,13 +135,13 @@ export function BoxPlotChart({ data, label }: BoxPlotChartProps) {
           {formatCompact(min)}
         </text>
         <text x={sx(p25)} y={plotH + 12} textAnchor="middle" className="fill-text-ghost" fontSize={9}>
-          P25: {formatCompact(p25)}
+          {t("dataExplorer.charts.boxPlot.labels.p25", { value: formatCompact(p25) })}
         </text>
         <text x={sx(median)} y={plotH + 24} textAnchor="middle" className="fill-accent" fontSize={9} fontWeight={600}>
-          Median: {formatCompact(median)}
+          {t("dataExplorer.charts.boxPlot.labels.median", { value: formatCompact(median) })}
         </text>
         <text x={sx(p75)} y={plotH + 12} textAnchor="middle" className="fill-text-ghost" fontSize={9}>
-          P75: {formatCompact(p75)}
+          {t("dataExplorer.charts.boxPlot.labels.p75", { value: formatCompact(p75) })}
         </text>
         <text x={sx(max)} y={plotH + 12} textAnchor="middle" className="fill-text-ghost" fontSize={9}>
           {formatCompact(max)}

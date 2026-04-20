@@ -8,6 +8,7 @@
 
 import { Fragment, useState } from "react";
 import { Check, X, Minus, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { Role } from "@/types/models";
 import type { PermissionsByDomain } from "../api/adminApi";
 import { useUpdateRole } from "../hooks/useAdminRoles";
@@ -28,6 +29,7 @@ function buildMatrix(roles: Role[]): Matrix {
 }
 
 export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
+  const { t } = useTranslation("app");
   const [matrix, setMatrix] = useState<Matrix>(() => buildMatrix(roles));
   const [dirty, setDirty] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState<Set<string>>(new Set());
@@ -134,8 +136,7 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-4">
         <p className="text-sm text-text-muted">
-          Click cells to toggle permissions · row headers to apply across all roles ·
-          column headers to grant/revoke all for a role.
+          {t("administration.roles.permissionMatrix.instructions")}
         </p>
         {dirty.size > 0 && (
           <button
@@ -143,7 +144,12 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
             onClick={saveAll}
             className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-1.5 text-sm font-medium text-surface-base transition-colors hover:bg-success-dark shrink-0"
           >
-            Save All Changes ({dirty.size} role{dirty.size > 1 ? "s" : ""})
+            {t(
+              dirty.size === 1
+                ? "administration.roles.permissionMatrix.saveAllChangesOne"
+                : "administration.roles.permissionMatrix.saveAllChangesOther",
+              { count: dirty.size },
+            )}
           </button>
         )}
       </div>
@@ -154,34 +160,36 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
           <thead>
             <tr className="border-b border-border-default bg-surface-overlay">
               <th className="sticky left-0 z-10 w-48 bg-surface-overlay px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wider text-text-ghost">
-                Permission
+                {t("administration.roles.permissionMatrix.permission")}
               </th>
               {editableRoles.map((r) => (
                 <th
                   key={r.id}
                   className="min-w-[8rem] cursor-pointer px-2 py-2.5 text-center transition-colors hover:bg-surface-elevated"
                   onClick={() => toggleColumn(r.name)}
-                  title={`Toggle all permissions for ${r.name}`}
+                  title={t("administration.roles.permissionMatrix.columnTitle", { role: r.name })}
                 >
                   <div className="font-semibold text-text-primary">{r.name}</div>
                   <div className="mt-0.5 font-normal text-text-ghost">
-                    {matrix[r.name]?.size ?? 0} perms
+                    {t("administration.roles.permissionMatrix.permissionCount", {
+                      count: matrix[r.name]?.size ?? 0,
+                    })}
                   </div>
                   {dirty.has(r.name) && (
                     <div className="mt-0.5">
                       {saving.has(r.name) ? (
                         <span className="inline-flex items-center gap-1 text-text-muted">
-                          <Loader2 size={10} className="animate-spin" /> saving…
+                          <Loader2 size={10} className="animate-spin" /> {t("administration.roles.permissionMatrix.saving")}
                         </span>
                       ) : saved.has(r.name) ? (
-                        <span className="text-success">saved ✓</span>
+                        <span className="text-success">{t("administration.roles.permissionMatrix.saved")}</span>
                       ) : (
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); saveRole(r.name); }}
                           className="text-success underline underline-offset-2 hover:text-success-dark"
                         >
-                          save
+                          {t("administration.roles.permissionMatrix.save")}
                         </button>
                       )}
                     </div>
@@ -197,7 +205,7 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
                 <tr
                   className="cursor-pointer border-t border-border-default bg-surface-overlay/60 transition-colors hover:bg-surface-overlay"
                   onClick={() => toggleDomainRow(perms)}
-                  title={`Toggle all ${domain} permissions across all roles`}
+                  title={t("administration.roles.permissionMatrix.domainTitle", { domain })}
                 >
                   <td className="sticky left-0 z-10 bg-surface-overlay px-3 py-1.5 font-semibold capitalize text-text-secondary">
                     {domain}
@@ -230,7 +238,7 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
                       <td
                         className="sticky left-0 z-10 cursor-pointer bg-surface-raised px-3 py-1 transition-colors hover:bg-surface-overlay"
                         onClick={() => toggleRow(perm.name)}
-                        title={`Toggle ${perm.name} for all roles`}
+                        title={t("administration.roles.permissionMatrix.rowTitle", { permission: perm.name })}
                       >
                         <span className="pl-3 font-mono text-text-muted">{action}</span>
                       </td>
@@ -241,7 +249,12 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
                             key={r.id}
                             className="cursor-pointer px-2 py-1 text-center transition-colors hover:bg-surface-overlay/60"
                             onClick={() => toggleCell(r.name, perm.name)}
-                            title={`${on ? "Revoke" : "Grant"} ${perm.name} from ${r.name}`}
+                            title={t(
+                              on
+                                ? "administration.roles.permissionMatrix.cellTitleRevoke"
+                                : "administration.roles.permissionMatrix.cellTitleGrant",
+                              { permission: perm.name, role: r.name },
+                            )}
                           >
                             {on ? (
                               <span className="mx-auto flex h-4 w-4 items-center justify-center rounded bg-success/15">
