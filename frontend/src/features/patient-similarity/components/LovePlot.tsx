@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 import type { CovariateBalanceRow } from "../types/patientSimilarity";
 
 const TEAL = "var(--color-primary)";
@@ -63,6 +64,7 @@ function SingleLovePlot({
   covariates: CovariateBalanceRow[];
   maxDisplay: number;
 }) {
+  const { t } = useTranslation("app");
   const sorted = [...covariates]
     .sort((a, b) => Math.abs(b.smd) - Math.abs(a.smd))
     .slice(0, maxDisplay);
@@ -76,10 +78,10 @@ function SingleLovePlot({
   return (
     <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4">
       <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-1">
-        Covariate Balance (|SMD|)
+        {t("patientSimilarity.charts.covariateBalanceSmd")}
       </h3>
       <p className="text-xs text-[var(--color-text-muted)] mb-3">
-        Covariates below 0.1 are considered well-balanced
+        {t("patientSimilarity.charts.covariatesBalanced")}
       </p>
       <ResponsiveContainer width="100%" height={Math.max(300, data.length * 22)}>
         <ScatterChart
@@ -100,7 +102,7 @@ function SingleLovePlot({
             dataKey="covariate"
             width={135}
             tick={{ fill: "var(--color-text-secondary)", fontSize: 10 }}
-            name="Covariate"
+            name={t("patientSimilarity.charts.covariate")}
           />
           <ReferenceLine x={0.1} stroke="var(--color-primary)" strokeDasharray="5 5" label={{ value: "0.1", fill: "var(--color-primary)", fontSize: 10 }} />
           <Tooltip
@@ -115,7 +117,7 @@ function SingleLovePlot({
           <Scatter
             data={data}
             fill={TEAL}
-            name="SMD"
+            name="|SMD|"
           />
         </ScatterChart>
       </ResponsiveContainer>
@@ -134,6 +136,7 @@ function BeforeAfterLovePlot({
   after: CovariateBalanceRow[];
   maxDisplay: number;
 }) {
+  const { t } = useTranslation("app");
   // Build lookup by covariate name
   const beforeMap = new Map(before.map((r) => [r.covariate, Math.abs(r.smd)]));
   const afterMap = new Map(after.map((r) => [r.covariate, Math.abs(r.smd)]));
@@ -158,10 +161,10 @@ function BeforeAfterLovePlot({
   return (
     <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4">
       <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-1">
-        Love Plot: Before vs After Matching
+        {t("patientSimilarity.charts.lovePlotBeforeAfter")}
       </h3>
       <p className="text-xs text-[var(--color-text-muted)] mb-3">
-        After-matching dots (teal) should be closer to zero than before-matching dots (crimson)
+        {t("patientSimilarity.charts.lovePlotBeforeAfterHelp")}
       </p>
       <ResponsiveContainer width="100%" height={Math.max(300, displayed.length * 22)}>
         <ScatterChart
@@ -182,7 +185,7 @@ function BeforeAfterLovePlot({
             dataKey="covariate"
             width={135}
             tick={{ fill: "var(--color-text-secondary)", fontSize: 10 }}
-            name="Covariate"
+            name={t("patientSimilarity.charts.covariate")}
           />
           <ReferenceLine x={0.1} stroke="var(--color-primary)" strokeDasharray="5 5" label={{ value: "0.1", fill: "var(--color-primary)", fontSize: 10 }} />
           <Tooltip
@@ -194,7 +197,9 @@ function BeforeAfterLovePlot({
             }}
             formatter={((value: unknown, name: string) => [
               typeof value === "number" ? value.toFixed(4) : String(value),
-              name === "Before" ? "Before |SMD|" : "After |SMD|",
+              name === t("patientSimilarity.charts.before")
+                ? t("patientSimilarity.charts.beforeAbsSmd")
+                : t("patientSimilarity.charts.afterAbsSmd"),
             ]) as never}
           />
           <Legend
@@ -203,13 +208,13 @@ function BeforeAfterLovePlot({
           <Scatter
             data={beforeData}
             fill={CRIMSON}
-            name="Before"
+            name={t("patientSimilarity.charts.before")}
             shape="circle"
           />
           <Scatter
             data={afterData}
             fill={TEAL}
-            name="After"
+            name={t("patientSimilarity.charts.after")}
             shape="circle"
           />
         </ScatterChart>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { PreferenceScoreDistribution } from "./PreferenceScoreDistribution";
 import { LovePlot } from "./LovePlot";
 import type { PropensityMatchResult } from "../types/patientSimilarity";
@@ -19,6 +20,7 @@ function meanAbsSmd(rows: { smd: number }[]): number {
 }
 
 export function PropensityMatchResults({ result }: PropensityMatchResultsProps) {
+  const { t } = useTranslation("app");
   const { model_metrics, matched_pairs, balance, preference_distribution, unmatched } = result;
 
   const beforeMeanSmd = meanAbsSmd(balance.before);
@@ -34,7 +36,7 @@ export function PropensityMatchResults({ result }: PropensityMatchResultsProps) 
       {/* Model Metrics Card */}
       <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4">
         <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-3">
-          Propensity Score Matching Results
+          {t("patientSimilarity.charts.propensityScoreMatchingResults")}
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <MetricCell
@@ -68,20 +70,26 @@ export function PropensityMatchResults({ result }: PropensityMatchResultsProps) 
         {/* SMD Summary */}
         <div className="mt-3 flex items-center gap-6 text-xs">
           <div className="flex items-center gap-2">
-            <span className="text-[var(--color-text-muted)]">Mean |SMD| Before:</span>
+            <span className="text-[var(--color-text-muted)]">
+              {t("patientSimilarity.charts.meanSmdBefore")}
+            </span>
             <span className={beforeMeanSmd > 0.1 ? "text-[var(--color-critical)] font-medium" : "text-[var(--color-text-primary)]"}>
               {beforeMeanSmd.toFixed(4)}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[var(--color-text-muted)]">Mean |SMD| After:</span>
+            <span className="text-[var(--color-text-muted)]">
+              {t("patientSimilarity.charts.meanSmdAfter")}
+            </span>
             <span className={afterMeanSmd > 0.1 ? "text-[var(--color-primary)] font-medium" : "text-[var(--color-primary)] font-medium"}>
               {afterMeanSmd.toFixed(4)}
             </span>
           </div>
           {beforeMeanSmd > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-[var(--color-text-muted)]">Reduction:</span>
+              <span className="text-[var(--color-text-muted)]">
+                {t("patientSimilarity.charts.reduction")}
+              </span>
               <span className="text-[var(--color-primary)]">
                 {((1 - afterMeanSmd / beforeMeanSmd) * 100).toFixed(1)}%
               </span>

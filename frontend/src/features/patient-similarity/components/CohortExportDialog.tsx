@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X, Download, CheckCircle, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useExportCohort } from "../hooks/usePatientSimilarity";
 import type { SimilarPatient } from "../types/patientSimilarity";
@@ -17,6 +18,7 @@ export function CohortExportDialog({
   cacheId,
   patients,
 }: CohortExportDialogProps) {
+  const { t } = useTranslation("app");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [minScore, setMinScore] = useState(0.5);
@@ -60,7 +62,7 @@ export function CohortExportDialog({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border-default px-5 py-4">
           <h2 className="text-base font-semibold text-text-primary">
-            Export as Cohort
+            {t("patientSimilarity.cohortExport.title")}
           </h2>
           <button
             type="button"
@@ -77,10 +79,12 @@ export function CohortExportDialog({
             <div className="flex flex-col items-center py-6 text-center">
               <CheckCircle size={40} className="text-success mb-3" />
               <p className="text-sm text-text-primary font-medium">
-                Cohort created successfully
+                {t("patientSimilarity.cohortExport.success")}
               </p>
               <p className="text-xs text-text-muted mt-1">
-                Cohort Definition ID: {successId}
+                {t("patientSimilarity.cohortExport.cohortDefinitionId", {
+                  id: successId,
+                })}
               </p>
             </div>
           ) : (
@@ -88,13 +92,13 @@ export function CohortExportDialog({
               {/* Cohort Name */}
               <div>
                 <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1.5">
-                  Cohort Name
+                  {t("patientSimilarity.cohortExport.cohortName")}
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Similar to Patient 12345"
+                  placeholder={t("patientSimilarity.cohortExport.cohortNamePlaceholder")}
                   className={cn(
                     "w-full rounded-lg px-3 py-2 text-sm",
                     "bg-surface-base border border-border-default",
@@ -107,12 +111,12 @@ export function CohortExportDialog({
               {/* Description */}
               <div>
                 <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1.5">
-                  Description
+                  {t("patientSimilarity.cohortExport.description")}
                 </label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Optional description..."
+                  placeholder={t("patientSimilarity.cohortExport.descriptionPlaceholder")}
                   rows={3}
                   className={cn(
                     "w-full rounded-lg px-3 py-2 text-sm resize-none",
@@ -127,7 +131,7 @@ export function CohortExportDialog({
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="text-[10px] text-text-ghost uppercase tracking-wider">
-                    Minimum Score
+                    {t("patientSimilarity.cohortExport.minimumScore")}
                   </label>
                   <span className="text-xs font-medium text-success tabular-nums">
                     {minScore.toFixed(2)}
@@ -147,15 +151,17 @@ export function CohortExportDialog({
               {/* Patient Count Preview */}
               <div className="rounded-lg bg-surface-base border border-border-default px-3 py-2">
                 <p className="text-xs text-text-muted">
-                  <span className="font-medium text-text-secondary">{filteredCount}</span>{" "}
-                  of {patients.length} patients meet the minimum score threshold
+                  {t("patientSimilarity.cohortExport.thresholdPreview", {
+                    filtered: filteredCount,
+                    total: patients.length,
+                  })}
                 </p>
               </div>
 
               {/* Error */}
               {exportMutation.isError && (
                 <p className="text-xs text-critical">
-                  Export failed. Please try again.
+                  {t("patientSimilarity.cohortExport.exportFailed")}
                 </p>
               )}
             </>
@@ -173,7 +179,7 @@ export function CohortExportDialog({
                 "bg-success/10 text-success hover:bg-success/20",
               )}
             >
-              Done
+              {t("profiles.common.actions.done")}
             </button>
           ) : (
             <>
@@ -182,7 +188,7 @@ export function CohortExportDialog({
                 onClick={handleClose}
                 className="rounded-lg px-4 py-2 text-sm font-medium text-text-muted hover:text-text-secondary transition-colors"
               >
-                Cancel
+                {t("profiles.common.actions.cancel")}
               </button>
               <button
                 type="button"
@@ -203,7 +209,9 @@ export function CohortExportDialog({
                 ) : (
                   <Download size={14} />
                 )}
-                Export ({filteredCount})
+                {t("patientSimilarity.cohortExport.export", {
+                  count: filteredCount,
+                })}
               </button>
             </>
           )}

@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Loader2, FileText, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Calendar, Tag, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDate as formatAppDate } from "@/i18n/format";
 import { usePatientNotes } from "../hooks/useProfiles";
 import type { ClinicalNote } from "../types/profile";
 
@@ -10,6 +12,7 @@ interface PatientNotesTabProps {
 }
 
 function NoteCard({ note, isExpanded, onToggle }: { note: ClinicalNote; isExpanded: boolean; onToggle: () => void }) {
+  const { t } = useTranslation("app");
   const previewLength = 300;
   const needsTruncation = note.note_text.length > previewLength;
 
@@ -24,7 +27,7 @@ function NoteCard({ note, isExpanded, onToggle }: { note: ClinicalNote; isExpand
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-semibold text-text-primary truncate">
-              {note.note_title || "Untitled Note"}
+              {note.note_title || t("profiles.notes.untitled")}
             </span>
             <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-info/10 px-2 py-0.5 text-[10px] font-medium text-info">
               <Tag size={9} />
@@ -37,17 +40,21 @@ function NoteCard({ note, isExpanded, onToggle }: { note: ClinicalNote; isExpand
           <div className="flex items-center gap-3 mt-1.5 text-[11px] text-text-muted">
             <span className="inline-flex items-center gap-1">
               <Calendar size={10} />
-              {note.note_date}
+              {formatAppDate(note.note_date, {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
             </span>
             {note.provider_id && (
               <span className="inline-flex items-center gap-1">
                 <User size={10} />
-                Provider #{note.provider_id}
+                {t("profiles.notes.provider", { id: note.provider_id })}
               </span>
             )}
             {note.visit_occurrence_id && (
               <span className="text-text-ghost">
-                Visit #{note.visit_occurrence_id}
+                {t("profiles.notes.visit", { id: note.visit_occurrence_id })}
               </span>
             )}
             {note.language !== "Unknown" && (
@@ -79,7 +86,9 @@ function NoteCard({ note, isExpanded, onToggle }: { note: ClinicalNote; isExpand
             onClick={onToggle}
             className="mt-2 text-[11px] text-success hover:text-success/80 transition-colors"
           >
-            Show full note ({Math.ceil(note.note_text.length / 1000)}k chars)
+            {t("profiles.notes.showFullNote", {
+              count: Math.ceil(note.note_text.length / 1000),
+            })}
           </button>
         )}
       </div>
@@ -88,6 +97,7 @@ function NoteCard({ note, isExpanded, onToggle }: { note: ClinicalNote; isExpand
 }
 
 export function PatientNotesTab({ personId, sourceId }: PatientNotesTabProps) {
+  const { t } = useTranslation("app");
   const [page, setPage] = useState(1);
   const [expandedNoteId, setExpandedNoteId] = useState<number | null>(null);
 
@@ -105,7 +115,7 @@ export function PatientNotesTab({ personId, sourceId }: PatientNotesTabProps) {
     return (
       <div className="flex flex-col items-center justify-center h-48 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
         <FileText size={24} className="text-text-ghost mb-3" />
-        <p className="text-sm text-critical">Failed to load clinical notes</p>
+        <p className="text-sm text-critical">{t("profiles.notes.failedToLoad")}</p>
       </div>
     );
   }
@@ -114,7 +124,7 @@ export function PatientNotesTab({ personId, sourceId }: PatientNotesTabProps) {
     return (
       <div className="flex flex-col items-center justify-center h-48 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
         <FileText size={24} className="text-text-ghost mb-3" />
-        <p className="text-sm text-text-muted">No clinical notes available for this patient</p>
+        <p className="text-sm text-text-muted">{t("profiles.notes.noNotes")}</p>
       </div>
     );
   }
@@ -128,10 +138,12 @@ export function PatientNotesTab({ personId, sourceId }: PatientNotesTabProps) {
         <div className="flex items-center gap-2">
           <FileText size={14} className="text-info" />
           <span className="text-sm font-semibold text-text-primary">
-            Clinical Notes
+            {t("profiles.notes.title")}
           </span>
           <span className="text-xs text-text-muted">
-            ({meta.total.toLocaleString()} total)
+            {t("profiles.notes.total", {
+              count: meta.total.toLocaleString(),
+            })}
           </span>
         </div>
         {meta.last_page > 1 && (
@@ -148,10 +160,13 @@ export function PatientNotesTab({ personId, sourceId }: PatientNotesTabProps) {
               )}
             >
               <ChevronLeft size={12} />
-              Prev
+              {t("profiles.common.actions.prev")}
             </button>
             <span className="text-xs text-text-muted">
-              {meta.current_page} / {meta.last_page}
+              {t("profiles.notes.pageOf", {
+                current: meta.current_page,
+                total: meta.last_page,
+              })}
             </span>
             <button
               type="button"
@@ -164,7 +179,7 @@ export function PatientNotesTab({ personId, sourceId }: PatientNotesTabProps) {
                   : "border-surface-highlight text-text-muted hover:text-text-primary hover:border-text-ghost",
               )}
             >
-              Next
+              {t("profiles.common.actions.next")}
               <ChevronRight size={12} />
             </button>
           </div>
@@ -202,10 +217,13 @@ export function PatientNotesTab({ personId, sourceId }: PatientNotesTabProps) {
             )}
           >
             <ChevronLeft size={12} />
-            Previous
+            {t("profiles.common.actions.previous")}
           </button>
           <span className="text-xs text-text-muted">
-            Page {meta.current_page} of {meta.last_page}
+            {t("profiles.notes.pageOf", {
+              current: meta.current_page,
+              total: meta.last_page,
+            })}
           </span>
           <button
             type="button"
@@ -218,7 +236,7 @@ export function PatientNotesTab({ personId, sourceId }: PatientNotesTabProps) {
                 : "border-surface-highlight text-text-muted hover:text-text-primary hover:border-text-ghost",
             )}
           >
-            Next
+            {t("profiles.common.actions.next")}
             <ChevronRight size={12} />
           </button>
         </div>

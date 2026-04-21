@@ -8,6 +8,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 import type { PreferenceDistribution } from "../types/patientSimilarity";
 
 const TEAL = "var(--color-primary)";
@@ -26,6 +27,7 @@ interface ChartDatum {
 export function PreferenceScoreDistribution({
   distribution,
 }: PreferenceScoreDistributionProps) {
+  const { t } = useTranslation("app");
   const chartData: ChartDatum[] = distribution.bins.map((bin, i) => ({
     bin: Math.round(bin * 100) / 100,
     target: distribution.target_density[i] ?? 0,
@@ -41,10 +43,10 @@ export function PreferenceScoreDistribution({
   return (
     <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4">
       <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-1">
-        Preference Score Distribution
+        {t("patientSimilarity.charts.preferenceScoreDistribution")}
       </h3>
       <p className="text-xs text-[var(--color-text-muted)] mb-3">
-        Overlapping distributions indicate good equipoise between cohorts
+        {t("patientSimilarity.charts.preferenceScoreHelp")}
       </p>
       <ResponsiveContainer width="100%" height={260}>
         <AreaChart data={chartData} margin={{ top: 10, right: 10, bottom: 20, left: 10 }}>
@@ -52,7 +54,7 @@ export function PreferenceScoreDistribution({
           <XAxis
             dataKey="bin"
             tick={{ fill: "var(--color-text-muted)", fontSize: 10 }}
-            label={{ value: "Preference Score", position: "bottom", fill: "var(--color-text-muted)", fontSize: 11, offset: 5 }}
+            label={{ value: t("patientSimilarity.charts.preferenceScore"), position: "bottom", fill: "var(--color-text-muted)", fontSize: 11, offset: 5 }}
           />
           <YAxis
             domain={yDomain}
@@ -70,9 +72,14 @@ export function PreferenceScoreDistribution({
             labelStyle={{ color: "var(--color-text-primary)" }}
             formatter={((value: number, name: string) => [
               Math.abs(value).toFixed(4),
-              name === "target" ? "Target" : "Comparator",
+              name === "target"
+                ? t("patientSimilarity.common.target")
+                : t("patientSimilarity.common.comparator"),
             ]) as never}
-            labelFormatter={((label: number) => `Preference: ${label.toFixed(2)}`) as never}
+            labelFormatter={((label: number) =>
+              t("patientSimilarity.charts.preferenceLabel", {
+                value: label.toFixed(2),
+              })) as never}
           />
           <Area
             type="monotone"
@@ -97,11 +104,15 @@ export function PreferenceScoreDistribution({
       <div className="flex items-center justify-center gap-4 mt-2">
         <div className="flex items-center gap-1.5 text-xs">
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: TEAL }} />
-          <span className="text-[var(--color-text-primary)]">Target (above)</span>
+          <span className="text-[var(--color-text-primary)]">
+            {t("patientSimilarity.charts.targetAbove")}
+          </span>
         </div>
         <div className="flex items-center gap-1.5 text-xs">
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: CRIMSON }} />
-          <span className="text-[var(--color-text-primary)]">Comparator (below)</span>
+          <span className="text-[var(--color-text-primary)]">
+            {t("patientSimilarity.charts.comparatorBelow")}
+          </span>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   LineChart,
   Line,
@@ -24,6 +25,7 @@ export function TrajectoryComparison({
   personAId,
   personBId,
 }: TrajectoryComparisonProps) {
+  const { t } = useTranslation("app");
   const [selectedConceptId, setSelectedConceptId] = useState<number | null>(
     null,
   );
@@ -45,7 +47,7 @@ export function TrajectoryComparison({
         <div className="flex items-center justify-center py-12">
           <Loader2 size={20} className="animate-spin text-[var(--color-primary)]" />
           <span className="ml-3 text-sm text-[var(--color-text-secondary)]">
-            Computing trajectory similarity...
+            {t("patientSimilarity.charts.computingTrajectory")}
           </span>
         </div>
       </div>
@@ -58,7 +60,7 @@ export function TrajectoryComparison({
         <div className="flex items-center gap-2">
           <AlertCircle size={16} className="text-[var(--color-critical)]" />
           <span className="text-sm text-[var(--color-critical)]">
-            Failed to compute temporal trajectory comparison.
+            {t("patientSimilarity.charts.temporalComparisonFailed")}
           </span>
         </div>
       </div>
@@ -74,11 +76,11 @@ export function TrajectoryComparison({
         <div className="flex items-center gap-2">
           <TrendingUp size={14} className="text-[var(--color-text-muted)]" />
           <span className="text-xs text-[var(--color-text-muted)] font-semibold uppercase tracking-wider">
-            Temporal Trajectory
+            {t("patientSimilarity.charts.temporalTrajectory")}
           </span>
         </div>
         <p className="mt-2 text-xs text-[var(--color-text-muted)]">
-          No shared temporal measurements found between these patients.
+          {t("patientSimilarity.charts.noSharedTemporalMeasurements")}
         </p>
       </div>
     );
@@ -101,7 +103,7 @@ export function TrajectoryComparison({
         <div className="flex items-center gap-2">
           <TrendingUp size={14} className="text-[var(--color-info)]" />
           <h3 className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
-            Temporal Trajectory Comparison
+            {t("patientSimilarity.charts.temporalTrajectoryComparison")}
           </h3>
         </div>
         <span
@@ -121,7 +123,8 @@ export function TrajectoryComparison({
                   : "color-mix(in srgb, var(--color-text-secondary) 12%, transparent)",
           }}
         >
-          DTW Similarity: {temporalData.overall_similarity.toFixed(3)}
+          {t("patientSimilarity.charts.dtwSimilarity")}{" "}
+          {temporalData.overall_similarity.toFixed(3)}
         </span>
       </div>
 
@@ -134,7 +137,10 @@ export function TrajectoryComparison({
         >
           {sortedMeasurements.map((m) => (
             <option key={m.concept_id} value={m.concept_id}>
-              {m.concept_name} (similarity: {m.similarity.toFixed(3)})
+              {t("patientSimilarity.charts.similarityOption", {
+                name: m.concept_name,
+                value: m.similarity.toFixed(3),
+              })}
             </option>
           ))}
         </select>
@@ -153,19 +159,19 @@ export function TrajectoryComparison({
       {selectedMeasurement && (
         <div className="grid grid-cols-4 gap-3">
           <StatCell
-            label="DTW Distance"
+            label={t("patientSimilarity.charts.dtwDistance")}
             value={selectedMeasurement.dtw_distance.toFixed(4)}
           />
           <StatCell
-            label="Similarity"
+            label={t("patientSimilarity.charts.similarity")}
             value={selectedMeasurement.similarity.toFixed(4)}
           />
           <StatCell
-            label="Patient A Points"
+            label={t("patientSimilarity.charts.patientAPoints")}
             value={String(selectedMeasurement.series_a.length)}
           />
           <StatCell
-            label="Patient B Points"
+            label={t("patientSimilarity.charts.patientBPoints")}
             value={String(selectedMeasurement.series_b.length)}
           />
         </div>
@@ -196,6 +202,7 @@ function TrajectoryChart({
   personAId: number;
   personBId: number;
 }) {
+  const { t } = useTranslation("app");
   // Merge both series into a unified dataset for Recharts
   const dateSet = new Set<string>();
   for (const pt of measurement.series_a) dateSet.add(pt.date);
@@ -226,7 +233,7 @@ function TrajectoryChart({
           tickLine={{ stroke: "var(--color-surface-overlay)" }}
           axisLine={{ stroke: "var(--color-surface-overlay)" }}
           label={{
-            value: "Value",
+            value: t("patientSimilarity.charts.chartValueAxis"),
             angle: -90,
             position: "insideLeft",
             style: { fill: "var(--color-text-muted)", fontSize: 10 },
@@ -253,7 +260,7 @@ function TrajectoryChart({
         <Line
           type="monotone"
           dataKey="patientA"
-          name={`Patient #${personAId}`}
+          name={t("patientSimilarity.common.personLabel", { id: personAId })}
           stroke="var(--color-primary)"
           strokeWidth={2}
           dot={false}
@@ -262,7 +269,7 @@ function TrajectoryChart({
         <Line
           type="monotone"
           dataKey="patientB"
-          name={`Patient #${personBId}`}
+          name={t("patientSimilarity.common.personLabel", { id: personBId })}
           stroke="var(--color-primary)"
           strokeWidth={2}
           dot={false}

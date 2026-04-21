@@ -1,5 +1,6 @@
 import { type ReactNode, useState, useCallback, useMemo, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { usePipeline } from '../hooks/usePipeline';
 import {
   useCompareCohorts,
@@ -39,20 +40,32 @@ import type {
 } from '../types/patientSimilarity';
 import type { PipelineMode } from '../types/pipeline';
 
-function buildBalanceSummary(covariates: CovariateBalanceRow[]): string {
+function buildBalanceSummary(
+  t: ReturnType<typeof useTranslation<"app">>["t"],
+  covariates: CovariateBalanceRow[],
+): string {
   const total = covariates.length;
   const imbalanced = covariates.filter((c) => Math.abs(c.smd) >= 0.1);
-  if (total === 0) return 'No covariate data';
+  if (total === 0) return t('patientSimilarity.workspace.noCovariateData');
   const worst =
     imbalanced.length > 0
       ? imbalanced.reduce((a, b) => (Math.abs(b.smd) > Math.abs(a.smd) ? b : a))
       : null;
-  return `${imbalanced.length}/${total} covariates imbalanced${
-    worst ? ` \u00b7 worst: ${worst.covariate} (SMD ${Math.abs(worst.smd).toFixed(2)})` : ''
-  }`;
+  const summary = t('patientSimilarity.workspace.covariatesImbalanced', {
+    imbalanced: imbalanced.length,
+    total,
+  });
+
+  return worst
+    ? `${summary} · ${t('patientSimilarity.workspace.worst', {
+        covariate: worst.covariate,
+        value: Math.abs(worst.smd).toFixed(2),
+      })}`
+    : summary;
 }
 
 export default function PatientSimilarityWorkspace() {
+  const { t } = useTranslation("app");
   const { activeSourceId, setActiveSource } = useSourceStore();
 
   const [sourceIdOverride, setSourceIdOverride] = useState<number | null>(null);
@@ -94,22 +107,25 @@ export default function PatientSimilarityWorkspace() {
       const profile = cohortProfileQuery.data;
       pipeline.markCompleted('centroid', {
         data: profile,
-        summary: `${profile.member_count} members · ${Object.keys(profile.dimensions).length} dimensions`,
+        summary: t('patientSimilarity.workspace.centroidSummary', {
+          members: profile.member_count,
+          dimensions: Object.keys(profile.dimensions).length,
+        }),
         executionTimeMs: 0,
         completedAt: new Date(),
       });
     }
-  }, [pipeline, cohortProfileQuery.data]);
+  }, [pipeline, cohortProfileQuery.data, t]);
 
   const { data: cohortsData } = useCohortDefinitions({ limit: 500 });
   const cohorts = useMemo(() => cohortsData?.items ?? [], [cohortsData]);
 
   const getCohortName = useCallback(
     (id: number | null) => {
-      if (id == null) return 'Unknown';
-      return cohorts.find((c) => c.id === id)?.name ?? `Cohort ${id}`;
+      if (id == null) return t('patientSimilarity.workspace.unknownCohort');
+      return cohorts.find((c) => c.id === id)?.name ?? t('patientSimilarity.workspace.cohortLabel', { id });
     },
-    [cohorts],
+    [cohorts, t],
   );
 
   // ── Handlers ──────────────────────────────────────────────────────
@@ -162,7 +178,10 @@ export default function PatientSimilarityWorkspace() {
       if (profileData) {
         pipeline.markCompleted('centroid', {
           data: profileData,
-          summary: `${profileData.member_count} members · ${Object.keys(profileData.dimensions).length} dimensions`,
+          summary: t('patientSimilarity.workspace.centroidSummary', {
+            members: profileData.member_count,
+            dimensions: Object.keys(profileData.dimensions).length,
+          }),
           executionTimeMs: 0,
           completedAt: new Date(),
         });
@@ -195,7 +214,10 @@ export default function PatientSimilarityWorkspace() {
             if (freshProfile && pipeline.getStepStatus('centroid') !== 'completed') {
               pipeline.markCompleted('centroid', {
                 data: freshProfile,
-                summary: `${freshProfile.member_count} members · ${Object.keys(freshProfile.dimensions).length} dimensions`,
+                summary: t('patientSimilarity.workspace.centroidSummary', {
+                  members: freshProfile.member_count,
+                  dimensions: Object.keys(freshProfile.dimensions).length,
+                }),
                 executionTimeMs: 0,
                 completedAt: new Date(),
               });
@@ -203,7 +225,9 @@ export default function PatientSimilarityWorkspace() {
 
             pipeline.markCompleted('similar', {
               data: searchResult,
-              summary: `${searchResult.similar_patients.length} similar patients found`,
+              summary: t('patientSimilarity.workspace.similarPatientsFound', {
+                count: searchResult.similar_patients.length,
+              }),
               executionTimeMs: elapsedMs,
               completedAt: new Date(),
             });
@@ -237,7 +261,9 @@ export default function PatientSimilarityWorkspace() {
 
           pipeline.markCompleted('profile', {
             data,
-            summary: `Overall divergence ${overallPct}%`,
+            summary: t('patientSimilarity.workspace.overallDivergence', {
+              count: overallPct,
+            }),
             executionTimeMs: elapsedMs,
             completedAt: new Date(),
           });
@@ -245,7 +271,7 @@ export default function PatientSimilarityWorkspace() {
           const covariates = data.covariates ?? [];
           pipeline.markCompleted('balance', {
             data,
-            summary: buildBalanceSummary(covariates),
+            summary: buildBalanceSummary(t, covariates),
             executionTimeMs: elapsedMs,
             completedAt: new Date(),
           });
@@ -255,7 +281,7 @@ export default function PatientSimilarityWorkspace() {
         },
       },
     );
-  }, [sourceId, targetCohortId, comparatorCohortId, pipeline, compareMutation, cohortProfileQuery, cohortSimilarityMutation, weights]);
+  }, [sourceId, targetCohortId, comparatorCohortId, pipeline, compareMutation, cohortProfileQuery, cohortSimilarityMutation, weights, t]);
 
   const handleRunStep = useCallback(
     (stepId: string) => {
@@ -463,12 +489,12 @@ export default function PatientSimilarityWorkspace() {
         default:
           return (
             <div className="flex min-h-[120px] items-center justify-center text-sm text-[var(--color-text-muted)]">
-              This step will be available in a future update.
+              {t("patientSimilarity.workspace.futureStep")}
             </div>
           );
       }
     },
-    [pipeline, sourceId, targetCohortId, comparatorCohortId, getCohortName, handleRunStep],
+    [pipeline, sourceId, targetCohortId, comparatorCohortId, getCohortName, handleRunStep, t],
   );
 
   // ── Render ────────────────────────────────────────────────────────
@@ -482,9 +508,9 @@ export default function PatientSimilarityWorkspace() {
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-2">
           <div>
-            <h1 className="page-title">Patient Similarity</h1>
+            <h1 className="page-title">{t("patientSimilarity.common.title")}</h1>
             <p className="page-subtitle">
-              Compare cohort profiles, find similar patients, and run propensity score matching across OMOP CDM sources
+              {t("patientSimilarity.workspace.subtitle")}
             </p>
           </div>
           <HelpButton helpKey="patient-similarity" />

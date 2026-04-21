@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { RotateCcw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Drawer } from '@/components/ui/Drawer';
 import { useSimilarityDimensions } from '../hooks/usePatientSimilarity';
 import type { SimilarityDimension } from '../types/patientSimilarity';
@@ -37,6 +38,7 @@ function SettingsForm({
   onApply,
   dimensions,
 }: SettingsFormProps) {
+  const { t } = useTranslation("app");
   // Initialize from merged defaults on every mount (i.e., every drawer open)
   const initialWeights = useMemo(() => {
     const merged: Record<string, number> = {};
@@ -79,18 +81,24 @@ function SettingsForm({
       onClick={handleApply}
       className="w-full rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface-base"
     >
-      Apply &amp; Re-run Pipeline
+      {t("patientSimilarity.pipeline.applyAndRerun")}
     </button>
   );
 
   return (
-    <Drawer open onClose={onClose} title="Analysis Settings" size="md" footer={footer}>
+    <Drawer
+      open
+      onClose={onClose}
+      title={t("patientSimilarity.settings.title")}
+      size="md"
+      footer={footer}
+    >
       <div className="space-y-8">
         {/* ── Dimension Weights ──────────────────────────────────── */}
         <section>
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-accent">
-              Dimension Weights
+              {t("patientSimilarity.settings.dimensionWeights")}
             </h3>
             <button
               type="button"
@@ -98,12 +106,14 @@ function SettingsForm({
               className="flex items-center gap-1 rounded px-2 py-1 text-xs text-text-ghost transition-colors hover:text-accent"
             >
               <RotateCcw size={12} />
-              Reset defaults
+              {t("patientSimilarity.settings.resetDefaults")}
             </button>
           </div>
 
           {dimensions.length === 0 && (
-            <p className="text-sm text-text-ghost">Loading dimensions…</p>
+            <p className="text-sm text-text-ghost">
+              {t("patientSimilarity.settings.loadingDimensions")}
+            </p>
           )}
 
           <div className="space-y-4">
@@ -138,17 +148,19 @@ function SettingsForm({
         {/* ── Demographic Filters ────────────────────────────────── */}
         <section>
           <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-accent">
-            Demographic Filters
+            {t("patientSimilarity.settings.demographicFilters")}
           </h3>
 
           <div className="space-y-4">
             {/* Age range */}
             <div>
-              <p className="mb-2 text-sm text-text-secondary">Age Range</p>
+              <p className="mb-2 text-sm text-text-secondary">
+                {t("patientSimilarity.common.ageRange.title")}
+              </p>
               <div className="flex items-center gap-3">
                 <div className="flex-1">
                   <label htmlFor="age-min" className="mb-1 block text-xs text-text-ghost">
-                    Min
+                    {t("patientSimilarity.common.ageRange.min")}
                   </label>
                   <input
                     id="age-min"
@@ -165,7 +177,7 @@ function SettingsForm({
                 <span className="mt-4 text-text-ghost">—</span>
                 <div className="flex-1">
                   <label htmlFor="age-max" className="mb-1 block text-xs text-text-ghost">
-                    Max
+                    {t("patientSimilarity.common.ageRange.max")}
                   </label>
                   <input
                     id="age-max"
@@ -185,7 +197,7 @@ function SettingsForm({
             {/* Gender */}
             <div>
               <label htmlFor="gender-select" className="mb-1 block text-sm text-text-secondary">
-                Gender
+                {t("patientSimilarity.comparison.demographics.gender")}
               </label>
               <select
                 id="gender-select"
@@ -193,9 +205,15 @@ function SettingsForm({
                 onChange={(e) => onGenderChange(e.target.value)}
                 className="w-full rounded border border-border-default bg-surface-raised px-3 py-1.5 text-sm text-text-primary focus:border-accent focus:outline-none"
               >
-                <option value="">All</option>
-                <option value="8507">Male</option>
-                <option value="8532">Female</option>
+                <option value="">
+                  {t("patientSimilarity.settings.all")}
+                </option>
+                <option value="8507">
+                  {t("patientSimilarity.common.genders.male")}
+                </option>
+                <option value="8532">
+                  {t("patientSimilarity.common.genders.female")}
+                </option>
               </select>
             </div>
           </div>

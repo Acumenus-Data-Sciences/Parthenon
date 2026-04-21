@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { formatDate as formatAppDate } from "@/i18n/format";
 import type { ConditionEra, DrugEra } from "../types/profile";
 
 interface EraTimelineProps {
@@ -7,7 +9,7 @@ interface EraTimelineProps {
 }
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
+  return formatAppDate(iso, {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -47,6 +49,7 @@ function EraBar({
 }
 
 export function EraTimeline({ conditionEras, drugEras }: EraTimelineProps) {
+  const { t } = useTranslation("app");
   const allDates = [
     ...conditionEras.flatMap((e) => [
       new Date(e.condition_era_start_date).getTime(),
@@ -61,7 +64,7 @@ export function EraTimeline({ conditionEras, drugEras }: EraTimelineProps) {
   if (allDates.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-surface-highlight bg-surface-raised p-6 text-center">
-        <p className="text-xs text-text-muted">No era data available</p>
+        <p className="text-xs text-text-muted">{t("profiles.eras.noData")}</p>
       </div>
     );
   }
@@ -75,7 +78,9 @@ export function EraTimeline({ conditionEras, drugEras }: EraTimelineProps) {
       {conditionEras.length > 0 && (
         <div>
           <h4 className="text-xs font-semibold text-critical mb-2 uppercase tracking-wider">
-            Condition Eras ({conditionEras.length})
+            {t("profiles.eras.conditionEras", {
+              count: conditionEras.length,
+            })}
           </h4>
           <div className="space-y-1">
             {conditionEras.map((era) => (
@@ -121,7 +126,9 @@ export function EraTimeline({ conditionEras, drugEras }: EraTimelineProps) {
       {drugEras.length > 0 && (
         <div>
           <h4 className="text-xs font-semibold text-success mb-2 uppercase tracking-wider">
-            Drug Eras ({drugEras.length})
+            {t("profiles.eras.drugEras", {
+              count: drugEras.length,
+            })}
           </h4>
           <div className="space-y-1">
             {drugEras.map((era) => (

@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { ChevronDown, ChevronRight, FlaskConical, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LabGroup } from "../types/profile";
@@ -86,6 +87,8 @@ function RangeIndicator({
   rangeLow: number | null;
   rangeHigh: number | null;
 }) {
+  const { t } = useTranslation("app");
+
   if (rangeLow == null || rangeHigh == null) {
     return <Minus size={12} className="text-text-ghost" />;
   }
@@ -93,7 +96,7 @@ function RangeIndicator({
     return (
       <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-info">
         <TrendingDown size={11} />
-        Low
+        {t("profiles.labs.status.low")}
       </span>
     );
   }
@@ -101,19 +104,20 @@ function RangeIndicator({
     return (
       <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-critical">
         <TrendingUp size={11} />
-        High
+        {t("profiles.labs.status.high")}
       </span>
     );
   }
   return (
     <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-success">
       <Minus size={11} />
-      Normal
+      {t("profiles.labs.status.normal")}
     </span>
   );
 }
 
 function LabRow({ group }: { group: LabGroup }) {
+  const { t } = useTranslation("app");
   const [expanded, setExpanded] = useState(false);
   const [showValues, setShowValues] = useState(false);
 
@@ -174,7 +178,7 @@ function LabRow({ group }: { group: LabGroup }) {
           </p>
           {group.range != null && (
             <p className="text-[9px] text-text-ghost">
-              ref: {group.range.low}–{group.range.high}
+              {t("profiles.labs.referenceShort")} {group.range.low}–{group.range.high}
             </p>
           )}
         </div>
@@ -221,7 +225,9 @@ function LabRow({ group }: { group: LabGroup }) {
                 showValues && "rotate-90",
               )}
             />
-            {showValues ? "Hide values" : "Show values"}
+            {showValues
+              ? t("profiles.labs.hideValues")
+              : t("profiles.labs.showValues")}
           </button>
 
           {showValues && (
@@ -234,6 +240,7 @@ function LabRow({ group }: { group: LabGroup }) {
 }
 
 export function PatientLabPanel({ labGroups }: PatientLabPanelProps) {
+  const { t } = useTranslation("app");
   const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
@@ -248,7 +255,7 @@ export function PatientLabPanel({ labGroups }: PatientLabPanelProps) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
         <FlaskConical size={24} className="text-text-ghost mb-3" />
-        <p className="text-sm text-text-muted">No lab measurements available</p>
+        <p className="text-sm text-text-muted">{t("profiles.labs.noMeasurements")}</p>
       </div>
     );
   }
@@ -260,17 +267,20 @@ export function PatientLabPanel({ labGroups }: PatientLabPanelProps) {
         <div className="flex items-center gap-2">
           <FlaskConical size={14} className="text-info" />
           <span className="text-xs font-semibold text-text-primary">
-            Lab Panel
+            {t("profiles.labs.panelTitle")}
           </span>
           <span className="text-[10px] text-text-ghost">
-            {labGroups.length} tests · {numericMeasurements} values
+            {t("profiles.labs.summary", {
+              tests: labGroups.length,
+              values: numericMeasurements,
+            })}
           </span>
         </div>
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Filter tests..."
+          placeholder={t("profiles.labs.filterTests")}
           className={cn(
             "w-48 rounded-md border border-surface-highlight bg-surface-base px-3 py-1 text-xs",
             "text-text-primary placeholder:text-text-ghost",
@@ -283,27 +293,29 @@ export function PatientLabPanel({ labGroups }: PatientLabPanelProps) {
       <div className="flex items-center gap-3 px-4 py-1.5 bg-surface-raised border-b border-border-default">
         <div className="w-5 shrink-0" />
         <div className="flex-1 text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-          Test
+          {t("profiles.labs.test")}
         </div>
         <div className="w-8 text-right text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-          N
+          {t("profiles.labs.countHeader")}
         </div>
         <div className="w-[100px] text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-          Trend
+          {t("profiles.labs.trend")}
         </div>
         <div className="w-28 text-right text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-          Latest
+          {t("profiles.labs.latest")}
         </div>
         <div className="w-6" />
         <div className="w-14 text-right text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-          Status
+          {t("profiles.common.table.status")}
         </div>
       </div>
 
       {/* Lab rows */}
       {filtered.length === 0 ? (
         <div className="flex items-center justify-center h-24">
-          <p className="text-sm text-text-muted">No tests match &quot;{search}&quot;</p>
+          <p className="text-sm text-text-muted">
+            {t("profiles.labs.noTestsMatch", { query: search })}
+          </p>
         </div>
       ) : (
         filtered.map((group) => <LabRow key={group.conceptId} group={group} />)

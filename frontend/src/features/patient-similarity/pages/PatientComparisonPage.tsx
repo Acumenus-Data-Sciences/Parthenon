@@ -1,4 +1,5 @@
 import { useSearchParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   Loader2,
@@ -13,6 +14,10 @@ import {
   XCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  getSimilarityGenderLabel,
+  getSimilarityScoreLabel,
+} from "../lib/i18n";
 import { DimensionScoreBar } from "../components/DimensionScoreBar";
 import { useComparePatients } from "../hooks/usePatientSimilarity";
 import type {
@@ -29,20 +34,6 @@ function getOverallScoreColor(score: number): string {
   return "var(--color-text-secondary)";
 }
 
-function formatGender(genderConceptId: number | null): string {
-  if (genderConceptId === 8507) return "Male";
-  if (genderConceptId === 8532) return "Female";
-  return "Unknown";
-}
-
-function scoreLabel(score: number): string {
-  if (score >= 0.9) return "Very High";
-  if (score >= 0.7) return "High";
-  if (score >= 0.5) return "Moderate";
-  if (score >= 0.3) return "Low";
-  return "Very Low";
-}
-
 // ── Score Summary Banner ─────────────────────────────────────────────
 
 function ScoreBanner({
@@ -50,6 +41,7 @@ function ScoreBanner({
 }: {
   comparison: PatientComparisonResult;
 }) {
+  const { t } = useTranslation("app");
   const { overall_score, dimension_scores } = comparison.scores;
   const color = getOverallScoreColor(overall_score);
   const pA = comparison.person_a;
@@ -65,42 +57,66 @@ function ScoreBanner({
   const parts: string[] = [];
   if (sameGender && ageDiff !== null && ageDiff <= 5) {
     parts.push(
-      `same demographic profile (${formatGender(pA.gender_concept_id).toLowerCase()}, ${ageDiff === 0 ? "same age range" : `${ageDiff}-year age gap`})`,
+      t("patientSimilarity.comparison.narrative.sameDemographicProfile", {
+        gender: getSimilarityGenderLabel(t, pA.gender_concept_id).toLowerCase(),
+        age:
+          ageDiff === 0
+            ? t("patientSimilarity.comparison.narrative.sameAgeRange")
+            : t("patientSimilarity.comparison.narrative.ageGap", {
+                count: ageDiff,
+              }),
+      }),
     );
   }
 
   const condScore = dimension_scores.conditions;
   if (condScore !== null && condScore >= 0.7) {
     const ct = comparison.shared_features.condition_count;
-    parts.push(`${ct} shared diagnoses`);
+    parts.push(
+      t("patientSimilarity.comparison.narrative.sharedDiagnoses", {
+        count: ct,
+      }),
+    );
   }
 
   const drugScore = dimension_scores.drugs;
   if (drugScore !== null && drugScore >= 0.5) {
     const ct = comparison.shared_features.drug_count;
-    parts.push(`${ct} shared medications`);
+    parts.push(
+      t("patientSimilarity.comparison.narrative.sharedMedications", {
+        count: ct,
+      }),
+    );
   }
 
   const procCount = comparison.shared_features.procedure_count;
   if (procCount > 0) {
-    parts.push(`${procCount} shared procedures`);
+    parts.push(
+      t("patientSimilarity.comparison.narrative.sharedProcedures", {
+        count: procCount,
+      }),
+    );
   }
 
   const measScore = dimension_scores.measurements;
   if (measScore !== null && measScore >= 0.5) {
     const label =
       measScore >= 0.8
-        ? "very similar"
+        ? t("patientSimilarity.comparison.narrative.labProfilesVerySimilar")
         : measScore >= 0.6
-          ? "similar"
-          : "moderately similar";
-    parts.push(`${label} lab profiles`);
+          ? t("patientSimilarity.comparison.narrative.labProfilesSimilar")
+          : t(
+              "patientSimilarity.comparison.narrative.labProfilesModeratelySimilar",
+            );
+    parts.push(label);
   }
 
   const narrative =
     parts.length > 0
-      ? `These patients share ${parts.join(", ")}.`
-      : "Limited overlap found between these patients.";
+      ? t("patientSimilarity.comparison.narrative.sharedSummary", {
+          items: parts.join(", "),
+        })
+      : t("patientSimilarity.comparison.narrative.limitedOverlap");
 
   return (
     <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-5">
@@ -114,7 +130,9 @@ function ScoreBanner({
               {overall_score.toFixed(3)}
             </span>
             <span className="text-sm font-medium" style={{ color }}>
-              {scoreLabel(overall_score)} Similarity
+              {t("patientSimilarity.comparison.overallSimilarity", {
+                label: getSimilarityScoreLabel(t, overall_score),
+              })}
             </span>
           </div>
           <p className="text-sm text-[var(--color-text-primary)] leading-relaxed">{narrative}</p>
@@ -124,62 +142,54 @@ function ScoreBanner({
   );
 }
 
-// ── Dimension Scores Grid ────────────────────────────────────────────
-
-interface DimensionInfo {
-  key: keyof DimensionScores;
-  label: string;
-  icon: React.ReactNode;
-  color: string;
-}
-
-const DIMENSIONS: DimensionInfo[] = [
-  {
-    key: "demographics",
-    label: "Demographics",
-    icon: <User size={14} />,
-    color: "var(--color-text-secondary)",
-  },
-  {
-    key: "conditions",
-    label: "Conditions",
-    icon: <Stethoscope size={14} />,
-    color: "var(--color-critical)",
-  },
-  {
-    key: "measurements",
-    label: "Lab Values",
-    icon: <Activity size={14} />,
-    color: "var(--color-primary)",
-  },
-  {
-    key: "drugs",
-    label: "Medications",
-    icon: <Pill size={14} />,
-    color: "var(--color-primary)",
-  },
-  {
-    key: "procedures",
-    label: "Procedures",
-    icon: <FlaskConical size={14} />,
-    color: "var(--color-domain-procedure)",
-  },
-  {
-    key: "genomics",
-    label: "Genomics",
-    icon: <Dna size={14} />,
-    color: "var(--color-critical)",
-  },
-];
-
 function DimensionScoresGrid({ scores }: { scores: DimensionScores }) {
+  const { t } = useTranslation("app");
+  const dimensions = [
+    {
+      key: "demographics" as const,
+      label: t("patientSimilarity.common.dimensions.demographics"),
+      icon: <User size={14} />,
+      color: "var(--color-text-secondary)",
+    },
+    {
+      key: "conditions" as const,
+      label: t("patientSimilarity.common.dimensions.conditions"),
+      icon: <Stethoscope size={14} />,
+      color: "var(--color-critical)",
+    },
+    {
+      key: "measurements" as const,
+      label: t("patientSimilarity.comparison.demographics.labTypes"),
+      icon: <Activity size={14} />,
+      color: "var(--color-primary)",
+    },
+    {
+      key: "drugs" as const,
+      label: t("patientSimilarity.common.dimensions.medications"),
+      icon: <Pill size={14} />,
+      color: "var(--color-primary)",
+    },
+    {
+      key: "procedures" as const,
+      label: t("patientSimilarity.common.dimensions.procedures"),
+      icon: <FlaskConical size={14} />,
+      color: "var(--color-domain-procedure)",
+    },
+    {
+      key: "genomics" as const,
+      label: t("patientSimilarity.common.dimensions.genomics"),
+      icon: <Dna size={14} />,
+      color: "var(--color-critical)",
+    },
+  ];
+
   return (
     <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4">
       <h3 className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold mb-3">
-        Dimension Breakdown
+        {t("patientSimilarity.comparison.sectionTitles.dimensionBreakdown")}
       </h3>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {DIMENSIONS.map(({ key, label, icon, color }) => {
+        {dimensions.map(({ key, label, icon, color }) => {
           const score = scores[key];
           return (
             <div
@@ -213,36 +223,37 @@ function DemographicsComparison({
 }: {
   comparison: PatientComparisonResult;
 }) {
+  const { t } = useTranslation("app");
   const pA = comparison.person_a;
   const pB = comparison.person_b;
 
   const rows = [
     {
-      label: "Gender",
-      a: formatGender(pA.gender_concept_id),
-      b: formatGender(pB.gender_concept_id),
+      label: t("patientSimilarity.comparison.demographics.gender"),
+      a: getSimilarityGenderLabel(t, pA.gender_concept_id),
+      b: getSimilarityGenderLabel(t, pB.gender_concept_id),
       match: pA.gender_concept_id === pB.gender_concept_id,
     },
     {
-      label: "Age Range",
+      label: t("patientSimilarity.comparison.demographics.ageRange"),
       a:
         pA.age_bucket != null
           ? `${pA.age_bucket * 5}–${pA.age_bucket * 5 + 4}`
-          : "N/A",
+          : t("profiles.common.notAvailable"),
       b:
         pB.age_bucket != null
           ? `${pB.age_bucket * 5}–${pB.age_bucket * 5 + 4}`
-          : "N/A",
+          : t("profiles.common.notAvailable"),
       match: pA.age_bucket === pB.age_bucket,
     },
     {
-      label: "Conditions",
+      label: t("patientSimilarity.common.dimensions.conditions"),
       a: String(pA.condition_count),
       b: String(pB.condition_count),
       match: false,
     },
     {
-      label: "Lab Types",
+      label: t("patientSimilarity.comparison.demographics.labTypes"),
       a: String(pA.lab_count),
       b: String(pB.lab_count),
       match: false,
@@ -252,18 +263,18 @@ function DemographicsComparison({
   return (
     <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4">
       <h3 className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold mb-3">
-        Patient Demographics
+        {t("patientSimilarity.comparison.sectionTitles.patientDemographics")}
       </h3>
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-[var(--color-surface-overlay)]">
             <th className="py-1.5 text-left text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold w-28" />
             <th className="py-1.5 text-center text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
-              Patient A (#{pA.person_id})
+              {t("patientSimilarity.common.patientA")} (#{pA.person_id})
             </th>
             <th className="py-1.5 w-10" />
             <th className="py-1.5 text-center text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
-              Patient B (#{pB.person_id})
+              {t("patientSimilarity.common.patientB")} (#{pB.person_id})
             </th>
           </tr>
         </thead>
@@ -307,6 +318,7 @@ function SharedFeatureSection({
   items: ResolvedConcept[];
   totalShared: number;
 }) {
+  const { t } = useTranslation("app");
   if (totalShared === 0) {
     return (
       <div className="rounded-lg border border-[var(--color-surface-raised)] bg-[var(--color-surface-base)]/50 p-4 opacity-60">
@@ -316,7 +328,11 @@ function SharedFeatureSection({
             {title}
           </h4>
         </div>
-        <p className="text-xs text-[var(--color-text-muted)]">No shared {title.toLowerCase()}</p>
+        <p className="text-xs text-[var(--color-text-muted)]">
+          {t("patientSimilarity.comparison.sharedFeatures.noShared", {
+            label: title.toLowerCase(),
+          })}
+        </p>
       </div>
     );
   }
@@ -337,7 +353,9 @@ function SharedFeatureSection({
             backgroundColor: `${accentColor}15`,
           }}
         >
-          {totalShared} shared
+          {t("patientSimilarity.comparison.sharedFeatures.totalShared", {
+            count: totalShared,
+          })}
         </span>
       </div>
       <div className="flex flex-wrap gap-1.5">
@@ -353,7 +371,9 @@ function SharedFeatureSection({
         ))}
         {totalShared > items.length && (
           <span className="inline-flex items-center text-[10px] text-[var(--color-text-muted)] px-2 py-1">
-            +{totalShared - items.length} more
+            {t("patientSimilarity.comparison.sharedFeatures.more", {
+              count: totalShared - items.length,
+            })}
           </span>
         )}
       </div>
@@ -368,6 +388,7 @@ function UniqueFeaturesSummary({
 }: {
   comparison: PatientComparisonResult;
 }) {
+  const { t } = useTranslation("app");
   const { shared_features } = comparison;
   const pA = comparison.person_a;
   const pB = comparison.person_b;
@@ -381,21 +402,21 @@ function UniqueFeaturesSummary({
 
   const rows = [
     {
-      label: "Conditions",
+      translatedLabel: t("patientSimilarity.common.dimensions.conditions"),
       shared: sharedCond,
       uniqueA: uniqueACond,
       uniqueB: uniqueBCond,
       color: "var(--color-critical)",
     },
     {
-      label: "Medications",
+      translatedLabel: t("patientSimilarity.common.dimensions.medications"),
       shared: shared_features.drug_count,
       uniqueA: null,
       uniqueB: null,
       color: "var(--color-primary)",
     },
     {
-      label: "Procedures",
+      translatedLabel: t("patientSimilarity.common.dimensions.procedures"),
       shared: shared_features.procedure_count,
       uniqueA: null,
       uniqueB: null,
@@ -406,7 +427,7 @@ function UniqueFeaturesSummary({
   return (
     <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4">
       <h3 className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold mb-3">
-        Feature Overlap
+        {t("patientSimilarity.comparison.sectionTitles.featureOverlap")}
       </h3>
       <div className="space-y-2">
         {rows.map((row) => {
@@ -420,19 +441,25 @@ function UniqueFeaturesSummary({
               : null;
 
           return (
-            <div key={row.label} className="space-y-1">
+            <div key={row.translatedLabel} className="space-y-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-[var(--color-text-secondary)]">{row.label}</span>
+                <span className="text-xs text-[var(--color-text-secondary)]">
+                  {row.translatedLabel}
+                </span>
                 <div className="flex items-center gap-2">
                   <span
                     className="text-xs font-medium tabular-nums"
                     style={{ color: row.color }}
                   >
-                    {row.shared} shared
+                    {t("patientSimilarity.comparison.sharedFeatures.totalShared", {
+                      count: row.shared,
+                    })}
                   </span>
                   {pct !== null && (
                     <span className="text-[10px] text-[var(--color-text-muted)] tabular-nums">
-                      ({pct}% overlap)
+                      {t("patientSimilarity.comparison.overlap.overlapPercent", {
+                        count: pct,
+                      })}
                     </span>
                   )}
                 </div>
@@ -446,7 +473,9 @@ function UniqueFeaturesSummary({
                         width: `${(row.uniqueA / total) * 100}%`,
                         backgroundColor: "var(--color-text-muted)",
                       }}
-                      title={`Patient A only: ${row.uniqueA}`}
+                      title={t("patientSimilarity.comparison.overlap.patientAOnly", {
+                        count: row.uniqueA,
+                      })}
                     />
                   )}
                   <div
@@ -455,7 +484,9 @@ function UniqueFeaturesSummary({
                       width: `${(row.shared / total) * 100}%`,
                       backgroundColor: row.color,
                     }}
-                    title={`Shared: ${row.shared}`}
+                    title={t("patientSimilarity.comparison.sharedFeatures.totalShared", {
+                      count: row.shared,
+                    })}
                   />
                   {row.uniqueB != null && row.uniqueB > 0 && (
                     <div
@@ -464,7 +495,9 @@ function UniqueFeaturesSummary({
                         width: `${(row.uniqueB / total) * 100}%`,
                         backgroundColor: "var(--color-surface-accent)",
                       }}
-                      title={`Patient B only: ${row.uniqueB}`}
+                      title={t("patientSimilarity.comparison.overlap.patientBOnly", {
+                        count: row.uniqueB,
+                      })}
                     />
                   )}
                 </div>
@@ -480,6 +513,7 @@ function UniqueFeaturesSummary({
 // ── Main Page ────────────────────────────────────────────────────────
 
 export default function PatientComparisonPage() {
+  const { t } = useTranslation("app");
   const [searchParams] = useSearchParams();
 
   const personA = parseInt(searchParams.get("person_a") ?? "0", 10);
@@ -501,16 +535,16 @@ export default function PatientComparisonPage() {
       <div className="flex flex-col items-center justify-center py-24">
         <AlertCircle size={36} className="text-[var(--color-critical)] mb-4" />
         <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
-          Missing Parameters
+          {t("patientSimilarity.comparison.missingParameters")}
         </h2>
         <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
-          person_a, person_b, and source_id are required.
+          {t("patientSimilarity.comparison.missingParametersDetail")}
         </p>
         <Link
           to="/patient-similarity"
           className="mt-4 text-sm text-[var(--color-primary)] hover:underline"
         >
-          Back to Patient Similarity
+          {t("patientSimilarity.comparison.backToPatientSimilarity")}
         </Link>
       </div>
     );
@@ -525,16 +559,18 @@ export default function PatientComparisonPage() {
           className="inline-flex items-center gap-1 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors mb-3"
         >
           <ArrowLeft size={14} />
-          Patient Similarity
+          {t("patientSimilarity.common.backToWorkspace")}
         </Link>
         <div className="flex items-center gap-3">
-          <h1 className="page-title">Patient Comparison</h1>
+          <h1 className="page-title">
+            {t("patientSimilarity.comparison.pageTitle")}
+          </h1>
           <span className="text-sm text-[var(--color-text-secondary)] tabular-nums font-['IBM_Plex_Mono',monospace]">
-            #{personA} vs #{personB}
+            #{personA} {t("patientSimilarity.headToHead.vs")} #{personB}
           </span>
         </div>
         <p className="page-subtitle">
-          Head-to-head similarity analysis across all clinical dimensions
+          {t("patientSimilarity.comparison.subtitle")}
         </p>
       </div>
 
@@ -543,7 +579,7 @@ export default function PatientComparisonPage() {
         <div className="flex items-center justify-center py-24">
           <Loader2 size={24} className="animate-spin text-[var(--color-primary)]" />
           <span className="ml-3 text-sm text-[var(--color-text-secondary)]">
-            Comparing patients...
+            {t("patientSimilarity.comparison.comparingPatients")}
           </span>
         </div>
       )}
@@ -552,8 +588,7 @@ export default function PatientComparisonPage() {
       {isError && (
         <div className="rounded-lg border border-[var(--color-critical)]/20 bg-[var(--color-critical)]/5 px-4 py-3">
           <p className="text-sm text-[var(--color-critical)]">
-            Comparison failed. Please verify both patients exist in this data
-            source.
+            {t("patientSimilarity.comparison.comparisonFailed")}
           </p>
         </div>
       )}
@@ -576,24 +611,24 @@ export default function PatientComparisonPage() {
           {/* Shared features — named concepts */}
           <div className="space-y-3">
             <h3 className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
-              Shared Clinical Features
+              {t("patientSimilarity.comparison.sectionTitles.sharedClinicalFeatures")}
             </h3>
             <SharedFeatureSection
-              title="Conditions"
+              title={t("patientSimilarity.common.dimensions.conditions")}
               icon={<Stethoscope size={14} />}
               accentColor="var(--color-critical)"
               items={comparison.shared_features.condition_names ?? []}
               totalShared={comparison.shared_features.condition_count}
             />
             <SharedFeatureSection
-              title="Medications"
+              title={t("patientSimilarity.common.dimensions.medications")}
               icon={<Pill size={14} />}
               accentColor="var(--color-primary)"
               items={comparison.shared_features.drug_names ?? []}
               totalShared={comparison.shared_features.drug_count}
             />
             <SharedFeatureSection
-              title="Procedures"
+              title={t("patientSimilarity.common.dimensions.procedures")}
               icon={<FlaskConical size={14} />}
               accentColor="var(--color-domain-procedure)"
               items={comparison.shared_features.procedure_names ?? []}

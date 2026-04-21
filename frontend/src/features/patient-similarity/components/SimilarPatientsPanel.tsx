@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ArrowRight, Download } from "lucide-react";
 import { SimilarPatientTable } from "./SimilarPatientTable";
 import { CohortExportDialog } from "./CohortExportDialog";
@@ -15,6 +16,7 @@ export function SimilarPatientsPanel({
   sourceId,
   onContinue,
 }: SimilarPatientsPanelProps) {
+  const { t } = useTranslation("app");
   const [exportOpen, setExportOpen] = useState(false);
 
   const cacheId = result.metadata.cache_id ?? 0;
@@ -37,7 +39,7 @@ export function SimilarPatientsPanel({
           className="flex items-center gap-2 rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] px-4 py-2 text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:border-[var(--color-primary)]/40 hover:text-[var(--color-primary)] disabled:cursor-not-allowed disabled:opacity-40"
         >
           <Download size={14} />
-          Export as New Cohort
+          {t("patientSimilarity.workspace.exportAsNewCohort")}
         </button>
 
         <button
@@ -45,7 +47,7 @@ export function SimilarPatientsPanel({
           onClick={onContinue}
           className="flex items-center gap-2 rounded-lg bg-[var(--color-primary)]/10 px-4 py-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary)]/20"
         >
-          Continue to Landscape
+          {t("patientSimilarity.workspace.continueToLandscape")}
           <ArrowRight size={14} />
         </button>
       </div>

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   Search,
   Loader2,
@@ -13,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { usePersonSearch } from "../hooks/useProfiles";
+import { getProfileGenderLabel } from "../lib/i18n";
 
 interface PatientSearchPanelProps {
   onSelectPerson: (sourceId: number, personId: number) => void;
@@ -28,6 +30,7 @@ export function PatientSearchPanel({
   onSelectPerson,
   sourceId: externalSourceId,
 }: PatientSearchPanelProps) {
+  const { t } = useTranslation("app");
   const [internalSourceId, setInternalSourceId] = useState<number | null>(null);
   const sourceId = externalSourceId !== undefined ? externalSourceId : internalSourceId;
 
@@ -79,7 +82,7 @@ export function PatientSearchPanel({
       {externalSourceId === undefined && (
         <div>
           <label className="block text-xs font-medium text-text-muted mb-1">
-            Data Source
+            {t("profiles.common.dataSource")}
           </label>
           <div className="relative">
             <Database
@@ -95,7 +98,7 @@ export function PatientSearchPanel({
                 "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             >
-              <option value="">Select a data source...</option>
+              <option value="">{t("profiles.cohortBrowser.selectDataSource")}</option>
               {sources?.map((src) => (
                 <option key={src.id} value={src.id}>
                   {src.source_name}
@@ -128,8 +131,8 @@ export function PatientSearchPanel({
             onFocus={() => setIsOpen(true)}
             placeholder={
               sourceId
-                ? "Search by person ID or MRN..."
-                : "Select a data source first"
+                ? t("profiles.search.searchPlaceholder")
+                : t("profiles.search.selectSourceFirst")
             }
             disabled={!sourceId}
             className={cn(
@@ -164,13 +167,13 @@ export function PatientSearchPanel({
         {sourceId && !query && (
           <div className="flex items-center gap-3 mt-1.5 px-1">
             <span className="inline-flex items-center gap-1 text-[10px] text-text-ghost">
-              <Hash size={9} /> Person ID
+              <Hash size={9} /> {t("profiles.search.personId")}
             </span>
             <span className="inline-flex items-center gap-1 text-[10px] text-text-ghost">
-              <CreditCard size={9} /> MRN / Source Value
+              <CreditCard size={9} /> {t("profiles.search.mrnSourceValue")}
             </span>
             <span className="text-[10px] text-text-disabled">
-              (names not in OMOP CDM)
+              {t("profiles.search.namesNotInOmop")}
             </span>
           </div>
         )}
@@ -191,18 +194,22 @@ export function PatientSearchPanel({
               <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
                 <User size={20} className="text-text-ghost mb-2" />
                 <p className="text-sm text-text-muted">
-                  No patients found for &ldquo;{query}&rdquo;
+                  {t("profiles.search.noPatientsFound", { query })}
                 </p>
                 <p className="mt-1 text-xs text-text-ghost">
-                  Try a different person ID or MRN
+                  {t("profiles.search.tryDifferent")}
                 </p>
               </div>
             ) : (
               <div>
                 <div className="px-3 py-1.5 border-b border-border-subtle">
                   <p className="text-[10px] text-text-ghost">
-                    {results.length} result{results.length !== 1 ? "s" : ""}
-                    {results.length === 20 ? " (showing first 20)" : ""}
+                    {t("profiles.search.resultCount", {
+                      count: results.length,
+                    })}
+                    {results.length === 20
+                      ? ` ${t("profiles.search.showingFirstTwenty")}`
+                      : ""}
                   </p>
                 </div>
                 <div className="max-h-72 overflow-y-auto divide-y divide-border-subtle">
@@ -225,12 +232,18 @@ export function PatientSearchPanel({
                             #{person.person_id}
                           </span>
                           <span className="text-xs text-text-muted">
-                            {person.gender} · {computeAge(person.year_of_birth)} yrs ({person.year_of_birth})
+                            {getProfileGenderLabel(t, person.gender)} ·{" "}
+                            {t("profiles.header.demographics.years", {
+                              count: computeAge(person.year_of_birth),
+                            })}{" "}
+                            ({person.year_of_birth})
                           </span>
                         </div>
                         {person.person_source_value && (
                           <p className="text-xs text-text-ghost truncate mt-0.5">
-                            <span className="text-text-disabled">MRN:</span>{" "}
+                            <span className="text-text-disabled">
+                              {t("profiles.search.mrn")}
+                            </span>{" "}
                             {person.person_source_value}
                           </p>
                         )}

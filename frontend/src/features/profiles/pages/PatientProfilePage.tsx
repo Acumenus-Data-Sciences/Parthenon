@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -42,41 +43,41 @@ import ImagingPatientTimeline from "@/features/imaging/components/PatientTimelin
 import { usePatientTimeline } from "@/features/imaging/hooks/useImaging";
 import { useProfileStore } from "@/stores/profileStore";
 import type { ClinicalEvent } from "../types/profile";
+import {
+  formatProfileTimeAgo,
+  getProfileDomainLabel,
+  getProfileGenderLabel,
+  getProfileTabLabel,
+  getProfileViewLabel,
+  type ProfileDomainTab,
+  type ProfileViewMode,
+} from "../lib/i18n";
 
-type ViewMode = "timeline" | "list" | "labs" | "imaging" | "visits" | "notes" | "eras" | "precision";
+type ViewMode = ProfileViewMode;
+type DomainTab = ProfileDomainTab;
 
-type DomainTab =
-  | "all"
-  | "condition"
-  | "drug"
-  | "procedure"
-  | "measurement"
-  | "observation"
-  | "visit";
-
-const DOMAIN_TABS: { key: DomainTab; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "condition", label: "Conditions" },
-  { key: "drug", label: "Drugs" },
-  { key: "procedure", label: "Procedures" },
-  { key: "measurement", label: "Measurements" },
-  { key: "observation", label: "Observations" },
-  { key: "visit", label: "Visits" },
+const DOMAIN_TABS: DomainTab[] = [
+  "all",
+  "condition",
+  "drug",
+  "procedure",
+  "measurement",
+  "observation",
+  "visit",
 ];
 
 const VIEW_BUTTONS: {
-  mode: ViewMode;
+  mode: ProfileViewMode;
   icon: React.ReactNode;
-  label: string;
 }[] = [
-  { mode: "timeline", icon: <Activity size={12} />, label: "Timeline" },
-  { mode: "list", icon: <LayoutList size={12} />, label: "List" },
-  { mode: "labs", icon: <FlaskConical size={12} />, label: "Labs" },
-  { mode: "imaging", icon: <ScanLine size={12} />, label: "Imaging" },
-  { mode: "visits", icon: <Hospital size={12} />, label: "Visits" },
-  { mode: "notes", icon: <FileText size={12} />, label: "Notes" },
-  { mode: "eras", icon: <GitBranch size={12} />, label: "Eras" },
-  { mode: "precision", icon: <Dna size={12} />, label: "Precision Medicine" },
+  { mode: "timeline", icon: <Activity size={12} /> },
+  { mode: "list", icon: <LayoutList size={12} /> },
+  { mode: "labs", icon: <FlaskConical size={12} /> },
+  { mode: "imaging", icon: <ScanLine size={12} /> },
+  { mode: "visits", icon: <Hospital size={12} /> },
+  { mode: "notes", icon: <FileText size={12} /> },
+  { mode: "eras", icon: <GitBranch size={12} /> },
+  { mode: "precision", icon: <Dna size={12} /> },
 ];
 
 function downloadEventsAsCsv(events: ClinicalEvent[], filename: string) {
@@ -115,18 +116,8 @@ function downloadEventsAsCsv(events: ClinicalEvent[], filename: string) {
   URL.revokeObjectURL(url);
 }
 
-function formatTimeAgo(epochMs: number): string {
-  const diff = Date.now() - epochMs;
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-}
-
 export default function PatientProfilePage() {
+  const { t } = useTranslation("app");
   const { personId } = useParams<{ personId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -134,10 +125,6 @@ export default function PatientProfilePage() {
   const navState = location.state as { from?: string; fromLabel?: string } | null;
 
   const parsedPersonId = personId ? Number(personId) : null;
-  const sourceIdParam = searchParams.get("sourceId");
-  const [sourceId, setSourceId] = useState<number | null>(
-    sourceIdParam ? Number(sourceIdParam) : null,
-  );
   const [viewMode, setViewMode] = useState<ViewMode>("timeline");
   const [domainTab, setDomainTab] = useState<DomainTab>("all");
   const [selectedEvent, setSelectedEvent] = useState<ClinicalEvent | null>(null);
@@ -151,20 +138,24 @@ export default function PatientProfilePage() {
   });
 
   const userDefaultSourceId = useSourceStore((s) => s.defaultSourceId);
+  const sourceIdParam = searchParams.get("sourceId");
+  const sourceId = useMemo(() => {
+    if (sourceIdParam) {
+      const parsed = Number(sourceIdParam);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+    if (!sources?.length) return null;
+    const defaultSource = userDefaultSourceId
+      ? sources.find((source) => source.id === userDefaultSourceId) ?? sources[0]
+      : sources[0];
+    return defaultSource?.id ?? null;
+  }, [sourceIdParam, sources, userDefaultSourceId]);
 
   // Auto-select user's default source when no source is specified
   useEffect(() => {
-    if (sourceId || !sources?.length) return;
-    const target = userDefaultSourceId
-      ? sources.find((s) => s.id === userDefaultSourceId)
-      : sources[0];
-    if (target) {
-      setSourceId(target.id);
-      if (parsedPersonId) {
-        setSearchParams({ sourceId: String(target.id) });
-      }
-    }
-  }, [sourceId, sources, userDefaultSourceId, parsedPersonId, setSearchParams]);
+    if (sourceIdParam || !parsedPersonId || !sourceId) return;
+    setSearchParams({ sourceId: String(sourceId) }, { replace: true });
+  }, [sourceId, sourceIdParam, parsedPersonId, setSearchParams]);
 
   const {
     data: profile,
@@ -245,28 +236,53 @@ export default function PatientProfilePage() {
   const truncatedDomains = useMemo(() => {
     if (!profile || !profileStats) return [];
     const domainMap: { key: keyof typeof profileStats; label: string; loaded: number }[] = [
-      { key: "condition", label: "Conditions", loaded: profile.conditions.length },
-      { key: "drug", label: "Drugs", loaded: profile.drugs.length },
-      { key: "procedure", label: "Procedures", loaded: profile.procedures.length },
-      { key: "measurement", label: "Measurements", loaded: profile.measurements.length },
-      { key: "observation", label: "Observations", loaded: profile.observations.length },
-      { key: "visit", label: "Visits", loaded: profile.visits.length },
+      {
+        key: "condition",
+        label: getProfileDomainLabel(t, "condition", true),
+        loaded: profile.conditions.length,
+      },
+      {
+        key: "drug",
+        label: getProfileDomainLabel(t, "drug", true),
+        loaded: profile.drugs.length,
+      },
+      {
+        key: "procedure",
+        label: getProfileDomainLabel(t, "procedure", true),
+        loaded: profile.procedures.length,
+      },
+      {
+        key: "measurement",
+        label: getProfileDomainLabel(t, "measurement", true),
+        loaded: profile.measurements.length,
+      },
+      {
+        key: "observation",
+        label: getProfileDomainLabel(t, "observation", true),
+        loaded: profile.observations.length,
+      },
+      {
+        key: "visit",
+        label: getProfileDomainLabel(t, "visit", true),
+        loaded: profile.visits.length,
+      },
     ];
     return domainMap
       .filter((d) => profileStats[d.key] > PROFILE_DOMAIN_LIMIT)
       .map((d) => ({ label: d.label, total: profileStats[d.key], loaded: d.loaded }));
-  }, [profile, profileStats]);
+  }, [profile, profileStats, t]);
 
   const handleSelectPerson = (sid: number, pid: number) => {
-    setSourceId(sid);
     navigate(`/profiles/${pid}?sourceId=${sid}`);
   };
 
   const handleSourceChange = (newSourceId: number | null) => {
-    setSourceId(newSourceId);
-    if (parsedPersonId && newSourceId) {
+    if (!parsedPersonId) return;
+    if (newSourceId) {
       setSearchParams({ sourceId: String(newSourceId) });
+      return;
     }
+    setSearchParams({}, { replace: true });
   };
 
   const handleExportCsv = useCallback(() => {
@@ -286,9 +302,11 @@ export default function PatientProfilePage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Patient Profiles</h1>
+          <h1 className="text-2xl font-bold text-text-primary">
+            {t("profiles.page.title")}
+          </h1>
           <p className="mt-1 text-sm text-text-muted">
-            Search by person ID or MRN, or browse cohort members
+            {t("profiles.page.subtitle")}
           </p>
         </div>
 
@@ -299,7 +317,7 @@ export default function PatientProfilePage() {
               <div className="flex items-center gap-2">
                 <Clock size={14} className="text-text-muted" />
                 <h2 className="text-sm font-semibold text-text-secondary">
-                  Recent Profiles
+                  {t("profiles.recent.title")}
                 </h2>
                 <span className="text-xs text-text-ghost">
                   ({recentProfiles.length})
@@ -311,7 +329,7 @@ export default function PatientProfilePage() {
                 className="inline-flex items-center gap-1 text-[10px] text-text-ghost hover:text-text-muted transition-colors"
               >
                 <X size={10} />
-                Clear
+                {t("profiles.recent.clear")}
               </button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
@@ -331,7 +349,10 @@ export default function PatientProfilePage() {
                         #{rp.personId}
                       </span>
                       <span className="text-xs text-text-muted">
-                        {rp.gender} · {new Date().getFullYear() - rp.yearOfBirth} yrs
+                        {getProfileGenderLabel(t, rp.gender)} ·{" "}
+                        {t("profiles.header.demographics.years", {
+                          count: new Date().getFullYear() - rp.yearOfBirth,
+                        })}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 mt-0.5">
@@ -340,7 +361,7 @@ export default function PatientProfilePage() {
                         {rp.sourceName}
                       </span>
                       <span className="text-[10px] text-text-disabled shrink-0">
-                        · {formatTimeAgo(rp.viewedAt)}
+                        · {formatProfileTimeAgo(t, rp.viewedAt)}
                       </span>
                     </div>
                   </div>
@@ -367,10 +388,14 @@ export default function PatientProfilePage() {
             className="inline-flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition-colors mb-3"
           >
             <ArrowLeft size={14} />
-            {navState?.fromLabel ?? "Patient Profiles"}
+            {navState?.fromLabel ?? t("profiles.page.title")}
           </button>
-          <h1 className="text-2xl font-bold text-text-primary">Patient Profile</h1>
-          <p className="mt-1 text-sm text-text-muted">Person #{parsedPersonId}</p>
+          <h1 className="text-2xl font-bold text-text-primary">
+            {t("profiles.page.titleSingle")}
+          </h1>
+          <p className="mt-1 text-sm text-text-muted">
+            {t("profiles.common.personLabel", { id: parsedPersonId })}
+          </p>
         </div>
 
         {/* Right side: source selector + quick patient search */}
@@ -410,7 +435,7 @@ export default function PatientProfilePage() {
                 "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             >
-              <option value="">Select source...</option>
+              <option value="">{t("profiles.common.selectSource")}</option>
               {sources?.map((src) => (
                 <option key={src.id} value={src.id}>
                   {src.id === userDefaultSourceId ? "\u2605 " : ""}{src.source_name}
@@ -430,7 +455,7 @@ export default function PatientProfilePage() {
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
           <Database size={24} className="text-text-ghost mb-3" />
           <p className="text-sm text-text-muted">
-            Please select a data source to load the patient profile.
+            {t("profiles.page.selectSourcePrompt")}
           </p>
         </div>
       )}
@@ -447,10 +472,12 @@ export default function PatientProfilePage() {
         <div className="flex items-center justify-center h-48">
           <div className="text-center">
             <p className="text-critical text-sm">
-              Failed to load patient profile
+              {t("profiles.page.failedToLoad")}
             </p>
             <p className="mt-1 text-xs text-text-muted">
-              Person #{parsedPersonId} may not exist in this data source.
+              {t("profiles.page.patientNotFound", {
+                id: parsedPersonId,
+              })}
             </p>
           </div>
         </div>
@@ -476,7 +503,7 @@ export default function PatientProfilePage() {
               className="flex items-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
             >
               <UsersRound size={13} />
-              Find Similar Patients
+              {t("profiles.page.findSimilarPatients")}
             </button>
           </div>
 
@@ -485,12 +512,20 @@ export default function PatientProfilePage() {
             <div className="flex items-start gap-2 rounded-lg border border-accent/30 bg-accent/5 px-4 py-3">
               <AlertTriangle size={14} className="text-accent shrink-0 mt-0.5" />
               <div className="text-xs text-accent">
-                <span className="font-semibold">Results capped at {PROFILE_DOMAIN_LIMIT.toLocaleString()} per domain. </span>
-                Showing most recent records only.{" "}
+                <span className="font-semibold">
+                  {t("profiles.page.truncation.headline", {
+                    limit: PROFILE_DOMAIN_LIMIT.toLocaleString(),
+                  })}{" "}
+                </span>
+                {t("profiles.page.truncation.detail")}{" "}
                 {truncatedDomains.map((d, i) => (
                   <span key={d.label}>
                     {i > 0 && " · "}
-                    {d.label}: {d.loaded.toLocaleString()} of {d.total.toLocaleString()}
+                    {t("profiles.page.truncation.domainSummary", {
+                      label: d.label,
+                      loaded: d.loaded.toLocaleString(),
+                      total: d.total.toLocaleString(),
+                    })}
                   </span>
                 ))}
               </div>
@@ -500,7 +535,9 @@ export default function PatientProfilePage() {
           {/* View controls */}
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <span className="text-sm font-semibold text-text-primary">
-              Clinical Events ({allEvents.length})
+              {t("profiles.page.clinicalEvents", {
+                count: allEvents.length,
+              })}
             </span>
 
             <div className="flex items-center gap-2">
@@ -508,7 +545,7 @@ export default function PatientProfilePage() {
               <div className="flex items-center gap-1 rounded-lg border border-border-default bg-surface-base p-0.5">
                 {VIEW_BUTTONS.filter(
                   (b) => b.mode !== "eras" || hasEras,
-                ).map(({ mode, icon, label }) => (
+                ).map(({ mode, icon }) => (
                   <button
                     key={mode}
                     type="button"
@@ -521,7 +558,7 @@ export default function PatientProfilePage() {
                     )}
                   >
                     {icon}
-                    {label}
+                    {getProfileViewLabel(t, mode)}
                   </button>
                 ))}
               </div>
@@ -534,7 +571,7 @@ export default function PatientProfilePage() {
                   className="inline-flex items-center gap-1.5 rounded-lg border border-surface-highlight px-3 py-1.5 text-xs text-text-muted hover:text-text-primary hover:border-text-ghost transition-colors"
                 >
                   <Download size={12} />
-                  Export CSV
+                  {t("profiles.common.actions.exportCsv")}
                 </button>
               )}
             </div>
@@ -593,25 +630,25 @@ export default function PatientProfilePage() {
                 <div className="flex items-center gap-1">
                   {DOMAIN_TABS.map((tab) => {
                     const count =
-                      tab.key === "all"
+                      tab === "all"
                         ? allEvents.length
-                        : allEvents.filter((e) => e.domain === tab.key).length;
-                    if (tab.key !== "all" && count === 0) return null;
+                        : allEvents.filter((e) => e.domain === tab).length;
+                    if (tab !== "all" && count === 0) return null;
                     return (
                       <button
-                        key={tab.key}
+                        key={tab}
                         type="button"
-                        onClick={() => setDomainTab(tab.key)}
+                        onClick={() => setDomainTab(tab)}
                         className={cn(
                           "relative px-3 py-2 text-xs font-medium transition-colors whitespace-nowrap",
-                          domainTab === tab.key
+                          domainTab === tab
                             ? "text-success"
                             : "text-text-muted hover:text-text-secondary",
                         )}
                       >
-                        {tab.label}{" "}
+                        {getProfileTabLabel(t, tab)}{" "}
                         <span className="text-[10px] opacity-60">({count})</span>
-                        {domainTab === tab.key && (
+                        {domainTab === tab && (
                           <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-success" />
                         )}
                       </button>
@@ -628,7 +665,13 @@ export default function PatientProfilePage() {
                       : "border-surface-highlight text-text-muted hover:text-text-primary",
                   )}
                 >
-                  {groupList ? `${groupedEvents.length} concepts` : `${filteredEvents.length} events`}
+                  {groupList
+                    ? t("profiles.page.listToggle.grouped", {
+                        count: groupedEvents.length,
+                      })
+                    : t("profiles.page.listToggle.events", {
+                        count: filteredEvents.length,
+                      })}
                 </button>
               </div>
 
@@ -636,7 +679,7 @@ export default function PatientProfilePage() {
               {filteredEvents.length === 0 ? (
                 <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
                   <p className="text-sm text-text-muted">
-                    No events in this category
+                    {t("profiles.page.noEventsInCategory")}
                   </p>
                 </div>
               ) : groupList ? (
@@ -675,6 +718,7 @@ export default function PatientProfilePage() {
 // ── Embedded Imaging View ──────────────────────────────────────────────
 
 function PatientImagingView({ personId }: { personId: number }) {
+  const { t } = useTranslation("app");
   const { data: timeline, isLoading, error } = usePatientTimeline(personId);
 
   if (isLoading) {
@@ -690,7 +734,9 @@ function PatientImagingView({ personId }: { personId: number }) {
       <div className="flex flex-col items-center justify-center h-48 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
         <ScanLine size={24} className="text-text-ghost mb-3" />
         <p className="text-sm text-text-muted">
-          {error ? "Failed to load imaging data" : "No imaging studies available for this patient"}
+          {error
+            ? t("profiles.page.imaging.failedToLoad")
+            : t("profiles.page.imaging.noStudies")}
         </p>
       </div>
     );

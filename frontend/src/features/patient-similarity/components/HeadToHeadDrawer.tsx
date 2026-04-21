@@ -1,5 +1,7 @@
 import { Loader2, ExternalLink } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Drawer } from "@/components/ui/Drawer";
+import { getSimilarityDimensionLabel, getSimilarityGenderLabel } from "../lib/i18n";
 import { DimensionScoreBar } from "./DimensionScoreBar";
 import { TrajectoryComparison } from "./TrajectoryComparison";
 import { useComparePatients } from "../hooks/usePatientSimilarity";
@@ -11,12 +13,6 @@ export interface HeadToHeadDrawerProps {
   personAId: number | null;
   personBId: number | null;
   sourceId: number;
-}
-
-function genderLabel(genderConceptId: number | null | undefined): string {
-  if (genderConceptId === 8507) return "Male";
-  if (genderConceptId === 8532) return "Female";
-  return "Unknown";
 }
 
 function ageBucketLabel(bucket: number | null | undefined): string {
@@ -59,6 +55,7 @@ function PatientCard({
   sourceId,
   accentColor,
 }: PatientCardProps) {
+  const { t } = useTranslation("app");
   return (
     <div
       className="flex-1 rounded-lg border bg-surface-raised p-4 space-y-2"
@@ -78,7 +75,7 @@ function PatientCard({
           className="flex items-center gap-1 text-[10px] hover:underline"
           style={{ color: accentColor }}
         >
-          Profile <ExternalLink size={10} />
+          {t("patientSimilarity.headToHead.profile", { defaultValue: "Profile" })} <ExternalLink size={10} />
         </a>
       </div>
       <div className="text-2xl font-bold tabular-nums" style={{ color: accentColor }}>
@@ -86,19 +83,19 @@ function PatientCard({
       </div>
       <div className="space-y-1">
         <div className="flex justify-between text-xs">
-          <span className="text-text-ghost">Gender</span>
-          <span className="text-text-secondary">{genderLabel(genderConceptId)}</span>
+          <span className="text-text-ghost">{t("patientSimilarity.comparison.demographics.gender")}</span>
+          <span className="text-text-secondary">{getSimilarityGenderLabel(t, genderConceptId)}</span>
         </div>
         <div className="flex justify-between text-xs">
-          <span className="text-text-ghost">Age</span>
+          <span className="text-text-ghost">{t("patientSimilarity.comparison.demographics.ageRange")}</span>
           <span className="text-text-secondary">{ageBucketLabel(ageBucket)}</span>
         </div>
         <div className="flex justify-between text-xs">
-          <span className="text-text-ghost">Conditions</span>
+          <span className="text-text-ghost">{t("patientSimilarity.common.dimensions.conditions")}</span>
           <span className="text-text-secondary">{conditionCount}</span>
         </div>
         <div className="flex justify-between text-xs">
-          <span className="text-text-ghost">Labs</span>
+          <span className="text-text-ghost">{t("patientSimilarity.common.dimensions.labs")}</span>
           <span className="text-text-secondary">{labCount}</span>
         </div>
       </div>
@@ -119,15 +116,6 @@ function PatientCard({
   );
 }
 
-const DIMENSION_LABELS: Record<keyof DimensionScores, string> = {
-  demographics: "Demographics",
-  conditions: "Conditions",
-  measurements: "Measurements",
-  drugs: "Drugs",
-  procedures: "Procedures",
-  genomics: "Genomics",
-};
-
 interface ComparisonContentProps {
   result: PatientComparisonResult;
   personAId: number;
@@ -136,15 +124,23 @@ interface ComparisonContentProps {
 }
 
 function ComparisonContent({ result, personAId, personBId, sourceId }: ComparisonContentProps) {
+  const { t } = useTranslation("app");
   const { overall_score, dimension_scores } = result.scores;
-  const dimensionKeys = Object.keys(DIMENSION_LABELS) as (keyof DimensionScores)[];
+  const dimensionKeys = [
+    "demographics",
+    "conditions",
+    "measurements",
+    "drugs",
+    "procedures",
+    "genomics",
+  ] as (keyof DimensionScores)[];
 
   return (
     <div className="space-y-6">
       {/* Patient cards with VS badge */}
       <div className="flex items-center gap-3">
         <PatientCard
-          label="Patient A"
+          label={t("patientSimilarity.common.patientA")}
           personId={result.person_a.person_id}
           ageBucket={result.person_a.age_bucket}
           genderConceptId={result.person_a.gender_concept_id}
@@ -156,11 +152,13 @@ function ComparisonContent({ result, personAId, personBId, sourceId }: Compariso
         />
 
         <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-border-default bg-surface-base">
-          <span className="text-[10px] font-bold text-text-ghost">VS</span>
+          <span className="text-[10px] font-bold text-text-ghost">
+            {t("patientSimilarity.headToHead.vs", { defaultValue: "VS" })}
+          </span>
         </div>
 
         <PatientCard
-          label="Patient B"
+          label={t("patientSimilarity.common.patientB")}
           personId={result.person_b.person_id}
           ageBucket={result.person_b.age_bucket}
           genderConceptId={result.person_b.gender_concept_id}
@@ -175,7 +173,7 @@ function ComparisonContent({ result, personAId, personBId, sourceId }: Compariso
       {/* Overall similarity score */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
         <div className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-          Overall Similarity
+          {t("patientSimilarity.headToHead.overallSimilarity")}
         </div>
         <div className="flex items-end gap-3">
           <span
@@ -198,15 +196,18 @@ function ComparisonContent({ result, personAId, personBId, sourceId }: Compariso
       {/* Dimension scores — 2-column grid */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
         <div className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-          Dimension Scores
+          {t("patientSimilarity.headToHead.dimensionScores")}
         </div>
         <div className="grid grid-cols-2 gap-x-6 gap-y-3">
           {dimensionKeys.map((key) => (
             <div key={key} className="flex items-center justify-between gap-2">
               <span className="text-xs text-text-muted min-w-0 truncate">
-                {DIMENSION_LABELS[key]}
+                {getSimilarityDimensionLabel(t, key)}
               </span>
-              <DimensionScoreBar score={dimension_scores[key]} label={DIMENSION_LABELS[key]} />
+              <DimensionScoreBar
+                score={dimension_scores[key]}
+                label={getSimilarityDimensionLabel(t, key)}
+              />
             </div>
           ))}
         </div>
@@ -218,23 +219,23 @@ function ComparisonContent({ result, personAId, personBId, sourceId }: Compariso
         result.shared_features.procedure_count > 0) && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
           <div className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-            Shared Features
+            {t("patientSimilarity.headToHead.sharedFeatures")}
           </div>
           <div className="grid grid-cols-3 gap-3">
             <SharedFeatureStat
-              label="Conditions"
+              label={t("patientSimilarity.common.dimensions.conditions")}
               count={result.shared_features.condition_count}
               names={result.shared_features.condition_names}
               color="var(--primary)"
             />
             <SharedFeatureStat
-              label="Drugs"
+              label={t("patientSimilarity.common.dimensions.medications")}
               count={result.shared_features.drug_count}
               names={result.shared_features.drug_names}
               color="var(--success)"
             />
             <SharedFeatureStat
-              label="Procedures"
+              label={t("patientSimilarity.common.dimensions.procedures")}
               count={result.shared_features.procedure_count}
               names={result.shared_features.procedure_names}
               color="var(--accent)"
@@ -246,7 +247,7 @@ function ComparisonContent({ result, personAId, personBId, sourceId }: Compariso
       {/* Temporal trajectory */}
       <div className="space-y-2">
         <div className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-          Temporal Trajectory
+          {t("patientSimilarity.headToHead.temporalTrajectory")}
         </div>
         <TrajectoryComparison
           sourceId={sourceId}
@@ -263,7 +264,7 @@ function ComparisonContent({ result, personAId, personBId, sourceId }: Compariso
           rel="noopener noreferrer"
           className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-success/30 bg-success/10 px-4 py-2.5 text-sm font-medium text-success hover:bg-success/20 transition-colors"
         >
-          View Patient A Profile
+          {t("patientSimilarity.headToHead.viewPatientAProfile")}
           <ExternalLink size={13} />
         </a>
         <a
@@ -272,7 +273,7 @@ function ComparisonContent({ result, personAId, personBId, sourceId }: Compariso
           rel="noopener noreferrer"
           className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm font-medium text-accent hover:bg-accent/20 transition-colors"
         >
-          View Patient B Profile
+          {t("patientSimilarity.headToHead.viewPatientBProfile")}
           <ExternalLink size={13} />
         </a>
       </div>
@@ -288,6 +289,7 @@ interface SharedFeatureStatProps {
 }
 
 function SharedFeatureStat({ label, count, names, color }: SharedFeatureStatProps) {
+  const { t } = useTranslation("app");
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between">
@@ -306,7 +308,11 @@ function SharedFeatureStat({ label, count, names, color }: SharedFeatureStatProp
             </div>
           ))}
           {names.length > 3 && (
-            <div className="text-[10px] text-text-disabled">+{names.length - 3} more</div>
+            <div className="text-[10px] text-text-disabled">
+              {t("patientSimilarity.similarityTable.more", {
+                count: names.length - 3,
+              })}
+            </div>
           )}
         </div>
       )}
@@ -323,13 +329,18 @@ function DrawerBody({
   personBId: number;
   sourceId: number;
 }) {
+  const { t } = useTranslation("app");
   const { data, isLoading, isError } = useComparePatients(personAId, personBId, sourceId);
 
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center gap-3">
         <Loader2 size={20} className="animate-spin text-success" />
-        <span className="text-sm text-text-muted">Loading comparison...</span>
+        <span className="text-sm text-text-muted">
+          {t("patientSimilarity.headToHead.loadingComparison", {
+            defaultValue: "Loading comparison...",
+          })}
+        </span>
       </div>
     );
   }
@@ -337,9 +348,16 @@ function DrawerBody({
   if (isError || !data) {
     return (
       <div className="flex h-64 flex-col items-center justify-center gap-2 text-center">
-        <span className="text-sm text-text-muted">No comparison data available.</span>
+        <span className="text-sm text-text-muted">
+          {t("patientSimilarity.headToHead.noComparisonData", {
+            defaultValue: "No comparison data available.",
+          })}
+        </span>
         <span className="text-xs text-text-ghost">
-          Ensure both patients have feature vectors computed for this source.
+          {t("patientSimilarity.headToHead.ensureVectors", {
+            defaultValue:
+              "Ensure both patients have feature vectors computed for this source.",
+          })}
         </span>
       </div>
     );
@@ -362,10 +380,13 @@ export function HeadToHeadDrawer({
   personBId,
   sourceId,
 }: HeadToHeadDrawerProps) {
+  const { t } = useTranslation("app");
   const title =
     personAId != null && personBId != null
-      ? `Patient #${personAId} vs Patient #${personBId}`
-      : "Head-to-Head Comparison";
+      ? `${t("profiles.common.personLabel", { id: personAId })} vs ${t("profiles.common.personLabel", { id: personBId })}`
+      : t("patientSimilarity.headToHead.title", {
+          defaultValue: "Head-to-Head Comparison",
+        });
 
   return (
     <Drawer open={open} onClose={onClose} title={title} size="lg">
@@ -373,7 +394,9 @@ export function HeadToHeadDrawer({
         <DrawerBody personAId={personAId} personBId={personBId} sourceId={sourceId} />
       ) : (
         <div className="flex h-64 items-center justify-center text-sm text-text-ghost">
-          Select two patients to compare.
+          {t("patientSimilarity.headToHead.selectPatients", {
+            defaultValue: "Select two patients to compare.",
+          })}
         </div>
       )}
     </Drawer>

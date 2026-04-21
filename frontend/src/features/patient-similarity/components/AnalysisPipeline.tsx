@@ -1,5 +1,10 @@
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { StepDefinition, StepStatus, StepResult } from '../types/pipeline';
+import {
+  getPipelineStepDescription,
+  getPipelineStepName,
+} from '../lib/i18n';
 import { PipelineStep } from './PipelineStep';
 
 /** Steps that have a working implementation behind handleRunStep */
@@ -24,6 +29,8 @@ export function AnalysisPipeline({
   onRunStep,
   renderStepContent,
 }: AnalysisPipelineProps) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="px-5 py-4">
       {steps.map((step) => {
@@ -35,8 +42,8 @@ export function AnalysisPipeline({
           <PipelineStep
             key={step.id}
             stepNumber={step.stepNumber}
-            name={step.name}
-            description={step.description}
+            name={getPipelineStepName(t, step.copyKey)}
+            description={getPipelineStepDescription(t, step.copyKey)}
             status={status}
             isExpanded={isExpanded}
             summary={result?.summary}

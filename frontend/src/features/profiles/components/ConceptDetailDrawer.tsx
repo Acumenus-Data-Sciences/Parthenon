@@ -1,7 +1,10 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { X, ExternalLink, Tag, Hash, Database } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDate as formatAppDate } from "@/i18n/format";
+import { getProfileDomainLabel } from "../lib/i18n";
 import type { ClinicalEvent, ClinicalDomain } from "../types/profile";
 
 const DOMAIN_COLORS: Record<ClinicalDomain, string> = {
@@ -13,17 +16,8 @@ const DOMAIN_COLORS: Record<ClinicalDomain, string> = {
   visit: "var(--warning)",
 };
 
-const DOMAIN_LABELS: Record<ClinicalDomain, string> = {
-  condition: "Condition",
-  drug: "Drug",
-  procedure: "Procedure",
-  measurement: "Measurement",
-  observation: "Observation",
-  visit: "Visit",
-};
-
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
+  return formatAppDate(iso, {
     month: "long",
     day: "numeric",
     year: "numeric",
@@ -36,6 +30,7 @@ interface ConceptDetailDrawerProps {
 }
 
 export function ConceptDetailDrawer({ event, onClose }: ConceptDetailDrawerProps) {
+  const { t } = useTranslation("app");
   const navigate = useNavigate();
 
   // Close on Escape
@@ -51,7 +46,7 @@ export function ConceptDetailDrawer({ event, onClose }: ConceptDetailDrawerProps
   if (!event) return null;
 
   const color = DOMAIN_COLORS[event.domain] ?? "var(--text-muted)";
-  const domainLabel = DOMAIN_LABELS[event.domain] ?? event.domain;
+  const domainLabel = getProfileDomainLabel(t, event.domain);
   const numericValue = typeof event.value === "number" ? event.value : null;
 
   return (
@@ -100,16 +95,16 @@ export function ConceptDetailDrawer({ event, onClose }: ConceptDetailDrawerProps
           {/* Concept identifiers */}
           <section className="space-y-3">
             <h3 className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-              Concept
+              {t("profiles.conceptDetail.concept")}
             </h3>
             <div className="space-y-2">
-              <Row icon={<Hash size={12} />} label="Concept ID" value={String(event.concept_id)} mono />
+              <Row icon={<Hash size={12} />} label={t("profiles.conceptDetail.conceptId")} value={String(event.concept_id)} mono />
               {event.vocabulary && (
-                <Row icon={<Database size={12} />} label="Vocabulary" value={event.vocabulary} />
+                <Row icon={<Database size={12} />} label={t("profiles.conceptDetail.vocabulary")} value={event.vocabulary} />
               )}
-              <Row icon={<Tag size={12} />} label="Domain" value={domainLabel} />
+              <Row icon={<Tag size={12} />} label={t("profiles.conceptDetail.domain")} value={domainLabel} />
               {event.type_name && (
-                <Row icon={<Tag size={12} />} label="Record Type" value={event.type_name} />
+                <Row icon={<Tag size={12} />} label={t("profiles.conceptDetail.recordType")} value={event.type_name} />
               )}
             </div>
           </section>
@@ -117,15 +112,15 @@ export function ConceptDetailDrawer({ event, onClose }: ConceptDetailDrawerProps
           {/* Dates */}
           <section className="space-y-3">
             <h3 className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-              Occurrence
+              {t("profiles.conceptDetail.occurrence")}
             </h3>
             <div className="space-y-2">
-              <Row label="Start Date" value={formatDate(event.start_date)} />
+              <Row label={t("profiles.conceptDetail.startDate")} value={formatDate(event.start_date)} />
               {event.end_date && event.end_date !== event.start_date && (
-                <Row label="End Date" value={formatDate(event.end_date)} />
+                <Row label={t("profiles.conceptDetail.endDate")} value={formatDate(event.end_date)} />
               )}
               {event.occurrence_id != null && (
-                <Row label="Record ID" value={String(event.occurrence_id)} mono />
+                <Row label={t("profiles.conceptDetail.recordId")} value={String(event.occurrence_id)} mono />
               )}
             </div>
           </section>
@@ -134,7 +129,7 @@ export function ConceptDetailDrawer({ event, onClose }: ConceptDetailDrawerProps
           {(numericValue != null || event.value_as_concept || event.value_as_string) && (
             <section className="space-y-3">
               <h3 className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-                Value
+                {t("profiles.conceptDetail.value")}
               </h3>
               <div className="space-y-2">
                 {numericValue != null && (
@@ -147,29 +142,39 @@ export function ConceptDetailDrawer({ event, onClose }: ConceptDetailDrawerProps
                     </p>
                     {event.range_low != null && event.range_high != null && (
                       <p className="text-xs text-text-ghost mt-1">
-                        Reference: {event.range_low} – {event.range_high} {event.unit ?? ""}
+                        {t("profiles.conceptDetail.reference", {
+                          low: event.range_low,
+                          high: event.range_high,
+                          unit: event.unit ?? "",
+                        })}
                       </p>
                     )}
                     {event.range_low != null && event.range_high != null && (
                       <div className="mt-2">
                         {numericValue < event.range_low && (
-                          <span className="text-xs text-info">↓ Below normal range</span>
+                          <span className="text-xs text-info">
+                            ↓ {t("profiles.conceptDetail.belowNormal")}
+                          </span>
                         )}
                         {numericValue > event.range_high && (
-                          <span className="text-xs text-critical">↑ Above normal range</span>
+                          <span className="text-xs text-critical">
+                            ↑ {t("profiles.conceptDetail.aboveNormal")}
+                          </span>
                         )}
                         {numericValue >= event.range_low && numericValue <= event.range_high && (
-                          <span className="text-xs text-success">✓ Within normal range</span>
+                          <span className="text-xs text-success">
+                            ✓ {t("profiles.conceptDetail.withinNormal")}
+                          </span>
                         )}
                       </div>
                     )}
                   </div>
                 )}
                 {event.value_as_concept && (
-                  <Row label="Value (concept)" value={event.value_as_concept} />
+                  <Row label={t("profiles.conceptDetail.valueConcept")} value={event.value_as_concept} />
                 )}
                 {event.value_as_string && (
-                  <Row label="Value (text)" value={event.value_as_string} />
+                  <Row label={t("profiles.conceptDetail.valueText")} value={event.value_as_string} />
                 )}
               </div>
             </section>
@@ -179,12 +184,19 @@ export function ConceptDetailDrawer({ event, onClose }: ConceptDetailDrawerProps
           {event.domain === "drug" && (event.route || event.days_supply != null || event.quantity != null) && (
             <section className="space-y-3">
               <h3 className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-                Exposure Details
+                {t("profiles.conceptDetail.exposureDetails")}
               </h3>
               <div className="space-y-2">
-                {event.route && <Row label="Route" value={event.route} />}
-                {event.days_supply != null && <Row label="Days Supply" value={`${event.days_supply} days`} />}
-                {event.quantity != null && <Row label="Quantity" value={String(event.quantity)} />}
+                {event.route && <Row label={t("profiles.conceptDetail.route")} value={event.route} />}
+                {event.days_supply != null && (
+                  <Row
+                    label={t("profiles.conceptDetail.daysSupply")}
+                    value={t("profiles.conceptDetail.days", { count: event.days_supply })}
+                  />
+                )}
+                {event.quantity != null && (
+                  <Row label={t("profiles.conceptDetail.quantity")} value={String(event.quantity)} />
+                )}
               </div>
             </section>
           )}
@@ -206,7 +218,7 @@ export function ConceptDetailDrawer({ event, onClose }: ConceptDetailDrawerProps
               )}
             >
               <ExternalLink size={14} />
-              View in Vocabulary Browser
+              {t("profiles.conceptDetail.viewInVocabularyBrowser")}
             </button>
           )}
         </div>

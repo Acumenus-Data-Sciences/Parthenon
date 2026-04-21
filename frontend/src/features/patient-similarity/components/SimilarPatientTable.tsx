@@ -1,7 +1,9 @@
 import { Fragment, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronDown, ChevronRight, FlaskConical, Pill, Stethoscope } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { getSimilarityDimensionLabel } from "../lib/i18n";
 import { DimensionScoreBar } from "./DimensionScoreBar";
 import type { SimilarPatient, SharedFeatureCategory } from "../types/patientSimilarity";
 
@@ -56,6 +58,7 @@ function SharedFeaturePills({ category, icon, label }: {
   icon: React.ReactNode;
   label: string;
 }) {
+  const { t } = useTranslation("app");
   const sharedCount = category?.shared_count ?? 0;
   const seedCount = category?.seed_count ?? 0;
   const topShared = Array.isArray(category?.top_shared) ? category.top_shared : [];
@@ -72,18 +75,23 @@ function SharedFeaturePills({ category, icon, label }: {
         {icon}
         {label}
         <span className="text-[var(--color-text-secondary)] font-normal normal-case">
-          ({sharedCount} of {seedCount} lifetime shared)
+          {t("patientSimilarity.similarityTable.lifetimeShared", {
+            shared: sharedCount,
+            seed: seedCount,
+          })}
         </span>
         {recentSharedCount > 0 && (
           <span className="rounded-full border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/10 px-1.5 py-0.5 text-[9px] text-[var(--color-primary)] normal-case tracking-normal">
-            {recentSharedCount} recent
+            {t("patientSimilarity.similarityTable.recentCount", {
+              count: recentSharedCount,
+            })}
           </span>
         )}
       </div>
       {recentSharedCount > 0 && recentTopShared.length > 0 && (
         <div className="space-y-1">
           <div className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">
-            Recent overlap
+            {t("patientSimilarity.similarityTable.recentOverlap")}
           </div>
           <div className="flex flex-wrap gap-1.5">
             {recentTopShared.map((concept) => (
@@ -97,7 +105,9 @@ function SharedFeaturePills({ category, icon, label }: {
             ))}
             {recentSharedCount > recentTopShared.length && (
               <span className="inline-flex items-center text-[10px] text-[var(--color-text-muted)] px-1">
-                +{recentSharedCount - recentTopShared.length} more recent
+                {t("patientSimilarity.similarityTable.moreRecent", {
+                  count: recentSharedCount - recentTopShared.length,
+                })}
               </span>
             )}
           </div>
@@ -115,7 +125,9 @@ function SharedFeaturePills({ category, icon, label }: {
         ))}
         {sharedCount > topShared.length && (
           <span className="inline-flex items-center text-[10px] text-[var(--color-text-muted)] px-1">
-            +{sharedCount - topShared.length} more
+            {t("patientSimilarity.similarityTable.more", {
+              count: sharedCount - topShared.length,
+            })}
           </span>
         )}
       </div>
@@ -129,6 +141,7 @@ export function SimilarPatientTable({
   seedPersonId,
   sourceId,
 }: SimilarPatientTableProps) {
+  const { t } = useTranslation("app");
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
   const toggleRow = (index: number) => {
@@ -146,7 +159,9 @@ export function SimilarPatientTable({
   if (patients.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <p className="text-sm text-[var(--color-text-secondary)]">No similar patients found for the given criteria.</p>
+        <p className="text-sm text-[var(--color-text-secondary)]">
+          {t("patientSimilarity.similarityTable.noPatientsFound")}
+        </p>
       </div>
     );
   }
@@ -162,31 +177,31 @@ export function SimilarPatientTable({
                 #
               </th>
               <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.5px]">
-                Score
+                {t("patientSimilarity.similarityTable.score")}
               </th>
               <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.5px]">
-                Patient
+                {t("profiles.common.patient")}
               </th>
               <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.5px]">
-                Demographics
+                {t("patientSimilarity.common.dimensions.demographics")}
               </th>
               <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.5px]">
-                Conditions
+                {t("patientSimilarity.common.dimensions.conditions")}
               </th>
               <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.5px]">
-                Labs
+                {t("patientSimilarity.common.dimensions.labs")}
               </th>
               <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.5px]">
-                Drugs
+                {t("patientSimilarity.common.dimensions.medications")}
               </th>
               <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.5px]">
-                Procedures
+                {t("patientSimilarity.common.dimensions.procedures")}
               </th>
               <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.5px]">
-                Genomics
+                {t("patientSimilarity.common.dimensions.genomics")}
               </th>
               <th className="px-3 py-2.5 text-right text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.5px] w-20">
-                Compare
+                {t("patientSimilarity.similarityTable.compare")}
               </th>
             </tr>
           </thead>
@@ -244,37 +259,37 @@ export function SimilarPatientTable({
                     <td className="px-3 py-2.5">
                       <DimensionScoreBar
                         score={normalizeScore(dimensionScores.demographics)}
-                        label="Demographics"
+                        label={getSimilarityDimensionLabel(t, "demographics")}
                       />
                     </td>
                     <td className="px-3 py-2.5">
                       <DimensionScoreBar
                         score={normalizeScore(dimensionScores.conditions)}
-                        label="Conditions"
+                        label={getSimilarityDimensionLabel(t, "conditions")}
                       />
                     </td>
                     <td className="px-3 py-2.5">
                       <DimensionScoreBar
                         score={normalizeScore(dimensionScores.measurements)}
-                        label="Labs"
+                        label={getSimilarityDimensionLabel(t, "measurements")}
                       />
                     </td>
                     <td className="px-3 py-2.5">
                       <DimensionScoreBar
                         score={normalizeScore(dimensionScores.drugs)}
-                        label="Drugs"
+                        label={getSimilarityDimensionLabel(t, "drugs")}
                       />
                     </td>
                     <td className="px-3 py-2.5">
                       <DimensionScoreBar
                         score={normalizeScore(dimensionScores.procedures)}
-                        label="Procedures"
+                        label={getSimilarityDimensionLabel(t, "procedures")}
                       />
                     </td>
                     <td className="px-3 py-2.5">
                       <DimensionScoreBar
                         score={normalizeScore(dimensionScores.genomics)}
-                        label="Genomics"
+                        label={getSimilarityDimensionLabel(t, "genomics")}
                       />
                     </td>
                     <td className="px-3 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
@@ -283,7 +298,7 @@ export function SimilarPatientTable({
                           to={compareUrl}
                           className="text-xs text-[var(--color-primary)] hover:text-[var(--color-primary)]/80 font-medium transition-colors"
                         >
-                          Compare
+                          {t("patientSimilarity.similarityTable.compare")}
                         </Link>
                       ) : (
                         <span className="text-xs text-[var(--color-border-default)]">--</span>
@@ -306,7 +321,7 @@ export function SimilarPatientTable({
                           <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                             <div className="rounded-md border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] px-3 py-2">
                               <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)]">
-                                Anchor Date
+                                {t("patientSimilarity.similarityTable.anchorDate")}
                               </div>
                               <div className="mt-1 text-xs text-[var(--color-text-primary)]">
                                 {formatAnchorDate(patient.anchor_date)}
@@ -314,7 +329,7 @@ export function SimilarPatientTable({
                             </div>
                             <div className="rounded-md border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] px-3 py-2">
                               <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)]">
-                                Conditions
+                                {t("patientSimilarity.common.dimensions.conditions")}
                               </div>
                               <div className="mt-1 text-xs text-[var(--color-text-primary)]">
                                 {patient.condition_count ?? "\u2014"}
@@ -322,7 +337,7 @@ export function SimilarPatientTable({
                             </div>
                             <div className="rounded-md border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] px-3 py-2">
                               <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)]">
-                                Labs
+                                {t("patientSimilarity.common.dimensions.labs")}
                               </div>
                               <div className="mt-1 text-xs text-[var(--color-text-primary)]">
                                 {patient.lab_count ?? "\u2014"}
@@ -330,7 +345,7 @@ export function SimilarPatientTable({
                             </div>
                             <div className="rounded-md border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] px-3 py-2">
                               <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)]">
-                                Vector Version
+                                {t("patientSimilarity.similarityTable.vectorVersion")}
                               </div>
                               <div className="mt-1 text-xs text-[var(--color-text-primary)]">
                                 {patient.feature_vector_version ?? "\u2014"}
@@ -344,17 +359,17 @@ export function SimilarPatientTable({
                               <SharedFeaturePills
                                 category={patient.shared_features.conditions}
                                 icon={<Stethoscope size={11} className="text-[var(--color-critical)]" />}
-                                label="Conditions"
+                                label={t("patientSimilarity.common.dimensions.conditions")}
                               />
                               <SharedFeaturePills
                                 category={patient.shared_features.drugs}
                                 icon={<Pill size={11} className="text-[var(--color-primary)]" />}
-                                label="Medications"
+                                label={t("patientSimilarity.common.dimensions.medications")}
                               />
                               <SharedFeaturePills
                                 category={patient.shared_features.procedures}
                                 icon={<FlaskConical size={11} className="text-[var(--color-primary)]" />}
-                                label="Procedures"
+                                label={t("patientSimilarity.common.dimensions.procedures")}
                               />
                             </div>
                           )}

@@ -1,6 +1,9 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { ChevronDown, ChevronRight, Hospital } from "lucide-react";
 import { Link } from "react-router-dom";
+import { formatDate as formatAppDate } from "@/i18n/format";
+import { getProfileDomainLabel } from "../lib/i18n";
 import type { ClinicalEvent, ClinicalDomain } from "../types/profile";
 
 interface PatientVisitViewProps {
@@ -9,18 +12,18 @@ interface PatientVisitViewProps {
 
 const DOMAIN_CONFIG: Record<
   ClinicalDomain,
-  { label: string; color: string; plural: string }
+  { color: string }
 > = {
-  condition: { label: "Condition", plural: "Conditions", color: "var(--critical)" },
-  drug: { label: "Drug", plural: "Drugs", color: "var(--success)" },
-  procedure: { label: "Procedure", plural: "Procedures", color: "var(--accent)" },
-  measurement: { label: "Measurement", plural: "Measurements", color: "var(--info)" },
-  observation: { label: "Observation", plural: "Observations", color: "var(--text-muted)" },
-  visit: { label: "Visit", plural: "Visits", color: "var(--warning)" },
+  condition: { color: "var(--critical)" },
+  drug: { color: "var(--success)" },
+  procedure: { color: "var(--accent)" },
+  measurement: { color: "var(--info)" },
+  observation: { color: "var(--text-muted)" },
+  visit: { color: "var(--warning)" },
 };
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
+  return formatAppDate(iso, {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -46,6 +49,7 @@ function DomainTag({
   domain: ClinicalDomain;
   count: number;
 }) {
+  const { t } = useTranslation("app");
   const cfg = DOMAIN_CONFIG[domain];
   return (
     <span
@@ -56,12 +60,13 @@ function DomainTag({
         border: `1px solid ${cfg.color}30`,
       }}
     >
-      {cfg.plural} ({count})
+      {getProfileDomainLabel(t, domain, true)} ({count})
     </span>
   );
 }
 
 function EventRow({ event }: { event: ClinicalEvent }) {
+  const { t } = useTranslation("app");
   const cfg = DOMAIN_CONFIG[event.domain];
   const showValue =
     event.value != null ||
@@ -95,7 +100,7 @@ function EventRow({ event }: { event: ClinicalEvent }) {
         )}
         {event.route && (
           <span className="ml-2 text-[10px] text-text-ghost">
-            via {event.route}
+            {t("profiles.events.viaRoute", { route: event.route })}
           </span>
         )}
       </div>
@@ -107,7 +112,7 @@ function EventRow({ event }: { event: ClinicalEvent }) {
             color: cfg.color,
           }}
         >
-          {cfg.label}
+          {getProfileDomainLabel(t, event.domain)}
         </span>
       </div>
     </div>
@@ -115,6 +120,7 @@ function EventRow({ event }: { event: ClinicalEvent }) {
 }
 
 function VisitCard({ visitGroup }: { visitGroup: VisitGroup }) {
+  const { t } = useTranslation("app");
   const [expanded, setExpanded] = useState(false);
   const { visit, events } = visitGroup;
 
@@ -168,7 +174,7 @@ function VisitCard({ visitGroup }: { visitGroup: VisitGroup }) {
                 : ""}
               {durationDays > 0 && (
                 <span className="ml-1 text-[10px] text-text-ghost">
-                  ({durationDays}d)
+                  {t("profiles.visits.durationDays", { count: durationDays })}
                 </span>
               )}
             </span>
@@ -189,7 +195,7 @@ function VisitCard({ visitGroup }: { visitGroup: VisitGroup }) {
             </div>
           ) : (
             <p className="text-[11px] text-text-ghost mt-1">
-              No associated events
+              {t("profiles.visits.noAssociatedEvents")}
             </p>
           )}
         </div>
@@ -216,7 +222,7 @@ function VisitCard({ visitGroup }: { visitGroup: VisitGroup }) {
                     className="text-[10px] font-semibold uppercase tracking-wider mb-1"
                     style={{ color: cfg.color }}
                   >
-                    {cfg.plural}
+                    {getProfileDomainLabel(t, d, true)}
                   </p>
                   {domEvents.map((e, i) => (
                     <EventRow key={i} event={e} />
@@ -231,6 +237,7 @@ function VisitCard({ visitGroup }: { visitGroup: VisitGroup }) {
 }
 
 export function PatientVisitView({ events }: PatientVisitViewProps) {
+  const { t } = useTranslation("app");
   const [showUnassociated, setShowUnassociated] = useState(false);
 
   const { visitGroups, unassociated } = useMemo(() => {
@@ -272,9 +279,9 @@ export function PatientVisitView({ events }: PatientVisitViewProps) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
         <Hospital size={24} className="text-text-ghost mb-3" />
-        <p className="text-sm text-text-muted">No visit data available</p>
+        <p className="text-sm text-text-muted">{t("profiles.visits.noVisitData")}</p>
         <p className="text-xs text-text-ghost mt-1">
-          Visit occurrences are required to use this view
+          {t("profiles.visits.visitOccurrencesRequired")}
         </p>
       </div>
     );
@@ -285,9 +292,16 @@ export function PatientVisitView({ events }: PatientVisitViewProps) {
       {/* Visit count summary */}
       <div className="flex items-center justify-between px-1">
         <span className="text-xs text-text-muted">
-          {visitGroups.length} visits ·{" "}
-          {visitGroups.reduce((s, g) => s + g.events.length, 0)} associated events
-          {unassociated.length > 0 && ` · ${unassociated.length} unassociated`}
+          {unassociated.length > 0
+            ? t("profiles.visits.summaryWithUnassociated", {
+                visits: visitGroups.length,
+                events: visitGroups.reduce((s, g) => s + g.events.length, 0),
+                unassociated: unassociated.length,
+              })
+            : t("profiles.visits.summary", {
+                visits: visitGroups.length,
+                events: visitGroups.reduce((s, g) => s + g.events.length, 0),
+              })}
         </span>
       </div>
 
@@ -305,7 +319,9 @@ export function PatientVisitView({ events }: PatientVisitViewProps) {
             className="w-full flex items-center justify-between px-4 py-3 hover:bg-surface-overlay transition-colors"
           >
             <span className="text-xs text-text-muted">
-              {unassociated.length} events not associated with any visit
+              {t("profiles.visits.eventsNotAssociated", {
+                count: unassociated.length,
+              })}
             </span>
             {showUnassociated ? (
               <ChevronDown size={14} className="text-text-ghost" />

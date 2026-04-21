@@ -1,4 +1,5 @@
 import { Search, X, ZoomIn, ZoomOut } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { ObservationPeriod } from "../../types/profile";
 
@@ -25,15 +26,21 @@ export function TimelineToolbar({
   onZoomOut,
   onReset,
 }: TimelineToolbarProps) {
+  const { t } = useTranslation("app");
   return (
     <div className="flex items-center justify-between gap-3 px-4 py-2 bg-[var(--patient-timeline-toolbar-bg)] border-b border-border-default flex-wrap">
       <div className="flex items-center gap-2">
         <span className="text-xs text-text-muted">
-          {eventCount} events · {activeDomainCount} domains
+          {t("profiles.timeline.toolbar.summary", {
+            events: eventCount,
+            domains: activeDomainCount,
+          })}
         </span>
         {observationPeriods.length > 0 && (
           <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] bg-success/10 text-success border border-success/20">
-            {observationPeriods.length} obs. period{observationPeriods.length > 1 ? "s" : ""}
+            {t("profiles.timeline.toolbar.observationPeriod", {
+              count: observationPeriods.length,
+            })}
           </span>
         )}
       </div>
@@ -49,7 +56,7 @@ export function TimelineToolbar({
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Highlight events..."
+            placeholder={t("profiles.timeline.toolbar.highlightEvents")}
             className={cn(
               "w-44 rounded-md border border-surface-highlight bg-surface-base pl-7 pr-2 py-1 text-xs",
               "text-text-primary placeholder:text-text-ghost",
@@ -74,7 +81,7 @@ export function TimelineToolbar({
             onClick={onZoomOut}
             disabled={zoom <= 0.5}
             className="p-1.5 text-text-muted hover:text-text-primary disabled:text-text-ghost disabled:cursor-not-allowed transition-colors"
-            title="Zoom out"
+            title={t("profiles.timeline.toolbar.zoomOut")}
           >
             <ZoomOut size={12} />
           </button>
@@ -86,7 +93,7 @@ export function TimelineToolbar({
             onClick={onZoomIn}
             disabled={zoom >= 10}
             className="p-1.5 text-text-muted hover:text-text-primary disabled:text-text-ghost disabled:cursor-not-allowed transition-colors"
-            title="Zoom in"
+            title={t("profiles.timeline.toolbar.zoomIn")}
           >
             <ZoomIn size={12} />
           </button>
@@ -96,7 +103,7 @@ export function TimelineToolbar({
           onClick={onReset}
           className="text-[10px] text-text-muted hover:text-text-primary transition-colors px-2 py-1 rounded border border-surface-highlight"
         >
-          Reset
+          {t("profiles.common.actions.reset")}
         </button>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { GitCompareArrows, Loader2, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useSourceStore } from "@/stores/sourceStore";
 import { useCohortDefinitions } from "@/features/cohort-definitions/hooks/useCohortDefinitions";
@@ -26,6 +27,7 @@ export function CohortCompareForm({
   sourceId,
   onSourceChange,
 }: CohortCompareFormProps) {
+  const { t } = useTranslation("app");
   const { sources } = useSourceStore();
   const [sourceCohortId, setSourceCohortId] = useState<number>(0);
   const [targetCohortId, setTargetCohortId] = useState<number>(0);
@@ -96,7 +98,7 @@ export function CohortCompareForm({
       {/* Source Selector */}
       <div>
         <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1.5">
-          Data Source
+          {t("profiles.common.dataSource")}
         </label>
         <select
           value={sourceId}
@@ -108,7 +110,7 @@ export function CohortCompareForm({
             "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
           )}
         >
-          <option value={0}>Select source...</option>
+          <option value={0}>{t("patientSimilarity.searchForm.selectSource")}</option>
           {sources.map((s) => (
             <option key={s.id} value={s.id}>
               {s.source_name}
@@ -120,12 +122,12 @@ export function CohortCompareForm({
       {/* Source Cohort */}
       <div>
         <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1.5">
-          Source Cohort
+          {t("patientSimilarity.cohortCompareForm.sourceCohort")}
         </label>
         {cohortsLoading ? (
           <div className="flex items-center gap-2 text-xs text-text-ghost py-2">
             <Loader2 size={12} className="animate-spin" />
-            Loading...
+            {t("patientSimilarity.cohortCompareForm.loading")}
           </div>
         ) : (
           <select
@@ -140,7 +142,7 @@ export function CohortCompareForm({
               "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
             )}
           >
-            <option value={0}>Select source cohort...</option>
+            <option value={0}>{t("patientSimilarity.cohortCompareForm.selectSourceCohort")}</option>
             {cohorts.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -161,12 +163,12 @@ export function CohortCompareForm({
       {/* Target Cohort */}
       <div>
         <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1.5">
-          Target Cohort
+          {t("patientSimilarity.cohortCompareForm.targetCohort")}
         </label>
         {cohortsLoading ? (
           <div className="flex items-center gap-2 text-xs text-text-ghost py-2">
             <Loader2 size={12} className="animate-spin" />
-            Loading...
+            {t("patientSimilarity.cohortCompareForm.loading")}
           </div>
         ) : (
           <select
@@ -181,7 +183,7 @@ export function CohortCompareForm({
               "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
             )}
           >
-            <option value={0}>Select target cohort...</option>
+            <option value={0}>{t("patientSimilarity.cohortCompareForm.selectTargetCohort")}</option>
             {cohorts
               .filter((c) => c.id !== sourceCohortId)
               .map((c) => (
@@ -216,7 +218,7 @@ export function CohortCompareForm({
         ) : (
           <GitCompareArrows size={16} />
         )}
-        Compare Profiles
+        {t("patientSimilarity.cohortCompareForm.compareProfiles")}
       </button>
 
       {/* Cross-Cohort Search Button */}
@@ -238,7 +240,7 @@ export function CohortCompareForm({
           ) : (
             <Search size={16} />
           )}
-          Find Matching Patients
+          {t("patientSimilarity.cohortCompareForm.findMatchingPatients")}
         </button>
       )}
     </form>

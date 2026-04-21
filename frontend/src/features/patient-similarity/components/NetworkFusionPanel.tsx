@@ -5,6 +5,7 @@ import type {
   ModalityContribution,
 } from "../types/patientSimilarity";
 import { useState, useMemo, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 
 const COMMUNITY_COLORS = [
   "var(--success)", "var(--accent)", "var(--primary)", "var(--chart-4)", "var(--domain-device)",
@@ -131,6 +132,7 @@ const MAX_RENDER_NODES = 500;
 const MAX_RENDER_EDGES = 2000;
 
 function NetworkGraph({ edges, communities }: { edges: NetworkFusionEdge[]; communities: NetworkFusionCommunity[] }) {
+  const { t } = useTranslation("app");
   const [hoveredNode, setHoveredNode] = useState<number | null>(null);
 
   const { positions, renderEdges } = useMemo(() => {
@@ -175,7 +177,7 @@ function NetworkGraph({ edges, communities }: { edges: NetworkFusionEdge[]; comm
       </svg>
       {hoveredNode !== null && (
         <div className="absolute top-2 right-2 rounded bg-surface-elevated border border-surface-highlight px-2 py-1 text-xs text-text-secondary">
-          Person: {hoveredNode}
+          {t("patientSimilarity.networkFusion.person", { id: hoveredNode })}
         </div>
       )}
     </div>
@@ -212,24 +214,25 @@ interface NetworkFusionPanelProps {
 }
 
 export function NetworkFusionPanel({ result }: NetworkFusionPanelProps) {
+  const { t } = useTranslation("app");
   return (
     <div className="space-y-4 p-4">
       {/* Metrics Banner */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div className="rounded-lg border border-border-default bg-sidebar-bg px-4 py-3">
-          <p className="text-[10px] font-semibold text-text-ghost uppercase tracking-wider">Communities</p>
+          <p className="text-[10px] font-semibold text-text-ghost uppercase tracking-wider">{t("patientSimilarity.networkFusion.communities")}</p>
           <p className="text-xl font-bold text-text-primary mt-0.5">{result.communities.length}</p>
         </div>
         <div className="rounded-lg border border-border-default bg-sidebar-bg px-4 py-3">
-          <p className="text-[10px] font-semibold text-text-ghost uppercase tracking-wider">Patients</p>
+          <p className="text-[10px] font-semibold text-text-ghost uppercase tracking-wider">{t("patientSimilarity.networkFusion.patients")}</p>
           <p className="text-xl font-bold text-text-primary mt-0.5">{result.n_patients.toLocaleString()}</p>
         </div>
         <div className="rounded-lg border border-border-default bg-sidebar-bg px-4 py-3">
-          <p className="text-[10px] font-semibold text-text-ghost uppercase tracking-wider">Edges</p>
+          <p className="text-[10px] font-semibold text-text-ghost uppercase tracking-wider">{t("patientSimilarity.networkFusion.edges")}</p>
           <p className="text-xl font-bold text-text-primary mt-0.5">{result.edges.length.toLocaleString()}</p>
         </div>
         <div className="rounded-lg border border-border-default bg-sidebar-bg px-4 py-3">
-          <p className="text-[10px] font-semibold text-text-ghost uppercase tracking-wider">Convergence</p>
+          <p className="text-[10px] font-semibold text-text-ghost uppercase tracking-wider">{t("patientSimilarity.networkFusion.convergence")}</p>
           <p className="text-xl font-bold text-success mt-0.5">{result.convergence.iterations}</p>
           <p className="text-[10px] text-text-ghost mt-0.5">
             delta {result.convergence.final_delta.toExponential(2)}
@@ -241,7 +244,9 @@ export function NetworkFusionPanel({ result }: NetworkFusionPanelProps) {
       {result.capped_at != null && (
         <div className="rounded-lg border border-accent/20 bg-accent/5 px-4 py-2">
           <p className="text-xs text-accent">
-            Cohort capped at {result.capped_at.toLocaleString()} patients for computational feasibility.
+            {t("patientSimilarity.networkFusion.capped", {
+              count: result.capped_at.toLocaleString(),
+            })}
           </p>
         </div>
       )}
@@ -252,10 +257,16 @@ export function NetworkFusionPanel({ result }: NetworkFusionPanelProps) {
           <div key={c.id} className="rounded-lg border border-border-default bg-surface-raised p-3">
             <div className="flex items-center gap-2 mb-1">
               <span className="inline-block h-3 w-3 rounded-full" style={{ backgroundColor: communityColor(c.id) }} />
-              <span className="text-xs font-semibold text-text-secondary">Community {c.id + 1}</span>
+              <span className="text-xs font-semibold text-text-secondary">
+                {t("patientSimilarity.networkFusion.communityLabel", {
+                  index: c.id + 1,
+                })}
+              </span>
             </div>
             <p className="text-lg font-bold text-text-primary">{c.size}</p>
-            <p className="text-[10px] text-text-ghost">patients</p>
+            <p className="text-[10px] text-text-ghost">
+              {t("patientSimilarity.networkFusion.patientCount")}
+            </p>
           </div>
         ))}
       </div>
@@ -264,18 +275,17 @@ export function NetworkFusionPanel({ result }: NetworkFusionPanelProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="rounded-lg border border-border-default bg-surface-raised p-3">
           <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
-            Fused Network
+            {t("patientSimilarity.networkFusion.network")}
           </h4>
           <NetworkGraph edges={result.edges} communities={result.communities} />
         </div>
         <div className="rounded-lg border border-border-default bg-surface-raised p-3">
           <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">
-            Modality Contributions
+            {t("patientSimilarity.networkFusion.modalityContributions")}
           </h4>
           <ModalityBars contributions={result.modality_contributions} />
           <p className="text-xs text-text-ghost mt-4">
-            Shows how much each clinical data type contributed to the fused similarity network.
-            Higher weight means that modality had stronger influence on patient groupings.
+            {t("patientSimilarity.networkFusion.modalityHelp")}
           </p>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Search, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useSourceStore } from "@/stores/sourceStore";
 import { useCohortDefinitions } from "@/features/cohort-definitions/hooks/useCohortDefinitions";
@@ -25,6 +26,7 @@ export function CohortSeedForm({
   sourceId,
   onSourceChange,
 }: CohortSeedFormProps) {
+  const { t } = useTranslation("app");
   const { sources } = useSourceStore();
   const { data: dimensions } = useSimilarityDimensions();
   const [selectedCohortId, setSelectedCohortId] = useState<number>(0);
@@ -84,7 +86,7 @@ export function CohortSeedForm({
       {/* Source Selector */}
       <div>
         <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1.5">
-          Data Source
+          {t("profiles.common.dataSource")}
         </label>
         <select
           value={sourceId}
@@ -96,7 +98,7 @@ export function CohortSeedForm({
             "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
           )}
         >
-          <option value={0}>Select source...</option>
+          <option value={0}>{t("patientSimilarity.searchForm.selectSource")}</option>
           {sources.map((s) => (
             <option key={s.id} value={s.id}>
               {s.source_name}
@@ -108,12 +110,12 @@ export function CohortSeedForm({
       {/* Cohort Selector */}
       <div>
         <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1.5">
-          Seed Cohort
+          {t("patientSimilarity.cohortSeedForm.seedCohort")}
         </label>
         {cohortsLoading ? (
           <div className="flex items-center gap-2 text-xs text-text-ghost py-2">
             <Loader2 size={12} className="animate-spin" />
-            Loading cohorts...
+            {t("patientSimilarity.cohortSeedForm.loadingCohorts")}
           </div>
         ) : (
           <select
@@ -128,7 +130,7 @@ export function CohortSeedForm({
               "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
             )}
           >
-            <option value={0}>Select a cohort...</option>
+            <option value={0}>{t("patientSimilarity.cohortSeedForm.selectCohort")}</option>
             {cohorts.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -157,7 +159,7 @@ export function CohortSeedForm({
       {dimensions && dimensions.length > 0 && (
         <div>
           <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-2">
-            Dimension Weights
+            {t("patientSimilarity.searchForm.dimensionWeights")}
           </label>
           <div className="space-y-3">
             {dimensions
@@ -190,14 +192,14 @@ export function CohortSeedForm({
       {/* Filters */}
       <div className="space-y-3">
         <label className="block text-[10px] text-text-ghost uppercase tracking-wider">
-          Filters (optional)
+          {t("patientSimilarity.searchForm.filtersOptional")}
         </label>
         <div className="flex items-center gap-2">
           <input
             type="text"
             value={ageMin}
             onChange={(e) => setAgeMin(e.target.value)}
-            placeholder="Min age"
+            placeholder={t("patientSimilarity.searchForm.minAge")}
             className={cn(
               "w-1/2 rounded-lg px-3 py-1.5 text-xs",
               "bg-surface-base border border-border-default",
@@ -210,7 +212,7 @@ export function CohortSeedForm({
             type="text"
             value={ageMax}
             onChange={(e) => setAgeMax(e.target.value)}
-            placeholder="Max age"
+            placeholder={t("patientSimilarity.searchForm.maxAge")}
             className={cn(
               "w-1/2 rounded-lg px-3 py-1.5 text-xs",
               "bg-surface-base border border-border-default",
@@ -229,9 +231,9 @@ export function CohortSeedForm({
             "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
           )}
         >
-          <option value="">Any gender</option>
-          <option value="MALE">Male</option>
-          <option value="FEMALE">Female</option>
+          <option value="">{t("patientSimilarity.common.genders.any")}</option>
+          <option value="MALE">{t("patientSimilarity.common.genders.male")}</option>
+          <option value="FEMALE">{t("patientSimilarity.common.genders.female")}</option>
         </select>
       </div>
 
@@ -252,7 +254,7 @@ export function CohortSeedForm({
         ) : (
           <Search size={16} />
         )}
-        Find Similar Patients
+        {t("patientSimilarity.searchForm.findSimilarPatients")}
       </button>
     </form>
   );

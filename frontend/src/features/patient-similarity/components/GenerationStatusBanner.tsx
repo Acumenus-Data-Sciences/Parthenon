@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Loader2, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useGenerateCohort } from "@/features/cohort-definitions/hooks/useCohortDefinitions";
 import type { CohortProfileResult } from "../types/patientSimilarity";
@@ -18,6 +19,7 @@ export function GenerationStatusBanner({
   cohortDefinitionId,
   sourceId,
 }: GenerationStatusBannerProps) {
+  const { t } = useTranslation("app");
   const generateMutation = useGenerateCohort();
   const queryClient = useQueryClient();
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -45,7 +47,9 @@ export function GenerationStatusBanner({
     return (
       <div className="flex items-center gap-2 text-xs text-[var(--color-text-muted)] py-1.5">
         <Loader2 size={12} className="animate-spin" />
-        Checking generation status...
+        {t("patientSimilarity.generation.checkingStatus", {
+          defaultValue: "Checking generation status...",
+        })}
       </div>
     );
   }
@@ -59,7 +63,13 @@ export function GenerationStatusBanner({
       <div className="flex items-center gap-2 rounded-lg bg-[var(--color-primary)]/5 border border-[var(--color-primary)]/20 px-3 py-2 mt-1.5">
         <Loader2 size={14} className="animate-spin text-[var(--color-primary)]" />
         <span className="text-xs text-[var(--color-primary)]">
-          {generateMutation.isPending ? "Queueing generation..." : "Generating cohort..."}
+          {generateMutation.isPending
+            ? t("patientSimilarity.generation.queueing", {
+                defaultValue: "Queueing generation...",
+              })
+            : t("patientSimilarity.generation.generating", {
+                defaultValue: "Generating cohort...",
+              })}
         </span>
       </div>
     );
@@ -71,7 +81,9 @@ export function GenerationStatusBanner({
         <div className="flex items-center gap-2">
           <AlertTriangle size={14} className="text-[var(--color-primary)] shrink-0" />
           <span className="text-xs text-[var(--color-primary)]">
-            Not generated for this source
+            {t("patientSimilarity.generation.notGenerated", {
+              defaultValue: "Not generated for this source",
+            })}
           </span>
         </div>
         <button
@@ -84,7 +96,9 @@ export function GenerationStatusBanner({
             "bg-[var(--color-primary)]/10 text-[var(--color-primary)] hover:bg-[var(--color-primary)]/20 border border-[var(--color-primary)]/30",
           )}
         >
-          Generate Now
+          {t("patientSimilarity.generation.generateNow", {
+            defaultValue: "Generate Now",
+          })}
         </button>
       </div>
     );
@@ -93,12 +107,14 @@ export function GenerationStatusBanner({
   return (
     <div className="flex items-center gap-2 py-1.5">
       <CheckCircle2 size={12} className="text-[var(--color-primary)]" />
-      <span className="text-xs text-[var(--color-text-secondary)]">
-        <span className="font-medium text-[var(--color-text-primary)]">
-          {profile.member_count}
-        </span>{" "}
-        members
-      </span>
-    </div>
-  );
+        <span className="text-xs text-[var(--color-text-secondary)]">
+          <span className="font-medium text-[var(--color-text-primary)]">
+            {profile.member_count}
+          </span>{" "}
+          {t("patientSimilarity.generation.members", {
+            defaultValue: "members",
+          })}
+        </span>
+      </div>
+    );
 }

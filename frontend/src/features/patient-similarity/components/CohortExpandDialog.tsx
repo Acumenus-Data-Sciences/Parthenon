@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X, UserPlus, CheckCircle, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useExpandCohort } from "../hooks/usePatientSimilarity";
 import type { SimilarPatient } from "../types/patientSimilarity";
@@ -23,6 +24,7 @@ export function CohortExpandDialog({
   currentMemberCount,
   patients,
 }: CohortExpandDialogProps) {
+  const { t } = useTranslation("app");
   const [minScore, setMinScore] = useState(0.5);
 
   const expandMutation = useExpandCohort();
@@ -60,7 +62,7 @@ export function CohortExpandDialog({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border-default px-5 py-4">
           <h2 className="text-base font-semibold text-text-primary">
-            Expand {cohortName}
+            {t("patientSimilarity.cohortExpand.title", { name: cohortName })}
           </h2>
           <button
             type="button"
@@ -77,16 +79,22 @@ export function CohortExpandDialog({
             <div className="flex flex-col items-center py-6 text-center">
               <CheckCircle size={40} className="text-success mb-3" />
               <p className="text-sm text-text-primary font-medium">
-                Cohort expanded successfully
+                {t("patientSimilarity.cohortExpand.success")}
               </p>
               <p className="text-xs text-text-muted mt-1">
-                Added {expandMutation.data.added_count} patients
+                {t("patientSimilarity.cohortExpand.addedPatients", {
+                  count: expandMutation.data.added_count,
+                })}
                 {expandMutation.data.skipped_duplicates > 0 && (
-                  <> ({expandMutation.data.skipped_duplicates} duplicates skipped)</>
+                  <> {t("patientSimilarity.cohortExpand.duplicatesSkipped", {
+                    count: expandMutation.data.skipped_duplicates,
+                  })}</>
                 )}
               </p>
               <p className="text-xs text-text-muted mt-0.5">
-                New total: {expandMutation.data.new_total} members
+                {t("patientSimilarity.cohortExpand.newTotal", {
+                  count: expandMutation.data.new_total,
+                })}
               </p>
             </div>
           ) : (
@@ -94,18 +102,15 @@ export function CohortExpandDialog({
               {/* Info */}
               <div className="rounded-lg bg-surface-base border border-border-default px-3 py-2.5">
                 <p className="text-xs text-text-muted">
-                  Add similar patients to{" "}
-                  <span className="font-medium text-text-secondary">
-                    {cohortName}
-                  </span>
+                  {t("patientSimilarity.cohortExpand.addSimilarPatientsTo", {
+                    name: cohortName,
+                  })}
                 </p>
                 <p className="text-xs text-text-ghost mt-1">
-                  Current size:{" "}
-                  <span className="text-text-secondary">{currentMemberCount}</span>{" "}
-                  members &rarr; New size:{" "}
-                  <span className="text-success">
-                    {currentMemberCount + filteredCount}
-                  </span>
+                  {t("patientSimilarity.cohortExpand.currentSize", {
+                    current: currentMemberCount,
+                    next: currentMemberCount + filteredCount,
+                  })}
                 </p>
               </div>
 
@@ -113,7 +118,7 @@ export function CohortExpandDialog({
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="text-[10px] text-text-ghost uppercase tracking-wider">
-                    Minimum Score
+                    {t("patientSimilarity.cohortExpand.minimumScore")}
                   </label>
                   <span className="text-xs font-medium text-success tabular-nums">
                     {minScore.toFixed(2)}
@@ -133,16 +138,16 @@ export function CohortExpandDialog({
               {/* Count Preview */}
               <div className="rounded-lg bg-surface-base border border-border-default px-3 py-2">
                 <p className="text-xs text-text-muted">
-                  <span className="font-medium text-text-secondary">
-                    {filteredCount}
-                  </span>{" "}
-                  of {patients.length} patients meet the threshold
+                  {t("patientSimilarity.cohortExpand.meetThreshold", {
+                    filtered: filteredCount,
+                    total: patients.length,
+                  })}
                 </p>
               </div>
 
               {expandMutation.isError && (
                 <p className="text-xs text-critical">
-                  Expansion failed. Please try again.
+                  {t("patientSimilarity.cohortExpand.expansionFailed")}
                 </p>
               )}
             </>
@@ -160,7 +165,7 @@ export function CohortExpandDialog({
                 "bg-success/10 text-success hover:bg-success/20",
               )}
             >
-              Done
+              {t("profiles.common.actions.done")}
             </button>
           ) : (
             <>
@@ -169,7 +174,7 @@ export function CohortExpandDialog({
                 onClick={handleClose}
                 className="rounded-lg px-4 py-2 text-sm font-medium text-text-muted hover:text-text-secondary transition-colors"
               >
-                Cancel
+                {t("profiles.common.actions.cancel")}
               </button>
               <button
                 type="button"
@@ -186,7 +191,9 @@ export function CohortExpandDialog({
                 ) : (
                   <UserPlus size={14} />
                 )}
-                Add {filteredCount} Patients
+                {t("patientSimilarity.cohortExpand.addPatients", {
+                  count: filteredCount,
+                })}
               </button>
             </>
           )}

@@ -1,5 +1,7 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { formatDate as formatAppDate } from "@/i18n/format";
 import {
   Activity,
   Calendar,
@@ -17,6 +19,7 @@ import {
 } from "lucide-react";
 import type { PatientProfile, ObservationPeriod } from "../types/profile";
 import type { ProfileStats } from "../api/profileApi";
+import { getProfileGenderLabel } from "../lib/i18n";
 
 interface PatientProfileHeaderProps {
   profile: PatientProfile;
@@ -35,7 +38,7 @@ function daysBetween(a: string, b: string): number {
 }
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
+  return formatAppDate(iso, {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -100,6 +103,7 @@ export function PatientProfileHeader({
   stats: domainStats,
   onDrillDown,
 }: PatientProfileHeaderProps) {
+  const { t } = useTranslation("app");
   const { demographics, observation_periods } = profile;
 
   const age = demographics.death_date
@@ -171,11 +175,14 @@ export function PatientProfileHeader({
         {/* Name + ID */}
         <div className="shrink-0">
           <h2 className="text-base font-bold text-text-primary leading-tight">
-            {demographics.patient_name || `Person #${demographics.person_id}`}
+            {demographics.patient_name ||
+              t("profiles.header.fallbackName", {
+                id: demographics.person_id,
+              })}
           </h2>
           {demographics.patient_name && (
             <span className="text-[10px] text-text-ghost">
-              Person #{demographics.person_id}
+              {t("profiles.common.personLabel", { id: demographics.person_id })}
             </span>
           )}
         </div>
@@ -187,26 +194,47 @@ export function PatientProfileHeader({
         <div className="flex items-center gap-3 flex-wrap">
           <DemoBadge
             icon={<Heart size={10} />}
-            text={`${demographics.gender || "Unknown"} \u00B7 ${demographics.death_date ? `${age} yrs at death` : `${age} yrs`} (${demographics.year_of_birth})`}
+            text={`${getProfileGenderLabel(t, demographics.gender)} · ${
+              demographics.death_date
+                ? t("profiles.header.demographics.yearsAtDeath", {
+                    count: age,
+                  })
+                : t("profiles.header.demographics.years", {
+                    count: age,
+                  })
+            } (${demographics.year_of_birth})`}
           />
           <DemoBadge
             icon={<Globe size={10} />}
-            text={demographics.race || "Unknown race"}
+            text={
+              demographics.race || t("profiles.header.demographics.unknownRace")
+            }
           />
           <DemoBadge
             icon={<Calendar size={10} />}
-            text={demographics.ethnicity || "Unknown ethnicity"}
+            text={
+              demographics.ethnicity ||
+              t("profiles.header.demographics.unknownEthnicity")
+            }
           />
           {locationStr && (
             <DemoBadge
               icon={<MapPin size={10} />}
-              text={`${locationStr}${demographics.county ? ` (${demographics.county} Co.)` : ""}`}
+              text={`${locationStr}${
+                demographics.county
+                  ? ` ${t("profiles.header.demographics.county", {
+                      county: demographics.county,
+                    })}`
+                  : ""
+              }`}
             />
           )}
           {obsSpan && (
             <DemoBadge
               icon={<Clock size={10} />}
-              text={`${obsSpan.days.toLocaleString()}d obs \u00B7 ${obsSpan.range}`}
+              text={`${t("profiles.header.demographics.observationSpan", {
+                count: obsSpan.days,
+              })} · ${obsSpan.range}`}
             />
           )}
         </div>
@@ -214,9 +242,13 @@ export function PatientProfileHeader({
         {/* Death badge (right-aligned) */}
         {demographics.death_date && (
           <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-critical/10 px-2.5 py-0.5 text-[10px] font-semibold text-critical border border-critical/20 shrink-0">
-            Deceased {formatDate(demographics.death_date)}
+            {t("profiles.header.demographics.deceased", {
+              date: formatDate(demographics.death_date),
+            })}
             {demographics.cause_of_death && (
-              <span className="font-normal text-critical/70"> \u00B7 {demographics.cause_of_death}</span>
+              <span className="font-normal text-critical/70">
+                {` ${demographics.cause_of_death}`}
+              </span>
             )}
           </span>
         )}
@@ -226,34 +258,40 @@ export function PatientProfileHeader({
       <div className="flex gap-2 overflow-x-auto pb-0.5">
         <MiniStat
           icon={<Activity size={12} />}
-          label="Events"
+          label={t("profiles.header.stats.events")}
           value={stats.totalEvents}
           color="var(--success)"
           onClick={onDrillDown ? () => onDrillDown("list", "all") : undefined}
         />
         <MiniStat
           icon={<CalendarRange size={12} />}
-          label="Obs Span"
-          value={obsSpan ? `${obsSpan.days.toLocaleString()}d` : "N/A"}
+          label={t("profiles.header.stats.observationSpan")}
+          value={
+            obsSpan
+              ? t("profiles.header.demographics.observationSpan", {
+                  count: obsSpan.days,
+                })
+              : t("profiles.common.notAvailable")
+          }
           color="var(--info)"
         />
         <MiniStat
           icon={<Stethoscope size={12} />}
-          label="Conditions"
+          label={t("profiles.header.stats.conditions")}
           value={stats.uniqueConditions}
           color="var(--critical)"
           onClick={onDrillDown ? () => onDrillDown("list", "condition") : undefined}
         />
         <MiniStat
           icon={<Pill size={12} />}
-          label="Drugs"
+          label={t("profiles.header.stats.drugs")}
           value={stats.uniqueDrugs}
           color="var(--success)"
           onClick={onDrillDown ? () => onDrillDown("list", "drug") : undefined}
         />
         <MiniStat
           icon={<TrendingUp size={12} />}
-          label="Visits"
+          label={t("profiles.header.stats.visits")}
           value={stats.visitCount}
           color="var(--warning)"
           onClick={onDrillDown ? () => onDrillDown("visits") : undefined}

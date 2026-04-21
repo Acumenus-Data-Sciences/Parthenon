@@ -1,18 +1,11 @@
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
+import { getSimilarityDimensionLabel } from "../lib/i18n";
 import type { DistributionalDivergenceRow } from "../types/patientSimilarity";
 
 interface DistributionalDivergenceProps {
   rows: DistributionalDivergenceRow[];
 }
-
-const DIMENSION_LABELS: Record<string, string> = {
-  demographics: "Demographics",
-  conditions: "Conditions",
-  measurements: "Measurements",
-  drugs: "Drugs",
-  procedures: "Procedures",
-  genomics: "Genomics",
-};
 
 function getInterpretationColor(interpretation: string): string {
   switch (interpretation) {
@@ -53,14 +46,14 @@ function getMetricBadgeStyle(metric: string): string {
 export function DistributionalDivergence({
   rows,
 }: DistributionalDivergenceProps) {
+  const { t } = useTranslation("app");
   return (
     <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4">
       <h3 className="mb-3 text-sm font-semibold text-[var(--color-text-primary)]">
-        Distributional Divergence
+        {t("patientSimilarity.charts.distributionalDivergence")}
       </h3>
       <p className="mb-3 text-xs text-[var(--color-text-secondary)]">
-        Jensen-Shannon Divergence (JSD) for categorical and Wasserstein distance
-        for continuous dimensions.
+        {t("patientSimilarity.charts.distributionalDivergenceHelp")}
       </p>
 
       <div className="overflow-x-auto">
@@ -68,14 +61,16 @@ export function DistributionalDivergence({
           <thead>
             <tr className="border-b border-[var(--color-surface-overlay)]">
               <th className="pb-2 pr-4 text-[var(--color-text-muted)] font-medium">
-                Dimension
+                {t("patientSimilarity.charts.dimension")}
               </th>
-              <th className="pb-2 pr-4 text-[var(--color-text-muted)] font-medium">Metric</th>
+              <th className="pb-2 pr-4 text-[var(--color-text-muted)] font-medium">
+                {t("patientSimilarity.charts.metric")}
+              </th>
               <th className="pb-2 pr-4 text-[var(--color-text-muted)] font-medium text-right">
-                Value
+                {t("patientSimilarity.charts.value")}
               </th>
               <th className="pb-2 text-[var(--color-text-muted)] font-medium">
-                Interpretation
+                {t("patientSimilarity.charts.interpretation")}
               </th>
             </tr>
           </thead>
@@ -86,7 +81,10 @@ export function DistributionalDivergence({
                 className="border-b border-[var(--color-surface-overlay)]/50 last:border-0"
               >
                 <td className="py-2 pr-4 text-[var(--color-text-primary)]">
-                  {DIMENSION_LABELS[row.dimension] ?? row.dimension}
+                  {getSimilarityDimensionLabel(
+                    t,
+                    row.dimension as Parameters<typeof getSimilarityDimensionLabel>[1],
+                  )}
                 </td>
                 <td className="py-2 pr-4">
                   <span

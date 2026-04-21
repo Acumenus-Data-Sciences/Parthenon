@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useCallback, useEffect, useId } from "react";
+import { useTranslation } from "react-i18next";
 import type { ClinicalEvent, ClinicalDomain, ObservationPeriod } from "../types/profile";
 import {
   DOMAIN_CONFIG,
@@ -11,6 +12,7 @@ import {
   LABEL_WIDTH,
   parseDate,
   formatTimelineDate,
+  getTimelineDomainLabel,
   packDomainEvents,
   type PackedEvent,
 } from "../lib/timeline-utils";
@@ -33,6 +35,7 @@ interface PatientTimelineProps {
 }
 
 export function PatientTimeline({ events, observationPeriods = [], onEventClick }: PatientTimelineProps) {
+  const { t } = useTranslation("app");
   const containerRef = useRef<HTMLDivElement>(null);
   const [collapsedDomains, setCollapsedDomains] = useState<Set<ClinicalDomain>>(new Set());
   const [hiddenDomains, setHiddenDomains] = useState<Set<ClinicalDomain>>(new Set());
@@ -42,6 +45,8 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
     y: number;
   } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [nowAnchor] = useState(() => Date.now());
+  const [isDraggingState, setIsDraggingState] = useState(false);
 
   // Unique IDs for SVG defs to avoid conflicts with multiple instances
   const instanceId = useId();
@@ -100,8 +105,10 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
   // Compute time bounds from ALL events (including hidden — so axis stays stable)
   const { timeMin, timeMax } = useMemo(() => {
     if (events.length === 0) {
-      const now = Date.now();
-      return { timeMin: now - 365 * 24 * 60 * 60 * 1000, timeMax: now };
+      return {
+        timeMin: nowAnchor - 365 * 24 * 60 * 60 * 1000,
+        timeMax: nowAnchor,
+      };
     }
     let min = Infinity;
     let max = -Infinity;
@@ -123,7 +130,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
     }
     const range = max - min || 365 * 24 * 60 * 60 * 1000;
     return { timeMin: min - range * 0.03, timeMax: max + range * 0.03 };
-  }, [events, observationPeriods]);
+  }, [events, nowAnchor, observationPeriods]);
 
   const timeRange = timeMax - timeMin;
 
@@ -322,10 +329,9 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
 
   // Today marker
   const todayX = useMemo(() => {
-    const now = Date.now();
-    if (now < timeMin || now > timeMax) return null;
-    return timeToX(now);
-  }, [timeMin, timeMax, timeToX]);
+    if (nowAnchor < timeMin || nowAnchor > timeMax) return null;
+    return timeToX(nowAnchor);
+  }, [nowAnchor, timeMin, timeMax, timeToX]);
 
   // Search: which events match?
   const matchingEventKey = useMemo(() => {
@@ -361,6 +367,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
   // Drag pan
   const handleMouseDown = (e: React.MouseEvent) => {
     isDragging.current = true;
+    setIsDraggingState(true);
     dragStart.current = e.clientX;
     panStart.current = panOffset;
     // Hide tooltip while dragging
@@ -372,12 +379,17 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
     setPanOffset(panStart.current + (e.clientX - dragStart.current));
   };
 
-  const handleMouseUp = () => { isDragging.current = false; };
+  const handleMouseUp = () => {
+    isDragging.current = false;
+    setIsDraggingState(false);
+  };
 
   if (events.length === 0) {
     return (
       <div className="flex items-center justify-center h-48 rounded-lg border border-dashed border-surface-highlight bg-[var(--patient-timeline-panel-bg)]">
-        <p className="text-sm text-text-muted">No clinical events to display</p>
+        <p className="text-sm text-text-muted">
+          {t("profiles.page.noEventsInCategory")}
+        </p>
       </div>
     );
   }
@@ -413,7 +425,9 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
       {/* Year quick-nav */}
       {years.length > 1 && (
         <div className="flex items-center gap-1 px-4 py-1.5 bg-[var(--patient-timeline-track-bg)] border-b border-border-subtle overflow-x-auto">
-          <span className="text-[10px] text-text-ghost shrink-0 mr-1">Jump:</span>
+          <span className="text-[10px] text-text-ghost shrink-0 mr-1">
+            {t("profiles.timeline.jump")}
+          </span>
           {years.map((y) => (
             <button
               key={y}
@@ -551,7 +565,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                   className="fill-accent"
                   style={{ fontSize: 8 }}
                 >
-                  Today
+                  {t("profiles.timeline.today")}
                 </text>
               </g>
             )}
@@ -614,10 +628,10 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                   <text
                     x={36}
                     y={y + LANE_HEIGHT / 2 + 3}
-                    className="fill-text-ghost"
-                    style={{ fontSize: 10, fontWeight: 500 }}
-                  >
-                    {config.label}
+                  className="fill-text-ghost"
+                  style={{ fontSize: 10, fontWeight: 500 }}
+                >
+                    {getTimelineDomainLabel(domain)}
                   </text>
                   <text
                     x={LABEL_WIDTH - 6}
@@ -778,12 +792,12 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
       </div>
 
       {/* Tooltip */}
-      {tooltip && !isDragging.current && (
+      {tooltip && !isDraggingState && (
         <EventTooltip
           event={tooltip.event}
           x={tooltip.x}
           y={tooltip.y}
-          containerWidth={containerRef.current?.clientWidth ?? svgWidth}
+          containerWidth={containerWidth || svgWidth}
         />
       )}
 

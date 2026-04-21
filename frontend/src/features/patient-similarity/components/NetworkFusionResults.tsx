@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useNetworkFusion } from "../hooks/usePatientSimilarity";
 import type {
@@ -164,6 +165,7 @@ function CommunityCards({
 }: {
   communities: NetworkFusionCommunity[];
 }) {
+  const { t } = useTranslation("app");
   return (
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
       {communities.map((c) => (
@@ -177,11 +179,15 @@ function CommunityCards({
               style={{ backgroundColor: communityColor(c.id) }}
             />
             <span className="text-xs font-semibold text-[var(--color-text-primary)]">
-              Community {c.id + 1}
+              {t("patientSimilarity.networkFusion.communityLabel", {
+                index: c.id + 1,
+              })}
             </span>
           </div>
           <p className="text-lg font-bold text-[var(--color-text-primary)]">{c.size}</p>
-          <p className="text-[10px] text-[var(--color-text-muted)]">patients</p>
+          <p className="text-[10px] text-[var(--color-text-muted)]">
+            {t("patientSimilarity.networkFusion.patientCount")}
+          </p>
         </div>
       ))}
     </div>
@@ -202,6 +208,7 @@ function NetworkGraph({
   communities: NetworkFusionCommunity[];
   nPatients: number;
 }) {
+  const { t } = useTranslation("app");
   const [hoveredNode, setHoveredNode] = useState<number | null>(null);
 
   const { positions, renderEdges } = useMemo(() => {
@@ -272,7 +279,7 @@ function NetworkGraph({
       </svg>
       {hoveredNode !== null && (
         <div className="absolute top-2 right-2 rounded bg-[var(--color-surface-overlay)] border border-[var(--color-border-default)] px-2 py-1 text-xs text-[var(--color-text-primary)]">
-          Person: {hoveredNode}
+          {t("patientSimilarity.networkFusion.person", { id: hoveredNode })}
         </div>
       )}
     </div>
@@ -286,12 +293,13 @@ function ModalityBars({
 }: {
   contributions: ModalityContribution[];
 }) {
+  const { t } = useTranslation("app");
   const maxWeight = Math.max(...contributions.map((c) => c.weight), 0.01);
 
   return (
     <div className="space-y-2">
       <h4 className="text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
-        Modality Contributions
+        {t("patientSimilarity.networkFusion.modalityContributions")}
       </h4>
       {contributions.map((c) => (
         <div key={c.modality} className="flex items-center gap-2">
@@ -327,6 +335,7 @@ export function NetworkFusionResults({
   sourceId,
   cohortDefinitionId,
 }: NetworkFusionResultsProps) {
+  const { t } = useTranslation("app");
   const snfMutation = useNetworkFusion();
   const result: NetworkFusionResult | undefined = snfMutation.data;
 
@@ -343,11 +352,10 @@ export function NetworkFusionResults({
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">
-            Similarity Network Fusion
+            {t("patientSimilarity.networkFusion.title")}
           </h3>
           <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-            Multi-modal patient similarity via iterative network diffusion
-            across conditions, drugs, procedures, and labs
+            {t("patientSimilarity.networkFusion.subtitle")}
           </p>
         </div>
         <button
@@ -361,7 +369,9 @@ export function NetworkFusionResults({
               : "text-[var(--color-primary)] border-[var(--color-primary)]/30 hover:bg-[var(--color-primary)]/10 cursor-pointer",
           )}
         >
-          {snfMutation.isPending ? "Computing..." : "Run Network Fusion"}
+          {snfMutation.isPending
+            ? t("patientSimilarity.networkFusion.computing")
+            : t("patientSimilarity.networkFusion.run")}
         </button>
       </div>
 
@@ -385,7 +395,7 @@ export function NetworkFusionResults({
                   }
                 }
               }
-              return "Network fusion failed.";
+              return t("patientSimilarity.networkFusion.failed");
             })()}
           </p>
         </div>
@@ -398,8 +408,9 @@ export function NetworkFusionResults({
           {result.capped_at != null && (
             <div className="rounded-lg border border-[var(--color-primary)]/20 bg-[var(--color-primary)]/5 px-4 py-2">
               <p className="text-xs text-[var(--color-primary)]">
-                Cohort capped at {result.capped_at} patients for
-                computational feasibility.
+                {t("patientSimilarity.networkFusion.capped", {
+                  count: result.capped_at,
+                })}
               </p>
             </div>
           )}
@@ -411,7 +422,7 @@ export function NetworkFusionResults({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-3">
               <h4 className="text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider mb-2">
-                Fused Network
+                {t("patientSimilarity.networkFusion.network")}
               </h4>
               <NetworkGraph
                 edges={result.edges}
@@ -426,9 +437,13 @@ export function NetworkFusionResults({
 
           {/* Convergence info */}
           <p className="text-xs text-[var(--color-text-muted)]">
-            Converged in {result.convergence.iterations} iterations (delta:{" "}
-            {result.convergence.final_delta.toExponential(2)}) | {result.n_patients} patients |{" "}
-            {result.edges.length} edges | {result.communities.length} communities
+            {t("patientSimilarity.networkFusion.convergedIn", {
+              iterations: result.convergence.iterations,
+              delta: result.convergence.final_delta.toExponential(2),
+              patients: result.n_patients,
+              edges: result.edges.length,
+              communities: result.communities.length,
+            })}
           </p>
         </div>
       )}

@@ -2,6 +2,16 @@ export type PipelineMode = 'compare' | 'expand';
 
 export type StepStatus = 'future' | 'loading' | 'completed' | 'error';
 
+export type PipelineStepCopyKey =
+  | 'profileComparison'
+  | 'covariateBalance'
+  | 'propensityScoreMatching'
+  | 'umapLandscape'
+  | 'phenotypeDiscovery'
+  | 'networkFusion'
+  | 'centroidProfile'
+  | 'similarPatients';
+
 export interface StepResult {
   data: unknown;
   summary: string;
@@ -11,27 +21,26 @@ export interface StepResult {
 
 export interface StepDefinition {
   id: string;
-  name: string;
-  description: string;
+  copyKey: PipelineStepCopyKey;
   autoTrigger: boolean;
   /** Step number displayed in the UI */
   stepNumber: number;
 }
 
 export const COMPARE_STEPS: StepDefinition[] = [
-  { id: 'profile', name: 'Profile Comparison', description: 'Divergence radar across 6 clinical dimensions', autoTrigger: true, stepNumber: 1 },
-  { id: 'balance', name: 'Covariate Balance', description: 'SMD analysis with Love plot', autoTrigger: true, stepNumber: 2 },
-  { id: 'psm', name: 'Propensity Score Matching', description: 'Create balanced comparison groups', autoTrigger: false, stepNumber: 3 },
-  { id: 'landscape', name: 'UMAP Landscape', description: 'Project both cohorts into 2D/3D patient space', autoTrigger: false, stepNumber: 4 },
-  { id: 'phenotypes', name: 'Phenotype Discovery', description: 'Find latent subgroups via consensus clustering', autoTrigger: false, stepNumber: 5 },
-  { id: 'snf', name: 'Network Fusion', description: 'Multi-modal SNF with community detection', autoTrigger: false, stepNumber: 6 },
+  { id: 'profile', copyKey: 'profileComparison', autoTrigger: true, stepNumber: 1 },
+  { id: 'balance', copyKey: 'covariateBalance', autoTrigger: true, stepNumber: 2 },
+  { id: 'psm', copyKey: 'propensityScoreMatching', autoTrigger: false, stepNumber: 3 },
+  { id: 'landscape', copyKey: 'umapLandscape', autoTrigger: false, stepNumber: 4 },
+  { id: 'phenotypes', copyKey: 'phenotypeDiscovery', autoTrigger: false, stepNumber: 5 },
+  { id: 'snf', copyKey: 'networkFusion', autoTrigger: false, stepNumber: 6 },
 ];
 
 export const EXPAND_STEPS: StepDefinition[] = [
-  { id: 'centroid', name: 'Centroid Profile', description: 'Cohort centroid radar with dimension coverage', autoTrigger: true, stepNumber: 1 },
-  { id: 'similar', name: 'Similar Patients', description: 'Find patients matching cohort profile', autoTrigger: true, stepNumber: 2 },
-  { id: 'landscape', name: 'UMAP Landscape', description: 'Project seed cohort and similar patients', autoTrigger: false, stepNumber: 3 },
-  { id: 'phenotypes', name: 'Phenotype Discovery', description: 'Discover subgroups in combined population', autoTrigger: false, stepNumber: 4 },
+  { id: 'centroid', copyKey: 'centroidProfile', autoTrigger: true, stepNumber: 1 },
+  { id: 'similar', copyKey: 'similarPatients', autoTrigger: true, stepNumber: 2 },
+  { id: 'landscape', copyKey: 'umapLandscape', autoTrigger: false, stepNumber: 3 },
+  { id: 'phenotypes', copyKey: 'phenotypeDiscovery', autoTrigger: false, stepNumber: 4 },
 ];
 
 export interface PipelineState {

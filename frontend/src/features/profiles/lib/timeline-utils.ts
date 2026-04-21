@@ -1,3 +1,5 @@
+import i18next from "i18next";
+import { formatDate as formatAppDate } from "@/i18n/format";
 import type { ClinicalDomain, ClinicalEvent } from "../types/profile";
 
 // ---------------------------------------------------------------------------
@@ -6,14 +8,14 @@ import type { ClinicalDomain, ClinicalEvent } from "../types/profile";
 
 export const DOMAIN_CONFIG: Record<
   ClinicalDomain,
-  { label: string; color: string; order: number }
+  { copyKey: string; color: string; order: number }
 > = {
-  condition: { label: "Conditions", color: "var(--critical)", order: 0 },
-  drug: { label: "Drugs", color: "var(--success)", order: 1 },
-  procedure: { label: "Procedures", color: "var(--accent)", order: 2 },
-  measurement: { label: "Measurements", color: "var(--info)", order: 3 },
-  observation: { label: "Observations", color: "var(--text-muted)", order: 4 },
-  visit: { label: "Visits", color: "var(--warning)", order: 5 },
+  condition: { copyKey: "condition", color: "var(--critical)", order: 0 },
+  drug: { copyKey: "drug", color: "var(--success)", order: 1 },
+  procedure: { copyKey: "procedure", color: "var(--accent)", order: 2 },
+  measurement: { copyKey: "measurement", color: "var(--info)", order: 3 },
+  observation: { copyKey: "observation", color: "var(--text-muted)", order: 4 },
+  visit: { copyKey: "visit", color: "var(--warning)", order: 5 },
 };
 
 export const ALL_DOMAINS: ClinicalDomain[] = [
@@ -46,18 +48,22 @@ export function parseDate(d: string): number {
 }
 
 export function formatTimelineDate(ms: number): string {
-  return new Date(ms).toLocaleDateString("en-US", {
+  return formatAppDate(ms, {
     month: "short",
     year: "numeric",
   });
 }
 
 export function formatTooltipDate(d: string): string {
-  return new Date(d).toLocaleDateString("en-US", {
+  return formatAppDate(d, {
     month: "short",
     day: "numeric",
     year: "numeric",
   });
+}
+
+export function getTimelineDomainLabel(domain: ClinicalDomain): string {
+  return i18next.t(`app:profiles.common.domains.${DOMAIN_CONFIG[domain].copyKey}`);
 }
 
 /** Human-readable duration between two ISO date strings */
@@ -67,13 +73,21 @@ export function formatDuration(startDate: string, endDate: string): string {
   const diffMs = endMs - startMs;
   if (diffMs <= 0) return "";
   const days = Math.round(diffMs / (24 * 60 * 60 * 1000));
-  if (days === 0) return "same day";
-  if (days === 1) return "1 day";
-  if (days < 30) return `${days} days`;
+  if (days === 0) return i18next.t("app:profiles.timeline.duration.sameDay");
+  if (days === 1) return i18next.t("app:profiles.timeline.duration.oneDay");
+  if (days < 30) {
+    return i18next.t("app:profiles.timeline.duration.days", { count: days });
+  }
   const months = Math.round(days / 30.44);
-  if (months < 12) return months === 1 ? "1 month" : `${months} months`;
+  if (months < 12) {
+    return months === 1
+      ? i18next.t("app:profiles.timeline.duration.oneMonth")
+      : i18next.t("app:profiles.timeline.duration.months", { count: months });
+  }
   const years = Math.round(days / 365.25);
-  return years === 1 ? "1 year" : `${years} years`;
+  return years === 1
+    ? i18next.t("app:profiles.timeline.duration.oneYear")
+    : i18next.t("app:profiles.timeline.duration.years", { count: years });
 }
 
 // ---------------------------------------------------------------------------

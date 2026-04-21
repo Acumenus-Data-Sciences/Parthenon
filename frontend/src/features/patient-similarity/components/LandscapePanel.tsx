@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import type { LandscapeResult } from "../types/patientSimilarity";
 import { PatientLandscape } from "./PatientLandscape";
 import { CLUSTER_PALETTE } from "@/features/administration/components/vector-explorer/constants";
@@ -11,6 +12,7 @@ interface LandscapePanelProps {
 }
 
 export function LandscapePanel({ result, onContinue }: LandscapePanelProps) {
+  const { t } = useTranslation("app");
   const clusters = useMemo(() => result.clusters ?? [], [result.clusters]);
   const stats = result.stats ?? {
     n_patients: result.n_patients,
@@ -56,17 +58,19 @@ export function LandscapePanel({ result, onContinue }: LandscapePanelProps) {
       {clusterSummaries.length > 0 && (
         <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] overflow-hidden">
           <div className="px-4 py-2.5 border-b border-[var(--color-surface-overlay)]">
-            <h4 className="text-xs font-semibold text-[var(--color-text-primary)]">Cluster Summary</h4>
+            <h4 className="text-xs font-semibold text-[var(--color-text-primary)]">
+              {t("patientSimilarity.landscape.clusterSummary")}
+            </h4>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
                 <tr className="bg-[var(--color-surface-raised)] border-b border-[var(--color-surface-overlay)]">
-                  <th className="px-3 py-2 text-left text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.5px]">Cluster</th>
-                  <th className="px-3 py-2 text-right text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.5px]">Size</th>
-                  <th className="px-3 py-2 text-right text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.5px]">Mean Age</th>
-                  <th className="px-3 py-2 text-left text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.5px]">Top Gender</th>
-                  <th className="px-3 py-2 text-right text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.5px]">Cohort %</th>
+                  <th className="px-3 py-2 text-left text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.5px]">{t("patientSimilarity.landscape.cluster")}</th>
+                  <th className="px-3 py-2 text-right text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.5px]">{t("patientSimilarity.landscape.size")}</th>
+                  <th className="px-3 py-2 text-right text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.5px]">{t("patientSimilarity.landscape.meanAge")}</th>
+                  <th className="px-3 py-2 text-left text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.5px]">{t("patientSimilarity.landscape.topGender")}</th>
+                  <th className="px-3 py-2 text-right text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.5px]">{t("patientSimilarity.landscape.cohortPercent")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -107,14 +111,14 @@ export function LandscapePanel({ result, onContinue }: LandscapePanelProps) {
           }}
           className="rounded-md border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] px-4 py-2 text-sm text-[var(--color-text-primary)] transition-colors hover:border-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
         >
-          Export Screenshot
+          {t("patientSimilarity.landscape.exportScreenshot")}
         </button>
         <button
           type="button"
           onClick={onContinue}
           className="rounded-md bg-[var(--color-primary)]/10 px-4 py-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary)]/20"
         >
-          Continue to Phenotype Discovery
+          {t("patientSimilarity.landscape.continueToPhenotype")}
         </button>
       </div>
     </div>

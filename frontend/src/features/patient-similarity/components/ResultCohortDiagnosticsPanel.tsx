@@ -1,4 +1,6 @@
 import { AlertTriangle, Scale, ShieldAlert, Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { getBalanceVerdictLabel } from "../lib/i18n";
 import type { SearchResultDiagnostics } from "../types/patientSimilarity";
 
 interface ResultCohortDiagnosticsPanelProps {
@@ -23,21 +25,6 @@ function fmtDate(value: string | null | undefined): string {
   });
 }
 
-function verdictLabel(verdict: string): string {
-  switch (verdict) {
-    case "well_balanced":
-      return "Well balanced";
-    case "marginal_imbalance":
-      return "Marginal imbalance";
-    case "significant_imbalance":
-      return "Significant imbalance";
-    case "not_applicable":
-      return "Not applicable";
-    default:
-      return "Insufficient data";
-  }
-}
-
 function verdictColor(verdict: string): string {
   switch (verdict) {
     case "well_balanced":
@@ -54,6 +41,7 @@ function verdictColor(verdict: string): string {
 export function ResultCohortDiagnosticsPanel({
   diagnostics,
 }: ResultCohortDiagnosticsPanelProps) {
+  const { t } = useTranslation("app");
   const profile = diagnostics.result_profile;
   const balance = diagnostics.balance;
   const warnings = diagnostics.warnings ?? [];
@@ -71,25 +59,25 @@ export function ResultCohortDiagnosticsPanel({
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-text-ghost">
             <Users size={12} className="text-success" />
-            Result Cohort
+            {t("patientSimilarity.resultDiagnostics.resultCohort")}
           </div>
           <div className="mt-2 grid grid-cols-2 gap-3 text-xs text-text-secondary">
             <div>
-              <div className="text-text-ghost">Returned</div>
+              <div className="text-text-ghost">{t("patientSimilarity.resultDiagnostics.returned")}</div>
               <div className="mt-1 text-sm font-semibold">{profile.result_count ?? 0}</div>
             </div>
             <div>
-              <div className="text-text-ghost">Median age</div>
+              <div className="text-text-ghost">{t("patientSimilarity.resultDiagnostics.medianAge")}</div>
               <div className="mt-1 text-sm font-semibold">
                 {profile.age_summary?.median_age ?? "\u2014"}
               </div>
             </div>
             <div>
-              <div className="text-text-ghost">Anchor min</div>
+              <div className="text-text-ghost">{t("patientSimilarity.resultDiagnostics.anchorMin")}</div>
               <div className="mt-1">{fmtDate(profile.anchor_date?.min)}</div>
             </div>
             <div>
-              <div className="text-text-ghost">Anchor max</div>
+              <div className="text-text-ghost">{t("patientSimilarity.resultDiagnostics.anchorMax")}</div>
               <div className="mt-1">{fmtDate(profile.anchor_date?.max)}</div>
             </div>
           </div>
@@ -97,7 +85,7 @@ export function ResultCohortDiagnosticsPanel({
           {profile.gender_distribution && profile.gender_distribution.length > 0 && (
             <div className="mt-4">
               <div className="text-[10px] uppercase tracking-wider text-text-ghost">
-                Gender distribution
+                {t("patientSimilarity.resultDiagnostics.genderDistribution")}
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
                 {profile.gender_distribution.map((row) => (
@@ -116,7 +104,7 @@ export function ResultCohortDiagnosticsPanel({
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-text-ghost">
             <Scale size={12} className="text-accent" />
-            Coverage
+            {t("patientSimilarity.resultDiagnostics.coverage")}
           </div>
           <div className="mt-3 space-y-2">
             {coverageEntries.map(([dimension, coverage]) => (
@@ -139,16 +127,16 @@ export function ResultCohortDiagnosticsPanel({
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-text-ghost">
             <ShieldAlert size={12} className="text-primary" />
-            Balance
+            {t("patientSimilarity.resultDiagnostics.balance")}
           </div>
           <div className="mt-2 space-y-2 text-xs text-text-secondary">
             <div className={`text-sm font-semibold ${verdictColor(balance.verdict)}`}>
-              {verdictLabel(balance.verdict)}
+              {getBalanceVerdictLabel(t, balance.verdict)}
             </div>
-            <div>Reference: {balance.reference === "seed_cohort" ? "Seed cohort" : "Single patient"}</div>
-            <div>Mean |SMD|: {typeof balance.mean_abs_smd === "number" ? balance.mean_abs_smd.toFixed(3) : "\u2014"}</div>
-            <div>Imbalanced covariates: {balance.imbalanced_covariates ?? "\u2014"}</div>
-            <div>High imbalance: {balance.high_imbalance_covariates ?? "\u2014"}</div>
+            <div>{t("patientSimilarity.resultDiagnostics.reference")}: {balance.reference === "seed_cohort" ? t("patientSimilarity.resultDiagnostics.seedCohort") : t("patientSimilarity.resultDiagnostics.singlePatient")}</div>
+            <div>{t("patientSimilarity.resultDiagnostics.meanAbsSmd")}: {typeof balance.mean_abs_smd === "number" ? balance.mean_abs_smd.toFixed(3) : "\u2014"}</div>
+            <div>{t("patientSimilarity.resultDiagnostics.imbalancedCovariates")}: {balance.imbalanced_covariates ?? "\u2014"}</div>
+            <div>{t("patientSimilarity.resultDiagnostics.highImbalance")}: {balance.high_imbalance_covariates ?? "\u2014"}</div>
           </div>
         </div>
       </div>
@@ -156,7 +144,7 @@ export function ResultCohortDiagnosticsPanel({
       {topImbalanced.length > 0 && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <div className="text-[10px] uppercase tracking-wider text-text-ghost">
-            Top Imbalanced Covariates
+            {t("patientSimilarity.resultDiagnostics.topImbalancedCovariates")}
           </div>
           <div className="mt-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
             {topImbalanced.map((row) => (
@@ -166,11 +154,15 @@ export function ResultCohortDiagnosticsPanel({
               >
                 <div className="font-medium text-text-primary">{row.covariate_name}</div>
                 <div className="mt-1 text-text-muted">
-                  |SMD| {typeof row.smd === "number" ? row.smd.toFixed(3) : "\u2014"}
+                  {t("patientSimilarity.resultDiagnostics.smdShort")}{" "}
+                  {typeof row.smd === "number" ? row.smd.toFixed(3) : "\u2014"}
                 </div>
                 {typeof row.reference_proportion === "number" && typeof row.result_proportion === "number" && (
                   <div className="mt-1 text-text-muted">
-                    Seed {fmtPercent(row.reference_proportion)} · Result {fmtPercent(row.result_proportion)}
+                    {t("patientSimilarity.resultDiagnostics.seedVsResult", {
+                      seed: fmtPercent(row.reference_proportion),
+                      result: fmtPercent(row.result_proportion),
+                    })}
                   </div>
                 )}
               </div>
@@ -183,7 +175,7 @@ export function ResultCohortDiagnosticsPanel({
         <div className="rounded-lg border border-critical/20 bg-critical/5 p-4">
           <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-critical">
             <AlertTriangle size={12} />
-            Warnings
+            {t("patientSimilarity.resultDiagnostics.warnings")}
           </div>
           <ul className="mt-2 space-y-1 text-sm text-critical-light">
             {warnings.map((warning) => (

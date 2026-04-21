@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { TrendingDown, TrendingUp, Minus, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDate as formatAppDate } from "@/i18n/format";
+import { getProfileDomainLabel } from "../lib/i18n";
 import type { ClinicalEvent, ClinicalDomain } from "../types/profile";
 
 const DOMAIN_COLORS: Record<ClinicalDomain, string> = {
@@ -13,17 +16,8 @@ const DOMAIN_COLORS: Record<ClinicalDomain, string> = {
   visit: "var(--warning)",
 };
 
-const DOMAIN_LABELS: Record<ClinicalDomain, string> = {
-  condition: "Condition",
-  drug: "Drug",
-  procedure: "Procedure",
-  measurement: "Measurement",
-  observation: "Observation",
-  visit: "Visit",
-};
-
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
+  return formatAppDate(iso, {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -39,24 +33,25 @@ function RangeStatus({
   rangeLow: number | null | undefined;
   rangeHigh: number | null | undefined;
 }) {
+  const { t } = useTranslation("app");
   if (rangeLow == null || rangeHigh == null) return null;
   if (value < rangeLow) {
     return (
       <span className="inline-flex items-center gap-0.5 text-[10px] text-info">
-        <TrendingDown size={10} /> Below range ({rangeLow})
+        <TrendingDown size={10} /> {t("profiles.events.belowRange", { value: rangeLow })}
       </span>
     );
   }
   if (value > rangeHigh) {
     return (
       <span className="inline-flex items-center gap-0.5 text-[10px] text-critical">
-        <TrendingUp size={10} /> Above range ({rangeHigh})
+        <TrendingUp size={10} /> {t("profiles.events.aboveRange", { value: rangeHigh })}
       </span>
     );
   }
   return (
     <span className="inline-flex items-center gap-0.5 text-[10px] text-success">
-      <Minus size={10} /> Normal ({rangeLow}–{rangeHigh})
+      <Minus size={10} /> {t("profiles.events.normalRange", { low: rangeLow, high: rangeHigh })}
     </span>
   );
 }
@@ -86,9 +81,10 @@ export function GroupedConceptCard({
   firstDate,
   lastDate,
 }: GroupedConceptCardProps) {
+  const { t } = useTranslation("app");
   const [expanded, setExpanded] = useState(false);
   const color = DOMAIN_COLORS[domain] ?? "var(--text-muted)";
-  const label = DOMAIN_LABELS[domain] ?? domain;
+  const label = getProfileDomainLabel(t, domain);
   const count = events.length;
   const latestWithValue = domain === "measurement" ? events.find((e) => e.value != null) : null;
 
@@ -120,7 +116,9 @@ export function GroupedConceptCard({
           </p>
           {latestWithValue?.value != null && (
             <p className="text-xs font-semibold text-accent">
-              Latest: {String(latestWithValue.value)}
+              {t("profiles.events.latest", {
+                value: String(latestWithValue.value),
+              })}
               {latestWithValue.unit ? ` ${latestWithValue.unit}` : ""}
             </p>
           )}
@@ -182,8 +180,9 @@ export function GroupedConceptCard({
 // ---------------------------------------------------------------------------
 
 export function ClinicalEventCard({ event }: ClinicalEventCardProps) {
+  const { t } = useTranslation("app");
   const color = DOMAIN_COLORS[event.domain] ?? "var(--text-muted)";
-  const label = DOMAIN_LABELS[event.domain] ?? event.domain;
+  const label = getProfileDomainLabel(t, event.domain);
 
   const numericValue =
     typeof event.value === "number" ? event.value : null;
@@ -206,7 +205,9 @@ export function ClinicalEventCard({ event }: ClinicalEventCardProps) {
             <Link
               to={`/vocabulary?concept=${event.concept_id}`}
               className="text-sm font-medium text-text-primary hover:text-accent transition-colors truncate block"
-              title={`View concept ${event.concept_id} in Vocabulary Browser`}
+              title={t("profiles.events.viewConceptTitle", {
+                conceptId: event.concept_id,
+              })}
             >
               {event.concept_name}
             </Link>
@@ -245,17 +246,17 @@ export function ClinicalEventCard({ event }: ClinicalEventCardProps) {
             <div className="flex flex-wrap gap-x-3 gap-y-0.5">
               {event.route && (
                 <p className="text-[10px] text-text-muted">
-                  Route: {event.route}
+                  {t("profiles.events.route", { route: event.route })}
                 </p>
               )}
               {event.days_supply != null && event.days_supply > 0 && (
                 <p className="text-[10px] text-text-muted">
-                  {event.days_supply}d supply
+                  {t("profiles.events.supplyDays", { count: event.days_supply })}
                 </p>
               )}
               {event.quantity != null && event.quantity > 0 && (
                 <p className="text-[10px] text-text-muted">
-                  Qty: {event.quantity}
+                  {t("profiles.events.quantity", { value: event.quantity })}
                 </p>
               )}
             </div>
@@ -263,7 +264,9 @@ export function ClinicalEventCard({ event }: ClinicalEventCardProps) {
 
           {/* Procedure quantity */}
           {event.domain === "procedure" && event.quantity != null && event.quantity > 1 && (
-            <p className="text-[10px] text-text-muted">Qty: {event.quantity}</p>
+            <p className="text-[10px] text-text-muted">
+              {t("profiles.events.quantity", { value: event.quantity })}
+            </p>
           )}
 
           {/* Type name */}

@@ -1,4 +1,6 @@
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
+import { getSimilarityDimensionLabel } from "../lib/i18n";
 import type { CohortDivergence } from "../types/patientSimilarity";
 
 interface DivergenceScoresProps {
@@ -18,28 +20,20 @@ function getBgColor(score: number): string {
   return "bg-[var(--color-critical)]/10";
 }
 
-const DIMENSION_LABELS: Record<string, string> = {
-  demographics: "Demographics",
-  conditions: "Conditions",
-  measurements: "Measurements",
-  drugs: "Drugs",
-  procedures: "Procedures",
-  genomics: "Genomics",
-};
-
 export function DivergenceScores({
   divergence,
   overallDivergence,
 }: DivergenceScoresProps) {
+  const { t } = useTranslation("app");
   return (
     <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">
-          Divergence Scores
+          {t("patientSimilarity.charts.divergenceScores")}
         </h3>
         <div className="flex items-center gap-1.5">
           <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">
-            Overall:
+            {t("patientSimilarity.charts.overall")}
           </span>
           <span
             className="text-sm font-semibold tabular-nums"
@@ -54,7 +48,10 @@ export function DivergenceScores({
         {Object.entries(divergence).map(([key, div]) => (
           <div key={key} className="flex items-center gap-3">
             <span className="text-xs text-[var(--color-text-secondary)] w-24 shrink-0">
-              {DIMENSION_LABELS[key] ?? key}
+              {getSimilarityDimensionLabel(
+                t,
+                key as Parameters<typeof getSimilarityDimensionLabel>[1],
+              )}
             </span>
             <div className="flex-1 h-2 rounded-full bg-[var(--color-surface-overlay)] overflow-hidden">
               <div

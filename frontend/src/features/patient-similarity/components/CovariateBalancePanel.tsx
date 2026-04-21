@@ -1,5 +1,6 @@
 import { LovePlot } from "./LovePlot";
 import { DistributionalDivergence } from "./DistributionalDivergence";
+import { useTranslation } from "react-i18next";
 import type {
   CohortComparisonResult,
   CovariateBalanceRow,
@@ -20,6 +21,7 @@ export function CovariateBalancePanel({
   onRunPsm,
   onContinue,
 }: CovariateBalancePanelProps) {
+  const { t } = useTranslation("app");
   const total = covariates.length;
   const imbalanced = covariates.filter((c) => Math.abs(c.smd) >= 0.1).length;
   const balanced = total - imbalanced;
@@ -33,17 +35,17 @@ export function CovariateBalancePanel({
     <div className="space-y-4">
       {/* Summary metrics row */}
       <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border-default bg-sidebar-bg-light p-4">
-        <MetricBadge label="Total Covariates" value={total} color="var(--text-primary)" />
-        <MetricBadge label="Balanced" value={balanced} color="var(--success)" />
-        <MetricBadge label="Imbalanced" value={imbalanced} color="var(--primary)" />
+        <MetricBadge label={t("patientSimilarity.covariateBalance.totalCovariates")} value={total} color="var(--text-primary)" />
+        <MetricBadge label={t("patientSimilarity.covariateBalance.balanced")} value={balanced} color="var(--success)" />
+        <MetricBadge label={t("patientSimilarity.covariateBalance.imbalanced")} value={imbalanced} color="var(--primary)" />
         <MetricBadge
-          label="Mean |SMD|"
+          label={t("patientSimilarity.covariateBalance.meanAbsSmd")}
           value={meanAbsSmd !== null ? meanAbsSmd.toFixed(3) : "—"}
           color="var(--accent)"
         />
         {psmRecommended && (
           <span className="ml-auto flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
-            ⚠ PSM recommended
+            ⚠ {t("patientSimilarity.covariateBalance.psmRecommended")}
           </span>
         )}
       </div>
@@ -56,7 +58,7 @@ export function CovariateBalancePanel({
         ) : (
           <div className="flex min-h-[300px] items-center justify-center rounded-lg border border-dashed border-border-default bg-surface-raised">
             <p className="text-sm text-text-muted">
-              No covariate balance data available.
+              {t("patientSimilarity.covariateBalance.noCovariateData")}
             </p>
           </div>
         )}
@@ -67,7 +69,7 @@ export function CovariateBalancePanel({
         ) : (
           <div className="flex min-h-[300px] items-center justify-center rounded-lg border border-dashed border-border-default bg-surface-raised">
             <p className="text-sm text-text-muted">
-              No distributional divergence data available.
+              {t("patientSimilarity.covariateBalance.noDistributionalData")}
             </p>
           </div>
         )}
@@ -77,10 +79,12 @@ export function CovariateBalancePanel({
       <div className="flex items-center justify-between">
         <p className="text-xs text-text-muted">
           {psmRecommended
-            ? `${imbalanced} covariate${imbalanced !== 1 ? "s" : ""} exceed the 0.1 SMD threshold. Propensity score matching is recommended before proceeding.`
+            ? t("patientSimilarity.covariateBalance.thresholdWarning", {
+                count: imbalanced,
+              })
             : total > 0
-              ? "All covariates are well-balanced. You may proceed to the landscape view."
-              : "Run a cohort comparison to assess covariate balance."}
+              ? t("patientSimilarity.covariateBalance.balancedReady")
+              : t("patientSimilarity.covariateBalance.runComparison")}
         </p>
         <div className="flex shrink-0 gap-2">
           {psmRecommended && (
@@ -89,7 +93,7 @@ export function CovariateBalancePanel({
               onClick={onRunPsm}
               className="rounded-md bg-primary/10 px-4 py-2 text-sm font-medium text-critical transition-colors hover:bg-primary/20"
             >
-              Run Propensity Score Matching →
+              {t("patientSimilarity.covariateBalance.runPsm")}
             </button>
           )}
           <button
@@ -97,7 +101,7 @@ export function CovariateBalancePanel({
             onClick={onContinue}
             className="rounded-md bg-success/10 px-4 py-2 text-sm font-medium text-success transition-colors hover:bg-success/20"
           >
-            Continue to Landscape →
+            {t("patientSimilarity.covariateBalance.continueToLandscape")}
           </button>
         </div>
       </div>

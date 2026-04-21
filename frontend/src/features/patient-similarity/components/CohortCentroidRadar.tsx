@@ -7,6 +7,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 import type { CohortProfileResult } from "../types/patientSimilarity";
 
 interface CohortCentroidRadarProps {
@@ -21,6 +22,7 @@ interface RadarDataPoint {
 }
 
 export function CohortCentroidRadar({ profile }: CohortCentroidRadarProps) {
+  const { t } = useTranslation("app");
   const dims = profile.dimensions;
 
   const data: RadarDataPoint[] = Object.entries(dims).map(([, dim]) => ({
@@ -37,10 +39,12 @@ export function CohortCentroidRadar({ profile }: CohortCentroidRadarProps) {
     <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">
-          Cohort Centroid Profile
+          {t("patientSimilarity.charts.cohortCentroidProfile")}
         </h3>
         <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">
-          {profile.member_count} members
+          {t("patientSimilarity.charts.members", {
+            count: profile.member_count,
+          })}
         </span>
       </div>
 
@@ -58,7 +62,7 @@ export function CohortCentroidRadar({ profile }: CohortCentroidRadarProps) {
             tickFormatter={(v: number) => `${v}%`}
           />
           <Radar
-            name="Coverage"
+            name={t("patientSimilarity.charts.coverageWithData")}
             dataKey="coverage"
             stroke="var(--color-primary)"
             fill="var(--color-primary)"
@@ -66,7 +70,7 @@ export function CohortCentroidRadar({ profile }: CohortCentroidRadarProps) {
             strokeWidth={2}
           />
           <Radar
-            name="Diversity"
+            name={t("patientSimilarity.charts.diversityPerMember")}
             dataKey="richness"
             stroke="var(--color-primary)"
             fill="var(--color-primary)"
@@ -94,13 +98,13 @@ export function CohortCentroidRadar({ profile }: CohortCentroidRadarProps) {
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-0.5 bg-[var(--color-primary)] rounded" />
           <span className="text-[10px] text-[var(--color-text-secondary)]">
-            Coverage (% with data)
+            {t("patientSimilarity.charts.coverageWithData")}
           </span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-0.5 bg-[var(--color-primary)] rounded border-dashed" />
           <span className="text-[10px] text-[var(--color-text-secondary)]">
-            Diversity (concepts/member)
+            {t("patientSimilarity.charts.diversityPerMember")}
           </span>
         </div>
       </div>
@@ -120,7 +124,12 @@ export function CohortCentroidRadar({ profile }: CohortCentroidRadarProps) {
             </div>
             {(dim.unique_concepts ?? dim.unique_measurements ?? dim.unique_genes) !== undefined && (
               <div className="text-[10px] text-[var(--color-text-muted)]">
-                {dim.unique_concepts ?? dim.unique_measurements ?? dim.unique_genes} unique
+                {t("patientSimilarity.charts.unique", {
+                  count:
+                    dim.unique_concepts ??
+                    dim.unique_measurements ??
+                    dim.unique_genes,
+                })}
               </div>
             )}
           </div>

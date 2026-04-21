@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
 import { ChevronDown, ChevronRight, Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import type { StepStatus } from '../types/pipeline';
 
@@ -28,6 +29,8 @@ export function PipelineStep({
   onRun,
   children,
 }: PipelineStepProps) {
+  const { t } = useTranslation("app");
+
   if (status === 'future') {
     return (
       <div className="mb-3 rounded-xl border border-dashed border-border-default bg-surface-raised px-5 py-3 opacity-60 shadow-sm">
@@ -45,7 +48,7 @@ export function PipelineStep({
               className="rounded-md border border-border-default bg-surface-base px-2.5 py-1 text-xs font-medium text-text-secondary hover:text-text-primary hover:border-border-hover transition-colors"
               type="button"
             >
-              Run
+              {t("patientSimilarity.common.run")}
             </button>
           )}
         </div>
@@ -59,7 +62,9 @@ export function PipelineStep({
         <div className="flex items-center gap-2.5">
           <Loader2 size={20} className="animate-spin text-[var(--color-primary)]" />
           <span className="text-sm font-medium text-text-primary">{name}</span>
-          <span className="text-xs text-text-secondary">Running...</span>
+          <span className="text-xs text-text-secondary">
+            {t("patientSimilarity.common.running")}
+          </span>
         </div>
       </div>
     );
@@ -71,7 +76,9 @@ export function PipelineStep({
         <div className="flex items-center gap-2.5">
           <XCircle size={20} className="text-[var(--color-critical)]" />
           <span className="text-sm font-medium text-text-primary">{name}</span>
-          <span className="text-xs text-[var(--color-critical)]">Failed</span>
+          <span className="text-xs text-[var(--color-critical)]">
+            {t("patientSimilarity.common.failed")}
+          </span>
         </div>
       </div>
     );

@@ -2,6 +2,7 @@
 // @ts-nocheck — CohortSimilarityStepInterpretation type not yet exported from patientSimilarity types; unblock CI build
 import { useState } from "react";
 import { AlertTriangle, Loader2, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { Modal } from "@/components/ui";
 import type { CohortSimilarityStepInterpretation } from "../types/patientSimilarity";
@@ -17,6 +18,7 @@ export function AiStepInterpretationPanel({
   isLoading = false,
   onInterpret,
 }: AiStepInterpretationPanelProps) {
+  const { t } = useTranslation("app");
   const [modalOpen, setModalOpen] = useState(false);
   const isInterpreted = interpretation?.status === "interpreted";
   const hasError = interpretation?.status === "unavailable" || interpretation?.status === "unparseable";
@@ -32,10 +34,12 @@ export function AiStepInterpretationPanel({
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <Sparkles size={16} className="text-primary" />
-            <h4 className="text-sm font-semibold text-text-primary">Researcher Interpretation</h4>
+            <h4 className="text-sm font-semibold text-text-primary">
+              {t("patientSimilarity.aiInterpretation.title")}
+            </h4>
           </div>
           <p className="text-xs text-text-muted">
-            Generate a complete aggregate-only reading of this step using the configured LLM provider.
+            {t("patientSimilarity.aiInterpretation.subtitle")}
           </p>
         </div>
 
@@ -50,7 +54,9 @@ export function AiStepInterpretationPanel({
           )}
         >
           {isLoading ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />}
-          {isInterpreted ? "Regenerate" : "Interpret this step"}
+          {isInterpreted
+            ? t("patientSimilarity.aiInterpretation.regenerate")
+            : t("patientSimilarity.aiInterpretation.interpretThisStep")}
         </button>
       </div>
 
@@ -60,23 +66,25 @@ export function AiStepInterpretationPanel({
           onClick={() => setModalOpen(true)}
           className="mt-3 text-xs font-medium text-primary transition-colors hover:text-primary-light"
         >
-          View latest interpretation
+          {t("patientSimilarity.aiInterpretation.viewLatest")}
         </button>
       ) : null}
 
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        title="Researcher Interpretation"
+        title={t("patientSimilarity.aiInterpretation.title")}
         size="lg"
       >
         {isLoading ? (
           <div className="flex min-h-[260px] flex-col items-center justify-center gap-4 text-center">
             <Loader2 size={36} className="animate-spin text-primary" />
             <div className="space-y-1">
-              <p className="text-sm font-semibold text-text-primary">Interpreting this step...</p>
+              <p className="text-sm font-semibold text-text-primary">
+                {t("patientSimilarity.aiInterpretation.interpreting")}
+              </p>
               <p className="max-w-md text-sm text-text-muted">
-                The configured LLM service is reviewing aggregate results and preparing clinical implications, cautions, and next steps.
+                {t("patientSimilarity.aiInterpretation.interpretingDetail")}
               </p>
             </div>
           </div>
@@ -86,14 +94,18 @@ export function AiStepInterpretationPanel({
           <div className="flex min-h-[220px] items-start gap-3 rounded-md border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-text-secondary">
             <AlertTriangle size={18} className="mt-0.5 shrink-0 text-warning" />
             <div className="space-y-1">
-              <p className="font-semibold text-text-primary">Interpretation unavailable</p>
-              <p>{interpretation.error || "The model response could not be parsed."}</p>
+              <p className="font-semibold text-text-primary">
+                {t("patientSimilarity.aiInterpretation.unavailable")}
+              </p>
+              <p>{interpretation.error || t("patientSimilarity.aiInterpretation.parseFailure")}</p>
             </div>
           </div>
         ) : (
           <div className="flex min-h-[220px] flex-col items-center justify-center gap-3 text-center">
             <Sparkles size={28} className="text-primary" />
-            <p className="text-sm text-text-muted">Start an interpretation to review this step.</p>
+            <p className="text-sm text-text-muted">
+              {t("patientSimilarity.aiInterpretation.startInterpretation")}
+            </p>
           </div>
         )}
       </Modal>
@@ -106,6 +118,7 @@ function InterpretationContent({
 }: {
   interpretation: CohortSimilarityStepInterpretation;
 }) {
+  const { t } = useTranslation("app");
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2 text-xs text-text-muted">
@@ -113,7 +126,9 @@ function InterpretationContent({
           {interpretation.provider} · {interpretation.model}
         </span>
         <span className="rounded bg-info/10 px-2 py-1 text-info">
-          {Math.round(interpretation.confidence * 100)}% confidence
+          {t("patientSimilarity.aiInterpretation.confidence", {
+            count: Math.round(interpretation.confidence * 100),
+          })}
         </span>
       </div>
 
@@ -126,9 +141,9 @@ function InterpretationContent({
         </p>
       </div>
 
-      <InterpretationList title="Clinical Implications" items={interpretation.clinical_implications} />
-      <InterpretationList title="Methodologic Cautions" items={interpretation.methodologic_cautions} tone="warning" />
-      <InterpretationList title="Recommended Next Steps" items={interpretation.recommended_next_steps} />
+      <InterpretationList title={t("patientSimilarity.aiInterpretation.clinicalImplications")} items={interpretation.clinical_implications} />
+      <InterpretationList title={t("patientSimilarity.aiInterpretation.methodologicCautions")} items={interpretation.methodologic_cautions} tone="warning" />
+      <InterpretationList title={t("patientSimilarity.aiInterpretation.recommendedNextSteps")} items={interpretation.recommended_next_steps} />
     </div>
   );
 }

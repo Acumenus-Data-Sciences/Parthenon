@@ -1,5 +1,5 @@
 import type { ClinicalEvent } from "../../types/profile";
-import { DOMAIN_CONFIG, formatTooltipDate, formatDuration } from "../../lib/timeline-utils";
+import { DOMAIN_CONFIG, formatTooltipDate, formatDuration, getTimelineDomainLabel } from "../../lib/timeline-utils";
 
 interface EventTooltipProps {
   event: ClinicalEvent;
@@ -35,7 +35,7 @@ export function EventTooltip({ event: ev, x, y, containerWidth }: EventTooltipPr
                 className="inline-block w-2 h-2 rounded-sm mr-1"
                 style={{ backgroundColor: DOMAIN_CONFIG[ev.domain].color }}
               />
-              {DOMAIN_CONFIG[ev.domain].label}
+              {getTimelineDomainLabel(ev.domain)}
             </p>
             {ev.concept_id != null && (
               <p className="text-[10px] text-text-disabled font-mono tabular-nums">

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Activity, ChevronDown, ChevronRight, Database, Filter, GitBranch, Timer } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { getSimilarityGenderLabel, getSimilarityModeLabel } from "../lib/i18n";
 import type {
   ComputeStatus,
   SimilarityFilters,
@@ -28,22 +30,30 @@ function formatDate(value: string | null | undefined): string {
   });
 }
 
-function formatFilters(filters: SimilarityFilters | undefined): string {
-  if (!filters) return "None";
+function formatFilters(
+  t: ReturnType<typeof useTranslation<"app">>["t"],
+  filters: SimilarityFilters | undefined,
+): string {
+  if (!filters) return t("patientSimilarity.diagnostics.noFilters");
 
   const parts: string[] = [];
 
   if (filters.age_range) {
-    parts.push(`Age ${filters.age_range[0]}-${filters.age_range[1]}`);
+    parts.push(
+      t("patientSimilarity.diagnostics.ageFilter", {
+        min: filters.age_range[0],
+        max: filters.age_range[1],
+      }),
+    );
   }
 
   if (filters.gender_concept_id === 8507) {
-    parts.push("Male");
+    parts.push(getSimilarityGenderLabel(t, 8507));
   } else if (filters.gender_concept_id === 8532) {
-    parts.push("Female");
+    parts.push(getSimilarityGenderLabel(t, 8532));
   }
 
-  return parts.join(" · ") || "None";
+  return parts.join(" · ") || t("patientSimilarity.diagnostics.noFilters");
 }
 
 export function SearchDiagnosticsPanel({
@@ -51,6 +61,7 @@ export function SearchDiagnosticsPanel({
   seed,
   computeStatus,
 }: SearchDiagnosticsPanelProps) {
+  const { t } = useTranslation("app");
   const [isOpen, setIsOpen] = useState(false);
   const filters = metadata.filters_applied as SimilarityFilters | undefined;
 
@@ -62,7 +73,7 @@ export function SearchDiagnosticsPanel({
         className="flex w-full items-center justify-between text-left"
       >
         <span className="text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.5px]">
-          Search Diagnostics
+          {t("patientSimilarity.diagnostics.title")}
         </span>
         {isOpen ? (
           <ChevronDown size={14} className="text-[var(--color-text-muted)]" />
@@ -76,14 +87,16 @@ export function SearchDiagnosticsPanel({
           <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-3">
             <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.5px] text-[var(--color-text-muted)]">
               <Database size={12} className="text-[var(--color-primary)]" />
-              Candidate Pool
+              {t("patientSimilarity.diagnostics.candidatePool")}
             </div>
             <div className="mt-2 space-y-1.5 text-xs text-[var(--color-text-primary)]">
-              <div>Total candidates: {metadata.total_candidates ?? metadata.candidates_evaluated ?? "\u2014"}</div>
-              <div>Loaded: {metadata.candidates_loaded ?? metadata.candidates_evaluated ?? "\u2014"}</div>
-              <div>Returned: {metadata.returned_count ?? "\u2014"}</div>
+              <div>{t("patientSimilarity.diagnostics.totalCandidates", { value: metadata.total_candidates ?? metadata.candidates_evaluated ?? "\u2014" })}</div>
+              <div>{t("patientSimilarity.diagnostics.loaded", { value: metadata.candidates_loaded ?? metadata.candidates_evaluated ?? "\u2014" })}</div>
+              <div>{t("patientSimilarity.diagnostics.returned", { value: metadata.returned_count ?? "\u2014" })}</div>
               <div className="text-[var(--color-text-secondary)]">
-                {metadata.sql_prescored ? "SQL pre-screened before full scoring" : "Full scoring over candidate set"}
+                {metadata.sql_prescored
+                  ? t("patientSimilarity.diagnostics.sqlPrescored")
+                  : t("patientSimilarity.diagnostics.fullScoring")}
               </div>
             </div>
           </div>
@@ -91,40 +104,61 @@ export function SearchDiagnosticsPanel({
           <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-3">
             <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.5px] text-[var(--color-text-muted)]">
               <Filter size={12} className="text-[var(--color-primary)]" />
-              Query Contract
+              {t("patientSimilarity.diagnostics.queryContract")}
             </div>
             <div className="mt-2 space-y-1.5 text-xs text-[var(--color-text-primary)]">
-              <div>Filters: {formatFilters(filters)}</div>
-              <div>Min score: {metadata.min_score ?? "\u2014"}</div>
-              <div>Limit: {metadata.limit ?? "\u2014"}</div>
-              <div>Temporal window: {metadata.temporal_window_days ? `${metadata.temporal_window_days} days` : "\u2014"}</div>
+              <div>{t("patientSimilarity.diagnostics.filters", { value: formatFilters(t, filters) })}</div>
+              <div>{t("patientSimilarity.diagnostics.minScore", { value: metadata.min_score ?? "\u2014" })}</div>
+              <div>{t("patientSimilarity.diagnostics.limit", { value: metadata.limit ?? "\u2014" })}</div>
+              <div>{t("patientSimilarity.diagnostics.temporalWindow", {
+                value: metadata.temporal_window_days
+                  ? t("patientSimilarity.diagnostics.temporalDays", {
+                      count: metadata.temporal_window_days,
+                    })
+                  : "\u2014",
+              })}</div>
             </div>
           </div>
 
           <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-3">
             <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.5px] text-[var(--color-text-muted)]">
               <GitBranch size={12} className="text-[var(--color-critical)]" />
-              Provenance
+              {t("patientSimilarity.diagnostics.provenance")}
             </div>
             <div className="mt-2 space-y-1.5 text-xs text-[var(--color-text-primary)]">
-              <div>Vector version: {seed.feature_vector_version ?? metadata.feature_vector_version ?? "\u2014"}</div>
-              <div>Seed anchor: {formatDate(seed.anchor_date ?? metadata.seed_anchor_date)}</div>
-              <div>Computed: {formatDate(metadata.computed_at)}</div>
-              <div className="text-[var(--color-text-secondary)]">Query hash: {typeof metadata.query_hash === "string" ? metadata.query_hash.slice(0, 12) : "\u2014"}</div>
+              <div>{t("patientSimilarity.diagnostics.vectorVersion", { value: seed.feature_vector_version ?? metadata.feature_vector_version ?? "\u2014" })}</div>
+              <div>{t("patientSimilarity.diagnostics.seedAnchor", { value: formatDate(seed.anchor_date ?? metadata.seed_anchor_date) })}</div>
+              <div>{t("patientSimilarity.diagnostics.computed", { value: formatDate(metadata.computed_at) })}</div>
+              <div className="text-[var(--color-text-secondary)]">{t("patientSimilarity.diagnostics.queryHash", { value: typeof metadata.query_hash === "string" ? metadata.query_hash.slice(0, 12) : "\u2014" })}</div>
             </div>
           </div>
 
           <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-3">
             <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.5px] text-[var(--color-text-muted)]">
               <Timer size={12} className="text-[var(--color-primary)]" />
-              Source Readiness
+              {t("patientSimilarity.diagnostics.sourceReadiness")}
             </div>
             <div className="mt-2 space-y-1.5 text-xs text-[var(--color-text-primary)]">
-              <div>Latest vectors: {formatDate(computeStatus?.latest_computed_at)}</div>
-              <div>Embeddings ready: {computeStatus ? (computeStatus.embeddings_ready ? "Yes" : "No") : "\u2014"}</div>
-              <div>Recommended mode: {computeStatus?.recommended_mode ?? "\u2014"}</div>
+              <div>{t("patientSimilarity.diagnostics.latestVectors", { value: formatDate(computeStatus?.latest_computed_at) })}</div>
+              <div>{t("patientSimilarity.diagnostics.embeddingsReady", {
+                value: computeStatus
+                  ? computeStatus.embeddings_ready
+                    ? t("patientSimilarity.common.yes")
+                    : t("patientSimilarity.common.no")
+                  : "\u2014",
+              })}</div>
+              <div>{t("patientSimilarity.diagnostics.recommendedMode", {
+                value: computeStatus?.recommended_mode
+                  ? getSimilarityModeLabel(
+                      t,
+                      computeStatus.recommended_mode as "auto" | "interpretable" | "embedding",
+                    )
+                  : "\u2014",
+              })}</div>
               <div className={computeStatus?.staleness_warning ? "text-[var(--color-critical)]" : "text-[var(--color-text-secondary)]"}>
-                {computeStatus?.staleness_warning ? "Vectors may be stale" : "No staleness warning"}
+                {computeStatus?.staleness_warning
+                  ? t("patientSimilarity.diagnostics.stale")
+                  : t("patientSimilarity.diagnostics.notStale")}
               </div>
             </div>
           </div>
@@ -133,7 +167,7 @@ export function SearchDiagnosticsPanel({
             <div className="xl:col-span-4 rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-3">
               <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.5px] text-[var(--color-text-muted)]">
                 <Activity size={12} className="text-[var(--color-primary)]" />
-                Dimension Weights
+                {t("patientSimilarity.diagnostics.dimensionWeights")}
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
                 {Object.entries(metadata.weights).map(([key, value]) => (

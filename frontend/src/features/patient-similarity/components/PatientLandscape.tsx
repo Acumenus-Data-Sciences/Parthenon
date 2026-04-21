@@ -4,6 +4,7 @@ import { OrbitControls, Html } from "@react-three/drei";
 import * as THREE from "three";
 import { RefreshCw, Maximize2, Minimize2, X } from "lucide-react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import DimensionToggle from "@/features/administration/components/vector-explorer/DimensionToggle";
 import {
   CLUSTER_PALETTE,
@@ -232,6 +233,7 @@ interface TooltipProps {
 }
 
 function PointTooltip({ point, clusters }: TooltipProps) {
+  const { t } = useTranslation("app");
   const cluster = clusters.find((c) => c.id === point.cluster_id);
   return (
     <Html
@@ -248,21 +250,21 @@ function PointTooltip({ point, clusters }: TooltipProps) {
           className="font-['IBM_Plex_Mono',monospace]"
           style={{ color: ACCENT_COLOR }}
         >
-          Person {point.person_id}
+          {t("patientSimilarity.common.personLabel", { id: point.person_id })}
         </div>
         <div className="text-text-muted">
-          Age bucket:{" "}
+          {t("patientSimilarity.landscape.ageBucket")}:{" "}
           <span className="text-text-secondary">{ageBucketLabel(point.age_bucket)}</span>
         </div>
         <div className="text-text-muted">
-          Gender:{" "}
+          {t("patientSimilarity.landscape.pointGender")}:{" "}
           <span className="text-text-secondary">
             {genderLabel(point.gender_concept_id)}
           </span>
         </div>
         {cluster && (
           <div className="text-text-muted">
-            Cluster:{" "}
+            {t("patientSimilarity.landscape.pointCluster")}:{" "}
             <span className="text-text-secondary">
               {cluster.label ?? `#${cluster.id}`}
             </span>
@@ -270,7 +272,7 @@ function PointTooltip({ point, clusters }: TooltipProps) {
         )}
         {point.is_cohort_member && (
           <div className="mt-0.5" style={{ color: ACCENT_COLOR }}>
-            Cohort member
+            {t("patientSimilarity.landscape.cohortMember")}
           </div>
         )}
       </div>
@@ -377,6 +379,7 @@ function Sidebar({
   onRemoveFromSelection,
   cohortCount,
 }: SidebarProps) {
+  const { t } = useTranslation("app");
   const selectedList = useMemo(
     () =>
       Array.from(selectedIndices)
@@ -390,7 +393,7 @@ function Sidebar({
       {/* Color mode */}
       <div className="space-y-1.5 border-b border-border-default p-4">
         <h4 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-          Color by
+          {t("patientSimilarity.landscape.colorBy")}
         </h4>
         <div className="flex rounded border border-border-default bg-surface-base p-0.5">
           {(["cohort", "cluster"] as const).map((mode) => (
@@ -405,7 +408,9 @@ function Sidebar({
                   : { color: "var(--text-ghost)" }
               }
             >
-              {mode === "cohort" ? "Cohort" : "Cluster"}
+              {mode === "cohort"
+                ? t("patientSimilarity.landscape.cohort")
+                : t("patientSimilarity.landscape.cluster")}
             </button>
           ))}
         </div>
@@ -414,7 +419,9 @@ function Sidebar({
       {/* Legend */}
       <div className="space-y-1 border-b border-border-default p-4">
         <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-muted">
-          {colorMode === "cohort" ? "Groups" : "Clusters"}
+          {colorMode === "cohort"
+            ? t("patientSimilarity.landscape.groups")
+            : t("patientSimilarity.landscape.clusters")}
         </h4>
         {colorMode === "cohort" ? (
           <>
@@ -423,7 +430,9 @@ function Sidebar({
                 className="h-2.5 w-2.5 rounded-full"
                 style={{ background: CLUSTER_PALETTE[0] }}
               />
-              <span className="flex-1 text-text-secondary">Cohort members</span>
+              <span className="flex-1 text-text-secondary">
+                {t("patientSimilarity.landscape.cohortMembers")}
+              </span>
               <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">
                 {cohortCount.toLocaleString()}
               </span>
@@ -433,7 +442,9 @@ function Sidebar({
                 className="h-2.5 w-2.5 rounded-full"
                 style={{ background: CLUSTER_PALETTE[1] }}
               />
-              <span className="flex-1 text-text-secondary">Non-members</span>
+              <span className="flex-1 text-text-secondary">
+                {t("patientSimilarity.landscape.nonMembers")}
+              </span>
               <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">
                 {(points.length - cohortCount).toLocaleString()}
               </span>
@@ -468,7 +479,9 @@ function Sidebar({
                   onClick={() => onToggleCluster(c.id)}
                   className="rounded border border-border-default px-2 py-0.5 text-[11px] text-text-muted hover:bg-surface-raised hover:text-text-secondary"
                 >
-                  {hidden ? "Show" : "Hide"}
+                  {hidden
+                    ? t("patientSimilarity.landscape.show")
+                    : t("patientSimilarity.landscape.hide")}
                 </button>
               </div>
             );
@@ -480,7 +493,7 @@ function Sidebar({
       <div className="flex-1 space-y-2 border-b border-border-default p-4">
         <div className="flex items-center justify-between">
           <h4 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-            Inspector
+            {t("patientSimilarity.landscape.inspector")}
           </h4>
           {selectedList.length > 0 && (
             <button
@@ -488,13 +501,15 @@ function Sidebar({
               onClick={onClearSelection}
               className="rounded px-1.5 py-0.5 text-[11px] text-text-muted hover:bg-surface-raised hover:text-text-secondary"
             >
-              Clear ({selectedList.length})
+              {t("patientSimilarity.landscape.clearSelection", {
+                count: selectedList.length,
+              })}
             </button>
           )}
         </div>
         {selectedList.length === 0 ? (
           <div className="text-sm text-text-ghost">
-            Click a point to inspect. Shift-click to add.
+            {t("patientSimilarity.landscape.clickToInspect")}
           </div>
         ) : (
           <div className="space-y-2">
@@ -510,38 +525,43 @@ function Sidebar({
                       className="font-['IBM_Plex_Mono',monospace] text-xs"
                       style={{ color: ACCENT_COLOR }}
                     >
-                      Person {point.person_id}
+                      {t("patientSimilarity.common.personLabel", {
+                        id: point.person_id,
+                      })}
                     </div>
                     <button
                       type="button"
                       onClick={() => onRemoveFromSelection(idx)}
                       className="rounded p-0.5 text-text-ghost hover:bg-surface-raised hover:text-text-secondary"
-                      title="Remove from selection"
+                      title={t("patientSimilarity.landscape.removeFromSelection")}
                     >
                       <X className="h-3 w-3" />
                     </button>
                   </div>
                   <div className="mt-2 space-y-1">
                     <div className="flex justify-between text-xs">
-                      <span className="text-text-muted">Age bucket</span>
+                      <span className="text-text-muted">
+                        {t("patientSimilarity.landscape.ageBucket")}
+                      </span>
+                      {""}
                       <span className="text-text-secondary">
                         {ageBucketLabel(point.age_bucket)}
                       </span>
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span className="text-text-muted">Gender</span>
+                      <span className="text-text-muted">{t("patientSimilarity.landscape.pointGender")}</span>
                       <span className="text-text-secondary">
                         {genderLabel(point.gender_concept_id)}
                       </span>
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span className="text-text-muted">Cluster</span>
+                      <span className="text-text-muted">{t("patientSimilarity.landscape.pointCluster")}</span>
                       <span className="text-text-secondary">
                         {cluster?.label ?? `#${point.cluster_id}`}
                       </span>
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span className="text-text-muted">Cohort</span>
+                      <span className="text-text-muted">{t("patientSimilarity.landscape.pointCohort")}</span>
                       <span
                         className="text-text-secondary"
                         style={
@@ -550,7 +570,9 @@ function Sidebar({
                             : undefined
                         }
                       >
-                        {point.is_cohort_member ? "Member" : "Non-member"}
+                        {point.is_cohort_member
+                          ? t("patientSimilarity.landscape.member")
+                          : t("patientSimilarity.landscape.nonMember")}
                       </span>
                     </div>
                   </div>
@@ -568,20 +590,23 @@ function Sidebar({
       {/* Stats */}
       <div className="space-y-1 p-4">
         <div className="flex justify-between text-xs">
-          <span className="text-text-ghost">Points</span>
+          <span className="text-text-ghost">
+            {t("patientSimilarity.landscape.points")}
+          </span>
+          {""}
           <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
             {points.length.toLocaleString()}
           </span>
         </div>
         <div className="flex justify-between text-xs">
-          <span className="text-text-ghost">Clusters</span>
+          <span className="text-text-ghost">{t("patientSimilarity.landscape.clusters")}</span>
           <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
             {clusters.length}
           </span>
         </div>
         {stats?.projection_time_ms != null && stats.projection_time_ms > 0 && (
           <div className="flex justify-between text-xs">
-            <span className="text-text-ghost">Projection</span>
+            <span className="text-text-ghost">{t("patientSimilarity.landscape.projection")}</span>
             <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
               {(stats.projection_time_ms / 1000).toFixed(1)}s
             </span>
@@ -600,6 +625,7 @@ export function PatientLandscape({
   stats,
   onPatientClick,
 }: PatientLandscapeProps) {
+  const { t } = useTranslation("app");
   const [dimensions, setDimensions] = useState<2 | 3>(3);
   const [colorMode, setColorMode] = useState<ColorMode>("cohort");
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -678,7 +704,7 @@ export function PatientLandscape({
     <div className="flex items-center justify-between border-b border-border-default bg-surface-base px-4 py-2">
       <div className="flex items-center gap-3">
         <h3 className="text-sm font-semibold text-text-primary">
-          {dimensions}D Patient Landscape
+          {t("patientSimilarity.landscape.title", { count: dimensions })}
         </h3>
       </div>
       <div className="flex items-center gap-3">
@@ -691,7 +717,7 @@ export function PatientLandscape({
         <button
           type="button"
           onClick={handleReset}
-          title="Reset view"
+          title={t("patientSimilarity.landscape.resetView")}
           className="rounded p-1 text-text-muted hover:bg-surface-raised hover:text-text-primary"
         >
           <RefreshCw className="h-3.5 w-3.5" />
@@ -699,7 +725,11 @@ export function PatientLandscape({
         <button
           type="button"
           onClick={() => setIsExpanded((v) => !v)}
-          title={isExpanded ? "Collapse" : "Expand"}
+          title={
+            isExpanded
+              ? t("patientSimilarity.landscape.collapse")
+              : t("patientSimilarity.landscape.expand")
+          }
           className="rounded p-1 text-text-muted hover:bg-surface-raised hover:text-text-primary"
         >
           {isExpanded ? (

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { format } from 'date-fns';
+import { useTranslation } from "react-i18next";
 import {
   CartesianGrid,
   ComposedChart,
@@ -10,6 +10,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { formatDate as formatAppDate } from "@/i18n/format";
 import type { LabGroup } from '../types/profile';
 import { LabStatusDot } from './LabStatusDot';
 import { LabTrendTooltip } from './LabTrendTooltip';
@@ -25,6 +26,7 @@ export const LabTrendChart = ({
   unitName,
   height = 180,
 }: LabTrendChartProps): React.ReactElement => {
+  const { t } = useTranslation("app");
   const data = useMemo(
     () =>
       values
@@ -50,7 +52,7 @@ export const LabTrendChart = ({
   if (data.length === 0) {
     return (
       <div className="flex h-20 items-center justify-center text-xs text-text-ghost">
-        No numeric values to chart
+        {t("profiles.labs.noNumericValues")}
       </div>
     );
   }
@@ -65,7 +67,9 @@ export const LabTrendChart = ({
             type="number"
             domain={['dataMin', 'dataMax']}
             scale="time"
-            tickFormatter={(ts: number) => format(new Date(ts), 'MMM yyyy')}
+            tickFormatter={(ts: number) =>
+              formatAppDate(ts, { month: "short", year: "numeric" })
+            }
             stroke="#71717a"
             fontSize={11}
           />
@@ -110,7 +114,7 @@ export const LabTrendChart = ({
       {range && (
         <div className="mt-1 flex items-center justify-between px-2 text-[11px] text-text-ghost">
           <span>
-            Reference:{' '}
+            {t("profiles.labs.reference")}{' '}
             <span className="text-text-muted">
               {range.low}{'\u2013'}{range.high} {unitName}
             </span>

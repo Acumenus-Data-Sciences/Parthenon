@@ -1,4 +1,5 @@
 import { CohortComparisonRadar } from "./CohortComparisonRadar";
+import { useTranslation } from "react-i18next";
 import type { CohortComparisonResult } from "../types/patientSimilarity";
 
 interface ProfileComparisonPanelProps {
@@ -8,10 +9,13 @@ interface ProfileComparisonPanelProps {
   onContinue: () => void;
 }
 
-function getDivergenceLabel(pct: number): string {
-  if (pct < 30) return "Low divergence — cohorts are broadly similar";
-  if (pct < 50) return "Moderate divergence — notable differences across dimensions";
-  return "High divergence — cohorts differ substantially";
+function getDivergenceLabel(
+  t: ReturnType<typeof useTranslation<"app">>["t"],
+  pct: number,
+): string {
+  if (pct < 30) return t("patientSimilarity.profileComparison.lowDivergence");
+  if (pct < 50) return t("patientSimilarity.profileComparison.moderateDivergence");
+  return t("patientSimilarity.profileComparison.highDivergence");
 }
 
 function getDivergenceColor(pct: number): string {
@@ -32,9 +36,10 @@ export function ProfileComparisonPanel({
   targetName,
   onContinue,
 }: ProfileComparisonPanelProps) {
+  const { t } = useTranslation("app");
   const overallPct = Math.round(result.overall_divergence * 100);
   const divergenceColor = getDivergenceColor(overallPct);
-  const interpretationText = getDivergenceLabel(overallPct);
+  const interpretationText = getDivergenceLabel(t, overallPct);
 
   // Sort dimensions by score descending, skip any with missing labels
   const sortedDimensions = Object.entries(result.divergence)
@@ -47,7 +52,7 @@ export function ProfileComparisonPanel({
       <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4">
         <div className="mb-3 flex items-center justify-between">
           <span className="text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)]">
-            Overall Divergence
+            {t("patientSimilarity.profileComparison.overallDivergence")}
           </span>
           <span
             className="text-3xl font-bold tabular-nums"
@@ -82,7 +87,7 @@ export function ProfileComparisonPanel({
         {/* Right: Per-dimension bars */}
         <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4">
           <h3 className="mb-3 text-sm font-semibold text-[var(--color-text-primary)]">
-            Per-Dimension Divergence
+            {t("patientSimilarity.profileComparison.perDimensionDivergence")}
           </h3>
           {sortedDimensions.length > 0 ? (
             <div className="space-y-3">
@@ -114,7 +119,7 @@ export function ProfileComparisonPanel({
             </div>
           ) : (
             <p className="text-sm text-[var(--color-text-secondary)]">
-              No per-dimension scores available.
+              {t("patientSimilarity.profileComparison.noScores")}
             </p>
           )}
         </div>
@@ -127,7 +132,7 @@ export function ProfileComparisonPanel({
           onClick={onContinue}
           className="rounded-md bg-[var(--color-primary)]/10 px-4 py-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary)]/20"
         >
-          View Covariate Balance →
+          {t("patientSimilarity.profileComparison.viewCovariateBalance")}
         </button>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 import type { ClinicalDomain, ClinicalEvent } from "../../types/profile";
-import { DOMAIN_CONFIG } from "../../lib/timeline-utils";
+import { DOMAIN_CONFIG, getTimelineDomainLabel } from "../../lib/timeline-utils";
 
 interface DomainFilterBarProps {
   allPresentDomains: ClinicalDomain[];
@@ -15,9 +16,12 @@ export function DomainFilterBar({
   events,
   onToggleHide,
 }: DomainFilterBarProps) {
+  const { t } = useTranslation("app");
   return (
     <div className="flex items-center gap-1.5 px-4 py-2 bg-[var(--patient-timeline-panel-bg)] border-b border-border-default overflow-x-auto">
-      <span className="text-[10px] text-text-ghost shrink-0 mr-1">Domains:</span>
+      <span className="text-[10px] text-text-ghost shrink-0 mr-1">
+        {t("profiles.timeline.domainsLabel")}
+      </span>
       {allPresentDomains.map((domain) => {
         const cfg = DOMAIN_CONFIG[domain];
         const hidden = hiddenDomains.has(domain);
@@ -43,7 +47,7 @@ export function DomainFilterBar({
                   }
             }
           >
-            {cfg.label} ({count})
+            {getTimelineDomainLabel(domain)} ({count})
           </button>
         );
       })}

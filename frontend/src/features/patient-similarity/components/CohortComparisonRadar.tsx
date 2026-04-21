@@ -7,6 +7,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 import type { CohortDivergence } from "../types/patientSimilarity";
 import {
   buildCohortComparisonRadarModel,
@@ -23,6 +24,7 @@ export function CohortComparisonRadar({
   sourceName,
   targetName,
 }: CohortComparisonRadarProps) {
+  const { t } = useTranslation("app");
   const { data, unavailableDimensions } = buildCohortComparisonRadarModel(divergence);
 
   return (
@@ -30,14 +32,14 @@ export function CohortComparisonRadar({
       <div className="mb-3 flex items-start justify-between gap-4">
         <div>
           <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">
-            Divergence Radar
+            {t("patientSimilarity.charts.divergenceRadar")}
           </h3>
           <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
             {sourceName} vs {targetName}
           </p>
         </div>
         <span className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)]">
-          0% similar • 100% divergent
+          {t("patientSimilarity.charts.similarityScale")}
         </span>
       </div>
 
@@ -56,7 +58,7 @@ export function CohortComparisonRadar({
               tickFormatter={(v: number) => `${v}%`}
             />
             <Radar
-              name="Divergence"
+              name={t("patientSimilarity.charts.divergence")}
               dataKey="divergence"
               stroke="var(--color-critical)"
               fill="var(--color-critical)"
@@ -72,7 +74,7 @@ export function CohortComparisonRadar({
               }}
               formatter={((value: number) => [
                 `${value}%`,
-                "Divergence",
+                t("patientSimilarity.charts.divergence"),
               ]) as never}
             />
           </RadarChart>
@@ -80,14 +82,14 @@ export function CohortComparisonRadar({
       ) : (
         <div className="flex h-[300px] items-center justify-center rounded border border-dashed border-[var(--color-border-default)] bg-[var(--color-surface-base)]">
           <p className="max-w-sm text-center text-sm text-[var(--color-text-secondary)]">
-            No comparable dimensions are available for these cohorts.
+            {t("patientSimilarity.charts.noComparableDimensions")}
           </p>
         </div>
       )}
 
       {unavailableDimensions.length > 0 && (
         <p className="mt-3 text-xs text-[var(--color-text-secondary)]">
-          Omitted from radar due to unavailable data:{" "}
+          {t("patientSimilarity.charts.omittedFromRadar")}{" "}
           <span className="text-[var(--color-text-primary)]">
             {unavailableDimensions.join(", ")}
           </span>

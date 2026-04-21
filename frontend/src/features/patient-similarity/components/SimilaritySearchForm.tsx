@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Search, Loader2, User, Hash, CreditCard, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useSourceStore } from "@/stores/sourceStore";
 import { usePersonSearch } from "@/features/profiles/hooks/useProfiles";
@@ -25,6 +26,7 @@ export function SimilaritySearchForm({
   initialPersonId,
   initialWeights,
 }: SimilaritySearchFormProps) {
+  const { t } = useTranslation("app");
   const { sources } = useSourceStore();
   const { data: dimensions } = useSimilarityDimensions();
 
@@ -108,7 +110,7 @@ export function SimilaritySearchForm({
       {/* Source Selector */}
       <div>
         <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1.5">
-          Data Source
+          {t("profiles.common.dataSource")}
         </label>
         <select
           value={sourceId}
@@ -120,7 +122,7 @@ export function SimilaritySearchForm({
             "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
           )}
         >
-          <option value={0}>Select source...</option>
+          <option value={0}>{t("patientSimilarity.searchForm.selectSource")}</option>
           {sources.map((s) => (
             <option key={s.id} value={s.id}>
               {s.source_name}
@@ -132,7 +134,7 @@ export function SimilaritySearchForm({
       {/* Patient ID — live search */}
       <div>
         <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1.5">
-          Seed Patient ID
+          {t("patientSimilarity.searchForm.seedPatientId")}
         </label>
         <div ref={dropdownRef} className="relative">
           <div className="relative">
@@ -154,8 +156,8 @@ export function SimilaritySearchForm({
               }}
               placeholder={
                 sourceId > 0
-                  ? "Type person ID or MRN..."
-                  : "Select a data source first"
+                  ? t("patientSimilarity.searchForm.typePersonOrMrn")
+                  : t("patientSimilarity.searchForm.selectSourceFirst")
               }
               disabled={sourceId <= 0}
               className={cn(
@@ -191,10 +193,10 @@ export function SimilaritySearchForm({
           {sourceId > 0 && !searchQuery && (
             <div className="flex items-center gap-3 mt-1 px-1">
               <span className="inline-flex items-center gap-1 text-[10px] text-text-ghost">
-                <Hash size={9} /> Person ID
+                <Hash size={9} /> {t("patientSimilarity.searchForm.personId")}
               </span>
               <span className="inline-flex items-center gap-1 text-[10px] text-text-ghost">
-                <CreditCard size={9} /> MRN
+                <CreditCard size={9} /> {t("patientSimilarity.searchForm.mrn")}
               </span>
             </div>
           )}
@@ -215,15 +217,25 @@ export function SimilaritySearchForm({
                 <div className="flex flex-col items-center py-4 px-3 text-center">
                   <User size={16} className="text-text-ghost mb-1" />
                   <p className="text-xs text-text-muted">
-                    No patients found for &ldquo;{searchQuery}&rdquo;
+                    {t("patientSimilarity.searchForm.noPatientsFound", {
+                      query: searchQuery,
+                    })}
                   </p>
                 </div>
               ) : (
                 <div>
                   <div className="px-3 py-1 border-b border-border-subtle">
                     <p className="text-[10px] text-text-ghost">
-                      {searchResults.length} result{searchResults.length !== 1 ? "s" : ""}
-                      {searchResults.length === 20 ? " (showing first 20)" : ""}
+                      {t("patientSimilarity.searchForm.resultCount", {
+                        count: searchResults.length,
+                        defaultValue:
+                          searchResults.length === 1
+                            ? t("patientSimilarity.searchForm.resultCount_one", { count: searchResults.length })
+                            : t("patientSimilarity.searchForm.resultCount_other", { count: searchResults.length }),
+                      })}
+                      {searchResults.length === 20
+                        ? ` ${t("patientSimilarity.searchForm.showingFirstTwenty")}`
+                        : ""}
                     </p>
                   </div>
                   <div className="max-h-56 overflow-y-auto divide-y divide-border-subtle">
@@ -243,12 +255,12 @@ export function SimilaritySearchForm({
                               #{person.person_id}
                             </span>
                             <span className="text-[10px] text-text-muted">
-                              {person.gender} · {computeAge(person.year_of_birth)} yrs
+                              {person.gender} · {computeAge(person.year_of_birth)} {t("profiles.header.demographics.years", { count: 0 }).replace("0 ", "")}
                             </span>
                           </div>
                           {person.person_source_value && (
                             <p className="text-[10px] text-text-ghost truncate">
-                              MRN: {person.person_source_value}
+                              {t("profiles.search.mrn")} {person.person_source_value}
                             </p>
                           )}
                         </div>
@@ -266,7 +278,7 @@ export function SimilaritySearchForm({
       {dimensions && dimensions.length > 0 && (
         <div>
           <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-2">
-            Dimension Weights
+            {t("patientSimilarity.searchForm.dimensionWeights")}
           </label>
           <div className="space-y-3">
             {dimensions.filter((d) => d.is_active).map((dim) => (
@@ -297,7 +309,7 @@ export function SimilaritySearchForm({
       {/* Filters */}
       <div className="space-y-3">
         <label className="block text-[10px] text-text-ghost uppercase tracking-wider">
-          Filters (optional)
+          {t("patientSimilarity.searchForm.filtersOptional")}
         </label>
 
         {/* Age Range */}
@@ -306,7 +318,7 @@ export function SimilaritySearchForm({
             type="text"
             value={ageMin}
             onChange={(e) => setAgeMin(e.target.value)}
-            placeholder="Min age"
+            placeholder={t("patientSimilarity.searchForm.minAge")}
             className={cn(
               "w-1/2 rounded-lg px-3 py-1.5 text-xs",
               "bg-surface-base border border-border-default",
@@ -319,7 +331,7 @@ export function SimilaritySearchForm({
             type="text"
             value={ageMax}
             onChange={(e) => setAgeMax(e.target.value)}
-            placeholder="Max age"
+            placeholder={t("patientSimilarity.searchForm.maxAge")}
             className={cn(
               "w-1/2 rounded-lg px-3 py-1.5 text-xs",
               "bg-surface-base border border-border-default",
@@ -340,9 +352,9 @@ export function SimilaritySearchForm({
             "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
           )}
         >
-          <option value="">Any gender</option>
-          <option value="MALE">Male</option>
-          <option value="FEMALE">Female</option>
+          <option value="">{t("patientSimilarity.common.genders.any")}</option>
+          <option value="MALE">{t("patientSimilarity.common.genders.male")}</option>
+          <option value="FEMALE">{t("patientSimilarity.common.genders.female")}</option>
         </select>
       </div>
 
@@ -361,7 +373,7 @@ export function SimilaritySearchForm({
         ) : (
           <Search size={16} />
         )}
-        Find Similar Patients
+        {t("patientSimilarity.searchForm.findSimilarPatients")}
       </button>
     </form>
   );

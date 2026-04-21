@@ -11,12 +11,12 @@ npm run i18n:scan
 
 Current scanner output:
 
-- Full frontend scanner: 3,079 candidates across 1,105 scanned files.
+- Full frontend scanner: 2,547 candidates across 1,107 scanned files.
 - FinnGen paths excluded from this i18n track: 372 candidates.
-- Non-FinnGen backlog for this triage: 2,707 candidates.
-- Candidate kinds after FinnGen exclusion: 1,588 JSX text, 944 object properties, 175 JSX attributes.
+- Non-FinnGen backlog for this triage: 2,175 candidates.
+- Candidate kinds after FinnGen exclusion: 1,166 JSX text, 861 object properties, 148 JSX attributes.
 
-The app-priority scanner remains the release gate for the already-promoted language picker work. It currently reports 0 candidates across 214 files. The backlog below is therefore not a blocker for the current public app language selector, but it is the remaining work before Parthenon can claim broad native-language coverage across every product surface.
+The earlier 0-candidate app-priority milestone from the shell-only promotion phase is now historical. The current `npm run i18n:scan -- --app-priority` command reports the same 2,547-candidate whole-frontend backlog, so the focused wave scanners below are the operational completion gate for this extraction program.
 
 ## Classification
 
@@ -29,7 +29,7 @@ The app-priority scanner remains the release gate for the already-promoted langu
 | Imaging, genomics, and radiogenomics | 0 | 27 | Completed for `src/features/imaging`, `src/features/genomics`, and `src/features/radiogenomics`. Focused wave scans report 0 candidates across the imaging (14 files), genomics (9 files), and radiogenomics (4 files) scopes, with DICOM/OHIF/PACS identifiers, measurement units, and backend significance matching keys protected where needed. |
 | Strategus and study packages | 0 | 6 | Completed for `src/features/strategus`. Focused Strategus wave scanner reports 0 candidates across the study package page, module config panels, JSON spec editor, and Strategus helper/type metadata. Module names, JSON keys, and OHDSI package identifiers remain protected with explicit exemptions. |
 | Investigation clinical workflows | 336 | 43 | Later app wave unless the Investigation surface becomes a public i18n promise. Keep clinical/source values out of generic UI translation. |
-| Profiles and patient similarity | 532 | 55 | Later app wave. Many strings blend profile UI, patient-source labels, and similarity analytics. |
+| Profiles and patient similarity | 0 | 72 | Completed for `src/features/profiles` and `src/features/patient-similarity`. Focused wave scanner reports 0 candidates across patient profile search/browse/header/timeline/labs/visits/notes/eras surfaces plus similarity workspace, comparison, diagnostics, cohort actions, trajectory/radar/divergence charts, and matching/landscape panels. |
 | Publish, care gaps, and risk scores | 448 | 50 | Later app wave. Good candidate for a single applied-results/productivity wave. |
 | Generated/static/curated data | 526 | 8 | Do not machine-translate as UI copy. Requires curated terminology/data asset handling. |
 | HEOR | 135 | 7 | Later specialty wave. Protect currency, claims, ICER/QALY, and payer terminology. |
@@ -46,12 +46,10 @@ The app-priority scanner remains the release gate for the already-promoted langu
 | ---: | --- |
 | 315 | `src/features/etl/lib/cdm-schema-v54.ts` |
 | 99 | `src/features/standard-pros/data/instruments.ts` |
-| 39 | `src/features/profiles/pages/PatientProfilePage.tsx` |
 | 37 | `src/features/investigation/components/clinical/ConfigDrawer.tsx` |
 | 37 | `src/features/risk-scores/pages/RiskScoreHubPage.tsx` |
 | 36 | `src/features/heor/pages/HeorPage.tsx` |
 | 36 | `src/features/morpheus/constants/antibioticClasses.ts` |
-| 34 | `src/features/patient-similarity/pages/PatientComparisonPage.tsx` |
 | 34 | `src/features/poseidon/pages/PoseidonPage.tsx` |
 | 31 | `src/features/heor/components/ClaimsExplorer.tsx` |
 | 30 | `src/features/heor/pages/HeorAnalysisPage.tsx` |
@@ -60,6 +58,7 @@ The app-priority scanner remains the release gate for the already-promoted langu
 | 29 | `src/features/etl/components/aqueduct/FieldMappingDetail.tsx` |
 | 29 | `src/features/etl/pages/SourceProfilerPage.tsx` |
 | 29 | `src/features/risk-scores/pages/RiskScoreCreatePage.tsx` |
+| 29 | `src/features/study-agent/pages/StudyDesignerPage.tsx` |
 
 ## Recommended Extraction Order
 
@@ -81,8 +80,11 @@ The app-priority scanner remains the release gate for the already-promoted langu
 6. Strategus and study packages. Completed 2026-04-21.
    Scope completed: `src/features/strategus` module config panels, study package page, JSON spec editor, and Strategus metadata helpers. The focused wave scanner reports 0 candidates across 6 files. Strategus module names, JSON keys, OHDSI package identifiers, and generated specification text remain protected with explicit `i18n-exempt` annotations where needed.
 
-7. Later specialty waves.
-   Profiles/patient similarity, publish/care-gaps/risk, HEOR, Morpheus, ETL source profiler/Aqueduct, GIS/Poseidon/code tools, concept-set shared primitives, and workbench surfaces should follow after the release-facing waves above. The next highest-value non-FinnGen app wave is now profiles and patient similarity.
+7. Profiles and patient similarity. Completed 2026-04-21.
+   Scope completed: `src/features/profiles` and `src/features/patient-similarity`. The focused wave scanner reports 0 candidates across 72 files. Patient/person labels, source-controlled clinical values, concept IDs, MRNs, vocabulary routes, trajectory math labels, and research identifiers remain protected where needed while the surrounding UI chrome now uses app i18n resources.
+
+8. Later specialty waves.
+   Publish/care-gaps/risk, investigation clinical workflows, HEOR, Morpheus, ETL source profiler/Aqueduct, GIS/Poseidon/code tools, concept-set shared primitives, and workbench surfaces should follow after the completed waves above. The next highest-value non-FinnGen app wave is now publish, care gaps, and risk scores.
 
 ## Generated/Static Data Policy
 
@@ -108,7 +110,7 @@ When each wave touches its files, add `i18n-exempt` comments for scanner hits th
 Each extraction wave should finish with:
 
 - focused scanner command for the wave reporting 0 actionable candidates or documented exemptions;
-- `npm run i18n:scan:app-priority` still reporting 0 candidates;
+- the current full/frontend app-priority scanner counts documented without masking regressions;
 - `npm run i18n:report` with 100% key presence and no missing keys;
 - focused frontend typecheck, ESLint, and i18n Vitest coverage;
 - browser smoke for at least English, Spanish, Korean, Hindi, one CJK locale, and one European Wave 1 locale when the surface is route-visible;

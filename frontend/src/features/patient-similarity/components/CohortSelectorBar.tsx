@@ -1,4 +1,5 @@
 import { Settings } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useCohortDefinitions } from "@/features/cohort-definitions/hooks/useCohortDefinitions";
 import { useSources } from "@/features/data-sources/hooks/useSources";
@@ -33,6 +34,7 @@ export function CohortSelectorBar({
   onOpenSettings,
   isRunning = false,
 }: CohortSelectorBarProps) {
+  const { t } = useTranslation("app");
   const { data: sourcesData } = useSources();
   const sources = sourcesData ?? [];
 
@@ -94,9 +96,9 @@ export function CohortSelectorBar({
             "focus:outline-none focus:ring-1 focus:ring-accent/50",
             "min-w-[140px]",
           )}
-          aria-label="Data source"
+          aria-label={t("profiles.common.dataSource")}
         >
-          <option value="">Source…</option>
+          <option value="">{t("patientSimilarity.selectorBar.sourcePlaceholder")}</option>
           {sources.map((s) => (
             <option key={s.id} value={s.id}>
               {s.source_name}
@@ -116,7 +118,7 @@ export function CohortSelectorBar({
                 : "bg-surface-overlay text-text-muted hover:text-text-secondary",
             )}
           >
-            Compare Cohorts
+            {t("patientSimilarity.common.modes.compareCohorts")}
           </button>
           <button
             type="button"
@@ -128,7 +130,7 @@ export function CohortSelectorBar({
                 : "bg-surface-overlay text-text-muted hover:text-text-secondary",
             )}
           >
-            Expand Cohort
+            {t("patientSimilarity.common.modes.expandCohort")}
           </button>
         </div>
 
@@ -141,10 +143,12 @@ export function CohortSelectorBar({
               "w-full rounded-md bg-surface-overlay border border-primary/40 px-3 py-1.5 text-sm text-text-secondary",
               "focus:outline-none focus:ring-1 focus:ring-primary/50",
             )}
-            aria-label="Target cohort"
+            aria-label={t("patientSimilarity.common.target")}
           >
             <option value="">
-              {isCompareMode ? "Target cohort…" : "Seed cohort…"}
+              {isCompareMode
+                ? t("patientSimilarity.selectorBar.targetPlaceholder")
+                : t("patientSimilarity.selectorBar.seedPlaceholder")}
             </option>
             {cohorts.map((c) => (
               <option key={c.id} value={c.id}>
@@ -155,7 +159,9 @@ export function CohortSelectorBar({
           {showTargetBanner && (
             <div className="flex items-baseline gap-1.5 pl-0.5">
               <span className="text-[11px] font-medium text-primary">
-                {isCompareMode ? "Target:" : "Seed:"}
+                {isCompareMode
+                  ? t("patientSimilarity.selectorBar.targetLabel")
+                  : t("patientSimilarity.selectorBar.seedLabel")}
               </span>
               <GenerationStatusBanner
                 cohortDefinitionId={targetCohortId!}
@@ -177,9 +183,11 @@ export function CohortSelectorBar({
                 "w-full rounded-md bg-surface-overlay border border-success/40 px-3 py-1.5 text-sm text-text-secondary",
                 "focus:outline-none focus:ring-1 focus:ring-success/50",
               )}
-              aria-label="Comparator cohort"
+              aria-label={t("patientSimilarity.common.comparator")}
             >
-              <option value="">Comparator cohort…</option>
+              <option value="">
+                {t("patientSimilarity.selectorBar.comparatorPlaceholder")}
+              </option>
               {cohorts.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -189,7 +197,7 @@ export function CohortSelectorBar({
             {showComparatorBanner && (
               <div className="flex items-baseline gap-1.5 pl-0.5">
                 <span className="text-[11px] font-medium text-success">
-                  Comparator:
+                  {t("patientSimilarity.selectorBar.comparatorLabel")}
                 </span>
                 <GenerationStatusBanner
                   cohortDefinitionId={comparatorCohortId!}
@@ -215,14 +223,16 @@ export function CohortSelectorBar({
               : "bg-success text-surface-base hover:bg-success-dark",
           )}
         >
-          {isCompareMode ? "Compare" : "Find Similar"}
+          {isCompareMode
+            ? t("patientSimilarity.common.compare")
+            : t("patientSimilarity.common.modes.findSimilar")}
         </button>
 
         {/* Settings gear */}
         <button
           type="button"
           onClick={onOpenSettings}
-          title="Analysis settings"
+          title={t("patientSimilarity.selectorBar.analysisSettings")}
           className={cn(
             "p-1.5 rounded-md text-text-muted hover:text-text-secondary hover:bg-surface-accent transition-colors shrink-0",
           )}

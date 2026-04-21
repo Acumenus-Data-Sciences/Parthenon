@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   Loader2,
   ChevronLeft,
@@ -15,14 +16,16 @@ import {
   Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDate as formatAppDate } from "@/i18n/format";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { getCohortDefinitions } from "@/features/cohort-definitions/api/cohortApi";
 import { useCohortMembers } from "../hooks/useProfiles";
+import { getProfileGenderLabel } from "../lib/i18n";
 import { PatientSearchPanel } from "./PatientSearchPanel";
 import type { CohortMember } from "../types/profile";
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
+  return formatAppDate(iso, {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -57,6 +60,7 @@ interface CohortMemberListProps {
 }
 
 export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
+  const { t } = useTranslation("app");
   const [sourceId, setSourceId] = useState<number | null>(null);
   const [cohortId, setCohortId] = useState<number | null>(null);
   const [page, setPage] = useState(1);
@@ -91,7 +95,7 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
     error: membersError,
   } = useCohortMembers(sourceId, cohortId, page);
 
-  const rawMembers = membersData?.data ?? [];
+  const rawMembers = useMemo(() => membersData?.data ?? [], [membersData]);
   const totalPages = membersData?.meta?.last_page ?? 1;
   const total = membersData?.meta?.total ?? 0;
   const perPage = membersData?.meta?.per_page ?? 15;
@@ -139,7 +143,7 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
     if (rawMembers.length === 0) return null;
     const genderCounts: Record<string, number> = {};
     for (const m of rawMembers) {
-      const g = m.gender ?? "Unknown";
+      const g = getProfileGenderLabel(t, m.gender);
       genderCounts[g] = (genderCounts[g] ?? 0) + 1;
     }
     const yearVals = rawMembers.map((m) => m.year_of_birth ?? 0).filter(Boolean);
@@ -148,12 +152,12 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
         ? Math.round(yearVals.reduce((s, v) => s + v, 0) / yearVals.length)
         : null;
     return { genderCounts, meanYear, totalPage: rawMembers.length };
-  }, [rawMembers]);
+  }, [rawMembers, t]);
 
   // Unique genders for filter dropdown (from current page)
   const uniqueGenders = useMemo(
-    () => [...new Set(rawMembers.map((m) => m.gender ?? "Unknown").filter(Boolean))],
-    [rawMembers],
+    () => [...new Set(rawMembers.map((m) => getProfileGenderLabel(t, m.gender)).filter(Boolean))],
+    [rawMembers, t],
   );
 
   const handleSort = (key: SortKey) => {
@@ -188,28 +192,32 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `cohort-members-page${page}.csv`;
+    a.download = t("profiles.cohortBrowser.exportFilename", { page });
     a.click();
     URL.revokeObjectURL(url);
-  }, [members, page]);
+  }, [members, page, t]);
 
   return (
     <div className="space-y-6">
       {/* Patient Search — live search by ID / MRN */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-text-primary">Find Patient</h3>
+        <h3 className="text-sm font-semibold text-text-primary">
+          {t("profiles.cohortBrowser.findPatient")}
+        </h3>
         <PatientSearchPanel onSelectPerson={onSelectPerson} />
       </div>
 
       {/* Cohort browser — secondary way to browse by cohort */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-text-primary">Browse by Cohort</h3>
+        <h3 className="text-sm font-semibold text-text-primary">
+          {t("profiles.cohortBrowser.browseByCohort")}
+        </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Source Selector */}
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">
-              Data Source
+              {t("profiles.common.dataSource")}
             </label>
             <div className="relative">
               <Database
@@ -229,7 +237,7 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
                   "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
                 )}
               >
-                <option value="">Select a data source...</option>
+                <option value="">{t("profiles.cohortBrowser.selectDataSource")}</option>
                 {sources?.map((src) => (
                   <option key={src.id} value={src.id}>
                     {src.source_name}
@@ -246,7 +254,7 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
           {/* Cohort Selector */}
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">
-              Cohort
+              {t("profiles.common.cohort")}
             </label>
             <div className="relative">
               <Users
@@ -266,7 +274,7 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
                   "disabled:opacity-50",
                 )}
               >
-                <option value="">Select a cohort...</option>
+                <option value="">{t("profiles.cohortBrowser.selectCohort")}</option>
                 {cohorts.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -292,14 +300,14 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
           ) : membersError ? (
             <div className="flex items-center justify-center h-32">
               <p className="text-critical text-sm">
-                Failed to load cohort members
+                {t("profiles.cohortBrowser.failedToLoad")}
               </p>
             </div>
           ) : rawMembers.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-12">
               <Users size={24} className="text-text-ghost mb-3" />
               <p className="text-sm text-text-muted">
-                No members found in this cohort
+                {t("profiles.cohortBrowser.noMembers")}
               </p>
             </div>
           ) : (
@@ -313,11 +321,11 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
                       <span className="font-semibold text-text-primary">
                         {total.toLocaleString()}
                       </span>{" "}
-                      total members
+                      {t("profiles.cohortBrowser.stats.totalMembers")}
                     </span>
                     {stats.meanYear && (
                       <span>
-                        Mean birth year:{" "}
+                        {t("profiles.cohortBrowser.stats.meanBirthYear")}:{" "}
                         <span className="font-semibold text-text-primary">
                           {stats.meanYear}
                         </span>
@@ -349,7 +357,7 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
                       type="text"
                       value={searchId}
                       onChange={(e) => setSearchId(e.target.value)}
-                      placeholder="Filter by ID..."
+                      placeholder={t("profiles.cohortBrowser.filters.filterById")}
                       className={cn(
                         "w-36 rounded-md border border-surface-highlight bg-surface-base pl-7 pr-2 py-1.5 text-xs",
                         "text-text-primary placeholder:text-text-ghost",
@@ -370,7 +378,7 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
                     )}
                   >
                     <SlidersHorizontal size={12} />
-                    Filters
+                    {t("profiles.cohortBrowser.filters.title")}
                     {(filterGender || filterBirthYearMin || filterBirthYearMax) && (
                       <span className="w-1.5 h-1.5 rounded-full bg-accent" />
                     )}
@@ -384,7 +392,7 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
                     className="inline-flex items-center gap-1 rounded-md border border-surface-highlight px-3 py-1.5 text-xs text-text-muted hover:text-text-primary hover:border-text-ghost transition-colors disabled:opacity-40"
                   >
                     <Download size={12} />
-                    CSV
+                    {t("profiles.common.actions.exportCsv")}
                   </button>
                 </div>
               </div>
@@ -393,19 +401,19 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
               {showFilters && (
                 <div className="flex items-center gap-3 rounded-lg border border-surface-highlight bg-surface-raised px-4 py-3 flex-wrap">
                   <span className="text-xs font-medium text-text-muted">
-                    Filters:
+                    {t("profiles.cohortBrowser.filters.activeLabel")}
                   </span>
                   {/* Gender */}
                   <div>
                     <label className="text-[10px] text-text-ghost block mb-0.5">
-                      Gender
+                      {t("profiles.cohortBrowser.filters.gender")}
                     </label>
                     <select
                       value={filterGender}
                       onChange={(e) => setFilterGender(e.target.value)}
                       className="rounded border border-surface-highlight bg-surface-base px-2 py-1 text-xs text-text-primary focus:outline-none"
                     >
-                      <option value="">All</option>
+                      <option value="">{t("profiles.cohortBrowser.filters.any")}</option>
                       {uniqueGenders.map((g) => (
                         <option key={g} value={g}>
                           {g}
@@ -417,25 +425,29 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
                   <div className="flex items-end gap-1.5">
                     <div>
                       <label className="text-[10px] text-text-ghost block mb-0.5">
-                        Birth year ≥
+                        {t("profiles.cohortBrowser.filters.birthYearGte")}
                       </label>
                       <input
                         type="number"
                         value={filterBirthYearMin}
                         onChange={(e) => setFilterBirthYearMin(e.target.value)}
-                        placeholder="e.g. 1950"
+                        placeholder={t("profiles.cohortBrowser.filters.exampleYear", {
+                          year: 1950,
+                        })}
                         className="w-24 rounded border border-surface-highlight bg-surface-base px-2 py-1 text-xs text-text-primary focus:outline-none"
                       />
                     </div>
                     <div>
                       <label className="text-[10px] text-text-ghost block mb-0.5">
-                        Birth year ≤
+                        {t("profiles.cohortBrowser.filters.birthYearLte")}
                       </label>
                       <input
                         type="number"
                         value={filterBirthYearMax}
                         onChange={(e) => setFilterBirthYearMax(e.target.value)}
-                        placeholder="e.g. 2000"
+                        placeholder={t("profiles.cohortBrowser.filters.exampleYear", {
+                          year: 2000,
+                        })}
                         className="w-24 rounded border border-surface-highlight bg-surface-base px-2 py-1 text-xs text-text-primary focus:outline-none"
                       />
                     </div>
@@ -451,7 +463,7 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
                       }}
                       className="text-xs text-critical hover:underline"
                     >
-                      Clear filters
+                      {t("profiles.cohortBrowser.filters.clear")}
                     </button>
                   )}
                 </div>
@@ -464,11 +476,11 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
                     <tr className="bg-surface-overlay">
                       {(
                         [
-                          { key: "subject_id", label: "Person ID" },
-                          { key: "gender", label: "Gender" },
-                          { key: "year_of_birth", label: "Year of Birth" },
-                          { key: "cohort_start_date", label: "Cohort Start" },
-                          { key: "cohort_end_date", label: "Cohort End" },
+                          { key: "subject_id", label: t("profiles.cohortBrowser.table.personId") },
+                          { key: "gender", label: t("profiles.cohortBrowser.sort.gender") },
+                          { key: "year_of_birth", label: t("profiles.cohortBrowser.table.yearOfBirth") },
+                          { key: "cohort_start_date", label: t("profiles.cohortBrowser.table.cohortStart") },
+                          { key: "cohort_end_date", label: t("profiles.cohortBrowser.table.cohortEnd") },
                         ] as { key: SortKey; label: string }[]
                       ).map((col) => (
                         <th
@@ -495,7 +507,7 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
                           colSpan={5}
                           className="px-4 py-8 text-center text-sm text-text-muted"
                         >
-                          No members match the current filters
+                          {t("profiles.cohortBrowser.table.noMembersMatchingCurrentFilters")}
                         </td>
                       </tr>
                     ) : (
@@ -514,7 +526,9 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
                             {member.subject_id}
                           </td>
                           <td className="px-4 py-3 text-xs text-text-secondary">
-                            {member.gender ?? "--"}
+                            {member.gender
+                              ? getProfileGenderLabel(t, member.gender)
+                              : "--"}
                           </td>
                           <td className="px-4 py-3 text-xs text-text-secondary">
                             {member.year_of_birth ?? "--"}
@@ -536,8 +550,11 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
               {totalPages > 1 && (
                 <div className="flex items-center justify-between px-1">
                   <p className="text-xs text-text-muted">
-                    Showing {(page - 1) * perPage + 1} –{" "}
-                    {Math.min(page * perPage, total)} of {total.toLocaleString()}
+                    {t("profiles.cohortBrowser.pagination.rowsXtoYOfZ", {
+                      from: (page - 1) * perPage + 1,
+                      to: Math.min(page * perPage, total),
+                      total: total.toLocaleString(),
+                    })}
                   </p>
                   <div className="flex items-center gap-1">
                     <button
@@ -549,7 +566,10 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
                       <ChevronLeft size={16} />
                     </button>
                     <span className="text-xs text-text-secondary px-2">
-                      {page} / {totalPages}
+                      {t("profiles.cohortBrowser.pagination.pageXOfY", {
+                        current: page,
+                        total: totalPages,
+                      })}
                     </span>
                     <button
                       type="button"
