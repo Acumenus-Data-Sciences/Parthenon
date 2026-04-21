@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import type { SurveyCampaignApi, SurveyConductRecordApi } from "../../api/campaignApi";
 import type { SurveyInstrumentDetailApi } from "../../api/surveyApi";
+import { standardProsResponseTypeLabel } from "../../lib/i18n";
 
 interface ManualEntryModalProps {
   open: boolean;
@@ -26,6 +28,7 @@ export function ManualEntryModal({
   isSubmitting,
   onSubmit,
 }: ManualEntryModalProps) {
+  const { t } = useTranslation("app");
   const [conductId, setConductId] = useState("");
   const [recordQuery, setRecordQuery] = useState("");
   const [values, setValues] = useState<Record<number, string | string[]>>({});
@@ -75,7 +78,7 @@ export function ManualEntryModal({
     <Modal
       open={open}
       onClose={handleClose}
-      title={`Manual Proxy Entry${campaign ? `: ${campaign.name}` : ""}`}
+      title={`${t("standardPros.conduct.manualEntry.title")}${campaign ? `: ${campaign.name}` : ""}`}
       size="xl"
       footer={(
         <div className="flex items-center justify-end gap-3">
@@ -84,7 +87,7 @@ export function ManualEntryModal({
             onClick={handleClose}
             className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary"
           >
-            Cancel
+            {t("standardPros.common.cancel")}
           </button>
           <button
             type="button"
@@ -93,7 +96,7 @@ export function ManualEntryModal({
             className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base disabled:opacity-50"
           >
             {isSubmitting && <Loader2 size={14} className="animate-spin" />}
-            Save Responses
+            {t("standardPros.conduct.manualEntry.saveResponses")}
           </button>
         </div>
       )}
@@ -101,13 +104,13 @@ export function ManualEntryModal({
       <div className="space-y-4">
         <div>
           <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-text-muted">
-            Pending Conduct Record
+            {t("standardPros.conduct.manualEntry.pendingConductRecord")}
           </label>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-[220px_minmax(0,1fr)]">
             <input
               value={recordQuery}
               onChange={(event) => setRecordQuery(event.target.value)}
-              placeholder="Filter by person_id"
+              placeholder={t("standardPros.conduct.manualEntry.filterPlaceholder")}
               inputMode="numeric"
               className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
             />
@@ -116,10 +119,12 @@ export function ManualEntryModal({
               onChange={(event) => setConductId(event.target.value)}
               className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
             >
-              <option value="">Select a person</option>
+              <option value="">{t("standardPros.conduct.manualEntry.selectPerson")}</option>
               {pendingRecords.map((record) => (
                 <option key={record.id} value={record.id}>
-                  Person {record.person_id}
+                  {t("standardPros.conduct.manualEntry.personLabel", {
+                    personId: record.person_id,
+                  })}
                 </option>
               ))}
             </select>
@@ -132,6 +137,9 @@ export function ManualEntryModal({
               <label className="mb-2 block text-sm text-text-primary">
                 {item.item_number}. {item.item_text}
               </label>
+              <div className="mb-2 text-[11px] uppercase tracking-wider text-text-ghost">
+                {standardProsResponseTypeLabel(t, item.response_type)}
+              </div>
 
               {(item.response_type === "likert" || item.response_type === "yes_no" || item.response_type === "multi_select") && item.answer_options.length > 0 && (
                 item.response_type === "multi_select" ? (
@@ -166,7 +174,7 @@ export function ManualEntryModal({
                     onChange={(event) => setValues((existing) => ({ ...existing, [item.id]: event.target.value }))}
                     className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
                   >
-                    <option value="">Select a response</option>
+                    <option value="">{t("standardPros.common.selectResponse")}</option>
                     {item.answer_options.map((option) => (
                       <option key={option.id} value={option.option_text}>
                         {option.option_text}

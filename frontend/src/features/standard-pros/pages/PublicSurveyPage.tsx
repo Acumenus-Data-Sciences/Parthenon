@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { AlertTriangle, CheckCircle2, Loader2, Send } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
@@ -8,6 +9,7 @@ import {
   type PublicSurveyCampaignApi,
   type PublicSurveyItemApi,
 } from "../api/publicSurveyApi";
+import { standardProsResponseTypeLabel } from "../lib/i18n";
 
 function isChoiceItem(item: PublicSurveyItemApi) {
   return (
@@ -43,6 +45,8 @@ function SurveyField({
   value: string | string[];
   onChange: (value: string | string[]) => void;
 }) {
+  const { t } = useTranslation("app");
+
   if (item.response_type === "multi_select" && item.answer_options.length > 0) {
     const current = Array.isArray(value) ? value : [];
 
@@ -84,7 +88,7 @@ function SurveyField({
         onChange={(event) => onChange(event.target.value)}
         className="w-full rounded-xl border border-border-default bg-white px-4 py-3 text-sm text-text-primary outline-none focus:border-warning"
       >
-        <option value="">Select a response</option>
+        <option value="">{t("standardPros.common.selectResponse")}</option>
         {item.answer_options.map((option) => (
           <option key={option.id} value={option.option_text}>
             {option.option_text}
@@ -122,10 +126,12 @@ function SurveyField({
 }
 
 function SurveyHeader({ campaign }: { campaign: PublicSurveyCampaignApi }) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="rounded-[28px] border border-border-default bg-surface-raised p-6 shadow-[0_24px_80px_rgba(83,58,33,0.08)]">
       <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-warning-dark">
-        Parthenon Standard PROs
+        {t("standardPros.publicSurvey.headerEyebrow")}
       </div>
       <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-2xl">
@@ -135,18 +141,20 @@ function SurveyHeader({ campaign }: { campaign: PublicSurveyCampaignApi }) {
           <p className="mt-2 text-sm text-text-muted">
             {campaign.description ??
               campaign.instrument.description ??
-              "Please complete the survey below. Your responses will be recorded anonymously unless your study team instructed otherwise."}
+              t("standardPros.publicSurvey.defaultDescription")}
           </p>
         </div>
         <div className="rounded-2xl bg-white px-4 py-3 text-right shadow-[0_16px_40px_rgba(83,58,33,0.08)]">
           <div className="text-[10px] uppercase tracking-[0.24em] text-text-muted">
-            Instrument
+            {t("standardPros.publicSurvey.instrumentLabel")}
           </div>
           <div className="mt-1 text-sm font-medium text-text-primary">
             {campaign.instrument.abbreviation} v{campaign.instrument.version}
           </div>
           <div className="mt-1 text-xs text-text-muted">
-            {campaign.instrument.items.length} questions
+            {t("standardPros.publicSurvey.questionsCount", {
+              count: campaign.instrument.items.length,
+            })}
           </div>
         </div>
       </div>
@@ -155,6 +163,7 @@ function SurveyHeader({ campaign }: { campaign: PublicSurveyCampaignApi }) {
 }
 
 export default function PublicSurveyPage() {
+  const { t } = useTranslation("app");
   const { token } = useParams<{ token: string }>();
   const [respondentIdentifier, setRespondentIdentifier] = useState("");
   const [values, setValues] = useState<Record<number, string | string[]>>({});
@@ -230,10 +239,10 @@ export default function PublicSurveyPage() {
         <div className="max-w-md rounded-[28px] border border-border-default bg-surface-base p-8 text-center shadow-[0_24px_80px_rgba(83,58,33,0.08)]">
           <AlertTriangle size={36} className="mx-auto text-warning-dark" />
           <h1 className="mt-4 text-xl font-semibold text-text-primary">
-            Survey unavailable
+            {t("standardPros.publicSurvey.unavailableTitle")}
           </h1>
           <p className="mt-2 text-sm text-text-muted">
-            This survey link is invalid, expired, or no longer accepting responses.
+            {t("standardPros.publicSurvey.unavailableMessage")}
           </p>
         </div>
       </div>
@@ -246,14 +255,16 @@ export default function PublicSurveyPage() {
         <div className="mx-auto max-w-2xl rounded-[32px] border border-border-default bg-surface-base p-8 text-center shadow-[0_24px_80px_rgba(83,58,33,0.08)]">
           <CheckCircle2 size={40} className="mx-auto text-success-dark" />
           <h1 className="mt-4 text-2xl font-semibold text-text-primary">
-            Response submitted
+            {t("standardPros.publicSurvey.responseSubmitted")}
           </h1>
           <p className="mt-2 text-sm text-text-muted">
-            Thank you. Your survey response has been recorded.
+            {t("standardPros.publicSurvey.thankYou")}
           </p>
           {submitted.totalScore !== null && (
             <p className="mt-4 inline-flex rounded-full bg-surface-raised px-4 py-2 text-sm font-medium text-warning-dark">
-              Calculated total score: {submitted.totalScore}
+              {t("standardPros.publicSurvey.totalScore", {
+                score: submitted.totalScore,
+              })}
             </p>
           )}
         </div>
@@ -269,11 +280,15 @@ export default function PublicSurveyPage() {
         <div className="rounded-[28px] border border-border-default bg-surface-base p-6 shadow-[0_24px_80px_rgba(83,58,33,0.08)]">
           {surveyQuery.data.requires_respondent_identifier === false ? (
             <div className="rounded-2xl border border-border-default bg-white px-4 py-4">
-              <div className="text-sm font-medium text-text-primary">Secure broker invitation</div>
+              <div className="text-sm font-medium text-text-primary">
+                {t("standardPros.publicSurvey.secureBrokerInvitation")}
+              </div>
               <p className="mt-1 text-xs leading-relaxed text-text-muted">
-                This survey link is already bound to your blinded participant record.
+                {t("standardPros.publicSurvey.secureBrokerDescription")}
                 {surveyQuery.data.blinded_participant_id
-                  ? ` Reference: ${surveyQuery.data.blinded_participant_id}.`
+                  ? ` ${t("standardPros.publicSurvey.reference", {
+                    reference: surveyQuery.data.blinded_participant_id,
+                  })}`
                   : ""}
               </p>
             </div>
@@ -281,19 +296,21 @@ export default function PublicSurveyPage() {
             <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
               <div>
                 <div className="text-sm font-medium text-text-primary">
-                  {surveyQuery.data.requires_respondent_identifier ? "Participant identifier required" : "Optional participant identifier"}
+                  {surveyQuery.data.requires_respondent_identifier
+                    ? t("standardPros.publicSurvey.identifierRequired")
+                    : t("standardPros.publicSurvey.identifierOptional")}
                 </div>
                 <p className="mt-1 text-xs leading-relaxed text-text-muted">
                   {surveyQuery.data.requires_respondent_identifier
-                    ? "Enter the code provided by your study team to submit this protected survey."
-                    : "Leave this blank for anonymous submission, or enter the code provided by your study team."}
+                    ? t("standardPros.publicSurvey.identifierRequiredHelp")
+                    : t("standardPros.publicSurvey.identifierOptionalHelp")}
                 </p>
               </div>
               <input
                 type="text"
                 value={respondentIdentifier}
                 onChange={(event) => setRespondentIdentifier(event.target.value)}
-                placeholder="Study ID or external reference"
+                placeholder={t("standardPros.publicSurvey.identifierPlaceholder")}
                 className="w-full rounded-xl border border-border-default bg-white px-4 py-3 text-sm text-text-primary outline-none focus:border-warning"
               />
             </div>
@@ -315,7 +332,7 @@ export default function PublicSurveyPage() {
                     {item.item_text}
                   </div>
                   <div className="mt-1 text-[11px] uppercase tracking-[0.2em] text-text-muted">
-                    {item.response_type.replace(/_/g, " ")}
+                    {standardProsResponseTypeLabel(t, item.response_type)}
                   </div>
                 </div>
               </div>
@@ -345,7 +362,7 @@ export default function PublicSurveyPage() {
             ) : (
               <Send size={16} />
             )}
-            Submit Response
+            {t("standardPros.publicSurvey.submitResponse")}
           </button>
         </div>
       </div>

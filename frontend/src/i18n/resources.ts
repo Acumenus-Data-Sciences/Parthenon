@@ -5,6 +5,7 @@ import { cohortDefinitionResources } from "./cohortDefinitionResources";
 import { commonsResources } from "./commonsResources";
 import { dashboardResources } from "./dashboardResources";
 import { dataSourceIngestionResources } from "./dataSourceIngestionResources";
+import { standardProsResources } from "./standardProsResources";
 
 type MessageTree = {
   [key: string]: string | MessageTree;
@@ -7132,6 +7133,7 @@ function appForLocale(locale: string): MessageTree {
     dataSourceIngestionResources,
     cohortDefinitionResources,
     analysisResources,
+    standardProsResources,
   ];
 
   return appWaves.reduce(

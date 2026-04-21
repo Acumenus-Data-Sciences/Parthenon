@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   BarChart,
   Bar,
@@ -12,12 +13,17 @@ import {
 } from "recharts";
 import type { ProInstrument } from "../types/proInstrument";
 import { DOMAIN_COLORS, OMOP_COLORS } from "../types/proInstrument";
+import {
+  standardProsCatalogDomainLabel,
+  standardProsLicenseLabel,
+} from "../lib/i18n";
 
 interface CoverageChartProps {
   instruments: ProInstrument[];
 }
 
 export function CoverageChart({ instruments }: CoverageChartProps) {
+  const { t } = useTranslation("app");
   const domainData = useMemo(() => {
     const counts = new Map<string, number>();
     for (const inst of instruments) {
@@ -27,10 +33,11 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
       .sort((a, b) => b[1] - a[1])
       .map(([domain, count]) => ({
         domain,
+        label: standardProsCatalogDomainLabel(t, domain),
         count,
         fill: DOMAIN_COLORS[domain] ?? "var(--text-ghost)",
       }));
-  }, [instruments]);
+  }, [instruments, t]);
 
   const omopData = useMemo(() => {
     let yes = 0;
@@ -42,45 +49,45 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
       else no++;
     }
     return [
-      { name: "Full Coverage", value: yes, fill: OMOP_COLORS.yes },
-      { name: "Partial", value: partial, fill: OMOP_COLORS.partial },
-      { name: "No Coverage", value: no, fill: OMOP_COLORS.no },
+      { name: t("standardPros.omop.fullCoverage"), value: yes, fill: OMOP_COLORS.yes },
+      { name: t("standardPros.omop.partial"), value: partial, fill: OMOP_COLORS.partial },
+      { name: t("standardPros.omop.noCoverage"), value: no, fill: OMOP_COLORS.no },
     ];
-  }, [instruments]);
+  }, [instruments, t]);
 
   const loincData = useMemo(() => {
     const withLoinc = instruments.filter((i) => i.hasLoinc).length;
     const without = instruments.length - withLoinc;
     return [
-      { name: "Has LOINC", value: withLoinc, fill: "var(--success)" },
-      { name: "No LOINC", value: without, fill: "var(--text-ghost)" },
+      { name: t("standardPros.chart.hasLoinc"), value: withLoinc, fill: "var(--success)" },
+      { name: t("standardPros.chart.noLoinc"), value: without, fill: "var(--text-ghost)" },
     ];
-  }, [instruments]);
+  }, [instruments, t]);
 
   const snomedData = useMemo(() => {
     const withSnomed = instruments.filter((i) => i.hasSnomed).length;
     const without = instruments.length - withSnomed;
     return [
-      { name: "Has SNOMED", value: withSnomed, fill: "var(--warning)" },
-      { name: "No SNOMED", value: without, fill: "var(--text-ghost)" },
+      { name: t("standardPros.chart.hasSnomed"), value: withSnomed, fill: "var(--warning)" },
+      { name: t("standardPros.chart.noSnomed"), value: without, fill: "var(--text-ghost)" },
     ];
-  }, [instruments]);
+  }, [instruments, t]);
 
   const licenseData = useMemo(() => {
     const pub = instruments.filter((i) => i.license === "public").length;
     const prop = instruments.length - pub;
     return [
-      { name: "Public Domain", value: pub, fill: "var(--success)" },
-      { name: "Proprietary", value: prop, fill: "var(--accent)" },
+      { name: t("standardPros.common.public"), value: pub, fill: "var(--success)" },
+      { name: standardProsLicenseLabel(t, "proprietary"), value: prop, fill: "var(--accent)" },
     ];
-  }, [instruments]);
+  }, [instruments, t]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Domain distribution */}
       <div className="rounded-xl border border-border-default bg-surface-raised p-5">
         <h3 className="text-sm font-medium text-text-primary mb-4">
-          Instruments by Clinical Domain
+          {t("standardPros.chart.instrumentsByClinicalDomain")}
         </h3>
         <ResponsiveContainer width="100%" height={Math.max(320, domainData.length * 28)}>
           <BarChart
@@ -96,7 +103,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
             />
             <YAxis
               type="category"
-              dataKey="domain"
+              dataKey="label"
               tick={{ fill: "var(--text-muted)", fontSize: 10 }}
               axisLine={false}
               tickLine={false}
@@ -112,7 +119,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
               labelStyle={{ color: "var(--text-primary)" }}
               formatter={
                 ((value: number) => [
-                  `${value} instrument${value !== 1 ? "s" : ""}`,
+                  t("standardPros.chart.instrumentCount", { count: value }),
                   "",
                 ]) as never
               }
@@ -131,7 +138,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
         {/* OMOP Coverage */}
         <div className="rounded-xl border border-border-default bg-surface-raised p-5">
           <h3 className="text-sm font-medium text-text-primary mb-3">
-            OMOP Concept Coverage
+            {t("standardPros.chart.omopConceptCoverage")}
           </h3>
           <div className="flex items-center gap-6">
             <ResponsiveContainer width={100} height={100}>
@@ -175,7 +182,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
         {/* LOINC Coverage */}
         <div className="rounded-xl border border-border-default bg-surface-raised p-5">
           <h3 className="text-sm font-medium text-text-primary mb-3">
-            LOINC Code Availability
+            {t("standardPros.chart.loincCodeAvailability")}
           </h3>
           <div className="flex items-center gap-6">
             <ResponsiveContainer width={100} height={100}>
@@ -219,7 +226,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
         {/* SNOMED Coverage */}
         <div className="rounded-xl border border-border-default bg-surface-raised p-5">
           <h3 className="text-sm font-medium text-text-primary mb-3">
-            SNOMED CT Coverage
+            {t("standardPros.chart.snomedCtCoverage")}
           </h3>
           <div className="flex items-center gap-6">
             <ResponsiveContainer width={100} height={100}>
@@ -263,7 +270,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
         {/* License breakdown */}
         <div className="rounded-xl border border-border-default bg-surface-raised p-5">
           <h3 className="text-sm font-medium text-text-primary mb-3">
-            License Distribution
+            {t("standardPros.chart.licenseDistribution")}
           </h3>
           <div className="flex items-center gap-6">
             <ResponsiveContainer width={100} height={100}>

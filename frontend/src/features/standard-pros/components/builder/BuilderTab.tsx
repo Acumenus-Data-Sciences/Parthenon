@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { DndContext, PointerSensor, closestCenter, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -36,6 +37,12 @@ import type {
 import { ImportInstrumentModal } from "./ImportInstrumentModal";
 import { parseFhirQuestionnaire } from "../../lib/fhirParser";
 import { parseRedcapDictionary } from "../../lib/redcapParser";
+import {
+  standardProsBuilderDomainLabel,
+  standardProsLicenseLabel,
+  standardProsOmopLabel,
+  standardProsResponseTypeLabel,
+} from "../../lib/i18n";
 
 const DOMAINS = [
   "mental_health",
@@ -49,12 +56,12 @@ const DOMAINS = [
 ] as const;
 
 const RESPONSE_TYPE_OPTIONS = [
-  { value: "likert", label: "Likert" },
-  { value: "yes_no", label: "Yes / No" },
-  { value: "numeric", label: "Numeric" },
-  { value: "free_text", label: "Free Text" },
-  { value: "multi_select", label: "Multi Select" },
-  { value: "date", label: "Date" },
+  "likert",
+  "yes_no",
+  "numeric",
+  "free_text",
+  "multi_select",
+  "date",
 ] as const;
 
 type InstrumentForm = {
@@ -110,6 +117,7 @@ function toInstrumentForm(instrument: SurveyInstrumentDetailApi): InstrumentForm
 }
 
 function defaultAnswerOptions(responseType: string): string {
+  // i18n-exempt: starter answer options are seed authored content, not UI chrome.
   if (responseType === "yes_no") {
     return "Yes\nNo";
   }
@@ -199,11 +207,13 @@ function ItemFormFields({
   editable: boolean;
   onChange: (form: ItemForm) => void;
 }) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <label className="block">
-          <SectionTitle>Item Number</SectionTitle>
+          <SectionTitle>{t("standardPros.builder.itemNumber")}</SectionTitle>
           <input
             value={form.item_number}
             disabled={!editable}
@@ -212,7 +222,7 @@ function ItemFormFields({
           />
         </label>
         <label className="block">
-          <SectionTitle>Response Type</SectionTitle>
+          <SectionTitle>{t("standardPros.builder.responseType")}</SectionTitle>
           <select
             value={form.response_type}
             disabled={!editable}
@@ -220,8 +230,8 @@ function ItemFormFields({
             className="w-full rounded-xl border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success disabled:cursor-not-allowed disabled:opacity-60"
           >
             {RESPONSE_TYPE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
+              <option key={option} value={option}>
+                {standardProsResponseTypeLabel(t, option)}
               </option>
             ))}
           </select>
@@ -229,7 +239,7 @@ function ItemFormFields({
       </div>
 
       <label className="block">
-        <SectionTitle>Question</SectionTitle>
+        <SectionTitle>{t("standardPros.builder.question")}</SectionTitle>
         <textarea
           rows={5}
           value={form.item_text}
@@ -241,12 +251,12 @@ function ItemFormFields({
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <label className="block">
-          <SectionTitle>Subscale</SectionTitle>
+          <SectionTitle>{t("standardPros.builder.subscale")}</SectionTitle>
           <input
             value={form.subscale_name}
             disabled={!editable}
             onChange={(event) => onChange({ ...form, subscale_name: event.target.value })}
-            placeholder="Optional grouping"
+            placeholder={t("standardPros.builder.subscalePlaceholder")}
             className="w-full rounded-xl border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success disabled:cursor-not-allowed disabled:opacity-60"
           />
         </label>
@@ -258,31 +268,31 @@ function ItemFormFields({
             onChange={(event) => onChange({ ...form, is_reverse_coded: event.target.checked })}
           />
           <div>
-            <div className="text-sm text-text-primary">Reverse coded</div>
-            <div className="text-[11px] text-text-ghost">Apply inverse scoring at runtime</div>
+            <div className="text-sm text-text-primary">{t("standardPros.builder.reverseCoded")}</div>
+            <div className="text-[11px] text-text-ghost">{t("standardPros.builder.reverseCodedHelp")}</div>
           </div>
         </label>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <label className="block">
-          <SectionTitle>LOINC Code</SectionTitle>
+          <SectionTitle>{t("standardPros.builder.loincCode")}</SectionTitle>
           <input
             value={form.loinc_code}
             disabled={!editable}
             onChange={(event) => onChange({ ...form, loinc_code: event.target.value })}
-            placeholder="Optional"
+            placeholder={t("standardPros.builder.optional")}
             className="w-full rounded-xl border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success disabled:cursor-not-allowed disabled:opacity-60"
           />
         </label>
         <label className="block">
-          <SectionTitle>OMOP Concept ID</SectionTitle>
+          <SectionTitle>{t("standardPros.builder.omopConceptId")}</SectionTitle>
           <input
             value={form.omop_concept_id}
             disabled={!editable}
             onChange={(event) => onChange({ ...form, omop_concept_id: event.target.value })}
             inputMode="numeric"
-            placeholder="Optional"
+            placeholder={t("standardPros.builder.optional")}
             className="w-full rounded-xl border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success disabled:cursor-not-allowed disabled:opacity-60"
           />
         </label>
@@ -291,7 +301,7 @@ function ItemFormFields({
       {usesRange(form.response_type) && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <label className="block">
-            <SectionTitle>Min Value</SectionTitle>
+            <SectionTitle>{t("standardPros.builder.minValue")}</SectionTitle>
             <input
               value={form.min_value}
               disabled={!editable}
@@ -301,7 +311,7 @@ function ItemFormFields({
             />
           </label>
           <label className="block">
-            <SectionTitle>Max Value</SectionTitle>
+            <SectionTitle>{t("standardPros.builder.maxValue")}</SectionTitle>
             <input
               value={form.max_value}
               disabled={!editable}
@@ -315,24 +325,24 @@ function ItemFormFields({
 
       {usesAnswerOptions(form.response_type) && (
         <label className="block">
-          <SectionTitle>Answer Options</SectionTitle>
+          <SectionTitle>{t("standardPros.builder.answerOptions")}</SectionTitle>
           <textarea
             rows={10}
             value={form.answer_options_text}
             disabled={!editable}
             onChange={(event) => onChange({ ...form, answer_options_text: event.target.value })}
-            placeholder="One option per line"
+            placeholder={t("standardPros.builder.answerOptionsPlaceholder")}
             className="w-full rounded-xl border border-border-default bg-surface-base px-3 py-2 font-['IBM_Plex_Mono',monospace] text-xs text-text-primary outline-none focus:border-success disabled:cursor-not-allowed disabled:opacity-60"
           />
           <div className="mt-2 text-[11px] text-text-ghost">
-            Each line becomes a discrete answer option. Option values are assigned sequentially from top to bottom.
+            {t("standardPros.builder.answerOptionsHelp")}
           </div>
         </label>
       )}
 
       {!usesAnswerOptions(form.response_type) && !usesRange(form.response_type) && (
         <div className="rounded-xl border border-dashed border-border-default bg-surface-base px-4 py-3 text-[11px] text-text-ghost">
-          This response type does not require discrete answer options or numeric bounds.
+          {t("standardPros.builder.responseTypeNoOptions")}
         </div>
       )}
     </div>
@@ -360,6 +370,8 @@ function WorkspacePanel({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="rounded-2xl border border-border-default bg-surface-raised">
       <div className="border-b border-border-default px-5 py-4">
@@ -367,7 +379,9 @@ function WorkspacePanel({
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <Wrench size={16} className="text-accent" />
-              <h2 className="text-sm font-semibold text-text-primary">Survey Builder</h2>
+              <h2 className="text-sm font-semibold text-text-primary">
+                {t("standardPros.builder.surveyBuilder")}
+              </h2>
               {instrument && (
                 <span className="rounded-md bg-surface-overlay px-2 py-1 text-[10px] uppercase tracking-wider text-success">
                   {instrument.abbreviation}
@@ -375,7 +389,7 @@ function WorkspacePanel({
               )}
             </div>
             <p className="mt-2 max-w-3xl text-xs leading-relaxed text-text-muted">
-              Build and maintain one active custom instrument at a time. Standard PROs and existing custom instruments are available through the clone flow, not as an always-visible list.
+              {t("standardPros.builder.workspaceHelp")}
             </p>
           </div>
 
@@ -385,7 +399,7 @@ function WorkspacePanel({
               onChange={(event) => onChangeCurrentCustomId(event.target.value === "" ? null : Number(event.target.value))}
               className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
             >
-              <option value="">No custom instrument selected</option>
+              <option value="">{t("standardPros.builder.noCustomInstrumentSelected")}</option>
               {customInstruments.map((entry) => (
                 <option key={entry.id} value={entry.id}>
                   {entry.abbreviation} - {entry.name}
@@ -401,7 +415,7 @@ function WorkspacePanel({
                 className="inline-flex items-center justify-center gap-2 rounded-lg bg-success px-3 py-2 text-xs font-medium text-surface-base disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Plus size={12} />
-                New Custom Instrument
+                {t("standardPros.builder.newCustomInstrument")}
               </button>
               <button
                 type="button"
@@ -410,7 +424,7 @@ function WorkspacePanel({
                 className="inline-flex items-center justify-center gap-2 rounded-lg border border-border-default px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <CopyPlus size={12} />
-                Clone Instrument
+                {t("standardPros.builder.cloneInstrument")}
               </button>
               <button
                 type="button"
@@ -419,7 +433,7 @@ function WorkspacePanel({
                 className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-surface-base disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Save size={12} />
-                Save Instrument
+                {t("standardPros.common.saveInstrument")}
               </button>
               <button
                 type="button"
@@ -428,7 +442,7 @@ function WorkspacePanel({
                 className="inline-flex items-center justify-center gap-2 rounded-lg border border-primary-dark px-3 py-2 text-xs font-medium text-critical hover:bg-primary-dark/20 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Trash2 size={12} />
-                Delete Instrument
+                {t("standardPros.builder.deleteInstrument")}
               </button>
             </div>
           </div>
@@ -438,30 +452,32 @@ function WorkspacePanel({
       <div className="p-5">
         {!instrument ? (
           <div className="flex min-h-[212px] items-center justify-center rounded-xl border border-dashed border-border-default bg-surface-base px-6 text-center text-sm text-text-muted">
-            Create a new custom instrument or clone one to start authoring.
+            {t("standardPros.builder.emptyWorkspace")}
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             <div className="rounded-xl border border-border-default bg-surface-base p-4">
-              <SectionTitle>Name</SectionTitle>
+              <SectionTitle>{t("standardPros.common.name")}</SectionTitle>
               <div className="text-sm font-medium text-text-primary">{instrument.name}</div>
             </div>
             <div className="rounded-xl border border-border-default bg-surface-base p-4">
-              <SectionTitle>Version</SectionTitle>
+              <SectionTitle>{t("standardPros.common.version")}</SectionTitle>
               <div className="text-sm font-medium text-text-primary">{instrument.version}</div>
             </div>
             <div className="rounded-xl border border-border-default bg-surface-base p-4">
-              <SectionTitle>Domain</SectionTitle>
-              <div className="text-sm font-medium text-text-primary">{instrument.domain}</div>
+              <SectionTitle>{t("standardPros.common.domain")}</SectionTitle>
+              <div className="text-sm font-medium text-text-primary">
+                {standardProsBuilderDomainLabel(t, instrument.domain)}
+              </div>
             </div>
             <div className="rounded-xl border border-border-default bg-surface-base p-4">
-              <SectionTitle>Items</SectionTitle>
+              <SectionTitle>{t("standardPros.common.items")}</SectionTitle>
               <div className="text-sm font-medium text-text-primary">{instrument.items.length}</div>
             </div>
             <div className="rounded-xl border border-border-default bg-surface-base p-4 md:col-span-4">
-              <SectionTitle>Description</SectionTitle>
+              <SectionTitle>{t("standardPros.common.description")}</SectionTitle>
               <div className="text-sm leading-relaxed text-text-secondary">
-                {instrument.description?.trim() || "No description entered yet."}
+                {instrument.description?.trim() || t("standardPros.builder.noDescriptionYet")}
               </div>
             </div>
           </div>
@@ -480,6 +496,7 @@ function SortableItemRow({
   selected: boolean;
   onSelect: (id: number) => void;
 }) {
+  const { t } = useTranslation("app");
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id,
   });
@@ -513,7 +530,7 @@ function SortableItemRow({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="rounded-md bg-surface-overlay px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-text-muted">
-              {item.response_type.replace("_", " ")}
+              {standardProsResponseTypeLabel(t, item.response_type)}
             </span>
             {item.subscale_name && (
               <span className="rounded-md bg-success/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-success">
@@ -526,10 +543,15 @@ function SortableItemRow({
           </div>
           <div className="mt-1 text-[11px] text-text-ghost">
             {item.answer_options.length > 0
-              ? `${item.answer_options.length} answer options`
+              ? t("standardPros.builder.answerOptionsCount", {
+                count: item.answer_options.length,
+              })
               : item.min_value != null || item.max_value != null
-                ? `Range ${item.min_value ?? "?"} to ${item.max_value ?? "?"}`
-                : "No discrete options"}
+                ? t("standardPros.builder.range", {
+                  min: item.min_value ?? "?",
+                  max: item.max_value ?? "?",
+                })
+                : t("standardPros.builder.noDiscreteOptions")}
           </div>
         </div>
       </div>
@@ -554,6 +576,7 @@ function ItemCanvas({
   onCreate: () => void;
   onReorder: (orderedIds: number[]) => void;
 }) {
+  const { t } = useTranslation("app");
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8 },
@@ -582,7 +605,7 @@ function ItemCanvas({
   return (
     <div className="rounded-2xl border border-border-default bg-surface-raised">
       <div className="flex items-center justify-between border-b border-border-default px-4 py-3">
-        <h3 className="text-sm font-medium text-text-primary">Item Canvas</h3>
+        <h3 className="text-sm font-medium text-text-primary">{t("standardPros.builder.itemCanvas")}</h3>
         <button
           type="button"
           disabled={!editable || busy}
@@ -590,13 +613,13 @@ function ItemCanvas({
           className="inline-flex items-center gap-2 rounded-lg border border-border-default px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Plus size={12} />
-          Create Item
+          {t("standardPros.builder.createItem")}
         </button>
       </div>
       <div className="p-4">
         {instrument.items.length === 0 ? (
           <div className="flex min-h-[440px] items-center justify-center rounded-xl border border-dashed border-border-default bg-surface-base px-6 text-center text-sm text-text-muted">
-            No items yet. Use Create Item to start authoring this instrument.
+            {t("standardPros.builder.noItemsYet")}
           </div>
         ) : (
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -616,7 +639,7 @@ function ItemCanvas({
         )}
 
         <div className="mt-4 rounded-xl border border-dashed border-border-default bg-surface-base px-4 py-3 text-[11px] leading-relaxed text-text-ghost">
-          Drag items to reorder them. The builder persists the revised order immediately.
+          {t("standardPros.builder.reorderHelp")}
         </div>
       </div>
     </div>
@@ -642,8 +665,11 @@ function EditItemModal({
   onSave: (form: ItemForm, item: SurveyItemApi | null) => void;
   onDelete: (item: SurveyItemApi) => void;
 }) {
+  const { t } = useTranslation("app");
   const [form, setForm] = useState<ItemForm>(() => toItemForm(item, instrument.items.length + 1));
 
+  // Sync modal-local form state to the selected item and response-type shape.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const nextNumber = item?.item_number ?? instrument.items.length + 1;
     setForm(toItemForm(item, nextNumber));
@@ -662,6 +688,7 @@ function EditItemModal({
       }));
     }
   }, [form.response_type, form.answer_options_text]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const saveDisabled =
     busy ||
@@ -674,7 +701,7 @@ function EditItemModal({
     <Modal
       open={open}
       onClose={onClose}
-      title={item ? "Edit Item" : "Item Editor"}
+      title={item ? t("standardPros.builder.editItem") : t("standardPros.builder.itemEditor")}
       size="xl"
       footer={(
         <div className="flex items-center justify-between gap-3">
@@ -687,7 +714,7 @@ function EditItemModal({
                 className="inline-flex items-center gap-2 rounded-lg border border-border-default px-4 py-2 text-sm text-critical disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Trash2 size={14} />
-                Delete Item
+                {t("standardPros.builder.deleteItem")}
               </button>
             )}
           </div>
@@ -697,7 +724,7 @@ function EditItemModal({
               onClick={onClose}
               className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary"
             >
-              Cancel
+              {t("standardPros.common.cancel")}
             </button>
             <button
               type="button"
@@ -706,7 +733,7 @@ function EditItemModal({
               className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-surface-base disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Save size={14} />
-              Save Item
+              {t("standardPros.common.saveItem")}
             </button>
           </div>
         </div>
@@ -716,7 +743,7 @@ function EditItemModal({
         <ItemFormFields form={form} editable={editable} onChange={setForm} />
       ) : (
         <div className="rounded-xl border border-dashed border-border-default bg-surface-base px-6 py-10 text-center text-sm text-text-muted">
-          Select an existing item from the canvas to edit it.
+          {t("standardPros.builder.selectItemToEdit")}
         </div>
       )}
     </Modal>
@@ -740,6 +767,7 @@ function InstrumentMetadataModal({
   onClose: () => void;
   onSave: () => void;
 }) {
+  const { t } = useTranslation("app");
   const saveDisabled =
     busy ||
     form.name.trim() === "" ||
@@ -750,7 +778,9 @@ function InstrumentMetadataModal({
     <Modal
       open={open}
       onClose={onClose}
-      title={mode === "create" ? "New Custom Instrument" : "Instrument Metadata"}
+      title={mode === "create"
+        ? t("standardPros.builder.newCustomInstrument")
+        : t("standardPros.builder.instrumentMetadata")}
       size="xl"
       footer={(
         <div className="flex items-center justify-end gap-3">
@@ -759,7 +789,7 @@ function InstrumentMetadataModal({
             onClick={onClose}
             className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary"
           >
-            Cancel
+            {t("standardPros.common.cancel")}
           </button>
           <button
             type="button"
@@ -768,14 +798,16 @@ function InstrumentMetadataModal({
             className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-surface-base disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Save size={14} />
-            {mode === "create" ? "Create Instrument" : "Save Instrument"}
+            {mode === "create"
+              ? t("standardPros.common.createInstrument")
+              : t("standardPros.common.saveInstrument")}
           </button>
         </div>
       )}
     >
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <label className="block">
-          <SectionTitle>Name</SectionTitle>
+          <SectionTitle>{t("standardPros.common.name")}</SectionTitle>
           <input
             value={form.name}
             onChange={(event) => onChange({ ...form, name: event.target.value })}
@@ -783,7 +815,7 @@ function InstrumentMetadataModal({
           />
         </label>
         <label className="block">
-          <SectionTitle>Abbreviation</SectionTitle>
+          <SectionTitle>{t("standardPros.common.abbreviation")}</SectionTitle>
           <input
             value={form.abbreviation}
             onChange={(event) => onChange({ ...form, abbreviation: event.target.value.toUpperCase() })}
@@ -791,7 +823,7 @@ function InstrumentMetadataModal({
           />
         </label>
         <label className="block">
-          <SectionTitle>Version</SectionTitle>
+          <SectionTitle>{t("standardPros.common.version")}</SectionTitle>
           <input
             value={form.version}
             onChange={(event) => onChange({ ...form, version: event.target.value })}
@@ -799,7 +831,7 @@ function InstrumentMetadataModal({
           />
         </label>
         <label className="block">
-          <SectionTitle>Domain</SectionTitle>
+          <SectionTitle>{t("standardPros.common.domain")}</SectionTitle>
           <select
             value={form.domain}
             onChange={(event) => onChange({ ...form, domain: event.target.value })}
@@ -807,36 +839,36 @@ function InstrumentMetadataModal({
           >
             {DOMAINS.map((domain) => (
               <option key={domain} value={domain}>
-                {domain}
+                {standardProsBuilderDomainLabel(t, domain)}
               </option>
             ))}
           </select>
         </label>
         <label className="block">
-          <SectionTitle>License</SectionTitle>
+          <SectionTitle>{t("standardPros.common.license")}</SectionTitle>
           <select
             value={form.license_type}
             onChange={(event) => onChange({ ...form, license_type: event.target.value as InstrumentForm["license_type"] })}
             className="w-full rounded-xl border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
           >
-            <option value="public">public</option>
-            <option value="proprietary">proprietary</option>
+            <option value="public">{standardProsLicenseLabel(t, "public")}</option>
+            <option value="proprietary">{standardProsLicenseLabel(t, "proprietary")}</option>
           </select>
         </label>
         <label className="block">
-          <SectionTitle>OMOP Coverage</SectionTitle>
+          <SectionTitle>{t("standardPros.common.omop")} {t("standardPros.instrumentDetail.coverage")}</SectionTitle>
           <select
             value={form.omop_coverage}
             onChange={(event) => onChange({ ...form, omop_coverage: event.target.value as InstrumentForm["omop_coverage"] })}
             className="w-full rounded-xl border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
           >
-            <option value="yes">yes</option>
-            <option value="partial">partial</option>
-            <option value="no">no</option>
+            <option value="yes">{standardProsOmopLabel(t, "yes")}</option>
+            <option value="partial">{standardProsOmopLabel(t, "partial")}</option>
+            <option value="no">{standardProsOmopLabel(t, "no")}</option>
           </select>
         </label>
         <label className="block md:col-span-2">
-          <SectionTitle>Description</SectionTitle>
+          <SectionTitle>{t("standardPros.common.description")}</SectionTitle>
           <textarea
             rows={4}
             value={form.description}
@@ -864,8 +896,11 @@ function CreateItemModal({
   onClose: () => void;
   onSave: (form: ItemForm) => void;
 }) {
+  const { t } = useTranslation("app");
   const [form, setForm] = useState<ItemForm>(() => toItemForm(null, instrument.items.length + 1));
 
+  // Reset the create-item form when the modal opens and keep option scaffolding aligned.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!open) {
       return;
@@ -887,6 +922,7 @@ function CreateItemModal({
       }));
     }
   }, [form.response_type, form.answer_options_text]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const saveDisabled =
     busy ||
@@ -898,7 +934,7 @@ function CreateItemModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="Create Item"
+      title={t("standardPros.builder.createItemTitle")}
       size="xl"
       footer={(
         <div className="flex items-center justify-end gap-3">
@@ -907,7 +943,7 @@ function CreateItemModal({
             onClick={onClose}
             className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary"
           >
-            Cancel
+            {t("standardPros.common.cancel")}
           </button>
           <button
             type="button"
@@ -916,7 +952,7 @@ function CreateItemModal({
             className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-surface-base disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Save size={14} />
-            Save Item
+            {t("standardPros.common.saveItem")}
           </button>
         </div>
       )}
@@ -943,6 +979,7 @@ function CloneInstrumentModal({
   onClose: () => void;
   onClone: () => void;
 }) {
+  const { t } = useTranslation("app");
   const filtered = useMemo(() => {
     const query = form.query.trim().toLowerCase();
 
@@ -967,7 +1004,7 @@ function CloneInstrumentModal({
     onChange({
       ...form,
       sourceId: instrument.id,
-      name: `${instrument.name} Copy`,
+      name: `${instrument.name} ${t("standardPros.builder.copySuffix")}`,
       abbreviation: `${instrument.abbreviation}_COPY`,
     });
   };
@@ -976,7 +1013,7 @@ function CloneInstrumentModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="Clone Instrument"
+      title={t("standardPros.builder.cloneInstrument")}
       size="xl"
       footer={(
         <div className="flex items-center justify-end gap-3">
@@ -985,7 +1022,7 @@ function CloneInstrumentModal({
             onClick={onClose}
             className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary"
           >
-            Cancel
+            {t("standardPros.common.cancel")}
           </button>
           <button
             type="button"
@@ -994,7 +1031,7 @@ function CloneInstrumentModal({
             className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-surface-base disabled:cursor-not-allowed disabled:opacity-50"
           >
             <CopyPlus size={14} />
-            Clone into Workspace
+            {t("standardPros.builder.cloneIntoWorkspace")}
           </button>
         </div>
       )}
@@ -1006,7 +1043,7 @@ function CloneInstrumentModal({
             <input
               value={form.query}
               onChange={(event) => onChange({ ...form, query: event.target.value })}
-              placeholder="Search standard or custom instruments"
+              placeholder={t("standardPros.builder.searchPlaceholder")}
               className="w-full rounded-xl border border-border-default bg-surface-raised py-2 pl-9 pr-3 text-sm text-text-primary outline-none focus:border-success"
             />
           </div>
@@ -1015,11 +1052,13 @@ function CloneInstrumentModal({
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="space-y-4">
             <div className="rounded-xl border border-border-default bg-surface-base p-4">
-              <div className="mb-3 text-xs font-medium uppercase tracking-wider text-success">Standard PROs</div>
+              <div className="mb-3 text-xs font-medium uppercase tracking-wider text-success">
+                {t("standardPros.builder.standardSection")}
+              </div>
               <div className="space-y-2">
                 {standard.length === 0 && (
                   <div className="rounded-xl border border-dashed border-border-default px-4 py-3 text-sm text-text-muted">
-                    No standard instruments match the current search.
+                    {t("standardPros.builder.noStandardMatches")}
                   </div>
                 )}
                 {standard.map((instrument) => (
@@ -1036,18 +1075,22 @@ function CloneInstrumentModal({
                   >
                     <div className="text-xs font-semibold text-text-primary">{instrument.abbreviation}</div>
                     <div className="mt-1 text-sm text-text-secondary">{instrument.name}</div>
-                    <div className="mt-1 text-[11px] text-text-ghost">{instrument.domain}</div>
+                    <div className="mt-1 text-[11px] text-text-ghost">
+                      {standardProsBuilderDomainLabel(t, instrument.domain)}
+                    </div>
                   </button>
                 ))}
               </div>
             </div>
 
             <div className="rounded-xl border border-border-default bg-surface-base p-4">
-              <div className="mb-3 text-xs font-medium uppercase tracking-wider text-accent">Custom Instruments</div>
+              <div className="mb-3 text-xs font-medium uppercase tracking-wider text-accent">
+                {t("standardPros.builder.customSection")}
+              </div>
               <div className="space-y-2">
                 {custom.length === 0 && (
                   <div className="rounded-xl border border-dashed border-border-default px-4 py-3 text-sm text-text-muted">
-                    No custom instruments match the current search.
+                    {t("standardPros.builder.noCustomMatches")}
                   </div>
                 )}
                 {custom.map((instrument) => (
@@ -1064,7 +1107,9 @@ function CloneInstrumentModal({
                   >
                     <div className="text-xs font-semibold text-text-primary">{instrument.abbreviation}</div>
                     <div className="mt-1 text-sm text-text-secondary">{instrument.name}</div>
-                    <div className="mt-1 text-[11px] text-text-ghost">{instrument.domain}</div>
+                    <div className="mt-1 text-[11px] text-text-ghost">
+                      {standardProsBuilderDomainLabel(t, instrument.domain)}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -1072,10 +1117,12 @@ function CloneInstrumentModal({
           </div>
 
           <div className="rounded-xl border border-border-default bg-surface-base p-4">
-            <div className="text-xs font-medium uppercase tracking-wider text-text-muted">Clone Settings</div>
+            <div className="text-xs font-medium uppercase tracking-wider text-text-muted">
+              {t("standardPros.builder.cloneSettings")}
+            </div>
             {!selectedSource ? (
               <div className="mt-4 rounded-xl border border-dashed border-border-default px-4 py-6 text-sm text-text-muted">
-                Select a source instrument to configure the cloned copy.
+                {t("standardPros.builder.cloneSettingsHelp")}
               </div>
             ) : (
               <div className="mt-4 space-y-4">
@@ -1084,7 +1131,7 @@ function CloneInstrumentModal({
                   <div className="mt-1 text-sm text-text-secondary">{selectedSource.name}</div>
                 </div>
                 <label className="block">
-                  <SectionTitle>Cloned Name</SectionTitle>
+                  <SectionTitle>{t("standardPros.builder.clonedName")}</SectionTitle>
                   <input
                     value={form.name}
                     onChange={(event) => onChange({ ...form, name: event.target.value })}
@@ -1092,7 +1139,7 @@ function CloneInstrumentModal({
                   />
                 </label>
                 <label className="block">
-                  <SectionTitle>Cloned Abbreviation</SectionTitle>
+                  <SectionTitle>{t("standardPros.builder.clonedAbbreviation")}</SectionTitle>
                   <input
                     value={form.abbreviation}
                     onChange={(event) => onChange({ ...form, abbreviation: event.target.value.toUpperCase() })}
@@ -1109,6 +1156,7 @@ function CloneInstrumentModal({
 }
 
 export function BuilderTab() {
+  const { t } = useTranslation("app");
   const [selectedInstrumentId, setSelectedInstrumentId] = useState<number | null>(null);
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
   const [isImportOpen, setIsImportOpen] = useState(false);
@@ -1164,6 +1212,8 @@ export function BuilderTab() {
     [instrument, selectedItemId],
   );
 
+  // Keep the selected item aligned with the current instrument payload.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!instrument) {
       return;
@@ -1185,6 +1235,7 @@ export function BuilderTab() {
       setSelectedItemId(instrument.items[0]?.id ?? null);
     }
   }, [instrument, selectedItemId]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const busy =
     createInstrument.isPending ||
@@ -1194,6 +1245,18 @@ export function BuilderTab() {
     createItem.isPending ||
     updateItem.isPending ||
     deleteItem.isPending;
+
+  const translateImportError = (message: string) => {
+    const knownMessages: Record<string, string> = {
+      "FHIR Questionnaire import requires at least one item.":
+        "standardPros.builder.importRequiresFhirItem",
+      "REDCap import requires a header row and at least one field row.":
+        "standardPros.builder.importRequiresRedcapRows",
+    };
+
+    const key = knownMessages[message];
+    return key ? t(key) : message;
+  };
 
   const openCreateInstrumentModal = () => {
     setInstrumentModalMode("create");
@@ -1228,10 +1291,12 @@ export function BuilderTab() {
             setSelectedInstrumentId(created.id);
             setSelectedItemId(null);
             setIsInstrumentModalOpen(false);
-            toast.success(`Created ${created.abbreviation}`);
+            toast.success(t("standardPros.builder.createSuccess", {
+              abbreviation: created.abbreviation,
+            }));
           },
           onError: () => {
-            toast.error("Failed to create instrument");
+            toast.error(t("standardPros.builder.createFailed"));
           },
         },
       );
@@ -1239,7 +1304,7 @@ export function BuilderTab() {
     }
 
     if (!instrument || !editable) {
-      toast.error("Only custom instruments can be saved from this workspace.");
+      toast.error(t("standardPros.builder.readOnlySave"));
       return;
     }
 
@@ -1251,10 +1316,10 @@ export function BuilderTab() {
       {
         onSuccess: () => {
           setIsInstrumentModalOpen(false);
-          toast.success("Instrument saved");
+          toast.success(t("standardPros.builder.saveSuccess"));
         },
         onError: () => {
-          toast.error("Failed to save instrument");
+          toast.error(t("standardPros.builder.saveFailed"));
         },
       },
     );
@@ -1266,11 +1331,13 @@ export function BuilderTab() {
     }
 
     if (!editable) {
-      toast.error("Library instruments cannot be deleted.");
+      toast.error(t("standardPros.builder.readOnlyDelete"));
       return;
     }
 
-    const confirmed = window.confirm(`Delete instrument "${instrument.name}"? This cannot be undone.`);
+    const confirmed = window.confirm(
+      t("standardPros.builder.deleteConfirm", { name: instrument.name }),
+    );
 
     if (!confirmed) {
       return;
@@ -1282,17 +1349,17 @@ export function BuilderTab() {
         setSelectedItemId(null);
         setIsCreateItemOpen(false);
         setIsEditItemOpen(false);
-        toast.success("Instrument deleted");
+        toast.success(t("standardPros.builder.deleteSuccess"));
       },
       onError: () => {
-        toast.error("Failed to delete instrument");
+        toast.error(t("standardPros.builder.deleteFailed"));
       },
     });
   };
 
   const saveItem = (form: ItemForm, existingItem: SurveyItemApi | null) => {
     if (!instrument || !editable) {
-      toast.error("Library instruments are read-only. Clone the instrument to edit it.");
+      toast.error(t("standardPros.builder.readOnlyCloneToEdit"));
       return;
     }
 
@@ -1307,10 +1374,10 @@ export function BuilderTab() {
         {
           onSuccess: () => {
             setIsEditItemOpen(false);
-            toast.success("Item saved");
+            toast.success(t("standardPros.builder.itemSaveSuccess"));
           },
           onError: () => {
-            toast.error("Failed to save item");
+            toast.error(t("standardPros.builder.itemSaveFailed"));
           },
         },
       );
@@ -1324,10 +1391,10 @@ export function BuilderTab() {
         onSuccess: (created) => {
           setSelectedItemId(created.id);
           setIsCreateItemOpen(false);
-          toast.success("Item saved");
+          toast.success(t("standardPros.builder.itemSaveSuccess"));
         },
         onError: () => {
-          toast.error("Failed to create item");
+          toast.error(t("standardPros.builder.itemCreateFailed"));
         },
       },
     );
@@ -1335,7 +1402,7 @@ export function BuilderTab() {
 
   const deleteCurrentItem = (item: SurveyItemApi) => {
     if (!instrument || !editable) {
-      toast.error("Library instruments are read-only. Clone the instrument to edit it.");
+      toast.error(t("standardPros.builder.readOnlyCloneToEdit"));
       return;
     }
 
@@ -1346,10 +1413,10 @@ export function BuilderTab() {
           const remainingItems = instrument.items.filter((entry) => entry.id !== item.id);
           setSelectedItemId(remainingItems[0]?.id ?? null);
           setIsEditItemOpen(false);
-          toast.success("Item deleted");
+          toast.success(t("standardPros.builder.itemDeleteSuccess"));
         },
         onError: () => {
-          toast.error("Failed to delete item");
+          toast.error(t("standardPros.builder.itemDeleteFailed"));
         },
       },
     );
@@ -1357,7 +1424,7 @@ export function BuilderTab() {
 
   const openCreateItemModal = () => {
     if (!instrument || !editable) {
-      toast.error("Create or clone a custom instrument before adding items.");
+      toast.error(t("standardPros.builder.createOrCloneBeforeItems"));
       return;
     }
 
@@ -1387,16 +1454,18 @@ export function BuilderTab() {
           abbreviation: cloneForm.abbreviation.trim(),
         },
       },
-      {
+        {
           onSuccess: (cloned) => {
           setSelectedInstrumentId(cloned.id);
           setSelectedItemId(cloned.items[0]?.id ?? null);
           setIsEditItemOpen(false);
           setIsCloneOpen(false);
-          toast.success(`Cloned ${cloned.abbreviation}`);
+          toast.success(t("standardPros.builder.cloneSuccess", {
+            abbreviation: cloned.abbreviation,
+          }));
         },
         onError: () => {
-          toast.error("Failed to clone instrument");
+          toast.error(t("standardPros.builder.cloneFailed"));
         },
       },
     );
@@ -1404,7 +1473,7 @@ export function BuilderTab() {
 
   const reorderItems = async (orderedIds: number[]) => {
     if (!instrument || !editable) {
-      toast.error("Library instruments are read-only. Clone the instrument to edit it.");
+      toast.error(t("standardPros.builder.readOnlyCloneToEdit"));
       return;
     }
 
@@ -1443,9 +1512,9 @@ export function BuilderTab() {
         ),
       );
 
-      toast.success("Item order updated");
+      toast.success(t("standardPros.builder.reorderSuccess"));
     } catch {
-      toast.error("Failed to reorder items");
+      toast.error(t("standardPros.builder.reorderFailed"));
     }
   };
 
@@ -1508,10 +1577,10 @@ export function BuilderTab() {
           {instrumentListQuery.isLoading ? (
             <span className="inline-flex items-center gap-2">
               <Loader2 size={16} className="animate-spin" />
-              Loading instruments...
+              {t("standardPros.common.loadingInstruments")}
             </span>
           ) : (
-            "No custom instrument selected. Create a new one or clone from the instrument catalogue."
+            t("standardPros.builder.emptySelected")
           )}
         </div>
       )}
@@ -1574,9 +1643,14 @@ export function BuilderTab() {
             setSelectedInstrumentId(created.id);
             setSelectedItemId(null);
             setIsImportOpen(false);
-            toast.success(`Imported ${parsed.items.length} items into ${created.abbreviation}`);
+            toast.success(t("standardPros.builder.importSuccess", {
+              count: parsed.items.length,
+              abbreviation: created.abbreviation,
+            }));
           } catch (error) {
-            const message = error instanceof Error ? error.message : "Import failed";
+            const message = error instanceof Error
+              ? translateImportError(error.message)
+              : t("standardPros.builder.importFailed");
             toast.error(message);
           }
         }}

@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   ClipboardList,
@@ -19,9 +20,16 @@ import { useSurveyInstrument } from "../hooks/useSurveyInstruments";
 import { DOMAIN_COLORS, OMOP_COLORS } from "../types/proInstrument";
 import type { OmopCoverage } from "../types/proInstrument";
 import type { SurveyItemApi } from "../api/surveyApi";
+import {
+  standardProsCatalogDomainLabel,
+  standardProsLicenseLabel,
+  standardProsOmopLabel,
+  standardProsResponseTypeLabel,
+} from "../lib/i18n";
 
 function OmopBadge({ coverage }: { coverage: OmopCoverage }) {
-  const label = coverage === "yes" ? "Full" : coverage === "partial" ? "Partial" : "None";
+  const { t } = useTranslation("app");
+  const label = standardProsOmopLabel(t, coverage);
   const Icon = coverage === "yes" ? Check : coverage === "partial" ? Minus : X;
   return (
     <span
@@ -32,12 +40,13 @@ function OmopBadge({ coverage }: { coverage: OmopCoverage }) {
       }}
     >
       <Icon size={12} />
-      {label} OMOP Coverage
+      {t("standardPros.instrumentDetail.omopCoverage", { coverage: label })}
     </span>
   );
 }
 
 function ItemCard({ item }: { item: SurveyItemApi }) {
+  const { t } = useTranslation("app");
   const hasAnswers = item.answer_options.length > 0;
 
   return (
@@ -57,13 +66,13 @@ function ItemCard({ item }: { item: SurveyItemApi }) {
             {item.loinc_code && (
               <span className="inline-flex items-center gap-1 rounded-md bg-info/10 px-2 py-0.5 text-[10px] font-medium text-info">
                 <Hash size={10} />
-                LOINC {item.loinc_code}
+                {t("standardPros.instrumentDetail.loinc")} {item.loinc_code}
               </span>
             )}
             {item.snomed_code && (
               <span className="inline-flex items-center gap-1 rounded-md bg-warning/10 px-2 py-0.5 text-[10px] font-medium text-warning">
                 <Hash size={10} />
-                SNOMED {item.snomed_code}
+                {t("standardPros.instrumentDetail.snomed")} {item.snomed_code}
               </span>
             )}
             {item.subscale_name && (
@@ -73,11 +82,11 @@ function ItemCard({ item }: { item: SurveyItemApi }) {
               </span>
             )}
             <span className="text-[10px] text-text-ghost capitalize">
-              {item.response_type.replace(/_/g, " ")}
+              {standardProsResponseTypeLabel(t, item.response_type)}
             </span>
             {item.is_reverse_coded && (
               <span className="text-[10px] font-medium text-accent">
-                Reverse-coded
+                {t("standardPros.instrumentDetail.reverseCoded")}
               </span>
             )}
           </div>
@@ -123,6 +132,7 @@ function ItemCard({ item }: { item: SurveyItemApi }) {
 }
 
 export default function InstrumentDetailPage() {
+  const { t } = useTranslation("app");
   const { id } = useParams<{ id: string }>();
   const instrumentId = id ? Number(id) : 0;
 
@@ -136,11 +146,13 @@ export default function InstrumentDetailPage() {
           className="flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary transition-colors"
         >
           <ArrowLeft size={14} />
-          Back to Library
+          {t("standardPros.instrumentDetail.backToLibrary")}
         </Link>
         <div className="flex items-center justify-center h-64">
           <Loader2 size={24} className="animate-spin text-text-muted" />
-          <span className="ml-2 text-sm text-text-ghost">Loading instrument...</span>
+          <span className="ml-2 text-sm text-text-ghost">
+            {t("standardPros.common.loadingInstrument")}
+          </span>
         </div>
       </div>
     );
@@ -154,14 +166,14 @@ export default function InstrumentDetailPage() {
           className="flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary transition-colors"
         >
           <ArrowLeft size={14} />
-          Back to Library
+          {t("standardPros.instrumentDetail.backToLibrary")}
         </Link>
         <div className={cn(
           "flex flex-col items-center justify-center py-16 rounded-xl",
           "border border-dashed border-border-default bg-surface-raised",
         )}>
           <ClipboardList size={32} className="text-text-ghost mb-3" />
-          <p className="text-sm text-text-muted">Instrument not found.</p>
+          <p className="text-sm text-text-muted">{t("standardPros.instrumentDetail.notFound")}</p>
         </div>
       </div>
     );
@@ -182,7 +194,7 @@ export default function InstrumentDetailPage() {
         className="flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary transition-colors"
       >
         <ArrowLeft size={14} />
-        Back to Library
+        {t("standardPros.instrumentDetail.backToLibrary")}
       </Link>
 
       {/* Header */}
@@ -205,7 +217,7 @@ export default function InstrumentDetailPage() {
                 color: domainColor,
               }}
             >
-              {instrument.domain}
+              {standardProsCatalogDomainLabel(t, instrument.domain)}
             </span>
             <OmopBadge coverage={instrument.omop_coverage as OmopCoverage} />
           </div>
@@ -220,30 +232,33 @@ export default function InstrumentDetailPage() {
 
       {/* Metadata cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-        <MetaCard icon={FileText} label="Items" value={String(instrument.item_count)} color="var(--success)" />
-        <MetaCard icon={BookOpen} label="Answer Options" value={String(totalAnswerOptions)} color="var(--accent)" />
+        <MetaCard icon={FileText} label={t("standardPros.common.items")} value={String(instrument.item_count)} color="var(--success)" />
+        <MetaCard icon={BookOpen} label={t("standardPros.common.answerOptions")} value={String(totalAnswerOptions)} color="var(--accent)" />
         <MetaCard
           icon={Hash}
-          label="LOINC Panel"
+          label={t("standardPros.instrumentDetail.loincPanel")}
           value={instrument.loinc_panel_code ?? "\u2014"}
           color={instrument.loinc_panel_code ? "var(--info)" : "var(--text-ghost)"}
         />
         <MetaCard
           icon={Hash}
-          label="SNOMED CT"
+          label={t("standardPros.instrumentDetail.snomedCt")}
           value={instrument.snomed_code ?? "\u2014"}
           color={instrument.snomed_code ? "var(--warning)" : "var(--text-ghost)"}
         />
         <MetaCard
           icon={instrument.is_public_domain ? Unlock : Lock}
-          label="License"
-          value={instrument.is_public_domain ? "Public" : "Proprietary"}
+          label={t("standardPros.common.license")}
+          value={standardProsLicenseLabel(
+            t,
+            instrument.is_public_domain ? "public" : "proprietary",
+          )}
           color={instrument.is_public_domain ? "var(--success)" : "var(--accent)"}
         />
-        <MetaCard icon={Tag} label="Version" value={instrument.version} color="var(--text-muted)" />
+        <MetaCard icon={Tag} label={t("standardPros.common.version")} value={instrument.version} color="var(--text-muted)" />
         <MetaCard
           icon={Beaker}
-          label="Administrations"
+          label={t("standardPros.instrumentDetail.administrations")}
           value={String(instrument.conduct_records_count)}
           color="var(--domain-observation)"
         />
@@ -253,12 +268,12 @@ export default function InstrumentDetailPage() {
       {instrument.scoring_method && (
         <div className="rounded-xl border border-border-default bg-surface-raised p-5">
           <h2 className="text-sm font-medium text-text-primary mb-3">
-            Scoring Method
+            {t("standardPros.instrumentDetail.scoringMethod")}
           </h2>
           <div className="flex flex-wrap gap-3">
             {!!instrument.scoring_method.type && (
               <span className="inline-flex items-center gap-1.5 rounded-lg bg-surface-base border border-border-default/50 px-3 py-1.5 text-xs text-text-secondary">
-                <span className="text-[10px] text-text-ghost uppercase">Type</span>
+                <span className="text-[10px] text-text-ghost uppercase">{t("standardPros.instrumentDetail.type")}</span>
                 <span className="font-['IBM_Plex_Mono',monospace] font-medium">
                   {String(instrument.scoring_method.type)}
                 </span>
@@ -266,7 +281,7 @@ export default function InstrumentDetailPage() {
             )}
             {!!instrument.scoring_method.range && Array.isArray(instrument.scoring_method.range) && (
               <span className="inline-flex items-center gap-1.5 rounded-lg bg-surface-base border border-border-default/50 px-3 py-1.5 text-xs text-text-secondary">
-                <span className="text-[10px] text-text-ghost uppercase">Range</span>
+                <span className="text-[10px] text-text-ghost uppercase">{t("standardPros.instrumentDetail.range")}</span>
                 <span className="font-['IBM_Plex_Mono',monospace] font-medium">
                   {(instrument.scoring_method.range as number[]).join("\u2013")}
                 </span>
@@ -274,7 +289,7 @@ export default function InstrumentDetailPage() {
             )}
             {!!instrument.scoring_method.subscales && Array.isArray(instrument.scoring_method.subscales) && (instrument.scoring_method.subscales as string[]).length > 0 && (
               <span className="inline-flex items-center gap-1.5 rounded-lg bg-surface-base border border-border-default/50 px-3 py-1.5 text-xs text-text-secondary">
-                <span className="text-[10px] text-text-ghost uppercase">Subscales</span>
+                <span className="text-[10px] text-text-ghost uppercase">{t("standardPros.instrumentDetail.subscales")}</span>
                 <span className="font-['IBM_Plex_Mono',monospace] font-medium">
                   {(instrument.scoring_method.subscales as string[]).join(", ")}
                 </span>
@@ -288,7 +303,9 @@ export default function InstrumentDetailPage() {
       {hasItems ? (
         <div>
           <h2 className="text-sm font-medium text-text-primary mb-4">
-            Items ({instrument.items.length})
+            {t("standardPros.instrumentDetail.itemsHeading", {
+              count: instrument.items.length,
+            })}
           </h2>
           <div className="space-y-3">
             {instrument.items.map((item) => (
@@ -303,12 +320,12 @@ export default function InstrumentDetailPage() {
         )}>
           <FileText size={28} className="text-text-ghost mb-2" />
           <p className="text-sm text-text-muted mb-1">
-            No items loaded for this instrument
+            {t("standardPros.instrumentDetail.noItemsTitle")}
           </p>
           <p className="text-xs text-text-ghost">
             {instrument.is_public_domain
-              ? "Items can be added via the Survey Builder or survey:seed-library command"
-              : "This is a proprietary instrument \u2014 item content requires a license"}
+              ? t("standardPros.instrumentDetail.noItemsPublic")
+              : t("standardPros.instrumentDetail.noItemsProprietary")}
           </p>
         </div>
       )}

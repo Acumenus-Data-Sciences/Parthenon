@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import type { SurveyCampaignApi } from "../../api/campaignApi";
@@ -21,6 +22,7 @@ export function ImportResponsesModal({
   isSubmitting,
   onSubmit,
 }: ImportResponsesModalProps) {
+  const { t } = useTranslation("app");
   const [csv, setCsv] = useState("");
 
   const handleClose = () => {
@@ -36,7 +38,7 @@ export function ImportResponsesModal({
     <Modal
       open={open}
       onClose={handleClose}
-      title={`Import Responses${campaign ? `: ${campaign.name}` : ""}`}
+      title={`${t("standardPros.conduct.importResponses.title")}${campaign ? `: ${campaign.name}` : ""}`}
       size="xl"
       footer={(
         <div className="flex items-center justify-end gap-3">
@@ -45,7 +47,7 @@ export function ImportResponsesModal({
             onClick={handleClose}
             className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary"
           >
-            Cancel
+            {t("standardPros.common.cancel")}
           </button>
           <button
             type="button"
@@ -54,7 +56,7 @@ export function ImportResponsesModal({
             className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base disabled:opacity-50"
           >
             {isSubmitting && <Loader2 size={14} className="animate-spin" />}
-            Import CSV
+            {t("standardPros.conduct.importResponses.importCsv")}
           </button>
         </div>
       )}
@@ -62,16 +64,17 @@ export function ImportResponsesModal({
       <div className="space-y-4">
         <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3">
           <p className="text-xs text-text-secondary">
-            Paste CSV with a required <code>person_id</code> column and item columns matching
-            <code>item_#</code>, raw item ids, or exact item text.
+            {t("standardPros.conduct.importResponses.help")}
           </p>
           <p className="mt-2 text-[11px] font-['IBM_Plex_Mono',monospace] text-text-ghost">
-            Example header: {sampleHeader}
+            {t("standardPros.conduct.importResponses.exampleHeader", {
+              header: sampleHeader,
+            })}
           </p>
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-text-muted">
-            CSV File
+            {t("standardPros.common.csvFile")}
           </label>
           <input
             type="file"

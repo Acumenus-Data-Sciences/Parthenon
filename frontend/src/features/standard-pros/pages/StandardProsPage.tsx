@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ClipboardList,
   BookOpen,
@@ -20,25 +21,17 @@ import { ConductTab } from "../components/conduct/ConductTab";
 import { useSurveyStats, useSurveyInstrumentsAsProList } from "../hooks/useSurveyInstruments";
 import type { SurveyStatsApi } from "../api/surveyApi";
 
-/* ── Tabs ────────────────────────────────────────────────────────────── */
-
-const TABS = [
-  { id: "library", label: "Instrument Library", icon: Library },
-  { id: "coverage", label: "Coverage Analytics", icon: PieChart },
-  { id: "builder", label: "Survey Builder", icon: Wrench },
-  { id: "conduct", label: "Survey Conduct", icon: ClipboardList },
-  { id: "analytics", label: "Analytics", icon: BarChart3 },
-] as const;
-type Tab = (typeof TABS)[number]["id"];
+type Tab = "library" | "coverage" | "builder" | "conduct" | "analytics";
 
 /* ── Stats bar ───────────────────────────────────────────────────────── */
 
 function StatsBar({ stats, isLoading }: { stats: SurveyStatsApi | undefined; isLoading: boolean }) {
+  const { t } = useTranslation("app");
   const items = [
-    { label: "Instruments", value: stats?.total_instruments ?? 0, icon: Library, color: "var(--success)" },
-    { label: "With Items", value: stats?.instruments_with_items ?? 0, icon: CheckCircle2, color: "var(--accent)" },
-    { label: "Question Items", value: stats?.total_items ?? 0, icon: FileText, color: "var(--info)" },
-    { label: "Answer Options", value: stats?.total_answer_options ?? 0, icon: BookOpen, color: "var(--domain-observation)" },
+    { label: t("standardPros.page.stats.instruments"), value: stats?.total_instruments ?? 0, icon: Library, color: "var(--success)" },
+    { label: t("standardPros.page.stats.withItems"), value: stats?.instruments_with_items ?? 0, icon: CheckCircle2, color: "var(--accent)" },
+    { label: t("standardPros.page.stats.questionItems"), value: stats?.total_items ?? 0, icon: FileText, color: "var(--info)" },
+    { label: t("standardPros.page.stats.answerOptions"), value: stats?.total_answer_options ?? 0, icon: BookOpen, color: "var(--domain-observation)" },
   ];
 
   return (
@@ -74,25 +67,26 @@ function StatsBar({ stats, isLoading }: { stats: SurveyStatsApi | undefined; isL
 /* ── Analytics placeholder ───────────────────────────────────────────── */
 
 function AnalyticsTab() {
+  const { t } = useTranslation("app");
   const analyses = [
-    { id: "900", title: "Survey Response Census", desc: "Persons with survey responses, by instrument" },
-    { id: "901", title: "Completion Over Time", desc: "Completed surveys by instrument and time period" },
-    { id: "902", title: "Item Completion Rates", desc: "Skip rate detection per item" },
-    { id: "903", title: "Score Distributions", desc: "By instrument and subscale" },
-    { id: "904", title: "Floor/Ceiling Effects", desc: "Min/max score clustering" },
-    { id: "905", title: "Longitudinal Trajectories", desc: "Score change over time" },
-    { id: "906", title: "Response Time", desc: "Completion duration distributions" },
-    { id: "907", title: "Administration Mode", desc: "By respondent type and mode" },
-    { id: "908", title: "Missing Data Patterns", desc: "Most frequently skipped items" },
-    { id: "909", title: "Temporal Alignment", desc: "Survey-to-clinical-event gaps" },
+    { id: "900", title: t("standardPros.page.analytics.analyses.a900Title"), desc: t("standardPros.page.analytics.analyses.a900Desc") },
+    { id: "901", title: t("standardPros.page.analytics.analyses.a901Title"), desc: t("standardPros.page.analytics.analyses.a901Desc") },
+    { id: "902", title: t("standardPros.page.analytics.analyses.a902Title"), desc: t("standardPros.page.analytics.analyses.a902Desc") },
+    { id: "903", title: t("standardPros.page.analytics.analyses.a903Title"), desc: t("standardPros.page.analytics.analyses.a903Desc") },
+    { id: "904", title: t("standardPros.page.analytics.analyses.a904Title"), desc: t("standardPros.page.analytics.analyses.a904Desc") },
+    { id: "905", title: t("standardPros.page.analytics.analyses.a905Title"), desc: t("standardPros.page.analytics.analyses.a905Desc") },
+    { id: "906", title: t("standardPros.page.analytics.analyses.a906Title"), desc: t("standardPros.page.analytics.analyses.a906Desc") },
+    { id: "907", title: t("standardPros.page.analytics.analyses.a907Title"), desc: t("standardPros.page.analytics.analyses.a907Desc") },
+    { id: "908", title: t("standardPros.page.analytics.analyses.a908Title"), desc: t("standardPros.page.analytics.analyses.a908Desc") },
+    { id: "909", title: t("standardPros.page.analytics.analyses.a909Title"), desc: t("standardPros.page.analytics.analyses.a909Desc") },
   ];
 
   const dqChecks = [
-    { id: "DQ-S01", title: "Orphaned Responses", desc: "Survey-typed observations without survey_conduct" },
-    { id: "DQ-S02", title: "Out-of-Range Values", desc: "Scores outside valid instrument range" },
-    { id: "DQ-S03", title: "Fast Completion", desc: "Implausibly short completion times" },
-    { id: "DQ-S04", title: "Straight-Line", desc: "All items answered identically" },
-    { id: "DQ-S05", title: "Mapping Completeness", desc: "% items mapped to standard concepts" },
+    { id: "DQ-S01", title: t("standardPros.page.analytics.checks.dqS01Title"), desc: t("standardPros.page.analytics.checks.dqS01Desc") },
+    { id: "DQ-S02", title: t("standardPros.page.analytics.checks.dqS02Title"), desc: t("standardPros.page.analytics.checks.dqS02Desc") },
+    { id: "DQ-S03", title: t("standardPros.page.analytics.checks.dqS03Title"), desc: t("standardPros.page.analytics.checks.dqS03Desc") },
+    { id: "DQ-S04", title: t("standardPros.page.analytics.checks.dqS04Title"), desc: t("standardPros.page.analytics.checks.dqS04Desc") },
+    { id: "DQ-S05", title: t("standardPros.page.analytics.checks.dqS05Title"), desc: t("standardPros.page.analytics.checks.dqS05Desc") },
   ];
 
   return (
@@ -100,7 +94,7 @@ function AnalyticsTab() {
       <div className="flex items-center gap-3 rounded-xl border border-dashed border-accent/30 bg-accent/5 px-5 py-4">
         <Info size={16} className="text-accent shrink-0" />
         <p className="text-sm text-accent">
-          Analytics require survey_conduct data. Administer surveys through the Conduct tab to populate results.
+          {t("standardPros.page.analytics.requiresData")}
         </p>
       </div>
 
@@ -108,7 +102,7 @@ function AnalyticsTab() {
         {/* Achilles 900-series */}
         <div className="rounded-xl border border-border-default bg-surface-raised p-5">
           <h3 className="text-sm font-medium text-text-primary mb-4">
-            Achilles 900-Series Analyses
+            {t("standardPros.page.analytics.achillesTitle")}
           </h3>
           <div className="space-y-2">
             {analyses.map((a) => (
@@ -131,7 +125,7 @@ function AnalyticsTab() {
         {/* DQ checks */}
         <div className="rounded-xl border border-border-default bg-surface-raised p-5">
           <h3 className="text-sm font-medium text-text-primary mb-4">
-            Data Quality Checks
+            {t("standardPros.page.analytics.dqTitle")}
           </h3>
           <div className="space-y-2">
             {dqChecks.map((dq) => (
@@ -153,7 +147,7 @@ function AnalyticsTab() {
           <div className="mt-6 flex flex-col items-center py-8">
             <BarChart3 size={28} className="text-text-ghost mb-2" />
             <span className="inline-block rounded-md bg-accent/10 px-3 py-1 text-[10px] font-medium text-accent uppercase tracking-wider">
-              Requires Survey Data
+              {t("standardPros.page.analytics.requiresSurveyData")}
             </span>
           </div>
         </div>
@@ -165,6 +159,7 @@ function AnalyticsTab() {
 /* ── Page ────────────────────────────────────────────────────────────── */
 
 export default function StandardProsPage() {
+  const { t } = useTranslation("app");
   const [tab, setTab] = useState<Tab>("library");
   const [showAbout, setShowAbout] = useState(false);
   const { data: stats, isLoading: statsLoading } = useSurveyStats();
@@ -172,6 +167,13 @@ export default function StandardProsPage() {
     useSurveyInstrumentsAsProList();
 
   const instruments = liveInstruments ?? INSTRUMENTS;
+  const tabs = [
+    { id: "library" as const, label: t("standardPros.page.tabs.library"), icon: Library },
+    { id: "coverage" as const, label: t("standardPros.page.tabs.coverage"), icon: PieChart },
+    { id: "builder" as const, label: t("standardPros.page.tabs.builder"), icon: Wrench },
+    { id: "conduct" as const, label: t("standardPros.page.tabs.conduct"), icon: ClipboardList },
+    { id: "analytics" as const, label: t("standardPros.page.tabs.analytics"), icon: BarChart3 },
+  ];
 
   return (
     <div className="space-y-6">
@@ -186,12 +188,12 @@ export default function StandardProsPage() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-text-primary">
-              Standard PROs+
+              {t("standardPros.page.title")}
             </h1>
             {stats && !statsLoading && (
               <span className="inline-flex items-center gap-1 rounded-md bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">
                 <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-                Live
+                {t("standardPros.page.live")}
               </span>
             )}
             {instrumentsLoading && (
@@ -199,7 +201,7 @@ export default function StandardProsPage() {
             )}
           </div>
           <p className="text-sm text-text-muted">
-            Pre-mapped survey instrument library, visual builder, and dedicated PRO analytics
+            {t("standardPros.page.subtitle")}
           </p>
         </div>
         <button
@@ -208,7 +210,7 @@ export default function StandardProsPage() {
           className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-light transition-colors shrink-0"
         >
           <Info size={14} />
-          About PROs+
+          {t("standardPros.page.aboutButton")}
         </button>
       </div>
 
@@ -217,7 +219,7 @@ export default function StandardProsPage() {
 
       {/* Tab bar */}
       <div className="flex gap-1 border-b border-border-default">
-        {TABS.map(({ id, label, icon: Icon }) => (
+        {tabs.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
             type="button"

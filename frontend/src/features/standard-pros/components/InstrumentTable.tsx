@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Search,
   ChevronUp,
@@ -13,6 +14,11 @@ import {
 import { cn } from "@/lib/utils";
 import type { ProInstrument, OmopCoverage } from "../types/proInstrument";
 import { DOMAIN_COLORS, OMOP_COLORS } from "../types/proInstrument";
+import {
+  standardProsCatalogDomainLabel,
+  standardProsLicenseLabel,
+  standardProsOmopLabel,
+} from "../lib/i18n";
 
 interface InstrumentTableProps {
   instruments: ProInstrument[];
@@ -21,18 +27,9 @@ interface InstrumentTableProps {
 type SortField = "abbreviation" | "name" | "domain" | "items" | "omopCoverage" | "license";
 type SortDir = "asc" | "desc";
 
-const SORT_OPTIONS: { field: SortField; label: string }[] = [
-  { field: "domain", label: "Domain" },
-  { field: "abbreviation", label: "Abbreviation" },
-  { field: "name", label: "Name" },
-  { field: "items", label: "Items" },
-  { field: "omopCoverage", label: "OMOP" },
-  { field: "license", label: "License" },
-];
-
 function OmopBadge({ coverage }: { coverage: OmopCoverage }) {
-  const label =
-    coverage === "yes" ? "Full" : coverage === "partial" ? "Partial" : "None";
+  const { t } = useTranslation("app");
+  const label = standardProsOmopLabel(t, coverage);
   const Icon = coverage === "yes" ? Check : coverage === "partial" ? Minus : X;
   return (
     <span
@@ -49,13 +46,14 @@ function OmopBadge({ coverage }: { coverage: OmopCoverage }) {
 }
 
 function LoincBadge({ hasLoinc, code }: { hasLoinc: boolean; code: string | null }) {
+  const { t } = useTranslation("app");
   if (!hasLoinc) {
     return <span className="text-[10px] text-text-ghost">{"\u2014"}</span>;
   }
   return (
     <span className="inline-flex items-center gap-1 rounded-md bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">
       <Check size={10} />
-      {code ?? "Yes"}
+      {code ?? t("standardPros.common.yes")}
     </span>
   );
 }
@@ -89,6 +87,7 @@ function Pill({
 }
 
 export function InstrumentTable({ instruments }: InstrumentTableProps) {
+  const { t } = useTranslation("app");
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [domainFilter, setDomainFilter] = useState<string | null>(null);
@@ -144,7 +143,16 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
     }
   };
 
-  const SortIcon = ({ field }: { field: SortField }) => {
+  const sortOptions: { field: SortField; label: string }[] = [
+    { field: "domain", label: t("standardPros.common.domain") },
+    { field: "abbreviation", label: t("standardPros.common.abbreviation") },
+    { field: "name", label: t("standardPros.common.name") },
+    { field: "items", label: t("standardPros.common.items") },
+    { field: "omopCoverage", label: t("standardPros.common.omop") },
+    { field: "license", label: t("standardPros.common.license") },
+  ];
+
+  const renderSortIcon = (field: SortField) => {
     if (sortField !== field) return <span className="w-3" />;
     return sortDir === "asc" ? (
       <ChevronUp size={12} className="text-accent" />
@@ -170,7 +178,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
         />
         <input
           type="text"
-          placeholder="Search instruments by name, abbreviation, or domain..."
+          placeholder={t("standardPros.table.searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full rounded-lg border border-border-default bg-surface-base py-2 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-ghost outline-none focus:border-accent/40 transition-colors"
@@ -182,12 +190,12 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
         {/* Domain pills */}
         <div className="flex items-center gap-2">
           <span className="text-[10px] text-text-ghost uppercase tracking-wider shrink-0 w-14">
-            Domain
+            {t("standardPros.common.domain")}
           </span>
           <div className="flex flex-wrap gap-1.5">
             <Pill
               active={!domainFilter}
-              label="All"
+              label={t("standardPros.common.all")}
               color="var(--accent)"
               onClick={() => setDomainFilter(null)}
             />
@@ -195,7 +203,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
               <Pill
                 key={domain}
                 active={domainFilter === domain}
-                label={`${domain} (${count})`}
+                label={`${standardProsCatalogDomainLabel(t, domain)} (${count})`}
                 color={DOMAIN_COLORS[domain]}
                 onClick={() => setDomainFilter(domainFilter === domain ? null : domain)}
               />
@@ -207,12 +215,14 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
         <div className="flex flex-wrap items-center gap-4">
           {/* OMOP */}
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-text-ghost uppercase tracking-wider">OMOP</span>
+            <span className="text-[10px] text-text-ghost uppercase tracking-wider">
+              {t("standardPros.common.omop")}
+            </span>
             {(["yes", "partial", "no"] as const).map((v) => (
               <Pill
                 key={v}
                 active={omopFilter === v}
-                label={v === "yes" ? "Full" : v === "partial" ? "Partial" : "None"}
+                label={standardProsOmopLabel(t, v)}
                 color={OMOP_COLORS[v]}
                 onClick={() => setOmopFilter(omopFilter === v ? null : v)}
               />
@@ -223,16 +233,16 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
 
           {/* License */}
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-text-ghost uppercase tracking-wider">License</span>
+            <span className="text-[10px] text-text-ghost uppercase tracking-wider">{t("standardPros.common.license")}</span>
             <Pill
               active={licenseFilter === "public"}
-              label="Public"
+              label={t("standardPros.common.public")}
               color="var(--success)"
               onClick={() => setLicenseFilter(licenseFilter === "public" ? null : "public")}
             />
             <Pill
               active={licenseFilter === "proprietary"}
-              label="Proprietary"
+              label={t("standardPros.common.proprietary")}
               color="var(--accent)"
               onClick={() => setLicenseFilter(licenseFilter === "proprietary" ? null : "proprietary")}
             />
@@ -242,16 +252,16 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
 
           {/* LOINC */}
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-text-ghost uppercase tracking-wider">LOINC</span>
+            <span className="text-[10px] text-text-ghost uppercase tracking-wider">{t("standardPros.instrumentDetail.loinc")}</span>
             <Pill
               active={loincFilter === true}
-              label="Has LOINC"
+              label={t("standardPros.chart.hasLoinc")}
               color="var(--info)"
               onClick={() => setLoincFilter(loincFilter === true ? null : true)}
             />
             <Pill
               active={loincFilter === false}
-              label="No LOINC"
+              label={t("standardPros.chart.noLoinc")}
               color="var(--text-ghost)"
               onClick={() => setLoincFilter(loincFilter === false ? null : false)}
             />
@@ -261,16 +271,16 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
 
           {/* SNOMED */}
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-text-ghost uppercase tracking-wider">SNOMED</span>
+            <span className="text-[10px] text-text-ghost uppercase tracking-wider">{t("standardPros.instrumentDetail.snomed")}</span>
             <Pill
               active={snomedFilter === true}
-              label="Has SNOMED"
+              label={t("standardPros.chart.hasSnomed")}
               color="var(--warning)"
               onClick={() => setSnomedFilter(snomedFilter === true ? null : true)}
             />
             <Pill
               active={snomedFilter === false}
-              label="No SNOMED"
+              label={t("standardPros.chart.noSnomed")}
               color="var(--text-ghost)"
               onClick={() => setSnomedFilter(snomedFilter === false ? null : false)}
             />
@@ -281,8 +291,8 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
           {/* Sort */}
           <div className="flex items-center gap-1.5">
             <ArrowUpDown size={12} className="text-text-ghost" />
-            <span className="text-[10px] text-text-ghost uppercase tracking-wider">Sort</span>
-            {SORT_OPTIONS.map((opt) => (
+            <span className="text-[10px] text-text-ghost uppercase tracking-wider">{t("standardPros.common.sort")}</span>
+            {sortOptions.map((opt) => (
               <button
                 key={opt.field}
                 type="button"
@@ -319,7 +329,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
                 }}
                 className="rounded-full px-2.5 py-1 text-[11px] font-medium text-critical hover:bg-critical/10 transition-colors"
               >
-                Clear filters ({activeFilterCount})
+                {t("standardPros.table.clearFilters", { count: activeFilterCount })}
               </button>
             </>
           )}
@@ -328,11 +338,11 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
 
       {/* ── Results count ──────────────────────────────────────────────── */}
       <p className="text-xs text-text-ghost">
-        Showing{" "}
+        {t("standardPros.table.showing")}{" "}
         <span className="font-['IBM_Plex_Mono',monospace] text-text-secondary">
           {filtered.length}
         </span>{" "}
-        of {instruments.length} instruments
+        {t("standardPros.table.of")} {instruments.length} {t("standardPros.common.instruments").toLowerCase()}
       </p>
 
       {/* ── Table ──────────────────────────────────────────────────────── */}
@@ -343,30 +353,30 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
               <tr className="border-b border-border-default bg-surface-base">
                 {(
                   [
-                    ["abbreviation", "Abbrev."],
-                    ["name", "Instrument Name"],
-                    ["domain", "Domain"],
-                    ["items", "Items"],
-                    ["omopCoverage", "OMOP"],
-                    ["license", "License"],
+                    ["abbreviation", t("standardPros.common.abbreviation")],
+                    ["name", t("standardPros.table.instrumentName")],
+                    ["domain", t("standardPros.common.domain")],
+                    ["items", t("standardPros.common.items")],
+                    ["omopCoverage", t("standardPros.common.omop")],
+                    ["license", t("standardPros.common.license")],
                   ] as [SortField, string][]
                 ).map(([field, label]) => (
                   <th
                     key={field}
                     className="px-3 py-2.5 text-left text-text-muted font-medium cursor-pointer hover:text-text-primary transition-colors select-none"
                     onClick={() => handleSort(field)}
-                  >
+                    >
                     <div className="flex items-center gap-1">
                       {label}
-                      <SortIcon field={field} />
+                      {renderSortIcon(field)}
                     </div>
                   </th>
                 ))}
                 <th className="px-3 py-2.5 text-left text-text-muted font-medium">
-                  LOINC
+                  {t("standardPros.instrumentDetail.loinc")}
                 </th>
                 <th className="px-3 py-2.5 text-left text-text-muted font-medium">
-                  SNOMED
+                  {t("standardPros.instrumentDetail.snomed")}
                 </th>
               </tr>
             </thead>
@@ -401,7 +411,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
                         color: DOMAIN_COLORS[inst.domain] ?? "var(--text-ghost)",
                       }}
                     >
-                      {inst.domain}
+                      {standardProsCatalogDomainLabel(t, inst.domain)}
                     </span>
                   </td>
                   <td className="px-3 py-2.5 font-['IBM_Plex_Mono',monospace] text-text-muted text-center">
@@ -419,7 +429,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
                           : "text-accent",
                       )}
                     >
-                      {inst.license === "public" ? "Public" : "Proprietary"}
+                      {standardProsLicenseLabel(t, inst.license)}
                     </span>
                   </td>
                   <td className="px-3 py-2.5">
@@ -429,7 +439,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
                     {inst.hasSnomed ? (
                       <span className="inline-flex items-center gap-1 rounded-md bg-warning/10 px-2 py-0.5 text-[10px] font-medium text-warning">
                         <Check size={10} />
-                        {inst.snomedCode ?? "Yes"}
+                        {inst.snomedCode ?? t("standardPros.common.yes")}
                       </span>
                     ) : (
                       <span className="text-[10px] text-text-ghost">{"\u2014"}</span>
@@ -443,7 +453,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
                     colSpan={8}
                     className="px-3 py-8 text-center text-sm text-text-ghost"
                   >
-                    No instruments match your filters.
+                    {t("standardPros.table.noMatches")}
                   </td>
                 </tr>
               )}

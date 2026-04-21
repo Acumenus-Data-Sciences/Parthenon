@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Loader2, Search } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import type { SurveyInstrumentApi } from "../../api/surveyApi";
@@ -35,6 +36,7 @@ export function NewCampaignModal({
   isSaving,
   onSubmit,
 }: NewCampaignModalProps) {
+  const { t } = useTranslation("app");
   const [form, setForm] = useState(baseForm);
 
   // Sync form with prop when opening in edit mode — legitimate external-source sync
@@ -100,7 +102,9 @@ export function NewCampaignModal({
     <Modal
       open={open}
       onClose={handleClose}
-      title={mode === "create" ? "Create Survey Campaign" : "Edit Draft Campaign"}
+      title={mode === "create"
+        ? t("standardPros.conduct.newCampaign.createTitle")
+        : t("standardPros.conduct.newCampaign.editTitle")}
       size="xl"
       footer={(
         <div className="flex items-center justify-end gap-3">
@@ -109,7 +113,7 @@ export function NewCampaignModal({
             onClick={handleClose}
             className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary"
           >
-            Cancel
+            {t("standardPros.common.cancel")}
           </button>
           <button
             type="button"
@@ -129,7 +133,9 @@ export function NewCampaignModal({
             className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSaving && <Loader2 size={14} className="animate-spin" />}
-            {mode === "create" ? "Create Campaign" : "Save Campaign"}
+            {mode === "create"
+              ? t("standardPros.conduct.newCampaign.createButton")
+              : t("standardPros.common.saveCampaign")}
           </button>
         </div>
       )}
@@ -138,26 +144,26 @@ export function NewCampaignModal({
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div>
             <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-text-muted">
-              Campaign Name
+              {t("standardPros.conduct.newCampaign.campaignName")}
             </label>
             <input
               value={form.name}
               onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-              placeholder="Baseline mental health intake"
+              placeholder={t("standardPros.conduct.newCampaign.campaignNamePlaceholder")}
               className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
             />
           </div>
 
           <div>
             <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-text-muted">
-              Instrument
+              {t("standardPros.common.instrument")}
             </label>
             <select
               value={form.survey_instrument_id}
               onChange={(event) => setForm((current) => ({ ...current, survey_instrument_id: event.target.value }))}
               className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
             >
-              <option value="">Select an instrument</option>
+              <option value="">{t("standardPros.conduct.newCampaign.selectInstrument")}</option>
               {instruments.map((instrument) => (
                 <option key={instrument.id} value={instrument.id}>
                   {instrument.abbreviation} - {instrument.name}
@@ -169,13 +175,13 @@ export function NewCampaignModal({
 
         <div>
           <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-text-muted">
-            Description
+            {t("standardPros.common.description")}
           </label>
           <textarea
             value={form.description}
             onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
             rows={3}
-            placeholder="Enrollment wave, inclusion notes, or operational instructions"
+            placeholder={t("standardPros.conduct.newCampaign.descriptionPlaceholder")}
             className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
           />
         </div>
@@ -188,9 +194,11 @@ export function NewCampaignModal({
             className="mt-1 h-4 w-4 rounded border-border-default bg-surface-base text-success focus:ring-success"
           />
           <div>
-            <div className="text-sm font-medium text-text-primary">Require Honest Broker</div>
+            <div className="text-sm font-medium text-text-primary">
+              {t("standardPros.conduct.newCampaign.honestBrokerTitle")}
+            </div>
             <p className="mt-1 text-[11px] text-text-muted">
-              Public respondents must be pre-registered by an honest broker before their answers can be linked to OMOP person IDs.
+              {t("standardPros.conduct.newCampaign.honestBrokerDescription")}
             </p>
           </div>
         </label>
@@ -199,10 +207,10 @@ export function NewCampaignModal({
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <div className="text-xs font-medium uppercase tracking-wider text-text-muted">
-                Cohort Generation
+                {t("standardPros.conduct.newCampaign.cohortGeneration")}
               </div>
               <p className="mt-1 text-[11px] text-text-ghost">
-                Optional. Pick a completed generation to seed the denominator automatically.
+                {t("standardPros.conduct.newCampaign.cohortGenerationHelp")}
               </p>
             </div>
 
@@ -211,7 +219,7 @@ export function NewCampaignModal({
               <input
                 value={form.cohortQuery}
                 onChange={(event) => setForm((current) => ({ ...current, cohortQuery: event.target.value }))}
-                placeholder="Search cohorts"
+                placeholder={t("standardPros.common.searchCohorts")}
                 className="w-full rounded-lg border border-border-default bg-surface-base py-2 pl-9 pr-3 text-sm text-text-primary outline-none focus:border-success"
               />
             </div>
@@ -227,9 +235,11 @@ export function NewCampaignModal({
                   : "border-border-default bg-surface-base"
               }`}
             >
-              <div className="text-sm font-medium text-text-primary">No cohort seeding</div>
+              <div className="text-sm font-medium text-text-primary">
+                {t("standardPros.conduct.newCampaign.noCohortSeeding")}
+              </div>
               <div className="mt-1 text-[11px] text-text-ghost">
-                Create an unseeded campaign and collect only anonymous/public responses.
+                {t("standardPros.conduct.newCampaign.noCohortSeedingHelp")}
               </div>
             </button>
 
@@ -264,14 +274,22 @@ export function NewCampaignModal({
                           >
                             <div className="flex items-center justify-between gap-2">
                               <span className="text-xs font-medium text-text-primary">
-                                Generation #{generation.id}
+                                {t("standardPros.conduct.newCampaign.generationLabel", {
+                                  id: generation.id,
+                                })}
                               </span>
                               <span className="text-[10px] uppercase tracking-wider text-text-ghost">
-                                {generation.person_count ?? 0} persons
+                                {t("standardPros.conduct.newCampaign.persons", {
+                                  count: generation.person_count ?? 0,
+                                })}
                               </span>
                             </div>
                             <div className="mt-1 text-[11px] text-text-muted">
-                              Completed {generation.completed_at ? new Date(generation.completed_at).toLocaleString() : "unknown"}
+                              {generation.completed_at
+                                ? t("standardPros.conduct.newCampaign.completedAt", {
+                                  date: new Date(generation.completed_at).toLocaleString(),
+                                })
+                                : t("standardPros.conduct.newCampaign.completedUnknown")}
                             </div>
                           </button>
                         );
@@ -285,13 +303,18 @@ export function NewCampaignModal({
           {selectedGeneration && (
             <div className="mt-4 rounded-lg border border-success/30 bg-success/5 px-4 py-3">
               <div className="text-xs font-medium text-success">
-                Selected denominator source
+                {t("standardPros.conduct.newCampaign.selectedDenominatorSource")}
               </div>
               <div className="mt-1 text-sm text-text-secondary">
-                {selectedGeneration.cohort.name} · Generation #{selectedGeneration.generation.id}
+                {t("standardPros.conduct.newCampaign.selectedSeed", {
+                  cohortName: selectedGeneration.cohort.name,
+                  generationId: selectedGeneration.generation.id,
+                })}
               </div>
               <div className="mt-1 text-[11px] text-text-muted">
-                {selectedGeneration.generation.person_count ?? 0} persons seeded into the campaign denominator.
+                {t("standardPros.conduct.newCampaign.denominatorSeeded", {
+                  count: selectedGeneration.generation.person_count ?? 0,
+                })}
               </div>
             </div>
           )}

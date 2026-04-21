@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ClipboardList, Loader2, Plus, Radio, RefreshCcw } from "lucide-react";
 import { toast } from "@/components/ui/Toast";
 import { useSurveyInstrument, useSurveyInstruments } from "../../hooks/useSurveyInstruments";
@@ -20,23 +21,21 @@ import { ManualEntryModal } from "./ManualEntryModal";
 import { NewCampaignModal } from "./NewCampaignModal";
 import { useCohortDefinitions } from "@/features/cohort-definitions/hooks/useCohortDefinitions";
 
-const FILTERS = [
-  { id: "all", label: "All" },
-  { id: "draft", label: "Draft" },
-  { id: "active", label: "Active" },
-  { id: "closed", label: "Closed" },
-] as const;
+const FILTERS = ["all", "draft", "active", "closed"] as const;
 
-type FilterId = (typeof FILTERS)[number]["id"];
+type FilterId = (typeof FILTERS)[number];
 
 function EmptyState({ onCreate }: { onCreate: () => void }) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border-default bg-surface-raised px-6 py-16 text-center">
       <ClipboardList size={32} className="mb-3 text-text-ghost" />
-      <h3 className="text-sm font-medium text-text-primary">No survey campaigns yet</h3>
+      <h3 className="text-sm font-medium text-text-primary">
+        {t("standardPros.conduct.emptyTitle")}
+      </h3>
       <p className="mt-1 max-w-lg text-xs leading-relaxed text-text-muted">
-        Create a campaign to seed cohort-based survey conduct, track completion, and prepare for import,
-        proxy entry, and published self-report links.
+        {t("standardPros.conduct.emptyMessage")}
       </p>
       <button
         type="button"
@@ -44,13 +43,14 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
         className="mt-4 inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base"
       >
         <Plus size={14} />
-        New Campaign
+        {t("standardPros.common.newCampaign")}
       </button>
     </div>
   );
 }
 
 export function ConductTab() {
+  const { t } = useTranslation("app");
   const [filter, setFilter] = useState<FilterId>("all");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editCampaignId, setEditCampaignId] = useState<number | null>(null);
@@ -109,11 +109,12 @@ export function ConductTab() {
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <Radio size={16} className="text-success" />
-                <h2 className="text-sm font-semibold text-text-primary">Survey Conduct</h2>
+                <h2 className="text-sm font-semibold text-text-primary">
+                  {t("standardPros.conduct.title")}
+                </h2>
               </div>
               <p className="mt-1 text-xs leading-relaxed text-text-muted">
-                Campaign-first operations for survey administration. Phase 1 covers draft, activation,
-                closure, denominator tracking, response import, proxy entry, and public collection.
+                {t("standardPros.conduct.subtitle")}
               </p>
             </div>
 
@@ -124,7 +125,7 @@ export function ConductTab() {
                 className="inline-flex items-center gap-2 rounded-lg border border-border-default px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary"
               >
                 <RefreshCcw size={12} />
-                Refresh
+                {t("standardPros.common.refresh")}
               </button>
               <button
                 type="button"
@@ -132,7 +133,7 @@ export function ConductTab() {
                 className="inline-flex items-center gap-2 rounded-lg bg-success px-3 py-2 text-xs font-medium text-surface-base"
               >
                 <Plus size={12} />
-                New Campaign
+                {t("standardPros.common.newCampaign")}
               </button>
             </div>
           </div>
@@ -140,16 +141,16 @@ export function ConductTab() {
           <div className="mt-4 flex flex-wrap gap-2">
             {FILTERS.map((option) => (
               <button
-                key={option.id}
+                key={option}
                 type="button"
-                onClick={() => setFilter(option.id)}
+                onClick={() => setFilter(option)}
                 className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-                  filter === option.id
+                  filter === option
                     ? "bg-success/10 text-success"
                     : "bg-surface-base text-text-muted hover:text-text-primary"
                 }`}
               >
-                {option.label}
+                {t(`standardPros.conduct.filters.${option}`)}
               </button>
             ))}
           </div>
@@ -158,19 +159,25 @@ export function ConductTab() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="rounded-xl border border-border-default bg-surface-raised p-4">
             <div className="text-lg font-semibold text-success">{campaignQuery.data?.total ?? 0}</div>
-            <div className="text-[10px] uppercase tracking-wider text-text-ghost">Campaigns</div>
+            <div className="text-[10px] uppercase tracking-wider text-text-ghost">
+              {t("standardPros.conduct.campaignsCount")}
+            </div>
           </div>
           <div className="rounded-xl border border-border-default bg-surface-raised p-4">
             <div className="text-lg font-semibold text-accent">
               {campaignDetails.filter((campaign) => campaign.status === "draft").length}
             </div>
-            <div className="text-[10px] uppercase tracking-wider text-text-ghost">Draft</div>
+            <div className="text-[10px] uppercase tracking-wider text-text-ghost">
+              {t("standardPros.conduct.filters.draft")}
+            </div>
           </div>
           <div className="rounded-xl border border-border-default bg-surface-raised p-4">
             <div className="text-lg font-semibold text-domain-observation">
               {campaignDetails.filter((campaign) => campaign.status === "active").length}
             </div>
-            <div className="text-[10px] uppercase tracking-wider text-text-ghost">Active</div>
+            <div className="text-[10px] uppercase tracking-wider text-text-ghost">
+              {t("standardPros.conduct.filters.active")}
+            </div>
           </div>
         </div>
 
@@ -178,10 +185,17 @@ export function ConductTab() {
           {lastImportSummary && (
             <div className="rounded-xl border border-success/30 bg-success/5 px-4 py-3">
               <div className="text-xs font-medium text-success">
-                Import complete: {lastImportSummary.campaignName}
+                {t("standardPros.conduct.importComplete", {
+                  campaignName: lastImportSummary.campaignName,
+                })}
               </div>
               <div className="mt-1 text-[11px] text-text-muted">
-                Processed {lastImportSummary.processed} rows, matched {lastImportSummary.matched}, skipped {lastImportSummary.missing}, created {lastImportSummary.createdResponses} responses.
+                {t("standardPros.conduct.importSummary", {
+                  processed: lastImportSummary.processed,
+                  matched: lastImportSummary.matched,
+                  missing: lastImportSummary.missing,
+                  createdResponses: lastImportSummary.createdResponses,
+                })}
               </div>
             </div>
           )}
@@ -189,7 +203,9 @@ export function ConductTab() {
           {isLoading && (
             <div className="flex items-center justify-center py-16">
               <Loader2 size={20} className="animate-spin text-text-muted" />
-              <span className="ml-2 text-sm text-text-muted">Loading campaigns...</span>
+              <span className="ml-2 text-sm text-text-muted">
+                {t("standardPros.common.loadingCampaigns")}
+              </span>
             </div>
           )}
 
@@ -204,24 +220,24 @@ export function ConductTab() {
               isMutating={isMutating}
               onActivate={(id) => activateCampaign.mutate(id, {
                 onSuccess: () => {
-                  toast.success("Campaign activated");
+                  toast.success(t("standardPros.conduct.activateSuccess"));
                 },
                 onError: () => {
-                  toast.error("Failed to activate campaign");
+                  toast.error(t("standardPros.conduct.activateFailed"));
                 },
               })}
               onClose={(id) => closeCampaign.mutate(id, {
                 onSuccess: () => {
-                  toast.success("Campaign closed");
+                  toast.success(t("standardPros.conduct.closeSuccess"));
                 },
                 onError: () => {
-                  toast.error("Failed to close campaign");
+                  toast.error(t("standardPros.conduct.closeFailed"));
                 },
               })}
               onDelete={(id) => {
                 const target = campaignDetails.find((entry) => entry.id === id);
                 const confirmed = window.confirm(
-                  `Delete campaign "${target?.name ?? id}"? This cannot be undone.`,
+                  t("standardPros.conduct.deleteConfirm", { name: target?.name ?? id }),
                 );
 
                 if (!confirmed) {
@@ -230,10 +246,10 @@ export function ConductTab() {
 
                 deleteCampaign.mutate(id, {
                   onSuccess: () => {
-                    toast.success("Campaign deleted");
+                    toast.success(t("standardPros.conduct.deleteSuccess"));
                   },
                   onError: () => {
-                    toast.error("Failed to delete campaign");
+                    toast.error(t("standardPros.conduct.deleteFailed"));
                   },
                 });
               }}
@@ -256,10 +272,10 @@ export function ConductTab() {
           createCampaign.mutate(payload, {
             onSuccess: () => {
               setIsCreateOpen(false);
-              toast.success("Campaign created");
+              toast.success(t("standardPros.conduct.createSuccess"));
             },
             onError: () => {
-              toast.error("Failed to create campaign");
+              toast.error(t("standardPros.conduct.createFailed"));
             },
           });
         }}
@@ -283,10 +299,10 @@ export function ConductTab() {
             {
               onSuccess: () => {
                 setEditCampaignId(null);
-                toast.success("Campaign updated");
+                toast.success(t("standardPros.conduct.updateSuccess"));
               },
               onError: () => {
-                toast.error("Failed to update campaign");
+                toast.error(t("standardPros.conduct.updateFailed"));
               },
             },
           );
@@ -308,17 +324,17 @@ export function ConductTab() {
             {
               onSuccess: (result) => {
                 setLastImportSummary({
-                  campaignName: selectedImportCampaign?.name ?? "Campaign",
+                  campaignName: selectedImportCampaign?.name ?? t("standardPros.common.campaign"),
                   processed: result.processed,
                   matched: result.matched,
                   missing: result.missing,
                   createdResponses: result.created_responses,
                 });
                 setImportCampaignId(null);
-                toast.success("Responses imported");
+                toast.success(t("standardPros.conduct.importResponsesSuccess"));
               },
               onError: () => {
-                toast.error("Failed to import responses");
+                toast.error(t("standardPros.conduct.importResponsesFailed"));
               },
             },
           );
@@ -341,10 +357,10 @@ export function ConductTab() {
             {
               onSuccess: () => {
                 setManualCampaignId(null);
-                toast.success("Responses saved");
+                toast.success(t("standardPros.conduct.saveResponsesSuccess"));
               },
               onError: () => {
-                toast.error("Failed to save responses");
+                toast.error(t("standardPros.conduct.saveResponsesFailed"));
               },
             },
           );
