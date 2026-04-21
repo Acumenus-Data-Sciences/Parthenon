@@ -11,6 +11,7 @@ import type { EstimationAnalysis } from "@/features/estimation/types/estimation"
 import type { PredictionAnalysis } from "@/features/prediction/types/prediction";
 import type { SccsAnalysis } from "@/features/sccs/types/sccs";
 import type { EvidenceSynthesisAnalysis } from "@/features/evidence-synthesis/types/evidenceSynthesis";
+import { useTranslation } from "react-i18next";
 
 type Analysis =
   | Characterization
@@ -97,6 +98,7 @@ export function AnalysisList({
   onPageChange,
   isSearching = false,
 }: AnalysisListProps) {
+  const { t } = useTranslation("app");
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -112,7 +114,7 @@ export function AnalysisList({
     return (
       <div className="flex items-center justify-center h-64">
         <p className="text-critical">
-          Failed to load {typeLabel}
+          {t("analyses.auto.failedToLoad_8344cc")} {typeLabel}
         </p>
       </div>
     );
@@ -127,19 +129,19 @@ export function AnalysisList({
         {isSearching ? (
           <>
             <h3 className="text-lg font-semibold text-text-primary">
-              No matching {typeLabel}
+              {t("analyses.auto.noMatching_cf918e")} {typeLabel}
             </h3>
             <p className="mt-2 text-sm text-text-muted">
-              Try adjusting your search terms.
+              {t("analyses.auto.tryAdjustingYourSearchTerms_546a65")}
             </p>
           </>
         ) : (
           <>
             <h3 className="text-lg font-semibold text-text-primary">
-              No {typeLabel} yet
+              {t("analyses.auto.no_bafd73")} {typeLabel} yet
             </h3>
             <p className="mt-2 text-sm text-text-muted">
-              Create your first {typeLabelSingular} to get started.
+              {t("analyses.auto.createYourFirst_11586f")} {typeLabelSingular} {t("analyses.auto.toGetStarted_51b1bd")}
             </p>
           </>
         )}
@@ -155,22 +157,22 @@ export function AnalysisList({
           <thead>
             <tr className="bg-surface-overlay">
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Name
+                {t("analyses.auto.name_49ee30")}
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Description
+                {t("analyses.auto.description_b5a7ad")}
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Author
+                {t("analyses.auto.author_a51774")}
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Status
+                {t("analyses.auto.status_ec53a8")}
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Last Run
+                {t("analyses.auto.lastRun_05a3a2")}
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Created
+                {t("analyses.auto.created_0eceeb")}
               </th>
             </tr>
           </thead>
@@ -206,7 +208,7 @@ export function AnalysisList({
                       <ExecutionStatusBadge status={latest.status} />
                     ) : (
                       <span className="text-sm text-text-ghost">
-                        Not executed
+                        {t("analyses.auto.notExecuted_ce1910")}
                       </span>
                     )}
                   </td>
@@ -231,7 +233,7 @@ export function AnalysisList({
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-1">
           <p className="text-sm text-text-muted">
-            Showing {(page - 1) * perPage + 1} -{" "}
+            {t("analyses.auto.showing_b4e610")} {(page - 1) * perPage + 1} -{" "}
             {Math.min(page * perPage, total)} of {total}
           </p>
           <div className="flex items-center gap-1">

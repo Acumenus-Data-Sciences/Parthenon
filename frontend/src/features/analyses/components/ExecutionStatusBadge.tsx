@@ -5,26 +5,30 @@ import {
   Clock,
   Ban,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { ExecutionStatus } from "../types/analysis";
 
-const statusConfig: Record<
+function getStatusConfig(t: (key: string) => string): Record<
   ExecutionStatus,
   { icon: typeof Clock; color: string; label: string }
-> = {
-  pending: { icon: Clock, color: "var(--text-muted)", label: "Pending" },
-  queued: { icon: Clock, color: "var(--info)", label: "Queued" },
-  running: { icon: Loader2, color: "var(--warning)", label: "Running" },
-  completed: { icon: CheckCircle2, color: "var(--success)", label: "Completed" },
-  failed: { icon: XCircle, color: "var(--critical)", label: "Failed" },
-  cancelled: { icon: Ban, color: "var(--text-muted)", label: "Cancelled" },
-};
+> {
+  return {
+    pending: { icon: Clock, color: "var(--text-muted)", label: t("analyses.auto.pending_2d13df") },
+    queued: { icon: Clock, color: "var(--info)", label: t("analyses.auto.queued_7b2f31") },
+    running: { icon: Loader2, color: "var(--warning)", label: t("analyses.auto.running_5bda81") },
+    completed: { icon: CheckCircle2, color: "var(--success)", label: t("analyses.auto.completed_07ca50") },
+    failed: { icon: XCircle, color: "var(--critical)", label: t("analyses.auto.failed_d7c8c8") },
+    cancelled: { icon: Ban, color: "var(--text-muted)", label: t("analyses.auto.cancelled_a149e8") },
+  };
+}
 
 interface ExecutionStatusBadgeProps {
   status: ExecutionStatus;
 }
 
 export function ExecutionStatusBadge({ status }: ExecutionStatusBadgeProps) {
-  const config = statusConfig[status];
+  const { t } = useTranslation("app");
+  const config = getStatusConfig(t)[status];
   const Icon = config.icon;
 
   return (

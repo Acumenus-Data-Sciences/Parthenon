@@ -3,6 +3,7 @@ import { ArrowUpDown, Search, ChevronRight, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fmt } from "@/lib/formatters";
 import type { FeatureResult } from "../types/analysis";
+import { useTranslation } from "react-i18next";
 
 interface FeatureComparisonTableProps {
   targetFeatures: FeatureResult[];
@@ -126,6 +127,7 @@ export function FeatureComparisonTable({
   targetLabel = "Target",
   comparatorLabel = "Comparator",
 }: FeatureComparisonTableProps) {
+  const { t } = useTranslation("app");
   const [sortField, setSortField] = useState<SortField>("target_percent");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [search, setSearch] = useState("");
@@ -281,7 +283,7 @@ export function FeatureComparisonTable({
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Filter features..."
+          placeholder={t("analyses.auto.filterFeatures_e1716d")}
           className={cn(
             "w-full rounded-lg border border-border-default bg-surface-base pl-9 pr-3 py-2 text-sm",
             "text-text-primary placeholder:text-text-ghost",
@@ -298,7 +300,7 @@ export function FeatureComparisonTable({
               <tr className="bg-surface-overlay">
                 {renderSortableHeader({
                   field: "feature_name",
-                  label: "Feature Name",
+                  label: t("analyses.auto.featureName_ba719b"),
                   className: "text-left",
                   sortField,
                   onSort: handleSort,
@@ -364,7 +366,7 @@ export function FeatureComparisonTable({
                     colSpan={colSpan}
                     className="px-4 py-8 text-center text-sm text-text-ghost"
                   >
-                    No features found
+                    {t("analyses.auto.noFeaturesFound_e7843a")}
                   </td>
                 </tr>
               )}
@@ -374,7 +376,7 @@ export function FeatureComparisonTable({
       </div>
 
       <p className="text-[10px] text-text-ghost">
-        Showing {filteredAndSorted.length} of {mergedRows.length} features
+        {t("analyses.auto.showing_b4e610")} {filteredAndSorted.length} of {mergedRows.length} features
         {" across "}
         {domainGroups.length} domains
         {hasComparator &&
@@ -401,6 +403,7 @@ function DomainGroupRows({
   hasComparator: boolean;
   colSpan: number;
 }) {
+  const { t } = useTranslation("app");
   return (
     <>
       {/* Domain header row */}
@@ -424,7 +427,7 @@ function DomainGroupRows({
                 {group.domain}
               </span>
               <span className="text-[10px] text-text-ghost">
-                ({group.rows.length} covariates)
+                ({group.rows.length} {t("analyses.auto.covariates_c01273")}
               </span>
             </div>
             {hasComparator && group.meanAbsSmd !== null && (
@@ -438,7 +441,7 @@ function DomainGroupRows({
                       : "text-text-secondary",
                 )}
               >
-                Mean |SMD|: {fmt(group.meanAbsSmd)}
+                {t("analyses.auto.meanSMD_c04a97")} {fmt(group.meanAbsSmd)}
               </span>
             )}
           </div>

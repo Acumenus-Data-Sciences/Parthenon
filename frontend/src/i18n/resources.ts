@@ -1,4 +1,5 @@
 import type { Resource } from "i18next";
+import { analysisResources } from "./analysisResources";
 import { appResources } from "./appResources";
 import { cohortDefinitionResources } from "./cohortDefinitionResources";
 import { commonsResources } from "./commonsResources";
@@ -7130,6 +7131,7 @@ function appForLocale(locale: string): MessageTree {
   const appWaves = [
     dataSourceIngestionResources,
     cohortDefinitionResources,
+    analysisResources,
   ];
 
   return appWaves.reduce(

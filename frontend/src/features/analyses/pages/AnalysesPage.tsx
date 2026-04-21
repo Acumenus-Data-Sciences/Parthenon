@@ -37,6 +37,7 @@ import type { EstimationDesign } from "@/features/estimation/types/estimation";
 import type { PredictionDesign } from "@/features/prediction/types/prediction";
 import type { SccsDesign } from "@/features/sccs/types/sccs";
 import type { EvidenceSynthesisDesign } from "@/features/evidence-synthesis/types/evidenceSynthesis";
+import { useTranslation } from "react-i18next";
 
 type Tab = "characterizations" | "incidence-rates" | "pathways" | "estimations" | "predictions" | "sccs" | "evidence-synthesis";
 
@@ -134,18 +135,20 @@ const defaultPredictionDesign: PredictionDesign = {
   },
 };
 
-const defaultSccsDesign: SccsDesign = {
-  exposureCohortId: 0,
-  outcomeCohortId: 0,
-  riskWindows: [
-    { start: 1, end: 30, startAnchor: "era_start", endAnchor: "era_start", label: "Risk window 1" },
-  ],
-  model: { type: "simple" },
-  studyPopulation: {
-    naivePeriod: 180,
-    firstOutcomeOnly: true,
-  },
-};
+function createDefaultSccsDesign(t: (key: string) => string): SccsDesign {
+  return {
+    exposureCohortId: 0,
+    outcomeCohortId: 0,
+    riskWindows: [
+      { start: 1, end: 30, startAnchor: "era_start", endAnchor: "era_start", label: t("analyses.auto.riskWindow1_56918c") },
+    ],
+    model: { type: "simple" },
+    studyPopulation: {
+      naivePeriod: 180,
+      firstOutcomeOnly: true,
+    },
+  };
+}
 
 const defaultESDesign: EvidenceSynthesisDesign = {
   estimates: [],
@@ -163,27 +166,34 @@ interface TabDef {
   statsKey: "characterizations" | "incidence_rates" | "pathways" | "estimations" | "predictions" | "sccs" | "evidence_synthesis";
 }
 
-const tabDefs: TabDef[] = [
-  { key: "characterizations", label: "Characterizations", icon: BarChart3, color: "var(--info)", statsKey: "characterizations" },
-  { key: "incidence-rates", label: "Incidence Rates", icon: TrendingUp, color: "var(--success)", statsKey: "incidence_rates" },
-  { key: "pathways", label: "Pathways", icon: GitBranch, color: "var(--accent)", statsKey: "pathways" },
-  { key: "estimations", label: "Estimations", icon: Scale, color: "var(--domain-observation)", statsKey: "estimations" },
-  { key: "predictions", label: "Predictions", icon: Brain, color: "var(--domain-procedure)", statsKey: "predictions" },
-  { key: "sccs", label: "SCCS", icon: Clock, color: "var(--domain-device)", statsKey: "sccs" },
-  { key: "evidence-synthesis", label: "Evidence Synthesis", icon: Layers, color: "var(--success)", statsKey: "evidence_synthesis" },
-];
+function getTabDefs(t: (key: string) => string): TabDef[] {
+  return [
+    { key: "characterizations", label: t("analyses.auto.characterizations_b0e166"), icon: BarChart3, color: "var(--info)", statsKey: "characterizations" },
+    { key: "incidence-rates", label: t("analyses.auto.incidenceRates_ad8864"), icon: TrendingUp, color: "var(--success)", statsKey: "incidence_rates" },
+    { key: "pathways", label: t("analyses.auto.pathways_bb724a"), icon: GitBranch, color: "var(--accent)", statsKey: "pathways" },
+    { key: "estimations", label: t("analyses.auto.estimations_d5b1d1"), icon: Scale, color: "var(--domain-observation)", statsKey: "estimations" },
+    { key: "predictions", label: t("analyses.auto.predictions_a54a7e"), icon: Brain, color: "var(--domain-procedure)", statsKey: "predictions" },
+    { key: "sccs", label: "SCCS", icon: Clock, color: "var(--domain-device)", statsKey: "sccs" },
+    { key: "evidence-synthesis", label: t("analyses.auto.evidenceSynthesis_577276"), icon: Layers, color: "var(--success)", statsKey: "evidence_synthesis" },
+  ];
+}
 
-const createMenuItems: { key: Tab; label: string; icon: typeof BarChart3; color: string }[] = [
-  { key: "characterizations", label: "Characterization", icon: BarChart3, color: "var(--info)" },
-  { key: "incidence-rates", label: "Incidence Rate", icon: TrendingUp, color: "var(--success)" },
-  { key: "pathways", label: "Pathway", icon: GitBranch, color: "var(--accent)" },
-  { key: "estimations", label: "Estimation", icon: Scale, color: "var(--domain-observation)" },
-  { key: "predictions", label: "Prediction", icon: Brain, color: "var(--domain-procedure)" },
-  { key: "sccs", label: "SCCS", icon: Clock, color: "var(--domain-device)" },
-  { key: "evidence-synthesis", label: "Evidence Synthesis", icon: Layers, color: "var(--success)" },
-];
+function getCreateMenuItems(t: (key: string) => string): { key: Tab; label: string; icon: typeof BarChart3; color: string }[] {
+  return [
+    { key: "characterizations", label: t("analyses.auto.characterization_9e5f44"), icon: BarChart3, color: "var(--info)" },
+    { key: "incidence-rates", label: t("analyses.auto.incidenceRate_c7654d"), icon: TrendingUp, color: "var(--success)" },
+    { key: "pathways", label: t("analyses.auto.pathway_8b5c1c"), icon: GitBranch, color: "var(--accent)" },
+    { key: "estimations", label: t("analyses.auto.estimation_bff4c9"), icon: Scale, color: "var(--domain-observation)" },
+    { key: "predictions", label: t("analyses.auto.prediction_3964d4"), icon: Brain, color: "var(--domain-procedure)" },
+    { key: "sccs", label: "SCCS", icon: Clock, color: "var(--domain-device)" },
+    { key: "evidence-synthesis", label: t("analyses.auto.evidenceSynthesis_577276"), icon: Layers, color: "var(--success)" },
+  ];
+}
 
 export default function AnalysesPage() {
+  const { t } = useTranslation("app");
+  const tabDefs = getTabDefs(t);
+  const createMenuItems = getCreateMenuItems(t);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>("characterizations");
   const [charPage, setCharPage] = useState(1);
@@ -218,6 +228,7 @@ export default function AnalysesPage() {
   }, [searchInput]);
 
   // Reset pages when search changes
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setCharPage(1);
     setIRPage(1);
@@ -227,6 +238,7 @@ export default function AnalysesPage() {
     setSccsPage(1);
     setEsPage(1);
   }, [debouncedSearch]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const search = debouncedSearch || undefined;
 
@@ -287,43 +299,43 @@ export default function AnalysesPage() {
     switch (type) {
       case "characterizations":
         createCharMutation.mutate(
-          { name: "Untitled Characterization", design_json: defaultCharDesign },
+          { name: t("analyses.auto.untitledCharacterization_eb123f"), design_json: defaultCharDesign },
           { onSuccess: (c) => navigate(`/analyses/characterizations/${c.id}`), onSettled: () => setIsCreating(false) },
         );
         break;
       case "incidence-rates":
         createIRMutation.mutate(
-          { name: "Untitled Incidence Rate Analysis", design_json: defaultIRDesign },
+          { name: t("analyses.auto.untitledIncidenceRateAnalysis_bb942d"), design_json: defaultIRDesign },
           { onSuccess: (ir) => navigate(`/analyses/incidence-rates/${ir.id}`), onSettled: () => setIsCreating(false) },
         );
         break;
       case "pathways":
         createPathwayMutation.mutate(
-          { name: "Untitled Pathway Analysis", design_json: defaultPathwayDesign },
+          { name: t("analyses.auto.untitledPathwayAnalysis_1950bf"), design_json: defaultPathwayDesign },
           { onSuccess: (p) => navigate(`/analyses/pathways/${p.id}`), onSettled: () => setIsCreating(false) },
         );
         break;
       case "estimations":
         createEstMutation.mutate(
-          { name: "Untitled Estimation", design_json: defaultEstimationDesign },
+          { name: t("analyses.auto.untitledEstimation_5893e5"), design_json: defaultEstimationDesign },
           { onSuccess: (e) => navigate(`/analyses/estimations/${e.id}`), onSettled: () => setIsCreating(false) },
         );
         break;
       case "predictions":
         createPredMutation.mutate(
-          { name: "Untitled Prediction", design_json: defaultPredictionDesign },
+          { name: t("analyses.auto.untitledPrediction_77bd63"), design_json: defaultPredictionDesign },
           { onSuccess: (p) => navigate(`/analyses/predictions/${p.id}`), onSettled: () => setIsCreating(false) },
         );
         break;
       case "sccs":
         createSccsMutation.mutate(
-          { name: "Untitled SCCS Analysis", design_json: defaultSccsDesign },
+          { name: t("analyses.auto.untitledSCCSAnalysis_8551b6"), design_json: createDefaultSccsDesign(t) },
           { onSuccess: (s) => navigate(`/analyses/sccs/${s.id}`), onSettled: () => setIsCreating(false) },
         );
         break;
       case "evidence-synthesis":
         createESMutation.mutate(
-          { name: "Untitled Evidence Synthesis", design_json: defaultESDesign },
+          { name: t("analyses.auto.untitledEvidenceSynthesis_4968f1"), design_json: defaultESDesign },
           { onSuccess: (es) => navigate(`/analyses/evidence-synthesis/${es.id}`), onSettled: () => setIsCreating(false) },
         );
         break;
@@ -340,9 +352,9 @@ export default function AnalysesPage() {
       {/* Header — title left, search center, create dropdown right */}
       <div className="flex items-start justify-between gap-4">
         <div className="shrink-0">
-          <h1 className="text-2xl font-bold text-text-primary">Analyses</h1>
+          <h1 className="text-2xl font-bold text-text-primary">{t("analyses.auto.analyses_86859f")}</h1>
           <p className="mt-1 text-sm text-text-muted">
-            Population-level research studies across 7 analysis types
+            {t("analyses.auto.populationLevelResearchStudiesAcross7AnalysisTypes_fd78dc")}
           </p>
         </div>
 
@@ -354,7 +366,7 @@ export default function AnalysesPage() {
             />
             <input
               type="text"
-              placeholder="Search across all analyses..."
+              placeholder={t("analyses.auto.searchAcrossAllAnalyses_78b012")}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="w-full rounded-lg border border-border-default bg-surface-raised py-2 pl-9 pr-8 text-sm text-text-primary placeholder:text-text-ghost focus:border-success/40 focus:outline-none focus:ring-1 focus:ring-success/40"
@@ -385,7 +397,7 @@ export default function AnalysesPage() {
               ) : (
                 <Plus size={16} />
               )}
-              New Analysis
+              {t("analyses.auto.newAnalysis_49ebaa")}
               <ChevronDown size={14} className={cn("transition-transform", showCreateMenu && "rotate-180")} />
             </button>
 

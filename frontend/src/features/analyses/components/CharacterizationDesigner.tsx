@@ -3,6 +3,7 @@ import { Loader2, Save, X, Zap, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { getCohortDefinitions } from "@/features/cohort-definitions/api/cohortApi";
+import { useTranslation } from "react-i18next";
 import type {
   CharacterizationDesign,
   FeatureType,
@@ -18,20 +19,24 @@ import {
   useRunDirectCharacterization,
 } from "../hooks/useCharacterizations";
 
-const ALL_FEATURE_TYPES: { value: FeatureType; label: string }[] = [
-  { value: "demographics", label: "Demographics" },
-  { value: "conditions", label: "Conditions" },
-  { value: "drugs", label: "Drugs" },
-  { value: "procedures", label: "Procedures" },
-  { value: "measurements", label: "Measurements" },
-  { value: "visits", label: "Visits" },
-];
+function getAllFeatureTypes(t: (key: string) => string): { value: FeatureType; label: string }[] {
+  return [
+    { value: "demographics", label: t("analyses.auto.demographics_d6f6d1") },
+    { value: "conditions", label: t("analyses.auto.conditions_229eb0") },
+    { value: "drugs", label: t("analyses.auto.drugs_626c25") },
+    { value: "procedures", label: t("analyses.auto.procedures_5102ab") },
+    { value: "measurements", label: t("analyses.auto.measurements_930aeb") },
+    { value: "visits", label: t("analyses.auto.visits_d7e637") },
+  ];
+}
 
-const TIME_WINDOW_PRESETS: { label: string; window: TimeWindow }[] = [
-  { label: "Long-term (−365 to −1)", window: { start_day: -365, end_day: -1 } },
-  { label: "Short-term (−30 to −1)", window: { start_day: -30, end_day: -1 } },
-  { label: "Index (0 to 0)", window: { start_day: 0, end_day: 0 } },
-];
+function getTimeWindowPresets(t: (key: string) => string): { label: string; window: TimeWindow }[] {
+  return [
+    { label: t("analyses.auto.longTerm365To1_b8e296"), window: { start_day: -365, end_day: -1 } },
+    { label: t("analyses.auto.shortTerm30To1_512204"), window: { start_day: -30, end_day: -1 } },
+    { label: t("analyses.auto.index0To0_bb5827"), window: { start_day: 0, end_day: 0 } },
+  ];
+}
 
 const defaultDesign: CharacterizationDesign = {
   targetCohortIds: [],
@@ -70,6 +75,9 @@ export function CharacterizationDesigner({
   onSaved,
   onDirectResult,
 }: CharacterizationDesignerProps) {
+  const { t } = useTranslation("app");
+  const allFeatureTypes = getAllFeatureTypes(t);
+  const timeWindowPresets = getTimeWindowPresets(t);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [design, setDesign] = useState<CharacterizationDesign>(defaultDesign);
@@ -92,6 +100,7 @@ export function CharacterizationDesigner({
 
   const cohorts = cohortData?.items ?? [];
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (characterization) {
       setName(characterization.name);
@@ -105,6 +114,7 @@ export function CharacterizationDesigner({
       });
     }
   }, [characterization]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const toggleFeatureType = (ft: FeatureType) => {
     setDesign((prev) => ({
@@ -224,25 +234,25 @@ export function CharacterizationDesigner({
       {/* Name & Description */}
       <div className="panel">
         <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-          Basic Information
+          {t("analyses.auto.basicInformation_87cabb")}
         </h3>
         <div className="space-y-3 mt-3">
           <div>
-            <label className="form-label">Name</label>
+            <label className="form-label">{t("analyses.auto.name_49ee30")}</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Characterization name"
+              placeholder={t("analyses.auto.characterizationName_9dde7f")}
               className="form-input"
             />
           </div>
           <div>
-            <label className="form-label">Description</label>
+            <label className="form-label">{t("analyses.auto.description_b5a7ad")}</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Optional description"
+              placeholder={t("analyses.auto.optionalDescription_d196d2")}
               rows={2}
               className="form-input form-textarea"
             />
@@ -253,10 +263,10 @@ export function CharacterizationDesigner({
       {/* Target Cohorts */}
       <div className="panel">
         <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-          Target Cohorts
+          {t("analyses.auto.targetCohorts_730954")}
         </h3>
         <p className="panel-subtitle">
-          Select one or more cohorts to characterize.
+          {t("analyses.auto.selectOneOrMoreCohortsToCharacterize_4745cc")}
         </p>
         {loadingCohorts ? (
           <Loader2 size={16} className="animate-spin" style={{ color: "var(--text-muted)" }} />
@@ -271,7 +281,7 @@ export function CharacterizationDesigner({
               className="form-input form-select"
               defaultValue=""
             >
-              <option value="">Add a target cohort...</option>
+              <option value="">{t("analyses.auto.addATargetCohort_c3df89")}</option>
               {cohorts
                 .filter((c) => !design.targetCohortIds.includes(c.id))
                 .map((c) => (
@@ -308,11 +318,11 @@ export function CharacterizationDesigner({
       {/* Comparator / Outcome Cohorts */}
       <div className="panel">
         <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-          Outcome Cohorts{" "}
-          <span style={{ color: "var(--text-ghost)", fontWeight: 400 }}>(optional)</span>
+          {t("analyses.auto.outcomeCohorts_ed8002")}{" "}
+          <span style={{ color: "var(--text-ghost)", fontWeight: 400 }}>{t("analyses.auto.optional_f53d1c")}</span>
         </h3>
         <p className="panel-subtitle">
-          Select outcome cohorts for comparison or time-to-event analysis.
+          {t("analyses.auto.selectOutcomeCohortsForComparisonOrTimeTo_1bd486")}
         </p>
         {loadingCohorts ? (
           <Loader2 size={16} className="animate-spin" style={{ color: "var(--text-muted)" }} />
@@ -327,7 +337,7 @@ export function CharacterizationDesigner({
               className="form-input form-select"
               defaultValue=""
             >
-              <option value="">Add an outcome cohort...</option>
+              <option value="">{t("analyses.auto.addAnOutcomeCohort_c58a88")}</option>
               {cohorts
                 .filter(
                   (c) => !design.comparatorCohortIds.includes(c.id),
@@ -370,13 +380,13 @@ export function CharacterizationDesigner({
       {/* Feature Types */}
       <div className="panel">
         <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-          Feature Types
+          {t("analyses.auto.featureTypes_4c81a3")}
         </h3>
         <p className="panel-subtitle">
-          Select which feature categories to include in the analysis.
+          {t("analyses.auto.selectWhichFeatureCategoriesToIncludeInThe_9d5d7d")}
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-3">
-          {ALL_FEATURE_TYPES.map((ft) => (
+          {allFeatureTypes.map((ft) => (
             <label
               key={ft.value}
               className={cn(
@@ -421,28 +431,28 @@ export function CharacterizationDesigner({
       {/* OHDSI Analysis Types */}
       <div className="panel">
         <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-          OHDSI Analysis Types
+          {t("analyses.auto.oHDSIAnalysisTypes_23ecb8")}
         </h3>
         <p className="panel-subtitle">
-          Select which OHDSI Characterization analyses to run via the R package.
+          {t("analyses.auto.selectWhichOHDSICharacterizationAnalysesToRunVia_41bfab")}
         </p>
         <div className="space-y-3 mt-3">
           {(
             [
               {
                 key: "aggregate_covariates" as const,
-                label: "Aggregate Covariates",
-                description: "Table 1 — covariate means with SMD comparison",
+                label: t("analyses.auto.aggregateCovariates_4e873a"),
+                description: t("analyses.auto.table1CovariateMeansWithSMDComparison_1b2010"),
               },
               {
                 key: "time_to_event" as const,
-                label: "Time to Event",
-                description: "Days from target cohort entry to outcome",
+                label: t("analyses.auto.timeToEvent_367be0"),
+                description: t("analyses.auto.daysFromTargetCohortEntryToOutcome_0c53f5"),
               },
               {
                 key: "dechallenge_rechallenge" as const,
-                label: "Dechallenge / Rechallenge",
-                description: "Drug withdrawal and re-exposure patterns",
+                label: t("analyses.auto.dechallengeRechallenge_4854be"),
+                description: t("analyses.auto.drugWithdrawalAndReExposurePatterns_b545cb"),
               },
             ] as { key: keyof DirectRunAnalyses; label: string; description: string }[]
           ).map(({ key, label, description }) => (
@@ -482,15 +492,15 @@ export function CharacterizationDesigner({
       {/* Time Windows */}
       <div className="panel">
         <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-          Time Windows
+          {t("analyses.auto.timeWindows_88d5d3")}
         </h3>
         <p className="panel-subtitle">
-          Define the covariate look-back windows relative to cohort entry (day 0).
+          {t("analyses.auto.defineTheCovariateLookBackWindowsRelativeTo_b71059")}
         </p>
 
         {/* Presets */}
         <div className="flex flex-wrap gap-2 mt-3">
-          {TIME_WINDOW_PRESETS.map((preset) => {
+          {timeWindowPresets.map((preset) => {
             const active = timeWindows.some(
               (w) => w.start_day === preset.window.start_day && w.end_day === preset.window.end_day,
             );
@@ -521,10 +531,10 @@ export function CharacterizationDesigner({
               style={{ borderColor: "var(--border-default)", background: "var(--surface-overlay)" }}
             >
               <span className="text-xs font-medium w-16 shrink-0" style={{ color: "var(--text-muted)" }}>
-                Window {i + 1}
+                {t("analyses.auto.window_c89686")} {i + 1}
               </span>
               <div className="flex items-center gap-2 flex-1">
-                <label className="text-xs" style={{ color: "var(--text-ghost)" }}>Start</label>
+                <label className="text-xs" style={{ color: "var(--text-ghost)" }}>{t("analyses.auto.start_a6122a")}</label>
                 <input
                   type="number"
                   value={w.start_day}
@@ -534,7 +544,7 @@ export function CharacterizationDesigner({
                   className="form-input py-1 text-xs"
                   style={{ width: "6rem" }}
                 />
-                <label className="text-xs" style={{ color: "var(--text-ghost)" }}>End</label>
+                <label className="text-xs" style={{ color: "var(--text-ghost)" }}>{t("analyses.auto.end_87557f")}</label>
                 <input
                   type="number"
                   value={w.end_day}
@@ -550,7 +560,7 @@ export function CharacterizationDesigner({
                 onClick={() => removeTimeWindow(i)}
                 className="p-1 rounded transition-colors hover:opacity-100"
                 style={{ color: "var(--text-ghost)", opacity: 0.6 }}
-                title="Remove window"
+                title={t("analyses.auto.removeWindow_89f7a2")}
               >
                 <Trash2 size={13} />
               </button>
@@ -565,14 +575,14 @@ export function CharacterizationDesigner({
           style={{ color: "var(--text-muted)" }}
         >
           <Plus size={12} />
-          Add custom window
+          {t("analyses.auto.addCustomWindow_8f43bf")}
         </button>
       </div>
 
       {/* Stratification & Parameters */}
       <div className="panel">
         <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-          Parameters
+          {t("analyses.auto.parameters_3225a1")}
         </h3>
 
         {/* Stratification toggles */}
@@ -588,7 +598,7 @@ export function CharacterizationDesigner({
               }
               className={cn("toggle", design.stratifyByGender && "active")}
             />
-            Stratify by Gender
+            {t("analyses.auto.stratifyByGender_4879ab")}
           </label>
           <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: "var(--text-secondary)" }}>
             <button
@@ -601,14 +611,14 @@ export function CharacterizationDesigner({
               }
               className={cn("toggle", design.stratifyByAge && "active")}
             />
-            Stratify by Age
+            {t("analyses.auto.stratifyByAge_05a59d")}
           </label>
         </div>
 
         {/* Top N */}
         <div className="mt-4">
           <label className="form-label">
-            Top N Features: {design.topN}
+            {t("analyses.auto.topNFeatures_af535f")} {design.topN}
           </label>
           <input
             type="range"
@@ -632,7 +642,7 @@ export function CharacterizationDesigner({
         <div className="mt-4 flex items-end gap-6">
           <div>
             <label className="form-label">
-              Minimum Cell Count
+              {t("analyses.auto.minimumCellCount_2438c8")}
             </label>
             <input
               type="number"
@@ -653,7 +663,7 @@ export function CharacterizationDesigner({
           {/* Min Prior Observation */}
           <div>
             <label className="form-label">
-              Min Prior Observation (days)
+              {t("analyses.auto.minPriorObservationDays_01e009")}
             </label>
             <input
               type="number"
@@ -694,7 +704,7 @@ export function CharacterizationDesigner({
             ) : (
               <Zap size={14} />
             )}
-            Run Direct (OHDSI)
+            {t("analyses.auto.runDirectOHDSI_192424")}
           </button>
           {directRunMutation.isError && (
             <p className="text-xs" style={{ color: "var(--critical)" }}>
@@ -705,7 +715,7 @@ export function CharacterizationDesigner({
           )}
           {!sourceId && (
             <p className="text-xs" style={{ color: "var(--text-ghost)" }}>
-              Select a data source from the header to enable direct run
+              {t("analyses.auto.selectADataSourceFromTheHeaderTo_87174d")}
             </p>
           )}
         </div>

@@ -23,10 +23,12 @@ import {
   useIncidenceRateExecution,
 } from "../hooks/useIncidenceRates";
 import type { DirectCalcResponse } from "../types/analysis";
+import { useTranslation } from "react-i18next";
 
 type Tab = "design" | "results";
 
 export default function IncidenceRateDetailPage() {
+  const { t } = useTranslation("app");
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const irId = id ? Number(id) : null;
@@ -56,6 +58,7 @@ export default function IncidenceRateDetailPage() {
     activeExecId,
   );
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (executions && executions.length > 0 && !activeExecId) {
       const latest = executions.reduce((a, b) =>
@@ -66,6 +69,7 @@ export default function IncidenceRateDetailPage() {
       }
     }
   }, [executions, activeExecId]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleDelete = () => {
     if (!irId) return;
@@ -118,14 +122,14 @@ export default function IncidenceRateDetailPage() {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <p className="text-critical">
-            Failed to load incidence rate analysis
+            {t("analyses.auto.failedToLoadIncidenceRateAnalysis_6a8630")}
           </p>
           <button
             type="button"
             onClick={() => navigate("/analyses")}
             className="mt-4 text-sm text-text-muted hover:text-text-primary transition-colors"
           >
-            Back to analyses
+            {t("analyses.auto.backToAnalyses_cdf536")}
           </button>
         </div>
       </div>
@@ -143,7 +147,7 @@ export default function IncidenceRateDetailPage() {
             className="inline-flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition-colors mb-3"
           >
             <ArrowLeft size={14} />
-            Analyses
+            {t("analyses.auto.analyses_86859f")}
           </button>
           <h1 className="text-2xl font-bold text-text-primary">
             {analysis.name}
@@ -173,7 +177,7 @@ export default function IncidenceRateDetailPage() {
                   "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
                 )}
               >
-                <option value="">Source</option>
+                <option value="">{t("analyses.auto.source_f31bbd")}</option>
                 {sources?.map((src) => (
                   <option key={src.id} value={src.id}>
                     {src.source_name}
@@ -194,24 +198,24 @@ export default function IncidenceRateDetailPage() {
                 isRunning
               }
               className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-2 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors disabled:opacity-50"
-              title="Queue analysis as a background job"
+              title={t("analyses.auto.queueAnalysisAsABackgroundJob_733a31")}
             >
               {executeMutation.isPending || isRunning ? (
                 <Loader2 size={14} className="animate-spin" />
               ) : (
                 <Play size={14} />
               )}
-              Execute
+              {t("analyses.auto.execute_40cd01")}
             </button>
           </div>
           {directResults && (
             <span
               className="inline-flex items-center gap-1.5 rounded-md border border-success/30 bg-success/5 px-2.5 py-1 text-xs font-medium"
               style={{ color: "var(--success)" }}
-              title="Direct CohortIncidence results are shown"
+              title={t("analyses.auto.directCohortIncidenceResultsAreShown_462cb7")}
             >
               <Zap size={11} />
-              Direct result
+              {t("analyses.auto.directResult_6ab9f1")}
             </span>
           )}
 
@@ -226,7 +230,7 @@ export default function IncidenceRateDetailPage() {
             ) : (
               <Trash2 size={14} />
             )}
-            Delete
+            {t("analyses.auto.delete_f2a6c4")}
           </button>
         </div>
       </div>
@@ -235,8 +239,8 @@ export default function IncidenceRateDetailPage() {
       <div className="flex items-center gap-1 border-b border-border-default">
         {(
           [
-            { key: "design" as const, label: "Design" },
-            { key: "results" as const, label: "Results" },
+            { key: "design" as const, label: t("analyses.auto.design_1afa74") },
+            { key: "results" as const, label: t("analyses.auto.results_fd69c5") },
           ]
         ).map((tab) => (
           <button
@@ -275,23 +279,23 @@ export default function IncidenceRateDetailPage() {
           {executions && executions.length > 0 && (
             <div>
               <h3 className="text-sm font-semibold text-text-primary mb-3">
-                Execution History
+                {t("analyses.auto.executionHistory_1e5b64")}
               </h3>
               <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
                 <table className="w-full">
                   <thead>
                     <tr className="bg-surface-overlay">
                       <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                        Status
+                        {t("analyses.auto.status_ec53a8")}
                       </th>
                       <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                        Source
+                        {t("analyses.auto.source_f31bbd")}
                       </th>
                       <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                        Started
+                        {t("analyses.auto.started_842855")}
                       </th>
                       <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                        Completed
+                        {t("analyses.auto.completed_07ca50")}
                       </th>
                     </tr>
                   </thead>
@@ -321,7 +325,7 @@ export default function IncidenceRateDetailPage() {
                           />
                         </td>
                         <td className="px-4 py-3 text-xs text-text-muted">
-                          Source #{exec.source_id}
+                          {t("analyses.auto.source_1ec88c")}{exec.source_id}
                         </td>
                         <td className="px-4 py-3 text-xs text-text-muted">
                           {exec.started_at

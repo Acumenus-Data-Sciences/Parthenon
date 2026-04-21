@@ -19,6 +19,7 @@ import type {
 } from "../types/analysis";
 import { fmt, num } from "@/lib/formatters";
 import { IncidenceRateVerdictDashboard } from "./IncidenceRateVerdictDashboard";
+import { useTranslation } from "react-i18next";
 
 // ---------------------------------------------------------------------------
 // Props
@@ -242,6 +243,7 @@ function SummaryCards({
   totalOutcomes?: number;
   isDirectCalc?: boolean;
 }) {
+  const { t } = useTranslation("app");
   const computedPersons = totalPersons ?? Math.max(...results.map((r) => num(r.persons_at_risk)), 0);
   const computedPY = totalPersonYears ?? results.reduce((sum, r) => sum + num(r.person_years), 0);
   const computedOutcomes = totalOutcomes ?? results.reduce((s, r) => s + num(r.persons_with_outcome), 0);
@@ -252,13 +254,13 @@ function SummaryCards({
 
   const cards = [
     {
-      label: "Persons at Risk",
+      label: t("analyses.auto.personsAtRisk_70f6a6"),
       value: computedPersons.toLocaleString(),
       icon: Users,
       color: "var(--success)",
     },
     {
-      label: "Person-Years",
+      label: t("analyses.auto.personYears_8c8539"),
       value:
         computedPY >= 1000
           ? `${(computedPY / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 })}K`
@@ -267,13 +269,13 @@ function SummaryCards({
       color: "var(--accent)",
     },
     {
-      label: "Total Outcome Events",
+      label: t("analyses.auto.totalOutcomeEvents_e93680"),
       value: computedOutcomes.toLocaleString(),
       icon: Activity,
       color: "var(--primary)",
     },
     {
-      label: "Avg IR / 1000 PY",
+      label: t("analyses.auto.avgIR1000PY_7113cb"),
       value: fmt(avgIR, 2),
       icon: Zap,
       color: isDirectCalc ? "var(--success)" : "var(--text-muted)",
@@ -387,6 +389,7 @@ function StratumPanel({
   stratumName: string;
   results: IncidenceRateResult[];
 }) {
+  const { t } = useTranslation("app");
   // For each outcome × stratum value, collect the stratum row
   const rows = useMemo(() => {
     return results.flatMap((r) => {
@@ -477,12 +480,12 @@ function StratumPanel({
             <th style={{ textAlign: "left" }}>
               {stratumName}
             </th>
-            {results.length > 1 && <th style={{ textAlign: "left" }}>Outcome</th>}
-            <th style={{ textAlign: "right" }}>Persons at Risk</th>
-            <th style={{ textAlign: "right" }}>Person-Years</th>
-            <th style={{ textAlign: "right" }}>With Outcome</th>
-            <th style={{ textAlign: "right" }}>IR / 1000 PY</th>
-            <th style={{ textAlign: "right" }}>95% CI</th>
+            {results.length > 1 && <th style={{ textAlign: "left" }}>{t("analyses.auto.outcome_cf73bd")}</th>}
+            <th style={{ textAlign: "right" }}>{t("analyses.auto.personsAtRisk_70f6a6")}</th>
+            <th style={{ textAlign: "right" }}>{t("analyses.auto.personYears_8c8539")}</th>
+            <th style={{ textAlign: "right" }}>{t("analyses.auto.withOutcome_907788")}</th>
+            <th style={{ textAlign: "right" }}>{t("analyses.auto.iR1000PY_5f552c")}</th>
+            <th style={{ textAlign: "right" }}>{t("analyses.auto.95CI_4009a0")}</th>
           </tr>
         </thead>
         <tbody>
@@ -527,6 +530,7 @@ function StratumPanel({
 // ---------------------------------------------------------------------------
 
 function ForestPlot({ results }: { results: IncidenceRateResult[] }) {
+  const { t } = useTranslation("app");
   if (results.length === 0) return null;
 
   const maxRate = Math.max(
@@ -537,7 +541,7 @@ function ForestPlot({ results }: { results: IncidenceRateResult[] }) {
   return (
     <div className="panel space-y-3">
       <h4 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-        Forest Plot (IR per 1,000 PY)
+        {t("analyses.auto.forestPlotIRPer1000PY_dec35e")}
       </h4>
       <div className="space-y-2">
         {results.map((r) => {
@@ -781,6 +785,7 @@ function TarSelector({
   selectedTarId: number | null;
   onSelect: (id: number) => void;
 }) {
+  const { t } = useTranslation("app");
   const tarOptions = useMemo(() => {
     const seen = new Map<number, string>();
     rows.forEach((r) => seen.set(r.tar_id, r.tar_label));
@@ -792,7 +797,7 @@ function TarSelector({
   return (
     <div className="flex items-center gap-2 flex-wrap">
       <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-        Time-at-Risk:
+        {t("analyses.auto.timeAtRisk_57746f")}
       </span>
       {tarOptions.map((opt) => (
         <button
@@ -838,6 +843,7 @@ function IncidenceRateResultsInner({
   isDirectCalc?: boolean;
   metadataLine?: string;
 }) {
+  const { t } = useTranslation("app");
   const sortedResults = useMemo(
     () => sortResults(results, sortField, sortDir),
     [results, sortField, sortDir],
@@ -858,7 +864,7 @@ function IncidenceRateResultsInner({
             style={{ color: "var(--success)" }}
           >
             <Zap size={11} />
-            OHDSI CohortIncidence — Direct Result
+            {t("analyses.auto.oHDSICohortIncidenceDirectResult_68933a")}
           </span>
           {metadataLine && (
             <span className="text-xs" style={{ color: "var(--text-muted)" }}>
@@ -1032,6 +1038,7 @@ export function IncidenceRateResults({
   isLoading,
   directResults,
 }: IncidenceRateResultsProps) {
+  const { t } = useTranslation("app");
   const [sortField, setSortField] = useState<SortField>("incidence_rate");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
@@ -1060,7 +1067,7 @@ export function IncidenceRateResults({
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
           <AlertCircle size={24} className="text-text-ghost mb-3" />
           <p className="text-sm text-text-muted">
-            CohortIncidence completed but returned no results.
+            {t("analyses.auto.cohortIncidenceCompletedButReturnedNoResults_c0a47d")}
           </p>
         </div>
       );
@@ -1079,7 +1086,7 @@ export function IncidenceRateResults({
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
         <AlertCircle size={24} className="text-text-ghost mb-3" />
-        <h3 className="text-sm font-semibold text-text-primary">No results available</h3>
+        <h3 className="text-sm font-semibold text-text-primary">{t("analyses.auto.noResultsAvailable_e29de7")}</h3>
         <p className="mt-1 text-xs text-text-muted">
           {execution
             ? `Execution status: ${execution.status}`
@@ -1101,7 +1108,7 @@ export function IncidenceRateResults({
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
         <AlertCircle size={24} className="text-text-ghost mb-3" />
         <p className="text-sm text-text-muted">
-          Execution completed but no results were returned.
+          {t("analyses.auto.executionCompletedButNoResultsWereReturned_bc0318")}
         </p>
       </div>
     );

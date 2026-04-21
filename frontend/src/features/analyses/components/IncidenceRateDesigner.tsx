@@ -16,6 +16,7 @@ import {
   useCalculateDirectIncidenceRate,
 } from "../hooks/useIncidenceRates";
 import type { DirectCalcResponse } from "../types/analysis";
+import { useTranslation } from "react-i18next";
 
 // ---------------------------------------------------------------------------
 // Defaults
@@ -67,6 +68,7 @@ function TarRow({
   onChange: (updated: TarConfig) => void;
   onRemove: () => void;
 }) {
+  const { t } = useTranslation("app");
   return (
     <div
       className="rounded-lg border border-border-default bg-surface-base p-3 space-y-3"
@@ -77,14 +79,14 @@ function TarRow({
           className="text-xs font-semibold uppercase tracking-wider"
           style={{ color: "var(--text-muted)" }}
         >
-          Window {index + 1}
+          {t("analyses.auto.window_c89686")} {index + 1}
         </span>
         {canRemove && (
           <button
             type="button"
             onClick={onRemove}
             className="p-1 rounded text-text-ghost hover:text-critical transition-colors"
-            title="Remove window"
+            title={t("analyses.auto.removeWindow_89f7a2")}
           >
             <Trash2 size={12} />
           </button>
@@ -94,7 +96,7 @@ function TarRow({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* Start */}
         <div className="space-y-1.5">
-          <label className="form-label">Start</label>
+          <label className="form-label">{t("analyses.auto.start_a6122a")}</label>
           <div className="flex items-center gap-2">
             <select
               value={tar.start_anchor}
@@ -103,8 +105,8 @@ function TarRow({
               }
               className="form-input form-select flex-1"
             >
-              <option value="era_start">Era Start</option>
-              <option value="era_end">Era End</option>
+              <option value="era_start">{t("analyses.auto.eraStart_e33d7b")}</option>
+              <option value="era_end">{t("analyses.auto.eraEnd_3c1837")}</option>
             </select>
             <span className="text-xs shrink-0" style={{ color: "var(--text-muted)" }}>
               +
@@ -126,7 +128,7 @@ function TarRow({
 
         {/* End */}
         <div className="space-y-1.5">
-          <label className="form-label">End</label>
+          <label className="form-label">{t("analyses.auto.end_87557f")}</label>
           <div className="flex items-center gap-2">
             <select
               value={tar.end_anchor}
@@ -135,8 +137,8 @@ function TarRow({
               }
               className="form-input form-select flex-1"
             >
-              <option value="era_start">Era Start</option>
-              <option value="era_end">Era End</option>
+              <option value="era_start">{t("analyses.auto.eraStart_e33d7b")}</option>
+              <option value="era_end">{t("analyses.auto.eraEnd_3c1837")}</option>
             </select>
             <span className="text-xs shrink-0" style={{ color: "var(--text-muted)" }}>
               +
@@ -171,6 +173,7 @@ function AgeBreaksEditor({
   breaks: number[];
   onChange: (breaks: number[]) => void;
 }) {
+  const { t } = useTranslation("app");
   const [raw, setRaw] = useState(breaks.join(", "));
   const [error, setError] = useState<string | null>(null);
 
@@ -197,7 +200,7 @@ function AgeBreaksEditor({
 
   return (
     <div className="space-y-1">
-      <label className="form-label">Age Group Breaks (comma-separated)</label>
+      <label className="form-label">{t("analyses.auto.ageGroupBreaksCommaSeparated_d193c8")}</label>
       <input
         type="text"
         value={raw}
@@ -215,7 +218,7 @@ function AgeBreaksEditor({
         </p>
       ) : (
         <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-          Groups:{" "}
+          {t("analyses.auto.groups_8783bc")}{" "}
           {breaks.length < 2
             ? "—"
             : breaks
@@ -257,6 +260,7 @@ export function IncidenceRateDesigner({
   sourceId,
   onDirectResults,
 }: IncidenceRateDesignerProps) {
+  const { t } = useTranslation("app");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [design, setDesign] = useState<IncidenceRateDesign>(defaultDesign);
@@ -274,6 +278,7 @@ export function IncidenceRateDesigner({
 
   const cohorts = cohortData?.items ?? [];
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (analysis) {
       setName(analysis.name);
@@ -301,6 +306,7 @@ export function IncidenceRateDesigner({
       );
     }
   }, [analysis]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Keep design.outcomeCohortIds in sync with outcomeEntries
   const syncedDesign: IncidenceRateDesign = {
@@ -429,25 +435,25 @@ export function IncidenceRateDesigner({
       {/* Name & Description */}
       <div className="panel">
         <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-          Basic Information
+          {t("analyses.auto.basicInformation_87cabb")}
         </h3>
         <div className="space-y-3 mt-3">
           <div>
-            <label className="form-label">Name</label>
+            <label className="form-label">{t("analyses.auto.name_49ee30")}</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Incidence rate analysis name"
+              placeholder={t("analyses.auto.incidenceRateAnalysisName_83acfd")}
               className="form-input"
             />
           </div>
           <div>
-            <label className="form-label">Description</label>
+            <label className="form-label">{t("analyses.auto.description_b5a7ad")}</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Optional description"
+              placeholder={t("analyses.auto.optionalDescription_d196d2")}
               rows={2}
               className="form-input form-textarea"
             />
@@ -458,9 +464,9 @@ export function IncidenceRateDesigner({
       {/* Target Cohort */}
       <div className="panel">
         <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-          Target Cohort
+          {t("analyses.auto.targetCohort_4d7f0b")}
         </h3>
-        <p className="panel-subtitle">Select the population at risk for this analysis.</p>
+        <p className="panel-subtitle">{t("analyses.auto.selectThePopulationAtRiskForThisAnalysis_baa519")}</p>
         {loadingCohorts ? (
           <Loader2 size={16} className="animate-spin" style={{ color: "var(--text-muted)" }} />
         ) : (
@@ -471,7 +477,7 @@ export function IncidenceRateDesigner({
             }
             className="form-input form-select mt-3"
           >
-            <option value="">Select a target cohort...</option>
+            <option value="">{t("analyses.auto.selectATargetCohort_9be701")}</option>
             {cohorts.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -484,11 +490,10 @@ export function IncidenceRateDesigner({
       {/* Outcome Cohorts */}
       <div className="panel">
         <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-          Outcome Cohorts
+          {t("analyses.auto.outcomeCohorts_ed8002")}
         </h3>
         <p className="panel-subtitle">
-          Select one or more outcome cohorts. Each outcome can have its own clean window (days
-          after outcome where a recurrence is not counted).
+          {t("analyses.auto.selectOneOrMoreOutcomeCohortsEachOutcome_7f50c3")}
         </p>
         {loadingCohorts ? (
           <Loader2 size={16} className="animate-spin" style={{ color: "var(--text-muted)" }} />
@@ -502,7 +507,7 @@ export function IncidenceRateDesigner({
               className="form-input form-select"
               defaultValue=""
             >
-              <option value="">Add an outcome cohort...</option>
+              <option value="">{t("analyses.auto.addAnOutcomeCohort_c58a88")}</option>
               {cohorts
                 .filter((c) => !outcomeEntries.some((e) => e.cohort_id === c.id))
                 .map((c) => (
@@ -532,7 +537,7 @@ export function IncidenceRateDesigner({
                           className="text-xs"
                           style={{ color: "var(--text-muted)" }}
                         >
-                          Clean window
+                          {t("analyses.auto.cleanWindow_da4660")}
                         </span>
                         <input
                           type="number"
@@ -576,11 +581,10 @@ export function IncidenceRateDesigner({
         <div className="flex items-center justify-between mb-3">
           <div>
             <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-              Time-at-Risk Windows
+              {t("analyses.auto.timeAtRiskWindows_aadcb1")}
             </h3>
             <p className="panel-subtitle">
-              Define one or more observation periods relative to cohort entry.
-              Each window is evaluated independently.
+              {t("analyses.auto.defineOneOrMoreObservationPeriodsRelativeTo_b8b524")}
             </p>
           </div>
           <button
@@ -589,7 +593,7 @@ export function IncidenceRateDesigner({
             className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-1.5 text-xs font-medium text-text-muted hover:text-text-primary hover:border-surface-highlight transition-colors"
           >
             <Plus size={12} />
-            Add Window
+            {t("analyses.auto.addWindow_6251f7")}
           </button>
         </div>
 
@@ -610,15 +614,15 @@ export function IncidenceRateDesigner({
       {/* Stratification */}
       <div className="panel">
         <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
-          Stratification
+          {t("analyses.auto.stratification_69d48d")}
         </h3>
 
         <div className="flex flex-wrap items-center gap-6 mt-3">
           {(
             [
-              { key: "by_gender", label: "By Gender" },
-              { key: "by_age", label: "By Age Group" },
-              { key: "by_year", label: "By Calendar Year" },
+              { key: "by_gender", label: t("analyses.auto.byGender_5f1407") },
+              { key: "by_age", label: t("analyses.auto.byAgeGroup_5285a2") },
+              { key: "by_year", label: t("analyses.auto.byCalendarYear_a0dc1d") },
             ] as const
           ).map(({ key, label }) => (
             <label
@@ -653,7 +657,7 @@ export function IncidenceRateDesigner({
         )}
 
         <div className="mt-4">
-          <label className="form-label">Minimum Cell Count</label>
+          <label className="form-label">{t("analyses.auto.minimumCellCount_2438c8")}</label>
           <input
             type="number"
             min={1}
@@ -666,7 +670,7 @@ export function IncidenceRateDesigner({
             style={{ width: "8rem" }}
           />
           <p className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
-            Cells below this threshold are suppressed for privacy.
+            {t("analyses.auto.cellsBelowThisThresholdAreSuppressedForPrivacy_523275")}
           </p>
         </div>
       </div>
@@ -678,7 +682,7 @@ export function IncidenceRateDesigner({
           role="alert"
         >
           <p className="text-sm" style={{ color: "var(--critical)" }}>
-            Direct calculation failed: {directError}
+            {t("analyses.auto.directCalculationFailed_41216a")} {directError}
           </p>
         </div>
       )}
@@ -714,7 +718,7 @@ export function IncidenceRateDesigner({
           )}
           {isCalculating && (
             <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-              Running OHDSI CohortIncidence via R…
+              {t("analyses.auto.runningOHDSICohortIncidenceViaR_2d6ce9")}
             </span>
           )}
         </div>

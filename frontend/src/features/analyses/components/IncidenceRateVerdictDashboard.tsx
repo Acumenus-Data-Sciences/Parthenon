@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { ChartMetricCard } from "@/components/charts";
 import { fmt, num, computeRateDifference, computeRateRatio } from "@/lib/formatters";
 import type { IncidenceRateResult, IncidenceRateStratum } from "../types/analysis";
+import { useTranslation } from "react-i18next";
 
 interface IncidenceRateVerdictDashboardProps {
   results: IncidenceRateResult[];
@@ -19,26 +20,28 @@ interface StratumComparison {
   directionReversed: boolean;
 }
 
-const VERDICT_CONFIG: Record<
+function getVerdictConfig(t: (key: string) => string): Record<
   IRDVerdict,
   { label: string; icon: string; colorClasses: string }
-> = {
-  higher: {
-    label: "Significantly higher rate",
-    icon: "\u2191",
-    colorClasses: "bg-critical/15 text-critical border-critical/30",
-  },
-  lower: {
-    label: "Significantly lower rate",
-    icon: "\u2193",
-    colorClasses: "bg-success/15 text-success border-success/30",
-  },
-  not_significant: {
-    label: "No significant difference",
-    icon: "\u2194",
-    colorClasses: "bg-text-muted/15 text-text-muted border-text-muted/30",
-  },
-};
+> {
+  return {
+    higher: {
+      label: t("analyses.auto.significantlyHigherRate_77a7d0"),
+      icon: "\u2191",
+      colorClasses: "bg-critical/15 text-critical border-critical/30",
+    },
+    lower: {
+      label: t("analyses.auto.significantlyLowerRate_f8fd2e"),
+      icon: "\u2193",
+      colorClasses: "bg-success/15 text-success border-success/30",
+    },
+    not_significant: {
+      label: t("analyses.auto.noSignificantDifference_76860e"),
+      icon: "\u2194",
+      colorClasses: "bg-text-muted/15 text-text-muted border-text-muted/30",
+    },
+  };
+}
 
 function getIRDVerdict(ciLower: number, ciUpper: number, ird: number): IRDVerdict {
   // If CI spans 0, not significant
@@ -102,6 +105,7 @@ function buildStrataComparisons(
 export function IncidenceRateVerdictDashboard({
   results,
 }: IncidenceRateVerdictDashboardProps) {
+  const { t } = useTranslation("app");
   const isComparative = results.length >= 2;
   const r1 = results[0] as IncidenceRateResult | undefined;
   const r2 = isComparative ? results[1] : null;
@@ -148,7 +152,7 @@ export function IncidenceRateVerdictDashboard({
             >
               {fmt(r1.incidence_rate, 2)}
             </span>
-            <span className="text-sm text-text-muted">per 1,000 PY</span>
+            <span className="text-sm text-text-muted">{t("analyses.auto.per1000PY_d6180b")}</span>
           </div>
         </div>
 
@@ -179,7 +183,7 @@ export function IncidenceRateVerdictDashboard({
   }
 
   const { diff, ratio, verdict, strataComparisons } = comparison;
-  const verdictConfig = VERDICT_CONFIG[verdict];
+  const verdictConfig = getVerdictConfig(t)[verdict];
   // r2 is guaranteed non-null when comparison is computed (guarded in useMemo)
   const c2 = r2!;
 
@@ -202,10 +206,10 @@ export function IncidenceRateVerdictDashboard({
             >
               {fmt(r1.incidence_rate, 2)}
             </span>
-            <span className="text-xs text-text-muted">per 1,000 PY</span>
+            <span className="text-xs text-text-muted">{t("analyses.auto.per1000PY_d6180b")}</span>
           </div>
           <span className="text-xs text-text-ghost">
-            {num(r1.persons_with_outcome).toLocaleString()} events | {num(r1.person_years).toLocaleString(undefined, { maximumFractionDigits: 1 })} PY
+            {num(r1.persons_with_outcome).toLocaleString()} {t("analyses.auto.events_703724")} {num(r1.person_years).toLocaleString(undefined, { maximumFractionDigits: 1 })} PY
           </span>
         </div>
 
@@ -226,10 +230,10 @@ export function IncidenceRateVerdictDashboard({
             >
               {fmt(c2.incidence_rate, 2)}
             </span>
-            <span className="text-xs text-text-muted">per 1,000 PY</span>
+            <span className="text-xs text-text-muted">{t("analyses.auto.per1000PY_d6180b")}</span>
           </div>
           <span className="text-xs text-text-ghost">
-            {num(c2.persons_with_outcome).toLocaleString()} events | {num(c2.person_years).toLocaleString(undefined, { maximumFractionDigits: 1 })} PY
+            {num(c2.persons_with_outcome).toLocaleString()} {t("analyses.auto.events_703724")} {num(c2.person_years).toLocaleString(undefined, { maximumFractionDigits: 1 })} PY
           </span>
         </div>
       </div>
@@ -239,7 +243,7 @@ export function IncidenceRateVerdictDashboard({
         {/* IRD */}
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <span className="text-xs font-medium uppercase tracking-wider text-text-muted">
-            Rate Difference (IRD)
+            {t("analyses.auto.rateDifferenceIRD_9f1da5")}
           </span>
           <div className={`mt-1 font-['IBM_Plex_Mono',monospace] text-2xl font-bold ${irdColor(verdict)}`}>
             <span data-testid="ird-value">
@@ -247,7 +251,7 @@ export function IncidenceRateVerdictDashboard({
             </span>
           </div>
           <span className="text-xs text-text-ghost">
-            95% CI: {fmt(diff.ciLower, 2)} to {fmt(diff.ciUpper, 2)}
+            {t("analyses.auto.95CI_bb763f")} {fmt(diff.ciLower, 2)} to {fmt(diff.ciUpper, 2)}
           </span>
           <p className="mt-1 text-xs text-text-muted">
             {verdict === "not_significant"
@@ -259,7 +263,7 @@ export function IncidenceRateVerdictDashboard({
         {/* IRR */}
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <span className="text-xs font-medium uppercase tracking-wider text-text-muted">
-            Rate Ratio (IRR)
+            {t("analyses.auto.rateRatioIRR_59d85d")}
           </span>
           {ratio ? (
             <>
@@ -267,7 +271,7 @@ export function IncidenceRateVerdictDashboard({
                 <span data-testid="irr-value">{fmt(ratio.irr, 2)}</span>
               </div>
               <span className="text-xs text-text-ghost">
-                95% CI: {fmt(ratio.ciLower, 2)} to {fmt(ratio.ciUpper, 2)}
+                {t("analyses.auto.95CI_bb763f")} {fmt(ratio.ciLower, 2)} to {fmt(ratio.ciUpper, 2)}
               </span>
             </>
           ) : (
@@ -291,7 +295,7 @@ export function IncidenceRateVerdictDashboard({
       {strataComparisons.length > 0 && (
         <div className="space-y-3">
           <h4 className="text-sm font-semibold text-text-primary">
-            Stratified Comparisons
+            {t("analyses.auto.stratifiedComparisons_c74122")}
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {strataComparisons.map((sc) => (
@@ -320,6 +324,7 @@ function StratumCard({
   cohort1Name: string;
   cohort2Name: string;
 }) {
+  const { t } = useTranslation("app");
   const maxRate = Math.max(comparison.rate1, comparison.rate2, 1);
 
   return (
@@ -340,7 +345,7 @@ function StratumCard({
             data-testid="direction-reversed-flag"
             className="text-[10px] font-medium text-accent uppercase tracking-wider"
           >
-            Reversed
+            {t("analyses.auto.reversed_030aa9")}
           </span>
         )}
       </div>

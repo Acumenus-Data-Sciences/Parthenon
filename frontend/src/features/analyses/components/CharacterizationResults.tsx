@@ -6,6 +6,7 @@ import { FeatureComparisonTable } from "./FeatureComparisonTable";
 import { CharacterizationVerdictDashboard } from "./CharacterizationVerdictDashboard";
 import { LovePlot } from "@/features/estimation/components/LovePlot";
 import type { CovariateBalanceEntry } from "@/features/estimation/types/estimation";
+import { useTranslation } from "react-i18next";
 import type {
   AnalysisExecution,
   FeatureType,
@@ -216,6 +217,7 @@ function Table1View({
 }: {
   rows: AggregateCovariateRow[];
 }) {
+  const { t } = useTranslation("app");
   const [search, setSearch] = useState("");
   const [smdFilter, setSmdFilter] = useState<SmdFilter>("all");
   const [sortBy, setSortBy] = useState<"name" | "smd">("smd");
@@ -294,19 +296,19 @@ function Table1View({
       {/* Summary bar */}
       <div className="flex items-center gap-4 rounded-lg border px-4 py-3" style={{ borderColor: "var(--surface-elevated)", background: "var(--surface-raised)" }}>
         <div className="flex-1">
-          <p className="text-xs" style={{ color: "var(--text-muted)" }}>Total Covariates</p>
+          <p className="text-xs" style={{ color: "var(--text-muted)" }}>{t("analyses.auto.totalCovariates_300227")}</p>
           <p className="text-lg font-bold font-['IBM_Plex_Mono',monospace]" style={{ color: "var(--text-primary)" }}>
             {rows.length.toLocaleString()}
           </p>
         </div>
         <div className="flex-1">
-          <p className="text-xs" style={{ color: "var(--text-muted)" }}>Imbalanced (|SMD| ≥ 0.1)</p>
+          <p className="text-xs" style={{ color: "var(--text-muted)" }}>{t("analyses.auto.imbalancedSMD01_ce7e9f")}</p>
           <p className="text-lg font-bold font-['IBM_Plex_Mono',monospace]" style={{ color: imbalancedCount > 0 ? "var(--warning)" : "var(--success)" }}>
             {imbalancedCount.toLocaleString()}
           </p>
         </div>
         <div className="flex-1">
-          <p className="text-xs" style={{ color: "var(--text-muted)" }}>High imbalance (|SMD| ≥ 0.2)</p>
+          <p className="text-xs" style={{ color: "var(--text-muted)" }}>{t("analyses.auto.highImbalanceSMD02_b631fc")}</p>
           <p className="text-lg font-bold font-['IBM_Plex_Mono',monospace]" style={{ color: highImbalanceCount > 0 ? "var(--critical)" : "var(--success)" }}>
             {highImbalanceCount.toLocaleString()}
           </p>
@@ -321,7 +323,7 @@ function Table1View({
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Filter covariates..."
+            placeholder={t("analyses.auto.filterCovariates_c1cb50")}
             className={cn(
               "w-full rounded-lg border pl-9 pr-3 py-2 text-sm",
               "focus:outline-none focus:ring-1",
@@ -362,20 +364,20 @@ function Table1View({
                   style={{ color: "var(--text-muted)" }}
                   onClick={() => handleSort("name")}
                 >
-                  Covariate Name {sortBy === "name" && (sortDir === "asc" ? "↑" : "↓")}
+                  {t("analyses.auto.covariateName_2e1eec")} {sortBy === "name" && (sortDir === "asc" ? "↑" : "↓")}
                 </th>
                 <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--success)" }}>
-                  Mean (Target)
+                  {t("analyses.auto.meanTarget_01f906")}
                 </th>
                 <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--accent)" }}>
-                  Mean (Outcome)
+                  {t("analyses.auto.meanOutcome_568aab")}
                 </th>
                 <th
                   className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider cursor-pointer hover:opacity-80 select-none"
                   style={{ color: "var(--text-muted)" }}
                   onClick={() => handleSort("smd")}
                 >
-                  |SMD| {sortBy === "smd" && (sortDir === "asc" ? "↑" : "↓")}
+                  {t("analyses.auto.sMD_c2158c")} {sortBy === "smd" && (sortDir === "asc" ? "↑" : "↓")}
                 </th>
               </tr>
             </thead>
@@ -411,7 +413,7 @@ function Table1View({
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={4} className="px-4 py-8 text-center text-sm" style={{ color: "var(--text-ghost)" }}>
-                    No covariates match the current filters
+                    {t("analyses.auto.noCovariatesMatchTheCurrentFilters_84356e")}
                   </td>
                 </tr>
               )}
@@ -421,13 +423,13 @@ function Table1View({
       </div>
 
       <p className="text-[10px]" style={{ color: "var(--text-ghost)" }}>
-        Showing {filtered.length} of {rows.length} covariates
+        {t("analyses.auto.showing_b4e610")} {filtered.length} of {rows.length} covariates
         {" · "}
-        SMD color: <span style={{ color: "var(--success)" }}>green &lt; 0.1</span>
+        {t("analyses.auto.sMDColor_15f1dd")} <span style={{ color: "var(--success)" }}>{t("analyses.auto.green01_87b0ee")}</span>
         {", "}
-        <span style={{ color: "var(--warning)" }}>yellow 0.1–0.2</span>
+        <span style={{ color: "var(--warning)" }}>{t("analyses.auto.yellow0102_506231")}</span>
         {", "}
-        <span style={{ color: "var(--critical)" }}>red ≥ 0.2</span>
+        <span style={{ color: "var(--critical)" }}>{t("analyses.auto.red02_1463dd")}</span>
       </p>
     </div>
   );
@@ -438,6 +440,7 @@ function Table1View({
 // ---------------------------------------------------------------------------
 
 function DirectLovePlot({ rows }: { rows: AggregateCovariateRow[] }) {
+  const { t } = useTranslation("app");
   if (rows.length === 0) return null;
 
   const sorted = [...rows]
@@ -458,10 +461,10 @@ function DirectLovePlot({ rows }: { rows: AggregateCovariateRow[] }) {
   return (
     <div className="rounded-lg border p-4" style={{ borderColor: "var(--surface-elevated)", background: "var(--surface-raised)" }}>
       <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
-        SMD Love Plot — Covariate Balance
+        {t("analyses.auto.sMDLovePlotCovariateBalance_ea3617")}
       </h3>
       <p className="text-xs mb-4" style={{ color: "var(--text-muted)" }}>
-        Showing top {sorted.length} covariates by |SMD|. Reference lines at 0.1 (balance threshold).
+        {t("analyses.auto.showingTop_088011")} {sorted.length} {t("analyses.auto.covariatesBySMDReferenceLinesAt01_2970ba")}
       </p>
       <div className="flex justify-center">
         <LovePlot data={entries} maxDisplay={150} />
@@ -479,6 +482,7 @@ function TimeToEventSection({
 }: {
   rows: NonNullable<DirectRunResult["time_to_event"]>;
 }) {
+  const { t } = useTranslation("app");
   if (rows.length === 0) return null;
 
   // Group by target/outcome cohort pair
@@ -493,7 +497,7 @@ function TimeToEventSection({
   return (
     <div className="rounded-lg border p-4 space-y-4" style={{ borderColor: "var(--surface-elevated)", background: "var(--surface-raised)" }}>
       <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
-        Time to Event
+        {t("analyses.auto.timeToEvent_367be0")}
       </h3>
       {Array.from(pairs.entries()).map(([key, pairRows]) => {
         const first = pairRows[0];
@@ -515,18 +519,18 @@ function TimeToEventSection({
                 <thead style={{ background: "var(--surface-overlay)" }}>
                   <tr>
                     <th className="px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
-                      Time (days)
+                      {t("analyses.auto.timeDays_76e4b2")}
                     </th>
                     <th className="px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
-                      Events
+                      {t("analyses.auto.events_87f9f7")}
                     </th>
                     {pairRows[0].num_at_risk !== undefined && (
                       <th className="px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
-                        At Risk
+                        {t("analyses.auto.atRisk_d772a4")}
                       </th>
                     )}
                     <th className="px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
-                      Distribution
+                      {t("analyses.auto.distribution_f0bac0")}
                     </th>
                   </tr>
                 </thead>
@@ -566,7 +570,7 @@ function TimeToEventSection({
             </div>
             {pairRows.length > 30 && (
               <p className="text-[10px] mt-1" style={{ color: "var(--text-ghost)" }}>
-                Showing first 30 of {pairRows.length} rows
+                {t("analyses.auto.showingFirst30Of_df715f")} {pairRows.length} rows
               </p>
             )}
           </div>
@@ -623,6 +627,7 @@ function CohortCountCards({
 type DirectTab = "table1" | "love_plot" | "time_to_event";
 
 function DirectRunResultsView({ result }: { result: DirectRunResult }) {
+  const { t } = useTranslation("app");
   const hasTable1 =
     result.aggregate_covariates && result.aggregate_covariates.length > 0;
   const hasTimeToEvent =
@@ -631,12 +636,12 @@ function DirectRunResultsView({ result }: { result: DirectRunResult }) {
   const availableTabs: { key: DirectTab; label: string }[] = [
     ...(hasTable1
       ? [
-          { key: "table1" as DirectTab, label: "Table 1" },
-          { key: "love_plot" as DirectTab, label: "SMD Love Plot" },
+          { key: "table1" as DirectTab, label: t("analyses.auto.table1_295bea") },
+          { key: "love_plot" as DirectTab, label: t("analyses.auto.sMDLovePlot_934f3d") },
         ]
       : []),
     ...(hasTimeToEvent
-      ? [{ key: "time_to_event" as DirectTab, label: "Time to Event" }]
+      ? [{ key: "time_to_event" as DirectTab, label: t("analyses.auto.timeToEvent_367be0") }]
       : []),
   ];
 
@@ -648,7 +653,7 @@ function DirectRunResultsView({ result }: { result: DirectRunResult }) {
     return (
       <div className="rounded-lg border border-dashed p-8 text-center" style={{ borderColor: "var(--surface-highlight)", background: "var(--surface-raised)" }}>
         <AlertCircle size={20} className="mx-auto mb-2" style={{ color: "var(--critical)" }} />
-        <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>R execution error</p>
+        <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{t("analyses.auto.rExecutionError_abfacd")}</p>
         <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>{result.error}</p>
       </div>
     );
@@ -659,7 +664,7 @@ function DirectRunResultsView({ result }: { result: DirectRunResult }) {
       <div className="rounded-lg border border-dashed p-8 text-center" style={{ borderColor: "var(--surface-highlight)", background: "var(--surface-raised)" }}>
         <AlertCircle size={20} className="mx-auto mb-2" style={{ color: "var(--surface-highlight)" }} />
         <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-          No result data returned from R execution.
+          {t("analyses.auto.noResultDataReturnedFromRExecution_fc9b05")}
         </p>
       </div>
     );
@@ -675,7 +680,7 @@ function DirectRunResultsView({ result }: { result: DirectRunResult }) {
       {/* Execution time */}
       {result.execution_time_seconds !== undefined && (
         <p className="text-xs" style={{ color: "var(--text-ghost)" }}>
-          R execution time: {result.execution_time_seconds.toFixed(1)}s
+          {t("analyses.auto.rExecutionTime_cbc0ea")} {result.execution_time_seconds.toFixed(1)}s
         </p>
       )}
 
@@ -727,6 +732,7 @@ export function CharacterizationResults({
   directResult,
   isLoading,
 }: CharacterizationResultsProps) {
+  const { t } = useTranslation("app");
   const [activeTab, setActiveTab] = useState<FeatureType | null>(null);
 
   if (isLoading) {
@@ -742,8 +748,8 @@ export function CharacterizationResults({
     return (
       <div className="space-y-6">
         <div className="rounded-lg border px-4 py-2 flex items-center gap-2" style={{ borderColor: "color-mix(in srgb, var(--primary) 25%, transparent)", background: "color-mix(in srgb, var(--primary) 8%, transparent)" }}>
-          <span className="text-xs font-semibold" style={{ color: "var(--primary)" }}>OHDSI Direct Run Result</span>
-          <span className="text-xs" style={{ color: "var(--text-muted)" }}>via R Characterization package</span>
+          <span className="text-xs font-semibold" style={{ color: "var(--primary)" }}>{t("analyses.auto.oHDSIDirectRunResult_45a2b3")}</span>
+          <span className="text-xs" style={{ color: "var(--text-muted)" }}>{t("analyses.auto.viaRCharacterizationPackage_ba9515")}</span>
         </div>
         <DirectRunResultsView result={directResult} />
       </div>
@@ -755,7 +761,7 @@ export function CharacterizationResults({
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
         <AlertCircle size={24} className="text-text-ghost mb-3" />
         <h3 className="text-sm font-semibold text-text-primary">
-          No results available
+          {t("analyses.auto.noResultsAvailable_e29de7")}
         </h3>
         <p className="mt-1 text-xs text-text-muted">
           {execution
@@ -778,7 +784,7 @@ export function CharacterizationResults({
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
         <AlertCircle size={24} className="text-text-ghost mb-3" />
         <p className="text-sm text-text-muted">
-          Execution completed but no results were returned.
+          {t("analyses.auto.executionCompletedButNoResultsWereReturned_bc0318")}
         </p>
       </div>
     );
@@ -830,7 +836,7 @@ export function CharacterizationResults({
             className="btn btn-secondary btn-sm"
           >
             <Download size={14} />
-            Download CSV
+            {t("analyses.auto.downloadCSV_54df95")}
           </button>
         </div>
       </div>
@@ -848,7 +854,7 @@ export function CharacterizationResults({
       {balanceEntries.length > 0 && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <h3 className="text-sm font-semibold text-text-primary mb-4">
-            Covariate Balance — Standardized Mean Differences
+            {t("analyses.auto.covariateBalanceStandardizedMeanDifferences_88097f")}
           </h3>
           <div className="flex justify-center">
             <LovePlot data={balanceEntries} />

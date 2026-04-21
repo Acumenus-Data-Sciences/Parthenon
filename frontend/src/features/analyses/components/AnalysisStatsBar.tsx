@@ -10,7 +10,9 @@ import {
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getAnalysisStats } from "../api/analysisStatsApi";
+import { useTranslation } from "react-i18next";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAnalysisStats() {
   return useQuery({
     queryKey: ["analysis-stats"],
@@ -19,19 +21,20 @@ export function useAnalysisStats() {
 }
 
 export function AnalysisStatsBar({ onStatClick }: { onStatClick?: (key: string) => void } = {}) {
+  const { t } = useTranslation("app");
   const { data: stats } = useAnalysisStats();
 
   if (!stats) return null;
 
   const metrics = [
-    { label: "Characterizations", key: "characterizations", value: stats.characterizations.total, icon: BarChart3, color: "var(--info)" },
-    { label: "Incidence Rates", key: "incidence-rates", value: stats.incidence_rates.total, icon: TrendingUp, color: "var(--success)" },
-    { label: "Pathways", key: "pathways", value: stats.pathways.total, icon: GitBranch, color: "var(--accent)" },
-    { label: "Estimations", key: "estimations", value: stats.estimations.total, icon: Scale, color: "var(--domain-observation)" },
-    { label: "Predictions", key: "predictions", value: stats.predictions.total, icon: Brain, color: "var(--domain-procedure)" },
+    { label: t("analyses.auto.characterizations_b0e166"), key: "characterizations", value: stats.characterizations.total, icon: BarChart3, color: "var(--info)" },
+    { label: t("analyses.auto.incidenceRates_ad8864"), key: "incidence-rates", value: stats.incidence_rates.total, icon: TrendingUp, color: "var(--success)" },
+    { label: t("analyses.auto.pathways_bb724a"), key: "pathways", value: stats.pathways.total, icon: GitBranch, color: "var(--accent)" },
+    { label: t("analyses.auto.estimations_d5b1d1"), key: "estimations", value: stats.estimations.total, icon: Scale, color: "var(--domain-observation)" },
+    { label: t("analyses.auto.predictions_a54a7e"), key: "predictions", value: stats.predictions.total, icon: Brain, color: "var(--domain-procedure)" },
     { label: "SCCS", key: "sccs", value: stats.sccs.total, icon: Clock, color: "var(--domain-device)" },
-    { label: "Evidence Synth", key: "evidence-synthesis", value: stats.evidence_synthesis.total, icon: Layers, color: "var(--success)" },
-    { label: "Total", key: "total", value: stats.grand_total, icon: Sigma, color: "var(--text-secondary)" },
+    { label: t("analyses.auto.evidenceSynth_338179"), key: "evidence-synthesis", value: stats.evidence_synthesis.total, icon: Layers, color: "var(--success)" },
+    { label: t("analyses.auto.total_96b014"), key: "total", value: stats.grand_total, icon: Sigma, color: "var(--text-secondary)" },
   ];
 
   return (

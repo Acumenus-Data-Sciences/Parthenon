@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { fmt } from "@/lib/formatters";
 import type { CovariateBalanceEntry } from "@/features/estimation/types/estimation";
+import { useTranslation } from "react-i18next";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -67,29 +68,31 @@ function computeBalanceMetrics(
   };
 }
 
-const VERDICT_CONFIG: Record<
+function getVerdictConfig(t: (key: string) => string): Record<
   BalanceVerdict,
   { label: string; color: string; bgColor: string; borderColor: string }
-> = {
-  "well-balanced": {
-    label: "Well balanced",
-    color: "var(--success)",
-    bgColor: "rgba(45,212,191,0.08)",
-    borderColor: "rgba(45,212,191,0.25)",
-  },
-  marginal: {
-    label: "Marginal imbalance",
-    color: "var(--accent)",
-    bgColor: "rgba(201,162,39,0.08)",
-    borderColor: "rgba(201,162,39,0.25)",
-  },
-  significant: {
-    label: "Significant imbalance",
-    color: "var(--critical)",
-    bgColor: "rgba(232,90,107,0.08)",
-    borderColor: "rgba(232,90,107,0.25)",
-  },
-};
+> {
+  return {
+    "well-balanced": {
+      label: t("analyses.auto.wellBalanced_ecf33e"),
+      color: "var(--success)",
+      bgColor: "rgba(45,212,191,0.08)",
+      borderColor: "rgba(45,212,191,0.25)",
+    },
+    marginal: {
+      label: t("analyses.auto.marginalImbalance_5b676c"),
+      color: "var(--accent)",
+      bgColor: "rgba(201,162,39,0.08)",
+      borderColor: "rgba(201,162,39,0.25)",
+    },
+    significant: {
+      label: t("analyses.auto.significantImbalance_15b26a"),
+      color: "var(--critical)",
+      bgColor: "rgba(232,90,107,0.08)",
+      borderColor: "rgba(232,90,107,0.25)",
+    },
+  };
+}
 
 // ---------------------------------------------------------------------------
 // Sub-components
@@ -102,7 +105,8 @@ function MetricStrip({
   metrics: BalanceMetrics;
   label?: string;
 }) {
-  const config = VERDICT_CONFIG[metrics.verdict];
+  const { t } = useTranslation("app");
+  const config = getVerdictConfig(t)[metrics.verdict];
 
   return (
     <div className="space-y-2">
@@ -133,25 +137,25 @@ function MetricStrip({
         </div>
         <div className="grid grid-cols-4 gap-4">
           <div>
-            <p className="text-[10px] text-text-muted">Total covariates</p>
+            <p className="text-[10px] text-text-muted">{t("analyses.auto.totalCovariates_47df67")}</p>
             <p className="font-['IBM_Plex_Mono',monospace] text-sm font-semibold text-text-primary">
               {metrics.totalCovariates}
             </p>
           </div>
           <div>
-            <p className="text-[10px] text-text-muted">|SMD| &lt; 0.1</p>
+            <p className="text-[10px] text-text-muted">{t("analyses.auto.sMD01_5b1a78")}</p>
             <p className="font-['IBM_Plex_Mono',monospace] text-sm font-semibold text-success">
               {fmt(metrics.pctBelow01, 1)}%
             </p>
           </div>
           <div>
-            <p className="text-[10px] text-text-muted">|SMD| &gt; 0.2</p>
+            <p className="text-[10px] text-text-muted">{t("analyses.auto.sMD02_c9b81e")}</p>
             <p className="font-['IBM_Plex_Mono',monospace] text-sm font-semibold text-critical">
               {fmt(metrics.pctAbove02, 1)}%
             </p>
           </div>
           <div>
-            <p className="text-[10px] text-text-muted">Mean |SMD|</p>
+            <p className="text-[10px] text-text-muted">{t("analyses.auto.meanSMD_a020cc")}</p>
             <p className="font-['IBM_Plex_Mono',monospace] text-sm font-semibold text-text-secondary">
               {fmt(metrics.meanAbsSmd)}
             </p>
@@ -266,6 +270,7 @@ export function CharacterizationVerdictDashboard({
   targetLabel = "Target",
   comparatorLabel = "Comparator",
 }: CharacterizationVerdictDashboardProps) {
+  const { t } = useTranslation("app");
   const hasBefore = useMemo(
     () =>
       balanceEntries.some(
@@ -309,7 +314,7 @@ export function CharacterizationVerdictDashboard({
       {/* Balance Summary Card */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4">
         <h3 className="text-sm font-semibold text-text-primary mb-4">
-          Cohort Balance Summary
+          {t("analyses.auto.cohortBalanceSummary_3f660a")}
         </h3>
 
         {beforeMetrics ? (
@@ -326,20 +331,20 @@ export function CharacterizationVerdictDashboard({
       {topImbalanced.length > 0 && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <h3 className="text-sm font-semibold text-text-primary mb-1">
-            Top Imbalanced Covariates
+            {t("analyses.auto.topImbalancedCovariates_43db00")}
           </h3>
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] text-text-ghost">
-              Diverging bars show direction of imbalance
+              {t("analyses.auto.divergingBarsShowDirectionOfImbalance_710a7a")}
             </p>
             <div className="flex items-center gap-3 text-[10px] text-text-ghost">
               <span className="flex items-center gap-1">
                 <span className="inline-block h-2 w-4 rounded bg-success/60" />
-                Higher in {targetLabel}
+                {t("analyses.auto.higherIn_b53f61")} {targetLabel}
               </span>
               <span className="flex items-center gap-1">
                 <span className="inline-block h-2 w-4 rounded bg-critical/60" />
-                Higher in {comparatorLabel}
+                {t("analyses.auto.higherIn_b53f61")} {comparatorLabel}
               </span>
             </div>
           </div>
