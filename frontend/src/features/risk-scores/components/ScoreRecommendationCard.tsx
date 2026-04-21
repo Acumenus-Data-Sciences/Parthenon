@@ -1,5 +1,7 @@
 import { CheckCircle2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { ScoreRecommendation } from "../types/riskScore";
+import { getRiskScoreCategoryLabel } from "../lib/i18n";
 
 interface ScoreRecommendationCardProps {
   recommendation: ScoreRecommendation;
@@ -33,27 +35,22 @@ export function ScoreRecommendationCard({
   onToggle,
   readOnly = false,
 }: ScoreRecommendationCardProps) {
+  const { t } = useTranslation("app");
   const tier = getTier(recommendation);
   const isApplicable = recommendation.applicable;
   const isClickable = !readOnly && isApplicable;
-
   const completeness = recommendation.expected_completeness ?? 0;
   const completenessPercent = Math.round(completeness * 100);
-
-  function handleClick() {
-    if (isClickable) {
-      onToggle(recommendation.score_id);
-    }
-  }
 
   return (
     <div
       className={`flex flex-row items-start gap-3 rounded-lg border p-4 ${TIER_STYLES[tier]} ${
         isClickable ? "cursor-pointer" : "cursor-default"
       }`}
-      onClick={handleClick}
+      onClick={() => {
+        if (isClickable) onToggle(recommendation.score_id);
+      }}
     >
-      {/* Left side: checkbox or checkmark */}
       <div className="shrink-0 pt-0.5">
         {isApplicable && !readOnly && (
           <input
@@ -68,24 +65,19 @@ export function ScoreRecommendationCard({
         )}
       </div>
 
-      {/* Right side: content */}
-      <div className="flex-1 min-w-0">
-        {/* Score name */}
+      <div className="min-w-0 flex-1">
         <div className="text-sm font-medium text-text-primary">
           {recommendation.score_name}
         </div>
 
-        {/* Category badge */}
         <span className="mt-1 inline-block rounded bg-surface-overlay px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-text-muted">
-          {recommendation.category}
+          {getRiskScoreCategoryLabel(t, recommendation.category)}
         </span>
 
-        {/* Reason */}
         <div className="mt-1.5 text-xs text-text-muted">
           {recommendation.reason}
         </div>
 
-        {/* Expected completeness bar */}
         {isApplicable && (
           <div className="mt-2 flex items-center gap-2">
             <div className="h-1.5 flex-1 rounded-full bg-surface-elevated">

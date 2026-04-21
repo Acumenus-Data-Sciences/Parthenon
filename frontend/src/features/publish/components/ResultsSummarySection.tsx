@@ -2,8 +2,10 @@
 // ResultsSummarySection — Condensed verdict summary for each analysis type
 // ---------------------------------------------------------------------------
 
+import { useTranslation } from "react-i18next";
 import type { ReportSection } from "../types/publish";
 import { fmt, num } from "@/lib/formatters";
+import { getPublishAnalysisTypeLabel } from "../lib/i18n";
 
 interface ResultsSummarySectionProps {
   section: ReportSection;
@@ -14,12 +16,13 @@ interface ResultsSummarySectionProps {
  * Adapts display based on analysis type (estimation, prediction, etc.).
  */
 export function ResultsSummarySection({ section }: ResultsSummarySectionProps) {
+  const { t } = useTranslation("app");
   const content = section.content as Record<string, unknown> | null;
 
   if (!content) {
     return (
       <div data-testid="results-summary-section" className="text-sm text-text-primary/50 italic">
-        No results data available for this execution.
+        {t("publish.resultsSummary.empty")}
       </div>
     );
   }
@@ -29,7 +32,7 @@ export function ResultsSummarySection({ section }: ResultsSummarySectionProps) {
   return (
     <div data-testid="results-summary-section" className="space-y-3">
       <div className="inline-flex items-center gap-2 rounded-md bg-success/10 px-2 py-1 text-xs font-medium text-success">
-        {analysisType.charAt(0).toUpperCase() + analysisType.slice(1)}
+        {getPublishAnalysisTypeLabel(t, analysisType)}
       </div>
 
       {analysisType === "estimation" && <EstimationSummary content={content} />}

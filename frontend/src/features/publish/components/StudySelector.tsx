@@ -11,9 +11,11 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useStudiesForPublish, useStudyWithAnalyses } from "../api/publishApi";
 import type { Study } from "@/features/studies/types/study";
 import type { AnalysisExecution } from "@/features/analyses/types/analysis";
+import { getPublishAnalysisTypeLabel } from "../lib/i18n";
 
 interface StudySelectorProps {
   onSelect: (studyId: number, executionIds: number[]) => void;
@@ -25,6 +27,7 @@ interface StudySelectorProps {
  * with checkboxes and "Select All" / "Deselect All" toggle.
  */
 export function StudySelector({ onSelect }: StudySelectorProps) {
+  const { t } = useTranslation("app");
   const { data: studies, isLoading, error } = useStudiesForPublish();
   const [selectedStudyId, setSelectedStudyId] = useState<number | null>(null);
   const [checkedExecutionIds, setCheckedExecutionIds] = useState<Set<number>>(
@@ -80,7 +83,7 @@ export function StudySelector({ onSelect }: StudySelectorProps) {
     return (
       <div className="flex items-center justify-center py-12 text-text-primary/50">
         <Loader2 size={20} className="animate-spin mr-2" />
-        Loading studies...
+        {t("publish.studySelector.loadingStudies")}
       </div>
     );
   }
@@ -89,7 +92,7 @@ export function StudySelector({ onSelect }: StudySelectorProps) {
     return (
       <div className="flex items-center justify-center py-12 text-critical">
         <AlertCircle size={18} className="mr-2" />
-        Failed to load studies. Please try again.
+        {t("publish.studySelector.failedToLoad")}
       </div>
     );
   }
@@ -101,11 +104,11 @@ export function StudySelector({ onSelect }: StudySelectorProps) {
       {/* Study cards */}
       <div>
         <h3 className="text-sm font-semibold text-text-primary mb-3">
-          Select a Study
+          {t("publish.studySelector.selectStudy")}
         </h3>
         {studyList.length === 0 ? (
           <p className="text-sm text-text-primary/40">
-            No studies found. Create a study first.
+            {t("publish.studySelector.noStudiesFound")}
           </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -152,7 +155,7 @@ export function StudySelector({ onSelect }: StudySelectorProps) {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-text-primary">
-              Completed Executions
+              {t("publish.studySelector.completedExecutions")}
             </h3>
             {completedExecutions.length > 0 && (
               <button
@@ -161,8 +164,8 @@ export function StudySelector({ onSelect }: StudySelectorProps) {
                 className="text-xs text-success hover:text-success/80"
               >
                 {checkedExecutionIds.size === completedExecutions.length
-                  ? "Deselect All"
-                  : "Select All"}
+                  ? t("publish.analysisPicker.actions.deselectAll")
+                  : t("publish.analysisPicker.actions.selectAll")}
               </button>
             )}
           </div>
@@ -170,11 +173,11 @@ export function StudySelector({ onSelect }: StudySelectorProps) {
           {isLoadingDetail ? (
             <div className="flex items-center py-4 text-text-primary/50 text-sm">
               <Loader2 size={16} className="animate-spin mr-2" />
-              Loading executions...
+              {t("publish.studySelector.loadingExecutions")}
             </div>
           ) : completedExecutions.length === 0 ? (
             <p className="text-sm text-text-primary/40">
-              No completed executions found for this study.
+              {t("publish.studySelector.noCompletedExecutions")}
             </p>
           ) : (
             <div className="space-y-2">
@@ -198,10 +201,12 @@ export function StudySelector({ onSelect }: StudySelectorProps) {
                     )}
                     <div className="min-w-0 flex-1">
                       <span className="text-sm text-text-primary">
-                        {exec.analysis_type} #{exec.analysis_id}
+                        {getPublishAnalysisTypeLabel(t, exec.analysis_type)} #{exec.analysis_id}
                       </span>
                       <span className="text-xs text-text-primary/40 ml-2">
-                        Execution #{exec.id}
+                        {t("publish.studySelector.executionLabel", {
+                          value: exec.id,
+                        })}
                       </span>
                     </div>
                     <span className="text-xs text-success/60">
@@ -225,7 +230,7 @@ export function StudySelector({ onSelect }: StudySelectorProps) {
           disabled={checkedExecutionIds.size === 0}
           className="flex items-center gap-2 rounded-lg bg-success px-5 py-2.5 text-sm font-semibold text-surface-base hover:bg-success/90 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         >
-          Next
+          {t("publish.common.actions.next")}
           <ChevronRight size={16} />
         </button>
       </div>

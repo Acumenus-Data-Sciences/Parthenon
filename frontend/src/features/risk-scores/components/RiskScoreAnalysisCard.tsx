@@ -1,14 +1,11 @@
 import { Activity } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { RiskScoreAnalysis } from "../types/riskScore";
 import { ANALYSIS_STATUS_COLORS } from "../types/riskScore";
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+import {
+  formatRiskScoreDate,
+  getRiskScoreStatusLabel,
+} from "../lib/i18n";
 
 interface RiskScoreAnalysisCardProps {
   analysis: RiskScoreAnalysis;
@@ -19,48 +16,46 @@ export function RiskScoreAnalysisCard({
   analysis,
   onClick,
 }: RiskScoreAnalysisCardProps) {
+  const { t, i18n } = useTranslation("app");
   const latestExecution = analysis.executions?.[0];
   const status = latestExecution?.status ?? "draft";
   const statusColor = ANALYSIS_STATUS_COLORS[status] ?? "var(--text-muted)";
-
-  const scoreCount = analysis.design_json.scoreIds.length;
-  const cohortCount = analysis.design_json.targetCohortIds.length;
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex flex-col text-left rounded-lg border border-border-default bg-surface-raised p-5 hover:border-success/30 hover:bg-surface-overlay transition-all group"
+      className="group flex flex-col rounded-lg border border-border-default bg-surface-raised p-5 text-left transition-all hover:border-success/30 hover:bg-surface-overlay"
     >
-      {/* Name */}
-      <h3 className="text-sm font-semibold text-text-primary leading-snug line-clamp-2 mb-2 group-hover:text-success transition-colors">
+      <h3 className="mb-2 line-clamp-2 text-sm font-semibold leading-snug text-text-primary transition-colors group-hover:text-success">
         {analysis.name}
       </h3>
 
-      {/* Description */}
       {analysis.description ? (
-        <p className="text-xs text-text-muted line-clamp-2 mb-3">
+        <p className="mb-3 line-clamp-2 text-xs text-text-muted">
           {analysis.description}
         </p>
       ) : (
-        <p className="text-xs text-text-ghost italic line-clamp-2 mb-3 flex items-center gap-1">
-          <Activity className="w-3 h-3" />
-          No description
+        <p className="mb-3 flex items-center gap-1 line-clamp-2 text-xs italic text-text-ghost">
+          <Activity className="h-3 w-3" />
+          {t("riskScores.common.values.noDescription")}
         </p>
       )}
 
-      {/* Score count + Cohort count badges */}
-      <div className="flex flex-wrap items-center gap-1.5 mb-3">
-        <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-success/10 text-success">
-          {scoreCount} {scoreCount === 1 ? "score" : "scores"}
+      <div className="mb-3 flex flex-wrap items-center gap-1.5">
+        <span className="inline-flex items-center rounded bg-success/10 px-1.5 py-0.5 text-[10px] font-medium text-success">
+          {t("riskScores.common.count.score", {
+            count: analysis.design_json.scoreIds.length,
+          })}
         </span>
-        <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-info/10 text-info">
-          {cohortCount} {cohortCount === 1 ? "cohort" : "cohorts"}
+        <span className="inline-flex items-center rounded bg-info/10 px-1.5 py-0.5 text-[10px] font-medium text-info">
+          {t("riskScores.common.count.cohort", {
+            count: analysis.design_json.targetCohortIds.length,
+          })}
         </span>
       </div>
 
-      {/* Status badge */}
-      <div className="flex items-center gap-2 mb-3">
+      <div className="mb-3 flex items-center gap-2">
         <span
           className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
           style={{
@@ -69,15 +64,14 @@ export function RiskScoreAnalysisCard({
           }}
         >
           <span
-            className="w-1.5 h-1.5 rounded-full"
+            className="h-1.5 w-1.5 rounded-full"
             style={{ backgroundColor: statusColor }}
           />
-          {status}
+          {getRiskScoreStatusLabel(t, status)}
         </span>
       </div>
 
-      {/* Footer: Author + Date */}
-      <div className="flex items-center justify-between mt-auto pt-3 border-t border-border-default">
+      <div className="mt-auto flex items-center justify-between border-t border-border-default pt-3">
         <div className="flex items-center gap-1.5">
           {analysis.author ? (
             <span className="text-[11px] text-text-muted">
@@ -86,7 +80,11 @@ export function RiskScoreAnalysisCard({
           ) : null}
         </div>
         <span className="text-[11px] text-text-ghost">
-          {formatDate(analysis.created_at)}
+          {formatRiskScoreDate(i18n.resolvedLanguage, analysis.created_at, {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })}
         </span>
       </div>
     </button>

@@ -3,8 +3,13 @@
 // ---------------------------------------------------------------------------
 
 import { ChevronUp, ChevronDown, Eye, EyeOff } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { MethodsSection } from "./MethodsSection";
 import { ResultsSummarySection } from "./ResultsSummarySection";
+import {
+  getPublishAnalysisTypeLabel,
+  getPublishSectionTypeLabel,
+} from "../lib/i18n";
 import type { ReportSection as ReportSectionType } from "../types/publish";
 
 interface ReportSectionProps {
@@ -30,6 +35,7 @@ export function ReportSectionCard({
   onMoveUp,
   onMoveDown,
 }: ReportSectionProps) {
+  const { t } = useTranslation("app");
   return (
     <div
       data-testid={`report-section-${section.id}`}
@@ -49,7 +55,7 @@ export function ReportSectionCard({
               onClick={onMoveUp}
               disabled={isFirst}
               className="p-0.5 rounded text-text-primary/40 hover:text-text-primary disabled:opacity-20 disabled:cursor-not-allowed"
-              aria-label="Move up"
+              aria-label={t("publish.reportSection.moveUp")}
             >
               <ChevronUp size={14} />
             </button>
@@ -58,7 +64,7 @@ export function ReportSectionCard({
               onClick={onMoveDown}
               disabled={isLast}
               className="p-0.5 rounded text-text-primary/40 hover:text-text-primary disabled:opacity-20 disabled:cursor-not-allowed"
-              aria-label="Move down"
+              aria-label={t("publish.reportSection.moveDown")}
             >
               <ChevronDown size={14} />
             </button>
@@ -70,8 +76,10 @@ export function ReportSectionCard({
               {section.title}
             </h3>
             <span className="text-xs text-text-primary/40 capitalize">
-              {section.type}
-              {section.analysisType ? ` / ${section.analysisType}` : ""}
+              {getPublishSectionTypeLabel(t, section.type)}
+              {section.analysisType
+                ? ` / ${getPublishAnalysisTypeLabel(t, section.analysisType)}`
+                : ""}
             </span>
           </div>
         </div>
@@ -85,10 +93,16 @@ export function ReportSectionCard({
               ? "bg-success/15 text-success hover:bg-success/25"
               : "bg-critical/15 text-critical hover:bg-critical/25"
           }`}
-          aria-label={included ? "Exclude section" : "Include section"}
+          aria-label={
+            included
+              ? t("publish.reportSection.excludeSection")
+              : t("publish.reportSection.includeSection")
+          }
         >
           {included ? <Eye size={12} /> : <EyeOff size={12} />}
-          {included ? "Included" : "Excluded"}
+          {included
+            ? t("publish.reportSection.included")
+            : t("publish.reportSection.excluded")}
         </button>
       </div>
 
@@ -101,7 +115,7 @@ export function ReportSectionCard({
           )}
           {section.type === "diagnostics" && (
             <div className="text-sm text-text-primary/50 italic">
-              Diagnostics data will be rendered in the exported report.
+              {t("publish.reportSection.diagnosticsPlaceholder")}
             </div>
           )}
         </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Plus,
   X,
@@ -15,24 +16,18 @@ import {
   useBundleMeasures,
   useRemoveBundleMeasure,
 } from "../hooks/useCareGaps";
+import {
+  CARE_GAP_DISEASE_CATEGORIES,
+  getCareGapCategoryLabel,
+} from "../lib/i18n";
 import type { QualityMeasure } from "../types/careGap";
-
-const DISEASE_CATEGORIES = [
-  "",
-  "Endocrine",
-  "Cardiovascular",
-  "Respiratory",
-  "Mental Health",
-  "Rheumatologic",
-  "Neurological",
-  "Oncology",
-];
 
 interface BundleDesignerProps {
   bundleId: number | null;
 }
 
 export function BundleDesigner({ bundleId }: BundleDesignerProps) {
+  const { t } = useTranslation("app");
   const { data: bundle } = useBundle(bundleId);
   const { data: measures } = useBundleMeasures(bundleId);
   const updateMutation = useUpdateBundle();
@@ -49,6 +44,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
   const [newIcd10, setNewIcd10] = useState("");
   const [newOmopId, setNewOmopId] = useState("");
   const [newEcqm, setNewEcqm] = useState("");
+  const categories = ["", ...CARE_GAP_DISEASE_CATEGORIES];
 
   // Sync form from bundle prop — legitimate external-source sync
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -130,20 +126,20 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
       {/* Core fields */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-5 space-y-4">
         <h3 className="text-sm font-semibold text-text-primary">
-          Bundle Details
+          {t("careGaps.bundleDesigner.bundleDetails")}
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Bundle code */}
           <div className="space-y-1.5">
             <label className="block text-xs font-medium text-text-muted">
-              Bundle Code
+              {t("careGaps.bundleDesigner.bundleCode")}
             </label>
             <input
               type="text"
               value={bundleCode}
               onChange={(e) => setBundleCode(e.target.value)}
-              placeholder="e.g., DM2-BUNDLE"
+              placeholder={t("careGaps.bundleDesigner.placeholders.bundleCode")}
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
                 "text-text-primary placeholder:text-text-ghost",
@@ -155,13 +151,15 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
           {/* Condition name */}
           <div className="space-y-1.5">
             <label className="block text-xs font-medium text-text-muted">
-              Condition Name
+              {t("careGaps.bundleDesigner.conditionName")}
             </label>
             <input
               type="text"
               value={conditionName}
               onChange={(e) => setConditionName(e.target.value)}
-              placeholder="e.g., Type 2 Diabetes Mellitus"
+              placeholder={t(
+                "careGaps.bundleDesigner.placeholders.conditionName",
+              )}
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
                 "text-text-primary placeholder:text-text-ghost",
@@ -174,12 +172,12 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
         {/* Description */}
         <div className="space-y-1.5">
           <label className="block text-xs font-medium text-text-muted">
-            Description
+            {t("careGaps.bundleDesigner.description")}
           </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe the bundle..."
+            placeholder={t("careGaps.bundleDesigner.placeholders.description")}
             rows={3}
             className={cn(
               "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm resize-y",
@@ -192,7 +190,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
         {/* Disease category */}
         <div className="space-y-1.5">
           <label className="block text-xs font-medium text-text-muted">
-            Disease Category
+            {t("careGaps.bundleDesigner.diseaseCategory")}
           </label>
           <select
             value={diseaseCategory}
@@ -204,10 +202,12 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
               "cursor-pointer",
             )}
           >
-            <option value="">Select category...</option>
-            {DISEASE_CATEGORIES.filter(Boolean).map((cat) => (
+            <option value="">
+              {t("careGaps.bundleDesigner.selectCategory")}
+            </option>
+            {categories.filter(Boolean).map((cat) => (
               <option key={cat} value={cat}>
-                {cat}
+                {getCareGapCategoryLabel(t, cat)}
               </option>
             ))}
           </select>
@@ -217,7 +217,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
       {/* ICD-10 patterns */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-5 space-y-3">
         <h3 className="text-sm font-semibold text-text-primary">
-          ICD-10 Patterns
+          {t("careGaps.bundleDesigner.icd10Patterns")}
         </h3>
 
         <div className="flex flex-wrap gap-2">
@@ -249,7 +249,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
                 addIcd10();
               }
             }}
-            placeholder="e.g., E11%"
+            placeholder={t("careGaps.bundleDesigner.placeholders.icd10")}
             className={cn(
               "flex-1 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
               "text-text-primary placeholder:text-text-ghost",
@@ -262,7 +262,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
             className="inline-flex items-center gap-1 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-muted hover:text-text-primary hover:border-surface-highlight transition-colors"
           >
             <Plus size={14} />
-            Add
+            {t("careGaps.bundleDesigner.add")}
           </button>
         </div>
       </div>
@@ -270,7 +270,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
       {/* OMOP Concept IDs */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-5 space-y-3">
         <h3 className="text-sm font-semibold text-text-primary">
-          OMOP Concept IDs
+          {t("careGaps.bundleDesigner.omopConceptIds")}
         </h3>
 
         <div className="flex flex-wrap gap-2">
@@ -302,7 +302,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
                 addOmopId();
               }
             }}
-            placeholder="Enter concept ID"
+            placeholder={t("careGaps.bundleDesigner.placeholders.conceptId")}
             className={cn(
               "flex-1 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
               "text-text-primary placeholder:text-text-ghost",
@@ -315,7 +315,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
             className="inline-flex items-center gap-1 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-muted hover:text-text-primary hover:border-surface-highlight transition-colors"
           >
             <Plus size={14} />
-            Add
+            {t("careGaps.bundleDesigner.add")}
           </button>
         </div>
       </div>
@@ -323,7 +323,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
       {/* eCQM References */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-5 space-y-3">
         <h3 className="text-sm font-semibold text-text-primary">
-          eCQM References
+          {t("careGaps.bundleDesigner.ecqmReferences")}
         </h3>
 
         <div className="flex flex-wrap gap-2">
@@ -355,7 +355,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
                 addEcqm();
               }
             }}
-            placeholder="e.g., CMS122v11"
+            placeholder={t("careGaps.bundleDesigner.placeholders.ecqm")}
             className={cn(
               "flex-1 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
               "text-text-primary placeholder:text-text-ghost",
@@ -368,7 +368,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
             className="inline-flex items-center gap-1 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-muted hover:text-text-primary hover:border-surface-highlight transition-colors"
           >
             <Plus size={14} />
-            Add
+            {t("careGaps.bundleDesigner.add")}
           </button>
         </div>
       </div>
@@ -377,13 +377,13 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
       <div className="rounded-lg border border-border-default bg-surface-raised p-5 space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-text-primary">
-            Attached Measures
+            {t("careGaps.bundleDesigner.attachedMeasures")}
           </h3>
         </div>
 
         {(!measures || measures.length === 0) ? (
           <p className="text-xs text-text-ghost">
-            No measures attached to this bundle.
+            {t("careGaps.bundleDesigner.noMeasuresAttached")}
           </p>
         ) : (
           <div className="space-y-1">
@@ -442,7 +442,9 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
           ) : (
             <Save size={14} />
           )}
-          {bundleId ? "Save Changes" : "Create Bundle"}
+          {bundleId
+            ? t("careGaps.common.actions.saveChanges")
+            : t("careGaps.common.actions.createBundle")}
         </button>
       </div>
     </div>

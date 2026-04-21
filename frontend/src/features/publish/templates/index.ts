@@ -12,7 +12,7 @@ import { HIMSS_POSTER_TEMPLATE } from "./himss-poster";
 
 export interface TemplateSectionDef {
   id: string;
-  title: string;
+  titleKey: string;
   type: SectionType;
   analysisType?: string;
   diagramType?: DiagramType;
@@ -22,8 +22,8 @@ export interface TemplateSectionDef {
 
 export interface TemplateConfig {
   id: string;
-  name: string;
-  description: string;
+  nameKey: string;
+  descriptionKey: string;
   sections: TemplateSectionDef[];
   usesResults: boolean;
   preferredAnalysisTypes?: string[];

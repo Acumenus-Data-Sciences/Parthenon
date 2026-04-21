@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 interface CohortProfilePanelProps {
   profile: {
     patient_count: number;
@@ -54,12 +56,15 @@ export function CohortProfilePanel({
   profile,
   compact = false,
 }: CohortProfilePanelProps) {
+  const { t } = useTranslation("app");
+  const bullet = String.fromCharCode(8226);
+  const enDash = String.fromCharCode(8211);
   const femalePctDisplay = Math.round(profile.female_pct * 100);
 
   if (compact) {
     const topThree = profile.top_conditions
       .slice(0, 3)
-      .map((c) => c.name)
+      .map((condition) => condition.name)
       .join(", ");
 
     return (
@@ -68,12 +73,13 @@ export function CohortProfilePanel({
           <span className="font-['IBM_Plex_Mono',monospace] text-text-primary">
             {profile.patient_count.toLocaleString()}
           </span>{" "}
-          patients &bull; Age {profile.min_age}&ndash;{profile.max_age} &bull;{" "}
-          {femalePctDisplay}% female
+          {t("riskScores.cohortProfile.patients")} {bullet}{" "}
+          {t("riskScores.cohortProfile.age")} {profile.min_age}
+          {enDash}
+          {profile.max_age} {bullet}{" "}
+          {t("riskScores.cohortProfile.female", { count: femalePctDisplay })}
         </p>
-        {topThree && (
-          <p className="mt-1 text-xs text-text-ghost">{topThree}</p>
-        )}
+        {topThree && <p className="mt-1 text-xs text-text-ghost">{topThree}</p>}
       </div>
     );
   }
@@ -83,29 +89,30 @@ export function CohortProfilePanel({
 
   return (
     <div className="space-y-6 rounded-xl border border-border-default bg-surface-raised p-6">
-      {/* Demographics */}
       <div>
-        <SectionHeader>Demographics</SectionHeader>
+        <SectionHeader>{t("riskScores.cohortProfile.demographics")}</SectionHeader>
         <div className="flex flex-wrap items-center gap-6">
           <div>
             <span className="font-['IBM_Plex_Mono',monospace] text-2xl text-text-primary">
               {profile.patient_count.toLocaleString()}
             </span>
-            <span className="ml-2 text-xs text-text-ghost">patients</span>
+            <span className="ml-2 text-xs text-text-ghost">
+              {t("riskScores.cohortProfile.patients")}
+            </span>
           </div>
           <div className="text-sm text-text-secondary">
-            Age{" "}
+            {t("riskScores.cohortProfile.age")}{" "}
             <span className="font-['IBM_Plex_Mono',monospace]">
               {profile.min_age}
             </span>
-            &ndash;
+            {enDash}
             <span className="font-['IBM_Plex_Mono',monospace]">
               {profile.max_age}
             </span>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-sm text-text-secondary">
-              {femalePctDisplay}% female
+              {t("riskScores.cohortProfile.female", { count: femalePctDisplay })}
             </span>
             <div className="h-2 w-20 rounded-full bg-surface-elevated">
               <div
@@ -117,10 +124,9 @@ export function CohortProfilePanel({
         </div>
       </div>
 
-      {/* Top Conditions */}
       {conditionEntries.length > 0 && (
         <div>
-          <SectionHeader>Top Conditions</SectionHeader>
+          <SectionHeader>{t("riskScores.cohortProfile.topConditions")}</SectionHeader>
           <div className="space-y-3">
             {conditionEntries.map((condition) => (
               <PercentageBar
@@ -134,10 +140,11 @@ export function CohortProfilePanel({
         </div>
       )}
 
-      {/* Measurement Coverage */}
       {measurementEntries.length > 0 && (
         <div>
-          <SectionHeader>Measurement Coverage</SectionHeader>
+          <SectionHeader>
+            {t("riskScores.cohortProfile.measurementCoverage")}
+          </SectionHeader>
           <div className="space-y-3">
             {measurementEntries.map(([conceptId, coverage]) => (
               <PercentageBar

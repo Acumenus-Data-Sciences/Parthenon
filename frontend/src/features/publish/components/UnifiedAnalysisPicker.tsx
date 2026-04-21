@@ -1,31 +1,12 @@
 import { useState, useMemo, useEffect } from "react";
 import { Search, ChevronRight, ChevronDown, Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAllAnalyses } from "../hooks/useAnalysisPicker";
 import { useStudiesForPublish } from "../api/publishApi";
 import type { AnalysisPickerItem } from "../api/publishApi";
+import { getPublishAnalysisTypeLabel } from "../lib/i18n";
 import type { SelectedExecution } from "../types/publish";
 import AnalysisPickerCart from "./AnalysisPickerCart";
-
-const TYPE_LABELS: Record<string, string> = {
-  characterizations: "Characterization",
-  estimations: "Estimation",
-  predictions: "Prediction",
-  incidence_rates: "Incidence Rate",
-  sccs: "SCCS",
-  evidence_synthesis: "Evidence Synthesis",
-  pathways: "Pathway",
-};
-
-const TYPE_OPTIONS = [
-  { value: "", label: "All Types" },
-  { value: "characterizations", label: "Characterization" },
-  { value: "estimations", label: "Estimation" },
-  { value: "predictions", label: "Prediction" },
-  { value: "incidence_rates", label: "Incidence Rate" },
-  { value: "sccs", label: "SCCS" },
-  { value: "evidence_synthesis", label: "Evidence Synthesis" },
-  { value: "pathways", label: "Pathway" },
-];
 
 interface UnifiedAnalysisPickerProps {
   selections: SelectedExecution[];
@@ -64,12 +45,38 @@ export default function UnifiedAnalysisPicker({
   onNext,
   initialStudyId,
 }: UnifiedAnalysisPickerProps) {
+  const { t } = useTranslation("app");
   const [activeTab, setActiveTab] = useState<"all" | "studies">(initialStudyId ? "studies" : "all");
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [expandedStudies, setExpandedStudies] = useState<Set<number>>(
-    new Set()
+    () => (initialStudyId ? new Set([initialStudyId]) : new Set())
   );
+  const typeOptions = [
+    { value: "", label: t("publish.analysisPicker.filter.allTypes") },
+    {
+      value: "characterizations",
+      label: getPublishAnalysisTypeLabel(t, "characterizations"),
+    },
+    {
+      value: "estimations",
+      label: getPublishAnalysisTypeLabel(t, "estimations"),
+    },
+    {
+      value: "predictions",
+      label: getPublishAnalysisTypeLabel(t, "predictions"),
+    },
+    {
+      value: "incidence_rates",
+      label: getPublishAnalysisTypeLabel(t, "incidence_rates"),
+    },
+    { value: "sccs", label: getPublishAnalysisTypeLabel(t, "sccs") },
+    {
+      value: "evidence_synthesis",
+      label: getPublishAnalysisTypeLabel(t, "evidence_synthesis"),
+    },
+    { value: "pathways", label: getPublishAnalysisTypeLabel(t, "pathways") },
+  ];
 
   const { data: analyses = [], isLoading: loadingAnalyses } = useAllAnalyses();
   const { data: studies = [], isLoading: loadingStudies } =
@@ -129,8 +136,6 @@ export default function UnifiedAnalysisPicker({
 
     const study = studies.find((s) => s.id === initialStudyId);
     if (!study) return;
-
-    setExpandedStudies(new Set([initialStudyId]));
 
     const studyAnalyses = (study.analyses ?? []).filter(
       (sa) => sa.analysis?.latest_execution?.status === "completed"
@@ -225,7 +230,11 @@ export default function UnifiedAnalysisPicker({
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-ghost" />
             <input
               type="text"
-              placeholder={activeTab === "all" ? "Search analyses..." : "Search studies..."}
+              placeholder={
+                activeTab === "all"
+                  ? t("publish.analysisPicker.searchAnalyses")
+                  : t("publish.analysisPicker.searchStudies")
+              }
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-9 pr-3 py-2 bg-surface-raised border border-border-default rounded-lg text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-accent"
@@ -236,7 +245,7 @@ export default function UnifiedAnalysisPicker({
             onChange={(e) => setTypeFilter(e.target.value)}
             className="bg-surface-raised border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent"
           >
-            {TYPE_OPTIONS.map((opt) => (
+            {typeOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
               </option>
@@ -255,7 +264,7 @@ export default function UnifiedAnalysisPicker({
                 : "border-transparent text-text-ghost hover:text-text-primary"
             }`}
           >
-            All Analyses
+            {t("publish.analysisPicker.tabs.allAnalyses")}
           </button>
           <button
             type="button"
@@ -266,7 +275,7 @@ export default function UnifiedAnalysisPicker({
                 : "border-transparent text-text-ghost hover:text-text-primary"
             }`}
           >
-            From Studies
+            {t("publish.analysisPicker.tabs.fromStudies")}
           </button>
         </div>
 
@@ -276,11 +285,11 @@ export default function UnifiedAnalysisPicker({
             <div className="overflow-y-auto space-y-1" style={{ maxHeight: "540px" }}>
               {loadingAnalyses ? (
                 <p className="text-sm text-text-ghost text-center py-8">
-                  Loading analyses...
+                  {t("publish.analysisPicker.loadingAnalyses")}
                 </p>
               ) : filteredAnalyses.length === 0 ? (
                 <p className="text-sm text-text-ghost text-center py-8">
-                  No completed analyses found
+                  {t("publish.analysisPicker.noCompletedAnalyses")}
                 </p>
               ) : (
                 filteredAnalyses.map((item) => {
@@ -315,7 +324,7 @@ export default function UnifiedAnalysisPicker({
                           {item.name}
                         </p>
                         <p className="text-xs text-text-ghost">
-                          {TYPE_LABELS[item.type] ?? item.type}
+                          {getPublishAnalysisTypeLabel(t, item.type)}
                           {item.latest_execution?.completed_at &&
                             ` \u00B7 ${new Date(
                               item.latest_execution.completed_at
@@ -334,11 +343,13 @@ export default function UnifiedAnalysisPicker({
           <div className="overflow-y-auto space-y-2" style={{ maxHeight: "540px" }}>
             {loadingStudies ? (
               <p className="text-sm text-text-ghost text-center py-8">
-                Loading studies...
+                {t("publish.analysisPicker.loadingStudies")}
               </p>
             ) : filteredStudies.length === 0 ? (
               <p className="text-sm text-text-ghost text-center py-8">
-                {search || typeFilter ? "No studies match your filters" : "No studies found"}
+                {search || typeFilter
+                  ? t("publish.analysisPicker.noStudiesMatchFilters")
+                  : t("publish.analysisPicker.noStudiesFound")}
               </p>
             ) : (
               filteredStudies.map(({ study, studyAnalyses }) => {
@@ -368,8 +379,9 @@ export default function UnifiedAnalysisPicker({
                     {studyAnalyses.length > 0 && (
                       <div className="flex items-center justify-between px-3 py-1.5 border-t border-border-default">
                         <span className="text-xs text-text-ghost">
-                          {studyAnalyses.length} completed{" "}
-                          {studyAnalyses.length === 1 ? "analysis" : "analyses"}
+                          {t("publish.analysisPicker.completedAnalyses", {
+                            count: studyAnalyses.length,
+                          })}
                         </span>
                         <button
                           type="button"
@@ -382,8 +394,8 @@ export default function UnifiedAnalysisPicker({
                           {studyAnalyses.every((sa) =>
                             isSelected(selections, sa.analysis!.latest_execution!.id)
                           )
-                            ? "Deselect All"
-                            : "Select All"}
+                            ? t("publish.analysisPicker.actions.deselectAll")
+                            : t("publish.analysisPicker.actions.selectAll")}
                         </button>
                       </div>
                     )}
@@ -438,8 +450,10 @@ export default function UnifiedAnalysisPicker({
                                   {sa.analysis!.name}
                                 </p>
                                 <p className="text-xs text-text-ghost">
-                                  {TYPE_LABELS[sa.analysis_type] ??
-                                    sa.analysis_type}
+                                  {getPublishAnalysisTypeLabel(
+                                    t,
+                                    sa.analysis_type,
+                                  )}
                                 </p>
                               </div>
                             </button>
@@ -470,7 +484,7 @@ export default function UnifiedAnalysisPicker({
               onClick={onNext}
               className="w-full px-4 py-2 bg-accent text-surface-base font-medium text-sm rounded-lg hover:bg-accent transition-colors"
             >
-              Configure Document &rarr;
+              {t("publish.common.actions.configureDocument")}
             </button>
           </div>
         )}

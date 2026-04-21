@@ -2,34 +2,34 @@ import type { TemplateConfig } from "./index";
 
 export const HIMSS_POSTER_TEMPLATE: TemplateConfig = {
   id: "himss-poster",
-  name: "HIMSS Poster",
-  description: "HIMSS conference poster — concise panels for background, methods, key findings, and impact statement",
+  nameKey: "publish.templates.himss-poster.name",
+  descriptionKey: "publish.templates.himss-poster.description",
   usesResults: true,
   sections: [
     {
       id: "background",
-      title: "Background",
+      titleKey: "publish.templates.himss-poster.sections.background",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "problem-statement",
-      title: "Problem Statement",
+      titleKey: "publish.templates.himss-poster.sections.problem-statement",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "objectives",
-      title: "Objectives",
+      titleKey: "publish.templates.himss-poster.sections.objectives",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "methods",
-      title: "Methods",
+      titleKey: "publish.templates.himss-poster.sections.methods",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
@@ -37,21 +37,21 @@ export const HIMSS_POSTER_TEMPLATE: TemplateConfig = {
     // Results injected dynamically
     {
       id: "key-findings",
-      title: "Key Findings",
+      titleKey: "publish.templates.himss-poster.sections.key-findings",
       type: "discussion",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "clinical-impact",
-      title: "Clinical and Operational Impact",
+      titleKey: "publish.templates.himss-poster.sections.clinical-impact",
       type: "discussion",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "next-steps",
-      title: "Next Steps",
+      titleKey: "publish.templates.himss-poster.sections.next-steps",
       type: "discussion",
       narrativeIncluded: true,
       tableIncluded: false,

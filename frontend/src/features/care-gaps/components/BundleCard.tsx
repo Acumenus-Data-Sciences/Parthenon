@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { Activity, Layers, Clock, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { ComplianceRing } from "./ComplianceRing";
+import { getCareGapCategoryLabel, getCareGapStatusLabel } from "../lib/i18n";
 import type { ConditionBundle } from "../types/careGap";
 
 interface BundleCardProps {
@@ -28,11 +30,28 @@ function EvalStatusBadge({
 }: {
   status: "pending" | "running" | "completed" | "failed";
 }) {
+  const { t } = useTranslation("app");
   const config = {
-    pending: { icon: Clock, color: "var(--text-muted)", label: "Pending" },
-    running: { icon: Loader2, color: "var(--warning)", label: "Running" },
-    completed: { icon: CheckCircle2, color: "var(--success)", label: "Completed" },
-    failed: { icon: XCircle, color: "var(--critical)", label: "Failed" },
+    pending: {
+      icon: Clock,
+      color: "var(--text-muted)",
+      label: getCareGapStatusLabel(t, "pending"),
+    },
+    running: {
+      icon: Loader2,
+      color: "var(--warning)",
+      label: getCareGapStatusLabel(t, "running"),
+    },
+    completed: {
+      icon: CheckCircle2,
+      color: "var(--success)",
+      label: getCareGapStatusLabel(t, "completed"),
+    },
+    failed: {
+      icon: XCircle,
+      color: "var(--critical)",
+      label: getCareGapStatusLabel(t, "failed"),
+    },
   } as const;
 
   const c = config[status];
@@ -54,6 +73,7 @@ function EvalStatusBadge({
 
 export function BundleCard({ bundle }: BundleCardProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation("app");
   const borderColor = getCategoryBorderColor(bundle.disease_category);
 
   const evaluation = bundle.latest_evaluation;
@@ -95,7 +115,7 @@ export function BundleCard({ bundle }: BundleCardProps) {
                 color: getCategoryBorderColor(bundle.disease_category),
               }}
             >
-              {bundle.disease_category}
+              {getCareGapCategoryLabel(t, bundle.disease_category)}
             </span>
           )}
 
@@ -103,11 +123,15 @@ export function BundleCard({ bundle }: BundleCardProps) {
           <div className="flex items-center gap-3 text-[11px] text-text-muted">
             <span className="inline-flex items-center gap-1">
               <Layers size={11} />
-              {bundle.measures?.length ?? bundle.bundle_size} measures
+              {t("careGaps.common.bundle.measure", {
+                count: bundle.measures?.length ?? bundle.bundle_size,
+              })}
             </span>
             <span className="inline-flex items-center gap-1">
               <Activity size={11} />
-              {bundle.is_active ? "Active" : "Inactive"}
+              {bundle.is_active
+                ? t("careGaps.common.bundle.active")
+                : t("careGaps.common.bundle.inactive")}
             </span>
           </div>
 

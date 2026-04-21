@@ -2,6 +2,7 @@
 // ReportPreview — Full report preview with toggle and reorder controls
 // ---------------------------------------------------------------------------
 
+import { useTranslation } from "react-i18next";
 import { ReportSectionCard } from "./ReportSection";
 import type { ReportSection } from "../types/publish";
 
@@ -20,6 +21,7 @@ export function ReportPreview({
   onToggle,
   onReorder,
 }: ReportPreviewProps) {
+  const { t } = useTranslation("app");
   return (
     <div data-testid="report-preview" className="space-y-4">
       {/* Paper container */}
@@ -30,11 +32,10 @@ export function ReportPreview({
         {/* Report header */}
         <div className="mb-6 pb-4 border-b border-border-default">
           <h2 className="text-lg font-bold text-text-primary">
-            Study Report Preview
+            {t("publish.reportPreview.title")}
           </h2>
           <p className="text-xs text-text-primary/40 mt-1">
-            Toggle sections on/off and reorder using the controls. Only
-            included sections will appear in the export.
+            {t("publish.reportPreview.subtitle")}
           </p>
         </div>
 
@@ -56,7 +57,7 @@ export function ReportPreview({
 
         {sections.length === 0 && (
           <p className="text-center text-sm text-text-primary/40 py-8">
-            No sections to preview. Go back and select analysis executions.
+            {t("publish.reportPreview.empty")}
           </p>
         )}
       </div>

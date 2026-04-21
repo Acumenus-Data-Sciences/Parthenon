@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Plus,
   Loader2,
@@ -37,13 +38,18 @@ import type {
   RiskScoreSourceSummaryItem,
 } from "../types/riskScore";
 import { ANALYSIS_STATUS_COLORS, CATEGORY_ORDER } from "../types/riskScore";
+import {
+  getRiskScoreCategoryLabel,
+  getRiskScoreStatusLabel,
+} from "../lib/i18n";
 
 const STATUS_OPTIONS = [
-  { value: "draft", label: "Draft", color: ANALYSIS_STATUS_COLORS.draft },
-  { value: "running", label: "Running", color: ANALYSIS_STATUS_COLORS.running },
-  { value: "completed", label: "Completed", color: ANALYSIS_STATUS_COLORS.completed },
-  { value: "failed", label: "Failed", color: ANALYSIS_STATUS_COLORS.failed },
+  { value: "draft", color: ANALYSIS_STATUS_COLORS.draft },
+  { value: "running", color: ANALYSIS_STATUS_COLORS.running },
+  { value: "completed", color: ANALYSIS_STATUS_COLORS.completed },
+  { value: "failed", color: ANALYSIS_STATUS_COLORS.failed },
 ];
+const MIDDLE_DOT = String.fromCharCode(183);
 
 const CATEGORY_COLORS: Record<string, string> = {
   Cardiovascular: "var(--critical)",
@@ -56,13 +62,8 @@ const CATEGORY_COLORS: Record<string, string> = {
   Musculoskeletal: "var(--text-muted)",
 };
 
-const CATEGORY_OPTIONS = CATEGORY_ORDER.map((cat) => ({
-  value: cat,
-  label: cat,
-  color: CATEGORY_COLORS[cat] ?? "var(--text-muted)",
-}));
-
 export default function RiskScoreHubPage() {
+  const { t } = useTranslation("app");
   const navigate = useNavigate();
   const { activeSourceId, defaultSourceId, sources } = useSourceStore();
   const sourceId = activeSourceId ?? defaultSourceId ?? 0;
@@ -82,6 +83,15 @@ export default function RiskScoreHubPage() {
   const searchRef = useRef<HTMLDivElement>(null);
 
   const hasFilters = !!(filterStatus || filterCategory);
+  const categoryOptions = useMemo(
+    () =>
+      CATEGORY_ORDER.map((category) => ({
+        value: category,
+        label: getRiskScoreCategoryLabel(t, category),
+        color: CATEGORY_COLORS[category] ?? "var(--text-muted)",
+      })),
+    [t],
+  );
 
   const { data: stats } = useRiskScoreAnalysisStats();
   const { data, isLoading, error } = useRiskScoreAnalyses(page, debouncedSearch, {
@@ -104,11 +114,6 @@ export default function RiskScoreHubPage() {
     }, 300);
     return () => clearTimeout(timer);
   }, [searchInput]);
-
-  // Reset page when filters change
-  useEffect(() => {
-    setPage(1);
-  }, [filterStatus, filterCategory]);
 
   // Persist view mode
   useEffect(() => {
@@ -208,9 +213,9 @@ export default function RiskScoreHubPage() {
       {/* Header */}
       <div className="page-header">
         <div className="flex-1 min-w-0">
-          <h1 className="page-title">Risk Score Analyses</h1>
+          <h1 className="page-title">{t("riskScores.hub.title")}</h1>
           <p className="page-subtitle">
-            Stratify patient populations by validated clinical risk scores
+            {t("riskScores.hub.subtitle")}
           </p>
         </div>
 
@@ -226,7 +231,7 @@ export default function RiskScoreHubPage() {
                   ? "bg-success/10 text-success"
                   : "text-text-ghost hover:text-text-secondary",
               )}
-              title="Table view"
+              title={t("riskScores.common.view.table")}
             >
               <List size={16} />
             </button>
@@ -239,7 +244,7 @@ export default function RiskScoreHubPage() {
                   ? "bg-success/10 text-success"
                   : "text-text-ghost hover:text-text-secondary",
               )}
-              title="Card view"
+              title={t("riskScores.common.view.card")}
             >
               <LayoutGrid size={16} />
             </button>
@@ -259,7 +264,7 @@ export default function RiskScoreHubPage() {
                 setShowDropdown(true);
               }}
               onFocus={() => setShowDropdown(true)}
-              placeholder="Search analyses..."
+              placeholder={t("riskScores.common.search.analysesPlaceholder")}
               className={cn(
                 "w-full rounded-lg pl-9 pr-8 py-2 text-sm",
                 "bg-surface-base border border-border-default",
@@ -284,7 +289,9 @@ export default function RiskScoreHubPage() {
                 <div className="max-h-80 overflow-y-auto">
                   {dropdownAnalyses.length === 0 ? (
                     <div className="px-4 py-6 text-center text-sm text-text-ghost">
-                      No analyses match &ldquo;{searchInput}&rdquo;
+                      {t("riskScores.common.search.noMatch", {
+                        query: searchInput,
+                      })}
                     </div>
                   ) : (
                     dropdownAnalyses.map((analysis) => {
@@ -309,11 +316,11 @@ export default function RiskScoreHubPage() {
                               style={{ color: sColor }}
                             >
                               <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: sColor }} />
-                              {status.replace(/_/g, " ")}
+                              {getRiskScoreStatusLabel(t, status)}
                             </span>
-                            <span className="text-[10px] text-text-ghost">&middot;</span>
+                            <span className="text-[10px] text-text-ghost">{MIDDLE_DOT}</span>
                             <span className="text-[10px] text-text-ghost">
-                              {scoreCount} {scoreCount === 1 ? "score" : "scores"}
+                              {t("riskScores.common.count.score", { count: scoreCount })}
                             </span>
                           </div>
                         </button>
@@ -323,7 +330,9 @@ export default function RiskScoreHubPage() {
                 </div>
                 {(allAnalysesData?.data?.length ?? 0) > 12 && !searchInput.trim() && (
                   <div className="px-4 py-2 text-center text-[10px] text-text-ghost border-t border-border-default bg-surface-base">
-                    Type to filter {allAnalysesData?.data?.length} analyses
+                    {t("riskScores.common.search.typeToFilter", {
+                      count: allAnalysesData?.data?.length,
+                    })}
                   </div>
                 )}
               </div>
@@ -339,7 +348,7 @@ export default function RiskScoreHubPage() {
               className="btn btn-primary"
             >
               <Plus size={16} />
-              New Analysis
+              {t("riskScores.common.actions.newAnalysis")}
             </button>
           </div>
         </div>
@@ -350,11 +359,11 @@ export default function RiskScoreHubPage() {
         <div className="space-y-3">
           <div className="grid grid-cols-5 gap-3">
             {[
-              { label: "Total", value: stats.total, icon: Briefcase, color: "var(--text-secondary)", drilldown: null as string | null },
-              { label: "Running", value: stats.running, icon: Loader2, color: "var(--warning)", drilldown: "running" },
-              { label: "Completed", value: stats.completed, icon: CheckCircle2, color: "var(--success)", drilldown: "completed" },
-              { label: "Scores Available", value: stats.scores_available, icon: BarChart3, color: "var(--info)", drilldown: "__catalogue__" },
-              { label: "Patients Scored", value: stats.patients_scored, icon: Users, color: "var(--domain-observation)", drilldown: null },
+              { label: t("riskScores.hub.metrics.total"), value: stats.total, icon: Briefcase, color: "var(--text-secondary)", drilldown: null as string | null },
+              { label: t("riskScores.hub.metrics.running"), value: stats.running, icon: Loader2, color: "var(--warning)", drilldown: "running" },
+              { label: t("riskScores.hub.metrics.completed"), value: stats.completed, icon: CheckCircle2, color: "var(--success)", drilldown: "completed" },
+              { label: t("riskScores.hub.metrics.scoresAvailable"), value: stats.scores_available, icon: BarChart3, color: "var(--info)", drilldown: "__catalogue__" },
+              { label: t("riskScores.hub.metrics.patientsScored"), value: stats.patients_scored, icon: Users, color: "var(--domain-observation)", drilldown: null },
             ].map((metric) => {
               const Icon = metric.icon;
               const isDrilling =
@@ -414,7 +423,9 @@ export default function RiskScoreHubPage() {
             <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
               <div className="flex items-center justify-between px-4 py-2 bg-surface-overlay border-b border-border-default">
                 <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider">
-                  {drilldownStatus.replace(/_/g, " ")} Analyses
+                  {t("riskScores.hub.drilldown.analyses", {
+                    status: getRiskScoreStatusLabel(t, drilldownStatus),
+                  })}
                   <span className="ml-1.5 text-text-ghost">({drilldownAnalyses.length})</span>
                 </p>
                 <button
@@ -440,7 +451,7 @@ export default function RiskScoreHubPage() {
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium text-text-primary truncate">{analysis.name}</p>
                         <p className="text-[10px] text-text-ghost truncate mt-0.5">
-                          {scoreCount} {scoreCount === 1 ? "score" : "scores"}
+                          {t("riskScores.common.count.score", { count: scoreCount })}
                           {analysis.author?.name ? ` - ${analysis.author.name}` : ""}
                         </p>
                       </div>
@@ -450,7 +461,7 @@ export default function RiskScoreHubPage() {
                           style={{ backgroundColor: `${sColor}15`, color: sColor }}
                         >
                           <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: sColor }} />
-                          {status.replace(/_/g, " ")}
+                          {getRiskScoreStatusLabel(t, status)}
                         </span>
                       </div>
                     </button>
@@ -470,7 +481,7 @@ export default function RiskScoreHubPage() {
           className={cn("tab-item flex items-center gap-1.5 whitespace-nowrap", hubTab === "analyses" && "active")}
         >
           <List size={14} />
-          Analyses
+          {t("riskScores.hub.tabs.analyses")}
           {stats && stats.total > 0 && (
             <span className="text-[10px] font-medium text-text-ghost">{stats.total}</span>
           )}
@@ -481,7 +492,7 @@ export default function RiskScoreHubPage() {
           className={cn("tab-item flex items-center gap-1.5 whitespace-nowrap", hubTab === "catalogue" && "active")}
         >
           <BarChart3 size={14} />
-          Score Catalogue
+          {t("riskScores.hub.tabs.scoreCatalogue")}
           {catalogue?.scores && (
             <span className="text-[10px] font-medium text-text-ghost">{catalogue.scores.length}</span>
           )}
@@ -493,14 +504,17 @@ export default function RiskScoreHubPage() {
         <>
           {/* Filter Chips */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[10px] text-text-ghost uppercase tracking-wider mr-1">Status</span>
+            <span className="text-[10px] text-text-ghost uppercase tracking-wider mr-1">{t("riskScores.hub.filters.status")}</span>
             {STATUS_OPTIONS.map((opt) => {
               const count = facets?.status?.[opt.value];
               return (
                 <button
                   key={opt.value}
                   type="button"
-                  onClick={() => setFilterStatus(filterStatus === opt.value ? null : opt.value)}
+                  onClick={() => {
+                    setFilterStatus(filterStatus === opt.value ? null : opt.value);
+                    setPage(1);
+                  }}
                   className={cn(
                     "px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border",
                     filterStatus === opt.value
@@ -509,21 +523,24 @@ export default function RiskScoreHubPage() {
                   )}
                   style={filterStatus === opt.value ? { backgroundColor: `${opt.color}20`, color: opt.color, borderColor: `${opt.color}40` } : undefined}
                 >
-                  {opt.label}
+                  {getRiskScoreStatusLabel(t, opt.value)}
                   {count != null && <span className="ml-1 text-[10px] opacity-60">({count})</span>}
                 </button>
               );
             })}
 
             <span className="text-text-disabled mx-1">|</span>
-            <span className="text-[10px] text-text-ghost uppercase tracking-wider mr-1">Category</span>
-            {CATEGORY_OPTIONS.map((opt) => {
+            <span className="text-[10px] text-text-ghost uppercase tracking-wider mr-1">{t("riskScores.hub.filters.category")}</span>
+            {categoryOptions.map((opt) => {
               const count = facets?.category?.[opt.value];
               return (
                 <button
                   key={opt.value}
                   type="button"
-                  onClick={() => setFilterCategory(filterCategory === opt.value ? null : opt.value)}
+                  onClick={() => {
+                    setFilterCategory(filterCategory === opt.value ? null : opt.value);
+                    setPage(1);
+                  }}
                   className={cn(
                     "px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border",
                     filterCategory === opt.value
@@ -541,11 +558,15 @@ export default function RiskScoreHubPage() {
             {hasFilters && (
               <button
                 type="button"
-                onClick={() => { setFilterStatus(null); setFilterCategory(null); }}
+                onClick={() => {
+                  setFilterStatus(null);
+                  setFilterCategory(null);
+                  setPage(1);
+                }}
                 className="ml-2 px-2 py-1 rounded text-[11px] text-critical hover:bg-critical/10 transition-colors"
               >
                 <X size={12} className="inline mr-0.5" />
-                Clear
+                {t("riskScores.common.actions.clear")}
               </button>
             )}
           </div>
@@ -555,11 +576,12 @@ export default function RiskScoreHubPage() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-sm font-medium text-info">
-                    Source-Level Completed Scores
+                    {t("riskScores.hub.catalogue.sourceLevelCompletedScores")}
                   </p>
                   <p className="mt-1 text-xs text-info">
-                    {legacyOnlySummaries.length} completed score
-                    {legacyOnlySummaries.length === 1 ? "" : "s"} exist for the active source but are not attached to any v2 analysis execution.
+                    {t("riskScores.hub.catalogue.sourceLevelCompletedScoresDetail", {
+                      count: legacyOnlySummaries.length,
+                    })}
                   </p>
                 </div>
                 <button
@@ -567,7 +589,7 @@ export default function RiskScoreHubPage() {
                   onClick={() => setHubTab("catalogue")}
                   className="shrink-0 text-xs text-info hover:text-info transition-colors"
                 >
-                  Open Catalogue
+                  {t("riskScores.common.actions.openCatalogue")}
                 </button>
               </div>
 
@@ -616,18 +638,22 @@ export default function RiskScoreHubPage() {
                 </div>
               ) : error ? (
                 <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-critical/30 bg-critical/5 py-16">
-                  <p className="text-sm text-critical">Failed to load analyses. Please try again.</p>
+                  <p className="text-sm text-critical">{t("riskScores.hub.errors.failedToLoadAnalyses")}</p>
                 </div>
               ) : analyses.length === 0 ? (
                 <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
                   <Activity size={28} className="text-text-ghost mb-3" />
                   <h3 className="text-lg font-semibold text-text-primary">
-                    {debouncedSearch ? "No matching analyses" : "No risk score analyses yet"}
+                    {debouncedSearch
+                      ? t("riskScores.hub.empty.noMatchingAnalyses")
+                      : t("riskScores.hub.empty.noRiskScoreAnalysesYet")}
                   </h3>
                   <p className="mt-2 text-sm text-text-muted">
                     {debouncedSearch
-                      ? `No analyses found for "${debouncedSearch}"`
-                      : "Create your first analysis to stratify patients by clinical risk scores."}
+                      ? t("riskScores.hub.empty.noAnalysesFoundFor", {
+                          query: debouncedSearch,
+                        })
+                      : t("riskScores.hub.empty.createFirst")}
                   </p>
                   {!debouncedSearch && (
                     <button
@@ -636,7 +662,7 @@ export default function RiskScoreHubPage() {
                       className="btn btn-primary mt-4"
                     >
                       <Plus size={16} />
-                      New Analysis
+                      {t("riskScores.common.actions.newAnalysis")}
                     </button>
                   )}
                 </div>
@@ -669,12 +695,13 @@ export default function RiskScoreHubPage() {
                 )}
                 <p className="text-sm text-success">
                   {loadingEligibility || refreshEligibilityMutation.isPending
-                    ? "Checking eligibility..."
+                    ? t("riskScores.hub.catalogue.checkingEligibility")
                     : <>
-                        Showing eligibility for{" "}
-                        <span className="font-medium">
-                          {sources.find((s) => s.id === sourceId)?.source_name ?? `Source #${sourceId}`}
-                        </span>
+                        {t("riskScores.hub.catalogue.showingEligibilityFor", {
+                          source:
+                            sources.find((s) => s.id === sourceId)?.source_name ??
+                            `Source #${sourceId}`,
+                        })}
                       </>
                   }
                 </p>
@@ -682,13 +709,17 @@ export default function RiskScoreHubPage() {
               <div className="flex items-center gap-3">
                 {eligibility && (
                   <span className="text-xs text-success/70">
-                    {Object.values(eligibility).filter((e) => e.eligible).length} of{" "}
-                    {Object.keys(eligibility).length} scores eligible
+                    {t("riskScores.hub.catalogue.eligibleSummary", {
+                      eligible: Object.values(eligibility).filter((e) => e.eligible).length,
+                      total: Object.keys(eligibility).length,
+                    })}
                   </span>
                 )}
                 {sourceResults && sourceResults.scores_computed > 0 && (
                   <span className="text-xs text-info">
-                    {sourceResults.scores_computed} completed results
+                    {t("riskScores.hub.catalogue.completedResults", {
+                      count: sourceResults.scores_computed,
+                    })}
                   </span>
                 )}
                 <button
@@ -696,10 +727,10 @@ export default function RiskScoreHubPage() {
                   onClick={() => refreshEligibilityMutation.mutate(sourceId)}
                   disabled={refreshEligibilityMutation.isPending}
                   className="flex items-center gap-1 text-xs text-success hover:text-success/80 transition-colors disabled:opacity-50"
-                  title="Refresh eligibility check"
+                  title={t("riskScores.common.actions.refresh")}
                 >
                   <RefreshCw size={12} className={refreshEligibilityMutation.isPending ? "animate-spin" : ""} />
-                  Refresh
+                  {t("riskScores.common.actions.refresh")}
                 </button>
               </div>
             </div>
@@ -707,7 +738,7 @@ export default function RiskScoreHubPage() {
             <div className="flex items-center gap-3 rounded-xl border border-accent/20 bg-accent/5 px-5 py-3">
               <Info size={16} className="text-accent shrink-0" />
               <p className="text-sm text-accent">
-                Select a data source from the header to check eligibility for each score.
+                {t("riskScores.hub.catalogue.selectSourcePrompt")}
               </p>
             </div>
           )}
@@ -720,19 +751,23 @@ export default function RiskScoreHubPage() {
                   style={{ backgroundColor: color }}
                 />
                 <h2 className="text-sm font-medium text-text-secondary uppercase tracking-wider">
-                  {category}
+                  {getRiskScoreCategoryLabel(t, category)}
                 </h2>
                 <span className="text-[10px] text-text-ghost">
                   ({scores.length})
                 </span>
                 {sourceId > 0 && eligibility && (
                   <span className="text-[10px] text-success">
-                    {scores.filter((s) => eligibility[s.score_id]?.eligible).length} eligible
+                    {t("riskScores.hub.catalogue.eligibleCount", {
+                      count: scores.filter((s) => eligibility[s.score_id]?.eligible).length,
+                    })}
                   </span>
                 )}
                 {sourceId > 0 && sourceResults && (
                   <span className="text-[10px] text-info">
-                    {scores.filter((s) => sourceSummaryByScore.has(s.score_id)).length} completed
+                    {t("riskScores.hub.catalogue.completedCount", {
+                      count: scores.filter((s) => sourceSummaryByScore.has(s.score_id)).length,
+                    })}
                   </span>
                 )}
               </div>

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import { buildDiagramData } from "../diagramBuilders";
+import { SECTION_CONFIG } from "../sectionConfig";
 import { buildTableFromResults } from "../tableBuilders";
-import { SECTION_CONFIG } from "../../pages/PublishPage";
 import type { SelectedExecution } from "../../types/publish";
 
 function makeExecution(

@@ -2,8 +2,8 @@ import type { TemplateConfig } from "./index";
 
 export const COMPARATIVE_EFFECTIVENESS_TEMPLATE: TemplateConfig = {
   id: "comparative-effectiveness",
-  name: "Comparative Effectiveness Report",
-  description: "CLE/CER structure with propensity score analysis",
+  nameKey: "publish.templates.comparative-effectiveness.name",
+  descriptionKey: "publish.templates.comparative-effectiveness.description",
   usesResults: true,
   preferredAnalysisTypes: [
     "estimations",
@@ -14,28 +14,28 @@ export const COMPARATIVE_EFFECTIVENESS_TEMPLATE: TemplateConfig = {
   sections: [
     {
       id: "background",
-      title: "Background",
+      titleKey: "publish.templates.comparative-effectiveness.sections.background",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "study-design",
-      title: "Study Design",
+      titleKey: "publish.templates.comparative-effectiveness.sections.study-design",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "ps-matching",
-      title: "Propensity Score Matching",
+      titleKey: "publish.templates.comparative-effectiveness.sections.ps-matching",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "covariates",
-      title: "Covariate Balance",
+      titleKey: "publish.templates.comparative-effectiveness.sections.covariates",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
@@ -43,14 +43,15 @@ export const COMPARATIVE_EFFECTIVENESS_TEMPLATE: TemplateConfig = {
     // Results sections are injected dynamically
     {
       id: "sensitivity-analyses",
-      title: "Sensitivity Analyses",
+      titleKey:
+        "publish.templates.comparative-effectiveness.sections.sensitivity-analyses",
       type: "discussion",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "discussion",
-      title: "Discussion",
+      titleKey: "publish.templates.comparative-effectiveness.sections.discussion",
       type: "discussion",
       narrativeIncluded: true,
       tableIncluded: false,

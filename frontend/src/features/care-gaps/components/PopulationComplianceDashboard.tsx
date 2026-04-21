@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Loader2,
   AlertCircle,
@@ -11,6 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ComplianceRing } from "./ComplianceRing";
 import { usePopulationSummary } from "../hooks/useCareGaps";
+import { getCareGapCategoryLabel } from "../lib/i18n";
 import type { BundlePopulationEntry } from "../types/careGap";
 
 interface PopulationComplianceDashboardProps {
@@ -63,6 +65,7 @@ export function PopulationComplianceDashboard({
   sourceId,
 }: PopulationComplianceDashboardProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation("app");
   const { data, isLoading, error } = usePopulationSummary(sourceId);
   const [categoryFilter, setCategoryFilter] = useState("All");
 
@@ -98,7 +101,7 @@ export function PopulationComplianceDashboard({
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
         <AlertCircle size={24} className="text-text-ghost mb-3" />
         <p className="text-sm text-text-muted">
-          Select a data source to view population compliance.
+          {t("careGaps.population.selectSourcePrompt")}
         </p>
       </div>
     );
@@ -117,7 +120,7 @@ export function PopulationComplianceDashboard({
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
         <AlertCircle size={24} className="text-critical mb-3" />
         <p className="text-sm text-critical">
-          Failed to load population summary.
+          {t("careGaps.population.failedToLoad")}
         </p>
       </div>
     );
@@ -129,14 +132,14 @@ export function PopulationComplianceDashboard({
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <SummaryCard
           icon={Layers}
-          label="Total Bundles"
+          label={t("careGaps.population.totalBundles")}
           value={data.total_bundles.toLocaleString()}
           color="var(--success)"
           onClick={() => setCategoryFilter("All")}
         />
         <SummaryCard
           icon={Users}
-          label="Total Patients"
+          label={t("careGaps.population.totalPatients")}
           value={data.total_patients.toLocaleString()}
           color="var(--info)"
           onClick={() => setCategoryFilter("All")}
@@ -145,12 +148,12 @@ export function PopulationComplianceDashboard({
           <ComplianceRing
             percentage={data.avg_compliance}
             size="sm"
-            label="Avg Compliance"
+            label={t("careGaps.population.avgCompliance")}
           />
         </div>
         <SummaryCard
           icon={ShieldAlert}
-          label="Total Open Gaps"
+          label={t("careGaps.population.totalOpenGaps")}
           value={totalOpenGaps.toLocaleString()}
           color="var(--primary)"
           onClick={() => setCategoryFilter("All")}
@@ -160,7 +163,9 @@ export function PopulationComplianceDashboard({
       {/* Filter */}
       <div className="flex items-center gap-2">
         <Activity size={14} className="text-text-muted" />
-        <span className="text-xs text-text-muted">Filter by category:</span>
+        <span className="text-xs text-text-muted">
+          {t("careGaps.population.filterByCategory")}
+        </span>
         <div className="flex items-center gap-1">
           {categories.map((cat) => (
             <button
@@ -174,7 +179,7 @@ export function PopulationComplianceDashboard({
                   : "bg-surface-raised text-text-muted hover:text-text-secondary",
               )}
             >
-              {cat}
+              {getCareGapCategoryLabel(t, cat)}
             </button>
           ))}
         </div>
@@ -183,12 +188,12 @@ export function PopulationComplianceDashboard({
       {/* Horizontal bar chart */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-5 space-y-3">
         <h3 className="text-sm font-semibold text-text-primary">
-          Bundle Compliance Comparison
+          {t("careGaps.population.bundleComplianceComparison")}
         </h3>
 
         {filteredBundles.length === 0 ? (
           <p className="text-xs text-text-ghost">
-            No bundles match the selected filter.
+            {t("careGaps.population.noBundlesMatchFilter")}
           </p>
         ) : (
           <div className="space-y-2">
@@ -224,7 +229,9 @@ export function PopulationComplianceDashboard({
                       />
                       {/* Patients label inside */}
                       <span className="absolute inset-y-0 right-2 flex items-center text-[10px] text-text-muted">
-                        {b.patient_count.toLocaleString()} pts
+                        {t("careGaps.population.patientsShort", {
+                          count: b.patient_count,
+                        })}
                       </span>
                     </div>
 

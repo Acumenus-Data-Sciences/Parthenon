@@ -7,111 +7,100 @@ import {
   Cell,
   ResponsiveContainer,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 import type { RiskScoreTier } from "../types/riskScore";
 import { TIER_COLORS, TIER_ORDER } from "../types/riskScore";
+import { getRiskScoreTierLabel } from "../lib/i18n";
 
 interface TierBreakdownChartProps {
   tiers: RiskScoreTier[];
   onTierClick?: (tier: string) => void;
 }
 
-function tierLabel(tier: string): string {
-  return tier
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
 export function TierBreakdownChart({
   tiers,
   onTierClick,
 }: TierBreakdownChartProps) {
-  // Sort by TIER_ORDER
-  const sorted = [...tiers].sort((a, b) => {
-    const ai = TIER_ORDER.indexOf(
-      a.risk_tier as (typeof TIER_ORDER)[number],
+  const { t } = useTranslation("app");
+
+  const sorted = [...tiers].sort((left, right) => {
+    const leftIndex = TIER_ORDER.indexOf(
+      left.risk_tier as (typeof TIER_ORDER)[number],
     );
-    const bi = TIER_ORDER.indexOf(
-      b.risk_tier as (typeof TIER_ORDER)[number],
+    const rightIndex = TIER_ORDER.indexOf(
+      right.risk_tier as (typeof TIER_ORDER)[number],
     );
-    return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+    return (leftIndex === -1 ? 99 : leftIndex) - (rightIndex === -1 ? 99 : rightIndex);
   });
 
   const totalPatients = sorted.reduce(
-    (sum, t) => sum + t.patient_count,
+    (sum, tier) => sum + tier.patient_count,
     0,
   );
 
-  // Horizontal stacked bar data
   const stackedData = [
-    sorted.reduce(
-      (acc, t) => {
-        acc[t.risk_tier] = t.patient_count;
-        return acc;
-      },
-      {} as Record<string, number>,
-    ),
+    sorted.reduce((acc, tier) => {
+      acc[tier.risk_tier] = tier.patient_count;
+      return acc;
+    }, {} as Record<string, number>),
   ];
 
   return (
     <div className="space-y-4">
-      {/* Horizontal stacked tier distribution bar */}
       {totalPatients > 0 && (
         <div>
-          <p className="text-xs text-text-muted mb-2">
-            Tier Distribution
+          <p className="mb-2 text-xs text-text-muted">
+            {t("riskScores.tierBreakdown.tierDistribution")}
           </p>
           <div className="flex h-6 w-full overflow-hidden rounded-lg bg-surface-overlay">
-            {sorted.map((t) => {
-              const pct = (t.patient_count / totalPatients) * 100;
+            {sorted.map((tier) => {
+              const pct = (tier.patient_count / totalPatients) * 100;
               if (pct < 0.3) return null;
               return (
                 <div
-                  key={t.risk_tier}
-                  className="h-full transition-all duration-300 cursor-pointer hover:opacity-80"
+                  key={tier.risk_tier}
+                  className="h-full cursor-pointer transition-all duration-300 hover:opacity-80"
                   style={{
                     width: `${pct}%`,
                     backgroundColor:
-                      TIER_COLORS[t.risk_tier] ??
-                      TIER_COLORS.uncomputable,
+                      TIER_COLORS[tier.risk_tier] ?? TIER_COLORS.uncomputable,
                   }}
-                  title={`${tierLabel(t.risk_tier)}: ${t.patient_count.toLocaleString()} (${pct.toFixed(1)}%)`}
-                  onClick={() => onTierClick?.(t.risk_tier)}
+                  title={`${getRiskScoreTierLabel(t, tier.risk_tier)}: ${tier.patient_count.toLocaleString()} (${pct.toFixed(1)}%)`}
+                  onClick={() => onTierClick?.(tier.risk_tier)}
                 />
               );
             })}
           </div>
-          <div className="flex items-center gap-4 mt-2">
-            {sorted.map((t) => (
+          <div className="mt-2 flex items-center gap-4">
+            {sorted.map((tier) => (
               <div
-                key={t.risk_tier}
+                key={tier.risk_tier}
                 className="flex items-center gap-1.5 text-[10px] text-text-muted"
               >
                 <div
-                  className="w-2 h-2 rounded-full"
+                  className="h-2 w-2 rounded-full"
                   style={{
                     backgroundColor:
-                      TIER_COLORS[t.risk_tier] ??
-                      TIER_COLORS.uncomputable,
+                      TIER_COLORS[tier.risk_tier] ?? TIER_COLORS.uncomputable,
                   }}
                 />
-                {tierLabel(t.risk_tier)}
+                {getRiskScoreTierLabel(t, tier.risk_tier)}
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Bar chart: patient counts per tier */}
       <div>
-        <p className="text-xs text-text-muted mb-2">
-          Patients per Tier
+        <p className="mb-2 text-xs text-text-muted">
+          {t("riskScores.tierBreakdown.patientsPerTier")}
         </p>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart
-            data={sorted.map((t) => ({
-              name: tierLabel(t.risk_tier),
-              tier: t.risk_tier,
-              count: t.patient_count,
+            data={sorted.map((tier) => ({
+              name: getRiskScoreTierLabel(t, tier.risk_tier),
+              tier: tier.risk_tier,
+              count: tier.patient_count,
             }))}
             margin={{ top: 4, right: 4, bottom: 4, left: 4 }}
           >
@@ -137,7 +126,7 @@ export function TierBreakdownChart({
               formatter={
                 ((value: number) => [
                   value.toLocaleString(),
-                  "Patients",
+                  t("riskScores.tierBreakdown.patients"),
                 ]) as never
               }
             />
@@ -150,13 +139,10 @@ export function TierBreakdownChart({
                 if (data.tier) onTierClick?.(data.tier);
               }}
             >
-              {sorted.map((t) => (
+              {sorted.map((tier) => (
                 <Cell
-                  key={t.risk_tier}
-                  fill={
-                    TIER_COLORS[t.risk_tier] ??
-                    TIER_COLORS.uncomputable
-                  }
+                  key={tier.risk_tier}
+                  fill={TIER_COLORS[tier.risk_tier] ?? TIER_COLORS.uncomputable}
                 />
               ))}
             </Bar>
@@ -164,60 +150,54 @@ export function TierBreakdownChart({
         </ResponsiveContainer>
       </div>
 
-      {/* Summary table */}
       <div className="overflow-hidden rounded-xl border border-border-default">
         <table className="w-full text-xs">
           <thead>
             <tr className="border-b border-border-default bg-surface-base">
-              <th className="px-3 py-2 text-left text-text-muted font-medium">
-                Tier
+              <th className="px-3 py-2 text-left font-medium text-text-muted">
+                {t("riskScores.common.headers.tier")}
               </th>
-              <th className="px-3 py-2 text-right text-text-muted font-medium">
-                Count
+              <th className="px-3 py-2 text-right font-medium text-text-muted">
+                {t("riskScores.common.headers.count")}
               </th>
-              <th className="px-3 py-2 text-right text-text-muted font-medium">
+              <th className="px-3 py-2 text-right font-medium text-text-muted">
                 %
               </th>
-              <th className="px-3 py-2 text-right text-text-muted font-medium">
-                Mean Score
+              <th className="px-3 py-2 text-right font-medium text-text-muted">
+                {t("riskScores.common.headers.meanScore")}
               </th>
             </tr>
           </thead>
           <tbody>
-            {sorted.map((t) => {
+            {sorted.map((tier) => {
               const pct =
-                totalPatients > 0
-                  ? (t.patient_count / totalPatients) * 100
-                  : 0;
+                totalPatients > 0 ? (tier.patient_count / totalPatients) * 100 : 0;
               return (
                 <tr
-                  key={t.risk_tier}
-                  className="border-b border-border-default/50 last:border-b-0 hover:bg-surface-overlay cursor-pointer transition-colors"
-                  onClick={() => onTierClick?.(t.risk_tier)}
+                  key={tier.risk_tier}
+                  className="cursor-pointer border-b border-border-default/50 transition-colors last:border-b-0 hover:bg-surface-overlay"
+                  onClick={() => onTierClick?.(tier.risk_tier)}
                 >
                   <td className="px-3 py-2 text-text-primary">
                     <div className="flex items-center gap-2">
                       <div
-                        className="w-2.5 h-2.5 rounded-full"
+                        className="h-2.5 w-2.5 rounded-full"
                         style={{
                           backgroundColor:
-                            TIER_COLORS[t.risk_tier] ??
-                            TIER_COLORS.uncomputable,
+                            TIER_COLORS[tier.risk_tier] ?? TIER_COLORS.uncomputable,
                         }}
                       />
-                      {tierLabel(t.risk_tier)}
+                      {getRiskScoreTierLabel(t, tier.risk_tier)}
                     </div>
                   </td>
                   <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-text-secondary">
-                    {t.patient_count.toLocaleString()}
+                    {tier.patient_count.toLocaleString()}
                   </td>
                   <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-text-muted">
                     {pct.toFixed(1)}%
                   </td>
                   <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-text-secondary">
-                    {t.mean_score != null
-                      ? Number(t.mean_score).toFixed(1)
-                      : "-"}
+                    {tier.mean_score != null ? Number(tier.mean_score).toFixed(1) : "-"}
                   </td>
                 </tr>
               );
@@ -226,10 +206,8 @@ export function TierBreakdownChart({
         </table>
       </div>
 
-      {/* Stacked bar (Recharts) for machine-readable completeness */}
       {stackedData.length > 0 && totalPatients > 0 && (
         <div className="hidden">
-          {/* Hidden stacked bar for potential future use / accessibility */}
           <ResponsiveContainer width="100%" height={40}>
             <BarChart
               data={stackedData}
@@ -238,15 +216,12 @@ export function TierBreakdownChart({
             >
               <XAxis type="number" hide />
               <YAxis type="category" dataKey="name" hide />
-              {sorted.map((t) => (
+              {sorted.map((tier) => (
                 <Bar
-                  key={t.risk_tier}
-                  dataKey={t.risk_tier}
+                  key={tier.risk_tier}
+                  dataKey={tier.risk_tier}
                   stackId="tier"
-                  fill={
-                    TIER_COLORS[t.risk_tier] ??
-                    TIER_COLORS.uncomputable
-                  }
+                  fill={TIER_COLORS[tier.risk_tier] ?? TIER_COLORS.uncomputable}
                 />
               ))}
             </BarChart>

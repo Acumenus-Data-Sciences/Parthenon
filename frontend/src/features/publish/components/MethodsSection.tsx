@@ -2,6 +2,7 @@
 // MethodsSection — Auto-generates methods text from execution parameters
 // ---------------------------------------------------------------------------
 
+import { useTranslation } from "react-i18next";
 import type { ReportSection } from "../types/publish";
 
 interface MethodsSectionProps {
@@ -14,9 +15,11 @@ interface MethodsSectionProps {
  * time-at-risk, matching strategy, and model settings when available.
  */
 export function MethodsSection({ section }: MethodsSectionProps) {
+  const { t } = useTranslation("app");
   const content = section.content as Record<string, unknown> | null;
 
-  const designType = (content?.study_design as string) ?? "Observational";
+  const designType =
+    (content?.study_design as string) ?? t("publish.methods.defaults.observational");
   const hypothesis = (content?.hypothesis as string) ?? null;
   const objective = (content?.primary_objective as string) ?? null;
   const rationale = (content?.scientific_rationale as string) ?? null;
@@ -34,7 +37,7 @@ export function MethodsSection({ section }: MethodsSectionProps) {
     <div data-testid="methods-section" className="space-y-4">
       <div>
         <h4 className="text-sm font-semibold text-text-primary mb-1">
-          Study Design
+          {t("publish.methods.studyDesign")}
         </h4>
         <p className="text-sm text-text-primary/70">{designType}</p>
       </div>
@@ -42,7 +45,7 @@ export function MethodsSection({ section }: MethodsSectionProps) {
       {objective && (
         <div>
           <h4 className="text-sm font-semibold text-text-primary mb-1">
-            Primary Objective
+            {t("publish.methods.primaryObjective")}
           </h4>
           <p className="text-sm text-text-primary/70">{objective}</p>
         </div>
@@ -51,7 +54,7 @@ export function MethodsSection({ section }: MethodsSectionProps) {
       {hypothesis && (
         <div>
           <h4 className="text-sm font-semibold text-text-primary mb-1">
-            Hypothesis
+            {t("publish.methods.hypothesis")}
           </h4>
           <p className="text-sm text-text-primary/70">{hypothesis}</p>
         </div>
@@ -60,7 +63,7 @@ export function MethodsSection({ section }: MethodsSectionProps) {
       {rationale && (
         <div>
           <h4 className="text-sm font-semibold text-text-primary mb-1">
-            Scientific Rationale
+            {t("publish.methods.scientificRationale")}
           </h4>
           <p className="text-sm text-text-primary/70">{rationale}</p>
         </div>
@@ -69,12 +72,24 @@ export function MethodsSection({ section }: MethodsSectionProps) {
       {(targetCohort || comparatorCohort || outcomeCohort) && (
         <div>
           <h4 className="text-sm font-semibold text-text-primary mb-1">
-            Cohort Definitions
+            {t("publish.methods.cohortDefinitions")}
           </h4>
           <ul className="text-sm text-text-primary/70 list-disc list-inside space-y-1">
-            {targetCohort && <li>Target: {targetCohort}</li>}
-            {comparatorCohort && <li>Comparator: {comparatorCohort}</li>}
-            {outcomeCohort && <li>Outcome: {outcomeCohort}</li>}
+            {targetCohort && (
+              <li>
+                {t("publish.methods.target")}: {targetCohort}
+              </li>
+            )}
+            {comparatorCohort && (
+              <li>
+                {t("publish.methods.comparator")}: {comparatorCohort}
+              </li>
+            )}
+            {outcomeCohort && (
+              <li>
+                {t("publish.methods.outcome")}: {outcomeCohort}
+              </li>
+            )}
           </ul>
         </div>
       )}
@@ -82,11 +97,13 @@ export function MethodsSection({ section }: MethodsSectionProps) {
       {timeAtRisk && (
         <div>
           <h4 className="text-sm font-semibold text-text-primary mb-1">
-            Time-at-Risk
+            {t("publish.methods.timeAtRisk")}
           </h4>
           <p className="text-sm text-text-primary/70">
-            Start: {String(timeAtRisk.start ?? "cohort start")}, End:{" "}
-            {String(timeAtRisk.end ?? "cohort end")}
+            {t("publish.methods.start")}:{" "}
+            {String(timeAtRisk.start ?? t("publish.methods.defaults.cohortStart"))},{" "}
+            {t("publish.methods.end")}:{" "}
+            {String(timeAtRisk.end ?? t("publish.methods.defaults.cohortEnd"))}
           </p>
         </div>
       )}
@@ -94,7 +111,7 @@ export function MethodsSection({ section }: MethodsSectionProps) {
       {matchingStrategy && (
         <div>
           <h4 className="text-sm font-semibold text-text-primary mb-1">
-            Matching Strategy
+            {t("publish.methods.matchingStrategy")}
           </h4>
           <p className="text-sm text-text-primary/70">{matchingStrategy}</p>
         </div>
@@ -103,7 +120,7 @@ export function MethodsSection({ section }: MethodsSectionProps) {
       {modelType && (
         <div>
           <h4 className="text-sm font-semibold text-text-primary mb-1">
-            Model Settings
+            {t("publish.methods.modelSettings")}
           </h4>
           <p className="text-sm text-text-primary/70">{modelType}</p>
         </div>
@@ -111,8 +128,7 @@ export function MethodsSection({ section }: MethodsSectionProps) {
 
       {!content && (
         <p className="text-sm text-text-primary/50 italic">
-          No methods data available. Methods will be auto-generated when
-          analysis parameters are provided.
+          {t("publish.methods.empty")}
         </p>
       )}
     </div>

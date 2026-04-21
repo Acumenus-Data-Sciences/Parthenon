@@ -2,55 +2,55 @@ import type { TemplateConfig } from "./index";
 
 export const LANCET_STYLE_TEMPLATE: TemplateConfig = {
   id: "lancet-style",
-  name: "Lancet Style",
-  description: "The Lancet — global health focus with structured methods, evidence-based interpretation, and policy implications",
+  nameKey: "publish.templates.lancet-style.name",
+  descriptionKey: "publish.templates.lancet-style.description",
   usesResults: true,
   sections: [
     {
       id: "introduction",
-      title: "Introduction",
+      titleKey: "publish.templates.lancet-style.sections.introduction",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "methods",
-      title: "Methods",
+      titleKey: "publish.templates.lancet-style.sections.methods",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "study-design-participants",
-      title: "Study Design and Participants",
+      titleKey: "publish.templates.lancet-style.sections.study-design-participants",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "procedures",
-      title: "Procedures",
+      titleKey: "publish.templates.lancet-style.sections.procedures",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "outcomes",
-      title: "Outcomes",
+      titleKey: "publish.templates.lancet-style.sections.outcomes",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "statistical-analysis",
-      title: "Statistical Analysis",
+      titleKey: "publish.templates.lancet-style.sections.statistical-analysis",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "role-of-funding",
-      title: "Role of the Funding Source",
+      titleKey: "publish.templates.lancet-style.sections.role-of-funding",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
@@ -58,7 +58,7 @@ export const LANCET_STYLE_TEMPLATE: TemplateConfig = {
     // Results injected dynamically
     {
       id: "discussion",
-      title: "Discussion",
+      titleKey: "publish.templates.lancet-style.sections.discussion",
       type: "discussion",
       narrativeIncluded: true,
       tableIncluded: false,

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 function formatKey(key: string): string {
   return key
     .replace(/_/g, " ")
@@ -21,11 +23,14 @@ interface StructuredDataBlockProps {
 export default function StructuredDataBlock({
   data,
 }: StructuredDataBlockProps) {
+  const { t } = useTranslation("app");
   const entries = Object.entries(data);
 
   if (entries.length === 0) {
     return (
-      <p className="text-sm text-text-ghost italic">No structured data available</p>
+      <p className="text-sm text-text-ghost italic">
+        {t("publish.structuredData.empty")}
+      </p>
     );
   }
 

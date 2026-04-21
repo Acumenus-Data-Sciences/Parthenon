@@ -1,70 +1,67 @@
 import { RefreshCw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { RiskScoreAnalysis } from "../types/riskScore";
 import { ANALYSIS_STATUS_COLORS } from "../types/riskScore";
+import {
+  formatRiskScoreDate,
+  formatRiskScoreDuration,
+  getRiskScoreStatusLabel,
+} from "../lib/i18n";
 
 interface ConfigurationTabProps {
   analysis: RiskScoreAnalysis;
   onReRun: () => void;
 }
 
-function formatDatetime(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
+export function ConfigurationTab({
+  analysis,
+  onReRun,
+}: ConfigurationTabProps) {
+  const { t, i18n } = useTranslation("app");
+  const { design_json } = analysis;
+  const executions = analysis.executions ?? [];
+
+  const datetimeOptions: Intl.DateTimeFormatOptions = {
     year: "numeric",
     month: "short",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  });
-}
-
-function formatDuration(startedAt: string, completedAt: string): string {
-  const ms =
-    new Date(completedAt).getTime() - new Date(startedAt).getTime();
-  if (ms < 1000) return `${ms}ms`;
-  const seconds = Math.floor(ms / 1000);
-  if (seconds < 60) return `${seconds}s`;
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes}m ${remainingSeconds}s`;
-}
-
-export function ConfigurationTab({
-  analysis,
-  onReRun,
-}: ConfigurationTabProps) {
-  const { design_json } = analysis;
-  const executions = analysis.executions ?? [];
+  };
 
   return (
     <div className="space-y-6">
-      {/* Design Panel */}
       <div className="rounded-xl border border-border-default bg-surface-raised p-6">
         <h3 className="mb-4 text-sm font-medium text-text-primary">
-          Analysis Design
+          {t("riskScores.configuration.analysisDesign")}
         </h3>
 
         <div className="space-y-4">
-          {/* Target Cohorts */}
           <div>
-            <span className="text-xs text-text-muted">Target Cohorts</span>
+            <span className="text-xs text-text-muted">
+              {t("riskScores.configuration.targetCohorts")}
+            </span>
             <div className="mt-1 flex flex-wrap gap-2">
               {design_json.targetCohortIds.map((id) => (
                 <span
                   key={id}
                   className="rounded-full bg-info/10 px-2.5 py-0.5 text-xs font-medium text-info"
                 >
-                  Cohort {id}
+                  {t("riskScores.common.count.cohort", { count: 1 })} {id}
                 </span>
               ))}
               {design_json.targetCohortIds.length === 0 && (
-                <span className="text-xs text-text-ghost">None selected</span>
+                <span className="text-xs text-text-ghost">
+                  {t("riskScores.common.values.noneSelected")}
+                </span>
               )}
             </div>
           </div>
 
-          {/* Selected Scores */}
           <div>
-            <span className="text-xs text-text-muted">Selected Scores</span>
+            <span className="text-xs text-text-muted">
+              {t("riskScores.configuration.selectedScores")}
+            </span>
             <div className="mt-1 flex flex-wrap gap-2">
               {design_json.scoreIds.map((id) => (
                 <span
@@ -75,20 +72,25 @@ export function ConfigurationTab({
                 </span>
               ))}
               {design_json.scoreIds.length === 0 && (
-                <span className="text-xs text-text-ghost">None selected</span>
+                <span className="text-xs text-text-ghost">
+                  {t("riskScores.common.values.noneSelected")}
+                </span>
               )}
             </div>
           </div>
 
-          {/* Parameters */}
           {(design_json.minCompleteness !== undefined ||
             design_json.storePatientLevel !== undefined) && (
             <div>
-              <span className="text-xs text-text-muted">Parameters</span>
+              <span className="text-xs text-text-muted">
+                {t("riskScores.configuration.parameters")}
+              </span>
               <div className="mt-1 space-y-1">
                 {design_json.minCompleteness !== undefined && (
                   <div className="flex items-center gap-2 text-xs text-text-secondary">
-                    <span className="text-text-ghost">Min Completeness:</span>
+                    <span className="text-text-ghost">
+                      {t("riskScores.configuration.minCompleteness")}
+                    </span>
                     <span className="font-['IBM_Plex_Mono',monospace]">
                       {design_json.minCompleteness}
                     </span>
@@ -97,10 +99,12 @@ export function ConfigurationTab({
                 {design_json.storePatientLevel !== undefined && (
                   <div className="flex items-center gap-2 text-xs text-text-secondary">
                     <span className="text-text-ghost">
-                      Store Patient Level:
+                      {t("riskScores.configuration.storePatientLevel")}
                     </span>
                     <span className="font-['IBM_Plex_Mono',monospace]">
-                      {design_json.storePatientLevel ? "Yes" : "No"}
+                      {design_json.storePatientLevel
+                        ? t("riskScores.common.values.yes")
+                        : t("riskScores.common.values.no")}
                     </span>
                   </div>
                 )}
@@ -110,24 +114,35 @@ export function ConfigurationTab({
         </div>
       </div>
 
-      {/* Execution History Panel */}
       <div className="rounded-xl border border-border-default bg-surface-raised p-6">
         <h3 className="mb-4 text-sm font-medium text-text-primary">
-          Execution History
+          {t("riskScores.configuration.executionHistory")}
         </h3>
 
         {executions.length === 0 ? (
-          <p className="text-sm text-text-ghost">No executions yet</p>
+          <p className="text-sm text-text-ghost">
+            {t("riskScores.configuration.noExecutionsYet")}
+          </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-border-default text-xs text-text-muted">
-                  <th className="pb-2 pr-4 font-medium">#</th>
-                  <th className="pb-2 pr-4 font-medium">Status</th>
-                  <th className="pb-2 pr-4 font-medium">Started</th>
-                  <th className="pb-2 pr-4 font-medium">Duration</th>
-                  <th className="pb-2 font-medium">Actions</th>
+                  <th className="pb-2 pr-4 font-medium">
+                    {t("riskScores.common.headers.number")}
+                  </th>
+                  <th className="pb-2 pr-4 font-medium">
+                    {t("riskScores.common.headers.status")}
+                  </th>
+                  <th className="pb-2 pr-4 font-medium">
+                    {t("riskScores.common.headers.started")}
+                  </th>
+                  <th className="pb-2 pr-4 font-medium">
+                    {t("riskScores.common.headers.duration")}
+                  </th>
+                  <th className="pb-2 font-medium">
+                    {t("riskScores.common.headers.actions")}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -136,9 +151,10 @@ export function ConfigurationTab({
                     ANALYSIS_STATUS_COLORS[execution.status] ?? "var(--text-muted)";
                   const duration =
                     execution.started_at && execution.completed_at
-                      ? formatDuration(
-                          execution.started_at,
-                          execution.completed_at,
+                      ? formatRiskScoreDuration(
+                          t,
+                          new Date(execution.completed_at).getTime() -
+                            new Date(execution.started_at).getTime(),
                         )
                       : "\u2014";
 
@@ -158,11 +174,15 @@ export function ConfigurationTab({
                             color: statusColor,
                           }}
                         >
-                          {execution.status}
+                          {getRiskScoreStatusLabel(t, execution.status)}
                         </span>
                       </td>
                       <td className="py-2.5 pr-4 text-xs text-text-secondary">
-                        {formatDatetime(execution.created_at)}
+                        {formatRiskScoreDate(
+                          i18n.resolvedLanguage,
+                          execution.created_at,
+                          datetimeOptions,
+                        )}
                       </td>
                       <td className="py-2.5 pr-4 font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">
                         {duration}
@@ -181,14 +201,13 @@ export function ConfigurationTab({
         )}
       </div>
 
-      {/* Re-run Button */}
       <button
         type="button"
         onClick={onReRun}
-        className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-light transition-colors"
+        className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-light"
       >
         <RefreshCw className="h-4 w-4" />
-        Re-run Analysis
+        {t("riskScores.common.actions.reRunAnalysis")}
       </button>
     </div>
   );

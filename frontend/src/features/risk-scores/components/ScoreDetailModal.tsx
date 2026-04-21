@@ -7,8 +7,13 @@ import {
   Plus,
   Play,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { RiskScoreModel, ScoreEligibility } from "../types/riskScore";
 import { TIER_COLORS } from "../types/riskScore";
+import {
+  getRiskScoreCategoryLabel,
+  getRiskScoreTierLabel,
+} from "../lib/i18n";
 
 interface ScoreDetailModalProps {
   score: RiskScoreModel;
@@ -29,63 +34,57 @@ export function ScoreDetailModal({
   onCreateAnalysis,
   onRunSingle,
 }: ScoreDetailModalProps) {
+  const { t } = useTranslation("app");
   const isEligible = eligibility?.eligible === true;
   const patientCount = eligibility?.patient_count ?? 0;
   const missingComponents = eligibility?.missing ?? [];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Modal */}
-      <div className="relative w-full max-w-2xl mx-4 rounded-xl border border-border-default bg-surface-base shadow-2xl max-h-[85vh] flex flex-col">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4 px-6 pt-6 pb-4 border-b border-border-default shrink-0">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2.5 mb-2">
+      <div className="relative mx-4 flex max-h-[85vh] w-full max-w-2xl flex-col rounded-xl border border-border-default bg-surface-base shadow-2xl">
+        <div className="flex shrink-0 items-start justify-between gap-4 border-b border-border-default px-6 pb-4 pt-6">
+          <div className="min-w-0 flex-1">
+            <div className="mb-2 flex items-center gap-2.5">
               <Activity size={18} style={{ color }} />
               <span
-                className="font-['IBM_Plex_Mono',monospace] text-xs px-2 py-0.5 rounded"
+                className="rounded px-2 py-0.5 font-['IBM_Plex_Mono',monospace] text-xs"
                 style={{ backgroundColor: `${color}15`, color }}
               >
                 {score.score_id}
               </span>
               <span
-                className="text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-medium"
+                className="rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider"
                 style={{ backgroundColor: `${color}10`, color }}
               >
-                {score.category}
+                {getRiskScoreCategoryLabel(t, score.category)}
               </span>
             </div>
             <h2 className="text-lg font-semibold text-text-primary">
               {score.score_name}
             </h2>
-            <p className="text-sm text-text-muted mt-1">
-              {score.description}
-            </p>
+            <p className="mt-1 text-sm text-text-muted">{score.description}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-text-ghost hover:text-text-secondary transition-colors shrink-0 mt-1"
+            className="mt-1 shrink-0 text-text-ghost transition-colors hover:text-text-secondary"
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* Body */}
-        <div className="px-6 py-5 space-y-5 overflow-y-auto flex-1">
-          {/* Eligibility Status — prominent */}
+        <div className="flex-1 space-y-5 overflow-y-auto px-6 py-5">
           {!sourceSelected ? (
             <div className="rounded-lg border border-accent/20 bg-accent/5 px-4 py-3">
               <div className="flex items-center gap-2">
                 <AlertTriangle size={16} className="text-accent" />
                 <p className="text-sm text-accent">
-                  Select a data source from the header to check eligibility.
+                  {t("riskScores.scoreDetail.selectSourcePrompt")}
                 </p>
               </div>
             </div>
@@ -94,7 +93,9 @@ export function ScoreDetailModal({
               <div className="flex items-center gap-2">
                 <CheckCircle2 size={16} className="text-success" />
                 <p className="text-sm font-medium text-success">
-                  Eligible — {patientCount.toLocaleString()} patients have sufficient data
+                  {t("riskScores.scoreDetail.eligiblePatients", {
+                    count: patientCount.toLocaleString(),
+                  })}
                 </p>
               </div>
             </div>
@@ -103,15 +104,17 @@ export function ScoreDetailModal({
               <div className="flex items-center gap-2">
                 <XCircle size={16} className="text-accent" />
                 <p className="text-sm font-medium text-accent">
-                  Insufficient data in the active source
+                  {t("riskScores.scoreDetail.insufficientData")}
                 </p>
               </div>
               {missingComponents.length > 0 && (
                 <div className="mt-2 ml-6">
-                  <p className="text-xs text-accent/80 mb-1">Missing:</p>
-                  <ul className="text-xs text-accent/70 space-y-0.5">
-                    {missingComponents.map((m) => (
-                      <li key={m}>• {m}</li>
+                  <p className="mb-1 text-xs text-accent/80">
+                    {t("riskScores.scoreDetail.missing")}
+                  </p>
+                  <ul className="space-y-0.5 text-xs text-accent/70">
+                    {missingComponents.map((missing) => (
+                      <li key={missing}>- {missing}</li>
                     ))}
                   </ul>
                 </div>
@@ -122,56 +125,52 @@ export function ScoreDetailModal({
               <div className="flex items-center gap-2">
                 <Activity size={16} className="text-info" />
                 <p className="text-sm text-info">
-                  Checking eligibility for the active source...
+                  {t("riskScores.scoreDetail.checkingEligibility")}
                 </p>
               </div>
             </div>
           )}
 
-          {/* Eligible Population */}
           <div>
-            <p className="text-[10px] text-text-ghost uppercase tracking-wider mb-1.5">
-              Eligible Population
+            <p className="mb-1.5 text-[10px] uppercase tracking-wider text-text-ghost">
+              {t("riskScores.scoreDetail.eligiblePopulation")}
             </p>
             <p className="text-sm text-text-secondary">
               {score.eligible_population}
             </p>
           </div>
 
-          {/* Two-column layout for details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Required Components */}
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             {score.required_components.length > 0 && (
               <div>
-                <p className="text-[10px] text-text-ghost uppercase tracking-wider mb-2">
-                  Required Components
+                <p className="mb-2 text-[10px] uppercase tracking-wider text-text-ghost">
+                  {t("riskScores.scoreDetail.requiredComponents")}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  {score.required_components.map((comp) => (
+                  {score.required_components.map((component) => (
                     <span
-                      key={comp}
-                      className="inline-block rounded bg-surface-overlay border border-border-default px-2 py-1 text-[10px] text-text-secondary font-['IBM_Plex_Mono',monospace]"
+                      key={component}
+                      className="inline-block rounded border border-border-default bg-surface-overlay px-2 py-1 font-['IBM_Plex_Mono',monospace] text-[10px] text-text-secondary"
                     >
-                      {comp}
+                      {component}
                     </span>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* CDM Tables */}
             {score.required_tables.length > 0 && (
               <div>
-                <p className="text-[10px] text-text-ghost uppercase tracking-wider mb-2">
-                  CDM Tables Used
+                <p className="mb-2 text-[10px] uppercase tracking-wider text-text-ghost">
+                  {t("riskScores.scoreDetail.cdmTablesUsed")}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  {score.required_tables.map((t) => (
+                  {score.required_tables.map((tableName) => (
                     <span
-                      key={t}
-                      className="inline-block rounded bg-surface-overlay px-2 py-1 text-[10px] text-text-ghost font-['IBM_Plex_Mono',monospace]"
+                      key={tableName}
+                      className="inline-block rounded bg-surface-overlay px-2 py-1 font-['IBM_Plex_Mono',monospace] text-[10px] text-text-ghost"
                     >
-                      {t}
+                      {tableName}
                     </span>
                   ))}
                 </div>
@@ -179,47 +178,42 @@ export function ScoreDetailModal({
             )}
           </div>
 
-          {/* Risk Tiers */}
           {Object.keys(score.risk_tiers).length > 0 && (
             <div>
-              <p className="text-[10px] text-text-ghost uppercase tracking-wider mb-2">
-                Risk Tier Definitions
+              <p className="mb-2 text-[10px] uppercase tracking-wider text-text-ghost">
+                {t("riskScores.scoreDetail.riskTierDefinitions")}
               </p>
-              <div className="rounded-lg border border-border-default overflow-hidden">
+              <div className="overflow-hidden rounded-lg border border-border-default">
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="bg-surface-overlay">
-                      <th className="text-left px-3 py-2 text-[10px] text-text-ghost uppercase tracking-wider font-medium">
-                        Tier
+                      <th className="px-3 py-2 text-left text-[10px] font-medium uppercase tracking-wider text-text-ghost">
+                        {t("riskScores.common.headers.tier")}
                       </th>
-                      <th className="text-left px-3 py-2 text-[10px] text-text-ghost uppercase tracking-wider font-medium">
-                        Score Range
+                      <th className="px-3 py-2 text-left text-[10px] font-medium uppercase tracking-wider text-text-ghost">
+                        {t("riskScores.scoreDetail.scoreRange")}
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     {Object.entries(score.risk_tiers).map(([tier, bounds]) => {
-                      const tierColor =
-                        TIER_COLORS[tier] ?? "var(--text-muted)";
+                      const tierColor = TIER_COLORS[tier] ?? "var(--text-muted)";
                       return (
-                        <tr
-                          key={tier}
-                          className="border-t border-border-default"
-                        >
+                        <tr key={tier} className="border-t border-border-default">
                           <td className="px-3 py-2">
                             <span
                               className="inline-flex items-center gap-1.5 text-xs font-medium"
                               style={{ color: tierColor }}
                             >
                               <span
-                                className="w-2 h-2 rounded-full"
+                                className="h-2 w-2 rounded-full"
                                 style={{ backgroundColor: tierColor }}
                               />
-                              {tier.replace(/_/g, " ")}
+                              {getRiskScoreTierLabel(t, tier)}
                             </span>
                           </td>
                           <td className="px-3 py-2 font-['IBM_Plex_Mono',monospace] text-text-secondary">
-                            {bounds[0] ?? "−∞"} – {bounds[1] ?? "∞"}
+                            {bounds[0] ?? "-inf"} - {bounds[1] ?? "inf"}
                           </td>
                         </tr>
                       );
@@ -231,14 +225,9 @@ export function ScoreDetailModal({
           )}
         </div>
 
-        {/* Footer — Actions */}
-        <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-border-default shrink-0">
-          <button
-            type="button"
-            onClick={onClose}
-            className="btn btn-ghost btn-sm"
-          >
-            Close
+        <div className="flex shrink-0 items-center justify-between gap-3 border-t border-border-default px-6 py-4">
+          <button type="button" onClick={onClose} className="btn btn-ghost btn-sm">
+            {t("riskScores.common.actions.close")}
           </button>
           <div className="flex items-center gap-2">
             {sourceSelected && eligibility && isEligible && (
@@ -249,27 +238,17 @@ export function ScoreDetailModal({
                   className="btn btn-ghost btn-sm flex items-center gap-1.5"
                 >
                   <Play size={12} />
-                  Quick Run
+                  {t("riskScores.common.actions.quickRun")}
                 </button>
                 <button
                   type="button"
                   onClick={() => onCreateAnalysis(score.score_id)}
-                  className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary-light transition-colors"
+                  className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary-light"
                 >
                   <Plus size={12} />
-                  Create Analysis
+                  {t("riskScores.common.actions.createAnalysis")}
                 </button>
               </>
-            )}
-            {sourceSelected && eligibility && !isEligible && (
-              <span className="text-xs text-text-ghost">
-                Not eligible for the active source
-              </span>
-            )}
-            {sourceSelected && !eligibility && (
-              <span className="text-xs text-info">
-                Checking eligibility...
-              </span>
             )}
           </div>
         </div>

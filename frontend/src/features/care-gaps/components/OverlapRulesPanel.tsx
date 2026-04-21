@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight, Loader2, AlertCircle, Shuffle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useOverlapRules } from "../hooks/useCareGaps";
 import type { BundleOverlapRule } from "../types/careGap";
 
 export function OverlapRulesPanel() {
+  const { t } = useTranslation("app");
   const { data: rules, isLoading, error } = useOverlapRules();
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
@@ -21,7 +23,7 @@ export function OverlapRulesPanel() {
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-12">
         <AlertCircle size={24} className="text-critical mb-3" />
         <p className="text-sm text-critical">
-          Failed to load overlap rules.
+          {t("careGaps.overlapRules.failedToLoad")}
         </p>
       </div>
     );
@@ -32,10 +34,10 @@ export function OverlapRulesPanel() {
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-12">
         <Shuffle size={24} className="text-text-ghost mb-3" />
         <p className="text-sm text-text-muted">
-          No overlap rules configured.
+          {t("careGaps.overlapRules.noneConfigured")}
         </p>
         <p className="mt-1 text-xs text-text-ghost">
-          Overlap rules prevent double-counting measures across bundles.
+          {t("careGaps.overlapRules.subtitle")}
         </p>
       </div>
     );

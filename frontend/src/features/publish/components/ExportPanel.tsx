@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   Loader2,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { ReportSection, ExportFormat } from "../types/publish";
 import { useExportDocument } from "../hooks/useDocumentExport";
 import type { ExportRequest } from "../api/publishApi";
@@ -25,40 +26,17 @@ interface ExportPanelProps {
   onBack: () => void;
 }
 
-const FORMAT_OPTIONS: Array<{
-  format: ExportableFormat;
-  icon: typeof FileText;
-  label: string;
-  description: string;
-}> = [
-  {
-    format: "docx",
-    icon: FileText,
-    label: "Microsoft Word",
-    description: "Journal-ready manuscript with embedded figures",
-  },
-  {
-    format: "pdf",
-    icon: FileDown,
-    label: "PDF Document",
-    description: "Print-ready document for review and sharing",
-  },
-  {
-    format: "figures-zip",
-    icon: ImageIcon,
-    label: "Individual Figures",
-    description: "SVG files for separate journal upload",
-  },
-];
-
-function formatLabel(format: ExportableFormat): string {
+function formatLabel(
+  t: (key: string) => string,
+  format: ExportableFormat,
+): string {
   switch (format) {
     case "docx":
-      return "DOCX";
+      return t("publish.exportPanel.formatLabels.docx");
     case "pdf":
-      return "PDF";
+      return t("publish.exportPanel.formatLabels.pdf");
     case "figures-zip":
-      return "Figures ZIP";
+      return t("publish.exportPanel.formatLabels.figuresZip");
   }
 }
 
@@ -115,8 +93,34 @@ export default function ExportPanel({
   template,
   onBack,
 }: ExportPanelProps) {
+  const { t } = useTranslation("app");
   const [selectedFormat, setSelectedFormat] = useState<ExportableFormat>("docx");
   const exportMutation = useExportDocument();
+  const formatOptions: Array<{
+    format: ExportableFormat;
+    icon: typeof FileText;
+    label: string;
+    description: string;
+  }> = [
+    {
+      format: "docx",
+      icon: FileText,
+      label: t("publish.exportPanel.formats.docx.label"),
+      description: t("publish.exportPanel.formats.docx.description"),
+    },
+    {
+      format: "pdf",
+      icon: FileDown,
+      label: t("publish.exportPanel.formats.pdf.label"),
+      description: t("publish.exportPanel.formats.pdf.description"),
+    },
+    {
+      format: "figures-zip",
+      icon: ImageIcon,
+      label: t("publish.exportPanel.formats.figuresZip.label"),
+      description: t("publish.exportPanel.formats.figuresZip.description"),
+    },
+  ];
 
   const includedSections = sections.filter((s) => s.included);
   const hasDraftNarratives = includedSections.some(
@@ -165,8 +169,7 @@ export default function ExportPanel({
         <div className="flex items-center gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3">
           <AlertTriangle className="h-5 w-5 shrink-0 text-amber-400" />
           <p className="text-sm text-amber-200">
-            Some AI-generated sections are still in draft state. Please go back
-            and accept or edit all AI content before exporting.
+            {t("publish.exportPanel.draftWarning")}
           </p>
         </div>
       )}
@@ -174,10 +177,10 @@ export default function ExportPanel({
       {/* Format grid */}
       <div>
         <h3 className="mb-3 text-sm font-medium text-text-primary">
-          Choose Export Format
+          {t("publish.exportPanel.chooseExportFormat")}
         </h3>
         <div className="grid grid-cols-3 gap-4">
-          {FORMAT_OPTIONS.map(({ format, icon: Icon, label, description }) => {
+          {formatOptions.map(({ format, icon: Icon, label, description }) => {
             const isSelected = selectedFormat === format;
             return (
               <button
@@ -221,10 +224,14 @@ export default function ExportPanel({
         {exportMutation.isPending ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
-            Exporting...
+            {t("publish.exportPanel.exporting")}
           </>
         ) : (
-          <>Export as {formatLabel(selectedFormat)}</>
+          <>
+            {t("publish.exportPanel.exportAs", {
+              format: formatLabel(t, selectedFormat),
+            })}
+          </>
         )}
       </button>
 
@@ -236,7 +243,7 @@ export default function ExportPanel({
           className="flex items-center gap-1.5 rounded-lg border border-border-default px-4 py-2 text-sm text-text-primary transition-colors hover:bg-surface-elevated"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Preview
+          {t("publish.exportPanel.backToPreview")}
         </button>
       </div>
     </div>

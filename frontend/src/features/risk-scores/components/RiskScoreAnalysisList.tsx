@@ -7,20 +7,17 @@ import {
   ChevronDown,
   Activity,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { RiskScoreAnalysis } from "../types/riskScore";
 import { ANALYSIS_STATUS_COLORS } from "../types/riskScore";
+import {
+  formatRiskScoreDate,
+  getRiskScoreStatusLabel,
+} from "../lib/i18n";
 
 type SortKey = "name" | "status" | "created_at";
 type SortDir = "asc" | "desc";
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
 
 function getLatestStatus(analysis: RiskScoreAnalysis): string {
   return analysis.executions?.[0]?.status ?? "draft";
@@ -39,6 +36,40 @@ interface RiskScoreAnalysisListProps {
   searchActive?: boolean;
 }
 
+function SortHeader({
+  label,
+  field,
+  sortKey,
+  sortDir,
+  onToggle,
+}: {
+  label: string;
+  field: SortKey;
+  sortKey: SortKey | null;
+  sortDir: SortDir;
+  onToggle: (field: SortKey) => void;
+}) {
+  return (
+    <th
+      onClick={() => onToggle(field)}
+      className="cursor-pointer select-none px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted transition-colors hover:text-text-secondary"
+    >
+      <span className="inline-flex items-center gap-1">
+        {label}
+        {sortKey === field ? (
+          sortDir === "asc" ? (
+            <ChevronUp size={12} className="text-success" />
+          ) : (
+            <ChevronDown size={12} className="text-success" />
+          )
+        ) : (
+          <ChevronUp size={12} className="opacity-0" />
+        )}
+      </span>
+    </th>
+  );
+}
+
 export function RiskScoreAnalysisList({
   analyses,
   onSelect,
@@ -51,52 +82,39 @@ export function RiskScoreAnalysisList({
   onPageChange,
   searchActive = false,
 }: RiskScoreAnalysisListProps) {
+  const { t, i18n } = useTranslation("app");
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
       setSortDir(sortDir === "asc" ? "desc" : "asc");
-    } else {
-      setSortKey(key);
-      setSortDir("asc");
+      return;
     }
+    setSortKey(key);
+    setSortDir("asc");
   };
 
   const sortedAnalyses = useMemo(() => {
     if (!sortKey) return analyses;
-    return [...analyses].sort((a, b) => {
+    return [...analyses].sort((left, right) => {
       let cmp: number;
       if (sortKey === "status") {
-        cmp = getLatestStatus(a).localeCompare(getLatestStatus(b));
+        cmp = getLatestStatus(left).localeCompare(getLatestStatus(right));
       } else if (sortKey === "created_at") {
-        cmp = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        cmp =
+          new Date(left.created_at).getTime() -
+          new Date(right.created_at).getTime();
       } else {
-        cmp = (a[sortKey] ?? "").localeCompare(b[sortKey] ?? "");
+        cmp = (left[sortKey] ?? "").localeCompare(right[sortKey] ?? "");
       }
       return sortDir === "desc" ? -cmp : cmp;
     });
   }, [analyses, sortKey, sortDir]);
 
-  const SortHeader = ({ label, field }: { label: string; field: SortKey }) => (
-    <th
-      onClick={() => toggleSort(field)}
-      className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted cursor-pointer select-none hover:text-text-secondary transition-colors"
-    >
-      <span className="inline-flex items-center gap-1">
-        {label}
-        {sortKey === field ? (
-          sortDir === "asc" ? <ChevronUp size={12} className="text-success" /> : <ChevronDown size={12} className="text-success" />
-        ) : (
-          <ChevronUp size={12} className="opacity-0 group-hover:opacity-30" />
-        )}
-      </span>
-    </th>
-  );
-
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <Loader2 size={24} className="animate-spin text-text-muted" />
       </div>
     );
@@ -104,8 +122,10 @@ export function RiskScoreAnalysisList({
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-critical">Failed to load analyses</p>
+      <div className="flex h-64 items-center justify-center">
+        <p className="text-critical">
+          {t("riskScores.hub.errors.failedToLoadAnalyses")}
+        </p>
       </div>
     );
   }
@@ -113,16 +133,18 @@ export function RiskScoreAnalysisList({
   if (analyses.length === 0 && page === 1) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
-        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-surface-overlay mb-4">
+        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-surface-overlay">
           <Activity size={24} className="text-text-muted" />
         </div>
         <h3 className="text-lg font-semibold text-text-primary">
-          {searchActive ? "No matching analyses" : "No analyses yet"}
+          {searchActive
+            ? t("riskScores.hub.empty.noMatchingAnalyses")
+            : t("riskScores.hub.empty.noRiskScoreAnalysesYet")}
         </h3>
         <p className="mt-2 text-sm text-text-muted">
           {searchActive
-            ? "Try adjusting your search terms."
-            : "Create your first risk score analysis to get started."}
+            ? t("riskScores.patients.adjustFilters")
+            : t("riskScores.hub.empty.createFirst")}
         </p>
       </div>
     );
@@ -130,46 +152,66 @@ export function RiskScoreAnalysisList({
 
   return (
     <div className="space-y-4">
-      {/* Table */}
-      <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
+      <div className="overflow-hidden rounded-lg border border-border-default bg-surface-raised">
         <table className="w-full">
           <thead>
             <tr className="bg-surface-overlay">
-              <SortHeader label="Name" field="name" />
+              <SortHeader
+                label={t("riskScores.common.headers.name")}
+                field="name"
+                sortKey={sortKey}
+                sortDir={sortDir}
+                onToggle={toggleSort}
+              />
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Cohort
+                {t("riskScores.common.headers.cohort")}
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Scores
+                {t("riskScores.common.headers.scores")}
               </th>
-              <SortHeader label="Status" field="status" />
+              <SortHeader
+                label={t("riskScores.common.headers.status")}
+                field="status"
+                sortKey={sortKey}
+                sortDir={sortDir}
+                onToggle={toggleSort}
+              />
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Last Run
+                {t("riskScores.common.headers.lastRun")}
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Author
+                {t("riskScores.common.headers.author")}
               </th>
-              <SortHeader label="Created" field="created_at" />
+              <SortHeader
+                label={t("riskScores.common.headers.created")}
+                field="created_at"
+                sortKey={sortKey}
+                sortDir={sortDir}
+                onToggle={toggleSort}
+              />
             </tr>
           </thead>
           <tbody>
-            {sortedAnalyses.map((analysis, i) => {
+            {sortedAnalyses.map((analysis, index) => {
               const status = getLatestStatus(analysis);
               const statusColor = ANALYSIS_STATUS_COLORS[status] ?? "var(--text-muted)";
-              const cohortCount = analysis.design_json.targetCohortIds.length;
-              const scoreCount = analysis.design_json.scoreIds.length;
               const lastExecution = analysis.executions?.[0];
-              const lastRunDate = status !== "draft" && lastExecution?.created_at
-                ? formatDate(lastExecution.created_at)
-                : null;
+              const lastRunDate =
+                status !== "draft" && lastExecution?.created_at
+                  ? formatRiskScoreDate(i18n.resolvedLanguage, lastExecution.created_at, {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })
+                  : null;
 
               return (
                 <tr
                   key={analysis.id}
                   onClick={() => onSelect(analysis.id)}
                   className={cn(
-                    "border-t border-border-subtle transition-colors hover:bg-surface-overlay cursor-pointer",
-                    i % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay",
+                    "cursor-pointer border-t border-border-subtle transition-colors hover:bg-surface-overlay",
+                    index % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay",
                   )}
                 >
                   <td className="px-4 py-3">
@@ -178,19 +220,23 @@ export function RiskScoreAnalysisList({
                         {analysis.name}
                       </p>
                       {analysis.description && (
-                        <p className="text-xs text-text-muted truncate max-w-[400px]">
+                        <p className="max-w-[400px] truncate text-xs text-text-muted">
                           {analysis.description}
                         </p>
                       )}
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium bg-info/10 text-info">
-                      {cohortCount} cohort{cohortCount !== 1 ? "s" : ""}
+                    <span className="inline-flex items-center rounded-full bg-info/10 px-2 py-0.5 text-[10px] font-medium text-info">
+                      {t("riskScores.common.count.cohort", {
+                        count: analysis.design_json.targetCohortIds.length,
+                      })}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm text-text-muted">
-                    {scoreCount} score{scoreCount !== 1 ? "s" : ""}
+                    {t("riskScores.common.count.score", {
+                      count: analysis.design_json.scoreIds.length,
+                    })}
                   </td>
                   <td className="px-4 py-3">
                     <span
@@ -201,10 +247,10 @@ export function RiskScoreAnalysisList({
                       }}
                     >
                       <span
-                        className="w-1.5 h-1.5 rounded-full"
+                        className="h-1.5 w-1.5 rounded-full"
                         style={{ backgroundColor: statusColor }}
                       />
-                      {status}
+                      {getRiskScoreStatusLabel(t, status)}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm text-text-muted">
@@ -214,7 +260,11 @@ export function RiskScoreAnalysisList({
                     {analysis.author?.name ?? "\u2014"}
                   </td>
                   <td className="px-4 py-3 text-sm text-text-muted">
-                    {formatDate(analysis.created_at)}
+                    {formatRiskScoreDate(i18n.resolvedLanguage, analysis.created_at, {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
                   </td>
                 </tr>
               );
@@ -223,32 +273,35 @@ export function RiskScoreAnalysisList({
         </table>
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-1">
           <p className="text-xs text-text-muted">
-            Showing {(page - 1) * perPage + 1} –{" "}
-            {Math.min(page * perPage, total)} of {total}
+            {t("riskScores.common.pagination.showingRange", {
+              from: (page - 1) * perPage + 1,
+              to: Math.min(page * perPage, total),
+              total,
+            })}
           </p>
           <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={() => onPageChange?.(Math.max(1, page - 1))}
               disabled={page <= 1}
-              className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-elevated hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ChevronLeft size={16} />
             </button>
-            <span className="text-xs text-text-secondary px-2">
-              {page} / {totalPages}
+            <span className="px-2 text-xs text-text-secondary">
+              {t("riskScores.common.pagination.pageXOfY", {
+                current: page,
+                total: totalPages,
+              })}
             </span>
             <button
               type="button"
-              onClick={() =>
-                onPageChange?.(Math.min(totalPages, page + 1))
-              }
+              onClick={() => onPageChange?.(Math.min(totalPages, page + 1))}
               disabled={page >= totalPages}
-              className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-elevated hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ChevronRight size={16} />
             </button>

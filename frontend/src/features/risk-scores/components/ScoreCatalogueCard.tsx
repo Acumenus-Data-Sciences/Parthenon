@@ -3,6 +3,7 @@ import {
   Clock3,
   XCircle,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type {
   RiskScoreModel,
@@ -27,6 +28,7 @@ export function ScoreCatalogueCard({
   sourceSelected,
   onClick,
 }: ScoreCatalogueCardProps) {
+  const { t } = useTranslation("app");
   const isEligible = eligibility?.eligible === true;
   const patientCount = eligibility?.patient_count ?? 0;
   const hasCompletedResult = sourceResult != null;
@@ -36,22 +38,22 @@ export function ScoreCatalogueCard({
       type="button"
       onClick={onClick}
       className={cn(
-        "w-full text-left rounded-lg border bg-surface-raised p-4 transition-all group",
+        "group w-full rounded-lg border bg-surface-raised p-4 text-left transition-all",
         "border-border-default hover:border-success/30 hover:bg-surface-overlay",
       )}
     >
-      <div className="flex items-center gap-2 mb-1.5">
+      <div className="mb-1.5 flex items-center gap-2">
         <span
-          className="font-['IBM_Plex_Mono',monospace] text-[10px] px-1.5 py-0.5 rounded shrink-0"
+          className="shrink-0 rounded px-1.5 py-0.5 font-['IBM_Plex_Mono',monospace] text-[10px]"
           style={{ backgroundColor: `${color}15`, color }}
         >
           {score.score_id}
         </span>
-        <h3 className="text-sm font-medium text-text-primary truncate group-hover:text-success transition-colors">
+        <h3 className="truncate text-sm font-medium text-text-primary transition-colors group-hover:text-success">
           {score.score_name}
         </h3>
       </div>
-      <p className="text-xs text-text-muted line-clamp-2 mb-2">
+      <p className="mb-2 line-clamp-2 text-xs text-text-muted">
         {score.description}
       </p>
 
@@ -68,12 +70,14 @@ export function ScoreCatalogueCard({
             {isEligible ? (
               <>
                 <CheckCircle2 size={10} />
-                {patientCount.toLocaleString()} eligible
+                {t("riskScores.hub.catalogue.eligibleCount", {
+                  count: patientCount.toLocaleString(),
+                })}
               </>
             ) : (
               <>
                 <XCircle size={10} />
-                Insufficient data
+                {t("riskScores.scoreDetail.insufficientData")}
               </>
             )}
           </span>
@@ -82,7 +86,7 @@ export function ScoreCatalogueCard({
         {sourceSelected && hasCompletedResult && (
           <span className="inline-flex items-center gap-1 rounded-full bg-info/10 px-2 py-0.5 text-[10px] font-medium text-info">
             <Clock3 size={10} />
-            Completed
+            {t("riskScores.common.status.completed")}
           </span>
         )}
       </div>

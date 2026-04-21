@@ -2,8 +2,8 @@ import type { TemplateConfig } from "./index";
 
 export const INCIDENCE_REPORT_TEMPLATE: TemplateConfig = {
   id: "incidence-report",
-  name: "Incidence Rate Report",
-  description: "Population-based incidence analysis",
+  nameKey: "publish.templates.incidence-report.name",
+  descriptionKey: "publish.templates.incidence-report.description",
   usesResults: true,
   preferredAnalysisTypes: [
     "incidence_rates",
@@ -14,14 +14,14 @@ export const INCIDENCE_REPORT_TEMPLATE: TemplateConfig = {
   sections: [
     {
       id: "background",
-      title: "Background",
+      titleKey: "publish.templates.incidence-report.sections.background",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "methods",
-      title: "Methods",
+      titleKey: "publish.templates.incidence-report.sections.methods",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
@@ -29,7 +29,7 @@ export const INCIDENCE_REPORT_TEMPLATE: TemplateConfig = {
     // Results sections are injected dynamically
     {
       id: "discussion",
-      title: "Discussion",
+      titleKey: "publish.templates.incidence-report.sections.discussion",
       type: "discussion",
       narrativeIncluded: true,
       tableIncluded: false,

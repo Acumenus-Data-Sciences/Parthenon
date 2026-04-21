@@ -2,48 +2,48 @@ import type { TemplateConfig } from "./index";
 
 export const NEJM_STYLE_TEMPLATE: TemplateConfig = {
   id: "nejm-style",
-  name: "NEJM Style",
-  description: "New England Journal of Medicine — concise clinical impact structure with strict word economy",
+  nameKey: "publish.templates.nejm-style.name",
+  descriptionKey: "publish.templates.nejm-style.description",
   usesResults: true,
   sections: [
     {
       id: "introduction",
-      title: "Introduction",
+      titleKey: "publish.templates.nejm-style.sections.introduction",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "methods",
-      title: "Methods",
+      titleKey: "publish.templates.nejm-style.sections.methods",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "study-design",
-      title: "Study Design and Oversight",
+      titleKey: "publish.templates.nejm-style.sections.study-design",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "patients",
-      title: "Patients",
+      titleKey: "publish.templates.nejm-style.sections.patients",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "endpoints",
-      title: "End Points",
+      titleKey: "publish.templates.nejm-style.sections.endpoints",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "statistical-analysis",
-      title: "Statistical Analysis",
+      titleKey: "publish.templates.nejm-style.sections.statistical-analysis",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
@@ -51,7 +51,7 @@ export const NEJM_STYLE_TEMPLATE: TemplateConfig = {
     // Results injected dynamically
     {
       id: "discussion",
-      title: "Discussion",
+      titleKey: "publish.templates.nejm-style.sections.discussion",
       type: "discussion",
       narrativeIncluded: true,
       tableIncluded: false,

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   Loader2,
@@ -16,6 +17,10 @@ import { BundleDesigner } from "../components/BundleDesigner";
 import { MeasureComplianceTable } from "../components/MeasureComplianceTable";
 import { OverlapRulesPanel } from "../components/OverlapRulesPanel";
 import {
+  getCareGapCategoryLabel,
+  getCareGapStatusLabel,
+} from "../lib/i18n";
+import {
   useBundle,
   useDeleteBundle,
   useEvaluateBundle,
@@ -31,11 +36,28 @@ function EvalStatusBadge({
 }: {
   status: CareGapEvaluation["status"];
 }) {
+  const { t } = useTranslation("app");
   const config = {
-    pending: { icon: Clock, color: "var(--text-muted)", label: "Pending" },
-    running: { icon: Loader2, color: "var(--warning)", label: "Running" },
-    completed: { icon: CheckCircle2, color: "var(--success)", label: "Completed" },
-    failed: { icon: XCircle, color: "var(--critical)", label: "Failed" },
+    pending: {
+      icon: Clock,
+      color: "var(--text-muted)",
+      label: getCareGapStatusLabel(t, "pending"),
+    },
+    running: {
+      icon: Loader2,
+      color: "var(--warning)",
+      label: getCareGapStatusLabel(t, "running"),
+    },
+    completed: {
+      icon: CheckCircle2,
+      color: "var(--success)",
+      label: getCareGapStatusLabel(t, "completed"),
+    },
+    failed: {
+      icon: XCircle,
+      color: "var(--critical)",
+      label: getCareGapStatusLabel(t, "failed"),
+    },
   } as const;
   const c = config[status];
   const Icon = c.icon;
@@ -56,6 +78,7 @@ function EvalStatusBadge({
 export default function BundleDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation("app");
   const bundleId = id ? Number(id) : null;
 
   const { data: bundle, isLoading, error } = useBundle(bundleId);
@@ -79,7 +102,7 @@ export default function BundleDetailPage() {
     if (!bundleId) return;
     if (
       window.confirm(
-        "Are you sure you want to delete this condition bundle?",
+        t("careGaps.bundleDetail.deleteConfirm"),
       )
     ) {
       deleteMutation.mutate(bundleId, {
@@ -105,13 +128,15 @@ export default function BundleDetailPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <p className="text-critical">Failed to load bundle</p>
+          <p className="text-critical">
+            {t("careGaps.bundleDetail.failedToLoad")}
+          </p>
           <button
             type="button"
             onClick={() => navigate("/care-gaps")}
             className="mt-4 text-sm text-text-muted hover:text-text-primary transition-colors"
           >
-            Back to list
+            {t("careGaps.common.actions.backToList")}
           </button>
         </div>
       </div>
@@ -129,7 +154,7 @@ export default function BundleDetailPage() {
             className="inline-flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition-colors mb-3"
           >
             <ArrowLeft size={14} />
-            Care Gaps
+            {t("careGaps.bundleDetail.backToCareGaps")}
           </button>
 
           <div className="flex items-center gap-3">
@@ -150,7 +175,7 @@ export default function BundleDetailPage() {
           <div className="flex items-center gap-2 mt-2">
             {bundle.disease_category && (
               <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-accent/15 text-accent">
-                {bundle.disease_category}
+                {getCareGapCategoryLabel(t, bundle.disease_category)}
               </span>
             )}
             {bundle.latest_evaluation && (
@@ -169,7 +194,7 @@ export default function BundleDetailPage() {
                 bundle.latest_evaluation.compliance_summary.compliance_pct
               }
               size="lg"
-              label="Overall Compliance"
+              label={t("careGaps.bundleDetail.overallCompliance")}
             />
           </div>
         )}
@@ -187,7 +212,7 @@ export default function BundleDetailPage() {
             ) : (
               <Trash2 size={14} />
             )}
-            Delete
+            {t("careGaps.common.actions.delete")}
           </button>
         </div>
       </div>
@@ -196,9 +221,18 @@ export default function BundleDetailPage() {
       <div className="flex items-center gap-1 border-b border-border-default">
         {(
           [
-            { key: "design" as const, label: "Design" },
-            { key: "compliance" as const, label: "Compliance Results" },
-            { key: "overlap" as const, label: "Overlap Rules" },
+            {
+              key: "design" as const,
+              label: t("careGaps.bundleDetail.tabs.design"),
+            },
+            {
+              key: "compliance" as const,
+              label: t("careGaps.bundleDetail.tabs.compliance"),
+            },
+            {
+              key: "overlap" as const,
+              label: t("careGaps.bundleDetail.tabs.overlap"),
+            },
           ] as const
         ).map((tab) => (
           <button
@@ -228,7 +262,7 @@ export default function BundleDetailPage() {
           {/* Evaluation controls */}
           <div className="rounded-lg border border-border-default bg-surface-raised p-4">
             <h3 className="text-sm font-semibold text-text-primary mb-3">
-              Execute Evaluation
+              {t("careGaps.bundleDetail.executeEvaluation")}
             </h3>
             <div className="flex items-center gap-3">
               <SourceSelector
@@ -252,7 +286,7 @@ export default function BundleDetailPage() {
                 ) : (
                   <Play size={14} />
                 )}
-                Evaluate
+                {t("careGaps.common.actions.evaluate")}
               </button>
             </div>
           </div>
@@ -268,10 +302,12 @@ export default function BundleDetailPage() {
                       activeEvaluation.result_json.overall_compliance_pct
                     }
                     size="md"
-                    label="Overall"
+                    label={t("careGaps.bundleDetail.overall")}
                   />
                   <div className="space-y-1">
-                    <p className="text-xs text-text-muted">Total Patients</p>
+                    <p className="text-xs text-text-muted">
+                      {t("careGaps.bundleDetail.totalPatients")}
+                    </p>
                     <p className="font-['IBM_Plex_Mono',monospace] text-lg font-bold text-success">
                       {activeEvaluation.result_json.total_patients.toLocaleString()}
                     </p>
@@ -279,19 +315,25 @@ export default function BundleDetailPage() {
                   {activeEvaluation.compliance_summary && (
                     <>
                       <div className="space-y-1">
-                        <p className="text-xs text-text-muted">Gaps Met</p>
+                        <p className="text-xs text-text-muted">
+                          {t("careGaps.bundleDetail.gapsMet")}
+                        </p>
                         <p className="font-['IBM_Plex_Mono',monospace] text-lg font-bold text-success">
                           {activeEvaluation.compliance_summary.met.toLocaleString()}
                         </p>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-xs text-text-muted">Open Gaps</p>
+                        <p className="text-xs text-text-muted">
+                          {t("careGaps.bundleDetail.openGaps")}
+                        </p>
                         <p className="font-['IBM_Plex_Mono',monospace] text-lg font-bold text-primary">
                           {activeEvaluation.compliance_summary.open.toLocaleString()}
                         </p>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-xs text-text-muted">Excluded</p>
+                        <p className="text-xs text-text-muted">
+                          {t("careGaps.bundleDetail.excluded")}
+                        </p>
                         <p className="font-['IBM_Plex_Mono',monospace] text-lg font-bold text-text-muted">
                           {activeEvaluation.compliance_summary.excluded.toLocaleString()}
                         </p>
@@ -310,8 +352,8 @@ export default function BundleDetailPage() {
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
               <p className="text-sm text-text-muted">
                 {evaluateMutation.isPending
-                  ? "Evaluation in progress..."
-                  : "No evaluation results yet. Execute an evaluation to see compliance data."}
+                  ? t("careGaps.bundleDetail.evaluationInProgress")
+                  : t("careGaps.bundleDetail.noEvaluationResults")}
               </p>
             </div>
           )}
@@ -320,7 +362,7 @@ export default function BundleDetailPage() {
           {evaluations && evaluations.length > 0 && (
             <div className="rounded-lg border border-border-default bg-surface-raised p-5 space-y-3">
               <h3 className="text-sm font-semibold text-text-primary">
-                Evaluation History
+                {t("careGaps.bundleDetail.evaluationHistory")}
               </h3>
               <div className="space-y-1">
                 {evaluations.map((ev: CareGapEvaluation) => (
@@ -334,11 +376,13 @@ export default function BundleDetailPage() {
                         ? "bg-success/10 border border-success/20"
                         : "hover:bg-surface-overlay border border-transparent",
                     )}
-                  >
-                    <EvalStatusBadge status={ev.status} />
-                    <span className="text-xs text-text-muted">
-                      Source #{ev.source_id}
-                    </span>
+                    >
+                      <EvalStatusBadge status={ev.status} />
+                      <span className="text-xs text-text-muted">
+                        {t("careGaps.bundleDetail.sourceLabel", {
+                          value: ev.source_id,
+                        })}
+                      </span>
                     {ev.person_count != null && (
                       <span className="text-xs text-text-secondary font-['IBM_Plex_Mono',monospace]">
                         {ev.person_count.toLocaleString()} pts

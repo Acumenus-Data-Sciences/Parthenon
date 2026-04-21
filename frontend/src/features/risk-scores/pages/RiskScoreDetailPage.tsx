@@ -15,6 +15,7 @@ import {
   Save,
   X,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useSourceStore } from "@/stores/sourceStore";
 import {
@@ -34,32 +35,25 @@ import { RecommendationsTab } from "../components/RecommendationsTab";
 import { ConfigurationTab } from "../components/ConfigurationTab";
 import { CreateCohortModal } from "../components/CreateCohortModal";
 import { RiskScoreRunModal } from "../components/RiskScoreRunModal";
+import { getRiskScoreStatusLabel } from "../lib/i18n";
 
-// ---------------------------------------------------------------------------
-// Tab definitions
-// ---------------------------------------------------------------------------
-
-type TabKey = "overview" | "results" | "patients" | "recommendations" | "configuration";
-
-const TABS: { key: TabKey; label: string; icon: typeof Settings }[] = [
-  { key: "overview", label: "Overview", icon: LayoutDashboard },
-  { key: "results", label: "Results", icon: BarChart3 },
-  { key: "patients", label: "Patients", icon: Users },
-  { key: "recommendations", label: "Recommendations", icon: Sparkles },
-  { key: "configuration", label: "Configuration", icon: Settings },
-];
-
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
+type TabKey =
+  | "overview"
+  | "results"
+  | "patients"
+  | "recommendations"
+  | "configuration";
 
 export default function RiskScoreDetailPage() {
+  const { t } = useTranslation("app");
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { activeSourceId, defaultSourceId } = useSourceStore();
   const sourceId = activeSourceId ?? defaultSourceId ?? 0;
 
-  const { data: analysis, isLoading, error } = useRiskScoreAnalysis(id ? Number(id) : null);
+  const { data: analysis, isLoading, error } = useRiskScoreAnalysis(
+    id ? Number(id) : null,
+  );
   const updateMutation = useUpdateRiskScoreAnalysis();
   const deleteMutation = useDeleteRiskScoreAnalysis();
   const executeMutation = useExecuteRiskScoreAnalysis();
@@ -69,31 +63,31 @@ export default function RiskScoreDetailPage() {
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
   const [showRunModal, setShowRunModal] = useState(false);
+  const [cohortModal, setCohortModal] = useState<{
+    scoreId: string;
+    tier?: string;
+    patientCount: number;
+    personIds?: number[];
+  } | null>(null);
 
-  // Latest execution
   const latestExecution = analysis?.executions?.[analysis.executions.length - 1] ?? null;
   const latestExecutionId = latestExecution?.id ?? null;
-
-  // Execution detail (for population summaries)
   const { data: executionDetail } = useExecutionDetail(
     analysis?.id ?? null,
     latestExecutionId,
   );
-
-  // Score name lookup from catalogue
   const { data: catalogue } = useRiskScoreCatalogue();
   const scoreNameMap = useMemo(() => {
     const map: Record<string, string> = {};
-    for (const s of catalogue?.scores ?? []) {
-      map[s.score_id] = s.score_name;
+    for (const score of catalogue?.scores ?? []) {
+      map[score.score_id] = score.score_name;
     }
     return map;
   }, [catalogue]);
 
-  // Tab badge counts
   const uniqueScoreCount = useMemo(() => {
     const ids = new Set(
-      (executionDetail?.population_summaries ?? []).map((s) => s.score_id),
+      (executionDetail?.population_summaries ?? []).map((summary) => summary.score_id),
     );
     return ids.size;
   }, [executionDetail]);
@@ -102,13 +96,33 @@ export default function RiskScoreDetailPage() {
     results: uniqueScoreCount > 0 ? uniqueScoreCount : undefined,
   };
 
-  // Create cohort state
-  const [cohortModal, setCohortModal] = useState<{
-    scoreId: string;
-    tier?: string;
-    patientCount: number;
-    personIds?: number[];
-  } | null>(null);
+  const tabs: Array<{ key: TabKey; icon: typeof Settings; label: string }> = [
+    {
+      key: "overview",
+      icon: LayoutDashboard,
+      label: t("riskScores.common.tabs.overview"),
+    },
+    {
+      key: "results",
+      icon: BarChart3,
+      label: t("riskScores.common.tabs.results"),
+    },
+    {
+      key: "patients",
+      icon: Users,
+      label: t("riskScores.common.tabs.patients"),
+    },
+    {
+      key: "recommendations",
+      icon: Sparkles,
+      label: t("riskScores.common.tabs.recommendations"),
+    },
+    {
+      key: "configuration",
+      icon: Settings,
+      label: t("riskScores.common.tabs.configuration"),
+    },
+  ];
 
   const handleCreateCohort = (scoreId: string, tier: string, patientCount: number) => {
     setCohortModal({ scoreId, tier, patientCount });
@@ -122,7 +136,6 @@ export default function RiskScoreDetailPage() {
     setCohortModal({ scoreId, tier, patientCount: personIds.length, personIds });
   };
 
-  // Title editing
   const handleSaveTitle = () => {
     if (!analysis || !titleDraft.trim()) return;
     updateMutation.mutate(
@@ -131,7 +144,6 @@ export default function RiskScoreDetailPage() {
     );
   };
 
-  // Duplicate
   const handleDuplicate = () => {
     if (!analysis) return;
     createMutation.mutate(
@@ -146,91 +158,83 @@ export default function RiskScoreDetailPage() {
     );
   };
 
-  // Delete
   const handleDelete = () => {
     if (!analysis) return;
-    if (window.confirm("Are you sure you want to delete this analysis? This action cannot be undone.")) {
+    if (window.confirm(t("riskScores.detail.deleteConfirm"))) {
       deleteMutation.mutate(analysis.id, {
         onSuccess: () => navigate("/risk-scores"),
       });
     }
   };
 
-  // Derived status
-  const status = latestExecution?.status ?? "draft";
-  const statusColor = ANALYSIS_STATUS_COLORS[status] ?? ANALYSIS_STATUS_COLORS.draft;
-
-  // ── Loading ────────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <Loader2 size={24} className="animate-spin text-text-muted" />
       </div>
     );
   }
 
-  // ── Error / Not Found ──────────────────────────────────────────────
   if (error || !analysis) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <div className="text-center">
-          <p className="text-critical">Analysis not found</p>
+          <p className="text-critical">{t("riskScores.detail.notFound")}</p>
           <Link
             to="/risk-scores"
-            className="inline-flex items-center gap-1.5 text-sm text-success hover:underline mt-4"
+            className="mt-4 inline-flex items-center gap-1.5 text-sm text-success hover:underline"
           >
             <ArrowLeft size={14} />
-            Back to Risk Scores
+            {t("riskScores.detail.backToRiskScores")}
           </Link>
         </div>
       </div>
     );
   }
 
-  // ── No source warning ──────────────────────────────────────────────
-  const noSourceBanner = sourceId === 0 && (
-    <div className="flex items-center gap-3 rounded-xl border border-accent/20 bg-accent/5 px-5 py-4">
-      <p className="text-sm text-accent">
-        Select a data source to run or view execution results.
-      </p>
-    </div>
-  );
+  const status = latestExecution?.status ?? "draft";
+  const statusColor = ANALYSIS_STATUS_COLORS[status] ?? ANALYSIS_STATUS_COLORS.draft;
 
   return (
     <div className="space-y-5">
-      {/* Header */}
       <div className="space-y-3">
         <button
           type="button"
           onClick={() => navigate("/risk-scores")}
           className="btn btn-ghost btn-sm"
         >
-          <ArrowLeft size={14} /> Risk Scores
+          <ArrowLeft size={14} /> {t("riskScores.detail.backToRiskScores")}
         </button>
 
-        {noSourceBanner}
+        {sourceId === 0 && (
+          <div className="flex items-center gap-3 rounded-xl border border-accent/20 bg-accent/5 px-5 py-4">
+            <p className="text-sm text-accent">
+              {t("riskScores.detail.selectSourcePrompt")}
+            </p>
+          </div>
+        )}
 
         <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            {/* Title (inline editable) */}
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               {editingTitle ? (
-                <div className="flex items-center gap-2 flex-1">
+                <div className="flex flex-1 items-center gap-2">
                   <input
                     type="text"
                     value={titleDraft}
-                    onChange={(e) => setTitleDraft(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleSaveTitle();
-                      if (e.key === "Escape") setEditingTitle(false);
+                    onChange={(event) => setTitleDraft(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") handleSaveTitle();
+                      if (event.key === "Escape") setEditingTitle(false);
                     }}
                     autoFocus
-                    className="form-input text-lg font-semibold flex-1"
+                    className="form-input flex-1 text-lg font-semibold"
                   />
                   <button
                     type="button"
                     onClick={handleSaveTitle}
                     className="btn btn-primary btn-sm"
+                    title={t("riskScores.common.actions.close")}
                   >
                     <Save size={14} />
                   </button>
@@ -238,13 +242,14 @@ export default function RiskScoreDetailPage() {
                     type="button"
                     onClick={() => setEditingTitle(false)}
                     className="btn btn-ghost btn-sm"
+                    title={t("riskScores.common.actions.cancel")}
                   >
                     <X size={14} />
                   </button>
                 </div>
               ) : (
                 <>
-                  <h1 className="text-xl font-semibold text-text-primary truncate">
+                  <h1 className="truncate text-xl font-semibold text-text-primary">
                     {analysis.name}
                   </h1>
                   <button
@@ -253,7 +258,8 @@ export default function RiskScoreDetailPage() {
                       setTitleDraft(analysis.name);
                       setEditingTitle(true);
                     }}
-                    className="text-text-ghost hover:text-text-secondary shrink-0"
+                    className="shrink-0 text-text-ghost hover:text-text-secondary"
+                    title={t("riskScores.common.actions.reRun")}
                   >
                     <Edit3 size={14} />
                   </button>
@@ -261,58 +267,55 @@ export default function RiskScoreDetailPage() {
               )}
             </div>
 
-            {/* Badges row */}
-            <div className="flex items-center gap-2 mt-2 flex-wrap">
-              {/* Status badge */}
+            <div className="mt-2 flex flex-wrap items-center gap-2">
               <span
-                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium"
+                className="inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium"
                 style={{
                   backgroundColor: `${statusColor}15`,
                   color: statusColor,
                 }}
               >
                 <span
-                  className="w-1.5 h-1.5 rounded-full"
+                  className="h-1.5 w-1.5 rounded-full"
                   style={{ backgroundColor: statusColor }}
                 />
-                {status}
+                {getRiskScoreStatusLabel(t, status)}
               </span>
 
-              {/* Target cohort count */}
               {analysis.design_json.targetCohortIds.length > 0 && (
-                <span className="px-2 py-0.5 rounded-md bg-success/10 text-xs text-success">
-                  {analysis.design_json.targetCohortIds.length} cohort
-                  {analysis.design_json.targetCohortIds.length !== 1 ? "s" : ""}
+                <span className="rounded-md bg-success/10 px-2 py-0.5 text-xs text-success">
+                  {t("riskScores.common.count.cohort", {
+                    count: analysis.design_json.targetCohortIds.length,
+                  })}
                 </span>
               )}
 
-              {/* Score count */}
               {analysis.design_json.scoreIds.length > 0 && (
-                <span className="px-2 py-0.5 rounded-md bg-accent/10 text-xs text-accent">
-                  {analysis.design_json.scoreIds.length} score
-                  {analysis.design_json.scoreIds.length !== 1 ? "s" : ""}
+                <span className="rounded-md bg-accent/10 px-2 py-0.5 text-xs text-accent">
+                  {t("riskScores.common.count.score", {
+                    count: analysis.design_json.scoreIds.length,
+                  })}
                 </span>
               )}
             </div>
           </div>
 
-          {/* Action buttons */}
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex shrink-0 items-center gap-1.5">
             <button
               type="button"
               onClick={() => setShowRunModal(true)}
               disabled={executeMutation.isPending || sourceId === 0}
-              className="btn btn-sm flex items-center gap-1.5 bg-primary text-primary-foreground hover:bg-primary-light border-primary disabled:opacity-50"
+              className="btn btn-sm flex items-center gap-1.5 border-primary bg-primary text-primary-foreground hover:bg-primary-light disabled:opacity-50"
             >
               <RefreshCw size={14} />
-              Re-run
+              {t("riskScores.common.actions.reRun")}
             </button>
             <button
               type="button"
               onClick={handleDuplicate}
               disabled={createMutation.isPending}
               className="btn btn-ghost btn-sm"
-              title="Duplicate analysis"
+              title={t("riskScores.common.actions.duplicateAnalysis")}
             >
               <Copy size={14} />
             </button>
@@ -321,7 +324,7 @@ export default function RiskScoreDetailPage() {
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
               className="btn btn-danger btn-sm"
-              title="Delete analysis"
+              title={t("riskScores.common.actions.deleteAnalysis")}
             >
               <Trash2 size={14} />
             </button>
@@ -329,9 +332,8 @@ export default function RiskScoreDetailPage() {
         </div>
       </div>
 
-      {/* Tab navigation */}
       <div className="tab-bar overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-        {TABS.map((tab) => {
+        {tabs.map((tab) => {
           const Icon = tab.icon;
           const count = tabCounts[tab.key];
           return (
@@ -356,8 +358,7 @@ export default function RiskScoreDetailPage() {
         })}
       </div>
 
-      {/* Tab content */}
-      {activeTab === "overview" && analysis && (
+      {activeTab === "overview" && (
         <OverviewTab
           analysis={analysis}
           latestExecution={latestExecution}
@@ -366,7 +367,7 @@ export default function RiskScoreDetailPage() {
           onTabChange={(tab) => setActiveTab(tab as TabKey)}
         />
       )}
-      {activeTab === "results" && analysis && (
+      {activeTab === "results" && (
         <ResultsTab
           analysisId={analysis.id}
           executionId={latestExecutionId}
@@ -375,7 +376,7 @@ export default function RiskScoreDetailPage() {
           onCreateCohort={handleCreateCohort}
         />
       )}
-      {activeTab === "patients" && analysis && (
+      {activeTab === "patients" && (
         <PatientsTab
           analysisId={analysis.id}
           executionId={latestExecutionId}
@@ -383,20 +384,16 @@ export default function RiskScoreDetailPage() {
           onCreateCohort={handleCreateCohortFromFilter}
         />
       )}
-      {activeTab === "recommendations" && analysis && (
-        <RecommendationsTab
-          analysis={analysis}
-          sourceId={sourceId}
-        />
+      {activeTab === "recommendations" && (
+        <RecommendationsTab analysis={analysis} sourceId={sourceId} />
       )}
-      {activeTab === "configuration" && analysis && (
+      {activeTab === "configuration" && (
         <ConfigurationTab
           analysis={analysis}
           onReRun={() => setShowRunModal(true)}
         />
       )}
 
-      {/* Create Cohort Modal */}
       {cohortModal && analysis && latestExecutionId && (
         <CreateCohortModal
           analysisId={analysis.id}
@@ -414,14 +411,11 @@ export default function RiskScoreDetailPage() {
         />
       )}
 
-      {/* Run Modal */}
-      {showRunModal && analysis && (
+      {showRunModal && (
         <RiskScoreRunModal
           sourceId={sourceId}
           scoreIds={analysis.design_json.scoreIds}
-          onClose={() => {
-            setShowRunModal(false);
-          }}
+          onClose={() => setShowRunModal(false)}
         />
       )}
     </div>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { SourceSelector } from "@/features/data-explorer/components/SourceSelector";
 import { BundleList } from "../components/BundleList";
@@ -12,6 +13,7 @@ type Tab = "bundles" | "population";
 
 export default function CareGapsPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation("app");
   const [activeTab, setActiveTab] = useState<Tab>("bundles");
   const [sourceId, setSourceId] = useState<number | null>(null);
   const createMutation = useCreateBundle();
@@ -22,7 +24,7 @@ export default function CareGapsPage() {
     createMutation.mutate(
       {
         bundle_code: "UNTITLED",
-        condition_name: "Untitled Bundle",
+        condition_name: t("careGaps.page.untitledBundle"),
       },
       {
         onSuccess: (bundle) => {
@@ -42,11 +44,10 @@ export default function CareGapsPage() {
         <div className="flex items-center gap-2">
           <div>
             <h1 className="text-2xl font-bold text-text-primary">
-              Care Gaps
+              {t("careGaps.page.title")}
             </h1>
             <p className="mt-1 text-sm text-text-muted">
-              Condition bundles, quality measures, and population compliance
-              tracking
+              {t("careGaps.page.subtitle")}
             </p>
           </div>
           <HelpButton helpKey="care-gaps" />
@@ -68,7 +69,7 @@ export default function CareGapsPage() {
             ) : (
               <Plus size={16} />
             )}
-            New Bundle
+            {t("careGaps.common.actions.newBundle")}
           </button>
         </div>
       </div>
@@ -77,8 +78,14 @@ export default function CareGapsPage() {
       <div className="flex items-center gap-1 border-b border-border-default">
         {(
           [
-            { key: "bundles" as const, label: "Disease Bundles" },
-            { key: "population" as const, label: "Population Overview" },
+            {
+              key: "bundles" as const,
+              label: t("careGaps.page.tabs.bundles"),
+            },
+            {
+              key: "population" as const,
+              label: t("careGaps.page.tabs.population"),
+            },
           ] as const
         ).map((tab) => (
           <button

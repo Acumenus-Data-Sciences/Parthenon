@@ -1,5 +1,9 @@
 import { Loader2 } from "lucide-react";
-import type { RiskScoreAnalysis, ScoreRecommendation } from "../types/riskScore";
+import { useTranslation } from "react-i18next";
+import type {
+  RiskScoreAnalysis,
+  ScoreRecommendation,
+} from "../types/riskScore";
 import { useRecommendScores } from "../hooks/useRiskScores";
 import { CohortProfilePanel } from "./CohortProfilePanel";
 import { ScoreRecommendationCard } from "./ScoreRecommendationCard";
@@ -14,16 +18,16 @@ function groupRecommendations(recommendations: ScoreRecommendation[]) {
   const available: ScoreRecommendation[] = [];
   const notApplicable: ScoreRecommendation[] = [];
 
-  for (const r of recommendations) {
-    if (!r.applicable) {
-      notApplicable.push(r);
+  for (const recommendation of recommendations) {
+    if (!recommendation.applicable) {
+      notApplicable.push(recommendation);
     } else if (
-      r.expected_completeness !== null &&
-      r.expected_completeness >= 0.7
+      recommendation.expected_completeness !== null &&
+      recommendation.expected_completeness >= 0.7
     ) {
-      recommended.push(r);
+      recommended.push(recommendation);
     } else {
-      available.push(r);
+      available.push(recommendation);
     }
   }
 
@@ -43,16 +47,16 @@ function RecommendationGroup({
 
   return (
     <div>
-      <h3 className="text-sm font-medium text-text-muted uppercase tracking-wider mb-3">
+      <h3 className="mb-3 text-sm font-medium uppercase tracking-wider text-text-muted">
         {label}
       </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {recommendations.map((r) => (
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {recommendations.map((recommendation) => (
           <ScoreRecommendationCard
-            key={r.score_id}
-            recommendation={r}
-            readOnly={true}
-            selected={selectedScoreIds.includes(r.score_id)}
+            key={recommendation.score_id}
+            recommendation={recommendation}
+            readOnly
+            selected={selectedScoreIds.includes(recommendation.score_id)}
             onToggle={() => {}}
           />
         ))}
@@ -65,13 +69,14 @@ export function RecommendationsTab({
   analysis,
   sourceId,
 }: RecommendationsTabProps) {
+  const { t } = useTranslation("app");
   const targetCohortId = analysis.design_json.targetCohortIds[0] ?? 0;
   const { data, isLoading } = useRecommendScores(sourceId, targetCohortId);
 
   if (sourceId === 0 || analysis.design_json.targetCohortIds.length === 0) {
     return (
       <div className="rounded-xl border border-border-default bg-surface-raised p-8 text-center text-sm text-text-muted">
-        Select a source to view recommendations
+        {t("riskScores.recommendations.selectSourceToView")}
       </div>
     );
   }
@@ -96,17 +101,17 @@ export function RecommendationsTab({
       <CohortProfilePanel profile={data.profile} compact={false} />
 
       <RecommendationGroup
-        label="Recommended"
+        label={t("riskScores.recommendations.recommended")}
         recommendations={recommended}
         selectedScoreIds={selectedScoreIds}
       />
       <RecommendationGroup
-        label="Available"
+        label={t("riskScores.recommendations.available")}
         recommendations={available}
         selectedScoreIds={selectedScoreIds}
       />
       <RecommendationGroup
-        label="Not Applicable"
+        label={t("riskScores.recommendations.notApplicable")}
         recommendations={notApplicable}
         selectedScoreIds={selectedScoreIds}
       />

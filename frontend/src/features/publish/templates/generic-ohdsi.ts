@@ -2,20 +2,20 @@ import type { TemplateConfig } from "./index";
 
 export const GENERIC_OHDSI_TEMPLATE: TemplateConfig = {
   id: "generic-ohdsi",
-  name: "Generic OHDSI Publication",
-  description: "Standard IMRaD structure for observational health data studies",
+  nameKey: "publish.templates.generic-ohdsi.name",
+  descriptionKey: "publish.templates.generic-ohdsi.description",
   usesResults: true,
   sections: [
     {
       id: "introduction",
-      title: "Introduction",
+      titleKey: "publish.templates.generic-ohdsi.sections.introduction",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
     },
     {
       id: "methods",
-      title: "Methods",
+      titleKey: "publish.templates.generic-ohdsi.sections.methods",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
@@ -23,7 +23,7 @@ export const GENERIC_OHDSI_TEMPLATE: TemplateConfig = {
     // Results sections are injected dynamically by buildManuscriptSections
     {
       id: "discussion",
-      title: "Discussion",
+      titleKey: "publish.templates.generic-ohdsi.sections.discussion",
       type: "discussion",
       narrativeIncluded: true,
       tableIncluded: false,

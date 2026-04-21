@@ -1,5 +1,6 @@
 import { useCallback, useRef, type ReactNode } from "react";
 import { Download, Image } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface DiagramWrapperProps {
   title: string;
@@ -40,6 +41,7 @@ export default function DiagramWrapper({
   onExportSvg,
   onExportPng,
 }: DiagramWrapperProps) {
+  const { t } = useTranslation("app");
   const containerRef = useRef<HTMLDivElement>(null);
 
   const slugTitle = title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
@@ -110,7 +112,7 @@ export default function DiagramWrapper({
             type="button"
             onClick={handleExportSvg}
             className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs text-text-ghost hover:bg-gray-100 hover:text-gray-700"
-            title="Export as SVG"
+            title={t("publish.diagram.exportSvg")}
           >
             <Download className="h-3 w-3" />
             SVG
@@ -119,7 +121,7 @@ export default function DiagramWrapper({
             type="button"
             onClick={handleExportPng}
             className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs text-text-ghost hover:bg-gray-100 hover:text-gray-700"
-            title="Export as PNG"
+            title={t("publish.diagram.exportPng")}
           >
             <Image className="h-3 w-3" />
             PNG

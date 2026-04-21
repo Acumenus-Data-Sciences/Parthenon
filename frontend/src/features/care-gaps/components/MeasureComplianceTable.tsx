@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { ArrowUpDown, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { MeasureResult } from "../types/careGap";
 
 interface MeasureComplianceTableProps {
@@ -26,6 +27,7 @@ function getComplianceColor(pct: number): string {
 export function MeasureComplianceTable({
   measures,
 }: MeasureComplianceTableProps) {
+  const { t } = useTranslation("app");
   const [sortKey, setSortKey] = useState<SortKey>("measure_code");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
@@ -55,7 +57,7 @@ export function MeasureComplianceTable({
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-12">
         <p className="text-sm text-text-muted">
-          No measure results available yet.
+          {t("careGaps.measureCompliance.noResultsAvailable")}
         </p>
       </div>
     );
@@ -68,8 +70,14 @@ export function MeasureComplianceTable({
           <tr className="border-b border-border-default bg-surface-raised">
             {(
               [
-                { key: "measure_code" as const, label: "Code" },
-                { key: "measure_name" as const, label: "Measure" },
+                {
+                  key: "measure_code" as const,
+                  label: t("careGaps.measureCompliance.code"),
+                },
+                {
+                  key: "measure_name" as const,
+                  label: t("careGaps.measureCompliance.measure"),
+                },
               ] as const
             ).map(({ key, label }) => (
               <th
@@ -84,29 +92,29 @@ export function MeasureComplianceTable({
               </th>
             ))}
             <th className="px-4 py-3 text-left text-xs font-semibold text-text-muted">
-              Domain
+              {t("careGaps.measureCompliance.domain")}
             </th>
             <th
               className="px-4 py-3 text-right text-xs font-semibold text-text-muted cursor-pointer select-none hover:text-text-secondary transition-colors"
               onClick={() => toggleSort("eligible")}
             >
               <span className="inline-flex items-center gap-1 justify-end">
-                Eligible
+                {t("careGaps.measureCompliance.eligible")}
                 <ArrowUpDown size={10} />
               </span>
             </th>
             <th className="px-4 py-3 text-right text-xs font-semibold text-text-muted">
-              Met
+              {t("careGaps.measureCompliance.met")}
             </th>
             <th className="px-4 py-3 text-right text-xs font-semibold text-text-muted">
-              Not Met
+              {t("careGaps.measureCompliance.notMet")}
             </th>
             <th
               className="px-4 py-3 text-right text-xs font-semibold text-text-muted cursor-pointer select-none hover:text-text-secondary transition-colors min-w-[180px]"
               onClick={() => toggleSort("compliance_pct")}
             >
               <span className="inline-flex items-center gap-1 justify-end">
-                Compliance
+                {t("careGaps.measureCompliance.compliance")}
                 <ArrowUpDown size={10} />
               </span>
             </th>
@@ -142,8 +150,10 @@ export function MeasureComplianceTable({
                         }}
                         title={
                           m.dedup_source
-                            ? `Deduplicated from: ${m.dedup_source}`
-                            : "Deduplicated"
+                            ? t("careGaps.measureCompliance.deduplicatedFrom", {
+                                value: m.dedup_source,
+                              })
+                            : t("careGaps.measureCompliance.deduplicated")
                         }
                       >
                         <Sparkles size={8} />

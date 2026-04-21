@@ -2,6 +2,7 @@
 // ResultsTable — publication-style HTML table for manuscript preview
 // ---------------------------------------------------------------------------
 
+import { useTranslation } from "react-i18next";
 import type { TableData } from "../types/publish";
 
 interface ResultsTableProps {
@@ -10,10 +11,11 @@ interface ResultsTableProps {
 }
 
 export default function ResultsTable({ data, tableNumber }: ResultsTableProps) {
+  const { t } = useTranslation("app");
   if (data.rows.length === 0) {
     return (
       <div className="my-4 text-sm italic text-text-muted">
-        No structured data available for this table.
+        {t("publish.resultsTable.empty")}
       </div>
     );
   }
@@ -25,7 +27,10 @@ export default function ResultsTable({ data, tableNumber }: ResultsTableProps) {
         className="mb-2 text-sm font-semibold text-gray-700"
         style={{ fontSize: "10pt" }}
       >
-        Table {tableNumber}. {data.caption}
+        {t("publish.resultsTable.caption", {
+          number: tableNumber,
+          title: data.caption,
+        })}
       </p>
 
       {/* Table */}

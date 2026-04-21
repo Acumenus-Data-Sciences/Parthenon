@@ -1,20 +1,14 @@
 import { useState, useMemo } from "react";
 import { Search, Plus, Loader2, ChevronDown, SortAsc } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { BundleCard } from "./BundleCard";
 import { useBundles } from "../hooks/useCareGaps";
+import {
+  CARE_GAP_DISEASE_CATEGORIES,
+  getCareGapCategoryLabel,
+} from "../lib/i18n";
 import type { ConditionBundle } from "../types/careGap";
-
-const DISEASE_CATEGORIES = [
-  "All Categories",
-  "Endocrine",
-  "Cardiovascular",
-  "Respiratory",
-  "Mental Health",
-  "Rheumatologic",
-  "Neurological",
-  "Oncology",
-];
 
 type SortField = "name" | "compliance";
 
@@ -23,18 +17,19 @@ interface BundleListProps {
 }
 
 export function BundleList({ onCreateClick }: BundleListProps) {
+  const { t } = useTranslation("app");
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All Categories");
+  const [category, setCategory] = useState("");
   const [sortBy, setSortBy] = useState<SortField>("name");
+  const categories = ["", ...CARE_GAP_DISEASE_CATEGORIES];
 
   const { data, isLoading } = useBundles({
     search: search || undefined,
-    disease_category: category === "All Categories" ? undefined : category,
+    disease_category: category || undefined,
   });
 
-  const bundles = data?.data ?? [];
-
   const sorted = useMemo(() => {
+    const bundles = data?.data ?? [];
     const copy = [...bundles];
     copy.sort((a: ConditionBundle, b: ConditionBundle) => {
       if (sortBy === "compliance") {
@@ -47,7 +42,7 @@ export function BundleList({ onCreateClick }: BundleListProps) {
       return a.condition_name.localeCompare(b.condition_name);
     });
     return copy;
-  }, [bundles, sortBy]);
+  }, [data?.data, sortBy]);
 
   return (
     <div className="space-y-4">
@@ -61,7 +56,7 @@ export function BundleList({ onCreateClick }: BundleListProps) {
           />
           <input
             type="text"
-            placeholder="Search bundles..."
+            placeholder={t("careGaps.bundleList.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className={cn(
@@ -83,9 +78,11 @@ export function BundleList({ onCreateClick }: BundleListProps) {
               "cursor-pointer",
             )}
           >
-            {DISEASE_CATEGORIES.map((cat) => (
+            {categories.map((cat) => (
               <option key={cat} value={cat}>
-                {cat}
+                {cat
+                  ? getCareGapCategoryLabel(t, cat)
+                  : t("careGaps.bundleList.allCategories")}
               </option>
             ))}
           </select>
@@ -105,9 +102,11 @@ export function BundleList({ onCreateClick }: BundleListProps) {
             "inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm",
             "text-text-muted hover:text-text-primary hover:border-surface-highlight transition-colors",
           )}
-        >
+          >
           <SortAsc size={14} />
-          {sortBy === "name" ? "Name" : "Compliance"}
+          {sortBy === "name"
+            ? t("careGaps.bundleList.sortName")
+            : t("careGaps.bundleList.sortCompliance")}
         </button>
 
         {/* Create button */}
@@ -118,7 +117,7 @@ export function BundleList({ onCreateClick }: BundleListProps) {
             className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors"
           >
             <Plus size={16} />
-            New Bundle
+            {t("careGaps.common.actions.newBundle")}
           </button>
         )}
       </div>
@@ -133,11 +132,13 @@ export function BundleList({ onCreateClick }: BundleListProps) {
       {/* Empty */}
       {!isLoading && sorted.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
-          <p className="text-sm text-text-muted">No bundles found</p>
+          <p className="text-sm text-text-muted">
+            {t("careGaps.bundleList.noBundlesFound")}
+          </p>
           <p className="mt-1 text-xs text-text-ghost">
-            {search || category !== "All Categories"
-              ? "Try adjusting your filters"
-              : "Create a bundle to get started"}
+            {search || category
+              ? t("careGaps.bundleList.adjustFilters")
+              : t("careGaps.bundleList.createToGetStarted")}
           </p>
         </div>
       )}

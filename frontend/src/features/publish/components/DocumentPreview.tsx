@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import { AlertTriangle, ArrowLeft, ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { ReportSection, DiagramType } from "../types/publish";
 import {
   DiagramWrapper,
@@ -24,11 +25,12 @@ interface DocumentPreviewProps {
 function renderDiagram(
   diagramType: DiagramType,
   diagramData: Record<string, unknown> | undefined,
+  t: (key: string, options?: Record<string, unknown>) => string,
 ) {
   if (!diagramData) {
     return (
       <div className="flex items-center justify-center py-12 text-text-muted italic text-sm">
-        Diagram data not available
+        {t("publish.preview.diagramDataNotAvailable")}
       </div>
     );
   }
@@ -68,7 +70,7 @@ function renderDiagram(
     default:
       return (
         <div className="flex items-center justify-center py-12 text-text-muted italic text-sm">
-          Unknown diagram type
+          {t("publish.preview.unknownDiagramType")}
         </div>
       );
   }
@@ -81,14 +83,44 @@ export default function DocumentPreview({
   onBack,
   onNext,
 }: DocumentPreviewProps) {
+  const { t } = useTranslation("app");
   const includedSections = sections.filter((s) => s.included);
   const hasDraftNarratives = includedSections.some(
     (s) => s.narrativeState === "draft",
   );
+  const numberedSections = includedSections.reduce<
+    Array<{
+      section: ReportSection;
+      figureNumber?: number;
+      tableNumber?: number;
+    }>
+  >((acc, section) => {
+    const priorFigures = acc.reduce(
+      (count, item) => count + (item.figureNumber ? 1 : 0),
+      0,
+    );
+    const priorTables = acc.reduce(
+      (count, item) => count + (item.tableNumber ? 1 : 0),
+      0,
+    );
 
-  // Track figure and table numbering
-  let figureCounter = 0;
-  let tableCounter = 0;
+    const isStandaloneDiagram = section.type === "diagram" && Boolean(section.diagramType);
+    const hasTable =
+      section.type === "results" &&
+      Boolean(section.tableData) &&
+      section.tableIncluded !== false;
+    const hasDiagram =
+      section.type === "results" &&
+      Boolean(section.diagramType) &&
+      section.diagramIncluded !== false;
+
+    acc.push({
+      section,
+      figureNumber: isStandaloneDiagram || hasDiagram ? priorFigures + 1 : undefined,
+      tableNumber: hasTable ? priorTables + 1 : undefined,
+    });
+    return acc;
+  }, []);
 
   return (
     <div className="flex flex-col gap-6">
@@ -97,8 +129,7 @@ export default function DocumentPreview({
         <div className="flex items-center gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3">
           <AlertTriangle className="h-5 w-5 shrink-0 text-amber-400" />
           <p className="text-sm text-amber-200">
-            Some AI-generated sections have not been reviewed. Please accept or
-            edit all AI content before exporting.
+            {t("publish.preview.reviewWarning")}
           </p>
         </div>
       )}
@@ -115,7 +146,7 @@ export default function DocumentPreview({
             className="mb-2 text-center font-bold text-gray-900"
             style={{ fontSize: "20pt", lineHeight: 1.3 }}
           >
-            {title || "Untitled Document"}
+            {title || t("publish.page.untitledDocument")}
           </h1>
 
           {/* Authors */}
@@ -127,29 +158,28 @@ export default function DocumentPreview({
 
           {/* Date line */}
           <p className="mb-8 text-center text-xs text-text-muted">
-            Generated {new Date().toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
+            {t("publish.preview.generatedLabel", {
+              date: new Date().toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }),
             })}
           </p>
 
           <hr className="mb-8 border-gray-200" />
 
           {/* Sections */}
-          {includedSections.map((section) => {
-            if (section.type === "diagram" && section.diagramType) {
-              figureCounter += 1;
-              const figNum = figureCounter;
-
+          {numberedSections.map(({ section, figureNumber, tableNumber }) => {
+            if (section.type === "diagram" && section.diagramType && figureNumber) {
               return (
                 <div key={section.id} id={`diagram-${section.id}`} className="mb-8">
                   <DiagramWrapper
                     title={section.title}
                     caption={section.caption}
-                    figureNumber={figNum}
+                    figureNumber={figureNumber}
                   >
-                    {renderDiagram(section.diagramType, section.diagramData)}
+                    {renderDiagram(section.diagramType, section.diagramData, t)}
                   </DiagramWrapper>
                 </div>
               );
@@ -161,12 +191,6 @@ export default function DocumentPreview({
               const hasNarrative = section.narrativeIncluded !== false && section.content;
               const hasDiagram = section.diagramIncluded !== false && section.diagramType;
 
-              if (hasTable) tableCounter += 1;
-              if (hasDiagram) figureCounter += 1;
-
-              const currentTableNum = hasTable ? tableCounter : 0;
-              const currentFigNum = hasDiagram ? figureCounter : 0;
-
               return (
                 <div key={section.id} className="mb-8">
                   <h2
@@ -177,8 +201,8 @@ export default function DocumentPreview({
                   </h2>
 
                   {/* Table */}
-                  {hasTable && section.tableData && (
-                    <ResultsTable data={section.tableData} tableNumber={currentTableNum} />
+                  {hasTable && section.tableData && tableNumber && (
+                    <ResultsTable data={section.tableData} tableNumber={tableNumber} />
                   )}
 
                   {/* Narrative */}
@@ -201,14 +225,14 @@ export default function DocumentPreview({
                   )}
 
                   {/* Diagram */}
-                  {hasDiagram && section.diagramType && (
+                  {hasDiagram && section.diagramType && figureNumber && (
                     <div id={`diagram-${section.id}`} className="mt-4">
                       <DiagramWrapper
                         title={section.title}
                         caption={section.caption}
-                        figureNumber={currentFigNum}
+                        figureNumber={figureNumber}
                       >
-                        {renderDiagram(section.diagramType, section.diagramData)}
+                        {renderDiagram(section.diagramType, section.diagramData, t)}
                       </DiagramWrapper>
                     </div>
                   )}
@@ -216,7 +240,7 @@ export default function DocumentPreview({
                   {/* Empty state */}
                   {!hasTable && !hasNarrative && !hasDiagram && (
                     <p className="text-sm italic text-text-muted">
-                      No content available for this section.
+                      {t("publish.preview.noSectionContent")}
                     </p>
                   )}
                 </div>
@@ -250,16 +274,16 @@ export default function DocumentPreview({
                   </div>
                 ) : (
                   <p className="text-sm italic text-text-muted">
-                    No content available for this section.
+                    {t("publish.preview.noSectionContent")}
                   </p>
                 )}
               </div>
             );
           })}
 
-          {includedSections.length === 0 && (
+          {numberedSections.length === 0 && (
             <p className="py-12 text-center text-sm italic text-text-muted">
-              No sections included. Go back to configure your document.
+              {t("publish.preview.noSectionsIncluded")}
             </p>
           )}
         </div>
@@ -273,14 +297,14 @@ export default function DocumentPreview({
           className="flex items-center gap-1.5 rounded-lg border border-border-default px-4 py-2 text-sm text-text-primary transition-colors hover:bg-surface-elevated"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Configure
+          {t("publish.preview.backToConfigure")}
         </button>
         <button
           type="button"
           onClick={onNext}
           className="flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-surface-base transition-colors hover:bg-accent"
         >
-          Export
+          {t("publish.preview.export")}
           <ArrowRight className="h-4 w-4" />
         </button>
       </div>

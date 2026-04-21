@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useTranslation } from "react-i18next";
 import type { ReportSection, NarrativeState } from "../types/publish";
 import AiNarrativeBlock from "./narrative/AiNarrativeBlock";
 import StructuredDataBlock from "./narrative/StructuredDataBlock";
@@ -31,14 +32,20 @@ interface SectionEditorProps {
   onToggleElement?: (id: string, element: "tableIncluded" | "narrativeIncluded" | "diagramIncluded") => void;
 }
 
-function InlineTablePreview({ data }: { data: TableData }) {
+function InlineTablePreview({
+  data,
+  tableLabel,
+}: {
+  data: TableData;
+  tableLabel: string;
+}) {
   if (data.rows.length === 0) return null;
 
   return (
     <div className="rounded-lg border border-border-default overflow-hidden">
       <div className="px-3 py-1.5 bg-surface-overlay border-b border-border-default">
         <span className="text-[10px] font-medium text-text-ghost uppercase tracking-wide">
-          Table: {data.caption}
+          {tableLabel}: {data.caption}
         </span>
       </div>
       <div className="overflow-x-auto">
@@ -89,6 +96,7 @@ export default function SectionEditor({
   isGenerating,
   onToggleElement,
 }: SectionEditorProps) {
+  const { t } = useTranslation("app");
   const [viewMode, setViewMode] = useState<ViewMode>("ai");
   const isDiagram = section.type === "diagram";
 
@@ -143,7 +151,7 @@ export default function SectionEditor({
                   ? "bg-accent text-surface-base"
                   : "text-text-ghost hover:text-text-primary"
               }`}
-              title="AI Narrative"
+              title={t("publish.sectionEditor.aiNarrative")}
             >
               <BrainCircuit className="w-3.5 h-3.5" />
             </button>
@@ -155,7 +163,7 @@ export default function SectionEditor({
                   ? "bg-accent text-surface-base"
                   : "text-text-ghost hover:text-text-primary"
               }`}
-              title="Structured Data"
+              title={t("publish.sectionEditor.structuredData")}
             >
               <Table className="w-3.5 h-3.5" />
             </button>
@@ -174,7 +182,11 @@ export default function SectionEditor({
                     ? "bg-success/20 text-success"
                     : "text-text-ghost hover:text-text-primary"
                 }`}
-                title={section.tableIncluded !== false ? "Hide table" : "Show table"}
+                title={
+                  section.tableIncluded !== false
+                    ? t("publish.sectionEditor.hideTable")
+                    : t("publish.sectionEditor.showTable")
+                }
               >
                 <Table className="w-3.5 h-3.5" />
               </button>
@@ -187,7 +199,11 @@ export default function SectionEditor({
                   ? "bg-success/20 text-success"
                   : "text-text-ghost hover:text-text-primary"
               }`}
-              title={section.narrativeIncluded !== false ? "Hide narrative" : "Show narrative"}
+              title={
+                section.narrativeIncluded !== false
+                  ? t("publish.sectionEditor.hideNarrative")
+                  : t("publish.sectionEditor.showNarrative")
+              }
             >
               <BrainCircuit className="w-3.5 h-3.5" />
             </button>
@@ -200,7 +216,11 @@ export default function SectionEditor({
                     ? "bg-success/20 text-success"
                     : "text-text-ghost hover:text-text-primary"
                 }`}
-                title={section.diagramIncluded !== false ? "Hide diagram" : "Show diagram"}
+                title={
+                  section.diagramIncluded !== false
+                    ? t("publish.sectionEditor.hideDiagram")
+                    : t("publish.sectionEditor.showDiagram")
+                }
               >
                 <BarChart3 className="w-3.5 h-3.5" />
               </button>
@@ -217,7 +237,11 @@ export default function SectionEditor({
               ? "text-success hover:text-success/80"
               : "text-text-ghost hover:text-text-primary"
           }`}
-          title={section.included ? "Exclude section" : "Include section"}
+          title={
+            section.included
+              ? t("publish.reportSection.excludeSection")
+              : t("publish.reportSection.includeSection")
+          }
         >
           {section.included ? (
             <Eye className="w-4 h-4" />
@@ -232,7 +256,7 @@ export default function SectionEditor({
           onClick={() => onMove(section.id, "up")}
           disabled={index === 0}
           className="p-1 text-text-ghost hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-          title="Move up"
+          title={t("publish.reportSection.moveUp")}
         >
           <ChevronUp className="w-4 h-4" />
         </button>
@@ -241,7 +265,7 @@ export default function SectionEditor({
           onClick={() => onMove(section.id, "down")}
           disabled={index === totalSections - 1}
           className="p-1 text-text-ghost hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-          title="Move down"
+          title={t("publish.reportSection.moveDown")}
         >
           <ChevronDown className="w-4 h-4" />
         </button>
@@ -251,7 +275,10 @@ export default function SectionEditor({
       <div className="p-3 space-y-3">
         {/* Inline table preview for results sections */}
         {section.tableData && section.tableIncluded !== false && (
-          <InlineTablePreview data={section.tableData} />
+          <InlineTablePreview
+            data={section.tableData}
+            tableLabel={t("publish.sectionEditor.tableLabel")}
+          />
         )}
 
         {isDiagram ? (
@@ -262,7 +289,7 @@ export default function SectionEditor({
             />
           ) : (
             <p className="text-sm text-text-ghost italic">
-              No diagram generated yet
+              {t("publish.sectionEditor.noDiagram")}
             </p>
           )
         ) : viewMode === "ai" ? (

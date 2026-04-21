@@ -5,6 +5,8 @@
 import { useReducer, useCallback, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { FileOutput, Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import UnifiedAnalysisPicker from "../components/UnifiedAnalysisPicker";
 import DocumentConfigurator from "../components/DocumentConfigurator";
 import DocumentPreview from "../components/DocumentPreview";
@@ -12,23 +14,18 @@ import ExportPanel from "../components/ExportPanel";
 import { useGenerateNarrative } from "../hooks/useNarrativeGeneration";
 import { buildTableFromResults } from "../lib/tableBuilders";
 import { buildDiagramData } from "../lib/diagramBuilders";
+import {
+  getPublishResultSectionTitle,
+  getPublishTemplateSectionTitle,
+} from "../lib/i18n";
+import { SECTION_CONFIG } from "../lib/sectionConfig";
 import type {
   ReportSection,
   SelectedExecution,
   NarrativeState,
-  DiagramType,
 } from "../types/publish";
 import { TEMPLATES } from "../templates/index";
 import type { TemplateSectionDef } from "../templates/index";
-
-// ── Step labels ─────────────────────────────────────────────────────────────
-
-const STEPS = [
-  { num: 1 as const, label: "Select Analyses" },
-  { num: 2 as const, label: "Configure" },
-  { num: 3 as const, label: "Preview" },
-  { num: 4 as const, label: "Export" },
-];
 
 // ── State & Reducer ─────────────────────────────────────────────────────────
 
@@ -119,27 +116,13 @@ function persistingReducer(state: WizardState, action: Action): WizardState {
 
 // ── Research-question section config ────────────────────────────────────────
 
-export const SECTION_CONFIG: Record<string, { title: string; diagramType: DiagramType | null }> = {
-  // Plural forms (from "All Analyses" tab)
-  characterizations: { title: "Population Characteristics", diagramType: null },
-  incidence_rates: { title: "Incidence Rates", diagramType: null },
-  estimations: { title: "Comparative Effectiveness", diagramType: "forest_plot" },
-  pathways: { title: "Treatment Patterns", diagramType: null },
-  sccs: { title: "Safety Analysis", diagramType: null },
-  predictions: { title: "Predictive Modeling", diagramType: null },
-  evidence_synthesis: { title: "Evidence Synthesis", diagramType: "forest_plot" },
-  // Singular forms (from "From Studies" tab)
-  characterization: { title: "Population Characteristics", diagramType: null },
-  incidence_rate: { title: "Incidence Rates", diagramType: null },
-  estimation: { title: "Comparative Effectiveness", diagramType: "forest_plot" },
-  pathway: { title: "Treatment Patterns", diagramType: null },
-  prediction: { title: "Predictive Modeling", diagramType: null },
-};
-
-function sectionDefToReportSection(def: TemplateSectionDef): ReportSection {
+function sectionDefToReportSection(
+  def: TemplateSectionDef,
+  t: TFunction,
+): ReportSection {
   return {
     id: def.id,
-    title: def.title,
+    title: getPublishTemplateSectionTitle(t, def),
     type: def.type,
     included: true,
     content: "",
@@ -153,6 +136,7 @@ function sectionDefToReportSection(def: TemplateSectionDef): ReportSection {
 
 function buildResultsSections(
   executions: SelectedExecution[],
+  t: TFunction,
   preferredAnalysisTypes?: string[],
 ): ReportSection[] {
   const resultSections: ReportSection[] = [];
@@ -191,7 +175,7 @@ function buildResultsSections(
     if (!groupExecs || groupExecs.length === 0) continue;
 
     const config = SECTION_CONFIG[analysisType] ?? {
-      title: analysisType.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+      titleKey: "",
       diagramType: null,
     };
 
@@ -199,7 +183,9 @@ function buildResultsSections(
 
     resultSections.push({
       id: `results-${analysisType}`,
-      title: config.title,
+      title: config.titleKey
+        ? t(config.titleKey)
+        : getPublishResultSectionTitle(t, analysisType),
       type: "results",
       analysisType,
       included: true,
@@ -221,7 +207,7 @@ function buildResultsSections(
     if (typeOrder.includes(analysisType)) continue;
 
     const config = SECTION_CONFIG[analysisType] ?? {
-      title: analysisType.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+      titleKey: "",
       diagramType: null,
     };
 
@@ -229,7 +215,9 @@ function buildResultsSections(
 
     resultSections.push({
       id: `results-${analysisType}`,
-      title: config.title,
+      title: config.titleKey
+        ? t(config.titleKey)
+        : getPublishResultSectionTitle(t, analysisType),
       type: "results",
       analysisType,
       included: true,
@@ -251,6 +239,7 @@ function buildResultsSections(
 
 function buildManuscriptSections(
   executions: SelectedExecution[],
+  t: TFunction,
   templateId: string = "generic-ohdsi",
 ): ReportSection[] {
   const template = TEMPLATES[templateId] ?? TEMPLATES["generic-ohdsi"];
@@ -263,13 +252,14 @@ function buildManuscriptSections(
 
   // 1. Fixed sections before results (methods-type)
   for (const def of methodsSections) {
-    sections.push(sectionDefToReportSection(def));
+    sections.push(sectionDefToReportSection(def, t));
   }
 
   // 2. Dynamic results sections (only if template uses results)
   if (template.usesResults) {
     const resultSections = buildResultsSections(
       executions,
+      t,
       template.preferredAnalysisTypes,
     );
     sections.push(...resultSections);
@@ -277,7 +267,7 @@ function buildManuscriptSections(
 
   // 3. Fixed sections after results (discussion-type)
   for (const def of discussionSections) {
-    sections.push(sectionDefToReportSection(def));
+    sections.push(sectionDefToReportSection(def, t));
   }
 
   return sections;
@@ -306,12 +296,19 @@ function captureDiagramSvgMarkup(sections: ReportSection[]): ReportSection[] {
 // ── Component ───────────────────────────────────────────────────────────────
 
 export default function PublishPage() {
+  const { t } = useTranslation("app");
   const [searchParams] = useSearchParams();
   const initialStudyId = searchParams.get("studyId")
     ? Number(searchParams.get("studyId"))
     : undefined;
 
   const [state, dispatch] = useReducer(persistingReducer, undefined, loadPersistedState);
+  const steps = [
+    { num: 1 as const, label: t("publish.steps.selectAnalyses") },
+    { num: 2 as const, label: t("publish.steps.configure") },
+    { num: 3 as const, label: t("publish.steps.preview") },
+    { num: 4 as const, label: t("publish.steps.export") },
+  ];
 
   // When navigating via ?studyId, reset if it's a different study than what's persisted
   useEffect(() => {
@@ -337,27 +334,35 @@ export default function PublishPage() {
   );
 
   const handleStep1Next = useCallback(() => {
-    const sections = buildManuscriptSections(state.selectedExecutions, state.template);
+    const sections = buildManuscriptSections(
+      state.selectedExecutions,
+      t,
+      state.template,
+    );
     const defaultTitle =
       state.selectedExecutions.length > 0
         ? state.selectedExecutions[0].studyTitle ?? state.selectedExecutions[0].analysisName
-        : "Untitled Document";
+        : t("publish.page.untitledDocument");
 
     dispatch({ type: "SET_SECTIONS", sections });
     dispatch({ type: "SET_TITLE", title: state.title || defaultTitle });
     dispatch({ type: "SET_STEP", step: 2 });
-  }, [state.selectedExecutions, state.title, state.template]);
+  }, [state.selectedExecutions, state.title, state.template, t]);
 
   const handleTemplateChange = useCallback(
     (templateId: string) => {
       dispatch({ type: "SET_TEMPLATE", template: templateId });
       // Rebuild sections if executions are already selected
       if (state.selectedExecutions.length > 0) {
-        const sections = buildManuscriptSections(state.selectedExecutions, templateId);
+        const sections = buildManuscriptSections(
+          state.selectedExecutions,
+          t,
+          templateId,
+        );
         dispatch({ type: "SET_SECTIONS", sections });
       }
     },
-    [state.selectedExecutions],
+    [state.selectedExecutions, t],
   );
 
   // ── Step 2 handlers ─────────────────────────────────────────────────────
@@ -442,7 +447,7 @@ export default function PublishPage() {
         },
       );
     },
-    [state.selectedExecutions, narrativeMutation],
+    [state.selectedExecutions, state.title, narrativeMutation],
   );
 
   // ── Navigation helpers ──────────────────────────────────────────────────
@@ -457,9 +462,11 @@ export default function PublishPage() {
         <div className="flex items-center gap-3">
           <FileOutput size={22} className="text-success" />
           <div>
-            <h1 className="text-xl font-bold text-text-primary">Publish</h1>
+            <h1 className="text-xl font-bold text-text-primary">
+              {t("publish.page.title")}
+            </h1>
             <p className="text-sm text-text-primary/50">
-              Create pre-publication manuscripts from studies and analyses
+              {t("publish.page.subtitle")}
             </p>
           </div>
         </div>
@@ -476,14 +483,14 @@ export default function PublishPage() {
             }}
             className="text-xs text-text-ghost hover:text-text-primary transition-colors"
           >
-            Start new document
+            {t("publish.page.startNewDocument")}
           </button>
         )}
       </div>
 
       {/* Progress bar */}
       <div className="flex items-center gap-2" data-testid="step-indicator">
-        {STEPS.map(({ num, label }, i) => {
+        {steps.map(({ num, label }, i) => {
           const isActive = state.step === num;
           const isCompleted = state.step > num;
 

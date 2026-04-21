@@ -15,8 +15,13 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { ReportSection, NarrativeState } from "../types/publish";
 import { TEMPLATES, TEMPLATE_LIST } from "../templates/index";
+import {
+  getPublishTemplateDescription,
+  getPublishTemplateName,
+} from "../lib/i18n";
 import SectionEditor from "./SectionEditor";
 
 interface DocumentConfiguratorProps {
@@ -46,6 +51,7 @@ export default function DocumentConfigurator({
   onNext,
   onBack,
 }: DocumentConfiguratorProps) {
+  const { t } = useTranslation("app");
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -140,14 +146,14 @@ export default function DocumentConfigurator({
             htmlFor="doc-title"
             className="block text-sm font-medium text-text-primary mb-1"
           >
-            Document Title
+            {t("publish.configurator.documentTitle")}
           </label>
           <input
             id="doc-title"
             type="text"
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
-            placeholder="Enter document title..."
+            placeholder={t("publish.configurator.documentTitlePlaceholder")}
             className="w-full bg-surface-raised border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-accent"
           />
         </div>
@@ -158,14 +164,14 @@ export default function DocumentConfigurator({
             htmlFor="doc-authors"
             className="block text-sm font-medium text-text-primary mb-1"
           >
-            Authors (comma-separated)
+            {t("publish.configurator.authors")}
           </label>
           <input
             id="doc-authors"
             type="text"
             value={authors.join(", ")}
             onChange={(e) => handleAuthorsInput(e.target.value)}
-            placeholder="Author One, Author Two..."
+            placeholder={t("publish.configurator.authorsPlaceholder")}
             className="w-full bg-surface-raised border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-accent"
           />
         </div>
@@ -176,7 +182,7 @@ export default function DocumentConfigurator({
             htmlFor="doc-template"
             className="block text-sm font-medium text-text-primary mb-1"
           >
-            Template
+            {t("publish.configurator.template")}
           </label>
           <select
             id="doc-template"
@@ -184,14 +190,17 @@ export default function DocumentConfigurator({
             onChange={(e) => onTemplateChange(e.target.value)}
             className="w-full bg-surface-raised border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent"
           >
-            {TEMPLATE_LIST.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
+            {TEMPLATE_LIST.map((templateDef) => (
+              <option key={templateDef.id} value={templateDef.id}>
+                {getPublishTemplateName(t, templateDef)}
               </option>
             ))}
           </select>
           <p className="text-xs text-text-ghost mt-1">
-            {(TEMPLATES[template] ?? TEMPLATES["generic-ohdsi"]).description}
+            {getPublishTemplateDescription(
+              t,
+              TEMPLATES[template] ?? TEMPLATES["generic-ohdsi"],
+            )}
           </p>
         </div>
       </div>
@@ -234,14 +243,14 @@ export default function DocumentConfigurator({
           className="flex items-center gap-1.5 px-4 py-2 text-sm text-text-primary border border-border-default rounded-lg hover:bg-surface-elevated transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back
+          {t("publish.common.actions.back")}
         </button>
         <button
           type="button"
           onClick={onNext}
           className="px-4 py-2 bg-accent text-surface-base font-medium text-sm rounded-lg hover:bg-accent transition-colors"
         >
-          Preview Document &rarr;
+          {t("publish.common.actions.previewDocument")}
         </button>
       </div>
     </div>

@@ -3,12 +3,21 @@
 // ---------------------------------------------------------------------------
 
 import type { TableData, SelectedExecution } from "../types/publish";
+import { translatePublish } from "./i18n";
 
 // ── Incidence Rates ─────────────────────────────────────────────────────────
 // Consolidates multiple IR executions into one comparison table
 
 function buildIncidenceRateTable(executions: SelectedExecution[]): TableData {
   const rows: Array<Record<string, string | number>> = [];
+  const headers = {
+    cohort: translatePublish("publish.tables.headers.cohort"),
+    outcome: translatePublish("publish.tables.headers.outcome"),
+    events: translatePublish("publish.tables.headers.events"),
+    personYears: translatePublish("publish.tables.headers.personYears"),
+    ratePer1000Py: translatePublish("publish.tables.headers.ratePer1000Py"),
+    confidence95: translatePublish("publish.tables.headers.confidence95"),
+  };
 
   for (const exec of executions) {
     const result = exec.resultJson;
@@ -39,12 +48,14 @@ function buildIncidenceRateTable(executions: SelectedExecution[]): TableData {
       const ciHi = r.rate_95_ci_upper as number | undefined;
 
       rows.push({
-        Cohort: exec.analysisName,
-        Outcome: (r.outcome_cohort_name as string) ?? "—",
-        Events: events,
-        "Person-Years": py > 0 ? Math.round(py * 10) / 10 : 0,
-        "Rate/1000PY": typeof ir === "number" ? Math.round(ir * 100) / 100 : 0,
-        "95% CI": typeof ciLo === "number" && typeof ciHi === "number"
+        [headers.cohort]: exec.analysisName,
+        [headers.outcome]: (r.outcome_cohort_name as string) ?? "—",
+        [headers.events]: events,
+        [headers.personYears]: py > 0 ? Math.round(py * 10) / 10 : 0,
+        [headers.ratePer1000Py]:
+          typeof ir === "number" ? Math.round(ir * 100) / 100 : 0,
+        [headers.confidence95]:
+          typeof ciLo === "number" && typeof ciHi === "number"
           ? `${ciLo.toFixed(1)}–${ciHi.toFixed(1)}`
           : "—",
       });
@@ -58,21 +69,30 @@ function buildIncidenceRateTable(executions: SelectedExecution[]): TableData {
 
         const ir = (overall.incidence_rate_per_1000py as number) ?? (overall.incidence_rate as number);
         rows.push({
-          Cohort: exec.analysisName,
-          Outcome: (outcome.outcome_cohort_name as string) ?? "—",
-          Events: (overall.persons_with_outcome as number) ?? 0,
-          "Person-Years": typeof overall.person_years_at_risk === "number"
+          [headers.cohort]: exec.analysisName,
+          [headers.outcome]: (outcome.outcome_cohort_name as string) ?? "—",
+          [headers.events]: (overall.persons_with_outcome as number) ?? 0,
+          [headers.personYears]:
+            typeof overall.person_years_at_risk === "number"
             ? Math.round(overall.person_years_at_risk as number * 10) / 10 : 0,
-          "Rate/1000PY": typeof ir === "number" ? Math.round(ir * 100) / 100 : 0,
-          "95% CI": "—",
+          [headers.ratePer1000Py]:
+            typeof ir === "number" ? Math.round(ir * 100) / 100 : 0,
+          [headers.confidence95]: "—",
         });
       }
     }
   }
 
   return {
-    caption: "Incidence rates by cohort",
-    headers: ["Cohort", "Outcome", "Events", "Person-Years", "Rate/1000PY", "95% CI"],
+    caption: translatePublish("publish.tables.captions.incidenceRatesByCohort"),
+    headers: [
+      headers.cohort,
+      headers.outcome,
+      headers.events,
+      headers.personYears,
+      headers.ratePer1000Py,
+      headers.confidence95,
+    ],
     rows,
   };
 }
@@ -81,6 +101,13 @@ function buildIncidenceRateTable(executions: SelectedExecution[]): TableData {
 
 function buildEstimationTable(executions: SelectedExecution[]): TableData {
   const rows: Array<Record<string, string | number>> = [];
+  const headers = {
+    outcome: translatePublish("publish.tables.headers.outcome"),
+    hazardRatio: translatePublish("publish.tables.headers.hazardRatioShort"),
+    confidence95: translatePublish("publish.tables.headers.confidence95"),
+    pValue: translatePublish("publish.tables.headers.pValue"),
+    events: translatePublish("publish.tables.headers.events"),
+  };
 
   for (const exec of executions) {
     const r = exec.resultJson;
@@ -95,22 +122,33 @@ function buildEstimationTable(executions: SelectedExecution[]): TableData {
       const hr = (est.hazard_ratio as number) ?? (est.hr as number);
       const events = ((est.target_outcomes as number) ?? 0) + ((est.comparator_outcomes as number) ?? 0);
       rows.push({
-        Outcome: (est.outcome_name as string) ?? exec.analysisName,
-        HR: typeof hr === "number" ? Math.round(hr * 100) / 100 : "—",
-        "95% CI": typeof est.ci_95_lower === "number" && typeof est.ci_95_upper === "number"
+        [headers.outcome]: (est.outcome_name as string) ?? exec.analysisName,
+        [headers.hazardRatio]:
+          typeof hr === "number" ? Math.round(hr * 100) / 100 : "—",
+        [headers.confidence95]:
+          typeof est.ci_95_lower === "number" &&
+          typeof est.ci_95_upper === "number"
           ? `${(est.ci_95_lower as number).toFixed(2)}–${(est.ci_95_upper as number).toFixed(2)}`
           : "—",
-        "p-value": typeof est.p_value === "number"
+        [headers.pValue]: typeof est.p_value === "number"
           ? (est.p_value as number) < 0.001 ? "<0.001" : (est.p_value as number).toFixed(4)
           : "—",
-        Events: events > 0 ? events : "—",
+        [headers.events]: events > 0 ? events : "—",
       });
     }
   }
 
   return {
-    caption: "Comparative effectiveness estimates",
-    headers: ["Outcome", "HR", "95% CI", "p-value", "Events"],
+    caption: translatePublish(
+      "publish.tables.captions.comparativeEffectivenessEstimates",
+    ),
+    headers: [
+      headers.outcome,
+      headers.hazardRatio,
+      headers.confidence95,
+      headers.pValue,
+      headers.events,
+    ],
     rows,
   };
 }
@@ -119,6 +157,11 @@ function buildEstimationTable(executions: SelectedExecution[]): TableData {
 
 function buildSccsTable(executions: SelectedExecution[]): TableData {
   const rows: Array<Record<string, string | number>> = [];
+  const headers = {
+    exposureWindow: translatePublish("publish.tables.headers.exposureWindow"),
+    irr: translatePublish("publish.tables.headers.irr"),
+    confidence95: translatePublish("publish.tables.headers.confidence95"),
+  };
 
   for (const exec of executions) {
     const r = exec.resultJson;
@@ -131,9 +174,16 @@ function buildSccsTable(executions: SelectedExecution[]): TableData {
 
     for (const est of estimates) {
       rows.push({
-        "Exposure Window": (est.covariate as string) ?? (est.name as string) ?? (est.window_name as string) ?? "—",
-        IRR: typeof est.irr === "number" ? Math.round(est.irr * 100) / 100 : "—",
-        "95% CI": typeof est.ci_lower === "number" && typeof est.ci_upper === "number"
+        [headers.exposureWindow]:
+          (est.covariate as string) ??
+          (est.name as string) ??
+          (est.window_name as string) ??
+          "—",
+        [headers.irr]:
+          typeof est.irr === "number" ? Math.round(est.irr * 100) / 100 : "—",
+        [headers.confidence95]:
+          typeof est.ci_lower === "number" &&
+          typeof est.ci_upper === "number"
           ? `${(est.ci_lower as number).toFixed(2)}–${(est.ci_upper as number).toFixed(2)}`
           : "—",
       });
@@ -141,8 +191,8 @@ function buildSccsTable(executions: SelectedExecution[]): TableData {
   }
 
   return {
-    caption: "Self-controlled case series: incidence rate ratios by exposure window",
-    headers: ["Exposure Window", "IRR", "95% CI"],
+    caption: translatePublish("publish.tables.captions.sccsEstimates"),
+    headers: [headers.exposureWindow, headers.irr, headers.confidence95],
     rows,
   };
 }
@@ -151,6 +201,11 @@ function buildSccsTable(executions: SelectedExecution[]): TableData {
 
 function buildPathwaysTable(executions: SelectedExecution[]): TableData {
   const rows: Array<Record<string, string | number>> = [];
+  const headers = {
+    pathway: translatePublish("publish.tables.headers.pathway"),
+    patients: translatePublish("publish.tables.headers.patients"),
+    percent: translatePublish("publish.tables.headers.percent"),
+  };
 
   for (const exec of executions) {
     const r = exec.resultJson;
@@ -171,9 +226,10 @@ function buildPathwaysTable(executions: SelectedExecution[]): TableData {
         : (p.pathway_name as string) ?? (p.name as string) ?? "—";
 
       rows.push({
-        Pathway: pathName,
-        Patients: (p.count as number) ?? (p.patient_count as number) ?? 0,
-        "%": typeof p.percent === "number"
+        [headers.pathway]: pathName,
+        [headers.patients]:
+          (p.count as number) ?? (p.patient_count as number) ?? 0,
+        [headers.percent]: typeof p.percent === "number"
           ? Math.round(p.percent * 100) / 100
           : typeof p.percentage === "number"
             ? Math.round(p.percentage * 100) / 100
@@ -184,16 +240,19 @@ function buildPathwaysTable(executions: SelectedExecution[]): TableData {
     if (top.length === 0) {
       const summary = r.summary as Record<string, unknown> | undefined;
       rows.push({
-        Pathway: exec.analysisName,
-        Patients: (summary?.patients_with_events as number) ?? (r.target_count as number) ?? "—",
-        "%": "—",
+        [headers.pathway]: exec.analysisName,
+        [headers.patients]:
+          (summary?.patients_with_events as number) ??
+          (r.target_count as number) ??
+          "—",
+        [headers.percent]: "—",
       });
     }
   }
 
   return {
-    caption: "Treatment pathways (top 10)",
-    headers: ["Pathway", "Patients", "%"],
+    caption: translatePublish("publish.tables.captions.treatmentPathways"),
+    headers: [headers.pathway, headers.patients, headers.percent],
     rows,
   };
 }
@@ -202,6 +261,13 @@ function buildPathwaysTable(executions: SelectedExecution[]): TableData {
 
 function buildCharacterizationTable(executions: SelectedExecution[]): TableData {
   const rows: Array<Record<string, string | number>> = [];
+  const headers = {
+    cohort: translatePublish("publish.tables.headers.cohort"),
+    n: translatePublish("publish.tables.headers.n"),
+    percentFemale: translatePublish("publish.tables.headers.percentFemale"),
+    percentMale: translatePublish("publish.tables.headers.percentMale"),
+    ageGroup: translatePublish("publish.tables.headers.ageGroup"),
+  };
 
   for (const exec of executions) {
     const r = exec.resultJson;
@@ -242,32 +308,46 @@ function buildCharacterizationTable(executions: SelectedExecution[]): TableData 
       );
 
       rows.push({
-        Cohort: (c.cohort_name as string) || `Cohort #${c.cohort_id ?? exec.analysisName}`,
-        N: personCount,
-        "% Female": femaleDemo && typeof femaleDemo.percent === "number" && (femaleDemo.percent as number) >= 0
+        [headers.cohort]:
+          (c.cohort_name as string) ||
+          `${translatePublish("publish.tables.values.cohort")} #${c.cohort_id ?? exec.analysisName}`,
+        [headers.n]: personCount,
+        [headers.percentFemale]:
+          femaleDemo &&
+          typeof femaleDemo.percent === "number" &&
+          (femaleDemo.percent as number) >= 0
           ? Math.round(femaleDemo.percent as number * 10) / 10
           : "—",
-        "% Male": maleDemo && typeof maleDemo.percent === "number" && (maleDemo.percent as number) >= 0
+        [headers.percentMale]:
+          maleDemo &&
+          typeof maleDemo.percent === "number" &&
+          (maleDemo.percent as number) >= 0
           ? Math.round(maleDemo.percent as number * 10) / 10
           : "—",
-        "Age Group": (ageDemo?.category as string) ?? "—",
+        [headers.ageGroup]: (ageDemo?.category as string) ?? "—",
       });
     }
 
     if (entries.length === 0) {
       rows.push({
-        Cohort: exec.analysisName,
-        N: (r.total_count as number) ?? (r.count as number) ?? "—",
-        "% Female": "—",
-        "% Male": "—",
-        "Age Group": "—",
+        [headers.cohort]: exec.analysisName,
+        [headers.n]: (r.total_count as number) ?? (r.count as number) ?? "—",
+        [headers.percentFemale]: "—",
+        [headers.percentMale]: "—",
+        [headers.ageGroup]: "—",
       });
     }
   }
 
   return {
-    caption: "Population characteristics",
-    headers: ["Cohort", "N", "% Female", "% Male", "Age Group"],
+    caption: translatePublish("publish.tables.captions.populationCharacteristics"),
+    headers: [
+      headers.cohort,
+      headers.n,
+      headers.percentFemale,
+      headers.percentMale,
+      headers.ageGroup,
+    ],
     rows,
   };
 }
@@ -276,6 +356,14 @@ function buildCharacterizationTable(executions: SelectedExecution[]): TableData 
 
 function buildPredictionTable(executions: SelectedExecution[]): TableData {
   const rows: Array<Record<string, string | number>> = [];
+  const headers = {
+    model: translatePublish("publish.tables.headers.model"),
+    auc: translatePublish("publish.tables.headers.auc"),
+    brierScore: translatePublish("publish.tables.headers.brierScore"),
+    auprc: translatePublish("publish.tables.headers.auprc"),
+    targetN: translatePublish("publish.tables.headers.targetN"),
+    outcomeN: translatePublish("publish.tables.headers.outcomeN"),
+  };
 
   for (const exec of executions) {
     const r = exec.resultJson;
@@ -290,18 +378,38 @@ function buildPredictionTable(executions: SelectedExecution[]): TableData {
     const auprc = (perf.auprc as number) ?? (r.auprc as number);
 
     rows.push({
-      Model: exec.analysisName,
-      AUC: typeof auc === "number" && auc > 0 ? Math.round(auc * 1000) / 1000 : "—",
-      "Brier Score": typeof brier === "number" && brier > 0 ? Math.round(brier * 1000) / 1000 : "—",
-      AUPRC: typeof auprc === "number" && auprc > 0 ? Math.round(auprc * 1000) / 1000 : "—",
-      "Target N": (summary.target_count as number) ?? (r.target_count as number) ?? "—",
-      "Outcome N": (summary.outcome_count as number) ?? (r.outcome_count as number) ?? "—",
+      [headers.model]: exec.analysisName,
+      [headers.auc]:
+        typeof auc === "number" && auc > 0
+          ? Math.round(auc * 1000) / 1000
+          : "—",
+      [headers.brierScore]:
+        typeof brier === "number" && brier > 0
+          ? Math.round(brier * 1000) / 1000
+          : "—",
+      [headers.auprc]:
+        typeof auprc === "number" && auprc > 0
+          ? Math.round(auprc * 1000) / 1000
+          : "—",
+      [headers.targetN]:
+        (summary.target_count as number) ?? (r.target_count as number) ?? "—",
+      [headers.outcomeN]:
+        (summary.outcome_count as number) ??
+        (r.outcome_count as number) ??
+        "—",
     });
   }
 
   return {
-    caption: "Prediction model performance",
-    headers: ["Model", "AUC", "Brier Score", "AUPRC", "Target N", "Outcome N"],
+    caption: translatePublish("publish.tables.captions.predictionModelPerformance"),
+    headers: [
+      headers.model,
+      headers.auc,
+      headers.brierScore,
+      headers.auprc,
+      headers.targetN,
+      headers.outcomeN,
+    ],
     rows,
   };
 }
@@ -310,6 +418,12 @@ function buildPredictionTable(executions: SelectedExecution[]): TableData {
 
 function buildEvidenceSynthesisTable(executions: SelectedExecution[]): TableData {
   const rows: Array<Record<string, string | number>> = [];
+  const headers = {
+    analysis: translatePublish("publish.tables.headers.analysis"),
+    pooledEstimate: translatePublish("publish.tables.headers.pooledEstimate"),
+    confidence95: translatePublish("publish.tables.headers.confidence95"),
+    iSquared: translatePublish("publish.tables.headers.iSquaredShort"),
+  };
 
   for (const exec of executions) {
     const r = exec.resultJson;
@@ -323,20 +437,25 @@ function buildEvidenceSynthesisTable(executions: SelectedExecution[]): TableData
       ?? ((r.heterogeneity as Record<string, unknown> | undefined)?.i_squared as number);
 
     rows.push({
-      Analysis: exec.analysisName,
-      "Pooled Estimate": typeof pooledEstimate === "number"
+      [headers.analysis]: exec.analysisName,
+      [headers.pooledEstimate]: typeof pooledEstimate === "number"
         ? Math.round(pooledEstimate * 100) / 100 : "—",
-      "95% CI": typeof ciLower === "number" && typeof ciUpper === "number"
+      [headers.confidence95]: typeof ciLower === "number" && typeof ciUpper === "number"
         ? `${ciLower.toFixed(2)}–${ciUpper.toFixed(2)}`
         : "—",
-      "I²": typeof iSquared === "number"
+      [headers.iSquared]: typeof iSquared === "number"
         ? `${Math.round(iSquared * 10) / 10}%` : "—",
     });
   }
 
   return {
-    caption: "Evidence synthesis: pooled estimates",
-    headers: ["Analysis", "Pooled Estimate", "95% CI", "I²"],
+    caption: translatePublish("publish.tables.captions.evidenceSynthesisPooled"),
+    headers: [
+      headers.analysis,
+      headers.pooledEstimate,
+      headers.confidence95,
+      headers.iSquared,
+    ],
     rows,
   };
 }

@@ -9,9 +9,11 @@ import {
   Activity,
   Zap,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useRunRiskScores } from "../hooks/useRiskScores";
 import type { RunOutcome, RunScoreResult } from "../types/riskScore";
+import { formatRiskScoreDuration } from "../lib/i18n";
 
 interface RiskScoreRunModalProps {
   sourceId: number;
@@ -19,34 +21,27 @@ interface RiskScoreRunModalProps {
   onClose: () => void;
 }
 
-function formatDuration(ms: number): string {
-  const seconds = ms / 1000;
-  if (seconds < 60) return `${seconds.toFixed(1)}s`;
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins}m ${secs.toFixed(0)}s`;
-}
-
 function ScoreResultRow({ result }: { result: RunScoreResult }) {
+  const { t } = useTranslation("app");
   const [showError, setShowError] = useState(false);
 
   return (
     <div className="space-y-0">
       <div
         className={cn(
-          "flex items-center gap-2 py-2 px-3 rounded-md text-sm",
-          result.status === "failed" && "bg-critical/5 cursor-pointer",
+          "flex cursor-default items-center gap-2 rounded-md px-3 py-2 text-sm",
+          result.status === "failed" && "cursor-pointer bg-critical/5",
           result.status === "completed" && "hover:bg-surface-overlay",
         )}
-        onClick={() =>
-          result.status === "failed" && setShowError(!showError)
-        }
+        onClick={() => {
+          if (result.status === "failed") setShowError(!showError);
+        }}
       >
         {result.status === "completed" && (
-          <CheckCircle2 size={14} className="text-success shrink-0" />
+          <CheckCircle2 size={14} className="shrink-0 text-success" />
         )}
         {result.status === "failed" && (
-          <AlertCircle size={14} className="text-critical shrink-0" />
+          <AlertCircle size={14} className="shrink-0 text-critical" />
         )}
 
         <span
@@ -56,20 +51,20 @@ function ScoreResultRow({ result }: { result: RunScoreResult }) {
             result.status === "failed" && "text-critical",
           )}
         >
-          <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-muted mr-1.5">
+          <span className="mr-1.5 font-['IBM_Plex_Mono',monospace] text-xs text-text-muted">
             {result.score_id}
           </span>
           {result.score_name}
         </span>
 
         {result.status === "completed" && result.tiers != null && (
-          <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost tabular-nums">
-            {result.tiers} tiers
+          <span className="font-['IBM_Plex_Mono',monospace] text-xs tabular-nums text-text-ghost">
+            {t("riskScores.runModal.tiers", { count: result.tiers })}
           </span>
         )}
         {result.status === "completed" && result.elapsed_ms != null && (
-          <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost tabular-nums">
-            {formatDuration(result.elapsed_ms)}
+          <span className="font-['IBM_Plex_Mono',monospace] text-xs tabular-nums text-text-ghost">
+            {formatRiskScoreDuration(t, result.elapsed_ms)}
           </span>
         )}
         {result.status === "failed" && (
@@ -83,7 +78,7 @@ function ScoreResultRow({ result }: { result: RunScoreResult }) {
         )}
       </div>
       {showError && result.error && (
-        <div className="ml-7 px-3 py-2 text-xs text-critical/80 bg-critical/5 rounded-md border border-critical/10 font-['IBM_Plex_Mono',monospace] whitespace-pre-wrap break-all">
+        <div className="ml-7 whitespace-pre-wrap break-all rounded-md border border-critical/10 bg-critical/5 px-3 py-2 font-['IBM_Plex_Mono',monospace] text-xs text-critical/80">
           {result.error}
         </div>
       )}
@@ -96,22 +91,23 @@ export function RiskScoreRunModal({
   scoreIds,
   onClose,
 }: RiskScoreRunModalProps) {
+  const { t } = useTranslation("app");
   const mutation = useRunRiskScores(sourceId);
   const [elapsed, setElapsed] = useState(0);
-  const startRef = useRef(Date.now());
+  const startRef = useRef<number | null>(null);
 
-  // Fire the request on mount
   useEffect(() => {
     mutation.mutate(scoreIds);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Live timer while pending
   useEffect(() => {
     if (mutation.isPending) {
       startRef.current = Date.now();
       const interval = setInterval(() => {
-        setElapsed(Date.now() - startRef.current);
+        if (startRef.current !== null) {
+          setElapsed(Date.now() - startRef.current);
+        }
       }, 100);
       return () => clearInterval(interval);
     }
@@ -124,80 +120,80 @@ export function RiskScoreRunModal({
   const failed = outcome?.failed ?? 0;
   const total = completed + failed;
   const pct = total > 0 ? 100 : 0;
-
-  // Count skipped (score_ids provided but not in results)
   const skipped =
-    scoreIds && outcome
-      ? Math.max(0, scoreIds.length - outcome.scores.length)
-      : 0;
+    scoreIds && outcome ? Math.max(0, scoreIds.length - outcome.scores.length) : 0;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="relative flex flex-col w-full max-w-2xl max-h-[80vh] rounded-2xl border border-border-default bg-surface-base shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border-default">
+      <div className="relative flex max-h-[80vh] w-full max-w-2xl flex-col rounded-2xl border border-border-default bg-surface-base shadow-2xl">
+        <div className="flex items-center justify-between border-b border-border-default px-6 py-4">
           <div className="flex items-center gap-3">
             {isFinished ? (
               <Zap size={20} className="text-success" />
             ) : (
-              <Activity
-                size={20}
-                className="text-accent animate-pulse"
-              />
+              <Activity size={20} className="animate-pulse text-accent" />
             )}
             <div>
               <h2 className="text-base font-semibold text-text-primary">
-                Population Risk Scores
+                {t("riskScores.runModal.title")}
               </h2>
               <p className="text-xs text-text-ghost">
                 {mutation.isPending && (
                   <>
-                    Computing scores...{" "}
-                    <span className="font-['IBM_Plex_Mono',monospace] text-accent tabular-nums">
+                    {t("riskScores.runModal.computingScores")}{" "}
+                    <span className="font-['IBM_Plex_Mono',monospace] tabular-nums text-accent">
                       {(elapsed / 1000).toFixed(1)}s
                     </span>
                   </>
                 )}
                 {mutation.isSuccess &&
-                  `Completed ${total} score${total !== 1 ? "s" : ""} in ${formatDuration(elapsed)}`}
-                {mutation.isError && "Run failed"}
+                  t("riskScores.runModal.completedScoresIn", {
+                    count: total,
+                    duration: formatRiskScoreDuration(t, elapsed),
+                  })}
+                {mutation.isError && t("riskScores.runModal.runFailed")}
               </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-colors"
+            className="rounded-lg p-1.5 text-text-muted transition-colors hover:bg-surface-overlay hover:text-text-primary"
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* Progress bar + stats */}
-        <div className="px-6 py-4 border-b border-border-default space-y-3">
+        <div className="space-y-3 border-b border-border-default px-6 py-4">
           <div className="flex items-center justify-between text-sm">
-            <span className="font-['IBM_Plex_Mono',monospace] text-accent text-lg font-semibold">
+            <span className="font-['IBM_Plex_Mono',monospace] text-lg font-semibold text-accent">
               {mutation.isPending ? "..." : `${pct}%`}
             </span>
             <div className="flex items-center gap-4">
               {completed > 0 && (
                 <span className="flex items-center gap-1 text-xs text-success">
-                  <CheckCircle2 size={12} /> {completed} passed
+                  <CheckCircle2 size={12} />{" "}
+                  {t("riskScores.runModal.passed", { count: completed })}
                 </span>
               )}
               {failed > 0 && (
                 <span className="flex items-center gap-1 text-xs text-critical">
-                  <AlertCircle size={12} /> {failed} failed
+                  <AlertCircle size={12} />{" "}
+                  {t("riskScores.runModal.failed", { count: failed })}
                 </span>
               )}
               {skipped > 0 && (
                 <span className="flex items-center gap-1 text-xs text-text-muted">
-                  <SkipForward size={12} /> {skipped} skipped
+                  <SkipForward size={12} />{" "}
+                  {t("riskScores.runModal.skipped", { count: skipped })}
                 </span>
               )}
               {isFinished && elapsed > 0 && (
                 <span className="flex items-center gap-1 text-xs text-text-muted">
-                  <Clock size={12} /> {formatDuration(elapsed)} total
+                  <Clock size={12} />{" "}
+                  {t("riskScores.common.duration.total", {
+                    value: formatRiskScoreDuration(t, elapsed),
+                  })}
                 </span>
               )}
             </div>
@@ -219,23 +215,23 @@ export function RiskScoreRunModal({
           </div>
         </div>
 
-        {/* Score results list */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-1">
+        <div className="flex-1 space-y-1 overflow-y-auto px-6 py-4">
           {mutation.isPending && (
-            <div className="flex flex-col items-center justify-center py-10 gap-4">
-              {/* Circular progress indicator */}
-              <div className="relative w-24 h-24">
-                <svg className="w-24 h-24 -rotate-90" viewBox="0 0 96 96">
-                  {/* Background circle */}
+            <div className="flex flex-col items-center justify-center gap-4 py-10">
+              <div className="relative h-24 w-24">
+                <svg className="h-24 w-24 -rotate-90" viewBox="0 0 96 96">
                   <circle
-                    cx="48" cy="48" r="40"
+                    cx="48"
+                    cy="48"
+                    r="40"
                     fill="none"
                     stroke="var(--surface-overlay)"
                     strokeWidth="6"
                   />
-                  {/* Animated progress arc */}
                   <circle
-                    cx="48" cy="48" r="40"
+                    cx="48"
+                    cy="48"
+                    r="40"
                     fill="none"
                     stroke="url(#progressGradient)"
                     strokeWidth="6"
@@ -251,56 +247,21 @@ export function RiskScoreRunModal({
                     </linearGradient>
                   </defs>
                 </svg>
-                {/* Elapsed time in center */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="font-['IBM_Plex_Mono',monospace] text-xl font-semibold text-accent tabular-nums">
+                  <span className="font-['IBM_Plex_Mono',monospace] text-xl font-semibold tabular-nums text-accent">
                     {(elapsed / 1000).toFixed(1)}
                   </span>
-                  <span className="text-[9px] text-text-ghost uppercase tracking-wider">
-                    seconds
+                  <span className="text-[9px] uppercase tracking-wider text-text-ghost">
+                    {t("riskScores.runModal.seconds")}
                   </span>
                 </div>
               </div>
-              <div className="text-center">
-                <p className="text-sm text-text-secondary">
-                  Computing {scoreIds?.length ?? "all"} risk score{(scoreIds?.length ?? 0) !== 1 ? "s" : ""}...
-                </p>
-                <p className="text-xs text-text-ghost mt-1">
-                  This may take a few moments for large populations
-                </p>
-              </div>
             </div>
           )}
 
-          {mutation.isError && (
-            <div className="rounded-xl border border-critical/20 bg-critical/5 p-4">
-              <p className="text-sm text-critical">
-                {mutation.error instanceof Error
-                  ? mutation.error.message
-                  : "An unexpected error occurred while running risk scores."}
-              </p>
-            </div>
-          )}
-
-          {outcome?.scores.map((s) => (
-            <ScoreResultRow key={s.score_id} result={s} />
+          {outcome?.scores.map((result) => (
+            <ScoreResultRow key={result.score_id} result={result} />
           ))}
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-end px-6 py-3 border-t border-border-default">
-          <button
-            type="button"
-            onClick={onClose}
-            className={cn(
-              "rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-              isFinished
-                ? "bg-success/10 text-success hover:bg-success/20"
-                : "bg-surface-overlay text-text-secondary hover:bg-surface-elevated",
-            )}
-          >
-            {isFinished ? "Done" : "Close"}
-          </button>
         </div>
       </div>
     </div>

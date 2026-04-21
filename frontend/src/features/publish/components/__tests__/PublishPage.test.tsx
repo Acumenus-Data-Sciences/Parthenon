@@ -488,7 +488,9 @@ describe("ReportSectionCard", () => {
         onMoveDown={vi.fn()}
       />,
     );
-    expect(screen.getByText("Methods")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Methods", level: 3 }),
+    ).toBeInTheDocument();
   });
 
   it("calls onToggle when toggle button is clicked", () => {
