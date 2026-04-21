@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import type { CovariateBalanceEntry } from "../types/estimation";
 import { fmt } from "@/lib/formatters";
+import { useTranslation } from "react-i18next";
 
 interface LovePlotProps {
   data: CovariateBalanceEntry[];
@@ -39,6 +40,7 @@ export function LovePlot({
   enableBrush = false,
   onBrushSelect,
 }: LovePlotProps) {
+  const { t } = useTranslation("app");
   const [brushStart, setBrushStart] = useState<{ x: number; y: number } | null>(
     null,
   );
@@ -187,7 +189,9 @@ export function LovePlot({
         viewBox={`0 0 ${width} ${height}`}
         className="text-text-primary"
         role="img"
-        aria-label="Love plot showing covariate balance before and after matching"
+        aria-label={t(
+          "analyses.auto.lovePlotShowingCovariateBalanceBeforeAndAfterMatching_4f9e43",
+        )}
         style={enableBrush ? { cursor: "crosshair" } : undefined}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -298,7 +302,10 @@ export function LovePlot({
                 opacity={0.7}
               >
                 <title>
-                  {entry.covariate_name}: Before SMD = {fmt(entry.smd_before)}
+                  {t("analyses.auto.covariateBeforeSMD_cbd3d6", {
+                    covariateName: entry.covariate_name,
+                    value: fmt(entry.smd_before),
+                  })}
                 </title>
               </circle>
               {/* After matching (filled circle) */}
@@ -311,7 +318,10 @@ export function LovePlot({
                 opacity={0.8}
               >
                 <title>
-                  {entry.covariate_name}: After SMD = {fmt(entry.smd_after)}
+                  {t("analyses.auto.covariateAfterSMD_9e697d", {
+                    covariateName: entry.covariate_name,
+                    value: fmt(entry.smd_after),
+                  })}
                 </title>
               </circle>
             </g>
@@ -387,11 +397,11 @@ export function LovePlot({
             strokeWidth={1.5}
           />
           <text x={24} y={18} fill="var(--text-secondary)" fontSize={10}>
-            Before Matching
+            {t("analyses.auto.beforeMatching_b1f550")}
           </text>
           <circle cx={14} cy={32} r={3} fill={AFTER_COLOR} />
           <text x={24} y={36} fill="var(--text-secondary)" fontSize={10}>
-            After Matching
+            {t("analyses.auto.afterMatching_a07ed4")}
           </text>
         </g>
 
@@ -404,7 +414,7 @@ export function LovePlot({
           fontSize={11}
           fontWeight={600}
         >
-          Absolute Standardized Mean Difference
+          {t("analyses.auto.absoluteStandardizedMeanDifference_c6c302")}
         </text>
         <text
           x={14}
@@ -415,7 +425,7 @@ export function LovePlot({
           fontWeight={600}
           transform={`rotate(-90 14 ${padding.top + plotH / 2})`}
         >
-          Covariates
+          {t("analyses.auto.covariates_7f5dc4")}
         </text>
       </svg>
     </div>

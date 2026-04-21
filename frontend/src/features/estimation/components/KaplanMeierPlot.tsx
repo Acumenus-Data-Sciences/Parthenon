@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { fmt } from "@/lib/formatters";
+import { useTranslation } from "react-i18next";
 
 interface KaplanMeierPoint {
   time: number;
@@ -27,8 +28,8 @@ interface KaplanMeierPlotProps {
 export function KaplanMeierPlot({
   targetCurve,
   comparatorCurve,
-  targetLabel = "Target",
-  comparatorLabel = "Comparator",
+  targetLabel,
+  comparatorLabel,
   logRankPValue,
   timeUnit = "days",
   showRiskDifference = false,
@@ -36,6 +37,7 @@ export function KaplanMeierPlot({
   interactive = false,
   showCI = true,
 }: KaplanMeierPlotProps) {
+  const { t } = useTranslation("app");
   const width = 700;
   const riskTableHeight = 60;
   const chartHeight = 360;
@@ -47,6 +49,16 @@ export function KaplanMeierPlot({
   const TARGET_COLOR = "var(--success)";
   const COMPARATOR_COLOR = "var(--accent)";
   const RISK_DIFF_COLOR = "var(--critical)";
+  const resolvedTargetLabel =
+    targetLabel ?? t("analyses.auto.target_5121f4");
+  const resolvedComparatorLabel =
+    comparatorLabel ?? t("analyses.auto.comparator_0f95d3");
+  const resolvedTimeUnit =
+    timeUnit === "months"
+      ? t("analyses.auto.months_5f9c1b")
+      : timeUnit === "years"
+        ? t("analyses.auto.years_9ad4c6")
+        : t("analyses.auto.days_15d10b");
 
   // Interactive hover state
   const [hoverTime, setHoverTime] = useState<number | null>(null);
@@ -254,7 +266,7 @@ export function KaplanMeierPlot({
         viewBox={`0 0 ${width} ${height}`}
         className="text-text-primary"
         role="img"
-        aria-label="Kaplan-Meier survival curves"
+        aria-label={t("analyses.auto.kaplanMeierSurvivalCurves_67f4a1")}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
@@ -401,11 +413,14 @@ export function KaplanMeierPlot({
             <text
               x={Math.min(toX(hoverTime) + 16, width - 152)}
               y={padding.top + 20}
-              fill="var(--text-muted)"
-              fontSize={9}
-              fontFamily="IBM Plex Mono, monospace"
-            >
-              t={Math.round(hoverTime)} {timeUnit}
+            fill="var(--text-muted)"
+            fontSize={9}
+            fontFamily="IBM Plex Mono, monospace"
+          >
+              {t("analyses.auto.timeValueUnit_8d5c54", {
+                time: Math.round(hoverTime),
+                unit: resolvedTimeUnit,
+              })}
             </text>
             <text
               x={Math.min(toX(hoverTime) + 16, width - 152)}
@@ -414,7 +429,9 @@ export function KaplanMeierPlot({
               fontSize={9}
               fontFamily="IBM Plex Mono, monospace"
             >
-              Target: {hoverTargetSurv !== null ? fmt(hoverTargetSurv, 3) : "-"}
+              {t("analyses.auto.targetValue_11afac", {
+                value: hoverTargetSurv !== null ? fmt(hoverTargetSurv, 3) : "-",
+              })}
             </text>
             <text
               x={Math.min(toX(hoverTime) + 16, width - 152)}
@@ -423,10 +440,11 @@ export function KaplanMeierPlot({
               fontSize={9}
               fontFamily="IBM Plex Mono, monospace"
             >
-              Comp: {hoverCompSurv !== null ? fmt(hoverCompSurv, 3) : "-"}
-              {hoverRiskDiff !== null
-                ? ` (\u0394${fmt(hoverRiskDiff, 3)})`
-                : ""}
+              {t("analyses.auto.compValue_f64342", {
+                value: hoverCompSurv !== null ? fmt(hoverCompSurv, 3) : "-",
+                delta:
+                  hoverRiskDiff !== null ? ` (\u0394${fmt(hoverRiskDiff, 3)})` : "",
+              })}
             </text>
           </g>
         )}
@@ -463,7 +481,7 @@ export function KaplanMeierPlot({
             strokeWidth={2.5}
           />
           <text x={34} y={18} fill="var(--text-secondary)" fontSize={11}>
-            {targetLabel}
+            {resolvedTargetLabel}
           </text>
           <line
             x1={8}
@@ -474,7 +492,7 @@ export function KaplanMeierPlot({
             strokeWidth={2.5}
           />
           <text x={34} y={36} fill="var(--text-secondary)" fontSize={11}>
-            {comparatorLabel}
+            {resolvedComparatorLabel}
           </text>
           {(() => {
             let yOffset = 42;
@@ -490,8 +508,9 @@ export function KaplanMeierPlot({
                   fontSize={10}
                   fontFamily="IBM Plex Mono, monospace"
                 >
-                  Log-rank p=
-                  {logRankPValue < 0.001 ? "<0.001" : fmt(logRankPValue)}
+                  {t("analyses.auto.logRankP_383e66", {
+                    value: logRankPValue < 0.001 ? "<0.001" : fmt(logRankPValue),
+                  })}
                 </text>,
               );
               yOffset += 16;
@@ -515,7 +534,7 @@ export function KaplanMeierPlot({
                     fill="var(--text-secondary)"
                     fontSize={10}
                   >
-                    Risk difference
+                    {t("analyses.auto.riskDifference_b95db4")}
                   </text>
                 </g>,
               );
@@ -532,8 +551,11 @@ export function KaplanMeierPlot({
                   fontSize={9}
                   fontFamily="IBM Plex Mono, monospace"
                 >
-                  RMST: T={fmt(targetRMST, 1)} C={fmt(compRMST, 1)}{" "}
-                  {"\u0394"}={fmt(targetRMST - compRMST, 1)}
+                  {t("analyses.auto.rmstLegend_8e56b2", {
+                    target: fmt(targetRMST, 1),
+                    comparator: fmt(compRMST, 1),
+                    difference: fmt(targetRMST - compRMST, 1),
+                  })}
                 </text>,
               );
             }
@@ -553,7 +575,10 @@ export function KaplanMeierPlot({
               fontSize={10}
               fontFamily="IBM Plex Mono, monospace"
             >
-              RMST diff: {fmt(targetRMST - compRMST, 1)} {timeUnit}
+              {t("analyses.auto.rmstDiffUnit_15c2e7", {
+                difference: fmt(targetRMST - compRMST, 1),
+                unit: resolvedTimeUnit,
+              })}
             </text>
           </g>
         )}
@@ -567,7 +592,9 @@ export function KaplanMeierPlot({
           fontSize={11}
           fontWeight={600}
         >
-          Time ({timeUnit})
+          {t("analyses.auto.timeUnitAxis_32813a", {
+            unit: resolvedTimeUnit,
+          })}
         </text>
         <text
           x={14}
@@ -578,7 +605,7 @@ export function KaplanMeierPlot({
           fontWeight={600}
           transform={`rotate(-90 14 ${padding.top + plotH / 2})`}
         >
-          Survival Probability
+          {t("analyses.auto.survivalProbability_cf59fc")}
         </text>
 
         {/* Number at risk table */}
@@ -598,7 +625,7 @@ export function KaplanMeierPlot({
           fontSize={9}
           fontWeight={600}
         >
-          At risk
+          {t("analyses.auto.atRisk_d772a4")}
         </text>
         <text
           x={padding.left - 8}
@@ -608,7 +635,7 @@ export function KaplanMeierPlot({
           fontSize={9}
           fontWeight={600}
         >
-          At risk
+          {t("analyses.auto.atRisk_d772a4")}
         </text>
         {xTicks.map((t) => (
           <g key={`nar-${t}`}>

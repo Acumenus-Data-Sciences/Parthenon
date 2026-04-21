@@ -3,6 +3,7 @@ import { ShieldCheck, ShieldAlert, ShieldX } from "lucide-react";
 import { TrafficLightBadge, ChartMetricCard, InterpretationTooltip } from "@/components/charts";
 import type { TrafficLightColor } from "@/components/charts";
 import { fmt, num } from "@/lib/formatters";
+import { useTranslation } from "react-i18next";
 import type { PredictionResult } from "../types/prediction";
 
 interface PredictionVerdictDashboardProps {
@@ -19,10 +20,10 @@ function aucColor(auc: number): TrafficLightColor {
   return "red";
 }
 
-function aucLabel(auc: number): string {
-  if (auc >= 0.8) return "Good";
-  if (auc >= 0.7) return "Acceptable";
-  return "Poor";
+function aucLabelKey(auc: number): string {
+  if (auc >= 0.8) return "analyses.auto.good_1347e3";
+  if (auc >= 0.7) return "analyses.auto.acceptable_26cee7";
+  return "analyses.auto.poor_0d3dfb";
 }
 
 function slopeColor(slope: number): TrafficLightColor {
@@ -31,10 +32,14 @@ function slopeColor(slope: number): TrafficLightColor {
   return "red";
 }
 
-function slopeLabel(slope: number): string {
-  if (slope >= 0.8 && slope <= 1.2) return "Well calibrated";
-  if ((slope >= 0.6 && slope < 0.8) || (slope > 1.2 && slope <= 1.4)) return "Marginal";
-  return "Poorly calibrated";
+function slopeLabelKey(slope: number): string {
+  if (slope >= 0.8 && slope <= 1.2) {
+    return "analyses.auto.wellCalibrated_ee0d1c";
+  }
+  if ((slope >= 0.6 && slope < 0.8) || (slope > 1.2 && slope <= 1.4)) {
+    return "analyses.auto.marginal_8d2068";
+  }
+  return "analyses.auto.poorlyCalibrated_68c323";
 }
 
 type Verdict = "ready" | "recalibrate" | "insufficient";
@@ -47,25 +52,30 @@ function computeVerdict(auc: number, slope: number): Verdict {
 
 const verdictConfig: Record<
   Verdict,
-  { label: string; icon: typeof ShieldCheck; color: TrafficLightColor; description: string }
+  {
+    labelKey: string;
+    icon: typeof ShieldCheck;
+    color: TrafficLightColor;
+    descriptionKey: string;
+  }
 > = {
   ready: {
-    label: "Ready for validation",
+    labelKey: "analyses.auto.readyForValidation_8b18ee",
     icon: ShieldCheck,
     color: "green",
-    description: "Model shows good discrimination (AUC >= 0.80) and well-calibrated predictions (slope 0.8-1.2). Suitable for external validation studies.",
+    descriptionKey: "analyses.auto.readyForValidationDescription_b6c1f3",
   },
   recalibrate: {
-    label: "Needs recalibration",
+    labelKey: "analyses.auto.needsRecalibration_c5baf6",
     icon: ShieldAlert,
     color: "amber",
-    description: "Model has acceptable discrimination (AUC >= 0.70) but calibration is outside ideal range. Consider recalibration before deployment.",
+    descriptionKey: "analyses.auto.needsRecalibrationDescription_8d668d",
   },
   insufficient: {
-    label: "Insufficient discrimination",
+    labelKey: "analyses.auto.insufficientDiscrimination_36f62c",
     icon: ShieldX,
     color: "red",
-    description: "Model discrimination is below acceptable threshold (AUC < 0.70). Consider alternative feature engineering or model architectures.",
+    descriptionKey: "analyses.auto.insufficientDiscriminationDescription_6dca77",
   },
 };
 
@@ -125,6 +135,7 @@ function computeOperatingPoint(
 // ---------------------------------------------------------------------------
 
 export function PredictionVerdictDashboard({ result }: PredictionVerdictDashboardProps) {
+  const { t } = useTranslation("app");
   const [threshold, setThreshold] = useState(0.1);
 
   const auc = num(result.performance.auc);
@@ -179,48 +190,60 @@ export function PredictionVerdictDashboard({ result }: PredictionVerdictDashboar
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold text-text-primary">
-              Model Performance Verdict
+              {t("analyses.auto.modelPerformanceVerdict_8b4084")}
             </h3>
-            <TrafficLightBadge color={config.color} label={config.label} />
+            <TrafficLightBadge
+              color={config.color}
+              label={t(config.labelKey)}
+            />
           </div>
-          <p className="mt-1 text-xs text-text-muted">{config.description}</p>
+          <p className="mt-1 text-xs text-text-muted">
+            {t(config.descriptionKey)}
+          </p>
         </div>
       </div>
 
       {/* Scorecard Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <ChartMetricCard
-          label="Discrimination (AUC)"
+          label={t("analyses.auto.discriminationAuc_4ffc21")}
           value={fmt(auc)}
           subValue={`${fmt(result.performance.auc_ci_lower)} - ${fmt(result.performance.auc_ci_upper)}`}
           badge={
-            <TrafficLightBadge color={aucColor(auc)} label={aucLabel(auc)} />
-          }
-        />
-
-        <ChartMetricCard
-          label="Calibration Slope"
-          value={fmt(slope)}
-          subValue={`Intercept: ${fmt(result.performance.calibration_intercept)}`}
-          badge={
             <TrafficLightBadge
-              color={slopeColor(slope)}
-              label={slopeLabel(slope)}
+              color={aucColor(auc)}
+              label={t(aucLabelKey(auc))}
             />
           }
         />
 
         <ChartMetricCard
-          label="Clinical Utility"
+          label={t("analyses.auto.calibrationSlope_5d893f")}
+          value={fmt(slope)}
+          subValue={t("analyses.auto.interceptValue_12e39b", {
+            value: fmt(result.performance.calibration_intercept),
+          })}
+          badge={
+            <TrafficLightBadge
+              color={slopeColor(slope)}
+              label={t(slopeLabelKey(slope))}
+            />
+          }
+        />
+
+        <ChartMetricCard
+          label={t("analyses.auto.clinicalUtility_b97f3a")}
           value={
             netBenefitAtThreshold !== null
               ? fmt(netBenefitAtThreshold, 4)
-              : "N/A"
+              : t("analyses.auto.nA_382b0f")
           }
           subValue={
             netBenefitAtThreshold !== null
-              ? `Net benefit at threshold ${fmt(threshold, 2)}`
-              : "No decision curve data available"
+              ? t("analyses.auto.netBenefitAtThreshold_c18602", {
+                  value: fmt(threshold, 2),
+                })
+              : t("analyses.auto.noDecisionCurveDataAvailable_854dc0")
           }
           badge={
             <InterpretationTooltip metric="Net Benefit" plain="Measures the clinical value of using the model at a given threshold." technical="Net benefit accounts for the relative harms of false positives and false negatives at the chosen decision threshold." />
@@ -233,7 +256,7 @@ export function PredictionVerdictDashboard({ result }: PredictionVerdictDashboar
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <div className="flex items-center gap-2 mb-4">
             <h4 className="text-sm font-semibold text-text-primary">
-              Clinical Utility Threshold Selector
+              {t("analyses.auto.clinicalUtilityThresholdSelector_e1a37d")}
             </h4>
             <InterpretationTooltip metric="Threshold" plain="Adjust the threshold probability to see how sensitivity, specificity, PPV, and NPV change." technical="Lower thresholds catch more true positives but increase false positives." />
           </div>
@@ -241,7 +264,9 @@ export function PredictionVerdictDashboard({ result }: PredictionVerdictDashboar
           {/* Slider */}
           <div className="flex items-center gap-4 mb-4">
             <label className="text-xs text-text-muted whitespace-nowrap" htmlFor="threshold-slider">
-              Threshold: {fmt(threshold, 2)}
+              {t("analyses.auto.thresholdValue_7518f7", {
+                value: fmt(threshold, 2),
+              })}
             </label>
             <input
               id="threshold-slider"
@@ -260,7 +285,7 @@ export function PredictionVerdictDashboard({ result }: PredictionVerdictDashboar
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="rounded border border-border-default bg-surface-base p-3">
               <p className="text-[10px] font-medium text-text-muted uppercase tracking-wider">
-                Sensitivity
+                {t("analyses.auto.sensitivity_1485b9")}
               </p>
               <p
                 className="mt-1 font-['IBM_Plex_Mono',monospace] text-base font-bold text-success"
@@ -271,7 +296,7 @@ export function PredictionVerdictDashboard({ result }: PredictionVerdictDashboar
             </div>
             <div className="rounded border border-border-default bg-surface-base p-3">
               <p className="text-[10px] font-medium text-text-muted uppercase tracking-wider">
-                Specificity
+                {t("analyses.auto.specificity_7272f0")}
               </p>
               <p
                 className="mt-1 font-['IBM_Plex_Mono',monospace] text-base font-bold text-accent"

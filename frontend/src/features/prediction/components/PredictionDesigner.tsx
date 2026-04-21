@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Loader2, Save } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { getCohortDefinitions } from "@/features/cohort-definitions/api/cohortApi";
 import { CovariateSettingsPanel } from "@/components/analysis/CovariateSettingsPanel";
 import type {
@@ -57,6 +58,7 @@ export function PredictionDesigner({
   isNew,
   onSaved,
 }: PredictionDesignerProps) {
+  const { t } = useTranslation("app");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [design, setDesign] = useState<PredictionDesign>(defaultDesign);
@@ -127,15 +129,24 @@ export function PredictionDesigner({
     value: PredictionModelType;
     label: string;
   }[] = [
-    { value: "lasso_logistic_regression", label: "LASSO Logistic Regression" },
-    { value: "gradient_boosting", label: "Gradient Boosting Machine" },
-    { value: "random_forest", label: "Random Forest" },
-    { value: "ada_boost", label: "AdaBoost" },
-    { value: "decision_tree", label: "Decision Tree" },
-    { value: "naive_bayes", label: "Naive Bayes" },
-    { value: "mlp", label: "Multi-Layer Perceptron" },
-    { value: "lightgbm", label: "LightGBM" },
-    { value: "cox_model", label: "Cox Proportional Hazards" },
+    {
+      value: "lasso_logistic_regression",
+      label: t("analyses.auto.lASSOLogisticRegression_e0a168"),
+    },
+    {
+      value: "gradient_boosting",
+      label: t("analyses.auto.gradientBoostingMachine_0efac9"),
+    },
+    { value: "random_forest", label: t("analyses.auto.randomForest_3a9d79") },
+    { value: "ada_boost", label: t("analyses.auto.adaBoost_7a9d3d") },
+    { value: "decision_tree", label: t("analyses.auto.decisionTree_6f17e9") },
+    { value: "naive_bayes", label: t("analyses.auto.naiveBayes_952bdf") },
+    { value: "mlp", label: t("analyses.auto.multiLayerPerceptron_5a66b8") },
+    { value: "lightgbm", label: t("analyses.auto.lightGBM_161af8") },
+    {
+      value: "cox_model",
+      label: t("analyses.auto.coxProportionalHazards_6939ea"),
+    },
   ];
 
   return (
@@ -143,18 +154,18 @@ export function PredictionDesigner({
       {/* Name & Description */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
         <h3 className="text-sm font-semibold text-text-primary">
-          Basic Information
+          {t("analyses.auto.basicInformation_87cabb")}
         </h3>
         <div className="space-y-3">
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">
-              Name
+              {t("analyses.auto.name_49ee30")}
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Prediction model name"
+              placeholder={t("analyses.auto.predictionModelName_8c12ea")}
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
                 "text-text-primary placeholder:text-text-ghost",
@@ -164,12 +175,12 @@ export function PredictionDesigner({
           </div>
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">
-              Description
+              {t("analyses.auto.description_b5a7ad")}
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Optional description"
+              placeholder={t("analyses.auto.optionalDescription_d196d2")}
               rows={2}
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
@@ -184,10 +195,10 @@ export function PredictionDesigner({
       {/* Target Cohort */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
         <h3 className="text-sm font-semibold text-text-primary">
-          Target Cohort
+          {t("analyses.auto.targetCohort_4d7f0b")}
         </h3>
         <p className="text-xs text-text-muted">
-          Select the population to develop the prediction model for.
+          {t("analyses.auto.selectThePopulationToDevelopThePredictionModelFor_d217bb")}
         </p>
         {loadingCohorts ? (
           <Loader2 size={16} className="animate-spin text-text-muted" />
@@ -205,7 +216,7 @@ export function PredictionDesigner({
               "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
             )}
           >
-            <option value="">Select target cohort...</option>
+            <option value="">{t("analyses.auto.selectTargetCohort_5de8bf")}</option>
             {cohorts.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -218,10 +229,10 @@ export function PredictionDesigner({
       {/* Outcome Cohort */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
         <h3 className="text-sm font-semibold text-text-primary">
-          Outcome Cohort
+          {t("analyses.auto.outcomeCohort_b279fb")}
         </h3>
         <p className="text-xs text-text-muted">
-          Select the outcome to predict.
+          {t("analyses.auto.selectTheOutcomeToPredict_58b0f6")}
         </p>
         {loadingCohorts ? (
           <Loader2 size={16} className="animate-spin text-text-muted" />
@@ -239,7 +250,7 @@ export function PredictionDesigner({
               "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
             )}
           >
-            <option value="">Select outcome cohort...</option>
+            <option value="">{t("analyses.auto.selectOutcomeCohort_9a111f")}</option>
             {cohorts.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -252,11 +263,11 @@ export function PredictionDesigner({
       {/* Model Type */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
         <h3 className="text-sm font-semibold text-text-primary">
-          Model Configuration
+          {t("analyses.auto.modelConfiguration_f08a2d")}
         </h3>
         <div>
           <label className="block text-xs font-medium text-text-muted mb-1">
-            Model Type
+            {t("analyses.auto.modelType_e2716f")}
           </label>
           <select
             value={design.model.type}
@@ -286,12 +297,12 @@ export function PredictionDesigner({
       {/* Time at Risk */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
         <h3 className="text-sm font-semibold text-text-primary">
-          Time at Risk
+          {t("analyses.auto.timeAtRisk_7cbd22")}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">
-              Start (days)
+              {t("analyses.auto.startDays_b89266")}
             </label>
             <input
               type="number"
@@ -313,7 +324,7 @@ export function PredictionDesigner({
           </div>
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">
-              End (days)
+              {t("analyses.auto.endDays_c83851")}
             </label>
             <input
               type="number"
@@ -335,7 +346,7 @@ export function PredictionDesigner({
           </div>
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">
-              End Anchor
+              {t("analyses.auto.endAnchor_cabfb2")}
             </label>
             <select
               value={design.timeAtRisk.endAnchor}
@@ -353,8 +364,8 @@ export function PredictionDesigner({
                 "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             >
-              <option value="cohort start">Cohort Start</option>
-              <option value="cohort end">Cohort End</option>
+              <option value="cohort start">{t("analyses.auto.cohortStart_8ed0f7")}</option>
+              <option value="cohort end">{t("analyses.auto.cohortEnd_8151f8")}</option>
             </select>
           </div>
         </div>
@@ -371,12 +382,12 @@ export function PredictionDesigner({
       {/* Population Settings */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
         <h3 className="text-sm font-semibold text-text-primary">
-          Population Settings
+          {t("analyses.auto.populationSettings_d6d63e")}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">
-              Washout Period (days)
+              {t("analyses.auto.washoutPeriodDays_827424")}
             </label>
             <input
               type="number"
@@ -399,7 +410,7 @@ export function PredictionDesigner({
           </div>
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">
-              Minimum Time at Risk (days)
+              {t("analyses.auto.minimumTimeAtRiskDays_874dcf")}
             </label>
             <input
               type="number"
@@ -451,7 +462,7 @@ export function PredictionDesigner({
                 )}
               />
             </button>
-            Remove Prior Outcome
+            {t("analyses.auto.removePriorOutcome_e55084")}
           </label>
           <label className="flex items-center gap-2 text-sm text-text-secondary cursor-pointer">
             <button
@@ -481,7 +492,7 @@ export function PredictionDesigner({
                 )}
               />
             </button>
-            Require Time at Risk
+            {t("analyses.auto.requireTimeAtRisk_6d95a7")}
           </label>
         </div>
       </div>
@@ -489,12 +500,12 @@ export function PredictionDesigner({
       {/* Split Settings */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
         <h3 className="text-sm font-semibold text-text-primary">
-          Train/Test Split
+          {t("analyses.auto.trainTestSplit_45b18b")}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">
-              Test Fraction: {design.splitSettings.testFraction}
+              {t("analyses.auto.testFraction_a427e1")} {design.splitSettings.testFraction}
             </label>
             <input
               type="range"
@@ -520,7 +531,7 @@ export function PredictionDesigner({
           </div>
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">
-              Random Seed
+              {t("analyses.auto.randomSeed_17e865")}
             </label>
             <input
               type="number"
@@ -557,7 +568,7 @@ export function PredictionDesigner({
           ) : (
             <Save size={14} />
           )}
-          {isNew ? "Create" : "Save Changes"}
+          {isNew ? t("analyses.auto.create_686e69") : t("analyses.auto.saveChanges_f5d604")}
         </button>
       </div>
     </div>

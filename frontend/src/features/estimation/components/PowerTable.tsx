@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { PowerEntry } from "../types/estimation";
 import { fmt, num } from "@/lib/formatters";
 
@@ -9,6 +10,7 @@ interface PowerTableProps {
 type SortKey = "outcome_name" | "mdrr" | "target_outcomes" | "comparator_outcomes";
 
 export function PowerTable({ entries }: PowerTableProps) {
+  const { t } = useTranslation("app");
   const [sortKey, setSortKey] = useState<SortKey>("mdrr");
   const [sortAsc, setSortAsc] = useState(true);
 
@@ -47,7 +49,7 @@ export function PowerTable({ entries }: PowerTableProps) {
     <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
       <div className="p-4 border-b border-border-default">
         <h3 className="text-sm font-semibold text-text-primary">
-          Statistical Power & Minimum Detectable Relative Risk
+          {t("analyses.auto.statisticalPowerMinimumDetectableRelativeRisk_f689f5")}
         </h3>
       </div>
       <table className="w-full">
@@ -57,19 +59,22 @@ export function PowerTable({ entries }: PowerTableProps) {
               className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted cursor-pointer hover:text-text-secondary"
               onClick={() => handleSort("outcome_name")}
             >
-              Outcome{sortIndicator("outcome_name")}
+              {t("analyses.auto.outcome_cf73bd")}
+              {sortIndicator("outcome_name")}
             </th>
             <th
               className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted cursor-pointer hover:text-text-secondary"
               onClick={() => handleSort("target_outcomes")}
             >
-              Target Events{sortIndicator("target_outcomes")}
+              {t("analyses.auto.targetEvents_4a3799")}
+              {sortIndicator("target_outcomes")}
             </th>
             <th
               className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted cursor-pointer hover:text-text-secondary"
               onClick={() => handleSort("comparator_outcomes")}
             >
-              Comparator Events{sortIndicator("comparator_outcomes")}
+              {t("analyses.auto.comparatorEvents_cf170f")}
+              {sortIndicator("comparator_outcomes")}
             </th>
             <th
               className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted cursor-pointer hover:text-text-secondary"
@@ -82,12 +87,12 @@ export function PowerTable({ entries }: PowerTableProps) {
             </th>
             {entries.some((e) => e.power_at_1_5 != null) && (
               <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Power @1.5
+                {t("analyses.auto.power15_12d90a")}
               </th>
             )}
             {entries.some((e) => e.power_at_2_0 != null) && (
               <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Power @2.0
+                {t("analyses.auto.power20_4f1407")}
               </th>
             )}
           </tr>

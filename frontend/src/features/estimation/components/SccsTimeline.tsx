@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { fmt, num } from "@/lib/formatters";
+import { useTranslation } from "react-i18next";
 
 interface SccsEra {
   era_name: string;
@@ -32,6 +33,7 @@ interface TooltipState {
 }
 
 export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
+  const { t } = useTranslation("app");
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
   const handleMouseEnter = useCallback((e: React.MouseEvent<SVGGElement>, era: SccsEra) => {
@@ -124,7 +126,9 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
         viewBox={`0 0 ${width} ${height}`}
         className="text-text-primary"
         role="img"
-        aria-label={`SCCS timeline for ${exposureName ?? "exposure"}`}
+        aria-label={t("analyses.auto.sCCSTimelineForExposure_5e3be1", {
+          exposure: exposureName ?? t("analyses.auto.exposure_3efb7d"),
+        })}
       >
         <rect width={width} height={height} fill="var(--surface-raised)" rx={8} />
 
@@ -138,7 +142,7 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
             fontSize={11}
             fontWeight={600}
           >
-            {exposureName} — Risk Window Timeline
+            {exposureName} — {t("analyses.auto.riskWindowTimeline_f301f1")}
           </text>
         )}
 
@@ -179,7 +183,7 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
           fill="var(--text-muted)"
           fontSize={10}
         >
-          Days Relative to Exposure Start
+          {t("analyses.auto.daysRelativeToExposureStart_7ea334")}
         </text>
 
         {/* Era blocks */}
@@ -212,8 +216,17 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
                 rx={2}
               >
                 <title>
-                  {era.era_name}: {era.event_count} events / {era.person_days.toLocaleString()} person-days
-                  {era.irr != null ? ` (IRR ${fmt(era.irr)})` : ""}
+                  {t("analyses.auto.eraEventPersonDaysTooltip_9b4085", {
+                    eraName: era.era_name,
+                    eventCount: era.event_count,
+                    personDays: era.person_days.toLocaleString(),
+                    irrSuffix:
+                      era.irr != null
+                        ? ` (${t("analyses.auto.iRRValue_3fe1a8", {
+                            value: fmt(era.irr),
+                          })})`
+                        : "",
+                  })}
                 </title>
               </rect>
 
@@ -295,7 +308,9 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
                     fontSize={8}
                     fontFamily="IBM Plex Mono, monospace"
                   >
-                    {era.event_count} events
+                    {t("analyses.auto.eventsCount_5917d5", {
+                      count: era.event_count,
+                    })}
                   </text>
                 </>
               )}
@@ -312,7 +327,9 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
                     fontWeight={600}
                     fontFamily="IBM Plex Mono, monospace"
                   >
-                    IRR {fmt(era.irr)}
+                    {t("analyses.auto.iRRWithValue_2057d0", {
+                      value: fmt(era.irr),
+                    })}
                   </text>
                   {era.ci_lower != null && era.ci_upper != null && (
                     <text
@@ -338,7 +355,13 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
             <g key={type} transform={`translate(${i * 150}, 0)`}>
               <rect x={0} y={0} width={10} height={10} rx={2} fill={ERA_COLORS[type]} opacity={0.6} />
               <text x={14} y={9} fill="var(--text-muted)" fontSize={9}>
-                {type.replace("-", " ").replace(/^\w/, (c) => c.toUpperCase())}
+                {type === "pre-exposure"
+                  ? t("analyses.auto.preExposure_f8b5cd")
+                  : type === "post-exposure"
+                    ? t("analyses.auto.postExposure_4fc98c")
+                    : type === "control"
+                      ? t("analyses.auto.control_e9c8f7")
+                      : t("analyses.auto.exposure_3efb7d")}
               </text>
             </g>
           ))}
@@ -366,8 +389,15 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
               )}
             </p>
           )}
-          <p className="text-text-muted">Events: {tooltip.era.event_count}</p>
-          <p className="text-text-muted">Person-time: {tooltip.era.person_days.toLocaleString()} days</p>
+          <p className="text-text-muted">
+            {t("analyses.auto.eventsLabel_ec1423")} {tooltip.era.event_count}
+          </p>
+          <p className="text-text-muted">
+            {t("analyses.auto.personTimeLabel_efbcb3")}{" "}
+            {t("analyses.auto.personTimeDays_dcbeb5", {
+              value: tooltip.era.person_days.toLocaleString(),
+            })}
+          </p>
         </div>
       )}
     </div>

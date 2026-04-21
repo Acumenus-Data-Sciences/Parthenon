@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { fmt, num } from "@/lib/formatters";
+import { useTranslation } from "react-i18next";
 import type { PerSiteResult, PooledEstimate } from "../types/evidenceSynthesis";
 
 interface ForestPlotProps {
@@ -39,6 +40,7 @@ function isSignificant(ciLower: number, ciUpper: number): boolean {
 }
 
 export function ForestPlot({ perSite, pooled, className }: ForestPlotProps) {
+  const { t } = useTranslation("app");
   // Compute weights
   const weights = perSite.map((s) => siteWeight(num(s.se_log_rr)));
   const totalWeight = weights.reduce((sum, w) => sum + w, 0);
@@ -98,7 +100,9 @@ export function ForestPlot({ perSite, pooled, className }: ForestPlotProps) {
 
   return (
     <div className={cn("rounded-lg border border-border-default bg-surface-raised p-4", className)}>
-      <h3 className="text-sm font-semibold text-text-primary mb-4">Forest Plot</h3>
+      <h3 className="text-sm font-semibold text-text-primary mb-4">
+        {t("analyses.auto.forestPlot_38213b")}
+      </h3>
       <div className="overflow-x-auto">
         <svg
           viewBox={`0 0 650 ${svgHeight}`}
@@ -157,7 +161,11 @@ export function ForestPlot({ perSite, pooled, className }: ForestPlotProps) {
                     fill="var(--accent)"
                     data-testid={`loo-marker-${idx}`}
                   >
-                    <title>Removing this site changes pooled significance</title>
+                    <title>
+                      {t(
+                        "analyses.auto.removingThisSiteChangesPooledSignificance_0d6ce2",
+                      )}
+                    </title>
                   </circle>
                 )}
               </g>
@@ -166,7 +174,7 @@ export function ForestPlot({ perSite, pooled, className }: ForestPlotProps) {
 
           {/* Column header for weight */}
           <text x={600} y={10} fill="var(--text-ghost)" fontSize={9} fontFamily="monospace" textAnchor="end" fontWeight="bold">
-            Wt%
+            {t("analyses.auto.wtPercent_22a0d3")}
           </text>
 
           {/* Pooled estimate (diamond) */}
@@ -184,7 +192,7 @@ export function ForestPlot({ perSite, pooled, className }: ForestPlotProps) {
               <g>
                 <line x1={0} y1={y - 14} x2={650} y2={y - 14} stroke="var(--surface-elevated)" strokeWidth={1} />
                 <text x={8} y={y + 4} fill="var(--text-primary)" fontSize={11} fontWeight="bold" fontFamily="monospace">
-                  Pooled
+                  {t("analyses.auto.pooled_d3f276")}
                 </text>
 
                 {/* Prediction interval diamond (behind CI diamond) */}

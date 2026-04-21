@@ -1,4 +1,5 @@
 import { fmt } from "@/lib/formatters";
+import { useTranslation } from "react-i18next";
 
 interface PrecisionRecallCurveProps {
   data: { recall: number; precision: number }[];
@@ -6,6 +7,7 @@ interface PrecisionRecallCurveProps {
 }
 
 export function PrecisionRecallCurve({ data, auprc }: PrecisionRecallCurveProps) {
+  const { t } = useTranslation("app");
   if (data.length === 0) return null;
 
   const size = 400;
@@ -38,7 +40,9 @@ export function PrecisionRecallCurve({ data, auprc }: PrecisionRecallCurveProps)
       viewBox={`0 0 ${size} ${size}`}
       className="text-text-primary"
       role="img"
-      aria-label={`Precision-Recall curve, AUPRC = ${fmt(auprc)}`}
+      aria-label={t("analyses.auto.precisionRecallCurveAuprc_80dbdb", {
+        value: fmt(auprc),
+      })}
     >
       <rect width={size} height={size} fill="var(--surface-raised)" rx={8} />
 
@@ -69,13 +73,13 @@ export function PrecisionRecallCurve({ data, auprc }: PrecisionRecallCurveProps)
       <g transform={`translate(${padding.left + plotW - 130}, ${padding.top + 8})`}>
         <rect x={0} y={0} width={120} height={24} rx={4} fill="var(--surface-base)" stroke="var(--surface-elevated)" strokeWidth={1} />
         <text x={10} y={16} fill="var(--success)" fontSize={10} fontFamily="IBM Plex Mono, monospace" fontWeight={600}>
-          AUPRC = {fmt(auprc)}
+          {t("analyses.auto.auprcEquals_b8344c", { value: fmt(auprc) })}
         </text>
       </g>
 
       {/* Axis labels */}
       <text x={padding.left + plotW / 2} y={size - 8} textAnchor="middle" fill="var(--text-muted)" fontSize={11} fontWeight={600}>
-        Recall
+        {t("analyses.auto.recall_877365")}
       </text>
       <text
         x={14}
@@ -86,7 +90,7 @@ export function PrecisionRecallCurve({ data, auprc }: PrecisionRecallCurveProps)
         fontWeight={600}
         transform={`rotate(-90 14 ${padding.top + plotH / 2})`}
       >
-        Precision
+        {t("analyses.auto.precision_5d4c8b")}
       </text>
     </svg>
   );

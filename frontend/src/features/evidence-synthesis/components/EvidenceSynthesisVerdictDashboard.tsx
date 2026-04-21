@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { fmt, num } from "@/lib/formatters";
+import { useTranslation } from "react-i18next";
 import type { EvidenceSynthesisResult } from "../types/evidenceSynthesis";
 import { SiteHeterogeneityMap, type HeterogeneitySite } from "./SiteHeterogeneityMap";
 
@@ -8,15 +9,16 @@ interface EvidenceSynthesisVerdictDashboardProps {
 }
 
 /** Interpret I-squared heterogeneity */
-function heterogeneityLabel(iSquared: number): string {
-  if (iSquared < 25) return "Low";
-  if (iSquared < 50) return "Moderate";
-  if (iSquared < 75) return "Substantial";
-  return "Considerable";
+function heterogeneityLabelKey(iSquared: number): string {
+  if (iSquared < 25) return "analyses.auto.low_aa8c85";
+  if (iSquared < 50) return "analyses.auto.moderate_2d8087";
+  if (iSquared < 75) return "analyses.auto.substantial_7fd5a4";
+  return "analyses.auto.considerable_4fcf0d";
 }
 
 /** Significance verdict badge */
 function SignificanceVerdictBadge({ hr, ciLower, ciUpper }: { hr: number; ciLower: number; ciUpper: number }) {
+  const { t } = useTranslation("app");
   const isSignificant = ciLower > 1 || ciUpper < 1;
   const isProtective = hr < 1 && ciUpper < 1;
   const isHarmful = hr > 1 && ciLower > 1;
@@ -24,16 +26,16 @@ function SignificanceVerdictBadge({ hr, ciLower, ciUpper }: { hr: number; ciLowe
   let label: string;
   let color: string;
   if (isProtective) {
-    label = "Significant (Protective)";
+    label = t("analyses.auto.significantProtective_c4681f");
     color = "text-success border-success/30 bg-success/5";
   } else if (isHarmful) {
-    label = "Significant (Harmful)";
+    label = t("analyses.auto.significantHarmful_7fd4b0");
     color = "text-critical border-critical/30 bg-critical/5";
   } else if (isSignificant) {
-    label = "Significant";
+    label = t("analyses.auto.significant_b1fce9");
     color = "text-accent border-accent/30 bg-accent/5";
   } else {
-    label = "Not Significant";
+    label = t("analyses.auto.notSignificant_8b05d1");
     color = "text-text-muted border-text-muted/30 bg-text-muted/5";
   }
 
@@ -45,13 +47,16 @@ function SignificanceVerdictBadge({ hr, ciLower, ciUpper }: { hr: number; ciLowe
 }
 
 export function EvidenceSynthesisVerdictDashboard({ result }: EvidenceSynthesisVerdictDashboardProps) {
+  const { t } = useTranslation("app");
   const { pooled, per_site, method } = result;
   const hr = num(pooled.hr);
   const ciLower = num(pooled.ci_lower);
   const ciUpper = num(pooled.ci_upper);
   const tau = num(pooled.tau);
   const isBayesian = method === "bayesian";
-  const methodLabel = isBayesian ? "Bayesian RE" : "Fixed Effect";
+  const methodLabel = isBayesian
+    ? t("analyses.auto.bayesianRE_922421")
+    : t("analyses.auto.fixedEffect_d62bdf");
 
   // Compute I-squared from per-site data
   // I² = max(0, (Q - df) / Q * 100) where Q = sum of (logRR_i - logRR_pooled)^2 / se_i^2
@@ -101,15 +106,17 @@ export function EvidenceSynthesisVerdictDashboard({ result }: EvidenceSynthesisV
       <div className="rounded-lg border border-border-default bg-surface-raised p-5">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <p className="text-xs text-text-muted mb-1">{methodLabel} Pooled Estimate</p>
+            <p className="text-xs text-text-muted mb-1">
+              {methodLabel} {t("analyses.auto.pooledEstimate_914625")}
+            </p>
             <p className="text-3xl font-bold font-mono text-text-primary">
               HR {fmt(hr)}
             </p>
             <p className="text-sm font-mono text-text-secondary mt-1">
-              95% CI [{fmt(ciLower)}, {fmt(ciUpper)}]
+              {t("analyses.auto.95CI_895118")} [{fmt(ciLower)}, {fmt(ciUpper)}]
               {piLower != null && piUpper != null && (
                 <span className="text-text-muted ml-3">
-                  PI [{fmt(piLower)}, {fmt(piUpper)}]
+                  {t("analyses.auto.pI_fbdcf9")} [{fmt(piLower)}, {fmt(piUpper)}]
                 </span>
               )}
             </p>
@@ -117,7 +124,8 @@ export function EvidenceSynthesisVerdictDashboard({ result }: EvidenceSynthesisV
           <div className="flex flex-col items-start sm:items-end gap-2">
             <SignificanceVerdictBadge hr={hr} ciLower={ciLower} ciUpper={ciUpper} />
             <p className="text-xs text-text-muted">
-              {protectiveSites} of {sites.length} sites show protective effect
+              {protectiveSites} of {sites.length}{" "}
+              {t("analyses.auto.sitesShowProtectiveEffect_047ee2")}
             </p>
           </div>
         </div>
@@ -126,24 +134,30 @@ export function EvidenceSynthesisVerdictDashboard({ result }: EvidenceSynthesisV
       {/* Heterogeneity summary */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <MetricCard
-          label="I-squared"
+          label={t("analyses.auto.iSquared_5f9132")}
           value={`${fmt(iSquared, 1)}%`}
-          subtitle={heterogeneityLabel(iSquared)}
+          subtitle={t(heterogeneityLabelKey(iSquared))}
         />
         <MetricCard
-          label="Tau-squared"
+          label={t("analyses.auto.tauSquared_4c64d5")}
           value={fmt(tauSquared, 4)}
-          subtitle="Between-study variance"
+          subtitle={t("analyses.auto.betweenStudyVariance_d8404f")}
         />
         <MetricCard
-          label="Cochran's Q"
+          label={t("analyses.auto.cochransQ_b10a20")}
           value={fmt(cochranQ, 2)}
-          subtitle={cochranQPvalue != null ? `p = ${fmtPValue(cochranQPvalue)}` : `df = ${df}`}
+          subtitle={
+            cochranQPvalue != null
+              ? t("analyses.auto.pEquals_31e1d4", {
+                  value: fmtPValue(cochranQPvalue),
+                })
+              : t("analyses.auto.dfValue_8f2a67", { value: df })
+          }
         />
         <MetricCard
-          label="Sites"
+          label={t("analyses.auto.sites_dc0a34")}
           value={`${protectiveSites}/${sites.length}`}
-          subtitle="Protective effect"
+          subtitle={t("analyses.auto.protectiveEffect_4bc6ae")}
         />
       </div>
 

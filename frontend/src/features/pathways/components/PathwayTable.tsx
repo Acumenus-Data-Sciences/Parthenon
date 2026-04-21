@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 import type { PathwayResult, PathwayEntry } from "../types/pathway";
 
 // Matching color palette from SankeyDiagram
@@ -35,6 +36,7 @@ export function PathwayTable({
   onPathwaySelect,
   selectedPathway,
 }: PathwayTableProps) {
+  const { t } = useTranslation("app");
   const [sortField, setSortField] = useState<SortField>("count");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
@@ -86,7 +88,7 @@ export function PathwayTable({
     }
   };
 
-  const SortIcon = ({ field }: { field: SortField }) => {
+  const renderSortIcon = (field: SortField) => {
     if (sortField !== field)
       return <ChevronDown size={10} className="text-text-ghost" />;
     return sortDir === "asc" ? (
@@ -98,8 +100,8 @@ export function PathwayTable({
 
   if (result.pathways.length === 0) {
     return (
-      <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
-        <p className="text-sm text-text-muted">No pathway data</p>
+        <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
+        <p className="text-sm text-text-muted">{t("analyses.auto.noPathwayData_841813")}</p>
       </div>
     );
   }
@@ -114,18 +116,18 @@ export function PathwayTable({
               className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted cursor-pointer hover:text-text-secondary w-16"
             >
               <span className="inline-flex items-center gap-1">
-                Rank <SortIcon field="rank" />
+                {t("analyses.auto.rank_021da1")} {renderSortIcon("rank")}
               </span>
             </th>
             <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-              Pathway
+              {t("analyses.auto.pathway_8b5c1c")}
             </th>
             <th
               onClick={() => toggleSort("count")}
               className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted cursor-pointer hover:text-text-secondary w-24"
             >
               <span className="inline-flex items-center gap-1 justify-end">
-                Count <SortIcon field="count" />
+                {t("analyses.auto.count_e93f99")} {renderSortIcon("count")}
               </span>
             </th>
             <th
@@ -133,7 +135,7 @@ export function PathwayTable({
               className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted cursor-pointer hover:text-text-secondary w-36"
             >
               <span className="inline-flex items-center gap-1 justify-end">
-                Percent <SortIcon field="percent" />
+                {t("analyses.auto.percent_adaaee")} {renderSortIcon("percent")}
               </span>
             </th>
           </tr>
@@ -165,7 +167,7 @@ export function PathwayTable({
                         <span key={stepIdx} className="flex items-center gap-1">
                           {stepIdx > 0 && (
                             <span className="text-[10px] text-text-ghost">
-                              &rarr;
+                              {t("analyses.auto.rightarrow_2ee55a")}
                             </span>
                           )}
                           <span

@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { fmt, num } from "@/lib/formatters";
+import { useTranslation } from "react-i18next";
 import type { SccsResult, SccsEra } from "../types/sccs";
 
 interface SccsVerdictDashboardProps {
@@ -50,6 +51,7 @@ function irrBlockColor(irr: number): string {
 // ---------------------------------------------------------------------------
 
 function RiskWindowSummaryCard({ result }: { result: SccsResult }) {
+  const { t } = useTranslation("app");
   const eras = result.eras ?? [];
   const primary = getPrimaryExposureEra(eras);
   const preExposure = getPreExposureEra(eras);
@@ -58,7 +60,9 @@ function RiskWindowSummaryCard({ result }: { result: SccsResult }) {
   if (!primary) {
     return (
       <div className="rounded-lg border border-border-default bg-surface-raised p-4" data-testid="risk-window-summary">
-        <p className="text-sm text-text-ghost">No exposure era with IRR data available.</p>
+        <p className="text-sm text-text-ghost">
+          {t("analyses.auto.noExposureEraWithIrrDataAvailable_840df7")}
+        </p>
       </div>
     );
   }
@@ -86,12 +90,16 @@ function RiskWindowSummaryCard({ result }: { result: SccsResult }) {
 
   return (
     <div className="rounded-lg border border-border-default bg-surface-raised p-5" data-testid="risk-window-summary">
-      <h3 className="text-sm font-semibold text-text-primary mb-4">Risk Window Summary</h3>
+      <h3 className="text-sm font-semibold text-text-primary mb-4">
+        {t("analyses.auto.riskWindowSummary_7d6d4b")}
+      </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Primary IRR */}
         <div className="space-y-2">
-          <p className="text-xs text-text-muted uppercase tracking-wide">Primary Exposure IRR</p>
+          <p className="text-xs text-text-muted uppercase tracking-wide">
+            {t("analyses.auto.primaryExposureIrr_bd4dd7")}
+          </p>
           <div className="flex items-baseline gap-2">
             <span
               className={cn(
@@ -108,7 +116,7 @@ function RiskWindowSummaryCard({ result }: { result: SccsResult }) {
           </div>
           {ciLower != null && ciUpper != null && (
             <p className="text-xs font-mono text-text-muted">
-              95% CI: {fmt(ciLower, 2)} - {fmt(ciUpper, 2)}
+              {t("analyses.auto.95CI_bb763f")} {fmt(ciLower, 2)} - {fmt(ciUpper, 2)}
             </p>
           )}
           <span
@@ -122,18 +130,26 @@ function RiskWindowSummaryCard({ result }: { result: SccsResult }) {
             )}
             data-testid="significance-verdict"
           >
-            {sig ? "Statistically Significant" : "Not Significant"}
+            {sig
+              ? t("analyses.auto.statisticallySignificant_bfba4e")
+              : t("analyses.auto.notSignificant_8b05d1")}
           </span>
         </div>
 
         {/* Absolute Excess Risk */}
         <div className="space-y-2">
-          <p className="text-xs text-text-muted uppercase tracking-wide">Absolute Excess Risk</p>
+          <p className="text-xs text-text-muted uppercase tracking-wide">
+            {t("analyses.auto.absoluteExcessRisk_40dc84")}
+          </p>
           <p className="text-xl font-bold font-mono text-accent" data-testid="excess-risk">
-            {Number.isFinite(excessRisk) ? `${excessRisk >= 0 ? "+" : ""}${fmt(excessRisk, 1)}` : "N/A"}
+            {Number.isFinite(excessRisk)
+              ? `${excessRisk >= 0 ? "+" : ""}${fmt(excessRisk, 1)}`
+              : t("analyses.auto.nA_382b0f")}
           </p>
           <p className="text-xs text-text-ghost">
-            additional events per 1,000 exposed patients during risk window
+            {t(
+              "analyses.auto.additionalEventsPer1000ExposedPatientsDuringRiskWindow_8792a9",
+            )}
           </p>
         </div>
 
@@ -141,7 +157,9 @@ function RiskWindowSummaryCard({ result }: { result: SccsResult }) {
         <div className="space-y-3">
           {/* Pre-exposure trend test */}
           <div>
-            <p className="text-xs text-text-muted uppercase tracking-wide mb-1">Pre-Exposure Trend</p>
+            <p className="text-xs text-text-muted uppercase tracking-wide mb-1">
+              {t("analyses.auto.preExposureTrend_95f2f3")}
+            </p>
             <span
               className={cn(
                 "inline-block px-2 py-0.5 rounded text-xs font-medium border",
@@ -151,21 +169,33 @@ function RiskWindowSummaryCard({ result }: { result: SccsResult }) {
               )}
               data-testid="pre-exposure-badge"
             >
-              {preExposurePass ? "PASS" : "FAIL \u2014 possible assumption violation"}
+              {preExposurePass
+                ? t("analyses.auto.pass_8b1ab2")
+                : t("analyses.auto.failPossibleAssumptionViolation_35f8a0")}
             </span>
             {preExposureIrr != null && (
-              <p className="text-xs font-mono text-text-ghost mt-1">IRR: {fmt(preExposureIrr, 2)}</p>
+              <p className="text-xs font-mono text-text-ghost mt-1">
+                {t("analyses.auto.iRRValue_3fe1a8", {
+                  value: fmt(preExposureIrr, 2),
+                })}
+              </p>
             )}
           </div>
 
           {/* Control period IRR */}
           {controlIrr != null && (
             <div>
-              <p className="text-xs text-text-muted uppercase tracking-wide mb-1">Control Period IRR</p>
+              <p className="text-xs text-text-muted uppercase tracking-wide mb-1">
+                {t("analyses.auto.controlPeriodIrr_1ceb6a")}
+              </p>
               <p className="text-sm font-mono text-text-primary" data-testid="control-irr">
                 {fmt(controlIrr, 2)}
                 {Math.abs(controlIrr - 1) > 0.2 && (
-                  <span className="ml-2 text-xs text-accent">(deviation from 1.0 — possible misspecification)</span>
+                  <span className="ml-2 text-xs text-accent">
+                    {t(
+                      "analyses.auto.deviationFrom10PossibleMisspecification_d59c1a",
+                    )}
+                  </span>
                 )}
               </p>
             </div>
@@ -181,6 +211,7 @@ function RiskWindowSummaryCard({ result }: { result: SccsResult }) {
 // ---------------------------------------------------------------------------
 
 function MultiWindowStrip({ eras }: { eras: SccsEra[] }) {
+  const { t } = useTranslation("app");
   const sorted = [...eras].sort((a, b) => a.start_day - b.start_day);
   if (sorted.length === 0) return null;
 
@@ -196,7 +227,9 @@ function MultiWindowStrip({ eras }: { eras: SccsEra[] }) {
 
   return (
     <div className="rounded-lg border border-border-default bg-surface-raised p-5" data-testid="multi-window-strip">
-      <h3 className="text-sm font-semibold text-text-primary mb-4">Risk Window Comparison</h3>
+      <h3 className="text-sm font-semibold text-text-primary mb-4">
+        {t("analyses.auto.riskWindowComparison_95d146")}
+      </h3>
       <div className="overflow-x-auto">
         <svg
           width={stripWidth}
@@ -204,7 +237,7 @@ function MultiWindowStrip({ eras }: { eras: SccsEra[] }) {
           viewBox={`0 0 ${stripWidth} 120`}
           className="text-text-primary"
           role="img"
-          aria-label="Multi-window comparison strip"
+          aria-label={t("analyses.auto.multiWindowComparisonStrip_8c8202")}
         >
           <rect width={stripWidth} height={120} fill="var(--surface-raised)" rx={8} />
 
@@ -285,7 +318,7 @@ function MultiWindowStrip({ eras }: { eras: SccsEra[] }) {
                     fontWeight={600}
                     data-testid="carryover-flag"
                   >
-                    carryover?
+                    {t("analyses.auto.carryoverQuestion_c08c05")}
                   </text>
                 )}
               </g>
@@ -310,6 +343,7 @@ export function InlineMiniForestPlot({
   ciLower?: number;
   ciUpper?: number;
 }) {
+  const { t } = useTranslation("app");
   const w = 120;
   const h = 20;
   const pad = 8;
@@ -332,7 +366,14 @@ export function InlineMiniForestPlot({
   const color = num(irr) > 1 ? "var(--critical)" : num(irr) < 1 ? "var(--success)" : "var(--text-muted)";
 
   return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-label={`IRR ${fmt(irr, 2)}`}>
+    <svg
+      width={w}
+      height={h}
+      viewBox={`0 0 ${w} ${h}`}
+      aria-label={t("analyses.auto.iRRValue_3fe1a8", {
+        value: fmt(irr, 2),
+      })}
+    >
       {/* Reference line at IRR=1 */}
       <line x1={refX} y1={2} x2={refX} y2={h - 2} stroke="var(--accent)" strokeWidth={1} strokeDasharray="2 2" opacity={0.5} />
 

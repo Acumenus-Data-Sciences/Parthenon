@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   Loader2,
@@ -20,6 +21,7 @@ import { EvidenceSynthesisResults } from "../components/EvidenceSynthesisResults
 type Tab = "design" | "results";
 
 export default function EvidenceSynthesisDetailPage() {
+  const { t } = useTranslation("app");
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const analysisId = id === "new" ? null : Number(id);
@@ -36,25 +38,24 @@ export default function EvidenceSynthesisDetailPage() {
   const [activeTab, setActiveTab] = useState<Tab>("design");
   const [activeExecId, setActiveExecId] = useState<number | null>(null);
 
-  // Auto-select latest completed execution
-  useEffect(() => {
-    if (analysis?.executions?.length && !activeExecId) {
-      const completed = analysis.executions.find((e) => e.status === "completed");
-      const latest = completed ?? analysis.executions[0];
-      if (latest) setActiveExecId(latest.id);
-    }
-  }, [analysis?.executions, activeExecId]);
+  const autoSelectedExecId = useMemo(() => {
+    const executions = analysis?.executions;
+    if (!executions?.length) return null;
+    const completed = executions.find((e) => e.status === "completed");
+    return (completed ?? executions[0])?.id ?? null;
+  }, [analysis?.executions]);
+  const selectedExecId = activeExecId ?? autoSelectedExecId;
 
   const { data: activeExec } = useEvidenceSynthesisExecution(
     analysisId,
-    activeExecId,
+    selectedExecId,
   );
 
   const handleDelete = () => {
     if (!analysisId) return;
     if (
       window.confirm(
-        "Are you sure you want to delete this evidence synthesis?",
+        t("analyses.auto.areYouSureYouWantToDeleteThisEvidenceSynthesis_9925e9"),
       )
     ) {
       deleteMutation.mutate(analysisId, {
@@ -91,14 +92,14 @@ export default function EvidenceSynthesisDetailPage() {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <p className="text-critical">
-            Failed to load evidence synthesis
+            {t("analyses.auto.failedToLoadEvidenceSynthesis_fc0ba6")}
           </p>
           <button
             type="button"
             onClick={() => navigate("/analyses")}
             className="mt-4 text-sm text-text-muted hover:text-text-primary transition-colors"
           >
-            Back to analyses
+            {t("analyses.auto.backToAnalyses_cdf536")}
           </button>
         </div>
       </div>
@@ -116,10 +117,12 @@ export default function EvidenceSynthesisDetailPage() {
             className="inline-flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition-colors mb-3"
           >
             <ArrowLeft size={14} />
-            Analyses
+            {t("analyses.auto.analyses_86859f")}
           </button>
           <h1 className="text-2xl font-bold text-text-primary">
-            {isNew ? "New Evidence Synthesis" : analysis?.name ?? "Evidence Synthesis"}
+            {isNew
+              ? t("analyses.auto.newEvidenceSynthesis_316a94")
+              : analysis?.name ?? t("analyses.auto.evidenceSynthesis_577276")}
           </h1>
           {analysis?.description && (
             <p className="mt-1 text-sm text-text-muted">
@@ -141,7 +144,7 @@ export default function EvidenceSynthesisDetailPage() {
               ) : (
                 <Play size={14} />
               )}
-              Execute
+              {t("analyses.auto.execute_40cd01")}
             </button>
 
             <button
@@ -155,7 +158,7 @@ export default function EvidenceSynthesisDetailPage() {
               ) : (
                 <Trash2 size={14} />
               )}
-              Delete
+              {t("analyses.auto.delete_f2a6c4")}
             </button>
           </div>
         )}
@@ -166,8 +169,8 @@ export default function EvidenceSynthesisDetailPage() {
         <div className="flex items-center gap-1 border-b border-border-default">
           {(
             [
-              { key: "design" as const, label: "Design" },
-              { key: "results" as const, label: "Results" },
+              { key: "design" as const, label: t("analyses.auto.design_1afa74") },
+              { key: "results" as const, label: t("analyses.auto.results_fd69c5") },
             ]
           ).map((tab) => (
             <button
@@ -201,26 +204,29 @@ export default function EvidenceSynthesisDetailPage() {
         />
       ) : (
         <div className="space-y-6">
-          <EvidenceSynthesisResults execution={activeExec ?? null} isLoading={!activeExec && !!activeExecId} />
+          <EvidenceSynthesisResults
+            execution={activeExec ?? null}
+            isLoading={!activeExec && !!selectedExecId}
+          />
 
           {/* Execution History */}
           {analysis?.executions && analysis.executions.length > 0 && (
             <div>
               <h3 className="text-sm font-semibold text-text-primary mb-3">
-                Execution History
+                {t("analyses.auto.executionHistory_1e5b64")}
               </h3>
               <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
                 <table className="w-full">
                   <thead>
                     <tr className="bg-surface-overlay">
                       <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                        Status
+                        {t("analyses.auto.status_ec53a8")}
                       </th>
                       <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                        Started
+                        {t("analyses.auto.started_842855")}
                       </th>
                       <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                        Completed
+                        {t("analyses.auto.completed_07ca50")}
                       </th>
                     </tr>
                   </thead>
@@ -240,7 +246,7 @@ export default function EvidenceSynthesisDetailPage() {
                           i % 2 === 0
                             ? "bg-surface-raised"
                             : "bg-surface-overlay",
-                          activeExecId === exec.id &&
+                          selectedExecId === exec.id &&
                             "ring-1 ring-inset ring-success/30",
                         )}
                       >

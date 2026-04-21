@@ -1,4 +1,5 @@
 import { fmt } from "@/lib/formatters";
+import { useTranslation } from "react-i18next";
 
 interface NegativeControlOutcome {
   outcome_name: string;
@@ -21,6 +22,7 @@ export function SystematicErrorPlot({
   positiveControls,
   showCalibration = false,
 }: SystematicErrorPlotProps) {
+  const { t } = useTranslation("app");
   if (negativeControls.length === 0) return null;
 
   const width = 600;
@@ -114,7 +116,9 @@ export function SystematicErrorPlot({
         viewBox={`0 0 ${width} ${height}`}
         className="text-text-primary"
         role="img"
-        aria-label="Systematic error plot showing negative control effect estimates"
+        aria-label={t(
+          "analyses.auto.systematicErrorPlotShowingNegativeControlEffectEstimates_e6f013",
+        )}
       >
         <rect width={width} height={height} fill="var(--surface-raised)" rx={8} />
 
@@ -246,8 +250,11 @@ export function SystematicErrorPlot({
             opacity={0.7}
           >
             <title>
-              {nc.outcome_name}: log(RR)={fmt(nc.log_rr)}, SE=
-              {fmt(nc.se_log_rr)}
+              {t("analyses.auto.outcomeLogRRSE_eb89e6", {
+                outcomeName: nc.outcome_name,
+                logRR: fmt(nc.log_rr),
+                se: fmt(nc.se_log_rr),
+              })}
             </title>
           </circle>
         ))}
@@ -273,8 +280,11 @@ export function SystematicErrorPlot({
                 opacity={0.9}
               >
                 <title>
-                  {nc.outcome_name} (cal): log(RR)={fmt(nc.calibrated_log_rr)},
-                  SE={fmt(nc.calibrated_se_log_rr)}
+                  {t("analyses.auto.outcomeCalibratedLogRRSE_d0d075", {
+                    outcomeName: nc.outcome_name,
+                    logRR: fmt(nc.calibrated_log_rr),
+                    se: fmt(nc.calibrated_se_log_rr),
+                  })}
                 </title>
               </circle>
             ))}
@@ -292,8 +302,11 @@ export function SystematicErrorPlot({
             strokeWidth={0.5}
           >
             <title>
-              {pc.outcome_name}: log(RR)={fmt(pc.log_rr)}, SE=
-              {fmt(pc.se_log_rr)}
+              {t("analyses.auto.outcomeLogRRSE_eb89e6", {
+                outcomeName: pc.outcome_name,
+                logRR: fmt(pc.log_rr),
+                se: fmt(pc.se_log_rr),
+              })}
             </title>
           </circle>
         ))}
@@ -327,22 +340,26 @@ export function SystematicErrorPlot({
             <>
               <circle cx={14} cy={14} r={3} fill="none" stroke={NC_COLOR} strokeWidth={1.5} />
               <text x={24} y={18} fill="var(--text-secondary)" fontSize={10}>
-                Pre-calibration ({negativeControls.length})
+                {t("analyses.auto.preCalibrationCount_3e53ff", {
+                  count: negativeControls.length,
+                })}
               </text>
               <circle cx={14} cy={34} r={3} fill={NC_CALIBRATED_COLOR} />
               <text x={24} y={38} fill="var(--text-secondary)" fontSize={10}>
-                Post-calibration
+                {t("analyses.auto.postCalibration_6f2c0d")}
               </text>
               <line x1={8} y1={50} x2={20} y2={50} stroke={ARROW_COLOR} strokeWidth={1} opacity={0.6} />
               <text x={24} y={54} fill="var(--text-secondary)" fontSize={10}>
-                Calibration shift
+                {t("analyses.auto.calibrationShift_a18e1d")}
               </text>
             </>
           ) : (
             <>
               <circle cx={14} cy={12} r={3} fill={NC_COLOR} />
               <text x={24} y={16} fill="var(--text-secondary)" fontSize={10}>
-                Negative Controls ({negativeControls.length})
+                {t("analyses.auto.negativeControlsCount_327a89", {
+                  count: negativeControls.length,
+                })}
               </text>
             </>
           )}
@@ -360,7 +377,9 @@ export function SystematicErrorPlot({
                 fill="var(--text-secondary)"
                 fontSize={10}
               >
-                Positive Controls ({positiveControls.length})
+                {t("analyses.auto.positiveControlsCount_2c54de", {
+                  count: positiveControls.length,
+                })}
               </text>
             </>
           )}
@@ -375,7 +394,7 @@ export function SystematicErrorPlot({
           fontSize={11}
           fontWeight={600}
         >
-          Log Relative Risk
+          {t("analyses.auto.logRelativeRisk_0ba5c9")}
         </text>
         <text
           x={14}
@@ -386,7 +405,7 @@ export function SystematicErrorPlot({
           fontWeight={600}
           transform={`rotate(-90 14 ${padding.top + plotH / 2})`}
         >
-          Standard Error
+          {t("analyses.auto.standardError_7b2c21")}
         </text>
       </svg>
     </div>

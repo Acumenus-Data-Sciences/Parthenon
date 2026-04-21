@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Loader2, Save, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { getCohortDefinitions } from "@/features/cohort-definitions/api/cohortApi";
 import type { PathwayDesign, PathwayAnalysis } from "../types/pathway";
 import { useUpdatePathway, useCreatePathway } from "../hooks/usePathways";
@@ -26,6 +27,7 @@ export function PathwayDesigner({
   isNew,
   onSaved,
 }: PathwayDesignerProps) {
+  const { t } = useTranslation("app");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [design, setDesign] = useState<PathwayDesign>(defaultDesign);
@@ -99,24 +101,26 @@ export function PathwayDesigner({
   };
 
   const isSaving = createMutation.isPending || updateMutation.isPending;
+  const cohortFallback = (cohortId: number) =>
+    t("analyses.auto.cohortNumber_6a7a5a", { id: cohortId });
 
   return (
     <div className="space-y-6">
       {/* Name & Description */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
         <h3 className="text-sm font-semibold text-text-primary">
-          Basic Information
+          {t("analyses.auto.basicInformation_87cabb")}
         </h3>
         <div className="space-y-3">
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">
-              Name
+              {t("analyses.auto.name_49ee30")}
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Pathway analysis name"
+              placeholder={t("analyses.auto.pathwayAnalysisName_dc0c6e")}
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
                 "text-text-primary placeholder:text-text-ghost",
@@ -126,12 +130,12 @@ export function PathwayDesigner({
           </div>
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">
-              Description
+              {t("analyses.auto.description_b5a7ad")}
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Optional description"
+              placeholder={t("analyses.auto.optionalDescription_d196d2")}
               rows={2}
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
@@ -146,10 +150,10 @@ export function PathwayDesigner({
       {/* Target Cohort */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
         <h3 className="text-sm font-semibold text-text-primary">
-          Target Cohort
+          {t("analyses.auto.targetCohort_4d7f0b")}
         </h3>
         <p className="text-xs text-text-muted">
-          Select the target cohort whose treatment pathways will be analyzed.
+          {t("analyses.auto.selectTheTargetCohortWhoseTreatmentPathwaysWillBeAnalyzed_485929")}
         </p>
         {loadingCohorts ? (
           <Loader2 size={16} className="animate-spin text-text-muted" />
@@ -167,7 +171,7 @@ export function PathwayDesigner({
               "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
             )}
           >
-            <option value="">Select a target cohort...</option>
+            <option value="">{t("analyses.auto.selectATargetCohort_9be701")}</option>
             {cohorts.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -179,7 +183,7 @@ export function PathwayDesigner({
           <div className="flex flex-wrap gap-2">
             <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-1 text-xs text-success">
               {cohorts.find((c) => c.id === design.targetCohortId)?.name ??
-                `Cohort #${design.targetCohortId}`}
+                cohortFallback(design.targetCohortId)}
             </span>
           </div>
         )}
@@ -188,12 +192,12 @@ export function PathwayDesigner({
       {/* Event Cohorts */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
         <h3 className="text-sm font-semibold text-text-primary">
-          Event Cohorts
+          {t("analyses.auto.eventCohorts_1c1758")}
         </h3>
         <p className="text-xs text-text-muted">
-          Select the event cohorts whose sequences will be analyzed within the
-          target cohort. These represent treatments, procedures, or conditions
-          to track.
+          {t(
+            "analyses.auto.selectTheEventCohortsWhoseSequencesWillBeAnalyzedWithinTheTargetCohortTheseRepresentTreatmentsProceduresOrConditionsToTrack_c12c1b",
+          )}
         </p>
         {loadingCohorts ? (
           <Loader2 size={16} className="animate-spin text-text-muted" />
@@ -211,7 +215,7 @@ export function PathwayDesigner({
               )}
               defaultValue=""
             >
-              <option value="">Add an event cohort...</option>
+              <option value="">{t("analyses.auto.addAnEventCohort_0bd069")}</option>
               {cohorts
                 .filter((c) => !design.eventCohortIds.includes(c.id))
                 .map((c) => (
@@ -229,7 +233,7 @@ export function PathwayDesigner({
                       key={id}
                       className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-1 text-xs text-accent"
                     >
-                      {cohort?.name ?? `Cohort #${id}`}
+                      {cohort?.name ?? cohortFallback(id)}
                       <button
                         type="button"
                         onClick={() => removeEventCohort(id)}
@@ -249,13 +253,13 @@ export function PathwayDesigner({
       {/* Parameters */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
         <h3 className="text-sm font-semibold text-text-primary">
-          Parameters
+          {t("analyses.auto.parameters_3225a1")}
         </h3>
 
         {/* Max Depth */}
         <div>
           <label className="block text-xs font-medium text-text-muted mb-1">
-            Max Depth: {design.maxDepth}
+            {t("analyses.auto.maxDepth_262e9f")} {design.maxDepth}
           </label>
           <input
             type="range"
@@ -280,7 +284,7 @@ export function PathwayDesigner({
         {/* Max Path Length */}
         <div>
           <label className="block text-xs font-medium text-text-muted mb-1">
-            Max Path Length: {design.maxPathLength}
+            {t("analyses.auto.maxPathLength_468b45")} {design.maxPathLength}
           </label>
           <input
             type="range"
@@ -305,7 +309,7 @@ export function PathwayDesigner({
         {/* Combination Window */}
         <div>
           <label className="block text-xs font-medium text-text-muted mb-1">
-            Combination Window (days)
+            {t("analyses.auto.combinationWindowDays_bd975e")}
           </label>
           <input
             type="number"
@@ -324,14 +328,14 @@ export function PathwayDesigner({
             )}
           />
           <p className="mt-1 text-[10px] text-text-ghost">
-            Events within this window are treated as occurring simultaneously.
+            {t("analyses.auto.eventsWithinThisWindowAreTreatedAsOccurringSimultaneously_0157e9")}
           </p>
         </div>
 
         {/* Min Cell Count */}
         <div>
           <label className="block text-xs font-medium text-text-muted mb-1">
-            Minimum Cell Count
+            {t("analyses.auto.minimumCellCount_2438c8")}
           </label>
           <input
             type="number"
@@ -365,7 +369,7 @@ export function PathwayDesigner({
           ) : (
             <Save size={14} />
           )}
-          {isNew ? "Create" : "Save Changes"}
+          {isNew ? t("analyses.auto.create_686e69") : t("analyses.auto.saveChanges_f5d604")}
         </button>
       </div>
     </div>

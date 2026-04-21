@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 interface AttritionStep {
   description: string;
   subjectsCount: number;
@@ -13,9 +15,14 @@ interface AttritionDiagramProps {
 export function AttritionDiagram({
   targetSteps,
   comparatorSteps,
-  targetLabel = "Target",
-  comparatorLabel = "Comparator",
+  targetLabel,
+  comparatorLabel,
 }: AttritionDiagramProps) {
+  const { t } = useTranslation("app");
+  const resolvedTargetLabel =
+    targetLabel ?? t("analyses.auto.targetCohort_4d7f0b");
+  const resolvedComparatorLabel =
+    comparatorLabel ?? t("analyses.auto.comparatorCohort_904c75");
   const maxSteps = Math.max(targetSteps.length, comparatorSteps.length);
   if (maxSteps === 0) return null;
 
@@ -81,7 +88,7 @@ export function AttritionDiagram({
             fontWeight={700}
             fontFamily="IBM Plex Mono, monospace"
           >
-            N = {step.subjectsCount.toLocaleString()}
+            {t("analyses.auto.n_0b63b7")} {step.subjectsCount.toLocaleString()}
           </text>
 
           {/* Arrow down to next step */}
@@ -135,7 +142,7 @@ export function AttritionDiagram({
                 fill="var(--critical)"
                 fontSize={9}
               >
-                Excluded
+                {t("analyses.auto.excluded_122180")}
               </text>
               <text
                 x={excludeX + excludeBoxWidth / 2}
@@ -163,7 +170,7 @@ export function AttritionDiagram({
         viewBox={`0 0 ${totalWidth} ${totalHeight}`}
         className="text-text-primary"
         role="img"
-        aria-label="Attrition diagram showing patient flow"
+        aria-label={t("analyses.auto.attritionDiagramShowingPatientFlow_7b43fb")}
       >
         <rect
           width={totalWidth}
@@ -181,7 +188,7 @@ export function AttritionDiagram({
           fontSize={12}
           fontWeight={700}
         >
-          {targetLabel}
+          {resolvedTargetLabel}
         </text>
         <text
           x={rightCol + boxWidth / 2}
@@ -191,7 +198,7 @@ export function AttritionDiagram({
           fontSize={12}
           fontWeight={700}
         >
-          {comparatorLabel}
+          {resolvedComparatorLabel}
         </text>
 
         {/* Target column */}

@@ -5,6 +5,7 @@ import {
   CIBar,
 } from "@/components/charts";
 import { fmt, num, fmtP, computeNNT } from "@/lib/formatters";
+import { useTranslation } from "react-i18next";
 import type { EstimationResult } from "../types/estimation";
 
 interface EstimationVerdictDashboardProps {
@@ -19,6 +20,7 @@ interface EstimationVerdictDashboardProps {
 export function EstimationVerdictDashboard({
   result,
 }: EstimationVerdictDashboardProps) {
+  const { t } = useTranslation("app");
   const estimates = Array.isArray(result.estimates) ? result.estimates : [];
   const summary = result.summary ?? {
     target_count: 0,
@@ -103,7 +105,7 @@ export function EstimationVerdictDashboard({
         {calibratedP !== null && (
           <div className="flex items-center gap-2">
             <span className="text-xs font-medium text-text-muted">
-              calibrated p:
+              {t("analyses.auto.calibratedP_4d09fd")}
             </span>
             <span
               data-testid="calibrated-p"
@@ -113,7 +115,8 @@ export function EstimationVerdictDashboard({
             </span>
             {/* Visual indicator of shift direction */}
             <span className="text-xs text-text-ghost">
-              ({calibratedP > pValue ? "\u2191" : "\u2193"} from uncalibrated)
+              ({calibratedP > pValue ? "\u2191" : "\u2193"}{" "}
+              {t("analyses.auto.fromUncalibrated_53ad8e")})
             </span>
           </div>
         )}
@@ -122,7 +125,7 @@ export function EstimationVerdictDashboard({
       {/* CI bar visualization */}
       <div>
         <span className="text-xs font-medium text-text-muted mb-1 block">
-          95% Confidence Interval
+          {t("analyses.auto.95ConfidenceInterval_c2793c")}
         </span>
         <CIBar
           estimate={hr}
@@ -141,17 +144,17 @@ export function EstimationVerdictDashboard({
       {/* Metric cards grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <ChartMetricCard
-          label="Target Cohort"
+          label={t("analyses.auto.targetCohort_4d7f0b")}
           value={num(summary.target_count).toLocaleString()}
           color="teal"
         />
         <ChartMetricCard
-          label="Comparator Cohort"
+          label={t("analyses.auto.comparatorCohort_904c75")}
           value={num(summary.comparator_count).toLocaleString()}
           color="gold"
         />
         <ChartMetricCard
-          label="Target Events"
+          label={t("analyses.auto.targetEvents_4a3799")}
           value={targetEvents.toLocaleString()}
           color="default"
         />

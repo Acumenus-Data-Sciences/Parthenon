@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { fmt } from "@/lib/formatters";
+import { useTranslation } from "react-i18next";
 
 interface CalibrationPlotProps {
   data: { predicted: number; observed: number }[];
@@ -14,6 +15,7 @@ export function CalibrationPlot({
   intercept,
   populationBins,
 }: CalibrationPlotProps) {
+  const { t } = useTranslation("app");
   const width = 400;
   const height = 440; // Extra 40px for marginal histogram
   const barAreaH = 40;
@@ -186,7 +188,7 @@ export function CalibrationPlot({
         fontSize={10}
         fontFamily="IBM Plex Mono, monospace"
       >
-        Slope: {fmt(slope)}
+        {t("analyses.auto.slopeValue_6534ca", { value: fmt(slope) })}
       </text>
       <text
         x={padding.left + 16}
@@ -195,7 +197,7 @@ export function CalibrationPlot({
         fontSize={10}
         fontFamily="IBM Plex Mono, monospace"
       >
-        Intercept: {fmt(intercept)}
+        {t("analyses.auto.interceptValue_12e39b", { value: fmt(intercept) })}
       </text>
 
       {/* ICI and E-max Annotation */}
@@ -228,7 +230,9 @@ export function CalibrationPlot({
         fontFamily="IBM Plex Mono, monospace"
         data-testid="emax-value"
       >
-        E-max: {fmt(calibrationMetrics.emax, 4)}
+        {t("analyses.auto.eMaxValue_398d9f", {
+          value: fmt(calibrationMetrics.emax, 4),
+        })}
       </text>
 
       {/* Decile population bars (marginal histogram) */}
@@ -258,7 +262,9 @@ export function CalibrationPlot({
             fill="var(--text-ghost)"
             fontSize={8}
           >
-            Patient count per predicted probability bin
+            {t(
+              "analyses.auto.patientCountPerPredictedProbabilityBin_74a916",
+            )}
           </text>
         </g>
       )}
@@ -271,9 +277,9 @@ export function CalibrationPlot({
         fill="var(--text-muted)"
         fontSize={11}
         fontWeight={600}
-      >
-        Predicted Probability
-      </text>
+          >
+            {t("analyses.auto.predictedProbability_81f385")}
+          </text>
       <text
         x={14}
         y={padding.top + plotH / 2}
@@ -282,9 +288,9 @@ export function CalibrationPlot({
         fontSize={11}
         fontWeight={600}
         transform={`rotate(-90 14 ${padding.top + plotH / 2})`}
-      >
-        Observed Probability
-      </text>
+          >
+            {t("analyses.auto.observedProbability_d35356")}
+          </text>
     </svg>
   );
 }

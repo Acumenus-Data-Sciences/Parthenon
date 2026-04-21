@@ -1,4 +1,5 @@
 import { Loader2, AlertCircle, Info } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { ForestPlot } from "./ForestPlot";
 import { KaplanMeierPlot } from "./KaplanMeierPlot";
 import { AttritionDiagram } from "./AttritionDiagram";
@@ -86,6 +87,7 @@ export function EstimationResults({
   execution,
   isLoading,
 }: EstimationResultsProps) {
+  const { t } = useTranslation("app");
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -99,12 +101,14 @@ export function EstimationResults({
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
         <AlertCircle size={24} className="text-text-ghost mb-3" />
         <h3 className="text-sm font-semibold text-text-primary">
-          No results available
+          {t("analyses.auto.noResultsAvailable_e29de7")}
         </h3>
         <p className="mt-1 text-xs text-text-muted">
           {execution
-            ? `Execution status: ${execution.status}`
-            : "Execute the analysis to generate results."}
+            ? t("analyses.auto.executionStatusStatus_540db0", {
+                status: execution.status,
+              })
+            : t("analyses.auto.executeTheAnalysisToGenerateResults_a62421")}
         </p>
         {execution?.fail_message && (
           <p className="mt-2 text-xs text-critical max-w-md text-center">
@@ -122,7 +126,7 @@ export function EstimationResults({
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
         <AlertCircle size={24} className="text-text-ghost mb-3" />
         <p className="text-sm text-text-muted">
-          Execution completed but no results were returned.
+          {t("analyses.auto.executionCompletedButNoResultsWereReturned_bc0318")}
         </p>
       </div>
     );
@@ -136,7 +140,7 @@ export function EstimationResults({
           <Info size={18} className="text-accent shrink-0 mt-0.5" />
           <div>
             <h3 className="text-sm font-semibold text-accent">
-              R Sidecar Pending
+              {t("analyses.auto.rSidecarPending_b8be5c")}
             </h3>
             <p className="mt-1 text-xs text-text-muted">
               {result.message ||
@@ -148,7 +152,7 @@ export function EstimationResults({
         {result.design_validated && (
           <div className="rounded-lg border border-success/30 bg-success/5 p-4">
             <p className="text-xs font-medium text-success">
-              Design validated successfully
+              {t("analyses.auto.designValidatedSuccessfully_ab70c9")}
             </p>
           </div>
         )}
@@ -176,14 +180,14 @@ export function EstimationResults({
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-          <p className="text-xs font-medium text-text-muted">Target Count</p>
+          <p className="text-xs font-medium text-text-muted">{t("analyses.auto.targetCount_27c467")}</p>
           <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-success">
             {num(summary.target_count).toLocaleString()}
           </p>
         </div>
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <p className="text-xs font-medium text-text-muted">
-            Comparator Count
+            {t("analyses.auto.comparatorCount_595cfe")}
           </p>
           <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-accent">
             {num(summary.comparator_count).toLocaleString()}
@@ -210,7 +214,7 @@ export function EstimationResults({
       {estimates.length > 0 && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <h3 className="text-sm font-semibold text-text-primary mb-4">
-            Forest Plot
+            {t("analyses.auto.forestPlot_38213b")}
           </h3>
           <ForestPlot estimates={estimates} />
         </div>
@@ -221,29 +225,29 @@ export function EstimationResults({
         <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
           <div className="p-4 border-b border-border-default">
             <h3 className="text-sm font-semibold text-text-primary">
-              Effect Estimates
+              {t("analyses.auto.effectEstimates_1c8237")}
             </h3>
           </div>
           <table className="w-full">
             <thead>
               <tr className="bg-surface-overlay">
                 <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                  Outcome
+                  {t("analyses.auto.outcome_cf73bd")}
                 </th>
                 <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                   HR
                 </th>
                 <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                  95% CI
+                  {t("analyses.auto.95CI_4009a0")}
                 </th>
                 <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                  P-value
+                  {t("analyses.auto.pValue_925c64")}
                 </th>
                 <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                  Target Events
+                  {t("analyses.auto.targetEvents_4a3799")}
                 </th>
                 <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                  Comparator Events
+                  {t("analyses.auto.comparatorEvents_cf170f")}
                 </th>
               </tr>
             </thead>
@@ -308,38 +312,38 @@ export function EstimationResults({
       {ps && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
           <h3 className="text-sm font-semibold text-text-primary">
-            Propensity Score Diagnostics
+            {t("analyses.auto.propensityScoreDiagnostics_eb4571")}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="rounded-lg border border-border-default bg-surface-base p-3">
-              <p className="text-xs font-medium text-text-muted">PS AUC</p>
+              <p className="text-xs font-medium text-text-muted">{t("analyses.auto.pSAUC_ef1041")}</p>
               <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-success">
                 {fmt(ps.auc)}
               </p>
             </div>
             <div className="rounded-lg border border-border-default bg-surface-base p-3">
               <p className="text-xs font-medium text-text-muted">
-                Before Matching SMD
+                {t("analyses.auto.beforeMatchingSMD_ecee6e")}
               </p>
               <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-sm text-text-secondary">
-                Mean:{" "}
+                {t("analyses.auto.mean_66cdfc")}{" "}
                 {fmt(ps.mean_smd_before ?? ps.before_matching?.mean_smd ?? 0)}
               </p>
               <p className="font-['IBM_Plex_Mono',monospace] text-sm text-text-secondary">
-                Max:{" "}
+                {t("analyses.auto.max_9ace3e")}{" "}
                 {fmt(ps.max_smd_before ?? ps.before_matching?.max_smd ?? 0)}
               </p>
             </div>
             <div className="rounded-lg border border-border-default bg-surface-base p-3">
               <p className="text-xs font-medium text-text-muted">
-                After Matching SMD
+                {t("analyses.auto.afterMatchingSMD_d36edd")}
               </p>
               <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-sm text-success">
-                Mean:{" "}
+                {t("analyses.auto.mean_66cdfc")}{" "}
                 {fmt(ps.mean_smd_after ?? ps.after_matching?.mean_smd ?? 0)}
               </p>
               <p className="font-['IBM_Plex_Mono',monospace] text-sm text-success">
-                Max:{" "}
+                {t("analyses.auto.max_9ace3e")}{" "}
                 {fmt(ps.max_smd_after ?? ps.after_matching?.max_smd ?? 0)}
               </p>
             </div>
@@ -349,7 +353,7 @@ export function EstimationResults({
           {ps.distribution && (
             <div className="mt-4">
               <h4 className="text-xs font-semibold text-text-muted mb-3">
-                Propensity Score Distribution
+                {t("analyses.auto.propensityScoreDistribution_9394bd")}
               </h4>
               <PropensityScorePlot
                 data={ps.distribution.target.map(
@@ -373,7 +377,7 @@ export function EstimationResults({
         km.target.length > 0 && (
           <div className="rounded-lg border border-border-default bg-surface-raised p-4">
             <h3 className="text-sm font-semibold text-text-primary mb-4">
-              Kaplan-Meier Survival Curves
+              {t("analyses.auto.kaplanMeierSurvivalCurves_10e9c6")}
             </h3>
             <KaplanMeierPlot
               targetCurve={km.target.map((p) => ({
@@ -404,7 +408,7 @@ export function EstimationResults({
       {attrition && attrition.length > 0 && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <h3 className="text-sm font-semibold text-text-primary mb-4">
-            Attrition Diagram
+            {t("analyses.auto.attritionDiagram_a01d75")}
           </h3>
           <AttritionDiagram
             targetSteps={attrition.map((s) => ({
@@ -423,7 +427,7 @@ export function EstimationResults({
       {covBalance && covBalance.length > 0 && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <h3 className="text-sm font-semibold text-text-primary mb-4">
-            Covariate Balance — Love Plot
+            {t("analyses.auto.covariateBalanceLovePlot_dd27cc")}
           </h3>
           <LovePlot data={covBalance} />
         </div>
@@ -434,23 +438,23 @@ export function EstimationResults({
         <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
           <div className="p-4 border-b border-border-default">
             <h3 className="text-sm font-semibold text-text-primary">
-              Top Covariate Balance (Before/After Matching)
+              {t("analyses.auto.topCovariateBalanceBeforeAfterMatching_965076")}
             </h3>
           </div>
           <table className="w-full">
             <thead>
               <tr className="bg-surface-overlay">
                 <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                  Covariate
+                  {t("analyses.auto.covariate_51b9fe")}
                 </th>
                 <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                  SMD Before
+                  {t("analyses.auto.sMDBefore_d1d70b")}
                 </th>
                 <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                  SMD After
+                  {t("analyses.auto.sMDAfter_946dc8")}
                 </th>
                 <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                  Balance
+                  {t("analyses.auto.balance_99a808")}
                 </th>
               </tr>
             </thead>
@@ -525,7 +529,7 @@ export function EstimationResults({
       {negControls && negControls.length > 0 && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <h3 className="text-sm font-semibold text-text-primary mb-4">
-            Empirical Calibration — Systematic Error
+            {t("analyses.auto.empiricalCalibrationSystematicError_61fcf2")}
           </h3>
           <div className="flex justify-center">
             <SystematicErrorPlot negativeControls={negControls} />
@@ -537,7 +541,7 @@ export function EstimationResults({
       {result.power_analysis && result.power_analysis.length > 0 && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <h3 className="text-sm font-semibold text-text-primary mb-4">
-            Statistical Power Analysis
+            {t("analyses.auto.statisticalPowerAnalysis_03fb2a")}
           </h3>
           <PowerTable entries={result.power_analysis} />
         </div>
@@ -547,12 +551,12 @@ export function EstimationResults({
       {(result.diagnostics || mdrr || ps?.equipoise) && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
           <h3 className="text-sm font-semibold text-text-primary">
-            Diagnostics
+            {t("analyses.auto.diagnostics_36b64a")}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {(result.diagnostics?.equipoise ?? ps?.equipoise) != null && (
               <div className="rounded-lg border border-border-default bg-surface-base p-3">
-                <p className="text-xs font-medium text-text-muted">Equipoise</p>
+                <p className="text-xs font-medium text-text-muted">{t("analyses.auto.equipoise_e41807")}</p>
                 <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-accent">
                   {fmt(result.diagnostics?.equipoise ?? ps?.equipoise ?? 0)}
                 </p>
@@ -561,7 +565,7 @@ export function EstimationResults({
             {mdrr && Object.keys(mdrr).length > 0 && (
               <div className="rounded-lg border border-border-default bg-surface-base p-3">
                 <p className="text-xs font-medium text-text-muted">
-                  Min Detectable Relative Risk
+                  {t("analyses.auto.minDetectableRelativeRisk_9ac488")}
                 </p>
                 <div className="mt-1 space-y-1">
                   {Object.entries(mdrr).map(([outcomeId, mdrr]) => (
@@ -570,7 +574,7 @@ export function EstimationResults({
                       className="flex items-center justify-between"
                     >
                       <span className="text-xs text-text-muted">
-                        Outcome {outcomeId}
+                        {t("analyses.auto.outcome_cf73bd")} {outcomeId}
                       </span>
                       <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">
                         {fmt(mdrr)}
@@ -583,7 +587,7 @@ export function EstimationResults({
             {result.diagnostics?.power && (
               <div className="rounded-lg border border-border-default bg-surface-base p-3">
                 <p className="text-xs font-medium text-text-muted">
-                  Statistical Power
+                  {t("analyses.auto.statisticalPower_df6140")}
                 </p>
                 <div className="mt-1 space-y-1">
                   {Object.entries(result.diagnostics.power).map(

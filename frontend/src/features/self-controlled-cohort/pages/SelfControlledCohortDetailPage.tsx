@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck — SCC api + types modules not yet present; unblock CI build
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   Loader2,
@@ -26,6 +27,7 @@ import {
 type Tab = "design" | "results";
 
 export default function SelfControlledCohortDetailPage() {
+  const { t } = useTranslation("app");
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const analysisId = id === "new" ? null : Number(id);
@@ -48,25 +50,26 @@ export default function SelfControlledCohortDetailPage() {
     queryFn: fetchSources,
   });
 
-  // Auto-select latest completed execution
-  useEffect(() => {
-    if (selfControlledCohort?.executions?.length && !activeExecId) {
-      const completed = selfControlledCohort.executions.find((e) => e.status === "completed");
-      const latest = completed ?? selfControlledCohort.executions[0];
-      if (latest) setActiveExecId(latest.id);
-    }
-  }, [selfControlledCohort?.executions, activeExecId]);
+  const autoSelectedExecId = useMemo(() => {
+    const executions = selfControlledCohort?.executions;
+    if (!executions?.length) return null;
+    const completed = executions.find((e) => e.status === "completed");
+    return (completed ?? executions[0])?.id ?? null;
+  }, [selfControlledCohort?.executions]);
+  const selectedExecId = activeExecId ?? autoSelectedExecId;
 
   const { data: activeExec } = useSelfControlledCohortExecution(
     analysisId,
-    activeExecId,
+    selectedExecId,
   );
 
   const handleDelete = () => {
     if (!analysisId) return;
     if (
       window.confirm(
-        "Are you sure you want to delete this Self-Controlled Cohort analysis?",
+        t(
+          "analyses.auto.areYouSureYouWantToDeleteThisSelfControlledCohortAnalysis_6db4f8",
+        ),
       )
     ) {
       deleteMutation.mutate(analysisId, {
@@ -106,14 +109,14 @@ export default function SelfControlledCohortDetailPage() {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <p className="text-critical">
-            Failed to load Self-Controlled Cohort analysis
+            {t("analyses.auto.failedToLoadSelfControlledCohortAnalysis_704b1e")}
           </p>
           <button
             type="button"
             onClick={() => navigate("/analyses")}
             className="mt-4 text-sm text-text-muted hover:text-text-primary transition-colors"
           >
-            Back to analyses
+            {t("analyses.auto.backToAnalyses_cdf536")}
           </button>
         </div>
       </div>
@@ -131,10 +134,13 @@ export default function SelfControlledCohortDetailPage() {
             className="inline-flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition-colors mb-3"
           >
             <ArrowLeft size={14} />
-            Analyses
+            {t("analyses.auto.analyses_86859f")}
           </button>
           <h1 className="text-2xl font-bold text-text-primary">
-            {isNew ? "New Self-Controlled Cohort Analysis" : selfControlledCohort?.name ?? "Self-Controlled Cohort Analysis"}
+            {isNew
+              ? t("analyses.auto.newSelfControlledCohortAnalysis_40ca63")
+              : selfControlledCohort?.name ??
+                t("analyses.auto.selfControlledCohortAnalysis_be870f")}
           </h1>
           {selfControlledCohort?.description && (
             <p className="mt-1 text-sm text-text-muted">
@@ -162,7 +168,7 @@ export default function SelfControlledCohortDetailPage() {
                     "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
                   )}
                 >
-                  <option value="">Source</option>
+                  <option value="">{t("analyses.auto.source_f31bbd")}</option>
                   {sources?.map((src) => (
                     <option key={src.id} value={src.id}>
                       {src.source_name}
@@ -189,7 +195,7 @@ export default function SelfControlledCohortDetailPage() {
                 ) : (
                   <Play size={14} />
                 )}
-                Execute
+                {t("analyses.auto.execute_40cd01")}
               </button>
             </div>
 
@@ -204,7 +210,7 @@ export default function SelfControlledCohortDetailPage() {
               ) : (
                 <Trash2 size={14} />
               )}
-              Delete
+              {t("analyses.auto.delete_f2a6c4")}
             </button>
           </div>
         )}
@@ -215,8 +221,8 @@ export default function SelfControlledCohortDetailPage() {
         <div className="flex items-center gap-1 border-b border-border-default">
           {(
             [
-              { key: "design" as const, label: "Design" },
-              { key: "results" as const, label: "Results" },
+              { key: "design" as const, label: t("analyses.auto.design_1afa74") },
+              { key: "results" as const, label: t("analyses.auto.results_fd69c5") },
             ]
           ).map((tab) => (
             <button
@@ -250,29 +256,32 @@ export default function SelfControlledCohortDetailPage() {
         />
       ) : (
         <div className="space-y-6">
-          <SccsResults execution={activeExec ?? null} isLoading={!activeExec && !!activeExecId} />
+          <SccsResults
+            execution={activeExec ?? null}
+            isLoading={!activeExec && !!selectedExecId}
+          />
 
           {/* Execution History */}
           {selfControlledCohort?.executions && selfControlledCohort.executions.length > 0 && (
             <div>
               <h3 className="text-sm font-semibold text-text-primary mb-3">
-                Execution History
+                {t("analyses.auto.executionHistory_1e5b64")}
               </h3>
               <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
                 <table className="w-full">
                   <thead>
                     <tr className="bg-surface-overlay">
                       <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                        Status
+                        {t("analyses.auto.status_ec53a8")}
                       </th>
                       <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                        Source
+                        {t("analyses.auto.source_f31bbd")}
                       </th>
                       <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                        Started
+                        {t("analyses.auto.started_842855")}
                       </th>
                       <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                        Completed
+                        {t("analyses.auto.completed_07ca50")}
                       </th>
                     </tr>
                   </thead>
@@ -292,7 +301,7 @@ export default function SelfControlledCohortDetailPage() {
                           i % 2 === 0
                             ? "bg-surface-raised"
                             : "bg-surface-overlay",
-                          activeExecId === exec.id &&
+                          selectedExecId === exec.id &&
                             "ring-1 ring-inset ring-success/30",
                         )}
                       >
@@ -302,7 +311,8 @@ export default function SelfControlledCohortDetailPage() {
                           />
                         </td>
                         <td className="px-4 py-3 text-xs text-text-muted">
-                          Source #{exec.source_id}
+                          {t("analyses.auto.source_1ec88c")}
+                          {exec.source_id}
                         </td>
                         <td className="px-4 py-3 text-xs text-text-muted">
                           {exec.started_at

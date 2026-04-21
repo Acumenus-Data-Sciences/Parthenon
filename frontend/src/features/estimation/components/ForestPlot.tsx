@@ -1,5 +1,6 @@
 import type { EstimateEntry } from "../types/estimation";
 import { fmt, num, computeNNT } from "@/lib/formatters";
+import { useTranslation } from "react-i18next";
 
 interface ForestPlotEstimate extends EstimateEntry {
   weight?: number;
@@ -16,6 +17,7 @@ export function ForestPlot({
   showNNT = false,
   predictionInterval,
 }: ForestPlotProps) {
+  const { t } = useTranslation("app");
   if (estimates.length === 0) return null;
 
   const width = showNNT ? 880 : 800;
@@ -118,7 +120,7 @@ export function ForestPlot({
           fontSize={11}
           fontWeight={600}
         >
-          Outcome
+          {t("analyses.auto.outcome_cf73bd")}
         </text>
         <text
           x={leftLabelWidth + plotWidth / 2}
@@ -128,7 +130,7 @@ export function ForestPlot({
           fontSize={11}
           fontWeight={600}
         >
-          Hazard Ratio (95% CI)
+          {t("analyses.auto.hazardRatio95CI_075de4")}
         </text>
         <text
           x={leftLabelWidth + plotWidth / 2}
@@ -137,7 +139,7 @@ export function ForestPlot({
           fill="var(--text-ghost)"
           fontSize={10}
         >
-          Favors Target | Favors Comparator
+          {t("analyses.auto.favorsTargetFavorsComparator_c388e0")}
         </text>
         <text
           x={leftLabelWidth + plotWidth + 110}
@@ -147,7 +149,7 @@ export function ForestPlot({
           fontSize={11}
           fontWeight={600}
         >
-          HR (95% CI) p-value
+          {t("analyses.auto.hR95CIPValue_97ffc8")}
         </text>
         {showNNT && (
           <text

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Loader2, Save, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { getCohortDefinitions } from "@/features/cohort-definitions/api/cohortApi";
 import { CovariateSettingsPanel } from "@/components/analysis/CovariateSettingsPanel";
 import type {
@@ -52,6 +53,7 @@ export function EstimationDesigner({
   isNew,
   onSaved,
 }: EstimationDesignerProps) {
+  const { t } = useTranslation("app");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [design, setDesign] = useState<EstimationDesign>(defaultDesign);
@@ -138,28 +140,37 @@ export function EstimationDesigner({
   const isSaving = createMutation.isPending || updateMutation.isPending;
 
   const psMethodOptions = [
-    { value: "matching" as const, label: "PS Matching" },
-    { value: "stratification" as const, label: "PS Stratification" },
+    {
+      value: "matching" as const,
+      label: t("analyses.auto.pSMatching_70940f"),
+    },
+    {
+      value: "stratification" as const,
+      label: t("analyses.auto.pSStratification_d30504"),
+    },
     { value: "iptw" as const, label: "IPTW" },
   ];
+
+  const cohortFallback = (cohortId: number) =>
+    t("analyses.auto.cohortNumber_6a7a5a", { id: cohortId });
 
   return (
     <div className="space-y-6">
       {/* Name & Description */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
         <h3 className="text-sm font-semibold text-text-primary">
-          Basic Information
+          {t("analyses.auto.basicInformation_87cabb")}
         </h3>
         <div className="space-y-3">
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">
-              Name
+              {t("analyses.auto.name_49ee30")}
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Estimation analysis name"
+              placeholder={t("analyses.auto.estimationAnalysisName_2c4c24")}
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
                 "text-text-primary placeholder:text-text-ghost",
@@ -169,12 +180,12 @@ export function EstimationDesigner({
           </div>
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">
-              Description
+              {t("analyses.auto.description_b5a7ad")}
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Optional description"
+              placeholder={t("analyses.auto.optionalDescription_d196d2")}
               rows={2}
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
@@ -189,10 +200,10 @@ export function EstimationDesigner({
       {/* Target Cohort */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
         <h3 className="text-sm font-semibold text-text-primary">
-          Target Cohort
+          {t("analyses.auto.targetCohort_4d7f0b")}
         </h3>
         <p className="text-xs text-text-muted">
-          Select the treatment/exposure cohort.
+          {t("analyses.auto.selectTheTreatmentExposureCohort_4edbec")}
         </p>
         {loadingCohorts ? (
           <Loader2 size={16} className="animate-spin text-text-muted" />
@@ -210,7 +221,7 @@ export function EstimationDesigner({
               "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
             )}
           >
-            <option value="">Select target cohort...</option>
+            <option value="">{t("analyses.auto.selectTargetCohort_5de8bf")}</option>
             {cohorts.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -223,10 +234,10 @@ export function EstimationDesigner({
       {/* Comparator Cohort */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
         <h3 className="text-sm font-semibold text-text-primary">
-          Comparator Cohort
+          {t("analyses.auto.comparatorCohort_904c75")}
         </h3>
         <p className="text-xs text-text-muted">
-          Select the comparator/control cohort.
+          {t("analyses.auto.selectTheComparatorControlCohort_0e5e65")}
         </p>
         {loadingCohorts ? (
           <Loader2 size={16} className="animate-spin text-text-muted" />
@@ -244,7 +255,7 @@ export function EstimationDesigner({
               "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
             )}
           >
-            <option value="">Select comparator cohort...</option>
+            <option value="">{t("analyses.auto.selectComparatorCohort_b651d5")}</option>
             {cohorts.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -257,10 +268,10 @@ export function EstimationDesigner({
       {/* Outcome Cohorts */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
         <h3 className="text-sm font-semibold text-text-primary">
-          Outcome Cohorts
+          {t("analyses.auto.outcomeCohorts_ed8002")}
         </h3>
         <p className="text-xs text-text-muted">
-          Select one or more outcome cohorts to estimate effects for.
+          {t("analyses.auto.selectOneOrMoreOutcomeCohortsToEstimateEffectsFor_e6b1a9")}
         </p>
         {loadingCohorts ? (
           <Loader2 size={16} className="animate-spin text-text-muted" />
@@ -278,7 +289,7 @@ export function EstimationDesigner({
               )}
               defaultValue=""
             >
-              <option value="">Add an outcome cohort...</option>
+              <option value="">{t("analyses.auto.addAnOutcomeCohort_c58a88")}</option>
               {cohorts
                 .filter((c) => !design.outcomeCohortIds.includes(c.id))
                 .map((c) => (
@@ -296,7 +307,7 @@ export function EstimationDesigner({
                       key={id}
                       className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs text-critical"
                     >
-                      {cohort?.name ?? `Cohort #${id}`}
+                      {cohort?.name ?? cohortFallback(id)}
                       <button
                         type="button"
                         onClick={() => removeOutcomeCohort(id)}
@@ -316,12 +327,12 @@ export function EstimationDesigner({
       {/* Model Settings */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
         <h3 className="text-sm font-semibold text-text-primary">
-          Model Settings
+          {t("analyses.auto.modelSettings_46e0f9")}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">
-              Model Type
+              {t("analyses.auto.modelType_e2716f")}
             </label>
             <select
               value={design.model.type}
@@ -339,14 +350,14 @@ export function EstimationDesigner({
                 "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             >
-              <option value="cox">Cox Proportional Hazards</option>
-              <option value="logistic">Logistic Regression</option>
-              <option value="poisson">Poisson Regression</option>
+              <option value="cox">{t("analyses.auto.coxProportionalHazards_6939ea")}</option>
+              <option value="logistic">{t("analyses.auto.logisticRegression_3261e6")}</option>
+              <option value="poisson">{t("analyses.auto.poissonRegression_36c04a")}</option>
             </select>
           </div>
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">
-              End Anchor
+              {t("analyses.auto.endAnchor_cabfb2")}
             </label>
             <select
               value={design.model.endAnchor}
@@ -366,13 +377,13 @@ export function EstimationDesigner({
                 "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             >
-              <option value="cohort start">Cohort Start</option>
-              <option value="cohort end">Cohort End</option>
+              <option value="cohort start">{t("analyses.auto.cohortStart_8ed0f7")}</option>
+              <option value="cohort end">{t("analyses.auto.cohortEnd_8151f8")}</option>
             </select>
           </div>
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">
-              Time at Risk Start (days)
+              {t("analyses.auto.timeAtRiskStartDays_8b7bdf")}
             </label>
             <input
               type="number"
@@ -394,7 +405,7 @@ export function EstimationDesigner({
           </div>
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1">
-              Time at Risk End (days)
+              {t("analyses.auto.timeAtRiskEndDays_c16099")}
             </label>
             <input
               type="number"
@@ -421,7 +432,7 @@ export function EstimationDesigner({
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-text-primary">
-            Propensity Score
+            {t("analyses.auto.propensityScore_1cf048")}
           </h3>
           <button
             type="button"
@@ -454,7 +465,7 @@ export function EstimationDesigner({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-text-muted mb-1">
-                PS Adjustment Method
+                {t("analyses.auto.pSAdjustmentMethod_e5c5b3")}
               </label>
               <select
                 value={design.propensityScore.method ?? "matching"}
@@ -479,7 +490,7 @@ export function EstimationDesigner({
             </div>
             <div>
               <label className="block text-xs font-medium text-text-muted mb-1">
-                Trimming (%)
+                {t("analyses.auto.trimming_733424")}
               </label>
               <input
                 type="number"
@@ -504,7 +515,7 @@ export function EstimationDesigner({
             </div>
             <div>
               <label className="block text-xs font-medium text-text-muted mb-1">
-                Matching Ratio
+                {t("analyses.auto.matchingRatio_f5c5da")}
               </label>
               <input
                 type="number"
@@ -531,7 +542,7 @@ export function EstimationDesigner({
             </div>
             <div>
               <label className="block text-xs font-medium text-text-muted mb-1">
-                Caliper
+                {t("analyses.auto.caliper_d25392")}
               </label>
               <input
                 type="number"
@@ -559,7 +570,7 @@ export function EstimationDesigner({
             </div>
             <div>
               <label className="block text-xs font-medium text-text-muted mb-1">
-                Stratification Strata
+                {t("analyses.auto.stratificationStrata_d5ae5c")}
               </label>
               <input
                 type="number"
@@ -608,7 +619,7 @@ export function EstimationDesigner({
           ) : (
             <Save size={14} />
           )}
-          {isNew ? "Create" : "Save Changes"}
+          {isNew ? t("analyses.auto.create_686e69") : t("analyses.auto.saveChanges_f5d604")}
         </button>
       </div>
     </div>

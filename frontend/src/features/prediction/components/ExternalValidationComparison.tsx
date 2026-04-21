@@ -1,5 +1,6 @@
 import type { ValidationMetrics } from "../types/prediction";
 import { fmt, num } from "@/lib/formatters";
+import { useTranslation } from "react-i18next";
 
 interface ExternalValidationComparisonProps {
   development: ValidationMetrics;
@@ -22,6 +23,7 @@ export function ExternalValidationComparison({
   development,
   validations,
 }: ExternalValidationComparisonProps) {
+  const { t } = useTranslation("app");
   const allDatabases = [development, ...validations];
 
   // --- AUC Forest Plot ---
@@ -47,7 +49,7 @@ export function ExternalValidationComparison({
           viewBox={`0 0 ${width} ${height}`}
           className="text-text-primary"
           role="img"
-          aria-label="External validation AUC forest plot"
+          aria-label={t("analyses.auto.externalValidationAucForestPlot_82615e")}
         >
           <rect width={width} height={height} fill="var(--surface-raised)" rx={8} />
 
@@ -179,7 +181,7 @@ export function ExternalValidationComparison({
             fontSize={11}
             fontWeight={600}
           >
-            AUC
+            {t("analyses.auto.aUC_7841c5")}
           </text>
         </svg>
       </div>
@@ -190,25 +192,25 @@ export function ExternalValidationComparison({
           <thead>
             <tr className="bg-surface-overlay">
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Database
+                {t("analyses.auto.database_2f4434")}
               </th>
               <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Population
+                {t("analyses.auto.population_30ee9b")}
               </th>
               <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Outcomes
+                {t("analyses.auto.outcomes_d08355")}
               </th>
               <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                AUC (95% CI)
+                {t("analyses.auto.auc95Ci_83c298")}
               </th>
               <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Brier
+                {t("analyses.auto.brier_45d8b1")}
               </th>
               <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Cal. Slope
+                {t("analyses.auto.calSlope_e7e6de")}
               </th>
               <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Cal. Intercept
+                {t("analyses.auto.calIntercept_d8f28a")}
               </th>
             </tr>
           </thead>
@@ -227,7 +229,7 @@ export function ExternalValidationComparison({
                     </span>
                     {isDev && (
                       <span className="ml-2 px-1.5 py-0.5 rounded text-[9px] font-medium bg-success/10 text-success">
-                        DEV
+                        {t("analyses.auto.development_330f49")}
                       </span>
                     )}
                   </td>

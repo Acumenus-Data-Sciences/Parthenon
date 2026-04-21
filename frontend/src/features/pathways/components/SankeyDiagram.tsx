@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 import type { PathwayResult, PathwayEntry } from "../types/pathway";
 
 // Color palette for event cohorts
@@ -31,6 +32,7 @@ export function SankeyDiagram({
   onPathwaySelect,
   selectedPathway,
 }: SankeyDiagramProps) {
+  const { t } = useTranslation("app");
   const [hoveredRow, setHoveredRow] = useState<number | null>(null);
 
   // Build color map from event cohort names
@@ -66,8 +68,8 @@ export function SankeyDiagram({
 
   if (topPathways.length === 0) {
     return (
-      <div className="flex items-center justify-center h-48 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
-        <p className="text-sm text-text-muted">No pathway data available</p>
+        <div className="flex items-center justify-center h-48 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
+        <p className="text-sm text-text-muted">{t("analyses.auto.noPathwayDataAvailable_72b95b")}</p>
       </div>
     );
   }
@@ -78,7 +80,7 @@ export function SankeyDiagram({
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-lg border border-border-default bg-surface-raised p-3">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-            Unique Pathways
+            {t("analyses.auto.uniquePathways_a540d6")}
           </p>
           <p className="mt-1 text-xl font-bold text-success">
             {result.summary.unique_pathways.toLocaleString()}
@@ -86,7 +88,7 @@ export function SankeyDiagram({
         </div>
         <div className="rounded-lg border border-border-default bg-surface-raised p-3">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-            With Events
+            {t("analyses.auto.withEvents_0246e8")}
           </p>
           <p className="mt-1 text-xl font-bold text-accent">
             {result.summary.persons_with_events.toLocaleString()}
@@ -94,7 +96,7 @@ export function SankeyDiagram({
         </div>
         <div className="rounded-lg border border-border-default bg-surface-raised p-3">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-            Without Events
+            {t("analyses.auto.withoutEvents_2a63ad")}
           </p>
           <p className="mt-1 text-xl font-bold text-text-muted">
             {result.summary.persons_without_events.toLocaleString()}
@@ -128,12 +130,12 @@ export function SankeyDiagram({
                 key={i}
                 className="flex-1 px-2 py-2 text-[10px] font-semibold uppercase tracking-wider text-text-muted text-center"
               >
-                Step {i + 1}
+                {t("analyses.auto.step_48c7c4")} {i + 1}
               </div>
             ))}
           </div>
           <div className="w-20 shrink-0 px-2 py-2 text-[10px] font-semibold uppercase tracking-wider text-text-muted text-right">
-            Count
+            {t("analyses.auto.count_e93f99")}
           </div>
           <div className="w-16 shrink-0 px-2 py-2 text-[10px] font-semibold uppercase tracking-wider text-text-muted text-right">
             %
@@ -205,7 +207,10 @@ export function SankeyDiagram({
                             {step}
                           </p>
                           <p className="text-[9px] text-text-muted">
-                            Step {stepIdx + 1} of {entry.path.length}
+                            {t("analyses.auto.stepStepOfTotal_8c6527", {
+                              step: stepIdx + 1,
+                              total: entry.path.length,
+                            })}
                           </p>
                         </div>
                       </div>

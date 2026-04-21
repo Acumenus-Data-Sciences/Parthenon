@@ -1,38 +1,48 @@
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { Loader2, Save, X, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { getCohortDefinitions } from "@/features/cohort-definitions/api/cohortApi";
 import { CovariateSettingsPanel } from "@/components/analysis/CovariateSettingsPanel";
 import type { SccsDesign, SccsAnalysis, RiskWindow } from "../types/sccs";
 import { useCreateSccs, useUpdateSccs } from "../hooks/useSccs";
 
-const defaultRiskWindow: RiskWindow = {
-  start: 0,
-  end: 30,
-  startAnchor: "era_start",
-  endAnchor: "era_start",
-  label: "Risk Window 1",
-};
+function createDefaultRiskWindow(
+  t: (key: string, options?: Record<string, unknown>) => string,
+  count: number,
+): RiskWindow {
+  return {
+    start: 0,
+    end: 30,
+    startAnchor: "era_start",
+    endAnchor: "era_start",
+    label: t("analyses.auto.riskWindow_4cbfa4", { count }),
+  };
+}
 
-const defaultDesign: SccsDesign = {
-  exposureCohortId: 0,
-  outcomeCohortId: 0,
-  riskWindows: [{ ...defaultRiskWindow }],
-  model: { type: "simple" },
-  studyPopulation: {
-    naivePeriod: 365,
-    firstOutcomeOnly: true,
-  },
-  covariateSettings: {
-    useDemographics: false,
-    useConditionOccurrence: true,
-    useDrugExposure: true,
-    useProcedureOccurrence: false,
-    useMeasurement: false,
-    timeWindows: [{ start: -365, end: 0 }],
-  },
-};
+function createDefaultDesign(
+  t: (key: string, options?: Record<string, unknown>) => string,
+): SccsDesign {
+  return {
+    exposureCohortId: 0,
+    outcomeCohortId: 0,
+    riskWindows: [createDefaultRiskWindow(t, 1)],
+    model: { type: "simple" },
+    studyPopulation: {
+      naivePeriod: 365,
+      firstOutcomeOnly: true,
+    },
+    covariateSettings: {
+      useDemographics: false,
+      useConditionOccurrence: true,
+      useDrugExposure: true,
+      useProcedureOccurrence: false,
+      useMeasurement: false,
+      timeWindows: [{ start: -365, end: 0 }],
+    },
+  };
+}
 
 interface SccsDesignerProps {
   sccs?: SccsAnalysis | null;
@@ -40,10 +50,45 @@ interface SccsDesignerProps {
   onSaved?: (s: SccsAnalysis) => void;
 }
 
+function getInitialSccsDesign(
+  sccs: SccsAnalysis | null | undefined,
+  defaultDesign: SccsDesign,
+): SccsDesign {
+  if (!sccs) return defaultDesign;
+  const dj = (sccs.design_json ?? {}) as unknown as Record<string, unknown>;
+  const studyPop = (
+    dj.studyPopulation ??
+    dj.studyPopulationSettings ??
+    defaultDesign.studyPopulation
+  ) as Record<string, unknown>;
+
+  return {
+    ...defaultDesign,
+    ...(sccs.design_json ?? {}),
+    studyPopulation: {
+      naivePeriod: (studyPop?.naivePeriod ?? studyPop?.naive_period ?? 365) as number,
+      firstOutcomeOnly: (studyPop?.firstOutcomeOnly ?? studyPop?.first_outcome_only ?? true) as boolean,
+    },
+    riskWindows: (
+      dj.riskWindows ??
+      dj.risk_windows ??
+      defaultDesign.riskWindows
+    ) as SccsDesign["riskWindows"],
+  };
+}
+
 export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [design, setDesign] = useState<SccsDesign>(defaultDesign);
+  const { t } = useTranslation("app");
+  const defaultDesign = useMemo(() => createDefaultDesign(t), [t]);
+  const initialDesign = useMemo(
+    () => getInitialSccsDesign(sccs, defaultDesign),
+    [sccs, defaultDesign],
+  );
+  const [name, setName] = useState(() => sccs?.name ?? "");
+  const [description, setDescription] = useState(
+    () => sccs?.description ?? "",
+  );
+  const [design, setDesign] = useState<SccsDesign>(() => initialDesign);
 
   const { data: cohortData, isLoading: loadingCohorts } = useQuery({
     queryKey: ["cohort-definitions", { page: 1, limit: 200 }],
@@ -54,25 +99,6 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
   const updateMutation = useUpdateSccs();
 
   const cohorts = cohortData?.items ?? [];
-
-  useEffect(() => {
-    if (sccs) {
-      setName(sccs.name);
-      setDescription(sccs.description ?? "");
-      // design_json may arrive from API in snake_case or camelCase — cast to Record for safe access
-      const dj = (sccs.design_json ?? {}) as unknown as Record<string, unknown>;
-      const studyPop = (dj.studyPopulation ?? dj.studyPopulationSettings ?? defaultDesign.studyPopulation) as Record<string, unknown>;
-      setDesign({
-        ...defaultDesign,
-        ...(sccs.design_json ?? {}),
-        studyPopulation: {
-          naivePeriod: (studyPop?.naivePeriod ?? studyPop?.naive_period ?? 365) as number,
-          firstOutcomeOnly: (studyPop?.firstOutcomeOnly ?? studyPop?.first_outcome_only ?? true) as boolean,
-        },
-        riskWindows: (dj.riskWindows ?? dj.risk_windows ?? defaultDesign.riskWindows) as SccsDesign["riskWindows"],
-      });
-    }
-  }, [sccs]);
 
   const handleSave = () => {
     if (!name.trim()) return;
@@ -94,15 +120,12 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
 
   const addRiskWindow = () => {
     setDesign((d) => ({
-      ...d,
-      riskWindows: [
-        ...d.riskWindows,
-        {
-          ...defaultRiskWindow,
-          label: `Risk Window ${d.riskWindows.length + 1}`,
-        },
-      ],
-    }));
+        ...d,
+        riskWindows: [
+          ...d.riskWindows,
+          createDefaultRiskWindow(t, d.riskWindows.length + 1),
+        ],
+      }));
   };
 
   const removeRiskWindow = (idx: number) => {
@@ -128,24 +151,24 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
     <div className="space-y-6">
       {/* Name & Description */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-text-primary">Basic Information</h3>
+        <h3 className="text-sm font-semibold text-text-primary">{t("analyses.auto.basicInformation_87cabb")}</h3>
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Name</label>
+            <label className="block text-xs font-medium text-text-muted mb-1">{t("analyses.auto.name_49ee30")}</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="SCCS analysis name"
+              placeholder={t("analyses.auto.sCCSAnalysisName_365367")}
               className={cn(inputCls, "placeholder:text-text-ghost")}
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Description</label>
+            <label className="block text-xs font-medium text-text-muted mb-1">{t("analyses.auto.description_b5a7ad")}</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Optional description"
+              placeholder={t("analyses.auto.optionalDescription_d196d2")}
               rows={2}
               className={cn(inputCls, "placeholder:text-text-ghost resize-none")}
             />
@@ -155,8 +178,8 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
 
       {/* Exposure Cohort */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-text-primary">Exposure Cohort</h3>
-        <p className="text-xs text-text-muted">Select the drug/exposure cohort. Each patient serves as their own control.</p>
+        <h3 className="text-sm font-semibold text-text-primary">{t("analyses.auto.exposureCohort_1d913c")}</h3>
+        <p className="text-xs text-text-muted">{t("analyses.auto.selectTheDrugExposureCohortEachPatientServesAsTheirOwnControl_ec7c52")}</p>
         {loadingCohorts ? (
           <Loader2 size={16} className="animate-spin text-text-muted" />
         ) : (
@@ -165,7 +188,7 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
             onChange={(e) => setDesign((d) => ({ ...d, exposureCohortId: Number(e.target.value) || 0 }))}
             className={inputCls}
           >
-            <option value="">Select exposure cohort...</option>
+            <option value="">{t("analyses.auto.selectExposureCohort_1ed618")}</option>
             {cohorts.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
@@ -175,8 +198,8 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
 
       {/* Outcome Cohort */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-text-primary">Outcome Cohort</h3>
-        <p className="text-xs text-text-muted">Select the adverse event/outcome to study.</p>
+        <h3 className="text-sm font-semibold text-text-primary">{t("analyses.auto.outcomeCohort_b279fb")}</h3>
+        <p className="text-xs text-text-muted">{t("analyses.auto.selectTheAdverseEventOutcomeToStudy_1dcc09")}</p>
         {loadingCohorts ? (
           <Loader2 size={16} className="animate-spin text-text-muted" />
         ) : (
@@ -185,7 +208,7 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
             onChange={(e) => setDesign((d) => ({ ...d, outcomeCohortId: Number(e.target.value) || 0 }))}
             className={inputCls}
           >
-            <option value="">Select outcome cohort...</option>
+            <option value="">{t("analyses.auto.selectOutcomeCohort_9a111f")}</option>
             {cohorts.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
@@ -196,17 +219,17 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
       {/* Risk Windows */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-text-primary">Risk Windows</h3>
+          <h3 className="text-sm font-semibold text-text-primary">{t("analyses.auto.riskWindows_09ce14")}</h3>
           <button
             type="button"
             onClick={addRiskWindow}
             className="inline-flex items-center gap-1 text-xs text-success hover:text-success-dark transition-colors"
           >
-            <Plus size={12} /> Add Window
+            <Plus size={12} /> {t("analyses.auto.addWindow_6251f7")}
           </button>
         </div>
         <p className="text-xs text-text-muted">
-          Define time windows relative to the exposure era where the outcome risk is assessed.
+          {t("analyses.auto.defineTimeWindowsRelativeToTheExposureEraWhereTheOutcomeRiskIsAssessed_1c5b18")}
         </p>
         {design.riskWindows.map((rw, idx) => (
           <div key={idx} className="rounded-lg border border-border-default bg-surface-base p-3 space-y-3">
@@ -229,7 +252,7 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
-                <label className="block text-[10px] text-text-ghost mb-1">Start Day</label>
+                <label className="block text-[10px] text-text-ghost mb-1">{t("analyses.auto.startDay_3e588e")}</label>
                 <input
                   type="number"
                   value={rw.start}
@@ -238,18 +261,18 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
                 />
               </div>
               <div>
-                <label className="block text-[10px] text-text-ghost mb-1">Start Anchor</label>
+                <label className="block text-[10px] text-text-ghost mb-1">{t("analyses.auto.startAnchor_084f3b")}</label>
                 <select
                   value={rw.startAnchor}
                   onChange={(e) => updateRiskWindow(idx, { startAnchor: e.target.value as "era_start" | "era_end" })}
                   className={inputCls}
                 >
-                  <option value="era_start">Era Start</option>
-                  <option value="era_end">Era End</option>
+                  <option value="era_start">{t("analyses.auto.eraStart_e33d7b")}</option>
+                  <option value="era_end">{t("analyses.auto.eraEnd_3c1837")}</option>
                 </select>
               </div>
               <div>
-                <label className="block text-[10px] text-text-ghost mb-1">End Day</label>
+                <label className="block text-[10px] text-text-ghost mb-1">{t("analyses.auto.endDay_95f661")}</label>
                 <input
                   type="number"
                   value={rw.end}
@@ -258,14 +281,14 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
                 />
               </div>
               <div>
-                <label className="block text-[10px] text-text-ghost mb-1">End Anchor</label>
+                <label className="block text-[10px] text-text-ghost mb-1">{t("analyses.auto.endAnchor_cabfb2")}</label>
                 <select
                   value={rw.endAnchor}
                   onChange={(e) => updateRiskWindow(idx, { endAnchor: e.target.value as "era_start" | "era_end" })}
                   className={inputCls}
                 >
-                  <option value="era_start">Era Start</option>
-                  <option value="era_end">Era End</option>
+                  <option value="era_start">{t("analyses.auto.eraStart_e33d7b")}</option>
+                  <option value="era_end">{t("analyses.auto.eraEnd_3c1837")}</option>
                 </select>
               </div>
             </div>
@@ -275,23 +298,23 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
 
       {/* Model & Population Settings */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-text-primary">Model & Population</h3>
+        <h3 className="text-sm font-semibold text-text-primary">{t("analyses.auto.modelPopulation_0ba724")}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Model Type</label>
+            <label className="block text-xs font-medium text-text-muted mb-1">{t("analyses.auto.modelType_e2716f")}</label>
             <select
               value={design.model.type}
               onChange={(e) => setDesign((d) => ({ ...d, model: { ...d.model, type: e.target.value as SccsDesign["model"]["type"] } }))}
               className={inputCls}
             >
-              <option value="simple">Simple (no adjustments)</option>
-              <option value="age_adjusted">Age-adjusted</option>
-              <option value="season_adjusted">Season-adjusted</option>
-              <option value="age_season_adjusted">Age + Season adjusted</option>
+              <option value="simple">{t("analyses.auto.simpleNoAdjustments_a92a57")}</option>
+              <option value="age_adjusted">{t("analyses.auto.ageAdjusted_f91311")}</option>
+              <option value="season_adjusted">{t("analyses.auto.seasonAdjusted_eda83a")}</option>
+              <option value="age_season_adjusted">{t("analyses.auto.ageSeasonAdjusted_e098ef")}</option>
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Naive Period (days)</label>
+            <label className="block text-xs font-medium text-text-muted mb-1">{t("analyses.auto.naivePeriodDays_a1cb8f")}</label>
             <input
               type="number"
               min={0}
@@ -322,7 +345,7 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
                 (design.studyPopulation?.firstOutcomeOnly ?? true) && "translate-x-4",
               )} />
             </button>
-            First Outcome Only
+            {t("analyses.auto.firstOutcomeOnly_970177")}
           </label>
         </div>
       </div>
@@ -351,7 +374,7 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
           className="inline-flex items-center gap-2 rounded-lg bg-success px-5 py-2.5 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors disabled:opacity-50"
         >
           {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-          {isNew ? "Create" : "Save Changes"}
+          {isNew ? t("analyses.auto.create_686e69") : t("analyses.auto.saveChanges_f5d604")}
         </button>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Loader2, AlertCircle, ArrowUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 import { SccsTimeline } from "@/features/estimation/components/SccsTimeline";
 import { SccsVerdictDashboard, InlineMiniForestPlot } from "./SccsVerdictDashboard";
 import type { AnalysisExecution } from "@/features/analyses/types/analysis";
@@ -16,6 +17,7 @@ type SortField = "covariate" | "irr";
 type SortDir = "asc" | "desc";
 
 export function SccsResults({ execution, isLoading }: SccsResultsProps) {
+  const { t } = useTranslation("app");
   const [sortField, setSortField] = useState<SortField>("irr");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
@@ -39,7 +41,7 @@ export function SccsResults({ execution, isLoading }: SccsResultsProps) {
   if (!execution) {
     return (
       <div className="text-center py-12 text-text-ghost text-sm">
-        No execution selected. Run the analysis to see results.
+        {t("analyses.auto.noExecutionSelectedRunTheAnalysisToSeeResults_cb09f9")}
       </div>
     );
   }
@@ -49,7 +51,9 @@ export function SccsResults({ execution, isLoading }: SccsResultsProps) {
       <div className="flex flex-col items-center justify-center py-12 gap-3">
         <Loader2 size={24} className="animate-spin text-success" />
         <p className="text-sm text-text-muted">
-          SCCS analysis is {execution.status}...
+          {t("analyses.auto.sCCSAnalysisIs_c68ce9", {
+            status: execution.status,
+          })}
         </p>
       </div>
     );
@@ -61,9 +65,9 @@ export function SccsResults({ execution, isLoading }: SccsResultsProps) {
         <div className="flex items-start gap-2">
           <AlertCircle size={16} className="text-critical shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-critical">Execution Failed</p>
+            <p className="text-sm font-medium text-critical">{t("analyses.auto.executionFailed_d0cb03")}</p>
             <p className="text-xs text-text-muted mt-1">
-              {execution.fail_message ?? "Unknown error"}
+              {execution.fail_message ?? t("analyses.auto.unknownError_aee978")}
             </p>
           </div>
         </div>
@@ -76,7 +80,7 @@ export function SccsResults({ execution, isLoading }: SccsResultsProps) {
   if (!result || result.status !== "completed") {
     return (
       <div className="text-center py-12 text-text-ghost text-sm">
-        {result?.message ?? "No results available."}
+        {result?.message ?? t("analyses.auto.noResultsAvailable_e29de7")}
       </div>
     );
   }
@@ -106,6 +110,7 @@ function SccsResultsContent({
   sortDir: SortDir;
   toggleSort: (field: SortField) => void;
 }) {
+  const { t } = useTranslation("app");
   const sortedEstimates = useMemo(() => {
     if (!result.estimates || result.estimates.length === 0) return [];
     const sorted = [...result.estimates].sort((a, b) => {
@@ -126,9 +131,12 @@ function SccsResultsContent({
       {result.population && (
         <div className="grid grid-cols-3 gap-4">
           {[
-            { label: "Cases", value: result.population.cases },
-            { label: "Outcomes", value: result.population.outcomes },
-            { label: "Observation Periods", value: result.population.observation_periods },
+            { label: t("analyses.auto.cases_b1f0b8"), value: result.population.cases },
+            { label: t("analyses.auto.outcomes_d08355"), value: result.population.outcomes },
+            {
+              label: t("analyses.auto.observationPeriods_6ee256"),
+              value: result.population.observation_periods,
+            },
           ].map((card) => (
             <div
               key={card.label}
@@ -148,7 +156,7 @@ function SccsResultsContent({
         <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
           <div className="p-4 border-b border-border-default">
             <h3 className="text-sm font-semibold text-text-primary">
-              Incidence Rate Ratios
+              {t("analyses.auto.incidenceRateRatios_2b6445")}
             </h3>
           </div>
           <div className="overflow-x-auto">
@@ -160,7 +168,7 @@ function SccsResultsContent({
                     onClick={() => toggleSort("covariate")}
                   >
                     <span className="inline-flex items-center gap-1">
-                      Covariate
+                      {t("analyses.auto.covariate_51b9fe")}
                       <ArrowUpDown size={12} className="opacity-50" />
                     </span>
                   </th>
@@ -169,13 +177,19 @@ function SccsResultsContent({
                     onClick={() => toggleSort("irr")}
                   >
                     <span className="inline-flex items-center gap-1">
-                      IRR
+                      {t("analyses.auto.iRR_eaa16a")}
                       <ArrowUpDown size={12} className="opacity-50" />
                     </span>
                   </th>
-                  {["95% CI Lower", "95% CI Upper", "Log RR", "SE", ""].map((h) => (
+                  {[
+                    t("analyses.auto.95CILower_3d16ad"),
+                    t("analyses.auto.95CIUpper_7d61ea"),
+                    t("analyses.auto.logRR_0b9483"),
+                    "SE",
+                    "",
+                  ].map((h) => (
                     <th key={h || "forest"} className="px-4 py-2 text-left text-xs font-medium text-text-muted">
-                      {h || "Forest Plot"}
+                      {h || t("analyses.auto.forestPlot_38213b")}
                     </th>
                   ))}
                 </tr>
@@ -213,7 +227,7 @@ function SccsResultsContent({
       {result.eras && result.eras.length > 0 && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <h3 className="text-sm font-semibold text-text-primary mb-4">
-            Risk Window Timeline
+            {t("analyses.auto.riskWindowTimeline_f301f1")}
           </h3>
           <div className="flex justify-center">
             <SccsTimeline eras={result.eras} />
@@ -224,7 +238,7 @@ function SccsResultsContent({
       {/* Execution Info */}
       {result.elapsed_seconds != null && (
         <p className="text-xs text-text-ghost">
-          Completed in {fmt(result.elapsed_seconds, 1)}s
+          {t("analyses.auto.completedIn_d9d00a")} {fmt(result.elapsed_seconds, 1)}s
         </p>
       )}
     </div>

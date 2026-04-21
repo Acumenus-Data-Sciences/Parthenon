@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 interface BoxPlotStats {
   min: number;
   q1: number;
@@ -16,6 +18,7 @@ export function DiscriminationBoxPlot({
   outcomeGroup,
   noOutcomeGroup,
 }: DiscriminationBoxPlotProps) {
+  const { t } = useTranslation("app");
   const width = 500;
   const height = 200;
   const padding = { top: 20, right: 30, bottom: 40, left: 130 };
@@ -93,7 +96,9 @@ export function DiscriminationBoxPlot({
         viewBox={`0 0 ${width} ${height}`}
         className="text-text-primary"
         role="img"
-        aria-label="Discrimination box plot showing predicted probability distribution by outcome status"
+        aria-label={t(
+          "analyses.auto.discriminationBoxPlotShowingPredictedProbabilityDistributionByOutcomeStatus_14e88d",
+        )}
       >
         <rect width={width} height={height} fill="var(--surface-raised)" rx={8} />
 
@@ -116,7 +121,7 @@ export function DiscriminationBoxPlot({
           fontSize={11}
           fontWeight={500}
         >
-          With Outcome
+          {t("analyses.auto.withOutcome_907788")}
         </text>
         <text
           x={padding.left - 10}
@@ -126,7 +131,7 @@ export function DiscriminationBoxPlot({
           fontSize={11}
           fontWeight={500}
         >
-          Without Outcome
+          {t("analyses.auto.withoutOutcome_12e6b4")}
         </text>
 
         {/* Box plots */}
@@ -145,7 +150,7 @@ export function DiscriminationBoxPlot({
           fontSize={11}
           fontWeight={600}
         >
-          Predicted Probability
+          {t("analyses.auto.predictedProbability_81f385")}
         </text>
       </svg>
     </div>

@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useRef } from "react";
 import { fmt } from "@/lib/formatters";
+import { useTranslation } from "react-i18next";
 
 interface RocCurveProps {
   data: { fpr: number; tpr: number }[];
@@ -7,16 +8,27 @@ interface RocCurveProps {
   validationData?: { fpr: number; tpr: number }[];
 }
 
+const ROC_WIDTH = 400;
+const ROC_HEIGHT = 400;
+const ROC_PADDING = { top: 30, right: 30, bottom: 50, left: 55 } as const;
+
 export function RocCurve({ data, auc, validationData }: RocCurveProps) {
-  const width = 400;
-  const height = 400;
-  const padding = { top: 30, right: 30, bottom: 50, left: 55 };
+  const { t } = useTranslation("app");
+  const width = ROC_WIDTH;
+  const height = ROC_HEIGHT;
+  const padding = ROC_PADDING;
   const plotW = width - padding.left - padding.right;
   const plotH = height - padding.top - padding.bottom;
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const toX = (fpr: number) => padding.left + fpr * plotW;
-  const toY = (tpr: number) => padding.top + (1 - tpr) * plotH;
+  const toX = useCallback(
+    (fpr: number) => padding.left + fpr * plotW,
+    [padding.left, plotW],
+  );
+  const toY = useCallback(
+    (tpr: number) => padding.top + (1 - tpr) * plotH,
+    [padding.top, plotH],
+  );
 
   const sortedData = useMemo(() => [...data].sort((a, b) => a.fpr - b.fpr), [data]);
 
@@ -32,7 +44,7 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
             )
             .join(" ")
         : "",
-    [sortedData],
+    [sortedData, toX, toY],
   );
 
   // Fill area under curve
@@ -41,7 +53,7 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
       sortedData.length > 0
         ? `${pathD} L ${toX(sortedData[sortedData.length - 1].fpr)} ${toY(0)} L ${toX(sortedData[0].fpr)} ${toY(0)} Z`
         : "",
-    [sortedData, pathD],
+    [sortedData, pathD, toX, toY],
   );
 
   // Validation overlay path
@@ -55,7 +67,7 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
           : `L ${toX(pt.fpr)} ${toY(pt.tpr)}`,
       )
       .join(" ");
-  }, [validationData]);
+  }, [validationData, toX, toY]);
 
   // Youden's J optimal point: max(TPR - FPR)
   const youdenPoint = useMemo(() => {
@@ -140,7 +152,7 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
         threshold: approxThreshold,
       });
     },
-    [sortedData],
+    [height, padding.left, padding.top, plotH, plotW, sortedData, toX, toY, width],
   );
 
   const handleMouseLeave = useCallback(() => setHoverPoint(null), []);
@@ -271,8 +283,11 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
             fontFamily="IBM Plex Mono, monospace"
             data-testid="youden-j-label"
           >
-            J={fmt(youdenPoint.j, 2)} Sens={fmt(youdenPoint.tpr, 2)} Spec=
-            {fmt(1 - youdenPoint.fpr, 2)}
+            {t("analyses.auto.youdenJSummary_63e450", {
+              j: fmt(youdenPoint.j, 2),
+              sensitivity: fmt(youdenPoint.tpr, 2),
+              specificity: fmt(1 - youdenPoint.fpr, 2),
+            })}
           </text>
         </g>
       )}
@@ -326,7 +341,10 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
             fontSize={9}
             fontFamily="IBM Plex Mono, monospace"
           >
-            Thr={fmt(hoverPoint.threshold, 2)} Sens={fmt(hoverPoint.tpr, 2)}
+            {t("analyses.auto.thresholdSensitivity_f9de14", {
+              threshold: fmt(hoverPoint.threshold, 2),
+              sensitivity: fmt(hoverPoint.tpr, 2),
+            })}
           </text>
           <text
             x={Math.min(hoverPoint.x + 16, padding.left + plotW - 134)}
@@ -335,7 +353,10 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
             fontSize={9}
             fontFamily="IBM Plex Mono, monospace"
           >
-            Spec={fmt(1 - hoverPoint.fpr, 2)} FPR={fmt(hoverPoint.fpr, 2)}
+            {t("analyses.auto.specificityFpr_6c8baf", {
+              specificity: fmt(1 - hoverPoint.fpr, 2),
+              fpr: fmt(hoverPoint.fpr, 2),
+            })}
           </text>
         </g>
       )}
@@ -371,7 +392,7 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
         fontWeight={700}
         fontFamily="IBM Plex Mono, monospace"
       >
-        AUC = {fmt(auc)}
+        {t("analyses.auto.aucEquals_4305a3", { value: fmt(auc) })}
       </text>
 
       {/* Validation legend (if present) */}
@@ -402,7 +423,7 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
             fill="var(--accent)"
             fontSize={10}
           >
-            Validation
+            {t("analyses.auto.validation_5190f3")}
           </text>
         </g>
       )}
@@ -416,7 +437,7 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
         fontSize={11}
         fontWeight={600}
       >
-        False Positive Rate
+        {t("analyses.auto.falsePositiveRate_4fe351")}
       </text>
       <text
         x={14}
@@ -427,7 +448,7 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
         fontWeight={600}
         transform={`rotate(-90 14 ${padding.top + plotH / 2})`}
       >
-        True Positive Rate
+        {t("analyses.auto.truePositiveRate_04fb45")}
       </text>
     </svg>
   );

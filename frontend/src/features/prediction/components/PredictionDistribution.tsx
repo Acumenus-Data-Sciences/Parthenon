@@ -1,10 +1,12 @@
 import { fmt } from "@/lib/formatters";
+import { useTranslation } from "react-i18next";
 
 interface PredictionDistributionProps {
   bins: { binStart: number; binEnd: number; outcomeCount: number; noOutcomeCount: number }[];
 }
 
 export function PredictionDistribution({ bins }: PredictionDistributionProps) {
+  const { t } = useTranslation("app");
   if (bins.length === 0) return null;
 
   const width = 500;
@@ -35,7 +37,9 @@ export function PredictionDistribution({ bins }: PredictionDistributionProps) {
         viewBox={`0 0 ${width} ${height}`}
         className="text-text-primary"
         role="img"
-        aria-label="Prediction distribution histogram"
+        aria-label={t(
+          "analyses.auto.predictionDistributionHistogram_cca0ea",
+        )}
       >
         <rect width={width} height={height} fill="var(--surface-raised)" rx={8} />
 
@@ -76,7 +80,10 @@ export function PredictionDistribution({ bins }: PredictionDistributionProps) {
                 rx={1}
               >
                 <title>
-                  {fmt(bin.binStart, 2)}-{fmt(bin.binEnd, 2)}: {bin.noOutcomeCount} without outcome
+                  {t("analyses.auto.binWithoutOutcome_78b2dc", {
+                    range: `${fmt(bin.binStart, 2)}-${fmt(bin.binEnd, 2)}`,
+                    count: bin.noOutcomeCount,
+                  })}
                 </title>
               </rect>
               {/* Outcome (top, stacked) */}
@@ -90,7 +97,10 @@ export function PredictionDistribution({ bins }: PredictionDistributionProps) {
                 rx={1}
               >
                 <title>
-                  {fmt(bin.binStart, 2)}-{fmt(bin.binEnd, 2)}: {bin.outcomeCount} with outcome
+                  {t("analyses.auto.binWithOutcome_59d6c3", {
+                    range: `${fmt(bin.binStart, 2)}-${fmt(bin.binEnd, 2)}`,
+                    count: bin.outcomeCount,
+                  })}
                 </title>
               </rect>
             </g>
@@ -114,14 +124,14 @@ export function PredictionDistribution({ bins }: PredictionDistributionProps) {
         <g transform={`translate(${padding.left + plotW - 175}, ${padding.top + 8})`}>
           <rect x={0} y={0} width={165} height={42} rx={4} fill="var(--surface-base)" stroke="var(--surface-elevated)" strokeWidth={1} />
           <rect x={10} y={8} width={10} height={10} rx={2} fill="var(--critical)" opacity={0.6} />
-          <text x={26} y={17} fill="var(--text-secondary)" fontSize={10}>With Outcome</text>
+          <text x={26} y={17} fill="var(--text-secondary)" fontSize={10}>{t("analyses.auto.withOutcome_907788")}</text>
           <rect x={10} y={26} width={10} height={10} rx={2} fill="var(--success)" opacity={0.5} />
-          <text x={26} y={35} fill="var(--text-secondary)" fontSize={10}>Without Outcome</text>
+          <text x={26} y={35} fill="var(--text-secondary)" fontSize={10}>{t("analyses.auto.withoutOutcome_12e6b4")}</text>
         </g>
 
         {/* Axis labels */}
         <text x={padding.left + plotW / 2} y={height - 8} textAnchor="middle" fill="var(--text-muted)" fontSize={11} fontWeight={600}>
-          Predicted Probability
+          {t("analyses.auto.predictedProbability_81f385")}
         </text>
         <text
           x={14}
@@ -132,7 +142,7 @@ export function PredictionDistribution({ bins }: PredictionDistributionProps) {
           fontWeight={600}
           transform={`rotate(-90 14 ${padding.top + plotH / 2})`}
         >
-          Count
+          {t("analyses.auto.count_2cdff4")}
         </text>
       </svg>
     </div>

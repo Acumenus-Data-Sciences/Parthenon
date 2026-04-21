@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { fmt, num } from "@/lib/formatters";
+import { useTranslation } from "react-i18next";
 
 export interface HeterogeneitySite {
   site_name: string;
@@ -30,6 +31,7 @@ function getBubbleColor(hr: number, ciLower: number, ciUpper: number): string {
 }
 
 export function SiteHeterogeneityMap({ sites, pooledHr }: SiteHeterogeneityMapProps) {
+  const { t } = useTranslation("app");
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   if (sites.length === 0) return null;
@@ -65,7 +67,9 @@ export function SiteHeterogeneityMap({ sites, pooledHr }: SiteHeterogeneityMapPr
 
   return (
     <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-      <h3 className="text-sm font-semibold text-text-primary mb-3">Site Heterogeneity Map</h3>
+      <h3 className="text-sm font-semibold text-text-primary mb-3">
+        {t("analyses.auto.siteHeterogeneityMap_34e5ac")}
+      </h3>
       <svg
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         className="w-full"
@@ -154,7 +158,9 @@ export function SiteHeterogeneityMap({ sites, pooledHr }: SiteHeterogeneityMapPr
                 HR {fmt(site.hr, 3)} [{fmt(site.ci_lower, 3)}, {fmt(site.ci_upper, 3)}]
               </text>
               <text x={tooltipX + 8} y={tooltipY - 11} fill="var(--text-muted)" fontSize={9} fontFamily="monospace">
-                Weight: {fmt(site.weight, 1)}%
+                {t("analyses.auto.weightValue_f3c4f7", {
+                  value: `${fmt(site.weight, 1)}%`,
+                })}
               </text>
             </g>
           );
@@ -205,7 +211,7 @@ export function SiteHeterogeneityMap({ sites, pooledHr }: SiteHeterogeneityMapPr
           fontSize={10}
           textAnchor="middle"
         >
-          Hazard Ratio (log scale)
+          {t("analyses.auto.hazardRatioLogScale_453e55")}
         </text>
       </svg>
     </div>

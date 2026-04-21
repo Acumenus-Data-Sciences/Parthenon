@@ -1,4 +1,5 @@
 import { fmt } from "@/lib/formatters";
+import { useTranslation } from "react-i18next";
 
 interface PSDistributionPoint {
   score: number;
@@ -16,9 +17,14 @@ interface PropensityScorePlotProps {
 export function PropensityScorePlot({
   data,
   auc,
-  targetLabel = "Target",
-  comparatorLabel = "Comparator",
+  targetLabel,
+  comparatorLabel,
 }: PropensityScorePlotProps) {
+  const { t } = useTranslation("app");
+  const resolvedTargetLabel =
+    targetLabel ?? t("analyses.auto.targetCohort_4d7f0b");
+  const resolvedComparatorLabel =
+    comparatorLabel ?? t("analyses.auto.comparatorCohort_904c75");
   if (data.length === 0) return null;
 
   const width = 600;
@@ -94,7 +100,7 @@ export function PropensityScorePlot({
         viewBox={`0 0 ${width} ${height}`}
         className="text-text-primary"
         role="img"
-        aria-label="Propensity score distribution"
+        aria-label={t("analyses.auto.propensityScoreDistribution_f5ab12")}
       >
         <rect width={width} height={height} fill="var(--surface-raised)" rx={8} />
 
@@ -181,7 +187,7 @@ export function PropensityScorePlot({
             strokeWidth={2.5}
           />
           <text x={34} y={18} fill="var(--text-secondary)" fontSize={11}>
-            {targetLabel}
+            {resolvedTargetLabel}
           </text>
           <line
             x1={8}
@@ -192,7 +198,7 @@ export function PropensityScorePlot({
             strokeWidth={2.5}
           />
           <text x={34} y={36} fill="var(--text-secondary)" fontSize={11}>
-            {comparatorLabel}
+            {resolvedComparatorLabel}
           </text>
           {auc !== undefined && (
             <text
@@ -202,7 +208,7 @@ export function PropensityScorePlot({
               fontSize={10}
               fontFamily="IBM Plex Mono, monospace"
             >
-              PS AUC = {fmt(auc)}
+              {t("analyses.auto.pSAUC_0092fa")} {fmt(auc)}
             </text>
           )}
         </g>
@@ -216,7 +222,7 @@ export function PropensityScorePlot({
           fontSize={11}
           fontWeight={600}
         >
-          Propensity Score
+          {t("analyses.auto.propensityScore_1cf048")}
         </text>
         <text
           x={14}
@@ -227,7 +233,7 @@ export function PropensityScorePlot({
           fontWeight={600}
           transform={`rotate(-90 14 ${padding.top + plotH / 2})`}
         >
-          Density
+          {t("analyses.auto.density_7e6d11")}
         </text>
       </svg>
     </div>

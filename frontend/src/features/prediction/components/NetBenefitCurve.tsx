@@ -1,11 +1,13 @@
 import { useMemo } from "react";
 import { fmt } from "@/lib/formatters";
+import { useTranslation } from "react-i18next";
 
 interface NetBenefitCurveProps {
   data: { threshold: number; model: number; treatAll: number; treatNone: number }[];
 }
 
 export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
+  const { t } = useTranslation("app");
   // Compute shaded benefit region: where model > max(treatAll, treatNone)
   const benefitFillD = useMemo(() => {
     if (data.length === 0) return [];
@@ -61,7 +63,11 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
 
   // Find crossover points: where model crosses treatAll or treatNone
   const crossoverPoints = useMemo(() => {
-    const points: { threshold: number; y: number; label: string }[] = [];
+    const points: {
+      threshold: number;
+      y: number;
+      isTreatAll: boolean;
+    }[] = [];
 
     for (let i = 1; i < data.length; i++) {
       const prev = data[i - 1];
@@ -75,7 +81,11 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
         const t = Math.abs(prevDiffAll) / (Math.abs(prevDiffAll) + Math.abs(currDiffAll));
         const crossThreshold = prev.threshold + t * (curr.threshold - prev.threshold);
         const crossValue = prev.model + t * (curr.model - prev.model);
-        points.push({ threshold: crossThreshold, y: crossValue, label: "Treat All" });
+        points.push({
+          threshold: crossThreshold,
+          y: crossValue,
+          isTreatAll: true,
+        });
       }
 
       // Model crosses treat-none (y=0)
@@ -85,7 +95,11 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
         const t = Math.abs(prevDiffNone) / (Math.abs(prevDiffNone) + Math.abs(currDiffNone));
         const crossThreshold = prev.threshold + t * (curr.threshold - prev.threshold);
         const crossValue = prev.model + t * (curr.model - prev.model);
-        points.push({ threshold: crossThreshold, y: crossValue, label: "Treat None" });
+        points.push({
+          threshold: crossThreshold,
+          y: crossValue,
+          isTreatAll: false,
+        });
       }
     }
 
@@ -135,7 +149,9 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
         viewBox={`0 0 ${width} ${height}`}
         className="text-text-primary"
         role="img"
-        aria-label="Decision curve analysis showing net benefit vs threshold probability"
+        aria-label={t(
+          "analyses.auto.decisionCurveAnalysisShowingNetBenefitVsThresholdProbability_c20392",
+        )}
         data-testid="net-benefit-curve-svg"
       >
         <rect width={width} height={height} fill="var(--surface-raised)" rx={8} />
@@ -219,7 +235,11 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
               fontSize={8}
               fontFamily="IBM Plex Mono, monospace"
             >
-              {fmt(pt.threshold, 2)} ({pt.label})
+              {fmt(pt.threshold, 2)} (
+              {pt.isTreatAll
+                ? t("analyses.auto.treatAll_479b7c")
+                : t("analyses.auto.treatNone_b32c4d")}
+              )
             </text>
           </g>
         ))}
@@ -231,16 +251,16 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
         <g transform={`translate(${padding.left + plotW - 170}, ${padding.top + 8})`}>
           <rect x={0} y={0} width={160} height={58} rx={4} fill="var(--surface-base)" stroke="var(--surface-elevated)" strokeWidth={1} />
           <line x1={10} y1={12} x2={30} y2={12} stroke="var(--success)" strokeWidth={2} />
-          <text x={36} y={16} fill="var(--text-secondary)" fontSize={10}>Model</text>
+          <text x={36} y={16} fill="var(--text-secondary)" fontSize={10}>{t("analyses.auto.model_8a5a1d")}</text>
           <line x1={10} y1={28} x2={30} y2={28} stroke="var(--critical)" strokeWidth={1.5} strokeDasharray="6 4" />
-          <text x={36} y={32} fill="var(--text-secondary)" fontSize={10}>Treat All</text>
+          <text x={36} y={32} fill="var(--text-secondary)" fontSize={10}>{t("analyses.auto.treatAll_479b7c")}</text>
           <line x1={10} y1={44} x2={30} y2={44} stroke="var(--text-ghost)" strokeWidth={1.5} strokeDasharray="4 4" />
-          <text x={36} y={48} fill="var(--text-secondary)" fontSize={10}>Treat None</text>
+          <text x={36} y={48} fill="var(--text-secondary)" fontSize={10}>{t("analyses.auto.treatNone_b32c4d")}</text>
         </g>
 
         {/* Axis labels */}
         <text x={padding.left + plotW / 2} y={height - 8} textAnchor="middle" fill="var(--text-muted)" fontSize={11} fontWeight={600}>
-          Threshold Probability
+          {t("analyses.auto.thresholdProbability_2f1c52")}
         </text>
         <text
           x={14}
@@ -251,7 +271,7 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
           fontWeight={600}
           transform={`rotate(-90 14 ${padding.top + plotH / 2})`}
         >
-          Net Benefit
+          {t("analyses.auto.netBenefit_0d4f0a")}
         </text>
       </svg>
     </div>

@@ -1,4 +1,5 @@
 import { Loader2, AlertCircle, Info } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { RocCurve } from "./RocCurve";
 import { CalibrationPlot } from "./CalibrationPlot";
 import { PrecisionRecallCurve } from "./PrecisionRecallCurve";
@@ -105,6 +106,7 @@ export function PredictionResults({
   execution,
   isLoading,
 }: PredictionResultsProps) {
+  const { t } = useTranslation("app");
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -118,12 +120,14 @@ export function PredictionResults({
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
         <AlertCircle size={24} className="text-text-ghost mb-3" />
         <h3 className="text-sm font-semibold text-text-primary">
-          No results available
+          {t("analyses.auto.noResultsAvailable_e29de7")}
         </h3>
         <p className="mt-1 text-xs text-text-muted">
           {execution
-            ? `Execution status: ${execution.status}`
-            : "Execute the analysis to generate results."}
+            ? t("analyses.auto.executionStatusStatus_540db0", {
+                status: execution.status,
+              })
+            : t("analyses.auto.executeTheAnalysisToGenerateResults_a62421")}
         </p>
         {execution?.fail_message && (
           <p className="mt-2 text-xs text-critical max-w-md text-center">
@@ -141,7 +145,7 @@ export function PredictionResults({
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
         <AlertCircle size={24} className="text-text-ghost mb-3" />
         <p className="text-sm text-text-muted">
-          Execution completed but no results were returned.
+          {t("analyses.auto.executionCompletedButNoResultsWereReturned_bc0318")}
         </p>
       </div>
     );
@@ -155,7 +159,7 @@ export function PredictionResults({
           <Info size={18} className="text-accent shrink-0 mt-0.5" />
           <div>
             <h3 className="text-sm font-semibold text-accent">
-              R Sidecar Pending
+              {t("analyses.auto.rSidecarPending_b8be5c")}
             </h3>
             <p className="mt-1 text-xs text-text-muted">
               {result.message ||
@@ -185,14 +189,14 @@ export function PredictionResults({
           </p>
         </div>
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-          <p className="text-xs font-medium text-text-muted">Brier Score</p>
+          <p className="text-xs font-medium text-text-muted">{t("analyses.auto.brierScore_1462b0")}</p>
           <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-accent">
             {fmt(result.performance.brier_score, 4)}
           </p>
         </div>
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <p className="text-xs font-medium text-text-muted">
-            Calibration Slope
+            {t("analyses.auto.calibrationSlope_5d893f")}
           </p>
           <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-text-primary">
             {fmt(result.performance.calibration_slope)}
@@ -200,7 +204,7 @@ export function PredictionResults({
         </div>
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <p className="text-xs font-medium text-text-muted">
-            Calibration Intercept
+            {t("analyses.auto.calibrationIntercept_d140b5")}
           </p>
           <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-text-primary">
             {fmt(result.performance.calibration_intercept)}
@@ -213,7 +217,7 @@ export function PredictionResults({
         <div className="flex items-center gap-8">
           <div>
             <p className="text-xs font-medium text-text-muted">
-              Target Population
+              {t("analyses.auto.targetPopulation_63e97d")}
             </p>
             <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-success">
               {num(result.summary.target_count).toLocaleString()}
@@ -221,7 +225,7 @@ export function PredictionResults({
           </div>
           <div>
             <p className="text-xs font-medium text-text-muted">
-              Outcome Count
+              {t("analyses.auto.outcomeCount_973ce4")}
             </p>
             <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-accent">
               {num(result.summary.outcome_count).toLocaleString()}
@@ -229,7 +233,7 @@ export function PredictionResults({
           </div>
           <div>
             <p className="text-xs font-medium text-text-muted">
-              Outcome Rate
+              {t("analyses.auto.outcomeRate_e6e770")}
             </p>
             <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-text-primary">
               {fmt(num(result.summary.outcome_rate) * 100, 2)}%
@@ -244,7 +248,7 @@ export function PredictionResults({
         {result.roc_curve && result.roc_curve.length > 0 && (
           <div className="rounded-lg border border-border-default bg-surface-raised p-4">
             <h3 className="text-sm font-semibold text-text-primary mb-4">
-              ROC Curve
+              {t("analyses.auto.rOCCurve_d728c2")}
             </h3>
             <div className="flex justify-center">
               <RocCurve
@@ -259,7 +263,7 @@ export function PredictionResults({
         {result.calibration && result.calibration.length > 0 && (
           <div className="rounded-lg border border-border-default bg-surface-raised p-4">
             <h3 className="text-sm font-semibold text-text-primary mb-4">
-              Calibration Plot
+              {t("analyses.auto.calibrationPlot_0c67e3")}
             </h3>
             <div className="flex justify-center">
               <CalibrationPlot
@@ -276,7 +280,7 @@ export function PredictionResults({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {result.precision_recall_curve && result.precision_recall_curve.length > 0 && (
           <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-            <h3 className="text-sm font-semibold text-text-primary mb-4">Precision-Recall Curve</h3>
+            <h3 className="text-sm font-semibold text-text-primary mb-4">{t("analyses.auto.precisionRecallCurve_fd1fbf")}</h3>
             <div className="flex justify-center">
               <PrecisionRecallCurve data={result.precision_recall_curve} auprc={num(result.performance.auprc)} />
             </div>
@@ -284,7 +288,7 @@ export function PredictionResults({
         )}
         {result.discrimination && (
           <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-            <h3 className="text-sm font-semibold text-text-primary mb-4">Discrimination Box Plot</h3>
+            <h3 className="text-sm font-semibold text-text-primary mb-4">{t("analyses.auto.discriminationBoxPlot_3f9226")}</h3>
             <div className="flex justify-center">
               <DiscriminationBoxPlot outcomeGroup={result.discrimination.outcome_group} noOutcomeGroup={result.discrimination.no_outcome_group} />
             </div>
@@ -296,7 +300,7 @@ export function PredictionResults({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {result.net_benefit && result.net_benefit.length > 0 && (
           <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-            <h3 className="text-sm font-semibold text-text-primary mb-4">Decision Curve Analysis</h3>
+            <h3 className="text-sm font-semibold text-text-primary mb-4">{t("analyses.auto.decisionCurveAnalysis_0750e3")}</h3>
             <div className="flex justify-center">
               <NetBenefitCurve data={result.net_benefit} />
             </div>
@@ -304,7 +308,7 @@ export function PredictionResults({
         )}
         {result.prediction_distribution && result.prediction_distribution.length > 0 && (
           <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-            <h3 className="text-sm font-semibold text-text-primary mb-4">Prediction Distribution</h3>
+            <h3 className="text-sm font-semibold text-text-primary mb-4">{t("analyses.auto.predictionDistribution_4ef59a")}</h3>
             <div className="flex justify-center">
               <PredictionDistribution bins={result.prediction_distribution} />
             </div>
@@ -315,10 +319,10 @@ export function PredictionResults({
       {/* External Validation Comparison */}
       {result.external_validation && result.external_validation.length > 0 && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-          <h3 className="text-sm font-semibold text-text-primary mb-4">External Validation Comparison</h3>
+          <h3 className="text-sm font-semibold text-text-primary mb-4">{t("analyses.auto.externalValidationComparison_1f2571")}</h3>
           <ExternalValidationComparison
             development={{
-              database_name: "Development",
+              database_name: t("analyses.auto.development_330f49"),
               auc: num(result.performance.auc),
               auc_ci_lower: num(result.performance.auc_ci_lower),
               auc_ci_upper: num(result.performance.auc_ci_upper),
@@ -338,20 +342,20 @@ export function PredictionResults({
         <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
           <div className="p-4 border-b border-border-default">
             <h3 className="text-sm font-semibold text-text-primary">
-              Top Predictors
+              {t("analyses.auto.topPredictors_f1a232")}
             </h3>
           </div>
           <table className="w-full">
             <thead>
               <tr className="bg-surface-overlay">
                 <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                  Covariate
+                  {t("analyses.auto.covariate_51b9fe")}
                 </th>
                 <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                  Coefficient
+                  {t("analyses.auto.coefficient_95c849")}
                 </th>
                 <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                  Importance
+                  {t("analyses.auto.importance_f0d806")}
                 </th>
               </tr>
             </thead>

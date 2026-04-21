@@ -11,10 +11,10 @@ npm run i18n:scan
 
 Current scanner output:
 
-- Full frontend scanner: 4,356 candidates across 1,103 scanned files.
+- Full frontend scanner: 3,878 candidates across 1,103 scanned files.
 - FinnGen paths excluded from this i18n track: 372 candidates.
-- Non-FinnGen backlog for this triage: 3,984 candidates.
-- Candidate kinds after FinnGen exclusion: 2,558 JSX text, 1,174 object properties, 252 JSX attributes.
+- Non-FinnGen backlog for this triage: 3,506 candidates.
+- Candidate kinds after FinnGen exclusion: 2,142 JSX text, 1,134 object properties, 230 JSX attributes.
 
 The app-priority scanner remains the release gate for the already-promoted language picker work. It currently reports 0 candidates across 214 files. The backlog below is therefore not a blocker for the current public app language selector, but it is the remaining work before Parthenon can claim broad native-language coverage across every product surface.
 
@@ -23,7 +23,7 @@ The app-priority scanner remains the release gate for the already-promoted langu
 | Class | Candidates | Files | Disposition |
 | --- | ---: | ---: | --- |
 | Cohort authoring and diagnostics | 0 | 62 | Completed for `src/features/cohort-definitions`. Focused wave scanner reports 0 candidates across cohort list/detail, expression editor, validation, diagnostics, attrition, patient list, Circe SQL, wizard, and shared cohort surfaces. |
-| Analysis design and results | 0 | 20 | Completed for `src/features/analyses`, with the broader analytics scope (`src/features/estimation`, `src/features/prediction`, `src/features/pathways`, `src/features/sccs`, `src/features/self-controlled-cohort`, and `src/features/evidence-synthesis`) already clean. Focused wave scanner reports 0 candidates across the gallery/list, characterization designers/results/verdicts, incidence-rate designers/results/verdicts, and detail pages. |
+| Analysis design and results | 0 | 75 | Completed for `src/features/analyses`, `src/features/estimation`, `src/features/prediction`, `src/features/pathways`, `src/features/sccs`, `src/features/self-controlled-cohort`, and `src/features/evidence-synthesis`. Focused analytics wave scanner reports 0 candidates across gallery/list, characterization, incidence-rate, estimation, prediction, pathways, SCCS, self-controlled-cohort, and evidence-synthesis designer/results/verdict/detail surfaces. |
 | Data source setup and ingestion | 0 | 46 | Completed for `src/features/data-sources`, `src/features/ingestion`, and FHIR ingestion/export chrome. Focused wave scanner reports 0 candidates. |
 | Standard PROs UI | 247 | 13 | Release-blocking for Standard PROs+ workflows. Keep instrument content separate from UI chrome. |
 | Imaging and radiogenomics | 266 | 12 | Release-blocking for imaging workflows. Protect DICOM/OHIF/PACS terminology and measurement units. |
@@ -53,13 +53,13 @@ The app-priority scanner remains the release gate for the already-promoted langu
 | 48 | `src/features/imaging/components/MeasurementPanel.tsx` |
 | 45 | `src/features/genomics/pages/GenomicsPage.tsx` |
 | 39 | `src/features/profiles/pages/PatientProfilePage.tsx` |
-| 37 | `src/features/estimation/components/EstimationResults.tsx` |
 | 37 | `src/features/investigation/components/clinical/ConfigDrawer.tsx` |
 | 37 | `src/features/radiogenomics/components/PrecisionMedicineTab.tsx` |
 | 37 | `src/features/risk-scores/pages/RiskScoreHubPage.tsx` |
 | 36 | `src/features/heor/pages/HeorPage.tsx` |
 | 36 | `src/features/morpheus/constants/antibioticClasses.ts` |
-| 36 | `src/features/prediction/components/PredictionDesigner.tsx` |
+| 34 | `src/features/patient-similarity/pages/PatientComparisonPage.tsx` |
+| 34 | `src/features/poseidon/pages/PoseidonPage.tsx` |
 
 ## Recommended Extraction Order
 
@@ -70,7 +70,7 @@ The app-priority scanner remains the release gate for the already-promoted langu
    Scope completed: `src/features/cohort-definitions` across list/detail, expression editor, validation, diagnostics, attrition, patient list, Circe SQL, wizard, temporal preset, and shared cohort surfaces. Clinical/source labels, generated SQL, JSON, and OHDSI/Circe identifiers were kept protected.
 
 3. Analysis design and results. Completed 2026-04-20.
-   Scope completed: `src/features/analyses`, while the broader analytics scope (`src/features/estimation`, `src/features/prediction`, `src/features/pathways`, `src/features/sccs`, `src/features/self-controlled-cohort`, and `src/features/evidence-synthesis`) already reported 0 candidates in the focused wave command. Statistical method labels, package names, and source-data values remain protected where needed.
+   Scope completed: `src/features/analyses`, `src/features/estimation`, `src/features/prediction`, `src/features/pathways`, `src/features/sccs`, `src/features/self-controlled-cohort`, and `src/features/evidence-synthesis`. The focused analytics wave command reports 0 candidates across 75 files. Statistical method labels, package names, and source-data values remain protected where needed.
 
 4. Standard PROs UI.
    Scope: builder/conduct/analytics UI chrome. Keep `standard-pros/data/instruments.ts` out of generic UI translation until we have a curated instrument-content policy.
