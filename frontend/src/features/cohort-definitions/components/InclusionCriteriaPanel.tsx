@@ -8,8 +8,10 @@ import type {
   DomainCriterion,
   CriteriaGroup,
 } from "../types/cohortExpression";
+import { useTranslation } from "react-i18next";
 
 export function InclusionCriteriaPanel() {
+  const { t } = useTranslation("app");
   const { expression, setAdditionalCriteria, addInclusionRule } =
     useCohortExpressionStore();
   const [showAdd, setShowAdd] = useState(false);
@@ -42,9 +44,7 @@ export function InclusionCriteriaPanel() {
   return (
     <div className="space-y-4">
       <p className="text-xs text-text-ghost">
-        Define additional inclusion criteria that must be satisfied after the
-        initial qualifying events. These further restrict which people qualify
-        for the cohort.
+        {t("cohortDefinitions.auto.defineAdditionalInclusionCriteriaThatMustBeSatisfied_87880c")}
       </p>
 
       {hasAnyCriteria ? (
@@ -56,10 +56,10 @@ export function InclusionCriteriaPanel() {
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-8">
           <AlertCircle size={20} className="text-text-ghost mb-2" />
           <p className="text-sm text-text-muted">
-            No additional inclusion criteria
+            {t("cohortDefinitions.auto.noAdditionalInclusionCriteria_d3fe5a")}
           </p>
           <p className="mt-1 text-xs text-text-ghost">
-            All people matching primary criteria will be included
+            {t("cohortDefinitions.auto.allPeopleMatchingPrimaryCriteriaWillBeIncluded_41b0a5")}
           </p>
         </div>
       )}
@@ -77,7 +77,7 @@ export function InclusionCriteriaPanel() {
           className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-sm text-text-secondary hover:bg-surface-overlay hover:text-text-primary transition-colors"
         >
           <Plus size={14} />
-          Add Inclusion Rule
+          {t("cohortDefinitions.auto.addInclusionRule_be0834")}
         </button>
       )}
     </div>

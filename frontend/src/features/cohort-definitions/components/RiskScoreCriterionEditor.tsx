@@ -7,6 +7,7 @@ import {
   useRiskScoreCatalogue,
 } from "@/features/risk-scores/hooks/useRiskScores";
 import type { RiskScoreCriterion } from "../types/cohortExpression";
+import { useTranslation } from "react-i18next";
 
 const OPERATORS = [
   { value: "gte", label: "\u2265", sqlLabel: "greater than or equal to" },
@@ -14,13 +15,6 @@ const OPERATORS = [
   { value: "lte", label: "\u2264", sqlLabel: "less than or equal to" },
   { value: "lt", label: "<", sqlLabel: "less than" },
   { value: "eq", label: "=", sqlLabel: "equal to" },
-] as const;
-
-const TIERS = [
-  { value: "low", label: "Low" },
-  { value: "intermediate", label: "Intermediate" },
-  { value: "high", label: "High" },
-  { value: "very_high", label: "Very High" },
 ] as const;
 
 interface RiskScoreCriterionEditorProps {
@@ -34,8 +28,21 @@ export function RiskScoreCriterionEditor({
   onCancel,
   nextId,
 }: RiskScoreCriterionEditorProps) {
+  const { t } = useTranslation("app");
   const { activeSourceId, defaultSourceId } = useSourceStore();
   const sourceId = activeSourceId ?? defaultSourceId ?? 0;
+  const tiers = [
+    { value: "low", label: t("cohortDefinitions.auto.low_28d0ed") },
+    {
+      value: "intermediate",
+      label: t("cohortDefinitions.auto.intermediate_b57ed7"),
+    },
+    { value: "high", label: t("cohortDefinitions.auto.high_655d20") },
+    {
+      value: "very_high",
+      label: t("cohortDefinitions.auto.veryHigh_9055b2"),
+    },
+  ] as const;
 
   const { data: allAnalyses, isLoading: loadingAnalyses } =
     useAllRiskScoreAnalyses();
@@ -74,7 +81,7 @@ export function RiskScoreCriterionEditor({
     const label =
       filterMode === "value"
         ? `${scoreName} ${OPERATORS.find((o) => o.value === operator)?.label ?? operator} ${value}`
-        : `${scoreName} \u2014 ${TIERS.find((t) => t.value === tier)?.label ?? tier} Risk`;
+        : `${scoreName} \u2014 ${tiers.find((item) => item.value === tier)?.label ?? tier} Risk`;
 
     onAdd({
       id: nextId,
@@ -96,13 +103,13 @@ export function RiskScoreCriterionEditor({
     <div className="space-y-4 rounded-lg border border-primary/30 bg-primary/5 p-4">
       <div className="flex items-center gap-2 text-sm font-medium text-critical">
         <Activity size={14} />
-        Add Risk Score Criterion
+        {t("cohortDefinitions.auto.addRiskScoreCriterion_fe4a6c")}
       </div>
 
       {/* Analysis selector */}
       <div>
         <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1">
-          Risk Score Analysis
+          {t("cohortDefinitions.auto.riskScoreAnalysis_3f6d3e")}
         </label>
         {loadingAnalyses ? (
           <Loader2 size={14} className="animate-spin text-text-muted" />
@@ -117,10 +124,10 @@ export function RiskScoreCriterionEditor({
             }}
             className="form-input w-full text-sm"
           >
-            <option value="">Select analysis...</option>
+            <option value="">{t("cohortDefinitions.auto.selectAnalysis_56184d")}</option>
             {(allAnalyses?.data ?? []).map((a: { id: number; name: string; design_json: { scoreIds: string[] } }) => (
               <option key={a.id} value={a.id}>
-                {a.name} ({a.design_json.scoreIds.length} scores)
+                {a.name} ({a.design_json.scoreIds.length} {t("cohortDefinitions.auto.scores_3cf320")}
               </option>
             ))}
           </select>
@@ -131,14 +138,14 @@ export function RiskScoreCriterionEditor({
       {selectedAnalysisId && scoreIds.length > 0 && (
         <div>
           <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1">
-            Score
+            {t("cohortDefinitions.auto.score_5dd135")}
           </label>
           <select
             value={selectedScoreId}
             onChange={(e) => setSelectedScoreId(e.target.value)}
             className="form-input w-full text-sm"
           >
-            <option value="">Select score...</option>
+            <option value="">{t("cohortDefinitions.auto.selectScore_4e2f60")}</option>
             {scoreIds.map((id) => (
               <option key={id} value={id}>
                 {scoreNameMap[id] ?? id}
@@ -153,7 +160,7 @@ export function RiskScoreCriterionEditor({
         <>
           <div>
             <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1">
-              Filter By
+              {t("cohortDefinitions.auto.filterBy_5015f5")}
             </label>
             <div className="flex items-center gap-2">
               <button
@@ -166,7 +173,7 @@ export function RiskScoreCriterionEditor({
                     : "border-border-default text-text-muted hover:text-text-secondary",
                 )}
               >
-                Score Value
+                {t("cohortDefinitions.auto.scoreValue_990b82")}
               </button>
               <button
                 type="button"
@@ -178,7 +185,7 @@ export function RiskScoreCriterionEditor({
                     : "border-border-default text-text-muted hover:text-text-secondary",
                 )}
               >
-                Risk Tier
+                {t("cohortDefinitions.auto.riskTier_1496ae")}
               </button>
             </div>
           </div>
@@ -200,7 +207,7 @@ export function RiskScoreCriterionEditor({
                 type="number"
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
-                placeholder="Threshold"
+                placeholder={t("cohortDefinitions.auto.threshold_2a63f5")}
                 className="form-input text-sm flex-1"
                 step="0.1"
               />
@@ -211,10 +218,10 @@ export function RiskScoreCriterionEditor({
               onChange={(e) => setTier(e.target.value)}
               className="form-input w-full text-sm"
             >
-              <option value="">Select tier...</option>
-              {TIERS.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
+              <option value="">{t("cohortDefinitions.auto.selectTier_a0e7b2")}</option>
+              {tiers.map((item) => (
+                <option key={item.value} value={item.value}>
+                  {item.label}
                 </option>
               ))}
             </select>
@@ -228,7 +235,7 @@ export function RiskScoreCriterionEditor({
               onChange={(e) => setExclude(e.target.checked)}
               className="rounded border-surface-highlight"
             />
-            Exclude patients matching this criterion
+            {t("cohortDefinitions.auto.excludePatientsMatchingThisCriterion_91d32f")}
           </label>
         </>
       )}
@@ -242,14 +249,14 @@ export function RiskScoreCriterionEditor({
           className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary-light disabled:opacity-40 transition-colors"
         >
           <CheckCircle2 size={12} />
-          Add
+          {t("cohortDefinitions.auto.add_ec211f")}
         </button>
         <button
           type="button"
           onClick={onCancel}
           className="px-3 py-1.5 rounded-md text-xs text-text-muted hover:text-text-secondary transition-colors"
         >
-          Cancel
+          {t("cohortDefinitions.auto.cancel_ea4788")}
         </button>
       </div>
     </div>

@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { useCohortMembers } from "@/features/profiles/hooks/useProfiles";
 import type { CohortMember } from "@/features/profiles/types/profile";
 import type { GenerationSource } from "../types/cohortExpression";
+import { useTranslation } from "react-i18next";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -60,6 +61,7 @@ export function CohortPatientListPanel({
   definitionId,
   generationSources,
 }: CohortPatientListPanelProps) {
+  const { t } = useTranslation("app");
   const navigate = useNavigate();
 
   // Auto-select if only one source has been generated
@@ -89,7 +91,7 @@ export function CohortPatientListPanel({
     error: membersError,
   } = useCohortMembers(sourceId, definitionId, page);
 
-  const rawMembers = membersData?.data ?? [];
+  const rawMembers = useMemo(() => membersData?.data ?? [], [membersData?.data]);
   const totalPages = membersData?.meta?.last_page ?? 1;
   const total = membersData?.meta?.total ?? 0;
   const perPage = membersData?.meta?.per_page ?? 15;
@@ -197,9 +199,9 @@ export function CohortPatientListPanel({
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
         <AlertCircle size={28} className="text-text-ghost mb-3" />
-        <p className="text-sm text-text-muted mb-1">No cohort generated yet</p>
+        <p className="text-sm text-text-muted mb-1">{t("cohortDefinitions.auto.noCohortGeneratedYet_a76dbd")}</p>
         <p className="text-xs text-text-ghost">
-          Generate this cohort on a data source first to view patient members.
+          {t("cohortDefinitions.auto.generateThisCohortOnADataSourceFirst_c97015")}
         </p>
       </div>
     );
@@ -210,9 +212,9 @@ export function CohortPatientListPanel({
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
         <AlertCircle size={28} className="text-text-ghost mb-3" />
-        <p className="text-sm text-text-muted mb-1">No patients in cohort</p>
+        <p className="text-sm text-text-muted mb-1">{t("cohortDefinitions.auto.noPatientsInCohort_ddf86b")}</p>
         <p className="text-xs text-text-ghost">
-          The cohort has been generated but contains 0 patients on all sources.
+          {t("cohortDefinitions.auto.theCohortHasBeenGeneratedButContains0_44c3b8")}
         </p>
       </div>
     );
@@ -224,7 +226,7 @@ export function CohortPatientListPanel({
       {completedSources.length > 1 && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <label className="block text-xs font-medium text-text-muted mb-1.5">
-            Data Source
+            {t("cohortDefinitions.auto.dataSource_338880")}
           </label>
           <div className="relative max-w-xs">
             <Database
@@ -242,7 +244,7 @@ export function CohortPatientListPanel({
                 "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             >
-              <option value="">Select a data source...</option>
+              <option value="">{t("cohortDefinitions.auto.selectADataSource_065af7")}</option>
               {completedSources.map((src) => (
                 <option key={src.source_id} value={src.source_id}>
                   {src.source_name ?? src.source_key ?? `Source #${src.source_id}`}
@@ -278,7 +280,7 @@ export function CohortPatientListPanel({
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-12">
           <Users size={24} className="text-text-ghost mb-3" />
           <p className="text-sm text-text-muted">
-            Select a data source above to view cohort members
+            {t("cohortDefinitions.auto.selectADataSourceAboveToViewCohort_06b33a")}
           </p>
         </div>
       )}
@@ -293,14 +295,14 @@ export function CohortPatientListPanel({
           ) : membersError ? (
             <div className="flex items-center justify-center h-32">
               <p className="text-critical text-sm">
-                Failed to load cohort members
+                {t("cohortDefinitions.auto.failedToLoadCohortMembers_698f41")}
               </p>
             </div>
           ) : rawMembers.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-12">
               <Users size={24} className="text-text-ghost mb-3" />
               <p className="text-sm text-text-muted">
-                No members found in this cohort
+                {t("cohortDefinitions.auto.noMembersFoundInThisCohort_032217")}
               </p>
             </div>
           ) : (
@@ -313,11 +315,11 @@ export function CohortPatientListPanel({
                       <span className="font-semibold text-text-primary">
                         {total.toLocaleString()}
                       </span>{" "}
-                      total members
+                      {t("cohortDefinitions.auto.totalMembers_baa28c")}
                     </span>
                     {stats.meanYear && (
                       <span>
-                        Mean birth year:{" "}
+                        {t("cohortDefinitions.auto.meanBirthYear_a868be")}{" "}
                         <span className="font-semibold text-text-primary">
                           {stats.meanYear}
                         </span>
@@ -347,7 +349,7 @@ export function CohortPatientListPanel({
                       type="text"
                       value={searchId}
                       onChange={(e) => setSearchId(e.target.value)}
-                      placeholder="Filter by ID..."
+                      placeholder={t("cohortDefinitions.auto.filterById_313bcf")}
                       className={cn(
                         "w-36 rounded-md border border-surface-highlight bg-surface-base pl-7 pr-2 py-1.5 text-xs",
                         "text-text-primary placeholder:text-text-ghost",
@@ -367,7 +369,7 @@ export function CohortPatientListPanel({
                     )}
                   >
                     <SlidersHorizontal size={12} />
-                    Filters
+                    {t("cohortDefinitions.auto.filters_f3f43e")}
                     {(filterGender || filterBirthYearMin || filterBirthYearMax) && (
                       <span className="w-1.5 h-1.5 rounded-full bg-accent" />
                     )}
@@ -389,18 +391,18 @@ export function CohortPatientListPanel({
               {showFilters && (
                 <div className="flex items-center gap-3 rounded-lg border border-surface-highlight bg-surface-raised px-4 py-3 flex-wrap">
                   <span className="text-xs font-medium text-text-muted">
-                    Filters:
+                    {t("cohortDefinitions.auto.filters_602663")}
                   </span>
                   <div>
                     <label className="text-[10px] text-text-ghost block mb-0.5">
-                      Gender
+                      {t("cohortDefinitions.auto.gender_019ec3")}
                     </label>
                     <select
                       value={filterGender}
                       onChange={(e) => setFilterGender(e.target.value)}
                       className="rounded border border-surface-highlight bg-surface-base px-2 py-1 text-xs text-text-primary focus:outline-none"
                     >
-                      <option value="">All</option>
+                      <option value="">{t("cohortDefinitions.auto.all_b1c94c")}</option>
                       {uniqueGenders.map((g) => (
                         <option key={g} value={g}>
                           {g}
@@ -411,25 +413,25 @@ export function CohortPatientListPanel({
                   <div className="flex items-end gap-1.5">
                     <div>
                       <label className="text-[10px] text-text-ghost block mb-0.5">
-                        Birth year &ge;
+                        {t("cohortDefinitions.auto.birthYear_52158d")}
                       </label>
                       <input
                         type="number"
                         value={filterBirthYearMin}
                         onChange={(e) => setFilterBirthYearMin(e.target.value)}
-                        placeholder="e.g. 1950"
+                        placeholder={t("cohortDefinitions.auto.eG1950_6961b6")}
                         className="w-24 rounded border border-surface-highlight bg-surface-base px-2 py-1 text-xs text-text-primary focus:outline-none"
                       />
                     </div>
                     <div>
                       <label className="text-[10px] text-text-ghost block mb-0.5">
-                        Birth year &le;
+                        {t("cohortDefinitions.auto.birthYear_faf54c")}
                       </label>
                       <input
                         type="number"
                         value={filterBirthYearMax}
                         onChange={(e) => setFilterBirthYearMax(e.target.value)}
-                        placeholder="e.g. 2000"
+                        placeholder={t("cohortDefinitions.auto.eG2000_cfc0af")}
                         className="w-24 rounded border border-surface-highlight bg-surface-base px-2 py-1 text-xs text-text-primary focus:outline-none"
                       />
                     </div>
@@ -444,7 +446,7 @@ export function CohortPatientListPanel({
                       }}
                       className="text-xs text-critical hover:underline"
                     >
-                      Clear filters
+                      {t("cohortDefinitions.auto.clearFilters_0b2754")}
                     </button>
                   )}
                 </div>
@@ -457,11 +459,11 @@ export function CohortPatientListPanel({
                     <tr className="bg-surface-overlay">
                       {(
                         [
-                          { key: "subject_id", label: "Person ID" },
-                          { key: "gender", label: "Gender" },
-                          { key: "year_of_birth", label: "Year of Birth" },
-                          { key: "cohort_start_date", label: "Cohort Start" },
-                          { key: "cohort_end_date", label: "Cohort End" },
+                          { key: "subject_id", label: t("cohortDefinitions.auto.personId_024aac") },
+                          { key: "gender", label: t("cohortDefinitions.auto.gender_019ec3") },
+                          { key: "year_of_birth", label: t("cohortDefinitions.auto.yearOfBirth_fb50e2") },
+                          { key: "cohort_start_date", label: t("cohortDefinitions.auto.cohortStart_8ed0f7") },
+                          { key: "cohort_end_date", label: t("cohortDefinitions.auto.cohortEnd_8151f8") },
                         ] as { key: SortKey; label: string }[]
                       ).map((col) => (
                         <th
@@ -488,7 +490,7 @@ export function CohortPatientListPanel({
                           colSpan={5}
                           className="px-4 py-8 text-center text-sm text-text-muted"
                         >
-                          No members match the current filters
+                          {t("cohortDefinitions.auto.noMembersMatchTheCurrentFilters_91d99d")}
                         </td>
                       </tr>
                     ) : (
@@ -529,7 +531,7 @@ export function CohortPatientListPanel({
               {totalPages > 1 && (
                 <div className="flex items-center justify-between px-1">
                   <p className="text-xs text-text-muted">
-                    Showing {(page - 1) * perPage + 1} –{" "}
+                    {t("cohortDefinitions.auto.showing_b4e610")} {(page - 1) * perPage + 1} –{" "}
                     {Math.min(page * perPage, total)} of {total.toLocaleString()}
                   </p>
                   <div className="flex items-center gap-1">

@@ -1,8 +1,10 @@
 import { Plus } from "lucide-react";
 import { useCohortWizardStore } from "../../stores/cohortWizardStore";
 import { InclusionRuleSentence } from "./InclusionRuleSentence";
+import { useTranslation } from "react-i18next";
 
 export function InclusionRulesStep() {
+  const { t } = useTranslation("app");
   const {
     inclusionRules,
     inclusionLogic,
@@ -18,18 +20,18 @@ export function InclusionRulesStep() {
     <div className="flex flex-col gap-4">
       <div>
         <div className="mb-1 text-[13px] font-medium text-text-secondary">
-          Step 1 of 3 — Inclusion Rules{" "}
-          <span className="text-[11px] text-text-ghost">(optional)</span>
+          {t("cohortDefinitions.auto.step1Of3InclusionRules_08fe47")}{" "}
+          <span className="text-[11px] text-text-ghost">{t("cohortDefinitions.auto.optional_f53d1c")}</span>
         </div>
         <p className="text-[13px] text-text-muted">
-          What additional requirements must a patient meet to stay in the cohort?
+          {t("cohortDefinitions.auto.whatAdditionalRequirementsMustAPatientMeetTo_865119")}
         </p>
       </div>
 
       {/* Boolean logic toggle */}
       {inclusionRules.length > 1 && (
         <div className="flex items-center gap-2 rounded-lg border border-border-default bg-surface-base p-3">
-          <span className="text-[13px] text-text-secondary">Patient must match</span>
+          <span className="text-[13px] text-text-secondary">{t("cohortDefinitions.auto.patientMustMatch_32bd21")}</span>
           <div className="inline-flex overflow-hidden rounded-md border border-border-default">
             {(["ALL", "ANY", "NONE"] as const).map((logic) => (
               <button
@@ -46,7 +48,7 @@ export function InclusionRulesStep() {
               </button>
             ))}
           </div>
-          <span className="text-[13px] text-text-secondary">of these rules:</span>
+          <span className="text-[13px] text-text-secondary">{t("cohortDefinitions.auto.ofTheseRules_b73835")}</span>
         </div>
       )}
 
@@ -72,7 +74,7 @@ export function InclusionRulesStep() {
         className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border-default py-2.5 text-[12px] text-text-muted transition-colors hover:border-surface-highlight hover:text-text-secondary"
       >
         <Plus size={14} />
-        Add inclusion rule
+        {t("cohortDefinitions.auto.addInclusionRule_484311")}
       </button>
     </div>
   );

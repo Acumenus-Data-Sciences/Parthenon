@@ -1,21 +1,23 @@
 import { Layers, CheckCircle2, Globe } from "lucide-react";
 import { useCohortStats } from "../hooks/useCohortDefinitions";
+import { useTranslation } from "react-i18next";
 
 export function CohortStatsBar({ onStatClick, activeKey }: { onStatClick?: (key: string) => void; activeKey?: string } = {}) {
+  const { t } = useTranslation("app");
   const { data: stats } = useCohortStats();
 
   if (!stats) return null;
 
   const metrics = [
-    { label: "Total", key: "total", value: stats.total, icon: Layers, color: "var(--text-secondary)" },
+    { label: t("cohortDefinitions.auto.total_96b014"), key: "total", value: stats.total, icon: Layers, color: "var(--text-secondary)" },
     {
-      label: "Generated",
+      label: t("cohortDefinitions.auto.generated_5c5f06"),
       key: "generated",
       value: stats.with_generations,
       icon: CheckCircle2,
       color: "var(--success)",
     },
-    { label: "Public", key: "public", value: stats.public, icon: Globe, color: "var(--info)" },
+    { label: t("cohortDefinitions.auto.public_3d067b"), key: "public", value: stats.public, icon: Globe, color: "var(--info)" },
   ];
 
   return (

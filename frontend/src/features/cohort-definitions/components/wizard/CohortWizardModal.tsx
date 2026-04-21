@@ -8,6 +8,7 @@ import { PopulationStep } from "./steps/PopulationStep";
 import { CriteriaStep } from "./steps/CriteriaStep";
 import { FollowUpStep } from "./steps/FollowUpStep";
 import { ReviewGenerateStep } from "./steps/ReviewGenerateStep";
+import { useTranslation } from "react-i18next";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -15,25 +16,29 @@ interface Props {
   onClose: () => void;
 }
 
-const STEPS = [
-  { key: "basics", label: "Basics" },
-  { key: "population", label: "Population" },
-  { key: "criteria", label: "Criteria" },
-  { key: "followup", label: "Follow-up" },
-  { key: "specialized", label: "Specialized" },
-  { key: "review", label: "Review" },
-] as const;
+function getWizardSteps(t: (key: string) => string) {
+  return [
+    { key: "basics", label: t("cohortDefinitions.auto.basics_bbc910") },
+    { key: "population", label: t("cohortDefinitions.auto.population_13e038") },
+    { key: "criteria", label: t("cohortDefinitions.auto.criteria_2e739b") },
+    { key: "followup", label: t("cohortDefinitions.auto.followUp_b9c20d") },
+    { key: "specialized", label: t("cohortDefinitions.auto.specialized_caea9d") },
+    { key: "review", label: t("cohortDefinitions.auto.review_457dd5") },
+  ] as const;
+}
 
 // ── Step indicator ────────────────────────────────────────────────────────────
 
 function StepIndicator({ currentStep }: { currentStep: number }) {
+  const { t } = useTranslation("app");
+  const steps = getWizardSteps(t);
   return (
     <div className="flex items-center justify-between pl-8 pr-14 pt-6 pb-2">
-      {STEPS.map((s, index) => {
+      {steps.map((s, index) => {
         const isCompleted = index < currentStep;
         const isActive = index === currentStep;
         const isPending = index > currentStep;
-        const isLast = index === STEPS.length - 1;
+        const isLast = index === steps.length - 1;
 
         return (
           <div key={s.key} className="flex items-center flex-1 last:flex-none">
@@ -74,6 +79,8 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function CohortWizardModal({ onClose }: Props) {
+  const { t } = useTranslation("app");
+  const steps = getWizardSteps(t);
   const { currentStep, slideDir, goNext, goBack, canProceed, reset } =
     useCohortWizardStore();
   const [animKey, setAnimKey] = useState(0);
@@ -104,7 +111,7 @@ export function CohortWizardModal({ onClose }: Props) {
     5: <ReviewGenerateStep onClose={handleClose} />,
   };
 
-  const isLastStep = currentStep === STEPS.length - 1;
+  const isLastStep = currentStep === steps.length - 1;
 
   return (
     <>
@@ -156,7 +163,7 @@ export function CohortWizardModal({ onClose }: Props) {
               )}
             >
               <ArrowLeft size={14} />
-              Back
+              {t("cohortDefinitions.auto.back_0557fa")}
             </button>
 
             {!isLastStep && (
@@ -171,7 +178,7 @@ export function CohortWizardModal({ onClose }: Props) {
                     : "cursor-not-allowed bg-surface-elevated text-text-ghost",
                 )}
               >
-                Next
+                {t("cohortDefinitions.auto.next_10ac3d")}
                 <ArrowRight size={14} />
               </button>
             )}

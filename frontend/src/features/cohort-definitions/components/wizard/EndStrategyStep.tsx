@@ -1,8 +1,10 @@
 import { useCohortWizardStore } from "../../stores/cohortWizardStore";
 import { WizardConceptPicker } from "./WizardConceptPicker";
 import type { WizardEndStrategy } from "../../utils/buildExpression";
+import { useTranslation } from "react-i18next";
 
 export function EndStrategyStep() {
+  const { t } = useTranslation("app");
   const { endStrategy, setEndStrategy } = useCohortWizardStore();
 
   const setType = (type: WizardEndStrategy["type"]) => {
@@ -19,10 +21,10 @@ export function EndStrategyStep() {
     <div className="flex flex-col gap-4">
       <div>
         <div className="mb-1 text-[13px] font-medium text-text-secondary">
-          Step 1 of 2 — End Strategy
+          {t("cohortDefinitions.auto.step1Of2EndStrategy_16da38")}
         </div>
         <p className="text-[13px] text-text-muted">
-          When does a patient's cohort membership end?
+          {t("cohortDefinitions.auto.whenDoesAPatientSCohortMembershipEnd_cb35e8")}
         </p>
       </div>
 
@@ -41,11 +43,11 @@ export function EndStrategyStep() {
             <div className={`flex h-[18px] w-[18px] items-center justify-center rounded-full ${endStrategy.type === "observation" ? "bg-success" : "border border-surface-highlight"}`}>
               {endStrategy.type === "observation" && <div className="h-2 w-2 rounded-full bg-surface-base" />}
             </div>
-            <span className="text-[13px] font-medium text-text-secondary">End of continuous observation</span>
+            <span className="text-[13px] font-medium text-text-secondary">{t("cohortDefinitions.auto.endOfContinuousObservation_3ac05b")}</span>
             <span className="rounded bg-[rgba(45,212,191,0.15)] px-1.5 py-0.5 text-[10px] text-success">recommended</span>
           </div>
           <p className="mt-1.5 ml-[26px] text-[12px] text-text-muted">
-            Follow until the patient leaves the database (end of insurance enrollment, transfer out, etc.). Most common choice.
+            {t("cohortDefinitions.auto.followUntilThePatientLeavesTheDatabaseEnd_db8f12")}
           </p>
         </button>
 
@@ -63,14 +65,14 @@ export function EndStrategyStep() {
             <div className={`flex h-[18px] w-[18px] items-center justify-center rounded-full ${endStrategy.type === "fixed" ? "bg-success" : "border border-surface-highlight"}`}>
               {endStrategy.type === "fixed" && <div className="h-2 w-2 rounded-full bg-surface-base" />}
             </div>
-            <span className="text-[13px] font-medium text-text-secondary">Fixed duration after entry</span>
+            <span className="text-[13px] font-medium text-text-secondary">{t("cohortDefinitions.auto.fixedDurationAfterEntry_0b3031")}</span>
           </div>
           <p className="mt-1.5 ml-[26px] text-[12px] text-text-muted">
-            Follow for exactly N days from the entry event.
+            {t("cohortDefinitions.auto.followForExactlyNDaysFromTheEntry_347a18")}
           </p>
           {endStrategy.type === "fixed" && (
             <div className="mt-3 ml-[26px] flex items-center gap-2">
-              <span className="text-[12px] text-text-muted">Follow for</span>
+              <span className="text-[12px] text-text-muted">{t("cohortDefinitions.auto.followFor_4770b7")}</span>
               <input
                 type="number"
                 min={1}
@@ -97,15 +99,15 @@ export function EndStrategyStep() {
             <div className={`flex h-[18px] w-[18px] items-center justify-center rounded-full ${endStrategy.type === "drug_era" ? "bg-success" : "border border-surface-highlight"}`}>
               {endStrategy.type === "drug_era" && <div className="h-2 w-2 rounded-full bg-surface-base" />}
             </div>
-            <span className="text-[13px] font-medium text-text-secondary">While on medication</span>
+            <span className="text-[13px] font-medium text-text-secondary">{t("cohortDefinitions.auto.whileOnMedication_950a80")}</span>
           </div>
           <p className="mt-1.5 ml-[26px] text-[12px] text-text-muted">
-            Follow as long as the patient continues a drug. Membership ends when the drug era ends.
+            {t("cohortDefinitions.auto.followAsLongAsThePatientContinuesA_e5181f")}
           </p>
           {endStrategy.type === "drug_era" && (
             <div className="mt-3 ml-[26px] flex flex-col gap-3" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center gap-2">
-                <span className="min-w-[120px] text-[12px] text-text-muted">Gap tolerance:</span>
+                <span className="min-w-[120px] text-[12px] text-text-muted">{t("cohortDefinitions.auto.gapTolerance_71ea53")}</span>
                 <input
                   type="number"
                   min={0}
@@ -113,7 +115,7 @@ export function EndStrategyStep() {
                   onChange={(e) => setEndStrategy({ ...endStrategy, gapDays: Math.max(0, parseInt(e.target.value) || 0) })}
                   className="w-[60px] rounded border border-border-default bg-surface-base px-2 py-1 text-center text-[13px] text-accent outline-none focus:border-accent"
                 />
-                <span className="text-[12px] text-text-muted">days between fills</span>
+                <span className="text-[12px] text-text-muted">{t("cohortDefinitions.auto.daysBetweenFills_f845e1")}</span>
               </div>
               <WizardConceptPicker
                 concepts={endStrategy.drugConcepts ?? []}

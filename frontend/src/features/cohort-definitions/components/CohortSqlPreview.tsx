@@ -12,12 +12,14 @@ import {
 import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { usePreviewSql } from "../hooks/useCohortGeneration";
+import { useTranslation } from "react-i18next";
 
 interface CohortSqlPreviewProps {
   definitionId: number | null;
 }
 
 export function CohortSqlPreview({ definitionId }: CohortSqlPreviewProps) {
+  const { t } = useTranslation("app");
   const [sourceId, setSourceId] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -47,7 +49,7 @@ export function CohortSqlPreview({ definitionId }: CohortSqlPreviewProps) {
         <div className="flex items-center gap-2">
           <Code size={14} className="text-accent" />
           <h4 className="text-sm font-semibold text-text-primary">
-            SQL Preview
+            {t("cohortDefinitions.auto.sqlPreview_0b214a")}
           </h4>
         </div>
 
@@ -68,7 +70,7 @@ export function CohortSqlPreview({ definitionId }: CohortSqlPreviewProps) {
                 "cursor-pointer min-w-[160px]",
               )}
             >
-              <option value="">Select source</option>
+              <option value="">{t("cohortDefinitions.auto.selectSource_f7b9cc")}</option>
               {sources?.map((src) => (
                 <option key={src.id} value={src.id}>
                   {src.source_name}
@@ -86,7 +88,7 @@ export function CohortSqlPreview({ definitionId }: CohortSqlPreviewProps) {
             onClick={() => refetch()}
             disabled={!sourceId || loadingSql}
             className="inline-flex items-center justify-center w-7 h-7 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-40"
-            title="Refresh SQL"
+            title={t("cohortDefinitions.auto.refreshSql_206383")}
           >
             <RefreshCw
               size={12}
@@ -99,7 +101,7 @@ export function CohortSqlPreview({ definitionId }: CohortSqlPreviewProps) {
             onClick={handleCopy}
             disabled={!sqlResult?.sql}
             className="inline-flex items-center justify-center w-7 h-7 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-40"
-            title="Copy SQL"
+            title={t("cohortDefinitions.auto.copySql_e335cf")}
           >
             {copied ? (
               <Check size={12} className="text-success" />
@@ -114,7 +116,7 @@ export function CohortSqlPreview({ definitionId }: CohortSqlPreviewProps) {
       <div className="max-h-80 overflow-auto">
         {!sourceId ? (
           <div className="flex items-center justify-center py-12 text-xs text-text-ghost">
-            Select a data source to preview SQL
+            {t("cohortDefinitions.auto.selectADataSourceToPreviewSql_c00f36")}
           </div>
         ) : loadingSql ? (
           <div className="flex items-center justify-center py-12">
@@ -122,7 +124,7 @@ export function CohortSqlPreview({ definitionId }: CohortSqlPreviewProps) {
           </div>
         ) : error ? (
           <div className="flex items-center justify-center py-12 text-xs text-critical">
-            Failed to generate SQL preview
+            {t("cohortDefinitions.auto.failedToGenerateSqlPreview_b1dd7f")}
           </div>
         ) : sqlResult?.sql ? (
           <pre className="p-4 text-xs leading-relaxed text-text-secondary font-['IBM_Plex_Mono',monospace] whitespace-pre-wrap break-words">
@@ -130,7 +132,7 @@ export function CohortSqlPreview({ definitionId }: CohortSqlPreviewProps) {
           </pre>
         ) : (
           <div className="flex items-center justify-center py-12 text-xs text-text-ghost">
-            No SQL generated. Ensure the cohort definition is saved first.
+            {t("cohortDefinitions.auto.noSqlGeneratedEnsureTheCohortDefinitionIs_bc701a")}
           </div>
         )}
       </div>

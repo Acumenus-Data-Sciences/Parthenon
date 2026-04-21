@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import type { WizardEntryConcept } from "../../utils/buildExpression";
+import { useTranslation } from "react-i18next";
 
 interface SelectedConceptsListProps {
   concepts: WizardEntryConcept[];
@@ -19,12 +20,13 @@ export function SelectedConceptsList({
   onUpdateOptions,
   showFirstOccurrence = false,
 }: SelectedConceptsListProps) {
+  const { t } = useTranslation("app");
   if (concepts.length === 0) return null;
 
   return (
     <div className="border-t border-border-subtle pt-3">
       <div className="mb-2 text-[11px] uppercase tracking-wider text-text-ghost">
-        Selected ({concepts.length})
+        {t("cohortDefinitions.auto.selected_666452")}{concepts.length})
       </div>
       <div className="flex flex-col gap-1.5">
         {concepts.map((entry) => (
@@ -60,7 +62,7 @@ export function SelectedConceptsList({
                       }
                       className="accent-success"
                     />
-                    Descendants
+                    {t("cohortDefinitions.auto.descendants_290452")}
                   </label>
                   {showFirstOccurrence && (
                     <label className="flex items-center gap-1 text-[11px] text-text-muted">
@@ -74,7 +76,7 @@ export function SelectedConceptsList({
                         }
                         className="accent-success"
                       />
-                      First only
+                      {t("cohortDefinitions.auto.firstOnly_64843c")}
                     </label>
                   )}
                 </>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Copy, CheckCheck, Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui";
 import { shareCohortDefinition, type ShareCohortResult } from "../api/cohortApi";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   cohortId: number;
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function ShareCohortModal({ cohortId, open, onClose }: Props) {
+  const { t } = useTranslation("app");
   const [days, setDays] = useState(30);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ShareCohortResult | null>(null);
@@ -45,7 +47,7 @@ export function ShareCohortModal({ cohortId, open, onClose }: Props) {
     <Modal
       open={open}
       onClose={onClose}
-      title="Share Cohort"
+      title={t("cohortDefinitions.auto.shareCohort_75eb54")}
       size="sm"
       footer={
         <div className="flex justify-end gap-2">
@@ -54,7 +56,7 @@ export function ShareCohortModal({ cohortId, open, onClose }: Props) {
             onClick={onClose}
             className="rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm text-text-muted hover:text-text-secondary transition-colors"
           >
-            Close
+            {t("cohortDefinitions.auto.close_d3d2e6")}
           </button>
           {!result && (
             <button
@@ -64,7 +66,7 @@ export function ShareCohortModal({ cohortId, open, onClose }: Props) {
               className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors disabled:opacity-50"
             >
               {loading && <Loader2 size={14} className="animate-spin" />}
-              Generate Link
+              {t("cohortDefinitions.auto.generateLink_50a9ec")}
             </button>
           )}
         </div>
@@ -72,14 +74,13 @@ export function ShareCohortModal({ cohortId, open, onClose }: Props) {
     >
       <div className="space-y-4">
         <p className="text-xs text-text-muted">
-          Generate a read-only link to share this cohort definition with
-          collaborators. No account required to view.
+          {t("cohortDefinitions.auto.generateAReadOnlyLinkToShareThis_4035e3")}
         </p>
 
         {/* Expiry picker */}
         <div>
           <label className="block text-xs font-medium text-text-muted mb-1.5">
-            Link expires after
+            {t("cohortDefinitions.auto.linkExpiresAfter_1daff2")}
           </label>
           <select
             value={days}
@@ -87,11 +88,11 @@ export function ShareCohortModal({ cohortId, open, onClose }: Props) {
             disabled={!!result}
             className="rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-secondary focus:outline-none focus:border-success/50 disabled:opacity-50"
           >
-            <option value={7}>7 days</option>
-            <option value={14}>14 days</option>
-            <option value={30}>30 days</option>
-            <option value={90}>90 days</option>
-            <option value={365}>1 year</option>
+            <option value={7}>{t("cohortDefinitions.auto.7Days_cb8f14")}</option>
+            <option value={14}>{t("cohortDefinitions.auto.14Days_0e92d2")}</option>
+            <option value={30}>{t("cohortDefinitions.auto.30Days_947d85")}</option>
+            <option value={90}>{t("cohortDefinitions.auto.90Days_ed0c9b")}</option>
+            <option value={365}>{t("cohortDefinitions.auto.1Year_ca4c73")}</option>
           </select>
         </div>
 
@@ -99,7 +100,7 @@ export function ShareCohortModal({ cohortId, open, onClose }: Props) {
         {result && frontendUrl && (
           <div className="space-y-2">
             <label className="block text-xs font-medium text-text-muted">
-              Share link
+              {t("cohortDefinitions.auto.shareLink_50f67a")}
             </label>
             <div className="flex items-center gap-2">
               <input
@@ -121,7 +122,7 @@ export function ShareCohortModal({ cohortId, open, onClose }: Props) {
               </button>
             </div>
             <p className="text-[10px] text-text-ghost">
-              Expires:{" "}
+              {t("cohortDefinitions.auto.expires_7896bd")}{" "}
               {new Date(result.expires_at).toLocaleDateString(undefined, {
                 year: "numeric",
                 month: "long",

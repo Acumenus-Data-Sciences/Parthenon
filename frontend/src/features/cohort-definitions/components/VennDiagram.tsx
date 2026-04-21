@@ -1,4 +1,5 @@
 import type { CohortOverlapPair } from "../types/cohortExpression";
+import { useTranslation } from "react-i18next";
 
 interface VennDiagramProps {
   pair: CohortOverlapPair;
@@ -15,6 +16,7 @@ export function VennDiagram({
   labelA = `Cohort ${pair.cohort_id_a}`,
   labelB = `Cohort ${pair.cohort_id_b}`,
 }: VennDiagramProps) {
+  const { t } = useTranslation("app");
   const width = 400;
   const height = 240;
   const maxR = 80;
@@ -141,7 +143,7 @@ export function VennDiagram({
         textAnchor="middle"
         className="fill-text-ghost text-[9px]"
       >
-        Jaccard Index: {pair.jaccard_index.toFixed(3)}
+        {t("cohortDefinitions.auto.jaccardIndex_462bfc")} {pair.jaccard_index.toFixed(3)}
       </text>
     </svg>
   );

@@ -6,6 +6,7 @@ import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { useCohortDefinitions, useCohortOverlap } from "../hooks/useCohortDefinitions";
 import { VennDiagram } from "./VennDiagram";
 import type { GenerationSource } from "../types/cohortExpression";
+import { useTranslation } from "react-i18next";
 
 interface CohortOverlapPanelProps {
   /** Pre-select this cohort (current definition) */
@@ -18,6 +19,7 @@ export function CohortOverlapPanel({
   currentCohortId,
   generationSources,
 }: CohortOverlapPanelProps) {
+  const { t } = useTranslation("app");
   const [selectedIds, setSelectedIds] = useState<number[]>(
     currentCohortId ? [currentCohortId] : [],
   );
@@ -66,17 +68,17 @@ export function CohortOverlapPanel({
     <div className="space-y-4">
       <div>
         <h3 className="text-sm font-semibold text-text-primary mb-2">
-          Cohort Overlap Analysis
+          {t("cohortDefinitions.auto.cohortOverlapAnalysis_ced892")}
         </h3>
         <p className="text-xs text-text-muted">
-          Select a data source and 2-4 cohorts to compare membership overlap
+          {t("cohortDefinitions.auto.selectADataSourceAnd24Cohorts_d2c45a")}
         </p>
       </div>
 
       {/* Source selector */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4">
         <label className="block text-xs font-medium text-text-muted mb-1.5">
-          Data Source
+          {t("cohortDefinitions.auto.dataSource_338880")}
         </label>
         <div className="relative max-w-xs">
           <Database
@@ -91,7 +93,7 @@ export function CohortOverlapPanel({
               "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
             )}
           >
-            <option value="">Select a data source...</option>
+            <option value="">{t("cohortDefinitions.auto.selectADataSource_065af7")}</option>
             {completedSources.length > 0
               ? completedSources.map((src) => (
                   <option key={src.source_id} value={src.source_id}>
@@ -153,7 +155,7 @@ export function CohortOverlapPanel({
         <div className="rounded-lg border border-dashed border-surface-highlight bg-surface-raised p-8 text-center">
           <Database size={24} className="mx-auto text-text-ghost mb-3" />
           <p className="text-sm text-text-muted">
-            Select a data source to compute overlap
+            {t("cohortDefinitions.auto.selectADataSourceToComputeOverlap_e628c8")}
           </p>
         </div>
       )}
@@ -162,7 +164,7 @@ export function CohortOverlapPanel({
         <div className="rounded-lg border border-dashed border-surface-highlight bg-surface-raised p-8 text-center">
           <BarChart3 size={24} className="mx-auto text-text-ghost mb-3" />
           <p className="text-sm text-text-muted">
-            Select at least 2 cohorts to compute overlap
+            {t("cohortDefinitions.auto.selectAtLeast2CohortsToComputeOverlap_52d9df")}
           </p>
         </div>
       )}
@@ -176,7 +178,7 @@ export function CohortOverlapPanel({
       {error && (
         <div className="rounded-lg border border-critical/30 bg-critical/5 p-4">
           <p className="text-xs text-critical">
-            Failed to compute overlap: {(error as Error).message}
+            {t("cohortDefinitions.auto.failedToComputeOverlap_cf1c85")} {(error as Error).message}
           </p>
         </div>
       )}
@@ -201,7 +203,7 @@ export function CohortOverlapPanel({
             ))}
             <div className="rounded-lg border border-accent/20 bg-accent/5 p-3">
               <p className="text-[10px] uppercase tracking-wider text-accent/70 mb-1">
-                Total Unique
+                {t("cohortDefinitions.auto.totalUnique_bd9f2e")}
               </p>
               <p className="text-lg font-semibold text-accent font-['IBM_Plex_Mono',monospace]">
                 {overlap.summary.total_unique_subjects.toLocaleString()}
@@ -229,7 +231,7 @@ export function CohortOverlapPanel({
           <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
             <div className="px-4 py-2 bg-surface-overlay border-b border-border-default">
               <span className="text-[10px] uppercase tracking-wider text-text-muted font-semibold">
-                Pairwise Overlap Matrix
+                {t("cohortDefinitions.auto.pairwiseOverlapMatrix_442c79")}
               </span>
             </div>
             <div className="overflow-x-auto">
@@ -237,22 +239,22 @@ export function CohortOverlapPanel({
                 <thead>
                   <tr className="border-b border-border-default">
                     <th className="px-4 py-2 text-left text-text-ghost font-medium">
-                      Cohort A
+                      {t("cohortDefinitions.auto.cohortA_ae1505")}
                     </th>
                     <th className="px-4 py-2 text-left text-text-ghost font-medium">
-                      Cohort B
+                      {t("cohortDefinitions.auto.cohortB_9aa979")}
                     </th>
                     <th className="px-4 py-2 text-right text-text-ghost font-medium">
-                      Only A
+                      {t("cohortDefinitions.auto.onlyA_220cfd")}
                     </th>
                     <th className="px-4 py-2 text-right text-text-ghost font-medium">
-                      Overlap
+                      {t("cohortDefinitions.auto.overlap_2359a1")}
                     </th>
                     <th className="px-4 py-2 text-right text-text-ghost font-medium">
-                      Only B
+                      {t("cohortDefinitions.auto.onlyB_1d0d2f")}
                     </th>
                     <th className="px-4 py-2 text-right text-text-ghost font-medium">
-                      Jaccard
+                      {t("cohortDefinitions.auto.jaccard_d6055b")}
                     </th>
                   </tr>
                 </thead>

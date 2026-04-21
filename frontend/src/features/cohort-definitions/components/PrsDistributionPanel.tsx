@@ -15,6 +15,7 @@ import {
 } from "recharts";
 import { useCohortPrsScores } from "../hooks/usePrsScores";
 import { buildPrsDownloadUrl, type PrsScoreResult } from "../api/prs";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   cohortId: number;
@@ -76,8 +77,9 @@ export function PrsDistributionPanel({
   bins = 50,
   onCompute,
 }: Props) {
+  const { t } = useTranslation("app");
   const { data, isLoading, error } = useCohortPrsScores(cohortId, bins);
-  const scores = data?.scores ?? [];
+  const scores = useMemo(() => data?.scores ?? [], [data?.scores]);
   const [selectedScoreId, setSelectedScoreId] = useState<string>("");
 
   const selected: PrsScoreResult | undefined = useMemo(
@@ -92,7 +94,7 @@ export function PrsDistributionPanel({
         className="p-6 text-sm text-text-muted"
         aria-live="polite"
       >
-        Loading PRS scores...
+        {t("cohortDefinitions.auto.loadingPrsScores_8bd381")}
       </div>
     );
   }
@@ -100,7 +102,7 @@ export function PrsDistributionPanel({
   if (error) {
     return (
       <div role="alert" className="p-6 text-sm text-critical">
-        Error loading PRS scores: {(error as Error).message}
+        {t("cohortDefinitions.auto.errorLoadingPrsScores_0d56cb")} {(error as Error).message}
       </div>
     );
   }
@@ -109,14 +111,14 @@ export function PrsDistributionPanel({
     return (
       <div className="p-6 rounded border border-border-default text-center">
         <p className="text-sm mb-3 text-text-muted">
-          No polygenic risk scores computed for this cohort yet.
+          {t("cohortDefinitions.auto.noPolygenicRiskScoresComputedForThisCohort_98c512")}
         </p>
         <button
           type="button"
           onClick={onCompute}
           className="px-4 py-2 rounded bg-[color:var(--color-crimson)] text-white text-sm hover:opacity-90"
         >
-          Compute PRS
+          {t("cohortDefinitions.auto.computePrs_0d8599")}
         </button>
       </div>
     );
@@ -128,12 +130,12 @@ export function PrsDistributionPanel({
   const xMax = selected?.summary.max ?? 1;
 
   return (
-    <section aria-label="PRS distribution" className="space-y-4">
+    <section aria-label={t("cohortDefinitions.auto.prsDistribution_f9eb79")} className="space-y-4">
       <header className="flex items-center justify-between gap-3">
         <label className="text-sm flex items-center gap-2">
-          <span className="text-text-muted">Score:</span>
+          <span className="text-text-muted">{t("cohortDefinitions.auto.score_343bc2")}</span>
           <select
-            aria-label="Select PRS score"
+            aria-label={t("cohortDefinitions.auto.selectPrsScore_301cb5")}
             value={selected?.score_id ?? ""}
             onChange={(e) => setSelectedScoreId(e.target.value)}
             className="px-2 py-1 rounded bg-surface-raised border border-border-default text-text-primary"
@@ -152,7 +154,7 @@ export function PrsDistributionPanel({
             rel="noreferrer"
             className="text-sm underline text-[color:var(--color-teal)]"
           >
-            Download CSV
+            {t("cohortDefinitions.auto.downloadCsv_54df95")}
           </a>
         )}
       </header>
@@ -199,15 +201,15 @@ export function PrsDistributionPanel({
 
           <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
             <div>
-              <dt className="text-text-muted">Subjects</dt>
+              <dt className="text-text-muted">{t("cohortDefinitions.auto.subjects_8b2f77")}</dt>
               <dd>{selected.subject_count}</dd>
             </div>
             <div>
-              <dt className="text-text-muted">Mean</dt>
+              <dt className="text-text-muted">{t("cohortDefinitions.auto.mean_3d6c9a")}</dt>
               <dd>{fmt(selected.summary.mean)}</dd>
             </div>
             <div>
-              <dt className="text-text-muted">Median</dt>
+              <dt className="text-text-muted">{t("cohortDefinitions.auto.median_66851a")}</dt>
               <dd>{fmt(selected.summary.median)}</dd>
             </div>
             <div>
@@ -215,19 +217,19 @@ export function PrsDistributionPanel({
               <dd>{fmt(selected.summary.stddev)}</dd>
             </div>
             <div>
-              <dt className="text-text-muted">Min</dt>
+              <dt className="text-text-muted">{t("cohortDefinitions.auto.min_78d811")}</dt>
               <dd>{fmt(selected.summary.min)}</dd>
             </div>
             <div>
-              <dt className="text-text-muted">Max</dt>
+              <dt className="text-text-muted">{t("cohortDefinitions.auto.max_6a0613")}</dt>
               <dd>{fmt(selected.summary.max)}</dd>
             </div>
             <div>
-              <dt className="text-text-muted">IQR Q1</dt>
+              <dt className="text-text-muted">{t("cohortDefinitions.auto.iqrQ1_3cfd5d")}</dt>
               <dd>{fmt(selected.summary.iqr_q1)}</dd>
             </div>
             <div>
-              <dt className="text-text-muted">IQR Q3</dt>
+              <dt className="text-text-muted">{t("cohortDefinitions.auto.iqrQ3_092075")}</dt>
               <dd>{fmt(selected.summary.iqr_q3)}</dd>
             </div>
           </dl>

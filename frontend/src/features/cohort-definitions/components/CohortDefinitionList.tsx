@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
 import { useCohortDefinitions, useGroupedCohortDefinitions } from "../hooks/useCohortDefinitions";
 import type { CohortGeneration, GenerationSource, QualityTier } from "../types/cohortExpression";
+import { useTranslation } from "react-i18next";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -39,21 +40,22 @@ function LatestGenerationBadge({
 }: {
   generation?: CohortGeneration | null;
 }) {
+  const { t } = useTranslation("app");
   if (!generation) {
     return (
-      <span className="text-xs text-text-ghost">No generations</span>
+      <span className="text-xs text-text-ghost">{t("cohortDefinitions.auto.noGenerations_328f09")}</span>
     );
   }
 
   const latest = generation;
 
   const config = {
-    pending: { icon: Clock, color: "var(--text-muted)", label: "Pending" },
-    queued: { icon: Clock, color: "var(--accent)", label: "Queued" },
-    running: { icon: Loader2, color: "var(--info)", label: "Running" },
-    completed: { icon: CheckCircle2, color: "var(--success)", label: "Completed" },
-    failed: { icon: XCircle, color: "var(--critical)", label: "Failed" },
-    cancelled: { icon: Clock, color: "var(--text-muted)", label: "Cancelled" },
+    pending: { icon: Clock, color: "var(--text-muted)", label: t("cohortDefinitions.auto.pending_2d13df") },
+    queued: { icon: Clock, color: "var(--accent)", label: t("cohortDefinitions.auto.queued_7b2f31") },
+    running: { icon: Loader2, color: "var(--info)", label: t("cohortDefinitions.auto.running_5bda81") },
+    completed: { icon: CheckCircle2, color: "var(--success)", label: t("cohortDefinitions.auto.completed_07ca50") },
+    failed: { icon: XCircle, color: "var(--critical)", label: t("cohortDefinitions.auto.failed_d7c8c8") },
+    cancelled: { icon: Clock, color: "var(--text-muted)", label: t("cohortDefinitions.auto.cancelled_a149e8") },
   }[latest.status];
 
   const Icon = config.icon;
@@ -106,11 +108,12 @@ function SourceBadges({ sources }: { sources?: GenerationSource[] }) {
 }
 
 function TierBadge({ tier }: { tier?: string | null }) {
+  const { t } = useTranslation("app");
   if (!tier) return <span className="text-xs text-text-ghost">--</span>;
   const config: Record<string, { color: string; label: string; Icon: typeof Shield }> = {
-    "study-ready": { color: "var(--success)", label: "Study-Ready", Icon: Shield },
-    validated: { color: "var(--accent)", label: "Validated", Icon: Award },
-    draft: { color: "var(--text-ghost)", label: "Draft", Icon: FileText },
+    "study-ready": { color: "var(--success)", label: t("cohortDefinitions.auto.studyReady_834a5b"), Icon: Shield },
+    validated: { color: "var(--accent)", label: t("cohortDefinitions.auto.validated_536425"), Icon: Award },
+    draft: { color: "var(--text-ghost)", label: t("cohortDefinitions.auto.draft_f03ab1"), Icon: FileText },
   };
   const c = config[tier];
   if (!c) return <span className="text-xs text-text-ghost">{tier}</span>;
@@ -126,10 +129,11 @@ function TierBadge({ tier }: { tier?: string | null }) {
 }
 
 function DeprecatedBadge() {
+  const { t } = useTranslation("app");
   return (
     <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-amber-500/15 text-amber-500">
       <AlertTriangle size={10} />
-      Deprecated
+      {t("cohortDefinitions.auto.deprecated_0ac54c")}
     </span>
   );
 }
@@ -145,6 +149,7 @@ interface Props {
 }
 
 export function CohortDefinitionList({ tags, search, isPublic, withGenerations, onCreateFromBundle, groupBy, tierFilter }: Props) {
+  const { t } = useTranslation("app");
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [myOnly, setMyOnly] = useState(true);
@@ -227,7 +232,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
             )}
           >
             <User size={12} />
-            My Definitions
+            {t("cohortDefinitions.auto.myDefinitions_5c115e")}
           </button>
           <button
             type="button"
@@ -240,15 +245,15 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
             )}
           >
             <Globe size={12} />
-            All Definitions
+            {t("cohortDefinitions.auto.allDefinitions_39f3bd")}
           </button>
         </div>
 
         {groups.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
             <Layers size={24} className="text-text-muted mb-4" />
-            <h3 className="text-lg font-semibold text-text-primary">No cohort definitions</h3>
-            <p className="mt-2 text-sm text-text-muted">No definitions match the current filters.</p>
+            <h3 className="text-lg font-semibold text-text-primary">{t("cohortDefinitions.auto.noCohortDefinitions_a11064")}</h3>
+            <p className="mt-2 text-sm text-text-muted">{t("cohortDefinitions.auto.noDefinitionsMatchTheCurrentFilters_df39c6")}</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -284,19 +289,19 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                       <thead>
                         <tr className="bg-surface-overlay">
                           <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-                            Name
+                            {t("cohortDefinitions.auto.name_49ee30")}
                           </th>
                           <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-                            Tier
+                            {t("cohortDefinitions.auto.tier_9483f1")}
                           </th>
                           <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-                            N
+                            {t("cohortDefinitions.auto.n_8d9c30")}
                           </th>
                           <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-                            Sources
+                            {t("cohortDefinitions.auto.sources_fb6175")}
                           </th>
                           <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-                            Updated
+                            {t("cohortDefinitions.auto.updated_ff0a3b")}
                           </th>
                         </tr>
                       </thead>
@@ -379,7 +384,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
   if (error) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-critical">Failed to load cohort definitions</p>
+        <p className="text-critical">{t("cohortDefinitions.auto.failedToLoadCohortDefinitions_bd5113")}</p>
       </div>
     );
   }
@@ -406,7 +411,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
               className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors"
             >
               <Plus size={16} />
-              New Cohort Definition
+              {t("cohortDefinitions.auto.newCohortDefinition_3caa4c")}
             </button>
             {onCreateFromBundle && (
               <button
@@ -415,7 +420,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                 className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-sm font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
               >
                 <Stethoscope size={16} />
-                Create from Care Bundle
+                {t("cohortDefinitions.auto.createFromCareBundle_b7b429")}
               </button>
             )}
           </div>
@@ -439,7 +444,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
           )}
         >
           <User size={12} />
-          My Definitions
+          {t("cohortDefinitions.auto.myDefinitions_5c115e")}
         </button>
         <button
           type="button"
@@ -452,7 +457,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
           )}
         >
           <Globe size={12} />
-          All Definitions
+          {t("cohortDefinitions.auto.allDefinitions_39f3bd")}
         </button>
       </div>
 
@@ -462,27 +467,27 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
           <thead>
             <tr className="bg-surface-overlay">
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Name
+                {t("cohortDefinitions.auto.name_49ee30")}
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Tier
+                {t("cohortDefinitions.auto.tier_9483f1")}
               </th>
               {!myOnly && (
                 <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                  Author
+                  {t("cohortDefinitions.auto.author_a51774")}
                 </th>
               )}
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Tags
+                {t("cohortDefinitions.auto.tags_189f63")}
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Latest Generation
+                {t("cohortDefinitions.auto.latestGeneration_63ab9b")}
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Generated Against
+                {t("cohortDefinitions.auto.generatedAgainst_8b61f8")}
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Created
+                {t("cohortDefinitions.auto.created_0eceeb")}
               </th>
             </tr>
           </thead>
@@ -561,11 +566,11 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-1">
           <p className="text-xs text-text-muted flex items-center gap-2">
-            Showing {(page - 1) * limit + 1} -{" "}
+            {t("cohortDefinitions.auto.showing_b4e610")} {(page - 1) * limit + 1} -{" "}
             {Math.min(page * limit, total)} of {total}
             {engine === "solr" && (
               <span className="inline-flex items-center rounded-full bg-success/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-success">
-                Solr
+                {t("cohortDefinitions.auto.solr_dcdb64")}
               </span>
             )}
           </p>

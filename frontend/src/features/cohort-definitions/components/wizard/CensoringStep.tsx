@@ -1,7 +1,9 @@
 import { useCohortWizardStore } from "../../stores/cohortWizardStore";
 import { WizardConceptPicker } from "./WizardConceptPicker";
+import { useTranslation } from "react-i18next";
 
 export function CensoringStep() {
+  const { t } = useTranslation("app");
   const { censoringConcepts, addCensoringConcept, removeCensoringConcept } =
     useCohortWizardStore();
 
@@ -9,12 +11,11 @@ export function CensoringStep() {
     <div className="flex flex-col gap-4">
       <div>
         <div className="mb-1 text-[13px] font-medium text-text-secondary">
-          Step 2 of 2 — Censoring Events{" "}
-          <span className="text-[11px] text-text-ghost">(optional)</span>
+          {t("cohortDefinitions.auto.step2Of2CensoringEvents_8b6873")}{" "}
+          <span className="text-[11px] text-text-ghost">{t("cohortDefinitions.auto.optional_f53d1c")}</span>
         </div>
         <p className="text-[13px] text-text-muted">
-          Are there specific events that should end a patient's follow-up early? For example,
-          death, organ transplant, or switching to a different treatment.
+          {t("cohortDefinitions.auto.areThereSpecificEventsThatShouldEndA_f98618")}
         </p>
       </div>
 

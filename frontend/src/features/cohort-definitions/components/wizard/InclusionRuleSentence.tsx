@@ -5,6 +5,7 @@ import type { WizardInclusionRule } from "../../utils/buildExpression";
 import { describeWindow } from "../../utils/temporalPresets";
 import { TemporalPresetPicker } from "./TemporalPresetPicker";
 import { WizardConceptPicker } from "./WizardConceptPicker";
+import { useTranslation } from "react-i18next";
 
 const DOMAIN_LABELS: Record<DomainCriterionType, string> = {
   ConditionOccurrence: "condition",
@@ -39,6 +40,7 @@ export function InclusionRuleSentence({
   onRemoveConcept,
   onRemove,
 }: InclusionRuleSentenceProps) {
+  const { t } = useTranslation("app");
   const isExclusion = rule.occurrenceType === 0 && rule.occurrenceCount === 0;
   const primaryConceptName = rule.concepts[0]?.concept.concept_name ?? "...";
 
@@ -47,7 +49,7 @@ export function InclusionRuleSentence({
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-[11px] uppercase tracking-wider text-text-ghost">
-            Rule {index + 1}
+            {t("cohortDefinitions.auto.rule_ab7a48")} {index + 1}
           </span>
           {isExclusion && (
             <span className="rounded bg-[rgba(155,27,48,0.2)] px-1.5 py-0.5 text-[10px] text-critical">
@@ -66,14 +68,14 @@ export function InclusionRuleSentence({
 
       {/* Sentence builder */}
       <div className="flex flex-wrap items-center gap-1.5 text-[14px] leading-[2.2]">
-        <span className="text-text-secondary">Require</span>
+        <span className="text-text-secondary">{t("cohortDefinitions.auto.require_a94254")}</span>
         <select
           value={rule.occurrenceType}
           onChange={(e) => onUpdate(index, { occurrenceType: parseInt(e.target.value) as 0 | 1 | 2 })}
           className="rounded border border-border-default bg-surface-overlay px-2.5 py-1 text-[13px] text-success outline-none"
         >
-          <option value={2}>at least</option>
-          <option value={1}>at most</option>
+          <option value={2}>{t("cohortDefinitions.auto.atLeast_3158d7")}</option>
+          <option value={1}>{t("cohortDefinitions.auto.atMost_14c210")}</option>
           <option value={0}>exactly</option>
         </select>
         <input
@@ -111,7 +113,7 @@ export function InclusionRuleSentence({
 
       {/* Temporal */}
       <div className="mt-3">
-        <div className="mb-2 text-[12px] text-text-muted">Occurring:</div>
+        <div className="mb-2 text-[12px] text-text-muted">{t("cohortDefinitions.auto.occurring_712f41")}</div>
         <TemporalPresetPicker
           value={rule.temporalWindow}
           onChange={(window) => onUpdate(index, { temporalWindow: window })}
@@ -127,18 +129,18 @@ export function InclusionRuleSentence({
             onChange={(e) => onUpdate(index, { restrictVisit: e.target.checked })}
             className="accent-success"
           />
-          Restrict to same visit
+          {t("cohortDefinitions.auto.restrictToSameVisit_13ff6d")}
         </label>
       </div>
 
       {/* Live preview */}
       <div className="mt-3 rounded-md border border-[rgba(201,162,39,0.15)] bg-[rgba(201,162,39,0.05)] px-3 py-2">
-        <span className="text-[11px] text-text-ghost">READS AS: </span>
+        <span className="text-[11px] text-text-ghost">{t("cohortDefinitions.auto.readsAs_531e4b")} </span>
         <span className="text-[13px] text-text-secondary">
-          &ldquo;Require {OCCURRENCE_LABELS[rule.occurrenceType]} {rule.occurrenceCount}{" "}
+          {t("cohortDefinitions.auto.require_e9da75")} {OCCURRENCE_LABELS[rule.occurrenceType]} {rule.occurrenceCount}{" "}
           {DOMAIN_LABELS[rule.domain]} of{" "}
           <strong className="text-accent">{primaryConceptName}</strong>{" "}
-          {describeWindow(rule.temporalWindow)}&rdquo;
+          {describeWindow(rule.temporalWindow)}{t("cohortDefinitions.auto.text_4849a7")}
         </span>
       </div>
     </div>

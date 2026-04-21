@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { listBundles } from "@/features/care-gaps/api/careGapApi";
 import type { ConditionBundle } from "@/features/care-gaps/types/careGap";
 import { useCreateCohortFromBundle } from "../hooks/useCohortDefinitions";
+import { useTranslation } from "react-i18next";
 
 interface CreateFromBundleModalProps {
   open: boolean;
@@ -18,6 +19,7 @@ export function CreateFromBundleModal({
   open,
   onClose,
 }: CreateFromBundleModalProps) {
+  const { t } = useTranslation("app");
   const navigate = useNavigate();
   const [filter, setFilter] = useState("");
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -68,13 +70,12 @@ export function CreateFromBundleModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="Create from Care Bundle"
+      title={t("cohortDefinitions.auto.createFromCareBundle_b7b429")}
       size="md"
     >
       <div className="space-y-4">
         <p className="text-xs text-text-muted">
-          Select a disease bundle to auto-generate a cohort definition with
-          condition criteria and quality measure inclusion rules.
+          {t("cohortDefinitions.auto.selectADiseaseBundleToAutoGenerateA_bf7d11")}
         </p>
 
         {/* Filter input */}
@@ -87,7 +88,7 @@ export function CreateFromBundleModal({
             type="text"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            placeholder="Filter bundles..."
+            placeholder={t("cohortDefinitions.auto.filterBundles_d58b5f")}
             className={cn(
               "w-full rounded-lg pl-9 pr-3 py-2 text-sm",
               "bg-surface-base border border-border-default",
@@ -170,7 +171,7 @@ export function CreateFromBundleModal({
             {/* Name */}
             <div>
               <label className="block text-[10px] uppercase tracking-wider text-text-ghost mb-1">
-                Cohort Name
+                {t("cohortDefinitions.auto.cohortName_fbe06f")}
               </label>
               <input
                 type="text"
@@ -204,7 +205,7 @@ export function CreateFromBundleModal({
                 />
               </div>
               <span className="text-xs text-text-secondary">
-                Require all quality measures completed (filters to compliant patients)
+                {t("cohortDefinitions.auto.requireAllQualityMeasuresCompletedFiltersToCompliant_0c9036")}
               </span>
             </label>
 
@@ -220,7 +221,7 @@ export function CreateFromBundleModal({
               ) : (
                 <Stethoscope size={16} />
               )}
-              Create Cohort Definition
+              {t("cohortDefinitions.auto.createCohortDefinition_fadbf8")}
             </button>
           </div>
         )}

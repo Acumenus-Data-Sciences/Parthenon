@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Loader2, AlertTriangle, FileText } from "lucide-react";
 import { getSharedCohort } from "../api/cohortApi";
+import { useTranslation } from "react-i18next";
 
 interface SharedCohort {
   id: number;
@@ -12,6 +13,7 @@ interface SharedCohort {
 }
 
 export default function SharedCohortPage() {
+  const { t } = useTranslation("app");
   const { token } = useParams<{ token: string }>();
   const [cohort, setCohort] = useState<SharedCohort | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,7 +40,7 @@ export default function SharedCohortPage() {
       <div className="min-h-screen bg-surface-base flex items-center justify-center">
         <div className="text-center space-y-3">
           <AlertTriangle size={32} className="text-critical mx-auto" />
-          <p className="text-text-primary font-medium">Link Not Found</p>
+          <p className="text-text-primary font-medium">{t("cohortDefinitions.auto.linkNotFound_262ed4")}</p>
           <p className="text-sm text-text-muted">
             {error ?? "This shared link is invalid or has expired."}
           </p>
@@ -53,7 +55,7 @@ export default function SharedCohortPage() {
         {/* Branding banner */}
         <div className="text-center space-y-1">
           <p className="text-xs text-text-ghost uppercase tracking-widest">
-            Shared via Parthenon
+            {t("cohortDefinitions.auto.sharedViaParthenon_eb6c6f")}
           </p>
         </div>
 
@@ -74,7 +76,7 @@ export default function SharedCohortPage() {
                 </p>
               )}
               <p className="mt-2 text-[10px] text-text-ghost">
-                Link expires:{" "}
+                {t("cohortDefinitions.auto.linkExpires_21d075")}{" "}
                 {new Date(cohort.expires_at).toLocaleDateString(undefined, {
                   year: "numeric",
                   month: "long",
@@ -87,7 +89,7 @@ export default function SharedCohortPage() {
           {/* Expression JSON (read-only) */}
           <div className="px-6 py-5">
             <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">
-              Cohort Expression
+              {t("cohortDefinitions.auto.cohortExpression_c20438")}
             </h2>
             <pre className="bg-surface-base rounded-lg border border-border-default p-4 text-xs text-text-secondary font-mono overflow-x-auto whitespace-pre-wrap break-words max-h-[60vh] overflow-y-auto">
               {JSON.stringify(cohort.expression, null, 2)}
@@ -96,7 +98,7 @@ export default function SharedCohortPage() {
         </div>
 
         <p className="text-center text-[10px] text-text-disabled">
-          Read-only view · Parthenon Outcomes Research Platform
+          {t("cohortDefinitions.auto.readOnlyViewParthenonOutcomesResearchPlatform_a64268")}
         </p>
       </div>
     </div>

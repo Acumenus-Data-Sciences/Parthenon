@@ -10,8 +10,10 @@ import { useCohortDefinitions } from "../hooks/useCohortDefinitions";
 import { getCohortTags } from "../api/cohortApi";
 import { HelpButton } from "@/features/help";
 import TagFilterBar from "@/components/ui/TagFilterBar";
+import { useTranslation } from "react-i18next";
 
 export default function CohortDefinitionsPage() {
+  const { t } = useTranslation("app");
   const queryClient = useQueryClient();
   const [showImport, setShowImport] = useState(false);
   const [showFromBundle, setShowFromBundle] = useState(false);
@@ -70,10 +72,10 @@ export default function CohortDefinitionsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text-primary">
-            Cohort Definitions
+            {t("cohortDefinitions.auto.cohortDefinitions_e84b92")}
           </h1>
           <p className="mt-1 text-sm text-text-muted">
-            Define and manage cohort definitions for population-level studies
+            {t("cohortDefinitions.auto.defineAndManageCohortDefinitionsForPopulationLevel_540f3a")}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -84,7 +86,7 @@ export default function CohortDefinitionsPage() {
             className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-sm font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
           >
             <Upload size={16} />
-            Import
+            {t("cohortDefinitions.auto.import_72d6d7")}
           </button>
           <button
             type="button"
@@ -92,7 +94,7 @@ export default function CohortDefinitionsPage() {
             className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-sm font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
           >
             <Stethoscope size={16} />
-            From Bundle
+            {t("cohortDefinitions.auto.fromBundle_0cfddc")}
           </button>
           <button
             type="button"
@@ -100,7 +102,7 @@ export default function CohortDefinitionsPage() {
             className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-surface-base hover:bg-success transition-colors"
           >
             <Wand2 size={16} />
-            Cohort Wizard
+            {t("cohortDefinitions.auto.cohortWizard_e16df5")}
           </button>
         </div>
       </div>
@@ -120,7 +122,7 @@ export default function CohortDefinitionsPage() {
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search cohort definitions..."
+            placeholder={t("cohortDefinitions.auto.searchCohortDefinitions_c8a8da")}
             className="w-full rounded-lg pl-10 pr-8 py-2 text-sm bg-surface-raised border border-border-default text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/15 transition-colors"
           />
           {searchInput && (
@@ -146,7 +148,7 @@ export default function CohortDefinitionsPage() {
             }`}
           >
             <LayoutGrid size={12} />
-            By Domain
+            {t("cohortDefinitions.auto.byDomain_07a813")}
           </button>
           <button
             type="button"
@@ -158,18 +160,18 @@ export default function CohortDefinitionsPage() {
             }`}
           >
             <List size={12} />
-            Flat List
+            {t("cohortDefinitions.auto.flatList_53e45a")}
           </button>
         </div>
 
         {/* Tier filter pills */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-text-ghost">Tier:</span>
+          <span className="text-xs text-text-ghost">{t("cohortDefinitions.auto.tier_78ae42")}</span>
           {[
-            { value: null, label: "All" },
-            { value: "study-ready", label: "Study-Ready" },
-            { value: "validated", label: "Validated" },
-            { value: "draft", label: "Draft" },
+            { value: null, label: t("cohortDefinitions.auto.all_b1c94c") },
+            { value: "study-ready", label: t("cohortDefinitions.auto.studyReady_834a5b") },
+            { value: "validated", label: t("cohortDefinitions.auto.validated_536425") },
+            { value: "draft", label: t("cohortDefinitions.auto.draft_f03ab1") },
           ].map((opt) => {
             const isActive = tierFilter === opt.value;
             return (
@@ -205,7 +207,7 @@ export default function CohortDefinitionsPage() {
       {/* Solr facet chips: status */}
       {facets?.status && Object.keys(facets.status).length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-text-ghost">Status:</span>
+          <span className="text-xs text-text-ghost">{t("cohortDefinitions.auto.status_24a23d")}</span>
           {Object.entries(facets.status).map(([value, count]) => (
             <span
               key={value}
@@ -221,7 +223,7 @@ export default function CohortDefinitionsPage() {
       {/* Solr facet chips: author */}
       {facets?.author_name && Object.keys(facets.author_name).length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-text-ghost">Author:</span>
+          <span className="text-xs text-text-ghost">{t("cohortDefinitions.auto.author_91401f")}</span>
           {Object.entries(facets.author_name).map(([value, count]) => (
             <span
               key={value}

@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { useGenerateCohort } from "../hooks/useCohortDefinitions";
 import { useCohortGeneration } from "../hooks/useCohortGeneration";
+import { useTranslation } from "react-i18next";
 
 interface CohortGenerationPanelProps {
   definitionId: number | null;
@@ -22,6 +23,7 @@ interface CohortGenerationPanelProps {
 export function CohortGenerationPanel({
   definitionId,
 }: CohortGenerationPanelProps) {
+  const { t } = useTranslation("app");
   const [sourceId, setSourceId] = useState<number | null>(null);
   const [activeGenId, setActiveGenId] = useState<number | null>(null);
 
@@ -47,7 +49,7 @@ export function CohortGenerationPanel({
       const timer = setTimeout(() => setActiveGenId(null), 5000);
       return () => clearTimeout(timer);
     }
-  }, [activeGen?.status]);
+  }, [activeGen]);
 
   const handleGenerate = () => {
     if (!definitionId || !sourceId) return;
@@ -73,7 +75,7 @@ export function CohortGenerationPanel({
         <div className="flex items-center gap-2">
           <Play size={14} className="text-success" />
           <h4 className="text-sm font-semibold text-text-primary">
-            Generate Cohort
+            {t("cohortDefinitions.auto.generateCohort_7076db")}
           </h4>
         </div>
       </div>
@@ -96,7 +98,7 @@ export function CohortGenerationPanel({
                 "cursor-pointer",
               )}
             >
-              <option value="">Select a data source</option>
+              <option value="">{t("cohortDefinitions.auto.selectADataSource_732377")}</option>
               {sources?.map((src) => (
                 <option key={src.id} value={src.id}>
                   {src.source_name}
@@ -125,7 +127,7 @@ export function CohortGenerationPanel({
             ) : (
               <Play size={14} />
             )}
-            Generate
+            {t("cohortDefinitions.auto.generate_32b919")}
           </button>
         </div>
 
@@ -199,7 +201,7 @@ export function CohortGenerationPanel({
             <div className="flex items-center gap-2">
               <XCircle size={14} className="text-critical" />
               <span className="text-xs text-critical">
-                Failed to start generation. Please try again.
+                {t("cohortDefinitions.auto.failedToStartGenerationPleaseTryAgain_9b4b50")}
               </span>
             </div>
           </div>

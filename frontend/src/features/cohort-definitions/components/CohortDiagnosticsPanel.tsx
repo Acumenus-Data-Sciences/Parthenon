@@ -26,6 +26,7 @@ import type {
   TemporalCharacterizationRow,
   RunCohortDiagnosticsPayload,
 } from "../types/cohortExpression";
+import { useTranslation } from "react-i18next";
 
 // ---------------------------------------------------------------------------
 // Toggle config
@@ -38,46 +39,6 @@ interface DiagnosticToggle {
   defaultOn: boolean;
   expensive?: boolean;
 }
-
-const DIAGNOSTIC_TOGGLES: DiagnosticToggle[] = [
-  {
-    key: "run_incidence_rate",
-    label: "Incidence Rate",
-    description: "Rates per 1,000 person-years by age, gender, and calendar year",
-    defaultOn: true,
-  },
-  {
-    key: "run_orphan_concepts",
-    label: "Orphan Concepts",
-    description: "Concepts used in the cohort definition not in standard hierarchy",
-    defaultOn: true,
-  },
-  {
-    key: "run_breakdown_index_events",
-    label: "Index Event Breakdown",
-    description: "Distribution of index event source concepts",
-    defaultOn: true,
-  },
-  {
-    key: "run_visit_context",
-    label: "Visit Context",
-    description: "Visit type at time of cohort entry",
-    defaultOn: true,
-  },
-  {
-    key: "run_inclusion_statistics",
-    label: "Inclusion Statistics",
-    description: "Attrition funnel for each inclusion rule",
-    defaultOn: true,
-  },
-  {
-    key: "run_temporal_characterization",
-    label: "Temporal Characterization",
-    description: "Time-windowed covariate prevalence (slow — adds several minutes)",
-    defaultOn: false,
-    expensive: true,
-  },
-];
 
 // ---------------------------------------------------------------------------
 // Sub-components
@@ -129,11 +90,12 @@ function EmptySection({ message }: { message: string }) {
 // ---- Incidence Rate ----
 
 function IncidenceRateSection({ rows }: { rows: IncidenceRateRow[] }) {
+  const { t } = useTranslation("app");
   const [open, setOpen] = useState(true);
   if (rows.length === 0) {
     return (
       <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
-        <SectionHeader title="Incidence Rate" open={open} onToggle={() => setOpen(!open)} />
+        <SectionHeader title={t("cohortDefinitions.auto.incidenceRate_c7654d")} open={open} onToggle={() => setOpen(!open)} />
         {open && <EmptySection message="No incidence rate data returned." />}
       </div>
     );
@@ -145,7 +107,7 @@ function IncidenceRateSection({ rows }: { rows: IncidenceRateRow[] }) {
   return (
     <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
       <SectionHeader
-        title="Incidence Rate"
+        title={t("cohortDefinitions.auto.incidenceRate_c7654d")}
         count={rows.length}
         open={open}
         onToggle={() => setOpen(!open)}
@@ -155,13 +117,13 @@ function IncidenceRateSection({ rows }: { rows: IncidenceRateRow[] }) {
           <table className="w-full text-xs">
             <thead className="sticky top-0 bg-surface-raised">
               <tr>
-                <th className="px-3 py-2 text-left font-medium text-text-muted">Cohort ID</th>
-                <th className="px-3 py-2 text-left font-medium text-text-muted">Age Group</th>
-                <th className="px-3 py-2 text-left font-medium text-text-muted">Gender</th>
-                <th className="px-3 py-2 text-left font-medium text-text-muted">Calendar Year</th>
-                <th className="px-3 py-2 text-right font-medium text-text-muted">Rate / 1K py</th>
-                <th className="px-3 py-2 text-right font-medium text-text-muted">Cohort Count</th>
-                <th className="px-3 py-2 text-right font-medium text-text-muted">Person Years</th>
+                <th className="px-3 py-2 text-left font-medium text-text-muted">{t("cohortDefinitions.auto.cohortId_ea9073")}</th>
+                <th className="px-3 py-2 text-left font-medium text-text-muted">{t("cohortDefinitions.auto.ageGroup_cc93f9")}</th>
+                <th className="px-3 py-2 text-left font-medium text-text-muted">{t("cohortDefinitions.auto.gender_019ec3")}</th>
+                <th className="px-3 py-2 text-left font-medium text-text-muted">{t("cohortDefinitions.auto.calendarYear_9af1db")}</th>
+                <th className="px-3 py-2 text-right font-medium text-text-muted">{t("cohortDefinitions.auto.rate1kPy_36fcaa")}</th>
+                <th className="px-3 py-2 text-right font-medium text-text-muted">{t("cohortDefinitions.auto.cohortCount_026d5d")}</th>
+                <th className="px-3 py-2 text-right font-medium text-text-muted">{t("cohortDefinitions.auto.personYears_25340a")}</th>
               </tr>
             </thead>
             <tbody>
@@ -195,7 +157,7 @@ function IncidenceRateSection({ rows }: { rows: IncidenceRateRow[] }) {
           </table>
           {rows.length > 50 && (
             <p className="px-4 py-2 text-[10px] text-text-ghost">
-              Showing first 50 of {rows.length.toLocaleString()} rows.
+              {t("cohortDefinitions.auto.showingFirst50Of_f956a6")} {rows.length.toLocaleString()} rows.
             </p>
           )}
         </div>
@@ -207,15 +169,16 @@ function IncidenceRateSection({ rows }: { rows: IncidenceRateRow[] }) {
 // ---- Orphan Concepts ----
 
 function OrphanConceptsSection({ rows }: { rows: OrphanConceptRow[] }) {
+  const { t } = useTranslation("app");
   const [open, setOpen] = useState(true);
   if (rows.length === 0) {
     return (
       <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
-        <SectionHeader title="Orphan Concepts" open={open} onToggle={() => setOpen(!open)} />
+        <SectionHeader title={t("cohortDefinitions.auto.orphanConcepts_6f7989")} open={open} onToggle={() => setOpen(!open)} />
         {open && (
           <div className="flex items-center gap-2 px-4 py-6 text-xs text-success">
             <Check size={12} />
-            No orphan concepts found.
+            {t("cohortDefinitions.auto.noOrphanConceptsFound_9eac53")}
           </div>
         )}
       </div>
@@ -225,7 +188,7 @@ function OrphanConceptsSection({ rows }: { rows: OrphanConceptRow[] }) {
   return (
     <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
       <SectionHeader
-        title="Orphan Concepts"
+        title={t("cohortDefinitions.auto.orphanConcepts_6f7989")}
         count={rows.length}
         open={open}
         onToggle={() => setOpen(!open)}
@@ -235,9 +198,9 @@ function OrphanConceptsSection({ rows }: { rows: OrphanConceptRow[] }) {
           <table className="w-full text-xs">
             <thead className="sticky top-0 bg-surface-raised">
               <tr>
-                <th className="px-3 py-2 text-left font-medium text-text-muted">Concept ID</th>
-                <th className="px-3 py-2 text-left font-medium text-text-muted">Concept Name</th>
-                <th className="px-3 py-2 text-right font-medium text-text-muted">Record Count</th>
+                <th className="px-3 py-2 text-left font-medium text-text-muted">{t("cohortDefinitions.auto.conceptId_20d798")}</th>
+                <th className="px-3 py-2 text-left font-medium text-text-muted">{t("cohortDefinitions.auto.conceptName_23c68a")}</th>
+                <th className="px-3 py-2 text-right font-medium text-text-muted">{t("cohortDefinitions.auto.recordCount_1f2a70")}</th>
               </tr>
             </thead>
             <tbody>
@@ -266,12 +229,13 @@ function OrphanConceptsSection({ rows }: { rows: OrphanConceptRow[] }) {
 // ---- Index Event Breakdown ----
 
 function IndexEventBreakdownSection({ rows }: { rows: IndexEventBreakdownRow[] }) {
+  const { t } = useTranslation("app");
   const [open, setOpen] = useState(true);
   if (rows.length === 0) {
     return (
       <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
         <SectionHeader
-          title="Index Event Breakdown"
+          title={t("cohortDefinitions.auto.indexEventBreakdown_32f2f3")}
           open={open}
           onToggle={() => setOpen(!open)}
         />
@@ -285,7 +249,7 @@ function IndexEventBreakdownSection({ rows }: { rows: IndexEventBreakdownRow[] }
   return (
     <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
       <SectionHeader
-        title="Index Event Breakdown"
+        title={t("cohortDefinitions.auto.indexEventBreakdown_32f2f3")}
         count={rows.length}
         open={open}
         onToggle={() => setOpen(!open)}
@@ -322,11 +286,12 @@ function IndexEventBreakdownSection({ rows }: { rows: IndexEventBreakdownRow[] }
 // ---- Visit Context ----
 
 function VisitContextSection({ rows }: { rows: VisitContextRow[] }) {
+  const { t } = useTranslation("app");
   const [open, setOpen] = useState(true);
   if (rows.length === 0) {
     return (
       <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
-        <SectionHeader title="Visit Context" open={open} onToggle={() => setOpen(!open)} />
+        <SectionHeader title={t("cohortDefinitions.auto.visitContext_ce10c6")} open={open} onToggle={() => setOpen(!open)} />
         {open && <EmptySection message="No visit context data returned." />}
       </div>
     );
@@ -337,7 +302,7 @@ function VisitContextSection({ rows }: { rows: VisitContextRow[] }) {
   return (
     <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
       <SectionHeader
-        title="Visit Context"
+        title={t("cohortDefinitions.auto.visitContext_ce10c6")}
         count={rows.length}
         open={open}
         onToggle={() => setOpen(!open)}
@@ -372,12 +337,13 @@ function VisitContextSection({ rows }: { rows: VisitContextRow[] }) {
 // ---- Inclusion Statistics ----
 
 function InclusionStatisticsSection({ rows }: { rows: InclusionStatRow[] }) {
+  const { t } = useTranslation("app");
   const [open, setOpen] = useState(true);
   if (rows.length === 0) {
     return (
       <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
         <SectionHeader
-          title="Inclusion Statistics"
+          title={t("cohortDefinitions.auto.inclusionStatistics_2105dc")}
           open={open}
           onToggle={() => setOpen(!open)}
         />
@@ -391,7 +357,7 @@ function InclusionStatisticsSection({ rows }: { rows: InclusionStatRow[] }) {
   return (
     <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
       <SectionHeader
-        title="Inclusion Statistics"
+        title={t("cohortDefinitions.auto.inclusionStatistics_2105dc")}
         count={rows.length}
         open={open}
         onToggle={() => setOpen(!open)}
@@ -440,12 +406,13 @@ function TemporalCharacterizationSection({
 }: {
   rows: TemporalCharacterizationRow[];
 }) {
+  const { t } = useTranslation("app");
   const [open, setOpen] = useState(false);
   if (rows.length === 0) {
     return (
       <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
         <SectionHeader
-          title="Temporal Characterization"
+          title={t("cohortDefinitions.auto.temporalCharacterization_66dc64")}
           open={open}
           onToggle={() => setOpen(!open)}
         />
@@ -457,7 +424,7 @@ function TemporalCharacterizationSection({
   return (
     <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
       <SectionHeader
-        title="Temporal Characterization"
+        title={t("cohortDefinitions.auto.temporalCharacterization_66dc64")}
         count={rows.length}
         open={open}
         onToggle={() => setOpen(!open)}
@@ -467,9 +434,9 @@ function TemporalCharacterizationSection({
           <table className="w-full text-xs">
             <thead className="sticky top-0 bg-surface-raised">
               <tr>
-                <th className="px-3 py-2 text-left font-medium text-text-muted">Covariate</th>
-                <th className="px-3 py-2 text-right font-medium text-text-muted">Time Window</th>
-                <th className="px-3 py-2 text-right font-medium text-text-muted">Mean</th>
+                <th className="px-3 py-2 text-left font-medium text-text-muted">{t("cohortDefinitions.auto.covariate_51b9fe")}</th>
+                <th className="px-3 py-2 text-right font-medium text-text-muted">{t("cohortDefinitions.auto.timeWindow_855eb9")}</th>
+                <th className="px-3 py-2 text-right font-medium text-text-muted">{t("cohortDefinitions.auto.mean_3d6c9a")}</th>
                 <th className="px-3 py-2 text-right font-medium text-text-muted">SD</th>
               </tr>
             </thead>
@@ -510,6 +477,7 @@ function DiagnosticsResults({
   response: RDiagnosticsResponse;
   enabledToggles: Set<string>;
 }) {
+  const { t } = useTranslation("app");
   const r: RDiagnosticsResults = response.results ?? {};
 
   return (
@@ -519,7 +487,7 @@ function DiagnosticsResults({
         <div className="flex items-center gap-2">
           <Check size={14} className="text-success" />
           <span className="text-xs font-medium text-text-primary">
-            Diagnostics completed
+            {t("cohortDefinitions.auto.diagnosticsCompleted_e84f8f")}
           </span>
         </div>
         {response.cohort_count != null && (
@@ -550,9 +518,9 @@ function DiagnosticsResults({
               <p className="font-['IBM_Plex_Mono',monospace] text-lg font-bold text-text-primary">
                 {(cc.cohortSubjects ?? 0).toLocaleString()}
               </p>
-              <p className="text-[10px] text-text-muted">Subjects</p>
+              <p className="text-[10px] text-text-muted">{t("cohortDefinitions.auto.subjects_8b2f77")}</p>
               <p className="text-[10px] text-text-ghost font-['IBM_Plex_Mono',monospace]">
-                Cohort {cc.cohortId}
+                {t("cohortDefinitions.auto.cohort_d9f82a")} {cc.cohortId}
               </p>
             </div>
           ))}
@@ -598,11 +566,51 @@ interface CohortDiagnosticsPanelProps {
 export function CohortDiagnosticsPanel({
   definitionId,
 }: CohortDiagnosticsPanelProps) {
+  const { t } = useTranslation("app");
+  const diagnosticToggles: DiagnosticToggle[] = [
+    {
+      key: "run_incidence_rate",
+      label: t("cohortDefinitions.auto.incidenceRate_c7654d"),
+      description: t("cohortDefinitions.auto.ratesPer1000PersonYearsByAge_bd888d"),
+      defaultOn: true,
+    },
+    {
+      key: "run_orphan_concepts",
+      label: t("cohortDefinitions.auto.orphanConcepts_6f7989"),
+      description: t("cohortDefinitions.auto.conceptsUsedInTheCohortDefinitionNotIn_29b91c"),
+      defaultOn: true,
+    },
+    {
+      key: "run_breakdown_index_events",
+      label: t("cohortDefinitions.auto.indexEventBreakdown_32f2f3"),
+      description: t("cohortDefinitions.auto.distributionOfIndexEventSourceConcepts_5f7a15"),
+      defaultOn: true,
+    },
+    {
+      key: "run_visit_context",
+      label: t("cohortDefinitions.auto.visitContext_ce10c6"),
+      description: t("cohortDefinitions.auto.visitTypeAtTimeOfCohortEntry_12fc0b"),
+      defaultOn: true,
+    },
+    {
+      key: "run_inclusion_statistics",
+      label: t("cohortDefinitions.auto.inclusionStatistics_2105dc"),
+      description: t("cohortDefinitions.auto.attritionFunnelForEachInclusionRule_d4ea44"),
+      defaultOn: true,
+    },
+    {
+      key: "run_temporal_characterization",
+      label: t("cohortDefinitions.auto.temporalCharacterization_66dc64"),
+      description: t("cohortDefinitions.auto.timeWindowedCovariatePrevalenceSlowAddsSeveralMinutes_e70cc2"),
+      defaultOn: false,
+      expensive: true,
+    },
+  ];
   // ---- State ----
   const [result, setResult] = useState<RDiagnosticsResponse | null>(null);
   const [sourceId, setSourceId] = useState<number | "">("");
   const [toggles, setToggles] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(DIAGNOSTIC_TOGGLES.map((t) => [t.key, t.defaultOn]))
+    Object.fromEntries(diagnosticToggles.map((toggle) => [toggle.key, toggle.defaultOn]))
   );
 
   // ---- Data ----
@@ -631,14 +639,14 @@ export function CohortDiagnosticsPanel({
       cohort_definition_ids: [definitionId],
       source_id: sourceId as number,
       ...Object.fromEntries(
-        DIAGNOSTIC_TOGGLES.map((t) => [t.key, toggles[t.key] ?? t.defaultOn])
+        diagnosticToggles.map((toggle) => [toggle.key, toggles[toggle.key] ?? toggle.defaultOn])
       ),
     };
     mutation.mutate(payload);
   };
 
   const enabledToggles = new Set(
-    DIAGNOSTIC_TOGGLES.filter((t) => toggles[t.key]).map((t) => t.key)
+    diagnosticToggles.filter((toggle) => toggles[toggle.key]).map((toggle) => toggle.key)
   );
 
   // ---- Loading state ----
@@ -647,9 +655,9 @@ export function CohortDiagnosticsPanel({
       <div className="rounded-lg border border-border-default bg-surface-raised p-8">
         <div className="flex flex-col items-center gap-3">
           <Loader2 size={28} className="animate-spin text-success" />
-          <p className="text-sm font-medium text-text-primary">Running diagnostics…</p>
+          <p className="text-sm font-medium text-text-primary">{t("cohortDefinitions.auto.runningDiagnostics_7e2b47")}</p>
           <p className="text-xs text-text-muted">
-            This may take several minutes depending on cohort size and selected analyses.
+            {t("cohortDefinitions.auto.thisMayTakeSeveralMinutesDependingOnCohort_0d6381")}
           </p>
         </div>
       </div>
@@ -663,7 +671,7 @@ export function CohortDiagnosticsPanel({
         {/* Re-run controls */}
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-text-primary">
-            Cohort Diagnostics Results
+            {t("cohortDefinitions.auto.cohortDiagnosticsResults_21259d")}
           </h3>
           <button
             type="button"
@@ -671,7 +679,7 @@ export function CohortDiagnosticsPanel({
             className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors"
           >
             <RefreshCw size={12} />
-            Re-configure
+            {t("cohortDefinitions.auto.reConfigure_af2a3a")}
           </button>
         </div>
 
@@ -687,9 +695,9 @@ export function CohortDiagnosticsPanel({
       <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
         <div className="flex items-center gap-2 px-4 py-3 bg-surface-overlay">
           <Activity size={14} className="text-primary" />
-          <h4 className="text-sm font-semibold text-text-primary">Cohort Diagnostics</h4>
+          <h4 className="text-sm font-semibold text-text-primary">{t("cohortDefinitions.auto.cohortDiagnostics_54bb39")}</h4>
           <span className="rounded px-1.5 py-0.5 text-[9px] font-medium bg-primary/15 text-primary">
-            R / HADES
+            {t("cohortDefinitions.auto.rHades_c521d4")}
           </span>
         </div>
 
@@ -697,17 +705,17 @@ export function CohortDiagnosticsPanel({
           {/* Source selector */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-text-muted">
-              Data Source
+              {t("cohortDefinitions.auto.dataSource_338880")}
             </label>
             {sourcesLoading ? (
               <div className="flex items-center gap-2 text-xs text-text-ghost">
                 <Loader2 size={12} className="animate-spin" />
-                Loading sources…
+                {t("cohortDefinitions.auto.loadingSources_9e86c0")}
               </div>
             ) : !sources || sources.length === 0 ? (
               <div className="flex items-center gap-2 text-xs text-critical">
                 <AlertCircle size={12} />
-                No data sources configured. Add one in Admin &rarr; Sources.
+                {t("cohortDefinitions.auto.noDataSourcesConfiguredAddOneInAdmin_198e92")}
               </div>
             ) : (
               <select
@@ -719,7 +727,7 @@ export function CohortDiagnosticsPanel({
                 )}
               >
                 <option value="" disabled>
-                  Select a source…
+                  {t("cohortDefinitions.auto.selectASource_86ba80")}
                 </option>
                 {sources.map((s) => (
                   <option key={s.id} value={s.id}>
@@ -733,9 +741,9 @@ export function CohortDiagnosticsPanel({
 
           {/* Diagnostic toggles */}
           <div className="space-y-1.5">
-            <p className="text-xs font-medium text-text-muted">Diagnostic Analyses</p>
+            <p className="text-xs font-medium text-text-muted">{t("cohortDefinitions.auto.diagnosticAnalyses_d4290f")}</p>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {DIAGNOSTIC_TOGGLES.map((toggle) => (
+              {diagnosticToggles.map((toggle) => (
                 <label
                   key={toggle.key}
                   className={cn(
@@ -803,12 +811,11 @@ export function CohortDiagnosticsPanel({
             ) : (
               <Activity size={14} />
             )}
-            Run Diagnostics
+            {t("cohortDefinitions.auto.runDiagnostics_264198")}
           </button>
 
           <p className="text-[10px] text-text-ghost text-center">
-            Diagnostics run directly against the CDM and may take 1–5 minutes.
-            Results are not persisted.
+            {t("cohortDefinitions.auto.diagnosticsRunDirectlyAgainstTheCdmAndMay_f09ba4")}
           </p>
         </div>
       </div>

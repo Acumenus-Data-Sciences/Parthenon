@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Activity, X, Plus } from "lucide-react";
 import { useCohortExpressionStore } from "../stores/cohortExpressionStore";
 import { RiskScoreCriterionEditor } from "./RiskScoreCriterionEditor";
+import { useTranslation } from "react-i18next";
 
 export function RiskScoreCriteriaSection() {
+  const { t } = useTranslation("app");
   const { expression, addRiskScoreCriterion, removeRiskScoreCriterion } =
     useCohortExpressionStore();
   const [showAdd, setShowAdd] = useState(false);
@@ -14,8 +16,7 @@ export function RiskScoreCriteriaSection() {
   return (
     <div className="space-y-3">
       <p className="text-xs text-text-ghost">
-        Filter cohort by pre-computed risk score values or tiers from Risk Score
-        Analyses.
+        {t("cohortDefinitions.auto.filterCohortByPreComputedRiskScoreValues_9f3c51")}
       </p>
 
       {criteria.map((criterion, i) => (
@@ -63,7 +64,7 @@ export function RiskScoreCriteriaSection() {
           className="flex items-center gap-2 rounded-lg border border-dashed border-primary/40 px-3 py-2 text-xs text-critical hover:border-primary hover:text-critical/80 transition-colors"
         >
           <Plus size={12} />
-          Add Risk Score Criterion
+          {t("cohortDefinitions.auto.addRiskScoreCriterion_fe4a6c")}
         </button>
       )}
     </div>

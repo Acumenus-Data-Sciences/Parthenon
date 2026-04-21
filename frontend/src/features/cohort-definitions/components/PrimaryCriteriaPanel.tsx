@@ -10,8 +10,10 @@ import type {
   DomainCriterionType,
   DomainCriterion,
 } from "../types/cohortExpression";
+import { useTranslation } from "react-i18next";
 
 export function PrimaryCriteriaPanel() {
+  const { t } = useTranslation("app");
   const {
     expression,
     addPrimaryCriterion,
@@ -40,8 +42,7 @@ export function PrimaryCriteriaPanel() {
     <div className="space-y-4">
       {/* Info text */}
       <p className="text-xs text-text-ghost">
-        Define the initial qualifying events (entry events) for this cohort.
-        People must have at least one of these events to enter the cohort.
+        {t("cohortDefinitions.auto.defineTheInitialQualifyingEventsEntryEventsFor_5ed24f")}
       </p>
 
       {/* Criteria list */}
@@ -78,10 +79,10 @@ export function PrimaryCriteriaPanel() {
                   )}
                   {crit && (
                     <span className="text-xs text-text-muted">
-                      Concept Set #{crit.CodesetId}
+                      {t("cohortDefinitions.auto.conceptSet_7e97e2")}{crit.CodesetId}
                       {crit.First && (
                         <span className="ml-2 text-accent">
-                          (first occurrence)
+                          {t("cohortDefinitions.auto.firstOccurrence_d8d028")}
                         </span>
                       )}
                     </span>
@@ -102,9 +103,9 @@ export function PrimaryCriteriaPanel() {
       ) : (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-8">
           <AlertCircle size={20} className="text-text-ghost mb-2" />
-          <p className="text-sm text-text-muted">No primary criteria defined</p>
+          <p className="text-sm text-text-muted">{t("cohortDefinitions.auto.noPrimaryCriteriaDefined_155391")}</p>
           <p className="mt-1 text-xs text-text-ghost">
-            Add at least one entry event to define this cohort
+            {t("cohortDefinitions.auto.addAtLeastOneEntryEventToDefine_80f619")}
           </p>
         </div>
       )}
@@ -122,21 +123,20 @@ export function PrimaryCriteriaPanel() {
           className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-sm text-text-secondary hover:bg-surface-overlay hover:text-text-primary transition-colors"
         >
           <Plus size={14} />
-          Add Primary Criterion
+          {t("cohortDefinitions.auto.addPrimaryCriterion_a69aa7")}
         </button>
       )}
 
       {/* Observation window */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
         <h5 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-          Observation Window
+          {t("cohortDefinitions.auto.observationWindow_3e7979")}
         </h5>
         <p className="text-xs text-text-ghost">
-          Require a minimum amount of continuous observation before and after
-          the index date.
+          {t("cohortDefinitions.auto.requireAMinimumAmountOfContinuousObservationBefore_844d62")}
         </p>
         <div className="flex items-center gap-3">
-          <label className="text-xs text-text-muted">At least</label>
+          <label className="text-xs text-text-muted">{t("cohortDefinitions.auto.atLeast_0198c3")}</label>
           <input
             type="number"
             min={0}
@@ -149,7 +149,7 @@ export function PrimaryCriteriaPanel() {
             }
             className={inputClass}
           />
-          <label className="text-xs text-text-muted">days before and</label>
+          <label className="text-xs text-text-muted">{t("cohortDefinitions.auto.daysBeforeAnd_6844ae")}</label>
           <input
             type="number"
             min={0}
@@ -162,7 +162,7 @@ export function PrimaryCriteriaPanel() {
             }
             className={inputClass}
           />
-          <label className="text-xs text-text-muted">days after</label>
+          <label className="text-xs text-text-muted">{t("cohortDefinitions.auto.daysAfter_d682ef")}</label>
         </div>
       </div>
     </div>

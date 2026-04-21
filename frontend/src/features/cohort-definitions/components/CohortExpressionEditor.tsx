@@ -34,6 +34,7 @@ import type {
   GenomicCriterion,
   ImagingCriterion,
 } from "../types/cohortExpression";
+import { useTranslation } from "react-i18next";
 
 /** Normalize DemographicCriteria to always be an array. It can be undefined, an object, or an array. */
 function asDemographicArray(dc: unknown): DemographicFilter[] {
@@ -94,6 +95,7 @@ function CollapsibleSection({
 }
 
 export function CohortExpressionEditor() {
+  const { t } = useTranslation("app");
   const {
     expression,
     setEndStrategy,
@@ -160,15 +162,14 @@ export function CohortExpressionEditor() {
     <div className="space-y-3">
       {/* 1. Concept Sets */}
       <CollapsibleSection
-        title="Concept Sets"
+        title={t("cohortDefinitions.auto.conceptSets_60d8ff")}
         icon={Layers}
         iconColor="var(--accent)"
         badge={conceptSetCount}
       >
         <div className="space-y-3">
           <p className="text-xs text-text-ghost">
-            Concept sets referenced by criteria in this cohort definition.
-            They are managed inline when adding criteria.
+            {t("cohortDefinitions.auto.conceptSetsReferencedByCriteriaInThisCohort_f8bb10")}
           </p>
           {expression.ConceptSets.length > 0 ? (
             <div className="space-y-1">
@@ -183,7 +184,7 @@ export function CohortExpressionEditor() {
                     </span>
                     <span className="text-sm text-text-primary">{cs.name}</span>
                     <span className="text-xs text-text-ghost">
-                      ({cs.expression.items.length} items)
+                      ({cs.expression.items.length} {t("cohortDefinitions.auto.items_fa3c71")}
                     </span>
                   </div>
                 </div>
@@ -191,7 +192,7 @@ export function CohortExpressionEditor() {
             </div>
           ) : (
             <div className="text-xs text-text-ghost text-center py-4">
-              No concept sets yet. They will be created when you add criteria.
+              {t("cohortDefinitions.auto.noConceptSetsYetTheyWillBeCreated_2e46e4")}
             </div>
           )}
         </div>
@@ -199,7 +200,7 @@ export function CohortExpressionEditor() {
 
       {/* 2. Primary Criteria */}
       <CollapsibleSection
-        title="Primary Criteria"
+        title={t("cohortDefinitions.auto.primaryCriteria_3d2cf7")}
         icon={Target}
         iconColor="var(--success)"
         badge={primaryCount}
@@ -210,7 +211,7 @@ export function CohortExpressionEditor() {
 
       {/* 3. Inclusion Criteria */}
       <CollapsibleSection
-        title="Inclusion Criteria"
+        title={t("cohortDefinitions.auto.inclusionCriteria_04899e")}
         icon={Filter}
         iconColor="var(--info)"
         badge={inclusionCount}
@@ -220,15 +221,14 @@ export function CohortExpressionEditor() {
 
       {/* 4. Censoring Criteria */}
       <CollapsibleSection
-        title="Censoring Criteria"
+        title={t("cohortDefinitions.auto.censoringCriteria_be030f")}
         icon={Shield}
         iconColor="var(--critical)"
         badge={censorCount}
       >
         <div className="space-y-4">
           <p className="text-xs text-text-ghost">
-            Define events that will end a person's cohort membership before
-            the end strategy is reached.
+            {t("cohortDefinitions.auto.defineEventsThatWillEndAPersonS_a25741")}
           </p>
 
           {(expression.CensoringCriteria ?? []).length > 0 ? (
@@ -264,7 +264,7 @@ export function CohortExpressionEditor() {
                       )}
                       {crit && (
                         <span className="text-xs text-text-muted">
-                          Concept Set #{crit.CodesetId}
+                          {t("cohortDefinitions.auto.conceptSet_7e97e2")}{crit.CodesetId}
                         </span>
                       )}
                     </div>
@@ -281,7 +281,7 @@ export function CohortExpressionEditor() {
             </div>
           ) : (
             <div className="text-xs text-text-ghost text-center py-4">
-              No censoring criteria defined.
+              {t("cohortDefinitions.auto.noCensoringCriteriaDefined_ffb2fc")}
             </div>
           )}
 
@@ -297,7 +297,7 @@ export function CohortExpressionEditor() {
               className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-sm text-text-secondary hover:bg-surface-overlay hover:text-text-primary transition-colors"
             >
               <Plus size={14} />
-              Add Censoring Criterion
+              {t("cohortDefinitions.auto.addCensoringCriterion_fc792b")}
             </button>
           )}
         </div>
@@ -305,7 +305,7 @@ export function CohortExpressionEditor() {
 
       {/* 5. End Strategy */}
       <CollapsibleSection
-        title="End Strategy"
+        title={t("cohortDefinitions.auto.endStrategy_12b371")}
         icon={Clock}
         iconColor="var(--accent)"
       >
@@ -317,15 +317,14 @@ export function CohortExpressionEditor() {
 
       {/* 6. Demographics */}
       <CollapsibleSection
-        title="Demographic Criteria"
+        title={t("cohortDefinitions.auto.demographicCriteria_75b107")}
         icon={Users}
         iconColor="var(--domain-observation)"
         badge={demographicCount}
       >
         <div className="space-y-4">
           <p className="text-xs text-text-ghost">
-            Apply demographic filters to the cohort (age, gender, race,
-            ethnicity).
+            {t("cohortDefinitions.auto.applyDemographicFiltersToTheCohortAgeGender_dad15c")}
           </p>
 
           {(asDemographicArray(expression.DemographicCriteria)).map((filter, i) => (
@@ -343,21 +342,21 @@ export function CohortExpressionEditor() {
             className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-sm text-text-secondary hover:bg-surface-overlay hover:text-text-primary transition-colors"
           >
             <Plus size={14} />
-            Add Demographic Filter
+            {t("cohortDefinitions.auto.addDemographicFilter_718a20")}
           </button>
         </div>
       </CollapsibleSection>
 
       {/* 7. Genomic Criteria (Phase 15) */}
       <CollapsibleSection
-        title="Genomic Criteria"
+        title={t("cohortDefinitions.auto.genomicCriteria_b8b854")}
         icon={Dna}
         iconColor="var(--domain-observation)"
         badge={genomicCount > 0 ? genomicCount : undefined}
       >
         <div className="space-y-3">
           <p className="text-xs text-text-ghost">
-            Filter cohort by molecular features: gene mutations, TMB, MSI status, gene fusions, or ClinVar pathogenicity class.
+            {t("cohortDefinitions.auto.filterCohortByMolecularFeaturesGeneMutationsTmb_709795")}
           </p>
 
           {(expression.GenomicCriteria ?? []).map((criterion, i) => (
@@ -389,7 +388,7 @@ export function CohortExpressionEditor() {
               className="flex items-center gap-2 rounded-lg border border-dashed border-purple-700/40 px-3 py-2 text-xs text-purple-400 hover:border-purple-600 hover:text-purple-300 transition-colors"
             >
               <Plus size={12} />
-              Add Genomic Criterion
+              {t("cohortDefinitions.auto.addGenomicCriterion_766eea")}
             </button>
           )}
         </div>
@@ -397,14 +396,14 @@ export function CohortExpressionEditor() {
 
       {/* 8. Imaging Criteria (Phase 16) */}
       <CollapsibleSection
-        title="Imaging Criteria"
+        title={t("cohortDefinitions.auto.imagingCriteria_983710")}
         icon={ScanLine}
         iconColor="var(--info)"
         badge={imagingCount > 0 ? imagingCount : undefined}
       >
         <div className="space-y-3">
           <p className="text-xs text-text-ghost">
-            Filter cohort by imaging characteristics: modality, anatomy, quantitative radiomic features, AI classification labels, or radiation dose.
+            {t("cohortDefinitions.auto.filterCohortByImagingCharacteristicsModalityAnatomyQuantitative_08d6e7")}
           </p>
 
           {(expression.ImagingCriteria ?? []).map((criterion, i) => (
@@ -436,7 +435,7 @@ export function CohortExpressionEditor() {
               className="flex items-center gap-2 rounded-lg border border-dashed border-cyan-700/40 px-3 py-2 text-xs text-cyan-400 hover:border-cyan-600 hover:text-cyan-300 transition-colors"
             >
               <Plus size={12} />
-              Add Imaging Criterion
+              {t("cohortDefinitions.auto.addImagingCriterion_58c7a4")}
             </button>
           )}
         </div>
@@ -444,7 +443,7 @@ export function CohortExpressionEditor() {
 
       {/* 9. Risk Score Criteria (Phase 3) */}
       <CollapsibleSection
-        title="Risk Score Criteria"
+        title={t("cohortDefinitions.auto.riskScoreCriteria_700999")}
         icon={Activity}
         iconColor="var(--primary)"
         badge={riskScoreCount > 0 ? riskScoreCount : undefined}
@@ -456,16 +455,16 @@ export function CohortExpressionEditor() {
 
       {/* 10. Qualified Limit */}
       <CollapsibleSection
-        title="Qualified Limit"
+        title={t("cohortDefinitions.auto.qualifiedLimit_8e0595")}
         icon={Settings}
         iconColor="var(--text-muted)"
       >
         <div className="space-y-3">
           <p className="text-xs text-text-ghost">
-            Control how many qualifying events per person are included.
+            {t("cohortDefinitions.auto.controlHowManyQualifyingEventsPerPersonAre_7711cc")}
           </p>
           <div className="flex items-center gap-3">
-            <label className="text-xs text-text-muted">Limit to</label>
+            <label className="text-xs text-text-muted">{t("cohortDefinitions.auto.limitTo_32fec7")}</label>
             {(["First", "All"] as const).map((type) => (
               <button
                 key={type}
@@ -478,7 +477,7 @@ export function CohortExpressionEditor() {
                     : "bg-surface-base text-text-ghost border border-border-default hover:text-text-muted",
                 )}
               >
-                {type} qualifying event{type === "All" ? "s" : ""}
+                {type} {t("cohortDefinitions.auto.qualifyingEvent_3e92ae")}{type === "All" ? "s" : ""}
               </button>
             ))}
           </div>

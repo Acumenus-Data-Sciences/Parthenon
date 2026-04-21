@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { X, Upload, Loader2, CheckCircle, AlertCircle, SkipForward } from "lucide-react";
 import { importCohortDefinitions, type ImportCohortResult } from "../api/cohortApi";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   onClose: () => void;
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export function ImportCohortModal({ onClose, onImported }: Props) {
+  const { t } = useTranslation("app");
   const fileRef = useRef<HTMLInputElement>(null);
   const [jsonText, setJsonText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -52,7 +54,7 @@ export function ImportCohortModal({ onClose, onImported }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border-default">
           <h2 className="text-base font-semibold text-text-primary">
-            Import Cohort Definition
+            {t("cohortDefinitions.auto.importCohortDefinition_239ba4")}
           </h2>
           <button
             type="button"
@@ -68,7 +70,7 @@ export function ImportCohortModal({ onClose, onImported }: Props) {
           {/* File upload */}
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1.5">
-              Upload JSON file
+              {t("cohortDefinitions.auto.uploadJsonFile_4f8fee")}
             </label>
             <button
               type="button"
@@ -76,7 +78,7 @@ export function ImportCohortModal({ onClose, onImported }: Props) {
               className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
             >
               <Upload size={14} />
-              Choose file
+              {t("cohortDefinitions.auto.chooseFile_cbe55e")}
             </button>
             <input
               ref={fileRef}
@@ -90,13 +92,13 @@ export function ImportCohortModal({ onClose, onImported }: Props) {
           {/* Paste JSON */}
           <div>
             <label className="block text-xs font-medium text-text-muted mb-1.5">
-              Or paste JSON
+              {t("cohortDefinitions.auto.orPasteJson_4006b3")}
             </label>
             <textarea
               value={jsonText}
               onChange={(e) => setJsonText(e.target.value)}
               rows={8}
-              placeholder={'{\n  "name": "My Cohort",\n  "expression": { ... }\n}'}
+              placeholder={t("cohortDefinitions.auto.nameMyCohortExpression_09def8")}
               className="w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-xs font-mono text-text-secondary placeholder:text-text-disabled focus:outline-none focus:border-success/50 resize-none"
             />
           </div>
@@ -154,7 +156,7 @@ export function ImportCohortModal({ onClose, onImported }: Props) {
               className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors disabled:opacity-50"
             >
               {loading && <Loader2 size={14} className="animate-spin" />}
-              Import
+              {t("cohortDefinitions.auto.import_72d6d7")}
             </button>
           )}
         </div>

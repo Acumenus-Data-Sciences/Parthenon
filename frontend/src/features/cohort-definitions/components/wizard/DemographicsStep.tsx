@@ -1,26 +1,40 @@
 import { useCohortWizardStore } from "../../stores/cohortWizardStore";
 import type { DemographicFilter } from "../../types/cohortExpression";
-
-const GENDER_OPTIONS = [
-  { conceptId: 8507, label: "Male" },
-  { conceptId: 8532, label: "Female" },
-] as const;
-
-const RACE_OPTIONS = [
-  { conceptId: 8527, label: "White" },
-  { conceptId: 8516, label: "Black or African American" },
-  { conceptId: 8515, label: "Asian" },
-  { conceptId: 8557, label: "Native Hawaiian or Other Pacific Islander" },
-  { conceptId: 8657, label: "American Indian or Alaska Native" },
-] as const;
-
-const ETHNICITY_OPTIONS = [
-  { conceptId: 38003563, label: "Hispanic or Latino" },
-  { conceptId: 38003564, label: "Not Hispanic or Latino" },
-] as const;
+import { useTranslation } from "react-i18next";
 
 export function DemographicsStep() {
+  const { t } = useTranslation("app");
   const { demographics, setDemographics } = useCohortWizardStore();
+  const genderOptions = [
+    { conceptId: 8507, label: t("cohortDefinitions.auto.male_63889c") },
+    { conceptId: 8532, label: t("cohortDefinitions.auto.female_b719ce") },
+  ] as const;
+  const raceOptions = [
+    { conceptId: 8527, label: t("cohortDefinitions.auto.white_25a817") },
+    {
+      conceptId: 8516,
+      label: t("cohortDefinitions.auto.blackOrAfricanAmerican_ff9b5d"),
+    },
+    { conceptId: 8515, label: t("cohortDefinitions.auto.asian_32547b") },
+    {
+      conceptId: 8557,
+      label: t("cohortDefinitions.auto.nativeHawaiianOrOtherPacificIslander_223ed7"),
+    },
+    {
+      conceptId: 8657,
+      label: t("cohortDefinitions.auto.americanIndianOrAlaskaNative_30d0bd"),
+    },
+  ] as const;
+  const ethnicityOptions = [
+    {
+      conceptId: 38003563,
+      label: t("cohortDefinitions.auto.hispanicOrLatino_1f7dba"),
+    },
+    {
+      conceptId: 38003564,
+      label: t("cohortDefinitions.auto.notHispanicOrLatino_fa7b68"),
+    },
+  ] as const;
 
   const ageMin = demographics?.Age?.Value;
   const ageMax = demographics?.Age?.Extent;
@@ -43,11 +57,11 @@ export function DemographicsStep() {
     <div className="flex flex-col gap-4">
       <div>
         <div className="mb-1 text-[13px] font-medium text-text-secondary">
-          Step 2 of 3 — Demographics{" "}
-          <span className="text-[11px] text-text-ghost">(optional)</span>
+          {t("cohortDefinitions.auto.step2Of3Demographics_b4ecd7")}{" "}
+          <span className="text-[11px] text-text-ghost">{t("cohortDefinitions.auto.optional_f53d1c")}</span>
         </div>
         <p className="text-[13px] text-text-muted">
-          Any age, gender, race, or ethnicity restrictions?
+          {t("cohortDefinitions.auto.anyAgeGenderRaceOrEthnicityRestrictions_3579bf")}
         </p>
       </div>
 
@@ -56,14 +70,14 @@ export function DemographicsStep() {
           {/* Age */}
           <div>
             <label className="mb-2 block text-[12px] font-medium text-text-secondary">
-              Age Range
+              {t("cohortDefinitions.auto.ageRange_2d0f27")}
             </label>
             <div className="flex items-center gap-3">
               <input
                 type="number"
                 min={0}
                 max={120}
-                placeholder="Min"
+                placeholder={t("cohortDefinitions.auto.min_78d811")}
                 value={ageMin ?? ""}
                 onChange={(e) => {
                   const val = e.target.value ? parseInt(e.target.value) : undefined;
@@ -82,7 +96,7 @@ export function DemographicsStep() {
                 type="number"
                 min={0}
                 max={120}
-                placeholder="Max"
+                placeholder={t("cohortDefinitions.auto.max_6a0613")}
                 value={ageMax ?? ""}
                 onChange={(e) => {
                   const val = e.target.value ? parseInt(e.target.value) : undefined;
@@ -101,10 +115,10 @@ export function DemographicsStep() {
           {/* Gender */}
           <div>
             <label className="mb-2 block text-[12px] font-medium text-text-secondary">
-              Gender
+              {t("cohortDefinitions.auto.gender_019ec3")}
             </label>
             <div className="flex gap-2">
-              {GENDER_OPTIONS.map((g) => (
+              {genderOptions.map((g) => (
                 <button
                   key={g.conceptId}
                   type="button"
@@ -124,10 +138,10 @@ export function DemographicsStep() {
           {/* Race */}
           <div>
             <label className="mb-2 block text-[12px] font-medium text-text-secondary">
-              Race
+              {t("cohortDefinitions.auto.race_4e221f")}
             </label>
             <div className="flex flex-wrap gap-2">
-              {RACE_OPTIONS.map((r) => (
+              {raceOptions.map((r) => (
                 <label
                   key={r.conceptId}
                   className="flex items-center gap-1.5 text-[12px] text-text-muted"
@@ -147,10 +161,10 @@ export function DemographicsStep() {
           {/* Ethnicity */}
           <div>
             <label className="mb-2 block text-[12px] font-medium text-text-secondary">
-              Ethnicity
+              {t("cohortDefinitions.auto.ethnicity_8919df")}
             </label>
             <div className="flex flex-wrap gap-2">
-              {ETHNICITY_OPTIONS.map((e) => (
+              {ethnicityOptions.map((e) => (
                 <label
                   key={e.conceptId}
                   className="flex items-center gap-1.5 text-[12px] text-text-muted"

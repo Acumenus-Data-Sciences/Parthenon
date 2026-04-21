@@ -41,23 +41,39 @@ import {
 } from "../hooks/useCohortDefinitions";
 import { useCohortExpressionStore } from "../stores/cohortExpressionStore";
 import type { CohortExpression, CohortDomain } from "../types/cohortExpression";
-
-const DOMAIN_OPTIONS: Array<{ value: CohortDomain; label: string }> = [
-  { value: "cardiovascular", label: "Cardiovascular" },
-  { value: "metabolic", label: "Metabolic / Endocrine" },
-  { value: "renal", label: "Renal" },
-  { value: "oncology", label: "Oncology" },
-  { value: "rare-disease", label: "Rare Disease" },
-  { value: "pain-substance-use", label: "Pain & Substance Use" },
-  { value: "pediatric", label: "Pediatric" },
-  { value: "general", label: "General" },
-];
+import { useTranslation } from "react-i18next";
 
 type Tab = "editor" | "results" | "diagnostics" | "overlap" | "patients";
 
 export default function CohortDefinitionDetailPage() {
+  const { t } = useTranslation("app");
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const domainOptions: Array<{ value: CohortDomain; label: string }> = [
+    {
+      value: "cardiovascular",
+      label: t("cohortDefinitions.auto.cardiovascular_59ea4b"),
+    },
+    {
+      value: "metabolic",
+      label: t("cohortDefinitions.auto.metabolicEndocrine_4d43ef"),
+    },
+    { value: "renal", label: t("cohortDefinitions.auto.renal_199d35") },
+    { value: "oncology", label: t("cohortDefinitions.auto.oncology_50b74a") },
+    {
+      value: "rare-disease",
+      label: t("cohortDefinitions.auto.rareDisease_f7ba34"),
+    },
+    {
+      value: "pain-substance-use",
+      label: t("cohortDefinitions.auto.painSubstanceUse_5dcb4d"),
+    },
+    {
+      value: "pediatric",
+      label: t("cohortDefinitions.auto.pediatric_c66795"),
+    },
+    { value: "general", label: t("cohortDefinitions.auto.general_0db377") },
+  ];
   const cohortId = id ? Number(id) : null;
 
   const { data: definition, isLoading, error } = useCohortDefinition(cohortId);
@@ -254,13 +270,13 @@ export default function CohortDefinitionDetailPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <p className="text-critical">Failed to load cohort definition</p>
+          <p className="text-critical">{t("cohortDefinitions.auto.failedToLoadCohortDefinition_d0e22d")}</p>
           <button
             type="button"
             onClick={() => navigate("/cohort-definitions")}
             className="mt-4 text-sm text-text-muted hover:text-text-primary transition-colors"
           >
-            Back to list
+            {t("cohortDefinitions.auto.backToList_630f6d")}
           </button>
         </div>
       </div>
@@ -275,7 +291,7 @@ export default function CohortDefinitionDetailPage() {
           <AlertTriangle size={16} className="text-amber-500 shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-amber-400">
-              Deprecated on{" "}
+              {t("cohortDefinitions.auto.deprecatedOn_f31114")}{" "}
               {new Date(definition.deprecated_at).toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -284,7 +300,7 @@ export default function CohortDefinitionDetailPage() {
             </p>
             {definition.superseded_by_cohort && (
               <p className="text-xs text-amber-400/70 mt-0.5">
-                Superseded by{" "}
+                {t("cohortDefinitions.auto.supersededBy_fd9407")}{" "}
                 <button
                   type="button"
                   onClick={() =>
@@ -310,7 +326,7 @@ export default function CohortDefinitionDetailPage() {
             ) : (
               <RotateCcw size={12} />
             )}
-            Restore
+            {t("cohortDefinitions.auto.restore_2bd339")}
           </button>
         </div>
       )}
@@ -325,7 +341,7 @@ export default function CohortDefinitionDetailPage() {
             className="inline-flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition-colors mb-3"
           >
             <ArrowLeft size={14} />
-            Cohort Definitions
+            {t("cohortDefinitions.auto.cohortDefinitions_e84b92")}
           </button>
 
           {/* Editable Name */}
@@ -365,7 +381,7 @@ export default function CohortDefinitionDetailPage() {
             <h1
               onClick={() => setIsEditingName(true)}
               className="text-2xl font-bold text-text-primary cursor-pointer hover:text-success transition-colors"
-              title="Click to edit"
+              title={t("cohortDefinitions.auto.clickToEdit_0f07b6")}
             >
               {definition.name}
             </h1>
@@ -386,7 +402,7 @@ export default function CohortDefinitionDetailPage() {
                   }
                 }}
                 autoFocus
-                placeholder="Add a description..."
+                placeholder={t("cohortDefinitions.auto.addADescription_4bc3db")}
                 className={cn(
                   "flex-1 text-sm bg-transparent border-b border-success text-text-secondary",
                   "placeholder:text-text-ghost focus:outline-none px-0 py-0",
@@ -414,7 +430,7 @@ export default function CohortDefinitionDetailPage() {
                   ? "text-text-muted hover:text-text-secondary"
                   : "text-text-ghost hover:text-text-muted",
               )}
-              title="Click to edit"
+              title={t("cohortDefinitions.auto.clickToEdit_0f07b6")}
             >
               {definition.description ?? "Add a description..."}
             </p>
@@ -426,7 +442,7 @@ export default function CohortDefinitionDetailPage() {
               v{definition.version}
             </span>
             <span className="text-[10px] text-text-ghost">
-              Last saved{" "}
+              {t("cohortDefinitions.auto.lastSaved_c6dad3")}{" "}
               {new Date(definition.updated_at).toLocaleString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -469,7 +485,7 @@ export default function CohortDefinitionDetailPage() {
                   if (!tagInput.trim()) setIsAddingTag(false);
                 }}
                 autoFocus
-                placeholder="tag name"
+                placeholder={t("cohortDefinitions.auto.tagName_4f8a9a")}
                 className="rounded px-2 py-0.5 text-[10px] w-20 bg-surface-base border border-success text-text-primary placeholder:text-text-ghost focus:outline-none"
               />
             ) : (
@@ -496,8 +512,8 @@ export default function CohortDefinitionDetailPage() {
                 !definition.domain && "text-text-ghost",
               )}
             >
-              <option value="">Assign a domain</option>
-              {DOMAIN_OPTIONS.map((opt) => (
+              <option value="">{t("cohortDefinitions.auto.assignADomain_626d32")}</option>
+              {domainOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
@@ -525,7 +541,7 @@ export default function CohortDefinitionDetailPage() {
             ) : (
               <Save size={14} />
             )}
-            Save
+            {t("cohortDefinitions.auto.save_c9cc8c")}
             {isDirty && (
               <span className="inline-flex w-2 h-2 rounded-full bg-surface-base/40" />
             )}
@@ -558,7 +574,7 @@ export default function CohortDefinitionDetailPage() {
             className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium bg-gradient-to-r from-[#2DD4BF]/20 to-[#A78BFA]/20 border border-success/30 text-success hover:from-[#2DD4BF]/30 hover:to-[#A78BFA]/30 transition-all"
           >
             <Sparkles size={14} />
-            Abby AI
+            {t("cohortDefinitions.auto.abbyAi_da8a7b")}
           </button>
 
           {/* Export */}
@@ -568,7 +584,7 @@ export default function CohortDefinitionDetailPage() {
             className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-muted hover:text-text-secondary transition-colors"
           >
             <Download size={14} />
-            Export
+            {t("cohortDefinitions.auto.export_0095a9")}
           </button>
 
           {/* Share */}
@@ -578,7 +594,7 @@ export default function CohortDefinitionDetailPage() {
             className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-muted hover:text-text-secondary transition-colors"
           >
             <Share2 size={14} />
-            Share
+            {t("cohortDefinitions.auto.share_5a95a4")}
           </button>
 
           {/* Copy */}
@@ -593,7 +609,7 @@ export default function CohortDefinitionDetailPage() {
             ) : (
               <Copy size={14} />
             )}
-            Copy
+            {t("cohortDefinitions.auto.copy_5fb635")}
           </button>
 
           {/* Deprecate */}
@@ -609,7 +625,7 @@ export default function CohortDefinitionDetailPage() {
               ) : (
                 <AlertTriangle size={14} />
               )}
-              Deprecate
+              {t("cohortDefinitions.auto.deprecate_b71627")}
             </button>
           )}
 
@@ -625,7 +641,7 @@ export default function CohortDefinitionDetailPage() {
             ) : (
               <Trash2 size={14} />
             )}
-            Delete
+            {t("cohortDefinitions.auto.delete_f2a6c4")}
           </button>
         </div>
       </div>
@@ -634,11 +650,11 @@ export default function CohortDefinitionDetailPage() {
       <div className="flex items-center gap-1 border-b border-border-default">
         {(
           [
-            { key: "editor", label: "Expression Editor" },
-            { key: "results", label: "SQL & Generation" },
-            { key: "diagnostics", label: "Diagnostics" },
-            { key: "overlap", label: "Overlap" },
-            { key: "patients", label: "Patient List" },
+            { key: "editor", label: t("cohortDefinitions.auto.expressionEditor_fdd3c0") },
+            { key: "results", label: t("cohortDefinitions.auto.sqlGeneration_48d9a5") },
+            { key: "diagnostics", label: t("cohortDefinitions.auto.diagnostics_36b64a") },
+            { key: "overlap", label: t("cohortDefinitions.auto.overlap_2359a1") },
+            { key: "patients", label: t("cohortDefinitions.auto.patientList_04b6ae") },
           ] as const
         ).map((tab) => (
           <button
@@ -670,7 +686,7 @@ export default function CohortDefinitionDetailPage() {
           <CirceSqlPanel definitionId={cohortId} />
           <div>
             <h3 className="text-sm font-semibold text-text-primary mb-3">
-              Generation History
+              {t("cohortDefinitions.auto.generationHistory_37b958")}
             </h3>
             <GenerationHistoryTable definitionId={cohortId} />
           </div>
@@ -688,7 +704,7 @@ export default function CohortDefinitionDetailPage() {
           {cohortId && (
             <section className="mt-8">
               <h3 className="text-sm font-semibold text-text-primary mb-3">
-                Polygenic Risk Score Distribution
+                {t("cohortDefinitions.auto.polygenicRiskScoreDistribution_988a0f")}
               </h3>
               <PrsDistributionPanel
                 cohortId={cohortId}

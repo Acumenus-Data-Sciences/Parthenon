@@ -1,5 +1,6 @@
 import { useCohortWizardStore } from "../../stores/cohortWizardStore";
 import { describeWindow } from "../../utils/temporalPresets";
+import { useTranslation } from "react-i18next";
 
 const OCCURRENCE_LABELS: Record<number, string> = {
   0: "exactly",
@@ -18,6 +19,7 @@ const DOMAIN_LABELS: Record<string, string> = {
 };
 
 export function CohortSummary() {
+  const { t } = useTranslation("app");
   const s = useCohortWizardStore();
 
   const entryNames = s.entryConcepts.map((e) => e.concept.concept_name);
@@ -26,19 +28,19 @@ export function CohortSummary() {
   return (
     <div className="rounded-lg bg-surface-overlay p-4 text-[13px] leading-[1.8] text-text-secondary">
       <div className="mb-2 text-[11px] uppercase tracking-wider text-text-ghost">
-        Your cohort definition reads as:
+        {t("cohortDefinitions.auto.yourCohortDefinitionReadsAs_02afaa")}
       </div>
 
       {/* Entry events */}
       <div>
-        Patients with{" "}
+        {t("cohortDefinitions.auto.patientsWith_8f8bc7")}{" "}
         <strong className="text-accent">
           {entryNames.length > 0 ? entryNames.join(", ") : "(no entry events)"}
         </strong>
-        {hasDescendants && <span className="text-text-muted"> (or any sub-type)</span>}
+        {hasDescendants && <span className="text-text-muted"> {t("cohortDefinitions.auto.orAnySubType_2e6910")}</span>}
         {", "}
         <span className="text-text-ghost">
-          using {s.qualifiedLimit.toLowerCase()} qualifying event
+          using {s.qualifiedLimit.toLowerCase()} {t("cohortDefinitions.auto.qualifyingEvent_3e92ae")}
           {s.qualifiedLimit === "All" ? "s" : ""}
         </span>
         {","}
@@ -52,13 +54,13 @@ export function CohortSummary() {
           <div key={i}>
             {isExclusion ? (
               <>
-                and do <strong className="text-critical">NOT</strong> have{" "}
+                {t("cohortDefinitions.auto.andDo_c36305")} <strong className="text-critical">NOT</strong> have{" "}
                 <strong className="text-accent">{conceptName}</strong>{" "}
                 {describeWindow(rule.temporalWindow)}
               </>
             ) : (
               <>
-                who have{" "}
+                {t("cohortDefinitions.auto.whoHave_fc8310")}{" "}
                 <strong className="text-accent">
                   {OCCURRENCE_LABELS[rule.occurrenceType]} {rule.occurrenceCount}{" "}
                   {DOMAIN_LABELS[rule.domain] ?? rule.domain} of {conceptName}
@@ -76,7 +78,7 @@ export function CohortSummary() {
         <div>
           aged{" "}
           <strong className="text-accent">
-            {s.demographics.Age.Value}&ndash;{s.demographics.Age.Extent ?? "\u221E"}
+            {s.demographics.Age.Value}{t("cohortDefinitions.auto.text_47a744")}{s.demographics.Age.Extent ?? "\u221E"}
           </strong>
           {","}
         </div>
@@ -84,7 +86,7 @@ export function CohortSummary() {
 
       {/* End strategy */}
       <div>
-        followed until{" "}
+        {t("cohortDefinitions.auto.followedUntil_a6f473")}{" "}
         <strong className="text-accent">
           {s.endStrategy.type === "observation" && "end of continuous observation"}
           {s.endStrategy.type === "fixed" && `${s.endStrategy.fixedDays} days after entry`}
@@ -97,7 +99,7 @@ export function CohortSummary() {
       {/* Censoring */}
       {s.censoringConcepts.length > 0 && (
         <div>
-          censored at{" "}
+          {t("cohortDefinitions.auto.censoredAt_9ce809")}{" "}
           <strong className="text-accent">
             {s.censoringConcepts.map((c) => c.concept.concept_name).join(", ")}
           </strong>

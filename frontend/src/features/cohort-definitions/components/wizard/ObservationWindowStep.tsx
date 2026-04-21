@@ -1,16 +1,18 @@
 import { useCohortWizardStore } from "../../stores/cohortWizardStore";
+import { useTranslation } from "react-i18next";
 
 export function ObservationWindowStep() {
+  const { t } = useTranslation("app");
   const { observationWindow, setObservationWindow } = useCohortWizardStore();
 
   return (
     <div className="flex flex-col gap-4">
       <div>
         <div className="mb-1 text-[13px] font-medium text-text-secondary">
-          Step 2 of 3 — Observation Window
+          {t("cohortDefinitions.auto.step2Of3ObservationWindow_b94abd")}
         </div>
         <p className="text-[13px] text-text-muted">
-          How much medical history must a patient have before and after their entry event?
+          {t("cohortDefinitions.auto.howMuchMedicalHistoryMustAPatientHave_9051a5")}
         </p>
       </div>
 
@@ -18,7 +20,7 @@ export function ObservationWindowStep() {
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-4">
             <label className="min-w-[240px] text-[13px] text-text-secondary">
-              Days of history required before entry
+              {t("cohortDefinitions.auto.daysOfHistoryRequiredBeforeEntry_df5f37")}
             </label>
             <input
               type="number"
@@ -37,7 +39,7 @@ export function ObservationWindowStep() {
 
           <div className="flex items-center gap-4">
             <label className="min-w-[240px] text-[13px] text-text-secondary">
-              Days of follow-up required after entry
+              {t("cohortDefinitions.auto.daysOfFollowUpRequiredAfterEntry_2ef509")}
             </label>
             <input
               type="number"
@@ -59,9 +61,7 @@ export function ObservationWindowStep() {
       <div className="rounded-lg border border-[rgba(201,162,39,0.15)] bg-[rgba(201,162,39,0.05)] px-4 py-3">
         <span className="text-accent">💡</span>{" "}
         <span className="text-[13px] text-text-muted">
-          <strong className="text-accent">Tip:</strong> This ensures patients have enough
-          data for your study. For example, requiring 365 days of prior history ensures you
-          can check for pre-existing conditions.
+          <strong className="text-accent">{t("cohortDefinitions.auto.tip_342a40")}</strong> {t("cohortDefinitions.auto.thisEnsuresPatientsHaveEnoughDataForYour_5428c0")}
         </span>
       </div>
     </div>

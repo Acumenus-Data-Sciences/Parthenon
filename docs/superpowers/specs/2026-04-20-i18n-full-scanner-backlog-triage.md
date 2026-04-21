@@ -11,10 +11,10 @@ npm run i18n:scan
 
 Current scanner output:
 
-- Full frontend scanner: 5,265 candidates across 1,103 scanned files.
+- Full frontend scanner: 4,600 candidates across 1,103 scanned files.
 - FinnGen paths excluded from this i18n track: 372 candidates.
-- Non-FinnGen backlog for this triage: 4,893 candidates.
-- Candidate kinds after FinnGen exclusion: 3,208 JSX text, 1,369 object properties, 316 JSX attributes.
+- Non-FinnGen backlog for this triage: 4,228 candidates.
+- Candidate kinds after FinnGen exclusion: 2,723 JSX text, 1,242 object properties, 263 JSX attributes.
 
 The app-priority scanner remains the release gate for the already-promoted language picker work. It currently reports 0 candidates across 214 files. The backlog below is therefore not a blocker for the current public app language selector, but it is the remaining work before Parthenon can claim broad native-language coverage across every product surface.
 
@@ -22,7 +22,7 @@ The app-priority scanner remains the release gate for the already-promoted langu
 
 | Class | Candidates | Files | Disposition |
 | --- | ---: | ---: | --- |
-| Cohort authoring and diagnostics | 687 | 51 | Release-blocking for native cohort-builder claims. Extract next if cohort authoring is the next public i18n promise. |
+| Cohort authoring and diagnostics | 0 | 62 | Completed for `src/features/cohort-definitions`. Focused wave scanner reports 0 candidates across cohort list/detail, expression editor, validation, diagnostics, attrition, patient list, Circe SQL, wizard, and shared cohort surfaces. |
 | Analysis design and results | 725 | 53 | Release-blocking for native analytics workflows. Extract as a focused analysis wave because designers/results share terminology. |
 | Data source setup and ingestion | 0 | 46 | Completed for `src/features/data-sources`, `src/features/ingestion`, and FHIR ingestion/export chrome. Focused wave scanner reports 0 candidates. |
 | Standard PROs UI | 247 | 13 | Release-blocking for Standard PROs+ workflows. Keep instrument content separate from UI chrome. |
@@ -45,10 +45,8 @@ The app-priority scanner remains the release gate for the already-promoted langu
 | Candidates | File |
 | ---: | --- |
 | 315 | `src/features/etl/lib/cdm-schema-v54.ts` |
-| 101 | `src/features/cohort-definitions/components/PhenotypeValidationPanel.tsx` |
 | 99 | `src/features/standard-pros/data/instruments.ts` |
 | 68 | `src/features/standard-pros/components/builder/BuilderTab.tsx` |
-| 55 | `src/features/cohort-definitions/components/CohortDiagnosticsPanel.tsx` |
 | 54 | `src/features/imaging/pages/ImagingPage.tsx` |
 | 50 | `src/features/strategus/pages/StudyPackagePage.tsx` |
 | 49 | `src/features/strategus/components/ModuleConfigPanels.tsx` |
@@ -60,14 +58,16 @@ The app-priority scanner remains the release gate for the already-promoted langu
 | 37 | `src/features/investigation/components/clinical/ConfigDrawer.tsx` |
 | 37 | `src/features/radiogenomics/components/PrecisionMedicineTab.tsx` |
 | 37 | `src/features/risk-scores/pages/RiskScoreHubPage.tsx` |
+| 36 | `src/features/heor/pages/HeorPage.tsx` |
+| 36 | `src/features/morpheus/constants/antibioticClasses.ts` |
 
 ## Recommended Extraction Order
 
 1. Data-source setup and ingestion. Completed 2026-04-20.
    Scope completed: `src/features/data-sources`, `src/features/ingestion`, and FHIR ingestion/export chrome. Source names, schema names, auth schemes, URLs, examples, FHIR/OMOP/CDM tokens, and visual separators were kept protected.
 
-2. Cohort authoring and diagnostics.
-   Scope: cohort-definition list/detail, expression editor, validation, diagnostics, attrition, patient list, Circe SQL panel, and phenotype-library pages. Protect clinical concept/source labels, generated SQL, JSON, and OHDSI/Circe identifiers.
+2. Cohort authoring and diagnostics. Completed 2026-04-20.
+   Scope completed: `src/features/cohort-definitions` across list/detail, expression editor, validation, diagnostics, attrition, patient list, Circe SQL, wizard, temporal preset, and shared cohort surfaces. Clinical/source labels, generated SQL, JSON, and OHDSI/Circe identifiers were kept protected.
 
 3. Analysis design and results.
    Scope: analysis gallery/list plus characterization, incidence, estimation, prediction, pathways, SCCS, self-controlled cohort, and evidence synthesis designers/results. Keep statistical method labels, package names, and source-data values explicit.

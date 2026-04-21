@@ -1,7 +1,9 @@
 import { useCohortWizardStore } from "../../stores/cohortWizardStore";
 import { WizardConceptPicker } from "./WizardConceptPicker";
+import { useTranslation } from "react-i18next";
 
 export function EntryEventsStep() {
+  const { t } = useTranslation("app");
   const { entryConcepts, addEntryConcept, removeEntryConcept, updateEntryConceptOptions } =
     useCohortWizardStore();
 
@@ -9,12 +11,11 @@ export function EntryEventsStep() {
     <div className="flex flex-col gap-4">
       <div>
         <div className="mb-1 text-[13px] font-medium text-text-secondary">
-          Step 1 of 3 — Entry Events
+          {t("cohortDefinitions.auto.step1Of3EntryEvents_e2aefb")}
         </div>
         <p className="text-[13px] text-text-muted">
-          Search for the diagnoses, procedures, medications, or other events that define when
-          a patient enters your cohort. You can add multiple entry events — a patient matching{" "}
-          <em>any</em> of them qualifies.
+          {t("cohortDefinitions.auto.searchForTheDiagnosesProceduresMedicationsOrOther_4fd129")}{" "}
+          <em>any</em> {t("cohortDefinitions.auto.ofThemQualifies_9d103b")}
         </p>
       </div>
 

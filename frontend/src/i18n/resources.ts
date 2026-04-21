@@ -1,5 +1,6 @@
 import type { Resource } from "i18next";
 import { appResources } from "./appResources";
+import { cohortDefinitionResources } from "./cohortDefinitionResources";
 import { commonsResources } from "./commonsResources";
 import { dashboardResources } from "./dashboardResources";
 import { dataSourceIngestionResources } from "./dataSourceIngestionResources";
@@ -7126,11 +7127,15 @@ function withProductResources(
 
 function appForLocale(locale: string): MessageTree {
   const baseApp = appResources[locale] ?? appResources["en-US"];
-  const waveApp =
-    dataSourceIngestionResources[locale] ??
-    dataSourceIngestionResources["en-US"];
+  const appWaves = [
+    dataSourceIngestionResources,
+    cohortDefinitionResources,
+  ];
 
-  return mergeMessageTrees(baseApp, waveApp);
+  return appWaves.reduce(
+    (tree, wave) => mergeMessageTrees(tree, wave[locale] ?? wave["en-US"] ?? {}),
+    baseApp,
+  );
 }
 
 export const resources: Resource = {

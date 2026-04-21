@@ -8,6 +8,7 @@ import {
   usePgsCatalogScores,
   useComputePrsMutation,
 } from "../hooks/usePrsScores";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   open: boolean;
@@ -24,6 +25,7 @@ export function ComputePrsModal({
   endpointName,
   sourceKey,
 }: Props) {
+  const { t } = useTranslation("app");
   const [scoreId, setScoreId] = useState<string>("");
   const [sourceKeyInput, setSourceKeyInput] = useState<string>(
     sourceKey ?? "",
@@ -77,20 +79,19 @@ export function ComputePrsModal({
           id="compute-prs-title"
           className="text-lg font-semibold text-text-primary"
         >
-          Compute PRS
+          {t("cohortDefinitions.auto.computePrs_0d8599")}
         </h2>
 
         {!hasEndpoint && (
           <p role="alert" className="text-sm text-critical">
-            PRS compute is available only for FinnGen endpoint cohorts in v1.
-            Materialize this cohort against a FinnGen endpoint first.
+            {t("cohortDefinitions.auto.prsComputeIsAvailableOnlyForFinngenEndpoint_a25411")}
           </p>
         )}
 
         <label className="block text-sm">
-          <span className="text-text-muted">PGS Catalog score</span>
+          <span className="text-text-muted">{t("cohortDefinitions.auto.pgsCatalogScore_38e7d3")}</span>
           <select
-            aria-label="PGS Catalog score"
+            aria-label={t("cohortDefinitions.auto.pgsCatalogScore_38e7d3")}
             value={scoreId}
             onChange={(e) => setScoreId(e.target.value)}
             className="mt-1 block w-full px-2 py-1 rounded bg-surface-base border border-border-default text-text-primary"
@@ -109,10 +110,10 @@ export function ComputePrsModal({
         </label>
 
         <label className="block text-sm">
-          <span className="text-text-muted">Source key (e.g. PANCREAS)</span>
+          <span className="text-text-muted">{t("cohortDefinitions.auto.sourceKeyEGPancreas_cb9a49")}</span>
           <input
             type="text"
-            aria-label="Source key"
+            aria-label={t("cohortDefinitions.auto.sourceKey_c84233")}
             value={sourceKeyInput}
             onChange={(e) => setSourceKeyInput(e.target.value.toUpperCase())}
             className="mt-1 block w-full px-2 py-1 rounded bg-surface-base border border-border-default text-text-primary"
@@ -133,7 +134,7 @@ export function ComputePrsModal({
             onClick={onClose}
             className="px-3 py-1 text-sm rounded border border-border-default text-text-muted"
           >
-            Cancel
+            {t("cohortDefinitions.auto.cancel_ea4788")}
           </button>
           <button
             type="submit"

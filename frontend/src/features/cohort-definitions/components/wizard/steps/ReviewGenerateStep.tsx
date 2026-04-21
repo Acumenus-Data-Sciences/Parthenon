@@ -8,6 +8,7 @@ import { getCohortGenerations } from "../../../api/cohortApi";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { CohortSummary } from "../CohortSummary";
 import type { Source } from "@/types/models";
+import { useTranslation } from "react-i18next";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -18,6 +19,7 @@ interface Props {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function ReviewGenerateStep({ onClose }: Props) {
+  const { t } = useTranslation("app");
   const navigate = useNavigate();
   const store = useCohortWizardStore();
   const createdId = useCohortWizardStore((s) => s.createdId);
@@ -111,7 +113,7 @@ export function ReviewGenerateStep({ onClose }: Props) {
     <div className="flex flex-col gap-4">
       {/* Summary section */}
       <div>
-        <div className="mb-2 text-[13px] font-medium text-text-muted">Cohort Summary</div>
+        <div className="mb-2 text-[13px] font-medium text-text-muted">{t("cohortDefinitions.auto.cohortSummary_226728")}</div>
         <CohortSummary />
       </div>
 
@@ -123,7 +125,7 @@ export function ReviewGenerateStep({ onClose }: Props) {
           className="inline-flex items-center gap-1 rounded border border-border-default px-2.5 py-1 text-[11px] text-text-muted hover:border-surface-highlight hover:text-text-secondary"
         >
           <Pencil size={10} />
-          Edit Population
+          {t("cohortDefinitions.auto.editPopulation_63f7a8")}
         </button>
         <button
           type="button"
@@ -131,7 +133,7 @@ export function ReviewGenerateStep({ onClose }: Props) {
           className="inline-flex items-center gap-1 rounded border border-border-default px-2.5 py-1 text-[11px] text-text-muted hover:border-surface-highlight hover:text-text-secondary"
         >
           <Pencil size={10} />
-          Edit Criteria
+          {t("cohortDefinitions.auto.editCriteria_9a19c7")}
         </button>
         <button
           type="button"
@@ -139,7 +141,7 @@ export function ReviewGenerateStep({ onClose }: Props) {
           className="inline-flex items-center gap-1 rounded border border-border-default px-2.5 py-1 text-[11px] text-text-muted hover:border-surface-highlight hover:text-text-secondary"
         >
           <Pencil size={10} />
-          Edit Follow-up
+          {t("cohortDefinitions.auto.editFollowUp_ae3e98")}
         </button>
       </div>
 
@@ -147,7 +149,7 @@ export function ReviewGenerateStep({ onClose }: Props) {
       {errors.length > 0 && (
         <div className="rounded-lg border border-[rgba(155,27,48,0.3)] bg-[rgba(155,27,48,0.05)] px-4 py-3">
           <div className="mb-1 text-[12px] font-medium text-critical">
-            Cannot generate &mdash; fix these issues:
+            {t("cohortDefinitions.auto.cannotGenerateFixTheseIssues_9e2a15")}
           </div>
           <ul className="list-inside list-disc text-[12px] text-critical">
             {errors.map((e) => (
@@ -160,14 +162,14 @@ export function ReviewGenerateStep({ onClose }: Props) {
       {/* Generate section */}
       <div className="border-t border-border-default pt-5">
         <div className="flex items-center gap-3">
-          <span className="text-[13px] text-text-muted">Run against:</span>
+          <span className="text-[13px] text-text-muted">{t("cohortDefinitions.auto.runAgainst_8bfd59")}</span>
           <select
             value={sourceId ?? ""}
             onChange={(e) => setSourceId(e.target.value ? parseInt(e.target.value, 10) : null)}
             className="rounded-md border border-surface-highlight bg-surface-overlay px-3 py-1.5 text-[13px] text-text-secondary outline-none focus:border-accent focus:ring-1 focus:ring-accent/15"
             disabled={loadingSources}
           >
-            <option value="">Select data source...</option>
+            <option value="">{t("cohortDefinitions.auto.selectDataSource_8c406d")}</option>
             {(sources ?? []).map((s: Source) => (
               <option key={s.id} value={s.id}>
                 {s.source_name}
@@ -181,7 +183,7 @@ export function ReviewGenerateStep({ onClose }: Props) {
             className="flex items-center gap-1.5 rounded-md bg-accent px-4 py-1.5 text-[13px] font-semibold text-surface-base transition-colors hover:bg-accent-dark disabled:opacity-50"
           >
             {isRunning && <Loader2 size={14} className="animate-spin" />}
-            Generate
+            {t("cohortDefinitions.auto.generate_32b919")}
           </button>
         </div>
       </div>
@@ -210,7 +212,7 @@ export function ReviewGenerateStep({ onClose }: Props) {
       {/* What's Next section */}
       {showWhatsNext && (
         <div className="border-t border-border-default pt-5">
-          <div className="mb-3 text-[13px] font-medium text-accent">What&apos;s Next?</div>
+          <div className="mb-3 text-[13px] font-medium text-accent">{t("cohortDefinitions.auto.whatSNext_b92b94")}</div>
           <div className="flex flex-col gap-3">
             <button
               type="button"
@@ -219,10 +221,10 @@ export function ReviewGenerateStep({ onClose }: Props) {
             >
               <div className="flex items-center gap-2 text-[13px] font-medium text-success">
                 <Check size={16} />
-                Done &mdash; Save &amp; Close
+                {t("cohortDefinitions.auto.doneSaveClose_656c71")}
               </div>
               <p className="mt-1 ml-[24px] text-[12px] text-text-muted">
-                Cohort is saved and ready for use in analyses and studies.
+                {t("cohortDefinitions.auto.cohortIsSavedAndReadyForUseIn_4be8dd")}
               </p>
             </button>
 
@@ -236,11 +238,10 @@ export function ReviewGenerateStep({ onClose }: Props) {
             >
               <div className="flex items-center gap-2 text-[13px] font-medium text-accent">
                 <Wrench size={16} />
-                Open in Advanced Editor
+                {t("cohortDefinitions.auto.openInAdvancedEditor_502532")}
               </div>
               <p className="mt-1 ml-[24px] text-[12px] text-text-muted">
-                Fine-tune with the full expression editor. Supports nested boolean logic, custom
-                temporal windows, and all advanced features.
+                {t("cohortDefinitions.auto.fineTuneWithTheFullExpressionEditorSupports_85623e")}
               </p>
             </button>
 
@@ -254,11 +255,10 @@ export function ReviewGenerateStep({ onClose }: Props) {
             >
               <div className="flex items-center gap-2 text-[13px] font-medium text-text-secondary">
                 <BarChart3 size={16} />
-                View Diagnostics
+                {t("cohortDefinitions.auto.viewDiagnostics_d0f7c1")}
               </div>
               <p className="mt-1 ml-[24px] text-[12px] text-text-muted">
-                See attrition chart, patient breakdown by age/gender, and detailed generation
-                statistics.
+                {t("cohortDefinitions.auto.seeAttritionChartPatientBreakdownByAgeGender_c8e8ac")}
               </p>
             </button>
           </div>

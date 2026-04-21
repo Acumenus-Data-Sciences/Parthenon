@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { ConceptSetPicker } from "./ConceptSetPicker";
 import type { EndStrategy } from "../types/cohortExpression";
+import { useTranslation } from "react-i18next";
 
 interface EndStrategyEditorProps {
   value?: EndStrategy;
@@ -20,6 +21,7 @@ export function EndStrategyEditor({
   value,
   onChange,
 }: EndStrategyEditorProps) {
+  const { t } = useTranslation("app");
   const strategyType = getStrategyType(value);
 
   const handleTypeChange = (type: StrategyType) => {
@@ -64,24 +66,24 @@ export function EndStrategyEditor({
       {/* Strategy type radio buttons */}
       <div className="space-y-2">
         <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-          Strategy
+          {t("cohortDefinitions.auto.strategy_83de19")}
         </label>
         <div className="space-y-2">
           {(
             [
               {
                 value: "observation",
-                label: "End of continuous observation",
+                label: t("cohortDefinitions.auto.endOfContinuousObservation_3ac05b"),
                 desc: "Cohort membership ends when the person's observation period ends",
               },
               {
                 value: "fixed",
-                label: "Fixed duration from event",
+                label: t("cohortDefinitions.auto.fixedDurationFromEvent_d84644"),
                 desc: "Cohort membership ends a fixed number of days from the index event",
               },
               {
                 value: "customEra",
-                label: "Custom drug era",
+                label: t("cohortDefinitions.auto.customDrugEra_e40c69"),
                 desc: "Cohort membership persists while the person is exposed to a drug",
               },
             ] as const
@@ -118,7 +120,7 @@ export function EndStrategyEditor({
       {strategyType === "fixed" && value?.DateOffset && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
           <div className="flex items-center gap-3">
-            <label className="text-xs text-text-muted">Offset from</label>
+            <label className="text-xs text-text-muted">{t("cohortDefinitions.auto.offsetFrom_67c774")}</label>
             <select
               value={value.DateOffset.DateField}
               onChange={(e) =>
@@ -131,8 +133,8 @@ export function EndStrategyEditor({
               }
               className={selectClass}
             >
-              <option value="StartDate">Start Date</option>
-              <option value="EndDate">End Date</option>
+              <option value="StartDate">{t("cohortDefinitions.auto.startDate_db3794")}</option>
+              <option value="EndDate">{t("cohortDefinitions.auto.endDate_3c1429")}</option>
             </select>
             <label className="text-xs text-text-muted">plus</label>
             <input
@@ -158,7 +160,7 @@ export function EndStrategyEditor({
       {strategyType === "customEra" && value?.CustomEra && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
           <div className="space-y-2">
-            <label className="text-xs text-text-muted">Drug Concept Set</label>
+            <label className="text-xs text-text-muted">{t("cohortDefinitions.auto.drugConceptSet_df8db2")}</label>
             <ConceptSetPicker
               value={value.CustomEra.DrugCodesetId}
               onChange={(id) =>
@@ -169,7 +171,7 @@ export function EndStrategyEditor({
             />
           </div>
           <div className="flex items-center gap-3">
-            <label className="text-xs text-text-muted">Gap days</label>
+            <label className="text-xs text-text-muted">{t("cohortDefinitions.auto.gapDays_070b3a")}</label>
             <input
               type="number"
               min={0}
@@ -184,7 +186,7 @@ export function EndStrategyEditor({
               }
               className={inputClass}
             />
-            <label className="text-xs text-text-muted">Offset</label>
+            <label className="text-xs text-text-muted">{t("cohortDefinitions.auto.offset_dfd0a8")}</label>
             <input
               type="number"
               min={0}

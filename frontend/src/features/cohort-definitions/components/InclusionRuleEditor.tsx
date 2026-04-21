@@ -9,6 +9,7 @@ import type {
   TemporalWindow,
   OccurrenceCount,
 } from "../types/cohortExpression";
+import { useTranslation } from "react-i18next";
 
 interface InclusionRuleEditorProps {
   rule: WindowedCriteria;
@@ -17,18 +18,18 @@ interface InclusionRuleEditorProps {
   onRemove: () => void;
 }
 
-const OCCURRENCE_TYPES = [
-  { value: 0, label: "exactly" },
-  { value: 1, label: "at most" },
-  { value: 2, label: "at least" },
-] as const;
-
 export function InclusionRuleEditor({
   rule,
   index,
   onChange,
   onRemove,
 }: InclusionRuleEditorProps) {
+  const { t } = useTranslation("app");
+  const occurrenceTypes = [
+    { value: 0, label: "exactly" },
+    { value: 1, label: t("cohortDefinitions.auto.atMost_14c210") },
+    { value: 2, label: t("cohortDefinitions.auto.atLeast_3158d7") },
+  ] as const;
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Extract the domain info from the criteria
@@ -100,7 +101,7 @@ export function InclusionRuleEditor({
             </span>
           )}
           <span className="text-sm text-text-secondary">
-            {OCCURRENCE_TYPES.find((t) => t.value === occurrence.Type)?.label}{" "}
+            {occurrenceTypes.find((item) => item.value === occurrence.Type)?.label}{" "}
             <span className="font-['IBM_Plex_Mono',monospace] text-success">
               {occurrence.Count}
             </span>{" "}
@@ -126,10 +127,10 @@ export function InclusionRuleEditor({
           {/* Occurrence */}
           <div className="space-y-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-              Occurrence
+              {t("cohortDefinitions.auto.occurrence_0d8a9b")}
             </label>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-text-muted">Having</span>
+              <span className="text-xs text-text-muted">{t("cohortDefinitions.auto.having_c742e8")}</span>
               <select
                 value={occurrence.Type}
                 onChange={(e) =>
@@ -139,9 +140,9 @@ export function InclusionRuleEditor({
                 }
                 className={selectClass}
               >
-                {OCCURRENCE_TYPES.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
+                {occurrenceTypes.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
                   </option>
                 ))}
               </select>
@@ -205,7 +206,7 @@ export function InclusionRuleEditor({
               className="rounded border-border-default bg-surface-base text-success focus:ring-success/40"
             />
             <span className="text-xs text-text-muted">
-              Restrict to same visit as index event
+              {t("cohortDefinitions.auto.restrictToSameVisitAsIndexEvent_8c5d90")}
             </span>
           </label>
         </div>

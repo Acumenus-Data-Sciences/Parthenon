@@ -1,12 +1,14 @@
 import { useState } from "react";
 import type { TemporalWindow } from "../../types/cohortExpression";
 import {
-  TEMPORAL_PRESETS,
+  getTemporalPresets,
   buildCustomWindow,
   describeWindow,
   coeffToDirection,
+  type TemporalPreset,
   type TemporalDirection,
 } from "../../utils/temporalPresets";
+import { useTranslation } from "react-i18next";
 
 interface TemporalPresetPickerProps {
   value: TemporalWindow | null;
@@ -14,6 +16,8 @@ interface TemporalPresetPickerProps {
 }
 
 export function TemporalPresetPicker({ value, onChange }: TemporalPresetPickerProps) {
+  const { t } = useTranslation("app");
+  const temporalPresets = getTemporalPresets();
   const [isCustom, setIsCustom] = useState(false);
   const [startDays, setStartDays] = useState(value?.Start?.Days ?? 30);
   const [startDir, setStartDir] = useState<TemporalDirection>(
@@ -24,7 +28,7 @@ export function TemporalPresetPicker({ value, onChange }: TemporalPresetPickerPr
     value?.End ? coeffToDirection(value.End.Coeff) : "after",
   );
 
-  const handlePreset = (preset: (typeof TEMPORAL_PRESETS)[number]) => {
+  const handlePreset = (preset: TemporalPreset) => {
     setIsCustom(false);
     onChange(preset.window);
     if (preset.window) {
@@ -52,7 +56,7 @@ export function TemporalPresetPicker({ value, onChange }: TemporalPresetPickerPr
     <div className="flex flex-col gap-3">
       {/* Presets */}
       <div className="grid grid-cols-3 gap-2">
-        {TEMPORAL_PRESETS.map((preset) => {
+        {temporalPresets.map((preset) => {
           const isSelected =
             !isCustom &&
             JSON.stringify(value) === JSON.stringify(preset.window);
@@ -134,7 +138,7 @@ export function TemporalPresetPicker({ value, onChange }: TemporalPresetPickerPr
               <option value="before">before</option>
               <option value="after">after</option>
             </select>
-            <span className="text-text-secondary">cohort entry</span>
+            <span className="text-text-secondary">{t("cohortDefinitions.auto.cohortEntry_9aa430")}</span>
           </div>
         </div>
       )}
@@ -142,9 +146,9 @@ export function TemporalPresetPicker({ value, onChange }: TemporalPresetPickerPr
       {/* Live preview */}
       {value !== undefined && (
         <div className="rounded-md border border-[rgba(45,212,191,0.15)] bg-[rgba(45,212,191,0.05)] px-3 py-2">
-          <span className="text-[11px] text-text-ghost">READS AS: </span>
+          <span className="text-[11px] text-text-ghost">{t("cohortDefinitions.auto.readsAs_531e4b")} </span>
           <span className="text-[13px] text-text-secondary">
-            &ldquo;{describeWindow(value)}&rdquo;
+            {t("cohortDefinitions.auto.text_c309d0")}{describeWindow(value)}{t("cohortDefinitions.auto.text_4849a7")}
           </span>
         </div>
       )}

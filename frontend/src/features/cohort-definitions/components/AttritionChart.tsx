@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Panel, EmptyState } from "@/components/ui";
 import { BarChart2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export interface AttritionStep {
   name: string;
@@ -14,6 +15,7 @@ interface AttritionChartProps {
 }
 
 export function AttritionChart({ steps, totalCount }: AttritionChartProps) {
+  const { t } = useTranslation("app");
   const bars = useMemo(() => {
     if (!steps || steps.length === 0 || !totalCount) return [];
     return steps.map((step, i) => ({
@@ -25,10 +27,10 @@ export function AttritionChart({ steps, totalCount }: AttritionChartProps) {
 
   if (!steps || steps.length === 0) {
     return (
-      <Panel header={<span className="panel-title">Inclusion Rule Attrition</span>}>
+      <Panel header={<span className="panel-title">{t("cohortDefinitions.auto.inclusionRuleAttrition_c81a94")}</span>}>
         <EmptyState
           icon={<BarChart2 size={32} />}
-          title="No attrition data"
+          title={t("cohortDefinitions.auto.noAttritionData_e8dffe")}
           message="Generate the cohort to see inclusion rule attrition statistics."
         />
       </Panel>
@@ -36,7 +38,7 @@ export function AttritionChart({ steps, totalCount }: AttritionChartProps) {
   }
 
   return (
-    <Panel header={<span className="panel-title">Inclusion Rule Attrition</span>}>
+    <Panel header={<span className="panel-title">{t("cohortDefinitions.auto.inclusionRuleAttrition_c81a94")}</span>}>
       <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
         {bars.map((bar, i) => (
           <div key={i}>

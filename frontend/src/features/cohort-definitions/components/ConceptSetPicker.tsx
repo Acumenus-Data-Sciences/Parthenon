@@ -3,6 +3,7 @@ import { ChevronDown, Plus, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCohortExpressionStore } from "../stores/cohortExpressionStore";
 import type { ConceptSetExpression } from "../types/cohortExpression";
+import { useTranslation } from "react-i18next";
 
 interface ConceptSetPickerProps {
   value: number | null;
@@ -10,6 +11,7 @@ interface ConceptSetPickerProps {
 }
 
 export function ConceptSetPicker({ value, onChange }: ConceptSetPickerProps) {
+  const { t } = useTranslation("app");
   const { expression, addConceptSet } = useCohortExpressionStore();
   const [showNew, setShowNew] = useState(false);
   const [newName, setNewName] = useState("");
@@ -51,11 +53,11 @@ export function ConceptSetPicker({ value, onChange }: ConceptSetPickerProps) {
             )}
           >
             <option value="" disabled>
-              Select concept set
+              {t("cohortDefinitions.auto.selectConceptSet_99ef91")}
             </option>
             {conceptSets.map((cs) => (
               <option key={cs.id} value={cs.id}>
-                {cs.name} ({cs.expression.items.length} items)
+                {cs.name} ({cs.expression.items.length} {t("cohortDefinitions.auto.items_fa3c71")}
               </option>
             ))}
           </select>
@@ -76,7 +78,7 @@ export function ConceptSetPicker({ value, onChange }: ConceptSetPickerProps) {
           )}
         >
           <Plus size={14} />
-          New
+          {t("cohortDefinitions.auto.new_03c2e7")}
         </button>
       </div>
 
@@ -93,7 +95,7 @@ export function ConceptSetPicker({ value, onChange }: ConceptSetPickerProps) {
                 setShowNew(false);
               }
             }}
-            placeholder="Concept set name..."
+            placeholder={t("cohortDefinitions.auto.conceptSetName_91bc6a")}
             autoFocus
             className={cn(
               "flex-1 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
@@ -107,7 +109,7 @@ export function ConceptSetPicker({ value, onChange }: ConceptSetPickerProps) {
             disabled={!newName.trim()}
             className="rounded-lg bg-success px-3 py-2 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors disabled:opacity-50"
           >
-            Create
+            {t("cohortDefinitions.auto.create_686e69")}
           </button>
         </div>
       )}

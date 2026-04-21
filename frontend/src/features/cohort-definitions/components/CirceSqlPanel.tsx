@@ -11,6 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import apiClient from "@/lib/api-client";
 import { useCohortExpressionStore } from "../stores/cohortExpressionStore";
+import { useTranslation } from "react-i18next";
 
 interface CirceCompileResponse {
   sql: string;
@@ -66,6 +67,7 @@ interface CirceSqlPanelProps {
 }
 
 export function CirceSqlPanel({ definitionId }: CirceSqlPanelProps) {
+  const { t } = useTranslation("app");
   const { expression } = useCohortExpressionStore();
   const [copied, setCopied] = useState(false);
   const [activeSection, setActiveSection] = useState<
@@ -113,9 +115,9 @@ export function CirceSqlPanel({ definitionId }: CirceSqlPanelProps) {
   };
 
   const sections = [
-    { id: "sql" as const, label: "Generated SQL", icon: Code },
-    { id: "validate" as const, label: "Validation", icon: AlertTriangle },
-    { id: "markdown" as const, label: "Print Friendly", icon: FileText },
+    { id: "sql" as const, label: t("cohortDefinitions.auto.generatedSql_f3a6a7"), icon: Code },
+    { id: "validate" as const, label: t("cohortDefinitions.auto.validation_131487"), icon: AlertTriangle },
+    { id: "markdown" as const, label: t("cohortDefinitions.auto.printFriendly_ad43c1"), icon: FileText },
   ];
 
   return (
@@ -125,10 +127,10 @@ export function CirceSqlPanel({ definitionId }: CirceSqlPanelProps) {
         <div className="flex items-center gap-2">
           <Code size={14} className="text-primary" />
           <h4 className="text-sm font-semibold text-text-primary">
-            Circe Compiler
+            {t("cohortDefinitions.auto.circeCompiler_f30d9a")}
           </h4>
           <span className="rounded px-1.5 py-0.5 text-[9px] font-medium bg-primary/15 text-primary">
-            Python
+            {t("cohortDefinitions.auto.python_a7f5f3")}
           </span>
         </div>
       </div>
@@ -177,7 +179,7 @@ export function CirceSqlPanel({ definitionId }: CirceSqlPanelProps) {
               ) : (
                 <Code size={12} />
               )}
-              Compile
+              {t("cohortDefinitions.auto.compile_3de938")}
             </button>
             <button
               type="button"
@@ -203,11 +205,11 @@ export function CirceSqlPanel({ definitionId }: CirceSqlPanelProps) {
               </pre>
             ) : compileMutation.isError ? (
               <div className="flex items-center justify-center py-12 text-xs text-critical">
-                Failed to compile. Ensure the expression is saved.
+                {t("cohortDefinitions.auto.failedToCompileEnsureTheExpressionIsSaved_450172")}
               </div>
             ) : (
               <div className="flex items-center justify-center py-12 text-xs text-text-ghost">
-                Click Compile to generate OHDSI SQL from the cohort expression
+                {t("cohortDefinitions.auto.clickCompileToGenerateOhdsiSqlFromThe_e80a8a")}
               </div>
             )}
           </div>
@@ -229,7 +231,7 @@ export function CirceSqlPanel({ definitionId }: CirceSqlPanelProps) {
               ) : (
                 <AlertTriangle size={12} />
               )}
-              Validate
+              {t("cohortDefinitions.auto.validate_ad3d06")}
             </button>
           </div>
           <div className="p-4">
@@ -241,7 +243,7 @@ export function CirceSqlPanel({ definitionId }: CirceSqlPanelProps) {
               validateMutation.data.valid ? (
                 <div className="flex items-center gap-2 text-success text-sm">
                   <Check size={16} />
-                  No validation issues found
+                  {t("cohortDefinitions.auto.noValidationIssuesFound_50fe8e")}
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -272,11 +274,11 @@ export function CirceSqlPanel({ definitionId }: CirceSqlPanelProps) {
               )
             ) : validateMutation.isError ? (
               <div className="text-xs text-critical">
-                Validation failed. Ensure the expression is saved.
+                {t("cohortDefinitions.auto.validationFailedEnsureTheExpressionIsSaved_c2c0a6")}
               </div>
             ) : (
               <div className="text-xs text-text-ghost text-center py-8">
-                Click Validate to run 24 design checks
+                {t("cohortDefinitions.auto.clickValidateToRun24DesignChecks_7fe40a")}
               </div>
             )}
           </div>
@@ -298,7 +300,7 @@ export function CirceSqlPanel({ definitionId }: CirceSqlPanelProps) {
               ) : (
                 <FileText size={12} />
               )}
-              Render
+              {t("cohortDefinitions.auto.render_5e520d")}
             </button>
             {renderMutation.data?.markdown && (
               <button
@@ -306,7 +308,7 @@ export function CirceSqlPanel({ definitionId }: CirceSqlPanelProps) {
                 onClick={handleExportMarkdown}
                 className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium border border-border-default text-text-muted hover:text-text-primary transition-colors"
               >
-                Export .md
+                {t("cohortDefinitions.auto.exportMd_2419e8")}
               </button>
             )}
           </div>
@@ -323,11 +325,11 @@ export function CirceSqlPanel({ definitionId }: CirceSqlPanelProps) {
               </div>
             ) : renderMutation.isError ? (
               <div className="text-xs text-critical">
-                Render failed. Ensure the expression is saved.
+                {t("cohortDefinitions.auto.renderFailedEnsureTheExpressionIsSaved_b513ec")}
               </div>
             ) : (
               <div className="text-xs text-text-ghost text-center py-8">
-                Click Render to generate a human-readable description
+                {t("cohortDefinitions.auto.clickRenderToGenerateAHumanReadableDescription_563f20")}
               </div>
             )}
           </div>

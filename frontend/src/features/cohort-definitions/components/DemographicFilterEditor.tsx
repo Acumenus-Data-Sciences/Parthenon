@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import type { DemographicFilter } from "../types/cohortExpression";
+import { useTranslation } from "react-i18next";
 
 interface DemographicFilterEditorProps {
   value: DemographicFilter;
@@ -7,35 +8,47 @@ interface DemographicFilterEditorProps {
   onRemove?: () => void;
 }
 
-// Standard OHDSI concept IDs for demographics
-const GENDER_OPTIONS = [
-  { conceptId: 8507, label: "Male" },
-  { conceptId: 8532, label: "Female" },
-] as const;
-
-const RACE_OPTIONS = [
-  { conceptId: 8527, label: "White" },
-  { conceptId: 8516, label: "Black or African American" },
-  { conceptId: 8515, label: "Asian" },
-  { conceptId: 8557, label: "Native Hawaiian or Other Pacific Islander" },
-  { conceptId: 8657, label: "American Indian or Alaska Native" },
-] as const;
-
-const ETHNICITY_OPTIONS = [
-  { conceptId: 38003563, label: "Hispanic or Latino" },
-  { conceptId: 38003564, label: "Not Hispanic or Latino" },
-] as const;
-
 export function DemographicFilterEditor({
   value,
   onChange,
   onRemove,
 }: DemographicFilterEditorProps) {
+  const { t } = useTranslation("app");
   const inputClass = cn(
     "w-20 rounded-lg border border-border-default bg-surface-base px-3 py-1.5 text-sm text-center",
     "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40",
     "font-['IBM_Plex_Mono',monospace] tabular-nums",
   );
+  const genderOptions = [
+    { conceptId: 8507, label: t("cohortDefinitions.auto.male_63889c") },
+    { conceptId: 8532, label: t("cohortDefinitions.auto.female_b719ce") },
+  ] as const;
+  const raceOptions = [
+    { conceptId: 8527, label: t("cohortDefinitions.auto.white_25a817") },
+    {
+      conceptId: 8516,
+      label: t("cohortDefinitions.auto.blackOrAfricanAmerican_ff9b5d"),
+    },
+    { conceptId: 8515, label: t("cohortDefinitions.auto.asian_32547b") },
+    {
+      conceptId: 8557,
+      label: t("cohortDefinitions.auto.nativeHawaiianOrOtherPacificIslander_223ed7"),
+    },
+    {
+      conceptId: 8657,
+      label: t("cohortDefinitions.auto.americanIndianOrAlaskaNative_30d0bd"),
+    },
+  ] as const;
+  const ethnicityOptions = [
+    {
+      conceptId: 38003563,
+      label: t("cohortDefinitions.auto.hispanicOrLatino_1f7dba"),
+    },
+    {
+      conceptId: 38003564,
+      label: t("cohortDefinitions.auto.notHispanicOrLatino_fa7b68"),
+    },
+  ] as const;
 
   const toggleConcept = (
     field: "Gender" | "Race" | "Ethnicity",
@@ -53,10 +66,10 @@ export function DemographicFilterEditor({
       {/* Age */}
       <div className="space-y-2">
         <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-          Age Range
+          {t("cohortDefinitions.auto.ageRange_2d0f27")}
         </label>
         <div className="flex items-center gap-3">
-          <label className="text-xs text-text-muted">Between</label>
+          <label className="text-xs text-text-muted">{t("cohortDefinitions.auto.between_5ccb72")}</label>
           <input
             type="number"
             min={0}
@@ -78,7 +91,7 @@ export function DemographicFilterEditor({
                 });
               }
             }}
-            placeholder="Min"
+            placeholder={t("cohortDefinitions.auto.min_78d811")}
             className={inputClass}
           />
           <label className="text-xs text-text-muted">and</label>
@@ -98,7 +111,7 @@ export function DemographicFilterEditor({
                 },
               });
             }}
-            placeholder="Max"
+            placeholder={t("cohortDefinitions.auto.max_6a0613")}
             className={inputClass}
           />
           <label className="text-xs text-text-muted">years</label>
@@ -108,10 +121,10 @@ export function DemographicFilterEditor({
       {/* Gender */}
       <div className="space-y-2">
         <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-          Gender
+          {t("cohortDefinitions.auto.gender_019ec3")}
         </label>
         <div className="flex items-center gap-3">
-          {GENDER_OPTIONS.map((opt) => {
+          {genderOptions.map((opt) => {
             const isSelected = (value.Gender ?? []).includes(opt.conceptId);
             return (
               <label
@@ -139,10 +152,10 @@ export function DemographicFilterEditor({
       {/* Race */}
       <div className="space-y-2">
         <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-          Race
+          {t("cohortDefinitions.auto.race_4e221f")}
         </label>
         <div className="flex flex-wrap items-center gap-2">
-          {RACE_OPTIONS.map((opt) => {
+          {raceOptions.map((opt) => {
             const isSelected = (value.Race ?? []).includes(opt.conceptId);
             return (
               <label
@@ -170,10 +183,10 @@ export function DemographicFilterEditor({
       {/* Ethnicity */}
       <div className="space-y-2">
         <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-          Ethnicity
+          {t("cohortDefinitions.auto.ethnicity_8919df")}
         </label>
         <div className="flex items-center gap-3">
-          {ETHNICITY_OPTIONS.map((opt) => {
+          {ethnicityOptions.map((opt) => {
             const isSelected = (value.Ethnicity ?? []).includes(
               opt.conceptId,
             );
@@ -208,7 +221,7 @@ export function DemographicFilterEditor({
             onClick={onRemove}
             className="text-xs text-text-muted hover:text-critical transition-colors"
           >
-            Remove filter
+            {t("cohortDefinitions.auto.removeFilter_5e56e9")}
           </button>
         </div>
       )}

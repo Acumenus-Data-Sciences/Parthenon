@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import type { TemporalWindow } from "../types/cohortExpression";
+import { useTranslation } from "react-i18next";
 
 interface TemporalWindowEditorProps {
   value: TemporalWindow;
@@ -17,6 +18,7 @@ export function TemporalWindowEditor({
   onChange,
   label = "Temporal Window",
 }: TemporalWindowEditorProps) {
+  const { t } = useTranslation("app");
   const handleStartDays = (days: number) => {
     onChange({ ...value, Start: { ...value.Start, Days: days } });
   };
@@ -55,7 +57,7 @@ export function TemporalWindowEditor({
         {/* Start */}
         <div className="rounded-lg border border-border-default bg-surface-raised p-3 space-y-2">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-            Start
+            {t("cohortDefinitions.auto.start_a6122a")}
           </span>
           <div className="flex items-center gap-2">
             <input
@@ -82,7 +84,7 @@ export function TemporalWindowEditor({
         {/* End */}
         <div className="rounded-lg border border-border-default bg-surface-raised p-3 space-y-2">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-            End
+            {t("cohortDefinitions.auto.end_87557f")}
           </span>
           <div className="flex items-center gap-2">
             <input
@@ -118,7 +120,7 @@ export function TemporalWindowEditor({
             }
             className="rounded border-border-default bg-surface-base text-success focus:ring-success/40"
           />
-          <span className="text-xs text-text-muted">Use event end date</span>
+          <span className="text-xs text-text-muted">{t("cohortDefinitions.auto.useEventEndDate_3ae8db")}</span>
         </label>
 
         <label className="flex items-center gap-2 cursor-pointer">
@@ -130,7 +132,7 @@ export function TemporalWindowEditor({
             }
             className="rounded border-border-default bg-surface-base text-success focus:ring-success/40"
           />
-          <span className="text-xs text-text-muted">Use index end date</span>
+          <span className="text-xs text-text-muted">{t("cohortDefinitions.auto.useIndexEndDate_f4cf35")}</span>
         </label>
       </div>
     </div>

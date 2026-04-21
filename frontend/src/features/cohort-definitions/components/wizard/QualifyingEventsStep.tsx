@@ -1,16 +1,18 @@
 import { useCohortWizardStore } from "../../stores/cohortWizardStore";
+import { useTranslation } from "react-i18next";
 
 export function QualifyingEventsStep() {
+  const { t } = useTranslation("app");
   const { qualifiedLimit, setQualifiedLimit } = useCohortWizardStore();
 
   return (
     <div className="flex flex-col gap-4">
       <div>
         <div className="mb-1 text-[13px] font-medium text-text-secondary">
-          Step 3 of 3 — Qualifying Events
+          {t("cohortDefinitions.auto.step3Of3QualifyingEvents_fb726a")}
         </div>
         <p className="text-[13px] text-text-muted">
-          If a patient has multiple qualifying events, which one defines their cohort entry?
+          {t("cohortDefinitions.auto.ifAPatientHasMultipleQualifyingEventsWhich_4fe49a")}
         </p>
       </div>
 
@@ -37,14 +39,14 @@ export function QualifyingEventsStep() {
               )}
             </div>
             <span className="text-[13px] font-medium text-text-secondary">
-              First event
+              {t("cohortDefinitions.auto.firstEvent_752495")}
             </span>
             <span className="rounded bg-[rgba(45,212,191,0.15)] px-1.5 py-0.5 text-[10px] text-success">
               recommended
             </span>
           </div>
           <p className="mt-1.5 ml-[26px] text-[12px] text-text-muted">
-            Use the earliest qualifying event as the entry date. Most common choice.
+            {t("cohortDefinitions.auto.useTheEarliestQualifyingEventAsTheEntry_06e560")}
           </p>
         </button>
 
@@ -70,11 +72,11 @@ export function QualifyingEventsStep() {
               )}
             </div>
             <span className="text-[13px] font-medium text-text-secondary">
-              All events
+              {t("cohortDefinitions.auto.allEvents_1aafb0")}
             </span>
           </div>
           <p className="mt-1.5 ml-[26px] text-[12px] text-text-muted">
-            Each qualifying event creates a separate cohort entry period.
+            {t("cohortDefinitions.auto.eachQualifyingEventCreatesASeparateCohortEntry_6d2dab")}
           </p>
         </button>
       </div>

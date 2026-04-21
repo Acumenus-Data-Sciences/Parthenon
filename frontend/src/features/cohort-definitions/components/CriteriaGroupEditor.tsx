@@ -5,6 +5,7 @@ import type {
   CriteriaGroup,
   WindowedCriteria,
 } from "../types/cohortExpression";
+import { useTranslation } from "react-i18next";
 
 interface CriteriaGroupEditorProps {
   group: CriteriaGroup;
@@ -27,6 +28,7 @@ export function CriteriaGroupEditor({
   onChange,
   depth = 0,
 }: CriteriaGroupEditorProps) {
+  const { t } = useTranslation("app");
   const handleTypeChange = (type: CriteriaGroup["Type"]) => {
     onChange({ ...group, Type: type });
   };
@@ -84,7 +86,7 @@ export function CriteriaGroupEditor({
     >
       {/* Group type selector */}
       <div className="flex items-center gap-2">
-        <span className="text-xs text-text-muted">Match</span>
+        <span className="text-xs text-text-muted">{t("cohortDefinitions.auto.match_6da892")}</span>
         {GROUP_TYPES.map((opt) => (
           <button
             key={opt.value}
@@ -101,7 +103,7 @@ export function CriteriaGroupEditor({
             {opt.label}
           </button>
         ))}
-        <span className="text-xs text-text-muted">of the following:</span>
+        <span className="text-xs text-text-muted">{t("cohortDefinitions.auto.ofTheFollowing_04cd7a")}</span>
       </div>
 
       {/* Criteria list */}
@@ -134,7 +136,7 @@ export function CriteriaGroupEditor({
                 onClick={() => handleNestedGroupRemove(i)}
                 className="absolute top-2 right-2 text-xs text-text-muted hover:text-critical transition-colors"
               >
-                Remove group
+                {t("cohortDefinitions.auto.removeGroup_53fc0c")}
               </button>
             </div>
           ))}
@@ -144,7 +146,7 @@ export function CriteriaGroupEditor({
       {/* Empty state */}
       {(group.CriteriaList ?? []).length === 0 && (group.Groups ?? []).length === 0 && (
         <div className="flex items-center justify-center py-6 text-xs text-text-ghost">
-          No criteria in this group. Add rules or nested groups below.
+          {t("cohortDefinitions.auto.noCriteriaInThisGroupAddRulesOr_ab37eb")}
         </div>
       )}
 
@@ -157,7 +159,7 @@ export function CriteriaGroupEditor({
             className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-base px-3 py-1.5 text-xs text-text-muted hover:text-text-secondary hover:bg-surface-overlay transition-colors"
           >
             <Plus size={12} />
-            Add Nested Group
+            {t("cohortDefinitions.auto.addNestedGroup_2a1d3f")}
           </button>
         </div>
       )}

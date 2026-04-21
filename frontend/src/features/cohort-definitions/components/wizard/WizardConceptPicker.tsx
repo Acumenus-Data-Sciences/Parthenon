@@ -8,6 +8,7 @@ import type { DomainCriterionType } from "../../types/cohortExpression";
 import type { WizardEntryConcept } from "../../utils/buildExpression";
 import type { Concept } from "@/features/vocabulary/types/vocabulary";
 import { SelectedConceptsList } from "./SelectedConceptsList";
+import { useTranslation } from "react-i18next";
 
 type SearchTab = "keyword" | "semantic" | "hierarchy";
 
@@ -46,6 +47,7 @@ export function WizardConceptPicker({
   onUpdateOptions,
   showFirstOccurrence = false,
 }: WizardConceptPickerProps) {
+  const { t } = useTranslation("app");
   const [activeTab, setActiveTab] = useState<SearchTab>("keyword");
   const [isAdding, setIsAdding] = useState(false);
 
@@ -74,19 +76,19 @@ export function WizardConceptPicker({
   const tabs = [
     {
       key: "keyword" as const,
-      label: "Keyword",
+      label: t("cohortDefinitions.auto.keyword_220f3d"),
       icon: Search,
       color: "rgba(155,27,48,0.3)",
     },
     {
       key: "semantic" as const,
-      label: "Semantic (AI)",
+      label: t("cohortDefinitions.auto.semanticAi_ae39da"),
       icon: Sparkles,
       color: "rgba(45,212,191,0.3)",
     },
     {
       key: "hierarchy" as const,
-      label: "Browse Hierarchy",
+      label: t("cohortDefinitions.auto.browseHierarchy_4955c5"),
       icon: GitBranch,
       color: "rgba(201,162,39,0.3)",
     },
@@ -160,9 +162,7 @@ export function WizardConceptPicker({
         <div className="mt-3 rounded-lg border border-[rgba(201,162,39,0.15)] bg-[rgba(201,162,39,0.05)] px-3 py-2">
           <span className="text-accent">💡</span>{" "}
           <span className="text-[11px] text-text-muted">
-            <strong className="text-accent">Tip:</strong> &ldquo;Include descendants&rdquo;
-            automatically captures all sub-types. For example, selecting &ldquo;Type 2 diabetes
-            mellitus&rdquo; with descendants includes all specific complications.
+            <strong className="text-accent">{t("cohortDefinitions.auto.tip_342a40")}</strong> {t("cohortDefinitions.auto.includeDescendantsAutomaticallyCapturesAllSubTypesFor_7103e0")}
           </span>
         </div>
       )}
