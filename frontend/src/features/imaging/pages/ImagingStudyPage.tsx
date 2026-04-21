@@ -1,5 +1,6 @@
 import { useLocation, useParams, Link } from "react-router-dom";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ArrowLeft, Layers, Brain, Loader2, ScanLine, Monitor, Ruler } from "lucide-react";
 import { useImagingStudy, useIndexSeries, useExtractNlp, useImagingFeatures } from "../hooks/useImaging";
 import type { ImagingSeries, ImagingFeature } from "../types";
@@ -7,14 +8,15 @@ import OhifViewer from "../components/OhifViewer";
 import MeasurementPanel from "../components/MeasurementPanel";
 
 const STUDY_TABS = [
-  { id: "metadata", label: "Metadata", icon: ScanLine },
-  { id: "measurements", label: "Measurements", icon: Ruler },
-  { id: "viewer",   label: "View Scan", icon: Monitor },
+  { id: "metadata", icon: ScanLine },
+  { id: "measurements", icon: Ruler },
+  { id: "viewer", icon: Monitor },
 ] as const;
 
 type StudyTab = (typeof STUDY_TABS)[number]["id"];
 
 export default function ImagingStudyPage() {
+  const { t } = useTranslation("app");
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const studyId = parseInt(id ?? "0");
@@ -36,22 +38,22 @@ export default function ImagingStudyPage() {
   if (!study) {
     return (
       <div className="flex items-center justify-center py-24 text-text-muted">
-        Study not found.
+        {t("imaging.studyPage.notFound")}
       </div>
     );
   }
 
   const fields = [
-    { label: "Study Instance UID", value: study.study_instance_uid },
-    { label: "Accession Number", value: study.accession_number ?? "—" },
-    { label: "Modality", value: study.modality ?? "—" },
-    { label: "Body Part", value: study.body_part_examined ?? "—" },
-    { label: "Description", value: study.study_description ?? "—" },
-    { label: "Study Date", value: study.study_date ?? "—" },
-    { label: "Series Count", value: study.num_series },
-    { label: "Image Count", value: study.num_images },
-    { label: "Person ID", value: study.person_id ?? "—" },
-    { label: "Status", value: study.status },
+    { label: t("imaging.studyPage.fields.studyInstanceUid"), value: study.study_instance_uid },
+    { label: t("imaging.studyPage.fields.accessionNumber"), value: study.accession_number ?? "—" },
+    { label: t("imaging.studyPage.fields.modality"), value: study.modality ?? "—" },
+    { label: t("imaging.studyPage.fields.bodyPart"), value: study.body_part_examined ?? "—" },
+    { label: t("imaging.studyPage.fields.description"), value: study.study_description ?? "—" },
+    { label: t("imaging.studyPage.fields.studyDate"), value: study.study_date ?? "—" },
+    { label: t("imaging.studyPage.fields.seriesCount"), value: study.num_series },
+    { label: t("imaging.studyPage.fields.imageCount"), value: study.num_images },
+    { label: t("imaging.studyPage.fields.personId"), value: study.person_id ?? "—" },
+    { label: t("imaging.studyPage.fields.status"), value: study.status },
   ];
 
   return (
@@ -62,7 +64,7 @@ export default function ImagingStudyPage() {
         className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary transition-colors"
       >
         <ArrowLeft size={14} />
-        Back to Imaging
+        {t("imaging.studyPage.backToImaging")}
       </Link>
 
       {/* Header */}
@@ -72,7 +74,7 @@ export default function ImagingStudyPage() {
             <ScanLine size={18} style={{ color: "var(--info)" }} />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-text-primary">DICOM Study</h1>
+            <h1 className="text-xl font-bold text-text-primary">{t("imaging.studyPage.title")}</h1>
             <p className="text-sm text-text-ghost font-mono mt-0.5 truncate max-w-xl">
               {study.study_instance_uid}
             </p>
@@ -90,7 +92,7 @@ export default function ImagingStudyPage() {
             ) : (
               <Layers size={14} />
             )}
-            Index Series
+            {t("imaging.studyPage.indexSeries")}
           </button>
           {study.person_id && (
             <button
@@ -104,7 +106,7 @@ export default function ImagingStudyPage() {
               ) : (
                 <Brain size={14} />
               )}
-              Extract NLP
+              {t("imaging.studyPage.extractNlp")}
             </button>
           )}
         </div>
@@ -112,13 +114,17 @@ export default function ImagingStudyPage() {
 
       {indexSeries.isSuccess && (
         <div className="rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
-          Indexed {(indexSeries.data as { indexed: number }).indexed} series.
+          {t("imaging.studyPage.indexedSeries", {
+            count: (indexSeries.data as { indexed: number }).indexed,
+          })}
         </div>
       )}
       {extractNlp.isSuccess && (
         <div className="rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
-          Extracted {(extractNlp.data as { extracted: number }).extracted} findings,{" "}
-          {(extractNlp.data as { mapped: number }).mapped} OMOP-mapped.
+          {t("imaging.studyPage.extractedSummary", {
+            extracted: (extractNlp.data as { extracted: number }).extracted,
+            mapped: (extractNlp.data as { mapped: number }).mapped,
+          })}
         </div>
       )}
 
@@ -136,7 +142,11 @@ export default function ImagingStudyPage() {
             }`}
           >
             <tab.icon size={14} />
-            {tab.label}
+            {tab.id === "metadata"
+              ? t("imaging.studyPage.tabs.metadata")
+              : tab.id === "measurements"
+                ? t("imaging.studyPage.tabs.measurements")
+                : t("imaging.studyPage.tabs.viewer")}
           </button>
         ))}
       </div>
@@ -158,10 +168,10 @@ export default function ImagingStudyPage() {
       {activeTab === "viewer" && study.status !== "indexed" && (
         <div className="rounded-lg border border-critical/30 bg-critical/10 px-4 py-8 text-center">
           <p className="text-sm text-critical">
-            This study has no DICOM data in the PACS server (status: {study.status}).
+            {t("imaging.studyPage.viewerUnavailable", { status: study.status })}
           </p>
           <p className="text-xs text-text-muted mt-1">
-            Only studies indexed from Orthanc can be viewed in OHIF.
+            {t("imaging.studyPage.viewerUnavailableHelp")}
           </p>
         </div>
       )}
@@ -170,7 +180,7 @@ export default function ImagingStudyPage() {
       <>
       {/* Metadata */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-        <h2 className="text-sm font-semibold text-text-primary mb-4">Study Metadata</h2>
+        <h2 className="text-sm font-semibold text-text-primary mb-4">{t("imaging.studyPage.studyMetadata")}</h2>
         <dl className="grid grid-cols-2 gap-x-8 gap-y-2.5">
           {fields.map(({ label, value }) => (
             <div key={label} className="flex gap-3">
@@ -187,23 +197,28 @@ export default function ImagingStudyPage() {
           <div className="px-4 py-3 border-b border-border-default flex items-center gap-2">
             <Layers size={14} className="text-info" />
             <h2 className="text-sm font-semibold text-text-primary">
-              Series ({study.series.length})
+              {t("imaging.studyPage.seriesTitle", { count: study.series.length })}
             </h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border-default">
-                  {["#", "Modality", "Description", "Images", "Slice Thickness", "Manufacturer"].map(
-                    (h) => (
+                  {[
+                    t("imaging.studyPage.seriesHeaders.number"),
+                    t("imaging.studyPage.seriesHeaders.modality"),
+                    t("imaging.studyPage.seriesHeaders.description"),
+                    t("imaging.studyPage.seriesHeaders.images"),
+                    t("imaging.studyPage.seriesHeaders.sliceThickness"),
+                    t("imaging.studyPage.seriesHeaders.manufacturer"),
+                  ].map((h) => (
                       <th
                         key={h}
                         className="px-4 py-2.5 text-left text-[10px] font-medium text-text-ghost uppercase tracking-wider"
                       >
                         {h}
                       </th>
-                    )
-                  )}
+                    ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-border-subtle">
@@ -234,13 +249,22 @@ export default function ImagingStudyPage() {
         <div className="rounded-lg border border-border-default bg-surface-raised">
           <div className="px-4 py-3 border-b border-border-default flex items-center gap-2">
             <Brain size={14} className="text-domain-observation" />
-            <h2 className="text-sm font-semibold text-text-primary">AI Features ({features.total})</h2>
+            <h2 className="text-sm font-semibold text-text-primary">
+              {t("imaging.studyPage.aiFeaturesTitle", { count: features.total })}
+            </h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border-default">
-                  {["Finding", "Type", "Body Site", "Value", "Confidence", "OMOP"].map((h) => (
+                  {[
+                    t("imaging.studyPage.featureHeaders.finding"),
+                    t("imaging.studyPage.featureHeaders.type"),
+                    t("imaging.studyPage.featureHeaders.bodySite"),
+                    t("imaging.studyPage.featureHeaders.value"),
+                    t("imaging.studyPage.featureHeaders.confidence"),
+                    t("imaging.studyPage.featureHeaders.omop"),
+                  ].map((h) => (
                     <th
                       key={h}
                       className="px-4 py-2.5 text-left text-[10px] font-medium text-text-ghost uppercase tracking-wider"

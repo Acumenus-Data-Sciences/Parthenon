@@ -11,6 +11,7 @@
 
 import { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from "react";
 import { Loader2, ExternalLink, AlertCircle, Save, CheckCircle2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { imagingApi } from "../api/imagingApi";
 
 interface OhifMeasurementPayload {
@@ -53,6 +54,7 @@ export default function OhifViewer({
   className = "",
   onMeasurementSaved,
 }: OhifViewerProps) {
+  const { t } = useTranslation("app");
   const containerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [height, setHeight] = useState(600);
@@ -202,7 +204,7 @@ export default function OhifViewer({
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-base">
           <div className="flex flex-col items-center gap-3 text-text-muted">
             <Loader2 size={28} className="animate-spin text-success" />
-            <p className="text-sm">Loading OHIF Viewer…</p>
+            <p className="text-sm">{t("imaging.viewer.loading")}</p>
           </div>
         </div>
       )}
@@ -211,14 +213,14 @@ export default function OhifViewer({
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-base">
           <div className="flex flex-col items-center gap-3 text-critical">
             <AlertCircle size={28} />
-            <p className="text-sm">Failed to load OHIF Viewer</p>
+            <p className="text-sm">{t("imaging.viewer.failed")}</p>
             <a
               href={ohifUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-xs text-success hover:underline"
             >
-              Open in new tab <ExternalLink size={12} />
+              {t("imaging.viewer.openInNewTab")} <ExternalLink size={12} />
             </a>
           </div>
         </div>
@@ -227,7 +229,7 @@ export default function OhifViewer({
       <iframe
         ref={iframeRef}
         src={ohifUrl}
-        title="OHIF DICOM Viewer"
+        title={t("imaging.viewer.title")}
         style={{ width: "100%", height, border: "none" }}
         onLoad={() => {
           setLoading(false);
@@ -259,7 +261,7 @@ export default function OhifViewer({
             className="inline-flex items-center gap-1.5 rounded-md bg-success px-3 py-1.5 text-xs font-semibold text-surface-base hover:bg-success-dark disabled:opacity-50 transition-colors shadow-lg"
           >
             {saving ? <Loader2 size={11} className="animate-spin" /> : <Save size={11} />}
-            Save {pending.length} measurement{pending.length > 1 ? "s" : ""}
+            {t("imaging.viewer.savePending", { count: pending.length })}
           </button>
         )}
 
@@ -267,7 +269,7 @@ export default function OhifViewer({
         {savedCount > 0 && pending.length === 0 && (
           <div className="inline-flex items-center gap-1 rounded-md bg-surface-base/80 px-2 py-1 text-[10px] text-success backdrop-blur-sm">
             <CheckCircle2 size={10} />
-            {savedCount} saved
+            {t("imaging.viewer.savedCount", { count: savedCount })}
           </div>
         )}
 
@@ -275,7 +277,7 @@ export default function OhifViewer({
         {bridgeReady && !loading && (
           <div className="inline-flex items-center gap-1 rounded-md bg-surface-base/80 px-2 py-1 text-[10px] text-success/50 backdrop-blur-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-success" />
-            Bridge
+            {t("imaging.viewer.bridge")}
           </div>
         )}
 
@@ -286,7 +288,7 @@ export default function OhifViewer({
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 rounded-md bg-surface-base/80 px-2 py-1 text-[10px] text-info hover:text-info transition-colors backdrop-blur-sm"
-            title="Open OHIF in 3D volume layout"
+            title={t("imaging.viewer.volumeTitle")}
           >
             3D
             <ExternalLink size={10} />
@@ -300,7 +302,7 @@ export default function OhifViewer({
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 rounded-md bg-surface-base/80 px-2 py-1 text-[10px] text-info hover:text-info transition-colors backdrop-blur-sm"
-            title="Open OHIF in MPR layout"
+            title={t("imaging.viewer.mprTitle")}
           >
             MPR
             <ExternalLink size={10} />
@@ -313,10 +315,10 @@ export default function OhifViewer({
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 rounded-md bg-surface-base/80 px-2 py-1 text-[10px] text-text-ghost hover:text-text-muted transition-colors backdrop-blur-sm"
-            title="Open OHIF in new tab"
+            title={t("imaging.viewer.newTabTitle")}
           >
             <ExternalLink size={10} />
-            Expand
+            {t("imaging.viewer.expand")}
           </a>
         )}
       </div>

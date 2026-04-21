@@ -1,53 +1,50 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Ruler, Plus, Trash2, Loader2, Target, Sparkles } from "lucide-react";
 import { useStudyMeasurements, useCreateMeasurement, useDeleteMeasurement, useAiExtractMeasurements, useSuggestTemplate } from "../hooks/useImaging";
 import type { ImagingMeasurement, MeasurementType } from "../types";
 
 const MEASUREMENT_PRESETS: Array<{
-  label: string;
-  description: string;
-  fields: Array<{ type: MeasurementType; name: string; unit: string; isTarget?: boolean }>;
+  key: "recist" | "covidLungCt" | "petResponse" | "tumorVolumetrics";
+  fields: Array<{ type: MeasurementType; nameKey: string; unit: string; isTarget?: boolean }>;
 }> = [
   {
-    label: "RECIST — Solid Tumor",
-    description: "Target lesion longest diameter measurements for RECIST 1.1 assessment",
+    key: "recist",
     fields: [
-      { type: "longest_diameter", name: "Target Lesion 1", unit: "mm", isTarget: true },
-      { type: "longest_diameter", name: "Target Lesion 2", unit: "mm", isTarget: true },
-      { type: "perpendicular_diameter", name: "Target Lesion 1 (perp)", unit: "mm" },
+      { type: "longest_diameter", nameKey: "lesion1", unit: "mm", isTarget: true },
+      { type: "longest_diameter", nameKey: "lesion2", unit: "mm", isTarget: true },
+      { type: "perpendicular_diameter", nameKey: "lesion1Perp", unit: "mm" },
     ],
   },
   {
-    label: "COVID Lung CT",
-    description: "CT severity scoring for COVID-19 pneumonia assessment",
+    key: "covidLungCt",
     fields: [
-      { type: "ct_severity_score", name: "CT Severity Index (0-25)", unit: "score" },
-      { type: "ground_glass_extent", name: "Ground Glass Opacity", unit: "%" },
-      { type: "consolidation_extent", name: "Consolidation", unit: "%" },
-      { type: "opacity_score", name: "Total Opacity Score", unit: "%" },
+      { type: "ct_severity_score", nameKey: "severityIndex", unit: "score" },
+      { type: "ground_glass_extent", nameKey: "groundGlass", unit: "%" },
+      { type: "consolidation_extent", nameKey: "consolidation", unit: "%" },
+      { type: "opacity_score", nameKey: "totalOpacity", unit: "%" },
     ],
   },
   {
-    label: "PET Response (Lugano)",
-    description: "SUVmax and metabolic measurements for lymphoma/PET response",
+    key: "petResponse",
     fields: [
-      { type: "suvmax", name: "SUVmax", unit: "SUV" },
-      { type: "metabolic_tumor_volume", name: "Metabolic Tumor Volume", unit: "cm3" },
-      { type: "total_lesion_glycolysis", name: "Total Lesion Glycolysis", unit: "g" },
+      { type: "suvmax", nameKey: "suvmax", unit: "SUV" },
+      { type: "metabolic_tumor_volume", nameKey: "metabolicVolume", unit: "cm3" },
+      { type: "total_lesion_glycolysis", nameKey: "lesionGlycolysis", unit: "g" },
     ],
   },
   {
-    label: "Tumor Volumetrics",
-    description: "3D tumor volume and density measurements",
+    key: "tumorVolumetrics",
     fields: [
-      { type: "tumor_volume", name: "Tumor Volume", unit: "cm3" },
-      { type: "longest_diameter", name: "Longest Diameter", unit: "mm" },
-      { type: "density_hu", name: "Mean Density", unit: "HU" },
-      { type: "lesion_count", name: "Lesion Count", unit: "count" },
+      { type: "tumor_volume", nameKey: "tumorVolume", unit: "cm3" },
+      { type: "longest_diameter", nameKey: "longestDiameter", unit: "mm" },
+      { type: "density_hu", nameKey: "meanDensity", unit: "HU" },
+      { type: "lesion_count", nameKey: "lesionCount", unit: "count" },
     ],
   },
 ];
 
+// i18n-exempt: body site constants are source-aligned anatomical codes.
 const BODY_SITES = [
   "CHEST", "LUNG", "ABDOMEN", "PELVIS", "HEAD", "BRAIN", "NECK",
   "LIVER", "KIDNEY", "SPINE", "EXTREMITY", "BREAST", "BONE", "COLON",
@@ -60,6 +57,7 @@ interface MeasurementPanelProps {
 }
 
 export default function MeasurementPanel({ studyId, personId }: MeasurementPanelProps) {
+  const { t } = useTranslation("app");
   const { data: measurements, isLoading } = useStudyMeasurements(studyId);
   const createMutation = useCreateMeasurement();
   const deleteMutation = useDeleteMeasurement();
@@ -91,9 +89,12 @@ export default function MeasurementPanel({ studyId, personId }: MeasurementPanel
     setFormTargetNum("");
   };
 
-  const applyPresetField = (field: (typeof MEASUREMENT_PRESETS)[number]["fields"][number]) => {
+  const applyPresetField = (
+    presetKey: (typeof MEASUREMENT_PRESETS)[number]["key"],
+    field: (typeof MEASUREMENT_PRESETS)[number]["fields"][number],
+  ) => {
     setFormType(field.type);
-    setFormName(field.name);
+    setFormName(t(`imaging.measurements.presets.${presetKey}.fields.${field.nameKey}`));
     setFormUnit(field.unit);
     setFormIsTarget(field.isTarget ?? false);
     setShowForm(true);
@@ -128,7 +129,9 @@ export default function MeasurementPanel({ studyId, personId }: MeasurementPanel
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles size={14} className="text-domain-observation" />
-            <h3 className="text-sm font-semibold text-text-primary">AI Measurement Extraction</h3>
+            <h3 className="text-sm font-semibold text-text-primary">
+              {t("imaging.measurements.aiExtraction")}
+            </h3>
           </div>
           <button
             type="button"
@@ -137,23 +140,31 @@ export default function MeasurementPanel({ studyId, personId }: MeasurementPanel
             className="inline-flex items-center gap-2 rounded-lg bg-domain-observation px-4 py-2 text-sm font-medium text-text-primary hover:bg-domain-observation disabled:opacity-50 transition-colors"
           >
             {aiExtract.isPending ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-            {aiExtract.isPending ? "Extracting…" : "Auto-Extract"}
+            {aiExtract.isPending ? t("imaging.measurements.extracting") : t("imaging.measurements.autoExtract")}
           </button>
         </div>
         <p className="text-xs text-text-muted">
-          Uses MedGemma to extract quantitative measurements from radiology reports and DICOM metadata.
-          {suggestedTemplate ? ` Suggested template: ${suggestedTemplate.template}` : ""}
+          {t("imaging.measurements.medGemmaHelp")}
+          {suggestedTemplate
+            ? ` ${t("imaging.measurements.suggestedTemplate", { template: suggestedTemplate.template })}`
+            : ""}
         </p>
         {aiExtract.isSuccess && (
           <div className="rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
-            Extracted {(aiExtract.data as { extracted: number }).extracted} measurements
+            {t("imaging.measurements.extractedCount", {
+              count: (aiExtract.data as { extracted: number }).extracted,
+            })}
             {(aiExtract.data as { measurement_types: string[] }).measurement_types.length > 0 &&
-              ` (${(aiExtract.data as { measurement_types: string[] }).measurement_types.join(", ")})`}
+              ` ${t("imaging.measurements.extractedTypes", {
+                types: (aiExtract.data as { measurement_types: string[] }).measurement_types.join(", "),
+              })}`}
           </div>
         )}
         {aiExtract.isError && (
           <div className="rounded-lg border border-critical/30 bg-critical/10 px-4 py-3 text-sm text-critical">
-            Extraction failed: {(aiExtract.error as Error)?.message ?? "Unknown error"}
+            {t("imaging.measurements.extractionFailed", {
+              message: (aiExtract.error as Error)?.message ?? "Unknown error",
+            })}
           </div>
         )}
       </div>
@@ -162,7 +173,7 @@ export default function MeasurementPanel({ studyId, personId }: MeasurementPanel
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <Target size={14} className="text-accent" />
-          Measurement Templates
+          {t("imaging.measurements.templates")}
         </h3>
         <div className="grid grid-cols-2 gap-2">
           {MEASUREMENT_PRESETS.map((preset, i) => (
@@ -176,8 +187,12 @@ export default function MeasurementPanel({ studyId, personId }: MeasurementPanel
                   : "border-border-default hover:border-surface-highlight"
               }`}
             >
-              <p className="text-xs font-medium text-text-primary">{preset.label}</p>
-              <p className="text-[10px] text-text-ghost mt-0.5">{preset.description}</p>
+              <p className="text-xs font-medium text-text-primary">
+                {t(`imaging.measurements.presets.${preset.key}.label`)}
+              </p>
+              <p className="text-[10px] text-text-ghost mt-0.5">
+                {t(`imaging.measurements.presets.${preset.key}.description`)}
+              </p>
             </button>
           ))}
         </div>
@@ -188,11 +203,11 @@ export default function MeasurementPanel({ studyId, personId }: MeasurementPanel
               <button
                 key={i}
                 type="button"
-                onClick={() => applyPresetField(field)}
+                onClick={() => applyPresetField(MEASUREMENT_PRESETS[selectedPreset].key, field)}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-base px-3 py-1.5 text-xs text-text-secondary hover:border-success hover:text-success transition-colors"
               >
                 <Plus size={10} />
-                {field.name} ({field.unit})
+                {t(`imaging.measurements.presets.${MEASUREMENT_PRESETS[selectedPreset].key}.fields.${field.nameKey}`)} ({field.unit})
               </button>
             ))}
           </div>
@@ -202,28 +217,36 @@ export default function MeasurementPanel({ studyId, personId }: MeasurementPanel
       {/* Manual entry form */}
       {showForm && (
         <div className="rounded-lg border border-success/30 bg-surface-raised p-4 space-y-3">
-          <h3 className="text-sm font-semibold text-text-primary">Record Measurement</h3>
+          <h3 className="text-sm font-semibold text-text-primary">
+            {t("imaging.measurements.recordMeasurement")}
+          </h3>
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs text-text-muted mb-1">Type</label>
+              <label className="block text-xs text-text-muted mb-1">
+                {t("imaging.measurements.type")}
+              </label>
               <input
                 className="w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success transition-colors"
                 value={formType}
                 onChange={(e) => setFormType(e.target.value)}
-                placeholder="e.g. tumor_volume"
+                placeholder="e.g. tumor_volume" /* i18n-exempt: measurement type example identifier */
               />
             </div>
             <div>
-              <label className="block text-xs text-text-muted mb-1">Name</label>
+              <label className="block text-xs text-text-muted mb-1">
+                {t("imaging.measurements.name")}
+              </label>
               <input
                 className="w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success transition-colors"
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
-                placeholder="e.g. Right upper lobe lesion"
+                placeholder="e.g. Right upper lobe lesion" /* i18n-exempt: clinical example text */
               />
             </div>
             <div>
-              <label className="block text-xs text-text-muted mb-1">Value</label>
+              <label className="block text-xs text-text-muted mb-1">
+                {t("imaging.measurements.value")}
+              </label>
               <div className="flex gap-2">
                 <input
                   type="number"
@@ -242,27 +265,31 @@ export default function MeasurementPanel({ studyId, personId }: MeasurementPanel
               </div>
             </div>
             <div>
-              <label className="block text-xs text-text-muted mb-1">Body Site</label>
+              <label className="block text-xs text-text-muted mb-1">
+                {t("imaging.measurements.bodySite")}
+              </label>
               <select
                 className="w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success transition-colors"
                 value={formBodySite}
                 onChange={(e) => setFormBodySite(e.target.value)}
               >
-                <option value="">— Optional —</option>
+                <option value="">{t("imaging.measurements.optional")}</option>
                 {BODY_SITES.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-xs text-text-muted mb-1">Laterality</label>
+              <label className="block text-xs text-text-muted mb-1">
+                {t("imaging.measurements.laterality")}
+              </label>
               <select
                 className="w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success transition-colors"
                 value={formLaterality}
                 onChange={(e) => setFormLaterality(e.target.value)}
               >
-                <option value="">— N/A —</option>
-                <option value="LEFT">Left</option>
-                <option value="RIGHT">Right</option>
-                <option value="BILATERAL">Bilateral</option>
+                <option value="">{t("imaging.measurements.na")}</option>
+                <option value="LEFT">{t("imaging.measurements.left")}</option>
+                <option value="RIGHT">{t("imaging.measurements.right")}</option>
+                <option value="BILATERAL">{t("imaging.measurements.bilateral")}</option>
               </select>
             </div>
             <div className="flex items-end gap-3">
@@ -273,7 +300,7 @@ export default function MeasurementPanel({ studyId, personId }: MeasurementPanel
                   onChange={(e) => setFormIsTarget(e.target.checked)}
                   className="rounded"
                 />
-                RECIST target
+                {t("imaging.measurements.recistTarget")}
               </label>
               {formIsTarget && (
                 <input
@@ -296,14 +323,14 @@ export default function MeasurementPanel({ studyId, personId }: MeasurementPanel
               className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success-dark disabled:opacity-50 transition-colors"
             >
               {createMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-              Save Measurement
+              {t("imaging.measurements.saveMeasurement")}
             </button>
             <button
               type="button"
               onClick={() => { resetForm(); setShowForm(false); }}
               className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-secondary transition-colors"
             >
-              Cancel
+              {t("imaging.common.cancel")}
             </button>
           </div>
         </div>
@@ -316,7 +343,7 @@ export default function MeasurementPanel({ studyId, personId }: MeasurementPanel
           className="inline-flex items-center gap-2 rounded-lg border border-dashed border-border-default px-4 py-2 text-sm text-text-muted hover:text-success hover:border-success transition-colors w-full justify-center"
         >
           <Plus size={14} />
-          Add Measurement
+          {t("imaging.measurements.addMeasurement")}
         </button>
       )}
 
@@ -332,15 +359,23 @@ export default function MeasurementPanel({ studyId, personId }: MeasurementPanel
           <div className="px-4 py-3 border-b border-border-default">
             <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
               <Ruler size={14} className="text-success" />
-              Measurements ({measurements.length})
+              {t("imaging.measurements.title", { count: measurements.length })}
             </h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border-default">
-                  {["Type", "Name", "Value", "Body Site", "Target", "Date", ""].map(h => (
-                    <th key={h} className="px-4 py-2.5 text-left text-[10px] font-medium text-text-ghost uppercase tracking-wider">
+                  {[
+                    t("imaging.measurements.type"),
+                    t("imaging.measurements.name"),
+                    t("imaging.measurements.value"),
+                    t("imaging.measurements.bodySite"),
+                    "Target",
+                    t("imaging.common.date"),
+                    "",
+                  ].map((h, index) => (
+                    <th key={`${h}-${index}`} className="px-4 py-2.5 text-left text-[10px] font-medium text-text-ghost uppercase tracking-wider">
                       {h}
                     </th>
                   ))}
@@ -364,7 +399,7 @@ export default function MeasurementPanel({ studyId, personId }: MeasurementPanel
                     <td className="px-4 py-3 text-xs">
                       {m.is_target_lesion ? (
                         <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-accent/15 text-accent">
-                          T{m.target_lesion_number ?? ""}
+                          {t("imaging.measurements.targetBadge")}{m.target_lesion_number ?? ""}
                         </span>
                       ) : (
                         <span className="text-text-ghost">—</span>
@@ -379,7 +414,7 @@ export default function MeasurementPanel({ studyId, personId }: MeasurementPanel
                         onClick={() => deleteMutation.mutate(m.id)}
                         disabled={deleteMutation.isPending}
                         className="p-1.5 rounded text-text-ghost hover:text-critical hover:bg-critical/10 disabled:opacity-40 transition-colors"
-                        title="Delete measurement"
+                        title={t("imaging.measurements.deleteTitle")}
                       >
                         <Trash2 size={13} />
                       </button>
@@ -394,7 +429,7 @@ export default function MeasurementPanel({ studyId, personId }: MeasurementPanel
 
       {!personId && (
         <div className="rounded-lg border border-accent/30 bg-accent/5 px-4 py-3 text-sm text-accent">
-          This study is not linked to an OMOP patient. Measurements will be saved but won't appear in patient timelines until a person_id is linked.
+          {t("imaging.measurements.omopWarning")}
         </div>
       )}
     </div>

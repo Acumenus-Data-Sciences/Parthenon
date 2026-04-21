@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   Dna,
@@ -38,6 +39,7 @@ const CLINVAR_COLOR: Record<string, string> = {
 };
 
 export default function UploadDetailPage() {
+  const { t } = useTranslation("app");
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const uploadId = Number(id);
@@ -73,7 +75,7 @@ export default function UploadDetailPage() {
   if (!upload) {
     return (
       <div className="flex items-center justify-center py-24 text-text-muted">
-        Upload not found
+        {t("genomics.uploadDetail.notFound")}
       </div>
     );
   }
@@ -99,7 +101,7 @@ export default function UploadDetailPage() {
         className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary transition-colors"
       >
         <ArrowLeft size={14} />
-        Back to Genomics
+        {t("genomics.uploadDetail.backToGenomics")}
       </button>
 
       {/* Header */}
@@ -131,7 +133,7 @@ export default function UploadDetailPage() {
                 ) : (
                   <UserCheck size={12} />
                 )}
-                Match Persons
+                {t("genomics.uploadDetail.matchPersons")}
               </button>
               <button
                 type="button"
@@ -144,7 +146,7 @@ export default function UploadDetailPage() {
                 ) : (
                   <DatabaseZap size={12} />
                 )}
-                Import to OMOP
+                {t("genomics.uploadDetail.importToOmop")}
               </button>
             </>
           )}
@@ -166,16 +168,16 @@ export default function UploadDetailPage() {
       {/* Error banner */}
       {upload.error_message && (
         <div className="rounded-lg border border-critical/30 bg-critical/10 p-4 text-critical text-sm">
-          <strong>Parse error:</strong> {upload.error_message}
+          <strong>{t("genomics.uploadDetail.parseError")}</strong> {upload.error_message}
         </div>
       )}
 
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Total Variants", value: upload.total_variants.toLocaleString(), color: "var(--domain-observation)" },
-          { label: "OMOP Mapped", value: upload.mapped_variants.toLocaleString(), color: "var(--success)" },
-          { label: "Needs Review", value: upload.review_required.toLocaleString(), color: "var(--warning)" },
+          { label: t("genomics.uploadDetail.metrics.totalVariants"), value: upload.total_variants.toLocaleString(), color: "var(--domain-observation)" },
+          { label: t("genomics.uploadDetail.metrics.omopMapped"), value: upload.mapped_variants.toLocaleString(), color: "var(--success)" },
+          { label: t("genomics.uploadDetail.metrics.needsReview"), value: upload.review_required.toLocaleString(), color: "var(--warning)" },
         ].map((c) => (
           <div key={c.label} className="rounded-lg border border-border-default bg-surface-raised px-4 py-3">
             <p className="text-[10px] text-text-ghost uppercase tracking-wider mb-1">{c.label}</p>
@@ -192,8 +194,10 @@ export default function UploadDetailPage() {
       {/* Variants table */}
       <div className="rounded-lg border border-border-default bg-surface-raised">
         <div className="px-4 py-3 border-b border-border-default flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-text-primary">Variants</h2>
-          <span className="text-xs text-text-ghost">{variants.length.toLocaleString()} shown</span>
+          <h2 className="text-sm font-semibold text-text-primary">{t("genomics.uploadDetail.variants")}</h2>
+          <span className="text-xs text-text-ghost">
+            {t("genomics.uploadDetail.shown", { count: variants.length.toLocaleString() })}
+          </span>
         </div>
 
         {variantsLoading ? (
@@ -202,14 +206,25 @@ export default function UploadDetailPage() {
           </div>
         ) : variants.length === 0 ? (
           <div className="text-center py-12 text-text-muted text-sm">
-            {upload.status === "parsing" ? "Parsing in progress..." : "No variants available"}
+            {upload.status === "parsing"
+              ? t("genomics.uploadDetail.parsingInProgress")
+              : t("genomics.uploadDetail.noVariantsAvailable")}
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
                 <tr className="border-b border-border-default">
-                  {["Gene", "Variant", "HGVS", "Type", "Zygosity", "AF", "ClinVar", "OMOP"].map((h) => (
+                  {[
+                    t("genomics.uploadDetail.tableHeaders.gene"),
+                    t("genomics.uploadDetail.tableHeaders.variant"),
+                    t("genomics.uploadDetail.tableHeaders.hgvs"),
+                    t("genomics.uploadDetail.tableHeaders.type"),
+                    t("genomics.uploadDetail.tableHeaders.zygosity"),
+                    t("genomics.uploadDetail.tableHeaders.af"),
+                    t("genomics.uploadDetail.tableHeaders.clinvar"),
+                    t("genomics.uploadDetail.tableHeaders.omop"),
+                  ].map((h) => (
                     <th
                       key={h}
                       className="px-4 py-2.5 text-left text-[10px] font-medium text-text-ghost uppercase tracking-wider"

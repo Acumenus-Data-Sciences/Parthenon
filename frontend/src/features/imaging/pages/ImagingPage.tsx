@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   ScanLine,
   Layers,
@@ -30,11 +31,11 @@ import { HelpButton } from "@/features/help";
 import PatientTimelineTab from "../components/PatientTimelineTab";
 
 const TABS = [
-  { id: "studies", label: "Studies", icon: ScanLine },
-  { id: "features", label: "AI Features", icon: Brain },
-  { id: "criteria", label: "Imaging Criteria", icon: Filter },
-  { id: "timeline", label: "Patient Timeline", icon: Activity },
-  { id: "analytics", label: "Population Analytics", icon: BarChart3 },
+  { id: "studies", icon: ScanLine },
+  { id: "features", icon: Brain },
+  { id: "criteria", icon: Filter },
+  { id: "timeline", icon: Activity },
+  { id: "analytics", icon: BarChart3 },
 ] as const;
 
 type Tab = (typeof TABS)[number]["id"];
@@ -74,13 +75,14 @@ function StudyStatusBadge({ status }: { status: string }) {
 }
 
 function StatsBar() {
+  const { t } = useTranslation("app");
   const { data: stats, isLoading } = useImagingStats();
 
   const items = [
-    { label: "Total Studies", value: stats?.total_studies ?? 0, icon: ScanLine, color: "var(--info)" },
-    { label: "AI Features", value: stats?.total_features ?? 0, icon: Brain, color: "var(--domain-observation)" },
+    { label: t("imaging.page.stats.totalStudies"), value: stats?.total_studies ?? 0, icon: ScanLine, color: "var(--info)" },
+    { label: t("imaging.page.stats.aiFeatures"), value: stats?.total_features ?? 0, icon: Brain, color: "var(--domain-observation)" },
     {
-      label: "Persons with Imaging",
+      label: t("imaging.page.stats.personsWithImaging"),
       value: stats?.persons_with_imaging ?? 0,
       icon: Users,
       color: "var(--success)",
@@ -117,6 +119,7 @@ function StatsBar() {
 
 
 function StudiesTab() {
+  const { t } = useTranslation("app");
   const [searchParams, setSearchParams] = useSearchParams();
   const sourceId = searchParams.get("source_id") ?? "";
   const modality = searchParams.get("modality") ?? "";
@@ -181,56 +184,58 @@ function StudiesTab() {
       {/* DICOMweb filter + index */}
       <div className="flex items-end gap-3 flex-wrap">
         <div>
-          <label className="block text-xs text-text-muted mb-1.5">Filter by Source ID</label>
+          <label className="block text-xs text-text-muted mb-1.5">
+            {t("imaging.page.studiesTab.filterBySourceId")}
+          </label>
           <input
             className="w-28 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
-            placeholder="e.g. 9"
+            placeholder={t("imaging.page.studiesTab.sourceIdPlaceholder")}
             value={sourceId}
             onChange={(e) => updateStudyParams({ source_id: e.target.value }, true)}
           />
         </div>
         <div>
-          <label className="block text-xs text-text-muted mb-1.5">Modality</label>
+          <label className="block text-xs text-text-muted mb-1.5">{t("imaging.common.modality")}</label>
           <input
             className="w-40 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
-            placeholder="CT, MR…"
+            placeholder={t("imaging.page.studiesTab.modalityPlaceholder")}
             value={modality}
             onChange={(e) => updateStudyParams({ modality: e.target.value }, true)}
           />
         </div>
         <div>
-          <label className="block text-xs text-text-muted mb-1.5">Status</label>
+          <label className="block text-xs text-text-muted mb-1.5">{t("imaging.common.status")}</label>
           <select
             className="w-36 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
             value={status}
             onChange={(e) => updateStudyParams({ status: e.target.value }, true)}
           >
-            <option value="">All statuses</option>
+            <option value="">{t("imaging.page.studiesTab.allStatuses")}</option>
             <option value="indexed">indexed</option>
             <option value="processed">processed</option>
             <option value="error">error</option>
           </select>
         </div>
         <div>
-          <label className="block text-xs text-text-muted mb-1.5">Body Part</label>
+          <label className="block text-xs text-text-muted mb-1.5">{t("imaging.common.bodyPart")}</label>
           <input
             className="w-40 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
-            placeholder="Chest, Brain…"
+            placeholder={t("imaging.page.studiesTab.bodyPartPlaceholder")}
             value={bodyPart}
             onChange={(e) => updateStudyParams({ body_part: e.target.value }, true)}
           />
         </div>
         <div className="min-w-[220px] flex-1">
-          <label className="block text-xs text-text-muted mb-1.5">Find</label>
+          <label className="block text-xs text-text-muted mb-1.5">{t("imaging.page.studiesTab.find")}</label>
           <input
             className="w-full rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
-            placeholder="UID, accession, description, patient…"
+            placeholder={t("imaging.page.studiesTab.searchPlaceholder")}
             value={search}
             onChange={(e) => updateStudyParams({ q: e.target.value }, true)}
           />
         </div>
         <div>
-          <label className="block text-xs text-text-muted mb-1.5">From</label>
+          <label className="block text-xs text-text-muted mb-1.5">{t("imaging.common.from")}</label>
           <input
             type="date"
             className="w-40 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
@@ -239,7 +244,7 @@ function StudiesTab() {
           />
         </div>
         <div>
-          <label className="block text-xs text-text-muted mb-1.5">To</label>
+          <label className="block text-xs text-text-muted mb-1.5">{t("imaging.common.to")}</label>
           <input
             type="date"
             className="w-40 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
@@ -268,7 +273,7 @@ function StudiesTab() {
           }}
           className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
         >
-          Reset
+          {t("imaging.page.studiesTab.reset")}
         </button>
         {sourceId && (
           <button
@@ -285,18 +290,18 @@ function StudiesTab() {
             className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight disabled:opacity-50 transition-colors"
           >
             <RefreshCw size={14} className={indexMutation.isPending ? "animate-spin" : ""} />
-            Sync Full Catalog
+            {t("imaging.page.studiesTab.syncFullCatalog")}
           </button>
         )}
       </div>
 
       {indexMutation.isSuccess && (
         <div className="rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
-          Indexed {(indexMutation.data as { indexed: number }).indexed} new /{" "}
-          updated {(indexMutation.data as { updated: number }).updated} studies
-          {"scanned" in (indexMutation.data as object) && (
-            <> across {String((indexMutation.data as { scanned?: number }).scanned ?? 0)} scanned records</>
-          )}
+          {t("imaging.page.studiesTab.indexedSummary", {
+            indexed: (indexMutation.data as { indexed: number }).indexed,
+            updated: (indexMutation.data as { updated?: number }).updated ?? 0,
+            scanned: (indexMutation.data as { scanned?: number }).scanned ?? 0,
+          })}
         </div>
       )}
 
@@ -347,7 +352,7 @@ function StudiesTab() {
               {!isLoading && !data?.data?.length && (
                 <tr>
                   <td colSpan={9} className="text-center py-10 text-sm text-text-ghost">
-                    No studies indexed. Use "Import Local DICOM Files" above or enter a Source ID and click "Index from DICOMweb".
+                    {t("imaging.page.studiesTab.empty")}
                   </td>
                 </tr>
               )}
@@ -381,7 +386,7 @@ function StudiesTab() {
                       }}
                       className="inline-flex items-center gap-1 text-xs text-success hover:text-success-dark transition-colors"
                     >
-                      Details <ChevronRight size={12} />
+                      {t("imaging.common.details")} <ChevronRight size={12} />
                     </Link>
                   </td>
                 </tr>
@@ -392,8 +397,10 @@ function StudiesTab() {
         {data && (
           <div className="flex items-center justify-between gap-3 px-4 py-2.5 text-xs text-text-ghost border-t border-border-default">
             <div>
-              {data.total.toLocaleString()} total studies · page {data.current_page} of{" "}
-              {data.last_page}
+              {t("imaging.page.studiesTab.totalStudiesPage", {
+                total: data.total.toLocaleString(),
+                page: `${data.current_page} of ${data.last_page}`,
+              })}
             </div>
             <div className="flex items-center gap-2">
                 <button
@@ -402,7 +409,7 @@ function StudiesTab() {
                 disabled={data.current_page <= 1 || isLoading}
                 className="rounded border border-border-default px-2.5 py-1 text-text-muted hover:text-text-secondary hover:border-surface-highlight disabled:opacity-40"
               >
-                Prev
+                {t("imaging.page.studiesTab.prev")}
               </button>
                 <button
                   type="button"
@@ -410,7 +417,7 @@ function StudiesTab() {
                 disabled={data.current_page >= data.last_page || isLoading}
                 className="rounded border border-border-default px-2.5 py-1 text-text-muted hover:text-text-secondary hover:border-surface-highlight disabled:opacity-40"
               >
-                Next
+                {t("imaging.page.studiesTab.next")}
               </button>
             </div>
           </div>
@@ -421,6 +428,7 @@ function StudiesTab() {
 }
 
 function FeaturesTab() {
+  const { t } = useTranslation("app");
   const [featureType, setFeatureType] = useState("");
   const { data, isLoading } = useImagingFeatures({
     feature_type: featureType || undefined,
@@ -445,17 +453,19 @@ function FeaturesTab() {
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-xs text-text-muted mb-1.5">Feature Type</label>
+        <label className="block text-xs text-text-muted mb-1.5">
+          {t("imaging.page.featuresTab.featureType")}
+        </label>
         <select
           className="w-52 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success transition-colors"
           value={featureType}
           onChange={(e) => setFeatureType(e.target.value)}
         >
-          <option value="">All feature types</option>
-          <option value="nlp_finding">NLP Finding</option>
-          <option value="ai_classification">AI Classification</option>
-          <option value="radiomic">Radiomic</option>
-          <option value="manual">Manual</option>
+          <option value="">{t("imaging.page.featuresTab.allFeatureTypes")}</option>
+          <option value="nlp_finding">{t("imaging.page.featuresTab.nlpFinding")}</option>
+          <option value="ai_classification">{t("imaging.page.featuresTab.aiClassification")}</option>
+          <option value="radiomic">{t("imaging.page.featuresTab.radiomic")}</option>
+          <option value="manual">{t("imaging.page.featuresTab.manual")}</option>
         </select>
       </div>
 
@@ -487,7 +497,7 @@ function FeaturesTab() {
               {!isLoading && !data?.data?.length && (
                 <tr>
                   <td colSpan={7} className="text-center py-10 text-sm text-text-ghost">
-                    No features extracted yet. Use "Extract NLP" on a study to populate.
+                    {t("imaging.page.featuresTab.empty")}
                   </td>
                 </tr>
               )}
@@ -519,7 +529,7 @@ function FeaturesTab() {
         </div>
         {data && (
           <div className="px-4 py-2.5 text-xs text-text-ghost border-t border-border-default">
-            {data.total.toLocaleString()} total features
+            {t("imaging.page.featuresTab.totalFeatures", { total: data.total.toLocaleString() })}
           </div>
         )}
       </div>
@@ -528,34 +538,26 @@ function FeaturesTab() {
 }
 
 function CriteriaTab() {
+  const { t } = useTranslation("app");
   const { data: criteria, isLoading } = useImagingCriteria();
   const deleteMutation = useDeleteImagingCriterion();
-
-  const TYPE_LABELS: Record<string, string> = {
-    modality: "Modality",
-    anatomy: "Anatomy",
-    quantitative: "Quantitative",
-    ai_classification: "AI Classification",
-    dose: "Radiation Dose",
-  };
 
   return (
     <div className="space-y-4">
       <p className="text-sm text-text-muted">
-        Saved imaging cohort criteria. Use these in the Cohort Builder to select patients based on
-        imaging characteristics.
+        {t("imaging.page.criteriaTab.savedBanner")}
       </p>
 
       {isLoading && (
         <div className="flex items-center gap-2 text-text-ghost">
           <Loader2 size={14} className="animate-spin" />
-          <span className="text-sm">Loading…</span>
+          <span className="text-sm">{t("imaging.page.criteriaTab.loading")}</span>
         </div>
       )}
 
       {!isLoading && !criteria?.length && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-10 text-center text-sm text-text-ghost">
-          No imaging criteria saved yet.
+          {t("imaging.page.criteriaTab.empty")}
         </div>
       )}
 
@@ -569,11 +571,21 @@ function CriteriaTab() {
               <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <span className="font-medium text-text-primary text-sm">{c.name}</span>
                 <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-surface-elevated text-text-muted">
-                  {TYPE_LABELS[c.criteria_type] ?? c.criteria_type}
+                  {c.criteria_type === "modality"
+                    ? t("imaging.criteriaPanel.typeLabels.modality")
+                    : c.criteria_type === "anatomy"
+                      ? t("imaging.criteriaPanel.typeLabels.anatomy")
+                      : c.criteria_type === "quantitative"
+                        ? t("imaging.criteriaPanel.typeLabels.quantitative")
+                        : c.criteria_type === "ai_classification"
+                          ? t("imaging.criteriaPanel.typeLabels.aiClassification")
+                          : c.criteria_type === "dose"
+                            ? t("imaging.criteriaPanel.typeLabels.dose")
+                            : c.criteria_type}
                 </span>
                 {c.is_shared && (
                   <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-success/15 text-success">
-                    Shared
+                    {t("imaging.page.criteriaTab.shared")}
                   </span>
                 )}
               </div>
@@ -589,7 +601,7 @@ function CriteriaTab() {
               onClick={() => deleteMutation.mutate(c.id)}
               disabled={deleteMutation.isPending}
               className="p-1.5 rounded text-text-ghost hover:text-critical hover:bg-critical/10 disabled:opacity-40 transition-colors flex-shrink-0"
-              title="Delete criterion"
+              title={t("imaging.page.criteriaTab.deleteTitle")}
             >
               <Trash2 size={13} />
             </button>
@@ -601,6 +613,7 @@ function CriteriaTab() {
 }
 
 function AnalyticsTab() {
+  const { t } = useTranslation("app");
   const [sourceId, setSourceId] = useState("");
   const sid = sourceId ? parseInt(sourceId) : 0;
   const { data, isLoading } = usePopulationAnalytics(sid);
@@ -611,10 +624,10 @@ function AnalyticsTab() {
   return (
     <div className="space-y-6">
       <div>
-        <label className="block text-xs text-text-muted mb-1.5">Source ID</label>
+        <label className="block text-xs text-text-muted mb-1.5">{t("imaging.common.sourceId")}</label>
         <input
           className="w-36 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
-          placeholder="e.g. 9"
+          placeholder={t("imaging.page.analyticsTab.sourceIdPlaceholder")}
           value={sourceId}
           onChange={(e) => setSourceId(e.target.value)}
         />
@@ -622,14 +635,14 @@ function AnalyticsTab() {
 
       {!sid && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-10 text-center text-sm text-text-ghost">
-          Enter a Source ID to view population imaging analytics.
+          {t("imaging.page.analyticsTab.intro")}
         </div>
       )}
 
       {sid > 0 && isLoading && (
         <div className="flex items-center gap-2 text-text-ghost">
           <Loader2 size={14} className="animate-spin text-success" />
-          <span className="text-sm">Loading analytics…</span>
+          <span className="text-sm">{t("imaging.page.analyticsTab.loading")}</span>
         </div>
       )}
 
@@ -639,7 +652,7 @@ function AnalyticsTab() {
           <div className="rounded-lg border border-border-default bg-surface-raised p-4">
             <h3 className="text-sm font-semibold text-text-primary mb-4 flex items-center gap-2">
               <ScanLine size={14} className="text-info" />
-              Studies by Modality
+              {t("imaging.page.analyticsTab.studiesByModality")}
             </h3>
             <div className="space-y-2.5">
               {data.by_modality.map((row) => (
@@ -647,7 +660,9 @@ function AnalyticsTab() {
                   <div className="flex justify-between text-xs mb-1">
                     <span className="font-mono font-semibold text-text-secondary">{row.modality}</span>
                     <span className="text-text-ghost">
-                      {row.n.toLocaleString()} ({row.unique_persons.toLocaleString()} persons)
+                      {row.n.toLocaleString()} ({t("imaging.page.analyticsTab.personsCount", {
+                        count: row.unique_persons.toLocaleString(),
+                      })})
                     </span>
                   </div>
                   <div className="h-1.5 bg-surface-base rounded-full overflow-hidden">
@@ -668,7 +683,7 @@ function AnalyticsTab() {
           <div className="rounded-lg border border-border-default bg-surface-raised p-4">
             <h3 className="text-sm font-semibold text-text-primary mb-4 flex items-center gap-2">
               <Layers size={14} className="text-info" />
-              Studies by Body Part
+              {t("imaging.page.analyticsTab.studiesByBodyPart")}
             </h3>
             <div className="space-y-2.5">
               {data.by_body_part.map((row) => (
@@ -696,7 +711,7 @@ function AnalyticsTab() {
             <div className="rounded-lg border border-border-default bg-surface-raised p-4 col-span-2">
               <h3 className="text-sm font-semibold text-text-primary mb-4 flex items-center gap-2">
                 <Brain size={14} className="text-domain-observation" />
-                Top AI / NLP Features
+                {t("imaging.page.analyticsTab.topFeatures")}
               </h3>
               <div className="grid grid-cols-4 gap-3">
                 {data.top_features.map((f, i) => (
@@ -720,6 +735,7 @@ function AnalyticsTab() {
 }
 
 export default function ImagingPage() {
+  const { t } = useTranslation("app");
   const [searchParams, setSearchParams] = useSearchParams();
   const [uploadOpen, setUploadOpen] = useState(false);
   const queryClient = useQueryClient();
@@ -744,9 +760,9 @@ export default function ImagingPage() {
           <ScanLine size={18} style={{ color: "var(--info)" }} />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Medical Imaging</h1>
+          <h1 className="text-2xl font-bold text-text-primary">{t("imaging.page.title")}</h1>
           <p className="text-sm text-text-muted">
-            Longitudinal imaging analysis, treatment response assessment, and outcomes research
+            {t("imaging.page.subtitle")}
           </p>
         </div>
         <HelpButton helpKey="imaging" />
@@ -756,7 +772,7 @@ export default function ImagingPage() {
           className="ml-auto inline-flex items-center gap-2 rounded-lg bg-info px-4 py-2 text-sm font-medium text-surface-base hover:bg-info-dark transition-colors"
         >
           <Upload size={14} />
-          Import DICOM
+          {t("imaging.page.importDicom")}
         </button>
       </div>
 
@@ -772,7 +788,7 @@ export default function ImagingPage() {
 
       {/* Tab bar */}
       <div className="flex gap-1 border-b border-border-default">
-        {TABS.map(({ id, label, icon: Icon }) => (
+        {TABS.map(({ id, icon: Icon }) => (
           <button
             key={id}
             type="button"
@@ -784,7 +800,15 @@ export default function ImagingPage() {
             }`}
           >
             <Icon size={14} />
-            {label}
+            {id === "studies"
+              ? t("imaging.page.tabs.studies")
+              : id === "features"
+                ? t("imaging.page.tabs.features")
+                : id === "criteria"
+                  ? t("imaging.page.tabs.criteria")
+                  : id === "timeline"
+                    ? t("imaging.page.tabs.timeline")
+                    : t("imaging.page.tabs.analytics")}
           </button>
         ))}
       </div>

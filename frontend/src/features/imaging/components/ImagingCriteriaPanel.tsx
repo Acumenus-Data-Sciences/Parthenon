@@ -9,21 +9,21 @@
  * - dose: radiation dose constraint (max Gy)
  */
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ScanLine, MapPin, BarChart2, Brain, Zap, X, Check, type LucideIcon } from "lucide-react";
 import type { ImagingCriterion, ImagingCriteriaType } from "../../cohort-definitions/types/cohortExpression";
 
 const CRITERIA_TYPES: {
   value: ImagingCriteriaType;
-  label: string;
   icon: LucideIcon;
   color: string;
   desc: string;
 }[] = [
-  { value: "modality", label: "Modality", icon: ScanLine, color: "var(--info)", desc: "CT, MR, PT, US, CR…" },
-  { value: "anatomy", label: "Anatomy / Body Part", icon: MapPin, color: "var(--success)", desc: "Chest, Abdomen, Brain…" },
-  { value: "quantitative", label: "Quantitative Feature", icon: BarChart2, color: "var(--domain-observation)", desc: "Radiomic or AI numeric measurement" },
-  { value: "ai_classification", label: "AI Classification", icon: Brain, color: "var(--warning)", desc: "AI-derived label with confidence" },
-  { value: "dose", label: "Radiation Dose", icon: Zap, color: "var(--critical)", desc: "Maximum cumulative dose (Gy)" },
+  { value: "modality", icon: ScanLine, color: "var(--info)", desc: "CT, MR, PT, US, CR…" },
+  { value: "anatomy", icon: MapPin, color: "var(--success)", desc: "Chest, Abdomen, Brain…" },
+  { value: "quantitative", icon: BarChart2, color: "var(--domain-observation)", desc: "Radiomic or AI numeric measurement" },
+  { value: "ai_classification", icon: Brain, color: "var(--warning)", desc: "AI-derived label with confidence" },
+  { value: "dose", icon: Zap, color: "var(--critical)", desc: "Maximum cumulative dose (Gy)" },
 ];
 
 const COMMON_MODALITIES = ["CT", "MR", "PT", "US", "CR", "DX", "MG", "XA", "NM", "RF"];
@@ -47,6 +47,7 @@ interface Props {
 }
 
 export function ImagingCriteriaPanel({ onAdd, onCancel }: Props) {
+  const { t } = useTranslation("app");
   const [type, setType] = useState<ImagingCriteriaType | null>(null);
   const [exclude, setExclude] = useState(false);
 
@@ -74,11 +75,24 @@ export function ImagingCriteriaPanel({ onAdd, onCancel }: Props) {
   const buildLabel = (): string => {
     const opLabel = NUMERIC_OPS.find((o) => o.value === operator)?.label ?? "≥";
     switch (type) {
-      case "modality": return `Modality: ${modality}`;
-      case "anatomy": return `Body part: ${bodyPart}`;
-      case "quantitative": return `${featureName} ${opLabel} ${value} ${unit}`;
-      case "ai_classification": return `AI: ${classLabel} (≥${Math.round(minConfidence * 100)}% confidence)`;
-      case "dose": return `Dose ≤ ${maxDoseGy} Gy`;
+      case "modality":
+        return t("imaging.criteriaPanel.labelTemplates.modality", { modality });
+      case "anatomy":
+        return t("imaging.criteriaPanel.labelTemplates.bodyPart", { bodyPart });
+      case "quantitative":
+        return t("imaging.criteriaPanel.labelTemplates.quantitative", {
+          feature: featureName,
+          operator: opLabel,
+          value,
+          unit,
+        });
+      case "ai_classification":
+        return t("imaging.criteriaPanel.labelTemplates.aiClassification", {
+          label: classLabel,
+          confidence: Math.round(minConfidence * 100),
+        });
+      case "dose":
+        return t("imaging.criteriaPanel.labelTemplates.dose", { dose: maxDoseGy });
       default: return "";
     }
   };
@@ -87,7 +101,7 @@ export function ImagingCriteriaPanel({ onAdd, onCancel }: Props) {
     if (!type || !canAdd()) return;
     const criterion: ImagingCriterion = {
       type,
-      label: (exclude ? "Exclude: " : "") + buildLabel(),
+      label: (exclude ? t("imaging.criteriaPanel.labelTemplates.excludePrefix") : "") + buildLabel(),
       exclude,
       ...(type === "modality" && { modality }),
       ...(type === "anatomy" && { bodyPart }),
@@ -108,7 +122,7 @@ export function ImagingCriteriaPanel({ onAdd, onCancel }: Props) {
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-semibold text-text-primary flex items-center gap-1.5">
           <ScanLine size={14} className="text-info" />
-          Add Imaging Criterion
+          {t("imaging.criteriaPanel.addTitle")}
         </h4>
         <button
           type="button"
@@ -136,7 +150,18 @@ export function ImagingCriteriaPanel({ onAdd, onCancel }: Props) {
             >
               <Icon size={13} style={{ color: ct.color }} />
               <div>
-                <div className="font-medium">{ct.label}</div>
+                <div className="font-medium">
+                  {ct.value === "modality"
+                    ? t("imaging.criteriaPanel.typeLabels.modality")
+                    : ct.value === "anatomy"
+                      ? t("imaging.criteriaPanel.typeLabels.anatomy")
+                      : ct.value === "quantitative"
+                        ? t("imaging.criteriaPanel.typeLabels.quantitative")
+                        : ct.value === "ai_classification"
+                          ? t("imaging.criteriaPanel.typeLabels.aiClassification")
+                          : t("imaging.criteriaPanel.typeLabels.dose")}
+                </div>
+                {/* i18n-exempt: modality and imaging examples in these descriptions are protected clinical terminology. */}
                 <div className="text-text-ghost text-[10px] mt-0.5">{ct.desc}</div>
               </div>
             </button>
@@ -148,7 +173,7 @@ export function ImagingCriteriaPanel({ onAdd, onCancel }: Props) {
       {type === "modality" && (
         <div>
           <label className="block text-[10px] text-text-muted mb-1.5 uppercase tracking-wider">
-            Modality *
+            {t("imaging.criteriaPanel.modalityLabel")}
           </label>
           <div className="flex flex-wrap gap-1 mb-2">
             {COMMON_MODALITIES.map((m) => (
@@ -168,7 +193,7 @@ export function ImagingCriteriaPanel({ onAdd, onCancel }: Props) {
           </div>
           <input
             className={inputCls}
-            placeholder="Or type custom modality…"
+            placeholder={t("imaging.criteriaPanel.modalityPlaceholder")}
             value={COMMON_MODALITIES.includes(modality) ? "" : modality}
             onChange={(e) => setModality(e.target.value.toUpperCase())}
           />
@@ -179,7 +204,7 @@ export function ImagingCriteriaPanel({ onAdd, onCancel }: Props) {
       {type === "anatomy" && (
         <div>
           <label className="block text-[10px] text-text-muted mb-1.5 uppercase tracking-wider">
-            Body Part *
+            {t("imaging.criteriaPanel.bodyPartLabel")}
           </label>
           <div className="flex flex-wrap gap-1 mb-2">
             {COMMON_BODY_PARTS.map((b) => (
@@ -199,7 +224,7 @@ export function ImagingCriteriaPanel({ onAdd, onCancel }: Props) {
           </div>
           <input
             className={inputCls}
-            placeholder="Or type custom body part…"
+            placeholder={t("imaging.criteriaPanel.bodyPartPlaceholder")}
             value={COMMON_BODY_PARTS.includes(bodyPart) ? "" : bodyPart}
             onChange={(e) => setBodyPart(e.target.value.toUpperCase())}
           />
@@ -211,11 +236,11 @@ export function ImagingCriteriaPanel({ onAdd, onCancel }: Props) {
         <div className="space-y-2">
           <div>
             <label className="block text-[10px] text-text-muted mb-1.5 uppercase tracking-wider">
-              Feature name *
+              {t("imaging.criteriaPanel.featureName")}
             </label>
             <input
               className={inputCls}
-              placeholder="e.g. mean_HU, nodule_diameter, SUVmax"
+              placeholder="e.g. mean_HU, nodule_diameter, SUVmax" /* i18n-exempt: quantitative feature examples are protected measurement identifiers. */
               value={featureName}
               onChange={(e) => setFeatureName(e.target.value)}
             />
@@ -251,17 +276,17 @@ export function ImagingCriteriaPanel({ onAdd, onCancel }: Props) {
         <div className="space-y-2">
           <div>
             <label className="block text-[10px] text-text-muted mb-1.5 uppercase tracking-wider">
-              Classification label *
+              {t("imaging.criteriaPanel.classificationLabel")}
             </label>
             <input
               className={inputCls}
-              placeholder="e.g. pulmonary nodule, malignant, suspicious"
+              placeholder="e.g. pulmonary nodule, malignant, suspicious" /* i18n-exempt: clinical classification examples are protected terminology. */
               value={classLabel}
               onChange={(e) => setClassLabel(e.target.value)}
             />
           </div>
           <div className="flex items-center gap-3">
-            <label className="text-xs text-text-muted">Min confidence</label>
+            <label className="text-xs text-text-muted">{t("imaging.criteriaPanel.minConfidence")}</label>
             <input
               type="range"
               min={0}
@@ -281,14 +306,14 @@ export function ImagingCriteriaPanel({ onAdd, onCancel }: Props) {
       {/* Dose */}
       {type === "dose" && (
         <div className="flex items-center gap-3">
-          <span className="text-xs text-text-muted">Max cumulative dose</span>
+          <span className="text-xs text-text-muted">{t("imaging.criteriaPanel.maxCumulativeDose")}</span>
           <input
             type="number"
             className="w-24 rounded-lg bg-surface-base border border-border-default px-2 py-1.5 text-xs text-text-primary focus:outline-none focus:border-success transition-colors"
             value={maxDoseGy}
             onChange={(e) => setMaxDoseGy(Number(e.target.value))}
           />
-          <span className="text-xs text-text-ghost">Gy</span>
+          <span className="text-xs text-text-ghost">Gy{/* i18n-exempt: measurement unit */}</span>
         </div>
       )}
 
@@ -302,7 +327,7 @@ export function ImagingCriteriaPanel({ onAdd, onCancel }: Props) {
               onChange={(e) => setExclude(e.target.checked)}
               className="rounded border-border-default bg-surface-base text-critical focus:ring-critical/40"
             />
-            <span className="text-xs text-text-muted">Exclude patients with this feature</span>
+            <span className="text-xs text-text-muted">{t("imaging.criteriaPanel.excludeFeature")}</span>
           </label>
           <button
             type="button"
@@ -311,7 +336,7 @@ export function ImagingCriteriaPanel({ onAdd, onCancel }: Props) {
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-success text-surface-base text-xs font-medium hover:bg-success-dark disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             <Check size={12} />
-            Add Criterion
+            {t("imaging.criteriaPanel.addCriterion")}
           </button>
         </div>
       )}

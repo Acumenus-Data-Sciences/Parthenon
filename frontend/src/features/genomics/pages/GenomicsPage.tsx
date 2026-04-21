@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Dna,
   Upload,
@@ -80,18 +81,12 @@ function formatDate(iso: string | null): string {
 // ──────────────────────────────────────────────────────────────────────────────
 
 function ClinVarPanel({ initialGene }: { initialGene?: string }) {
+  const { t } = useTranslation("app");
   const [gene, setGene] = useState(initialGene ?? "");
   const [sig, setSig] = useState("");
   const [pathogenicOnly, setPathogenicOnly] = useState(false);
   const [searchQ, setSearchQ] = useState("");
   const [page, setPage] = useState(1);
-
-  useEffect(() => {
-    if (initialGene) {
-      setGene(initialGene);
-      setPage(1);
-    }
-  }, [initialGene]);
   const [syncingPapu, setSyncingPapu] = useState(false);
 
   const { data: status, isLoading: statusLoading, refetch: refetchStatus } = useClinVarStatus();
@@ -131,9 +126,9 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
               <ShieldAlert size={18} className="text-critical" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-text-primary">ClinVar Reference Database</p>
+              <p className="text-sm font-semibold text-text-primary">{t("genomics.clinvar.title")}</p>
               <p className="text-xs text-text-ghost mt-0.5">
-                NCBI ClinVar · GRCh38 · Updated weekly
+                {t("genomics.clinvar.subtitle")}
               </p>
             </div>
           </div>
@@ -143,7 +138,7 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
               type="button"
               onClick={() => handleSync(true)}
               disabled={syncMutation.isPending}
-              title="Download P/LP variants only (~69 KB, fast)"
+              title={t("genomics.clinvar.papuOnlyTitle")}
               className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-xs font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors disabled:opacity-50"
             >
               {syncMutation.isPending && syncingPapu ? (
@@ -151,13 +146,13 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
               ) : (
                 <RefreshCw size={12} />
               )}
-              P/LP Only
+              {t("genomics.clinvar.papuOnly")}
             </button>
             <button
               type="button"
               onClick={() => handleSync(false)}
               disabled={syncMutation.isPending}
-              title="Download full ClinVar (~181 MB, slower)"
+              title={t("genomics.clinvar.fullSyncTitle")}
               className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-2 text-xs font-medium text-surface-base hover:bg-success-dark transition-colors disabled:opacity-50"
             >
               {syncMutation.isPending && !syncingPapu ? (
@@ -165,7 +160,7 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
               ) : (
                 <RefreshCw size={12} />
               )}
-              Full Sync
+              {t("genomics.clinvar.fullSync")}
             </button>
           </div>
         </div>
@@ -173,7 +168,7 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
         {statusLoading ? (
           <div className="mt-3 flex items-center gap-2 text-text-ghost">
             <Loader2 size={12} className="animate-spin" />
-            <span className="text-xs">Loading status…</span>
+            <span className="text-xs">{t("genomics.clinvar.loadingStatus")}</span>
           </div>
         ) : status ? (
           <div className="mt-3 grid grid-cols-3 gap-3">
@@ -184,7 +179,7 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
               tabIndex={0}
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { setSearchQ(""); setGene(""); setSig(""); setPathogenicOnly(false); setPage(1); } }}
             >
-              <p className="text-xs text-text-ghost uppercase tracking-wider">Total Variants</p>
+              <p className="text-xs text-text-ghost uppercase tracking-wider">{t("genomics.clinvar.totalVariants")}</p>
               <p className="text-base font-semibold font-['IBM_Plex_Mono',monospace] text-text-primary mt-0.5">
                 {status.total_variants.toLocaleString()}
               </p>
@@ -196,17 +191,17 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
               tabIndex={0}
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { setPathogenicOnly(true); setSig(""); setSearchQ(""); setGene(""); setPage(1); } }}
             >
-              <p className="text-xs text-text-ghost uppercase tracking-wider">Pathogenic / LP</p>
+              <p className="text-xs text-text-ghost uppercase tracking-wider">{t("genomics.clinvar.pathogenicLp")}</p>
               <p className="text-base font-semibold font-['IBM_Plex_Mono',monospace] text-critical mt-0.5">
                 {status.pathogenic_count.toLocaleString()}
               </p>
             </div>
             <div className="rounded-md border border-border-default bg-surface-overlay px-3 py-2">
-              <p className="text-xs text-text-ghost uppercase tracking-wider">Last Sync</p>
+              <p className="text-xs text-text-ghost uppercase tracking-wider">{t("genomics.clinvar.lastSync")}</p>
               <p className="text-sm text-text-secondary mt-0.5">
                 {formatDate(status.last_sync)}
                 {status.last_sync_papu && (
-                  <span className="ml-1.5 text-[10px] text-text-muted bg-surface-elevated px-1.5 py-0.5 rounded">P/LP</span>
+                  <span className="ml-1.5 text-[10px] text-text-muted bg-surface-elevated px-1.5 py-0.5 rounded">{t("genomics.clinvar.papuOnly")}</span>
                 )}
               </p>
             </div>
@@ -216,13 +211,16 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
         {syncMutation.isSuccess && (
           <div className="mt-3 flex items-center gap-2 rounded-md border border-success/20 bg-success/5 px-3 py-2 text-xs text-success">
             <CheckCircle2 size={12} />
-            Sync complete — {syncMutation.data?.inserted.toLocaleString()} inserted, {syncMutation.data?.updated.toLocaleString()} updated
+            {t("genomics.clinvar.syncComplete", {
+              inserted: syncMutation.data?.inserted.toLocaleString(),
+              updated: syncMutation.data?.updated.toLocaleString(),
+            })}
           </div>
         )}
         {syncMutation.isError && (
           <div className="mt-3 flex items-center gap-2 rounded-md border border-critical/20 bg-critical/5 px-3 py-2 text-xs text-critical">
             <AlertCircle size={12} />
-            Sync failed — check server logs
+            {t("genomics.clinvar.syncFailed")}
           </div>
         )}
       </div>
@@ -230,8 +228,8 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
       {isEmpty ? (
         <div className="rounded-lg border border-border-default bg-surface-raised flex flex-col items-center justify-center py-14 text-text-ghost">
           <Database size={32} className="mb-3 opacity-40" />
-          <p className="text-sm font-medium text-text-muted">No ClinVar data indexed yet</p>
-          <p className="text-xs mt-1">Use "P/LP Only" for a fast 69 KB seed, or "Full Sync" for all 181 MB</p>
+          <p className="text-sm font-medium text-text-muted">{t("genomics.clinvar.noDataTitle")}</p>
+          <p className="text-xs mt-1">{t("genomics.clinvar.noDataMessage")}</p>
         </div>
       ) : (
         <>
@@ -243,7 +241,7 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
                 type="text"
                 value={searchQ}
                 onChange={(e) => { setSearchQ(e.target.value); setPage(1); }}
-                placeholder="Search gene, HGVS, disease, RS ID…"
+                placeholder={t("genomics.clinvar.searchPlaceholder")}
                 className="w-full pl-8 pr-3 py-2 text-sm bg-surface-raised border border-border-default rounded-lg text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success/50 focus:ring-1 focus:ring-success/30"
               />
             </div>
@@ -251,7 +249,7 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
               type="text"
               value={gene}
               onChange={(e) => { setGene(e.target.value); setPage(1); }}
-              placeholder="Gene"
+              placeholder={t("genomics.clinvar.genePlaceholder")}
               className="w-28 px-3 py-2 text-sm bg-surface-raised border border-border-default rounded-lg text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success/50 focus:ring-1 focus:ring-success/30"
             />
             <select
@@ -259,13 +257,13 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
               onChange={(e) => { setSig(e.target.value); setPage(1); }}
               className="px-3 py-2 text-sm bg-surface-raised border border-border-default rounded-lg text-text-muted focus:outline-none focus:border-success/50"
             >
-              <option value="">All significance</option>
-              <option value="pathogenic">Pathogenic</option>
-              <option value="likely pathogenic">Likely pathogenic</option>
-              <option value="uncertain">Uncertain significance</option>
-              <option value="benign">Benign</option>
-              <option value="likely benign">Likely benign</option>
-              <option value="conflicting">Conflicting</option>
+              <option value="">{t("genomics.clinvar.allSignificance")}</option>
+              <option value="pathogenic">{t("genomics.clinvar.pathogenic")}</option>
+              <option value="likely pathogenic">{t("genomics.clinvar.likelyPathogenic")}</option>
+              <option value="uncertain">{t("genomics.clinvar.uncertainSignificance")}</option>
+              <option value="benign">{t("genomics.clinvar.benign")}</option>
+              <option value="likely benign">{t("genomics.clinvar.likelyBenign")}</option>
+              <option value="conflicting">{t("genomics.clinvar.conflicting")}</option>
             </select>
             <button
               type="button"
@@ -277,7 +275,7 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
               }`}
             >
               <ShieldAlert size={12} />
-              P/LP
+              {t("genomics.clinvar.papuOnly")}
             </button>
           </div>
 
@@ -285,7 +283,7 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
           {!hasFilters ? (
             <div className="rounded-lg border border-border-default bg-surface-raised flex flex-col items-center justify-center py-10 text-text-ghost">
               <Filter size={22} className="mb-2 opacity-40" />
-              <p className="text-sm text-text-muted">Enter a search term or apply a filter to browse ClinVar</p>
+              <p className="text-sm text-text-muted">{t("genomics.clinvar.browsePrompt")}</p>
             </div>
           ) : searching ? (
             <div className="rounded-lg border border-border-default bg-surface-raised flex items-center justify-center py-12">
@@ -294,7 +292,7 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
           ) : results && results.data.length === 0 ? (
             <div className="rounded-lg border border-border-default bg-surface-raised flex flex-col items-center justify-center py-12 text-text-ghost">
               <Dna size={28} className="mb-2 opacity-40" />
-              <p className="text-sm text-text-muted">No variants match your search</p>
+              <p className="text-sm text-text-muted">{t("genomics.clinvar.noMatches")}</p>
             </div>
           ) : results ? (
             <div className="rounded-lg border border-border-default bg-surface-raised">
@@ -302,7 +300,15 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border-default">
-                      {["Gene", "HGVS / Variant", "Significance", "Disease", "Review Status", "Build", "IDs"].map((h) => (
+                      {[
+                        t("genomics.clinvar.tableHeaders.gene"),
+                        t("genomics.clinvar.tableHeaders.hgvsVariant"),
+                        t("genomics.clinvar.tableHeaders.significance"),
+                        t("genomics.clinvar.tableHeaders.disease"),
+                        t("genomics.clinvar.tableHeaders.reviewStatus"),
+                        t("genomics.clinvar.tableHeaders.build"),
+                        t("genomics.clinvar.tableHeaders.ids"),
+                      ].map((h) => (
                         <th
                           key={h}
                           className="px-4 py-2.5 text-left text-[10px] font-medium text-text-ghost uppercase tracking-wider"
@@ -348,7 +354,11 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
               {results.last_page > 1 && (
                 <div className="flex items-center justify-between px-4 py-3 border-t border-border-default">
                   <p className="text-xs text-text-ghost">
-                    {results.total.toLocaleString()} variants · page {results.current_page} of {results.last_page}
+                    {t("genomics.clinvar.variantsPageSummary", {
+                      total: results.total.toLocaleString(),
+                      current: results.current_page,
+                      last: results.last_page,
+                    })}
                   </p>
                   <div className="flex items-center gap-1">
                     <button
@@ -383,6 +393,7 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
 // ──────────────────────────────────────────────────────────────────────────────
 
 export default function GenomicsPage() {
+  const { t } = useTranslation("app");
   const navigate = useNavigate();
   const [showUpload, setShowUpload] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("uploads");
@@ -397,16 +408,16 @@ export default function GenomicsPage() {
 
   const metricCards = stats
     ? [
-        { label: "Total Uploads", value: stats.total_uploads, icon: Upload, color: "var(--info)" },
-        { label: "Total Variants", value: stats.total_variants.toLocaleString(), icon: Dna, color: "var(--domain-observation)" },
-        { label: "OMOP Mapped", value: stats.mapped_variants.toLocaleString(), icon: CheckCircle2, color: "var(--success)" },
-        { label: "Pending Review", value: stats.review_required.toLocaleString(), icon: Clock, color: "var(--warning)" },
+        { label: t("genomics.common.totalUploads"), value: stats.total_uploads, icon: Upload, color: "var(--info)" },
+        { label: t("genomics.common.totalVariants"), value: stats.total_variants.toLocaleString(), icon: Dna, color: "var(--domain-observation)" },
+        { label: t("genomics.common.omopMapped"), value: stats.mapped_variants.toLocaleString(), icon: CheckCircle2, color: "var(--success)" },
+        { label: t("genomics.common.pendingReview"), value: stats.review_required.toLocaleString(), icon: Clock, color: "var(--warning)" },
       ]
     : [];
 
   const tabs: { id: Tab; label: string; icon: typeof Database }[] = [
-    { id: "uploads", label: "Uploads", icon: FileText },
-    { id: "clinvar", label: "ClinVar Reference", icon: Database },
+    { id: "uploads", label: t("genomics.page.tabs.uploads"), icon: FileText },
+    { id: "clinvar", label: t("genomics.page.tabs.clinvar"), icon: Database },
   ];
 
   return (
@@ -415,9 +426,9 @@ export default function GenomicsPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div>
-            <h1 className="text-2xl font-bold text-text-primary">Molecular Genomics</h1>
+            <h1 className="text-2xl font-bold text-text-primary">{t("genomics.page.title")}</h1>
             <p className="mt-1 text-sm text-text-muted">
-              Variant ingestion, OMOP mapping, and cohort genomic criteria
+              {t("genomics.page.subtitle")}
             </p>
           </div>
           <HelpButton helpKey="genomics" />
@@ -429,7 +440,7 @@ export default function GenomicsPage() {
             className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-sm font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
           >
             <Activity size={16} />
-            Analysis Suite
+            {t("genomics.common.analysisSuite")}
           </button>
           <button
             type="button"
@@ -437,7 +448,7 @@ export default function GenomicsPage() {
             className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-sm font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
           >
             <Users size={16} />
-            Tumor Board
+            {t("genomics.common.tumorBoard")}
           </button>
           <button
             type="button"
@@ -445,7 +456,7 @@ export default function GenomicsPage() {
             className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors"
           >
             <Upload size={16} />
-            Upload Variants
+            {t("genomics.common.uploadVariants")}
           </button>
         </div>
       </div>
@@ -454,7 +465,7 @@ export default function GenomicsPage() {
       {statsLoading ? (
         <div className="flex items-center gap-2 text-text-ghost">
           <Loader2 size={14} className="animate-spin" />
-          <span className="text-sm">Loading stats…</span>
+          <span className="text-sm">{t("genomics.page.loadingStats")}</span>
         </div>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -490,7 +501,7 @@ export default function GenomicsPage() {
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <div className="flex items-center gap-2 mb-3">
             <TrendingUp size={14} className="text-success" />
-            <h2 className="text-sm font-semibold text-text-primary">Top Mutated Genes</h2>
+            <h2 className="text-sm font-semibold text-text-primary">{t("genomics.page.topMutatedGenes")}</h2>
           </div>
           <div className="flex flex-wrap gap-2">
             {Object.entries(stats.top_genes).map(([gene, count]) => (
@@ -538,7 +549,7 @@ export default function GenomicsPage() {
         <div className="rounded-lg border border-border-default bg-surface-raised">
           <div className="flex items-center gap-2 px-4 py-3 border-b border-border-default">
             <FileText size={14} className="text-text-ghost" />
-            <h2 className="text-sm font-semibold text-text-primary">Recent Uploads</h2>
+            <h2 className="text-sm font-semibold text-text-primary">{t("genomics.page.recentUploads")}</h2>
           </div>
 
           {uploadsLoading ? (
@@ -548,15 +559,23 @@ export default function GenomicsPage() {
           ) : uploads.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-text-ghost">
               <FlaskConical size={36} className="mb-3 opacity-40" />
-              <p className="text-sm font-medium text-text-muted">No variant files uploaded yet</p>
-              <p className="text-xs mt-1">Upload a VCF or MAF file to begin genomic analysis</p>
+              <p className="text-sm font-medium text-text-muted">{t("genomics.page.noUploadsTitle")}</p>
+              <p className="text-xs mt-1">{t("genomics.page.noUploadsMessage")}</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border-default">
-                    {["Filename", "Format", "Genome", "Variants", "Status", "Uploaded", ""].map((h) => (
+                    {[
+                      t("genomics.page.tableHeaders.filename"),
+                      t("genomics.page.tableHeaders.format"),
+                      t("genomics.page.tableHeaders.genome"),
+                      t("genomics.page.tableHeaders.variants"),
+                      t("genomics.page.tableHeaders.status"),
+                      t("genomics.page.tableHeaders.uploaded"),
+                      t("genomics.page.tableHeaders.actions"),
+                    ].map((h) => (
                       <th
                         key={h}
                         className="px-4 py-2.5 text-left text-[10px] font-medium text-text-ghost uppercase tracking-wider"
@@ -612,7 +631,7 @@ export default function GenomicsPage() {
                               annotate.mutate(upload.id);
                             }}
                             disabled={annotate.isPending}
-                            title="Annotate variants with ClinVar significance"
+                            title={t("genomics.page.annotateTitle")}
                             className="p-1 rounded text-text-ghost hover:text-success hover:bg-success/10 transition-colors disabled:opacity-30"
                           >
                             {annotate.isPending ? (
@@ -625,12 +644,12 @@ export default function GenomicsPage() {
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              if (confirm(`Delete upload "${upload.filename}"?`)) {
+                              if (confirm(t("genomics.page.deleteConfirm", { filename: upload.filename }))) {
                                 deleteUpload.mutate(upload.id);
                               }
                             }}
                             className="p-1 rounded text-text-ghost hover:text-critical hover:bg-critical/10 transition-colors"
-                            title="Delete upload"
+                            title={t("genomics.page.deleteTitle")}
                           >
                             <Trash2 size={13} />
                           </button>
@@ -646,7 +665,9 @@ export default function GenomicsPage() {
       )}
 
       {/* Tab: ClinVar */}
-      {activeTab === "clinvar" && <ClinVarPanel initialGene={clinvarGeneFilter} />}
+      {activeTab === "clinvar" && (
+        <ClinVarPanel key={clinvarGeneFilter || "default"} initialGene={clinvarGeneFilter} />
+      )}
 
       {showUpload && <UploadDialog onClose={() => setShowUpload(false)} />}
     </div>

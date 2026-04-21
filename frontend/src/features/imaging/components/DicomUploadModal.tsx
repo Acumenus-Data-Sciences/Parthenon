@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { X, Upload, FileUp, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import apiClient from "@/lib/api-client";
 import { useSourceStore } from "@/stores/sourceStore";
 
@@ -39,6 +40,7 @@ const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2 GB
 const CONCURRENT_UPLOADS = 4;
 
 export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModalProps) {
+  const { t } = useTranslation("app");
   const activeSourceId = useSourceStore((s) => s.activeSourceId);
   const [files, setFiles] = useState<File[]>([]);
   const [state, setState] = useState<UploadState>("idle");
@@ -63,25 +65,25 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
     onClose();
   };
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    addFiles(Array.from(e.dataTransfer.files));
-  }, []);
-
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      addFiles(Array.from(e.target.files));
-    }
-  }, []);
-
-  const addFiles = (incoming: File[]) => {
+  const addFiles = useCallback((incoming: File[]) => {
     const valid = incoming.filter((f) => {
       if (f.size > MAX_FILE_SIZE) return false;
       const name = f.name.toLowerCase();
       return name.endsWith(".dcm") || name.endsWith(".ima") || !name.includes(".") || name.match(/^\d+$/);
     });
     setFiles((prev) => [...prev, ...valid]);
-  };
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    addFiles(Array.from(e.dataTransfer.files));
+  }, [addFiles]);
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      addFiles(Array.from(e.target.files));
+    }
+  }, [addFiles]);
 
   const fetchStudySummaries = async (uploadResults: OrthancUploadResult[]) => {
     // Deduplicate by study ID
@@ -203,7 +205,9 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
         <div className="flex items-center justify-between border-b border-border-default px-6 py-4">
           <div className="flex items-center gap-2">
             <Upload size={16} className="text-info" />
-            <h2 className="text-sm font-semibold text-text-primary">Import DICOM Files</h2>
+            <h2 className="text-sm font-semibold text-text-primary">
+              {t("imaging.uploadModal.title")}
+            </h2>
           </div>
           <button
             onClick={handleClose}
@@ -228,10 +232,11 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
                 <FileUp size={32} className="text-text-ghost" />
                 <div className="text-center">
                   <p className="text-sm text-text-secondary">
-                    Drag & drop DICOM files or <span className="text-info underline">browse</span>
+                    {t("imaging.uploadModal.dropLeadPrefix")}
+                    <span className="text-info underline">{t("imaging.uploadModal.browse")}</span>
                   </p>
                   <p className="mt-1 text-[10px] text-text-ghost">
-                    .dcm files up to 2 GB each. Folders not supported — select files directly.
+                    {t("imaging.uploadModal.dropDetail")}
                   </p>
                 </div>
                 <input
@@ -248,12 +253,14 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
               {files.length > 0 && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs text-text-muted">{files.length} file{files.length !== 1 ? "s" : ""} selected</p>
+                    <p className="text-xs text-text-muted">
+                      {t("imaging.uploadModal.filesSelected", { count: files.length })}
+                    </p>
                     <button
                       onClick={() => setFiles([])}
                       className="text-[10px] text-critical hover:underline"
                     >
-                      Clear all
+                      {t("imaging.uploadModal.clearAll")}
                     </button>
                   </div>
                   <div className="max-h-32 overflow-y-auto rounded border border-border-default bg-surface-base divide-y divide-border-subtle">
@@ -267,7 +274,7 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
                     ))}
                     {files.length > 50 && (
                       <div className="px-3 py-1.5 text-[10px] text-text-ghost">
-                        … and {files.length - 50} more files
+                        {t("imaging.uploadModal.moreFiles", { count: files.length - 50 })}
                       </div>
                     )}
                   </div>
@@ -282,8 +289,11 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
                 <Loader2 size={16} className="animate-spin text-info" />
                 <span className="text-sm text-text-secondary">
                   {state === "uploading"
-                    ? `Uploading to Orthanc… ${progress.uploaded + progress.failed}/${progress.total}`
-                    : "Indexing studies…"}
+                    ? t("imaging.uploadModal.uploadingToOrthanc", {
+                        completed: progress.uploaded + progress.failed,
+                        total: progress.total,
+                      })
+                    : t("imaging.uploadModal.indexingStudies")}
                 </span>
               </div>
               {state === "uploading" && progress.total > 0 && (
@@ -295,8 +305,14 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
                     />
                   </div>
                   <div className="flex gap-4 text-xs">
-                    <span className="text-success">{progress.uploaded} uploaded</span>
-                    {progress.failed > 0 && <span className="text-critical">{progress.failed} failed</span>}
+                    <span className="text-success">
+                      {t("imaging.uploadModal.uploadedCount", { count: progress.uploaded })}
+                    </span>
+                    {progress.failed > 0 && (
+                      <span className="text-critical">
+                        {t("imaging.uploadModal.failedCount", { count: progress.failed })}
+                      </span>
+                    )}
                   </div>
                   {progress.currentFile && (
                     <p className="text-[10px] text-text-ghost font-mono truncate">{progress.currentFile}</p>
@@ -311,11 +327,19 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
               <div className="flex items-start gap-3 rounded-lg border border-success/30 bg-success/10 px-4 py-3">
                 <CheckCircle2 size={16} className="text-success mt-0.5 flex-shrink-0" />
                 <div className="text-sm text-success">
-                  <p className="font-medium">Import complete</p>
+                  <p className="font-medium">{t("imaging.uploadModal.importComplete")}</p>
                   <p className="mt-1 text-xs opacity-80">
-                    {progress.uploaded} file{progress.uploaded !== 1 ? "s" : ""} uploaded
-                    {progress.failed > 0 && `, ${progress.failed} failed`}
-                    {studies.length > 0 && ` — ${studies.length} ${studies.length === 1 ? "study" : "studies"}`}
+                    {t("imaging.uploadModal.importCompleteSummary", {
+                      uploaded: progress.uploaded,
+                      failedSuffix:
+                        progress.failed > 0
+                          ? t("imaging.uploadModal.failedSuffix", { count: progress.failed })
+                          : "",
+                      studySuffix:
+                        studies.length > 0
+                          ? t("imaging.uploadModal.studySuffix", { count: studies.length })
+                          : "",
+                    })}
                   </p>
                 </div>
               </div>
@@ -333,7 +357,7 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
                         {s.thumbnailInstanceId ? (
                           <img
                             src={`/orthanc/instances/${s.thumbnailInstanceId}/frames/0/preview`}
-                            alt="DICOM preview"
+                            alt={t("imaging.uploadModal.previewAlt")}
                             className="w-full h-full object-cover"
                           />
                         ) : (
@@ -346,14 +370,14 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
                       {/* Metadata */}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-text-primary truncate">
-                          {s.patientName || "Unknown Patient"}
+                          {s.patientName || t("imaging.uploadModal.unknownPatient")}
                         </p>
                         {s.studyDescription && (
                           <p className="text-xs text-text-muted truncate mt-0.5">{s.studyDescription}</p>
                         )}
                         <div className="flex items-center gap-3 mt-2 text-[10px] text-text-ghost">
                           {s.studyDate && <span>{s.studyDate}</span>}
-                          <span>{s.seriesCount} series</span>
+                          <span>{t("imaging.uploadModal.seriesCount", { count: s.seriesCount })}</span>
                           <span className="font-mono">{s.orthancId.substring(0, 8)}</span>
                         </div>
                       </div>
@@ -368,7 +392,7 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
             <div className="flex items-start gap-3 rounded-lg border border-critical/30 bg-critical/10 px-4 py-3">
               <AlertCircle size={16} className="text-critical mt-0.5 flex-shrink-0" />
               <div className="text-sm text-critical">
-                <p className="font-medium">Import failed</p>
+                <p className="font-medium">{t("imaging.uploadModal.importFailed")}</p>
                 <p className="mt-1 text-xs opacity-80">{errorMsg}</p>
               </div>
             </div>
@@ -383,7 +407,7 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
                 onClick={handleClose}
                 className="rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
               >
-                Cancel
+                {t("imaging.common.cancel")}
               </button>
               <button
                 onClick={uploadFiles}
@@ -391,7 +415,9 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
                 className="inline-flex items-center gap-2 rounded-lg bg-info px-4 py-2 text-sm font-medium text-surface-base hover:bg-info-dark disabled:opacity-40 transition-colors"
               >
                 <Upload size={14} />
-                Upload {files.length > 0 ? `${files.length} files` : ""}
+                {files.length > 0
+                  ? t("imaging.uploadModal.uploadCount", { count: files.length })
+                  : t("imaging.uploadModal.uploadButton")}
               </button>
             </>
           )}
@@ -400,7 +426,7 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
               onClick={handleClose}
               className="rounded-lg bg-info px-4 py-2 text-sm font-medium text-surface-base hover:bg-info-dark transition-colors"
             >
-              Close
+              {t("imaging.common.close")}
             </button>
           )}
         </div>

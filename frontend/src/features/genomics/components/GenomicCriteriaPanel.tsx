@@ -10,23 +10,24 @@
  * - treatment_episode: HemOnc chemotherapy regimen (maps to EPISODE table)
  */
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Dna, FlaskConical, Zap, Blend, ShieldAlert, Pill, X, Check, type LucideIcon } from "lucide-react";
 import type { GenomicCriterion, GenomicCriteriaType } from "../../cohort-definitions/types/cohortExpression";
 
-const CRITERIA_TYPES: { value: GenomicCriteriaType; label: string; icon: LucideIcon; color: string; desc: string }[] = [
-  { value: "gene_mutation", label: "Gene Mutation", icon: Dna, color: "var(--domain-observation)", desc: "e.g. EGFR L858R, KRAS G12D" },
-  { value: "tmb", label: "Tumor Mutational Burden", icon: FlaskConical, color: "var(--success)", desc: "TMB-High / TMB-Low threshold" },
-  { value: "msi", label: "Microsatellite Instability", icon: Zap, color: "var(--warning)", desc: "MSI-H, MSI-L, or MSS" },
-  { value: "fusion", label: "Gene Fusion", icon: Blend, color: "var(--info)", desc: "e.g. ALK rearrangement, BCR-ABL1" },
-  { value: "pathogenicity", label: "Pathogenicity Class", icon: ShieldAlert, color: "var(--critical)", desc: "ClinVar classification" },
-  { value: "treatment_episode", label: "Treatment Episode", icon: Pill, color: "var(--domain-device)", desc: "HemOnc chemotherapy regimen" },
+const CRITERIA_TYPES: { value: GenomicCriteriaType; icon: LucideIcon; color: string }[] = [
+  { value: "gene_mutation", icon: Dna, color: "var(--domain-observation)" },
+  { value: "tmb", icon: FlaskConical, color: "var(--success)" },
+  { value: "msi", icon: Zap, color: "var(--warning)" },
+  { value: "fusion", icon: Blend, color: "var(--info)" },
+  { value: "pathogenicity", icon: ShieldAlert, color: "var(--critical)" },
+  { value: "treatment_episode", icon: Pill, color: "var(--domain-device)" },
 ];
 
 const MSI_OPTIONS = [
-  { value: "MSI-H", label: "MSI-High" },
-  { value: "any_unstable", label: "MSI-High or MSI-Low (any unstable)" },
-  { value: "MSI-L", label: "MSI-Low" },
-  { value: "MSS", label: "Microsatellite Stable (MSS)" },
+  { value: "MSI-H", labelKey: "high" },
+  { value: "any_unstable", labelKey: "anyUnstable" },
+  { value: "MSI-L", labelKey: "low" },
+  { value: "MSS", labelKey: "stable" },
 ] as const;
 
 const CLINVAR_CLASSES = ["Pathogenic", "Likely pathogenic", "Uncertain significance"] as const;
@@ -37,6 +38,7 @@ interface Props {
 }
 
 export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
+  const { t } = useTranslation("app");
   const [type, setType] = useState<GenomicCriteriaType | null>(null);
   const [exclude, setExclude] = useState(false);
 
@@ -76,17 +78,24 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
   const buildLabel = (): string => {
     switch (type) {
       case "gene_mutation":
-        return hgvs ? `${gene} ${hgvs}` : `${gene} mutation`;
+        return hgvs ? `${gene} ${hgvs}` : t("genomics.criteriaPanel.labelTemplates.mutation", { gene });
       case "tmb":
-        return `TMB ${tmbOp === "gte" ? "≥" : tmbOp === "gt" ? ">" : tmbOp === "lte" ? "≤" : "<"} ${tmbValue} mut/Mb`;
+        return t("genomics.criteriaPanel.labelTemplates.tmb", {
+          operator: tmbOp === "gte" ? "≥" : tmbOp === "gt" ? ">" : tmbOp === "lte" ? "≤" : "<",
+          value: tmbValue,
+        });
       case "msi":
-        return MSI_OPTIONS.find((o) => o.value === msiStatus)?.label ?? msiStatus;
+        return t(
+          `genomics.criteriaPanel.msiOptions.${MSI_OPTIONS.find((o) => o.value === msiStatus)?.labelKey ?? "high"}`,
+        );
       case "fusion":
-        return gene2 ? `${gene1}::${gene2} fusion` : `${gene1} rearrangement`;
+        return gene2
+          ? t("genomics.criteriaPanel.labelTemplates.fusion", { gene1, gene2 })
+          : t("genomics.criteriaPanel.labelTemplates.rearrangement", { gene: gene1 });
       case "pathogenicity":
         return clinvarClasses.join(" / ");
       case "treatment_episode":
-        return `${regimenName} regimen`;
+        return t("genomics.criteriaPanel.labelTemplates.regimen", { name: regimenName });
       default:
         return "";
     }
@@ -96,7 +105,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
     if (!type || !canAdd()) return;
     const criterion: GenomicCriterion = {
       type,
-      label: (exclude ? "Exclude: " : "") + buildLabel(),
+      label: `${exclude ? t("genomics.criteriaPanel.labelTemplates.excludePrefix") : ""}${buildLabel()}`,
       exclude,
       ...(type === "gene_mutation" && { gene, hgvs: hgvs || undefined }),
       ...(type === "tmb" && { tmbOperator: tmbOp, tmbValue, tmbUnit: "mut/Mb" }),
@@ -112,7 +121,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-semibold text-purple-300 flex items-center gap-1.5">
           <Dna size={14} />
-          Add Genomic Criterion
+          {t("genomics.criteriaPanel.title")}
         </h4>
         <button onClick={onCancel} className="text-text-ghost hover:text-text-secondary">
           <X size={14} />
@@ -136,8 +145,28 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
             >
               <Icon size={13} style={{ color: ct.color }} />
               <div>
-                <div className="font-medium">{ct.label}</div>
-                <div className="text-text-ghost text-[10px]">{ct.desc}</div>
+                <div className="font-medium">
+                  {t(
+                    `genomics.criteriaPanel.typeLabels.${
+                      ct.value === "gene_mutation"
+                        ? "geneMutation"
+                        : ct.value === "treatment_episode"
+                          ? "treatmentEpisode"
+                          : ct.value
+                    }`,
+                  )}
+                </div>
+                <div className="text-text-ghost text-[10px]">
+                  {t(
+                    `genomics.criteriaPanel.typeDescriptions.${
+                      ct.value === "gene_mutation"
+                        ? "geneMutation"
+                        : ct.value === "treatment_episode"
+                          ? "treatmentEpisode"
+                          : ct.value
+                    }`,
+                  )}
+                </div>
               </div>
             </button>
           );
@@ -148,7 +177,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
       {type === "gene_mutation" && (
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="block text-[10px] text-text-ghost mb-1 uppercase tracking-wider">Gene *</label>
+            <label className="block text-[10px] text-text-ghost mb-1 uppercase tracking-wider">{t("genomics.criteriaPanel.gene")}</label>
             <input
               value={gene}
               onChange={(e) => setGene(e.target.value.toUpperCase())}
@@ -157,11 +186,11 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
             />
           </div>
           <div>
-            <label className="block text-[10px] text-text-ghost mb-1 uppercase tracking-wider">HGVS (optional)</label>
+            <label className="block text-[10px] text-text-ghost mb-1 uppercase tracking-wider">{t("genomics.criteriaPanel.hgvsOptional")}</label>
             <input
               value={hgvs}
               onChange={(e) => setHgvs(e.target.value)}
-              placeholder="p.Leu858Arg"
+              placeholder={t("genomics.criteriaPanel.hgvsPlaceholder")}
               className="w-full bg-surface-base border border-border-default rounded px-2 py-1.5 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-purple-500"
             />
           </div>
@@ -176,10 +205,10 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
             onChange={(e) => setTmbOp(e.target.value as typeof tmbOp)}
             className="bg-surface-base border border-border-default rounded px-2 py-1.5 text-xs text-text-primary focus:outline-none focus:border-purple-500"
           >
-            <option value="gte">≥</option>
-            <option value="gt">&gt;</option>
-            <option value="lte">≤</option>
-            <option value="lt">&lt;</option>
+            <option value="gte">{"\u2265"}</option>
+            <option value="gt">{"\u003E"}</option>
+            <option value="lte">{"\u2264"}</option>
+            <option value="lt">{"\u003C"}</option>
           </select>
           <input
             type="number"
@@ -187,7 +216,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
             onChange={(e) => setTmbValue(Number(e.target.value))}
             className="w-20 bg-surface-base border border-border-default rounded px-2 py-1.5 text-xs text-text-primary focus:outline-none focus:border-purple-500"
           />
-          <span className="text-xs text-text-ghost">mut/Mb</span>
+          <span className="text-xs text-text-ghost">{t("genomics.criteriaPanel.tmbUnit")}</span>
         </div>
       )}
 
@@ -204,7 +233,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
                   : "border-border-default text-text-ghost hover:text-text-secondary"
               }`}
             >
-              {opt.label}
+              {t(`genomics.criteriaPanel.msiOptions.${opt.labelKey}`)}
             </button>
           ))}
         </div>
@@ -213,7 +242,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
       {type === "fusion" && (
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="block text-[10px] text-text-ghost mb-1 uppercase tracking-wider">Gene 1 *</label>
+            <label className="block text-[10px] text-text-ghost mb-1 uppercase tracking-wider">{t("genomics.criteriaPanel.gene1")}</label>
             <input
               value={gene1}
               onChange={(e) => setGene1(e.target.value.toUpperCase())}
@@ -222,7 +251,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
             />
           </div>
           <div>
-            <label className="block text-[10px] text-text-ghost mb-1 uppercase tracking-wider">Gene 2 (optional)</label>
+            <label className="block text-[10px] text-text-ghost mb-1 uppercase tracking-wider">{t("genomics.criteriaPanel.gene2Optional")}</label>
             <input
               value={gene2}
               onChange={(e) => setGene2(e.target.value.toUpperCase())}
@@ -247,7 +276,13 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
                 }
                 className="rounded border-border-default bg-surface-base text-purple-500 focus:ring-purple-500/40"
               />
-              <span className="text-xs text-text-muted">{cls}</span>
+              <span className="text-xs text-text-muted">
+                {cls === "Pathogenic"
+                  ? t("genomics.common.pathogenic")
+                  : cls === "Likely pathogenic"
+                    ? t("genomics.common.likelyPathogenic")
+                    : t("genomics.common.uncertainSignificance")}
+              </span>
             </label>
           ))}
         </div>
@@ -255,7 +290,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
 
       {type === "treatment_episode" && (
         <div>
-          <label className="block text-[10px] text-text-ghost mb-1 uppercase tracking-wider">Regimen name *</label>
+          <label className="block text-[10px] text-text-ghost mb-1 uppercase tracking-wider">{t("genomics.criteriaPanel.regimenName")}</label>
           <input
             value={regimenName}
             onChange={(e) => setRegimenName(e.target.value)}
@@ -275,7 +310,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
               onChange={(e) => setExclude(e.target.checked)}
               className="rounded border-border-default bg-surface-base text-red-500 focus:ring-red-500/40"
             />
-            <span className="text-xs text-text-muted">Exclude patients with this feature</span>
+            <span className="text-xs text-text-muted">{t("genomics.criteriaPanel.excludeFeature")}</span>
           </label>
           <button
             type="button"
@@ -284,7 +319,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
             className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-700 hover:bg-purple-600 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg text-xs font-medium transition-colors"
           >
             <Check size={12} />
-            Add Criterion
+            {t("genomics.criteriaPanel.addCriterion")}
           </button>
         </div>
       )}

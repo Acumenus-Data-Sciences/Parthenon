@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ScanLine, Pill, Ruler, ChevronRight, User, Calendar,
   Loader2, AlertCircle,
@@ -30,6 +31,7 @@ const DRUG_COLORS = [
   "var(--domain-procedure)", "var(--success)", "var(--domain-device)", "var(--info)", "#C084FC",
 ];
 
+// i18n-exempt: measurement type labels are curated clinical measurement terminology.
 const MEASUREMENT_TYPE_LABELS: Record<string, string> = {
   tumor_volume: "Tumor Volume",
   suvmax: "SUVmax",
@@ -61,6 +63,7 @@ function formatDate(dateStr: string | null): string {
 // ── Summary Cards ───────────────────────────────────────────────────────
 
 function SummaryCards({ data }: { data: TimelineData }) {
+  const { t } = useTranslation("app");
   const { summary, person } = data;
   const age = person.year_of_birth
     ? new Date().getFullYear() - person.year_of_birth
@@ -72,13 +75,15 @@ function SummaryCards({ data }: { data: TimelineData }) {
       <div className="rounded-lg border border-border-default bg-surface-raised p-4">
         <div className="flex items-center gap-2 mb-2">
           <User size={14} className="text-domain-observation" />
-          <span className="text-[10px] text-text-ghost uppercase tracking-wider">Patient</span>
+          <span className="text-[10px] text-text-ghost uppercase tracking-wider">
+            {t("imaging.timeline.patient")}
+          </span>
         </div>
         <p className="text-sm text-text-primary font-semibold font-mono">
-          Person {person.person_id}
+          {t("imaging.timeline.personLabel", { id: person.person_id })}
         </p>
         <p className="text-xs text-text-muted mt-1">
-          {[person.gender, age ? `${age}y` : null, person.race].filter(Boolean).join(" · ") || "Demographics unavailable"}
+          {[person.gender, age ? `${age}y` : null, person.race].filter(Boolean).join(" · ") || t("imaging.timeline.demographicsUnavailable")}
         </p>
       </div>
 
@@ -86,7 +91,9 @@ function SummaryCards({ data }: { data: TimelineData }) {
       <div className="rounded-lg border border-border-default bg-surface-raised p-4">
         <div className="flex items-center gap-2 mb-2">
           <ScanLine size={14} className="text-info" />
-          <span className="text-[10px] text-text-ghost uppercase tracking-wider">Studies</span>
+          <span className="text-[10px] text-text-ghost uppercase tracking-wider">
+            {t("imaging.timeline.studies")}
+          </span>
         </div>
         <p className="text-lg text-info font-semibold font-mono">
           {summary.total_studies}
@@ -100,7 +107,9 @@ function SummaryCards({ data }: { data: TimelineData }) {
       <div className="rounded-lg border border-border-default bg-surface-raised p-4">
         <div className="flex items-center gap-2 mb-2">
           <Ruler size={14} className="text-success" />
-          <span className="text-[10px] text-text-ghost uppercase tracking-wider">Measurements</span>
+          <span className="text-[10px] text-text-ghost uppercase tracking-wider">
+            {t("imaging.timeline.measurements")}
+          </span>
         </div>
         <p className="text-lg text-success font-semibold font-mono">
           {summary.total_measurements}
@@ -116,7 +125,9 @@ function SummaryCards({ data }: { data: TimelineData }) {
       <div className="rounded-lg border border-border-default bg-surface-raised p-4">
         <div className="flex items-center gap-2 mb-2">
           <Pill size={14} className="text-warning" />
-          <span className="text-[10px] text-text-ghost uppercase tracking-wider">Treatments</span>
+          <span className="text-[10px] text-text-ghost uppercase tracking-wider">
+            {t("imaging.timeline.treatments")}
+          </span>
         </div>
         <p className="text-lg text-warning font-semibold font-mono">
           {summary.total_drugs}
@@ -134,6 +145,7 @@ function SummaryCards({ data }: { data: TimelineData }) {
 // ── Visual Timeline ─────────────────────────────────────────────────────
 
 function VisualTimeline({ data }: { data: TimelineData }) {
+  const { t } = useTranslation("app");
   const { studies, drug_exposures, measurements } = data;
 
   // Compute time axis from all dates
@@ -170,7 +182,7 @@ function VisualTimeline({ data }: { data: TimelineData }) {
   if (studies.length === 0) {
     return (
       <div className="rounded-lg border border-border-default bg-surface-raised p-8 text-center text-sm text-text-ghost">
-        No imaging studies found for this patient.
+        {t("imaging.timeline.noStudies")}
       </div>
     );
   }
@@ -179,13 +191,15 @@ function VisualTimeline({ data }: { data: TimelineData }) {
     <div className="rounded-lg border border-border-default bg-surface-raised p-6 space-y-6">
       <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
         <Calendar size={14} className="text-info" />
-        Longitudinal Timeline
+        {t("imaging.timeline.title")}
       </h3>
 
       {/* Drug exposure bars */}
       {drug_exposures.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-[10px] text-text-ghost uppercase tracking-wider mb-2">Treatment Context</p>
+          <p className="text-[10px] text-text-ghost uppercase tracking-wider mb-2">
+            {t("imaging.timeline.treatmentContext")}
+          </p>
           <div className="relative" style={{ height: drug_exposures.length * 28 + 4 }}>
             {drug_exposures.map((drug, i) => {
               const left = xPos(drug.start_date);
@@ -219,7 +233,9 @@ function VisualTimeline({ data }: { data: TimelineData }) {
 
       {/* Study nodes on timeline axis */}
       <div className="space-y-2">
-        <p className="text-[10px] text-text-ghost uppercase tracking-wider">Imaging Studies</p>
+        <p className="text-[10px] text-text-ghost uppercase tracking-wider">
+          {t("imaging.timeline.imagingStudies")}
+        </p>
         <div className="relative h-16">
           {/* Axis line */}
           <div className="absolute top-1/2 left-0 right-0 h-px bg-surface-accent" />
@@ -271,20 +287,30 @@ function VisualTimeline({ data }: { data: TimelineData }) {
 // ── Study List Table ────────────────────────────────────────────────────
 
 function StudyListTable({ studies }: { studies: TimelineStudy[] }) {
+  const { t } = useTranslation("app");
   return (
     <div className="rounded-lg border border-border-default bg-surface-raised">
       <div className="px-4 py-3 border-b border-border-default">
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <ScanLine size={14} className="text-info" />
-          All Studies ({studies.length})
+          {t("imaging.timeline.allStudies", { count: studies.length })}
         </h3>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border-default">
-              {["Date", "Modality", "Body Part", "Description", "Series", "Images", "Measurements", ""].map(h => (
-                <th key={h} className="px-4 py-2.5 text-left text-[10px] font-medium text-text-ghost uppercase tracking-wider">
+              {[
+                t("imaging.timeline.studyHeaders.date"),
+                t("imaging.timeline.studyHeaders.modality"),
+                t("imaging.timeline.studyHeaders.bodyPart"),
+                t("imaging.timeline.studyHeaders.description"),
+                t("imaging.timeline.studyHeaders.series"),
+                t("imaging.timeline.studyHeaders.images"),
+                t("imaging.timeline.studyHeaders.measurements"),
+                t("imaging.timeline.studyHeaders.action"),
+              ].map((h, index) => (
+                <th key={`${h}-${index}`} className="px-4 py-2.5 text-left text-[10px] font-medium text-text-ghost uppercase tracking-wider">
                   {h}
                 </th>
               ))}
@@ -323,7 +349,7 @@ function StudyListTable({ studies }: { studies: TimelineStudy[] }) {
                     to={`/imaging/studies/${study.id}`}
                     className="inline-flex items-center gap-1 text-xs text-success hover:text-success-dark transition-colors"
                   >
-                    View <ChevronRight size={12} />
+                    {t("imaging.timeline.view")} <ChevronRight size={12} />
                   </Link>
                 </td>
               </tr>
@@ -338,10 +364,11 @@ function StudyListTable({ studies }: { studies: TimelineStudy[] }) {
 // ── Drug Exposure Table ─────────────────────────────────────────────────
 
 function DrugExposureTable({ drugs }: { drugs: DrugExposure[] }) {
+  const { t } = useTranslation("app");
   if (drugs.length === 0) {
     return (
       <div className="rounded-lg border border-border-default bg-surface-raised p-6 text-center text-sm text-text-ghost">
-        No drug exposures found in the imaging window.
+        {t("imaging.timeline.noDrugExposures")}
       </div>
     );
   }
@@ -351,14 +378,20 @@ function DrugExposureTable({ drugs }: { drugs: DrugExposure[] }) {
       <div className="px-4 py-3 border-b border-border-default">
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <Pill size={14} className="text-warning" />
-          Treatment Context ({drugs.length} drugs)
+          {t("imaging.timeline.treatmentContextCount", { count: drugs.length })}
         </h3>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border-default">
-              {["Drug Name", "Class", "Start", "End", "Days Supply"].map(h => (
+              {[
+                t("imaging.timeline.drugHeaders.drugName"),
+                t("imaging.timeline.drugHeaders.class"),
+                t("imaging.timeline.drugHeaders.start"),
+                t("imaging.timeline.drugHeaders.end"),
+                t("imaging.timeline.drugHeaders.daysSupply"),
+              ].map((h) => (
                 <th key={h} className="px-4 py-2.5 text-left text-[10px] font-medium text-text-ghost uppercase tracking-wider">
                   {h}
                 </th>
@@ -391,6 +424,7 @@ interface PatientTimelineProps {
 }
 
 export default function PatientTimeline({ data, isLoading, error }: PatientTimelineProps) {
+  const { t } = useTranslation("app");
   const [showDrugs, setShowDrugs] = useState(true);
   const [showAssessments, setShowAssessments] = useState(false);
 
@@ -406,7 +440,9 @@ export default function PatientTimeline({ data, isLoading, error }: PatientTimel
     return (
       <div className="rounded-lg border border-critical/30 bg-critical/10 p-6 flex items-center gap-3">
         <AlertCircle size={18} className="text-critical flex-shrink-0" />
-        <p className="text-sm text-critical">Failed to load patient timeline: {error.message}</p>
+        <p className="text-sm text-critical">
+          {t("imaging.timeline.loadFailed", { message: error.message })}
+        </p>
       </div>
     );
   }
@@ -424,14 +460,22 @@ export default function PatientTimeline({ data, isLoading, error }: PatientTimel
           onClick={() => setShowDrugs(!showDrugs)}
           className="text-xs text-text-muted hover:text-text-primary transition-colors"
         >
-          {showDrugs ? "Hide" : "Show"} treatment details ({data.drug_exposures.length})
+          {showDrugs
+            ? t("imaging.timeline.hideTreatmentDetails", {
+                count: data.drug_exposures.length,
+              })
+            : t("imaging.timeline.showTreatmentDetails", {
+                count: data.drug_exposures.length,
+              })}
         </button>
         <button
           type="button"
           onClick={() => setShowAssessments(!showAssessments)}
           className="text-xs text-domain-observation hover:text-domain-observation transition-colors"
         >
-          {showAssessments ? "Hide" : "Show"} response assessments
+          {showAssessments
+            ? t("imaging.timeline.hideResponseAssessments")
+            : t("imaging.timeline.showResponseAssessments")}
         </button>
       </div>
 

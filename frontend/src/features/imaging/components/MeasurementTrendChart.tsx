@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Line,
   XAxis,
@@ -286,6 +287,7 @@ export function MeasurementTrendChart({
 // ── Multi-Trend Overview (all measurement types) ─────────────────────────
 
 export function MultiTrendChart({ measurements, height = 200 }: MultiTrendChartProps) {
+  const { t } = useTranslation("app");
   const measurementTypes = useMemo(() => {
     const types = new Set<string>();
     measurements.forEach(m => types.add(m.measurement_type));
@@ -295,7 +297,7 @@ export function MultiTrendChart({ measurements, height = 200 }: MultiTrendChartP
   if (measurementTypes.length === 0) {
     return (
       <div className="rounded-xl border border-border-default bg-surface-raised p-6 text-center text-sm text-text-ghost">
-        No measurements recorded. Use AI Auto-Extract or enter measurements manually on individual studies.
+        {t("imaging.trends.empty")}
       </div>
     );
   }
@@ -303,9 +305,15 @@ export function MultiTrendChart({ measurements, height = 200 }: MultiTrendChartP
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <h3 className="text-sm font-semibold text-text-primary">Measurement Trends</h3>
+        <h3 className="text-sm font-semibold text-text-primary">
+          {t("imaging.trends.title")}
+        </h3>
         <span className="text-[10px] text-text-ghost uppercase tracking-wider">
-          {measurementTypes.length} type{measurementTypes.length !== 1 ? "s" : ""} · {measurements.length} data points
+          {t("imaging.trends.summary", {
+            types: measurementTypes.length,
+            typesPlural: measurementTypes.length !== 1 ? t("imaging.trends.summaryPlural") : "",
+            points: measurements.length,
+          })}
         </span>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

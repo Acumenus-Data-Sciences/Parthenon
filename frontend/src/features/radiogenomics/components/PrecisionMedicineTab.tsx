@@ -1,4 +1,5 @@
 import { Fragment, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dna, Pill, ShieldAlert, ShieldCheck, AlertTriangle,
   ChevronDown, ChevronUp, Loader2, TrendingDown, TrendingUp,
@@ -15,10 +16,10 @@ import type { DrugExposure } from "../../imaging/types";
 
 // ── Colors & Constants ──────────────────────────────────────────────────
 
-const RELATIONSHIP_STYLES: Record<string, { color: string; label: string; icon: typeof ShieldCheck }> = {
-  sensitive:         { color: "var(--success)", label: "Sensitive",         icon: ShieldCheck },
-  resistant:         { color: "var(--critical)", label: "Resistant",         icon: ShieldAlert },
-  partial_response:  { color: "var(--accent)", label: "Partial Response",  icon: Activity },
+const RELATIONSHIP_STYLES: Record<string, { color: string; icon: typeof ShieldCheck }> = {
+  sensitive: { color: "var(--success)", icon: ShieldCheck },
+  resistant: { color: "var(--critical)", icon: ShieldAlert },
+  partial_response: { color: "var(--accent)", icon: Activity },
 };
 
 const CONFIDENCE_COLORS: Record<string, string> = {
@@ -43,6 +44,7 @@ interface PrecisionMedicineTabProps {
 }
 
 export default function PrecisionMedicineTab({ personId, sourceId }: PrecisionMedicineTabProps) {
+  const { t } = useTranslation("app");
   const { data: panel, isLoading, error } = useRadiogenomicsPanel(personId, sourceId);
 
   if (isLoading) {
@@ -58,7 +60,7 @@ export default function PrecisionMedicineTab({ personId, sourceId }: PrecisionMe
       <div className="flex flex-col items-center justify-center h-48 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
         <Dna size={24} className="text-text-ghost mb-3" />
         <p className="text-sm text-text-muted">
-          {error ? "Failed to load precision medicine panel" : "No genomic data available for this patient"}
+          {error ? t("radiogenomics.panel.loadFailed") : t("radiogenomics.panel.noData")}
         </p>
       </div>
     );
@@ -93,15 +95,16 @@ export default function PrecisionMedicineTab({ personId, sourceId }: PrecisionMe
 // ── Panel Summary ───────────────────────────────────────────────────────
 
 function PanelSummary({ panel }: { panel: RadiogenomicsPanel }) {
+  const { t } = useTranslation("app");
   const { variants, correlations, recommendations, drug_exposures } = panel;
 
   const stats = [
-    { label: "Total Variants", value: variants.total, color: "var(--domain-observation)", icon: Dna },
-    { label: "Pathogenic", value: variants.pathogenic_count, color: "var(--critical)", icon: AlertTriangle },
-    { label: "VUS", value: variants.vus_count, color: "var(--accent)", icon: FlaskConical },
-    { label: "Drug Correlations", value: correlations.length, color: "var(--success)", icon: Pill },
-    { label: "Recommendations", value: recommendations.length, color: "var(--info)", icon: ShieldCheck },
-    { label: "Treatments", value: drug_exposures.length, color: "var(--text-primary)", icon: Pill },
+    { label: t("radiogenomics.panel.stats.totalVariants"), value: variants.total, color: "var(--domain-observation)", icon: Dna },
+    { label: t("radiogenomics.panel.stats.pathogenic"), value: variants.pathogenic_count, color: "var(--critical)", icon: AlertTriangle },
+    { label: t("radiogenomics.panel.stats.vus"), value: variants.vus_count, color: "var(--accent)", icon: FlaskConical },
+    { label: t("radiogenomics.panel.stats.drugCorrelations"), value: correlations.length, color: "var(--success)", icon: Pill },
+    { label: t("radiogenomics.panel.stats.recommendations"), value: recommendations.length, color: "var(--info)", icon: ShieldCheck },
+    { label: t("radiogenomics.panel.stats.treatments"), value: drug_exposures.length, color: "var(--text-primary)", icon: Pill },
   ];
 
   return (
@@ -128,11 +131,12 @@ function PanelSummary({ panel }: { panel: RadiogenomicsPanel }) {
 // ── Recommendations Section ─────────────────────────────────────────────
 
 function RecommendationsSection({ recommendations }: { recommendations: PrecisionRecommendation[] }) {
+  const { t } = useTranslation("app");
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
         <ShieldCheck size={14} className="text-info" />
-        Precision Medicine Recommendations
+        {t("radiogenomics.panel.recommendationsTitle")}
       </h3>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {recommendations.map((rec, i) => (
@@ -144,6 +148,7 @@ function RecommendationsSection({ recommendations }: { recommendations: Precisio
 }
 
 function RecommendationCard({ rec }: { rec: PrecisionRecommendation }) {
+  const { t } = useTranslation("app");
   const [expanded, setExpanded] = useState(true);
 
   return (
@@ -168,7 +173,7 @@ function RecommendationCard({ rec }: { rec: PrecisionRecommendation }) {
           {rec.drugs_avoid.length > 0 && (
             <div>
               <p className="text-[10px] text-critical uppercase tracking-wider font-semibold mb-1.5">
-                Avoid (predicted resistance)
+                {t("radiogenomics.panel.avoid")}
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {rec.drugs_avoid.map((d) => (
@@ -188,7 +193,7 @@ function RecommendationCard({ rec }: { rec: PrecisionRecommendation }) {
           {rec.drugs_consider.length > 0 && (
             <div>
               <p className="text-[10px] text-success uppercase tracking-wider font-semibold mb-1.5">
-                Consider (predicted sensitivity)
+                {t("radiogenomics.panel.consider")}
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {rec.drugs_consider.map((d) => (
@@ -215,6 +220,7 @@ function RecommendationCard({ rec }: { rec: PrecisionRecommendation }) {
 // ── Correlations Table ──────────────────────────────────────────────────
 
 function CorrelationsTable({ correlations }: { correlations: VariantDrugCorrelation[] }) {
+  const { t } = useTranslation("app");
   const [expanded, setExpanded] = useState<number | null>(null);
 
   return (
@@ -222,7 +228,7 @@ function CorrelationsTable({ correlations }: { correlations: VariantDrugCorrelat
       <div className="px-4 py-3 border-b border-border-default flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <Pill size={14} className="text-success" />
-          Variant-Drug Correlations ({correlations.length})
+          {t("radiogenomics.panel.correlationsTitle", { count: correlations.length })}
         </h3>
       </div>
 
@@ -230,13 +236,13 @@ function CorrelationsTable({ correlations }: { correlations: VariantDrugCorrelat
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-border-subtle text-[10px] uppercase tracking-wider text-text-ghost">
-              <th className="px-4 py-2 font-medium">Gene</th>
-              <th className="px-4 py-2 font-medium">Variant</th>
-              <th className="px-4 py-2 font-medium">Drug</th>
-              <th className="px-4 py-2 font-medium">Relationship</th>
-              <th className="px-4 py-2 font-medium">Confidence</th>
-              <th className="px-4 py-2 font-medium">Received</th>
-              <th className="px-4 py-2 font-medium">Response</th>
+              <th className="px-4 py-2 font-medium">{t("radiogenomics.panel.headers.gene")}</th>
+              <th className="px-4 py-2 font-medium">{t("radiogenomics.panel.headers.variant")}</th>
+              <th className="px-4 py-2 font-medium">{t("radiogenomics.panel.headers.drug")}</th>
+              <th className="px-4 py-2 font-medium">{t("radiogenomics.panel.headers.relationship")}</th>
+              <th className="px-4 py-2 font-medium">{t("radiogenomics.panel.headers.confidence")}</th>
+              <th className="px-4 py-2 font-medium">{t("radiogenomics.panel.headers.received")}</th>
+              <th className="px-4 py-2 font-medium">{t("radiogenomics.panel.headers.response")}</th>
               <th className="px-4 py-2 font-medium w-6"></th>
             </tr>
           </thead>
@@ -245,6 +251,12 @@ function CorrelationsTable({ correlations }: { correlations: VariantDrugCorrelat
               const relStyle = RELATIONSHIP_STYLES[c.relationship] ?? RELATIONSHIP_STYLES.sensitive;
               const RelIcon = relStyle.icon;
               const isExpanded = expanded === i;
+              const relationshipLabel =
+                c.relationship === "sensitive"
+                  ? t("radiogenomics.panel.relationshipLabels.sensitive")
+                  : c.relationship === "resistant"
+                    ? t("radiogenomics.panel.relationshipLabels.resistant")
+                    : t("radiogenomics.panel.relationshipLabels.partialResponse");
 
               return (
                 <Fragment key={i}>
@@ -264,7 +276,7 @@ function CorrelationsTable({ correlations }: { correlations: VariantDrugCorrelat
                         style={{ backgroundColor: `${relStyle.color}18`, color: relStyle.color }}
                       >
                         <RelIcon size={10} />
-                        {relStyle.label}
+                        {relationshipLabel}
                       </span>
                     </td>
                     <td className="px-4 py-2.5">
@@ -279,10 +291,10 @@ function CorrelationsTable({ correlations }: { correlations: VariantDrugCorrelat
                       {c.patient_received_drug ? (
                         <span className="inline-flex items-center gap-1 text-[10px] text-success">
                           <ShieldCheck size={10} />
-                          Yes{c.drug_days ? ` (${c.drug_days}d)` : ""}
+                          {t("radiogenomics.panel.yes")}{c.drug_days ? ` (${c.drug_days}d)` : ""}
                         </span>
                       ) : (
-                        <span className="text-[10px] text-text-ghost">No</span>
+                        <span className="text-[10px] text-text-ghost">{t("radiogenomics.panel.no")}</span>
                       )}
                     </td>
                     <td className="px-4 py-2.5">
@@ -306,20 +318,20 @@ function CorrelationsTable({ correlations }: { correlations: VariantDrugCorrelat
                     <tr>
                       <td colSpan={8} className="px-4 py-3 bg-surface-base">
                         <div className="space-y-2 text-xs text-text-muted">
-                          {c.mechanism && <p><span className="text-text-ghost">Mechanism:</span> {c.mechanism}</p>}
-                          {c.evidence_summary && <p><span className="text-text-ghost">Evidence:</span> {c.evidence_summary}</p>}
-                          {c.response_rationale && <p><span className="text-text-ghost">Rationale:</span> {c.response_rationale}</p>}
+                          {c.mechanism && <p><span className="text-text-ghost">{t("radiogenomics.panel.mechanism")}</span> {c.mechanism}</p>}
+                          {c.evidence_summary && <p><span className="text-text-ghost">{t("radiogenomics.panel.evidence")}</span> {c.evidence_summary}</p>}
+                          {c.response_rationale && <p><span className="text-text-ghost">{t("radiogenomics.panel.rationale")}</span> {c.response_rationale}</p>}
                           {c.drug_start && (
                             <p>
-                              <span className="text-text-ghost">Treatment period:</span>{" "}
-                              {c.drug_start} — {c.drug_end ?? "ongoing"}
+                              <span className="text-text-ghost">{t("radiogenomics.panel.treatmentPeriod")}</span>{" "}
+                              {c.drug_start} - {c.drug_end ?? t("radiogenomics.panel.ongoing")}
                             </p>
                           )}
                           <p>
-                            <span className="text-text-ghost">Evidence level:</span>{" "}
+                            <span className="text-text-ghost">{t("radiogenomics.panel.evidenceLevel")}</span>{" "}
                             <span className="text-accent">{c.evidence_level}</span>
                             {" · "}
-                            <span className="text-text-ghost">ClinVar:</span> {c.clinvar_significance}
+                            <span className="text-text-ghost">{t("radiogenomics.panel.clinvar")}</span> {c.clinvar_significance}
                           </p>
                         </div>
                       </td>
@@ -338,6 +350,7 @@ function CorrelationsTable({ correlations }: { correlations: VariantDrugCorrelat
 // ── Variants Section ────────────────────────────────────────────────────
 
 function VariantsSection({ variants }: { variants: VariantSummary }) {
+  const { t } = useTranslation("app");
   const [showAll, setShowAll] = useState(false);
   const displayVariants = showAll ? variants.all : variants.all.slice(0, 10);
 
@@ -346,11 +359,11 @@ function VariantsSection({ variants }: { variants: VariantSummary }) {
       <div className="px-4 py-3 border-b border-border-default flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <Dna size={14} className="text-domain-observation" />
-          Genomic Variants ({variants.total})
+          {t("radiogenomics.panel.genomicVariantsTitle", { count: variants.total })}
         </h3>
         <div className="flex items-center gap-3 text-[10px]">
-          <span className="text-critical">{variants.pathogenic_count} pathogenic</span>
-          <span className="text-accent">{variants.vus_count} VUS</span>
+          <span className="text-critical">{t("radiogenomics.panel.pathogenicCount", { count: variants.pathogenic_count })}</span>
+          <span className="text-accent">{t("radiogenomics.panel.vusCount", { count: variants.vus_count })}</span>
         </div>
       </div>
 
@@ -358,12 +371,12 @@ function VariantsSection({ variants }: { variants: VariantSummary }) {
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-border-subtle text-[10px] uppercase tracking-wider text-text-ghost">
-              <th className="px-4 py-2 font-medium">Gene</th>
-              <th className="px-4 py-2 font-medium">Variant</th>
-              <th className="px-4 py-2 font-medium">Class</th>
-              <th className="px-4 py-2 font-medium">Significance</th>
-              <th className="px-4 py-2 font-medium">Disease</th>
-              <th className="px-4 py-2 font-medium">Status</th>
+              <th className="px-4 py-2 font-medium">{t("radiogenomics.panel.variantHeaders.gene")}</th>
+              <th className="px-4 py-2 font-medium">{t("radiogenomics.panel.variantHeaders.variant")}</th>
+              <th className="px-4 py-2 font-medium">{t("radiogenomics.panel.variantHeaders.class")}</th>
+              <th className="px-4 py-2 font-medium">{t("radiogenomics.panel.variantHeaders.significance")}</th>
+              <th className="px-4 py-2 font-medium">{t("radiogenomics.panel.variantHeaders.disease")}</th>
+              <th className="px-4 py-2 font-medium">{t("radiogenomics.panel.variantHeaders.status")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border-subtle">
@@ -397,17 +410,17 @@ function VariantsSection({ variants }: { variants: VariantSummary }) {
                     {isActionable && (
                       <span className="inline-flex items-center gap-1 text-[10px] font-medium text-critical bg-critical/10 px-2 py-0.5 rounded-full">
                         <AlertTriangle size={9} />
-                        Actionable
+                        {t("radiogenomics.panel.actionable")}
                       </span>
                     )}
                     {isVus && (
                       <span className="inline-flex items-center gap-1 text-[10px] font-medium text-accent bg-accent/10 px-2 py-0.5 rounded-full">
                         <FlaskConical size={9} />
-                        VUS
+                        {t("radiogenomics.panel.stats.vus")}
                       </span>
                     )}
                     {!isActionable && !isVus && (
-                      <span className="text-[10px] text-text-ghost">Other</span>
+                      <span className="text-[10px] text-text-ghost">{t("radiogenomics.panel.other")}</span>
                     )}
                   </td>
                 </tr>
@@ -424,7 +437,7 @@ function VariantsSection({ variants }: { variants: VariantSummary }) {
             onClick={() => setShowAll(!showAll)}
             className="text-xs text-domain-observation hover:text-domain-observation transition-colors"
           >
-            {showAll ? "Show less" : `Show all ${variants.total} variants`}
+            {showAll ? t("radiogenomics.panel.showLess") : t("radiogenomics.panel.showAll", { count: variants.total })}
           </button>
         </div>
       )}
@@ -435,12 +448,13 @@ function VariantsSection({ variants }: { variants: VariantSummary }) {
 // ── Treatment History ───────────────────────────────────────────────────
 
 function TreatmentHistory({ drugs }: { drugs: DrugExposure[] }) {
+  const { t } = useTranslation("app");
   return (
     <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
       <div className="px-4 py-3 border-b border-border-default">
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <Pill size={14} className="text-accent" />
-          Treatment History ({drugs.length})
+          {t("radiogenomics.panel.treatmentHistoryTitle", { count: drugs.length })}
         </h3>
       </div>
 
@@ -461,9 +475,9 @@ function TreatmentHistory({ drugs }: { drugs: DrugExposure[] }) {
             </div>
             <div className="text-right">
               <p className="text-xs text-text-muted">
-                {d.start_date} — {d.end_date ?? "ongoing"}
+                {d.start_date} - {d.end_date ?? t("radiogenomics.panel.ongoing")}
               </p>
-              <p className="text-[10px] text-text-ghost">{d.total_days} days</p>
+              <p className="text-[10px] text-text-ghost">{t("radiogenomics.panel.treatmentDays", { count: d.total_days })}</p>
             </div>
           </div>
         ))}

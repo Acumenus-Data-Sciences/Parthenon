@@ -5,6 +5,7 @@
 
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ScanLine, Monitor, Ruler, ChevronDown, Filter,
   Loader2, Columns2,
@@ -41,6 +42,7 @@ function StudyCard({ study, onCompare, compareSelected }: {
   onCompare?: (s: AnyStudy) => void;
   compareSelected?: boolean;
 }) {
+  const { t } = useTranslation("app");
   const color = MODALITY_COLORS[study.modality ?? ""] ?? "var(--text-muted)";
   const mc = getMeasurementCount(study);
 
@@ -74,7 +76,7 @@ function StudyCard({ study, onCompare, compareSelected }: {
             to={`/imaging/studies/${study.id}`}
             className="inline-flex items-center gap-1.5 rounded-md bg-success px-3 py-1.5 text-xs font-semibold text-surface-base hover:bg-success-dark"
           >
-            <ScanLine size={12} /> Details
+            <ScanLine size={12} /> {t("imaging.studyBrowser.details")}
           </Link>
           <a
             href={`/ohif/viewer?StudyInstanceUIDs=${encodeURIComponent(study.study_instance_uid)}`}
@@ -95,7 +97,7 @@ function StudyCard({ study, onCompare, compareSelected }: {
                   : "bg-surface-elevated text-text-secondary hover:bg-surface-accent",
               )}
             >
-              <Columns2 size={12} /> {compareSelected ? "Selected" : "Compare"}
+              <Columns2 size={12} /> {compareSelected ? t("imaging.studyBrowser.selected") : t("imaging.studyBrowser.compare")}
             </button>
           )}
         </div>
@@ -103,11 +105,16 @@ function StudyCard({ study, onCompare, compareSelected }: {
 
       <div className="px-3 py-2.5 space-y-1">
         <p className="text-xs font-medium text-text-primary truncate">
-          {study.study_description ?? study.body_part_examined ?? "DICOM Study"}
+          {study.study_description ?? study.body_part_examined ?? t("imaging.studyBrowser.dicomStudy")}
         </p>
         <div className="flex items-center justify-between">
           <p className="text-[10px] text-text-ghost">{formatDate(getStudyDate(study))}</p>
-          <p className="text-[10px] text-text-ghost">{study.num_series}s · {study.num_images}i</p>
+          <p className="text-[10px] text-text-ghost">
+            {t("imaging.studyBrowser.seriesImageSummary", {
+              series: study.num_series,
+              images: study.num_images,
+            })}
+          </p>
         </div>
       </div>
     </div>
@@ -124,6 +131,7 @@ interface StudyBrowserProps {
 }
 
 export default function StudyBrowser({ studies, isLoading, onCompareSelect, title }: StudyBrowserProps) {
+  const { t } = useTranslation("app");
   const [modalityFilter, setModalityFilter] = useState("all");
   const [sortBy, setSortBy] = useState<"date" | "modality">("date");
   const [compareSelection, setCompareSelection] = useState<AnyStudy[]>([]);
@@ -174,7 +182,7 @@ export default function StudyBrowser({ studies, isLoading, onCompareSelect, titl
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <ScanLine size={14} className="text-info" />
-          {title ?? `Imaging Studies (${studies.length})`}
+          {title ?? t("imaging.studyBrowser.defaultTitle", { count: studies.length })}
         </h3>
 
         <div className="flex items-center gap-2">
@@ -186,7 +194,7 @@ export default function StudyBrowser({ studies, isLoading, onCompareSelect, titl
                 onChange={(e) => setModalityFilter(e.target.value)}
                 className="appearance-none rounded-md border border-border-default bg-surface-base pl-7 pr-6 py-1.5 text-[10px] text-text-secondary focus:outline-none focus:border-info"
               >
-                <option value="all">All ({studies.length})</option>
+                <option value="all">{t("imaging.studyBrowser.all", { count: studies.length })}</option>
                 {modalities.map((m) => (
                   <option key={m} value={m}>
                     {m} ({studies.filter((s) => s.modality === m).length})
@@ -208,7 +216,7 @@ export default function StudyBrowser({ studies, isLoading, onCompareSelect, titl
                   sortBy === s ? "bg-info/10 text-info font-medium" : "text-text-ghost hover:text-text-muted",
                 )}
               >
-                {s === "date" ? "Date" : "Modality"}
+                {s === "date" ? t("imaging.studyBrowser.date") : t("imaging.common.modality")}
               </button>
             ))}
           </div>
@@ -222,7 +230,7 @@ export default function StudyBrowser({ studies, isLoading, onCompareSelect, titl
                 onClick={() => setCompareSelection([])}
                 className="text-text-ghost hover:text-text-muted ml-1"
               >
-                clear
+                {t("imaging.studyBrowser.clear")}
               </button>
             </div>
           )}
@@ -231,7 +239,7 @@ export default function StudyBrowser({ studies, isLoading, onCompareSelect, titl
 
       {filtered.length === 0 ? (
         <div className="flex items-center justify-center py-16 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
-          <p className="text-sm text-text-ghost">No imaging studies found</p>
+          <p className="text-sm text-text-ghost">{t("imaging.studyBrowser.noStudies")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Search, Users, ChevronRight, Loader2, ScanLine, Link2,
 } from "lucide-react";
@@ -10,6 +11,7 @@ import {
 import PatientTimeline from "./PatientTimeline";
 
 export default function PatientTimelineTab() {
+  const { t } = useTranslation("app");
   const [personIdInput, setPersonIdInput] = useState("");
   const [selectedPersonId, setSelectedPersonId] = useState<number>(0);
   const [minStudies, setMinStudies] = useState(2);
@@ -42,11 +44,13 @@ export default function PatientTimelineTab() {
       {/* Search + Auto-link bar */}
       <div className="flex items-end gap-4 flex-wrap">
         <div className="flex-1 min-w-[200px]">
-          <label className="block text-xs text-text-muted mb-1.5">Patient Person ID</label>
+          <label className="block text-xs text-text-muted mb-1.5">
+            {t("imaging.timeline.patientPersonId")}
+          </label>
           <div className="flex gap-2">
             <input
               className="flex-1 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors font-mono"
-              placeholder="Enter OMOP person_id…"
+              placeholder={t("imaging.timeline.personIdPlaceholder")}
               value={personIdInput}
               onChange={(e) => setPersonIdInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -58,7 +62,7 @@ export default function PatientTimelineTab() {
               className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success-dark disabled:opacity-50 transition-colors"
             >
               <Search size={14} />
-              View Timeline
+              {t("imaging.timeline.viewTimeline")}
             </button>
           </div>
         </div>
@@ -74,13 +78,15 @@ export default function PatientTimelineTab() {
           ) : (
             <Link2 size={14} />
           )}
-          Auto-Link Studies
+          {t("imaging.timeline.autoLinkStudies")}
         </button>
       </div>
 
       {autoLink.isSuccess && (
         <div className="rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
-          Auto-linked {(autoLink.data as { linked: number }).linked} studies to OMOP persons.
+          {t("imaging.timeline.autoLinkedSummary", {
+            count: (autoLink.data as { linked: number }).linked,
+          })}
         </div>
       )}
 
@@ -90,14 +96,14 @@ export default function PatientTimelineTab() {
           <div className="flex items-center gap-2 border-b border-border-default pb-3">
             <Users size={14} className="text-domain-observation" />
             <h3 className="text-sm font-semibold text-text-primary">
-              Patient Timeline — Person {selectedPersonId}
+              {t("imaging.timeline.heading", { id: selectedPersonId })}
             </h3>
             <button
               type="button"
               onClick={() => setSelectedPersonId(0)}
               className="ml-auto text-xs text-text-ghost hover:text-text-muted transition-colors"
             >
-              ← Back to patient list
+              {t("imaging.timeline.backToPatientList")}
             </button>
           </div>
 
@@ -115,7 +121,9 @@ export default function PatientTimelineTab() {
           )}
           {timelineError && !timeline && (
             <div className="rounded-lg border border-critical/30 bg-critical/10 p-6 text-center text-sm text-critical">
-              Failed to load timeline: {(timelineError as Error).message}
+              {t("imaging.timeline.failedToLoadTimeline", {
+                message: (timelineError as Error).message,
+              })}
             </div>
           )}
         </div>
@@ -127,10 +135,12 @@ export default function PatientTimelineTab() {
           <div className="flex items-center gap-3">
             <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
               <Users size={14} className="text-domain-observation" />
-              Patients with Longitudinal Imaging
+              {t("imaging.timeline.patientsWithImaging")}
             </h3>
             <div className="flex items-center gap-2 ml-auto">
-              <label className="text-[10px] text-text-ghost uppercase tracking-wider">Min studies</label>
+              <label className="text-[10px] text-text-ghost uppercase tracking-wider">
+                {t("imaging.timeline.minStudies")}
+              </label>
               <select
                 className="rounded-lg bg-surface-raised border border-border-default px-2 py-1 text-xs text-text-primary focus:outline-none focus:border-success transition-colors"
                 value={minStudies}
@@ -147,14 +157,13 @@ export default function PatientTimelineTab() {
           {patientsLoading && (
             <div className="flex items-center gap-2 py-8 justify-center text-text-ghost">
               <Loader2 size={16} className="animate-spin text-success" />
-              <span className="text-sm">Loading patients…</span>
+              <span className="text-sm">{t("imaging.timeline.loadingPatients")}</span>
             </div>
           )}
 
           {!patientsLoading && (!patients?.data || patients.data.length === 0) && (
             <div className="rounded-lg border border-border-default bg-surface-raised p-10 text-center text-sm text-text-ghost">
-              No patients with linked imaging studies found. Use "Auto-Link Studies" to match DICOM patient IDs to OMOP persons,
-              or manually link studies on the Studies tab.
+              {t("imaging.timeline.emptyPatients")}
             </div>
           )}
 
@@ -164,8 +173,15 @@ export default function PatientTimelineTab() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border-default">
-                      {["Person ID", "Studies", "Modalities", "First Study", "Last Study", ""].map(h => (
-                        <th key={h} className="px-4 py-2.5 text-left text-[10px] font-medium text-text-ghost uppercase tracking-wider">
+                      {[
+                        t("imaging.timeline.tableHeaders.personId"),
+                        t("imaging.timeline.tableHeaders.studies"),
+                        t("imaging.timeline.tableHeaders.modalities"),
+                        t("imaging.timeline.tableHeaders.firstStudy"),
+                        t("imaging.timeline.tableHeaders.lastStudy"),
+                        t("imaging.timeline.tableHeaders.action"),
+                      ].map((h, index) => (
+                        <th key={`${h}-${index}`} className="px-4 py-2.5 text-left text-[10px] font-medium text-text-ghost uppercase tracking-wider">
                           {h}
                         </th>
                       ))}
@@ -191,7 +207,7 @@ export default function PatientTimelineTab() {
                             type="button"
                             className="inline-flex items-center gap-1 text-xs text-success hover:text-success-dark transition-colors"
                           >
-                            Timeline <ChevronRight size={12} />
+                            {t("imaging.timeline.actionTimeline")} <ChevronRight size={12} />
                           </button>
                         </td>
                       </tr>
@@ -200,7 +216,11 @@ export default function PatientTimelineTab() {
                 </table>
               </div>
               <div className="px-4 py-2.5 text-xs text-text-ghost border-t border-border-default">
-                {patients.total} patients · page {patients.current_page} of {patients.last_page}
+                {t("imaging.timeline.patientsPageSummary", {
+                  total: patients.total,
+                  current: patients.current_page,
+                  last: patients.last_page,
+                })}
               </div>
             </div>
           )}

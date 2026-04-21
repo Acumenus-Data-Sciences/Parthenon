@@ -10,6 +10,7 @@
  */
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   Dna,
   User,
@@ -64,12 +65,13 @@ interface Panel {
   evidence_summary: string;
 }
 
-const CLINVAR_SEVERITY: Record<string, { color: string; icon: typeof ShieldAlert; label: string }> = {
-  pathogenic: { color: "text-critical", icon: ShieldAlert, label: "Pathogenic" },
-  "likely pathogenic": { color: "text-orange-400", icon: ShieldAlert, label: "Likely Pathogenic" },
-  "uncertain significance": { color: "text-amber-400", icon: ShieldQuestion, label: "VUS" },
-  "likely benign": { color: "text-blue-400", icon: ShieldCheck, label: "Likely Benign" },
-  benign: { color: "text-success", icon: ShieldCheck, label: "Benign" },
+// i18n-exempt: backend ClinVar significance matching keys.
+const CLINVAR_SEVERITY: Record<string, { color: string; icon: typeof ShieldAlert }> = {
+  pathogenic: { color: "text-critical", icon: ShieldAlert },
+  "likely pathogenic": { color: "text-orange-400", icon: ShieldAlert },
+  "uncertain significance": { color: "text-amber-400", icon: ShieldQuestion },
+  "likely benign": { color: "text-blue-400", icon: ShieldCheck },
+  benign: { color: "text-success", icon: ShieldCheck },
 };
 
 function clinvarInfo(sig: string | null) {
@@ -82,6 +84,7 @@ function clinvarInfo(sig: string | null) {
 }
 
 export default function TumorBoardPage() {
+  const { t } = useTranslation("app");
   const [personId, setPersonId] = useState("");
   const [sourceId] = useState(9);
   const [submitted, setSubmitted] = useState<number | null>(null);
@@ -110,22 +113,22 @@ export default function TumorBoardPage() {
           <Dna size={18} style={{ color: "var(--domain-observation)" }} />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Molecular Tumor Board</h1>
+          <h1 className="text-2xl font-bold text-text-primary">{t("genomics.tumorBoard.title")}</h1>
           <p className="text-sm text-text-muted">
-            Per-patient molecular evidence panel — variants, similar patient outcomes, drug patterns
+            {t("genomics.tumorBoard.subtitle")}
           </p>
         </div>
       </div>
 
       {/* Patient search */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-        <label className="block text-xs text-text-muted mb-2">OMOP Person ID</label>
+        <label className="block text-xs text-text-muted mb-2">{t("genomics.tumorBoard.omopPersonId")}</label>
         <div className="flex items-center gap-2">
           <input
             value={personId}
             onChange={(e) => setPersonId(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            placeholder="Enter person_id..."
+            placeholder={t("genomics.tumorBoard.personIdPlaceholder")}
             className="w-48 rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
           />
           <button
@@ -135,7 +138,7 @@ export default function TumorBoardPage() {
             className="inline-flex items-center gap-1.5 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success-dark disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             <Search size={14} />
-            Load Panel
+            {t("genomics.tumorBoard.loadPanel")}
           </button>
         </div>
       </div>
@@ -143,7 +146,7 @@ export default function TumorBoardPage() {
       {isLoading && (
         <div className="flex items-center gap-2 text-text-muted py-8 justify-center">
           <Loader2 size={20} className="animate-spin text-success" />
-          <span className="text-sm">Building evidence panel...</span>
+          <span className="text-sm">{t("genomics.tumorBoard.buildingEvidence")}</span>
         </div>
       )}
 
@@ -151,7 +154,7 @@ export default function TumorBoardPage() {
         <div className="flex items-center gap-2 rounded-lg border border-critical/30 bg-critical/10 p-4 text-critical">
           <AlertCircle size={16} />
           <span className="text-sm">
-            Failed to load panel. Check that person_id exists and genomic data is available.
+            {t("genomics.tumorBoard.loadFailed")}
           </span>
         </div>
       )}
@@ -163,7 +166,7 @@ export default function TumorBoardPage() {
             <div className="flex items-start gap-2">
               <FileText size={16} className="text-success flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-semibold text-text-primary mb-1">Evidence Summary</p>
+                <p className="text-sm font-semibold text-text-primary mb-1">{t("genomics.tumorBoard.evidenceSummary")}</p>
                 <p className="text-sm text-text-secondary">{panel.evidence_summary}</p>
                 {panel.actionable_genes.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-2">
@@ -172,7 +175,7 @@ export default function TumorBoardPage() {
                         key={g}
                         className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-critical/15 border border-critical/30 text-critical"
                       >
-                        {g} — Actionable
+                        {t("genomics.tumorBoard.actionableGene", { gene: g })}
                       </span>
                     ))}
                   </div>
@@ -187,19 +190,26 @@ export default function TumorBoardPage() {
               <div className="px-4 py-3 border-b border-border-default flex items-center gap-2">
                 <Dna size={14} className="text-domain-observation" />
                 <h2 className="text-sm font-semibold text-text-primary">
-                  Variants ({panel.variants.length})
+                  {t("genomics.tumorBoard.variantsTitle", { count: panel.variants.length })}
                 </h2>
               </div>
               {panel.variants.length === 0 ? (
                 <p className="text-xs text-text-ghost p-4">
-                  No genomic variants on record for this patient.
+                  {t("genomics.tumorBoard.noVariants")}
                 </p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="border-b border-border-default">
-                        {["Gene", "Alteration", "Type", "Class", "AF", "Classification"].map((h) => (
+                        {[
+                          t("genomics.tumorBoard.variantHeaders.gene"),
+                          t("genomics.tumorBoard.variantHeaders.alteration"),
+                          t("genomics.tumorBoard.variantHeaders.type"),
+                          t("genomics.tumorBoard.variantHeaders.class"),
+                          t("genomics.tumorBoard.variantHeaders.af"),
+                          t("genomics.tumorBoard.variantHeaders.classification"),
+                        ].map((h) => (
                           <th
                             key={h}
                             className="px-3 py-2.5 text-left text-[10px] font-medium text-text-ghost uppercase tracking-wider"
@@ -210,10 +220,23 @@ export default function TumorBoardPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border-subtle">
-                      {panel.variants.map((v) => {
-                        const sig = clinvarInfo(v.clinvar_significance);
-                        const SigIcon = sig?.icon ?? ShieldQuestion;
-                        return (
+                        {panel.variants.map((v) => {
+                          const sig = clinvarInfo(v.clinvar_significance);
+                          const SigIcon = sig?.icon ?? ShieldQuestion;
+                          const sigLabel =
+                            v.clinvar_significance?.toLowerCase().includes("pathogenic") &&
+                            !v.clinvar_significance?.toLowerCase().includes("likely")
+                              ? t("genomics.common.pathogenic")
+                              : v.clinvar_significance?.toLowerCase().includes("likely pathogenic")
+                                ? t("genomics.common.likelyPathogenic")
+                                : v.clinvar_significance?.toLowerCase().includes("uncertain")
+                                  ? t("genomics.common.vus")
+                                  : v.clinvar_significance?.toLowerCase().includes("likely benign")
+                                    ? t("genomics.common.likelyBenign")
+                                    : v.clinvar_significance?.toLowerCase().includes("benign")
+                                      ? t("genomics.common.benign")
+                                      : null;
+                          return (
                           <tr key={v.id} className="hover:bg-surface-overlay transition-colors">
                             <td className="px-3 py-2.5 font-semibold text-domain-observation">
                               {v.gene ?? "—"}
@@ -237,7 +260,7 @@ export default function TumorBoardPage() {
                               {sig ? (
                                 <span className={`flex items-center gap-1 ${sig.color}`}>
                                   <SigIcon size={11} />
-                                  <span>{sig.label}</span>
+                                  <span>{sigLabel}</span>
                                 </span>
                               ) : (
                                 <span className="text-text-disabled">—</span>
@@ -259,7 +282,7 @@ export default function TumorBoardPage() {
                 <div className="rounded-lg border border-border-default bg-surface-raised p-4">
                   <div className="flex items-center gap-2 mb-3">
                     <User size={14} className="text-blue-400" />
-                    <h2 className="text-sm font-semibold text-text-primary">Demographics</h2>
+                    <h2 className="text-sm font-semibold text-text-primary">{t("genomics.tumorBoard.demographics")}</h2>
                   </div>
                   <dl className="space-y-1.5">
                     {Object.entries(panel.demographics).map(([k, v]) => (
@@ -278,7 +301,7 @@ export default function TumorBoardPage() {
                   <div className="flex items-center gap-2 mb-3">
                     <Pill size={14} className="text-success" />
                     <h2 className="text-sm font-semibold text-text-primary">
-                      Drug Patterns in Similar Patients
+                      {t("genomics.tumorBoard.drugPatterns")}
                     </h2>
                   </div>
                   <div className="space-y-2">
@@ -311,13 +334,18 @@ export default function TumorBoardPage() {
               <div className="px-4 py-3 border-b border-border-default flex items-center gap-2">
                 <Users size={14} className="text-success" />
                 <h2 className="text-sm font-semibold text-text-primary">
-                  Outcomes in Molecularly Similar Patients
+                  {t("genomics.tumorBoard.similarOutcomes")}
                 </h2>
               </div>
               <table className="w-full text-xs">
                 <thead>
                   <tr className="border-b border-border-default">
-                    {["Gene", "Similar Patients (n)", "Median Survival", "Event Rate"].map((h) => (
+                    {[
+                      t("genomics.tumorBoard.similarOutcomeHeaders.gene"),
+                      t("genomics.tumorBoard.similarOutcomeHeaders.similarPatients"),
+                      t("genomics.tumorBoard.similarOutcomeHeaders.medianSurvival"),
+                      t("genomics.tumorBoard.similarOutcomeHeaders.eventRate"),
+                    ].map((h) => (
                       <th
                         key={h}
                         className="px-4 py-2.5 text-left text-[10px] font-medium text-text-ghost uppercase tracking-wider"
@@ -334,7 +362,9 @@ export default function TumorBoardPage() {
                       <td className="px-4 py-2.5 text-text-secondary">{s.n_similar.toLocaleString()}</td>
                       <td className="px-4 py-2.5 text-text-secondary">
                         {s.median_survival_days !== null
-                          ? `${Math.round(s.median_survival_days / 30.4)} months`
+                          ? t("genomics.tumorBoard.months", {
+                              count: Math.round(s.median_survival_days / 30.4),
+                            })
                           : "—"}
                       </td>
                       <td className="px-4 py-2.5">

@@ -11,10 +11,10 @@ npm run i18n:scan
 
 Current scanner output:
 
-- Full frontend scanner: 3,607 candidates across 1,104 scanned files.
+- Full frontend scanner: 3,207 candidates across 1,104 scanned files.
 - FinnGen paths excluded from this i18n track: 372 candidates.
-- Non-FinnGen backlog for this triage: 3,235 candidates.
-- Candidate kinds after FinnGen exclusion: 1,971 JSX text, 1,057 object properties, 207 JSX attributes.
+- Non-FinnGen backlog for this triage: 2,835 candidates.
+- Candidate kinds after FinnGen exclusion: 1,689 JSX text, 968 object properties, 178 JSX attributes.
 
 The app-priority scanner remains the release gate for the already-promoted language picker work. It currently reports 0 candidates across 214 files. The backlog below is therefore not a blocker for the current public app language selector, but it is the remaining work before Parthenon can claim broad native-language coverage across every product surface.
 
@@ -26,7 +26,7 @@ The app-priority scanner remains the release gate for the already-promoted langu
 | Analysis design and results | 0 | 75 | Completed for `src/features/analyses`, `src/features/estimation`, `src/features/prediction`, `src/features/pathways`, `src/features/sccs`, `src/features/self-controlled-cohort`, and `src/features/evidence-synthesis`. Focused analytics wave scanner reports 0 candidates across gallery/list, characterization, incidence-rate, estimation, prediction, pathways, SCCS, self-controlled-cohort, and evidence-synthesis designer/results/verdict/detail surfaces. |
 | Data source setup and ingestion | 0 | 46 | Completed for `src/features/data-sources`, `src/features/ingestion`, and FHIR ingestion/export chrome. Focused wave scanner reports 0 candidates. |
 | Standard PROs UI | 0 | 10 | Completed for `src/features/standard-pros/components`, `src/features/standard-pros/pages`, and user-facing helper paths under `src/features/standard-pros/lib`. The focused Standard PROs UI scanner reports 0 candidates; the remaining full-feature candidates are intentionally confined to the curated instrument catalog file. |
-| Imaging and radiogenomics | 266 | 12 | Release-blocking for imaging workflows. Protect DICOM/OHIF/PACS terminology and measurement units. |
+| Imaging, genomics, and radiogenomics | 0 | 27 | Completed for `src/features/imaging`, `src/features/genomics`, and `src/features/radiogenomics`. Focused wave scans report 0 candidates across the imaging (14 files), genomics (9 files), and radiogenomics (4 files) scopes, with DICOM/OHIF/PACS identifiers, measurement units, and backend significance matching keys protected where needed. |
 | Strategus and study packages | 104 | 3 | Release-blocking for native study-package authoring. Protect JSON/module names and OHDSI package identifiers. |
 | Investigation clinical workflows | 336 | 43 | Later app wave unless the Investigation surface becomes a public i18n promise. Keep clinical/source values out of generic UI translation. |
 | Profiles and patient similarity | 532 | 55 | Later app wave. Many strings blend profile UI, patient-source labels, and similarity analytics. |
@@ -46,20 +46,20 @@ The app-priority scanner remains the release gate for the already-promoted langu
 | ---: | --- |
 | 315 | `src/features/etl/lib/cdm-schema-v54.ts` |
 | 99 | `src/features/standard-pros/data/instruments.ts` |
-| 54 | `src/features/imaging/pages/ImagingPage.tsx` |
 | 50 | `src/features/strategus/pages/StudyPackagePage.tsx` |
 | 49 | `src/features/strategus/components/ModuleConfigPanels.tsx` |
-| 48 | `src/features/imaging/components/MeasurementPanel.tsx` |
-| 45 | `src/features/genomics/pages/GenomicsPage.tsx` |
 | 39 | `src/features/profiles/pages/PatientProfilePage.tsx` |
 | 37 | `src/features/investigation/components/clinical/ConfigDrawer.tsx` |
-| 37 | `src/features/radiogenomics/components/PrecisionMedicineTab.tsx` |
 | 37 | `src/features/risk-scores/pages/RiskScoreHubPage.tsx` |
 | 36 | `src/features/heor/pages/HeorPage.tsx` |
 | 36 | `src/features/morpheus/constants/antibioticClasses.ts` |
 | 34 | `src/features/patient-similarity/pages/PatientComparisonPage.tsx` |
 | 34 | `src/features/poseidon/pages/PoseidonPage.tsx` |
 | 31 | `src/features/heor/components/ClaimsExplorer.tsx` |
+| 30 | `src/features/heor/pages/HeorAnalysisPage.tsx` |
+| 30 | `src/features/investigation/pages/InvestigationLandingPage.tsx` |
+| 30 | `src/features/jupyter/pages/JupyterPage.tsx` |
+| 29 | `src/features/etl/components/aqueduct/FieldMappingDetail.tsx` |
 
 ## Recommended Extraction Order
 
@@ -75,14 +75,14 @@ The app-priority scanner remains the release gate for the already-promoted langu
 4. Standard PROs UI. Completed 2026-04-20.
    Scope completed: `src/features/standard-pros/components`, `src/features/standard-pros/pages`, and user-facing import/error helpers under `src/features/standard-pros/lib`. The focused wave command reports 0 candidates across 10 files. The full `src/features/standard-pros` folder is down to 99 candidates across 23 files, all intentionally confined to `src/features/standard-pros/data/instruments.ts` as curated instrument content rather than generic UI copy.
 
-5. Imaging and radiogenomics.
-   Scope: imaging page, DICOM import, measurement/response panels, study viewer chrome, and precision medicine tab. Protect DICOM, PACS, OHIF, modality names, measurements, units, accession IDs, and series metadata.
+5. Imaging, genomics, and radiogenomics. Completed 2026-04-21.
+   Scope completed: `src/features/imaging`, `src/features/genomics`, and `src/features/radiogenomics`, including imaging page chrome, DICOM import, measurement/response panels, study viewer chrome, genomics uploads/ClinVar/analysis/tumor board surfaces, and the precision medicine tab. The focused wave scans report 0 candidates across 27 files. DICOM, PACS, OHIF, modality names, measurements, units, accession IDs, and backend significance matching keys remain protected where needed.
 
 6. Strategus and study packages.
    Scope: module config panels, package page, and JSON spec editor. Protect Strategus module names, JSON keys, package identifiers, and generated specification text.
 
 7. Later specialty waves.
-   Profiles/patient similarity, publish/care-gaps/risk, HEOR, genomics, Morpheus, ETL source profiler/Aqueduct, GIS/Poseidon/code tools, concept-set shared primitives, and workbench surfaces should follow after the release-facing waves above.
+   Profiles/patient similarity, publish/care-gaps/risk, HEOR, Morpheus, ETL source profiler/Aqueduct, GIS/Poseidon/code tools, concept-set shared primitives, and workbench surfaces should follow after the release-facing waves above.
 
 ## Generated/Static Data Policy
 

@@ -1,28 +1,26 @@
 import { useState, useRef } from "react";
 import { X, Upload, AlertCircle, CheckCircle2, Loader2, Dna } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { useUploadVariantFile } from "../hooks/useGenomics";
 import type { UploadableFileFormat, GenomeBuild } from "../types";
 
-const FORMAT_INFO: Record<UploadableFileFormat, { label: string; ext: string; desc: string }> = {
+// i18n-exempt: file format names and protocol descriptions are technical identifiers.
+const FORMAT_INFO: Record<UploadableFileFormat, { ext: string; desc: string }> = {
   vcf: {
-    label: "VCF",
     ext: ".vcf, .vcf.gz",
     desc: "Variant Call Format — standard variant output from GATK, DeepVariant, FreeBayes",
   },
   maf: {
-    label: "MAF",
     ext: ".maf, .maf.gz",
     desc: "Mutation Annotation Format — output from TCGA pipelines and tumor-only callers",
   },
   cbio_maf: {
-    label: "cBioPortal MAF",
     ext: ".txt, .maf",
     desc: "cBioPortal tab-delimited mutation data file",
   },
   fhir_genomics: {
-    label: "FHIR Genomics",
     ext: ".json",
     desc: "FHIR R4 DiagnosticReport / Observation genomics bundle",
   },
@@ -34,6 +32,7 @@ interface Props {
 }
 
 export function UploadDialog({ onClose, sourceId }: Props) {
+  const { t } = useTranslation("app");
   const [file, setFile] = useState<File | null>(null);
   const [format, setFormat] = useState<UploadableFileFormat>("vcf");
   const [build, setBuild] = useState<GenomeBuild>("GRCh38");
@@ -92,7 +91,9 @@ export function UploadDialog({ onClose, sourceId }: Props) {
             <div className="flex items-center justify-center w-7 h-7 rounded-md bg-domain-observation/12">
               <Dna size={14} style={{ color: "var(--domain-observation)" }} />
             </div>
-            <h2 className="text-sm font-semibold text-text-primary">Upload Variant File</h2>
+            <h2 className="text-sm font-semibold text-text-primary">
+              {t("genomics.uploadDialog.title")}
+            </h2>
           </div>
           <button
             type="button"
@@ -107,7 +108,9 @@ export function UploadDialog({ onClose, sourceId }: Props) {
           {/* Source selector (when multiple sources exist) */}
           {!sourceId && sources && sources.length > 1 && (
             <div>
-              <label className="block text-xs text-text-muted mb-1.5">Data Source</label>
+              <label className="block text-xs text-text-muted mb-1.5">
+                {t("genomics.uploadDialog.dataSource")}
+              </label>
               <select
                 value={resolvedSourceId ?? ""}
                 onChange={(e) => setSelectedSourceId(Number(e.target.value))}
@@ -143,20 +146,22 @@ export function UploadDialog({ onClose, sourceId }: Props) {
               <div className="flex items-center gap-2 text-success">
                 <CheckCircle2 size={16} />
                 <span className="text-sm font-medium text-text-primary">{file.name}</span>
-                <span className="text-xs text-text-ghost">({(file.size / 1024).toFixed(0)} KB)</span>
+                <span className="text-xs text-text-ghost">
+                  ({t("genomics.uploadDialog.sizeKb", { count: (file.size / 1024).toFixed(0) })})
+                </span>
               </div>
             ) : (
               <>
                 <Upload size={24} className="text-text-ghost mb-2" />
-                <p className="text-sm text-text-muted">Drop file here or click to browse</p>
-                <p className="text-xs text-text-ghost mt-1">.vcf, .maf, .json</p>
+                <p className="text-sm text-text-muted">{t("genomics.uploadDialog.dropLead")}</p>
+                <p className="text-xs text-text-ghost mt-1">{t("genomics.uploadDialog.allowedExtensions")}</p>
               </>
             )}
           </div>
 
           {/* Format selector */}
           <div>
-            <label className="block text-xs text-text-muted mb-1.5">File Format</label>
+            <label className="block text-xs text-text-muted mb-1.5">{t("genomics.uploadDialog.fileFormat")}</label>
             <div className="grid grid-cols-2 gap-2">
               {(Object.keys(FORMAT_INFO) as UploadableFileFormat[]).map((f) => (
                 <button
@@ -170,7 +175,11 @@ export function UploadDialog({ onClose, sourceId }: Props) {
                   }`}
                 >
                   <div className={`font-medium ${format === f ? "text-text-primary" : "text-text-secondary"}`}>
-                    {FORMAT_INFO[f].label}
+                    {f === "cbio_maf"
+                      ? t("genomics.uploadDialog.formatLabels.cbioMaf")
+                      : f === "fhir_genomics"
+                        ? t("genomics.uploadDialog.formatLabels.fhirGenomics")
+                        : f.toUpperCase()}
                   </div>
                   <div className="text-text-ghost mt-0.5">{FORMAT_INFO[f].ext}</div>
                 </button>
@@ -182,23 +191,23 @@ export function UploadDialog({ onClose, sourceId }: Props) {
           {/* Genome build + sample ID */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs text-text-muted mb-1.5">Genome Build</label>
+              <label className="block text-xs text-text-muted mb-1.5">{t("genomics.uploadDialog.genomeBuild")}</label>
               <select
                 value={build}
                 onChange={(e) => setBuild(e.target.value as GenomeBuild)}
                 className="w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success transition-colors"
               >
-                <option value="GRCh38">GRCh38 / hg38</option>
-                <option value="GRCh37">GRCh37 / hg19</option>
+                <option value="GRCh38">{t("genomics.uploadDialog.genomeBuildOptions.grch38")}</option>
+                <option value="GRCh37">{t("genomics.uploadDialog.genomeBuildOptions.grch37")}</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs text-text-muted mb-1.5">Sample ID (optional)</label>
+              <label className="block text-xs text-text-muted mb-1.5">{t("genomics.uploadDialog.sampleIdOptional")}</label>
               <input
                 type="text"
                 value={sampleId}
                 onChange={(e) => setSampleId(e.target.value)}
-                placeholder="SAMPLE_001"
+                placeholder="SAMPLE_001" /* i18n-exempt: sample identifier example */
                 className="w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success transition-colors"
               />
             </div>
@@ -208,7 +217,7 @@ export function UploadDialog({ onClose, sourceId }: Props) {
           {upload.isError && (
             <div className="flex items-center gap-2 rounded-lg border border-critical/30 bg-critical/10 p-3 text-critical text-xs">
               <AlertCircle size={14} />
-              <span>Upload failed. Please check the file format and try again.</span>
+              <span>{t("genomics.uploadDialog.uploadFailed")}</span>
             </div>
           )}
         </div>
@@ -220,7 +229,7 @@ export function UploadDialog({ onClose, sourceId }: Props) {
             onClick={onClose}
             className="px-4 py-2 text-sm text-text-ghost hover:text-text-muted transition-colors"
           >
-            Cancel
+            {t("genomics.common.cancel")}
           </button>
           <button
             type="button"
@@ -231,12 +240,12 @@ export function UploadDialog({ onClose, sourceId }: Props) {
             {upload.isPending ? (
               <>
                 <Loader2 size={14} className="animate-spin" />
-                Uploading & parsing...
+                {t("genomics.uploadDialog.uploadingParsing")}
               </>
             ) : (
               <>
                 <Upload size={14} />
-                Upload & Parse
+                {t("genomics.uploadDialog.uploadParse")}
               </>
             )}
           </button>
