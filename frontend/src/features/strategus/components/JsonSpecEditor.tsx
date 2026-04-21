@@ -3,8 +3,9 @@
 // Renders spec as editable JSON with validation and clipboard support
 // ---------------------------------------------------------------------------
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback, useRef } from "react";
 import { CheckCircle2, XCircle, Copy, RotateCcw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { AnalysisSpecification } from "../types";
 
 export interface JsonSpecEditorProps {
@@ -13,19 +14,13 @@ export interface JsonSpecEditorProps {
 }
 
 export function JsonSpecEditor({ spec, onSpecChange }: JsonSpecEditorProps) {
+  const { t } = useTranslation("app");
   const generatedJson = JSON.stringify(spec, null, 2);
   const [text, setText] = useState(generatedJson);
   const [parseError, setParseError] = useState<string | null>(null);
   const [isValid, setIsValid] = useState(true);
   const [copied, setCopied] = useState(false);
   const copiedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Sync textarea when generated spec changes externally
-  useEffect(() => {
-    setText(generatedJson);
-    setParseError(null);
-    setIsValid(true);
-  }, [generatedJson]);
 
   const lineCount = text.split("\n").length;
 
@@ -36,11 +31,12 @@ export function JsonSpecEditor({ spec, onSpecChange }: JsonSpecEditorProps) {
       setParseError(null);
       setIsValid(true);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Invalid JSON";
+      const msg =
+        err instanceof Error ? err.message : t("strategus.jsonEditor.invalidJson");
       setParseError(msg);
       setIsValid(false);
     }
-  }, [text, onSpecChange]);
+  }, [text, onSpecChange, t]);
 
   const handleReset = () => {
     setText(generatedJson);
@@ -65,11 +61,10 @@ export function JsonSpecEditor({ spec, onSpecChange }: JsonSpecEditorProps) {
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold text-text-primary">
-              JSON Spec Preview
+              {t("strategus.jsonEditor.title")}
             </h2>
             <p className="mt-0.5 text-sm text-text-muted">
-              Review the generated analysis specification. Edit directly or
-              apply changes below.
+              {t("strategus.jsonEditor.intro")}
             </p>
           </div>
 
@@ -80,7 +75,9 @@ export function JsonSpecEditor({ spec, onSpecChange }: JsonSpecEditorProps) {
               className="flex items-center gap-1.5 rounded-lg border border-border-default px-3 py-1.5 text-xs text-text-secondary transition-colors hover:border-text-ghost hover:text-text-primary"
             >
               <Copy size={12} />
-              {copied ? "Copied" : "Copy to Clipboard"}
+              {copied
+                ? t("strategus.jsonEditor.copied")
+                : t("strategus.jsonEditor.copyToClipboard")}
             </button>
             <button
               type="button"
@@ -88,7 +85,7 @@ export function JsonSpecEditor({ spec, onSpecChange }: JsonSpecEditorProps) {
               className="flex items-center gap-1.5 rounded-lg border border-border-default px-3 py-1.5 text-xs text-text-secondary transition-colors hover:border-text-ghost hover:text-text-primary"
             >
               <RotateCcw size={12} />
-              Reset to Generated
+              {t("strategus.jsonEditor.resetToGenerated")}
             </button>
           </div>
         </div>
@@ -111,7 +108,9 @@ export function JsonSpecEditor({ spec, onSpecChange }: JsonSpecEditorProps) {
 
         {/* Footer: line count + status + apply button */}
         <div className="mt-3 flex items-center justify-between">
-          <span className="text-xs text-text-ghost">{lineCount} lines</span>
+          <span className="text-xs text-text-ghost">
+            {t("strategus.jsonEditor.lineCount", { count: lineCount })}
+          </span>
 
           <div className="flex items-center gap-3">
             {parseError ? (
@@ -122,7 +121,7 @@ export function JsonSpecEditor({ spec, onSpecChange }: JsonSpecEditorProps) {
             ) : isValid ? (
               <div className="flex items-center gap-1.5 text-xs text-success">
                 <CheckCircle2 size={13} />
-                Valid JSON
+                {t("strategus.jsonEditor.validJson")}
               </div>
             ) : null}
 
@@ -131,7 +130,7 @@ export function JsonSpecEditor({ spec, onSpecChange }: JsonSpecEditorProps) {
               onClick={handleApply}
               className="rounded-lg bg-accent px-4 py-1.5 text-xs font-medium text-surface-base transition-colors hover:bg-accent/80"
             >
-              Apply Changes
+              {t("strategus.jsonEditor.applyChanges")}
             </button>
           </div>
         </div>

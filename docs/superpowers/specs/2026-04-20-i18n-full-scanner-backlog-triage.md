@@ -11,10 +11,10 @@ npm run i18n:scan
 
 Current scanner output:
 
-- Full frontend scanner: 3,207 candidates across 1,104 scanned files.
+- Full frontend scanner: 3,079 candidates across 1,105 scanned files.
 - FinnGen paths excluded from this i18n track: 372 candidates.
-- Non-FinnGen backlog for this triage: 2,835 candidates.
-- Candidate kinds after FinnGen exclusion: 1,689 JSX text, 968 object properties, 178 JSX attributes.
+- Non-FinnGen backlog for this triage: 2,707 candidates.
+- Candidate kinds after FinnGen exclusion: 1,588 JSX text, 944 object properties, 175 JSX attributes.
 
 The app-priority scanner remains the release gate for the already-promoted language picker work. It currently reports 0 candidates across 214 files. The backlog below is therefore not a blocker for the current public app language selector, but it is the remaining work before Parthenon can claim broad native-language coverage across every product surface.
 
@@ -27,7 +27,7 @@ The app-priority scanner remains the release gate for the already-promoted langu
 | Data source setup and ingestion | 0 | 46 | Completed for `src/features/data-sources`, `src/features/ingestion`, and FHIR ingestion/export chrome. Focused wave scanner reports 0 candidates. |
 | Standard PROs UI | 0 | 10 | Completed for `src/features/standard-pros/components`, `src/features/standard-pros/pages`, and user-facing helper paths under `src/features/standard-pros/lib`. The focused Standard PROs UI scanner reports 0 candidates; the remaining full-feature candidates are intentionally confined to the curated instrument catalog file. |
 | Imaging, genomics, and radiogenomics | 0 | 27 | Completed for `src/features/imaging`, `src/features/genomics`, and `src/features/radiogenomics`. Focused wave scans report 0 candidates across the imaging (14 files), genomics (9 files), and radiogenomics (4 files) scopes, with DICOM/OHIF/PACS identifiers, measurement units, and backend significance matching keys protected where needed. |
-| Strategus and study packages | 104 | 3 | Release-blocking for native study-package authoring. Protect JSON/module names and OHDSI package identifiers. |
+| Strategus and study packages | 0 | 6 | Completed for `src/features/strategus`. Focused Strategus wave scanner reports 0 candidates across the study package page, module config panels, JSON spec editor, and Strategus helper/type metadata. Module names, JSON keys, and OHDSI package identifiers remain protected with explicit exemptions. |
 | Investigation clinical workflows | 336 | 43 | Later app wave unless the Investigation surface becomes a public i18n promise. Keep clinical/source values out of generic UI translation. |
 | Profiles and patient similarity | 532 | 55 | Later app wave. Many strings blend profile UI, patient-source labels, and similarity analytics. |
 | Publish, care gaps, and risk scores | 448 | 50 | Later app wave. Good candidate for a single applied-results/productivity wave. |
@@ -46,8 +46,6 @@ The app-priority scanner remains the release gate for the already-promoted langu
 | ---: | --- |
 | 315 | `src/features/etl/lib/cdm-schema-v54.ts` |
 | 99 | `src/features/standard-pros/data/instruments.ts` |
-| 50 | `src/features/strategus/pages/StudyPackagePage.tsx` |
-| 49 | `src/features/strategus/components/ModuleConfigPanels.tsx` |
 | 39 | `src/features/profiles/pages/PatientProfilePage.tsx` |
 | 37 | `src/features/investigation/components/clinical/ConfigDrawer.tsx` |
 | 37 | `src/features/risk-scores/pages/RiskScoreHubPage.tsx` |
@@ -60,6 +58,8 @@ The app-priority scanner remains the release gate for the already-promoted langu
 | 30 | `src/features/investigation/pages/InvestigationLandingPage.tsx` |
 | 30 | `src/features/jupyter/pages/JupyterPage.tsx` |
 | 29 | `src/features/etl/components/aqueduct/FieldMappingDetail.tsx` |
+| 29 | `src/features/etl/pages/SourceProfilerPage.tsx` |
+| 29 | `src/features/risk-scores/pages/RiskScoreCreatePage.tsx` |
 
 ## Recommended Extraction Order
 
@@ -78,11 +78,11 @@ The app-priority scanner remains the release gate for the already-promoted langu
 5. Imaging, genomics, and radiogenomics. Completed 2026-04-21.
    Scope completed: `src/features/imaging`, `src/features/genomics`, and `src/features/radiogenomics`, including imaging page chrome, DICOM import, measurement/response panels, study viewer chrome, genomics uploads/ClinVar/analysis/tumor board surfaces, and the precision medicine tab. The focused wave scans report 0 candidates across 27 files. DICOM, PACS, OHIF, modality names, measurements, units, accession IDs, and backend significance matching keys remain protected where needed.
 
-6. Strategus and study packages.
-   Scope: module config panels, package page, and JSON spec editor. Protect Strategus module names, JSON keys, package identifiers, and generated specification text.
+6. Strategus and study packages. Completed 2026-04-21.
+   Scope completed: `src/features/strategus` module config panels, study package page, JSON spec editor, and Strategus metadata helpers. The focused wave scanner reports 0 candidates across 6 files. Strategus module names, JSON keys, OHDSI package identifiers, and generated specification text remain protected with explicit `i18n-exempt` annotations where needed.
 
 7. Later specialty waves.
-   Profiles/patient similarity, publish/care-gaps/risk, HEOR, Morpheus, ETL source profiler/Aqueduct, GIS/Poseidon/code tools, concept-set shared primitives, and workbench surfaces should follow after the release-facing waves above.
+   Profiles/patient similarity, publish/care-gaps/risk, HEOR, Morpheus, ETL source profiler/Aqueduct, GIS/Poseidon/code tools, concept-set shared primitives, and workbench surfaces should follow after the release-facing waves above. The next highest-value non-FinnGen app wave is now profiles and patient similarity.
 
 ## Generated/Static Data Policy
 

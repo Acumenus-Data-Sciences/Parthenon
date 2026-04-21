@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import {
   Package,
   ChevronRight,
@@ -25,6 +25,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   useStrategusModules,
   useStrategusValidate,
@@ -35,16 +36,19 @@ import {
   KNOWN_MODULES,
   type SharedCohortRef,
   type AnalysisSpecification,
+  type ModuleSettings,
   type ModuleSettingsMap,
+  type StrategusExecutionResult,
+  type StrategusValidation,
   getDefaultSettings,
 } from "../types";
 import { ModuleConfigStep } from "../components/ModuleConfigPanels";
 import { JsonSpecEditor } from "../components/JsonSpecEditor";
+import {
+  getStrategusModuleDescription,
+  getStrategusModuleLabel,
+} from "../lib/i18n";
 import { getCohortDefinitions } from "@/features/cohort-definitions/api/cohortApi";
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 
 const MODULE_ICONS: Record<string, LucideIcon> = {
   Users,
@@ -57,15 +61,15 @@ const MODULE_ICONS: Record<string, LucideIcon> = {
   Network,
 };
 
-const STEP_LABELS = [
-  "Study Info",
-  "Select Modules",
-  "Shared Cohorts",
-  "Module Settings",
-  "JSON Preview",
-  "Review & Validate",
-  "Execute",
-];
+const STEP_KEYS = [
+  "studyInfo",
+  "selectModules",
+  "sharedCohorts",
+  "moduleSettings",
+  "jsonPreview",
+  "reviewValidate",
+  "execute",
+] as const;
 
 const ROLE_COLORS: Record<SharedCohortRef["role"], string> = {
   target: "text-success bg-success/10 border-success/30",
@@ -94,9 +98,19 @@ function buildSpec(
   };
 }
 
-// ---------------------------------------------------------------------------
-// Step components
-// ---------------------------------------------------------------------------
+function getExecutionStatusKey(status: string): "completed" | "running" | "failed" | null {
+  const normalized = status.trim().toLowerCase();
+  switch (normalized) {
+    case "completed":
+      return "completed";
+    case "running":
+      return "running";
+    case "failed":
+      return "failed";
+    default:
+      return null;
+  }
+}
 
 interface StepStudyInfoProps {
   studyName: string;
@@ -111,37 +125,42 @@ function StepStudyInfo({
   onNameChange,
   onDescChange,
 }: StepStudyInfoProps) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="space-y-5">
       <div className="rounded-lg border border-border-default bg-surface-raised p-6">
-        <h2 className="mb-1 text-lg font-semibold text-text-primary">Study Information</h2>
+        <h2 className="mb-1 text-lg font-semibold text-text-primary">
+          {t("strategus.page.studyInfo.title")}
+        </h2>
         <p className="mb-5 text-sm text-text-muted">
-          Name your study package and provide an optional description.
+          {t("strategus.page.studyInfo.intro")}
         </p>
 
         <div className="space-y-4">
           <div>
             <label className="mb-1.5 block text-sm font-medium text-text-secondary">
-              Study Name <span className="text-primary">*</span>
+              {t("strategus.page.studyInfo.studyName")}{" "}
+              <span className="text-primary">*</span>
             </label>
             <input
               value={studyName}
               onChange={(e) => onNameChange(e.target.value)}
-              placeholder="e.g., SGLT2i vs DPP4i Heart Failure Risk Study"
+              placeholder={t("strategus.page.studyInfo.studyNamePlaceholder")}
               className="w-full rounded-lg border border-border-default bg-surface-overlay px-4 py-2.5 text-text-primary placeholder:text-text-ghost transition-colors focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/40"
             />
           </div>
 
           <div>
             <label className="mb-1.5 block text-sm font-medium text-text-secondary">
-              Description
+              {t("strategus.page.studyInfo.description")}
             </label>
             <textarea
               value={studyDescription}
               onChange={(e) => onDescChange(e.target.value)}
-              placeholder="Briefly describe the study objectives, population, and expected outcomes..."
+              placeholder={t("strategus.page.studyInfo.descriptionPlaceholder")}
               rows={4}
-              className="w-full rounded-lg border border-border-default bg-surface-overlay px-4 py-2.5 text-text-primary placeholder:text-text-ghost transition-colors focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/40 resize-none"
+              className="w-full resize-none rounded-lg border border-border-default bg-surface-overlay px-4 py-2.5 text-text-primary placeholder:text-text-ghost transition-colors focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/40"
             />
           </div>
         </div>
@@ -150,16 +169,12 @@ function StepStudyInfo({
       <div className="flex items-start gap-3 rounded-lg border border-border-default bg-surface-raised/60 p-4">
         <Info size={16} className="mt-0.5 shrink-0 text-success" />
         <p className="text-sm text-text-muted">
-          Strategus executes multi-analysis OHDSI study packages across one or more CDM data
-          sources. Each analysis module runs independently and writes results to the configured
-          output directory.
+          {t("strategus.page.studyInfo.info")}
         </p>
       </div>
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
 
 interface StepSelectModulesProps {
   selectedModules: string[];
@@ -174,11 +189,13 @@ function StepSelectModules({
   availableModuleNames,
   isLoading,
 }: StepSelectModulesProps) {
+  const { t } = useTranslation("app");
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center gap-2 py-16 text-text-muted">
         <Loader2 size={18} className="animate-spin" />
-        Loading available modules...
+        {t("strategus.page.selectModules.loading")}
       </div>
     );
   }
@@ -186,18 +203,19 @@ function StepSelectModules({
   return (
     <div className="space-y-4">
       <div className="rounded-lg border border-border-default bg-surface-raised p-5">
-        <h2 className="mb-1 text-lg font-semibold text-text-primary">Select Analysis Modules</h2>
+        <h2 className="mb-1 text-lg font-semibold text-text-primary">
+          {t("strategus.page.selectModules.title")}
+        </h2>
         <p className="mb-4 text-sm text-text-muted">
-          Choose which OHDSI analysis modules to include. CohortGenerator is required and always
-          included.
+          {t("strategus.page.selectModules.intro")}
         </p>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {KNOWN_MODULES.map((mod) => {
             const IconComp = MODULE_ICONS[mod.icon] ?? Package;
-            const isSelected =
-              mod.alwaysIncluded || selectedModules.includes(mod.name);
-            const isAvailable = availableModuleNames.size === 0 || availableModuleNames.has(mod.package);
+            const isSelected = mod.alwaysIncluded || selectedModules.includes(mod.name);
+            const isAvailable =
+              availableModuleNames.size === 0 || availableModuleNames.has(mod.package);
             const isForced = Boolean(mod.alwaysIncluded);
 
             return (
@@ -217,7 +235,6 @@ function StepSelectModules({
                         : "cursor-not-allowed border-border-default bg-surface-overlay opacity-40",
                 ].join(" ")}
               >
-                {/* Checkbox indicator */}
                 <div
                   className={[
                     "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded",
@@ -233,17 +250,32 @@ function StepSelectModules({
 
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <IconComp size={14} className={isForced ? "text-success" : isSelected ? "text-accent" : "text-text-ghost"} />
-                    <span className={`text-sm font-medium ${isSelected || isForced ? "text-text-primary" : "text-text-secondary"}`}>
-                      {mod.label}
+                    <IconComp
+                      size={14}
+                      className={
+                        isForced
+                          ? "text-success"
+                          : isSelected
+                            ? "text-accent"
+                            : "text-text-ghost"
+                      }
+                    />
+                    <span
+                      className={`text-sm font-medium ${
+                        isSelected || isForced ? "text-text-primary" : "text-text-secondary"
+                      }`}
+                    >
+                      {getStrategusModuleLabel(t, mod.name)}
                     </span>
                     {isForced && (
                       <span className="rounded bg-success/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-success">
-                        Required
+                        {t("strategus.common.required")}
                       </span>
                     )}
                   </div>
-                  <p className="mt-1 text-xs text-text-ghost">{mod.description}</p>
+                  <p className="mt-1 text-xs text-text-ghost">
+                    {getStrategusModuleDescription(t, mod.name)}
+                  </p>
                 </div>
               </button>
             );
@@ -254,15 +286,14 @@ function StepSelectModules({
       <div className="flex items-center gap-2 text-sm text-text-muted">
         <CheckCircle2 size={14} className="text-success" />
         <span>
-          {selectedModules.length + 1} module{selectedModules.length !== 0 ? "s" : ""} selected
-          (including CohortGenerator)
+          {t("strategus.page.selectModules.selectedSummary", {
+            count: selectedModules.length + 1,
+          })}
         </span>
       </div>
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
 
 interface StepSharedCohortsProps {
   cohorts: SharedCohortRef[];
@@ -271,6 +302,7 @@ interface StepSharedCohortsProps {
 }
 
 function StepSharedCohorts({ cohorts, onAdd, onRemove }: StepSharedCohortsProps) {
+  const { t } = useTranslation("app");
   const [role, setRole] = useState<SharedCohortRef["role"]>("target");
   const [searchTerm, setSearchTerm] = useState("");
   const [showPicker, setShowPicker] = useState(false);
@@ -287,12 +319,13 @@ function StepSharedCohorts({ cohorts, onAdd, onRemove }: StepSharedCohortsProps)
   return (
     <div className="space-y-4">
       <div className="rounded-lg border border-border-default bg-surface-raised p-5">
-        <h2 className="mb-1 text-lg font-semibold text-text-primary">Shared Cohort Definitions</h2>
+        <h2 className="mb-1 text-lg font-semibold text-text-primary">
+          {t("strategus.page.sharedCohorts.title")}
+        </h2>
         <p className="mb-4 text-sm text-text-muted">
-          Add target, comparator, and outcome cohorts shared across all analysis modules.
+          {t("strategus.page.sharedCohorts.intro")}
         </p>
 
-        {/* Assigned cohorts */}
         {cohorts.length > 0 && (
           <div className="mb-4 space-y-2">
             {cohorts.map((c) => (
@@ -303,7 +336,7 @@ function StepSharedCohorts({ cohorts, onAdd, onRemove }: StepSharedCohortsProps)
                 <span
                   className={`rounded border px-2 py-0.5 text-xs font-medium capitalize ${ROLE_COLORS[c.role]}`}
                 >
-                  {c.role}
+                  {t(`strategus.page.sharedCohorts.roles.${c.role}`)}
                 </span>
                 <span className="flex-1 text-sm text-text-primary">{c.cohortName}</span>
                 <span className="font-mono text-xs text-text-ghost">#{c.cohortId}</span>
@@ -319,16 +352,15 @@ function StepSharedCohorts({ cohorts, onAdd, onRemove }: StepSharedCohortsProps)
           </div>
         )}
 
-        {/* Add cohort controls */}
         <div className="flex gap-2">
           <select
             value={role}
             onChange={(e) => setRole(e.target.value as SharedCohortRef["role"])}
             className="rounded-lg border border-border-default bg-surface-overlay px-3 py-2 text-sm text-text-secondary focus:border-accent focus:outline-none"
           >
-            <option value="target">Target</option>
-            <option value="comparator">Comparator</option>
-            <option value="outcome">Outcome</option>
+            <option value="target">{t("strategus.page.sharedCohorts.roles.target")}</option>
+            <option value="comparator">{t("strategus.page.sharedCohorts.roles.comparator")}</option>
+            <option value="outcome">{t("strategus.page.sharedCohorts.roles.outcome")}</option>
           </select>
           <button
             type="button"
@@ -336,18 +368,17 @@ function StepSharedCohorts({ cohorts, onAdd, onRemove }: StepSharedCohortsProps)
             className="flex items-center gap-2 rounded-lg border border-border-default bg-surface-overlay px-4 py-2 text-sm text-text-secondary transition-colors hover:border-accent hover:text-accent"
           >
             <Plus size={14} />
-            Add Cohort
+            {t("strategus.page.sharedCohorts.addCohort")}
           </button>
         </div>
 
-        {/* Cohort picker */}
         {showPicker && (
           <div className="mt-3 rounded-lg border border-border-default bg-surface-base">
             <div className="border-b border-border-default p-3">
               <input
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search cohort definitions..."
+                placeholder={t("strategus.page.sharedCohorts.searchPlaceholder")}
                 className="w-full rounded-md border border-border-default bg-surface-overlay px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none"
                 autoFocus
               />
@@ -356,12 +387,12 @@ function StepSharedCohorts({ cohorts, onAdd, onRemove }: StepSharedCohortsProps)
               {isLoading && (
                 <div className="flex items-center justify-center gap-2 py-6 text-text-muted">
                   <Loader2 size={14} className="animate-spin" />
-                  Loading cohorts...
+                  {t("strategus.page.sharedCohorts.loading")}
                 </div>
               )}
               {!isLoading && availableCohorts.length === 0 && (
                 <div className="py-6 text-center text-sm text-text-ghost">
-                  No cohort definitions found.
+                  {t("strategus.page.sharedCohorts.noneFound")}
                 </div>
               )}
               {availableCohorts.map((cd) => {
@@ -394,7 +425,9 @@ function StepSharedCohorts({ cohorts, onAdd, onRemove }: StepSharedCohortsProps)
                     <span className="font-mono text-xs text-text-ghost">#{cd.id}</span>
                     <span className="flex-1 text-sm text-text-primary">{cd.name}</span>
                     {alreadyAdded && (
-                      <span className="text-xs text-success">Added</span>
+                      <span className="text-xs text-success">
+                        {t("strategus.common.added")}
+                      </span>
                     )}
                   </button>
                 );
@@ -408,7 +441,7 @@ function StepSharedCohorts({ cohorts, onAdd, onRemove }: StepSharedCohortsProps)
         <div className="flex items-start gap-3 rounded-lg border border-accent/20 bg-accent/5 p-4">
           <AlertTriangle size={15} className="mt-0.5 shrink-0 text-accent" />
           <p className="text-sm text-accent/80">
-            No cohorts added yet. Most analysis modules require at least one target cohort.
+            {t("strategus.page.sharedCohorts.empty")}
           </p>
         </div>
       )}
@@ -416,17 +449,14 @@ function StepSharedCohorts({ cohorts, onAdd, onRemove }: StepSharedCohortsProps)
   );
 }
 
-// ---------------------------------------------------------------------------
-
 interface StepReviewProps {
   studyName: string;
   studyDescription: string;
   selectedModules: string[];
   cohorts: SharedCohortRef[];
-  spec: AnalysisSpecification;
   onValidate: () => void;
   isValidating: boolean;
-  validation: import("../types").StrategusValidation | null;
+  validation: StrategusValidation | null;
   validationError: string | null;
 }
 
@@ -440,42 +470,49 @@ function StepReview({
   validation,
   validationError,
 }: StepReviewProps) {
+  const { t } = useTranslation("app");
   const allModules = ["CohortGeneratorModule", ...selectedModules];
 
   return (
     <div className="space-y-4">
-      {/* Summary card */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-5">
-        <h2 className="mb-4 text-lg font-semibold text-text-primary">Study Package Summary</h2>
+        <h2 className="mb-4 text-lg font-semibold text-text-primary">
+          {t("strategus.page.review.title")}
+        </h2>
 
         <div className="space-y-3">
-          <SummaryRow label="Study Name" value={studyName || "—"} />
+          <SummaryRow
+            label={t("strategus.page.review.studyName")}
+            value={studyName || "—"}
+          />
           {studyDescription && (
-            <SummaryRow label="Description" value={studyDescription} />
+            <SummaryRow
+              label={t("strategus.page.review.description")}
+              value={studyDescription}
+            />
           )}
           <SummaryRow
-            label="Modules"
+            label={t("strategus.page.review.modules")}
             value={
-              <div className="flex flex-wrap gap-1.5 mt-1">
-                {allModules.map((m) => {
-                  const meta = KNOWN_MODULES.find((km) => km.name === m);
-                  return (
-                    <span
-                      key={m}
-                      className="rounded bg-surface-overlay border border-border-default px-2 py-0.5 text-xs text-text-secondary"
-                    >
-                      {meta?.label ?? m}
-                    </span>
-                  );
-                })}
+              <div className="mt-1 flex flex-wrap gap-1.5">
+                {allModules.map((moduleName) => (
+                  <span
+                    key={moduleName}
+                    className="rounded border border-border-default bg-surface-overlay px-2 py-0.5 text-xs text-text-secondary"
+                  >
+                    {getStrategusModuleLabel(t, moduleName)}
+                  </span>
+                ))}
               </div>
             }
           />
           <SummaryRow
-            label="Cohorts"
+            label={t("strategus.page.review.cohorts")}
             value={
               cohorts.length === 0 ? (
-                <span className="text-text-ghost">None configured</span>
+                <span className="text-text-ghost">
+                  {t("strategus.common.noneConfigured")}
+                </span>
               ) : (
                 <div className="mt-1 space-y-1">
                   {cohorts.map((c) => (
@@ -483,7 +520,7 @@ function StepReview({
                       <span
                         className={`rounded border px-1.5 py-px text-[10px] font-medium capitalize ${ROLE_COLORS[c.role]}`}
                       >
-                        {c.role}
+                        {t(`strategus.page.sharedCohorts.roles.${c.role}`)}
                       </span>
                       <span className="text-text-secondary">{c.cohortName}</span>
                     </div>
@@ -495,36 +532,38 @@ function StepReview({
         </div>
       </div>
 
-      {/* Validate button */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-5">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <div>
-            <h3 className="text-sm font-semibold text-text-primary">Validate Specification</h3>
+            <h3 className="text-sm font-semibold text-text-primary">
+              {t("strategus.page.review.validateTitle")}
+            </h3>
             <p className="mt-0.5 text-xs text-text-muted">
-              Check the analysis spec for module configuration issues before executing.
+              {t("strategus.page.review.validateIntro")}
             </p>
           </div>
           <button
             type="button"
             onClick={onValidate}
             disabled={isValidating || !studyName.trim()}
-            className="flex items-center gap-2 rounded-lg bg-surface-overlay border border-border-default px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:border-accent hover:text-accent disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg border border-border-default bg-surface-overlay px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:border-accent hover:text-accent disabled:opacity-50"
           >
             {isValidating ? (
               <Loader2 size={14} className="animate-spin" />
             ) : (
               <CheckCircle2 size={14} />
             )}
-            Run Validation
+            {t("strategus.page.review.runValidation")}
           </button>
         </div>
 
-        {/* Validation results */}
         {validationError && (
           <div className="mt-4 rounded-lg border border-primary/30 bg-primary/10 p-4">
             <div className="flex items-center gap-2 text-sm text-primary">
               <XCircle size={14} />
-              Validation failed: {validationError}
+              {t("strategus.page.review.validationFailedWithMessage", {
+                message: validationError,
+              })}
             </div>
           </div>
         )}
@@ -543,27 +582,30 @@ function StepReview({
               ) : (
                 <XCircle size={15} />
               )}
-              Validation {validation.validation}
+              {validation.validation === "passed"
+                ? t("strategus.page.review.validationPassed")
+                : t("strategus.page.review.validationFailed")}
             </div>
 
             {validation.issues.length > 0 && (
               <div className="space-y-2">
                 <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
-                  Issues
+                  {t("strategus.common.issues")}
                 </p>
-                {validation.issues.map((issue, i) => (
+                {validation.issues.map((issue, index) => (
                   <div
-                    key={i}
+                    key={`${issue.module}-${index}`}
                     className={`rounded-lg border px-4 py-2.5 text-sm ${
                       issue.severity === "error"
                         ? "border-primary/30 bg-primary/10 text-red-300"
                         : "border-accent/30 bg-accent/10 text-yellow-300"
                     }`}
                   >
-                    <span className="font-mono text-xs opacity-70 uppercase">
-                      [{issue.severity}] {issue.module}
+                    <span className="font-mono text-xs uppercase opacity-70">
+                      [{t(`strategus.page.review.severity.${issue.severity}`)}]{" "}
+                      {getStrategusModuleLabel(t, issue.module)}
                     </span>{" "}
-                    — {issue.message}
+                    - {issue.message}
                   </div>
                 ))}
               </div>
@@ -572,14 +614,17 @@ function StepReview({
             {validation.warnings.length > 0 && (
               <div className="space-y-2">
                 <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
-                  Warnings
+                  {t("strategus.common.warnings")}
                 </p>
-                {validation.warnings.map((w, i) => (
+                {validation.warnings.map((warning, index) => (
                   <div
-                    key={i}
+                    key={`${warning.module}-${index}`}
                     className="rounded-lg border border-accent/20 bg-accent/5 px-4 py-2.5 text-sm text-yellow-200/80"
                   >
-                    <span className="font-mono text-xs opacity-70">{w.module}</span> — {w.message}
+                    <span className="font-mono text-xs opacity-70">
+                      {getStrategusModuleLabel(t, warning.module)}
+                    </span>{" "}
+                    - {warning.message}
                   </div>
                 ))}
               </div>
@@ -596,7 +641,7 @@ function SummaryRow({
   value,
 }: {
   label: string;
-  value: React.ReactNode;
+  value: ReactNode;
 }) {
   return (
     <div className="flex gap-4">
@@ -606,13 +651,11 @@ function SummaryRow({
   );
 }
 
-// ---------------------------------------------------------------------------
-
 interface StepExecuteProps {
   studyName: string;
   onExecute: (sourceId: number) => void;
   isExecuting: boolean;
-  result: import("../types").StrategusExecutionResult | null;
+  result: StrategusExecutionResult | null;
   executeError: string | null;
 }
 
@@ -623,25 +666,31 @@ function StepExecute({
   result,
   executeError,
 }: StepExecuteProps) {
+  const { t } = useTranslation("app");
   const { data: sources = [], isLoading: sourcesLoading } = useStrateagusSources();
   const [selectedSourceId, setSelectedSourceId] = useState<number | "">("");
+
+  const statusKey = result ? getExecutionStatusKey(result.status) : null;
 
   return (
     <div className="space-y-4">
       <div className="rounded-lg border border-border-default bg-surface-raised p-5">
-        <h2 className="mb-1 text-lg font-semibold text-text-primary">Execute Study Package</h2>
+        <h2 className="mb-1 text-lg font-semibold text-text-primary">
+          {t("strategus.page.execute.title")}
+        </h2>
         <p className="mb-5 text-sm text-text-muted">
-          Select a CDM data source and execute "{studyName}" across all configured modules.
+          {t("strategus.page.execute.intro", { studyName })}
         </p>
 
         <div className="space-y-4">
           <div>
             <label className="mb-1.5 block text-sm font-medium text-text-secondary">
-              Target Data Source
+              {t("strategus.page.execute.targetDataSource")}
             </label>
             {sourcesLoading ? (
               <div className="flex items-center gap-2 text-sm text-text-muted">
-                <Loader2 size={14} className="animate-spin" /> Loading sources...
+                <Loader2 size={14} className="animate-spin" />{" "}
+                {t("strategus.page.execute.loadingSources")}
               </div>
             ) : (
               <select
@@ -651,10 +700,10 @@ function StepExecute({
                 }
                 className="w-full rounded-lg border border-border-default bg-surface-overlay px-3 py-2.5 text-sm text-text-primary focus:border-accent focus:outline-none"
               >
-                <option value="">— Select a source —</option>
-                {sources.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.source_name} ({s.source_key})
+                <option value="">{t("strategus.page.execute.selectSource")}</option>
+                {sources.map((source) => (
+                  <option key={source.id} value={source.id}>
+                    {source.source_name} ({source.source_key})
                   </option>
                 ))}
               </select>
@@ -672,21 +721,23 @@ function StepExecute({
             ) : (
               <Play size={15} />
             )}
-            {isExecuting ? "Executing…" : "Execute Study Package"}
+            {isExecuting
+              ? t("strategus.page.execute.executing")
+              : t("strategus.page.execute.executeStudyPackage")}
           </button>
         </div>
       </div>
 
-      {/* In-progress indicator */}
       {isExecuting && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-5">
           <div className="flex items-center gap-3 text-accent">
             <Loader2 size={18} className="animate-spin" />
-            <span className="text-sm font-medium">Study package is running…</span>
+            <span className="text-sm font-medium">
+              {t("strategus.page.execute.runningTitle")}
+            </span>
           </div>
           <p className="mt-2 text-xs text-text-muted">
-            Strategus is orchestrating module execution. This may take several minutes depending
-            on dataset size and number of modules.
+            {t("strategus.page.execute.runningIntro")}
           </p>
           <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-elevated">
             <div className="h-full w-1/3 animate-pulse rounded-full bg-accent/60" />
@@ -694,51 +745,75 @@ function StepExecute({
         </div>
       )}
 
-      {/* Error */}
       {executeError && (
         <div className="rounded-lg border border-primary/30 bg-primary/10 p-4">
           <div className="flex items-start gap-2 text-sm text-red-300">
             <XCircle size={15} className="mt-0.5 shrink-0" />
-            <span>Execution failed: {executeError}</span>
+            <span>
+              {t("strategus.page.execute.executionFailed", {
+                message: executeError,
+              })}
+            </span>
           </div>
         </div>
       )}
 
-      {/* Success result */}
       {result && (
         <div className="rounded-lg border border-success/30 bg-success/8 p-5">
           <div className="mb-4 flex items-center gap-2 text-success">
             <CheckCircle2 size={18} />
-            <span className="font-semibold">Execution Complete</span>
+            <span className="font-semibold">
+              {t("strategus.page.execute.executionComplete")}
+            </span>
             <span className="ml-auto font-mono text-xs text-text-muted">
               {result.elapsed_seconds.toFixed(1)}s
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <ResultStat label="Status" value={result.status} accent="teal" />
-            <ResultStat label="Modules Run" value={String(result.modules_executed.length)} accent="gold" />
-            <ResultStat label="Result Files" value={String(result.result_files)} accent="teal" />
+            <ResultStat
+              label={t("strategus.page.execute.resultStats.status")}
+              value={
+                statusKey
+                  ? t(`strategus.page.execute.statusLabels.${statusKey}`)
+                  : result.status
+              }
+              accent="teal"
+            />
+            <ResultStat
+              label={t("strategus.page.execute.resultStats.modulesRun")}
+              value={String(result.modules_executed.length)}
+              accent="gold"
+            />
+            <ResultStat
+              label={t("strategus.page.execute.resultStats.resultFiles")}
+              value={String(result.result_files)}
+              accent="teal"
+            />
           </div>
 
           <div className="mt-4">
-            <p className="mb-1 text-xs text-text-muted">Output Directory</p>
-            <code className="block rounded bg-surface-overlay px-3 py-2 text-xs text-text-secondary break-all">
+            <p className="mb-1 text-xs text-text-muted">
+              {t("strategus.page.execute.outputDirectory")}
+            </p>
+            <code className="block break-all rounded bg-surface-overlay px-3 py-2 text-xs text-text-secondary">
               {result.output_directory}
             </code>
           </div>
 
           {result.modules_executed.length > 0 && (
             <div className="mt-4">
-              <p className="mb-2 text-xs text-text-muted">Modules Executed</p>
+              <p className="mb-2 text-xs text-text-muted">
+                {t("strategus.page.execute.modulesExecuted")}
+              </p>
               <div className="flex flex-wrap gap-1.5">
-                {result.modules_executed.map((m) => (
+                {result.modules_executed.map((moduleName) => (
                   <span
-                    key={m}
+                    key={moduleName}
                     className="flex items-center gap-1 rounded bg-success/15 px-2 py-0.5 text-xs text-success"
                   >
                     <Check size={10} />
-                    {m}
+                    {getStrategusModuleLabel(t, moduleName)}
                   </span>
                 ))}
               </div>
@@ -773,88 +848,64 @@ function ResultStat({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Main page
-// ---------------------------------------------------------------------------
-
 export default function StudyPackagePage() {
+  const { t } = useTranslation("app");
   const [step, setStep] = useState(0);
-
-  // Step 1
   const [studyName, setStudyName] = useState("");
   const [studyDescription, setStudyDescription] = useState("");
-
-  // Step 2
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
-
-  // Step 3
   const [cohorts, setCohorts] = useState<SharedCohortRef[]>([]);
-
-  // Step 4 — module settings
   const [moduleSettings, setModuleSettings] = useState<ModuleSettingsMap>({});
-
-  // Step 5 — spec override (when user edits JSON manually)
   const [specOverride, setSpecOverride] = useState<AnalysisSpecification | null>(null);
-
-  // Step 6 — validation
-  const [validation, setValidation] =
-    useState<import("../types").StrategusValidation | null>(null);
+  const [validation, setValidation] = useState<StrategusValidation | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
-
-  // Step 5 — execution
-  const [execResult, setExecResult] =
-    useState<import("../types").StrategusExecutionResult | null>(null);
+  const [execResult, setExecResult] = useState<StrategusExecutionResult | null>(null);
   const [execError, setExecError] = useState<string | null>(null);
-
-  // JSON import ref
   const importRef = useRef<HTMLInputElement>(null);
 
   const { data: serverModules = [], isLoading: modulesLoading } = useStrategusModules();
   const validateMutation = useStrategusValidate();
   const executeMutation = useStrategusExecute();
 
-  const availableModuleNames = new Set(serverModules.map((m) => m.package));
+  const availableModuleNames = new Set(serverModules.map((module) => module.package));
+  const currentSpec = specOverride ?? buildSpec(selectedModules, cohorts, moduleSettings);
+  const jsonEditorKey = JSON.stringify(currentSpec);
 
-  // ── module toggle
   const toggleModule = (name: string) => {
     setSelectedModules((prev) => {
       const removing = prev.includes(name);
       if (removing) {
-        // Remove settings for deselected module
-        setModuleSettings((ms) => {
-          const { [name]: _, ...rest } = ms;
-          void _;
+        setModuleSettings((existing) => {
+          const { [name]: removedSettings, ...rest } = existing;
+          void removedSettings;
           return rest;
         });
       } else {
-        // Initialize default settings for newly selected module
-        setModuleSettings((ms) => ({ ...ms, [name]: getDefaultSettings(name) }));
+        setModuleSettings((existing) => ({
+          ...existing,
+          [name]: getDefaultSettings(name),
+        }));
       }
-      setSpecOverride(null); // Reset manual edits when modules change
-      return removing ? prev.filter((m) => m !== name) : [...prev, name];
+      setSpecOverride(null);
+      return removing ? prev.filter((moduleName) => moduleName !== name) : [...prev, name];
     });
   };
 
-  // ── cohort management
-  const addCohort = (c: SharedCohortRef) => {
-    setCohorts((prev) => [...prev, c]);
+  const addCohort = (cohort: SharedCohortRef) => {
+    setCohorts((prev) => [...prev, cohort]);
     setSpecOverride(null);
   };
+
   const removeCohort = (cohortId: number) => {
-    setCohorts((prev) => prev.filter((c) => c.cohortId !== cohortId));
+    setCohorts((prev) => prev.filter((cohort) => cohort.cohortId !== cohortId));
     setSpecOverride(null);
   };
 
-  // ── build spec helper
-  const currentSpec = specOverride ?? buildSpec(selectedModules, cohorts, moduleSettings);
-
-  // ── module settings change handler (also resets spec override)
-  const handleModuleSettingsChange = (moduleName: string, settings: import("../types").ModuleSettings) => {
+  const handleModuleSettingsChange = (moduleName: string, settings: ModuleSettings) => {
     setModuleSettings((prev) => ({ ...prev, [moduleName]: settings }));
     setSpecOverride(null);
   };
 
-  // ── validate
   const handleValidate = async () => {
     setValidationError(null);
     setValidation(null);
@@ -863,12 +914,13 @@ export default function StudyPackagePage() {
       setValidation(result);
     } catch (err: unknown) {
       setValidationError(
-        err instanceof Error ? err.message : "Validation request failed",
+        err instanceof Error
+          ? err.message
+          : t("strategus.page.review.validationRequestFailed"),
       );
     }
   };
 
-  // ── execute
   const handleExecute = async (sourceId: number) => {
     setExecError(null);
     setExecResult(null);
@@ -881,84 +933,92 @@ export default function StudyPackagePage() {
       setExecResult(result);
     } catch (err: unknown) {
       setExecError(
-        err instanceof Error ? err.message : "Execution request failed",
+        err instanceof Error
+          ? err.message
+          : t("strategus.page.execute.executionRequestFailed"),
       );
     }
   };
 
-  // ── JSON export
   const handleExport = () => {
     const blob = new Blob([JSON.stringify(currentSpec, null, 2)], {
       type: "application/json",
     });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${studyName.replace(/\s+/g, "_") || "strategus_spec"}.json`;
-    a.click();
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${studyName.replace(/\s+/g, "_") || "strategus_spec"}.json`;
+    link.click();
     URL.revokeObjectURL(url);
   };
 
-  // ── JSON import
-  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleImport = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (!file) return;
+
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = (loadEvent) => {
       try {
-        const parsed = JSON.parse(ev.target?.result as string) as import("../types").AnalysisSpecification;
-        // Restore module selections from spec
-        const mods = (parsed.moduleSpecifications ?? [])
-          .map((ms) => ms.module)
-          .filter((m) => m !== "CohortGeneratorModule");
-        setSelectedModules(mods);
-        // Restore cohorts
-        const cs: SharedCohortRef[] = (
+        const parsed = JSON.parse(
+          loadEvent.target?.result as string,
+        ) as AnalysisSpecification;
+        const restoredModules = (parsed.moduleSpecifications ?? [])
+          .map((moduleSpec) => moduleSpec.module)
+          .filter((moduleName) => moduleName !== "CohortGeneratorModule");
+        setSelectedModules(restoredModules);
+
+        const restoredCohorts: SharedCohortRef[] = (
           parsed.sharedResources?.cohortDefinitions ?? []
-        ).map((cd) => ({
-          cohortId: cd.cohortId,
-          cohortName: cd.cohortName,
+        ).map((cohortDefinition) => ({
+          cohortId: cohortDefinition.cohortId,
+          cohortName: cohortDefinition.cohortName,
           role: "target" as const,
-          json: cd.json,
-          sql: cd.sql,
+          json: cohortDefinition.json,
+          sql: cohortDefinition.sql,
         }));
-        setCohorts(cs);
+        setCohorts(restoredCohorts);
+
+        const restoredSettings = Object.fromEntries(
+          (parsed.moduleSpecifications ?? []).map((moduleSpec) => [
+            moduleSpec.module,
+            moduleSpec.settings as ModuleSettings,
+          ]),
+        ) as ModuleSettingsMap;
+        setModuleSettings(restoredSettings);
+        setSpecOverride(parsed);
       } catch {
-        // swallow parse errors — malformed JSON
+        // Ignore malformed JSON imports.
       }
     };
     reader.readAsText(file);
-    // Reset file input so same file can be re-imported
-    e.target.value = "";
+    event.target.value = "";
   };
 
-  // ── navigation guards
   const canAdvance = () => {
     if (step === 0) return studyName.trim().length > 0;
-    if (step === 1) return true; // At minimum CohortGenerator is always included
     return true;
   };
 
-  const goNext = () => setStep((s) => Math.min(s + 1, STEP_LABELS.length - 1));
-  const goPrev = () => setStep((s) => Math.max(s - 1, 0));
+  const goNext = () => setStep((current) => Math.min(current + 1, STEP_KEYS.length - 1));
+  const goPrev = () => setStep((current) => Math.max(current - 1, 0));
 
   return (
     <div className="space-y-6">
-      {/* ── Page header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20">
             <Package className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-text-primary">Study Packages</h1>
+            <h1 className="text-2xl font-bold text-text-primary">
+              {t("strategus.page.header.title")}
+            </h1>
             <p className="text-sm text-text-muted">
-              Build and execute Strategus multi-analysis OHDSI study packages
+              {t("strategus.page.header.subtitle")}
             </p>
           </div>
         </div>
 
-        {/* Import / Export */}
         <div className="flex items-center gap-2">
           <input
             ref={importRef}
@@ -973,7 +1033,7 @@ export default function StudyPackagePage() {
             className="flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-secondary transition-colors hover:border-text-ghost hover:text-text-primary"
           >
             <Upload size={14} />
-            Import JSON
+            {t("strategus.page.header.importJson")}
           </button>
           <button
             type="button"
@@ -981,26 +1041,25 @@ export default function StudyPackagePage() {
             className="flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-secondary transition-colors hover:border-text-ghost hover:text-text-primary"
           >
             <Download size={14} />
-            Export JSON
+            {t("strategus.page.header.exportJson")}
           </button>
         </div>
       </div>
 
-      {/* ── Step indicator */}
       <div className="flex items-center gap-0">
-        {STEP_LABELS.map((label, i) => {
-          const isActive = i === step;
-          const isDone = i < step;
+        {STEP_KEYS.map((stepKey, index) => {
+          const isActive = index === step;
+          const isDone = index < step;
           return (
-            <div key={label} className="flex items-center">
+            <div key={stepKey} className="flex items-center">
               <button
                 type="button"
-                onClick={() => i < step && setStep(i)}
-                disabled={i > step}
+                onClick={() => index < step && setStep(index)}
+                disabled={index > step}
                 className={[
                   "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
                   isActive
-                    ? "bg-primary/15 text-text-primary font-medium"
+                    ? "bg-primary/15 font-medium text-text-primary"
                     : isDone
                       ? "cursor-pointer text-success hover:bg-surface-overlay"
                       : "cursor-default text-text-ghost",
@@ -1016,11 +1075,11 @@ export default function StudyPackagePage() {
                         : "bg-surface-elevated text-text-ghost",
                   ].join(" ")}
                 >
-                  {isDone ? <Check size={10} /> : i + 1}
+                  {isDone ? <Check size={10} /> : index + 1}
                 </span>
-                {label}
+                {t(`strategus.page.steps.${stepKey}`)}
               </button>
-              {i < STEP_LABELS.length - 1 && (
+              {index < STEP_KEYS.length - 1 && (
                 <ChevronRight
                   size={14}
                   className={isDone ? "text-success/50" : "text-text-disabled"}
@@ -1031,7 +1090,6 @@ export default function StudyPackagePage() {
         })}
       </div>
 
-      {/* ── Step content */}
       <div className="min-h-[400px]">
         {step === 0 && (
           <StepStudyInfo
@@ -1070,6 +1128,7 @@ export default function StudyPackagePage() {
 
         {step === 4 && (
           <JsonSpecEditor
+            key={jsonEditorKey}
             spec={currentSpec}
             onSpecChange={setSpecOverride}
           />
@@ -1081,7 +1140,6 @@ export default function StudyPackagePage() {
             studyDescription={studyDescription}
             selectedModules={selectedModules}
             cohorts={cohorts}
-            spec={currentSpec}
             onValidate={handleValidate}
             isValidating={validateMutation.isPending}
             validation={validation}
@@ -1100,7 +1158,6 @@ export default function StudyPackagePage() {
         )}
       </div>
 
-      {/* ── Navigation buttons */}
       <div className="flex items-center justify-between border-t border-border-default pt-4">
         <button
           type="button"
@@ -1109,17 +1166,17 @@ export default function StudyPackagePage() {
           className="flex items-center gap-2 rounded-lg border border-border-default px-4 py-2 text-sm text-text-secondary transition-colors hover:border-text-ghost hover:text-text-primary disabled:opacity-30"
         >
           <ChevronLeft size={15} />
-          Back
+          {t("strategus.common.back")}
         </button>
 
-        {step < STEP_LABELS.length - 1 && (
+        {step < STEP_KEYS.length - 1 && (
           <button
             type="button"
             onClick={goNext}
             disabled={!canAdvance()}
             className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80 disabled:opacity-40"
           >
-            Next
+            {t("strategus.common.next")}
             <ChevronRight size={15} />
           </button>
         )}

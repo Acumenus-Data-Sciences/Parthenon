@@ -5,6 +5,7 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronRight, Info } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type {
   ModuleSettings,
   ModuleSettingsMap,
@@ -18,6 +19,7 @@ import type {
   EvidenceSynthesisSettings,
 } from "../types";
 import { KNOWN_MODULES } from "../types";
+import { getStrategusModuleLabel } from "../lib/i18n";
 
 // ---------------------------------------------------------------------------
 // Shared sub-components
@@ -109,6 +111,7 @@ function CohortMultiSelect({
   cohorts: SharedCohortRef[];
   filterRole?: SharedCohortRef["role"];
 }) {
+  const { t } = useTranslation("app");
   const filtered = filterRole
     ? cohorts.filter((c) => c.role === filterRole)
     : cohorts;
@@ -126,8 +129,11 @@ function CohortMultiSelect({
       <FieldLabel>{label}</FieldLabel>
       {filtered.length === 0 ? (
         <p className="text-xs text-text-ghost">
-          No {filterRole ?? ""} cohorts available. Add cohorts in the Shared
-          Cohorts step.
+          {filterRole
+            ? t("strategus.moduleSettings.noRoleCohorts", {
+                role: t(`strategus.page.sharedCohorts.roles.${filterRole}`),
+              })
+            : t("strategus.moduleSettings.noCohorts")}
         </p>
       ) : (
         <div className="space-y-1.5">
@@ -148,7 +154,7 @@ function CohortMultiSelect({
                   {c.cohortName}
                 </span>
                 <span className="rounded border border-border-default px-1.5 py-px text-[10px] font-medium capitalize text-text-muted">
-                  {c.role}
+                  {t(`strategus.page.sharedCohorts.roles.${c.role}`)}
                 </span>
                 <span className="font-mono text-[10px] text-text-ghost">
                   #{c.cohortId}
@@ -188,36 +194,37 @@ function CohortMethodPanel({
     key: K,
     value: CohortMethodSettings[K],
   ) => onChange({ ...settings, [key]: value });
+  const { t } = useTranslation("app");
 
   return (
     <div className="space-y-4">
-      <SectionLabel>Cohort Assignment</SectionLabel>
+      <SectionLabel>{t("strategus.moduleSettings.sections.cohortAssignment")}</SectionLabel>
       <CohortMultiSelect
-        label="Target Cohorts"
+        label={t("strategus.moduleSettings.fields.targetCohorts")}
         selectedIds={settings.targetCohortIds}
         onChange={(ids) => update("targetCohortIds", ids)}
         cohorts={cohorts}
         filterRole="target"
       />
       <CohortMultiSelect
-        label="Comparator Cohorts"
+        label={t("strategus.moduleSettings.fields.comparatorCohorts")}
         selectedIds={settings.comparatorCohortIds}
         onChange={(ids) => update("comparatorCohortIds", ids)}
         cohorts={cohorts}
         filterRole="comparator"
       />
       <CohortMultiSelect
-        label="Outcome Cohorts"
+        label={t("strategus.moduleSettings.fields.outcomeCohorts")}
         selectedIds={settings.outcomeCohortIds}
         onChange={(ids) => update("outcomeCohortIds", ids)}
         cohorts={cohorts}
         filterRole="outcome"
       />
 
-      <SectionLabel>Parameters</SectionLabel>
+      <SectionLabel>{t("strategus.moduleSettings.sections.parameters")}</SectionLabel>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <FieldLabel>Washout Period (days)</FieldLabel>
+          <FieldLabel>{t("strategus.moduleSettings.fields.washoutPeriod")}</FieldLabel>
           <NumberInput
             value={settings.washoutPeriod}
             onChange={(v) => update("washoutPeriod", v)}
@@ -226,7 +233,7 @@ function CohortMethodPanel({
           />
         </div>
         <div>
-          <FieldLabel>Max Cohort Size (0 = unlimited)</FieldLabel>
+          <FieldLabel>{t("strategus.moduleSettings.fields.maxCohortSize")}</FieldLabel>
           <NumberInput
             value={settings.maxCohortSize}
             onChange={(v) => update("maxCohortSize", v)}
@@ -235,10 +242,10 @@ function CohortMethodPanel({
         </div>
       </div>
 
-      <SectionLabel>Covariate Settings</SectionLabel>
+      <SectionLabel>{t("strategus.moduleSettings.sections.covariateSettings")}</SectionLabel>
       <div className="space-y-2">
         <Toggle
-          label="Demographics"
+          label={t("strategus.moduleSettings.fields.demographics")}
           checked={settings.covariateSettings.useDemographics}
           onChange={(v) =>
             update("covariateSettings", {
@@ -248,7 +255,7 @@ function CohortMethodPanel({
           }
         />
         <Toggle
-          label="Condition Occurrence"
+          label={t("strategus.moduleSettings.fields.conditionOccurrence")}
           checked={settings.covariateSettings.useConditionOccurrence}
           onChange={(v) =>
             update("covariateSettings", {
@@ -258,7 +265,7 @@ function CohortMethodPanel({
           }
         />
         <Toggle
-          label="Drug Exposure"
+          label={t("strategus.moduleSettings.fields.drugExposure")}
           checked={settings.covariateSettings.useDrugExposure}
           onChange={(v) =>
             update("covariateSettings", {
@@ -268,7 +275,7 @@ function CohortMethodPanel({
           }
         />
         <Toggle
-          label="Procedure Occurrence"
+          label={t("strategus.moduleSettings.fields.procedureOccurrence")}
           checked={settings.covariateSettings.useProcedureOccurrence}
           onChange={(v) =>
             update("covariateSettings", {
@@ -278,7 +285,7 @@ function CohortMethodPanel({
           }
         />
         <Toggle
-          label="Measurement"
+          label={t("strategus.moduleSettings.fields.measurement")}
           checked={settings.covariateSettings.useMeasurement}
           onChange={(v) =>
             update("covariateSettings", {
@@ -305,28 +312,29 @@ function PLPPanel({
     key: K,
     value: PatientLevelPredictionSettings[K],
   ) => onChange({ ...settings, [key]: value });
+  const { t } = useTranslation("app");
 
   return (
     <div className="space-y-4">
-      <SectionLabel>Cohort Assignment</SectionLabel>
+      <SectionLabel>{t("strategus.moduleSettings.sections.cohortAssignment")}</SectionLabel>
       <CohortMultiSelect
-        label="Target Cohorts"
+        label={t("strategus.moduleSettings.fields.targetCohorts")}
         selectedIds={settings.targetCohortIds}
         onChange={(ids) => update("targetCohortIds", ids)}
         cohorts={cohorts}
         filterRole="target"
       />
       <CohortMultiSelect
-        label="Outcome Cohorts"
+        label={t("strategus.moduleSettings.fields.outcomeCohorts")}
         selectedIds={settings.outcomeCohortIds}
         onChange={(ids) => update("outcomeCohortIds", ids)}
         cohorts={cohorts}
         filterRole="outcome"
       />
 
-      <SectionLabel>Model Configuration</SectionLabel>
+      <SectionLabel>{t("strategus.moduleSettings.sections.modelConfiguration")}</SectionLabel>
       <div>
-        <FieldLabel>Model Type</FieldLabel>
+        <FieldLabel>{t("strategus.moduleSettings.fields.modelType")}</FieldLabel>
         <select
           value={settings.modelType}
           onChange={(e) =>
@@ -337,17 +345,17 @@ function PLPPanel({
           }
           className="w-full rounded-lg border border-border-default bg-surface-overlay px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
         >
-          <option value="lassoLogistic">Lasso Logistic Regression</option>
-          <option value="gradientBoosting">Gradient Boosting</option>
-          <option value="randomForest">Random Forest</option>
-          <option value="deepLearning">Deep Learning</option>
+          <option value="lassoLogistic">{t("strategus.moduleSettings.options.modelTypes.lassoLogistic")}</option>
+          <option value="gradientBoosting">{t("strategus.moduleSettings.options.modelTypes.gradientBoosting")}</option>
+          <option value="randomForest">{t("strategus.moduleSettings.options.modelTypes.randomForest")}</option>
+          <option value="deepLearning">{t("strategus.moduleSettings.options.modelTypes.deepLearning")}</option>
         </select>
       </div>
 
-      <SectionLabel>Time at Risk</SectionLabel>
+      <SectionLabel>{t("strategus.moduleSettings.sections.timeAtRisk")}</SectionLabel>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <FieldLabel>Window Start (days)</FieldLabel>
+          <FieldLabel>{t("strategus.moduleSettings.fields.windowStart")}</FieldLabel>
           <NumberInput
             value={settings.timeAtRisk.riskWindowStart}
             onChange={(v) =>
@@ -357,7 +365,7 @@ function PLPPanel({
           />
         </div>
         <div>
-          <FieldLabel>Window End (days)</FieldLabel>
+          <FieldLabel>{t("strategus.moduleSettings.fields.windowEnd")}</FieldLabel>
           <NumberInput
             value={settings.timeAtRisk.riskWindowEnd}
             onChange={(v) =>
@@ -368,10 +376,10 @@ function PLPPanel({
         </div>
       </div>
 
-      <SectionLabel>Training Parameters</SectionLabel>
+      <SectionLabel>{t("strategus.moduleSettings.sections.trainingParameters")}</SectionLabel>
       <div className="grid grid-cols-3 gap-4">
         <div>
-          <FieldLabel>Min Cohort Size</FieldLabel>
+          <FieldLabel>{t("strategus.moduleSettings.fields.minCohortSize")}</FieldLabel>
           <NumberInput
             value={settings.minCohortSize}
             onChange={(v) => update("minCohortSize", v)}
@@ -379,7 +387,7 @@ function PLPPanel({
           />
         </div>
         <div>
-          <FieldLabel>Split Seed</FieldLabel>
+          <FieldLabel>{t("strategus.moduleSettings.fields.splitSeed")}</FieldLabel>
           <NumberInput
             value={settings.splitSeed}
             onChange={(v) => update("splitSeed", v)}
@@ -387,7 +395,7 @@ function PLPPanel({
           />
         </div>
         <div>
-          <FieldLabel>Test Fraction</FieldLabel>
+          <FieldLabel>{t("strategus.moduleSettings.fields.testFraction")}</FieldLabel>
           <NumberInput
             value={settings.testFraction}
             onChange={(v) => update("testFraction", v)}
@@ -414,28 +422,29 @@ function SCCSPanel({
     key: K,
     value: SelfControlledCaseSeriesSettings[K],
   ) => onChange({ ...settings, [key]: value });
+  const { t } = useTranslation("app");
 
   return (
     <div className="space-y-4">
-      <SectionLabel>Cohort Assignment</SectionLabel>
+      <SectionLabel>{t("strategus.moduleSettings.sections.cohortAssignment")}</SectionLabel>
       <CohortMultiSelect
-        label="Outcome Cohorts"
+        label={t("strategus.moduleSettings.fields.outcomeCohorts")}
         selectedIds={settings.outcomeCohortIds}
         onChange={(ids) => update("outcomeCohortIds", ids)}
         cohorts={cohorts}
         filterRole="outcome"
       />
       <CohortMultiSelect
-        label="Exposure Cohorts"
+        label={t("strategus.moduleSettings.fields.exposureCohorts")}
         selectedIds={settings.exposureCohortIds}
         onChange={(ids) => update("exposureCohortIds", ids)}
         cohorts={cohorts}
       />
 
-      <SectionLabel>Era Covariate Settings</SectionLabel>
+      <SectionLabel>{t("strategus.moduleSettings.sections.eraCovariateSettings")}</SectionLabel>
       <div className="space-y-2">
         <Toggle
-          label="Include Era Overlap"
+          label={t("strategus.moduleSettings.fields.includeEraOverlap")}
           checked={settings.eraCovariateSettings.includeEraOverlap}
           onChange={(v) =>
             update("eraCovariateSettings", {
@@ -445,7 +454,7 @@ function SCCSPanel({
           }
         />
         <Toggle
-          label="First Occurrence Only"
+          label={t("strategus.moduleSettings.fields.firstOccurrenceOnly")}
           checked={settings.eraCovariateSettings.firstOccurrenceOnly}
           onChange={(v) =>
             update("eraCovariateSettings", {
@@ -472,49 +481,50 @@ function CohortDiagnosticsPanel({
     key: K,
     value: CohortDiagnosticsSettings[K],
   ) => onChange({ ...settings, [key]: value });
+  const { t } = useTranslation("app");
 
   return (
     <div className="space-y-4">
-      <SectionLabel>Cohort Assignment</SectionLabel>
+      <SectionLabel>{t("strategus.moduleSettings.sections.cohortAssignment")}</SectionLabel>
       <CohortMultiSelect
-        label="Target Cohorts"
+        label={t("strategus.moduleSettings.fields.targetCohorts")}
         selectedIds={settings.targetCohortIds}
         onChange={(ids) => update("targetCohortIds", ids)}
         cohorts={cohorts}
         filterRole="target"
       />
 
-      <SectionLabel>Diagnostics Options</SectionLabel>
+      <SectionLabel>{t("strategus.moduleSettings.sections.diagnosticsOptions")}</SectionLabel>
       <div className="space-y-2">
         <Toggle
-          label="Inclusion Statistics"
+          label={t("strategus.moduleSettings.fields.inclusionStatistics")}
           checked={settings.runInclusionStatistics}
           onChange={(v) => update("runInclusionStatistics", v)}
         />
         <Toggle
-          label="Incidence Rate"
+          label={t("strategus.moduleSettings.fields.incidenceRate")}
           checked={settings.runIncidenceRate}
           onChange={(v) => update("runIncidenceRate", v)}
         />
         <Toggle
-          label="Time Series"
+          label={t("strategus.moduleSettings.fields.timeSeries")}
           checked={settings.runTimeSeries}
           onChange={(v) => update("runTimeSeries", v)}
         />
         <Toggle
-          label="Breakdown Index Events"
+          label={t("strategus.moduleSettings.fields.breakdownIndexEvents")}
           checked={settings.runBreakdownIndexEvents}
           onChange={(v) => update("runBreakdownIndexEvents", v)}
         />
         <Toggle
-          label="Orphan Concepts"
+          label={t("strategus.moduleSettings.fields.orphanConcepts")}
           checked={settings.runOrphanConcepts}
           onChange={(v) => update("runOrphanConcepts", v)}
         />
       </div>
 
       <div>
-        <FieldLabel>Min Cell Count</FieldLabel>
+        <FieldLabel>{t("strategus.moduleSettings.fields.minCellCount")}</FieldLabel>
         <NumberInput
           value={settings.minCellCount}
           onChange={(v) => update("minCellCount", v)}
@@ -539,29 +549,30 @@ function CharacterizationPanel({
     key: K,
     value: CharacterizationSettings[K],
   ) => onChange({ ...settings, [key]: value });
+  const { t } = useTranslation("app");
 
   return (
     <div className="space-y-4">
-      <SectionLabel>Cohort Assignment</SectionLabel>
+      <SectionLabel>{t("strategus.moduleSettings.sections.cohortAssignment")}</SectionLabel>
       <CohortMultiSelect
-        label="Target Cohorts"
+        label={t("strategus.moduleSettings.fields.targetCohorts")}
         selectedIds={settings.targetCohortIds}
         onChange={(ids) => update("targetCohortIds", ids)}
         cohorts={cohorts}
         filterRole="target"
       />
       <CohortMultiSelect
-        label="Comparator Cohorts"
+        label={t("strategus.moduleSettings.fields.comparatorCohorts")}
         selectedIds={settings.comparatorCohortIds}
         onChange={(ids) => update("comparatorCohortIds", ids)}
         cohorts={cohorts}
         filterRole="comparator"
       />
 
-      <SectionLabel>Parameters</SectionLabel>
+      <SectionLabel>{t("strategus.moduleSettings.sections.parameters")}</SectionLabel>
       <div className="grid grid-cols-3 gap-4">
         <div>
-          <FieldLabel>Min Prior Observation (days)</FieldLabel>
+          <FieldLabel>{t("strategus.moduleSettings.fields.minPriorObservation")}</FieldLabel>
           <NumberInput
             value={settings.minPriorObservation}
             onChange={(v) => update("minPriorObservation", v)}
@@ -569,7 +580,7 @@ function CharacterizationPanel({
           />
         </div>
         <div>
-          <FieldLabel>Dechallenge Stop Interval</FieldLabel>
+          <FieldLabel>{t("strategus.moduleSettings.fields.dechallengeStopInterval")}</FieldLabel>
           <NumberInput
             value={settings.dechallengeStopInterval}
             onChange={(v) => update("dechallengeStopInterval", v)}
@@ -577,7 +588,7 @@ function CharacterizationPanel({
           />
         </div>
         <div>
-          <FieldLabel>Dechallenge Eval Window</FieldLabel>
+          <FieldLabel>{t("strategus.moduleSettings.fields.dechallengeEvalWindow")}</FieldLabel>
           <NumberInput
             value={settings.dechallengeEvaluationWindow}
             onChange={(v) => update("dechallengeEvaluationWindow", v)}
@@ -602,29 +613,30 @@ function CohortIncidencePanel({
     key: K,
     value: CohortIncidenceSettings[K],
   ) => onChange({ ...settings, [key]: value });
+  const { t } = useTranslation("app");
 
   return (
     <div className="space-y-4">
-      <SectionLabel>Cohort Assignment</SectionLabel>
+      <SectionLabel>{t("strategus.moduleSettings.sections.cohortAssignment")}</SectionLabel>
       <CohortMultiSelect
-        label="Target Cohorts"
+        label={t("strategus.moduleSettings.fields.targetCohorts")}
         selectedIds={settings.targetCohortIds}
         onChange={(ids) => update("targetCohortIds", ids)}
         cohorts={cohorts}
         filterRole="target"
       />
       <CohortMultiSelect
-        label="Outcome Cohorts"
+        label={t("strategus.moduleSettings.fields.outcomeCohorts")}
         selectedIds={settings.outcomeCohortIds}
         onChange={(ids) => update("outcomeCohortIds", ids)}
         cohorts={cohorts}
         filterRole="outcome"
       />
 
-      <SectionLabel>Time at Risk</SectionLabel>
+      <SectionLabel>{t("strategus.moduleSettings.sections.timeAtRisk")}</SectionLabel>
       <div className="grid grid-cols-3 gap-4">
         <div>
-          <FieldLabel>Start (days)</FieldLabel>
+          <FieldLabel>{t("strategus.moduleSettings.fields.start")}</FieldLabel>
           <NumberInput
             value={settings.timeAtRiskStart}
             onChange={(v) => update("timeAtRiskStart", v)}
@@ -632,7 +644,7 @@ function CohortIncidencePanel({
           />
         </div>
         <div>
-          <FieldLabel>End (days)</FieldLabel>
+          <FieldLabel>{t("strategus.moduleSettings.fields.end")}</FieldLabel>
           <NumberInput
             value={settings.timeAtRiskEnd}
             onChange={(v) => update("timeAtRiskEnd", v)}
@@ -640,7 +652,7 @@ function CohortIncidencePanel({
           />
         </div>
         <div>
-          <FieldLabel>Clean Window (days)</FieldLabel>
+          <FieldLabel>{t("strategus.moduleSettings.fields.cleanWindow")}</FieldLabel>
           <NumberInput
             value={settings.cleanWindow}
             onChange={(v) => update("cleanWindow", v)}
@@ -663,12 +675,13 @@ function EvidenceSynthesisPanel({
     key: K,
     value: EvidenceSynthesisSettings[K],
   ) => onChange({ ...settings, [key]: value });
+  const { t } = useTranslation("app");
 
   return (
     <div className="space-y-4">
-      <SectionLabel>Synthesis Configuration</SectionLabel>
+      <SectionLabel>{t("strategus.moduleSettings.sections.synthesisConfiguration")}</SectionLabel>
       <div>
-        <FieldLabel>Method</FieldLabel>
+        <FieldLabel>{t("strategus.moduleSettings.fields.method")}</FieldLabel>
         <select
           value={settings.method}
           onChange={(e) =>
@@ -676,22 +689,20 @@ function EvidenceSynthesisPanel({
           }
           className="w-full rounded-lg border border-border-default bg-surface-overlay px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
         >
-          <option value="fixedEffects">Fixed Effects</option>
-          <option value="randomEffects">Random Effects</option>
-          <option value="bayesian">Bayesian</option>
+          <option value="fixedEffects">{t("strategus.moduleSettings.options.synthesisMethods.fixedEffects")}</option>
+          <option value="randomEffects">{t("strategus.moduleSettings.options.synthesisMethods.randomEffects")}</option>
+          <option value="bayesian">{t("strategus.moduleSettings.options.synthesisMethods.bayesian")}</option>
         </select>
       </div>
       <div>
-        <FieldLabel>Evidence Source Module</FieldLabel>
+        <FieldLabel>{t("strategus.moduleSettings.fields.evidenceSourceModule")}</FieldLabel>
         <select
           value={settings.evidenceSynthesisSource}
           onChange={(e) => update("evidenceSynthesisSource", e.target.value)}
           className="w-full rounded-lg border border-border-default bg-surface-overlay px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
         >
-          <option value="CohortMethod">Cohort Method</option>
-          <option value="SelfControlledCaseSeries">
-            Self-Controlled Case Series
-          </option>
+          <option value="CohortMethod">{t("strategus.moduleSettings.options.evidenceSources.cohortMethod")}</option>
+          <option value="SelfControlledCaseSeries">{t("strategus.moduleSettings.options.evidenceSources.selfControlledCaseSeries")}</option>
         </select>
       </div>
     </div>
@@ -699,12 +710,12 @@ function EvidenceSynthesisPanel({
 }
 
 function CohortGeneratorPanel() {
+  const { t } = useTranslation("app");
   return (
     <div className="flex items-center gap-3 rounded-lg border border-success/20 bg-success/5 px-4 py-3">
       <Info size={15} className="shrink-0 text-success" />
       <p className="text-sm text-text-secondary">
-        No configuration needed. CohortGenerator automatically builds cohorts
-        from the shared cohort definitions.
+        {t("strategus.moduleSettings.noConfigurationNeeded")}
       </p>
     </div>
   );
@@ -727,6 +738,7 @@ export function ModuleConfigPanel({
   onChange,
   cohorts,
 }: ModuleConfigPanelProps) {
+  const { t } = useTranslation("app");
   switch (moduleName) {
     case "CohortMethodModule":
       return (
@@ -788,7 +800,7 @@ export function ModuleConfigPanel({
     default:
       return (
         <p className="text-sm text-text-ghost">
-          Unknown module: {moduleName}
+          {t("strategus.moduleSettings.unknownModule", { moduleName })}
         </p>
       );
   }
@@ -811,6 +823,7 @@ export function ModuleConfigStep({
   onSettingsChange,
   cohorts,
 }: ModuleConfigStepProps) {
+  const { t } = useTranslation("app");
   const allModules = ["CohortGeneratorModule", ...selectedModules];
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
     // Expand first non-generator module by default
@@ -826,10 +839,10 @@ export function ModuleConfigStep({
     <div className="space-y-4">
       <div className="rounded-lg border border-border-default bg-surface-raised p-5">
         <h2 className="mb-1 text-lg font-semibold text-text-primary">
-          Module Settings
+          {t("strategus.moduleSettings.title")}
         </h2>
         <p className="mb-4 text-sm text-text-muted">
-          Configure per-module parameters. Click a module to expand its settings.
+          {t("strategus.moduleSettings.intro")}
         </p>
 
         <div className="space-y-2">
@@ -854,11 +867,11 @@ export function ModuleConfigStep({
                     <ChevronRight size={14} className="text-text-ghost" />
                   )}
                   <span className="flex-1 text-sm font-medium text-text-primary">
-                    {meta?.label ?? name}
+                    {getStrategusModuleLabel(t, meta?.name ?? name)}
                   </span>
                   {name === "CohortGeneratorModule" && (
                     <span className="rounded bg-success/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-success">
-                      Auto
+                      {t("strategus.moduleSettings.autoBadge")}
                     </span>
                   )}
                 </button>

@@ -7,6 +7,7 @@ import { dashboardResources } from "./dashboardResources";
 import { dataSourceIngestionResources } from "./dataSourceIngestionResources";
 import { imagingGenomicsResources } from "./imagingGenomicsResources";
 import { standardProsResources } from "./standardProsResources";
+import { strategusResources } from "./strategusResources";
 
 type MessageTree = {
   [key: string]: string | MessageTree;
@@ -7136,6 +7137,7 @@ function appForLocale(locale: string): MessageTree {
     analysisResources,
     standardProsResources,
     imagingGenomicsResources,
+    strategusResources,
   ];
 
   return appWaves.reduce(

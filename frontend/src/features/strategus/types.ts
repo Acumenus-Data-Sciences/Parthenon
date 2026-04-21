@@ -247,68 +247,60 @@ export function getDefaultSettings(moduleName: string): ModuleSettings {
 export interface ModuleMetadata {
   name: string;
   package: string;
-  label: string;
-  description: string;
+  copyKey: string;
   icon: string;
   alwaysIncluded?: boolean;
 }
 
+// i18n-exempt: Strategus module names, package names, and copy keys are internal identifiers.
 export const KNOWN_MODULES: ModuleMetadata[] = [
   {
-    name: "CohortGeneratorModule",
+    name: "CohortGeneratorModule" /* i18n-exempt: internal module identifier */,
     package: "CohortGenerator",
-    label: "Cohort Generator",
-    description: "Generates cohorts from definitions. Required for all study types.",
+    copyKey: "cohortGenerator",
     icon: "Users",
     alwaysIncluded: true,
   },
   {
-    name: "CohortMethodModule",
+    name: "CohortMethodModule" /* i18n-exempt: internal module identifier */,
     package: "CohortMethod",
-    label: "Cohort Method",
-    description: "Population-level effect estimation using comparative cohort design.",
+    copyKey: "cohortMethod",
     icon: "GitCompare",
   },
   {
-    name: "PatientLevelPredictionModule",
+    name: "PatientLevelPredictionModule" /* i18n-exempt: internal module identifier */,
     package: "PatientLevelPrediction",
-    label: "Patient Level Prediction",
-    description: "Builds prediction models for patient-level outcomes using ML.",
+    copyKey: "patientLevelPrediction",
     icon: "TrendingUp",
   },
   {
-    name: "SelfControlledCaseSeriesModule",
+    name: "SelfControlledCaseSeriesModule" /* i18n-exempt: internal module identifier */,
     package: "SelfControlledCaseSeries",
-    label: "Self-Controlled Case Series",
-    description: "Estimates incidence rate ratios using SCCS design.",
+    copyKey: "selfControlledCaseSeries",
     icon: "Activity",
   },
   {
-    name: "CohortDiagnosticsModule",
+    name: "CohortDiagnosticsModule" /* i18n-exempt: internal module identifier */,
     package: "CohortDiagnostics",
-    label: "Cohort Diagnostics",
-    description: "Evaluates phenotype algorithms and characterizes cohorts.",
+    copyKey: "cohortDiagnostics",
     icon: "Stethoscope",
   },
   {
-    name: "CharacterizationModule",
+    name: "CharacterizationModule" /* i18n-exempt: internal module identifier */,
     package: "Characterization",
-    label: "Characterization",
-    description: "Computes baseline characteristics across target and comparator cohorts.",
+    copyKey: "characterization",
     icon: "BarChart3",
   },
   {
-    name: "CohortIncidenceModule",
+    name: "CohortIncidenceModule" /* i18n-exempt: internal module identifier */,
     package: "CohortIncidence",
-    label: "Cohort Incidence",
-    description: "Calculates incidence rates of outcomes in target populations.",
+    copyKey: "cohortIncidence",
     icon: "LineChart",
   },
   {
-    name: "EvidenceSynthesisModule",
+    name: "EvidenceSynthesisModule" /* i18n-exempt: internal module identifier */,
     package: "EvidenceSynthesis",
-    label: "Evidence Synthesis",
-    description: "Meta-analysis across data sources using fixed/random effects models.",
+    copyKey: "evidenceSynthesis",
     icon: "Network",
   },
 ];
