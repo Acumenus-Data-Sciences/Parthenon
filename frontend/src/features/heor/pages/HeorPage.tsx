@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   TrendingUp,
   BarChart2,
@@ -22,23 +23,20 @@ import {
   useDeleteContract,
 } from "../hooks/useHeor";
 import type { HeorAnalysis, HeorValueContract } from "../types";
+import {
+  getHeorAnalysisTypeLabel,
+  getHeorStatusLabel,
+  getHeorTimeHorizonLabel,
+} from "../lib/i18n";
 import { HelpButton } from "@/features/help";
 import ClaimsExplorer from "../components/ClaimsExplorer";
 
 const TABS = [
-  { id: "analyses", label: "Economic Analyses", icon: BarChart2 },
-  { id: "contracts", label: "Value Contracts", icon: Handshake },
-  { id: "claims", label: "Claims Explorer", icon: Search },
+  { id: "analyses", labelKey: "heor.common.tabs.analyses", icon: BarChart2 },
+  { id: "contracts", labelKey: "heor.common.tabs.contracts", icon: Handshake },
+  { id: "claims", labelKey: "heor.common.tabs.claims", icon: Search },
 ] as const;
 type Tab = (typeof TABS)[number]["id"];
-
-const ANALYSIS_TYPE_LABELS: Record<string, string> = {
-  cea: "Cost-Effectiveness",
-  cba: "Cost-Benefit",
-  cua: "Cost-Utility",
-  budget_impact: "Budget Impact",
-  roi: "ROI Analysis",
-};
 
 const STATUS_BADGE: Record<string, string> = {
   draft: "bg-surface-elevated text-text-muted",
@@ -53,14 +51,30 @@ const selectCls =
   "w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success transition-colors";
 
 function StatsBar() {
+  const { t } = useTranslation("app");
   const { data: stats, isLoading } = useHeorStats();
 
   const items = [
-    { label: "Total Analyses", value: stats?.total_analyses ?? 0, icon: BarChart2, color: "var(--warning)" },
-    { label: "Completed", value: stats?.completed_analyses ?? 0, icon: CheckCircle2, color: "var(--success)" },
-    { label: "Value Contracts", value: stats?.total_contracts ?? 0, icon: Handshake, color: "var(--domain-observation)" },
     {
-      label: "Analysis Types",
+      label: t("heor.common.labels.totalAnalyses"),
+      value: stats?.total_analyses ?? 0,
+      icon: BarChart2,
+      color: "var(--warning)",
+    },
+    {
+      label: t("heor.common.labels.completed"),
+      value: stats?.completed_analyses ?? 0,
+      icon: CheckCircle2,
+      color: "var(--success)",
+    },
+    {
+      label: t("heor.common.labels.valueContracts"),
+      value: stats?.total_contracts ?? 0,
+      icon: Handshake,
+      color: "var(--domain-observation)",
+    },
+    {
+      label: t("heor.common.labels.analysisTypes"),
       value: Object.keys(stats?.by_type ?? {}).length,
       icon: FileText,
       color: "var(--info)",
@@ -96,10 +110,13 @@ function StatsBar() {
 }
 
 function NewAnalysisForm({ onCreated }: { onCreated: () => void }) {
+  const { t } = useTranslation("app");
   const [name, setName] = useState("");
   const [type, setType] = useState("cea");
   const [description, setDescription] = useState("");
   const createMutation = useCreateHeorAnalysis();
+
+  const analysisTypeOptions = ["cea", "cba", "cua", "budget_impact", "roi"] as const;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,24 +136,28 @@ function NewAnalysisForm({ onCreated }: { onCreated: () => void }) {
       onSubmit={handleSubmit}
       className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3"
     >
-      <h3 className="text-sm font-semibold text-text-primary">New Economic Analysis</h3>
+      <h3 className="text-sm font-semibold text-text-primary">
+        {t("heor.hub.newEconomicAnalysis")}
+      </h3>
       <div className="grid grid-cols-2 gap-3">
         <input
           className={inputCls}
-          placeholder="Analysis name *"
+          placeholder={t("heor.common.placeholders.analysisName")}
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
         />
         <select className={selectCls} value={type} onChange={(e) => setType(e.target.value)}>
-          {Object.entries(ANALYSIS_TYPE_LABELS).map(([v, l]) => (
-            <option key={v} value={v}>{l}</option>
+          {analysisTypeOptions.map((value) => (
+            <option key={value} value={value}>
+              {getHeorAnalysisTypeLabel(t, value)}
+            </option>
           ))}
         </select>
       </div>
       <input
         className={inputCls}
-        placeholder="Description (optional)"
+        placeholder={t("heor.common.placeholders.descriptionOptional")}
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
@@ -146,7 +167,7 @@ function NewAnalysisForm({ onCreated }: { onCreated: () => void }) {
           onClick={onCreated}
           className="px-4 py-2 text-sm text-text-ghost hover:text-text-muted transition-colors"
         >
-          Cancel
+          {t("heor.common.actions.cancel")}
         </button>
         <button
           type="submit"
@@ -154,7 +175,7 @@ function NewAnalysisForm({ onCreated }: { onCreated: () => void }) {
           className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success-dark disabled:opacity-50 transition-colors"
         >
           {createMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-          Create
+          {t("heor.common.actions.create")}
         </button>
       </div>
     </form>
@@ -162,6 +183,7 @@ function NewAnalysisForm({ onCreated }: { onCreated: () => void }) {
 }
 
 function AnalysesTab() {
+  const { t } = useTranslation("app");
   const { data, isLoading } = useHeorAnalyses();
   const deleteMutation = useDeleteHeorAnalysis();
   const [showNew, setShowNew] = useState(false);
@@ -171,17 +193,14 @@ function AnalysesTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-text-muted">
-          Build cost-effectiveness, budget impact, and ROI analyses with scenario modeling and
-          sensitivity analysis.
-        </p>
+        <p className="text-sm text-text-muted">{t("heor.hub.analysesDescription")}</p>
         <button
           type="button"
           onClick={() => setShowNew(true)}
           className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors"
         >
           <Plus size={14} />
-          New Analysis
+          {t("heor.common.actions.newAnalysis")}
         </button>
       </div>
 
@@ -190,58 +209,63 @@ function AnalysesTab() {
       {isLoading && (
         <div className="flex items-center gap-2 text-text-ghost">
           <Loader2 size={14} className="animate-spin" />
-          <span className="text-sm">Loading…</span>
+          <span className="text-sm">{t("heor.common.messages.loading")}</span>
         </div>
       )}
 
       {!isLoading && analyses.length === 0 && !showNew && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-10 text-center text-sm text-text-ghost">
-          No analyses yet. Click "New Analysis" to get started.
+          {t("heor.common.messages.noAnalysesYet")}
         </div>
       )}
 
       <div className="space-y-2">
-        {analyses.map((a) => (
+        {analyses.map((analysis) => (
           <div
-            key={a.id}
+            key={analysis.id}
             className="rounded-lg border border-border-default bg-surface-raised p-4 flex items-center gap-4"
           >
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <span className="font-medium text-text-primary truncate">{a.name}</span>
+                <span className="font-medium text-text-primary truncate">{analysis.name}</span>
                 <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-surface-elevated text-text-muted">
-                  {ANALYSIS_TYPE_LABELS[a.analysis_type] ?? a.analysis_type}
+                  {getHeorAnalysisTypeLabel(t, analysis.analysis_type)}
                 </span>
                 <span
                   className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                    STATUS_BADGE[a.status] ?? "bg-surface-elevated text-text-muted"
+                    STATUS_BADGE[analysis.status] ?? "bg-surface-elevated text-text-muted"
                   }`}
                 >
-                  {a.status}
+                  {getHeorStatusLabel(t, analysis.status)}
                 </span>
               </div>
-              {a.description && (
-                <p className="text-sm text-text-muted truncate">{a.description}</p>
+              {analysis.description && (
+                <p className="text-sm text-text-muted truncate">{analysis.description}</p>
               )}
               <p className="text-xs text-text-ghost mt-1">
-                {a.scenarios?.length ?? 0} scenarios ·{" "}
-                {a.time_horizon?.replace("_", " ")} · {a.currency}
+                {t("heor.analyses.summary", {
+                  scenarioCount: t("heor.common.count.scenario", {
+                    count: analysis.scenarios?.length ?? 0,
+                  }),
+                  timeHorizon: getHeorTimeHorizonLabel(t, analysis.time_horizon),
+                  currency: analysis.currency,
+                })}
               </p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <Link
-                to={`/heor/${a.id}`}
+                to={`/heor/${analysis.id}`}
                 className="inline-flex items-center gap-1 rounded-lg border border-border-default bg-surface-raised px-3 py-1.5 text-xs font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
               >
                 <ChevronRight size={12} />
-                Open
+                {t("heor.common.actions.open")}
               </Link>
               <button
                 type="button"
-                onClick={() => deleteMutation.mutate(a.id)}
+                onClick={() => deleteMutation.mutate(analysis.id)}
                 disabled={deleteMutation.isPending}
                 className="p-1.5 rounded text-text-ghost hover:text-critical hover:bg-critical/10 disabled:opacity-40 transition-colors"
-                title="Delete analysis"
+                title={t("heor.common.actions.deleteAnalysis")}
               >
                 <Trash2 size={13} />
               </button>
@@ -254,6 +278,7 @@ function AnalysesTab() {
 }
 
 function ContractsTab() {
+  const { t } = useTranslation("app");
   const { data: contracts, isLoading } = useHeorContracts();
   const deleteMutation = useDeleteContract();
   const [showNew, setShowNew] = useState(false);
@@ -293,16 +318,14 @@ function ContractsTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-text-muted">
-          Define outcomes-based value contracts with rebate tiers linked to observed outcome rates.
-        </p>
+        <p className="text-sm text-text-muted">{t("heor.hub.contractsDescription")}</p>
         <button
           type="button"
           onClick={() => setShowNew(true)}
           className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors"
         >
           <Plus size={14} />
-          New Contract
+          {t("heor.common.actions.newContract")}
         </button>
       </div>
 
@@ -311,18 +334,20 @@ function ContractsTab() {
           onSubmit={handleCreate}
           className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3"
         >
-          <h3 className="text-sm font-semibold text-text-primary">New Value Contract</h3>
+          <h3 className="text-sm font-semibold text-text-primary">
+            {t("heor.hub.newValueContract")}
+          </h3>
           <div className="grid grid-cols-2 gap-3">
             <input
               className={inputCls}
-              placeholder="Contract name *"
+              placeholder={t("heor.common.placeholders.contractName")}
               value={contractName}
               onChange={(e) => setContractName(e.target.value)}
               required
             />
             <input
               className={inputCls}
-              placeholder="Drug / intervention name"
+              placeholder={t("heor.common.placeholders.drugInterventionName")}
               value={drugName}
               onChange={(e) => setDrugName(e.target.value)}
             />
@@ -330,7 +355,7 @@ function ContractsTab() {
           <div className="grid grid-cols-2 gap-3">
             <input
               className={inputCls}
-              placeholder="Outcome metric (e.g. hba1c_reduction)"
+              placeholder={t("heor.common.placeholders.outcomeMetric")}
               value={outcomeMetric}
               onChange={(e) => setOutcomeMetric(e.target.value)}
               required
@@ -338,7 +363,7 @@ function ContractsTab() {
             <input
               className={inputCls}
               type="number"
-              placeholder="List price (USD)"
+              placeholder={t("heor.common.placeholders.listPriceUsd")}
               value={listPrice}
               onChange={(e) => setListPrice(e.target.value)}
             />
@@ -349,7 +374,7 @@ function ContractsTab() {
               onClick={() => setShowNew(false)}
               className="px-4 py-2 text-sm text-text-ghost hover:text-text-muted transition-colors"
             >
-              Cancel
+              {t("heor.common.actions.cancel")}
             </button>
             <button
               type="submit"
@@ -357,7 +382,7 @@ function ContractsTab() {
               className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success-dark disabled:opacity-50 transition-colors"
             >
               {createMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : null}
-              Create
+              {t("heor.common.actions.create")}
             </button>
           </div>
         </form>
@@ -366,52 +391,64 @@ function ContractsTab() {
       {isLoading && (
         <div className="flex items-center gap-2 text-text-ghost">
           <Loader2 size={14} className="animate-spin" />
-          <span className="text-sm">Loading…</span>
+          <span className="text-sm">{t("heor.common.messages.loading")}</span>
         </div>
       )}
 
       {!isLoading && !contracts?.length && !showNew && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-10 text-center text-sm text-text-ghost">
-          No value contracts defined. Click "New Contract" to start.
+          {t("heor.common.messages.noContractsYet")}
         </div>
       )}
 
       <div className="space-y-2">
-        {contracts?.map((c: HeorValueContract) => (
+        {contracts?.map((contract: HeorValueContract) => (
           <div
-            key={c.id}
+            key={contract.id}
             className="rounded-lg border border-border-default bg-surface-raised p-4 flex items-start gap-4"
           >
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <span className="font-medium text-text-primary">{c.contract_name}</span>
-                {c.drug_name && (
+                <span className="font-medium text-text-primary">{contract.contract_name}</span>
+                {contract.drug_name && (
                   <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-surface-elevated text-text-muted">
-                    {c.drug_name}
+                    {contract.drug_name}
                   </span>
                 )}
                 <span
-                  className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${contractStatusCls(c.status)}`}
+                  className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${contractStatusCls(contract.status)}`}
                 >
-                  {c.status}
+                  {getHeorStatusLabel(t, contract.status)}
                 </span>
               </div>
               <p className="text-sm text-text-muted">
-                Outcome:{" "}
-                <span className="text-text-secondary font-medium">{c.outcome_metric}</span>
-                {c.list_price && ` · List price: $${c.list_price.toLocaleString()}`}
-                {c.baseline_rate !== null &&
-                  ` · Baseline: ${(c.baseline_rate * 100).toFixed(1)}%`}
+                {t("heor.common.labels.outcome")}:{" "}
+                <span className="text-text-secondary font-medium">{contract.outcome_metric}</span>
+                {contract.list_price && (
+                  <>
+                    {" · "}
+                    {t("heor.common.labels.listPrice")}: ${contract.list_price.toLocaleString()}
+                  </>
+                )}
+                {contract.baseline_rate !== null && (
+                  <>
+                    {" · "}
+                    {t("heor.common.labels.baseline")}:{" "}
+                    {(contract.baseline_rate * 100).toFixed(1)}%
+                  </>
+                )}
               </p>
-              {c.rebate_tiers && (
+              {contract.rebate_tiers && (
                 <div className="flex gap-2 mt-2 flex-wrap">
-                  {c.rebate_tiers.map((tier, i) => (
+                  {contract.rebate_tiers.map((tier, index) => (
                     <span
-                      key={i}
+                      key={index}
                       className="text-xs bg-surface-base border border-border-default rounded px-2 py-0.5 text-text-ghost"
                     >
-                      ≥{(tier.threshold * 100).toFixed(0)}% improvement →{" "}
-                      {tier.rebate_percent}% rebate
+                      {t("heor.contracts.tierSummary", {
+                        threshold: (tier.threshold * 100).toFixed(0),
+                        rebate: tier.rebate_percent,
+                      })}
                     </span>
                   ))}
                 </div>
@@ -419,10 +456,10 @@ function ContractsTab() {
             </div>
             <button
               type="button"
-              onClick={() => deleteMutation.mutate(c.id)}
+              onClick={() => deleteMutation.mutate(contract.id)}
               disabled={deleteMutation.isPending}
               className="p-1.5 rounded text-text-ghost hover:text-critical hover:bg-critical/10 disabled:opacity-40 transition-colors flex-shrink-0"
-              title="Delete contract"
+              title={t("heor.common.actions.deleteContract")}
             >
               <Trash2 size={13} />
             </button>
@@ -434,11 +471,11 @@ function ContractsTab() {
 }
 
 export default function HeorPage() {
+  const { t } = useTranslation("app");
   const [tab, setTab] = useState<Tab>("analyses");
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-3">
         <div
           className="flex items-center justify-center w-9 h-9 rounded-md flex-shrink-0"
@@ -447,22 +484,16 @@ export default function HeorPage() {
           <TrendingUp size={18} style={{ color: "var(--warning)" }} />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">
-            Health Economics & Outcomes Research
-          </h1>
-          <p className="text-sm text-text-muted">
-            Cost-effectiveness analyses, budget impact modeling, ROI calculators, and value-based
-            contract simulation
-          </p>
+          <h1 className="text-2xl font-bold text-text-primary">{t("heor.hub.title")}</h1>
+          <p className="text-sm text-text-muted">{t("heor.hub.subtitle")}</p>
         </div>
         <HelpButton helpKey="heor" />
       </div>
 
       <StatsBar />
 
-      {/* Tab bar */}
       <div className="flex gap-1 border-b border-border-default">
-        {TABS.map(({ id, label, icon: Icon }) => (
+        {TABS.map(({ id, labelKey, icon: Icon }) => (
           <button
             key={id}
             type="button"
@@ -474,7 +505,7 @@ export default function HeorPage() {
             }`}
           >
             <Icon size={14} />
-            {label}
+            {t(labelKey)}
           </button>
         ))}
       </div>

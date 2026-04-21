@@ -5,6 +5,7 @@ import { cohortDefinitionResources } from "./cohortDefinitionResources";
 import { commonsResources } from "./commonsResources";
 import { dashboardResources } from "./dashboardResources";
 import { dataSourceIngestionResources } from "./dataSourceIngestionResources";
+import { heorResources } from "./heorResources";
 import { imagingGenomicsResources } from "./imagingGenomicsResources";
 import { investigationResources } from "./investigationResources";
 import { profileSimilarityResources } from "./profileSimilarityResources";
@@ -7139,6 +7140,7 @@ function appForLocale(locale: string): MessageTree {
     cohortDefinitionResources,
     analysisResources,
     standardProsResources,
+    heorResources,
     imagingGenomicsResources,
     investigationResources,
     profileSimilarityResources,

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   Play,
@@ -10,6 +11,7 @@ import {
   TrendingUp,
   AlertTriangle,
   Loader2,
+  X,
 } from "lucide-react";
 import {
   useHeorAnalysis,
@@ -21,22 +23,17 @@ import {
   useDeleteParameter,
 } from "../hooks/useHeor";
 import type { HeorResult, HeorCostParameter, TornadoEntry } from "../types";
+import {
+  getHeorAnalysisTypeLabel,
+  getHeorParameterTypeLabel,
+  getHeorPerspectiveLabel,
+  getHeorScenarioTypeLabel,
+  getHeorTimeHorizonLabel,
+} from "../lib/i18n";
 import CostEffectivenessPlane from "../components/CostEffectivenessPlane";
 import TornadoDiagram from "../components/TornadoDiagram";
 import BudgetImpactChart from "../components/BudgetImpactChart";
 import ScenarioComparisonChart from "../components/ScenarioComparisonChart";
-
-const PARAM_TYPE_LABELS: Record<string, string> = {
-  drug_cost: "Drug Cost",
-  admin_cost: "Admin Cost",
-  hospitalization: "Hospitalization",
-  er_visit: "ER Visit",
-  qaly_weight: "QALY Weight",
-  utility_value: "Utility Value",
-  resource_use: "Resource Use",
-  avoided_cost: "Avoided Cost",
-  program_cost: "Program Cost",
-};
 
 const inputCls =
   "w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors";
@@ -45,30 +42,44 @@ const selectCls =
 
 function fmt(v: number | null | undefined, prefix = "", decimals = 0): string {
   if (v === null || v === undefined) return "—";
-  return prefix + v.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  return prefix + v.toLocaleString(undefined, {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
 }
 
 function ResultCard({ result }: { result: HeorResult }) {
+  const { t } = useTranslation("app");
+
+  const resultItems = [
+    { label: t("heor.common.labels.totalCost"), value: fmt(result.total_cost, "$") },
+    { label: t("heor.common.labels.totalQalys"), value: fmt(result.total_qalys, "", 3) },
+    { label: t("heor.common.labels.incrementalCost"), value: fmt(result.incremental_cost, "$") },
+    { label: t("heor.common.labels.incrementalQalys"), value: fmt(result.incremental_qalys, "", 3) },
+    { label: t("heor.common.labels.icerPerQaly"), value: fmt(result.icer, "$") },
+    {
+      label: t("heor.common.labels.netMonetaryBenefit"),
+      value: fmt(result.net_monetary_benefit, "$"),
+    },
+    {
+      label: t("heor.common.labels.roi"),
+      value: result.roi_percent !== null ? `${result.roi_percent.toFixed(1)}%` : "—",
+    },
+    {
+      label: t("heor.common.labels.paybackMonths"),
+      value: fmt(result.payback_period_months, "", 1),
+    },
+  ];
+
   return (
     <div className="rounded-lg border border-border-default bg-surface-raised p-4">
       <h3 className="text-sm font-semibold text-text-primary mb-4">
-        {result.scenario?.name ?? `Scenario ${result.scenario_id}`}
+        {result.scenario?.name ??
+          t("heor.analysis.scenarioFallback", { id: result.scenario_id })}
       </h3>
 
       <div className="grid grid-cols-2 gap-3 mb-4">
-        {[
-          { label: "Total Cost", value: fmt(result.total_cost, "$") },
-          { label: "Total QALYs", value: fmt(result.total_qalys, "", 3) },
-          { label: "Incremental Cost", value: fmt(result.incremental_cost, "$") },
-          { label: "Incremental QALYs", value: fmt(result.incremental_qalys, "", 3) },
-          { label: "ICER ($/QALY)", value: fmt(result.icer, "$") },
-          { label: "Net Monetary Benefit", value: fmt(result.net_monetary_benefit, "$") },
-          {
-            label: "ROI",
-            value: result.roi_percent !== null ? `${result.roi_percent.toFixed(1)}%` : "—",
-          },
-          { label: "Payback (months)", value: fmt(result.payback_period_months, "", 1) },
-        ].map(({ label, value }) => (
+        {resultItems.map(({ label, value }) => (
           <div key={label}>
             <p className="text-xs text-text-ghost mb-0.5">{label}</p>
             <p className="text-sm font-semibold text-text-primary">{value}</p>
@@ -79,13 +90,13 @@ function ResultCard({ result }: { result: HeorResult }) {
       {result.budget_impact_year1 !== null && (
         <div>
           <p className="text-[10px] text-text-ghost uppercase tracking-wider font-medium mb-2">
-            Budget Impact
+            {t("heor.common.labels.budgetImpact")}
           </p>
           <div className="grid grid-cols-3 gap-2">
             {[
-              { year: "Year 1", val: result.budget_impact_year1 },
-              { year: "Year 3", val: result.budget_impact_year3 },
-              { year: "Year 5", val: result.budget_impact_year5 },
+              { year: t("heor.common.values.year1"), val: result.budget_impact_year1 },
+              { year: t("heor.common.values.year3"), val: result.budget_impact_year3 },
+              { year: t("heor.common.values.year5"), val: result.budget_impact_year5 },
             ].map(({ year, val }) => (
               <div
                 key={year}
@@ -104,17 +115,17 @@ function ResultCard({ result }: { result: HeorResult }) {
       {result.tornado_data && result.tornado_data.length > 0 && (
         <div className="mt-4">
           <p className="text-[10px] text-text-ghost uppercase tracking-wider font-medium mb-2">
-            Sensitivity (Tornado — top 5)
+            {t("heor.charts.tornado.topFive")}
           </p>
           <div className="space-y-1.5">
-            {result.tornado_data.slice(0, 5).map((t: TornadoEntry, i) => {
+            {result.tornado_data.slice(0, 5).map((entry: TornadoEntry, index) => {
               const maxRange = result.tornado_data![0]?.range ?? 1;
-              const pct = maxRange > 0 ? (t.range / maxRange) * 100 : 0;
+              const pct = maxRange > 0 ? (entry.range / maxRange) * 100 : 0;
               return (
-                <div key={i}>
+                <div key={index}>
                   <div className="flex justify-between text-xs text-text-ghost mb-0.5">
-                    <span className="truncate max-w-[60%] text-text-muted">{t.parameter}</span>
-                    <span>±${t.range.toLocaleString()}</span>
+                    <span className="truncate max-w-[60%] text-text-muted">{entry.parameter}</span>
+                    <span>±${entry.range.toLocaleString()}</span>
                   </div>
                   <div className="h-1.5 bg-surface-base rounded-full overflow-hidden">
                     <div
@@ -133,6 +144,7 @@ function ResultCard({ result }: { result: HeorResult }) {
 }
 
 export default function HeorAnalysisPage() {
+  const { t } = useTranslation("app");
   const { id } = useParams<{ id: string }>();
   const analysisId = parseInt(id ?? "0");
 
@@ -156,6 +168,18 @@ export default function HeorAnalysisPage() {
     upper_bound: "",
   });
 
+  const parameterTypeOptions = [
+    "drug_cost",
+    "admin_cost",
+    "hospitalization",
+    "er_visit",
+    "qaly_weight",
+    "utility_value",
+    "resource_use",
+    "avoided_cost",
+    "program_cost",
+  ] as const;
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-24">
@@ -167,7 +191,7 @@ export default function HeorAnalysisPage() {
   if (!analysis) {
     return (
       <div className="flex items-center justify-center py-24 text-text-muted">
-        Analysis not found.
+        {t("heor.common.messages.analysisNotFound")}
       </div>
     );
   }
@@ -206,23 +230,24 @@ export default function HeorAnalysisPage() {
 
   return (
     <div className="space-y-6">
-      {/* Back nav */}
       <Link
         to="/heor"
         className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary transition-colors"
       >
         <ArrowLeft size={14} />
-        Back to HEOR
+        {t("heor.common.actions.backToHeor")}
       </Link>
 
-      {/* Header */}
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-xl font-bold text-text-primary">{analysis.name}</h1>
           <p className="text-sm text-text-muted mt-0.5">
-            {analysis.analysis_type?.toUpperCase()} · {analysis.perspective} ·{" "}
-            {analysis.time_horizon?.replace("_", " ")} ·{" "}
-            {(analysis.discount_rate * 100).toFixed(0)}% discount
+            {t("heor.analysis.headerMeta", {
+              analysisType: getHeorAnalysisTypeLabel(t, analysis.analysis_type),
+              perspective: getHeorPerspectiveLabel(t, analysis.perspective),
+              timeHorizon: getHeorTimeHorizonLabel(t, analysis.time_horizon),
+              discount: (analysis.discount_rate * 100).toFixed(0),
+            })}
           </p>
         </div>
         <button
@@ -236,24 +261,26 @@ export default function HeorAnalysisPage() {
           ) : (
             <Play size={14} />
           )}
-          {runMutation.isPending ? "Running…" : "Run Analysis"}
+          {runMutation.isPending
+            ? t("heor.common.messages.running")
+            : t("heor.common.actions.runAnalysis")}
         </button>
       </div>
 
       {runMutation.isSuccess && (
         <div className="rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
-          Computed {(runMutation.data as { scenarios_computed: number }).scenarios_computed} scenarios.
+          {t("heor.common.messages.computedScenarios", {
+            count: (runMutation.data as { scenarios_computed: number }).scenarios_computed,
+          })}
         </div>
       )}
 
-      {/* Scenarios + Parameters */}
       <div className="grid grid-cols-2 gap-6">
-        {/* Scenarios */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-text-primary flex items-center gap-2">
               <BarChart2 size={14} className="text-warning" />
-              Scenarios ({analysis.scenarios?.length ?? 0})
+              {t("heor.common.labels.scenarios")} ({analysis.scenarios?.length ?? 0})
             </h2>
             <button
               type="button"
@@ -261,7 +288,7 @@ export default function HeorAnalysisPage() {
               className="inline-flex items-center gap-1 rounded-lg border border-border-default bg-surface-raised px-2.5 py-1.5 text-xs font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
             >
               <Plus size={11} />
-              Add
+              {t("heor.common.actions.add")}
             </button>
           </div>
 
@@ -272,7 +299,7 @@ export default function HeorAnalysisPage() {
             >
               <input
                 className={inputCls + " flex-1"}
-                placeholder="Scenario name"
+                placeholder={t("heor.common.placeholders.scenarioName")}
                 value={newScenarioName}
                 onChange={(e) => setNewScenarioName(e.target.value)}
                 required
@@ -281,38 +308,40 @@ export default function HeorAnalysisPage() {
                 type="submit"
                 className="rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-surface-base hover:bg-success-dark transition-colors"
               >
-                Add
+                {t("heor.common.actions.add")}
               </button>
               <button
                 type="button"
                 onClick={() => setShowScenarioForm(false)}
                 className="rounded-lg border border-border-default px-2.5 py-1.5 text-xs text-text-ghost hover:text-text-muted transition-colors"
               >
-                ✕
+                <X size={12} />
               </button>
             </form>
           )}
 
           <div className="space-y-1.5">
-            {analysis.scenarios?.map((s) => (
+            {analysis.scenarios?.map((scenario) => (
               <div
-                key={s.id}
+                key={scenario.id}
                 className="rounded-lg border border-border-default bg-surface-raised px-3 py-2.5 flex items-center gap-2"
               >
                 <div className="flex-1 flex items-center gap-2 min-w-0">
-                  <span className="text-sm font-medium text-text-primary truncate">{s.name}</span>
-                  {s.is_base_case && (
+                  <span className="text-sm font-medium text-text-primary truncate">
+                    {scenario.name}
+                  </span>
+                  {scenario.is_base_case && (
                     <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-success/15 text-success flex-shrink-0">
-                      Base Case
+                      {t("heor.common.values.baseCase")}
                     </span>
                   )}
                   <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-surface-elevated text-text-muted flex-shrink-0">
-                    {s.scenario_type}
+                    {getHeorScenarioTypeLabel(t, scenario.scenario_type)}
                   </span>
                 </div>
                 <button
                   type="button"
-                  onClick={() => deleteScenario.mutate(s.id)}
+                  onClick={() => deleteScenario.mutate(scenario.id)}
                   className="p-1 rounded text-text-ghost hover:text-critical hover:bg-critical/10 transition-colors flex-shrink-0"
                 >
                   <Trash2 size={11} />
@@ -321,18 +350,17 @@ export default function HeorAnalysisPage() {
             ))}
             {!analysis.scenarios?.length && (
               <p className="text-sm text-text-ghost">
-                No scenarios yet. Add at least one to run the analysis.
+                {t("heor.common.messages.noScenariosYet")}
               </p>
             )}
           </div>
         </div>
 
-        {/* Cost Parameters */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-text-primary flex items-center gap-2">
               <DollarSign size={14} className="text-warning" />
-              Cost Parameters ({analysis.parameters?.length ?? 0})
+              {t("heor.common.labels.costParameters")} ({analysis.parameters?.length ?? 0})
             </h2>
             <button
               type="button"
@@ -340,7 +368,7 @@ export default function HeorAnalysisPage() {
               className="inline-flex items-center gap-1 rounded-lg border border-border-default bg-surface-raised px-2.5 py-1.5 text-xs font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
             >
               <Plus size={11} />
-              Add
+              {t("heor.common.actions.add")}
             </button>
           </div>
 
@@ -352,18 +380,20 @@ export default function HeorAnalysisPage() {
               <div className="grid grid-cols-2 gap-2">
                 <input
                   className={inputCls}
-                  placeholder="Parameter name *"
+                  placeholder={t("heor.common.placeholders.parameterName")}
                   value={paramForm.parameter_name}
-                  onChange={(e) => setParamForm((p) => ({ ...p, parameter_name: e.target.value }))}
+                  onChange={(e) => setParamForm((prev) => ({ ...prev, parameter_name: e.target.value }))}
                   required
                 />
                 <select
                   className={selectCls}
                   value={paramForm.parameter_type}
-                  onChange={(e) => setParamForm((p) => ({ ...p, parameter_type: e.target.value }))}
+                  onChange={(e) => setParamForm((prev) => ({ ...prev, parameter_type: e.target.value }))}
                 >
-                  {Object.entries(PARAM_TYPE_LABELS).map(([v, l]) => (
-                    <option key={v} value={v}>{l}</option>
+                  {parameterTypeOptions.map((value) => (
+                    <option key={value} value={value}>
+                      {getHeorParameterTypeLabel(t, value)}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -371,23 +401,23 @@ export default function HeorAnalysisPage() {
                 <input
                   className={inputCls}
                   type="number"
-                  placeholder="Value *"
+                  placeholder={t("heor.common.placeholders.value")}
                   value={paramForm.value}
-                  onChange={(e) => setParamForm((p) => ({ ...p, value: e.target.value }))}
+                  onChange={(e) => setParamForm((prev) => ({ ...prev, value: e.target.value }))}
                   required
                 />
                 <input
                   className={inputCls}
-                  placeholder="Unit"
+                  placeholder={t("heor.common.placeholders.unit")}
                   value={paramForm.unit}
-                  onChange={(e) => setParamForm((p) => ({ ...p, unit: e.target.value }))}
+                  onChange={(e) => setParamForm((prev) => ({ ...prev, unit: e.target.value }))}
                 />
                 <input
                   className={inputCls}
                   type="number"
-                  placeholder="Lower bound"
+                  placeholder={t("heor.common.placeholders.lowerBound")}
                   value={paramForm.lower_bound}
-                  onChange={(e) => setParamForm((p) => ({ ...p, lower_bound: e.target.value }))}
+                  onChange={(e) => setParamForm((prev) => ({ ...prev, lower_bound: e.target.value }))}
                 />
               </div>
               <div className="flex justify-end gap-2">
@@ -396,7 +426,7 @@ export default function HeorAnalysisPage() {
                   onClick={() => setShowParamForm(false)}
                   className="px-3 py-1.5 text-xs text-text-ghost hover:text-text-muted transition-colors"
                 >
-                  Cancel
+                  {t("heor.common.actions.cancel")}
                 </button>
                 <button
                   type="submit"
@@ -404,28 +434,28 @@ export default function HeorAnalysisPage() {
                   className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-surface-base hover:bg-success-dark disabled:opacity-50 transition-colors"
                 >
                   {createParam.isPending && <Loader2 size={11} className="animate-spin" />}
-                  Add
+                  {t("heor.common.actions.add")}
                 </button>
               </div>
             </form>
           )}
 
           <div className="space-y-0 max-h-64 overflow-y-auto rounded-lg border border-border-default bg-surface-raised divide-y divide-border-subtle">
-            {analysis.parameters?.map((p) => (
+            {analysis.parameters?.map((parameter) => (
               <div
-                key={p.id}
+                key={parameter.id}
                 className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-surface-overlay transition-colors"
               >
-                <span className="flex-1 truncate text-text-secondary">{p.parameter_name}</span>
+                <span className="flex-1 truncate text-text-secondary">{parameter.parameter_name}</span>
                 <span className="text-text-ghost text-xs flex-shrink-0">
-                  {PARAM_TYPE_LABELS[p.parameter_type] ?? p.parameter_type}
+                  {getHeorParameterTypeLabel(t, parameter.parameter_type)}
                 </span>
                 <span className="font-mono font-semibold text-xs text-warning flex-shrink-0">
-                  {p.value.toLocaleString()} {p.unit ?? ""}
+                  {parameter.value.toLocaleString()} {parameter.unit ?? ""}
                 </span>
                 <button
                   type="button"
-                  onClick={() => deleteParam.mutate(p.id)}
+                  onClick={() => deleteParam.mutate(parameter.id)}
                   className="p-0.5 rounded text-text-ghost hover:text-critical hover:bg-critical/10 transition-colors flex-shrink-0"
                 >
                   <Trash2 size={11} />
@@ -433,21 +463,21 @@ export default function HeorAnalysisPage() {
               </div>
             ))}
             {!analysis.parameters?.length && (
-              <p className="text-sm text-text-ghost px-3 py-3">No parameters yet.</p>
+              <p className="text-sm text-text-ghost px-3 py-3">
+                {t("heor.common.messages.noParametersYet")}
+              </p>
             )}
           </div>
         </div>
       </div>
 
-      {/* Results */}
       {results && results.length > 0 && (
         <div className="space-y-6">
           <h2 className="text-sm font-semibold text-text-primary flex items-center gap-2">
             <TrendingUp size={14} className="text-warning" />
-            Results
+            {t("heor.analysis.resultsTitle")}
           </h2>
 
-          {/* Visualization Charts */}
           <div className="grid grid-cols-2 gap-4">
             <CostEffectivenessPlane
               results={results}
@@ -455,9 +485,10 @@ export default function HeorAnalysisPage() {
             />
             <TornadoDiagram
               tornadoData={
-                results.find((r) => r.tornado_data?.some((t) => t.range > 0))?.tornado_data ?? []
+                results.find((result) => result.tornado_data?.some((entry) => entry.range > 0))
+                  ?.tornado_data ?? []
               }
-              baseIcer={results.find((r) => r.icer !== null)?.icer}
+              baseIcer={results.find((result) => result.icer !== null)?.icer}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -465,10 +496,9 @@ export default function HeorAnalysisPage() {
             <ScenarioComparisonChart results={results} />
           </div>
 
-          {/* Per-Scenario Result Cards */}
           <div className="grid grid-cols-2 gap-4">
-            {results.map((r: HeorResult) => (
-              <ResultCard key={r.id} result={r} />
+            {results.map((result) => (
+              <ResultCard key={result.id} result={result} />
             ))}
           </div>
         </div>
@@ -477,7 +507,7 @@ export default function HeorAnalysisPage() {
       {analysis.status === "completed" && (!results || results.length === 0) && (
         <div className="rounded-lg border border-amber-400/30 bg-amber-400/10 px-4 py-3 flex items-center gap-2 text-sm text-amber-400">
           <AlertTriangle size={14} />
-          Analysis completed but no results found. Try re-running.
+          {t("heor.common.messages.analysisCompletedNoResults")}
         </div>
       )}
     </div>

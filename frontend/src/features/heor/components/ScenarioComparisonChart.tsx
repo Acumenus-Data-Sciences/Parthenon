@@ -8,6 +8,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 import { ChartCard, CHART, TOOLTIP_CLS, formatCompact } from "@/features/data-explorer/components/charts/chartUtils";
 import type { HeorResult } from "../types";
 
@@ -16,37 +17,48 @@ interface Props {
 }
 
 export default function ScenarioComparisonChart({ results }: Props) {
+  const { t } = useTranslation("app");
+
   if (!results || results.length === 0) {
     return (
-      <ChartCard title="Scenario Comparison" subtitle="Total cost and QALYs by scenario">
+      <ChartCard
+        title={t("heor.charts.scenarioComparison.title")}
+        subtitle={t("heor.charts.scenarioComparison.emptySubtitle")}
+      >
         <div className="h-64 flex items-center justify-center text-sm text-text-ghost">
-          No results to compare.
+          {t("heor.charts.scenarioComparison.noData")}
         </div>
       </ChartCard>
     );
   }
 
-  const chartData = results.map((r) => ({
-    name: truncateName(r.scenario?.name ?? `Scenario ${r.scenario_id}`),
-    fullName: r.scenario?.name ?? `Scenario ${r.scenario_id}`,
-    totalCost: r.total_cost ?? 0,
-    totalQalys: r.total_qalys ?? 0,
-    icer: r.icer,
-    nmb: r.net_monetary_benefit,
-    roi: r.roi_percent,
-    isBaseCase: r.scenario?.is_base_case ?? false,
+  const chartData = results.map((result) => ({
+    name: truncateName(
+      result.scenario?.name ??
+        t("heor.analysis.scenarioFallback", { id: result.scenario_id }),
+    ),
+    fullName:
+      result.scenario?.name ??
+      t("heor.analysis.scenarioFallback", { id: result.scenario_id }),
+    totalCost: result.total_cost ?? 0,
+    totalQalys: result.total_qalys ?? 0,
+    icer: result.icer,
+    nmb: result.net_monetary_benefit,
+    roi: result.roi_percent,
+    isBaseCase: result.scenario?.is_base_case ?? false,
   }));
 
   return (
     <ChartCard
-      title="Scenario Comparison"
-      subtitle={`${results.length} scenarios — total cost (bars) vs QALYs (bars)`}
+      title={t("heor.charts.scenarioComparison.title")}
+      subtitle={t("heor.charts.scenarioComparison.subtitle", {
+        scenarioCount: t("heor.common.count.scenario", { count: results.length }),
+      })}
     >
       <div className="grid grid-cols-2 gap-4">
-        {/* Cost comparison */}
         <div>
           <p className="text-[10px] text-text-ghost uppercase tracking-wider font-medium mb-2 px-1">
-            Total Cost by Scenario
+            {t("heor.charts.scenarioComparison.totalCostByScenario")}
           </p>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={chartData} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
@@ -63,7 +75,7 @@ export default function ScenarioComparisonChart({ results }: Props) {
               />
               <YAxis
                 tick={{ fill: CHART.textDim, fontSize: 9 }}
-                tickFormatter={(v: number) => `$${formatCompact(v)}`}
+                tickFormatter={(value: number) => `$${formatCompact(value)}`}
                 stroke={CHART.grid}
                 axisLine={{ stroke: CHART.grid }}
                 width={60}
@@ -71,28 +83,35 @@ export default function ScenarioComparisonChart({ results }: Props) {
               <Tooltip
                 content={({ active, payload }) => {
                   if (!active || !payload?.[0]) return null;
-                  const d = payload[0].payload;
+                  const datum = payload[0].payload;
                   return (
                     <div className={TOOLTIP_CLS}>
                       <p className="text-xs font-semibold text-text-primary mb-1">
-                        {d.fullName}
-                        {d.isBaseCase && (
-                          <span className="ml-1.5 text-[10px] text-success">(Base Case)</span>
+                        {datum.fullName}
+                        {datum.isBaseCase && (
+                          <span className="ml-1.5 text-[10px] text-success">
+                            {t("heor.charts.scenarioComparison.baseCase")}
+                          </span>
                         )}
                       </p>
                       <div className="space-y-0.5 text-xs text-text-secondary">
                         <p>
-                          Total Cost:{" "}
-                          <span className="font-mono text-warning">${d.totalCost.toLocaleString()}</span>
+                          {t("heor.charts.scenarioComparison.totalCost")}{" "}
+                          <span className="font-mono text-warning">
+                            ${datum.totalCost.toLocaleString()}
+                          </span>
                         </p>
-                        {d.icer !== null && (
+                        {datum.icer !== null && (
                           <p>
-                            ICER: <span className="font-mono text-info">${d.icer.toLocaleString()}/QALY</span>
+                            {t("heor.charts.costEffectivenessPlane.icer", {
+                              value: datum.icer.toLocaleString(),
+                            })}
                           </p>
                         )}
-                        {d.roi !== null && (
+                        {datum.roi !== null && (
                           <p>
-                            ROI: <span className="font-mono text-success">{d.roi.toFixed(1)}%</span>
+                            {t("heor.common.labels.roi")}:{" "}
+                            <span className="font-mono text-success">{datum.roi.toFixed(1)}%</span>
                           </p>
                         )}
                       </div>
@@ -113,10 +132,9 @@ export default function ScenarioComparisonChart({ results }: Props) {
           </ResponsiveContainer>
         </div>
 
-        {/* QALY comparison */}
         <div>
           <p className="text-[10px] text-text-ghost uppercase tracking-wider font-medium mb-2 px-1">
-            Total QALYs by Scenario
+            {t("heor.charts.scenarioComparison.totalQalysByScenario")}
           </p>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={chartData} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
@@ -133,7 +151,7 @@ export default function ScenarioComparisonChart({ results }: Props) {
               />
               <YAxis
                 tick={{ fill: CHART.textDim, fontSize: 9 }}
-                tickFormatter={(v: number) => v.toFixed(1)}
+                tickFormatter={(value: number) => value.toFixed(1)}
                 stroke={CHART.grid}
                 axisLine={{ stroke: CHART.grid }}
                 width={45}
@@ -141,26 +159,27 @@ export default function ScenarioComparisonChart({ results }: Props) {
               <Tooltip
                 content={({ active, payload }) => {
                   if (!active || !payload?.[0]) return null;
-                  const d = payload[0].payload;
+                  const datum = payload[0].payload;
                   return (
                     <div className={TOOLTIP_CLS}>
                       <p className="text-xs font-semibold text-text-primary mb-1">
-                        {d.fullName}
-                        {d.isBaseCase && (
-                          <span className="ml-1.5 text-[10px] text-success">(Base Case)</span>
+                        {datum.fullName}
+                        {datum.isBaseCase && (
+                          <span className="ml-1.5 text-[10px] text-success">
+                            {t("heor.charts.scenarioComparison.baseCase")}
+                          </span>
                         )}
                       </p>
                       <div className="space-y-0.5 text-xs text-text-secondary">
                         <p>
-                          Total QALYs:{" "}
-                          <span className="font-mono text-success">{d.totalQalys.toFixed(3)}</span>
+                          {t("heor.charts.scenarioComparison.totalQalys")}{" "}
+                          <span className="font-mono text-success">{datum.totalQalys.toFixed(3)}</span>
                         </p>
-                        {d.nmb !== null && (
+                        {datum.nmb !== null && (
                           <p>
-                            NMB:{" "}
-                            <span className={`font-mono ${d.nmb >= 0 ? "text-success" : "text-critical"}`}>
-                              ${d.nmb.toLocaleString()}
-                            </span>
+                            {t("heor.charts.costEffectivenessPlane.nmb", {
+                              value: datum.nmb.toLocaleString(),
+                            })}
                           </p>
                         )}
                       </div>
@@ -182,26 +201,27 @@ export default function ScenarioComparisonChart({ results }: Props) {
         </div>
       </div>
 
-      {/* Summary row */}
       <div className="mt-3 flex flex-wrap gap-3 px-1">
-        {chartData.map((d, i) => (
+        {chartData.map((entry, index) => (
           <div
-            key={i}
+            key={index}
             className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs ${
-              d.isBaseCase
+              entry.isBaseCase
                 ? "border-surface-highlight bg-surface-overlay"
                 : "border-border-default bg-surface-base"
             }`}
           >
-            <span className="font-medium text-text-secondary">{d.fullName}</span>
-            {d.isBaseCase && (
+            <span className="font-medium text-text-secondary">{entry.fullName}</span>
+            {entry.isBaseCase && (
               <span className="text-[10px] text-success bg-success/10 px-1.5 py-0.5 rounded">
-                Base
+                {t("heor.charts.scenarioComparison.base")}
               </span>
             )}
-            <span className="font-mono text-warning">${formatCompact(d.totalCost)}</span>
+            <span className="font-mono text-warning">${formatCompact(entry.totalCost)}</span>
             <span className="text-text-ghost">|</span>
-            <span className="font-mono text-success">{d.totalQalys.toFixed(2)} QALYs</span>
+            <span className="font-mono text-success">
+              {entry.totalQalys.toFixed(2)} {t("heor.charts.scenarioComparison.qalysShort")}
+            </span>
           </div>
         ))}
       </div>
