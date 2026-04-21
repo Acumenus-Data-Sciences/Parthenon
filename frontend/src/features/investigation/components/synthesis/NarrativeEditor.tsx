@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface NarrativeEditorProps {
   value: string | null;
@@ -9,10 +10,13 @@ interface NarrativeEditorProps {
 export function NarrativeEditor({
   value,
   onChange,
-  placeholder = "Click to add narrative...",
+  placeholder,
 }: NarrativeEditorProps) {
+  const { t } = useTranslation("app");
   const [editing, setEditing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const resolvedPlaceholder =
+    placeholder ?? t("investigation.common.placeholders.clickToAddNarrative");
 
   useEffect(() => {
     if (editing && textareaRef.current) {
@@ -46,7 +50,7 @@ export function NarrativeEditor({
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setEditing(true); }}
         className="w-full rounded-md border border-dashed border-border-default px-3 py-2 text-xs text-text-ghost cursor-text hover:border-border-hover hover:text-text-muted transition-colors"
       >
-        {placeholder}
+        {resolvedPlaceholder}
       </div>
     );
   }
@@ -59,7 +63,7 @@ export function NarrativeEditor({
       onBlur={handleBlur}
       rows={2}
       className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 text-xs text-text-secondary placeholder:text-text-ghost focus:outline-none focus:border-border-hover resize-none overflow-hidden transition-colors"
-      placeholder={placeholder}
+      placeholder={resolvedPlaceholder}
     />
   );
 }

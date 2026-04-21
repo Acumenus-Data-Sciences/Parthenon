@@ -136,11 +136,7 @@ export type ClinicalAnalysisGroup = "characterize" | "compare" | "predict";
 export interface AnalysisTypeDescriptor {
   type: ClinicalAnalysisType;
   group: ClinicalAnalysisGroup;
-  name: string;
-  description: string;
   icon: string;
-  prerequisites: string[];
-  estimatedTime: string;
   apiPrefix: string;
 }
 

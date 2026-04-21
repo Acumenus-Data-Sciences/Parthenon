@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import type { Investigation, PhenotypeState } from "../../types";
 import { CohortPicker } from "./CohortPicker";
 import { PhenotypeLibrarySearch } from "./PhenotypeLibrarySearch";
@@ -11,29 +12,6 @@ interface ImportOption {
   label: string;
   description: string;
 }
-
-const IMPORT_OPTIONS: ImportOption[] = [
-  {
-    id: "parthenon",
-    label: "Parthenon Cohorts",
-    description: "Select from existing cohort definitions",
-  },
-  {
-    id: "json",
-    label: "Atlas JSON",
-    description: "Paste a cohort definition JSON from Atlas",
-  },
-  {
-    id: "file",
-    label: "File Upload",
-    description: "Upload a CSV or JSON cohort file",
-  },
-  {
-    id: "phenotype_library",
-    label: "Phenotype Library",
-    description: "Browse OHDSI Phenotype Library (1,100+ validated phenotypes)",
-  },
-];
 
 interface CohortBuilderProps {
   investigation: Investigation;
@@ -52,6 +30,7 @@ interface CohortBuilderProps {
 }
 
 export function CohortBuilder({ investigation, onStateChange }: CohortBuilderProps) {
+  const { t } = useTranslation("app");
   const [importMode, setImportMode] = useState<ImportMode>(
     investigation.phenotype_state.import_mode ?? "parthenon",
   );
@@ -66,6 +45,32 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
   const [atlasSummary, setAtlasSummary] = useState<string | null>(null);
   const [fileInfo, setFileInfo] = useState<{ name: string; size: string; summary: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const importOptions: ImportOption[] = [
+    {
+      id: "parthenon",
+      label: t("investigation.phenotype.importModes.parthenon.label"),
+      description: t(
+        "investigation.phenotype.importModes.parthenon.description",
+      ),
+    },
+    {
+      id: "json",
+      label: t("investigation.phenotype.importModes.json.label"),
+      description: t("investigation.phenotype.importModes.json.description"),
+    },
+    {
+      id: "file",
+      label: t("investigation.phenotype.importModes.file.label"),
+      description: t("investigation.phenotype.importModes.file.description"),
+    },
+    {
+      id: "phenotype_library",
+      label: t("investigation.phenotype.importModes.phenotypeLibrary.label"),
+      description: t(
+        "investigation.phenotype.importModes.phenotypeLibrary.description",
+      ),
+    },
+  ];
 
   // Resolved cohort objects (name + count) for display badges
   const { data: cohortListData } = useCohortDefinitions({ limit: 200, with_generations: true });
@@ -83,14 +88,14 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
     setAtlasParseError(null);
     setAtlasSummary(null);
     if (!atlasJson.trim()) {
-      setAtlasParseError("Please paste an Atlas JSON definition before parsing.");
+      setAtlasParseError(t("investigation.phenotype.atlas.parseErrorEmpty"));
       return;
     }
     let parsed: Record<string, unknown>;
     try {
       parsed = JSON.parse(atlasJson) as Record<string, unknown>;
     } catch {
-      setAtlasParseError("Invalid JSON — please check for syntax errors.");
+      setAtlasParseError(t("investigation.phenotype.atlas.parseErrorInvalid"));
       return;
     }
     const hasExpression = "expression" in parsed;
@@ -99,7 +104,7 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
     const primaryCriteria = inner.PrimaryCriteria;
     const hasValidShape = "ConceptSets" in inner || "PrimaryCriteria" in inner || hasExpression;
     if (!hasValidShape) {
-      setAtlasParseError("Unrecognised format — expected ConceptSets, PrimaryCriteria, or expression keys.");
+      setAtlasParseError(t("investigation.phenotype.atlas.parseErrorShape"));
       return;
     }
     const criteriaCount =
@@ -109,7 +114,10 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
         ? 1
         : 0;
     setAtlasSummary(
-      `Found ${conceptSets.length} concept set${conceptSets.length !== 1 ? "s" : ""}, ${criteriaCount} criteria`
+      t("investigation.phenotype.atlas.summary", {
+        conceptSets: conceptSets.length,
+        criteria: criteriaCount,
+      }),
     );
     onStateChange({ cohort_definition: parsed });
   }
@@ -124,7 +132,11 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
       try {
         parsed = JSON.parse(text) as Record<string, unknown>;
       } catch {
-        setFileInfo({ name: file.name, size: `${sizeKB} KB`, summary: "Invalid JSON file" });
+        setFileInfo({
+          name: file.name,
+          size: `${sizeKB} KB`,
+          summary: t("investigation.phenotype.file.invalidJson"),
+        });
         return;
       }
       const inner = ("expression" in parsed ? (parsed.expression as Record<string, unknown>) : parsed) ?? {};
@@ -132,7 +144,9 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
       setFileInfo({
         name: file.name,
         size: `${sizeKB} KB`,
-        summary: `JSON parsed — ${conceptSets.length} concept set${conceptSets.length !== 1 ? "s" : ""}`,
+        summary: t("investigation.phenotype.file.parsedJson", {
+          count: conceptSets.length,
+        }),
       });
       onStateChange({ cohort_definition: parsed });
     } else if (file.name.endsWith(".csv")) {
@@ -141,11 +155,18 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
       setFileInfo({
         name: file.name,
         size: `${sizeKB} KB`,
-        summary: `Loaded ${dataRows} row${dataRows !== 1 ? "s" : ""} from ${file.name}`,
+        summary: t("investigation.phenotype.file.loadedRows", {
+          count: dataRows,
+          name: file.name,
+        }),
       });
       onStateChange({ cohort_definition: { csv_rows: rows } });
     } else {
-      setFileInfo({ name: file.name, size: `${sizeKB} KB`, summary: "Unsupported file type" });
+      setFileInfo({
+        name: file.name,
+        size: `${sizeKB} KB`,
+        summary: t("investigation.phenotype.file.unsupportedType"),
+      });
     }
     // Reset input so same file can be re-selected
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -177,10 +198,10 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
       {/* Import mode selector */}
       <div className="flex flex-col gap-2">
         <p className="text-xs font-medium text-text-muted uppercase tracking-wide">
-          Import Mode
+          {t("investigation.common.sections.importMode")}
         </p>
         <div className="grid grid-cols-2 gap-2">
-          {IMPORT_OPTIONS.map((opt) => (
+          {importOptions.map((opt) => (
             <label
               key={opt.id}
               className={`flex items-start gap-2.5 rounded border px-3 py-2.5 cursor-pointer transition-colors ${
@@ -210,7 +231,7 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
       {importMode === "parthenon" && (
         <div className="flex flex-col gap-3">
           <p className="text-xs font-medium text-text-muted uppercase tracking-wide">
-            Select Cohorts
+            {t("investigation.common.sections.selectCohorts")}
           </p>
           <CohortPicker
             selectedIds={selectedIds}
@@ -224,7 +245,7 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
       {importMode === "json" && (
         <div className="flex flex-col gap-2">
           <p className="text-xs font-medium text-text-muted uppercase tracking-wide">
-            Atlas JSON
+            {t("investigation.common.sections.atlasJson")}
           </p>
           <textarea
             value={atlasJson}
@@ -234,25 +255,29 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
               setAtlasSummary(null);
             }}
             rows={10}
-            placeholder={'Paste Atlas cohort definition JSON here…\n\n{"ConceptSets": [], "PrimaryCriteria": {...}}'}
+            placeholder={t("investigation.common.placeholders.atlasJson")}
             className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-2 text-xs text-text-primary placeholder:text-text-ghost font-mono focus:outline-none focus:border-success/60 resize-y"
           />
           <div className="flex items-center justify-between gap-2">
             <p className="text-[11px] text-text-ghost">
-              Export from Atlas: Cohort Definition → Export → JSON
+              {t("investigation.phenotype.atlas.exportHint")}
             </p>
             <button
               onClick={handleAtlasParse}
               className="shrink-0 px-3 py-1.5 rounded text-xs font-medium bg-success/10 text-success border border-success/30 hover:bg-success/20 transition-colors"
             >
-              Parse &amp; Import
+              {t("investigation.common.actions.parseAndImport")}
             </button>
           </div>
           {atlasParseError && (
             <p className="text-[11px] text-primary">{atlasParseError}</p>
           )}
           {atlasSummary && (
-            <p className="text-[11px] text-success">{atlasSummary} — imported successfully.</p>
+            <p className="text-[11px] text-success">
+              {t("investigation.phenotype.atlas.importSucceeded", {
+                summary: atlasSummary,
+              })}
+            </p>
           )}
         </div>
       )}
@@ -260,7 +285,7 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
       {importMode === "file" && (
         <div className="flex flex-col gap-2">
           <p className="text-xs font-medium text-text-muted uppercase tracking-wide">
-            File Upload
+            {t("investigation.common.sections.fileUpload")}
           </p>
           <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border-default rounded-lg p-8 cursor-pointer hover:border-border-hover transition-colors">
             <svg
@@ -277,7 +302,7 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
               />
             </svg>
             <span className="text-xs text-text-muted">
-              Drop a CSV or JSON file here, or click to browse
+              {t("investigation.phenotype.file.dropPrompt")}
             </span>
             <input
               ref={fileInputRef}
@@ -305,7 +330,7 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
       {selectedIds.length > 0 && (
         <div className="flex flex-col gap-2">
           <p className="text-xs font-medium text-text-muted uppercase tracking-wide">
-            Selected Cohorts ({selectedIds.length})
+            {t("investigation.common.sections.selectedCohorts")} ({selectedIds.length})
           </p>
           <div className="flex flex-wrap gap-1.5">
             {selectedCohorts.map(({ id, name }) => (
@@ -328,7 +353,7 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
                     if (primaryId === id) handlePrimaryChange(next[0] ?? null);
                   }}
                   className="ml-1 text-text-ghost hover:text-text-secondary transition-colors"
-                  aria-label="Remove cohort"
+                  aria-label={t("investigation.common.actions.removeCohort")}
                 >
                   ×
                 </button>
@@ -347,8 +372,14 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
       {conceptSetCount > 0 && (
         <div className="rounded border border-border-default/50 bg-surface-raised/30 px-3 py-2.5">
           <p className="text-xs text-text-muted">
-            <span className="text-success font-medium">{conceptSetCount} concept set{conceptSetCount !== 1 ? "s" : ""}</span>{" "}
-            built in the Explore tab will be included in cohort generation.
+            <span className="text-success font-medium">
+              {t("investigation.common.counts.conceptSet", {
+                count: conceptSetCount,
+              })}
+            </span>{" "}
+            {t("investigation.phenotype.validation.includeExploreBuild", {
+              count: conceptSetCount,
+            })}
           </p>
         </div>
       )}

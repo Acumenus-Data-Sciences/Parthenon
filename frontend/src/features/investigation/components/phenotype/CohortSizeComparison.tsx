@@ -7,6 +7,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 
 export interface CohortSizeComparisonProps {
   cohorts: Array<{ id: number; name: string; count: number }>;
@@ -30,13 +31,16 @@ function CustomTooltip({
   active?: boolean;
   payload?: Array<{ payload: { id: number; name: string; count: number } }>;
 }) {
+  const { t } = useTranslation("app");
   if (!active || !payload?.length) return null;
   const item = payload[0].payload;
   return (
     <div className="max-w-xs rounded-lg border border-surface-highlight bg-surface-overlay px-3 py-2 shadow-lg">
       <p className="text-sm font-medium text-text-primary">{item.name}</p>
       <p className="font-['IBM_Plex_Mono',monospace] text-xs text-success">
-        {item.count.toLocaleString()} subjects
+        {t("investigation.common.counts.subject", {
+          count: item.count,
+        })}
       </p>
     </div>
   );
@@ -46,6 +50,7 @@ export function CohortSizeComparison({
   cohorts,
   primaryId,
 }: CohortSizeComparisonProps) {
+  const { t } = useTranslation("app");
   if (cohorts.length === 0) return null;
 
   const chartData = cohorts.map((c) => ({
@@ -59,7 +64,7 @@ export function CohortSizeComparison({
   return (
     <div className="rounded-xl border border-border-default bg-surface-raised p-4">
       <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-muted">
-        Cohort Size Comparison
+        {t("investigation.phenotype.cohortSizeComparison.title")}
       </h4>
       <ResponsiveContainer width="100%" height={chartHeight}>
         <BarChart
@@ -100,7 +105,7 @@ export function CohortSizeComparison({
       {primaryId != null && (
         <p className="mt-1 text-[10px] text-text-muted">
           <span className="inline-block w-2.5 h-2.5 rounded-sm bg-accent mr-1 align-middle" />
-          Gold = primary cohort
+          {t("investigation.phenotype.cohortSizeComparison.primaryLegend")}
         </p>
       )}
     </div>

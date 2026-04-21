@@ -1,7 +1,12 @@
 import { useMemo } from "react";
 import { RotateCcw, GitCompare, Clock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { CLINICAL_ANALYSIS_REGISTRY } from "../../clinicalRegistry";
 import type { ClinicalAnalysisGroup, ClinicalAnalysisType, Investigation } from "../../types";
+import {
+  formatInvestigationRelativeTime,
+  getClinicalAnalysisLabel,
+} from "../../lib/i18n";
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
@@ -18,58 +23,41 @@ const STATUS_CONFIG: Record<
   { label: string; dotClass: string; textClass: string; bgClass: string; borderClass: string }
 > = {
   complete: {
-    label: "Completed",
+    label: "investigation.common.status.completed",
     dotClass: "bg-success",
     textClass: "text-success",
     bgClass: "bg-success/10",
     borderClass: "border-success/20",
   },
   running: {
-    label: "Running",
+    label: "investigation.common.status.running",
     dotClass: "bg-warning animate-pulse",
     textClass: "text-warning",
     bgClass: "bg-warning/10",
     borderClass: "border-warning/20",
   },
   queued: {
-    label: "Queued",
+    label: "investigation.common.status.queued",
     dotClass: "bg-warning animate-pulse",
     textClass: "text-warning",
     bgClass: "bg-warning/10",
     borderClass: "border-warning/20",
   },
   configured: {
-    label: "Pending",
+    label: "investigation.common.status.pending",
     dotClass: "bg-surface-overlay",
     textClass: "text-text-muted",
     bgClass: "bg-surface-raised/10",
     borderClass: "border-border-default",
   },
   failed: {
-    label: "Failed",
+    label: "investigation.common.status.failed",
     dotClass: "bg-primary",
     textClass: "text-primary",
     bgClass: "bg-primary/10",
     borderClass: "border-primary/30",
   },
 };
-
-// ── Helpers ─────────────────────────────────────────────────────────────────
-
-function formatRelativeTime(isoString: string): string {
-  const now = Date.now();
-  const then = new Date(isoString).getTime();
-  const diffSecs = Math.floor((now - then) / 1000);
-
-  if (diffSecs < 60) return `${diffSecs}s ago`;
-  if (diffSecs < 3600) return `${Math.floor(diffSecs / 60)}m ago`;
-  if (diffSecs < 86400) return `${Math.floor(diffSecs / 3600)}h ago`;
-
-  return new Date(isoString).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
-}
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -89,6 +77,7 @@ export function RunHistoryPanel({
   investigation,
   onSelectExecution,
 }: RunHistoryPanelProps) {
+  const { t, i18n } = useTranslation("app");
   const { queued_analyses } = investigation.clinical_state;
 
   // Only show entries that have an execution_id; sort most recent first
@@ -118,7 +107,7 @@ export function RunHistoryPanel({
       <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border-default bg-surface-base/30 px-6 py-14 text-center">
         <Clock className="h-8 w-8 text-text-ghost" />
         <p className="text-sm text-text-ghost">
-          No analyses have been run yet. Select an analysis from the gallery to get started.
+          {t("investigation.common.empty.noAnalysesRunYet")}
         </p>
       </div>
     );
@@ -131,7 +120,9 @@ export function RunHistoryPanel({
         const executionId = qa.execution_id as number; // guaranteed non-null by filter above
 
         const descriptor = CLINICAL_ANALYSIS_REGISTRY.find((d) => d.type === qa.analysis_type);
-        const analysisName = descriptor?.name ?? qa.analysis_type;
+        const analysisName = descriptor
+          ? getClinicalAnalysisLabel(t, descriptor.type)
+          : qa.analysis_type;
         const group = descriptor?.group ?? "characterize";
         const accent = GROUP_COLOR[group as ClinicalAnalysisGroup];
 
@@ -175,7 +166,11 @@ export function RunHistoryPanel({
             {/* Timestamp */}
             {createdAt && (
               <span className="shrink-0 text-[11px] text-text-ghost">
-                {formatRelativeTime(createdAt)}
+                {formatInvestigationRelativeTime(
+                  t,
+                  i18n.resolvedLanguage,
+                  createdAt,
+                )}
               </span>
             )}
 
@@ -184,7 +179,7 @@ export function RunHistoryPanel({
               className={`flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${sc.bgClass} ${sc.borderClass} ${sc.textClass}`}
             >
               <span className={`h-1.5 w-1.5 rounded-full ${sc.dotClass}`} />
-              {sc.label}
+              {t(sc.label)}
             </span>
 
             {/* Compare button (2+ completed of same type) */}
@@ -192,11 +187,11 @@ export function RunHistoryPanel({
               <button
                 type="button"
                 disabled
-                title="Coming in Phase 4"
+                title={t("investigation.common.messages.compareComingPhase4")}
                 className="flex shrink-0 items-center gap-1.5 rounded-md border border-border-default bg-surface-raised px-2.5 py-1 text-[11px] text-text-ghost opacity-50 cursor-not-allowed"
               >
                 <GitCompare className="h-3 w-3" />
-                Compare
+                {t("investigation.common.actions.compare")}
               </button>
             )}
 
@@ -208,10 +203,10 @@ export function RunHistoryPanel({
                   onSelectExecution(qa.api_prefix, qa.analysis_id, executionId, qa.analysis_type)
                 }
                 className="flex shrink-0 items-center gap-1.5 rounded-md border border-border-default bg-surface-raised px-2.5 py-1 text-[11px] text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
-                title="View or replay this execution"
+                title={t("investigation.clinical.runHistory.replayTitle")}
               >
                 <RotateCcw className="h-3 w-3" />
-                Replay
+                {t("investigation.common.actions.replay")}
               </button>
             )}
 
@@ -223,9 +218,9 @@ export function RunHistoryPanel({
                   onSelectExecution(qa.api_prefix, qa.analysis_id, executionId, qa.analysis_type)
                 }
                 className="flex shrink-0 items-center gap-1.5 rounded-md border border-border-default bg-surface-raised px-2.5 py-1 text-[11px] text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
-                title="View execution details"
+                title={t("investigation.clinical.runHistory.viewTitle")}
               >
-                View
+                {t("investigation.common.actions.view")}
               </button>
             )}
           </div>

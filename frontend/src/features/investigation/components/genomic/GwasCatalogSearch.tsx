@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useGwasCatalogSearch } from "../../hooks/useGenomicEvidence";
 import { GwasCatalogResults } from "./GwasCatalogResults";
 
@@ -19,6 +20,7 @@ export function GwasCatalogSearch({
   investigationId,
   onPinFinding,
 }: GwasCatalogSearchProps) {
+  const { t } = useTranslation("app");
   const [queryType, setQueryType] = useState<"trait" | "gene">("trait");
   const [inputValue, setInputValue] = useState("");
   const [debouncedTerm, setDebouncedTerm] = useState("");
@@ -30,12 +32,6 @@ export function GwasCatalogSearch({
     }, 500);
     return () => clearTimeout(timer);
   }, [inputValue]);
-
-  // Reset when query type changes
-  useEffect(() => {
-    setDebouncedTerm("");
-    setInputValue("");
-  }, [queryType]);
 
   const { data, isLoading, isError, error } = useGwasCatalogSearch(
     investigationId,
@@ -51,7 +47,7 @@ export function GwasCatalogSearch({
           className="text-xs font-semibold uppercase tracking-wide"
           style={{ color: "var(--success)" }}
         >
-          GWAS Catalog
+          {t("investigation.common.tabs.gwasCatalog")}
         </span>
         <span className="text-[10px] text-text-ghost">EMBL-EBI</span>
       </div>
@@ -61,7 +57,11 @@ export function GwasCatalogSearch({
         {(["trait", "gene"] as const).map((type) => (
           <button
             key={type}
-            onClick={() => setQueryType(type)}
+            onClick={() => {
+              setQueryType(type);
+              setInputValue("");
+              setDebouncedTerm("");
+            }}
             className={`text-xs px-3 py-1 rounded-md transition-colors capitalize ${
               queryType === type
                 ? "bg-surface-accent text-text-primary"
@@ -81,8 +81,8 @@ export function GwasCatalogSearch({
           onChange={(e) => setInputValue(e.target.value)}
           placeholder={
             queryType === "trait"
-              ? "Search trait or phenotype (e.g. type 2 diabetes)"
-              : "Search gene (e.g. TCF7L2)"
+              ? t("investigation.common.placeholders.searchTrait")
+              : t("investigation.common.placeholders.searchGene")
           }
           className="w-full text-sm bg-surface-raised/60 border border-border-default rounded-lg px-3 py-2 text-text-primary placeholder-text-ghost focus:outline-none focus:border-border-hover transition-colors"
         />
@@ -99,7 +99,9 @@ export function GwasCatalogSearch({
       {/* States */}
       {isError && (
         <p className="text-xs text-primary px-1">
-          {error instanceof Error ? error.message : "Search failed. Please try again."}
+          {error instanceof Error
+            ? error.message
+            : t("investigation.common.messages.searchFailed")}
         </p>
       )}
 
@@ -113,7 +115,7 @@ export function GwasCatalogSearch({
 
       {!debouncedTerm && (
         <p className="text-xs text-text-ghost px-1">
-          Enter at least 2 characters to search.
+          {t("investigation.common.messages.enterAtLeast2Characters")}
         </p>
       )}
     </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useExportJson, useExportPdf } from "../../hooks/useExport";
 import type { DossierExport } from "../../types";
 
@@ -9,6 +10,7 @@ interface ExportBarProps {
 }
 
 export function ExportBar({ investigationId, investigationTitle }: ExportBarProps) {
+  const { t } = useTranslation("app");
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const exportPdfMutation = useExportPdf();
   const exportJsonMutation = useExportJson();
@@ -34,7 +36,7 @@ export function ExportBar({ investigationId, investigationTitle }: ExportBarProp
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      setSuccessMsg("Exported successfully");
+      setSuccessMsg(t("investigation.common.messages.exportSucceeded"));
     } catch {
       // error handled by mutation state
     }
@@ -52,7 +54,7 @@ export function ExportBar({ investigationId, investigationTitle }: ExportBarProp
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      setSuccessMsg("Exported successfully");
+      setSuccessMsg(t("investigation.common.messages.exportSucceeded"));
     } catch {
       // error handled by mutation state
     }
@@ -60,9 +62,11 @@ export function ExportBar({ investigationId, investigationTitle }: ExportBarProp
 
   return (
     <div className="flex flex-col gap-4 p-6 max-w-xl">
-      <h3 className="text-sm font-semibold text-text-primary">Export Dossier</h3>
+      <h3 className="text-sm font-semibold text-text-primary">
+        {t("investigation.common.sections.exportDossier")}
+      </h3>
       <p className="text-xs text-text-ghost">
-        Export the full evidence dossier including all pinned findings, narratives, and section notes.
+        {t("investigation.synthesis.exportDescription")}
       </p>
 
       <div className="flex items-center gap-3">
@@ -74,7 +78,7 @@ export function ExportBar({ investigationId, investigationTitle }: ExportBarProp
           {exportPdfMutation.isPending ? (
             <Loader2 size={14} className="animate-spin" />
           ) : null}
-          Export PDF
+          {t("investigation.common.actions.exportPdf")}
         </button>
 
         <button
@@ -85,7 +89,7 @@ export function ExportBar({ investigationId, investigationTitle }: ExportBarProp
           {exportJsonMutation.isPending ? (
             <Loader2 size={14} className="animate-spin" />
           ) : null}
-          Export JSON
+          {t("investigation.common.actions.exportJson")}
         </button>
       </div>
 
@@ -94,7 +98,9 @@ export function ExportBar({ investigationId, investigationTitle }: ExportBarProp
       )}
 
       {(exportPdfMutation.isError || exportJsonMutation.isError) && (
-        <p className="text-xs text-red-400">Export failed. Please try again.</p>
+        <p className="text-xs text-red-400">
+          {t("investigation.common.messages.exportFailed")}
+        </p>
       )}
     </div>
   );

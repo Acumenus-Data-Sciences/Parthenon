@@ -1,4 +1,5 @@
 import type { EvidencePin } from "../../types";
+import { useTranslation } from "react-i18next";
 import { NarrativeEditor } from "./NarrativeEditor";
 import { PinCard } from "../PinCard";
 
@@ -27,6 +28,7 @@ export function SectionEditor({
   onDeletePin,
   onUpdatePinNarrative,
 }: SectionEditorProps) {
+  const { t } = useTranslation("app");
   const pinCount = pins.length;
 
   return (
@@ -48,7 +50,7 @@ export function SectionEditor({
         <NarrativeEditor
           value={narrative}
           onChange={(text) => onNarrativeChange(sectionKey, text)}
-          placeholder="Add section narrative..."
+          placeholder={t("investigation.common.placeholders.addSectionNarrative")}
         />
       </div>
 
@@ -60,7 +62,7 @@ export function SectionEditor({
               <NarrativeEditor
                 value={pin.narrative_before}
                 onChange={(text) => onUpdatePinNarrative(pin.id, "narrative_before", text)}
-                placeholder="Add note before..."
+                placeholder={t("investigation.common.placeholders.addNoteBefore")}
               />
               <PinCard
                 pin={pin}
@@ -70,14 +72,16 @@ export function SectionEditor({
               <NarrativeEditor
                 value={pin.narrative_after}
                 onChange={(text) => onUpdatePinNarrative(pin.id, "narrative_after", text)}
-                placeholder="Add note after..."
+                placeholder={t("investigation.common.placeholders.addNoteAfter")}
               />
             </div>
           ))}
         </div>
       ) : (
         !narrative && (
-          <p className="text-xs text-text-ghost mt-1">No findings pinned to this section yet</p>
+          <p className="text-xs text-text-ghost mt-1">
+            {t("investigation.common.empty.noFindingsPinned")}
+          </p>
         )
       )}
     </div>

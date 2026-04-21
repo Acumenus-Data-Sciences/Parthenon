@@ -7,41 +7,11 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-
-export interface DomainCount {
-  name: string;
-  count: number;
-  color: string;
-}
+import { useTranslation } from "react-i18next";
+import type { DomainCount } from "./schemaDensity";
 
 interface SchemaDensityHeatmapProps {
   domains: DomainCount[];
-}
-
-const DOMAIN_COLORS: Record<string, string> = {
-  Condition: "var(--primary)",
-  Drug: "var(--success)",
-  Measurement: "var(--accent)",
-  Procedure: "var(--domain-procedure)",
-  Observation: "var(--domain-observation)",
-  Device: "var(--domain-device)",
-};
-
-export function buildDomainCounts(
-  entries: Array<{ concept: { domain_id: string } }>,
-): DomainCount[] {
-  const counts: Record<string, number> = {};
-  for (const entry of entries) {
-    const d = entry.concept.domain_id || "Unknown";
-    counts[d] = (counts[d] ?? 0) + 1;
-  }
-  return Object.entries(counts)
-    .map(([name, count]) => ({
-      name,
-      count,
-      color: DOMAIN_COLORS[name] ?? "var(--text-muted)",
-    }))
-    .sort((a, b) => b.count - a.count);
 }
 
 interface CustomTooltipProps {
@@ -51,23 +21,27 @@ interface CustomTooltipProps {
 }
 
 function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
+  const { t } = useTranslation("app");
   if (!active || !payload || payload.length === 0) return null;
   return (
     <div className="rounded border border-border-default bg-surface-base px-2.5 py-1.5 text-xs shadow-lg">
       <span className="text-text-secondary font-medium">{label}</span>
       <span className="ml-2 text-text-muted">
-        {payload[0].value} concept{payload[0].value !== 1 ? "s" : ""}
+        {t("investigation.phenotype.schemaDensity.tooltip", {
+          count: payload[0].value,
+        })}
       </span>
     </div>
   );
 }
 
 export function SchemaDensityHeatmap({ domains }: SchemaDensityHeatmapProps) {
+  const { t } = useTranslation("app");
   if (domains.length === 0) {
     return (
       <div className="flex items-center justify-center rounded border border-border-default/40 bg-surface-raised/20 px-4 py-5">
         <p className="text-xs text-text-ghost">
-          Add concepts to see domain coverage
+          {t("investigation.phenotype.schemaDensity.addConcepts")}
         </p>
       </div>
     );
@@ -80,10 +54,12 @@ export function SchemaDensityHeatmap({ domains }: SchemaDensityHeatmapProps) {
     <div className="rounded border border-border-default/40 bg-surface-raised/20 px-3 py-3">
       <div className="mb-2 flex items-center justify-between">
         <span className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-          Domain Coverage
+          {t("investigation.phenotype.schemaDensity.domainCoverage")}
         </span>
         <span className="text-[10px] text-text-ghost">
-          {domains.reduce((s, d) => s + d.count, 0)} total
+          {t("investigation.phenotype.schemaDensity.total", {
+            count: domains.reduce((s, d) => s + d.count, 0),
+          })}
         </span>
       </div>
       <ResponsiveContainer width="100%" height={chartHeight}>

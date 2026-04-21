@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
+import { useTranslation } from "react-i18next";
 import type { AttritionStep } from "../../types";
 
 interface AttritionFunnelProps {
@@ -13,9 +14,12 @@ const GAP = 50;
 
 export default function AttritionFunnel({
   steps,
-  totalLabel = "Total Population",
+  totalLabel,
 }: AttritionFunnelProps) {
+  const { t } = useTranslation("app");
   const svgRef = useRef<SVGSVGElement>(null);
+  const resolvedTotalLabel =
+    totalLabel ?? t("investigation.phenotype.attrition.totalPopulation");
 
   useEffect(() => {
     if (!svgRef.current || steps.length === 0) return;
@@ -59,7 +63,7 @@ export default function AttritionFunnel({
         .attr("font-size", "11px")
         .attr("fill", "var(--text-primary)")
         .attr("font-family", "sans-serif")
-        .text(i === 0 ? totalLabel : step.label);
+        .text(i === 0 ? resolvedTotalLabel : step.label);
 
       // Bar background track
       g.append("rect")
@@ -81,7 +85,9 @@ export default function AttritionFunnel({
         .attr("fill", "var(--success)"); // teal
 
       // Count text inside or right of bar
-      const countLabel = `n = ${step.count.toLocaleString()}`;
+      const countLabel = t("investigation.phenotype.attrition.countLabel", {
+        count: step.count.toLocaleString(),
+      });
       const textX = barWidth + 8;
       g.append("text")
         .attr("x", textX)
@@ -138,16 +144,20 @@ export default function AttritionFunnel({
             .attr("font-size", "10px")
             .attr("fill", "var(--primary)") // crimson
             .attr("font-family", "sans-serif")
-            .text(`−${excluded.toLocaleString()} excluded`);
+            .text(
+              `−${t("investigation.phenotype.attrition.excluded", {
+                count: excluded.toLocaleString(),
+              })}`,
+            );
         }
       }
     });
-  }, [steps, totalLabel]);
+  }, [resolvedTotalLabel, steps, t]);
 
   if (steps.length === 0) {
     return (
       <div className="flex items-center justify-center h-32 text-text-ghost text-sm">
-        No attrition data available
+        {t("investigation.phenotype.attrition.noData")}
       </div>
     );
   }

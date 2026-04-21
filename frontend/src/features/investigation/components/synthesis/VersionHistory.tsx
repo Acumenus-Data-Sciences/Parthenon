@@ -1,4 +1,5 @@
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useVersions, useCreateVersion } from "../../hooks/useExport";
 
 interface VersionHistoryProps {
@@ -7,6 +8,7 @@ interface VersionHistoryProps {
 }
 
 export function VersionHistory({ investigationId, investigationStatus }: VersionHistoryProps) {
+  const { t } = useTranslation("app");
   const { data: versions = [], isLoading } = useVersions(investigationId);
   const createVersion = useCreateVersion();
 
@@ -19,7 +21,9 @@ export function VersionHistory({ investigationId, investigationStatus }: Version
   return (
     <div className="flex flex-col gap-4 p-6 max-w-xl">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-text-primary">Version History</h3>
+        <h3 className="text-sm font-semibold text-text-primary">
+          {t("investigation.common.sections.versionHistory")}
+        </h3>
         {canCreate && (
           <button
             onClick={handleCreate}
@@ -29,22 +33,24 @@ export function VersionHistory({ investigationId, investigationStatus }: Version
             {createVersion.isPending ? (
               <Loader2 size={12} className="animate-spin" />
             ) : null}
-            Create Snapshot
+            {t("investigation.common.actions.createSnapshot")}
           </button>
         )}
       </div>
 
       <p className="text-xs text-text-ghost">
-        Snapshots are created automatically when an investigation is marked Complete.
+        {t("investigation.common.messages.snapshotsAutoComplete")}
       </p>
 
       {isLoading ? (
         <div className="flex items-center gap-2 text-xs text-text-ghost">
           <Loader2 size={12} className="animate-spin" />
-          Loading versions...
+          {t("investigation.common.messages.loadingVersions")}
         </div>
       ) : versions.length === 0 ? (
-        <p className="text-xs text-text-ghost">No snapshots yet.</p>
+        <p className="text-xs text-text-ghost">
+          {t("investigation.common.empty.noSnapshotsYet")}
+        </p>
       ) : (
         <div className="flex flex-col gap-2">
           {versions.map((v) => (

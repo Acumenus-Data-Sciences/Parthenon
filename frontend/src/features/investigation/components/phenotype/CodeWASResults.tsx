@@ -1,4 +1,5 @@
 import type { CodeWASDisplayResult } from "../../types";
+import { useTranslation } from "react-i18next";
 import { SignalsBarChart } from "./SignalsBarChart";
 import { ForestPlotWrapper } from "./ForestPlotWrapper";
 
@@ -15,6 +16,7 @@ interface CodeWASResultsProps {
 }
 
 export function CodeWASResults({ result, onPinFinding }: CodeWASResultsProps) {
+  const { t } = useTranslation("app");
   const summaryEntries = Object.entries(result.analysis_summary).filter(
     ([, v]) => v !== null && v !== undefined && v !== "",
   );
@@ -67,14 +69,16 @@ export function CodeWASResults({ result, onPinFinding }: CodeWASResultsProps) {
       {/* Cohort labels */}
       <div className="flex items-center gap-3 text-xs text-text-muted">
         <span>
-          Case:{" "}
+          {t("investigation.phenotype.codewas.case")}:{" "}
           <span className="text-text-primary font-medium">
             {result.case_cohort_name}
           </span>
         </span>
-        <span className="text-text-ghost">vs.</span>
+        <span className="text-text-ghost">
+          {t("investigation.phenotype.codewas.versus")}
+        </span>
         <span>
-          Control:{" "}
+          {t("investigation.phenotype.codewas.control")}:{" "}
           <span className="text-text-primary font-medium">
             {result.control_cohort_name}
           </span>
@@ -85,7 +89,9 @@ export function CodeWASResults({ result, onPinFinding }: CodeWASResultsProps) {
       {result.top_signals.length > 0 && (
         <div className="flex flex-col gap-3">
           <p className="text-xs font-medium text-text-muted uppercase tracking-wide">
-            Top Signals ({result.top_signals.length})
+            {t("investigation.phenotype.codewas.topSignals", {
+              count: result.top_signals.length,
+            })}
           </p>
 
           {/* Recharts horizontal bar chart */}
@@ -99,10 +105,10 @@ export function CodeWASResults({ result, onPinFinding }: CodeWASResultsProps) {
               <thead>
                 <tr className="border-b border-border-default/50 bg-surface-raised/60">
                   <th className="text-left px-3 py-2 text-text-ghost font-medium">
-                    Label
+                    {t("investigation.phenotype.codewas.label")}
                   </th>
                   <th className="text-right px-3 py-2 text-text-ghost font-medium">
-                    Count
+                    {t("investigation.phenotype.codewas.count")}
                   </th>
                   <th className="px-3 py-2 w-16"></th>
                 </tr>
@@ -120,10 +126,10 @@ export function CodeWASResults({ result, onPinFinding }: CodeWASResultsProps) {
                     <td className="px-3 py-2 text-center">
                       <button
                         onClick={() => handlePin(signal.label, signal.count)}
-                        title="Pin to dossier"
+                        title={t("investigation.common.actions.pinToDossier")}
                         className="text-[10px] px-2 py-0.5 rounded border border-border-hover text-text-muted hover:border-accent/50 hover:text-accent transition-colors"
                       >
-                        Pin
+                        {t("investigation.common.actions.pin")}
                       </button>
                     </td>
                   </tr>
@@ -139,14 +145,14 @@ export function CodeWASResults({ result, onPinFinding }: CodeWASResultsProps) {
         <div className="rounded border border-border-default/50 bg-surface-raised/20 px-4 py-4">
           <ForestPlotWrapper
             data={forestData}
-            title="Effect Estimates"
+            title={t("investigation.phenotype.codewas.effectEstimates")}
           />
         </div>
       )}
 
       {/* Volcano plot placeholder */}
       <div className="rounded border border-border-default/30 bg-surface-raised/20 px-4 py-3 text-xs text-text-ghost">
-        Interactive volcano plot coming in a future update.
+        {t("investigation.phenotype.codewas.volcanoComingSoon")}
       </div>
     </div>
   );

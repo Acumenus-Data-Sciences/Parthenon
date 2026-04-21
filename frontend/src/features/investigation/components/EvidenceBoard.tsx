@@ -1,6 +1,7 @@
 import { ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { CodeExplorerPage } from "@/features/code-explorer";
 import { useInvestigationStore } from "../stores/investigationStore";
 import type { EvidenceDomain, Investigation, InvestigationStatus } from "../types";
@@ -11,6 +12,7 @@ import { GenomicPanel } from "./genomic/GenomicPanel";
 import { LeftRail } from "./LeftRail";
 import { PhenotypePanel } from "./PhenotypePanel";
 import { SynthesisPanel } from "./SynthesisPanel";
+import { getInvestigationStatusLabel } from "../lib/i18n";
 
 interface EvidenceBoardProps {
   investigation: Investigation;
@@ -18,22 +20,22 @@ interface EvidenceBoardProps {
 
 const STATUS_BADGE: Record<
   InvestigationStatus,
-  { label: string; className: string }
+  { key: InvestigationStatus; className: string }
 > = {
   draft: {
-    label: "Draft",
+    key: "draft",
     className: "bg-surface-raised text-text-muted border border-border-default",
   },
   active: {
-    label: "Active",
+    key: "active",
     className: "bg-success/15 text-success border border-success/30",
   },
   complete: {
-    label: "Complete",
+    key: "complete",
     className: "bg-emerald-900/50 text-emerald-300 border border-emerald-700",
   },
   archived: {
-    label: "Archived",
+    key: "archived",
     className: "bg-surface-base text-text-ghost border border-border-default",
   },
 };
@@ -60,6 +62,7 @@ function FocusPanel({ investigation }: { investigation: Investigation }) {
 const VALID_DOMAINS: EvidenceDomain[] = ["phenotype", "clinical", "genomic", "synthesis", "code-explorer"];
 
 export function EvidenceBoard({ investigation }: EvidenceBoardProps) {
+  const { t } = useTranslation("app");
   const pinCount = investigation.pins?.length ?? 0;
   const runCount = (investigation.clinical_state.queued_analyses ?? []).filter(
     (a) => (a as Record<string, unknown>).run_id !== null,
@@ -106,7 +109,7 @@ export function EvidenceBoard({ investigation }: EvidenceBoardProps) {
                 className="flex items-center gap-1 text-xs text-text-ghost hover:text-text-secondary transition-colors shrink-0"
               >
                 <ArrowLeft className="h-3 w-3" />
-                Workbench
+                {t("layout.nav.workbench")}
               </Link>
               <span className="text-text-ghost text-xs">|</span>
               <span className="text-lg font-semibold text-text-primary truncate">
@@ -114,9 +117,9 @@ export function EvidenceBoard({ investigation }: EvidenceBoardProps) {
               </span>
             </div>
             <p className="text-xs text-text-ghost leading-none ml-0.5">
-              Workbench{" "}
+              {t("layout.nav.workbench")}{" "}
               <span className="text-text-ghost">/</span>{" "}
-              Evidence Investigation{" "}
+              {t("investigation.landing.title")}{" "}
               <span className="text-text-ghost">/</span>{" "}
               <span className="text-text-muted">{investigation.title}</span>
             </p>
@@ -126,7 +129,7 @@ export function EvidenceBoard({ investigation }: EvidenceBoardProps) {
           <span
             className={`shrink-0 rounded-md px-2 py-0.5 text-xs font-medium ${badge.className}`}
           >
-            {badge.label}
+            {getInvestigationStatusLabel(t, badge.key)}
           </span>
         </div>
       </div>

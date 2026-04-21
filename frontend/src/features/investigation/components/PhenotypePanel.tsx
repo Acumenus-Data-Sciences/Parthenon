@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAutoSave } from "../hooks/useAutoSave";
 import type { ConceptSearchResult, Investigation, PhenotypeState } from "../types";
 import { CohortBuilder } from "./phenotype/CohortBuilder";
@@ -12,17 +13,11 @@ import {
 } from "./phenotype/ConceptSetBuilder";
 import {
   SchemaDensityHeatmap,
-  buildDomainCounts,
 } from "./phenotype/SchemaDensityHeatmap";
+import { buildDomainCounts } from "./phenotype/schemaDensity";
 import { useCreatePin } from "../hooks/useEvidencePins";
 
 type SubTab = "explore" | "build" | "validate";
-
-const SUB_TABS: { id: SubTab; label: string; disabled?: boolean }[] = [
-  { id: "explore", label: "Explore" },
-  { id: "build", label: "Build" },
-  { id: "validate", label: "Validate" },
-];
 
 interface ConceptSetData {
   name: string;
@@ -33,19 +28,26 @@ interface PhenotypePanelProps {
   investigation: Investigation;
 }
 
-function makeDefaultSet(): [string, ConceptSetData] {
+function makeDefaultSet(defaultName: string): [string, ConceptSetData] {
   return [
     crypto.randomUUID(),
-    { name: "Untitled concept set", entries: [] },
+    { name: defaultName, entries: [] },
   ];
 }
 
 export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
+  const { t } = useTranslation("app");
   const [searchParams, setSearchParams] = useSearchParams();
+  const subTabs: { id: SubTab; label: string; disabled?: boolean }[] = [
+    { id: "explore", label: t("investigation.common.tabs.explore") },
+    { id: "build", label: t("investigation.common.tabs.build") },
+    { id: "validate", label: t("investigation.common.tabs.validate") },
+  ];
+  const untitledConceptSet = t("investigation.common.placeholders.untitledConceptSet");
 
   const [activeTab, setActiveTab] = useState<SubTab>(() => {
     const urlTab = searchParams.get("subtab");
-    const isValid = SUB_TABS.some((t) => t.id === urlTab);
+    const isValid = subTabs.some((tab) => tab.id === urlTab);
     return isValid ? (urlTab as SubTab) : "explore";
   });
 
@@ -87,7 +89,7 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
         return new Map(entries);
       }
       // No saved sets — create a default one
-      return new Map([makeDefaultSet()]);
+      return new Map([makeDefaultSet(untitledConceptSet)]);
     },
   );
 
@@ -97,7 +99,7 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
       return saved[0].id;
     }
     // Return the key of the first (only) entry in the default map
-    const defaultEntry = makeDefaultSet();
+    const defaultEntry = makeDefaultSet(untitledConceptSet);
     return defaultEntry[0];
   });
 
@@ -114,6 +116,9 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
     const saved = investigation.phenotype_state.concept_sets;
     if (!saved || saved.length === 0) return;
 
+    // Rehydration is intentional here: saved investigation state can arrive
+    // after the local editable map initializes from an empty default.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setConceptSets((prev) => {
       // Only re-hydrate if we have a single empty default set
       if (prev.size === 1) {
@@ -152,11 +157,11 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
       }
       return prev;
     });
-  }, [investigation.phenotype_state.concept_sets]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [investigation.phenotype_state.concept_sets]);
 
   // Derived: active set data
   const activeSet = conceptSets.get(resolvedActiveSetId) ?? {
-    name: "Untitled concept set",
+    name: untitledConceptSet,
     entries: [],
   };
 
@@ -197,7 +202,7 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
   }
 
   function handleNewSet() {
-    const [newId, newSet] = makeDefaultSet();
+    const [newId, newSet] = makeDefaultSet(untitledConceptSet);
     setConceptSets((prev) => {
       const next = new Map(prev);
       next.set(newId, newSet);
@@ -262,8 +267,8 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
     <div className="flex flex-col h-full">
       {/* Sub-tab bar */}
       <div className="flex items-center justify-between border-b border-border-default/50 px-4 pt-3 pb-0 shrink-0">
-        <div className="flex items-center gap-1" role="tablist">
-          {SUB_TABS.map((tab) => (
+          <div className="flex items-center gap-1" role="tablist">
+          {subTabs.map((tab) => (
             <button
               key={tab.id}
               role="tab"
@@ -281,7 +286,7 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
               {tab.label}
               {tab.disabled && (
                 <span className="ml-1.5 text-[9px] text-text-ghost font-normal">
-                  Phase 1b
+                  {t("investigation.common.labels.phase1b")}
                 </span>
               )}
               {activeTab === tab.id && !tab.disabled && (
@@ -303,10 +308,10 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
             }`}
           >
             {status === "saving"
-              ? "Saving..."
+              ? t("investigation.common.status.saving")
               : status === "saved"
-                ? "Saved"
-                : "Error"}
+                ? t("investigation.common.status.saved")
+                : t("investigation.common.status.error")}
           </span>
         )}
       </div>

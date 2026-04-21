@@ -1,4 +1,5 @@
 import { CheckCircle2, AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { Investigation } from "../../types";
 
 interface ValidationChecklistProps {
@@ -6,49 +7,54 @@ interface ValidationChecklistProps {
 }
 
 export function ValidationChecklist({ investigation }: ValidationChecklistProps) {
+  const { t } = useTranslation("app");
   const state = investigation.phenotype_state;
 
   const checks = [
     {
-      label: "At least one concept set defined",
+      label: t("investigation.phenotype.validation.atLeastOneConceptSetDefined"),
       pass: state.concept_sets.length > 0,
       detail:
         state.concept_sets.length === 0
-          ? "Add concepts in the Explore tab"
-          : `${state.concept_sets.length} concept set${state.concept_sets.length === 1 ? "" : "s"}`,
+          ? t("investigation.phenotype.validation.addConceptsExploreTab")
+          : t("investigation.common.counts.conceptSet", {
+              count: state.concept_sets.length,
+            }),
     },
     {
-      label: "At least one cohort selected",
+      label: t("investigation.phenotype.validation.atLeastOneCohortSelected"),
       pass: state.selected_cohort_ids.length > 0,
       detail:
         state.selected_cohort_ids.length === 0
-          ? "Select cohorts in the Build tab"
-          : `${state.selected_cohort_ids.length} cohort${state.selected_cohort_ids.length === 1 ? "" : "s"}`,
+          ? t("investigation.phenotype.validation.selectCohortsBuildTab")
+          : t("investigation.common.counts.cohort", {
+              count: state.selected_cohort_ids.length,
+            }),
     },
     {
-      label: "Primary cohort designated",
+      label: t("investigation.phenotype.validation.primaryCohortDesignated"),
       pass: state.primary_cohort_id !== null,
       detail:
         state.primary_cohort_id === null
-          ? "Set a primary cohort for analyses"
+          ? t("investigation.phenotype.validation.setPrimaryCohort")
           : `Cohort #${state.primary_cohort_id}`,
     },
     {
-      label: "No empty concept sets",
+      label: t("investigation.phenotype.validation.noEmptyConceptSets"),
       pass: state.concept_sets.every((cs) => cs.concepts.length > 0),
       detail: (() => {
         const empty = state.concept_sets.filter((cs) => cs.concepts.length === 0);
         return empty.length > 0
           ? `${empty.map((cs) => cs.name).join(", ")} have no concepts`
-          : "All sets populated";
+          : t("investigation.phenotype.validation.allSetsPopulated");
       })(),
     },
     {
-      label: "CodeWAS validation run",
+      label: t("investigation.phenotype.validation.codewasValidationRun"),
       pass: state.last_codewas_run_id !== null,
       detail:
         state.last_codewas_run_id === null
-          ? "Run CodeWAS to validate phenotype"
+          ? t("investigation.phenotype.validation.runCodewas")
           : `Run #${state.last_codewas_run_id}`,
     },
   ];
@@ -61,7 +67,9 @@ export function ValidationChecklist({ investigation }: ValidationChecklistProps)
     <div className="rounded-lg border border-border-default/50 bg-surface-base/60 p-3">
       {/* Summary header */}
       <div className="flex items-center justify-between mb-2">
-        <h4 className="text-xs font-medium text-text-secondary">QC Checklist</h4>
+        <h4 className="text-xs font-medium text-text-secondary">
+          {t("investigation.common.sections.qcChecklist")}
+        </h4>
         <span
           className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${
             passed === total
@@ -71,7 +79,10 @@ export function ValidationChecklist({ investigation }: ValidationChecklistProps)
                 : "text-amber-400 bg-amber-900/20 border-amber-600/30"
           }`}
         >
-          {passed}/{total} passed
+          {t("investigation.phenotype.validation.passed", {
+            passed,
+            total,
+          })}
         </span>
       </div>
 

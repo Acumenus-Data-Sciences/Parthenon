@@ -8,6 +8,7 @@
 // consumers (GenomicPanel.tsx). Named export added for new callers per
 // global named-exports convention.
 import { useMemo, useRef, type MouseEvent } from "react";
+import { useTranslation } from "react-i18next";
 import type { ScaleLinear } from "d3";
 import { useThemeStore } from "@/stores/themeStore";
 import {
@@ -137,6 +138,7 @@ export function ManhattanPlot({
   onPointClick,
   preThinned = false,
 }: ManhattanPlotProps) {
+  const { t } = useTranslation("app");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const theme = useThemeStore((state) => state.theme);
   const pointsRef = useRef<PreparedPoint[]>([]);
@@ -148,7 +150,9 @@ export function ManhattanPlot({
   // A11y floor (Q9 RESOLVED): describe the plot contents for screen readers.
   // Computed once per data change; Canvas itself is non-interactive for AT.
   const ariaLabel = useMemo(() => {
-    if (points.length === 0) return "Manhattan plot: no variants";
+    if (points.length === 0) {
+      return t("investigation.genomic.manhattanAriaNoVariants");
+    }
     const sigLine = -Math.log10(significanceThreshold);
     let gwsCount = 0;
     let top: PreparedPoint | null = null;
@@ -157,10 +161,18 @@ export function ManhattanPlot({
       if (!top || pt.negLogP > top.negLogP) top = pt;
     }
     const topStr = top
-      ? `top peak at chr${top.chr}:${top.pos.toLocaleString()}, p=${formatPForAria(top.p)}`
-      : "no peaks";
-    return `Manhattan plot: ${points.length.toLocaleString()} variants, ${gwsCount.toLocaleString()} genome-wide significant, ${topStr}`;
-  }, [points, significanceThreshold]);
+      ? t("investigation.genomic.manhattanAriaTopPeak", {
+          chr: top.chr,
+          pos: top.pos.toLocaleString(),
+          pValue: formatPForAria(top.p),
+        })
+      : t("investigation.genomic.manhattanAriaNoPeaks");
+    return t("investigation.genomic.manhattanAriaSummary", {
+      variantCount: points.length.toLocaleString(),
+      significantCount: gwsCount.toLocaleString(),
+      topPeak: topStr,
+    });
+  }, [points, significanceThreshold, t]);
 
   useManhattanCanvas(
     {
@@ -217,9 +229,9 @@ export function ManhattanPlot({
         className="flex items-center justify-center text-text-ghost text-sm rounded border border-border-default"
         style={{ width, height }}
         role="img"
-        aria-label="Manhattan plot: no GWAS data available"
+        aria-label={t("investigation.genomic.noGwasDataAvailableAria")}
       >
-        No GWAS data available
+        {t("investigation.genomic.noGwasDataAvailable")}
       </div>
     );
   }

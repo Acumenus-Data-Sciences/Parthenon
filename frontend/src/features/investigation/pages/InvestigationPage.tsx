@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useInvestigation } from "../hooks/useInvestigation";
 import { EvidenceBoard } from "../components/EvidenceBoard";
 import {
@@ -11,6 +12,7 @@ import {
 } from "../lib/safeState";
 
 export default function InvestigationPage() {
+  const { t } = useTranslation("app");
   const { investigationId } = useParams<{ investigationId: string }>();
   const { data: investigation, isLoading, isError } = useInvestigation(
     investigationId ? Number(investigationId) : 0,
@@ -37,7 +39,9 @@ export default function InvestigationPage() {
       >
         <div className="flex items-center gap-3 text-text-muted">
           <Loader2 className="h-5 w-5 animate-spin" />
-          <span className="text-sm">Loading investigation...</span>
+          <span className="text-sm">
+            {t("investigation.common.messages.loadingInvestigation")}
+          </span>
         </div>
       </div>
     );
@@ -51,13 +55,13 @@ export default function InvestigationPage() {
       >
         <div className="text-center space-y-3">
           <p className="text-text-muted text-sm">
-            Investigation not found or could not be loaded.
+            {t("investigation.common.messages.investigationLoadFailed")}
           </p>
           <Link
             to="/workbench"
             className="inline-block text-sm text-success hover:underline"
           >
-            Back to Workbench
+            {t("layout.nav.workbench")}
           </Link>
         </div>
       </div>

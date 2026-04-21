@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 interface CohortOverlapMatrixProps {
   cohorts: Array<{ id: number; name: string; count: number }>;
 }
@@ -7,12 +9,15 @@ function truncate(name: string, max = 14): string {
 }
 
 export function CohortOverlapMatrix({ cohorts }: CohortOverlapMatrixProps) {
+  const { t } = useTranslation("app");
   if (cohorts.length < 2) {
     return (
       <div className="rounded-lg border border-border-default/50 bg-surface-base/60 p-3">
-        <h4 className="text-xs font-medium text-text-secondary mb-2">Cohort Overlap Matrix</h4>
+        <h4 className="text-xs font-medium text-text-secondary mb-2">
+          {t("investigation.phenotype.cohortOverlap.title")}
+        </h4>
         <div className="flex items-center justify-center py-6 text-text-ghost text-xs">
-          Select 2+ cohorts to see overlap
+          {t("investigation.phenotype.cohortOverlap.selectTwoCohorts")}
         </div>
       </div>
     );
@@ -24,7 +29,9 @@ export function CohortOverlapMatrix({ cohorts }: CohortOverlapMatrixProps) {
 
   return (
     <div className="rounded-lg border border-border-default/50 bg-surface-base/60 p-3">
-      <h4 className="text-xs font-medium text-text-secondary mb-2">Cohort Overlap Matrix</h4>
+      <h4 className="text-xs font-medium text-text-secondary mb-2">
+        {t("investigation.phenotype.cohortOverlap.title")}
+      </h4>
 
       <div
         className="text-[10px]"
@@ -69,8 +76,11 @@ export function CohortOverlapMatrix({ cohorts }: CohortOverlapMatrixProps) {
                   }`}
                   title={
                     isDiag
-                      ? `${row.name}: ${row.count.toLocaleString()} patients`
-                      : "Run operations to compute overlap"
+                      ? t("investigation.phenotype.cohortOverlap.patientCountTooltip", {
+                          name: row.name,
+                          count: row.count.toLocaleString(),
+                        })
+                      : t("investigation.phenotype.cohortOverlap.runOperationsToComputeOverlap")
                   }
                 >
                   {isDiag ? row.count.toLocaleString() : "—"}
@@ -82,7 +92,7 @@ export function CohortOverlapMatrix({ cohorts }: CohortOverlapMatrixProps) {
       </div>
 
       <p className="text-[10px] text-text-ghost mt-2 leading-tight">
-        Diagonal: cohort sizes. Off-diagonal: run set operations to compute overlap.
+        {t("investigation.phenotype.cohortOverlap.footnote")}
       </p>
     </div>
   );

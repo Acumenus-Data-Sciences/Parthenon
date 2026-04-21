@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAutoSave } from "../../hooks/useAutoSave";
 import { useCreatePin } from "../../hooks/useEvidencePins";
 import type {
@@ -27,13 +28,8 @@ type PinFinding = {
   finding_payload: Record<string, unknown>;
 };
 
-const TABS: Array<{ id: TabId; label: string }> = [
-  { id: "opentargets", label: "Open Targets" },
-  { id: "gwas-catalog", label: "GWAS Catalog" },
-  { id: "upload", label: "Upload GWAS" },
-];
-
 export function GenomicPanel({ investigation }: GenomicPanelProps) {
+  const { t } = useTranslation("app");
   const [activeTab, setActiveTab] = useState<TabId>("opentargets");
   const [gwasData, setGwasData] = useState<GwasSummaryRow[] | null>(null);
   const [gwasUploadResult, setGwasUploadResult] =
@@ -45,6 +41,11 @@ export function GenomicPanel({ investigation }: GenomicPanelProps) {
   );
 
   const createPin = useCreatePin(investigation.id);
+  const tabs: Array<{ id: TabId; label: string }> = [
+    { id: "opentargets", label: t("investigation.common.tabs.openTargets") },
+    { id: "gwas-catalog", label: t("investigation.common.tabs.gwasCatalog") },
+    { id: "upload", label: t("investigation.common.tabs.upload") },
+  ];
 
   useAutoSave(
     investigation.id,
@@ -118,10 +119,10 @@ export function GenomicPanel({ investigation }: GenomicPanelProps) {
       >
         <div className="flex flex-col gap-0.5">
           <h2 className="text-base font-semibold text-text-primary">
-            Genomic Evidence
+            {t("investigation.genomic.title")}
           </h2>
           <p className="text-xs text-text-ghost">
-            Open Targets · GWAS Catalog · Summary Statistics
+            {t("investigation.genomic.subtitle")}
           </p>
         </div>
 
@@ -130,7 +131,7 @@ export function GenomicPanel({ investigation }: GenomicPanelProps) {
 
       {/* Sub-tabs */}
       <div className="flex gap-0 border-b border-border-default px-6" role="tablist">
-        {TABS.map((tab) => (
+        {tabs.map((tab) => (
           <button
             key={tab.id}
             role="tab"
@@ -187,7 +188,7 @@ export function GenomicPanel({ investigation }: GenomicPanelProps) {
                     className="text-xs font-semibold uppercase tracking-wide"
                     style={{ color: "var(--success)" }}
                   >
-                    Manhattan Plot
+                    {t("investigation.genomic.manhattanPlot")}
                   </span>
                   <ManhattanPlot
                     data={gwasData.map((r) => ({
@@ -204,7 +205,7 @@ export function GenomicPanel({ investigation }: GenomicPanelProps) {
                     className="text-xs font-semibold uppercase tracking-wide"
                     style={{ color: "var(--success)" }}
                   >
-                    QQ Plot
+                    {t("investigation.genomic.qqPlot")}
                   </span>
                   <QQPlot observedP={gwasData.map((r) => r.p)} />
                 </div>

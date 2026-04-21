@@ -1,4 +1,5 @@
 import { Pin } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { ClinicalAnalysisType } from "../../types";
 import { ForestPlotWrapper } from "../phenotype/ForestPlotWrapper";
 import { KaplanMeierChart } from "./KaplanMeierChart";
@@ -64,6 +65,7 @@ interface PinButtonProps {
 }
 
 function PinButton({ onClick }: PinButtonProps) {
+  const { t } = useTranslation("app");
   return (
     <button
       type="button"
@@ -71,7 +73,7 @@ function PinButton({ onClick }: PinButtonProps) {
       className="flex items-center gap-1.5 rounded-md border border-border-default bg-surface-raised/60 px-2.5 py-1 text-xs text-text-muted transition hover:border-accent/60 hover:text-accent"
     >
       <Pin className="h-3 w-3" />
-      Pin to Dossier
+      {t("investigation.common.actions.pinToDossier")}
     </button>
   );
 }
@@ -86,6 +88,7 @@ function CharacterizationResults({
   result: Record<string, unknown>;
   onPinFinding: (f: PinFinding) => void;
 }) {
+  const { t } = useTranslation("app");
   const targetCount = result?.target_count as number | undefined;
   const comparatorCount = result?.comparator_count as number | undefined;
 
@@ -105,15 +108,15 @@ function CharacterizationResults({
       {/* Cohort counts */}
       <div className="flex flex-col gap-2">
         <span className="text-xs font-medium uppercase tracking-wide text-text-ghost">
-          Cohort Counts
+          {t("investigation.clinical.results.cohortCounts")}
         </span>
         <div className="grid grid-cols-2 gap-3">
           <MetricCard
-            label="Target subjects"
+            label={t("investigation.clinical.results.targetSubjects")}
             value={targetCount?.toLocaleString() ?? "—"}
           />
           <MetricCard
-            label="Comparator subjects"
+            label={t("investigation.clinical.results.comparatorSubjects")}
             value={comparatorCount?.toLocaleString() ?? "—"}
           />
         </div>
@@ -133,14 +136,14 @@ function CharacterizationResults({
       {topFeatures && topFeatures.length > 0 && (
         <div className="flex flex-col gap-2">
           <span className="text-xs font-medium uppercase tracking-wide text-text-ghost">
-            Top Features by SMD
+            {t("investigation.clinical.results.topFeaturesBySmd")}
           </span>
           <div className="overflow-hidden rounded-lg border border-border-default">
             <table className="w-full text-xs">
               <thead>
                 <tr className="border-b border-border-default bg-surface-base/80">
                   <th className="px-3 py-2 text-left font-medium text-text-ghost">
-                    Covariate
+                    {t("investigation.clinical.results.covariate")}
                   </th>
                   <th className="px-3 py-2 text-right font-medium text-text-ghost">
                     SMD
@@ -181,6 +184,7 @@ function IncidenceRateResults({
   result: Record<string, unknown>;
   onPinFinding: (f: PinFinding) => void;
 }) {
+  const { t } = useTranslation("app");
   const rate = result?.rate as number | undefined;
   const ciLower = result?.ci_lower as number | undefined;
   const ciUpper = result?.ci_upper as number | undefined;
@@ -190,7 +194,7 @@ function IncidenceRateResults({
   return (
     <div className="flex flex-col gap-4">
       <span className="text-xs font-medium uppercase tracking-wide text-text-ghost">
-        Incidence Rate
+        {t("investigation.clinical.results.incidenceRate")}
       </span>
 
       {/* Rate card */}
@@ -198,17 +202,22 @@ function IncidenceRateResults({
         <span className="text-3xl font-bold text-success">
           {rate != null ? rate.toFixed(4) : "—"}
         </span>
-        <span className="text-xs text-text-ghost">per person-year</span>
+        <span className="text-xs text-text-ghost">
+          {t("investigation.clinical.results.perPersonYear")}
+        </span>
         <CIBadge lower={ciLower} upper={ciUpper} />
       </div>
 
       {/* Summary row */}
       <div className="grid grid-cols-2 gap-3">
         <MetricCard
-          label="Person-years"
+          label={t("investigation.clinical.results.personYears")}
           value={personYears?.toLocaleString() ?? "—"}
         />
-        <MetricCard label="Cases" value={cases?.toLocaleString() ?? "—"} />
+        <MetricCard
+          label={t("investigation.clinical.results.cases")}
+          value={cases?.toLocaleString() ?? "—"}
+        />
       </div>
 
       <PinButton
@@ -233,6 +242,7 @@ function EstimationResults({
   result: Record<string, unknown>;
   onPinFinding: (f: PinFinding) => void;
 }) {
+  const { t } = useTranslation("app");
   const hr = result?.hazard_ratio as number | undefined;
   const ciLower = (result?.ci_95_lower ?? result?.ci_lower) as number | undefined;
   const ciUpper = (result?.ci_95_upper ?? result?.ci_upper) as number | undefined;
@@ -246,7 +256,7 @@ function EstimationResults({
   const forestData = estimatesRaw
     ?.filter((e) => e.hr != null && e.ci_95_lower != null && e.ci_95_upper != null)
     .map((e) => ({
-      label: e.label ?? "Estimate",
+      label: e.label ?? t("investigation.clinical.results.estimateFallback"),
       hr: e.hr!,
       lower: e.ci_95_lower!,
       upper: e.ci_95_upper!,
@@ -259,10 +269,18 @@ function EstimationResults({
     kmData?.target_curve || kmData?.comparator_curve
       ? [
           ...(kmData?.target_curve
-            ? [{ label: "Target", color: "var(--success)", points: kmData.target_curve }]
+            ? [{
+                label: t("investigation.clinical.results.target"),
+                color: "var(--success)",
+                points: kmData.target_curve,
+              }]
             : []),
           ...(kmData?.comparator_curve
-            ? [{ label: "Comparator", color: "var(--primary)", points: kmData.comparator_curve }]
+            ? [{
+                label: t("investigation.clinical.results.comparator"),
+                color: "var(--primary)",
+                points: kmData.comparator_curve,
+              }]
             : []),
         ]
       : undefined;
@@ -279,7 +297,7 @@ function EstimationResults({
   return (
     <div className="flex flex-col gap-4">
       <span className="text-xs font-medium uppercase tracking-wide text-text-ghost">
-        Comparative Effectiveness
+        {t("investigation.clinical.results.comparativeEffectiveness")}
       </span>
 
       {/* HR card */}
@@ -295,12 +313,16 @@ function EstimationResults({
         >
           {hr != null ? hr.toFixed(2) : "—"}
         </span>
-        <span className="text-xs text-text-ghost">Hazard Ratio</span>
+        <span className="text-xs text-text-ghost">
+          {t("investigation.clinical.results.hazardRatio")}
+        </span>
         <div className="flex items-center gap-2">
           <CIBadge lower={ciLower} upper={ciUpper} />
           {pValue != null && (
             <span className="text-xs text-text-ghost">
-              p = {pValue < 0.001 ? "<0.001" : pValue.toFixed(3)}
+              {t("investigation.common.labels.pValueInline", {
+                value: pValue < 0.001 ? "<0.001" : pValue.toFixed(3),
+              })}
             </span>
           )}
         </div>
@@ -309,22 +331,25 @@ function EstimationResults({
       {/* Summary row */}
       <div className="grid grid-cols-3 gap-2">
         <MetricCard
-          label="Target"
+          label={t("investigation.clinical.results.target")}
           value={targetCount?.toLocaleString() ?? "—"}
         />
         <MetricCard
-          label="Comparator"
+          label={t("investigation.clinical.results.comparator")}
           value={comparatorCount?.toLocaleString() ?? "—"}
         />
         <MetricCard
-          label="Outcome events"
+          label={t("investigation.clinical.results.outcomeEvents")}
           value={outcomeEvents?.toLocaleString() ?? "—"}
         />
       </div>
 
       {/* Forest plot */}
       {forestData && forestData.length > 0 && (
-        <ForestPlotWrapper data={forestData} title="Estimates" />
+        <ForestPlotWrapper
+          data={forestData}
+          title={t("investigation.clinical.results.estimates")}
+        />
       )}
 
       {/* Kaplan-Meier survival curves */}
@@ -370,6 +395,7 @@ function PredictionResults({
   result: Record<string, unknown>;
   onPinFinding: (f: PinFinding) => void;
 }) {
+  const { t } = useTranslation("app");
   const auc = (result?.auc ?? result?.auroc) as number | undefined;
   const sensitivity = result?.sensitivity as number | undefined;
   const specificity = result?.specificity as number | undefined;
@@ -382,7 +408,7 @@ function PredictionResults({
   return (
     <div className="flex flex-col gap-4">
       <span className="text-xs font-medium uppercase tracking-wide text-text-ghost">
-        Prediction Performance
+        {t("investigation.clinical.results.predictionPerformance")}
       </span>
 
       {/* AUC card */}
@@ -392,7 +418,9 @@ function PredictionResults({
         >
           {aucDisplay}
         </span>
-        <span className="text-xs text-text-ghost">AUC / AUROC</span>
+        <span className="text-xs text-text-ghost">
+          {t("investigation.clinical.results.aucAuroc")}
+        </span>
       </div>
 
       {/* Summary metrics */}
@@ -403,21 +431,27 @@ function PredictionResults({
         <div className="grid grid-cols-2 gap-3">
           {sensitivity != null && (
             <MetricCard
-              label="Sensitivity"
+              label={t("investigation.clinical.results.sensitivity")}
               value={sensitivity.toFixed(3)}
             />
           )}
           {specificity != null && (
             <MetricCard
-              label="Specificity"
+              label={t("investigation.clinical.results.specificity")}
               value={specificity.toFixed(3)}
             />
           )}
           {ppv != null && (
-            <MetricCard label="PPV" value={ppv.toFixed(3)} />
+            <MetricCard
+              label={t("investigation.clinical.results.ppv")}
+              value={ppv.toFixed(3)}
+            />
           )}
           {npv != null && (
-            <MetricCard label="NPV" value={npv.toFixed(3)} />
+            <MetricCard
+              label={t("investigation.clinical.results.npv")}
+              value={npv.toFixed(3)}
+            />
           )}
         </div>
       )}
@@ -444,6 +478,7 @@ function SccsResults({
   result: Record<string, unknown>;
   onPinFinding: (f: PinFinding) => void;
 }) {
+  const { t } = useTranslation("app");
   const irr = result?.irr as number | undefined;
   const ciLower = (result?.ci_95_lower ?? result?.ci_lower) as number | undefined;
   const ciUpper = (result?.ci_95_upper ?? result?.ci_upper) as number | undefined;
@@ -455,7 +490,7 @@ function SccsResults({
   return (
     <div className="flex flex-col gap-4">
       <span className="text-xs font-medium uppercase tracking-wide text-text-ghost">
-        Self-Controlled Case Series
+        {t("investigation.clinical.results.selfControlledCaseSeries")}
       </span>
 
       <div className="flex flex-col gap-1 rounded-lg border border-border-default bg-surface-base/60 p-4">
@@ -471,13 +506,15 @@ function SccsResults({
           {irr != null ? irr.toFixed(2) : "—"}
         </span>
         <span className="text-xs text-text-ghost">
-          Incidence Rate Ratio (IRR)
+          {t("investigation.clinical.results.incidenceRateRatio")}
         </span>
         <div className="flex items-center gap-2">
           <CIBadge lower={ciLower} upper={ciUpper} />
           {pValue != null && (
             <span className="text-xs text-text-ghost">
-              p = {pValue < 0.001 ? "<0.001" : pValue.toFixed(3)}
+              {t("investigation.common.labels.pValueInline", {
+                value: pValue < 0.001 ? "<0.001" : pValue.toFixed(3),
+              })}
             </span>
           )}
         </div>
@@ -510,6 +547,7 @@ function EvidenceSynthesisResults({
   result: Record<string, unknown>;
   onPinFinding: (f: PinFinding) => void;
 }) {
+  const { t } = useTranslation("app");
   const pooledHr = (result?.pooled_hr ?? result?.hazard_ratio) as number | undefined;
   const ciLower = (result?.ci_95_lower ?? result?.ci_lower) as number | undefined;
   const ciUpper = (result?.ci_95_upper ?? result?.ci_upper) as number | undefined;
@@ -522,7 +560,7 @@ function EvidenceSynthesisResults({
   return (
     <div className="flex flex-col gap-4">
       <span className="text-xs font-medium uppercase tracking-wide text-text-ghost">
-        Evidence Synthesis
+        {t("investigation.common.sections.evidenceSynthesis")}
       </span>
 
       {/* Pooled HR */}
@@ -538,7 +576,9 @@ function EvidenceSynthesisResults({
         >
           {pooledHr != null ? pooledHr.toFixed(2) : "—"}
         </span>
-        <span className="text-xs text-text-ghost">Pooled Hazard Ratio</span>
+        <span className="text-xs text-text-ghost">
+          {t("investigation.clinical.results.pooledHazardRatio")}
+        </span>
         <CIBadge lower={ciLower} upper={ciUpper} />
       </div>
 
@@ -546,7 +586,10 @@ function EvidenceSynthesisResults({
       {(tau != null || iSquared != null) && (
         <div className="grid grid-cols-2 gap-3">
           {tau != null && (
-            <MetricCard label="Tau (heterogeneity)" value={tau.toFixed(3)} />
+            <MetricCard
+              label={t("investigation.clinical.results.tauHeterogeneity")}
+              value={tau.toFixed(3)}
+            />
           )}
           {iSquared != null && (
             <MetricCard label="I² (%)" value={(iSquared * 100).toFixed(1)} />
@@ -582,6 +625,7 @@ function PathwayResults({
   result: Record<string, unknown>;
   onPinFinding: (f: PinFinding) => void;
 }) {
+  const { t } = useTranslation("app");
   type Sequence = { sequence?: string; label?: string; count?: number; proportion?: number };
   const sequences = result?.top_sequences as Sequence[] | undefined;
   const topN = sequences?.slice(0, 10);
@@ -589,7 +633,7 @@ function PathwayResults({
   return (
     <div className="flex flex-col gap-4">
       <span className="text-xs font-medium uppercase tracking-wide text-text-ghost">
-        Top Treatment Sequences
+        {t("investigation.clinical.results.topTreatmentSequences")}
       </span>
 
       {topN && topN.length > 0 ? (
@@ -607,12 +651,15 @@ function PathwayResults({
                   {i + 1}
                 </span>
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-sm text-text-primary">
-                    {label ?? "—"}
-                  </span>
+                    <span className="text-sm text-text-primary">
+                      {label ?? "—"}
+                    </span>
                   {(count != null || proportion != null) && (
                     <span className="text-xs text-text-ghost">
-                      {count != null && `${count.toLocaleString()} patients`}
+                      {count != null &&
+                        t("investigation.common.counts.patient", {
+                          count,
+                        })}
                       {count != null && proportion != null && " · "}
                       {proportion != null &&
                         `${(proportion * 100).toFixed(1)}%`}
@@ -625,7 +672,7 @@ function PathwayResults({
         </ol>
       ) : (
         <div className="rounded-lg border border-border-default bg-surface-base/60 px-4 py-6 text-center text-sm text-text-ghost">
-          No sequence data available
+          {t("investigation.common.empty.noSequenceData")}
         </div>
       )}
 

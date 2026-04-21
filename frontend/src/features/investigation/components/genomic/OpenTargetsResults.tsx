@@ -1,4 +1,5 @@
 import type { OpenTargetsSearchHit } from "../../types";
+import { useTranslation } from "react-i18next";
 
 type PinFinding = {
   domain: string;
@@ -38,6 +39,7 @@ function GeneCard({
   hit: OpenTargetsSearchHit;
   onPinFinding: (finding: PinFinding) => void;
 }) {
+  const { t } = useTranslation("app");
   const target = hit.object as {
     approvedSymbol?: string;
     approvedName?: string;
@@ -100,7 +102,7 @@ function GeneCard({
             onClick={handlePin}
             className="text-[10px] px-2.5 py-1 rounded border border-border-hover text-text-muted hover:border-accent/50 hover:text-accent transition-colors whitespace-nowrap"
           >
-            Pin
+            {t("investigation.common.actions.pin")}
           </button>
         </div>
       </div>
@@ -130,6 +132,7 @@ function DiseaseCard({
   hit: OpenTargetsSearchHit;
   onPinFinding: (finding: PinFinding) => void;
 }) {
+  const { t } = useTranslation("app");
   const disease = hit.object as {
     id?: string;
     name?: string;
@@ -173,7 +176,7 @@ function DiseaseCard({
           onClick={handlePin}
           className="flex-shrink-0 text-[10px] px-2.5 py-1 rounded border border-border-hover text-text-muted hover:border-accent/50 hover:text-accent transition-colors whitespace-nowrap"
         >
-          Pin
+          {t("investigation.common.actions.pin")}
         </button>
       </div>
 
@@ -200,16 +203,20 @@ export function OpenTargetsResults({
   queryType,
   onPinFinding,
 }: OpenTargetsResultsProps) {
+  const { t } = useTranslation("app");
   if (hits.length === 0) {
     return (
-      <p className="text-xs text-text-ghost py-4 text-center">No results found.</p>
+      <p className="text-xs text-text-ghost py-4 text-center">
+        {t("investigation.common.empty.noResultsFound")}
+      </p>
     );
   }
 
   return (
     <div className="flex flex-col gap-2.5">
       <p className="text-[10px] text-text-ghost uppercase tracking-wide">
-        {hits.length} result{hits.length !== 1 ? "s" : ""} — Open Targets Platform
+        {t("investigation.common.counts.result", { count: hits.length })} -{" "}
+        {t("investigation.common.labels.openTargetsPlatform")}
       </p>
       {hits.map((hit) =>
         queryType === "gene" ? (

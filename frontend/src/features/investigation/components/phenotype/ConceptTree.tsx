@@ -1,4 +1,5 @@
 import { useConceptHierarchy } from "../../hooks/useConceptSearch";
+import { useTranslation } from "react-i18next";
 import type { ConceptSearchResult } from "../../types";
 
 const DOMAIN_BADGE_CLASSES: Record<string, string> = {
@@ -22,9 +23,10 @@ interface ConceptNodeProps {
   concept: ConceptSearchResult & { level?: number };
   indent: number;
   variant: "ancestor" | "selected" | "descendant";
+  selectedLabel: string;
 }
 
-function ConceptNode({ concept, indent, variant }: ConceptNodeProps) {
+function ConceptNode({ concept, indent, variant, selectedLabel }: ConceptNodeProps) {
   const indentPx = indent * 16;
 
   const rowClass =
@@ -60,7 +62,7 @@ function ConceptNode({ concept, indent, variant }: ConceptNodeProps) {
           </span>
           {variant === "selected" && (
             <span className="text-[10px] text-success font-semibold">
-              (selected)
+              {selectedLabel}
             </span>
           )}
         </div>
@@ -75,13 +77,14 @@ interface ConceptTreeProps {
 }
 
 export function ConceptTree({ conceptId, conceptName }: ConceptTreeProps) {
+  const { t } = useTranslation("app");
   const { data: hierarchy, isLoading } = useConceptHierarchy(conceptId);
 
   if (isLoading) {
     return (
       <div className="flex items-center gap-2 text-xs text-text-ghost py-2">
         <div className="h-3 w-3 animate-spin rounded-full border-2 border-border-hover border-t-success" />
-        Loading hierarchy…
+        {t("investigation.phenotype.conceptTree.loadingHierarchy")}
       </div>
     );
   }
@@ -99,7 +102,7 @@ export function ConceptTree({ conceptId, conceptName }: ConceptTreeProps) {
     <div className="space-y-0.5">
       {sortedAncestors.length === 0 && descendants.length === 0 && (
         <p className="text-xs text-text-ghost py-1">
-          No hierarchy data available for this concept.
+          {t("investigation.phenotype.conceptTree.noHierarchyData")}
         </p>
       )}
 
@@ -110,6 +113,7 @@ export function ConceptTree({ conceptId, conceptName }: ConceptTreeProps) {
           concept={concept}
           indent={i}
           variant="ancestor"
+          selectedLabel={t("investigation.phenotype.conceptTree.selected")}
         />
       ))}
 
@@ -117,7 +121,11 @@ export function ConceptTree({ conceptId, conceptName }: ConceptTreeProps) {
       <ConceptNode
         concept={{
           concept_id: conceptId,
-          concept_name: conceptName ?? `Concept ${conceptId}`,
+          concept_name:
+            conceptName ??
+            t("investigation.phenotype.conceptTree.conceptLabel", {
+              id: conceptId,
+            }),
           domain_id: "",
           vocabulary_id: "",
           concept_class_id: "",
@@ -126,6 +134,7 @@ export function ConceptTree({ conceptId, conceptName }: ConceptTreeProps) {
         }}
         indent={sortedAncestors.length}
         variant="selected"
+        selectedLabel={t("investigation.phenotype.conceptTree.selected")}
       />
 
       {/* Descendants — indented below selected */}
@@ -135,6 +144,7 @@ export function ConceptTree({ conceptId, conceptName }: ConceptTreeProps) {
           concept={concept}
           indent={sortedAncestors.length + 1 + Math.min((concept.level ?? 1) - 1, 4)}
           variant="descendant"
+          selectedLabel={t("investigation.phenotype.conceptTree.selected")}
         />
       ))}
     </div>

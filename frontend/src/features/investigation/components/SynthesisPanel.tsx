@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { Investigation, PinSection, SynthesisState } from "../types";
 import { useEvidencePins, useUpdatePin, useDeletePin } from "../hooks/useEvidencePins";
 import { useAutoSave } from "../hooks/useAutoSave";
@@ -6,30 +7,16 @@ import { safeSynthesisState } from "../lib/safeState";
 import { SectionEditor } from "./synthesis/SectionEditor";
 import { ExportBar } from "./synthesis/ExportBar";
 import { VersionHistory } from "./synthesis/VersionHistory";
+import { getInvestigationSectionLabel } from "../lib/i18n";
 
 interface SynthesisPanelProps {
   investigation: Investigation;
 }
 
-interface DossierSection {
-  key: PinSection | "research_question";
-  label: string;
-}
-
-const DOSSIER_SECTIONS: DossierSection[] = [
-  { key: "research_question", label: "Research Question" },
-  { key: "phenotype_definition", label: "Phenotype Definition" },
-  { key: "population", label: "Population Characteristics" },
-  { key: "clinical_evidence", label: "Clinical Evidence" },
-  { key: "genomic_evidence", label: "Genomic Evidence" },
-  { key: "synthesis", label: "Evidence Synthesis" },
-  { key: "limitations", label: "Limitations & Caveats" },
-  { key: "methods", label: "Methods" },
-];
-
 type SubTab = "dossier" | "export" | "versions";
 
 export function SynthesisPanel({ investigation }: SynthesisPanelProps) {
+  const { t } = useTranslation("app");
   const [activeTab, setActiveTab] = useState<SubTab>("dossier");
 
   // Pins
@@ -79,10 +66,29 @@ export function SynthesisPanel({ investigation }: SynthesisPanelProps) {
   }
 
   const tabs: { id: SubTab; label: string }[] = [
-    { id: "dossier", label: "Dossier" },
-    { id: "export", label: "Export" },
-    { id: "versions", label: "Versions" },
+    { id: "dossier", label: t("investigation.common.tabs.dossier") },
+    { id: "export", label: t("investigation.common.tabs.export") },
+    { id: "versions", label: t("investigation.common.tabs.versions") },
   ];
+
+  const dossierSectionKeys: Array<PinSection | "research_question"> = [
+    "research_question",
+    "phenotype_definition",
+    "population",
+    "clinical_evidence",
+    "genomic_evidence",
+    "synthesis",
+    "limitations",
+    "methods",
+  ];
+
+  const dossierSections: Array<{
+    key: PinSection | "research_question";
+    label: string;
+  }> = dossierSectionKeys.map((key) => ({
+    key,
+    label: getInvestigationSectionLabel(t, key),
+  }));
 
   return (
     <div className="flex flex-col h-full">
@@ -107,9 +113,11 @@ export function SynthesisPanel({ investigation }: SynthesisPanelProps) {
       <div className="flex-1 overflow-y-auto">
         {activeTab === "dossier" && (
           <div className="p-6 max-w-3xl mx-auto">
-            <h2 className="text-base font-semibold text-text-primary mb-4">Evidence Dossier</h2>
+            <h2 className="text-base font-semibold text-text-primary mb-4">
+              {t("investigation.common.sections.evidenceDossier")}
+            </h2>
             <div className="flex flex-col gap-3">
-              {DOSSIER_SECTIONS.map((section) => {
+              {dossierSections.map((section) => {
                 if (section.key === "research_question") {
                   return (
                     <div
@@ -118,7 +126,7 @@ export function SynthesisPanel({ investigation }: SynthesisPanelProps) {
                     >
                       <div className="flex items-center justify-between mb-3">
                         <span className="text-sm font-semibold text-text-primary">
-                          Research Question
+                          {t("investigation.common.sections.researchQuestion")}
                         </span>
                       </div>
                       {investigation.research_question ? (
@@ -127,7 +135,7 @@ export function SynthesisPanel({ investigation }: SynthesisPanelProps) {
                         </p>
                       ) : (
                         <p className="text-sm text-text-ghost italic">
-                          No research question defined
+                          {t("investigation.common.empty.noResearchQuestionDefined")}
                         </p>
                       )}
                     </div>

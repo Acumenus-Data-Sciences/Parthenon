@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { searchPhenotypes } from "@/features/study-agent/api";
 import type { PhenotypeSearchResult } from "@/features/study-agent/api";
 
@@ -14,6 +15,7 @@ interface PhenotypeLibrarySearchProps {
 }
 
 export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySearchProps) {
+  const { t } = useTranslation("app");
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<PhenotypeSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -25,20 +27,15 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     if (!query.trim()) {
-      setResults([]);
-      setLoading(false);
       return;
     }
-
-    setLoading(true);
-    setError(null);
 
     debounceRef.current = setTimeout(async () => {
       try {
         const data = await searchPhenotypes(query, 10);
         setResults(data);
       } catch {
-        setError("Failed to search phenotype library. Please try again.");
+        setError(t("investigation.phenotype.phenotypeLibrary.searchFailed"));
         setResults([]);
       } finally {
         setLoading(false);
@@ -48,7 +45,7 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [query]);
+  }, [query, t]);
 
   function handleSelect(result: PhenotypeSearchResult) {
     const id = String(result.cohortId);
@@ -64,7 +61,7 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
   return (
     <div className="flex flex-col gap-3">
       <p className="text-xs font-medium text-text-muted uppercase tracking-wide">
-        Phenotype Library
+        {t("investigation.phenotype.phenotypeLibrary.title")}
       </p>
 
       {/* Search input */}
@@ -85,8 +82,19 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
         <input
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search the OHDSI Phenotype Library (1,100+ validated phenotypes)"
+          onChange={(e) => {
+            const nextValue = e.target.value;
+            setQuery(nextValue);
+            if (!nextValue.trim()) {
+              setResults([]);
+              setError(null);
+              setLoading(false);
+            } else {
+              setLoading(true);
+              setError(null);
+            }
+          }}
+          placeholder={t("investigation.phenotype.phenotypeLibrary.searchPlaceholder")}
           className="w-full bg-surface-raised/60 border border-border-default rounded pl-8 pr-3 py-2 text-xs text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success/60"
         />
         {loading && (
@@ -115,7 +123,11 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
               d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <p className="text-xs">No phenotypes found for "{query}"</p>
+          <p className="text-xs">
+            {t("investigation.phenotype.phenotypeLibrary.noResults", {
+              query,
+            })}
+          </p>
         </div>
       )}
 
@@ -136,9 +148,11 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
             />
           </svg>
           <p className="text-xs text-center">
-            Search the OHDSI Phenotype Library
+            {t("investigation.phenotype.phenotypeLibrary.emptyPrompt")}
             <br />
-            <span className="text-text-ghost">1,100+ validated phenotypes</span>
+            <span className="text-text-ghost">
+              {t("investigation.phenotype.phenotypeLibrary.validatedPhenotypes")}
+            </span>
           </p>
         </div>
       )}
@@ -161,7 +175,8 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
                 <div className="flex flex-col gap-0.5 min-w-0">
                   <p className="text-xs font-semibold text-text-primary leading-snug">{result.name}</p>
                   <p className="text-[11px] text-text-ghost line-clamp-2 leading-relaxed">
-                    {result.description || "No description available."}
+                    {result.description ||
+                      t("investigation.phenotype.phenotypeLibrary.noDescriptionAvailable")}
                   </p>
                   {result.tags && result.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-1">
@@ -184,7 +199,9 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
                       : "bg-surface-accent/50 text-text-secondary border-border-hover hover:bg-surface-accent hover:text-text-primary"
                   }`}
                 >
-                  {isSelected ? "Selected" : "Select"}
+                  {isSelected
+                    ? t("investigation.phenotype.phenotypeLibrary.selected")
+                    : t("investigation.phenotype.phenotypeLibrary.select")}
                 </button>
               </div>
             );

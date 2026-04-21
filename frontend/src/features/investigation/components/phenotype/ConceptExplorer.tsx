@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import type { ConceptSearchResult } from "../../types";
 import {
   useConceptSearch,
@@ -6,15 +7,6 @@ import {
   useConceptCount,
 } from "../../hooks/useConceptSearch";
 import { ConceptTree } from "./ConceptTree";
-
-const DOMAIN_OPTIONS = [
-  { value: "all", label: "All Domains" },
-  { value: "Condition", label: "Condition" },
-  { value: "Drug", label: "Drug" },
-  { value: "Measurement", label: "Measurement" },
-  { value: "Procedure", label: "Procedure" },
-  { value: "Observation", label: "Observation" },
-];
 
 const DOMAIN_BADGE_CLASSES: Record<string, string> = {
   Condition: "bg-primary/20 text-primary border border-primary/30",
@@ -34,12 +26,15 @@ function domainBadgeClass(domain: string): string {
 }
 
 function ConceptCountBadge({ conceptId }: { conceptId: number }) {
+  const { t } = useTranslation("app");
   const { data, isLoading } = useConceptCount(conceptId);
   if (isLoading) return <span className="text-[10px] text-text-ghost">...</span>;
   if (!data) return null;
   return (
     <span className="rounded bg-success/10 px-1.5 py-0.5 text-[10px] text-success">
-      {data.patient_count.toLocaleString()} pts
+      {t("investigation.phenotype.conceptExplorer.patients", {
+        count: data.patient_count,
+      })}
     </span>
   );
 }
@@ -57,6 +52,7 @@ function ConceptCard({
   onSelect,
   onAdd,
 }: ConceptCardProps) {
+  const { t } = useTranslation("app");
   return (
     <div
       className={`group cursor-pointer rounded border px-3 py-2.5 transition-colors ${
@@ -74,7 +70,7 @@ function ConceptCard({
             </span>
             {concept.standard_concept === "S" && (
               <span className="text-[10px] font-semibold text-success bg-success/10 border border-success/30 rounded px-1.5 py-0.5 leading-none">
-                Standard
+                {t("investigation.phenotype.conceptExplorer.standard")}
               </span>
             )}
           </div>
@@ -102,9 +98,9 @@ function ConceptCard({
             e.stopPropagation();
             onAdd(concept);
           }}
-          title="Add to concept set"
+          title={t("investigation.phenotype.conceptExplorer.addToConceptSet")}
         >
-          + Add
+          {t("investigation.common.actions.add")}
         </button>
       </div>
     </div>
@@ -116,6 +112,7 @@ interface ConceptExplorerProps {
 }
 
 export function ConceptExplorer({ onAddConcept }: ConceptExplorerProps) {
+  const { t } = useTranslation("app");
   const [inputValue, setInputValue] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedDomain, setSelectedDomain] = useState("all");
@@ -124,6 +121,14 @@ export function ConceptExplorer({ onAddConcept }: ConceptExplorerProps) {
     ConceptSearchResult | undefined
   >();
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const domainOptions = [
+    { value: "all", label: t("investigation.phenotype.conceptExplorer.allDomains") },
+    { value: "Condition", label: t("investigation.phenotype.conceptExplorer.condition") },
+    { value: "Drug", label: t("investigation.phenotype.conceptExplorer.drug") },
+    { value: "Measurement", label: t("investigation.phenotype.conceptExplorer.measurement") },
+    { value: "Procedure", label: t("investigation.phenotype.conceptExplorer.procedure") },
+    { value: "Observation", label: t("investigation.phenotype.conceptExplorer.observation") },
+  ];
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -160,7 +165,7 @@ export function ConceptExplorer({ onAddConcept }: ConceptExplorerProps) {
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Search concepts… (min 2 chars)"
+            placeholder={t("investigation.common.placeholders.conceptSearch")}
             className="w-full rounded border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-text-ghost focus:border-success/50 focus:outline-none focus:ring-1 focus:ring-success/20"
           />
           {isFetching && (
@@ -174,7 +179,7 @@ export function ConceptExplorer({ onAddConcept }: ConceptExplorerProps) {
           onChange={(e) => setSelectedDomain(e.target.value)}
           className="rounded border border-border-default bg-surface-base px-2 py-2 text-xs text-text-secondary focus:border-success/50 focus:outline-none"
         >
-          {DOMAIN_OPTIONS.map((opt) => (
+          {domainOptions.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>
@@ -188,7 +193,7 @@ export function ConceptExplorer({ onAddConcept }: ConceptExplorerProps) {
             className="h-3.5 w-3.5 rounded border border-border-hover bg-surface-base accent-success cursor-pointer"
           />
           <span className="text-xs text-text-muted whitespace-nowrap">
-            Standard only
+            {t("investigation.phenotype.conceptExplorer.standardOnly")}
           </span>
         </label>
       </div>
@@ -197,16 +202,20 @@ export function ConceptExplorer({ onAddConcept }: ConceptExplorerProps) {
       <div className="flex-1 overflow-y-auto min-h-0 space-y-1.5 pr-0.5">
         {debouncedQuery.length < 2 && (
           <p className="text-center text-xs text-text-ghost mt-6">
-            Type at least 2 characters to search OMOP concepts
+            {t("investigation.common.messages.searchOmopMinimum")}
           </p>
         )}
 
         {debouncedQuery.length >= 2 && !isFetching && filteredResults?.length === 0 && (
           <p className="text-center text-xs text-text-ghost mt-6">
-            No concepts found matching &ldquo;{debouncedQuery}&rdquo;
+            {t("investigation.phenotype.conceptExplorer.noConceptsFound", {
+              query: debouncedQuery,
+            })}
             {standardOnly && results && results.length > 0 && (
               <span className="block mt-1 text-text-ghost">
-                ({results.length} non-standard hidden — uncheck &ldquo;Standard only&rdquo; to show)
+                {t("investigation.phenotype.conceptExplorer.nonStandardHidden", {
+                  count: results.length,
+                })}
               </span>
             )}
           </p>
@@ -232,13 +241,13 @@ export function ConceptExplorer({ onAddConcept }: ConceptExplorerProps) {
         <div className="shrink-0 border-t border-border-default/50 pt-3">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-medium text-text-muted uppercase tracking-wider">
-              Concept Hierarchy
+              {t("investigation.common.sections.conceptHierarchy")}
             </span>
             <button
               className="text-[10px] text-text-ghost hover:text-text-muted transition-colors"
               onClick={() => setSelectedConcept(undefined)}
             >
-              Close
+              {t("investigation.common.actions.close")}
             </button>
           </div>
           <div className="max-h-56 overflow-y-auto">

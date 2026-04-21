@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
+import { useTranslation } from "react-i18next";
 
 const COLOR_TEXT = "var(--text-primary)";
 const COLOR_AXIS = "var(--border-default)";
@@ -41,12 +42,16 @@ interface KaplanMeierChartProps {
 
 export function KaplanMeierChart({
   curves,
-  xLabel = "Time (days)",
-  yLabel = "Survival Probability",
+  xLabel,
+  yLabel,
   width = 600,
   height = 400,
 }: KaplanMeierChartProps) {
+  const { t } = useTranslation("app");
   const svgRef = useRef<SVGSVGElement>(null);
+  const resolvedXLabel = xLabel ?? t("investigation.clinical.charts.timeDays");
+  const resolvedYLabel =
+    yLabel ?? t("investigation.clinical.charts.survivalProbability");
 
   const plotWidth = width - MARGIN.left - MARGIN.right;
   const plotHeight = height - MARGIN.top - MARGIN.bottom;
@@ -167,7 +172,7 @@ export function KaplanMeierChart({
       .attr("font-size", "11px")
       .attr("fill", COLOR_TEXT)
       .attr("font-family", "sans-serif")
-      .text(xLabel);
+      .text(resolvedXLabel);
 
     // Y axis label
     g.append("text")
@@ -178,7 +183,7 @@ export function KaplanMeierChart({
       .attr("font-size", "11px")
       .attr("fill", COLOR_TEXT)
       .attr("font-family", "sans-serif")
-      .text(yLabel);
+      .text(resolvedYLabel);
 
     // Legend (top-right)
     const legendG = g
@@ -264,8 +269,12 @@ export function KaplanMeierChart({
           curve.points[Math.max(0, idx - 1)] ?? curve.points[0];
         if (pt) {
           const pct = (pt.survival * 100).toFixed(1);
-          lineTexts.push(`${curve.label}: ${pct}%`);
-          tooltipLines[i]?.text(`${curve.label}: ${pct}%`);
+          const tooltipValue = t("investigation.clinical.charts.curveValue", {
+            label: curve.label,
+            value: pct,
+          });
+          lineTexts.push(tooltipValue);
+          tooltipLines[i]?.text(tooltipValue);
         }
       });
 
@@ -277,7 +286,9 @@ export function KaplanMeierChart({
       const tipH = lineTexts.length * lineH + 8;
 
       // Header: time label
-      const timeLabel = `t = ${Math.round(time)}`;
+      const timeLabel = t("investigation.clinical.charts.tooltipTime", {
+        value: Math.round(time),
+      });
       tooltipLines.forEach((line, i) => {
         line
           .attr("x", tipX + 8)
@@ -313,14 +324,14 @@ export function KaplanMeierChart({
     overlay.on("mouseleave", () => {
       tooltipG.attr("display", "none");
     });
-  }, [curves, xLabel, yLabel, width, height, plotWidth, plotHeight]);
+  }, [curves, resolvedXLabel, resolvedYLabel, width, height, plotWidth, plotHeight, t]);
 
   if (!curves.length) return null;
 
   return (
     <div className="flex flex-col gap-2">
       <p className="text-xs font-medium uppercase tracking-wide text-text-ghost">
-        Kaplan-Meier Survival Curve
+        {t("investigation.clinical.charts.kaplanMeierTitle")}
       </p>
       <div className="overflow-x-auto">
         <svg ref={svgRef} />

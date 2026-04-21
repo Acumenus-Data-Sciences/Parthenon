@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { CrossLinksMap } from "../../types";
 
 interface CrossLinkBadgeProps {
@@ -7,6 +8,7 @@ interface CrossLinkBadgeProps {
 }
 
 export function CrossLinkBadge({ pinId, crossLinks }: CrossLinkBadgeProps) {
+  const { t } = useTranslation("app");
   const [showTooltip, setShowTooltip] = useState(false);
 
   const links = crossLinks[pinId];
@@ -25,7 +27,9 @@ export function CrossLinkBadge({ pinId, crossLinks }: CrossLinkBadgeProps) {
         }}
       >
         <span>🔗</span>
-        <span>{links.length} link{links.length !== 1 ? "s" : ""}</span>
+        <span>
+          {t("investigation.common.counts.link", { count: links.length })}
+        </span>
       </button>
 
       {showTooltip && (
@@ -37,7 +41,9 @@ export function CrossLinkBadge({ pinId, crossLinks }: CrossLinkBadgeProps) {
           }}
         >
           <div className="px-3 py-2 border-b border-border-default">
-            <span className="font-semibold text-text-secondary">Cross-domain links</span>
+            <span className="font-semibold text-text-secondary">
+              {t("investigation.genomic.crossDomainLinks")}
+            </span>
           </div>
           <ul className="px-3 py-2 flex flex-col gap-1.5">
             {links.map((link, i) => (

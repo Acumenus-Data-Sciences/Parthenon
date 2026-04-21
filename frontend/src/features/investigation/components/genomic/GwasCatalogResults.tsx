@@ -2,6 +2,7 @@ import type {
   GwasCatalogResult,
   GwasCatalogStudy,
 } from "../../types";
+import { useTranslation } from "react-i18next";
 
 type PinFinding = {
   domain: string;
@@ -25,7 +26,9 @@ interface StudyCardProps {
 }
 
 function StudyCard({ study, onPinFinding }: StudyCardProps) {
-  const trait = study.diseaseTrait?.trait ?? "Unknown trait";
+  const { t } = useTranslation("app");
+  const trait =
+    study.diseaseTrait?.trait ?? t("investigation.genomic.unknownTrait");
   const pub = study.publicationInfo;
   const year = pub?.publicationDate
     ? new Date(pub.publicationDate).getFullYear()
@@ -76,7 +79,7 @@ function StudyCard({ study, onPinFinding }: StudyCardProps) {
           onClick={handlePin}
           className="flex-shrink-0 text-[10px] px-2.5 py-1 rounded border border-border-hover text-text-muted hover:border-success/50 hover:text-success transition-colors whitespace-nowrap"
         >
-          Pin
+          {t("investigation.common.actions.pin")}
         </button>
       </div>
 
@@ -84,13 +87,17 @@ function StudyCard({ study, onPinFinding }: StudyCardProps) {
         <div className="flex flex-wrap gap-3 text-[10px] text-text-ghost">
           {study.initialSampleSize && (
             <span>
-              <span className="text-text-muted">Sample:</span>{" "}
+              <span className="text-text-muted">
+                {t("investigation.genomic.sample")}
+              </span>{" "}
               {study.initialSampleSize}
             </span>
           )}
           {study.snpCount != null && study.snpCount > 0 && (
             <span>
-              <span className="text-text-muted">SNPs:</span>{" "}
+              <span className="text-text-muted">
+                {t("investigation.genomic.snps")}
+              </span>{" "}
               {study.snpCount.toLocaleString()}
             </span>
           )}
@@ -125,6 +132,7 @@ interface SnpCardProps {
 }
 
 function SnpCard({ assoc, onPinFinding }: SnpCardProps) {
+  const { t } = useTranslation("app");
   const variant = assoc.variant ?? {};
   const rsId = variant.rsId ?? variant.id ?? "Unknown";
   const chr = variant.chromosome ?? null;
@@ -200,7 +208,7 @@ function SnpCard({ assoc, onPinFinding }: SnpCardProps) {
             onClick={handlePin}
             className="text-[10px] px-2.5 py-1 rounded border border-border-hover text-text-muted hover:border-success/50 hover:text-success transition-colors whitespace-nowrap"
           >
-            Pin
+            {t("investigation.common.actions.pin")}
           </button>
         </div>
       </div>
@@ -215,6 +223,7 @@ export function GwasCatalogResults({
   queryType,
   onPinFinding,
 }: GwasCatalogResultsProps) {
+  const { t } = useTranslation("app");
   const embedded = result._embedded ?? {};
   const page = result.page;
 
@@ -227,7 +236,9 @@ export function GwasCatalogResults({
 
     if (studies.length === 0) {
       return (
-        <p className="text-xs text-text-ghost py-4 text-center">No results found.</p>
+        <p className="text-xs text-text-ghost py-4 text-center">
+          {t("investigation.common.empty.noResultsFound")}
+        </p>
       );
     }
 
@@ -235,7 +246,10 @@ export function GwasCatalogResults({
       <div className="flex flex-col gap-2.5">
         {page && (
           <p className="text-[10px] text-text-ghost uppercase tracking-wide">
-            Showing {studies.length} of {page.totalElements.toLocaleString()} results — GWAS Catalog
+            {t("investigation.genomic.showingOfResults", {
+              shown: studies.length,
+              total: page.totalElements.toLocaleString(),
+            })}
           </p>
         )}
         {studies.map((study, i) => (
@@ -257,7 +271,9 @@ export function GwasCatalogResults({
 
   if (assocs.length === 0) {
     return (
-      <p className="text-xs text-text-ghost py-4 text-center">No results found.</p>
+      <p className="text-xs text-text-ghost py-4 text-center">
+        {t("investigation.common.empty.noResultsFound")}
+      </p>
     );
   }
 
@@ -265,7 +281,10 @@ export function GwasCatalogResults({
     <div className="flex flex-col gap-2.5">
       {page && (
         <p className="text-[10px] text-text-ghost uppercase tracking-wide">
-          Showing {assocs.length} of {page.totalElements.toLocaleString()} results — GWAS Catalog
+          {t("investigation.genomic.showingOfResults", {
+            shown: assocs.length,
+            total: page.totalElements.toLocaleString(),
+          })}
         </p>
       )}
       {assocs.map((assoc, i) => (

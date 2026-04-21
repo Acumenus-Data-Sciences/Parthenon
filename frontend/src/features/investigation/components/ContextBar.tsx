@@ -1,19 +1,34 @@
+import type { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import { useInvestigationStore } from "../stores/investigationStore";
-import type { ClinicalState, EvidenceDomain, GenomicState, Investigation } from "../types";
+import type {
+  ClinicalState,
+  EvidenceDomain,
+  GenomicState,
+  Investigation,
+} from "../types";
 import { ContextCard } from "./ContextCard";
+import {
+  formatInvestigationCount,
+  getInvestigationDomainLabel,
+} from "../lib/i18n";
 
 interface ContextBarProps {
   investigation: Investigation;
 }
 
-function getPhenotypeSummary(investigation: Investigation): string {
+function getPhenotypeSummary(t: TFunction<"app">, investigation: Investigation): string {
   const count = investigation.phenotype_state.concept_sets?.length ?? 0;
-  return count > 0 ? `${count} concept set${count !== 1 ? "s" : ""}` : "No concepts";
+  return count > 0
+    ? formatInvestigationCount(t, "conceptSet", count)
+    : t("investigation.common.empty.noConcepts");
 }
 
-function getClinicalSummary(state: ClinicalState): string {
+function getClinicalSummary(t: TFunction<"app">, state: ClinicalState): string {
   const analyses = state.queued_analyses ?? [];
-  if (analyses.length === 0) return "No analyses";
+  if (analyses.length === 0) {
+    return t("investigation.common.empty.noAnalyses");
+  }
 
   const running = analyses.filter(
     (a) => a.status === "running" || a.status === "queued",
@@ -22,22 +37,34 @@ function getClinicalSummary(state: ClinicalState): string {
   const failed = analyses.filter((a) => a.status === "failed").length;
 
   const parts: string[] = [];
-  if (completed > 0) parts.push(`${completed} complete`);
-  if (running > 0) parts.push(`${running} running`);
-  if (failed > 0) parts.push(`${failed} failed`);
+  if (completed > 0) {
+    parts.push(t("investigation.common.counts.completed", { count: completed }));
+  }
+  if (running > 0) {
+    parts.push(t("investigation.common.counts.running", { count: running }));
+  }
+  if (failed > 0) {
+    parts.push(t("investigation.common.counts.failed", { count: failed }));
+  }
 
-  return parts.join(" · ") || "No analyses";
+  return parts.join(" · ") || t("investigation.common.empty.noAnalyses");
 }
 
 function ClinicalSummaryNode({
+  t,
   state,
 }: {
+  t: TFunction<"app">;
   state: ClinicalState;
 }): React.ReactElement {
   const analyses = state.queued_analyses ?? [];
 
   if (analyses.length === 0) {
-    return <span className="text-text-ghost">No analyses</span>;
+    return (
+      <span className="text-text-ghost">
+        {t("investigation.common.empty.noAnalyses")}
+      </span>
+    );
   }
 
   const running = analyses.filter(
@@ -51,27 +78,31 @@ function ClinicalSummaryNode({
   if (completed > 0) {
     parts.push(
       <span key="complete" style={{ color: "var(--success)" }}>
-        {completed} complete
+        {t("investigation.common.counts.completed", { count: completed })}
       </span>,
     );
   }
   if (running > 0) {
     parts.push(
       <span key="running" style={{ color: "var(--accent)" }}>
-        {running} running
+        {t("investigation.common.counts.running", { count: running })}
       </span>,
     );
   }
   if (failed > 0) {
     parts.push(
       <span key="failed" style={{ color: "var(--primary)" }}>
-        {failed} failed
+        {t("investigation.common.counts.failed", { count: failed })}
       </span>,
     );
   }
 
   if (parts.length === 0) {
-    return <span className="text-text-ghost">No analyses</span>;
+    return (
+      <span className="text-text-ghost">
+        {t("investigation.common.empty.noAnalyses")}
+      </span>
+    );
   }
 
   return (
@@ -86,48 +117,54 @@ function ClinicalSummaryNode({
   );
 }
 
-function getGenomicSummary(state: GenomicState): string {
+function getGenomicSummary(t: TFunction<"app">, state: GenomicState): string {
   const queries =
     (state.open_targets_queries?.length ?? 0) +
     (state.gwas_catalog_queries?.length ?? 0);
   const uploads = state.uploaded_gwas?.length ?? 0;
-  if (queries === 0 && uploads === 0) return "No evidence";
+  if (queries === 0 && uploads === 0) {
+    return t("investigation.common.empty.noEvidence");
+  }
+
   const parts: string[] = [];
-  if (queries > 0) parts.push(`${queries} quer${queries !== 1 ? "ies" : "y"}`);
-  if (uploads > 0) parts.push(`${uploads} upload${uploads !== 1 ? "s" : ""}`);
+  if (queries > 0) {
+    parts.push(formatInvestigationCount(t, "query", queries));
+  }
+  if (uploads > 0) {
+    parts.push(formatInvestigationCount(t, "upload", uploads));
+  }
   return parts.join(" · ");
 }
 
-function getSynthesisSummary(investigation: Investigation): string {
+function getSynthesisSummary(
+  t: TFunction<"app">,
+  investigation: Investigation,
+): string {
   const pinCount = investigation.pins?.length ?? 0;
   const sections = investigation.synthesis_state.section_order?.length ?? 0;
   return pinCount > 0 || sections > 0
-    ? `${pinCount} pin${pinCount !== 1 ? "s" : ""}, ${sections} section${sections !== 1 ? "s" : ""}`
-    : "—";
+    ? `${formatInvestigationCount(t, "pin", pinCount)}, ${formatInvestigationCount(t, "section", sections)}`
+    : t("investigation.common.empty.none");
 }
 
-const DOMAIN_ORDER: EvidenceDomain[] = ["phenotype", "clinical", "genomic", "synthesis"];
-const DOMAIN_LABELS: Record<EvidenceDomain, string> = {
-  phenotype: "Phenotype",
-  clinical: "Clinical",
-  genomic: "Genomic",
-  synthesis: "Synthesis",
-  "code-explorer": "Code Explorer",
-};
+const DOMAIN_ORDER: EvidenceDomain[] = [
+  "phenotype",
+  "clinical",
+  "genomic",
+  "synthesis",
+];
 
 interface KpiMetric {
   label: string;
   value: number;
 }
 
-interface KpiMetricCardProps {
-  metric: KpiMetric;
-}
-
-function KpiMetricCard({ metric }: KpiMetricCardProps) {
+function KpiMetricCard({ metric }: { metric: KpiMetric }) {
   return (
     <div className="bg-surface-base/50 border border-border-default rounded-lg px-3 py-2 flex flex-col items-center min-w-[72px]">
-      <span className="text-2xl font-bold text-text-primary leading-none">{metric.value}</span>
+      <span className="text-2xl font-bold text-text-primary leading-none">
+        {metric.value}
+      </span>
       <span className="text-[10px] uppercase tracking-wider text-text-ghost mt-1 whitespace-nowrap">
         {metric.label}
       </span>
@@ -136,31 +173,32 @@ function KpiMetricCard({ metric }: KpiMetricCardProps) {
 }
 
 export function ContextBar({ investigation }: ContextBarProps) {
+  const { t } = useTranslation("app");
   const { activeDomain, setActiveDomain } = useInvestigationStore();
 
   const summaries: Record<EvidenceDomain, string> = {
-    phenotype: getPhenotypeSummary(investigation),
-    clinical: getClinicalSummary(investigation.clinical_state),
-    genomic: getGenomicSummary(investigation.genomic_state),
-    synthesis: getSynthesisSummary(investigation),
-    "code-explorer": "—",
+    phenotype: getPhenotypeSummary(t, investigation),
+    clinical: getClinicalSummary(t, investigation.clinical_state),
+    genomic: getGenomicSummary(t, investigation.genomic_state),
+    synthesis: getSynthesisSummary(t, investigation),
+    "code-explorer": t("investigation.common.empty.none"),
   };
 
   const kpiMetrics: KpiMetric[] = [
     {
-      label: "Concept Sets",
+      label: t("investigation.common.labels.conceptSets"),
       value: investigation.phenotype_state.concept_sets?.length ?? 0,
     },
     {
-      label: "Cohorts",
+      label: t("investigation.common.labels.cohorts"),
       value: investigation.phenotype_state.selected_cohort_ids?.length ?? 0,
     },
     {
-      label: "Analyses",
+      label: t("investigation.common.labels.analyses"),
       value: investigation.clinical_state.queued_analyses?.length ?? 0,
     },
     {
-      label: "Pins",
+      label: t("investigation.common.labels.pins"),
       value: investigation.pins?.length ?? 0,
     },
   ];
@@ -169,11 +207,10 @@ export function ContextBar({ investigation }: ContextBarProps) {
 
   return (
     <div className="flex flex-col border-b border-border-default bg-surface-darkest">
-      {/* KPI summary row */}
       <div className="flex items-center gap-2 px-4 pt-3 pb-2">
         {allZero ? (
           <p className="text-xs text-text-ghost italic">
-            Start exploring — add concepts, cohorts, and analyses to build evidence
+            {t("investigation.common.labels.startExploring")}
           </p>
         ) : (
           <div className="flex items-center gap-2">
@@ -184,17 +221,16 @@ export function ContextBar({ investigation }: ContextBarProps) {
         )}
       </div>
 
-      {/* Domain context cards */}
       <div className="flex gap-2 px-4 pb-3">
         {DOMAIN_ORDER.map((domain) => (
           <ContextCard
             key={domain}
             domain={domain}
-            label={DOMAIN_LABELS[domain]}
+            label={getInvestigationDomainLabel(t, domain)}
             summary={summaries[domain]}
             summaryNode={
               domain === "clinical" ? (
-                <ClinicalSummaryNode state={investigation.clinical_state} />
+                <ClinicalSummaryNode t={t} state={investigation.clinical_state} />
               ) : undefined
             }
             isActive={activeDomain === domain}

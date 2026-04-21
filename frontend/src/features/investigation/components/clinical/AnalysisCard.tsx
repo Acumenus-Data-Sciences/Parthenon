@@ -1,13 +1,16 @@
 import type { LucideProps } from "lucide-react";
 import * as LucideIcons from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { AnalysisTypeDescriptor, ClinicalAnalysisGroup, ClinicalAnalysisType } from "../../types";
+import {
+  getClinicalAnalysisDescription,
+  getClinicalAnalysisEstimatedTime,
+  getClinicalAnalysisLabel,
+  getClinicalAnalysisPrerequisites,
+} from "../../lib/i18n";
 
 type IconComponent = React.ComponentType<LucideProps>;
-
-function getIcon(name: string): IconComponent {
-  const icons = LucideIcons as unknown as Record<string, IconComponent>;
-  return icons[name] ?? LucideIcons.Box;
-}
+const ICONS = LucideIcons as unknown as Record<string, IconComponent>;
 
 const GROUP_ACCENT: Record<ClinicalAnalysisGroup, string> = {
   characterize: "var(--success)",
@@ -28,8 +31,10 @@ export function AnalysisCard({
   disabled = false,
   disabledReason,
 }: AnalysisCardProps) {
-  const Icon = getIcon(descriptor.icon);
+  const { t } = useTranslation("app");
+  const Icon = ICONS[descriptor.icon] ?? LucideIcons.Box;
   const accent = GROUP_ACCENT[descriptor.group];
+  const prerequisites = getClinicalAnalysisPrerequisites(t, descriptor.type);
 
   return (
     <button
@@ -59,23 +64,25 @@ export function AnalysisCard({
         >
           <Icon className="h-4 w-4" style={{ color: accent }} />
         </div>
-        <span className="text-[10px] text-text-ghost">{descriptor.estimatedTime}</span>
+        <span className="text-[10px] text-text-ghost">
+          {getClinicalAnalysisEstimatedTime(t, descriptor.type)}
+        </span>
       </div>
 
       {/* Name */}
       <h3 className="text-lg font-semibold leading-snug text-text-primary">
-        {descriptor.name}
+        {getClinicalAnalysisLabel(t, descriptor.type)}
       </h3>
 
       {/* Description — 2 lines max */}
       <p className="line-clamp-2 text-xs leading-relaxed text-text-muted">
-        {descriptor.description}
+        {getClinicalAnalysisDescription(t, descriptor.type)}
       </p>
 
       {/* Prerequisites */}
-      {descriptor.prerequisites.length > 0 && (
+      {prerequisites.length > 0 && (
         <div className="flex flex-wrap gap-1">
-          {descriptor.prerequisites.map((prereq) => (
+          {prerequisites.map((prereq) => (
             <span
               key={prereq}
               className="rounded-full bg-surface-accent px-2 py-0.5 text-[10px] text-text-muted"

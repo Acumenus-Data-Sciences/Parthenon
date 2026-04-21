@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useCohortDefinitions } from "@/features/cohort-definitions/hooks/useCohortDefinitions";
 
 interface CohortPickerProps {
@@ -14,6 +15,7 @@ export function CohortPicker({
   onSelectionChange,
   onPrimaryChange,
 }: CohortPickerProps) {
+  const { t } = useTranslation("app");
   const [search, setSearch] = useState("");
   const { data, isLoading, isError } = useCohortDefinitions({
     limit: 200,
@@ -50,7 +52,7 @@ export function CohortPicker({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-20 text-text-ghost text-xs">
-        Loading cohorts…
+        {t("investigation.phenotype.cohortPicker.loading")}
       </div>
     );
   }
@@ -58,7 +60,7 @@ export function CohortPicker({
   if (isError) {
     return (
       <div className="flex items-center justify-center h-20 text-primary text-xs">
-        Failed to load cohort definitions.
+        {t("investigation.phenotype.cohortPicker.loadFailed")}
       </div>
     );
   }
@@ -68,7 +70,7 @@ export function CohortPicker({
       {/* Search */}
       <input
         type="text"
-        placeholder="Search cohorts…"
+        placeholder={t("investigation.common.placeholders.searchCohorts")}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success/60"
@@ -78,7 +80,9 @@ export function CohortPicker({
       <div className="overflow-y-auto max-h-80 flex flex-col gap-1 pr-1">
         {filtered.length === 0 && (
           <p className="text-xs text-text-ghost text-center py-6">
-            {search ? "No cohorts match your search." : "No cohort definitions found."}
+            {search
+              ? t("investigation.phenotype.cohortPicker.noSearchMatches")
+              : t("investigation.phenotype.cohortPicker.noDefinitions")}
           </p>
         )}
 
@@ -130,12 +134,14 @@ export function CohortPicker({
                   </span>
                   {isPrimary && (
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/20 text-accent border border-accent/30 font-medium">
-                      Primary
+                      {t("investigation.phenotype.cohortPicker.primary")}
                     </span>
                   )}
                   {subjectCount != null && (
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-accent/60 text-text-muted border border-border-hover/30">
-                      {subjectCount.toLocaleString()} subjects
+                      {t("investigation.common.counts.subject", {
+                        count: subjectCount,
+                      })}
                     </span>
                   )}
                 </div>
@@ -159,7 +165,9 @@ export function CohortPicker({
                       : "border-border-hover text-text-muted hover:border-accent/50 hover:text-accent"
                   }`}
                 >
-                  {isPrimary ? "Primary ✓" : "Set as Primary"}
+                  {isPrimary
+                    ? t("investigation.phenotype.cohortPicker.primarySelected")
+                    : t("investigation.phenotype.cohortPicker.setAsPrimary")}
                 </button>
               )}
             </div>

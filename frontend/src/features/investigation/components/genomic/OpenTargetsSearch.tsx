@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useOpenTargetsSearch } from "../../hooks/useGenomicEvidence";
 import { OpenTargetsResults } from "./OpenTargetsResults";
 
@@ -19,6 +20,7 @@ export function OpenTargetsSearch({
   investigationId,
   onPinFinding,
 }: OpenTargetsSearchProps) {
+  const { t } = useTranslation("app");
   const [queryType, setQueryType] = useState<"gene" | "disease">("gene");
   const [inputValue, setInputValue] = useState("");
   const [debouncedTerm, setDebouncedTerm] = useState("");
@@ -30,12 +32,6 @@ export function OpenTargetsSearch({
     }, 500);
     return () => clearTimeout(timer);
   }, [inputValue]);
-
-  // Reset debounced term when query type changes
-  useEffect(() => {
-    setDebouncedTerm("");
-    setInputValue("");
-  }, [queryType]);
 
   const { data, isLoading, isError, error } = useOpenTargetsSearch(
     investigationId,
@@ -54,9 +50,11 @@ export function OpenTargetsSearch({
             className="text-xs font-semibold uppercase tracking-wide"
             style={{ color: "var(--accent)" }}
           >
-            Open Targets
+            {t("investigation.common.tabs.openTargets")}
           </span>
-          <span className="text-[10px] text-text-ghost">Platform</span>
+          <span className="text-[10px] text-text-ghost">
+            {t("investigation.genomic.platform")}
+          </span>
         </div>
       </div>
 
@@ -65,14 +63,18 @@ export function OpenTargetsSearch({
         {(["gene", "disease"] as const).map((type) => (
           <button
             key={type}
-            onClick={() => setQueryType(type)}
+            onClick={() => {
+              setQueryType(type);
+              setInputValue("");
+              setDebouncedTerm("");
+            }}
             className={`text-xs px-3 py-1 rounded-md transition-colors capitalize ${
               queryType === type
                 ? "bg-surface-accent text-text-primary"
                 : "text-text-muted hover:text-text-primary"
             }`}
           >
-            {type}
+            {t(`investigation.genomic.${type}`)}
           </button>
         ))}
       </div>
@@ -85,8 +87,8 @@ export function OpenTargetsSearch({
           onChange={(e) => setInputValue(e.target.value)}
           placeholder={
             queryType === "gene"
-              ? "Search gene symbol or name (e.g. BRCA1)"
-              : "Search disease or phenotype (e.g. breast cancer)"
+              ? t("investigation.common.placeholders.searchGeneOpenTargets")
+              : t("investigation.common.placeholders.searchDiseaseOpenTargets")
           }
           className="w-full text-sm bg-surface-raised/60 border border-border-default rounded-lg px-3 py-2 text-text-primary placeholder-text-ghost focus:outline-none focus:border-border-hover transition-colors"
         />
@@ -100,7 +102,9 @@ export function OpenTargetsSearch({
       {/* States */}
       {isError && (
         <p className="text-xs text-primary px-1">
-          {error instanceof Error ? error.message : "Search failed. Please try again."}
+          {error instanceof Error
+            ? error.message
+            : t("investigation.common.messages.searchFailed")}
         </p>
       )}
 
@@ -114,7 +118,7 @@ export function OpenTargetsSearch({
 
       {!debouncedTerm && (
         <p className="text-xs text-text-ghost px-1">
-          Enter at least 2 characters to search.
+          {t("investigation.common.messages.enterAtLeast2Characters")}
         </p>
       )}
     </div>

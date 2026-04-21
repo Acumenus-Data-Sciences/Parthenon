@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
+import { useTranslation } from "react-i18next";
 
 export interface QQPlotProps {
   observedP: number[];
@@ -124,6 +125,7 @@ export default function QQPlot({
   width = 400,
   height = 400,
 }: QQPlotProps) {
+  const { t } = useTranslation("app");
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
@@ -264,7 +266,7 @@ export default function QQPlot({
       .attr("font-size", "11px")
       .attr("font-family", "sans-serif")
       .attr("fill", COLOR_TEXT)
-      .text("Expected \u2212log\u2081\u2080(p)");
+      .text(t("investigation.genomic.qqPlotExpectedNegLogP"));
 
     g.append("text")
       .attr("transform", `rotate(-90)`)
@@ -274,7 +276,7 @@ export default function QQPlot({
       .attr("font-size", "11px")
       .attr("font-family", "sans-serif")
       .attr("fill", COLOR_TEXT)
-      .text("Observed \u2212log\u2081\u2080(p)");
+      .text(t("investigation.genomic.qqPlotObservedNegLogP"));
 
     // --- Lambda GC badge ---
     const badgeW = 72;
@@ -299,8 +301,12 @@ export default function QQPlot({
       .attr("font-size", "11px")
       .attr("font-family", "sans-serif")
       .attr("fill", COLOR_TEXT)
-      .text(`\u03bb = ${lambda.toFixed(3)}`);
-  }, [observedP, lambdaGCProp, width, height]);
+      .text(
+        t("investigation.genomic.lambdaLabel", {
+          value: lambda.toFixed(3),
+        }),
+      );
+  }, [observedP, lambdaGCProp, width, height, t]);
 
   if (observedP.length === 0) {
     return (
@@ -308,7 +314,7 @@ export default function QQPlot({
         className="flex items-center justify-center text-text-ghost text-sm rounded border border-border-default"
         style={{ width, height }}
       >
-        No p-value data available
+        {t("investigation.genomic.qqPlotNoData")}
       </div>
     );
   }

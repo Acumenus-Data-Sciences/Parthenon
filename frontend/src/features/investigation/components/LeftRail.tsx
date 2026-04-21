@@ -1,6 +1,8 @@
 import { Activity, Binary, Dna, FileText, Microscope, Pin, Play } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useInvestigationStore } from "../stores/investigationStore";
 import type { EvidenceDomain } from "../types";
+import { getInvestigationDomainLabel } from "../lib/i18n";
 
 interface DomainItem {
   domain: EvidenceDomain;
@@ -10,51 +12,51 @@ interface DomainItem {
   activeBorder: string;
 }
 
-const DOMAIN_ITEMS: DomainItem[] = [
-  {
-    domain: "phenotype",
-    label: "Phenotype",
-    icon: <Microscope size={16} />,
-    activeColor: "text-success",
-    activeBorder: "border-l-2 border-success",
-  },
-  {
-    domain: "clinical",
-    label: "Clinical",
-    icon: <Activity size={16} />,
-    activeColor: "text-primary",
-    activeBorder: "border-l-2 border-primary",
-  },
-  {
-    domain: "genomic",
-    label: "Genomic",
-    icon: <Dna size={16} />,
-    activeColor: "text-accent",
-    activeBorder: "border-l-2 border-accent",
-  },
-  {
-    domain: "synthesis",
-    label: "Synthesis",
-    icon: <FileText size={16} />,
-    activeColor: "text-text-secondary",
-    activeBorder: "border-l-2 border-border-hover",
-  },
-  {
-    domain: "code-explorer",
-    label: "Code Explorer",
-    icon: <Binary size={16} />,
-    activeColor: "text-warning",
-    activeBorder: "border-l-2 border-warning",
-  },
-];
-
 interface LeftRailProps {
   pinCount: number;
   runCount: number;
 }
 
 export function LeftRail({ pinCount, runCount }: LeftRailProps) {
+  const { t } = useTranslation("app");
   const { activeDomain, setActiveDomain, toggleSidebar } = useInvestigationStore();
+  const domainItems: DomainItem[] = [
+    {
+      domain: "phenotype",
+      label: getInvestigationDomainLabel(t, "phenotype"),
+      icon: <Microscope size={16} />,
+      activeColor: "text-success",
+      activeBorder: "border-l-2 border-success",
+    },
+    {
+      domain: "clinical",
+      label: getInvestigationDomainLabel(t, "clinical"),
+      icon: <Activity size={16} />,
+      activeColor: "text-primary",
+      activeBorder: "border-l-2 border-primary",
+    },
+    {
+      domain: "genomic",
+      label: getInvestigationDomainLabel(t, "genomic"),
+      icon: <Dna size={16} />,
+      activeColor: "text-accent",
+      activeBorder: "border-l-2 border-accent",
+    },
+    {
+      domain: "synthesis",
+      label: getInvestigationDomainLabel(t, "synthesis"),
+      icon: <FileText size={16} />,
+      activeColor: "text-text-secondary",
+      activeBorder: "border-l-2 border-border-hover",
+    },
+    {
+      domain: "code-explorer",
+      label: getInvestigationDomainLabel(t, "code-explorer"),
+      icon: <Binary size={16} />,
+      activeColor: "text-warning",
+      activeBorder: "border-l-2 border-warning",
+    },
+  ];
 
   return (
     <div
@@ -63,10 +65,10 @@ export function LeftRail({ pinCount, runCount }: LeftRailProps) {
     >
       <div className="px-3 py-4">
         <p className="text-xs font-semibold uppercase tracking-wider text-text-ghost mb-3 px-2">
-          Domains
+          {t("investigation.common.labels.domains")}
         </p>
         <nav className="flex flex-col gap-0.5">
-          {DOMAIN_ITEMS.map((item) => {
+          {domainItems.map((item) => {
             const isActive = activeDomain === item.domain;
             return (
               <button
@@ -99,10 +101,12 @@ export function LeftRail({ pinCount, runCount }: LeftRailProps) {
               ? "text-success hover:bg-surface-base"
               : "text-text-ghost hover:bg-surface-base hover:text-text-secondary",
           ].join(" ")}
-          aria-label="Toggle evidence sidebar"
+          aria-label={t("investigation.common.actions.toggleEvidenceSidebar")}
         >
           <Pin size={14} />
-          <span className="text-xs">Pinned ({pinCount})</span>
+          <span className="text-xs">
+            {t("investigation.common.labels.pins")} ({pinCount})
+          </span>
         </button>
         <button
           type="button"
@@ -115,10 +119,12 @@ export function LeftRail({ pinCount, runCount }: LeftRailProps) {
               ? "text-success hover:bg-surface-base"
               : "text-text-ghost hover:bg-surface-base hover:text-text-secondary",
           ].join(" ")}
-          aria-label="Switch to clinical domain run history"
+          aria-label={t("investigation.common.actions.switchToClinicalRunHistory")}
         >
           <Play size={14} />
-          <span className="text-xs">Runs ({runCount})</span>
+          <span className="text-xs">
+            {t("investigation.common.labels.runs")} ({runCount})
+          </span>
         </button>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
+import { useTranslation } from "react-i18next";
 
 const COLOR_TEXT = "var(--text-primary)";
 const COLOR_AXIS = "var(--border-default)";
@@ -29,12 +30,17 @@ interface PSDistributionChartProps {
 export function PSDistributionChart({
   target,
   comparator,
-  targetLabel = "Target",
-  comparatorLabel = "Comparator",
+  targetLabel,
+  comparatorLabel,
   width = 600,
   height = 300,
 }: PSDistributionChartProps) {
+  const { t } = useTranslation("app");
   const svgRef = useRef<SVGSVGElement>(null);
+  const resolvedTargetLabel =
+    targetLabel ?? t("investigation.clinical.results.target");
+  const resolvedComparatorLabel =
+    comparatorLabel ?? t("investigation.clinical.results.comparator");
 
   const plotWidth = width - MARGIN.left - MARGIN.right;
   const plotHeight = height - MARGIN.top - MARGIN.bottom;
@@ -144,7 +150,7 @@ export function PSDistributionChart({
       .attr("font-size", "11px")
       .attr("fill", COLOR_TEXT)
       .attr("font-family", "sans-serif")
-      .text("Propensity Score");
+      .text(t("investigation.clinical.charts.propensityScore"));
 
     // Legend (top-right)
     const legendG = g
@@ -169,7 +175,11 @@ export function PSDistributionChart({
       .attr("font-size", "10px")
       .attr("fill", COLOR_TEXT)
       .attr("font-family", "sans-serif")
-      .text(targetLabel.length > 16 ? targetLabel.slice(0, 15) + "\u2026" : targetLabel);
+      .text(
+        resolvedTargetLabel.length > 16
+          ? resolvedTargetLabel.slice(0, 15) + "\u2026"
+          : resolvedTargetLabel,
+      );
 
     // Comparator entry
     legendG
@@ -190,9 +200,9 @@ export function PSDistributionChart({
       .attr("fill", COLOR_TEXT)
       .attr("font-family", "sans-serif")
       .text(
-        comparatorLabel.length > 16
-          ? comparatorLabel.slice(0, 15) + "\u2026"
-          : comparatorLabel,
+        resolvedComparatorLabel.length > 16
+          ? resolvedComparatorLabel.slice(0, 15) + "\u2026"
+          : resolvedComparatorLabel,
       );
 
     // Optional: subtle "top" and "bottom" half labels
@@ -202,7 +212,7 @@ export function PSDistributionChart({
       .attr("font-size", "9px")
       .attr("fill", COLOR_TARGET)
       .attr("font-family", "sans-serif")
-      .text(targetLabel);
+      .text(resolvedTargetLabel);
 
     g.append("text")
       .attr("x", 4)
@@ -210,17 +220,18 @@ export function PSDistributionChart({
       .attr("font-size", "9px")
       .attr("fill", COLOR_COMPARATOR)
       .attr("font-family", "sans-serif")
-      .text(comparatorLabel);
+      .text(resolvedComparatorLabel);
   }, [
     target,
     comparator,
-    targetLabel,
-    comparatorLabel,
+    resolvedTargetLabel,
+    resolvedComparatorLabel,
     width,
     height,
     plotWidth,
     plotHeight,
     halfH,
+    t,
   ]);
 
   if (!target.length && !comparator.length) return null;
@@ -228,7 +239,7 @@ export function PSDistributionChart({
   return (
     <div className="flex flex-col gap-2">
       <p className="text-xs font-medium uppercase tracking-wide text-text-ghost">
-        Propensity Score Distribution
+        {t("investigation.clinical.charts.propensityScoreDistribution")}
       </p>
       <div className="overflow-x-auto">
         <svg ref={svgRef} />

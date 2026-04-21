@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { useCohortDefinitions } from "@/features/cohort-definitions/hooks/useCohortDefinitions";
 import { CLINICAL_ANALYSIS_REGISTRY } from "../../clinicalRegistry";
@@ -8,6 +9,11 @@ import type {
   ClinicalAnalysisConfig,
   Investigation,
 } from "../../types";
+import {
+  getClinicalAnalysisDescription,
+  getClinicalAnalysisEstimatedTime,
+  getClinicalAnalysisLabel,
+} from "../../lib/i18n";
 
 interface ConfigDrawerProps {
   analysisType: ClinicalAnalysisType | null; // null = closed
@@ -84,6 +90,7 @@ export function ConfigDrawer({
   isPending = false,
   pendingLabel = "Running…",
 }: ConfigDrawerProps) {
+  const { t } = useTranslation("app");
   const isOpen = analysisType !== null;
   const descriptor = analysisType
     ? CLINICAL_ANALYSIS_REGISTRY.find((r) => r.type === analysisType) ?? null
@@ -246,15 +253,15 @@ export function ConfigDrawer({
       case "characterization":
         return (
           <div className="flex flex-col gap-1">
-            <FieldLabel>Min Cell Count</FieldLabel>
+            <FieldLabel>{t("investigation.clinical.drawer.minCellCount")}</FieldLabel>
             <NumberInput
               value={minCellCount}
               onChange={setMinCellCount}
               min={1}
-              label="Minimum cell count"
+              label={t("investigation.clinical.drawer.minCellCountLabel")}
             />
             <p className="text-[11px] text-text-ghost mt-0.5">
-              Cells with fewer patients are suppressed in output.
+              {t("investigation.clinical.drawer.minCellCountHelp")}
             </p>
           </div>
         );
@@ -263,21 +270,30 @@ export function ConfigDrawer({
         return (
           <>
             <div className="flex flex-col gap-1">
-              <FieldLabel>Outcome Cohort</FieldLabel>
+              <FieldLabel>{t("investigation.clinical.drawer.outcomeCohort")}</FieldLabel>
               <CohortSelect
                 value={outcomeCohortId}
                 onChange={setOutcomeCohortId}
-                placeholder="Select outcome cohort…"
+                placeholder={t("investigation.common.placeholders.selectOutcomeCohort")}
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1">
-                <FieldLabel>TAR Start (days)</FieldLabel>
-                <NumberInput value={tarStart} onChange={setTarStart} label="Time-at-risk start days" />
+                <FieldLabel>{t("investigation.clinical.drawer.tarStart")}</FieldLabel>
+                <NumberInput
+                  value={tarStart}
+                  onChange={setTarStart}
+                  label={t("investigation.clinical.drawer.tarStartLabel")}
+                />
               </div>
               <div className="flex flex-col gap-1">
-                <FieldLabel>TAR End (days)</FieldLabel>
-                <NumberInput value={tarEnd} onChange={setTarEnd} min={1} label="Time-at-risk end days" />
+                <FieldLabel>{t("investigation.clinical.drawer.tarEnd")}</FieldLabel>
+                <NumberInput
+                  value={tarEnd}
+                  onChange={setTarEnd}
+                  min={1}
+                  label={t("investigation.clinical.drawer.tarEndLabel")}
+                />
               </div>
             </div>
           </>
@@ -287,18 +303,20 @@ export function ConfigDrawer({
         return (
           <>
             <div className="flex flex-col gap-1">
-              <FieldLabel>Comparator Cohort</FieldLabel>
+              <FieldLabel>{t("investigation.clinical.drawer.comparatorCohort")}</FieldLabel>
               <CohortSelect
                 value={comparatorCohortId}
                 onChange={setComparatorCohortId}
-                placeholder="Select comparator cohort…"
+                placeholder={t("investigation.common.placeholders.selectComparatorCohort")}
               />
             </div>
             <div className="flex flex-col gap-1">
-              <FieldLabel>Outcome Cohorts</FieldLabel>
+              <FieldLabel>{t("investigation.clinical.drawer.outcomeCohorts")}</FieldLabel>
               <div className="rounded border border-border-default bg-surface-raised/40 max-h-40 overflow-y-auto p-2 flex flex-col gap-1">
                 {allCohorts.length === 0 && (
-                  <p className="text-[11px] text-text-ghost p-1">No cohorts available.</p>
+                  <p className="text-[11px] text-text-ghost p-1">
+                    {t("investigation.common.empty.noCohortsAvailable")}
+                  </p>
                 )}
                 {allCohorts.map((c) => (
                   <label
@@ -315,7 +333,7 @@ export function ConfigDrawer({
                       {c.name}
                       {investigationCohortIds.has(c.id) && (
                         <span className="text-[10px] px-1 py-0.5 rounded bg-success/10 text-success border border-success/20">
-                          From investigation
+                          {t("investigation.common.labels.fromInvestigation")}
                         </span>
                       )}
                     </span>
@@ -324,13 +342,22 @@ export function ConfigDrawer({
               </div>
             </div>
             <div className="flex flex-col gap-1">
-              <FieldLabel>Propensity Score Method</FieldLabel>
+              <FieldLabel>{t("investigation.clinical.drawer.propensityScoreMethod")}</FieldLabel>
               <div className="flex flex-col gap-1.5">
                 {(
                   [
-                    { value: "matching", label: "PS Matching" },
-                    { value: "stratification", label: "PS Stratification" },
-                    { value: "weighting", label: "PS Weighting (IPTW)" },
+                    {
+                      value: "matching",
+                      label: t("investigation.clinical.drawer.psMatching"),
+                    },
+                    {
+                      value: "stratification",
+                      label: t("investigation.clinical.drawer.psStratification"),
+                    },
+                    {
+                      value: "weighting",
+                      label: t("investigation.clinical.drawer.psWeighting"),
+                    },
                   ] as const
                 ).map((opt) => (
                   <label
@@ -357,24 +384,34 @@ export function ConfigDrawer({
         return (
           <>
             <div className="flex flex-col gap-1">
-              <FieldLabel>Outcome Cohort</FieldLabel>
+              <FieldLabel>{t("investigation.clinical.drawer.outcomeCohort")}</FieldLabel>
               <CohortSelect
                 value={outcomeCohortId}
                 onChange={setOutcomeCohortId}
-                placeholder="Select outcome cohort…"
+                placeholder={t("investigation.common.placeholders.selectOutcomeCohort")}
               />
             </div>
             <div className="flex flex-col gap-1">
-              <FieldLabel>Model Type</FieldLabel>
+              <FieldLabel>{t("investigation.clinical.drawer.modelType")}</FieldLabel>
               <SelectInput
                 value={modelType}
                 onChange={setModelType}
               >
-                <option value="lasso_logistic_regression">LASSO Logistic Regression</option>
-                <option value="gradient_boosting">Gradient Boosting</option>
-                <option value="random_forest">Random Forest</option>
-                <option value="ada_boost">AdaBoost</option>
-                <option value="decision_tree">Decision Tree</option>
+                <option value="lasso_logistic_regression">
+                  {t("investigation.clinical.drawer.lassoLogisticRegression")}
+                </option>
+                <option value="gradient_boosting">
+                  {t("investigation.clinical.drawer.gradientBoosting")}
+                </option>
+                <option value="random_forest">
+                  {t("investigation.clinical.drawer.randomForest")}
+                </option>
+                <option value="ada_boost">
+                  {t("investigation.clinical.drawer.adaBoost")}
+                </option>
+                <option value="decision_tree">
+                  {t("investigation.clinical.drawer.decisionTree")}
+                </option>
               </SelectInput>
             </div>
           </>
@@ -384,26 +421,26 @@ export function ConfigDrawer({
         return (
           <>
             <div className="flex flex-col gap-1">
-              <FieldLabel>Outcome Cohort</FieldLabel>
+              <FieldLabel>{t("investigation.clinical.drawer.outcomeCohort")}</FieldLabel>
               <CohortSelect
                 value={outcomeCohortId}
                 onChange={setOutcomeCohortId}
-                placeholder="Select outcome cohort…"
+                placeholder={t("investigation.common.placeholders.selectOutcomeCohort")}
               />
               <p className="text-[11px] text-text-ghost mt-0.5">
-                Exposure cohort is the selected target cohort above.
+                {t("investigation.clinical.drawer.exposureUsesTarget")}
               </p>
             </div>
             <div className="flex flex-col gap-1">
-              <FieldLabel>Naive Period (days)</FieldLabel>
+              <FieldLabel>{t("investigation.clinical.drawer.naivePeriod")}</FieldLabel>
               <NumberInput
                 value={naivePeriod}
                 onChange={setNaivePeriod}
                 min={0}
-                label="Naive period days"
+                label={t("investigation.clinical.drawer.naivePeriodLabel")}
               />
               <p className="text-[11px] text-text-ghost mt-0.5">
-                Days at the start of observation to exclude from analysis.
+                {t("investigation.clinical.drawer.naivePeriodHelp")}
               </p>
             </div>
           </>
@@ -413,11 +450,10 @@ export function ConfigDrawer({
         return (
           <div className="rounded border border-border-default bg-surface-raised/20 p-4 text-center">
             <p className="text-xs text-text-muted">
-              Select 2+ completed estimation results
+              {t("investigation.clinical.drawer.synthesisPrompt")}
             </p>
             <p className="text-[11px] text-text-ghost mt-1">
-              Evidence synthesis pooling is not yet configurable here. Run
-              from the estimation results view.
+              {t("investigation.clinical.drawer.synthesisHelp")}
             </p>
           </div>
         );
@@ -452,23 +488,29 @@ export function ConfigDrawer({
         ].join(" ")}
         aria-modal="true"
         role="dialog"
-        aria-label={descriptor?.name ?? "Analysis configuration"}
+        aria-label={
+          descriptor
+            ? getClinicalAnalysisLabel(t, descriptor.type)
+            : t("investigation.clinical.drawer.analysisConfiguration")
+        }
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border-default px-5 py-4 flex-shrink-0">
           <div>
             <h2 className="text-sm font-semibold text-text-primary">
-              {descriptor?.name ?? "Configure Analysis"}
+              {descriptor
+                ? getClinicalAnalysisLabel(t, descriptor.type)
+                : t("investigation.clinical.drawer.configureAnalysis")}
             </h2>
             {descriptor && (
               <p className="text-[11px] text-text-ghost mt-0.5">
-                {descriptor.description}
+                {getClinicalAnalysisDescription(t, descriptor.type)}
               </p>
             )}
           </div>
           <button
             onClick={onClose}
-            aria-label="Close drawer"
+            aria-label={t("investigation.clinical.drawer.closeDrawer")}
             className="ml-4 flex-shrink-0 rounded p-1.5 text-text-muted hover:bg-surface-raised hover:text-text-primary transition-colors"
           >
             <svg
@@ -493,14 +535,16 @@ export function ConfigDrawer({
             {/* Source selector — hidden for evidence_synthesis */}
             {analysisType !== "evidence_synthesis" && (
               <div className="flex flex-col gap-1">
-                <FieldLabel>Data Source</FieldLabel>
+                <FieldLabel>{t("investigation.common.sections.dataSource")}</FieldLabel>
                 <SelectInput
                   value={sourceId ?? ""}
                   onChange={(v) => setSourceId(v ? Number(v) : null)}
                   disabled={sourcesLoading}
                 >
                   <option value="">
-                    {sourcesLoading ? "Loading sources…" : "Select a source…"}
+                    {sourcesLoading
+                      ? t("investigation.common.sections.loadingSources")
+                      : t("investigation.common.placeholders.selectSource")}
                   </option>
                   {sources.map((s) => (
                     <option key={s.id} value={s.id}>
@@ -515,13 +559,17 @@ export function ConfigDrawer({
             {analysisType !== "evidence_synthesis" && (
               <div className="flex flex-col gap-1">
                 <FieldLabel>
-                  {analysisType === "sccs" ? "Exposure Cohort (Target)" : "Target Cohort"}
+                  {analysisType === "sccs"
+                    ? t("investigation.clinical.drawer.exposureCohortTarget")
+                    : t("investigation.clinical.drawer.targetCohort")}
                 </FieldLabel>
                 <SelectInput
                   value={targetCohortId ?? ""}
                   onChange={(v) => setTargetCohortId(v ? Number(v) : null)}
                 >
-                  <option value="">Select target cohort…</option>
+                  <option value="">
+                    {t("investigation.common.placeholders.selectTargetCohort")}
+                  </option>
                   {allCohorts.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
@@ -532,7 +580,7 @@ export function ConfigDrawer({
                 {/* Investigation cohort badges legend */}
                 {allCohorts.some((c) => investigationCohortIds.has(c.id)) && (
                   <p className="text-[11px] text-text-ghost mt-0.5">
-                    ★ = cohort from this investigation
+                    {t("investigation.common.labels.cohortFromThisInvestigation")}
                   </p>
                 )}
               </div>
@@ -544,7 +592,7 @@ export function ConfigDrawer({
                 <div className="flex items-center gap-2">
                   <div className="h-px flex-1 bg-surface-raised" />
                   <span className="text-[10px] uppercase tracking-wide text-text-ghost">
-                    Analysis Parameters
+                    {t("investigation.common.sections.analysisParameters")}
                   </span>
                   <div className="h-px flex-1 bg-surface-raised" />
                 </div>
@@ -573,7 +621,9 @@ export function ConfigDrawer({
                   d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              Est. {descriptor.estimatedTime}
+              {t("investigation.common.labels.estTime", {
+                value: getClinicalAnalysisEstimatedTime(t, descriptor.type),
+              })}
             </span>
           )}
 
@@ -582,7 +632,7 @@ export function ConfigDrawer({
               onClick={onClose}
               className="px-4 py-2 rounded text-xs text-text-muted hover:text-text-primary hover:bg-surface-raised transition-colors"
             >
-              Cancel
+              {t("investigation.common.actions.cancel")}
             </button>
             <button
               onClick={handleExecute}
@@ -613,7 +663,7 @@ export function ConfigDrawer({
                   {pendingLabel}
                 </>
               ) : (
-                "Run Analysis"
+                t("investigation.common.actions.runAnalysis")
               )}
             </button>
           </div>

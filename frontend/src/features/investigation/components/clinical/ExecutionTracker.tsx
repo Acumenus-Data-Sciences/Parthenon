@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import type { LucideProps } from "lucide-react";
 import * as LucideIcons from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useExecution } from "../../hooks/useClinicalAnalysis";
 import type { ClinicalAnalysisType } from "../../types";
 import { ResultCards } from "./ResultCards";
 
 type IconComponent = React.ComponentType<LucideProps>;
+const ICONS = LucideIcons as unknown as Record<string, IconComponent>;
 
 // Icon map keyed by analysis type
 const TYPE_ICON: Record<ClinicalAnalysisType, string> = {
@@ -17,11 +19,6 @@ const TYPE_ICON: Record<ClinicalAnalysisType, string> = {
   evidence_synthesis: "Layers",
   pathway: "GitBranch",
 };
-
-function getIcon(name: string): IconComponent {
-  const icons = LucideIcons as unknown as Record<string, IconComponent>;
-  return icons[name] ?? LucideIcons.Box;
-}
 
 interface PinFinding {
   domain: string;
@@ -56,6 +53,7 @@ export function ExecutionTracker({
   onComplete,
   onPinFinding,
 }: ExecutionTrackerProps) {
+  const { t } = useTranslation("app");
   const { data: rawExecution } = useExecution(apiPrefix, analysisId, executionId);
   const execution = rawExecution as Record<string, unknown> | undefined;
   const [elapsed, setElapsed] = useState(0);
@@ -84,7 +82,7 @@ export function ExecutionTracker({
     }
   }, [status, execution, onComplete]);
 
-  const Icon = getIcon(TYPE_ICON[analysisType]);
+  const Icon = ICONS[TYPE_ICON[analysisType]] ?? LucideIcons.Box;
 
   // ── Queued / Pending ──────────────────────────────────────────────────────
   if (status === "queued" || status === "pending") {
@@ -95,7 +93,9 @@ export function ExecutionTracker({
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-surface-overlay opacity-60" />
           <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-surface-overlay" />
         </span>
-        <span className="text-sm text-text-muted">Waiting in queue...</span>
+        <span className="text-sm text-text-muted">
+          {t("investigation.common.messages.waitingInQueue")}
+        </span>
       </div>
     );
   }
@@ -110,7 +110,9 @@ export function ExecutionTracker({
         </div>
 
         <div className="flex flex-col gap-0.5">
-          <span className="text-sm font-medium text-text-primary">Running...</span>
+          <span className="text-sm font-medium text-text-primary">
+            {t("investigation.common.messages.running")}
+          </span>
           <span className="font-mono text-xs text-text-ghost">
             {formatElapsed(elapsed)}
           </span>
@@ -153,7 +155,9 @@ export function ExecutionTracker({
           <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-success/10">
             <Icon className="h-3 w-3 text-success" />
           </div>
-          <span className="text-xs font-medium text-text-secondary">Results</span>
+          <span className="text-xs font-medium text-text-secondary">
+            {t("investigation.common.labels.results")}
+          </span>
           <span className="ml-auto font-mono text-[10px] text-text-ghost">
             {formatElapsed(elapsed)}
           </span>
@@ -173,14 +177,16 @@ export function ExecutionTracker({
     const failMessage =
       (execution?.fail_message as string | undefined) ??
       (execution?.error as string | undefined) ??
-      "Analysis failed. Check logs for details.";
+      t("investigation.clinical.tracker.analysisFailedDefault");
 
     return (
       <div className="flex items-start gap-3 rounded-lg border border-primary/50 bg-primary/10 px-4 py-3">
         <LucideIcons.AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
         <div className="flex flex-col gap-1">
           <span className="text-sm font-medium text-primary">
-            {status === "cancelled" ? "Analysis cancelled" : "Analysis failed"}
+            {status === "cancelled"
+              ? t("investigation.common.messages.analysisCancelled")
+              : t("investigation.common.messages.analysisFailed")}
           </span>
           <span className="text-xs text-text-muted">{failMessage}</span>
         </div>
@@ -195,7 +201,9 @@ export function ExecutionTracker({
         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-surface-overlay opacity-60" />
         <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-surface-overlay" />
       </span>
-      <span className="text-sm text-text-muted">Initializing...</span>
+      <span className="text-sm text-text-muted">
+        {t("investigation.common.messages.initializing")}
+      </span>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useCreateInvestigation } from "../hooks/useInvestigation";
 import { saveDomainState } from "../api";
 import { splitIntent } from "@/features/study-agent/api";
@@ -9,6 +10,7 @@ import type { IntentSplitResult } from "@/features/study-agent/api";
 type StatusPhase = "idle" | "creating" | "analyzing" | "done";
 
 export default function NewInvestigationPage() {
+  const { t } = useTranslation("app");
   const navigate = useNavigate();
   const createInvestigation = useCreateInvestigation();
   const [searchParams] = useSearchParams();
@@ -36,7 +38,7 @@ export default function NewInvestigationPage() {
       });
       investigationId = result.id;
     } catch {
-      setError("Failed to create investigation. Please try again.");
+      setError(t("investigation.common.messages.createInvestigationFailed"));
       setPhase("idle");
       return;
     }
@@ -71,9 +73,10 @@ export default function NewInvestigationPage() {
   const isPending = phase === "creating" || phase === "analyzing";
 
   const buttonLabel = () => {
-    if (phase === "creating") return "Creating...";
-    if (phase === "analyzing") return "AI is analyzing your question...";
-    return "Create Investigation";
+    if (phase === "analyzing") {
+      return t("investigation.common.messages.aiWillAnalyze");
+    }
+    return t("investigation.common.actions.createInvestigation");
   };
 
   return (
@@ -88,17 +91,17 @@ export default function NewInvestigationPage() {
           className="inline-flex items-center gap-1.5 text-xs text-text-ghost hover:text-text-secondary transition-colors"
         >
           <ArrowLeft className="h-3 w-3" />
-          Evidence Investigation
+          {t("investigation.newPage.back")}
         </Link>
       </div>
 
       <div className="flex-1 flex items-center justify-center">
       <div className="max-w-lg w-full mx-auto bg-surface-base/50 border border-border-default rounded-2xl p-8">
         <h1 className="text-xl font-bold text-text-primary mb-1">
-          New Evidence Investigation
+          {t("investigation.newPage.title")}
         </h1>
         <p className="text-sm text-text-ghost mb-6">
-          Start a structured dossier for your research question.
+          {t("investigation.newPage.subtitle")}
         </p>
 
         <form onSubmit={(e) => void handleSubmit(e)} className="space-y-5">
@@ -108,7 +111,8 @@ export default function NewInvestigationPage() {
               htmlFor="title"
               className="block text-sm font-medium text-text-secondary mb-1.5"
             >
-              Title <span className="text-primary">*</span>
+              {t("investigation.common.labels.title")}{" "}
+              <span className="text-primary">*</span>
             </label>
             <input
               id="title"
@@ -116,7 +120,7 @@ export default function NewInvestigationPage() {
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g., Cardiovascular risk in T2DM patients"
+              placeholder={t("investigation.common.placeholders.investigationTitle")}
               className="w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-text-primary placeholder-text-ghost text-sm focus:outline-none focus:border-border-hover transition-colors"
             />
           </div>
@@ -127,21 +131,22 @@ export default function NewInvestigationPage() {
               htmlFor="research_question"
               className="block text-sm font-medium text-text-secondary mb-1.5"
             >
-              Research Question{" "}
-              <span className="text-text-ghost font-normal">(optional)</span>
+              {t("investigation.common.sections.researchQuestion")}{" "}
+              <span className="text-text-ghost font-normal">
+                ({t("investigation.common.labels.optional")})
+              </span>
             </label>
             <textarea
               id="research_question"
               rows={4}
               value={researchQuestion}
               onChange={(e) => setResearchQuestion(e.target.value)}
-              placeholder="What is the comparative effectiveness of..."
+              placeholder={t("investigation.common.placeholders.researchQuestion")}
               className="w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-text-primary placeholder-text-ghost text-sm focus:outline-none focus:border-border-hover transition-colors resize-none"
             />
             {isLongEnough && (
               <p className="mt-1 text-xs text-success">
-                AI will analyze your research question to suggest phenotype
-                concepts.
+                {t("investigation.common.messages.aiWillAnalyze")}
               </p>
             )}
           </div>
@@ -159,7 +164,7 @@ export default function NewInvestigationPage() {
                 {buttonLabel()}
               </>
             ) : (
-              "Create Investigation"
+              t("investigation.common.actions.createInvestigation")
             )}
           </button>
 

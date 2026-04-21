@@ -1,35 +1,28 @@
 import { CLINICAL_ANALYSIS_REGISTRY } from "../../clinicalRegistry";
+import { useTranslation } from "react-i18next";
 import type {
   ClinicalAnalysisGroup,
   ClinicalAnalysisType,
   Investigation,
 } from "../../types";
 import { AnalysisCard } from "./AnalysisCard";
+import {
+  getClinicalAnalysisGroupDescription,
+  getClinicalAnalysisGroupLabel,
+  getClinicalAnalysisPrerequisites,
+} from "../../lib/i18n";
 
-interface GroupMeta {
-  group: ClinicalAnalysisGroup;
-  label: string;
-  description: string;
-  color: string;
-}
-
-const GROUP_META: GroupMeta[] = [
+const GROUP_META: Array<{ group: ClinicalAnalysisGroup; color: string }> = [
   {
     group: "characterize",
-    label: "Characterize",
-    description: "Describe your populations — demographics, comorbidities, and treatment patterns.",
     color: "var(--success)",
   },
   {
     group: "compare",
-    label: "Compare",
-    description: "Estimate causal effects and compare outcomes across exposures or time windows.",
     color: "var(--primary)",
   },
   {
     group: "predict",
-    label: "Predict",
-    description: "Train patient-level machine learning models to forecast future outcomes.",
     color: "var(--accent)",
   },
 ];
@@ -78,11 +71,12 @@ export function AnalysisGallery({
   investigation,
   onSelectAnalysis,
 }: AnalysisGalleryProps) {
+  const { t } = useTranslation("app");
   const { selected_cohort_ids } = investigation.phenotype_state;
 
   return (
     <div className="flex flex-col gap-10">
-      {GROUP_META.map(({ group, label, description, color }) => {
+      {GROUP_META.map(({ group, color }) => {
         const descriptors = CLINICAL_ANALYSIS_REGISTRY.filter(
           (d) => d.group === group,
         );
@@ -100,9 +94,11 @@ export function AnalysisGallery({
                   className="text-base font-semibold"
                   style={{ color }}
                 >
-                  {label}
+                  {getClinicalAnalysisGroupLabel(t, group)}
                 </h2>
-                <p className="text-xs text-text-ghost">{description}</p>
+                <p className="text-xs text-text-ghost">
+                  {getClinicalAnalysisGroupDescription(t, group)}
+                </p>
               </div>
             </div>
 
@@ -110,12 +106,17 @@ export function AnalysisGallery({
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {descriptors.map((descriptor) => {
                 const met = areAllPrerequisitesMet(
-                  descriptor.prerequisites,
+                  getClinicalAnalysisPrerequisites(t, descriptor.type),
                   selected_cohort_ids,
                 );
                 const disabledReason = met
                   ? undefined
-                  : `Requires: ${descriptor.prerequisites.join(", ")}`;
+                  : t("investigation.clinical.requires", {
+                      requirements: getClinicalAnalysisPrerequisites(
+                        t,
+                        descriptor.type,
+                      ).join(", "),
+                    });
 
                 return (
                   <AnalysisCard

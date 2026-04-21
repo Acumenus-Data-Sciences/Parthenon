@@ -1,5 +1,7 @@
 import { lazy, Suspense, useCallback, useState } from "react";
+import type { TFunction } from "i18next";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAutoSave } from "../../hooks/useAutoSave";
 import { useCreateAnalysis, useExecuteAnalysis } from "../../hooks/useClinicalAnalysis";
 import { useCreatePin } from "../../hooks/useEvidencePins";
@@ -59,12 +61,20 @@ interface SubTabBarProps {
 }
 
 function SubTabBar({ view, hasActiveExecution, onChange }: SubTabBarProps) {
+  const { t } = useTranslation("app");
   const tabs: { id: PanelView; label: string; hidden?: boolean }[] = [
-    { id: "gallery", label: "OHDSI Analyses" },
-    { id: "tracking", label: "Active Run", hidden: !hasActiveExecution },
-    { id: "history", label: "History" },
-    { id: "finngen", label: "FinnGen Analyses" },
-    { id: "finngen-history", label: "Run History" },
+    { id: "gallery", label: t("investigation.common.tabs.gallery") },
+    {
+      id: "tracking",
+      label: t("investigation.common.tabs.tracking"),
+      hidden: !hasActiveExecution,
+    },
+    { id: "history", label: t("investigation.common.tabs.history") },
+    { id: "finngen", label: t("investigation.common.tabs.finngen") },
+    {
+      id: "finngen-history",
+      label: t("investigation.common.tabs.finngenHistory"),
+    },
   ];
 
   return (
@@ -98,6 +108,7 @@ function SubTabBar({ view, hasActiveExecution, onChange }: SubTabBarProps) {
 // ── Build design payload ──────────────────────────────────────────────────────
 
 function buildDesignPayload(
+  t: TFunction<"app">,
   config: ClinicalAnalysisConfig,
 ): Record<string, unknown> {
   const base: Record<string, unknown> = {};
@@ -106,7 +117,7 @@ function buildDesignPayload(
     case "characterization":
       return {
         ...base,
-        name: "Investigation Characterization",
+        name: t("investigation.clinical.payloadNames.characterization"),
         cohort_ids: config.target_cohort_id ? [config.target_cohort_id] : [],
         source_id: config.source_id,
         min_cell_count: (config.parameters.min_cell_count as number | undefined) ?? 5,
@@ -115,7 +126,7 @@ function buildDesignPayload(
     case "incidence_rate":
       return {
         ...base,
-        name: "Investigation Incidence Rate",
+        name: t("investigation.clinical.payloadNames.incidence_rate"),
         target_cohort_id: config.target_cohort_id,
         outcome_cohort_ids: config.outcome_cohort_ids,
         source_id: config.source_id,
@@ -126,7 +137,7 @@ function buildDesignPayload(
     case "estimation":
       return {
         ...base,
-        name: "Investigation Comparative Estimation",
+        name: t("investigation.clinical.payloadNames.estimation"),
         design_json: {
           targetCohortId: config.target_cohort_id,
           comparatorCohortId: config.comparator_cohort_id,
@@ -139,7 +150,7 @@ function buildDesignPayload(
     case "prediction":
       return {
         ...base,
-        name: "Investigation Patient-Level Prediction",
+        name: t("investigation.clinical.payloadNames.prediction"),
         target_cohort_id: config.target_cohort_id,
         outcome_cohort_ids: config.outcome_cohort_ids,
         source_id: config.source_id,
@@ -149,7 +160,7 @@ function buildDesignPayload(
     case "sccs":
       return {
         ...base,
-        name: "Investigation SCCS",
+        name: t("investigation.clinical.payloadNames.sccs"),
         exposure_cohort_id: config.target_cohort_id,
         outcome_cohort_ids: config.outcome_cohort_ids,
         source_id: config.source_id,
@@ -159,7 +170,7 @@ function buildDesignPayload(
     case "pathway":
       return {
         ...base,
-        name: "Investigation Pathway Analysis",
+        name: t("investigation.clinical.payloadNames.pathway"),
         target_cohort_id: config.target_cohort_id,
         source_id: config.source_id,
       };
@@ -167,7 +178,7 @@ function buildDesignPayload(
     case "evidence_synthesis":
       return {
         ...base,
-        name: "Investigation Evidence Synthesis",
+        name: t("investigation.clinical.payloadNames.evidence_synthesis"),
       };
 
     default:
@@ -180,6 +191,7 @@ function buildDesignPayload(
 const VALID_PANEL_VIEWS: PanelView[] = ["gallery", "tracking", "history", "finngen", "finngen-history"];
 
 export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
+  const { t } = useTranslation("app");
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [selectedType, setSelectedType] = useState<ClinicalAnalysisType | null>(null);
@@ -194,7 +206,7 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
   });
   const [executeError, setExecuteError] = useState<string | null>(null);
 
-  function handleViewChange(v: PanelView) {
+  const handleViewChange = useCallback((v: PanelView) => {
     if (v !== "finngen") {
       setSelectedFinnGenModule(null);
     }
@@ -206,7 +218,7 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
       },
       { replace: true },
     );
-  }
+  }, [setSearchParams]);
 
   // Local copy of clinical state for auto-save
   const [clinicalState, setClinicalState] = useState<ClinicalState>(
@@ -255,7 +267,7 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
         );
 
         const apiPrefix = descriptor?.apiPrefix ?? config.type;
-        const designPayload = buildDesignPayload(config);
+        const designPayload = buildDesignPayload(t, config);
 
         // 1. Create the analysis record
         const analysisRecord = await createAnalysisMutation.mutateAsync({
@@ -308,7 +320,9 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
         });
       } catch (err) {
         const message =
-          err instanceof Error ? err.message : "An unexpected error occurred while dispatching the analysis.";
+          err instanceof Error
+            ? err.message
+            : t("investigation.common.messages.unexpectedDispatchError");
         setExecuteError(message);
       }
     },
@@ -318,6 +332,8 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
       clinicalState,
       saveDomainState,
       investigation.id,
+      handleViewChange,
+      t,
     ],
   );
 
@@ -398,7 +414,13 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
         )}
 
         {view === "finngen" && !selectedFinnGenModule && (
-          <Suspense fallback={<div className="py-8 text-center text-xs text-text-ghost">Loading...</div>}>
+          <Suspense
+            fallback={
+              <div className="py-8 text-center text-xs text-text-ghost">
+                {t("investigation.common.messages.finngenLoading")}
+              </div>
+            }
+          >
             <FinnGenGalleryPage
               sourceKey={String(clinicalState.selected_source_id ?? "")}
               onSelectModule={(mod) => setSelectedFinnGenModule(mod)}
@@ -407,7 +429,13 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
         )}
 
         {view === "finngen" && selectedFinnGenModule && (
-          <Suspense fallback={<div className="py-8 text-center text-xs text-text-ghost">Loading...</div>}>
+          <Suspense
+            fallback={
+              <div className="py-8 text-center text-xs text-text-ghost">
+                {t("investigation.common.messages.finngenLoading")}
+              </div>
+            }
+          >
             <FinnGenDetailPage
               moduleKey={selectedFinnGenModule.key}
               sourceKey={String(clinicalState.selected_source_id ?? "")}
@@ -417,7 +445,13 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
         )}
 
         {view === "finngen-history" && (
-          <Suspense fallback={<div className="py-8 text-center text-xs text-text-ghost">Loading...</div>}>
+          <Suspense
+            fallback={
+              <div className="py-8 text-center text-xs text-text-ghost">
+                {t("investigation.common.messages.finngenLoading")}
+              </div>
+            }
+          >
             <FinnGenRunHistoryTable
               sourceKey={String(clinicalState.selected_source_id ?? "")}
               onSelectRun={(run: FinnGenRun) => {
@@ -446,14 +480,16 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
         <div className="mx-6 mb-4 flex items-start gap-3 rounded border border-primary bg-primary/10 px-4 py-3">
           <AlertCircle size={15} className="mt-0.5 shrink-0 text-primary" />
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-critical">Analysis dispatch failed</p>
+            <p className="text-xs font-medium text-critical">
+              {t("investigation.common.messages.analysisDispatchFailed")}
+            </p>
             <p className="text-xs text-text-muted mt-0.5 break-words">{executeError}</p>
           </div>
           <button
             type="button"
             onClick={() => setExecuteError(null)}
             className="shrink-0 text-text-ghost hover:text-text-secondary transition-colors text-xs"
-            aria-label="Dismiss error"
+            aria-label={t("investigation.common.actions.dismissError")}
           >
             ✕
           </button>
@@ -475,7 +511,9 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
           createAnalysisMutation.isPending || executeAnalysisMutation.isPending
         }
         pendingLabel={
-          createAnalysisMutation.isPending ? "Creating…" : "Dispatching…"
+          createAnalysisMutation.isPending
+            ? t("investigation.common.actions.createInvestigation")
+            : t("investigation.common.messages.running")
         }
       />
     </div>

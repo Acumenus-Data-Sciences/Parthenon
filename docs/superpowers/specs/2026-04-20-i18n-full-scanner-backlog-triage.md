@@ -11,10 +11,10 @@ npm run i18n:scan
 
 Current scanner output:
 
-- Full frontend scanner: 2,099 candidates across 1,111 scanned files.
+- Full frontend scanner: 1,749 candidates across 1,112 scanned files.
 - FinnGen paths excluded from this i18n track: 372 candidates.
-- Non-FinnGen backlog for this triage: 1,727 candidates.
-- Candidate kinds after FinnGen exclusion: 882 JSX text, 723 object properties, 122 JSX attributes.
+- Non-FinnGen backlog for this triage: 1,377 candidates.
+- Candidate kinds after FinnGen exclusion: 673 JSX text, 615 object properties, 89 JSX attributes.
 - Dedicated release-facing shell scan: `npm run i18n:scan:app-priority` reports 0 candidates across 214 files.
 
 Use the dedicated `npm run i18n:scan:app-priority` script plus the focused wave scanners below as the operational completion gates for this extraction program. The unsupported ad hoc `npm run i18n:scan -- --app-priority` invocation should not be used for milestone accounting.
@@ -29,7 +29,7 @@ Use the dedicated `npm run i18n:scan:app-priority` script plus the focused wave 
 | Standard PROs UI | 0 | 10 | Completed for `src/features/standard-pros/components`, `src/features/standard-pros/pages`, and user-facing helper paths under `src/features/standard-pros/lib`. The focused Standard PROs UI scanner reports 0 candidates; the remaining full-feature candidates are intentionally confined to the curated instrument catalog file. |
 | Imaging, genomics, and radiogenomics | 0 | 27 | Completed for `src/features/imaging`, `src/features/genomics`, and `src/features/radiogenomics`. Focused wave scans report 0 candidates across the imaging (14 files), genomics (9 files), and radiogenomics (4 files) scopes, with DICOM/OHIF/PACS identifiers, measurement units, and backend significance matching keys protected where needed. |
 | Strategus and study packages | 0 | 6 | Completed for `src/features/strategus`. Focused Strategus wave scanner reports 0 candidates across the study package page, module config panels, JSON spec editor, and Strategus helper/type metadata. Module names, JSON keys, and OHDSI package identifiers remain protected with explicit exemptions. |
-| Investigation clinical workflows | 336 | 43 | Next app wave. Keep clinical/source values out of generic UI translation. |
+| Investigation clinical workflows | 0 | 63 | Completed for `src/features/investigation`. Focused investigation wave scanner reports 0 candidates across the landing/new-investigation shell, phenotype builder/validation/codewas/cohort tooling, clinical gallery/config/tracking/history/results, genomic evidence search/upload/chart/table surfaces, synthesis dossier/export/versioning, and shared investigation-side panels. Clinical/source values, concept IDs, JSON keys, scientific shorthand, and OHDSI/FinnGen identifiers remain protected where needed. |
 | Profiles and patient similarity | 0 | 72 | Completed for `src/features/profiles` and `src/features/patient-similarity`. Focused wave scanner reports 0 candidates across patient profile search/browse/header/timeline/labs/visits/notes/eras surfaces plus similarity workspace, comparison, diagnostics, cohort actions, trajectory/radar/divergence charts, and matching/landscape panels. |
 | Publish, care gaps, and risk scores | 0 | 75 | Completed for `src/features/publish`, `src/features/care-gaps`, and `src/features/risk-scores`. The focused wave scanner reports 0 candidates across publish wizard/template/export surfaces, care-gap bundle/evaluation/population surfaces, and risk-score workflow/detail/result surfaces. |
 | Generated/static/curated data | 526 | 8 | Do not machine-translate as UI copy. Requires curated terminology/data asset handling. |
@@ -47,17 +47,17 @@ Use the dedicated `npm run i18n:scan:app-priority` script plus the focused wave 
 | ---: | --- |
 | 315 | `src/features/etl/lib/cdm-schema-v54.ts` |
 | 99 | `src/features/standard-pros/data/instruments.ts` |
-| 37 | `src/features/investigation/components/clinical/ConfigDrawer.tsx` |
 | 36 | `src/features/heor/pages/HeorPage.tsx` |
 | 36 | `src/features/morpheus/constants/antibioticClasses.ts` |
 | 34 | `src/features/poseidon/pages/PoseidonPage.tsx` |
 | 31 | `src/features/heor/components/ClaimsExplorer.tsx` |
 | 30 | `src/features/heor/pages/HeorAnalysisPage.tsx` |
-| 30 | `src/features/investigation/pages/InvestigationLandingPage.tsx` |
 | 30 | `src/features/jupyter/pages/JupyterPage.tsx` |
 | 29 | `src/features/etl/components/aqueduct/FieldMappingDetail.tsx` |
 | 29 | `src/features/etl/pages/SourceProfilerPage.tsx` |
 | 29 | `src/features/study-agent/pages/StudyDesignerPage.tsx` |
+| 27 | `src/features/morpheus/pages/PatientJourneyPage.tsx` |
+| 22 | `src/features/phenotype-library/pages/PhenotypeLibraryPage.tsx` |
 
 ## Recommended Extraction Order
 
@@ -85,8 +85,11 @@ Use the dedicated `npm run i18n:scan:app-priority` script plus the focused wave 
 8. Publish, care gaps, and risk scores. Completed 2026-04-21.
    Scope completed: `src/features/publish`, `src/features/care-gaps`, and `src/features/risk-scores`. The focused wave scanner reports 0 candidates across 75 files. Publish templates, export chrome, table captions/headers, care-gap bundle/evaluation/population workflow surfaces, and risk-score hub/create/detail/results chrome now resolve through app i18n resources, while study titles, clinical/source values, concept IDs, JSON, and standards identifiers remain protected where needed.
 
-9. Later specialty waves.
-   Investigation clinical workflows, HEOR, Morpheus, ETL source profiler/Aqueduct, GIS/Poseidon/code tools, concept-set shared primitives, and remaining workbench surfaces should follow after the completed waves above. The next highest-value non-FinnGen app wave is now investigation clinical workflows.
+9. Investigation clinical workflows. Completed 2026-04-21.
+   Scope completed: `src/features/investigation` across landing/new-investigation shell, phenotype builder/validation/codewas/cohort tooling, clinical gallery/config/tracking/history/results, genomic evidence search/upload/chart/table surfaces, synthesis dossier/export/versioning, and shared investigation-side panels. The focused wave scanner reports 0 candidates across 63 files. Clinical/source values, concept IDs, JSON keys, scientific shorthand, and OHDSI/FinnGen identifiers remain protected where needed.
+
+10. Later specialty waves.
+   HEOR, Morpheus, ETL source profiler/Aqueduct, GIS/Poseidon/code tools, concept-set shared primitives, and remaining workbench surfaces should follow after the completed waves above. The next highest-value non-FinnGen app wave is now HEOR.
 
 ## Generated/Static Data Policy
 

@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useUploadGwas } from "../../hooks/useGenomicEvidence";
 import type { GwasUploadResult, GwasSummaryRow } from "../../types";
 
@@ -33,6 +34,7 @@ function autoDetect(columns: string[]): Record<RequiredColumn, string> {
 }
 
 export function GwasUploader({ investigationId, onUploadComplete }: GwasUploaderProps) {
+  const { t } = useTranslation("app");
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadResult, setUploadResult] = useState<GwasUploadResult | null>(null);
   const [heldFile, setHeldFile] = useState<File | null>(null);
@@ -89,7 +91,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
 
   const handleConfirmMapping = async () => {
     if (!allMapped) {
-      setMappingError("All required columns must be mapped before confirming.");
+      setMappingError(t("investigation.genomic.allColumnsRequired"));
       return;
     }
     if (!uploadResult || !heldFile) return;
@@ -135,7 +137,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
 
       onUploadComplete(uploadResult, rows);
     } catch {
-      setMappingError("Failed to parse file. Please check the format.");
+      setMappingError(t("investigation.genomic.parseFailed"));
     } finally {
       setIsParsing(false);
     }
@@ -146,7 +148,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
       {/* Header */}
       <div className="flex items-center gap-2">
         <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--success)" }}>
-          Upload GWAS Summary Statistics
+          {t("investigation.genomic.uploadTitle")}
         </span>
       </div>
 
@@ -186,10 +188,12 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
         </svg>
 
         <p className="text-sm text-text-secondary font-medium">
-          {isDragOver ? "Release to upload" : "Drop GWAS summary stats"}
+          {isDragOver
+            ? t("investigation.genomic.releaseToUpload")
+            : t("investigation.genomic.dropSummaryStats")}
         </p>
         <p className="text-xs text-text-ghost">
-          .tsv, .csv, or .gz · max 500 MB
+          {t("investigation.genomic.fileTypes")}
         </p>
 
         {isPending && (
@@ -205,7 +209,9 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
       {/* Upload error */}
       {isError && (
         <p className="text-xs px-1" style={{ color: "var(--primary)" }}>
-          {error instanceof Error ? error.message : "Upload failed. Please try again."}
+          {error instanceof Error
+            ? error.message
+            : t("investigation.genomic.uploadFailed")}
         </p>
       )}
 
@@ -217,7 +223,10 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
             <div className="flex flex-col gap-0.5">
               <p className="text-sm font-medium text-text-primary">{uploadResult.file_name}</p>
               <p className="text-xs text-text-ghost">
-                {formatBytes(uploadResult.file_size)} · {uploadResult.total_rows.toLocaleString()} rows
+                {formatBytes(uploadResult.file_size)} ·{" "}
+                {t("investigation.common.counts.row", {
+                  count: uploadResult.total_rows,
+                })}
               </p>
             </div>
             <div className="flex flex-wrap gap-1">
@@ -265,7 +274,9 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
 
           {/* Column mapping */}
           <div className="flex flex-col gap-2">
-            <p className="text-xs font-semibold text-text-muted uppercase tracking-wide">Column Mapping</p>
+            <p className="text-xs font-semibold text-text-muted uppercase tracking-wide">
+              {t("investigation.common.sections.columnMapping")}
+            </p>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
               {REQUIRED_COLUMNS.map((req) => {
                 const isMapped = !!mapping[req];
@@ -292,7 +303,9 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
                         isMapped ? "border-border-default" : "border-amber-700/50"
                       }`}
                     >
-                      <option value="">— select —</option>
+                      <option value="">
+                        {t("investigation.common.placeholders.selectColumn")}
+                      </option>
                       {uploadResult.columns.map((col) => (
                         <option key={col} value={col}>
                           {col}
@@ -328,10 +341,10 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
                   className="w-3.5 h-3.5 border-2 border-border-hover rounded-full animate-spin"
                   style={{ borderTopColor: "var(--success)" }}
                 />
-                Parsing…
+                {t("investigation.common.messages.running")}
               </>
             ) : (
-              "Confirm Mapping"
+              t("investigation.genomic.confirmMapping")
             )}
           </button>
         </div>

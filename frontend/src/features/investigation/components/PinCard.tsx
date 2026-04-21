@@ -1,4 +1,5 @@
 import { Star, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { EvidenceDomain, EvidencePin } from "../types";
 
 interface PinCardProps {
@@ -23,8 +24,12 @@ function extractPayloadSummary(payload: Record<string, unknown>): string {
 }
 
 export function PinCard({ pin, onDelete, onToggleKeyFinding }: PinCardProps) {
+  const { t } = useTranslation("app");
   const badgeStyle = DOMAIN_BADGE_STYLE[pin.domain];
-  const summary = extractPayloadSummary(pin.finding_payload);
+  const summary =
+    Object.keys(pin.finding_payload).length === 0
+      ? t("investigation.synthesis.customFinding")
+      : extractPayloadSummary(pin.finding_payload);
 
   return (
     <div className="flex items-start gap-2 p-2 rounded-lg bg-surface-base border border-border-default group">
@@ -38,7 +43,11 @@ export function PinCard({ pin, onDelete, onToggleKeyFinding }: PinCardProps) {
           {onToggleKeyFinding ? (
             <button
               onClick={() => onToggleKeyFinding(pin.id, pin.is_key_finding)}
-              title={pin.is_key_finding ? "Unmark key finding" : "Mark as key finding"}
+              title={
+                pin.is_key_finding
+                  ? t("investigation.synthesis.unmarkKeyFinding")
+                  : t("investigation.synthesis.markKeyFinding")
+              }
               className="shrink-0 transition-colors hover:opacity-80"
             >
               <Star
@@ -61,7 +70,7 @@ export function PinCard({ pin, onDelete, onToggleKeyFinding }: PinCardProps) {
       <button
         onClick={() => onDelete(pin.id)}
         className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-text-ghost hover:text-text-secondary"
-        aria-label="Remove pin"
+        aria-label={t("investigation.synthesis.removePin")}
       >
         <X size={13} />
       </button>
