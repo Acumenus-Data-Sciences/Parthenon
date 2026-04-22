@@ -1,4 +1,5 @@
 // GENERATED — do not edit manually. Run scripts/scrape-cdm-docs.py
+// i18n-exempt-file: generated OMOP CDM standards prose is source-of-truth reference content.
 
 export interface CdmColumn {
   name: string;

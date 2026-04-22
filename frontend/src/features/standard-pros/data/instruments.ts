@@ -1,5 +1,6 @@
 import type { ProInstrument } from "../types/proInstrument";
 
+// i18n-exempt-file: curated instrument catalog names are canonical source terminology.
 export const INSTRUMENTS: ProInstrument[] = [
   // ── Mental Health ──────────────────────────────────────────────────────
   { abbreviation: "PHQ-9", name: "Patient Health Questionnaire-9", domain: "Mental Health", items: "9", hasLoinc: true, loincCode: "44249-1", hasSnomed: false, snomedCode: null, omopCoverage: "partial", license: "public", licenseDetail: "Public Domain" },

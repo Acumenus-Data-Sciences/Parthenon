@@ -200,6 +200,13 @@ function lineHasExemption(sourceFile, position) {
   return currentLine.includes("i18n-exempt") || previousLine.includes("i18n-exempt");
 }
 
+function fileHasExemption(text) {
+  return text
+    .split(/\r?\n/u)
+    .slice(0, 10)
+    .some((line) => line.includes("i18n-exempt-file"));
+}
+
 function locationFor(sourceFile, node) {
   const start = node.getStart(sourceFile);
   const { line, character } = sourceFile.getLineAndCharacterOfPosition(start);
@@ -224,6 +231,8 @@ function addCandidate(candidates, sourceFile, filePath, node, kind, text, contex
 
 function scanFile(filePath) {
   const text = fs.readFileSync(filePath, "utf8");
+  if (fileHasExemption(text)) return [];
+
   const scriptKind = filePath.endsWith(".tsx") || filePath.endsWith(".jsx")
     ? ts.ScriptKind.TSX
     : ts.ScriptKind.TS;
