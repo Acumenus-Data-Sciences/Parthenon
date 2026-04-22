@@ -18,12 +18,14 @@ import {
   useBulkUpdateConceptSetItems,
 } from "../hooks/useConceptSets";
 import type { ConceptSet } from "../types/conceptSet";
+import { useTranslation } from "react-i18next";
 
 interface ConceptSetEditorProps {
   conceptSet: ConceptSet;
 }
 
 export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
+  const { t } = useTranslation("app");
   const [showResolve, setShowResolve] = useState(false);
   const [selectedItemIds, setSelectedItemIds] = useState<Set<number>>(
     new Set(),
@@ -113,7 +115,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="text-xs text-text-muted">
-            {items.length} items
+            {t("conceptSets.editor.itemCount", { count: items.length })}
           </span>
         </div>
 
@@ -128,7 +130,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
           ) : (
             <CheckCircle2 size={14} />
           )}
-          Resolve
+          {t("conceptSets.editor.resolve")}
           {resolveResult && (
             <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-success/15 px-2 py-0.5 text-xs font-medium text-success">
               <Hash size={10} />
@@ -142,7 +144,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
       {someSelected && (
         <div className="flex items-center gap-2 rounded-lg border border-success/20 bg-success/5 px-4 py-2">
           <span className="text-xs font-medium text-success">
-            {selectedItemIds.size} selected
+            {t("conceptSets.editor.selected", { count: selectedItemIds.size })}
           </span>
           <div className="mx-2 h-4 w-px bg-surface-elevated" />
           <button
@@ -152,7 +154,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
             className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-text-secondary bg-surface-overlay border border-border-default hover:bg-surface-elevated transition-colors disabled:opacity-50"
           >
             <GitBranch size={11} />
-            Descendants On
+            {t("conceptSets.editor.descendantsOn")}
           </button>
           <button
             type="button"
@@ -161,7 +163,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
             className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-text-secondary bg-surface-overlay border border-border-default hover:bg-surface-elevated transition-colors disabled:opacity-50"
           >
             <GitBranch size={11} className="opacity-40" />
-            Descendants Off
+            {t("conceptSets.editor.descendantsOff")}
           </button>
           <button
             type="button"
@@ -170,7 +172,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
             className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-text-secondary bg-surface-overlay border border-border-default hover:bg-surface-elevated transition-colors disabled:opacity-50"
           >
             <MapPin size={11} />
-            Mapped On
+            {t("conceptSets.editor.mappedOn")}
           </button>
           <button
             type="button"
@@ -179,7 +181,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
             className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-text-secondary bg-surface-overlay border border-border-default hover:bg-surface-elevated transition-colors disabled:opacity-50"
           >
             <MapPin size={11} className="opacity-40" />
-            Mapped Off
+            {t("conceptSets.editor.mappedOff")}
           </button>
           <button
             type="button"
@@ -188,7 +190,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
             className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-critical bg-surface-overlay border border-border-default hover:bg-surface-elevated transition-colors disabled:opacity-50"
           >
             <Ban size={11} />
-            Exclude
+            {t("conceptSets.editor.exclude")}
           </button>
           <button
             type="button"
@@ -197,7 +199,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
             className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-success bg-surface-overlay border border-border-default hover:bg-surface-elevated transition-colors disabled:opacity-50"
           >
             <Check size={11} />
-            Include
+            {t("conceptSets.editor.include")}
           </button>
           {bulkUpdateMutation.isPending && (
             <Loader2 size={12} className="animate-spin text-text-muted ml-1" />
@@ -211,11 +213,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
           <div className="flex items-center gap-2">
             <CheckCircle2 size={16} className="text-success" />
             <p className="text-sm text-success">
-              Resolved to{" "}
-              <span className="font-semibold">
-                {resolveResult.count.toLocaleString()}
-              </span>{" "}
-              concept{resolveResult.count !== 1 ? "s" : ""}
+              {t("conceptSets.editor.resolvedTo", { count: resolveResult.count })}
             </p>
           </div>
         </div>
@@ -242,31 +240,31 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
                     />
                   </th>
                   <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                    Concept ID
+                    {t("conceptSets.editor.columns.conceptId")}
                   </th>
                   <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                    Name
+                    {t("conceptSets.editor.columns.name")}
                   </th>
                   <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                    Domain
+                    {t("conceptSets.editor.columns.domain")}
                   </th>
                   <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                    Vocabulary
+                    {t("conceptSets.editor.columns.vocabulary")}
                   </th>
                   <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                    Standard
+                    {t("conceptSets.editor.columns.standard")}
                   </th>
                   <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                    Excluded
+                    {t("conceptSets.editor.columns.excluded")}
                   </th>
                   <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                    Descendants
+                    {t("conceptSets.editor.columns.descendants")}
                   </th>
                   <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                    Mapped
+                    {t("conceptSets.editor.columns.mapped")}
                   </th>
                   <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                    Actions
+                    {t("conceptSets.editor.columns.actions")}
                   </th>
                 </tr>
               </thead>
@@ -312,9 +310,9 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
       ) : (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-12">
           <Search size={24} className="text-text-ghost mb-3" />
-          <p className="text-sm text-text-muted">No concepts added yet</p>
+          <p className="text-sm text-text-muted">{t("conceptSets.editor.emptyTitle")}</p>
           <p className="mt-1 text-xs text-text-ghost">
-            Use the search panel to find and add concepts to this set
+            {t("conceptSets.editor.emptyMessage")}
           </p>
         </div>
       )}

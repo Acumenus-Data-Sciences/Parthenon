@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Sparkles, ChevronRight, ChevronDown, Loader2, Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { HecatePhoebeRecommendation } from "@/features/vocabulary/api/hecateApi";
 
@@ -24,6 +25,7 @@ export function PhoebeRecommendationsPanel({
   isAddingConcept,
   defaultExpanded = false,
 }: PhoebeRecommendationsPanelProps) {
+  const { t } = useTranslation("app");
   const [expanded, setExpanded] = useState(defaultExpanded);
 
   const notYetAdded = recommendations.filter(
@@ -44,10 +46,10 @@ export function PhoebeRecommendationsPanel({
           <ChevronRight size={14} className="text-text-muted" />
         )}
         <Sparkles size={14} className="text-accent" />
-        <span>Phoebe Recommendations</span>
+        <span>{t("conceptSets.phoebe.recommendations")}</span>
         <span className="inline-flex items-center gap-1 rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-accent">
           <Sparkles className="h-3 w-3" />
-          Powered by Phoebe
+          {t("conceptSets.phoebe.poweredBy")}
         </span>
         {!isLoading && recommendations.length > 0 && (
           <span className="ml-auto inline-flex items-center rounded-full bg-accent/15 px-2 py-0.5 text-xs font-medium text-accent">
@@ -70,7 +72,7 @@ export function PhoebeRecommendationsPanel({
             )}
           >
             <Plus size={12} />
-            Add All ({notYetAdded.length})
+            {t("conceptSets.phoebe.addAll", { count: notYetAdded.length })}
           </button>
         </div>
       )}
@@ -84,11 +86,11 @@ export function PhoebeRecommendationsPanel({
             </div>
           ) : isError ? (
             <div className="flex items-center justify-center py-8 text-xs text-text-ghost">
-              Recommendations unavailable
+              {t("conceptSets.phoebe.unavailable")}
             </div>
           ) : recommendations.length === 0 ? (
             <div className="flex items-center justify-center py-8 text-xs text-text-ghost">
-              No recommendations found
+              {t("conceptSets.phoebe.noneFound")}
             </div>
           ) : (
             <div className="max-h-64 overflow-y-auto divide-y divide-border-default">
@@ -116,7 +118,7 @@ export function PhoebeRecommendationsPanel({
 
                     {alreadyAdded ? (
                       <span className="text-[10px] text-text-ghost shrink-0">
-                        Added
+                        {t("conceptSets.phoebe.added")}
                       </span>
                     ) : (
                       <button
@@ -128,10 +130,10 @@ export function PhoebeRecommendationsPanel({
                           "text-text-muted hover:text-success hover:bg-success/10",
                           "disabled:opacity-50 disabled:cursor-not-allowed",
                         )}
-                        title="Add to concept set"
+                        title={t("conceptSets.phoebe.addToConceptSet")}
                       >
                         <Plus size={12} />
-                        Add
+                        {t("conceptSets.phoebe.add")}
                       </button>
                     )}
                   </div>

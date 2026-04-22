@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { SignificanceVerdictBadge, getVerdict } from "../SignificanceVerdictBadge";
+import { SignificanceVerdictBadge } from "../SignificanceVerdictBadge";
+import { getVerdict } from "../significanceVerdict";
 
 describe("getVerdict", () => {
   it("returns protective when HR < 1, p < 0.05, and CI does not span 1", () => {

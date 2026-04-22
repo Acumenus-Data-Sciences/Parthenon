@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
-
-export type SignificanceVerdict = "protective" | "harmful" | "not_significant";
+import { useTranslation } from "react-i18next";
+import { getVerdict, type SignificanceVerdict } from "./significanceVerdict";
 
 export interface SignificanceVerdictBadgeProps {
   hr: number;
@@ -12,42 +12,24 @@ export interface SignificanceVerdictBadgeProps {
 
 const VERDICT_CONFIG: Record<
   SignificanceVerdict,
-  { label: string; icon: string; colorClasses: string }
+  { labelKey: string; icon: string; colorClasses: string }
 > = {
   protective: {
-    label: "Significant protective effect",
+    labelKey: "shared.significanceVerdict.protective",
     icon: "\u2193", // ↓
     colorClasses: "bg-success/15 text-success border-success/30",
   },
   harmful: {
-    label: "Significant harmful effect",
+    labelKey: "shared.significanceVerdict.harmful",
     icon: "\u2191", // ↑
     colorClasses: "bg-critical/15 text-critical border-critical/30",
   },
   not_significant: {
-    label: "Not statistically significant",
+    labelKey: "shared.significanceVerdict.notSignificant",
     icon: "\u2194", // ↔
     colorClasses: "bg-text-muted/15 text-text-muted border-text-muted/30",
   },
 };
-
-/**
- * Determine significance verdict from hazard ratio, p-value, and optional CI.
- * CI spanning null means ciLower <= 1 <= ciUpper (for HR, null = 1).
- */
-export function getVerdict(
-  hr: number,
-  pValue: number,
-  ciLower?: number,
-  ciUpper?: number,
-): SignificanceVerdict {
-  const ciSpansNull =
-    ciLower != null && ciUpper != null && ciLower <= 1 && ciUpper >= 1;
-
-  if (pValue >= 0.05 || ciSpansNull) return "not_significant";
-  if (hr < 1) return "protective";
-  return "harmful";
-}
 
 export function SignificanceVerdictBadge({
   hr,
@@ -56,6 +38,7 @@ export function SignificanceVerdictBadge({
   ciUpper,
   className,
 }: SignificanceVerdictBadgeProps) {
+  const { t } = useTranslation("app");
   const verdict = getVerdict(hr, pValue, ciLower, ciUpper);
   const config = VERDICT_CONFIG[verdict];
 
@@ -69,7 +52,7 @@ export function SignificanceVerdictBadge({
       )}
     >
       <span aria-hidden="true">{config.icon}</span>
-      {config.label}
+      {t(config.labelKey)}
     </span>
   );
 }

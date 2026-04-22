@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Modal } from "@/components/ui/Modal";
 import { toast } from "@/components/ui/Toast";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { listBundles } from "@/features/care-gaps/api/careGapApi";
 import type { ConditionBundle } from "@/features/care-gaps/types/careGap";
 import { useCreateConceptSetsFromBundle } from "../hooks/useConceptSets";
@@ -18,6 +19,7 @@ export function CreateFromBundleModal({
   open,
   onClose,
 }: CreateFromBundleModalProps) {
+  const { t } = useTranslation("app");
   const navigate = useNavigate();
   const [filter, setFilter] = useState("");
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -52,14 +54,17 @@ export function CreateFromBundleModal({
       {
         onSuccess: (sets) => {
           toast.success(
-            `${sets.length} concept set${sets.length !== 1 ? "s" : ""} created from ${selectedBundle?.condition_name}`,
+            t("conceptSets.bundle.created", {
+              count: sets.length,
+              bundle: selectedBundle?.condition_name ?? "",
+            }),
           );
           onClose();
           // Navigate to concept sets list to see the new sets
           navigate("/concept-sets");
         },
         onError: () => {
-          toast.error("Failed to create concept sets from bundle");
+          toast.error(t("conceptSets.bundle.createFailed"));
         },
       },
     );
@@ -69,13 +74,12 @@ export function CreateFromBundleModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="Create from Care Bundle"
+      title={t("conceptSets.bundle.title")}
       size="md"
     >
       <div className="space-y-4">
         <p className="text-xs text-text-muted">
-          Select a disease bundle to auto-generate concept sets grouped by
-          domain (conditions, drugs, measurements).
+          {t("conceptSets.bundle.description")}
         </p>
 
         {/* Filter input */}
@@ -88,7 +92,7 @@ export function CreateFromBundleModal({
             type="text"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            placeholder="Filter bundles..."
+            placeholder={t("conceptSets.bundle.filterPlaceholder")}
             className={cn(
               "w-full rounded-lg pl-9 pr-3 py-2 text-sm",
               "bg-surface-base border border-border-default",
@@ -107,7 +111,9 @@ export function CreateFromBundleModal({
           ) : filtered.length === 0 ? (
             <div className="py-6 text-center">
               <p className="text-xs text-text-ghost">
-                {filter ? "No matching bundles" : "No care bundles found"}
+                {filter
+                  ? t("conceptSets.bundle.noMatching")
+                  : t("conceptSets.bundle.noneFound")}
               </p>
             </div>
           ) : (
@@ -150,10 +156,14 @@ export function CreateFromBundleModal({
                             </span>
                           )}
                           <span className="text-[10px] text-text-ghost">
-                            {bundle.bundle_size} measures
+                            {t("conceptSets.bundle.measures", {
+                              count: bundle.bundle_size,
+                            })}
                           </span>
                           <span className="text-[10px] text-text-ghost">
-                            {bundle.omop_concept_ids.length} concepts
+                            {t("conceptSets.bundle.concepts", {
+                              count: bundle.omop_concept_ids.length,
+                            })}
                           </span>
                         </div>
                       </div>
@@ -177,7 +187,7 @@ export function CreateFromBundleModal({
             {/* Name prefix */}
             <div>
               <label className="block text-[10px] uppercase tracking-wider text-text-ghost mb-1">
-                Name Prefix
+                {t("conceptSets.bundle.namePrefix")}
               </label>
               <input
                 type="text"
@@ -191,8 +201,9 @@ export function CreateFromBundleModal({
                 )}
               />
               <p className="mt-1 text-[10px] text-text-ghost">
-                Sets will be named "{name || selectedBundle.condition_name} -
-                Conditions", "- Drugs", etc.
+                {t("conceptSets.bundle.namingHelp", {
+                  name: name || selectedBundle.condition_name,
+                })}
               </p>
             </div>
 
@@ -208,7 +219,7 @@ export function CreateFromBundleModal({
               ) : (
                 <Stethoscope size={16} />
               )}
-              Create Concept Sets
+              {t("conceptSets.bundle.create")}
             </button>
           </div>
         )}

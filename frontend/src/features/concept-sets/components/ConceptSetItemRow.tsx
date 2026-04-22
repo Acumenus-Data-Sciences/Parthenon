@@ -1,4 +1,5 @@
 import { Trash2, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { ConceptSetItem } from "../types/conceptSet";
 
@@ -67,6 +68,7 @@ export function ConceptSetItemRow({
   isUpdating,
   isRemoving,
 }: ConceptSetItemRowProps) {
+  const { t } = useTranslation("app");
   const concept = item.concept;
   const isStandard = concept?.standard_concept === "S";
 
@@ -128,7 +130,7 @@ export function ConceptSetItemRow({
       <td className="px-4 py-3">
         {isStandard ? (
           <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-success/15 text-success">
-            Standard
+            {t("conceptSets.detailTabs.labels.standard")}
           </span>
         ) : (
           <span className="text-xs text-text-ghost">
@@ -143,7 +145,7 @@ export function ConceptSetItemRow({
           checked={item.is_excluded}
           onChange={(val) => onToggle(item.id, "is_excluded", val)}
           disabled={isUpdating}
-          label="Exclude concept"
+          label={t("conceptSets.editor.toggleLabels.excludeConcept")}
         />
       </td>
 
@@ -153,7 +155,7 @@ export function ConceptSetItemRow({
           checked={item.include_descendants}
           onChange={(val) => onToggle(item.id, "include_descendants", val)}
           disabled={isUpdating}
-          label="Include descendants"
+          label={t("conceptSets.editor.toggleLabels.includeDescendants")}
         />
       </td>
 
@@ -163,7 +165,7 @@ export function ConceptSetItemRow({
           checked={item.include_mapped}
           onChange={(val) => onToggle(item.id, "include_mapped", val)}
           disabled={isUpdating}
-          label="Include mapped"
+          label={t("conceptSets.editor.toggleLabels.includeMapped")}
         />
       </td>
 
@@ -174,7 +176,7 @@ export function ConceptSetItemRow({
           onClick={() => onRemove(item.id)}
           disabled={isRemoving}
           className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-critical hover:bg-surface-elevated transition-colors disabled:opacity-50"
-          title="Remove item"
+          title={t("conceptSets.editor.toggleLabels.removeItem")}
         >
           {isRemoving ? (
             <Loader2 size={14} className="animate-spin" />

@@ -2,6 +2,7 @@ import type { Resource } from "i18next";
 import { analysisResources } from "./analysisResources";
 import { appResources } from "./appResources";
 import { cohortDefinitionResources } from "./cohortDefinitionResources";
+import { conceptSetResources } from "./conceptSetResources";
 import { commonsResources } from "./commonsResources";
 import { dashboardResources } from "./dashboardResources";
 import { dataSourceIngestionResources } from "./dataSourceIngestionResources";
@@ -7142,6 +7143,7 @@ function appForLocale(locale: string): MessageTree {
     dataSourceIngestionResources,
     etlAqueductResources,
     cohortDefinitionResources,
+    conceptSetResources,
     analysisResources,
     standardProsResources,
     gisToolsResources,

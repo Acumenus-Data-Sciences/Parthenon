@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Loader2, Upload, CheckCircle, AlertCircle, SkipForward } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Modal } from "@/components/ui/Modal";
 import { importConceptSets, type ImportConceptSetResult } from "../api/conceptSetApi";
 
@@ -14,6 +15,7 @@ export function ImportConceptSetModal({
   onClose,
   onImported,
 }: ImportConceptSetModalProps) {
+  const { t } = useTranslation("app");
   const fileRef = useRef<HTMLInputElement>(null);
   const [jsonText, setJsonText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -35,7 +37,7 @@ export function ImportConceptSetModal({
     try {
       parsed = JSON.parse(jsonText);
     } catch {
-      setError("Invalid JSON — please check your input.");
+      setError(t("conceptSets.import.invalidJson"));
       return;
     }
     setLoading(true);
@@ -44,18 +46,23 @@ export function ImportConceptSetModal({
       setResult(res);
       if (res.imported > 0) onImported();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Import failed");
+      setError(err instanceof Error ? err.message : t("conceptSets.import.importFailed"));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Import Concept Set" size="md">
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={t("conceptSets.import.title")}
+      size="md"
+    >
       <div className="space-y-4">
         <div>
           <label className="block text-xs font-medium text-text-muted mb-1.5">
-            Upload JSON file
+            {t("conceptSets.import.uploadJsonFile")}
           </label>
           <button
             type="button"
@@ -63,7 +70,7 @@ export function ImportConceptSetModal({
             className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
           >
             <Upload size={14} />
-            Choose file
+            {t("conceptSets.import.chooseFile")}
           </button>
           <input
             ref={fileRef}
@@ -76,13 +83,13 @@ export function ImportConceptSetModal({
 
         <div>
           <label className="block text-xs font-medium text-text-muted mb-1.5">
-            Or paste JSON (Atlas format)
+            {t("conceptSets.import.pasteAtlasJson")}
           </label>
           <textarea
             value={jsonText}
             onChange={(e) => setJsonText(e.target.value)}
             rows={8}
-            placeholder={'{\n  "name": "My Concept Set",\n  "expression": { "items": [...] }\n}'}
+            placeholder={t("conceptSets.import.placeholder")}
             className="w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-xs font-mono text-text-secondary placeholder:text-text-disabled focus:outline-none focus:border-success/50 resize-none"
           />
         </div>
@@ -94,16 +101,16 @@ export function ImportConceptSetModal({
             <div className="flex items-center gap-4 text-xs">
               <span className="flex items-center gap-1 text-success">
                 <CheckCircle size={12} />
-                {result.imported} imported
+                {result.imported} {t("conceptSets.import.imported")}
               </span>
               <span className="flex items-center gap-1 text-accent">
                 <SkipForward size={12} />
-                {result.skipped} skipped
+                {result.skipped} {t("conceptSets.import.skipped")}
               </span>
               {result.failed > 0 && (
                 <span className="flex items-center gap-1 text-critical">
                   <AlertCircle size={12} />
-                  {result.failed} failed
+                  {result.failed} {t("conceptSets.import.failed")}
                 </span>
               )}
             </div>
@@ -132,7 +139,7 @@ export function ImportConceptSetModal({
             onClick={onClose}
             className="rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm text-text-muted hover:text-text-secondary transition-colors"
           >
-            {result ? "Close" : "Cancel"}
+            {result ? t("conceptSets.import.close") : t("conceptSets.import.cancel")}
           </button>
           {!result && (
             <button
@@ -142,7 +149,7 @@ export function ImportConceptSetModal({
               className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors disabled:opacity-50"
             >
               {loading && <Loader2 size={14} className="animate-spin" />}
-              Import
+              {t("conceptSets.import.import")}
             </button>
           )}
         </div>

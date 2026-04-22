@@ -1,21 +1,36 @@
 import { Layers, CheckCircle2, Globe } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useConceptSetStats } from "../hooks/useConceptSets";
+import { getConceptSetStatLabel } from "../lib/i18n";
 
 export function ConceptSetStatsBar({ onStatClick, activeKey }: { onStatClick?: (key: string) => void; activeKey?: string } = {}) {
+  const { t } = useTranslation("app");
   const { data: stats } = useConceptSetStats();
 
   if (!stats) return null;
 
   const metrics = [
-    { label: "Total", key: "total", value: stats.total, icon: Layers, color: "var(--text-secondary)" },
     {
-      label: "With Items",
+      label: getConceptSetStatLabel(t, "total"),
+      key: "total",
+      value: stats.total,
+      icon: Layers,
+      color: "var(--text-secondary)",
+    },
+    {
+      label: getConceptSetStatLabel(t, "with_items"),
       key: "with_items",
       value: stats.with_items,
       icon: CheckCircle2,
       color: "var(--success)",
     },
-    { label: "Public", key: "public", value: stats.public, icon: Globe, color: "var(--info)" },
+    {
+      label: getConceptSetStatLabel(t, "public"),
+      key: "public",
+      value: stats.public,
+      icon: Globe,
+      color: "var(--info)",
+    },
   ];
 
   return (

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Plus, Loader2, Upload, Stethoscope, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { ConceptSetList } from "../components/ConceptSetList";
 import { ConceptSetStatsBar } from "../components/ConceptSetStatsBar";
 import { ImportConceptSetModal } from "../components/ImportConceptSetModal";
@@ -13,6 +14,7 @@ import { HelpButton } from "@/features/help";
 import TagFilterBar from "@/components/ui/TagFilterBar";
 
 export default function ConceptSetsPage() {
+  const { t } = useTranslation("app");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const createMutation = useCreateConceptSet();
@@ -57,7 +59,7 @@ export default function ConceptSetsPage() {
   const handleCreate = () => {
     setIsCreating(true);
     createMutation.mutate(
-      { name: "Untitled Concept Set" },
+      { name: t("conceptSets.page.untitledName") },
       {
         onSuccess: (cs) => {
           navigate(`/concept-sets/${cs.id}`);
@@ -74,10 +76,11 @@ export default function ConceptSetsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Concept Sets</h1>
+          <h1 className="text-2xl font-bold text-text-primary">
+            {t("conceptSets.page.title")}
+          </h1>
           <p className="mt-1 text-sm text-text-muted">
-            Define and manage reusable concept sets for cohort definitions and
-            analyses
+            {t("conceptSets.page.subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -88,7 +91,7 @@ export default function ConceptSetsPage() {
             className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-sm font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
           >
             <Stethoscope size={16} />
-            From Bundle
+            {t("conceptSets.page.fromBundle")}
           </button>
           <button
             type="button"
@@ -96,7 +99,7 @@ export default function ConceptSetsPage() {
             className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-sm font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
           >
             <Upload size={16} />
-            Import
+            {t("conceptSets.page.import")}
           </button>
           <button
             type="button"
@@ -109,7 +112,7 @@ export default function ConceptSetsPage() {
             ) : (
               <Plus size={16} />
             )}
-            New Concept Set
+            {t("conceptSets.page.newConceptSet")}
           </button>
         </div>
       </div>
@@ -129,7 +132,7 @@ export default function ConceptSetsPage() {
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search concept sets..."
+            placeholder={t("conceptSets.page.searchPlaceholder")}
             className={cn(
               "w-full rounded-lg pl-9 pr-8 py-2 text-sm",
               "bg-surface-base border border-border-default",
@@ -163,6 +166,7 @@ export default function ConceptSetsPage() {
 
       {/* List */}
       <ConceptSetList
+        key={`${search}|${selectedTags.join(",")}|${statFilter ?? "all"}`}
         search={search}
         tags={selectedTags}
         isPublic={statFilter === "public" || undefined}

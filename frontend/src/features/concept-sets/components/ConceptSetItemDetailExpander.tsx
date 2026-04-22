@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import {
   useConcept,
@@ -7,15 +8,11 @@ import {
   useConceptRelationships,
   useConceptMapsFrom,
 } from "@/features/vocabulary/hooks/useVocabularySearch";
+import { getConceptSetDetailTabLabel } from "../lib/i18n";
 
 type Tab = "info" | "hierarchy" | "relationships" | "maps-from";
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: "info", label: "Info" },
-  { id: "hierarchy", label: "Hierarchy" },
-  { id: "relationships", label: "Relationships" },
-  { id: "maps-from", label: "Maps From" },
-];
+const TABS: Tab[] = ["info", "hierarchy", "relationships", "maps-from"];
 
 export interface ConceptSetItemDetailExpanderProps {
   conceptId: number;
@@ -49,6 +46,7 @@ function LoadingSpinner() {
 export function ConceptSetItemDetailExpander({
   conceptId,
 }: ConceptSetItemDetailExpanderProps) {
+  const { t } = useTranslation("app");
   const [activeTab, setActiveTab] = useState<Tab>("info");
   const [relationshipsPage, setRelationshipsPage] = useState(1);
 
@@ -70,18 +68,18 @@ export function ConceptSetItemDetailExpander({
       <div className="flex items-center gap-0.5 mb-3 border-b border-border-default">
         {TABS.map((tab) => (
           <button
-            key={tab.id}
+            key={tab}
             type="button"
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => setActiveTab(tab)}
             className={cn(
               "relative px-3 py-2 text-xs uppercase tracking-wide transition-colors",
-              activeTab === tab.id
+              activeTab === tab
                 ? "text-success font-medium"
                 : "text-text-muted hover:text-text-secondary",
             )}
           >
-            {tab.label}
-            {activeTab === tab.id && (
+            {getConceptSetDetailTabLabel(t, tab)}
+            {activeTab === tab && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-success" />
             )}
           </button>
@@ -96,15 +94,20 @@ export function ConceptSetItemDetailExpander({
             {isLoadingConcept ? (
               <LoadingSpinner />
             ) : !concept ? (
-              <p className="text-xs text-critical">Failed to load concept</p>
+              <p className="text-xs text-critical">
+                {t("conceptSets.detailTabs.failedToLoadConcept")}
+              </p>
             ) : (
               <>
                 {/* 2-column info grid */}
                 <div className="grid grid-cols-2 gap-3 rounded border border-border-default bg-surface-raised p-3">
-                  <InfoField label="Full Name" value={concept.concept_name} />
+                  <InfoField
+                    label={t("conceptSets.detailTabs.labels.fullName")}
+                    value={concept.concept_name}
+                  />
                   <div className="flex flex-col gap-0.5">
                     <span className="text-[10px] uppercase tracking-wider text-text-ghost font-semibold">
-                      Vocabulary
+                      {t("conceptSets.detailTabs.labels.vocabulary")}
                     </span>
                     <div className="flex items-center gap-1.5">
                       <span className="text-xs text-text-primary">
@@ -115,20 +118,26 @@ export function ConceptSetItemDetailExpander({
                       </span>
                       {concept.standard_concept === "S" && (
                         <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-success/15 text-success">
-                          Standard
+                          {t("conceptSets.detailTabs.labels.standard")}
                         </span>
                       )}
                     </div>
                   </div>
-                  <InfoField label="Concept Class" value={concept.concept_class_id} />
-                  <InfoField label="Domain" value={concept.domain_id} />
+                  <InfoField
+                    label={t("conceptSets.detailTabs.labels.conceptClass")}
+                    value={concept.concept_class_id}
+                  />
+                  <InfoField
+                    label={t("conceptSets.detailTabs.labels.domain")}
+                    value={concept.domain_id}
+                  />
                 </div>
 
                 {/* Synonyms — full width if present */}
                 {concept.synonyms && concept.synonyms.length > 0 && (
                   <div className="rounded border border-border-default bg-surface-raised p-3">
                     <span className="text-[10px] uppercase tracking-wider text-text-ghost font-semibold block mb-2">
-                      Synonyms
+                      {t("conceptSets.detailTabs.labels.synonyms")}
                     </span>
                     <ul className="space-y-0.5">
                       {concept.synonyms.map(
@@ -152,7 +161,9 @@ export function ConceptSetItemDetailExpander({
             {isLoadingAncestors ? (
               <LoadingSpinner />
             ) : !ancestors || ancestors.length === 0 ? (
-              <p className="text-xs text-text-ghost">No ancestors found</p>
+              <p className="text-xs text-text-ghost">
+                {t("conceptSets.detailTabs.noAncestorsFound")}
+              </p>
             ) : (
               <div className="space-y-0.5">
                 {ancestors.map(
@@ -224,7 +235,9 @@ export function ConceptSetItemDetailExpander({
               {isLoadingRels ? (
                 <LoadingSpinner />
               ) : !relationships?.items || relationships.items.length === 0 ? (
-                <p className="text-xs text-text-ghost">No relationships found</p>
+                <p className="text-xs text-text-ghost">
+                  {t("conceptSets.detailTabs.noRelationshipsFound")}
+                </p>
               ) : (
                 <div className="rounded border border-border-default bg-surface-raised overflow-hidden">
                   <div className="divide-y divide-border-default">
@@ -260,8 +273,11 @@ export function ConceptSetItemDetailExpander({
                   {totalPages > 1 && (
                     <div className="flex items-center justify-between px-3 py-1.5 border-t border-border-default">
                       <p className="text-[10px] text-text-ghost">
-                        Page {relationshipsPage} of {totalPages} &mdash;{" "}
-                        {relationships.total} total
+                        {t("conceptSets.detailTabs.relationshipsPage", {
+                          page: relationshipsPage,
+                          totalPages,
+                          total: relationships.total,
+                        })}
                       </p>
                       <div className="flex items-center gap-0.5">
                         <button
@@ -305,7 +321,7 @@ export function ConceptSetItemDetailExpander({
               <LoadingSpinner />
             ) : !mapsFrom?.data || mapsFrom.data.length === 0 ? (
               <p className="text-xs text-text-ghost">
-                No source codes map to this concept
+                {t("conceptSets.detailTabs.noSourceCodes")}
               </p>
             ) : (
               <div className="rounded border border-border-default bg-surface-raised overflow-hidden">
@@ -340,8 +356,10 @@ export function ConceptSetItemDetailExpander({
                 {mapsFrom.total > mapsFrom.data.length && (
                   <div className="px-3 py-1.5 border-t border-border-default text-center">
                     <p className="text-[10px] text-text-ghost">
-                      Showing {mapsFrom.data.length} of {mapsFrom.total} source
-                      codes
+                      {t("conceptSets.detailTabs.showingSourceCodes", {
+                        shown: mapsFrom.data.length,
+                        total: mapsFrom.total,
+                      })}
                     </p>
                   </div>
                 )}

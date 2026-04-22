@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Loader2,
@@ -13,15 +13,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
+import { useTranslation } from "react-i18next";
 import { useConceptSets } from "../hooks/useConceptSets";
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+import { formatConceptSetDate } from "../lib/i18n";
 
 interface ConceptSetListProps {
   search?: string;
@@ -38,16 +32,12 @@ export function ConceptSetList({
   withItems,
   onCreateFromBundle,
 }: ConceptSetListProps) {
+  const { t, i18n } = useTranslation("app");
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [myOnly, setMyOnly] = useState(true);
   const currentUser = useAuthStore((s) => s.user);
   const limit = 20;
-
-  // Reset page on filter change
-  useEffect(() => {
-    setPage(1);
-  }, [search, tags, isPublic, withItems, myOnly]);
 
   const { data, isLoading, error } = useConceptSets({
     page,
@@ -70,7 +60,7 @@ export function ConceptSetList({
   if (error) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-critical">Failed to load concept sets</p>
+        <p className="text-critical">{t("conceptSets.list.failedToLoad")}</p>
       </div>
     );
   }
@@ -87,12 +77,14 @@ export function ConceptSetList({
           <Layers size={24} className="text-text-muted" />
         </div>
         <h3 className="text-lg font-semibold text-text-primary">
-          {isFiltering ? "No matching concept sets" : "No concept sets"}
+          {isFiltering
+            ? t("conceptSets.list.noMatchingTitle")
+            : t("conceptSets.list.emptyTitle")}
         </h3>
         <p className="mt-2 text-sm text-text-muted">
           {isFiltering
-            ? "Try adjusting your search or tag filters."
-            : "Create your first concept set to start building definitions."}
+            ? t("conceptSets.list.noMatchingMessage")
+            : t("conceptSets.list.emptyMessage")}
         </p>
         {!isFiltering && (
           <div className="flex items-center gap-2 mt-4">
@@ -102,7 +94,7 @@ export function ConceptSetList({
               className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors"
             >
               <Plus size={14} />
-              New Concept Set
+              {t("conceptSets.page.newConceptSet")}
             </button>
             {onCreateFromBundle && (
               <button
@@ -111,7 +103,7 @@ export function ConceptSetList({
                 className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm font-medium text-text-muted hover:text-text-secondary transition-colors"
               >
                 <Stethoscope size={14} />
-                From Bundle
+                {t("conceptSets.page.fromBundle")}
               </button>
             )}
           </div>
@@ -126,7 +118,10 @@ export function ConceptSetList({
       <div className="flex items-center gap-1 rounded-lg bg-surface-overlay p-0.5 w-fit">
         <button
           type="button"
-          onClick={() => setMyOnly(true)}
+          onClick={() => {
+            setMyOnly(true);
+            setPage(1);
+          }}
           className={cn(
             "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
             myOnly
@@ -135,11 +130,14 @@ export function ConceptSetList({
           )}
         >
           <User size={12} />
-          My Concept Sets
+          {t("conceptSets.list.myConceptSets")}
         </button>
         <button
           type="button"
-          onClick={() => setMyOnly(false)}
+          onClick={() => {
+            setMyOnly(false);
+            setPage(1);
+          }}
           className={cn(
             "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
             !myOnly
@@ -148,7 +146,7 @@ export function ConceptSetList({
           )}
         >
           <Globe size={12} />
-          All Concept Sets
+          {t("conceptSets.list.allConceptSets")}
         </button>
       </div>
 
@@ -158,24 +156,24 @@ export function ConceptSetList({
           <thead>
             <tr className="bg-surface-overlay">
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Name
+                {t("conceptSets.list.columns.name")}
               </th>
               {!myOnly && (
                 <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                  Author
+                  {t("conceptSets.list.columns.author")}
                 </th>
               )}
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Visibility
+                {t("conceptSets.list.columns.visibility")}
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Items
+                {t("conceptSets.list.columns.items")}
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Tags
+                {t("conceptSets.list.columns.tags")}
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-                Updated
+                {t("conceptSets.list.columns.updated")}
               </th>
             </tr>
           </thead>
@@ -210,12 +208,12 @@ export function ConceptSetList({
                   {cs.is_public ? (
                     <span className="inline-flex items-center gap-1 text-xs text-success">
                       <Globe size={12} />
-                      Public
+                      {t("conceptSets.list.visibility.public")}
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1 text-xs text-text-muted">
                       <Lock size={12} />
-                      Private
+                      {t("conceptSets.list.visibility.private")}
                     </span>
                   )}
                 </td>
@@ -243,7 +241,7 @@ export function ConceptSetList({
                   </div>
                 </td>
                 <td className="px-4 py-3 text-sm text-text-muted">
-                  {formatDate(cs.updated_at)}
+                  {formatConceptSetDate(i18n.language, cs.updated_at)}
                 </td>
               </tr>
             ))}
@@ -255,8 +253,11 @@ export function ConceptSetList({
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-1">
           <p className="text-xs text-text-muted">
-            Showing {(page - 1) * limit + 1} -{" "}
-            {Math.min(page * limit, total)} of {total}
+            {t("conceptSets.list.showingRange", {
+              start: (page - 1) * limit + 1,
+              end: Math.min(page * limit, total),
+              total,
+            })}
           </p>
           <div className="flex items-center gap-1">
             <button

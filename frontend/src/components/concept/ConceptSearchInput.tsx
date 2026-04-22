@@ -3,6 +3,7 @@ import { Search, Loader2 } from "lucide-react";
 import apiClient from "@/lib/api-client";
 import { searchConcepts } from "@/features/vocabulary/api/vocabularyApi";
 import type { Concept } from "@/features/vocabulary/types/vocabulary";
+import { useTranslation } from "react-i18next";
 
 type ScopedConcept = Concept & { observation_count?: number };
 
@@ -27,6 +28,7 @@ export function ConceptSearchInput({
   placeholder,
   sourceKey,
 }: ConceptSearchInputProps) {
+  const { t } = useTranslation("app");
   const [inputValue, setInputValue] = useState(value);
   const [suggestions, setSuggestions] = useState<ScopedConcept[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -241,19 +243,20 @@ export function ConceptSearchInput({
                 }}
               >
                 <span>{concept.domain_id}</span>
-                <span>\u00b7</span>
+                <span>{/* i18n-exempt: separator glyph */}\u00b7</span>
                 <span>{concept.vocabulary_id}</span>
                 {concept.concept_code && (
                   <>
-                    <span>\u00b7</span>
+                    <span>{/* i18n-exempt: separator glyph */}\u00b7</span>
                     <span>{concept.concept_code}</span>
                   </>
                 )}
                 {typeof concept.observation_count === "number" && (
                   <>
-                    <span>\u00b7</span>
+                    <span>{/* i18n-exempt: separator glyph */}\u00b7</span>
                     <span style={{ color: "var(--success)" }}>
-                      {concept.observation_count.toLocaleString()} obs
+                      {concept.observation_count.toLocaleString()}{" "}
+                      {t("shared.conceptSearch.observationsShort")}
                     </span>
                   </>
                 )}

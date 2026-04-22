@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/Toast";
+import { useTranslation } from "react-i18next";
 import { ConceptSetEditor } from "../components/ConceptSetEditor";
 import { PhoebeRecommendationsPanel } from "../components/PhoebeRecommendationsPanel";
 import { ConceptSetBuilderLayout } from "../components/ConceptSetBuilderLayout";
@@ -29,6 +30,7 @@ import { useAggregatedPhoebeRecommendations } from "../hooks/usePhoebeRecommenda
 import { exportConceptSet } from "../api/conceptSetApi";
 
 export default function ConceptSetDetailPage() {
+  const { t } = useTranslation("app");
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -51,24 +53,17 @@ export default function ConceptSetDetailPage() {
     isError: isAggregatedError,
   } = useAggregatedPhoebeRecommendations(conceptIds);
 
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [nameDraft, setNameDraft] = useState("");
+  const [descriptionDraft, setDescriptionDraft] = useState("");
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingDesc, setIsEditingDesc] = useState(false);
-  const [searchTab, setSearchTab] = useState<'keyword' | 'semantic'>('keyword');
+  const [searchTab, setSearchTab] = useState<"keyword" | "semantic">("keyword");
 
-  useEffect(() => {
-    if (conceptSet) {
-      setName(conceptSet.name);
-      setDescription(conceptSet.description ?? "");
-    }
-  }, [conceptSet]);
-
-  const initialQuery = searchParams.get('q') ?? undefined;
+  const initialQuery = searchParams.get("q") ?? undefined;
   const initialFilters = useMemo(() => ({
-    domain: searchParams.get('domain') ?? undefined,
-    vocabulary: searchParams.get('vocabulary') ?? undefined,
-    standard: searchParams.get('standard') === 'true' ? true : undefined,
+    domain: searchParams.get("domain") ?? undefined,
+    vocabulary: searchParams.get("vocabulary") ?? undefined,
+    standard: searchParams.get("standard") === "true" ? true : undefined,
   }), [searchParams]);
 
   const conceptSetItemIds = useMemo(
@@ -77,9 +72,9 @@ export default function ConceptSetDetailPage() {
   );
 
   const handleSaveName = () => {
-    if (!conceptSetId || !name.trim()) return;
+    if (!conceptSetId || !nameDraft.trim()) return;
     updateMutation.mutate(
-      { id: conceptSetId, payload: { name: name.trim() } },
+      { id: conceptSetId, payload: { name: nameDraft.trim() } },
       { onSuccess: () => setIsEditingName(false) },
     );
   };
@@ -89,7 +84,7 @@ export default function ConceptSetDetailPage() {
     updateMutation.mutate(
       {
         id: conceptSetId,
-        payload: { description: description.trim() || undefined },
+        payload: { description: descriptionDraft.trim() || undefined },
       },
       { onSuccess: () => setIsEditingDesc(false) },
     );
@@ -97,7 +92,7 @@ export default function ConceptSetDetailPage() {
 
   const handleDelete = () => {
     if (!conceptSetId) return;
-    if (window.confirm("Are you sure you want to delete this concept set?")) {
+    if (window.confirm(t("conceptSets.detail.deleteConfirm"))) {
       deleteMutation.mutate(conceptSetId, {
         onSuccess: () => navigate("/concept-sets"),
       });
@@ -116,11 +111,13 @@ export default function ConceptSetDetailPage() {
     if (!conceptSetId) return;
     copyMutation.mutate(conceptSetId, {
       onSuccess: (copy) => {
-        toast.success(`Duplicated as "${copy.name}"`);
+        toast.success(
+          t("conceptSets.detail.duplicateSuccess", { name: copy.name }),
+        );
         navigate(`/concept-sets/${copy.id}`);
       },
       onError: () => {
-        toast.error("Failed to duplicate concept set");
+        toast.error(t("conceptSets.detail.duplicateFailed"));
       },
     });
   };
@@ -134,7 +131,7 @@ export default function ConceptSetDetailPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${conceptSet?.name ?? "concept-set"}.json`;
+    a.download = `${conceptSet?.name ?? t("conceptSets.detail.exportFallbackName")}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -164,13 +161,13 @@ export default function ConceptSetDetailPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <p className="text-critical">Failed to load concept set</p>
+          <p className="text-critical">{t("conceptSets.detail.failedToLoad")}</p>
           <button
             type="button"
             onClick={() => navigate("/concept-sets")}
             className="mt-4 text-sm text-text-muted hover:text-text-primary transition-colors"
           >
-            Back to list
+            {t("conceptSets.detail.backToList")}
           </button>
         </div>
       </div>
@@ -189,7 +186,7 @@ export default function ConceptSetDetailPage() {
             className="inline-flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition-colors mb-3"
           >
             <ArrowLeft size={14} />
-            Concept Sets
+            {t("conceptSets.page.title")}
           </button>
 
           {/* Editable Name */}
@@ -197,12 +194,11 @@ export default function ConceptSetDetailPage() {
             <div className="flex items-center gap-2">
               <input
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={nameDraft}
+                onChange={(e) => setNameDraft(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleSaveName();
                   if (e.key === "Escape") {
-                    setName(conceptSet.name);
                     setIsEditingName(false);
                   }
                 }}
@@ -227,9 +223,12 @@ export default function ConceptSetDetailPage() {
             </div>
           ) : (
             <h1
-              onClick={() => setIsEditingName(true)}
+              onClick={() => {
+                setNameDraft(conceptSet.name);
+                setIsEditingName(true);
+              }}
               className="text-2xl font-bold text-text-primary cursor-pointer hover:text-success transition-colors"
-              title="Click to edit"
+              title={t("conceptSets.detail.clickToEdit")}
             >
               {conceptSet.name}
             </h1>
@@ -240,17 +239,16 @@ export default function ConceptSetDetailPage() {
             <div className="flex items-center gap-2 mt-2">
               <input
                 type="text"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                value={descriptionDraft}
+                onChange={(e) => setDescriptionDraft(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleSaveDescription();
                   if (e.key === "Escape") {
-                    setDescription(conceptSet.description ?? "");
                     setIsEditingDesc(false);
                   }
                 }}
                 autoFocus
-                placeholder="Add a description..."
+                placeholder={t("conceptSets.detail.addDescription")}
                 className={cn(
                   "flex-1 text-sm bg-transparent border-b border-success text-text-secondary",
                   "placeholder:text-text-ghost focus:outline-none px-0 py-0",
@@ -271,16 +269,19 @@ export default function ConceptSetDetailPage() {
             </div>
           ) : (
             <p
-              onClick={() => setIsEditingDesc(true)}
+              onClick={() => {
+                setDescriptionDraft(conceptSet.description ?? "");
+                setIsEditingDesc(true);
+              }}
               className={cn(
                 "mt-1 text-sm cursor-pointer transition-colors",
                 conceptSet.description
                   ? "text-text-muted hover:text-text-secondary"
                   : "text-text-ghost hover:text-text-muted",
               )}
-              title="Click to edit"
+              title={t("conceptSets.detail.clickToEdit")}
             >
-              {conceptSet.description ?? "Add a description..."}
+              {conceptSet.description ?? t("conceptSets.detail.addDescription")}
             </p>
           )}
 
@@ -312,7 +313,7 @@ export default function ConceptSetDetailPage() {
             ) : (
               <Copy size={14} />
             )}
-            Duplicate
+            {t("conceptSets.detail.duplicate")}
           </button>
 
           <button
@@ -321,7 +322,7 @@ export default function ConceptSetDetailPage() {
             className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-muted hover:text-text-secondary transition-colors"
           >
             <Download size={14} />
-            Export
+            {t("conceptSets.detail.export")}
           </button>
 
           <button
@@ -340,7 +341,9 @@ export default function ConceptSetDetailPage() {
             ) : (
               <Lock size={14} />
             )}
-            {conceptSet.is_public ? "Public" : "Private"}
+            {conceptSet.is_public
+              ? t("conceptSets.detail.visibility.public")
+              : t("conceptSets.detail.visibility.private")}
           </button>
 
           <button
@@ -354,7 +357,7 @@ export default function ConceptSetDetailPage() {
             ) : (
               <Trash2 size={14} />
             )}
-            Delete
+            {t("conceptSets.detail.delete")}
           </button>
         </div>
       </div>
@@ -365,7 +368,7 @@ export default function ConceptSetDetailPage() {
         onTabChange={setSearchTab}
         itemCount={conceptSet.items?.length ?? 0}
         searchPanel={
-          searchTab === 'keyword' ? (
+          searchTab === "keyword" ? (
             <VocabularySearchPanel
               mode="build"
               conceptSetItemIds={conceptSetItemIds}
@@ -392,7 +395,7 @@ export default function ConceptSetDetailPage() {
                 <div className="flex items-center gap-2">
                   <Sparkles size={16} className="text-accent" />
                   <h2 className="text-sm font-semibold text-text-primary">
-                    Recommended Concepts
+                    {t("conceptSets.detail.recommendedConcepts")}
                   </h2>
                 </div>
                 <PhoebeRecommendationsPanel

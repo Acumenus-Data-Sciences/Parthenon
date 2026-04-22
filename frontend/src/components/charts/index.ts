@@ -1,5 +1,7 @@
-export { SignificanceVerdictBadge, getVerdict } from "./SignificanceVerdictBadge";
-export type { SignificanceVerdictBadgeProps, SignificanceVerdict } from "./SignificanceVerdictBadge";
+export { SignificanceVerdictBadge } from "./SignificanceVerdictBadge";
+export { getVerdict } from "./significanceVerdict";
+export type { SignificanceVerdictBadgeProps } from "./SignificanceVerdictBadge";
+export type { SignificanceVerdict } from "./significanceVerdict";
 
 export { TrafficLightBadge, getLevel } from "./TrafficLightBadge";
 export type { TrafficLightBadgeProps, TrafficLevel, TrafficLightColor } from "./TrafficLightBadge";

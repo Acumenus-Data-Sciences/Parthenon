@@ -24,6 +24,7 @@
 //   StatusStrip — status chip row with running/done/failed states.
 import type { ReactNode } from "react";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function Shell({
   title,
@@ -103,17 +104,21 @@ export type RunStatus =
 export function StatusStrip({
   status,
   runId,
-  pollingHint = "polling every 2s",
-  ariaLabel = "Run status",
+  pollingHint,
+  ariaLabel,
 }: {
   status: RunStatus;
   runId?: string;
   pollingHint?: string | null;
   ariaLabel?: string;
 }) {
+  const { t } = useTranslation("app");
   const isRunning = status === "queued" || status === "running";
   const isDone = status === "succeeded";
   const isFailed = status === "failed" || status === "canceled";
+  const resolvedPollingHint =
+    pollingHint === undefined ? t("shared.workbench.pollingEvery2s") : pollingHint;
+  const resolvedAriaLabel = ariaLabel ?? t("shared.workbench.ariaRunStatus");
   const tone = isFailed
     ? "text-error"
     : isDone
@@ -123,15 +128,18 @@ export function StatusStrip({
     : "text-text-secondary";
 
   return (
-    <div className="flex items-center gap-3 px-4 py-2 text-xs" aria-label={ariaLabel}>
+    <div
+      className="flex items-center gap-3 px-4 py-2 text-xs"
+      aria-label={resolvedAriaLabel}
+    >
       {isRunning && <Loader2 size={14} className="animate-spin text-info" />}
       {isDone && <CheckCircle2 size={14} className="text-success" />}
       {isFailed && <AlertCircle size={14} className="text-error" />}
       <span className={tone}>
-        Status: <span className="font-mono">{status}</span>
+        {t("shared.workbench.statusLabel")} <span className="font-mono">{status}</span>
       </span>
-      {isRunning && pollingHint !== null && (
-        <span className="text-text-ghost">{pollingHint}</span>
+      {isRunning && resolvedPollingHint !== null && (
+        <span className="text-text-ghost">{resolvedPollingHint}</span>
       )}
       {runId !== undefined && (
         <span className="ml-auto font-mono text-[10px] text-text-ghost" title={runId}>
