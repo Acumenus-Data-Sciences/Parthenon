@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import { useTranslation } from "react-i18next";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -35,12 +35,12 @@ interface MessageItemProps {
   isAdmin?: boolean;
 }
 
-export function MessageItem({
+const MessageItemComponent = ({
   message,
   slug,
   currentUserId,
   isAdmin = false,
-}: MessageItemProps) {
+}: MessageItemProps) => {
   const { t } = useTranslation("commons");
   const [editing, setEditing] = useState(false);
   const [showThread, setShowThread] = useState(false);
@@ -235,7 +235,9 @@ export function MessageItem({
       )}
     </>
   );
-}
+};
+
+export const MessageItem = memo(MessageItemComponent);
 
 function ActionBarButton({
   icon: Icon,
