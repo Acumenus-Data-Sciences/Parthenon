@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2, Play, Clock, Trash2, MessageSquareCode } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { generateSql, type GenerateResponse } from "../api";
 import { ResultsPanel } from "./ResultsPanel";
 import { ResultsSkeleton } from "./ResultsSkeleton";
@@ -39,14 +40,8 @@ function saveHistory(entries: HistoryEntry[]): void {
   );
 }
 
-const EXAMPLE_QUESTIONS = [
-  "How many patients have diabetes?",
-  "What are the top 10 conditions by prevalence?",
-  "Average age of patients with heart failure",
-  "Drug exposure counts for statins in 2024",
-];
-
 export function NaturalLanguageTab() {
+  const { t } = useTranslation("app");
   const [question, setQuestion] = useState("");
   const [result, setResult] = useState<GenerateResponse | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>(loadHistory);
@@ -108,6 +103,12 @@ export function NaturalLanguageTab() {
   }, []);
 
   const isLoading = generateMutation.isPending;
+  const exampleQuestions = [
+    t("queryAssistant.naturalLanguage.examples.diabetes"),
+    t("queryAssistant.naturalLanguage.examples.topConditions"),
+    t("queryAssistant.naturalLanguage.examples.heartFailureAge"),
+    t("queryAssistant.naturalLanguage.examples.statins2024"),
+  ];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
@@ -145,7 +146,7 @@ export function NaturalLanguageTab() {
                 letterSpacing: "0.2px",
               }}
             >
-              Ask a Question
+              {t("queryAssistant.naturalLanguage.askQuestion")}
             </label>
 
             <textarea
@@ -153,7 +154,7 @@ export function NaturalLanguageTab() {
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="e.g. How many patients were diagnosed with type 2 diabetes in 2023?"
+              placeholder={t("queryAssistant.naturalLanguage.placeholder")}
               rows={4}
               style={{
                 width: "100%",
@@ -187,7 +188,7 @@ export function NaturalLanguageTab() {
               }}
             >
               <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
-                Ctrl+Enter to generate
+                {t("queryAssistant.naturalLanguage.ctrlEnter")}
               </span>
             </div>
 
@@ -203,12 +204,12 @@ export function NaturalLanguageTab() {
                   marginBottom: "8px",
                 }}
               >
-                Try an example
+                {t("queryAssistant.naturalLanguage.tryExample")}
               </div>
               <div
                 style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}
               >
-                {EXAMPLE_QUESTIONS.map((q) => (
+                {exampleQuestions.map((q) => (
                   <button
                     key={q}
                     onClick={() => setQuestion(q)}
@@ -281,7 +282,9 @@ export function NaturalLanguageTab() {
               ) : (
                 <Play size={15} />
               )}
-              {isLoading ? "Generating\u2026" : "Generate With AI"}
+              {isLoading
+                ? t("queryAssistant.naturalLanguage.generating")
+                : t("queryAssistant.naturalLanguage.generateWithAi")}
             </button>
 
             {generateMutation.isError && (
@@ -298,7 +301,7 @@ export function NaturalLanguageTab() {
               >
                 {getErrorMessage(
                   generateMutation.error,
-                  "Failed to generate SQL. Please try again.",
+                  t("queryAssistant.naturalLanguage.failedToGenerate"),
                 )}
               </div>
             )}
@@ -334,7 +337,7 @@ export function NaturalLanguageTab() {
                   }}
                 >
                   <Clock size={14} style={{ color: "var(--text-muted)" }} />
-                  Query History
+                  {t("queryAssistant.naturalLanguage.queryHistory")}
                 </div>
                 <button
                   onClick={handleClearHistory}
@@ -362,7 +365,7 @@ export function NaturalLanguageTab() {
                   }}
                 >
                   <Trash2 size={11} />
-                  Clear
+                  {t("queryAssistant.naturalLanguage.clear")}
                 </button>
               </div>
 
@@ -473,7 +476,7 @@ export function NaturalLanguageTab() {
                     marginBottom: "6px",
                   }}
                 >
-                  Ask a question to get started
+                  {t("queryAssistant.naturalLanguage.emptyTitle")}
                 </div>
                 <p
                   style={{
@@ -483,8 +486,7 @@ export function NaturalLanguageTab() {
                     maxWidth: "320px",
                   }}
                 >
-                  Type a natural language question about your OMOP CDM data
-                  and the AI will generate the corresponding SQL query.
+                  {t("queryAssistant.naturalLanguage.emptyDescription")}
                 </p>
               </div>
             </div>

@@ -6,6 +6,7 @@ import { commonsResources } from "./commonsResources";
 import { dashboardResources } from "./dashboardResources";
 import { dataSourceIngestionResources } from "./dataSourceIngestionResources";
 import { etlAqueductResources } from "./etlAqueductResources";
+import { gisToolsResources } from "./gisToolsResources";
 import { heorResources } from "./heorResources";
 import { imagingGenomicsResources } from "./imagingGenomicsResources";
 import { investigationResources } from "./investigationResources";
@@ -7143,6 +7144,7 @@ function appForLocale(locale: string): MessageTree {
     cohortDefinitionResources,
     analysisResources,
     standardProsResources,
+    gisToolsResources,
     heorResources,
     imagingGenomicsResources,
     investigationResources,

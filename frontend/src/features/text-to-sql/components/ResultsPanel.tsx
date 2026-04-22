@@ -17,6 +17,8 @@ import {
   type QueryLibraryParameter,
 } from "../api";
 import { SqlBlock } from "./SqlBlock";
+import { useTranslation } from "react-i18next";
+import { getComplexityLabel } from "../lib/i18n";
 
 function getErrorMessage(error: unknown, fallback: string): string {
   if (!error || typeof error !== "object") return fallback;
@@ -34,6 +36,7 @@ function getErrorMessage(error: unknown, fallback: string): string {
 }
 
 function ComplexityBadge({ level }: { level: "low" | "medium" | "high" }) {
+  const { t } = useTranslation("app");
   const styles: Record<string, string> = {
     low: "bg-success/15 text-success border-success/30",
     medium: "bg-accent/15 text-accent border-accent/30",
@@ -44,12 +47,13 @@ function ComplexityBadge({ level }: { level: "low" | "medium" | "high" }) {
       className={`inline-flex items-center gap-1 rounded border px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ${styles[level]}`}
     >
       <Zap size={10} />
-      {level} complexity
+      {getComplexityLabel(t, level)}
     </span>
   );
 }
 
 function SafetyBadge({ safety }: { safety: "safe" | "unsafe" | "unknown" }) {
+  const { t } = useTranslation("app");
   if (safety === "safe") {
     return (
       <span
@@ -67,7 +71,7 @@ function SafetyBadge({ safety }: { safety: "safe" | "unsafe" | "unknown" }) {
         }}
       >
         <ShieldCheck size={13} />
-        SAFE — Read Only
+        {t("queryAssistant.results.safeReadOnly")}
       </span>
     );
   }
@@ -88,7 +92,7 @@ function SafetyBadge({ safety }: { safety: "safe" | "unsafe" | "unknown" }) {
         }}
       >
         <ShieldAlert size={13} />
-        NEEDS REVIEW
+        {t("queryAssistant.results.needsReview")}
       </span>
     );
   }
@@ -108,7 +112,7 @@ function SafetyBadge({ safety }: { safety: "safe" | "unsafe" | "unknown" }) {
       }}
     >
       <ShieldAlert size={13} />
-      UNSAFE
+      {t("queryAssistant.results.unsafe")}
     </span>
   );
 }
@@ -134,15 +138,20 @@ export function ResultsPanel({
   renderError,
   dialect,
 }: ResultsPanelProps) {
+  const { t } = useTranslation("app");
   const [validation, setValidation] = useState<ValidateResponse | null>(null);
   const [renderSuccess, setRenderSuccess] = useState(false);
   const prevRenderPending = useRef(isRenderPending);
 
   useEffect(() => {
     if (prevRenderPending.current && !isRenderPending && !renderError) {
-      setRenderSuccess(true);
-      const timer = setTimeout(() => setRenderSuccess(false), 2500);
-      return () => clearTimeout(timer);
+      const showTimer = window.setTimeout(() => setRenderSuccess(true), 0);
+      const hideTimer = window.setTimeout(() => setRenderSuccess(false), 2500);
+      prevRenderPending.current = isRenderPending;
+      return () => {
+        window.clearTimeout(showTimer);
+        window.clearTimeout(hideTimer);
+      };
     }
     prevRenderPending.current = isRenderPending;
   }, [isRenderPending, renderError]);
@@ -182,7 +191,7 @@ export function ResultsPanel({
             <span
               style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-primary)" }}
             >
-              Query Library Match
+              {t("queryAssistant.results.queryLibraryMatch")}
             </span>
             <span
               style={{
@@ -240,7 +249,7 @@ export function ResultsPanel({
               letterSpacing: "0.5px",
             }}
           >
-            Template Parameters
+            {t("queryAssistant.results.templateParameters")}
           </div>
           <div
             style={{
@@ -332,7 +341,11 @@ export function ResultsPanel({
               ) : (
                 <Play size={14} />
               )}
-              {isRenderPending ? "Rendering\u2026" : renderSuccess ? "SQL Updated" : "Render Template"}
+              {isRenderPending
+                ? t("queryAssistant.results.rendering")
+                : renderSuccess
+                  ? t("queryAssistant.results.sqlUpdated")
+                  : t("queryAssistant.results.renderTemplate")}
             </button>
           </div>
           {typeof renderError === "string" && renderError && (
@@ -348,7 +361,7 @@ export function ResultsPanel({
             >
               {getErrorMessage(
                 renderError,
-                "Failed to render query template.",
+                t("queryAssistant.results.renderFailed"),
               )}
             </div>
           )}
@@ -367,7 +380,7 @@ export function ResultsPanel({
             marginBottom: "8px",
           }}
         >
-          Generated SQL
+          {t("queryAssistant.results.generatedSql")}
         </div>
         <SqlBlock sql={result.sql} safety={result.safety} libraryEntry={selectedLibrary} libraryParams={libraryParams} dialect={dialect} />
       </div>
@@ -394,7 +407,7 @@ export function ResultsPanel({
               fontWeight: 600,
             }}
           >
-            Aggregate
+            {t("queryAssistant.results.aggregate")}
           </span>
         )}
       </div>
@@ -412,7 +425,7 @@ export function ResultsPanel({
               marginBottom: "7px",
             }}
           >
-            Tables Referenced
+            {t("queryAssistant.results.tablesReferenced")}
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
             {result.tables_referenced.map((t) => (
@@ -455,7 +468,7 @@ export function ResultsPanel({
               marginBottom: "8px",
             }}
           >
-            Explanation
+            {t("queryAssistant.results.explanation")}
           </div>
           <p
             style={{
@@ -510,7 +523,9 @@ export function ResultsPanel({
           ) : (
             <ShieldCheck size={14} style={{ color: "var(--success)" }} />
           )}
-          {validateMutation.isPending ? "Validating\u2026" : "Validate SQL"}
+          {validateMutation.isPending
+            ? t("queryAssistant.results.validating")
+            : t("queryAssistant.results.validateSql")}
         </button>
 
         {validation && (
@@ -541,7 +556,9 @@ export function ResultsPanel({
                   color: validation.valid ? "var(--success)" : "var(--critical)",
                 }}
               >
-                {validation.valid ? "Valid SQL" : "Validation Failed"}
+                {validation.valid
+                  ? t("queryAssistant.results.validSql")
+                  : t("queryAssistant.results.validationFailed")}
               </span>
               {validation.read_only && (
                 <span
@@ -556,7 +573,7 @@ export function ResultsPanel({
                     marginLeft: "auto",
                   }}
                 >
-                  Read Only
+                  {t("queryAssistant.results.readOnly")}
                 </span>
               )}
             </div>
@@ -624,12 +641,12 @@ export function ResultsPanel({
               fontSize: "13px",
             }}
           >
-            {getErrorMessage(
-              validateMutation.error,
-              "Failed to validate SQL.",
-            )}
-          </div>
-        )}
+              {getErrorMessage(
+                validateMutation.error,
+                t("queryAssistant.results.validateError"),
+              )}
+            </div>
+          )}
       </div>
 
       <style>{`

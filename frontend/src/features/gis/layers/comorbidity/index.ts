@@ -8,17 +8,17 @@ import { registerLayer } from "../registry";
 
 const comorbidityLayer: GisLayer = {
   id: "comorbidity",
-  name: "Comorbidity Burden",
-  description: "DM, HTN, obesity clustering",
+  name: "gis.layers.comorbidity.name",
+  description: "gis.layers.comorbidity.description",
   color: "var(--warning)",
   icon: Activity,
   mapOverlay: ComorbidityMapOverlay as unknown as GisLayer["mapOverlay"],
   legendItems: [
-    { label: "Low burden (0)", color: "#F59E0B30", type: "gradient" },
-    { label: "High burden (3)", color: "var(--warning)", type: "gradient" },
+    { label: "gis.layers.comorbidity.legend.low", color: "#F59E0B30", type: "gradient" },
+    { label: "gis.layers.comorbidity.legend.high", color: "var(--warning)", type: "gradient" },
   ],
   getTooltipData: (feature): TooltipEntry[] => [
-    { layerId: "comorbidity", label: "Burden", value: Number(feature.value).toFixed(1), color: "var(--warning)" },
+    { layerId: "comorbidity", label: "gis.layers.comorbidity.tooltip.burden", value: Number(feature.value).toFixed(1), color: "var(--warning)" },
   ],
   analysisPanel: ComorbidityAnalysisPanel,
   detailPanel: ComorbidityDetailPanel,

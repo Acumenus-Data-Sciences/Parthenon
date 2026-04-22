@@ -14,10 +14,13 @@ import { DiseaseSummaryBar } from "../components/DiseaseSummaryBar";
 import { useMapViewport } from "../hooks/useMapViewport";
 import { useActiveMapLayers } from "../hooks/useActiveMapLayers";
 import { HelpButton } from "@/features/help";
+import { useTranslation } from "react-i18next";
+import { getAnalysisLayerCountLabel } from "../lib/i18n";
 
 const MAP_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 
 export default function GisPage() {
+  const { t } = useTranslation("app");
   const { viewport, onViewportChange, resetViewport } = useMapViewport();
   const { activeLayers, selectedFips, setSelectedRegion } = useLayerStore();
   const layers = getLayers();
@@ -90,14 +93,14 @@ export default function GisPage() {
           <Globe className="h-5 w-5 text-accent" />
           <div>
             <h1 className="text-lg font-semibold text-text-primary">
-              GIS Explorer{selectedDiseaseName ? ` — ${selectedDiseaseName}` : ""}
+              {t("gis.page.title")}{selectedDiseaseName ? ` - ${selectedDiseaseName}` : ""}
             </h1>
             <p className="text-xs text-text-ghost">
               {hasActiveLayers
-                ? `${activeLayerList.length} analysis layer${activeLayerList.length !== 1 ? "s" : ""} active`
+                ? getAnalysisLayerCountLabel(t, activeLayerList.length)
                 : selectedDiseaseName
-                  ? "Enable analysis layers in the left panel"
-                  : "Select a disease to begin spatial analysis"}
+                  ? t("gis.page.enableLayers")
+                  : t("gis.page.selectDisease")}
             </p>
           </div>
         </div>
@@ -107,7 +110,7 @@ export default function GisPage() {
             className="flex items-center gap-1.5 rounded border border-border-default bg-surface-base px-2 py-1 text-xs text-text-muted hover:border-text-ghost"
           >
             <RefreshCw className="h-3 w-3" />
-            Reset
+            {t("gis.page.reset")}
           </button>
           <button
             onClick={() => setIsExpanded((v) => !v)}
@@ -116,12 +119,12 @@ export default function GisPage() {
             {isExpanded ? (
               <>
                 <Minimize2 className="h-3 w-3" />
-                Collapse
+                {t("gis.page.collapse")}
               </>
             ) : (
               <>
                 <Maximize2 className="h-3 w-3" />
-                Expand
+                {t("gis.page.expand")}
               </>
             )}
           </button>

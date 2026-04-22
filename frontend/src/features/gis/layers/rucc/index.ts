@@ -8,21 +8,23 @@ import { registerLayer } from "../registry";
 
 const ruccLayer: GisLayer = {
   id: "rucc",
-  name: "Urban-Rural",
-  description: "USDA Rural-Urban Continuum Codes",
+  name: "gis.layers.rucc.name",
+  description: "gis.layers.rucc.description",
   color: "var(--domain-observation)",
   icon: MapPin,
   mapOverlay: RuccMapOverlay as unknown as GisLayer["mapOverlay"],
   legendItems: [
-    { label: "Metro", color: "var(--info)", type: "category" },
-    { label: "Micropolitan", color: "var(--domain-observation)", type: "category" },
-    { label: "Rural", color: "var(--warning)", type: "category" },
+    { label: "gis.layers.rucc.legend.metro", color: "var(--info)", type: "category" },
+    { label: "gis.layers.rucc.legend.micropolitan", color: "var(--domain-observation)", type: "category" },
+    { label: "gis.layers.rucc.legend.rural", color: "var(--warning)", type: "category" },
   ],
   getTooltipData: (feature): TooltipEntry[] => [
     {
       layerId: "rucc",
-      label: "Classification",
-      value: String((feature as { category?: string }).category ?? "—"),
+      label: "gis.layers.rucc.tooltip.classification",
+      value: (feature as { category?: string }).category
+        ? `gis.layers.rucc.categories.${(feature as { category?: string }).category}`
+        : "—",
       color: "var(--domain-observation)",
     },
   ],

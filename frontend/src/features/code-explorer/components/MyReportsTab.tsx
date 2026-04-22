@@ -1,20 +1,22 @@
 import { useMyReports } from "../hooks/useMyReports";
 import { RunStatusBadge } from "@/features/_finngen-foundation";
 import apiClient from "@/lib/api-client";
+import { useTranslation } from "react-i18next";
 
 export function MyReportsTab({
   onOpenReport,
 }: {
   onOpenReport: (runId: string) => void;
 }) {
+  const { t } = useTranslation("app");
   const { data, isLoading, error } = useMyReports();
 
-  if (isLoading) return <div className="text-slate-400">Loading reports...</div>;
-  if (error) return <div className="text-rose-300">Failed to load. {(error as Error).message}</div>;
+  if (isLoading) return <div className="text-slate-400">{t("codeExplorer.reports.loading")}</div>;
+  if (error) return <div className="text-rose-300">{t("codeExplorer.reports.failed")} {(error as Error).message}</div>;
   if (!data?.data?.length) {
     return (
       <div className="text-slate-400">
-        You have no reports yet. Go to the Report tab and generate one.
+        {t("codeExplorer.reports.empty")}
       </div>
     );
   }
@@ -29,11 +31,11 @@ export function MyReportsTab({
       <table className="min-w-full divide-y divide-slate-700 text-sm">
         <thead className="bg-slate-900 text-left text-xs font-medium uppercase text-slate-400">
           <tr>
-            <th className="px-3 py-2">Created</th>
-            <th className="px-3 py-2">Source</th>
-            <th className="px-3 py-2">Concept</th>
-            <th className="px-3 py-2">Status</th>
-            <th className="px-3 py-2">Pin</th>
+            <th className="px-3 py-2">{t("codeExplorer.reports.headers.created")}</th>
+            <th className="px-3 py-2">{t("codeExplorer.reports.headers.source")}</th>
+            <th className="px-3 py-2">{t("codeExplorer.reports.headers.concept")}</th>
+            <th className="px-3 py-2">{t("codeExplorer.reports.headers.status")}</th>
+            <th className="px-3 py-2">{t("codeExplorer.reports.headers.pin")}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-800">
@@ -56,7 +58,9 @@ export function MyReportsTab({
                       void togglePin(run.id, run.pinned);
                     }}
                   >
-                    {run.pinned ? "📌 Unpin" : "Pin"}
+                    {run.pinned
+                      ? `📌 ${t("codeExplorer.reports.unpin")}`
+                      : t("codeExplorer.reports.pin")}
                   </button>
                 </td>
               </tr>

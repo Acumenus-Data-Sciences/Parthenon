@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { ConceptSearchInput } from "@/components/concept/ConceptSearchInput";
 
@@ -10,10 +11,12 @@ import { RelationshipsTab } from "../components/RelationshipsTab";
 import { ReportTab } from "../components/ReportTab";
 import { SourcePicker } from "../components/SourcePicker";
 import { SourceReadinessBanner } from "../components/SourceReadinessBanner";
+import { getCodeExplorerTabLabel } from "../lib/i18n";
 
 type Tab = "counts" | "relationships" | "hierarchy" | "report" | "my-reports";
 
 export function CodeExplorerPage() {
+  const { t } = useTranslation("app");
   const [params, setParams] = useSearchParams();
   const [sourceKey, setSourceKey] = useState<string | null>(params.get("source"));
   const [conceptId, setConceptId] = useState<number | null>(() => {
@@ -61,34 +64,40 @@ export function CodeExplorerPage() {
   };
 
   const tabs: { id: Tab; label: string }[] = [
-    { id: "counts", label: "Counts" },
-    { id: "relationships", label: "Relationships" },
-    { id: "hierarchy", label: "Hierarchy" },
-    { id: "report", label: "Report" },
-    { id: "my-reports", label: "My Reports" },
+    { id: "counts", label: getCodeExplorerTabLabel(t, "counts") },
+    { id: "relationships", label: getCodeExplorerTabLabel(t, "relationships") },
+    { id: "hierarchy", label: getCodeExplorerTabLabel(t, "hierarchy") },
+    { id: "report", label: getCodeExplorerTabLabel(t, "report") },
+    { id: "my-reports", label: getCodeExplorerTabLabel(t, "my-reports") },
   ];
 
   return (
     <div className="grid grid-cols-[320px_1fr] gap-6 p-6">
       <aside className="flex flex-col gap-4">
-        <h1 className="text-lg font-semibold text-slate-100">Code Explorer</h1>
+        <h1 className="text-lg font-semibold text-slate-100">
+          {t("codeExplorer.page.title")}
+        </h1>
         <SourcePicker value={sourceKey} onChange={handleSourceChange} />
         {sourceKey ? (
           <>
             <SourceReadinessBanner sourceKey={sourceKey} />
             <div className="flex flex-col gap-1 text-sm">
-              <span className="font-medium text-slate-300">Concept</span>
+              <span className="font-medium text-slate-300">
+                {t("codeExplorer.page.concept")}
+              </span>
               <ConceptSearchInput
                 value={conceptId ? String(conceptId) : ""}
                 onChange={handleConceptInputChange}
                 paramType="number"
-                placeholder="Search concepts with data in this source"
+                placeholder={t("codeExplorer.page.searchPlaceholder")}
                 sourceKey={sourceKey}
               />
             </div>
           </>
         ) : (
-          <div className="text-xs text-slate-500">Pick a source to begin.</div>
+          <div className="text-xs text-slate-500">
+            {t("codeExplorer.page.pickSource")}
+          </div>
         )}
       </aside>
 
@@ -136,7 +145,9 @@ export function CodeExplorerPage() {
             )}
           </section>
         ) : activeTab === "my-reports" ? null : (
-          <div className="text-slate-400">Pick a source and concept to view data.</div>
+          <div className="text-slate-400">
+            {t("codeExplorer.page.pickSourceAndConcept")}
+          </div>
         )}
 
         {activeTab === "my-reports" && (

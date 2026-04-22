@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight, Loader2, Database } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { fetchSchema, type SchemaTable } from "../api";
 
 function SchemaTableRow({ table }: { table: SchemaTable }) {
+  const { t } = useTranslation("app");
   const [open, setOpen] = useState(false);
 
   return (
@@ -53,7 +55,9 @@ function SchemaTableRow({ table }: { table: SchemaTable }) {
           {table.name}
         </span>
         <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
-          {table.columns.length} cols
+          {t("queryAssistant.schemaBrowser.cols", {
+            count: table.columns.length,
+          })}
         </span>
       </button>
 
@@ -67,7 +71,7 @@ function SchemaTableRow({ table }: { table: SchemaTable }) {
               lineHeight: "1.5",
             }}
           >
-            {table.description || "No description available."}
+            {table.description || t("queryAssistant.schemaBrowser.noDescription")}
           </p>
           <div
             style={{
@@ -129,6 +133,7 @@ function SchemaTableRow({ table }: { table: SchemaTable }) {
 }
 
 export function SchemaBrowser() {
+  const { t } = useTranslation("app");
   const [open, setOpen] = useState(false);
 
   const { data, isFetching, isError } = useQuery({
@@ -165,7 +170,7 @@ export function SchemaBrowser() {
       >
         {open ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
         <Database size={15} style={{ color: "var(--success)" }} />
-        OMOP CDM Schema Browser
+        {t("queryAssistant.schemaBrowser.title")}
         {isFetching && (
           <Loader2
             size={13}
@@ -184,7 +189,7 @@ export function SchemaBrowser() {
             <div
               style={{ padding: "16px", color: "var(--primary)", fontSize: "13px" }}
             >
-              Failed to load schema.
+              {t("queryAssistant.schemaBrowser.failedToLoad")}
             </div>
           )}
 
@@ -201,7 +206,9 @@ export function SchemaBrowser() {
                   textTransform: "uppercase",
                 }}
               >
-                Clinical Tables ({data.clinical_tables.length})
+                {t("queryAssistant.schemaBrowser.clinicalTables", {
+                  count: data.clinical_tables.length,
+                })}
               </div>
               {data.clinical_tables.map((t) => (
                 <SchemaTableRow key={t.name} table={t} />
@@ -219,7 +226,9 @@ export function SchemaBrowser() {
                   borderTop: "1px solid var(--border-default)",
                 }}
               >
-                Vocabulary Tables ({data.vocabulary_tables.length})
+                {t("queryAssistant.schemaBrowser.vocabularyTables", {
+                  count: data.vocabulary_tables.length,
+                })}
               </div>
               {data.vocabulary_tables.map((t) => (
                 <SchemaTableRow key={t.name} table={t} />
@@ -242,7 +251,7 @@ export function SchemaBrowser() {
                       marginBottom: "8px",
                     }}
                   >
-                    Common Joins
+                    {t("queryAssistant.schemaBrowser.commonJoins")}
                   </div>
                   <div
                     style={{

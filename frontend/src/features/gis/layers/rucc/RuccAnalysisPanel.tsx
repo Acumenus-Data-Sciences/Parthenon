@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { useTranslation } from "react-i18next";
 import { fetchRuccOutcomeComparison } from "./api";
 import type { LayerAnalysisProps } from "../types";
+import { getRuccCategoryLabel } from "../../lib/i18n";
 
 const CATEGORY_COLORS: Record<string, string> = {
   metro: "var(--info)",
@@ -10,17 +12,18 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export function RuccAnalysisPanel({ conceptId, metric }: LayerAnalysisProps) {
+  const { t } = useTranslation("app");
   const { data, isLoading } = useQuery({
     queryKey: ["gis", "rucc", "outcomes", conceptId, metric],
     queryFn: () => fetchRuccOutcomeComparison(conceptId, metric),
     staleTime: 60_000,
   });
 
-  if (isLoading) return <p className="text-xs text-text-ghost">Loading...</p>;
-  if (!data?.length) return <p className="text-xs text-text-ghost">No data</p>;
+  if (isLoading) return <p className="text-xs text-text-ghost">{t("gis.layers.rucc.analysis.loading")}</p>;
+  if (!data?.length) return <p className="text-xs text-text-ghost">{t("gis.layers.rucc.analysis.noData")}</p>;
 
   const chartData = data.map((d) => ({
-    name: d.category.charAt(0).toUpperCase() + d.category.slice(1),
+    name: getRuccCategoryLabel(t, d.category),
     rate: d.rate,
     fill: CATEGORY_COLORS[d.category] ?? "var(--text-muted)",
   }));

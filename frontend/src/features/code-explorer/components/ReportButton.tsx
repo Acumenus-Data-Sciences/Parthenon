@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { useFinnGenRun } from "@/features/_finngen-foundation";
 
@@ -13,6 +14,7 @@ export function ReportButton({
   conceptId: number;
   onRunIdChange: (runId: string | null) => void;
 }) {
+  const { t } = useTranslation("app");
   const [runId, setRunId] = useState<string | null>(null);
   const { mutateAsync, isPending, isError, resetIdempotencyKey } = useCreateReport();
   const { data: run } = useFinnGenRun(runId);
@@ -43,14 +45,21 @@ export function ReportButton({
         disabled={!canGenerate || isPending || Boolean(running)}
         onClick={handleClick}
       >
-        {isPending || running ? "Generating..." : "Generate report"}
+        {isPending || running
+          ? t("codeExplorer.reports.generating")
+          : t("codeExplorer.reports.generateReport")}
       </button>
       {isError ? (
-        <div className="text-xs text-rose-300">Failed to dispatch report.</div>
+        <div className="text-xs text-rose-300">
+          {t("codeExplorer.reports.failedToDispatch")}
+        </div>
       ) : null}
       {running && run?.progress ? (
         <div className="text-xs text-slate-400">
-          {run.progress.pct ?? 0}% — {run.progress.message ?? run.status}
+          {t("codeExplorer.reports.progress", {
+            percent: run.progress.pct ?? 0,
+            message: run.progress.message ?? run.status,
+          })}
         </div>
       ) : null}
     </div>

@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Bar,
   BarChart,
@@ -11,6 +12,7 @@ import {
 } from "recharts";
 
 import type { StratifiedCount } from "../types";
+import { getGenderLabel } from "../lib/i18n";
 
 type Mode = "node" | "descendant";
 type GroupBy = "gender" | "age_decile";
@@ -24,12 +26,13 @@ export function StratifiedCountsChart({
   mode: Mode;
   groupBy: GroupBy;
 }) {
+  const { t } = useTranslation("app");
   const series = useMemo(() => {
     const groups = new Map<string, Map<number, number>>();
     for (const row of data) {
       const groupKey =
         groupBy === "gender"
-          ? labelForGender(row.gender_concept_id)
+          ? getGenderLabel(t, row.gender_concept_id)
           : labelForDecile(row.age_decile);
       const count = mode === "node" ? row.n_node : row.n_descendant;
       if (!groups.has(groupKey)) groups.set(groupKey, new Map());
@@ -45,7 +48,7 @@ export function StratifiedCountsChart({
       }
       return entry;
     });
-  }, [data, mode, groupBy]);
+  }, [data, mode, groupBy, t]);
 
   const groupKeys = useMemo(() => {
     const keys = new Set<string>();
@@ -58,7 +61,7 @@ export function StratifiedCountsChart({
   }, [series]);
 
   if (series.length === 0) {
-    return <div className="p-6 text-center text-slate-400">No data to display</div>;
+    return <div className="p-6 text-center text-slate-400">{t("codeExplorer.chart.noData")}</div>;
   }
 
   const palette = [
@@ -86,12 +89,6 @@ export function StratifiedCountsChart({
       </ResponsiveContainer>
     </div>
   );
-}
-
-function labelForGender(id: number | null): string {
-  if (id === 8507) return "Male";
-  if (id === 8532) return "Female";
-  return "Unknown";
 }
 
 function labelForDecile(decile: number | null): string {

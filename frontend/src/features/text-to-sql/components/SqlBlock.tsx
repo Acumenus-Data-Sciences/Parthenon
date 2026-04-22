@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { Copy, Check, Play } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { SqlRunnerModal } from "./SqlRunnerModal";
 import type { QueryLibraryEntry } from "../api";
 
@@ -12,6 +13,7 @@ interface SqlBlockProps {
 }
 
 export function SqlBlock({ sql, safety, libraryEntry, libraryParams, dialect }: SqlBlockProps) {
+  const { t } = useTranslation("app");
   const [copied, setCopied] = useState(false);
   const [runnerOpen, setRunnerOpen] = useState(false);
 
@@ -51,7 +53,7 @@ export function SqlBlock({ sql, safety, libraryEntry, libraryParams, dialect }: 
                 letterSpacing: "0.5px",
               }}
             >
-              SQL
+              {t("queryAssistant.sqlBlock.sql")}
             </span>
             <div style={{ display: "flex", gap: "6px" }}>
               <button
@@ -83,7 +85,7 @@ export function SqlBlock({ sql, safety, libraryEntry, libraryParams, dialect }: 
                 }}
               >
                 <Play size={11} />
-                Run SQL
+                {t("queryAssistant.sqlBlock.runSql")}
               </button>
               <button
                 onClick={handleCopy}
@@ -102,7 +104,9 @@ export function SqlBlock({ sql, safety, libraryEntry, libraryParams, dialect }: 
                 }}
               >
                 {copied ? <Check size={12} /> : <Copy size={12} />}
-                {copied ? "Copied" : "Copy"}
+                {copied
+                  ? t("queryAssistant.sqlBlock.copied")
+                  : t("queryAssistant.sqlBlock.copy")}
               </button>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { X, Users, Activity, Skull, Building2, type LucideIcon } from "lucide-react";
 import { useCountyDetail } from "../hooks/useGis";
+import { useTranslation } from "react-i18next";
 
 interface CountyDetailProps {
   gadmGid: string;
@@ -8,6 +9,7 @@ interface CountyDetailProps {
 }
 
 export function CountyDetail({ gadmGid, conceptId, onClose }: CountyDetailProps) {
+  const { t } = useTranslation("app");
   const { data, isLoading } = useCountyDetail(gadmGid, conceptId);
 
   if (isLoading) {
@@ -28,9 +30,11 @@ export function CountyDetail({ gadmGid, conceptId, onClose }: CountyDetailProps)
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-text-primary">{data.name} County</h3>
+          <h3 className="text-sm font-semibold text-text-primary">
+            {data.name} {t("gis.countyDetail.county")}
+          </h3>
           {data.area_km2 && (
-            <p className="text-xs text-text-ghost">{data.area_km2.toLocaleString()} km²</p>
+            <p className="text-xs text-text-ghost">{data.area_km2.toLocaleString()} km²{/* i18n-exempt: measurement unit */}</p>
           )}
         </div>
         <button onClick={onClose} className="text-text-ghost hover:text-text-primary">
@@ -41,19 +45,19 @@ export function CountyDetail({ gadmGid, conceptId, onClose }: CountyDetailProps)
       {/* Key metrics grid */}
       <div className="grid grid-cols-2 gap-2">
         {m.covid_cases && (
-          <MetricCard icon={Activity} label="Cases" value={m.covid_cases.value} color="var(--accent)" />
+          <MetricCard icon={Activity} label={t("gis.countyDetail.cases")} value={m.covid_cases.value} color="var(--accent)" />
         )}
         {m.covid_deaths && (
-          <MetricCard icon={Skull} label="Deaths" value={m.covid_deaths.value} color="var(--primary)" />
+          <MetricCard icon={Skull} label={t("gis.countyDetail.deaths")} value={m.covid_deaths.value} color="var(--primary)" />
         )}
         {m.covid_cfr && (
-          <MetricCard icon={Activity} label="CFR" value={`${m.covid_cfr.rate}%`} color="var(--success)" />
+          <MetricCard icon={Activity} label={t("gis.countyDetail.cfr")} value={`${m.covid_cfr.rate}%`} color="var(--success)" />
         )}
         {m.covid_hospitalization && (
-          <MetricCard icon={Building2} label="Hospitalized" value={m.covid_hospitalization.value} color="var(--text-muted)" />
+          <MetricCard icon={Building2} label={t("gis.countyDetail.hospitalized")} value={m.covid_hospitalization.value} color="var(--text-muted)" />
         )}
         {m.patient_count && (
-          <MetricCard icon={Users} label="Population" value={m.patient_count.value} color="var(--text-ghost)" />
+          <MetricCard icon={Users} label={t("gis.countyDetail.population")} value={m.patient_count.value} color="var(--text-ghost)" />
         )}
       </div>
 
@@ -61,7 +65,7 @@ export function CountyDetail({ gadmGid, conceptId, onClose }: CountyDetailProps)
       {data.demographics.age_groups.length > 0 && (
         <div className="space-y-1.5">
           <span className="text-xs font-semibold uppercase tracking-wider text-text-ghost">
-            Age Distribution (COVID)
+            {t("gis.countyDetail.ageDistributionCovid")}
           </span>
           <div className="space-y-1">
             {data.demographics.age_groups.map((ag) => {
@@ -99,22 +103,25 @@ export function CountyDetail({ gadmGid, conceptId, onClose }: CountyDetailProps)
       {data.timeline.length > 0 && (
         <div className="space-y-1">
           <span className="text-xs font-semibold uppercase tracking-wider text-text-ghost">
-            Monthly Cases
+            {t("gis.countyDetail.monthlyCases")}
           </span>
           <div className="flex items-end gap-px" style={{ height: 40 }}>
             {data.timeline
               .filter((t) => t.metric === "covid_cases_monthly")
-              .map((t) => {
+              .map((timelinePoint) => {
                 const max = Math.max(
                   ...data.timeline.filter((x) => x.metric === "covid_cases_monthly").map((x) => x.value)
                 );
-                const h = max > 0 ? (t.value / max) * 100 : 0;
+                const h = max > 0 ? (timelinePoint.value / max) * 100 : 0;
                 return (
                   <div
-                    key={t.period}
+                    key={timelinePoint.period}
                     className="flex-1 rounded-t bg-accent/40 hover:bg-accent/70"
                     style={{ height: `${h}%` }}
-                    title={`${t.period}: ${t.value.toLocaleString()} cases`}
+                    title={t("gis.countyDetail.casesTitle", {
+                      period: timelinePoint.period,
+                      count: timelinePoint.value.toLocaleString(),
+                    })}
                   />
                 );
               })}

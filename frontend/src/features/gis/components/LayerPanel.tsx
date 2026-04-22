@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { Layers, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { getLayers } from "../layers/registry";
 import { useLayerStore } from "../stores/layerStore";
 import { DiseaseSelector } from "./DiseaseSelector";
@@ -10,6 +11,7 @@ interface LayerPanelProps {
 }
 
 export function LayerPanel({ selectedConceptId, onDiseaseSelect }: LayerPanelProps) {
+  const { t } = useTranslation("app");
   const { activeLayers, toggleLayer } = useLayerStore();
   const layers = getLayers();
 
@@ -33,7 +35,7 @@ export function LayerPanel({ selectedConceptId, onDiseaseSelect }: LayerPanelPro
         <div className="mb-2 flex items-center gap-2">
           <Layers className="h-3.5 w-3.5 text-text-ghost" />
           <h3 className="text-xs font-semibold uppercase tracking-wider text-text-ghost">
-            Analysis Layers
+            {t("gis.layerPanel.title")}
           </h3>
         </div>
         <div className="space-y-1">
@@ -74,10 +76,10 @@ export function LayerPanel({ selectedConceptId, onDiseaseSelect }: LayerPanelPro
       {layers.length > 0 && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-3">
           <h3 className="mb-1 text-xs font-semibold uppercase tracking-wider text-text-ghost">
-            Privacy
+            {t("gis.layerPanel.privacy")}
           </h3>
           <p className="text-[10px] text-text-ghost">
-            Suppression: off (synthetic data)
+            {t("gis.layerPanel.suppressionOff")}
           </p>
         </div>
       )}

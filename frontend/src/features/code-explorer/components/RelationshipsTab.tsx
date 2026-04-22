@@ -1,4 +1,5 @@
 import { useRelationships } from "../hooks/useRelationships";
+import { useTranslation } from "react-i18next";
 
 export function RelationshipsTab({
   sourceKey,
@@ -9,12 +10,13 @@ export function RelationshipsTab({
   conceptId: number;
   onConceptSelect: (conceptId: number) => void;
 }) {
+  const { t } = useTranslation("app");
   const { data, isLoading, error } = useRelationships(sourceKey, conceptId);
 
-  if (isLoading) return <div className="text-slate-400">Loading relationships...</div>;
-  if (error) return <div className="text-rose-300">Failed to load. {(error as Error).message}</div>;
+  if (isLoading) return <div className="text-slate-400">{t("codeExplorer.relationships.loading")}</div>;
+  if (error) return <div className="text-rose-300">{t("codeExplorer.relationships.failed")} {(error as Error).message}</div>;
   if (!data || data.relationships.length === 0) {
-    return <div className="text-slate-400">No relationships found for this concept.</div>;
+    return <div className="text-slate-400">{t("codeExplorer.relationships.empty")}</div>;
   }
 
   return (
@@ -22,10 +24,10 @@ export function RelationshipsTab({
       <table className="min-w-full divide-y divide-slate-700 text-sm">
         <thead className="bg-slate-900 text-left text-xs font-medium uppercase text-slate-400">
           <tr>
-            <th className="px-3 py-2">Relationship</th>
-            <th className="px-3 py-2">Target Concept</th>
-            <th className="px-3 py-2">Vocabulary</th>
-            <th className="px-3 py-2">Standard</th>
+            <th className="px-3 py-2">{t("codeExplorer.relationships.headers.relationship")}</th>
+            <th className="px-3 py-2">{t("codeExplorer.relationships.headers.targetConcept")}</th>
+            <th className="px-3 py-2">{t("codeExplorer.relationships.headers.vocabulary")}</th>
+            <th className="px-3 py-2">{t("codeExplorer.relationships.headers.standard")}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-800">

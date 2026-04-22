@@ -1,4 +1,5 @@
 import type { GisLayer } from "./types";
+import { localizeGisLayer } from "../lib/i18n";
 
 /**
  * Central registry of all available GIS layers.
@@ -17,9 +18,10 @@ export function registerLayer(layer: GisLayer): void {
 }
 
 export function getLayers(): readonly GisLayer[] {
-  return layers;
+  return layers.map((layer) => localizeGisLayer(layer));
 }
 
 export function getLayer(id: string): GisLayer | undefined {
-  return layers.find((l) => l.id === id);
+  const layer = layers.find((l) => l.id === id);
+  return layer ? localizeGisLayer(layer) : undefined;
 }

@@ -1,17 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { useTranslation } from "react-i18next";
 import { fetchBurdenScore } from "./api";
 import type { LayerAnalysisProps } from "../types";
 
 export function ComorbidityAnalysisPanel(_props: LayerAnalysisProps) {
+  const { t } = useTranslation("app");
   const { data, isLoading } = useQuery({
     queryKey: ["gis", "comorbidity", "burden"],
     queryFn: fetchBurdenScore,
     staleTime: 5 * 60_000,
   });
 
-  if (isLoading) return <p className="text-xs text-text-ghost">Loading...</p>;
-  if (!data?.length) return <p className="text-xs text-text-ghost">No data</p>;
+  if (isLoading) return <p className="text-xs text-text-ghost">{t("gis.layers.comorbidity.analysis.loading")}</p>;
+  if (!data?.length) return <p className="text-xs text-text-ghost">{t("gis.layers.comorbidity.analysis.noData")}</p>;
 
   const chartData = data.map((d) => ({
     name: `${d.bucket_min.toFixed(1)}-${d.bucket_max.toFixed(1)}`,

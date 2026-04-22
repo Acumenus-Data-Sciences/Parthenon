@@ -15,10 +15,12 @@ import { Badge, EmptyState } from "@/components/ui";
 import { Drawer } from "@/components/ui/Drawer";
 import { useJupyterWorkspace } from "../hooks/useJupyterWorkspace";
 import { useJupyterSession } from "../hooks/useJupyterSession";
+import { useTranslation } from "react-i18next";
 
 type ServerState = "idle" | "authenticating" | "spawning" | "running" | "failed";
 
 export default function JupyterPage() {
+  const { t } = useTranslation("app");
   const { data, isLoading, isFetching, refetch } = useJupyterWorkspace();
   const session = useJupyterSession();
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -61,10 +63,14 @@ export default function JupyterPage() {
       },
       onError: (error) => {
         setServerState("failed");
-        setErrorMsg(error instanceof Error ? error.message : "Failed to create session");
+        setErrorMsg(
+          error instanceof Error
+            ? error.message
+            : t("jupyter.page.failedToCreateSession"),
+        );
       },
     });
-  }, [session]);
+  }, [session, t]);
 
   // Poll workspace to detect when server becomes ready
   useEffect(() => {
@@ -85,15 +91,25 @@ export default function JupyterPage() {
   const serverBadge = () => {
     switch (serverState) {
       case "idle":
-        return <Badge variant={data?.available ? "success" : "critical"}>{data?.available ? "Hub Online" : "Unavailable"}</Badge>;
+        return (
+          <Badge variant={data?.available ? "success" : "critical"}>
+            {data?.available
+              ? t("jupyter.status.hubOnline")
+              : t("jupyter.status.unavailable")}
+          </Badge>
+        );
       case "authenticating":
-        return <Badge variant="warning">Authenticating...</Badge>;
+        return (
+          <Badge variant="warning">{t("jupyter.status.authenticating")}</Badge>
+        );
       case "spawning":
-        return <Badge variant="warning">Starting Server...</Badge>;
+        return (
+          <Badge variant="warning">{t("jupyter.status.startingServer")}</Badge>
+        );
       case "running":
-        return <Badge variant="success">Running</Badge>;
+        return <Badge variant="success">{t("jupyter.status.running")}</Badge>;
       case "failed":
-        return <Badge variant="critical">Failed</Badge>;
+        return <Badge variant="critical">{t("jupyter.status.failed")}</Badge>;
     }
   };
 
@@ -103,11 +119,11 @@ export default function JupyterPage() {
       <div className="page-header" style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
         <div style={{ flex: 1 }}>
           <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-            <h1 className="page-title">Jupyter Workbench</h1>
+            <h1 className="page-title">{t("jupyter.page.title")}</h1>
             {serverBadge()}
           </div>
           <p className="page-subtitle">
-            Your personal notebook environment for interactive research, custom analyses, and data exploration
+            {t("jupyter.page.subtitle")}
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
@@ -120,7 +136,7 @@ export default function JupyterPage() {
             className="btn btn-secondary"
           >
             <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
-            Refresh
+            {t("jupyter.page.refresh")}
           </button>
           {serverState === "running" && (
             <a
@@ -129,15 +145,15 @@ export default function JupyterPage() {
               rel="noreferrer"
               className="btn btn-ghost"
             >
-              Open In New Tab
+              {t("jupyter.page.openInNewTab")}
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           )}
           <button
             type="button"
             onClick={() => setHelpOpen(true)}
-            aria-label="Workspace details"
-            title="Workspace details"
+            aria-label={t("jupyter.page.workspaceDetails")}
+            title={t("jupyter.page.workspaceDetails")}
             className="flex h-7 w-7 items-center justify-center rounded-md text-text-ghost hover:text-text-muted hover:bg-surface-overlay transition-colors"
           >
             <HelpCircle size={16} />
@@ -156,7 +172,7 @@ export default function JupyterPage() {
           <div style={{ position: "absolute", inset: 0, zIndex: 20, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--color-bg-base)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", color: "var(--color-text-muted)" }}>
               <Loader2 className="h-5 w-5 animate-spin" style={{ color: "var(--color-teal)" }} />
-              Checking JupyterHub...
+              {t("jupyter.page.checkingHub")}
             </div>
           </div>
         )}
@@ -166,8 +182,8 @@ export default function JupyterPage() {
           <div style={{ position: "absolute", inset: 0, zIndex: 20, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--color-bg-base)" }}>
             <EmptyState
               icon={<ServerCog size={28} />}
-              title="JupyterHub is not reachable"
-              message="The notebook service is currently unavailable. Refresh after the container is healthy."
+              title={t("jupyter.unavailable.title")}
+              message={t("jupyter.unavailable.message")}
             />
           </div>
         )}
@@ -178,10 +194,12 @@ export default function JupyterPage() {
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--space-3)" }}>
               <Loader2 className="h-6 w-6 animate-spin" style={{ color: "var(--color-teal)" }} />
               <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-muted)" }}>
-                {serverState === "authenticating" ? "Authenticating..." : "Starting your notebook server..."}
+                {serverState === "authenticating"
+                  ? t("jupyter.status.authenticating")
+                  : t("jupyter.page.startOverlay")}
               </div>
               <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-ghost)" }}>
-                This may take up to 30 seconds on first launch
+                {t("jupyter.page.firstLaunchNote")}
               </div>
             </div>
           </div>
@@ -193,7 +211,7 @@ export default function JupyterPage() {
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--space-3)", maxWidth: 400, textAlign: "center" }}>
               <AlertCircle className="h-6 w-6" style={{ color: "var(--color-crimson)" }} />
               <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-primary)" }}>
-                Failed to start notebook server
+                {t("jupyter.page.failedToStart")}
               </div>
               {errorMsg && (
                 <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
@@ -201,7 +219,7 @@ export default function JupyterPage() {
                 </div>
               )}
               <button type="button" onClick={launchSession} className="btn btn-primary" style={{ marginTop: "var(--space-2)" }}>
-                Retry
+                {t("jupyter.page.retry")}
               </button>
             </div>
           </div>
@@ -210,7 +228,7 @@ export default function JupyterPage() {
         <iframe
           ref={iframeRef}
           src={embedUrl ?? "about:blank"}
-          title="Parthenon Jupyter"
+          title={t("jupyter.page.iframeTitle")}
           allow="clipboard-read; clipboard-write"
           sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads allow-modals"
           style={{ width: "100%", height: frameHeight, border: "none", display: "block" }}
@@ -227,7 +245,7 @@ export default function JupyterPage() {
       <Drawer
         open={helpOpen}
         onClose={() => setHelpOpen(false)}
-        title="Jupyter Workspace Details"
+        title={t("jupyter.drawer.title")}
         size="lg"
       >
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
@@ -236,35 +254,35 @@ export default function JupyterPage() {
             <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-3)" }}>
               <ServerCog size={14} style={{ color: "var(--color-teal)" }} />
               <span style={{ fontSize: "var(--text-xs)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-ghost)" }}>
-                Environment
+                {t("jupyter.drawer.environment")}
               </span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
               <div className="rounded-lg border border-border-default bg-surface-base p-4">
-                <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-ghost)", marginBottom: 2 }}>Runtime</div>
+                <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-ghost)", marginBottom: 2 }}>{t("jupyter.drawer.runtime")}</div>
                 <div style={{ fontSize: "var(--text-sm)", fontWeight: 500, color: "var(--color-text-primary)" }}>
-                  {data?.label ?? "JupyterLab 4.4"}
+                  {data?.label ?? t("jupyter.drawer.defaults.runtime")}
                 </div>
                 <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginTop: 4 }}>
-                  Python 3.12 with pandas, polars, sqlalchemy, and role-based database access.
+                  {t("jupyter.drawer.runtimeDescription")}
                 </div>
               </div>
               <div className="rounded-lg border border-border-default bg-surface-base p-4">
-                <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-ghost)", marginBottom: 2 }}>Private Workspace</div>
+                <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-ghost)", marginBottom: 2 }}>{t("jupyter.drawer.privateWorkspace")}</div>
                 <div style={{ fontSize: "var(--text-sm)", fontWeight: 500, color: "var(--color-text-primary)", fontFamily: "'IBM Plex Mono', monospace" }}>
-                  {data?.workspace_path ?? "/home/jovyan/notebooks"}
+                  {data?.workspace_path ?? t("jupyter.drawer.defaults.privateWorkspace")}
                 </div>
                 <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginTop: 4 }}>
-                  Your personal notebook directory. Persists across sessions — your work is always saved.
+                  {t("jupyter.drawer.privateWorkspaceDescription")}
                 </div>
               </div>
               <div className="rounded-lg border border-border-default bg-surface-base p-4">
-                <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-ghost)", marginBottom: 2 }}>Shared Folder</div>
+                <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-ghost)", marginBottom: 2 }}>{t("jupyter.drawer.sharedFolder")}</div>
                 <div style={{ fontSize: "var(--text-sm)", fontWeight: 500, color: "var(--color-text-primary)", fontFamily: "'IBM Plex Mono', monospace" }}>
-                  {data?.shared_path ?? "/home/jovyan/shared"}
+                  {data?.shared_path ?? t("jupyter.drawer.defaults.sharedFolder")}
                 </div>
                 <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginTop: 4 }}>
-                  Copy notebooks here to share with colleagues. All Jupyter users can read this folder.
+                  {t("jupyter.drawer.sharedFolderDescription")}
                 </div>
               </div>
             </div>
@@ -276,7 +294,7 @@ export default function JupyterPage() {
               <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-3)" }}>
                 <FolderOpen size={14} style={{ color: "var(--color-gold)" }} />
                 <span style={{ fontSize: "var(--text-xs)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-ghost)" }}>
-                  Mounted Paths
+                  {t("jupyter.drawer.mountedPaths")}
                 </span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
@@ -302,7 +320,7 @@ export default function JupyterPage() {
             <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-3)" }}>
               <SquareTerminal size={14} style={{ color: "var(--color-teal)" }} />
               <span style={{ fontSize: "var(--text-xs)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-ghost)" }}>
-                Starter Notebooks
+                {t("jupyter.drawer.starterNotebooks")}
               </span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
@@ -321,7 +339,7 @@ export default function JupyterPage() {
               ))}
               {(data?.starter_notebooks ?? []).length === 0 && (
                 <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-ghost)" }}>
-                  No starter notebooks available.
+                  {t("jupyter.drawer.noStarterNotebooks")}
                 </p>
               )}
             </div>
@@ -333,7 +351,7 @@ export default function JupyterPage() {
               <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-3)" }}>
                 <Lightbulb size={14} style={{ color: "var(--color-gold)" }} />
                 <span style={{ fontSize: "var(--text-xs)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-ghost)" }}>
-                  Tips
+                  {t("jupyter.drawer.tips")}
                 </span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
@@ -373,7 +391,7 @@ export default function JupyterPage() {
             <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-3)" }}>
               <BookOpenText size={14} style={{ color: "var(--color-gold)" }} />
               <span style={{ fontSize: "var(--text-xs)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-ghost)" }}>
-                Quick Links
+                {t("jupyter.drawer.quickLinks")}
               </span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
@@ -384,7 +402,7 @@ export default function JupyterPage() {
                 style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", color: "var(--color-teal)", textDecoration: "none" }}
               >
                 <ExternalLink size={14} />
-                Open JupyterHub in new tab
+                {t("jupyter.drawer.openHubNewTab")}
               </a>
             </div>
           </section>

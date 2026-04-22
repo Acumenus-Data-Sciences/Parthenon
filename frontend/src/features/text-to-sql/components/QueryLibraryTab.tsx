@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Loader2, Database, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   searchQueryLibrary,
   renderQueryLibraryEntry,
@@ -100,6 +101,7 @@ function QueryLibraryCard({
 }
 
 export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }) {
+  const { t } = useTranslation("app");
   const [search, setSearch] = useState("");
   const [domain, setDomain] = useState("all");
   const [limit, setLimit] = useState(12);
@@ -192,7 +194,7 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search queries by keyword\u2026"
+            placeholder={t("queryAssistant.library.searchPlaceholder")}
             style={{
               width: "100%",
               background: "var(--surface-base)",
@@ -243,12 +245,18 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
                 fontWeight: 600,
               }}
             >
-              {meta?.indexed_total ?? 0} indexed queries
+              {t("queryAssistant.library.indexedQueries", {
+                count: meta?.indexed_total ?? 0,
+              })}
             </span>
             <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
               {search.trim()
-                ? `${meta?.total ?? 0} matches`
-                : `${meta?.count ?? 0} featured templates`}
+                ? t("queryAssistant.library.matches", {
+                    count: meta?.total ?? 0,
+                  })
+                : t("queryAssistant.library.featuredTemplates", {
+                    count: meta?.count ?? 0,
+                  })}
             </span>
           </div>
           {libraryQuery.isFetching && (
@@ -265,7 +273,7 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
                 size={12}
                 style={{ animation: "spin 1s linear infinite" }}
               />
-              Refreshing
+              {t("queryAssistant.library.refreshing")}
             </span>
           )}
         </div>
@@ -286,7 +294,7 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
                 fontFamily: "inherit",
               }}
             >
-              All domains
+              {t("queryAssistant.library.allDomains")}
             </button>
             {meta?.domain_counts.slice(0, 8).map((item) => (
               <button
@@ -324,7 +332,7 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
             fontSize: "12px",
           }}
         >
-          Failed to load query library.
+          {t("queryAssistant.library.failedToLoad")}
         </div>
       )}
 
@@ -377,12 +385,12 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
                 size={20}
                 style={{ color: "var(--text-muted)", marginBottom: "8px" }}
               />
-              <div>No queries found matching your search.</div>
+              <div>{t("queryAssistant.library.noMatches")}</div>
               <div style={{ fontSize: "12px", marginTop: "4px" }}>
-                Try a different keyword or clear your filters.
+                {t("queryAssistant.library.tryDifferentKeyword")}
               </div>
               <div style={{ fontSize: "11px", marginTop: "8px", color: "var(--text-ghost)" }}>
-                If the library is empty, ask your admin to run: php artisan query-library:import-ohdsi
+                {t("queryAssistant.library.importHint")}
               </div>
             </div>
           )}
@@ -403,7 +411,7 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
                 fontFamily: "inherit",
               }}
             >
-              Show more matches
+              {t("queryAssistant.library.showMoreMatches")}
             </button>
           )}
         </div>

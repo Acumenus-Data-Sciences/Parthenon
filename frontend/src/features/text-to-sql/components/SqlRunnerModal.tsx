@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   Play,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   executeSql,
   getExecutionStatus,
@@ -21,6 +22,7 @@ import {
   type QueryLibraryParameter,
 } from "../api";
 import { getErrorMessage } from "@/lib/error-utils";
+import { diagnoseSqlError, getExecutionStateLabel } from "../lib/i18n";
 
 interface SqlRunnerModalProps {
   open: boolean;
@@ -41,122 +43,10 @@ function formatElapsed(ms: number): string {
   return `${minutes}m ${remaining}s`;
 }
 
-function stateLabel(state: string): string {
-  const labels: Record<string, string> = {
-    active: "Executing query\u2026",
-    idle: "Idle",
-    "idle in transaction": "Processing results\u2026",
-    "idle in transaction (aborted)": "Transaction aborted",
-    fastpath: "Fast path call",
-    disabled: "Tracking disabled",
-    completed: "Completed",
-    error: "Error",
-  };
-  return labels[state] ?? state;
-}
-
-interface ErrorHint {
-  title: string;
-  suggestions: string[];
-}
-
-function diagnoseError(error: string): ErrorHint | null {
-  const lower = error.toLowerCase();
-
-  if (
-    lower.includes("must begin with select or with") ||
-    lower.includes("not sql") ||
-    (!lower.includes("syntax error") && /^[a-z]/.test(error) && !lower.startsWith("select") && !lower.startsWith("with"))
-  ) {
-    return {
-      title: "The AI returned an explanation instead of SQL",
-      suggestions: [
-        "Try rephrasing your question to be more specific",
-        "Use the Query Library tab to find a pre-built template",
-        "Specify the exact tables and columns you want to query",
-      ],
-    };
-  }
-
-  if (lower.includes("backtick")) {
-    return {
-      title: "MySQL-style backticks are not supported",
-      suggestions: [
-        "PostgreSQL uses double quotes for identifiers: \"column_name\"",
-        "Most OMOP column names don\u2019t need quoting at all",
-        "Try regenerating the query \u2014 the AI sometimes uses MySQL syntax",
-      ],
-    };
-  }
-
-  if (lower.includes("syntax error")) {
-    const match = error.match(/at or near "([^"]+)"/);
-    const near = match?.[1];
-    return {
-      title: near ? `Syntax error near "${near}"` : "SQL syntax error",
-      suggestions: [
-        "The generated SQL has a syntax issue \u2014 try regenerating with a clearer question",
-        "Check for mismatched parentheses, missing commas, or extra keywords",
-        "Use the Validate SQL button first to catch issues before running",
-      ],
-    };
-  }
-
-  if (lower.includes("statement timeout") || lower.includes("canceling statement")) {
-    return {
-      title: "Query timed out (120s limit)",
-      suggestions: [
-        "Add more specific WHERE conditions to reduce the data scanned",
-        "Add a LIMIT clause to cap the result set",
-        "Avoid SELECT * \u2014 select only the columns you need",
-        "Consider filtering by date range to narrow the dataset",
-      ],
-    };
-  }
-
-  if (lower.includes("relation") && lower.includes("does not exist")) {
-    const match = error.match(/relation "([^"]+)" does not exist/);
-    const table = match?.[1];
-    return {
-      title: table ? `Table "${table}" not found` : "Table not found",
-      suggestions: [
-        "OMOP tables must be schema-qualified: omop.person, omop.condition_occurrence",
-        "Use the Schema Browser at the bottom of the page to verify table names",
-        "Check spelling \u2014 common tables: person, condition_occurrence, drug_exposure, measurement",
-      ],
-    };
-  }
-
-  if (lower.includes("column") && lower.includes("does not exist")) {
-    const match = error.match(/column "([^"]+)" does not exist/);
-    const col = match?.[1];
-    return {
-      title: col ? `Column "${col}" not found` : "Column not found",
-      suggestions: [
-        "Expand the table in the Schema Browser to see available columns",
-        "OMOP column names use underscores: person_id, condition_start_date",
-        "Check if you need a JOIN to another table that has this column",
-      ],
-    };
-  }
-
-  if (lower.includes("permission denied") || lower.includes("only administrators")) {
-    return {
-      title: "Insufficient permissions",
-      suggestions: [
-        "This query was not classified as \u201csafe\u201d (read-only)",
-        "Only administrators can run queries that aren\u2019t marked safe",
-        "Use the Validate SQL button to check the safety classification",
-      ],
-    };
-  }
-
-  return null;
-}
-
 function ErrorGuidance({ error }: { error: string | null }) {
+  const { t } = useTranslation("app");
   if (!error) return null;
-  const hint = diagnoseError(error);
+  const hint = diagnoseSqlError(t, error);
   if (!hint) return null;
 
   return (
@@ -221,6 +111,7 @@ export function SqlRunnerModal({
   initialParams,
   dialect = "postgresql",
 }: SqlRunnerModalProps) {
+  const { t } = useTranslation("app");
   const hasParams = (libraryEntry?.parameters ?? []).length > 0;
 
   // Phase: "params" (show form first) or "executing" (running/done)
@@ -247,7 +138,12 @@ export function SqlRunnerModal({
       stopPolling();
     },
     onError: (err: unknown) => {
-      setError(getErrorMessage(err, "Query execution failed"));
+      setError(
+        getErrorMessage(
+          err,
+          t("queryAssistant.sqlRunner.defaults.queryExecutionFailed"),
+        ),
+      );
       stopPolling();
     },
   });
@@ -271,7 +167,7 @@ export function SqlRunnerModal({
         e.response?.data?.message ??
           e.response?.data?.error ??
           e.message ??
-          "Failed to render template",
+          t("queryAssistant.sqlRunner.defaults.failedToRenderTemplate"),
       );
     },
   });
@@ -441,7 +337,7 @@ export function SqlRunnerModal({
           <span
             style={{ fontSize: "15px", fontWeight: 600, color: "var(--text-primary)" }}
           >
-            SQL Query Runner
+            {t("queryAssistant.sqlRunner.modal.title")}
           </span>
           <button
             onClick={onClose}
@@ -549,8 +445,13 @@ export function SqlRunnerModal({
                       paramType={param.type}
                       placeholder={
                         param.default
-                          ? `${param.default} \u2014 type to search OMOP concepts`
-                          : "Type to search OMOP concepts\u2026"
+                          ? t(
+                              "queryAssistant.sqlRunner.defaults.typeToSearchConceptsWithDefault",
+                              {
+                                defaultValue: param.default,
+                              },
+                            )
+                          : t("queryAssistant.sqlRunner.defaults.typeToSearchConcepts")
                       }
                     />
                   )}
@@ -623,8 +524,8 @@ export function SqlRunnerModal({
                   <Play size={15} />
                 )}
                 {renderMutation.isPending
-                  ? "Preparing\u2026"
-                  : "Run Query"}
+                  ? t("queryAssistant.sqlRunner.modal.preparing")
+                  : t("queryAssistant.sqlRunner.modal.runQuery")}
               </button>
             </div>
           </div>
@@ -659,8 +560,8 @@ export function SqlRunnerModal({
                   }}
                 >
                   {status
-                    ? stateLabel(status.state)
-                    : "Executing query\u2026"}
+                    ? getExecutionStateLabel(t, status.state)
+                    : t("queryAssistant.sqlRunner.state.active")}
                 </div>
                 {status?.wait_event && (
                   <div
@@ -670,7 +571,9 @@ export function SqlRunnerModal({
                       marginTop: "2px",
                     }}
                   >
-                    Wait: {status.wait_event}
+                    {t("queryAssistant.sqlRunner.modal.wait", {
+                      value: status.wait_event,
+                    })}
                   </div>
                 )}
               </div>
@@ -699,7 +602,7 @@ export function SqlRunnerModal({
                     color: "var(--success)",
                   }}
                 >
-                  Query completed
+                  {t("queryAssistant.sqlRunner.modal.queryCompleted")}
                 </div>
                 <div
                   style={{
@@ -708,8 +611,10 @@ export function SqlRunnerModal({
                     marginTop: "2px",
                   }}
                 >
-                  {result.row_count.toLocaleString()} rows in{" "}
-                  {formatElapsed(result.elapsed_ms)}
+                  {t("queryAssistant.sqlRunner.modal.rowsIn", {
+                    count: result.row_count.toLocaleString(),
+                    elapsed: formatElapsed(result.elapsed_ms),
+                  })}
                 </div>
               </div>
               {showTruncatedWarning && (
@@ -728,7 +633,7 @@ export function SqlRunnerModal({
                   }}
                 >
                   <AlertTriangle size={11} />
-                  Capped at 10,000 rows
+                  {t("queryAssistant.sqlRunner.modal.cappedAt10k")}
                 </span>
               )}
             </>
@@ -745,7 +650,7 @@ export function SqlRunnerModal({
                     color: "var(--critical)",
                   }}
                 >
-                  Query failed
+                  {t("queryAssistant.sqlRunner.modal.queryFailed")}
                 </div>
                 <div
                   style={{
@@ -792,8 +697,13 @@ export function SqlRunnerModal({
               }}
             >
               {previewRows.length < result.row_count
-                ? `Showing ${previewRows.length} of ${result.row_count.toLocaleString()} rows`
-                : `${result.row_count.toLocaleString()} rows`}
+                ? t("queryAssistant.sqlRunner.modal.showingSomeRows", {
+                    shown: previewRows.length,
+                    total: result.row_count.toLocaleString(),
+                  })
+                : t("queryAssistant.sqlRunner.modal.showingAllRows", {
+                    count: result.row_count.toLocaleString(),
+                  })}
             </div>
 
             <div style={{ overflow: "auto", maxHeight: "400px" }}>
@@ -853,7 +763,7 @@ export function SqlRunnerModal({
                         >
                           {cell === null ? (
                             <span style={{ color: "var(--text-ghost)", fontStyle: "italic" }}>
-                              null
+                              {t("queryAssistant.sqlRunner.modal.nullValue")}
                             </span>
                           ) : (
                             String(cell)
@@ -906,7 +816,7 @@ export function SqlRunnerModal({
               }}
             >
               <Download size={14} />
-              Download CSV
+              {t("queryAssistant.sqlRunner.modal.downloadCsv")}
             </button>
           )}
           <button
@@ -925,7 +835,7 @@ export function SqlRunnerModal({
               transition: "all 150ms",
             }}
           >
-            Close
+            {t("queryAssistant.sqlRunner.modal.close")}
           </button>
         </div>
       </div>

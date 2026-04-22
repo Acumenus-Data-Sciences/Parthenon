@@ -1,7 +1,9 @@
 import { useState, useMemo } from "react";
 import { Search, ChevronDown, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useConditions, useConditionCategories } from "../hooks/useGis";
 import type { ConditionItem } from "../types";
+import { getDiseaseSearchTitle } from "../lib/i18n";
 
 interface DiseaseSelectorProps {
   selectedConceptId: number | null;
@@ -9,6 +11,7 @@ interface DiseaseSelectorProps {
 }
 
 export function DiseaseSelector({ selectedConceptId, onSelect }: DiseaseSelectorProps) {
+  const { t } = useTranslation("app");
   const [search, setSearch] = useState("");
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [mode, setMode] = useState<"picks" | "categories" | "search">("picks");
@@ -31,7 +34,7 @@ export function DiseaseSelector({ selectedConceptId, onSelect }: DiseaseSelector
   return (
     <div className="space-y-2 rounded-lg border border-border-default bg-surface-raised p-3">
       <span className="text-xs font-semibold uppercase tracking-wider text-text-ghost">
-        Disease
+        {t("gis.diseaseSelector.title")}
       </span>
 
       {selectedName && (
@@ -48,7 +51,7 @@ export function DiseaseSelector({ selectedConceptId, onSelect }: DiseaseSelector
             setSearch(e.target.value);
             if (e.target.value.length >= 2) setMode("search");
           }}
-          placeholder="Search conditions..."
+          placeholder={t("gis.diseaseSelector.searchPlaceholder")}
           className="w-full rounded border border-border-default bg-surface-base py-1.5 pl-7 pr-2 text-xs text-text-primary placeholder:text-text-ghost focus:border-accent/50 focus:outline-none"
         />
       </div>
@@ -61,7 +64,7 @@ export function DiseaseSelector({ selectedConceptId, onSelect }: DiseaseSelector
             mode === "picks" ? "bg-accent/20 text-accent" : "text-text-ghost hover:text-text-muted"
           }`}
         >
-          Top
+          {t("gis.diseaseSelector.top")}
         </button>
         <button
           onClick={() => { setMode("categories"); setSearch(""); }}
@@ -69,7 +72,7 @@ export function DiseaseSelector({ selectedConceptId, onSelect }: DiseaseSelector
             mode === "categories" ? "bg-accent/20 text-accent" : "text-text-ghost hover:text-text-muted"
           }`}
         >
-          Categories
+          {t("gis.diseaseSelector.categories")}
         </button>
       </div>
 
@@ -135,7 +138,9 @@ export function DiseaseSelector({ selectedConceptId, onSelect }: DiseaseSelector
       {mode === "search" && searchResults && (
         <div className="max-h-48 space-y-0.5 overflow-y-auto">
           {searchResults.length === 0 ? (
-            <p className="px-2 py-1 text-xs text-text-ghost">No matching conditions</p>
+            <p className="px-2 py-1 text-xs text-text-ghost">
+              {t("gis.diseaseSelector.noMatches")}
+            </p>
           ) : (
             searchResults.map((c) => (
               <button
@@ -167,10 +172,11 @@ function ConditionPill({
   selected: boolean;
   onSelect: (id: number, name: string) => void;
 }) {
+  const { t } = useTranslation("app");
   return (
     <button
       onClick={() => onSelect(condition.concept_id, condition.name)}
-      title={`${condition.patient_count.toLocaleString()} patients`}
+      title={getDiseaseSearchTitle(t, condition.patient_count)}
       className={`rounded px-2 py-0.5 text-[10px] transition-colors ${
         selected
           ? "bg-accent/20 font-medium text-accent"

@@ -7,6 +7,7 @@ import {
   ChevronDown,
   Shield,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { QueryLibraryTab } from "../components/QueryLibraryTab";
 import { NaturalLanguageTab } from "../components/NaturalLanguageTab";
 import { fetchAppSettings, updateAppSettings } from "../api";
@@ -15,6 +16,7 @@ import { useAuthStore } from "@/stores/authStore";
 type Tab = "library" | "natural-language";
 
 export default function QueryAssistantPage() {
+  const { t } = useTranslation("app");
   const [activeTab, setActiveTab] = useState<Tab>("library");
   const isSuperAdmin = useAuthStore((s) => s.isSuperAdmin());
   const queryClient = useQueryClient();
@@ -80,7 +82,7 @@ export default function QueryAssistantPage() {
               margin: 0,
             }}
           >
-            Query Assistant
+            {t("queryAssistant.page.title")}
           </h1>
           <p
             style={{
@@ -89,8 +91,7 @@ export default function QueryAssistantPage() {
               margin: "2px 0 0",
             }}
           >
-            Browse the OHDSI query library or use AI to generate SQL from
-            natural language
+            {t("queryAssistant.page.subtitle")}
           </p>
         </div>
 
@@ -113,7 +114,7 @@ export default function QueryAssistantPage() {
                 fontWeight: 600,
               }}
             >
-              Dialect
+              {t("queryAssistant.page.dialect")}
             </span>
             <div style={{ position: "relative" }}>
               <select
@@ -160,7 +161,7 @@ export default function QueryAssistantPage() {
             </div>
             {isSuperAdmin && (
               <span
-                title="Changes saved as system default (super-admin)"
+                title={t("queryAssistant.page.defaultTooltip")}
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -176,7 +177,7 @@ export default function QueryAssistantPage() {
                 }}
               >
                 <Shield size={10} />
-                Default
+                {t("queryAssistant.page.default")}
               </span>
             )}
           </div>
@@ -196,13 +197,13 @@ export default function QueryAssistantPage() {
           active={activeTab === "library"}
           onClick={() => setActiveTab("library")}
           icon={<Database size={15} />}
-          label="Query Library"
+          label={t("queryAssistant.page.tabs.library")}
         />
         <TabButton
           active={activeTab === "natural-language"}
           onClick={() => setActiveTab("natural-language")}
           icon={<Sparkles size={15} />}
-          label="Natural Language"
+          label={t("queryAssistant.page.tabs.naturalLanguage")}
         />
       </div>
 

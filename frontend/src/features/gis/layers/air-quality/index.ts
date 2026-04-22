@@ -8,17 +8,17 @@ import { registerLayer } from "../registry";
 
 const airQualityLayer: GisLayer = {
   id: "air-quality",
-  name: "Air Quality",
-  description: "EPA PM2.5 and ozone levels",
+  name: "gis.layers.airQuality.name" /* i18n-exempt: translation key */,
+  description: "gis.layers.airQuality.description" /* i18n-exempt: translation key */,
   color: "var(--success)",
   icon: Wind,
   mapOverlay: AirQualityMapOverlay as unknown as GisLayer["mapOverlay"],
   legendItems: [
-    { label: "Good (low PM2.5)", color: "#10B98130", type: "gradient" },
-    { label: "Poor (high PM2.5)", color: "var(--success)", type: "gradient" },
+    { label: "gis.layers.airQuality.legend.good" /* i18n-exempt: translation key */, color: "#10B98130", type: "gradient" },
+    { label: "gis.layers.airQuality.legend.poor" /* i18n-exempt: translation key */, color: "var(--success)", type: "gradient" },
   ],
   getTooltipData: (feature): TooltipEntry[] => [
-    { layerId: "air-quality", label: "PM2.5", value: `${Number(feature.value).toFixed(1)} µg/m³`, color: "var(--success)" },
+    { layerId: "air-quality", label: "gis.layers.airQuality.tooltip.pm25" /* i18n-exempt: translation key */, value: `${Number(feature.value).toFixed(1)} µg/m³`, color: "var(--success)" },
   ],
   analysisPanel: AirQualityAnalysisPanel,
   detailPanel: AirQualityDetailPanel,

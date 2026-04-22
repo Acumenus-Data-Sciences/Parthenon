@@ -1,6 +1,8 @@
 import { ChevronUp, ChevronDown, BarChart3 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { getLayers } from "../layers/registry";
 import { useLayerStore } from "../stores/layerStore";
+import { getAnalysisDrawerTitle } from "../lib/i18n";
 
 interface AnalysisDrawerProps {
   conceptId: number;
@@ -8,6 +10,7 @@ interface AnalysisDrawerProps {
 }
 
 export function AnalysisDrawer({ conceptId, metric }: AnalysisDrawerProps) {
+  const { t } = useTranslation("app");
   const { activeLayers, drawerOpen, setDrawerOpen } = useLayerStore();
   const layers = getLayers();
   const activeLayerList = layers.filter((l) => activeLayers.has(l.id));
@@ -28,8 +31,7 @@ export function AnalysisDrawer({ conceptId, metric }: AnalysisDrawerProps) {
         <div className="flex items-center gap-2">
           <BarChart3 className="h-3.5 w-3.5" />
           <span>
-            Analysis ({activeLayerList.length} layer
-            {activeLayerList.length !== 1 ? "s" : ""})
+            {getAnalysisDrawerTitle(t, activeLayerList.length)}
           </span>
         </div>
         {drawerOpen ? (

@@ -10,8 +10,10 @@ import {
 } from "recharts";
 import { fetchSviQuartileAnalysis } from "./api";
 import type { LayerAnalysisProps } from "../types";
+import { useTranslation } from "react-i18next";
 
 export function SviAnalysisPanel({ conceptId, metric }: LayerAnalysisProps) {
+  const { t } = useTranslation("app");
   const { data, isLoading } = useQuery({
     queryKey: ["gis", "svi", "quartiles", conceptId, metric],
     queryFn: () => fetchSviQuartileAnalysis(conceptId, metric),
@@ -19,11 +21,11 @@ export function SviAnalysisPanel({ conceptId, metric }: LayerAnalysisProps) {
   });
 
   if (isLoading) {
-    return <p className="text-xs text-text-ghost">Loading...</p>;
+    return <p className="text-xs text-text-ghost">{t("gis.layers.svi.analysis.loading")}</p>;
   }
 
   if (!data?.length) {
-    return <p className="text-xs text-text-ghost">No data available</p>;
+    return <p className="text-xs text-text-ghost">{t("gis.layers.svi.analysis.noData")}</p>;
   }
 
   const chartData = data.map((d) => ({
