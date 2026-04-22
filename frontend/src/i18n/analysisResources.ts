@@ -2,10 +2,36 @@ type MessageTree = {
   [key: string]: string | MessageTree;
 };
 
-export const analysisResources: Record<string, MessageTree> = {
-  "en-US": {
-    "analyses": {
-      "auto": {
+function mergeMessageTrees(base: MessageTree, overrides: MessageTree): MessageTree {
+  return Object.fromEntries(
+    Object.entries(base).map(([key, baseValue]) => {
+      const overrideValue = overrides[key];
+      if (
+        baseValue &&
+        typeof baseValue === "object" &&
+        !Array.isArray(baseValue)
+      ) {
+        return [
+          key,
+          mergeMessageTrees(
+            baseValue,
+            overrideValue &&
+              typeof overrideValue === "object" &&
+              !Array.isArray(overrideValue)
+              ? overrideValue
+              : {},
+          ),
+        ];
+      }
+
+      return [key, overrideValue ?? baseValue];
+    }),
+  );
+}
+
+const enAnalysisResources: MessageTree = {
+  analyses: {
+    auto: {
         "95CI_4009a0": "95% CI",
         "95CI_895118": "95% CI",
         "95CI_bb763f": "95% CI:",
@@ -558,7 +584,1120 @@ export const analysisResources: Record<string, MessageTree> = {
         "years_9ad4c6": "years",
         "yellow0102_506231": "yellow 0.1–0.2",
         "youdenJSummary_63e450": "J={{j}} Sens={{sensitivity}} Spec={{specificity}}",
+    },
+  },
+};
+
+const frAnalysisResources: MessageTree = mergeMessageTrees(enAnalysisResources, {
+  analyses: {
+    auto: {
+      "95CILower_3d16ad": "Borne inferieure de l'IC a 95 %",
+      "95CIUpper_7d61ea": "Borne superieure de l'IC a 95 %",
+      "95ConfidenceInterval_c2793c": "Intervalle de confiance a 95 %",
+      "absoluteExcessRisk_40dc84": "Risque excessif absolu",
+      "absoluteStandardizedMeanDifference_c6c302":
+        "Difference moyenne standardisee absolue",
+      "acceptable_26cee7": "Acceptable",
+      "addAnEventCohort_0bd069": "Ajouter une cohorte d'evenement...",
+      "addAnOutcomeCohort_c58a88": "Ajouter une cohorte de resultat...",
+      "addATargetCohort_c3df89": "Ajouter une cohorte cible...",
+      "addCustomWindow_8f43bf": "Ajouter une fenetre personnalisee",
+      "additionalEventsPer1000ExposedPatientsDuringRiskWindow_8792a9":
+        "evenements supplementaires pour 1 000 patients exposes pendant la fenetre de risque",
+      "addSite_6f8bb1": "Ajouter un site",
+      "addWindow_6251f7": "Ajouter une fenetre",
+      "afterMatching_a07ed4": "Apres appariement",
+      "afterMatchingSMD_d36edd": "SMD apres appariement",
+      "ageAdjusted_f91311": "Ajuste sur l'age",
+      "ageGroupBreaksCommaSeparated_d193c8":
+        "Bornes des groupes d'age (separees par des virgules)",
+      "ageSeasonAdjusted_e098ef": "Ajuste sur l'age et la saison",
+      "aggregateCovariates_4e873a": "Agreger les covariables",
+      "areYouSureYouWantToDeleteThisEstimationAnalysis_9355bf":
+        "Voulez-vous vraiment supprimer cette analyse d'estimation ?",
+      "areYouSureYouWantToDeleteThisEvidenceSynthesis_9925e9":
+        "Voulez-vous vraiment supprimer cette synthese des preuves ?",
+      "areYouSureYouWantToDeleteThisPathwayAnalysis_940614":
+        "Voulez-vous vraiment supprimer cette analyse de parcours ?",
+      "areYouSureYouWantToDeleteThisPredictionModel_aa1b10":
+        "Voulez-vous vraiment supprimer ce modele de prediction ?",
+      "areYouSureYouWantToDeleteThisSCCSAnalysis_931fa3":
+        "Voulez-vous vraiment supprimer cette analyse SCCS ?",
+      "areYouSureYouWantToDeleteThisSelfControlledCohortAnalysis_6db4f8":
+        "Voulez-vous vraiment supprimer cette analyse de cohorte auto-controlee ?",
+      "atRisk_d772a4": "A risque",
+      "attritionDiagram_a01d75": "Diagramme d'attrition",
+      "attritionDiagramShowingPatientFlow_7b43fb":
+        "Diagramme d'attrition montrant le parcours des patients",
+      "author_a51774": "Auteur",
+      "backToAnalyses_cdf536": "Retour aux analyses",
+      "balance_99a808": "Equilibre",
+      "basicInformation_87cabb": "Informations de base",
+      "bayesianRandomEffects_8a5277": "Effets aleatoires bayesiens",
+      "beforeMatching_b1f550": "Avant appariement",
+      "beforeMatchingSMD_ecee6e": "SMD avant appariement",
+      "betweenStudyVariance_d8404f": "Variance entre etudes",
+      "cases_b1f0b8": "Cas",
+      "cellsBelowThisThresholdAreSuppressedForPrivacy_523275":
+        "Les cellules en dessous de ce seuil sont supprimees pour la confidentialite.",
+      "chainLength_53facb": "Longueur de chaine",
+      "characterization_9e5f44": "Caracterisation",
+      "characterizationName_9dde7f": "Nom de la caracterisation",
+      "characterizations_b0e166": "Caracterisations",
+      "cleanWindow_da4660": "Fenetre de nettoyage",
+      "clearDirectResultShowExecutionHistory_cfcd87":
+        "Effacer le resultat direct — afficher l'historique d'execution",
+      "clinicalUtility_b97f3a": "Utilite clinique",
+      "clinicalUtilityThresholdSelector_e1a37d":
+        "Selecteur de seuil d'utilite clinique",
+      "coefficient_95c849": "Coefficient",
+      "cohortBalanceSummary_3f660a": "Resume d'equilibre de la cohorte",
+      "cohortEnd_8151f8": "Fin de la cohorte",
+      "cohortStart_8ed0f7": "Debut de la cohorte",
+      "combinationWindowDays_bd975e": "Fenetre de combinaison (jours)",
+      "comparator_0f95d3": "Comparateur",
+      "comparatorCohort_904c75": "Cohorte comparatrice",
+      "comparatorCount_595cfe": "Effectif du comparateur",
+      "comparatorEvents_cf170f": "Evenements du comparateur",
+      "completed_07ca50": "Termine",
+      "completedIn_d9d00a": "Termine en",
+      "considerable_4fcf0d": "Important",
+      "control_e9c8f7": "Temoin",
+      "covariate_51b9fe": "Covariable",
+      "covariateAfterSMD_9e697d":
+        "{{covariateName}} : SMD apres = {{value}}",
+      "covariateBalanceLovePlot_dd27cc":
+        "Graphique love de l'equilibre des covariables",
+      "covariateBalanceStandardizedMeanDifferences_88097f":
+        "Equilibre des covariables — differences moyennes standardisees",
+      "covariateBeforeSMD_cbd3d6":
+        "{{covariateName}} : SMD avant = {{value}}",
+      "covariateName_2e1eec": "Nom de la covariable",
+      "covariates_7f5dc4": "Covariables",
+      "create_686e69": "Creer",
+      "created_0eceeb": "Cree",
+      "createYourFirst_11586f": "Creez votre premier",
+      "database_2f4434": "Base de donnees",
+      "daysFromTargetCohortEntryToOutcome_0c53f5":
+        "Jours entre l'entree dans la cohorte cible et le resultat",
+      "daysRelativeToExposureStart_7ea334":
+        "Jours relatifs au debut de l'exposition",
+      "decisionCurveAnalysis_0750e3": "Analyse de courbe de decision",
+      "decisionCurveAnalysisShowingNetBenefitVsThresholdProbability_c20392":
+        "Analyse de courbe de decision montrant le benefice net selon la probabilite seuil",
+      "decisionTree_6f17e9": "Arbre de decision",
+      "defineOneOrMoreObservationPeriodsRelativeTo_b8b524":
+        "Definissez une ou plusieurs periodes d'observation relatives a l'entree dans la cohorte. Chaque fenetre est evaluee independamment.",
+      "defineTheCovariateLookBackWindowsRelativeTo_b71059":
+        "Definissez les fenetres retrospectif des covariables par rapport a l'entree dans la cohorte (jour 0).",
+      "defineTimeWindowsRelativeToTheExposureEraWhereTheOutcomeRiskIsAssessed_1c5b18":
+        "Definissez les fenetres temporelles relatives a l'ere d'exposition ou le risque de resultat est evalue.",
+      "delete_f2a6c4": "Supprimer",
+      "demographics_d6f6d1": "Demographie",
+      "density_7e6d11": "Densite",
+      "design_1afa74": "Conception",
+      "designValidatedSuccessfully_ab70c9":
+        "Conception validee avec succes",
+      "development_330f49": "Developpement",
+      "directCalculationFailed_41216a": "Le calcul direct a echoue :",
+      "directResult_6ab9f1": "Resultat direct",
+      "discriminationAuc_4ffc21": "Discrimination (AUC)",
+      "discriminationBoxPlot_3f9226": "Boite a moustaches de discrimination",
+      "discriminationBoxPlotShowingPredictedProbabilityDistributionByOutcomeStatus_14e88d":
+        "Boite a moustaches de discrimination montrant la distribution des probabilites predites selon le statut du resultat",
+      "distribution_f0bac0": "Distribution",
+      "downloadCSV_54df95": "Telecharger CSV",
+      "drugs_626c25": "Medicaments",
+      "drugWithdrawalAndReExposurePatterns_b545cb":
+        "Schemas d'arret et de reexposition aux medicaments",
+      "effectEstimates_1c8237": "Estimations d'effet",
+      "empiricalCalibrationSystematicError_61fcf2":
+        "Erreur systematique de calibration empirique",
+      "end_87557f": "Fin",
+      "endAnchor_cabfb2": "Ancrage de fin",
+      "endDay_95f661": "Jour de fin",
+      "endDays_c83851": "Jours de fin",
+      "enterLogRRAndSELogRRFromEachSiteDatabaseMinimum2Sites_58d262":
+        "Saisissez log(RR) et SE(log(RR)) pour chaque site/base de donnees. Minimum 2 sites.",
+      "estimation_bff4c9": "Estimation",
+      "estimationAnalysisName_2c4c24": "Nom de l'analyse d'estimation",
+      "estimations_d5b1d1": "Estimations",
+      "eventCohorts_1c1758": "Cohortes d'evenement",
+      "events_87f9f7": "Evenements",
+      "eventsCount_5917d5": "{{count}} evenements",
+      "eventsLabel_ec1423": "Evenements :",
+      "evidenceSynthesis_577276": "Synthese des preuves",
+      "evidenceSynthesisIs_70665b":
+        "La synthese des preuves est {{status}}...",
+      "evidenceSynthesisName_a137dc":
+        "Nom de la synthese des preuves",
+      "excluded_122180": "Exclu",
+      "execute_40cd01": "Executer",
+      "executeTheAnalysisToGenerateResults_a62421":
+        "Executez l'analyse pour generer des resultats.",
+      "executionCompletedButNoResultsWereReturned_bc0318":
+        "L'execution est terminee mais aucun resultat n'a ete renvoye.",
+      "executionFailed_d0cb03": "Echec de l'execution",
+      "executionHistory_1e5b64": "Historique d'execution",
+      "executionStatusStatus_540db0": "Statut d'execution : {{status}}",
+      "exposureCohort_1d913c": "Cohorte d'exposition",
+      "externalValidationComparison_1f2571":
+        "Comparaison de validation externe",
+      "failed_d7c8c8": "Echec",
+      "failedToLoad_8344cc": "Echec du chargement",
+      "failedToLoadCharacterization_388116":
+        "Echec du chargement de la caracterisation",
+      "failedToLoadEstimationAnalysis_de376d":
+        "Echec du chargement de l'analyse d'estimation",
+      "failedToLoadEvidenceSynthesis_fc0ba6":
+        "Echec du chargement de la synthese des preuves",
+      "failedToLoadIncidenceRateAnalysis_6a8630":
+        "Echec du chargement de l'analyse de taux d'incidence",
+      "failedToLoadPathwayAnalysis_8a2818":
+        "Echec du chargement de l'analyse de parcours",
+      "failedToLoadPredictionModel_ae9d9e":
+        "Echec du chargement du modele de prediction",
+      "failedToLoadSCCSAnalysis_db96c6":
+        "Echec du chargement de l'analyse SCCS",
+      "failedToLoadSelfControlledCohortAnalysis_704b1e":
+        "Echec du chargement de l'analyse de cohorte auto-controlee",
+      "falsePositiveRate_4fe351": "Taux de faux positifs",
+      "featureName_ba719b": "Nom de la caracteristique",
+      "featureTypes_4c81a3": "Types de caracteristiques",
+      "filterCovariates_c1cb50": "Filtrer les covariables...",
+      "filterFeatures_e1716d": "Filtrer les caracteristiques...",
+      "firstOutcomeOnly_970177": "Premier resultat seulement",
+      "forestPlot_38213b": "Forest plot",
+      "good_1347e3": "Bon",
+      "incidenceRate_c7654d": "Taux d'incidence",
+      "incidenceRateAnalysisName_83acfd":
+        "Nom de l'analyse de taux d'incidence",
+      "incidenceRates_ad8864": "Taux d'incidence",
+      "lastRun_05a3a2": "Derniere execution",
+    },
+  },
+});
+
+const deAnalysisResources: MessageTree = mergeMessageTrees(enAnalysisResources, {
+  analyses: {
+    auto: {
+      "95CILower_3d16ad": "95%-KI Untergrenze",
+      "95CIUpper_7d61ea": "95%-KI Obergrenze",
+      "95ConfidenceInterval_c2793c": "95%-Konfidenzintervall",
+      "absoluteExcessRisk_40dc84": "Absolutes Exzessrisiko",
+      "absoluteStandardizedMeanDifference_c6c302":
+        "Absolute standardisierte mittlere Differenz",
+      "acceptable_26cee7": "Akzeptabel",
+      "addAnEventCohort_0bd069": "Ereigniskohorte hinzufugen...",
+      "addAnOutcomeCohort_c58a88": "Ergebniskohorte hinzufugen...",
+      "addATargetCohort_c3df89": "Zielkohorte hinzufugen...",
+      "addCustomWindow_8f43bf": "Benutzerdefiniertes Fenster hinzufugen",
+      "additionalEventsPer1000ExposedPatientsDuringRiskWindow_8792a9":
+        "zusatzliche Ereignisse pro 1.000 exponierte Patienten wahrend des Risikofensters",
+      "addSite_6f8bb1": "Standort hinzufugen",
+      "addWindow_6251f7": "Fenster hinzufugen",
+      "afterMatching_a07ed4": "Nach Matching",
+      "afterMatchingSMD_d36edd": "SMD nach Matching",
+      "ageAdjusted_f91311": "Altersadjustiert",
+      "ageGroupBreaksCommaSeparated_d193c8":
+        "Grenzen der Altersgruppen (kommagetrennt)",
+      "ageSeasonAdjusted_e098ef": "Nach Alter und Saison adjustiert",
+      "aggregateCovariates_4e873a": "Kovariaten aggregieren",
+      "analyses_86859f": "Analysen",
+      "areYouSureYouWantToDeleteThisEstimationAnalysis_9355bf":
+        "Mochten Sie diese Schatzungsanalyse wirklich loschen?",
+      "areYouSureYouWantToDeleteThisEvidenceSynthesis_9925e9":
+        "Mochten Sie diese Evidenzsynthese wirklich loschen?",
+      "areYouSureYouWantToDeleteThisPathwayAnalysis_940614":
+        "Mochten Sie diese Pfadanalyse wirklich loschen?",
+      "areYouSureYouWantToDeleteThisPredictionModel_aa1b10":
+        "Mochten Sie dieses Vorhersagemodell wirklich loschen?",
+      "areYouSureYouWantToDeleteThisSCCSAnalysis_931fa3":
+        "Mochten Sie diese SCCS-Analyse wirklich loschen?",
+      "areYouSureYouWantToDeleteThisSelfControlledCohortAnalysis_6db4f8":
+        "Mochten Sie diese selbstkontrollierte Kohortenanalyse wirklich loschen?",
+      "atRisk_d772a4": "Im Risiko",
+      "attritionDiagram_a01d75": "Attritionsdiagramm",
+      "attritionDiagramShowingPatientFlow_7b43fb":
+        "Attritionsdiagramm mit Patientenfluss",
+      "author_a51774": "Autor",
+      "backToAnalyses_cdf536": "Zuruck zu den Analysen",
+      "balance_99a808": "Balance",
+      "basicInformation_87cabb": "Grundinformationen",
+      "bayesianRandomEffects_8a5277": "Bayessche Zufallseffekte",
+      "beforeMatching_b1f550": "Vor Matching",
+      "beforeMatchingSMD_ecee6e": "SMD vor Matching",
+      "betweenStudyVariance_d8404f": "Varianz zwischen Studien",
+      "cases_b1f0b8": "Falle",
+      "cellsBelowThisThresholdAreSuppressedForPrivacy_523275":
+        "Zellen unterhalb dieses Schwellenwerts werden aus Datenschutzgrunden unterdruckt.",
+      "chainLength_53facb": "Kettenlange",
+      "characterization_9e5f44": "Charakterisierung",
+      "characterizationName_9dde7f": "Name der Charakterisierung",
+      "characterizations_b0e166": "Charakterisierungen",
+      "cleanWindow_da4660": "Bereinigungsfenster",
+      "clearDirectResultShowExecutionHistory_cfcd87":
+        "Direktes Ergebnis loschen — Ausfuhrungsverlauf anzeigen",
+      "clinicalUtility_b97f3a": "Klinischer Nutzen",
+      "clinicalUtilityThresholdSelector_e1a37d":
+        "Schwellenwertauswahl fur den klinischen Nutzen",
+      "coefficient_95c849": "Koeffizient",
+      "cohortBalanceSummary_3f660a": "Zusammenfassung der Kohortenbalance",
+      "cohortEnd_8151f8": "Kohortenende",
+      "cohortStart_8ed0f7": "Kohortenbeginn",
+      "combinationWindowDays_bd975e": "Kombinationsfenster (Tage)",
+      "comparator_0f95d3": "Vergleich",
+      "comparatorCohort_904c75": "Vergleichskohorte",
+      "comparatorCount_595cfe": "Anzahl Vergleich",
+      "comparatorEvents_cf170f": "Vergleichsereignisse",
+      "completed_07ca50": "Abgeschlossen",
+      "completedIn_d9d00a": "Abgeschlossen in",
+      "considerable_4fcf0d": "Erheblich",
+      "control_e9c8f7": "Kontrolle",
+      "covariate_51b9fe": "Kovariate",
+      "covariateAfterSMD_9e697d":
+        "{{covariateName}}: SMD nachher = {{value}}",
+      "covariateBalanceLovePlot_dd27cc": "Love-Plot der Kovariatenbalance",
+      "covariateBalanceStandardizedMeanDifferences_88097f":
+        "Kovariatenbalance — standardisierte mittlere Differenzen",
+      "covariateBeforeSMD_cbd3d6":
+        "{{covariateName}}: SMD vorher = {{value}}",
+      "covariateName_2e1eec": "Name der Kovariate",
+      "covariates_7f5dc4": "Kovariaten",
+      "create_686e69": "Erstellen",
+      "created_0eceeb": "Erstellt",
+      "createYourFirst_11586f": "Erstellen Sie Ihre erste",
+      "database_2f4434": "Datenbank",
+      "daysFromTargetCohortEntryToOutcome_0c53f5":
+        "Tage vom Eintritt in die Zielkohorte bis zum Ergebnis",
+      "daysRelativeToExposureStart_7ea334":
+        "Tage relativ zum Expositionsbeginn",
+      "decisionCurveAnalysis_0750e3": "Entscheidungskurvenanalyse",
+      "decisionCurveAnalysisShowingNetBenefitVsThresholdProbability_c20392":
+        "Entscheidungskurvenanalyse mit Nettonutzen gegen Schwellenwahrscheinlichkeit",
+      "decisionTree_6f17e9": "Entscheidungsbaum",
+      "defineOneOrMoreObservationPeriodsRelativeTo_b8b524":
+        "Definieren Sie eine oder mehrere Beobachtungszeitrume relativ zum Kohorteneintritt. Jedes Fenster wird unabhangig ausgewertet.",
+      "defineTheCovariateLookBackWindowsRelativeTo_b71059":
+        "Definieren Sie die Ruckblickfenster der Kovariaten relativ zum Kohorteneintritt (Tag 0).",
+      "defineTimeWindowsRelativeToTheExposureEraWhereTheOutcomeRiskIsAssessed_1c5b18":
+        "Definieren Sie Zeitfenster relativ zur Expositionsepoche, in denen das Ergebnisrisiko bewertet wird.",
+      "delete_f2a6c4": "Loschen",
+      "demographics_d6f6d1": "Demografie",
+      "density_7e6d11": "Dichte",
+      "description_b5a7ad": "Beschreibung",
+      "design_1afa74": "Design",
+      "designValidatedSuccessfully_ab70c9":
+        "Design erfolgreich validiert",
+      "development_330f49": "Entwicklung",
+      "directCalculationFailed_41216a": "Direkte Berechnung fehlgeschlagen:",
+      "directResult_6ab9f1": "Direktes Ergebnis",
+      "discriminationAuc_4ffc21": "Diskriminierung (AUC)",
+      "discriminationBoxPlot_3f9226": "Diskriminierungs-Boxplot",
+      "discriminationBoxPlotShowingPredictedProbabilityDistributionByOutcomeStatus_14e88d":
+        "Diskriminierungs-Boxplot mit Verteilung der vorhergesagten Wahrscheinlichkeiten nach Ergebnisstatus",
+      "distribution_f0bac0": "Verteilung",
+      "downloadCSV_54df95": "CSV herunterladen",
+      "drugs_626c25": "Arzneimittel",
+      "drugWithdrawalAndReExposurePatterns_b545cb":
+        "Muster von Absetzen und erneuter Exposition",
+      "effectEstimates_1c8237": "Effektschatzungen",
+      "empiricalCalibrationSystematicError_61fcf2":
+        "Systematischer Fehler der empirischen Kalibrierung",
+      "end_87557f": "Ende",
+      "endAnchor_cabfb2": "Endanker",
+      "endDay_95f661": "Endtag",
+      "endDays_c83851": "Endtage",
+      "enterLogRRAndSELogRRFromEachSiteDatabaseMinimum2Sites_58d262":
+        "Geben Sie log(RR) und SE(log(RR)) fur jede Site/Datenbank ein. Mindestens 2 Sites.",
+      "estimation_bff4c9": "Schatzung",
+      "estimationAnalysisName_2c4c24": "Name der Schatzungsanalyse",
+      "estimations_d5b1d1": "Schatzungen",
+      "eventCohorts_1c1758": "Ereigniskohorten",
+      "events_87f9f7": "Ereignisse",
+      "eventsCount_5917d5": "{{count}} Ereignisse",
+      "eventsLabel_ec1423": "Ereignisse:",
+      "evidenceSynthesis_577276": "Evidenzsynthese",
+      "evidenceSynthesisIs_70665b":
+        "Die Evidenzsynthese ist {{status}}...",
+      "evidenceSynthesisName_a137dc": "Name der Evidenzsynthese",
+      "excluded_122180": "Ausgeschlossen",
+      "execute_40cd01": "Ausfuhren",
+      "executeTheAnalysisToGenerateResults_a62421":
+        "Fuhren Sie die Analyse aus, um Ergebnisse zu erzeugen.",
+      "executionCompletedButNoResultsWereReturned_bc0318":
+        "Die Ausfuhrung wurde abgeschlossen, aber es wurden keine Ergebnisse zuruckgegeben.",
+      "executionFailed_d0cb03": "Ausfuhrung fehlgeschlagen",
+      "executionHistory_1e5b64": "Ausfuhrungsverlauf",
+      "executionStatusStatus_540db0": "Ausfuhrungsstatus: {{status}}",
+      "exposureCohort_1d913c": "Expositionskohorte",
+      "externalValidationComparison_1f2571":
+        "Vergleich der externen Validierung",
+      "failed_d7c8c8": "Fehlgeschlagen",
+      "failedToLoad_8344cc": "Laden fehlgeschlagen",
+      "failedToLoadCharacterization_388116":
+        "Charakterisierung konnte nicht geladen werden",
+      "failedToLoadEstimationAnalysis_de376d":
+        "Schatzungsanalyse konnte nicht geladen werden",
+      "failedToLoadEvidenceSynthesis_fc0ba6":
+        "Evidenzsynthese konnte nicht geladen werden",
+      "failedToLoadIncidenceRateAnalysis_6a8630":
+        "Inzidenzratenanalyse konnte nicht geladen werden",
+      "failedToLoadPathwayAnalysis_8a2818":
+        "Pfadanalyse konnte nicht geladen werden",
+      "failedToLoadPredictionModel_ae9d9e":
+        "Vorhersagemodell konnte nicht geladen werden",
+      "failedToLoadSCCSAnalysis_db96c6":
+        "SCCS-Analyse konnte nicht geladen werden",
+      "failedToLoadSelfControlledCohortAnalysis_704b1e":
+        "Selbstkontrollierte Kohortenanalyse konnte nicht geladen werden",
+      "falsePositiveRate_4fe351": "Falsch-Positiv-Rate",
+      "featureName_ba719b": "Merkmalsname",
+      "featureTypes_4c81a3": "Merkmalstypen",
+      "filterCovariates_c1cb50": "Kovariaten filtern...",
+      "filterFeatures_e1716d": "Merkmale filtern...",
+      "firstOutcomeOnly_970177": "Nur erstes Ergebnis",
+      "forestPlot_38213b": "Forest-Plot",
+      "good_1347e3": "Gut",
+      "incidenceRate_c7654d": "Inzidenzrate",
+      "incidenceRateAnalysisName_83acfd":
+        "Name der Inzidenzratenanalyse",
+      "incidenceRates_ad8864": "Inzidenzraten",
+      "lastRun_05a3a2": "Letzte Ausfuhrung",
+    },
+  },
+});
+
+const ptAnalysisResources: MessageTree = mergeMessageTrees(enAnalysisResources, {
+  analyses: {
+    auto: {
+      "95CILower_3d16ad": "Limite inferior do IC de 95%",
+      "95CIUpper_7d61ea": "Limite superior do IC de 95%",
+      "95ConfidenceInterval_c2793c": "Intervalo de confianca de 95%",
+      "absoluteExcessRisk_40dc84": "Risco excessivo absoluto",
+      "absoluteStandardizedMeanDifference_c6c302":
+        "Diferenca media padronizada absoluta",
+      "acceptable_26cee7": "Aceitavel",
+      "addAnEventCohort_0bd069": "Adicionar uma coorte de evento...",
+      "addAnOutcomeCohort_c58a88": "Adicionar uma coorte de desfecho...",
+      "addATargetCohort_c3df89": "Adicionar uma coorte alvo...",
+      "addCustomWindow_8f43bf": "Adicionar janela personalizada",
+      "additionalEventsPer1000ExposedPatientsDuringRiskWindow_8792a9":
+        "eventos adicionais por 1.000 pacientes expostos durante a janela de risco",
+      "addSite_6f8bb1": "Adicionar site",
+      "addWindow_6251f7": "Adicionar janela",
+      "afterMatching_a07ed4": "Apos o pareamento",
+      "afterMatchingSMD_d36edd": "SMD apos o pareamento",
+      "ageAdjusted_f91311": "Ajustado por idade",
+      "ageGroupBreaksCommaSeparated_d193c8":
+        "Quebras de grupo etario (separadas por virgula)",
+      "ageSeasonAdjusted_e098ef": "Ajustado por idade e estacao",
+      "aggregateCovariates_4e873a": "Agregar covariaveis",
+      "analyses_86859f": "Analises",
+      "areYouSureYouWantToDeleteThisEstimationAnalysis_9355bf":
+        "Tem certeza de que deseja excluir esta analise de estimacao?",
+      "areYouSureYouWantToDeleteThisEvidenceSynthesis_9925e9":
+        "Tem certeza de que deseja excluir esta sintese de evidencias?",
+      "areYouSureYouWantToDeleteThisPathwayAnalysis_940614":
+        "Tem certeza de que deseja excluir esta analise de trajetoria?",
+      "areYouSureYouWantToDeleteThisPredictionModel_aa1b10":
+        "Tem certeza de que deseja excluir este modelo de predicao?",
+      "areYouSureYouWantToDeleteThisSCCSAnalysis_931fa3":
+        "Tem certeza de que deseja excluir esta analise SCCS?",
+      "areYouSureYouWantToDeleteThisSelfControlledCohortAnalysis_6db4f8":
+        "Tem certeza de que deseja excluir esta analise de coorte autocontrolada?",
+      "atRisk_d772a4": "Em risco",
+      "attritionDiagram_a01d75": "Diagrama de atricao",
+      "attritionDiagramShowingPatientFlow_7b43fb":
+        "Diagrama de atricao mostrando o fluxo de pacientes",
+      "author_a51774": "Autor",
+      "backToAnalyses_cdf536": "Voltar para analises",
+      "balance_99a808": "Balanceamento",
+      "basicInformation_87cabb": "Informacoes basicas",
+      "bayesianRandomEffects_8a5277": "Efeitos aleatorios bayesianos",
+      "beforeMatching_b1f550": "Antes do pareamento",
+      "beforeMatchingSMD_ecee6e": "SMD antes do pareamento",
+      "betweenStudyVariance_d8404f": "Variancia entre estudos",
+      "cases_b1f0b8": "Casos",
+      "cellsBelowThisThresholdAreSuppressedForPrivacy_523275":
+        "Celulas abaixo deste limite sao suprimidas por privacidade.",
+      "chainLength_53facb": "Comprimento da cadeia",
+      "characterization_9e5f44": "Caracterizacao",
+      "characterizationName_9dde7f": "Nome da caracterizacao",
+      "characterizations_b0e166": "Caracterizacoes",
+      "cleanWindow_da4660": "Janela de limpeza",
+      "clearDirectResultShowExecutionHistory_cfcd87":
+        "Limpar resultado direto — mostrar historico de execucao",
+      "clinicalUtility_b97f3a": "Utilidade clinica",
+      "clinicalUtilityThresholdSelector_e1a37d":
+        "Seletor de limite de utilidade clinica",
+      "coefficient_95c849": "Coeficiente",
+      "cohortBalanceSummary_3f660a": "Resumo de balanceamento da coorte",
+      "cohortEnd_8151f8": "Fim da coorte",
+      "cohortStart_8ed0f7": "Inicio da coorte",
+      "combinationWindowDays_bd975e": "Janela de combinacao (dias)",
+      "comparator_0f95d3": "Comparador",
+      "comparatorCohort_904c75": "Coorte comparadora",
+      "comparatorCount_595cfe": "Contagem do comparador",
+      "comparatorEvents_cf170f": "Eventos do comparador",
+      "completed_07ca50": "Concluido",
+      "completedIn_d9d00a": "Concluido em",
+      "considerable_4fcf0d": "Consideravel",
+      "control_e9c8f7": "Controle",
+      "covariate_51b9fe": "Covariavel",
+      "covariateAfterSMD_9e697d":
+        "{{covariateName}}: SMD depois = {{value}}",
+      "covariateBalanceLovePlot_dd27cc":
+        "Grafico love de balanceamento de covariaveis",
+      "covariateBalanceStandardizedMeanDifferences_88097f":
+        "Balanceamento de covariaveis — diferencas medias padronizadas",
+      "covariateBeforeSMD_cbd3d6":
+        "{{covariateName}}: SMD antes = {{value}}",
+      "covariateName_2e1eec": "Nome da covariavel",
+      "covariates_7f5dc4": "Covariaveis",
+      "create_686e69": "Criar",
+      "created_0eceeb": "Criado",
+      "createYourFirst_11586f": "Crie sua primeira",
+      "database_2f4434": "Banco de dados",
+      "daysFromTargetCohortEntryToOutcome_0c53f5":
+        "Dias desde a entrada na coorte alvo ate o desfecho",
+      "daysRelativeToExposureStart_7ea334":
+        "Dias relativos ao inicio da exposicao",
+      "decisionCurveAnalysis_0750e3": "Analise de curva de decisao",
+      "decisionCurveAnalysisShowingNetBenefitVsThresholdProbability_c20392":
+        "Analise de curva de decisao mostrando beneficio liquido versus probabilidade limiar",
+      "decisionTree_6f17e9": "Arvore de decisao",
+      "defineOneOrMoreObservationPeriodsRelativeTo_b8b524":
+        "Defina um ou mais periodos de observacao relativos a entrada na coorte. Cada janela e avaliada de forma independente.",
+      "defineTheCovariateLookBackWindowsRelativeTo_b71059":
+        "Defina as janelas retrospectivas das covariaveis em relacao a entrada na coorte (dia 0).",
+      "defineTimeWindowsRelativeToTheExposureEraWhereTheOutcomeRiskIsAssessed_1c5b18":
+        "Defina janelas temporais relativas a era de exposicao em que o risco de desfecho e avaliado.",
+      "delete_f2a6c4": "Excluir",
+      "demographics_d6f6d1": "Demografia",
+      "density_7e6d11": "Densidade",
+      "description_b5a7ad": "Descricao",
+      "design_1afa74": "Desenho",
+      "designValidatedSuccessfully_ab70c9":
+        "Desenho validado com sucesso",
+      "development_330f49": "Desenvolvimento",
+      "directCalculationFailed_41216a": "Falha no calculo direto:",
+      "directResult_6ab9f1": "Resultado direto",
+      "discriminationAuc_4ffc21": "Discriminacao (AUC)",
+      "discriminationBoxPlot_3f9226": "Grafico de caixa de discriminacao",
+      "discriminationBoxPlotShowingPredictedProbabilityDistributionByOutcomeStatus_14e88d":
+        "Grafico de caixa de discriminacao mostrando a distribuicao da probabilidade prevista por status do desfecho",
+      "distribution_f0bac0": "Distribuicao",
+      "downloadCSV_54df95": "Baixar CSV",
+      "drugs_626c25": "Medicamentos",
+      "drugWithdrawalAndReExposurePatterns_b545cb":
+        "Padroes de retirada e reexposicao ao medicamento",
+      "effectEstimates_1c8237": "Estimativas de efeito",
+      "empiricalCalibrationSystematicError_61fcf2":
+        "Erro sistematico de calibracao empirica",
+      "end_87557f": "Fim",
+      "endAnchor_cabfb2": "Ancora de fim",
+      "endDay_95f661": "Dia final",
+      "endDays_c83851": "Dias finais",
+      "enterLogRRAndSELogRRFromEachSiteDatabaseMinimum2Sites_58d262":
+        "Informe log(RR) e SE(log(RR)) de cada site/banco de dados. Minimo de 2 sites.",
+      "estimation_bff4c9": "Estimacao",
+      "estimationAnalysisName_2c4c24": "Nome da analise de estimacao",
+      "estimations_d5b1d1": "Estimacoes",
+      "eventCohorts_1c1758": "Coortes de evento",
+      "events_87f9f7": "Eventos",
+      "eventsCount_5917d5": "{{count}} eventos",
+      "eventsLabel_ec1423": "Eventos:",
+      "evidenceSynthesis_577276": "Sintese de evidencias",
+      "evidenceSynthesisIs_70665b":
+        "A sintese de evidencias esta {{status}}...",
+      "evidenceSynthesisName_a137dc":
+        "Nome da sintese de evidencias",
+      "excluded_122180": "Excluido",
+      "execute_40cd01": "Executar",
+      "executeTheAnalysisToGenerateResults_a62421":
+        "Execute a analise para gerar resultados.",
+      "executionCompletedButNoResultsWereReturned_bc0318":
+        "A execucao foi concluida, mas nenhum resultado foi retornado.",
+      "executionFailed_d0cb03": "Falha na execucao",
+      "executionHistory_1e5b64": "Historico de execucao",
+      "executionStatusStatus_540db0": "Status da execucao: {{status}}",
+      "exposureCohort_1d913c": "Coorte de exposicao",
+      "externalValidationComparison_1f2571":
+        "Comparacao de validacao externa",
+      "failed_d7c8c8": "Falhou",
+      "failedToLoad_8344cc": "Falha ao carregar",
+      "failedToLoadCharacterization_388116":
+        "Falha ao carregar a caracterizacao",
+      "failedToLoadEstimationAnalysis_de376d":
+        "Falha ao carregar a analise de estimacao",
+      "failedToLoadEvidenceSynthesis_fc0ba6":
+        "Falha ao carregar a sintese de evidencias",
+      "failedToLoadIncidenceRateAnalysis_6a8630":
+        "Falha ao carregar a analise de taxa de incidencia",
+      "failedToLoadPathwayAnalysis_8a2818":
+        "Falha ao carregar a analise de trajetoria",
+      "failedToLoadPredictionModel_ae9d9e":
+        "Falha ao carregar o modelo de predicao",
+      "failedToLoadSCCSAnalysis_db96c6":
+        "Falha ao carregar a analise SCCS",
+      "failedToLoadSelfControlledCohortAnalysis_704b1e":
+        "Falha ao carregar a analise de coorte autocontrolada",
+      "falsePositiveRate_4fe351": "Taxa de falso positivo",
+      "featureName_ba719b": "Nome da caracteristica",
+      "featureTypes_4c81a3": "Tipos de caracteristicas",
+      "filterCovariates_c1cb50": "Filtrar covariaveis...",
+      "filterFeatures_e1716d": "Filtrar caracteristicas...",
+      "firstOutcomeOnly_970177": "Somente o primeiro desfecho",
+      "forestPlot_38213b": "Grafico de floresta",
+      "good_1347e3": "Bom",
+      "incidenceRate_c7654d": "Taxa de incidencia",
+      "incidenceRateAnalysisName_83acfd":
+        "Nome da analise de taxa de incidencia",
+      "incidenceRates_ad8864": "Taxas de incidencia",
+      "lastRun_05a3a2": "Ultima execucao",
+    },
+  },
+});
+
+const frAnalysisResourcesPass2: MessageTree = mergeMessageTrees(
+  frAnalysisResources,
+  {
+    analyses: {
+      auto: {
+        "logisticRegression_3261e6": "Regression logistique",
+        "model_8a5a1d": "Modele",
+        "modelConfiguration_f08a2d": "Configuration du modele",
+        "modelPerformanceVerdict_8b4084":
+          "Verdict sur la performance du modele",
+        "modelPopulation_0ba724": "Population du modele",
+        "modelSettings_46e0f9": "Parametres du modele",
+        "modelType_e2716f": "Type de modele",
+        "newAnalysis_49ebaa": "Nouvelle analyse",
+        "newEvidenceSynthesis_316a94": "Nouvelle synthese des preuves",
+        "newSCCSAnalysis_fa0c17": "Nouvelle analyse SCCS",
+        "newSelfControlledCohortAnalysis_40ca63":
+          "Nouvelle analyse de cohorte auto-controlee",
+        "noCovariatesMatchTheCurrentFilters_84356e":
+          "Aucune covariable ne correspond aux filtres actuels",
+        "noDecisionCurveDataAvailable_854dc0":
+          "Aucune donnee de courbe de decision disponible",
+        "noExecutionSelectedRunTheAnalysisToSeeResults_cb09f9":
+          "Aucune execution selectionnee. Executez l'analyse pour voir les resultats.",
+        "noFeaturesFound_e7843a": "Aucune caracteristique trouvee",
+        "noPathwayDataAvailable_72b95b":
+          "Aucune donnee de parcours disponible",
+        "noResultsAvailable_e29de7": "Aucun resultat disponible",
+        "noResultsYetSelectADataSourceAndClickExecuteToRunThePathwayAnalysis_ca1a70":
+          "Pas encore de resultats. Selectionnez une source de donnees et cliquez sur Executer pour lancer l'analyse de parcours.",
+        "notExecuted_ce1910": "Non execute",
+        "observationPeriods_6ee256": "Periodes d'observation",
+        "outcome_cf73bd": "Resultat",
+        "outcomeCohort_b279fb": "Cohorte de resultat",
+        "outcomeCohorts_ed8002": "Cohortes de resultat",
+        "outcomeCount_973ce4": "Nombre de resultats",
+        "outcomeRate_e6e770": "Taux de resultat",
+        "outcomes_d08355": "Resultats",
+        "parameters_3225a1": "Parametres",
+        "pathway_8b5c1c": "Parcours",
+        "pathwayAnalysisIsRunning_f3d1d6":
+          "L'analyse de parcours est en cours...",
+        "pathwayAnalysisName_dc0c6e": "Nom de l'analyse de parcours",
+        "pathwayDetails_4a01a3": "Details du parcours",
+        "pathways_bb724a": "Parcours",
+        "pending_2d13df": "En attente",
+        "perSiteResults_2586a4": "Resultats par site",
+        "population_30ee9b": "Population",
+        "populationSettings_d6d63e": "Parametres de population",
+        "precision_5d4c8b": "Precision",
+        "predictedProbability_81f385": "Probabilite predite",
+        "prediction_3964d4": "Prediction",
+        "predictionDistribution_4ef59a": "Distribution des predictions",
+        "predictionDistributionHistogram_cca0ea":
+          "Histogramme de distribution des predictions",
+        "predictionModelName_8c12ea": "Nom du modele de prediction",
+        "predictions_a54a7e": "Predictions",
+        "propensityScore_1cf048": "Score de propension",
+        "propensityScoreDiagnostics_eb4571":
+          "Diagnostics du score de propension",
+        "propensityScoreDistribution_9394bd":
+          "Distribution du score de propension",
+        "queueAnalysisAsABackgroundJob_733a31":
+          "Mettre l'analyse en file d'attente comme tache d'arriere-plan",
+        "queued_7b2f31": "En file d'attente",
+        "readyForValidation_8b18ee": "Pret pour la validation",
+        "readyForValidationDescription_b6c1f3":
+          "Le modele presente une bonne discrimination (AUC >= 0.80) et des predictions bien calibrees (pente 0.8-1.2). Il convient aux etudes de validation externe.",
+        "recall_877365": "Rappel",
+        "results_fd69c5": "Resultats",
+        "riskWindow_4cbfa4": "Fenetre de risque",
+        "riskWindow1_56918c": "Fenetre de risque 1",
+        "riskWindowComparison_95d146":
+          "Comparaison des fenetres de risque",
+        "riskWindows_09ce14": "Fenetres de risque",
+        "riskWindowSummary_7d6d4b": "Resume de la fenetre de risque",
+        "riskWindowTimeline_f301f1":
+          "Chronologie de la fenetre de risque",
+        "rOCCurve_d728c2": "Courbe ROC",
+        "rSidecarPending_b8be5c": "Sidecar R en attente",
+        "runDirectOHDSI_192424": "Executer en direct (OHDSI)",
+        "running_5bda81": "En cours",
+        "runningOHDSICohortIncidenceViaR_2d6ce9":
+          "Execution d'OHDSI CohortIncidence via R...",
+        "saveChanges_f5d604": "Enregistrer les modifications",
+        "sCCSAnalysis_93b7e5": "Analyse SCCS",
+        "sCCSAnalysisIs_c68ce9": "L'analyse SCCS est {{status}}...",
+        "sCCSAnalysisName_365367": "Nom de l'analyse SCCS",
+        "searchAcrossAllAnalyses_78b012":
+          "Rechercher dans toutes les analyses...",
+        "selectATargetCohort_9be701":
+          "Selectionnez une cohorte cible...",
+        "selectComparatorCohort_b651d5":
+          "Selectionnez une cohorte comparatrice",
+        "selectExposureCohort_1ed618":
+          "Selectionnez une cohorte d'exposition",
+        "selectOutcomeCohort_9a111f":
+          "Selectionnez une cohorte de resultat",
+        "selectTargetCohort_5de8bf":
+          "Selectionnez une cohorte cible",
+        "selectTheAdverseEventOutcomeToStudy_1dcc09":
+          "Selectionnez le resultat d'evenement indesirable a etudier.",
+        "selectTheComparatorControlCohort_0e5e65":
+          "Selectionnez la cohorte comparatrice/temoin.",
+        "selectTheOutcomeToPredict_58b0f6":
+          "Selectionnez le resultat a predire.",
+        "selectThePopulationAtRiskForThisAnalysis_baa519":
+          "Selectionnez la population a risque pour cette analyse.",
+        "selectThePopulationToDevelopThePredictionModelFor_d217bb":
+          "Selectionnez la population pour laquelle developper le modele de prediction.",
+        "selectTheTargetCohortWhoseTreatmentPathwaysWillBeAnalyzed_485929":
+          "Selectionnez la cohorte cible dont les parcours therapeutiques seront analyses.",
+        "selectTheTreatmentExposureCohort_4edbec":
+          "Selectionnez la cohorte d'exposition au traitement.",
+        "selectWhichFeatureCategoriesToIncludeInThe_9d5d7d":
+          "Selectionnez les categories de caracteristiques a inclure dans l'analyse.",
+        "selfControlledCohortAnalysis_be870f":
+          "Analyse de cohorte auto-controlee",
+        "selfControlledCohortAnalysisName_08ae6d":
+          "Nom de l'analyse de cohorte auto-controlee",
+        "sensitivity_1485b9": "Sensibilite",
+        "significant_b1fce9": "Significatif",
+        "site_a7d647": "Site",
+        "siteEstimates_be62dd": "Estimations par site",
+        "siteHeterogeneityMap_34e5ac":
+          "Carte d'heterogeneite des sites",
+        "siteName_668445": "Nom du site",
+        "sites_dc0a34": "Sites",
+        "specificity_7272f0": "Specificite",
+        "standardError_7b2c21": "Erreur standard",
+        "status_ec53a8": "Statut",
+        "stratification_69d48d": "Stratification",
+        "stratifyByAge_05a59d": "Stratifier par age",
+        "stratifyByGender_4879ab": "Stratifier par sexe",
+        "survivalProbability_cf59fc": "Probabilite de survie",
+        "targetCohort_4d7f0b": "Cohorte cible",
+        "targetCohorts_730954": "Cohortes cibles",
+        "targetCount_27c467": "Effectif cible",
+        "targetEvents_4a3799": "Evenements cibles",
+        "targetPopulation_63e97d": "Population cible",
+        "timeAtRisk_57746f": "Temps a risque :",
+        "timeAtRisk_7cbd22": "Temps a risque",
+        "timeAtRiskEndDays_c16099":
+          "Jours de fin du temps a risque",
+        "timeAtRiskStartDays_8b7bdf":
+          "Jours de debut du temps a risque",
+        "timeAtRiskWindows_aadcb1": "Fenetres de temps a risque",
+        "timeToEvent_367be0": "Temps jusqu'a l'evenement",
+        "timeWindows_88d5d3": "Fenetres temporelles",
+        "topImbalancedCovariates_43db00":
+          "Covariables les plus desequilibrees",
+        "topPredictors_f1a232": "Principaux predicteurs",
+        "total_96b014": "Total",
+        "totalCovariates_300227": "Total des covariables",
+        "totalOutcomeEvents_e93680": "Total des evenements de resultat",
+        "truePositiveRate_04fb45": "Taux de vrais positifs",
+        "unknownError_aee978": "Erreur inconnue",
+        "untitledCharacterization_eb123f":
+          "Caracterisation sans titre",
+        "untitledEstimation_5893e5": "Estimation sans titre",
+        "untitledEvidenceSynthesis_4968f1":
+          "Synthese des preuves sans titre",
+        "untitledIncidenceRateAnalysis_bb942d":
+          "Analyse de taux d'incidence sans titre",
+        "untitledPathwayAnalysis_1950bf":
+          "Analyse de parcours sans titre",
+        "untitledPrediction_77bd63": "Prediction sans titre",
+        "untitledSCCSAnalysis_8551b6": "Analyse SCCS sans titre",
+        "validation_5190f3": "Validation",
+        "wellBalanced_ecf33e": "Bien equilibre",
+        "wellCalibrated_ee0d1c": "Bien calibre",
+        "withEvents_0246e8": "Avec evenements",
+        "withOutcome_907788": "Avec resultat",
+        "withoutEvents_2a63ad": "Sans evenements",
+        "withoutOutcome_12e6b4": "Sans resultat",
       },
     },
   },
+);
+
+const deAnalysisResourcesPass2: MessageTree = mergeMessageTrees(
+  deAnalysisResources,
+  {
+    analyses: {
+      auto: {
+        "logisticRegression_3261e6": "Logistische Regression",
+        "model_8a5a1d": "Modell",
+        "modelConfiguration_f08a2d": "Modellkonfiguration",
+        "modelPerformanceVerdict_8b4084": "Leistungsurteil des Modells",
+        "modelPopulation_0ba724": "Modellpopulation",
+        "modelSettings_46e0f9": "Modelleinstellungen",
+        "modelType_e2716f": "Modelltyp",
+        "newAnalysis_49ebaa": "Neue Analyse",
+        "newEvidenceSynthesis_316a94": "Neue Evidenzsynthese",
+        "newSCCSAnalysis_fa0c17": "Neue SCCS-Analyse",
+        "newSelfControlledCohortAnalysis_40ca63":
+          "Neue selbstkontrollierte Kohortenanalyse",
+        "noCovariatesMatchTheCurrentFilters_84356e":
+          "Keine Kovariaten entsprechen den aktuellen Filtern",
+        "noDecisionCurveDataAvailable_854dc0":
+          "Keine Daten fur Entscheidungskurven verfugbar",
+        "noExecutionSelectedRunTheAnalysisToSeeResults_cb09f9":
+          "Keine Ausfuhrung ausgewahlt. Fuhren Sie die Analyse aus, um Ergebnisse zu sehen.",
+        "noFeaturesFound_e7843a": "Keine Merkmale gefunden",
+        "noPathwayDataAvailable_72b95b":
+          "Keine Pfaddaten verfugbar",
+        "noResultsAvailable_e29de7": "Keine Ergebnisse verfugbar",
+        "noResultsYetSelectADataSourceAndClickExecuteToRunThePathwayAnalysis_ca1a70":
+          "Noch keine Ergebnisse. Wahlen Sie eine Datenquelle und klicken Sie auf Ausfuhren, um die Pfadanalyse zu starten.",
+        "notExecuted_ce1910": "Nicht ausgefuhrt",
+        "observationPeriods_6ee256": "Beobachtungszeitrume",
+        "outcome_cf73bd": "Ergebnis",
+        "outcomeCohort_b279fb": "Ergebniskohorte",
+        "outcomeCohorts_ed8002": "Ergebniskohorten",
+        "outcomeCount_973ce4": "Ergebnisanzahl",
+        "outcomeRate_e6e770": "Ergebnisrate",
+        "outcomes_d08355": "Ergebnisse",
+        "parameters_3225a1": "Parameter",
+        "pathway_8b5c1c": "Pfad",
+        "pathwayAnalysisIsRunning_f3d1d6":
+          "Pfadanalyse wird ausgefuhrt...",
+        "pathwayAnalysisName_dc0c6e": "Name der Pfadanalyse",
+        "pathwayDetails_4a01a3": "Pfaddetails",
+        "pathways_bb724a": "Pfade",
+        "pending_2d13df": "Ausstehend",
+        "perSiteResults_2586a4": "Ergebnisse pro Site",
+        "population_30ee9b": "Population",
+        "populationSettings_d6d63e": "Populationseinstellungen",
+        "precision_5d4c8b": "Prazision",
+        "predictedProbability_81f385":
+          "Vorhergesagte Wahrscheinlichkeit",
+        "prediction_3964d4": "Vorhersage",
+        "predictionDistribution_4ef59a": "Verteilung der Vorhersagen",
+        "predictionDistributionHistogram_cca0ea":
+          "Histogramm der Vorhersageverteilung",
+        "predictionModelName_8c12ea": "Name des Vorhersagemodells",
+        "predictions_a54a7e": "Vorhersagen",
+        "propensityScore_1cf048": "Propensity Score",
+        "propensityScoreDiagnostics_eb4571":
+          "Diagnostik des Propensity Score",
+        "propensityScoreDistribution_9394bd":
+          "Verteilung des Propensity Score",
+        "queueAnalysisAsABackgroundJob_733a31":
+          "Analyse als Hintergrundauftrag einreihen",
+        "queued_7b2f31": "In Warteschlange",
+        "readyForValidation_8b18ee": "Bereit fur Validierung",
+        "readyForValidationDescription_b6c1f3":
+          "Das Modell zeigt gute Diskriminierung (AUC >= 0.80) und gut kalibrierte Vorhersagen (Steigung 0.8-1.2). Es eignet sich fur externe Validierungsstudien.",
+        "recall_877365": "Recall",
+        "results_fd69c5": "Ergebnisse",
+        "riskWindow_4cbfa4": "Risikofenster",
+        "riskWindow1_56918c": "Risikofenster 1",
+        "riskWindowComparison_95d146":
+          "Vergleich der Risikofenster",
+        "riskWindows_09ce14": "Risikofenster",
+        "riskWindowSummary_7d6d4b": "Zusammenfassung des Risikofensters",
+        "riskWindowTimeline_f301f1": "Zeitachse des Risikofensters",
+        "rOCCurve_d728c2": "ROC-Kurve",
+        "rSidecarPending_b8be5c": "R-Sidecar ausstehend",
+        "runDirectOHDSI_192424": "Direkt ausfuhren (OHDSI)",
+        "running_5bda81": "Lauft",
+        "runningOHDSICohortIncidenceViaR_2d6ce9":
+          "OHDSI CohortIncidence wird uber R ausgefuhrt...",
+        "saveChanges_f5d604": "Anderungen speichern",
+        "sCCSAnalysis_93b7e5": "SCCS-Analyse",
+        "sCCSAnalysisIs_c68ce9": "SCCS-Analyse ist {{status}}...",
+        "sCCSAnalysisName_365367": "Name der SCCS-Analyse",
+        "searchAcrossAllAnalyses_78b012":
+          "Alle Analysen durchsuchen...",
+        "selectATargetCohort_9be701": "Zielkohorte auswahlen...",
+        "selectComparatorCohort_b651d5":
+          "Vergleichskohorte auswahlen",
+        "selectExposureCohort_1ed618": "Expositionskohorte auswahlen",
+        "selectOutcomeCohort_9a111f": "Ergebniskohorte auswahlen",
+        "selectTargetCohort_5de8bf": "Zielkohorte auswahlen",
+        "selectTheAdverseEventOutcomeToStudy_1dcc09":
+          "Wahlen Sie das zu untersuchende unerwunschte Ereignis aus.",
+        "selectTheComparatorControlCohort_0e5e65":
+          "Wahlen Sie die Vergleichs-/Kontrollkohorte aus.",
+        "selectTheOutcomeToPredict_58b0f6":
+          "Wahlen Sie das vorherzusagende Ergebnis aus.",
+        "selectThePopulationAtRiskForThisAnalysis_baa519":
+          "Wahlen Sie die Risikopopulation fur diese Analyse aus.",
+        "selectThePopulationToDevelopThePredictionModelFor_d217bb":
+          "Wahlen Sie die Population aus, fur die das Vorhersagemodell entwickelt werden soll.",
+        "selectTheTargetCohortWhoseTreatmentPathwaysWillBeAnalyzed_485929":
+          "Wahlen Sie die Zielkohorte aus, deren Behandlungspfade analysiert werden sollen.",
+        "selectTheTreatmentExposureCohort_4edbec":
+          "Wahlen Sie die Behandlungsexpositionskohorte aus.",
+        "selectWhichFeatureCategoriesToIncludeInThe_9d5d7d":
+          "Wahlen Sie aus, welche Merkmalskategorien in die Analyse einbezogen werden sollen.",
+        "selfControlledCohortAnalysis_be870f":
+          "Selbstkontrollierte Kohortenanalyse",
+        "selfControlledCohortAnalysisName_08ae6d":
+          "Name der selbstkontrollierten Kohortenanalyse",
+        "sensitivity_1485b9": "Sensitivitat",
+        "significant_b1fce9": "Signifikant",
+        "site_a7d647": "Site",
+        "siteEstimates_be62dd": "Site-Schatzungen",
+        "siteHeterogeneityMap_34e5ac": "Karte der Site-Heterogenitat",
+        "siteName_668445": "Name der Site",
+        "sites_dc0a34": "Sites",
+        "specificity_7272f0": "Spezifitat",
+        "status_ec53a8": "Status",
+        "stratification_69d48d": "Stratifizierung",
+        "stratifyByAge_05a59d": "Nach Alter stratifizieren",
+        "stratifyByGender_4879ab":
+          "Nach Geschlecht stratifizieren",
+        "survivalProbability_cf59fc": "Uberlebenswahrscheinlichkeit",
+        "targetCohort_4d7f0b": "Zielkohorte",
+        "targetCohorts_730954": "Zielkohorten",
+        "targetCount_27c467": "Zielanzahl",
+        "targetEvents_4a3799": "Zielereignisse",
+        "targetPopulation_63e97d": "Zielpopulation",
+        "timeAtRisk_57746f": "Zeit unter Risiko:",
+        "timeAtRisk_7cbd22": "Zeit unter Risiko",
+        "timeAtRiskEndDays_c16099": "Tage bis Ende des Risikos",
+        "timeAtRiskStartDays_8b7bdf": "Tage bis Beginn des Risikos",
+        "timeAtRiskWindows_aadcb1": "Zeit-unter-Risiko-Fenster",
+        "timeToEvent_367be0": "Zeit bis zum Ereignis",
+        "timeWindows_88d5d3": "Zeitfenster",
+        "topImbalancedCovariates_43db00":
+          "Stark unausgeglichene Kovariaten",
+        "topPredictors_f1a232": "Wichtigste Pradiktoren",
+        "total_96b014": "Gesamt",
+        "totalCovariates_300227": "Kovariaten insgesamt",
+        "totalOutcomeEvents_e93680": "Gesamte Ergebnisereignisse",
+        "truePositiveRate_04fb45": "Richtig-Positiv-Rate",
+        "unknownError_aee978": "Unbekannter Fehler",
+        "untitledCharacterization_eb123f":
+          "Unbenannte Charakterisierung",
+        "untitledEstimation_5893e5": "Unbenannte Schatzung",
+        "untitledEvidenceSynthesis_4968f1":
+          "Unbenannte Evidenzsynthese",
+        "untitledIncidenceRateAnalysis_bb942d":
+          "Unbenannte Inzidenzratenanalyse",
+        "untitledPathwayAnalysis_1950bf":
+          "Unbenannte Pfadanalyse",
+        "untitledPrediction_77bd63": "Unbenannte Vorhersage",
+        "untitledSCCSAnalysis_8551b6": "Unbenannte SCCS-Analyse",
+        "validation_5190f3": "Validierung",
+        "wellBalanced_ecf33e": "Gut ausbalanciert",
+        "wellCalibrated_ee0d1c": "Gut kalibriert",
+        "withEvents_0246e8": "Mit Ereignissen",
+        "withOutcome_907788": "Mit Ergebnis",
+        "withoutEvents_2a63ad": "Ohne Ereignisse",
+        "withoutOutcome_12e6b4": "Ohne Ergebnis",
+      },
+    },
+  },
+);
+
+const ptAnalysisResourcesPass2: MessageTree = mergeMessageTrees(
+  ptAnalysisResources,
+  {
+    analyses: {
+      auto: {
+        "logisticRegression_3261e6": "Regressao logistica",
+        "model_8a5a1d": "Modelo",
+        "modelConfiguration_f08a2d": "Configuracao do modelo",
+        "modelPerformanceVerdict_8b4084":
+          "Veredito de desempenho do modelo",
+        "modelPopulation_0ba724": "Populacao do modelo",
+        "modelSettings_46e0f9": "Configuracoes do modelo",
+        "modelType_e2716f": "Tipo de modelo",
+        "newAnalysis_49ebaa": "Nova analise",
+        "newEvidenceSynthesis_316a94": "Nova sintese de evidencias",
+        "newSCCSAnalysis_fa0c17": "Nova analise SCCS",
+        "newSelfControlledCohortAnalysis_40ca63":
+          "Nova analise de coorte autocontrolada",
+        "noCovariatesMatchTheCurrentFilters_84356e":
+          "Nenhuma covariavel corresponde aos filtros atuais",
+        "noDecisionCurveDataAvailable_854dc0":
+          "Nenhum dado de curva de decisao disponivel",
+        "noExecutionSelectedRunTheAnalysisToSeeResults_cb09f9":
+          "Nenhuma execucao selecionada. Execute a analise para ver os resultados.",
+        "noFeaturesFound_e7843a": "Nenhuma caracteristica encontrada",
+        "noPathwayDataAvailable_72b95b":
+          "Nenhum dado de trajetoria disponivel",
+        "noResultsAvailable_e29de7": "Nenhum resultado disponivel",
+        "noResultsYetSelectADataSourceAndClickExecuteToRunThePathwayAnalysis_ca1a70":
+          "Ainda nao ha resultados. Selecione uma fonte de dados e clique em Executar para rodar a analise de trajetoria.",
+        "notExecuted_ce1910": "Nao executado",
+        "observationPeriods_6ee256": "Periodos de observacao",
+        "outcome_cf73bd": "Desfecho",
+        "outcomeCohort_b279fb": "Coorte de desfecho",
+        "outcomeCohorts_ed8002": "Coortes de desfecho",
+        "outcomeCount_973ce4": "Contagem de desfechos",
+        "outcomeRate_e6e770": "Taxa de desfecho",
+        "outcomes_d08355": "Desfechos",
+        "parameters_3225a1": "Parametros",
+        "pathway_8b5c1c": "Trajetoria",
+        "pathwayAnalysisIsRunning_f3d1d6":
+          "A analise de trajetoria esta em execucao...",
+        "pathwayAnalysisName_dc0c6e": "Nome da analise de trajetoria",
+        "pathwayDetails_4a01a3": "Detalhes da trajetoria",
+        "pathways_bb724a": "Trajetorias",
+        "pending_2d13df": "Pendente",
+        "perSiteResults_2586a4": "Resultados por site",
+        "population_30ee9b": "Populacao",
+        "populationSettings_d6d63e": "Configuracoes da populacao",
+        "precision_5d4c8b": "Precisao",
+        "predictedProbability_81f385": "Probabilidade prevista",
+        "prediction_3964d4": "Predicao",
+        "predictionDistribution_4ef59a": "Distribuicao da predicao",
+        "predictionDistributionHistogram_cca0ea":
+          "Histograma da distribuicao da predicao",
+        "predictionModelName_8c12ea": "Nome do modelo de predicao",
+        "predictions_a54a7e": "Predicoes",
+        "propensityScore_1cf048": "Score de propensao",
+        "propensityScoreDiagnostics_eb4571":
+          "Diagnosticos do score de propensao",
+        "propensityScoreDistribution_9394bd":
+          "Distribuicao do score de propensao",
+        "queueAnalysisAsABackgroundJob_733a31":
+          "Colocar a analise na fila como tarefa em segundo plano",
+        "queued_7b2f31": "Na fila",
+        "readyForValidation_8b18ee": "Pronto para validacao",
+        "readyForValidationDescription_b6c1f3":
+          "O modelo mostra boa discriminacao (AUC >= 0.80) e predicoes bem calibradas (inclinacao 0.8-1.2). Adequado para estudos de validacao externa.",
+        "recall_877365": "Revocacao",
+        "results_fd69c5": "Resultados",
+        "riskWindow_4cbfa4": "Janela de risco",
+        "riskWindow1_56918c": "Janela de risco 1",
+        "riskWindowComparison_95d146":
+          "Comparacao das janelas de risco",
+        "riskWindows_09ce14": "Janelas de risco",
+        "riskWindowSummary_7d6d4b": "Resumo da janela de risco",
+        "riskWindowTimeline_f301f1":
+          "Linha do tempo da janela de risco",
+        "rOCCurve_d728c2": "Curva ROC",
+        "rSidecarPending_b8be5c": "Sidecar R pendente",
+        "runDirectOHDSI_192424": "Executar direto (OHDSI)",
+        "running_5bda81": "Em execucao",
+        "runningOHDSICohortIncidenceViaR_2d6ce9":
+          "Executando OHDSI CohortIncidence via R...",
+        "saveChanges_f5d604": "Salvar alteracoes",
+        "sCCSAnalysis_93b7e5": "Analise SCCS",
+        "sCCSAnalysisIs_c68ce9": "A analise SCCS esta {{status}}...",
+        "sCCSAnalysisName_365367": "Nome da analise SCCS",
+        "searchAcrossAllAnalyses_78b012":
+          "Pesquisar em todas as analises...",
+        "selectATargetCohort_9be701": "Selecione uma coorte alvo...",
+        "selectComparatorCohort_b651d5":
+          "Selecione a coorte comparadora",
+        "selectExposureCohort_1ed618":
+          "Selecione a coorte de exposicao",
+        "selectOutcomeCohort_9a111f": "Selecione a coorte de desfecho",
+        "selectTargetCohort_5de8bf": "Selecione a coorte alvo",
+        "selectTheAdverseEventOutcomeToStudy_1dcc09":
+          "Selecione o desfecho de evento adverso a estudar.",
+        "selectTheComparatorControlCohort_0e5e65":
+          "Selecione a coorte comparadora/de controle.",
+        "selectTheOutcomeToPredict_58b0f6":
+          "Selecione o desfecho a prever.",
+        "selectThePopulationAtRiskForThisAnalysis_baa519":
+          "Selecione a populacao em risco para esta analise.",
+        "selectThePopulationToDevelopThePredictionModelFor_d217bb":
+          "Selecione a populacao para a qual desenvolver o modelo de predicao.",
+        "selectTheTargetCohortWhoseTreatmentPathwaysWillBeAnalyzed_485929":
+          "Selecione a coorte alvo cujas trajetorias de tratamento serao analisadas.",
+        "selectTheTreatmentExposureCohort_4edbec":
+          "Selecione a coorte de exposicao ao tratamento.",
+        "selectWhichFeatureCategoriesToIncludeInThe_9d5d7d":
+          "Selecione quais categorias de caracteristicas incluir na analise.",
+        "selfControlledCohortAnalysis_be870f":
+          "Analise de coorte autocontrolada",
+        "selfControlledCohortAnalysisName_08ae6d":
+          "Nome da analise de coorte autocontrolada",
+        "sensitivity_1485b9": "Sensibilidade",
+        "significant_b1fce9": "Significativo",
+        "site_a7d647": "Site",
+        "siteEstimates_be62dd": "Estimativas por site",
+        "siteHeterogeneityMap_34e5ac":
+          "Mapa de heterogeneidade entre sites",
+        "siteName_668445": "Nome do site",
+        "sites_dc0a34": "Sites",
+        "specificity_7272f0": "Especificidade",
+        "status_ec53a8": "Status",
+        "stratification_69d48d": "Estratificacao",
+        "stratifyByAge_05a59d": "Estratificar por idade",
+        "stratifyByGender_4879ab": "Estratificar por sexo",
+        "survivalProbability_cf59fc": "Probabilidade de sobrevivencia",
+        "targetCohort_4d7f0b": "Coorte alvo",
+        "targetCohorts_730954": "Coortes alvo",
+        "targetCount_27c467": "Contagem da coorte alvo",
+        "targetEvents_4a3799": "Eventos da coorte alvo",
+        "targetPopulation_63e97d": "Populacao alvo",
+        "timeAtRisk_57746f": "Tempo em risco:",
+        "timeAtRisk_7cbd22": "Tempo em risco",
+        "timeAtRiskEndDays_c16099": "Dias finais do tempo em risco",
+        "timeAtRiskStartDays_8b7bdf":
+          "Dias iniciais do tempo em risco",
+        "timeAtRiskWindows_aadcb1": "Janelas de tempo em risco",
+        "timeToEvent_367be0": "Tempo ate o evento",
+        "timeWindows_88d5d3": "Janelas temporais",
+        "topImbalancedCovariates_43db00":
+          "Covariaveis mais desequilibradas",
+        "topPredictors_f1a232": "Principais preditores",
+        "total_96b014": "Total",
+        "totalCovariates_300227": "Total de covariaveis",
+        "totalOutcomeEvents_e93680": "Total de eventos de desfecho",
+        "truePositiveRate_04fb45": "Taxa de verdadeiro positivo",
+        "unknownError_aee978": "Erro desconhecido",
+        "untitledCharacterization_eb123f":
+          "Caracterizacao sem titulo",
+        "untitledEstimation_5893e5": "Estimacao sem titulo",
+        "untitledEvidenceSynthesis_4968f1":
+          "Sintese de evidencias sem titulo",
+        "untitledIncidenceRateAnalysis_bb942d":
+          "Analise de taxa de incidencia sem titulo",
+        "untitledPathwayAnalysis_1950bf":
+          "Analise de trajetoria sem titulo",
+        "untitledPrediction_77bd63": "Predicao sem titulo",
+        "untitledSCCSAnalysis_8551b6": "Analise SCCS sem titulo",
+        "validation_5190f3": "Validacao",
+        "wellBalanced_ecf33e": "Bem balanceado",
+        "wellCalibrated_ee0d1c": "Bem calibrado",
+        "withEvents_0246e8": "Com eventos",
+        "withOutcome_907788": "Com desfecho",
+        "withoutEvents_2a63ad": "Sem eventos",
+        "withoutOutcome_12e6b4": "Sem desfecho",
+      },
+    },
+  },
+);
+
+export const analysisResources: Record<string, MessageTree> = {
+  "en-US": enAnalysisResources,
+  "es-ES": mergeMessageTrees(enAnalysisResources, {}),
+  "fr-FR": frAnalysisResourcesPass2,
+  "de-DE": deAnalysisResourcesPass2,
+  "pt-BR": ptAnalysisResourcesPass2,
+  "fi-FI": mergeMessageTrees(enAnalysisResources, {}),
+  "ja-JP": mergeMessageTrees(enAnalysisResources, {}),
+  "zh-Hans": mergeMessageTrees(enAnalysisResources, {}),
+  "ko-KR": mergeMessageTrees(enAnalysisResources, {}),
+  "hi-IN": mergeMessageTrees(enAnalysisResources, {}),
+  ar: mergeMessageTrees(enAnalysisResources, {}),
+  "en-XA": mergeMessageTrees(enAnalysisResources, {}),
 };
