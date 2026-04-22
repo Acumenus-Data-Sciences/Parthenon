@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   useMorpheusPatients,
   useMorpheusPatient,
@@ -29,10 +30,12 @@ import GroupedDiagnosisList from '../components/GroupedDiagnosisList';
 import ExportButton from '../components/ExportButton';
 import TruncationWarning from '../components/TruncationWarning';
 import SearchDropdown from '../components/SearchDropdown';
+import { getMorpheusGenderLabel } from '../lib/i18n';
 
 type ViewMode = 'journey' | 'diagnoses' | 'medications' | 'labs' | 'vitals' | 'microbiology';
 
 export default function PatientJourneyPage() {
+  const { t } = useTranslation('app');
   const { subjectId } = useParams<{ subjectId?: string }>();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -138,29 +141,29 @@ export default function PatientJourneyPage() {
             <thead className="bg-surface-base/70 text-xs uppercase tracking-wide text-text-ghost">
               <tr>
                 <th className="px-3 py-2 font-semibold cursor-pointer hover:text-text-secondary" onClick={() => handleSort('subject_id')}>
-                  Subject ID{sortIndicator('subject_id')}
+                  {t('morpheus.journey.list.subjectId')}{sortIndicator('subject_id')}
                 </th>
                 <th className="px-3 py-2 font-semibold cursor-pointer hover:text-text-secondary" onClick={() => handleSort('gender')}>
-                  Gender{sortIndicator('gender')}
+                  {t('morpheus.journey.list.gender')}{sortIndicator('gender')}
                 </th>
                 <th className="px-3 py-2 font-semibold cursor-pointer hover:text-text-secondary" onClick={() => handleSort('anchor_age')}>
-                  Age (anchor){sortIndicator('anchor_age')}
+                  {t('morpheus.journey.list.ageAnchor')}{sortIndicator('anchor_age')}
                 </th>
-                <th className="px-3 py-2 font-semibold">Year Group</th>
+                <th className="px-3 py-2 font-semibold">{t('morpheus.journey.list.yearGroup')}</th>
                 <th className="px-3 py-2 font-semibold cursor-pointer hover:text-text-secondary" onClick={() => handleSort('admission_count')}>
-                  Admissions{sortIndicator('admission_count')}
+                  {t('morpheus.journey.list.admissions')}{sortIndicator('admission_count')}
                 </th>
                 <th className="px-3 py-2 font-semibold cursor-pointer hover:text-text-secondary" onClick={() => handleSort('icu_stay_count')}>
-                  ICU Stays{sortIndicator('icu_stay_count')}
+                  {t('morpheus.journey.list.icuStays')}{sortIndicator('icu_stay_count')}
                 </th>
                 <th className="px-3 py-2 font-semibold cursor-pointer hover:text-text-secondary" onClick={() => handleSort('total_los_days')}>
-                  Total LOS{sortIndicator('total_los_days')}
+                  {t('morpheus.journey.list.totalLos')}{sortIndicator('total_los_days')}
                 </th>
                 <th className="px-3 py-2 font-semibold cursor-pointer hover:text-text-secondary" onClick={() => handleSort('longest_icu_los')}>
-                  Longest ICU{sortIndicator('longest_icu_los')}
+                  {t('morpheus.journey.list.longestIcu')}{sortIndicator('longest_icu_los')}
                 </th>
-                <th className="px-3 py-2 font-semibold">Primary Dx</th>
-                <th className="px-3 py-2 font-semibold">Deceased</th>
+                <th className="px-3 py-2 font-semibold">{t('morpheus.journey.list.primaryDx')}</th>
+                <th className="px-3 py-2 font-semibold">{t('morpheus.journey.list.deceased')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border-default">
@@ -171,7 +174,7 @@ export default function PatientJourneyPage() {
                   className="hover:bg-surface-base/50 cursor-pointer transition-colors"
                 >
                   <td className="px-3 py-2 align-top font-mono text-success">{p.subject_id}</td>
-                  <td className="px-3 py-2 align-top text-text-secondary">{p.gender === 'M' ? 'Male' : p.gender === 'F' ? 'Female' : p.gender}</td>
+                  <td className="px-3 py-2 align-top text-text-secondary">{getMorpheusGenderLabel(t, p.gender)}</td>
                   <td className="px-3 py-2 align-top text-text-secondary">{p.anchor_age}</td>
                   <td className="px-3 py-2 align-top text-text-ghost">{p.anchor_year_group}</td>
                   <td className="px-3 py-2 align-top text-text-secondary">{p.admission_count}</td>
@@ -194,17 +197,21 @@ export default function PatientJourneyPage() {
                     ) : '\u2014'}
                   </td>
                   <td className="px-3 py-2 align-top">
-                    {p.dod ? <span className="text-critical">Yes</span> : <span className="text-text-ghost">No</span>}
+                    {p.dod ? (
+                      <span className="text-critical">{t('morpheus.common.values.yes')}</span>
+                    ) : (
+                      <span className="text-text-ghost">{t('morpheus.common.values.no')}</span>
+                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
           {patientsQuery.isLoading && (
-            <div className="p-5 text-center text-text-ghost text-sm">Loading patients...</div>
+            <div className="p-5 text-center text-text-ghost text-sm">{t('morpheus.common.loading.patients')}</div>
           )}
           {!patientsQuery.isLoading && filteredPatients.length === 0 && (
-            <div className="p-5 text-center text-text-ghost text-sm">No patients match the current filters</div>
+            <div className="p-5 text-center text-text-ghost text-sm">{t('morpheus.common.data.noPatientsMatchFilters')}</div>
           )}
         </div>
       </div>
@@ -220,12 +227,12 @@ export default function PatientJourneyPage() {
   const counts = countsQuery.data || {};
 
   const VIEW_TABS: { key: ViewMode; label: string }[] = [
-    { key: 'journey', label: 'Journey' },
-    { key: 'diagnoses', label: 'Diagnoses' },
-    { key: 'medications', label: 'Medications' },
-    { key: 'labs', label: 'Labs' },
-    { key: 'vitals', label: 'Vitals' },
-    { key: 'microbiology', label: 'Microbiology' },
+    { key: 'journey', label: t('morpheus.journey.tabs.journey') },
+    { key: 'diagnoses', label: t('morpheus.journey.tabs.diagnoses') },
+    { key: 'medications', label: t('morpheus.journey.tabs.medications') },
+    { key: 'labs', label: t('morpheus.journey.tabs.labs') },
+    { key: 'vitals', label: t('morpheus.journey.tabs.vitals') },
+    { key: 'microbiology', label: t('morpheus.journey.tabs.microbiology') },
   ];
 
   return (
@@ -284,7 +291,7 @@ export default function PatientJourneyPage() {
           {/* Diagnosis summary */}
           <div className="rounded-xl border border-border-default bg-surface-raised p-5">
             <h3 className="text-sm font-semibold text-text-secondary mb-2">
-              Top Diagnoses ({diagnoses.length} total)
+              {t('morpheus.journey.sections.topDiagnoses', { count: diagnoses.length })}
             </h3>
             <div className="flex flex-wrap gap-1.5">
               {diagnoses.slice(0, 15).map((dx) => (
@@ -294,18 +301,22 @@ export default function PatientJourneyPage() {
                   title={dx.description}
                 >
                   <span className="font-mono text-accent mr-1">{dx.icd_code}</span>
-                  <span className="truncate max-w-[200px]">{dx.description || 'Unknown'}</span>
+                  <span className="truncate max-w-[200px]">{dx.description || t('morpheus.common.values.unknown')}</span>
                 </span>
               ))}
               {diagnoses.length > 15 && (
-                <span className="text-[10px] text-text-ghost">+{diagnoses.length - 15} more</span>
+                <span className="text-[10px] text-text-ghost">
+                  {t('morpheus.common.counts.more', { count: diagnoses.length - 15 })}
+                </span>
               )}
             </div>
           </div>
 
           {/* Admissions summary */}
           <div className="rounded-xl border border-border-default bg-surface-raised p-5">
-            <h3 className="text-sm font-semibold text-text-secondary mb-2">Admissions</h3>
+            <h3 className="text-sm font-semibold text-text-secondary mb-2">
+              {t('morpheus.journey.sections.admissions')}
+            </h3>
             <div className="space-y-2">
               {admissions.map((adm) => (
                 <div
@@ -316,14 +327,21 @@ export default function PatientJourneyPage() {
                   <div className="flex items-center gap-3">
                     <span className="font-mono text-[11px] text-text-ghost">{adm.hadm_id}</span>
                     <span className="text-xs text-text-secondary">
-                      {new Date(adm.admittime).toLocaleDateString()} &mdash; {new Date(adm.dischtime).toLocaleDateString()}
+                      {new Date(adm.admittime).toLocaleDateString()} {'\u2014'} {new Date(adm.dischtime).toLocaleDateString()}
                     </span>
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-base/50 text-text-ghost">{adm.admission_type}</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-text-ghost">
                     <span>{Number(adm.los_days).toFixed(1)}d</span>
                     <span>{adm.discharge_location}</span>
-                    {adm.hospital_expire_flag === '1' && <span className="text-critical">&dagger;</span>}
+                    {adm.hospital_expire_flag === '1' && (
+                      <span
+                        className="text-critical"
+                        title={t('morpheus.common.tooltips.diedInHospital')}
+                      >
+                        {'\u2020'}
+                      </span>
+                    )}
                   </div>
                 </div>
               ))}
@@ -369,7 +387,7 @@ export default function PatientJourneyPage() {
             <TruncationWarning
               loaded={labsQuery.data.length}
               total={(countsQuery.data as Record<string, number>).lab_results ?? labsQuery.data.length}
-              domain="lab results"
+              domain={t('morpheus.eventCounts.labs')}
             />
           )}
           {labsQuery.isLoading ? (
@@ -425,11 +443,15 @@ export default function PatientJourneyPage() {
                 />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-text-primary mb-3">Antibiogram</h3>
+                <h3 className="text-sm font-semibold text-text-primary mb-3">
+                  {t('morpheus.antibiogram.title')}
+                </h3>
                 <AntibiogramHeatmap data={microQuery.data} onOrganismClick={setDrawerEvent} />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-text-primary mb-3">Culture Results</h3>
+                <h3 className="text-sm font-semibold text-text-primary mb-3">
+                  {t('morpheus.culture.title')}
+                </h3>
                 <CultureTable data={microQuery.data} onOrganismClick={setDrawerEvent} />
               </div>
             </div>

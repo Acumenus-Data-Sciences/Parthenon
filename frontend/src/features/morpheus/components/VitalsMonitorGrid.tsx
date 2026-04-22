@@ -1,8 +1,10 @@
 // frontend/src/features/morpheus/components/VitalsMonitorGrid.tsx
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { MorpheusVital } from '../api';
 import { classifyVital, VITAL_TYPE_CONFIGS, type VitalCategory } from '../constants/vitalTypes';
 import { VITAL_COLORS } from '../constants/domainColors';
+import { getMorpheusVitalLabel } from '../lib/i18n';
 import VitalsMonitorCell from './VitalsMonitorCell';
 import LabTimeSeriesChart from './LabTimeSeriesChart';
 
@@ -35,6 +37,7 @@ const GRID_COLORS: Record<string, string> = {
 };
 
 export default function VitalsMonitorGrid({ vitals }: VitalsMonitorGridProps) {
+  const { t } = useTranslation('app');
   const [visibleSeries, setVisibleSeries] = useState<Set<string>>(new Set(GRID_ORDER));
 
   const series = useMemo(() => {
@@ -76,7 +79,7 @@ export default function VitalsMonitorGrid({ vitals }: VitalsMonitorGridProps) {
   if (series.size === 0) {
     return (
       <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
-        <p className="text-sm text-text-muted">No vital signs data available</p>
+        <p className="text-sm text-text-muted">{t('morpheus.common.data.noVitalSigns')}</p>
       </div>
     );
   }
@@ -93,7 +96,7 @@ export default function VitalsMonitorGrid({ vitals }: VitalsMonitorGridProps) {
           return (
             <VitalsMonitorCell
               key={cat}
-              label={config.label}
+              label={getMorpheusVitalLabel(t, cat)}
               value={s?.latest ?? null}
               unit={config.unit}
               color={GRID_COLORS[cat] ?? '#8A857D'}
@@ -110,7 +113,9 @@ export default function VitalsMonitorGrid({ vitals }: VitalsMonitorGridProps) {
       {/* Timeline Chart */}
       <div className="rounded-xl border border-border-default bg-surface-darkest/70 p-4">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-semibold text-text-primary">Vital Signs Timeline</span>
+          <span className="text-sm font-semibold text-text-primary">
+            {t('morpheus.vitals.timelineTitle')}
+          </span>
           <div className="flex items-center gap-3">
             {GRID_ORDER.map((cat) => {
               const config = VITAL_TYPE_CONFIGS[cat];
@@ -129,7 +134,9 @@ export default function VitalsMonitorGrid({ vitals }: VitalsMonitorGridProps) {
                     }}
                     className="w-3 h-3 rounded"
                   />
-                  <span className="text-[10px]" style={{ color: GRID_COLORS[cat] }}>{config.label}</span>
+                  <span className="text-[10px]" style={{ color: GRID_COLORS[cat] }}>
+                    {getMorpheusVitalLabel(t, cat)}
+                  </span>
                 </label>
               );
             })}
@@ -139,14 +146,22 @@ export default function VitalsMonitorGrid({ vitals }: VitalsMonitorGridProps) {
         {/* Render primary visible series chart */}
         {(() => {
           const visible = GRID_ORDER.filter((c) => visibleSeries.has(c) && series.has(c));
-          if (visible.length === 0) return <div className="text-xs text-text-ghost text-center py-4">Select a vital to display</div>;
+          if (visible.length === 0) {
+            return (
+              <div className="text-xs text-text-ghost text-center py-4">
+                {t('morpheus.vitals.selectVitalToDisplay')}
+              </div>
+            );
+          }
           const primary = visible[0];
           const pSeries = series.get(primary);
           const pConfig = VITAL_TYPE_CONFIGS[primary];
           if (!pSeries || !pConfig) return null;
 
           const overlay = visible.length > 1 ? series.get(visible[1]) : undefined;
-          const overlayConfig = visible.length > 1 ? VITAL_TYPE_CONFIGS[visible[1]] : undefined;
+          const overlayLabel = visible.length > 1
+            ? getMorpheusVitalLabel(t, visible[1])
+            : undefined;
 
           return (
             <LabTimeSeriesChart
@@ -156,7 +171,7 @@ export default function VitalsMonitorGrid({ vitals }: VitalsMonitorGridProps) {
               unit={pConfig.unit}
               color={GRID_COLORS[primary]}
               overlayData={overlay?.values}
-              overlayLabel={overlayConfig?.label}
+              overlayLabel={overlayLabel}
               overlayColor={GRID_COLORS[visible[1]] ?? '#8A857D'}
             />
           );

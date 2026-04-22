@@ -1,5 +1,6 @@
 // frontend/src/features/morpheus/components/LabTimeSeriesChart.tsx
 import { useMemo, useState, useRef, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface DataPoint {
   date: string;
@@ -22,6 +23,7 @@ export default function LabTimeSeriesChart({
   data, rangeLow, rangeHigh, unit, color = '#818CF8',
   overlayData, overlayLabel, overlayColor = '#2DD4BF',
 }: LabTimeSeriesChartProps) {
+  const { t } = useTranslation('app');
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(600);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
@@ -149,7 +151,7 @@ export default function LabTimeSeriesChart({
       {overlayData && overlayLabel && (
         <div className="flex items-center gap-4 mt-1 text-[10px] text-text-muted">
           <span className="flex items-center gap-1">
-            <span className="w-3 h-0.5 inline-block" style={{ backgroundColor: color }} /> Primary
+            <span className="w-3 h-0.5 inline-block" style={{ backgroundColor: color }} /> {t('morpheus.common.values.primary')}
           </span>
           <span className="flex items-center gap-1">
             <span className="w-3 h-0.5 inline-block border-t border-dashed" style={{ borderColor: overlayColor }} /> {overlayLabel}

@@ -8,6 +8,7 @@ import { dataSourceIngestionResources } from "./dataSourceIngestionResources";
 import { heorResources } from "./heorResources";
 import { imagingGenomicsResources } from "./imagingGenomicsResources";
 import { investigationResources } from "./investigationResources";
+import { morpheusResources } from "./morpheusResources";
 import { profileSimilarityResources } from "./profileSimilarityResources";
 import { publishCareGapRiskResources } from "./publishCareGapRiskResources";
 import { standardProsResources } from "./standardProsResources";
@@ -7143,6 +7144,7 @@ function appForLocale(locale: string): MessageTree {
     heorResources,
     imagingGenomicsResources,
     investigationResources,
+    morpheusResources,
     profileSimilarityResources,
     publishCareGapRiskResources,
     strategusResources,

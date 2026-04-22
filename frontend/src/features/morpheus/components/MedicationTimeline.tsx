@@ -1,4 +1,5 @@
 import { useMemo, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { MorpheusMedication } from '../api';
 
 interface MedicationTimelineProps {
@@ -7,6 +8,7 @@ interface MedicationTimelineProps {
 }
 
 export default function MedicationTimeline({ medications, onDrugClick }: MedicationTimelineProps) {
+  const { t } = useTranslation('app');
   const [tooltip, setTooltip] = useState<{ x: number; y: number; med: MorpheusMedication; drug: string } | null>(null);
   const [panOffset, setPanOffset] = useState(0);
   const [zoom, setZoom] = useState(1);
@@ -53,7 +55,7 @@ export default function MedicationTimeline({ medications, onDrugClick }: Medicat
   if (!lanes.length) {
     return (
       <div className="flex items-center justify-center h-20 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
-        <p className="text-sm text-text-muted">No medication data available</p>
+        <p className="text-sm text-text-muted">{t('morpheus.common.data.noMedicationData')}</p>
       </div>
     );
   }
@@ -66,10 +68,10 @@ export default function MedicationTimeline({ medications, onDrugClick }: Medicat
       tabIndex={0}
       onKeyDown={handleKeyDown}
       role="img"
-      aria-label="Medication timeline"
+      aria-label={t('morpheus.medications.ariaLabel')}
     >
       <h3 className="text-xs font-semibold text-text-secondary mb-3">
-        Medications (top {lanes.length} by frequency)
+        {t('morpheus.medications.title', { count: lanes.length })}
       </h3>
       <div className="space-y-1" style={{ transform: `scaleX(${zoom}) translateX(${panOffset}px)`, transformOrigin: 'left center' }}>
         {lanes.map(({ drug, meds }) => (
@@ -108,13 +110,19 @@ export default function MedicationTimeline({ medications, onDrugClick }: Medicat
           style={{ top: tooltip.y - 80, left: tooltip.x + 16 }}
         >
           <div className="font-medium text-text-primary">{tooltip.drug}</div>
-          {tooltip.med.route && <div className="text-text-muted">Route: {tooltip.med.route}</div>}
+          {tooltip.med.route && (
+            <div className="text-text-muted">
+              {t('morpheus.medications.route')} {tooltip.med.route}
+            </div>
+          )}
           {(tooltip.med.dose_val_rx || tooltip.med.dose_unit_rx) && (
-            <div className="text-text-muted">Dose: {tooltip.med.dose_val_rx} {tooltip.med.dose_unit_rx}</div>
+            <div className="text-text-muted">
+              {t('morpheus.medications.dose')} {tooltip.med.dose_val_rx} {tooltip.med.dose_unit_rx}
+            </div>
           )}
           <div className="text-text-ghost mt-0.5">
             {new Date(tooltip.med.starttime).toLocaleString()}
-            {tooltip.med.stoptime ? ` — ${new Date(tooltip.med.stoptime).toLocaleString()}` : ''}
+            {tooltip.med.stoptime ? ` \u2014 ${new Date(tooltip.med.stoptime).toLocaleString()}` : ''}
           </div>
         </div>
       )}

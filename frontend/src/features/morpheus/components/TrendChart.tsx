@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface TrendItem {
   label: string;
@@ -19,6 +20,7 @@ export default function TrendChart({
   data, barColor = '#2DD4BF', lineColor = '#E85A6B',
   title, barLabel, lineLabel,
 }: TrendChartProps) {
+  const { t } = useTranslation('app');
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(400);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; item: TrendItem } | null>(null);
@@ -49,7 +51,9 @@ export default function TrendChart({
     return [0, step, step * 2, step * 3, step * 4].filter(v => v <= maxBar * 1.1);
   }, [maxBar]);
 
-  if (!data.length) return <div className="text-text-ghost text-sm py-8 text-center">No trend data</div>;
+  if (!data.length) {
+    return <div className="text-text-ghost text-sm py-8 text-center">{t('morpheus.common.data.noTrendData')}</div>;
+  }
 
   const linePath = hasLine ? data.map((d, i) => {
     const x = padL + i * (barW + gap) + barW / 2;
@@ -131,8 +135,10 @@ export default function TrendChart({
           style={{ top: tooltip.y - 60, left: tooltip.x + 12 }}
         >
           <div className="font-medium text-text-primary">{tooltip.item.label}</div>
-          <div>{barLabel ?? 'Value'}: {tooltip.item.barValue.toLocaleString()}</div>
-          {tooltip.item.lineValue !== undefined && <div>{lineLabel ?? 'Rate'}: {tooltip.item.lineValue.toFixed(1)}%</div>}
+          <div>{barLabel ?? t('morpheus.trendChart.valueLabel')}: {tooltip.item.barValue.toLocaleString()}</div>
+          {tooltip.item.lineValue !== undefined && (
+            <div>{lineLabel ?? t('morpheus.trendChart.rateLabel')}: {tooltip.item.lineValue.toFixed(1)}%</div>
+          )}
         </div>
       )}
     </div>

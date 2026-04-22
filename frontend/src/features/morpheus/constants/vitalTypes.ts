@@ -5,7 +5,6 @@ export type VitalCategory = 'heart_rate' | 'blood_pressure_systolic' | 'blood_pr
 
 export interface VitalTypeConfig {
   category: VitalCategory;
-  label: string;
   unit: string;
   normalRange: [number, number];
   criticalRange: [number, number];
@@ -37,15 +36,15 @@ export const VITAL_LABEL_MAP: Record<string, VitalCategory> = {
 };
 
 export const VITAL_TYPE_CONFIGS: Record<string, VitalTypeConfig> = {
-  heart_rate: { category: 'heart_rate', label: 'Heart Rate', unit: 'bpm', normalRange: [60, 100], criticalRange: [40, 150] },
-  blood_pressure_systolic: { category: 'blood_pressure_systolic', label: 'BP Systolic', unit: 'mmHg', normalRange: [90, 140], criticalRange: [70, 180] },
-  blood_pressure_diastolic: { category: 'blood_pressure_diastolic', label: 'BP Diastolic', unit: 'mmHg', normalRange: [60, 90], criticalRange: [40, 120] },
-  blood_pressure_mean: { category: 'blood_pressure_mean', label: 'MAP', unit: 'mmHg', normalRange: [65, 110], criticalRange: [50, 130] },
-  spo2: { category: 'spo2', label: 'SpO2', unit: '%', normalRange: [95, 100], criticalRange: [88, 100] },
-  respiratory_rate: { category: 'respiratory_rate', label: 'Resp Rate', unit: '/min', normalRange: [12, 20], criticalRange: [8, 35] },
-  temperature: { category: 'temperature', label: 'Temperature', unit: '\u00B0F', normalRange: [97.0, 99.5], criticalRange: [95.0, 104.0] },
-  gcs: { category: 'gcs', label: 'GCS', unit: '', normalRange: [15, 15], criticalRange: [3, 15] },
-  pain: { category: 'pain', label: 'Pain', unit: '/10', normalRange: [0, 3], criticalRange: [0, 10] },
+  heart_rate: { category: 'heart_rate', unit: 'bpm', normalRange: [60, 100], criticalRange: [40, 150] },
+  blood_pressure_systolic: { category: 'blood_pressure_systolic', unit: 'mmHg', normalRange: [90, 140], criticalRange: [70, 180] },
+  blood_pressure_diastolic: { category: 'blood_pressure_diastolic', unit: 'mmHg', normalRange: [60, 90], criticalRange: [40, 120] },
+  blood_pressure_mean: { category: 'blood_pressure_mean', unit: 'mmHg', normalRange: [65, 110], criticalRange: [50, 130] },
+  spo2: { category: 'spo2', unit: '%', normalRange: [95, 100], criticalRange: [88, 100] },
+  respiratory_rate: { category: 'respiratory_rate', unit: '/min', normalRange: [12, 20], criticalRange: [8, 35] },
+  temperature: { category: 'temperature', unit: '\u00B0F', normalRange: [97.0, 99.5], criticalRange: [95.0, 104.0] },
+  gcs: { category: 'gcs', unit: '', normalRange: [15, 15], criticalRange: [3, 15] },
+  pain: { category: 'pain', unit: '/10', normalRange: [0, 3], criticalRange: [0, 10] },
 };
 
 export function classifyVital(label: string): VitalCategory | undefined {

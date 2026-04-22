@@ -1,4 +1,5 @@
 import type { MorpheusAdmission } from '../api';
+import { useTranslation } from 'react-i18next';
 
 interface AdmissionPickerProps {
   admissions: MorpheusAdmission[];
@@ -7,6 +8,7 @@ interface AdmissionPickerProps {
 }
 
 export default function AdmissionPicker({ admissions, selectedHadmId, onSelect }: AdmissionPickerProps) {
+  const { t } = useTranslation('app');
   if (!admissions.length) return null;
 
   return (
@@ -19,7 +21,9 @@ export default function AdmissionPicker({ admissions, selectedHadmId, onSelect }
             : 'border border-border-default bg-surface-base/50 text-text-muted hover:text-text-secondary'
         }`}
       >
-        All Admissions ({admissions.length})
+        {t('morpheus.journey.admissionPicker.allAdmissions', {
+          count: admissions.length,
+        })}
       </button>
       {admissions.map((adm) => {
         const start = new Date(adm.admittime);
@@ -34,9 +38,15 @@ export default function AdmissionPicker({ admissions, selectedHadmId, onSelect }
                 : 'border border-border-default bg-surface-base/50 text-text-muted hover:text-text-secondary'
             }`}
           >
-            {start.toLocaleDateString()} &mdash; {adm.admission_type} ({los}d)
+            {start.toLocaleDateString()} {'\u2014'} {adm.admission_type} ({los}
+            {t('morpheus.common.values.daysShort')})
             {adm.hospital_expire_flag === '1' && (
-              <span className="ml-1 text-critical" title="Died in hospital">&dagger;</span>
+              <span
+                className="ml-1 text-critical"
+                title={t('morpheus.common.tooltips.diedInHospital')}
+              >
+                {'\u2020'}
+              </span>
             )}
           </button>
         );

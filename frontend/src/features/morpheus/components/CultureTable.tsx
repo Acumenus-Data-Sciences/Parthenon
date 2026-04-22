@@ -1,6 +1,7 @@
 // frontend/src/features/morpheus/components/CultureTable.tsx
 import { useMemo, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { MorpheusMicrobiology } from '../api';
 import type { DrawerEvent } from './ConceptDetailDrawer';
 
@@ -24,6 +25,7 @@ interface CultureGroup {
 }
 
 export default function CultureTable({ data, onOrganismClick }: CultureTableProps) {
+  const { t } = useTranslation('app');
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
 
   const groups = useMemo(() => {
@@ -49,7 +51,7 @@ export default function CultureTable({ data, onOrganismClick }: CultureTableProp
   if (groups.length === 0) {
     return (
       <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
-        <p className="text-sm text-text-muted">No culture data available</p>
+        <p className="text-sm text-text-muted">{t('morpheus.common.data.noCultureData')}</p>
       </div>
     );
   }
@@ -91,7 +93,7 @@ export default function CultureTable({ data, onOrganismClick }: CultureTableProp
                   {g.organism}
                 </span>
               ) : (
-                <span className="text-xs text-text-ghost">No growth</span>
+                <span className="text-xs text-text-ghost">{t('morpheus.common.data.noGrowth')}</span>
               )}
               {g.sensitivities.length > 0 && (
                 <div className="flex items-center gap-1.5 ml-auto text-[10px]">
@@ -107,9 +109,9 @@ export default function CultureTable({ data, onOrganismClick }: CultureTableProp
                 <table className="min-w-full text-xs">
                   <thead>
                     <tr className="text-[10px] text-text-ghost uppercase tracking-wider">
-                      <th className="text-left py-1">Antibiotic</th>
-                      <th className="text-center py-1 w-16">Result</th>
-                      <th className="text-left py-1">MIC</th>
+                      <th className="text-left py-1">{t('morpheus.culture.antibiotic')}</th>
+                      <th className="text-center py-1 w-16">{t('morpheus.culture.result')}</th>
+                      <th className="text-left py-1">{t('morpheus.culture.mic')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border-default/50">
@@ -124,7 +126,7 @@ export default function CultureTable({ data, onOrganismClick }: CultureTableProp
                                 {s.interpretation}
                               </span>
                             ) : (
-                              <span className="text-text-ghost">&mdash;</span>
+                              <span className="text-text-ghost">{'\u2014'}</span>
                             )}
                           </td>
                           <td className="py-1 text-text-muted font-mono">

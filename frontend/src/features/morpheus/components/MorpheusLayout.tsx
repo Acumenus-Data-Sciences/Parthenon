@@ -1,17 +1,22 @@
 import { Outlet, useLocation, useNavigate, useParams, Link, useSearchParams } from 'react-router-dom';
 import { BedDouble, ArrowLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import DatasetSelector from './DatasetSelector';
 
-const TABS = [
-  { path: '/morpheus', label: 'Dashboard', exact: true },
-  { path: '/morpheus/journey', label: 'Patient Journey', exact: false },
-];
-
 export default function MorpheusLayout() {
+  const { t } = useTranslation('app');
   const location = useLocation();
   const navigate = useNavigate();
   const { subjectId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
+  const TABS = [
+    { path: '/morpheus', label: t('morpheus.common.navigation.dashboard'), exact: true },
+    {
+      path: '/morpheus/journey',
+      label: t('morpheus.common.navigation.patientJourney'),
+      exact: false,
+    },
+  ];
 
   const dataset = searchParams.get('dataset') || 'mimiciv';
 
@@ -22,11 +27,16 @@ export default function MorpheusLayout() {
   };
 
   const dsParam = dataset !== 'mimiciv' ? `?dataset=${dataset}` : '';
-  const crumbs: Array<{ label: string; path?: string }> = [{ label: 'Dashboard', path: `/morpheus${dsParam}` }];
+  const crumbs: Array<{ label: string; path?: string }> = [
+    { label: t('morpheus.common.navigation.dashboard'), path: `/morpheus${dsParam}` },
+  ];
   if (location.pathname.startsWith('/morpheus/journey')) {
-    crumbs.push({ label: 'Patient Journey', path: `/morpheus/journey${dsParam}` });
+    crumbs.push({
+      label: t('morpheus.common.navigation.patientJourney'),
+      path: `/morpheus/journey${dsParam}`,
+    });
     if (subjectId) {
-      crumbs.push({ label: `Patient ${subjectId}` });
+      crumbs.push({ label: t('morpheus.journey.patientCrumb', { subjectId }) });
     }
   }
 
@@ -43,7 +53,7 @@ export default function MorpheusLayout() {
               <BedDouble className="h-4 w-4 text-primary" />
             </div>
             <div className="flex items-center gap-2 text-sm">
-              <span className="font-semibold text-text-primary">Morpheus</span>
+              <span className="font-semibold text-text-primary">{t('morpheus.common.brand')}</span>
               {crumbs.map((c, i) => (
                 <span key={i} className="flex items-center gap-2">
                   <span className="text-text-ghost">/</span>
@@ -68,7 +78,7 @@ export default function MorpheusLayout() {
             ))}
           </div>
           <Link to="/workbench" className="flex items-center gap-1.5 text-xs text-text-ghost hover:text-text-secondary transition-colors">
-            <ArrowLeft className="h-3 w-3" /> Workbench
+            <ArrowLeft className="h-3 w-3" /> {t('morpheus.common.navigation.workbench')}
           </Link>
         </div>
       </div>

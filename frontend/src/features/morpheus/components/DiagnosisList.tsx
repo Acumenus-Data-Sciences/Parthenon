@@ -1,12 +1,19 @@
 import type { MorpheusDiagnosis } from '../api';
+import { useTranslation } from 'react-i18next';
 
 interface DiagnosisListProps {
   diagnoses: MorpheusDiagnosis[];
 }
 
 export default function DiagnosisList({ diagnoses }: DiagnosisListProps) {
+  const { t } = useTranslation('app');
+
   if (!diagnoses.length) {
-    return <div className="text-text-ghost text-sm p-5">No diagnoses recorded</div>;
+    return (
+      <div className="text-text-ghost text-sm p-5">
+        {t('morpheus.common.data.noDiagnosesRecorded')}
+      </div>
+    );
   }
 
   return (
@@ -15,9 +22,9 @@ export default function DiagnosisList({ diagnoses }: DiagnosisListProps) {
         <thead className="bg-surface-base/70 text-xs uppercase tracking-wide text-text-ghost">
           <tr>
             <th className="px-3 py-2 font-semibold w-8">#</th>
-            <th className="px-3 py-2 font-semibold w-24">ICD Code</th>
-            <th className="px-3 py-2 font-semibold">Description</th>
-            <th className="px-3 py-2 font-semibold">Standard Concept</th>
+            <th className="px-3 py-2 font-semibold w-24">{t('morpheus.diagnoses.icdCode')}</th>
+            <th className="px-3 py-2 font-semibold">{t('morpheus.diagnoses.description')}</th>
+            <th className="px-3 py-2 font-semibold">{t('morpheus.diagnoses.standardConcept')}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border-default">
@@ -33,7 +40,7 @@ export default function DiagnosisList({ diagnoses }: DiagnosisListProps) {
                 {dx.concept_id ? (
                   <span className="text-success">{dx.standard_concept_name}</span>
                 ) : (
-                  <span className="text-text-ghost">unmapped</span>
+                  <span className="text-text-ghost">{t('morpheus.common.values.unmapped')}</span>
                 )}
               </td>
             </tr>

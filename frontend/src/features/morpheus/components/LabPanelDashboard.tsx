@@ -1,8 +1,10 @@
 // frontend/src/features/morpheus/components/LabPanelDashboard.tsx
 import { useMemo, useState } from 'react';
 import { ChevronDown, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { MorpheusLabResult } from '../api';
 import { LAB_PANELS, findLabPanel, type LabPanelConfig } from '../constants/labPanels';
+import { getMorpheusLabPanelLabel } from '../lib/i18n';
 import LabSparkline from './LabSparkline';
 import LabTimeSeriesChart from './LabTimeSeriesChart';
 import type { DrawerEvent } from './ConceptDetailDrawer';
@@ -58,6 +60,7 @@ function TrendIcon({ values }: { values: number[] }) {
 }
 
 export default function LabPanelDashboard({ labs, onConceptClick }: LabPanelDashboardProps) {
+  const { t } = useTranslation('app');
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const [expandedPanel, setExpandedPanel] = useState<string | null>(null);
 
@@ -106,7 +109,7 @@ export default function LabPanelDashboard({ labs, onConceptClick }: LabPanelDash
     for (const panel of LAB_PANELS) {
       const tests: LabGroup[] = [];
       for (const g of groups.values()) {
-        if (findLabPanel(g.label)?.name === panel.name) {
+        if (findLabPanel(g.label)?.id === panel.id) {
           tests.push(g);
         }
       }
@@ -123,7 +126,7 @@ export default function LabPanelDashboard({ labs, onConceptClick }: LabPanelDash
     if (ungrouped.length > 0) {
       ungrouped.sort((a, b) => a.label.localeCompare(b.label));
       result.push({
-        panel: { name: 'Other', color: '#8A857D', tests: [] },
+        panel: { id: 'other', color: '#8A857D', tests: [] },
         tests: ungrouped,
       });
     }
@@ -134,7 +137,7 @@ export default function LabPanelDashboard({ labs, onConceptClick }: LabPanelDash
   if (panels.length === 0) {
     return (
       <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
-        <p className="text-sm text-text-muted">No numeric lab results available</p>
+        <p className="text-sm text-text-muted">{t('morpheus.common.data.noNumericLabs')}</p>
       </div>
     );
   }
@@ -166,25 +169,32 @@ export default function LabPanelDashboard({ labs, onConceptClick }: LabPanelDash
   return (
     <div className="space-y-3">
       <div className="text-xs text-text-muted">
-        {groups.size} tests · {labs.filter((l) => l.valuenum != null).length} numeric values
+        {t('morpheus.common.counts.testsSummary', {
+          tests: groups.size,
+          values: labs.filter((l) => l.valuenum != null).length,
+        })}
       </div>
 
       {/* Masonry two-column layout — panels pack tightly with no wasted vertical space */}
       <div className="columns-2 gap-3 [column-fill:balance]">
         {panels.map(({ panel, tests }) => {
-          const isOpen = expandedPanel === panel.name || expandedPanel === null;
+          const isOpen = expandedPanel === panel.id || expandedPanel === null;
 
           return (
-            <div key={panel.name} className="rounded-xl border border-border-default/60 bg-surface-base overflow-hidden mb-3 break-inside-avoid">
+            <div key={panel.id} className="rounded-xl border border-border-default/60 bg-surface-base overflow-hidden mb-3 break-inside-avoid">
               <button
                 type="button"
-                onClick={() => setExpandedPanel(expandedPanel === panel.name ? null : panel.name)}
+                onClick={() => setExpandedPanel(expandedPanel === panel.id ? null : panel.id)}
                 className="w-full flex items-center justify-between px-3 py-2 hover:bg-surface-overlay transition-colors focus:outline-none focus:ring-1 focus:ring-success/30"
               >
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full" style={{ backgroundColor: panel.color }} />
-                  <span className="text-xs font-semibold text-text-primary">{panel.name}</span>
-                  <span className="text-[10px] text-text-ghost">{tests.length} tests</span>
+                  <span className="text-xs font-semibold text-text-primary">
+                    {getMorpheusLabPanelLabel(t, panel.id)}
+                  </span>
+                  <span className="text-[10px] text-text-ghost">
+                    {t('morpheus.common.counts.tests', { count: tests.length })}
+                  </span>
                 </div>
                 <ChevronDown size={12} className={`text-text-ghost transition-transform ${isOpen ? 'rotate-180' : ''}`} />
               </button>

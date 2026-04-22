@@ -2,6 +2,8 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { X, Hash, Tag, ExternalLink, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { DOMAIN_COLORS } from '../constants/domainColors';
 import { useMorpheusConceptStats } from '../api';
 
@@ -55,25 +57,38 @@ function Row({ icon: Icon, label, value, mono }: {
   );
 }
 
-function RangeIndicator({ value, low, high }: { value: number; low: number | null; high: number | null }) {
+function RangeIndicator({
+  t,
+  value,
+  low,
+  high,
+}: {
+  t: TFunction;
+  value: number;
+  low: number | null;
+  high: number | null;
+}) {
   if (low == null && high == null) return null;
   if (low != null && value < low) {
     return (
       <span className="inline-flex items-center gap-1 text-info">
-        <TrendingDown size={12} /> Below range ({low})
+        <TrendingDown size={12} /> {t('morpheus.conceptDrawer.belowRange', { value: low })}
       </span>
     );
   }
   if (high != null && value > high) {
     return (
       <span className="inline-flex items-center gap-1 text-critical">
-        <TrendingUp size={12} /> Above range ({high})
+        <TrendingUp size={12} /> {t('morpheus.conceptDrawer.aboveRange', { value: high })}
       </span>
     );
   }
   return (
     <span className="inline-flex items-center gap-1 text-success">
-      <Minus size={12} /> Normal ({low}&ndash;{high})
+      <Minus size={12} /> {t('morpheus.conceptDrawer.normalRange', {
+        low,
+        high,
+      })}
     </span>
   );
 }
@@ -106,6 +121,7 @@ function MiniSparkline({ values, currentIdx }: { values: number[]; currentIdx?: 
 }
 
 export default function ConceptDetailDrawer({ event, onClose, dataset }: ConceptDetailDrawerProps) {
+  const { t } = useTranslation('app');
   const { data: popStats } = useMorpheusConceptStats(
     event?.concept_id ?? undefined,
     dataset,
@@ -147,52 +163,86 @@ export default function ConceptDetailDrawer({ event, onClose, dataset }: Concept
           {/* Dual Code Display */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <div className="text-[10px] uppercase tracking-wider text-text-ghost mb-1">Source Code</div>
+              <div className="text-[10px] uppercase tracking-wider text-text-ghost mb-1">
+                {t('morpheus.conceptDrawer.sourceCode')}
+              </div>
               {event.source_code ? (
                 <>
                   <div className="font-mono text-sm text-accent">{event.source_code}</div>
                   <div className="text-[10px] text-text-ghost">{event.source_vocabulary}</div>
                 </>
               ) : (
-                <div className="text-xs text-text-ghost">&mdash;</div>
+                <div className="text-xs text-text-ghost">{'\u2014'}</div>
               )}
             </div>
             <div>
-              <div className="text-[10px] uppercase tracking-wider text-text-ghost mb-1">OMOP Concept</div>
+              <div className="text-[10px] uppercase tracking-wider text-text-ghost mb-1">
+                {t('morpheus.conceptDrawer.omopConcept')}
+              </div>
               {event.concept_id ? (
                 <>
                   <div className="font-mono text-sm text-success">{event.concept_id}</div>
                   <div className="text-[10px] text-text-ghost">{event.standard_concept_name}</div>
-                  <span className="inline-block mt-1 rounded px-1.5 py-0.5 text-[10px] font-medium bg-success/10 text-success">Mapped</span>
+                  <span className="inline-block mt-1 rounded px-1.5 py-0.5 text-[10px] font-medium bg-success/10 text-success">
+                    {t('morpheus.common.values.mapped')}
+                  </span>
                 </>
               ) : (
-                <span className="inline-block rounded px-1.5 py-0.5 text-[10px] font-medium bg-yellow-500/10 text-yellow-400">Unmapped</span>
+                <span className="inline-block rounded px-1.5 py-0.5 text-[10px] font-medium bg-yellow-500/10 text-yellow-400">
+                  {t('morpheus.common.values.unmapped')}
+                </span>
               )}
             </div>
           </div>
 
           {/* Current Occurrence */}
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-2">Occurrence Details</div>
-            {event.start_date && <Row icon={Tag} label="Date" value={`${event.start_date}${event.end_date ? ` \u2013 ${event.end_date}` : ''}`} />}
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-2">
+              {t('morpheus.conceptDrawer.occurrenceDetails')}
+            </div>
+            {event.start_date && (
+              <Row
+                icon={Tag}
+                label={t('morpheus.conceptDrawer.date')}
+                value={`${event.start_date}${event.end_date ? ` \u2013 ${event.end_date}` : ''}`}
+              />
+            )}
             {numericValue != null && !isNaN(numericValue) && (
               <>
-                <Row icon={Hash} label="Value" value={`${numericValue} ${event.unit ?? ''}`} />
+                <Row
+                  icon={Hash}
+                  label={t('morpheus.conceptDrawer.value')}
+                  value={`${numericValue} ${event.unit ?? ''}`}
+                />
                 <div className="ml-5 text-xs">
-                  <RangeIndicator value={numericValue} low={event.ref_range_lower} high={event.ref_range_upper} />
+                  <RangeIndicator
+                    t={t}
+                    value={numericValue}
+                    low={event.ref_range_lower}
+                    high={event.ref_range_upper}
+                  />
                 </div>
               </>
             )}
-            {event.route && <Row icon={Tag} label="Route" value={event.route} />}
-            {event.dose && <Row icon={Tag} label="Dose" value={event.dose} />}
-            {event.seq_num != null && <Row icon={Hash} label="Sequence" value={`#${event.seq_num}`} mono />}
+            {event.route && <Row icon={Tag} label={t('morpheus.conceptDrawer.route')} value={event.route} />}
+            {event.dose && <Row icon={Tag} label={t('morpheus.conceptDrawer.dose')} value={event.dose} />}
+            {event.seq_num != null && (
+              <Row
+                icon={Hash}
+                label={t('morpheus.conceptDrawer.sequence')}
+                value={`#${event.seq_num}`}
+                mono
+              />
+            )}
           </div>
 
           {/* Patient History */}
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-2">This Patient</div>
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-2">
+              {t('morpheus.conceptDrawer.thisPatient')}
+            </div>
             <div className="text-xs text-text-secondary">
-              {event.occurrenceCount} occurrence{event.occurrenceCount !== 1 ? 's' : ''}
+              {t('morpheus.common.counts.occurrences', { count: event.occurrenceCount })}
             </div>
             {event.sparklineValues.length > 1 && (
               <MiniSparkline values={event.sparklineValues} currentIdx={event.sparklineValues.length - 1} />
@@ -202,21 +252,29 @@ export default function ConceptDetailDrawer({ event, onClose, dataset }: Concept
           {/* Population Context */}
           {popStats && (
             <div>
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-2">Dataset Population</div>
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-2">
+                {t('morpheus.conceptDrawer.datasetPopulation')}
+              </div>
               <div className="text-xs text-text-secondary">
-                {popStats.patient_count.toLocaleString()} of {popStats.total_patients.toLocaleString()} patients ({popStats.percentage}%)
+                {t('morpheus.common.counts.patientsWithPercent', {
+                  patientCount: popStats.patient_count.toLocaleString(),
+                  totalPatients: popStats.total_patients.toLocaleString(),
+                  percentage: popStats.percentage,
+                })}
               </div>
               {popStats.mean_value != null && (
                 <div className="text-xs text-text-muted mt-1">
-                  Mean: {popStats.mean_value} | Median: {popStats.median_value}
+                  {t('morpheus.conceptDrawer.mean')} {popStats.mean_value} | {t('morpheus.conceptDrawer.median')} {popStats.median_value}
                 </div>
               )}
             </div>
           )}
           {!popStats && event.concept_id && (
             <div>
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-2">Dataset Population</div>
-              <div className="text-xs text-text-ghost">Population data not available</div>
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-2">
+                {t('morpheus.conceptDrawer.datasetPopulation')}
+              </div>
+              <div className="text-xs text-text-ghost">{t('morpheus.common.data.noPopulationData')}</div>
             </div>
           )}
         </div>
@@ -228,9 +286,9 @@ export default function ConceptDetailDrawer({ event, onClose, dataset }: Concept
               to={`/vocabulary?concept=${event.concept_id}`}
               onClick={onClose}
               className="flex items-center justify-center gap-1.5 w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-xs text-success transition-colors hover:bg-surface-raised focus:outline-none focus:ring-1 focus:ring-success/30"
-              title="View concept in Vocabulary Browser"
+              title={t('morpheus.common.tooltips.viewConceptInVocabularyBrowser')}
             >
-              <ExternalLink size={12} /> View in Vocabulary Browser
+              <ExternalLink size={12} /> {t('morpheus.common.actions.viewInVocabularyBrowser')}
             </Link>
           )}
         </div>

@@ -1,4 +1,5 @@
 import { useMorpheusDatasets } from '../api';
+import { useTranslation } from 'react-i18next';
 
 interface DatasetSelectorProps {
   selectedSchema: string;
@@ -6,6 +7,7 @@ interface DatasetSelectorProps {
 }
 
 export default function DatasetSelector({ selectedSchema, onSelect }: DatasetSelectorProps) {
+  const { t } = useTranslation('app');
   const { data: datasets, isLoading } = useMorpheusDatasets();
 
   if (isLoading || !datasets?.length) return null;
@@ -16,7 +18,11 @@ export default function DatasetSelector({ selectedSchema, onSelect }: DatasetSel
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
         {datasets[0].name}
         {datasets[0].patient_count != null && (
-          <span className="text-text-ghost">({Number(datasets[0].patient_count).toLocaleString()} patients)</span>
+          <span className="text-text-ghost">
+            {t('morpheus.dataset.patientsSuffix', {
+              count: Number(datasets[0].patient_count).toLocaleString(),
+            })}
+          </span>
         )}
       </span>
     );
@@ -30,7 +36,11 @@ export default function DatasetSelector({ selectedSchema, onSelect }: DatasetSel
     >
       {datasets.map((ds) => (
         <option key={ds.schema_name} value={ds.schema_name}>
-          {ds.name} {ds.patient_count != null ? `(${Number(ds.patient_count).toLocaleString()} pts)` : ''}
+          {ds.name} {ds.patient_count != null
+            ? t('morpheus.dataset.patientsShortSuffix', {
+                count: Number(ds.patient_count).toLocaleString(),
+              })
+            : ''}
         </option>
       ))}
     </select>

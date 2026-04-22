@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface BarItem {
   label: string;
@@ -14,11 +15,14 @@ interface HorizontalBarChartProps {
 }
 
 export default function HorizontalBarChart({ data, maxItems = 10, barColor = '#2DD4BF', title }: HorizontalBarChartProps) {
+  const { t } = useTranslation('app');
   const items = data.slice(0, maxItems);
   const maxVal = Math.max(...items.map(d => d.value), 1);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
-  if (!items.length) return <div className="text-text-ghost text-sm py-8 text-center">No data</div>;
+  if (!items.length) {
+    return <div className="text-text-ghost text-sm py-8 text-center">{t('morpheus.common.data.noData')}</div>;
+  }
 
   return (
     <div>

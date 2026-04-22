@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface DonutSegment {
   label: string;
@@ -13,18 +14,29 @@ interface DonutChartProps {
 }
 
 export default function DonutChart({ data, title, size = 140 }: DonutChartProps) {
+  const { t } = useTranslation('app');
   const total = data.reduce((sum, d) => sum + d.value, 0);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
-  if (!total) return <div className="text-text-ghost text-sm py-8 text-center">No data</div>;
+  if (!total) {
+    return (
+      <div className="text-text-ghost text-sm py-8 text-center">
+        {t('morpheus.common.data.noData')}
+      </div>
+    );
+  }
 
   const cx = size / 2;
   const cy = size / 2;
   const radius = size / 2 - 4;
   const innerRadius = radius * 0.6;
 
-  let startAngle = -Math.PI / 2;
   const arcs = data.map((d, i) => {
+    const startAngle =
+      -Math.PI / 2 +
+      data
+        .slice(0, i)
+        .reduce((sum, segment) => sum + (segment.value / total) * 2 * Math.PI, 0);
     const angle = (d.value / total) * 2 * Math.PI;
     const endAngle = startAngle + angle;
     const largeArc = angle > Math.PI ? 1 : 0;
@@ -46,7 +58,6 @@ export default function DonutChart({ data, title, size = 140 }: DonutChartProps)
       'Z',
     ].join(' ');
 
-    startAngle = endAngle;
     return { ...d, path, index: i };
   });
 
@@ -72,7 +83,7 @@ export default function DonutChart({ data, title, size = 140 }: DonutChartProps)
             {total.toLocaleString()}
           </text>
           <text x={cx} y={cy + 14} textAnchor="middle" fill="var(--text-ghost)" fontSize={9}>
-            patients
+            {t('morpheus.common.values.patients')}
           </text>
         </svg>
         <div className="flex flex-col gap-2">

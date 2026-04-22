@@ -1,61 +1,61 @@
 // frontend/src/features/morpheus/constants/antibioticClasses.ts
 
 export interface AntibioticClass {
-  name: string;
+  id: string;
   order: number;
 }
 
 const CLASS_MAP: Record<string, AntibioticClass> = {
   // Penicillins
-  'ampicillin': { name: 'Penicillins', order: 1 },
-  'ampicillin/sulbactam': { name: 'Penicillins', order: 1 },
-  'piperacillin/tazobactam': { name: 'Penicillins', order: 1 },
-  'oxacillin': { name: 'Penicillins', order: 1 },
-  'penicillin g': { name: 'Penicillins', order: 1 },
-  'penicillin': { name: 'Penicillins', order: 1 },
+  'ampicillin': { id: 'penicillins', order: 1 },
+  'ampicillin/sulbactam': { id: 'penicillins', order: 1 },
+  'piperacillin/tazobactam': { id: 'penicillins', order: 1 },
+  'oxacillin': { id: 'penicillins', order: 1 },
+  'penicillin g': { id: 'penicillins', order: 1 },
+  'penicillin': { id: 'penicillins', order: 1 },
   // Cephalosporins
-  'cefazolin': { name: 'Cephalosporins', order: 2 },
-  'ceftriaxone': { name: 'Cephalosporins', order: 2 },
-  'ceftazidime': { name: 'Cephalosporins', order: 2 },
-  'cefepime': { name: 'Cephalosporins', order: 2 },
-  'cefoxitin': { name: 'Cephalosporins', order: 2 },
+  'cefazolin': { id: 'cephalosporins', order: 2 },
+  'ceftriaxone': { id: 'cephalosporins', order: 2 },
+  'ceftazidime': { id: 'cephalosporins', order: 2 },
+  'cefepime': { id: 'cephalosporins', order: 2 },
+  'cefoxitin': { id: 'cephalosporins', order: 2 },
   // Carbapenems
-  'meropenem': { name: 'Carbapenems', order: 3 },
-  'imipenem': { name: 'Carbapenems', order: 3 },
-  'ertapenem': { name: 'Carbapenems', order: 3 },
-  'doripenem': { name: 'Carbapenems', order: 3 },
+  'meropenem': { id: 'carbapenems', order: 3 },
+  'imipenem': { id: 'carbapenems', order: 3 },
+  'ertapenem': { id: 'carbapenems', order: 3 },
+  'doripenem': { id: 'carbapenems', order: 3 },
   // Fluoroquinolones
-  'ciprofloxacin': { name: 'Fluoroquinolones', order: 4 },
-  'levofloxacin': { name: 'Fluoroquinolones', order: 4 },
-  'moxifloxacin': { name: 'Fluoroquinolones', order: 4 },
+  'ciprofloxacin': { id: 'fluoroquinolones', order: 4 },
+  'levofloxacin': { id: 'fluoroquinolones', order: 4 },
+  'moxifloxacin': { id: 'fluoroquinolones', order: 4 },
   // Aminoglycosides
-  'gentamicin': { name: 'Aminoglycosides', order: 5 },
-  'tobramycin': { name: 'Aminoglycosides', order: 5 },
-  'amikacin': { name: 'Aminoglycosides', order: 5 },
+  'gentamicin': { id: 'aminoglycosides', order: 5 },
+  'tobramycin': { id: 'aminoglycosides', order: 5 },
+  'amikacin': { id: 'aminoglycosides', order: 5 },
   // Glycopeptides
-  'vancomycin': { name: 'Glycopeptides', order: 6 },
+  'vancomycin': { id: 'glycopeptides', order: 6 },
   // Macrolides
-  'erythromycin': { name: 'Macrolides', order: 7 },
-  'azithromycin': { name: 'Macrolides', order: 7 },
+  'erythromycin': { id: 'macrolides', order: 7 },
+  'azithromycin': { id: 'macrolides', order: 7 },
   // Lincosamides
-  'clindamycin': { name: 'Lincosamides', order: 7 },
+  'clindamycin': { id: 'lincosamides', order: 7 },
   // Tetracyclines
-  'tetracycline': { name: 'Tetracyclines', order: 8 },
-  'doxycycline': { name: 'Tetracyclines', order: 8 },
+  'tetracycline': { id: 'tetracyclines', order: 8 },
+  'doxycycline': { id: 'tetracyclines', order: 8 },
   // Sulfonamides
-  'trimethoprim/sulfa': { name: 'Sulfonamides', order: 9 },
-  'trimethoprim/sulfamethoxazole': { name: 'Sulfonamides', order: 9 },
+  'trimethoprim/sulfa': { id: 'sulfonamides', order: 9 },
+  'trimethoprim/sulfamethoxazole': { id: 'sulfonamides', order: 9 },
   // Other
-  'nitrofurantoin': { name: 'Other', order: 10 },
-  'linezolid': { name: 'Other', order: 10 },
-  'daptomycin': { name: 'Other', order: 10 },
-  'colistin': { name: 'Other', order: 10 },
-  'metronidazole': { name: 'Other', order: 10 },
-  'rifampin': { name: 'Other', order: 10 },
+  'nitrofurantoin': { id: 'other', order: 10 },
+  'linezolid': { id: 'other', order: 10 },
+  'daptomycin': { id: 'other', order: 10 },
+  'colistin': { id: 'other', order: 10 },
+  'metronidazole': { id: 'other', order: 10 },
+  'rifampin': { id: 'other', order: 10 },
 };
 
 export function getAntibioticClass(name: string): AntibioticClass {
-  return CLASS_MAP[name.toLowerCase()] ?? { name: 'Other', order: 10 };
+  return CLASS_MAP[name.toLowerCase()] ?? { id: 'other', order: 10 };
 }
 
 export function sortAntibioticsByClass(antibiotics: string[]): string[] {

@@ -1,14 +1,14 @@
 // frontend/src/features/morpheus/constants/labPanels.ts
 
 export interface LabPanelConfig {
-  name: string;
+  id: string;
   color: string;
   tests: string[]; // Match against MorpheusLabResult.label (case-insensitive)
 }
 
 export const LAB_PANELS: LabPanelConfig[] = [
   {
-    name: 'Renal',
+    id: 'renal',
     color: '#3B82F6',
     tests: [
       'creatinine', 'urea nitrogen', 'potassium', 'sodium', 'chloride',
@@ -16,7 +16,7 @@ export const LAB_PANELS: LabPanelConfig[] = [
     ],
   },
   {
-    name: 'Hepatic',
+    id: 'hepatic',
     color: '#F59E0B',
     tests: [
       'alanine aminotransferase', 'asparate aminotransferase',
@@ -25,7 +25,7 @@ export const LAB_PANELS: LabPanelConfig[] = [
     ],
   },
   {
-    name: 'Hematologic',
+    id: 'hematologic',
     color: '#E85A6B',
     tests: [
       'white blood cells', 'hemoglobin', 'hematocrit', 'platelet count',
@@ -33,21 +33,21 @@ export const LAB_PANELS: LabPanelConfig[] = [
     ],
   },
   {
-    name: 'Metabolic',
+    id: 'metabolic',
     color: '#22C55E',
     tests: [
       'glucose', 'lactate', 'anion gap',
     ],
   },
   {
-    name: 'Coagulation',
+    id: 'coagulation',
     color: '#A855F7',
     tests: [
       'pt', 'inr(pt)', 'ptt', 'fibrinogen', 'd-dimer',
     ],
   },
   {
-    name: 'Cardiac',
+    id: 'cardiac',
     color: '#EC4899',
     tests: [
       'troponin t', 'troponin i', 'ck (cpk)', 'ck-mb', 'ldh',
@@ -55,7 +55,7 @@ export const LAB_PANELS: LabPanelConfig[] = [
     ],
   },
   {
-    name: 'Inflammatory',
+    id: 'inflammatory',
     color: '#F97316',
     tests: [
       'c-reactive protein', 'procalcitonin', 'ferritin',

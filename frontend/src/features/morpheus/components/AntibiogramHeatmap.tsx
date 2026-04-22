@@ -1,6 +1,11 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { MorpheusMicrobiology } from '../api';
 import { getAntibioticClass, sortAntibioticsByClass } from '../constants/antibioticClasses';
+import {
+  getMorpheusAntibioticClassLabel,
+  getMorpheusInterpretationLabel,
+} from '../lib/i18n';
 import type { DrawerEvent } from './ConceptDetailDrawer';
 
 interface AntibiogramHeatmapProps {
@@ -9,10 +14,10 @@ interface AntibiogramHeatmapProps {
 }
 
 // Parthenon theme colors — accessible for deuteranopia (teal vs crimson has strong luminance contrast)
-const INTERP_STYLE: Record<string, { bg: string; text: string; label: string }> = {
-  S: { bg: 'rgba(45,212,191,0.20)', text: '#2DD4BF', label: 'Susceptible' },
-  I: { bg: 'rgba(201,162,39,0.20)', text: '#C9A227', label: 'Intermediate' },
-  R: { bg: 'rgba(155,27,48,0.25)', text: '#E85A6B', label: 'Resistant' },
+const INTERP_STYLE: Record<string, { bg: string; text: string }> = {
+  S: { bg: 'rgba(45,212,191,0.20)', text: '#2DD4BF' },
+  I: { bg: 'rgba(201,162,39,0.20)', text: '#C9A227' },
+  R: { bg: 'rgba(155,27,48,0.25)', text: '#E85A6B' },
 };
 
 // Common antibiotic abbreviations
@@ -42,11 +47,12 @@ interface CellData {
 }
 
 interface DrugClassGroup {
-  name: string;
+  id: string;
   antibiotics: string[];
 }
 
 export default function AntibiogramHeatmap({ data, onOrganismClick }: AntibiogramHeatmapProps) {
+  const { t } = useTranslation('app');
   const [specimenFilter, setSpecimenFilter] = useState('');
   const [showTestedOnly, setShowTestedOnly] = useState(true);
   const [hoverCol, setHoverCol] = useState<string | null>(null);
@@ -92,9 +98,9 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
     const groups: DrugClassGroup[] = [];
     let currentClass = '';
     for (const ab of sortedAbs) {
-      const cls = getAntibioticClass(ab).name;
+      const cls = getAntibioticClass(ab).id;
       if (cls !== currentClass) {
-        groups.push({ name: cls, antibiotics: [ab] });
+        groups.push({ id: cls, antibiotics: [ab] });
         currentClass = cls;
       } else {
         groups[groups.length - 1].antibiotics.push(ab);
@@ -107,7 +113,7 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
   if (organisms.length === 0) {
     return (
       <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
-        <p className="text-sm text-text-muted">No antibiogram data available</p>
+        <p className="text-sm text-text-muted">{t('morpheus.common.data.noAntibiogramData')}</p>
       </div>
     );
   }
@@ -136,13 +142,13 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
             onChange={(e) => setSpecimenFilter(e.target.value)}
             className="rounded-lg border border-border-default bg-surface-base px-2.5 py-1.5 text-xs text-text-secondary focus:outline-none focus:ring-1 focus:ring-success/30"
           >
-            <option value="">All specimens</option>
+            <option value="">{t('morpheus.antibiogram.allSpecimens')}</option>
             {specimens.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
           <label className="flex items-center gap-1.5 text-xs text-text-muted cursor-pointer select-none">
             <input type="checkbox" checked={showTestedOnly} onChange={() => setShowTestedOnly(!showTestedOnly)}
               className="w-3 h-3 rounded accent-success" />
-            Tested only
+            {t('morpheus.antibiogram.testedOnly')}
           </label>
         </div>
         {/* Legend */}
@@ -151,12 +157,12 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
             <span key={key} className="flex items-center gap-1">
               <span className="w-4 h-4 rounded flex items-center justify-center text-[9px] font-bold"
                 style={{ backgroundColor: style.bg, color: style.text }}>{key}</span>
-              <span className="text-text-muted">{style.label}</span>
+              <span className="text-text-muted">{getMorpheusInterpretationLabel(t, key)}</span>
             </span>
           ))}
           <span className="flex items-center gap-1">
-            <span className="w-4 h-4 rounded bg-surface-overlay flex items-center justify-center text-[9px] text-text-ghost">—</span>
-            <span className="text-text-muted">Not tested</span>
+            <span className="w-4 h-4 rounded bg-surface-overlay flex items-center justify-center text-[9px] text-text-ghost">{'\u2014'}</span>
+            <span className="text-text-muted">{t('morpheus.antibiogram.notTested')}</span>
           </span>
         </div>
       </div>
@@ -170,22 +176,24 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
               <th className="sticky left-0 z-40 bg-surface-base min-w-[200px]" />
               {drugClassGroups.map((group) => (
                 <th
-                  key={group.name}
+                  key={group.id}
                   colSpan={group.antibiotics.length}
                   className="px-1 pt-2 pb-1 text-center text-[9px] font-semibold uppercase tracking-wider text-text-ghost border-b border-surface-highlight"
                   style={{ borderLeft: '2px solid var(--border-default)' }}
                 >
-                  {group.name}
+                  {getMorpheusAntibioticClassLabel(t, group.id)}
                 </th>
               ))}
             </tr>
             {/* Antibiotic name header row */}
             <tr className="sticky top-[28px] z-30 bg-surface-base">
               <th className="sticky left-0 z-40 bg-surface-base px-3 py-1 text-left text-[10px] font-semibold text-text-muted min-w-[200px] border-b border-surface-highlight">
-                Organism
+                {t('morpheus.antibiogram.organism')}
               </th>
               {antibiotics.map((ab, abIdx) => {
-                const isFirstInClass = abIdx === 0 || getAntibioticClass(ab).name !== getAntibioticClass(antibiotics[abIdx - 1]).name;
+                const isFirstInClass =
+                  abIdx === 0 ||
+                  getAntibioticClass(ab).id !== getAntibioticClass(antibiotics[abIdx - 1]).id;
                 return (
                   <th
                     key={ab}
@@ -228,14 +236,16 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
                         {org}
                       </span>
                       <span className={`text-[9px] ${isLowCount ? 'text-accent' : 'text-text-ghost'}`}>
-                        n={count}{isLowCount ? '*' : ''}
+                        {t('morpheus.antibiogram.countPrefix')}{count}{isLowCount ? '*' : ''}
                       </span>
                     </button>
                   </td>
                   {antibiotics.map((ab, abIdx) => {
                     const key = `${org}::${ab}`;
                     const cell = matrix.get(key);
-                    const isFirstInClass = abIdx === 0 || getAntibioticClass(ab).name !== getAntibioticClass(antibiotics[abIdx - 1]).name;
+                    const isFirstInClass =
+                      abIdx === 0 ||
+                      getAntibioticClass(ab).id !== getAntibioticClass(antibiotics[abIdx - 1]).id;
                     const isColHover = hoverCol === ab;
 
                     if (!cell) {
@@ -258,7 +268,7 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
                             ...(isFirstInClass ? { borderLeft: '2px solid var(--border-default)' } : {}),
                           }}
                         >
-                          <span className="text-[9px] text-surface-overlay">&mdash;</span>
+                          <span className="text-[9px] text-surface-overlay">{'\u2014'}</span>
                         </td>
                       );
                     }
@@ -298,7 +308,7 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
       {/* Low isolate count footnote */}
       {organisms.some((org) => (orgCounts.get(org) ?? 0) < 30) && (
         <p className="text-[10px] text-accent">
-          * Organisms with &lt;30 isolates — interpret with caution (CLSI M39)
+          {t('morpheus.antibiogram.caution')}
         </p>
       )}
 
@@ -312,11 +322,17 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
           <div className="mt-1">
             <span className="text-text-muted">{tooltip.ab}:</span>{' '}
             <span className="font-bold" style={{ color: INTERP_STYLE[tooltip.cell.interpretation]?.text }}>
-              {INTERP_STYLE[tooltip.cell.interpretation]?.label ?? tooltip.cell.interpretation}
+              {getMorpheusInterpretationLabel(t, tooltip.cell.interpretation)}
             </span>
           </div>
-          {tooltip.cell.mic && <div className="text-text-muted">MIC: <span className="font-mono text-text-secondary">{tooltip.cell.mic}</span></div>}
-          <div className="text-text-ghost mt-0.5">{tooltip.cell.specimen} &bull; {tooltip.cell.date}</div>
+          {tooltip.cell.mic && (
+            <div className="text-text-muted">
+              {t('morpheus.culture.mic')}: <span className="font-mono text-text-secondary">{tooltip.cell.mic}</span>
+            </div>
+          )}
+          <div className="text-text-ghost mt-0.5">
+            {tooltip.cell.specimen} {'\u2022'} {tooltip.cell.date}
+          </div>
         </div>
       )}
     </div>

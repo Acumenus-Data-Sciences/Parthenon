@@ -1,6 +1,7 @@
 // frontend/src/features/morpheus/components/GroupedDiagnosisList.tsx
 import { useMemo, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { MorpheusDiagnosis } from '../api';
 import type { DrawerEvent } from './ConceptDetailDrawer';
 
@@ -19,6 +20,7 @@ interface DiagnosisGroup {
 }
 
 export default function GroupedDiagnosisList({ diagnoses, onConceptClick }: GroupedDiagnosisListProps) {
+  const { t } = useTranslation('app');
   const [expandedCode, setExpandedCode] = useState<string | null>(null);
 
   const groups = useMemo(() => {
@@ -43,9 +45,9 @@ export default function GroupedDiagnosisList({ diagnoses, onConceptClick }: Grou
   }, [diagnoses]);
 
   if (groups.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
-        <p className="text-sm text-text-muted">No diagnoses recorded</p>
+        return (
+          <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
+        <p className="text-sm text-text-muted">{t('morpheus.common.data.noDiagnosesRecorded')}</p>
       </div>
     );
   }
@@ -95,11 +97,16 @@ export default function GroupedDiagnosisList({ diagnoses, onConceptClick }: Grou
               {g.concept_id ? (
                 <span className="text-xs text-success shrink-0">{g.standard_concept_name}</span>
               ) : (
-                <span className="text-[10px] text-text-ghost shrink-0">unmapped</span>
+                <span className="text-[10px] text-text-ghost shrink-0">
+                  {t('morpheus.common.values.unmapped')}
+                </span>
               )}
 
               {count > 1 && (
-                <span className="text-[10px] font-semibold text-text-muted shrink-0">&times;{count}</span>
+                <span className="text-[10px] font-semibold text-text-muted shrink-0">
+                  {'\u00d7'}
+                  {count}
+                </span>
               )}
             </div>
 
@@ -108,8 +115,8 @@ export default function GroupedDiagnosisList({ diagnoses, onConceptClick }: Grou
                 <table className="min-w-full text-xs">
                   <thead>
                     <tr className="text-[10px] text-text-ghost uppercase tracking-wider">
-                      <th className="text-left py-1">Admission</th>
-                      <th className="text-left py-1">Sequence</th>
+                      <th className="text-left py-1">{t('morpheus.diagnoses.admission')}</th>
+                      <th className="text-left py-1">{t('morpheus.diagnoses.sequence')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border-default/50">

@@ -1,4 +1,5 @@
 import { useMemo, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { MorpheusTransfer, MorpheusIcuStay } from '../api';
 
 interface LocationTrackProps {
@@ -49,9 +50,11 @@ interface Segment {
 }
 
 export default function LocationTrack({ transfers, icuStays }: LocationTrackProps) {
+  const { t } = useTranslation('app');
   const [tooltip, setTooltip] = useState<{ x: number; y: number; seg: Segment } | null>(null);
   const [panOffset, setPanOffset] = useState(0);
   const [zoom, setZoom] = useState(1);
+  const dischargedLabel = t('morpheus.locationTrack.discharged');
 
   const segments = useMemo<Segment[]>(() => {
     if (!transfers.length) return [];
@@ -60,7 +63,7 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
       .filter(t => t.careunit || t.eventtype === 'discharge')
       .map(t => ({
         id: t.transfer_id,
-        careunit: t.careunit || 'Discharged',
+        careunit: t.careunit || dischargedLabel,
         eventtype: t.eventtype,
         start: new Date(t.intime),
         end: t.outtime ? new Date(t.outtime) : null,
@@ -78,7 +81,7 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
       leftPct: ((e.start.getTime() - minTime) / span) * 100,
       widthPct: Math.max(1, (((e.end || e.start).getTime() - e.start.getTime()) / span) * 100),
     }));
-  }, [transfers]);
+  }, [dischargedLabel, transfers]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'ArrowLeft') { e.preventDefault(); setPanOffset((p) => p - 20); }
@@ -90,14 +93,16 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
   if (!segments.length) {
     return (
       <div className="flex items-center justify-center h-20 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
-        <p className="text-sm text-text-muted">No transfer data available</p>
+        <p className="text-sm text-text-muted">{t('morpheus.common.data.noTransferData')}</p>
       </div>
     );
   }
 
   return (
     <div className="rounded-xl border border-border-default/60 bg-surface-base p-4">
-      <h3 className="text-xs font-semibold text-text-secondary mb-3">Location Track</h3>
+      <h3 className="text-xs font-semibold text-text-secondary mb-3">
+        {t('morpheus.locationTrack.title')}
+      </h3>
 
       {/* Timeline bar */}
       <div
@@ -105,7 +110,7 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
         tabIndex={0}
         onKeyDown={handleKeyDown}
         role="img"
-        aria-label="Patient location track timeline"
+        aria-label={t('morpheus.locationTrack.ariaLabel')}
         style={{ transform: `scaleX(${zoom}) translateX(${panOffset}px)`, transformOrigin: 'left center' }}
       >
         {segments.map((seg) => (
@@ -130,11 +135,13 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
       {/* ICU stays badges */}
       {icuStays.length > 0 && (
         <div className="flex items-center gap-2 mt-2">
-          <span className="text-[9px] text-text-ghost uppercase tracking-wider">ICU:</span>
+          <span className="text-[9px] text-text-ghost uppercase tracking-wider">
+            {t('morpheus.locationTrack.icuLabel')}
+          </span>
           {icuStays.map((icu) => (
             <span key={icu.stay_id}
               className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-primary/15 text-critical border border-primary/30">
-              {icu.first_careunit} — {Number(icu.los_days).toFixed(1)}d
+              {icu.first_careunit} {'\u2014'} {Number(icu.los_days).toFixed(1)}d
             </span>
           ))}
         </div>
@@ -142,11 +149,11 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
 
       {/* Legend */}
       <div className="flex flex-wrap gap-3 mt-2 text-[10px] text-text-muted">
-        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-critical" /> ED</span>
-        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-primary" /> ICU</span>
-        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-accent" /> Step-down</span>
-        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-success" /> Floor</span>
-        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-info" /> PACU</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-critical" /> {t('morpheus.locationTrack.legend.ed')}</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-primary" /> {t('morpheus.locationTrack.legend.icu')}</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-accent" /> {t('morpheus.locationTrack.legend.stepDown')}</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-success" /> {t('morpheus.locationTrack.legend.floor')}</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-info" /> {t('morpheus.locationTrack.legend.pacu')}</span>
       </div>
 
       {/* Tooltip */}
@@ -157,12 +164,20 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
         >
           <div className="font-medium text-text-primary">{tooltip.seg.careunit}</div>
           <div className="text-text-muted mt-0.5">
-            {tooltip.seg.start.toLocaleString()}{tooltip.seg.end ? ` — ${tooltip.seg.end.toLocaleString()}` : ''}
+            {tooltip.seg.start.toLocaleString()}{tooltip.seg.end ? ` \u2014 ${tooltip.seg.end.toLocaleString()}` : ''}
           </div>
           {tooltip.seg.durationHours && (
-            <div className="text-text-muted">Duration: {Number(tooltip.seg.durationHours).toFixed(1)}h</div>
+            <div className="text-text-muted">
+              {t('morpheus.locationTrack.duration', {
+                hours: Number(tooltip.seg.durationHours).toFixed(1),
+              })}
+            </div>
           )}
-          {tooltip.seg.isIcu && <div className="text-critical font-medium mt-0.5">ICU Stay</div>}
+          {tooltip.seg.isIcu && (
+            <div className="text-critical font-medium mt-0.5">
+              {t('morpheus.locationTrack.icuStay')}
+            </div>
+          )}
         </div>
       )}
     </div>

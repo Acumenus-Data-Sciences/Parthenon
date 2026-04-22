@@ -1,5 +1,6 @@
 // frontend/src/features/morpheus/components/ExportButton.tsx
 import { Download } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ExportButtonProps {
   data: Record<string, unknown>[];
@@ -18,6 +19,8 @@ function sanitizeCell(value: unknown): string {
 }
 
 export default function ExportButton({ data, filename, headers }: ExportButtonProps) {
+  const { t } = useTranslation('app');
+
   const handleExport = () => {
     if (data.length === 0) return;
     const cols = headers ?? Object.keys(data[0]);
@@ -40,7 +43,7 @@ export default function ExportButton({ data, filename, headers }: ExportButtonPr
       className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-base px-3 py-1.5 text-xs text-text-secondary transition-colors hover:bg-surface-raised hover:text-text-primary disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-1 focus:ring-success/30"
     >
       <Download size={12} />
-      Export CSV
+      {t('morpheus.common.actions.exportCsv')}
     </button>
   );
 }

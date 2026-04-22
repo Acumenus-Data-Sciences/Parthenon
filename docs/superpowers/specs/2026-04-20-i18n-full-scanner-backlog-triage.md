@@ -11,10 +11,10 @@ npm run i18n:scan
 
 Current scanner output:
 
-- Full frontend scanner: 1,614 candidates across 1,114 scanned files.
+- Full frontend scanner: 1,412 candidates across 1,115 scanned files.
 - FinnGen paths excluded from this i18n track: 372 candidates.
-- Non-FinnGen backlog for this triage: 1,242 candidates.
-- Candidate kinds after FinnGen exclusion: 588 JSX text, 589 object properties, 65 JSX attributes.
+- Non-FinnGen backlog for this triage: 1,040 candidates.
+- Candidate kinds after FinnGen exclusion: 478 JSX text, 514 object properties, 48 JSX attributes.
 - Dedicated release-facing shell scan: `npm run i18n:scan:app-priority` reports 0 candidates across 214 files.
 
 Use the dedicated `npm run i18n:scan:app-priority` script plus the focused wave scanners below as the operational completion gates for this extraction program. The unsupported ad hoc `npm run i18n:scan -- --app-priority` invocation should not be used for milestone accounting.
@@ -34,7 +34,7 @@ Use the dedicated `npm run i18n:scan:app-priority` script plus the focused wave 
 | Publish, care gaps, and risk scores | 0 | 75 | Completed for `src/features/publish`, `src/features/care-gaps`, and `src/features/risk-scores`. The focused wave scanner reports 0 candidates across publish wizard/template/export surfaces, care-gap bundle/evaluation/population surfaces, and risk-score workflow/detail/result surfaces. |
 | Generated/static/curated data | 526 | 8 | Do not machine-translate as UI copy. Requires curated terminology/data asset handling. |
 | HEOR | 0 | 13 | Completed for `src/features/heor`. Focused HEOR wave scanner reports 0 candidates across the hub, analysis detail workspace, claims explorer, budget-impact chart, cost-effectiveness plane, scenario comparison chart, tornado diagram, and supporting HEOR label helpers. Payer terminology, Solr command text, currency figures, and ICER/QALY shorthand remain protected where needed. |
-| Morpheus | 152 | 25 | Later specialty wave. Treat microbiology/antibiogram constants as curated/source terminology. |
+| Morpheus | 0 | 33 | Completed for `src/features/morpheus`. Focused Morpheus wave scanner reports 0 candidates across the dashboard, patient journey, location track, medication timeline, concept drawer, microbiology/antibiogram views, labs, vitals, dataset selector, export, and supporting Morpheus label helpers/constants. Microbiology/source terminology, organism names, specimen labels, antibiotic names, units, and dataset/source identifiers remain protected where needed. |
 | ETL source profiler and Aqueduct | 152 | 16 | Later data-engineering wave. Protect table, schema, file, and mapping identifiers. |
 | GIS, Poseidon, code tools, text-to-SQL, Jupyter | 257 | 41 | Later technical-tooling wave. Many strings are command/tool labels or examples. |
 | Concept sets and shared research primitives | 98 | 13 | Later shared research wave. Some scanner hits are separators/proper nouns and should become exemptions. |
@@ -47,19 +47,19 @@ Use the dedicated `npm run i18n:scan:app-priority` script plus the focused wave 
 | ---: | --- |
 | 315 | `src/features/etl/lib/cdm-schema-v54.ts` |
 | 99 | `src/features/standard-pros/data/instruments.ts` |
-| 36 | `src/features/morpheus/constants/antibioticClasses.ts` |
 | 34 | `src/features/poseidon/pages/PoseidonPage.tsx` |
 | 30 | `src/features/jupyter/pages/JupyterPage.tsx` |
 | 29 | `src/features/etl/components/aqueduct/FieldMappingDetail.tsx` |
 | 29 | `src/features/etl/pages/SourceProfilerPage.tsx` |
 | 29 | `src/features/study-agent/pages/StudyDesignerPage.tsx` |
-| 27 | `src/features/morpheus/pages/PatientJourneyPage.tsx` |
 | 22 | `src/features/phenotype-library/pages/PhenotypeLibraryPage.tsx` |
 | 19 | `src/features/concept-sets/components/ConceptSetEditor.tsx` |
-| 19 | `src/features/morpheus/components/ConceptDetailDrawer.tsx` |
 | 16 | `src/features/community-workbench-sdk/pages/CommunityWorkbenchSdkDemoPage.tsx` |
 | 16 | `src/features/workbench/pages/WorkbenchLauncherPage.tsx` |
 | 15 | `src/features/concept-sets/components/ConceptSetItemDetailExpander.tsx` |
+| 15 | `src/features/etl/components/profiler-badges.tsx` |
+| 14 | `src/features/abby-ai/components/AbbyAiPanel.tsx` |
+| 14 | `src/features/concept-sets/components/ConceptSetList.tsx` |
 
 ## Recommended Extraction Order
 
@@ -93,8 +93,11 @@ Use the dedicated `npm run i18n:scan:app-priority` script plus the focused wave 
 10. HEOR. Completed 2026-04-21.
    Scope completed: `src/features/heor` across the HEOR hub, analysis detail workspace, claims explorer, budget-impact chart, cost-effectiveness plane, scenario comparison chart, tornado diagram, and supporting HEOR label helpers. The focused wave scanner reports 0 candidates across 13 files. Payer terminology, Solr command text, currency figures, and ICER/QALY shorthand remain protected where needed.
 
-11. Later specialty waves.
-   Morpheus, ETL source profiler/Aqueduct, GIS/Poseidon/code tools, concept-set shared primitives, and remaining workbench surfaces should follow after the completed waves above. The next highest-value non-FinnGen app wave is now Morpheus.
+11. Morpheus. Completed 2026-04-21.
+   Scope completed: `src/features/morpheus` across the dashboard, patient journey, location track, medication timeline, diagnoses summary, labs, vitals, microbiology/antibiogram views, concept drawer, dataset selector, export flow, and Morpheus label helpers/constants. The focused Morpheus wave scanner reports 0 candidates across 33 files. Microbiology/source terminology, organism names, specimen labels, antibiotic names, units, and dataset/source identifiers remain protected where needed while the surrounding inpatient workflow chrome now resolves through app i18n resources.
+
+12. Later specialty waves.
+   ETL source profiler/Aqueduct, GIS/Poseidon/code tools, concept-set shared primitives, phenotype-library/study-agent/workbench surfaces, and remaining small workbench panels should follow after the completed waves above. The next highest-value non-FinnGen app wave is now ETL source profiler and Aqueduct.
 
 ## Generated/Static Data Policy
 
@@ -102,7 +105,7 @@ The scanner intentionally reports static descriptions and clinical/source-like d
 
 - `src/features/etl/lib/cdm-schema-v54.ts` contains OMOP CDM schema/table/field descriptions. Treat this as standards documentation or source terminology.
 - `src/features/standard-pros/data/instruments.ts` contains instrument content. Treat it as curated instrument metadata; do not machine-translate validated instrument text.
-- Morpheus antibiotic classes and microbiology labels should follow a terminology policy, not a simple UI translation pass.
+- Morpheus antibiotic classes and microbiology labels now follow a terminology policy rather than a simple UI translation pass; keep using that exemption pattern if the underlying source/codelist content expands.
 - Strategus type/module constants should preserve package/module identifiers and only translate surrounding UI chrome.
 
 ## Intentional Exemptions To Add During Waves

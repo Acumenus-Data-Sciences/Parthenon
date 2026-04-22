@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface DistItem {
   label: string;
@@ -12,6 +13,7 @@ interface DistributionChartProps {
 }
 
 export default function DistributionChart({ data, barColor = '#2DD4BF', title }: DistributionChartProps) {
+  const { t } = useTranslation('app');
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(300);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; item: DistItem } | null>(null);
@@ -23,7 +25,13 @@ export default function DistributionChart({ data, barColor = '#2DD4BF', title }:
     return () => ro.disconnect();
   }, []);
 
-  if (!data.length) return <div className="text-text-ghost text-sm py-8 text-center">No data</div>;
+  if (!data.length) {
+    return (
+      <div className="text-text-ghost text-sm py-8 text-center">
+        {t('morpheus.common.data.noData')}
+      </div>
+    );
+  }
 
   const maxVal = Math.max(...data.map(d => d.value), 1);
   const padL = 8;
@@ -81,7 +89,7 @@ export default function DistributionChart({ data, barColor = '#2DD4BF', title }:
           style={{ top: tooltip.y - 50, left: tooltip.x + 12 }}
         >
           <div className="font-medium text-text-primary">{tooltip.item.label}</div>
-          <div>Count: {tooltip.item.value.toLocaleString()}</div>
+          <div>{t('morpheus.distributionChart.count', { value: tooltip.item.value.toLocaleString() })}</div>
         </div>
       )}
     </div>

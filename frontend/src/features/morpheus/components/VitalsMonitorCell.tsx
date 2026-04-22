@@ -1,4 +1,5 @@
 // frontend/src/features/morpheus/components/VitalsMonitorCell.tsx
+import { useTranslation } from 'react-i18next';
 import LabSparkline from './LabSparkline';
 
 interface VitalsMonitorCellProps {
@@ -23,6 +24,7 @@ function getSeverityBorder(value: number | null, normal: [number, number], criti
 export default function VitalsMonitorCell({
   label, value, unit, color, sparklineValues, normalRange, criticalRange, minValue, maxValue,
 }: VitalsMonitorCellProps) {
+  const { t } = useTranslation('app');
   const borderClass = getSeverityBorder(value, normalRange, criticalRange);
 
   return (
@@ -35,7 +37,7 @@ export default function VitalsMonitorCell({
           <span className="text-[10px] text-text-ghost">{unit}</span>
         </div>
       ) : (
-        <div className="text-sm text-text-ghost">No data</div>
+        <div className="text-sm text-text-ghost">{t('morpheus.common.data.noData')}</div>
       )}
 
       {sparklineValues.length > 1 && (
@@ -50,8 +52,8 @@ export default function VitalsMonitorCell({
 
       {minValue != null && maxValue != null && (
         <div className="flex justify-between text-[9px] text-text-ghost">
-          <span>Lo: {minValue.toFixed(1)}</span>
-          <span>Hi: {maxValue.toFixed(1)}</span>
+          <span>{t('morpheus.vitals.low')} {minValue.toFixed(1)}</span>
+          <span>{t('morpheus.vitals.high')} {maxValue.toFixed(1)}</span>
         </div>
       )}
     </div>
