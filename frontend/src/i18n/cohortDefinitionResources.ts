@@ -2,10 +2,36 @@ type MessageTree = {
   [key: string]: string | MessageTree;
 };
 
-export const cohortDefinitionResources: Record<string, MessageTree> = {
-  "en-US": {
-    "cohortDefinitions": {
-      "auto": {
+function mergeMessageTrees(base: MessageTree, overrides: MessageTree): MessageTree {
+  return Object.fromEntries(
+    Object.entries(base).map(([key, baseValue]) => {
+      const overrideValue = overrides[key];
+      if (
+        baseValue &&
+        typeof baseValue === "object" &&
+        !Array.isArray(baseValue)
+      ) {
+        return [
+          key,
+          mergeMessageTrees(
+            baseValue,
+            overrideValue &&
+              typeof overrideValue === "object" &&
+              !Array.isArray(overrideValue)
+              ? overrideValue
+              : {},
+          ),
+        ];
+      }
+
+      return [key, overrideValue ?? baseValue];
+    }),
+  );
+}
+
+const enCohortDefinitions: MessageTree = {
+  cohortDefinitions: {
+    auto: {
         "14Days_0e92d2": "14 days",
         "1Year_ca4c73": "1 year",
         "30Days_947d85": "30 days",
@@ -563,8 +589,1238 @@ export const cohortDefinitionResources: Record<string, MessageTree> = {
         "within90Days_02c615": "Within 90 days",
         "yearOfBirth_fb50e2": "Year of Birth",
         "yourCohortDefinitionReadsAs_02afaa": "Your cohort definition reads as:"
-      }
-    }
+    },
   },
 };
 
+const frCohortDefinitions: MessageTree = mergeMessageTrees(enCohortDefinitions, {
+  cohortDefinitions: {
+    auto: {
+      "14Days_0e92d2": "14 jours",
+      "1Year_ca4c73": "1 an",
+      "30Days_947d85": "30 jours",
+      "30DaysBeforeThrough30DaysAfter_448f6c":
+        "30 jours avant jusqu'a 30 jours apres",
+      "7Days_cb8f14": "7 jours",
+      "90Days_ed0c9b": "90 jours",
+      "90DaysBeforeThrough90DaysAfter_467b93":
+        "90 jours avant jusqu'a 90 jours apres",
+      "add_ec211f": "Ajouter",
+      "addADescription_4bc3db": "Ajouter une description...",
+      "addAtLeastOneEntryEventToDefine_80f619":
+        "Ajoutez au moins un evenement d'entree pour definir cette cohorte",
+      "addCensoringCriterion_fc792b": "Ajouter un critere de censure",
+      "addCriterion_7ec1c2": "Ajouter un critere",
+      "addDemographicFilter_718a20": "Ajouter un filtre demographique",
+      "addGenomicCriterion_766eea": "Ajouter un critere genomique",
+      "addImagingCriterion_58c7a4": "Ajouter un critere d'imagerie",
+      "addInclusionRule_484311": "Ajouter une regle d'inclusion",
+      "addInclusionRule_be0834": "Ajouter une regle d'inclusion",
+      "addNestedGroup_2a1d3f": "Ajouter un groupe imbrique",
+      "addPrimaryCriterion_a69aa7": "Ajouter un critere principal",
+      "addRiskScoreCriterion_fe4a6c": "Ajouter un critere de score de risque",
+      "addTag_f34097": "Ajouter une etiquette...",
+      "adjudicatedCounts_51898c": "Comptes adjudiques",
+      "advancedEditor_cfadc6": "Editeur avance",
+      "ageGroup_cc93f9": "Groupe d'age",
+      "ageRange_2d0f27": "Tranche d'age",
+      "all_b1c94c": "Tous",
+      "allDefinitions_39f3bd": "Toutes les definitions",
+      "allEvents_1aafb0": "Tous les evenements",
+      "allPeopleMatchingPrimaryCriteriaWillBeIncluded_41b0a5":
+        "Toutes les personnes correspondant aux criteres principaux seront incluses",
+      "anyAgeGenderRaceOrEthnicityRestrictions_3579bf":
+        "Des restrictions d'age, de sexe, de race ou d'ethnicite ?",
+      "anyTime_76226a": "N'importe quand",
+      "anyTimeAfter_259672": "N'importe quand apres",
+      "anyTimeBefore_95323b": "N'importe quand avant",
+      "applyDemographicFiltersToTheCohortAgeGender_dad15c":
+        "Appliquez des filtres demographiques a la cohorte (age, sexe, race, ethnicite).",
+      "approvalNotes_8b0b3f": "Notes d'approbation",
+      "areThereSpecificEventsThatShouldEndA_f98618":
+        "Existe-t-il des evenements specifiques qui devraient interrompre plus tot le suivi d'un patient ? Par exemple : deces, transplantation d'organe ou passage a un autre traitement.",
+      "assignADomain_626d32": "Assigner un domaine",
+      "atLeast_0198c3": "Au moins",
+      "atLeast_3158d7": "au moins",
+      "atMost_14c210": "au plus",
+      "attritionFunnelForEachInclusionRule_d4ea44":
+        "Entonnoir d'attrition pour chaque regle d'inclusion",
+      "author_91401f": "Auteur :",
+      "author_a51774": "Auteur",
+      "back_0557fa": "Retour",
+      "backToList_630f6d": "Retour a la liste",
+      "balancedDemographics_d64a2d": "Demographie equilibree",
+      "basics_bbc910": "Bases",
+      "between_5ccb72": "Entre",
+      "birthYear_52158d": "Annee de naissance &ge;",
+      "birthYear_faf54c": "Annee de naissance &le;",
+      "browseHierarchy_4955c5": "Parcourir la hierarchie",
+      "byDomain_07a813": "Par domaine",
+      "calendarYear_9af1db": "Annee civile",
+      "cancel_ea4788": "Annuler",
+      "cancelled_a149e8": "Annule",
+      "cannotGenerateFixTheseIssues_9e2a15":
+        "Generation impossible &mdash; corrigez ces problemes :",
+      "case_0819eb": "Cas",
+      "caseNonCaseLabels_84e1ef": "etiquettes cas/non-cas",
+      "censoredAt_9ce809": "censure a",
+      "censoringCriteria_be030f": "Criteres de censure",
+      "chooseFile_cbe55e": "Choisir un fichier",
+      "clearFilters_0b2754": "Effacer les filtres",
+      "clickToEdit_0f07b6": "Cliquer pour modifier",
+      "clinicalDomain_357e2f": "Domaine clinique",
+      "close_d3d2e6": "Fermer",
+      "cohortCount_026d5d": "Effectif de la cohorte",
+      "cohortDefinitions_e84b92": "Definitions de cohortes",
+      "cohortDiagnostics_54bb39": "Diagnostics de cohorte",
+      "cohortDiagnosticsResults_21259d": "Resultats des diagnostics de cohorte",
+      "cohortEnd_8151f8": "Fin de la cohorte",
+      "cohortEntry_9aa430": "entree dans la cohorte",
+      "cohortExpression_c20438": "Expression de cohorte",
+      "cohortId_ea9073": "ID de cohorte",
+      "cohortIsSavedAndReadyForUseIn_4be8dd":
+        "La cohorte est enregistree et prete a etre utilisee dans les analyses et les etudes.",
+      "cohortMembers_135b3f": "Membres de la cohorte",
+      "cohortName_fbe06f": "Nom de la cohorte",
+      "cohortOverlapAnalysis_ced892": "Analyse de chevauchement des cohortes",
+      "cohortStart_8ed0f7": "Debut de la cohorte",
+      "cohortSummary_226728": "Resume de la cohorte",
+      "cohortWizard_e16df5": "Assistant de cohorte",
+      "compile_3de938": "Compiler",
+      "complete_ae94f8": "Terminer",
+      "completed_07ca50": "Termine",
+      "computeMetricsFromReview_f4671d":
+        "Calculer les metriques a partir de la revue",
+      "conceptId_20d798": "ID du concept",
+      "conceptName_23c68a": "Nom du concept",
+      "conceptSet_ca2d17": "Ensemble de concepts",
+      "conceptSetName_91bc6a": "Nom de l'ensemble de concepts...",
+      "conceptSets_60d8ff": "Ensembles de concepts",
+      "conceptSetsReferencedByCriteriaInThisCohort_f8bb10":
+        "Ensembles de concepts references par les criteres de cette definition de cohorte. Ils sont geres en ligne lors de l'ajout des criteres.",
+      "condition_9e2941": "Affection",
+      "conditions_229eb0": "Conditions",
+      "controlHowManyQualifyingEventsPerPersonAre_7711cc":
+        "Controlez combien d'evenements admissibles par personne sont inclus.",
+      "copy_5fb635": "Copier",
+      "copySql_e335cf": "Copier le SQL",
+      "create_686e69": "Creer",
+      "createCohortDefinition_fadbf8": "Creer une definition de cohorte",
+      "created_0eceeb": "Cree",
+      "criteria_2e739b": "Criteres",
+      "dataSource_338880": "Source de donnees",
+      "daysOfFollowUpRequiredAfterEntry_2ef509":
+        "Jours de suivi requis apres l'entree",
+      "daysOfHistoryRequiredBeforeEntry_df5f37":
+        "Jours d'historique requis avant l'entree",
+      "defineAdditionalInclusionCriteriaThatMustBeSatisfied_87880c":
+        "Definissez des criteres d'inclusion supplementaires qui doivent etre satisfaits apres les evenements initiaux admissibles. Ils limitent davantage les personnes eligibles pour la cohorte.",
+      "defineAndManageCohortDefinitionsForPopulationLevel_540f3a":
+        "Definir et gerer les definitions de cohortes pour les etudes en population",
+      "defineEventsThatWillEndAPersonS_a25741":
+        "Definissez les evenements qui mettront fin a l'appartenance d'une personne a la cohorte avant que la strategie de fin ne soit atteinte.",
+      "defineTheInitialQualifyingEventsEntryEventsFor_5ed24f":
+        "Definissez les evenements initiaux admissibles (evenements d'entree) pour cette cohorte. Les personnes doivent avoir au moins un de ces evenements pour entrer dans la cohorte.",
+      "delete_f2a6c4": "Supprimer",
+      "demographicCriteria_75b107": "Criteres demographiques",
+      "demographics_d6f6d1": "Demographie",
+      "description_b5a7ad": "Description",
+      "diagnosticAnalyses_d4290f": "Analyses diagnostiques",
+      "diagnostics_36b64a": "Diagnostics",
+      "diagnosticsCompleted_e84f8f": "Diagnostics termines",
+      "diagnosticsRunDirectlyAgainstTheCdmAndMay_f09ba4":
+        "Les diagnostics s'executent directement sur le CDM et peuvent prendre 1 a 5 minutes. Les resultats ne sont pas conserves.",
+      "doneSaveClose_656c71": "Termine &mdash; Enregistrer et fermer",
+      "downloadCsv_54df95": "Telecharger CSV",
+      "draft_f03ab1": "Brouillon",
+      "drug_5db77f": "Medicament",
+      "editCriteria_9a19c7": "Modifier les criteres",
+      "editFollowUp_ae3e98": "Modifier le suivi",
+      "editPopulation_63f7a8": "Modifier la population",
+      "endStrategy_12b371": "Strategie de fin",
+      "enterANameForYourCohortToContinue_204c40":
+        "Saisissez un nom pour votre cohorte pour continuer.",
+      "errorLoadingPrsScores_0d56cb": "Erreur lors du chargement des scores PRS :",
+      "ethnicity_8919df": "Ethnicite",
+      "eventOccurredAtAnyPointAfterCohortEntry_358df7":
+        "Evenement survenu a n'importe quel moment apres l'entree dans la cohorte",
+      "eventOccurredAtAnyPointPriorToCohort_a7c552":
+        "Evenement survenu a n'importe quel moment avant l'entree dans la cohorte",
+      "eventOnTheSameDateAsCohortEntry_3fcdd6":
+        "Evenement survenu a la meme date que l'entree dans la cohorte",
+      "excludePatientsMatchingThisCriterion_91d32f":
+        "Exclure les patients correspondant a ce critere",
+      "expires_7896bd": "Expire :",
+      "export_0095a9": "Exporter",
+      "expressionEditor_fdd3c0": "Editeur d'expression",
+      "failed_d7c8c8": "Echec",
+      "failedToCompileEnsureTheExpressionIsSaved_450172":
+        "Echec de la compilation. Assurez-vous que l'expression est enregistree.",
+      "failedToLoadCohortDefinition_d0e22d":
+        "Echec du chargement de la definition de cohorte",
+      "failedToLoadCohortDefinitions_bd5113":
+        "Echec du chargement des definitions de cohortes",
+      "failedToStartGenerationPleaseTryAgain_9b4b50":
+        "Echec du demarrage de la generation. Veuillez reessayer.",
+      "female_b719ce": "Femme",
+      "filterBundles_d58b5f": "Filtrer les bundles...",
+      "filterBy_5015f5": "Filtrer par",
+      "filterById_313bcf": "Filtrer par ID...",
+      "generate_32b919": "Generer",
+      "generateCohort_7076db": "Generer la cohorte",
+      "generated_5c5f06": "Genere",
+      "generatedSql_f3a6a7": "SQL genere",
+      "generateLink_50a9ec": "Generer un lien",
+      "generationHistory_37b958": "Historique de generation",
+      "imagingCriteria_983710": "Criteres d'imagerie",
+      "import_72d6d7": "Importer",
+      "importCohortDefinition_239ba4": "Importer une definition de cohorte",
+      "inclusionCriteria_04899e": "Criteres d'inclusion",
+      "inclusionRuleAttrition_c81a94": "Attrition des regles d'inclusion",
+      "inclusionStatistics_2105dc": "Statistiques d'inclusion",
+      "lastSaved_c6dad3": "Derniere sauvegarde",
+      "latestGeneration_63ab9b": "Derniere generation",
+      "latestValidation_1a18c5": "Derniere validation",
+      "linkExpires_21d075": "Le lien expire :",
+      "linkExpiresAfter_1daff2": "Le lien expire apres",
+      "myDefinitions_5c115e": "Mes definitions",
+      "newCohortDefinition_3caa4c": "Nouvelle definition de cohorte",
+      "noCohortDefinitions_a11064": "Aucune definition de cohorte",
+      "noDefinitionsMatchTheCurrentFilters_df39c6":
+        "Aucune definition ne correspond aux filtres actuels.",
+      "noGenerationsYet_38e4b5": "Aucune generation pour le moment",
+      "noValidationIssuesFound_50fe8e": "Aucun probleme de validation trouve",
+      "observationWindow_3e7979": "Fenetre d'observation",
+      "open_c3bf44": "Ouvrir",
+      "openInAdvancedEditor_502532": "Ouvrir dans l'editeur avance",
+      "overlap_2359a1": "Chevauchement",
+      "patientList_04b6ae": "Liste des patients",
+      "polygenicRiskScoreDistribution_988a0f":
+        "Distribution du score de risque polygenique",
+      "printFriendly_ad43c1": "Version imprimable",
+      "promoteToValidated_ac436a": "Promouvoir en valide",
+      "public_3d067b": "Public",
+      "readOnlyViewParthenonOutcomesResearchPlatform_a64268":
+        "Vue en lecture seule · Plateforme Parthenon Outcomes Research",
+      "refreshSql_206383": "Actualiser le SQL",
+      "render_5e520d": "Rendre",
+      "renderFailedEnsureTheExpressionIsSaved_b513ec":
+        "Echec du rendu. Assurez-vous que l'expression est enregistree.",
+      "restore_2bd339": "Restaurer",
+      "review_457dd5": "Revoir",
+      "runDiagnostics_264198": "Executer les diagnostics",
+      "runValidation_10814a": "Executer la validation",
+      "save_c9cc8c": "Enregistrer",
+      "searchCohortDefinitions_c8a8da":
+        "Rechercher des definitions de cohortes...",
+      "selectADataSource_065af7": "Selectionner une source de donnees...",
+      "selectADataSourceToPreviewSql_c00f36":
+        "Selectionner une source de donnees pour previsualiser le SQL",
+      "share_5a95a4": "Partager",
+      "shareCohort_75eb54": "Partager la cohorte",
+      "shareLink_50f67a": "Partager le lien",
+      "sqlGeneration_48d9a5": "SQL et generation",
+      "sqlPreview_0b214a": "Apercu SQL",
+      "startReviewSession_dbad26": "Demarrer la session de revue",
+      "status_ec53a8": "Statut",
+      "supersededBy_fd9407": "Remplacee par",
+      "tagName_4f8a9a": "nom de l'etiquette",
+      "tags_189f63": "Etiquettes",
+      "temporalCharacterization_66dc64": "Caracterisation temporelle",
+      "threshold_2a63f5": "Seuil",
+      "total_96b014": "Total",
+      "totalMembers_baa28c": "total des membres",
+      "totalUnique_bd9f2e": "Total unique",
+      "trueNegatives_8bdf10": "Vrais negatifs",
+      "truePositives_4fd14d": "Vrais positifs",
+      "updated_ff0a3b": "Mis a jour",
+      "uploadJsonFile_4f8fee": "Televerser un fichier JSON",
+      "validate_ad3d06": "Valider",
+      "validated_536425": "Valide",
+      "validation_131487": "Validation",
+      "validationFailedEnsureTheExpressionIsSaved_c2c0a6":
+        "Echec de la validation. Assurez-vous que l'expression est enregistree.",
+      "validationHistory_f95871": "Historique de validation",
+      "viewDiagnostics_d0f7c1": "Voir les diagnostics",
+      "visit_5e706a": "Visite",
+      "visitContext_ce10c6": "Contexte de visite",
+      "within30Days_c68e5c": "Dans les 30 jours",
+      "within90Days_02c615": "Dans les 90 jours",
+      "yearOfBirth_fb50e2": "Annee de naissance",
+      "yourCohortDefinitionReadsAs_02afaa":
+        "Votre definition de cohorte se lit comme suit :",
+    },
+  },
+});
+
+const deCohortDefinitions: MessageTree = mergeMessageTrees(enCohortDefinitions, {
+  cohortDefinitions: {
+    auto: {
+      "14Days_0e92d2": "14 Tage",
+      "1Year_ca4c73": "1 Jahr",
+      "30Days_947d85": "30 Tage",
+      "30DaysBeforeThrough30DaysAfter_448f6c":
+        "30 Tage davor bis 30 Tage danach",
+      "7Days_cb8f14": "7 Tage",
+      "90Days_ed0c9b": "90 Tage",
+      "90DaysBeforeThrough90DaysAfter_467b93":
+        "90 Tage davor bis 90 Tage danach",
+      "add_ec211f": "Hinzufugen",
+      "addADescription_4bc3db": "Beschreibung hinzufugen...",
+      "addAtLeastOneEntryEventToDefine_80f619":
+        "Fugen Sie mindestens ein Eintrittsereignis hinzu, um diese Kohorte zu definieren",
+      "addCensoringCriterion_fc792b": "Zensierungskriterium hinzufugen",
+      "addCriterion_7ec1c2": "Kriterium hinzufugen",
+      "addDemographicFilter_718a20": "Demografischen Filter hinzufugen",
+      "addGenomicCriterion_766eea": "Genomisches Kriterium hinzufugen",
+      "addImagingCriterion_58c7a4": "Bildgebungs-Kriterium hinzufugen",
+      "addInclusionRule_484311": "Einschlussregel hinzufugen",
+      "addInclusionRule_be0834": "Einschlussregel hinzufugen",
+      "addNestedGroup_2a1d3f": "Verschachtelte Gruppe hinzufugen",
+      "addPrimaryCriterion_a69aa7": "Primarkriterium hinzufugen",
+      "addRiskScoreCriterion_fe4a6c": "Risikowert-Kriterium hinzufugen",
+      "addTag_f34097": "Tag hinzufugen...",
+      "adjudicatedCounts_51898c": "Begutachtete Anzahlen",
+      "advancedEditor_cfadc6": "Erweiterter Editor",
+      "ageGroup_cc93f9": "Altersgruppe",
+      "ageRange_2d0f27": "Altersbereich",
+      "all_b1c94c": "Alle",
+      "allDefinitions_39f3bd": "Alle Definitionen",
+      "allEvents_1aafb0": "Alle Ereignisse",
+      "allPeopleMatchingPrimaryCriteriaWillBeIncluded_41b0a5":
+        "Alle Personen, die den Primarkriterien entsprechen, werden eingeschlossen",
+      "anyAgeGenderRaceOrEthnicityRestrictions_3579bf":
+        "Gibt es Einschrankungen hinsichtlich Alter, Geschlecht, Ethnie oder Abstammung?",
+      "anyTime_76226a": "Jederzeit",
+      "anyTimeAfter_259672": "Jederzeit danach",
+      "anyTimeBefore_95323b": "Jederzeit davor",
+      "applyDemographicFiltersToTheCohortAgeGender_dad15c":
+        "Wenden Sie demografische Filter auf die Kohorte an (Alter, Geschlecht, Ethnie, Abstammung).",
+      "approvalNotes_8b0b3f": "Freigabenotizen",
+      "areThereSpecificEventsThatShouldEndA_f98618":
+        "Gibt es bestimmte Ereignisse, die die Nachbeobachtung eines Patienten fruhzeitig beenden sollten? Zum Beispiel Tod, Organtransplantation oder Wechsel zu einer anderen Behandlung.",
+      "assignADomain_626d32": "Eine Domane zuweisen",
+      "atLeast_0198c3": "Mindestens",
+      "atLeast_3158d7": "mindestens",
+      "atMost_14c210": "hochstens",
+      "attritionFunnelForEachInclusionRule_d4ea44":
+        "Attritions-Trichter fur jede Einschlussregel",
+      "author_91401f": "Autor:",
+      "author_a51774": "Autor",
+      "back_0557fa": "Zuruck",
+      "backToList_630f6d": "Zuruck zur Liste",
+      "balancedDemographics_d64a2d": "Ausgewogene Demografie",
+      "basics_bbc910": "Grundlagen",
+      "between_5ccb72": "Zwischen",
+      "birthYear_52158d": "Geburtsjahr &ge;",
+      "birthYear_faf54c": "Geburtsjahr &le;",
+      "browseHierarchy_4955c5": "Hierarchie durchsuchen",
+      "byDomain_07a813": "Nach Domane",
+      "calendarYear_9af1db": "Kalenderjahr",
+      "cancel_ea4788": "Abbrechen",
+      "cancelled_a149e8": "Abgebrochen",
+      "cannotGenerateFixTheseIssues_9e2a15":
+        "Kann nicht generiert werden &mdash; beheben Sie diese Probleme:",
+      "case_0819eb": "Fall",
+      "caseNonCaseLabels_84e1ef": "Fall/Nicht-Fall-Labels",
+      "censoredAt_9ce809": "zensiert bei",
+      "censoringCriteria_be030f": "Zensierungskriterien",
+      "chooseFile_cbe55e": "Datei auswahlen",
+      "clearFilters_0b2754": "Filter zurucksetzen",
+      "clickToEdit_0f07b6": "Zum Bearbeiten klicken",
+      "clinicalDomain_357e2f": "Klinische Domane",
+      "close_d3d2e6": "Schliessen",
+      "cohortCount_026d5d": "Kohortenanzahl",
+      "cohortDefinitions_e84b92": "Kohortendefinitionen",
+      "cohortDiagnostics_54bb39": "Kohortendiagnostik",
+      "cohortDiagnosticsResults_21259d": "Ergebnisse der Kohortendiagnostik",
+      "cohortEnd_8151f8": "Kohortenende",
+      "cohortEntry_9aa430": "Kohorteneintritt",
+      "cohortExpression_c20438": "Kohortenausdruck",
+      "cohortId_ea9073": "Kohorten-ID",
+      "cohortIsSavedAndReadyForUseIn_4be8dd":
+        "Die Kohorte ist gespeichert und kann in Analysen und Studien verwendet werden.",
+      "cohortMembers_135b3f": "Kohortenmitglieder",
+      "cohortName_fbe06f": "Kohortenname",
+      "cohortOverlapAnalysis_ced892": "Analyse der Kohortenuberlappung",
+      "cohortStart_8ed0f7": "Kohortenbeginn",
+      "cohortSummary_226728": "Kohortenzusammenfassung",
+      "cohortWizard_e16df5": "Kohorten-Assistent",
+      "compile_3de938": "Kompilieren",
+      "complete_ae94f8": "Abschliessen",
+      "completed_07ca50": "Abgeschlossen",
+      "computeMetricsFromReview_f4671d":
+        "Metriken aus der Begutachtung berechnen",
+      "conceptId_20d798": "Konzept-ID",
+      "conceptName_23c68a": "Konzeptname",
+      "conceptSet_ca2d17": "Konzeptset",
+      "conceptSetName_91bc6a": "Name des Konzeptsets...",
+      "conceptSets_60d8ff": "Konzeptsets",
+      "conceptSetsReferencedByCriteriaInThisCohort_f8bb10":
+        "Konzeptsets, auf die Kriterien in dieser Kohortendefinition verweisen. Sie werden beim Hinzufugen von Kriterien direkt inline verwaltet.",
+      "condition_9e2941": "Erkrankung",
+      "conditions_229eb0": "Erkrankungen",
+      "controlHowManyQualifyingEventsPerPersonAre_7711cc":
+        "Steuern Sie, wie viele qualifizierende Ereignisse pro Person eingeschlossen werden.",
+      "copy_5fb635": "Kopieren",
+      "copySql_e335cf": "SQL kopieren",
+      "create_686e69": "Erstellen",
+      "createCohortDefinition_fadbf8": "Kohortendefinition erstellen",
+      "created_0eceeb": "Erstellt",
+      "criteria_2e739b": "Kriterien",
+      "dataSource_338880": "Datenquelle",
+      "daysOfFollowUpRequiredAfterEntry_2ef509":
+        "Erforderliche Nachbeobachtungstage nach Eintritt",
+      "daysOfHistoryRequiredBeforeEntry_df5f37":
+        "Erforderliche Verlaufstage vor Eintritt",
+      "defineAdditionalInclusionCriteriaThatMustBeSatisfied_87880c":
+        "Definieren Sie zusatzliche Einschlusskriterien, die nach den initialen qualifizierenden Ereignissen erfullt sein mussen. Diese schranken weiter ein, welche Personen fur die Kohorte infrage kommen.",
+      "defineAndManageCohortDefinitionsForPopulationLevel_540f3a":
+        "Kohortendefinitionen fur populationsbasierte Studien definieren und verwalten",
+      "defineEventsThatWillEndAPersonS_a25741":
+        "Definieren Sie Ereignisse, die die Kohortenzugehorigkeit einer Person vor Erreichen der Endstrategie beenden.",
+      "defineTheInitialQualifyingEventsEntryEventsFor_5ed24f":
+        "Definieren Sie die initialen qualifizierenden Ereignisse (Eintrittsereignisse) fur diese Kohorte. Personen mussen mindestens eines dieser Ereignisse haben, um in die Kohorte einzutreten.",
+      "delete_f2a6c4": "Loschen",
+      "demographicCriteria_75b107": "Demografische Kriterien",
+      "demographics_d6f6d1": "Demografie",
+      "description_b5a7ad": "Beschreibung",
+      "diagnosticAnalyses_d4290f": "Diagnostische Analysen",
+      "diagnostics_36b64a": "Diagnostik",
+      "diagnosticsCompleted_e84f8f": "Diagnostik abgeschlossen",
+      "diagnosticsRunDirectlyAgainstTheCdmAndMay_f09ba4":
+        "Diagnostik lauft direkt gegen das CDM und kann 1 bis 5 Minuten dauern. Ergebnisse werden nicht gespeichert.",
+      "doneSaveClose_656c71": "Fertig &mdash; Speichern und schliessen",
+      "downloadCsv_54df95": "CSV herunterladen",
+      "draft_f03ab1": "Entwurf",
+      "drug_5db77f": "Arzneimittel",
+      "editCriteria_9a19c7": "Kriterien bearbeiten",
+      "editFollowUp_ae3e98": "Nachbeobachtung bearbeiten",
+      "editPopulation_63f7a8": "Population bearbeiten",
+      "endStrategy_12b371": "Endstrategie",
+      "enterANameForYourCohortToContinue_204c40":
+        "Geben Sie einen Namen fur Ihre Kohorte ein, um fortzufahren.",
+      "errorLoadingPrsScores_0d56cb": "Fehler beim Laden der PRS-Werte:",
+      "ethnicity_8919df": "Ethnizitat",
+      "eventOccurredAtAnyPointAfterCohortEntry_358df7":
+        "Ereignis trat zu irgendeinem Zeitpunkt nach dem Kohorteneintritt auf",
+      "eventOccurredAtAnyPointPriorToCohort_a7c552":
+        "Ereignis trat zu irgendeinem Zeitpunkt vor dem Kohorteneintritt auf",
+      "eventOnTheSameDateAsCohortEntry_3fcdd6":
+        "Ereignis am selben Datum wie der Kohorteneintritt",
+      "excludePatientsMatchingThisCriterion_91d32f":
+        "Patienten ausschliessen, die diesem Kriterium entsprechen",
+      "expires_7896bd": "Lauft ab:",
+      "export_0095a9": "Exportieren",
+      "expressionEditor_fdd3c0": "Ausdruckseditor",
+      "failed_d7c8c8": "Fehlgeschlagen",
+      "failedToCompileEnsureTheExpressionIsSaved_450172":
+        "Kompilierung fehlgeschlagen. Stellen Sie sicher, dass der Ausdruck gespeichert ist.",
+      "failedToLoadCohortDefinition_d0e22d":
+        "Kohortendefinition konnte nicht geladen werden",
+      "failedToLoadCohortDefinitions_bd5113":
+        "Kohortendefinitionen konnten nicht geladen werden",
+      "failedToStartGenerationPleaseTryAgain_9b4b50":
+        "Generierung konnte nicht gestartet werden. Bitte versuchen Sie es erneut.",
+      "female_b719ce": "Weiblich",
+      "filterBundles_d58b5f": "Bundles filtern...",
+      "filterBy_5015f5": "Filtern nach",
+      "filterById_313bcf": "Nach ID filtern...",
+      "generate_32b919": "Generieren",
+      "generateCohort_7076db": "Kohorte generieren",
+      "generated_5c5f06": "Generiert",
+      "generatedSql_f3a6a7": "Generiertes SQL",
+      "generateLink_50a9ec": "Link generieren",
+      "generationHistory_37b958": "Generierungsverlauf",
+      "imagingCriteria_983710": "Bildgebungskriterien",
+      "import_72d6d7": "Importieren",
+      "importCohortDefinition_239ba4": "Kohortendefinition importieren",
+      "inclusionCriteria_04899e": "Einschlusskriterien",
+      "inclusionRuleAttrition_c81a94": "Attrition der Einschlussregeln",
+      "inclusionStatistics_2105dc": "Einschlussstatistiken",
+      "lastSaved_c6dad3": "Zuletzt gespeichert",
+      "latestGeneration_63ab9b": "Neueste Generierung",
+      "latestValidation_1a18c5": "Neueste Validierung",
+      "linkExpires_21d075": "Link lauft ab:",
+      "linkExpiresAfter_1daff2": "Link lauft ab nach",
+      "myDefinitions_5c115e": "Meine Definitionen",
+      "newCohortDefinition_3caa4c": "Neue Kohortendefinition",
+      "noCohortDefinitions_a11064": "Keine Kohortendefinitionen",
+      "noDefinitionsMatchTheCurrentFilters_df39c6":
+        "Keine Definitionen entsprechen den aktuellen Filtern.",
+      "noGenerationsYet_38e4b5": "Noch keine Generierungen",
+      "noValidationIssuesFound_50fe8e":
+        "Keine Validierungsprobleme gefunden",
+      "observationWindow_3e7979": "Beobachtungsfenster",
+      "open_c3bf44": "Offnen",
+      "openInAdvancedEditor_502532": "Im erweiterten Editor offnen",
+      "overlap_2359a1": "Uberlappung",
+      "patientList_04b6ae": "Patientenliste",
+      "polygenicRiskScoreDistribution_988a0f":
+        "Verteilung des polygenen Risikoscores",
+      "printFriendly_ad43c1": "Druckfreundlich",
+      "promoteToValidated_ac436a": "Als validiert kennzeichnen",
+      "public_3d067b": "Offentlich",
+      "readOnlyViewParthenonOutcomesResearchPlatform_a64268":
+        "Schreibgeschutzte Ansicht · Parthenon Outcomes Research Platform",
+      "refreshSql_206383": "SQL aktualisieren",
+      "render_5e520d": "Rendern",
+      "renderFailedEnsureTheExpressionIsSaved_b513ec":
+        "Rendern fehlgeschlagen. Stellen Sie sicher, dass der Ausdruck gespeichert ist.",
+      "restore_2bd339": "Wiederherstellen",
+      "review_457dd5": "Prufen",
+      "runDiagnostics_264198": "Diagnostik ausfuhren",
+      "runValidation_10814a": "Validierung ausfuhren",
+      "save_c9cc8c": "Speichern",
+      "searchCohortDefinitions_c8a8da":
+        "Kohortendefinitionen durchsuchen...",
+      "selectADataSource_065af7": "Eine Datenquelle auswahlen...",
+      "selectADataSourceToPreviewSql_c00f36":
+        "Eine Datenquelle auswahlen, um das SQL vorzuschauen",
+      "share_5a95a4": "Teilen",
+      "shareCohort_75eb54": "Kohorte teilen",
+      "shareLink_50f67a": "Link teilen",
+      "sqlGeneration_48d9a5": "SQL und Generierung",
+      "sqlPreview_0b214a": "SQL-Vorschau",
+      "startReviewSession_dbad26": "Prufsitzung starten",
+      "status_ec53a8": "Status",
+      "supersededBy_fd9407": "Ersetzt durch",
+      "tagName_4f8a9a": "Tag-Name",
+      "tags_189f63": "Tags",
+      "temporalCharacterization_66dc64": "Zeitliche Charakterisierung",
+      "threshold_2a63f5": "Schwelle",
+      "total_96b014": "Gesamt",
+      "totalMembers_baa28c": "Mitglieder insgesamt",
+      "totalUnique_bd9f2e": "Gesamt eindeutig",
+      "trueNegatives_8bdf10": "Richtig negativ",
+      "truePositives_4fd14d": "Richtig positiv",
+      "updated_ff0a3b": "Aktualisiert",
+      "uploadJsonFile_4f8fee": "JSON-Datei hochladen",
+      "validate_ad3d06": "Validieren",
+      "validated_536425": "Validiert",
+      "validation_131487": "Validierung",
+      "validationFailedEnsureTheExpressionIsSaved_c2c0a6":
+        "Validierung fehlgeschlagen. Stellen Sie sicher, dass der Ausdruck gespeichert ist.",
+      "validationHistory_f95871": "Validierungsverlauf",
+      "viewDiagnostics_d0f7c1": "Diagnostik anzeigen",
+      "visit_5e706a": "Besuch",
+      "visitContext_ce10c6": "Besuchskontext",
+      "within30Days_c68e5c": "Innerhalb von 30 Tagen",
+      "within90Days_02c615": "Innerhalb von 90 Tagen",
+      "yearOfBirth_fb50e2": "Geburtsjahr",
+      "yourCohortDefinitionReadsAs_02afaa":
+        "Ihre Kohortendefinition lautet:",
+    },
+  },
+});
+
+const ptCohortDefinitions: MessageTree = mergeMessageTrees(enCohortDefinitions, {
+  cohortDefinitions: {
+    auto: {
+      "14Days_0e92d2": "14 dias",
+      "1Year_ca4c73": "1 ano",
+      "30Days_947d85": "30 dias",
+      "30DaysBeforeThrough30DaysAfter_448f6c":
+        "30 dias antes ate 30 dias depois",
+      "7Days_cb8f14": "7 dias",
+      "90Days_ed0c9b": "90 dias",
+      "90DaysBeforeThrough90DaysAfter_467b93":
+        "90 dias antes ate 90 dias depois",
+      "add_ec211f": "Adicionar",
+      "addADescription_4bc3db": "Adicionar uma descricao...",
+      "addAtLeastOneEntryEventToDefine_80f619":
+        "Adicione pelo menos um evento de entrada para definir esta coorte",
+      "addCensoringCriterion_fc792b": "Adicionar criterio de censura",
+      "addCriterion_7ec1c2": "Adicionar criterio",
+      "addDemographicFilter_718a20": "Adicionar filtro demografico",
+      "addGenomicCriterion_766eea": "Adicionar criterio genomico",
+      "addImagingCriterion_58c7a4": "Adicionar criterio de imagem",
+      "addInclusionRule_484311": "Adicionar regra de inclusao",
+      "addInclusionRule_be0834": "Adicionar regra de inclusao",
+      "addNestedGroup_2a1d3f": "Adicionar grupo aninhado",
+      "addPrimaryCriterion_a69aa7": "Adicionar criterio primario",
+      "addRiskScoreCriterion_fe4a6c":
+        "Adicionar criterio de escore de risco",
+      "addTag_f34097": "Adicionar tag...",
+      "adjudicatedCounts_51898c": "Contagens adjudicadas",
+      "advancedEditor_cfadc6": "Editor avancado",
+      "ageGroup_cc93f9": "Faixa etaria",
+      "ageRange_2d0f27": "Intervalo de idade",
+      "all_b1c94c": "Todos",
+      "allDefinitions_39f3bd": "Todas as definicoes",
+      "allEvents_1aafb0": "Todos os eventos",
+      "allPeopleMatchingPrimaryCriteriaWillBeIncluded_41b0a5":
+        "Todas as pessoas que correspondem aos criterios primarios serao incluidas",
+      "anyAgeGenderRaceOrEthnicityRestrictions_3579bf":
+        "Ha restricoes de idade, genero, raca ou etnia?",
+      "anyTime_76226a": "A qualquer momento",
+      "anyTimeAfter_259672": "A qualquer momento depois",
+      "anyTimeBefore_95323b": "A qualquer momento antes",
+      "applyDemographicFiltersToTheCohortAgeGender_dad15c":
+        "Aplique filtros demograficos a coorte (idade, genero, raca, etnia).",
+      "approvalNotes_8b0b3f": "Notas de aprovacao",
+      "areThereSpecificEventsThatShouldEndA_f98618":
+        "Existem eventos especificos que devem encerrar mais cedo o acompanhamento de um paciente? Por exemplo, obito, transplante de orgao ou troca para outro tratamento.",
+      "assignADomain_626d32": "Atribuir um dominio",
+      "atLeast_0198c3": "Pelo menos",
+      "atLeast_3158d7": "pelo menos",
+      "atMost_14c210": "no maximo",
+      "attritionFunnelForEachInclusionRule_d4ea44":
+        "Funil de atricao para cada regra de inclusao",
+      "author_91401f": "Autor:",
+      "author_a51774": "Autor",
+      "back_0557fa": "Voltar",
+      "backToList_630f6d": "Voltar para a lista",
+      "balancedDemographics_d64a2d": "Demografia equilibrada",
+      "basics_bbc910": "Basico",
+      "between_5ccb72": "Entre",
+      "birthYear_52158d": "Ano de nascimento &ge;",
+      "birthYear_faf54c": "Ano de nascimento &le;",
+      "browseHierarchy_4955c5": "Navegar na hierarquia",
+      "byDomain_07a813": "Por dominio",
+      "calendarYear_9af1db": "Ano calendario",
+      "cancel_ea4788": "Cancelar",
+      "cancelled_a149e8": "Cancelado",
+      "cannotGenerateFixTheseIssues_9e2a15":
+        "Nao e possivel gerar &mdash; corrija estes problemas:",
+      "case_0819eb": "Caso",
+      "caseNonCaseLabels_84e1ef": "rotulos caso/nao caso",
+      "censoredAt_9ce809": "censurado em",
+      "censoringCriteria_be030f": "Criterios de censura",
+      "chooseFile_cbe55e": "Escolher arquivo",
+      "clearFilters_0b2754": "Limpar filtros",
+      "clickToEdit_0f07b6": "Clique para editar",
+      "clinicalDomain_357e2f": "Dominio clinico",
+      "close_d3d2e6": "Fechar",
+      "cohortCount_026d5d": "Contagem da coorte",
+      "cohortDefinitions_e84b92": "Definicoes de coorte",
+      "cohortDiagnostics_54bb39": "Diagnosticos da coorte",
+      "cohortDiagnosticsResults_21259d":
+        "Resultados dos diagnosticos da coorte",
+      "cohortEnd_8151f8": "Fim da coorte",
+      "cohortEntry_9aa430": "entrada na coorte",
+      "cohortExpression_c20438": "Expressao da coorte",
+      "cohortId_ea9073": "ID da coorte",
+      "cohortIsSavedAndReadyForUseIn_4be8dd":
+        "A coorte esta salva e pronta para uso em analises e estudos.",
+      "cohortMembers_135b3f": "Membros da coorte",
+      "cohortName_fbe06f": "Nome da coorte",
+      "cohortOverlapAnalysis_ced892":
+        "Analise de sobreposicao de coortes",
+      "cohortStart_8ed0f7": "Inicio da coorte",
+      "cohortSummary_226728": "Resumo da coorte",
+      "cohortWizard_e16df5": "Assistente de coorte",
+      "compile_3de938": "Compilar",
+      "complete_ae94f8": "Concluir",
+      "completed_07ca50": "Concluido",
+      "computeMetricsFromReview_f4671d":
+        "Calcular metricas a partir da revisao",
+      "conceptId_20d798": "ID do conceito",
+      "conceptName_23c68a": "Nome do conceito",
+      "conceptSet_ca2d17": "Conjunto de conceitos",
+      "conceptSetName_91bc6a": "Nome do conjunto de conceitos...",
+      "conceptSets_60d8ff": "Conjuntos de conceitos",
+      "conceptSetsReferencedByCriteriaInThisCohort_f8bb10":
+        "Conjuntos de conceitos referenciados pelos criterios desta definicao de coorte. Eles sao gerenciados em linha ao adicionar criterios.",
+      "condition_9e2941": "Condicao",
+      "conditions_229eb0": "Condicoes",
+      "controlHowManyQualifyingEventsPerPersonAre_7711cc":
+        "Controle quantos eventos qualificadores por pessoa serao incluidos.",
+      "copy_5fb635": "Copiar",
+      "copySql_e335cf": "Copiar SQL",
+      "create_686e69": "Criar",
+      "createCohortDefinition_fadbf8": "Criar definicao de coorte",
+      "created_0eceeb": "Criado",
+      "criteria_2e739b": "Criterios",
+      "dataSource_338880": "Fonte de dados",
+      "daysOfFollowUpRequiredAfterEntry_2ef509":
+        "Dias de acompanhamento exigidos apos a entrada",
+      "daysOfHistoryRequiredBeforeEntry_df5f37":
+        "Dias de historico exigidos antes da entrada",
+      "defineAdditionalInclusionCriteriaThatMustBeSatisfied_87880c":
+        "Defina criterios adicionais de inclusao que devem ser satisfeitos apos os eventos qualificadores iniciais. Eles restringem ainda mais quais pessoas se qualificam para a coorte.",
+      "defineAndManageCohortDefinitionsForPopulationLevel_540f3a":
+        "Definir e gerenciar definicoes de coorte para estudos populacionais",
+      "defineEventsThatWillEndAPersonS_a25741":
+        "Defina eventos que encerrarao a participacao de uma pessoa na coorte antes que a estrategia de termino seja alcancada.",
+      "defineTheInitialQualifyingEventsEntryEventsFor_5ed24f":
+        "Defina os eventos qualificadores iniciais (eventos de entrada) para esta coorte. As pessoas precisam ter pelo menos um desses eventos para entrar na coorte.",
+      "delete_f2a6c4": "Excluir",
+      "demographicCriteria_75b107": "Criterios demograficos",
+      "demographics_d6f6d1": "Demografia",
+      "description_b5a7ad": "Descricao",
+      "diagnosticAnalyses_d4290f": "Analises diagnosticas",
+      "diagnostics_36b64a": "Diagnosticos",
+      "diagnosticsCompleted_e84f8f": "Diagnosticos concluidos",
+      "diagnosticsRunDirectlyAgainstTheCdmAndMay_f09ba4":
+        "Os diagnosticos rodam diretamente no CDM e podem levar de 1 a 5 minutos. Os resultados nao sao persistidos.",
+      "doneSaveClose_656c71": "Concluido &mdash; Salvar e fechar",
+      "downloadCsv_54df95": "Baixar CSV",
+      "draft_f03ab1": "Rascunho",
+      "drug_5db77f": "Medicamento",
+      "editCriteria_9a19c7": "Editar criterios",
+      "editFollowUp_ae3e98": "Editar acompanhamento",
+      "editPopulation_63f7a8": "Editar populacao",
+      "endStrategy_12b371": "Estrategia de termino",
+      "enterANameForYourCohortToContinue_204c40":
+        "Digite um nome para sua coorte para continuar.",
+      "errorLoadingPrsScores_0d56cb":
+        "Erro ao carregar os escores de PRS:",
+      "ethnicity_8919df": "Etnia",
+      "eventOccurredAtAnyPointAfterCohortEntry_358df7":
+        "Evento ocorrido em qualquer momento apos a entrada na coorte",
+      "eventOccurredAtAnyPointPriorToCohort_a7c552":
+        "Evento ocorrido em qualquer momento antes da entrada na coorte",
+      "eventOnTheSameDateAsCohortEntry_3fcdd6":
+        "Evento na mesma data da entrada na coorte",
+      "excludePatientsMatchingThisCriterion_91d32f":
+        "Excluir pacientes que correspondem a este criterio",
+      "expires_7896bd": "Expira:",
+      "export_0095a9": "Exportar",
+      "expressionEditor_fdd3c0": "Editor de expressoes",
+      "failed_d7c8c8": "Falhou",
+      "failedToCompileEnsureTheExpressionIsSaved_450172":
+        "Falha ao compilar. Verifique se a expressao esta salva.",
+      "failedToLoadCohortDefinition_d0e22d":
+        "Falha ao carregar a definicao de coorte",
+      "failedToLoadCohortDefinitions_bd5113":
+        "Falha ao carregar as definicoes de coorte",
+      "failedToStartGenerationPleaseTryAgain_9b4b50":
+        "Falha ao iniciar a geracao. Tente novamente.",
+      "female_b719ce": "Feminino",
+      "filterBundles_d58b5f": "Filtrar bundles...",
+      "filterBy_5015f5": "Filtrar por",
+      "filterById_313bcf": "Filtrar por ID...",
+      "generate_32b919": "Gerar",
+      "generateCohort_7076db": "Gerar coorte",
+      "generated_5c5f06": "Gerado",
+      "generatedSql_f3a6a7": "SQL gerado",
+      "generateLink_50a9ec": "Gerar link",
+      "generationHistory_37b958": "Historico de geracao",
+      "imagingCriteria_983710": "Criterios de imagem",
+      "import_72d6d7": "Importar",
+      "importCohortDefinition_239ba4": "Importar definicao de coorte",
+      "inclusionCriteria_04899e": "Criterios de inclusao",
+      "inclusionRuleAttrition_c81a94": "Atricao das regras de inclusao",
+      "inclusionStatistics_2105dc": "Estatisticas de inclusao",
+      "lastSaved_c6dad3": "Ultimo salvamento",
+      "latestGeneration_63ab9b": "Geracao mais recente",
+      "latestValidation_1a18c5": "Validacao mais recente",
+      "linkExpires_21d075": "O link expira:",
+      "linkExpiresAfter_1daff2": "O link expira apos",
+      "myDefinitions_5c115e": "Minhas definicoes",
+      "newCohortDefinition_3caa4c": "Nova definicao de coorte",
+      "noCohortDefinitions_a11064": "Nenhuma definicao de coorte",
+      "noDefinitionsMatchTheCurrentFilters_df39c6":
+        "Nenhuma definicao corresponde aos filtros atuais.",
+      "noGenerationsYet_38e4b5": "Ainda nao ha geracoes",
+      "noValidationIssuesFound_50fe8e":
+        "Nenhum problema de validacao encontrado",
+      "observationWindow_3e7979": "Janela de observacao",
+      "open_c3bf44": "Abrir",
+      "openInAdvancedEditor_502532": "Abrir no editor avancado",
+      "overlap_2359a1": "Sobreposicao",
+      "patientList_04b6ae": "Lista de pacientes",
+      "polygenicRiskScoreDistribution_988a0f":
+        "Distribuicao do escore de risco poligenico",
+      "printFriendly_ad43c1": "Versao para impressao",
+      "promoteToValidated_ac436a": "Promover para validado",
+      "public_3d067b": "Publico",
+      "readOnlyViewParthenonOutcomesResearchPlatform_a64268":
+        "Visualizacao somente leitura · Plataforma Parthenon Outcomes Research",
+      "refreshSql_206383": "Atualizar SQL",
+      "render_5e520d": "Renderizar",
+      "renderFailedEnsureTheExpressionIsSaved_b513ec":
+        "Falha na renderizacao. Verifique se a expressao esta salva.",
+      "restore_2bd339": "Restaurar",
+      "review_457dd5": "Revisar",
+      "runDiagnostics_264198": "Executar diagnosticos",
+      "runValidation_10814a": "Executar validacao",
+      "save_c9cc8c": "Salvar",
+      "searchCohortDefinitions_c8a8da":
+        "Buscar definicoes de coorte...",
+      "selectADataSource_065af7": "Selecionar uma fonte de dados...",
+      "selectADataSourceToPreviewSql_c00f36":
+        "Selecionar uma fonte de dados para visualizar o SQL",
+      "share_5a95a4": "Compartilhar",
+      "shareCohort_75eb54": "Compartilhar coorte",
+      "shareLink_50f67a": "Compartilhar link",
+      "sqlGeneration_48d9a5": "SQL e geracao",
+      "sqlPreview_0b214a": "Previa do SQL",
+      "startReviewSession_dbad26": "Iniciar sessao de revisao",
+      "status_ec53a8": "Status",
+      "supersededBy_fd9407": "Substituida por",
+      "tagName_4f8a9a": "nome da tag",
+      "tags_189f63": "Tags",
+      "temporalCharacterization_66dc64": "Caracterizacao temporal",
+      "threshold_2a63f5": "Limite",
+      "total_96b014": "Total",
+      "totalMembers_baa28c": "total de membros",
+      "totalUnique_bd9f2e": "Total unico",
+      "trueNegatives_8bdf10": "Verdadeiros negativos",
+      "truePositives_4fd14d": "Verdadeiros positivos",
+      "updated_ff0a3b": "Atualizado",
+      "uploadJsonFile_4f8fee": "Enviar arquivo JSON",
+      "validate_ad3d06": "Validar",
+      "validated_536425": "Validado",
+      "validation_131487": "Validacao",
+      "validationFailedEnsureTheExpressionIsSaved_c2c0a6":
+        "Falha na validacao. Verifique se a expressao esta salva.",
+      "validationHistory_f95871": "Historico de validacao",
+      "viewDiagnostics_d0f7c1": "Ver diagnosticos",
+      "visit_5e706a": "Visita",
+      "visitContext_ce10c6": "Contexto da visita",
+      "within30Days_c68e5c": "Dentro de 30 dias",
+      "within90Days_02c615": "Dentro de 90 dias",
+      "yearOfBirth_fb50e2": "Ano de nascimento",
+      "yourCohortDefinitionReadsAs_02afaa":
+        "Sua definicao de coorte fica assim:",
+    },
+  },
+});
+
+const frCohortDefinitionsPass2: MessageTree = mergeMessageTrees(
+  frCohortDefinitions,
+  {
+    cohortDefinitions: {
+      auto: {
+        "afterGeneratingTheCohortDefinition_8e10f6":
+          "apres avoir genere la definition de cohorte.",
+        "americanIndianOrAlaskaNative_30d0bd":
+          "Indien d'Amerique ou natif d'Alaska",
+        "asian_32547b": "Asiatique",
+        "auditEvent_aeb01c": "evenement d'audit",
+        "blackOrAfricanAmerican_ff9b5d": "Noir ou Afro-Americain",
+        "clickCompileToGenerateOhdsiSqlFromThe_e80a8a":
+          "Cliquez sur Compiler pour generer le SQL OHDSI a partir de l'expression de cohorte",
+        "clickRenderToGenerateAHumanReadableDescription_563f20":
+          "Cliquez sur Generer pour produire une description lisible par un humain",
+        "clickValidateToRun24DesignChecks_7fe40a":
+          "Cliquez sur Valider pour executer 24 controles de conception",
+        "cohort_d9f82a": "Cohorte",
+        "computePrs_0d8599": "Calculer le PRS",
+        "conditions_229eb0": "Affections",
+        "context_ad4e20": "Contexte",
+        "createFromCareBundle_b7b429": "Creer a partir du bundle de soins",
+        "customDrugEra_e40c69": "Ere medicamenteuse personnalisee",
+        "daysAfter_d682ef": "jours apres",
+        "daysBeforeAnd_6844ae": "jours avant et",
+        "daysBetweenFills_f845e1": "jours entre les renouvellements",
+        "death_6097f8": "Deces",
+        "deprecate_b71627": "Deprecier",
+        "deprecated_0ac54c": "Deprecie",
+        "deprecatedOn_f31114": "Deprecie le",
+        "descendants_290452": "Descendants",
+        "description_b5a7ad": "Description",
+        "diagnostics_36b64a": "Diagnostics",
+        "doYouNeedAnySpecializedCriteriaForThis_361b81":
+          "Avez-vous besoin de criteres specialises pour cette cohorte ?",
+        "domain_eae639": "Domaine",
+        "drugConceptSet_df8db2": "Ensemble de concepts medicamenteux",
+        "eachQualifyingEventCreatesASeparateCohortEntry_6d2dab":
+          "Chaque evenement admissible cree une periode distincte d'entree dans la cohorte.",
+        "endDate_3c1429": "Date de fin",
+        "endOfContinuousObservation_3ac05b":
+          "Fin de l'observation continue",
+        "end_87557f": "Fin",
+        "exportEvidence_65ee0d": "Exporter les preuves",
+        "failedToComputeOverlap_cf1c85":
+          "Echec du calcul du chevauchement :",
+        "failedToGenerateSqlPreview_b1dd7f":
+          "Echec de la generation de l'apercu SQL",
+        "failedToLoadCohortMembers_698f41":
+          "Echec du chargement des membres de la cohorte",
+        "failedToLoadGenerationHistory_c966e7":
+          "Echec du chargement de l'historique de generation",
+        "falseNegatives_6f8faf": "Faux negatifs",
+        "falsePositives_b50c29": "Faux positifs",
+        "filters_f3f43e": "Filtres",
+        "firstEvent_752495": "Premier evenement",
+        "firstOccurrenceOnly_70882a": "Premiere occurrence seulement",
+        "fixedDurationAfterEntry_0b3031": "Duree fixe apres l'entree",
+        "fixedDurationFromEvent_d84644":
+          "Duree fixe a partir de l'evenement",
+        "followUp_b9c20d": "Suivi",
+        "generateTheCohortToSeeResultsHere_eb9c0a":
+          "Generez la cohorte pour voir les resultats ici",
+        "generateThisCohortOnADataSourceFirst_c97015":
+          "Generez d'abord cette cohorte sur une source de donnees pour voir les membres patients.",
+        "generatedAgainst_8b61f8": "Genere sur",
+        "genomicCriteria_b8b854": "Criteres genomiques",
+        "genomic_bf62ca": "Genomique",
+        "gender_019ec3": "Sexe",
+        "high_655d20": "Eleve",
+        "imaging_92c65a": "Imagerie",
+        "keyword_220f3d": "Mot-cle",
+        "linkNotFound_262ed4": "Lien introuvable",
+        "loadingNotes_1e22a9": "Chargement des notes...",
+        "loadingPatientContext_4e6133":
+          "Chargement du contexte patient...",
+        "loadingPrsScores_8bd381": "Chargement des scores PRS...",
+        "loadingReviewQueue_da5be8":
+          "Chargement de la file de revue...",
+        "loadingSources_9e86c0": "Chargement des sources...",
+        "loadingValidationHistory_86f943":
+          "Chargement de l'historique de validation...",
+        "low_28d0ed": "Faible",
+        "male_63889c": "Homme",
+        "meanBirthYear_a868be": "Annee de naissance moyenne :",
+        "measurement_911842": "Mesure",
+        "measurements_e8d8a3": "Mesures",
+        "median_66851a": "Mediane",
+        "name_49ee30": "Nom",
+        "new_03c2e7": "Nouveau",
+        "next_10ac3d": "Suivant",
+        "noCohortGeneratedYet_a76dbd":
+          "Aucune cohorte generee pour le moment",
+        "noMembersFoundInThisCohort_032217":
+          "Aucun membre trouve dans cette cohorte",
+        "noMembersMatchTheCurrentFilters_91d99d":
+          "Aucun membre ne correspond aux filtres actuels",
+        "noPatientsInCohort_ddf86b": "Aucun patient dans la cohorte",
+        "noPrimaryCriteriaDefined_155391":
+          "Aucun critere principal defini",
+        "nonCase_29433c": "Non-cas",
+        "note_fc9d3d": "Note :",
+        "notes_f4c6f8": "Notes",
+        "patient_01122a": "Patient",
+        "patientsWith_8f8bc7": "Patients avec",
+        "pending_2d13df": "En attente",
+        "personId_024aac": "ID de personne",
+        "personYears_25340a": "Annees-personnes",
+        "population_13e038": "Population",
+        "primaryCriteria_3d2cf7": "Criteres principaux",
+        "reviewer_8e58cd": "Evaluateur",
+        "reviewNote_a4d05d": "Note d'evaluation",
+        "riskScoreAnalysis_3f6d3e": "Analyse de score de risque",
+        "riskScoreCriteria_700999": "Criteres de score de risque",
+        "rule_ab7a48": "Regle",
+        "run_c53016": "Executer",
+        "runningDiagnostics_7e2b47": "Diagnostics en cours...",
+        "sample_c5dd1b": "Echantillon",
+        "saveNote_55ee21": "Enregistrer la note",
+        "selectADataSource_732377":
+          "Selectionner une source de donnees",
+        "selectConceptSet_99ef91":
+          "Selectionner un ensemble de concepts",
+        "selectDataSource_8c406d":
+          "Selectionner une source de donnees...",
+        "selectSource_f7b9cc": "Selectionner une source",
+        "sources_fb6175": "Sources",
+        "startDate_db3794": "Date de debut",
+        "start_a6122a": "Debut",
+        "status_24a23d": "Statut :",
+        "strategy_83de19": "Strategie",
+        "subjects_8b2f77": "Sujets",
+        "timeWindow_855eb9": "Fenetre temporelle",
+        "uncertain_5fd617": "Incertain",
+        "unreviewed_8b87ba": "Non examine",
+        "validation_131487": "Validation",
+        "veryHigh_9055b2": "Tres eleve",
+        "whatSNext_b92b94": "Et ensuite ?",
+        "white_25a817": "Blanc",
+      },
+    },
+  },
+);
+
+const deCohortDefinitionsPass2: MessageTree = mergeMessageTrees(
+  deCohortDefinitions,
+  {
+    cohortDefinitions: {
+      auto: {
+        "afterGeneratingTheCohortDefinition_8e10f6":
+          "nach dem Generieren der Kohortendefinition.",
+        "americanIndianOrAlaskaNative_30d0bd":
+          "Amerikanische Ureinwohner oder Alaska Natives",
+        "asian_32547b": "Asiatisch",
+        "auditEvent_aeb01c": "Audit-Ereignis",
+        "blackOrAfricanAmerican_ff9b5d": "Schwarz oder afroamerikanisch",
+        "clickCompileToGenerateOhdsiSqlFromThe_e80a8a":
+          "Klicken Sie auf Kompilieren, um OHDSI SQL aus dem Kohortenausdruck zu erzeugen",
+        "clickRenderToGenerateAHumanReadableDescription_563f20":
+          "Klicken Sie auf Rendern, um eine menschenlesbare Beschreibung zu erzeugen",
+        "clickValidateToRun24DesignChecks_7fe40a":
+          "Klicken Sie auf Validieren, um 24 Designprufungen auszufuhren",
+        "cohort_d9f82a": "Kohorte",
+        "computePrs_0d8599": "PRS berechnen",
+        "conditions_229eb0": "Erkrankungen",
+        "context_ad4e20": "Kontext",
+        "createFromCareBundle_b7b429": "Aus Care Bundle erstellen",
+        "customDrugEra_e40c69": "Benutzerdefinierte Arzneimittelepoche",
+        "daysAfter_d682ef": "Tage danach",
+        "daysBeforeAnd_6844ae": "Tage davor und",
+        "daysBetweenFills_f845e1": "Tage zwischen Abgaben",
+        "death_6097f8": "Tod",
+        "deprecate_b71627": "Als veraltet markieren",
+        "deprecated_0ac54c": "Veraltet",
+        "deprecatedOn_f31114": "Veraltet am",
+        "descendants_290452": "Untergeordnete Konzepte",
+        "description_b5a7ad": "Beschreibung",
+        "diagnostics_36b64a": "Diagnostik",
+        "doYouNeedAnySpecializedCriteriaForThis_361b81":
+          "Benotigen Sie spezialisierte Kriterien fur diese Kohorte?",
+        "domain_eae639": "Domane",
+        "drugConceptSet_df8db2": "Arzneimittel-Konzeptset",
+        "eachQualifyingEventCreatesASeparateCohortEntry_6d2dab":
+          "Jedes qualifizierende Ereignis erzeugt einen separaten Kohorteneintrittszeitraum.",
+        "endDate_3c1429": "Enddatum",
+        "endOfContinuousObservation_3ac05b":
+          "Ende der kontinuierlichen Beobachtung",
+        "end_87557f": "Ende",
+        "exportEvidence_65ee0d": "Evidenz exportieren",
+        "failedToComputeOverlap_cf1c85":
+          "Berechnung der Uberlappung fehlgeschlagen:",
+        "failedToGenerateSqlPreview_b1dd7f":
+          "SQL-Vorschau konnte nicht erzeugt werden",
+        "failedToLoadCohortMembers_698f41":
+          "Laden der Kohortenmitglieder fehlgeschlagen",
+        "failedToLoadGenerationHistory_c966e7":
+          "Laden des Generierungsverlaufs fehlgeschlagen",
+        "falseNegatives_6f8faf": "Falsch negative",
+        "falsePositives_b50c29": "Falsch positive",
+        "filters_f3f43e": "Filter",
+        "firstEvent_752495": "Erstes Ereignis",
+        "firstOccurrenceOnly_70882a": "Nur erstes Auftreten",
+        "fixedDurationAfterEntry_0b3031": "Feste Dauer nach Eintritt",
+        "fixedDurationFromEvent_d84644": "Feste Dauer ab Ereignis",
+        "followUp_b9c20d": "Nachbeobachtung",
+        "generateTheCohortToSeeResultsHere_eb9c0a":
+          "Generieren Sie die Kohorte, um hier Ergebnisse zu sehen",
+        "generateThisCohortOnADataSourceFirst_c97015":
+          "Generieren Sie diese Kohorte zuerst auf einer Datenquelle, um Patientenmitglieder anzuzeigen.",
+        "generatedAgainst_8b61f8": "Generiert gegen",
+        "genomicCriteria_b8b854": "Genomische Kriterien",
+        "genomic_bf62ca": "Genomisch",
+        "gender_019ec3": "Geschlecht",
+        "high_655d20": "Hoch",
+        "imaging_92c65a": "Bildgebung",
+        "keyword_220f3d": "Schlusselwort",
+        "linkNotFound_262ed4": "Link nicht gefunden",
+        "loadingNotes_1e22a9": "Lade Notizen...",
+        "loadingPatientContext_4e6133": "Lade Patientenkontext...",
+        "loadingPrsScores_8bd381": "Lade PRS-Scores...",
+        "loadingReviewQueue_da5be8": "Lade Prufwarteschlange...",
+        "loadingSources_9e86c0": "Lade Quellen...",
+        "loadingValidationHistory_86f943":
+          "Lade Validierungsverlauf...",
+        "low_28d0ed": "Niedrig",
+        "male_63889c": "Mannlich",
+        "meanBirthYear_a868be": "Durchschnittliches Geburtsjahr:",
+        "measurement_911842": "Messung",
+        "measurements_e8d8a3": "Messungen",
+        "median_66851a": "Median",
+        "name_49ee30": "Name",
+        "new_03c2e7": "Neu",
+        "next_10ac3d": "Weiter",
+        "noCohortGeneratedYet_a76dbd": "Noch keine Kohorte generiert",
+        "noMembersFoundInThisCohort_032217":
+          "Keine Mitglieder in dieser Kohorte gefunden",
+        "noMembersMatchTheCurrentFilters_91d99d":
+          "Keine Mitglieder entsprechen den aktuellen Filtern",
+        "noPatientsInCohort_ddf86b": "Keine Patienten in der Kohorte",
+        "noPrimaryCriteriaDefined_155391":
+          "Keine primaren Kriterien definiert",
+        "nonCase_29433c": "Nicht-Fall",
+        "note_fc9d3d": "Hinweis:",
+        "notes_f4c6f8": "Notizen",
+        "patient_01122a": "Patient",
+        "patientsWith_8f8bc7": "Patienten mit",
+        "pending_2d13df": "Ausstehend",
+        "personId_024aac": "Personen-ID",
+        "personYears_25340a": "Personenjahre",
+        "population_13e038": "Population",
+        "primaryCriteria_3d2cf7": "Primare Kriterien",
+        "reviewer_8e58cd": "Gutachter",
+        "reviewNote_a4d05d": "Gutachternotiz",
+        "riskScoreAnalysis_3f6d3e": "Risiko-Score-Analyse",
+        "riskScoreCriteria_700999": "Risiko-Score-Kriterien",
+        "rule_ab7a48": "Regel",
+        "run_c53016": "Ausfuhren",
+        "runningDiagnostics_7e2b47":
+          "Diagnostik wird ausgefuhrt...",
+        "sample_c5dd1b": "Stichprobe",
+        "saveNote_55ee21": "Notiz speichern",
+        "selectADataSource_732377": "Datenquelle auswahlen",
+        "selectConceptSet_99ef91": "Konzeptset auswahlen",
+        "selectDataSource_8c406d": "Datenquelle auswahlen...",
+        "selectSource_f7b9cc": "Quelle auswahlen",
+        "sources_fb6175": "Quellen",
+        "startDate_db3794": "Startdatum",
+        "start_a6122a": "Start",
+        "status_24a23d": "Status:",
+        "strategy_83de19": "Strategie",
+        "subjects_8b2f77": "Subjekte",
+        "timeWindow_855eb9": "Zeitfenster",
+        "uncertain_5fd617": "Unklar",
+        "unreviewed_8b87ba": "Nicht gepruft",
+        "validation_131487": "Validierung",
+        "veryHigh_9055b2": "Sehr hoch",
+        "whatSNext_b92b94": "Wie geht es weiter?",
+        "white_25a817": "Weiss",
+      },
+    },
+  },
+);
+
+const ptCohortDefinitionsPass2: MessageTree = mergeMessageTrees(
+  ptCohortDefinitions,
+  {
+    cohortDefinitions: {
+      auto: {
+        "afterGeneratingTheCohortDefinition_8e10f6":
+          "apos gerar a definicao da coorte.",
+        "americanIndianOrAlaskaNative_30d0bd":
+          "Indigena americano ou nativo do Alasca",
+        "asian_32547b": "Asiatico",
+        "auditEvent_aeb01c": "evento de auditoria",
+        "blackOrAfricanAmerican_ff9b5d": "Negro ou afro-americano",
+        "clickCompileToGenerateOhdsiSqlFromThe_e80a8a":
+          "Clique em Compilar para gerar o SQL OHDSI a partir da expressao da coorte",
+        "clickRenderToGenerateAHumanReadableDescription_563f20":
+          "Clique em Renderizar para gerar uma descricao legivel por humanos",
+        "clickValidateToRun24DesignChecks_7fe40a":
+          "Clique em Validar para executar 24 verificacoes de desenho",
+        "cohort_d9f82a": "Coorte",
+        "computePrs_0d8599": "Calcular PRS",
+        "conditions_229eb0": "Condicoes",
+        "context_ad4e20": "Contexto",
+        "createFromCareBundle_b7b429":
+          "Criar a partir do pacote de cuidados",
+        "customDrugEra_e40c69": "Era de medicamento personalizada",
+        "daysAfter_d682ef": "dias depois",
+        "daysBeforeAnd_6844ae": "dias antes e",
+        "daysBetweenFills_f845e1": "dias entre dispensacoes",
+        "death_6097f8": "Obito",
+        "deprecate_b71627": "Descontinuar",
+        "deprecated_0ac54c": "Obsoleto",
+        "deprecatedOn_f31114": "Obsoleto em",
+        "descendants_290452": "Descendentes",
+        "description_b5a7ad": "Descricao",
+        "diagnostics_36b64a": "Diagnosticos",
+        "doYouNeedAnySpecializedCriteriaForThis_361b81":
+          "Voce precisa de criterios especializados para esta coorte?",
+        "domain_eae639": "Dominio",
+        "drugConceptSet_df8db2":
+          "Conjunto de conceitos de medicamentos",
+        "eachQualifyingEventCreatesASeparateCohortEntry_6d2dab":
+          "Cada evento qualificavel cria um periodo separado de entrada na coorte.",
+        "endDate_3c1429": "Data de termino",
+        "endOfContinuousObservation_3ac05b":
+          "Fim da observacao continua",
+        "end_87557f": "Fim",
+        "exportEvidence_65ee0d": "Exportar evidencias",
+        "failedToComputeOverlap_cf1c85":
+          "Falha ao calcular sobreposicao:",
+        "failedToGenerateSqlPreview_b1dd7f":
+          "Falha ao gerar a visualizacao SQL",
+        "failedToLoadCohortMembers_698f41":
+          "Falha ao carregar membros da coorte",
+        "failedToLoadGenerationHistory_c966e7":
+          "Falha ao carregar o historico de geracao",
+        "falseNegatives_6f8faf": "Falsos negativos",
+        "falsePositives_b50c29": "Falsos positivos",
+        "filters_f3f43e": "Filtros",
+        "firstEvent_752495": "Primeiro evento",
+        "firstOccurrenceOnly_70882a": "Somente a primeira ocorrencia",
+        "fixedDurationAfterEntry_0b3031":
+          "Duracao fixa apos a entrada",
+        "fixedDurationFromEvent_d84644":
+          "Duracao fixa a partir do evento",
+        "followUp_b9c20d": "Seguimento",
+        "generateTheCohortToSeeResultsHere_eb9c0a":
+          "Gere a coorte para ver os resultados aqui",
+        "generateThisCohortOnADataSourceFirst_c97015":
+          "Gere esta coorte em uma fonte de dados primeiro para ver os membros pacientes.",
+        "generatedAgainst_8b61f8": "Gerado em",
+        "genomicCriteria_b8b854": "Criterios genomicos",
+        "genomic_bf62ca": "Genomico",
+        "gender_019ec3": "Sexo",
+        "high_655d20": "Alto",
+        "imaging_92c65a": "Imagem",
+        "keyword_220f3d": "Palavra-chave",
+        "linkNotFound_262ed4": "Link nao encontrado",
+        "loadingNotes_1e22a9": "Carregando notas...",
+        "loadingPatientContext_4e6133":
+          "Carregando contexto do paciente...",
+        "loadingPrsScores_8bd381": "Carregando scores PRS...",
+        "loadingReviewQueue_da5be8":
+          "Carregando fila de revisao...",
+        "loadingSources_9e86c0": "Carregando fontes...",
+        "loadingValidationHistory_86f943":
+          "Carregando historico de validacao...",
+        "low_28d0ed": "Baixo",
+        "male_63889c": "Masculino",
+        "meanBirthYear_a868be": "Ano medio de nascimento:",
+        "measurement_911842": "Medicao",
+        "measurements_e8d8a3": "Medicoes",
+        "median_66851a": "Mediana",
+        "name_49ee30": "Nome",
+        "new_03c2e7": "Novo",
+        "next_10ac3d": "Proximo",
+        "noCohortGeneratedYet_a76dbd": "Nenhuma coorte gerada ainda",
+        "noMembersFoundInThisCohort_032217":
+          "Nenhum membro encontrado nesta coorte",
+        "noMembersMatchTheCurrentFilters_91d99d":
+          "Nenhum membro corresponde aos filtros atuais",
+        "noPatientsInCohort_ddf86b": "Nenhum paciente na coorte",
+        "noPrimaryCriteriaDefined_155391":
+          "Nenhum criterio principal definido",
+        "nonCase_29433c": "Nao caso",
+        "note_fc9d3d": "Nota:",
+        "notes_f4c6f8": "Notas",
+        "patient_01122a": "Paciente",
+        "patientsWith_8f8bc7": "Pacientes com",
+        "pending_2d13df": "Pendente",
+        "personId_024aac": "ID da pessoa",
+        "personYears_25340a": "Pessoa-anos",
+        "population_13e038": "Populacao",
+        "primaryCriteria_3d2cf7": "Criterios principais",
+        "reviewer_8e58cd": "Revisor",
+        "reviewNote_a4d05d": "Nota de revisao",
+        "riskScoreAnalysis_3f6d3e": "Analise de score de risco",
+        "riskScoreCriteria_700999": "Criterios de score de risco",
+        "rule_ab7a48": "Regra",
+        "run_c53016": "Executar",
+        "runningDiagnostics_7e2b47":
+          "Executando diagnosticos...",
+        "sample_c5dd1b": "Amostra",
+        "saveNote_55ee21": "Salvar nota",
+        "selectADataSource_732377":
+          "Selecione uma fonte de dados",
+        "selectConceptSet_99ef91":
+          "Selecione um conjunto de conceitos",
+        "selectDataSource_8c406d": "Selecione fonte de dados...",
+        "selectSource_f7b9cc": "Selecione a fonte",
+        "sources_fb6175": "Fontes",
+        "startDate_db3794": "Data de inicio",
+        "start_a6122a": "Inicio",
+        "status_24a23d": "Status:",
+        "strategy_83de19": "Estrategia",
+        "subjects_8b2f77": "Sujeitos",
+        "timeWindow_855eb9": "Janela temporal",
+        "uncertain_5fd617": "Incerto",
+        "unreviewed_8b87ba": "Nao revisado",
+        "validation_131487": "Validacao",
+        "veryHigh_9055b2": "Muito alto",
+        "whatSNext_b92b94": "O que vem a seguir?",
+        "white_25a817": "Branco",
+      },
+    },
+  },
+);
+
+export const cohortDefinitionResources: Record<string, MessageTree> = {
+  "en-US": enCohortDefinitions,
+  "es-ES": mergeMessageTrees(enCohortDefinitions, {}),
+  "fr-FR": frCohortDefinitionsPass2,
+  "de-DE": deCohortDefinitionsPass2,
+  "pt-BR": ptCohortDefinitionsPass2,
+  "fi-FI": mergeMessageTrees(enCohortDefinitions, {}),
+  "ja-JP": mergeMessageTrees(enCohortDefinitions, {}),
+  "zh-Hans": mergeMessageTrees(enCohortDefinitions, {}),
+  "ko-KR": mergeMessageTrees(enCohortDefinitions, {}),
+  "hi-IN": mergeMessageTrees(enCohortDefinitions, {}),
+  ar: mergeMessageTrees(enCohortDefinitions, {}),
+  "en-XA": mergeMessageTrees(enCohortDefinitions, {}),
+};
