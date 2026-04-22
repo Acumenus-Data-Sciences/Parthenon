@@ -1,9 +1,11 @@
 import { useMemo } from "react";
 import { BarChart3 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { TableProfile } from "../api";
 import { fmtNumber, scoreToGrade, tableNullScore } from "../lib/profiler-utils";
 
 export function TableSizeChart({ tables }: { tables: TableProfile[] }) {
+  const { t } = useTranslation("app");
   const sorted = useMemo(
     () => [...tables].sort((a, b) => b.row_count - a.row_count).slice(0, 20),
     [tables],
@@ -15,9 +17,11 @@ export function TableSizeChart({ tables }: { tables: TableProfile[] }) {
       <div className="px-4 py-3 bg-surface-overlay border-b border-border-default flex items-center gap-2">
         <BarChart3 size={15} className="text-text-muted" />
         <h4 className="text-sm font-medium text-text-primary">
-          Table Size Distribution
+          {t("etl.profiler.sizeChart.title")}
           {tables.length > 20 && (
-            <span className="font-normal text-text-ghost ml-1">(top 20)</span>
+            <span className="font-normal text-text-ghost ml-1">
+              {t("etl.profiler.sizeChart.topTwenty")}
+            </span>
           )}
         </h4>
       </div>

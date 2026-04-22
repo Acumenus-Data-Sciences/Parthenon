@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Sparkles,
   CheckCircle2,
@@ -16,6 +17,7 @@ import { AiSuggestPanel } from "./AiSuggestPanel";
 import { ConceptSearchInline } from "./ConceptSearchInline";
 import { useFieldMappings, useBulkUpsertFields, useDeleteTableMapping } from "../../hooks/useAqueductData";
 import type { EtlProject, EtlTableMapping, EtlFieldMapping } from "../../api";
+import { getAqueductMappingTypeLabel } from "../../lib/i18n";
 import { toast } from "@/components/ui/Toast";
 
 // ---------------------------------------------------------------------------
@@ -143,6 +145,7 @@ function SourceColumnSelect({
   onSelect,
   onClear,
 }: SourceColumnSelectProps) {
+  const { t } = useTranslation("app");
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -185,7 +188,7 @@ function SourceColumnSelect({
         <button
           onClick={(e) => { e.stopPropagation(); onClear(); }}
           className="p-0.5 rounded text-text-ghost hover:text-red-400 hover:bg-red-950/30 transition-colors"
-          title="Remove mapping"
+          title={t("etl.aqueduct.fieldMapping.removeMappingTitle")}
         >
           <X className="w-3.5 h-3.5" />
         </button>
@@ -211,7 +214,7 @@ function SourceColumnSelect({
         className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-dashed border-border-default text-sm text-text-ghost hover:border-accent/50 hover:text-text-muted transition-colors"
       >
         <Search className="w-3.5 h-3.5" />
-        <span>Select source...</span>
+        <span>{t("etl.aqueduct.fieldMapping.selectSource")}</span>
       </button>
       {isOpen && (
         <SourceDropdown
@@ -245,6 +248,8 @@ function SourceDropdown({
   mappedSourceCols: Set<string>;
   onSelect: (col: string) => void;
 }) {
+  const { t } = useTranslation("app");
+
   return (
     <div
       ref={containerRef}
@@ -258,14 +263,16 @@ function SourceDropdown({
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search source columns..."
+            placeholder={t("etl.aqueduct.fieldMapping.searchSourceColumns")}
             className="flex-1 bg-transparent text-sm text-text-primary placeholder:text-text-ghost focus:outline-none"
           />
         </div>
       </div>
       <div className="max-h-[240px] overflow-y-auto">
         {filtered.length === 0 ? (
-          <div className="px-3 py-4 text-xs text-text-ghost text-center">No matching columns</div>
+          <div className="px-3 py-4 text-xs text-text-ghost text-center">
+            {t("etl.aqueduct.fieldMapping.noMatchingColumns")}
+          </div>
         ) : (
           filtered.map((col) => {
             const isMappedElsewhere = mappedSourceCols.has(col.name);
@@ -281,11 +288,16 @@ function SourceDropdown({
                     <span className="text-sm text-text-primary font-medium truncate">{col.name}</span>
                     <span className="text-[10px] px-1 py-0.5 rounded bg-surface-raised text-text-ghost">{col.type}</span>
                     {isMappedElsewhere && (
-                      <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-success/10 text-success/60">mapped</span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-success/10 text-success/60">
+                        {t("etl.aqueduct.fieldMapping.mapped")}
+                      </span>
                     )}
                   </div>
                   <div className="text-[10px] text-text-ghost mt-0.5">
-                    null: {col.nullPct}% &bull; {col.distinctCount} distinct
+                    {t("etl.aqueduct.fieldMapping.nullDistinct", {
+                      nullPct: col.nullPct,
+                      distinctCount: col.distinctCount,
+                    })}
                   </div>
                 </div>
               </button>
@@ -310,6 +322,8 @@ export function FieldMappingDetail({
   onNavigate,
   allMappingIds,
 }: FieldMappingDetailProps) {
+  const { t } = useTranslation("app");
+
   // -- Remote data -----------------------------------------------------------
   const { data: remoteFields } = useFieldMappings(project.id, tableMapping.id);
   const bulkUpsert = useBulkUpsertFields(project.id, tableMapping.id);
@@ -324,7 +338,13 @@ export function FieldMappingDetail({
 
   // Sync remote -> local on first load / after refetch
   useEffect(() => {
-    if (remoteFields) setLocalFields(remoteFields);
+    if (!remoteFields) return undefined;
+
+    const timer = setTimeout(() => {
+      setLocalFields(remoteFields);
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [remoteFields]);
 
   // -- Debounced auto-save ---------------------------------------------------
@@ -354,16 +374,16 @@ export function FieldMappingDetail({
                   ? (err as { response?: { status?: number } }).response?.status
                   : undefined;
               if (status === 409) {
-                toast.warning("Mapping was modified elsewhere, refreshing...");
+                toast.warning(t("etl.aqueduct.fieldMapping.mappingModifiedElsewhere"));
               } else {
-                toast.error("Failed to save field mappings");
+                toast.error(t("etl.aqueduct.fieldMapping.failedToSave"));
               }
             },
           },
         );
       }, 500);
     },
-    [bulkUpsert, tableMapping.updated_at],
+    [bulkUpsert, tableMapping.updated_at, t],
   );
 
   useEffect(() => {
@@ -430,7 +450,12 @@ export function FieldMappingDetail({
   const sectionBreaks = useMemo(() => {
     const breaks: Array<{ index: number; label: string; count: number }> = [];
     let lastTier = -1;
-    const tierLabels = ["Required Unmapped", "Optional Unmapped", "Needs Review", "Reviewed"];
+    const tierLabels = [
+      t("etl.aqueduct.fieldMapping.sections.requiredUnmapped"),
+      t("etl.aqueduct.fieldMapping.sections.optionalUnmapped"),
+      t("etl.aqueduct.fieldMapping.sections.needsReview"),
+      t("etl.aqueduct.fieldMapping.sections.reviewed"),
+    ];
     const tierCounts = [0, 0, 0, 0];
 
     for (const col of sortedCdmColumns) {
@@ -450,7 +475,7 @@ export function FieldMappingDetail({
       idx++;
     }
     return breaks;
-  }, [sortedCdmColumns, mappingByCdm]);
+  }, [sortedCdmColumns, mappingByCdm, t]);
 
   // -- Handlers: source select / clear / update ------------------------------
   const handleSourceSelect = useCallback(
@@ -489,9 +514,12 @@ export function FieldMappingDetail({
       setLocalFields(updated);
       scheduleAutoSave(updated);
       setExpandedCol(cdmColName);
-      toast.success(`Mapped ${sourceColName} \u2192 ${cdmColName}`);
+      toast.success(t("etl.aqueduct.fieldMapping.mappedToast", {
+        source: sourceColName,
+        target: cdmColName,
+      }));
     },
-    [localFields, cdmColumns, sourceColumns, tableMapping.id, scheduleAutoSave],
+    [localFields, cdmColumns, sourceColumns, tableMapping.id, scheduleAutoSave, t],
   );
 
   const handleSourceClear = useCallback(
@@ -500,9 +528,11 @@ export function FieldMappingDetail({
       setLocalFields(updated);
       scheduleAutoSave(updated);
       setExpandedCol(null);
-      toast.info(`Removed mapping for ${cdmColName}`);
+      toast.info(t("etl.aqueduct.fieldMapping.removedToast", {
+        target: cdmColName,
+      }));
     },
-    [localFields, scheduleAutoSave],
+    [localFields, scheduleAutoSave, t],
   );
 
   const handleMappingChange = useCallback(
@@ -593,9 +623,11 @@ export function FieldMappingDetail({
       }
       setLocalFields(updated);
       scheduleAutoSave(updated);
-      toast.success(`Accepted ${accepted.length} AI suggestions`);
+      toast.success(t("etl.aqueduct.fieldMapping.acceptedAiSuggestions", {
+        count: accepted.length,
+      }));
     },
-    [localFields, tableMapping.id, scheduleAutoSave, cdmColumns],
+    [localFields, tableMapping.id, scheduleAutoSave, cdmColumns, t],
   );
 
   // -------------------------------------------------------------------------
@@ -616,9 +648,11 @@ export function FieldMappingDetail({
           <span className="text-text-ghost ml-2">│</span>
           <span className="text-xs text-text-muted">
             <span className={requiredUnmappedCount > 0 ? "text-red-400 font-medium" : "text-emerald-400"}>
-              {mappedCount}/{totalCdm}
+              {t("etl.aqueduct.fieldMapping.mappedCount", {
+                mapped: mappedCount,
+                total: totalCdm,
+              })}
             </span>
-            {" mapped"}
           </span>
         </div>
 
@@ -628,42 +662,47 @@ export function FieldMappingDetail({
             className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] rounded-md bg-accent/10 text-accent hover:bg-accent/20 transition-colors font-medium"
           >
             <Sparkles className="w-3 h-3" />
-            AI Assist
+            {t("etl.aqueduct.fieldMapping.aiAssist")}
           </button>
           <div className="flex items-center gap-1 text-xs">
             <button onClick={navigatePrev} disabled={!hasPrev} className="text-text-muted hover:text-text-primary disabled:opacity-30 transition-colors px-1">
-              ◀ Prev
+              ◀ {t("etl.aqueduct.fieldMapping.prev")}
             </button>
             <button onClick={navigateNext} disabled={!hasNext} className="text-text-muted hover:text-text-primary disabled:opacity-30 transition-colors px-1">
-              Next ▶
+              {t("etl.aqueduct.fieldMapping.next")} ▶
             </button>
           </div>
           <span className="text-text-disabled">│</span>
           {confirmDelete ? (
             <div className="flex items-center gap-1.5">
-              <span className="text-xs text-red-400">Delete this mapping?</span>
+              <span className="text-xs text-red-400">
+                {t("etl.aqueduct.fieldMapping.deleteConfirm")}
+              </span>
               <button
                 type="button"
                 onClick={() => {
                   deleteMutation.mutate(tableMapping.id, {
                     onSuccess: () => {
-                      toast.success(`Deleted mapping ${tableMapping.source_table} → ${tableMapping.target_table}`);
+                      toast.success(t("etl.aqueduct.fieldMapping.deletedToast", {
+                        source: tableMapping.source_table,
+                        target: tableMapping.target_table,
+                      }));
                       onBack();
                     },
-                    onError: () => toast.error("Failed to delete mapping"),
+                    onError: () => toast.error(t("etl.aqueduct.fieldMapping.failedToDelete")),
                   });
                 }}
                 disabled={deleteMutation.isPending}
                 className="px-2 py-0.5 text-xs rounded bg-red-600 text-white hover:bg-red-500 transition-colors disabled:opacity-50"
               >
-                {deleteMutation.isPending ? "..." : "Yes"}
+                {deleteMutation.isPending ? "..." : t("etl.aqueduct.fieldMapping.yes")}
               </button>
               <button
                 type="button"
                 onClick={() => setConfirmDelete(false)}
                 className="px-2 py-0.5 text-xs rounded border border-border-default text-text-muted hover:text-text-primary transition-colors"
               >
-                No
+                {t("etl.aqueduct.fieldMapping.no")}
               </button>
             </div>
           ) : (
@@ -671,7 +710,7 @@ export function FieldMappingDetail({
               type="button"
               onClick={() => setConfirmDelete(true)}
               className="p-1 text-text-ghost hover:text-red-400 transition-colors"
-              title="Delete this table mapping"
+              title={t("etl.aqueduct.fieldMapping.deleteMapping")}
             >
               <Trash2 size={16} />
             </button>
@@ -687,18 +726,21 @@ export function FieldMappingDetail({
         <div className="flex items-center gap-2 px-5 py-2 bg-emerald-950/30 border-b border-emerald-900/40">
           <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           <span className="text-sm text-emerald-300">
-            All CDM columns mapped &mdash; {reviewedCount} of {mappedCount} reviewed
+            {t("etl.aqueduct.fieldMapping.allMappedBanner", {
+              reviewed: reviewedCount,
+              mapped: mappedCount,
+            })}
           </span>
         </div>
       )}
 
       {/* Column header */}
       <div className="flex items-center px-5 py-2 border-b border-border-default bg-surface-base text-[10px] uppercase tracking-wider text-text-ghost font-semibold sticky top-0 z-10">
-        <div className="w-[220px]">CDM Column</div>
-        <div className="w-[240px]">Source Column</div>
-        <div className="w-[80px]">Type</div>
-        <div className="flex-1">Logic</div>
-        <div className="w-[80px] text-center">Status</div>
+        <div className="w-[220px]">{t("etl.aqueduct.fieldMapping.headers.cdmColumn")}</div>
+        <div className="w-[240px]">{t("etl.aqueduct.fieldMapping.headers.sourceColumn")}</div>
+        <div className="w-[80px]">{t("etl.aqueduct.fieldMapping.headers.type")}</div>
+        <div className="flex-1">{t("etl.aqueduct.fieldMapping.headers.logic")}</div>
+        <div className="w-[80px] text-center">{t("etl.aqueduct.fieldMapping.headers.status")}</div>
       </div>
 
       {/* Table rows */}
@@ -776,7 +818,7 @@ export function FieldMappingDetail({
                       "text-[10px] px-1.5 py-0.5 rounded font-medium",
                       TYPE_BADGE_STYLES[mapping.mapping_type] ?? TYPE_BADGE_STYLES.direct,
                     )}>
-                      {mapping.mapping_type}
+                      {getAqueductMappingTypeLabel(t, mapping.mapping_type)}
                     </span>
                   )}
                 </div>
@@ -790,7 +832,9 @@ export function FieldMappingDetail({
                   )}
                   {mapping?.is_ai_suggested && confidencePct !== null && (
                     <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-900/40 text-amber-400 border border-amber-800/50 flex-shrink-0">
-                      AI {confidencePct}%
+                      {t("etl.aqueduct.fieldMapping.aiConfidence", {
+                        count: confidencePct,
+                      })}
                     </span>
                   )}
                 </div>
@@ -801,10 +845,16 @@ export function FieldMappingDetail({
                     mapping.is_reviewed ? (
                       <Check className="w-4 h-4 text-emerald-400" />
                     ) : (
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500/60" title="Needs review" />
+                      <span
+                        className="w-2.5 h-2.5 rounded-full bg-amber-500/60"
+                        title={t("etl.aqueduct.fieldMapping.needsReview")}
+                      />
                     )
                   ) : (
-                    <span className="w-2.5 h-2.5 rounded-full bg-surface-accent" title="Unmapped" />
+                    <span
+                      className="w-2.5 h-2.5 rounded-full bg-surface-accent"
+                      title={t("etl.aqueduct.fieldMapping.unmapped")}
+                    />
                   )}
                 </div>
               </div>
@@ -816,27 +866,33 @@ export function FieldMappingDetail({
                     {/* Type + Logic row */}
                     <div className="flex items-start gap-4">
                       <div className="flex flex-col gap-1">
-                        <label className="text-[10px] uppercase text-text-ghost tracking-wide">Type</label>
+                        <label className="text-[10px] uppercase text-text-ghost tracking-wide">
+                          {t("etl.aqueduct.fieldMapping.headers.type")}
+                        </label>
                         <select
                           value={mapping.mapping_type}
                           onChange={(e) => handleMappingChange(col.name, { mapping_type: e.target.value })}
                           onClick={(e) => e.stopPropagation()}
                           className="bg-surface-base border border-border-default rounded-md px-2 py-1.5 text-sm text-text-primary focus:outline-none focus:border-success"
                         >
-                          {MAPPING_TYPES.map((t) => (
-                            <option key={t} value={t}>{t}</option>
+                          {MAPPING_TYPES.map((mappingType) => (
+                            <option key={mappingType} value={mappingType}>
+                              {getAqueductMappingTypeLabel(t, mappingType)}
+                            </option>
                           ))}
                         </select>
                       </div>
 
                       <div className="flex-1 flex flex-col gap-1">
-                        <label className="text-[10px] uppercase text-text-ghost tracking-wide">Logic / Expression</label>
+                        <label className="text-[10px] uppercase text-text-ghost tracking-wide">
+                          {t("etl.aqueduct.fieldMapping.logicExpression")}
+                        </label>
                         <textarea
                           rows={2}
                           value={mapping.logic ?? ""}
                           onChange={(e) => handleMappingChange(col.name, { logic: e.target.value })}
                           onClick={(e) => e.stopPropagation()}
-                          placeholder="Transformation logic or SQL expression"
+                          placeholder={t("etl.aqueduct.fieldMapping.logicPlaceholder")}
                           className="bg-surface-base border border-border-default rounded-md px-2 py-1.5 text-sm text-text-primary font-mono resize-none focus:outline-none focus:border-success placeholder:text-text-ghost"
                         />
                       </div>
@@ -852,13 +908,13 @@ export function FieldMappingDetail({
                             onChange={(e) => handleMappingChange(col.name, { is_reviewed: e.target.checked })}
                             className="rounded border-border-default bg-surface-base text-success focus:ring-success"
                           />
-                          Reviewed
+                          {t("etl.aqueduct.fieldMapping.reviewed")}
                         </label>
                         <button
                           onClick={(e) => { e.stopPropagation(); handleSourceClear(col.name); }}
                           className="text-[11px] text-red-400 hover:text-red-300 transition-colors text-left"
                         >
-                          Remove mapping
+                          {t("etl.aqueduct.fieldMapping.removeMapping")}
                         </button>
                       </div>
                     </div>
@@ -883,20 +939,24 @@ export function FieldMappingDetail({
                           className="flex items-center gap-1.5 text-[11px] text-text-muted hover:text-text-secondary transition-colors"
                         >
                           <BookOpen className="w-3.5 h-3.5" />
-                          CDM Documentation
+                          {t("etl.aqueduct.fieldMapping.documentation")}
                           {isDocsOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                         </button>
                         {isDocsOpen && (
                           <div className="mt-2 space-y-2 text-xs text-text-muted">
                             {col.description && (
                               <div>
-                                <span className="text-[10px] uppercase tracking-wide text-text-ghost block mb-0.5">User Guide</span>
+                                <span className="text-[10px] uppercase tracking-wide text-text-ghost block mb-0.5">
+                                  {t("etl.aqueduct.fieldMapping.userGuide")}
+                                </span>
                                 <p className="text-text-secondary leading-relaxed">{col.description}</p>
                               </div>
                             )}
                             {col.etl_conventions && (
                               <div>
-                                <span className="text-[10px] uppercase tracking-wide text-text-ghost block mb-0.5">ETL Conventions</span>
+                                <span className="text-[10px] uppercase tracking-wide text-text-ghost block mb-0.5">
+                                  {t("etl.aqueduct.fieldMapping.etlConventions")}
+                                </span>
                                 <p className="text-accent/80 leading-relaxed">{col.etl_conventions}</p>
                               </div>
                             )}
@@ -904,13 +964,17 @@ export function FieldMappingDetail({
                               <div className="flex gap-4">
                                 {col.fk_table && (
                                   <span>
-                                    <span className="text-[10px] uppercase tracking-wide text-text-ghost">FK Table: </span>
+                                    <span className="text-[10px] uppercase tracking-wide text-text-ghost">
+                                      {t("etl.aqueduct.fieldMapping.fkTable")}:{" "}
+                                    </span>
                                     <span className="text-success">{col.fk_table}</span>
                                   </span>
                                 )}
                                 {col.fk_domain && (
                                   <span>
-                                    <span className="text-[10px] uppercase tracking-wide text-text-ghost">FK Domain: </span>
+                                    <span className="text-[10px] uppercase tracking-wide text-text-ghost">
+                                      {t("etl.aqueduct.fieldMapping.fkDomain")}:{" "}
+                                    </span>
                                     <span className="text-success">{col.fk_domain}</span>
                                   </span>
                                 )}

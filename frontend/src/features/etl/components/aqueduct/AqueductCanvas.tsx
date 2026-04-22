@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import {
   ReactFlow,
   Controls,
@@ -158,6 +159,7 @@ function AqueductCanvasInner({
   sourceFields,
   onBack,
 }: AqueductCanvasProps) {
+  const { t } = useTranslation("app");
   const [filter, setFilterRaw] = useState<"all" | "mapped" | "unmapped">(() => loadFilter(project.id));
   const setFilter = useCallback((f: "all" | "mapped" | "unmapped") => {
     setFilterRaw(f);
@@ -281,7 +283,9 @@ function AqueductCanvasInner({
     nodes.push({
       id: "header-source",
       type: "default",
-      data: { label: `Source Tables (${sourceTables.length})` },
+      data: {
+        label: t("etl.aqueduct.canvas.sourceHeader", { count: sourceTables.length }),
+      },
       position: { x: 0, y: 0 },
       selectable: false,
       draggable: false,
@@ -301,7 +305,9 @@ function AqueductCanvasInner({
     nodes.push({
       id: "header-cdm",
       type: "default",
-      data: { label: `OMOP CDM v5.4 Tables (${CDM_ETL_TABLES.length})` },
+      data: {
+        label: t("etl.aqueduct.canvas.cdmHeader", { count: CDM_ETL_TABLES.length }),
+      },
       position: { x: 0, y: 0 },
       selectable: false,
       draggable: false,
@@ -515,7 +521,7 @@ function AqueductCanvasInner({
     }
 
     return { initialNodes: nodes, initialEdges: edges };
-  }, [sourceTables, tableMappings, connectedSources, connectedCdm, filter]);
+  }, [sourceTables, tableMappings, connectedSources, connectedCdm, filter, t]);
 
   // -- React Flow state -------------------------------------------------------
   const [nodes, , onNodesChange] = useNodesState(initialNodes);
@@ -556,12 +562,15 @@ function AqueductCanvasInner({
     suggestMutation.mutate(undefined, {
       onSuccess: (result) => {
         setSuggestBanner(
-          `Suggested ${result.table_mappings} table mapping${result.table_mappings !== 1 ? "s" : ""} and ${result.field_mappings} field mapping${result.field_mappings !== 1 ? "s" : ""}`,
+          t("etl.aqueduct.canvas.suggestBanner", {
+            tableMappings: result.table_mappings,
+            fieldMappings: result.field_mappings,
+          }),
         );
         setTimeout(() => setSuggestBanner(null), 5000);
       },
     });
-  }, [suggestMutation]);
+  }, [suggestMutation, t]);
 
   const savedViewport = useMemo(() => loadViewport(project.id), [project.id]);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -593,7 +602,7 @@ function AqueductCanvasInner({
         onClick={() => setSuggestBanner(null)}
         className="text-amber-400 hover:text-amber-200 ml-4"
       >
-        Dismiss
+        {t("etl.aqueduct.canvas.dismiss")}
       </button>
     </div>
   ) : null;

@@ -7,6 +7,7 @@ import {
   Columns3,
   Activity,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { TableProfile } from "../api";
 import {
@@ -14,8 +15,9 @@ import {
   fmtNumberFull,
   scoreToGrade,
   tableNullScore,
+  nullPct,
 } from "../lib/profiler-utils";
-import { TypeBadge, NullBar, SampleValues, nullPct } from "./profiler-badges";
+import { TypeBadge, NullBar, SampleValues } from "./profiler-badges";
 import PiiBadge from "./PiiBadge";
 
 export function TableAccordion({
@@ -25,6 +27,7 @@ export function TableAccordion({
   table: TableProfile;
   defaultOpen?: boolean;
 }) {
+  const { t } = useTranslation("app");
   const [open, setOpen] = useState(defaultOpen ?? false);
   const highNullCols = table.columns.filter((c) => c.fraction_empty > 0.5);
   const lowCardCols = table.columns.filter(
@@ -63,13 +66,13 @@ export function TableAccordion({
           {highNullCols.length > 0 && (
             <span className="flex items-center gap-1 text-accent">
               <AlertTriangle size={12} />
-              {highNullCols.length} high-null
+              {highNullCols.length} {t("etl.profiler.accordion.highNull")}
             </span>
           )}
           {lowCardCols.length > 0 && (
             <span className="flex items-center gap-1 text-info">
               <Activity size={12} />
-              {lowCardCols.length} low-card
+              {lowCardCols.length} {t("etl.profiler.accordion.lowCard")}
             </span>
           )}
         </span>
@@ -80,13 +83,19 @@ export function TableAccordion({
           <table className="w-full text-xs">
             <thead>
               <tr className="bg-surface-overlay">
-                {["Column", "Type", "Null %", "Distinct", "Sample Values"].map(
+                {[
+                  "column",
+                  "type",
+                  "nullPercent",
+                  "distinct",
+                  "sampleValues",
+                ].map(
                   (header) => (
                     <th
                       key={header}
                       className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted"
                     >
-                      {header}
+                      {t(`etl.profiler.accordion.headers.${header}`)}
                     </th>
                   ),
                 )}

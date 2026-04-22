@@ -5,6 +5,7 @@ import { cohortDefinitionResources } from "./cohortDefinitionResources";
 import { commonsResources } from "./commonsResources";
 import { dashboardResources } from "./dashboardResources";
 import { dataSourceIngestionResources } from "./dataSourceIngestionResources";
+import { etlAqueductResources } from "./etlAqueductResources";
 import { heorResources } from "./heorResources";
 import { imagingGenomicsResources } from "./imagingGenomicsResources";
 import { investigationResources } from "./investigationResources";
@@ -7138,6 +7139,7 @@ function appForLocale(locale: string): MessageTree {
   const baseApp = appResources[locale] ?? appResources["en-US"];
   const appWaves = [
     dataSourceIngestionResources,
+    etlAqueductResources,
     cohortDefinitionResources,
     analysisResources,
     standardProsResources,

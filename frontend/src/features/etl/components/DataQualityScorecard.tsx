@@ -1,10 +1,13 @@
 import { useMemo } from "react";
 import { Shield, ShieldAlert, CheckCircle2, AlertTriangle, Info } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { TableProfile } from "../api";
+import { getProfilerScorecardCheckLabel } from "../lib/i18n";
 import { fmtNumberFull, overallGrade } from "../lib/profiler-utils";
 
 export function DataQualityScorecard({ tables, piiColumnCount }: { tables: TableProfile[]; piiColumnCount?: number }) {
+  const { t } = useTranslation("app");
   const stats = useMemo(() => {
     const totalCols = tables.reduce((s, t) => s + t.columns.length, 0);
     const highNullCols = tables.reduce(
@@ -41,31 +44,31 @@ export function DataQualityScorecard({ tables, piiColumnCount }: { tables: Table
 
   const checks = [
     {
-      label: "High-null columns (>50%)",
+      label: getProfilerScorecardCheckLabel(t, "highNull"),
       count: stats.highNullCols,
       total: stats.totalCols,
       severity: stats.highNullCols > 0 ? "warn" : "ok",
     },
     {
-      label: "Nearly-empty columns (>99%)",
+      label: getProfilerScorecardCheckLabel(t, "nearlyEmpty"),
       count: stats.emptyCols,
       total: stats.totalCols,
       severity: stats.emptyCols > 0 ? "error" : "ok",
     },
     {
-      label: "Low cardinality (<5 distinct)",
+      label: getProfilerScorecardCheckLabel(t, "lowCardinality"),
       count: stats.lowCardCols,
       total: stats.totalCols,
       severity: stats.lowCardCols > 3 ? "info" : "ok",
     },
     {
-      label: "Single-value columns",
+      label: getProfilerScorecardCheckLabel(t, "singleValue"),
       count: stats.singleValueCols,
       total: stats.totalCols,
       severity: stats.singleValueCols > 0 ? "warn" : "ok",
     },
     {
-      label: "Empty tables (0 rows)",
+      label: getProfilerScorecardCheckLabel(t, "emptyTables"),
       count: stats.emptyTables,
       total: tables.length,
       severity: stats.emptyTables > 0 ? "error" : "ok",
@@ -73,7 +76,7 @@ export function DataQualityScorecard({ tables, piiColumnCount }: { tables: Table
     ...(piiColumnCount && piiColumnCount > 0
       ? [
           {
-            label: "PII Columns",
+            label: getProfilerScorecardCheckLabel(t, "pii"),
             count: piiColumnCount,
             total: stats.totalCols,
             severity: "pii" as const,
@@ -86,7 +89,9 @@ export function DataQualityScorecard({ tables, piiColumnCount }: { tables: Table
     <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
       <div className="px-4 py-3 bg-surface-overlay border-b border-border-default flex items-center gap-2">
         <Shield size={15} className="text-text-muted" />
-        <h4 className="text-sm font-medium text-text-primary">Data Quality Scorecard</h4>
+        <h4 className="text-sm font-medium text-text-primary">
+          {t("etl.profiler.scorecard.title")}
+        </h4>
       </div>
       <div className="p-4">
         <div className="flex items-center gap-4 mb-4">
@@ -97,10 +102,14 @@ export function DataQualityScorecard({ tables, piiColumnCount }: { tables: Table
             {grade.letter}
           </div>
           <div>
-            <p className="text-sm font-medium text-text-primary">Overall Data Completeness</p>
+            <p className="text-sm font-medium text-text-primary">
+              {t("etl.profiler.scorecard.overall")}
+            </p>
             <p className="text-xs text-text-muted mt-0.5">
-              Based on average null fraction across {fmtNumberFull(stats.totalCols)} columns in{" "}
-              {tables.length} tables
+              {t("etl.profiler.scorecard.basedOnAverage", {
+                columns: fmtNumberFull(stats.totalCols),
+                tables: tables.length,
+              })}
             </p>
           </div>
         </div>

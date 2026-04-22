@@ -1,5 +1,11 @@
 import { memo, useState, useRef, useEffect } from "react";
 import { Maximize2, Minimize2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import {
+  getAqueductExportFormatLabel,
+  getAqueductFilterLabel,
+  getAqueductStatusLabel,
+} from "../../lib/i18n";
 
 interface MappingToolbarProps {
   projectName: string;
@@ -18,23 +24,23 @@ interface MappingToolbarProps {
   onToggleFullscreen: () => void;
 }
 
-const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  draft: { bg: "bg-surface-accent/50", text: "text-text-secondary", label: "Draft" },
-  in_review: { bg: "bg-amber-900/50", text: "text-amber-300", label: "In Review" },
-  approved: { bg: "bg-green-900/50", text: "text-green-300", label: "Approved" },
-  archived: { bg: "bg-red-900/50", text: "text-red-300", label: "Archived" },
+const STATUS_STYLES: Record<string, { bg: string; text: string }> = {
+  draft: { bg: "bg-surface-accent/50", text: "text-text-secondary" },
+  in_review: { bg: "bg-amber-900/50", text: "text-amber-300" },
+  approved: { bg: "bg-green-900/50", text: "text-green-300" },
+  archived: { bg: "bg-red-900/50", text: "text-red-300" },
 };
 
-const FILTER_OPTIONS: Array<{ value: "all" | "mapped" | "unmapped"; label: string }> = [
-  { value: "all", label: "All" },
-  { value: "mapped", label: "Mapped" },
-  { value: "unmapped", label: "Unmapped" },
+const FILTER_OPTIONS: Array<{ value: "all" | "mapped" | "unmapped" }> = [
+  { value: "all" },
+  { value: "mapped" },
+  { value: "unmapped" },
 ];
 
-const EXPORT_OPTIONS: Array<{ format: "markdown" | "sql" | "json"; label: string }> = [
-  { format: "markdown", label: "Markdown Spec (.md)" },
-  { format: "sql", label: "SQL Files (.zip)" },
-  { format: "json", label: "Project JSON (.json)" },
+const EXPORT_OPTIONS: Array<{ format: "markdown" | "sql" | "json" }> = [
+  { format: "markdown" },
+  { format: "sql" },
+  { format: "json" },
 ];
 
 function MappingToolbarComponent({
@@ -53,6 +59,7 @@ function MappingToolbarComponent({
   isFullscreen,
   onToggleFullscreen,
 }: MappingToolbarProps) {
+  const { t } = useTranslation("app");
   const statusStyle = STATUS_STYLES[status] ?? STATUS_STYLES.draft;
   const [exportOpen, setExportOpen] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
@@ -78,7 +85,7 @@ function MappingToolbarComponent({
           type="button"
           onClick={onBack}
           className="text-text-muted hover:text-text-primary transition-colors p-0.5 flex-shrink-0"
-          aria-label="Go back"
+          aria-label={t("etl.aqueduct.toolbar.goBack")}
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -86,7 +93,7 @@ function MappingToolbarComponent({
         </button>
         <span className="text-text-primary font-medium text-base truncate max-w-[200px]">{projectName}</span>
         <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium flex-shrink-0 ${statusStyle.bg} ${statusStyle.text}`}>
-          {statusStyle.label}
+          {getAqueductStatusLabel(t, status)}
         </span>
         <span className="text-text-ghost flex-shrink-0">{"\u2502"}</span>
         <span className="text-text-muted text-sm flex-shrink-0 whitespace-nowrap">
@@ -115,7 +122,7 @@ function MappingToolbarComponent({
                   : "text-text-ghost hover:text-text-primary hover:bg-surface-overlay"
               }`}
             >
-              {opt.label}
+              {getAqueductFilterLabel(t, opt.value)}
             </button>
           ))}
         </div>
@@ -125,7 +132,7 @@ function MappingToolbarComponent({
           disabled={isSuggesting}
           className="text-sm px-3 py-1.5 border border-border-default rounded-md transition-colors disabled:opacity-50 text-accent hover:bg-amber-900/30"
         >
-          {isSuggesting ? "Suggesting..." : "\u2728 AI"}
+          {isSuggesting ? t("etl.aqueduct.toolbar.suggesting") : `\u2728 ${t("etl.aqueduct.toolbar.ai")}`}
         </button>
         <div className="relative" ref={exportRef}>
           <button
@@ -134,7 +141,7 @@ function MappingToolbarComponent({
             disabled={isExporting}
             className="text-sm px-3 py-1.5 border border-border-default rounded-md transition-colors disabled:opacity-50 text-text-muted hover:text-text-primary hover:bg-surface-overlay"
           >
-            {isExporting ? "..." : "Export \u25BE"}
+            {isExporting ? "..." : `${t("etl.aqueduct.toolbar.export")} \u25BE`}
           </button>
           {exportOpen && (
             <div className="absolute right-0 mt-1 w-44 bg-surface-overlay border border-border-default rounded-lg shadow-lg z-50 overflow-hidden">
@@ -145,7 +152,7 @@ function MappingToolbarComponent({
                   onClick={() => { setExportOpen(false); onExport(opt.format); }}
                   className="w-full text-left text-xs px-3 py-2 text-text-muted hover:bg-surface-accent/80 hover:text-text-primary transition-colors"
                 >
-                  {opt.label}
+                  {getAqueductExportFormatLabel(t, opt.format)}
                 </button>
               ))}
             </div>
@@ -159,10 +166,10 @@ function MappingToolbarComponent({
               ? "text-text-primary bg-success/20 border border-success hover:bg-success/30"
               : "text-accent bg-surface-elevated border border-border-default hover:bg-surface-elevated/80"
           }`}
-          title={isFullscreen ? "Collapse" : "Expand"}
+          title={isFullscreen ? t("etl.aqueduct.toolbar.collapse") : t("etl.aqueduct.toolbar.expand")}
         >
           {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-          {isFullscreen ? "Collapse" : "Expand"}
+          {isFullscreen ? t("etl.aqueduct.toolbar.collapse") : t("etl.aqueduct.toolbar.expand")}
         </button>
       </div>
     </div>

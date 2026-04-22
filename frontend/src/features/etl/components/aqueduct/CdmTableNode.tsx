@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
+import { useTranslation } from "react-i18next";
 
 const DOMAIN_COLORS: Record<string, string> = {
   Person: "var(--success)",
@@ -29,6 +30,7 @@ export interface CdmTableNodeData {
 }
 
 function CdmTableNodeComponent({ data }: NodeProps) {
+  const { t } = useTranslation("app");
   const d = data as unknown as CdmTableNodeData;
   const color = DOMAIN_COLORS[d.domain] ?? DOMAIN_COLORS.Other;
   const unmappedRequired = d.requiredCount - d.mappedRequiredCount;
@@ -59,9 +61,11 @@ function CdmTableNodeComponent({ data }: NodeProps) {
         </span>
       </div>
       <div className="flex items-center gap-3 mt-1 text-xs text-text-muted">
-        <span>req: {d.requiredCount}</span>
+        <span>{t("etl.aqueduct.nodes.requiredCount", { count: d.requiredCount })}</span>
         {unmappedRequired > 0 && (
-          <span className="text-red-400 font-medium">{unmappedRequired} unmapped</span>
+          <span className="text-red-400 font-medium">
+            {t("etl.aqueduct.nodes.unmappedCount", { count: unmappedRequired })}
+          </span>
         )}
       </div>
     </div>

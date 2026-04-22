@@ -1,5 +1,7 @@
 import { X, Check, AlertTriangle, ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { EtlTableMapping } from "../../api";
+import { getAqueductMappingTypeLabel } from "../../lib/i18n";
 
 interface CdmColumn {
   name: string;
@@ -28,6 +30,8 @@ export default function CdmTableDetailModal({
   mappings,
   onDrillDown,
 }: CdmTableDetailModalProps) {
+  const { t } = useTranslation("app");
+
   if (!isOpen) return null;
 
   // Build a map of CDM column → field mapping info
@@ -59,7 +63,12 @@ export default function CdmTableDetailModal({
             <div>
               <h2 className="text-lg font-semibold text-text-primary">{tableName}</h2>
               <p className="text-xs text-text-muted mt-0.5">
-                {domain} &middot; {columns.length} columns &middot; {mapped.length} mapped &middot; {unmapped.length} unmapped
+                {t("etl.aqueduct.detailModal.summary", {
+                  domain,
+                  columns: columns.length,
+                  mapped: mapped.length,
+                  unmapped: unmapped.length,
+                })}
               </p>
             </div>
             <button type="button" onClick={onClose} className="p-1 text-text-ghost hover:text-text-primary">
@@ -74,7 +83,9 @@ export default function CdmTableDetailModal({
               <div>
                 <h3 className="flex items-center gap-2 text-sm font-medium text-critical mb-2">
                   <AlertTriangle size={14} />
-                  Unmapped Required ({unmappedRequired.length})
+                  {t("etl.aqueduct.detailModal.unmappedRequired", {
+                    count: unmappedRequired.length,
+                  })}
                 </h3>
                 <div className="rounded-lg border border-critical/30 divide-y divide-critical/10">
                   {unmappedRequired.map((col) => (
@@ -82,7 +93,9 @@ export default function CdmTableDetailModal({
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-mono font-medium text-critical">{col.name}</span>
                         <span className="text-[10px] px-1.5 py-0.5 rounded bg-critical/15 text-critical">{col.type}</span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-critical/15 text-critical font-medium">REQUIRED</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-critical/15 text-critical font-medium">
+                          {t("etl.aqueduct.detailModal.required")}
+                        </span>
                       </div>
                       <p className="text-xs text-text-ghost mt-1 line-clamp-2">{col.description}</p>
                     </div>
@@ -96,7 +109,7 @@ export default function CdmTableDetailModal({
               <div>
                 <h3 className="flex items-center gap-2 text-sm font-medium text-success mb-2">
                   <Check size={14} />
-                  Mapped ({mapped.length})
+                  {t("etl.aqueduct.detailModal.mapped", { count: mapped.length })}
                 </h3>
                 <div className="rounded-lg border border-border-default divide-y divide-border-subtle">
                   {mapped.map((col) => {
@@ -112,9 +125,13 @@ export default function CdmTableDetailModal({
                           <span className="text-sm font-mono text-text-secondary">{fm.source_table}.{fm.source_column}</span>
                           <ArrowRight size={12} className="text-text-ghost" />
                           <span className="text-sm font-mono font-medium text-success">{col.name}</span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-elevated text-text-muted">{fm.mapping_type}</span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-elevated text-text-muted">
+                            {getAqueductMappingTypeLabel(t, fm.mapping_type)}
+                          </span>
                           {col.required && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-success/15 text-success">req</span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-success/15 text-success">
+                              {t("etl.aqueduct.detailModal.requiredShort")}
+                            </span>
                           )}
                         </div>
                       </button>
@@ -128,7 +145,9 @@ export default function CdmTableDetailModal({
             {unmappedOptional.length > 0 && (
               <div>
                 <h3 className="text-sm font-medium text-text-muted mb-2">
-                  Unmapped Optional ({unmappedOptional.length})
+                  {t("etl.aqueduct.detailModal.unmappedOptional", {
+                    count: unmappedOptional.length,
+                  })}
                 </h3>
                 <div className="rounded-lg border border-border-default divide-y divide-border-subtle">
                   {unmappedOptional.map((col) => (

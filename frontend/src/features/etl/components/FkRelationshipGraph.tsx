@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { ChevronDown, ChevronUp, GitBranch } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface FkRelationshipGraphProps {
   fields: Array<{
@@ -183,6 +184,7 @@ function layoutNodes(
 }
 
 export function FkRelationshipGraph({ fields, onTableClick }: FkRelationshipGraphProps) {
+  const { t } = useTranslation("app");
   const [expanded, setExpanded] = useState(true);
 
   const { edges, tableSet, rowCounts } = useMemo(() => inferEdges(fields), [fields]);
@@ -204,12 +206,17 @@ export function FkRelationshipGraph({ fields, onTableClick }: FkRelationshipGrap
         type="button"
         onClick={() => setExpanded((p) => !p)}
         className="flex items-center gap-2 w-full text-left"
-      >
+        >
         {expanded ? <ChevronUp size={14} className="text-text-muted" /> : <ChevronDown size={14} className="text-text-muted" />}
         <GitBranch size={14} className="text-success" />
-        <span className="text-sm font-medium text-text-primary">CDM Relationships</span>
+        <span className="text-sm font-medium text-text-primary">
+          {t("etl.profiler.relationships.title")}
+        </span>
         <span className="text-[11px] text-text-ghost ml-1">
-          {edges.length} relationships across {activeNodes.size} tables
+          {t("etl.profiler.relationships.summary", {
+            count: edges.length,
+            tables: activeNodes.size,
+          })}
         </span>
       </button>
 
@@ -283,7 +290,9 @@ export function FkRelationshipGraph({ fields, onTableClick }: FkRelationshipGrap
                       fill="var(--text-muted)"
                       fontSize={9}
                     >
-                      {fmtCount(pos.rowCount)} rows
+                      {t("etl.profiler.relationships.rows", {
+                        count: fmtCount(pos.rowCount),
+                      })}
                     </text>
                   )}
                 </g>

@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import apiClient from "@/lib/api-client";
 
 // ---------------------------------------------------------------------------
@@ -22,6 +23,7 @@ interface ConceptSearchInlineProps {
 // ---------------------------------------------------------------------------
 
 export function ConceptSearchInline({ onSelect }: ConceptSearchInlineProps) {
+  const { t } = useTranslation("app");
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<ConceptResult[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -84,7 +86,7 @@ export function ConceptSearchInline({ onSelect }: ConceptSearchInlineProps) {
   return (
     <div ref={containerRef} className="relative mt-2">
       <label className="text-[10px] uppercase text-text-ghost tracking-wide block mb-1">
-        Concept Search
+        {t("etl.aqueduct.conceptSearch.label")}
       </label>
       <input
         type="text"
@@ -93,7 +95,7 @@ export function ConceptSearchInline({ onSelect }: ConceptSearchInlineProps) {
         onFocus={() => {
           if (results.length > 0) setIsOpen(true);
         }}
-        placeholder="Search OMOP concepts..."
+        placeholder={t("etl.aqueduct.conceptSearch.placeholder")}
         className="w-full bg-surface-overlay border border-border-default rounded px-3 py-1.5 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success"
       />
       {isLoading && (
@@ -128,7 +130,7 @@ export function ConceptSearchInline({ onSelect }: ConceptSearchInlineProps) {
                 <span className="text-[10px] text-text-ghost">{concept.vocabulary_id}</span>
                 {concept.standard_concept === "S" && (
                   <span className="text-[9px] px-1.5 py-0.5 rounded bg-success/20 text-success font-medium">
-                    S
+                    {t("etl.aqueduct.conceptSearch.standard")}
                   </span>
                 )}
               </button>

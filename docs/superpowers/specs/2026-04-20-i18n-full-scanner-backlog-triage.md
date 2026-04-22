@@ -11,10 +11,10 @@ npm run i18n:scan
 
 Current scanner output:
 
-- Full frontend scanner: 1,412 candidates across 1,115 scanned files.
+- Full frontend scanner: 1,270 candidates across 1,116 scanned files.
 - FinnGen paths excluded from this i18n track: 372 candidates.
-- Non-FinnGen backlog for this triage: 1,040 candidates.
-- Candidate kinds after FinnGen exclusion: 478 JSX text, 514 object properties, 48 JSX attributes.
+- Non-FinnGen backlog for this triage: 898 candidates.
+- Candidate kinds after FinnGen exclusion: 390 JSX text, 474 object properties, 34 JSX attributes.
 - Dedicated release-facing shell scan: `npm run i18n:scan:app-priority` reports 0 candidates across 214 files.
 
 Use the dedicated `npm run i18n:scan:app-priority` script plus the focused wave scanners below as the operational completion gates for this extraction program. The unsupported ad hoc `npm run i18n:scan -- --app-priority` invocation should not be used for milestone accounting.
@@ -32,10 +32,10 @@ Use the dedicated `npm run i18n:scan:app-priority` script plus the focused wave 
 | Investigation clinical workflows | 0 | 63 | Completed for `src/features/investigation`. Focused investigation wave scanner reports 0 candidates across the landing/new-investigation shell, phenotype builder/validation/codewas/cohort tooling, clinical gallery/config/tracking/history/results, genomic evidence search/upload/chart/table surfaces, synthesis dossier/export/versioning, and shared investigation-side panels. Clinical/source values, concept IDs, JSON keys, scientific shorthand, and OHDSI/FinnGen identifiers remain protected where needed. |
 | Profiles and patient similarity | 0 | 72 | Completed for `src/features/profiles` and `src/features/patient-similarity`. Focused wave scanner reports 0 candidates across patient profile search/browse/header/timeline/labs/visits/notes/eras surfaces plus similarity workspace, comparison, diagnostics, cohort actions, trajectory/radar/divergence charts, and matching/landscape panels. |
 | Publish, care gaps, and risk scores | 0 | 75 | Completed for `src/features/publish`, `src/features/care-gaps`, and `src/features/risk-scores`. The focused wave scanner reports 0 candidates across publish wizard/template/export surfaces, care-gap bundle/evaluation/population surfaces, and risk-score workflow/detail/result surfaces. |
-| Generated/static/curated data | 526 | 8 | Do not machine-translate as UI copy. Requires curated terminology/data asset handling. |
+| Generated/static/curated data | 414 | 2 | Dominated by `src/features/etl/lib/cdm-schema-v54.ts` and `src/features/standard-pros/data/instruments.ts`. Do not machine-translate as UI copy; requires curated terminology/data asset handling. |
 | HEOR | 0 | 13 | Completed for `src/features/heor`. Focused HEOR wave scanner reports 0 candidates across the hub, analysis detail workspace, claims explorer, budget-impact chart, cost-effectiveness plane, scenario comparison chart, tornado diagram, and supporting HEOR label helpers. Payer terminology, Solr command text, currency figures, and ICER/QALY shorthand remain protected where needed. |
 | Morpheus | 0 | 33 | Completed for `src/features/morpheus`. Focused Morpheus wave scanner reports 0 candidates across the dashboard, patient journey, location track, medication timeline, concept drawer, microbiology/antibiogram views, labs, vitals, dataset selector, export, and supporting Morpheus label helpers/constants. Microbiology/source terminology, organism names, specimen labels, antibiotic names, units, and dataset/source identifiers remain protected where needed. |
-| ETL source profiler and Aqueduct | 152 | 16 | Later data-engineering wave. Protect table, schema, file, and mapping identifiers. |
+| ETL source profiler and Aqueduct | 0 | 19 | Completed for the live profiler chrome and Aqueduct canvas/editor surfaces. The focused wave scanner reports 0 candidates across the source-profiler page, profiler support components, and Aqueduct modals/editors. Table/schema/file identifiers, CDM column names, and the static `cdm-schema-v54.ts` standards documentation remain protected where needed. |
 | GIS, Poseidon, code tools, text-to-SQL, Jupyter | 257 | 41 | Later technical-tooling wave. Many strings are command/tool labels or examples. |
 | Concept sets and shared research primitives | 98 | 13 | Later shared research wave. Some scanner hits are separators/proper nouns and should become exemptions. |
 | Legacy Abby AI panel | 30 | 3 | Decide whether this surface is still active before extraction; current layout Abby resources are already localized. |
@@ -49,17 +49,19 @@ Use the dedicated `npm run i18n:scan:app-priority` script plus the focused wave 
 | 99 | `src/features/standard-pros/data/instruments.ts` |
 | 34 | `src/features/poseidon/pages/PoseidonPage.tsx` |
 | 30 | `src/features/jupyter/pages/JupyterPage.tsx` |
-| 29 | `src/features/etl/components/aqueduct/FieldMappingDetail.tsx` |
-| 29 | `src/features/etl/pages/SourceProfilerPage.tsx` |
 | 29 | `src/features/study-agent/pages/StudyDesignerPage.tsx` |
 | 22 | `src/features/phenotype-library/pages/PhenotypeLibraryPage.tsx` |
 | 19 | `src/features/concept-sets/components/ConceptSetEditor.tsx` |
 | 16 | `src/features/community-workbench-sdk/pages/CommunityWorkbenchSdkDemoPage.tsx` |
 | 16 | `src/features/workbench/pages/WorkbenchLauncherPage.tsx` |
 | 15 | `src/features/concept-sets/components/ConceptSetItemDetailExpander.tsx` |
-| 15 | `src/features/etl/components/profiler-badges.tsx` |
 | 14 | `src/features/abby-ai/components/AbbyAiPanel.tsx` |
 | 14 | `src/features/concept-sets/components/ConceptSetList.tsx` |
+| 13 | `src/features/code-explorer/components/CountsTab.tsx` |
+| 12 | `src/features/text-to-sql/components/SqlRunnerModal.tsx` |
+| 10 | `src/features/code-explorer/pages/CodeExplorerPage.tsx` |
+| 10 | `src/features/concept-sets/pages/ConceptSetDetailPage.tsx` |
+| 10 | `src/features/etl/pages/EtlToolsPage.tsx` |
 
 ## Recommended Extraction Order
 
@@ -96,8 +98,11 @@ Use the dedicated `npm run i18n:scan:app-priority` script plus the focused wave 
 11. Morpheus. Completed 2026-04-21.
    Scope completed: `src/features/morpheus` across the dashboard, patient journey, location track, medication timeline, diagnoses summary, labs, vitals, microbiology/antibiogram views, concept drawer, dataset selector, export flow, and Morpheus label helpers/constants. The focused Morpheus wave scanner reports 0 candidates across 33 files. Microbiology/source terminology, organism names, specimen labels, antibiotic names, units, and dataset/source identifiers remain protected where needed while the surrounding inpatient workflow chrome now resolves through app i18n resources.
 
-12. Later specialty waves.
-   ETL source profiler/Aqueduct, GIS/Poseidon/code tools, concept-set shared primitives, phenotype-library/study-agent/workbench surfaces, and remaining small workbench panels should follow after the completed waves above. The next highest-value non-FinnGen app wave is now ETL source profiler and Aqueduct.
+12. ETL source profiler and Aqueduct. Completed 2026-04-21.
+   Scope completed: `src/features/etl/pages/SourceProfilerPage.tsx`, profiler support components (`ScanHistorySidebar`, `ScanProgressIndicator`, `CompletenessHeatmap`, `DataQualityScorecard`, `TableSizeChart`, `FkRelationshipGraph`, `TableAccordion`, `PiiBadge`, and `profiler-badges`), and the Aqueduct canvas/modal/editor surfaces under `src/features/etl/components/aqueduct`. The focused wave scanner reports 0 candidates across 19 files. Table names, schema names, CDM column identifiers, OMOP/FHIR/SQL/JSON tokens, and the static `src/features/etl/lib/cdm-schema-v54.ts` standards documentation remain protected where needed while the surrounding ETL workflow chrome now resolves through app i18n resources.
+
+13. Later specialty waves.
+   GIS/Poseidon/code tools/text-to-SQL/Jupyter, concept-set shared primitives, phenotype-library/study-agent/workbench surfaces, and remaining small workbench panels should follow after the completed waves above. The next highest-value non-FinnGen app wave is now the GIS/Poseidon/code-tools cluster, while the `cdm-schema-v54.ts` and curated instrument catalogs remain in the separate generated/static-data policy bucket.
 
 ## Generated/Static Data Policy
 

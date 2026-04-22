@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Drawer } from "@/components/ui/Drawer";
+import { useTranslation } from "react-i18next";
 import {
   Sparkles,
   Check,
@@ -10,6 +11,7 @@ import {
 } from "lucide-react";
 import { useSuggestFieldMappings } from "../../hooks/useAqueductData";
 import type { EtlFieldMapping, FieldSuggestionGroup } from "../../api";
+import { getAqueductMappingTypeLabel } from "../../lib/i18n";
 
 interface AiSuggestPanelProps {
   open: boolean;
@@ -60,6 +62,7 @@ export function AiSuggestPanel({
   onAccept,
   onAcceptAll,
 }: AiSuggestPanelProps) {
+  const { t } = useTranslation("app");
   const suggest = useSuggestFieldMappings(projectId, tableMappingId);
   const [acceptedCols, setAcceptedCols] = useState<Set<string>>(new Set());
 
@@ -70,17 +73,15 @@ export function AiSuggestPanel({
     }
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Reset accepted set when drawer closes
-  useEffect(() => {
-    if (!open) {
-      setAcceptedCols(new Set());
-    }
-  }, [open]);
-
   const handleRefresh = useCallback(() => {
     setAcceptedCols(new Set());
     suggest.mutate();
   }, [suggest]);
+
+  const handleClose = useCallback(() => {
+    setAcceptedCols(new Set());
+    onClose();
+  }, [onClose]);
 
   // Filter out already-mapped and already-accepted columns
   const filteredGroups = useMemo<FieldSuggestionGroup[]>(() => {
@@ -137,14 +138,16 @@ export function AiSuggestPanel({
     filteredGroups.length > 0 ? (
       <div className="flex items-center justify-between w-full">
         <span className="text-xs text-text-ghost">
-          {suggestionsWithMatches.length} columns with suggestions
+          {t("etl.aqueduct.suggestions.columnsWithSuggestions", {
+            count: suggestionsWithMatches.length,
+          })}
         </span>
         <button
           onClick={handleAcceptAllTop}
           className="flex items-center gap-1.5 px-4 py-2 text-sm rounded bg-success/10 text-success hover:bg-success/20 transition-colors font-medium"
         >
           <CheckCheck className="w-4 h-4" />
-          Accept All Top Suggestions
+          {t("etl.aqueduct.suggestions.acceptAllTopSuggestions")}
         </button>
       </div>
     ) : undefined;
@@ -152,8 +155,11 @@ export function AiSuggestPanel({
   return (
     <Drawer
       open={open}
-      onClose={onClose}
-      title={`AI Suggestions: ${sourceTable} → ${targetTable}`}
+      onClose={handleClose}
+      title={t("etl.aqueduct.suggestions.title", {
+        source: sourceTable,
+        target: targetTable,
+      })}
       size="lg"
       footer={footer}
     >
@@ -163,7 +169,9 @@ export function AiSuggestPanel({
           <div className="flex items-center gap-2 text-sm text-text-muted">
             <Sparkles className="w-4 h-4 text-accent" />
             <span>
-              {filteredGroups.length} unmapped columns with suggestions
+              {t("etl.aqueduct.suggestions.unmappedColumnsWithSuggestions", {
+                count: filteredGroups.length,
+              })}
             </span>
           </div>
           <button
@@ -174,7 +182,7 @@ export function AiSuggestPanel({
             <RefreshCw
               className={`w-3.5 h-3.5 ${suggest.isPending ? "animate-spin" : ""}`}
             />
-            Refresh
+            {t("etl.aqueduct.suggestions.refresh")}
           </button>
         </div>
 
@@ -183,7 +191,7 @@ export function AiSuggestPanel({
           {suggest.isPending && (
             <div className="flex flex-col items-center justify-center py-12 text-text-ghost">
               <Loader2 className="w-8 h-8 animate-spin mb-3" />
-              <span className="text-sm">Analyzing column matches...</span>
+              <span className="text-sm">{t("etl.aqueduct.suggestions.analyzing")}</span>
             </div>
           )}
 
@@ -191,13 +199,13 @@ export function AiSuggestPanel({
             <div className="flex flex-col items-center justify-center py-12 text-text-ghost">
               <AlertCircle className="w-8 h-8 text-red-400 mb-3" />
               <span className="text-sm text-red-400 mb-2">
-                Failed to generate suggestions
+                {t("etl.aqueduct.suggestions.failed")}
               </span>
               <button
                 onClick={handleRefresh}
                 className="px-3 py-1.5 text-xs rounded bg-surface-elevated hover:bg-surface-accent/80 text-text-secondary"
               >
-                Retry
+                {t("etl.aqueduct.suggestions.retry")}
               </button>
             </div>
           )}
@@ -205,7 +213,7 @@ export function AiSuggestPanel({
           {suggest.data && filteredGroups.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12 text-text-ghost">
               <CheckCheck className="w-8 h-8 text-emerald-400 mb-3" />
-              <span className="text-sm">All CDM columns are mapped</span>
+              <span className="text-sm">{t("etl.aqueduct.suggestions.allMapped")}</span>
             </div>
           )}
 
@@ -239,6 +247,8 @@ function SuggestionGroup({
     logic: string | null,
   ) => void;
 }) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="rounded-lg border border-border-default overflow-hidden">
       {/* CDM column header */}
@@ -248,7 +258,7 @@ function SuggestionGroup({
         </span>
         {group.is_required && (
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-950 text-red-400 font-medium">
-            Required
+            {t("etl.aqueduct.suggestions.required")}
           </span>
         )}
       </div>
@@ -256,7 +266,7 @@ function SuggestionGroup({
       {/* Suggestions */}
       {group.suggestions.length === 0 ? (
         <div className="px-3 py-2 text-xs text-text-ghost italic">
-          No matching source columns found
+          {t("etl.aqueduct.suggestions.noMatches")}
         </div>
       ) : (
         <div className="divide-y divide-border-default/40">
@@ -278,7 +288,7 @@ function SuggestionGroup({
 
                 {/* Mapping type badge */}
                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-raised text-text-muted">
-                  {s.mapping_type}
+                  {getAqueductMappingTypeLabel(t, s.mapping_type)}
                 </span>
 
                 {/* Score bar */}
@@ -308,10 +318,14 @@ function SuggestionGroup({
                     )
                   }
                   className="flex items-center gap-1 px-2 py-1 text-xs rounded bg-success/10 text-success hover:bg-success/20 transition-colors"
-                  title={`Map ${s.source_column} → ${group.target_column} as ${s.mapping_type}`}
+                  title={t("etl.aqueduct.suggestions.acceptTitle", {
+                    source: s.source_column,
+                    target: group.target_column,
+                    mappingType: getAqueductMappingTypeLabel(t, s.mapping_type),
+                  })}
                 >
                   <Check className="w-3 h-3" />
-                  Accept
+                  {t("etl.aqueduct.suggestions.accept")}
                 </button>
               </div>
               {s.logic && (

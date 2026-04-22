@@ -4,6 +4,7 @@ import {
   EdgeLabelRenderer,
   type EdgeProps,
 } from "@xyflow/react";
+import { useTranslation } from "react-i18next";
 
 export interface MappingEdgeData {
   mappedFields: number;
@@ -26,6 +27,7 @@ function MappingEdgeComponent({
   data,
   style = {},
 }: EdgeProps) {
+  const { t } = useTranslation("app");
   const d = (data ?? {}) as unknown as MappingEdgeData;
 
   const [edgePath, labelX, labelY] = getBezierPath({
@@ -86,7 +88,10 @@ function MappingEdgeComponent({
               backdropFilter: "blur(4px)",
             }}
           >
-            {d.mappedFields}/{d.totalFields} fields
+            {t("etl.aqueduct.nodes.edgeFields", {
+              mapped: d.mappedFields,
+              total: d.totalFields,
+            })}
           </div>
         </div>
       </EdgeLabelRenderer>

@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   ScanSearch,
   Loader2,
@@ -36,6 +37,7 @@ import {
   type SortDir,
   type ViewMode,
 } from "../lib/profiler-utils";
+import { getProfilerMetricLabel, getProfilerSortLabel } from "../lib/i18n";
 import { GradeBadge } from "../components/profiler-badges";
 import { CompletenessHeatmap } from "../components/CompletenessHeatmap";
 import { DataQualityScorecard } from "../components/DataQualityScorecard";
@@ -105,6 +107,8 @@ function transformPersistedToScanResult(
 // ---------------------------------------------------------------------------
 
 export default function SourceProfilerPage() {
+  const { t } = useTranslation("app");
+
   // -- State ----------------------------------------------------------------
   const [selectedProjectId, setSelectedProjectId] = useState<number | "">("");
   const [tableFilter, setTableFilter] = useState("");
@@ -267,10 +271,11 @@ export default function SourceProfilerPage() {
       {/* Page header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Source Profiler</h1>
+          <h1 className="text-2xl font-bold text-text-primary">
+            {t("etl.profiler.page.title")}
+          </h1>
           <p className="mt-1 text-sm text-text-muted">
-            Profile source databases with BlackRabbit to assess data completeness,
-            cardinality, and quality before ETL
+            {t("etl.profiler.page.subtitle")}
           </p>
         </div>
         <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[rgba(155,27,48,0.12)]">
@@ -293,8 +298,10 @@ export default function SourceProfilerPage() {
           ) : (
             <AlertTriangle size={13} />
           )}
-          BlackRabbit service{" "}
-          {health.available ? "available" : "unavailable \u2014 scan may fail"}{" "}
+          {t("etl.profiler.page.blackRabbitService")}{" "}
+          {health.available
+            ? t("etl.profiler.page.available")
+            : t("etl.profiler.page.unavailableScanMayFail")}{" "}
           {health.version ? `(v${health.version})` : ""}
         </div>
       )}
@@ -306,13 +313,13 @@ export default function SourceProfilerPage() {
           <div className="rounded-lg border border-border-default bg-surface-raised p-5 space-y-4">
             <h3 className="text-sm font-medium text-text-primary flex items-center gap-2">
               <Database size={15} className="text-text-muted" />
-              Scan Configuration
+              {t("etl.profiler.page.scanConfiguration")}
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="block text-xs font-medium text-text-muted uppercase tracking-wider">
-                  Database
+                  {t("etl.profiler.page.database")}
                 </label>
                 <select
                   value={selectedProjectId}
@@ -323,7 +330,7 @@ export default function SourceProfilerPage() {
                   }
                   className="w-full rounded-lg bg-surface-overlay border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-primary"
                 >
-                  <option value="">Select a database...</option>
+                  <option value="">{t("etl.profiler.page.selectDatabase")}</option>
                   {dbProjects.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.name}
@@ -333,23 +340,23 @@ export default function SourceProfilerPage() {
                 </select>
                 {dbProjects.length === 0 && (
                   <p className="text-[11px] text-text-ghost">
-                    No database connections found. Use the Ingestion tab to connect a database first.
+                    {t("etl.profiler.page.noDatabaseConnections")}
                   </p>
                 )}
               </div>
 
               <div className="space-y-1.5">
                 <label className="block text-xs font-medium text-text-muted uppercase tracking-wider">
-                  Table Filter{" "}
+                  {t("etl.profiler.page.tableFilter")}{" "}
                   <span className="normal-case font-normal text-text-ghost">
-                    (comma-separated)
+                    {t("etl.profiler.page.commaSeparated")}
                   </span>
                 </label>
                 <input
                   type="text"
                   value={tableFilter}
                   onChange={(e) => setTableFilter(e.target.value)}
-                  placeholder="e.g. person, visit_occurrence, condition_occurrence"
+                  placeholder={t("etl.profiler.page.tableFilterPlaceholder")}
                   className="w-full rounded-lg bg-surface-overlay border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-primary"
                 />
               </div>
@@ -362,14 +369,14 @@ export default function SourceProfilerPage() {
               className="flex items-center gap-1.5 text-xs text-text-ghost hover:text-text-muted transition-colors"
             >
               {showAdvanced ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-              Advanced options
+              {t("etl.profiler.page.advancedOptions")}
             </button>
 
             {showAdvanced && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-4 border-l-2 border-border-default">
                 <div className="space-y-1.5">
                   <label className="block text-xs font-medium text-text-muted uppercase tracking-wider">
-                    Sample Rows per Table
+                    {t("etl.profiler.page.sampleRowsPerTable")}
                   </label>
                   <input
                     type="number"
@@ -384,7 +391,7 @@ export default function SourceProfilerPage() {
                     className="w-full rounded-lg bg-surface-overlay border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-primary"
                   />
                   <p className="text-[11px] text-text-ghost">
-                    Limits row sampling for large tables. Default: 10,000.
+                    {t("etl.profiler.page.sampleRowsHelp")}
                   </p>
                 </div>
               </div>
@@ -400,12 +407,12 @@ export default function SourceProfilerPage() {
                 {scanProgress.isScanning ? (
                   <>
                     <Loader2 size={15} className="animate-spin" />
-                    Scanning...
+                    {t("etl.profiler.page.scanning")}
                   </>
                 ) : (
                   <>
                     <ScanSearch size={15} />
-                    Scan Database
+                    {t("etl.profiler.page.scanDatabase")}
                   </>
                 )}
               </button>
@@ -418,7 +425,7 @@ export default function SourceProfilerPage() {
                     className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-overlay px-3 py-2.5 text-xs text-text-secondary hover:bg-surface-elevated transition-colors"
                   >
                     <Download size={13} />
-                    JSON
+                    {t("etl.profiler.page.json")}
                   </button>
                   <button
                     type="button"
@@ -426,7 +433,7 @@ export default function SourceProfilerPage() {
                     className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-overlay px-3 py-2.5 text-xs text-text-secondary hover:bg-surface-elevated transition-colors"
                   >
                     <Download size={13} />
-                    CSV
+                    {t("etl.profiler.page.csv")}
                   </button>
                 </div>
               )}
@@ -457,7 +464,9 @@ export default function SourceProfilerPage() {
         <div className="flex items-start gap-3 rounded-lg bg-[rgba(232,90,107,0.08)] border border-[rgba(232,90,107,0.2)] px-4 py-3">
           <AlertTriangle size={16} className="text-critical shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-critical">Scan failed</p>
+            <p className="text-sm font-medium text-critical">
+              {t("etl.profiler.page.scanFailed")}
+            </p>
             <p className="text-xs text-text-muted mt-0.5">
               {scanError}
             </p>
@@ -491,27 +500,27 @@ export default function SourceProfilerPage() {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             {[
               {
-                label: "Tables",
+                label: getProfilerMetricLabel(t, "tables"),
                 value: fmtNumberFull(result.tables.length),
                 color: "var(--success)",
               },
               {
-                label: "Columns",
+                label: getProfilerMetricLabel(t, "columns"),
                 value: fmtNumberFull(totalCols),
                 color: "var(--info)",
               },
               {
-                label: "Total Rows",
+                label: getProfilerMetricLabel(t, "totalRows"),
                 value: fmtNumber(totalRows),
                 color: "var(--accent)",
               },
               {
-                label: "Scan Time",
+                label: getProfilerMetricLabel(t, "scanTime"),
                 value: `${result.scan_time_seconds.toFixed(1)}s`,
                 color: "var(--domain-observation)",
               },
               {
-                label: "Grade",
+                label: getProfilerMetricLabel(t, "grade"),
                 value: overallGrade(result.tables).letter,
                 color: overallGrade(result.tables).color,
               },
@@ -567,7 +576,7 @@ export default function SourceProfilerPage() {
                   type="text"
                   value={tableSearch}
                   onChange={(e) => setTableSearch(e.target.value)}
-                  placeholder="Search tables..."
+                  placeholder={t("etl.profiler.page.searchTablesPlaceholder")}
                   className="w-full rounded-lg bg-surface-overlay border border-border-default pl-9 pr-8 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-primary"
                 />
                 {tableSearch && (
@@ -586,10 +595,10 @@ export default function SourceProfilerPage() {
                 <ArrowUpDown size={13} />
                 {(
                   [
-                    ["name", "Name"],
-                    ["rows", "Rows"],
-                    ["columns", "Cols"],
-                    ["grade", "Grade"],
+                    ["name", "name"],
+                    ["rows", "rows"],
+                    ["columns", "columns"],
+                    ["grade", "grade"],
                   ] as [SortField, string][]
                 ).map(([field, label]) => (
                   <button
@@ -603,7 +612,7 @@ export default function SourceProfilerPage() {
                         : "bg-surface-overlay text-text-ghost hover:text-text-muted",
                     )}
                   >
-                    {label}
+                    {getProfilerSortLabel(t, label)}
                     {sortField === field && (sortDir === "asc" ? " \u2191" : " \u2193")}
                   </button>
                 ))}
@@ -620,7 +629,7 @@ export default function SourceProfilerPage() {
                       ? "bg-primary/20 text-text-primary"
                       : "text-text-ghost hover:text-text-muted",
                   )}
-                  title="List view"
+                  title={t("etl.profiler.page.listView")}
                 >
                   <List size={14} />
                 </button>
@@ -633,15 +642,21 @@ export default function SourceProfilerPage() {
                       ? "bg-primary/20 text-text-primary"
                       : "text-text-ghost hover:text-text-muted",
                   )}
-                  title="Compact view"
+                  title={t("etl.profiler.page.compactView")}
                 >
                   <Grid3X3 size={14} />
                 </button>
               </div>
 
               <span className="text-[11px] text-text-ghost">
-                {filteredTables.length}
-                {tableSearch ? ` / ${result.tables.length}` : ""} tables
+                {tableSearch
+                  ? t("etl.profiler.page.filteredTableCount", {
+                    visible: filteredTables.length,
+                    total: result.tables.length,
+                  })
+                  : t("etl.profiler.page.tableCount", {
+                    count: filteredTables.length,
+                  })}
               </span>
             </div>
 
@@ -673,11 +688,15 @@ export default function SourceProfilerPage() {
                         </span>
                       </div>
                       <div className="flex items-center gap-4 text-[11px] text-text-muted">
-                        <span>{fmtNumber(table.row_count)} rows</span>
-                        <span>{table.column_count} cols</span>
+                        <span>
+                          {fmtNumber(table.row_count)} {t("etl.profiler.compact.rows")}
+                        </span>
+                        <span>
+                          {table.column_count} {t("etl.profiler.compact.cols")}
+                        </span>
                         {highNullCount > 0 && (
                           <span className="text-accent">
-                            {highNullCount} high-null
+                            {highNullCount} {t("etl.profiler.compact.highNull")}
                           </span>
                         )}
                       </div>
@@ -700,7 +719,7 @@ export default function SourceProfilerPage() {
             {/* No results from search */}
             {filteredTables.length === 0 && tableSearch && (
               <div className="text-center py-8 text-sm text-text-muted">
-                No tables matching &quot;{tableSearch}&quot;
+                {t("etl.profiler.page.noTablesMatching", { query: tableSearch })}
               </div>
             )}
           </div>
@@ -714,16 +733,14 @@ export default function SourceProfilerPage() {
             <ScanSearch size={28} className="text-text-muted" />
           </div>
           <h3 className="text-text-primary font-semibold text-lg">
-            No scan results yet
+            {t("etl.profiler.page.noScanResultsYet")}
           </h3>
           <p className="text-sm text-text-muted mt-1 text-center max-w-md">
-            Select a data source and click &quot;Scan Database&quot; to profile your
-            source data. Results include column completeness, cardinality, value
-            distributions, and data quality grades.
+            {t("etl.profiler.page.emptyDescription")}
           </p>
           {profileHistory.length > 0 && (
             <p className="text-xs text-text-ghost mt-3">
-              Or select a previous scan from the history panel.
+              {t("etl.profiler.page.historyHint")}
             </p>
           )}
         </div>

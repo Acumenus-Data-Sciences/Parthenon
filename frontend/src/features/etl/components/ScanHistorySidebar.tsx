@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Clock, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { scoreToGrade } from "../lib/profiler-utils";
 import type { ProfileSummary } from "../api";
@@ -29,6 +30,7 @@ export function ScanHistorySidebar({
   onCompare: (currentId: number, baselineId: number) => void;
   selectedId: number | null;
 }) {
+  const { t } = useTranslation("app");
   const [expanded, setExpanded] = useState(true);
   const [compareIds, setCompareIds] = useState<Set<number>>(new Set());
 
@@ -43,7 +45,7 @@ export function ScanHistorySidebar({
       >
         <Clock size={14} className="text-text-muted" />
         <span className="flex-1 text-sm font-medium text-text-primary">
-          Scan History
+          {t("etl.profiler.history.title")}
         </span>
         <span className="text-[11px] text-text-ghost">{profiles.length}</span>
         {expanded ? (
@@ -71,7 +73,7 @@ export function ScanHistorySidebar({
                 }}
                 className="w-full py-2 bg-teal-600 hover:bg-teal-500 text-white text-sm rounded-lg font-medium transition-colors"
               >
-                Compare Selected
+                {t("etl.profiler.history.compareSelected")}
               </button>
             </div>
           )}
@@ -100,7 +102,7 @@ export function ScanHistorySidebar({
                     setCompareIds(next);
                   }}
                   className="w-4 h-4 rounded border-border-hover bg-transparent accent-teal-500 shrink-0"
-                  title="Select for comparison"
+                  title={t("etl.profiler.history.selectForComparison")}
                 />
                 <span
                   className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold shrink-0"
@@ -110,11 +112,16 @@ export function ScanHistorySidebar({
                 </span>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-text-primary truncate">
-                    {profile.table_count} tables &middot; {profile.overall_grade}
+                    {t("etl.profiler.history.summary", {
+                      count: profile.table_count,
+                      grade: profile.overall_grade,
+                    })}
                   </p>
                   <p className="text-[10px] text-text-ghost">
-                    {new Date(profile.created_at).toLocaleString()} &mdash;{" "}
-                    {profile.scan_time_seconds.toFixed(1)}s
+                    {t("etl.profiler.history.timestampDuration", {
+                      timestamp: new Date(profile.created_at).toLocaleString(),
+                      seconds: profile.scan_time_seconds.toFixed(1),
+                    })}
                   </p>
                 </div>
                 <button
@@ -124,7 +131,7 @@ export function ScanHistorySidebar({
                     onDelete(profile.id);
                   }}
                   className="p-1 rounded hover:bg-surface-accent text-text-ghost hover:text-critical transition-colors"
-                  title="Delete scan"
+                  title={t("etl.profiler.history.deleteScan")}
                 >
                   <Trash2 size={12} />
                 </button>

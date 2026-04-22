@@ -1,4 +1,6 @@
+import { useTranslation } from "react-i18next";
 import { type ScanProgress } from "../hooks/useProfilerData";
+import { getScanProgressLabel } from "../lib/i18n";
 
 interface ScanProgressIndicatorProps {
   progress: ScanProgress;
@@ -9,6 +11,8 @@ export default function ScanProgressIndicator({
   progress,
   onCancel,
 }: ScanProgressIndicatorProps) {
+  const { t } = useTranslation("app");
+
   if (!progress.isScanning && progress.totalTables === 0) return null;
 
   const pct = progress.totalTables > 0
@@ -25,7 +29,7 @@ export default function ScanProgressIndicator({
       <div className="mb-4">
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-sm font-medium text-text-primary">
-            {progress.isScanning ? progress.currentTable : "Scan complete"}
+            {progress.isScanning ? progress.currentTable : t("etl.profiler.progress.complete")}
           </span>
           <span className="text-sm font-mono text-text-muted">{pct}%</span>
         </div>
@@ -40,14 +44,14 @@ export default function ScanProgressIndicator({
       {/* Stats row */}
       <div className="grid grid-cols-4 gap-3 mb-4">
         {[
-          { label: "Tables", value: `${progress.completedTables} / ${progress.totalTables}` },
-          { label: "Columns", value: totalCols.toLocaleString() },
-          { label: "Rows", value: totalRows.toLocaleString() },
-          { label: "Elapsed", value: `${elapsedSec}s` },
+          { label: "tables", value: `${progress.completedTables} / ${progress.totalTables}` },
+          { label: "columns", value: totalCols.toLocaleString() },
+          { label: "rows", value: totalRows.toLocaleString() },
+          { label: "elapsed", value: `${elapsedSec}s` },
         ].map((s) => (
           <div key={s.label} className="text-center">
             <div className="text-sm font-semibold text-text-primary font-mono">{s.value}</div>
-            <div className="text-xs text-text-ghost">{s.label}</div>
+            <div className="text-xs text-text-ghost">{getScanProgressLabel(t, s.label)}</div>
           </div>
         ))}
       </div>
@@ -56,11 +60,14 @@ export default function ScanProgressIndicator({
       {progress.tableResults.length > 0 && (
         <div className="max-h-40 overflow-y-auto rounded-lg bg-surface-raised border border-border-default mb-4">
           <div className="divide-y divide-border-subtle">
-            {progress.tableResults.map((t) => (
-              <div key={t.table} className="flex items-center justify-between px-3 py-1.5 text-xs">
-                <span className="text-text-secondary truncate">{t.table}</span>
+            {progress.tableResults.map((tableResult) => (
+              <div key={tableResult.table} className="flex items-center justify-between px-3 py-1.5 text-xs">
+                <span className="text-text-secondary truncate">{tableResult.table}</span>
                 <span className="text-text-ghost font-mono shrink-0 ml-2">
-                  {t.rows.toLocaleString()} rows &middot; {t.elapsed_ms}ms
+                  {t("etl.profiler.progress.rowTiming", {
+                    rows: tableResult.rows.toLocaleString(),
+                    ms: tableResult.elapsed_ms,
+                  })}
                 </span>
               </div>
             ))}
@@ -72,7 +79,9 @@ export default function ScanProgressIndicator({
       {progress.errors.length > 0 && (
         <div className="mb-4 rounded-lg bg-critical/10 border border-critical/30 px-3 py-2">
           <p className="text-xs font-medium text-critical mb-1">
-            {progress.errors.length} table(s) failed
+            {t("etl.profiler.progress.failedCount", {
+              count: progress.errors.length,
+            })}
           </p>
           {progress.errors.map((e) => (
             <p key={e.table} className="text-xs text-critical/70 truncate">
@@ -90,7 +99,7 @@ export default function ScanProgressIndicator({
             onClick={onCancel}
             className="text-sm text-text-muted hover:text-text-primary border border-surface-highlight rounded-md px-4 py-1.5 transition-colors"
           >
-            Cancel
+            {t("etl.profiler.progress.cancel")}
           </button>
         </div>
       )}

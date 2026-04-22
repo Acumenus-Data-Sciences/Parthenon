@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
+import { useTranslation } from "react-i18next";
 
 export interface SourceTableNodeData {
   tableName: string;
@@ -9,6 +10,7 @@ export interface SourceTableNodeData {
 }
 
 function SourceTableNodeComponent({ data }: NodeProps) {
+  const { t } = useTranslation("app");
   const d = data as unknown as SourceTableNodeData;
   return (
     <div
@@ -18,8 +20,14 @@ function SourceTableNodeComponent({ data }: NodeProps) {
     >
       <div className="text-sm font-semibold text-text-primary truncate">{d.tableName}</div>
       <div className="flex items-center gap-3 mt-1 text-xs text-text-muted">
-        <span>{d.columnCount} cols</span>
-        <span>{d.rowCount > 0 ? d.rowCount.toLocaleString() + " rows" : "empty"}</span>
+        <span>{t("etl.aqueduct.nodes.sourceCols", { count: d.columnCount })}</span>
+        <span>
+          {d.rowCount > 0
+            ? t("etl.aqueduct.nodes.sourceRows", {
+              count: d.rowCount.toLocaleString(),
+            })
+            : t("etl.aqueduct.nodes.sourceEmpty")}
+        </span>
       </div>
       <Handle
         type="source"

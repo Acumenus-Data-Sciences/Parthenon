@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Grid3X3 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { TableProfile } from "../api";
 
 function cellColor(fraction: number | undefined): string {
@@ -12,6 +13,7 @@ function cellColor(fraction: number | undefined): string {
 }
 
 export function CompletenessHeatmap({ tables }: { tables: TableProfile[] }) {
+  const { t } = useTranslation("app");
   // Collect all unique column names across tables
   const allColumns = useMemo(() => {
     const colSet = new Set<string>();
@@ -38,25 +40,25 @@ export function CompletenessHeatmap({ tables }: { tables: TableProfile[] }) {
         <div className="flex items-center gap-2">
           <Grid3X3 size={15} className="text-text-muted" />
           <h4 className="text-sm font-medium text-text-primary">
-            Completeness Heatmap
+            {t("etl.profiler.heatmap.title")}
           </h4>
         </div>
         <div className="flex items-center gap-3 text-[10px] text-text-muted">
           <span className="flex items-center gap-1">
             <span className="w-3 h-3 rounded" style={{ backgroundColor: "rgba(45,212,191,0.35)" }} />
-            &lt;1%
+            {t("etl.profiler.heatmap.legend.belowOne")}
           </span>
           <span className="flex items-center gap-1">
             <span className="w-3 h-3 rounded" style={{ backgroundColor: "rgba(201,162,39,0.2)" }} />
-            10-25%
+            {t("etl.profiler.heatmap.legend.tenToTwentyFive")}
           </span>
           <span className="flex items-center gap-1">
             <span className="w-3 h-3 rounded" style={{ backgroundColor: "rgba(232,90,107,0.35)" }} />
-            &gt;50%
+            {t("etl.profiler.heatmap.legend.aboveFifty")}
           </span>
           <span className="flex items-center gap-1">
             <span className="w-3 h-3 rounded" style={{ backgroundColor: "var(--surface-overlay)" }} />
-            N/A
+            {t("etl.profiler.heatmap.legend.notAvailable")}
           </span>
         </div>
       </div>
@@ -64,10 +66,6 @@ export function CompletenessHeatmap({ tables }: { tables: TableProfile[] }) {
       {/* Tooltip */}
       {hoveredCell && (
         <div className="px-4 py-2 bg-surface-overlay border-b border-border-default text-xs text-text-secondary">
-          <span className="font-mono text-text-primary">{hoveredCell.table}</span>
-          {" \u2192 "}
-          <span className="font-mono text-text-primary">{hoveredCell.column}</span>
-          {" \u2014 "}
           <span
             className="font-semibold"
             style={{
@@ -79,7 +77,11 @@ export function CompletenessHeatmap({ tables }: { tables: TableProfile[] }) {
                     : "var(--success)",
             }}
           >
-            {hoveredCell.pct}% null
+            {t("etl.profiler.heatmap.tooltip", {
+              table: hoveredCell.table,
+              column: hoveredCell.column,
+              value: hoveredCell.pct,
+            })}
           </span>
         </div>
       )}
@@ -89,7 +91,7 @@ export function CompletenessHeatmap({ tables }: { tables: TableProfile[] }) {
           <thead>
             <tr>
               <th className="px-2 py-1.5 text-left text-text-muted font-medium sticky left-0 bg-surface-raised z-10 min-w-[120px]">
-                Table
+                {t("etl.profiler.heatmap.table")}
               </th>
               {displayCols.map((col) => (
                 <th
@@ -137,7 +139,10 @@ export function CompletenessHeatmap({ tables }: { tables: TableProfile[] }) {
       </div>
       {truncated && (
         <div className="px-4 py-2 text-[11px] text-text-ghost border-t border-border-default">
-          Showing {maxCols} of {allColumns.length} columns. Export full report for complete view.
+          {t("etl.profiler.heatmap.showing", {
+            shown: maxCols,
+            total: allColumns.length,
+          })}
         </div>
       )}
     </div>
