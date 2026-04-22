@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { X, Sparkles, Loader2, AlertTriangle, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useBuildCohort, useRefineCohort } from "../hooks/useAbbyAi";
+import { getAbbyExamplePrompts } from "../lib/i18n";
 import type { AbbyBuildResponse } from "../types/abby";
 
 interface AbbyAiPanelProps {
@@ -10,16 +12,10 @@ interface AbbyAiPanelProps {
   onApply: (expression: Record<string, unknown>) => void;
 }
 
-const EXAMPLE_PROMPTS = [
-  "Patients with Type 2 diabetes on metformin",
-  "New users of ACE inhibitors without prior heart failure",
-  "Patients aged 65+ with first hip fracture",
-  "Women with breast cancer who received chemotherapy",
-];
-
 const MAX_CHARS = 1000;
 
 export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
+  const { t } = useTranslation("app");
   const [prompt, setPrompt] = useState("");
   const [result, setResult] = useState<AbbyBuildResponse | null>(null);
   const [showExamples, setShowExamples] = useState(true);
@@ -32,6 +28,7 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
   const refineMutation = useRefineCohort();
 
   const isLoading = buildMutation.isPending || refineMutation.isPending;
+  const examplePrompts = getAbbyExamplePrompts(t);
 
   // Focus textarea when panel opens
   useEffect(() => {
@@ -130,10 +127,10 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                 </div>
                 <div>
                   <h2 className="text-sm font-semibold text-text-primary">
-                    Abby AI
+                    {t("abbyLegacy.panel.title")}
                   </h2>
                   <p className="text-[10px] text-text-muted">
-                    Intelligent Cohort Builder
+                    {t("abbyLegacy.panel.subtitle")}
                   </p>
                 </div>
               </div>
@@ -144,7 +141,7 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                     onClick={handleReset}
                     className="inline-flex items-center px-2 py-1 rounded text-[10px] font-medium text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-colors"
                   >
-                    New query
+                    {t("abbyLegacy.panel.newQuery")}
                   </button>
                 )}
                 <button
@@ -163,10 +160,10 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
               {showExamples && !result && (
                 <div className="space-y-2">
                   <p className="text-xs font-medium text-text-muted uppercase tracking-wider">
-                    Try an example
+                    {t("abbyLegacy.panel.examplesTitle")}
                   </p>
                   <div className="space-y-1.5">
-                    {EXAMPLE_PROMPTS.map((example) => (
+                    {examplePrompts.map((example) => (
                       <button
                         key={example}
                         type="button"
@@ -198,7 +195,7 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                     <div className="absolute inset-0 rounded-full animate-pulse bg-success/5" />
                   </div>
                   <p className="text-sm text-text-muted">
-                    Abby is analyzing your research question
+                    {t("abbyLegacy.panel.analyzing")}
                     <span className="inline-flex ml-0.5">
                       <span className="animate-[bounce_1.4s_infinite_0ms] inline-block">.</span>
                       <span className="animate-[bounce_1.4s_infinite_200ms] inline-block">.</span>
@@ -215,11 +212,11 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                     <AlertTriangle size={14} className="text-critical mt-0.5 shrink-0" />
                     <div>
                       <p className="text-sm font-medium text-critical">
-                        Something went wrong
+                        {t("abbyLegacy.panel.errorTitle")}
                       </p>
                       <p className="text-xs text-text-muted mt-1">
                         {(buildMutation.error ?? refineMutation.error)?.message ??
-                          "Failed to process your request. Please try again."}
+                          t("abbyLegacy.panel.errorFallback")}
                       </p>
                     </div>
                   </div>
@@ -232,7 +229,7 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                   {/* Explanation */}
                   <div className="rounded-lg border border-border-default bg-surface-overlay px-4 py-3">
                     <p className="text-xs font-medium text-text-muted uppercase tracking-wider mb-2">
-                      Analysis
+                      {t("abbyLegacy.panel.analysisTitle")}
                     </p>
                     <p className="text-sm text-text-secondary leading-relaxed whitespace-pre-wrap">
                       {result.explanation}
@@ -243,7 +240,9 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                   {result.concept_sets.length > 0 && (
                     <div>
                       <p className="text-xs font-medium text-text-muted uppercase tracking-wider mb-2">
-                        Concept Sets ({result.concept_sets.length})
+                        {t("abbyLegacy.panel.conceptSetsTitle", {
+                          count: result.concept_sets.length,
+                        })}
                       </p>
                       <div className="space-y-1.5">
                         {result.concept_sets.map((cs) => (
@@ -255,7 +254,9 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                               {cs.name}
                             </span>
                             <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium bg-success/10 text-success shrink-0 ml-2">
-                              {cs.concepts.length} concepts
+                              {t("abbyLegacy.panel.conceptsCount", {
+                                count: cs.concepts.length,
+                              })}
                             </span>
                           </div>
                         ))}
@@ -297,7 +298,7 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                         "transition-colors",
                       )}
                     >
-                      Apply to Builder
+                      {t("abbyLegacy.panel.applyToBuilder")}
                     </button>
                     <button
                       type="button"
@@ -311,7 +312,7 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                         refineMode && "border-domain-observation/30 text-domain-observation",
                       )}
                     >
-                      Refine
+                      {t("abbyLegacy.panel.refine")}
                     </button>
                   </div>
 
@@ -321,7 +322,7 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                       <textarea
                         value={refinePrompt}
                         onChange={(e) => setRefinePrompt(e.target.value)}
-                        placeholder="How would you like to modify this cohort?"
+                        placeholder={t("abbyLegacy.panel.refinePlaceholder")}
                         rows={3}
                         className={cn(
                           "w-full rounded-lg border border-domain-observation/30 bg-surface-raised px-3 py-2.5",
@@ -347,7 +348,7 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                         ) : (
                           <Sparkles size={14} />
                         )}
-                        Refine Cohort
+                        {t("abbyLegacy.panel.refineCohort")}
                       </button>
                     </div>
                   )}
@@ -369,7 +370,7 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                     handleBuild();
                   }
                 }}
-                placeholder="Describe your target population..."
+                placeholder={t("abbyLegacy.panel.promptPlaceholder")}
                 rows={3}
                 disabled={isLoading}
                 className={cn(
@@ -399,7 +400,7 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                   ) : (
                     <Sparkles size={14} />
                   )}
-                  Build Cohort
+                  {t("abbyLegacy.panel.buildCohort")}
                 </button>
               </div>
             </div>

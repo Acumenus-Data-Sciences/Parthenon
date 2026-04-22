@@ -1,12 +1,15 @@
+import { useTranslation } from "react-i18next";
 import { useAbbyProfile } from '../hooks/useAbbyProfile';
+import { getAbbyVerbosityLabel } from "../lib/i18n";
 
 export function AbbyProfilePanel() {
+  const { t } = useTranslation("app");
   const { profile, isLoading, error, resetProfile } = useAbbyProfile();
 
   if (isLoading) {
     return (
       <div className="p-4 text-muted-foreground text-sm">
-        Loading profile...
+        {t("abbyLegacy.profile.loading")}
       </div>
     );
   }
@@ -14,7 +17,7 @@ export function AbbyProfilePanel() {
   if (error) {
     return (
       <div className="p-4 text-red-400 text-sm">
-        Failed to load profile
+        {t("abbyLegacy.profile.failed")}
       </div>
     );
   }
@@ -24,18 +27,23 @@ export function AbbyProfilePanel() {
   return (
     <div className="border-t border-border/40 p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-foreground">My Research Profile</h3>
+        <h3 className="text-sm font-medium text-foreground">
+          {t("abbyLegacy.profile.title")}
+        </h3>
         <button
+          type="button"
           onClick={() => resetProfile()}
           className="text-xs text-muted-foreground hover:text-red-400 transition-colors"
         >
-          Reset
+          {t("abbyLegacy.profile.reset")}
         </button>
       </div>
 
       {profile.research_interests.length > 0 && (
         <div>
-          <p className="text-xs text-muted-foreground mb-1">Research Interests</p>
+          <p className="text-xs text-muted-foreground mb-1">
+            {t("abbyLegacy.profile.researchInterests")}
+          </p>
           <div className="flex flex-wrap gap-1">
             {profile.research_interests.map((interest) => (
               <span
@@ -51,7 +59,9 @@ export function AbbyProfilePanel() {
 
       {Object.keys(profile.expertise_domains).length > 0 && (
         <div>
-          <p className="text-xs text-muted-foreground mb-1">Expertise</p>
+          <p className="text-xs text-muted-foreground mb-1">
+            {t("abbyLegacy.profile.expertise")}
+          </p>
           <div className="space-y-1">
             {Object.entries(profile.expertise_domains).map(([domain, level]) => (
               <div key={domain} className="flex items-center gap-2">
@@ -70,10 +80,14 @@ export function AbbyProfilePanel() {
 
       {profile.interaction_preferences.verbosity && (
         <div>
-          <p className="text-xs text-muted-foreground mb-1">Response Style</p>
+          <p className="text-xs text-muted-foreground mb-1">
+            {t("abbyLegacy.profile.responseStyle")}
+          </p>
           <span className="text-xs text-foreground/80">
-            {profile.interaction_preferences.verbosity === 'terse' ? 'Concise' :
-             profile.interaction_preferences.verbosity === 'verbose' ? 'Detailed' : 'Standard'}
+            {getAbbyVerbosityLabel(
+              t,
+              profile.interaction_preferences.verbosity,
+            )}
           </span>
         </div>
       )}
@@ -81,7 +95,7 @@ export function AbbyProfilePanel() {
       {profile.research_interests.length === 0 &&
        Object.keys(profile.expertise_domains).length === 0 && (
         <p className="text-xs text-muted-foreground italic">
-          Abby is learning about your research interests. Keep chatting and she will build your profile automatically.
+          {t("abbyLegacy.profile.learningMessage")}
         </p>
       )}
     </div>

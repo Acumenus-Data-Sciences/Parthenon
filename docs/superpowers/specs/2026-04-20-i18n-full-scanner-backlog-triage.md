@@ -11,10 +11,10 @@ npm run i18n:scan
 
 Current scanner output:
 
-- Full frontend scanner: 816 candidates across 1,124 scanned files.
+- Full frontend scanner: 786 candidates across 1,125 scanned files.
 - FinnGen paths excluded from this i18n track: 372 candidates.
-- Non-FinnGen backlog for this triage: 444 candidates.
-- Candidate kinds after FinnGen exclusion: 28 JSX text, 414 object properties, 2 JSX attributes.
+- Non-FinnGen backlog for this triage: 414 candidates.
+- Candidate kinds after FinnGen exclusion: 414 object properties.
 - Dedicated release-facing shell scan: `npm run i18n:scan:app-priority` reports 0 candidates across 214 files.
 
 Use the dedicated `npm run i18n:scan:app-priority` script plus the focused wave scanners below as the operational completion gates for this extraction program. The unsupported ad hoc `npm run i18n:scan -- --app-priority` invocation should not be used for milestone accounting.
@@ -32,13 +32,13 @@ Use the dedicated `npm run i18n:scan:app-priority` script plus the focused wave 
 | Investigation clinical workflows | 0 | 63 | Completed for `src/features/investigation`. Focused investigation wave scanner reports 0 candidates across the landing/new-investigation shell, phenotype builder/validation/codewas/cohort tooling, clinical gallery/config/tracking/history/results, genomic evidence search/upload/chart/table surfaces, synthesis dossier/export/versioning, and shared investigation-side panels. Clinical/source values, concept IDs, JSON keys, scientific shorthand, and OHDSI/FinnGen identifiers remain protected where needed. |
 | Profiles and patient similarity | 0 | 72 | Completed for `src/features/profiles` and `src/features/patient-similarity`. Focused wave scanner reports 0 candidates across patient profile search/browse/header/timeline/labs/visits/notes/eras surfaces plus similarity workspace, comparison, diagnostics, cohort actions, trajectory/radar/divergence charts, and matching/landscape panels. |
 | Publish, care gaps, and risk scores | 0 | 75 | Completed for `src/features/publish`, `src/features/care-gaps`, and `src/features/risk-scores`. The focused wave scanner reports 0 candidates across publish wizard/template/export surfaces, care-gap bundle/evaluation/population surfaces, and risk-score workflow/detail/result surfaces. |
-| Generated/static/curated data | 414 | 2 | Dominated by `src/features/etl/lib/cdm-schema-v54.ts` and `src/features/standard-pros/data/instruments.ts`. Do not machine-translate as UI copy; requires curated terminology/data asset handling. |
+| Generated/static/curated data | 414 | 2 | This is now the entire remaining non-FinnGen backlog, dominated by `src/features/etl/lib/cdm-schema-v54.ts` and `src/features/standard-pros/data/instruments.ts`. Do not machine-translate as UI copy; requires curated terminology/data asset handling. |
 | HEOR | 0 | 13 | Completed for `src/features/heor`. Focused HEOR wave scanner reports 0 candidates across the hub, analysis detail workspace, claims explorer, budget-impact chart, cost-effectiveness plane, scenario comparison chart, tornado diagram, and supporting HEOR label helpers. Payer terminology, Solr command text, currency figures, and ICER/QALY shorthand remain protected where needed. |
 | Morpheus | 0 | 33 | Completed for `src/features/morpheus`. Focused Morpheus wave scanner reports 0 candidates across the dashboard, patient journey, location track, medication timeline, concept drawer, microbiology/antibiogram views, labs, vitals, dataset selector, export, and supporting Morpheus label helpers/constants. Microbiology/source terminology, organism names, specimen labels, antibiotic names, units, and dataset/source identifiers remain protected where needed. |
 | ETL source profiler and Aqueduct | 0 | 19 | Completed for the live profiler chrome and Aqueduct canvas/editor surfaces. The focused wave scanner reports 0 candidates across the source-profiler page, profiler support components, and Aqueduct modals/editors. Table/schema/file identifiers, CDM column names, and the static `cdm-schema-v54.ts` standards documentation remain protected where needed. |
 | GIS, Poseidon, code tools, text-to-SQL, Jupyter | 0 | 90 | Completed for `src/features/gis`, `src/features/poseidon`, `src/features/code-explorer`, `src/features/text-to-sql`, and `src/features/jupyter`. The focused wave scanner reports 0 candidates across GIS layers/detail panels, Poseidon orchestration, code-explorer chrome, text-to-SQL/query-library/query-runner surfaces, and the Jupyter workbench. Translation-key tokens, units, backend/source-driven labels, and tool/protocol identifiers remain protected where needed. |
 | Concept sets and shared research primitives | 0 | 19 | Completed for `src/features/concept-sets`, `src/components/concept/ConceptSearchInput.tsx`, `src/components/charts/SignificanceVerdictBadge.tsx`, and `src/components/workbench/primitives.tsx`. The focused wave scanner reports 0 candidates across concept-set list/detail/builder/import/bundle/Phoebe/item-detail surfaces plus the shared concept-search, verdict badge, and workbench status-strip primitives. Separator glyphs and data-driven clinical/source values remain protected where needed. |
-| Legacy Abby AI panel | 30 | 3 | Now the next remaining live non-FinnGen app-surface wave after the small-workbench bundle closeout. Current layout Abby resources are already localized, so this is a focused legacy panel pass rather than a broad shell sweep. |
+| Legacy Abby AI panel | 0 | 10 | Completed for `src/features/abby-ai`, including the legacy cohort-builder side panel, action-plan card, and research-profile panel. The focused Abby wave scanner reports 0 candidates across 10 files. Remaining action-plan step labels and result payloads are explicitly treated as dynamic/internal tool data rather than static UI chrome. |
 | Other small workbench surfaces | 0 | 14 | Completed for `src/features/study-agent`, `src/features/phenotype-library`, `src/features/community-workbench-sdk`, `src/features/workbench`, and `src/features/etl/pages/EtlToolsPage.tsx`, plus the supporting phenotype/workbench helper layers. The focused wave scanner reports 0 candidates across Study Designer, phenotype library, community workbench SDK, workbench launcher/card, and ETL-tools chrome. FinnGen-branded launcher copy remains explicitly deferred with `i18n-exempt` handling per the scoped FinnGen exclusion. |
 
 ## Top Non-FinnGen Files
@@ -47,9 +47,6 @@ Use the dedicated `npm run i18n:scan:app-priority` script plus the focused wave 
 | ---: | --- |
 | 315 | `src/features/etl/lib/cdm-schema-v54.ts` |
 | 99 | `src/features/standard-pros/data/instruments.ts` |
-| 14 | `src/features/abby-ai/components/AbbyAiPanel.tsx` |
-| 8 | `src/features/abby-ai/components/AbbyPlanCard.tsx` |
-| 8 | `src/features/abby-ai/components/AbbyProfilePanel.tsx` |
 
 ## Recommended Extraction Order
 
@@ -98,8 +95,11 @@ Use the dedicated `npm run i18n:scan:app-priority` script plus the focused wave 
 15. Small workbench bundle. Completed 2026-04-21.
    Scope completed: `src/features/study-agent`, `src/features/phenotype-library`, `src/features/community-workbench-sdk`, `src/features/workbench`, and `src/features/etl/pages/EtlToolsPage.tsx`, plus the supporting phenotype/workbench helper layers. The focused wave scanner reports 0 candidates across 14 files. FinnGen-branded launcher copy remains explicitly deferred with `i18n-exempt` handling per the scoped FinnGen exclusion.
 
-16. Final non-FinnGen app wave.
-   The legacy Abby AI panel is now the last remaining live non-FinnGen app-surface extraction block. After that, the backlog is concentrated in `cdm-schema-v54.ts` and the curated Standard PRO instrument catalog, which stay in the separate generated/static-data policy bucket rather than the ordinary UI-string workflow.
+16. Legacy Abby AI panel. Completed 2026-04-21.
+   Scope completed: `src/features/abby-ai`, including the legacy cohort-builder side panel, action-plan card, and research-profile panel. The focused wave scanner reports 0 candidates across 10 files. Dynamic plan step labels and result payloads remain treated as internal/tool-generated data rather than static UI chrome.
+
+17. Generated/static policy bucket only.
+   The ordinary non-FinnGen app-surface extraction backlog is now exhausted. The remaining non-FinnGen candidates are entirely concentrated in `src/features/etl/lib/cdm-schema-v54.ts` and `src/features/standard-pros/data/instruments.ts`, which stay in the generated/static-data policy bucket rather than the ordinary UI-string workflow.
 
 ## Generated/Static Data Policy
 

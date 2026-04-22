@@ -1,4 +1,5 @@
 import type { ActionPlan, PlanStep } from '../types/agency';
+import { useTranslation } from "react-i18next";
 
 // ─── Step Status Icon ────────────────────────────────────────────
 
@@ -24,6 +25,7 @@ function StepStatusIcon({ status }: { status: PlanStep['status'] }) {
 // ─── Plan Step Row ───────────────────────────────────────────────
 
 function PlanStepRow({ step }: { step: PlanStep }) {
+  // i18n-exempt: step labels derive from Abby action-plan internal tool identifiers.
   const displayName = step.tool_name.replace(/_/g, ' ');
   const resultMessage =
     step.result && typeof step.result['message'] === 'string'
@@ -67,6 +69,7 @@ export default function AbbyPlanCard({
   onApprove,
   onCancel,
 }: AbbyPlanCardProps) {
+  const { t } = useTranslation("app");
   const isExecuting = plan.status === 'executing';
   const isCompleted = plan.status === 'completed';
   const isFailed = plan.status === 'failed';
@@ -78,21 +81,27 @@ export default function AbbyPlanCard({
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/[0.06] bg-gradient-to-r from-teal-900/10 to-transparent">
         <span className="text-[10px] px-1.5 py-px rounded bg-success/10 text-success font-medium uppercase tracking-wide">
-          Action Plan
+          {t("abbyLegacy.plan.title")}
         </span>
         {isExecuting && (
           <span className="text-[10px] text-teal-400 animate-pulse">
-            Executing…
+            {t("abbyLegacy.plan.status.executing")}
           </span>
         )}
         {isCompleted && (
-          <span className="text-[10px] text-success">Completed</span>
+          <span className="text-[10px] text-success">
+            {t("abbyLegacy.plan.status.completed")}
+          </span>
         )}
         {isFailed && (
-          <span className="text-[10px] text-red-400">Failed</span>
+          <span className="text-[10px] text-red-400">
+            {t("abbyLegacy.plan.status.failed")}
+          </span>
         )}
         {isCancelled && (
-          <span className="text-[10px] text-muted-foreground">Cancelled</span>
+          <span className="text-[10px] text-muted-foreground">
+            {t("abbyLegacy.plan.status.cancelled")}
+          </span>
         )}
       </div>
 
@@ -118,14 +127,14 @@ export default function AbbyPlanCard({
             onClick={() => onApprove(plan.plan_id)}
             className="px-4 py-1.5 rounded-md text-[12px] font-medium bg-success/10 hover:bg-success/20 text-success border border-success/30 transition-all duration-150 cursor-pointer"
           >
-            Approve &amp; Execute
+            {t("abbyLegacy.plan.actions.approveAndExecute")}
           </button>
           <button
             type="button"
             onClick={() => onCancel(plan.plan_id)}
             className="px-4 py-1.5 rounded-md text-[12px] font-medium text-muted-foreground hover:text-foreground border border-white/[0.08] hover:border-white/[0.15] transition-all duration-150 cursor-pointer"
           >
-            Cancel
+            {t("abbyLegacy.plan.actions.cancel")}
           </button>
         </div>
       )}
@@ -134,7 +143,7 @@ export default function AbbyPlanCard({
         <div className="px-4 py-3 border-t border-white/[0.06]">
           <div className="flex items-center gap-2 text-[12px] text-teal-400">
             <span className="animate-pulse">◌</span>
-            <span>Running plan steps…</span>
+            <span>{t("abbyLegacy.plan.runningSteps")}</span>
           </div>
         </div>
       )}
@@ -147,8 +156,8 @@ export default function AbbyPlanCard({
             }`}
           >
             {isCompleted
-              ? 'All steps completed successfully.'
-              : 'One or more steps failed. Remaining steps were skipped.'}
+              ? t("abbyLegacy.plan.success")
+              : t("abbyLegacy.plan.failure")}
           </p>
         </div>
       )}

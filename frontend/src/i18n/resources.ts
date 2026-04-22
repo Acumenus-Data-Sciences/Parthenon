@@ -1,4 +1,5 @@
 import type { Resource } from "i18next";
+import { abbyLegacyResources } from "./abbyLegacyResources";
 import { analysisResources } from "./analysisResources";
 import { appResources } from "./appResources";
 import { cohortDefinitionResources } from "./cohortDefinitionResources";
@@ -7141,6 +7142,7 @@ function withProductResources(
 function appForLocale(locale: string): MessageTree {
   const baseApp = appResources[locale] ?? appResources["en-US"];
   const appWaves = [
+    abbyLegacyResources,
     dataSourceIngestionResources,
     etlAqueductResources,
     cohortDefinitionResources,
