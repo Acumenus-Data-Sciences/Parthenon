@@ -253,12 +253,66 @@ const enSmallWorkbench: MessageTree = {
   },
 };
 
+const frSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
+  etl: {
+    toolsPage: {
+      loadingProjects: "Chargement des projets ETL...",
+      createTitle: "Creer un projet de mappage ETL",
+      createDescription:
+        "Commencez a mapper votre schema source vers l'OMOP CDM. Selectionnez d'abord une source profilee via l'onglet Source Profiler.",
+      cdmVersion: "Version du CDM",
+      creating: "Creation...",
+      createProject: "Creer le projet",
+      createFailed: "Echec de la creation du projet",
+      emptyTitle: "Concepteur de mappage ETL Aqueduct",
+      emptyDescription:
+        'Accedez a un projet d\'ingestion et cliquez sur "Open in Aqueduct" pour commencer a concevoir les mappages ETL entre votre schema source et l\'OMOP CDM.',
+    },
+  },
+});
+
+const deSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
+  etl: {
+    toolsPage: {
+      loadingProjects: "ETL-Projekte werden geladen...",
+      createTitle: "ETL-Mapping-Projekt erstellen",
+      createDescription:
+        "Beginnen Sie damit, Ihr Quellschema dem OMOP CDM zuzuordnen. Wahlen Sie zuerst eine Quelle aus, die uber den Reiter Source Profiler profiliert wurde.",
+      cdmVersion: "CDM-Version",
+      creating: "Erstellen...",
+      createProject: "Projekt erstellen",
+      createFailed: "Projekt konnte nicht erstellt werden",
+      emptyTitle: "Aqueduct ETL-Mapping-Designer",
+      emptyDescription:
+        'Navigieren Sie zu einem Ingestion-Projekt und klicken Sie auf "Open in Aqueduct", um mit dem Entwerfen von ETL-Zuordnungen von Ihrem Quellschema zum OMOP CDM zu beginnen.',
+    },
+  },
+});
+
+const ptSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
+  etl: {
+    toolsPage: {
+      loadingProjects: "Carregando projetos ETL...",
+      createTitle: "Criar projeto de mapeamento ETL",
+      createDescription:
+        "Comece a mapear seu esquema de origem para o OMOP CDM. Primeiro selecione uma origem que tenha sido perfilada pela aba Perfilador de origem.",
+      cdmVersion: "Versao do CDM",
+      creating: "Criando...",
+      createProject: "Criar projeto",
+      createFailed: "Falha ao criar o projeto",
+      emptyTitle: "Designer de mapeamento ETL Aqueduct",
+      emptyDescription:
+        'Navegue ate um projeto de ingestao e clique em "Open in Aqueduct" para comecar a desenhar mapeamentos ETL do seu esquema de origem para o OMOP CDM.',
+    },
+  },
+});
+
 export const smallWorkbenchResources: Record<string, MessageTree> = {
   "en-US": enSmallWorkbench,
   "es-ES": mergeMessageTrees(enSmallWorkbench, {}),
-  "fr-FR": mergeMessageTrees(enSmallWorkbench, {}),
-  "de-DE": mergeMessageTrees(enSmallWorkbench, {}),
-  "pt-BR": mergeMessageTrees(enSmallWorkbench, {}),
+  "fr-FR": frSmallWorkbench,
+  "de-DE": deSmallWorkbench,
+  "pt-BR": ptSmallWorkbench,
   "fi-FI": mergeMessageTrees(enSmallWorkbench, {}),
   "ja-JP": mergeMessageTrees(enSmallWorkbench, {}),
   "zh-Hans": mergeMessageTrees(enSmallWorkbench, {}),
