@@ -1,4 +1,5 @@
 export type ToolsetStatus = "available" | "coming_soon" | "sdk_required";
+export type ToolsetCopyKey = "morpheus" | "sdk";
 
 export interface ToolsetDescriptor {
   /** URL slug — used in /workbench/:slug route */
@@ -19,6 +20,8 @@ export interface ToolsetDescriptor {
   route: string | null;
   /** Optional badge text (e.g. "MIMIC-IV", "StudyAgent") */
   badge?: string;
+  /** Optional translation-backed copy key */
+  copyKey?: ToolsetCopyKey;
   /** Whether this toolset requires VITE_STUDY_AGENT_ENABLED */
   requiresStudyAgent?: boolean;
 }

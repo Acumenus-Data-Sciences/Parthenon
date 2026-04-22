@@ -1,5 +1,6 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import {
   Loader2,
@@ -29,6 +30,7 @@ function AqueductContent({
 }: {
   ingestionProjectId: number;
 }) {
+  const { t } = useTranslation("app");
   const { data: projectsData, isLoading: loadingProjects } = useEtlProjects();
   const createProject = useCreateEtlProject();
   const [cdmVersion, setCdmVersion] = useState("5.4");
@@ -80,7 +82,9 @@ function AqueductContent({
     return (
       <div className="flex items-center justify-center py-20">
         <Loader2 size={24} className="animate-spin text-success" />
-        <span className="ml-3 text-sm text-text-muted">Loading ETL projects...</span>
+        <span className="ml-3 text-sm text-text-muted">
+          {t("etl.toolsPage.loadingProjects")}
+        </span>
       </div>
     );
   }
@@ -93,24 +97,23 @@ function AqueductContent({
           <GitMerge size={28} className="text-success" />
         </div>
         <h3 className="text-text-primary font-semibold text-lg">
-          Create ETL Mapping Project
+          {t("etl.toolsPage.createTitle")}
         </h3>
         <p className="text-sm text-text-muted mt-1 text-center max-w-md">
-          Start mapping your source schema to the OMOP CDM. Select a source
-          that has been profiled via the Source Profiler tab first.
+          {t("etl.toolsPage.createDescription")}
         </p>
         <div className="mt-6 flex items-center gap-4">
           <div className="space-y-1.5">
             <label className="block text-xs font-medium text-text-muted uppercase tracking-wider">
-              CDM Version
+              {t("etl.toolsPage.cdmVersion")}
             </label>
             <select
               value={cdmVersion}
               onChange={(e) => setCdmVersion(e.target.value)}
               className="rounded-lg bg-surface-overlay border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success"
             >
-              <option value="5.4">OMOP CDM v5.4</option>
-              <option value="5.3">OMOP CDM v5.3</option>
+              <option value="5.4">{t("etl.toolsPage.cdm54")}</option>
+              <option value="5.3">{t("etl.toolsPage.cdm53")}</option>
             </select>
           </div>
           <button
@@ -122,19 +125,20 @@ function AqueductContent({
             {createProject.isPending ? (
               <>
                 <Loader2 size={15} className="animate-spin" />
-                Creating...
+                {t("etl.toolsPage.creating")}
               </>
             ) : (
               <>
                 <Plus size={15} />
-                Create Project
+                {t("etl.toolsPage.createProject")}
               </>
             )}
           </button>
         </div>
         {createProject.isError && (
           <p className="mt-3 text-xs text-critical">
-            {(createProject.error as Error)?.message ?? "Failed to create project"}
+            {(createProject.error as Error)?.message ??
+              t("etl.toolsPage.createFailed")}
           </p>
         )}
       </div>
@@ -161,18 +165,9 @@ function AqueductContent({
 // ---------------------------------------------------------------------------
 
 export default function EtlToolsPage() {
+  const { t } = useTranslation("app");
   const [searchParams] = useSearchParams();
   const projectParam = searchParams.get("project");
-
-  const [selectedProjectId, setSelectedProjectId] = useState<number | "">(() =>
-    projectParam ? Number(projectParam) : "",
-  );
-
-  useEffect(() => {
-    if (projectParam && Number(projectParam) > 0) {
-      setSelectedProjectId(Number(projectParam));
-    }
-  }, [projectParam]);
 
   const { data: projectsData } = useQuery({
     queryKey: ["ingestion-projects"],
@@ -184,10 +179,10 @@ export default function EtlToolsPage() {
     return all.filter((p: IngestionProject) => p.status === "ready" || p.status === "mapping" || p.status === "completed");
   }, [projectsData]);
 
-  const selectedProjectIdNum = Number(selectedProjectId) || 0;
+  const selectedProjectIdNum = projectParam ? Number(projectParam) || 0 : 0;
   const hasJobs = readyProjects.some((p: IngestionProject) => p.id === selectedProjectIdNum);
 
-  if (selectedProjectId && hasJobs) {
+  if (projectParam && hasJobs) {
     return (
       <AqueductContent ingestionProjectId={selectedProjectIdNum} />
     );
@@ -199,11 +194,10 @@ export default function EtlToolsPage() {
         <GitMerge size={28} className="text-text-muted" />
       </div>
       <h3 className="text-text-primary font-semibold text-lg">
-        Aqueduct ETL Mapping Designer
+        {t("etl.toolsPage.emptyTitle")}
       </h3>
       <p className="text-sm text-text-muted mt-1 text-center max-w-md">
-        Navigate to an ingestion project and click &ldquo;Open in Aqueduct&rdquo; to start
-        designing ETL mappings from your source schema to the OMOP CDM.
+        {t("etl.toolsPage.emptyDescription")}
       </p>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import {
   Library,
@@ -25,6 +26,10 @@ import {
   importPhenotype,
   type PhenotypeEntry,
 } from "../api";
+import {
+  getPhenotypeDomainLabel,
+  getPhenotypeSeverityLabel,
+} from "../lib/i18n";
 
 // ── Domain colour palette (cycles through teal/gold/crimson/violet/slate) ─
 const DOMAIN_COLORS: Record<string, string> = {
@@ -107,12 +112,14 @@ function TagPill({ tag }: { tag: string }) {
 
 // ── Row expand panel ──────────────────────────────────────────────────────
 function ExpandedPanel({ entry }: { entry: PhenotypeEntry }) {
+  const { t } = useTranslation("app");
+
   return (
     <div className="px-5 pb-5 pt-2 bg-surface-base border-t border-border-subtle space-y-3">
       {entry.description && (
         <div>
           <div className="text-[10px] uppercase tracking-widest text-text-ghost mb-1">
-            Description
+            {t("phenotypeLibrary.detail.description")}
           </div>
           <p className="text-sm text-text-secondary leading-relaxed">
             {entry.description}
@@ -122,7 +129,7 @@ function ExpandedPanel({ entry }: { entry: PhenotypeEntry }) {
       {entry.logic_description && (
         <div>
           <div className="text-[10px] uppercase tracking-widest text-text-ghost mb-1">
-            Logic
+            {t("phenotypeLibrary.detail.logic")}
           </div>
           <p className="text-sm text-text-muted leading-relaxed font-mono">
             {entry.logic_description}
@@ -131,7 +138,7 @@ function ExpandedPanel({ entry }: { entry: PhenotypeEntry }) {
       )}
       {!entry.description && !entry.logic_description && (
         <p className="text-sm text-text-ghost italic">
-          No additional details available.
+          {t("phenotypeLibrary.detail.noAdditionalDetails")}
         </p>
       )}
     </div>
@@ -140,6 +147,7 @@ function ExpandedPanel({ entry }: { entry: PhenotypeEntry }) {
 
 // ── Main Page ─────────────────────────────────────────────────────────────
 export default function PhenotypeLibraryPage() {
+  const { t, i18n } = useTranslation("app");
   const queryClient = useQueryClient();
 
   // Filter / pagination state
@@ -232,11 +240,10 @@ export default function PhenotypeLibraryPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-text-primary">
-              Phenotype Library
+              {t("phenotypeLibrary.page.title")}
             </h1>
             <p className="text-sm text-text-muted">
-              300+ curated OHDSI phenotype definitions — browse, filter, and
-              import in one click
+              {t("phenotypeLibrary.page.subtitle")}
             </p>
           </div>
         </div>
@@ -245,28 +252,28 @@ export default function PhenotypeLibraryPage() {
       {/* ── Stats cards ── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard
-          label="Total Phenotypes"
+          label={t("phenotypeLibrary.stats.totalPhenotypes")}
           value={stats?.total ?? "—"}
           icon={BookOpen}
           accent="bg-success/15 text-success"
           onClick={() => { setSearch(""); setDomain(""); setPage(1); }}
         />
         <StatCard
-          label="With Expression"
+          label={t("phenotypeLibrary.stats.withExpression")}
           value={stats?.with_expression ?? "—"}
           icon={Layers}
           accent="bg-accent/15 text-accent"
           onClick={() => { setSearch(""); setDomain(""); setPage(1); }}
         />
         <StatCard
-          label="Domains Covered"
+          label={t("phenotypeLibrary.stats.domainsCovered")}
           value={stats?.domains ?? "—"}
           icon={Filter}
           accent="bg-domain-observation/15 text-domain-observation"
           onClick={() => { setSearch(""); setDomain(""); setPage(1); }}
         />
         <StatCard
-          label="Imported"
+          label={t("phenotypeLibrary.stats.imported")}
           value={stats?.imported ?? "—"}
           icon={CheckCircle2}
           accent="bg-primary/15 text-critical"
@@ -283,7 +290,7 @@ export default function PhenotypeLibraryPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search phenotypes by name or description…"
+            placeholder={t("phenotypeLibrary.page.searchPlaceholder")}
             className="w-full rounded-lg border border-border-default bg-surface-raised pl-9 pr-4 py-2.5 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-success/30 transition-colors"
           />
         </div>
@@ -302,7 +309,9 @@ export default function PhenotypeLibraryPage() {
           >
             <span className="flex items-center gap-2">
               <Filter className="h-4 w-4" />
-              {domain || "All Domains"}
+              {domain
+                ? getPhenotypeDomainLabel(t, domain)
+                : t("phenotypeLibrary.page.allDomains")}
             </span>
             <ChevronDown
               className={cn(
@@ -326,7 +335,7 @@ export default function PhenotypeLibraryPage() {
                   !domain ? "text-success" : "text-text-secondary",
                 )}
               >
-                All Domains
+                {t("phenotypeLibrary.page.allDomains")}
               </button>
               {domains.map((d) => (
                 <button
@@ -341,8 +350,8 @@ export default function PhenotypeLibraryPage() {
                     "w-full px-4 py-2 text-left text-sm transition-colors hover:bg-surface-overlay",
                     domain === d ? "text-success" : "text-text-secondary",
                   )}
-                >
-                  {d}
+                  >
+                  {getPhenotypeDomainLabel(t, d)}
                 </button>
               ))}
             </div>
@@ -356,12 +365,16 @@ export default function PhenotypeLibraryPage() {
           {listQuery.isFetching ? (
             <span className="flex items-center gap-1.5">
               <Loader2 className="h-3 w-3 animate-spin" />
-              Loading…
+              {t("phenotypeLibrary.page.loading")}
             </span>
           ) : (
             <>
-              {total.toLocaleString()} phenotype{total !== 1 ? "s" : ""}
-              {(debouncedSearch || domain) && " matching filters"}
+              {t("phenotypeLibrary.page.resultCount", {
+                count: total,
+                displayCount: total.toLocaleString(i18n.resolvedLanguage),
+              })}
+              {(debouncedSearch || domain) &&
+                ` ${t("phenotypeLibrary.page.matchingFilters")}`}
             </>
           )}
         </span>
@@ -376,7 +389,7 @@ export default function PhenotypeLibraryPage() {
             }}
             className="text-xs text-text-ghost hover:text-text-secondary transition-colors"
           >
-            Clear filters
+            {t("phenotypeLibrary.page.clearFilters")}
           </button>
         )}
       </div>
@@ -385,18 +398,22 @@ export default function PhenotypeLibraryPage() {
       <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
         {/* Table header */}
         <div className="grid grid-cols-[1fr_120px_100px_1fr_140px] gap-4 border-b border-border-default px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
-          <div>Name</div>
-          <div>Domain</div>
-          <div>Severity</div>
-          <div>Tags</div>
-          <div className="text-right">Action</div>
+          <div>{t("phenotypeLibrary.table.headers.name")}</div>
+          <div>{t("phenotypeLibrary.table.headers.domain")}</div>
+          <div>{t("phenotypeLibrary.table.headers.severity")}</div>
+          <div>{t("phenotypeLibrary.table.headers.tags")}</div>
+          <div className="text-right">
+            {t("phenotypeLibrary.table.headers.action")}
+          </div>
         </div>
 
         {/* Error state */}
         {listQuery.isError && (
           <div className="flex items-center justify-center gap-2 py-16 text-critical">
             <AlertCircle className="h-5 w-5" />
-            <span className="text-sm">Failed to load phenotype library.</span>
+            <span className="text-sm">
+              {t("phenotypeLibrary.table.failedToLoad")}
+            </span>
           </div>
         )}
 
@@ -404,7 +421,7 @@ export default function PhenotypeLibraryPage() {
         {!listQuery.isError && !listQuery.isFetching && phenotypes.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 gap-3 text-text-ghost">
             <Library className="h-10 w-10 opacity-30" />
-            <span className="text-sm">No phenotypes found.</span>
+            <span className="text-sm">{t("phenotypeLibrary.table.empty")}</span>
             {(debouncedSearch || domain) && (
               <button
                 type="button"
@@ -415,7 +432,7 @@ export default function PhenotypeLibraryPage() {
                 }}
                 className="text-xs text-success hover:underline"
               >
-                Clear filters
+                {t("phenotypeLibrary.page.clearFilters")}
               </button>
             )}
           </div>
@@ -466,7 +483,7 @@ export default function PhenotypeLibraryPage() {
                         domainColor(entry.domain),
                       )}
                     >
-                      {entry.domain}
+                      {getPhenotypeDomainLabel(t, entry.domain)}
                     </span>
                   ) : (
                     <span className="text-text-ghost text-xs">—</span>
@@ -482,7 +499,7 @@ export default function PhenotypeLibraryPage() {
                         severityColor(entry.severity),
                       )}
                     >
-                      {entry.severity}
+                      {getPhenotypeSeverityLabel(t, entry.severity)}
                     </span>
                   ) : (
                     <span className="text-text-ghost text-xs">—</span>
@@ -505,7 +522,7 @@ export default function PhenotypeLibraryPage() {
                   ) : (
                     <span className="flex items-center gap-1 text-[10px] text-text-ghost">
                       <Tag className="h-3 w-3" />
-                      no tags
+                      {t("phenotypeLibrary.table.noTags")}
                     </span>
                   )}
                 </div>
@@ -519,7 +536,7 @@ export default function PhenotypeLibraryPage() {
                       className="inline-flex items-center gap-1.5 rounded-lg border border-success/30 bg-success/10 px-3 py-1.5 text-xs font-medium text-success hover:bg-success/20 transition-colors"
                     >
                       <CheckCircle2 className="h-3.5 w-3.5" />
-                      Imported
+                      {t("phenotypeLibrary.actions.imported")}
                     </Link>
                   ) : (
                     <button
@@ -532,8 +549,8 @@ export default function PhenotypeLibraryPage() {
                       onClick={(e) => handleImport(e, entry.cohort_id)}
                       title={
                         !entry.expression_json
-                          ? "No expression available"
-                          : "Import as cohort definition"
+                          ? t("phenotypeLibrary.actions.noExpressionAvailable")
+                          : t("phenotypeLibrary.actions.importAsCohortDefinition")
                       }
                       className={cn(
                         "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
@@ -547,7 +564,9 @@ export default function PhenotypeLibraryPage() {
                       ) : (
                         <Download className="h-3.5 w-3.5" />
                       )}
-                      {isImporting ? "Importing…" : "Import"}
+                      {isImporting
+                        ? t("phenotypeLibrary.actions.importing")
+                        : t("phenotypeLibrary.actions.import")}
                     </button>
                   )}
                 </div>
@@ -564,7 +583,7 @@ export default function PhenotypeLibraryPage() {
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <span className="text-sm text-text-ghost">
-            Page {page} of {totalPages}
+            {t("phenotypeLibrary.pagination.pageOf", { page, totalPages })}
           </span>
           <div className="flex items-center gap-2">
             <button
@@ -574,7 +593,7 @@ export default function PhenotypeLibraryPage() {
               className="inline-flex items-center gap-1 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-muted hover:text-text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="h-4 w-4" />
-              Previous
+              {t("phenotypeLibrary.pagination.previous")}
             </button>
 
             {/* Page number pills */}
@@ -614,7 +633,7 @@ export default function PhenotypeLibraryPage() {
               onClick={() => setPage((p) => p + 1)}
               className="inline-flex items-center gap-1 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-muted hover:text-text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
-              Next
+              {t("phenotypeLibrary.pagination.next")}
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>

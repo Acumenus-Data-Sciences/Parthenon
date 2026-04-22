@@ -1,9 +1,22 @@
 import { Loader2, PanelsTopLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { useInvestigations } from "@/features/investigation/hooks/useInvestigation";
 import type { ToolsetDescriptor } from "../types";
 import { ToolsetCard } from "../components/ToolsetCard";
 import { Shell } from "@/components/workbench/primitives";
+import {
+  formatWorkbenchDate,
+  getWorkbenchInvestigationStatusLabel,
+} from "../lib/i18n";
+
+// i18n-exempt: FinnGen-branded toolset copy remains deferred per scoped FinnGen exclusion.
+const FINNGEN_TOOLSET_NAME = "FinnGen Cohort Workbench";
+// i18n-exempt: FinnGen-branded toolset copy remains deferred per scoped FinnGen exclusion.
+const FINNGEN_TOOLSET_TAGLINE = "Compose, match, materialize cohorts";
+// i18n-exempt: FinnGen-branded toolset copy remains deferred per scoped FinnGen exclusion.
+const FINNGEN_TOOLSET_DESCRIPTION =
+  "Drag-and-drop operation builder for UNION/INTERSECT/MINUS composition across cohorts. Preview subject counts live, match 1:N on age/sex with SMD diagnostics, materialize to cohort_definitions, hand off to the Analysis Gallery.";
 
 // Inline toolset registry (previously in ../toolsets.ts — removed with the
 // obsolete StudyAgent FinnGen components in Task D3). The FinnGen Evidence
@@ -12,10 +25,9 @@ import { Shell } from "@/components/workbench/primitives";
 const TOOLSET_REGISTRY: ToolsetDescriptor[] = [
   {
     slug: "finngen-cohort",
-    name: "FinnGen Cohort Workbench",
-    tagline: "Compose, match, materialize cohorts",
-    description:
-      "Drag-and-drop operation builder for UNION/INTERSECT/MINUS composition across cohorts. Preview subject counts live, match 1:N on age/sex with SMD diagnostics, materialize to cohort_definitions, hand off to the Analysis Gallery.",
+    name: FINNGEN_TOOLSET_NAME,
+    tagline: FINNGEN_TOOLSET_TAGLINE,
+    description: FINNGEN_TOOLSET_DESCRIPTION,
     icon: "GitMerge",
     accent: "var(--accent)",
     status: "available",
@@ -24,45 +36,38 @@ const TOOLSET_REGISTRY: ToolsetDescriptor[] = [
   },
   {
     slug: "morpheus",
-    name: "Morpheus",
-    tagline: "Inpatient outcomes & ICU analytics workbench",
-    description:
-      "ICU-focused analytics leveraging MIMIC-IV data in OMOP CDM 5.4. ABCDEF Liberation Bundle compliance, ventilator weaning prediction, sedation monitoring, and inpatient outcome research.",
+    name: "",
+    tagline: "",
+    description: "",
     icon: "BedDouble",
     accent: "var(--primary)",
     status: "available",
     route: "/morpheus",
     badge: "MIMIC-IV",
+    copyKey: "morpheus",
   },
   {
     slug: "sdk",
-    name: "Build a Toolset",
-    tagline: "Community SDK for third-party integrations",
-    description:
-      "Reference implementation and SDK documentation for building custom toolsets that plug into the Parthenon Workbench. Service descriptors, result envelopes, and artifact patterns.",
+    name: "",
+    tagline: "",
+    description: "",
     icon: "Blocks",
     accent: "var(--accent)",
     status: "available",
     route: "/workbench/community-sdk-demo",
+    copyKey: "sdk",
   },
 ];
 
-const STATUS_BADGE: Record<string, string> = {
+const STATUS_BADGE_CLASS: Record<string, string> = {
   draft: "bg-surface-raised text-text-muted",
   active: "bg-teal-900 text-teal-300",
   complete: "bg-emerald-900 text-emerald-300",
   archived: "bg-surface-raised text-text-ghost",
 };
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
 export default function WorkbenchLauncherPage() {
+  const { t, i18n } = useTranslation("app");
   const studyAgentEnabled =
     import.meta.env.VITE_STUDY_AGENT_ENABLED === "true";
 
@@ -84,9 +89,11 @@ export default function WorkbenchLauncherPage() {
             <PanelsTopLeft className="h-5 w-5 text-text-secondary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-text-primary">Workbench</h1>
+            <h1 className="text-2xl font-bold text-text-primary">
+              {t("workbenchLauncher.page.title")}
+            </h1>
             <p className="text-sm text-text-ghost">
-              Novel capabilities and research toolsets
+              {t("workbenchLauncher.page.subtitle")}
             </p>
           </div>
         </div>
@@ -94,8 +101,8 @@ export default function WorkbenchLauncherPage() {
 
       {/* Toolset Grid */}
       <Shell
-        title="Toolsets"
-        subtitle="Pick the workbench that fits your research question."
+        title={t("workbenchLauncher.sections.toolsetsTitle")}
+        subtitle={t("workbenchLauncher.sections.toolsetsSubtitle")}
       >
         <div className="grid gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
           {visibleToolsets.map((toolset) => (
@@ -107,28 +114,28 @@ export default function WorkbenchLauncherPage() {
       {/* Recent Investigations */}
       <section className="mt-8">
         <Shell
-          title="Recent investigations"
-          subtitle="Evidence investigations you've worked on recently."
+          title={t("workbenchLauncher.sections.recentTitle")}
+          subtitle={t("workbenchLauncher.sections.recentSubtitle")}
         >
           <div className="p-4">
             {investigationsLoading && (
               <div className="flex items-center gap-2 py-4 text-sm text-text-ghost">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Loading investigations…</span>
+                <span>{t("workbenchLauncher.states.loadingInvestigations")}</span>
               </div>
             )}
 
             {!investigationsLoading && recentInvestigations.length === 0 && (
               <div className="flex flex-col items-center justify-center gap-3 py-6 text-center">
                 <p className="text-sm text-text-ghost">
-                  Start your first Evidence Investigation.
+                  {t("workbenchLauncher.states.emptyInvestigations")}
                 </p>
                 <Link
                   to="/workbench/investigation/new"
                   className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:opacity-90"
                   style={{ backgroundColor: "var(--primary)" }}
                 >
-                  Create Investigation
+                  {t("workbenchLauncher.actions.createInvestigation")}
                 </Link>
               </div>
             )}
@@ -141,7 +148,7 @@ export default function WorkbenchLauncherPage() {
                     className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-text-primary transition-colors hover:opacity-90"
                     style={{ backgroundColor: "var(--primary)" }}
                   >
-                    New Investigation
+                    {t("workbenchLauncher.actions.newInvestigation")}
                   </Link>
                 </div>
                 <div className="flex flex-col gap-2">
@@ -156,13 +163,13 @@ export default function WorkbenchLauncherPage() {
                           {inv.title}
                         </span>
                         <span
-                          className={`inline-block shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[inv.status] ?? "bg-surface-raised text-text-muted"}`}
+                          className={`inline-block shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE_CLASS[inv.status] ?? "bg-surface-raised text-text-muted"}`}
                         >
-                          {inv.status}
+                          {getWorkbenchInvestigationStatusLabel(t, inv.status)}
                         </span>
                       </div>
                       <span className="ml-4 shrink-0 text-xs text-text-ghost">
-                        {formatDate(inv.updated_at)}
+                        {formatWorkbenchDate(i18n.resolvedLanguage, inv.updated_at)}
                       </span>
                     </Link>
                   ))}
@@ -176,12 +183,12 @@ export default function WorkbenchLauncherPage() {
       {/* Footer hint */}
       <div className="mt-12 text-center">
         <p className="text-xs text-text-ghost">
-          Want to build a custom toolset?{" "}
+          {t("workbenchLauncher.footer.prompt")}{" "}
           <a
             href="/workbench/community-sdk-demo"
             className="text-accent hover:underline"
           >
-            View the Community SDK reference
+            {t("workbenchLauncher.footer.link")}
           </a>
         </p>
       </div>

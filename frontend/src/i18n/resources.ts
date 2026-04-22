@@ -14,6 +14,7 @@ import { investigationResources } from "./investigationResources";
 import { morpheusResources } from "./morpheusResources";
 import { profileSimilarityResources } from "./profileSimilarityResources";
 import { publishCareGapRiskResources } from "./publishCareGapRiskResources";
+import { smallWorkbenchResources } from "./smallWorkbenchResources";
 import { standardProsResources } from "./standardProsResources";
 import { strategusResources } from "./strategusResources";
 
@@ -7153,6 +7154,7 @@ function appForLocale(locale: string): MessageTree {
     morpheusResources,
     profileSimilarityResources,
     publishCareGapRiskResources,
+    smallWorkbenchResources,
     strategusResources,
   ];
 

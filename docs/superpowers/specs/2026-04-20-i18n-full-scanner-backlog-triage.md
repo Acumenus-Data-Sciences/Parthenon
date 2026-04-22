@@ -11,10 +11,10 @@ npm run i18n:scan
 
 Current scanner output:
 
-- Full frontend scanner: 912 candidates across 1,121 scanned files.
+- Full frontend scanner: 816 candidates across 1,124 scanned files.
 - FinnGen paths excluded from this i18n track: 372 candidates.
-- Non-FinnGen backlog for this triage: 540 candidates.
-- Candidate kinds after FinnGen exclusion: 108 JSX text, 424 object properties, 8 JSX attributes.
+- Non-FinnGen backlog for this triage: 444 candidates.
+- Candidate kinds after FinnGen exclusion: 28 JSX text, 414 object properties, 2 JSX attributes.
 - Dedicated release-facing shell scan: `npm run i18n:scan:app-priority` reports 0 candidates across 214 files.
 
 Use the dedicated `npm run i18n:scan:app-priority` script plus the focused wave scanners below as the operational completion gates for this extraction program. The unsupported ad hoc `npm run i18n:scan -- --app-priority` invocation should not be used for milestone accounting.
@@ -38,8 +38,8 @@ Use the dedicated `npm run i18n:scan:app-priority` script plus the focused wave 
 | ETL source profiler and Aqueduct | 0 | 19 | Completed for the live profiler chrome and Aqueduct canvas/editor surfaces. The focused wave scanner reports 0 candidates across the source-profiler page, profiler support components, and Aqueduct modals/editors. Table/schema/file identifiers, CDM column names, and the static `cdm-schema-v54.ts` standards documentation remain protected where needed. |
 | GIS, Poseidon, code tools, text-to-SQL, Jupyter | 0 | 90 | Completed for `src/features/gis`, `src/features/poseidon`, `src/features/code-explorer`, `src/features/text-to-sql`, and `src/features/jupyter`. The focused wave scanner reports 0 candidates across GIS layers/detail panels, Poseidon orchestration, code-explorer chrome, text-to-SQL/query-library/query-runner surfaces, and the Jupyter workbench. Translation-key tokens, units, backend/source-driven labels, and tool/protocol identifiers remain protected where needed. |
 | Concept sets and shared research primitives | 0 | 19 | Completed for `src/features/concept-sets`, `src/components/concept/ConceptSearchInput.tsx`, `src/components/charts/SignificanceVerdictBadge.tsx`, and `src/components/workbench/primitives.tsx`. The focused wave scanner reports 0 candidates across concept-set list/detail/builder/import/bundle/Phoebe/item-detail surfaces plus the shared concept-search, verdict badge, and workbench status-strip primitives. Separator glyphs and data-driven clinical/source values remain protected where needed. |
-| Legacy Abby AI panel | 30 | 3 | Decide whether this surface is still active before extraction; current layout Abby resources are already localized. |
-| Other small workbench surfaces | 96 | 6 | Study Designer, phenotype library, community workbench SDK, workbench launcher, workbench toolset card, and ETL tools are now the next small-workbench bundle after concept sets. |
+| Legacy Abby AI panel | 30 | 3 | Now the next remaining live non-FinnGen app-surface wave after the small-workbench bundle closeout. Current layout Abby resources are already localized, so this is a focused legacy panel pass rather than a broad shell sweep. |
+| Other small workbench surfaces | 0 | 14 | Completed for `src/features/study-agent`, `src/features/phenotype-library`, `src/features/community-workbench-sdk`, `src/features/workbench`, and `src/features/etl/pages/EtlToolsPage.tsx`, plus the supporting phenotype/workbench helper layers. The focused wave scanner reports 0 candidates across Study Designer, phenotype library, community workbench SDK, workbench launcher/card, and ETL-tools chrome. FinnGen-branded launcher copy remains explicitly deferred with `i18n-exempt` handling per the scoped FinnGen exclusion. |
 
 ## Top Non-FinnGen Files
 
@@ -47,15 +47,9 @@ Use the dedicated `npm run i18n:scan:app-priority` script plus the focused wave 
 | ---: | --- |
 | 315 | `src/features/etl/lib/cdm-schema-v54.ts` |
 | 99 | `src/features/standard-pros/data/instruments.ts` |
-| 29 | `src/features/study-agent/pages/StudyDesignerPage.tsx` |
-| 22 | `src/features/phenotype-library/pages/PhenotypeLibraryPage.tsx` |
-| 16 | `src/features/community-workbench-sdk/pages/CommunityWorkbenchSdkDemoPage.tsx` |
-| 16 | `src/features/workbench/pages/WorkbenchLauncherPage.tsx` |
 | 14 | `src/features/abby-ai/components/AbbyAiPanel.tsx` |
-| 10 | `src/features/etl/pages/EtlToolsPage.tsx` |
 | 8 | `src/features/abby-ai/components/AbbyPlanCard.tsx` |
 | 8 | `src/features/abby-ai/components/AbbyProfilePanel.tsx` |
-| 3 | `src/features/workbench/components/ToolsetCard.tsx` |
 
 ## Recommended Extraction Order
 
@@ -101,8 +95,11 @@ Use the dedicated `npm run i18n:scan:app-priority` script plus the focused wave 
 14. Concept sets and shared research primitives. Completed 2026-04-21.
    Scope completed: `src/features/concept-sets`, `src/components/concept/ConceptSearchInput.tsx`, `src/components/charts/SignificanceVerdictBadge.tsx`, and `src/components/workbench/primitives.tsx`. The focused wave scanner reports 0 candidates across 19 files. Separator glyphs, data-driven vocabulary/source values, and run-status payload values remain protected where needed while the surrounding concept-set workflow chrome now resolves through app i18n resources.
 
-15. Later specialty waves.
-   The remaining study-agent / phenotype-library / community-workbench / workbench / ETL-tools bundle is now the next highest-value non-FinnGen app wave, followed by the legacy Abby AI panel, while `cdm-schema-v54.ts` and curated instrument catalogs remain in the separate generated/static-data policy bucket.
+15. Small workbench bundle. Completed 2026-04-21.
+   Scope completed: `src/features/study-agent`, `src/features/phenotype-library`, `src/features/community-workbench-sdk`, `src/features/workbench`, and `src/features/etl/pages/EtlToolsPage.tsx`, plus the supporting phenotype/workbench helper layers. The focused wave scanner reports 0 candidates across 14 files. FinnGen-branded launcher copy remains explicitly deferred with `i18n-exempt` handling per the scoped FinnGen exclusion.
+
+16. Final non-FinnGen app wave.
+   The legacy Abby AI panel is now the last remaining live non-FinnGen app-surface extraction block. After that, the backlog is concentrated in `cdm-schema-v54.ts` and the curated Standard PRO instrument catalog, which stay in the separate generated/static-data policy bucket rather than the ordinary UI-string workflow.
 
 ## Generated/Static Data Policy
 

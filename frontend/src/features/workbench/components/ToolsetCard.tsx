@@ -1,22 +1,26 @@
 import { useNavigate } from "react-router-dom";
 import type { LucideProps } from "lucide-react";
 import * as LucideIcons from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { ToolsetDescriptor } from "../types";
+import {
+  getWorkbenchToolsetDescription,
+  getWorkbenchToolsetName,
+  getWorkbenchToolsetStatusLabel,
+  getWorkbenchToolsetTagline,
+} from "../lib/i18n";
 
 type IconComponent = React.ComponentType<LucideProps>;
-
-function getIcon(name: string): IconComponent {
-  const icons = LucideIcons as unknown as Record<string, IconComponent>;
-  return icons[name] ?? LucideIcons.Box;
-}
+const ICON_COMPONENTS = LucideIcons as unknown as Record<string, IconComponent>;
 
 interface ToolsetCardProps {
   toolset: ToolsetDescriptor;
 }
 
 export function ToolsetCard({ toolset }: ToolsetCardProps) {
+  const { t } = useTranslation("app");
   const navigate = useNavigate();
-  const Icon = getIcon(toolset.icon);
+  const Icon = ICON_COMPONENTS[toolset.icon] ?? LucideIcons.Box;
   const isClickable = toolset.status === "available" && toolset.route;
 
   return (
@@ -67,13 +71,17 @@ export function ToolsetCard({ toolset }: ToolsetCardProps) {
 
       {/* Name + tagline */}
       <div>
-        <h3 className="text-lg font-semibold text-text-primary">{toolset.name}</h3>
-        <p className="mt-1 text-sm text-text-muted">{toolset.tagline}</p>
+        <h3 className="text-lg font-semibold text-text-primary">
+          {getWorkbenchToolsetName(t, toolset)}
+        </h3>
+        <p className="mt-1 text-sm text-text-muted">
+          {getWorkbenchToolsetTagline(t, toolset)}
+        </p>
       </div>
 
       {/* Description */}
       <p className="text-xs leading-relaxed text-text-ghost">
-        {toolset.description}
+        {getWorkbenchToolsetDescription(t, toolset)}
       </p>
 
       {/* Footer */}
@@ -81,17 +89,17 @@ export function ToolsetCard({ toolset }: ToolsetCardProps) {
         {toolset.status === "available" ? (
           <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-400">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            Available
+            {getWorkbenchToolsetStatusLabel(t, toolset.status)}
           </span>
         ) : toolset.status === "coming_soon" ? (
           <span className="flex items-center gap-1.5 text-xs font-medium text-amber-400">
             <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-            Coming Soon
+            {getWorkbenchToolsetStatusLabel(t, toolset.status)}
           </span>
         ) : (
           <span className="flex items-center gap-1.5 text-xs font-medium text-text-ghost">
             <span className="h-1.5 w-1.5 rounded-full bg-surface-overlay" />
-            SDK Required
+            {getWorkbenchToolsetStatusLabel(t, toolset.status)}
           </span>
         )}
         {isClickable && (

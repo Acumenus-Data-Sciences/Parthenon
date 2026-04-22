@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   Brain,
   Search,
@@ -21,6 +22,7 @@ import {
 } from "../api";
 
 export default function StudyDesignerPage() {
+  const { t } = useTranslation("app");
   const [studyIntent, setStudyIntent] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<
@@ -55,10 +57,26 @@ export default function StudyDesignerPage() {
   };
 
   const tabs = [
-    { id: "intent" as const, label: "Study Intent", icon: Target },
-    { id: "search" as const, label: "Phenotype Search", icon: Search },
-    { id: "recommend" as const, label: "Recommendations", icon: Sparkles },
-    { id: "lint" as const, label: "Cohort Lint", icon: AlertTriangle },
+    {
+      id: "intent" as const,
+      label: t("studyAgent.tabs.intent"),
+      icon: Target,
+    },
+    {
+      id: "search" as const,
+      label: t("studyAgent.tabs.search"),
+      icon: Search,
+    },
+    {
+      id: "recommend" as const,
+      label: t("studyAgent.tabs.recommend"),
+      icon: Sparkles,
+    },
+    {
+      id: "lint" as const,
+      label: t("studyAgent.tabs.lint"),
+      icon: AlertTriangle,
+    },
   ];
 
   return (
@@ -69,9 +87,11 @@ export default function StudyDesignerPage() {
           <Brain className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Study Designer</h1>
+          <h1 className="text-2xl font-bold text-text-primary">
+            {t("studyAgent.header.title")}
+          </h1>
           <p className="text-sm text-text-muted">
-            AI-assisted study design powered by OHDSI StudyAgent
+            {t("studyAgent.header.subtitle")}
           </p>
         </div>
       </div>
@@ -99,17 +119,15 @@ export default function StudyDesignerPage() {
         <div className="space-y-4">
           <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
             <h2 className="mb-3 text-lg font-semibold text-text-primary">
-              Describe Your Study
+              {t("studyAgent.intent.title")}
             </h2>
             <p className="mb-4 text-sm text-text-muted">
-              Enter a natural language description of your study. The AI will
-              split it into target population and outcome, then recommend
-              phenotypes from the OHDSI library.
+              {t("studyAgent.intent.description")}
             </p>
             <textarea
               value={studyIntent}
               onChange={(e) => setStudyIntent(e.target.value)}
-              placeholder="e.g., Compare the risk of heart failure in patients newly prescribed SGLT2 inhibitors vs DPP-4 inhibitors among adults with type 2 diabetes..."
+              placeholder={t("studyAgent.intent.placeholder")}
               className="w-full rounded-lg border border-border-default bg-surface-raised px-4 py-3 text-text-primary placeholder-text-ghost focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
               rows={4}
             />
@@ -123,7 +141,7 @@ export default function StudyDesignerPage() {
               ) : (
                 <Sparkles className="h-4 w-4" />
               )}
-              Analyze Study Intent
+              {t("studyAgent.intent.analyze")}
             </button>
           </div>
 
@@ -134,7 +152,7 @@ export default function StudyDesignerPage() {
                 <div className="mb-2 flex items-center gap-2 text-success">
                   <Target className="h-4 w-4" />
                   <span className="text-sm font-semibold">
-                    Target Population
+                    {t("studyAgent.intent.targetPopulation")}
                   </span>
                 </div>
                 <p className="text-sm text-text-secondary">
@@ -142,10 +160,12 @@ export default function StudyDesignerPage() {
                 </p>
               </div>
               <div className="rounded-lg border border-border-default bg-surface-base/50 p-4">
-                <div className="mb-2 flex items-center gap-2 text-accent">
-                  <Users className="h-4 w-4" />
-                  <span className="text-sm font-semibold">Outcome</span>
-                </div>
+              <div className="mb-2 flex items-center gap-2 text-accent">
+                <Users className="h-4 w-4" />
+                <span className="text-sm font-semibold">
+                  {t("studyAgent.intent.outcome")}
+                </span>
+              </div>
                 <p className="text-sm text-text-secondary">
                   {intentMutation.data.outcome}
                 </p>
@@ -157,7 +177,7 @@ export default function StudyDesignerPage() {
           {recommendMutation.data && recommendMutation.data.length > 0 && (
             <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
               <h3 className="mb-4 text-lg font-semibold text-text-primary">
-                Recommended Phenotypes
+                {t("studyAgent.recommendations.title")}
               </h3>
               <div className="space-y-3">
                 {recommendMutation.data.map(
@@ -176,7 +196,12 @@ export default function StudyDesignerPage() {
                         </p>
                       </div>
                       <div className="text-xs text-text-ghost">
-                        Score: {typeof rec.score === "number" ? rec.score.toFixed(2) : "N/A"}
+                        {t("studyAgent.recommendations.score", {
+                          value:
+                            typeof rec.score === "number"
+                              ? rec.score.toFixed(2)
+                              : "N/A",
+                        })}
                       </div>
                     </div>
                   )
@@ -188,7 +213,7 @@ export default function StudyDesignerPage() {
           {recommendMutation.isPending && (
             <div className="flex items-center justify-center gap-2 py-8 text-text-muted">
               <Loader2 className="h-5 w-5 animate-spin" />
-              Finding phenotype recommendations...
+              {t("studyAgent.recommendations.loading")}
             </div>
           )}
         </div>
@@ -199,7 +224,7 @@ export default function StudyDesignerPage() {
         <div className="space-y-4">
           <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
             <h2 className="mb-3 text-lg font-semibold text-text-primary">
-              Search Phenotype Library
+              {t("studyAgent.search.title")}
             </h2>
             <div className="flex gap-3">
               <input
@@ -210,7 +235,7 @@ export default function StudyDesignerPage() {
                   searchQuery.trim() &&
                   searchMutation.mutate(searchQuery)
                 }
-                placeholder="Search for phenotypes (e.g., type 2 diabetes, heart failure, COPD)..."
+                placeholder={t("studyAgent.search.placeholder")}
                 className="flex-1 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-text-primary placeholder-text-ghost focus:border-accent focus:outline-none"
               />
               <button
@@ -223,7 +248,7 @@ export default function StudyDesignerPage() {
                 ) : (
                   <Search className="h-4 w-4" />
                 )}
-                Search
+                {t("studyAgent.search.submit")}
               </button>
             </div>
           </div>
@@ -232,7 +257,9 @@ export default function StudyDesignerPage() {
             <div className="rounded-lg border border-border-default bg-surface-base/50">
               <div className="border-b border-border-default px-4 py-3">
                 <span className="text-sm font-medium text-text-secondary">
-                  {searchMutation.data.length} results found
+                  {t("studyAgent.search.resultsFound", {
+                    count: searchMutation.data.length,
+                  })}
                 </span>
               </div>
               <div className="divide-y divide-border-default">
@@ -270,7 +297,7 @@ export default function StudyDesignerPage() {
 
           {searchMutation.data && searchMutation.data.length === 0 && (
             <div className="py-8 text-center text-text-ghost">
-              No phenotypes found. Try a different search term.
+              {t("studyAgent.search.noneFound")}
             </div>
           )}
         </div>
@@ -280,14 +307,14 @@ export default function StudyDesignerPage() {
       {activeTab === "recommend" && (
         <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
           <p className="text-sm text-text-muted">
-            Enter a study intent on the{" "}
+            {t("studyAgent.recommendations.promptPrefix")}{" "}
             <button
               onClick={() => setActiveTab("intent")}
               className="text-accent hover:underline"
             >
-              Study Intent
+              {t("studyAgent.tabs.intent")}
             </button>{" "}
-            tab to get AI-ranked phenotype recommendations.
+            {t("studyAgent.recommendations.promptSuffix")}
           </p>
         </div>
       )}
@@ -297,17 +324,15 @@ export default function StudyDesignerPage() {
         <div className="space-y-4">
           <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
             <h2 className="mb-3 text-lg font-semibold text-text-primary">
-              Lint Cohort Definition
+              {t("studyAgent.lint.title")}
             </h2>
             <p className="mb-4 text-sm text-text-muted">
-              Paste a cohort definition JSON to check for design issues like
-              missing washout periods, empty concept sets, and inverted time
-              windows.
+              {t("studyAgent.lint.description")}
             </p>
             <textarea
               value={lintJson}
               onChange={(e) => setLintJson(e.target.value)}
-              placeholder='{"ConceptSets": [...], "PrimaryCriteria": {...}, ...}'
+              placeholder='{"ConceptSets": [...], "PrimaryCriteria": {...}, ...}' /* i18n-exempt: Atlas cohort JSON placeholder uses native schema keys. */
               className="w-full rounded-lg border border-border-default bg-surface-raised px-4 py-3 font-mono text-sm text-text-primary placeholder-text-ghost focus:border-accent focus:outline-none"
               rows={8}
             />
@@ -321,7 +346,7 @@ export default function StudyDesignerPage() {
               ) : (
                 <AlertTriangle className="h-4 w-4" />
               )}
-              Run Lint
+              {t("studyAgent.lint.run")}
             </button>
           </div>
 
@@ -329,13 +354,16 @@ export default function StudyDesignerPage() {
             <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
               {lintMutation.data.length === 0 ? (
                 <div className="flex items-center gap-2 text-success">
-                  <span className="text-lg">No issues found</span>
+                  <span className="text-lg">
+                    {t("studyAgent.lint.noIssuesFound")}
+                  </span>
                 </div>
               ) : (
                 <div className="space-y-2">
                   <h3 className="mb-3 font-semibold text-text-primary">
-                    {lintMutation.data.length} issue
-                    {lintMutation.data.length !== 1 ? "s" : ""} found
+                    {t("studyAgent.lint.issuesFound", {
+                      count: lintMutation.data.length,
+                    })}
                   </h3>
                   {lintMutation.data.map((w: LintWarning, i: number) => (
                     <div
@@ -361,7 +389,7 @@ export default function StudyDesignerPage() {
 
           {lintMutation.isError && (
             <div className="rounded-lg border border-red-800/50 bg-red-900/20 p-4 text-sm text-red-300">
-              Failed to lint: Invalid JSON or server error.
+              {t("studyAgent.lint.failed")}
             </div>
           )}
         </div>
