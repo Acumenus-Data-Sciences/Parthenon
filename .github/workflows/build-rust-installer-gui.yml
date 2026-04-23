@@ -298,6 +298,10 @@ jobs:
           fi
           codesign --verify --deep --strict --verbose=2 "$app_bundle"
           spctl -a -vv "$app_bundle"
+          dmg="$(find target/release/bundle/dmg -name '*.dmg' -print -quit)"
+          if [ -n "$dmg" ]; then
+            xcrun stapler validate "$dmg"
+          fi
 
       - name: Sign Linux packages with GPG
         if: ${{ runner.os == 'Linux' && secrets.GPG_SIGNING_KEY != '' }}
