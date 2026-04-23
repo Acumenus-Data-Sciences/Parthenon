@@ -40,14 +40,14 @@ function StatTile({
   caption: string;
 }) {
   return (
-    <div className="flex-1 rounded border border-slate-800 bg-slate-950/60 p-3">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+    <div className="flex-1 rounded border border-slate-800 bg-gradient-to-br from-slate-950/80 to-slate-900/40 p-3 transition-colors hover:border-slate-700">
+      <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-400">
         {label}
       </p>
-      <p className="mt-1 text-xl font-semibold tabular-nums text-slate-100">
+      <p className="mt-1 text-2xl font-semibold leading-none tabular-nums text-slate-100">
         {value}
       </p>
-      <p className="mt-0.5 text-xs text-slate-500">{caption}</p>
+      <p className="mt-1 text-xs text-slate-500">{caption}</p>
     </div>
   );
 }

@@ -376,7 +376,8 @@ function EndpointRow({
               {row.name}
             </span>
             <span
-              className={`rounded-full bg-slate-900/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${meta.tone}`}
+              style={{ borderLeftColor: "currentColor" }}
+              className={`inline-flex items-center rounded border border-slate-800 border-l-[3px] bg-slate-900/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${meta.tone}`}
             >
               {meta.label}
               {pct != null && row.coverage_bucket !== "CONTROL_ONLY" && (
@@ -432,7 +433,7 @@ function EndpointRow({
           ))}
         </div>
       )}
-      {/* Coverage bar */}
+      {/* Full-row coverage bar — kept from pre-existing design (preferred over a 48px mini-bar for information density). */}
       {pct != null && row.coverage_bucket !== "CONTROL_ONLY" && (
         <div className="mt-3 h-0.5 w-full overflow-hidden rounded-full bg-slate-800">
           <div
