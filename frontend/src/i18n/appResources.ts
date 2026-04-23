@@ -42179,15 +42179,215 @@ const ptAppPass100: MessageTree = mergeMessageTrees(ptApp, {
   },
 });
 
+const esAppPass1: MessageTree = mergeMessageTrees(esApp, {
+  studies: {
+    metrics: {
+      total: "Total general",
+    },
+    dashboard: {
+      stats: {
+        total: "Total general",
+      },
+    },
+    workbench: {
+      labels: {
+        computable: "Calculable",
+      },
+    },
+  },
+  administration: {
+    dashboard: {
+      labels: {
+        roles: "Funciones",
+      },
+    },
+    userModal: {
+      fields: {
+        roles: "Funciones",
+      },
+    },
+    authProviders: {
+      ldapForm: {
+        labels: {
+          host: "Servidor",
+        },
+      },
+    },
+    users: {
+      table: {
+        roles: "Funciones",
+      },
+    },
+    vocabulary: {
+      instructions: {
+        downloadVocabularies: "Descargar vocabularios",
+      },
+    },
+    honestBroker: {
+      table: {
+        actor: "Responsable",
+      },
+    },
+  },
+  vocabulary: {
+    conceptDetail: {
+      table: {
+        id: "Identificador",
+      },
+    },
+  },
+  dataExplorer: {
+    charts: {
+      common: {
+        total: "Total general",
+      },
+    },
+    dqd: {
+      severity: {
+        info: "Informacion",
+      },
+    },
+  },
+});
+
+const koAppPass1: MessageTree = mergeMessageTrees(koApp, {
+  administration: {
+    vocabulary: {
+      instructions: {
+        downloadVocabularies: "어휘 다운로드",
+      },
+    },
+    honestBroker: {
+      labels: {
+        personId: "개인 ID",
+      },
+    },
+  },
+  vocabulary: {
+    conceptDetail: {
+      table: {
+        id: "식별자",
+      },
+    },
+  },
+});
+
+const hiAppPass1: MessageTree = mergeMessageTrees(hiApp, {
+  studies: {
+    create: {
+      steps: {
+        basics: "मूल बातें",
+      },
+      studyTypes: {
+        populationLevelEstimation: {
+          label: "जनसंख्या-स्तरीय आकलन",
+        },
+        patientLevelPrediction: {
+          label: "रोगी-स्तरीय पूर्वानुमान",
+        },
+        comparativeEffectiveness: {
+          label: "तुलनात्मक प्रभावशीलता",
+        },
+        safetySurveillance: {
+          label: "सुरक्षा निगरानी",
+        },
+        qualityImprovement: {
+          label: "गुणवत्ता सुधार",
+        },
+      },
+      basics: {
+        shortTitlePlaceholder: "उदा., LEGEND-T2DM",
+      },
+      team: {
+        targetSitesPlaceholder: "उदा., 10",
+        nctIdPlaceholder: "उदा., NCT12345678",
+      },
+      review: {
+        basics: "मूल बातें",
+      },
+    },
+    detail: {
+      studyTypes: {
+        population_level_estimation: "जनसंख्या-स्तरीय आकलन",
+        patient_level_prediction: "रोगी-स्तरीय पूर्वानुमान",
+        comparative_effectiveness: "तुलनात्मक प्रभावशीलता",
+        safety_surveillance: "सुरक्षा निगरानी",
+        quality_improvement: "गुणवत्ता सुधार",
+      },
+    },
+  },
+  administration: {
+    authProviders: {
+      oauthForm: {
+        labels: {
+          clientId: "क्लाइंट ID",
+        },
+      },
+      oidcForm: {
+        labels: {
+          clientId: "क्लाइंट ID",
+        },
+      },
+    },
+    fhirExport: {
+      title: "FHIR बल्क एक्सपोर्ट",
+    },
+    fhirConnections: {
+      labels: {
+        clientId: "क्लाइंट ID",
+      },
+      details: {
+        clientId: "क्लाइंट ID:",
+      },
+    },
+  },
+  vocabulary: {
+    conceptDetail: {
+      table: {
+        id: "पहचानकर्ता",
+      },
+    },
+  },
+  dataExplorer: {
+    ares: {
+      feasibility: {
+        status: {
+          eligible: "पात्र",
+          ineligible: "अपात्र",
+        },
+        form: {
+          minPatientCountPlaceholder: "उदा., 1000",
+        },
+      },
+      dqHistory: {
+        status: {
+          new: "नया",
+          existing: "मौजूदा",
+          resolved: "समाधान किया गया",
+          stable: "स्थिर",
+        },
+        result: {
+          fail: "विफल",
+        },
+      },
+      conceptComparison: {
+        metrics: {
+          rate: "दर/1000",
+        },
+      },
+    },
+  },
+});
+
 export const appResources: Record<string, MessageTree> = {
   "en-US": enApp,
-  "es-ES": esApp,
+  "es-ES": esAppPass1,
   "fr-FR": frAppPass100,
   "de-DE": deAppPass100,
   "pt-BR": ptAppPass100,
   "fi-FI": fiApp,
   "ja-JP": jaApp,
   "zh-Hans": zhApp,
-  "ko-KR": koApp,
-  "hi-IN": hiApp,
+  "ko-KR": koAppPass1,
+  "hi-IN": hiAppPass1,
 };

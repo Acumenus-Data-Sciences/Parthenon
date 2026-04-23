@@ -297,17 +297,216 @@ const ptAbbyLegacy: MessageTree = mergeMessageTrees(enAbbyLegacy, {
   },
 });
 
+const esAbbyLegacy: MessageTree = mergeMessageTrees(enAbbyLegacy, {
+  abbyLegacy: {
+    panel: {
+      title: "Abby AI",
+      subtitle: "Constructor inteligente de cohortes",
+      newQuery: "Nueva consulta",
+      examplesTitle: "Pruebe un ejemplo",
+      examples: {
+        diabetesMetformin:
+          "Pacientes con diabetes tipo 2 tratados con metformina",
+        aceInhibitors:
+          "Nuevos usuarios de inhibidores de la ECA sin insuficiencia cardiaca previa",
+        hipFracture:
+          "Pacientes de 65 anos o mas con primera fractura de cadera",
+        breastCancerChemo:
+          "Mujeres con cancer de mama que recibieron quimioterapia",
+      },
+      analyzing: "Abby esta analizando su pregunta de investigacion",
+      errorTitle: "Algo salio mal",
+      errorFallback:
+        "No se pudo procesar su solicitud. Intentelo de nuevo.",
+      analysisTitle: "Analisis",
+      conceptSetsTitle: "Conjuntos de conceptos ({{count}})",
+      conceptsCount_one: "{{count}} concepto",
+      conceptsCount_other: "{{count}} conceptos",
+      applyToBuilder: "Aplicar al constructor",
+      refine: "Refinar",
+      refinePlaceholder: "Como le gustaria modificar esta cohorte?",
+      refineCohort: "Refinar cohorte",
+      promptPlaceholder: "Describa su poblacion objetivo...",
+      buildCohort: "Construir cohorte",
+    },
+    plan: {
+      title: "Plan de accion",
+      status: {
+        executing: "Ejecutando...",
+        completed: "Completado",
+        failed: "Fallido",
+        cancelled: "Cancelado",
+      },
+      actions: {
+        approveAndExecute: "Aprobar y ejecutar",
+        cancel: "Cancelar",
+      },
+      runningSteps: "Ejecutando pasos del plan...",
+      success: "Todos los pasos se completaron correctamente.",
+      failure:
+        "Uno o mas pasos fallaron. Los pasos restantes se omitieron.",
+    },
+    profile: {
+      loading: "Cargando perfil...",
+      failed: "No se pudo cargar el perfil",
+      title: "Mi perfil de investigacion",
+      reset: "Restablecer",
+      researchInterests: "Intereses de investigacion",
+      expertise: "Experiencia",
+      responseStyle: "Estilo de respuesta",
+      verbosity: {
+        terse: "Conciso",
+        normal: "Estandar",
+        verbose: "Detallado",
+      },
+      learningMessage:
+        "Abby esta aprendiendo sobre sus intereses de investigacion. Siga conversando y construira su perfil automaticamente.",
+    },
+  },
+});
+
+const koAbbyLegacy: MessageTree = mergeMessageTrees(enAbbyLegacy, {
+  abbyLegacy: {
+    panel: {
+      title: "Abby AI",
+      subtitle: "지능형 코호트 빌더",
+      newQuery: "새 질의",
+      examplesTitle: "예시 보기",
+      examples: {
+        diabetesMetformin: "메트포르민을 복용 중인 제2형 당뇨병 환자",
+        aceInhibitors:
+          "이전 심부전 병력이 없는 ACE 억제제 신규 사용자",
+        hipFracture: "첫 고관절 골절을 경험한 65세 이상 환자",
+        breastCancerChemo: "항암치료를 받은 유방암 여성 환자",
+      },
+      analyzing: "Abby가 연구 질문을 분석하고 있습니다",
+      errorTitle: "문제가 발생했습니다",
+      errorFallback:
+        "요청을 처리하지 못했습니다. 다시 시도해 주세요.",
+      analysisTitle: "분석",
+      conceptSetsTitle: "개념 집합 ({{count}})",
+      conceptsCount_one: "{{count}}개 개념",
+      conceptsCount_other: "{{count}}개 개념",
+      applyToBuilder: "빌더에 적용",
+      refine: "구체화",
+      refinePlaceholder: "이 코호트를 어떻게 수정하시겠습니까?",
+      refineCohort: "코호트 구체화",
+      promptPlaceholder: "대상 집단을 설명해 주세요...",
+      buildCohort: "코호트 생성",
+    },
+    plan: {
+      title: "실행 계획",
+      status: {
+        executing: "실행 중...",
+        completed: "완료됨",
+        failed: "실패",
+        cancelled: "취소됨",
+      },
+      actions: {
+        approveAndExecute: "승인 후 실행",
+        cancel: "취소",
+      },
+      runningSteps: "계획 단계를 실행하는 중...",
+      success: "모든 단계가 성공적으로 완료되었습니다.",
+      failure:
+        "하나 이상의 단계가 실패했습니다. 나머지 단계는 건너뛰었습니다.",
+    },
+    profile: {
+      loading: "프로필을 불러오는 중...",
+      failed: "프로필을 불러오지 못했습니다",
+      title: "내 연구 프로필",
+      reset: "재설정",
+      researchInterests: "연구 관심 분야",
+      expertise: "전문성",
+      responseStyle: "응답 스타일",
+      verbosity: {
+        terse: "간결함",
+        normal: "표준",
+        verbose: "자세함",
+      },
+      learningMessage:
+        "Abby가 연구 관심사를 학습하고 있습니다. 계속 대화하면 자동으로 프로필을 구축합니다.",
+    },
+  },
+});
+
+const hiAbbyLegacy: MessageTree = mergeMessageTrees(enAbbyLegacy, {
+  abbyLegacy: {
+    panel: {
+      title: "Abby AI",
+      subtitle: "बुद्धिमान कोहोर्ट बिल्डर",
+      newQuery: "नई क्वेरी",
+      examplesTitle: "एक उदाहरण आजमाएं",
+      examples: {
+        diabetesMetformin: "मेटफॉर्मिन लेने वाले टाइप 2 डायबिटीज रोगी",
+        aceInhibitors:
+          "पूर्व हृदय विफलता के बिना ACE inhibitors के नए उपयोगकर्ता",
+        hipFracture: "पहली कूल्हे की फ्रैक्चर वाले 65+ आयु के रोगी",
+        breastCancerChemo:
+          "कीमोथेरेपी प्राप्त करने वाली स्तन कैंसर की महिलाएं",
+      },
+      analyzing: "Abby आपके शोध प्रश्न का विश्लेषण कर रही है",
+      errorTitle: "कुछ गलत हो गया",
+      errorFallback:
+        "आपका अनुरोध संसाधित नहीं किया जा सका। कृपया फिर से प्रयास करें।",
+      analysisTitle: "विश्लेषण",
+      conceptSetsTitle: "कॉन्सेप्ट सेट ({{count}})",
+      conceptsCount_one: "{{count}} कॉन्सेप्ट",
+      conceptsCount_other: "{{count}} कॉन्सेप्ट",
+      applyToBuilder: "बिल्डर पर लागू करें",
+      refine: "परिष्कृत करें",
+      refinePlaceholder: "आप इस कोहोर्ट को कैसे बदलना चाहते हैं?",
+      refineCohort: "कोहोर्ट परिष्कृत करें",
+      promptPlaceholder: "अपनी लक्षित आबादी का वर्णन करें...",
+      buildCohort: "कोहोर्ट बनाएं",
+    },
+    plan: {
+      title: "कार्य योजना",
+      status: {
+        executing: "निष्पादित हो रहा है...",
+        completed: "पूर्ण",
+        failed: "विफल",
+        cancelled: "रद्द",
+      },
+      actions: {
+        approveAndExecute: "स्वीकृत करें और चलाएं",
+        cancel: "रद्द करें",
+      },
+      runningSteps: "योजना के चरण चल रहे हैं...",
+      success: "सभी चरण सफलतापूर्वक पूरे हुए।",
+      failure:
+        "एक या अधिक चरण विफल हुए। शेष चरणों को छोड़ दिया गया।",
+    },
+    profile: {
+      loading: "प्रोफाइल लोड हो रही है...",
+      failed: "प्रोफाइल लोड नहीं हो सकी",
+      title: "मेरा शोध प्रोफाइल",
+      reset: "रीसेट करें",
+      researchInterests: "शोध रुचियां",
+      expertise: "विशेषज्ञता",
+      responseStyle: "प्रतिक्रिया शैली",
+      verbosity: {
+        terse: "संक्षिप्त",
+        normal: "मानक",
+        verbose: "विस्तृत",
+      },
+      learningMessage:
+        "Abby आपकी शोध रुचियों के बारे में सीख रही है। बातचीत जारी रखें और वह आपका प्रोफाइल अपने आप बनाएगी।",
+    },
+  },
+});
+
 export const abbyLegacyResources: Record<string, MessageTree> = {
   "en-US": enAbbyLegacy,
-  "es-ES": mergeMessageTrees(enAbbyLegacy, {}),
+  "es-ES": esAbbyLegacy,
   "fr-FR": frAbbyLegacy,
   "de-DE": deAbbyLegacy,
   "pt-BR": ptAbbyLegacy,
   "fi-FI": mergeMessageTrees(enAbbyLegacy, {}),
   "ja-JP": mergeMessageTrees(enAbbyLegacy, {}),
   "zh-Hans": mergeMessageTrees(enAbbyLegacy, {}),
-  "ko-KR": mergeMessageTrees(enAbbyLegacy, {}),
-  "hi-IN": mergeMessageTrees(enAbbyLegacy, {}),
+  "ko-KR": koAbbyLegacy,
+  "hi-IN": hiAbbyLegacy,
   ar: mergeMessageTrees(enAbbyLegacy, {}),
   "en-XA": mergeMessageTrees(enAbbyLegacy, {}),
 };
