@@ -1218,16 +1218,14 @@ suppressPackageStartupMessages({
                                      min_subjects) {
   OMOP_COHORT_ID_OFFSET <- 100000000000
 
-  # Fetch eligible generations for this source. source_key is stored on the
-  # app.finngen_endpoint_generations row as an app.sources key — we filter by
-  # it but quote parameterized to avoid injection.
+  # Fetch eligible generations for this source. endpoint_generations uses
+  # source_key (VARCHAR) directly — no join to app.sources needed.
   elig_sql <- sprintf(
     "SELECT geg.id + %.0f AS cohort_definition_id,
             geg.endpoint_name,
             geg.last_subject_count
        FROM finngen.endpoint_generations geg
-       JOIN app.sources s ON s.id = geg.source_id
-      WHERE UPPER(s.source_key) = UPPER('%s')
+      WHERE UPPER(geg.source_key) = UPPER('%s')
         AND geg.last_status = 'succeeded'
         AND geg.last_subject_count >= %d",
     OMOP_COHORT_ID_OFFSET,
@@ -1247,8 +1245,7 @@ suppressPackageStartupMessages({
             geg.endpoint_name,
             geg.last_subject_count
        FROM finngen.endpoint_generations geg
-       JOIN app.sources s ON s.id = geg.source_id
-      WHERE UPPER(s.source_key) = UPPER('%s')
+      WHERE UPPER(geg.source_key) = UPPER('%s')
         AND UPPER(geg.endpoint_name) = UPPER('%s')
         AND geg.last_status = 'succeeded'
       ORDER BY geg.id DESC
