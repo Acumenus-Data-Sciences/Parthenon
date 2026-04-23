@@ -38,6 +38,9 @@ All compute runs through Darkstar (R Plumber API) with async job tracking, artif
 | `I9_CHD` | Major coronary heart disease | 1,705,573 |
 | `I9_AF` | Atrial fibrillation and flutter | 1,284,495 |
 | `J10_ASTHMA` | Asthma | 815,993 |
+| `E4_DMICD8COMA` | Diabetic coma (ICD-8; partial coverage) | — |
+
+> E4_DMICD8COMA is a `partial`-coverage endpoint with no longname — skip it in demos; the 5 universal endpoints above are the featured set.
 
 **Endpoint profile results cached in:** `synpuf_co2_results` schema  
 **Known profile result:** E4_DM2 — 1,121 KM points, comorbidities (I9_HEARTFAIL OR 2.95, I9_AF OR 2.82), 10 drug classes (C10A statins 21%, C09A ACE-I 18%)
@@ -180,8 +183,12 @@ Top 5 ATC-3 classes among T2DM subjects (90-day pre-index window):
 Run before a demo to ensure fresh results and warm caches:
 
 ```bash
-# Verify all 5 SYNPUF endpoint cohorts are materialized
-docker compose exec -T php php artisan finngen:status --source=SYNPUF
+# Verify the 5 featured SYNPUF endpoint cohorts are materialized (SQL — no artisan command)
+psql "host=localhost port=5432 dbname=parthenon user=claude_dev" -c "
+  SELECT params->>'endpoint_name' AS endpoint, status, started_at::date
+  FROM finngen.runs
+  WHERE source_key = 'SYNPUF' AND analysis_type = 'endpoint.generate'
+  ORDER BY started_at;"
 
 # Warm E4_DM2 endpoint profile on SYNPUF (hits cache if expression hash matches)
 docker compose exec -T php php artisan finngen:warm-endpoint-profiles \
@@ -191,8 +198,8 @@ docker compose exec -T php php artisan finngen:warm-endpoint-profiles \
 PARTHENON_E2E=1 docker compose exec -T -e PARTHENON_E2E=1 php \
   php artisan finngen:smoke-endpoint-profile --endpoint=E4_DM2 --source=SYNPUF --timeout=300
 
-# Check Darkstar is healthy
-curl -s http://localhost:8090/health | jq .
+# Check Darkstar is healthy (port 8787)
+curl -s http://localhost:8787/health | jq .status
 ```
 
 ---
@@ -221,11 +228,18 @@ curl -s -X POST http://localhost:8082/api/v1/finngen/endpoints/I9_STROKE/generat
   -d '{"source_key": "SYNPUF"}'
 ```
 
-Or via artisan:
+Or via artisan (dispatches the same Horizon job, no auth token needed):
 
 ```bash
-docker compose exec -T php php artisan finngen:generate-endpoint \
-  --endpoint=I9_STROKE --source=SYNPUF
+# Get an API token first (one-time)
+TOKEN=$(docker compose exec -T php php artisan tinker --execute \
+  "echo app\Models\User::where('email','admin@acumenus.net')->first()->createToken('demo')->plainTextToken;")
+
+# Then generate the endpoint
+curl -s -X POST http://localhost:8082/api/v1/finngen/endpoints/I9_STROKE/generate \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"source_key": "SYNPUF"}' | jq .
 ```
 
 After generation succeeds, the next endpoint profile compute on any SYNPUF endpoint will automatically include I9_STROKE in the phi matrix.
