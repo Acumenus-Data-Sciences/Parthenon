@@ -216,6 +216,7 @@ const SHARED_CANONICAL_VALUES = new Set([
 
 const LOCALE_SAME_SPELLING_VALUES: Record<string, Set<string>> = {
   "es-ES": new Set([
+    "Cardiovascular",
     "Error",
     "Total",
     "Host",
