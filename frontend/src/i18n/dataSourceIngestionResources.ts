@@ -29,6 +29,34 @@ function mergeMessageTrees(base: MessageTree, overrides: MessageTree): MessageTr
   );
 }
 
+function mergeOverrideTrees(base: MessageTree, additions: MessageTree): MessageTree {
+  const keys = new Set([...Object.keys(base), ...Object.keys(additions)]);
+
+  return Object.fromEntries(
+    Array.from(keys).map((key) => {
+      const baseValue = base[key];
+      const additionValue = additions[key];
+
+      if (
+        baseValue &&
+        typeof baseValue === "object" &&
+        !Array.isArray(baseValue) &&
+        additionValue &&
+        typeof additionValue === "object" &&
+        !Array.isArray(additionValue)
+      ) {
+        return [key, mergeOverrideTrees(baseValue, additionValue)];
+      }
+
+      if (additionValue !== undefined) {
+        return [key, additionValue];
+      }
+
+      return [key, baseValue];
+    }),
+  );
+}
+
 const enDataSourceIngestion: MessageTree = {
   dataSources: {
     actions: {
@@ -71,7 +99,7 @@ const enDataSourceIngestion: MessageTree = {
       database: "Database",
       databaseType: "Database Type",
       files: "Files",
-      hostIp: "Host / IP",
+      hostIp: "Host / IP-Adresse",
       importedFrom: "Imported From",
       identity: "Identity",
       key: "Key",
@@ -101,7 +129,7 @@ const enDataSourceIngestion: MessageTree = {
       subtitle: "Manage CDM connections and set your default data model",
       removeDefaultTitle: "Remove as your default CDM",
       setDefaultTitle: "Set as your default CDM",
-      daimonCount: "{{count}} daimons",
+      daimonCount: "{{count}} schemas",
       emptyTitle: "No data sources",
       emptyMessage:
         "Get started by adding your first CDM data source or importing from a legacy WebAPI instance.",
@@ -133,7 +161,7 @@ const enDataSourceIngestion: MessageTree = {
       steps: {
         database: "Database",
         connection: "Connection",
-        daimons: "Daimons",
+        daimons: "Schemas",
         review: "Review",
       },
       createFailed: "Failed to create source. Please check your inputs.",
@@ -290,7 +318,7 @@ const enDataSourceIngestion: MessageTree = {
       format: "Format",
       highConfidence: "High Confidence",
       mapped: "Mapped",
-      mappings: "Mappings",
+      mappings: "Mappages",
       name: "Name",
       port: "Port",
       resourceType: "Resource Type",
@@ -341,7 +369,7 @@ const enDataSourceIngestion: MessageTree = {
         "Upload files, profile sources, design ETL mappings, and import FHIR data",
       tabs: {
         ingestion: "Ingestion",
-        profiler: "Source Profiler",
+        profiler: "Profiler de source",
         aqueduct: "Aqueduct",
         poseidon: "Poseidon",
         vulcan: "Vulcan",
@@ -390,7 +418,7 @@ const enDataSourceIngestion: MessageTree = {
       draft: "Draft",
       profiling: "Profiling",
       ready: "Ready",
-      mapping: "Mapping",
+      mapping: "Mappage",
       completed: "Completed",
       failed: "Failed",
       pending: "Pending",
@@ -404,7 +432,7 @@ const enDataSourceIngestion: MessageTree = {
       conceptMapping: "Concept Mapping",
       review: "Review",
       cdmWriting: "CDM Writing",
-      validation: "Validation",
+      validation: "Validation des donnees",
     },
     schemaMapping: {
       title: "Schema Mapping",
@@ -418,7 +446,7 @@ const enDataSourceIngestion: MessageTree = {
       promptSuffix:
         "to auto-generate schema mappings from source columns to CDM tables.",
       methods: {
-        direct: "Direct",
+        direct: "Directe",
         transform: "Transform",
         concat: "Concat",
         lookup: "Lookup",
@@ -596,6 +624,1326 @@ const enDataSourceIngestion: MessageTree = {
         invalidJson: "Invalid JSON - please check your input.",
         mustBeObject: "Input must be a JSON object.",
         fileParseFailed: "Could not parse file as JSON or NDJSON.",
+      },
+    },
+  },
+};
+
+const frDataSourceIngestionExtra: MessageTree = {
+  dataSources: {
+    actions: {
+      addRegistry: "Ajouter un registre",
+      attachConnection: "Associer une connexion",
+      importFromWebApi: "Importer depuis WebAPI",
+      saveAccessControl: "Enregistrer le controle d'acces",
+      syncSources: "Synchroniser les sources",
+    },
+    accessControl: {
+      restricted: "Restreint",
+      unrestricted: "Non restreint",
+      restrictedHelp:
+        "Seuls les utilisateurs disposant des roles selectionnes peuvent acceder a cette source.",
+      unrestrictedHelp:
+        "Tous les utilisateurs authentifies peuvent acceder a cette source. Selectionnez des roles ci-dessous pour restreindre l'acces.",
+    },
+    common: {
+      accessControl: "Controle d'acces",
+      daimons: "Schemas (Daimons)",
+      database: "Base de donnees",
+      databaseType: "Type de base de donnees",
+      files: "Fichiers",
+      hostIp: "Hote / IP",
+      importedFrom: "Importe depuis",
+      identity: "Identite",
+      key: "Cle",
+      lastSynced: "Derniere synchro",
+      myDefault: "Mon CDM par defaut",
+      port: "Port",
+      rows: "Lignes",
+      schema: "Schema",
+      size: "Taille",
+      sourceName: "Nom de la source",
+      tableName: "Nom de la table",
+      tablesFound: "tables trouvees",
+      webApi: "WebAPI",
+    },
+    list: {
+      loadFailed: "Echec du chargement des sources",
+      subtitle:
+        "Gerer les connexions CDM et definir votre modele de donnees par defaut",
+      removeDefaultTitle: "Retirer comme CDM par defaut",
+      setDefaultTitle: "Definir comme CDM par defaut",
+      daimonCount: "{{count}} schemas",
+      emptyMessage:
+        "Commencez par ajouter votre premiere source CDM ou importez-la depuis une instance WebAPI existante.",
+    },
+    registry: {
+      title: "Registre WebAPI existant",
+      subtitle:
+        "Gerez les connexions vers des instances OHDSI WebAPI existantes pour la migration des sources et la compatibilite.",
+      namePlaceholder: "WebAPI de production",
+      deleteConfirm: "Supprimer le registre \"{{name}}\" ?",
+      emptyTitle: "Aucun registre WebAPI configure",
+      emptyMessage:
+        "Ajoutez une instance WebAPI existante pour importer des sources de donnees.",
+    },
+    webApiImport: {
+      description:
+        "Connectez-vous a une instance OHDSI WebAPI existante et importez ses sources de donnees configurees dans Parthenon.",
+      baseUrl: "URL de base WebAPI",
+      credentials: "Identifiants (utilisateur:motdepasse)",
+      importFailed: "Echec de l'import",
+      importedCount: "{{count}} importes",
+      skippedCount: "{{count}} ignores",
+    },
+    wizard: {
+      steps: {
+        database: "Base de donnees",
+        daimons: "Schemas",
+      },
+      createFailed:
+        "Echec de la creation de la source. Veuillez verifier vos saisies.",
+      database: {
+        title: "Choisir le type de base de donnees",
+        subtitle:
+          "Selectionnez le moteur de base de donnees qui heberge votre CDM.",
+        supported: "Pris en charge",
+        comingSoonShort: "Bientot disponible",
+        descriptions: {
+          postgresql: "Base de donnees principalement prise en charge",
+          oracle: "Base de donnees relationnelle d'entreprise",
+          sqlserver: "Base de donnees Microsoft SQL Server",
+          bigquery: "Entrepot de donnees Google Cloud",
+          redshift: "Entrepot Amazon Web Services",
+          snowflake: "Plateforme de donnees cloud",
+          databricks: "Analytique unifiee des donnees",
+          spanner: "SQL mondialement distribue de Google",
+        },
+      },
+      connection: {
+        title: "Details de connexion",
+        subtitle:
+          "Configurez la facon dont Parthenon identifie et connecte cette source.",
+        sourceName: "Nom de la source",
+        sourceNamePlaceholder: "ex. CDM de production Acumenus",
+        sourceKeyHelp:
+          "Identifiant stable - ne peut pas etre modifie apres creation.",
+        connectionLabel: "Connexion {{dialect}}",
+        laravelConnectionName: "Nom de connexion Laravel",
+        enableQueryCache: "Activer le cache de requetes",
+        queryCacheHelp:
+          "Mettre en cache les resultats Achilles pour accelerer les tableaux de bord",
+        connected: "Connecte ({{latency}} ms)",
+        rServiceVerified: "Service R verifie",
+        fields: {
+          accountIdentifier: "Identifiant de compte",
+          catalogDatabase: "Catalogue / Base de donnees",
+          database: "Base de donnees",
+          databaseFilePath: "Chemin du fichier de base de donnees",
+          defaultDataset: "Dataset par defaut",
+          gcpProjectId: "ID de projet GCP",
+          httpPath: "Chemin HTTP",
+          location: "Region",
+          personalAccessToken: "Jeton d'acces personnel",
+          port: "Port",
+          serverHostname: "Nom d'hote du serveur",
+          serviceAccountJsonKeyPath: "Chemin de cle JSON du compte de service",
+          serviceNameSid: "Nom du service / SID",
+          warehouse: "Entrepot",
+        },
+        helpers: {
+          snowflakeAccount:
+            "Votre identifiant de compte Snowflake (sans .snowflakecomputing.com)",
+          databricksHttpPath:
+            "Disponible dans SQL Warehouse > Connection Details",
+          duckdbPath:
+            "Chemin accessible depuis le conteneur Docker Parthenon. Utilisez :memory: pour une base en memoire.",
+          bigqueryLocation:
+            "Region BigQuery (ex. US, EU, asia-northeast1)",
+          serviceAccount:
+            "Chemin vers le fichier JSON du compte de service dans le conteneur Docker, ou collez le contenu JSON.",
+        },
+      },
+      daimons: {
+        title: "Qualificatifs de schema (Daimons)",
+        subtitle:
+          "Chaque daimon indique a Parthenon quel schema PostgreSQL contient ce type de donnees.",
+        descriptions: {
+          cdm: "Donnees cliniques - person, condition_occurrence, drug_exposure, etc.",
+          vocabulary:
+            "Vocabulaires OMOP - concept, concept_ancestor, vocabulary, domain, etc.",
+          results: "Resultats de caracterisation Achilles et comptages de cohortes.",
+          temp:
+            "Schema temporaire pour la generation de cohortes (facultatif - laissez vide pour ignorer).",
+        },
+        labels: {
+          cdm: "CDM",
+          temp: "Temp",
+        },
+      },
+      review: {
+        title: "Verifier et ajouter la source",
+        subtitle:
+          "Confirmez les parametres ci-dessous, puis cliquez sur Ajouter une source.",
+        whatHappensNext: "Et ensuite",
+        addingSource: "Ajout de la source...",
+        nextSteps: {
+          registered: "La source est enregistree dans la base Parthenon",
+          routing:
+            "Les qualificatifs de schema daimon sont stockes pour le routage des requetes",
+          listed:
+            "La source apparait immediatement dans la liste des sources de donnees",
+          explorer:
+            "Les utilisateurs autorises peuvent la selectionner dans Data Explorer",
+          achilles:
+            "Executez Achilles dans le service R pour alimenter les donnees de caracterisation",
+        },
+      },
+    },
+  },
+  ingestion: {
+    actions: {
+      acceptAllSelected: "Tout accepter",
+      addMoreFiles: "Ajouter d'autres fichiers",
+      aiSuggest: "Suggestion IA",
+      backToJob: "Retour a la tache",
+      backToJobs: "Retour aux taches",
+      backToProjects: "Retour aux projets",
+      change: "Modifier",
+      confirm: "Confirmer ({{count}} tables)",
+      confirmDelete: "Confirmer",
+      confirmAll: "Tout confirmer",
+      connectToDatabase: "Se connecter a la base",
+      continueToConceptMapping: "Continuer vers le mapping de concepts",
+      disconnect: "Deconnecter",
+      newProject: "Nouveau projet",
+      openInAqueduct: "Ouvrir dans Aqueduct",
+      profileAndStage: "Profiler et preparer",
+      rejectAllSelected: "Tout rejeter",
+      remapForMapping: "Relancer le mapping #{{id}}",
+      removeFile: "Retirer le fichier",
+      selectAllInView: "Tout selectionner dans la vue",
+      uploadAndProfile: "Televerser et profiler",
+    },
+    common: {
+      allProjects: "Tous les projets",
+      attachedConnection: "Connexion associee",
+      candidates: "Candidats ({{count}})",
+      columns: "Colonnes",
+      connected: "Connecte -",
+      columnCountShort: "{{count}} col",
+      database: "Base de donnees",
+      databaseType: "Type de base de donnees",
+      fieldProfiles: "Profils de champs",
+      files: "Fichiers",
+      highConfidence: "Confiance elevee",
+      mappings: "Mappings",
+      port: "Port",
+      resourceType: "Type de ressource",
+      rows: "Lignes",
+      rowCount: "{{count}} lignes",
+      run: "Execution",
+      schema: "Esquema",
+      selectTables: "Selectionner les tables ({{count}})",
+      size: "Taille",
+      sourceColumns: "Colonnes source",
+      sourceFile: "Fichier source",
+      tableName: "Nom de la table",
+      violated: "En violation",
+    },
+    dashboard: {
+      subtitle:
+        "Televerser des fichiers, profiler les sources, concevoir des mappings ETL et importer des donnees FHIR",
+      tabs: {
+        profiler: "Perfilador de fonte",
+        vulcan: "Vulcan",
+      },
+    },
+    upload: {
+      title: "Televerser un fichier source",
+      subtitle:
+        "Selectionnez une source de donnees et televersez un fichier pour commencer le profilage",
+      noSources: "Aucune source disponible",
+      dragFile: "Glissez-deposez votre fichier ici",
+      dragFiles: "Glissez-deposez vos fichiers ici",
+    },
+    projectList: {
+      title: "Projets d'ingestion",
+      empty:
+        "Aucun projet d'ingestion pour le moment. Creez-en un pour commencer a televerser des donnees source.",
+      deleteProject: "Supprimer le projet",
+    },
+    projectDetail: {
+      connectCardDescription:
+        "Connectez-vous a n'importe quelle base prise en charge pour parcourir et selectionner des tables",
+      uploadSourceFiles: "Televerser des fichiers source",
+      uploadHelp:
+        "Selectionnez des fichiers CSV, TSV ou Excel pour les preparer dans le projet",
+      stagedFiles: "Fichiers prepares",
+      emptyStagedFiles:
+        "Aucun fichier prepare pour le moment. Televersez-en ci-dessus pour commencer.",
+      piiDetected: "PII detectee",
+      hidePreview: "Masquer l'apercu",
+      previewData: "Apercu des donnees",
+      fileCount: "{{count}} fichiers",
+      stagingFailed: "La preparation a echoue. Veuillez reessayer.",
+      staging: "Preparation...",
+      stageAll: "Tout preparer",
+      duplicateTableName: "Nom de table en double",
+      originalFile: "Fichier d'origine",
+      tableNameRequired: "Le nom de table est requis",
+      tableNameRules:
+        "Doit commencer par une lettre, uniquement minuscules, chiffres et underscores, 63 caracteres max",
+      removeNamedFile: "Retirer {{name}}",
+    },
+    statuses: {
+      profiling: "Profilage",
+      mapping: "Mapping",
+    },
+    pipeline: {
+      profiling: "Profilage",
+      schemaMapping: "Mapping de schema",
+      conceptMapping: "Mapping de concepts",
+      cdmWriting: "Ecriture CDM",
+      validation: "Validation",
+    },
+    schemaMapping: {
+      title: "Mapping de schema",
+      subtitle:
+        "Mappez les colonnes source vers les tables et champs OMOP CDM",
+      confirmed: "Confirme",
+      columnsDetected: "({{count}} colonnes detectees)",
+      columns: "{{count}} colonnes",
+      emptyTitle: "Aucun mapping de schema pour le moment",
+      emptyMessage:
+        "Televersez et profilez d'abord un fichier, puis generez des suggestions IA",
+      promptSuffix:
+        "pour generer automatiquement des mappings de schema depuis les colonnes source vers les tables CDM.",
+      methods: {
+        direct: "Direct",
+        transform: "Transformation",
+        concat: "Concatenation",
+        lookup: "Recherche",
+        constant: "Constante",
+      },
+    },
+    mappingReview: {
+      loadFailed: "Echec du chargement des mappings",
+      title: "Revue des mappings",
+      jobPrefix: "Tache #{{id}}",
+      jobDescription: "- Verifier et approuver les mappings de concepts",
+      emptyFilter: "Aucun mapping trouve pour ce filtre",
+      reviewSubmitted: "Revue envoyee avec succes",
+      reviewFailed: "Echec de l'envoi de la revue",
+      batchUpdated: "Revue groupée : {{count}} mappings mis a jour",
+      batchFailed: "Echec de la revue groupee",
+      reviewed: "revus",
+      selected: "selectionnes",
+      remapForMapping: "Relancer le mapping #{{id}}",
+      filters: {
+        quickReview: "Revue rapide",
+        fullReview: "Revue complete",
+        unmappable: "Non mappable",
+      },
+    },
+    mappingCard: {
+      autoAccepted: "Accepte automatiquement",
+      quickReview: "Revue rapide",
+      fullReview: "Revue complete",
+      unmappable: "Non mappable",
+      frequency: "Freq. :",
+      acceptTopCandidate: "Accepter le meilleur candidat",
+      searchForConcept: "Rechercher un concept",
+      noAlternatives: "Aucun candidat alternatif disponible",
+    },
+    conceptBrowser: {
+      title: "Navigateur de concepts",
+      minCharacters:
+        "Saisissez au moins 2 caracteres pour rechercher des concepts OMOP",
+      standardAbbrev: "S",
+    },
+    validation: {
+      noResultsTitle: "Aucun resultat de validation pour le moment",
+      noResultsMessage:
+        "Les validations s'executent une fois l'ecriture des donnees CDM terminee",
+      check: "Controle",
+    },
+    scanReport: {
+      noProfiles: "Aucun profil de champ disponible.",
+      columnName: "Nom de colonne",
+      nonNullPercent: "% non nul",
+      distinctPercent: "% distinct",
+      sampleValues: "Valeurs d'exemple",
+    },
+    stagingPreview: {
+      loading: "Chargement de l'apercu...",
+      loadFailed: "Echec du chargement de l'apercu",
+      noRows: "Aucune ligne dans la table de preparation",
+      showing: "Affichage 1-{{count}}",
+      ofTotalRows: "sur {{count}} lignes au total",
+      totalRows: "lignes au total",
+      scrollHint: "faites defiler horizontalement pour tout voir",
+    },
+    jobDetail: {
+      loadFailed: "Echec du chargement des details de la tache",
+      pipelineFailed: "Le pipeline a echoue",
+      profilingInProgress: "Profilage en cours...",
+      analyzing: "Analyse de la structure du fichier et des caracteristiques des champs",
+      noFieldData: "Aucune donnee de champ disponible",
+      waiting: "En attente de demarrage...",
+      queued: "Cette tache est en file d'attente et demarrera bientot",
+      futureUpdate: "sera disponible dans une future mise a jour",
+      futureUpdateForStep: "{{step}} sera disponible dans une future mise a jour",
+    },
+    fhirWorkspace: {
+      subtitle:
+        "Synchronisation FHIR bulk adossee a une connexion. Associez un serveur FHIR a un projet d'ingestion et lancez des exportations completes ou incrementielles.",
+      noProjectsTitle: "Aucun projet d'ingestion",
+      noProjectsMessage:
+        "Creez d'abord un projet d'ingestion dans l'onglet Ingestion, puis revenez ici pour associer une connexion FHIR.",
+      linked: "FHIR associe",
+      loadFailedTitle: "Echec du chargement de l'espace de travail",
+      loadFailedMessage:
+        "Impossible de charger l'espace de travail FHIR pour ce projet.",
+      sandboxTitle: "Sandbox Bundle / NDJSON",
+      sandboxSubtitle:
+        "Televersement ponctuel pour la validation locale et les verifications rapides de mapping",
+      loadingSandbox: "Chargement du sandbox...",
+      syncInProgress:
+        "Synchronisation en cours - actualisation automatique toutes les 10 secondes",
+      connectionTitle: "Connexion FHIR",
+      noConnectionsTitle: "Aucune connexion FHIR disponible",
+      noConnectionsMessage:
+        "Demandez a un administrateur de creer une connexion FHIR dans Admin avant de l'associer ici.",
+      selectConnection: "Selectionner une connexion FHIR",
+      noRunsMessage:
+        "Demarrez une synchronisation pour commencer a recuperer des donnees depuis le serveur FHIR associe.",
+      unconfigured: "Non configure",
+      anonymous: "anonyme",
+      incremental: "Incrementele",
+      lastRecords: "Derniers enregistrements",
+    },
+    fhirIngestion: {
+      title: "Ingestion FHIR vers OMOP",
+      subtitle:
+        "Convertissez des ressources FHIR Bundle ou NDJSON en enregistrements OMOP CDM",
+      checking: "Verification...",
+      serviceOnline: "Service en ligne",
+      serviceOffline: "Service hors ligne",
+      refreshHealth: "Actualiser l'etat",
+      pasteJson: "Coller le JSON",
+      uploadFile: "Televerser un fichier",
+      bundleJson: "JSON de bundle FHIR",
+      fileLabel: "Fichier FHIR (.json ou .ndjson)",
+      clickToReplace: "Cliquer pour remplacer",
+      dropFile: "Deposez un fichier FHIR ici",
+      browseFile:
+        "ou cliquez pour parcourir - .json (Bundle) ou .ndjson (lot)",
+      processing: "Traitement des ressources FHIR...",
+      failedTitle: "Echec de l'ingestion",
+      unexpectedError:
+        "Une erreur inattendue est survenue. Verifiez les journaux du service.",
+      resourcesProcessed: "Ressources traitees",
+      cdmRecordsCreated: "Enregistrements CDM crees",
+      cdmRecordsByTable: "Enregistrements CDM par table",
+      successMessage:
+        "Toutes les ressources ont ete ingerees avec succes - {{count}} enregistrements CDM crees.",
+      configurePrefix: "Configurez les connexions au serveur FHIR dans",
+      adminFhirConnections: "Admin -> FHIR Connections",
+      resourceFailures: "{{count}} ressources en echec",
+      filterErrors: "Filtrer les erreurs...",
+      errorCount: "({{count}} erreurs)",
+      noErrorsMatching: "Aucune erreur correspondant a \"{{query}}\"",
+      history: "Historique d'ingestion",
+      historyResourceRecords: "{{resources}} ressources -> {{records}} enregistrements",
+      errorShort: "{{count}} err",
+      clearHistory: "Effacer tout l'historique",
+      cdmRecordsPerResource: "Enregistrements CDM / ressource FHIR",
+      successRate: "Taux de succes",
+      cdmTablesPopulated: "Tables CDM alimentees",
+      resourcePreview: "Apercu de la ressource",
+      resourcesDetected: "{{count}} ressources detectees",
+      idPercent: "{{value}}% IDs",
+      codedPercent: "{{value}}% codes",
+      errors: {
+        enterBundle: "Veuillez saisir un JSON FHIR Bundle.",
+        invalidJson: "JSON invalide - veuillez verifier votre saisie.",
+        mustBeObject: "L'entree doit etre un objet JSON.",
+        fileParseFailed: "Impossible d'analyser le fichier en JSON ou NDJSON.",
+      },
+    },
+  },
+};
+
+const deDataSourceIngestionExtra: MessageTree = {
+  dataSources: {
+    actions: {
+      addRegistry: "Registry hinzufugen",
+      attachConnection: "Verbindung zuweisen",
+      importFromWebApi: "Aus WebAPI importieren",
+      saveAccessControl: "Zugriffssteuerung speichern",
+      syncSources: "Quellen synchronisieren",
+    },
+    accessControl: {
+      restricted: "Eingeschrankt",
+      unrestricted: "Uneingeschrankt",
+      restrictedHelp:
+        "Nur Benutzer mit den ausgewahlten Rollen konnen auf diese Quelle zugreifen.",
+      unrestrictedHelp:
+        "Alle authentifizierten Benutzer konnen auf diese Quelle zugreifen. Wahlen Sie unten Rollen aus, um den Zugriff einzuschranken.",
+    },
+    common: {
+      accessControl: "Zugriffssteuerung",
+      daimons: "Schemas (Daimons)",
+      database: "Datenbank",
+      databaseType: "Datenbanktyp",
+      files: "Dateien",
+      hostIp: "Host / IP",
+      importedFrom: "Importiert aus",
+      identity: "Identitat",
+      key: "Schlussel",
+      lastSynced: "Zuletzt synchronisiert",
+      myDefault: "Mein Standard-CDM",
+      rows: "Zeilen",
+      schema: "Schema",
+      size: "Grosse",
+      sourceName: "Quellname",
+      tableName: "Tabellenname",
+      tablesFound: "Tabellen gefunden",
+    },
+    list: {
+      loadFailed: "Quellen konnten nicht geladen werden",
+      subtitle:
+        "CDM-Verbindungen verwalten und Ihr Standard-Datenmodell festlegen",
+      removeDefaultTitle: "Als Standard-CDM entfernen",
+      setDefaultTitle: "Als Standard-CDM festlegen",
+      daimonCount: "{{count}} Schemas",
+      emptyMessage:
+        "Starten Sie, indem Sie Ihre erste CDM-Datenquelle hinzufugen oder aus einer bestehenden WebAPI-Instanz importieren.",
+    },
+    registry: {
+      title: "Bestehende WebAPI-Registry",
+      subtitle:
+        "Verwalten Sie Verbindungen zu bestehenden OHDSI-WebAPI-Instanzen fur Quellenmigration und Kompatibilitat.",
+      namePlaceholder: "Produktions-WebAPI",
+      deleteConfirm: "Registry \"{{name}}\" loschen?",
+      emptyTitle: "Keine WebAPI-Registries konfiguriert",
+      emptyMessage:
+        "Fugen Sie eine bestehende WebAPI-Instanz hinzu, um Datenquellen zu importieren.",
+    },
+    webApiImport: {
+      description:
+        "Verbinden Sie sich mit einer bestehenden OHDSI-WebAPI-Instanz und importieren Sie deren konfigurierte Datenquellen nach Parthenon.",
+      credentials: "Zugangsdaten (benutzer:passwort)",
+      importFailed: "Import fehlgeschlagen",
+      importedCount: "{{count}} importiert",
+      skippedCount: "{{count}} ubersprungen",
+    },
+    wizard: {
+      steps: {
+        database: "Datenbank",
+        daimons: "Schemas",
+      },
+      createFailed:
+        "Quelle konnte nicht erstellt werden. Bitte uberprufen Sie Ihre Eingaben.",
+      database: {
+        title: "Datenbanktyp auswahlen",
+        subtitle:
+          "Wahlen Sie die Datenbank-Engine aus, auf der Ihr CDM gehostet wird.",
+        supported: "Unterstutzt",
+        comingSoonShort: "Demnachst",
+        descriptions: {
+          postgresql: "Primar unterstutzte Datenbank",
+          oracle: "Relationale Unternehmensdatenbank",
+          sqlserver: "Microsoft SQL Server",
+          bigquery: "Google-Cloud-Data-Warehouse",
+          redshift: "Amazon-Web-Services-Data-Warehouse",
+          snowflake: "Cloud-Datenplattform",
+          databricks: "Einheitliche Datenanalytik",
+          spanner: "Global verteiltes SQL von Google",
+        },
+      },
+      connection: {
+        title: "Verbindungsdetails",
+        subtitle:
+          "Konfigurieren Sie, wie Parthenon diese Quelle identifiziert und verbindet.",
+        sourceName: "Quellname",
+        sourceNamePlaceholder: "z. B. Acumenus Produktions-CDM",
+        sourceKeyHelp:
+          "Stabiler Bezeichner - kann nach der Erstellung nicht mehr geandert werden.",
+        connectionLabel: "{{dialect}}-Verbindung",
+        laravelConnectionName: "Laravel-Verbindungsname",
+        enableQueryCache: "Abfrage-Cache aktivieren",
+        queryCacheHelp:
+          "Achilles-Ergebnisse zwischenspeichern, um Dashboards schneller zu laden",
+        connected: "Verbunden ({{latency}} ms)",
+        rServiceVerified: "R-Service verifiziert",
+        fields: {
+          accountIdentifier: "Konto-ID",
+          catalogDatabase: "Katalog / Datenbank",
+          database: "Datenbank",
+          databaseFilePath: "Pfad zur Datenbankdatei",
+          defaultDataset: "Standard-Dataset",
+          gcpProjectId: "GCP-Projekt-ID",
+          httpPath: "HTTP-Pfad",
+          location: "Standort",
+          personalAccessToken: "Personlicher Zugriffstoken",
+          serverHostname: "Server-Hostname",
+          serviceAccountJsonKeyPath: "Pfad zum JSON-Schlussel des Servicekontos",
+          serviceNameSid: "Dienstname / SID",
+          warehouse: "Warehouse",
+        },
+        helpers: {
+          snowflakeAccount:
+            "Ihr Snowflake-Account-Locator (ohne .snowflakecomputing.com)",
+          databricksHttpPath:
+            "Zu finden unter SQL Warehouse > Connection Details",
+          duckdbPath:
+            "Pfad, der innerhalb des Parthenon-Docker-Containers erreichbar ist. Verwenden Sie :memory: fur eine In-Memory-Datenbank.",
+          bigqueryLocation:
+            "BigQuery-Standort (z. B. US, EU, asia-northeast1)",
+          serviceAccount:
+            "Pfad zur JSON-Datei des Servicekontos im Docker-Container oder den JSON-Inhalt einfugen.",
+        },
+      },
+      daimons: {
+        title: "Schema-Qualifikatoren (Daimons)",
+        subtitle:
+          "Jeder Daimon teilt Parthenon mit, welches PostgreSQL-Schema diesen Datentyp enthalt.",
+        descriptions: {
+          cdm: "Klinische Daten - person, condition_occurrence, drug_exposure usw.",
+          vocabulary:
+            "OMOP-Vokabulare - concept, concept_ancestor, vocabulary, domain usw.",
+          results: "Achilles-Charakterisierungsergebnisse und Kohortenanzahlen.",
+          temp:
+            "Temporates Schema fur die Kohortengenerierung (optional - leer lassen, um es zu uberspringen).",
+        },
+        labels: {
+          temp: "Temp",
+        },
+      },
+      review: {
+        title: "Prufen und Quelle hinzufugen",
+        subtitle:
+          "Bestatigen Sie die Einstellungen unten und klicken Sie dann auf Quelle hinzufugen.",
+        whatHappensNext: "Was als Nachstes passiert",
+        addingSource: "Quelle wird hinzugefugt...",
+        nextSteps: {
+          registered: "Die Quelle wird in der Parthenon-Datenbank registriert",
+          routing:
+            "Daimon-Schema-Qualifikatoren werden fur das Query-Routing gespeichert",
+          listed:
+            "Die Quelle erscheint sofort in der Liste der Datenquellen",
+          explorer:
+            "Benutzer mit Zugriff konnen sie im Data Explorer auswahlen",
+          achilles:
+            "Fuhren Sie Achilles im R-Service aus, um Charakterisierungsdaten zu fullen",
+        },
+      },
+    },
+  },
+  ingestion: {
+    actions: {
+      acceptAllSelected: "Alle ausgewahlten akzeptieren",
+      addMoreFiles: "Weitere Dateien hinzufugen",
+      aiSuggest: "KI-Vorschlag",
+      backToJob: "Zuruck zum Job",
+      backToJobs: "Zuruck zu den Jobs",
+      backToProjects: "Zuruck zu den Projekten",
+      change: "Andern",
+      confirm: "Bestatigen ({{count}} Tabellen)",
+      confirmDelete: "Bestatigen",
+      confirmAll: "Alle bestatigen",
+      connectToDatabase: "Mit Datenbank verbinden",
+      continueToConceptMapping: "Zum Konzept-Mapping weiter",
+      disconnect: "Trennen",
+      newProject: "Neues Projekt",
+      openInAqueduct: "In Aqueduct offnen",
+      profileAndStage: "Profilieren und bereitstellen",
+      rejectAllSelected: "Alle ausgewahlten ablehnen",
+      remapForMapping: "Erneut mappen fur Mapping #{{id}}",
+      removeFile: "Datei entfernen",
+      selectAllInView: "Alles in der Ansicht auswahlen",
+      uploadAndProfile: "Hochladen und profilieren",
+    },
+    common: {
+      allProjects: "Alle Projekte",
+      attachedConnection: "Zugewiesene Verbindung",
+      candidates: "Kandidaten ({{count}})",
+      columns: "Spalten",
+      connected: "Verbunden -",
+      columnCountShort: "{{count}} Sp.",
+      database: "Datenbank",
+      databaseType: "Datenbanktyp",
+      fieldProfiles: "Feldprofile",
+      files: "Dateien",
+      highConfidence: "Hohe Sicherheit",
+      mappings: "Zuordnungen",
+      resourceType: "Ressourcentyp",
+      rows: "Zeilen",
+      rowCount: "{{count}} Zeilen",
+      run: "Lauf",
+      schema: "Schema",
+      selectTables: "Tabellen auswahlen ({{count}})",
+      size: "Grosse",
+      sourceColumns: "Quellspalten",
+      sourceFile: "Quelldatei",
+      tableName: "Tabellenname",
+      violated: "Verletzt",
+    },
+    dashboard: {
+      subtitle:
+        "Dateien hochladen, Quellen profilieren, ETL-Mappings entwerfen und FHIR-Daten importieren",
+      tabs: {
+        profiler: "Quellprofiler",
+        vulcan: "Vulcan",
+      },
+    },
+    upload: {
+      title: "Quelldatei hochladen",
+      subtitle:
+        "Wahlen Sie eine Datenquelle und laden Sie eine Datei hoch, um mit dem Profiling zu beginnen",
+      noSources: "Keine Quellen verfugbar",
+      dragFile: "Datei hierher ziehen und ablegen",
+      dragFiles: "Dateien hierher ziehen und ablegen",
+    },
+    projectList: {
+      title: "Ingestionsprojekte",
+      empty:
+        "Noch keine Ingestionsprojekte. Erstellen Sie eines, um mit dem Hochladen von Quelldaten zu beginnen.",
+      deleteProject: "Projekt loschen",
+    },
+    projectDetail: {
+      connectCardDescription:
+        "Verbinden Sie sich mit einer unterstutzten Datenbank, um Tabellen zu durchsuchen und auszuwahlen",
+      uploadSourceFiles: "Quelldateien hochladen",
+      uploadHelp:
+        "Wahlen Sie CSV-, TSV- oder Excel-Dateien aus, um sie im Projekt bereitzustellen",
+      stagedFiles: "Bereitgestellte Dateien",
+      emptyStagedFiles:
+        "Noch keine bereitgestellten Dateien. Laden Sie oben Dateien hoch, um zu beginnen.",
+      piiDetected: "PII erkannt",
+      hidePreview: "Vorschau ausblenden",
+      previewData: "Datenvorschau",
+      fileCount: "{{count}} Dateien",
+      stagingFailed: "Bereitstellung fehlgeschlagen. Bitte erneut versuchen.",
+      staging: "Bereitstellung...",
+      stageAll: "Alle bereitstellen",
+      duplicateTableName: "Doppelter Tabellenname",
+      originalFile: "Originaldatei",
+      tableNameRequired: "Tabellenname ist erforderlich",
+      tableNameRules:
+        "Muss mit einem Buchstaben beginnen, nur Kleinbuchstaben, Zahlen und Unterstriche, max. 63 Zeichen",
+      removeNamedFile: "{{name}} entfernen",
+    },
+    statuses: {
+      profiling: "Profilierung",
+      mapping: "Zuordnung",
+    },
+    pipeline: {
+      profiling: "Profilierung",
+      schemaMapping: "Schema-Mapping",
+      conceptMapping: "Konzept-Mapping",
+      cdmWriting: "CDM-Schreiben",
+      validation: "Validierung",
+    },
+    schemaMapping: {
+      title: "Schema-Mapping",
+      subtitle:
+        "Ordnen Sie Quellspalten OMOP-CDM-Tabellen und -Feldern zu",
+      confirmed: "Bestatigt",
+      columnsDetected: "({{count}} Spalten erkannt)",
+      columns: "{{count}} Spalten",
+      emptyTitle: "Noch keine Schema-Mappings",
+      emptyMessage:
+        "Laden Sie zuerst eine Datei hoch und profilieren Sie sie, dann erzeugen Sie KI-Vorschlage",
+      promptSuffix:
+        "um Schema-Mappings von Quellspalten zu CDM-Tabellen automatisch zu erzeugen.",
+      methods: {
+        direct: "Direkt",
+        transform: "Transformation",
+        concat: "Verkettung",
+        lookup: "Nachschlagen",
+        constant: "Konstante",
+      },
+    },
+    mappingReview: {
+      loadFailed: "Mappings konnten nicht geladen werden",
+      title: "Mapping-Prufung",
+      jobDescription: "- Konzept-Mappings prufen und freigeben",
+      emptyFilter: "Keine Mappings fur diesen Filter gefunden",
+      reviewSubmitted: "Prufung erfolgreich ubermittelt",
+      reviewFailed: "Prufung konnte nicht ubermittelt werden",
+      batchUpdated: "Sammelprufung: {{count}} Mappings aktualisiert",
+      batchFailed: "Sammelprufung fehlgeschlagen",
+      reviewed: "gepruft",
+      selected: "ausgewahlt",
+      remapForMapping: "Erneut mappen fur Mapping #{{id}}",
+      filters: {
+        quickReview: "Schnellprufung",
+        fullReview: "Vollstandige Prufung",
+        unmappable: "Nicht zuordenbar",
+      },
+    },
+    mappingCard: {
+      autoAccepted: "Automatisch akzeptiert",
+      quickReview: "Schnellprufung",
+      fullReview: "Vollstandige Prufung",
+      unmappable: "Nicht zuordenbar",
+      frequency: "Haufigk.:",
+      acceptTopCandidate: "Besten Kandidaten akzeptieren",
+      searchForConcept: "Nach Konzept suchen",
+      noAlternatives: "Keine alternativen Kandidaten verfugbar",
+    },
+    conceptBrowser: {
+      title: "Konzeptbrowser",
+      minCharacters:
+        "Geben Sie mindestens 2 Zeichen ein, um OMOP-Konzepte zu suchen",
+    },
+    validation: {
+      noResultsTitle: "Noch keine Validierungsergebnisse",
+      noResultsMessage:
+        "Validierungslaufe starten, sobald das Schreiben der CDM-Daten abgeschlossen ist",
+    },
+    scanReport: {
+      noProfiles: "Keine Feldprofile verfugbar.",
+      columnName: "Spaltenname",
+      nonNullPercent: "Nicht-null %",
+      distinctPercent: "Unterschiedliche %",
+      sampleValues: "Beispielwerte",
+    },
+    stagingPreview: {
+      loading: "Vorschau wird geladen...",
+      loadFailed: "Vorschau konnte nicht geladen werden",
+      noRows: "Keine Zeilen in der Staging-Tabelle",
+      showing: "Zeige 1-{{count}}",
+      ofTotalRows: "von {{count}} Gesamtzeilen",
+      totalRows: "Gesamtzeilen",
+      scrollHint: "horizontal scrollen, um alles zu sehen",
+    },
+    jobDetail: {
+      loadFailed: "Jobdetails konnten nicht geladen werden",
+      pipelineFailed: "Pipeline fehlgeschlagen",
+      profilingInProgress: "Profiling lauft...",
+      analyzing:
+        "Dateistruktur und Feldeigenschaften werden analysiert",
+      noFieldData: "Keine Felddaten verfugbar",
+      waiting: "Wartet auf Start...",
+      queued: "Dieser Job ist in der Warteschlange und startet in Kurze",
+      futureUpdate: "wird in einem zukunftigen Update verfugbar sein",
+      futureUpdateForStep:
+        "{{step}} wird in einem zukunftigen Update verfugbar sein",
+    },
+    fhirWorkspace: {
+      subtitle:
+        "Verbindungsbasierte FHIR-Bulk-Synchronisierung. Weisen Sie einem Ingestionsprojekt einen FHIR-Server zu und starten Sie inkrementelle oder vollstandige Exporte.",
+      noProjectsTitle: "Keine Ingestionsprojekte",
+      noProjectsMessage:
+        "Erstellen Sie zuerst im Tab Ingestion ein Ingestionsprojekt und kehren Sie dann hierher zur FHIR-Zuweisung zuruck.",
+      linked: "FHIR verknupft",
+      loadFailedTitle: "Workspace konnte nicht geladen werden",
+      loadFailedMessage:
+        "Der FHIR-Workspace fur dieses Projekt konnte nicht geladen werden.",
+      sandboxTitle: "Bundle / NDJSON-Sandbox",
+      sandboxSubtitle:
+        "Ad-hoc-Upload fur lokale Validierung und schnelle Mapping-Prufungen",
+      loadingSandbox: "Sandbox wird geladen...",
+      syncInProgress:
+        "Synchronisierung lauft - automatische Aktualisierung alle 10 Sekunden",
+      connectionTitle: "FHIR-Verbindung",
+      noConnectionsTitle: "Keine FHIR-Verbindungen verfugbar",
+      noConnectionsMessage:
+        "Bitten Sie einen Administrator, zuerst in Admin eine FHIR-Verbindung anzulegen, bevor Sie sie hier zuweisen.",
+      selectConnection: "FHIR-Verbindung auswahlen",
+      noRunsMessage:
+        "Starten Sie eine Synchronisierung, um Daten vom zugewiesenen FHIR-Server abzurufen.",
+      unconfigured: "Nicht konfiguriert",
+      anonymous: "anonym",
+      incremental: "Inkrementell",
+      lastRecords: "Letzte Datensatze",
+    },
+    fhirIngestion: {
+      title: "FHIR-zu-OMOP-Ingestion",
+      subtitle:
+        "Konvertieren Sie FHIR-Bundle- oder NDJSON-Ressourcen in OMOP-CDM-Datensatze",
+      checking: "Wird gepruft...",
+      serviceOnline: "Dienst online",
+      serviceOffline: "Dienst offline",
+      refreshHealth: "Status aktualisieren",
+      pasteJson: "JSON einfugen",
+      uploadFile: "Datei hochladen",
+      bundleJson: "FHIR-Bundle-JSON",
+      fileLabel: "FHIR-Datei (.json oder .ndjson)",
+      clickToReplace: "Klicken zum Ersetzen",
+      dropFile: "FHIR-Datei hier ablegen",
+      browseFile:
+        "oder klicken zum Durchsuchen - .json (Bundle) oder .ndjson (Batch)",
+      processing: "FHIR-Ressourcen werden verarbeitet...",
+      failedTitle: "Ingestion fehlgeschlagen",
+      unexpectedError:
+        "Ein unerwarteter Fehler ist aufgetreten. Prufen Sie die Service-Logs.",
+      resourcesProcessed: "Verarbeitete Ressourcen",
+      cdmRecordsCreated: "Erstellte CDM-Datensatze",
+      cdmRecordsByTable: "CDM-Datensatze nach Tabelle",
+      successMessage:
+        "Alle Ressourcen wurden erfolgreich ingestiert - {{count}} CDM-Datensatze erstellt.",
+      configurePrefix: "Konfigurieren Sie FHIR-Server-Verbindungen in",
+      resourceFailures: "{{count}} Ressourcen fehlgeschlagen",
+      filterErrors: "Fehler filtern...",
+      errorCount: "({{count}} Fehler)",
+      noErrorsMatching: "Keine Fehler passend zu \"{{query}}\"",
+      history: "Ingestionsverlauf",
+      historyResourceRecords:
+        "{{resources}} Ressourcen -> {{records}} Datensatze",
+      clearHistory: "Gesamten Verlauf loschen",
+      cdmRecordsPerResource: "CDM-Datensatze / FHIR-Ressource",
+      successRate: "Erfolgsquote",
+      cdmTablesPopulated: "Befullte CDM-Tabellen",
+      resourcePreview: "Ressourcenvorschau",
+      resourcesDetected: "{{count}} Ressourcen erkannt",
+      codedPercent: "{{value}}% kodiert",
+      errors: {
+        enterBundle: "Bitte geben Sie ein FHIR-Bundle-JSON ein.",
+        invalidJson: "Ungultiges JSON - bitte Eingabe prufen.",
+        mustBeObject: "Die Eingabe muss ein JSON-Objekt sein.",
+        fileParseFailed:
+          "Die Datei konnte nicht als JSON oder NDJSON geparst werden.",
+      },
+    },
+  },
+};
+
+const ptDataSourceIngestionExtra: MessageTree = {
+  dataSources: {
+    actions: {
+      addRegistry: "Adicionar registro",
+      attachConnection: "Anexar conexao",
+      importFromWebApi: "Importar da WebAPI",
+      saveAccessControl: "Salvar controle de acesso",
+      syncSources: "Sincronizar fontes",
+    },
+    accessControl: {
+      restricted: "Restrito",
+      unrestricted: "Irrestrito",
+      restrictedHelp:
+        "Somente usuarios com os papeis selecionados podem acessar esta fonte.",
+      unrestrictedHelp:
+        "Todos os usuarios autenticados podem acessar esta fonte. Selecione papeis abaixo para restringir.",
+    },
+    common: {
+      accessControl: "Controle de acesso",
+      daimons: "Schemas (Daimons)",
+      database: "Banco de dados",
+      databaseType: "Tipo de banco de dados",
+      files: "Arquivos",
+      hostIp: "Host / IP",
+      importedFrom: "Importado de",
+      identity: "Identidade",
+      key: "Chave",
+      lastSynced: "Ultima sincronizacao",
+      myDefault: "Meu CDM padrao",
+      rows: "Linhas",
+      schema: "Schema",
+      size: "Tamanho",
+      sourceName: "Nome da fonte",
+      tableName: "Nome da tabela",
+      tablesFound: "tabelas encontradas",
+    },
+    list: {
+      loadFailed: "Falha ao carregar fontes",
+      subtitle:
+        "Gerencie conexoes CDM e defina seu modelo de dados padrao",
+      removeDefaultTitle: "Remover como CDM padrao",
+      setDefaultTitle: "Definir como CDM padrao",
+      daimonCount: "{{count}} daimons",
+      emptyMessage:
+        "Comece adicionando sua primeira fonte de dados CDM ou importando de uma instancia WebAPI existente.",
+    },
+    registry: {
+      title: "Registro de WebAPI legado",
+      subtitle:
+        "Gerencie conexoes com instancias OHDSI WebAPI legadas para migracao de fontes e compatibilidade.",
+      namePlaceholder: "WebAPI de producao",
+      deleteConfirm: "Excluir registro \"{{name}}\"?",
+      emptyTitle: "Nenhum registro WebAPI configurado",
+      emptyMessage:
+        "Adicione uma instancia WebAPI legada para importar fontes de dados.",
+    },
+    webApiImport: {
+      description:
+        "Conecte-se a uma instancia OHDSI WebAPI existente e importe suas fontes de dados configuradas para o Parthenon.",
+      credentials: "Credenciais (usuario:senha)",
+      importFailed: "Falha na importacao",
+      importedCount: "{{count}} importados",
+      skippedCount: "{{count}} ignorados",
+    },
+    wizard: {
+      steps: {
+        database: "Banco de dados",
+        daimons: "Daimons",
+      },
+      createFailed:
+        "Falha ao criar a fonte. Verifique suas entradas.",
+      database: {
+        title: "Escolher tipo de banco de dados",
+        subtitle:
+          "Selecione o mecanismo de banco de dados onde seu CDM esta hospedado.",
+        supported: "Suportado",
+        comingSoonShort: "Em breve",
+        descriptions: {
+          postgresql: "Banco de dados principal suportado",
+          oracle: "Banco de dados relacional corporativo",
+          sqlserver: "Microsoft SQL Server",
+          bigquery: "Armazem de dados do Google Cloud",
+          redshift: "Amazon Web Services",
+          snowflake: "Plataforma de dados em nuvem",
+          databricks: "Analitica unificada de dados",
+          spanner: "SQL distribuido globalmente do Google",
+        },
+      },
+      connection: {
+        title: "Detalhes da conexao",
+        subtitle:
+          "Configure como o Parthenon identifica e se conecta a esta fonte.",
+        sourceName: "Nome da fonte",
+        sourceNamePlaceholder: "ex. CDM de producao da Acumenus",
+        sourceKeyHelp:
+          "Identificador estavel - nao pode ser alterado apos a criacao.",
+        connectionLabel: "Conexao {{dialect}}",
+        laravelConnectionName: "Nome da conexao Laravel",
+        enableQueryCache: "Ativar cache de consultas",
+        queryCacheHelp:
+          "Armazene resultados do Achilles em cache para dashboards mais rapidos",
+        connected: "Conectado ({{latency}} ms)",
+        rServiceVerified: "Servico R verificado",
+        fields: {
+          accountIdentifier: "Identificador da conta",
+          catalogDatabase: "Catalogo / Banco de dados",
+          database: "Banco de dados",
+          databaseFilePath: "Caminho do arquivo do banco de dados",
+          defaultDataset: "Dataset padrao",
+          gcpProjectId: "ID do projeto GCP",
+          httpPath: "Caminho HTTP",
+          location: "Localizacao",
+          personalAccessToken: "Token de acesso pessoal",
+          serverHostname: "Nome do host do servidor",
+          serviceAccountJsonKeyPath: "Caminho da chave JSON da conta de servico",
+          serviceNameSid: "Nome do servico / SID",
+          warehouse: "Warehouse",
+        },
+        helpers: {
+          snowflakeAccount:
+            "Seu identificador de conta Snowflake (sem .snowflakecomputing.com)",
+          databricksHttpPath:
+            "Encontrado em SQL Warehouse > Connection Details",
+          duckdbPath:
+            "Caminho acessivel de dentro do container Docker do Parthenon. Use :memory: para um banco em memoria.",
+          bigqueryLocation:
+            "Localizacao do BigQuery (ex. US, EU, asia-northeast1)",
+          serviceAccount:
+            "Caminho para o arquivo JSON da conta de servico dentro do container Docker ou cole o conteudo JSON.",
+        },
+      },
+      daimons: {
+        title: "Qualificadores de schema (Daimons)",
+        subtitle:
+          "Cada daimon informa ao Parthenon qual schema PostgreSQL contem esse tipo de dado.",
+        descriptions: {
+          cdm: "Dados clinicos - person, condition_occurrence, drug_exposure etc.",
+          vocabulary:
+            "Vocabularios OMOP - concept, concept_ancestor, vocabulary, domain etc.",
+          results: "Resultados de caracterizacao Achilles e contagens de coorte.",
+          temp:
+            "Schema temporario para geracao de coortes (opcional - deixe vazio para ignorar).",
+        },
+        labels: {
+          temp: "Temp",
+        },
+      },
+      review: {
+        title: "Revisar e adicionar fonte",
+        subtitle:
+          "Confirme as configuracoes abaixo e clique em Adicionar fonte.",
+        whatHappensNext: "O que acontece em seguida",
+        addingSource: "Adicionando fonte...",
+        nextSteps: {
+          registered: "A fonte e registrada no banco de dados do Parthenon",
+          routing:
+            "Qualificadores de schema de daimon armazenados para roteamento de consultas",
+          listed:
+            "A fonte aparece imediatamente na lista de fontes de dados",
+          explorer:
+            "Usuarios com acesso podem seleciona-la no Data Explorer",
+          achilles:
+            "Execute o Achilles no servico R para preencher dados de caracterizacao",
+        },
+      },
+    },
+  },
+  ingestion: {
+    actions: {
+      acceptAllSelected: "Aceitar todos os selecionados",
+      addMoreFiles: "Adicionar mais arquivos",
+      aiSuggest: "Sugestao de IA",
+      backToJob: "Voltar ao job",
+      backToJobs: "Voltar aos jobs",
+      backToProjects: "Voltar aos projetos",
+      change: "Alterar",
+      confirm: "Confirmar ({{count}} tabelas)",
+      confirmDelete: "Confirmar",
+      confirmAll: "Confirmar tudo",
+      connectToDatabase: "Conectar ao banco de dados",
+      continueToConceptMapping: "Continuar para mapeamento de conceitos",
+      disconnect: "Desconectar",
+      newProject: "Novo projeto",
+      openInAqueduct: "Abrir no Aqueduct",
+      profileAndStage: "Perfilar e preparar",
+      rejectAllSelected: "Rejeitar todos os selecionados",
+      remapForMapping: "Refazer mapeamento #{{id}}",
+      removeFile: "Remover arquivo",
+      selectAllInView: "Selecionar tudo na visualizacao",
+      uploadAndProfile: "Enviar e perfilar",
+    },
+    common: {
+      allProjects: "Todos os projetos",
+      attachedConnection: "Conexao anexada",
+      candidates: "Candidatos ({{count}})",
+      columns: "Colunas",
+      connected: "Conectado -",
+      columnCountShort: "{{count}} col",
+      database: "Banco de dados",
+      databaseType: "Tipo de banco de dados",
+      fieldProfiles: "Perfis de campos",
+      files: "Arquivos",
+      highConfidence: "Alta confianca",
+      mappings: "Mapeamentos",
+      resourceType: "Tipo de recurso",
+      rows: "Linhas",
+      rowCount: "{{count}} linhas",
+      run: "Execucao",
+      schema: "Schema",
+      selectTables: "Selecionar tabelas ({{count}})",
+      size: "Tamanho",
+      sourceColumns: "Colunas de origem",
+      sourceFile: "Arquivo de origem",
+      tableName: "Nome da tabela",
+      violated: "Violado",
+    },
+    dashboard: {
+      subtitle:
+        "Envie arquivos, perfile fontes, projete mapeamentos ETL e importe dados FHIR",
+      tabs: {
+        profiler: "Source Profiler",
+        vulcan: "Vulcan",
+      },
+    },
+    upload: {
+      title: "Enviar arquivo de origem",
+      subtitle:
+        "Selecione uma fonte de dados e envie um arquivo para iniciar o perfilamento",
+      noSources: "Nenhuma fonte disponivel",
+      dragFile: "Arraste e solte seu arquivo aqui",
+      dragFiles: "Arraste e solte arquivos aqui",
+    },
+    projectList: {
+      title: "Projetos de ingestao",
+      empty:
+        "Ainda nao ha projetos de ingestao. Crie um para comecar a enviar dados de origem.",
+      deleteProject: "Excluir projeto",
+    },
+    projectDetail: {
+      connectCardDescription:
+        "Conecte-se a qualquer banco suportado para navegar e selecionar tabelas",
+      uploadSourceFiles: "Enviar arquivos de origem",
+      uploadHelp:
+        "Selecione arquivos CSV, TSV ou Excel para preparar no projeto",
+      stagedFiles: "Arquivos preparados",
+      emptyStagedFiles:
+        "Ainda nao ha arquivos preparados. Envie arquivos acima para comecar.",
+      piiDetected: "PII detectado",
+      hidePreview: "Ocultar visualizacao",
+      previewData: "Visualizar dados",
+      fileCount: "{{count}} arquivos",
+      stagingFailed: "Falha na preparacao. Tente novamente.",
+      staging: "Preparando...",
+      stageAll: "Preparar tudo",
+      duplicateTableName: "Nome de tabela duplicado",
+      originalFile: "Arquivo original",
+      tableNameRequired: "Nome da tabela e obrigatorio",
+      tableNameRules:
+        "Deve comecar com uma letra, usar apenas minusculas, numeros e underscores, maximo de 63 caracteres",
+      removeNamedFile: "Remover {{name}}",
+    },
+    statuses: {
+      profiling: "Perfilamento",
+      mapping: "Mapeamento",
+    },
+    pipeline: {
+      profiling: "Perfilamento",
+      schemaMapping: "Mapeamento de schema",
+      conceptMapping: "Mapeamento de conceitos",
+      cdmWriting: "Gravacao no CDM",
+      validation: "Validacao",
+    },
+    schemaMapping: {
+      title: "Mapeamento de schema",
+      subtitle:
+        "Mapeie colunas de origem para tabelas e campos OMOP CDM",
+      confirmed: "Confirmado",
+      columnsDetected: "({{count}} colunas detectadas)",
+      columns: "{{count}} colunas",
+      emptyTitle: "Ainda nao ha mapeamentos de schema",
+      emptyMessage:
+        "Primeiro envie e perfile um arquivo, depois gere sugestoes de IA",
+      promptSuffix:
+        "para gerar automaticamente mapeamentos de schema das colunas de origem para as tabelas CDM.",
+      methods: {
+        transform: "Transformacao",
+        concat: "Concatenacao",
+        lookup: "Busca",
+        constant: "Constante",
+      },
+    },
+    mappingReview: {
+      loadFailed: "Falha ao carregar mapeamentos",
+      title: "Revisao de mapeamentos",
+      jobDescription: "- Revisar e aprovar mapeamentos de conceitos",
+      emptyFilter: "Nenhum mapeamento encontrado para este filtro",
+      reviewSubmitted: "Revisao enviada com sucesso",
+      reviewFailed: "Falha ao enviar revisao",
+      batchUpdated: "Revisao em lote: {{count}} mapeamentos atualizados",
+      batchFailed: "Falha na revisao em lote",
+      reviewed: "revisados",
+      selected: "selecionados",
+      remapForMapping: "Refazer mapeamento #{{id}}",
+      filters: {
+        quickReview: "Revisao rapida",
+        fullReview: "Revisao completa",
+        unmappable: "Nao mapeavel",
+      },
+    },
+    mappingCard: {
+      autoAccepted: "Aceito automaticamente",
+      quickReview: "Revisao rapida",
+      fullReview: "Revisao completa",
+      unmappable: "Nao mapeavel",
+      frequency: "Freq.:",
+      acceptTopCandidate: "Aceitar melhor candidato",
+      searchForConcept: "Pesquisar conceito",
+      noAlternatives: "Nenhum candidato alternativo disponivel",
+    },
+    conceptBrowser: {
+      title: "Navegador de conceitos",
+      minCharacters:
+        "Digite pelo menos 2 caracteres para pesquisar conceitos OMOP",
+    },
+    validation: {
+      noResultsTitle: "Ainda nao ha resultados de validacao",
+      noResultsMessage:
+        "As validacoes sao executadas apos a conclusao da gravacao dos dados CDM",
+    },
+    scanReport: {
+      noProfiles: "Nenhum perfil de campo disponivel.",
+      columnName: "Nome da coluna",
+      nonNullPercent: "% nao nulo",
+      distinctPercent: "% distinto",
+      sampleValues: "Valores de exemplo",
+    },
+    stagingPreview: {
+      loading: "Carregando visualizacao...",
+      loadFailed: "Falha ao carregar visualizacao",
+      noRows: "Nenhuma linha na tabela de staging",
+      showing: "Mostrando 1-{{count}}",
+      ofTotalRows: "de {{count}} linhas no total",
+      totalRows: "linhas no total",
+      scrollHint: "role horizontalmente para ver tudo",
+    },
+    jobDetail: {
+      loadFailed: "Falha ao carregar detalhes do job",
+      pipelineFailed: "Pipeline falhou",
+      profilingInProgress: "Perfilamento em andamento...",
+      analyzing:
+        "Analisando a estrutura do arquivo e as caracteristicas dos campos",
+      noFieldData: "Nenhum dado de campo disponivel",
+      waiting: "Aguardando para iniciar...",
+      queued: "Este job esta na fila e comecara em breve",
+      futureUpdate: "estara disponivel em uma atualizacao futura",
+      futureUpdateForStep:
+        "{{step}} estara disponivel em uma atualizacao futura",
+    },
+    fhirWorkspace: {
+      subtitle:
+        "Sincronizacao FHIR bulk baseada em conexao. Anexe um servidor FHIR a um projeto de ingestao e execute exportacoes completas ou incrementais.",
+      noProjectsTitle: "Nenhum projeto de ingestao",
+      noProjectsMessage:
+        "Crie primeiro um projeto de ingestao na aba Ingestao e depois volte aqui para anexar uma conexao FHIR.",
+      linked: "FHIR vinculado",
+      loadFailedTitle: "Falha ao carregar workspace",
+      loadFailedMessage:
+        "Nao foi possivel carregar o workspace FHIR para este projeto.",
+      sandboxTitle: "Sandbox de Bundle / NDJSON",
+      sandboxSubtitle:
+        "Upload ad hoc para validacao local e verificacoes pontuais de mapeamento",
+      loadingSandbox: "Carregando sandbox...",
+      syncInProgress:
+        "Sincronizacao em andamento - atualizacao automatica a cada 10 segundos",
+      connectionTitle: "Conexao FHIR",
+      noConnectionsTitle: "Nenhuma conexao FHIR disponivel",
+      noConnectionsMessage:
+        "Peca a um administrador para criar uma conexao FHIR em Admin antes de anexar aqui.",
+      selectConnection: "Selecionar uma conexao FHIR",
+      noRunsMessage:
+        "Inicie uma sincronizacao para comecar a extrair dados do servidor FHIR anexado.",
+      unconfigured: "Nao configurado",
+      anonymous: "anonimo",
+      lastRecords: "Ultimos registros",
+    },
+    fhirIngestion: {
+      title: "Ingestao de FHIR para OMOP",
+      subtitle:
+        "Converta recursos FHIR Bundle ou NDJSON em registros OMOP CDM",
+      checking: "Verificando...",
+      serviceOnline: "Servico online",
+      serviceOffline: "Servico offline",
+      refreshHealth: "Atualizar saude",
+      pasteJson: "Colar JSON",
+      uploadFile: "Enviar arquivo",
+      bundleJson: "JSON de bundle FHIR",
+      fileLabel: "Arquivo FHIR (.json ou .ndjson)",
+      clickToReplace: "Clique para substituir",
+      dropFile: "Solte um arquivo FHIR aqui",
+      browseFile:
+        "ou clique para navegar - .json (Bundle) ou .ndjson (lote)",
+      processing: "Processando recursos FHIR...",
+      failedTitle: "Falha na ingestao",
+      unexpectedError:
+        "Ocorreu um erro inesperado. Verifique os logs do servico.",
+      resourcesProcessed: "Recursos processados",
+      cdmRecordsCreated: "Registros CDM criados",
+      cdmRecordsByTable: "Registros CDM por tabela",
+      successMessage:
+        "Todos os recursos foram ingeridos com sucesso - {{count}} registros CDM criados.",
+      configurePrefix: "Configure conexoes de servidor FHIR em",
+      resourceFailures: "{{count}} recursos com falha",
+      filterErrors: "Filtrar erros...",
+      errorCount: "({{count}} erros)",
+      noErrorsMatching: "Nenhum erro correspondente a \"{{query}}\"",
+      history: "Historico de ingestao",
+      historyResourceRecords:
+        "{{resources}} recursos -> {{records}} registros",
+      clearHistory: "Limpar todo o historico",
+      cdmRecordsPerResource: "Registros CDM / recurso FHIR",
+      successRate: "Taxa de sucesso",
+      cdmTablesPopulated: "Tabelas CDM preenchidas",
+      resourcePreview: "Visualizacao do recurso",
+      resourcesDetected: "{{count}} recursos detectados",
+      codedPercent: "{{value}}% codificados",
+      errors: {
+        enterBundle: "Informe um JSON de FHIR Bundle.",
+        invalidJson: "JSON invalido - verifique sua entrada.",
+        mustBeObject: "A entrada precisa ser um objeto JSON.",
+        fileParseFailed:
+          "Nao foi possivel interpretar o arquivo como JSON ou NDJSON.",
       },
     },
   },
@@ -806,7 +2154,9 @@ export const dataSourceIngestionResources: Record<string, MessageTree> = {
       },
     },
   }),
-  "fr-FR": mergeMessageTrees(enDataSourceIngestion, {
+  "fr-FR": mergeMessageTrees(
+    enDataSourceIngestion,
+    mergeOverrideTrees({
     dataSources: {
       actions: {
         addSource: "Ajouter une source",
@@ -1010,8 +2360,11 @@ export const dataSourceIngestionResources: Record<string, MessageTree> = {
         mappingCoverage: "Couverture de mappage",
       },
     },
-  }),
-  "de-DE": mergeMessageTrees(enDataSourceIngestion, {
+    }, frDataSourceIngestionExtra),
+  ),
+  "de-DE": mergeMessageTrees(
+    enDataSourceIngestion,
+    mergeOverrideTrees({
     dataSources: {
       actions: {
         addSource: "Quelle hinzufügen",
@@ -1219,8 +2572,11 @@ export const dataSourceIngestionResources: Record<string, MessageTree> = {
         mappingCoverage: "Mapping-Abdeckung",
       },
     },
-  }),
-  "pt-BR": mergeMessageTrees(enDataSourceIngestion, {
+    }, deDataSourceIngestionExtra),
+  ),
+  "pt-BR": mergeMessageTrees(
+    enDataSourceIngestion,
+    mergeOverrideTrees({
     dataSources: {
       actions: {
         addSource: "Adicionar fonte",
@@ -1428,7 +2784,8 @@ export const dataSourceIngestionResources: Record<string, MessageTree> = {
         mappingCoverage: "Cobertura de mapeamento",
       },
     },
-  }),
+    }, ptDataSourceIngestionExtra),
+  ),
   "fi-FI": mergeMessageTrees(enDataSourceIngestion, {
     dataSources: {
       actions: {
