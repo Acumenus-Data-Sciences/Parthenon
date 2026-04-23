@@ -187,7 +187,7 @@ const enSmallWorkbench: MessageTree = {
   },
   workbenchLauncher: {
     page: {
-      title: "Workbench",
+      title: "Espacio de trabajo",
       subtitle: "Novel capabilities and research toolsets",
     },
     sections: {
@@ -413,7 +413,7 @@ const frSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
   },
   workbenchLauncher: {
     page: {
-      title: "Workbench",
+      title: "वर्कबेंच",
       subtitle: "Nouvelles capacites et boites a outils de recherche",
     },
     sections: {
@@ -1601,7 +1601,7 @@ const hiSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
       creating: "बनाया जा रहा है...",
       createProject: "प्रोजेक्ट बनाएं",
       createFailed: "प्रोजेक्ट नहीं बन सका",
-      emptyTitle: "Aqueduct ETL Mapping Designer",
+      emptyTitle: "Aqueduct ETL मैपिंग डिज़ाइनर",
       emptyDescription:
         'अपने ingestion project पर जाएं और source schema से OMOP CDM तक ETL mappings डिजाइन करना शुरू करने के लिए "Open in Aqueduct" पर क्लिक करें।',
     },

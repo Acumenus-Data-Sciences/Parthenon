@@ -2208,6 +2208,8 @@ const hiSettingsDetails: MessageTree = {
     passwordChangeFailed: "पासवर्ड बदला नहीं जा सका",
   },
   notifications: {
+    pageTitle: "सूचना प्राथमिकताएं",
+    pageSubtitle: "सूचनाएं कैसे और कब प्राप्त हों, यह निर्धारित करें",
     loadFailed: "सूचना प्राथमिकताएं लोड नहीं हो सकीं",
     emailTitle: "ईमेल सूचनाएं",
     emailSubtitle: "ईमेल के माध्यम से सूचनाएं प्राप्त करें",

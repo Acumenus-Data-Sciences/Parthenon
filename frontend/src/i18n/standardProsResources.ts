@@ -2309,7 +2309,7 @@ const esStandardPros: MessageTree = mergeMessageTrees(enStandardPros, {
       "hasLoinc": "Tiene LOINC",
       "noLoinc": "Sin LOINC",
       "hasSnomed": "Tiene SNOMED",
-      "noSnomed": "No SNOMED",
+      "noSnomed": "Sin SNOMED",
       "instrumentsByClinicalDomain": "Instrumentos por dominio clinico",
       "omopConceptCoverage": "Cobertura del concepto OMOP",
       "loincCodeAvailability": "Disponibilidad del codigo LOINC",
@@ -2409,13 +2409,13 @@ const esStandardPros: MessageTree = mergeMessageTrees(enStandardPros, {
         "librarySubtitle": "100 instrumentos preasignados",
         "libraryDesc": "Biblioteca seleccionada con mapas conceptuales completos de OMOP para cada pregunta y opcion de respuesta. Basado en LOINC cuando este disponible, conceptos personalizados PTHN_SURVEY donde no.",
         "builderTitle": "Creador de encuestas",
-        "builderSubtitle": "Visual Instrument Designer",
+        "builderSubtitle": "Disenador de instrumentos visuales",
         "builderDesc": "Creacion de instrumentos de arrastrar y soltar con busqueda de conceptos ATHENA, sugerencias de mapeo de Abby AI e importacion REDCap/FHIR/CSV.",
         "conductTitle": "Capa de administracion de encuestas",
         "conductSubtitle": "Compatible con v5.4, listo para v6.0",
         "conductDesc": "Metadatos de administracion: tipo de encuestado, modo, estado de finalizacion y enlace de visita. Compatible con la tabla survey_conduct nativa de CDM v6.0.",
-        "analyticsTitle": "Survey Analytics",
-        "analyticsSubtitle": "Achilles 900-Series",
+        "analyticsTitle": "Analisis de encuestas",
+        "analyticsSubtitle": "Aquiles Serie 900",
         "analyticsDesc": "Caracterizacion dedicada: tasas de finalizacion, distribuciones de puntuaciones, efectos suelo y techo, trayectorias longitudinales y cinco controles de calidad de datos."
       },
       "architecture": {
@@ -2452,7 +2452,7 @@ const esStandardPros: MessageTree = mergeMessageTrees(enStandardPros, {
         "phase4Duration": "3 semanas",
         "phase4Item1": "Achilles analiza 900-909",
         "phase4Item2": "DQD verifica DQ-S01 a DQ-S05",
-        "phase4Item3": "Survey Results Explorer",
+        "phase4Item3": "Explorador de resultados de encuestas",
         "phase4Item4": "Conjunto de configuracion de encuesta Solr",
         "phase5Title": "Conducta de encuesta y ETL",
         "phase5Duration": "3 semanas",
@@ -2690,7 +2690,6 @@ const esStandardPros: MessageTree = mergeMessageTrees(enStandardPros, {
     }
   }
 });
-
 const koStandardPros: MessageTree = mergeMessageTrees(enStandardPros, {
   "standardPros": {
     "common": {
@@ -2919,7 +2918,7 @@ const koStandardPros: MessageTree = mergeMessageTrees(enStandardPros, {
         "forwardCompatibleDesc": "app.survey_conduct는 v6.0의 기본 SURVEY_CONDUCT 테이블을 미러링합니다. v6.0 도구가 성숙해지면 마이그레이션 스크립트가 기록을 승격시킵니다."
       },
       "roadmap": {
-        "phase1Title": "Foundation",
+        "phase1Title": "기반",
         "phase1Duration": "4주",
         "phase1Item1": "데이터베이스 마이그레이션(5개의 설문조사 테이블)",
         "phase1Item2": "관계가 있는 설득력 있는 모델",
@@ -2943,7 +2942,7 @@ const koStandardPros: MessageTree = mergeMessageTrees(enStandardPros, {
         "phase4Duration": "3주",
         "phase4Item1": "Achilles는 900-909를 분석합니다",
         "phase4Item2": "DQD는 DQ-S05를 통해 DQ-S01을 확인합니다",
-        "phase4Item3": "Survey Results Explorer",
+        "phase4Item3": "설문조사 결과 탐색기",
         "phase4Item4": "Solr 설문조사 구성세트",
         "phase5Title": "설문조사 및 ETL",
         "phase5Duration": "3주",
@@ -3181,7 +3180,6 @@ const koStandardPros: MessageTree = mergeMessageTrees(enStandardPros, {
     }
   }
 });
-
 const hiStandardPros: MessageTree = mergeMessageTrees(enStandardPros, {
   "standardPros": {
     "common": {
@@ -3291,7 +3289,7 @@ const hiStandardPros: MessageTree = mergeMessageTrees(enStandardPros, {
       "hasLoinc": "LOINC है",
       "noLoinc": "कोई LOINC नहीं",
       "hasSnomed": "स्नोम किया है",
-      "noSnomed": "नो स्नोम किया है",
+      "noSnomed": "SNOMED नहीं",
       "instrumentsByClinicalDomain": "क्लिनिकल डोमेन द्वारा उपकरण",
       "omopConceptCoverage": "OMOP संकल्पना कवरेज",
       "loincCodeAvailability": "LOINC कोड उपलब्धता",
@@ -3672,7 +3670,6 @@ const hiStandardPros: MessageTree = mergeMessageTrees(enStandardPros, {
     }
   }
 });
-
 export const standardProsResources: Record<string, MessageTree> = {
   "en-US": enStandardPros,
   "es-ES": esStandardPros,

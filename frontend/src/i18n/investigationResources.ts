@@ -2703,7 +2703,7 @@ const esInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         "explore": "Explorar",
         "build": "Crear",
         "validate": "Validar",
-        "dossier": "Dossier",
+        "dossier": "Dosier",
         "export": "Exportar",
         "versions": "versiones",
         "gallery": "Analisis",
@@ -2969,7 +2969,7 @@ const esInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         "condition": "Afecto",
         "drug": "Droga",
         "measurement": "Medicion",
-        "procedure": "Acte",
+        "procedure": "actuar",
         "observation": "Observacion clinica",
         "standard": "Estandarizar",
         "standardOnly": "Solo estandar",
@@ -2987,12 +2987,12 @@ const esInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         "metadata": "ID: {{conceptId}} · {{vocabularyId}} · {{domainId}}"
       },
       "codewas": {
-        "case": "Case",
+        "case": "Caso",
         "control": "Control",
         "versus": "vs.",
         "topSignals": "Senales principales ({{count}})",
         "label": "Etiqueta",
-        "count": "Count",
+        "count": "Contar",
         "effectEstimates": "Estimaciones de efectos",
         "volcanoComingSoon": "Grafico interactivo del volcan disponible en una actualizacion futura."
       },
@@ -3238,7 +3238,7 @@ const esInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
       "snps": "SNP:",
       "unknownTrait": "Rasgo desconocido",
       "platform": "Plataforma",
-      "gene": "Gene",
+      "gene": "Gen",
       "disease": "Enfermedad",
       "crossDomainLinks": "Enlaces entre dominios",
       "qqPlotNoData": "No hay datos de valor p disponibles",
@@ -3263,7 +3263,6 @@ const esInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
     }
   }
 });
-
 const koInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
   "investigation": {
     "common": {
@@ -3315,7 +3314,7 @@ const koInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         "explore": "탐색",
         "build": "빌드",
         "validate": "유효성 검사",
-        "dossier": "Dossier",
+        "dossier": "서류",
         "export": "내보내기",
         "versions": "버전",
         "gallery": "OHDSI 분석",
@@ -3581,7 +3580,7 @@ const koInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         "condition": "애정",
         "drug": "약물",
         "measurement": "측정",
-        "procedure": "Acte",
+        "procedure": "액트",
         "observation": "관찰클리니크",
         "standard": "표준화",
         "standardOnly": "표준 전용",
@@ -3757,9 +3756,9 @@ const koInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         "modelType": "모델 유형",
         "lassoLogisticRegression": "LASSO 로지스틱 회귀",
         "gradientBoosting": "그래디언트 부스팅",
-        "randomForest": "Random Forest",
+        "randomForest": "랜덤 포레스트",
         "adaBoost": "AdaBoost",
-        "decisionTree": "Decision Tree",
+        "decisionTree": "의사결정 트리",
         "exposureUsesTarget": "노출 코호트는 위에서 선택된 대상 코호트입니다.",
         "naivePeriod": "Naive Period(일)",
         "naivePeriodLabel": "순진 기간 일수",
@@ -3839,7 +3838,7 @@ const koInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
       "noLoci": "유의성 임계값 아래 유전자좌 없음({{threshold}})",
       "pinThisLocus": "이 유전자좌 고정",
       "chr": "Chr",
-      "position": "Position",
+      "position": "위치",
       "pValue": "p-값",
       "betaOr": "Beta/OR",
       "refAlt": "Ref/Alt",
@@ -3875,7 +3874,6 @@ const koInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
     }
   }
 });
-
 const hiInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
   "investigation": {
     "common": {
@@ -4487,7 +4485,6 @@ const hiInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
     }
   }
 });
-
 export const investigationResources: Record<string, MessageTree> = {
   "en-US": enInvestigation,
   "es-ES": esInvestigation,
