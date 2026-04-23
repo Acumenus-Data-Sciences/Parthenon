@@ -353,3 +353,74 @@ jobs:
           if-no-files-found: error
           compression-level: 0
           path: installer/rust-gui/dist-artifacts/*
+
+      - name: Upload macOS release asset
+        if: ${{ github.event_name == 'release' && runner.os == 'macOS' && env.APPLE_SIGNING_IDENTITY != '' }}
+        working-directory: installer/rust-gui
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(jq -r '.version' tauri.conf.json)
+          ARCH=${{ matrix.artifact_arch }}
+          DMG=$(find target/release/bundle/dmg -name "*.dmg" | head -1)
+          if [ -z "$DMG" ]; then
+            echo "No .dmg found — skipping release upload." >&2
+            exit 0
+          fi
+          gh release upload "${{ github.event.release.tag_name }}" \
+            "${DMG}#Parthenon-Installer-${VERSION}-macos-${ARCH}.dmg" \
+            --clobber
+
+      - name: Upload Windows release asset
+        if: ${{ github.event_name == 'release' && runner.os == 'Windows' && secrets.WINDOWS_TRUSTED_SIGNING_ACCOUNT != '' }}
+        working-directory: installer/rust-gui
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = (Get-Content tauri.conf.json | ConvertFrom-Json).version
+          $msi = Get-ChildItem -Path "target/release/bundle/msi" -Filter "*.msi" -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $msi) {
+            Write-Warning "No .msi found — skipping release upload."
+            exit 0
+          }
+          gh release upload "${{ github.event.release.tag_name }}" `
+            "$($msi.FullName)#Parthenon-Installer-${version}-windows-x64.msi" --clobber
+
+      - name: Upload Linux release assets
+        if: ${{ github.event_name == 'release' && runner.os == 'Linux' }}
+        working-directory: installer/rust-gui
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(jq -r '.version' tauri.conf.json)
+          UPLOADS=()
+
+          DEB=$(find target/release/bundle/deb -name "*.deb" 2>/dev/null | head -1)
+          if [ -n "$DEB" ]; then
+            UPLOADS+=("${DEB}#Parthenon-Installer-${VERSION}-linux-x64.deb")
+            [ -f "${DEB}.asc" ] && UPLOADS+=("${DEB}.asc#Parthenon-Installer-${VERSION}-linux-x64.deb.asc")
+          fi
+
+          RPM=$(find target/release/bundle/rpm -name "*.rpm" 2>/dev/null | head -1)
+          if [ -n "$RPM" ]; then
+            UPLOADS+=("${RPM}#Parthenon-Installer-${VERSION}-linux-x64.rpm")
+            [ -f "${RPM}.asc" ] && UPLOADS+=("${RPM}.asc#Parthenon-Installer-${VERSION}-linux-x64.rpm.asc")
+          fi
+
+          APPIMAGE=$(find target/release/bundle/appimage -name "*.AppImage" 2>/dev/null | head -1)
+          if [ -n "$APPIMAGE" ]; then
+            UPLOADS+=("${APPIMAGE}#Parthenon-Installer-${VERSION}-linux-x64.AppImage")
+            [ -f "${APPIMAGE}.asc" ] && UPLOADS+=("${APPIMAGE}.asc#Parthenon-Installer-${VERSION}-linux-x64.AppImage.asc")
+          fi
+
+          [ -f "../../SIGNING-KEY.asc" ] && UPLOADS+=("../../SIGNING-KEY.asc#SIGNING-KEY.asc")
+
+          if [ ${#UPLOADS[@]} -eq 0 ]; then
+            echo "No Linux artifacts found — skipping release upload." >&2
+            exit 0
+          fi
+
+          gh release upload "${{ github.event.release.tag_name }}" \
+            "${UPLOADS[@]}" \
+            --clobber
