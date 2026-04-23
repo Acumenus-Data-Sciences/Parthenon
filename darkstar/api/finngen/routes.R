@@ -72,7 +72,7 @@ suppressPackageStartupMessages({
       )
     },
     "finngen.co2.endpoint_profile" = function(spec) {
-      source("/app/api/finngen/common.R"); source("/app/api/finngen/co2_analysis.R")
+      source("/app/api/finngen/common.R"); source("/app/api/finngen/cohort_ops.R"); source("/app/api/finngen/co2_analysis.R")
       finngen_endpoint_profile_execute(
         source_envelope   = spec$source,
         run_id            = spec$run_id,

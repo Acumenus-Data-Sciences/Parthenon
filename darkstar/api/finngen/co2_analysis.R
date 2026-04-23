@@ -1654,7 +1654,9 @@ finngen_endpoint_profile_execute <- function(source_envelope, run_id, export_fol
     drug_ids        <- as.integer(analysis_settings$drug_concept_ids     %||% integer(0))
     source_ids      <- as.integer(analysis_settings$source_concept_ids   %||% integer(0))
     # NOTE: numeric, NOT integer — 100B + generation.id exceeds R int32 INT_MAX.
+    # NULL (JSON null) → numeric(0); coerce to NA_real_ so is.na() guards work.
     cohort_def_id   <- suppressWarnings(as.numeric(analysis_settings$cohort_definition_id))
+    if (length(cohort_def_id) == 0L) cohort_def_id <- NA_real_
 
     source_has_death <- isTRUE(as.logical(analysis_settings$source_has_death_data %||% TRUE))
     source_has_drug  <- isTRUE(as.logical(analysis_settings$source_has_drug_data  %||% TRUE))

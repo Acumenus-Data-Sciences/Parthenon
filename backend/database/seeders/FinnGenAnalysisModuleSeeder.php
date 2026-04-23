@@ -338,6 +338,42 @@ class FinnGenAnalysisModuleSeeder extends Seeder
                 ],
                 'result_component' => null,
             ],
+            // Phase 18 (GENOMICS-09/10/11) — Risteys-style endpoint profile
+            [
+                'key' => 'co2.endpoint_profile',
+                'label' => 'Endpoint Profile (Risteys-style)',
+                'description' => 'Computes per-endpoint Kaplan-Meier survival, top-50 comorbidity matrix (phi-coefficient), and 90-day pre-index ATC3 drug-class distribution for a given (endpoint × source) pair. Writes to {source}_co2_results.endpoint_profile_* tables.',
+                'darkstar_endpoint' => '/finngen/co2/endpoint-profile',
+                'min_role' => 'researcher',
+                'settings_schema' => [
+                    'type' => 'object',
+                    'required' => ['endpoint_name', 'source_key', 'expression_hash'],
+                    'properties' => [
+                        'endpoint_name' => ['type' => 'string', 'title' => 'FinnGen endpoint name'],
+                        'source_key' => ['type' => 'string', 'title' => 'CDM source key'],
+                        'expression_hash' => ['type' => 'string', 'title' => 'SHA-256 of qualifying_event_spec'],
+                        'min_subjects' => ['type' => 'integer', 'title' => 'Minimum subjects for KM (default 20)'],
+                        'cohort_definition_id' => ['type' => ['integer', 'null'], 'title' => 'Cohort id (null = on-the-fly from expression)'],
+                        'condition_concept_ids' => ['type' => 'array', 'items' => ['type' => 'integer']],
+                        'drug_concept_ids' => ['type' => 'array', 'items' => ['type' => 'integer']],
+                        'source_concept_ids' => ['type' => 'array', 'items' => ['type' => 'integer']],
+                        'source_has_death_data' => ['type' => 'boolean'],
+                        'source_has_drug_data' => ['type' => 'boolean'],
+                    ],
+                ],
+                'default_settings' => (object) [],
+                'result_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'subject_count' => ['type' => 'integer'],
+                        'death_count' => ['type' => 'integer'],
+                        'km_points_written' => ['type' => 'integer'],
+                        'comorbidities_written' => ['type' => 'integer'],
+                        'drug_classes_written' => ['type' => 'integer'],
+                    ],
+                ],
+                'result_component' => null,
+            ],
             // Genomics #2 — Materialize a FinnGen endpoint definition against a CDM
             [
                 'key' => 'endpoint.generate',

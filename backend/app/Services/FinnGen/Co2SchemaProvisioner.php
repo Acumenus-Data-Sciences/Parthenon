@@ -52,15 +52,38 @@ final class Co2SchemaProvisioner
         $schema = "{$normalized}_co2_results";
 
         DB::transaction(function () use ($schema): void {
-            $hasOwnerRole = DB::selectOne("SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_migrator'");
-            if ($hasOwnerRole) {
-                DB::statement("CREATE SCHEMA IF NOT EXISTS {$schema} AUTHORIZATION parthenon_migrator");
-            } else {
-                DB::statement("CREATE SCHEMA IF NOT EXISTS {$schema}");
-            }
+            $schemaExists = DB::selectOne(
+                'SELECT 1 FROM information_schema.schemata WHERE schema_name = ?',
+                [$schema]
+            );
 
-            // ── endpoint_profile_summary ──
-            DB::statement("
+            // All 4 tables are owned by parthenon_migrator; parthenon_app has DML only.
+            // Skip CREATE SCHEMA/TABLE DDL when already provisioned — re-running DDL
+            // fails with "Insufficient privilege" since the app connection lacks CREATE.
+            // Grants always run (idempotent): a schema can exist without grants if it
+            // was created by an earlier provisioner version or via psql directly.
+            $tablesExist = DB::selectOne(
+                "SELECT COUNT(*) AS c FROM information_schema.tables
+                 WHERE table_schema = ? AND table_name IN (
+                     'endpoint_profile_summary','endpoint_profile_km_points',
+                     'endpoint_profile_comorbidities','endpoint_profile_drug_classes'
+                 )",
+                [$schema]
+            );
+            $fullyProvisioned = $schemaExists && $tablesExist && (int) $tablesExist->c === 4;
+
+            if (! $fullyProvisioned) {
+                if (! $schemaExists) {
+                    $hasOwnerRole = DB::selectOne("SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_migrator'");
+                    if ($hasOwnerRole) {
+                        DB::statement("CREATE SCHEMA {$schema} AUTHORIZATION parthenon_migrator");
+                    } else {
+                        DB::statement("CREATE SCHEMA {$schema}");
+                    }
+                }
+
+                // ── endpoint_profile_summary ──
+                DB::statement("
                 CREATE TABLE IF NOT EXISTS {$schema}.endpoint_profile_summary (
                     endpoint_name          TEXT             NOT NULL,
                     source_key             TEXT             NOT NULL,
@@ -81,13 +104,13 @@ final class Co2SchemaProvisioner
                 )
             ");
 
-            DB::statement("
+                DB::statement("
                 COMMENT ON TABLE {$schema}.endpoint_profile_summary IS
                 'Phase 18 D-09 — one row per (endpoint_name, source_key, expression_hash). Cache invalidation is keyed on expression_hash per D-10: when the endpoint expression is re-resolved and its SHA-256 changes, the Plan 18-04 read path returns status=needs_compute and the frontend auto-dispatches a fresh compute.'
             ");
 
-            // ── endpoint_profile_km_points ──
-            DB::statement("
+                // ── endpoint_profile_km_points ──
+                DB::statement("
                 CREATE TABLE IF NOT EXISTS {$schema}.endpoint_profile_km_points (
                     endpoint_name   TEXT             NOT NULL,
                     source_key      TEXT             NOT NULL,
@@ -99,10 +122,10 @@ final class Co2SchemaProvisioner
                     PRIMARY KEY (endpoint_name, source_key, expression_hash, time_days)
                 )
             ");
-            DB::statement("CREATE INDEX IF NOT EXISTS epkm_endpoint_source_idx ON {$schema}.endpoint_profile_km_points (endpoint_name, source_key)");
+                DB::statement("CREATE INDEX IF NOT EXISTS epkm_endpoint_source_idx ON {$schema}.endpoint_profile_km_points (endpoint_name, source_key)");
 
-            // ── endpoint_profile_comorbidities ──
-            DB::statement("
+                // ── endpoint_profile_comorbidities ──
+                DB::statement("
                 CREATE TABLE IF NOT EXISTS {$schema}.endpoint_profile_comorbidities (
                     index_endpoint     TEXT             NOT NULL,
                     source_key         TEXT             NOT NULL,
@@ -117,10 +140,10 @@ final class Co2SchemaProvisioner
                     PRIMARY KEY (index_endpoint, source_key, expression_hash, comorbid_endpoint)
                 )
             ");
-            DB::statement("CREATE INDEX IF NOT EXISTS epcom_rank_idx ON {$schema}.endpoint_profile_comorbidities (index_endpoint, source_key, rank)");
+                DB::statement("CREATE INDEX IF NOT EXISTS epcom_rank_idx ON {$schema}.endpoint_profile_comorbidities (index_endpoint, source_key, rank)");
 
-            // ── endpoint_profile_drug_classes ──
-            DB::statement("
+                // ── endpoint_profile_drug_classes ──
+                DB::statement("
                 CREATE TABLE IF NOT EXISTS {$schema}.endpoint_profile_drug_classes (
                     endpoint_name    TEXT             NOT NULL,
                     source_key       TEXT             NOT NULL,
@@ -134,8 +157,11 @@ final class Co2SchemaProvisioner
                     PRIMARY KEY (endpoint_name, source_key, expression_hash, atc3_code)
                 )
             ");
+            } // end if (! $fullyProvisioned)
 
             // ── Three-tier HIGHSEC §4.1 grants with role-existence guards ──
+            // Always run — grants are idempotent and must be applied even when the
+            // schema was created outside this provisioner (e.g. by a migration or psql).
             DB::statement("
                 DO \$grants\$
                 BEGIN
