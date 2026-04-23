@@ -299,6 +299,22 @@ jobs:
           codesign --verify --deep --strict --verbose=2 "$app_bundle"
           spctl -a -vv "$app_bundle"
 
+      - name: Sign Linux packages with GPG
+        if: ${{ runner.os == 'Linux' && secrets.GPG_SIGNING_KEY != '' }}
+        working-directory: installer/rust-gui
+        env:
+          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+        run: |
+          echo "$GPG_SIGNING_KEY" | base64 --decode | gpg --batch --import
+          KEY_ID=$(gpg --list-secret-keys --with-colons | grep '^fpr' | head -1 | cut -d: -f10)
+          for pkg in \
+            $(find target/release/bundle/deb -name "*.deb" 2>/dev/null) \
+            $(find target/release/bundle/rpm -name "*.rpm" 2>/dev/null) \
+            $(find target/release/bundle/appimage -name "*.AppImage" 2>/dev/null); do
+            gpg --batch --local-user "$KEY_ID" --detach-sign --armor "$pkg"
+            echo "Signed: $pkg"
+          done
+
       - name: List generated bundles
         working-directory: installer/rust-gui
         shell: bash
