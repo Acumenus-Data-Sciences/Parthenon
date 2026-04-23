@@ -61,7 +61,7 @@ jobs:
             --pretty > dist/installer-bundle/extracted-validation.json
 
       - name: Install Python installer test dependencies
-        run: python -m pip install --quiet pytest
+        run: python -m pip install --quiet pytest rich psycopg2-binary requests docker
 
       - name: Run installer parity tests
         run: python -m pytest installer/tests tests/installer
