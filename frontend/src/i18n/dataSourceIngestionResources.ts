@@ -432,7 +432,7 @@ const enDataSourceIngestion: MessageTree = {
       conceptMapping: "Concept Mapping",
       review: "Review",
       cdmWriting: "CDM Writing",
-      validation: "Validation des donnees",
+      validation: "Validation",
     },
     schemaMapping: {
       title: "Schema Mapping",
