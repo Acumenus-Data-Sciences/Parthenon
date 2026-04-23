@@ -12,6 +12,7 @@ import type { Announcement } from "../../types";
 import { useAuthStore } from "@/stores/authStore";
 import { Modal } from "@/components/ui/Modal";
 import { formatDate } from "@/i18n/format";
+import DOMPurify from "dompurify";
 
 /** Ensure all links in server-rendered HTML open in a new tab. */
 function externalLinks(html: string): string {
@@ -123,7 +124,7 @@ function AnnouncementCard({
         <div
           className="body-html"
           style={{ marginTop: "var(--space-1)", fontSize: "var(--text-xs)", color: "var(--text-muted)", lineHeight: 1.6 }}
-          dangerouslySetInnerHTML={{ __html: externalLinks(announcement.body_html) }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(externalLinks(announcement.body_html)) }}
         />
       ) : (
         <p style={{

@@ -1,0 +1,11 @@
+--- frontend/src/features/ingestion/__tests__/PipelineStepper.test.tsx
++++ frontend/src/features/ingestion/__tests__/PipelineStepper.test.tsx
+@@ -8,7 +8,7 @@
+   "Concept Mapping",
+   "Review",
+   "CDM Writing",
+-  "Validation des donnees", // Adjust for translation context in test
++  "Validation", // Adjust for translation context in test
+ ];
+
+ describe("PipelineStepper", () => {

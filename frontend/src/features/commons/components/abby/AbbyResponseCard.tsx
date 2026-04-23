@@ -4,6 +4,7 @@ import AbbyAvatar from "./AbbyAvatar";
 import AbbySourceAttribution from "./AbbySourceAttribution";
 import AbbyFeedback from "./AbbyFeedback";
 import type { AbbyResponseCardProps, ObjectReference } from "../../types/abby";
+import DOMPurify from "dompurify";
 
 const REF_TYPE_KEYS: Record<string, string> = {
   cohort_definition: "abby.refTypes.cohortDefinition",
@@ -93,7 +94,7 @@ export default function AbbyResponseCard({
               className={`text-muted-foreground leading-relaxed prose prose-sm prose-invert max-w-none ${
                 compact ? "text-xs" : "text-[13px]"
               }`}
-              dangerouslySetInnerHTML={{ __html: message.body_html }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(message.body_html) }}
             />
           ) : (
             <div
