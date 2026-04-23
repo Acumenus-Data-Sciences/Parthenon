@@ -34,7 +34,7 @@ const LABELS: Record<RunStatusBadgeStatus, string> = {
 // dot colored to match the pill's semantic tone.
 const DOT_CLASSNAMES: Record<RunStatusBadgeStatus, string> = {
   queued: "h-1.5 w-1.5 rounded-full bg-slate-400 animate-pulse",
-  running: "h-1.5 w-1.5 rounded-full bg-cyan-300 animate-ping",
+  running: "h-1.5 w-1.5 rounded-full bg-cyan-300 animate-pulse",
   canceling: "h-1.5 w-1.5 rounded-full bg-amber-300",
   succeeded: "h-1.5 w-1.5 rounded-full bg-emerald-300",
   failed: "h-1.5 w-1.5 rounded-full bg-rose-300",
