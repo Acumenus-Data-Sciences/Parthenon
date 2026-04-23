@@ -101,6 +101,13 @@ jobs:
             smoke_contract: false
             artifact_arch: x64
 
+    env:
+      APPLE_CERT_CONFIGURED: ${{ secrets.APPLE_CERTIFICATE != '' }}
+      APPLE_API_KEY_CONFIGURED: ${{ secrets.APPLE_API_KEY != '' && secrets.APPLE_API_ISSUER != '' && secrets.APPLE_API_KEY_P8 != '' }}
+      WINDOWS_SIGNING_CONFIGURED: ${{ secrets.WINDOWS_TRUSTED_SIGNING_ACCOUNT != '' && secrets.WINDOWS_TRUSTED_SIGNING_PROFILE != '' && secrets.WINDOWS_TRUSTED_SIGNING_ENDPOINT != '' && secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_CLIENT_SECRET != '' && secrets.AZURE_TENANT_ID != '' }}
+      WINDOWS_SIGNING_PARTIAL: ${{ secrets.WINDOWS_TRUSTED_SIGNING_ACCOUNT != '' || secrets.WINDOWS_TRUSTED_SIGNING_PROFILE != '' || secrets.WINDOWS_TRUSTED_SIGNING_ENDPOINT != '' || secrets.AZURE_CLIENT_ID != '' || secrets.AZURE_CLIENT_SECRET != '' || secrets.AZURE_TENANT_ID != '' }}
+      GPG_KEY_CONFIGURED: ${{ secrets.GPG_SIGNING_KEY != '' }}
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -113,7 +120,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
 
       - name: Validate macOS notarization configuration
-        if: ${{ runner.os == 'macOS' && secrets.APPLE_CERTIFICATE != '' }}
+        if: ${{ runner.os == 'macOS' && env.APPLE_CERT_CONFIGURED == 'true' }}
         shell: bash
         env:
           APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
@@ -134,7 +141,7 @@ jobs:
           exit 1
 
       - name: Prepare macOS signing certificate
-        if: ${{ runner.os == 'macOS' && secrets.APPLE_CERTIFICATE != '' }}
+        if: ${{ runner.os == 'macOS' && env.APPLE_CERT_CONFIGURED == 'true' }}
         shell: bash
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
@@ -159,7 +166,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: Prepare App Store Connect API key
-        if: ${{ runner.os == 'macOS' && secrets.APPLE_API_KEY != '' && secrets.APPLE_API_ISSUER != '' && secrets.APPLE_API_KEY_P8 != '' }}
+        if: ${{ runner.os == 'macOS' && env.APPLE_API_KEY_CONFIGURED == 'true' }}
         shell: bash
         env:
           APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
@@ -173,7 +180,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: Validate Windows trusted signing configuration
-        if: ${{ runner.os == 'Windows' && (secrets.WINDOWS_TRUSTED_SIGNING_ACCOUNT != '' || secrets.WINDOWS_TRUSTED_SIGNING_PROFILE != '' || secrets.WINDOWS_TRUSTED_SIGNING_ENDPOINT != '' || secrets.AZURE_CLIENT_ID != '' || secrets.AZURE_CLIENT_SECRET != '' || secrets.AZURE_TENANT_ID != '') }}
+        if: ${{ runner.os == 'Windows' && env.WINDOWS_SIGNING_PARTIAL == 'true' }}
         shell: pwsh
         env:
           WINDOWS_TRUSTED_SIGNING_ACCOUNT: ${{ secrets.WINDOWS_TRUSTED_SIGNING_ACCOUNT }}
@@ -197,12 +204,12 @@ jobs:
           }
 
       - name: Install Windows trusted-signing CLI
-        if: ${{ runner.os == 'Windows' && secrets.WINDOWS_TRUSTED_SIGNING_ACCOUNT != '' && secrets.WINDOWS_TRUSTED_SIGNING_PROFILE != '' && secrets.WINDOWS_TRUSTED_SIGNING_ENDPOINT != '' && secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_CLIENT_SECRET != '' && secrets.AZURE_TENANT_ID != '' }}
+        if: ${{ runner.os == 'Windows' && env.WINDOWS_SIGNING_CONFIGURED == 'true' }}
         shell: pwsh
         run: cargo install trusted-signing-cli --locked
 
       - name: Prepare Windows signing config
-        if: ${{ runner.os == 'Windows' && secrets.WINDOWS_TRUSTED_SIGNING_ACCOUNT != '' && secrets.WINDOWS_TRUSTED_SIGNING_PROFILE != '' && secrets.WINDOWS_TRUSTED_SIGNING_ENDPOINT != '' && secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_CLIENT_SECRET != '' && secrets.AZURE_TENANT_ID != '' }}
+        if: ${{ runner.os == 'Windows' && env.WINDOWS_SIGNING_CONFIGURED == 'true' }}
         working-directory: installer/rust-gui
         shell: pwsh
         env:
@@ -304,7 +311,7 @@ jobs:
           fi
 
       - name: Sign Linux packages with GPG
-        if: ${{ runner.os == 'Linux' && secrets.GPG_SIGNING_KEY != '' }}
+        if: ${{ runner.os == 'Linux' && env.GPG_KEY_CONFIGURED == 'true' }}
         working-directory: installer/rust-gui
         env:
           GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
@@ -372,7 +379,7 @@ jobs:
             --clobber
 
       - name: Upload Windows release asset
-        if: ${{ github.event_name == 'release' && runner.os == 'Windows' && secrets.WINDOWS_TRUSTED_SIGNING_ACCOUNT != '' }}
+        if: ${{ github.event_name == 'release' && runner.os == 'Windows' && env.WINDOWS_SIGNING_CONFIGURED == 'true' }}
         working-directory: installer/rust-gui
         shell: pwsh
         env:
