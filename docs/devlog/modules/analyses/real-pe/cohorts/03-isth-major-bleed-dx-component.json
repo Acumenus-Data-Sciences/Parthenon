@@ -1,0 +1,131 @@
+{
+    "name": "REAL-PE: ISTH Major Bleed — Diagnosis Code Component",
+    "description": "Outcome sub-cohort capturing the diagnosis-code arm of the ISTH major-bleed definition (Schulman 2005). This cohort alone is NOT the full ISTH outcome — the complete ISTH definition is: (bleed diagnosis code within 7d post-index) OR (blood transfusion within 7d AND Hgb drop >=2 g/dL). The transfusion-plus-lab arm is assembled in sql/02_isth_barc_outcomes.sql because standard Circe cannot join MEASUREMENT to PROCEDURE_OCCURRENCE with value-based thresholds. Use this cohort for the diagnosis-code leg only; the SQL template references it by cohort_definition_id.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "Major Bleeding — Diagnosis Codes (ISTH-modeled)",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 0,
+                                "CONCEPT_CODE": "131148009",
+                                "CONCEPT_NAME": "Bleeding",
+                                "VOCABULARY_ID": "SNOMED",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 432923,
+                                "CONCEPT_CODE": "1386000",
+                                "CONCEPT_NAME": "Intracranial hemorrhage",
+                                "VOCABULARY_ID": "SNOMED",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 0,
+                                "CONCEPT_CODE": "51636000",
+                                "CONCEPT_NAME": "Hemorrhagic complication of procedure",
+                                "VOCABULARY_ID": "SNOMED",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 0,
+                                "CONCEPT_CODE": "74474003",
+                                "CONCEPT_NAME": "Gastrointestinal hemorrhage",
+                                "VOCABULARY_ID": "SNOMED",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 0,
+                                "CONCEPT_CODE": "30457007",
+                                "CONCEPT_NAME": "Retroperitoneal hemorrhage",
+                                "VOCABULARY_ID": "SNOMED",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ConditionOccurrence": {
+                        "First": true,
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PriorDays": 0,
+                "PostDays": 0
+            },
+            "PrimaryCriteriaLimit": {
+                "Type": "All"
+            }
+        },
+        "QualifiedLimit": {
+            "Type": "All"
+        },
+        "ExpressionLimit": {
+            "Type": "All"
+        },
+        "InclusionRules": [],
+        "EndStrategy": {
+            "DateOffset": {
+                "Offset": 1,
+                "DateField": "StartDate"
+            }
+        },
+        "CensoringCriteria": [],
+        "CensorWindow": [],
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        }
+    },
+    "is_public": false,
+    "tags": ["real-pe", "outcome", "ISTH", "bleeding"],
+    "domain": "cardiovascular",
+    "quality_tier": "draft"
+}

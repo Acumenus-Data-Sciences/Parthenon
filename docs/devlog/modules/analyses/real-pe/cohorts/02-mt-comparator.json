@@ -1,0 +1,194 @@
+{
+    "name": "REAL-PE: Mechanical Thrombectomy for Acute PE (Comparator)",
+    "description": "Comparator cohort for REAL-PE replication. Patients receiving percutaneous mechanical thrombectomy (MT, FlowTriever-class) as treatment for acute pulmonary embolism during an inpatient encounter. PE diagnosis must fall within 30 days before or 1 day after the index procedure. NOTE: concept_id values marked 0 must be hydrated from the local vocab — see sql/00_hydrate_concept_ids.sql. For sites with UDI-preserving ETL, augment CodesetId 0 with the FlowTriever/ClotTriever device concept before seeding.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "Mechanical Thrombectomy Procedure (CPT 37187)",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Procedure",
+                                "CONCEPT_ID": 0,
+                                "CONCEPT_CODE": "37187",
+                                "CONCEPT_NAME": "Percutaneous transluminal mechanical thrombectomy, vein(s), including intraprocedural pharmacological thrombolytic injections and fluoroscopic guidance",
+                                "VOCABULARY_ID": "CPT4",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "CPT4",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 1,
+                "name": "Pulmonary Embolism",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 4170894,
+                                "CONCEPT_CODE": "59282003",
+                                "CONCEPT_NAME": "Pulmonary embolism",
+                                "VOCABULARY_ID": "SNOMED",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 2,
+                "name": "USCDT Procedure (CPT 37211-37214)",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Procedure",
+                                "CONCEPT_ID": 0,
+                                "CONCEPT_CODE": "37211",
+                                "CONCEPT_NAME": "Transcatheter therapy, arterial infusion for thrombolysis other than coronary or intracranial, any method; initial treatment day",
+                                "VOCABULARY_ID": "CPT4",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "CPT4",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Procedure",
+                                "CONCEPT_ID": 0,
+                                "CONCEPT_CODE": "37212",
+                                "CONCEPT_NAME": "Transcatheter therapy, venous infusion for thrombolysis, any method; initial treatment day",
+                                "VOCABULARY_ID": "CPT4",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "CPT4",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ProcedureOccurrence": {
+                        "First": true,
+                        "CodesetId": 0,
+                        "VisitType": [
+                            { "CONCEPT_ID": 9201, "CONCEPT_NAME": "Inpatient Visit", "VOCABULARY_ID": "Visit" }
+                        ]
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PriorDays": 0,
+                "PostDays": 0
+            },
+            "PrimaryCriteriaLimit": {
+                "Type": "First"
+            }
+        },
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "InclusionRules": [
+            {
+                "name": "PE diagnosis within 30 days before or 1 day after index procedure",
+                "description": "Mirrors Truveta REAL-PE inclusion — PE dx must temporally bracket the intervention to attribute the device to PE treatment.",
+                "expression": {
+                    "Type": "ALL",
+                    "Groups": [],
+                    "CriteriaList": [
+                        {
+                            "Criteria": {
+                                "ConditionOccurrence": {
+                                    "First": false,
+                                    "CodesetId": 1
+                                }
+                            },
+                            "Occurrence": {
+                                "Type": 2,
+                                "Count": 1
+                            },
+                            "StartWindow": {
+                                "Start": { "Days": 30, "Coeff": -1 },
+                                "End":   { "Days": 1,  "Coeff": 1 },
+                                "UseEventEnd": false
+                            },
+                            "RestrictVisit": false
+                        }
+                    ],
+                    "DemographicCriteriaList": []
+                }
+            },
+            {
+                "name": "No same-admission USCDT",
+                "description": "Exclude patients who received USCDT during the same inpatient stay so that target and comparator cohorts are mutually exclusive.",
+                "expression": {
+                    "Type": "ALL",
+                    "Groups": [],
+                    "CriteriaList": [
+                        {
+                            "Criteria": {
+                                "ProcedureOccurrence": {
+                                    "First": false,
+                                    "CodesetId": 2
+                                }
+                            },
+                            "Occurrence": {
+                                "Type": 0,
+                                "Count": 0
+                            },
+                            "StartWindow": {
+                                "Start": { "Days": 7, "Coeff": -1 },
+                                "End":   { "Days": 7, "Coeff": 1 },
+                                "UseEventEnd": false
+                            },
+                            "RestrictVisit": true
+                        }
+                    ],
+                    "DemographicCriteriaList": []
+                }
+            }
+        ],
+        "EndStrategy": {
+            "DateOffset": {
+                "Offset": 7,
+                "DateField": "StartDate"
+            }
+        },
+        "CensoringCriteria": [],
+        "CensorWindow": [],
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        }
+    },
+    "is_public": false,
+    "tags": ["real-pe", "MT", "FlowTriever", "comparator", "pulmonary-embolism"],
+    "domain": "cardiovascular",
+    "quality_tier": "draft"
+}
