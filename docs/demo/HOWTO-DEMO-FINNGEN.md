@@ -211,8 +211,10 @@ curl -s http://localhost:8787/health | jq .status
 | GWAS on SYNPUF | Not available | SYNPUF has no VCF/BGEN files. GWAS demo requires PANCREAS. |
 | PRS on SYNPUF | Not available | Same — genomic data only on PANCREAS. |
 | Drug panel on PANCREAS | Empty by design | Post-diagnosis chemotherapy records only; no pre-index drug window. |
-| Comorbidity matrix depth | 4 endpoints | Only 5 endpoints materialized on SYNPUF. Add more with `endpoint.generate` to expand the phi matrix. |
+| Comorbidity matrix depth | 4 endpoints | Only 5 universal endpoints materialized on SYNPUF. Add more with `endpoint.generate` to expand the phi matrix. |
 | timeCodeWAS | 1 succeeded run | On PANCREAS only. Needs a longer-running cohort for SYNPUF. |
+| GWAS eligible controls on SYNPUF | 1 control cohort | Only "Composite MACE" (cohort 81, 407k subjects). FinnGen-generated endpoint cohorts excluded by design. |
+| Endpoint longnames | 41 of 5,191 populated | FinnGen DF14 XLSX ships longnames for a subset only. The 5 featured SYNPUF demo endpoints + E4_DMICD8COMA have been manually seeded. |
 
 ---
 
