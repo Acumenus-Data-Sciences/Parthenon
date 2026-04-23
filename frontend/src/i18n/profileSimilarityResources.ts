@@ -3432,12 +3432,25 @@ const ptProfileSimilarity: MessageTree = mergeMessageTrees(enProfileSimilarity, 
   },
 });
 
+const ptProfileSimilarityPass100: MessageTree = mergeMessageTrees(
+  ptProfileSimilarity,
+  {
+    profiles: {
+      page: {
+        views: {
+          eras: "Períodos",
+        },
+      },
+    },
+  },
+);
+
 export const profileSimilarityResources: Record<string, MessageTree> = {
   "en-US": enProfileSimilarity,
   "es-ES": mergeMessageTrees(enProfileSimilarity, {}),
   "fr-FR": frProfileSimilarity,
   "de-DE": deProfileSimilarity,
-  "pt-BR": ptProfileSimilarity,
+  "pt-BR": ptProfileSimilarityPass100,
   "fi-FI": mergeMessageTrees(enProfileSimilarity, {}),
   "ja-JP": mergeMessageTrees(enProfileSimilarity, {}),
   "zh-Hans": mergeMessageTrees(enProfileSimilarity, {}),

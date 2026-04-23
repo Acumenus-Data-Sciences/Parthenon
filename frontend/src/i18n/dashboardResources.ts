@@ -472,7 +472,7 @@ const frDashboard: MessageTree = mergeMessageTrees(enDashboard, {
   statuses: {
     healthy: "Sain",
     cohort: {
-      active: "active",
+      active: "actif",
       error: "erreur",
       draft: "brouillon",
       pending: "en attente",

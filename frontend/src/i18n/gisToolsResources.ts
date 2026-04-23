@@ -2868,12 +2868,45 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
   },
 });
 
+const frGisToolsPass100: MessageTree = mergeMessageTrees(frGisTools, {
+  gis: {
+    common: {
+      present: "présent",
+    },
+  },
+});
+
+const deGisToolsPass100: MessageTree = mergeMessageTrees(deGisTools, {
+  queryAssistant: {
+    page: {
+      title: "Abfrageassistent",
+    },
+    results: {
+      rendering: "Wird gerendert...",
+    },
+  },
+});
+
+const ptGisToolsPass100: MessageTree = mergeMessageTrees(ptGisTools, {
+  gis: {
+    common: {
+      unknownRegion: "Região",
+    },
+    countyDetail: {
+      county: "Condado",
+    },
+    diseaseSummary: {
+      counties: "Condados",
+    },
+  },
+});
+
 export const gisToolsResources: Record<string, MessageTree> = {
   "en-US": enGisTools,
   "es-ES": mergeMessageTrees(enGisTools, {}),
-  "fr-FR": frGisTools,
-  "de-DE": deGisTools,
-  "pt-BR": ptGisTools,
+  "fr-FR": frGisToolsPass100,
+  "de-DE": deGisToolsPass100,
+  "pt-BR": ptGisToolsPass100,
   "fi-FI": mergeMessageTrees(enGisTools, {}),
   "ja-JP": mergeMessageTrees(enGisTools, {}),
   "zh-Hans": mergeMessageTrees(enGisTools, {}),

@@ -125,6 +125,9 @@ function percent(numerator, denominator) {
 
 const { SUPPORTED_LOCALES } = loadTsModule("src/i18n/locales.ts");
 const { resources, namespaces } = loadTsModule("src/i18n/resources.ts");
+const { isProtectedSameValue } = loadTsModule(
+  "src/i18n/completenessPolicy.ts",
+);
 const sourceLocale = "en-US";
 const sourceResources = resources[sourceLocale] ?? {};
 
@@ -136,6 +139,7 @@ const localeReports = SUPPORTED_LOCALES.map((locale) => {
     const targetMap = new Map(flatten(localeResources[namespace]));
     const missingKeys = [];
     const identicalToSourceKeys = [];
+    const protectedSameValueKeys = [];
     const emptyKeys = [];
 
     for (const [key, sourceValue] of sourceMap.entries()) {
@@ -149,7 +153,18 @@ const localeReports = SUPPORTED_LOCALES.map((locale) => {
         emptyKeys.push(key);
       }
       if (locale.code !== sourceLocale && targetValue === sourceValue) {
-        identicalToSourceKeys.push(key);
+        const fullKey = `${namespace}.${key}`;
+        if (
+          isProtectedSameValue({
+            locale: locale.code,
+            fullKey,
+            sourceValue,
+          })
+        ) {
+          protectedSameValueKeys.push(key);
+        } else {
+          identicalToSourceKeys.push(key);
+        }
       }
     }
 
@@ -164,6 +179,7 @@ const localeReports = SUPPORTED_LOCALES.map((locale) => {
       missingCount: missingKeys.length,
       emptyCount: emptyKeys.length,
       identicalToSourceCount: identicalToSourceKeys.length,
+      protectedSameValueCount: protectedSameValueKeys.length,
       keyCoveragePercent: percent(presentKeys, totalKeys),
       distinctValuePercent: locale.code === sourceLocale
         ? 100
@@ -171,6 +187,7 @@ const localeReports = SUPPORTED_LOCALES.map((locale) => {
       missingKeys,
       emptyKeys,
       identicalToSourceKeys,
+      protectedSameValueKeys,
     };
   });
 
@@ -182,6 +199,8 @@ const localeReports = SUPPORTED_LOCALES.map((locale) => {
       emptyCount: acc.emptyCount + item.emptyCount,
       identicalToSourceCount:
         acc.identicalToSourceCount + item.identicalToSourceCount,
+      protectedSameValueCount:
+        acc.protectedSameValueCount + item.protectedSameValueCount,
     }),
     {
       totalKeys: 0,
@@ -189,6 +208,7 @@ const localeReports = SUPPORTED_LOCALES.map((locale) => {
       missingCount: 0,
       emptyCount: 0,
       identicalToSourceCount: 0,
+      protectedSameValueCount: 0,
     },
   );
 

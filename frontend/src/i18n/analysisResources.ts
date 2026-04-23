@@ -2645,12 +2645,58 @@ const ptAnalysisResourcesPass4: MessageTree = mergeMessageTrees(
   },
 );
 
+const frAnalysisResourcesPass5: MessageTree = mergeMessageTrees(
+  frAnalysisResourcesPass4,
+  {
+    analyses: {
+      auto: {
+        "events_703724": "événements |",
+        "name_49ee30": "Nom",
+        "per1000PY_d6180b": "pour 1 000 PA",
+        "postCalibration_6f2c0d": "Post-étalonnage",
+        "procedures_5102ab": "Procédures",
+      },
+    },
+  },
+);
+
+const deAnalysisResourcesPass5: MessageTree = mergeMessageTrees(
+  deAnalysisResourcesPass4,
+  {
+    analyses: {
+      auto: {
+        "events_703724": "Ereignisse |",
+        "importance_f0d806": "Wichtigkeit",
+        "site_a7d647": "Standort",
+        "sites_dc0a34": "Standorte",
+        "source_f31bbd": "Quelle",
+        "standardError_7b2c21": "Standardfehler",
+      },
+    },
+  },
+);
+
+const ptAnalysisResourcesPass5: MessageTree = mergeMessageTrees(
+  ptAnalysisResourcesPass4,
+  {
+    analyses: {
+      auto: {
+        "events_703724": "eventos |",
+        "importance_f0d806": "Importância",
+        "name_49ee30": "Nome",
+        "source_f31bbd": "Fonte",
+        "standardError_7b2c21": "Erro padrão",
+      },
+    },
+  },
+);
+
 export const analysisResources: Record<string, MessageTree> = {
   "en-US": enAnalysisResources,
   "es-ES": mergeMessageTrees(enAnalysisResources, {}),
-  "fr-FR": frAnalysisResourcesPass4,
-  "de-DE": deAnalysisResourcesPass4,
-  "pt-BR": ptAnalysisResourcesPass4,
+  "fr-FR": frAnalysisResourcesPass5,
+  "de-DE": deAnalysisResourcesPass5,
+  "pt-BR": ptAnalysisResourcesPass5,
   "fi-FI": mergeMessageTrees(enAnalysisResources, {}),
   "ja-JP": mergeMessageTrees(enAnalysisResources, {}),
   "zh-Hans": mergeMessageTrees(enAnalysisResources, {}),

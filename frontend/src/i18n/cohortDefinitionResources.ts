@@ -2644,12 +2644,79 @@ const ptCohortDefinitionsPass4: MessageTree = mergeMessageTrees(
   },
 );
 
+const frCohortDefinitionsPass5: MessageTree = mergeMessageTrees(
+  frCohortDefinitionsPass4,
+  {
+    cohortDefinitions: {
+      auto: {
+        "painSubstanceUse_1b8b0d": "Douleur / usage de substances",
+        "painSubstanceUse_5dcb4d": "Douleur et usage de substances",
+        "procedures_5102ab": "Procédures",
+        "readsAs_531e4b": "SE LIT COMME :",
+        "selectASource_86ba80": "Sélectionnez une source…",
+        "sourceKey_c84233": "Clé source",
+        "sourceKeyEGPancreas_cb9a49": "Clé source (p. ex. PANCREAS)",
+        "tier_78ae42": "Niveau :",
+        "tier_9483f1": "Niveau",
+      },
+    },
+  },
+);
+
+const deCohortDefinitionsPass5: MessageTree = mergeMessageTrees(
+  deCohortDefinitionsPass4,
+  {
+    cohortDefinitions: {
+      auto: {
+        "observation_c680d4": "Beobachtung",
+        "occurrence_0d8a9b": "Vorkommen",
+        "painSubstanceUse_1b8b0d": "Schmerz / Substanzgebrauch",
+        "painSubstanceUse_5dcb4d": "Schmerz & Substanzgebrauch",
+        "procedure_8c4271": "Prozedur",
+        "procedures_5102ab": "Prozeduren",
+        "readsAs_531e4b": "LIEST SICH ALS:",
+        "selectASource_86ba80": "Quelle auswählen…",
+        "source_f31bbd": "Quelle",
+        "sourceKey_c84233": "Quellschlüssel",
+        "sourceKeyEGPancreas_cb9a49": "Quellschlüssel (z. B. PANCREAS)",
+        "status_24a23d": "Status:",
+        "tier_78ae42": "Stufe:",
+      },
+    },
+  },
+);
+
+const ptCohortDefinitionsPass5: MessageTree = mergeMessageTrees(
+  ptCohortDefinitionsPass4,
+  {
+    cohortDefinitions: {
+      auto: {
+        "observation_c680d4": "Observação",
+        "occurrence_0d8a9b": "Ocorrência",
+        "oncology_50b74a": "Oncologia",
+        "painSubstanceUse_1b8b0d": "Dor / uso de substâncias",
+        "painSubstanceUse_5dcb4d": "Dor e uso de substâncias",
+        "procedure_8c4271": "Procedimento",
+        "procedures_5102ab": "Procedimentos",
+        "race_4e221f": "Raça",
+        "readsAs_531e4b": "LÊ-SE COMO:",
+        "selectASource_86ba80": "Selecione uma fonte…",
+        "source_f31bbd": "Fonte",
+        "sourceKey_c84233": "Chave da fonte",
+        "sourceKeyEGPancreas_cb9a49": "Chave da fonte (ex.: PANCREAS)",
+        "tier_78ae42": "Nível:",
+        "tier_9483f1": "Nível",
+      },
+    },
+  },
+);
+
 export const cohortDefinitionResources: Record<string, MessageTree> = {
   "en-US": enCohortDefinitions,
   "es-ES": mergeMessageTrees(enCohortDefinitions, {}),
-  "fr-FR": frCohortDefinitionsPass4,
-  "de-DE": deCohortDefinitionsPass4,
-  "pt-BR": ptCohortDefinitionsPass4,
+  "fr-FR": frCohortDefinitionsPass5,
+  "de-DE": deCohortDefinitionsPass5,
+  "pt-BR": ptCohortDefinitionsPass5,
   "fi-FI": mergeMessageTrees(enCohortDefinitions, {}),
   "ja-JP": mergeMessageTrees(enCohortDefinitions, {}),
   "zh-Hans": mergeMessageTrees(enCohortDefinitions, {}),

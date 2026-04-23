@@ -3395,12 +3395,40 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
   },
 );
 
+const dePublishCareGapRiskPass100: MessageTree = mergeMessageTrees(
+  dePublishCareGapRisk,
+  {
+    publish: {
+      tables: {
+        headers: {
+          percentFemale: "% weiblich",
+          percentMale: "% männlich",
+        },
+      },
+    },
+  },
+);
+
+const ptPublishCareGapRiskPass100: MessageTree = mergeMessageTrees(
+  ptPublishCareGapRisk,
+  {
+    publish: {
+      tables: {
+        headers: {
+          percentFemale: "% feminino",
+          percentMale: "% masculino",
+        },
+      },
+    },
+  },
+);
+
 export const publishCareGapRiskResources: Record<string, MessageTree> = {
   "en-US": enPublishCareGapRisk,
   "es-ES": mergeMessageTrees(enPublishCareGapRisk, {}),
   "fr-FR": frPublishCareGapRisk,
-  "de-DE": dePublishCareGapRisk,
-  "pt-BR": ptPublishCareGapRisk,
+  "de-DE": dePublishCareGapRiskPass100,
+  "pt-BR": ptPublishCareGapRiskPass100,
   "fi-FI": mergeMessageTrees(enPublishCareGapRisk, {}),
   "ja-JP": mergeMessageTrees(enPublishCareGapRisk, {}),
   "zh-Hans": mergeMessageTrees(enPublishCareGapRisk, {}),

@@ -41973,13 +41973,218 @@ const hiApp: MessageTree = mergeMessageTrees(enApp, {
   }
 });
 
+const frAppPass100: MessageTree = mergeMessageTrees(frApp, {
+  administration: {
+    pacs: {
+      studyBrowser: {
+        filters: {
+          patientId: "ID patient",
+        },
+        table: {
+          patientId: "ID patient",
+        },
+      },
+    },
+    chromaStudio: {
+      stats: {
+        vectors: "Vecteurs",
+      },
+    },
+    pacsConnectionModal: {
+      fields: {
+        baseUrl: "URL de base",
+      },
+    },
+    atlasMigration: {
+      connect: {
+        webapiUrl: "URL de base WebAPI",
+      },
+    },
+    fhirConnections: {
+      labels: {
+        fhirBaseUrl: "URL de base FHIR",
+        clientId: "ID client",
+      },
+    },
+  },
+  cohortDefinitions: {
+    auto: {
+      "painSubstanceUse_1b8b0d": "Douleur / usage de substances",
+      "painSubstanceUse_5dcb4d": "Douleur et usage de substances",
+      "procedures_5102ab": "Procédures",
+      "selectASource_86ba80": "Sélectionnez une source…",
+      "sourceKey_c84233": "Clé source",
+      "sourceKeyEGPancreas_cb9a49": "Clé source (p. ex. PANCREAS)",
+      "tier_9483f1": "Niveau",
+    },
+  },
+  analyses: {
+    auto: {
+      "events_703724": "événements |",
+      "name_49ee30": "Nom",
+      "per1000PY_d6180b": "pour 1 000 PA",
+      "procedures_5102ab": "Procédures",
+    },
+  },
+  gis: {
+    common: {
+      present: "présent",
+    },
+  },
+  radiogenomics: {
+    panel: {
+      relationshipLabels: {
+        resistant: "Résistant",
+      },
+    },
+  },
+  profiles: {
+    common: {
+      domains: {
+        procedure: "Procédures",
+      },
+    },
+  },
+});
+
+const deAppPass100: MessageTree = mergeMessageTrees(deApp, {
+  administration: {
+    chromaStudio: {
+      stats: {
+        vectors: "Vektoren",
+      },
+    },
+    vectorExplorer: {
+      title: "Vektor-Explorer",
+    },
+    userAudit: {
+      actions: {
+        login: "Anmeldung",
+      },
+    },
+    fhirConnections: {
+      labels: {
+        clientId: "Client-ID",
+      },
+      details: {
+        clientId: "Client-ID:",
+      },
+    },
+  },
+  cohortDefinitions: {
+    auto: {
+      "observation_c680d4": "Beobachtung",
+      "occurrence_0d8a9b": "Vorkommen",
+      "painSubstanceUse_1b8b0d": "Schmerz / Substanzgebrauch",
+      "painSubstanceUse_5dcb4d": "Schmerz & Substanzgebrauch",
+      "procedure_8c4271": "Prozedur",
+      "procedures_5102ab": "Prozeduren",
+      "selectASource_86ba80": "Quelle auswählen…",
+      "sourceKey_c84233": "Quellschlüssel",
+      "sourceKeyEGPancreas_cb9a49": "Quellschlüssel (z. B. PANCREAS)",
+    },
+  },
+  analyses: {
+    auto: {
+      "site_a7d647": "Standort",
+      "sites_dc0a34": "Standorte",
+      "standardError_7b2c21": "Standardfehler",
+    },
+  },
+  queryAssistant: {
+    results: {
+      rendering: "Wird gerendert...",
+    },
+  },
+  publish: {
+    tables: {
+      headers: {
+        percentFemale: "% weiblich",
+        percentMale: "% männlich",
+      },
+    },
+  },
+});
+
+const ptAppPass100: MessageTree = mergeMessageTrees(ptApp, {
+  administration: {
+    chromaStudio: {
+      stats: {
+        vectors: "Vetores",
+      },
+    },
+    pacsConnectionModal: {
+      fields: {
+        baseUrl: "URL base",
+      },
+    },
+    atlasMigration: {
+      connect: {
+        authentication: "Autenticação",
+      },
+    },
+  },
+  cohortDefinitions: {
+    auto: {
+      "observation_c680d4": "Observação",
+      "occurrence_0d8a9b": "Ocorrência",
+      "oncology_50b74a": "Oncologia",
+      "painSubstanceUse_1b8b0d": "Dor / uso de substâncias",
+      "painSubstanceUse_5dcb4d": "Dor e uso de substâncias",
+      "procedure_8c4271": "Procedimento",
+      "procedures_5102ab": "Procedimentos",
+      "race_4e221f": "Raça",
+      "source_f31bbd": "Fonte",
+      "sourceKey_c84233": "Chave da fonte",
+      "sourceKeyEGPancreas_cb9a49": "Chave da fonte (ex.: PANCREAS)",
+      "tags_189f63": "Etiquetas",
+      "tier_9483f1": "Nível",
+    },
+  },
+  conceptSets: {
+    list: {
+      columns: {
+        tags: "Etiquetas",
+      },
+    },
+  },
+  analyses: {
+    auto: {
+      "importance_f0d806": "Importância",
+      "name_49ee30": "Nome",
+      "standardError_7b2c21": "Erro padrão",
+    },
+  },
+  profiles: {
+    page: {
+      views: {
+        eras: "Períodos",
+      },
+    },
+  },
+  publish: {
+    tables: {
+      headers: {
+        percentFemale: "% feminino",
+        percentMale: "% masculino",
+      },
+    },
+  },
+  phenotypeLibrary: {
+    table: {
+      headers: {
+        tags: "Etiquetas",
+      },
+    },
+  },
+});
 
 export const appResources: Record<string, MessageTree> = {
   "en-US": enApp,
   "es-ES": esApp,
-  "fr-FR": frApp,
-  "de-DE": deApp,
-  "pt-BR": ptApp,
+  "fr-FR": frAppPass100,
+  "de-DE": deAppPass100,
+  "pt-BR": ptAppPass100,
   "fi-FI": fiApp,
   "ja-JP": jaApp,
   "zh-Hans": zhApp,

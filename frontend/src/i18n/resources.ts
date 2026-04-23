@@ -1621,7 +1621,7 @@ const frSettingsDetails: MessageTree = {
     jobTitle: "Poste",
     department: "Département",
     organization: "Organisation",
-    bio: "Bio",
+    bio: "Biographie",
     fullNamePlaceholder: "Nom complet",
     jobTitlePlaceholder: "p. ex. chercheur",
     departmentPlaceholder: "p. ex. informatique clinique",
@@ -1633,7 +1633,7 @@ const frSettingsDetails: MessageTree = {
     saveFailed: "Impossible d'enregistrer le profil",
   },
   avatar: {
-    alt: "Avatar",
+    alt: "Image d'avatar",
     uploadPhoto: "Téléverser une photo",
     remove: "Supprimer",
     fileTooLarge: "Le fichier doit faire moins de 5 Mo",
@@ -1661,6 +1661,9 @@ const frSettingsDetails: MessageTree = {
     passwordChangeFailed: "Impossible de changer le mot de passe",
   },
   notifications: {
+    pageTitle: "Préférences de notification",
+    pageSubtitle:
+      "Configurez comment et quand vous recevez des notifications",
     loadFailed: "Impossible de charger les préférences de notification",
     emailTitle: "Notifications par e-mail",
     emailSubtitle: "Recevoir les notifications par e-mail",
@@ -1702,7 +1705,7 @@ const deSettingsDetails: MessageTree = {
     jobTitle: "Position",
     department: "Abteilung",
     organization: "Organisation",
-    bio: "Bio",
+    bio: "Biografie",
     fullNamePlaceholder: "Vollständiger Name",
     jobTitlePlaceholder: "z. B. Forschungswissenschaftler",
     departmentPlaceholder: "z. B. klinische Informatik",
@@ -1714,7 +1717,7 @@ const deSettingsDetails: MessageTree = {
     saveFailed: "Profil konnte nicht gespeichert werden",
   },
   avatar: {
-    alt: "Avatar",
+    alt: "Avatarbild",
     uploadPhoto: "Foto hochladen",
     remove: "Entfernen",
     fileTooLarge: "Datei muss kleiner als 5 MB sein",
@@ -1742,6 +1745,9 @@ const deSettingsDetails: MessageTree = {
     passwordChangeFailed: "Passwort konnte nicht geändert werden",
   },
   notifications: {
+    pageTitle: "Benachrichtigungseinstellungen",
+    pageSubtitle:
+      "Legen Sie fest, wie und wann Sie Benachrichtigungen erhalten",
     loadFailed: "Benachrichtigungseinstellungen konnten nicht geladen werden",
     emailTitle: "E-Mail-Benachrichtigungen",
     emailSubtitle: "Benachrichtigungen per E-Mail erhalten",
@@ -1784,7 +1790,7 @@ const ptSettingsDetails: MessageTree = {
     jobTitle: "Cargo",
     department: "Departamento",
     organization: "Organização",
-    bio: "Bio",
+    bio: "Biografia",
     fullNamePlaceholder: "Nome completo",
     jobTitlePlaceholder: "ex. Cientista pesquisador",
     departmentPlaceholder: "ex. Informática clínica",
@@ -1796,7 +1802,7 @@ const ptSettingsDetails: MessageTree = {
     saveFailed: "Não foi possível salvar o perfil",
   },
   avatar: {
-    alt: "Avatar",
+    alt: "Imagem de avatar",
     uploadPhoto: "Enviar foto",
     remove: "Remover",
     fileTooLarge: "O arquivo deve ter menos de 5 MB",
@@ -1822,6 +1828,8 @@ const ptSettingsDetails: MessageTree = {
     passwordChangeFailed: "Não foi possível alterar a senha",
   },
   notifications: {
+    pageTitle: "Preferências de notificação",
+    pageSubtitle: "Configure como e quando você recebe notificações",
     loadFailed: "Não foi possível carregar as preferências de notificação",
     emailTitle: "Notificações por e-mail",
     emailSubtitle: "Receba notificações por e-mail",
@@ -3862,6 +3870,47 @@ const frAbbyLayout: MessageTree = mergeMessageTrees(enAbbyLayout, {
       daysAgo: "il y a {{count}} j",
     },
   },
+  about: {
+    title: "À propos d'Abby",
+    images: {
+      abbyAlt: "Abby - assistante IA de Parthenon",
+      abbyCaption: "Abby - assistante de recherche IA",
+    },
+    subtitle: "Assistante de recherche IA de Parthenon",
+    dedication: {
+      title: "À la mémoire d'Abigail Geisinger",
+      namedPrefix: "Abby est nommée en l'honneur de",
+      namedName: "Abigail A. Geisinger",
+      namedSuffix:
+        "(1827-1921), philanthrope pionnière qui fonda ce qui deviendrait l'un des systèmes de santé les plus innovants des États-Unis.",
+      age85:
+        "À 85 ans, veuve et sans enfant, Abigail regarda sa communauté rurale de Danville, en Pennsylvanie, et vit un problème que personne ne résolvait : il n'y avait pas d'hôpital. Les personnes malades devaient être transportées en voiture à cheval - puis plus tard dans son propre Hupmobile - jusqu'à l'établissement le plus proche à Sunbury. Elle décida qu'elle allait y remédier.",
+      founding:
+        "En 1912, elle réunit un groupe de personnes et mit sa vision en mouvement. Elle demanda aux frères Mayo eux-mêmes de recommander un médecin digne de diriger son hôpital. Ils lui envoyèrent le Dr Harold Foss, qui exerçait sur les rives gelées de la rivière Kiwalik à Candle, en Alaska. Elle le convainquit de venir en Pennsylvanie. La pierre angulaire fut posée en 1913. Lorsque le George F. Geisinger Memorial Hospital ouvrit le 12 septembre 1915, une épidémie de fièvre typhoïde avait traversé Danville deux semaines plus tôt, et son hôpital sauvait déjà des vies.",
+      mottoIntro: "Sa devise pendant la construction était inébranlable :",
+      motto: "\"Faites bien mon hôpital. Faites-en le meilleur.\"",
+      service:
+        "Elle n'était pas seulement une bienfaitrice qui signait des chèques. Elle rendait visite aux patients et apportait des fleurs de son propre jardin. À Noël, elle distribuait des paniers de fruits dans toute la communauté. Pendant la Première Guerre mondiale, elle se porta volontaire pour soigner les soldats blessés et contacta personnellement des dirigeants nationaux afin d'offrir les services de son hôpital. Les photographies de la cérémonie de la pierre angulaire la montrent la tête rejetée en arrière, riant - une femme de chaleur, d'humour et de détermination de fer.",
+      legacy:
+        "Lorsque Abigail Geisinger mourut le 8 juillet 1921, à l'âge de 94 ans, elle laissa plus d'un million de dollars pour que son hôpital perdure. Elle repose dans un cimetière qui surplombe l'institution qu'elle a bâtie - sentinelle silencieuse veillant sur le plus grand accomplissement de sa vie, passé de 44 lits et 13 acres à un système de santé couvrant dix hôpitaux, formant des générations de médecins et touchant des millions de vies.",
+    },
+    why: {
+      title: "Pourquoi nous l'avons appelée Abby",
+      problem:
+        "Abigail Geisinger a vu que les soins de santé étaient trop fragmentés, trop inaccessibles et trop difficiles pour les personnes qui en avaient le plus besoin. Elle n'a pas accepté que les choses doivent rester ainsi. Elle a construit quelque chose de meilleur.",
+      parthenon:
+        "Parthenon existe pour la même raison. L'écosystème OHDSI - Atlas, WebAPI, Achilles et une douzaine d'autres outils - est puissant mais fragmenté. Les chercheurs passent plus de temps à se battre avec l'outillage qu'à répondre aux questions cliniques. Parthenon rassemble tout sous un même toit, comme Abigail a apporté la médecine moderne à une communauté qui n'en disposait pas.",
+      abbyPrefix:
+        "Abby, notre assistante IA, porte l'esprit de celle dont elle tient le nom : elle aide les chercheurs à décrire des cohortes en langage clair, relie les concepts entre vocabulaires et rend le complexe accessible. C'est notre modeste hommage à une femme qui a regardé un problème impossible et a simplement dit :",
+      abbyQuote: "\"Je vais régler cela.\"",
+    },
+    footer: {
+      dedication:
+        "Dédié avec admiration à la mémoire d'Abigail A. Geisinger (1827-1921)",
+      founder:
+        "Fondatrice du Geisinger Medical Center - Danville, Pennsylvanie",
+    },
+  },
 });
 
 const deAbbyLayout: MessageTree = mergeMessageTrees(enAbbyLayout, {
@@ -3886,6 +3935,47 @@ const deAbbyLayout: MessageTree = mergeMessageTrees(enAbbyLayout, {
       daysAgo: "vor {{count}} Tg.",
     },
   },
+  about: {
+    title: "Über Abby",
+    images: {
+      abbyAlt: "Abby - Parthenon-KI-Assistentin",
+      abbyCaption: "Abby - KI-Forschungsassistentin",
+    },
+    subtitle: "Parthenons KI-Forschungsassistentin",
+    dedication: {
+      title: "Zum Gedenken an Abigail Geisinger",
+      namedPrefix: "Abby ist benannt zu Ehren von",
+      namedName: "Abigail A. Geisinger",
+      namedSuffix:
+        "(1827-1921), der wegweisenden Philanthropin, die begründete, was zu einem der innovativsten Gesundheitssysteme der USA werden sollte.",
+      age85:
+        "Mit 85 Jahren, verwitwet und kinderlos, blickte Abigail auf ihre ländliche Gemeinde Danville in Pennsylvania und sah ein Problem, das niemand sonst löste: Es gab kein Krankenhaus. Erkrankte Menschen mussten mit der Kutsche - später mit ihrem eigenen Hupmobile - in die nächstgelegene Einrichtung in Sunbury gebracht werden. Sie beschloss, das zu ändern.",
+      founding:
+        "1912 versammelte sie eine Gruppe von Menschen und setzte ihre Vision in Bewegung. Sie bat die Mayo-Brüder selbst, einen Arzt zu empfehlen, der würdig war, ihr Krankenhaus zu leiten. Sie schickten ihr Dr. Harold Foss, der an den gefrorenen Ufern des Kiwalik River in Candle, Alaska, praktizierte. Sie überzeugte ihn, nach Pennsylvania zu kommen. Der Grundstein wurde 1913 gelegt. Als das George F. Geisinger Memorial Hospital am 12. September 1915 eröffnet wurde, war erst zwei Wochen zuvor eine Typhusepidemie durch Danville gezogen - und ihr Krankenhaus rettete bereits Leben.",
+      mottoIntro: "Ihr Leitsatz während des Baus war unerschütterlich:",
+      motto: "\"Macht mein Krankenhaus richtig. Macht es zum besten.\"",
+      service:
+        "Sie war nicht nur eine Wohltäterin, die Schecks ausstellte. Sie besuchte Patienten und brachte Blumen aus ihrem eigenen Garten. Zu Weihnachten verteilte sie Obstkörbe in der ganzen Gemeinde. Während des Ersten Weltkriegs meldete sie sich freiwillig zur Pflege verwundeter Soldaten und wandte sich persönlich an nationale Führungspersönlichkeiten, um die Dienste ihres Krankenhauses anzubieten. Fotos von der Grundsteinlegung zeigen sie mit zurückgeworfenem Kopf lachend - eine Frau voller Wärme, Humor und eiserner Entschlossenheit.",
+      legacy:
+        "Als Abigail Geisinger am 8. Juli 1921 im Alter von 94 Jahren starb, hinterließ sie mehr als eine Million Dollar, damit ihr Krankenhaus Bestand haben würde. Sie ist auf einem Friedhof begraben, der auf die Institution blickt, die sie aufgebaut hat - eine stille Wächterin über die größte Leistung ihres Lebens, die von 44 Betten und 13 Acres zu einem Gesundheitssystem mit zehn Krankenhäusern wuchs, Generationen von Ärztinnen und Ärzten ausbildete und Millionen von Leben berührte.",
+    },
+    why: {
+      title: "Warum wir sie Abby genannt haben",
+      problem:
+        "Abigail Geisinger sah, dass das Gesundheitswesen zu fragmentiert, zu unzugänglich und für die Menschen, die es am dringendsten brauchten, zu schwierig war. Sie akzeptierte nicht, dass es so bleiben musste. Sie baute etwas Besseres.",
+      parthenon:
+        "Parthenon existiert aus demselben Grund. Das OHDSI-Ökosystem - Atlas, WebAPI, Achilles und ein Dutzend weiterer Werkzeuge - ist mächtig, aber fragmentiert. Forschende verbringen mehr Zeit damit, mit Werkzeugen zu ringen, als klinische Fragen zu beantworten. Parthenon bringt alles unter ein Dach, so wie Abigail moderne Medizin in eine Gemeinde brachte, die keine hatte.",
+      abbyPrefix:
+        "Abby, unsere KI-Assistentin, trägt den Geist ihrer Namensgeberin: Sie hilft Forschenden, Kohorten in klarer Sprache zu beschreiben, Konzepte über Vokabulare hinweg abzubilden und Komplexes zugänglich zu machen. Sie ist unser kleines Tribut an eine Frau, die ein unmögliches Problem ansah und schlicht sagte:",
+      abbyQuote: "\"Ich werde das in Ordnung bringen.\"",
+    },
+    footer: {
+      dedication:
+        "Mit Bewunderung dem Andenken an Abigail A. Geisinger (1827-1921) gewidmet",
+      founder:
+        "Gründerin des Geisinger Medical Center - Danville, Pennsylvania",
+    },
+  },
 });
 
 const ptAbbyLayout: MessageTree = mergeMessageTrees(enAbbyLayout, {
@@ -3901,13 +3991,54 @@ const ptAbbyLayout: MessageTree = mergeMessageTrees(enAbbyLayout, {
     suggestedPrompts: "Sugestões",
     sendMessage: "Enviar mensagem",
     untitledConversation: "Sem título",
-    messagesAbbrev: "msgs",
+    messagesAbbrev: "mens.",
     inputPlaceholder: "Pergunte à Abby sobre {{context}}...",
     time: {
       justNow: "agora mesmo",
       minutesAgo: "há {{count}} min",
       hoursAgo: "há {{count}} h",
       daysAgo: "há {{count}} d",
+    },
+  },
+  about: {
+    title: "Sobre a Abby",
+    images: {
+      abbyAlt: "Abby - assistente de IA do Parthenon",
+      abbyCaption: "Abby - assistente de pesquisa com IA",
+    },
+    subtitle: "Assistente de pesquisa com IA do Parthenon",
+    dedication: {
+      title: "Em memória de Abigail Geisinger",
+      namedPrefix: "Abby recebeu esse nome em homenagem a",
+      namedName: "Abigail A. Geisinger",
+      namedSuffix:
+        "(1827-1921), a filantropa pioneira que fundou o que viria a se tornar um dos sistemas de saúde mais inovadores dos Estados Unidos.",
+      age85:
+        "Aos 85 anos, viúva e sem filhos, Abigail olhou para sua comunidade rural de Danville, na Pensilvânia, e viu um problema que ninguém estava resolvendo: não havia hospital. As pessoas que adoeciam precisavam ser transportadas de carruagem - e mais tarde em seu próprio Hupmobile - até a unidade mais próxima em Sunbury. Ela decidiu que iria resolver isso.",
+      founding:
+        "Em 1912, ela reuniu um grupo de pessoas e colocou sua visão em movimento. Pediu aos próprios irmãos Mayo que recomendassem um médico digno de liderar seu hospital. Eles enviaram o Dr. Harold Foss, que praticava medicina nas margens congeladas do rio Kiwalik, em Candle, no Alasca. Ela o convenceu a vir para a Pensilvânia. A pedra fundamental foi lançada em 1913. Quando o George F. Geisinger Memorial Hospital abriu em 12 de setembro de 1915, uma epidemia de febre tifóide havia varrido Danville apenas duas semanas antes - e seu hospital já estava salvando vidas.",
+      mottoIntro: "Seu lema durante a construção era inabalável:",
+      motto: "\"Façam meu hospital direito. Façam dele o melhor.\"",
+      service:
+        "Ela não era apenas uma benfeitora que assinava cheques. Visitava pacientes e levava flores de seu próprio jardim. No Natal, distribuía cestas de frutas por toda a comunidade. Durante a Primeira Guerra Mundial, voluntariou-se para cuidar de soldados feridos e contatou pessoalmente líderes nacionais para oferecer os serviços de seu hospital. Fotografias da cerimônia da pedra fundamental a mostram com a cabeça jogada para trás, rindo - uma mulher de calor humano, humor e determinação férrea.",
+      legacy:
+        "Quando Abigail Geisinger morreu em 8 de julho de 1921, aos 94 anos, deixou mais de um milhão de dólares para garantir que seu hospital perdurasse. Ela está sepultada em um cemitério com vista para a instituição que construiu - uma sentinela silenciosa observando a maior realização de sua vida crescer de 44 leitos e 13 acres para um sistema de saúde com dez hospitais, formando gerações de médicos e tocando milhões de vidas.",
+    },
+    why: {
+      title: "Por que a chamamos de Abby",
+      problem:
+        "Abigail Geisinger viu que a saúde era fragmentada demais, inacessível demais e difícil demais para as pessoas que mais precisavam dela. Ela não aceitou que fosse assim. Construiu algo melhor.",
+      parthenon:
+        "O Parthenon existe pelo mesmo motivo. O ecossistema OHDSI - Atlas, WebAPI, Achilles e uma dúzia de outras ferramentas - é poderoso, mas fragmentado. Pesquisadores passam mais tempo lutando com ferramentas do que respondendo perguntas clínicas. O Parthenon reúne tudo sob o mesmo teto, assim como Abigail levou a medicina moderna a uma comunidade que não a tinha.",
+      abbyPrefix:
+        "Abby, nossa assistente de IA, carrega o espírito de sua homônima: ajuda pesquisadores a descrever coortes em linguagem clara, mapeia conceitos entre vocabulários e trabalha para tornar o complexo acessível. É nossa pequena homenagem a uma mulher que olhou para um problema impossível e disse, simplesmente:",
+      abbyQuote: "\"Eu vou resolver isso.\"",
+    },
+    footer: {
+      dedication:
+        "Dedicado com admiração à memória de Abigail A. Geisinger (1827-1921)",
+      founder:
+        "Fundadora do Geisinger Medical Center - Danville, Pensilvânia",
     },
   },
 });
