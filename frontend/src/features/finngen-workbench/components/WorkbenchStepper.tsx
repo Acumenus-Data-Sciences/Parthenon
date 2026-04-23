@@ -1,5 +1,14 @@
 // frontend/src/features/finngen-workbench/components/WorkbenchStepper.tsx
-import { Check, ChevronRight } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  ChevronRight,
+  GitMerge,
+  Magnet,
+  Save,
+  Upload,
+  type LucideIcon,
+} from "lucide-react";
 import { WORKBENCH_STEPS, type WorkbenchStepKey } from "../lib/workbenchSteps";
 
 interface WorkbenchStepperProps {
@@ -8,12 +17,21 @@ interface WorkbenchStepperProps {
   onStepChange: (step: WorkbenchStepKey) => void;
 }
 
+const STEP_ICONS: Record<WorkbenchStepKey, LucideIcon> = {
+  "import-cohorts": Upload,
+  operate: GitMerge,
+  match: Magnet,
+  materialize: Save,
+  handoff: ArrowRight,
+};
+
 export function WorkbenchStepper({ current, completed, onStepChange }: WorkbenchStepperProps) {
   return (
     <ol className="flex flex-wrap items-center gap-1 rounded-lg border border-border-default bg-surface-raised p-1.5">
       {WORKBENCH_STEPS.map((step, idx) => {
         const isCurrent = step.key === current;
         const isDone = completed.has(step.key);
+        const Icon = STEP_ICONS[step.key];
         return (
           <li key={step.key} className="flex items-center">
             <button
@@ -29,7 +47,7 @@ export function WorkbenchStepper({ current, completed, onStepChange }: Workbench
               ].join(" ")}
             >
               <span className="flex h-4 w-4 items-center justify-center rounded-full border border-current text-[10px]">
-                {isDone ? <Check size={10} /> : idx + 1}
+                {isDone ? <Check size={10} /> : <Icon size={10} />}
               </span>
               <span>{step.label}</span>
             </button>
