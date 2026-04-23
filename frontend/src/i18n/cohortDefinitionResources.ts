@@ -1810,12 +1810,379 @@ const ptCohortDefinitionsPass2: MessageTree = mergeMessageTrees(
   },
 );
 
+const frCohortDefinitionsPass3: MessageTree = mergeMessageTrees(
+  frCohortDefinitionsPass2,
+  {
+    cohortDefinitions: {
+      auto: {
+        "95Ci_4009a0": "IC a 95 %",
+        "andDo_c36305": "et faire",
+        "cardiovascular_59ea4b": "Cardiovasculaire",
+        "codeset_3105b8": "Jeu de codes no",
+        "conceptSet_7e97e2": "Ensemble de concepts no",
+        "conceptsUsedInTheCohortDefinitionNotIn_29b91c":
+          "Concepts utilises dans la definition de cohorte absents de la hierarchie standard",
+        "countBasedValidationUsesAdjudicatedReferenceLabelsAnd_29f035":
+          "La validation basee sur le comptage utilise des etiquettes de reference adjudiques et conserve les resultats des metriques PheValuator pour examen.",
+        "covariate_51b9fe": "Covariable",
+        "createAReviewSessionSampleCohortMembersAnd_a0f199":
+          "Creez une session de revue, echantillonnez des membres et non-membres de la cohorte, annotez les dossiers, puis calculez la VPP, la sensibilite, la specificite, la VPN, la prevalence et le score F1 a partir des etiquettes.",
+        "describeTheClinicalContextAndPurposeOfThis_ae81cf":
+          "Decrivez le contexte clinique et l'objectif de cette cohorte...",
+        "distributionOfIndexEventSourceConcepts_5f7a15":
+          "Distribution des concepts source de l'evenement index",
+        "filterByAnyPreComputedClinicalRiskScores_b44e0c":
+          "Filtrer selon des scores de risque clinique precalcules ?",
+        "filterCohortByImagingCharacteristicsModalityAnatomyQuantitative_08d6e7":
+          "Filtrer la cohorte selon les caracteristiques d'imagerie : modalite, anatomie, variables radiomiques quantitatives, etiquettes de classification IA ou dose de radiation.",
+        "filterCohortByMolecularFeaturesGeneMutationsTmb_709795":
+          "Filtrer la cohorte selon les caracteristiques moleculaires : mutations geniques, TMB, statut MSI, fusions geniques ou classe de pathogenicite ClinVar.",
+        "filterCohortByPreComputedRiskScoreValues_9f3c51":
+          "Filtrer la cohorte selon des valeurs ou niveaux de score de risque precalcules issus des analyses de scores de risque.",
+        "filters_602663": "Filtres :",
+        "fineTuneWithTheFullExpressionEditorSupports_85623e":
+          "Affinez avec l'editeur d'expression complet. Il prend en charge la logique booleenne imbriquee, les fenetres temporelles personnalisees et toutes les fonctionnalites avancees.",
+        "firstOnly_64843c": "Premier seulement",
+        "flatList_53e45a": "Liste a plat",
+        "followAsLongAsThePatientContinuesA_e5181f":
+          "Suivez le patient tant qu'il poursuit le medicament. L'appartenance prend fin lorsque l'ere medicamenteuse se termine.",
+        "followedUntil_a6f473": "suivi jusqu'a",
+        "followFor_4770b7": "Suivre pendant",
+        "followForExactlyNDaysFromTheEntry_347a18":
+          "Suivre pendant exactement N jours a partir de l'evenement d'entree.",
+        "followUntilThePatientLeavesTheDatabaseEnd_db8f12":
+          "Suivre le patient jusqu'a sa sortie de la base de donnees (fin de couverture, transfert, etc.). C'est le choix le plus courant.",
+        "fromBundle_0cfddc": "Depuis le bundle",
+        "gapDays_070b3a": "Jours d'ecart",
+        "gapTolerance_71ea53": "Tolerance d'ecart :",
+        "general_0db377": "General",
+        "generateAReadOnlyLinkToShareThis_4035e3":
+          "Generez un lien en lecture seule pour partager cette definition de cohorte avec des collaborateurs. Aucun compte n'est requis pour la consulter.",
+        "howMuchMedicalHistoryMustAPatientHave_9051a5":
+          "Quelle quantite d'historique medical le patient doit-il avoir avant et apres son evenement d'entree ?",
+        "ifAPatientHasMultipleQualifyingEventsWhich_4fe49a":
+          "Si un patient a plusieurs evenements admissibles, lequel definit son entree dans la cohorte ?",
+        "incidenceRate_c7654d": "Taux d'incidence",
+        "indexEventBreakdown_32f2f3": "Repartition des evenements index",
+        "limitTo_32fec7": "Limiter a",
+        "membersInView_e7fcb5": "membres dans la vue",
+        "metricsComplete_ff7dd3": "metriques terminees",
+        "nativeReviewQueue_1d8fea": "File de revue native",
+        "noAdditionalInclusionCriteria_d3fe5a":
+          "Aucun critere d'inclusion supplementaire",
+        "noAttritionData_e8dffe": "Aucune donnee d'attrition",
+        "noCensoringCriteriaDefined_ffb2fc":
+          "Aucun critere de censure defini.",
+        "noChartsSampledYet_d90fef": "Aucun dossier echantillonne pour l'instant.",
+        "noConceptSetsYetTheyWillBeCreated_2e46e4":
+          "Aucun ensemble de concepts pour l'instant. Ils seront crees lors de l'ajout des criteres.",
+        "noCriteriaInThisGroupAddRulesOr_ab37eb":
+          "Aucun critere dans ce groupe. Ajoutez des regles ou des groupes imbriques ci-dessous.",
+        "noDataSourcesConfigured_2559a2":
+          "Aucune source de donnees configuree.",
+        "noDataSourcesConfiguredAddOneInAdmin_198e92":
+          "Aucune source de donnees configuree. Ajoutez-en une dans Admin &rarr; Sources.",
+        "noGenerations_328f09": "Aucune generation",
+        "nonMembers_575227": "Non-membres",
+        "nonMembersInView_d2e29e": "non-membres dans la vue",
+        "noNotesReturned_d3201d": "Aucune note renvoyee.",
+        "noOrphanConceptsFound_9eac53": "Aucun concept orphelin trouve.",
+        "noPhenotypeValidationsHaveBeenRunForThis_463c58":
+          "Aucune validation de phenotype n'a encore ete executee pour cette cohorte.",
+        "noPolygenicRiskScoresComputedForThisCohort_98c512":
+          "Aucun score de risque polygenique n'a encore ete calcule pour cette cohorte.",
+        "noRecentEventsReturned_482741": "Aucun evenement recent renvoye.",
+        "noRiskScoreCriteriaAddedYet_5449d4":
+          "Aucun critere de score de risque n'a encore ete ajoute.",
+        "noSpecializedCriteriaNeeded_2e6136":
+          "Aucun critere specialise necessaire",
+        "noSqlGeneratedEnsureTheCohortDefinitionIs_bc701a":
+          "Aucun SQL genere. Assurez-vous d'abord que la definition de cohorte est enregistree.",
+        "noTemporalRestriction_bc0132": "Aucune restriction temporelle",
+        "pairwiseOverlapMatrix_442c79":
+          "Matrice de chevauchement par paires",
+        "patientContextCouldNotBeLoaded_f522e4":
+          "Le contexte du patient n'a pas pu etre charge.",
+        "phenotypeValidation_65de7c": "Validation du phenotype",
+        "promotionGovernance_f37ea1": "Gouvernance de promotion",
+        "promotionHistory_43e62c": "Historique de promotion",
+        "requiresCompletedReviewQualityAndCompletedPhevaluatorMetrics_02e8bd":
+          "Necessite une revue terminee de la qualite et des metriques PheValuator completes.",
+        "reviewLifecycle_5dead3": "Cycle de vie de la revue",
+        "runAgainst_8bfd59": "Executer sur :",
+        "running_5bda81": "En cours",
+        "scoreValue_990b82": "Valeur du score",
+        "searchForTheDiagnosesProceduresMedicationsOrOther_4fd129":
+          "Recherchez les diagnostics, procedures, medicaments ou autres evenements qui definissent l'entree d'un patient dans votre cohorte. Vous pouvez ajouter plusieurs evenements d'entree ; un patient correspondant",
+        "seeAttritionChartPatientBreakdownByAgeGender_c8e8ac":
+          "Consultez le graphique d'attrition, la repartition des patients par age/sexe et les statistiques detaillees de generation.",
+        "selectADataSourceAboveToViewCohort_06b33a":
+          "Selectionnez une source de donnees ci-dessus pour voir les membres de la cohorte",
+        "selectADataSourceAnd24Cohorts_d2c45a":
+          "Selectionnez une source de donnees et 2 a 4 cohortes pour comparer le chevauchement des membres",
+        "selectADataSourceToComputeOverlap_e628c8":
+          "Selectionnez une source de donnees pour calculer le chevauchement",
+        "selectADiseaseBundleToAutoGenerateA_bf7d11":
+          "Selectionnez un bundle pathologique pour generer automatiquement une definition de cohorte avec des criteres de condition et des regles d'inclusion de mesures de qualite.",
+        "showing_b4e610": "Affichage",
+      },
+    },
+  },
+);
+
+const deCohortDefinitionsPass3: MessageTree = mergeMessageTrees(
+  deCohortDefinitionsPass2,
+  {
+    cohortDefinitions: {
+      auto: {
+        "95Ci_4009a0": "95%-KI",
+        "andDo_c36305": "und ausfuhren",
+        "cardiovascular_59ea4b": "Kardiovaskular",
+        "codeset_3105b8": "Codeset Nr.",
+        "conceptSet_7e97e2": "Konzeptset Nr.",
+        "conceptsUsedInTheCohortDefinitionNotIn_29b91c":
+          "In der Kohortendefinition verwendete Konzepte ausserhalb der Standardhierarchie",
+        "countBasedValidationUsesAdjudicatedReferenceLabelsAnd_29f035":
+          "Die zaehlungsbasierte Validierung verwendet adjudizierte Referenzlabels und speichert die PheValuator-Metriken zur Pruefung.",
+        "covariate_51b9fe": "Kovariate",
+        "createAReviewSessionSampleCohortMembersAnd_a0f199":
+          "Erstellen Sie eine Review-Sitzung, ziehen Sie Stichproben von Kohortenmitgliedern und Nicht-Mitgliedern, labeln Sie die Unterlagen und berechnen Sie anschliessend PPV, Sensitivitaet, Spezifitaet, NPV, Praevalenz und F1 aus den Labels.",
+        "describeTheClinicalContextAndPurposeOfThis_ae81cf":
+          "Beschreiben Sie den klinischen Kontext und den Zweck dieser Kohorte...",
+        "distributionOfIndexEventSourceConcepts_5f7a15":
+          "Verteilung der Quellkonzepte des Indexereignisses",
+        "filterByAnyPreComputedClinicalRiskScores_b44e0c":
+          "Nach vorkalkulierten klinischen Risikoscores filtern?",
+        "filterCohortByImagingCharacteristicsModalityAnatomyQuantitative_08d6e7":
+          "Kohorte nach Bildgebungsmerkmalen filtern: Modalitaet, Anatomie, quantitative Radiomics-Merkmale, KI-Klassifikationslabels oder Strahlendosis.",
+        "filterCohortByMolecularFeaturesGeneMutationsTmb_709795":
+          "Kohorte nach molekularen Merkmalen filtern: Genmutationen, TMB, MSI-Status, Genfusionen oder ClinVar-Pathogenitaetsklasse.",
+        "filterCohortByPreComputedRiskScoreValues_9f3c51":
+          "Kohorte nach vorkalkulierten Risikoscore-Werten oder -Stufen aus Risikoscore-Analysen filtern.",
+        "filters_602663": "Filter:",
+        "fineTuneWithTheFullExpressionEditorSupports_85623e":
+          "Feinabstimmung mit dem vollstaendigen Ausdruckseditor. Er unterstuetzt verschachtelte boolesche Logik, benutzerdefinierte Zeitfenster und alle erweiterten Funktionen.",
+        "firstOnly_64843c": "Nur das erste",
+        "flatList_53e45a": "Flache Liste",
+        "followAsLongAsThePatientContinuesA_e5181f":
+          "Nachbeobachtung solange der Patient das Arzneimittel weiter einnimmt. Die Mitgliedschaft endet mit dem Ende der Arzneimittelepoche.",
+        "followedUntil_a6f473": "nachbeobachtet bis",
+        "followFor_4770b7": "Nachbeobachten fur",
+        "followForExactlyNDaysFromTheEntry_347a18":
+          "Genau N Tage ab dem Eintrittsereignis nachbeobachten.",
+        "followUntilThePatientLeavesTheDatabaseEnd_db8f12":
+          "Nachbeobachten, bis der Patient die Datenbank verlaesst (Ende der Versicherung, Transfer usw.). Haufigste Wahl.",
+        "fromBundle_0cfddc": "Aus Bundle",
+        "gapDays_070b3a": "Lueckentage",
+        "gapTolerance_71ea53": "Lueckentoleranz:",
+        "general_0db377": "Allgemein",
+        "generateAReadOnlyLinkToShareThis_4035e3":
+          "Erzeugen Sie einen schreibgeschuetzten Link, um diese Kohortendefinition mit Mitarbeitenden zu teilen. Zur Ansicht ist kein Konto erforderlich.",
+        "howMuchMedicalHistoryMustAPatientHave_9051a5":
+          "Wie viel Krankengeschichte muss ein Patient vor und nach seinem Eintrittsereignis aufweisen?",
+        "ifAPatientHasMultipleQualifyingEventsWhich_4fe49a":
+          "Wenn ein Patient mehrere qualifizierende Ereignisse hat, welches definiert den Kohorteneintritt?",
+        "incidenceRate_c7654d": "Inzidenzrate",
+        "indexEventBreakdown_32f2f3": "Aufschluesselung des Indexereignisses",
+        "limitTo_32fec7": "Begrenzen auf",
+        "membersInView_e7fcb5": "Mitglieder in der Ansicht",
+        "metricsComplete_ff7dd3": "Metriken abgeschlossen",
+        "nativeReviewQueue_1d8fea": "Native Review-Warteschlange",
+        "noAdditionalInclusionCriteria_d3fe5a":
+          "Keine zusaetzlichen Einschlusskriterien",
+        "noAttritionData_e8dffe": "Keine Attritionsdaten",
+        "noCensoringCriteriaDefined_ffb2fc":
+          "Keine Zensierungskriterien definiert.",
+        "noChartsSampledYet_d90fef": "Noch keine Akten stichprobenartig gezogen.",
+        "noConceptSetsYetTheyWillBeCreated_2e46e4":
+          "Noch keine Konzeptsets. Sie werden erstellt, wenn Sie Kriterien hinzufugen.",
+        "noCriteriaInThisGroupAddRulesOr_ab37eb":
+          "Keine Kriterien in dieser Gruppe. Fugen Sie unten Regeln oder verschachtelte Gruppen hinzu.",
+        "noDataSourcesConfigured_2559a2":
+          "Keine Datenquellen konfiguriert.",
+        "noDataSourcesConfiguredAddOneInAdmin_198e92":
+          "Keine Datenquellen konfiguriert. Fugen Sie eine unter Admin &rarr; Sources hinzu.",
+        "noGenerations_328f09": "Keine Generationen",
+        "nonMembers_575227": "Nicht-Mitglieder",
+        "nonMembersInView_d2e29e": "Nicht-Mitglieder in der Ansicht",
+        "noNotesReturned_d3201d": "Keine Notizen zurueckgegeben.",
+        "noOrphanConceptsFound_9eac53":
+          "Keine verwaisten Konzepte gefunden.",
+        "noPhenotypeValidationsHaveBeenRunForThis_463c58":
+          "Fur diese Kohorte wurden noch keine Phaenotypvalidierungen ausgefuehrt.",
+        "noPolygenicRiskScoresComputedForThisCohort_98c512":
+          "Fur diese Kohorte wurden noch keine polygenen Risikoscores berechnet.",
+        "noRecentEventsReturned_482741":
+          "Keine aktuellen Ereignisse zurueckgegeben.",
+        "noRiskScoreCriteriaAddedYet_5449d4":
+          "Noch keine Risikoscore-Kriterien hinzugefugt.",
+        "noSpecializedCriteriaNeeded_2e6136":
+          "Keine spezialisierten Kriterien erforderlich",
+        "noSqlGeneratedEnsureTheCohortDefinitionIs_bc701a":
+          "Kein SQL generiert. Stellen Sie sicher, dass die Kohortendefinition zuerst gespeichert ist.",
+        "noTemporalRestriction_bc0132":
+          "Keine zeitliche Einschraenkung",
+        "pairwiseOverlapMatrix_442c79":
+          "Matrix des paarweisen Ueberlapps",
+        "patientContextCouldNotBeLoaded_f522e4":
+          "Der Patientenkontext konnte nicht geladen werden.",
+        "phenotypeValidation_65de7c": "Phaenotypvalidierung",
+        "promotionGovernance_f37ea1": "Governance der Promotion",
+        "promotionHistory_43e62c": "Promotionsverlauf",
+        "requiresCompletedReviewQualityAndCompletedPhevaluatorMetrics_02e8bd":
+          "Erfordert abgeschlossene Review-Qualitaet und abgeschlossene PheValuator-Metriken.",
+        "reviewLifecycle_5dead3": "Lebenszyklus des Reviews",
+        "runAgainst_8bfd59": "Ausfuhren gegen:",
+        "running_5bda81": "Lauft",
+        "scoreValue_990b82": "Score-Wert",
+        "searchForTheDiagnosesProceduresMedicationsOrOther_4fd129":
+          "Suchen Sie nach Diagnosen, Prozeduren, Medikamenten oder anderen Ereignissen, die definieren, wann ein Patient in Ihre Kohorte eintritt. Sie konnen mehrere Eintrittsereignisse hinzufugen - ein passender Patient",
+        "seeAttritionChartPatientBreakdownByAgeGender_c8e8ac":
+          "Sehen Sie sich das Attritionsdiagramm, die Patientenaufteilung nach Alter/Geschlecht und detaillierte Generierungsstatistiken an.",
+        "selectADataSourceAboveToViewCohort_06b33a":
+          "Wahlen Sie oben eine Datenquelle aus, um Kohortenmitglieder anzuzeigen",
+        "selectADataSourceAnd24Cohorts_d2c45a":
+          "Wahlen Sie eine Datenquelle und 2 bis 4 Kohorten aus, um den Ueberlapp der Mitglieder zu vergleichen",
+        "selectADataSourceToComputeOverlap_e628c8":
+          "Wahlen Sie eine Datenquelle aus, um den Ueberlapp zu berechnen",
+        "selectADiseaseBundleToAutoGenerateA_bf7d11":
+          "Wahlen Sie ein Krankheitsbundle aus, um automatisch eine Kohortendefinition mit Zustandskriterien und Einschlussregeln fur Qualitaetsmasse zu erzeugen.",
+        "showing_b4e610": "Angezeigt",
+      },
+    },
+  },
+);
+
+const ptCohortDefinitionsPass3: MessageTree = mergeMessageTrees(
+  ptCohortDefinitionsPass2,
+  {
+    cohortDefinitions: {
+      auto: {
+        "95Ci_4009a0": "IC de 95%",
+        "andDo_c36305": "e fazer",
+        "cardiovascular_59ea4b": "Cardiovascular",
+        "codeset_3105b8": "Conjunto de codigos no",
+        "conceptSet_7e97e2": "Conjunto de conceitos no",
+        "conceptsUsedInTheCohortDefinitionNotIn_29b91c":
+          "Conceitos usados na definicao da coorte fora da hierarquia padrao",
+        "countBasedValidationUsesAdjudicatedReferenceLabelsAnd_29f035":
+          "A validacao baseada em contagem usa rotulos de referencia adjudicados e persiste a saida das metricas do PheValuator para revisao.",
+        "covariate_51b9fe": "Covariavel",
+        "createAReviewSessionSampleCohortMembersAnd_a0f199":
+          "Crie uma sessao de revisao, amostre membros e nao membros da coorte, rotule os prontuarios e depois calcule VPP, sensibilidade, especificidade, VPN, prevalencia e F1 a partir dos rotulos.",
+        "describeTheClinicalContextAndPurposeOfThis_ae81cf":
+          "Descreva o contexto clinico e o objetivo desta coorte...",
+        "distributionOfIndexEventSourceConcepts_5f7a15":
+          "Distribuicao dos conceitos-fonte do evento indice",
+        "filterByAnyPreComputedClinicalRiskScores_b44e0c":
+          "Filtrar por algum score clinico de risco precomputado?",
+        "filterCohortByImagingCharacteristicsModalityAnatomyQuantitative_08d6e7":
+          "Filtre a coorte por caracteristicas de imagem: modalidade, anatomia, atributos radiomicos quantitativos, rotulos de classificacao por IA ou dose de radiacao.",
+        "filterCohortByMolecularFeaturesGeneMutationsTmb_709795":
+          "Filtre a coorte por caracteristicas moleculares: mutacoes genicas, TMB, status MSI, fusoes genicas ou classe de patogenicidade ClinVar.",
+        "filterCohortByPreComputedRiskScoreValues_9f3c51":
+          "Filtre a coorte por valores ou niveis de score de risco precomputados das Analises de Score de Risco.",
+        "filters_602663": "Filtros:",
+        "fineTuneWithTheFullExpressionEditorSupports_85623e":
+          "Refine com o editor completo de expressoes. Ele oferece suporte a logica booleana aninhada, janelas temporais personalizadas e todos os recursos avancados.",
+        "firstOnly_64843c": "Somente o primeiro",
+        "flatList_53e45a": "Lista simples",
+        "followAsLongAsThePatientContinuesA_e5181f":
+          "Acompanhe enquanto o paciente continuar usando o medicamento. A participacao termina quando a era do medicamento termina.",
+        "followedUntil_a6f473": "acompanhado ate",
+        "followFor_4770b7": "Acompanhar por",
+        "followForExactlyNDaysFromTheEntry_347a18":
+          "Acompanhar por exatamente N dias a partir do evento de entrada.",
+        "followUntilThePatientLeavesTheDatabaseEnd_db8f12":
+          "Acompanhe ate o paciente sair da base de dados (fim da cobertura, transferencia etc.). E a escolha mais comum.",
+        "fromBundle_0cfddc": "Do bundle",
+        "gapDays_070b3a": "Dias de lacuna",
+        "gapTolerance_71ea53": "Tolerancia de lacuna:",
+        "general_0db377": "Geral",
+        "generateAReadOnlyLinkToShareThis_4035e3":
+          "Gere um link somente leitura para compartilhar esta definicao de coorte com colaboradores. Nao e necessario ter conta para visualizar.",
+        "howMuchMedicalHistoryMustAPatientHave_9051a5":
+          "Quanto historico medico o paciente deve ter antes e depois do evento de entrada?",
+        "ifAPatientHasMultipleQualifyingEventsWhich_4fe49a":
+          "Se um paciente tiver varios eventos qualificadores, qual deles define a entrada na coorte?",
+        "incidenceRate_c7654d": "Taxa de incidencia",
+        "indexEventBreakdown_32f2f3":
+          "Detalhamento do evento indice",
+        "limitTo_32fec7": "Limitar a",
+        "membersInView_e7fcb5": "membros em exibicao",
+        "metricsComplete_ff7dd3": "metricas concluidas",
+        "nativeReviewQueue_1d8fea": "Fila de revisao nativa",
+        "noAdditionalInclusionCriteria_d3fe5a":
+          "Nenhum criterio de inclusao adicional",
+        "noAttritionData_e8dffe": "Nenhum dado de atrito",
+        "noCensoringCriteriaDefined_ffb2fc":
+          "Nenhum criterio de censura definido.",
+        "noChartsSampledYet_d90fef":
+          "Nenhum prontuario amostrado ainda.",
+        "noConceptSetsYetTheyWillBeCreated_2e46e4":
+          "Ainda nao ha conjuntos de conceitos. Eles serao criados quando voce adicionar criterios.",
+        "noCriteriaInThisGroupAddRulesOr_ab37eb":
+          "Nao ha criterios neste grupo. Adicione regras ou grupos aninhados abaixo.",
+        "noDataSourcesConfigured_2559a2":
+          "Nenhuma fonte de dados configurada.",
+        "noDataSourcesConfiguredAddOneInAdmin_198e92":
+          "Nenhuma fonte de dados configurada. Adicione uma em Admin &rarr; Sources.",
+        "noGenerations_328f09": "Nenhuma geracao",
+        "nonMembers_575227": "Nao membros",
+        "nonMembersInView_d2e29e": "nao membros em exibicao",
+        "noNotesReturned_d3201d": "Nenhuma nota retornada.",
+        "noOrphanConceptsFound_9eac53":
+          "Nenhum conceito orfao encontrado.",
+        "noPhenotypeValidationsHaveBeenRunForThis_463c58":
+          "Nenhuma validacao de fenotipo foi executada para esta coorte.",
+        "noPolygenicRiskScoresComputedForThisCohort_98c512":
+          "Nenhum score de risco poligenico foi calculado para esta coorte ainda.",
+        "noRecentEventsReturned_482741":
+          "Nenhum evento recente retornado.",
+        "noRiskScoreCriteriaAddedYet_5449d4":
+          "Nenhum criterio de score de risco adicionado ainda.",
+        "noSpecializedCriteriaNeeded_2e6136":
+          "Nenhum criterio especializado necessario",
+        "noSqlGeneratedEnsureTheCohortDefinitionIs_bc701a":
+          "Nenhum SQL gerado. Certifique-se de que a definicao da coorte seja salva primeiro.",
+        "noTemporalRestriction_bc0132": "Nenhuma restricao temporal",
+        "pairwiseOverlapMatrix_442c79":
+          "Matriz de sobreposicao par a par",
+        "patientContextCouldNotBeLoaded_f522e4":
+          "Nao foi possivel carregar o contexto do paciente.",
+        "phenotypeValidation_65de7c": "Validacao de fenotipo",
+        "promotionGovernance_f37ea1": "Governanca de promocao",
+        "promotionHistory_43e62c": "Historico de promocao",
+        "requiresCompletedReviewQualityAndCompletedPhevaluatorMetrics_02e8bd":
+          "Exige qualidade de revisao concluida e metricas do PheValuator concluida.",
+        "reviewLifecycle_5dead3": "Ciclo de vida da revisao",
+        "runAgainst_8bfd59": "Executar em:",
+        "running_5bda81": "Em execucao",
+        "scoreValue_990b82": "Valor do score",
+        "searchForTheDiagnosesProceduresMedicationsOrOther_4fd129":
+          "Procure os diagnosticos, procedimentos, medicamentos ou outros eventos que definem quando um paciente entra na sua coorte. Voce pode adicionar varios eventos de entrada - um paciente correspondente",
+        "seeAttritionChartPatientBreakdownByAgeGender_c8e8ac":
+          "Veja o grafico de atrito, a distribuicao dos pacientes por idade/sexo e as estatisticas detalhadas de geracao.",
+        "selectADataSourceAboveToViewCohort_06b33a":
+          "Selecione uma fonte de dados acima para ver os membros da coorte",
+        "selectADataSourceAnd24Cohorts_d2c45a":
+          "Selecione uma fonte de dados e de 2 a 4 coortes para comparar a sobreposicao de membros",
+        "selectADataSourceToComputeOverlap_e628c8":
+          "Selecione uma fonte de dados para calcular a sobreposicao",
+        "selectADiseaseBundleToAutoGenerateA_bf7d11":
+          "Selecione um bundle de doenca para gerar automaticamente uma definicao de coorte com criterios de condicao e regras de inclusao de medidas de qualidade.",
+        "showing_b4e610": "Mostrando",
+      },
+    },
+  },
+);
+
 export const cohortDefinitionResources: Record<string, MessageTree> = {
   "en-US": enCohortDefinitions,
   "es-ES": mergeMessageTrees(enCohortDefinitions, {}),
-  "fr-FR": frCohortDefinitionsPass2,
-  "de-DE": deCohortDefinitionsPass2,
-  "pt-BR": ptCohortDefinitionsPass2,
+  "fr-FR": frCohortDefinitionsPass3,
+  "de-DE": deCohortDefinitionsPass3,
+  "pt-BR": ptCohortDefinitionsPass3,
   "fi-FI": mergeMessageTrees(enCohortDefinitions, {}),
   "ja-JP": mergeMessageTrees(enCohortDefinitions, {}),
   "zh-Hans": mergeMessageTrees(enCohortDefinitions, {}),

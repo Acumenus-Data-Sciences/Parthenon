@@ -1687,12 +1687,518 @@ const ptAnalysisResourcesPass2: MessageTree = mergeMessageTrees(
   },
 );
 
+const frAnalysisResourcesPass3: MessageTree = mergeMessageTrees(
+  frAnalysisResourcesPass2,
+  {
+    analyses: {
+      auto: {
+        "95CI_4009a0": "IC a 95 %",
+        "95CI_895118": "IC a 95 %",
+        "95CI_bb763f": "IC a 95 % :",
+        "auc95Ci_83c298": "AUC (IC a 95 %)",
+        "avgIR1000PY_7113cb": "Taux d'incidence moy. / 1 000 annees-personnes",
+        "binWithOutcome_59d6c3": "{{range}} : {{count}} avec resultat",
+        "binWithoutOutcome_78b2dc": "{{range}} : {{count}} sans resultat",
+        "brierScore_1462b0": "Score de Brier",
+        "burnIn_0127e6": "Periode d'echauffement",
+        "byAgeGroup_5285a2": "Par groupe d'age",
+        "byCalendarYear_a0dc1d": "Par annee civile",
+        "byGender_5f1407": "Par sexe",
+        "calibratedP_4d09fd": "p calibree",
+        "calibrationIntercept_d140b5": "Intercept de calibration",
+        "calibrationPlot_0c67e3": "Graphique de calibration",
+        "calibrationShift_a18e1d": "Decalage de calibration",
+        "calibrationSlope_5d893f": "Pente de calibration",
+        "calIntercept_d8f28a": "Intercept calib.",
+        "caliper_d25392": "Calibre",
+        "calSlope_e7e6de": "Pente calib.",
+        "cancelled_a149e8": "Annule",
+        "carryoverQuestion_c08c05": "effet residuel ?",
+        "cohortIncidenceCompletedButReturnedNoResults_c0a47d":
+          "CohortIncidence est termine mais n'a renvoye aucun resultat.",
+        "cohortNumber_6a7a5a": "Cohorte no {{id}}",
+        "compValue_f64342": "Comp. : {{value}}{{delta}}",
+        "conditions_229eb0": "Affections",
+        "controlPeriodIrr_1ceb6a": "IRR de la periode temoin",
+        "count_2cdff4": "Effectif",
+        "count_e93f99": "Effectif",
+        "coxProportionalHazards_6939ea": "Risques proportionnels de Cox",
+        "days_15d10b": "jours",
+        "diagnostics_36b64a": "Diagnostics",
+        "directCohortIncidenceResultsAreShown_462cb7":
+          "Les resultats directs de CohortIncidence sont affiches",
+        "divergingBarsShowDirectionOfImbalance_710a7a":
+          "Les barres divergentes montrent le sens du desequilibre",
+        "eMaxValue_398d9f": "E-max : {{value}}",
+        "eraEnd_3c1837": "Fin de l'ere",
+        "eraEventPersonDaysTooltip_9b4085":
+          "{{eraName}} : {{eventCount}} evenements / {{personDays}} jours-personnes{{irrSuffix}}",
+        "eraStart_e33d7b": "Debut de l'ere",
+        "eventsWithinThisWindowAreTreatedAsOccurringSimultaneously_0157e9":
+          "Les evenements dans cette fenetre sont traites comme simultanes.",
+        "evidenceSynth_338179": "Synthese des preuves",
+        "exposure_3efb7d": "exposition",
+        "externalValidationAucForestPlot_82615e":
+          "Forest plot de l'AUC de validation externe",
+        "favorsTargetFavorsComparator_c388e0":
+          "Favorise la cible favorise le comparateur",
+        "fixedEffect_d62bdf": "Effet fixe",
+        "fixedEffectInverseVariance_0b01ce":
+          "Effet fixe a variance inverse",
+        "forestPlotIRPer1000PY_dec35e":
+          "Forest plot (TI pour 1 000 annees-personnes)",
+        "fromUncalibrated_53ad8e": "a partir du non calibre",
+        "groups_8783bc": "Groupes :",
+        "hazardRatio95CI_075de4": "Rapport de risque IC a 95 %",
+        "hazardRatioLogScale_453e55":
+          "Rapport de risque (echelle logarithmique)",
+        "higherIn_b53f61": "Plus eleve dans",
+        "incidenceRateRatios_2b6445": "Rapports de taux d'incidence",
+        "insufficientDiscrimination_36f62c":
+          "Discrimination insuffisante",
+        "insufficientDiscriminationDescription_6dca77":
+          "La discrimination du modele est inferieure au seuil acceptable (AUC < 0,70). Envisagez d'autres strategies d'ingenierie des variables ou d'autres architectures de modele.",
+        "interceptValue_12e39b": "Intercept : {{value}}",
+        "kaplanMeierSurvivalCurves_67f4a1":
+          "Courbes de survie de Kaplan-Meier",
+        "logRelativeRisk_0ba5c9": "Log du risque relatif",
+        "lovePlotShowingCovariateBalanceBeforeAndAfterMatching_4f9e43":
+          "Graphique love montrant l'equilibre des covariables avant et apres appariement",
+        "matchingRatio_f5c5da": "Rapport d'appariement",
+        "measurements_930aeb": "Mesures",
+        "metaAnalysisMethod_c7ddd9": "Methode de meta-analyse",
+        "minDetectableRelativeRisk_9ac488":
+          "Risque relatif minimal detectable",
+        "minimumCellCount_2438c8": "Effectif minimal par cellule",
+        "minimumTimeAtRiskDays_874dcf":
+          "Nombre minimal de jours a risque",
+        "minPriorObservationDays_01e009":
+          "Observation anterieure min. (jours)",
+        "multiLayerPerceptron_5a66b8": "Perceptron multicouche",
+        "naiveBayes_952bdf": "Bayes naif",
+        "naivePeriodDays_a1cb8f": "Jours de periode naive",
+        "needsRecalibration_c5baf6": "Necessite un recalibrage",
+        "needsRecalibrationDescription_8d668d":
+          "Le modele a une discrimination acceptable (AUC >= 0.70), mais la calibration sort de la plage ideale. Envisagez un recalibrage avant le deploiement.",
+        "netBenefit_0d4f0a": "Benefice net",
+        "netBenefitAtThreshold_c18602":
+          "Benefice net au seuil {{value}}",
+        "noExposureEraWithIrrDataAvailable_840df7":
+          "Aucune ere d'exposition avec des donnees d'IRR n'est disponible.",
+        "noPathwayData_841813": "Aucune donnee de parcours",
+        "noResultDataReturnedFromRExecution_fc9b05":
+          "Aucune donnee de resultat n'a ete renvoyee par l'execution R.",
+        "noSignificantDifference_76860e":
+          "Aucune difference significative",
+        "notSignificant_8b05d1": "Non significatif",
+        "observedProbability_d35356": "Probabilite observee",
+        "optionalDescription_d196d2": "Description facultative",
+        "patientCountPerPredictedProbabilityBin_74a916":
+          "Nombre de patients par classe de probabilite predite",
+        "personsAtRisk_70f6a6": "Personnes a risque",
+        "personTimeLabel_efbcb3": "Temps-personne :",
+        "personYears_8c8539": "Annees-personnes",
+        "pooledEstimate_914625": "Estimation poolie",
+        "poorlyCalibrated_68c323": "Mal calibre",
+        "populationLevelResearchStudiesAcross7AnalysisTypes_fd78dc":
+          "Etudes de recherche au niveau populationnel dans 7 types d'analyse",
+        "postCalibration_6f2c0d": "Post-calibration",
+        "postExposure_4fc98c": "Post-exposition",
+        "preCalibrationCount_3e53ff": "Pre-calibration ({{count}})",
+        "precisionRecallCurve_fd1fbf":
+          "Courbe precision-rappel",
+        "precisionRecallCurveAuprc_80dbdb":
+          "Courbe precision-rappel, AUPRC = {{value}}",
+        "preExposure_f8b5cd": "Pre-exposition",
+        "preExposureTrend_95f2f3": "Tendance pre-exposition",
+        "primaryExposureIrr_bd4dd7": "IRR de l'exposition principale",
+        "procedures_5102ab": "Procedures",
+        "protectiveEffect_4bc6ae": "Effet protecteur",
+        "pValue_925c64": "Valeur p",
+        "randomSeed_17e865": "Graine aleatoire",
+        "rateDifferenceIRD_9f1da5": "Difference de taux (IRD)",
+        "rateRatioIRR_59d85d": "Rapport de taux (IRR)",
+        "removePriorOutcome_e55084": "Retirer le resultat anterieur",
+        "removeWindow_89f7a2": "Retirer la fenetre",
+        "requireTimeAtRisk_6d95a7": "Exiger un temps a risque",
+        "rExecutionError_abfacd": "Erreur d'execution R",
+        "rExecutionTime_cbc0ea": "Temps d'execution R :",
+        "riskDifference_b95db4": "Difference de risque",
+        "seasonAdjusted_eda83a": "Ajuste selon la saison",
+        "selectADataSourceFromTheHeaderTo_87174d":
+          "Selectionnez une source de donnees dans l'en-tete pour activer l'execution directe",
+        "selectOneOrMoreCohortsToCharacterize_4745cc":
+          "Selectionnez une ou plusieurs cohortes a caracteriser.",
+        "selectOneOrMoreOutcomeCohortsEachOutcome_7f50c3":
+          "Selectionnez une ou plusieurs cohortes de resultat. Chaque resultat peut avoir sa propre fenetre de nettoyage (jours apres le resultat pendant lesquels une recurrence n'est pas comptabilisee).",
+        "selectOneOrMoreOutcomeCohortsToEstimateEffectsFor_e6b1a9":
+          "Selectionnez une ou plusieurs cohortes de resultat pour estimer les effets.",
+        "selectTheDrugExposureCohortEachPatientServesAsTheirOwnControl_ec7c52":
+          "Selectionnez la cohorte d'exposition medicamenteuse. Chaque patient sert de son propre temoin.",
+        "selectTheEventCohortsWhoseSequencesWillBeAnalyzedWithinTheTargetCohortTheseRepresentTreatmentsProceduresOrConditionsToTrack_c12c1b":
+          "Selectionnez les cohortes d'evenements dont les sequences seront analysees dans la cohorte cible. Elles representent les traitements, procedures ou affections a suivre.",
+        "selectWhichOHDSICharacterizationAnalysesToRunVia_41bfab":
+          "Selectionnez les analyses de caracterisation OHDSI a executer via le package R.",
+        "showing_b4e610": "Affichage",
+        "showingFirst30Of_df715f": "Affichage des 30 premiers sur",
+        "showingTop_088011": "Affichage des premiers",
+        "significantHarmful_7fd4b0": "Significatif (nocif)",
+        "significantImbalance_15b26a": "Desequilibre significatif",
+        "significantlyHigherRate_77a7d0":
+          "Taux significativement plus eleve",
+        "significantlyLowerRate_f8fd2e":
+          "Taux significativement plus faible",
+        "significantProtective_c4681f": "Significatif (protecteur)",
+        "simpleNoAdjustments_a92a57": "Simple sans ajustements",
+        "siteLabel_d9e964": "Site {{index}}",
+      },
+    },
+  },
+);
+
+const deAnalysisResourcesPass3: MessageTree = mergeMessageTrees(
+  deAnalysisResourcesPass2,
+  {
+    analyses: {
+      auto: {
+        "95CI_4009a0": "95%-KI",
+        "95CI_895118": "95%-KI",
+        "95CI_bb763f": "95%-KI:",
+        "auc95Ci_83c298": "AUC (95%-KI)",
+        "avgIR1000PY_7113cb": "Mittlere IR / 1.000 Personenjahre",
+        "binWithOutcome_59d6c3": "{{range}}: {{count}} mit Ergebnis",
+        "binWithoutOutcome_78b2dc": "{{range}}: {{count}} ohne Ergebnis",
+        "brierScore_1462b0": "Brier-Score",
+        "burnIn_0127e6": "Einschwingphase",
+        "byAgeGroup_5285a2": "Nach Altersgruppe",
+        "byCalendarYear_a0dc1d": "Nach Kalenderjahr",
+        "byGender_5f1407": "Nach Geschlecht",
+        "calibratedP_4d09fd": "Kalibriertes p",
+        "calibrationIntercept_d140b5": "Kalibrierungsinterzept",
+        "calibrationPlot_0c67e3": "Kalibrierungsdiagramm",
+        "calibrationShift_a18e1d": "Kalibrierungsverschiebung",
+        "calibrationSlope_5d893f": "Kalibrierungssteigung",
+        "calIntercept_d8f28a": "Kal.-Interzept",
+        "caliper_d25392": "Kaliper",
+        "calSlope_e7e6de": "Kal.-Steigung",
+        "cancelled_a149e8": "Abgebrochen",
+        "carryoverQuestion_c08c05": "Carryover?",
+        "cohortIncidenceCompletedButReturnedNoResults_c0a47d":
+          "CohortIncidence wurde abgeschlossen, lieferte aber keine Ergebnisse.",
+        "cohortNumber_6a7a5a": "Kohorte Nr. {{id}}",
+        "compValue_f64342": "Vergl.: {{value}}{{delta}}",
+        "conditions_229eb0": "Erkrankungen",
+        "controlPeriodIrr_1ceb6a": "IRR der Kontrollperiode",
+        "count_2cdff4": "Anzahl",
+        "count_e93f99": "Anzahl",
+        "coxProportionalHazards_6939ea": "Proportionale Hazards nach Cox",
+        "days_15d10b": "Tage",
+        "diagnostics_36b64a": "Diagnostik",
+        "directCohortIncidenceResultsAreShown_462cb7":
+          "Direkte CohortIncidence-Ergebnisse werden angezeigt",
+        "divergingBarsShowDirectionOfImbalance_710a7a":
+          "Divergierende Balken zeigen die Richtung des Ungleichgewichts",
+        "eMaxValue_398d9f": "E-max: {{value}}",
+        "eraEnd_3c1837": "Ende der Aera",
+        "eraEventPersonDaysTooltip_9b4085":
+          "{{eraName}}: {{eventCount}} Ereignisse / {{personDays}} Personentage{{irrSuffix}}",
+        "eraStart_e33d7b": "Beginn der Aera",
+        "eventsWithinThisWindowAreTreatedAsOccurringSimultaneously_0157e9":
+          "Ereignisse innerhalb dieses Fensters werden als gleichzeitig auftretend behandelt.",
+        "evidenceSynth_338179": "Evidenzsynthese",
+        "exposure_3efb7d": "Exposition",
+        "externalValidationAucForestPlot_82615e":
+          "Forest-Plot der AUC fur die externe Validierung",
+        "favorsTargetFavorsComparator_c388e0":
+          "Begunstigt Ziel begunstigt Vergleich",
+        "fixedEffect_d62bdf": "Fester Effekt",
+        "fixedEffectInverseVariance_0b01ce":
+          "Fester Effekt mit inverser Varianz",
+        "forestPlotIRPer1000PY_dec35e":
+          "Forest-Plot (IR pro 1.000 Personenjahre)",
+        "fromUncalibrated_53ad8e": "aus unkalibriert",
+        "groups_8783bc": "Gruppen:",
+        "hazardRatio95CI_075de4": "Hazard Ratio 95%-KI",
+        "hazardRatioLogScale_453e55":
+          "Hazard Ratio (logarithmische Skala)",
+        "higherIn_b53f61": "Hoeher in",
+        "incidenceRateRatios_2b6445": "Inzidenzratenverhaeltnisse",
+        "insufficientDiscrimination_36f62c":
+          "Unzureichende Diskriminierung",
+        "insufficientDiscriminationDescription_6dca77":
+          "Die Diskriminierung des Modells liegt unter dem akzeptablen Schwellenwert (AUC < 0,70). Ziehen Sie alternative Feature-Engineering-Strategien oder Modellarchitekturen in Betracht.",
+        "interceptValue_12e39b": "Interzept: {{value}}",
+        "kaplanMeierSurvivalCurves_67f4a1":
+          "Kaplan-Meier-Ueberlebenskurven",
+        "logRelativeRisk_0ba5c9": "Log relatives Risiko",
+        "lovePlotShowingCovariateBalanceBeforeAndAfterMatching_4f9e43":
+          "Love-Plot zur Kovariatenbalance vor und nach dem Matching",
+        "matchingRatio_f5c5da": "Matching-Verhaeltnis",
+        "measurements_930aeb": "Messwerte",
+        "metaAnalysisMethod_c7ddd9": "Metaanalyse-Methode",
+        "minDetectableRelativeRisk_9ac488":
+          "Minimal nachweisbares relatives Risiko",
+        "minimumCellCount_2438c8": "Minimale Zellanzahl",
+        "minimumTimeAtRiskDays_874dcf":
+          "Minimale Tage unter Risiko",
+        "minPriorObservationDays_01e009":
+          "Min. vorausgehende Beobachtung (Tage)",
+        "multiLayerPerceptron_5a66b8": "Mehrschichtiges Perzeptron",
+        "naiveBayes_952bdf": "Naiver Bayes",
+        "naivePeriodDays_a1cb8f": "Tage der naiven Periode",
+        "needsRecalibration_c5baf6": "Muss rekalibriert werden",
+        "needsRecalibrationDescription_8d668d":
+          "Das Modell hat eine akzeptable Diskriminierung (AUC >= 0.70), aber die Kalibrierung liegt ausserhalb des idealen Bereichs. Ziehen Sie vor dem Einsatz eine Rekalibrierung in Betracht.",
+        "netBenefit_0d4f0a": "Nettonutzen",
+        "netBenefitAtThreshold_c18602":
+          "Nettonutzen beim Schwellenwert {{value}}",
+        "noExposureEraWithIrrDataAvailable_840df7":
+          "Keine Expositionsaera mit verfuegbaren IRR-Daten vorhanden.",
+        "noPathwayData_841813": "Keine Pfaddaten",
+        "noResultDataReturnedFromRExecution_fc9b05":
+          "Bei der R-Ausfuehrung wurden keine Ergebnisdaten zurueckgegeben.",
+        "noSignificantDifference_76860e":
+          "Kein signifikanter Unterschied",
+        "notSignificant_8b05d1": "Nicht signifikant",
+        "observedProbability_d35356": "Beobachtete Wahrscheinlichkeit",
+        "optionalDescription_d196d2": "Optionale Beschreibung",
+        "patientCountPerPredictedProbabilityBin_74a916":
+          "Patientenzahl pro Bin der vorhergesagten Wahrscheinlichkeit",
+        "personsAtRisk_70f6a6": "Personen unter Risiko",
+        "personTimeLabel_efbcb3": "Personenzeit:",
+        "personYears_8c8539": "Personenjahre",
+        "pooledEstimate_914625": "Gepoolte Schaetzung",
+        "poorlyCalibrated_68c323": "Schlecht kalibriert",
+        "populationLevelResearchStudiesAcross7AnalysisTypes_fd78dc":
+          "Forschungsstudien auf Populationsebene ueber 7 Analysetypen",
+        "postCalibration_6f2c0d": "Nachkalibrierung",
+        "postExposure_4fc98c": "Nach Exposition",
+        "preCalibrationCount_3e53ff": "Vorkalibrierung ({{count}})",
+        "precisionRecallCurve_fd1fbf": "Precision-Recall-Kurve",
+        "precisionRecallCurveAuprc_80dbdb":
+          "Precision-Recall-Kurve, AUPRC = {{value}}",
+        "preExposure_f8b5cd": "Vor Exposition",
+        "preExposureTrend_95f2f3": "Trend vor Exposition",
+        "primaryExposureIrr_bd4dd7": "IRR der Primaerexposition",
+        "procedures_5102ab": "Prozeduren",
+        "protectiveEffect_4bc6ae": "Protektiver Effekt",
+        "pValue_925c64": "p-Wert",
+        "randomSeed_17e865": "Zufallsstartwert",
+        "rateDifferenceIRD_9f1da5": "Ratendifferenz (IRD)",
+        "rateRatioIRR_59d85d": "Ratenverhaeltnis (IRR)",
+        "removePriorOutcome_e55084": "Vorheriges Ergebnis entfernen",
+        "removeWindow_89f7a2": "Fenster entfernen",
+        "requireTimeAtRisk_6d95a7": "Zeit unter Risiko voraussetzen",
+        "rExecutionError_abfacd": "R-Ausfuehrungsfehler",
+        "rExecutionTime_cbc0ea": "R-Ausfuehrungszeit:",
+        "riskDifference_b95db4": "Risikodifferenz",
+        "seasonAdjusted_eda83a": "Saisonal adjustiert",
+        "selectADataSourceFromTheHeaderTo_87174d":
+          "Waehlen Sie im Kopfbereich eine Datenquelle aus, um den Direktlauf zu aktivieren",
+        "selectOneOrMoreCohortsToCharacterize_4745cc":
+          "Waehlen Sie eine oder mehrere zu charakterisierende Kohorten aus.",
+        "selectOneOrMoreOutcomeCohortsEachOutcome_7f50c3":
+          "Waehlen Sie eine oder mehrere Ergebniskohorten aus. Jedes Ergebnis kann ein eigenes Bereinigungsfenster haben (Tage nach dem Ergebnis, in denen ein Wiederauftreten nicht gezaehlt wird).",
+        "selectOneOrMoreOutcomeCohortsToEstimateEffectsFor_e6b1a9":
+          "Waehlen Sie eine oder mehrere Ergebniskohorten fuer die Effektschaetzung aus.",
+        "selectTheDrugExposureCohortEachPatientServesAsTheirOwnControl_ec7c52":
+          "Waehlen Sie die Arzneimittelexpositionskohorte aus. Jeder Patient dient als eigene Kontrolle.",
+        "selectTheEventCohortsWhoseSequencesWillBeAnalyzedWithinTheTargetCohortTheseRepresentTreatmentsProceduresOrConditionsToTrack_c12c1b":
+          "Waehlen Sie die Ereigniskohorten aus, deren Sequenzen innerhalb der Zielkohorte analysiert werden. Diese repraesentieren Behandlungen, Prozeduren oder Erkrankungen, die verfolgt werden sollen.",
+        "selectWhichOHDSICharacterizationAnalysesToRunVia_41bfab":
+          "Waehlen Sie aus, welche OHDSI-Charakterisierungsanalysen ueber das R-Paket ausgefuehrt werden sollen.",
+        "showing_b4e610": "Angezeigt werden",
+        "showingFirst30Of_df715f": "Anzeige der ersten 30 von",
+        "showingTop_088011": "Anzeige der obersten",
+        "significantHarmful_7fd4b0": "Signifikant (schaedlich)",
+        "significantImbalance_15b26a": "Signifikantes Ungleichgewicht",
+        "significantlyHigherRate_77a7d0":
+          "Signifikant hoehere Rate",
+        "significantlyLowerRate_f8fd2e":
+          "Signifikant niedrigere Rate",
+        "significantProtective_c4681f": "Signifikant (protektiv)",
+        "simpleNoAdjustments_a92a57": "Einfach ohne Anpassungen",
+        "siteLabel_d9e964": "Site {{index}}",
+      },
+    },
+  },
+);
+
+const ptAnalysisResourcesPass3: MessageTree = mergeMessageTrees(
+  ptAnalysisResourcesPass2,
+  {
+    analyses: {
+      auto: {
+        "95CI_4009a0": "IC de 95%",
+        "95CI_895118": "IC de 95%",
+        "95CI_bb763f": "IC de 95%:",
+        "auc95Ci_83c298": "AUC (IC de 95%)",
+        "avgIR1000PY_7113cb": "TI media / 1.000 anos-pessoa",
+        "binWithOutcome_59d6c3": "{{range}}: {{count}} com desfecho",
+        "binWithoutOutcome_78b2dc": "{{range}}: {{count}} sem desfecho",
+        "brierScore_1462b0": "Pontuacao de Brier",
+        "burnIn_0127e6": "Periodo de aquecimento",
+        "byAgeGroup_5285a2": "Por faixa etaria",
+        "byCalendarYear_a0dc1d": "Por ano calendario",
+        "byGender_5f1407": "Por sexo",
+        "calibratedP_4d09fd": "p calibrado",
+        "calibrationIntercept_d140b5": "Intercepto de calibracao",
+        "calibrationPlot_0c67e3": "Grafico de calibracao",
+        "calibrationShift_a18e1d": "Deslocamento de calibracao",
+        "calibrationSlope_5d893f": "Inclinacao de calibracao",
+        "calIntercept_d8f28a": "Intercepto calib.",
+        "caliper_d25392": "Caliper",
+        "calSlope_e7e6de": "Inclinacao calib.",
+        "cancelled_a149e8": "Cancelado",
+        "carryoverQuestion_c08c05": "efeito residual?",
+        "cohortIncidenceCompletedButReturnedNoResults_c0a47d":
+          "CohortIncidence foi concluido, mas nao retornou resultados.",
+        "cohortNumber_6a7a5a": "Coorte no {{id}}",
+        "compValue_f64342": "Comp.: {{value}}{{delta}}",
+        "conditions_229eb0": "Condicoes",
+        "controlPeriodIrr_1ceb6a": "IRR do periodo de controle",
+        "count_2cdff4": "Contagem",
+        "count_e93f99": "Contagem",
+        "coxProportionalHazards_6939ea": "Riscos proporcionais de Cox",
+        "days_15d10b": "dias",
+        "diagnostics_36b64a": "Diagnosticos",
+        "directCohortIncidenceResultsAreShown_462cb7":
+          "Os resultados diretos de CohortIncidence sao exibidos",
+        "divergingBarsShowDirectionOfImbalance_710a7a":
+          "As barras divergentes mostram a direcao do desequilibrio",
+        "eMaxValue_398d9f": "E-max: {{value}}",
+        "eraEnd_3c1837": "Fim da era",
+        "eraEventPersonDaysTooltip_9b4085":
+          "{{eraName}}: {{eventCount}} eventos / {{personDays}} pessoas-dia{{irrSuffix}}",
+        "eraStart_e33d7b": "Inicio da era",
+        "eventsWithinThisWindowAreTreatedAsOccurringSimultaneously_0157e9":
+          "Eventos dentro desta janela sao tratados como ocorrendo simultaneamente.",
+        "evidenceSynth_338179": "Sintese de evidencias",
+        "exposure_3efb7d": "exposicao",
+        "externalValidationAucForestPlot_82615e":
+          "Grafico de floresta da AUC de validacao externa",
+        "favorsTargetFavorsComparator_c388e0":
+          "Favorece alvo favorece comparador",
+        "fixedEffect_d62bdf": "Efeito fixo",
+        "fixedEffectInverseVariance_0b01ce":
+          "Efeito fixo por variancia inversa",
+        "forestPlotIRPer1000PY_dec35e":
+          "Grafico de floresta (TI por 1.000 anos-pessoa)",
+        "fromUncalibrated_53ad8e": "a partir do nao calibrado",
+        "groups_8783bc": "Grupos:",
+        "hazardRatio95CI_075de4": "Razao de risco IC de 95%",
+        "hazardRatioLogScale_453e55":
+          "Razao de risco (escala logaritmica)",
+        "higherIn_b53f61": "Mais alto em",
+        "incidenceRateRatios_2b6445": "Razoes de taxa de incidencia",
+        "insufficientDiscrimination_36f62c":
+          "Discriminacao insuficiente",
+        "insufficientDiscriminationDescription_6dca77":
+          "A discriminacao do modelo esta abaixo do limite aceitavel (AUC < 0,70). Considere engenharia de atributos alternativa ou outras arquiteturas de modelo.",
+        "interceptValue_12e39b": "Intercepto: {{value}}",
+        "kaplanMeierSurvivalCurves_67f4a1":
+          "Curvas de sobrevivencia de Kaplan-Meier",
+        "logRelativeRisk_0ba5c9": "Log do risco relativo",
+        "lovePlotShowingCovariateBalanceBeforeAndAfterMatching_4f9e43":
+          "Grafico love mostrando o balanceamento de covariaveis antes e depois do pareamento",
+        "matchingRatio_f5c5da": "Razao de pareamento",
+        "measurements_930aeb": "Medidas",
+        "metaAnalysisMethod_c7ddd9": "Metodo de meta-analise",
+        "minDetectableRelativeRisk_9ac488":
+          "Risco relativo minimo detectavel",
+        "minimumCellCount_2438c8": "Contagem minima por celula",
+        "minimumTimeAtRiskDays_874dcf":
+          "Dias minimos em risco",
+        "minPriorObservationDays_01e009":
+          "Observacao previa minima (dias)",
+        "multiLayerPerceptron_5a66b8": "Perceptron multicamada",
+        "naiveBayes_952bdf": "Bayes ingenuo",
+        "naivePeriodDays_a1cb8f": "Dias do periodo ingenuo",
+        "needsRecalibration_c5baf6": "Precisa de recalibracao",
+        "needsRecalibrationDescription_8d668d":
+          "O modelo tem discriminacao aceitavel (AUC >= 0.70), mas a calibracao esta fora da faixa ideal. Considere recalibrar antes da implantacao.",
+        "netBenefit_0d4f0a": "Beneficio liquido",
+        "netBenefitAtThreshold_c18602":
+          "Beneficio liquido no limiar {{value}}",
+        "noExposureEraWithIrrDataAvailable_840df7":
+          "Nenhuma era de exposicao com dados de IRR disponivel.",
+        "noPathwayData_841813": "Nenhum dado de trajetoria",
+        "noResultDataReturnedFromRExecution_fc9b05":
+          "Nenhum dado de resultado foi retornado pela execucao em R.",
+        "noSignificantDifference_76860e":
+          "Nenhuma diferenca significativa",
+        "notSignificant_8b05d1": "Nao significativo",
+        "observedProbability_d35356": "Probabilidade observada",
+        "optionalDescription_d196d2": "Descricao opcional",
+        "patientCountPerPredictedProbabilityBin_74a916":
+          "Contagem de pacientes por faixa de probabilidade prevista",
+        "personsAtRisk_70f6a6": "Pessoas em risco",
+        "personTimeLabel_efbcb3": "Tempo-pessoa:",
+        "personYears_8c8539": "Anos-pessoa",
+        "pooledEstimate_914625": "Estimativa combinada",
+        "poorlyCalibrated_68c323": "Mal calibrado",
+        "populationLevelResearchStudiesAcross7AnalysisTypes_fd78dc":
+          "Estudos de pesquisa em nivel populacional em 7 tipos de analise",
+        "postCalibration_6f2c0d": "Pos-calibracao",
+        "postExposure_4fc98c": "Pos-exposicao",
+        "preCalibrationCount_3e53ff": "Pre-calibracao ({{count}})",
+        "precisionRecallCurve_fd1fbf":
+          "Curva de precisao-revocacao",
+        "precisionRecallCurveAuprc_80dbdb":
+          "Curva de precisao-revocacao, AUPRC = {{value}}",
+        "preExposure_f8b5cd": "Pre-exposicao",
+        "preExposureTrend_95f2f3": "Tendencia pre-exposicao",
+        "primaryExposureIrr_bd4dd7": "IRR da exposicao principal",
+        "procedures_5102ab": "Procedimentos",
+        "protectiveEffect_4bc6ae": "Efeito protetor",
+        "pValue_925c64": "Valor de p",
+        "randomSeed_17e865": "Semente aleatoria",
+        "rateDifferenceIRD_9f1da5": "Diferenca de taxa (IRD)",
+        "rateRatioIRR_59d85d": "Razao de taxa (IRR)",
+        "removePriorOutcome_e55084": "Remover desfecho anterior",
+        "removeWindow_89f7a2": "Remover janela",
+        "requireTimeAtRisk_6d95a7": "Exigir tempo em risco",
+        "rExecutionError_abfacd": "Erro de execucao em R",
+        "rExecutionTime_cbc0ea": "Tempo de execucao em R:",
+        "riskDifference_b95db4": "Diferenca de risco",
+        "seasonAdjusted_eda83a": "Ajustado por estacao",
+        "selectADataSourceFromTheHeaderTo_87174d":
+          "Selecione uma fonte de dados no cabecalho para habilitar a execucao direta",
+        "selectOneOrMoreCohortsToCharacterize_4745cc":
+          "Selecione uma ou mais coortes para caracterizar.",
+        "selectOneOrMoreOutcomeCohortsEachOutcome_7f50c3":
+          "Selecione uma ou mais coortes de desfecho. Cada desfecho pode ter sua propria janela de limpeza (dias apos o desfecho em que uma recorrencia nao e contada).",
+        "selectOneOrMoreOutcomeCohortsToEstimateEffectsFor_e6b1a9":
+          "Selecione uma ou mais coortes de desfecho para estimar efeitos.",
+        "selectTheDrugExposureCohortEachPatientServesAsTheirOwnControl_ec7c52":
+          "Selecione a coorte de exposicao ao medicamento. Cada paciente serve como seu proprio controle.",
+        "selectTheEventCohortsWhoseSequencesWillBeAnalyzedWithinTheTargetCohortTheseRepresentTreatmentsProceduresOrConditionsToTrack_c12c1b":
+          "Selecione as coortes de eventos cujas sequencias serao analisadas dentro da coorte alvo. Elas representam tratamentos, procedimentos ou condicoes a acompanhar.",
+        "selectWhichOHDSICharacterizationAnalysesToRunVia_41bfab":
+          "Selecione quais analises de caracterizacao OHDSI executar por meio do pacote R.",
+        "showing_b4e610": "Mostrando",
+        "showingFirst30Of_df715f": "Mostrando os 30 primeiros de",
+        "showingTop_088011": "Mostrando os principais",
+        "significantHarmful_7fd4b0": "Significativo (prejudicial)",
+        "significantImbalance_15b26a": "Desequilibrio significativo",
+        "significantlyHigherRate_77a7d0":
+          "Taxa significativamente mais alta",
+        "significantlyLowerRate_f8fd2e":
+          "Taxa significativamente mais baixa",
+        "significantProtective_c4681f": "Significativo (protetor)",
+        "simpleNoAdjustments_a92a57": "Simples sem ajustes",
+        "siteLabel_d9e964": "Site {{index}}",
+      },
+    },
+  },
+);
+
 export const analysisResources: Record<string, MessageTree> = {
   "en-US": enAnalysisResources,
   "es-ES": mergeMessageTrees(enAnalysisResources, {}),
-  "fr-FR": frAnalysisResourcesPass2,
-  "de-DE": deAnalysisResourcesPass2,
-  "pt-BR": ptAnalysisResourcesPass2,
+  "fr-FR": frAnalysisResourcesPass3,
+  "de-DE": deAnalysisResourcesPass3,
+  "pt-BR": ptAnalysisResourcesPass3,
   "fi-FI": mergeMessageTrees(enAnalysisResources, {}),
   "ja-JP": mergeMessageTrees(enAnalysisResources, {}),
   "zh-Hans": mergeMessageTrees(enAnalysisResources, {}),
