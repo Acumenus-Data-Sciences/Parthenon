@@ -219,6 +219,7 @@ const LOCALE_SAME_SPELLING_VALUES: Record<string, Set<string>> = {
     "Error",
     "Total",
     "Host",
+    "No",
     "Roles",
     "Series",
     "Inspector",
