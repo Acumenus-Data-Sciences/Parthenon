@@ -30,7 +30,7 @@ on:
       - "installer/rust-gui/**"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   installer-bundle:
@@ -113,7 +113,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
 
       - name: Validate macOS notarization configuration
-        if: runner.os == 'macOS' && secrets.APPLE_CERTIFICATE != ''
+        if: ${{ runner.os == 'macOS' && secrets.APPLE_CERTIFICATE != '' }}
         shell: bash
         env:
           APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
@@ -134,7 +134,7 @@ jobs:
           exit 1
 
       - name: Prepare macOS signing certificate
-        if: runner.os == 'macOS' && secrets.APPLE_CERTIFICATE != ''
+        if: ${{ runner.os == 'macOS' && secrets.APPLE_CERTIFICATE != '' }}
         shell: bash
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
@@ -159,7 +159,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: Prepare App Store Connect API key
-        if: runner.os == 'macOS' && secrets.APPLE_API_KEY != '' && secrets.APPLE_API_ISSUER != '' && secrets.APPLE_API_KEY_P8 != ''
+        if: ${{ runner.os == 'macOS' && secrets.APPLE_API_KEY != '' && secrets.APPLE_API_ISSUER != '' && secrets.APPLE_API_KEY_P8 != '' }}
         shell: bash
         env:
           APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
@@ -173,7 +173,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: Validate Windows trusted signing configuration
-        if: runner.os == 'Windows' && (secrets.WINDOWS_TRUSTED_SIGNING_ACCOUNT != '' || secrets.WINDOWS_TRUSTED_SIGNING_PROFILE != '' || secrets.WINDOWS_TRUSTED_SIGNING_ENDPOINT != '' || secrets.AZURE_CLIENT_ID != '' || secrets.AZURE_CLIENT_SECRET != '' || secrets.AZURE_TENANT_ID != '')
+        if: ${{ runner.os == 'Windows' && (secrets.WINDOWS_TRUSTED_SIGNING_ACCOUNT != '' || secrets.WINDOWS_TRUSTED_SIGNING_PROFILE != '' || secrets.WINDOWS_TRUSTED_SIGNING_ENDPOINT != '' || secrets.AZURE_CLIENT_ID != '' || secrets.AZURE_CLIENT_SECRET != '' || secrets.AZURE_TENANT_ID != '') }}
         shell: pwsh
         env:
           WINDOWS_TRUSTED_SIGNING_ACCOUNT: ${{ secrets.WINDOWS_TRUSTED_SIGNING_ACCOUNT }}
@@ -197,12 +197,12 @@ jobs:
           }
 
       - name: Install Windows trusted-signing CLI
-        if: runner.os == 'Windows' && secrets.WINDOWS_TRUSTED_SIGNING_ACCOUNT != '' && secrets.WINDOWS_TRUSTED_SIGNING_PROFILE != '' && secrets.WINDOWS_TRUSTED_SIGNING_ENDPOINT != '' && secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_CLIENT_SECRET != '' && secrets.AZURE_TENANT_ID != ''
+        if: ${{ runner.os == 'Windows' && secrets.WINDOWS_TRUSTED_SIGNING_ACCOUNT != '' && secrets.WINDOWS_TRUSTED_SIGNING_PROFILE != '' && secrets.WINDOWS_TRUSTED_SIGNING_ENDPOINT != '' && secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_CLIENT_SECRET != '' && secrets.AZURE_TENANT_ID != '' }}
         shell: pwsh
         run: cargo install trusted-signing-cli --locked
 
       - name: Prepare Windows signing config
-        if: runner.os == 'Windows' && secrets.WINDOWS_TRUSTED_SIGNING_ACCOUNT != '' && secrets.WINDOWS_TRUSTED_SIGNING_PROFILE != '' && secrets.WINDOWS_TRUSTED_SIGNING_ENDPOINT != '' && secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_CLIENT_SECRET != '' && secrets.AZURE_TENANT_ID != ''
+        if: ${{ runner.os == 'Windows' && secrets.WINDOWS_TRUSTED_SIGNING_ACCOUNT != '' && secrets.WINDOWS_TRUSTED_SIGNING_PROFILE != '' && secrets.WINDOWS_TRUSTED_SIGNING_ENDPOINT != '' && secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_CLIENT_SECRET != '' && secrets.AZURE_TENANT_ID != '' }}
         working-directory: installer/rust-gui
         shell: pwsh
         env:
