@@ -34,7 +34,7 @@ interface VocabularySearchPanelProps {
 function HighlightedText({ html, fallback }: { html: string | undefined; fallback: string }) {
   if (!html) return <>{fallback}</>;
   // Sanitize: only allow <mark> and </mark>
-  const safe = DOMPurify.sanitize(html.replace(/<(?!\/?mark>)[^>]*>/g, ""), { ALLOWED_TAGS: ['mark'] });
+  const safe = DOMPurify.sanitize(html, { ALLOWED_TAGS: ['mark'] });
   return <span dangerouslySetInnerHTML={{ __html: safe }} />;
 }
 
