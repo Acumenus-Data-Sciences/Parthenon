@@ -2332,12 +2332,324 @@ const frCohortDefinitionsPass4: MessageTree = mergeMessageTrees(
   },
 );
 
+const deCohortDefinitionsPass4: MessageTree = mergeMessageTrees(
+  deCohortDefinitionsPass3,
+  {
+    cohortDefinitions: {
+      auto: {
+        "descendants_290452": "Nachkommen",
+        "doubleReviewed_d24d8a": "doppelt geprueft",
+        "drugs_559833": "· Arzneimittel",
+        "eGType2DiabetesOnMetformin_23126f":
+          "z. B. Typ-2-Diabetes unter Metformin",
+        "exportMd_2419e8": ".md exportieren",
+        "firstOccurrence_d8d028": "(erstes Auftreten)",
+        "geneMutationsTmbMsiFusions_cd9be4":
+          "Genmutationen, TMB, MSI, Fusionen",
+        "having_c742e8": "Mit",
+        "hispanicOrLatino_1f7dba": "Hispanisch oder Latino",
+        "includeDescendantsAutomaticallyCapturesAllSubTypesFor_7103e0":
+          "&ldquo;Nachkommen einschliessen&rdquo; erfasst automatisch alle Untertypen. Wenn Sie beispielsweise &ldquo;Typ-2-Diabetes mellitus&rdquo; mit Nachkommen auswaehlen, werden alle spezifischen Komplikationen eingeschlossen.",
+        "intermediate_b57ed7": "Mittel",
+        "jaccardIndex_462bfc": "Jaccard-Index:",
+        "label_b021df": "Label",
+        "lock_b48516": "Sperren",
+        "match_6da892": "Uebereinstimmung",
+        "mean_3d6c9a": "Mittelwert",
+        "metabolicEndocrine_4d43ef": "Metabolisch / Endokrin",
+        "modalityAnatomyAiClassification_9a3aae":
+          "Modalitaet, Anatomie, KI-Klassifikation",
+        "nativeHawaiianOrOtherPacificIslander_223ed7":
+          "Indigene Hawaiianer oder andere pazifische Insulaner",
+        "notes_f4c6f8": "Notizen",
+        "notHispanicOrLatino_fa7b68": "Nicht hispanisch oder Latino",
+        "occurring_712f41": "Auftretend:",
+        "offset_dfd0a8": "Offset",
+        "offsetFrom_67c774": "Offset von",
+        "ofTheFollowing_04cd7a": "der folgenden:",
+        "ofThemQualifies_9d103b": "davon qualifiziert sich.",
+        "ofTheseRules_b73835": "dieser Regeln:",
+        "onlyA_220cfd": "Nur A",
+        "onlyB_1d0d2f": "Nur B",
+        "orAnySubType_2e6910": "(oder beliebiger Untertyp)",
+        "orPasteJson_4006b3": "Oder JSON einfuegen",
+        "orphanConcepts_6f7989": "Verwaiste Konzepte",
+        "pairwiseAgreement_33e604": "paarweise Uebereinstimmung",
+        "patientMustMatch_32bd21": "Patient muss entsprechen",
+        "pediatric_c66795": "Paediatrisch",
+        "persons_cbb82b": "Personen",
+        "profile_cce99c": "Profil",
+        "promotedValidation_f5525e": "promovierte Validierung",
+        "prsDistribution_f9eb79": "PRS-Verteilung",
+        "qualifiedLimit_8e0595": "Qualifizierungsgrenze",
+        "qualifyingEvent_3e92ae": "qualifizierendes Ereignis",
+        "qualityReady_1dde62": "qualitaetsbereit",
+        "queued_7b2f31": "In Warteschlange",
+        "queueFilter_3f520f": "Warteschlangenfilter",
+        "rareDisease_f7ba34": "Seltene Erkrankung",
+        "rate1kPy_36fcaa": "Rate / 1.000 Personenjahre",
+        "ratesPer1000PersonYearsByAge_bd888d":
+          "Raten pro 1.000 Personenjahre nach Alter, Geschlecht und Kalenderjahr",
+        "recentClinicalEvents_7a9ca1": "Aktuelle klinische Ereignisse",
+        "recentNotes_062598": "Aktuelle Notizen",
+        "reConfigure_af2a3a": "Neu konfigurieren",
+        "recordCount_1f2a70": "Datensatzanzahl",
+        "recordCounts_020882": "Datensatzanzahlen",
+        "referenceSetReviewerSamplingMethod_089b48":
+          "Referenzset, Reviewer, Stichprobenmethode.",
+        "removeFilter_5e56e9": "Filter entfernen",
+        "removeGroup_53fc0c": "Gruppe entfernen",
+        "renal_199d35": "Renal",
+        "require_a94254": "Erfordern",
+        "require_e9da75": "&ldquo;Erfordern",
+        "requireAllQualityMeasuresCompletedFiltersToCompliant_0c9036":
+          "Alle Qualitaetsmassnahmen muessen abgeschlossen sein (filtert auf konforme Patienten)",
+        "requireAMinimumAmountOfContinuousObservationBefore_844d62":
+          "Eine Mindestdauer kontinuierlicher Beobachtung vor und nach dem Indexdatum verlangen.",
+        "required_22eab7": "Erforderlich:",
+        "resolveCase_22fafd": "Als Fall aufloesen",
+        "resolveNonCase_3aab77": "Als Nicht-Fall aufloesen",
+        "restrictToSameVisit_13ff6d": "Auf denselben Besuch beschraenken",
+        "restrictToSameVisitAsIndexEvent_8c5d90":
+          "Auf denselben Besuch wie das Indexereignis beschraenken",
+        "reviewComplete_1c2830": "Review abgeschlossen",
+        "reviewedInView_a342f5": "in der Ansicht geprueft",
+        "reviewerConflict_15d048": "Reviewer-Konflikt",
+        "reviewRecords_c283f1": "Review-Datensaetze",
+        "reviewSource_a2d4bf": "Review-Quelle",
+        "riskScoreCriteriaCanBeAddedViaThe_4db211":
+          "Risikoscore-Kriterien koennen hinzugefuegt werden ueber",
+        "riskScoreFilteringRequiresPreComputedRiskScores_dd99be":
+          "Risikoscore-Filterung erfordert vorkalkulierte Risikoscores aus einer abgeschlossenen Analyse. Wenn keine Risikoscore-Analysen ausgefuehrt wurden, kann dieser Schritt uebersprungen werden. Sie koennen Risikoscore-Kriterien spaeter im erweiterten Editor hinzufuegen.",
+        "riskTier_1496ae": "Risikostufe",
+        "sameDay_d051d9": "Gleicher Tag",
+        "sampledCharts_53f635": "stichprobenartige Akten",
+        "score_343bc2": "Score:",
+        "scoreValue_990b82": "Score-Wert",
+        "seed_dba005": "Startwert",
+        "seededRandom_0e39c4": "Zufaellig mit Startwert",
+        "selectADomain_d010f3": "Domaene auswaehlen...",
+        "selectAnalysis_56184d": "Analyse auswaehlen...",
+        "selectAtLeast2CohortsToComputeOverlap_52d9df":
+          "Waehlen Sie mindestens 2 Kohorten aus, um den Ueberlapp zu berechnen",
+        "selectPrsScore_301cb5": "PRS-Score auswaehlen",
+        "selectScore_4e2f60": "Score auswaehlen...",
+        "selectTier_a0e7b2": "Stufe auswaehlen...",
+        "semanticAi_ae39da": "Semantisch (KI)",
+        "sensitivity_456ce8": "Sensitivitaet",
+        "sharedViaParthenon_eb6c6f": "Ueber Parthenon geteilt",
+        "showingFirst50Of_f956a6": "Anzeige der ersten 50 von",
+        "skip_72ef2b": "Ueberspringen",
+        "specialized_caea9d": "Spezialisiert",
+        "specializedCriteria_965942": "Spezialisierte Kriterien",
+        "started_842855": "Gestartet",
+        "step1Of2EndStrategy_16da38": "Schritt 1 von 2 - Endstrategie",
+        "step1Of3EntryEvents_e2aefb":
+          "Schritt 1 von 3 - Eintrittsereignisse",
+        "step1Of3InclusionRules_08fe47":
+          "Schritt 1 von 3 - Einschlussregeln",
+        "step2Of2CensoringEvents_8b6873":
+          "Schritt 2 von 2 - Zensierungsereignisse",
+        "step2Of3Demographics_b4ecd7": "Schritt 2 von 3 - Demografie",
+        "step2Of3ObservationWindow_b94abd":
+          "Schritt 2 von 3 - Beobachtungsfenster",
+        "step3Of3QualifyingEvents_fb726a":
+          "Schritt 3 von 3 - Qualifizierende Ereignisse",
+        "step3Of3RiskScores_9eca4e": "Schritt 3 von 3 - Risikoscores",
+        "studyReady_834a5b": "Studienbereit",
+        "theCohortHasBeenGeneratedButContains0_44c3b8":
+          "Die Kohorte wurde generiert, enthaelt aber auf allen Quellen 0 Patienten.",
+        "theseCriteriaRequireSpecializedDataInYourCdm_6554de":
+          "Diese Kriterien erfordern spezialisierte Daten in Ihrem CDM (Onkologie-Erweiterungstabellen, DICOM-Bildserien). Wenn Ihre Datenquelle diese nicht enthaelt, geben diese Filter null Patienten zurueck.",
+        "thisEnsuresPatientsHaveEnoughDataForYour_5428c0":
+          "Dies stellt sicher, dass Patienten genuegend Daten fuer Ihre Studie haben. Zum Beispiel ermoeglicht die Anforderung von 365 Tagen Vorhistorie die Pruefung auf vorbestehende Erkrankungen.",
+        "thisMayTakeSeveralMinutesDependingOnCohort_0d6381":
+          "Dies kann je nach Kohortengroesse und ausgewaehlten Analysen mehrere Minuten dauern.",
+        "timeWindowedCovariatePrevalenceSlowAddsSeveralMinutes_e70cc2":
+          "Zeitfensterbasierte Kovariatenpraevalenz (langsam - fuegt mehrere Minuten hinzu)",
+        "tip_342a40": "Tipp:",
+        "uncertainInView_0769e9": "unsicher in der Ansicht",
+        "unresolvedConflicts_f3843b": "ungeloeste Konflikte",
+        "unreviewedInView_182172": "ungeprueft in der Ansicht",
+        "useEventEndDate_3ae8db": "Ereignisenddatum verwenden",
+        "useIndexEndDate_f4cf35": "Indexenddatum verwenden",
+        "useTheEarliestQualifyingEventAsTheEntry_06e560":
+          "Das frueheste qualifizierende Ereignis als Eintrittsdatum verwenden. Dies ist die haeufigste Wahl.",
+        "visitTypeAtTimeOfCohortEntry_12fc0b":
+          "Besuchstyp zum Zeitpunkt des Kohorteneintritts",
+        "whatAdditionalRequirementsMustAPatientMeetTo_865119":
+          "Welche zusaetzlichen Anforderungen muss ein Patient erfuellen, um in der Kohorte zu bleiben?",
+        "whenDoesAPatientSCohortMembershipEnd_cb35e8":
+          "Wann endet die Kohortenmitgliedschaft eines Patienten?",
+        "whileOnMedication_950a80": "Waehrend Medikation",
+        "whoHave_fc8310": "die haben",
+      },
+    },
+  },
+);
+
+const ptCohortDefinitionsPass4: MessageTree = mergeMessageTrees(
+  ptCohortDefinitionsPass3,
+  {
+    cohortDefinitions: {
+      auto: {
+        "descendants_290452": "Descendentes",
+        "doubleReviewed_d24d8a": "revisado em dupla",
+        "drugs_559833": "· Medicamentos",
+        "eGType2DiabetesOnMetformin_23126f":
+          "ex.: diabetes tipo 2 em uso de metformina",
+        "exportMd_2419e8": "Exportar .md",
+        "firstOccurrence_d8d028": "(primeira ocorrencia)",
+        "geneMutationsTmbMsiFusions_cd9be4":
+          "Mutacoes genicas, TMB, MSI, fusoes",
+        "having_c742e8": "Tendo",
+        "hispanicOrLatino_1f7dba": "Hispanico ou latino",
+        "includeDescendantsAutomaticallyCapturesAllSubTypesFor_7103e0":
+          "&ldquo;Incluir descendentes&rdquo; captura automaticamente todos os subtipos. Por exemplo, selecionar &ldquo;diabetes mellitus tipo 2&rdquo; com descendentes inclui todas as complicacoes especificas.",
+        "intermediate_b57ed7": "Intermediario",
+        "jaccardIndex_462bfc": "Indice de Jaccard:",
+        "label_b021df": "Rotulo",
+        "lock_b48516": "Bloquear",
+        "match_6da892": "Correspondencia",
+        "mean_3d6c9a": "Media",
+        "metabolicEndocrine_4d43ef": "Metabolico / Endocrino",
+        "modalityAnatomyAiClassification_9a3aae":
+          "Modalidade, anatomia, classificacao por IA",
+        "nativeHawaiianOrOtherPacificIslander_223ed7":
+          "Havaiano nativo ou outro ilheu do Pacifico",
+        "notes_f4c6f8": "Notas",
+        "notHispanicOrLatino_fa7b68": "Nao hispanico ou latino",
+        "occurring_712f41": "Ocorrendo:",
+        "offset_dfd0a8": "Deslocamento",
+        "offsetFrom_67c774": "Deslocamento a partir de",
+        "ofTheFollowing_04cd7a": "dos seguintes:",
+        "ofThemQualifies_9d103b": "deles se qualifica.",
+        "ofTheseRules_b73835": "destas regras:",
+        "onlyA_220cfd": "Somente A",
+        "onlyB_1d0d2f": "Somente B",
+        "orAnySubType_2e6910": "(ou qualquer subtipo)",
+        "orPasteJson_4006b3": "Ou cole JSON",
+        "orphanConcepts_6f7989": "Conceitos orfaos",
+        "pairwiseAgreement_33e604": "concordancia par a par",
+        "patientMustMatch_32bd21": "O paciente deve corresponder a",
+        "pediatric_c66795": "Pediatrico",
+        "persons_cbb82b": "Pessoas",
+        "profile_cce99c": "Perfil",
+        "promotedValidation_f5525e": "validacao promovida",
+        "prsDistribution_f9eb79": "Distribuicao PRS",
+        "qualifiedLimit_8e0595": "Limite qualificado",
+        "qualifyingEvent_3e92ae": "evento qualificador",
+        "qualityReady_1dde62": "pronto para qualidade",
+        "queued_7b2f31": "Na fila",
+        "queueFilter_3f520f": "Filtro da fila",
+        "rareDisease_f7ba34": "Doenca rara",
+        "rate1kPy_36fcaa": "Taxa / 1K ap",
+        "ratesPer1000PersonYearsByAge_bd888d":
+          "Taxas por 1.000 anos-pessoa por idade, sexo e ano calendario",
+        "recentClinicalEvents_7a9ca1": "Eventos clinicos recentes",
+        "recentNotes_062598": "Notas recentes",
+        "reConfigure_af2a3a": "Reconfigurar",
+        "recordCount_1f2a70": "Contagem de registros",
+        "recordCounts_020882": "Contagens de registros",
+        "referenceSetReviewerSamplingMethod_089b48":
+          "Conjunto de referencia, revisor, metodo de amostragem.",
+        "removeFilter_5e56e9": "Remover filtro",
+        "removeGroup_53fc0c": "Remover grupo",
+        "renal_199d35": "Renal",
+        "require_a94254": "Exigir",
+        "require_e9da75": "&ldquo;Exigir",
+        "requireAllQualityMeasuresCompletedFiltersToCompliant_0c9036":
+          "Exigir todas as medidas de qualidade concluidas (filtra para pacientes conformes)",
+        "requireAMinimumAmountOfContinuousObservationBefore_844d62":
+          "Exigir uma quantidade minima de observacao continua antes e depois da data indice.",
+        "required_22eab7": "Obrigatorio:",
+        "resolveCase_22fafd": "Resolver como caso",
+        "resolveNonCase_3aab77": "Resolver como nao caso",
+        "restrictToSameVisit_13ff6d": "Restringir a mesma visita",
+        "restrictToSameVisitAsIndexEvent_8c5d90":
+          "Restringir a mesma visita do evento indice",
+        "reviewComplete_1c2830": "revisao concluida",
+        "reviewedInView_a342f5": "revisados na visualizacao",
+        "reviewerConflict_15d048": "Conflito entre revisores",
+        "reviewRecords_c283f1": "registros de revisao",
+        "reviewSource_a2d4bf": "fonte de revisao",
+        "riskScoreCriteriaCanBeAddedViaThe_4db211":
+          "Criterios de score de risco podem ser adicionados via",
+        "riskScoreFilteringRequiresPreComputedRiskScores_dd99be":
+          "A filtragem por score de risco exige scores de risco precomputados de uma analise concluida. Se nenhuma analise de score de risco tiver sido executada, esta etapa pode ser ignorada. Voce pode adicionar criterios de score de risco depois no Editor Avancado.",
+        "riskTier_1496ae": "Nivel de risco",
+        "sameDay_d051d9": "Mesmo dia",
+        "sampledCharts_53f635": "prontuarios amostrados",
+        "score_343bc2": "Score:",
+        "scoreValue_990b82": "Valor do score",
+        "seed_dba005": "Semente",
+        "seededRandom_0e39c4": "Aleatorio com semente",
+        "selectADomain_d010f3": "Selecione um dominio...",
+        "selectAnalysis_56184d": "Selecione uma analise...",
+        "selectAtLeast2CohortsToComputeOverlap_52d9df":
+          "Selecione pelo menos 2 coortes para calcular a sobreposicao",
+        "selectPrsScore_301cb5": "Selecione score PRS",
+        "selectScore_4e2f60": "Selecione score...",
+        "selectTier_a0e7b2": "Selecione nivel...",
+        "semanticAi_ae39da": "Semantico (IA)",
+        "sensitivity_456ce8": "Sensibilidade",
+        "sharedViaParthenon_eb6c6f": "Compartilhado via Parthenon",
+        "showingFirst50Of_f956a6": "Mostrando os 50 primeiros de",
+        "skip_72ef2b": "Pular",
+        "specialized_caea9d": "Especializado",
+        "specializedCriteria_965942": "Criterios especializados",
+        "started_842855": "Iniciado",
+        "step1Of2EndStrategy_16da38": "Etapa 1 de 2 - Estrategia de fim",
+        "step1Of3EntryEvents_e2aefb":
+          "Etapa 1 de 3 - Eventos de entrada",
+        "step1Of3InclusionRules_08fe47":
+          "Etapa 1 de 3 - Regras de inclusao",
+        "step2Of2CensoringEvents_8b6873":
+          "Etapa 2 de 2 - Eventos de censura",
+        "step2Of3Demographics_b4ecd7": "Etapa 2 de 3 - Demografia",
+        "step2Of3ObservationWindow_b94abd":
+          "Etapa 2 de 3 - Janela de observacao",
+        "step3Of3QualifyingEvents_fb726a":
+          "Etapa 3 de 3 - Eventos qualificadores",
+        "step3Of3RiskScores_9eca4e": "Etapa 3 de 3 - Scores de risco",
+        "studyReady_834a5b": "Pronto para estudo",
+        "theCohortHasBeenGeneratedButContains0_44c3b8":
+          "A coorte foi gerada, mas contem 0 pacientes em todas as fontes.",
+        "theseCriteriaRequireSpecializedDataInYourCdm_6554de":
+          "Estes criterios exigem dados especializados no seu CDM (tabelas de extensao oncologica, series de imagem DICOM). Se sua fonte de dados nao os tiver, estes filtros retornarao zero pacientes.",
+        "thisEnsuresPatientsHaveEnoughDataForYour_5428c0":
+          "Isso garante que os pacientes tenham dados suficientes para seu estudo. Por exemplo, exigir 365 dias de historico previo garante que voce possa verificar condicoes preexistentes.",
+        "thisMayTakeSeveralMinutesDependingOnCohort_0d6381":
+          "Isso pode levar varios minutos, dependendo do tamanho da coorte e das analises selecionadas.",
+        "timeWindowedCovariatePrevalenceSlowAddsSeveralMinutes_e70cc2":
+          "Prevalencia de covariaveis em janelas temporais (lento - adiciona varios minutos)",
+        "tip_342a40": "Dica:",
+        "uncertainInView_0769e9": "incertos na visualizacao",
+        "unresolvedConflicts_f3843b": "conflitos nao resolvidos",
+        "unreviewedInView_182172": "nao revisados na visualizacao",
+        "useEventEndDate_3ae8db": "Usar data final do evento",
+        "useIndexEndDate_f4cf35": "Usar data final do indice",
+        "useTheEarliestQualifyingEventAsTheEntry_06e560":
+          "Use o evento qualificador mais antigo como data de entrada. E a escolha mais comum.",
+        "visitTypeAtTimeOfCohortEntry_12fc0b":
+          "Tipo de visita no momento da entrada na coorte",
+        "whatAdditionalRequirementsMustAPatientMeetTo_865119":
+          "Quais requisitos adicionais um paciente deve cumprir para permanecer na coorte?",
+        "whenDoesAPatientSCohortMembershipEnd_cb35e8":
+          "Quando termina a participacao do paciente na coorte?",
+        "whileOnMedication_950a80": "Enquanto em medicacao",
+        "whoHave_fc8310": "que tenham",
+      },
+    },
+  },
+);
+
 export const cohortDefinitionResources: Record<string, MessageTree> = {
   "en-US": enCohortDefinitions,
   "es-ES": mergeMessageTrees(enCohortDefinitions, {}),
   "fr-FR": frCohortDefinitionsPass4,
-  "de-DE": deCohortDefinitionsPass3,
-  "pt-BR": ptCohortDefinitionsPass3,
+  "de-DE": deCohortDefinitionsPass4,
+  "pt-BR": ptCohortDefinitionsPass4,
   "fi-FI": mergeMessageTrees(enCohortDefinitions, {}),
   "ja-JP": mergeMessageTrees(enCohortDefinitions, {}),
   "zh-Hans": mergeMessageTrees(enCohortDefinitions, {}),
