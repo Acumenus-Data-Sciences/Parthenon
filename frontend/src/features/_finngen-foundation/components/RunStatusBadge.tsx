@@ -29,6 +29,19 @@ const LABELS: Record<RunStatusBadgeStatus, string> = {
   superseded: "Superseded",
 };
 
+// Phase 260423-qvz: animated dot indicator. 'running' pulses via animate-ping
+// (ripple), 'queued' fades via animate-pulse; terminal states show a static
+// dot colored to match the pill's semantic tone.
+const DOT_CLASSNAMES: Record<RunStatusBadgeStatus, string> = {
+  queued: "h-1.5 w-1.5 rounded-full bg-slate-400 animate-pulse",
+  running: "h-1.5 w-1.5 rounded-full bg-cyan-300 animate-ping",
+  canceling: "h-1.5 w-1.5 rounded-full bg-amber-300",
+  succeeded: "h-1.5 w-1.5 rounded-full bg-emerald-300",
+  failed: "h-1.5 w-1.5 rounded-full bg-rose-300",
+  canceled: "h-1.5 w-1.5 rounded-full bg-zinc-400",
+  superseded: "h-1.5 w-1.5 rounded-full bg-zinc-600",
+};
+
 export type RunStatusBadgeProps = {
   status: RunStatusBadgeStatus;
   className?: string;
@@ -41,6 +54,10 @@ export function RunStatusBadge({ status, className = "" }: RunStatusBadgeProps) 
       className={`inline-flex items-center rounded border px-2 py-0.5 text-xs font-semibold ${classes} ${className}`}
       data-testid={`finngen-run-status-${status}`}
     >
+      <span
+        aria-hidden="true"
+        className={`mr-1.5 inline-block ${DOT_CLASSNAMES[status]}`}
+      />
       {LABELS[status]}
     </span>
   );

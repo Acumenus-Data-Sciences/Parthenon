@@ -37,7 +37,7 @@ export function CoverageProfileBadge({
     return (
       <span
         data-testid="coverage-profile-badge-finland-only"
-        className={`inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-300 ${className ?? ""}`}
+        className={`inline-flex items-center rounded border border-amber-500/40 border-l-[3px] border-l-amber-400 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-300 ${className ?? ""}`}
         title="This endpoint depends on Finnish source vocabularies (ICD-8, NOMESCO, KELA_REIMB, ICDO3-FI) that are not present in any non-Finnish CDM."
       >
         Requires Finnish CDM
@@ -48,7 +48,7 @@ export function CoverageProfileBadge({
     return (
       <span
         data-testid="coverage-profile-badge-partial"
-        className={`inline-flex items-center rounded-full border border-slate-700 bg-slate-900 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400 ${className ?? ""}`}
+        className={`inline-flex items-center rounded border border-slate-700 border-l-[3px] border-l-slate-400 bg-slate-900 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400 ${className ?? ""}`}
         title="Some qualifying-event branches resolve to standard concepts; others are Finnish-only. The generated cohort may underestimate the true subject count."
       >
         Partial coverage
