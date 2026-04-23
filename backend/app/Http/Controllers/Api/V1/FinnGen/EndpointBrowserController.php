@@ -103,6 +103,7 @@ final class EndpointBrowserController extends Controller
         $tag = trim((string) $request->query('tag', ''));
         $bucket = trim((string) $request->query('bucket', ''));
         $release = trim((string) $request->query('release', ''));
+        $coverageProfile = trim((string) $request->query('coverage_profile', ''));
 
         $query = EndpointDefinition::on('finngen_ro')
             ->orderBy('name');
@@ -119,6 +120,10 @@ final class EndpointBrowserController extends Controller
 
         if (in_array($bucket, self::BUCKETS, true)) {
             $query->where('coverage_bucket', $bucket);
+        }
+
+        if ($coverageProfile !== '' && in_array($coverageProfile, ['universal', 'partial', 'finland_only'], true)) {
+            $query->where('coverage_profile', $coverageProfile);
         }
 
         if ($tag !== '') {
@@ -777,16 +782,17 @@ final class EndpointBrowserController extends Controller
         $userId = (int) $user->getKey();
         $isAdmin = $user->hasAnyRole(['admin', 'super-admin']);
 
-        // Single CTE pre-aggregates {source}.cohort counts + last_generated_at per
-        // cohort_definition_id — one scan of the source cohort table instead of
-        // up to 300 scalar subqueries at LIMIT=100 (REVIEW §CR-01). $sourceLower
-        // is already regex-validated above; interpolate via sprintf, bind scalars.
+        // Single CTE pre-aggregates {source}_results.cohort counts + last_generated_at
+        // per cohort_definition_id — one scan instead of N scalar subqueries (§CR-01).
+        // Cohort materializations are always written to {source}_results.cohort, not the
+        // CDM schema ({source}.cohort is an empty OMOP stub or doesn't exist on all CDMs).
+        // $sourceLower is regex-validated above; interpolate via sprintf, bind scalars.
         $cteSql = sprintf(
             'WITH cohort_counts AS (
                  SELECT cohort_definition_id,
-                        COUNT(*)          AS subject_count,
-                        MAX(created_at)   AS last_generated_at
-                   FROM %s.cohort
+                        COUNT(*)                AS subject_count,
+                        MAX(cohort_start_date)  AS last_generated_at
+                   FROM %s_results.cohort
                   GROUP BY cohort_definition_id
              )',
             $sourceLower
@@ -998,12 +1004,13 @@ final class EndpointBrowserController extends Controller
                 [$name, $sourceKey, $currentHash]
             );
             $comorbidities = DB::select(
-                "SELECT comorbid_endpoint AS comorbid_endpoint_name,
-                        NULL              AS comorbid_endpoint_display_name,
-                        phi_coef, odds_ratio, or_ci_low, or_ci_high, co_count, rank
-                   FROM {$schema}.endpoint_profile_comorbidities
-                  WHERE index_endpoint = ? AND source_key = ? AND expression_hash = ?
-                  ORDER BY rank",
+                "SELECT c.comorbid_endpoint AS comorbid_endpoint_name,
+                        ed.longname        AS comorbid_endpoint_display_name,
+                        c.phi_coef, c.odds_ratio, c.or_ci_low, c.or_ci_high, c.co_count, c.rank
+                   FROM {$schema}.endpoint_profile_comorbidities c
+                   LEFT JOIN finngen.endpoint_definitions ed ON ed.name = c.comorbid_endpoint
+                  WHERE c.index_endpoint = ? AND c.source_key = ? AND c.expression_hash = ?
+                  ORDER BY c.rank",
                 [$name, $sourceKey, $currentHash]
             );
             $drugClasses = DB::select(
@@ -1027,9 +1034,16 @@ final class EndpointBrowserController extends Controller
             throw $e;
         }
 
+        $summaryArr = (array) $summary;
+        // age_at_death_bins is stored as JSONB and arrives as a raw JSON string
+        // from PDO. Decode it so the client receives an array, not a string.
+        if (isset($summaryArr['age_at_death_bins']) && is_string($summaryArr['age_at_death_bins'])) {
+            $summaryArr['age_at_death_bins'] = json_decode($summaryArr['age_at_death_bins'], true) ?? [];
+        }
+
         return response()->json([
             'status' => 'cached',
-            'summary' => (array) $summary,
+            'summary' => $summaryArr,
             'km_points' => $kmPoints,
             'comorbidities' => $comorbidities,
             'drug_classes' => $drugClasses,

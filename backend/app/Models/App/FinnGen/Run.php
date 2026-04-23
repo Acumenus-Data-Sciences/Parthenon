@@ -106,6 +106,21 @@ class Run extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Ensure `artifacts` always serializes as a JSON object ({}) even when
+     * empty. PHP's json_encode([]) produces "[]" (array), but the API contract
+     * and TS type define artifacts as Record<string,string>.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        $arr = parent::toArray();
+        $arr['artifacts'] = (object) ($arr['artifacts'] ?? []);
+
+        return $arr;
+    }
+
     public function isTerminal(): bool
     {
         return in_array($this->status, self::TERMINAL_STATUSES, true);

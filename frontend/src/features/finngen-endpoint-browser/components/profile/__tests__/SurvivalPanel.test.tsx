@@ -18,9 +18,9 @@ const BASE_SUMMARY: EndpointProfileSummary = {
   age_at_death_mean: 68.4,
   age_at_death_median: 70,
   age_at_death_bins: [
-    { bin_start: 60, bin_end: 64, count: 12 },
-    { bin_start: 65, bin_end: 69, count: 25 },
-    { bin_start: 70, bin_end: 74, count: 30 },
+    { age_bin: "60-64", bin_start: 60, count: 12 },
+    { age_bin: "65-69", bin_start: 65, count: 25 },
+    { age_bin: "70-74", bin_start: 70, count: 30 },
   ],
   computed_at: "2026-04-19T12:00:00Z",
   run_id: "01HFAKE",

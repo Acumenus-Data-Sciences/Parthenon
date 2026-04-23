@@ -43,6 +43,7 @@ export type FinnGenRun = {
 export type FinnGenAnalysisType =
   | "romopapi.code_counts"
   | "romopapi.report"
+  | "romopapi.setup"
   | "hades.overlap"
   | "hades.demographics"
   | "hades.counts"
@@ -51,8 +52,15 @@ export type FinnGenAnalysisType =
   | "co2.overlaps"
   | "co2.demographics"
   | "co2.gwas"
+  | "co2.endpoint_profile"
+  | "co2.test.extra"
   | "cohort.generate"
-  | "cohort.match";
+  | "cohort.match"
+  | "cohort.materialize"
+  | "endpoint.generate"
+  | "gwas.regenie.step1"
+  | "gwas.regenie.step2"
+  | "finngen.prs.compute";
 
 export type FinnGenRunStatus =
   | "queued"

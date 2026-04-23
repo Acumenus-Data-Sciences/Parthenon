@@ -40,7 +40,7 @@ const CACHED_ENVELOPE: EndpointProfileEnvelope = {
     median_survival_days: 1500,
     age_at_death_mean: 68,
     age_at_death_median: 70,
-    age_at_death_bins: [{ bin_start: 65, bin_end: 69, count: 25 }],
+    age_at_death_bins: [{ age_bin: "65-69", bin_start: 65, count: 25 }],
     computed_at: "2026-04-19T12:00:00Z",
     run_id: "01HFAKE",
   },

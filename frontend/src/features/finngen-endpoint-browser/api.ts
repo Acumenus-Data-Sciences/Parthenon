@@ -361,7 +361,7 @@ export type EndpointProfileSummary = {
   median_survival_days: number | null;
   age_at_death_mean: number | null;
   age_at_death_median: number | null;
-  age_at_death_bins: Array<{ bin_start: number; bin_end: number; count: number }>;
+  age_at_death_bins: Array<{ age_bin: string; bin_start: number; count: number }>;
   computed_at: string;
   run_id: string;
 };
