@@ -2,7 +2,10 @@ type MessageTree = {
   [key: string]: string | MessageTree;
 };
 
-function mergeMessageTrees(base: MessageTree, overrides: MessageTree): MessageTree {
+function mergeMessageTrees(
+  base: MessageTree,
+  overrides: MessageTree,
+): MessageTree {
   return Object.fromEntries(
     Object.entries(base).map(([key, baseValue]) => {
       const overrideValue = overrides[key];
@@ -68,16 +71,13 @@ const enStrategus: MessageTree = {
       },
       studyInfo: {
         title: "Study Information",
-        intro:
-          "Name your study package and provide an optional description.",
+        intro: "Name your study package and provide an optional description.",
         studyName: "Study Name",
         description: "Description",
-        studyNamePlaceholder:
-          "e.g., SGLT2i vs DPP4i Heart Failure Risk Study",
+        studyNamePlaceholder: "e.g., SGLT2i vs DPP4i Heart Failure Risk Study",
         descriptionPlaceholder:
           "Briefly describe the study objectives, population, and expected outcomes...",
-        info:
-          "Strategus executes multi-analysis OHDSI study packages across one or more CDM data sources. Each analysis module runs independently and writes results to the configured output directory.",
+        info: "Strategus executes multi-analysis OHDSI study packages across one or more CDM data sources. Each analysis module runs independently and writes results to the configured output directory.",
       },
       selectModules: {
         loading: "Loading available modules...",
@@ -260,8 +260,7 @@ const enStrategus: MessageTree = {
       },
       selfControlledCaseSeries: {
         label: "Self-Controlled Case Series",
-        description:
-          "Estimates incidence rate ratios using SCCS design.",
+        description: "Estimates incidence rate ratios using SCCS design.",
       },
       cohortDiagnostics: {
         label: "Cohort Diagnostics",
@@ -333,8 +332,7 @@ const frStrategus: MessageTree = mergeMessageTrees(enStrategus, {
           "par ex. Etude du risque d'insuffisance cardiaque SGLT2i vs DPP4i",
         descriptionPlaceholder:
           "Decrivez brievement les objectifs de l'etude, la population et les resultats attendus...",
-        info:
-          "Strategus execute des packages d'etude OHDSI multi-analyses sur une ou plusieurs sources CDM. Chaque module d'analyse s'execute independamment et ecrit ses resultats dans le repertoire de sortie configure.",
+        info: "Strategus execute des packages d'etude OHDSI multi-analyses sur une ou plusieurs sources CDM. Chaque module d'analyse s'execute independamment et ecrit ses resultats dans le repertoire de sortie configure.",
       },
       selectModules: {
         loading: "Chargement des modules disponibles...",
@@ -570,8 +568,7 @@ const deStrategus: MessageTree = mergeMessageTrees(enStrategus, {
           "z. B. Herzinsuffizienz-Risikostudie SGLT2i vs DPP4i",
         descriptionPlaceholder:
           "Beschreiben Sie kurz Studienziele, Population und erwartete Outcomes...",
-        info:
-          "Strategus fuhrt OHDSI-Studienpakete mit mehreren Analysen uber eine oder mehrere CDM-Datenquellen aus. Jedes Analysemodul lauft unabhangig und schreibt Ergebnisse in das konfigurierte Ausgabeverzeichnis.",
+        info: "Strategus fuhrt OHDSI-Studienpakete mit mehreren Analysen uber eine oder mehrere CDM-Datenquellen aus. Jedes Analysemodul lauft unabhangig und schreibt Ergebnisse in das konfigurierte Ausgabeverzeichnis.",
       },
       selectModules: {
         loading: "Verfugbare Module werden geladen...",
@@ -738,8 +735,7 @@ const deStrategus: MessageTree = mergeMessageTrees(enStrategus, {
           "Erstellt Vorhersagemodelle fur Outcomes auf Patientenebene mittels ML.",
       },
       selfControlledCaseSeries: {
-        description:
-          "Schatzt Inzidenzratenverhaltnisse mit dem SCCS-Design.",
+        description: "Schatzt Inzidenzratenverhaltnisse mit dem SCCS-Design.",
       },
       cohortDiagnostics: {
         description:
@@ -799,16 +795,14 @@ const ptStrategus: MessageTree = mergeMessageTrees(enStrategus, {
       },
       studyInfo: {
         title: "Informacoes do estudo",
-        intro:
-          "Nomeie seu pacote de estudo e forneca uma descricao opcional.",
+        intro: "Nomeie seu pacote de estudo e forneca uma descricao opcional.",
         studyName: "Nome do estudo",
         description: "Descricao",
         studyNamePlaceholder:
           "ex.: Estudo de risco de insuficiencia cardiaca SGLT2i vs DPP4i",
         descriptionPlaceholder:
           "Descreva brevemente os objetivos do estudo, a populacao e os desfechos esperados...",
-        info:
-          "Strategus executa pacotes de estudo OHDSI multi-analise em uma ou mais fontes de dados CDM. Cada modulo de analise roda de forma independente e grava os resultados no diretorio de saida configurado.",
+        info: "Strategus executa pacotes de estudo OHDSI multi-analise em uma ou mais fontes de dados CDM. Cada modulo de analise roda de forma independente e grava os resultados no diretorio de saida configurado.",
       },
       selectModules: {
         loading: "Carregando modulos disponiveis...",
@@ -979,8 +973,7 @@ const ptStrategus: MessageTree = mergeMessageTrees(enStrategus, {
           "Estima razoes de taxa de incidencia usando o desenho SCCS.",
       },
       cohortDiagnostics: {
-        description:
-          "Avalia algoritmos de fenotipo e caracteriza coortes.",
+        description: "Avalia algoritmos de fenotipo e caracteriza coortes.",
       },
       characterization: {
         description:
@@ -1045,8 +1038,7 @@ const esStrategus: MessageTree = mergeMessageTrees(enStrategus, {
           "p. ej., estudio del riesgo de insuficiencia cardiaca SGLT2i vs DPP4i",
         descriptionPlaceholder:
           "Describa brevemente los objetivos del estudio, la poblacion y los resultados esperados...",
-        info:
-          "Strategus ejecuta paquetes de estudio OHDSI con multiples analisis sobre una o mas fuentes de datos CDM. Cada modulo de analisis se ejecuta de forma independiente y escribe los resultados en el directorio de salida configurado.",
+        info: "Strategus ejecuta paquetes de estudio OHDSI con multiples analisis sobre una o mas fuentes de datos CDM. Cada modulo de analisis se ejecuta de forma independiente y escribe los resultados en el directorio de salida configurado.",
       },
       selectModules: {
         loading: "Cargando modulos disponibles...",
@@ -1218,8 +1210,7 @@ const esStrategus: MessageTree = mergeMessageTrees(enStrategus, {
       },
       cohortDiagnostics: {
         label: "Diagnostico de cohortes",
-        description:
-          "Evalua algoritmos de fenotipo y caracteriza cohortes.",
+        description: "Evalua algoritmos de fenotipo y caracteriza cohortes.",
       },
       characterization: {
         label: "Caracterizacion",
@@ -1263,8 +1254,7 @@ const koStrategus: MessageTree = mergeMessageTrees(enStrategus, {
     page: {
       header: {
         title: "연구 패키지",
-        subtitle:
-          "Strategus 다중 분석 OHDSI 연구 패키지를 구축하고 실행합니다",
+        subtitle: "Strategus 다중 분석 OHDSI 연구 패키지를 구축하고 실행합니다",
         importJson: "JSON 가져오기",
         exportJson: "JSON 내보내기",
       },
@@ -1282,12 +1272,10 @@ const koStrategus: MessageTree = mergeMessageTrees(enStrategus, {
         intro: "연구 패키지 이름을 지정하고 선택적으로 설명을 추가하세요.",
         studyName: "연구 이름",
         description: "설명",
-        studyNamePlaceholder:
-          "예: SGLT2i 대 DPP4i 심부전 위험 연구",
+        studyNamePlaceholder: "예: SGLT2i 대 DPP4i 심부전 위험 연구",
         descriptionPlaceholder:
           "연구 목표, 대상 집단, 예상 결과를 간단히 설명하세요...",
-        info:
-          "Strategus는 하나 이상의 CDM 데이터 소스에서 다중 분석 OHDSI 연구 패키지를 실행합니다. 각 분석 모듈은 독립적으로 실행되며 구성된 출력 디렉터리에 결과를 기록합니다.",
+        info: "Strategus는 하나 이상의 CDM 데이터 소스에서 다중 분석 OHDSI 연구 패키지를 실행합니다. 각 분석 모듈은 독립적으로 실행되며 구성된 출력 디렉터리에 결과를 기록합니다.",
       },
       selectModules: {
         loading: "사용 가능한 모듈을 불러오는 중...",
@@ -1317,8 +1305,7 @@ const koStrategus: MessageTree = mergeMessageTrees(enStrategus, {
         modules: "모듈",
         cohorts: "코호트",
         validateTitle: "명세 검증",
-        validateIntro:
-          "실행 전에 분석 명세에서 모듈 구성 문제를 확인하세요.",
+        validateIntro: "실행 전에 분석 명세에서 모듈 구성 문제를 확인하세요.",
         runValidation: "검증 실행",
         validationPassed: "검증 통과",
         validationFailed: "검증 실패",
@@ -1367,8 +1354,7 @@ const koStrategus: MessageTree = mergeMessageTrees(enStrategus, {
     },
     moduleSettings: {
       title: "모듈 설정",
-      intro:
-        "모듈별 매개변수를 구성하세요. 설정을 보려면 모듈을 클릭하세요.",
+      intro: "모듈별 매개변수를 구성하세요. 설정을 보려면 모듈을 클릭하세요.",
       autoBadge: "자동",
       noConfigurationNeeded:
         "추가 설정이 필요하지 않습니다. CohortGenerator가 공유 코호트 정의에서 코호트를 자동으로 생성합니다.",
@@ -1445,8 +1431,7 @@ const koStrategus: MessageTree = mergeMessageTrees(enStrategus, {
       },
       cohortMethod: {
         label: "코호트 방법",
-        description:
-          "비교 코호트 설계를 사용해 집단 수준의 효과를 추정합니다.",
+        description: "비교 코호트 설계를 사용해 집단 수준의 효과를 추정합니다.",
       },
       patientLevelPrediction: {
         label: "환자 수준 예측",
@@ -1455,23 +1440,19 @@ const koStrategus: MessageTree = mergeMessageTrees(enStrategus, {
       },
       selfControlledCaseSeries: {
         label: "자가대조 사례군",
-        description:
-          "SCCS 설계를 사용해 발생률 비를 추정합니다.",
+        description: "SCCS 설계를 사용해 발생률 비를 추정합니다.",
       },
       cohortDiagnostics: {
         label: "코호트 진단",
-        description:
-          "표현형 알고리즘을 평가하고 코호트를 특성화합니다.",
+        description: "표현형 알고리즘을 평가하고 코호트를 특성화합니다.",
       },
       characterization: {
         label: "특성화",
-        description:
-          "대상 및 비교군 코호트 전반의 기저 특성을 계산합니다.",
+        description: "대상 및 비교군 코호트 전반의 기저 특성을 계산합니다.",
       },
       cohortIncidence: {
         label: "코호트 발생률",
-        description:
-          "대상 집단에서 결과의 발생률을 계산합니다.",
+        description: "대상 집단에서 결과의 발생률을 계산합니다.",
       },
       evidenceSynthesis: {
         label: "근거 종합",
@@ -1505,8 +1486,7 @@ const hiStrategus: MessageTree = mergeMessageTrees(enStrategus, {
     page: {
       header: {
         title: "अध्ययन पैकेज",
-        subtitle:
-          "Strategus बहु-विश्लेषण OHDSI अध्ययन पैकेज बनाएं और चलाएं",
+        subtitle: "Strategus बहु-विश्लेषण OHDSI अध्ययन पैकेज बनाएं और चलाएं",
         importJson: "JSON आयात करें",
         exportJson: "JSON निर्यात करें",
       },
@@ -1521,16 +1501,14 @@ const hiStrategus: MessageTree = mergeMessageTrees(enStrategus, {
       },
       studyInfo: {
         title: "अध्ययन जानकारी",
-        intro:
-          "अपने अध्ययन पैकेज का नाम दें और वैकल्पिक विवरण प्रदान करें।",
+        intro: "अपने अध्ययन पैकेज का नाम दें और वैकल्पिक विवरण प्रदान करें।",
         studyName: "अध्ययन नाम",
         description: "विवरण",
         studyNamePlaceholder:
           "उदा., SGLT2i बनाम DPP4i हृदय विफलता जोखिम अध्ययन",
         descriptionPlaceholder:
           "अध्ययन के उद्देश्यों, आबादी और अपेक्षित परिणामों का संक्षेप में वर्णन करें...",
-        info:
-          "Strategus एक या अधिक CDM डेटा स्रोतों पर बहु-विश्लेषण OHDSI अध्ययन पैकेज चलाता है। प्रत्येक विश्लेषण मॉड्यूल स्वतंत्र रूप से चलता है और परिणामों को कॉन्फ़िगर किए गए आउटपुट डायरेक्टरी में लिखता है।",
+        info: "Strategus एक या अधिक CDM डेटा स्रोतों पर बहु-विश्लेषण OHDSI अध्ययन पैकेज चलाता है। प्रत्येक विश्लेषण मॉड्यूल स्वतंत्र रूप से चलता है और परिणामों को कॉन्फ़िगर किए गए आउटपुट डायरेक्टरी में लिखता है।",
       },
       selectModules: {
         loading: "उपलब्ध मॉड्यूल लोड हो रहे हैं...",
@@ -1615,8 +1593,7 @@ const hiStrategus: MessageTree = mergeMessageTrees(enStrategus, {
       autoBadge: "स्वचालित",
       noConfigurationNeeded:
         "किसी कॉन्फ़िगरेशन की आवश्यकता नहीं है। CohortGenerator साझा समूह परिभाषाओं से समूह स्वचालित रूप से बनाता है।",
-      noCohorts:
-        "कोई समूह उपलब्ध नहीं है। साझा समूह चरण में समूह जोड़ें।",
+      noCohorts: "कोई समूह उपलब्ध नहीं है। साझा समूह चरण में समूह जोड़ें।",
       sections: {
         cohortAssignment: "समूह असाइनमेंट",
         parameters: "पैरामीटर",
@@ -1713,8 +1690,7 @@ const hiStrategus: MessageTree = mergeMessageTrees(enStrategus, {
       },
       cohortIncidence: {
         label: "समूह घटना",
-        description:
-          "लक्ष्य आबादी में परिणामों की घटना दर की गणना करता है।",
+        description: "लक्ष्य आबादी में परिणामों की घटना दर की गणना करता है।",
       },
       evidenceSynthesis: {
         label: "साक्ष्य संश्लेषण",
@@ -1731,9 +1707,702 @@ export const strategusResources: Record<string, MessageTree> = {
   "fr-FR": frStrategus,
   "de-DE": deStrategus,
   "pt-BR": ptStrategus,
-  "fi-FI": mergeMessageTrees(enStrategus, {}),
-  "ja-JP": mergeMessageTrees(enStrategus, {}),
-  "zh-Hans": mergeMessageTrees(enStrategus, {}),
+  "fi-FI": mergeMessageTrees(enStrategus, {
+    strategus: {
+      common: {
+        added: "Lisätty",
+        auto: "Automaattinen",
+        back: "Takaisin",
+        comparator: "Vertailija",
+        cohorts: "Kohortit",
+        description: "Kuvaus",
+        issues: "Ongelmat",
+        modules: "Moduulit",
+        next: "Seuraavaksi",
+        noneConfigured: "Mitään ei ole määritetty",
+        outcome: "Tulokset",
+        required: "Pakollinen",
+        source: "Lähde",
+        status: "Tila",
+        target: "Kohde",
+        warnings: "Varoitukset",
+      },
+      page: {
+        header: {
+          title: "Opintopaketit",
+          subtitle:
+            "Rakenna ja toteuta Strategus-monianalyysin OHDSI-tutkimuspaketteja",
+          importJson: "Tuo JSON",
+          exportJson: "Vie JSON",
+        },
+        steps: {
+          studyInfo: "Opintotiedot",
+          selectModules: "Valitse Moduulit",
+          sharedCohorts: "Jaetut kohortit",
+          moduleSettings: "Moduulin asetukset",
+          jsonPreview: "JSON-esikatselu",
+          reviewValidate: "Tarkista & Vahvista",
+          execute: "Suorittaa",
+        },
+        studyInfo: {
+          title: "Tutkimustiedot",
+          intro: "Nimeä opintopakettisi ja anna valinnainen kuvaus.",
+          studyName: "Tutkimuksen nimi",
+          description: "Kuvaus",
+          studyNamePlaceholder:
+            "esim. SGLT2i vs DPP4i sydämen vajaatoiminnan riskitutkimus",
+          descriptionPlaceholder:
+            "Kuvaile lyhyesti tutkimuksen tavoitteita, väestöä ja odotettuja tuloksia...",
+          info: "Strategus suorittaa usean analyysin OHDSI-tutkimuspaketteja yhdessä tai useammassa CDM-tietolähteessä.Jokainen analyysimoduuli toimii itsenäisesti ja kirjoittaa tulokset määritettyyn tuloshakemistoon.",
+        },
+        selectModules: {
+          loading: "Ladataan käytettävissä olevia moduuleja...",
+          title: "Valitse Analyysimoduulit",
+          intro:
+            "Valitse sisällytettävät OHDSI-analyysimoduulit.CohortGenerator vaaditaan ja aina mukana.",
+        },
+        sharedCohorts: {
+          title: "Jaetut kohortin määritelmät",
+          intro:
+            "Lisää kohde-, vertailu- ja tuloskohortit, jotka jaetaan kaikille analyysimoduuleille.",
+          addCohort: "Lisää kohortti",
+          loading: "Ladataan kohortteja...",
+          noneFound: "Kohorttimääritelmiä ei löytynyt.",
+          empty:
+            "Kohortteja ei ole vielä lisätty.Useimmat analyysimoduulit vaativat vähintään yhden kohdekohortin.",
+          roles: {
+            target: "Kohde",
+            comparator: "Vertailija",
+            outcome: "Tulokset",
+          },
+        },
+        review: {
+          title: "Tutkimuspaketin yhteenveto",
+          studyName: "Tutkimuksen nimi",
+          description: "Kuvaus",
+          modules: "Moduulit",
+          cohorts: "Kohortit",
+          validateTitle: "Vahvista määritys",
+          validateIntro:
+            "Tarkista moduulin kokoonpanoongelmien analyysitiedot ennen suorittamista.",
+          runValidation: "Suorita vahvistus",
+          validationPassed: "Validointi meni läpi",
+          validationFailed: "Vahvistus epäonnistui",
+          validationRequestFailed: "Vahvistuspyyntö epäonnistui",
+          severity: {
+            error: "Virhe",
+            warning: "Varoitus",
+          },
+        },
+        execute: {
+          title: "Suorita opintopaketti",
+          targetDataSource: "Kohdetietolähde",
+          loadingSources: "Ladataan lähteitä...",
+          selectSource: "Valitse lähde",
+          executeStudyPackage: "Suorita opintopaketti",
+          executing: "Suoritetaan...",
+          runningTitle: "Opintopaketti käynnissä...",
+          runningIntro:
+            "Strategus ohjaa moduulin suorittamista.Tämä voi kestää useita minuutteja tietojoukon koosta ja moduulien lukumäärästä riippuen.",
+          executionRequestFailed: "Suorituspyyntö epäonnistui",
+          executionComplete: "Suoritus valmis",
+          outputDirectory: "Tulostushakemisto",
+          modulesExecuted: "Moduulit suoritettu",
+          resultStats: {
+            modulesRun: "Moduulit Suorita",
+            resultFiles: "Tulostiedostot",
+            status: "Tila",
+          },
+          statusLabels: {
+            completed: "Valmis",
+            running: "Juoksemassa",
+            failed: "Epäonnistui",
+          },
+        },
+      },
+      jsonEditor: {
+        title: "JSON-määritysten esikatselu",
+        intro:
+          "Tarkista luotu analyysispesifikaatio.Muokkaa suoraan tai ota muutokset käyttöön alla.",
+        copied: "Kopioitu",
+        copyToClipboard: "Kopioi leikepöydälle",
+        resetToGenerated: "Palauta Luotu",
+        validJson: "Kelvollinen JSON",
+        invalidJson: "Virheellinen JSON",
+        applyChanges: "Ota muutokset käyttöön",
+      },
+      moduleSettings: {
+        title: "Moduulin asetukset",
+        intro:
+          "Määritä moduulikohtaiset parametrit.Napsauta moduulia laajentaaksesi sen asetuksia.",
+        autoBadge: "Automaattinen",
+        noConfigurationNeeded:
+          "Määritystä ei tarvita.CohortGenerator rakentaa automaattisesti kohortteja jaetuista kohorttimäärittelyistä.",
+        noCohorts:
+          "Kohortteja ei ole saatavilla.Lisää kohortteja Jaetut kohortit -vaiheessa.",
+        sections: {
+          cohortAssignment: "Kohorttitehtävä",
+          parameters: "Parametrit",
+          covariateSettings: "Kovariaattiasetukset",
+          modelConfiguration: "Mallin kokoonpano",
+          timeAtRisk: "Aika vaarassa",
+          trainingParameters: "Harjoitteluparametrit",
+          eraCovariateSettings: "Aikakauden kovariaattiasetukset",
+          diagnosticsOptions: "Diagnostiikkavaihtoehdot",
+          synthesisConfiguration: "Synteesikokoonpano",
+        },
+        fields: {
+          splitSeed: "Jaon siemen",
+          targetCohorts: "Kohortit",
+          comparatorCohorts: "Vertailukohortit",
+          outcomeCohorts: "Tuloskohortit",
+          exposureCohorts: "Altistumiskohortit",
+          washoutPeriod: "Huuhtelujakso (päivää)",
+          maxCohortSize: "Kohortin enimmäiskoko (0 = rajoittamaton)",
+          demographics: "Väestötiedot",
+          conditionOccurrence: "Tilan esiintyminen",
+          drugExposure: "Huumeiden altistuminen",
+          procedureOccurrence: "Toimenpide Tapahtuma",
+          measurement: "Mittaus",
+          modelType: "Mallin tyyppi",
+          windowStart: "Ikkunan aloitus (päivää)",
+          windowEnd: "Ikkunan loppu (päivää)",
+          minCohortSize: "Vähimmäiskohortin koko",
+          testFraction: "Testifraktio",
+          includeEraOverlap: "Sisällytä aikakauden päällekkäisyys",
+          firstOccurrenceOnly: "Vain ensimmäinen esiintyminen",
+          inclusionStatistics: "Inkluusiotilastot",
+          incidenceRate: "Ilmaantuvuusprosentti",
+          timeSeries: "Aikasarja",
+          breakdownIndexEvents: "Jaotteluindeksitapahtumat",
+          orphanConcepts: "Orpokonseptit",
+          minCellCount: "Minimaalinen solumäärä",
+          minPriorObservation: "Minimi ennakkotarkkailu (päiviä)",
+          dechallengeStopInterval: "Poista haaste pysäytysväli",
+          dechallengeEvalWindow: "Dechallenge Eval -ikkuna",
+          start: "Aloitus (päivää)",
+          end: "Loppu (päivää)",
+          cleanWindow: "Puhdas ikkuna (päivää)",
+          method: "Menetelmä",
+          evidenceSourceModule: "Todisteiden lähdemoduuli",
+        },
+        options: {
+          modelTypes: {
+            gradientBoosting: "Gradientin tehostaminen",
+            randomForest: "Satunnainen metsä",
+            deepLearning: "Syväoppiminen",
+          },
+          synthesisMethods: {
+            fixedEffects: "Kiinteät tehosteet",
+            randomEffects: "Satunnaiset tehosteet",
+            bayesian: "Bayesin",
+          },
+          evidenceSources: {
+            cohortMethod: "Kohorttimenetelmä",
+            selfControlledCaseSeries: "Itseohjautuva kotelosarja",
+          },
+        },
+      },
+      moduleMeta: {
+        cohortGenerator: {
+          label: "Kohorttigeneraattori",
+          description:
+            "Luo kohortteja määritelmistä.Vaaditaan kaikille opintotyypeille.",
+        },
+        cohortMethod: {
+          label: "Kohorttimenetelmä",
+          description:
+            "Väestötason vaikutusten arviointi käyttämällä vertailevaa kohorttisuunnittelua.",
+        },
+        patientLevelPrediction: {
+          label: "Potilastason ennuste",
+          description:
+            "Rakentaa ennustemalleja potilastason tuloksille ML:n avulla.",
+        },
+        selfControlledCaseSeries: {
+          label: "Itseohjautuva kotelosarja",
+          description:
+            "Arvioi ilmaantuvuussuhteet käyttämällä SCCS-suunnittelua.",
+        },
+        cohortDiagnostics: {
+          label: "Kohorttidiagnostiikka",
+          description: "Arvioi fenotyyppialgoritmit ja luonnehtii kohortteja.",
+        },
+        characterization: {
+          label: "Karakterisointi",
+          description:
+            "Laskee lähtötason ominaisuudet kohde- ja vertailukohorttien kesken.",
+        },
+        cohortIncidence: {
+          label: "Kohortin ilmaantuvuus",
+          description: "Laskee tulosten esiintyvyysasteet kohdepopulaatioissa.",
+        },
+        evidenceSynthesis: {
+          label: "Todisteiden synteesi",
+          description:
+            "Meta-analyysi tietolähteistä käyttämällä kiinteitä / satunnaisia ​​​​vaikutusmalleja.",
+        },
+      },
+    },
+  }),
+  "ja-JP": mergeMessageTrees(enStrategus, {
+    strategus: {
+      common: {
+        added: "追加した",
+        auto: "自動",
+        back: "戻る",
+        comparator: "コンパレータ",
+        cohorts: "コホート",
+        description: "説明",
+        issues: "問題",
+        modules: "モジュール",
+        next: "次",
+        noneConfigured: "何も設定されていません",
+        outcome: "結果",
+        required: "必須",
+        source: "ソース",
+        status: "状態",
+        target: "ターゲット",
+        warnings: "警告",
+      },
+      page: {
+        header: {
+          title: "学習パッケージ",
+          subtitle:
+            "Strategus マルチ分析 OHDSI スタディ パッケージを構築して実行する",
+          importJson: "JSONをインポートする",
+          exportJson: "JSONのエクスポート",
+        },
+        steps: {
+          studyInfo: "研究情報",
+          selectModules: "モジュールの選択",
+          sharedCohorts: "共有コホート",
+          moduleSettings: "モジュール設定",
+          jsonPreview: "JSON プレビュー",
+          reviewValidate: "レビューと検証",
+          execute: "実行する",
+        },
+        studyInfo: {
+          title: "研究情報",
+          intro: "学習パッケージに名前を付け、オプションで説明を入力します。",
+          studyName: "研究名",
+          description: "説明",
+          studyNamePlaceholder: "例：SGLT2i 対 DPP4i 心不全リスク研究",
+          descriptionPlaceholder:
+            "研究の目的、母集団、期待される結果を簡単に説明します...",
+          info: "Strategus は、1 つ以上の CDM データ ソースにわたってマルチ分析 OHDSI スタディ パッケージを実行します。各分析モジュールは独立して実行され、構成された出力ディレクトリに結果を書き込みます。",
+        },
+        selectModules: {
+          loading: "利用可能なモジュールをロードしています...",
+          title: "分析モジュールの選択",
+          intro:
+            "どの OHDSI 解析モジュールを含めるかを選択します。CohortGenerator は必須であり、常に含まれます。",
+        },
+        sharedCohorts: {
+          title: "共有コホートの定義",
+          intro:
+            "すべての分析モジュールで共有されるターゲット、比較対象、および結果コホートを追加します。",
+          addCohort: "コホートの追加",
+          loading: "コホートを読み込んでいます...",
+          noneFound: "コホート定義が見つかりません。",
+          empty:
+            "まだコホートは追加されていません。ほとんどの分析モジュールには、少なくとも 1 つのターゲット コホートが必要です。",
+          roles: {
+            target: "ターゲット",
+            comparator: "コンパレータ",
+            outcome: "結果",
+          },
+        },
+        review: {
+          title: "学習パッケージの概要",
+          studyName: "研究名",
+          description: "説明",
+          modules: "モジュール",
+          cohorts: "コホート",
+          validateTitle: "仕様の検証",
+          validateIntro:
+            "実行する前に、モジュール構成の問題がないか解析仕様を確認してください。",
+          runValidation: "検証の実行",
+          validationPassed: "検証に合格しました",
+          validationFailed: "検証に失敗しました",
+          validationRequestFailed: "検証リクエストが失敗しました",
+          severity: {
+            error: "エラー",
+            warning: "警告",
+          },
+        },
+        execute: {
+          title: "スタディパッケージの実行",
+          targetDataSource: "ターゲットデータソース",
+          loadingSources: "ソースを読み込んでいます...",
+          selectSource: "ソースを選択してください",
+          executeStudyPackage: "スタディパッケージの実行",
+          executing: "実行中...",
+          runningTitle: "学習パッケージが実行中です...",
+          runningIntro:
+            "Strategus はモジュールの実行を調整しています。データセットのサイズとモジュールの数によっては、これには数分かかる場合があります。",
+          executionRequestFailed: "実行リクエストが失敗しました",
+          executionComplete: "実行完了",
+          outputDirectory: "出力ディレクトリ",
+          modulesExecuted: "実行されるモジュール",
+          resultStats: {
+            status: "状態",
+            modulesRun: "モジュールの実行",
+            resultFiles: "結果ファイル",
+          },
+          statusLabels: {
+            completed: "完了しました",
+            running: "ランニング",
+            failed: "失敗した",
+          },
+        },
+      },
+      jsonEditor: {
+        title: "JSON仕様プレビュー",
+        intro:
+          "生成された分析仕様を確認します。直接編集するか、以下の変更を適用します。",
+        copied: "コピーされました",
+        copyToClipboard: "クリップボードにコピー",
+        resetToGenerated: "生成済みにリセット",
+        validJson: "有効なJSON",
+        invalidJson: "無効な JSON",
+        applyChanges: "変更を適用する",
+      },
+      moduleSettings: {
+        title: "モジュール設定",
+        intro:
+          "モジュールごとのパラメータを設定します。モジュールをクリックして設定を展開します。",
+        autoBadge: "自動",
+        noConfigurationNeeded:
+          "設定は必要ありません。CohortGenerator は、共有コホート定義からコホートを自動的に構築します。",
+        noCohorts:
+          "利用可能なコホートはありません。「共有コホート」ステップでコホートを追加します。",
+        sections: {
+          cohortAssignment: "コホートの割り当て",
+          parameters: "パラメータ",
+          covariateSettings: "共変量の設定",
+          modelConfiguration: "モデル構成",
+          timeAtRisk: "危険にさらされている時間",
+          trainingParameters: "トレーニングパラメータ",
+          eraCovariateSettings: "時代の共変量の設定",
+          diagnosticsOptions: "診断オプション",
+          synthesisConfiguration: "合成構成",
+        },
+        fields: {
+          targetCohorts: "対象コホート",
+          comparatorCohorts: "比較対象コホート",
+          outcomeCohorts: "結果コホート",
+          exposureCohorts: "暴露コホート",
+          washoutPeriod: "ウォッシュアウト期間 (日)",
+          maxCohortSize: "最大コホート サイズ (0 = 無制限)",
+          demographics: "人口動態",
+          conditionOccurrence: "条件の発生",
+          drugExposure: "薬物曝露",
+          procedureOccurrence: "手順の発生",
+          measurement: "測定",
+          modelType: "モデルタイプ",
+          windowStart: "開始期間 (日)",
+          windowEnd: "終了期間 (日)",
+          minCohortSize: "最小コホートサイズ",
+          splitSeed: "スプリットシード",
+          testFraction: "試験分画",
+          includeEraOverlap: "時代の重複を含める",
+          firstOccurrenceOnly: "最初の出現のみ",
+          inclusionStatistics: "包含統計",
+          incidenceRate: "発生率",
+          timeSeries: "時系列",
+          breakdownIndexEvents: "内訳インデックスイベント",
+          orphanConcepts: "孤立した概念",
+          minCellCount: "最小セル数",
+          minPriorObservation: "最小事前観察 (日)",
+          dechallengeStopInterval: "チャレンジ解除停止間隔",
+          dechallengeEvalWindow: "評価ウィンドウのチャレンジを解除する",
+          start: "開始（日）",
+          end: "終了（日）",
+          cleanWindow: "窓の掃除（日）",
+          method: "方法",
+          evidenceSourceModule: "証拠ソースモジュール",
+        },
+        options: {
+          modelTypes: {
+            gradientBoosting: "勾配ブースティング",
+            randomForest: "ランダムフォレスト",
+            deepLearning: "ディープラーニング",
+          },
+          synthesisMethods: {
+            fixedEffects: "固定効果",
+            randomEffects: "ランダム効果",
+            bayesian: "ベイジアン",
+          },
+          evidenceSources: {
+            cohortMethod: "コホート法",
+            selfControlledCaseSeries: "自主規制事例シリーズ",
+          },
+        },
+      },
+      moduleMeta: {
+        cohortGenerator: {
+          label: "コホートジェネレーター",
+          description:
+            "定義からコホートを生成します。すべての学習タイプに必須です。",
+        },
+        cohortMethod: {
+          label: "コホート法",
+          description: "比較コホート設計を使用した集団レベルの効果推定。",
+        },
+        patientLevelPrediction: {
+          label: "患者レベルの予測",
+          description:
+            "ML を使用して患者レベルの転帰の予測モデルを構築します。",
+        },
+        selfControlledCaseSeries: {
+          label: "自主規制事例シリーズ",
+          description: "SCCS 設計を使用して発生率比を推定します。",
+        },
+        cohortDiagnostics: {
+          label: "コホート診断",
+          description: "表現型アルゴリズムを評価し、コホートを特徴付けます。",
+        },
+        characterization: {
+          label: "特性評価",
+          description:
+            "ターゲットおよび比較対象コホート全体のベースライン特性を計算します。",
+        },
+        cohortIncidence: {
+          label: "コホートの発生率",
+          description: "対象集団におけるアウトカムの発生率を計算します。",
+        },
+        evidenceSynthesis: {
+          label: "証拠の総合",
+          description:
+            "固定/ランダム効果モデルを使用したデータソースにわたるメタ分析。",
+        },
+      },
+    },
+  }),
+  "zh-Hans": mergeMessageTrees(enStrategus, {
+    strategus: {
+      common: {
+        added: "额外",
+        auto: "汽车",
+        back: "后退",
+        comparator: "比较器",
+        cohorts: "队列",
+        description: "描述",
+        issues: "问题",
+        modules: "模块",
+        next: "下一个",
+        noneConfigured: "未配置",
+        outcome: "结果",
+        required: "必需的",
+        source: "来源",
+        status: "地位",
+        target: "目标",
+        warnings: "警告",
+      },
+      page: {
+        header: {
+          title: "学习套餐",
+          subtitle: "构建并执行 Strategus 多重分析 OHDSI 研究包",
+          importJson: "导入 JSON",
+          exportJson: "导出 JSON",
+        },
+        steps: {
+          studyInfo: "学习信息",
+          selectModules: "选择模块",
+          sharedCohorts: "共享群组",
+          moduleSettings: "模块设置",
+          jsonPreview: "JSON 预览",
+          reviewValidate: "审查和验证",
+          execute: "执行",
+        },
+        studyInfo: {
+          title: "学习资讯",
+          intro: "为您的学习包命名并提供可选的描述。",
+          studyName: "研究名称",
+          description: "描述",
+          studyNamePlaceholder: "例如，SGLT2i 与 DPP4i 心力衰竭风险研究",
+          descriptionPlaceholder: "简要描述研究目标、人群和预期结果......",
+          info: "Strategus 跨一个或多个 CDM 数据源执行多重分析 OHDSI 研究包。每个分析模块独立运行并将结果写入配置的输出目录。",
+        },
+        selectModules: {
+          loading: "正在加载可用模块...",
+          title: "选择分析模块",
+          intro:
+            "选择要包含的 OHDSI 分析模块。CohortGenerator 是必需的并且始终包含在内。",
+        },
+        sharedCohorts: {
+          title: "共享群组定义",
+          intro: "添加在所有分析模块之间共享的目标、比较器和结果队列。",
+          addCohort: "添加群组",
+          loading: "正在加载群组...",
+          noneFound: "未找到群组定义。",
+          empty: "尚未添加群组。大多数分析模块至少需要一个目标群体。",
+          roles: {
+            target: "目标",
+            comparator: "比较器",
+            outcome: "结果",
+          },
+        },
+        review: {
+          title: "学习包摘要",
+          studyName: "研究名称",
+          description: "描述",
+          modules: "模块",
+          cohorts: "队列",
+          validateTitle: "验证规格",
+          validateIntro: "在执行之前检查模块配置问题的分析规范。",
+          runValidation: "运行验证",
+          validationPassed: "验证通过",
+          validationFailed: "验证失败",
+          validationRequestFailed: "验证请求失败",
+          severity: {
+            error: "错误",
+            warning: "警告",
+          },
+        },
+        execute: {
+          title: "执行学习包",
+          targetDataSource: "目标数据源",
+          loadingSources: "正在加载源...",
+          selectSource: "选择来源",
+          executeStudyPackage: "执行学习包",
+          executing: "正在执行...",
+          runningTitle: "学习包正在运行...",
+          runningIntro:
+            "Strategus 正在编排模块执行。这可能需要几分钟，具体取决于数据集大小和模块数量。",
+          executionRequestFailed: "执行请求失败",
+          executionComplete: "执行完成",
+          outputDirectory: "输出目录",
+          modulesExecuted: "执行的模块",
+          resultStats: {
+            status: "地位",
+            modulesRun: "模块运行",
+            resultFiles: "结果文件",
+          },
+          statusLabels: {
+            completed: "完全的",
+            running: "跑步",
+            failed: "失败的",
+          },
+        },
+      },
+      jsonEditor: {
+        title: "JSON 规范预览",
+        intro: "查看生成的分析规范。直接编辑或应用下面的更改。",
+        copied: "已复制",
+        copyToClipboard: "复制到剪贴板",
+        resetToGenerated: "重置为生成",
+        validJson: "有效的 JSON",
+        invalidJson: "无效的 JSON",
+        applyChanges: "应用更改",
+      },
+      moduleSettings: {
+        title: "模块设置",
+        intro: "配置每个模块的参数。单击模块可展开其设置。",
+        autoBadge: "汽车",
+        noConfigurationNeeded:
+          "无需配置。CohortGenerator 根据共享群组定义自动构建群组。",
+        noCohorts: "没有可用的群组。在“共享群组”步骤中添加群组。",
+        sections: {
+          cohortAssignment: "队列分配",
+          parameters: "参数",
+          covariateSettings: "协变量设置",
+          modelConfiguration: "型号配置",
+          timeAtRisk: "风险时间",
+          trainingParameters: "训练参数",
+          eraCovariateSettings: "时代协变量设置",
+          diagnosticsOptions: "诊断选项",
+          synthesisConfiguration: "合成配置",
+        },
+        fields: {
+          targetCohorts: "目标群体",
+          comparatorCohorts: "比较队列",
+          outcomeCohorts: "结果队列",
+          exposureCohorts: "暴露队列",
+          washoutPeriod: "清洗期（天）",
+          maxCohortSize: "最大队列大小（0 = 无限制）",
+          demographics: "人口统计",
+          conditionOccurrence: "条件发生",
+          drugExposure: "药物暴露",
+          procedureOccurrence: "程序发生情况",
+          measurement: "测量",
+          modelType: "型号类型",
+          windowStart: "窗口开始（天）",
+          windowEnd: "窗口结束（天）",
+          minCohortSize: "最小队列规模",
+          splitSeed: "分裂种子",
+          testFraction: "测试分数",
+          includeEraOverlap: "包括时代重叠",
+          firstOccurrenceOnly: "仅首次出现",
+          inclusionStatistics: "纳入统计",
+          incidenceRate: "发病率",
+          timeSeries: "时间序列",
+          breakdownIndexEvents: "细分指数事件",
+          orphanConcepts: "孤儿概念",
+          minCellCount: "最小细胞计数",
+          minPriorObservation: "最短先前观察时间（天）",
+          dechallengeStopInterval: "解除挑战停止间隔",
+          dechallengeEvalWindow: "消除挑战评估窗口",
+          start: "开始（天）",
+          end: "结束（天）",
+          cleanWindow: "清洁窗户（天）",
+          method: "方法",
+          evidenceSourceModule: "证据来源模块",
+        },
+        options: {
+          modelTypes: {
+            gradientBoosting: "梯度提升",
+            randomForest: "随机森林",
+            deepLearning: "深度学习",
+          },
+          synthesisMethods: {
+            fixedEffects: "固定效应",
+            randomEffects: "随机效应",
+            bayesian: "贝叶斯",
+          },
+          evidenceSources: {
+            cohortMethod: "队列法",
+            selfControlledCaseSeries: "自控箱系列",
+          },
+        },
+      },
+      moduleMeta: {
+        cohortGenerator: {
+          label: "同类群组生成器",
+          description: "根据定义生成群组。所有研究类型都需要。",
+        },
+        cohortMethod: {
+          label: "队列法",
+          description: "使用比较队列设计进行人群水平效应估计。",
+        },
+        patientLevelPrediction: {
+          label: "患者水平预测",
+          description: "使用机器学习构建患者级别结果的预测模型。",
+        },
+        selfControlledCaseSeries: {
+          label: "自控箱系列",
+          description: "使用 SCCS 设计估计发病率比率。",
+        },
+        cohortDiagnostics: {
+          label: "队列诊断",
+          description: "评估表型算法并描述群体特征。",
+        },
+        characterization: {
+          label: "表征",
+          description: "计算目标群体和比较群体的基线特征。",
+        },
+        cohortIncidence: {
+          label: "群组发生率",
+          description: "计算目标人群中结果的发生率。",
+        },
+        evidenceSynthesis: {
+          label: "证据综合",
+          description: "使用固定/随机效应模型跨数据源进行荟萃分析。",
+        },
+      },
+    },
+  }),
   "ko-KR": koStrategus,
   "hi-IN": hiStrategus,
   ar: mergeMessageTrees(enStrategus, {}),

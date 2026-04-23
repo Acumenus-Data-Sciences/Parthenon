@@ -2,7 +2,10 @@ type MessageTree = {
   [key: string]: string | MessageTree;
 };
 
-function mergeMessageTrees(base: MessageTree, overrides: MessageTree): MessageTree {
+function mergeMessageTrees(
+  base: MessageTree,
+  overrides: MessageTree,
+): MessageTree {
   return Object.fromEntries(
     Object.entries(base).map(([key, baseValue]) => {
       const overrideValue = overrides[key];
@@ -156,16 +159,19 @@ const enHeor: MessageTree = {
         value: "Value *",
         unit: "Unit",
         lowerBound: "Lower bound",
-        claimsSearch: "Search claims by patient, diagnosis, procedure, notes...",
+        claimsSearch:
+          "Search claims by patient, diagnosis, procedure, notes...",
       },
       messages: {
         loading: "Loading...",
         noAnalysesYet: 'No analyses yet. Click "New Analysis" to get started.',
-        noContractsYet: 'No value contracts defined. Click "New Contract" to start.',
+        noContractsYet:
+          'No value contracts defined. Click "New Contract" to start.',
         analysisNotFound: "Analysis not found.",
         running: "Running...",
         computedScenarios: "Computed {{count}} scenarios.",
-        noScenariosYet: "No scenarios yet. Add at least one to run the analysis.",
+        noScenariosYet:
+          "No scenarios yet. Add at least one to run the analysis.",
         noParametersYet: "No parameters yet.",
         analysisCompletedNoResults:
           "Analysis completed but no results found. Try re-running.",
@@ -411,9 +417,9 @@ const frHeor: MessageTree = mergeMessageTrees(enHeor, {
       messages: {
         loading: "Chargement...",
         noAnalysesYet:
-          "Aucune analyse pour le moment. Cliquez sur \"Nouvelle analyse\" pour commencer.",
+          'Aucune analyse pour le moment. Cliquez sur "Nouvelle analyse" pour commencer.',
         noContractsYet:
-          "Aucun contrat fonde sur la valeur defini. Cliquez sur \"Nouveau contrat\" pour commencer.",
+          'Aucun contrat fonde sur la valeur defini. Cliquez sur "Nouveau contrat" pour commencer.',
         analysisNotFound: "Analyse introuvable.",
         running: "En cours...",
         computedScenarios: "{{count}} scenarios calcules.",
@@ -664,9 +670,9 @@ const deHeor: MessageTree = mergeMessageTrees(enHeor, {
       messages: {
         loading: "Wird geladen...",
         noAnalysesYet:
-          "Noch keine Analysen. Klicken Sie auf \"Neue Analyse\", um zu beginnen.",
+          'Noch keine Analysen. Klicken Sie auf "Neue Analyse", um zu beginnen.',
         noContractsYet:
-          "Noch keine wertbasierten Vertrage definiert. Klicken Sie auf \"Neuer Vertrag\", um zu beginnen.",
+          'Noch keine wertbasierten Vertrage definiert. Klicken Sie auf "Neuer Vertrag", um zu beginnen.',
         analysisNotFound: "Analyse nicht gefunden.",
         running: "Wird ausgefuhrt...",
         computedScenarios: "{{count}} Szenarien berechnet.",
@@ -675,12 +681,10 @@ const deHeor: MessageTree = mergeMessageTrees(enHeor, {
         noParametersYet: "Noch keine Parameter.",
         analysisCompletedNoResults:
           "Analyse abgeschlossen, aber keine Ergebnisse gefunden. Versuchen Sie es erneut.",
-        noClaimsMatch:
-          "Keine Claims entsprechen Ihren Suchkriterien.",
+        noClaimsMatch: "Keine Claims entsprechen Ihren Suchkriterien.",
         solrUnavailable: "Solr-Claims-Core nicht verfugbar",
         runCommandPrefix: "Fuhren Sie",
-        runCommandSuffix:
-          "aus, um Claims-Daten fur die Suche zu indexieren.",
+        runCommandSuffix: "aus, um Claims-Daten fur die Suche zu indexieren.",
         claimsSearchDescription:
           "Durchsuchen und analysieren Sie Leistungsabrechnungen mit facettierter Navigation und finanziellen Aggregationen.",
         solrAccelerated: "Solr-beschleunigt",
@@ -754,8 +758,7 @@ const deHeor: MessageTree = mergeMessageTrees(enHeor, {
       tornado: {
         title: "Sensitivitatsanalyse",
         emptySubtitle: "Tornadodiagramm - ICER-Auswirkung je Parameter",
-        subtitle:
-          "Tornadodiagramm - ICER-Auswirkung nach Parametervariation",
+        subtitle: "Tornadodiagramm - ICER-Auswirkung nach Parametervariation",
         noData: "Keine Sensitivitatsdaten verfugbar.",
         noImpact: "Keine Parameter mit messbarer ICER-Auswirkung.",
         topFive: "Sensitivitat (Tornado - Top 5)",
@@ -917,9 +920,9 @@ const ptHeor: MessageTree = mergeMessageTrees(enHeor, {
       messages: {
         loading: "Carregando...",
         noAnalysesYet:
-          "Ainda nao ha analises. Clique em \"Nova analise\" para comecar.",
+          'Ainda nao ha analises. Clique em "Nova analise" para comecar.',
         noContractsYet:
-          "Nenhum contrato baseado em valor definido. Clique em \"Novo contrato\" para comecar.",
+          'Nenhum contrato baseado em valor definido. Clique em "Novo contrato" para comecar.',
         analysisNotFound: "Analise nao encontrada.",
         running: "Em execucao...",
         computedScenarios: "{{count}} cenarios calculados.",
@@ -932,8 +935,7 @@ const ptHeor: MessageTree = mergeMessageTrees(enHeor, {
           "Nenhum sinistro corresponde aos seus criterios de busca.",
         solrUnavailable: "Core de sinistros do Solr indisponivel",
         runCommandPrefix: "Execute",
-        runCommandSuffix:
-          "para indexar os dados de sinistros para pesquisa.",
+        runCommandSuffix: "para indexar os dados de sinistros para pesquisa.",
         claimsSearchDescription:
           "Pesquise e analise sinistros de assistencia a saude com navegacao facetada e agregacoes financeiras.",
         solrAccelerated: "Acelerado por Solr",
@@ -964,7 +966,8 @@ const ptHeor: MessageTree = mergeMessageTrees(enHeor, {
       budgetImpact: {
         title: "Trajetoria do impacto orcamentario",
         emptySubtitle: "Impacto orcamentario projetado ao longo do tempo",
-        subtitle: "{{scenarioCount}} - impacto orcamentario projetado para 5 anos",
+        subtitle:
+          "{{scenarioCount}} - impacto orcamentario projetado para 5 anos",
         noData: "Nenhum dado de impacto orcamentario disponivel.",
       },
       costEffectivenessPlane: {
@@ -1183,7 +1186,8 @@ const esHeor: MessageTree = mergeMessageTrees(enHeor, {
           "El analisis se completo, pero no se encontraron resultados. Intente ejecutarlo de nuevo.",
         noClaimsMatch:
           "Ninguna reclamacion coincide con sus criterios de busqueda.",
-        solrUnavailable: "El nucleo de reclamaciones de Solr no esta disponible",
+        solrUnavailable:
+          "El nucleo de reclamaciones de Solr no esta disponible",
         runCommandPrefix: "Ejecute",
         runCommandSuffix:
           "para indexar los datos de reclamaciones para la busqueda.",
@@ -1216,8 +1220,10 @@ const esHeor: MessageTree = mergeMessageTrees(enHeor, {
     charts: {
       budgetImpact: {
         title: "Trayectoria del impacto presupuestario",
-        emptySubtitle: "Impacto presupuestario proyectado a lo largo del tiempo",
-        subtitle: "{{scenarioCount}} - impacto presupuestario proyectado a 5 anos",
+        emptySubtitle:
+          "Impacto presupuestario proyectado a lo largo del tiempo",
+        subtitle:
+          "{{scenarioCount}} - impacto presupuestario proyectado a 5 anos",
         noData: "No hay datos de impacto presupuestario disponibles.",
       },
       costEffectivenessPlane: {
@@ -1421,8 +1427,7 @@ const koHeor: MessageTree = mergeMessageTrees(enHeor, {
       },
       messages: {
         loading: "로딩 중...",
-        noAnalysesYet:
-          '"새 분석"을 클릭해 시작하세요. 아직 분석이 없습니다.',
+        noAnalysesYet: '"새 분석"을 클릭해 시작하세요. 아직 분석이 없습니다.',
         noContractsYet:
           '정의된 가치 기반 계약이 없습니다. "새 계약"을 클릭해 시작하세요.',
         analysisNotFound: "분석을 찾을 수 없습니다.",
@@ -1723,7 +1728,8 @@ const hiHeor: MessageTree = mergeMessageTrees(enHeor, {
         title: "लागत-प्रभावशीलता समतल",
         emptySubtitle: "कोई वृद्धिशील परिणाम उपलब्ध नहीं है",
         subtitle: "WTP सीमा: ${{wtp}}/QALY",
-        noData: "CE समतल देखने के लिए हस्तक्षेप परिदृश्यों के साथ विश्लेषण चलाएं।",
+        noData:
+          "CE समतल देखने के लिए हस्तक्षेप परिदृश्यों के साथ विश्लेषण चलाएं।",
         ariaLabel: "लागत-प्रभावशीलता समतल स्कैटर प्लॉट",
         wtpLabel: "WTP = ${{value}}/QALY",
         incrementalQalys: "वृद्धिशील QALY (ΔE)",
@@ -1793,9 +1799,604 @@ export const heorResources: Record<string, MessageTree> = {
   "fr-FR": frHeor,
   "de-DE": deHeor,
   "pt-BR": ptHeor,
-  "fi-FI": mergeMessageTrees(enHeor, {}),
-  "ja-JP": mergeMessageTrees(enHeor, {}),
-  "zh-Hans": mergeMessageTrees(enHeor, {}),
+  "fi-FI": mergeMessageTrees(enHeor, {
+    heor: {
+      common: {
+        tabs: {
+          analyses: "Talousanalyysit",
+          contracts: "Arvosopimukset",
+          claims: "Väitteet Explorer",
+        },
+        actions: {
+          newAnalysis: "Uusi analyysi",
+          newContract: "Uusi sopimus",
+          create: "Luoda",
+          cancel: "Peruuttaa",
+          open: "Avata",
+          add: "Lisätä",
+          search: "Haku",
+          clear: "Selkeä",
+          runAnalysis: "Suorita analyysi",
+          backToHeor: "Takaisin HEORiin",
+          deleteAnalysis: "Poista analyysi",
+          deleteContract: "Poista sopimus",
+        },
+        status: {
+          draft: "Luonnos",
+          running: "Juoksemassa",
+          completed: "Valmis",
+          failed: "Epäonnistui",
+          active: "Aktiivinen",
+          expired: "Vanhentunut",
+        },
+        analysisTypes: {
+          cea: "Kustannustehokkuus",
+          cba: "Kustannus-hyöty",
+          cua: "Kustannus-hyödyllisyys",
+          budgetImpact: "Vaikutus talousarvioon",
+          roi: "ROI-analyysi",
+        },
+        parameterTypes: {
+          drugCost: "Lääkkeiden kustannukset",
+          adminCost: "Hallintakustannukset",
+          hospitalization: "Sairaalahoito",
+          erVisit: "ER-käynti",
+          qalyWeight: "QALY Paino",
+          utilityValue: "Hyödyllisyysarvo",
+          resourceUse: "Resurssien käyttö",
+          avoidedCost: "Vältetyt kustannukset",
+          programCost: "Ohjelman hinta",
+        },
+        perspectives: {
+          payer: "Maksaja",
+          societal: "Yhteiskunnallinen",
+          provider: "Palveluntarjoaja",
+          patient: "Potilas",
+        },
+        timeHorizons: {
+          oneYear: "1 vuosi",
+          fiveYear: "5 vuotta",
+          tenYear: "10 vuotta",
+          lifetime: "Elinikäinen",
+        },
+        scenarioTypes: {
+          intervention: "Interventio",
+          comparator: "Vertailija",
+          sensitivity: "Herkkyys",
+        },
+        labels: {
+          totalAnalyses: "Yhteensä analyysit",
+          completed: "Valmis",
+          valueContracts: "Arvosopimukset",
+          analysisTypes: "Analyysityypit",
+          status: "Tila",
+          totalCost: "Kokonaiskustannukset",
+          totalQalys: "QALY:t yhteensä",
+          incrementalCost: "Lisäkustannukset",
+          incrementalQalys: "Inkrementaaliset QALY:t",
+          netMonetaryBenefit: "Rahallinen nettohyöty",
+          roi: "ROI-analyysi",
+          paybackMonths: "Takaisinmaksu (kk)",
+          budgetImpact: "Vaikutus talousarvioon",
+          results: "Tulokset",
+          scenarios: "Skenaariot",
+          costParameters: "Kustannusparametrit",
+          patient: "Potilas",
+          date: "Päivämäärä",
+          type: "Tyyppi",
+          diagnosis: "Diagnoosi",
+          charge: "Lataa",
+          payment: "Maksu",
+          outstanding: "Erinomaista",
+          transactions: "Tapaht.",
+          filters: "Suodattimet",
+          page: "Sivu",
+          outcome: "Tulokset",
+          listPrice: "Listahinta",
+          baseline: "Perustaso",
+        },
+        messages: {
+          loading: "Ladataan...",
+          noAnalysesYet:
+            'Ei vielä analyysejä.Aloita napsauttamalla "Uusi analyysi".',
+          noContractsYet:
+            'Arvosopimuksia ei ole määritelty.Napsauta "Uusi sopimus" aloittaaksesi.',
+          analysisNotFound: "Analyysia ei löydy.",
+          running: "Juoksemassa...",
+          noScenariosYet:
+            "Ei skenaarioita vielä.Lisää vähintään yksi suorittaaksesi analyysin.",
+          noParametersYet: "Ei vielä parametreja.",
+          analysisCompletedNoResults:
+            "Analyysi valmis, mutta tuloksia ei löytynyt.Yritä ajaa uudelleen.",
+          noClaimsMatch: "Mikään vaatimus ei vastaa hakuehtojasi.",
+          solrUnavailable: "Solr Claims Core ei ole saatavilla",
+          runCommandPrefix: "Juokse",
+          runCommandSuffix: "vaatimustietojen indeksointiin hakua varten.",
+          claimsSearchDescription:
+            "Hae ja analysoi terveydenhuollon väitteitä fasetoidun navigoinnin ja taloudellisten aggregaattien avulla.",
+          solrAccelerated: "Solr -kiihdytetty",
+          searching: "Haetaan...",
+        },
+      },
+      hub: {
+        title: "Terveystalous- ja tulostutkimus",
+        subtitle:
+          "Kustannustehokkuusanalyysit, budjettivaikutusten mallinnus, ROI-laskurit ja arvopohjainen sopimussimulaatio",
+        analysesDescription:
+          "Rakenna kustannustehokkuus-, budjettivaikutus- ja ROI-analyysejä skenaariomallinnuksen ja herkkyysanalyysin avulla.",
+        contractsDescription:
+          "Määrittele tuloksiin perustuvia arvosopimuksia, joiden alennustasot liittyvät havaittuihin tulosprosentteihin.",
+        newEconomicAnalysis: "Uusi talousanalyysi",
+        newValueContract: "Uusi arvosopimus",
+      },
+      analysis: {
+        resultsTitle: "Tulokset",
+      },
+      charts: {
+        budgetImpact: {
+          title: "Budjettivaikutusrata",
+          emptySubtitle: "Arvioitu budjettivaikutus ajan mittaan",
+          noData: "Budjettivaikutustietoja ei ole saatavilla.",
+        },
+        costEffectivenessPlane: {
+          title: "Kustannustehokkuustaso",
+          emptySubtitle: "Lisätuloksia ei ole saatavilla",
+          noData:
+            "Suorita analyysi toimenpideskenaarioilla nähdäksesi CE-tason.",
+          ariaLabel: "Kustannustehokkuuden tason sirontakaavio",
+          incrementalQalys: "Inkrementaaliset QALY:t (ΔE)",
+          incrementalCost: "Lisäkustannukset (ΔC)",
+          origin: "Alkuperä",
+          quadrants: {
+            moreCostlyMoreEffective: "Kalliimmin, tehokkaammin",
+            moreCostlyLessEffective: "Kalliimpia, vähemmän tehokkaita",
+            lessCostlyMoreEffective: "Edullisempi, tehokkaampi",
+            lessCostlyLessEffective: "Vähemmän kalliita, vähemmän tehokkaita",
+            tradeOffIcerDecides: "Kauppa (ICER päättää)",
+            dominated: "Dominoitunut",
+            dominant: "Hallitseva",
+            tradeOff: "Kompromissi",
+          },
+        },
+        scenarioComparison: {
+          title: "Skenaarioiden vertailu",
+          emptySubtitle: "Kokonaiskustannukset ja QALY:t skenaarioiden mukaan",
+          noData: "Ei tuloksia vertailla.",
+          base: "Perustaso",
+          totalCostByScenario: "Kokonaiskustannukset skenaarion mukaan",
+          totalQalysByScenario: "QALY:t yhteensä skenaarion mukaan",
+          baseCase: "(Perustapaus)",
+          totalCost: "Kokonaiskustannukset:",
+          totalQalys: "QALY:t yhteensä:",
+        },
+        tornado: {
+          title: "Herkkyysanalyysi",
+          emptySubtitle: "Tornadokaavio - ICER-vaikutus parametrien mukaan",
+          subtitle: "Tornadokaavio - ICER-vaikutus parametrien vaihtelulla",
+          noData: "Herkkyystietoja ei ole saatavilla.",
+          noImpact:
+            "Ei parametreja, joilla olisi mitattavissa oleva ICER-vaikutus.",
+          topFive: "Herkkyys (Tornado – top 5)",
+          base: "Viite:",
+          range: "Alue:",
+          lowIcer: "Matala ICER:",
+          highIcer: "Korkea ICER:",
+          icerRange: "ICER-valikoima:",
+        },
+      },
+      claims: {
+        facets: {
+          status: "Tila",
+          claimType: "Vaatimuksen tyyppi",
+          placeOfService: "Palvelun paikka",
+          diagnosisTop20: "Diagnoosi (20 parasta)",
+        },
+        stats: {
+          totalCharges: "Kokonaiskulut",
+          avgCharge: "Keskimääräinen veloitus",
+          totalPayments: "Maksut yhteensä",
+          outstanding: "Erinomaista",
+        },
+      },
+    },
+  }),
+  "ja-JP": mergeMessageTrees(enHeor, {
+    heor: {
+      common: {
+        tabs: {
+          analyses: "経済分析",
+          contracts: "価値のある契約",
+          claims: "クレームエクスプローラー",
+        },
+        actions: {
+          newAnalysis: "新しい分析",
+          newContract: "新規契約",
+          create: "作成する",
+          cancel: "キャンセル",
+          open: "開ける",
+          add: "追加",
+          search: "検索",
+          clear: "クリア",
+          runAnalysis: "分析の実行",
+          backToHeor: "HEOR に戻る",
+          deleteAnalysis: "分析の削除",
+          deleteContract: "契約の削除",
+        },
+        status: {
+          draft: "下書き",
+          running: "ランニング",
+          completed: "完了しました",
+          failed: "失敗した",
+          active: "アクティブ",
+          expired: "期限切れ",
+        },
+        analysisTypes: {
+          cea: "費用対効果",
+          cba: "費用対効果",
+          cua: "費用対効果",
+          budgetImpact: "予算への影響",
+          roi: "ROI分析",
+        },
+        parameterTypes: {
+          drugCost: "薬剤費",
+          adminCost: "管理コスト",
+          hospitalization: "入院",
+          erVisit: "ER訪問",
+          qalyWeight: "QALY 重量",
+          utilityValue: "利用価値",
+          resourceUse: "リソースの使用",
+          avoidedCost: "回避コスト",
+          programCost: "プログラム費用",
+        },
+        perspectives: {
+          payer: "支払者",
+          societal: "社会",
+          provider: "プロバイダー",
+          patient: "忍耐強い",
+        },
+        timeHorizons: {
+          oneYear: "1年",
+          fiveYear: "5年",
+          tenYear: "10年",
+          lifetime: "一生",
+        },
+        scenarioTypes: {
+          intervention: "介入",
+          comparator: "コンパレータ",
+          sensitivity: "感度",
+        },
+        labels: {
+          totalAnalyses: "トータル分析",
+          completed: "完了しました",
+          valueContracts: "価値のある契約",
+          analysisTypes: "分析の種類",
+          totalCost: "総コスト",
+          totalQalys: "合計 QALY",
+          incrementalCost: "増分コスト",
+          incrementalQalys: "増分QALY",
+          netMonetaryBenefit: "純金銭的利益",
+          roi: "ROI分析",
+          paybackMonths: "回収額（月）",
+          budgetImpact: "予算への影響",
+          results: "結果",
+          scenarios: "シナリオ",
+          costParameters: "コストパラメータ",
+          patient: "忍耐強い",
+          date: "日付",
+          type: "タイプ",
+          status: "状態",
+          diagnosis: "診断",
+          charge: "充電",
+          payment: "支払い",
+          outstanding: "並外れた",
+          transactions: "送信",
+          filters: "フィルター",
+          page: "ページ",
+          outcome: "結果",
+          listPrice: "定価",
+          baseline: "ベースライン",
+        },
+        messages: {
+          loading: "読み込み中...",
+          noAnalysesYet:
+            "まだ分​​析はありません。[新しい分析] をクリックして開始します。",
+          noContractsYet:
+            "価値のある契約が定義されていません。「新規契約」をクリックして開始します。",
+          analysisNotFound: "分析が見つかりません。",
+          running: "走っています...",
+          noScenariosYet:
+            "まだシナリオはありません。分析を実行するには、少なくとも 1 つを追加します。",
+          noParametersYet: "まだパラメータがありません。",
+          analysisCompletedNoResults:
+            "分析は完了しましたが、結果が見つかりませんでした。再実行してみてください。",
+          noClaimsMatch: "検索条件に一致する申し立てはありません。",
+          solrUnavailable: "Solr クレーム コアが利用できない",
+          runCommandPrefix: "走る",
+          runCommandSuffix: "検索用に請求データにインデックスを付けます。",
+          claimsSearchDescription:
+            "ファセットナビゲーションと財務集計を使用して医療請求を検索および分析します。",
+          solrAccelerated: "Solr 高速化",
+          searching: "検索中...",
+        },
+      },
+      hub: {
+        title: "医療経済とアウトカムの研究",
+        subtitle:
+          "費用対効果分析、予算影響モデリング、ROI 計算ツール、および価値ベースの契約シミュレーション",
+        analysesDescription:
+          "シナリオ モデリングと感度分析を使用して、費用対効果、予算への影響、ROI 分析を構築します。",
+        contractsDescription:
+          "観察された成果率にリンクされたリベート層を持つ成果ベースの価値契約を定義します。",
+        newEconomicAnalysis: "新しい経済分析",
+        newValueContract: "新しい価値の契約",
+      },
+      analysis: {
+        resultsTitle: "結果",
+      },
+      charts: {
+        budgetImpact: {
+          title: "予算への影響の軌跡",
+          emptySubtitle: "時間の経過とともに予測される予算への影響",
+          noData: "予算への影響に関するデータはありません。",
+        },
+        costEffectivenessPlane: {
+          title: "費用対効果の平面",
+          emptySubtitle: "利用可能な増分結果はありません",
+          noData: "介入シナリオを使用して解析を実行して、CE 平面を確認します。",
+          ariaLabel: "費用対効果の平面散布図",
+          incrementalQalys: "増分 QALY (ΔE)",
+          incrementalCost: "増分コスト (ΔC)",
+          origin: "起源",
+          quadrants: {
+            moreCostlyMoreEffective: "よりコストがかかり、より効果的",
+            moreCostlyLessEffective: "コストがかかる、効果が低い",
+            lessCostlyMoreEffective: "低コストでより効果的",
+            lessCostlyLessEffective: "コストは低いが効果は低い",
+            tradeOffIcerDecides: "トレードオフ (ICER が決定)",
+            dominated: "支配された",
+            dominant: "支配的な",
+            tradeOff: "トレード・オフ",
+          },
+        },
+        scenarioComparison: {
+          title: "シナリオの比較",
+          emptySubtitle: "シナリオ別の総コストと QALY",
+          noData: "比較する結果がありません。",
+          totalCostByScenario: "シナリオ別の総コスト",
+          totalQalysByScenario: "シナリオ別の合計 QALY",
+          baseCase: "(基本ケース)",
+          totalCost: "総費用:",
+          totalQalys: "合計 QALY :",
+          base: "参考資料",
+        },
+        tornado: {
+          title: "感度分析",
+          emptySubtitle:
+            "トルネード ダイアグラム - パラメーター別の ICER の影響",
+          subtitle:
+            "トルネード ダイアグラム - パラメータ変化による ICER への影響",
+          noData: "利用可能な感度データはありません。",
+          noImpact: "ICER に測定可能な影響を与えるパラメーターはありません。",
+          topFive: "感度 (トルネード - トップ 5)",
+          base: "参照先:",
+          range: "範囲：",
+          lowIcer: "低いICER:",
+          highIcer: "高ICER:",
+          icerRange: "ICER 範囲:",
+        },
+      },
+      claims: {
+        facets: {
+          status: "状態",
+          claimType: "請求の種類",
+          placeOfService: "サービスの場所",
+          diagnosisTop20: "診断 (上位 20)",
+        },
+        stats: {
+          totalCharges: "合計料金",
+          avgCharge: "平均料金",
+          totalPayments: "支払総額",
+          outstanding: "並外れた",
+        },
+      },
+    },
+  }),
+  "zh-Hans": mergeMessageTrees(enHeor, {
+    heor: {
+      common: {
+        tabs: {
+          analyses: "经济分析",
+          contracts: "价值合约",
+          claims: "理赔浏览器",
+        },
+        actions: {
+          newAnalysis: "新分析",
+          newContract: "新合约",
+          create: "创造",
+          cancel: "取消",
+          open: "打开",
+          add: "添加",
+          search: "搜索",
+          clear: "清除",
+          runAnalysis: "运行分析",
+          backToHeor: "返回HEOR",
+          deleteAnalysis: "删除分析",
+          deleteContract: "删除合同",
+        },
+        status: {
+          draft: "草稿",
+          running: "跑步",
+          completed: "完全的",
+          failed: "失败的",
+          active: "积极的",
+          expired: "已到期",
+        },
+        analysisTypes: {
+          cea: "成本效益",
+          cba: "成本效益",
+          cua: "成本效用",
+          budgetImpact: "预算影响",
+          roi: "投资回报率分析",
+        },
+        parameterTypes: {
+          drugCost: "药品费用",
+          adminCost: "管理费用",
+          hospitalization: "住院治疗",
+          erVisit: "急诊室就诊",
+          qalyWeight: "质量调整年权重",
+          utilityValue: "实用价值",
+          resourceUse: "资源利用",
+          avoidedCost: "避免的成本",
+          programCost: "项目成本",
+        },
+        perspectives: {
+          payer: "付款人",
+          societal: "社会的",
+          provider: "提供者",
+          patient: "病人",
+        },
+        timeHorizons: {
+          oneYear: "1年",
+          fiveYear: "5年",
+          tenYear: "10年",
+          lifetime: "寿命",
+        },
+        scenarioTypes: {
+          intervention: "干涉",
+          comparator: "比较器",
+          sensitivity: "灵敏度",
+        },
+        labels: {
+          totalAnalyses: "总体分析",
+          completed: "完全的",
+          valueContracts: "价值合约",
+          analysisTypes: "分析类型",
+          totalCost: "总成本",
+          totalQalys: "总 QALY",
+          incrementalCost: "增量成本",
+          incrementalQalys: "增量 QALY",
+          netMonetaryBenefit: "净货币效益",
+          roi: "ROI分析",
+          paybackMonths: "投资回收期（月）",
+          budgetImpact: "预算影响",
+          results: "结果",
+          scenarios: "应用场景",
+          costParameters: "成本参数",
+          patient: "病人",
+          date: "日期",
+          type: "类型",
+          status: "地位",
+          diagnosis: "诊断",
+          charge: "收费",
+          payment: "支付",
+          outstanding: "杰出的",
+          transactions: "交易",
+          filters: "过滤器",
+          page: "页",
+          outcome: "结果",
+          listPrice: "标价",
+          baseline: "基线",
+        },
+        messages: {
+          loading: "加载中...",
+          noAnalysesYet: "还没有分析。单击“新分析”即可开始。",
+          noContractsYet: "没有定义价值合约。单击“新合同”开始。",
+          analysisNotFound: "未找到分析。",
+          running: "跑步...",
+          noScenariosYet: "还没有场景。至少添加一个来运行分析。",
+          noParametersYet: "还没有参数。",
+          analysisCompletedNoResults:
+            "分析已完成，但未找到结果。尝试重新运行。",
+          noClaimsMatch: "没有符合您搜索条件的索赔。",
+          solrUnavailable: "Solr 声明核心不可用",
+          runCommandPrefix: "跑步",
+          runCommandSuffix: "索引索赔数据以供搜索。",
+          claimsSearchDescription:
+            "通过分面导航和财务聚合来搜索和分析医疗保健索赔。",
+          solrAccelerated: "Solr 加速",
+          searching: "正在寻找...",
+        },
+      },
+      hub: {
+        title: "卫生经济学与成果研究",
+        subtitle:
+          "成本效益分析、预算影响建模、投资回报率计算器和基于价值的合同模拟",
+        analysesDescription:
+          "通过场景建模和敏感性分析构建成本效益、预算影响和投资回报率分析。",
+        contractsDescription:
+          "定义基于结果的价值合同，其中回扣等级与观察到的结果率相关。",
+        newEconomicAnalysis: "新经济分析",
+        newValueContract: "新价值合约",
+      },
+      analysis: {
+        resultsTitle: "结果",
+      },
+      charts: {
+        budgetImpact: {
+          title: "预算影响轨迹",
+          emptySubtitle: "随着时间的推移预计的预算影响",
+          noData: "没有可用的预算影响数据。",
+        },
+        costEffectivenessPlane: {
+          title: "成本效益平面",
+          emptySubtitle: "没有可用的增量结果",
+          noData: "通过干预场景运行分析以查看 CE 平面。",
+          ariaLabel: "成本效益平面散点图",
+          incrementalQalys: "增量 QALY (ΔE)",
+          incrementalCost: "增量成本 (ΔC)",
+          origin: "起源",
+          quadrants: {
+            moreCostlyMoreEffective: "成本更高，效果更佳",
+            moreCostlyLessEffective: "成本更高，效率更低",
+            lessCostlyMoreEffective: "成本更低，效率更高",
+            lessCostlyLessEffective: "成本较低，效果较差",
+            tradeOffIcerDecides: "权衡（ICER 决定）",
+            dominated: "占主导地位",
+            dominant: "主导的",
+            tradeOff: "权衡",
+          },
+        },
+        scenarioComparison: {
+          title: "场景比较",
+          emptySubtitle: "按场景划分的总成本和 QALY",
+          noData: "没有可比较的结果。",
+          totalCostByScenario: "按场景划分的总成本",
+          totalQalysByScenario: "按场景划分的总 QALY",
+          baseCase: "（基本案例）",
+          totalCost: "总成本：",
+          totalQalys: "总 QALY ：",
+          base: "参考资料",
+        },
+        tornado: {
+          title: "敏感性分析",
+          emptySubtitle: "龙卷风图 - ICER 参数影响",
+          subtitle: "龙卷风图 - 参数变化对 ICER 的影响",
+          noData: "没有可用的敏感性数据。",
+          noImpact: "没有可测量 ICER 影响的参数。",
+          topFive: "灵敏度（龙卷风 - 前 5 名）",
+          base: "参考资料：",
+          range: "范围：",
+          lowIcer: "低 ICER :",
+          highIcer: "高 ICER :",
+          icerRange: "ICER范围：",
+        },
+      },
+      claims: {
+        facets: {
+          status: "地位",
+          claimType: "索赔类型",
+          placeOfService: "服务地点",
+          diagnosisTop20: "诊断（前 20 名）",
+        },
+        stats: {
+          totalCharges: "总费用",
+          avgCharge: "平均费用",
+          totalPayments: "付款总额",
+          outstanding: "杰出的",
+        },
+      },
+    },
+  }),
   "ko-KR": koHeor,
   "hi-IN": hiHeor,
   ar: mergeMessageTrees(enHeor, {}),
