@@ -106,12 +106,12 @@ def test_all_events_have_required_fields(tmp_path: Path):
 
 def test_omop_cdm_phase_is_noop_for_local_mode(tmp_path: Path):
     """All omop_cdm steps emit step_skip when cdm_setup_mode is local."""
-    from installer.engine.phases.omop_cdm import PHASE as OMOP_CDM_PHASE
+    from installer.engine.phases.omop_cdm import PHASE as OMOP_CDM_PHASE, MODE_LOCAL
 
     reg = PhaseRegistry()
     reg.register(OMOP_CDM_PHASE)
 
-    config = {"resolved": {"cdm_setup_mode": "Create local PostgreSQL OMOP database"}}
+    config = {"resolved": {"cdm_setup_mode": MODE_LOCAL}}
     out = io.StringIO()
     store = CheckpointStore(tmp_path / ".state.json")
     runner = StepRunner(reg, store, config=config,

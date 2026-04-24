@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import re
+import shlex
 
 from ..exceptions import StepError
 from ..registry import Context, Phase, Step
@@ -10,7 +11,6 @@ from installer import utils
 ROOT = utils.REPO_ROOT
 MODE_LOCAL = "Create local PostgreSQL OMOP database"
 MODE_EXISTING_CDM = "Use an existing OMOP CDM"
-MODE_EXISTING_SERVER = "Use an existing database server"
 
 
 def _ext_source_key(resolved: dict) -> str:
@@ -24,6 +24,21 @@ def _is_local(ctx: Context) -> bool:
 
 def _resolved(ctx: Context) -> dict:
     return ctx.config.get("resolved", {})
+
+
+def _get_source_id(key: str) -> str:
+    """Look up the database ID of a registered source by key. Returns the ID string, or raises StepError."""
+    result = utils.exec_php(
+        f"php artisan tinker --execute=\""
+        f"echo App\\\\Models\\\\App\\\\Source::where('source_key',{shlex.quote(key)})->value('id') ?? 'not_found';"
+        f"\" --no-ansi 2>&1",
+        check=False,
+        capture=True,
+    )
+    source_id = result.stdout.strip()
+    if not source_id or source_id == "not_found":
+        raise StepError(f"Source '{key}' not found — register_source must complete first")
+    return source_id
 
 
 # ── test_connection ────────────────────────────────────────────────────────────
@@ -43,15 +58,17 @@ def _run_test_connection(ctx: Context) -> None:
     ctx.emit(f"Testing connection to {r.get('cdm_server')}/{r.get('cdm_database')}…")
     result = utils.exec_php(
         f"php artisan omop:test-connection"
-        f" --source-key={key}"
-        f" --dialect={dialect}"
-        f" --host={r.get('cdm_server', '')}"
+        f" --source-key={shlex.quote(key)}"
+        f" --dialect={shlex.quote(dialect)}"
+        f" --host={shlex.quote(r.get('cdm_server', ''))}"
         f" --port={r.get('cdm_port', 5432)}"
-        f" --database={r.get('cdm_database', '')}"
-        f" --username={r.get('cdm_user', '')}"
-        f" --password={r.get('cdm_password', '')}"
+        f" --database={shlex.quote(r.get('cdm_database', ''))}"
+        f" --username={shlex.quote(r.get('cdm_user', ''))}"
+        ' --password="$OMOP_CDM_PASSWORD"'
         f" --no-ansi 2>&1",
         check=False,
+        capture=True,
+        env={"OMOP_CDM_PASSWORD": r.get("cdm_password", "")},
     )
     if result.returncode != 0:
         raise StepError(f"Connection test failed:\n{result.stdout}")
@@ -74,15 +91,17 @@ def _run_create_cdm_schema(ctx: Context) -> None:
     ctx.emit(f"Creating OMOP CDM v5.4 schema '{r.get('cdm_schema', 'omop')}' on {r.get('cdm_server')}…")
     result = utils.exec_php(
         f"php artisan omop:create-cdm-schema"
-        f" --dialect={r.get('cdm_dialect', 'postgresql')}"
-        f" --host={r.get('cdm_server', '')}"
+        f" --dialect={shlex.quote(r.get('cdm_dialect', 'postgresql'))}"
+        f" --host={shlex.quote(r.get('cdm_server', ''))}"
         f" --port={r.get('cdm_port', 5432)}"
-        f" --database={r.get('cdm_database', '')}"
-        f" --username={r.get('cdm_user', '')}"
-        f" --password={r.get('cdm_password', '')}"
-        f" --cdm-schema={r.get('cdm_schema', 'omop')}"
+        f" --database={shlex.quote(r.get('cdm_database', ''))}"
+        f" --username={shlex.quote(r.get('cdm_user', ''))}"
+        ' --password="$OMOP_CDM_PASSWORD"'
+        f" --cdm-schema={shlex.quote(r.get('cdm_schema', 'omop'))}"
         f" --no-ansi 2>&1",
         check=False,
+        capture=True,
+        env={"OMOP_CDM_PASSWORD": r.get("cdm_password", "")},
     )
     if result.returncode != 0:
         raise StepError(f"CDM schema creation failed:\n{result.stdout}")
@@ -99,10 +118,11 @@ def _check_register_source(ctx: Context) -> bool:
     # Query whether source exists via tinker
     result = utils.exec_php(
         f"php artisan tinker --execute=\""
-        f"echo App\\\\Models\\\\App\\\\Source::where('source_key','{key}')"
+        f"echo App\\\\Models\\\\App\\\\Source::where('source_key',{shlex.quote(key)})"
         f"->whereNull('deleted_at')->count();"
         f"\" --no-ansi 2>&1",
         check=False,
+        capture=True,
     )
     try:
         return int(result.stdout.strip()) > 0
@@ -117,19 +137,21 @@ def _run_register_source(ctx: Context) -> None:
     ctx.emit(f"Registering source '{key}'…")
     result = utils.exec_php(
         f"php artisan omop:register-source"
-        f" --source-key={key}"
-        f" --name='{name}'"
-        f" --dialect={r.get('cdm_dialect', 'postgresql')}"
-        f" --host={r.get('cdm_server', '')}"
+        f" --source-key={shlex.quote(key)}"
+        f" --name={shlex.quote(name)}"
+        f" --dialect={shlex.quote(r.get('cdm_dialect', 'postgresql'))}"
+        f" --host={shlex.quote(r.get('cdm_server', ''))}"
         f" --port={r.get('cdm_port', 5432)}"
-        f" --database={r.get('cdm_database', '')}"
-        f" --username={r.get('cdm_user', '')}"
-        f" --password={r.get('cdm_password', '')}"
-        f" --cdm-schema={r.get('cdm_schema', 'omop')}"
-        f" --vocab-schema={r.get('vocabulary_schema', 'vocab')}"
-        f" --results-schema={r.get('results_schema', 'results')}"
+        f" --database={shlex.quote(r.get('cdm_database', ''))}"
+        f" --username={shlex.quote(r.get('cdm_user', ''))}"
+        ' --password="$OMOP_CDM_PASSWORD"'
+        f" --cdm-schema={shlex.quote(r.get('cdm_schema', 'omop'))}"
+        f" --vocab-schema={shlex.quote(r.get('vocabulary_schema', 'vocab'))}"
+        f" --results-schema={shlex.quote(r.get('results_schema', 'results'))}"
         f" --no-ansi 2>&1",
         check=False,
+        capture=True,
+        env={"OMOP_CDM_PASSWORD": r.get("cdm_password", "")},
     )
     if result.returncode != 0:
         raise StepError(f"Source registration failed:\n{result.stdout}")
@@ -156,11 +178,16 @@ def _run_load_vocabulary(ctx: Context) -> None:
     ctx.emit(f"Loading vocabulary from {zip_path}…")
     result = utils.exec_php(
         f"php artisan omop:load-vocabulary"
-        f" --source-key={key}"
-        f" --zip={zip_path}"
+        f" --source-key={shlex.quote(key)}"
+        f" --zip={shlex.quote(zip_path)}"
         f" --no-ansi 2>&1",
         check=False,
+        capture=True,
     )
+    if result.returncode == 2:  # INVALID — prerequisites OK, loading deferred to manual step
+        ctx.emit("WARNING: Vocabulary import for external sources requires manual setup.")
+        ctx.emit("See artisan output above for instructions.")
+        return
     if result.returncode != 0:
         raise StepError(f"Vocabulary load failed:\n{result.stdout}")
     ctx.emit("Vocabulary loaded")
@@ -184,6 +211,7 @@ def _check_create_results_schema(ctx: Context) -> bool:
         f"}} catch(\\\\Exception $e) {{ echo 0; }}"
         f"\" --no-ansi 2>&1",
         check=False,
+        capture=True,
     )
     try:
         return int(result.stdout.strip()) > 0
@@ -196,15 +224,17 @@ def _run_create_results_schema(ctx: Context) -> None:
     ctx.emit(f"Creating Achilles results schema '{r.get('results_schema', 'results')}'…")
     result = utils.exec_php(
         f"php artisan omop:create-results-schema"
-        f" --dialect={r.get('cdm_dialect', 'postgresql')}"
-        f" --host={r.get('cdm_server', '')}"
+        f" --dialect={shlex.quote(r.get('cdm_dialect', 'postgresql'))}"
+        f" --host={shlex.quote(r.get('cdm_server', ''))}"
         f" --port={r.get('cdm_port', 5432)}"
-        f" --database={r.get('cdm_database', '')}"
-        f" --username={r.get('cdm_user', '')}"
-        f" --password={r.get('cdm_password', '')}"
-        f" --results-schema={r.get('results_schema', 'results')}"
+        f" --database={shlex.quote(r.get('cdm_database', ''))}"
+        f" --username={shlex.quote(r.get('cdm_user', ''))}"
+        ' --password="$OMOP_CDM_PASSWORD"'
+        f" --results-schema={shlex.quote(r.get('results_schema', 'results'))}"
         f" --no-ansi 2>&1",
         check=False,
+        capture=True,
+        env={"OMOP_CDM_PASSWORD": r.get("cdm_password", "")},
     )
     if result.returncode != 0:
         raise StepError(f"Results schema creation failed:\n{result.stdout}")
@@ -231,6 +261,7 @@ def _check_run_achilles(ctx: Context) -> bool:
         f"}} catch(\\\\Exception $e) {{ echo 0; }}"
         f"\" --no-ansi 2>&1",
         check=False,
+        capture=True,
     )
     try:
         return int(result.stdout.strip()) > 0
@@ -242,19 +273,12 @@ def _run_run_achilles(ctx: Context) -> None:
     r = _resolved(ctx)
     key = _ext_source_key(r)
     ctx.emit("Looking up source ID for Achilles run…")
-    id_result = utils.exec_php(
-        f"php artisan tinker --execute=\""
-        f"echo App\\\\Models\\\\App\\\\Source::where('source_key','{key}')->value('id') ?? 'not_found';"
-        f"\" --no-ansi 2>&1",
-        check=False,
-    )
-    source_id = id_result.stdout.strip()
-    if not source_id or source_id == "not_found":
-        raise StepError(f"Source '{key}' not found — register_source must complete first")
+    source_id = _get_source_id(key)
     ctx.emit(f"Running Achilles on source {source_id} (this may take several minutes)…")
     result = utils.exec_php(
         f"php artisan parthenon:run-achilles {source_id} --sync --no-ansi 2>&1",
         check=False,
+        capture=True,
     )
     if result.returncode != 0:
         raise StepError(f"Achilles failed:\n{result.stdout}")
@@ -272,10 +296,11 @@ def _check_run_dqd(ctx: Context) -> bool:
     key = _ext_source_key(r)
     result = utils.exec_php(
         f"php artisan tinker --execute=\""
-        f"$src = App\\\\Models\\\\App\\\\Source::where('source_key','{key}')->first();"
+        f"$src = App\\\\Models\\\\App\\\\Source::where('source_key',{shlex.quote(key)})->first();"
         f"echo $src ? App\\\\Models\\\\App\\\\DqdResult::where('source_id',$src->id)->count() : 0;"
         f"\" --no-ansi 2>&1",
         check=False,
+        capture=True,
     )
     try:
         return int(result.stdout.strip()) > 0
@@ -287,19 +312,12 @@ def _run_run_dqd(ctx: Context) -> None:
     r = _resolved(ctx)
     key = _ext_source_key(r)
     ctx.emit("Looking up source ID for DQD run…")
-    id_result = utils.exec_php(
-        f"php artisan tinker --execute=\""
-        f"echo App\\\\Models\\\\App\\\\Source::where('source_key','{key}')->value('id') ?? 'not_found';"
-        f"\" --no-ansi 2>&1",
-        check=False,
-    )
-    source_id = id_result.stdout.strip()
-    if not source_id or source_id == "not_found":
-        raise StepError(f"Source '{key}' not found — register_source must complete first")
+    source_id = _get_source_id(key)
     ctx.emit(f"Running DQD on source {source_id} (this may take several minutes)…")
     result = utils.exec_php(
         f"php artisan parthenon:run-dqd {source_id} --sync --no-ansi 2>&1",
         check=False,
+        capture=True,
     )
     if result.returncode != 0:
         raise StepError(f"DQD failed:\n{result.stdout}")

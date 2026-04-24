@@ -132,9 +132,12 @@ def docker_compose(args: list[str], *, capture: bool = False, check: bool = True
     return run(["docker", "compose", *args], capture=capture, check=check, cwd=REPO_ROOT)
 
 
-def exec_php(cmd: str, *, check: bool = True) -> subprocess.CompletedProcess:
+def exec_php(cmd: str, *, check: bool = True, capture: bool = False, env: dict | None = None) -> subprocess.CompletedProcess:
     """Run a command inside the parthenon-php container (non-interactive)."""
-    return run(["docker", "compose", "exec", "-T", "php", "sh", "-c", cmd], check=check, cwd=REPO_ROOT)
+    extra: list[str] = []
+    for k, v in (env or {}).items():
+        extra += ["-e", f"{k}={v}"]
+    return run(["docker", "compose", "exec", "-T", *extra, "php", "sh", "-c", cmd], capture=capture, check=check, cwd=REPO_ROOT)
 
 
 def exec_pg(cmd: str, *, check: bool = True) -> subprocess.CompletedProcess:
