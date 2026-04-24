@@ -4,7 +4,7 @@ import json
 from dataclasses import asdict, dataclass
 
 
-@dataclass
+@dataclass(frozen=True)
 class ProgressEvent:
     type: str         # step_start | step_done | step_skip | step_fail
                       # | phase_start | phase_done | install_done | install_fail | log
