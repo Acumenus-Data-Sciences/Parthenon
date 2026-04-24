@@ -82,3 +82,23 @@ def test_config_phase_has_three_steps():
     assert phase.steps[0].id == "config.gather"
     assert phase.steps[1].id == "config.write_env"
     assert phase.steps[2].id == "config.store_secrets"
+
+
+def test_hecate_phase_registered():
+    from installer.engine.phases import DEFAULT_REGISTRY
+    ids = [p.id for p in DEFAULT_REGISTRY.phases()]
+    assert "hecate" in ids
+
+
+def test_docker_phase_registered():
+    from installer.engine.phases import DEFAULT_REGISTRY
+    ids = [p.id for p in DEFAULT_REGISTRY.phases()]
+    assert "docker" in ids
+
+
+def test_phase_order_is_correct():
+    from installer.engine.phases import DEFAULT_REGISTRY
+    ids = [p.id for p in DEFAULT_REGISTRY.phases()]
+    assert ids.index("preflight") < ids.index("config")
+    assert ids.index("config") < ids.index("hecate")
+    assert ids.index("hecate") < ids.index("docker")
