@@ -8,10 +8,11 @@ from .hecate import PHASE as HECATE
 from .docker import PHASE as DOCKER
 from .bootstrap import PHASE as BOOTSTRAP
 from .datasets import PHASE as DATASETS
+from .omop_cdm import PHASE as OMOP_CDM
 from .frontend import PHASE as FRONTEND
 from .solr import PHASE as SOLR
 from .admin import PHASE as ADMIN
 
 DEFAULT_REGISTRY = PhaseRegistry()
-for phase in (PREFLIGHT, CONFIG, HECATE, DOCKER, BOOTSTRAP, DATASETS, FRONTEND, SOLR, ADMIN):
+for phase in (PREFLIGHT, CONFIG, HECATE, DOCKER, BOOTSTRAP, DATASETS, OMOP_CDM, FRONTEND, SOLR, ADMIN):
     DEFAULT_REGISTRY.register(phase)

@@ -138,3 +138,30 @@ def test_engine_run_function_importable():
     assert "pre_seed" in sig.parameters
     assert "non_interactive" in sig.parameters
     # Note: "resume" will be added in Task 12 CLI shim update
+
+
+def test_omop_cdm_phase_registered():
+    from installer.engine.phases import DEFAULT_REGISTRY
+    phase_ids = [p.id for p in DEFAULT_REGISTRY.phases()]
+    assert "omop_cdm" in phase_ids
+
+
+def test_omop_cdm_appears_after_datasets_before_frontend():
+    from installer.engine.phases import DEFAULT_REGISTRY
+    ids = [p.id for p in DEFAULT_REGISTRY.phases()]
+    assert ids.index("omop_cdm") > ids.index("datasets")
+    assert ids.index("omop_cdm") < ids.index("frontend")
+
+
+def test_omop_cdm_has_7_steps():
+    from installer.engine.phases import DEFAULT_REGISTRY
+    phases = {p.id: p for p in DEFAULT_REGISTRY.phases()}
+    assert len(phases["omop_cdm"].steps) == 7
+
+
+def test_resume_param_present():
+    """Regression: resume param must be present in cli.run() signature."""
+    import inspect
+    from installer import cli
+    sig = inspect.signature(cli.run)
+    assert "resume" in sig.parameters

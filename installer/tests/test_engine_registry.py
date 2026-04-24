@@ -111,9 +111,9 @@ def test_bootstrap_phase_has_six_steps():
     assert len(phase.steps) == 6
 
 
-def test_all_nine_phases_registered():
+def test_all_ten_phases_registered():
     from installer.engine.phases import DEFAULT_REGISTRY
     ids = [p.id for p in DEFAULT_REGISTRY.phases()]
     expected = ["preflight", "config", "hecate", "docker", "bootstrap",
-                "datasets", "frontend", "solr", "admin"]
+                "datasets", "omop_cdm", "frontend", "solr", "admin"]
     assert ids == expected
