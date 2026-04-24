@@ -48,12 +48,14 @@ def _check_store_secrets(ctx: Context) -> bool:
 
 
 def _run_store_secrets(ctx: Context) -> None:
-    resolved = ctx.config.get("resolved", {})
+    resolved = ctx.config.get("resolved")
+    if resolved is None:
+        raise StepError("Config not gathered — run config.gather first")
     secret_keys = ["DB_PASSWORD", "REDIS_PASSWORD", "APP_KEY", "ADMIN_PASSWORD"]
     stored = 0
     for key in secret_keys:
         value = resolved.get(key)
-        if value:
+        if value is not None:
             ctx.secrets.set(key, value)
             stored += 1
     ctx.emit(f"Stored {stored} secrets in OS keychain")
