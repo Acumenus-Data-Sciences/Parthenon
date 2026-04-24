@@ -1,4 +1,5 @@
 import { useState } from "react";
+import DOMPurify from "dompurify";
 import {
   GripVertical,
   ChevronUp,
@@ -285,7 +286,7 @@ export default function SectionEditor({
           section.svgMarkup ? (
             <div
               className="overflow-auto"
-              dangerouslySetInnerHTML={{ __html: section.svgMarkup }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(section.svgMarkup, { USE_PROFILES: { svg: true } }) }}
             />
           ) : (
             <p className="text-sm text-text-ghost italic">

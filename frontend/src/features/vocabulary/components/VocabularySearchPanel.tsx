@@ -9,6 +9,7 @@ import {
   useDomains,
   useVocabularies,
 } from "../hooks/useVocabularySearch";
+import DOMPurify from "dompurify";
 
 
 interface VocabularySearchPanelProps {
@@ -33,7 +34,7 @@ interface VocabularySearchPanelProps {
 function HighlightedText({ html, fallback }: { html: string | undefined; fallback: string }) {
   if (!html) return <>{fallback}</>;
   // Sanitize: only allow <mark> and </mark>
-  const safe = html.replace(/<(?!\/?mark>)[^>]*>/g, "");
+  const safe = DOMPurify.sanitize(html, { ALLOWED_TAGS: ['mark'] });
   return <span dangerouslySetInnerHTML={{ __html: safe }} />;
 }
 

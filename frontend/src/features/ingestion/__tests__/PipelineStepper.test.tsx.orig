@@ -8,7 +8,7 @@ const STEP_LABELS = [
   "Concept Mapping",
   "Review",
   "CDM Writing",
-  "Validation des donnees", // Adjusted to match the rendered output
+  "Validation",
 ];
 
 describe("PipelineStepper", () => {
