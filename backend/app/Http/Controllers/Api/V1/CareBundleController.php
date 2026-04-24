@@ -16,6 +16,7 @@ use App\Services\CareBundles\CareBundleQualificationService;
 use App\Services\CareBundles\CareBundleSourceService;
 use App\Services\CareBundles\FhirMeasureExporter;
 use App\Services\CareBundles\IntersectionCohortService;
+use App\Services\CareBundles\WilsonCI;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -105,15 +106,23 @@ class CareBundleController extends Controller
         $measureResults = CareBundleMeasureResult::where('care_bundle_run_id', $runId)
             ->with('measure:id,measure_code,measure_name,domain,frequency')
             ->get()
-            ->map(fn (CareBundleMeasureResult $r) => [
-                'quality_measure_id' => $r->quality_measure_id,
-                'measure' => $r->measure,
-                'denominator_count' => (int) $r->denominator_count,
-                'numerator_count' => (int) $r->numerator_count,
-                'exclusion_count' => (int) $r->exclusion_count,
-                'rate' => $r->rate !== null ? (float) $r->rate : null,
-                'computed_at' => $r->computed_at,
-            ]);
+            ->map(function (CareBundleMeasureResult $r) {
+                $denom = (int) $r->denominator_count;
+                $numer = (int) $r->numerator_count;
+                $ci = WilsonCI::compute($numer, $denom);
+
+                return [
+                    'quality_measure_id' => $r->quality_measure_id,
+                    'measure' => $r->measure,
+                    'denominator_count' => $denom,
+                    'numerator_count' => $numer,
+                    'exclusion_count' => (int) $r->exclusion_count,
+                    'rate' => $r->rate !== null ? (float) $r->rate : null,
+                    'ci_lower' => $ci['lower'] ?? null,
+                    'ci_upper' => $ci['upper'] ?? null,
+                    'computed_at' => $r->computed_at,
+                ];
+            });
 
         return response()->json([
             'data' => [

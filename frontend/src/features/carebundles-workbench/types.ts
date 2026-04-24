@@ -39,10 +39,17 @@ export interface CareBundleMeasureResult {
     QualityMeasure,
     "id" | "measure_code" | "measure_name" | "domain" | "frequency"
   >;
+  /** Post-exclusion: patients removed via denominator-exclusion rules are not counted. */
   denominator_count: number;
+  /** Compliant, non-excluded. */
   numerator_count: number;
+  /** Patients removed from BOTH denominator and numerator per eCQM semantics. */
   exclusion_count: number;
   rate: number | null;
+  /** Wilson 95% CI lower bound (0–1). Null when denominator is 0. */
+  ci_lower: number | null;
+  /** Wilson 95% CI upper bound (0–1). Null when denominator is 0. */
+  ci_upper: number | null;
   computed_at: string;
 }
 

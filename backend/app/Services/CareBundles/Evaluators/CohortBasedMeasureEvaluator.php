@@ -7,18 +7,24 @@ use App\Models\App\QualityMeasure;
 use App\Models\App\Source;
 use App\Services\CareBundles\CareBundleMeasureEvaluator;
 use App\Services\CareBundles\MeasureEvalResult;
-use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Direct-SQL measure evaluator.
+ * Aggregate-first measure evaluator.
  *
- * For each qualified person in the run, sets measure_summary JSONB with
- * {denom:true, numer:bool} for this measure via an EXISTS subquery against
- * the CDM domain table. Aggregate counts are returned afterward.
+ * Returns denominator / numerator / exclusion counts via a single CTE-based
+ * aggregate query per measure. No per-person UPDATEs to care_bundle_qualifications,
+ * no jsonb mutation — a prior per-row UPDATE design caused 15+ minute runs on
+ * 370K-person bundles. This approach is seconds per measure.
  *
- * Mirrors CareGapRefreshService's pure-SQL approach — no PHP-side patient loops,
- * idempotent on re-run, debuggable by any PostgreSQL engineer.
+ * Semantics follow standard eCQM:
+ *   denom = qualified persons who are NOT in the exclusion set
+ *   numer = qualified persons who meet numerator criteria AND are NOT excluded
+ *   excl  = qualified persons who are in the exclusion set
+ *
+ * Descendants via vocab.concept_ancestor. Lookback anchored on MAX(date_col)
+ * of the relevant CDM domain so historical corpora (SynPUF 2010 etc.) still
+ * return usable windows.
  */
 final class CohortBasedMeasureEvaluator implements CareBundleMeasureEvaluator
 {
@@ -28,106 +34,134 @@ final class CohortBasedMeasureEvaluator implements CareBundleMeasureEvaluator
         Source $source,
         string $cdmSchema,
     ): MeasureEvalResult {
-        $numerator = $measure->numerator_criteria ?? [];
-        $conceptIds = $numerator['concept_ids'] ?? [];
-        $lookbackDays = (int) ($numerator['lookback_days'] ?? 365);
-
         $appConn = DB::connection();
 
-        if (empty($conceptIds)) {
-            $this->markDenomOnly($run, $measure, $appConn);
-            $denom = $this->countQualified($run, $appConn);
+        [$numerCte, $numerBindings] = $this->buildNumeratorCte($measure, $cdmSchema);
+        [$exclCte, $exclBindings] = $this->buildExclusionCte($measure, $cdmSchema);
 
-            return new MeasureEvalResult($denom, 0, 0);
-        }
-
-        $tableName = $this->resolveTableName($measure->domain);
-        $conceptCol = $this->resolveConceptColumn($measure->domain);
-        $dateCol = $this->resolveDateColumn($measure->domain);
-        $conceptPh = implode(',', array_fill(0, count($conceptIds), '?'));
-
-        // Expand numerator concept IDs via vocab.concept_ancestor so descendants
-        // (e.g., specific drug ingredients/products under an RxNorm class) count
-        // toward the measure. Mirrors the qualification query's hierarchy logic.
-        //
-        // Anchor the lookback window on the CDM's MAX({$dateCol}) instead of
-        // CURRENT_DATE. Historical CDMs (SynPUF maxes at 2010; most MIMIC-IV
-        // derivatives pre-2020) contain zero rows in the last 365 calendar
-        // days, so CURRENT_DATE anchoring returned 0-rate everywhere.
         $sql = "
-            UPDATE care_bundle_qualifications cbq
-            SET measure_summary = COALESCE(cbq.measure_summary, '{}'::jsonb)
-                || jsonb_build_object(
-                    ?::text,
-                    jsonb_build_object(
-                        'denom', true,
-                        'numer', EXISTS (
-                            SELECT 1
-                            FROM \"{$cdmSchema}\".{$tableName} t
-                            WHERE t.person_id = cbq.person_id
-                              AND t.{$conceptCol} IN (
-                                  SELECT ca.descendant_concept_id
-                                  FROM vocab.concept_ancestor ca
-                                  WHERE ca.ancestor_concept_id IN ({$conceptPh})
-                              )
-                              AND t.{$dateCol} >= (
-                                  SELECT MAX({$dateCol})
-                                  FROM \"{$cdmSchema}\".{$tableName}
-                              ) - INTERVAL '{$lookbackDays} days'
-                        )
-                    )
-                )
-            WHERE cbq.care_bundle_run_id = ?
+            WITH
+                q AS (
+                    SELECT person_id
+                    FROM care_bundle_qualifications
+                    WHERE care_bundle_run_id = ?
+                ),
+                numer_pp AS ({$numerCte}),
+                excl_pp AS ({$exclCte})
+            SELECT
+                COUNT(*) FILTER (WHERE excl_pp.person_id IS NULL) AS denom,
+                COUNT(*) FILTER (
+                    WHERE numer_pp.person_id IS NOT NULL
+                      AND excl_pp.person_id IS NULL
+                ) AS numer,
+                COUNT(*) FILTER (WHERE excl_pp.person_id IS NOT NULL) AS excl
+            FROM q
+            LEFT JOIN numer_pp ON numer_pp.person_id = q.person_id
+            LEFT JOIN excl_pp  ON excl_pp.person_id  = q.person_id
         ";
 
-        $bindings = array_merge(
-            [(string) $measure->id],
-            $conceptIds,
-            [$run->id],
-        );
-        $appConn->statement($sql, $bindings);
-
-        $counts = $appConn->selectOne(
-            "
-            SELECT
-                COUNT(*) AS denom,
-                SUM(CASE WHEN (measure_summary -> ? ->> 'numer')::boolean THEN 1 ELSE 0 END) AS numer
-            FROM care_bundle_qualifications
-            WHERE care_bundle_run_id = ?
-        ",
-            [(string) $measure->id, $run->id]
-        );
+        $bindings = array_merge([$run->id], $numerBindings, $exclBindings);
+        $row = $appConn->selectOne($sql, $bindings);
 
         return new MeasureEvalResult(
-            denominatorCount: (int) ($counts->denom ?? 0),
-            numeratorCount: (int) ($counts->numer ?? 0),
-            exclusionCount: 0,
+            denominatorCount: (int) ($row->denom ?? 0),
+            numeratorCount: (int) ($row->numer ?? 0),
+            exclusionCount: (int) ($row->excl ?? 0),
         );
     }
 
-    private function markDenomOnly(
-        CareBundleRun $run,
-        QualityMeasure $measure,
-        Connection $appConn,
-    ): void {
-        $appConn->statement(
-            "
-            UPDATE care_bundle_qualifications
-            SET measure_summary = COALESCE(measure_summary, '{}'::jsonb)
-                || jsonb_build_object(?::text, jsonb_build_object('denom', true, 'numer', false))
-            WHERE care_bundle_run_id = ?
-        ",
-            [(string) $measure->id, $run->id]
-        );
+    /**
+     * @return array{0: string, 1: list<mixed>}
+     */
+    private function buildNumeratorCte(QualityMeasure $measure, string $cdmSchema): array
+    {
+        /** @var array<string, mixed> $numerator */
+        $numerator = $measure->numerator_criteria ?? [];
+        /** @var list<int> $ids */
+        $ids = is_array($numerator['concept_ids'] ?? null)
+            ? array_values(array_map('intval', $numerator['concept_ids']))
+            : [];
+
+        if (empty($ids)) {
+            // Empty numerator set → no one ever flips to numer:true.
+            // Selecting NULL::bigint yields a 0-row CTE with correct column type.
+            return ['SELECT NULL::bigint AS person_id WHERE FALSE', []];
+        }
+
+        $lookback = (int) ($numerator['lookback_days'] ?? 365);
+        $table = $this->resolveTableName($measure->domain);
+        $col = $this->resolveConceptColumn($measure->domain);
+        $date = $this->resolveDateColumn($measure->domain);
+        $ph = implode(',', array_fill(0, count($ids), '?'));
+
+        $sql = "
+            SELECT DISTINCT t.person_id
+            FROM \"{$cdmSchema}\".{$table} t
+            WHERE t.{$col} IN (
+                SELECT ca.descendant_concept_id
+                FROM vocab.concept_ancestor ca
+                WHERE ca.ancestor_concept_id IN ({$ph})
+            )
+            AND t.{$date} >= (
+                SELECT MAX({$date}) FROM \"{$cdmSchema}\".{$table}
+            ) - INTERVAL '{$lookback} days'
+        ";
+
+        return [$sql, $ids];
     }
 
-    private function countQualified(
-        CareBundleRun $run,
-        Connection $appConn,
-    ): int {
-        return (int) $appConn->table('care_bundle_qualifications')
-            ->where('care_bundle_run_id', $run->id)
-            ->count();
+    /**
+     * @return array{0: string, 1: list<mixed>}
+     */
+    private function buildExclusionCte(QualityMeasure $measure, string $cdmSchema): array
+    {
+        /** @var array<string, mixed> $criteria */
+        $criteria = $measure->exclusion_criteria ?? [];
+        /** @var list<array<string, mixed>> $exclusions */
+        $exclusions = is_array($criteria['exclusions'] ?? null) ? $criteria['exclusions'] : [];
+
+        /** @var list<string> $parts */
+        $parts = [];
+        /** @var list<mixed> $bindings */
+        $bindings = [];
+
+        foreach ($exclusions as $ex) {
+            $domain = (string) ($ex['domain'] ?? 'condition');
+            /** @var list<int> $ids */
+            $ids = is_array($ex['concept_ids'] ?? null)
+                ? array_values(array_map('intval', $ex['concept_ids']))
+                : [];
+
+            if (empty($ids)) {
+                continue;
+            }
+
+            $lookback = (int) ($ex['lookback_days'] ?? 365);
+            $table = $this->resolveTableName($domain);
+            $col = $this->resolveConceptColumn($domain);
+            $date = $this->resolveDateColumn($domain);
+            $ph = implode(',', array_fill(0, count($ids), '?'));
+
+            $parts[] = "
+                SELECT DISTINCT t.person_id
+                FROM \"{$cdmSchema}\".{$table} t
+                WHERE t.{$col} IN (
+                    SELECT ca.descendant_concept_id
+                    FROM vocab.concept_ancestor ca
+                    WHERE ca.ancestor_concept_id IN ({$ph})
+                )
+                AND t.{$date} >= (
+                    SELECT MAX({$date}) FROM \"{$cdmSchema}\".{$table}
+                ) - INTERVAL '{$lookback} days'
+            ";
+            $bindings = array_merge($bindings, $ids);
+        }
+
+        if (empty($parts)) {
+            return ['SELECT NULL::bigint AS person_id WHERE FALSE', []];
+        }
+
+        return [implode(' UNION ', $parts), $bindings];
     }
 
     private function resolveTableName(string $domain): string

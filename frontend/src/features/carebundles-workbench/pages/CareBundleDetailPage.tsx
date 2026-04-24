@@ -10,7 +10,7 @@ import {
   useCareBundleSources,
   useMaterializeCareBundle,
 } from "../hooks";
-import { formatRate, formatRelativeTime } from "../lib/formatting";
+import { formatRateWithCI, formatRelativeTime } from "../lib/formatting";
 import { WorkbenchTabs } from "../components/WorkbenchTabs";
 import { SourceQualifierBanner } from "../components/SourceQualifierBanner";
 
@@ -155,7 +155,7 @@ export default function CareBundleDetailPage() {
         />
       </section>
 
-      <Shell title="Quality measures" subtitle="Denominator / numerator / rate per measure for the current run">
+      <Shell title="Quality measures" subtitle="Denominator is post-exclusion. Rate shown with Wilson 95% CI.">
         <div className="overflow-x-auto">
           {qualificationsQuery.isLoading ? (
             <div className="flex items-center gap-2 p-6 text-sm text-text-ghost">
@@ -179,11 +179,17 @@ export default function CareBundleDetailPage() {
                   <th className="px-4 py-2 text-right text-xs font-semibold text-text-ghost">
                     Denominator
                   </th>
+                  <th
+                    className="px-4 py-2 text-right text-xs font-semibold text-text-ghost"
+                    title="Removed from both numerator and denominator (hospice, pregnancy, ESRD, etc.)"
+                  >
+                    Excluded
+                  </th>
                   <th className="px-4 py-2 text-right text-xs font-semibold text-text-ghost">
                     Numerator
                   </th>
                   <th className="px-4 py-2 text-right text-xs font-semibold text-text-ghost">
-                    Rate
+                    Rate (95% CI)
                   </th>
                 </tr>
               </thead>
@@ -207,11 +213,16 @@ export default function CareBundleDetailPage() {
                     <td className="px-4 py-2 text-right font-mono text-xs">
                       {m.denominator_count.toLocaleString()}
                     </td>
+                    <td className="px-4 py-2 text-right font-mono text-xs text-text-ghost">
+                      {m.exclusion_count > 0
+                        ? m.exclusion_count.toLocaleString()
+                        : "—"}
+                    </td>
                     <td className="px-4 py-2 text-right font-mono text-xs">
                       {m.numerator_count.toLocaleString()}
                     </td>
                     <td className="px-4 py-2 text-right font-mono text-xs">
-                      {formatRate(m.rate)}
+                      {formatRateWithCI(m.rate, m.ci_lower, m.ci_upper)}
                     </td>
                   </tr>
                 ))}
