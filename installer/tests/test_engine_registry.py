@@ -102,3 +102,10 @@ def test_phase_order_is_correct():
     assert ids.index("preflight") < ids.index("config")
     assert ids.index("config") < ids.index("hecate")
     assert ids.index("hecate") < ids.index("docker")
+
+
+def test_bootstrap_phase_has_six_steps():
+    from installer.engine.phases import DEFAULT_REGISTRY
+    phase = next((p for p in DEFAULT_REGISTRY.phases() if p.id == "bootstrap"), None)
+    assert phase is not None
+    assert len(phase.steps) == 6
