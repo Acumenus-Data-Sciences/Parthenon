@@ -85,16 +85,12 @@ jobs:
             artifact: parthenon-installer-linux-x64
             smoke_contract: true
             artifact_arch: x64
-          - label: macos-x64
-            runner: macos-13
-            artifact: parthenon-installer-macos-x64
-            smoke_contract: true
-            artifact_arch: x64
-          - label: macos-arm64
+          - label: macos-universal
             runner: macos-15
-            artifact: parthenon-installer-macos-arm64
+            artifact: parthenon-installer-macos-universal
             smoke_contract: true
-            artifact_arch: arm64
+            artifact_arch: universal
+            tauri_target: universal-apple-darwin
           - label: windows-x64
             runner: windows-2022
             artifact: parthenon-installer-windows-x64
@@ -118,6 +114,11 @@ jobs:
           python-version: "3.11"
 
       - uses: dtolnay/rust-toolchain@stable
+
+      - name: Add Rust targets for macOS universal
+        if: ${{ runner.os == 'macOS' && matrix.tauri_target == 'universal-apple-darwin' }}
+        run: |
+          rustup target add aarch64-apple-darwin x86_64-apple-darwin
 
       - name: Validate macOS notarization configuration
         if: ${{ runner.os == 'macOS' && env.APPLE_CERT_CONFIGURED == 'true' }}
@@ -178,6 +179,18 @@ jobs:
           {
             echo "APPLE_API_KEY_PATH=$KEY_PATH"
           } >> "$GITHUB_ENV"
+          echo "=== Diagnostic: verify App Store Connect API credentials ==="
+          echo "Key file bytes: $(wc -c < "$KEY_PATH")"
+          echo "Key file head: $(head -1 "$KEY_PATH")"
+          echo "Key file tail: $(tail -1 "$KEY_PATH")"
+          echo "Key ID length: ${#APPLE_API_KEY}"
+          echo "Issuer ID length: ${#APPLE_API_ISSUER}"
+          # Call notarytool history — any 401 surfaces Apple's real error
+          xcrun notarytool history \
+            --key "$KEY_PATH" \
+            --key-id "$APPLE_API_KEY" \
+            --issuer "$APPLE_API_ISSUER" 2>&1 | head -20 || true
+          echo "=== End diagnostic ==="
 
       - name: Validate Windows trusted signing configuration
         if: ${{ runner.os == 'Windows' && env.WINDOWS_SIGNING_PARTIAL == 'true' }}
@@ -332,7 +345,18 @@ jobs:
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        run: cargo tauri build
+          TAURI_TARGET: ${{ matrix.tauri_target }}
+        shell: bash
+        run: |
+          if [ -n "$TAURI_TARGET" ]; then
+            cargo tauri build --target "$TAURI_TARGET"
+            # Alias the target-qualified output so downstream path-based steps still work.
+            mkdir -p target/release
+            rm -rf target/release/bundle
+            ln -s "$(pwd)/target/$TAURI_TARGET/release/bundle" target/release/bundle
+          else
+            cargo tauri build
+          fi
 
       - name: Verify macOS signature and Gatekeeper status
         if: runner.os == 'macOS' && env.APPLE_SIGNING_IDENTITY != ''
