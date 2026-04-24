@@ -2,7 +2,10 @@ type MessageTree = {
   [key: string]: string | MessageTree;
 };
 
-function mergeMessageTrees(base: MessageTree, overrides: MessageTree): MessageTree {
+function mergeMessageTrees(
+  base: MessageTree,
+  overrides: MessageTree,
+): MessageTree {
   return Object.fromEntries(
     Object.entries(base).map(([key, baseValue]) => {
       const overrideValue = overrides[key];
@@ -113,7 +116,7 @@ const enConceptSet: MessageTree = {
       clickToEdit: "Click to edit",
       addDescription: "Add a description...",
       duplicate: "Duplicate",
-      duplicateSuccess: "Duplicated as \"{{name}}\"",
+      duplicateSuccess: 'Duplicated as "{{name}}"',
       duplicateFailed: "Failed to duplicate concept set",
       export: "Export",
       exportFallbackName: "concept-set",
@@ -169,8 +172,7 @@ const enConceptSet: MessageTree = {
       noMatching: "No matching bundles",
       noneFound: "No care bundles found",
       namePrefix: "Name Prefix",
-      namingHelp:
-        "Sets will be named \"{{name}} - Conditions\", \"- Drugs\", etc.",
+      namingHelp: 'Sets will be named "{{name}} - Conditions", "- Drugs", etc.',
       create: "Create Concept Sets",
       created_one: "{{count}} concept set created from {{bundle}}",
       created_other: "{{count}} concept sets created from {{bundle}}",
@@ -186,7 +188,7 @@ const enConceptSet: MessageTree = {
       chooseFile: "Choose file",
       pasteAtlasJson: "Or paste JSON (Atlas format)",
       placeholder:
-        "{\n  \"name\": \"My Concept Set\",\n  \"expression\": { \"items\": [...] }\n}",
+        '{\n  "name": "My Concept Set",\n  "expression": { "items": [...] }\n}',
       invalidJson: "Invalid JSON - please check your input.",
       importFailed: "Import failed",
       imported: "imported",
@@ -300,13 +302,12 @@ const frConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       clickToEdit: "Cliquer pour modifier",
       addDescription: "Ajouter une description...",
       duplicate: "Dupliquer",
-      duplicateSuccess: "Duplique sous \"{{name}}\"",
+      duplicateSuccess: 'Duplique sous "{{name}}"',
       duplicateFailed: "Echec de la duplication du jeu de concepts",
       export: "Exporter",
       exportFallbackName: "jeu-de-concepts",
       delete: "Supprimer",
-      deleteConfirm:
-        "Voulez-vous vraiment supprimer ce jeu de concepts ?",
+      deleteConfirm: "Voulez-vous vraiment supprimer ce jeu de concepts ?",
       recommendedConcepts: "Concepts recommandes",
       visibility: {
         public: "Public",
@@ -332,8 +333,7 @@ const frConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       relationshipsPage:
         "Page {{page}} sur {{totalPages}} - {{total}} au total",
       noSourceCodes: "Aucun code source ne mappe vers ce concept",
-      showingSourceCodes:
-        "Affichage de {{shown}} sur {{total}} codes source",
+      showingSourceCodes: "Affichage de {{shown}} sur {{total}} codes source",
     },
     stats: {
       total: "Total",
@@ -360,11 +360,10 @@ const frConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       noneFound: "Aucun bundle de soins trouve",
       namePrefix: "Prefixe du nom",
       namingHelp:
-        "Les jeux seront nommes \"{{name}} - Conditions\", \"- Medicaments\", etc.",
+        'Les jeux seront nommes "{{name}} - Conditions", "- Medicaments", etc.',
       create: "Creer les jeux de concepts",
       created_one: "{{count}} jeu de concepts cree a partir de {{bundle}}",
-      created_other:
-        "{{count}} jeux de concepts crees a partir de {{bundle}}",
+      created_other: "{{count}} jeux de concepts crees a partir de {{bundle}}",
       createFailed:
         "Echec de la creation des jeux de concepts a partir du bundle",
       measures_one: "{{count}} mesure",
@@ -378,7 +377,7 @@ const frConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       chooseFile: "Choisir un fichier",
       pasteAtlasJson: "Ou coller le JSON (format Atlas)",
       placeholder:
-        "{\n  \"name\": \"Mon jeu de concepts\",\n  \"expression\": { \"items\": [...] }\n}",
+        '{\n  "name": "Mon jeu de concepts",\n  "expression": { "items": [...] }\n}',
       invalidJson: "JSON invalide - veuillez verifier votre saisie.",
       importFailed: "Echec de l'import",
       imported: "importes",
@@ -421,8 +420,7 @@ const deConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       emptyMessage:
         "Erstellen Sie Ihre erste Konzeptmenge, um mit dem Aufbau von Definitionen zu beginnen.",
       noMatchingTitle: "Keine passenden Konzeptmengen",
-      noMatchingMessage:
-        "Passen Sie Ihre Suche oder Ihre Tag-Filter an.",
+      noMatchingMessage: "Passen Sie Ihre Suche oder Ihre Tag-Filter an.",
       myConceptSets: "Meine Konzeptmengen",
       allConceptSets: "Alle Konzeptmengen",
       showingRange: "Zeige {{start}} - {{end}} von {{total}}",
@@ -489,13 +487,12 @@ const deConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       clickToEdit: "Zum Bearbeiten klicken",
       addDescription: "Beschreibung hinzufugen...",
       duplicate: "Duplizieren",
-      duplicateSuccess: "Als \"{{name}}\" dupliziert",
+      duplicateSuccess: 'Als "{{name}}" dupliziert',
       duplicateFailed: "Konzeptmenge konnte nicht dupliziert werden",
       export: "Exportieren",
       exportFallbackName: "konzeptmenge",
       delete: "Loschen",
-      deleteConfirm:
-        "Mochten Sie diese Konzeptmenge wirklich loschen?",
+      deleteConfirm: "Mochten Sie diese Konzeptmenge wirklich loschen?",
       recommendedConcepts: "Empfohlene Konzepte",
       visibility: {
         public: "Offentlich",
@@ -518,11 +515,9 @@ const deConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       },
       noAncestorsFound: "Keine Vorfahren gefunden",
       noRelationshipsFound: "Keine Beziehungen gefunden",
-      relationshipsPage:
-        "Seite {{page}} von {{totalPages}} - {{total}} gesamt",
+      relationshipsPage: "Seite {{page}} von {{totalPages}} - {{total}} gesamt",
       noSourceCodes: "Keine Quellcodes werden auf dieses Konzept abgebildet",
-      showingSourceCodes:
-        "Zeige {{shown}} von {{total}} Quellcodes",
+      showingSourceCodes: "Zeige {{shown}} von {{total}} Quellcodes",
     },
     stats: {
       total: "Gesamt",
@@ -549,7 +544,7 @@ const deConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       noneFound: "Keine Versorgungspakete gefunden",
       namePrefix: "Namensprefix",
       namingHelp:
-        "Die Mengen werden als \"{{name}} - Erkrankungen\", \"- Arzneimittel\" usw. benannt.",
+        'Die Mengen werden als "{{name}} - Erkrankungen", "- Arzneimittel" usw. benannt.',
       create: "Konzeptmengen erstellen",
       created_one: "{{count}} Konzeptmenge aus {{bundle}} erstellt",
       created_other: "{{count}} Konzeptmengen aus {{bundle}} erstellt",
@@ -566,7 +561,7 @@ const deConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       chooseFile: "Datei auswahlen",
       pasteAtlasJson: "Oder JSON einfugen (Atlas-Format)",
       placeholder:
-        "{\n  \"name\": \"Meine Konzeptmenge\",\n  \"expression\": { \"items\": [...] }\n}",
+        '{\n  "name": "Meine Konzeptmenge",\n  "expression": { "items": [...] }\n}',
       invalidJson: "Ungultiges JSON - bitte Eingabe prufen.",
       importFailed: "Import fehlgeschlagen",
       imported: "importiert",
@@ -609,8 +604,7 @@ const ptConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       emptyMessage:
         "Crie seu primeiro conjunto de conceitos para comecar a montar definicoes.",
       noMatchingTitle: "Nenhum conjunto de conceitos correspondente",
-      noMatchingMessage:
-        "Tente ajustar sua busca ou os filtros de tags.",
+      noMatchingMessage: "Tente ajustar sua busca ou os filtros de tags.",
       myConceptSets: "Meus conjuntos de conceitos",
       allConceptSets: "Todos os conjuntos de conceitos",
       showingRange: "Mostrando {{start}} - {{end}} de {{total}}",
@@ -677,7 +671,7 @@ const ptConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       clickToEdit: "Clique para editar",
       addDescription: "Adicionar uma descricao...",
       duplicate: "Duplicar",
-      duplicateSuccess: "Duplicado como \"{{name}}\"",
+      duplicateSuccess: 'Duplicado como "{{name}}"',
       duplicateFailed: "Falha ao duplicar conjunto de conceitos",
       export: "Exportar",
       exportFallbackName: "conjunto-de-conceitos",
@@ -709,8 +703,7 @@ const ptConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       relationshipsPage:
         "Pagina {{page}} de {{totalPages}} - {{total}} no total",
       noSourceCodes: "Nenhum codigo-fonte e mapeado para este conceito",
-      showingSourceCodes:
-        "Mostrando {{shown}} de {{total}} codigos-fonte",
+      showingSourceCodes: "Mostrando {{shown}} de {{total}} codigos-fonte",
     },
     stats: {
       total: "Total",
@@ -737,13 +730,13 @@ const ptConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       noneFound: "Nenhum bundle de cuidado encontrado",
       namePrefix: "Prefixo do nome",
       namingHelp:
-        "Os conjuntos serao nomeados \"{{name}} - Condicoes\", \"- Medicamentos\" etc.",
+        'Os conjuntos serao nomeados "{{name}} - Condicoes", "- Medicamentos" etc.',
       create: "Criar conjuntos de conceitos",
-      created_one: "{{count}} conjunto de conceitos criado a partir de {{bundle}}",
+      created_one:
+        "{{count}} conjunto de conceitos criado a partir de {{bundle}}",
       created_other:
         "{{count}} conjuntos de conceitos criados a partir de {{bundle}}",
-      createFailed:
-        "Falha ao criar conjuntos de conceitos a partir do bundle",
+      createFailed: "Falha ao criar conjuntos de conceitos a partir do bundle",
       measures_one: "{{count}} medida",
       measures_other: "{{count}} medidas",
       concepts_one: "{{count}} conceito",
@@ -755,7 +748,7 @@ const ptConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       chooseFile: "Escolher arquivo",
       pasteAtlasJson: "Ou colar JSON (formato Atlas)",
       placeholder:
-        "{\n  \"name\": \"Meu conjunto de conceitos\",\n  \"expression\": { \"items\": [...] }\n}",
+        '{\n  "name": "Meu conjunto de conceitos",\n  "expression": { "items": [...] }\n}',
       invalidJson: "JSON invalido - confira sua entrada.",
       importFailed: "Falha na importacao",
       imported: "importados",
@@ -866,7 +859,7 @@ const esConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       clickToEdit: "Haga clic para editar",
       addDescription: "Agregar una descripcion...",
       duplicate: "Duplicar",
-      duplicateSuccess: "Duplicado como \"{{name}}\"",
+      duplicateSuccess: 'Duplicado como "{{name}}"',
       duplicateFailed: "No se pudo duplicar el conjunto de conceptos",
       export: "Exportar",
       exportFallbackName: "conjunto-de-conceptos",
@@ -895,10 +888,10 @@ const esConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       },
       noAncestorsFound: "No se encontraron ancestros",
       noRelationshipsFound: "No se encontraron relaciones",
-      relationshipsPage: "Pagina {{page}} de {{totalPages}} - {{total}} en total",
+      relationshipsPage:
+        "Pagina {{page}} de {{totalPages}} - {{total}} en total",
       noSourceCodes: "Ningun codigo fuente se asigna a este concepto",
-      showingSourceCodes:
-        "Mostrando {{shown}} de {{total}} codigos fuente",
+      showingSourceCodes: "Mostrando {{shown}} de {{total}} codigos fuente",
     },
     stats: {
       total: "Total",
@@ -925,9 +918,10 @@ const esConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       noneFound: "No se encontraron paquetes de cuidados",
       namePrefix: "Prefijo del nombre",
       namingHelp:
-        "Los conjuntos se nombraran \"{{name}} - Condiciones\", \"- Farmacos\", etc.",
+        'Los conjuntos se nombraran "{{name}} - Condiciones", "- Farmacos", etc.',
       create: "Crear conjuntos de conceptos",
-      created_one: "{{count}} conjunto de conceptos creado a partir de {{bundle}}",
+      created_one:
+        "{{count}} conjunto de conceptos creado a partir de {{bundle}}",
       created_other:
         "{{count}} conjuntos de conceptos creados a partir de {{bundle}}",
       createFailed:
@@ -943,7 +937,7 @@ const esConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       chooseFile: "Elegir archivo",
       pasteAtlasJson: "O pegar JSON (formato Atlas)",
       placeholder:
-        "{\n  \"name\": \"Mi conjunto de conceptos\",\n  \"expression\": { \"items\": [...] }\n}",
+        '{\n  "name": "Mi conjunto de conceptos",\n  "expression": { "items": [...] }\n}',
       invalidJson: "JSON no valido; revise la entrada.",
       importFailed: "La importacion fallo",
       imported: "importados",
@@ -983,8 +977,7 @@ const koConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
     list: {
       failedToLoad: "개념 집합을 불러오지 못했습니다",
       emptyTitle: "개념 집합이 없습니다",
-      emptyMessage:
-        "정의를 만들기 위해 첫 번째 개념 집합을 생성하세요.",
+      emptyMessage: "정의를 만들기 위해 첫 번째 개념 집합을 생성하세요.",
       noMatchingTitle: "일치하는 개념 집합이 없습니다",
       noMatchingMessage: "검색어나 태그 필터를 조정해 보세요.",
       myConceptSets: "내 개념 집합",
@@ -1052,7 +1045,7 @@ const koConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       clickToEdit: "클릭하여 편집",
       addDescription: "설명 추가...",
       duplicate: "복제",
-      duplicateSuccess: "\"{{name}}\"으로 복제됨",
+      duplicateSuccess: '"{{name}}"으로 복제됨',
       duplicateFailed: "개념 집합을 복제하지 못했습니다",
       export: "내보내기",
       exportFallbackName: "concept-set",
@@ -1108,8 +1101,7 @@ const koConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       noMatching: "일치하는 번들이 없습니다",
       noneFound: "케어 번들을 찾을 수 없습니다",
       namePrefix: "이름 접두사",
-      namingHelp:
-        "집합 이름은 \"{{name}} - 질환\", \"- 약물\" 등으로 지정됩니다.",
+      namingHelp: '집합 이름은 "{{name}} - 질환", "- 약물" 등으로 지정됩니다.',
       create: "개념 집합 생성",
       created_one: "{{bundle}}에서 개념 집합 {{count}}개 생성됨",
       created_other: "{{bundle}}에서 개념 집합 {{count}}개 생성됨",
@@ -1125,7 +1117,7 @@ const koConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       chooseFile: "파일 선택",
       pasteAtlasJson: "또는 JSON 붙여넣기(Atlas 형식)",
       placeholder:
-        "{\n  \"name\": \"내 개념 집합\",\n  \"expression\": { \"items\": [...] }\n}",
+        '{\n  "name": "내 개념 집합",\n  "expression": { "items": [...] }\n}',
       invalidJson: "JSON이 올바르지 않습니다. 입력을 확인하세요.",
       importFailed: "가져오기에 실패했습니다",
       imported: "가져옴",
@@ -1235,7 +1227,7 @@ const hiConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       clickToEdit: "संपादित करने के लिए क्लिक करें",
       addDescription: "विवरण जोड़ें...",
       duplicate: "प्रतिलिपि बनाएं",
-      duplicateSuccess: "\"{{name}}\" के रूप में प्रतिलिपि बनाई गई",
+      duplicateSuccess: '"{{name}}" के रूप में प्रतिलिपि बनाई गई',
       duplicateFailed: "कॉन्सेप्ट सेट की प्रतिलिपि नहीं बन सकी",
       export: "निर्यात करें",
       exportFallbackName: "concept-set",
@@ -1265,7 +1257,8 @@ const hiConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       noRelationshipsFound: "कोई संबंध नहीं मिला",
       relationshipsPage: "पृष्ठ {{page}} / {{totalPages}} - कुल {{total}}",
       noSourceCodes: "इस कॉन्सेप्ट से कोई स्रोत कोड मैप नहीं है",
-      showingSourceCodes: "{{total}} स्रोत कोड में से {{shown}} दिखाए जा रहे हैं",
+      showingSourceCodes:
+        "{{total}} स्रोत कोड में से {{shown}} दिखाए जा रहे हैं",
     },
     stats: {
       total: "कुल",
@@ -1292,7 +1285,7 @@ const hiConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       noneFound: "कोई केयर बंडल नहीं मिला",
       namePrefix: "नाम उपसर्ग",
       namingHelp:
-        "सेट का नाम \"{{name}} - Conditions\", \"- Drugs\" आदि रखा जाएगा।",
+        'सेट का नाम "{{name}} - Conditions", "- Drugs" आदि रखा जाएगा।',
       create: "कॉन्सेप्ट सेट बनाएं",
       created_one: "{{bundle}} से {{count}} कॉन्सेप्ट सेट बनाया गया",
       created_other: "{{bundle}} से {{count}} कॉन्सेप्ट सेट बनाए गए",
@@ -1308,7 +1301,7 @@ const hiConceptSet: MessageTree = mergeMessageTrees(enConceptSet, {
       chooseFile: "फाइल चुनें",
       pasteAtlasJson: "या JSON पेस्ट करें (Atlas प्रारूप)",
       placeholder:
-        "{\n  \"name\": \"मेरा कॉन्सेप्ट सेट\",\n  \"expression\": { \"items\": [...] }\n}",
+        '{\n  "name": "मेरा कॉन्सेप्ट सेट",\n  "expression": { "items": [...] }\n}',
       invalidJson: "अमान्य JSON - कृपया अपना इनपुट जांचें।",
       importFailed: "आयात विफल हुआ",
       imported: "आयातित",
@@ -1339,9 +1332,477 @@ export const conceptSetResources: Record<string, MessageTree> = {
   "fr-FR": frConceptSet,
   "de-DE": deConceptSet,
   "pt-BR": ptConceptSet,
-  "fi-FI": mergeMessageTrees(enConceptSet, {}),
-  "ja-JP": mergeMessageTrees(enConceptSet, {}),
-  "zh-Hans": mergeMessageTrees(enConceptSet, {}),
+  "fi-FI": mergeMessageTrees(enConceptSet, {
+    conceptSets: {
+      page: {
+        title: "Konseptisarjat",
+        subtitle:
+          "Määrittele ja hallitse uudelleenkäytettäviä konseptijoukkoja kohorttimäärityksiä ja analyyseja varten",
+        untitledName: "Nimetön konseptisarja",
+        newConceptSet: "Uusi konseptisarja",
+        fromBundle: "Bundlesta",
+        import: "Tuo",
+      },
+      list: {
+        failedToLoad: "Konseptijoukkojen lataaminen epäonnistui",
+        emptyTitle: "Ei konseptisarjaa",
+        emptyMessage:
+          "Luo ensimmäinen konseptisarja aloittaaksesi määritelmien rakentamisen.",
+        noMatchingTitle: "Ei vastaavia konseptijoukkoja",
+        noMatchingMessage: "Yritä säätää haku- tai tagisuodattimia.",
+        myConceptSets: "Omat konseptisarjani",
+        allConceptSets: "Kaikki konseptisarjat",
+        columns: {
+          name: "Nimi",
+          author: "Tekijä",
+          visibility: "Näkyvyys",
+          items: "Tuotteet",
+          tags: "Tunnisteet",
+          updated: "Päivitetty",
+        },
+        visibility: {
+          public: "Julkinen",
+          private: "Yksityinen",
+        },
+      },
+      builder: {
+        tabs: {
+          keyword: "Avainsanahaku",
+          semantic: "Semanttinen haku",
+        },
+        setContents: "Aseta sisältö",
+      },
+      editor: {
+        resolve: "Ratkaise",
+        descendantsOn: "Jälkeläiset päällä",
+        descendantsOff: "Jälkeläiset pois",
+        mappedOn: "Kartoitettu päälle",
+        mappedOff: "Kartoitettu pois",
+        exclude: "Sulje pois",
+        include: "Sisällytä",
+        columns: {
+          conceptId: "Konseptin tunnus",
+          name: "Nimi",
+          domain: "Verkkotunnus",
+          vocabulary: "Sanasto",
+          standard: "Vakio",
+          excluded: "Poissuljettu",
+          descendants: "Jälkeläiset",
+          mapped: "Kartoitettu",
+          actions: "Toiminnot",
+        },
+        emptyTitle: "Konsepteja ei ole vielä lisätty",
+        emptyMessage:
+          "Käytä hakupaneelia löytääksesi ja lisätäksesi käsitteitä tähän joukkoon",
+        toggleLabels: {
+          excludeConcept: "Sulje käsite pois",
+          includeDescendants: "Sisällytä jälkeläiset",
+          includeMapped: "Sisällytä kartoitettu",
+          removeItem: "Poista kohde",
+        },
+      },
+      detail: {
+        failedToLoad: "Konseptijoukon lataaminen epäonnistui",
+        backToList: "Takaisin luetteloon",
+        clickToEdit: "Muokkaa napsauttamalla",
+        addDescription: "Lisää kuvaus...",
+        duplicate: "Kopioi",
+        duplicateFailed: "Käsitejoukon kopioiminen epäonnistui",
+        export: "Vie",
+        delete: "Poista",
+        deleteConfirm: "Haluatko varmasti poistaa tämän käsitejoukon?",
+        recommendedConcepts: "Suositellut käsitteet",
+        visibility: {
+          public: "Julkinen",
+          private: "Yksityinen",
+        },
+      },
+      detailTabs: {
+        info: "Tietoja",
+        hierarchy: "Hierarkia",
+        relationships: "Suhteet",
+        mapsFrom: "Kartat alkaen",
+        failedToLoadConcept: "Konseptin lataaminen epäonnistui",
+        labels: {
+          fullName: "Koko nimi",
+          vocabulary: "Sanasto",
+          standard: "Vakio",
+          conceptClass: "konseptiluokka",
+          domain: "Verkkotunnus",
+          synonyms: "Synonyymit",
+        },
+        noAncestorsFound: "Esivanhempia ei löytynyt",
+        noRelationshipsFound: "Suhteita ei löytynyt",
+        noSourceCodes: "Tähän käsitteeseen ei liity lähdekoodia",
+      },
+      stats: {
+        total: "Yhteensä",
+        withItems: "Esineiden kanssa",
+        public: "Julkinen",
+      },
+      phoebe: {
+        recommendations: "Phoeben suositukset",
+        poweredBy: "Phoeben tukema",
+        unavailable: "Suosituksia ei ole saatavilla",
+        noneFound: "Suosituksia ei löytynyt",
+        added: "Lisätty",
+        addToConceptSet: "Lisää konseptisarjaan",
+        add: "Lisää",
+      },
+      bundle: {
+        title: "Luo Care Bundlesta",
+        description:
+          "Valitse sairauspaketti luodaksesi automaattisesti konseptijoukot, jotka on ryhmitelty toimialueen mukaan (tilat, lääkkeet, mittaukset).",
+        filterPlaceholder: "Suodatinpaketit...",
+        noMatching: "Ei vastaavia nippuja",
+        noneFound: "Hoitopaketteja ei löytynyt",
+        namePrefix: "Nimen etuliite",
+        create: "Luo konseptisarjat",
+        createFailed: "Konseptijoukkojen luominen nipusta epäonnistui",
+      },
+      import: {
+        title: "Tuo käsitesarja",
+        uploadJsonFile: "Lataa JSON tiedosto",
+        chooseFile: "Valitse tiedosto",
+        pasteAtlasJson: "Tai liitä JSON (Atlas-muoto)",
+        placeholder:
+          '{\n  "name": "Oma käsitesarjani",\n  "lauseke": { "kohteet": [...] }\n}',
+        invalidJson: "Virheellinen JSON - tarkista syöttämäsi.",
+        importFailed: "Tuonti epäonnistui",
+        imported: "tuotu",
+        skipped: "ohitettu",
+        failed: "epäonnistunut",
+        close: "Sulje",
+        cancel: "Peruuta",
+        import: "Tuo",
+      },
+    },
+    shared: {
+      significanceVerdict: {
+        protective: "Merkittävä suojaava vaikutus",
+        harmful: "Merkittävä haitallinen vaikutus",
+        notSignificant: "Ei tilastollisesti merkitsevä",
+      },
+      workbench: {
+        statusLabel: "Tila:",
+        ariaRunStatus: "Suoritustila",
+        pollingEvery2s: "äänestys 2s välein",
+      },
+    },
+  }),
+  "ja-JP": mergeMessageTrees(enConceptSet, {
+    conceptSets: {
+      page: {
+        title: "コンセプトセット",
+        subtitle:
+          "コホート定義と分析のための再利用可能な概念セットを定義および管理する",
+        untitledName: "無題のコンセプト セット",
+        newConceptSet: "新コンセプトセット",
+        fromBundle: "バンドルから",
+        import: "インポート",
+      },
+      list: {
+        failedToLoad: "コンセプト セットのロードに失敗しました",
+        emptyTitle: "コンセプトセットなし",
+        emptyMessage: "最初の概念セットを作成して、定義の構築を開始します。",
+        noMatchingTitle: "一致するコンセプト セットがありません",
+        noMatchingMessage:
+          "検索フィルターまたはタグフィルターを調整してみてください。",
+        myConceptSets: "私のコンセプトセット",
+        allConceptSets: "すべてのコンセプト セット",
+        columns: {
+          name: "名前",
+          author: "著者",
+          visibility: "可視性",
+          items: "アイテム",
+          tags: "タグ",
+          updated: "更新されました",
+        },
+        visibility: {
+          public: "公共",
+          private: "プライベート",
+        },
+      },
+      builder: {
+        tabs: {
+          keyword: "キーワード検索",
+          semantic: "セマンティック検索",
+        },
+        setContents: "セット内容",
+      },
+      editor: {
+        resolve: "解決する",
+        descendantsOn: "子孫オン",
+        descendantsOff: "子孫がオフ",
+        mappedOn: "マップされた場所",
+        mappedOff: "マップオフ",
+        exclude: "除外する",
+        include: "含める",
+        columns: {
+          conceptId: "コンセプトID",
+          name: "名前",
+          domain: "ドメイン",
+          vocabulary: "語彙",
+          standard: "標準",
+          excluded: "除外される",
+          descendants: "子孫",
+          mapped: "マッピング済み",
+          actions: "アクション",
+        },
+        emptyTitle: "まだコンセプトは追加されていません",
+        emptyMessage:
+          "検索パネルを使用してコンセプトを検索し、このセットに追加します",
+        toggleLabels: {
+          excludeConcept: "概念を除外する",
+          includeDescendants: "子孫を含める",
+          includeMapped: "マップされたものを含める",
+          removeItem: "アイテムを削除する",
+        },
+      },
+      detail: {
+        failedToLoad: "コンセプトセットのロードに失敗しました",
+        backToList: "リストに戻る",
+        clickToEdit: "クリックして編集",
+        addDescription: "説明を追加...",
+        duplicate: "重複",
+        duplicateFailed: "コンセプト セットを複製できませんでした",
+        export: "エクスポート",
+        delete: "削除",
+        deleteConfirm: "このコンセプト セットを削除してもよろしいですか?",
+        recommendedConcepts: "推奨されるコンセプト",
+        visibility: {
+          public: "公共",
+          private: "プライベート",
+        },
+      },
+      detailTabs: {
+        info: "情報",
+        hierarchy: "階層",
+        relationships: "人間関係",
+        mapsFrom: "からの地図",
+        failedToLoadConcept: "コンセプトの読み込みに失敗しました",
+        labels: {
+          fullName: "フルネーム",
+          vocabulary: "語彙",
+          standard: "標準",
+          conceptClass: "コンセプトクラス",
+          domain: "ドメイン",
+          synonyms: "同義語",
+        },
+        noAncestorsFound: "祖先は見つかりませんでした",
+        noRelationshipsFound: "関係が見つかりません",
+        noSourceCodes: "この概念に対応するソース コードはありません",
+      },
+      stats: {
+        total: "合計",
+        withItems: "アイテムあり",
+        public: "公共",
+      },
+      phoebe: {
+        recommendations: "フィービーのおすすめ",
+        poweredBy: "フィービーの提供",
+        unavailable: "推奨事項は利用できません",
+        noneFound: "推奨事項が見つかりませんでした",
+        added: "追加されました",
+        addToConceptSet: "コンセプトセットに追加",
+        add: "追加",
+      },
+      bundle: {
+        title: "ケアバンドルから作成",
+        description:
+          "疾患バンドルを選択して、ドメイン (症状、薬剤、測定値) ごとにグループ化された概念セットを自動生成します。",
+        filterPlaceholder: "バンドルをフィルターします...",
+        noMatching: "一致するバンドルはありません",
+        noneFound: "ケア バンドルが見つかりません",
+        namePrefix: "名前の接頭辞",
+        create: "コンセプトセットの作成",
+        createFailed: "バンドルからコンセプト セットを作成できませんでした",
+      },
+      import: {
+        title: "コンセプト セットのインポート",
+        uploadJsonFile: "JSON ファイルをアップロードする",
+        chooseFile: "ファイルを選択してください",
+        pasteAtlasJson: "または JSON (アトラス形式) を貼り付けてください",
+        placeholder:
+          '{\n  "name": "私のコンセプト セット",\n  "式": { "アイテム": [...] }\n}',
+        invalidJson: "無効な JSON - 入力を確認してください。",
+        importFailed: "インポートに失敗しました",
+        imported: "輸入された",
+        skipped: "スキップしました",
+        failed: "失敗しました",
+        close: "閉じる",
+        cancel: "キャンセル",
+        import: "インポート",
+      },
+    },
+    shared: {
+      significanceVerdict: {
+        protective: "顕著な保護効果",
+        harmful: "重大な悪影響",
+        notSignificant: "統計的に有意ではない",
+      },
+      workbench: {
+        statusLabel: "ステータス:",
+        ariaRunStatus: "実行ステータス",
+        pollingEvery2s: "2秒ごとにポーリング",
+      },
+    },
+  }),
+  "zh-Hans": mergeMessageTrees(enConceptSet, {
+    conceptSets: {
+      page: {
+        title: "概念集",
+        subtitle: "定义和管理可重复使用的概念集，以进行群组定义和分析",
+        untitledName: "无标题概念集",
+        newConceptSet: "新概念集",
+        fromBundle: "来自捆绑包",
+        import: "进口",
+      },
+      list: {
+        failedToLoad: "无法加载概念集",
+        emptyTitle: "没有概念集",
+        emptyMessage: "创建您的第一个概念集以开始构建定义。",
+        noMatchingTitle: "没有匹配的概念集",
+        noMatchingMessage: "尝试调整您的搜索或标签过滤器。",
+        myConceptSets: "我的概念集",
+        allConceptSets: "所有概念集",
+        columns: {
+          name: "名称",
+          author: "作者",
+          visibility: "能见度",
+          items: "项目",
+          tags: "标签",
+          updated: "已更新",
+        },
+        visibility: {
+          public: "公共",
+          private: "私人",
+        },
+      },
+      builder: {
+        tabs: {
+          keyword: "关键词搜索",
+          semantic: "语义搜索",
+        },
+        setContents: "设置内容",
+      },
+      editor: {
+        resolve: "解决",
+        descendantsOn: "后裔论",
+        descendantsOff: "后裔关闭",
+        mappedOn: "映射于",
+        mappedOff: "映射关闭",
+        exclude: "排除",
+        include: "包括",
+        columns: {
+          conceptId: "概念ID",
+          name: "名称",
+          domain: "域名",
+          vocabulary: "词汇",
+          standard: "标准型",
+          excluded: "排除",
+          descendants: "后裔",
+          mapped: "映射",
+          actions: "行动",
+        },
+        emptyTitle: "尚未添加任何概念",
+        emptyMessage: "使用搜索面板查找概念并将其添加到此集中",
+        toggleLabels: {
+          excludeConcept: "排除概念",
+          includeDescendants: "包括后代",
+          includeMapped: "包括映射的",
+          removeItem: "删除项目",
+        },
+      },
+      detail: {
+        failedToLoad: "无法加载概念集",
+        backToList: "返回列表",
+        clickToEdit: "点击编辑",
+        addDescription: "添加描述...",
+        duplicate: "重复",
+        duplicateFailed: "无法复制概念集",
+        export: "出口",
+        delete: "删除",
+        deleteConfirm: "您确定要删除此概念集吗？",
+        recommendedConcepts: "推荐概念",
+        visibility: {
+          public: "公共",
+          private: "私人",
+        },
+      },
+      detailTabs: {
+        info: "信息",
+        hierarchy: "层次结构",
+        relationships: "人际关系",
+        mapsFrom: "地图来自",
+        failedToLoadConcept: "无法加载概念",
+        labels: {
+          fullName: "全名",
+          vocabulary: "词汇",
+          standard: "标准型",
+          conceptClass: "概念课",
+          domain: "域名",
+          synonyms: "同义词",
+        },
+        noAncestorsFound: "没有找到祖先",
+        noRelationshipsFound: "没有找到关系",
+        noSourceCodes: "没有源代码映射到这个概念",
+      },
+      stats: {
+        total: "总计",
+        withItems: "带物品",
+        public: "公共",
+      },
+      phoebe: {
+        recommendations: "菲比推荐",
+        poweredBy: "由 Phoebe 提供",
+        unavailable: "无法提供建议",
+        noneFound: "没有找到推荐",
+        added: "已添加",
+        addToConceptSet: "添加到概念集",
+        add: "添加",
+      },
+      bundle: {
+        title: "从护理包创建",
+        description:
+          "选择一个疾病包以自动生成按领域（条件、药物、测量）分组的概念集。",
+        filterPlaceholder: "过滤束...",
+        noMatching: "没有匹配的捆绑包",
+        noneFound: "未找到护理包",
+        namePrefix: "名称前缀",
+        create: "创建概念集",
+        createFailed: "无法从捆绑包创建概念集",
+      },
+      import: {
+        title: "导入概念集",
+        uploadJsonFile: "上传 JSON 文件",
+        chooseFile: "选择文件",
+        pasteAtlasJson: "或者粘贴JSON（图集格式）",
+        placeholder:
+          '{\n  "name": "我的概念集",\n  “表达式”：{“项目”：[...] }\n}',
+        invalidJson: "JSON 无效 - 请检查您的输入。",
+        importFailed: "导入失败",
+        imported: "进口的",
+        skipped: "跳过",
+        failed: "失败了",
+        close: "关闭",
+        cancel: "取消",
+        import: "进口",
+      },
+    },
+    shared: {
+      significanceVerdict: {
+        protective: "保护效果显着",
+        harmful: "重大有害影响",
+        notSignificant: "没有统计学意义",
+      },
+      workbench: {
+        statusLabel: "状态：",
+        ariaRunStatus: "运行状态",
+        pollingEvery2s: "每 2 秒轮询一次",
+      },
+    },
+  }),
   "ko-KR": koConceptSet,
   "hi-IN": hiConceptSet,
   ar: mergeMessageTrees(enConceptSet, {}),

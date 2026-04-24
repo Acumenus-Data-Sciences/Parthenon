@@ -2,7 +2,10 @@ type MessageTree = {
   [key: string]: string | MessageTree;
 };
 
-function mergeMessageTrees(base: MessageTree, overrides: MessageTree): MessageTree {
+function mergeMessageTrees(
+  base: MessageTree,
+  overrides: MessageTree,
+): MessageTree {
   return Object.fromEntries(
     Object.entries(base).map(([key, baseValue]) => {
       const overrideValue = overrides[key];
@@ -99,7 +102,7 @@ const enImagingGenomics: MessageTree = {
         indexedSummary:
           "Indexed {{indexed}} new, {{updated}} updated across {{scanned}} scanned records",
         empty:
-          "No studies indexed. Use \"Import Local DICOM Files\" above or enter a Source ID and click \"Index from DICOMweb\".",
+          'No studies indexed. Use "Import Local DICOM Files" above or enter a Source ID and click "Index from DICOMweb".',
         totalStudiesPage: "{{total}} total studies - page {{page}}",
         prev: "Prev",
         next: "Next",
@@ -112,7 +115,7 @@ const enImagingGenomics: MessageTree = {
         radiomic: "Radiomic",
         manual: "Manual",
         empty:
-          "No features extracted yet. Use \"Extract NLP\" on a study to populate.",
+          'No features extracted yet. Use "Extract NLP" on a study to populate.',
         totalFeatures: "{{total}} total features",
       },
       criteriaTab: {
@@ -195,8 +198,7 @@ const enImagingGenomics: MessageTree = {
       filesSelected_other: "{{count}} files selected",
       clearAll: "Clear all",
       moreFiles: "... and {{count}} more files",
-      uploadingToOrthanc:
-        "Uploading to Orthanc... {{completed}}/{{total}}",
+      uploadingToOrthanc: "Uploading to Orthanc... {{completed}}/{{total}}",
       indexingStudies: "Indexing studies...",
       uploadedCount: "{{count}} uploaded",
       failedCount: "{{count}} failed",
@@ -237,8 +239,7 @@ const enImagingGenomics: MessageTree = {
         modality: "Modality: {{modality}}",
         bodyPart: "Body part: {{bodyPart}}",
         quantitative: "{{feature}} {{operator}} {{value}} {{unit}}",
-        aiClassification:
-          "AI: {{label}} (>={{confidence}}% confidence)",
+        aiClassification: "AI: {{label}} (>={{confidence}}% confidence)",
         dose: "Dose <= {{dose}} Gy",
         excludePrefix: "Exclude: ",
       },
@@ -283,7 +284,8 @@ const enImagingGenomics: MessageTree = {
       presets: {
         recist: {
           label: "RECIST - Solid Tumor",
-          description: "Target lesion longest diameter measurements for RECIST 1.1 assessment",
+          description:
+            "Target lesion longest diameter measurements for RECIST 1.1 assessment",
           fields: {
             lesion1: "Target Lesion 1",
             lesion2: "Target Lesion 2",
@@ -302,7 +304,8 @@ const enImagingGenomics: MessageTree = {
         },
         petResponse: {
           label: "PET Response (Lugano)",
-          description: "SUVmax and metabolic measurements for lymphoma/PET response",
+          description:
+            "SUVmax and metabolic measurements for lymphoma/PET response",
           fields: {
             suvmax: "SUVmax",
             metabolicVolume: "Metabolic Tumor Volume",
@@ -357,10 +360,8 @@ const enImagingGenomics: MessageTree = {
       noDrugExposures: "No drug exposures found in the imaging window.",
       treatmentContextCount: "Treatment Context ({{count}} drugs)",
       loadFailed: "Failed to load patient timeline: {{message}}",
-      showTreatmentDetails:
-        "Show treatment details ({{count}})",
-      hideTreatmentDetails:
-        "Hide treatment details ({{count}})",
+      showTreatmentDetails: "Show treatment details ({{count}})",
+      hideTreatmentDetails: "Hide treatment details ({{count}})",
       showResponseAssessments: "Show response assessments",
       hideResponseAssessments: "Hide response assessments",
       view: "View",
@@ -368,8 +369,7 @@ const enImagingGenomics: MessageTree = {
       personIdPlaceholder: "Enter OMOP person_id...",
       viewTimeline: "View Timeline",
       autoLinkStudies: "Auto-Link Studies",
-      autoLinkedSummary:
-        "Auto-linked {{count}} studies to OMOP persons.",
+      autoLinkedSummary: "Auto-linked {{count}} studies to OMOP persons.",
       heading: "Patient Timeline - Person {{id}}",
       backToPatientList: "Back to patient list",
       failedToLoadTimeline: "Failed to load timeline: {{message}}",
@@ -377,7 +377,7 @@ const enImagingGenomics: MessageTree = {
       minStudies: "Min studies",
       loadingPatients: "Loading patients...",
       emptyPatients:
-        "No patients with linked imaging studies found. Use \"Auto-Link Studies\" to match DICOM patient IDs to OMOP persons, or manually link studies on the Studies tab.",
+        'No patients with linked imaging studies found. Use "Auto-Link Studies" to match DICOM patient IDs to OMOP persons, or manually link studies on the Studies tab.',
       tableHeaders: {
         personId: "Person ID",
         studies: "Studies",
@@ -421,8 +421,7 @@ const enImagingGenomics: MessageTree = {
         rano: "RANO",
       },
       computeTitle: "Compute Response Assessment",
-      help:
-        "Automatically computes treatment response by comparing measurements across timepoints using RECIST 1.1, CT Severity, Deauville/Lugano, or RANO criteria.",
+      help: "Automatically computes treatment response by comparing measurements across timepoints using RECIST 1.1, CT Severity, Deauville/Lugano, or RANO criteria.",
       currentStudy: "Current Study (timepoint)",
       selectStudy: "Select a study...",
       criteria: "Criteria",
@@ -490,8 +489,7 @@ const enImagingGenomics: MessageTree = {
     },
     page: {
       title: "Molecular Genomics",
-      subtitle:
-        "Variant ingestion, OMOP mapping, and cohort genomic criteria",
+      subtitle: "Variant ingestion, OMOP mapping, and cohort genomic criteria",
       loadingStats: "Loading stats...",
       tabs: {
         uploads: "Uploads",
@@ -500,8 +498,7 @@ const enImagingGenomics: MessageTree = {
       topMutatedGenes: "Top Mutated Genes",
       recentUploads: "Recent Uploads",
       noUploadsTitle: "No variant files uploaded yet",
-      noUploadsMessage:
-        "Upload a VCF or MAF file to begin genomic analysis",
+      noUploadsMessage: "Upload a VCF or MAF file to begin genomic analysis",
       tableHeaders: {
         filename: "Filename",
         format: "Format",
@@ -513,7 +510,7 @@ const enImagingGenomics: MessageTree = {
       },
       annotateTitle: "Annotate variants with ClinVar significance",
       deleteTitle: "Delete upload",
-      deleteConfirm: "Delete upload \"{{filename}}\"?",
+      deleteConfirm: 'Delete upload "{{filename}}"?',
     },
     clinvar: {
       title: "ClinVar Reference Database",
@@ -531,7 +528,7 @@ const enImagingGenomics: MessageTree = {
       syncFailed: "Sync failed - check server logs",
       noDataTitle: "No ClinVar data indexed yet",
       noDataMessage:
-        "Use \"P/LP Only\" for a fast 69 KB seed, or \"Full Sync\" for all 181 MB",
+        'Use "P/LP Only" for a fast 69 KB seed, or "Full Sync" for all 181 MB',
       searchPlaceholder: "Search gene, HGVS, disease, RS ID...",
       genePlaceholder: "Gene",
       allSignificance: "All significance",
@@ -541,8 +538,7 @@ const enImagingGenomics: MessageTree = {
       benign: "Benign",
       likelyBenign: "Likely benign",
       conflicting: "Conflicting",
-      browsePrompt:
-        "Enter a search term or apply a filter to browse ClinVar",
+      browsePrompt: "Enter a search term or apply a filter to browse ClinVar",
       noMatches: "No variants match your search",
       tableHeaders: {
         gene: "Gene",
@@ -553,8 +549,7 @@ const enImagingGenomics: MessageTree = {
         build: "Build",
         ids: "IDs",
       },
-      variantsPageSummary:
-        "{{total}} variants - page {{current}} of {{last}}",
+      variantsPageSummary: "{{total}} variants - page {{current}} of {{last}}",
     },
     uploadDialog: {
       title: "Upload Variant File",
@@ -667,8 +662,7 @@ const enImagingGenomics: MessageTree = {
       noVariants: "No genomic variants on record for this patient.",
       demographics: "Demographics",
       drugPatterns: "Drug Patterns in Similar Patients",
-      similarOutcomes:
-        "Outcomes in Molecularly Similar Patients",
+      similarOutcomes: "Outcomes in Molecularly Similar Patients",
       variantHeaders: {
         gene: "Gene",
         alteration: "Alteration",
@@ -842,7 +836,7 @@ const frImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         indexedSummary:
           "{{indexed}} nouveaux indexes, {{updated}} mis a jour sur {{scanned}} enregistrements analyses",
         empty:
-          "Aucune etude indexee. Utilisez \"Importer des fichiers DICOM locaux\" ci-dessus ou saisissez un ID source et cliquez sur \"Indexer depuis DICOMweb\".",
+          'Aucune etude indexee. Utilisez "Importer des fichiers DICOM locaux" ci-dessus ou saisissez un ID source et cliquez sur "Indexer depuis DICOMweb".',
         totalStudiesPage: "{{total}} etudes au total - page {{page}}",
         prev: "Prec",
         next: "Suiv",
@@ -855,7 +849,7 @@ const frImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         radiomic: "Radiomique",
         manual: "Manuel",
         empty:
-          "Aucune fonctionnalite extraite pour le moment. Utilisez \"Extraire NLP\" sur une etude pour alimenter cette section.",
+          'Aucune fonctionnalite extraite pour le moment. Utilisez "Extraire NLP" sur une etude pour alimenter cette section.',
         totalFeatures: "{{total}} fonctionnalites au total",
       },
       criteriaTab: {
@@ -1103,12 +1097,9 @@ const frImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       noDrugExposures:
         "Aucune exposition medicamenteuse trouvee dans la fenetre d'imagerie.",
       treatmentContextCount: "Contexte therapeutique ({{count}} medicaments)",
-      loadFailed:
-        "Echec du chargement de la chronologie patient : {{message}}",
-      showTreatmentDetails:
-        "Afficher les details du traitement ({{count}})",
-      hideTreatmentDetails:
-        "Masquer les details du traitement ({{count}})",
+      loadFailed: "Echec du chargement de la chronologie patient : {{message}}",
+      showTreatmentDetails: "Afficher les details du traitement ({{count}})",
+      hideTreatmentDetails: "Masquer les details du traitement ({{count}})",
       showResponseAssessments: "Afficher les evaluations de reponse",
       hideResponseAssessments: "Masquer les evaluations de reponse",
       view: "Voir",
@@ -1135,8 +1126,7 @@ const frImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         lastStudy: "Derniere etude",
       },
       actionTimeline: "Chronologie",
-      patientsPageSummary:
-        "{{total}} patients - page {{current}} sur {{last}}",
+      patientsPageSummary: "{{total}} patients - page {{current}} sur {{last}}",
       studyHeaders: {
         date: "Date",
         modality: "Modalite",
@@ -1169,8 +1159,7 @@ const frImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         rano: "RANO",
       },
       computeTitle: "Calculer l'evaluation de reponse",
-      help:
-        "Calcule automatiquement la reponse au traitement en comparant les mesures a travers les points temporels selon les criteres RECIST 1.1, CT Severity, Deauville/Lugano ou RANO.",
+      help: "Calcule automatiquement la reponse au traitement en comparant les mesures a travers les points temporels selon les criteres RECIST 1.1, CT Severity, Deauville/Lugano ou RANO.",
       currentStudy: "Etude actuelle (point temporel)",
       selectStudy: "Selectionnez une etude...",
       criteria: "Criteres",
@@ -1257,10 +1246,9 @@ const frImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         status: "Statut",
         uploaded: "Televerse le",
       },
-      annotateTitle:
-        "Annoter les variants avec la signification ClinVar",
+      annotateTitle: "Annoter les variants avec la signification ClinVar",
       deleteTitle: "Supprimer le televersement",
-      deleteConfirm: "Supprimer le televersement \"{{filename}}\" ?",
+      deleteConfirm: 'Supprimer le televersement "{{filename}}" ?',
     },
     clinvar: {
       title: "Base de reference ClinVar",
@@ -1279,7 +1267,7 @@ const frImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       syncFailed: "Echec de la synchronisation - verifiez les logs serveur",
       noDataTitle: "Aucune donnee ClinVar indexee pour le moment",
       noDataMessage:
-        "Utilisez \"P/LP uniquement\" pour une amorce rapide de 69 Ko, ou \"Synchronisation complete\" pour l'ensemble des 181 Mo",
+        'Utilisez "P/LP uniquement" pour une amorce rapide de 69 Ko, ou "Synchronisation complete" pour l\'ensemble des 181 Mo',
       searchPlaceholder: "Rechercher gene, HGVS, maladie, RS ID...",
       genePlaceholder: "Gene",
       allSignificance: "Toutes les significations",
@@ -1301,14 +1289,12 @@ const frImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         build: "Build",
         ids: "IDs",
       },
-      variantsPageSummary:
-        "{{total}} variants - page {{current}} sur {{last}}",
+      variantsPageSummary: "{{total}} variants - page {{current}} sur {{last}}",
     },
     uploadDialog: {
       title: "Televerser un fichier de variants",
       dataSource: "Source de donnees",
-      dropLead:
-        "Deposez le fichier ici ou cliquez pour parcourir",
+      dropLead: "Deposez le fichier ici ou cliquez pour parcourir",
       allowedExtensions: ".vcf, .maf, .json",
       sizeKb: "{{count}} Ko",
       fileFormat: "Format de fichier",
@@ -1463,10 +1449,8 @@ const frImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
   },
   radiogenomics: {
     panel: {
-      loadFailed:
-        "Echec du chargement du panneau de medecine de precision",
-      noData:
-        "Aucune donnee genomique disponible pour ce patient",
+      loadFailed: "Echec du chargement du panneau de medecine de precision",
+      noData: "Aucune donnee genomique disponible pour ce patient",
       stats: {
         totalVariants: "Nombre total de variants",
         pathogenic: "Pathogenes",
@@ -1480,12 +1464,10 @@ const frImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         resistant: "Resistant",
         partialResponse: "Reponse partielle",
       },
-      recommendationsTitle:
-        "Recommandations de medecine de precision",
+      recommendationsTitle: "Recommandations de medecine de precision",
       avoid: "Eviter (resistance predite)",
       consider: "Envisager (sensibilite predite)",
-      correlationsTitle:
-        "Correlations variant-medicament ({{count}})",
+      correlationsTitle: "Correlations variant-medicament ({{count}})",
       headers: {
         gene: "Gene",
         variant: "Variant",
@@ -1595,7 +1577,7 @@ const deImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         indexedSummary:
           "{{indexed}} neu indexiert, {{updated}} aktualisiert bei {{scanned}} geprueften Datensaetzen",
         empty:
-          "Keine Studien indexiert. Verwenden Sie oben \"Lokale DICOM-Dateien importieren\" oder geben Sie eine Quell-ID ein und klicken Sie auf \"Aus DICOMweb indexieren\".",
+          'Keine Studien indexiert. Verwenden Sie oben "Lokale DICOM-Dateien importieren" oder geben Sie eine Quell-ID ein und klicken Sie auf "Aus DICOMweb indexieren".',
         totalStudiesPage: "{{total}} Studien gesamt - Seite {{page}}",
         prev: "Zurueck",
         next: "Weiter",
@@ -1608,7 +1590,7 @@ const deImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         radiomic: "Radiomics",
         manual: "Manuell",
         empty:
-          "Noch keine Funktionen extrahiert. Verwenden Sie bei einer Studie \"NLP extrahieren\", um Daten zu fuellen.",
+          'Noch keine Funktionen extrahiert. Verwenden Sie bei einer Studie "NLP extrahieren", um Daten zu fuellen.',
         totalFeatures: "{{total}} Funktionen gesamt",
       },
       criteriaTab: {
@@ -1683,10 +1665,8 @@ const deImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
     },
     uploadModal: {
       title: "DICOM-Dateien importieren",
-      dropLead:
-        "DICOM-Dateien hierher ziehen und ablegen oder durchsuchen",
-      dropLeadPrefix:
-        "DICOM-Dateien hierher ziehen und ablegen oder ",
+      dropLead: "DICOM-Dateien hierher ziehen und ablegen oder durchsuchen",
+      dropLeadPrefix: "DICOM-Dateien hierher ziehen und ablegen oder ",
       browse: "durchsuchen",
       dropDetail:
         ".dcm-Dateien bis 2 GB pro Datei. Ordner werden nicht unterstuetzt - waehlen Sie Dateien direkt aus.",
@@ -1694,8 +1674,7 @@ const deImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       filesSelected_other: "{{count}} Dateien ausgewaehlt",
       clearAll: "Alles entfernen",
       moreFiles: "... und {{count}} weitere Dateien",
-      uploadingToOrthanc:
-        "Hochladen nach Orthanc... {{completed}}/{{total}}",
+      uploadingToOrthanc: "Hochladen nach Orthanc... {{completed}}/{{total}}",
       indexingStudies: "Studien werden indexiert...",
       uploadedCount: "{{count}} hochgeladen",
       failedCount: "{{count}} fehlgeschlagen",
@@ -1723,11 +1702,9 @@ const deImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         dose: "Strahlendosis",
       },
       modalityLabel: "Modalitaet *",
-      modalityPlaceholder:
-        "Oder benutzerdefinierte Modalitaet eingeben...",
+      modalityPlaceholder: "Oder benutzerdefinierte Modalitaet eingeben...",
       bodyPartLabel: "Koerperregion *",
-      bodyPartPlaceholder:
-        "Oder benutzerdefinierte Koerperregion eingeben...",
+      bodyPartPlaceholder: "Oder benutzerdefinierte Koerperregion eingeben...",
       featureName: "Funktionsname *",
       classificationLabel: "Klassifikationslabel *",
       minConfidence: "Min. Konfidenz",
@@ -1738,8 +1715,7 @@ const deImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         modality: "Modalitaet: {{modality}}",
         bodyPart: "Koerperregion: {{bodyPart}}",
         quantitative: "{{feature}} {{operator}} {{value}} {{unit}}",
-        aiClassification:
-          "KI: {{label}} (>={{confidence}}% Konfidenz)",
+        aiClassification: "KI: {{label}} (>={{confidence}}% Konfidenz)",
         dose: "Dosis <= {{dose}} Gy",
         excludePrefix: "Ausschliessen: ",
       },
@@ -1815,8 +1791,7 @@ const deImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         },
         tumorVolumetrics: {
           label: "Tumorvolumetrie",
-          description:
-            "3D-Messungen von Tumorvolumen und Dichte",
+          description: "3D-Messungen von Tumorvolumen und Dichte",
           fields: {
             tumorVolume: "Tumorvolumen",
             longestDiameter: "Laengster Durchmesser",
@@ -1854,22 +1829,17 @@ const deImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       studies: "Studien",
       measurements: "Messungen",
       treatments: "Behandlungen",
-      noStudies:
-        "Keine Bildgebungsstudien fuer diesen Patienten gefunden.",
+      noStudies: "Keine Bildgebungsstudien fuer diesen Patienten gefunden.",
       title: "Longitudinale Zeitachse",
       treatmentContext: "Behandlungskontext",
       imagingStudies: "Bildgebungsstudien",
       allStudies: "Alle Studien ({{count}})",
       noDrugExposures:
         "Im Bildgebungsfenster wurden keine Arzneimittelexpositionen gefunden.",
-      treatmentContextCount:
-        "Behandlungskontext ({{count}} Arzneimittel)",
-      loadFailed:
-        "Patientenzeitachse konnte nicht geladen werden: {{message}}",
-      showTreatmentDetails:
-        "Behandlungsdetails anzeigen ({{count}})",
-      hideTreatmentDetails:
-        "Behandlungsdetails ausblenden ({{count}})",
+      treatmentContextCount: "Behandlungskontext ({{count}} Arzneimittel)",
+      loadFailed: "Patientenzeitachse konnte nicht geladen werden: {{message}}",
+      showTreatmentDetails: "Behandlungsdetails anzeigen ({{count}})",
+      hideTreatmentDetails: "Behandlungsdetails ausblenden ({{count}})",
       showResponseAssessments: "Response-Bewertungen anzeigen",
       hideResponseAssessments: "Response-Bewertungen ausblenden",
       view: "Anzeigen",
@@ -1883,12 +1853,11 @@ const deImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       backToPatientList: "Zurueck zur Patientenliste",
       failedToLoadTimeline:
         "Zeitachse konnte nicht geladen werden: {{message}}",
-      patientsWithImaging:
-        "Patienten mit longitudinaler Bildgebung",
+      patientsWithImaging: "Patienten mit longitudinaler Bildgebung",
       minStudies: "Min. Studien",
       loadingPatients: "Patienten werden geladen...",
       emptyPatients:
-        "Keine Patienten mit verknuepften Bildgebungsstudien gefunden. Verwenden Sie \"Studien automatisch verknuepfen\", um DICOM-Patienten-IDs mit OMOP-Personen abzugleichen, oder verknuepfen Sie Studien manuell im Tab Studien.",
+        'Keine Patienten mit verknuepften Bildgebungsstudien gefunden. Verwenden Sie "Studien automatisch verknuepfen", um DICOM-Patienten-IDs mit OMOP-Personen abzugleichen, oder verknuepfen Sie Studien manuell im Tab Studien.',
       tableHeaders: {
         personId: "Person-ID",
         studies: "Studien",
@@ -1931,8 +1900,7 @@ const deImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         rano: "RANO",
       },
       computeTitle: "Response-Bewertung berechnen",
-      help:
-        "Berechnet automatisch das Therapieansprechen durch Vergleich von Messungen ueber Zeitpunkte hinweg nach RECIST 1.1, CT Severity, Deauville/Lugano oder RANO.",
+      help: "Berechnet automatisch das Therapieansprechen durch Vergleich von Messungen ueber Zeitpunkte hinweg nach RECIST 1.1, CT Severity, Deauville/Lugano oder RANO.",
       currentStudy: "Aktuelle Studie (Zeitpunkt)",
       selectStudy: "Studie auswaehlen...",
       criteria: "Kriterien",
@@ -2019,16 +1987,14 @@ const deImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         status: "Status",
         uploaded: "Hochgeladen",
       },
-      annotateTitle:
-        "Varianten mit ClinVar-Signifikanz annotieren",
+      annotateTitle: "Varianten mit ClinVar-Signifikanz annotieren",
       deleteTitle: "Upload loeschen",
-      deleteConfirm: "Upload \"{{filename}}\" loeschen?",
+      deleteConfirm: 'Upload "{{filename}}" loeschen?',
     },
     clinvar: {
       title: "ClinVar-Referenzdatenbank",
       subtitle: "NCBI ClinVar - GRCh38 - woechentlich aktualisiert",
-      papuOnlyTitle:
-        "Nur P/LP-Varianten herunterladen (~69 KB, schnell)",
+      papuOnlyTitle: "Nur P/LP-Varianten herunterladen (~69 KB, schnell)",
       papuOnly: "Nur P/LP",
       fullSyncTitle:
         "Vollstaendiges ClinVar herunterladen (~181 MB, langsamer)",
@@ -2039,13 +2005,11 @@ const deImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       lastSync: "Letzte Synchronisierung",
       syncComplete:
         "Synchronisierung abgeschlossen - {{inserted}} eingefuegt, {{updated}} aktualisiert",
-      syncFailed:
-        "Synchronisierung fehlgeschlagen - Server-Logs pruefen",
+      syncFailed: "Synchronisierung fehlgeschlagen - Server-Logs pruefen",
       noDataTitle: "Noch keine ClinVar-Daten indexiert",
       noDataMessage:
-        "Verwenden Sie \"Nur P/LP\" fuer einen schnellen 69-KB-Seed oder \"Vollstaendige Synchronisierung\" fuer die gesamten 181 MB",
-      searchPlaceholder:
-        "Gen, HGVS, Krankheit, RS-ID suchen...",
+        'Verwenden Sie "Nur P/LP" fuer einen schnellen 69-KB-Seed oder "Vollstaendige Synchronisierung" fuer die gesamten 181 MB',
+      searchPlaceholder: "Gen, HGVS, Krankheit, RS-ID suchen...",
       genePlaceholder: "Gen",
       allSignificance: "Alle Signifikanzen",
       pathogenic: "Pathogen",
@@ -2056,8 +2020,7 @@ const deImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       conflicting: "Widerspruechlich",
       browsePrompt:
         "Geben Sie einen Suchbegriff ein oder wenden Sie einen Filter an, um ClinVar zu durchsuchen",
-      noMatches:
-        "Keine Varianten entsprechen Ihrer Suche",
+      noMatches: "Keine Varianten entsprechen Ihrer Suche",
       tableHeaders: {
         gene: "Gen",
         hgvsVariant: "HGVS / Variante",
@@ -2073,8 +2036,7 @@ const deImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
     uploadDialog: {
       title: "Variantendatei hochladen",
       dataSource: "Datenquelle",
-      dropLead:
-        "Datei hier ablegen oder zum Durchsuchen klicken",
+      dropLead: "Datei hier ablegen oder zum Durchsuchen klicken",
       allowedExtensions: ".vcf, .maf, .json",
       sizeKb: "{{count}} KB",
       fileFormat: "Dateiformat",
@@ -2113,8 +2075,7 @@ const deImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       },
       msiOptions: {
         high: "MSI-High",
-        anyUnstable:
-          "MSI-High oder MSI-Low (jede Instabilitaet)",
+        anyUnstable: "MSI-High oder MSI-Low (jede Instabilitaet)",
         low: "MSI-Low",
         stable: "Microsatellite Stable (MSS)",
       },
@@ -2184,10 +2145,8 @@ const deImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       noVariants:
         "Fuer diesen Patienten sind keine genomischen Varianten dokumentiert.",
       demographics: "Demografie",
-      drugPatterns:
-        "Arzneimittelmuster bei molekular aehnlichen Patienten",
-      similarOutcomes:
-        "Outcomes bei molekular aehnlichen Patienten",
+      drugPatterns: "Arzneimittelmuster bei molekular aehnlichen Patienten",
+      similarOutcomes: "Outcomes bei molekular aehnlichen Patienten",
       variantHeaders: {
         gene: "Gen",
         alteration: "Alteration",
@@ -2233,10 +2192,8 @@ const deImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
   },
   radiogenomics: {
     panel: {
-      loadFailed:
-        "Panel fuer Praezisionsmedizin konnte nicht geladen werden",
-      noData:
-        "Keine genomischen Daten fuer diesen Patienten verfuegbar",
+      loadFailed: "Panel fuer Praezisionsmedizin konnte nicht geladen werden",
+      noData: "Keine genomischen Daten fuer diesen Patienten verfuegbar",
       stats: {
         totalVariants: "Varianten gesamt",
         pathogenic: "Pathogen",
@@ -2250,12 +2207,10 @@ const deImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         resistant: "Resistent",
         partialResponse: "Partielle Response",
       },
-      recommendationsTitle:
-        "Empfehlungen fuer Praezisionsmedizin",
+      recommendationsTitle: "Empfehlungen fuer Praezisionsmedizin",
       avoid: "Vermeiden (vorhergesagte Resistenz)",
       consider: "In Betracht ziehen (vorhergesagte Sensitivitaet)",
-      correlationsTitle:
-        "Varianten-Arzneimittel-Korrelationen ({{count}})",
+      correlationsTitle: "Varianten-Arzneimittel-Korrelationen ({{count}})",
       headers: {
         gene: "Gen",
         variant: "Variante",
@@ -2359,14 +2314,13 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         allStatuses: "Todos os status",
         bodyPartPlaceholder: "Torax, cerebro...",
         find: "Buscar",
-        searchPlaceholder:
-          "UID, acesso, descricao, paciente...",
+        searchPlaceholder: "UID, acesso, descricao, paciente...",
         reset: "Redefinir",
         syncFullCatalog: "Sincronizar catalogo completo",
         indexedSummary:
           "{{indexed}} novos indexados, {{updated}} atualizados em {{scanned}} registros analisados",
         empty:
-          "Nenhum estudo indexado. Use \"Importar arquivos DICOM locais\" acima ou informe um ID de fonte e clique em \"Indexar a partir do DICOMweb\".",
+          'Nenhum estudo indexado. Use "Importar arquivos DICOM locais" acima ou informe um ID de fonte e clique em "Indexar a partir do DICOMweb".',
         totalStudiesPage: "{{total}} estudos no total - pagina {{page}}",
         prev: "Ant",
         next: "Prox",
@@ -2379,15 +2333,14 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         radiomic: "Radiomico",
         manual: "Manual",
         empty:
-          "Nenhum recurso extraido ainda. Use \"Extrair NLP\" em um estudo para preencher esta area.",
+          'Nenhum recurso extraido ainda. Use "Extrair NLP" em um estudo para preencher esta area.',
         totalFeatures: "{{total}} recursos no total",
       },
       criteriaTab: {
         savedBanner:
           "Criterios de coorte por imagem salvos. Use-os no Cohort Builder para selecionar pacientes com base em caracteristicas de imagem.",
         loading: "Carregando...",
-        empty:
-          "Nenhum criterio de imagem salvo ainda.",
+        empty: "Nenhum criterio de imagem salvo ainda.",
         shared: "Compartilhado",
         deleteTitle: "Excluir criterio",
       },
@@ -2455,10 +2408,8 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
     },
     uploadModal: {
       title: "Importar arquivos DICOM",
-      dropLead:
-        "Arraste e solte arquivos DICOM ou navegue",
-      dropLeadPrefix:
-        "Arraste e solte arquivos DICOM ou ",
+      dropLead: "Arraste e solte arquivos DICOM ou navegue",
+      dropLeadPrefix: "Arraste e solte arquivos DICOM ou ",
       browse: "navegue",
       dropDetail:
         ".arquivos .dcm de ate 2 GB cada. Pastas nao sao suportadas - selecione os arquivos diretamente.",
@@ -2466,8 +2417,7 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       filesSelected_other: "{{count}} arquivos selecionados",
       clearAll: "Limpar tudo",
       moreFiles: "... e mais {{count}} arquivos",
-      uploadingToOrthanc:
-        "Enviando para o Orthanc... {{completed}}/{{total}}",
+      uploadingToOrthanc: "Enviando para o Orthanc... {{completed}}/{{total}}",
       indexingStudies: "Indexando estudos...",
       uploadedCount: "{{count}} enviados",
       failedCount: "{{count}} falharam",
@@ -2495,34 +2445,28 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         dose: "Dose de radiacao",
       },
       modalityLabel: "Modalidade *",
-      modalityPlaceholder:
-        "Ou digite uma modalidade personalizada...",
+      modalityPlaceholder: "Ou digite uma modalidade personalizada...",
       bodyPartLabel: "Parte do corpo *",
-      bodyPartPlaceholder:
-        "Ou digite uma parte do corpo personalizada...",
+      bodyPartPlaceholder: "Ou digite uma parte do corpo personalizada...",
       featureName: "Nome do recurso *",
       classificationLabel: "Rotulo de classificacao *",
       minConfidence: "Confianca minima",
       maxCumulativeDose: "Dose acumulada maxima",
-      excludeFeature:
-        "Excluir pacientes com este recurso",
+      excludeFeature: "Excluir pacientes com este recurso",
       addCriterion: "Adicionar criterio",
       labelTemplates: {
         modality: "Modalidade: {{modality}}",
         bodyPart: "Parte do corpo: {{bodyPart}}",
         quantitative: "{{feature}} {{operator}} {{value}} {{unit}}",
-        aiClassification:
-          "IA: {{label}} (>={{confidence}}% de confianca)",
+        aiClassification: "IA: {{label}} (>={{confidence}}% de confianca)",
         dose: "Dose <= {{dose}} Gy",
         excludePrefix: "Excluir: ",
       },
       typeDescriptions: {
         modality: "CT, MR, PT, US, CR...",
         anatomy: "Torax, abdomen, cerebro...",
-        quantitative:
-          "Medida numerica radiomica ou derivada de IA",
-        aiClassification:
-          "Rotulo derivado por IA com nivel de confianca",
+        quantitative: "Medida numerica radiomica ou derivada de IA",
+        aiClassification: "Rotulo derivado por IA com nivel de confianca",
         dose: "Dose acumulada maxima (Gy)",
       },
     },
@@ -2590,8 +2534,7 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         },
         tumorVolumetrics: {
           label: "Volumetria tumoral",
-          description:
-            "Medidas 3D de volume tumoral e densidade",
+          description: "Medidas 3D de volume tumoral e densidade",
           fields: {
             tumorVolume: "Volume tumoral",
             longestDiameter: "Maior diametro",
@@ -2605,8 +2548,7 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       empty:
         "Nenhuma medida registrada. Use a extracao automatica por IA ou informe as medidas manualmente em estudos individuais.",
       title: "Tendencias de medidas",
-      summary:
-        "{{types}} tipo{{typesPlural}} - {{points}} pontos de dados",
+      summary: "{{types}} tipo{{typesPlural}} - {{points}} pontos de dados",
       summaryPlural: "s",
     },
     viewer: {
@@ -2630,26 +2572,19 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       studies: "Estudos",
       measurements: "Medidas",
       treatments: "Tratamentos",
-      noStudies:
-        "Nenhum estudo de imagem encontrado para este paciente.",
+      noStudies: "Nenhum estudo de imagem encontrado para este paciente.",
       title: "Linha do tempo longitudinal",
       treatmentContext: "Contexto terapeutico",
       imagingStudies: "Estudos de imagem",
       allStudies: "Todos os estudos ({{count}})",
       noDrugExposures:
         "Nenhuma exposicao medicamentosa encontrada na janela de imagem.",
-      treatmentContextCount:
-        "Contexto terapeutico ({{count}} medicamentos)",
-      loadFailed:
-        "Falha ao carregar a linha do tempo do paciente: {{message}}",
-      showTreatmentDetails:
-        "Mostrar detalhes do tratamento ({{count}})",
-      hideTreatmentDetails:
-        "Ocultar detalhes do tratamento ({{count}})",
-      showResponseAssessments:
-        "Mostrar avaliacoes de resposta",
-      hideResponseAssessments:
-        "Ocultar avaliacoes de resposta",
+      treatmentContextCount: "Contexto terapeutico ({{count}} medicamentos)",
+      loadFailed: "Falha ao carregar a linha do tempo do paciente: {{message}}",
+      showTreatmentDetails: "Mostrar detalhes do tratamento ({{count}})",
+      hideTreatmentDetails: "Ocultar detalhes do tratamento ({{count}})",
+      showResponseAssessments: "Mostrar avaliacoes de resposta",
+      hideResponseAssessments: "Ocultar avaliacoes de resposta",
       view: "Ver",
       patientPersonId: "ID da pessoa do paciente",
       personIdPlaceholder: "Informe o person_id OMOP...",
@@ -2659,14 +2594,12 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         "{{count}} estudos vinculados automaticamente a pessoas OMOP.",
       heading: "Linha do tempo do paciente - pessoa {{id}}",
       backToPatientList: "Voltar para a lista de pacientes",
-      failedToLoadTimeline:
-        "Falha ao carregar a linha do tempo: {{message}}",
-      patientsWithImaging:
-        "Pacientes com imagem longitudinal",
+      failedToLoadTimeline: "Falha ao carregar a linha do tempo: {{message}}",
+      patientsWithImaging: "Pacientes com imagem longitudinal",
       minStudies: "Min. de estudos",
       loadingPatients: "Carregando pacientes...",
       emptyPatients:
-        "Nenhum paciente com estudos de imagem vinculados foi encontrado. Use \"Vincular estudos automaticamente\" para corresponder IDs de paciente DICOM a pessoas OMOP ou vincule os estudos manualmente na aba Estudos.",
+        'Nenhum paciente com estudos de imagem vinculados foi encontrado. Use "Vincular estudos automaticamente" para corresponder IDs de paciente DICOM a pessoas OMOP ou vincule os estudos manualmente na aba Estudos.',
       tableHeaders: {
         personId: "ID da pessoa",
         studies: "Estudos",
@@ -2709,8 +2642,7 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         rano: "RANO",
       },
       computeTitle: "Calcular avaliacao de resposta",
-      help:
-        "Calcula automaticamente a resposta ao tratamento comparando medidas ao longo do tempo com criterios RECIST 1.1, CT Severity, Deauville/Lugano ou RANO.",
+      help: "Calcula automaticamente a resposta ao tratamento comparando medidas ao longo do tempo com criterios RECIST 1.1, CT Severity, Deauville/Lugano ou RANO.",
       currentStudy: "Estudo atual (ponto temporal)",
       selectStudy: "Selecione um estudo...",
       criteria: "Criterios",
@@ -2786,8 +2718,7 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       },
       topMutatedGenes: "Genes mais mutados",
       recentUploads: "Envios recentes",
-      noUploadsTitle:
-        "Nenhum arquivo de variantes enviado ainda",
+      noUploadsTitle: "Nenhum arquivo de variantes enviado ainda",
       noUploadsMessage:
         "Envie um arquivo VCF ou MAF para iniciar a analise genomica",
       tableHeaders: {
@@ -2798,19 +2729,16 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         status: "Status",
         uploaded: "Enviado",
       },
-      annotateTitle:
-        "Anotar variantes com significancia ClinVar",
+      annotateTitle: "Anotar variantes com significancia ClinVar",
       deleteTitle: "Excluir envio",
-      deleteConfirm: "Excluir o envio \"{{filename}}\"?",
+      deleteConfirm: 'Excluir o envio "{{filename}}"?',
     },
     clinvar: {
       title: "Base de referencia ClinVar",
       subtitle: "NCBI ClinVar - GRCh38 - atualizacao semanal",
-      papuOnlyTitle:
-        "Baixar apenas variantes P/LP (~69 KB, rapido)",
+      papuOnlyTitle: "Baixar apenas variantes P/LP (~69 KB, rapido)",
       papuOnly: "Somente P/LP",
-      fullSyncTitle:
-        "Baixar ClinVar completo (~181 MB, mais lento)",
+      fullSyncTitle: "Baixar ClinVar completo (~181 MB, mais lento)",
       fullSync: "Sincronizacao completa",
       loadingStatus: "Carregando status...",
       totalVariants: "Total de variantes",
@@ -2818,13 +2746,11 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       lastSync: "Ultima sincronizacao",
       syncComplete:
         "Sincronizacao concluida - {{inserted}} inseridos, {{updated}} atualizados",
-      syncFailed:
-        "Falha na sincronizacao - verifique os logs do servidor",
+      syncFailed: "Falha na sincronizacao - verifique os logs do servidor",
       noDataTitle: "Nenhum dado ClinVar indexado ainda",
       noDataMessage:
-        "Use \"Somente P/LP\" para uma carga inicial rapida de 69 KB ou \"Sincronizacao completa\" para todos os 181 MB",
-      searchPlaceholder:
-        "Pesquisar gene, HGVS, doenca, RS ID...",
+        'Use "Somente P/LP" para uma carga inicial rapida de 69 KB ou "Sincronizacao completa" para todos os 181 MB',
+      searchPlaceholder: "Pesquisar gene, HGVS, doenca, RS ID...",
       genePlaceholder: "Gene",
       allSignificance: "Todas as significancias",
       pathogenic: "Patogenico",
@@ -2835,8 +2761,7 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       conflicting: "Conflitante",
       browsePrompt:
         "Digite um termo de busca ou aplique um filtro para navegar no ClinVar",
-      noMatches:
-        "Nenhuma variante corresponde a sua pesquisa",
+      noMatches: "Nenhuma variante corresponde a sua pesquisa",
       tableHeaders: {
         gene: "Gene",
         hgvsVariant: "HGVS / Variante",
@@ -2852,8 +2777,7 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
     uploadDialog: {
       title: "Enviar arquivo de variantes",
       dataSource: "Fonte de dados",
-      dropLead:
-        "Solte o arquivo aqui ou clique para navegar",
+      dropLead: "Solte o arquivo aqui ou clique para navegar",
       allowedExtensions: ".vcf, .maf, .json",
       sizeKb: "{{count}} KB",
       fileFormat: "Formato do arquivo",
@@ -2903,8 +2827,7 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       gene2Optional: "Gene 2 (opcional)",
       regimenName: "Nome do regime *",
       tmbUnit: "mut/Mb",
-      excludeFeature:
-        "Excluir pacientes com este recurso",
+      excludeFeature: "Excluir pacientes com este recurso",
       addCriterion: "Adicionar criterio",
       labelTemplates: {
         mutation: "mutacao {{gene}}",
@@ -2942,8 +2865,7 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       topMutatedGenes: "Genes mais mutados",
       totalVariants: "({{count}} variantes no total)",
       variantTypes: "Tipos de variantes",
-      mutationLoadPerSample:
-        "Carga mutacional por amostra",
+      mutationLoadPerSample: "Carga mutacional por amostra",
       noVariantsLoaded:
         "Nenhuma variante carregada. Envie primeiro arquivos VCF/MAF.",
     },
@@ -2954,21 +2876,17 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       omopPersonId: "OMOP Person ID",
       personIdPlaceholder: "Informe o person_id...",
       loadPanel: "Carregar painel",
-      buildingEvidence:
-        "Montando painel de evidencia...",
+      buildingEvidence: "Montando painel de evidencia...",
       loadFailed:
         "Falha ao carregar o painel. Verifique se o person_id existe e se os dados genomicos estao disponiveis.",
       evidenceSummary: "Resumo das evidencias",
       actionable: "Acionavel",
       actionableGene: "{{gene}} - acionavel",
       variantsTitle: "Variantes ({{count}})",
-      noVariants:
-        "Nenhuma variante genomica registrada para este paciente.",
+      noVariants: "Nenhuma variante genomica registrada para este paciente.",
       demographics: "Demografia",
-      drugPatterns:
-        "Padroes de medicamentos em pacientes similares",
-      similarOutcomes:
-        "Desfechos em pacientes molecularmente similares",
+      drugPatterns: "Padroes de medicamentos em pacientes similares",
+      similarOutcomes: "Desfechos em pacientes molecularmente similares",
       variantHeaders: {
         gene: "Gene",
         alteration: "Alteracao",
@@ -3014,10 +2932,8 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
   },
   radiogenomics: {
     panel: {
-      loadFailed:
-        "Falha ao carregar o painel de medicina de precisao",
-      noData:
-        "Nenhum dado genomico disponivel para este paciente",
+      loadFailed: "Falha ao carregar o painel de medicina de precisao",
+      noData: "Nenhum dado genomico disponivel para este paciente",
       stats: {
         totalVariants: "Total de variantes",
         pathogenic: "Patogenicas",
@@ -3031,12 +2947,10 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         resistant: "Resistente",
         partialResponse: "Resposta parcial",
       },
-      recommendationsTitle:
-        "Recomendacoes de medicina de precisao",
+      recommendationsTitle: "Recomendacoes de medicina de precisao",
       avoid: "Evitar (resistencia prevista)",
       consider: "Considerar (sensibilidade prevista)",
-      correlationsTitle:
-        "Correlacoes variante-farmaco ({{count}})",
+      correlationsTitle: "Correlacoes variante-farmaco ({{count}})",
       headers: {
         gene: "Gene",
         variant: "Variante",
@@ -3066,8 +2980,7 @@ const ptImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       },
       actionable: "Acionavel",
       other: "Outro",
-      treatmentHistoryTitle:
-        "Historico de tratamento ({{count}})",
+      treatmentHistoryTitle: "Historico de tratamento ({{count}})",
       showLess: "Mostrar menos",
       showAll: "Mostrar todas as {{count}} variantes",
       pathogenicCount: "{{count}} patogenicas",
@@ -3146,7 +3059,7 @@ const esImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         indexedSummary:
           "Se indexaron {{indexed}} nuevos, se actualizaron {{updated}} en {{scanned}} registros analizados",
         empty:
-          "No hay estudios indexados. Usa \"Importar archivos DICOM locales\" arriba o introduce un ID de fuente y haz clic en \"Indexar desde DICOMweb\".",
+          'No hay estudios indexados. Usa "Importar archivos DICOM locales" arriba o introduce un ID de fuente y haz clic en "Indexar desde DICOMweb".',
         totalStudiesPage: "{{total}} estudios en total - pagina {{page}}",
         prev: "Anterior",
         next: "Siguiente",
@@ -3159,7 +3072,7 @@ const esImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         radiomic: "Radiomica",
         manual: "Manual",
         empty:
-          "Aun no se han extraido caracteristicas. Usa \"Extraer NLP\" en un estudio para completarlas.",
+          'Aun no se han extraido caracteristicas. Usa "Extraer NLP" en un estudio para completarlas.',
         totalFeatures: "{{total}} caracteristicas en total",
       },
       criteriaTab: {
@@ -3243,8 +3156,7 @@ const esImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       filesSelected_other: "{{count}} archivos seleccionados",
       clearAll: "Borrar todo",
       moreFiles: "... y {{count}} archivos mas",
-      uploadingToOrthanc:
-        "Cargando a Orthanc... {{completed}}/{{total}}",
+      uploadingToOrthanc: "Cargando a Orthanc... {{completed}}/{{total}}",
       indexingStudies: "Indexando estudios...",
       uploadedCount: "{{count}} cargados",
       failedCount: "{{count}} fallidos",
@@ -3285,8 +3197,7 @@ const esImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         modality: "Modalidad: {{modality}}",
         bodyPart: "Parte del cuerpo: {{bodyPart}}",
         quantitative: "{{feature}} {{operator}} {{value}} {{unit}}",
-        aiClassification:
-          "IA: {{label}} (>={{confidence}}% de confianza)",
+        aiClassification: "IA: {{label}} (>={{confidence}}% de confianza)",
         dose: "Dosis <= {{dose}} Gy",
         excludePrefix: "Excluir: ",
       },
@@ -3405,14 +3316,10 @@ const esImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       allStudies: "Todos los estudios ({{count}})",
       noDrugExposures:
         "No se encontraron exposiciones a farmacos en la ventana de imagen.",
-      treatmentContextCount:
-        "Contexto de tratamiento ({{count}} farmacos)",
-      loadFailed:
-        "No se pudo cargar la cronologia del paciente: {{message}}",
-      showTreatmentDetails:
-        "Mostrar detalles del tratamiento ({{count}})",
-      hideTreatmentDetails:
-        "Ocultar detalles del tratamiento ({{count}})",
+      treatmentContextCount: "Contexto de tratamiento ({{count}} farmacos)",
+      loadFailed: "No se pudo cargar la cronologia del paciente: {{message}}",
+      showTreatmentDetails: "Mostrar detalles del tratamiento ({{count}})",
+      hideTreatmentDetails: "Ocultar detalles del tratamiento ({{count}})",
       showResponseAssessments: "Mostrar evaluaciones de respuesta",
       hideResponseAssessments: "Ocultar evaluaciones de respuesta",
       view: "Ver",
@@ -3424,13 +3331,12 @@ const esImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         "Se vincularon automaticamente {{count}} estudios a personas OMOP.",
       heading: "Cronologia del paciente - Persona {{id}}",
       backToPatientList: "Volver a la lista de pacientes",
-      failedToLoadTimeline:
-        "No se pudo cargar la cronologia: {{message}}",
+      failedToLoadTimeline: "No se pudo cargar la cronologia: {{message}}",
       patientsWithImaging: "Pacientes con imagenes longitudinales",
       minStudies: "Min. de estudios",
       loadingPatients: "Cargando pacientes...",
       emptyPatients:
-        "No se encontraron pacientes con estudios de imagen vinculados. Usa \"Vincular estudios automaticamente\" para asociar IDs de pacientes DICOM con personas OMOP, o vincula estudios manualmente en la pestana Estudios.",
+        'No se encontraron pacientes con estudios de imagen vinculados. Usa "Vincular estudios automaticamente" para asociar IDs de pacientes DICOM con personas OMOP, o vincula estudios manualmente en la pestana Estudios.',
       tableHeaders: {
         personId: "ID de persona",
         studies: "Estudios",
@@ -3472,8 +3378,7 @@ const esImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         ctSeverity: "Gravedad por TC",
       },
       computeTitle: "Calcular evaluacion de respuesta",
-      help:
-        "Calcula automaticamente la respuesta al tratamiento comparando mediciones entre puntos temporales con criterios RECIST 1.1, gravedad por TC, Deauville/Lugano o RANO.",
+      help: "Calcula automaticamente la respuesta al tratamiento comparando mediciones entre puntos temporales con criterios RECIST 1.1, gravedad por TC, Deauville/Lugano o RANO.",
       currentStudy: "Estudio actual (punto temporal)",
       selectStudy: "Selecciona un estudio...",
       criteria: "Criterios",
@@ -3549,8 +3454,7 @@ const koImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
     },
     page: {
       title: "의료 영상",
-      subtitle:
-        "종단 영상 분석, 치료 반응 평가 및 결과 연구",
+      subtitle: "종단 영상 분석, 치료 반응 평가 및 결과 연구",
       tabs: {
         studies: "검사",
         features: "AI 특징",
@@ -3575,7 +3479,7 @@ const koImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         indexedSummary:
           "{{scanned}}개 스캔 기록에서 신규 {{indexed}}건을 색인화하고 {{updated}}건을 업데이트했습니다",
         empty:
-          "색인화된 검사가 없습니다. 위에서 \"로컬 DICOM 파일 가져오기\"를 사용하거나 소스 ID를 입력한 뒤 \"DICOMweb에서 색인화\"를 클릭하세요.",
+          '색인화된 검사가 없습니다. 위에서 "로컬 DICOM 파일 가져오기"를 사용하거나 소스 ID를 입력한 뒤 "DICOMweb에서 색인화"를 클릭하세요.',
         totalStudiesPage: "전체 {{total}}개 검사 - {{page}}페이지",
         prev: "이전",
         next: "다음",
@@ -3588,7 +3492,7 @@ const koImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         radiomic: "라디오믹스",
         manual: "수동",
         empty:
-          "아직 추출된 특징이 없습니다. 검사에서 \"NLP 추출\"을 사용해 채우세요.",
+          '아직 추출된 특징이 없습니다. 검사에서 "NLP 추출"을 사용해 채우세요.',
         totalFeatures: "전체 {{total}}개 특징",
       },
       criteriaTab: {
@@ -3601,8 +3505,7 @@ const koImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       },
       analyticsTab: {
         sourceIdPlaceholder: "예: 9",
-        intro:
-          "인구 수준 영상 분석을 보려면 소스 ID를 입력하세요.",
+        intro: "인구 수준 영상 분석을 보려면 소스 ID를 입력하세요.",
         loading: "분석을 불러오는 중...",
         studiesByModality: "모달리티별 검사",
         personsCount: "{{count}}명",
@@ -3672,8 +3575,7 @@ const koImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       filesSelected_other: "{{count}}개 파일 선택됨",
       clearAll: "모두 지우기",
       moreFiles: "... 외 {{count}}개 파일",
-      uploadingToOrthanc:
-        "Orthanc에 업로드 중... {{completed}}/{{total}}",
+      uploadingToOrthanc: "Orthanc에 업로드 중... {{completed}}/{{total}}",
       indexingStudies: "검사를 색인화하는 중...",
       uploadedCount: "{{count}}개 업로드됨",
       failedCount: "{{count}}개 실패",
@@ -3714,8 +3616,7 @@ const koImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         modality: "모달리티: {{modality}}",
         bodyPart: "신체 부위: {{bodyPart}}",
         quantitative: "{{feature}} {{operator}} {{value}} {{unit}}",
-        aiClassification:
-          "AI: {{label}} (신뢰도 >={{confidence}}%)",
+        aiClassification: "AI: {{label}} (신뢰도 >={{confidence}}%)",
         dose: "선량 <= {{dose}} Gy",
         excludePrefix: "제외: ",
       },
@@ -3757,8 +3658,7 @@ const koImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       presets: {
         recist: {
           label: "RECIST - 고형 종양",
-          description:
-            "RECIST 1.1 평가를 위한 표적 병변 최장직경 측정값",
+          description: "RECIST 1.1 평가를 위한 표적 병변 최장직경 측정값",
           fields: {
             lesion1: "표적 병변 1",
             lesion2: "표적 병변 2",
@@ -3767,8 +3667,7 @@ const koImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         },
         covidLungCt: {
           label: "COVID 폐 CT",
-          description:
-            "COVID-19 폐렴 평가를 위한 CT 중증도 점수",
+          description: "COVID-19 폐렴 평가를 위한 CT 중증도 점수",
           fields: {
             severityIndex: "CT 중증도 지수 (0-25)",
             groundGlass: "간유리음영",
@@ -3778,8 +3677,7 @@ const koImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         },
         petResponse: {
           label: "PET 반응 (Lugano)",
-          description:
-            "림프종/PET 반응을 위한 SUVmax 및 대사 측정값",
+          description: "림프종/PET 반응을 위한 SUVmax 및 대사 측정값",
           fields: {
             suvmax: "SUVmax",
             metabolicVolume: "대사성 종양 부피",
@@ -3831,15 +3729,11 @@ const koImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       treatmentContext: "치료 맥락",
       imagingStudies: "영상 검사",
       allStudies: "전체 검사 ({{count}})",
-      noDrugExposures:
-        "영상 기간 내 약물 노출을 찾을 수 없습니다.",
+      noDrugExposures: "영상 기간 내 약물 노출을 찾을 수 없습니다.",
       treatmentContextCount: "치료 맥락 ({{count}}개 약물)",
-      loadFailed:
-        "환자 타임라인을 불러오지 못했습니다: {{message}}",
-      showTreatmentDetails:
-        "치료 세부정보 보기 ({{count}})",
-      hideTreatmentDetails:
-        "치료 세부정보 숨기기 ({{count}})",
+      loadFailed: "환자 타임라인을 불러오지 못했습니다: {{message}}",
+      showTreatmentDetails: "치료 세부정보 보기 ({{count}})",
+      hideTreatmentDetails: "치료 세부정보 숨기기 ({{count}})",
       showResponseAssessments: "반응 평가 보기",
       hideResponseAssessments: "반응 평가 숨기기",
       view: "보기",
@@ -3851,13 +3745,12 @@ const koImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         "{{count}}개 검사를 OMOP 환자에 자동으로 연결했습니다.",
       heading: "환자 타임라인 - 환자 {{id}}",
       backToPatientList: "환자 목록으로 돌아가기",
-      failedToLoadTimeline:
-        "타임라인을 불러오지 못했습니다: {{message}}",
+      failedToLoadTimeline: "타임라인을 불러오지 못했습니다: {{message}}",
       patientsWithImaging: "종단 영상이 있는 환자",
       minStudies: "최소 검사 수",
       loadingPatients: "환자 불러오는 중...",
       emptyPatients:
-        "연결된 영상 검사가 있는 환자를 찾지 못했습니다. \"검사 자동 연결\"을 사용해 DICOM 환자 ID를 OMOP 환자에 매칭하거나, 검사 탭에서 수동으로 연결하세요.",
+        '연결된 영상 검사가 있는 환자를 찾지 못했습니다. "검사 자동 연결"을 사용해 DICOM 환자 ID를 OMOP 환자에 매칭하거나, 검사 탭에서 수동으로 연결하세요.',
       tableHeaders: {
         personId: "환자 ID",
         studies: "검사",
@@ -3867,8 +3760,7 @@ const koImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         action: "",
       },
       actionTimeline: "타임라인",
-      patientsPageSummary:
-        "환자 {{total}}명 - {{current}} / {{last}}페이지",
+      patientsPageSummary: "환자 {{total}}명 - {{current}} / {{last}}페이지",
       studyHeaders: {
         date: "날짜",
         modality: "모달리티",
@@ -3899,8 +3791,7 @@ const koImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         ctSeverity: "CT 중증도",
       },
       computeTitle: "반응 평가 계산",
-      help:
-        "RECIST 1.1, CT 중증도, Deauville/Lugano 또는 RANO 기준으로 시점 간 측정값을 비교해 치료 반응을 자동 계산합니다.",
+      help: "RECIST 1.1, CT 중증도, Deauville/Lugano 또는 RANO 기준으로 시점 간 측정값을 비교해 치료 반응을 자동 계산합니다.",
       currentStudy: "현재 검사 (시점)",
       selectStudy: "검사를 선택하세요...",
       criteria: "기준",
@@ -4002,7 +3893,7 @@ const hiImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         indexedSummary:
           "{{scanned}} स्कैन किए गए रिकॉर्ड में {{indexed}} नए और {{updated}} अपडेट किए गए",
         empty:
-          "कोई अध्ययन इंडेक्स नहीं किया गया है। ऊपर \"स्थानीय DICOM फ़ाइलें आयात करें\" का उपयोग करें या स्रोत आईडी दर्ज करके \"DICOMweb से इंडेक्स करें\" पर क्लिक करें।",
+          'कोई अध्ययन इंडेक्स नहीं किया गया है। ऊपर "स्थानीय DICOM फ़ाइलें आयात करें" का उपयोग करें या स्रोत आईडी दर्ज करके "DICOMweb से इंडेक्स करें" पर क्लिक करें।',
         totalStudiesPage: "{{total}} कुल अध्ययन - पृष्ठ {{page}}",
         prev: "पिछला",
         next: "अगला",
@@ -4015,7 +3906,7 @@ const hiImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         radiomic: "रेडियोमिक",
         manual: "मैनुअल",
         empty:
-          "अभी तक कोई विशेषताएँ निकाली नहीं गई हैं। भरने के लिए किसी अध्ययन पर \"NLP निकालें\" का उपयोग करें।",
+          'अभी तक कोई विशेषताएँ निकाली नहीं गई हैं। भरने के लिए किसी अध्ययन पर "NLP निकालें" का उपयोग करें।',
         totalFeatures: "{{total}} कुल विशेषताएँ",
       },
       criteriaTab: {
@@ -4028,8 +3919,7 @@ const hiImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       },
       analyticsTab: {
         sourceIdPlaceholder: "उदा. 9",
-        intro:
-          "जनसंख्या इमेजिंग विश्लेषण देखने के लिए स्रोत आईडी दर्ज करें.",
+        intro: "जनसंख्या इमेजिंग विश्लेषण देखने के लिए स्रोत आईडी दर्ज करें.",
         loading: "विश्लेषण लोड हो रहा है...",
         studiesByModality: "मोडैलिटी अनुसार अध्ययन",
         personsCount: "{{count}} व्यक्ति",
@@ -4141,8 +4031,7 @@ const hiImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         modality: "मोडैलिटी: {{modality}}",
         bodyPart: "शरीर का भाग: {{bodyPart}}",
         quantitative: "{{feature}} {{operator}} {{value}} {{unit}}",
-        aiClassification:
-          "AI: {{label}} (>={{confidence}}% विश्वसनीयता)",
+        aiClassification: "AI: {{label}} (>={{confidence}}% विश्वसनीयता)",
         dose: "खुराक <= {{dose}} Gy",
         excludePrefix: "बाहर करें: ",
       },
@@ -4194,8 +4083,7 @@ const hiImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         },
         covidLungCt: {
           label: "COVID फेफड़ा CT",
-          description:
-            "COVID-19 निमोनिया आकलन के लिए CT गंभीरता स्कोरिंग",
+          description: "COVID-19 निमोनिया आकलन के लिए CT गंभीरता स्कोरिंग",
           fields: {
             severityIndex: "CT गंभीरता सूचकांक (0-25)",
             groundGlass: "ग्राउंड ग्लास अपारदर्शिता",
@@ -4258,11 +4146,9 @@ const hiImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
       treatmentContext: "उपचार संदर्भ",
       imagingStudies: "इमेजिंग अध्ययन",
       allStudies: "सभी अध्ययन ({{count}})",
-      noDrugExposures:
-        "इमेजिंग विंडो में कोई दवा एक्सपोज़र नहीं मिला.",
+      noDrugExposures: "इमेजिंग विंडो में कोई दवा एक्सपोज़र नहीं मिला.",
       treatmentContextCount: "उपचार संदर्भ ({{count}} दवाएँ)",
-      loadFailed:
-        "रोगी टाइमलाइन लोड नहीं हो सकी: {{message}}",
+      loadFailed: "रोगी टाइमलाइन लोड नहीं हो सकी: {{message}}",
       showTreatmentDetails: "उपचार विवरण दिखाएँ ({{count}})",
       hideTreatmentDetails: "उपचार विवरण छिपाएँ ({{count}})",
       showResponseAssessments: "प्रतिक्रिया आकलन दिखाएँ",
@@ -4276,13 +4162,12 @@ const hiImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         "{{count}} अध्ययनों को OMOP व्यक्तियों से स्वतः लिंक किया गया.",
       heading: "रोगी टाइमलाइन - व्यक्ति {{id}}",
       backToPatientList: "रोगी सूची पर वापस जाएँ",
-      failedToLoadTimeline:
-        "टाइमलाइन लोड नहीं हो सकी: {{message}}",
+      failedToLoadTimeline: "टाइमलाइन लोड नहीं हो सकी: {{message}}",
       patientsWithImaging: "अनुदैर्ध्य इमेजिंग वाले रोगी",
       minStudies: "न्यूनतम अध्ययन",
       loadingPatients: "रोगी लोड हो रहे हैं...",
       emptyPatients:
-        "लिंक किए गए इमेजिंग अध्ययनों वाले रोगी नहीं मिले। DICOM रोगी आईडी को OMOP व्यक्तियों से मिलाने के लिए \"अध्ययन स्वतः-लिंक करें\" का उपयोग करें, या अध्ययन टैब में अध्ययनों को मैनुअल रूप से लिंक करें।",
+        'लिंक किए गए इमेजिंग अध्ययनों वाले रोगी नहीं मिले। DICOM रोगी आईडी को OMOP व्यक्तियों से मिलाने के लिए "अध्ययन स्वतः-लिंक करें" का उपयोग करें, या अध्ययन टैब में अध्ययनों को मैनुअल रूप से लिंक करें।',
       tableHeaders: {
         personId: "व्यक्ति आईडी",
         studies: "अध्ययन",
@@ -4292,8 +4177,7 @@ const hiImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         action: "",
       },
       actionTimeline: "टाइमलाइन",
-      patientsPageSummary:
-        "{{total}} रोगी - पृष्ठ {{current}} / {{last}}",
+      patientsPageSummary: "{{total}} रोगी - पृष्ठ {{current}} / {{last}}",
       studyHeaders: {
         date: "तारीख",
         modality: "मोडैलिटी",
@@ -4324,8 +4208,7 @@ const hiImagingGenomics: MessageTree = mergeMessageTrees(enImagingGenomics, {
         ctSeverity: "CT गंभीरता",
       },
       computeTitle: "प्रतिक्रिया आकलन गणना करें",
-      help:
-        "RECIST 1.1, CT गंभीरता, Deauville/Lugano या RANO मानदंडों का उपयोग करके समय-बिंदुओं के बीच मापों की तुलना कर उपचार प्रतिक्रिया की स्वचालित गणना करता है।",
+      help: "RECIST 1.1, CT गंभीरता, Deauville/Lugano या RANO मानदंडों का उपयोग करके समय-बिंदुओं के बीच मापों की तुलना कर उपचार प्रतिक्रिया की स्वचालित गणना करता है।",
       currentStudy: "वर्तमान अध्ययन (समय-बिंदु)",
       selectStudy: "एक अध्ययन चुनें...",
       criteria: "मानदंड",
@@ -4419,13 +4302,12 @@ const esImagingGenomicsPass2: MessageTree = mergeMessageTrees(
         },
         annotateTitle: "Anotar variantes con significado de ClinVar",
         deleteTitle: "Eliminar carga",
-        deleteConfirm: "Eliminar la carga \"{{filename}}\"?",
+        deleteConfirm: 'Eliminar la carga "{{filename}}"?',
       },
       clinvar: {
         title: "Base de referencia de ClinVar",
         subtitle: "NCBI ClinVar - GRCh38 - actualizacion semanal",
-        papuOnlyTitle:
-          "Descargar solo variantes P/LP (~69 KB, rapido)",
+        papuOnlyTitle: "Descargar solo variantes P/LP (~69 KB, rapido)",
         papuOnly: "Solo P/LP",
         fullSyncTitle: "Descargar ClinVar completo (~181 MB, mas lento)",
         fullSync: "Sincronizacion completa",
@@ -4439,7 +4321,7 @@ const esImagingGenomicsPass2: MessageTree = mergeMessageTrees(
           "La sincronizacion fallo; revisa los registros del servidor",
         noDataTitle: "Aun no hay datos de ClinVar indexados",
         noDataMessage:
-          "Usa \"Solo P/LP\" para una semilla rapida de 69 KB o \"Sincronizacion completa\" para los 181 MB completos",
+          'Usa "Solo P/LP" para una semilla rapida de 69 KB o "Sincronizacion completa" para los 181 MB completos',
         searchPlaceholder: "Buscar gen, HGVS, enfermedad, ID RS...",
         genePlaceholder: "Gen",
         allSignificance: "Todo significado",
@@ -4564,8 +4446,7 @@ const esImagingGenomicsPass2: MessageTree = mergeMessageTrees(
           "No hay variantes genomicas registradas para este paciente.",
         demographics: "Demografia",
         drugPatterns: "Patrones de farmacos en pacientes similares",
-        similarOutcomes:
-          "Desenlaces en pacientes molecularmente similares",
+        similarOutcomes: "Desenlaces en pacientes molecularmente similares",
         variantHeaders: {
           gene: "Gen",
           alteration: "Alteracion",
@@ -4606,8 +4487,7 @@ const esImagingGenomicsPass2: MessageTree = mergeMessageTrees(
     },
     radiogenomics: {
       panel: {
-        loadFailed:
-          "No se pudo cargar el panel de medicina de precision",
+        loadFailed: "No se pudo cargar el panel de medicina de precision",
         noData: "No hay datos genomicos disponibles para este paciente",
         stats: {
           totalVariants: "Total de variantes",
@@ -4702,8 +4582,7 @@ const koImagingGenomicsPass2: MessageTree = mergeMessageTrees(
       },
       page: {
         title: "분자 유전체",
-        subtitle:
-          "변이 수집, OMOP 매핑 및 코호트 유전체 기준",
+        subtitle: "변이 수집, OMOP 매핑 및 코호트 유전체 기준",
         loadingStats: "통계를 불러오는 중...",
         tabs: {
           uploads: "업로드",
@@ -4724,7 +4603,7 @@ const koImagingGenomicsPass2: MessageTree = mergeMessageTrees(
         },
         annotateTitle: "변이에 ClinVar 의의를 주석 처리",
         deleteTitle: "업로드 삭제",
-        deleteConfirm: "\"{{filename}}\" 업로드를 삭제할까요?",
+        deleteConfirm: '"{{filename}}" 업로드를 삭제할까요?',
       },
       clinvar: {
         title: "ClinVar 참조 데이터베이스",
@@ -4742,7 +4621,7 @@ const koImagingGenomicsPass2: MessageTree = mergeMessageTrees(
         syncFailed: "동기화에 실패했습니다. 서버 로그를 확인하세요",
         noDataTitle: "아직 인덱싱된 ClinVar 데이터가 없습니다",
         noDataMessage:
-          "\"P/LP만\"을 사용하면 69 KB 시드로 빠르게 시작할 수 있고, \"전체 동기화\"는 전체 181 MB를 가져옵니다",
+          '"P/LP만"을 사용하면 69 KB 시드로 빠르게 시작할 수 있고, "전체 동기화"는 전체 181 MB를 가져옵니다',
         searchPlaceholder: "유전자, HGVS, 질환, RS ID 검색...",
         genePlaceholder: "유전자",
         allSignificance: "모든 의의",
@@ -4764,8 +4643,7 @@ const koImagingGenomicsPass2: MessageTree = mergeMessageTrees(
           build: "빌드",
           ids: "식별자",
         },
-        variantsPageSummary:
-          "{{total}}개 변이 - {{current}} / {{last}}페이지",
+        variantsPageSummary: "{{total}}개 변이 - {{current}} / {{last}}페이지",
       },
       uploadDialog: {
         title: "변이 파일 업로드",
@@ -4820,8 +4698,7 @@ const koImagingGenomicsPass2: MessageTree = mergeMessageTrees(
       },
       analysis: {
         title: "변이-결과 분석 모음",
-        subtitle:
-          "OMOP 임상 결과와 연결된 인구 수준 유전체 분석",
+        subtitle: "OMOP 임상 결과와 연결된 인구 수준 유전체 분석",
         tabs: {
           survival: "변이-생존",
           matrix: "치료-변이 매트릭스",
@@ -4850,8 +4727,7 @@ const koImagingGenomicsPass2: MessageTree = mergeMessageTrees(
       },
       tumorBoard: {
         title: "분자 종양 보드",
-        subtitle:
-          "환자별 분자 근거 패널 - 변이, 유사 환자 결과, 약물 패턴",
+        subtitle: "환자별 분자 근거 패널 - 변이, 유사 환자 결과, 약물 패턴",
         omopPersonId: "OMOP 환자 ID",
         personIdPlaceholder: "person_id를 입력하세요...",
         loadPanel: "패널 불러오기",
@@ -5001,8 +4877,7 @@ const hiImagingGenomicsPass2: MessageTree = mergeMessageTrees(
       },
       page: {
         title: "आणविक जीनोमिक्स",
-        subtitle:
-          "वेरिएंट इनजेशन, OMOP मैपिंग और कोहोर्ट जीनोमिक मानदंड",
+        subtitle: "वेरिएंट इनजेशन, OMOP मैपिंग और कोहोर्ट जीनोमिक मानदंड",
         loadingStats: "आँकड़े लोड हो रहे हैं...",
         tabs: {
           uploads: "अपलोड",
@@ -5023,16 +4898,14 @@ const hiImagingGenomicsPass2: MessageTree = mergeMessageTrees(
         },
         annotateTitle: "ClinVar महत्त्व के साथ वेरिएंट एनोटेट करें",
         deleteTitle: "अपलोड हटाएँ",
-        deleteConfirm: "\"{{filename}}\" अपलोड हटाएँ?",
+        deleteConfirm: '"{{filename}}" अपलोड हटाएँ?',
       },
       clinvar: {
         title: "ClinVar संदर्भ डेटाबेस",
         subtitle: "NCBI ClinVar - GRCh38 - साप्ताहिक अद्यतन",
-        papuOnlyTitle:
-          "केवल P/LP वेरिएंट डाउनलोड करें (~69 KB, तेज)",
+        papuOnlyTitle: "केवल P/LP वेरिएंट डाउनलोड करें (~69 KB, तेज)",
         papuOnly: "केवल P/LP",
-        fullSyncTitle:
-          "पूरा ClinVar डाउनलोड करें (~181 MB, धीमा)",
+        fullSyncTitle: "पूरा ClinVar डाउनलोड करें (~181 MB, धीमा)",
         fullSync: "पूर्ण सिंक",
         loadingStatus: "स्थिति लोड हो रही है...",
         totalVariants: "कुल वेरिएंट",
@@ -5040,11 +4913,10 @@ const hiImagingGenomicsPass2: MessageTree = mergeMessageTrees(
         lastSync: "अंतिम सिंक",
         syncComplete:
           "सिंक पूरा - {{inserted}} जोड़े गए, {{updated}} अद्यतन किए गए",
-        syncFailed:
-          "सिंक विफल हुआ - सर्वर लॉग जांचें",
+        syncFailed: "सिंक विफल हुआ - सर्वर लॉग जांचें",
         noDataTitle: "अभी तक कोई ClinVar डेटा इंडेक्स नहीं किया गया है",
         noDataMessage:
-          "69 KB की तेज शुरुआत के लिए \"केवल P/LP\" या पूरे 181 MB के लिए \"पूर्ण सिंक\" का उपयोग करें",
+          '69 KB की तेज शुरुआत के लिए "केवल P/LP" या पूरे 181 MB के लिए "पूर्ण सिंक" का उपयोग करें',
         searchPlaceholder: "जीन, HGVS, रोग, RS ID खोजें...",
         genePlaceholder: "जीन",
         allSignificance: "सभी महत्त्व",
@@ -5066,14 +4938,12 @@ const hiImagingGenomicsPass2: MessageTree = mergeMessageTrees(
           build: "बिल्ड",
           ids: "पहचानकर्ता",
         },
-        variantsPageSummary:
-          "{{total}} वेरिएंट - पृष्ठ {{current}} / {{last}}",
+        variantsPageSummary: "{{total}} वेरिएंट - पृष्ठ {{current}} / {{last}}",
       },
       uploadDialog: {
         title: "वेरिएंट फ़ाइल अपलोड करें",
         dataSource: "डेटा स्रोत",
-        dropLead:
-          "फ़ाइल यहाँ छोड़ें या ब्राउज़ करने के लिए क्लिक करें",
+        dropLead: "फ़ाइल यहाँ छोड़ें या ब्राउज़ करने के लिए क्लिक करें",
         fileFormat: "फ़ाइल प्रारूप",
         formatLabels: {
           fhirGenomics: "FHIR जीनोमिक्स",
@@ -5271,9 +5141,1829 @@ export const imagingGenomicsResources: Record<string, MessageTree> = {
   "fr-FR": frImagingGenomics,
   "de-DE": deImagingGenomics,
   "pt-BR": ptImagingGenomics,
-  "fi-FI": mergeMessageTrees(enImagingGenomics, {}),
-  "ja-JP": mergeMessageTrees(enImagingGenomics, {}),
-  "zh-Hans": mergeMessageTrees(enImagingGenomics, {}),
+  "fi-FI": mergeMessageTrees(enImagingGenomics, {
+    imaging: {
+      common: {
+        accessionNumber: "Liittymisnumero",
+        aiFeatures: "AI Ominaisuudet",
+        analytics: "Väestöanalyysi",
+        bodyPart: "Runko-osa",
+        cancel: "Peruuta",
+        close: "Sulje",
+        confidence: "Luottamus",
+        current: "Nykyinen",
+        criteria: "Kriteerit",
+        date: "Päivämäärä",
+        delete: "Poista",
+        description: "Kuvaus",
+        details: "Yksityiskohdat",
+        from: "Alkaen",
+        images: "Kuvat",
+        measurements: "Mittaukset",
+        metadata: "Metatiedot",
+        modality: "Modaliteetti",
+        name: "Nimi",
+        next: "Seuraavaksi",
+        patient: "Potilas",
+        patientTimeline: "Potilaan aikajana",
+        personId: "Henkilötunnus",
+        prev: "Ed",
+        save: "Tallenna",
+        series: "sarja",
+        sourceId: "Lähteen tunnus",
+        status: "Tila",
+        studies: "Tutkimukset",
+        studyDate: "Opiskelupäivämäärä",
+        studyInstanceUid: "Tutkimusasteen UID",
+        treatments: "Hoidot",
+        to: "Vastaanottaja",
+        upload: "Lataa",
+        value: "Arvo",
+        view: "Näytä",
+        viewer: "Näytä skannaus",
+      },
+      page: {
+        title: "Lääketieteellinen kuvantaminen",
+        subtitle:
+          "Pitkittäinen kuvantamisanalyysi, hoitovasteen arviointi ja tulostutkimus",
+        tabs: {
+          studies: "Tutkimukset",
+          features: "AI Ominaisuudet",
+          criteria: "Kuvantamiskriteerit",
+          timeline: "Potilaan aikajana",
+          analytics: "Väestöanalyysi",
+        },
+        stats: {
+          totalStudies: "Yhteensä tutkimukset",
+          aiFeatures: "AI Ominaisuudet",
+          personsWithImaging: "Henkilöt, joilla on kuvantaminen",
+        },
+        studiesTab: {
+          filterBySourceId: "Suodata lähdetunnuksen mukaan",
+          sourceIdPlaceholder: "esim. 9",
+          allStatuses: "Kaikki tilat",
+          bodyPartPlaceholder: "Rinta, aivot...",
+          find: "Etsi",
+          reset: "Nollaa",
+          syncFullCatalog: "Synkronoi koko luettelo",
+          empty:
+            'Ei indeksoituja tutkimuksia. Käytä yllä olevaa "Tuo paikallisia DICOM-tiedostoja" -kohtaa tai anna lähdetunnus ja napsauta "Hakemisto kohteesta DICOMweb".',
+          prev: "Ed",
+          next: "Seuraavaksi",
+        },
+        featuresTab: {
+          featureType: "Ominaisuuden tyyppi",
+          allFeatureTypes: "Kaikki ominaisuustyypit",
+          nlpFinding: "NLP-löytö",
+          aiClassification: "AI Luokitus",
+          radiomic: "Radioaminen",
+          manual: "Manuaalinen",
+          empty:
+            'Ominaisuuksia ei ole vielä purettu. Käytä "Extract NLP" tutkimuksessa täyttämiseen.',
+        },
+        criteriaTab: {
+          savedBanner:
+            "Tallennetut kuvantamiskohorttiehdot. Käytä näitä Cohort Builderissa valitaksesi potilaita kuvantamisominaisuuksien perusteella.",
+          loading: "Ladataan...",
+          empty: "Kuvauskriteerejä ei ole vielä tallennettu.",
+          shared: "Jaettu",
+          deleteTitle: "Poista kriteeri",
+        },
+        analyticsTab: {
+          sourceIdPlaceholder: "esim. 9",
+          intro: "Anna lähdetunnus nähdäksesi väestönkuvausanalyysit.",
+          loading: "Ladataan analytiikkaa...",
+          studiesByModality: "Modality-tutkimukset",
+          studiesByBodyPart: "Tutkimukset kehon osien mukaan",
+          topFeatures: "Parhaat AI / NLP-ominaisuudet",
+        },
+        importDicom: "Tuo DICOM",
+      },
+      studyPage: {
+        tabs: {
+          metadata: "Metatiedot",
+          measurements: "Mittaukset",
+          viewer: "Näytä skannaus",
+        },
+        notFound: "Tutkimusta ei löytynyt.",
+        backToImaging: "Takaisin kuvankäsittelyyn",
+        title: "DICOM Tutkimus",
+        indexSeries: "Indeksisarja",
+        extractNlp: "Pura NLP",
+        viewerUnavailableHelp:
+          "Vain Orthancin indeksoidut tutkimukset ovat nähtävissä OHIF:ssä.",
+        studyMetadata: "Tutkimuksen metatiedot",
+        fields: {
+          studyInstanceUid: "Tutkimusasteen UID",
+          accessionNumber: "Liittymisnumero",
+          modality: "Modaliteetti",
+          bodyPart: "Runko-osa",
+          description: "Kuvaus",
+          studyDate: "Opiskelupäivämäärä",
+          seriesCount: "Sarjojen määrä",
+          imageCount: "Kuvien määrä",
+          personId: "Henkilötunnus",
+          status: "Tila",
+        },
+        seriesHeaders: {
+          modality: "Modaliteetti",
+          description: "Kuvaus",
+          images: "Kuvat",
+          sliceThickness: "Viipaleen paksuus",
+          manufacturer: "Valmistaja",
+        },
+        featureHeaders: {
+          finding: "Löytäminen",
+          type: "Kirjoita",
+          bodySite: "Kehon sivusto",
+          value: "Arvo",
+          confidence: "Luottamus",
+        },
+      },
+      uploadModal: {
+        title: "Tuo DICOM tiedostot",
+        dropLead: "Vedä ja pudota DICOM tiedostoa tai selaa",
+        dropLeadPrefix: "Vedä ja pudota DICOM tiedostoa tai ",
+        browse: "selata",
+        dropDetail:
+          ".dcm-tiedostot enintään 2 Gt kukin. Kansioita ei tueta - valitse tiedostot suoraan.",
+        clearAll: "Tyhjennä kaikki",
+        indexingStudies: "Indeksoidaan tutkimuksia...",
+        importComplete: "Tuonti valmis",
+        previewAlt: "DICOM esikatselu",
+        unknownPatient: "Tuntematon potilas",
+        importFailed: "Tuonti epäonnistui",
+        uploadButton: "Lataa",
+      },
+      criteriaPanel: {
+        addTitle: "Lisää kuvantamiskriteeri",
+        typeLabels: {
+          modality: "Modaliteetti",
+          anatomy: "Anatomia / kehon osa",
+          quantitative: "Määrällinen ominaisuus",
+          aiClassification: "AI Luokitus",
+          dose: "Säteilyannos",
+        },
+        bodyPartPlaceholder: "Tai kirjoita mukautettu ruumiinosa...",
+        minConfidence: "Minimi luottamus",
+        maxCumulativeDose: "Suurin kumulatiivinen annos",
+        excludeFeature: "Sulje pois potilaat, joilla on tämä ominaisuus",
+        addCriterion: "Lisää kriteeri",
+        labelTemplates: {
+          excludePrefix: "Sulje pois: ",
+        },
+        typeDescriptions: {
+          anatomy: "Rinta, vatsa, aivot...",
+          quantitative: "Radioaminen tai AI numeerinen mittaus",
+          aiClassification: "AI-johdettu tunniste luotettavasti",
+          dose: "Suurin kumulatiivinen annos (Gy)",
+        },
+      },
+      measurements: {
+        aiExtraction: "AI Mittausten poiminta",
+        autoExtract: "Automaattinen purku",
+        extracting: "Puretaan...",
+        medGemmaHelp:
+          "Käyttää MedGemmaa kvantitatiivisten mittausten poimimiseen radiologiaraporteista ja DICOM metatiedoista.",
+        templates: "Mittausmallit",
+        recordMeasurement: "Tallenna mittaus",
+        type: "Kirjoita",
+        name: "Nimi",
+        value: "Arvo",
+        bodySite: "Kehon sivusto",
+        laterality: "Lateraalisuus",
+        left: "Vasen",
+        right: "Oikein",
+        bilateral: "Kahdenvälinen",
+        recistTarget: "RECIST tavoite",
+        saveMeasurement: "Tallenna mittaus",
+        addMeasurement: "Lisää mittaus",
+        deleteTitle: "Poista mittaus",
+        omopWarning:
+          "Tätä tutkimusta ei ole linkitetty OMOP potilaaseen. Mittaukset tallennetaan, mutta ne eivät näy potilaiden aikajanalla ennen kuin person_id on linkitetty.",
+        presets: {
+          recist: {
+            label: "RECIST - Kiinteä kasvain",
+            description:
+              "Kohdevaurion pisin halkaisijamitat RECIST 1.1 -arviointia varten",
+            fields: {
+              lesion1: "Kohdeleesio 1",
+              lesion2: "Kohdeleesio 2",
+              lesion1Perp: "Kohdeleesio 1 (perp)",
+            },
+          },
+          covidLungCt: {
+            label: "COVID-keuhko CT",
+            description: "CT vakavuuspisteet COVID-19-keuhkokuumearvioinnissa",
+            fields: {
+              severityIndex: "CT Vakavuusindeksi (0-25)",
+              groundGlass: "Hiottu lasin opasiteetti",
+              consolidation: "Konsolidointi",
+              totalOpacity: "Kokonaisopasiteettipisteet",
+            },
+          },
+          petResponse: {
+            label: "PET Vastaus (Lugano)",
+            description:
+              "SUVmax ja metaboliset mittaukset lymfooman/PET vasteen osalta",
+            fields: {
+              metabolicVolume: "Metabolisen kasvaimen tilavuus",
+              lesionGlycolysis: "Kokonaisvaurion glykolyysi",
+            },
+          },
+          tumorVolumetrics: {
+            label: "Kasvaimen volumetria",
+            description: "3D kasvaimen tilavuuden ja tiheyden mittaukset",
+            fields: {
+              tumorVolume: "Kasvaimen tilavuus",
+              longestDiameter: "Pisin halkaisija",
+              meanDensity: "Keskimääräinen tiheys",
+              lesionCount: "Vaurioiden määrä",
+            },
+          },
+        },
+      },
+      trends: {
+        empty:
+          "Mittoja ei tallennettu. Käytä AI automaattista purkamista tai syötä mittaukset manuaalisesti yksittäisiin tutkimuksiin.",
+        title: "Mittaustrendit",
+      },
+      viewer: {
+        loading: "Ladataan OHIF Vieweria...",
+        failed: "OHIF Viewerin lataaminen epäonnistui",
+        openInNewTab: "Avaa uudessa välilehdessä",
+        title: "OHIF DICOM Katsoja",
+        bridge: "Silta",
+        volumeTitle: "Avaa OHIF 3D-tilavuusasettelussa",
+        mprTitle: "Avaa OHIF MPR-asettelussa",
+        newTabTitle: "Avaa OHIF uudessa välilehdessä",
+        expand: "Laajenna",
+      },
+      timeline: {
+        patient: "Potilas",
+        demographicsUnavailable: "Väestötiedot eivät ole saatavilla",
+        studies: "Tutkimukset",
+        measurements: "Mittaukset",
+        treatments: "Hoidot",
+        noStudies: "Tälle potilaalle ei löytynyt kuvantamistutkimuksia.",
+        title: "Pituussuuntainen aikajana",
+        treatmentContext: "Hoidon konteksti",
+        imagingStudies: "Kuvantamistutkimukset",
+        noDrugExposures: "Kuvausikkunasta ei löytynyt altistumista lääkkeille.",
+        showResponseAssessments: "Näytä vastausarviot",
+        hideResponseAssessments: "Piilota vastausarvioinnit",
+        view: "Näytä",
+        patientPersonId: "Potilaan henkilötunnus",
+        personIdPlaceholder: "Anna OMOP person_id...",
+        viewTimeline: "Näytä aikajana",
+        autoLinkStudies: "Auto-Link-tutkimukset",
+        backToPatientList: "Takaisin potilasluetteloon",
+        patientsWithImaging: "Potilaat, joilla on pitkittäinen kuvantaminen",
+        minStudies: "Min opinnot",
+        loadingPatients: "Ladataan potilaita...",
+        emptyPatients:
+          'Potilaita, joilla olisi linkitetty kuvantamistutkimuksia, ei löytynyt. Käytä "Auto-Link Studies" -toimintoa yhdistääksesi DICOM potilastunnukset OMOP henkilöihin tai linkitä tutkimukset manuaalisesti Tutkimukset-välilehdellä.',
+        tableHeaders: {
+          personId: "Henkilötunnus",
+          studies: "Tutkimukset",
+          modalities: "Toimintatavat",
+          firstStudy: "Ensimmäinen tutkimus",
+          lastStudy: "Viimeinen tutkimus",
+        },
+        actionTimeline: "Aikajana",
+        studyHeaders: {
+          date: "Päivämäärä",
+          modality: "Modaliteetti",
+          bodyPart: "Runko-osa",
+          description: "Kuvaus",
+          series: "sarja",
+          images: "Kuvat",
+          measurements: "Mittaukset",
+        },
+        drugHeaders: {
+          drugName: "Lääkkeen nimi",
+          class: "Luokka",
+          start: "Aloita",
+          end: "Loppu",
+          daysSupply: "Päivän tarjonta",
+        },
+      },
+      response: {
+        categoryLabels: {
+          completeResponse: "Täydellinen vastaus",
+          partialResponse: "Osittainen vastaus",
+          stableDisease: "Stabiili sairaus",
+          progressiveDisease: "Progressiivinen sairaus",
+          notEvaluable: "Ei arvioitavissa",
+        },
+        criteriaLabels: {
+          ctSeverity: "CT Vakavuus",
+        },
+        computeTitle: "Laske vastauksen arviointi",
+        help: "Laskee automaattisesti hoitovasteen vertaamalla mittauksia eri aikapisteiden välillä käyttämällä RECIST 1.1-, CT vakavuus-, Deauville/Lugano- tai RANO-kriteerejä.",
+        currentStudy: "Nykyinen tutkimus (aikapiste)",
+        selectStudy: "Valitse tutkimus...",
+        criteria: "Kriteerit",
+        autoDetect: "Automaattinen tunnistus",
+        assess: "Arvioi",
+        assessmentFailed: "Arviointi epäonnistui",
+        assessmentHistory: "Arviointihistoria",
+        empty:
+          "Vastausarvioita ei ole vielä laskettu. Valitse ylhäältä tutkimuksen aikapiste laskeaksesi se.",
+        vsBaseline: "vs perustaso:",
+        vsNadir: "vs. alin arvo:",
+        confirmed: "Vahvistettu",
+        baseline: "Perustaso",
+        nadir: "Alin arvo",
+        current: "Nykyinen",
+      },
+      studyBrowser: {
+        unknownDate: "Tuntematon",
+        dicomStudy: "DICOM Tutkimus",
+        details: "Yksityiskohdat",
+        compare: "Vertaa",
+        selected: "Valittu",
+        date: "Päivämäärä",
+        clear: "selkeä",
+        noStudies: "Kuvaustutkimuksia ei löytynyt",
+      },
+    },
+    genomics: {
+      common: {
+        analysisSuite: "Analyysipaketti",
+        benign: "Hyvänlaatuinen",
+        cancel: "Peruuta",
+        class: "Luokka",
+        clinvarReference: "ClinVar Viite",
+        confidence: "Luottamus",
+        dataSource: "Tietolähde",
+        deleteUpload: "Poista lataus",
+        gene: "Geeni",
+        genome: "Genomi",
+        genomeBuild: "Genomiversio",
+        hgvsOptional: "HGVS (valinnainen)",
+        likelyBenign: "Todennäköisesti hyvänlaatuinen",
+        likelyPathogenic: "Todennäköisesti patogeeninen",
+        no: "Ei",
+        omopMapped: "OMOP Kartoitettu",
+        pathogenic: "Patogeeninen",
+        pendingReview: "Odottaa tarkistusta",
+        recentUploads: "Viimeaikaiset lataukset",
+        response: "Vastaus",
+        significance: "Merkitys",
+        sourceId: "Lähteen tunnus",
+        status: "Tila",
+        totalVariants: "Variantteja yhteensä",
+        totalUploads: "Latauksia yhteensä",
+        tumorBoard: "Kasvainlautakunta",
+        uncertainSignificance: "Epävarma merkitys",
+        uploadVariants: "Lataa vaihtoehdot",
+        uploads: "Lataukset",
+        variant: "Variantti",
+        yes: "Kyllä",
+      },
+      page: {
+        title: "Molekyyligenomiikka",
+        subtitle:
+          "Varianttien nieleminen, OMOP-kartoitus ja kohortin genomikriteerit",
+        loadingStats: "Ladataan tilastoja...",
+        tabs: {
+          uploads: "Lataukset",
+          clinvar: "ClinVar Viite",
+        },
+        topMutatedGenes: "Parhaat mutatoidut geenit",
+        recentUploads: "Viimeaikaiset lataukset",
+        noUploadsTitle: "Varianttitiedostoja ei ole vielä ladattu",
+        noUploadsMessage:
+          "Lataa VCF- tai MAF-tiedosto aloittaaksesi genomianalyysin",
+        tableHeaders: {
+          filename: "Tiedostonimi",
+          format: "Muoto",
+          genome: "Genomi",
+          variants: "Vaihtoehdot",
+          status: "Tila",
+          uploaded: "Ladattu",
+        },
+        annotateTitle: "Merkitse muunnelmiin ClinVar merkitystä",
+        deleteTitle: "Poista lataus",
+      },
+      clinvar: {
+        title: "ClinVar Viitetietokanta",
+        subtitle: "NCBI ClinVar - GRCh38 - Päivitetään viikoittain",
+        papuOnlyTitle: "Lataa vain P/LP-versiot (~69 kt, nopea)",
+        papuOnly: "Vain P/LP",
+        fullSyncTitle: "Lataa koko ClinVar (n. 181 Mt, hitaampi)",
+        fullSync: "Täysi synkronointi",
+        loadingStatus: "Ladataan tilaa...",
+        totalVariants: "Variantteja yhteensä",
+        pathogenicLp: "Patogeeninen / LP",
+        lastSync: "Viimeinen synkronointi",
+        syncFailed: "Synkronointi epäonnistui - tarkista palvelimen lokit",
+        noDataTitle: "Ei vielä indeksoituja tietoja ClinVar",
+        noDataMessage:
+          'Käytä "P/LP Only" nopeaa 69 kt siemenä varten tai "Full Sync" kaikille 181 Mt',
+        genePlaceholder: "Geeni",
+        allSignificance: "Kaikki merkitys",
+        pathogenic: "Patogeeninen",
+        likelyPathogenic: "Todennäköisesti patogeeninen",
+        uncertainSignificance: "Epävarma merkitys",
+        benign: "Hyvänlaatuinen",
+        likelyBenign: "Todennäköisesti hyvänlaatuinen",
+        conflicting: "Ristiriitainen",
+        browsePrompt:
+          "Kirjoita hakutermi tai käytä suodatinta selataksesi ClinVar",
+        noMatches: "Mikään muunnelma ei vastaa hakuasi",
+        tableHeaders: {
+          gene: "Geeni",
+          hgvsVariant: "HGVS / Variantti",
+          significance: "Merkitys",
+          disease: "Sairaus",
+          reviewStatus: "Tarkista tila",
+          build: "Rakenna",
+          ids: "tunnukset",
+        },
+      },
+      uploadDialog: {
+        title: "Lataa muunnelmatiedosto",
+        dataSource: "Tietolähde",
+        dropLead: "Pudota tiedosto tähän tai selaa napsauttamalla",
+        fileFormat: "Tiedostomuoto",
+        formatLabels: {
+          fhirGenomics: "FHIR Genomiikka",
+        },
+        genomeBuild: "Genomiversio",
+        sampleIdOptional: "Esimerkkitunnus (valinnainen)",
+        uploadFailed:
+          "Lataus epäonnistui. Tarkista tiedostomuoto ja yritä uudelleen.",
+        uploadingParsing: "Ladataan ja jäsennetään...",
+        uploadParse: "Lataa ja jäsennä",
+      },
+      criteriaPanel: {
+        title: "Lisää genominen kriteeri",
+        typeLabels: {
+          geneMutation: "Geenimutaatio",
+          tmb: "Kasvaimen mutaatiotaakka",
+          msi: "Mikrosatelliittien epävakaus",
+          fusion: "Geenifuusio",
+          pathogenicity: "Patogeenisuusluokka",
+          treatmentEpisode: "Hoitojakso",
+        },
+        typeDescriptions: {
+          geneMutation: "esim. EGFR L858R, KRAS G12D",
+          tmb: "TMB-Korkea / TMB-Matala kynnys",
+          msi: "MSI-H, MSI-L tai MSS",
+          fusion: "esim. ALK uudelleenjärjestely, BCR-ABL1",
+          pathogenicity: "ClinVar luokitus",
+          treatmentEpisode: "HemOnc-kemoterapiaohjelma",
+        },
+        msiOptions: {
+          anyUnstable: "MSI-Korkea tai MSI-Matala (mikä tahansa epävakaa)",
+        },
+        hgvsOptional: "HGVS (valinnainen)",
+        gene2Optional: "Gene 2 (valinnainen)",
+        excludeFeature: "Sulje pois potilaat, joilla on tämä ominaisuus",
+        addCriterion: "Lisää kriteeri",
+        labelTemplates: {
+          excludePrefix: "Sulje pois: ",
+        },
+      },
+      analysis: {
+        title: "Varianttitulosten analyysipaketti",
+        subtitle:
+          "Populaatiotason genomianalytiikka, joka liittyy OMOP kliinisiin tuloksiin",
+        tabs: {
+          survival: "Mutaatio-eloonjääminen",
+          matrix: "Hoito-varianttimatriisi",
+          characterization: "Genominen karakterisointi",
+        },
+        days: "päivää",
+        noData:
+          "Ei dataa. Lataa muunnelmia + varmista CDM-yhteys lääkkeiden altistustiedoille.",
+        gene: "Geeni",
+        runningSurvival: "Suoritetaan selviytymisanalyysiä...",
+        analysisFailed:
+          "Analyysi epäonnistui. Varmista, että CDM-lähteellä on genominen + tulostiedot.",
+        overallSurvival: "Yleinen selviytyminen",
+        noSurvival:
+          "Ei vastaavia selviytymistietoja. Lataa VCF-tiedostoja person_id-vastaavuudella ja varmista, että potilailla on tarkkailujaksoja.",
+        genesComma: "Geenit (pilkuilla erotettu)",
+        topMutatedGenes: "Parhaat mutatoidut geenit",
+        variantTypes: "Varianttityypit",
+        mutationLoadPerSample: "Mutaatiokuormitus näytettä kohti",
+        noVariantsLoaded:
+          "Variantteja ei ladattu. Lataa ensin VCF/MAF-tiedostot.",
+      },
+      tumorBoard: {
+        title: "Molekyylinen kasvainneuvosto",
+        subtitle:
+          "Potilaskohtainen molekyylitodisteen paneeli - variantit, samanlaiset potilastulokset, lääkemallit",
+        omopPersonId: "OMOP Henkilötunnus",
+        personIdPlaceholder: "Anna person_id...",
+        loadPanel: "Lataa paneeli",
+        buildingEvidence: "Todistuspaneelin rakentaminen...",
+        loadFailed:
+          "Paneelin lataaminen epäonnistui. Tarkista, että person_id on olemassa ja että genomitietoja on saatavilla.",
+        evidenceSummary: "Todisteiden yhteenveto",
+        actionable: "Toimiva",
+        noVariants: "Tälle potilaalle ei ole tallennettu genomivariantteja.",
+        demographics: "Väestötiedot",
+        drugPatterns: "Lääkemallit samankaltaisilla potilailla",
+        similarOutcomes: "Tulokset molekyylisesti samanlaisilla potilailla",
+        variantHeaders: {
+          gene: "Geeni",
+          alteration: "Muutos",
+          type: "Kirjoita",
+          class: "Luokka",
+          classification: "Luokittelu",
+        },
+        similarOutcomeHeaders: {
+          gene: "Geeni",
+          similarPatients: "Samankaltaiset potilaat (n)",
+          medianSurvival: "Mediaani Eloonjääminen",
+          eventRate: "Tapahtuman määrä",
+        },
+      },
+      uploadDetail: {
+        notFound: "Latausta ei löydy",
+        backToGenomics: "Takaisin genomiikkaan",
+        matchPersons: "Yhdistä henkilöt",
+        importToOmop: "Tuo kohteeseen OMOP",
+        parseError: "Jäsennysvirhe:",
+        metrics: {
+          totalVariants: "Variantteja yhteensä",
+          omopMapped: "OMOP Kartoitettu",
+          needsReview: "Vaatii tarkistusta",
+        },
+        variants: "Vaihtoehdot",
+        parsingInProgress: "Jäsentäminen käynnissä...",
+        noVariantsAvailable: "Ei vaihtoehtoja saatavilla",
+        tableHeaders: {
+          gene: "Geeni",
+          variant: "Variantti",
+          type: "Kirjoita",
+          zygosity: "Tsygoottisuus",
+        },
+      },
+    },
+    radiogenomics: {
+      panel: {
+        loadFailed: "Tarkkuuslääkepaneelin lataaminen epäonnistui",
+        noData: "Tälle potilaalle ei ole saatavilla genomitietoja",
+        stats: {
+          totalVariants: "Variantteja yhteensä",
+          pathogenic: "Patogeeninen",
+          drugCorrelations: "Huumeiden korrelaatiot",
+          recommendations: "Suositukset",
+          treatments: "Hoidot",
+        },
+        relationshipLabels: {
+          sensitive: "Herkkä",
+          resistant: "Kestävä",
+          partialResponse: "Osittainen vastaus",
+        },
+        recommendationsTitle: "Tarkkuuslääketieteen suositukset",
+        avoid: "Vältä (ennustettu vastus)",
+        consider: "Harkitse (ennustettu herkkyys)",
+        headers: {
+          gene: "Geeni",
+          variant: "Variantti",
+          drug: "huume",
+          relationship: "Suhde",
+          confidence: "Luottamus",
+          received: "Vastaanotettu",
+          response: "Vastaus",
+        },
+        yes: "Kyllä",
+        no: "Ei",
+        mechanism: "Mekanismi:",
+        evidence: "Todisteet:",
+        rationale: "Perustelut:",
+        treatmentPeriod: "Hoitojakso:",
+        ongoing: "meneillään",
+        evidenceLevel: "Todisteen taso:",
+        variantHeaders: {
+          gene: "Geeni",
+          variant: "Variantti",
+          class: "Luokka",
+          significance: "Merkitys",
+          disease: "Sairaus",
+          status: "Tila",
+        },
+        actionable: "Toimiva",
+        other: "muu",
+        showLess: "Näytä vähemmän",
+      },
+    },
+  }),
+  "ja-JP": mergeMessageTrees(enImagingGenomics, {
+    imaging: {
+      common: {
+        accessionNumber: "アクセッション番号",
+        aiFeatures: "AI の特徴",
+        analytics: "人口分析",
+        bodyPart: "体の部分",
+        cancel: "キャンセル",
+        close: "閉じる",
+        confidence: "自信",
+        current: "現在",
+        criteria: "基準",
+        date: "日付",
+        delete: "削除",
+        description: "説明",
+        details: "詳細",
+        from: "から",
+        images: "画像",
+        measurements: "測定",
+        metadata: "メタデータ",
+        modality: "モダリティ",
+        name: "名前",
+        next: "次へ",
+        patient: "患者",
+        patientTimeline: "患者のタイムライン",
+        personId: "個人ID",
+        prev: "前へ",
+        save: "保存",
+        series: "シリーズ",
+        sourceId: "ソースID",
+        status: "ステータス",
+        studies: "研究",
+        studyDate: "研究日",
+        studyInstanceUid: "スタディインスタンスUID",
+        treatments: "治療法",
+        to: "に",
+        upload: "アップロード",
+        value: "値",
+        view: "見る",
+        viewer: "スキャンの表示",
+      },
+      page: {
+        title: "医用画像処理",
+        subtitle: "縦断的画像解析、治療反応評価、および転帰研究",
+        tabs: {
+          studies: "研究",
+          features: "AI の特徴",
+          criteria: "画像化基準",
+          timeline: "患者のタイムライン",
+          analytics: "人口分析",
+        },
+        stats: {
+          totalStudies: "トータルスタディ",
+          aiFeatures: "AI の特徴",
+          personsWithImaging: "画像診断のある方",
+        },
+        studiesTab: {
+          filterBySourceId: "ソース ID によるフィルター",
+          sourceIdPlaceholder: "例: 9",
+          allStatuses: "すべてのステータス",
+          bodyPartPlaceholder: "胸、脳…",
+          find: "探す",
+          reset: "リセット",
+          syncFullCatalog: "フルカタログを同期",
+          empty:
+            "索引付けされた研究はありません。上記の「ローカル DICOM ファイルのインポート」を使用するか、ソース ID を入力して「DICOMweb からのインデックス」をクリックします。",
+          prev: "前へ",
+          next: "次へ",
+        },
+        featuresTab: {
+          featureType: "機能の種類",
+          allFeatureTypes: "すべての機能タイプ",
+          nlpFinding: "NLP の発見",
+          aiClassification: "AI 分類",
+          radiomic: "ラジオミック",
+          manual: "マニュアル",
+          empty:
+            "まだ抽出された特徴はありません。スタディで「NLP の抽出」を使用してデータを入力します。",
+        },
+        criteriaTab: {
+          savedBanner:
+            "保存された画像コホート基準。これらをコホート ビルダーで使用して、画像特性に基づいて患者を選択します。",
+          loading: "読み込み中...",
+          empty: "画像化基準はまだ保存されていません。",
+          shared: "共有",
+          deleteTitle: "削除基準",
+        },
+        analyticsTab: {
+          sourceIdPlaceholder: "例: 9",
+          intro: "ソース ID を入力して人口画像分析を表示します。",
+          loading: "分析を読み込んでいます...",
+          studiesByModality: "モダリティ別の研究",
+          studiesByBodyPart: "体の部位別の研究",
+          topFeatures: "トップ AI / NLP の機能",
+        },
+        importDicom: "DICOM をインポートします",
+      },
+      studyPage: {
+        tabs: {
+          metadata: "メタデータ",
+          measurements: "測定",
+          viewer: "スキャンの表示",
+        },
+        notFound: "研究が見つかりません。",
+        backToImaging: "イメージングに戻る",
+        title: "DICOM 研究",
+        indexSeries: "インデックスシリーズ",
+        extractNlp: "NLP を抽出する",
+        viewerUnavailableHelp:
+          "Orthanc からインデックス付けされた研究のみが OHIF で表示できます。",
+        studyMetadata: "研究メタデータ",
+        fields: {
+          studyInstanceUid: "スタディインスタンスUID",
+          accessionNumber: "アクセッション番号",
+          modality: "モダリティ",
+          bodyPart: "体の部分",
+          description: "説明",
+          studyDate: "研究日",
+          seriesCount: "シリーズ数",
+          imageCount: "画像数",
+          personId: "個人ID",
+          status: "ステータス",
+        },
+        seriesHeaders: {
+          modality: "モダリティ",
+          description: "説明",
+          images: "画像",
+          sliceThickness: "スライスの厚さ",
+          manufacturer: "メーカー",
+        },
+        featureHeaders: {
+          finding: "見つける",
+          type: "タイプ",
+          bodySite: "ボディサイト",
+          value: "値",
+          confidence: "自信",
+        },
+      },
+      uploadModal: {
+        title: "DICOM ファイルをインポートする",
+        dropLead: "DICOM ファイルをドラッグ アンド ドロップするか、参照します",
+        dropLeadPrefix: "DICOM ファイルをドラッグ アンド ドロップするか、 ",
+        browse: "閲覧する",
+        dropDetail:
+          ".dcm ファイルはそれぞれ最大 2 GB。フォルダーはサポートされていません - ファイルを直接選択してください。",
+        clearAll: "すべてクリア",
+        indexingStudies: "研究のインデックス作成中...",
+        importComplete: "インポートが完了しました",
+        previewAlt: "DICOM プレビュー",
+        unknownPatient: "不明の患者",
+        importFailed: "インポートに失敗しました",
+        uploadButton: "アップロード",
+      },
+      criteriaPanel: {
+        addTitle: "イメージング基準の追加",
+        typeLabels: {
+          modality: "モダリティ",
+          anatomy: "解剖学 / 体の部位",
+          quantitative: "定量的な特徴",
+          aiClassification: "AI 分類",
+          dose: "放射線量",
+        },
+        bodyPartPlaceholder: "またはカスタムのボディパーツを入力...",
+        minConfidence: "最小の信頼度",
+        maxCumulativeDose: "最大累積線量",
+        excludeFeature: "この機能を持つ患者を除外する",
+        addCriterion: "基準の追加",
+        labelTemplates: {
+          excludePrefix: "除外するもの: ",
+        },
+        typeDescriptions: {
+          anatomy: "胸、腹部、脳…",
+          quantitative: "ラジオミックまたはAI数値測定",
+          aiClassification: "AI由来の自信を持ったラベル",
+          dose: "最大累積線量 (Gy)",
+        },
+      },
+      measurements: {
+        aiExtraction: "AI 測定値の抽出",
+        autoExtract: "自動抽出",
+        extracting: "抽出中...",
+        medGemmaHelp:
+          "MedGemma を使用して、放射線医学レポートおよび DICOM メタデータから定量的測定値を抽出します。",
+        templates: "測定テンプレート",
+        recordMeasurement: "記録測定",
+        type: "タイプ",
+        name: "名前",
+        value: "値",
+        bodySite: "ボディサイト",
+        laterality: "左右性",
+        left: "左",
+        right: "右",
+        bilateral: "二国間",
+        recistTarget: "RECISTターゲット",
+        saveMeasurement: "測定値の保存",
+        addMeasurement: "測定の追加",
+        deleteTitle: "測定値の削除",
+        omopWarning:
+          "この研究はOMOPの患者とは関連していません。測定値は保存されますが、person_id がリンクされるまで患者のタイムラインには表示されません。",
+        presets: {
+          recist: {
+            label: "RECIST - 固形腫瘍",
+            description: "RECIST 1.1 評価のための標的病変の最長直径の測定",
+            fields: {
+              lesion1: "対象病変 1",
+              lesion2: "対象病変 2",
+              lesion1Perp: "ターゲット病変 1 (perp)",
+            },
+          },
+          covidLungCt: {
+            label: "新型コロナウイルス肺 CT",
+            description:
+              "CT 新型コロナウイルス肺炎評価のための重症度スコアリング",
+            fields: {
+              severityIndex: "CT 重大度指数 (0-25)",
+              groundGlass: "すりガラスの不透明度",
+              consolidation: "統合",
+              totalOpacity: "合計不透明度スコア",
+            },
+          },
+          petResponse: {
+            label: "PET 応答 (ルガーノ)",
+            description: "SUVmax とリンパ腫/PET 反応の代謝測定",
+            fields: {
+              metabolicVolume: "代謝腫瘍の体積",
+              lesionGlycolysis: "病変全体の解糖",
+            },
+          },
+          tumorVolumetrics: {
+            label: "腫瘍容積測定",
+            description: "3D 腫瘍体積および密度測定",
+            fields: {
+              tumorVolume: "腫瘍の体積",
+              longestDiameter: "最長直径",
+              meanDensity: "平均密度",
+              lesionCount: "病変数",
+            },
+          },
+        },
+      },
+      trends: {
+        empty:
+          "測定値は記録されていません。 AI 自動抽出を使用するか、個々のスタディで測定値を手動で入力します。",
+        title: "測定傾向",
+      },
+      viewer: {
+        loading: "OHIF ビューアを読み込み中...",
+        failed: "OHIF ビューアのロードに失敗しました",
+        openInNewTab: "新しいタブで開く",
+        title: "OHIF DICOM ビューア",
+        bridge: "ブリッジ",
+        volumeTitle: "OHIFを3Dボリュームレイアウトで開く",
+        mprTitle: "MPR レイアウトで OHIF を開く",
+        newTabTitle: "新しいタブでOHIFを開く",
+        expand: "展開する",
+      },
+      timeline: {
+        patient: "患者",
+        demographicsUnavailable: "人口統計は利用できません",
+        studies: "研究",
+        measurements: "測定",
+        treatments: "治療法",
+        noStudies: "この患者に関する画像検査は見つかりませんでした。",
+        title: "長期的なタイムライン",
+        treatmentContext: "治療の背景",
+        imagingStudies: "画像研究",
+        noDrugExposures:
+          "画像ウィンドウには薬物への曝露は見つかりませんでした。",
+        showResponseAssessments: "反応評価を表示する",
+        hideResponseAssessments: "反応評価を非表示にする",
+        view: "見る",
+        patientPersonId: "患者個人ID",
+        personIdPlaceholder: "OMOP person_id を入力してください...",
+        viewTimeline: "タイムラインを表示する",
+        autoLinkStudies: "自動リンク調査",
+        backToPatientList: "患者リストに戻る",
+        patientsWithImaging: "縦断画像撮影を行っている患者",
+        minStudies: "ミンスタディ",
+        loadingPatients: "患者をロード中...",
+        emptyPatients:
+          "画像検査がリンクされている患者は見つかりませんでした。 [研究の自動リンク] を使用して DICOM の患者 ID を OMOP の人物と照合するか、[研究] タブで研究を手動でリンクします。",
+        tableHeaders: {
+          personId: "個人ID",
+          studies: "研究",
+          modalities: "モダリティ",
+          firstStudy: "最初の研究",
+          lastStudy: "最後の勉強",
+        },
+        actionTimeline: "タイムライン",
+        studyHeaders: {
+          date: "日付",
+          modality: "モダリティ",
+          bodyPart: "体の部分",
+          description: "説明",
+          series: "シリーズ",
+          images: "画像",
+          measurements: "測定",
+        },
+        drugHeaders: {
+          drugName: "薬剤名",
+          class: "クラス",
+          start: "スタート",
+          end: "終了",
+          daysSupply: "供給日数",
+        },
+      },
+      response: {
+        categoryLabels: {
+          completeResponse: "完全な応答",
+          partialResponse: "部分的な応答",
+          stableDisease: "安定した病気",
+          progressiveDisease: "進行性疾患",
+          notEvaluable: "評価できない",
+        },
+        criteriaLabels: {
+          ctSeverity: "CT 重大度",
+        },
+        computeTitle: "コンピューティング応答の評価",
+        help: "RECIST 1.1、CT 重症度、ドーヴィル/ルガーノ、または RANO 基準を使用してタイムポイント間の測定値を比較することにより、治療反応を自動的に計算します。",
+        currentStudy: "現在の研究（時点）",
+        selectStudy: "研究を選択してください...",
+        criteria: "基準",
+        autoDetect: "自動検出",
+        assess: "評価する",
+        assessmentFailed: "評価に失敗しました",
+        assessmentHistory: "評価履歴",
+        empty:
+          "応答評価はまだ計算されていません。上の研究時点を選択して計算します。",
+        vsBaseline: "対ベースライン:",
+        vsNadir: "vs ナディール:",
+        confirmed: "確認済み",
+        baseline: "ベースライン",
+        nadir: "最低値",
+        current: "現在",
+      },
+      studyBrowser: {
+        unknownDate: "不明",
+        dicomStudy: "DICOM 研究",
+        details: "詳細",
+        compare: "比較する",
+        selected: "選択済み",
+        date: "日付",
+        clear: "クリア",
+        noStudies: "画像検査は見つかりませんでした",
+      },
+    },
+    genomics: {
+      common: {
+        analysisSuite: "分析スイート",
+        benign: "良性",
+        cancel: "キャンセル",
+        class: "クラス",
+        clinvarReference: "ClinVar リファレンス",
+        confidence: "自信",
+        dataSource: "データソース",
+        deleteUpload: "アップロードの削除",
+        gene: "遺伝子",
+        genome: "ゲノム",
+        genomeBuild: "ゲノム構築",
+        hgvsOptional: "HGVS（オプション）",
+        likelyBenign: "良性の可能性が高い",
+        likelyPathogenic: "病原性の可能性が高い",
+        no: "いいえ",
+        omopMapped: "OMOP マップされました",
+        pathogenic: "病原性",
+        pendingReview: "審査待ち",
+        recentUploads: "最近のアップロード",
+        response: "応答",
+        significance: "意義",
+        sourceId: "ソースID",
+        status: "ステータス",
+        totalVariants: "合計バリアント数",
+        totalUploads: "合計アップロード数",
+        tumorBoard: "腫瘍委員会",
+        uncertainSignificance: "不確実な重要性",
+        uploadVariants: "バリアントのアップロード",
+        uploads: "アップロード",
+        variant: "バリアント",
+        yes: "はい",
+      },
+      page: {
+        title: "分子ゲノミクス",
+        subtitle:
+          "バリアント取り込み、OMOP マッピング、およびコホート ゲノム基準",
+        loadingStats: "統計を読み込んでいます...",
+        tabs: {
+          uploads: "アップロード",
+          clinvar: "ClinVar リファレンス",
+        },
+        topMutatedGenes: "上位の変異遺伝子",
+        recentUploads: "最近のアップロード",
+        noUploadsTitle: "バリアント ファイルはまだアップロードされていません",
+        noUploadsMessage:
+          "VCF または MAF ファイルをアップロードしてゲノム解析を開始します",
+        tableHeaders: {
+          filename: "ファイル名",
+          format: "フォーマット",
+          genome: "ゲノム",
+          variants: "バリエーション",
+          status: "ステータス",
+          uploaded: "アップロードされました",
+        },
+        annotateTitle: "バリアントに ClinVar の重要性を注釈付けする",
+        deleteTitle: "アップロードの削除",
+      },
+      clinvar: {
+        title: "ClinVar 参照データベース",
+        subtitle: "NCBI ClinVar - GRCh38 - 毎週更新",
+        papuOnlyTitle: "P/LP バリアントのみをダウンロード (~69 KB、高速)",
+        papuOnly: "P/LPのみ",
+        fullSyncTitle: "ClinVar を完全にダウンロード (約 181 MB、遅い)",
+        fullSync: "完全同期",
+        loadingStatus: "読み込みステータス...",
+        totalVariants: "合計バリアント数",
+        pathogenicLp: "病原性 / LP",
+        lastSync: "最終同期",
+        syncFailed: "同期に失敗しました - サーバーのログを確認してください",
+        noDataTitle: "ClinVar データのインデックスはまだありません",
+        noDataMessage:
+          "69 KB の高速シードには「P/LP のみ」を使用するか、すべての 181 MB には「完全同期」を使用します",
+        genePlaceholder: "遺伝子",
+        allSignificance: "すべての重要性",
+        pathogenic: "病原性",
+        likelyPathogenic: "病原性の可能性が高い",
+        uncertainSignificance: "不確実な重要性",
+        benign: "良性",
+        likelyBenign: "良性の可能性が高い",
+        conflicting: "矛盾している",
+        browsePrompt:
+          "検索語を入力するか、フィルターを適用して ClinVar を参照してください",
+        noMatches: "検索に一致するバリエーションはありません",
+        tableHeaders: {
+          gene: "遺伝子",
+          hgvsVariant: "HGVS / バリアント",
+          significance: "意義",
+          disease: "病気",
+          reviewStatus: "レビューステータス",
+          build: "ビルドする",
+          ids: "ID",
+        },
+      },
+      uploadDialog: {
+        title: "バリアント ファイルをアップロードする",
+        dataSource: "データソース",
+        dropLead: "ここにファイルをドロップするか、クリックして参照します",
+        fileFormat: "ファイル形式",
+        formatLabels: {
+          fhirGenomics: "FHIR ゲノミクス",
+        },
+        genomeBuild: "ゲノム構築",
+        sampleIdOptional: "サンプルID (オプション)",
+        uploadFailed:
+          "アップロードに失敗しました。ファイル形式を確認して、再試行してください。",
+        uploadingParsing: "アップロードと解析中...",
+        uploadParse: "アップロードと解析",
+      },
+      criteriaPanel: {
+        title: "ゲノム基準を追加",
+        typeLabels: {
+          geneMutation: "遺伝子変異",
+          tmb: "腫瘍の突然変異負荷",
+          msi: "超小型衛星の不安定性",
+          fusion: "遺伝子融合",
+          pathogenicity: "病原性クラス",
+          treatmentEpisode: "治療エピソード",
+        },
+        typeDescriptions: {
+          geneMutation: "例: EGFR L858R、KRAS G12D",
+          tmb: "TMB-高しきい値 / TMB-低しきい値",
+          msi: "MSI-H、MSI-L、または MSS",
+          fusion: "例: ALK再配置、BCR-ABL1",
+          pathogenicity: "ClinVar 分類",
+          treatmentEpisode: "HemOnc 化学療法レジメン",
+        },
+        msiOptions: {
+          anyUnstable: "MSI-High または MSI-Low (任意の不安定)",
+        },
+        hgvsOptional: "HGVS（オプション）",
+        gene2Optional: "遺伝子 2 (オプション)",
+        excludeFeature: "この機能を持つ患者を除外する",
+        addCriterion: "基準の追加",
+        labelTemplates: {
+          excludePrefix: "除外するもの: ",
+        },
+      },
+      analysis: {
+        title: "バリアント結果分析スイート",
+        subtitle: "OMOP の臨床転帰に関連する集団レベルのゲノム分析",
+        tabs: {
+          survival: "突然変異の生存",
+          matrix: "治療バリアント マトリックス",
+          characterization: "ゲノムの特徴付け",
+        },
+        days: "日数",
+        noData:
+          "データがありません。変異種をアップロードし、薬物暴露データの CDM 接続を確保します。",
+        gene: "遺伝子",
+        runningSurvival: "生存分析を実行しています...",
+        analysisFailed:
+          "分析に失敗しました。 CDM ソースにゲノムデータと結果データが含まれていることを確認します。",
+        overallSurvival: "全体的な生存率",
+        noSurvival:
+          "一致する生存データはありません。 person_id が一致する VCF ファイルをアップロードし、患者に観察期間があることを確認します。",
+        genesComma: "遺伝子 (カンマ区切り)",
+        topMutatedGenes: "上位の変異遺伝子",
+        variantTypes: "バリアント型",
+        mutationLoadPerSample: "サンプルあたりの突然変異負荷",
+        noVariantsLoaded:
+          "バリアントがロードされていません。最初に VCF/MAF ファイルをアップロードします。",
+      },
+      tumorBoard: {
+        title: "分子腫瘍ボード",
+        subtitle:
+          "患者ごとの分子証拠パネル - 変異、類似した患者の転帰、薬物パターン",
+        omopPersonId: "OMOP 個人ID",
+        personIdPlaceholder: "person_id を入力してください...",
+        loadPanel: "ロードパネル",
+        buildingEvidence: "証拠パネルを構築中...",
+        loadFailed:
+          "パネルのロードに失敗しました。 person_id が存在し、ゲノム データが利用可能であることを確認してください。",
+        evidenceSummary: "証拠の概要",
+        actionable: "実用的な",
+        noVariants: "この患者にはゲノム変異は記録されていません。",
+        demographics: "人口動態",
+        drugPatterns: "同様の患者における薬物パターン",
+        similarOutcomes: "分子的に類似した患者の転帰",
+        variantHeaders: {
+          gene: "遺伝子",
+          alteration: "改変",
+          type: "タイプ",
+          class: "クラス",
+          classification: "分類",
+        },
+        similarOutcomeHeaders: {
+          gene: "遺伝子",
+          similarPatients: "同様の患者 (n)",
+          medianSurvival: "生存期間中央値",
+          eventRate: "イベントレート",
+        },
+      },
+      uploadDetail: {
+        notFound: "アップロードが見つかりません",
+        backToGenomics: "ゲノミクスに戻る",
+        matchPersons: "患者を照合",
+        importToOmop: "OMOP にインポートします",
+        parseError: "解析エラー:",
+        metrics: {
+          totalVariants: "合計バリアント数",
+          omopMapped: "OMOP マップされました",
+          needsReview: "見直しが必要",
+        },
+        variants: "バリエーション",
+        parsingInProgress: "解析中...",
+        noVariantsAvailable: "利用可能なバリエーションはありません",
+        tableHeaders: {
+          gene: "遺伝子",
+          variant: "バリアント",
+          type: "タイプ",
+          zygosity: "接合性",
+        },
+      },
+    },
+    radiogenomics: {
+      panel: {
+        loadFailed: "精密医療パネルのロードに失敗しました",
+        noData: "この患者について利用可能なゲノムデータはありません",
+        stats: {
+          totalVariants: "合計バリアント数",
+          pathogenic: "病原性",
+          drugCorrelations: "薬物相関関係",
+          recommendations: "推奨事項",
+          treatments: "治療法",
+        },
+        relationshipLabels: {
+          sensitive: "敏感",
+          resistant: "耐性がある",
+          partialResponse: "部分的な応答",
+        },
+        recommendationsTitle: "精密医療に関する推奨事項",
+        avoid: "回避（予想される抵抗）",
+        consider: "(予測感度) を考慮する",
+        headers: {
+          gene: "遺伝子",
+          variant: "バリアント",
+          drug: "薬物",
+          relationship: "関係性",
+          confidence: "自信",
+          received: "受け取りました",
+          response: "応答",
+        },
+        yes: "はい",
+        no: "いいえ",
+        mechanism: "メカニズム:",
+        evidence: "証拠:",
+        rationale: "理論的根拠:",
+        treatmentPeriod: "治療期間：",
+        ongoing: "継続中",
+        evidenceLevel: "証拠レベル:",
+        variantHeaders: {
+          gene: "遺伝子",
+          variant: "バリアント",
+          class: "クラス",
+          significance: "意義",
+          disease: "病気",
+          status: "ステータス",
+        },
+        actionable: "実用的な",
+        other: "その他",
+        showLess: "表示を少なくする",
+      },
+    },
+  }),
+  "zh-Hans": mergeMessageTrees(enImagingGenomics, {
+    imaging: {
+      common: {
+        accessionNumber: "入藏号",
+        aiFeatures: "AI 特点",
+        analytics: "人口分析",
+        bodyPart: "身体部位",
+        cancel: "取消",
+        close: "关闭",
+        confidence: "信心",
+        current: "当前",
+        criteria: "标准",
+        date: "日期",
+        delete: "删除",
+        description: "描述",
+        details: "详情",
+        from: "来自",
+        images: "图片",
+        measurements: "测量值",
+        metadata: "元数据",
+        modality: "模态",
+        name: "名称",
+        next: "下一步",
+        patient: "病人",
+        patientTimeline: "患者时间表",
+        personId: "人员ID",
+        prev: "上一篇",
+        save: "保存",
+        series: "系列",
+        sourceId: "源ID",
+        status: "状态",
+        studies: "研究",
+        studyDate: "学习日期",
+        studyInstanceUid: "研究实例 UID",
+        treatments: "治疗方法",
+        to: "至",
+        upload: "上传",
+        value: "价值",
+        view: "查看",
+        viewer: "查看扫描",
+      },
+      page: {
+        title: "医学影像",
+        subtitle: "纵向成像分析、治疗反应评估和结果研究",
+        tabs: {
+          studies: "研究",
+          features: "AI 特点",
+          criteria: "成像标准",
+          timeline: "患者时间表",
+          analytics: "人口分析",
+        },
+        stats: {
+          totalStudies: "总研究",
+          aiFeatures: "AI 特点",
+          personsWithImaging: "影像学人士",
+        },
+        studiesTab: {
+          filterBySourceId: "按源 ID 过滤",
+          sourceIdPlaceholder: "例如9",
+          allStatuses: "所有状态",
+          bodyPartPlaceholder: "胸部、大脑...",
+          find: "查找",
+          reset: "重置",
+          syncFullCatalog: "同步完整目录",
+          empty:
+            "没有索引的研究。使用上面的“导入本地 DICOM 文件”或输入源 ID 并单击“来自 DICOMweb 的索引”。",
+          prev: "上一篇",
+          next: "下一步",
+        },
+        featuresTab: {
+          featureType: "特征类型",
+          allFeatureTypes: "所有特征类型",
+          nlpFinding: "自然语言处理发现",
+          aiClassification: "AI 分类",
+          radiomic: "放射组学",
+          manual: "手册",
+          empty: "尚未提取特征。在研究中使用“提取 NLP”来填充。",
+        },
+        criteriaTab: {
+          savedBanner:
+            "保存的成像队列标准。在队列生成器中使用这些来根据影像特征选择患者。",
+          loading: "正在加载...",
+          empty: "尚未保存成像标准。",
+          shared: "共享",
+          deleteTitle: "删除条件",
+        },
+        analyticsTab: {
+          sourceIdPlaceholder: "例如9",
+          intro: "输入源 ID 以查看群体成像分析。",
+          loading: "正在加载分析...",
+          studiesByModality: "模态研究",
+          studiesByBodyPart: "按身体部位进行研究",
+          topFeatures: "热门 AI / NLP 功能",
+        },
+        importDicom: "导入 DICOM",
+      },
+      studyPage: {
+        tabs: {
+          metadata: "元数据",
+          measurements: "测量值",
+          viewer: "查看扫描",
+        },
+        notFound: "研究未发现。",
+        backToImaging: "返回成像",
+        title: "DICOM 研究",
+        indexSeries: "指数系列",
+        extractNlp: "提取自然语言处理",
+        viewerUnavailableHelp: "OHIF 中只能查看从 Orthanc 索引的研究。",
+        studyMetadata: "研究元数据",
+        fields: {
+          studyInstanceUid: "研究实例 UID",
+          accessionNumber: "入藏号",
+          modality: "模态",
+          bodyPart: "身体部位",
+          description: "描述",
+          studyDate: "学习日期",
+          seriesCount: "系列数",
+          imageCount: "图片数量",
+          personId: "人员ID",
+          status: "状态",
+        },
+        seriesHeaders: {
+          modality: "模态",
+          description: "描述",
+          images: "图片",
+          sliceThickness: "切片厚度",
+          manufacturer: "制造商",
+        },
+        featureHeaders: {
+          finding: "寻找",
+          type: "类型",
+          bodySite: "身体部位",
+          value: "价值",
+          confidence: "信心",
+        },
+      },
+      uploadModal: {
+        title: "导入 DICOM 文件",
+        dropLead: "拖放 DICOM 文件或浏览",
+        dropLeadPrefix: "拖放 DICOM 文件或 ",
+        browse: "浏览",
+        dropDetail: "每个 .dcm 文件最大 2 GB。不支持文件夹 - 直接选择文件。",
+        clearAll: "全部清除",
+        indexingStudies: "索引研究...",
+        importComplete: "导入完成",
+        previewAlt: "DICOM 预览",
+        unknownPatient: "未知病人",
+        importFailed: "导入失败",
+        uploadButton: "上传",
+      },
+      criteriaPanel: {
+        addTitle: "添加成像标准",
+        typeLabels: {
+          modality: "模态",
+          anatomy: "解剖学/身体部位",
+          quantitative: "定量特征",
+          aiClassification: "AI 分类",
+          dose: "辐射剂量",
+        },
+        bodyPartPlaceholder: "或者输入自定义身体部位...",
+        minConfidence: "最小置信度",
+        maxCumulativeDose: "最大累积剂量",
+        excludeFeature: "排除具有此功能的患者",
+        addCriterion: "添加标准",
+        labelTemplates: {
+          excludePrefix: "排除： ",
+        },
+        typeDescriptions: {
+          anatomy: "胸部、腹部、大脑...",
+          quantitative: "放射学或 AI 数字测量",
+          aiClassification: "充满信心的 AI 派生标签",
+          dose: "最大累积剂量（Gy）",
+        },
+      },
+      measurements: {
+        aiExtraction: "AI 测量值提取",
+        autoExtract: "自动解压",
+        extracting: "正在提取...",
+        medGemmaHelp:
+          "使用 MedGemma 从放射学报告和 DICOM 元数据中提取定量测量结果。",
+        templates: "测量模板",
+        recordMeasurement: "记录测量",
+        type: "类型",
+        name: "名称",
+        value: "价值",
+        bodySite: "身体部位",
+        laterality: "偏侧性",
+        left: "左",
+        right: "右",
+        bilateral: "双边",
+        recistTarget: "RECIST目标",
+        saveMeasurement: "保存测量值",
+        addMeasurement: "添加测量",
+        deleteTitle: "删除测量",
+        omopWarning:
+          "本研究与 OMOP 患者无关。测量结果将被保存，但在链接 person_id 之前不会出现在患者时间线中。",
+        presets: {
+          recist: {
+            label: "实体瘤实体瘤",
+            description: "用于 RECIST 1.1 评估的目标病灶最长直径测量",
+            fields: {
+              lesion1: "目标病变1",
+              lesion2: "目标病变2",
+              lesion1Perp: "目标病变 1（永久性）",
+            },
+          },
+          covidLungCt: {
+            label: "新冠肺炎肺 CT",
+            description: "CT COVID-19 肺炎评估的严重程度评分",
+            fields: {
+              severityIndex: "CT 严重性指数 (0-25)",
+              groundGlass: "毛玻璃不透明度",
+              consolidation: "整合",
+              totalOpacity: "总不透明度分数",
+            },
+          },
+          petResponse: {
+            label: "PET 回应（卢加诺）",
+            description: "淋巴瘤/PET 反应的 SUVmax 和代谢测量",
+            fields: {
+              metabolicVolume: "代谢肿瘤体积",
+              lesionGlycolysis: "总病变糖酵解",
+            },
+          },
+          tumorVolumetrics: {
+            label: "肿瘤体积测定",
+            description: "3D 肿瘤体积和密度测量",
+            fields: {
+              tumorVolume: "肿瘤体积",
+              longestDiameter: "最长直径",
+              meanDensity: "平均密度",
+              lesionCount: "病灶计数",
+            },
+          },
+        },
+      },
+      trends: {
+        empty: "没有测量记录。使用 AI 自动提取或手动输入各个研究的测量值。",
+        title: "测量趋势",
+      },
+      viewer: {
+        loading: "正在加载 OHIF 查看器...",
+        failed: "无法加载 OHIF 查看器",
+        openInNewTab: "在新选项卡中打开",
+        title: "OHIF DICOM 查看器",
+        bridge: "桥接",
+        volumeTitle: "在 3D 体积布局中打开 OHIF",
+        mprTitle: "在 MPR 布局中打开 OHIF",
+        newTabTitle: "在新选项卡中打开 OHIF",
+        expand: "展开",
+      },
+      timeline: {
+        patient: "病人",
+        demographicsUnavailable: "人口统计数据不可用",
+        studies: "研究",
+        measurements: "测量值",
+        treatments: "治疗方法",
+        noStudies: "没有发现该患者的影像学研究。",
+        title: "纵向时间轴",
+        treatmentContext: "治疗背景",
+        imagingStudies: "影像学研究",
+        noDrugExposures: "成像窗口中未发现药物暴露。",
+        showResponseAssessments: "显示响应评估",
+        hideResponseAssessments: "隐藏响应评估",
+        view: "查看",
+        patientPersonId: "患者 ID",
+        personIdPlaceholder: "输入 OMOP person_id...",
+        viewTimeline: "查看时间轴",
+        autoLinkStudies: "自动链接研究",
+        backToPatientList: "返回患者名单",
+        patientsWithImaging: "进行纵向成像的患者",
+        minStudies: "最小研究",
+        loadingPatients: "正在加载患者...",
+        emptyPatients:
+          "没有发现患者进行相关影像学研究。使用“自动链接研究”将 DICOM 患者 ID 与 OMOP 人员相匹配，或在“研究”选项卡上手动链接研究。",
+        tableHeaders: {
+          personId: "人员ID",
+          studies: "研究",
+          modalities: "方式",
+          firstStudy: "第一次研究",
+          lastStudy: "最后的研究",
+        },
+        actionTimeline: "时间轴",
+        studyHeaders: {
+          date: "日期",
+          modality: "模态",
+          bodyPart: "身体部位",
+          description: "描述",
+          series: "系列",
+          images: "图片",
+          measurements: "测量值",
+        },
+        drugHeaders: {
+          drugName: "药品名称",
+          class: "班级",
+          start: "开始",
+          end: "结束",
+          daysSupply: "供应天数",
+        },
+      },
+      response: {
+        categoryLabels: {
+          completeResponse: "完整回应",
+          partialResponse: "部分回应",
+          stableDisease: "疾病稳定",
+          progressiveDisease: "进行性疾病",
+          notEvaluable: "不可评估",
+        },
+        criteriaLabels: {
+          ctSeverity: "CT 严重性",
+        },
+        computeTitle: "计算响应评估",
+        help: "使用 RECIST 1.1、CT 严重性、Deauville/Lugano 或 RANO 标准比较不同时间点的测量结果，自动计算治疗反应。",
+        currentStudy: "当前研究（时间点）",
+        selectStudy: "选择一项研究...",
+        criteria: "标准",
+        autoDetect: "自动检测",
+        assess: "评估",
+        assessmentFailed: "评估失败",
+        assessmentHistory: "评估历史",
+        empty: "尚未计算响应评估。选择上面的一个研究时间点来计算一个。",
+        vsBaseline: "与基线：",
+        vsNadir: "与最低点对比：",
+        confirmed: "已确认",
+        baseline: "基线",
+        nadir: "最低点",
+        current: "当前",
+      },
+      studyBrowser: {
+        unknownDate: "未知",
+        dicomStudy: "DICOM 研究",
+        details: "详情",
+        compare: "比较",
+        selected: "已选择",
+        date: "日期",
+        clear: "清晰",
+        noStudies: "未发现影像学研究",
+      },
+    },
+    genomics: {
+      common: {
+        analysisSuite: "分析套件",
+        benign: "良性",
+        cancel: "取消",
+        class: "班级",
+        clinvarReference: "ClinVar 参考",
+        confidence: "信心",
+        dataSource: "数据来源",
+        deleteUpload: "删除上传",
+        gene: "基因",
+        genome: "基因组",
+        genomeBuild: "基因组构建",
+        hgvsOptional: "HGVS（可选）",
+        likelyBenign: "可能是良性的",
+        likelyPathogenic: "可能致病",
+        no: "否",
+        omopMapped: "OMOP 已映射",
+        pathogenic: "致病性",
+        pendingReview: "待审核",
+        recentUploads: "最近上传",
+        response: "回应",
+        significance: "意义",
+        sourceId: "源ID",
+        status: "状态",
+        totalVariants: "总变体",
+        totalUploads: "上传总数",
+        tumorBoard: "肿瘤委员会",
+        uncertainSignificance: "意义不确定",
+        uploadVariants: "上传变体",
+        uploads: "上传",
+        variant: "变体",
+        yes: "是的",
+      },
+      page: {
+        title: "分子基因组学",
+        subtitle: "变异摄入、OMOP 绘图和队列基因组标准",
+        loadingStats: "正在加载统计数据...",
+        tabs: {
+          uploads: "上传",
+          clinvar: "ClinVar 参考",
+        },
+        topMutatedGenes: "主要突变基因",
+        recentUploads: "最近上传",
+        noUploadsTitle: "尚未上传变体文件",
+        noUploadsMessage: "上传 VCF 或 MAF 文件以开始基因组分析",
+        tableHeaders: {
+          filename: "文件名",
+          format: "格式",
+          genome: "基因组",
+          variants: "变体",
+          status: "状态",
+          uploaded: "已上传",
+        },
+        annotateTitle: "用 ClinVar 意义注释变体",
+        deleteTitle: "删除上传",
+      },
+      clinvar: {
+        title: "ClinVar 参考数据库",
+        subtitle: "NCBI ClinVar - GRCh38 - 每周更新",
+        papuOnlyTitle: "仅下载 P/LP 变体（~69 KB，快速）",
+        papuOnly: "仅限 P/LP",
+        fullSyncTitle: "下载完整的 ClinVar（~181 MB，速度较慢）",
+        fullSync: "全同步",
+        loadingStatus: "加载状态...",
+        totalVariants: "总变体",
+        pathogenicLp: "致病性/LP",
+        lastSync: "上次同步",
+        syncFailed: "同步失败 - 检查服务器日志",
+        noDataTitle: "尚未索引 ClinVar 数据",
+        noDataMessage:
+          "对快速 69 KB 种子使用“仅 P/LP”，对所有 181 MB 种子使用“完全同步”",
+        genePlaceholder: "基因",
+        allSignificance: "所有意义",
+        pathogenic: "致病性",
+        likelyPathogenic: "可能致病",
+        uncertainSignificance: "意义不确定",
+        benign: "良性",
+        likelyBenign: "可能是良性的",
+        conflicting: "冲突",
+        browsePrompt: "输入搜索词或应用过滤器来浏览 ClinVar",
+        noMatches: "没有与您的搜索匹配的变体",
+        tableHeaders: {
+          gene: "基因",
+          hgvsVariant: "HGVS / 变体",
+          significance: "意义",
+          disease: "疾病",
+          reviewStatus: "审核状态",
+          build: "构建",
+          ids: "ID",
+        },
+      },
+      uploadDialog: {
+        title: "上传变体文件",
+        dataSource: "数据来源",
+        dropLead: "将文件拖放到此处或单击浏览",
+        fileFormat: "文件格式",
+        formatLabels: {
+          fhirGenomics: "FHIR基因组学",
+        },
+        genomeBuild: "基因组构建",
+        sampleIdOptional: "样品 ID（可选）",
+        uploadFailed: "上传失败。请检查文件格式并重试。",
+        uploadingParsing: "正在上传并解析...",
+        uploadParse: "上传并解析",
+      },
+      criteriaPanel: {
+        title: "添加基因组标准",
+        typeLabels: {
+          geneMutation: "基因突变",
+          tmb: "肿瘤突变负担",
+          msi: "微卫星不稳定性",
+          fusion: "基因融合",
+          pathogenicity: "致病性等级",
+          treatmentEpisode: "治疗情节",
+        },
+        typeDescriptions: {
+          geneMutation: "例如EGFR L858R、KRAS G12D",
+          tmb: "TMB-高/TMB-低阈值",
+          msi: "MSI-H、MSI-L 或 MSS",
+          fusion: "例如ALK 重排、BCR-ABL1",
+          pathogenicity: "ClinVar 分类",
+          treatmentEpisode: "HemOnc化疗方案",
+        },
+        msiOptions: {
+          anyUnstable: "MSI-高或MSI-低（任何不稳定）",
+        },
+        hgvsOptional: "HGVS（可选）",
+        gene2Optional: "基因2（可选）",
+        excludeFeature: "排除具有此功能的患者",
+        addCriterion: "添加标准",
+        labelTemplates: {
+          excludePrefix: "排除： ",
+        },
+      },
+      analysis: {
+        title: "变异结果分析套件",
+        subtitle: "与 OMOP 临床结果相关的人群水平基因组分析",
+        tabs: {
+          survival: "突变-生存",
+          matrix: "治疗变异矩阵",
+          characterization: "基因组表征",
+        },
+        days: "天数",
+        noData: "没有数据。上传变体 + 确保药物暴露数据的 CDM 连接。",
+        gene: "基因",
+        runningSurvival: "运行生存分析...",
+        analysisFailed: "分析失败。确保 CDM 来源具有基因组 + 结果数据。",
+        overallSurvival: "总体生存率",
+        noSurvival:
+          "没有匹配的生存数据。上传与 person_id 匹配的 VCF 文件，并确保患者有观察期。",
+        genesComma: "基因（逗号分隔）",
+        topMutatedGenes: "主要突变基因",
+        variantTypes: "变体类型",
+        mutationLoadPerSample: "每个样本的突变负荷",
+        noVariantsLoaded: "未加载任何变体。首先上传VCF/MAF文件。",
+      },
+      tumorBoard: {
+        title: "分子肿瘤委员会",
+        subtitle: "每个患者的分子证据小组 - 变异、相似的患者结果、药物模式",
+        omopPersonId: "OMOP 人员 ID",
+        personIdPlaceholder: "输入 person_id...",
+        loadPanel: "负载面板",
+        buildingEvidence: "建立证据小组...",
+        loadFailed:
+          "加载面板失败。检查 person_id 是否存在并且基因组数据是否可用。",
+        evidenceSummary: "证据摘要",
+        actionable: "可行的",
+        noVariants: "该患者没有基因组变异记录。",
+        demographics: "人口统计",
+        drugPatterns: "类似患者的药物模式",
+        similarOutcomes: "分子相似患者的结果",
+        variantHeaders: {
+          gene: "基因",
+          alteration: "变更",
+          type: "类型",
+          class: "班级",
+          classification: "分类",
+        },
+        similarOutcomeHeaders: {
+          gene: "基因",
+          similarPatients: "类似患者 (n)",
+          medianSurvival: "中位生存期",
+          eventRate: "事件发生率",
+        },
+      },
+      uploadDetail: {
+        notFound: "找不到上传",
+        backToGenomics: "返回基因组学",
+        matchPersons: "匹配人员",
+        importToOmop: "导入到 OMOP",
+        parseError: "解析错误：",
+        metrics: {
+          totalVariants: "总变体",
+          omopMapped: "OMOP 已映射",
+          needsReview: "需求审查",
+        },
+        variants: "变体",
+        parsingInProgress: "正在解析中...",
+        noVariantsAvailable: "无可用变体",
+        tableHeaders: {
+          gene: "基因",
+          variant: "变体",
+          type: "类型",
+          zygosity: "接合性",
+        },
+      },
+    },
+    radiogenomics: {
+      panel: {
+        loadFailed: "精准医学面板加载失败",
+        noData: "没有该患者的基因组数据",
+        stats: {
+          totalVariants: "总变体",
+          pathogenic: "致病性",
+          drugCorrelations: "药物相关性",
+          recommendations: "建议",
+          treatments: "治疗方法",
+        },
+        relationshipLabels: {
+          sensitive: "敏感",
+          resistant: "抗性",
+          partialResponse: "部分回应",
+        },
+        recommendationsTitle: "精准医疗建议",
+        avoid: "避免（预测阻力）",
+        consider: "考虑（预测的敏感性）",
+        headers: {
+          gene: "基因",
+          variant: "变体",
+          drug: "药物",
+          relationship: "关系",
+          confidence: "信心",
+          received: "已收到",
+          response: "回应",
+        },
+        yes: "是的",
+        no: "否",
+        mechanism: "机制：",
+        evidence: "证据：",
+        rationale: "理由：",
+        treatmentPeriod: "治疗期：",
+        ongoing: "正在进行的",
+        evidenceLevel: "证据级别：",
+        variantHeaders: {
+          gene: "基因",
+          variant: "变体",
+          class: "班级",
+          significance: "意义",
+          disease: "疾病",
+          status: "状态",
+        },
+        actionable: "可行的",
+        other: "其他",
+        showLess: "显示较少",
+      },
+    },
+  }),
   "ko-KR": koImagingGenomicsPass2,
   "hi-IN": hiImagingGenomicsPass2,
   ar: mergeMessageTrees(enImagingGenomics, {}),
