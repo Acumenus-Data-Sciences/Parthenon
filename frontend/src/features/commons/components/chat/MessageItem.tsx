@@ -252,6 +252,7 @@ function ActionBarButton({
     <button
       onClick={onClick}
       title={label}
+      aria-label={label}
       className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/60 hover:bg-white/[0.08] hover:text-foreground transition-colors"
     >
       <Icon className="h-3.5 w-3.5" />

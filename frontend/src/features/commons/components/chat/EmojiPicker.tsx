@@ -45,6 +45,7 @@ export function EmojiPicker({ onSelect, onClose }: EmojiPickerProps) {
             onClose();
           }}
           title={t(`chat.emoji.${EMOJI_MAP[key].labelKey}`)}
+          aria-label={t(`chat.emoji.${EMOJI_MAP[key].labelKey}`)}
           className="flex h-8 w-8 items-center justify-center rounded-md text-lg hover:bg-muted"
         >
           {EMOJI_MAP[key].emoji}

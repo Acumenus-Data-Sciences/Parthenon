@@ -52,6 +52,7 @@ export function MessageActionMenu({
     <div ref={menuRef} className="relative">
       <button
         onClick={() => setOpen(!open)}
+        aria-label={t("chat.actions.more", { defaultValue: "More options" })}
         className="rounded-md p-1 text-muted-foreground/60 hover:bg-white/[0.06] hover:text-foreground transition-all"
       >
         <MoreHorizontal className="h-4 w-4" />

@@ -46,6 +46,7 @@ export function ReferencePicker({ onSelect, onClose }: ReferencePickerProps) {
         </span>
         <button
           onClick={onClose}
+          aria-label={t("ui.aria.close", { defaultValue: "Close" })}
           className="rounded p-0.5 text-muted-foreground hover:text-foreground"
         >
           <X className="h-3.5 w-3.5" />
