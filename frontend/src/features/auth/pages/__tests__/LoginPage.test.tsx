@@ -4,12 +4,16 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LoginPage } from "../LoginPage";
+import { AUTH_STORAGE_KEY, useAuthStore } from "@/stores/authStore";
+import { LOCALE_STORAGE_KEY } from "@/i18n/locales";
+import { setActiveLocale } from "@/i18n/i18n";
 
 // Mock api-client
 vi.mock("@/lib/api-client", () => ({
   default: {
     post: vi.fn(),
     get: vi.fn(),
+    put: vi.fn(),
   },
 }));
 
@@ -82,8 +86,18 @@ function renderLoginPage() {
 }
 
 describe("LoginPage", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
+    localStorage.clear();
+    sessionStorage.clear();
+    await setActiveLocale("en-US");
+    mockedApiClient.put.mockResolvedValue({ data: { locale: "en-US" } });
+    useAuthStore.setState({
+      token: null,
+      user: null,
+      isAuthenticated: false,
+      rememberMe: true,
+    });
   });
 
   it("renders email and password input fields", () => {
@@ -113,6 +127,13 @@ describe("LoginPage", () => {
     ).toBeInTheDocument();
   });
 
+  it("renders the language selector and remember-me switch", () => {
+    renderLoginPage();
+
+    expect(screen.getByRole("combobox", { name: /preferred language/i })).toBeInTheDocument();
+    expect(screen.getByRole("switch", { name: /remember me/i })).toBeInTheDocument();
+  });
+
   it("opens forgot password modal when button is clicked", async () => {
     const user = userEvent.setup();
     renderLoginPage();
@@ -140,6 +161,7 @@ describe("LoginPage", () => {
         },
       },
     });
+    mockedApiClient.put.mockResolvedValueOnce({ data: { locale: "en-US" } });
 
     renderLoginPage();
 
@@ -153,6 +175,91 @@ describe("LoginPage", () => {
         password: "mypassword",
       });
     });
+  });
+
+  it("stores the language selected on the login page", async () => {
+    const user = userEvent.setup();
+    renderLoginPage();
+
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: /preferred language/i }),
+      "ar",
+    );
+
+    expect(localStorage.getItem(LOCALE_STORAGE_KEY)).toBe("ar");
+    expect(document.documentElement.lang).toBe("ar");
+    expect(document.documentElement.dir).toBe("rtl");
+  });
+
+  it("keeps the selected login locale after authentication and persists it to the profile", async () => {
+    const user = userEvent.setup();
+    mockedApiClient.post.mockResolvedValueOnce({
+      data: {
+        token: "test-token-123",
+        user: {
+          id: 1,
+          name: "Test User",
+          email: "test@example.com",
+          must_change_password: false,
+          onboarding_completed: true,
+          locale: "en-US",
+          roles: ["viewer"],
+          permissions: [],
+        },
+      },
+    });
+    mockedApiClient.put.mockResolvedValueOnce({ data: { locale: "ar" } });
+
+    renderLoginPage();
+    const submitButton = screen.getByRole("button", { name: /sign in/i });
+
+    await user.type(screen.getByLabelText(/email/i), "test@example.com");
+    await user.type(screen.getByLabelText(/password/i), "mypassword");
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: /preferred language/i }),
+      "ar",
+    );
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockedApiClient.put).toHaveBeenCalledWith("/user/locale", {
+        locale: "ar",
+      });
+    });
+    expect(useAuthStore.getState().user?.locale).toBe("ar");
+  });
+
+  it("persists auth only for the browser session when remember me is off", async () => {
+    const user = userEvent.setup();
+    mockedApiClient.post.mockResolvedValueOnce({
+      data: {
+        token: "test-token-123",
+        user: {
+          id: 1,
+          name: "Test User",
+          email: "test@example.com",
+          must_change_password: false,
+          onboarding_completed: true,
+          locale: "en-US",
+          roles: ["viewer"],
+          permissions: [],
+        },
+      },
+    });
+
+    renderLoginPage();
+
+    await user.type(screen.getByLabelText(/email/i), "test@example.com");
+    await user.type(screen.getByLabelText(/password/i), "mypassword");
+    await user.click(screen.getByRole("switch", { name: /remember me/i }));
+    await user.click(screen.getByRole("button", { name: /sign in/i }));
+
+    await waitFor(() => {
+      expect(sessionStorage.getItem(AUTH_STORAGE_KEY)).toContain(
+        "test-token-123",
+      );
+    });
+    expect(localStorage.getItem(AUTH_STORAGE_KEY)).toBeNull();
   });
 
   it("navigates to home after successful login", async () => {

@@ -1,7 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import type { FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Loader2, AlertCircle, Lock, Mail, KeyRound } from "lucide-react";
+import {
+  Loader2,
+  AlertCircle,
+  Lock,
+  Mail,
+  KeyRound,
+  Globe2,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/stores/authStore";
 import { ConstellationBackground } from "../components/ConstellationBackground";
@@ -13,6 +20,8 @@ import { queryClient } from "@/lib/query-client";
 import { fetchDashboardStats } from "@/features/dashboard/api/dashboardApi";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import type { AuthResponse } from "@/types/api";
+import { setActiveLocale } from "@/i18n/i18n";
+import { normalizeLocale, PUBLIC_SELECTABLE_LOCALES } from "@/i18n/locales";
 
 const capabilityKeys = [
   "cohortDefinitions",
@@ -29,14 +38,18 @@ const capabilityKeys = [
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { t } = useTranslation(["auth", "common"]);
+  const { t, i18n } = useTranslation(["auth", "common"]);
   const setAuth = useAuthStore((s) => s.setAuth);
+  const setRememberMe = useAuthStore((s) => s.setRememberMe);
+  const updateUser = useAuthStore((s) => s.updateUser);
+  const rememberMe = useAuthStore((s) => s.rememberMe);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
   const { data: providers } = useAuthProviders();
+  const selectedLocale = normalizeLocale(i18n.language);
 
   // Prefetch CSRF cookie on mount — eliminates a round-trip at submit time
   const csrfReady = useRef<Promise<void> | null>(null);
@@ -46,6 +59,11 @@ export function LoginPage() {
       .then(() => undefined)
       .catch(() => undefined);
   }, []);
+
+  async function handleLocaleChange(locale: string) {
+    const nextLocale = normalizeLocale(locale);
+    await setActiveLocale(nextLocale);
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -60,7 +78,26 @@ export function LoginPage() {
         email,
         password,
       });
-      setAuth(data.token, data.user);
+      const loginLocale = normalizeLocale(selectedLocale);
+      const nextUser = { ...data.user, locale: loginLocale };
+
+      setAuth(data.token, nextUser, rememberMe);
+      await setActiveLocale(loginLocale);
+
+      if (data.user.locale !== loginLocale) {
+        void apiClient
+          .put<{ locale: string }>("/user/locale", { locale: loginLocale })
+          .then(async ({ data: localeData }) => {
+            const savedLocale = normalizeLocale(localeData.locale);
+            const latestUser = useAuthStore.getState().user;
+
+            if (latestUser) {
+              updateUser({ ...latestUser, locale: savedLocale });
+            }
+            await setActiveLocale(savedLocale);
+          })
+          .catch(() => undefined);
+      }
 
       // Prefetch dashboard data before navigating — data is ready by the time DashboardPage mounts
       queryClient.prefetchQuery({
@@ -505,17 +542,71 @@ export function LoginPage() {
         >
           {/* Panel heading */}
           <div style={{ marginBottom: "var(--space-8)" }}>
-            <h2
+            <div
               style={{
-                fontFamily: "var(--font-heading)",
-                fontSize: "var(--text-2xl)",
-                fontWeight: 600,
-                color: "var(--text-primary)",
-                lineHeight: 1.2,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "var(--space-3)",
               }}
             >
-              {t("common.signIn")}
-            </h2>
+              <h2
+                style={{
+                  fontFamily: "var(--font-heading)",
+                  fontSize: "var(--text-2xl)",
+                  fontWeight: 600,
+                  color: "var(--text-primary)",
+                  lineHeight: 1.2,
+                  margin: 0,
+                }}
+              >
+                {t("common.signIn")}
+              </h2>
+              <div
+                style={{
+                  position: "relative",
+                  minWidth: 156,
+                  flexShrink: 0,
+                }}
+              >
+                <Globe2
+                  size={12}
+                  style={{
+                    position: "absolute",
+                    left: 10,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: "var(--text-ghost)",
+                    pointerEvents: "none",
+                  }}
+                />
+                <select
+                  aria-label={t("layout:language.preferred")}
+                  value={selectedLocale}
+                  onChange={(event) => void handleLocaleChange(event.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 28px 8px 30px",
+                    fontFamily: "var(--font-body)",
+                    fontSize: "var(--text-xs)",
+                    color: "var(--text-primary)",
+                    background: "var(--auth-field-bg)",
+                    border: "1px solid var(--border-default)",
+                    borderRadius: "var(--radius-md)",
+                    outline: "none",
+                    appearance: "none",
+                    cursor: "pointer",
+                    boxSizing: "border-box",
+                  }}
+                >
+                  {PUBLIC_SELECTABLE_LOCALES.map((locale) => (
+                    <option key={locale.code} value={locale.code}>
+                      {locale.nativeLabel}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
             <p
               style={{
                 fontFamily: "var(--font-body)",
@@ -674,13 +765,72 @@ export function LoginPage() {
               </div>
             </div>
 
-            {/* Forgot password link */}
+            {/* Remember-me toggle + forgot password link */}
             <div
               style={{
-                textAlign: "right",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "var(--space-3)",
                 marginBottom: "var(--space-4)",
               }}
             >
+              <button
+                type="button"
+                role="switch"
+                aria-checked={rememberMe}
+                aria-label={t("login.rememberMe")}
+                onClick={() => setRememberMe(!rememberMe)}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "var(--space-2)",
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <span
+                  aria-hidden="true"
+                  style={{
+                    position: "relative",
+                    width: 34,
+                    height: 20,
+                    borderRadius: "var(--radius-full)",
+                    background: rememberMe
+                      ? "var(--accent)"
+                      : "var(--surface-overlay)",
+                    border: "1px solid var(--border-default)",
+                    transition: "background 200ms ease",
+                    flexShrink: 0,
+                  }}
+                >
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: 1,
+                      left: rememberMe ? 15 : 1,
+                      width: 16,
+                      height: 16,
+                      borderRadius: "var(--radius-full)",
+                      background: "var(--surface-base)",
+                      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.35)",
+                      transition: "left 200ms ease",
+                    }}
+                  />
+                </span>
+                <span
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "var(--text-sm)",
+                    color: "var(--text-muted)",
+                  }}
+                >
+                  {t("login.rememberMe")}
+                </span>
+              </button>
               <button
                 type="button"
                 onClick={() => setForgotOpen(true)}

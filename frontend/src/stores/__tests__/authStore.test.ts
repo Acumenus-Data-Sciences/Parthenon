@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { useAuthStore } from "../authStore";
+import {
+  AUTH_REMEMBER_ME_STORAGE_KEY,
+  AUTH_STORAGE_KEY,
+  useAuthStore,
+} from "../authStore";
 import type { User } from "@/types/models";
 
 function makeUser(overrides: Partial<User> = {}): User {
@@ -34,8 +38,10 @@ beforeEach(() => {
     token: null,
     user: null,
     isAuthenticated: false,
+    rememberMe: true,
   });
   localStorage.clear();
+  sessionStorage.clear();
 });
 
 describe("authStore", () => {
@@ -122,13 +128,38 @@ describe("authStore", () => {
     expect(useAuthStore.getState().isAdmin()).toBe(true);
   });
 
-  it("persists auth state to localStorage under parthenon-auth", () => {
+  it("persists auth state to localStorage when rememberMe is enabled", () => {
     useAuthStore.getState().setAuth("persisted-token", makeUser());
 
     const stored = JSON.parse(
-      localStorage.getItem("parthenon-auth") ?? "{}",
+      localStorage.getItem(AUTH_STORAGE_KEY) ?? "{}",
     );
     expect(stored.state?.token).toBe("persisted-token");
     expect(stored.state?.isAuthenticated).toBe(true);
+    expect(stored.state?.rememberMe).toBe(true);
+    expect(sessionStorage.getItem(AUTH_STORAGE_KEY)).toBeNull();
+    expect(localStorage.getItem(AUTH_REMEMBER_ME_STORAGE_KEY)).toBe("true");
+  });
+
+  it("persists auth state to sessionStorage when rememberMe is disabled", () => {
+    useAuthStore.getState().setRememberMe(false);
+    useAuthStore.getState().setAuth("session-token", makeUser(), false);
+
+    const stored = JSON.parse(
+      sessionStorage.getItem(AUTH_STORAGE_KEY) ?? "{}",
+    );
+    expect(stored.state?.token).toBe("session-token");
+    expect(stored.state?.isAuthenticated).toBe(true);
+    expect(stored.state?.rememberMe).toBe(false);
+    expect(localStorage.getItem(AUTH_STORAGE_KEY)).toBeNull();
+    expect(localStorage.getItem(AUTH_REMEMBER_ME_STORAGE_KEY)).toBe("false");
+  });
+
+  it("logout clears persisted auth state from both storages", () => {
+    useAuthStore.getState().setAuth("persisted-token", makeUser());
+    useAuthStore.getState().logout();
+
+    expect(localStorage.getItem(AUTH_STORAGE_KEY)).toBeNull();
+    expect(sessionStorage.getItem(AUTH_STORAGE_KEY)).toBeNull();
   });
 });
