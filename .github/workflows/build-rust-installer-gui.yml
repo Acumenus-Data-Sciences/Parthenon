@@ -333,13 +333,14 @@ jobs:
       - name: Build Tauri bundle
         working-directory: installer/rust-gui
         env:
-          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
-          APPLE_API_ISSUER: ${{ (secrets.APPLE_API_ISSUER || secrets.APPLE_ISSUER_ID) }}
-          APPLE_API_KEY_PATH: ${{ env.APPLE_API_KEY_PATH }}
+          # macOS: codesign uses APPLE_CERTIFICATE + APPLE_SIGNING_IDENTITY.
+          # Notarization is handled by a dedicated xcrun notarytool step below —
+          # Tauri v2's built-in notarize path uses a deprecated Apple endpoint
+          # that returns "Use app-specific password" 401s even with valid
+          # notarytool creds. Deliberately do NOT pass APPLE_API_*, APPLE_ID,
+          # APPLE_PASSWORD here, so Tauri just signs and skips notarize.
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_SIGNING_IDENTITY: ${{ env.APPLE_SIGNING_IDENTITY }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
@@ -356,6 +357,47 @@ jobs:
             ln -s "$(pwd)/target/$TAURI_TARGET/release/bundle" target/release/bundle
           else
             cargo tauri build
+          fi
+
+      - name: Notarize and staple macOS .app and .dmg
+        if: ${{ runner.os == 'macOS' && env.APPLE_API_KEY_CONFIGURED == 'true' }}
+        working-directory: installer/rust-gui
+        shell: bash
+        env:
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_ISSUER: ${{ (secrets.APPLE_API_ISSUER || secrets.APPLE_ISSUER_ID) }}
+          APPLE_API_KEY_PATH: ${{ env.APPLE_API_KEY_PATH }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          app_bundle="$(find target/release/bundle/macos -maxdepth 1 -name '*.app' -print -quit)"
+          if [ -z "$app_bundle" ]; then
+            echo "Expected a macOS .app bundle after build, but none was found." >&2
+            exit 1
+          fi
+          echo "Notarizing .app: $app_bundle"
+          # notarytool submit wants a zip/dmg/pkg — zip the .app temporarily
+          zip_path="$(mktemp -d)/app.zip"
+          ditto -c -k --sequesterRsrc --keepParent "$app_bundle" "$zip_path"
+          xcrun notarytool submit "$zip_path" \
+            --key "$APPLE_API_KEY_PATH" \
+            --key-id "$APPLE_API_KEY" \
+            --issuer "$APPLE_API_ISSUER" \
+            --team-id "$APPLE_TEAM_ID" \
+            --wait
+          xcrun stapler staple "$app_bundle"
+          echo "Notarized and stapled .app"
+
+          dmg="$(find target/release/bundle/dmg -name '*.dmg' -print -quit)"
+          if [ -n "$dmg" ]; then
+            echo "Notarizing .dmg: $dmg"
+            xcrun notarytool submit "$dmg" \
+              --key "$APPLE_API_KEY_PATH" \
+              --key-id "$APPLE_API_KEY" \
+              --issuer "$APPLE_API_ISSUER" \
+              --team-id "$APPLE_TEAM_ID" \
+              --wait
+            xcrun stapler staple "$dmg"
+            echo "Notarized and stapled .dmg"
           fi
 
       - name: Verify macOS signature and Gatekeeper status
