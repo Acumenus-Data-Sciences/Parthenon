@@ -2,7 +2,10 @@ type MessageTree = {
   [key: string]: string | MessageTree;
 };
 
-function mergeMessageTrees(base: MessageTree, overrides: MessageTree): MessageTree {
+function mergeMessageTrees(
+  base: MessageTree,
+  overrides: MessageTree,
+): MessageTree {
   return Object.fromEntries(
     Object.entries(base).map(([key, baseValue]) => {
       const overrideValue = overrides[key];
@@ -161,10 +164,8 @@ const enSmallWorkbench: MessageTree = {
       title: "Integration Checklist",
       step: "Step {{index}}",
       items: {
-        serviceRegistry:
-          "Add a service registry entry in {{path}}.",
-        toolModule:
-          "Register the MCP tool module in {{path}}.",
+        serviceRegistry: "Add a service registry entry in {{path}}.",
+        toolModule: "Register the MCP tool module in {{path}}.",
         backendController:
           "Wire a backend controller and workbench service for validation, permissions, and persistence.",
         frontendRoute:
@@ -257,8 +258,7 @@ const frSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
   studyAgent: {
     header: {
       title: "Concepteur d'etude",
-      subtitle:
-        "Conception d'etude assistee par IA avec OHDSI StudyAgent",
+      subtitle: "Conception d'etude assistee par IA avec OHDSI StudyAgent",
     },
     tabs: {
       intent: "Intention de l'etude",
@@ -291,8 +291,7 @@ const frSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
       submit: "Rechercher",
       resultsFound_one: "{{count}} resultat trouve",
       resultsFound_other: "{{count}} resultats trouves",
-      noneFound:
-        "Aucun phenotype trouve. Essayez un autre terme de recherche.",
+      noneFound: "Aucun phenotype trouve. Essayez un autre terme de recherche.",
     },
     lint: {
       title: "Verifier une definition de cohorte",
@@ -375,7 +374,8 @@ const frSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
         "Cette page bac a sable montre a quoi ressemble un outil genere par SDK dans Parthenon avant le raccordement d'une logique propre au domaine. Il s'agit d'une implementation de reference hors production pour les developpeurs de la communaute, les equipes partenaires et les assistants de codage IA.",
       backToWorkbench: "Retour au Workbench",
       openSdkDocs: "Ouvrir la documentation SDK",
-      loading: "Chargement de la charge utile de demo depuis le backend Parthenon...",
+      loading:
+        "Chargement de la charge utile de demo depuis le backend Parthenon...",
       failed:
         "La charge utile de demo Community Workbench SDK n'a pas pu etre chargee depuis le backend.",
     },
@@ -475,7 +475,7 @@ const frSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
       createFailed: "Echec de la creation du projet",
       emptyTitle: "Concepteur de mappage ETL Aqueduct",
       emptyDescription:
-        'Accedez a un projet d\'ingestion et cliquez sur "Open in Aqueduct" pour commencer a concevoir les mappages ETL entre votre schema source et l\'OMOP CDM.',
+        "Accedez a un projet d'ingestion et cliquez sur \"Open in Aqueduct\" pour commencer a concevoir les mappages ETL entre votre schema source et l'OMOP CDM.",
     },
   },
 });
@@ -484,8 +484,7 @@ const deSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
   studyAgent: {
     header: {
       title: "Studien-Designer",
-      subtitle:
-        "KI-gestutztes Studiendesign mit OHDSI StudyAgent",
+      subtitle: "KI-gestutztes Studiendesign mit OHDSI StudyAgent",
     },
     tabs: {
       intent: "Studienabsicht",
@@ -508,8 +507,7 @@ const deSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
       score: "Score: {{value}}",
       loading: "Phaenotypempfehlungen werden gesucht...",
       promptPrefix: "Geben Sie eine Studienabsicht im Tab",
-      promptSuffix:
-        "ein, um KI-gerankte Phaenotypempfehlungen zu erhalten.",
+      promptSuffix: "ein, um KI-gerankte Phaenotypempfehlungen zu erhalten.",
     },
     search: {
       title: "Phaenotypbibliothek durchsuchen",
@@ -666,8 +664,7 @@ const deSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
     toolsetMeta: {
       morpheus: {
         name: "Morpheus",
-        tagline:
-          "Workbench fuer stationaere Ergebnisse und ICU-Analytik",
+        tagline: "Workbench fuer stationaere Ergebnisse und ICU-Analytik",
         description:
           "ICU-fokussierte Analytik mit MIMIC-IV-Daten in OMOP CDM 5.4. ABCDEF Liberation Bundle-Compliance, Vorhersage der Beatmungsentwoehnung, Sedierungsueberwachung und Forschung zu stationaeren Ergebnissen.",
       },
@@ -711,8 +708,7 @@ const ptSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
   studyAgent: {
     header: {
       title: "Designer de estudo",
-      subtitle:
-        "Desenho de estudo assistido por IA com OHDSI StudyAgent",
+      subtitle: "Desenho de estudo assistido por IA com OHDSI StudyAgent",
     },
     tabs: {
       intent: "Intencao do estudo",
@@ -735,8 +731,7 @@ const ptSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
       score: "Score: {{value}}",
       loading: "Buscando recomendacoes de fenotipos...",
       promptPrefix: "Insira uma intencao de estudo na aba",
-      promptSuffix:
-        "para obter recomendacoes de fenotipos ranqueadas por IA.",
+      promptSuffix: "para obter recomendacoes de fenotipos ranqueadas por IA.",
     },
     search: {
       title: "Buscar na biblioteca de fenotipos",
@@ -745,8 +740,7 @@ const ptSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
       submit: "Buscar",
       resultsFound_one: "{{count}} resultado encontrado",
       resultsFound_other: "{{count}} resultados encontrados",
-      noneFound:
-        "Nenhum fenotipo encontrado. Tente outro termo de busca.",
+      noneFound: "Nenhum fenotipo encontrado. Tente outro termo de busca.",
     },
     lint: {
       title: "Verificar definicao de coorte",
@@ -893,8 +887,7 @@ const ptSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
     toolsetMeta: {
       morpheus: {
         name: "Morpheus",
-        tagline:
-          "Workbench de desfechos hospitalares e analitica de UTI",
+        tagline: "Workbench de desfechos hospitalares e analitica de UTI",
         description:
           "Analitica focada em UTI usando dados MIMIC-IV em OMOP CDM 5.4. Conformidade com o bundle ABCDEF Liberation, predicao de desmame ventilatorio, monitoramento de sedacao e pesquisa de desfechos hospitalares.",
       },
@@ -1056,7 +1049,8 @@ const esSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
         "Esta pagina de pruebas muestra el aspecto de una herramienta generada por SDK dentro de Parthenon antes de conectar la logica especifica del dominio. Es una implementacion de referencia no productiva para desarrolladores de la comunidad, equipos asociados y asistentes de codigo con IA.",
       backToWorkbench: "Volver al Workbench",
       openSdkDocs: "Abrir documentacion del SDK",
-      loading: "Cargando la carga de demostracion desde el backend de Parthenon...",
+      loading:
+        "Cargando la carga de demostracion desde el backend de Parthenon...",
       failed:
         "No se pudo cargar desde el backend la carga de demostracion del SDK de Community Workbench.",
     },
@@ -1071,8 +1065,7 @@ const esSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
       items: {
         serviceRegistry:
           "Agregue una entrada del registro de servicios en {{path}}.",
-        toolModule:
-          "Registre el modulo de herramienta MCP en {{path}}.",
+        toolModule: "Registre el modulo de herramienta MCP en {{path}}.",
         backendController:
           "Conecte un controlador backend y un servicio de workbench para validacion, permisos y persistencia.",
         frontendRoute:
@@ -1096,7 +1089,8 @@ const esSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
   workbenchLauncher: {
     page: {
       title: "Workbench",
-      subtitle: "Nuevas capacidades y conjuntos de herramientas de investigacion",
+      subtitle:
+        "Nuevas capacidades y conjuntos de herramientas de investigacion",
     },
     sections: {
       toolsetsTitle: "Conjuntos de herramientas",
@@ -1194,8 +1188,7 @@ const koSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
     },
     search: {
       title: "표현형 라이브러리 검색",
-      placeholder:
-        "표현형 검색(예: 제2형 당뇨병, 심부전, COPD)...",
+      placeholder: "표현형 검색(예: 제2형 당뇨병, 심부전, COPD)...",
       submit: "검색",
       resultsFound_one: "{{count}}개 결과",
       resultsFound_other: "{{count}}개 결과",
@@ -1295,10 +1288,8 @@ const koSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
       title: "통합 점검 목록",
       step: "단계 {{index}}",
       items: {
-        serviceRegistry:
-          "{{path}}에 서비스 레지스트리 항목을 추가하세요.",
-        toolModule:
-          "{{path}}에 MCP 도구 모듈을 등록하세요.",
+        serviceRegistry: "{{path}}에 서비스 레지스트리 항목을 추가하세요.",
+        toolModule: "{{path}}에 MCP 도구 모듈을 등록하세요.",
         backendController:
           "검증, 권한, 영속성을 위해 백엔드 컨트롤러와 워크벤치 서비스를 연결하세요.",
         frontendRoute:
@@ -1314,8 +1305,7 @@ const koSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
     },
     artifacts: {
       title: "생성된 아티팩트 목록",
-      descriptionPrefix:
-        "이 데모는 저장소의 실제 생성 샘플 스캐폴드인",
+      descriptionPrefix: "이 데모는 저장소의 실제 생성 샘플 스캐폴드인",
       descriptionSuffix: "를 기반으로 합니다.",
     },
   },
@@ -1412,8 +1402,7 @@ const hiSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
       score: "स्कोर: {{value}}",
       loading: "फीनोटाइप सिफारिशें खोजी जा रही हैं...",
       promptPrefix: "टैब में अध्ययन उद्देश्य दर्ज करें",
-      promptSuffix:
-        "ताकि AI-रैंक की गई फीनोटाइप सिफारिशें मिल सकें।",
+      promptSuffix: "ताकि AI-रैंक की गई फीनोटाइप सिफारिशें मिल सकें।",
     },
     search: {
       title: "फीनोटाइप लाइब्रेरी खोजें",
@@ -1518,10 +1507,8 @@ const hiSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
       title: "एकीकरण चेकलिस्ट",
       step: "चरण {{index}}",
       items: {
-        serviceRegistry:
-          "{{path}} में service registry entry जोड़ें।",
-        toolModule:
-          "{{path}} में MCP tool module पंजीकृत करें।",
+        serviceRegistry: "{{path}} में service registry entry जोड़ें।",
+        toolModule: "{{path}} में MCP tool module पंजीकृत करें।",
         backendController:
           "validation, permissions, और persistence के लिए backend controller और workbench service जोड़ें।",
         frontendRoute:
@@ -1551,7 +1538,8 @@ const hiSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
       toolsetsTitle: "टूलसेट",
       toolsetsSubtitle: "अपने शोध प्रश्न के अनुरूप workbench चुनें।",
       recentTitle: "हाल की जांचें",
-      recentSubtitle: "वे evidence investigations जिन पर आपने हाल ही में काम किया है।",
+      recentSubtitle:
+        "वे evidence investigations जिन पर आपने हाल ही में काम किया है।",
     },
     states: {
       loadingInvestigations: "जांचें लोड हो रही हैं...",
@@ -1614,9 +1602,623 @@ export const smallWorkbenchResources: Record<string, MessageTree> = {
   "fr-FR": frSmallWorkbench,
   "de-DE": deSmallWorkbench,
   "pt-BR": ptSmallWorkbench,
-  "fi-FI": mergeMessageTrees(enSmallWorkbench, {}),
-  "ja-JP": mergeMessageTrees(enSmallWorkbench, {}),
-  "zh-Hans": mergeMessageTrees(enSmallWorkbench, {}),
+  "fi-FI": mergeMessageTrees(enSmallWorkbench, {
+    studyAgent: {
+      header: {
+        title: "Opintosuunnittelija",
+        subtitle: "AI-avustettu opintosuunnittelu OHDSI StudyAgentin avulla",
+      },
+      tabs: {
+        intent: "Tutkimuksen tarkoitus",
+        search: "Fenotyyppihaku",
+        recommend: "Suositukset",
+        lint: "Kohortti Lint",
+      },
+      intent: {
+        title: "Kuvaile tutkimustasi",
+        description:
+          "Kirjoita tutkimuksesi luonnollisen kielen kuvaus. AI jakaa sen kohdepopulaatioon ja tulokseen ja suosittelee sitten fenotyyppejä OHDSI-kirjastosta.",
+        placeholder:
+          "Vertaa esimerkiksi sydämen vajaatoiminnan riskiä potilailla, joille on määrätty äskettäin SGLT2-estäjiä ja DPP-4-estäjiä tyypin 2 diabetesta sairastavilla aikuisilla...",
+        analyze: "Analysoi tutkimuksen tarkoitus",
+        targetPopulation: "Kohdeväestö",
+        outcome: "Tulokset",
+      },
+      recommendations: {
+        title: "Suositellut fenotyypit",
+        loading: "Haetaan fenotyyppisuosituksia...",
+        promptPrefix: "Kirjoita opiskeluaihe",
+        promptSuffix:
+          "-välilehti saadaksesi AI-sijoituksen fenotyyppisuosituksia.",
+      },
+      search: {
+        title: "Hae fenotyyppikirjastosta",
+        placeholder:
+          "Etsi fenotyyppejä (esim. tyypin 2 diabetes, sydämen vajaatoiminta, COPD)...",
+        submit: "Haku",
+        noneFound: "Fenotyyppejä ei löytynyt. Kokeile toista hakutermiä.",
+      },
+      lint: {
+        title: "Lint-kohortin määritelmä",
+        description:
+          "Liitä kohortin määritelmä JSON tarkistaaksesi suunnitteluongelmia, kuten puuttuvia pesujaksoja, tyhjiä konseptijoukkoja ja käänteisiä aikaikkunoita.",
+        run: "Suorita Lint",
+        noIssuesFound: "Ei ongelmia",
+        failed: "Nukkaaminen epäonnistui: Virheellinen JSON tai palvelinvirhe.",
+      },
+    },
+    phenotypeLibrary: {
+      page: {
+        title: "Fenotyyppikirjasto",
+        subtitle:
+          "Yli 300 kuratoitua OHDSI fenotyyppimääritelmää - selaa, suodata ja tuo yhdellä napsautuksella",
+        allDomains: "Kaikki verkkotunnukset",
+        loading: "Ladataan...",
+        clearFilters: "Selkeät suodattimet",
+        matchingFilters: "vastaavat suodattimet",
+      },
+      detail: {
+        description: "Kuvaus",
+        logic: "Logiikka",
+        noAdditionalDetails: "Lisätietoja ei ole saatavilla.",
+      },
+      stats: {
+        totalPhenotypes: "Fenotyyppejä yhteensä",
+        withExpression: "Expressionin kanssa",
+        domainsCovered: "Katetut verkkotunnukset",
+        imported: "Tuotu",
+      },
+      table: {
+        headers: {
+          name: "Nimi",
+          domain: "Verkkotunnus",
+          severity: "Vakavuus",
+          tags: "Tunnisteet",
+          action: "Toiminta",
+        },
+        failedToLoad: "Fenotyyppikirjaston lataaminen epäonnistui.",
+        empty: "Fenotyyppejä ei löytynyt.",
+        noTags: "ei tunnisteita",
+      },
+      actions: {
+        imported: "Tuotu",
+        import: "Tuoda",
+        importing: "Tuodaan...",
+        noExpressionAvailable: "Ilmaisua ei ole saatavilla",
+        importAsCohortDefinition: "Tuo kohortin määritelmänä",
+      },
+      pagination: {
+        previous: "Edellinen",
+        next: "Seuraavaksi",
+      },
+      domains: {
+        condition: "Kunto",
+        drug: "huume",
+        measurement: "Mittaus",
+        procedure: "Menettely",
+        observation: "Havainto",
+        device: "Laite",
+      },
+      severities: {
+        acute: "Akuutti",
+        chronic: "Krooninen",
+        subacute: "Subakuutti",
+      },
+    },
+    communityWorkbenchSdk: {
+      page: {
+        badge: "Vaihe 3 demo",
+        title: "Community Workbench SDK -demo",
+        subtitle:
+          "Tämä hiekkalaatikkosivu näyttää, miltä SDK:n luoma työkalu näyttää Parthenon sisällä, ennen kuin verkkotunnuskohtainen logiikka on kytketty. Se on ei-tuotannon viitetoteutus yhteisön kehittäjille, kumppanitiimeille ja AI koodausavustajille.",
+        backToWorkbench: "Takaisin työpöytään",
+        openSdkDocs: "Avaa SDK Docs",
+        loading:
+          "Ladataan demon hyötykuormaa Parthenon taustajärjestelmästä...",
+        failed:
+          "Community Workbench SDK:n demohyötykuormaa ei voitu ladata taustajärjestelmästä.",
+      },
+      serviceDescriptor: {
+        title: "Esimerkki palvelukuvauksesta",
+        description:
+          "Nämä ovat löydön ja saatavuuden metatiedot, jotka luodun työkalun tulee paljastaa ennen kuin käyttöliittymä renderöi työpöydän pinnan.",
+      },
+      checklist: {
+        title: "Integraation tarkistuslista",
+        items: {
+          backendController:
+            "Kytke taustaohjain ja työpöytäpalvelu validointia, käyttöoikeuksia ja pysyvyyttä varten.",
+          frontendRoute:
+            "Lisää käyttöliittymäreitti ja korvaa paikkamerkkipaneelit verkkotunnuskohtaisella renderöinnillä.",
+          validatePayloads:
+            "Tarkista todelliset hyötykuormat Community Workbench SDK -malleihin ennen julkaisua.",
+        },
+      },
+      resultEnvelope: {
+        title: "Näytetulosten kirjekuori",
+        description:
+          "SDK:n luomien työkalujen tulee normalisoida ajonaikaiset diagnostiikkansa, lähdekontekstinsa, yhteenvetonsa ja artefaktinsa tällaiseen ennustettavaan kirjekuoreen ennen monipuolisempien paneelien hahmontamista.",
+      },
+      artifacts: {
+        title: "Luotu artefaktiluettelo",
+        descriptionPrefix:
+          "Tätä demoa tukee todellinen luotu näyteteline osoitteessa",
+        descriptionSuffix: "arkistossa.",
+      },
+    },
+    workbenchLauncher: {
+      page: {
+        title: "Työtila",
+        subtitle: "Uudet ominaisuudet ja tutkimustyökalut",
+      },
+      sections: {
+        toolsetsTitle: "Työkalusarjat",
+        toolsetsSubtitle: "Valitse tutkimuskysymykseesi sopiva työpöytä.",
+        recentTitle: "Viimeaikaiset tutkimukset",
+        recentSubtitle:
+          "Todistustutkimukset, joiden parissa olet työskennellyt äskettäin.",
+      },
+      states: {
+        loadingInvestigations: "Ladataan tutkimuksia...",
+        emptyInvestigations: "Aloita ensimmäinen todisteiden tutkinta.",
+      },
+      actions: {
+        createInvestigation: "Luo tutkinta",
+        newInvestigation: "Uusi tutkinta",
+      },
+      footer: {
+        prompt: "Haluatko rakentaa mukautetun työkalusarjan?",
+        link: "Katso yhteisön SDK-viite",
+      },
+      toolsetMeta: {
+        morpheus: {
+          tagline:
+            "Potilaspotilaiden tulokset ja teho-osaston analytiikan työpöytä",
+          description:
+            "ICU-keskeinen analytiikka hyödyntää MIMIC-IV-tietoja OMOP CDM 5.4:ssä. ABCDEF Liberation Bundle -yhteensopivuus, hengityslaitteen vieroittamisen ennustaminen, sedaation seuranta ja potilastulostutkimus.",
+        },
+        sdk: {
+          name: "Rakenna työkalusarja",
+          tagline: "Yhteisön SDK kolmansien osapuolien integraatioita varten",
+          description:
+            "Viitetoteutus ja SDK-dokumentaatio Parthenon Workbenchiin liitettävien räätälöityjen työkalusarjojen rakentamiseen. Palvelukuvaukset, tuloskuoret ja artefaktimallit.",
+        },
+      },
+      toolsetStatus: {
+        available: "Saatavilla",
+        comingSoon: "Tulossa pian",
+        sdkRequired: "SDK vaaditaan",
+      },
+      investigationStatus: {
+        draft: "Luonnos",
+        active: "Aktiivinen",
+        complete: "Täydellinen",
+        archived: "Arkistoitu",
+      },
+    },
+    etl: {
+      toolsPage: {
+        loadingProjects: "Ladataan ETL-projekteja...",
+        createTitle: "Luo ETL-kartoitusprojekti",
+        createDescription:
+          "Aloita lähdekaavion yhdistäminen OMOP CDM:ään. Valitse ensin lähde, joka on profiloitu Lähdeprofiili-välilehden kautta.",
+        cdmVersion: "CDM versio",
+        creating: "Luodaan...",
+        createProject: "Luo projekti",
+        createFailed: "Projektin luominen epäonnistui",
+        emptyTitle: "Aqueduct ETL-kartoitussuunnittelija",
+        emptyDescription:
+          'Siirry sisäänottoprojektiin ja napsauta "Avaa akveduktissa" aloittaaksesi ETL-kartoitusten suunnittelun lähdeskeemasi OMOP CDM:ään.',
+      },
+    },
+  }),
+  "ja-JP": mergeMessageTrees(enSmallWorkbench, {
+    studyAgent: {
+      header: {
+        title: "スタディデザイナー",
+        subtitle: "OHDSI StudyAgent を活用した AI 支援の研究設計",
+      },
+      tabs: {
+        intent: "研究の意図",
+        search: "表現型検索",
+        recommend: "推奨事項",
+        lint: "コホート糸くず",
+      },
+      intent: {
+        title: "研究について説明してください",
+        description:
+          "研究についての自然言語による説明を入力します。 AI はターゲット集団と結果に分割し、次に OHDSI ライブラリから表現型を推奨します。",
+        placeholder:
+          "例: 2 型糖尿病の成人において、新たに SGLT2 阻害剤を処方された患者と DPP-4 阻害剤を処方された患者の心不全のリスクを比較します...",
+        analyze: "研究意図を分析する",
+        targetPopulation: "対象者",
+        outcome: "結果",
+      },
+      recommendations: {
+        title: "推奨表現型",
+        loading: "表現型に関する推奨事項を探しています...",
+        promptPrefix: "に研究の意図を入力します。",
+        promptSuffix:
+          "タブをクリックして、AI ランクの表現型の推奨事項を取得します。",
+      },
+      search: {
+        title: "表現型ライブラリを検索",
+        placeholder: "表現型の検索 (例: 2 型糖尿病、心不全、COPD)...",
+        submit: "検索",
+        noneFound: "表現型は見つかりませんでした。別の検索語を試してください。",
+      },
+      lint: {
+        title: "糸くずコホートの定義",
+        description:
+          "コホート定義 JSON を貼り付けて、ウォッシュアウト期間の欠落、空のコンセプト セット、反転した時間枠などの設計上の問題をチェックします。",
+        run: "リントを実行する",
+        noIssuesFound: "問題は見つかりませんでした",
+        failed: "lint に失敗しました: 無効な JSON またはサーバー エラー。",
+      },
+    },
+    phenotypeLibrary: {
+      page: {
+        title: "表現型ライブラリ",
+        subtitle:
+          "300 以上の精選された OHDSI 表現型定義 - ワンクリックで参照、フィルター、インポート",
+        allDomains: "すべてのドメイン",
+        loading: "読み込み中...",
+        clearFilters: "フィルターをクリアする",
+        matchingFilters: "マッチングフィルター",
+      },
+      detail: {
+        description: "説明",
+        logic: "論理",
+        noAdditionalDetails: "追加の詳細はありません。",
+      },
+      stats: {
+        totalPhenotypes: "表現型の総数",
+        withExpression: "表情あり",
+        domainsCovered: "対象となるドメイン",
+        imported: "輸入品",
+      },
+      table: {
+        headers: {
+          name: "名前",
+          domain: "ドメイン",
+          severity: "重大度",
+          tags: "タグ",
+          action: "アクション",
+        },
+        failedToLoad: "表現型ライブラリのロードに失敗しました。",
+        empty: "表現型は見つかりませんでした。",
+        noTags: "タグなし",
+      },
+      actions: {
+        imported: "輸入品",
+        import: "輸入",
+        importing: "インポート中...",
+        noExpressionAvailable: "使用できる式がありません",
+        importAsCohortDefinition: "コホート定義としてインポート",
+      },
+      pagination: {
+        previous: "前の",
+        next: "次",
+      },
+      domains: {
+        condition: "状態",
+        drug: "薬",
+        measurement: "測定",
+        procedure: "手順",
+        observation: "観察",
+        device: "デバイス",
+      },
+      severities: {
+        acute: "急性",
+        chronic: "慢性",
+        subacute: "亜急性",
+      },
+    },
+    communityWorkbenchSdk: {
+      page: {
+        badge: "フェーズ 3 デモ",
+        title: "コミュニティ ワークベンチ SDK デモ",
+        subtitle:
+          "このサンドボックス ページには、ドメイン固有のロジックが組み込まれる前の Parthenon 内部で SDK で生成されたツールがどのように見えるかを示します。これは、コミュニティ開発者、パートナー チーム、および AI コーディング アシスタント向けの非本番リファレンス実装です。",
+        backToWorkbench: "ワークベンチに戻る",
+        openSdkDocs: "SDK ドキュメントを開く",
+        loading:
+          "Parthenon バックエンドからデモ ペイロードをロードしています...",
+        failed:
+          "Community Workbench SDK デモ ペイロードをバックエンドからロードできませんでした。",
+      },
+      serviceDescriptor: {
+        title: "サンプルサービス記述子",
+        description:
+          "これは、フロントエンドがワークベンチ サーフェスをレンダリングする前に、生成されたツールが公開する必要がある検出および可用性メタデータです。",
+      },
+      checklist: {
+        title: "統合チェックリスト",
+        items: {
+          backendController:
+            "検証、権限、永続性のためにバックエンド コントローラーとワークベンチ サービスを接続します。",
+          frontendRoute:
+            "フロントエンド ルートを追加し、プレースホルダー パネルをドメイン固有のレンダリングに置き換えます。",
+          validatePayloads:
+            "リリース前に、Community Workbench SDK スキーマに対して実際のペイロードを検証します。",
+        },
+      },
+      resultEnvelope: {
+        title: "結果エンベロープのサンプル",
+        description:
+          "SDK で生成されたツールは、より豊富なパネルをレンダリングする前に、ランタイム診断、ソース コンテキスト、概要、アーティファクトをこのような予測可能なエンベロープに正規化する必要があります。",
+      },
+      artifacts: {
+        title: "生成されたアーティファクトインベントリ",
+        descriptionPrefix:
+          "このデモは、実際に生成されたサンプル スキャフォールドによって裏付けられています。",
+        descriptionSuffix: "リポジトリ内。",
+      },
+    },
+    workbenchLauncher: {
+      page: {
+        title: "エスパシオ デ トラバホ",
+        subtitle: "斬新な機能と研究ツールセット",
+      },
+      sections: {
+        toolsetsTitle: "ツールセット",
+        toolsetsSubtitle: "研究課題に合ったワークベンチを選択してください。",
+        recentTitle: "最近の調査",
+        recentSubtitle: "最近取り組んだ証拠調査。",
+      },
+      states: {
+        loadingInvestigations: "調査を読み込んでいます...",
+        emptyInvestigations: "最初の証拠調査を開始します。",
+      },
+      actions: {
+        createInvestigation: "調査の作成",
+        newInvestigation: "新たな調査",
+      },
+      footer: {
+        prompt: "カスタム ツールセットを構築したいですか?",
+        link: "コミュニティ SDK リファレンスを表示する",
+      },
+      toolsetMeta: {
+        morpheus: {
+          tagline: "入院患者の転帰と ICU 分析ワークベンチ",
+          description:
+            "OMOP CDM 5.4 の MIMIC-IV データを活用した ICU に重点を置いた分析。 ABCDEF Liberation Bundle への準拠、人工呼吸器離脱予測、鎮静モニタリング、入院患者の転帰研究。",
+        },
+        sdk: {
+          name: "ツールセットを構築する",
+          tagline: "サードパーティ統合用のコミュニティ SDK",
+          description:
+            "Parthenon ワークベンチにプラグインするカスタム ツールセットを構築するためのリファレンス実装および SDK ドキュメント。サービス記述子、結果エンベロープ、およびアーティファクト パターン。",
+        },
+      },
+      toolsetStatus: {
+        available: "利用可能",
+        comingSoon: "近日公開",
+        sdkRequired: "SDKが必要です",
+      },
+      investigationStatus: {
+        draft: "下書き",
+        active: "アクティブ",
+        complete: "完了",
+        archived: "アーカイブ済み",
+      },
+    },
+    etl: {
+      toolsPage: {
+        loadingProjects: "ETL プロジェクトをロードしています...",
+        createTitle: "ETLマッピングプロジェクトの作成",
+        createDescription:
+          "ソーススキーマの OMOP CDM へのマッピングを開始します。まず、[ソース プロファイラー] タブでプロファイリングされたソースを選択します。",
+        cdmVersion: "CDM バージョン",
+        creating: "作成...",
+        createProject: "プロジェクトの作成",
+        createFailed: "プロジェクトの作成に失敗しました",
+        emptyTitle: "Aqueduct ETL マッピング デザイナー",
+        emptyDescription:
+          "取り込みプロジェクトに移動し、「Aqueduct で開く」をクリックして、ソーススキーマから OMOP CDM への ETL マッピングの設計を開始します。",
+      },
+    },
+  }),
+  "zh-Hans": mergeMessageTrees(enSmallWorkbench, {
+    studyAgent: {
+      header: {
+        title: "研究设计师",
+        subtitle: "由 OHDSI StudyAgent 提供支持的 AI 辅助研究设计",
+      },
+      tabs: {
+        intent: "学习意向",
+        search: "表型搜索",
+        recommend: "建议",
+        lint: "队列林特",
+      },
+      intent: {
+        title: "描述你的研究",
+        description:
+          "输入您的研究的自然语言描述。 AI 将其分为目标人群和结果，然后从 OHDSI 库中推荐表型。",
+        placeholder:
+          "例如，比较成人 2 型糖尿病患者新开 SGLT2 抑制剂与 DPP-4 抑制剂的心力衰竭风险......",
+        analyze: "分析学习意图",
+        targetPopulation: "目标人群",
+        outcome: "结果",
+      },
+      recommendations: {
+        title: "推荐表型",
+        loading: "寻找表型推荐...",
+        promptPrefix: "输入研究意向",
+        promptSuffix: "选项卡以获得 AI 排名的表型推荐。",
+      },
+      search: {
+        title: "搜索表型库",
+        placeholder: "搜索表型（例如 2 型糖尿病、心力衰竭、慢性阻塞性肺病）...",
+        submit: "搜索",
+        noneFound: "未发现表型。尝试不同的搜索词。",
+      },
+      lint: {
+        title: "Lint 队列定义",
+        description:
+          "粘贴群组定义 JSON 以检查设计问题，例如缺少清洗期、空概念集和倒置时间窗口。",
+        run: "运行 Lint",
+        noIssuesFound: "没有发现问题",
+        failed: "无法检查：无效 JSON 或服务器错误。",
+      },
+    },
+    phenotypeLibrary: {
+      page: {
+        title: "表型库",
+        subtitle: "300 多个精心策划的 OHDSI 表型定义 - 一键浏览、过滤和导入",
+        allDomains: "所有域名",
+        loading: "加载中...",
+        clearFilters: "清除过滤器",
+        matchingFilters: "匹配过滤器",
+      },
+      detail: {
+        description: "描述",
+        logic: "逻辑",
+        noAdditionalDetails: "没有更多详细信息。",
+      },
+      stats: {
+        totalPhenotypes: "表型总数",
+        withExpression: "有表情",
+        domainsCovered: "涵盖的领域",
+        imported: "进口",
+      },
+      table: {
+        headers: {
+          name: "姓名",
+          domain: "领域",
+          severity: "严重性",
+          tags: "标签",
+          action: "行动",
+        },
+        failedToLoad: "加载表型库失败。",
+        empty: "未发现表型。",
+        noTags: "没有标签",
+      },
+      actions: {
+        imported: "进口",
+        import: "进口",
+        importing: "输入...",
+        noExpressionAvailable: "没有可用的表达",
+        importAsCohortDefinition: "作为群组定义导入",
+      },
+      pagination: {
+        previous: "以前的",
+        next: "下一个",
+      },
+      domains: {
+        condition: "健康）状况",
+        drug: "药品",
+        measurement: "测量",
+        procedure: "程序",
+        observation: "观察",
+        device: "设备",
+      },
+      severities: {
+        acute: "急性",
+        chronic: "慢性的",
+        subacute: "亚急性",
+      },
+    },
+    communityWorkbenchSdk: {
+      page: {
+        badge: "第三阶段演示",
+        title: "社区工作台 SDK 演示",
+        subtitle:
+          "此沙盒页面显示了在连接特定于域的逻辑之前，SDK 生成的工具在 Parthenon 中的样子。它是面向社区开发人员、合作伙伴团队和 AI 编码助理的非生产参考实现。",
+        backToWorkbench: "返回工作台",
+        openSdkDocs: "打开SDK文档",
+        loading: "正在从 Parthenon 后端加载演示有效负载...",
+        failed: "无法从后端加载 Community Workbench SDK 演示负载。",
+      },
+      serviceDescriptor: {
+        title: "示例服务描述符",
+        description:
+          "这是生成的工具在前端呈现工作台表面之前应公开的发现和可用性元数据。",
+      },
+      checklist: {
+        title: "集成清单",
+        items: {
+          backendController:
+            "连接后端控制器和工作台服务以进行验证、权限和持久性。",
+          frontendRoute: "添加前端路由并用特定于域的渲染替换占位符面板。",
+          validatePayloads: "在发布之前根据社区工作台 SDK 架构验证真实负载。",
+        },
+      },
+      resultEnvelope: {
+        title: "结果信封样本",
+        description:
+          "SDK 生成的工具应在渲染更丰富的面板之前将其运行时诊断、源上下文、摘要和工件标准化为可预测的信封。",
+      },
+      artifacts: {
+        title: "生成的工件清单",
+        descriptionPrefix: "该演示由真实生成的示例支架支持，网址为",
+        descriptionSuffix: "在存储库中。",
+      },
+    },
+    workbenchLauncher: {
+      page: {
+        title: "劳动空间",
+        subtitle: "新颖的功能和研究工具集",
+      },
+      sections: {
+        toolsetsTitle: "工具集",
+        toolsetsSubtitle: "选择适合您的研究问题的工作台。",
+        recentTitle: "最近的调查",
+        recentSubtitle: "您最近进行的证据调查。",
+      },
+      states: {
+        loadingInvestigations: "正在加载调查...",
+        emptyInvestigations: "开始你的第一次证据调查。",
+      },
+      actions: {
+        createInvestigation: "创建调查",
+        newInvestigation: "新调查",
+      },
+      footer: {
+        prompt: "想要构建自定义工具集？",
+        link: "查看社区 SDK 参考",
+      },
+      toolsetMeta: {
+        morpheus: {
+          tagline: "住院结果和 ICU 分析工作台",
+          description:
+            "利用 OMOP CDM 5.4 中的 MIMIC-IV 数据进行以 ICU 为中心的分析。 ABCDEF Liberation Bundle 依从性、呼吸机脱机预测、镇静监测和住院结果研究。",
+        },
+        sdk: {
+          name: "构建工具集",
+          tagline: "用于第三方集成的社区 SDK",
+          description:
+            "用于构建插入 Parthenon 工作台的自定义工具集的参考实现和 SDK 文档。服务描述符、结果包络和工件模式。",
+        },
+      },
+      toolsetStatus: {
+        available: "可用的",
+        comingSoon: "即将推出",
+        sdkRequired: "需要SDK",
+      },
+      investigationStatus: {
+        draft: "草稿",
+        active: "积极的",
+        complete: "完全的",
+        archived: "已存档",
+      },
+    },
+    etl: {
+      toolsPage: {
+        loadingProjects: "正在加载 ETL 项目...",
+        createTitle: "创建 ETL 映射项目",
+        createDescription:
+          "开始将源模式映射到 OMOP CDM。首先选择已通过“源分析器”选项卡分析的源。",
+        cdmVersion: "清洁发展机制版本",
+        creating: "创造...",
+        createProject: "创建项目",
+        createFailed: "创建项目失败",
+        emptyTitle: "Aqueduct ETL 绘图设计器",
+        emptyDescription:
+          "导航到摄取项目并单击“在 Aqueduct 中打开”开始设计从源模式到 OMOP CDM 的 ETL 映射。",
+      },
+    },
+  }),
   "ko-KR": koSmallWorkbench,
   "hi-IN": hiSmallWorkbench,
   ar: mergeMessageTrees(enSmallWorkbench, {}),

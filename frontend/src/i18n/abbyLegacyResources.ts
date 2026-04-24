@@ -2,7 +2,10 @@ type MessageTree = {
   [key: string]: string | MessageTree;
 };
 
-function mergeMessageTrees(base: MessageTree, overrides: MessageTree): MessageTree {
+function mergeMessageTrees(
+  base: MessageTree,
+  overrides: MessageTree,
+): MessageTree {
   return Object.fromEntries(
     Object.entries(base).map(([key, baseValue]) => {
       const overrideValue = overrides[key];
@@ -41,8 +44,7 @@ const enAbbyLegacy: MessageTree = {
         aceInhibitors:
           "New users of ACE inhibitors without prior heart failure",
         hipFracture: "Patients aged 65+ with first hip fracture",
-        breastCancerChemo:
-          "Women with breast cancer who received chemotherapy",
+        breastCancerChemo: "Women with breast cancer who received chemotherapy",
       },
       analyzing: "Abby is analyzing your research question",
       errorTitle: "Something went wrong",
@@ -169,12 +171,10 @@ const deAbbyLegacy: MessageTree = mergeMessageTrees(enAbbyLegacy, {
       newQuery: "Neue Abfrage",
       examplesTitle: "Beispiel ausprobieren",
       examples: {
-        diabetesMetformin:
-          "Patienten mit Typ-2-Diabetes unter Metformin",
+        diabetesMetformin: "Patienten mit Typ-2-Diabetes unter Metformin",
         aceInhibitors:
           "Neue Anwender von ACE-Hemmern ohne fruehere Herzinsuffizienz",
-        hipFracture:
-          "Patienten ab 65 Jahren mit erster Hueftfraktur",
+        hipFracture: "Patienten ab 65 Jahren mit erster Hueftfraktur",
         breastCancerChemo:
           "Frauen mit Brustkrebs, die eine Chemotherapie erhalten haben",
       },
@@ -237,8 +237,7 @@ const ptAbbyLegacy: MessageTree = mergeMessageTrees(enAbbyLegacy, {
       newQuery: "Nova consulta",
       examplesTitle: "Experimente um exemplo",
       examples: {
-        diabetesMetformin:
-          "Pacientes com diabetes tipo 2 usando metformina",
+        diabetesMetformin: "Pacientes com diabetes tipo 2 usando metformina",
         aceInhibitors:
           "Novos usuarios de inibidores da ECA sem insuficiencia cardiaca previa",
         hipFracture:
@@ -248,8 +247,7 @@ const ptAbbyLegacy: MessageTree = mergeMessageTrees(enAbbyLegacy, {
       },
       analyzing: "Abby esta analisando sua pergunta de pesquisa",
       errorTitle: "Algo deu errado",
-      errorFallback:
-        "Falha ao processar sua solicitacao. Tente novamente.",
+      errorFallback: "Falha ao processar sua solicitacao. Tente novamente.",
       analysisTitle: "Analise",
       conceptSetsTitle: "Conjuntos de conceitos ({{count}})",
       conceptsCount_one: "{{count}} conceito",
@@ -316,8 +314,7 @@ const esAbbyLegacy: MessageTree = mergeMessageTrees(enAbbyLegacy, {
       },
       analyzing: "Abby esta analizando su pregunta de investigacion",
       errorTitle: "Algo salio mal",
-      errorFallback:
-        "No se pudo procesar su solicitud. Intentelo de nuevo.",
+      errorFallback: "No se pudo procesar su solicitud. Intentelo de nuevo.",
       analysisTitle: "Analisis",
       conceptSetsTitle: "Conjuntos de conceptos ({{count}})",
       conceptsCount_one: "{{count}} concepto",
@@ -343,8 +340,7 @@ const esAbbyLegacy: MessageTree = mergeMessageTrees(enAbbyLegacy, {
       },
       runningSteps: "Ejecutando pasos del plan...",
       success: "Todos los pasos se completaron correctamente.",
-      failure:
-        "Uno o mas pasos fallaron. Los pasos restantes se omitieron.",
+      failure: "Uno o mas pasos fallaron. Los pasos restantes se omitieron.",
     },
     profile: {
       loading: "Cargando perfil...",
@@ -374,15 +370,13 @@ const koAbbyLegacy: MessageTree = mergeMessageTrees(enAbbyLegacy, {
       examplesTitle: "예시 보기",
       examples: {
         diabetesMetformin: "메트포르민을 복용 중인 제2형 당뇨병 환자",
-        aceInhibitors:
-          "이전 심부전 병력이 없는 ACE 억제제 신규 사용자",
+        aceInhibitors: "이전 심부전 병력이 없는 ACE 억제제 신규 사용자",
         hipFracture: "첫 고관절 골절을 경험한 65세 이상 환자",
         breastCancerChemo: "항암치료를 받은 유방암 여성 환자",
       },
       analyzing: "Abby가 연구 질문을 분석하고 있습니다",
       errorTitle: "문제가 발생했습니다",
-      errorFallback:
-        "요청을 처리하지 못했습니다. 다시 시도해 주세요.",
+      errorFallback: "요청을 처리하지 못했습니다. 다시 시도해 주세요.",
       analysisTitle: "분석",
       conceptSetsTitle: "개념 집합 ({{count}})",
       conceptsCount_one: "{{count}}개 개념",
@@ -408,8 +402,7 @@ const koAbbyLegacy: MessageTree = mergeMessageTrees(enAbbyLegacy, {
       },
       runningSteps: "계획 단계를 실행하는 중...",
       success: "모든 단계가 성공적으로 완료되었습니다.",
-      failure:
-        "하나 이상의 단계가 실패했습니다. 나머지 단계는 건너뛰었습니다.",
+      failure: "하나 이상의 단계가 실패했습니다. 나머지 단계는 건너뛰었습니다.",
     },
     profile: {
       loading: "프로필을 불러오는 중...",
@@ -442,8 +435,7 @@ const hiAbbyLegacy: MessageTree = mergeMessageTrees(enAbbyLegacy, {
         aceInhibitors:
           "पूर्व हृदय विफलता के बिना ACE inhibitors के नए उपयोगकर्ता",
         hipFracture: "पहली कूल्हे की फ्रैक्चर वाले 65+ आयु के रोगी",
-        breastCancerChemo:
-          "कीमोथेरेपी प्राप्त करने वाली स्तन कैंसर की महिलाएं",
+        breastCancerChemo: "कीमोथेरेपी प्राप्त करने वाली स्तन कैंसर की महिलाएं",
       },
       analyzing: "Abby आपके शोध प्रश्न का विश्लेषण कर रही है",
       errorTitle: "कुछ गलत हो गया",
@@ -474,8 +466,7 @@ const hiAbbyLegacy: MessageTree = mergeMessageTrees(enAbbyLegacy, {
       },
       runningSteps: "योजना के चरण चल रहे हैं...",
       success: "सभी चरण सफलतापूर्वक पूरे हुए।",
-      failure:
-        "एक या अधिक चरण विफल हुए। शेष चरणों को छोड़ दिया गया।",
+      failure: "एक या अधिक चरण विफल हुए। शेष चरणों को छोड़ दिया गया।",
     },
     profile: {
       loading: "प्रोफाइल लोड हो रही है...",
@@ -502,9 +493,184 @@ export const abbyLegacyResources: Record<string, MessageTree> = {
   "fr-FR": frAbbyLegacy,
   "de-DE": deAbbyLegacy,
   "pt-BR": ptAbbyLegacy,
-  "fi-FI": mergeMessageTrees(enAbbyLegacy, {}),
-  "ja-JP": mergeMessageTrees(enAbbyLegacy, {}),
-  "zh-Hans": mergeMessageTrees(enAbbyLegacy, {}),
+  "fi-FI": mergeMessageTrees(enAbbyLegacy, {
+    abbyLegacy: {
+      panel: {
+        subtitle: "Älykäs kohortin rakentaja",
+        newQuery: "Uusi kysely",
+        examplesTitle: "Kokeile esimerkkiä",
+        examples: {
+          diabetesMetformin:
+            "Tyypin 2 diabetesta sairastavat potilaat, jotka saavat metformiinia",
+          aceInhibitors:
+            "Uudet ACE-estäjien käyttäjät ilman aiempaa sydämen vajaatoimintaa",
+          hipFracture:
+            "Yli 65-vuotiaat potilaat, joilla on ensimmäinen lonkkamurtuma",
+          breastCancerChemo:
+            "Naiset, joilla on rintasyöpä ja jotka ovat saaneet kemoterapiaa",
+        },
+        analyzing: "Abby analysoi tutkimuskysymystäsi",
+        errorTitle: "Jotain meni pieleen",
+        errorFallback: "Pyyntösi käsittely epäonnistui. Yritä uudelleen.",
+        analysisTitle: "Analyysi",
+        applyToBuilder: "Hae Builderiin",
+        refine: "Tarkenna",
+        refinePlaceholder: "Miten haluaisit muokata tätä kohorttia?",
+        refineCohort: "Tarkenna kohorttia",
+        promptPlaceholder: "Kuvaile kohderyhmääsi...",
+        buildCohort: "Rakenna kohortti",
+      },
+      plan: {
+        title: "Toimintasuunnitelma",
+        status: {
+          executing: "Suoritetaan...",
+          completed: "Valmis",
+          failed: "Epäonnistui",
+          cancelled: "Peruutettu",
+        },
+        actions: {
+          approveAndExecute: "Hyväksy ja suorita",
+          cancel: "Peruuttaa",
+        },
+        runningSteps: "Suoritetaan suunnitelman vaiheita...",
+        success: "Kaikki vaiheet suoritettu onnistuneesti.",
+        failure:
+          "Yksi tai useampi vaihe epäonnistui. Loput vaiheet ohitettiin.",
+      },
+      profile: {
+        loading: "Ladataan profiilia...",
+        failed: "Profiilin lataaminen epäonnistui",
+        title: "Tutkimusprofiilini",
+        reset: "Nollaa",
+        researchInterests: "Tutkimuskohteet",
+        expertise: "Asiantuntemus",
+        responseStyle: "Vastaustyyli",
+        verbosity: {
+          terse: "Lyhyt",
+          normal: "Vakio",
+          verbose: "Yksityiskohtainen",
+        },
+        learningMessage:
+          "Abby on oppimista tutkimusaiheistasi. Jatka chattailua, niin hän luo profiilisi automaattisesti.",
+      },
+    },
+  }),
+  "ja-JP": mergeMessageTrees(enAbbyLegacy, {
+    abbyLegacy: {
+      panel: {
+        subtitle: "インテリジェントなコホートビルダー",
+        newQuery: "新しいクエリ",
+        examplesTitle: "例を試してみる",
+        examples: {
+          diabetesMetformin: "メトホルミンを服用している2型糖尿病患者",
+          aceInhibitors: "心不全の既往がないACE阻害剤の新規使用者",
+          hipFracture: "初めて股関節骨折を患った65歳以上の患者",
+          breastCancerChemo: "化学療法を受けた乳がんの女性",
+        },
+        analyzing: "Abby はあなたの研究上の疑問を分析しています",
+        errorTitle: "何か問題が発生しました",
+        errorFallback:
+          "リクエストを処理できませんでした。もう一度試してください。",
+        analysisTitle: "分析",
+        applyToBuilder: "ビルダーに申請する",
+        refine: "リファイン",
+        refinePlaceholder: "このコホートをどのように変更しますか?",
+        refineCohort: "コホートを絞り込む",
+        promptPlaceholder: "ターゲット層について説明してください...",
+        buildCohort: "コホートを構築する",
+      },
+      plan: {
+        title: "行動計画",
+        status: {
+          executing: "実行中...",
+          completed: "完了しました",
+          failed: "失敗した",
+          cancelled: "キャンセル",
+        },
+        actions: {
+          approveAndExecute: "承認と実行",
+          cancel: "キャンセル",
+        },
+        runningSteps: "計画ステップを実行中...",
+        success: "すべての手順が正常に完了しました。",
+        failure:
+          "1 つ以上のステップが失敗しました。残りの手順はスキップされました。",
+      },
+      profile: {
+        loading: "プロファイルを読み込んでいます...",
+        failed: "プロファイルのロードに失敗しました",
+        title: "私の研究プロフィール",
+        reset: "リセット",
+        researchInterests: "研究分野",
+        expertise: "専門知識",
+        responseStyle: "応答スタイル",
+        verbosity: {
+          terse: "簡潔",
+          normal: "標準",
+          verbose: "詳細",
+        },
+        learningMessage:
+          "Abby はあなたの研究上の関心について学んでいます。チャットを続けると、彼女はあなたのプロフィールを自動的に作成します。",
+      },
+    },
+  }),
+  "zh-Hans": mergeMessageTrees(enAbbyLegacy, {
+    abbyLegacy: {
+      panel: {
+        subtitle: "智能群组生成器",
+        newQuery: "新查询",
+        examplesTitle: "尝试一个例子",
+        examples: {
+          diabetesMetformin: "服用二甲双胍的 2 型糖尿病患者",
+          aceInhibitors: "没有既往心力衰竭史的 ACE 抑制剂新使用者",
+          hipFracture: "65 岁以上首次髋部骨折的患者",
+          breastCancerChemo: "接受化疗的乳腺癌女性",
+        },
+        analyzing: "Abby 正在分析您的研究问题",
+        errorTitle: "出了点问题",
+        errorFallback: "无法处理您的请求。请再试一次。",
+        analysisTitle: "分析",
+        applyToBuilder: "申请建造商",
+        refine: "精炼",
+        refinePlaceholder: "您想如何修改这个队列？",
+        refineCohort: "精炼队列",
+        promptPlaceholder: "描述您的目标人群...",
+        buildCohort: "建立队列",
+      },
+      plan: {
+        title: "行动计划",
+        status: {
+          executing: "正在执行...",
+          completed: "完全的",
+          failed: "失败的",
+          cancelled: "取消",
+        },
+        actions: {
+          approveAndExecute: "批准并执行",
+          cancel: "取消",
+        },
+        runningSteps: "运行计划步骤...",
+        success: "所有步骤均已成功完成。",
+        failure: "一个或多个步骤失败。其余步骤被跳过。",
+      },
+      profile: {
+        loading: "正在加载个人资料...",
+        failed: "无法加载配置文件",
+        title: "我的研究简介",
+        reset: "重置",
+        researchInterests: "研究兴趣",
+        expertise: "专业知识",
+        responseStyle: "回应风格",
+        verbosity: {
+          terse: "简洁的",
+          normal: "标准",
+          verbose: "详细的",
+        },
+        learningMessage:
+          "Abby 正在了解您的研究兴趣。继续聊天，她会自动建立您的个人资料。",
+      },
+    },
+  }),
   "ko-KR": koAbbyLegacy,
   "hi-IN": hiAbbyLegacy,
   ar: mergeMessageTrees(enAbbyLegacy, {}),

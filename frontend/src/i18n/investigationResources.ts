@@ -2,7 +2,10 @@ type MessageTree = {
   [key: string]: string | MessageTree;
 };
 
-function mergeMessageTrees(base: MessageTree, overrides: MessageTree): MessageTree {
+function mergeMessageTrees(
+  base: MessageTree,
+  overrides: MessageTree,
+): MessageTree {
   return Object.fromEntries(
     Object.entries(base).map(([key, baseValue]) => {
       const overrideValue = overrides[key];
@@ -131,8 +134,7 @@ const enInvestigation: MessageTree = {
           "Explore these examples to see the Evidence Investigation workflow in action",
         recentInvestigations: "Recent Investigations",
         yourInvestigations: "Your Investigations",
-        yourInvestigationsSubtitle:
-          "Recent investigations you have created",
+        yourInvestigationsSubtitle: "Recent investigations you have created",
         conceptSets: "Concept Sets",
         cohorts: "Cohorts",
         analyses: "Analyses cliniques",
@@ -179,8 +181,7 @@ const enInvestigation: MessageTree = {
         exportFailed: "Export failed. Please try again.",
         searchFailed: "Search failed. Please try again.",
         enterAtLeast2Characters: "Enter at least 2 characters to search.",
-        searchOmopMinimum:
-          "Type at least 2 characters to search OMOP concepts",
+        searchOmopMinimum: "Type at least 2 characters to search OMOP concepts",
         loadingVersions: "Loading versions...",
         waitingInQueue: "Waiting in queue...",
         running: "Running...",
@@ -206,11 +207,9 @@ const enInvestigation: MessageTree = {
         addNoteBefore: "Add note before...",
         addNoteAfter: "Add note after...",
         clickToAddNarrative: "Click to add narrative...",
-        searchTrait:
-          "Search trait or phenotype (e.g. type 2 diabetes)",
+        searchTrait: "Search trait or phenotype (e.g. type 2 diabetes)",
         searchGene: "Search gene (e.g. TCF7L2)",
-        searchGeneOpenTargets:
-          "Search gene symbol or name (e.g. BRCA1)",
+        searchGeneOpenTargets: "Search gene symbol or name (e.g. BRCA1)",
         searchDiseaseOpenTargets:
           "Search disease or phenotype (e.g. breast cancer)",
         selectSource: "Select a source...",
@@ -283,8 +282,7 @@ const enInvestigation: MessageTree = {
         },
         synthesizeDossier: {
           label: "Synthesize Dossier",
-          description:
-            "Export a structured Evidence Dossier for publication.",
+          description: "Export a structured Evidence Dossier for publication.",
         },
       },
       sampleInvestigations: {
@@ -353,8 +351,7 @@ const enInvestigation: MessageTree = {
         exportHint: "Export from Atlas: Cohort Definition -> Export -> JSON",
         parseErrorEmpty:
           "Please paste an Atlas JSON definition before parsing.",
-        parseErrorInvalid:
-          "Invalid JSON - please check for syntax errors.",
+        parseErrorInvalid: "Invalid JSON - please check for syntax errors.",
         parseErrorShape:
           "Unrecognized format - expected ConceptSets, PrimaryCriteria, or expression keys.",
         importSucceeded: "{{summary}} - imported successfully.",
@@ -378,10 +375,9 @@ const enInvestigation: MessageTree = {
         standardOnly: "Standard only",
         addToConceptSet: "Add to concept set",
         patients: "{{count}} pts",
-        noConceptsFound:
-          "No concepts found matching \"{{query}}\"",
+        noConceptsFound: 'No concepts found matching "{{query}}"',
         nonStandardHidden:
-          "({{count}} non-standard hidden - uncheck \"Standard only\" to show)",
+          '({{count}} non-standard hidden - uncheck "Standard only" to show)',
       },
       conceptSet: {
         excluded: "Excluded",
@@ -407,8 +403,7 @@ const enInvestigation: MessageTree = {
         title: "Phenotype Library",
         searchPlaceholder:
           "Search the OHDSI Phenotype Library (1,100+ validated phenotypes)",
-        searchFailed:
-          "Failed to search phenotype library. Please try again.",
+        searchFailed: "Failed to search phenotype library. Please try again.",
         noResults: 'No phenotypes found for "{{query}}"',
         emptyPrompt: "Search the OHDSI Phenotype Library",
         validatedPhenotypes: "1,100+ validated phenotypes",
@@ -554,8 +549,7 @@ const enInvestigation: MessageTree = {
         outcomeCohorts: "Outcome Cohorts",
         minCellCount: "Min Cell Count",
         minCellCountLabel: "Minimum cell count",
-        minCellCountHelp:
-          "Cells with fewer patients are suppressed in output.",
+        minCellCountHelp: "Cells with fewer patients are suppressed in output.",
         tarStart: "TAR Start (days)",
         tarEnd: "TAR End (days)",
         tarStartLabel: "Time-at-risk start days",
@@ -659,8 +653,7 @@ const enInvestigation: MessageTree = {
       refAlt: "Ref/Alt",
       manhattanPlot: "Manhattan Plot",
       qqPlot: "QQ Plot",
-      showingOfResults:
-        "Showing {{shown}} of {{total}} results - GWAS Catalog",
+      showingOfResults: "Showing {{shown}} of {{total}} results - GWAS Catalog",
       sample: "Sample:",
       snps: "SNPs:",
       unknownTrait: "Unknown trait",
@@ -675,8 +668,7 @@ const enInvestigation: MessageTree = {
       noGwasDataAvailable: "No GWAS data available",
       noGwasDataAvailableAria: "Manhattan plot: no GWAS data available",
       manhattanAriaNoVariants: "Manhattan plot: no variants",
-      manhattanAriaTopPeak:
-        "top peak at chr{{chr}}:{{pos}}, p={{pValue}}",
+      manhattanAriaTopPeak: "top peak at chr{{chr}}:{{pos}}, p={{pValue}}",
       manhattanAriaNoPeaks: "no peaks",
       manhattanAriaSummary:
         "Manhattan plot: {{variantCount}} variants, {{significantCount}} genome-wide significant, {{topPeak}}",
@@ -863,7 +855,8 @@ const frInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         addNoteBefore: "Ajouter une note avant...",
         addNoteAfter: "Ajouter une note apres...",
         clickToAddNarrative: "Cliquer pour ajouter un texte...",
-        searchTrait: "Rechercher un trait ou phenotype (p. ex. diabete de type 2)",
+        searchTrait:
+          "Rechercher un trait ou phenotype (p. ex. diabete de type 2)",
         searchGene: "Rechercher un gene (p. ex. TCF7L2)",
         searchGeneOpenTargets:
           "Rechercher un symbole ou nom de gene (p. ex. BRCA1)",
@@ -931,11 +924,13 @@ const frInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         },
         buildPhenotype: {
           label: "Construire le phenotype",
-          description: "Curatez les ensembles de concepts et les definitions de cohortes.",
+          description:
+            "Curatez les ensembles de concepts et les definitions de cohortes.",
         },
         gatherEvidence: {
           label: "Rassembler les preuves",
-          description: "Executez des analyses HADES et recuperez les signaux genomiques.",
+          description:
+            "Executez des analyses HADES et recuperez les signaux genomiques.",
         },
         synthesizeDossier: {
           label: "Synthese du dossier",
@@ -982,14 +977,16 @@ const frInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
     },
     newPage: {
       title: "Nouvelle investigation de preuves",
-      subtitle: "Demarrez un dossier structure pour votre question de recherche.",
+      subtitle:
+        "Demarrez un dossier structure pour votre question de recherche.",
       back: "Investigation de preuves",
     },
     phenotype: {
       importModes: {
         parthenon: {
           label: "Cohortes Parthenon",
-          description: "Selectionner parmi les definitions de cohortes existantes",
+          description:
+            "Selectionner parmi les definitions de cohortes existantes",
         },
         json: {
           description: "Coller un JSON de definition de cohorte depuis Atlas",
@@ -1005,7 +1002,8 @@ const frInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         },
       },
       atlas: {
-        exportHint: "Exporter depuis Atlas : Cohort Definition -> Export -> JSON",
+        exportHint:
+          "Exporter depuis Atlas : Cohort Definition -> Export -> JSON",
         parseErrorEmpty:
           "Veuillez coller une definition Atlas JSON avant l'analyse.",
         parseErrorInvalid:
@@ -1035,9 +1033,9 @@ const frInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         standardOnly: "Standards uniquement",
         addToConceptSet: "Ajouter a l'ensemble de concepts",
         patients: "{{count}} pts",
-        noConceptsFound: "Aucun concept trouve pour \"{{query}}\"",
+        noConceptsFound: 'Aucun concept trouve pour "{{query}}"',
         nonStandardHidden:
-          "({{count}} non standards masques - decochez \"Standard only\" pour les afficher)",
+          '({{count}} non standards masques - decochez "Standard only" pour les afficher)',
       },
       conceptSet: {
         excluded: "Exclu",
@@ -1073,8 +1071,7 @@ const frInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
       cohortPicker: {
         loading: "Chargement des cohortes...",
         loadFailed: "Echec du chargement des definitions de cohortes.",
-        noSearchMatches:
-          "Aucune cohorte ne correspond a votre recherche.",
+        noSearchMatches: "Aucune cohorte ne correspond a votre recherche.",
         noDefinitions: "Aucune definition de cohorte trouvee.",
         primary: "Principale",
         primarySelected: "Principale ✓",
@@ -1105,14 +1102,14 @@ const frInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         noData: "Aucune donnee d'attrition disponible",
       },
       schemaDensity: {
-        addConcepts: "Ajoutez des concepts pour voir la couverture des domaines",
+        addConcepts:
+          "Ajoutez des concepts pour voir la couverture des domaines",
         domainCoverage: "Couverture des domaines",
         total: "{{count}} au total",
         tooltip: "{{count}} concepts",
       },
       validation: {
-        atLeastOneConceptSetDefined:
-          "Au moins un ensemble de concepts defini",
+        atLeastOneConceptSetDefined: "Au moins un ensemble de concepts defini",
         atLeastOneCohortSelected: "Au moins une cohorte selectionnee",
         primaryCohortDesignated: "Cohorte principale definie",
         noEmptyConceptSets: "Aucun ensemble de concepts vide",
@@ -1120,8 +1117,7 @@ const frInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         addConceptsExploreTab: "Ajoutez des concepts dans l'onglet Explorer",
         selectCohortsBuildTab:
           "Selectionnez des cohortes dans l'onglet Construire",
-        setPrimaryCohort:
-          "Definissez une cohorte principale pour les analyses",
+        setPrimaryCohort: "Definissez une cohorte principale pour les analyses",
         allSetsPopulated: "Tous les ensembles sont renseignes",
         runCodewas: "Executer CodeWAS pour valider le phenotype",
         passed: "{{passed}}/{{total}} valides",
@@ -1302,8 +1298,7 @@ const frInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         "Impossible d'analyser le fichier. Veuillez verifier le format.",
       confirmMapping: "Confirmer le mappage",
       threshold: "{{count}} loci · seuil p < {{threshold}}",
-      noLoci:
-        "Aucun locus sous le seuil de significativite ({{threshold}})",
+      noLoci: "Aucun locus sous le seuil de significativite ({{threshold}})",
       pinThisLocus: "Epingler ce locus",
       position: "Position",
       manhattanPlot: "Graphique de Manhattan",
@@ -1322,10 +1317,8 @@ const frInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
       noGwasDataAvailable: "Aucune donnee GWAS disponible",
       noGwasDataAvailableAria:
         "Graphique de Manhattan : aucune donnee GWAS disponible",
-      manhattanAriaNoVariants:
-        "Graphique de Manhattan : aucun variant",
-      manhattanAriaTopPeak:
-        "pic principal en chr{{chr}}:{{pos}}, p={{pValue}}",
+      manhattanAriaNoVariants: "Graphique de Manhattan : aucun variant",
+      manhattanAriaTopPeak: "pic principal en chr{{chr}}:{{pos}}, p={{pValue}}",
       manhattanAriaNoPeaks: "aucun pic",
       manhattanAriaSummary:
         "Graphique de Manhattan : {{variantCount}} variants, {{significantCount}} significatifs a l'echelle du genome, {{topPeak}}",
@@ -1452,8 +1445,7 @@ const deInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
           "Starten Sie die Erkundung - fugen Sie Konzepte, Kohorten und Analysen hinzu, um Evidenz aufzubauen",
         results: "Ergebnisse",
         fromInvestigation: "Aus der Untersuchung",
-        cohortFromThisInvestigation:
-          "* = Kohorte aus dieser Untersuchung",
+        cohortFromThisInvestigation: "* = Kohorte aus dieser Untersuchung",
         openTargetsPlatform: "Open Targets-Plattform",
       },
       empty: {
@@ -1504,8 +1496,7 @@ const deInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
           "Beim Starten der Analyse ist ein unerwarteter Fehler aufgetreten.",
       },
       placeholders: {
-        investigationTitle:
-          "z. B. Kardiovaskulares Risiko bei T2DM-Patienten",
+        investigationTitle: "z. B. Kardiovaskulares Risiko bei T2DM-Patienten",
         researchQuestion: "Wie wirksam ist im Vergleich...",
         conceptSearch: "Konzepte suchen... (min. 2 Zeichen)",
         atlasJson:
@@ -1514,11 +1505,9 @@ const deInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         addNoteBefore: "Notiz davor hinzufugen...",
         addNoteAfter: "Notiz danach hinzufugen...",
         clickToAddNarrative: "Klicken, um Text hinzuzufugen...",
-        searchTrait:
-          "Merkmal oder Phanotyp suchen (z. B. Typ-2-Diabetes)",
+        searchTrait: "Merkmal oder Phanotyp suchen (z. B. Typ-2-Diabetes)",
         searchGene: "Gen suchen (z. B. TCF7L2)",
-        searchGeneOpenTargets:
-          "Gensymbol oder Genname suchen (z. B. BRCA1)",
+        searchGeneOpenTargets: "Gensymbol oder Genname suchen (z. B. BRCA1)",
         searchDiseaseOpenTargets:
           "Krankheit oder Phanotyp suchen (z. B. Brustkrebs)",
         selectSource: "Quelle auswahlen...",
@@ -1579,13 +1568,11 @@ const deInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
       workflow: {
         askQuestion: {
           label: "Frage stellen",
-          description:
-            "Definieren Sie Ihre Forschungsfrage und den Titel.",
+          description: "Definieren Sie Ihre Forschungsfrage und den Titel.",
         },
         buildPhenotype: {
           label: "Phanotyp erstellen",
-          description:
-            "Kurieren Sie Konzeptsets und Kohortendefinitionen.",
+          description: "Kurieren Sie Konzeptsets und Kohortendefinitionen.",
         },
         gatherEvidence: {
           label: "Evidenz sammeln",
@@ -1645,8 +1632,7 @@ const deInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
       importModes: {
         parthenon: {
           label: "Parthenon-Kohorten",
-          description:
-            "Aus vorhandenen Kohortendefinitionen auswahlen",
+          description: "Aus vorhandenen Kohortendefinitionen auswahlen",
         },
         json: {
           description: "Eine Kohortendefinition als JSON aus Atlas einfugen",
@@ -1666,8 +1652,7 @@ const deInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
           "Aus Atlas exportieren: Cohort Definition -> Export -> JSON",
         parseErrorEmpty:
           "Bitte fugen Sie vor dem Parsen eine Atlas-JSON-Definition ein.",
-        parseErrorInvalid:
-          "Ungultiges JSON - bitte auf Syntaxfehler prufen.",
+        parseErrorInvalid: "Ungultiges JSON - bitte auf Syntaxfehler prufen.",
         parseErrorShape:
           "Unbekanntes Format - erwartet werden ConceptSets, PrimaryCriteria oder Ausdrucksschlussel.",
         importSucceeded: "{{summary}} - erfolgreich importiert.",
@@ -1693,10 +1678,9 @@ const deInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         standardOnly: "Nur Standard",
         addToConceptSet: "Zum Konzeptset hinzufugen",
         patients: "{{count}} Pat.",
-        noConceptsFound:
-          "Keine Konzepte gefunden, die zu \"{{query}}\" passen",
+        noConceptsFound: 'Keine Konzepte gefunden, die zu "{{query}}" passen',
         nonStandardHidden:
-          "({{count}} nicht-standardisierte ausgeblendet - deaktivieren Sie \"Standard only\", um sie anzuzeigen)",
+          '({{count}} nicht-standardisierte ausgeblendet - deaktivieren Sie "Standard only", um sie anzuzeigen)',
       },
       conceptSet: {
         excluded: "Ausgeschlossen",
@@ -1732,8 +1716,7 @@ const deInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
       cohortPicker: {
         loading: "Kohorten werden geladen...",
         loadFailed: "Kohortendefinitionen konnten nicht geladen werden.",
-        noSearchMatches:
-          "Keine Kohorten entsprechen Ihrer Suche.",
+        noSearchMatches: "Keine Kohorten entsprechen Ihrer Suche.",
         noDefinitions: "Keine Kohortendefinitionen gefunden.",
         primary: "Primar",
         primarySelected: "Primar ✓",
@@ -1771,19 +1754,14 @@ const deInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         total: "{{count}} insgesamt",
       },
       validation: {
-        atLeastOneConceptSetDefined:
-          "Mindestens ein Konzeptset definiert",
-        atLeastOneCohortSelected:
-          "Mindestens eine Kohorte ausgewahlt",
+        atLeastOneConceptSetDefined: "Mindestens ein Konzeptset definiert",
+        atLeastOneCohortSelected: "Mindestens eine Kohorte ausgewahlt",
         primaryCohortDesignated: "Primare Kohorte festgelegt",
         noEmptyConceptSets: "Keine leeren Konzeptsets",
         codewasValidationRun: "CodeWAS-Validierung ausgefuhrt",
-        addConceptsExploreTab:
-          "Fugen Sie Konzepte im Tab Erkunden hinzu",
-        selectCohortsBuildTab:
-          "Wahlen Sie Kohorten im Tab Erstellen aus",
-        setPrimaryCohort:
-          "Legen Sie eine primare Kohorte fur Analysen fest",
+        addConceptsExploreTab: "Fugen Sie Konzepte im Tab Erkunden hinzu",
+        selectCohortsBuildTab: "Wahlen Sie Kohorten im Tab Erstellen aus",
+        setPrimaryCohort: "Legen Sie eine primare Kohorte fur Analysen fest",
         allSetsPopulated: "Alle Sets sind gefullt",
         runCodewas: "CodeWAS ausfuhren, um den Phanotyp zu validieren",
         passed: "{{passed}}/{{total}} bestanden",
@@ -1887,7 +1865,8 @@ const deInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         naivePeriodLabel: "Tage der naiven Periode",
         naivePeriodHelp:
           "Tage zu Beginn der Beobachtung, die von der Analyse ausgeschlossen werden.",
-        synthesisPrompt: "Wahlen Sie 2+ abgeschlossene Schatzungsergebnisse aus",
+        synthesisPrompt:
+          "Wahlen Sie 2+ abgeschlossene Schatzungsergebnisse aus",
         synthesisHelp:
           "Das Pooling der Evidenzsynthese ist hier noch nicht konfigurierbar. Fuhren Sie es aus der Ansicht der Schatzungsergebnisse aus.",
       },
@@ -1958,8 +1937,7 @@ const deInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         "Datei konnte nicht geparst werden. Bitte prufen Sie das Format.",
       confirmMapping: "Zuordnung bestatigen",
       threshold: "{{count}} Loci · Schwelle p < {{threshold}}",
-      noLoci:
-        "Keine Loci unterhalb der Signifikanzschwelle ({{threshold}})",
+      noLoci: "Keine Loci unterhalb der Signifikanzschwelle ({{threshold}})",
       pinThisLocus: "Diesen Locus anheften",
       position: "Position",
       manhattanPlot: "Manhattan-Plot",
@@ -1976,8 +1954,7 @@ const deInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
       qqPlotExpectedNegLogP: "Erwartetes -log10(p)",
       qqPlotObservedNegLogP: "Beobachtetes -log10(p)",
       noGwasDataAvailable: "Keine GWAS-Daten verfugbar",
-      noGwasDataAvailableAria:
-        "Manhattan-Plot: keine GWAS-Daten verfugbar",
+      noGwasDataAvailableAria: "Manhattan-Plot: keine GWAS-Daten verfugbar",
       manhattanAriaNoVariants: "Manhattan-Plot: keine Varianten",
       manhattanAriaTopPeak:
         "hochster Peak bei chr{{chr}}:{{pos}}, p={{pValue}}",
@@ -2020,8 +1997,7 @@ const ptInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         newSet: "+ Novo conjunto",
         removeCohort: "Remover coorte",
         dismissError: "Dispensar erro",
-        toggleEvidenceSidebar:
-          "Alternar barra lateral de evidencias",
+        toggleEvidenceSidebar: "Alternar barra lateral de evidencias",
         switchToClinicalRunHistory:
           "Alternar para o historico de execucoes clinicas",
       },
@@ -2097,8 +2073,7 @@ const ptInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
           "Explore estes exemplos para ver o fluxo de trabalho da investigacao de evidencias em acao",
         recentInvestigations: "Investigacoes recentes",
         yourInvestigations: "Suas investigacoes",
-        yourInvestigationsSubtitle:
-          "Investigacoes recentes criadas por voce",
+        yourInvestigationsSubtitle: "Investigacoes recentes criadas por voce",
         conceptSets: "Conjuntos de conceitos",
         cohorts: "Coortes",
         analyses: "Analises",
@@ -2108,18 +2083,15 @@ const ptInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
           "Comece a explorar - adicione conceitos, coortes e analises para construir evidencias",
         results: "Resultados",
         fromInvestigation: "Da investigacao",
-        cohortFromThisInvestigation:
-          "* = coorte desta investigacao",
+        cohortFromThisInvestigation: "* = coorte desta investigacao",
         openTargetsPlatform: "Plataforma Open Targets",
       },
       empty: {
         noInvestigationsYet: "Ainda nao ha investigacoes",
         noInvestigationsSubtitle:
           "Crie seu primeiro dossier de evidencias estruturado para comecar.",
-        noResearchQuestionDefined:
-          "Nenhuma pergunta de pesquisa definida",
-        noFindingsPinned:
-          "Ainda nao ha achados fixados nesta secao",
+        noResearchQuestionDefined: "Nenhuma pergunta de pesquisa definida",
+        noFindingsPinned: "Ainda nao ha achados fixados nesta secao",
         noPinsYet: "Ainda nao ha fixacoes",
         noSnapshotsYet: "Ainda nao ha snapshots.",
         noConcepts: "Nenhum conceito",
@@ -2161,8 +2133,7 @@ const ptInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
           "Ocorreu um erro inesperado ao disparar a analise.",
       },
       placeholders: {
-        investigationTitle:
-          "ex.: Risco cardiovascular em pacientes com DM2",
+        investigationTitle: "ex.: Risco cardiovascular em pacientes com DM2",
         researchQuestion: "Qual e a efetividade comparativa de...",
         conceptSearch: "Buscar conceitos... (min. 2 caracteres)",
         atlasJson:
@@ -2171,11 +2142,9 @@ const ptInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         addNoteBefore: "Adicionar nota antes...",
         addNoteAfter: "Adicionar nota depois...",
         clickToAddNarrative: "Clique para adicionar narrativa...",
-        searchTrait:
-          "Buscar traco ou fenotipo (ex.: diabetes tipo 2)",
+        searchTrait: "Buscar traco ou fenotipo (ex.: diabetes tipo 2)",
         searchGene: "Buscar gene (ex.: TCF7L2)",
-        searchGeneOpenTargets:
-          "Buscar simbolo ou nome do gene (ex.: BRCA1)",
+        searchGeneOpenTargets: "Buscar simbolo ou nome do gene (ex.: BRCA1)",
         searchDiseaseOpenTargets:
           "Buscar doenca ou fenotipo (ex.: cancer de mama)",
         selectSource: "Selecionar uma fonte...",
@@ -2240,13 +2209,11 @@ const ptInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         },
         buildPhenotype: {
           label: "Construir fenotipo",
-          description:
-            "Curar conjuntos de conceitos e definicoes de coorte.",
+          description: "Curar conjuntos de conceitos e definicoes de coorte.",
         },
         gatherEvidence: {
           label: "Coletar evidencias",
-          description:
-            "Execute analises HADES e traga sinais genomicos.",
+          description: "Execute analises HADES e traga sinais genomicos.",
         },
         synthesizeDossier: {
           label: "Sintetizar dossier",
@@ -2293,8 +2260,7 @@ const ptInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
     },
     newPage: {
       title: "Nova investigacao de evidencias",
-      subtitle:
-        "Inicie um dossier estruturado para sua pergunta de pesquisa.",
+      subtitle: "Inicie um dossier estruturado para sua pergunta de pesquisa.",
       back: "Investigacao de evidencias",
     },
     phenotype: {
@@ -2317,12 +2283,9 @@ const ptInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         },
       },
       atlas: {
-        exportHint:
-          "Exportar do Atlas: Cohort Definition -> Export -> JSON",
-        parseErrorEmpty:
-          "Cole uma definicao Atlas JSON antes de processar.",
-        parseErrorInvalid:
-          "JSON invalido - verifique erros de sintaxe.",
+        exportHint: "Exportar do Atlas: Cohort Definition -> Export -> JSON",
+        parseErrorEmpty: "Cole uma definicao Atlas JSON antes de processar.",
+        parseErrorInvalid: "JSON invalido - verifique erros de sintaxe.",
         parseErrorShape:
           "Formato nao reconhecido - esperadas chaves ConceptSets, PrimaryCriteria ou expression.",
         importSucceeded: "{{summary}} - importado com sucesso.",
@@ -2349,9 +2312,9 @@ const ptInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         addToConceptSet: "Adicionar ao conjunto de conceitos",
         patients: "{{count}} pacs.",
         noConceptsFound:
-          "Nenhum conceito encontrado correspondente a \"{{query}}\"",
+          'Nenhum conceito encontrado correspondente a "{{query}}"',
         nonStandardHidden:
-          "({{count}} nao padrao ocultos - desmarque \"Standard only\" para mostrar)",
+          '({{count}} nao padrao ocultos - desmarque "Standard only" para mostrar)',
       },
       conceptSet: {
         excluded: "Excluido",
@@ -2387,8 +2350,7 @@ const ptInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
       cohortPicker: {
         loading: "Carregando coortes...",
         loadFailed: "Falha ao carregar definicoes de coorte.",
-        noSearchMatches:
-          "Nenhuma coorte corresponde a sua busca.",
+        noSearchMatches: "Nenhuma coorte corresponde a sua busca.",
         noDefinitions: "Nenhuma definicao de coorte encontrada.",
         primary: "Primaria",
         primarySelected: "Primaria ✓",
@@ -2396,8 +2358,7 @@ const ptInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
       },
       cohortOverlap: {
         title: "Matriz de sobreposicao de coortes",
-        selectTwoCohorts:
-          "Selecione 2+ coortes para ver a sobreposicao",
+        selectTwoCohorts: "Selecione 2+ coortes para ver a sobreposicao",
         patientCountTooltip: "{{name}}: {{count}} pacientes",
         runOperationsToComputeOverlap:
           "Executar operacoes para calcular a sobreposicao",
@@ -2420,8 +2381,7 @@ const ptInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         noData: "Nenhum dado de atricao disponivel",
       },
       schemaDensity: {
-        addConcepts:
-          "Adicione conceitos para ver a cobertura por dominio",
+        addConcepts: "Adicione conceitos para ver a cobertura por dominio",
         domainCoverage: "Cobertura por dominio",
         total: "{{count}} no total",
       },
@@ -2434,8 +2394,7 @@ const ptInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         codewasValidationRun: "Validacao CodeWAS executada",
         addConceptsExploreTab: "Adicione conceitos na aba Explorar",
         selectCohortsBuildTab: "Selecione coortes na aba Construir",
-        setPrimaryCohort:
-          "Defina uma coorte primaria para as analises",
+        setPrimaryCohort: "Defina uma coorte primaria para as analises",
         allSetsPopulated: "Todos os conjuntos preenchidos",
         runCodewas: "Executar CodeWAS para validar o fenotipo",
         passed: "{{passed}}/{{total}} aprovados",
@@ -2462,8 +2421,7 @@ const ptInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         },
       },
       prerequisites: {
-        atLeastOneCohortDefined:
-          "Pelo menos uma coorte definida",
+        atLeastOneCohortDefined: "Pelo menos uma coorte definida",
         targetCohort: "Coorte-alvo",
         comparatorCohort: "Coorte comparadora",
         outcomeCohort: "Coorte de desfecho",
@@ -2540,8 +2498,7 @@ const ptInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         naivePeriodLabel: "Dias do periodo naive",
         naivePeriodHelp:
           "Dias no inicio da observacao que devem ser excluidos da analise.",
-        synthesisPrompt:
-          "Selecione 2+ resultados de estimativa concluidos",
+        synthesisPrompt: "Selecione 2+ resultados de estimativa concluidos",
         synthesisHelp:
           "O agrupamento da sintese de evidencias ainda nao e configuravel aqui. Execute-o a partir da visualizacao de resultados de estimativa.",
       },
@@ -2557,8 +2514,7 @@ const ptInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
         kaplanMeierTitle: "Curva de sobrevida de Kaplan-Meier",
         timeDays: "Tempo (dias)",
         survivalProbability: "Probabilidade de sobrevida",
-        propensityScoreDistribution:
-          "Distribuicao do escore de propensao",
+        propensityScoreDistribution: "Distribuicao do escore de propensao",
         propensityScore: "Escore de propensao",
       },
       tracker: {
@@ -2608,12 +2564,10 @@ const ptInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
       uploadFailed: "Falha no envio. Tente novamente.",
       allColumnsRequired:
         "Todas as colunas obrigatorias devem estar mapeadas antes da confirmacao.",
-      parseFailed:
-        "Falha ao processar o arquivo. Verifique o formato.",
+      parseFailed: "Falha ao processar o arquivo. Verifique o formato.",
       confirmMapping: "Confirmar mapeamento",
       threshold: "{{count}} loci · limite p < {{threshold}}",
-      noLoci:
-        "Nenhum locus abaixo do limite de significancia ({{threshold}})",
+      noLoci: "Nenhum locus abaixo do limite de significancia ({{threshold}})",
       pinThisLocus: "Fixar este locus",
       position: "Posicao",
       manhattanPlot: "Grafico de Manhattan",
@@ -2632,8 +2586,7 @@ const ptInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
       noGwasDataAvailable: "Nenhum dado de GWAS disponivel",
       noGwasDataAvailableAria:
         "Grafico de Manhattan: nenhum dado de GWAS disponivel",
-      manhattanAriaNoVariants:
-        "Grafico de Manhattan: nenhuma variante",
+      manhattanAriaNoVariants: "Grafico de Manhattan: nenhuma variante",
       manhattanAriaTopPeak:
         "pico principal em chr{{chr}}:{{pos}}, p={{pValue}}",
       manhattanAriaNoPeaks: "nenhum pico",
@@ -2653,1837 +2606,1981 @@ const ptInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
 });
 
 const esInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
-  "investigation": {
-    "common": {
-      "actions": {
-        "newInvestigation": "Nueva investigacion",
-        "createInvestigation": "Crear investigacion",
-        "parseAndImport": "Analizar e importar",
-        "retry": "Reintentar",
-        "cancel": "Cancelar",
-        "close": "Cerrar",
-        "runAnalysis": "Ejecutar analisis",
-        "replay": "Reproducir",
-        "view": "Ver",
-        "compare": "Comparar",
-        "createSnapshot": "Crear instantanea",
-        "exportPdf": "Exportar PDF",
-        "exportJson": "Exportar JSON",
-        "pin": "Fijar",
-        "pinToDossier": "Anclar al dossier",
-        "add": "+ Agregar",
-        "newSet": "+ Nuevo conjunto",
-        "removeCohort": "Eliminar cohorte",
-        "dismissError": "Descartar error",
-        "toggleEvidenceSidebar": "Toggle barra lateral de evidencia",
-        "switchToClinicalRunHistory": "Cambiar al historial de ejecucion del dominio clinico"
+  investigation: {
+    common: {
+      actions: {
+        newInvestigation: "Nueva investigacion",
+        createInvestigation: "Crear investigacion",
+        parseAndImport: "Analizar e importar",
+        retry: "Reintentar",
+        cancel: "Cancelar",
+        close: "Cerrar",
+        runAnalysis: "Ejecutar analisis",
+        replay: "Reproducir",
+        view: "Ver",
+        compare: "Comparar",
+        createSnapshot: "Crear instantanea",
+        exportPdf: "Exportar PDF",
+        exportJson: "Exportar JSON",
+        pin: "Fijar",
+        pinToDossier: "Anclar al dossier",
+        add: "+ Agregar",
+        newSet: "+ Nuevo conjunto",
+        removeCohort: "Eliminar cohorte",
+        dismissError: "Descartar error",
+        toggleEvidenceSidebar: "Toggle barra lateral de evidencia",
+        switchToClinicalRunHistory:
+          "Cambiar al historial de ejecucion del dominio clinico",
       },
-      "status": {
-        "draft": "Borrador",
-        "active": "En curso",
-        "complete": "Completado",
-        "archived": "Archivado",
-        "completed": "Completado",
-        "running": "Ejecutando",
-        "queued": "En cola",
-        "pending": "Pendiente",
-        "failed": "Error",
-        "saving": "Guardando...",
-        "saved": "Guardado",
-        "error": "Error"
+      status: {
+        draft: "Borrador",
+        active: "En curso",
+        complete: "Completado",
+        archived: "Archivado",
+        completed: "Completado",
+        running: "Ejecutando",
+        queued: "En cola",
+        pending: "Pendiente",
+        failed: "Error",
+        saving: "Guardando...",
+        saved: "Guardado",
+        error: "Error",
       },
-      "domains": {
-        "phenotype": "Fenotipo",
-        "clinical": "Sintesis",
-        "genomic": "genomica",
-        "synthesis": "clinica",
-        "codeExplorer": "Explorador de codigo"
+      domains: {
+        phenotype: "Fenotipo",
+        clinical: "Sintesis",
+        genomic: "genomica",
+        synthesis: "clinica",
+        codeExplorer: "Explorador de codigo",
       },
-      "tabs": {
-        "explore": "Explorar",
-        "build": "Crear",
-        "validate": "Validar",
-        "dossier": "Dosier",
-        "export": "Exportar",
-        "versions": "versiones",
-        "gallery": "Analisis",
-        "tracking": "OHDSI",
-        "history": "Historial de ejecucion activa",
-        "finngen": "FinnGen analiza",
-        "finngenHistory": "Historial de ejecucion",
-        "openTargets": "Objetivos abiertos",
-        "gwasCatalog": "Catalogo GWAS",
-        "upload": "Cargar GWAS"
+      tabs: {
+        explore: "Explorar",
+        build: "Crear",
+        validate: "Validar",
+        dossier: "Dosier",
+        export: "Exportar",
+        versions: "versiones",
+        gallery: "Analisis",
+        tracking: "OHDSI",
+        history: "Historial de ejecucion activa",
+        finngen: "FinnGen analiza",
+        finngenHistory: "Historial de ejecucion",
+        openTargets: "Objetivos abiertos",
+        gwasCatalog: "Catalogo GWAS",
+        upload: "Cargar GWAS",
       },
-      "sections": {
-        "evidence": "Evidencia",
-        "researchQuestion": "Pregunta de investigacion",
-        "phenotypeDefinition": "Definicion de fenotipo",
-        "populationCharacteristics": "Caracteristicas de la poblacion",
-        "clinicalEvidence": "Evidencia clinica",
-        "genomicEvidence": "Evidencia genomica",
-        "evidenceSynthesis": "Sintesis de evidencia",
-        "limitationsCaveats": "Limitaciones y advertencias",
-        "methods": "Metodos",
-        "versionHistory": "Historial de versiones",
-        "exportDossier": "Exportar dossier",
-        "evidenceDossier": "Dossier de evidencia",
-        "qcChecklist": "Lista de verificacion de control de calidad",
-        "importMode": "Modo de importacion",
-        "selectCohorts": "Seleccionar cohortes",
-        "atlasJson": "Atlas JSON",
-        "fileUpload": "Carga de archivos",
-        "selectedCohorts": "Cohortes seleccionadas",
-        "conceptHierarchy": "Jerarquia de conceptos",
-        "conceptSet": "Conjunto de conceptos",
-        "significantLoci": "Loci significativos",
-        "columnMapping": "Mapeo de columnas",
-        "analysisParameters": "Parametros de analisis",
-        "dataSource": "Fuente de datos",
-        "loadingSources": "Cargando fuentes..."
+      sections: {
+        evidence: "Evidencia",
+        researchQuestion: "Pregunta de investigacion",
+        phenotypeDefinition: "Definicion de fenotipo",
+        populationCharacteristics: "Caracteristicas de la poblacion",
+        clinicalEvidence: "Evidencia clinica",
+        genomicEvidence: "Evidencia genomica",
+        evidenceSynthesis: "Sintesis de evidencia",
+        limitationsCaveats: "Limitaciones y advertencias",
+        methods: "Metodos",
+        versionHistory: "Historial de versiones",
+        exportDossier: "Exportar dossier",
+        evidenceDossier: "Dossier de evidencia",
+        qcChecklist: "Lista de verificacion de control de calidad",
+        importMode: "Modo de importacion",
+        selectCohorts: "Seleccionar cohortes",
+        atlasJson: "Atlas JSON",
+        fileUpload: "Carga de archivos",
+        selectedCohorts: "Cohortes seleccionadas",
+        conceptHierarchy: "Jerarquia de conceptos",
+        conceptSet: "Conjunto de conceptos",
+        significantLoci: "Loci significativos",
+        columnMapping: "Mapeo de columnas",
+        analysisParameters: "Parametros de analisis",
+        dataSource: "Fuente de datos",
+        loadingSources: "Cargando fuentes...",
       },
-      "labels": {
-        "title": "Titulo",
-        "optional": "opcional",
-        "updated": "Actualizado {{date}}",
-        "coverage": "Cobertura",
-        "domains": "Dominios",
-        "howItWorks": "Como funciona",
-        "sampleInvestigations": "Investigaciones de muestra",
-        "sampleInvestigationsSubtitle": "Explore estos ejemplos para ver el flujo de trabajo de investigacion de pruebas en accion",
-        "recentInvestigations": "Investigaciones recientes",
-        "yourInvestigations": "Sus investigaciones",
-        "yourInvestigationsSubtitle": "Investigaciones recientes que ha creado",
-        "conceptSets": "Conjuntos de conceptos",
-        "cohorts": "Cohortes",
-        "analyses": "Analisis clinicos",
-        "pins": "Pines",
-        "runs": "Ejecuciones",
-        "startExploring": "Comience a explorar: agregue conceptos, cohortes y analisis para generar evidencia",
-        "noDate": "--",
-        "results": "Resultados",
-        "estTime": "Est. {{value}}",
-        "fromInvestigation": "De la investigacion",
-        "cohortFromThisInvestigation": "* = cohorte de esta investigacion",
-        "openTargetsPlatform": "Plataforma Open Targets",
-        "phase1b": "Fase 1b",
-        "pValueInline": "p = {{value}}"
+      labels: {
+        title: "Titulo",
+        optional: "opcional",
+        updated: "Actualizado {{date}}",
+        coverage: "Cobertura",
+        domains: "Dominios",
+        howItWorks: "Como funciona",
+        sampleInvestigations: "Investigaciones de muestra",
+        sampleInvestigationsSubtitle:
+          "Explore estos ejemplos para ver el flujo de trabajo de investigacion de pruebas en accion",
+        recentInvestigations: "Investigaciones recientes",
+        yourInvestigations: "Sus investigaciones",
+        yourInvestigationsSubtitle: "Investigaciones recientes que ha creado",
+        conceptSets: "Conjuntos de conceptos",
+        cohorts: "Cohortes",
+        analyses: "Analisis clinicos",
+        pins: "Pines",
+        runs: "Ejecuciones",
+        startExploring:
+          "Comience a explorar: agregue conceptos, cohortes y analisis para generar evidencia",
+        noDate: "--",
+        results: "Resultados",
+        estTime: "Est. {{value}}",
+        fromInvestigation: "De la investigacion",
+        cohortFromThisInvestigation: "* = cohorte de esta investigacion",
+        openTargetsPlatform: "Plataforma Open Targets",
+        phase1b: "Fase 1b",
+        pValueInline: "p = {{value}}",
       },
-      "empty": {
-        "noInvestigationsYet": "Aun no hay investigaciones",
-        "noInvestigationsSubtitle": "Cree su primer expediente de evidencia estructurado para comenzar.",
-        "noResearchQuestionDefined": "No hay pregunta de investigacion definida",
-        "noFindingsPinned": "Aun no hay hallazgos fijados en esta seccion",
-        "noPinsYet": "Aun no hay pines",
-        "noSnapshotsYet": "Aun no hay instantaneas.",
-        "noConcepts": "Sin conceptos",
-        "noAnalyses": "Sin analisis",
-        "noEvidence": "Sin evidencia",
-        "none": "--",
-        "noResultsFound": "No se encontraron resultados.",
-        "noSequenceData": "No hay datos de secuencia disponibles",
-        "noAnalysesRunYet": "Aun no se han realizado analisis. Seleccione un analisis de la galeria para comenzar.",
-        "noCohortsAvailable": "No hay cohortes disponibles."
+      empty: {
+        noInvestigationsYet: "Aun no hay investigaciones",
+        noInvestigationsSubtitle:
+          "Cree su primer expediente de evidencia estructurado para comenzar.",
+        noResearchQuestionDefined: "No hay pregunta de investigacion definida",
+        noFindingsPinned: "Aun no hay hallazgos fijados en esta seccion",
+        noPinsYet: "Aun no hay pines",
+        noSnapshotsYet: "Aun no hay instantaneas.",
+        noConcepts: "Sin conceptos",
+        noAnalyses: "Sin analisis",
+        noEvidence: "Sin evidencia",
+        none: "--",
+        noResultsFound: "No se encontraron resultados.",
+        noSequenceData: "No hay datos de secuencia disponibles",
+        noAnalysesRunYet:
+          "Aun no se han realizado analisis. Seleccione un analisis de la galeria para comenzar.",
+        noCohortsAvailable: "No hay cohortes disponibles.",
       },
-      "messages": {
-        "loadingInvestigation": "Cargando investigacion...",
-        "investigationLoadFailed": "La investigacion no se encontro o no se pudo cargar.",
-        "createInvestigationFailed": "No se pudo crear la investigacion. Por favor intentalo de nuevo.",
-        "aiWillAnalyze": "La IA analizara su pregunta de investigacion para sugerir conceptos de fenotipo.",
-        "exportSucceeded": "Exportado exitosamente",
-        "exportFailed": "La exportacion fallo. Por favor intentalo de nuevo.",
-        "searchFailed": "La busqueda fallo. Por favor intentalo de nuevo.",
-        "enterAtLeast2Characters": "Introduzca al menos 2 caracteres para buscar.",
-        "searchOmopMinimum": "Escriba al menos 2 caracteres para buscar conceptos de OMOP",
-        "loadingVersions": "Cargando versiones...",
-        "waitingInQueue": "Esperando en cola...",
-        "running": "Ejecutando...",
-        "analysisCancelled": "Analisis cancelado",
-        "analysisFailed": "Error en el analisis",
-        "analysisDispatchFailed": "Error en el envio del analisis",
-        "initializing": "Inicializando...",
-        "compareComingPhase4": "Proximamente en la fase 4",
-        "snapshotsAutoComplete": "Las instantaneas se crean automaticamente cuando una investigacion se marca como Completada.",
-        "finngenLoading": "Cargando...",
-        "loadingPins": "Cargando pines",
-        "unexpectedDispatchError": "Se produjo un error inesperado al enviar el analisis."
+      messages: {
+        loadingInvestigation: "Cargando investigacion...",
+        investigationLoadFailed:
+          "La investigacion no se encontro o no se pudo cargar.",
+        createInvestigationFailed:
+          "No se pudo crear la investigacion. Por favor intentalo de nuevo.",
+        aiWillAnalyze:
+          "La IA analizara su pregunta de investigacion para sugerir conceptos de fenotipo.",
+        exportSucceeded: "Exportado exitosamente",
+        exportFailed: "La exportacion fallo. Por favor intentalo de nuevo.",
+        searchFailed: "La busqueda fallo. Por favor intentalo de nuevo.",
+        enterAtLeast2Characters:
+          "Introduzca al menos 2 caracteres para buscar.",
+        searchOmopMinimum:
+          "Escriba al menos 2 caracteres para buscar conceptos de OMOP",
+        loadingVersions: "Cargando versiones...",
+        waitingInQueue: "Esperando en cola...",
+        running: "Ejecutando...",
+        analysisCancelled: "Analisis cancelado",
+        analysisFailed: "Error en el analisis",
+        analysisDispatchFailed: "Error en el envio del analisis",
+        initializing: "Inicializando...",
+        compareComingPhase4: "Proximamente en la fase 4",
+        snapshotsAutoComplete:
+          "Las instantaneas se crean automaticamente cuando una investigacion se marca como Completada.",
+        finngenLoading: "Cargando...",
+        loadingPins: "Cargando pines",
+        unexpectedDispatchError:
+          "Se produjo un error inesperado al enviar el analisis.",
       },
-      "placeholders": {
-        "investigationTitle": "Por ejemplo, Riesgo cardiovascular en pacientes con DM2",
-        "researchQuestion": "Cual es la efectividad comparativa de...?",
-        "conceptSearch": "Conceptos de busqueda... (minimo 2 caracteres)",
-        "atlasJson": "Pegue la definicion de cohorte del Atlas JSON aqui...\n\n{\"ConceptSets\": [], \"PrimaryCriteria\": {...}}",
-        "addSectionNarrative": "Agregar narrativa de seccion...",
-        "addNoteBefore": "Agregar nota antes...",
-        "addNoteAfter": "Agregar nota despues...",
-        "clickToAddNarrative": "Haga clic para agregar narrativa...",
-        "searchTrait": "Buscar rasgo o fenotipo (por ejemplo, diabetes tipo 2)",
-        "searchGene": "Buscar gen (por ejemplo, TCF7L2)",
-        "searchGeneOpenTargets": "Buscar simbolo o nombre del gen (por ejemplo, BRCA1)",
-        "searchDiseaseOpenTargets": "Buscar enfermedad o fenotipo (por ejemplo, cancer de mama)",
-        "selectSource": "Seleccione una fuente...",
-        "selectTargetCohort": "Seleccione la cohorte objetivo...",
-        "selectOutcomeCohort": "Seleccione la cohorte de resultados...",
-        "selectComparatorCohort": "Seleccione la cohorte de comparacion...",
-        "untitledConceptSet": "Conjunto de conceptos sin titulo",
-        "searchCohorts": "Buscar cohortes...",
-        "selectColumn": "-- seleccionar --"
+      placeholders: {
+        investigationTitle:
+          "Por ejemplo, Riesgo cardiovascular en pacientes con DM2",
+        researchQuestion: "Cual es la efectividad comparativa de...?",
+        conceptSearch: "Conceptos de busqueda... (minimo 2 caracteres)",
+        atlasJson:
+          'Pegue la definicion de cohorte del Atlas JSON aqui...\n\n{"ConceptSets": [], "PrimaryCriteria": {...}}',
+        addSectionNarrative: "Agregar narrativa de seccion...",
+        addNoteBefore: "Agregar nota antes...",
+        addNoteAfter: "Agregar nota despues...",
+        clickToAddNarrative: "Haga clic para agregar narrativa...",
+        searchTrait: "Buscar rasgo o fenotipo (por ejemplo, diabetes tipo 2)",
+        searchGene: "Buscar gen (por ejemplo, TCF7L2)",
+        searchGeneOpenTargets:
+          "Buscar simbolo o nombre del gen (por ejemplo, BRCA1)",
+        searchDiseaseOpenTargets:
+          "Buscar enfermedad o fenotipo (por ejemplo, cancer de mama)",
+        selectSource: "Seleccione una fuente...",
+        selectTargetCohort: "Seleccione la cohorte objetivo...",
+        selectOutcomeCohort: "Seleccione la cohorte de resultados...",
+        selectComparatorCohort: "Seleccione la cohorte de comparacion...",
+        untitledConceptSet: "Conjunto de conceptos sin titulo",
+        searchCohorts: "Buscar cohortes...",
+        selectColumn: "-- seleccionar --",
       },
-      "counts": {
-        "conceptSet_one": "{{count}} conjunto de conceptos",
-        "conceptSet_other": "{{count}} conjuntos de conceptos",
-        "cohort_one": "{{count}} cohortes",
-        "cohort_other": "{{count}} cohortes",
-        "query_one": "{{count}} consulta",
-        "query_other": "{{count}} consultas",
-        "upload_one": "{{count}} carga",
-        "upload_other": "{{count}} cargas",
-        "pin_one": "{{count}} pin",
-        "pin_other": "{{count}} pins",
-        "section_one": "{{count}} seccion",
-        "section_other": "{{count}} secciones",
-        "result_one": "{{count}} resultado",
-        "result_other": "{{count}} resultados",
-        "locus_one": "{{count}} locus",
-        "locus_other": "{{count}} loci",
-        "patient_one": "{{count}} paciente",
-        "patient_other": "{{count}} pacientes",
-        "row_one": "{{count}} fila",
-        "row_other": "{{count}} filas",
-        "analysis_one": "{{count}} analisis",
-        "analysis_other": "{{count}} analisis",
-        "completed_one": "{{count}} completos",
-        "completed_other": "{{count}} completos",
-        "running_one": "{{count}} ejecucion",
-        "running_other": "{{count}} ejecucion",
-        "failed_one": "{{count}} fallo",
-        "failed_other": "{{count}} fallo",
-        "subject_one": "{{count}} asunto",
-        "subject_other": "{{count}} sujetos",
-        "link_one": "{{count}} enlace",
-        "link_other": "{{count}} enlaces"
+      counts: {
+        conceptSet_one: "{{count}} conjunto de conceptos",
+        conceptSet_other: "{{count}} conjuntos de conceptos",
+        cohort_one: "{{count}} cohortes",
+        cohort_other: "{{count}} cohortes",
+        query_one: "{{count}} consulta",
+        query_other: "{{count}} consultas",
+        upload_one: "{{count}} carga",
+        upload_other: "{{count}} cargas",
+        pin_one: "{{count}} pin",
+        pin_other: "{{count}} pins",
+        section_one: "{{count}} seccion",
+        section_other: "{{count}} secciones",
+        result_one: "{{count}} resultado",
+        result_other: "{{count}} resultados",
+        locus_one: "{{count}} locus",
+        locus_other: "{{count}} loci",
+        patient_one: "{{count}} paciente",
+        patient_other: "{{count}} pacientes",
+        row_one: "{{count}} fila",
+        row_other: "{{count}} filas",
+        analysis_one: "{{count}} analisis",
+        analysis_other: "{{count}} analisis",
+        completed_one: "{{count}} completos",
+        completed_other: "{{count}} completos",
+        running_one: "{{count}} ejecucion",
+        running_other: "{{count}} ejecucion",
+        failed_one: "{{count}} fallo",
+        failed_other: "{{count}} fallo",
+        subject_one: "{{count}} asunto",
+        subject_other: "{{count}} sujetos",
+        link_one: "{{count}} enlace",
+        link_other: "{{count}} enlaces",
       },
-      "time": {
-        "secondsAgo": "hace {{count}} s",
-        "minutesAgo": "hace {{count}} min",
-        "hoursAgo": "hace {{count}} h"
-      }
+      time: {
+        secondsAgo: "hace {{count}} s",
+        minutesAgo: "hace {{count}} min",
+        hoursAgo: "hace {{count}} h",
+      },
     },
-    "landing": {
-      "title": "Investigacion de evidencia",
-      "subtitle": "Conecte el fenotipado clinico con la evidencia genomica: desde la pregunta de investigacion hasta el expediente de evidencia",
-      "recentInvestigations": "Investigaciones recientes",
-      "noInvestigations": "Cree su primer expediente de evidencia estructurado para comenzar.",
-      "workflow": {
-        "askQuestion": {
-          "label": "Haga una pregunta",
-          "description": "Defina su pregunta de investigacion y su titulo."
+    landing: {
+      title: "Investigacion de evidencia",
+      subtitle:
+        "Conecte el fenotipado clinico con la evidencia genomica: desde la pregunta de investigacion hasta el expediente de evidencia",
+      recentInvestigations: "Investigaciones recientes",
+      noInvestigations:
+        "Cree su primer expediente de evidencia estructurado para comenzar.",
+      workflow: {
+        askQuestion: {
+          label: "Haga una pregunta",
+          description: "Defina su pregunta de investigacion y su titulo.",
         },
-        "buildPhenotype": {
-          "label": "Construya fenotipo",
-          "description": "Seleccione conjuntos de conceptos y definiciones de cohortes."
+        buildPhenotype: {
+          label: "Construya fenotipo",
+          description:
+            "Seleccione conjuntos de conceptos y definiciones de cohortes.",
         },
-        "gatherEvidence": {
-          "label": "Recopilar evidencia",
-          "description": "Ejecutar analisis HADES y extraer senales genomicas."
+        gatherEvidence: {
+          label: "Recopilar evidencia",
+          description: "Ejecutar analisis HADES y extraer senales genomicas.",
         },
-        "synthesizeDossier": {
-          "label": "Sintetizar dossier",
-          "description": "Exportar un dossier de evidencia estructurado para su publicacion."
-        }
+        synthesizeDossier: {
+          label: "Sintetizar dossier",
+          description:
+            "Exportar un dossier de evidencia estructurado para su publicacion.",
+        },
       },
-      "sampleInvestigations": {
-        "ckd": {
-          "title": "Inhibidores de SGLT2 y progresion de la ERC en DM2",
-          "question": "La inhibicion de SGLT2 reduce la progresion de la enfermedad renal cronica en pacientes con diabetes mellitus tipo 2? ",
-          "badges": {
-            "conceptSets": "3 conjuntos de conceptos",
-            "cohorts": "2 cohortes",
-            "estimation": "1 estimacion",
-            "loci": "5 loci GWAS"
-          }
+      sampleInvestigations: {
+        ckd: {
+          title: "Inhibidores de SGLT2 y progresion de la ERC en DM2",
+          question:
+            "La inhibicion de SGLT2 reduce la progresion de la enfermedad renal cronica en pacientes con diabetes mellitus tipo 2? ",
+          badges: {
+            conceptSets: "3 conjuntos de conceptos",
+            cohorts: "2 cohortes",
+            estimation: "1 estimacion",
+            loci: "5 loci GWAS",
+          },
         },
-        "statin": {
-          "title": "Paradoja de las estatinas: resultados cardiovasculares de simvastatina frente a atorvastatina",
-          "question": "Existe una diferencia clinicamente significativa en los resultados cardiovasculares entre simvastatina y atorvastatina en pacientes que nunca han recibido estatinas?",
-          "badges": {
-            "conceptSets": "2 conjuntos de conceptos",
-            "cohorts": "2 cohortes",
-            "characterization": "1 caracterizacion",
-            "estimation": "1 estimacion"
-          }
+        statin: {
+          title:
+            "Paradoja de las estatinas: resultados cardiovasculares de simvastatina frente a atorvastatina",
+          question:
+            "Existe una diferencia clinicamente significativa en los resultados cardiovasculares entre simvastatina y atorvastatina en pacientes que nunca han recibido estatinas?",
+          badges: {
+            conceptSets: "2 conjuntos de conceptos",
+            cohorts: "2 cohortes",
+            characterization: "1 caracterizacion",
+            estimation: "1 estimacion",
+          },
         },
-        "tcf7l2": {
-          "title": "TCF7L2 y disfuncion de las celulas beta pancreaticas",
-          "question": "La variante de riesgo TCF7L2 contribuye a la DM2 a traves de la disfuncion de las celulas beta pancreaticas y que evidencia clinica respalda este mecanismo?",
-          "badges": {
-            "conceptSet": "1 conjunto de conceptos",
-            "cohort": "1 cohorte",
-            "associations": "12 asociaciones de Open Targets",
-            "loci": "3 loci GWAS"
-          }
-        }
-      }
+        tcf7l2: {
+          title: "TCF7L2 y disfuncion de las celulas beta pancreaticas",
+          question:
+            "La variante de riesgo TCF7L2 contribuye a la DM2 a traves de la disfuncion de las celulas beta pancreaticas y que evidencia clinica respalda este mecanismo?",
+          badges: {
+            conceptSet: "1 conjunto de conceptos",
+            cohort: "1 cohorte",
+            associations: "12 asociaciones de Open Targets",
+            loci: "3 loci GWAS",
+          },
+        },
+      },
     },
-    "newPage": {
-      "title": "Nueva investigacion de evidencia",
-      "subtitle": "Inicie un expediente estructurado para su pregunta de investigacion.",
-      "back": "Investigacion de evidencia"
+    newPage: {
+      title: "Nueva investigacion de evidencia",
+      subtitle:
+        "Inicie un expediente estructurado para su pregunta de investigacion.",
+      back: "Investigacion de evidencia",
     },
-    "phenotype": {
-      "importModes": {
-        "parthenon": {
-          "label": "Cohortes de Parthenon",
-          "description": "Seleccione entre definiciones de cohortes existentes"
+    phenotype: {
+      importModes: {
+        parthenon: {
+          label: "Cohortes de Parthenon",
+          description: "Seleccione entre definiciones de cohortes existentes",
         },
-        "json": {
-          "label": "Atlas JSON",
-          "description": "Pegue una definicion de cohorte JSON de Atlas"
+        json: {
+          label: "Atlas JSON",
+          description: "Pegue una definicion de cohorte JSON de Atlas",
         },
-        "file": {
-          "label": "Carga de archivos",
-          "description": "Cargue un archivo de cohorte CSV o JSON"
+        file: {
+          label: "Carga de archivos",
+          description: "Cargue un archivo de cohorte CSV o JSON",
         },
-        "phenotypeLibrary": {
-          "label": "Biblioteca de fenotipos",
-          "description": "Examine la biblioteca de fenotipos OHDSI (mas de 1100 fenotipos validados)"
-        }
+        phenotypeLibrary: {
+          label: "Biblioteca de fenotipos",
+          description:
+            "Examine la biblioteca de fenotipos OHDSI (mas de 1100 fenotipos validados)",
+        },
       },
-      "atlas": {
-        "exportHint": "Exportar desde Atlas: Definicion de cohorte -> Exportar -> JSON",
-        "parseErrorEmpty": "Pegue una definicion Atlas JSON antes de analizar.",
-        "parseErrorInvalid": "JSON no valido: verifique si hay errores de sintaxis.",
-        "parseErrorShape": "Formato no reconocido: conjuntos de conceptos, criterios primarios o claves de expresion esperados.",
-        "importSucceeded": "{{summary}}: importado correctamente.",
-        "summary": "Se encontraron {{conceptSets}} conjuntos de conceptos, {{criteria}} criterios"
+      atlas: {
+        exportHint:
+          "Exportar desde Atlas: Definicion de cohorte -> Exportar -> JSON",
+        parseErrorEmpty: "Pegue una definicion Atlas JSON antes de analizar.",
+        parseErrorInvalid:
+          "JSON no valido: verifique si hay errores de sintaxis.",
+        parseErrorShape:
+          "Formato no reconocido: conjuntos de conceptos, criterios primarios o claves de expresion esperados.",
+        importSucceeded: "{{summary}}: importado correctamente.",
+        summary:
+          "Se encontraron {{conceptSets}} conjuntos de conceptos, {{criteria}} criterios",
       },
-      "file": {
-        "dropPrompt": "Suelte un archivo CSV o JSON aqui o haga clic para explorar",
-        "invalidJson": "Archivo JSON no valido",
-        "unsupportedType": "Tipo de archivo no compatible",
-        "loadedRows": "Filas cargadas de {{name}}",
-        "parsedJson": "JSON analizado: {{count}} conjuntos de conceptos"
+      file: {
+        dropPrompt:
+          "Suelte un archivo CSV o JSON aqui o haga clic para explorar",
+        invalidJson: "Archivo JSON no valido",
+        unsupportedType: "Tipo de archivo no compatible",
+        loadedRows: "Filas cargadas de {{name}}",
+        parsedJson: "JSON analizado: {{count}} conjuntos de conceptos",
       },
-      "conceptExplorer": {
-        "allDomains": "Todos los dominios",
-        "condition": "Afecto",
-        "drug": "Droga",
-        "measurement": "Medicion",
-        "procedure": "actuar",
-        "observation": "Observacion clinica",
-        "standard": "Estandarizar",
-        "standardOnly": "Solo estandar",
-        "addToConceptSet": "Agregar al conjunto de conceptos",
-        "patients": "{{count}} puntos",
-        "noConceptsFound": "No se encontraron conceptos que coincidan con \"{{query}}\"",
-        "nonStandardHidden": "({{count}} oculto no estandar; desmarque \"Solo estandar\" para mostrar)"
+      conceptExplorer: {
+        allDomains: "Todos los dominios",
+        condition: "Afecto",
+        drug: "Droga",
+        measurement: "Medicion",
+        procedure: "actuar",
+        observation: "Observacion clinica",
+        standard: "Estandarizar",
+        standardOnly: "Solo estandar",
+        addToConceptSet: "Agregar al conjunto de conceptos",
+        patients: "{{count}} puntos",
+        noConceptsFound:
+          'No se encontraron conceptos que coincidan con "{{query}}"',
+        nonStandardHidden:
+          '({{count}} oculto no estandar; desmarque "Solo estandar" para mostrar)',
       },
-      "conceptSet": {
-        "excluded": "Excluido",
-        "includeDescendants": "Incluir descendientes",
-        "exclude": "Excluir",
-        "removeFromSet": "Eliminar del conjunto de conceptos",
-        "searchPrompt": "Busque conceptos y agreguelos para crear su conjunto de conceptos",
-        "metadata": "ID: {{conceptId}} · {{vocabularyId}} · {{domainId}}"
+      conceptSet: {
+        excluded: "Excluido",
+        includeDescendants: "Incluir descendientes",
+        exclude: "Excluir",
+        removeFromSet: "Eliminar del conjunto de conceptos",
+        searchPrompt:
+          "Busque conceptos y agreguelos para crear su conjunto de conceptos",
+        metadata: "ID: {{conceptId}} · {{vocabularyId}} · {{domainId}}",
       },
-      "codewas": {
-        "case": "Caso",
-        "control": "Control",
-        "versus": "vs.",
-        "topSignals": "Senales principales ({{count}})",
-        "label": "Etiqueta",
-        "count": "Contar",
-        "effectEstimates": "Estimaciones de efectos",
-        "volcanoComingSoon": "Grafico interactivo del volcan disponible en una actualizacion futura."
+      codewas: {
+        case: "Caso",
+        control: "Control",
+        versus: "vs.",
+        topSignals: "Senales principales ({{count}})",
+        label: "Etiqueta",
+        count: "Contar",
+        effectEstimates: "Estimaciones de efectos",
+        volcanoComingSoon:
+          "Grafico interactivo del volcan disponible en una actualizacion futura.",
       },
-      "phenotypeLibrary": {
-        "title": "Biblioteca de fenotipos",
-        "searchPlaceholder": "Buscar en la biblioteca de fenotipos OHDSI (mas de 1100 fenotipos validados)",
-        "searchFailed": "No se pudo buscar en la biblioteca de fenotipos. Intentelo de nuevo.",
-        "noResults": "No se encontraron fenotipos para \"{{query}}\"",
-        "emptyPrompt": "Busque en la biblioteca de fenotipos OHDSI",
-        "validatedPhenotypes": "Mas de 1100 fenotipos validados",
-        "noDescriptionAvailable": "No hay descripcion disponible.",
-        "selected": "Seleccionado",
-        "select": "Seleccionar"
+      phenotypeLibrary: {
+        title: "Biblioteca de fenotipos",
+        searchPlaceholder:
+          "Buscar en la biblioteca de fenotipos OHDSI (mas de 1100 fenotipos validados)",
+        searchFailed:
+          "No se pudo buscar en la biblioteca de fenotipos. Intentelo de nuevo.",
+        noResults: 'No se encontraron fenotipos para "{{query}}"',
+        emptyPrompt: "Busque en la biblioteca de fenotipos OHDSI",
+        validatedPhenotypes: "Mas de 1100 fenotipos validados",
+        noDescriptionAvailable: "No hay descripcion disponible.",
+        selected: "Seleccionado",
+        select: "Seleccionar",
       },
-      "cohortPicker": {
-        "loading": "Cargando cohortes...",
-        "loadFailed": "Error al cargar las definiciones de cohortes.",
-        "noSearchMatches": "No hay cohortes que coincidan con su busqueda.",
-        "noDefinitions": "No se encontraron definiciones de cohortes.",
-        "primary": "Principal",
-        "primarySelected": "Principal ✓",
-        "setAsPrimary": "Establecer como Principal"
+      cohortPicker: {
+        loading: "Cargando cohortes...",
+        loadFailed: "Error al cargar las definiciones de cohortes.",
+        noSearchMatches: "No hay cohortes que coincidan con su busqueda.",
+        noDefinitions: "No se encontraron definiciones de cohortes.",
+        primary: "Principal",
+        primarySelected: "Principal ✓",
+        setAsPrimary: "Establecer como Principal",
       },
-      "cohortOverlap": {
-        "title": "Matriz de superposicion de cohortes",
-        "selectTwoCohorts": "Seleccione mas de 2 cohortes para ver la superposicion",
-        "patientCountTooltip": "{{name}}: {{count}} pacientes",
-        "runOperationsToComputeOverlap": "Ejecute operaciones para calcular la superposicion",
-        "footnote": "Diagonal: tamanos de cohorte. Fuera de la diagonal: ejecute operaciones de conjunto para calcular la superposicion."
+      cohortOverlap: {
+        title: "Matriz de superposicion de cohortes",
+        selectTwoCohorts:
+          "Seleccione mas de 2 cohortes para ver la superposicion",
+        patientCountTooltip: "{{name}}: {{count}} pacientes",
+        runOperationsToComputeOverlap:
+          "Ejecute operaciones para calcular la superposicion",
+        footnote:
+          "Diagonal: tamanos de cohorte. Fuera de la diagonal: ejecute operaciones de conjunto para calcular la superposicion.",
       },
-      "conceptTree": {
-        "selected": "(seleccionado)",
-        "loadingHierarchy": "Cargando jerarquia...",
-        "noHierarchyData": "No hay datos de jerarquia disponibles para este concepto.",
-        "conceptLabel": "Concepto {{id}}"
+      conceptTree: {
+        selected: "(seleccionado)",
+        loadingHierarchy: "Cargando jerarquia...",
+        noHierarchyData:
+          "No hay datos de jerarquia disponibles para este concepto.",
+        conceptLabel: "Concepto {{id}}",
       },
-      "cohortSizeComparison": {
-        "title": "Comparacion de tamano de cohorte",
-        "primaryLegend": "Oro = cohorte primaria"
+      cohortSizeComparison: {
+        title: "Comparacion de tamano de cohorte",
+        primaryLegend: "Oro = cohorte primaria",
       },
-      "attrition": {
-        "totalPopulation": "Poblacion total",
-        "countLabel": "n = {{count}}",
-        "excluded": "{{count}} excluidos",
-        "noData": "No hay datos de desercion disponibles"
+      attrition: {
+        totalPopulation: "Poblacion total",
+        countLabel: "n = {{count}}",
+        excluded: "{{count}} excluidos",
+        noData: "No hay datos de desercion disponibles",
       },
-      "schemaDensity": {
-        "addConcepts": "Agregue conceptos para ver la cobertura del dominio",
-        "domainCoverage": "Cobertura del dominio",
-        "total": "{{count}} conceptos",
-        "tooltip": "{{count}} totales"
+      schemaDensity: {
+        addConcepts: "Agregue conceptos para ver la cobertura del dominio",
+        domainCoverage: "Cobertura del dominio",
+        total: "{{count}} conceptos",
+        tooltip: "{{count}} totales",
       },
-      "validation": {
-        "atLeastOneConceptSetDefined": "Al menos un conjunto de conceptos definido",
-        "atLeastOneCohortSelected": "Al menos una cohorte seleccionada",
-        "primaryCohortDesignated": "Cohorte principal designada",
-        "noEmptyConceptSets": "No hay conjuntos de conceptos vacios",
-        "codewasValidationRun": "Ejecucion de validacion de CodeWAS",
-        "addConceptsExploreTab": "Agregue conceptos en la pestana Explorar",
-        "selectCohortsBuildTab": "Seleccione cohortes en la pestana Crear",
-        "setPrimaryCohort": "Establezca una cohorte principal para los analisis",
-        "allSetsPopulated": "Todos los conjuntos esten completos",
-        "runCodewas": "Ejecute CodeWAS para validar el fenotipo",
-        "passed": "{{passed}}/{{total}} aprobado.",
-        "includeExploreBuild": "{{count}} los conjuntos de conceptos creados en la pestana Explorar se incluiran en la generacion de cohortes."
-      }
+      validation: {
+        atLeastOneConceptSetDefined:
+          "Al menos un conjunto de conceptos definido",
+        atLeastOneCohortSelected: "Al menos una cohorte seleccionada",
+        primaryCohortDesignated: "Cohorte principal designada",
+        noEmptyConceptSets: "No hay conjuntos de conceptos vacios",
+        codewasValidationRun: "Ejecucion de validacion de CodeWAS",
+        addConceptsExploreTab: "Agregue conceptos en la pestana Explorar",
+        selectCohortsBuildTab: "Seleccione cohortes en la pestana Crear",
+        setPrimaryCohort: "Establezca una cohorte principal para los analisis",
+        allSetsPopulated: "Todos los conjuntos esten completos",
+        runCodewas: "Ejecute CodeWAS para validar el fenotipo",
+        passed: "{{passed}}/{{total}} aprobado.",
+        includeExploreBuild:
+          "{{count}} los conjuntos de conceptos creados en la pestana Explorar se incluiran en la generacion de cohortes.",
+      },
     },
-    "clinical": {
-      "groupMeta": {
-        "characterize": {
-          "label": "Caracterice",
-          "description": "Describa sus poblaciones: datos demograficos, comorbilidades y patrones de tratamiento."
+    clinical: {
+      groupMeta: {
+        characterize: {
+          label: "Caracterice",
+          description:
+            "Describa sus poblaciones: datos demograficos, comorbilidades y patrones de tratamiento.",
         },
-        "compare": {
-          "label": "Comparar",
-          "description": "Estime los efectos causales y compare los resultados entre exposiciones o ventanas de tiempo."
+        compare: {
+          label: "Comparar",
+          description:
+            "Estime los efectos causales y compare los resultados entre exposiciones o ventanas de tiempo.",
         },
-        "predict": {
-          "label": "Prediga",
-          "description": "Entrene modelos de aprendizaje automatico a nivel de paciente para pronosticar resultados futuros."
-        }
-      },
-      "estimatedTimes": {
-        "underOneMinute": "< 1 min",
-        "oneToThreeMinutes": "1-3 min",
-        "twoToFiveMinutes": "2-5 min",
-        "fiveToFifteenMinutes": "5-15 min",
-        "tenToFortyFiveMinutes": "10-45 min",
-        "fifteenToSixtyMinutes": "15-60 min"
-      },
-      "prerequisites": {
-        "atLeastOneCohortDefined": "Al menos una cohorte definida",
-        "targetCohort": "Cohorte objetivo",
-        "comparatorCohort": "Cohorte comparadora",
-        "outcomeCohort": "Cohorte de resultados",
-        "exposureCohort": "Cohorte de exposicion",
-        "completedEstimations2Plus": "2+ estimaciones completadas"
-      },
-      "analysisMeta": {
-        "characterization": {
-          "label": "Caracterizacion de la cohorte",
-          "description": "Demografia de referencia, comorbilidades, utilizacion de medicamentos y patrones temporales para las cohortes objetivo y de comparacion."
+        predict: {
+          label: "Prediga",
+          description:
+            "Entrene modelos de aprendizaje automatico a nivel de paciente para pronosticar resultados futuros.",
         },
-        "incidence_rate": {
-          "label": "Analisis de la tasa de incidencia",
-          "description": "Calcule tasas de incidencia con intervalos de confianza de Poisson exactos, estratificados por edad, sexo o ano calendario."
+      },
+      estimatedTimes: {
+        underOneMinute: "< 1 min",
+        oneToThreeMinutes: "1-3 min",
+        twoToFiveMinutes: "2-5 min",
+        fiveToFifteenMinutes: "5-15 min",
+        tenToFortyFiveMinutes: "10-45 min",
+        fifteenToSixtyMinutes: "15-60 min",
+      },
+      prerequisites: {
+        atLeastOneCohortDefined: "Al menos una cohorte definida",
+        targetCohort: "Cohorte objetivo",
+        comparatorCohort: "Cohorte comparadora",
+        outcomeCohort: "Cohorte de resultados",
+        exposureCohort: "Cohorte de exposicion",
+        completedEstimations2Plus: "2+ estimaciones completadas",
+      },
+      analysisMeta: {
+        characterization: {
+          label: "Caracterizacion de la cohorte",
+          description:
+            "Demografia de referencia, comorbilidades, utilizacion de medicamentos y patrones temporales para las cohortes objetivo y de comparacion.",
         },
-        "pathway": {
-          "label": "Via de tratamiento",
-          "description": "Visualizar patrones de tratamiento secuenciales y trayectorias de utilizacion de medicamentos dentro de una cohorte."
+        incidence_rate: {
+          label: "Analisis de la tasa de incidencia",
+          description:
+            "Calcule tasas de incidencia con intervalos de confianza de Poisson exactos, estratificados por edad, sexo o ano calendario.",
         },
-        "estimation": {
-          "label": "Efectividad comparativa",
-          "description": "Estimacion del efecto a nivel de poblacion utilizando el metodo de cohorte: emparejamiento/estratificacion del puntaje de propension con modelos de Cox."
+        pathway: {
+          label: "Via de tratamiento",
+          description:
+            "Visualizar patrones de tratamiento secuenciales y trayectorias de utilizacion de medicamentos dentro de una cohorte.",
         },
-        "sccs": {
-          "label": "Serie de casos autocontrolados",
-          "description": "Comparacion intrapersona de tasas de eventos durante periodos de tiempo expuestos y no expuestos."
+        estimation: {
+          label: "Efectividad comparativa",
+          description:
+            "Estimacion del efecto a nivel de poblacion utilizando el metodo de cohorte: emparejamiento/estratificacion del puntaje de propension con modelos de Cox.",
         },
-        "evidence_synthesis": {
-          "label": "Sintesis de evidencia",
-          "description": "Metanalisis de efectos fijos o efectos aleatorios bayesianos que agrupan estimaciones de analisis multiples."
+        sccs: {
+          label: "Serie de casos autocontrolados",
+          description:
+            "Comparacion intrapersona de tasas de eventos durante periodos de tiempo expuestos y no expuestos.",
         },
-        "prediction": {
-          "label": "Prediccion a nivel de paciente",
-          "description": "Entrene modelos de aprendizaje automatico (LASSO, aumento de gradiente, bosque aleatorio, aprendizaje profundo) para predecir resultados."
-        }
+        evidence_synthesis: {
+          label: "Sintesis de evidencia",
+          description:
+            "Metanalisis de efectos fijos o efectos aleatorios bayesianos que agrupan estimaciones de analisis multiples.",
+        },
+        prediction: {
+          label: "Prediccion a nivel de paciente",
+          description:
+            "Entrene modelos de aprendizaje automatico (LASSO, aumento de gradiente, bosque aleatorio, aprendizaje profundo) para predecir resultados.",
+        },
       },
-      "requires": "Requiere: {{requirements}}",
-      "drawer": {
-        "analysisConfiguration": "Configuracion de analisis",
-        "configureAnalysis": "Configurar analisis",
-        "closeDrawer": "Cerrar cajon",
-        "targetCohort": "Cohorte objetivo",
-        "exposureCohortTarget": "Cohorte de exposicion (objetivo)",
-        "comparatorCohort": "Cohorte comparadora",
-        "outcomeCohort": "Cohorte de resultados",
-        "outcomeCohorts": "Cohortes de resultados",
-        "minCellCount": "Recuento minimo de celulas",
-        "minCellCountLabel": "Recuento minimo de celulas",
-        "minCellCountHelp": "Las celulas con menos pacientes se suprimen en la produccion.",
-        "tarStart": "Inicio de TAR (dias)",
-        "tarEnd": "Fin del TAR (dias)",
-        "tarStartLabel": "Dias de inicio del tiempo en riesgo",
-        "tarEndLabel": "Dias de finalizacion del tiempo en riesgo",
-        "propensityScoreMethod": "Metodo de puntuacion de propension",
-        "psMatching": "Concordancia de PS",
-        "psStratification": "Estratificacion PS",
-        "psWeighting": "Ponderacion PS (IPTW)",
-        "modelType": "Tipo de modelo",
-        "lassoLogisticRegression": "Regresion logistica LASSO",
-        "gradientBoosting": "Impulso de gradiente",
-        "randomForest": "Bosque aleatorio",
-        "adaBoost": "AdaBoost",
-        "decisionTree": "Arbol de decision",
-        "exposureUsesTarget": "La cohorte de exposicion es la cohorte objetivo seleccionada anteriormente.",
-        "naivePeriod": "Periodo ingenuo (dias)",
-        "naivePeriodLabel": "Dias del periodo ingenuo",
-        "naivePeriodHelp": "Dias al inicio de la observacion para excluir del analisis.",
-        "synthesisPrompt": "Seleccione 2+ resultados de estimacion completados",
-        "synthesisHelp": "La combinacion de sintesis de evidencia aun no se puede configurar aqui. Ejecutar desde la vista de resultados de la estimacion."
+      requires: "Requiere: {{requirements}}",
+      drawer: {
+        analysisConfiguration: "Configuracion de analisis",
+        configureAnalysis: "Configurar analisis",
+        closeDrawer: "Cerrar cajon",
+        targetCohort: "Cohorte objetivo",
+        exposureCohortTarget: "Cohorte de exposicion (objetivo)",
+        comparatorCohort: "Cohorte comparadora",
+        outcomeCohort: "Cohorte de resultados",
+        outcomeCohorts: "Cohortes de resultados",
+        minCellCount: "Recuento minimo de celulas",
+        minCellCountLabel: "Recuento minimo de celulas",
+        minCellCountHelp:
+          "Las celulas con menos pacientes se suprimen en la produccion.",
+        tarStart: "Inicio de TAR (dias)",
+        tarEnd: "Fin del TAR (dias)",
+        tarStartLabel: "Dias de inicio del tiempo en riesgo",
+        tarEndLabel: "Dias de finalizacion del tiempo en riesgo",
+        propensityScoreMethod: "Metodo de puntuacion de propension",
+        psMatching: "Concordancia de PS",
+        psStratification: "Estratificacion PS",
+        psWeighting: "Ponderacion PS (IPTW)",
+        modelType: "Tipo de modelo",
+        lassoLogisticRegression: "Regresion logistica LASSO",
+        gradientBoosting: "Impulso de gradiente",
+        randomForest: "Bosque aleatorio",
+        adaBoost: "AdaBoost",
+        decisionTree: "Arbol de decision",
+        exposureUsesTarget:
+          "La cohorte de exposicion es la cohorte objetivo seleccionada anteriormente.",
+        naivePeriod: "Periodo ingenuo (dias)",
+        naivePeriodLabel: "Dias del periodo ingenuo",
+        naivePeriodHelp:
+          "Dias al inicio de la observacion para excluir del analisis.",
+        synthesisPrompt: "Seleccione 2+ resultados de estimacion completados",
+        synthesisHelp:
+          "La combinacion de sintesis de evidencia aun no se puede configurar aqui. Ejecutar desde la vista de resultados de la estimacion.",
       },
-      "payloadNames": {
-        "characterization": "Caracterizacion de la investigacion",
-        "incidence_rate": "Tasa de incidencia de la investigacion",
-        "estimation": "Estimacion comparativa de la investigacion",
-        "prediction": "Investigacion Prediccion a nivel de paciente",
-        "sccs": "Investigacion SCCS",
-        "pathway": "Analisis de la via de investigacion",
-        "evidence_synthesis": "Sintesis de evidencia de investigacion"
+      payloadNames: {
+        characterization: "Caracterizacion de la investigacion",
+        incidence_rate: "Tasa de incidencia de la investigacion",
+        estimation: "Estimacion comparativa de la investigacion",
+        prediction: "Investigacion Prediccion a nivel de paciente",
+        sccs: "Investigacion SCCS",
+        pathway: "Analisis de la via de investigacion",
+        evidence_synthesis: "Sintesis de evidencia de investigacion",
       },
-      "charts": {
-        "kaplanMeierTitle": "Curva de supervivencia de Kaplan-Meier",
-        "timeDays": "Tiempo (dias)",
-        "survivalProbability": "Probabilidad de supervivencia",
-        "tooltipTime": "t = {{value}}",
-        "curveValue": "{{label}}: {{value}}%",
-        "propensityScoreDistribution": "Distribucion del puntaje de propension",
-        "propensityScore": "Puntuacion de propension"
+      charts: {
+        kaplanMeierTitle: "Curva de supervivencia de Kaplan-Meier",
+        timeDays: "Tiempo (dias)",
+        survivalProbability: "Probabilidad de supervivencia",
+        tooltipTime: "t = {{value}}",
+        curveValue: "{{label}}: {{value}}%",
+        propensityScoreDistribution: "Distribucion del puntaje de propension",
+        propensityScore: "Puntuacion de propension",
       },
-      "tracker": {
-        "results": "Resultados",
-        "analysisFailedDefault": "El analisis fallo. Consulte los registros para obtener mas detalles."
+      tracker: {
+        results: "Resultados",
+        analysisFailedDefault:
+          "El analisis fallo. Consulte los registros para obtener mas detalles.",
       },
-      "runHistory": {
-        "compareTitle": "Proximamente en la fase 4",
-        "replayTitle": "Ver o reproducir esta ejecucion",
-        "viewTitle": "Ver detalles de ejecucion"
+      runHistory: {
+        compareTitle: "Proximamente en la fase 4",
+        replayTitle: "Ver o reproducir esta ejecucion",
+        viewTitle: "Ver detalles de ejecucion",
       },
-      "results": {
-        "cohortCounts": "Recuentos de cohortes",
-        "targetSubjects": "Sujetos objetivo",
-        "comparatorSubjects": "Sujetos comparados",
-        "topFeaturesBySmd": "Caracteristicas principales por SMD",
-        "covariate": "Covariable",
-        "incidenceRate": "Tasa de incidencia",
-        "perPersonYear": "por persona-ano",
-        "personYears": "Persona-anos",
-        "cases": "Casos",
-        "comparativeEffectiveness": "Efectividad comparativa",
-        "hazardRatio": "Relacion de riesgo",
-        "target": "Objetivo",
-        "comparator": "Comparador",
-        "outcomeEvents": "Eventos de resultados",
-        "estimates": "Estimaciones",
-        "predictionPerformance": "Prediccion Rendimiento",
-        "aucAuroc": "AUC / AUROC",
-        "sensitivity": "Sensibilidad",
-        "specificity": "Especificidad",
-        "ppv": "PPV",
-        "npv": "VPN",
-        "selfControlledCaseSeries": "Serie de casos autocontrolados",
-        "incidenceRateRatio": "Ratio de tasas de incidencia (TIR)",
-        "pooledHazardRatio": "Ratio de riesgo agrupado",
-        "tauHeterogeneity": "Tau (heterogeneidad)",
-        "topTreatmentSequences": "Secuencias de tratamiento principales",
-        "estimateFallback": "Estimar"
-      }
+      results: {
+        cohortCounts: "Recuentos de cohortes",
+        targetSubjects: "Sujetos objetivo",
+        comparatorSubjects: "Sujetos comparados",
+        topFeaturesBySmd: "Caracteristicas principales por SMD",
+        covariate: "Covariable",
+        incidenceRate: "Tasa de incidencia",
+        perPersonYear: "por persona-ano",
+        personYears: "Persona-anos",
+        cases: "Casos",
+        comparativeEffectiveness: "Efectividad comparativa",
+        hazardRatio: "Relacion de riesgo",
+        target: "Objetivo",
+        comparator: "Comparador",
+        outcomeEvents: "Eventos de resultados",
+        estimates: "Estimaciones",
+        predictionPerformance: "Prediccion Rendimiento",
+        aucAuroc: "AUC / AUROC",
+        sensitivity: "Sensibilidad",
+        specificity: "Especificidad",
+        ppv: "PPV",
+        npv: "VPN",
+        selfControlledCaseSeries: "Serie de casos autocontrolados",
+        incidenceRateRatio: "Ratio de tasas de incidencia (TIR)",
+        pooledHazardRatio: "Ratio de riesgo agrupado",
+        tauHeterogeneity: "Tau (heterogeneidad)",
+        topTreatmentSequences: "Secuencias de tratamiento principales",
+        estimateFallback: "Estimar",
+      },
     },
-    "genomic": {
-      "title": "Evidencia genomica",
-      "subtitle": "Objetivos abiertos · Catalogo GWAS · Estadisticas resumidas",
-      "uploadTitle": "Cargar estadisticas resumidas de GWAS",
-      "releaseToUpload": "Liberar para cargar",
-      "dropSummaryStats": "Suelte estadisticas resumidas de GWAS",
-      "fileTypes": ".tsv, .csv o .gz · max. 500 MB",
-      "uploadFailed": "Error en la carga. Intentelo de nuevo.",
-      "allColumnsRequired": "Todas las columnas requeridas deben estar asignadas antes de confirmar.",
-      "parseFailed": "Error al analizar el archivo. Por favor verifique el formato.",
-      "confirmMapping": "Confirmar mapeo",
-      "threshold": "{{count}} loci · umbral p < {{threshold}}",
-      "noLoci": "No hay loci por debajo del umbral de significancia ({{threshold}})",
-      "pinThisLocus": "Fijar este locus",
-      "chr": "Chr",
-      "position": "Posicion",
-      "pValue": "Valor p",
-      "betaOr": "Beta/OR",
-      "refAlt": "Ref/Alt",
-      "manhattanPlot": "Grafico de Manhattan",
-      "qqPlot": "Grafico QQ",
-      "showingOfResults": "Mostrando {{shown}} de {{total}} resultados - Catalogo GWAS",
-      "sample": "Muestra:",
-      "snps": "SNP:",
-      "unknownTrait": "Rasgo desconocido",
-      "platform": "Plataforma",
-      "gene": "Gen",
-      "disease": "Enfermedad",
-      "crossDomainLinks": "Enlaces entre dominios",
-      "qqPlotNoData": "No hay datos de valor p disponibles",
-      "qqPlotExpectedNegLogP": "Esperado -log10(p)",
-      "qqPlotObservedNegLogP": "Observado -log10(p)",
-      "lambdaLabel": "λ = {{value}}",
-      "noGwasDataAvailable": "No hay datos de GWAS disponibles",
-      "noGwasDataAvailableAria": "Grafico de Manhattan: no hay datos de GWAS disponibles",
-      "manhattanAriaNoVariants": "Grafico de Manhattan: sin variantes",
-      "manhattanAriaTopPeak": "pico superior en chr{{chr}}:{{pos}}, p={{pValue}}",
-      "manhattanAriaNoPeaks": "sin picos",
-      "manhattanAriaSummary": "Grafico de Manhattan: {{variantCount}} variantes, {{significantCount}} significativo en todo el genoma, {{topPeak}}",
-      "negLogP": "-log10(p)"
+    genomic: {
+      title: "Evidencia genomica",
+      subtitle: "Objetivos abiertos · Catalogo GWAS · Estadisticas resumidas",
+      uploadTitle: "Cargar estadisticas resumidas de GWAS",
+      releaseToUpload: "Liberar para cargar",
+      dropSummaryStats: "Suelte estadisticas resumidas de GWAS",
+      fileTypes: ".tsv, .csv o .gz · max. 500 MB",
+      uploadFailed: "Error en la carga. Intentelo de nuevo.",
+      allColumnsRequired:
+        "Todas las columnas requeridas deben estar asignadas antes de confirmar.",
+      parseFailed:
+        "Error al analizar el archivo. Por favor verifique el formato.",
+      confirmMapping: "Confirmar mapeo",
+      threshold: "{{count}} loci · umbral p < {{threshold}}",
+      noLoci:
+        "No hay loci por debajo del umbral de significancia ({{threshold}})",
+      pinThisLocus: "Fijar este locus",
+      chr: "Chr",
+      position: "Posicion",
+      pValue: "Valor p",
+      betaOr: "Beta/OR",
+      refAlt: "Ref/Alt",
+      manhattanPlot: "Grafico de Manhattan",
+      qqPlot: "Grafico QQ",
+      showingOfResults:
+        "Mostrando {{shown}} de {{total}} resultados - Catalogo GWAS",
+      sample: "Muestra:",
+      snps: "SNP:",
+      unknownTrait: "Rasgo desconocido",
+      platform: "Plataforma",
+      gene: "Gen",
+      disease: "Enfermedad",
+      crossDomainLinks: "Enlaces entre dominios",
+      qqPlotNoData: "No hay datos de valor p disponibles",
+      qqPlotExpectedNegLogP: "Esperado -log10(p)",
+      qqPlotObservedNegLogP: "Observado -log10(p)",
+      lambdaLabel: "λ = {{value}}",
+      noGwasDataAvailable: "No hay datos de GWAS disponibles",
+      noGwasDataAvailableAria:
+        "Grafico de Manhattan: no hay datos de GWAS disponibles",
+      manhattanAriaNoVariants: "Grafico de Manhattan: sin variantes",
+      manhattanAriaTopPeak: "pico superior en chr{{chr}}:{{pos}}, p={{pValue}}",
+      manhattanAriaNoPeaks: "sin picos",
+      manhattanAriaSummary:
+        "Grafico de Manhattan: {{variantCount}} variantes, {{significantCount}} significativo en todo el genoma, {{topPeak}}",
+      negLogP: "-log10(p)",
     },
-    "synthesis": {
-      "completeTitle": "Completado",
-      "removePin": "Quitar pin",
-      "markKeyFinding": "Marcar como hallazgo clave",
-      "unmarkKeyFinding": "Desmarcar hallazgo clave",
-      "customFinding": "Hallazgo personalizado",
-      "exportDescription": "Exportar el expediente de evidencia completo, incluidos todos los hallazgos fijados, narrativas y notas de seccion."
-    }
-  }
+    synthesis: {
+      completeTitle: "Completado",
+      removePin: "Quitar pin",
+      markKeyFinding: "Marcar como hallazgo clave",
+      unmarkKeyFinding: "Desmarcar hallazgo clave",
+      customFinding: "Hallazgo personalizado",
+      exportDescription:
+        "Exportar el expediente de evidencia completo, incluidos todos los hallazgos fijados, narrativas y notas de seccion.",
+    },
+  },
 });
 const koInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
-  "investigation": {
-    "common": {
-      "actions": {
-        "newInvestigation": "새 조사",
-        "createInvestigation": "조사 만들기",
-        "parseAndImport": "구문 분석 및 가져오기",
-        "retry": "재시도",
-        "cancel": "취소",
-        "close": "닫기",
-        "runAnalysis": "분석 실행",
-        "replay": "재생",
-        "view": "보기",
-        "compare": "비교",
-        "createSnapshot": "스냅샷 만들기",
-        "exportPdf": "PDF 내보내기",
-        "exportJson": "JSON 내보내기",
-        "pin": "핀",
-        "pinToDossier": "Dossier에 고정",
-        "add": "+ 추가",
-        "newSet": "+ 새 설정",
-        "removeCohort": "동질 집단 제거",
-        "dismissError": "삭제 오류",
-        "toggleEvidenceSidebar": "증거 사이드바 전환",
-        "switchToClinicalRunHistory": "임상 도메인 실행 기록으로 전환"
+  investigation: {
+    common: {
+      actions: {
+        newInvestigation: "새 조사",
+        createInvestigation: "조사 만들기",
+        parseAndImport: "구문 분석 및 가져오기",
+        retry: "재시도",
+        cancel: "취소",
+        close: "닫기",
+        runAnalysis: "분석 실행",
+        replay: "재생",
+        view: "보기",
+        compare: "비교",
+        createSnapshot: "스냅샷 만들기",
+        exportPdf: "PDF 내보내기",
+        exportJson: "JSON 내보내기",
+        pin: "핀",
+        pinToDossier: "Dossier에 고정",
+        add: "+ 추가",
+        newSet: "+ 새 설정",
+        removeCohort: "동질 집단 제거",
+        dismissError: "삭제 오류",
+        toggleEvidenceSidebar: "증거 사이드바 전환",
+        switchToClinicalRunHistory: "임상 도메인 실행 기록으로 전환",
       },
-      "status": {
-        "draft": "초안",
-        "active": "과정중",
-        "complete": "완료",
-        "archived": "보관됨",
-        "completed": "완료됨",
-        "running": "실행 중",
-        "queued": "대기 중",
-        "pending": "보류 중",
-        "failed": "실패",
-        "saving": "저장 중...",
-        "saved": "저장됨",
-        "error": "오류"
+      status: {
+        draft: "초안",
+        active: "과정중",
+        complete: "완료",
+        archived: "보관됨",
+        completed: "완료됨",
+        running: "실행 중",
+        queued: "대기 중",
+        pending: "보류 중",
+        failed: "실패",
+        saving: "저장 중...",
+        saved: "저장됨",
+        error: "오류",
       },
-      "domains": {
-        "phenotype": "표현형",
-        "clinical": "임상",
-        "genomic": "게놈",
-        "synthesis": "합성",
-        "codeExplorer": "코드 탐색기"
+      domains: {
+        phenotype: "표현형",
+        clinical: "임상",
+        genomic: "게놈",
+        synthesis: "합성",
+        codeExplorer: "코드 탐색기",
       },
-      "tabs": {
-        "explore": "탐색",
-        "build": "빌드",
-        "validate": "유효성 검사",
-        "dossier": "서류",
-        "export": "내보내기",
-        "versions": "버전",
-        "gallery": "OHDSI 분석",
-        "tracking": "활성 실행",
-        "history": "기록",
-        "finngen": "FinnGen 분석",
-        "finngenHistory": "실행 기록",
-        "openTargets": "오픈 대상",
-        "gwasCatalog": "GWAS 카탈로그",
-        "upload": "GWAS 업로드"
+      tabs: {
+        explore: "탐색",
+        build: "빌드",
+        validate: "유효성 검사",
+        dossier: "서류",
+        export: "내보내기",
+        versions: "버전",
+        gallery: "OHDSI 분석",
+        tracking: "활성 실행",
+        history: "기록",
+        finngen: "FinnGen 분석",
+        finngenHistory: "실행 기록",
+        openTargets: "오픈 대상",
+        gwasCatalog: "GWAS 카탈로그",
+        upload: "GWAS 업로드",
       },
-      "sections": {
-        "evidence": "증거",
-        "researchQuestion": "연구 질문",
-        "phenotypeDefinition": "표현형 정의",
-        "populationCharacteristics": "인구 특성",
-        "clinicalEvidence": "임상적 증거",
-        "genomicEvidence": "게놈 증거",
-        "evidenceSynthesis": "증거 합성",
-        "limitationsCaveats": "한계 및 주의 사항",
-        "methods": "방법",
-        "versionHistory": "버전 기록",
-        "exportDossier": "서류 내보내기",
-        "evidenceDossier": "증거 서류",
-        "qcChecklist": "QC 체크리스트",
-        "importMode": "가져오기 모드",
-        "selectCohorts": "코호트 선택",
-        "atlasJson": "Atlas JSON",
-        "fileUpload": "파일 업로드",
-        "selectedCohorts": "선택한 코호트",
-        "conceptHierarchy": "개념 계층",
-        "conceptSet": "개념 집합",
-        "significantLoci": "중요 위치",
-        "columnMapping": "열 매핑",
-        "analysisParameters": "분석 매개변수",
-        "dataSource": "데이터 소스",
-        "loadingSources": "소스 로드 중..."
+      sections: {
+        evidence: "증거",
+        researchQuestion: "연구 질문",
+        phenotypeDefinition: "표현형 정의",
+        populationCharacteristics: "인구 특성",
+        clinicalEvidence: "임상적 증거",
+        genomicEvidence: "게놈 증거",
+        evidenceSynthesis: "증거 합성",
+        limitationsCaveats: "한계 및 주의 사항",
+        methods: "방법",
+        versionHistory: "버전 기록",
+        exportDossier: "서류 내보내기",
+        evidenceDossier: "증거 서류",
+        qcChecklist: "QC 체크리스트",
+        importMode: "가져오기 모드",
+        selectCohorts: "코호트 선택",
+        atlasJson: "Atlas JSON",
+        fileUpload: "파일 업로드",
+        selectedCohorts: "선택한 코호트",
+        conceptHierarchy: "개념 계층",
+        conceptSet: "개념 집합",
+        significantLoci: "중요 위치",
+        columnMapping: "열 매핑",
+        analysisParameters: "분석 매개변수",
+        dataSource: "데이터 소스",
+        loadingSources: "소스 로드 중...",
       },
-      "labels": {
-        "title": "제목",
-        "optional": "선택적",
-        "updated": "업데이트됨 {{date}}",
-        "coverage": "보장 범위",
-        "domains": "도메인",
-        "howItWorks": "작동 방식",
-        "sampleInvestigations": "샘플 조사",
-        "sampleInvestigationsSubtitle": "이러한 예를 탐색하여 실제 증거 조사 워크플로우를 확인하십시오.",
-        "recentInvestigations": "최근 조사",
-        "yourInvestigations": "당신의 조사",
-        "yourInvestigationsSubtitle": "당신이 생성한 최근 조사",
-        "conceptSets": "개념 세트",
-        "cohorts": "코호트",
-        "analyses": "임상 분석",
-        "pins": "핀",
-        "runs": "실행",
-        "startExploring": "탐색 시작 - 개념, 집단 및 분석을 추가하여 증거를 구축합니다",
-        "noDate": "--",
-        "results": "결과",
-        "estTime": "예상 {{value}}",
-        "fromInvestigation": "조사 결과",
-        "cohortFromThisInvestigation": "* = 이 조사의 코호트",
-        "openTargetsPlatform": "오픈 타겟 플랫폼",
-        "phase1b": "1b단계",
-        "pValueInline": "p = {{value}}"
+      labels: {
+        title: "제목",
+        optional: "선택적",
+        updated: "업데이트됨 {{date}}",
+        coverage: "보장 범위",
+        domains: "도메인",
+        howItWorks: "작동 방식",
+        sampleInvestigations: "샘플 조사",
+        sampleInvestigationsSubtitle:
+          "이러한 예를 탐색하여 실제 증거 조사 워크플로우를 확인하십시오.",
+        recentInvestigations: "최근 조사",
+        yourInvestigations: "당신의 조사",
+        yourInvestigationsSubtitle: "당신이 생성한 최근 조사",
+        conceptSets: "개념 세트",
+        cohorts: "코호트",
+        analyses: "임상 분석",
+        pins: "핀",
+        runs: "실행",
+        startExploring:
+          "탐색 시작 - 개념, 집단 및 분석을 추가하여 증거를 구축합니다",
+        noDate: "--",
+        results: "결과",
+        estTime: "예상 {{value}}",
+        fromInvestigation: "조사 결과",
+        cohortFromThisInvestigation: "* = 이 조사의 코호트",
+        openTargetsPlatform: "오픈 타겟 플랫폼",
+        phase1b: "1b단계",
+        pValueInline: "p = {{value}}",
       },
-      "empty": {
-        "noInvestigationsYet": "아직 조사 없음",
-        "noInvestigationsSubtitle": "시작하려면 첫 번째 구조화된 증거 서류를 만드세요.",
-        "noResearchQuestionDefined": "정의된 연구 질문 없음",
-        "noFindingsPinned": "아직 이 섹션에 고정된 결과 없음",
-        "noPinsYet": "아직 핀 없음",
-        "noSnapshotsYet": "아직 스냅샷이 없습니다.",
-        "noConcepts": "개념 없음",
-        "noAnalyses": "분석 없음",
-        "noEvidence": "근거 없음",
-        "none": "--",
-        "noResultsFound": "결과가 없습니다.",
-        "noSequenceData": "사용 가능한 시퀀스 데이터가 없습니다.",
-        "noAnalysesRunYet": "아직 분석이 실행되지 않았습니다. 시작하려면 갤러리에서 분석을 선택하십시오.",
-        "noCohortsAvailable": "사용 가능한 코호트가 없습니다."
+      empty: {
+        noInvestigationsYet: "아직 조사 없음",
+        noInvestigationsSubtitle:
+          "시작하려면 첫 번째 구조화된 증거 서류를 만드세요.",
+        noResearchQuestionDefined: "정의된 연구 질문 없음",
+        noFindingsPinned: "아직 이 섹션에 고정된 결과 없음",
+        noPinsYet: "아직 핀 없음",
+        noSnapshotsYet: "아직 스냅샷이 없습니다.",
+        noConcepts: "개념 없음",
+        noAnalyses: "분석 없음",
+        noEvidence: "근거 없음",
+        none: "--",
+        noResultsFound: "결과가 없습니다.",
+        noSequenceData: "사용 가능한 시퀀스 데이터가 없습니다.",
+        noAnalysesRunYet:
+          "아직 분석이 실행되지 않았습니다. 시작하려면 갤러리에서 분석을 선택하십시오.",
+        noCohortsAvailable: "사용 가능한 코호트가 없습니다.",
       },
-      "messages": {
-        "loadingInvestigation": "조사 로드 중...",
-        "investigationLoadFailed": "조사를 찾을 수 없거나 로드할 수 없습니다.",
-        "createInvestigationFailed": "조사를 생성하지 못했습니다. 다시 시도해 주세요.",
-        "aiWillAnalyze": "AI는 연구 질문을 분석하여 표현형 개념을 제안합니다.",
-        "exportSucceeded": "내보내기에 성공했습니다.",
-        "exportFailed": "내보내기에 실패했습니다. 다시 시도해 주세요.",
-        "searchFailed": "검색에 실패했습니다. 다시 시도해 주세요.",
-        "enterAtLeast2Characters": "검색하려면 2자 이상 입력하세요.",
-        "searchOmopMinimum": "OMOP 개념을 검색하려면 2자 이상 입력하세요.",
-        "loadingVersions": "버전 로드 중...",
-        "waitingInQueue": "대기 중...",
-        "running": "실행 중...",
-        "analysisCancelled": "분석이 취소되었습니다.",
-        "analysisFailed": "분석 실패",
-        "analysisDispatchFailed": "분석 파견 실패",
-        "initializing": "초기화 중...",
-        "compareComingPhase4": "4단계 진행 중",
-        "snapshotsAutoComplete": "조사가 완료로 표시되면 스냅샷이 자동으로 생성됩니다.",
-        "finngenLoading": "로드 중...",
-        "loadingPins": "로드 핀",
-        "unexpectedDispatchError": "분석을 디스패치하는 동안 예상치 못한 오류가 발생했습니다."
+      messages: {
+        loadingInvestigation: "조사 로드 중...",
+        investigationLoadFailed: "조사를 찾을 수 없거나 로드할 수 없습니다.",
+        createInvestigationFailed:
+          "조사를 생성하지 못했습니다. 다시 시도해 주세요.",
+        aiWillAnalyze: "AI는 연구 질문을 분석하여 표현형 개념을 제안합니다.",
+        exportSucceeded: "내보내기에 성공했습니다.",
+        exportFailed: "내보내기에 실패했습니다. 다시 시도해 주세요.",
+        searchFailed: "검색에 실패했습니다. 다시 시도해 주세요.",
+        enterAtLeast2Characters: "검색하려면 2자 이상 입력하세요.",
+        searchOmopMinimum: "OMOP 개념을 검색하려면 2자 이상 입력하세요.",
+        loadingVersions: "버전 로드 중...",
+        waitingInQueue: "대기 중...",
+        running: "실행 중...",
+        analysisCancelled: "분석이 취소되었습니다.",
+        analysisFailed: "분석 실패",
+        analysisDispatchFailed: "분석 파견 실패",
+        initializing: "초기화 중...",
+        compareComingPhase4: "4단계 진행 중",
+        snapshotsAutoComplete:
+          "조사가 완료로 표시되면 스냅샷이 자동으로 생성됩니다.",
+        finngenLoading: "로드 중...",
+        loadingPins: "로드 핀",
+        unexpectedDispatchError:
+          "분석을 디스패치하는 동안 예상치 못한 오류가 발생했습니다.",
       },
-      "placeholders": {
-        "investigationTitle": "예: T2DM 환자의 심혈관 위험도 ",
-        "researchQuestion": "비교 효과는 무엇입니까...",
-        "conceptSearch": "개념 검색... (최소 2자)",
-        "atlasJson": "Atlas 코호트 정의 JSON을 여기에 붙여넣으세요...\n\n{\"ConceptSets\": [], \"PrimaryCriteria\": {...}}",
-        "addSectionNarrative": "섹션 설명 추가...",
-        "addNoteBefore": "앞에 메모 추가...",
-        "addNoteAfter": "뒤에 메모 추가...",
-        "clickToAddNarrative": "설명을 추가하려면 클릭하세요...",
-        "searchTrait": "특성 또는 표현형 검색(예: 제2형 당뇨병)",
-        "searchGene": "유전자 검색(예: TCF7L2)",
-        "searchGeneOpenTargets": "유전자 기호 또는 이름 검색(예: BRCA1)",
-        "searchDiseaseOpenTargets": "질병 또는 표현형 검색(예: 유방암)",
-        "selectSource": "소스 선택...",
-        "selectTargetCohort": "대상 코호트 선택...",
-        "selectOutcomeCohort": "결과 코호트 선택...",
-        "selectComparatorCohort": "비교 코호트 선택...",
-        "untitledConceptSet": "제목 없는 개념 집합",
-        "searchCohorts": "집단 검색...",
-        "selectColumn": "-- 선택 --"
+      placeholders: {
+        investigationTitle: "예: T2DM 환자의 심혈관 위험도 ",
+        researchQuestion: "비교 효과는 무엇입니까...",
+        conceptSearch: "개념 검색... (최소 2자)",
+        atlasJson:
+          'Atlas 코호트 정의 JSON을 여기에 붙여넣으세요...\n\n{"ConceptSets": [], "PrimaryCriteria": {...}}',
+        addSectionNarrative: "섹션 설명 추가...",
+        addNoteBefore: "앞에 메모 추가...",
+        addNoteAfter: "뒤에 메모 추가...",
+        clickToAddNarrative: "설명을 추가하려면 클릭하세요...",
+        searchTrait: "특성 또는 표현형 검색(예: 제2형 당뇨병)",
+        searchGene: "유전자 검색(예: TCF7L2)",
+        searchGeneOpenTargets: "유전자 기호 또는 이름 검색(예: BRCA1)",
+        searchDiseaseOpenTargets: "질병 또는 표현형 검색(예: 유방암)",
+        selectSource: "소스 선택...",
+        selectTargetCohort: "대상 코호트 선택...",
+        selectOutcomeCohort: "결과 코호트 선택...",
+        selectComparatorCohort: "비교 코호트 선택...",
+        untitledConceptSet: "제목 없는 개념 집합",
+        searchCohorts: "집단 검색...",
+        selectColumn: "-- 선택 --",
       },
-      "counts": {
-        "conceptSet_one": "{{count}} 개념 집합",
-        "conceptSet_other": "{{count}} 개념 집합",
-        "cohort_one": "{{count}} 집단",
-        "cohort_other": "{{count}} 동질 집단",
-        "query_one": "{{count}} 쿼리",
-        "query_other": "{{count}} 쿼리",
-        "upload_one": "{{count}} 업로드",
-        "upload_other": "{{count}} 업로드",
-        "pin_one": "{{count}} 핀",
-        "pin_other": "{{count}} 핀",
-        "section_one": "{{count}} 섹션",
-        "section_other": "{{count}} 섹션",
-        "result_one": "{{count}} 결과",
-        "result_other": "{{count}} 결과",
-        "locus_one": "{{count}} 유전자좌",
-        "locus_other": "{{count}} 유전자좌",
-        "patient_one": "{{count}} 환자",
-        "patient_other": "{{count}} 환자",
-        "row_one": "{{count}} 행",
-        "row_other": "{{count}} 행",
-        "analysis_one": "{{count}} 분석",
-        "analysis_other": "{{count}} 분석",
-        "completed_one": "{{count}} 완료",
-        "completed_other": "{{count}} 완료",
-        "running_one": "{{count}} 실행 중",
-        "running_other": "{{count}} 실행 중",
-        "failed_one": "{{count}} 실패",
-        "failed_other": "{{count}} 실패",
-        "subject_one": "{{count}} 제목",
-        "subject_other": "{{count}} 제목",
-        "link_one": "{{count}} 링크",
-        "link_other": "{{count}}링크"
+      counts: {
+        conceptSet_one: "{{count}} 개념 집합",
+        conceptSet_other: "{{count}} 개념 집합",
+        cohort_one: "{{count}} 집단",
+        cohort_other: "{{count}} 동질 집단",
+        query_one: "{{count}} 쿼리",
+        query_other: "{{count}} 쿼리",
+        upload_one: "{{count}} 업로드",
+        upload_other: "{{count}} 업로드",
+        pin_one: "{{count}} 핀",
+        pin_other: "{{count}} 핀",
+        section_one: "{{count}} 섹션",
+        section_other: "{{count}} 섹션",
+        result_one: "{{count}} 결과",
+        result_other: "{{count}} 결과",
+        locus_one: "{{count}} 유전자좌",
+        locus_other: "{{count}} 유전자좌",
+        patient_one: "{{count}} 환자",
+        patient_other: "{{count}} 환자",
+        row_one: "{{count}} 행",
+        row_other: "{{count}} 행",
+        analysis_one: "{{count}} 분석",
+        analysis_other: "{{count}} 분석",
+        completed_one: "{{count}} 완료",
+        completed_other: "{{count}} 완료",
+        running_one: "{{count}} 실행 중",
+        running_other: "{{count}} 실행 중",
+        failed_one: "{{count}} 실패",
+        failed_other: "{{count}} 실패",
+        subject_one: "{{count}} 제목",
+        subject_other: "{{count}} 제목",
+        link_one: "{{count}} 링크",
+        link_other: "{{count}}링크",
       },
-      "time": {
-        "secondsAgo": "{{count}}s 전",
-        "minutesAgo": "{{count}}m 전",
-        "hoursAgo": "{{count}}h 전"
-      }
+      time: {
+        secondsAgo: "{{count}}s 전",
+        minutesAgo: "{{count}}m 전",
+        hoursAgo: "{{count}}h 전",
+      },
     },
-    "landing": {
-      "title": "증거 조사",
-      "subtitle": "게놈 증거와 임상 표현형 연결 - 연구 질문에서 증거 서류까지",
-      "recentInvestigations": "최근 조사",
-      "noInvestigations": "시작하려면 첫 번째 구조화된 증거 서류를 만드세요.",
-      "workflow": {
-        "askQuestion": {
-          "label": "질문하기",
-          "description": "연구 질문과 제목을 정의하십시오."
+    landing: {
+      title: "증거 조사",
+      subtitle: "게놈 증거와 임상 표현형 연결 - 연구 질문에서 증거 서류까지",
+      recentInvestigations: "최근 조사",
+      noInvestigations: "시작하려면 첫 번째 구조화된 증거 서류를 만드세요.",
+      workflow: {
+        askQuestion: {
+          label: "질문하기",
+          description: "연구 질문과 제목을 정의하십시오.",
         },
-        "buildPhenotype": {
-          "label": "표현형 구축",
-          "description": "개념 세트 및 코호트 정의를 관리합니다."
+        buildPhenotype: {
+          label: "표현형 구축",
+          description: "개념 세트 및 코호트 정의를 관리합니다.",
         },
-        "gatherEvidence": {
-          "label": "증거 수집",
-          "description": "HADES 분석을 실행하고 게놈 신호를 가져옵니다."
+        gatherEvidence: {
+          label: "증거 수집",
+          description: "HADES 분석을 실행하고 게놈 신호를 가져옵니다.",
         },
-        "synthesizeDossier": {
-          "label": "Dossier 합성",
-          "description": "게시를 위해 구조화된 증거 문서를 내보냅니다."
-        }
+        synthesizeDossier: {
+          label: "Dossier 합성",
+          description: "게시를 위해 구조화된 증거 문서를 내보냅니다.",
+        },
       },
-      "sampleInvestigations": {
-        "ckd": {
-          "title": "T2DM의 SGLT2 억제제 및 CKD 진행",
-          "question": "SGLT2 억제는 제2형 당뇨병 환자의 만성 신장 질환 진행을 감소시키나요?",
-          "badges": {
-            "conceptSets": "3가지 컨셉 세트",
-            "cohorts": "2개 코호트",
-            "estimation": "1 추정값",
-            "loci": "5 GWAS 유전자좌"
-          }
+      sampleInvestigations: {
+        ckd: {
+          title: "T2DM의 SGLT2 억제제 및 CKD 진행",
+          question:
+            "SGLT2 억제는 제2형 당뇨병 환자의 만성 신장 질환 진행을 감소시키나요?",
+          badges: {
+            conceptSets: "3가지 컨셉 세트",
+            cohorts: "2개 코호트",
+            estimation: "1 추정값",
+            loci: "5 GWAS 유전자좌",
+          },
         },
-        "statin": {
-          "title": "스타틴 역설 - 심바스타틴 대 아토르바스타틴 심혈관 결과",
-          "question": "스타틴을 사용하지 않은 환자의 심바스타틴과 아토르바스타틴 사이에 심혈관 결과에 임상적으로 의미 있는 차이가 있습니까?",
-          "badges": {
-            "conceptSets": "2개의 개념 세트",
-            "cohorts": "2개 코호트",
-            "characterization": "1 특성화",
-            "estimation": "1 추정값"
-          }
+        statin: {
+          title: "스타틴 역설 - 심바스타틴 대 아토르바스타틴 심혈관 결과",
+          question:
+            "스타틴을 사용하지 않은 환자의 심바스타틴과 아토르바스타틴 사이에 심혈관 결과에 임상적으로 의미 있는 차이가 있습니까?",
+          badges: {
+            conceptSets: "2개의 개념 세트",
+            cohorts: "2개 코호트",
+            characterization: "1 특성화",
+            estimation: "1 추정값",
+          },
         },
-        "tcf7l2": {
-          "title": "TCF7L2 및 췌장 베타 세포 기능장애",
-          "question": "TCF7L2 위험 변종은 췌장 베타 세포 기능 장애를 통해 T2DM에 기여하며, 이 메커니즘을 뒷받침하는 임상 증거는 무엇입니까?",
-          "badges": {
-            "conceptSet": "컨셉세트 1개",
-            "cohort": "1개 코호트",
-            "associations": "12개의 Open Targets 연관성",
-            "loci": "3개의 GWAS 유전자좌"
-          }
-        }
-      }
+        tcf7l2: {
+          title: "TCF7L2 및 췌장 베타 세포 기능장애",
+          question:
+            "TCF7L2 위험 변종은 췌장 베타 세포 기능 장애를 통해 T2DM에 기여하며, 이 메커니즘을 뒷받침하는 임상 증거는 무엇입니까?",
+          badges: {
+            conceptSet: "컨셉세트 1개",
+            cohort: "1개 코호트",
+            associations: "12개의 Open Targets 연관성",
+            loci: "3개의 GWAS 유전자좌",
+          },
+        },
+      },
     },
-    "newPage": {
-      "title": "새로운 증거 조사",
-      "subtitle": "연구 질문에 대한 구조화된 서류를 시작합니다.",
-      "back": "증거 조사"
+    newPage: {
+      title: "새로운 증거 조사",
+      subtitle: "연구 질문에 대한 구조화된 서류를 시작합니다.",
+      back: "증거 조사",
     },
-    "phenotype": {
-      "importModes": {
-        "parthenon": {
-          "label": "파르테논 코호트",
-          "description": "기존 코호트 정의에서 선택"
+    phenotype: {
+      importModes: {
+        parthenon: {
+          label: "파르테논 코호트",
+          description: "기존 코호트 정의에서 선택",
         },
-        "json": {
-          "label": "Atlas JSON",
-          "description": "Atlas에서 코호트 정의 JSON 붙여넣기"
+        json: {
+          label: "Atlas JSON",
+          description: "Atlas에서 코호트 정의 JSON 붙여넣기",
         },
-        "file": {
-          "label": "파일 업로드",
-          "description": "CSV 또는 JSON 코호트 파일 업로드"
+        file: {
+          label: "파일 업로드",
+          description: "CSV 또는 JSON 코호트 파일 업로드",
         },
-        "phenotypeLibrary": {
-          "label": "표현형 라이브러리",
-          "description": "OHDSI 표현형 라이브러리 찾아보기(1,100개 이상의 검증된 표현형)"
-        }
+        phenotypeLibrary: {
+          label: "표현형 라이브러리",
+          description:
+            "OHDSI 표현형 라이브러리 찾아보기(1,100개 이상의 검증된 표현형)",
+        },
       },
-      "atlas": {
-        "exportHint": "Atlas에서 내보내기: 코호트 정의 -> 내보내기 -> JSON",
-        "parseErrorEmpty": "분석하기 전에 Atlas JSON 정의를 붙여넣으세요.",
-        "parseErrorInvalid": "잘못된 JSON - 구문 오류를 확인하십시오.",
-        "parseErrorShape": "인식할 수 없는 형식 - 예상되는 ConceptSets, PrimaryCriteria 또는 표현식 키.",
-        "importSucceeded": "{{summary}} - 성공적으로 가져왔습니다.",
-        "summary": "발견된 {{conceptSets}} 개념 세트, {{criteria}} 기준"
+      atlas: {
+        exportHint: "Atlas에서 내보내기: 코호트 정의 -> 내보내기 -> JSON",
+        parseErrorEmpty: "분석하기 전에 Atlas JSON 정의를 붙여넣으세요.",
+        parseErrorInvalid: "잘못된 JSON - 구문 오류를 확인하십시오.",
+        parseErrorShape:
+          "인식할 수 없는 형식 - 예상되는 ConceptSets, PrimaryCriteria 또는 표현식 키.",
+        importSucceeded: "{{summary}} - 성공적으로 가져왔습니다.",
+        summary: "발견된 {{conceptSets}} 개념 세트, {{criteria}} 기준",
       },
-      "file": {
-        "dropPrompt": "CSV 또는 JSON 파일을 여기에 놓거나 클릭하여 찾아보세요.",
-        "invalidJson": "잘못된 JSON 파일",
-        "unsupportedType": "지원되지 않는 파일 형식",
-        "loadedRows": "파싱된 {{name}}",
-        "parsedJson": "JSON에서 {{count}}행 로드됨 - {{count}} 개념 집합"
+      file: {
+        dropPrompt: "CSV 또는 JSON 파일을 여기에 놓거나 클릭하여 찾아보세요.",
+        invalidJson: "잘못된 JSON 파일",
+        unsupportedType: "지원되지 않는 파일 형식",
+        loadedRows: "파싱된 {{name}}",
+        parsedJson: "JSON에서 {{count}}행 로드됨 - {{count}} 개념 집합",
       },
-      "conceptExplorer": {
-        "allDomains": "모든 도메인",
-        "condition": "애정",
-        "drug": "약물",
-        "measurement": "측정",
-        "procedure": "액트",
-        "observation": "관찰클리니크",
-        "standard": "표준화",
-        "standardOnly": "표준 전용",
-        "addToConceptSet": "개념 세트에 추가",
-        "patients": "{{count}}pts",
-        "noConceptsFound": "\"{{query}}\"와 일치하는 개념을 찾을 수 없습니다.",
-        "nonStandardHidden": "({{count}} 비표준 숨김 - 표시하려면 \"표준 전용\" 선택을 취소하세요)"
+      conceptExplorer: {
+        allDomains: "모든 도메인",
+        condition: "애정",
+        drug: "약물",
+        measurement: "측정",
+        procedure: "액트",
+        observation: "관찰클리니크",
+        standard: "표준화",
+        standardOnly: "표준 전용",
+        addToConceptSet: "개념 세트에 추가",
+        patients: "{{count}}pts",
+        noConceptsFound: '"{{query}}"와 일치하는 개념을 찾을 수 없습니다.',
+        nonStandardHidden:
+          '({{count}} 비표준 숨김 - 표시하려면 "표준 전용" 선택을 취소하세요)',
       },
-      "conceptSet": {
-        "excluded": "제외됨",
-        "includeDescendants": "하위 항목 포함",
-        "exclude": "제외",
-        "removeFromSet": "개념 집합에서 제거",
-        "searchPrompt": "개념을 검색하고 추가하여 개념 세트를 구축하세요.",
-        "metadata": "ID: {{conceptId}} · {{vocabularyId}} · {{domainId}}"
+      conceptSet: {
+        excluded: "제외됨",
+        includeDescendants: "하위 항목 포함",
+        exclude: "제외",
+        removeFromSet: "개념 집합에서 제거",
+        searchPrompt: "개념을 검색하고 추가하여 개념 세트를 구축하세요.",
+        metadata: "ID: {{conceptId}} · {{vocabularyId}} · {{domainId}}",
       },
-      "codewas": {
-        "case": "사례",
-        "control": "제어",
-        "versus": "대",
-        "topSignals": "상위 신호({{count}})",
-        "label": "라벨",
-        "count": "수",
-        "effectEstimates": "효과 추정치",
-        "volcanoComingSoon": "향후 업데이트에서 제공되는 대화형 화산 플롯입니다."
+      codewas: {
+        case: "사례",
+        control: "제어",
+        versus: "대",
+        topSignals: "상위 신호({{count}})",
+        label: "라벨",
+        count: "수",
+        effectEstimates: "효과 추정치",
+        volcanoComingSoon: "향후 업데이트에서 제공되는 대화형 화산 플롯입니다.",
       },
-      "phenotypeLibrary": {
-        "title": "표현형 라이브러리",
-        "searchPlaceholder": "OHDSI 표현형 라이브러리 검색(1,100개 이상의 검증된 표현형)",
-        "searchFailed": "표현형 라이브러리 검색에 실패했습니다. 다시 시도해 주세요.",
-        "noResults": "\"{{query}}\"에 대한 표현형이 없습니다.",
-        "emptyPrompt": "OHDSI 표현형 라이브러리 검색",
-        "validatedPhenotypes": "1,100개 이상의 검증된 표현형",
-        "noDescriptionAvailable": "설명이 없습니다.",
-        "selected": "선택됨",
-        "select": "선택"
+      phenotypeLibrary: {
+        title: "표현형 라이브러리",
+        searchPlaceholder:
+          "OHDSI 표현형 라이브러리 검색(1,100개 이상의 검증된 표현형)",
+        searchFailed:
+          "표현형 라이브러리 검색에 실패했습니다. 다시 시도해 주세요.",
+        noResults: '"{{query}}"에 대한 표현형이 없습니다.',
+        emptyPrompt: "OHDSI 표현형 라이브러리 검색",
+        validatedPhenotypes: "1,100개 이상의 검증된 표현형",
+        noDescriptionAvailable: "설명이 없습니다.",
+        selected: "선택됨",
+        select: "선택",
       },
-      "cohortPicker": {
-        "loading": "코호트 로드 중...",
-        "loadFailed": "코호트 정의를 로드하지 못했습니다.",
-        "noSearchMatches": "검색어와 일치하는 집단이 없습니다.",
-        "noDefinitions": "집단 정의를 찾을 수 없습니다.",
-        "primary": "기본",
-        "primarySelected": "기본 ✓",
-        "setAsPrimary": "기본으로 설정"
+      cohortPicker: {
+        loading: "코호트 로드 중...",
+        loadFailed: "코호트 정의를 로드하지 못했습니다.",
+        noSearchMatches: "검색어와 일치하는 집단이 없습니다.",
+        noDefinitions: "집단 정의를 찾을 수 없습니다.",
+        primary: "기본",
+        primarySelected: "기본 ✓",
+        setAsPrimary: "기본으로 설정",
       },
-      "cohortOverlap": {
-        "title": "코호트 중복 매트릭스",
-        "selectTwoCohorts": "중복을 보려면 2개 이상의 코호트를 선택하십시오.",
-        "patientCountTooltip": "{{name}}: {{count}} 환자",
-        "runOperationsToComputeOverlap": "작업을 실행하여 중복을 계산합니다.",
-        "footnote": "대각선: 코호트 크기. 비대각선: 집합 연산을 실행하여 중첩을 계산합니다."
+      cohortOverlap: {
+        title: "코호트 중복 매트릭스",
+        selectTwoCohorts: "중복을 보려면 2개 이상의 코호트를 선택하십시오.",
+        patientCountTooltip: "{{name}}: {{count}} 환자",
+        runOperationsToComputeOverlap: "작업을 실행하여 중복을 계산합니다.",
+        footnote:
+          "대각선: 코호트 크기. 비대각선: 집합 연산을 실행하여 중첩을 계산합니다.",
       },
-      "conceptTree": {
-        "selected": "(선택됨)",
-        "loadingHierarchy": "계층 로드 중...",
-        "noHierarchyData": "이 개념에 사용할 수 있는 계층 구조 데이터가 없습니다.",
-        "conceptLabel": "개념 {{id}}"
+      conceptTree: {
+        selected: "(선택됨)",
+        loadingHierarchy: "계층 로드 중...",
+        noHierarchyData:
+          "이 개념에 사용할 수 있는 계층 구조 데이터가 없습니다.",
+        conceptLabel: "개념 {{id}}",
       },
-      "cohortSizeComparison": {
-        "title": "코호트 크기 비교",
-        "primaryLegend": "금 = 1차 코호트"
+      cohortSizeComparison: {
+        title: "코호트 크기 비교",
+        primaryLegend: "금 = 1차 코호트",
       },
-      "attrition": {
-        "totalPopulation": "총 인구",
-        "countLabel": "n = {{count}}",
-        "excluded": "{{count}} 제외",
-        "noData": "사용 가능한 감소 데이터 없음"
+      attrition: {
+        totalPopulation: "총 인구",
+        countLabel: "n = {{count}}",
+        excluded: "{{count}} 제외",
+        noData: "사용 가능한 감소 데이터 없음",
       },
-      "schemaDensity": {
-        "addConcepts": "도메인 범위를 보려면 개념을 추가하세요.",
-        "domainCoverage": "도메인 범위",
-        "total": "{{count}} 총계",
-        "tooltip": "{{count}} 개념"
+      schemaDensity: {
+        addConcepts: "도메인 범위를 보려면 개념을 추가하세요.",
+        domainCoverage: "도메인 범위",
+        total: "{{count}} 총계",
+        tooltip: "{{count}} 개념",
       },
-      "validation": {
-        "atLeastOneConceptSetDefined": "하나 이상의 개념 집합이 정의됨",
-        "atLeastOneCohortSelected": "하나 이상의 코호트 선택됨",
-        "primaryCohortDesignated": "기본 코호트 지정됨",
-        "noEmptyConceptSets": "빈 개념 세트 없음",
-        "codewasValidationRun": "CodeWAS 검증 실행",
-        "addConceptsExploreTab": "탐색 탭에서 개념 추가",
-        "selectCohortsBuildTab": "빌드 탭에서 집단 선택",
-        "setPrimaryCohort": "분석을 위한 기본 집단 설정",
-        "allSetsPopulated": "모든 세트 채워짐",
-        "runCodewas": "CodeWAS를 실행하여 표현형 검증",
-        "passed": "{{passed}}/{{total}}통과",
-        "includeExploreBuild": "{{count}} 탐색 탭에 구축된 개념 세트는 코호트 생성에 포함됩니다."
-      }
+      validation: {
+        atLeastOneConceptSetDefined: "하나 이상의 개념 집합이 정의됨",
+        atLeastOneCohortSelected: "하나 이상의 코호트 선택됨",
+        primaryCohortDesignated: "기본 코호트 지정됨",
+        noEmptyConceptSets: "빈 개념 세트 없음",
+        codewasValidationRun: "CodeWAS 검증 실행",
+        addConceptsExploreTab: "탐색 탭에서 개념 추가",
+        selectCohortsBuildTab: "빌드 탭에서 집단 선택",
+        setPrimaryCohort: "분석을 위한 기본 집단 설정",
+        allSetsPopulated: "모든 세트 채워짐",
+        runCodewas: "CodeWAS를 실행하여 표현형 검증",
+        passed: "{{passed}}/{{total}}통과",
+        includeExploreBuild:
+          "{{count}} 탐색 탭에 구축된 개념 세트는 코호트 생성에 포함됩니다.",
+      },
     },
-    "clinical": {
-      "groupMeta": {
-        "characterize": {
-          "label": "특성화",
-          "description": "인구통계, 동반질환, 치료 패턴 등 인구 집단을 설명하세요."
+    clinical: {
+      groupMeta: {
+        characterize: {
+          label: "특성화",
+          description:
+            "인구통계, 동반질환, 치료 패턴 등 인구 집단을 설명하세요.",
         },
-        "compare": {
-          "label": "비교",
-          "description": "인과관계 효과를 추정하고 노출 또는 기간에 걸쳐 결과를 비교합니다."
+        compare: {
+          label: "비교",
+          description:
+            "인과관계 효과를 추정하고 노출 또는 기간에 걸쳐 결과를 비교합니다.",
         },
-        "predict": {
-          "label": "예측",
-          "description": "환자 수준 기계 학습 모델을 훈련하여 향후 결과를 예측합니다."
-        }
-      },
-      "estimatedTimes": {
-        "underOneMinute": "< 1분",
-        "oneToThreeMinutes": "1-3분",
-        "twoToFiveMinutes": "2-5분",
-        "fiveToFifteenMinutes": "5-15분",
-        "tenToFortyFiveMinutes": "10-45분",
-        "fifteenToSixtyMinutes": "15-60분"
-      },
-      "prerequisites": {
-        "atLeastOneCohortDefined": "하나 이상의 코호트 정의됨",
-        "targetCohort": "대상 코호트",
-        "comparatorCohort": "비교 코호트",
-        "outcomeCohort": "결과 코호트",
-        "exposureCohort": "노출 코호트",
-        "completedEstimations2Plus": "2+ 완료된 추정치"
-      },
-      "analysisMeta": {
-        "characterization": {
-          "label": "코호트 특성화",
-          "description": "표적 및 비교 코호트에 대한 기준선 인구 통계, 동반 질환, 약물 사용 및 시간 패턴."
+        predict: {
+          label: "예측",
+          description:
+            "환자 수준 기계 학습 모델을 훈련하여 향후 결과를 예측합니다.",
         },
-        "incidence_rate": {
-          "label": "발생률 분석",
-          "description": "연령, 성별 또는 연도별로 계층화된 정확한 포아송 신뢰 구간을 사용하여 발생률을 계산합니다."
+      },
+      estimatedTimes: {
+        underOneMinute: "< 1분",
+        oneToThreeMinutes: "1-3분",
+        twoToFiveMinutes: "2-5분",
+        fiveToFifteenMinutes: "5-15분",
+        tenToFortyFiveMinutes: "10-45분",
+        fifteenToSixtyMinutes: "15-60분",
+      },
+      prerequisites: {
+        atLeastOneCohortDefined: "하나 이상의 코호트 정의됨",
+        targetCohort: "대상 코호트",
+        comparatorCohort: "비교 코호트",
+        outcomeCohort: "결과 코호트",
+        exposureCohort: "노출 코호트",
+        completedEstimations2Plus: "2+ 완료된 추정치",
+      },
+      analysisMeta: {
+        characterization: {
+          label: "코호트 특성화",
+          description:
+            "표적 및 비교 코호트에 대한 기준선 인구 통계, 동반 질환, 약물 사용 및 시간 패턴.",
         },
-        "pathway": {
-          "label": "치료 경로",
-          "description": "코호트 내 순차적 치료 패턴 및 약물 사용 궤적을 시각화합니다."
+        incidence_rate: {
+          label: "발생률 분석",
+          description:
+            "연령, 성별 또는 연도별로 계층화된 정확한 포아송 신뢰 구간을 사용하여 발생률을 계산합니다.",
         },
-        "estimation": {
-          "label": "비교 효과",
-          "description": "CohortMethod를 사용한 모집단 수준 효과 추정 - Cox 모델을 사용한 성향 점수 매칭/계층화. "
+        pathway: {
+          label: "치료 경로",
+          description:
+            "코호트 내 순차적 치료 패턴 및 약물 사용 궤적을 시각화합니다.",
         },
-        "sccs": {
-          "label": "자체 제어 사례 시리즈 ",
-          "description": "노출된 시간 창과 노출되지 않은 시간 창 동안의 사건 발생률 개인별 비교. "
+        estimation: {
+          label: "비교 효과",
+          description:
+            "CohortMethod를 사용한 모집단 수준 효과 추정 - Cox 모델을 사용한 성향 점수 매칭/계층화. ",
         },
-        "evidence_synthesis": {
-          "label": "증거 합성",
-          "description": "고정 효과 또는 베이지안 무작위 효과 메타 분석 풀링은 여러 분석에서 추정합니다."
+        sccs: {
+          label: "자체 제어 사례 시리즈 ",
+          description:
+            "노출된 시간 창과 노출되지 않은 시간 창 동안의 사건 발생률 개인별 비교. ",
         },
-        "prediction": {
-          "label": "환자 수준 예측 ",
-          "description": "ML 모델(LASSO, 그래디언트 부스팅, 랜덤 포레스트, 딥 러닝)을 훈련하여 결과를 예측합니다. "
-        }
+        evidence_synthesis: {
+          label: "증거 합성",
+          description:
+            "고정 효과 또는 베이지안 무작위 효과 메타 분석 풀링은 여러 분석에서 추정합니다.",
+        },
+        prediction: {
+          label: "환자 수준 예측 ",
+          description:
+            "ML 모델(LASSO, 그래디언트 부스팅, 랜덤 포레스트, 딥 러닝)을 훈련하여 결과를 예측합니다. ",
+        },
       },
-      "requires": "필요 사항: {{requirements}}",
-      "drawer": {
-        "analysisConfiguration": "분석 구성",
-        "configureAnalysis": "분석 구성",
-        "closeDrawer": "서랍 닫기",
-        "targetCohort": "타겟 코호트",
-        "exposureCohortTarget": "노출 코호트(타겟)",
-        "comparatorCohort": "비교 코호트",
-        "outcomeCohort": "결과 코호트",
-        "outcomeCohorts": "결과 코호트",
-        "minCellCount": "최소 세포 수",
-        "minCellCountLabel": "최소 세포 수",
-        "minCellCountHelp": "환자 수가 적은 세포는 출력에서 ​​억제됩니다.",
-        "tarStart": "TAR 시작(일)",
-        "tarEnd": "TAR 종료(일)",
-        "tarStartLabel": "위험 시간 시작 날짜",
-        "tarEndLabel": "위험 시간 종료 날짜",
-        "propensityScoreMethod": "성향 점수 방법",
-        "psMatching": "PS 매칭",
-        "psStratification": "PS 층화",
-        "psWeighting": "PS 가중치(IPTW)",
-        "modelType": "모델 유형",
-        "lassoLogisticRegression": "LASSO 로지스틱 회귀",
-        "gradientBoosting": "그래디언트 부스팅",
-        "randomForest": "랜덤 포레스트",
-        "adaBoost": "AdaBoost",
-        "decisionTree": "의사결정 트리",
-        "exposureUsesTarget": "노출 코호트는 위에서 선택된 대상 코호트입니다.",
-        "naivePeriod": "Naive Period(일)",
-        "naivePeriodLabel": "순진 기간 일수",
-        "naivePeriodHelp": "분석에서 제외할 관찰 시작 일수.",
-        "synthesisPrompt": "2개 이상의 완료된 추정 결과를 선택합니다.",
-        "synthesisHelp": "여기에서는 증거 종합 풀링을 아직 구성할 수 없습니다. 추정 결과 보기에서 실행합니다."
+      requires: "필요 사항: {{requirements}}",
+      drawer: {
+        analysisConfiguration: "분석 구성",
+        configureAnalysis: "분석 구성",
+        closeDrawer: "서랍 닫기",
+        targetCohort: "타겟 코호트",
+        exposureCohortTarget: "노출 코호트(타겟)",
+        comparatorCohort: "비교 코호트",
+        outcomeCohort: "결과 코호트",
+        outcomeCohorts: "결과 코호트",
+        minCellCount: "최소 세포 수",
+        minCellCountLabel: "최소 세포 수",
+        minCellCountHelp: "환자 수가 적은 세포는 출력에서 ​​억제됩니다.",
+        tarStart: "TAR 시작(일)",
+        tarEnd: "TAR 종료(일)",
+        tarStartLabel: "위험 시간 시작 날짜",
+        tarEndLabel: "위험 시간 종료 날짜",
+        propensityScoreMethod: "성향 점수 방법",
+        psMatching: "PS 매칭",
+        psStratification: "PS 층화",
+        psWeighting: "PS 가중치(IPTW)",
+        modelType: "모델 유형",
+        lassoLogisticRegression: "LASSO 로지스틱 회귀",
+        gradientBoosting: "그래디언트 부스팅",
+        randomForest: "랜덤 포레스트",
+        adaBoost: "AdaBoost",
+        decisionTree: "의사결정 트리",
+        exposureUsesTarget: "노출 코호트는 위에서 선택된 대상 코호트입니다.",
+        naivePeriod: "Naive Period(일)",
+        naivePeriodLabel: "순진 기간 일수",
+        naivePeriodHelp: "분석에서 제외할 관찰 시작 일수.",
+        synthesisPrompt: "2개 이상의 완료된 추정 결과를 선택합니다.",
+        synthesisHelp:
+          "여기에서는 증거 종합 풀링을 아직 구성할 수 없습니다. 추정 결과 보기에서 실행합니다.",
       },
-      "payloadNames": {
-        "characterization": "조사 특성화",
-        "incidence_rate": "조사 발생률",
-        "estimation": "조사 비교 추정",
-        "prediction": "조사 환자 수준 예측",
-        "sccs": "조사 SCCS",
-        "pathway": "조사 경로 분석",
-        "evidence_synthesis": "조사 증거 종합"
+      payloadNames: {
+        characterization: "조사 특성화",
+        incidence_rate: "조사 발생률",
+        estimation: "조사 비교 추정",
+        prediction: "조사 환자 수준 예측",
+        sccs: "조사 SCCS",
+        pathway: "조사 경로 분석",
+        evidence_synthesis: "조사 증거 종합",
       },
-      "charts": {
-        "kaplanMeierTitle": "Kaplan-Meier 생존 곡선",
-        "timeDays": "시간(일)",
-        "survivalProbability": "생존 확률",
-        "tooltipTime": "t = {{value}}",
-        "curveValue": "{{label}}: {{value}}%",
-        "propensityScoreDistribution": "성향점수 분포",
-        "propensityScore": "성향점수"
+      charts: {
+        kaplanMeierTitle: "Kaplan-Meier 생존 곡선",
+        timeDays: "시간(일)",
+        survivalProbability: "생존 확률",
+        tooltipTime: "t = {{value}}",
+        curveValue: "{{label}}: {{value}}%",
+        propensityScoreDistribution: "성향점수 분포",
+        propensityScore: "성향점수",
       },
-      "tracker": {
-        "results": "결과",
-        "analysisFailedDefault": "분석이 실패했습니다. 자세한 내용은 로그를 확인하세요."
+      tracker: {
+        results: "결과",
+        analysisFailedDefault:
+          "분석이 실패했습니다. 자세한 내용은 로그를 확인하세요.",
       },
-      "runHistory": {
-        "compareTitle": "4단계 진행 중",
-        "replayTitle": "이 실행 보기 또는 재생",
-        "viewTitle": "실행 세부 정보 보기"
+      runHistory: {
+        compareTitle: "4단계 진행 중",
+        replayTitle: "이 실행 보기 또는 재생",
+        viewTitle: "실행 세부 정보 보기",
       },
-      "results": {
-        "cohortCounts": "코호트 수",
-        "targetSubjects": "대상 주제",
-        "comparatorSubjects": "비교 주제",
-        "topFeaturesBySmd": "SMD별 주요 기능",
-        "covariate": "공변량",
-        "incidenceRate": "발생률",
-        "perPersonYear": "인-년",
-        "personYears": "인-년",
-        "cases": "사례",
-        "comparativeEffectiveness": "비교 효과",
-        "hazardRatio": "위험 비율",
-        "target": "목표",
-        "comparator": "비교자",
-        "outcomeEvents": "결과 이벤트",
-        "estimates": "추정치",
-        "predictionPerformance": "예측 성능",
-        "aucAuroc": "AUC / AUROC",
-        "sensitivity": "민감도",
-        "specificity": "특이도",
-        "ppv": "PPV",
-        "npv": "NPV",
-        "selfControlledCaseSeries": "자체 제어 사례 시리즈 ",
-        "incidenceRateRatio": "발생률(IRR)",
-        "pooledHazardRatio": "합동 위험비",
-        "tauHeterogeneity": "Tau(이질성)",
-        "topTreatmentSequences": "최고 치료 순서",
-        "estimateFallback": "견적"
-      }
+      results: {
+        cohortCounts: "코호트 수",
+        targetSubjects: "대상 주제",
+        comparatorSubjects: "비교 주제",
+        topFeaturesBySmd: "SMD별 주요 기능",
+        covariate: "공변량",
+        incidenceRate: "발생률",
+        perPersonYear: "인-년",
+        personYears: "인-년",
+        cases: "사례",
+        comparativeEffectiveness: "비교 효과",
+        hazardRatio: "위험 비율",
+        target: "목표",
+        comparator: "비교자",
+        outcomeEvents: "결과 이벤트",
+        estimates: "추정치",
+        predictionPerformance: "예측 성능",
+        aucAuroc: "AUC / AUROC",
+        sensitivity: "민감도",
+        specificity: "특이도",
+        ppv: "PPV",
+        npv: "NPV",
+        selfControlledCaseSeries: "자체 제어 사례 시리즈 ",
+        incidenceRateRatio: "발생률(IRR)",
+        pooledHazardRatio: "합동 위험비",
+        tauHeterogeneity: "Tau(이질성)",
+        topTreatmentSequences: "최고 치료 순서",
+        estimateFallback: "견적",
+      },
     },
-    "genomic": {
-      "title": "게놈 증거",
-      "subtitle": "공개 대상 · GWAS 카탈로그 · 요약 통계",
-      "uploadTitle": "GWAS 요약 통계 업로드",
-      "releaseToUpload": "업로드 릴리스",
-      "dropSummaryStats": "GWAS 요약 통계 업로드",
-      "fileTypes": ".tsv, .csv 또는 .gz · 최대 500MB",
-      "uploadFailed": "업로드에 실패했습니다. 다시 시도하십시오.",
-      "allColumnsRequired": "확인하기 전에 모든 필수 열을 매핑해야 합니다.",
-      "parseFailed": "파일을 구문 분석하지 못했습니다. 형식을 확인하세요.",
-      "confirmMapping": "매핑 확인",
-      "threshold": "{{count}} 유전자좌 · 임계값 p < {{threshold}}",
-      "noLoci": "유의성 임계값 아래 유전자좌 없음({{threshold}})",
-      "pinThisLocus": "이 유전자좌 고정",
-      "chr": "Chr",
-      "position": "위치",
-      "pValue": "p-값",
-      "betaOr": "Beta/OR",
-      "refAlt": "Ref/Alt",
-      "manhattanPlot": "맨해튼 도표",
-      "qqPlot": "QQ 도표",
-      "showingOfResults": "{{total}} 결과 중 {{shown}} 표시 - GWAS 카탈로그",
-      "sample": "샘플:",
-      "snps": "SNP:",
-      "unknownTrait": "알 수 없는 특성",
-      "platform": "플랫폼",
-      "gene": "유전자",
-      "disease": "질병",
-      "crossDomainLinks": "교차 도메인 링크",
-      "qqPlotNoData": "사용 가능한 p-값 데이터 없음",
-      "qqPlotExpectedNegLogP": "예상 -log10(p)",
-      "qqPlotObservedNegLogP": "관찰됨 -log10(p)",
-      "lambdaLabel": "λ = {{value}}",
-      "noGwasDataAvailable": "GWAS 데이터 없음",
-      "noGwasDataAvailableAria": "Manhattan 플롯: GWAS 데이터 없음",
-      "manhattanAriaNoVariants": "Manhattan 플롯: 변형 없음",
-      "manhattanAriaTopPeak": "chr{{chr}}:{{pos}}, p={{pValue}}",
-      "manhattanAriaNoPeaks": "피크 없음",
-      "manhattanAriaSummary": "Manhattan 플롯: {{variantCount}} 변종, {{significantCount}} 게놈 전체에 중요한, {{topPeak}}",
-      "negLogP": "-log10(p)"
+    genomic: {
+      title: "게놈 증거",
+      subtitle: "공개 대상 · GWAS 카탈로그 · 요약 통계",
+      uploadTitle: "GWAS 요약 통계 업로드",
+      releaseToUpload: "업로드 릴리스",
+      dropSummaryStats: "GWAS 요약 통계 업로드",
+      fileTypes: ".tsv, .csv 또는 .gz · 최대 500MB",
+      uploadFailed: "업로드에 실패했습니다. 다시 시도하십시오.",
+      allColumnsRequired: "확인하기 전에 모든 필수 열을 매핑해야 합니다.",
+      parseFailed: "파일을 구문 분석하지 못했습니다. 형식을 확인하세요.",
+      confirmMapping: "매핑 확인",
+      threshold: "{{count}} 유전자좌 · 임계값 p < {{threshold}}",
+      noLoci: "유의성 임계값 아래 유전자좌 없음({{threshold}})",
+      pinThisLocus: "이 유전자좌 고정",
+      chr: "Chr",
+      position: "위치",
+      pValue: "p-값",
+      betaOr: "Beta/OR",
+      refAlt: "Ref/Alt",
+      manhattanPlot: "맨해튼 도표",
+      qqPlot: "QQ 도표",
+      showingOfResults: "{{total}} 결과 중 {{shown}} 표시 - GWAS 카탈로그",
+      sample: "샘플:",
+      snps: "SNP:",
+      unknownTrait: "알 수 없는 특성",
+      platform: "플랫폼",
+      gene: "유전자",
+      disease: "질병",
+      crossDomainLinks: "교차 도메인 링크",
+      qqPlotNoData: "사용 가능한 p-값 데이터 없음",
+      qqPlotExpectedNegLogP: "예상 -log10(p)",
+      qqPlotObservedNegLogP: "관찰됨 -log10(p)",
+      lambdaLabel: "λ = {{value}}",
+      noGwasDataAvailable: "GWAS 데이터 없음",
+      noGwasDataAvailableAria: "Manhattan 플롯: GWAS 데이터 없음",
+      manhattanAriaNoVariants: "Manhattan 플롯: 변형 없음",
+      manhattanAriaTopPeak: "chr{{chr}}:{{pos}}, p={{pValue}}",
+      manhattanAriaNoPeaks: "피크 없음",
+      manhattanAriaSummary:
+        "Manhattan 플롯: {{variantCount}} 변종, {{significantCount}} 게놈 전체에 중요한, {{topPeak}}",
+      negLogP: "-log10(p)",
     },
-    "synthesis": {
-      "completeTitle": "완료",
-      "removePin": "핀 제거",
-      "markKeyFinding": "핵심 결과로 표시 ",
-      "unmarkKeyFinding": "주요 결과 표시 해제",
-      "customFinding": "사용자 정의 결과",
-      "exportDescription": "고정된 모든 결과, 설명 및 섹션 메모를 포함하여 전체 증거 서류를 내보냅니다."
-    }
-  }
+    synthesis: {
+      completeTitle: "완료",
+      removePin: "핀 제거",
+      markKeyFinding: "핵심 결과로 표시 ",
+      unmarkKeyFinding: "주요 결과 표시 해제",
+      customFinding: "사용자 정의 결과",
+      exportDescription:
+        "고정된 모든 결과, 설명 및 섹션 메모를 포함하여 전체 증거 서류를 내보냅니다.",
+    },
+  },
 });
 const hiInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
-  "investigation": {
-    "common": {
-      "actions": {
-        "newInvestigation": "नई जांच",
-        "createInvestigation": "जांच बनाएं",
-        "parseAndImport": "पार्स और आयात",
-        "retry": "पुनःप्रयास",
-        "cancel": "रद्द करें",
-        "close": "बंद करें",
-        "runAnalysis": "चलाएँ विश्लेषण",
-        "replay": "रीप्ले",
-        "view": "देखें",
-        "compare": "तुलना",
-        "createSnapshot": "स्नैपशॉट बनाएं",
-        "exportPdf": "पीडीएफ निर्यात करें",
-        "exportJson": "JSON",
-        "pin": "पिन निर्यात करें",
-        "pinToDossier": "डॉज़ियर में पिन करें",
-        "add": "+ जोड़ें",
-        "newSet": "+ नया सेट",
-        "removeCohort": "समूह हटाएँ",
-        "dismissError": "त्रुटि ख़ारिज करें",
-        "toggleEvidenceSidebar": "साक्ष्य साइडबार को टॉगल करें",
-        "switchToClinicalRunHistory": "क्लिनिकल डोमेन रन इतिहास पर स्विच करें"
+  investigation: {
+    common: {
+      actions: {
+        newInvestigation: "नई जांच",
+        createInvestigation: "जांच बनाएं",
+        parseAndImport: "पार्स और आयात",
+        retry: "पुनःप्रयास",
+        cancel: "रद्द करें",
+        close: "बंद करें",
+        runAnalysis: "चलाएँ विश्लेषण",
+        replay: "रीप्ले",
+        view: "देखें",
+        compare: "तुलना",
+        createSnapshot: "स्नैपशॉट बनाएं",
+        exportPdf: "पीडीएफ निर्यात करें",
+        exportJson: "JSON",
+        pin: "पिन निर्यात करें",
+        pinToDossier: "डॉज़ियर में पिन करें",
+        add: "+ जोड़ें",
+        newSet: "+ नया सेट",
+        removeCohort: "समूह हटाएँ",
+        dismissError: "त्रुटि ख़ारिज करें",
+        toggleEvidenceSidebar: "साक्ष्य साइडबार को टॉगल करें",
+        switchToClinicalRunHistory: "क्लिनिकल डोमेन रन इतिहास पर स्विच करें",
       },
-      "status": {
-        "draft": "ड्राफ्ट",
-        "active": "एन कोर्स",
-        "complete": "पूर्ण",
-        "archived": "संग्रहीत",
-        "completed": "पूरा हुआ",
-        "running": "चल रहा है",
-        "queued": "कतारबद्ध",
-        "pending": "लंबित",
-        "failed": "विफल",
-        "saving": "सहेजा जा रहा है...",
-        "saved": "सहेजा गया",
-        "error": "त्रुटि"
+      status: {
+        draft: "ड्राफ्ट",
+        active: "एन कोर्स",
+        complete: "पूर्ण",
+        archived: "संग्रहीत",
+        completed: "पूरा हुआ",
+        running: "चल रहा है",
+        queued: "कतारबद्ध",
+        pending: "लंबित",
+        failed: "विफल",
+        saving: "सहेजा जा रहा है...",
+        saved: "सहेजा गया",
+        error: "त्रुटि",
       },
-      "domains": {
-        "phenotype": "फेनोटाइप",
-        "clinical": "नैदानिक",
-        "genomic": "जीनोमिक",
-        "synthesis": "संश्लेषण",
-        "codeExplorer": "कोड एक्सप्लोरर"
+      domains: {
+        phenotype: "फेनोटाइप",
+        clinical: "नैदानिक",
+        genomic: "जीनोमिक",
+        synthesis: "संश्लेषण",
+        codeExplorer: "कोड एक्सप्लोरर",
       },
-      "tabs": {
-        "explore": "अन्वेषण",
-        "build": "बिल्ड",
-        "validate": "मान्य",
-        "dossier": "डोज़ियर",
-        "export": "निर्यात",
-        "versions": "संस्करण",
-        "gallery": "ओएचडीएसआई विश्लेषण करता है",
-        "tracking": "सक्रिय भागो",
-        "history": "इतिहास",
-        "finngen": "फिनजेन विश्लेषण",
-        "finngenHistory": "इतिहास चलाएं",
-        "openTargets": "खुले लक्ष्य",
-        "gwasCatalog": "जीडब्ल्यूएएस कैटलॉग",
-        "upload": "अपलोड जीडब्ल्यूएएस"
+      tabs: {
+        explore: "अन्वेषण",
+        build: "बिल्ड",
+        validate: "मान्य",
+        dossier: "डोज़ियर",
+        export: "निर्यात",
+        versions: "संस्करण",
+        gallery: "ओएचडीएसआई विश्लेषण करता है",
+        tracking: "सक्रिय भागो",
+        history: "इतिहास",
+        finngen: "फिनजेन विश्लेषण",
+        finngenHistory: "इतिहास चलाएं",
+        openTargets: "खुले लक्ष्य",
+        gwasCatalog: "जीडब्ल्यूएएस कैटलॉग",
+        upload: "अपलोड जीडब्ल्यूएएस",
       },
-      "sections": {
-        "evidence": "साक्ष्य",
-        "researchQuestion": "अनुसंधान प्रश्न",
-        "phenotypeDefinition": "फ़ेनोटाइप परिभाषा",
-        "populationCharacteristics": "जनसंख्या विशेषताएँ",
-        "clinicalEvidence": "नैदानिक ​​​​साक्ष्य",
-        "genomicEvidence": "जीनोमिक साक्ष्य",
-        "evidenceSynthesis": "साक्ष्य संश्लेषण",
-        "limitationsCaveats": "सीमाएँ और चेतावनियाँ",
-        "methods": "तरीके",
-        "versionHistory": "संस्करण इतिहास",
-        "exportDossier": "निर्यात डोजियर",
-        "evidenceDossier": "साक्ष्य डोजियर",
-        "qcChecklist": "क्यूसी चेकलिस्ट",
-        "importMode": "आयात मोड",
-        "selectCohorts": "समुदायों का चयन करें",
-        "atlasJson": "एटलस JSON",
-        "fileUpload": "फ़ाइल अपलोड",
-        "selectedCohorts": "चयनित समूह",
-        "conceptHierarchy": "संकल्पना पदानुक्रम",
-        "conceptSet": "संकल्पना सेट",
-        "significantLoci": "महत्वपूर्ण लोकी",
-        "columnMapping": "कॉलम मैपिंग",
-        "analysisParameters": "विश्लेषण पैरामीटर",
-        "dataSource": "डेटा स्रोत",
-        "loadingSources": "स्रोत लोड हो रहे हैं..."
+      sections: {
+        evidence: "साक्ष्य",
+        researchQuestion: "अनुसंधान प्रश्न",
+        phenotypeDefinition: "फ़ेनोटाइप परिभाषा",
+        populationCharacteristics: "जनसंख्या विशेषताएँ",
+        clinicalEvidence: "नैदानिक ​​​​साक्ष्य",
+        genomicEvidence: "जीनोमिक साक्ष्य",
+        evidenceSynthesis: "साक्ष्य संश्लेषण",
+        limitationsCaveats: "सीमाएँ और चेतावनियाँ",
+        methods: "तरीके",
+        versionHistory: "संस्करण इतिहास",
+        exportDossier: "निर्यात डोजियर",
+        evidenceDossier: "साक्ष्य डोजियर",
+        qcChecklist: "क्यूसी चेकलिस्ट",
+        importMode: "आयात मोड",
+        selectCohorts: "समुदायों का चयन करें",
+        atlasJson: "एटलस JSON",
+        fileUpload: "फ़ाइल अपलोड",
+        selectedCohorts: "चयनित समूह",
+        conceptHierarchy: "संकल्पना पदानुक्रम",
+        conceptSet: "संकल्पना सेट",
+        significantLoci: "महत्वपूर्ण लोकी",
+        columnMapping: "कॉलम मैपिंग",
+        analysisParameters: "विश्लेषण पैरामीटर",
+        dataSource: "डेटा स्रोत",
+        loadingSources: "स्रोत लोड हो रहे हैं...",
       },
-      "labels": {
-        "title": "शीर्षक",
-        "optional": "वैकल्पिक",
-        "updated": "अद्यतन {{date}}",
-        "coverage": "कवरेज",
-        "domains": "डोमेन",
-        "howItWorks": "यह कैसे काम करता है",
-        "sampleInvestigations": "नमूना जांच",
-        "sampleInvestigationsSubtitle": "साक्ष्य जांच वर्कफ़्लो को कार्यान्वित देखने के लिए इन उदाहरणों का अन्वेषण करें",
-        "recentInvestigations": "हाल की जांच",
-        "yourInvestigations": "आपकी जांच",
-        "yourInvestigationsSubtitle": "आपके द्वारा बनाई गई हाल की जांच",
-        "conceptSets": "कॉन्सेप्ट सेट्स",
-        "cohorts": "कोहोर्ट्स",
-        "analyses": "क्लीनिकों का विश्लेषण",
-        "pins": "पिन्स",
-        "runs": "रन",
-        "startExploring": "खोज शुरू करें - सबूत बनाने के लिए अवधारणाएं, समूह और विश्लेषण जोड़ें",
-        "noDate": "--",
-        "results": "परिणाम",
-        "estTime": "अनु. {{value}}",
-        "fromInvestigation": "जांच से",
-        "cohortFromThisInvestigation": "* = इस जांच से समूह",
-        "openTargetsPlatform": "ओपन टारगेट प्लेटफ़ॉर्म",
-        "phase1b": "चरण 1बी",
-        "pValueInline": "पी = {{value}}"
+      labels: {
+        title: "शीर्षक",
+        optional: "वैकल्पिक",
+        updated: "अद्यतन {{date}}",
+        coverage: "कवरेज",
+        domains: "डोमेन",
+        howItWorks: "यह कैसे काम करता है",
+        sampleInvestigations: "नमूना जांच",
+        sampleInvestigationsSubtitle:
+          "साक्ष्य जांच वर्कफ़्लो को कार्यान्वित देखने के लिए इन उदाहरणों का अन्वेषण करें",
+        recentInvestigations: "हाल की जांच",
+        yourInvestigations: "आपकी जांच",
+        yourInvestigationsSubtitle: "आपके द्वारा बनाई गई हाल की जांच",
+        conceptSets: "कॉन्सेप्ट सेट्स",
+        cohorts: "कोहोर्ट्स",
+        analyses: "क्लीनिकों का विश्लेषण",
+        pins: "पिन्स",
+        runs: "रन",
+        startExploring:
+          "खोज शुरू करें - सबूत बनाने के लिए अवधारणाएं, समूह और विश्लेषण जोड़ें",
+        noDate: "--",
+        results: "परिणाम",
+        estTime: "अनु. {{value}}",
+        fromInvestigation: "जांच से",
+        cohortFromThisInvestigation: "* = इस जांच से समूह",
+        openTargetsPlatform: "ओपन टारगेट प्लेटफ़ॉर्म",
+        phase1b: "चरण 1बी",
+        pValueInline: "पी = {{value}}",
       },
-      "empty": {
-        "noInvestigationsYet": "अभी तक कोई जांच नहीं",
-        "noInvestigationsSubtitle": "आरंभ करने के लिए अपना पहला संरचित साक्ष्य डोजियर बनाएं।",
-        "noResearchQuestionDefined": "कोई शोध प्रश्न परिभाषित नहीं है",
-        "noFindingsPinned": "इस अनुभाग पर अभी तक कोई निष्कर्ष पिन नहीं किया गया है",
-        "noPinsYet": "अभी तक कोई पिन नहीं",
-        "noSnapshotsYet": "अभी तक कोई स्नैपशॉट नहीं।",
-        "noConcepts": "कोई अवधारणा नहीं",
-        "noAnalyses": "कोई विश्लेषण नहीं",
-        "noEvidence": "कोई सबूत नहीं ",
-        "none": "--",
-        "noResultsFound": "कोई परिणाम नहीं मिला। ",
-        "noSequenceData": "कोई अनुक्रम डेटा उपलब्ध नहीं है",
-        "noAnalysesRunYet": "अभी तक कोई विश्लेषण नहीं चलाया गया है. आरंभ करने के लिए गैलरी से एक विश्लेषण चुनें।",
-        "noCohortsAvailable": "कोई समूह उपलब्ध नहीं।"
+      empty: {
+        noInvestigationsYet: "अभी तक कोई जांच नहीं",
+        noInvestigationsSubtitle:
+          "आरंभ करने के लिए अपना पहला संरचित साक्ष्य डोजियर बनाएं।",
+        noResearchQuestionDefined: "कोई शोध प्रश्न परिभाषित नहीं है",
+        noFindingsPinned:
+          "इस अनुभाग पर अभी तक कोई निष्कर्ष पिन नहीं किया गया है",
+        noPinsYet: "अभी तक कोई पिन नहीं",
+        noSnapshotsYet: "अभी तक कोई स्नैपशॉट नहीं।",
+        noConcepts: "कोई अवधारणा नहीं",
+        noAnalyses: "कोई विश्लेषण नहीं",
+        noEvidence: "कोई सबूत नहीं ",
+        none: "--",
+        noResultsFound: "कोई परिणाम नहीं मिला। ",
+        noSequenceData: "कोई अनुक्रम डेटा उपलब्ध नहीं है",
+        noAnalysesRunYet:
+          "अभी तक कोई विश्लेषण नहीं चलाया गया है. आरंभ करने के लिए गैलरी से एक विश्लेषण चुनें।",
+        noCohortsAvailable: "कोई समूह उपलब्ध नहीं।",
       },
-      "messages": {
-        "loadingInvestigation": "जांच लोड हो रहा है...",
-        "investigationLoadFailed": "जांच नहीं मिली या लोड नहीं किया जा सका।",
-        "createInvestigationFailed": "जांच बनाने में विफल। कृपया पुन: प्रयास करें।",
-        "aiWillAnalyze": "फेनोटाइप अवधारणाओं का सुझाव देने के लिए AI आपके शोध प्रश्न का विश्लेषण करेगा।",
-        "exportSucceeded": "सफलतापूर्वक निर्यात किया गया",
-        "exportFailed": "निर्यात विफल रहा। कृपया पुनः प्रयास करें।",
-        "searchFailed": "खोज विफल रही। कृपया पुनः प्रयास करें।",
-        "enterAtLeast2Characters": "खोजने के लिए कम से कम 2 अक्षर दर्ज करें।",
-        "searchOmopMinimum": "OMOP अवधारणाओं को खोजने के लिए कम से कम 2 अक्षर टाइप करें",
-        "loadingVersions": "संस्करण लोड हो रहा है...",
-        "waitingInQueue": "कतार में प्रतीक्षा कर रहा है...",
-        "running": "चल रहा है...",
-        "analysisCancelled": "विश्लेषण रद्द किया गया",
-        "analysisFailed": "विश्लेषण विफल",
-        "analysisDispatchFailed": "विश्लेषण प्रेषण विफल हुआ",
-        "initializing": "प्रारंभ हो रहा है...",
-        "compareComingPhase4": "चरण 4 में आ रहा है",
-        "snapshotsAutoComplete": "जब किसी जांच को पूर्ण के रूप में चिह्नित किया जाता है तो स्नैपशॉट स्वचालित रूप से बनाए जाते हैं।",
-        "finngenLoading": "लोड हो रहा है...",
-        "loadingPins": "पिन लोड हो रहा है",
-        "unexpectedDispatchError": "विश्लेषण भेजते समय एक अप्रत्याशित त्रुटि हुई।"
+      messages: {
+        loadingInvestigation: "जांच लोड हो रहा है...",
+        investigationLoadFailed: "जांच नहीं मिली या लोड नहीं किया जा सका।",
+        createInvestigationFailed:
+          "जांच बनाने में विफल। कृपया पुन: प्रयास करें।",
+        aiWillAnalyze:
+          "फेनोटाइप अवधारणाओं का सुझाव देने के लिए AI आपके शोध प्रश्न का विश्लेषण करेगा।",
+        exportSucceeded: "सफलतापूर्वक निर्यात किया गया",
+        exportFailed: "निर्यात विफल रहा। कृपया पुनः प्रयास करें।",
+        searchFailed: "खोज विफल रही। कृपया पुनः प्रयास करें।",
+        enterAtLeast2Characters: "खोजने के लिए कम से कम 2 अक्षर दर्ज करें।",
+        searchOmopMinimum:
+          "OMOP अवधारणाओं को खोजने के लिए कम से कम 2 अक्षर टाइप करें",
+        loadingVersions: "संस्करण लोड हो रहा है...",
+        waitingInQueue: "कतार में प्रतीक्षा कर रहा है...",
+        running: "चल रहा है...",
+        analysisCancelled: "विश्लेषण रद्द किया गया",
+        analysisFailed: "विश्लेषण विफल",
+        analysisDispatchFailed: "विश्लेषण प्रेषण विफल हुआ",
+        initializing: "प्रारंभ हो रहा है...",
+        compareComingPhase4: "चरण 4 में आ रहा है",
+        snapshotsAutoComplete:
+          "जब किसी जांच को पूर्ण के रूप में चिह्नित किया जाता है तो स्नैपशॉट स्वचालित रूप से बनाए जाते हैं।",
+        finngenLoading: "लोड हो रहा है...",
+        loadingPins: "पिन लोड हो रहा है",
+        unexpectedDispatchError:
+          "विश्लेषण भेजते समय एक अप्रत्याशित त्रुटि हुई।",
       },
-      "placeholders": {
-        "investigationTitle": "उदाहरण के लिए, T2DM रोगियों में हृदय संबंधी जोखिम",
-        "researchQuestion": "की तुलनात्मक प्रभावशीलता क्या है...",
-        "conceptSearch": "अवधारणाएँ खोजें... (न्यूनतम 2 अक्षर)",
-        "atlasJson": "एटलस समूह परिभाषा JSON को यहां चिपकाएँ...\n\n{\"ConceptSets\": [], \"PrimaryCriteria\": {...}}",
-        "addSectionNarrative": "अनुभाग विवरण जोड़ें...",
-        "addNoteBefore": "पहले नोट जोड़ें...",
-        "addNoteAfter": "बाद में नोट जोड़ें...",
-        "clickToAddNarrative": "विवरण जोड़ने के लिए क्लिक करें...",
-        "searchTrait": "विशेषता या फेनोटाइप खोजें (उदाहरण के लिए टाइप 2 मधुमेह)",
-        "searchGene": "खोज जीन (उदा. TCF7L2)",
-        "searchGeneOpenTargets": "खोज जीन प्रतीक या नाम (उदा. BRCA1)",
-        "searchDiseaseOpenTargets": "रोग या फेनोटाइप खोजें (उदा. स्तन कैंसर)",
-        "selectSource": "एक स्रोत चुनें...",
-        "selectTargetCohort": "लक्ष्य समूह चुनें...",
-        "selectOutcomeCohort": "परिणाम समूह चुनें...",
-        "selectComparatorCohort": "तुलनित्र समूह चुनें...",
-        "untitledConceptSet": "शीर्षक रहित अवधारणा सेट",
-        "searchCohorts": "समूह खोजें...",
-        "selectColumn": "-- चयन करें --"
+      placeholders: {
+        investigationTitle: "उदाहरण के लिए, T2DM रोगियों में हृदय संबंधी जोखिम",
+        researchQuestion: "की तुलनात्मक प्रभावशीलता क्या है...",
+        conceptSearch: "अवधारणाएँ खोजें... (न्यूनतम 2 अक्षर)",
+        atlasJson:
+          'एटलस समूह परिभाषा JSON को यहां चिपकाएँ...\n\n{"ConceptSets": [], "PrimaryCriteria": {...}}',
+        addSectionNarrative: "अनुभाग विवरण जोड़ें...",
+        addNoteBefore: "पहले नोट जोड़ें...",
+        addNoteAfter: "बाद में नोट जोड़ें...",
+        clickToAddNarrative: "विवरण जोड़ने के लिए क्लिक करें...",
+        searchTrait: "विशेषता या फेनोटाइप खोजें (उदाहरण के लिए टाइप 2 मधुमेह)",
+        searchGene: "खोज जीन (उदा. TCF7L2)",
+        searchGeneOpenTargets: "खोज जीन प्रतीक या नाम (उदा. BRCA1)",
+        searchDiseaseOpenTargets: "रोग या फेनोटाइप खोजें (उदा. स्तन कैंसर)",
+        selectSource: "एक स्रोत चुनें...",
+        selectTargetCohort: "लक्ष्य समूह चुनें...",
+        selectOutcomeCohort: "परिणाम समूह चुनें...",
+        selectComparatorCohort: "तुलनित्र समूह चुनें...",
+        untitledConceptSet: "शीर्षक रहित अवधारणा सेट",
+        searchCohorts: "समूह खोजें...",
+        selectColumn: "-- चयन करें --",
       },
-      "counts": {
-        "conceptSet_one": "{{count}} अवधारणा सेट",
-        "conceptSet_other": "{{count}} अवधारणा सेट",
-        "cohort_one": "{{count}} समूह",
-        "cohort_other": "{{count}} समूह",
-        "query_one": "{{count}} क्वेरी",
-        "query_other": "{{count}} प्रश्न",
-        "upload_one": "{{count}} अपलोड",
-        "upload_other": "{{count}} अपलोड",
-        "pin_one": "{{count}} पिन",
-        "pin_other": "{{count}} पिन",
-        "section_one": "{{count}} अनुभाग",
-        "section_other": "{{count}} अनुभाग",
-        "result_one": "{{count}} परिणाम",
-        "result_other": "{{count}} परिणाम",
-        "locus_one": "{{count}} लोकस",
-        "locus_other": "{{count}} लोकी",
-        "patient_one": "{{count}} रोगी",
-        "patient_other": "{{count}} रोगी",
-        "row_one": "{{count}} पंक्ति",
-        "row_other": "{{count}} पंक्तियाँ",
-        "analysis_one": "{{count}} विश्लेषण",
-        "analysis_other": "{{count}} विश्लेषण",
-        "completed_one": "{{count}} पूर्ण",
-        "completed_other": "{{count}} पूर्ण",
-        "running_one": "{{count}} दौड़",
-        "running_other": "{{count}} दौड़",
-        "failed_one": "{{count}} विफल",
-        "failed_other": "{{count}} विफल",
-        "subject_one": "{{count}} विषय",
-        "subject_other": "{{count}} विषय",
-        "link_one": "{{count}} लिंक",
-        "link_other": "{{count}}लिंक्स"
+      counts: {
+        conceptSet_one: "{{count}} अवधारणा सेट",
+        conceptSet_other: "{{count}} अवधारणा सेट",
+        cohort_one: "{{count}} समूह",
+        cohort_other: "{{count}} समूह",
+        query_one: "{{count}} क्वेरी",
+        query_other: "{{count}} प्रश्न",
+        upload_one: "{{count}} अपलोड",
+        upload_other: "{{count}} अपलोड",
+        pin_one: "{{count}} पिन",
+        pin_other: "{{count}} पिन",
+        section_one: "{{count}} अनुभाग",
+        section_other: "{{count}} अनुभाग",
+        result_one: "{{count}} परिणाम",
+        result_other: "{{count}} परिणाम",
+        locus_one: "{{count}} लोकस",
+        locus_other: "{{count}} लोकी",
+        patient_one: "{{count}} रोगी",
+        patient_other: "{{count}} रोगी",
+        row_one: "{{count}} पंक्ति",
+        row_other: "{{count}} पंक्तियाँ",
+        analysis_one: "{{count}} विश्लेषण",
+        analysis_other: "{{count}} विश्लेषण",
+        completed_one: "{{count}} पूर्ण",
+        completed_other: "{{count}} पूर्ण",
+        running_one: "{{count}} दौड़",
+        running_other: "{{count}} दौड़",
+        failed_one: "{{count}} विफल",
+        failed_other: "{{count}} विफल",
+        subject_one: "{{count}} विषय",
+        subject_other: "{{count}} विषय",
+        link_one: "{{count}} लिंक",
+        link_other: "{{count}}लिंक्स",
       },
-      "time": {
-        "secondsAgo": "{{count}} सेकंड पहले",
-        "minutesAgo": "{{count}} मिनट पहले",
-        "hoursAgo": "{{count}} घंटे पहले"
-      }
+      time: {
+        secondsAgo: "{{count}} सेकंड पहले",
+        minutesAgo: "{{count}} मिनट पहले",
+        hoursAgo: "{{count}} घंटे पहले",
+      },
     },
-    "landing": {
-      "title": "साक्ष्य जांच",
-      "subtitle": "क्लिनिकल फेनोटाइपिंग को जीनोमिक साक्ष्य से जोड़ें - शोध प्रश्न से साक्ष्य डोजियर तक",
-      "recentInvestigations": "हाल की जांच",
-      "noInvestigations": "आरंभ करने के लिए अपना पहला संरचित साक्ष्य डोजियर बनाएं।",
-      "workflow": {
-        "askQuestion": {
-          "label": "प्रश्न पूछें",
-          "description": "अपने शोध प्रश्न और शीर्षक को परिभाषित करें। "
+    landing: {
+      title: "साक्ष्य जांच",
+      subtitle:
+        "क्लिनिकल फेनोटाइपिंग को जीनोमिक साक्ष्य से जोड़ें - शोध प्रश्न से साक्ष्य डोजियर तक",
+      recentInvestigations: "हाल की जांच",
+      noInvestigations:
+        "आरंभ करने के लिए अपना पहला संरचित साक्ष्य डोजियर बनाएं।",
+      workflow: {
+        askQuestion: {
+          label: "प्रश्न पूछें",
+          description: "अपने शोध प्रश्न और शीर्षक को परिभाषित करें। ",
         },
-        "buildPhenotype": {
-          "label": "फ़ेनोटाइप बनाएं",
-          "description": "क्यूरेट अवधारणा सेट और समूह परिभाषाएँ।"
+        buildPhenotype: {
+          label: "फ़ेनोटाइप बनाएं",
+          description: "क्यूरेट अवधारणा सेट और समूह परिभाषाएँ।",
         },
-        "gatherEvidence": {
-          "label": "सबूत इकट्ठा करो",
-          "description": "HADES विश्लेषण चलाएं और जीनोमिक सिग्नल खींचें।"
+        gatherEvidence: {
+          label: "सबूत इकट्ठा करो",
+          description: "HADES विश्लेषण चलाएं और जीनोमिक सिग्नल खींचें।",
         },
-        "synthesizeDossier": {
-          "label": "संश्लेषण डोजियर",
-          "description": "प्रकाशन के लिए एक संरचित साक्ष्य डोजियर निर्यात करें।"
-        }
+        synthesizeDossier: {
+          label: "संश्लेषण डोजियर",
+          description: "प्रकाशन के लिए एक संरचित साक्ष्य डोजियर निर्यात करें।",
+        },
       },
-      "sampleInvestigations": {
-        "ckd": {
-          "title": "SGLT2 अवरोधक और T2DM में CKD प्रगति",
-          "question": "क्या SGLT2 निषेध टाइप 2 मधुमेह मेलिटस वाले रोगियों में क्रोनिक किडनी रोग की प्रगति को कम करता है?",
-          "badges": {
-            "conceptSets": "3 अवधारणा सेट",
-            "cohorts": "2 समूह",
-            "estimation": "1 अनुमान",
-            "loci": "5 GWAS लोकी"
-          }
+      sampleInvestigations: {
+        ckd: {
+          title: "SGLT2 अवरोधक और T2DM में CKD प्रगति",
+          question:
+            "क्या SGLT2 निषेध टाइप 2 मधुमेह मेलिटस वाले रोगियों में क्रोनिक किडनी रोग की प्रगति को कम करता है?",
+          badges: {
+            conceptSets: "3 अवधारणा सेट",
+            cohorts: "2 समूह",
+            estimation: "1 अनुमान",
+            loci: "5 GWAS लोकी",
+          },
         },
-        "statin": {
-          "title": "स्टैटिन विरोधाभास - सिम्वास्टेटिन बनाम एटोरवास्टेटिन हृदय संबंधी परिणाम",
-          "question": "क्या स्टैटिन-अनुभवहीन रोगियों में सिमवास्टेटिन और एटोरवास्टेटिन के बीच हृदय संबंधी परिणामों में कोई नैदानिक ​​​​रूप से सार्थक अंतर है?",
-          "badges": {
-            "conceptSets": "2 अवधारणा सेट",
-            "cohorts": "2 समूह",
-            "characterization": "1 लक्षण वर्णन",
-            "estimation": "1 अनुमान"
-          }
+        statin: {
+          title:
+            "स्टैटिन विरोधाभास - सिम्वास्टेटिन बनाम एटोरवास्टेटिन हृदय संबंधी परिणाम",
+          question:
+            "क्या स्टैटिन-अनुभवहीन रोगियों में सिमवास्टेटिन और एटोरवास्टेटिन के बीच हृदय संबंधी परिणामों में कोई नैदानिक ​​​​रूप से सार्थक अंतर है?",
+          badges: {
+            conceptSets: "2 अवधारणा सेट",
+            cohorts: "2 समूह",
+            characterization: "1 लक्षण वर्णन",
+            estimation: "1 अनुमान",
+          },
         },
-        "tcf7l2": {
-          "title": "TCF7L2 और अग्नाशयी बीटा सेल डिसफंक्शन",
-          "question": "क्या टीसीएफ7एल2 जोखिम वैरिएंट अग्नाशयी बीटा सेल डिसफंक्शन के माध्यम से टी2डीएम में योगदान देता है, और कौन से नैदानिक ​​​​साक्ष्य इस तंत्र का समर्थन करते हैं?",
-          "badges": {
-            "conceptSet": "1 अवधारणा सेट",
-            "cohort": "1 समूह",
-            "associations": "12 Open Targets संघ",
-            "loci": "3 जीडब्ल्यूएएस लोकी"
-          }
-        }
-      }
+        tcf7l2: {
+          title: "TCF7L2 और अग्नाशयी बीटा सेल डिसफंक्शन",
+          question:
+            "क्या टीसीएफ7एल2 जोखिम वैरिएंट अग्नाशयी बीटा सेल डिसफंक्शन के माध्यम से टी2डीएम में योगदान देता है, और कौन से नैदानिक ​​​​साक्ष्य इस तंत्र का समर्थन करते हैं?",
+          badges: {
+            conceptSet: "1 अवधारणा सेट",
+            cohort: "1 समूह",
+            associations: "12 Open Targets संघ",
+            loci: "3 जीडब्ल्यूएएस लोकी",
+          },
+        },
+      },
     },
-    "newPage": {
-      "title": "नई साक्ष्य जांच",
-      "subtitle": "अपने शोध प्रश्न के लिए एक संरचित डोजियर शुरू करें। ",
-      "back": "साक्ष्य जांच"
+    newPage: {
+      title: "नई साक्ष्य जांच",
+      subtitle: "अपने शोध प्रश्न के लिए एक संरचित डोजियर शुरू करें। ",
+      back: "साक्ष्य जांच",
     },
-    "phenotype": {
-      "importModes": {
-        "parthenon": {
-          "label": "पार्थेनॉन समूह",
-          "description": "मौजूदा समूह परिभाषाओं में से चुनें"
+    phenotype: {
+      importModes: {
+        parthenon: {
+          label: "पार्थेनॉन समूह",
+          description: "मौजूदा समूह परिभाषाओं में से चुनें",
         },
-        "json": {
-          "label": "एटलस JSON",
-          "description": "एटलस से एक समूह परिभाषा JSON चिपकाएँ"
+        json: {
+          label: "एटलस JSON",
+          description: "एटलस से एक समूह परिभाषा JSON चिपकाएँ",
         },
-        "file": {
-          "label": "फ़ाइल अपलोड",
-          "description": "एक CSV या JSON कोहोर्ट फ़ाइल अपलोड करें"
+        file: {
+          label: "फ़ाइल अपलोड",
+          description: "एक CSV या JSON कोहोर्ट फ़ाइल अपलोड करें",
         },
-        "phenotypeLibrary": {
-          "label": "फ़ेनोटाइप लाइब्रेरी",
-          "description": "ब्राउज़ OHDSI फेनोटाइप लाइब्रेरी (1,100+ मान्य फ़ेनोटाइप)"
-        }
+        phenotypeLibrary: {
+          label: "फ़ेनोटाइप लाइब्रेरी",
+          description:
+            "ब्राउज़ OHDSI फेनोटाइप लाइब्रेरी (1,100+ मान्य फ़ेनोटाइप)",
+        },
       },
-      "atlas": {
-        "exportHint": "एटलस से निर्यात करें: कोहोर्ट परिभाषा -> निर्यात -> JSON",
-        "parseErrorEmpty": "कृपया पार्सिंग से पहले एक एटलस JSON परिभाषा पेस्ट करें।",
-        "parseErrorInvalid": "अमान्य JSON - कृपया वाक्यविन्यास त्रुटियों की जाँच करें। ",
-        "parseErrorShape": "अज्ञात प्रारूप - अपेक्षित कॉन्सेप्टसेट, प्राथमिक मानदंड, या अभिव्यक्ति कुंजियाँ।",
-        "importSucceeded": "{{summary}} - सफलतापूर्वक आयात किया गया।",
-        "summary": "मिले {{conceptSets}} अवधारणा सेट, {{criteria}} मानदंड"
+      atlas: {
+        exportHint: "एटलस से निर्यात करें: कोहोर्ट परिभाषा -> निर्यात -> JSON",
+        parseErrorEmpty:
+          "कृपया पार्सिंग से पहले एक एटलस JSON परिभाषा पेस्ट करें।",
+        parseErrorInvalid:
+          "अमान्य JSON - कृपया वाक्यविन्यास त्रुटियों की जाँच करें। ",
+        parseErrorShape:
+          "अज्ञात प्रारूप - अपेक्षित कॉन्सेप्टसेट, प्राथमिक मानदंड, या अभिव्यक्ति कुंजियाँ।",
+        importSucceeded: "{{summary}} - सफलतापूर्वक आयात किया गया।",
+        summary: "मिले {{conceptSets}} अवधारणा सेट, {{criteria}} मानदंड",
       },
-      "file": {
-        "dropPrompt": "एक CSV या JSON फ़ाइल यहां छोड़ें, या ब्राउज़ करने के लिए क्लिक करें",
-        "invalidJson": "अमान्य JSON फ़ाइल",
-        "unsupportedType": "असमर्थित फ़ाइल प्रकार",
-        "loadedRows": "लोड की गई {{count}} पंक्तियाँ {{name}}",
-        "parsedJson": "JSON पार्स - {{count}} अवधारणा सेट"
+      file: {
+        dropPrompt:
+          "एक CSV या JSON फ़ाइल यहां छोड़ें, या ब्राउज़ करने के लिए क्लिक करें",
+        invalidJson: "अमान्य JSON फ़ाइल",
+        unsupportedType: "असमर्थित फ़ाइल प्रकार",
+        loadedRows: "लोड की गई {{count}} पंक्तियाँ {{name}}",
+        parsedJson: "JSON पार्स - {{count}} अवधारणा सेट",
       },
-      "conceptExplorer": {
-        "allDomains": "सभी डोमेन",
-        "condition": "स्नेह",
-        "drug": "औषधि",
-        "measurement": "मापन",
-        "procedure": "कार्य",
-        "observation": "अवलोकन क्लिनिक",
-        "standard": "मानकीकरण",
-        "standardOnly": "केवल मानक",
-        "addToConceptSet": "अवधारणा सेट में जोड़ें",
-        "patients": "{{count}} अंक",
-        "noConceptsFound": "कोई अवधारणा \"{{query}}\" से मेल नहीं खाती।",
-        "nonStandardHidden": "({{count}} गैर-मानक छिपा हुआ - दिखाने के लिए \"केवल मानक\" को अनचेक करें)"
+      conceptExplorer: {
+        allDomains: "सभी डोमेन",
+        condition: "स्नेह",
+        drug: "औषधि",
+        measurement: "मापन",
+        procedure: "कार्य",
+        observation: "अवलोकन क्लिनिक",
+        standard: "मानकीकरण",
+        standardOnly: "केवल मानक",
+        addToConceptSet: "अवधारणा सेट में जोड़ें",
+        patients: "{{count}} अंक",
+        noConceptsFound: 'कोई अवधारणा "{{query}}" से मेल नहीं खाती।',
+        nonStandardHidden:
+          '({{count}} गैर-मानक छिपा हुआ - दिखाने के लिए "केवल मानक" को अनचेक करें)',
       },
-      "conceptSet": {
-        "excluded": "बहिष्कृत",
-        "includeDescendants": "वंशजों को शामिल करें ",
-        "exclude": "बहिष्कृत करें ",
-        "removeFromSet": "अवधारणा सेट से हटाएँ",
-        "searchPrompt": "अवधारणाओं को खोजें और उन्हें अपना अवधारणा सेट बनाने के लिए जोड़ें",
-        "metadata": "आईडी: {{conceptId}} · {{vocabularyId}} · {{domainId}}"
+      conceptSet: {
+        excluded: "बहिष्कृत",
+        includeDescendants: "वंशजों को शामिल करें ",
+        exclude: "बहिष्कृत करें ",
+        removeFromSet: "अवधारणा सेट से हटाएँ",
+        searchPrompt:
+          "अवधारणाओं को खोजें और उन्हें अपना अवधारणा सेट बनाने के लिए जोड़ें",
+        metadata: "आईडी: {{conceptId}} · {{vocabularyId}} · {{domainId}}",
       },
-      "codewas": {
-        "case": "केस",
-        "control": "कंट्रोल",
-        "versus": "बनाम.",
-        "topSignals": "शीर्ष सिग्नल ({{count}})",
-        "label": "लेबल",
-        "count": "गणना",
-        "effectEstimates": "प्रभाव अनुमान",
-        "volcanoComingSoon": "इंटरैक्टिव ज्वालामुखी प्लॉट भविष्य में अपडेट में आ रहा है।"
+      codewas: {
+        case: "केस",
+        control: "कंट्रोल",
+        versus: "बनाम.",
+        topSignals: "शीर्ष सिग्नल ({{count}})",
+        label: "लेबल",
+        count: "गणना",
+        effectEstimates: "प्रभाव अनुमान",
+        volcanoComingSoon:
+          "इंटरैक्टिव ज्वालामुखी प्लॉट भविष्य में अपडेट में आ रहा है।",
       },
-      "phenotypeLibrary": {
-        "title": "फ़ेनोटाइप लाइब्रेरी",
-        "searchPlaceholder": "OHDSI फ़ेनोटाइप लाइब्रेरी खोजें (1,100+ मान्य फ़ेनोटाइप्स)",
-        "searchFailed": "फ़ेनोटाइप लाइब्रेरी खोजने में विफल। कृपया पुन: प्रयास करें।",
-        "noResults": "\"{{query}}\" के लिए कोई फ़ेनोटाइप नहीं मिला",
-        "emptyPrompt": "ओएचडीएसआई फ़ेनोटाइप लाइब्रेरी खोजें",
-        "validatedPhenotypes": "1,100+ मान्य फ़ेनोटाइप",
-        "noDescriptionAvailable": "कोई विवरण उपलब्ध नहीं है।",
-        "selected": "चयनित",
-        "select": "चयन करें"
+      phenotypeLibrary: {
+        title: "फ़ेनोटाइप लाइब्रेरी",
+        searchPlaceholder:
+          "OHDSI फ़ेनोटाइप लाइब्रेरी खोजें (1,100+ मान्य फ़ेनोटाइप्स)",
+        searchFailed:
+          "फ़ेनोटाइप लाइब्रेरी खोजने में विफल। कृपया पुन: प्रयास करें।",
+        noResults: '"{{query}}" के लिए कोई फ़ेनोटाइप नहीं मिला',
+        emptyPrompt: "ओएचडीएसआई फ़ेनोटाइप लाइब्रेरी खोजें",
+        validatedPhenotypes: "1,100+ मान्य फ़ेनोटाइप",
+        noDescriptionAvailable: "कोई विवरण उपलब्ध नहीं है।",
+        selected: "चयनित",
+        select: "चयन करें",
       },
-      "cohortPicker": {
-        "loading": "समूह लोड हो रहा है...",
-        "loadFailed": "समूह परिभाषाएँ लोड करने में विफल।",
-        "noSearchMatches": "कोई भी समूह आपकी खोज से मेल नहीं खाता।",
-        "noDefinitions": "कोई समूह परिभाषा नहीं मिली।",
-        "primary": "प्राथमिक",
-        "primarySelected": "प्राथमिक ✓",
-        "setAsPrimary": "प्राथमिक के रूप में सेट करें"
+      cohortPicker: {
+        loading: "समूह लोड हो रहा है...",
+        loadFailed: "समूह परिभाषाएँ लोड करने में विफल।",
+        noSearchMatches: "कोई भी समूह आपकी खोज से मेल नहीं खाता।",
+        noDefinitions: "कोई समूह परिभाषा नहीं मिली।",
+        primary: "प्राथमिक",
+        primarySelected: "प्राथमिक ✓",
+        setAsPrimary: "प्राथमिक के रूप में सेट करें",
       },
-      "cohortOverlap": {
-        "title": "समूह ओवरलैप मैट्रिक्स",
-        "selectTwoCohorts": "ओवरलैप देखने के लिए 2+ समूह का चयन करें",
-        "patientCountTooltip": "{{name}}: {{count}} मरीज़",
-        "runOperationsToComputeOverlap": "ओवरलैप",
-        "footnote": "विकर्ण: समूह आकार की गणना करने के लिए ऑपरेशन चलाएँ। ऑफ-विकर्ण: ओवरलैप की गणना करने के लिए सेट ऑपरेशन चलाएं।"
+      cohortOverlap: {
+        title: "समूह ओवरलैप मैट्रिक्स",
+        selectTwoCohorts: "ओवरलैप देखने के लिए 2+ समूह का चयन करें",
+        patientCountTooltip: "{{name}}: {{count}} मरीज़",
+        runOperationsToComputeOverlap: "ओवरलैप",
+        footnote:
+          "विकर्ण: समूह आकार की गणना करने के लिए ऑपरेशन चलाएँ। ऑफ-विकर्ण: ओवरलैप की गणना करने के लिए सेट ऑपरेशन चलाएं।",
       },
-      "conceptTree": {
-        "selected": "(चयनित)",
-        "loadingHierarchy": "पदानुक्रम लोड हो रहा है...",
-        "noHierarchyData": "इस अवधारणा के लिए कोई पदानुक्रम डेटा उपलब्ध नहीं है।",
-        "conceptLabel": "संकल्पना {{id}}"
+      conceptTree: {
+        selected: "(चयनित)",
+        loadingHierarchy: "पदानुक्रम लोड हो रहा है...",
+        noHierarchyData: "इस अवधारणा के लिए कोई पदानुक्रम डेटा उपलब्ध नहीं है।",
+        conceptLabel: "संकल्पना {{id}}",
       },
-      "cohortSizeComparison": {
-        "title": "समूह आकार तुलना",
-        "primaryLegend": "सोना = प्राथमिक समूह"
+      cohortSizeComparison: {
+        title: "समूह आकार तुलना",
+        primaryLegend: "सोना = प्राथमिक समूह",
       },
-      "attrition": {
-        "totalPopulation": "कुल जनसंख्या",
-        "countLabel": "n = {{count}}",
-        "excluded": "{{count}} बहिष्कृत",
-        "noData": "कोई क्षय डेटा उपलब्ध नहीं है"
+      attrition: {
+        totalPopulation: "कुल जनसंख्या",
+        countLabel: "n = {{count}}",
+        excluded: "{{count}} बहिष्कृत",
+        noData: "कोई क्षय डेटा उपलब्ध नहीं है",
       },
-      "schemaDensity": {
-        "addConcepts": "डोमेन कवरेज देखने के लिए अवधारणाएँ जोड़ें",
-        "domainCoverage": "",
-        "total": "{{count}} डोमेन कवरेज",
-        "tooltip": "{{count}} कुल अवधारणाएँ"
+      schemaDensity: {
+        addConcepts: "डोमेन कवरेज देखने के लिए अवधारणाएँ जोड़ें",
+        domainCoverage: "",
+        total: "{{count}} डोमेन कवरेज",
+        tooltip: "{{count}} कुल अवधारणाएँ",
       },
-      "validation": {
-        "atLeastOneConceptSetDefined": "कम से कम एक अवधारणा सेट परिभाषित",
-        "atLeastOneCohortSelected": "कम से कम एक समूह चयनित",
-        "primaryCohortDesignated": "प्राथमिक समूह नामित",
-        "noEmptyConceptSets": "कोई खाली अवधारणा सेट नहीं",
-        "codewasValidationRun": "CodeWAS सत्यापन रन",
-        "addConceptsExploreTab": "एक्सप्लोर टैब में अवधारणाएँ जोड़ें",
-        "selectCohortsBuildTab": "बिल्ड टैब में समूह चुनें",
-        "setPrimaryCohort": "विश्लेषण के लिए एक प्राथमिक समूह सेट करें",
-        "allSetsPopulated": "सभी सेट भरे गए",
-        "runCodewas": "फ़ेनोटाइप को सत्यापित करने के लिए कोडWAS चलाएँ",
-        "passed": "{{passed}}/{{total}} पारित",
-        "includeExploreBuild": "{{count}} एक्सप्लोर टैब में निर्मित कॉन्सेप्ट सेट कोहॉर्ट जेनरेशन में शामिल किया जाएगा।"
-      }
+      validation: {
+        atLeastOneConceptSetDefined: "कम से कम एक अवधारणा सेट परिभाषित",
+        atLeastOneCohortSelected: "कम से कम एक समूह चयनित",
+        primaryCohortDesignated: "प्राथमिक समूह नामित",
+        noEmptyConceptSets: "कोई खाली अवधारणा सेट नहीं",
+        codewasValidationRun: "CodeWAS सत्यापन रन",
+        addConceptsExploreTab: "एक्सप्लोर टैब में अवधारणाएँ जोड़ें",
+        selectCohortsBuildTab: "बिल्ड टैब में समूह चुनें",
+        setPrimaryCohort: "विश्लेषण के लिए एक प्राथमिक समूह सेट करें",
+        allSetsPopulated: "सभी सेट भरे गए",
+        runCodewas: "फ़ेनोटाइप को सत्यापित करने के लिए कोडWAS चलाएँ",
+        passed: "{{passed}}/{{total}} पारित",
+        includeExploreBuild:
+          "{{count}} एक्सप्लोर टैब में निर्मित कॉन्सेप्ट सेट कोहॉर्ट जेनरेशन में शामिल किया जाएगा।",
+      },
     },
-    "clinical": {
-      "groupMeta": {
-        "characterize": {
-          "label": "विशेषताएँ",
-          "description": "अपनी आबादी का वर्णन करें - जनसांख्यिकी, सहरुग्णताएं, और उपचार पैटर्न।"
+    clinical: {
+      groupMeta: {
+        characterize: {
+          label: "विशेषताएँ",
+          description:
+            "अपनी आबादी का वर्णन करें - जनसांख्यिकी, सहरुग्णताएं, और उपचार पैटर्न।",
         },
-        "compare": {
-          "label": "तुलना",
-          "description": "कारणात्मक प्रभावों का अनुमान लगाएं और एक्सपोज़र या टाइम विंडो में परिणामों की तुलना करें।"
+        compare: {
+          label: "तुलना",
+          description:
+            "कारणात्मक प्रभावों का अनुमान लगाएं और एक्सपोज़र या टाइम विंडो में परिणामों की तुलना करें।",
         },
-        "predict": {
-          "label": "भविष्यवाणी करें",
-          "description": "भविष्य के परिणामों की भविष्यवाणी करने के लिए रोगी-स्तरीय मशीन लर्निंग मॉडल को प्रशिक्षित करें।"
-        }
-      },
-      "estimatedTimes": {
-        "underOneMinute": "< 1 मिनट",
-        "oneToThreeMinutes": "1-3 मिनट",
-        "twoToFiveMinutes": "2-5 मिनट",
-        "fiveToFifteenMinutes": "5-15 मिनट",
-        "tenToFortyFiveMinutes": "10-45 मिनट",
-        "fifteenToSixtyMinutes": "15-60 मिनट"
-      },
-      "prerequisites": {
-        "atLeastOneCohortDefined": "कम से कम एक समूह परिभाषित",
-        "targetCohort": "लक्ष्य समूह",
-        "comparatorCohort": "तुलनित्र समूह",
-        "outcomeCohort": "परिणाम समूह",
-        "exposureCohort": "एक्सपोज़र समूह",
-        "completedEstimations2Plus": "2+ पूर्ण अनुमान"
-      },
-      "analysisMeta": {
-        "characterization": {
-          "label": "समूह लक्षण वर्णन",
-          "description": "बेसलाइन जनसांख्यिकी, सहरुग्णताएं, दवा का उपयोग, और लक्ष्य और तुलनित्र समूहों के लिए अस्थायी पैटर्न।"
+        predict: {
+          label: "भविष्यवाणी करें",
+          description:
+            "भविष्य के परिणामों की भविष्यवाणी करने के लिए रोगी-स्तरीय मशीन लर्निंग मॉडल को प्रशिक्षित करें।",
         },
-        "incidence_rate": {
-          "label": "घटना दर विश्लेषण",
-          "description": "उम्र, लिंग या कैलेंडर वर्ष के आधार पर सटीक पॉइसन आत्मविश्वास अंतराल के साथ घटना दर की गणना करें। "
+      },
+      estimatedTimes: {
+        underOneMinute: "< 1 मिनट",
+        oneToThreeMinutes: "1-3 मिनट",
+        twoToFiveMinutes: "2-5 मिनट",
+        fiveToFifteenMinutes: "5-15 मिनट",
+        tenToFortyFiveMinutes: "10-45 मिनट",
+        fifteenToSixtyMinutes: "15-60 मिनट",
+      },
+      prerequisites: {
+        atLeastOneCohortDefined: "कम से कम एक समूह परिभाषित",
+        targetCohort: "लक्ष्य समूह",
+        comparatorCohort: "तुलनित्र समूह",
+        outcomeCohort: "परिणाम समूह",
+        exposureCohort: "एक्सपोज़र समूह",
+        completedEstimations2Plus: "2+ पूर्ण अनुमान",
+      },
+      analysisMeta: {
+        characterization: {
+          label: "समूह लक्षण वर्णन",
+          description:
+            "बेसलाइन जनसांख्यिकी, सहरुग्णताएं, दवा का उपयोग, और लक्ष्य और तुलनित्र समूहों के लिए अस्थायी पैटर्न।",
         },
-        "pathway": {
-          "label": "उपचार मार्ग",
-          "description": "एक समूह के भीतर अनुक्रमिक उपचार पैटर्न और दवा उपयोग प्रक्षेपवक्र की कल्पना करें।"
+        incidence_rate: {
+          label: "घटना दर विश्लेषण",
+          description:
+            "उम्र, लिंग या कैलेंडर वर्ष के आधार पर सटीक पॉइसन आत्मविश्वास अंतराल के साथ घटना दर की गणना करें। ",
         },
-        "estimation": {
-          "label": "तुलनात्मक प्रभावशीलता",
-          "description": "कोहोर्टमेथोड का उपयोग करके जनसंख्या-स्तर के प्रभाव का अनुमान - कॉक्स मॉडल के साथ प्रवृत्ति स्कोर मिलान/स्तरीकरण।"
+        pathway: {
+          label: "उपचार मार्ग",
+          description:
+            "एक समूह के भीतर अनुक्रमिक उपचार पैटर्न और दवा उपयोग प्रक्षेपवक्र की कल्पना करें।",
         },
-        "sccs": {
-          "label": "स्व-नियंत्रित केस श्रृंखला",
-          "description": "एक्सपोज़्ड बनाम अनएक्सपोज़्ड टाइम विंडो के दौरान घटना दरों की व्यक्तिगत तुलना।"
+        estimation: {
+          label: "तुलनात्मक प्रभावशीलता",
+          description:
+            "कोहोर्टमेथोड का उपयोग करके जनसंख्या-स्तर के प्रभाव का अनुमान - कॉक्स मॉडल के साथ प्रवृत्ति स्कोर मिलान/स्तरीकरण।",
         },
-        "evidence_synthesis": {
-          "label": "साक्ष्य संश्लेषण",
-          "description": "कई विश्लेषणों से निश्चित-प्रभाव या बायेसियन यादृच्छिक-प्रभाव मेटा-विश्लेषण पूलिंग अनुमान।"
+        sccs: {
+          label: "स्व-नियंत्रित केस श्रृंखला",
+          description:
+            "एक्सपोज़्ड बनाम अनएक्सपोज़्ड टाइम विंडो के दौरान घटना दरों की व्यक्तिगत तुलना।",
         },
-        "prediction": {
-          "label": "परिणामों की भविष्यवाणी करने के लिए रोगी-स्तर की भविष्यवाणी",
-          "description": "एमएल मॉडल (LASSO, ग्रेडिएंट बूस्टिंग, रैंडम फ़ॉरेस्ट, डीप लर्निंग) को प्रशिक्षित करें।"
-        }
+        evidence_synthesis: {
+          label: "साक्ष्य संश्लेषण",
+          description:
+            "कई विश्लेषणों से निश्चित-प्रभाव या बायेसियन यादृच्छिक-प्रभाव मेटा-विश्लेषण पूलिंग अनुमान।",
+        },
+        prediction: {
+          label: "परिणामों की भविष्यवाणी करने के लिए रोगी-स्तर की भविष्यवाणी",
+          description:
+            "एमएल मॉडल (LASSO, ग्रेडिएंट बूस्टिंग, रैंडम फ़ॉरेस्ट, डीप लर्निंग) को प्रशिक्षित करें।",
+        },
       },
-      "requires": "आवश्यकता है: {{requirements}}",
-      "drawer": {
-        "analysisConfiguration": "विश्लेषण कॉन्फ़िगरेशन",
-        "configureAnalysis": "विश्लेषण कॉन्फ़िगर करें",
-        "closeDrawer": "दराज बंद करें",
-        "targetCohort": "लक्ष्य समूह",
-        "exposureCohortTarget": "एक्सपोज़र समूह (लक्ष्य)",
-        "comparatorCohort": "तुलनित्र समूह",
-        "outcomeCohort": "परिणाम समूह",
-        "outcomeCohorts": "परिणाम समूह",
-        "minCellCount": "न्यूनतम कोशिका गणना",
-        "minCellCountLabel": "न्यूनतम कोशिका गणना",
-        "minCellCountHelp": "कम रोगियों वाली कोशिकाओं को आउटपुट में दबा दिया जाता है।",
-        "tarStart": "टीएआर प्रारंभ (दिन)",
-        "tarEnd": "टीएआर समाप्ति (दिन)",
-        "tarStartLabel": "समय-जोखिम प्रारंभ दिन",
-        "tarEndLabel": "जोखिम-पर-समय समाप्ति दिन",
-        "propensityScoreMethod": "प्रवृत्ति स्कोर विधि",
-        "psMatching": "पीएस मिलान",
-        "psStratification": "PS स्तरीकरण",
-        "psWeighting": "PS वेटिंग (IPTW)",
-        "modelType": "मॉडल प्रकार",
-        "lassoLogisticRegression": "LASSO लॉजिस्टिक रिग्रेशन",
-        "gradientBoosting": "ग्रेडिएंट बूस्टिंग",
-        "randomForest": "रैंडम फ़ॉरेस्ट",
-        "adaBoost": "एडाबूस्ट",
-        "decisionTree": "निर्णय वृक्ष",
-        "exposureUsesTarget": "एक्सपोज़र समूह ऊपर चयनित लक्ष्य समूह है।",
-        "naivePeriod": "नाइव अवधि (दिन)",
-        "naivePeriodLabel": "विश्लेषण से बाहर करने के लिए अवलोकन की शुरुआत में अनुभवहीन अवधि के दिन",
-        "naivePeriodHelp": "दिन।",
-        "synthesisPrompt": "2+ पूर्ण अनुमान परिणाम चुनें",
-        "synthesisHelp": "साक्ष्य संश्लेषण पूलिंग अभी तक यहां कॉन्फ़िगर करने योग्य नहीं है। अनुमान परिणाम दृश्य से चलाएँ।"
+      requires: "आवश्यकता है: {{requirements}}",
+      drawer: {
+        analysisConfiguration: "विश्लेषण कॉन्फ़िगरेशन",
+        configureAnalysis: "विश्लेषण कॉन्फ़िगर करें",
+        closeDrawer: "दराज बंद करें",
+        targetCohort: "लक्ष्य समूह",
+        exposureCohortTarget: "एक्सपोज़र समूह (लक्ष्य)",
+        comparatorCohort: "तुलनित्र समूह",
+        outcomeCohort: "परिणाम समूह",
+        outcomeCohorts: "परिणाम समूह",
+        minCellCount: "न्यूनतम कोशिका गणना",
+        minCellCountLabel: "न्यूनतम कोशिका गणना",
+        minCellCountHelp:
+          "कम रोगियों वाली कोशिकाओं को आउटपुट में दबा दिया जाता है।",
+        tarStart: "टीएआर प्रारंभ (दिन)",
+        tarEnd: "टीएआर समाप्ति (दिन)",
+        tarStartLabel: "समय-जोखिम प्रारंभ दिन",
+        tarEndLabel: "जोखिम-पर-समय समाप्ति दिन",
+        propensityScoreMethod: "प्रवृत्ति स्कोर विधि",
+        psMatching: "पीएस मिलान",
+        psStratification: "PS स्तरीकरण",
+        psWeighting: "PS वेटिंग (IPTW)",
+        modelType: "मॉडल प्रकार",
+        lassoLogisticRegression: "LASSO लॉजिस्टिक रिग्रेशन",
+        gradientBoosting: "ग्रेडिएंट बूस्टिंग",
+        randomForest: "रैंडम फ़ॉरेस्ट",
+        adaBoost: "एडाबूस्ट",
+        decisionTree: "निर्णय वृक्ष",
+        exposureUsesTarget: "एक्सपोज़र समूह ऊपर चयनित लक्ष्य समूह है।",
+        naivePeriod: "नाइव अवधि (दिन)",
+        naivePeriodLabel:
+          "विश्लेषण से बाहर करने के लिए अवलोकन की शुरुआत में अनुभवहीन अवधि के दिन",
+        naivePeriodHelp: "दिन।",
+        synthesisPrompt: "2+ पूर्ण अनुमान परिणाम चुनें",
+        synthesisHelp:
+          "साक्ष्य संश्लेषण पूलिंग अभी तक यहां कॉन्फ़िगर करने योग्य नहीं है। अनुमान परिणाम दृश्य से चलाएँ।",
       },
-      "payloadNames": {
-        "characterization": "जांच लक्षण वर्णन",
-        "incidence_rate": "जांच घटना दर",
-        "estimation": "जांच तुलनात्मक अनुमान",
-        "prediction": "जांच रोगी-स्तर की भविष्यवाणी",
-        "sccs": "जांच एससीसीएस",
-        "pathway": "जांच मार्ग विश्लेषण",
-        "evidence_synthesis": "जांच साक्ष्य संश्लेषण"
+      payloadNames: {
+        characterization: "जांच लक्षण वर्णन",
+        incidence_rate: "जांच घटना दर",
+        estimation: "जांच तुलनात्मक अनुमान",
+        prediction: "जांच रोगी-स्तर की भविष्यवाणी",
+        sccs: "जांच एससीसीएस",
+        pathway: "जांच मार्ग विश्लेषण",
+        evidence_synthesis: "जांच साक्ष्य संश्लेषण",
       },
-      "charts": {
-        "kaplanMeierTitle": "कपलान-मेयर जीवन रक्षा वक्र",
-        "timeDays": "समय (दिन)",
-        "survivalProbability": "जीवित रहने की संभावना",
-        "tooltipTime": "t = {{value}}",
-        "curveValue": "{{label}}: {{value}}%",
-        "propensityScoreDistribution": "प्रवृत्ति स्कोर वितरण",
-        "propensityScore": "प्रवृत्ति स्कोर"
+      charts: {
+        kaplanMeierTitle: "कपलान-मेयर जीवन रक्षा वक्र",
+        timeDays: "समय (दिन)",
+        survivalProbability: "जीवित रहने की संभावना",
+        tooltipTime: "t = {{value}}",
+        curveValue: "{{label}}: {{value}}%",
+        propensityScoreDistribution: "प्रवृत्ति स्कोर वितरण",
+        propensityScore: "प्रवृत्ति स्कोर",
       },
-      "tracker": {
-        "results": "परिणाम",
-        "analysisFailedDefault": "विश्लेषण विफल रहा। विवरण के लिए लॉग जांचें।"
+      tracker: {
+        results: "परिणाम",
+        analysisFailedDefault: "विश्लेषण विफल रहा। विवरण के लिए लॉग जांचें।",
       },
-      "runHistory": {
-        "compareTitle": "चरण 4 में आ रहा है",
-        "replayTitle": "इस निष्पादन को देखें या दोबारा चलाएं",
-        "viewTitle": "निष्पादन विवरण देखें"
+      runHistory: {
+        compareTitle: "चरण 4 में आ रहा है",
+        replayTitle: "इस निष्पादन को देखें या दोबारा चलाएं",
+        viewTitle: "निष्पादन विवरण देखें",
       },
-      "results": {
-        "cohortCounts": "समूह गणनाएँ",
-        "targetSubjects": "लक्षित विषय",
-        "comparatorSubjects": "तुलनित्र विषय",
-        "topFeaturesBySmd": "SMD द्वारा शीर्ष विशेषताएँ",
-        "covariate": "सहसंयोजक",
-        "incidenceRate": "घटना दर",
-        "perPersonYear": "प्रति व्यक्ति-वर्ष",
-        "personYears": "व्यक्ति-वर्ष",
-        "cases": "मामले",
-        "comparativeEffectiveness": "तुलनात्मक प्रभावशीलता",
-        "hazardRatio": "खतरा अनुपात",
-        "target": "लक्ष्य",
-        "comparator": "तुलनित्र",
-        "outcomeEvents": "परिणाम घटनाएँ",
-        "estimates": "अनुमान",
-        "predictionPerformance": "पूर्वानुमान प्रदर्शन",
-        "aucAuroc": "AUC / AUROC",
-        "sensitivity": "संवेदनशीलता",
-        "specificity": "विशिष्टता",
-        "ppv": "PPV",
-        "npv": "एनपीवी",
-        "selfControlledCaseSeries": "स्व-नियंत्रित केस श्रृंखला",
-        "incidenceRateRatio": "घटना दर अनुपात (आईआरआर)",
-        "pooledHazardRatio": "पूल जोखिम अनुपात",
-        "tauHeterogeneity": "ताऊ (विषमता)",
-        "topTreatmentSequences": "शीर्ष उपचार अनुक्रम",
-        "estimateFallback": "अनुमान"
-      }
+      results: {
+        cohortCounts: "समूह गणनाएँ",
+        targetSubjects: "लक्षित विषय",
+        comparatorSubjects: "तुलनित्र विषय",
+        topFeaturesBySmd: "SMD द्वारा शीर्ष विशेषताएँ",
+        covariate: "सहसंयोजक",
+        incidenceRate: "घटना दर",
+        perPersonYear: "प्रति व्यक्ति-वर्ष",
+        personYears: "व्यक्ति-वर्ष",
+        cases: "मामले",
+        comparativeEffectiveness: "तुलनात्मक प्रभावशीलता",
+        hazardRatio: "खतरा अनुपात",
+        target: "लक्ष्य",
+        comparator: "तुलनित्र",
+        outcomeEvents: "परिणाम घटनाएँ",
+        estimates: "अनुमान",
+        predictionPerformance: "पूर्वानुमान प्रदर्शन",
+        aucAuroc: "AUC / AUROC",
+        sensitivity: "संवेदनशीलता",
+        specificity: "विशिष्टता",
+        ppv: "PPV",
+        npv: "एनपीवी",
+        selfControlledCaseSeries: "स्व-नियंत्रित केस श्रृंखला",
+        incidenceRateRatio: "घटना दर अनुपात (आईआरआर)",
+        pooledHazardRatio: "पूल जोखिम अनुपात",
+        tauHeterogeneity: "ताऊ (विषमता)",
+        topTreatmentSequences: "शीर्ष उपचार अनुक्रम",
+        estimateFallback: "अनुमान",
+      },
     },
-    "genomic": {
-      "title": "जीनोमिक साक्ष्य",
-      "subtitle": "खुले लक्ष्य · GWAS कैटलॉग · सारांश आँकड़े",
-      "uploadTitle": "GWAS सारांश आँकड़े अपलोड करें",
-      "releaseToUpload": "अपलोड करने के लिए रिलीज़",
-      "dropSummaryStats": "GWAS सारांश आँकड़े छोड़ें",
-      "fileTypes": ".tsv, .csv, या .gz · अधिकतम 500 एमबी",
-      "uploadFailed": "अपलोड विफल रहा। कृपया पुनः प्रयास करें।",
-      "allColumnsRequired": "पुष्टि करने से पहले सभी आवश्यक कॉलम मैप किए जाने चाहिए।",
-      "parseFailed": "फ़ाइल को पार्स करने में विफल। कृपया प्रारूप की जांच करें।",
-      "confirmMapping": "मैपिंग की पुष्टि करें",
-      "threshold": "{{count}} लोकस · थ्रेशोल्ड पी < {{threshold}}",
-      "noLoci": "महत्व सीमा के नीचे कोई लोकी नहीं ({{threshold}})",
-      "pinThisLocus": "इस लोकस को पिन करें",
-      "chr": "क्रो",
-      "position": "स्थिति",
-      "pValue": "p-मान",
-      "betaOr": "बीटा/OR",
-      "refAlt": "Ref/Alt",
-      "manhattanPlot": "मैनहट्टन प्लॉट",
-      "qqPlot": "QQ प्लॉट",
-      "showingOfResults": "{{total}} परिणामों में से {{shown}} दिखाया जा रहा है - GWAS कैटलॉग",
-      "sample": "नमूना:",
-      "snps": "एसएनपी: ",
-      "unknownTrait": "अज्ञात विशेषता",
-      "platform": "प्लेटफ़ॉर्म",
-      "gene": "जीन",
-      "disease": "बीमारी",
-      "crossDomainLinks": "क्रॉस-डोमेन लिंक",
-      "qqPlotNoData": "कोई पी-वैल्यू डेटा उपलब्ध नहीं है",
-      "qqPlotExpectedNegLogP": "अपेक्षित -लॉग10(पी)",
-      "qqPlotObservedNegLogP": "देखा गया -log10(p)",
-      "lambdaLabel": "λ = {{value}}",
-      "noGwasDataAvailable": "कोई GWAS डेटा उपलब्ध नहीं है",
-      "noGwasDataAvailableAria": "मैनहट्टन प्लॉट: कोई GWAS डेटा उपलब्ध नहीं है",
-      "manhattanAriaNoVariants": "मैनहट्टन प्लॉट: कोई वेरिएंट नहीं",
-      "manhattanAriaTopPeak": "Chr{{chr}} पर शीर्ष शिखर:{{pos}}, p=",
-      "manhattanAriaNoPeaks": "कोई शिखर नहीं",
-      "manhattanAriaSummary": "मैनहट्टन प्लॉट: {{variantCount}} वेरिएंट, {{significantCount}} जीनोम-वाइड महत्वपूर्ण, {{topPeak}}",
-      "negLogP": "-लॉग10(p)"
+    genomic: {
+      title: "जीनोमिक साक्ष्य",
+      subtitle: "खुले लक्ष्य · GWAS कैटलॉग · सारांश आँकड़े",
+      uploadTitle: "GWAS सारांश आँकड़े अपलोड करें",
+      releaseToUpload: "अपलोड करने के लिए रिलीज़",
+      dropSummaryStats: "GWAS सारांश आँकड़े छोड़ें",
+      fileTypes: ".tsv, .csv, या .gz · अधिकतम 500 एमबी",
+      uploadFailed: "अपलोड विफल रहा। कृपया पुनः प्रयास करें।",
+      allColumnsRequired:
+        "पुष्टि करने से पहले सभी आवश्यक कॉलम मैप किए जाने चाहिए।",
+      parseFailed: "फ़ाइल को पार्स करने में विफल। कृपया प्रारूप की जांच करें।",
+      confirmMapping: "मैपिंग की पुष्टि करें",
+      threshold: "{{count}} लोकस · थ्रेशोल्ड पी < {{threshold}}",
+      noLoci: "महत्व सीमा के नीचे कोई लोकी नहीं ({{threshold}})",
+      pinThisLocus: "इस लोकस को पिन करें",
+      chr: "क्रो",
+      position: "स्थिति",
+      pValue: "p-मान",
+      betaOr: "बीटा/OR",
+      refAlt: "Ref/Alt",
+      manhattanPlot: "मैनहट्टन प्लॉट",
+      qqPlot: "QQ प्लॉट",
+      showingOfResults:
+        "{{total}} परिणामों में से {{shown}} दिखाया जा रहा है - GWAS कैटलॉग",
+      sample: "नमूना:",
+      snps: "एसएनपी: ",
+      unknownTrait: "अज्ञात विशेषता",
+      platform: "प्लेटफ़ॉर्म",
+      gene: "जीन",
+      disease: "बीमारी",
+      crossDomainLinks: "क्रॉस-डोमेन लिंक",
+      qqPlotNoData: "कोई पी-वैल्यू डेटा उपलब्ध नहीं है",
+      qqPlotExpectedNegLogP: "अपेक्षित -लॉग10(पी)",
+      qqPlotObservedNegLogP: "देखा गया -log10(p)",
+      lambdaLabel: "λ = {{value}}",
+      noGwasDataAvailable: "कोई GWAS डेटा उपलब्ध नहीं है",
+      noGwasDataAvailableAria: "मैनहट्टन प्लॉट: कोई GWAS डेटा उपलब्ध नहीं है",
+      manhattanAriaNoVariants: "मैनहट्टन प्लॉट: कोई वेरिएंट नहीं",
+      manhattanAriaTopPeak: "Chr{{chr}} पर शीर्ष शिखर:{{pos}}, p=",
+      manhattanAriaNoPeaks: "कोई शिखर नहीं",
+      manhattanAriaSummary:
+        "मैनहट्टन प्लॉट: {{variantCount}} वेरिएंट, {{significantCount}} जीनोम-वाइड महत्वपूर्ण, {{topPeak}}",
+      negLogP: "-लॉग10(p)",
     },
-    "synthesis": {
-      "completeTitle": "पूर्ण",
-      "removePin": "पिन हटाएं",
-      "markKeyFinding": "मुख्य खोज के रूप में चिह्नित करें",
-      "unmarkKeyFinding": "कुंजी खोज को अचिह्नित करें",
-      "customFinding": "कस्टम खोज",
-      "exportDescription": "सभी पिन किए गए निष्कर्षों, आख्यानों और अनुभाग नोट्स सहित पूर्ण साक्ष्य डोजियर निर्यात करें।"
-    }
-  }
+    synthesis: {
+      completeTitle: "पूर्ण",
+      removePin: "पिन हटाएं",
+      markKeyFinding: "मुख्य खोज के रूप में चिह्नित करें",
+      unmarkKeyFinding: "कुंजी खोज को अचिह्नित करें",
+      customFinding: "कस्टम खोज",
+      exportDescription:
+        "सभी पिन किए गए निष्कर्षों, आख्यानों और अनुभाग नोट्स सहित पूर्ण साक्ष्य डोजियर निर्यात करें।",
+    },
+  },
 });
 export const investigationResources: Record<string, MessageTree> = {
   "en-US": enInvestigation,
@@ -4491,9 +4588,1588 @@ export const investigationResources: Record<string, MessageTree> = {
   "fr-FR": frInvestigation,
   "de-DE": deInvestigation,
   "pt-BR": ptInvestigation,
-  "fi-FI": mergeMessageTrees(enInvestigation, {}),
-  "ja-JP": mergeMessageTrees(enInvestigation, {}),
-  "zh-Hans": mergeMessageTrees(enInvestigation, {}),
+  "fi-FI": mergeMessageTrees(enInvestigation, {
+    investigation: {
+      common: {
+        actions: {
+          newInvestigation: "Uusi tutkinta",
+          createInvestigation: "Luo tutkinta",
+          parseAndImport: "Jäsennä ja tuo",
+          retry: "Yritä uudelleen",
+          cancel: "Peruuttaa",
+          close: "Lähellä",
+          runAnalysis: "Suorita analyysi",
+          replay: "Uusinta",
+          view: "Näytä",
+          compare: "Vertaa",
+          createSnapshot: "Luo tilannekuva",
+          exportPdf: "Vie PDF",
+          exportJson: "Vie JSON",
+          pin: "Kiinnitä",
+          pinToDossier: "Kiinnitä asiakirjaan",
+          add: "+ Lisää",
+          newSet: "+ Uusi setti",
+          removeCohort: "Poista kohortti",
+          dismissError: "Hylkää virhe",
+          toggleEvidenceSidebar: "Todisteiden sivupalkki päälle/pois",
+          switchToClinicalRunHistory:
+            "Vaihda kliinisen verkkotunnuksen ajohistoriaan",
+        },
+        status: {
+          draft: "Luonnos",
+          active: "Tietenkin",
+          complete: "Täydellinen",
+          archived: "Arkistoitu",
+          completed: "Valmis",
+          running: "Juoksemassa",
+          queued: "Jonossa",
+          pending: "Odottaa",
+          failed: "Epäonnistui",
+          saving: "Tallennetaan...",
+          saved: "Tallennettu",
+          error: "Virhe",
+        },
+        domains: {
+          phenotype: "Fenotyyppi",
+          clinical: "Kliininen",
+          genomic: "Genominen",
+          synthesis: "Synteesi",
+          codeExplorer: "Koodiselain",
+        },
+        tabs: {
+          explore: "Tutkia",
+          build: "Rakentaa",
+          validate: "Vahvista",
+          dossier: "Asiakirja",
+          export: "Viedä",
+          versions: "Versiot",
+          gallery: "OHDSI Analyysit",
+          tracking: "Aktiivinen juoksu",
+          history: "Historia",
+          openTargets: "Avaa Targets",
+          gwasCatalog: "GWAS Luettelo",
+          upload: "Lataa GWAS",
+        },
+        sections: {
+          evidence: "Todisteet",
+          researchQuestion: "Tutkimuskysymys",
+          phenotypeDefinition: "Fenotyypin määritelmä",
+          populationCharacteristics: "Väestön ominaisuudet",
+          clinicalEvidence: "Kliiniset todisteet",
+          genomicEvidence: "Genominen todiste",
+          evidenceSynthesis: "Todisteiden synteesi",
+          limitationsCaveats: "Rajoitukset ja varoitukset",
+          methods: "Menetelmät",
+          versionHistory: "Versiohistoria",
+          exportDossier: "Vie asiakirja-aineisto",
+          evidenceDossier: "Todistusaineisto",
+          qcChecklist: "QC-tarkistuslista",
+          importMode: "Tuontitila",
+          selectCohorts: "Valitse Kohortit",
+          fileUpload: "Tiedoston lataus",
+          selectedCohorts: "Valitut kohortit",
+          conceptHierarchy: "Käsitehierarkia",
+          conceptSet: "Konseptisarja",
+          significantLoci: "Merkittävät lokukset",
+          columnMapping: "Sarakekartoitus",
+          analysisParameters: "Analyysiparametrit",
+          dataSource: "Tietolähde",
+          loadingSources: "Ladataan lähteitä...",
+        },
+        labels: {
+          title: "Otsikko",
+          optional: "valinnainen",
+          coverage: "Kattavuus",
+          domains: "Verkkotunnukset",
+          howItWorks: "Miten se toimii",
+          sampleInvestigations: "Esimerkkitutkimukset",
+          sampleInvestigationsSubtitle:
+            "Tutustu näihin esimerkkeihin nähdäksesi Evidence Investigation -työnkulun toiminnassa",
+          recentInvestigations: "Viimeaikaiset tutkimukset",
+          yourInvestigations: "Sinun tutkimuksesi",
+          yourInvestigationsSubtitle: "Viimeaikaiset tekemäsi tutkimukset",
+          conceptSets: "Konseptisarjat",
+          cohorts: "Kohortit",
+          analyses: "Analyysit",
+          pins: "Pinssit",
+          runs: "Ajot",
+          startExploring:
+            "Aloita tutkiminen – lisää käsitteitä, kohortteja ja analyyseja todisteiden rakentamiseksi",
+          results: "Tulokset",
+          fromInvestigation: "Tutkinnasta",
+          cohortFromThisInvestigation: "* = kohortti tästä tutkimuksesta",
+          openTargetsPlatform: "Avaa Targets Platform",
+        },
+        empty: {
+          noInvestigationsYet: "Ei vielä tutkimuksia",
+          noInvestigationsSubtitle:
+            "Aloita luomalla ensimmäinen jäsennelty todisteaineistosi.",
+          noResearchQuestionDefined: "Tutkimuskysymystä ei ole määritelty",
+          noFindingsPinned: "Tähän osioon ei ole vielä kiinnitetty havaintoja",
+          noPinsYet: "Ei vielä pinssejä",
+          noSnapshotsYet: "Ei vielä tilannekuvia.",
+          noConcepts: "Ei käsitteitä",
+          noAnalyses: "Ei analyysejä",
+          noEvidence: "Ei todisteita",
+          noResultsFound: "Tuloksia ei löytynyt.",
+          noSequenceData: "Järjestystietoja ei ole saatavilla",
+          noAnalysesRunYet:
+            "Mitään analyyseja ei ole vielä tehty. Aloita valitsemalla analyysi galleriasta.",
+          noCohortsAvailable: "Kohortteja ei ole saatavilla.",
+        },
+        messages: {
+          loadingInvestigation: "Ladataan tutkimusta...",
+          investigationLoadFailed:
+            "Tutkintaa ei löytynyt tai sitä ei voitu ladata.",
+          createInvestigationFailed:
+            "Tutkinnan luominen epäonnistui. Yritä uudelleen.",
+          aiWillAnalyze:
+            "AI analysoi tutkimuskysymyksesi ehdottaakseen fenotyyppikäsitteitä.",
+          exportSucceeded: "Vienti onnistui",
+          exportFailed: "Vienti epäonnistui. Yritä uudelleen.",
+          searchFailed: "Haku epäonnistui. Yritä uudelleen.",
+          enterAtLeast2Characters: "Kirjoita vähintään 2 merkkiä hakuun.",
+          searchOmopMinimum:
+            "Kirjoita vähintään 2 merkkiä etsiäksesi OMOP käsitteitä",
+          loadingVersions: "Ladataan versioita...",
+          waitingInQueue: "Odotetaan jonossa...",
+          running: "Juoksemassa...",
+          analysisCancelled: "Analyysi peruutettu",
+          analysisFailed: "Analyysi epäonnistui",
+          analysisDispatchFailed: "Analyysin lähettäminen epäonnistui",
+          initializing: "Alustetaan...",
+          compareComingPhase4: "Tulossa vaiheessa 4",
+          snapshotsAutoComplete:
+            "Tilannekuvat luodaan automaattisesti, kun tutkinta on merkitty valmiiksi.",
+          loadingPins: "Ladataan kiinnityksiä...",
+          unexpectedDispatchError:
+            "Analyysin lähettämisessä tapahtui odottamaton virhe.",
+        },
+      },
+      landing: {
+        title: "Todisteiden tutkiminen",
+        subtitle:
+          "Yhdistä kliininen fenotyypitys genomisen todisteiden kanssa – tutkimuskysymyksestä todisteaineistoon",
+        recentInvestigations: "Viimeaikaiset tutkimukset",
+        noInvestigations:
+          "Aloita luomalla ensimmäinen jäsennelty todisteaineistosi.",
+        workflow: {
+          askQuestion: {
+            label: "Esitä kysymys",
+            description: "Määrittele tutkimuskysymyksesi ja otsikkosi.",
+          },
+          buildPhenotype: {
+            label: "Rakenna fenotyyppi",
+            description: "Kuroi käsitejoukkoja ja kohorttimääritelmiä.",
+          },
+          gatherEvidence: {
+            label: "Kerää todisteita",
+            description: "Suorita HADES -analyysejä ja vedä genomisignaaleja.",
+          },
+          synthesizeDossier: {
+            label: "Syntetisoi asiakirja",
+            description: "Vie jäsennelty todistusaineisto julkaisua varten.",
+          },
+        },
+        sampleInvestigations: {
+          ckd: {
+            title: "SGLT2-estäjät ja CKD:n eteneminen T2DM:ssä",
+            question:
+              "Vähentääkö SGLT2:n esto kroonisen munuaissairauden etenemistä potilailla, joilla on tyypin 2 diabetes?",
+            badges: {
+              conceptSets: "3 konseptisarjaa",
+              cohorts: "2 kohorttia",
+              estimation: "1 arvio",
+              loci: "5 GWAS-lokusta",
+            },
+          },
+          statin: {
+            title:
+              "Statiinin paradoksi - Simvastatiini vs atorvastatiini kardiovaskulaariset tulokset",
+            question:
+              "Onko simvastatiinin ja atorvastatiinin välillä kliinisesti merkittävä ero kardiovaskulaarisissa tuloksissa potilailla, jotka eivät ole saaneet statiineja?",
+            badges: {
+              conceptSets: "2 konseptisarjaa",
+              cohorts: "2 kohorttia",
+              characterization: "1 luonnehdinta",
+              estimation: "1 arvio",
+            },
+          },
+          tcf7l2: {
+            title: "TCF7L2 ja haiman beetasolujen toimintahäiriö",
+            question:
+              "Edistääkö TCF7L2-riskivariantti T2DM:ää haiman beetasolujen toimintahäiriön kautta, ja mitkä kliiniset todisteet tukevat tätä mekanismia?",
+            badges: {
+              conceptSet: "1 konseptisarja",
+              cohort: "1 kohortti",
+              associations: "12 Open Targets -yhdistystä",
+              loci: "3 GWAS-lokusta",
+            },
+          },
+        },
+      },
+      newPage: {
+        title: "Uusien todisteiden tutkinta",
+        subtitle: "Aloita strukturoitu aineisto tutkimuskysymyksellesi.",
+        back: "Todisteiden tutkiminen",
+      },
+      phenotype: {
+        importModes: {
+          parthenon: {
+            label: "Parthenon Kohortit",
+            description: "Valitse olemassa olevista kohorttimäärittelyistä",
+          },
+          json: {
+            description: "Liitä kohortin määritelmä JSON Atlasista",
+          },
+          file: {
+            label: "Tiedoston lataus",
+            description: "Lataa CSV tai JSON kohorttitiedosto",
+          },
+          phenotypeLibrary: {
+            label: "Fenotyyppikirjasto",
+            description:
+              "Selaa OHDSI-fenotyyppikirjastoa (yli 1 100 validoitua fenotyyppiä)",
+          },
+        },
+        atlas: {
+          exportHint: "Vienti Atlasista: Kohortin määritelmä -> Vie -> JSON",
+          parseErrorEmpty: "Liitä Atlas JSON -määritelmä ennen jäsentämistä.",
+          parseErrorInvalid:
+            "Virheellinen JSON - tarkista syntaksivirheiden varalta.",
+          parseErrorShape:
+            "Tuntematon muoto – odotetut ConceptSets-, PrimaryCriteria- tai lausekeavaimet.",
+        },
+        file: {
+          dropPrompt:
+            "Pudota CSV- tai JSON-tiedosto tähän tai selaa napsauttamalla",
+          invalidJson: "Virheellinen JSON-tiedosto",
+          unsupportedType: "Tiedostotyyppiä ei tueta",
+        },
+        conceptExplorer: {
+          allDomains: "Kaikki verkkotunnukset",
+          condition: "Tila",
+          drug: "Lääke",
+          measurement: "Mittaus",
+          procedure: "Toimenpide",
+          observation: "Havainto",
+          standard: "Standardi",
+          standardOnly: "Vain vakio",
+          addToConceptSet: "Lisää konseptisarjaan",
+        },
+        conceptSet: {
+          excluded: "Poissuljettu",
+          includeDescendants: "Sisällytä jälkeläiset",
+          exclude: "Sulje pois",
+          removeFromSet: "Poista konseptisarjasta",
+          searchPrompt:
+            "Etsi konsepteja ja lisää ne rakentaaksesi konseptijoukkosi",
+        },
+        codewas: {
+          case: "Asia",
+          control: "Ohjaus",
+          label: "Nimike",
+          count: "Laskea",
+          effectEstimates: "Vaikutusarviot",
+          volcanoComingSoon:
+            "Interaktiivinen tulivuoren juoni tulossa tulevassa päivityksessä.",
+        },
+        phenotypeLibrary: {
+          title: "Fenotyyppikirjasto",
+          searchFailed:
+            "Fenotyyppikirjaston haku epäonnistui. Yritä uudelleen.",
+          emptyPrompt: "Hae OHDSI-fenotyyppikirjastosta",
+          validatedPhenotypes: "Yli 1 100 validoitua fenotyyppiä",
+          noDescriptionAvailable: "Kuvausta ei ole saatavilla.",
+          selected: "Valittu",
+          select: "Valitse",
+        },
+        cohortPicker: {
+          loading: "Ladataan kohortteja...",
+          loadFailed: "Kohorttimääritelmien lataaminen epäonnistui.",
+          noSearchMatches: "Yksikään kohortti ei vastaa hakuasi.",
+          noDefinitions: "Kohorttimääritelmiä ei löytynyt.",
+          primary: "Ensisijainen",
+          primarySelected: "Ensisijainen ✓",
+          setAsPrimary: "Aseta ensisijaiseksi",
+        },
+        cohortOverlap: {
+          title: "Kohortin päällekkäisyysmatriisi",
+          selectTwoCohorts: "Valitse 2+ kohorttia nähdäksesi päällekkäisyydet",
+          runOperationsToComputeOverlap:
+            "Suorita operaatiot päällekkäisyyden laskemiseksi",
+          footnote:
+            "Diagonaali: kohorttikoot. Pois diagonaalista: suorita sarjaoperaatiot päällekkäisyyden laskemiseksi.",
+        },
+        conceptTree: {
+          selected: "(valittu)",
+          loadingHierarchy: "Ladataan hierarkiaa...",
+          noHierarchyData:
+            "Tälle konseptille ei ole saatavilla hierarkiatietoja.",
+        },
+        cohortSizeComparison: {
+          title: "Kohortin koon vertailu",
+          primaryLegend: "Kulta = ensisijainen kohortti",
+        },
+        attrition: {
+          totalPopulation: "Kokonaisväestö",
+          noData: "Kulutustietoja ei ole saatavilla",
+        },
+        schemaDensity: {
+          addConcepts:
+            "Lisää käsitteitä nähdäksesi verkkotunnuksen kattavuuden",
+          domainCoverage: "Verkkotunnuksen kattavuus",
+        },
+        validation: {
+          atLeastOneConceptSetDefined: "Vähintään yksi käsitejoukko määritetty",
+          atLeastOneCohortSelected: "Vähintään yksi kohortti valittu",
+          primaryCohortDesignated: "Ensisijainen kohortti nimetty",
+          noEmptyConceptSets: "Ei tyhjiä konseptijoukkoja",
+          codewasValidationRun: "CodeWAS-vahvistusajo",
+          addConceptsExploreTab: "Lisää käsitteitä Tutki-välilehdelle",
+          selectCohortsBuildTab: "Valitse kohortit Rakenne-välilehdeltä",
+          setPrimaryCohort: "Aseta ensisijainen kohortti analyyseille",
+          allSetsPopulated: "Kaikki joukot täynnä",
+          runCodewas: "Suorita CodeWAS vahvistaaksesi fenotyyppi",
+        },
+      },
+      clinical: {
+        groupMeta: {
+          characterize: {
+            label: "luonnehtia",
+            description:
+              "Kuvaile väestöäsi – väestötiedot, liitännäissairaudet ja hoitotavat.",
+          },
+          compare: {
+            label: "Vertaa",
+            description:
+              "Arvioi kausaaliset vaikutukset ja vertaa tuloksia altistumisesta tai aikaikkunasta.",
+          },
+          predict: {
+            label: "Ennustaa",
+            description:
+              "Kouluta potilastason koneoppimismalleja tulevien tulosten ennustamiseksi.",
+          },
+        },
+        prerequisites: {
+          atLeastOneCohortDefined: "Vähintään yksi kohortti määritetty",
+          targetCohort: "Kohdekohortti",
+          comparatorCohort: "Vertailukohortti",
+          outcomeCohort: "Tuloskohortti",
+          exposureCohort: "Altistumiskohortti",
+          completedEstimations2Plus: "2+ valmiita arvioita",
+        },
+        analysisMeta: {
+          characterization: {
+            label: "Kohortin karakterisointi",
+            description:
+              "Perustason demografiset tiedot, liitännäissairaudet, lääkkeiden käyttö ja ajalliset mallit kohde- ja vertailukohorteille.",
+          },
+          incidence_rate: {
+            label: "Ilmaantuvuusprosenttianalyysi",
+            description:
+              "Laske ilmaantuvuusluvut tarkalla Poisson-luottamusvälillä, jotka on ositettu iän, sukupuolen tai kalenterivuoden mukaan.",
+          },
+          pathway: {
+            label: "Hoitopolku",
+            description:
+              "Visualisoi peräkkäisiä hoitomalleja ja lääkkeiden käytön kehityskulkuja kohortin sisällä.",
+          },
+          estimation: {
+            label: "Vertaileva tehokkuus",
+            description:
+              "Väestötason vaikutusten estimointi CohortMethodilla - taipumuspisteiden sovitus/kerroin Cox-malleilla.",
+          },
+          sccs: {
+            label: "Itseohjautuva kotelosarja",
+            description:
+              "Tapahtumatiheyden vertailu altistuneiden ja valottamattomien aikaikkunoiden aikana.",
+          },
+          evidence_synthesis: {
+            label: "Todisteiden synteesi",
+            description:
+              "Kiinteän vaikutuksen tai Bayesin satunnaisvaikutusten meta-analyysi, joka yhdistää estimaatit useista analyyseista.",
+          },
+          prediction: {
+            label: "Potilastason ennuste",
+            description:
+              "Harjoittele ML-malleja (LASSO, gradientin tehostaminen, satunnainen metsä, syväoppiminen) tulosten ennustamiseksi.",
+          },
+        },
+        drawer: {
+          analysisConfiguration: "Analyysikokoonpano",
+          configureAnalysis: "Määritä analyysi",
+          closeDrawer: "Sulje laatikko",
+          targetCohort: "Kohdekohortti",
+          exposureCohortTarget: "Altistumiskohortti (tavoite)",
+          comparatorCohort: "Vertailukohortti",
+          outcomeCohort: "Tuloskohortti",
+          outcomeCohorts: "Tuloskohortit",
+          minCellCount: "Minimaalinen solumäärä",
+          minCellCountLabel: "Minimi solumäärä",
+          minCellCountHelp:
+            "Solujen, joissa on vähemmän potilaita, tuotanto suppressoidaan.",
+          tarStart: "TAR-aloitus (päivää)",
+          tarEnd: "TAR End (päivää)",
+          tarStartLabel: "Riskiajan alkamispäivät",
+          tarEndLabel: "Riskiajan päättymispäivät",
+          propensityScoreMethod: "Taipumuspisteytysmenetelmä",
+          psMatching: "PS yhteensopivuus",
+          psStratification: "PS-ositus",
+          psWeighting: "PS-painotus (IPTW)",
+          modelType: "Mallin tyyppi",
+          lassoLogisticRegression: "LASSO-logistinen regressio",
+          gradientBoosting: "Gradientin tehostaminen",
+          randomForest: "Satunnainen metsä",
+          decisionTree: "Päätöspuu",
+          exposureUsesTarget:
+            "Altistumiskohortti on edellä valittu kohdekohortti.",
+          naivePeriod: "Naiivi kausi (päivää)",
+          naivePeriodLabel: "Naiivit kauden päivät",
+          naivePeriodHelp:
+            "Päivät havainnon alussa, jotka jätetään pois analyysistä.",
+          synthesisPrompt: "Valitse 2+ suoritettua arviotulosta",
+          synthesisHelp:
+            "Todisteiden synteesin yhdistämistä ei voi vielä määrittää tässä. Suorita arviointitulosnäkymästä.",
+        },
+        payloadNames: {
+          characterization: "Tutkimuksen luonnehdinta",
+          incidence_rate: "Tutkinnan ilmaantuvuusprosentti",
+          estimation: "Tutkimus Vertaileva arvio",
+          prediction: "Tutkimuspotilastason ennuste",
+          pathway: "Tutkimusreitin analyysi",
+          evidence_synthesis: "Tutkimustodistusten synteesi",
+        },
+        charts: {
+          kaplanMeierTitle: "Kaplan-Meier Selviytymiskäyrä",
+          timeDays: "Aika (päiviä)",
+          survivalProbability: "Selviytymisen todennäköisyys",
+          propensityScoreDistribution: "Taipumuspisteiden jakautuminen",
+          propensityScore: "Taipumuspisteet",
+        },
+        tracker: {
+          results: "Tulokset",
+          analysisFailedDefault:
+            "Analyysi epäonnistui. Tarkista tiedot lokeista.",
+        },
+        runHistory: {
+          compareTitle: "Tulossa vaiheessa 4",
+          replayTitle: "Tarkastele tai toista tämä suoritus",
+          viewTitle: "Katso suoritustiedot",
+        },
+        results: {
+          cohortCounts: "Kohorttimäärät",
+          targetSubjects: "Kohdeaiheet",
+          comparatorSubjects: "Vertailevia aiheita",
+          topFeaturesBySmd: "SMD:n parhaat ominaisuudet",
+          covariate: "Kovariaatti",
+          incidenceRate: "Ilmaantuvuusprosentti",
+          perPersonYear: "per henkilö vuosi",
+          personYears: "Henkilövuosia",
+          cases: "Tapaukset",
+          comparativeEffectiveness: "Vertaileva tehokkuus",
+          hazardRatio: "Vaarasuhde",
+          target: "Kohde",
+          comparator: "Vertailija",
+          outcomeEvents: "Tulostapahtumat",
+          estimates: "Arviot",
+          predictionPerformance: "Ennuste suorituskyky",
+          sensitivity: "Herkkyys",
+          specificity: "Spesifisyys",
+          selfControlledCaseSeries: "Itseohjautuva kotelosarja",
+          incidenceRateRatio: "Ilmaantuvuussuhde (IRR)",
+          pooledHazardRatio: "Yhdistetty vaarasuhde",
+          tauHeterogeneity: "Tau (heterogeenisuus)",
+          topTreatmentSequences: "Parhaat hoitojaksot",
+          estimateFallback: "Arvio",
+        },
+      },
+      genomic: {
+        title: "Genominen todiste",
+        subtitle: "Avaa tavoitteet · GWAS Katalogi · Yhteenvetotilastot",
+        uploadTitle: "Lataa GWAS Yhteenvetotilastot",
+        releaseToUpload: "Vapauta ladataksesi",
+        dropSummaryStats: "Pudota GWAS yhteenvetotilastot",
+        fileTypes: ".tsv, .csv tai .gz · enintään 500 Mt",
+        uploadFailed: "Lataus epäonnistui. Yritä uudelleen.",
+        allColumnsRequired:
+          "Kaikki vaaditut sarakkeet on kartoitettava ennen vahvistamista.",
+        parseFailed: "Tiedoston jäsentäminen epäonnistui. Tarkista muoto.",
+        confirmMapping: "Vahvista kartoitus",
+        pinThisLocus: "Kiinnitä tämä lokus",
+        position: "asema",
+        manhattanPlot: "Manhattan Tontti",
+        qqPlot: "QQ Tontti",
+        sample: "Näyte:",
+        snps: "SNP:t:",
+        unknownTrait: "Tuntematon piirre",
+        platform: "Alusta",
+        gene: "Geeni",
+        disease: "Sairaus",
+        crossDomainLinks: "Verkkotunnusten väliset linkit",
+        qqPlotNoData: "p-value tietoja ei ole saatavilla",
+        qqPlotExpectedNegLogP: "Odotettu -log10(p)",
+        qqPlotObservedNegLogP: "Havaittu -log10(p)",
+        noGwasDataAvailable: "GWAS tietoja ei ole saatavilla",
+        noGwasDataAvailableAria:
+          "Manhattan tontti: GWAS tietoja ei ole saatavilla",
+        manhattanAriaNoVariants: "Manhattan juoni: ei variantteja",
+        manhattanAriaNoPeaks: "ei huippuja",
+      },
+      synthesis: {
+        completeTitle: "Täydellinen",
+        removePin: "Poista tappi",
+        markKeyFinding: "Merkitse avainlöydökseksi",
+        unmarkKeyFinding: "Poista avaimen löydön merkintä",
+        customFinding: "Mukautettu löytö",
+        exportDescription:
+          "Vie koko todistusaineisto, mukaan lukien kaikki kiinnitetyt havainnot, selostukset ja osien huomautukset.",
+      },
+    },
+  }),
+  "ja-JP": mergeMessageTrees(enInvestigation, {
+    investigation: {
+      common: {
+        actions: {
+          newInvestigation: "新たな調査",
+          createInvestigation: "調査の作成",
+          parseAndImport: "解析とインポート",
+          retry: "リトライ",
+          cancel: "キャンセル",
+          close: "近い",
+          runAnalysis: "分析の実行",
+          replay: "リプレイ",
+          view: "ビュー",
+          compare: "比較する",
+          createSnapshot: "スナップショットの作成",
+          exportPdf: "エクスポート PDF",
+          exportJson: "エクスポート JSON",
+          pin: "ピン",
+          pinToDossier: "書類にピンを付ける",
+          add: "+追加",
+          newSet: "+ 新しいセット",
+          removeCohort: "コホートを削除する",
+          dismissError: "エラーを無視",
+          toggleEvidenceSidebar: "証拠サイドバーを切り替えます",
+          switchToClinicalRunHistory: "臨床ドメインの実行履歴に切り替える",
+        },
+        status: {
+          draft: "下書き",
+          active: "アンコース",
+          complete: "完了",
+          archived: "アーカイブ済み",
+          completed: "完了しました",
+          running: "ランニング",
+          queued: "キューに入れられました",
+          pending: "保留中",
+          failed: "失敗した",
+          saving: "保存中...",
+          saved: "保存されました",
+          error: "エラー",
+        },
+        domains: {
+          phenotype: "表現型",
+          clinical: "臨床",
+          genomic: "ゲノム",
+          synthesis: "合成",
+          codeExplorer: "コードエクスプローラー",
+        },
+        tabs: {
+          explore: "探検する",
+          build: "建てる",
+          validate: "検証する",
+          dossier: "関係書類",
+          export: "輸出",
+          versions: "バージョン",
+          gallery: "OHDSI 分析",
+          tracking: "アクティブラン",
+          history: "歴史",
+          openTargets: "オープンターゲット",
+          gwasCatalog: "GWAS カタログ",
+          upload: "GWASをアップロードする",
+        },
+        sections: {
+          evidence: "証拠",
+          researchQuestion: "リサーチクエスチョン",
+          phenotypeDefinition: "Phenotype 定義",
+          populationCharacteristics: "人口の特徴",
+          clinicalEvidence: "臨床証拠",
+          genomicEvidence: "ゲノムの証拠",
+          evidenceSynthesis: "証拠の総合",
+          limitationsCaveats: "制限事項と注意事項",
+          methods: "メソッド",
+          versionHistory: "バージョン履歴",
+          exportDossier: "輸出書類",
+          evidenceDossier: "証拠書類",
+          qcChecklist: "QCチェックリスト",
+          importMode: "インポートモード",
+          selectCohorts: "コホートの選択",
+          fileUpload: "ファイルのアップロード",
+          selectedCohorts: "選択されたコホート",
+          conceptHierarchy: "コンセプトの階層",
+          conceptSet: "コンセプトセット",
+          significantLoci: "重要な遺伝子座",
+          columnMapping: "列のマッピング",
+          analysisParameters: "分析パラメータ",
+          dataSource: "データソース",
+          loadingSources: "ソースを読み込んでいます...",
+        },
+        labels: {
+          title: "タイトル",
+          optional: "オプション",
+          coverage: "カバレッジ",
+          domains: "ドメイン",
+          howItWorks: "仕組み",
+          sampleInvestigations: "サンプル調査",
+          sampleInvestigationsSubtitle:
+            "これらの例を参照して、実際の証拠調査ワークフローを確認してください。",
+          recentInvestigations: "最近の調査",
+          yourInvestigations: "あなたの調査",
+          yourInvestigationsSubtitle: "あなたが作成した最近の調査",
+          conceptSets: "コンセプトセット",
+          cohorts: "コホート",
+          analyses: "クリニックを分析します",
+          pins: "ピン",
+          runs: "走る",
+          startExploring:
+            "探索を開始 - 概念、コホート、分析を追加して証拠を構築します",
+          results: "結果",
+          fromInvestigation: "調査から",
+          cohortFromThisInvestigation: "* = この調査のコホート",
+          openTargetsPlatform: "オープンターゲットプラットフォーム",
+        },
+        empty: {
+          noInvestigationsYet: "まだ調査は行われていません",
+          noInvestigationsSubtitle:
+            "まず、最初の構造化された証拠書類を作成します。",
+          noResearchQuestionDefined: "研究課題が定義されていません",
+          noFindingsPinned:
+            "このセクションに固定された調査結果はまだありません",
+          noPinsYet: "まだピンがありません",
+          noSnapshotsYet: "まだスナップショットはありません。",
+          noConcepts: "概念がない",
+          noAnalyses: "分析なし",
+          noEvidence: "証拠がない",
+          noResultsFound: "結果が見つかりませんでした。",
+          noSequenceData: "利用可能な配列データがありません",
+          noAnalysesRunYet:
+            "まだ分​​析は実行されていません。ギャラリーから分析を選択して開始します。",
+          noCohortsAvailable: "利用可能なコホートはありません。",
+        },
+        messages: {
+          loadingInvestigation: "調査を読み込み中...",
+          investigationLoadFailed:
+            "調査が見つからないか、ロードできませんでした。",
+          createInvestigationFailed:
+            "調査の作成に失敗しました。もう一度試してください。",
+          aiWillAnalyze:
+            "AI は、表現型の概念を提案するためにあなたの研究課題を分析します。",
+          exportSucceeded: "正常にエクスポートされました",
+          exportFailed: "エクスポートに失敗しました。もう一度試してください。",
+          searchFailed: "検索に失敗しました。もう一度試してください。",
+          enterAtLeast2Characters:
+            "検索するには少なくとも 2 文字を入力してください。",
+          searchOmopMinimum:
+            "OMOP コンセプトを検索するには、少なくとも 2 文字を入力してください",
+          loadingVersions: "バージョンをロード中...",
+          waitingInQueue: "列に並んで待っています...",
+          running: "走っています...",
+          analysisCancelled: "分析がキャンセルされました",
+          analysisFailed: "分析に失敗しました",
+          analysisDispatchFailed: "分析ディスパッチに失敗しました",
+          initializing: "初期化中...",
+          compareComingPhase4: "フェーズ 4 で登場予定",
+          snapshotsAutoComplete:
+            "調査が完了とマークされると、スナップショットが自動的に作成されます。",
+          loadingPins: "ローディングピン",
+          unexpectedDispatchError:
+            "分析のディスパッチ中に予期しないエラーが発生しました。",
+        },
+      },
+      landing: {
+        title: "証拠調査",
+        subtitle:
+          "臨床表現型解析とゲノム証拠の橋渡し – 研究質問から証拠書類まで",
+        recentInvestigations: "最近の調査",
+        noInvestigations: "まず、最初の構造化された証拠書類を作成します。",
+        workflow: {
+          askQuestion: {
+            label: "質問する",
+            description: "研究の質問とタイトルを定義します。",
+          },
+          buildPhenotype: {
+            label: "表現型を構築する",
+            description: "コンセプト セットとコホートの定義を厳選します。",
+          },
+          gatherEvidence: {
+            label: "証拠を集める",
+            description: "HADES 解析を実行し、ゲノムシグナルを取得します。",
+          },
+          synthesizeDossier: {
+            label: "ドシエを合成する",
+            description: "構造化された証拠書類を公開用にエクスポートします。",
+          },
+        },
+        sampleInvestigations: {
+          ckd: {
+            title: "T2DMにおけるSGLT2阻害剤とCKDの進行",
+            question:
+              "SGLT2阻害は2型糖尿病患者の慢性腎臓病の進行を軽減しますか?",
+            badges: {
+              conceptSets: "3つのコンセプトセット",
+              cohorts: "2コホート",
+              estimation: "1 見積もり",
+              loci: "5 GWAS 遺伝子座",
+            },
+          },
+          statin: {
+            title:
+              "スタチンのパラドックス - シンバスタチンとアトルバスタチンの心血管転帰",
+            question:
+              "スタチン治療を受けていない患者におけるシンバスタチンとアトルバスタチンの間に心血管転帰に臨床的に意味のある違いはありますか?",
+            badges: {
+              conceptSets: "2コンセプトセット",
+              cohorts: "2コホート",
+              characterization: "1 特徴付け",
+              estimation: "1 見積もり",
+            },
+          },
+          tcf7l2: {
+            title: "TCF7L2 と膵臓ベータ細​​胞の機能不全",
+            question:
+              "TCF7L2 リスクバリアントは、膵臓ベータ細​​胞の機能不全を通じて T2DM に寄与しているのでしょうか?また、このメカニズムを裏付ける臨床証拠は何ですか?",
+            badges: {
+              conceptSet: "1 コンセプトセット",
+              cohort: "1コホート",
+              associations: "12 オープンターゲット関連",
+              loci: "3 GWAS 遺伝子座",
+            },
+          },
+        },
+      },
+      newPage: {
+        title: "新たな証拠の捜査",
+        subtitle: "研究課題について構造化された資料を作成します。",
+        back: "証拠調査",
+      },
+      phenotype: {
+        importModes: {
+          parthenon: {
+            label: "Parthenon コホート",
+            description: "既存のコホート定義から選択",
+          },
+          json: {
+            description: "アトラスからコホート定義 JSON を貼り付けます",
+          },
+          file: {
+            label: "ファイルのアップロード",
+            description:
+              "CSV または JSON コホート ファイルをアップロードします",
+          },
+          phenotypeLibrary: {
+            label: "表現型ライブラリ",
+            description:
+              "OHDSI Phenotype ライブラリを参照 (1,100 以上の検証済み表現型)",
+          },
+        },
+        atlas: {
+          exportHint:
+            "アトラスからのエクスポート: コホート定義 -> エクスポート -> JSON",
+          parseErrorEmpty: "解析する前に Atlas JSON 定義を貼り付けてください。",
+          parseErrorInvalid:
+            "無効な JSON - 構文エラーがないか確認してください。",
+          parseErrorShape:
+            "認識されない形式 - 予期される ConceptSet、PrimaryCriteria、または式キー。",
+        },
+        file: {
+          dropPrompt:
+            "CSV または JSON ファイルをここにドロップするか、クリックして参照します",
+          invalidJson: "無効なJSONファイルです",
+          unsupportedType: "サポートされていないファイル形式です",
+        },
+        conceptExplorer: {
+          allDomains: "すべてのドメイン",
+          condition: "愛情",
+          drug: "薬",
+          measurement: "測定",
+          procedure: "アクト",
+          observation: "観察クリニック",
+          standard: "標準化する",
+          standardOnly: "標準のみ",
+          addToConceptSet: "コンセプトセットに追加",
+        },
+        conceptSet: {
+          excluded: "除外される",
+          includeDescendants: "子孫を含める",
+          exclude: "除外する",
+          removeFromSet: "コンセプトセットから削除",
+          searchPrompt:
+            "コンセプトを検索し、追加してコンセプト セットを構築します",
+        },
+        codewas: {
+          case: "場合",
+          control: "コントロール",
+          label: "ラベル",
+          count: "カウント",
+          effectEstimates: "効果の推定",
+          volcanoComingSoon:
+            "インタラクティブな火山プロットは将来のアップデートで登場します。",
+        },
+        phenotypeLibrary: {
+          title: "表現型ライブラリ",
+          searchFailed:
+            "表現型ライブラリの検索に失敗しました。もう一度試してください。",
+          emptyPrompt: "OHDSI 表現型ライブラリを検索",
+          validatedPhenotypes: "1,100以上の検証済み表現型",
+          noDescriptionAvailable: "説明はありません。",
+          selected: "選択済み",
+          select: "選択",
+        },
+        cohortPicker: {
+          loading: "コホートを読み込んでいます...",
+          loadFailed: "コホート定義のロードに失敗しました。",
+          noSearchMatches: "検索に一致するコホートはありません。",
+          noDefinitions: "コホート定義が見つかりません。",
+          primary: "主要な",
+          primarySelected: "主要 ✓",
+          setAsPrimary: "プライマリとして設定",
+        },
+        cohortOverlap: {
+          title: "コホート重複行列",
+          selectTwoCohorts:
+            "重複を確認するには 2 つ以上のコホートを選択してください",
+          runOperationsToComputeOverlap:
+            "オーバーラップを計算する操作を実行する",
+          footnote:
+            "対角線: コホートのサイズ。非対角: セット演算を実行してオーバーラップを計算します。",
+        },
+        conceptTree: {
+          selected: "(選択済み)",
+          loadingHierarchy: "階層を読み込んでいます...",
+          noHierarchyData: "この概念に使用できる階層データはありません。",
+        },
+        cohortSizeComparison: {
+          title: "コホートサイズの比較",
+          primaryLegend: "ゴールド = 主要コホート",
+        },
+        attrition: {
+          totalPopulation: "総人口",
+          noData: "利用可能な減少データはありません",
+        },
+        schemaDensity: {
+          addConcepts: "概念を追加してドメインの範囲を確認する",
+          domainCoverage: "ドメインの範囲",
+        },
+        validation: {
+          atLeastOneConceptSetDefined:
+            "少なくとも 1 つの概念セットが定義されている",
+          atLeastOneCohortSelected: "少なくとも 1 つのコホートが選択されました",
+          primaryCohortDesignated: "主要コホートの指定",
+          noEmptyConceptSets: "空のコンセプトセットはありません",
+          codewasValidationRun: "CodeWAS 検証の実行",
+          addConceptsExploreTab: "「探索」タブに概念を追加する",
+          selectCohortsBuildTab: "「構築」タブでコホートを選択します",
+          setPrimaryCohort: "分析用の主要コホートを設定する",
+          allSetsPopulated: "すべてのセットにデータが入力されています",
+          runCodewas: "CodeWAS を実行して表現型を検証する",
+        },
+      },
+      clinical: {
+        groupMeta: {
+          characterize: {
+            label: "特徴づける",
+            description:
+              "人口動態、併存疾患、治療パターンなど、母集団について説明します。",
+          },
+          compare: {
+            label: "比較する",
+            description:
+              "因果関係を推定し、エクスポージャーまたは時間枠全体で結果を比較します。",
+          },
+          predict: {
+            label: "予測する",
+            description:
+              "患者レベルの機械学習モデルをトレーニングして、将来の結果を予測します。",
+          },
+        },
+        prerequisites: {
+          atLeastOneCohortDefined: "少なくとも 1 つのコホートが定義されている",
+          targetCohort: "対象コホート",
+          comparatorCohort: "比較対象コホート",
+          outcomeCohort: "結果コホート",
+          exposureCohort: "暴露コホート",
+          completedEstimations2Plus: "2 件以上の完了した見積もり",
+        },
+        analysisMeta: {
+          characterization: {
+            label: "コホートの特徴付け",
+            description:
+              "ターゲットおよび比較対象コホートのベースライン人口統計、併存疾患、薬物使用、および時間的パターン。",
+          },
+          incidence_rate: {
+            label: "発生率分析",
+            description:
+              "正確なポアソン信頼区間を使用して、年齢、性別、または暦年で階層化された発生率を計算します。",
+          },
+          pathway: {
+            label: "治療経路",
+            description:
+              "コホート内の一連の治療パターンと薬物使用の軌跡を視覚化します。",
+          },
+          estimation: {
+            label: "有効性の比較",
+            description:
+              "コホートメソッドを使用した集団レベルの効果推定 - Cox モデルによる傾向スコアのマッチング/層別化。",
+          },
+          sccs: {
+            label: "自主規制事例シリーズ",
+            description:
+              "曝露時間枠と非曝露時間枠におけるイベント発生率の個人内比較。",
+          },
+          evidence_synthesis: {
+            label: "証拠の総合",
+            description:
+              "固定効果またはベイズ変量効果のメタ分析では、複数の分析から推定値をプールします。",
+          },
+          prediction: {
+            label: "患者レベルの予測",
+            description:
+              "ML モデル (LASSO、勾配ブースティング、ランダム フォレスト、ディープ ラーニング) をトレーニングして結果を予測します。",
+          },
+        },
+        drawer: {
+          analysisConfiguration: "分析構成",
+          configureAnalysis: "分析の構成",
+          closeDrawer: "引き出しを閉める",
+          targetCohort: "対象コホート",
+          exposureCohortTarget: "暴露コホート (ターゲット)",
+          comparatorCohort: "比較対象コホート",
+          outcomeCohort: "結果コホート",
+          outcomeCohorts: "結果コホート",
+          minCellCount: "最小セル数",
+          minCellCountLabel: "最小セル数",
+          minCellCountHelp: "患者数が少ないセルの出力は抑制されます。",
+          tarStart: "TAR 開始 (日)",
+          tarEnd: "TAR 終了 (日)",
+          tarStartLabel: "危険時間の開始日",
+          tarEndLabel: "リスクのある時間の終了日",
+          propensityScoreMethod: "傾向スコア法",
+          psMatching: "PSマッチング",
+          psStratification: "PS の層別化",
+          psWeighting: "PS 重み付け (IPTW)",
+          modelType: "モデルタイプ",
+          lassoLogisticRegression: "LASSO ロジスティック回帰",
+          gradientBoosting: "勾配ブースティング",
+          randomForest: "ランダムフォレスト",
+          decisionTree: "デシジョンツリー",
+          exposureUsesTarget: "暴露コホートは、上で選択した対象コホートです。",
+          naivePeriod: "ナイーブ期間 (日)",
+          naivePeriodLabel: "うぶな生理の日々",
+          naivePeriodHelp: "分析から除外する観察開始時の日数。",
+          synthesisPrompt: "完了した推定結果を 2 つ以上選択してください",
+          synthesisHelp:
+            "ここでは証拠合成プーリングをまだ構成できません。推定結果ビューから実行します。",
+        },
+        payloadNames: {
+          characterization: "調査の特徴付け",
+          incidence_rate: "捜査発生率",
+          estimation: "調査比較見積り",
+          prediction: "調査患者レベルの予測",
+          pathway: "調査経路分析",
+          evidence_synthesis: "調査証拠の統合",
+        },
+        charts: {
+          kaplanMeierTitle: "Kaplan-Meier 生存曲線",
+          timeDays: "時間（日）",
+          survivalProbability: "生存確率",
+          propensityScoreDistribution: "傾向スコアの分布",
+          propensityScore: "傾向スコア",
+        },
+        tracker: {
+          results: "結果",
+          analysisFailedDefault:
+            "分析に失敗しました。詳細についてはログを確認してください。",
+        },
+        runHistory: {
+          compareTitle: "フェーズ 4 で登場予定",
+          replayTitle: "この実行を表示または再生する",
+          viewTitle: "実行の詳細を表示する",
+        },
+        results: {
+          cohortCounts: "コホート数",
+          targetSubjects: "対象科目",
+          comparatorSubjects: "比較対象",
+          topFeaturesBySmd: "SMDの主な機能",
+          covariate: "共変量",
+          incidenceRate: "発生率",
+          perPersonYear: "人年あたり",
+          personYears: "人年",
+          cases: "事例",
+          comparativeEffectiveness: "有効性の比較",
+          hazardRatio: "ハザード比",
+          target: "ターゲット",
+          comparator: "コンパレータ",
+          outcomeEvents: "結果イベント",
+          estimates: "見積もり",
+          predictionPerformance: "予測パフォーマンス",
+          sensitivity: "感度",
+          specificity: "特異性",
+          selfControlledCaseSeries: "自主規制事例シリーズ",
+          incidenceRateRatio: "発生率比 (IRR)",
+          pooledHazardRatio: "プールされたハザード比",
+          tauHeterogeneity: "タウ（不均一性）",
+          topTreatmentSequences: "上位の治療シーケンス",
+          estimateFallback: "見積もり",
+        },
+      },
+      genomic: {
+        title: "ゲノムの証拠",
+        subtitle: "オープンターゲット · GWAS カタログ · 概要統計",
+        uploadTitle: "GWAS 概要統計のアップロード",
+        releaseToUpload: "リリースしてアップロードする",
+        dropSummaryStats: "GWAS の概要統計を削除します",
+        fileTypes: ".tsv、.csv、または .gz · 最大 500 MB",
+        uploadFailed: "アップロードに失敗しました。もう一度試してください。",
+        allColumnsRequired:
+          "確認する前に、必要な列をすべてマップする必要があります。",
+        parseFailed:
+          "ファイルの解析に失敗しました。フォーマットを確認してください。",
+        confirmMapping: "マッピングの確認",
+        pinThisLocus: "この軌跡をピン留めする",
+        position: "位置",
+        manhattanPlot: "Manhattan プロット",
+        qqPlot: "QQ プロット",
+        sample: "サンプル：",
+        snps: "SNP:",
+        unknownTrait: "未知の特性",
+        platform: "プラットフォーム",
+        gene: "遺伝子",
+        disease: "病気",
+        crossDomainLinks: "クロスドメインリンク",
+        qqPlotNoData: "利用可能なp-valueデータがありません",
+        qqPlotExpectedNegLogP: "予想される -log10(p)",
+        qqPlotObservedNegLogP: "観測値 -log10(p)",
+        noGwasDataAvailable: "利用可能なGWASデータがありません",
+        noGwasDataAvailableAria:
+          "Manhattan プロット: 利用可能な GWAS データがありません",
+        manhattanAriaNoVariants: "Manhattan プロット: バリアントなし",
+        manhattanAriaNoPeaks: "ピークがない",
+      },
+      synthesis: {
+        completeTitle: "完了",
+        removePin: "ピンを外す",
+        markKeyFinding: "重要な結果としてマークする",
+        unmarkKeyFinding: "重要な検出結果のマークを解除する",
+        customFinding: "カスタム検索",
+        exportDescription:
+          "すべてのピン留めされた調査結果、説明、セクションノートを含む完全な証拠書類をエクスポートします。",
+      },
+    },
+  }),
+  "zh-Hans": mergeMessageTrees(enInvestigation, {
+    investigation: {
+      common: {
+        actions: {
+          newInvestigation: "新调查",
+          createInvestigation: "创建调查",
+          parseAndImport: "解析和导入",
+          retry: "重试",
+          cancel: "取消",
+          close: "关闭",
+          runAnalysis: "运行分析",
+          replay: "重播",
+          view: "查看",
+          compare: "比较",
+          createSnapshot: "创建快照",
+          exportPdf: "导出 PDF",
+          exportJson: "导出 JSON",
+          pin: "固定",
+          pinToDossier: "固定到档案",
+          add: "+ 添加",
+          newSet: "+ 新集合",
+          removeCohort: "删除群组",
+          dismissError: "消除错误",
+          toggleEvidenceSidebar: "切换证据侧边栏",
+          switchToClinicalRunHistory: "切换到临床领域运行历史记录",
+        },
+        status: {
+          draft: "草稿",
+          active: "活动中",
+          complete: "已完成",
+          archived: "已存档",
+          completed: "已完成",
+          running: "运行中",
+          queued: "排队",
+          pending: "待处理",
+          failed: "失败的",
+          saving: "保存...",
+          saved: "已保存",
+          error: "错误",
+        },
+        domains: {
+          phenotype: "表型",
+          clinical: "临床",
+          genomic: "基因组",
+          synthesis: "合成",
+          codeExplorer: "代码浏览器",
+        },
+        tabs: {
+          explore: "探索",
+          build: "建造",
+          validate: "证实",
+          dossier: "卷宗",
+          export: "出口",
+          versions: "版本",
+          gallery: "OHDSI 分析",
+          tracking: "主动运行",
+          history: "历史",
+          openTargets: "开放目标",
+          gwasCatalog: "GWAS 产品目录",
+          upload: "上传GWAS",
+        },
+        sections: {
+          evidence: "证据",
+          researchQuestion: "研究问题",
+          phenotypeDefinition: "表型定义",
+          populationCharacteristics: "人口特征",
+          clinicalEvidence: "临床证据",
+          genomicEvidence: "基因组证据",
+          evidenceSynthesis: "证据综合",
+          limitationsCaveats: "限制和注意事项",
+          methods: "方法",
+          versionHistory: "版本历史",
+          exportDossier: "出口卷宗",
+          evidenceDossier: "证据卷宗",
+          qcChecklist: "质量控制清单",
+          importMode: "导入方式",
+          selectCohorts: "选择群组",
+          fileUpload: "文件上传",
+          selectedCohorts: "选定的群组",
+          conceptHierarchy: "概念层次",
+          conceptSet: "概念集",
+          significantLoci: "显着位点",
+          columnMapping: "列映射",
+          analysisParameters: "分析参数",
+          dataSource: "数据来源",
+          loadingSources: "正在加载源...",
+        },
+        labels: {
+          title: "标题",
+          optional: "选修的",
+          coverage: "覆盖范围",
+          domains: "域名",
+          howItWorks: "它是如何运作的",
+          sampleInvestigations: "样本调查",
+          sampleInvestigationsSubtitle:
+            "探索这些示例以了解证据调查工作流程的实际应用",
+          recentInvestigations: "最近的调查",
+          yourInvestigations: "您的调查",
+          yourInvestigationsSubtitle: "您最近创建的调查",
+          conceptSets: "概念集",
+          cohorts: "队列",
+          analyses: "分析",
+          pins: "针脚",
+          runs: "运行",
+          startExploring: "开始探索 - 添加概念、群组和分析以建立证据",
+          results: "结果",
+          fromInvestigation: "从调查来看",
+          cohortFromThisInvestigation: "* = 本次调查的队列",
+          openTargetsPlatform: "开放目标平台",
+        },
+        empty: {
+          noInvestigationsYet: "还没有调查",
+          noInvestigationsSubtitle: "创建您的第一个结构化证据档案以开始。",
+          noResearchQuestionDefined: "未定义研究问题",
+          noFindingsPinned: "此部分尚未有任何发现",
+          noPinsYet: "还没有引脚",
+          noSnapshotsYet: "还没有快照。",
+          noConcepts: "没有概念",
+          noAnalyses: "没有分析",
+          noEvidence: "没有证据",
+          noResultsFound: "没有找到结果。",
+          noSequenceData: "没有可用的序列数据",
+          noAnalysesRunYet: "尚未进行任何分析。从图库中选择一个分析即可开始。",
+          noCohortsAvailable: "没有可用的群组。",
+        },
+        messages: {
+          loadingInvestigation: "正在加载调查...",
+          investigationLoadFailed: "未找到或无法加载调查。",
+          createInvestigationFailed: "无法创建调查。请再试一次。",
+          aiWillAnalyze: "AI 将分析您的研究问题以提出表型概念。",
+          exportSucceeded: "导出成功",
+          exportFailed: "导出失败。请再试一次。",
+          searchFailed: "搜索失败。请再试一次。",
+          enterAtLeast2Characters: "输入至少 2 个字符进行搜索。",
+          searchOmopMinimum: "输入至少 2 个字符来搜索 OMOP 概念",
+          loadingVersions: "正在加载版本...",
+          waitingInQueue: "排队等候...",
+          running: "运行中...",
+          analysisCancelled: "分析已取消",
+          analysisFailed: "分析失败",
+          analysisDispatchFailed: "分析发送失败",
+          initializing: "正在初始化...",
+          compareComingPhase4: "即将进入第四阶段",
+          snapshotsAutoComplete: "当调查标记为“完成”时，会自动创建快照。",
+          loadingPins: "正在加载固定项...",
+          unexpectedDispatchError: "调度分析时发生意外错误。",
+        },
+      },
+      landing: {
+        title: "证据调查",
+        subtitle: "将临床表型与基因组证据联系起来 - 从研究问题到证据档案",
+        recentInvestigations: "最近的调查",
+        noInvestigations: "创建您的第一个结构化证据档案以开始。",
+        workflow: {
+          askQuestion: {
+            label: "问一个问题",
+            description: "定义您的研究问题和标题。",
+          },
+          buildPhenotype: {
+            label: "构建表型",
+            description: "策划概念集和群组定义。",
+          },
+          gatherEvidence: {
+            label: "收集证据",
+            description: "运行 OHDSI 分析并提取基因组信号。",
+          },
+          synthesizeDossier: {
+            label: "综合档案",
+            description: "导出结构化证据档案以供发布。",
+          },
+        },
+        sampleInvestigations: {
+          ckd: {
+            title: "SGLT2 抑制剂与 T2DM 中的 CKD 进展",
+            question: "SGLT2 抑制是否可以减少 2 型糖尿病患者的慢性肾脏病进展？",
+            badges: {
+              conceptSets: "3个概念集",
+              cohorts: "2 组",
+              estimation: "1 估计",
+              loci: "5 GWAS 位点",
+            },
+          },
+          statin: {
+            title: "他汀类药物悖论 - 辛伐他汀与阿托伐他汀心血管结果",
+            question:
+              "对于未接受过他汀类药物治疗的患者，辛伐他汀和阿托伐他汀之间的心血管结局是否存在有临床意义的差异？",
+            badges: {
+              conceptSets: "2个概念集",
+              cohorts: "2 组",
+              characterization: "1 表征",
+              estimation: "1 估计",
+            },
+          },
+          tcf7l2: {
+            title: "TCF7L2 和胰腺 β 细胞功能障碍",
+            question:
+              "TCF7L2 风险变异是否通过胰腺 β 细胞功能障碍导致 T2DM，哪些临床证据支持这一机制？",
+            badges: {
+              conceptSet: "1 个概念集",
+              cohort: "1 组",
+              associations: "12 开放目标协会",
+              loci: "3 GWAS 位点",
+            },
+          },
+        },
+      },
+      newPage: {
+        title: "新证据调查",
+        subtitle: "为您的研究问题创建结构化档案。",
+        back: "证据调查",
+      },
+      phenotype: {
+        importModes: {
+          parthenon: {
+            label: "Parthenon 队列",
+            description: "从现有群组定义中选择",
+          },
+          json: {
+            description: "粘贴来自 Atlas 的群组定义 JSON",
+          },
+          file: {
+            label: "文件上传",
+            description: "上传 CSV 或 JSON 队列文件",
+          },
+          phenotypeLibrary: {
+            label: "表型库",
+            description:
+              "浏览 OHDSI Phenotype 文库（1,100 多个经过验证的表型）",
+          },
+        },
+        atlas: {
+          exportHint: "从 Atlas 导出：群组定义 -> 导出 -> JSON",
+          parseErrorEmpty: "请在解析之前粘贴 Atlas JSON 定义。",
+          parseErrorInvalid: "无效 JSON - 请检查语法错误。",
+          parseErrorShape:
+            "无法识别的格式 - 预期的 ConceptSet、PrimaryCriteria 或表达式键。",
+        },
+        file: {
+          dropPrompt: "将 CSV 或 JSON 文件拖放到此处，或单击浏览",
+          invalidJson: "无效的 JSON 文件",
+          unsupportedType: "不支持的文件类型",
+        },
+        conceptExplorer: {
+          allDomains: "所有域名",
+          condition: "病症",
+          drug: "药品",
+          measurement: "测量",
+          procedure: "操作",
+          observation: "观察",
+          standard: "标准化",
+          standardOnly: "仅标准型",
+          addToConceptSet: "添加到概念集",
+        },
+        conceptSet: {
+          excluded: "排除",
+          includeDescendants: "包括后代",
+          exclude: "排除",
+          removeFromSet: "从概念集中删除",
+          searchPrompt: "搜索概念并将其添加到构建您的概念集",
+        },
+        codewas: {
+          case: "案件",
+          control: "控制",
+          label: "标签",
+          count: "数数",
+          effectEstimates: "效果估计",
+          volcanoComingSoon: "交互式火山图将在未来的更新中推出。",
+        },
+        phenotypeLibrary: {
+          title: "表型库",
+          searchFailed: "搜索表型库失败。请再试一次。",
+          emptyPrompt: "搜索 OHDSI 表型库",
+          validatedPhenotypes: "1,100 多个经过验证的表型",
+          noDescriptionAvailable: "没有可用的描述。",
+          selected: "已选择",
+          select: "选择",
+        },
+        cohortPicker: {
+          loading: "正在加载群组...",
+          loadFailed: "无法加载群组定义。",
+          noSearchMatches: "没有与您的搜索匹配的群组。",
+          noDefinitions: "未找到群组定义。",
+          primary: "基本的",
+          primarySelected: "小学 ✓",
+          setAsPrimary: "设置为主要",
+        },
+        cohortOverlap: {
+          title: "群组重叠矩阵",
+          selectTwoCohorts: "选择 2 个以上群组以查看重叠情况",
+          runOperationsToComputeOverlap: "运行运算来计算重叠",
+          footnote: "对角线：队列规模。非对角线：运行集合运算来计算重叠。",
+        },
+        conceptTree: {
+          selected: "（选定）",
+          loadingHierarchy: "正在加载层次结构...",
+          noHierarchyData: "此概念没有可用的层次结构数据。",
+        },
+        cohortSizeComparison: {
+          title: "群组规模比较",
+          primaryLegend: "黄金 = 主要队列",
+        },
+        attrition: {
+          totalPopulation: "总人口",
+          noData: "没有可用的流失数据",
+        },
+        schemaDensity: {
+          addConcepts: "添加概念以查看领域覆盖范围",
+          domainCoverage: "领域覆盖范围",
+        },
+        validation: {
+          atLeastOneConceptSetDefined: "至少定义了一组概念",
+          atLeastOneCohortSelected: "至少选择一组",
+          primaryCohortDesignated: "指定的主要队列",
+          noEmptyConceptSets: "没有空的概念集",
+          codewasValidationRun: "CodeWAS 验证运行",
+          addConceptsExploreTab: "在“探索”选项卡中添加概念",
+          selectCohortsBuildTab: "在“构建”选项卡中选择群组",
+          setPrimaryCohort: "设置主要分析队列",
+          allSetsPopulated: "所有集合均已填充",
+          runCodewas: "运行 CodeWAS 来验证表型",
+        },
+      },
+      clinical: {
+        groupMeta: {
+          characterize: {
+            label: "表征",
+            description: "描述您的人群——人口统计、合并症和治疗模式。",
+          },
+          compare: {
+            label: "比较",
+            description: "估计因果效应并比较不同暴露或时间窗口的结果。",
+          },
+          predict: {
+            label: "预测",
+            description: "训练患者级别的机器学习模型来预测未来的结果。",
+          },
+        },
+        prerequisites: {
+          atLeastOneCohortDefined: "至少定义了一组",
+          targetCohort: "目标人群",
+          comparatorCohort: "比较队列",
+          outcomeCohort: "结果队列",
+          exposureCohort: "暴露队列",
+          completedEstimations2Plus: "2+ 已完成的估算",
+        },
+        analysisMeta: {
+          characterization: {
+            label: "队列特征",
+            description:
+              "目标和比较队列的基线人口统计、合并症、药物利用和时间模式。",
+          },
+          incidence_rate: {
+            label: "发生率分析",
+            description:
+              "使用精确的泊松置信区间计算发病率，按年龄、性别或日历年分层。",
+          },
+          pathway: {
+            label: "治疗途径",
+            description: "可视化队列中的顺序治疗模式和药物利用轨迹。",
+          },
+          estimation: {
+            label: "比较有效性",
+            description:
+              "使用 CohortMethod 进行群体水平效应估计 - 倾向得分匹配/使用 Cox 模型进行分层。",
+          },
+          sccs: {
+            label: "自控箱系列",
+            description: "暴露与未暴露时间窗口内事件发生率的人内比较。",
+          },
+          evidence_synthesis: {
+            label: "证据综合",
+            description:
+              "固定效应或贝叶斯随机效应荟萃分析汇集了多项分析的估计值。",
+          },
+          prediction: {
+            label: "患者层面的预测",
+            description:
+              "训练 ML 模型（LASSO、梯度提升、随机森林、深度学习）来预测结果。",
+          },
+        },
+        drawer: {
+          analysisConfiguration: "分析配置",
+          configureAnalysis: "配置分析",
+          closeDrawer: "关闭抽屉",
+          targetCohort: "目标群体",
+          exposureCohortTarget: "暴露队列（目标）",
+          comparatorCohort: "比较队列",
+          outcomeCohort: "结果队列",
+          outcomeCohorts: "结果队列",
+          minCellCount: "最小细胞计数",
+          minCellCountLabel: "最小细胞计数",
+          minCellCountHelp: "患者较少的细胞的输出受到抑制。",
+          tarStart: "TAR 开始（天）",
+          tarEnd: "TAR 结束（天）",
+          tarStartLabel: "风险时间开始天数",
+          tarEndLabel: "风险时间结束日",
+          propensityScoreMethod: "倾向评分法",
+          psMatching: "PS匹配",
+          psStratification: "PS分层",
+          psWeighting: "PS 加权 (IPTW)",
+          modelType: "型号类型",
+          lassoLogisticRegression: "LASSO 逻辑回归",
+          gradientBoosting: "梯度提升",
+          randomForest: "随机森林",
+          decisionTree: "决策树",
+          exposureUsesTarget: "暴露队列就是上面选择的目标队列。",
+          naivePeriod: "幼稚期（天）",
+          naivePeriodLabel: "幼稚期的日子",
+          naivePeriodHelp: "观察开始时要从分析中排除的天数。",
+          synthesisPrompt: "选择2+个已完成的估算结果",
+          synthesisHelp: "此处尚无法配置证据合成池。从估计结果视图运行。",
+        },
+        payloadNames: {
+          characterization: "研究表征",
+          incidence_rate: "调查发生率",
+          estimation: "调查比较估计",
+          prediction: "研究患者水平预测",
+          pathway: "研究途径分析",
+          evidence_synthesis: "调查证据综合",
+        },
+        charts: {
+          kaplanMeierTitle: "Kaplan-Meier 生存曲线",
+          timeDays: "时间（天）",
+          survivalProbability: "生存概率",
+          propensityScoreDistribution: "倾向得分分布",
+          propensityScore: "倾向得分",
+        },
+        tracker: {
+          results: "结果",
+          analysisFailedDefault: "分析失败。检查日志以获取详细信息。",
+        },
+        runHistory: {
+          compareTitle: "即将进入第四阶段",
+          replayTitle: "查看或重播此执行",
+          viewTitle: "查看执行详情",
+        },
+        results: {
+          cohortCounts: "群组计数",
+          targetSubjects: "目标科目",
+          comparatorSubjects: "比较对象",
+          topFeaturesBySmd: "SMD 的主要特性",
+          covariate: "协变量",
+          incidenceRate: "发病率",
+          perPersonYear: "每人年",
+          personYears: "人年",
+          cases: "案例",
+          comparativeEffectiveness: "比较有效性",
+          hazardRatio: "危险比",
+          target: "目标",
+          comparator: "比较器",
+          outcomeEvents: "结果事件",
+          estimates: "估计",
+          predictionPerformance: "预测性能",
+          sensitivity: "灵敏度",
+          specificity: "特异性",
+          selfControlledCaseSeries: "自控箱系列",
+          incidenceRateRatio: "发生率比（IRR）",
+          pooledHazardRatio: "汇总风险比",
+          tauHeterogeneity: "Tau（异质性）",
+          topTreatmentSequences: "顶级治疗顺序",
+          estimateFallback: "估计",
+        },
+      },
+      genomic: {
+        title: "基因组证据",
+        subtitle: "开放目标 · GWAS 目录 · 汇总统计",
+        uploadTitle: "上传GWAS汇总统计数据",
+        releaseToUpload: "发布上传",
+        dropSummaryStats: "下降 GWAS 摘要统计",
+        fileTypes: ".tsv、.csv 或 .gz · 最大 500 MB",
+        uploadFailed: "上传失败。请再试一次。",
+        allColumnsRequired: "在确认之前必须映射所有必需的列。",
+        parseFailed: "无法解析文件。请检查格式。",
+        confirmMapping: "确认映射",
+        pinThisLocus: "固定该轨迹",
+        position: "位置",
+        manhattanPlot: "Manhattan 情节",
+        qqPlot: "QQ 情节",
+        sample: "样本：",
+        snps: "单核苷酸多态性：",
+        unknownTrait: "未知特征",
+        platform: "平台",
+        gene: "基因",
+        disease: "疾病",
+        crossDomainLinks: "跨域链接",
+        qqPlotNoData: "无可用 p-value 数据",
+        qqPlotExpectedNegLogP: "预期 -log10(p)",
+        qqPlotObservedNegLogP: "观测值-log10(p)",
+        noGwasDataAvailable: "无可用 GWAS 数据",
+        noGwasDataAvailableAria: "Manhattan 图：没有可用的 GWAS 数据",
+        manhattanAriaNoVariants: "Manhattan 图：无变体",
+        manhattanAriaNoPeaks: "无峰值",
+      },
+      synthesis: {
+        completeTitle: "完全的",
+        removePin: "移除销钉",
+        markKeyFinding: "标记为关键发现",
+        unmarkKeyFinding: "取消标记关键发现",
+        customFinding: "定制发现",
+        exportDescription:
+          "导出完整的证据档案，包括所有固定的调查结果、叙述和章节注释。",
+      },
+    },
+  }),
   "ko-KR": koInvestigation,
   "hi-IN": hiInvestigation,
   ar: mergeMessageTrees(enInvestigation, {}),
