@@ -33,11 +33,18 @@ def _run_create_networks(ctx: Context) -> None:
 
 
 def _check_pull_images(ctx: Context) -> bool:
+    import json as _json
     result = subprocess.run(
         ["docker", "compose", "images", "--format", "json"],
         capture_output=True, text=True, cwd=ROOT,
     )
-    return result.returncode == 0 and len(result.stdout.strip()) > 10
+    if result.returncode != 0:
+        return False
+    try:
+        data = _json.loads(result.stdout)
+        return isinstance(data, list) and len(data) > 0
+    except (_json.JSONDecodeError, ValueError):
+        return False
 
 
 def _run_pull_images(ctx: Context) -> None:

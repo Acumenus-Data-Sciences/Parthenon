@@ -22,7 +22,7 @@ def _run_fetch_assets(ctx: Context) -> None:
         return
     try:
         hecate_bootstrap.ensure(resolved)
-    except Exception as exc:
+    except (Exception, SystemExit) as exc:
         raise StepError(f"Hecate asset fetch failed: {exc}") from exc
     ctx.emit("Hecate assets fetched and validated")
 
@@ -42,7 +42,7 @@ def _run_extract_assets(ctx: Context) -> None:
     # ensure() is idempotent; if files already extracted it returns early
     try:
         hecate_bootstrap.ensure(resolved)
-    except Exception as exc:
+    except (Exception, SystemExit) as exc:
         raise StepError(f"Hecate extraction failed: {exc}") from exc
     ctx.emit("Hecate assets extracted")
 
