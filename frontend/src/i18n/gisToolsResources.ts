@@ -2,7 +2,10 @@ type MessageTree = {
   [key: string]: string | MessageTree;
 };
 
-function mergeMessageTrees(base: MessageTree, overrides: MessageTree): MessageTree {
+function mergeMessageTrees(
+  base: MessageTree,
+  overrides: MessageTree,
+): MessageTree {
   return Object.fromEntries(
     Object.entries(base).map(([key, baseValue]) => {
       const overrideValue = overrides[key];
@@ -125,8 +128,7 @@ const enGisTools: MessageTree = {
       assetCount_other: "{{count}} assets",
       loading: "Loading lineage from Dagster...",
       emptyTitle: "No lineage data",
-      emptyMessage:
-        "Asset lineage appears after Dagster discovers dbt models.",
+      emptyMessage: "Asset lineage appears after Dagster discovers dbt models.",
       dependsOn: "depends on: {{dependencies}}",
       tiers: {
         staging: "Staging",
@@ -256,8 +258,7 @@ const enGisTools: MessageTree = {
     reports: {
       loading: "Loading reports...",
       failed: "Failed to load.",
-      empty:
-        "You have no reports yet. Go to the Report tab and generate one.",
+      empty: "You have no reports yet. Go to the Report tab and generate one.",
       headers: {
         created: "Created",
         source: "Source",
@@ -563,15 +564,16 @@ const enGisTools: MessageTree = {
     },
     sqlRunner: {
       errorTitles: {
-        explanationInsteadOfSql: "The AI returned an explanation instead of SQL",
+        explanationInsteadOfSql:
+          "The AI returned an explanation instead of SQL",
         mysqlBackticks: "MySQL-style backticks are not supported",
         syntaxError: "SQL syntax error",
-        syntaxErrorNear: "Syntax error near \"{{token}}\"",
+        syntaxErrorNear: 'Syntax error near "{{token}}"',
         timeout: "Query timed out (120s limit)",
         tableNotFound: "Table not found",
-        tableNotFoundNamed: "Table \"{{table}}\" not found",
+        tableNotFoundNamed: 'Table "{{table}}" not found',
         columnNotFound: "Column not found",
-        columnNotFoundNamed: "Column \"{{column}}\" not found",
+        columnNotFoundNamed: 'Column "{{column}}" not found',
         insufficientPermissions: "Insufficient permissions",
       },
       suggestions: {
@@ -581,8 +583,7 @@ const enGisTools: MessageTree = {
           third: "Specify the exact tables and columns you want to query",
         },
         mysqlBackticks: {
-          first:
-            "PostgreSQL uses double quotes for identifiers: \"column_name\"",
+          first: 'PostgreSQL uses double quotes for identifiers: "column_name"',
           second: "Most OMOP column names do not need quoting at all",
           third:
             "Try regenerating the query - the AI sometimes uses MySQL syntax",
@@ -619,7 +620,7 @@ const enGisTools: MessageTree = {
             "Check if you need a JOIN to another table that has this column",
         },
         insufficientPermissions: {
-          first: "This query was not classified as \"safe\" (read-only)",
+          first: 'This query was not classified as "safe" (read-only)',
           second:
             "Only administrators can run queries that are not marked safe",
           third:
@@ -654,8 +655,7 @@ const enGisTools: MessageTree = {
         queryFailed: "Query failed",
         downloadCsv: "Download CSV",
         close: "Close",
-        showingSomeRows:
-          "Showing {{shown}} of {{total}} rows",
+        showingSomeRows: "Showing {{shown}} of {{total}} rows",
         showingAllRows: "{{count}} rows",
         nullValue: "null",
       },
@@ -714,8 +714,7 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       activateSchedule: "Activer la planification",
       pause: "Pause",
       activate: "Activer",
-      runIncrementalRefresh:
-        "Lancer le rafraichissement incremental",
+      runIncrementalRefresh: "Lancer le rafraichissement incremental",
     },
     recentRuns: {
       title: "Executions recentes",
@@ -749,8 +748,7 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       title: "Fraicheur CDM",
       assetCount_one: "{{count}} ressource",
       assetCount_other: "{{count}} ressources",
-      loading:
-        "Chargement des donnees de fraicheur depuis Dagster...",
+      loading: "Chargement des donnees de fraicheur depuis Dagster...",
       emptyTitle: "Aucune donnee de fraicheur",
       emptyMessage:
         "Les donnees de fraicheur apparaissent apres au moins une execution Poseidon reussie.",
@@ -792,15 +790,12 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       workspaceDetails: "Details de l'espace",
       checkingHub: "Verification de JupyterHub...",
       iframeTitle: "Parthenon Jupyter",
-      startOverlay:
-        "Demarrage de votre serveur de notebooks...",
+      startOverlay: "Demarrage de votre serveur de notebooks...",
       firstLaunchNote:
         "Cela peut prendre jusqu'a 30 secondes au premier lancement",
-      failedToStart:
-        "Echec du demarrage du serveur de notebooks",
+      failedToStart: "Echec du demarrage du serveur de notebooks",
       retry: "Reessayer",
-      failedToCreateSession:
-        "Echec de la creation de session",
+      failedToCreateSession: "Echec de la creation de session",
     },
     unavailable: {
       title: "JupyterHub n'est pas joignable",
@@ -821,12 +816,10 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         "Copiez vos notebooks ici pour les partager avec vos collegues. Tous les utilisateurs Jupyter peuvent lire ce dossier.",
       mountedPaths: "Chemins montes",
       starterNotebooks: "Notebooks de demarrage",
-      noStarterNotebooks:
-        "Aucun notebook de demarrage disponible.",
+      noStarterNotebooks: "Aucun notebook de demarrage disponible.",
       tips: "Conseils",
       quickLinks: "Liens rapides",
-      openHubNewTab:
-        "Ouvrir JupyterHub dans un nouvel onglet",
+      openHubNewTab: "Ouvrir JupyterHub dans un nouvel onglet",
       defaults: {
         privateWorkspace: "/home/jovyan/notebooks",
         sharedFolder: "/home/jovyan/shared",
@@ -857,8 +850,7 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       choose: "Choisir une source...",
     },
     counts: {
-      emptyTitle:
-        "Aucune donnee pour ce concept dans {{sourceKey}}",
+      emptyTitle: "Aucune donnee pour ce concept dans {{sourceKey}}",
       emptyMessage:
         "Le concept {{conceptId}} existe dans le vocabulaire OMOP mais n'a aucune observation dans les comptages de codes stratifes de cette source. Essayez un autre concept (la recherche est maintenant limitee aux concepts disposant de donnees dans {{sourceKey}}) ou passez a une source qui contient ce code.",
       loading: "Chargement des comptages...",
@@ -915,11 +907,9 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       unpin: "Desepingler",
       generateReport: "Generer un rapport",
       generating: "Generation...",
-      failedToDispatch:
-        "Echec de l'envoi du rapport.",
+      failedToDispatch: "Echec de l'envoi du rapport.",
       progress: "{{percent}}% - {{message}}",
-      failedTitle:
-        "La generation du rapport a echoue",
+      failedTitle: "La generation du rapport a echoue",
       ready: "Rapport pret",
       downloadHtml: "Telecharger le HTML",
       iframeTitle: "Rapport ROMOPAPI",
@@ -940,10 +930,8 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
   },
   gis: {
     common: {
-      analysisLayerCount_one:
-        "{{count}} couche d'analyse active",
-      analysisLayerCount_other:
-        "{{count}} couches d'analyse actives",
+      analysisLayerCount_one: "{{count}} couche d'analyse active",
+      analysisLayerCount_other: "{{count}} couches d'analyse actives",
       avgValue: "moy: {{value}}",
       records_one: "{{count}} enregistrement",
       records_other: "{{count}} enregistrements",
@@ -955,16 +943,14 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       reset: "Reinitialiser",
       collapse: "Replier",
       expand: "Deplier",
-      enableLayers:
-        "Activez des couches d'analyse dans le panneau de gauche",
+      enableLayers: "Activez des couches d'analyse dans le panneau de gauche",
       selectDisease:
         "Selectionnez une maladie pour commencer l'analyse spatiale",
     },
     layerPanel: {
       title: "Couches d'analyse",
       privacy: "Confidentialite",
-      suppressionOff:
-        "Suppression : desactivee (donnees synthetiques)",
+      suppressionOff: "Suppression : desactivee (donnees synthetiques)",
     },
     context: {
       researchActions: "Actions de recherche",
@@ -975,8 +961,7 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
     },
     diseaseSelector: {
       title: "Maladie",
-      searchPlaceholder:
-        "Rechercher des pathologies...",
+      searchPlaceholder: "Rechercher des pathologies...",
       top: "Top",
       categories: "Categories",
       noMatches: "Aucune pathologie correspondante",
@@ -985,13 +970,10 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
     regionDetail: {
       loading: "Chargement...",
       close: "Fermer",
-      loadingDetails:
-        "Chargement des details de la region...",
+      loadingDetails: "Chargement des details de la region...",
       area: "Surface : {{value}} km²",
-      drillDown_one:
-        "Explorer ({{count}} sous-region)",
-      drillDown_other:
-        "Explorer ({{count}} sous-regions)",
+      drillDown_one: "Explorer ({{count}} sous-region)",
+      drillDown_other: "Explorer ({{count}} sous-regions)",
       exposures: "Expositions",
       concept: "Concept {{conceptId}}",
     },
@@ -1002,8 +984,7 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       cfr: "TFC",
       hospitalized: "Hospitalises",
       population: "Population",
-      ageDistributionCovid:
-        "Repartition par age (COVID)",
+      ageDistributionCovid: "Repartition par age (COVID)",
       monthlyCases: "Cas mensuels",
       casesTitle: "{{period}} : {{count}} cas",
     },
@@ -1021,8 +1002,7 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
     layers: {
       airQuality: {
         name: "Qualite de l'air",
-        description:
-          "Niveaux EPA de PM2.5 et d'ozone",
+        description: "Niveaux EPA de PM2.5 et d'ozone",
         legend: {
           good: "Bonne (PM2.5 faible)",
           poor: "Mauvaise (PM2.5 eleve)",
@@ -1036,15 +1016,13 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         },
         detail: {
           loading: "Chargement...",
-          empty:
-            "Aucune donnee de qualite de l'air",
+          empty: "Aucune donnee de qualite de l'air",
           ozone: "Ozone",
         },
       },
       comorbidity: {
         name: "Charge de comorbidites",
-        description:
-          "Regroupement diabete, HTA, obesite",
+        description: "Regroupement diabete, HTA, obesite",
         legend: {
           low: "Charge faible (0)",
           high: "Charge elevee (3)",
@@ -1057,16 +1035,13 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
           noData: "Aucune donnee",
         },
         detail: {
-          title:
-            "Donnees de comorbidite pour {{fips}}",
-          subtitle:
-            "Score de charge diabete + HTA + obesite",
+          title: "Donnees de comorbidite pour {{fips}}",
+          subtitle: "Score de charge diabete + HTA + obesite",
         },
       },
       hospitalAccess: {
         name: "Acces hospitalier",
-        description:
-          "Proximite hospitaliere CMS",
+        description: "Proximite hospitaliere CMS",
         legend: {
           withEd: "Hopital (urgences)",
           withoutEd: "Hopital (sans urgences)",
@@ -1076,16 +1051,13 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
           noData: "Aucune donnee",
         },
         detail: {
-          title:
-            "Hopitaux les plus proches de {{fips}}",
-          subtitle:
-            "Anneaux de distance : 15/30/60 km",
+          title: "Hopitaux les plus proches de {{fips}}",
+          subtitle: "Anneaux de distance : 15/30/60 km",
         },
       },
       rucc: {
         name: "Urbain-rural",
-        description:
-          "Codes USDA Rural-Urban Continuum",
+        description: "Codes USDA Rural-Urban Continuum",
         legend: {
           metro: "Metro",
           micropolitan: "Micropolitain",
@@ -1114,8 +1086,7 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       },
       svi: {
         name: "Vulnerabilite sociale",
-        description:
-          "SVI CDC/ATSDR par secteur de recensement",
+        description: "SVI CDC/ATSDR par secteur de recensement",
         legend: {
           low: "Vulnerabilite faible",
           high: "Vulnerabilite elevee",
@@ -1125,21 +1096,17 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         },
         analysis: {
           loading: "Chargement...",
-          noData:
-            "Aucune donnee disponible",
+          noData: "Aucune donnee disponible",
         },
         detail: {
           loading: "Chargement...",
           empty: "Aucune donnee SVI",
           overall: "SVI global",
           themes: {
-            socioeconomicStatus:
-              "Statut socioeconomique",
-            householdComposition:
-              "Composition du foyer",
+            socioeconomicStatus: "Statut socioeconomique",
+            householdComposition: "Composition du foyer",
             minorityStatus: "Statut minoritaire",
-            housingTransportation:
-              "Logement et transport",
+            housingTransportation: "Logement et transport",
           },
         },
       },
@@ -1166,10 +1133,8 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       ctrlEnter: "Ctrl+Entree pour generer",
       tryExample: "Essayer un exemple",
       examples: {
-        diabetes:
-          "Combien de patients ont un diabete ?",
-        topConditions:
-          "Quelles sont les 10 pathologies les plus frequentes ?",
+        diabetes: "Combien de patients ont un diabete ?",
+        topConditions: "Quelles sont les 10 pathologies les plus frequentes ?",
         heartFailureAge:
           "Age moyen des patients atteints d'insuffisance cardiaque",
         statins2024:
@@ -1177,82 +1142,62 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       },
       generateWithAi: "Generer avec IA",
       generating: "Generation...",
-      failedToGenerate:
-        "Echec de la generation du SQL. Veuillez reessayer.",
+      failedToGenerate: "Echec de la generation du SQL. Veuillez reessayer.",
       queryHistory: "Historique des requetes",
       clear: "Effacer",
-      emptyTitle:
-        "Posez une question pour commencer",
+      emptyTitle: "Posez une question pour commencer",
       emptyDescription:
         "Saisissez une question en langage naturel sur vos donnees OMOP CDM et l'IA generera la requete SQL correspondante.",
     },
     library: {
-      searchPlaceholder:
-        "Rechercher des requetes par mot-cle...",
-      indexedQueries:
-        "{{count}} requetes indexees",
+      searchPlaceholder: "Rechercher des requetes par mot-cle...",
+      indexedQueries: "{{count}} requetes indexees",
       matches: "{{count}} correspondances",
-      featuredTemplates:
-        "{{count}} modeles mis en avant",
+      featuredTemplates: "{{count}} modeles mis en avant",
       refreshing: "Actualisation",
       allDomains: "Tous les domaines",
-      failedToLoad:
-        "Echec du chargement de la bibliotheque de requetes.",
-      noMatches:
-        "Aucune requete ne correspond a votre recherche.",
-      tryDifferentKeyword:
-        "Essayez un autre mot-cle ou effacez vos filtres.",
+      failedToLoad: "Echec du chargement de la bibliotheque de requetes.",
+      noMatches: "Aucune requete ne correspond a votre recherche.",
+      tryDifferentKeyword: "Essayez un autre mot-cle ou effacez vos filtres.",
       importHint:
         "Si la bibliotheque est vide, demandez a votre administrateur d'executer : php artisan query-library:import-ohdsi",
-      showMoreMatches:
-        "Afficher plus de correspondances",
+      showMoreMatches: "Afficher plus de correspondances",
     },
     results: {
       safeReadOnly: "SURE - Lecture seule",
       needsReview: "REVISION REQUISE",
       unsafe: "NON SURE",
-      queryLibraryMatch:
-        "Correspondance bibliotheque de requetes",
-      templateParameters:
-        "Parametres du modele",
+      queryLibraryMatch: "Correspondance bibliotheque de requetes",
+      templateParameters: "Parametres du modele",
       rendering: "Rendu...",
       sqlUpdated: "SQL mis a jour",
       renderTemplate: "Rendre le modele",
-      renderFailed:
-        "Echec du rendu du modele de requete.",
+      renderFailed: "Echec du rendu du modele de requete.",
       generatedSql: "SQL genere",
       aggregate: "Agrege",
-      tablesReferenced:
-        "Tables referencees",
+      tablesReferenced: "Tables referencees",
       explanation: "Explication",
       validateSql: "Valider le SQL",
       validating: "Validation...",
       validSql: "SQL valide",
-      validationFailed:
-        "Echec de la validation",
+      validationFailed: "Echec de la validation",
       readOnly: "Lecture seule",
       complexity: {
         low: "faible complexite",
         medium: "complexite moyenne",
         high: "complexite elevee",
       },
-      renderError:
-        "Echec du rendu du modele de requete.",
-      validateError:
-        "Echec de la validation du SQL.",
+      renderError: "Echec du rendu du modele de requete.",
+      validateError: "Echec de la validation du SQL.",
     },
     schemaBrowser: {
       title: "Navigateur de schema OMOP CDM",
-      failedToLoad:
-        "Echec du chargement du schema.",
-      clinicalTables:
-        "Tables cliniques ({{count}})",
-      vocabularyTables:
-        "Tables de vocabulaire ({{count}})",
+      failedToLoad: "Echec du chargement du schema.",
+      clinicalTables: "Tables cliniques ({{count}})",
+      vocabularyTables: "Tables de vocabulaire ({{count}})",
       commonJoins: "Jointures courantes",
       cols: "{{count}} colonnes",
-      noDescription:
-        "Aucune description disponible.",
+      noDescription: "Aucune description disponible.",
     },
     sqlBlock: {
       sql: "SQL",
@@ -1267,33 +1212,24 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         mysqlBackticks:
           "Les accents graves de style MySQL ne sont pas pris en charge",
         syntaxError: "Erreur de syntaxe SQL",
-        syntaxErrorNear:
-          "Erreur de syntaxe pres de \"{{token}}\"",
-        timeout:
-          "La requete a expire (limite de 120 s)",
-        tableNotFound:
-          "Table introuvable",
-        tableNotFoundNamed:
-          "Table \"{{table}}\" introuvable",
-        columnNotFound:
-          "Colonne introuvable",
-        columnNotFoundNamed:
-          "Colonne \"{{column}}\" introuvable",
-        insufficientPermissions:
-          "Permissions insuffisantes",
+        syntaxErrorNear: 'Erreur de syntaxe pres de "{{token}}"',
+        timeout: "La requete a expire (limite de 120 s)",
+        tableNotFound: "Table introuvable",
+        tableNotFoundNamed: 'Table "{{table}}" introuvable',
+        columnNotFound: "Colonne introuvable",
+        columnNotFoundNamed: 'Colonne "{{column}}" introuvable',
+        insufficientPermissions: "Permissions insuffisantes",
       },
       suggestions: {
         explanationInsteadOfSql: {
-          first:
-            "Essayez de reformuler votre question de facon plus precise",
+          first: "Essayez de reformuler votre question de facon plus precise",
           second:
             "Utilisez l'onglet Bibliotheque de requetes pour trouver un modele preconstruit",
-          third:
-            "Precisez les tables et colonnes exactes a interroger",
+          third: "Precisez les tables et colonnes exactes a interroger",
         },
         mysqlBackticks: {
           first:
-            "PostgreSQL utilise des guillemets doubles pour les identifiants : \"column_name\"",
+            'PostgreSQL utilise des guillemets doubles pour les identifiants : "column_name"',
           second:
             "La plupart des noms de colonnes OMOP n'ont pas besoin d'etre quotes",
           third:
@@ -1310,8 +1246,7 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         timeout: {
           first:
             "Ajoutez des conditions WHERE plus precises pour reduire le volume de donnees analysees",
-          second:
-            "Ajoutez une clause LIMIT pour plafonner le jeu de resultats",
+          second: "Ajoutez une clause LIMIT pour plafonner le jeu de resultats",
           third:
             "Evitez SELECT * - selectionnez uniquement les colonnes necessaires",
           fourth:
@@ -1335,7 +1270,7 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         },
         insufficientPermissions: {
           first:
-            "Cette requete n'a pas ete classee comme \"sure\" (lecture seule)",
+            'Cette requete n\'a pas ete classee comme "sure" (lecture seule)',
           second:
             "Seuls les administrateurs peuvent executer des requetes qui ne sont pas marquees comme sures",
           third:
@@ -1343,26 +1278,19 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         },
       },
       defaults: {
-        queryExecutionFailed:
-          "Echec de l'execution de la requete",
-        failedToRenderTemplate:
-          "Echec du rendu du modele",
-        typeToSearchConcepts:
-          "Tapez pour rechercher des concepts OMOP...",
+        queryExecutionFailed: "Echec de l'execution de la requete",
+        failedToRenderTemplate: "Echec du rendu du modele",
+        typeToSearchConcepts: "Tapez pour rechercher des concepts OMOP...",
         typeToSearchConceptsWithDefault:
           "{{defaultValue}} - tapez pour rechercher des concepts OMOP",
       },
       state: {
         active: "Execution de la requete...",
         idle: "Inactif",
-        idleInTransaction:
-          "Traitement des resultats...",
-        idleAborted:
-          "Transaction abandonnee",
-        fastpath:
-          "Appel en chemin rapide",
-        disabled:
-          "Suivi desactive",
+        idleInTransaction: "Traitement des resultats...",
+        idleAborted: "Transaction abandonnee",
+        fastpath: "Appel en chemin rapide",
+        disabled: "Suivi desactive",
         completed: "Terminee",
         error: "Erreur",
       },
@@ -1371,19 +1299,13 @@ const frGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         wait: "Attente : {{value}}",
         preparing: "Preparation...",
         runQuery: "Executer la requete",
-        queryCompleted:
-          "Requete terminee",
-        rowsIn:
-          "{{count}} lignes en {{elapsed}}",
-        cappedAt10k:
-          "Limite a 10 000 lignes",
-        queryFailed:
-          "La requete a echoue",
-        downloadCsv:
-          "Telecharger CSV",
+        queryCompleted: "Requete terminee",
+        rowsIn: "{{count}} lignes en {{elapsed}}",
+        cappedAt10k: "Limite a 10 000 lignes",
+        queryFailed: "La requete a echoue",
+        downloadCsv: "Telecharger CSV",
         close: "Fermer",
-        showingSomeRows:
-          "Affichage de {{shown}} lignes sur {{total}}",
+        showingSomeRows: "Affichage de {{shown}} lignes sur {{total}}",
         showingAllRows: "{{count}} lignes",
         nullValue: "null",
       },
@@ -1442,8 +1364,7 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       activateSchedule: "Zeitplan aktivieren",
       pause: "Pausieren",
       activate: "Aktivieren",
-      runIncrementalRefresh:
-        "Inkrementelle Aktualisierung starten",
+      runIncrementalRefresh: "Inkrementelle Aktualisierung starten",
     },
     recentRuns: {
       title: "Letzte Ausfuehrungen",
@@ -1477,8 +1398,7 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       title: "CDM-Aktualitaet",
       assetCount_one: "{{count}} Asset",
       assetCount_other: "{{count}} Assets",
-      loading:
-        "Aktualitaetsdaten werden aus Dagster geladen...",
+      loading: "Aktualitaetsdaten werden aus Dagster geladen...",
       emptyTitle: "Keine Aktualitaetsdaten",
       emptyMessage:
         "Aktualitaetsdaten erscheinen nach mindestens einem erfolgreichen Poseidon-Lauf.",
@@ -1488,8 +1408,7 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       title: "Asset-Lineage",
       assetCount_one: "{{count}} Asset",
       assetCount_other: "{{count}} Assets",
-      loading:
-        "Lineage wird aus Dagster geladen...",
+      loading: "Lineage wird aus Dagster geladen...",
       emptyTitle: "Keine Lineage-Daten",
       emptyMessage:
         "Asset-Lineage erscheint, nachdem Dagster dbt-Modelle entdeckt hat.",
@@ -1521,15 +1440,11 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       workspaceDetails: "Arbeitsbereichsdetails",
       checkingHub: "JupyterHub wird geprueft...",
       iframeTitle: "Parthenon Jupyter",
-      startOverlay:
-        "Ihr Notebook-Server wird gestartet...",
-      firstLaunchNote:
-        "Beim ersten Start kann dies bis zu 30 Sekunden dauern",
-      failedToStart:
-        "Notebook-Server konnte nicht gestartet werden",
+      startOverlay: "Ihr Notebook-Server wird gestartet...",
+      firstLaunchNote: "Beim ersten Start kann dies bis zu 30 Sekunden dauern",
+      failedToStart: "Notebook-Server konnte nicht gestartet werden",
       retry: "Erneut versuchen",
-      failedToCreateSession:
-        "Sitzung konnte nicht erstellt werden",
+      failedToCreateSession: "Sitzung konnte nicht erstellt werden",
     },
     unavailable: {
       title: "JupyterHub ist nicht erreichbar",
@@ -1550,12 +1465,10 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         "Kopieren Sie Notebooks hierhin, um sie mit Kolleginnen und Kollegen zu teilen. Alle Jupyter-Nutzer koennen diesen Ordner lesen.",
       mountedPaths: "Eingehaengte Pfade",
       starterNotebooks: "Starter-Notebooks",
-      noStarterNotebooks:
-        "Keine Starter-Notebooks verfuegbar.",
+      noStarterNotebooks: "Keine Starter-Notebooks verfuegbar.",
       tips: "Tipps",
       quickLinks: "Schnelllinks",
-      openHubNewTab:
-        "JupyterHub in neuem Tab oeffnen",
+      openHubNewTab: "JupyterHub in neuem Tab oeffnen",
       defaults: {
         privateWorkspace: "/home/jovyan/notebooks",
         sharedFolder: "/home/jovyan/shared",
@@ -1566,10 +1479,8 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
     page: {
       title: "Code Explorer",
       concept: "Konzept",
-      searchPlaceholder:
-        "Konzepte mit Daten in dieser Quelle suchen",
-      pickSource:
-        "Waehlen Sie eine Quelle, um zu beginnen.",
+      searchPlaceholder: "Konzepte mit Daten in dieser Quelle suchen",
+      pickSource: "Waehlen Sie eine Quelle, um zu beginnen.",
       pickSourceAndConcept:
         "Waehlen Sie eine Quelle und ein Konzept aus, um Daten anzuzeigen.",
     },
@@ -1587,8 +1498,7 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       choose: "Quelle auswaehlen...",
     },
     counts: {
-      emptyTitle:
-        "Keine Daten fuer dieses Konzept in {{sourceKey}}",
+      emptyTitle: "Keine Daten fuer dieses Konzept in {{sourceKey}}",
       emptyMessage:
         "Konzept {{conceptId}} ist im OMOP-Vokabular vorhanden, hat aber in den stratifizierten Codezaehlungen dieser Quelle keine Beobachtungen. Versuchen Sie ein anderes Konzept (das Suchfeld beschraenkt sich jetzt auf Konzepte mit Daten in {{sourceKey}}) oder wechseln Sie zu einer Quelle, die diesen Code enthaelt.",
       loading: "Zaehler werden geladen...",
@@ -1614,14 +1524,12 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       ancestorsOnly: "Nur Vorfahren",
       descendantsOnly: "Nur Nachfolger",
       maxDepth: "Max. Tiefe",
-      empty:
-        "Keine Hierarchiedaten fuer dieses Konzept in Tiefe {{depth}}.",
+      empty: "Keine Hierarchiedaten fuer dieses Konzept in Tiefe {{depth}}.",
     },
     relationships: {
       loading: "Beziehungen werden geladen...",
       failed: "Laden fehlgeschlagen.",
-      empty:
-        "Keine Beziehungen fuer dieses Konzept gefunden.",
+      empty: "Keine Beziehungen fuer dieses Konzept gefunden.",
       headers: {
         relationship: "Beziehung",
         targetConcept: "Zielkonzept",
@@ -1645,11 +1553,9 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       unpin: "Loesen",
       generateReport: "Bericht erzeugen",
       generating: "Wird erzeugt...",
-      failedToDispatch:
-        "Bericht konnte nicht uebermittelt werden.",
+      failedToDispatch: "Bericht konnte nicht uebermittelt werden.",
       progress: "{{percent}}% - {{message}}",
-      failedTitle:
-        "Berichtserzeugung fehlgeschlagen",
+      failedTitle: "Berichtserzeugung fehlgeschlagen",
       ready: "Bericht bereit",
       downloadHtml: "HTML herunterladen",
       iframeTitle: "ROMOPAPI-Bericht",
@@ -1670,10 +1576,8 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
   },
   gis: {
     common: {
-      analysisLayerCount_one:
-        "{{count}} Analyseebene aktiv",
-      analysisLayerCount_other:
-        "{{count}} Analyseebenen aktiv",
+      analysisLayerCount_one: "{{count}} Analyseebene aktiv",
+      analysisLayerCount_other: "{{count}} Analyseebenen aktiv",
       avgValue: "Durchschn.: {{value}}",
       records_one: "{{count}} Datensatz",
       records_other: "{{count}} Datensaetze",
@@ -1684,16 +1588,14 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       reset: "Zuruecksetzen",
       collapse: "Einklappen",
       expand: "Ausklappen",
-      enableLayers:
-        "Aktivieren Sie Analyseebenen im linken Bereich",
+      enableLayers: "Aktivieren Sie Analyseebenen im linken Bereich",
       selectDisease:
         "Waehlen Sie eine Erkrankung aus, um die raeumliche Analyse zu beginnen",
     },
     layerPanel: {
       title: "Analyseebenen",
       privacy: "Datenschutz",
-      suppressionOff:
-        "Unterdrueckung: aus (synthetische Daten)",
+      suppressionOff: "Unterdrueckung: aus (synthetische Daten)",
     },
     context: {
       researchActions: "Forschungsaktionen",
@@ -1704,24 +1606,19 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
     },
     diseaseSelector: {
       title: "Erkrankung",
-      searchPlaceholder:
-        "Erkrankungen suchen...",
+      searchPlaceholder: "Erkrankungen suchen...",
       top: "Top",
       categories: "Kategorien",
-      noMatches:
-        "Keine passenden Erkrankungen",
+      noMatches: "Keine passenden Erkrankungen",
       patientCountTitle: "{{count}} Patienten",
     },
     regionDetail: {
       loading: "Wird geladen...",
       close: "Schliessen",
-      loadingDetails:
-        "Regionsdetails werden geladen...",
+      loadingDetails: "Regionsdetails werden geladen...",
       area: "Flaeche: {{value}} km²",
-      drillDown_one:
-        "Detailansicht ({{count}} Unterregion)",
-      drillDown_other:
-        "Detailansicht ({{count}} Unterregionen)",
+      drillDown_one: "Detailansicht ({{count}} Unterregion)",
+      drillDown_other: "Detailansicht ({{count}} Unterregionen)",
       exposures: "Expositionen",
       concept: "Konzept {{conceptId}}",
     },
@@ -1732,11 +1629,9 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       cfr: "CFR",
       hospitalized: "Hospitalisiert",
       population: "Bevoelkerung",
-      ageDistributionCovid:
-        "Altersverteilung (COVID)",
+      ageDistributionCovid: "Altersverteilung (COVID)",
       monthlyCases: "Monatliche Faelle",
-      casesTitle:
-        "{{period}}: {{count}} Faelle",
+      casesTitle: "{{period}}: {{count}} Faelle",
     },
     diseaseSummary: {
       cases: "Faelle",
@@ -1752,8 +1647,7 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
     layers: {
       airQuality: {
         name: "Luftqualitaet",
-        description:
-          "EPA PM2.5- und Ozonwerte",
+        description: "EPA PM2.5- und Ozonwerte",
         legend: {
           good: "Gut (niedriges PM2.5)",
           poor: "Schlecht (hohes PM2.5)",
@@ -1764,15 +1658,13 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         },
         detail: {
           loading: "Wird geladen...",
-          empty:
-            "Keine Luftqualitaetsdaten",
+          empty: "Keine Luftqualitaetsdaten",
           ozone: "Ozon",
         },
       },
       comorbidity: {
         name: "Komorbiditaetslast",
-        description:
-          "Cluster aus Diabetes, Hypertonie und Adipositas",
+        description: "Cluster aus Diabetes, Hypertonie und Adipositas",
         legend: {
           low: "Niedrige Last (0)",
           high: "Hohe Last (3)",
@@ -1785,16 +1677,13 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
           noData: "Keine Daten",
         },
         detail: {
-          title:
-            "Komorbiditaetsdaten fuer {{fips}}",
-          subtitle:
-            "Lastscore fuer Diabetes + Hypertonie + Adipositas",
+          title: "Komorbiditaetsdaten fuer {{fips}}",
+          subtitle: "Lastscore fuer Diabetes + Hypertonie + Adipositas",
         },
       },
       hospitalAccess: {
         name: "Krankenhauszugang",
-        description:
-          "CMS-Krankenhausnaehe",
+        description: "CMS-Krankenhausnaehe",
         legend: {
           withEd: "Krankenhaus (ED)",
           withoutEd: "Krankenhaus (ohne ED)",
@@ -1804,16 +1693,13 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
           noData: "Keine Daten",
         },
         detail: {
-          title:
-            "Naechste Krankenhaeuser zu {{fips}}",
-          subtitle:
-            "Entfernungsringe: 15/30/60 km",
+          title: "Naechste Krankenhaeuser zu {{fips}}",
+          subtitle: "Entfernungsringe: 15/30/60 km",
         },
       },
       rucc: {
         name: "Staedtisch-laendlich",
-        description:
-          "USDA Rural-Urban Continuum Codes",
+        description: "USDA Rural-Urban Continuum Codes",
         legend: {
           metro: "Metro",
           micropolitan: "Mikropolitan",
@@ -1842,8 +1728,7 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       },
       svi: {
         name: "Soziale Verwundbarkeit",
-        description:
-          "CDC/ATSDR SVI nach Census Tract",
+        description: "CDC/ATSDR SVI nach Census Tract",
         legend: {
           low: "Geringe Verwundbarkeit",
           high: "Hohe Verwundbarkeit",
@@ -1860,14 +1745,10 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
           empty: "Keine SVI-Daten",
           overall: "Gesamter SVI",
           themes: {
-            socioeconomicStatus:
-              "Soziooekonomischer Status",
-            householdComposition:
-              "Haushaltszusammensetzung",
-            minorityStatus:
-              "Minderheitenstatus",
-            housingTransportation:
-              "Wohnen und Transport",
+            socioeconomicStatus: "Soziooekonomischer Status",
+            householdComposition: "Haushaltszusammensetzung",
+            minorityStatus: "Minderheitenstatus",
+            housingTransportation: "Wohnen und Transport",
           },
         },
       },
@@ -1891,12 +1772,10 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       askQuestion: "Eine Frage stellen",
       placeholder:
         "z. B. Wie viele Patienten wurden 2023 mit Typ-2-Diabetes diagnostiziert?",
-      ctrlEnter:
-        "Strg+Enter zum Generieren",
+      ctrlEnter: "Strg+Enter zum Generieren",
       tryExample: "Beispiel ausprobieren",
       examples: {
-        diabetes:
-          "Wie viele Patienten haben Diabetes?",
+        diabetes: "Wie viele Patienten haben Diabetes?",
         topConditions:
           "Was sind die 10 haeufigsten Erkrankungen nach Praevalenz?",
         heartFailureAge:
@@ -1904,87 +1783,66 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         statins2024:
           "Arzneimittelexpositionszaehlungen fuer Statine im Jahr 2024",
       },
-      generateWithAi:
-        "Mit KI generieren",
+      generateWithAi: "Mit KI generieren",
       generating: "Wird generiert...",
       failedToGenerate:
         "SQL konnte nicht generiert werden. Bitte erneut versuchen.",
       queryHistory: "Query-Verlauf",
       clear: "Loeschen",
-      emptyTitle:
-        "Stellen Sie eine Frage, um zu beginnen",
+      emptyTitle: "Stellen Sie eine Frage, um zu beginnen",
       emptyDescription:
         "Geben Sie eine Frage in natuerlicher Sprache zu Ihren OMOP-CDM-Daten ein und die KI erzeugt die passende SQL-Abfrage.",
     },
     library: {
-      searchPlaceholder:
-        "Queries nach Stichwort durchsuchen...",
-      indexedQueries:
-        "{{count}} indexierte Queries",
+      searchPlaceholder: "Queries nach Stichwort durchsuchen...",
+      indexedQueries: "{{count}} indexierte Queries",
       matches: "{{count}} Treffer",
-      featuredTemplates:
-        "{{count}} hervorgehobene Vorlagen",
+      featuredTemplates: "{{count}} hervorgehobene Vorlagen",
       refreshing: "Aktualisierung",
       allDomains: "Alle Domaenen",
-      failedToLoad:
-        "Query-Bibliothek konnte nicht geladen werden.",
-      noMatches:
-        "Keine Queries passend zur Suche gefunden.",
+      failedToLoad: "Query-Bibliothek konnte nicht geladen werden.",
+      noMatches: "Keine Queries passend zur Suche gefunden.",
       tryDifferentKeyword:
         "Versuchen Sie ein anderes Stichwort oder loeschen Sie die Filter.",
       importHint:
         "Wenn die Bibliothek leer ist, bitten Sie Ihren Administrator, Folgendes auszufuehren: php artisan query-library:import-ohdsi",
-      showMoreMatches:
-        "Mehr Treffer anzeigen",
+      showMoreMatches: "Mehr Treffer anzeigen",
     },
     results: {
       safeReadOnly: "SICHER - Nur Lesen",
       needsReview: "PRUEFUNG ERFORDERLICH",
       unsafe: "UNSICHER",
-      queryLibraryMatch:
-        "Treffer in der Query-Bibliothek",
-      templateParameters:
-        "Vorlagenparameter",
+      queryLibraryMatch: "Treffer in der Query-Bibliothek",
+      templateParameters: "Vorlagenparameter",
       rendering: "Rendering...",
       sqlUpdated: "SQL aktualisiert",
-      renderTemplate:
-        "Vorlage rendern",
-      renderFailed:
-        "Query-Vorlage konnte nicht gerendert werden.",
+      renderTemplate: "Vorlage rendern",
+      renderFailed: "Query-Vorlage konnte nicht gerendert werden.",
       generatedSql: "Generiertes SQL",
       aggregate: "Aggregiert",
-      tablesReferenced:
-        "Referenzierte Tabellen",
+      tablesReferenced: "Referenzierte Tabellen",
       explanation: "Erklaerung",
       validateSql: "SQL validieren",
       validating: "Validierung...",
       validSql: "Gueltiges SQL",
-      validationFailed:
-        "Validierung fehlgeschlagen",
+      validationFailed: "Validierung fehlgeschlagen",
       readOnly: "Nur Lesen",
       complexity: {
         low: "niedrige Komplexitaet",
         medium: "mittlere Komplexitaet",
         high: "hohe Komplexitaet",
       },
-      renderError:
-        "Query-Vorlage konnte nicht gerendert werden.",
-      validateError:
-        "SQL konnte nicht validiert werden.",
+      renderError: "Query-Vorlage konnte nicht gerendert werden.",
+      validateError: "SQL konnte nicht validiert werden.",
     },
     schemaBrowser: {
       title: "OMOP-CDM-Schema-Browser",
-      failedToLoad:
-        "Schema konnte nicht geladen werden.",
-      clinicalTables:
-        "Klinische Tabellen ({{count}})",
-      vocabularyTables:
-        "Vokabellisten-Tabellen ({{count}})",
-      commonJoins:
-        "Hauefige Joins",
+      failedToLoad: "Schema konnte nicht geladen werden.",
+      clinicalTables: "Klinische Tabellen ({{count}})",
+      vocabularyTables: "Vokabellisten-Tabellen ({{count}})",
+      commonJoins: "Hauefige Joins",
       cols: "{{count}} Spalten",
-      noDescription:
-        "Keine Beschreibung verfuegbar.",
+      noDescription: "Keine Beschreibung verfuegbar.",
     },
     sqlBlock: {
       runSql: "SQL ausfuehren",
@@ -1995,29 +1853,19 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       errorTitles: {
         explanationInsteadOfSql:
           "Die KI hat eine Erklaerung statt SQL zurueckgegeben",
-        mysqlBackticks:
-          "MySQL-Backticks werden nicht unterstuetzt",
-        syntaxError:
-          "SQL-Syntaxfehler",
-        syntaxErrorNear:
-          "Syntaxfehler nahe \"{{token}}\"",
-        timeout:
-          "Query-Zeitlimit erreicht (120 s)",
-        tableNotFound:
-          "Tabelle nicht gefunden",
-        tableNotFoundNamed:
-          "Tabelle \"{{table}}\" nicht gefunden",
-        columnNotFound:
-          "Spalte nicht gefunden",
-        columnNotFoundNamed:
-          "Spalte \"{{column}}\" nicht gefunden",
-        insufficientPermissions:
-          "Unzureichende Berechtigungen",
+        mysqlBackticks: "MySQL-Backticks werden nicht unterstuetzt",
+        syntaxError: "SQL-Syntaxfehler",
+        syntaxErrorNear: 'Syntaxfehler nahe "{{token}}"',
+        timeout: "Query-Zeitlimit erreicht (120 s)",
+        tableNotFound: "Tabelle nicht gefunden",
+        tableNotFoundNamed: 'Tabelle "{{table}}" nicht gefunden',
+        columnNotFound: "Spalte nicht gefunden",
+        columnNotFoundNamed: 'Spalte "{{column}}" nicht gefunden',
+        insufficientPermissions: "Unzureichende Berechtigungen",
       },
       suggestions: {
         explanationInsteadOfSql: {
-          first:
-            "Formulieren Sie Ihre Frage genauer",
+          first: "Formulieren Sie Ihre Frage genauer",
           second:
             "Verwenden Sie den Tab Query-Bibliothek, um eine vorgefertigte Vorlage zu finden",
           third:
@@ -2025,9 +1873,8 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         },
         mysqlBackticks: {
           first:
-            "PostgreSQL verwendet doppelte Anfuehrungszeichen fuer Bezeichner: \"column_name\"",
-          second:
-            "Die meisten OMOP-Spaltennamen benoetigen gar keine Quotes",
+            'PostgreSQL verwendet doppelte Anfuehrungszeichen fuer Bezeichner: "column_name"',
+          second: "Die meisten OMOP-Spaltennamen benoetigen gar keine Quotes",
           third:
             "Versuchen Sie, die Query neu zu generieren - die KI verwendet manchmal MySQL-Syntax",
         },
@@ -2066,8 +1913,7 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
             "Pruefen Sie, ob ein JOIN zu einer anderen Tabelle mit dieser Spalte notwendig ist",
         },
         insufficientPermissions: {
-          first:
-            "Diese Query wurde nicht als \"sicher\" (nur Lesen) eingestuft",
+          first: 'Diese Query wurde nicht als "sicher" (nur Lesen) eingestuft',
           second:
             "Nur Administratoren koennen Queries ausfuehren, die nicht als sicher markiert sind",
           third:
@@ -2075,22 +1921,17 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         },
       },
       defaults: {
-        queryExecutionFailed:
-          "Abfrageausfuehrung fehlgeschlagen",
-        failedToRenderTemplate:
-          "Vorlage konnte nicht gerendert werden",
-        typeToSearchConcepts:
-          "Tippen Sie, um OMOP-Konzepte zu suchen...",
+        queryExecutionFailed: "Abfrageausfuehrung fehlgeschlagen",
+        failedToRenderTemplate: "Vorlage konnte nicht gerendert werden",
+        typeToSearchConcepts: "Tippen Sie, um OMOP-Konzepte zu suchen...",
         typeToSearchConceptsWithDefault:
           "{{defaultValue}} - tippen Sie, um OMOP-Konzepte zu suchen",
       },
       state: {
         active: "Abfrage wird ausgefuehrt...",
         idle: "Leerlauf",
-        idleInTransaction:
-          "Ergebnisse werden verarbeitet...",
-        idleAborted:
-          "Transaktion abgebrochen",
+        idleInTransaction: "Ergebnisse werden verarbeitet...",
+        idleAborted: "Transaktion abgebrochen",
         fastpath: "Fast-Path-Aufruf",
         disabled: "Tracking deaktiviert",
         completed: "Abgeschlossen",
@@ -2101,20 +1942,14 @@ const deGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         wait: "Wartezeit: {{value}}",
         preparing: "Vorbereitung...",
         runQuery: "Query ausfuehren",
-        queryCompleted:
-          "Query abgeschlossen",
-        rowsIn:
-          "{{count}} Zeilen in {{elapsed}}",
-        cappedAt10k:
-          "Auf 10.000 Zeilen begrenzt",
-        queryFailed:
-          "Query fehlgeschlagen",
+        queryCompleted: "Query abgeschlossen",
+        rowsIn: "{{count}} Zeilen in {{elapsed}}",
+        cappedAt10k: "Auf 10.000 Zeilen begrenzt",
+        queryFailed: "Query fehlgeschlagen",
         downloadCsv: "CSV herunterladen",
         close: "Schliessen",
-        showingSomeRows:
-          "{{shown}} von {{total}} Zeilen werden angezeigt",
-        showingAllRows:
-          "{{count}} Zeilen",
+        showingSomeRows: "{{shown}} von {{total}} Zeilen werden angezeigt",
+        showingAllRows: "{{count}} Zeilen",
       },
     },
   },
@@ -2171,8 +2006,7 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       activateSchedule: "Ativar agendamento",
       pause: "Pausar",
       activate: "Ativar",
-      runIncrementalRefresh:
-        "Executar atualizacao incremental",
+      runIncrementalRefresh: "Executar atualizacao incremental",
     },
     recentRuns: {
       title: "Execucoes recentes",
@@ -2206,8 +2040,7 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       title: "Atualidade do CDM",
       assetCount_one: "{{count}} ativo",
       assetCount_other: "{{count}} ativos",
-      loading:
-        "Carregando dados de atualidade do Dagster...",
+      loading: "Carregando dados de atualidade do Dagster...",
       emptyTitle: "Nenhum dado de atualidade",
       emptyMessage:
         "Os dados de atualidade aparecem apos pelo menos uma execucao bem-sucedida do Poseidon.",
@@ -2217,8 +2050,7 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       title: "Linhagem de ativos",
       assetCount_one: "{{count}} ativo",
       assetCount_other: "{{count}} ativos",
-      loading:
-        "Carregando linhagem do Dagster...",
+      loading: "Carregando linhagem do Dagster...",
       emptyTitle: "Nenhum dado de linhagem",
       emptyMessage:
         "A linhagem de ativos aparece depois que o Dagster descobre os modelos dbt.",
@@ -2247,19 +2079,14 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         "Seu ambiente pessoal de notebooks para pesquisa interativa, analises personalizadas e exploracao de dados",
       refresh: "Atualizar",
       openInNewTab: "Abrir em nova guia",
-      workspaceDetails:
-        "Detalhes do workspace",
+      workspaceDetails: "Detalhes do workspace",
       checkingHub: "Verificando o JupyterHub...",
       iframeTitle: "Parthenon Jupyter",
-      startOverlay:
-        "Iniciando seu servidor de notebooks...",
-      firstLaunchNote:
-        "Isso pode levar ate 30 segundos no primeiro inicio",
-      failedToStart:
-        "Falha ao iniciar o servidor de notebooks",
+      startOverlay: "Iniciando seu servidor de notebooks...",
+      firstLaunchNote: "Isso pode levar ate 30 segundos no primeiro inicio",
+      failedToStart: "Falha ao iniciar o servidor de notebooks",
       retry: "Tentar novamente",
-      failedToCreateSession:
-        "Falha ao criar sessao",
+      failedToCreateSession: "Falha ao criar sessao",
     },
     unavailable: {
       title: "JupyterHub nao esta acessivel",
@@ -2279,14 +2106,11 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       sharedFolderDescription:
         "Copie notebooks aqui para compartilhar com colegas. Todos os usuarios do Jupyter podem ler esta pasta.",
       mountedPaths: "Caminhos montados",
-      starterNotebooks:
-        "Notebooks iniciais",
-      noStarterNotebooks:
-        "Nenhum notebook inicial disponivel.",
+      starterNotebooks: "Notebooks iniciais",
+      noStarterNotebooks: "Nenhum notebook inicial disponivel.",
       tips: "Dicas",
       quickLinks: "Links rapidos",
-      openHubNewTab:
-        "Abrir JupyterHub em nova guia",
+      openHubNewTab: "Abrir JupyterHub em nova guia",
       defaults: {
         privateWorkspace: "/home/jovyan/notebooks",
         sharedFolder: "/home/jovyan/shared",
@@ -2297,10 +2121,8 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
     page: {
       title: "Explorador de codigos",
       concept: "Conceito",
-      searchPlaceholder:
-        "Pesquisar conceitos com dados nesta fonte",
-      pickSource:
-        "Escolha uma fonte para comecar.",
+      searchPlaceholder: "Pesquisar conceitos com dados nesta fonte",
+      pickSource: "Escolha uma fonte para comecar.",
       pickSourceAndConcept:
         "Escolha uma fonte e um conceito para visualizar os dados.",
     },
@@ -2318,8 +2140,7 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       choose: "Escolha uma fonte...",
     },
     counts: {
-      emptyTitle:
-        "Nenhum dado para este conceito em {{sourceKey}}",
+      emptyTitle: "Nenhum dado para este conceito em {{sourceKey}}",
       emptyMessage:
         "O conceito {{conceptId}} esta no vocabulario OMOP, mas nao possui observacoes nesta tabela de contagens estratificadas da fonte. Tente outro conceito (a busca agora se limita a conceitos com dados em {{sourceKey}}) ou mude para uma fonte que contenha esse codigo.",
       loading: "Carregando contagens...",
@@ -2332,8 +2153,7 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       descendant: "Descendente ({{count}})",
     },
     chart: {
-      noData:
-        "Nenhum dado para exibir",
+      noData: "Nenhum dado para exibir",
       male: "Masculino",
       female: "Feminino",
       unknown: "Desconhecido",
@@ -2350,15 +2170,12 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         "Nenhum dado de hierarquia para este conceito na profundidade {{depth}}.",
     },
     relationships: {
-      loading:
-        "Carregando relacionamentos...",
+      loading: "Carregando relacionamentos...",
       failed: "Falha ao carregar.",
-      empty:
-        "Nenhum relacionamento encontrado para este conceito.",
+      empty: "Nenhum relacionamento encontrado para este conceito.",
       headers: {
         relationship: "Relacionamento",
-        targetConcept:
-          "Conceito de destino",
+        targetConcept: "Conceito de destino",
         vocabulary: "Vocabulario",
         standard: "Padrao",
       },
@@ -2377,14 +2194,11 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       },
       pin: "Fixar",
       unpin: "Desafixar",
-      generateReport:
-        "Gerar relatorio",
+      generateReport: "Gerar relatorio",
       generating: "Gerando...",
-      failedToDispatch:
-        "Falha ao despachar relatorio.",
+      failedToDispatch: "Falha ao despachar relatorio.",
       progress: "{{percent}}% - {{message}}",
-      failedTitle:
-        "Falha na geracao do relatorio",
+      failedTitle: "Falha na geracao do relatorio",
       ready: "Relatorio pronto",
       downloadHtml: "Baixar HTML",
       iframeTitle: "Relatorio ROMOPAPI",
@@ -2392,25 +2206,21 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         "A visualizacao inline esta sandboxed (scripts e cross-origin desativados). Baixe o arquivo para ter a visualizacao interativa completa no navegador.",
     },
     sourceReadiness: {
-      settingUp:
-        "Configurando {{sourceKey}}...",
+      settingUp: "Configurando {{sourceKey}}...",
       sourceNeedsInitialization:
         "A fonte {{sourceKey}} precisa ser inicializada",
       missing:
         "Faltando: {{missing}}. Esta e uma configuracao unica, restrita a administradores, que materializa a tabela de contagens estratificadas de codigo.",
       dispatching: "Despachando...",
-      initializeSource:
-        "Inicializar fonte",
+      initializeSource: "Inicializar fonte",
       failedToDispatch:
         "Falha ao despachar. Talvez voce nao tenha a permissao `finngen.code-explorer.setup`.",
     },
   },
   gis: {
     common: {
-      analysisLayerCount_one:
-        "{{count}} camada de analise ativa",
-      analysisLayerCount_other:
-        "{{count}} camadas de analise ativas",
+      analysisLayerCount_one: "{{count}} camada de analise ativa",
+      analysisLayerCount_other: "{{count}} camadas de analise ativas",
       avgValue: "med: {{value}}",
       records_one: "{{count}} registro",
       records_other: "{{count}} registros",
@@ -2421,46 +2231,35 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       reset: "Redefinir",
       collapse: "Recolher",
       expand: "Expandir",
-      enableLayers:
-        "Ative camadas de analise no painel esquerdo",
-      selectDisease:
-        "Selecione uma doenca para iniciar a analise espacial",
+      enableLayers: "Ative camadas de analise no painel esquerdo",
+      selectDisease: "Selecione uma doenca para iniciar a analise espacial",
     },
     layerPanel: {
       title: "Camadas de analise",
       privacy: "Privacidade",
-      suppressionOff:
-        "Supressao: desligada (dados sinteticos)",
+      suppressionOff: "Supressao: desligada (dados sinteticos)",
     },
     context: {
-      researchActions:
-        "Acoes de pesquisa",
+      researchActions: "Acoes de pesquisa",
       createStudy: "Criar estudo",
-      browseCohorts:
-        "Explorar coortes",
-      clickRegion:
-        "Clique em uma regiao no mapa para ver detalhes da camada",
+      browseCohorts: "Explorar coortes",
+      clickRegion: "Clique em uma regiao no mapa para ver detalhes da camada",
     },
     diseaseSelector: {
       title: "Doenca",
-      searchPlaceholder:
-        "Pesquisar condicoes...",
+      searchPlaceholder: "Pesquisar condicoes...",
       top: "Top",
       categories: "Categorias",
-      noMatches:
-        "Nenhuma condicao correspondente",
+      noMatches: "Nenhuma condicao correspondente",
       patientCountTitle: "{{count}} pacientes",
     },
     regionDetail: {
       loading: "Carregando...",
       close: "Fechar",
-      loadingDetails:
-        "Carregando detalhes da regiao...",
+      loadingDetails: "Carregando detalhes da regiao...",
       area: "Area: {{value}} km²",
-      drillDown_one:
-        "Aprofundar ({{count}} sub-regiao)",
-      drillDown_other:
-        "Aprofundar ({{count}} sub-regioes)",
+      drillDown_one: "Aprofundar ({{count}} sub-regiao)",
+      drillDown_other: "Aprofundar ({{count}} sub-regioes)",
       exposures: "Exposicoes",
       concept: "Conceito {{conceptId}}",
     },
@@ -2471,11 +2270,9 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       cfr: "CFR",
       hospitalized: "Hospitalizados",
       population: "Populacao",
-      ageDistributionCovid:
-        "Distribuicao etaria (COVID)",
+      ageDistributionCovid: "Distribuicao etaria (COVID)",
       monthlyCases: "Casos mensais",
-      casesTitle:
-        "{{period}}: {{count}} casos",
+      casesTitle: "{{period}}: {{count}} casos",
     },
     diseaseSummary: {
       cases: "Casos",
@@ -2491,8 +2288,7 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
     layers: {
       airQuality: {
         name: "Qualidade do ar",
-        description:
-          "Niveis de PM2.5 e ozonio da EPA",
+        description: "Niveis de PM2.5 e ozonio da EPA",
         legend: {
           good: "Boa (PM2.5 baixo)",
           poor: "Ruim (PM2.5 alto)",
@@ -2503,15 +2299,13 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         },
         detail: {
           loading: "Carregando...",
-          empty:
-            "Nenhum dado de qualidade do ar",
+          empty: "Nenhum dado de qualidade do ar",
           ozone: "Ozonio",
         },
       },
       comorbidity: {
         name: "Carga de comorbidades",
-        description:
-          "Agrupamento de DM, HAS e obesidade",
+        description: "Agrupamento de DM, HAS e obesidade",
         legend: {
           low: "Carga baixa (0)",
           high: "Carga alta (3)",
@@ -2524,16 +2318,13 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
           noData: "Sem dados",
         },
         detail: {
-          title:
-            "Dados de comorbidade para {{fips}}",
-          subtitle:
-            "Score de carga DM + HAS + obesidade",
+          title: "Dados de comorbidade para {{fips}}",
+          subtitle: "Score de carga DM + HAS + obesidade",
         },
       },
       hospitalAccess: {
         name: "Acesso hospitalar",
-        description:
-          "Proximidade hospitalar CMS",
+        description: "Proximidade hospitalar CMS",
         legend: {
           withEd: "Hospital (PS)",
           withoutEd: "Hospital (sem PS)",
@@ -2543,16 +2334,13 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
           noData: "Sem dados",
         },
         detail: {
-          title:
-            "Hospitais mais proximos de {{fips}}",
-          subtitle:
-            "Aneis de distancia: 15/30/60 km",
+          title: "Hospitais mais proximos de {{fips}}",
+          subtitle: "Aneis de distancia: 15/30/60 km",
         },
       },
       rucc: {
         name: "Urbano-rural",
-        description:
-          "Codigos Rural-Urban Continuum do USDA",
+        description: "Codigos Rural-Urban Continuum do USDA",
         legend: {
           metro: "Metro",
           micropolitan: "Micropolitano",
@@ -2581,8 +2369,7 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       },
       svi: {
         name: "Vulnerabilidade social",
-        description:
-          "SVI CDC/ATSDR por setor censitario",
+        description: "SVI CDC/ATSDR por setor censitario",
         legend: {
           low: "Baixa vulnerabilidade",
           high: "Alta vulnerabilidade",
@@ -2592,22 +2379,17 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         },
         analysis: {
           loading: "Carregando...",
-          noData:
-            "Nenhum dado disponivel",
+          noData: "Nenhum dado disponivel",
         },
         detail: {
           loading: "Carregando...",
           empty: "Nenhum dado SVI",
           overall: "SVI geral",
           themes: {
-            socioeconomicStatus:
-              "Status socioeconomico",
-            householdComposition:
-              "Composicao domiciliar",
-            minorityStatus:
-              "Status de minoria",
-            housingTransportation:
-              "Moradia e transporte",
+            socioeconomicStatus: "Status socioeconomico",
+            householdComposition: "Composicao domiciliar",
+            minorityStatus: "Status de minoria",
+            housingTransportation: "Moradia e transporte",
           },
         },
       },
@@ -2620,8 +2402,7 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         "Navegue pela biblioteca de consultas OHDSI ou use IA para gerar SQL a partir de linguagem natural",
       dialect: "Dialeto",
       default: "Padrao",
-      defaultTooltip:
-        "Alteracoes salvas como padrao do sistema (super-admin)",
+      defaultTooltip: "Alteracoes salvas como padrao do sistema (super-admin)",
       tabs: {
         library: "Biblioteca de consultas",
         naturalLanguage: "Linguagem natural",
@@ -2634,101 +2415,69 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
       ctrlEnter: "Ctrl+Enter para gerar",
       tryExample: "Experimentar um exemplo",
       examples: {
-        diabetes:
-          "Quantos pacientes tem diabetes?",
-        topConditions:
-          "Quais sao as 10 principais condicoes por prevalencia?",
-        heartFailureAge:
-          "Idade media de pacientes com insuficiencia cardiaca",
-        statins2024:
-          "Contagens de exposicao a estatinas em 2024",
+        diabetes: "Quantos pacientes tem diabetes?",
+        topConditions: "Quais sao as 10 principais condicoes por prevalencia?",
+        heartFailureAge: "Idade media de pacientes com insuficiencia cardiaca",
+        statins2024: "Contagens de exposicao a estatinas em 2024",
       },
-      generateWithAi:
-        "Gerar com IA",
+      generateWithAi: "Gerar com IA",
       generating: "Gerando...",
-      failedToGenerate:
-        "Falha ao gerar SQL. Tente novamente.",
-      queryHistory:
-        "Historico de consultas",
+      failedToGenerate: "Falha ao gerar SQL. Tente novamente.",
+      queryHistory: "Historico de consultas",
       clear: "Limpar",
-      emptyTitle:
-        "Faca uma pergunta para comecar",
+      emptyTitle: "Faca uma pergunta para comecar",
       emptyDescription:
         "Digite uma pergunta em linguagem natural sobre seus dados OMOP CDM e a IA gerara a consulta SQL correspondente.",
     },
     library: {
-      searchPlaceholder:
-        "Pesquisar consultas por palavra-chave...",
-      indexedQueries:
-        "{{count}} consultas indexadas",
+      searchPlaceholder: "Pesquisar consultas por palavra-chave...",
+      indexedQueries: "{{count}} consultas indexadas",
       matches: "{{count}} correspondencias",
-      featuredTemplates:
-        "{{count}} modelos em destaque",
+      featuredTemplates: "{{count}} modelos em destaque",
       refreshing: "Atualizando",
       allDomains: "Todos os dominios",
-      failedToLoad:
-        "Falha ao carregar a biblioteca de consultas.",
-      noMatches:
-        "Nenhuma consulta encontrada para sua busca.",
-      tryDifferentKeyword:
-        "Tente outra palavra-chave ou limpe os filtros.",
+      failedToLoad: "Falha ao carregar a biblioteca de consultas.",
+      noMatches: "Nenhuma consulta encontrada para sua busca.",
+      tryDifferentKeyword: "Tente outra palavra-chave ou limpe os filtros.",
       importHint:
         "Se a biblioteca estiver vazia, peca ao administrador para executar: php artisan query-library:import-ohdsi",
-      showMoreMatches:
-        "Mostrar mais correspondencias",
+      showMoreMatches: "Mostrar mais correspondencias",
     },
     results: {
-      safeReadOnly:
-        "SEGURO - Somente leitura",
-      needsReview:
-        "PRECISA DE REVISAO",
+      safeReadOnly: "SEGURO - Somente leitura",
+      needsReview: "PRECISA DE REVISAO",
       unsafe: "NAO SEGURO",
-      queryLibraryMatch:
-        "Correspondencia na biblioteca de consultas",
-      templateParameters:
-        "Parametros do modelo",
+      queryLibraryMatch: "Correspondencia na biblioteca de consultas",
+      templateParameters: "Parametros do modelo",
       rendering: "Renderizando...",
       sqlUpdated: "SQL atualizado",
-      renderTemplate:
-        "Renderizar modelo",
-      renderFailed:
-        "Falha ao renderizar o modelo de consulta.",
+      renderTemplate: "Renderizar modelo",
+      renderFailed: "Falha ao renderizar o modelo de consulta.",
       generatedSql: "SQL gerado",
       aggregate: "Agregado",
-      tablesReferenced:
-        "Tabelas referenciadas",
+      tablesReferenced: "Tabelas referenciadas",
       explanation: "Explicacao",
-      validateSql:
-        "Validar SQL",
+      validateSql: "Validar SQL",
       validating: "Validando...",
       validSql: "SQL valido",
-      validationFailed:
-        "Falha na validacao",
+      validationFailed: "Falha na validacao",
       readOnly: "Somente leitura",
       complexity: {
         low: "baixa complexidade",
         medium: "complexidade media",
         high: "alta complexidade",
       },
-      renderError:
-        "Falha ao renderizar o modelo de consulta.",
-      validateError:
-        "Falha ao validar o SQL.",
+      renderError: "Falha ao renderizar o modelo de consulta.",
+      validateError: "Falha ao validar o SQL.",
     },
     schemaBrowser: {
-      title:
-        "Navegador de schema OMOP CDM",
-      failedToLoad:
-        "Falha ao carregar o schema.",
-      clinicalTables:
-        "Tabelas clinicas ({{count}})",
-      vocabularyTables:
-        "Tabelas de vocabulario ({{count}})",
-      commonJoins:
-        "Joins comuns",
+      title: "Navegador de schema OMOP CDM",
+      failedToLoad: "Falha ao carregar o schema.",
+      clinicalTables: "Tabelas clinicas ({{count}})",
+      vocabularyTables: "Tabelas de vocabulario ({{count}})",
+      commonJoins: "Joins comuns",
       cols: "{{count}} colunas",
-      noDescription:
-        "Nenhuma descricao disponivel.",
+      noDescription: "Nenhuma descricao disponivel.",
     },
     sqlBlock: {
       runSql: "Executar SQL",
@@ -2737,41 +2486,28 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
     },
     sqlRunner: {
       errorTitles: {
-        explanationInsteadOfSql:
-          "A IA retornou uma explicacao em vez de SQL",
-        mysqlBackticks:
-          "Backticks no estilo MySQL nao sao suportados",
-        syntaxError:
-          "Erro de sintaxe SQL",
-        syntaxErrorNear:
-          "Erro de sintaxe perto de \"{{token}}\"",
-        timeout:
-          "Tempo limite da consulta excedido (120 s)",
-        tableNotFound:
-          "Tabela nao encontrada",
-        tableNotFoundNamed:
-          "Tabela \"{{table}}\" nao encontrada",
-        columnNotFound:
-          "Coluna nao encontrada",
-        columnNotFoundNamed:
-          "Coluna \"{{column}}\" nao encontrada",
-        insufficientPermissions:
-          "Permissoes insuficientes",
+        explanationInsteadOfSql: "A IA retornou uma explicacao em vez de SQL",
+        mysqlBackticks: "Backticks no estilo MySQL nao sao suportados",
+        syntaxError: "Erro de sintaxe SQL",
+        syntaxErrorNear: 'Erro de sintaxe perto de "{{token}}"',
+        timeout: "Tempo limite da consulta excedido (120 s)",
+        tableNotFound: "Tabela nao encontrada",
+        tableNotFoundNamed: 'Tabela "{{table}}" nao encontrada',
+        columnNotFound: "Coluna nao encontrada",
+        columnNotFoundNamed: 'Coluna "{{column}}" nao encontrada',
+        insufficientPermissions: "Permissoes insuficientes",
       },
       suggestions: {
         explanationInsteadOfSql: {
-          first:
-            "Tente reformular a pergunta de forma mais especifica",
+          first: "Tente reformular a pergunta de forma mais especifica",
           second:
             "Use a aba Biblioteca de consultas para encontrar um modelo pre-pronto",
-          third:
-            "Especifique as tabelas e colunas exatas que deseja consultar",
+          third: "Especifique as tabelas e colunas exatas que deseja consultar",
         },
         mysqlBackticks: {
           first:
-            "O PostgreSQL usa aspas duplas para identificadores: \"column_name\"",
-          second:
-            "A maioria dos nomes de coluna do OMOP nem precisa de aspas",
+            'O PostgreSQL usa aspas duplas para identificadores: "column_name"',
+          second: "A maioria dos nomes de coluna do OMOP nem precisa de aspas",
           third:
             "Tente gerar a consulta novamente - a IA as vezes usa sintaxe MySQL",
         },
@@ -2788,8 +2524,7 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
             "Adicione condicoes WHERE mais especificas para reduzir os dados analisados",
           second:
             "Adicione uma clausula LIMIT para limitar o conjunto de resultados",
-          third:
-            "Evite SELECT * - selecione apenas as colunas necessarias",
+          third: "Evite SELECT * - selecione apenas as colunas necessarias",
           fourth:
             "Considere filtrar por intervalo de datas para restringir o conjunto de dados",
         },
@@ -2811,34 +2546,26 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         },
         insufficientPermissions: {
           first:
-            "Esta consulta nao foi classificada como \"segura\" (somente leitura)",
+            'Esta consulta nao foi classificada como "segura" (somente leitura)',
           second:
             "Somente administradores podem executar consultas nao marcadas como seguras",
-          third:
-            "Use Validar SQL para verificar a classificacao de seguranca",
+          third: "Use Validar SQL para verificar a classificacao de seguranca",
         },
       },
       defaults: {
-        queryExecutionFailed:
-          "Falha na execucao da consulta",
-        failedToRenderTemplate:
-          "Falha ao renderizar o modelo",
-        typeToSearchConcepts:
-          "Digite para pesquisar conceitos OMOP...",
+        queryExecutionFailed: "Falha na execucao da consulta",
+        failedToRenderTemplate: "Falha ao renderizar o modelo",
+        typeToSearchConcepts: "Digite para pesquisar conceitos OMOP...",
         typeToSearchConceptsWithDefault:
           "{{defaultValue}} - digite para pesquisar conceitos OMOP",
       },
       state: {
         active: "Executando consulta...",
         idle: "Ocioso",
-        idleInTransaction:
-          "Processando resultados...",
-        idleAborted:
-          "Transacao abortada",
-        fastpath:
-          "Chamada fast path",
-        disabled:
-          "Rastreamento desativado",
+        idleInTransaction: "Processando resultados...",
+        idleAborted: "Transacao abortada",
+        fastpath: "Chamada fast path",
+        disabled: "Rastreamento desativado",
         completed: "Concluida",
         error: "Erro",
       },
@@ -2846,1821 +2573,1924 @@ const ptGisTools: MessageTree = mergeMessageTrees(enGisTools, {
         title: "Executor de consultas SQL",
         wait: "Espera: {{value}}",
         preparing: "Preparando...",
-        runQuery:
-          "Executar consulta",
-        queryCompleted:
-          "Consulta concluida",
-        rowsIn:
-          "{{count}} linhas em {{elapsed}}",
-        cappedAt10k:
-          "Limitado a 10.000 linhas",
-        queryFailed:
-          "A consulta falhou",
-        downloadCsv:
-          "Baixar CSV",
+        runQuery: "Executar consulta",
+        queryCompleted: "Consulta concluida",
+        rowsIn: "{{count}} linhas em {{elapsed}}",
+        cappedAt10k: "Limitado a 10.000 linhas",
+        queryFailed: "A consulta falhou",
+        downloadCsv: "Baixar CSV",
         close: "Fechar",
-        showingSomeRows:
-          "Mostrando {{shown}} de {{total}} linhas",
-        showingAllRows:
-          "{{count}} linhas",
+        showingSomeRows: "Mostrando {{shown}} de {{total}} linhas",
+        showingAllRows: "{{count}} linhas",
       },
     },
   },
 });
 
 const esGisTools: MessageTree = mergeMessageTrees(enGisTools, {
-  "poseidon": {
-    "page": {
-      "unavailableTitle": "Poseidon no disponible",
-      "unavailableMessage": "No se pudo conectar con el servicio de orquestacion de Poseidon. Verifique que los contenedores de Poseidon esten en ejecucion.",
-      "retry": "Reintentar",
-      "title": "Poseidon",
-      "subtitle": "Orquestacion de actualizacion del CDM: cargas incrementales, ejecucion con dependencias y programacion por fuente mediante dbt + Dagster",
-      "refresh": "Actualizar"
+  poseidon: {
+    page: {
+      unavailableTitle: "Poseidon no disponible",
+      unavailableMessage:
+        "No se pudo conectar con el servicio de orquestacion de Poseidon. Verifique que los contenedores de Poseidon esten en ejecucion.",
+      retry: "Reintentar",
+      title: "Poseidon",
+      subtitle:
+        "Orquestacion de actualizacion del CDM: cargas incrementales, ejecucion con dependencias y programacion por fuente mediante dbt + Dagster",
+      refresh: "Actualizar",
     },
-    "overview": {
-      "activeSchedules": "Programaciones activas",
-      "runsInProgress": "Ejecuciones en curso",
-      "successfulRuns": "Ejecuciones exitosas",
-      "failedRuns": "Ejecuciones fallidas",
-      "ofTotal": "de {{count}} en total"
+    overview: {
+      activeSchedules: "Programaciones activas",
+      runsInProgress: "Ejecuciones en curso",
+      successfulRuns: "Ejecuciones exitosas",
+      failedRuns: "Ejecuciones fallidas",
+      ofTotal: "de {{count}} en total",
     },
-    "runStatus": {
-      "pending": "Pendiente",
-      "running": "En ejecucion",
-      "success": "Completada",
-      "failed": "Fallida",
-      "cancelled": "Cancelada"
+    runStatus: {
+      pending: "Pendiente",
+      running: "En ejecucion",
+      success: "Completada",
+      failed: "Fallida",
+      cancelled: "Cancelada",
     },
-    "runType": {
-      "fullRefresh": "Actualizacion completa",
-      "vocabulary": "Vocabulario",
-      "incremental": "incremental"
+    runType: {
+      fullRefresh: "Actualizacion completa",
+      vocabulary: "Vocabulario",
+      incremental: "incremental",
     },
-    "scheduleType": {
-      "manual": "Manual",
-      "cron": "Programada",
-      "sensor": "Impulsada por eventos"
+    scheduleType: {
+      manual: "Manual",
+      cron: "Programada",
+      sensor: "Impulsada por eventos",
     },
-    "schedules": {
-      "title": "Programaciones por fuente",
-      "emptyTitle": "No hay programaciones configuradas",
-      "emptyMessage": "Cree una programacion de Poseidon para automatizar las actualizaciones del CDM de una fuente de datos.",
-      "active": "Activa",
-      "paused": "Pausada",
-      "lastRun": "Ultima ejecucion: {{value}}",
-      "nextRun": "Proxima: {{value}}",
-      "runCount_one": "{{count}} ejecucion",
-      "runCount_other": "{{count}} ejecuciones",
-      "pauseSchedule": "Pausar programacion",
-      "activateSchedule": "Activar programacion",
-      "pause": "Pausar",
-      "activate": "Activar",
-      "runIncrementalRefresh": "Ejecutar actualizacion incremental"
+    schedules: {
+      title: "Programaciones por fuente",
+      emptyTitle: "No hay programaciones configuradas",
+      emptyMessage:
+        "Cree una programacion de Poseidon para automatizar las actualizaciones del CDM de una fuente de datos.",
+      active: "Activa",
+      paused: "Pausada",
+      lastRun: "Ultima ejecucion: {{value}}",
+      nextRun: "Proxima: {{value}}",
+      runCount_one: "{{count}} ejecucion",
+      runCount_other: "{{count}} ejecuciones",
+      pauseSchedule: "Pausar programacion",
+      activateSchedule: "Activar programacion",
+      pause: "Pausar",
+      activate: "Activar",
+      runIncrementalRefresh: "Ejecutar actualizacion incremental",
     },
-    "recentRuns": {
-      "title": "Ejecuciones recientes",
-      "emptyTitle": "Todavia no hay ejecuciones",
-      "emptyMessage": "Inicie una ejecucion manual o espere una ejecucion programada.",
-      "headers": {
-        "source": "Fuente",
-        "type": "Tipo",
-        "status": "Estado",
-        "trigger": "Disparador",
-        "duration": "Duracion",
-        "started": "Inicio",
-        "actions": "Acciones"
+    recentRuns: {
+      title: "Ejecuciones recientes",
+      emptyTitle: "Todavia no hay ejecuciones",
+      emptyMessage:
+        "Inicie una ejecucion manual o espere una ejecucion programada.",
+      headers: {
+        source: "Fuente",
+        type: "Tipo",
+        status: "Estado",
+        trigger: "Disparador",
+        duration: "Duracion",
+        started: "Inicio",
+        actions: "Acciones",
       },
-      "cancel": "Cancelar"
+      cancel: "Cancelar",
     },
-    "runDetail": {
-      "title": "Ejecucion n.° {{id}}",
-      "type": "Tipo",
-      "triggeredBy": "Iniciada por",
-      "duration": "Duracion",
-      "modelsRun": "Modelos ejecutados",
-      "rowsInserted": "Filas insertadas",
-      "rowsUpdated": "Filas actualizadas",
-      "testsPassed": "Pruebas aprobadas",
-      "testsFailed": "Pruebas fallidas",
-      "error": "Error"
+    runDetail: {
+      title: "Ejecucion n.° {{id}}",
+      type: "Tipo",
+      triggeredBy: "Iniciada por",
+      duration: "Duracion",
+      modelsRun: "Modelos ejecutados",
+      rowsInserted: "Filas insertadas",
+      rowsUpdated: "Filas actualizadas",
+      testsPassed: "Pruebas aprobadas",
+      testsFailed: "Pruebas fallidas",
+      error: "Error",
     },
-    "freshness": {
-      "title": "Actualidad del CDM",
-      "assetCount_one": "{{count}} activo",
-      "assetCount_other": "{{count}} activos",
-      "loading": "Cargando datos de actualidad desde Dagster...",
-      "emptyTitle": "No hay datos de actualidad",
-      "emptyMessage": "Los datos de actualidad aparecen despues de al menos una ejecucion exitosa de Poseidon.",
-      "never": "Nunca"
+    freshness: {
+      title: "Actualidad del CDM",
+      assetCount_one: "{{count}} activo",
+      assetCount_other: "{{count}} activos",
+      loading: "Cargando datos de actualidad desde Dagster...",
+      emptyTitle: "No hay datos de actualidad",
+      emptyMessage:
+        "Los datos de actualidad aparecen despues de al menos una ejecucion exitosa de Poseidon.",
+      never: "Nunca",
     },
-    "lineage": {
-      "title": "Linaje de activos",
-      "assetCount_one": "{{count}} activo",
-      "assetCount_other": "{{count}} activos",
-      "loading": "Cargando linaje desde Dagster...",
-      "emptyTitle": "No hay datos de linaje",
-      "emptyMessage": "El linaje de activos aparece despues de que Dagster descubre los modelos dbt.",
-      "dependsOn": "depende de: {{dependencies}}",
-      "tiers": {
-        "staging": "Puesta en escena",
-        "intermediate": "Intermedio",
-        "cdm": "CDM",
-        "quality": "Calidad",
-        "fallback": "Nivel {{index}}"
-      }
-    }
+    lineage: {
+      title: "Linaje de activos",
+      assetCount_one: "{{count}} activo",
+      assetCount_other: "{{count}} activos",
+      loading: "Cargando linaje desde Dagster...",
+      emptyTitle: "No hay datos de linaje",
+      emptyMessage:
+        "El linaje de activos aparece despues de que Dagster descubre los modelos dbt.",
+      dependsOn: "depende de: {{dependencies}}",
+      tiers: {
+        staging: "Puesta en escena",
+        intermediate: "Intermedio",
+        cdm: "CDM",
+        quality: "Calidad",
+        fallback: "Nivel {{index}}",
+      },
+    },
   },
-  "jupyter": {
-    "status": {
-      "hubOnline": "Hub en linea",
-      "unavailable": "No disponible",
-      "authenticating": "Autenticando...",
-      "startingServer": "Iniciando servidor...",
-      "running": "En ejecucion",
-      "failed": "Fallido"
+  jupyter: {
+    status: {
+      hubOnline: "Hub en linea",
+      unavailable: "No disponible",
+      authenticating: "Autenticando...",
+      startingServer: "Iniciando servidor...",
+      running: "En ejecucion",
+      failed: "Fallido",
     },
-    "page": {
-      "title": "Entorno de Jupyter",
-      "subtitle": "Su entorno personal de notebooks para investigacion interactiva, analisis personalizados y exploracion de datos",
-      "refresh": "Actualizar",
-      "openInNewTab": "Abrir en una nueva pestaña",
-      "workspaceDetails": "Detalles del espacio de trabajo",
-      "checkingHub": "Comprobando JupyterHub...",
-      "iframeTitle": "Jupyter de Parthenon",
-      "startOverlay": "Iniciando su servidor de notebooks...",
-      "firstLaunchNote": "La primera vez puede tardar hasta 30 segundos",
-      "failedToStart": "No se pudo iniciar el servidor de notebooks",
-      "retry": "Reintentar",
-      "failedToCreateSession": "No se pudo crear la sesion"
+    page: {
+      title: "Entorno de Jupyter",
+      subtitle:
+        "Su entorno personal de notebooks para investigacion interactiva, analisis personalizados y exploracion de datos",
+      refresh: "Actualizar",
+      openInNewTab: "Abrir en una nueva pestaña",
+      workspaceDetails: "Detalles del espacio de trabajo",
+      checkingHub: "Comprobando JupyterHub...",
+      iframeTitle: "Jupyter de Parthenon",
+      startOverlay: "Iniciando su servidor de notebooks...",
+      firstLaunchNote: "La primera vez puede tardar hasta 30 segundos",
+      failedToStart: "No se pudo iniciar el servidor de notebooks",
+      retry: "Reintentar",
+      failedToCreateSession: "No se pudo crear la sesion",
     },
-    "unavailable": {
-      "title": "No se puede acceder a JupyterHub",
-      "message": "El servicio de notebooks no esta disponible en este momento. Actualice cuando el contenedor este en buen estado."
+    unavailable: {
+      title: "No se puede acceder a JupyterHub",
+      message:
+        "El servicio de notebooks no esta disponible en este momento. Actualice cuando el contenedor este en buen estado.",
     },
-    "drawer": {
-      "title": "Detalles del espacio de trabajo de Jupyter",
-      "environment": "Entorno",
-      "runtime": "Entorno de ejecucion",
-      "runtimeDescription": "Python 3.12 con pandas, polars, sqlalchemy y acceso a base de datos segun el rol.",
-      "privateWorkspace": "Espacio privado",
-      "privateWorkspaceDescription": "Su directorio personal de notebooks. Se conserva entre sesiones, por lo que su trabajo siempre queda guardado.",
-      "sharedFolder": "Carpeta compartida",
-      "sharedFolderDescription": "Copie notebooks aqui para compartirlos con colegas. Todos los usuarios de Jupyter pueden leer esta carpeta.",
-      "mountedPaths": "Rutas montadas",
-      "starterNotebooks": "Notebooks iniciales",
-      "noStarterNotebooks": "No hay notebooks iniciales disponibles.",
-      "tips": "Consejos",
-      "quickLinks": "Enlaces rapidos",
-      "openHubNewTab": "Abrir JupyterHub en una nueva pestaña",
-      "defaults": {
-        "runtime": "JupyterLab 4.4",
-        "privateWorkspace": "/home/jovyan/notebooks",
-        "sharedFolder": "/home/jovyan/shared"
-      }
-    }
+    drawer: {
+      title: "Detalles del espacio de trabajo de Jupyter",
+      environment: "Entorno",
+      runtime: "Entorno de ejecucion",
+      runtimeDescription:
+        "Python 3.12 con pandas, polars, sqlalchemy y acceso a base de datos segun el rol.",
+      privateWorkspace: "Espacio privado",
+      privateWorkspaceDescription:
+        "Su directorio personal de notebooks. Se conserva entre sesiones, por lo que su trabajo siempre queda guardado.",
+      sharedFolder: "Carpeta compartida",
+      sharedFolderDescription:
+        "Copie notebooks aqui para compartirlos con colegas. Todos los usuarios de Jupyter pueden leer esta carpeta.",
+      mountedPaths: "Rutas montadas",
+      starterNotebooks: "Notebooks iniciales",
+      noStarterNotebooks: "No hay notebooks iniciales disponibles.",
+      tips: "Consejos",
+      quickLinks: "Enlaces rapidos",
+      openHubNewTab: "Abrir JupyterHub en una nueva pestaña",
+      defaults: {
+        runtime: "JupyterLab 4.4",
+        privateWorkspace: "/home/jovyan/notebooks",
+        sharedFolder: "/home/jovyan/shared",
+      },
+    },
   },
-  "codeExplorer": {
-    "page": {
-      "title": "Explorador de codigos",
-      "concept": "Concepto",
-      "searchPlaceholder": "Buscar conceptos con datos en esta fuente",
-      "pickSource": "Elija una fuente para comenzar.",
-      "pickSourceAndConcept": "Elija una fuente y un concepto para ver los datos."
+  codeExplorer: {
+    page: {
+      title: "Explorador de codigos",
+      concept: "Concepto",
+      searchPlaceholder: "Buscar conceptos con datos en esta fuente",
+      pickSource: "Elija una fuente para comenzar.",
+      pickSourceAndConcept:
+        "Elija una fuente y un concepto para ver los datos.",
     },
-    "tabs": {
-      "counts": "Conteos",
-      "relationships": "Relaciones",
-      "hierarchy": "Jerarquia",
-      "report": "Informe",
-      "myReports": "Mis informes"
+    tabs: {
+      counts: "Conteos",
+      relationships: "Relaciones",
+      hierarchy: "Jerarquia",
+      report: "Informe",
+      myReports: "Mis informes",
     },
-    "sourcePicker": {
-      "loading": "Cargando fuentes...",
-      "empty": "No hay fuentes configuradas",
-      "label": "Fuente de datos",
-      "choose": "Elija una fuente..."
+    sourcePicker: {
+      loading: "Cargando fuentes...",
+      empty: "No hay fuentes configuradas",
+      label: "Fuente de datos",
+      choose: "Elija una fuente...",
     },
-    "counts": {
-      "emptyTitle": "No hay datos para este concepto en {{sourceKey}}",
-      "emptyMessage": "El concepto {{conceptId}} existe en el vocabulario OMOP, pero no tiene observaciones en los conteos estratificados de codigos de esta fuente. Pruebe con otro concepto (la busqueda ahora se limita a conceptos con datos en {{sourceKey}}) o cambie a una fuente que incluya este codigo.",
-      "loading": "Cargando conteos...",
-      "failed": "No se pudieron cargar los conteos.",
-      "conceptId": "concept_id",
-      "count": "Conteo",
-      "group": "Grupo",
-      "gender": "Sexo",
-      "ageDecile": "Decil de edad",
-      "node": "Nodo ({{count}})",
-      "descendant": "Descendiente ({{count}})"
+    counts: {
+      emptyTitle: "No hay datos para este concepto en {{sourceKey}}",
+      emptyMessage:
+        "El concepto {{conceptId}} existe en el vocabulario OMOP, pero no tiene observaciones en los conteos estratificados de codigos de esta fuente. Pruebe con otro concepto (la busqueda ahora se limita a conceptos con datos en {{sourceKey}}) o cambie a una fuente que incluya este codigo.",
+      loading: "Cargando conteos...",
+      failed: "No se pudieron cargar los conteos.",
+      conceptId: "concept_id",
+      count: "Conteo",
+      group: "Grupo",
+      gender: "Sexo",
+      ageDecile: "Decil de edad",
+      node: "Nodo ({{count}})",
+      descendant: "Descendiente ({{count}})",
     },
-    "chart": {
-      "noData": "No hay datos para mostrar",
-      "male": "Masculino",
-      "female": "Femenino",
-      "unknown": "Desconocido"
+    chart: {
+      noData: "No hay datos para mostrar",
+      male: "Masculino",
+      female: "Femenino",
+      unknown: "Desconocido",
     },
-    "hierarchy": {
-      "loading": "Cargando jerarquia...",
-      "failed": "No se pudo cargar.",
-      "direction": "Direccion",
-      "both": "Ambas",
-      "ancestorsOnly": "Solo ancestros",
-      "descendantsOnly": "Solo descendientes",
-      "maxDepth": "Profundidad maxima",
-      "empty": "No hay datos jerarquicos para este concepto a la profundidad {{depth}}."
+    hierarchy: {
+      loading: "Cargando jerarquia...",
+      failed: "No se pudo cargar.",
+      direction: "Direccion",
+      both: "Ambas",
+      ancestorsOnly: "Solo ancestros",
+      descendantsOnly: "Solo descendientes",
+      maxDepth: "Profundidad maxima",
+      empty:
+        "No hay datos jerarquicos para este concepto a la profundidad {{depth}}.",
     },
-    "relationships": {
-      "loading": "Cargando relaciones...",
-      "failed": "No se pudo cargar.",
-      "empty": "No se encontraron relaciones para este concepto.",
-      "headers": {
-        "relationship": "Relacion",
-        "targetConcept": "Concepto de destino",
-        "vocabulary": "Vocabulario",
-        "standard": "Estandar"
-      }
-    },
-    "reports": {
-      "loading": "Cargando informes...",
-      "failed": "No se pudo cargar.",
-      "empty": "Todavia no tiene informes. Vaya a la pestaña Informe y genere uno.",
-      "headers": {
-        "created": "Creado",
-        "source": "Fuente",
-        "concept": "Concepto",
-        "status": "Estado",
-        "pin": "Fijar"
+    relationships: {
+      loading: "Cargando relaciones...",
+      failed: "No se pudo cargar.",
+      empty: "No se encontraron relaciones para este concepto.",
+      headers: {
+        relationship: "Relacion",
+        targetConcept: "Concepto de destino",
+        vocabulary: "Vocabulario",
+        standard: "Estandar",
       },
-      "pin": "Fijar",
-      "unpin": "Desfijar",
-      "generateReport": "Generar informe",
-      "generating": "Generando...",
-      "failedToDispatch": "No se pudo enviar el informe.",
-      "progress": "{{percent}}% - {{message}}",
-      "failedTitle": "La generacion del informe fallo",
-      "ready": "Informe listo",
-      "downloadHtml": "Descargar HTML",
-      "iframeTitle": "Informe de ROMOPAPI",
-      "inlinePreviewNote": "La vista previa integrada esta aislada en sandbox (scripts y cross-origin deshabilitados). Descargue el archivo para ver la experiencia interactiva completa en su navegador."
     },
-    "sourceReadiness": {
-      "settingUp": "Configurando {{sourceKey}}...",
-      "sourceNeedsInitialization": "La fuente {{sourceKey}} necesita inicializacion",
-      "missing": "Falta: {{missing}}. Esta es una configuracion unica, solo para administradores, que materializa la tabla de conteos estratificados de codigos.",
-      "dispatching": "Enviando...",
-      "initializeSource": "Inicializar fuente",
-      "failedToDispatch": "No se pudo enviar. Es posible que no tenga el permiso `finngen.code-explorer.setup`."
-    }
+    reports: {
+      loading: "Cargando informes...",
+      failed: "No se pudo cargar.",
+      empty:
+        "Todavia no tiene informes. Vaya a la pestaña Informe y genere uno.",
+      headers: {
+        created: "Creado",
+        source: "Fuente",
+        concept: "Concepto",
+        status: "Estado",
+        pin: "Fijar",
+      },
+      pin: "Fijar",
+      unpin: "Desfijar",
+      generateReport: "Generar informe",
+      generating: "Generando...",
+      failedToDispatch: "No se pudo enviar el informe.",
+      progress: "{{percent}}% - {{message}}",
+      failedTitle: "La generacion del informe fallo",
+      ready: "Informe listo",
+      downloadHtml: "Descargar HTML",
+      iframeTitle: "Informe de ROMOPAPI",
+      inlinePreviewNote:
+        "La vista previa integrada esta aislada en sandbox (scripts y cross-origin deshabilitados). Descargue el archivo para ver la experiencia interactiva completa en su navegador.",
+    },
+    sourceReadiness: {
+      settingUp: "Configurando {{sourceKey}}...",
+      sourceNeedsInitialization:
+        "La fuente {{sourceKey}} necesita inicializacion",
+      missing:
+        "Falta: {{missing}}. Esta es una configuracion unica, solo para administradores, que materializa la tabla de conteos estratificados de codigos.",
+      dispatching: "Enviando...",
+      initializeSource: "Inicializar fuente",
+      failedToDispatch:
+        "No se pudo enviar. Es posible que no tenga el permiso `finngen.code-explorer.setup`.",
+    },
   },
-  "gis": {
-    "common": {
-      "analysisLayerCount_one": "{{count}} capa de analisis activa",
-      "analysisLayerCount_other": "{{count}} capas de analisis activas",
-      "avgValue": "prom.: {{value}}",
-      "records_one": "{{count}} registro",
-      "records_other": "{{count}} registros",
-      "present": "presente",
-      "unknownRegion": "Region"
+  gis: {
+    common: {
+      analysisLayerCount_one: "{{count}} capa de analisis activa",
+      analysisLayerCount_other: "{{count}} capas de analisis activas",
+      avgValue: "prom.: {{value}}",
+      records_one: "{{count}} registro",
+      records_other: "{{count}} registros",
+      present: "presente",
+      unknownRegion: "Region",
     },
-    "page": {
-      "title": "Explorador GIS",
-      "reset": "Restablecer",
-      "collapse": "Contraer",
-      "expand": "Expandir",
-      "enableLayers": "Active capas de analisis en el panel izquierdo",
-      "selectDisease": "Seleccione una enfermedad para iniciar el analisis espacial"
+    page: {
+      title: "Explorador GIS",
+      reset: "Restablecer",
+      collapse: "Contraer",
+      expand: "Expandir",
+      enableLayers: "Active capas de analisis en el panel izquierdo",
+      selectDisease:
+        "Seleccione una enfermedad para iniciar el analisis espacial",
     },
-    "layerPanel": {
-      "title": "Capas de analisis",
-      "privacy": "Privacidad",
-      "suppressionOff": "Supresion: desactivada (datos sinteticos)"
+    layerPanel: {
+      title: "Capas de analisis",
+      privacy: "Privacidad",
+      suppressionOff: "Supresion: desactivada (datos sinteticos)",
     },
-    "context": {
-      "researchActions": "Acciones de investigacion",
-      "createStudy": "Crear estudio",
-      "browseCohorts": "Explorar cohortes",
-      "clickRegion": "Haga clic en una region del mapa para ver los detalles de la capa"
+    context: {
+      researchActions: "Acciones de investigacion",
+      createStudy: "Crear estudio",
+      browseCohorts: "Explorar cohortes",
+      clickRegion:
+        "Haga clic en una region del mapa para ver los detalles de la capa",
     },
-    "diseaseSelector": {
-      "title": "Enfermedad",
-      "searchPlaceholder": "Buscar afecciones...",
-      "top": "Principales",
-      "categories": "Categorias",
-      "noMatches": "No hay afecciones coincidentes",
-      "patientCountTitle": "{{count}} pacientes"
+    diseaseSelector: {
+      title: "Enfermedad",
+      searchPlaceholder: "Buscar afecciones...",
+      top: "Principales",
+      categories: "Categorias",
+      noMatches: "No hay afecciones coincidentes",
+      patientCountTitle: "{{count}} pacientes",
     },
-    "regionDetail": {
-      "loading": "Cargando...",
-      "close": "Cerrar",
-      "loadingDetails": "Cargando detalles de la region...",
-      "area": "Area: {{value}} km²",
-      "drillDown_one": "Profundizar ({{count}} subregion)",
-      "drillDown_other": "Profundizar ({{count}} subregiones)",
-      "exposures": "Exposiciones",
-      "concept": "Concepto {{conceptId}}"
+    regionDetail: {
+      loading: "Cargando...",
+      close: "Cerrar",
+      loadingDetails: "Cargando detalles de la region...",
+      area: "Area: {{value}} km²",
+      drillDown_one: "Profundizar ({{count}} subregion)",
+      drillDown_other: "Profundizar ({{count}} subregiones)",
+      exposures: "Exposiciones",
+      concept: "Concepto {{conceptId}}",
     },
-    "countyDetail": {
-      "county": "Condado",
-      "cases": "Casos",
-      "deaths": "Muertes",
-      "cfr": "Letalidad",
-      "hospitalized": "Hospitalizados",
-      "population": "Poblacion",
-      "ageDistributionCovid": "Distribucion por edad (COVID)",
-      "monthlyCases": "Casos mensuales",
-      "casesTitle": "{{period}}: {{count}} casos"
+    countyDetail: {
+      county: "Condado",
+      cases: "Casos",
+      deaths: "Muertes",
+      cfr: "Letalidad",
+      hospitalized: "Hospitalizados",
+      population: "Poblacion",
+      ageDistributionCovid: "Distribucion por edad (COVID)",
+      monthlyCases: "Casos mensuales",
+      casesTitle: "{{period}}: {{count}} casos",
     },
-    "diseaseSummary": {
-      "cases": "Casos",
-      "deaths": "Muertes",
-      "cfr": "Letalidad",
-      "counties": "Condados",
-      "prevalence": "Prevalencia"
+    diseaseSummary: {
+      cases: "Casos",
+      deaths: "Muertes",
+      cfr: "Letalidad",
+      counties: "Condados",
+      prevalence: "Prevalencia",
     },
-    "analysisDrawer": {
-      "title_one": "Analisis ({{count}} capa)",
-      "title_other": "Analisis ({{count}} capas)"
+    analysisDrawer: {
+      title_one: "Analisis ({{count}} capa)",
+      title_other: "Analisis ({{count}} capas)",
     },
-    "layers": {
-      "airQuality": {
-        "name": "Calidad del aire",
-        "description": "Niveles de PM2.5 y ozono de la EPA",
-        "legend": {
-          "good": "Buena (PM2.5 bajo)",
-          "poor": "Mala (PM2.5 alto)"
+    layers: {
+      airQuality: {
+        name: "Calidad del aire",
+        description: "Niveles de PM2.5 y ozono de la EPA",
+        legend: {
+          good: "Buena (PM2.5 bajo)",
+          poor: "Mala (PM2.5 alto)",
         },
-        "tooltip": {
-          "pm25": "PM2.5"
+        tooltip: {
+          pm25: "PM2.5",
         },
-        "analysis": {
-          "loading": "Cargando...",
-          "noData": "Sin datos"
+        analysis: {
+          loading: "Cargando...",
+          noData: "Sin datos",
         },
-        "detail": {
-          "loading": "Cargando...",
-          "empty": "No hay datos de calidad del aire",
-          "ozone": "Ozono"
-        }
+        detail: {
+          loading: "Cargando...",
+          empty: "No hay datos de calidad del aire",
+          ozone: "Ozono",
+        },
       },
-      "comorbidity": {
-        "name": "Carga de comorbilidad",
-        "description": "Agrupacion de DM, HTA y obesidad",
-        "legend": {
-          "low": "Carga baja (0)",
-          "high": "Carga alta (3)"
+      comorbidity: {
+        name: "Carga de comorbilidad",
+        description: "Agrupacion de DM, HTA y obesidad",
+        legend: {
+          low: "Carga baja (0)",
+          high: "Carga alta (3)",
         },
-        "tooltip": {
-          "burden": "Carga"
+        tooltip: {
+          burden: "Carga",
         },
-        "analysis": {
-          "loading": "Cargando...",
-          "noData": "Sin datos"
+        analysis: {
+          loading: "Cargando...",
+          noData: "Sin datos",
         },
-        "detail": {
-          "title": "Datos de comorbilidad para {{fips}}",
-          "subtitle": "Puntaje de carga DM + HTA + obesidad"
-        }
+        detail: {
+          title: "Datos de comorbilidad para {{fips}}",
+          subtitle: "Puntaje de carga DM + HTA + obesidad",
+        },
       },
-      "hospitalAccess": {
-        "name": "Acceso hospitalario",
-        "description": "Proximidad hospitalaria CMS",
-        "legend": {
-          "withEd": "Hospital (urgencias)",
-          "withoutEd": "Hospital (sin urgencias)"
+      hospitalAccess: {
+        name: "Acceso hospitalario",
+        description: "Proximidad hospitalaria CMS",
+        legend: {
+          withEd: "Hospital (urgencias)",
+          withoutEd: "Hospital (sin urgencias)",
         },
-        "analysis": {
-          "loading": "Cargando...",
-          "noData": "Sin datos"
+        analysis: {
+          loading: "Cargando...",
+          noData: "Sin datos",
         },
-        "detail": {
-          "title": "Hospitales mas cercanos a {{fips}}",
-          "subtitle": "Anillos de distancia: 15/30/60 km"
-        }
+        detail: {
+          title: "Hospitales mas cercanos a {{fips}}",
+          subtitle: "Anillos de distancia: 15/30/60 km",
+        },
       },
-      "rucc": {
-        "name": "Urbano-rural",
-        "description": "Codigos Rural-Urban Continuum del USDA",
-        "legend": {
-          "metro": "Metropolitano",
-          "micropolitan": "Micropolitano",
-          "rural": "Rural"
+      rucc: {
+        name: "Urbano-rural",
+        description: "Codigos Rural-Urban Continuum del USDA",
+        legend: {
+          metro: "Metropolitano",
+          micropolitan: "Micropolitano",
+          rural: "Rural",
         },
-        "tooltip": {
-          "classification": "Clasificacion"
+        tooltip: {
+          classification: "Clasificacion",
         },
-        "analysis": {
-          "loading": "Cargando...",
-          "noData": "Sin datos"
+        analysis: {
+          loading: "Cargando...",
+          noData: "Sin datos",
         },
-        "detail": {
-          "loading": "Cargando...",
-          "empty": "No hay datos RUCC",
-          "code": "Codigo RUCC",
-          "classification": "Clasificacion",
-          "category": "Categoria",
-          "patients": "Pacientes"
+        detail: {
+          loading: "Cargando...",
+          empty: "No hay datos RUCC",
+          code: "Codigo RUCC",
+          classification: "Clasificacion",
+          category: "Categoria",
+          patients: "Pacientes",
         },
-        "categories": {
-          "metro": "Metropolitano",
-          "micro": "Micropolitano",
-          "rural": "Rural"
-        }
+        categories: {
+          metro: "Metropolitano",
+          micro: "Micropolitano",
+          rural: "Rural",
+        },
       },
-      "svi": {
-        "name": "Vulnerabilidad social",
-        "description": "SVI de CDC/ATSDR por tracto censal",
-        "legend": {
-          "low": "Baja vulnerabilidad",
-          "high": "Alta vulnerabilidad"
+      svi: {
+        name: "Vulnerabilidad social",
+        description: "SVI de CDC/ATSDR por tracto censal",
+        legend: {
+          low: "Baja vulnerabilidad",
+          high: "Alta vulnerabilidad",
         },
-        "tooltip": {
-          "score": "Indice SVI"
+        tooltip: {
+          score: "Indice SVI",
         },
-        "analysis": {
-          "loading": "Cargando...",
-          "noData": "No hay datos disponibles"
+        analysis: {
+          loading: "Cargando...",
+          noData: "No hay datos disponibles",
         },
-        "detail": {
-          "loading": "Cargando...",
-          "empty": "No hay datos de SVI",
-          "overall": "SVI general",
-          "themes": {
-            "socioeconomicStatus": "Estado socioeconomico",
-            "householdComposition": "Composicion del hogar",
-            "minorityStatus": "Condicion de minoria",
-            "housingTransportation": "Vivienda y transporte"
-          }
-        }
-      }
-    }
+        detail: {
+          loading: "Cargando...",
+          empty: "No hay datos de SVI",
+          overall: "SVI general",
+          themes: {
+            socioeconomicStatus: "Estado socioeconomico",
+            householdComposition: "Composicion del hogar",
+            minorityStatus: "Condicion de minoria",
+            housingTransportation: "Vivienda y transporte",
+          },
+        },
+      },
+    },
   },
-  "queryAssistant": {
-    "page": {
-      "title": "Asistente de consultas",
-      "subtitle": "Explore la biblioteca de consultas de OHDSI o use IA para generar SQL a partir de lenguaje natural",
-      "dialect": "Dialecto",
-      "default": "Predeterminado",
-      "defaultTooltip": "Los cambios se guardan como valor predeterminado del sistema (superadministrador)",
-      "tabs": {
-        "library": "Biblioteca de consultas",
-        "naturalLanguage": "Lenguaje natural"
-      }
-    },
-    "naturalLanguage": {
-      "askQuestion": "Hacer una pregunta",
-      "placeholder": "p. ej. Cuantos pacientes fueron diagnosticados con diabetes tipo 2 en 2023?",
-      "ctrlEnter": "Ctrl+Enter para generar",
-      "tryExample": "Probar un ejemplo",
-      "examples": {
-        "diabetes": "Cuantos pacientes tienen diabetes?",
-        "topConditions": "Cuales son las 10 afecciones con mayor prevalencia?",
-        "heartFailureAge": "Edad promedio de pacientes con insuficiencia cardiaca",
-        "statins2024": "Conteos de exposicion a estatinas en 2024"
+  queryAssistant: {
+    page: {
+      title: "Asistente de consultas",
+      subtitle:
+        "Explore la biblioteca de consultas de OHDSI o use IA para generar SQL a partir de lenguaje natural",
+      dialect: "Dialecto",
+      default: "Predeterminado",
+      defaultTooltip:
+        "Los cambios se guardan como valor predeterminado del sistema (superadministrador)",
+      tabs: {
+        library: "Biblioteca de consultas",
+        naturalLanguage: "Lenguaje natural",
       },
-      "generateWithAi": "Generar con IA",
-      "generating": "Generando...",
-      "failedToGenerate": "No se pudo generar SQL. Intentelo de nuevo.",
-      "queryHistory": "Historial de consultas",
-      "clear": "Limpiar",
-      "emptyTitle": "Haga una pregunta para comenzar",
-      "emptyDescription": "Escriba una pregunta en lenguaje natural sobre sus datos OMOP CDM y la IA generara la consulta SQL correspondiente."
     },
-    "library": {
-      "searchPlaceholder": "Buscar consultas por palabra clave...",
-      "indexedQueries": "{{count}} consultas indexadas",
-      "matches": "{{count}} coincidencias",
-      "featuredTemplates": "{{count}} plantillas destacadas",
-      "refreshing": "Actualizando",
-      "allDomains": "Todos los dominios",
-      "failedToLoad": "No se pudo cargar la biblioteca de consultas.",
-      "noMatches": "No se encontraron consultas que coincidan con su busqueda.",
-      "tryDifferentKeyword": "Pruebe otra palabra clave o limpie los filtros.",
-      "importHint": "Si la biblioteca esta vacia, pida a su administrador que ejecute: php artisan query-library:import-ohdsi",
-      "showMoreMatches": "Mostrar mas coincidencias"
+    naturalLanguage: {
+      askQuestion: "Hacer una pregunta",
+      placeholder:
+        "p. ej. Cuantos pacientes fueron diagnosticados con diabetes tipo 2 en 2023?",
+      ctrlEnter: "Ctrl+Enter para generar",
+      tryExample: "Probar un ejemplo",
+      examples: {
+        diabetes: "Cuantos pacientes tienen diabetes?",
+        topConditions: "Cuales son las 10 afecciones con mayor prevalencia?",
+        heartFailureAge:
+          "Edad promedio de pacientes con insuficiencia cardiaca",
+        statins2024: "Conteos de exposicion a estatinas en 2024",
+      },
+      generateWithAi: "Generar con IA",
+      generating: "Generando...",
+      failedToGenerate: "No se pudo generar SQL. Intentelo de nuevo.",
+      queryHistory: "Historial de consultas",
+      clear: "Limpiar",
+      emptyTitle: "Haga una pregunta para comenzar",
+      emptyDescription:
+        "Escriba una pregunta en lenguaje natural sobre sus datos OMOP CDM y la IA generara la consulta SQL correspondiente.",
     },
-    "results": {
-      "safeReadOnly": "SEGURO - Solo lectura",
-      "needsReview": "REQUIERE REVISION",
-      "unsafe": "NO SEGURO",
-      "queryLibraryMatch": "Coincidencia en la biblioteca de consultas",
-      "templateParameters": "Parametros de la plantilla",
-      "rendering": "Procesando...",
-      "sqlUpdated": "SQL actualizado",
-      "renderTemplate": "Renderizar plantilla",
-      "renderFailed": "No se pudo renderizar la plantilla de consulta.",
-      "generatedSql": "SQL generado",
-      "aggregate": "Agregado",
-      "tablesReferenced": "Tablas referenciadas",
-      "explanation": "Explicacion",
-      "validateSql": "Validar SQL",
-      "validating": "Validando...",
-      "validSql": "SQL valido",
-      "validationFailed": "La validacion fallo",
-      "readOnly": "Solo lectura",
-      "complexity": {
-        "low": "complejidad baja",
-        "medium": "complejidad media",
-        "high": "complejidad alta"
-      },
-      "renderError": "No se pudo renderizar la plantilla de consulta.",
-      "validateError": "No se pudo validar el SQL."
+    library: {
+      searchPlaceholder: "Buscar consultas por palabra clave...",
+      indexedQueries: "{{count}} consultas indexadas",
+      matches: "{{count}} coincidencias",
+      featuredTemplates: "{{count}} plantillas destacadas",
+      refreshing: "Actualizando",
+      allDomains: "Todos los dominios",
+      failedToLoad: "No se pudo cargar la biblioteca de consultas.",
+      noMatches: "No se encontraron consultas que coincidan con su busqueda.",
+      tryDifferentKeyword: "Pruebe otra palabra clave o limpie los filtros.",
+      importHint:
+        "Si la biblioteca esta vacia, pida a su administrador que ejecute: php artisan query-library:import-ohdsi",
+      showMoreMatches: "Mostrar mas coincidencias",
     },
-    "schemaBrowser": {
-      "title": "Explorador del esquema OMOP CDM",
-      "failedToLoad": "No se pudo cargar el esquema.",
-      "clinicalTables": "Tablas clinicas ({{count}})",
-      "vocabularyTables": "Tablas de vocabulario ({{count}})",
-      "commonJoins": "Joins comunes",
-      "cols": "{{count}} columnas",
-      "noDescription": "No hay descripcion disponible."
+    results: {
+      safeReadOnly: "SEGURO - Solo lectura",
+      needsReview: "REQUIERE REVISION",
+      unsafe: "NO SEGURO",
+      queryLibraryMatch: "Coincidencia en la biblioteca de consultas",
+      templateParameters: "Parametros de la plantilla",
+      rendering: "Procesando...",
+      sqlUpdated: "SQL actualizado",
+      renderTemplate: "Renderizar plantilla",
+      renderFailed: "No se pudo renderizar la plantilla de consulta.",
+      generatedSql: "SQL generado",
+      aggregate: "Agregado",
+      tablesReferenced: "Tablas referenciadas",
+      explanation: "Explicacion",
+      validateSql: "Validar SQL",
+      validating: "Validando...",
+      validSql: "SQL valido",
+      validationFailed: "La validacion fallo",
+      readOnly: "Solo lectura",
+      complexity: {
+        low: "complejidad baja",
+        medium: "complejidad media",
+        high: "complejidad alta",
+      },
+      renderError: "No se pudo renderizar la plantilla de consulta.",
+      validateError: "No se pudo validar el SQL.",
     },
-    "sqlBlock": {
-      "sql": "SQL",
-      "runSql": "Ejecutar SQL",
-      "copy": "Copiar",
-      "copied": "Copiado"
+    schemaBrowser: {
+      title: "Explorador del esquema OMOP CDM",
+      failedToLoad: "No se pudo cargar el esquema.",
+      clinicalTables: "Tablas clinicas ({{count}})",
+      vocabularyTables: "Tablas de vocabulario ({{count}})",
+      commonJoins: "Joins comunes",
+      cols: "{{count}} columnas",
+      noDescription: "No hay descripcion disponible.",
     },
-    "sqlRunner": {
-      "errorTitles": {
-        "explanationInsteadOfSql": "La IA devolvio una explicacion en lugar de SQL",
-        "mysqlBackticks": "No se admiten acentos graves al estilo MySQL",
-        "syntaxError": "Error de sintaxis SQL",
-        "syntaxErrorNear": "Error de sintaxis cerca de \"{{token}}\"",
-        "timeout": "La consulta agoto el tiempo limite (120 s)",
-        "tableNotFound": "Tabla no encontrada",
-        "tableNotFoundNamed": "No se encontro la tabla \"{{table}}\"",
-        "columnNotFound": "Columna no encontrada",
-        "columnNotFoundNamed": "No se encontro la columna \"{{column}}\"",
-        "insufficientPermissions": "Permisos insuficientes"
+    sqlBlock: {
+      sql: "SQL",
+      runSql: "Ejecutar SQL",
+      copy: "Copiar",
+      copied: "Copiado",
+    },
+    sqlRunner: {
+      errorTitles: {
+        explanationInsteadOfSql:
+          "La IA devolvio una explicacion en lugar de SQL",
+        mysqlBackticks: "No se admiten acentos graves al estilo MySQL",
+        syntaxError: "Error de sintaxis SQL",
+        syntaxErrorNear: 'Error de sintaxis cerca de "{{token}}"',
+        timeout: "La consulta agoto el tiempo limite (120 s)",
+        tableNotFound: "Tabla no encontrada",
+        tableNotFoundNamed: 'No se encontro la tabla "{{table}}"',
+        columnNotFound: "Columna no encontrada",
+        columnNotFoundNamed: 'No se encontro la columna "{{column}}"',
+        insufficientPermissions: "Permisos insuficientes",
       },
-      "suggestions": {
-        "explanationInsteadOfSql": {
-          "first": "Intente reformular su pregunta con mas precision",
-          "second": "Use la pestaña Biblioteca de consultas para encontrar una plantilla ya preparada",
-          "third": "Especifique las tablas y columnas exactas que desea consultar"
+      suggestions: {
+        explanationInsteadOfSql: {
+          first: "Intente reformular su pregunta con mas precision",
+          second:
+            "Use la pestaña Biblioteca de consultas para encontrar una plantilla ya preparada",
+          third:
+            "Especifique las tablas y columnas exactas que desea consultar",
         },
-        "mysqlBackticks": {
-          "first": "PostgreSQL usa comillas dobles para los identificadores: \"column_name\"",
-          "second": "La mayoria de los nombres de columna de OMOP no necesitan comillas",
-          "third": "Intente generar la consulta de nuevo; a veces la IA usa sintaxis de MySQL"
+        mysqlBackticks: {
+          first:
+            'PostgreSQL usa comillas dobles para los identificadores: "column_name"',
+          second:
+            "La mayoria de los nombres de columna de OMOP no necesitan comillas",
+          third:
+            "Intente generar la consulta de nuevo; a veces la IA usa sintaxis de MySQL",
         },
-        "syntaxError": {
-          "first": "El SQL generado tiene un problema de sintaxis. Intente generarlo otra vez con una pregunta mas clara",
-          "second": "Revise parentesis desbalanceados, comas faltantes o palabras clave sobrantes",
-          "third": "Use primero el boton Validar SQL para detectar problemas antes de ejecutar"
+        syntaxError: {
+          first:
+            "El SQL generado tiene un problema de sintaxis. Intente generarlo otra vez con una pregunta mas clara",
+          second:
+            "Revise parentesis desbalanceados, comas faltantes o palabras clave sobrantes",
+          third:
+            "Use primero el boton Validar SQL para detectar problemas antes de ejecutar",
         },
-        "timeout": {
-          "first": "Agregue condiciones WHERE mas especificas para reducir los datos analizados",
-          "second": "Agregue una clausula LIMIT para acotar el conjunto de resultados",
-          "third": "Evite SELECT *; seleccione solo las columnas que necesita",
-          "fourth": "Considere filtrar por rango de fechas para acotar el conjunto de datos"
+        timeout: {
+          first:
+            "Agregue condiciones WHERE mas especificas para reducir los datos analizados",
+          second:
+            "Agregue una clausula LIMIT para acotar el conjunto de resultados",
+          third: "Evite SELECT *; seleccione solo las columnas que necesita",
+          fourth:
+            "Considere filtrar por rango de fechas para acotar el conjunto de datos",
         },
-        "tableNotFound": {
-          "first": "Las tablas OMOP deben estar calificadas con el esquema: omop.person, omop.condition_occurrence",
-          "second": "Use el explorador del esquema al final de la pagina para verificar los nombres de las tablas",
-          "third": "Revise la ortografia; tablas comunes: person, condition_occurrence, drug_exposure, measurement"
+        tableNotFound: {
+          first:
+            "Las tablas OMOP deben estar calificadas con el esquema: omop.person, omop.condition_occurrence",
+          second:
+            "Use el explorador del esquema al final de la pagina para verificar los nombres de las tablas",
+          third:
+            "Revise la ortografia; tablas comunes: person, condition_occurrence, drug_exposure, measurement",
         },
-        "columnNotFound": {
-          "first": "Expanda la tabla en el explorador del esquema para ver las columnas disponibles",
-          "second": "Los nombres de columna de OMOP usan guion bajo: person_id, condition_start_date",
-          "third": "Revise si necesita un JOIN con otra tabla que tenga esa columna"
+        columnNotFound: {
+          first:
+            "Expanda la tabla en el explorador del esquema para ver las columnas disponibles",
+          second:
+            "Los nombres de columna de OMOP usan guion bajo: person_id, condition_start_date",
+          third:
+            "Revise si necesita un JOIN con otra tabla que tenga esa columna",
         },
-        "insufficientPermissions": {
-          "first": "Esta consulta no fue clasificada como \"segura\" (solo lectura)",
-          "second": "Solo los administradores pueden ejecutar consultas que no esten marcadas como seguras",
-          "third": "Use el boton Validar SQL para comprobar la clasificacion de seguridad"
-        }
+        insufficientPermissions: {
+          first:
+            'Esta consulta no fue clasificada como "segura" (solo lectura)',
+          second:
+            "Solo los administradores pueden ejecutar consultas que no esten marcadas como seguras",
+          third:
+            "Use el boton Validar SQL para comprobar la clasificacion de seguridad",
+        },
       },
-      "defaults": {
-        "queryExecutionFailed": "La ejecucion de la consulta fallo",
-        "failedToRenderTemplate": "No se pudo renderizar la plantilla",
-        "typeToSearchConcepts": "Escriba para buscar conceptos OMOP...",
-        "typeToSearchConceptsWithDefault": "{{defaultValue}}: escriba para buscar conceptos OMOP"
+      defaults: {
+        queryExecutionFailed: "La ejecucion de la consulta fallo",
+        failedToRenderTemplate: "No se pudo renderizar la plantilla",
+        typeToSearchConcepts: "Escriba para buscar conceptos OMOP...",
+        typeToSearchConceptsWithDefault:
+          "{{defaultValue}}: escriba para buscar conceptos OMOP",
       },
-      "state": {
-        "active": "Ejecutando consulta...",
-        "idle": "Inactiva",
-        "idleInTransaction": "Procesando resultados...",
-        "idleAborted": "Transaccion cancelada",
-        "fastpath": "Llamada de via rapida",
-        "disabled": "Seguimiento deshabilitado",
-        "completed": "Completada",
-        "error": "Error"
+      state: {
+        active: "Ejecutando consulta...",
+        idle: "Inactiva",
+        idleInTransaction: "Procesando resultados...",
+        idleAborted: "Transaccion cancelada",
+        fastpath: "Llamada de via rapida",
+        disabled: "Seguimiento deshabilitado",
+        completed: "Completada",
+        error: "Error",
       },
-      "modal": {
-        "title": "Ejecutor de consultas SQL",
-        "wait": "Espera: {{value}}",
-        "preparing": "Preparando...",
-        "runQuery": "Ejecutar consulta",
-        "queryCompleted": "Consulta completada",
-        "rowsIn": "{{count}} filas en {{elapsed}}",
-        "cappedAt10k": "Limitado a 10.000 filas",
-        "queryFailed": "La consulta fallo",
-        "downloadCsv": "Descargar CSV",
-        "close": "Cerrar",
-        "showingSomeRows": "Mostrando {{shown}} de {{total}} filas",
-        "showingAllRows": "{{count}} filas",
-        "nullValue": "nulo"
-      }
-    }
-  }
+      modal: {
+        title: "Ejecutor de consultas SQL",
+        wait: "Espera: {{value}}",
+        preparing: "Preparando...",
+        runQuery: "Ejecutar consulta",
+        queryCompleted: "Consulta completada",
+        rowsIn: "{{count}} filas en {{elapsed}}",
+        cappedAt10k: "Limitado a 10.000 filas",
+        queryFailed: "La consulta fallo",
+        downloadCsv: "Descargar CSV",
+        close: "Cerrar",
+        showingSomeRows: "Mostrando {{shown}} de {{total}} filas",
+        showingAllRows: "{{count}} filas",
+        nullValue: "nulo",
+      },
+    },
+  },
 });
 const koGisTools: MessageTree = mergeMessageTrees(enGisTools, {
-  "poseidon": {
-    "page": {
-      "unavailableTitle": "Poseidon을 사용할 수 없음",
-      "unavailableMessage": "Poseidon 오케스트레이션 서비스에 연결할 수 없습니다. Poseidon 컨테이너가 실행 중인지 확인하세요.",
-      "retry": "다시 시도",
-      "title": "Poseidon",
-      "subtitle": "dbt + Dagster 기반 CDM 새로 고침 오케스트레이션 - 증분 적재, 의존성 인식 실행, 소스별 스케줄링",
-      "refresh": "새로 고침"
+  poseidon: {
+    page: {
+      unavailableTitle: "Poseidon을 사용할 수 없음",
+      unavailableMessage:
+        "Poseidon 오케스트레이션 서비스에 연결할 수 없습니다. Poseidon 컨테이너가 실행 중인지 확인하세요.",
+      retry: "다시 시도",
+      title: "Poseidon",
+      subtitle:
+        "dbt + Dagster 기반 CDM 새로 고침 오케스트레이션 - 증분 적재, 의존성 인식 실행, 소스별 스케줄링",
+      refresh: "새로 고침",
     },
-    "overview": {
-      "activeSchedules": "활성 일정",
-      "runsInProgress": "진행 중 실행",
-      "successfulRuns": "성공한 실행",
-      "failedRuns": "실패한 실행",
-      "ofTotal": "전체 {{count}}개 중"
+    overview: {
+      activeSchedules: "활성 일정",
+      runsInProgress: "진행 중 실행",
+      successfulRuns: "성공한 실행",
+      failedRuns: "실패한 실행",
+      ofTotal: "전체 {{count}}개 중",
     },
-    "runStatus": {
-      "pending": "대기 중",
-      "running": "실행 중",
-      "success": "성공",
-      "failed": "실패",
-      "cancelled": "취소됨"
+    runStatus: {
+      pending: "대기 중",
+      running: "실행 중",
+      success: "성공",
+      failed: "실패",
+      cancelled: "취소됨",
     },
-    "runType": {
-      "fullRefresh": "전체 새로 고침",
-      "vocabulary": "어휘",
-      "incremental": "증분"
+    runType: {
+      fullRefresh: "전체 새로 고침",
+      vocabulary: "어휘",
+      incremental: "증분",
     },
-    "scheduleType": {
-      "manual": "수동",
-      "cron": "예약됨",
-      "sensor": "이벤트 기반"
+    scheduleType: {
+      manual: "수동",
+      cron: "예약됨",
+      sensor: "이벤트 기반",
     },
-    "schedules": {
-      "title": "소스 일정",
-      "emptyTitle": "구성된 일정이 없습니다",
-      "emptyMessage": "데이터 소스의 CDM 새로 고침을 자동화하려면 Poseidon 일정을 만드세요.",
-      "active": "활성",
-      "paused": "일시 중지됨",
-      "lastRun": "마지막 실행: {{value}}",
-      "nextRun": "다음: {{value}}",
-      "runCount_one": "{{count}}회 실행",
-      "runCount_other": "{{count}}회 실행",
-      "pauseSchedule": "일정 일시 중지",
-      "activateSchedule": "일정 활성화",
-      "pause": "일시 중지",
-      "activate": "활성화",
-      "runIncrementalRefresh": "증분 새로 고침 실행"
+    schedules: {
+      title: "소스 일정",
+      emptyTitle: "구성된 일정이 없습니다",
+      emptyMessage:
+        "데이터 소스의 CDM 새로 고침을 자동화하려면 Poseidon 일정을 만드세요.",
+      active: "활성",
+      paused: "일시 중지됨",
+      lastRun: "마지막 실행: {{value}}",
+      nextRun: "다음: {{value}}",
+      runCount_one: "{{count}}회 실행",
+      runCount_other: "{{count}}회 실행",
+      pauseSchedule: "일정 일시 중지",
+      activateSchedule: "일정 활성화",
+      pause: "일시 중지",
+      activate: "활성화",
+      runIncrementalRefresh: "증분 새로 고침 실행",
     },
-    "recentRuns": {
-      "title": "최근 실행",
-      "emptyTitle": "아직 실행이 없습니다",
-      "emptyMessage": "수동 실행을 시작하거나 예약 실행을 기다리세요.",
-      "headers": {
-        "source": "소스",
-        "type": "유형",
-        "status": "상태",
-        "trigger": "트리거",
-        "duration": "기간",
-        "started": "시작됨",
-        "actions": "작업"
+    recentRuns: {
+      title: "최근 실행",
+      emptyTitle: "아직 실행이 없습니다",
+      emptyMessage: "수동 실행을 시작하거나 예약 실행을 기다리세요.",
+      headers: {
+        source: "소스",
+        type: "유형",
+        status: "상태",
+        trigger: "트리거",
+        duration: "기간",
+        started: "시작됨",
+        actions: "작업",
       },
-      "cancel": "취소"
+      cancel: "취소",
     },
-    "runDetail": {
-      "title": "실행 #{{id}}",
-      "type": "유형",
-      "triggeredBy": "실행한 사용자",
-      "duration": "기간",
-      "modelsRun": "실행된 모델",
-      "rowsInserted": "삽입된 행",
-      "rowsUpdated": "업데이트된 행",
-      "testsPassed": "통과한 테스트",
-      "testsFailed": "실패한 테스트",
-      "error": "오류"
+    runDetail: {
+      title: "실행 #{{id}}",
+      type: "유형",
+      triggeredBy: "실행한 사용자",
+      duration: "기간",
+      modelsRun: "실행된 모델",
+      rowsInserted: "삽입된 행",
+      rowsUpdated: "업데이트된 행",
+      testsPassed: "통과한 테스트",
+      testsFailed: "실패한 테스트",
+      error: "오류",
     },
-    "freshness": {
-      "title": "CDM 최신성",
-      "assetCount_one": "{{count}}개 자산",
-      "assetCount_other": "{{count}}개 자산",
-      "loading": "Dagster에서 최신성 데이터를 불러오는 중...",
-      "emptyTitle": "최신성 데이터가 없습니다",
-      "emptyMessage": "최소 한 번의 Poseidon 성공 실행 후 최신성 데이터가 표시됩니다.",
-      "never": "없음"
+    freshness: {
+      title: "CDM 최신성",
+      assetCount_one: "{{count}}개 자산",
+      assetCount_other: "{{count}}개 자산",
+      loading: "Dagster에서 최신성 데이터를 불러오는 중...",
+      emptyTitle: "최신성 데이터가 없습니다",
+      emptyMessage:
+        "최소 한 번의 Poseidon 성공 실행 후 최신성 데이터가 표시됩니다.",
+      never: "없음",
     },
-    "lineage": {
-      "title": "자산 계보",
-      "assetCount_one": "{{count}}개 자산",
-      "assetCount_other": "{{count}}개 자산",
-      "loading": "Dagster에서 계보를 불러오는 중...",
-      "emptyTitle": "계보 데이터가 없습니다",
-      "emptyMessage": "Dagster가 dbt 모델을 발견한 후 자산 계보가 표시됩니다.",
-      "dependsOn": "{{dependencies}}에 의존",
-      "tiers": {
-        "staging": "스테이징",
-        "intermediate": "중간",
-        "cdm": "CDM",
-        "quality": "품질",
-        "fallback": "계층 {{index}}"
-      }
-    }
+    lineage: {
+      title: "자산 계보",
+      assetCount_one: "{{count}}개 자산",
+      assetCount_other: "{{count}}개 자산",
+      loading: "Dagster에서 계보를 불러오는 중...",
+      emptyTitle: "계보 데이터가 없습니다",
+      emptyMessage: "Dagster가 dbt 모델을 발견한 후 자산 계보가 표시됩니다.",
+      dependsOn: "{{dependencies}}에 의존",
+      tiers: {
+        staging: "스테이징",
+        intermediate: "중간",
+        cdm: "CDM",
+        quality: "품질",
+        fallback: "계층 {{index}}",
+      },
+    },
   },
-  "jupyter": {
-    "status": {
-      "hubOnline": "Hub 온라인",
-      "unavailable": "사용 불가",
-      "authenticating": "인증 중...",
-      "startingServer": "서버 시작 중...",
-      "running": "실행 중",
-      "failed": "실패"
+  jupyter: {
+    status: {
+      hubOnline: "Hub 온라인",
+      unavailable: "사용 불가",
+      authenticating: "인증 중...",
+      startingServer: "서버 시작 중...",
+      running: "실행 중",
+      failed: "실패",
     },
-    "page": {
-      "title": "Jupyter 워크벤치",
-      "subtitle": "대화형 연구, 맞춤형 분석, 데이터 탐색을 위한 개인 노트북 환경",
-      "refresh": "새로 고침",
-      "openInNewTab": "새 탭에서 열기",
-      "workspaceDetails": "작업공간 세부정보",
-      "checkingHub": "JupyterHub 확인 중...",
-      "iframeTitle": "Parthenon 주피터",
-      "startOverlay": "노트북 서버를 시작하는 중...",
-      "firstLaunchNote": "첫 실행은 최대 30초까지 걸릴 수 있습니다",
-      "failedToStart": "노트북 서버를 시작하지 못했습니다",
-      "retry": "다시 시도",
-      "failedToCreateSession": "세션을 만들지 못했습니다"
+    page: {
+      title: "Jupyter 워크벤치",
+      subtitle: "대화형 연구, 맞춤형 분석, 데이터 탐색을 위한 개인 노트북 환경",
+      refresh: "새로 고침",
+      openInNewTab: "새 탭에서 열기",
+      workspaceDetails: "작업공간 세부정보",
+      checkingHub: "JupyterHub 확인 중...",
+      iframeTitle: "Parthenon 주피터",
+      startOverlay: "노트북 서버를 시작하는 중...",
+      firstLaunchNote: "첫 실행은 최대 30초까지 걸릴 수 있습니다",
+      failedToStart: "노트북 서버를 시작하지 못했습니다",
+      retry: "다시 시도",
+      failedToCreateSession: "세션을 만들지 못했습니다",
     },
-    "unavailable": {
-      "title": "JupyterHub에 연결할 수 없습니다",
-      "message": "현재 노트북 서비스를 사용할 수 없습니다. 컨테이너가 정상 상태가 되면 새로 고치세요."
+    unavailable: {
+      title: "JupyterHub에 연결할 수 없습니다",
+      message:
+        "현재 노트북 서비스를 사용할 수 없습니다. 컨테이너가 정상 상태가 되면 새로 고치세요.",
     },
-    "drawer": {
-      "title": "Jupyter 작업공간 세부정보",
-      "environment": "환경",
-      "runtime": "런타임",
-      "runtimeDescription": "pandas, polars, sqlalchemy 및 역할 기반 데이터베이스 접근이 포함된 Python 3.12",
-      "privateWorkspace": "개인 작업공간",
-      "privateWorkspaceDescription": "개인 노트북 디렉터리입니다. 세션 간에 유지되므로 작업이 항상 저장됩니다.",
-      "sharedFolder": "공유 폴더",
-      "sharedFolderDescription": "동료와 공유하려면 여기에 노트북을 복사하세요. 모든 Jupyter 사용자가 이 폴더를 읽을 수 있습니다.",
-      "mountedPaths": "마운트된 경로",
-      "starterNotebooks": "시작 노트북",
-      "noStarterNotebooks": "사용 가능한 시작 노트북이 없습니다.",
-      "tips": "팁",
-      "quickLinks": "빠른 링크",
-      "openHubNewTab": "새 탭에서 JupyterHub 열기",
-      "defaults": {
-        "runtime": "JupyterLab 4.4",
-        "privateWorkspace": "/home/jovyan/notebooks",
-        "sharedFolder": "/home/jovyan/shared"
-      }
-    }
+    drawer: {
+      title: "Jupyter 작업공간 세부정보",
+      environment: "환경",
+      runtime: "런타임",
+      runtimeDescription:
+        "pandas, polars, sqlalchemy 및 역할 기반 데이터베이스 접근이 포함된 Python 3.12",
+      privateWorkspace: "개인 작업공간",
+      privateWorkspaceDescription:
+        "개인 노트북 디렉터리입니다. 세션 간에 유지되므로 작업이 항상 저장됩니다.",
+      sharedFolder: "공유 폴더",
+      sharedFolderDescription:
+        "동료와 공유하려면 여기에 노트북을 복사하세요. 모든 Jupyter 사용자가 이 폴더를 읽을 수 있습니다.",
+      mountedPaths: "마운트된 경로",
+      starterNotebooks: "시작 노트북",
+      noStarterNotebooks: "사용 가능한 시작 노트북이 없습니다.",
+      tips: "팁",
+      quickLinks: "빠른 링크",
+      openHubNewTab: "새 탭에서 JupyterHub 열기",
+      defaults: {
+        runtime: "JupyterLab 4.4",
+        privateWorkspace: "/home/jovyan/notebooks",
+        sharedFolder: "/home/jovyan/shared",
+      },
+    },
   },
-  "codeExplorer": {
-    "page": {
-      "title": "코드 탐색기",
-      "concept": "개념",
-      "searchPlaceholder": "이 소스에 데이터가 있는 개념 검색",
-      "pickSource": "시작하려면 소스를 선택하세요.",
-      "pickSourceAndConcept": "데이터를 보려면 소스와 개념을 선택하세요."
+  codeExplorer: {
+    page: {
+      title: "코드 탐색기",
+      concept: "개념",
+      searchPlaceholder: "이 소스에 데이터가 있는 개념 검색",
+      pickSource: "시작하려면 소스를 선택하세요.",
+      pickSourceAndConcept: "데이터를 보려면 소스와 개념을 선택하세요.",
     },
-    "tabs": {
-      "counts": "건수",
-      "relationships": "관계",
-      "hierarchy": "계층",
-      "report": "보고서",
-      "myReports": "내 보고서"
+    tabs: {
+      counts: "건수",
+      relationships: "관계",
+      hierarchy: "계층",
+      report: "보고서",
+      myReports: "내 보고서",
     },
-    "sourcePicker": {
-      "loading": "소스를 불러오는 중...",
-      "empty": "구성된 소스가 없습니다",
-      "label": "데이터 소스",
-      "choose": "소스 선택..."
+    sourcePicker: {
+      loading: "소스를 불러오는 중...",
+      empty: "구성된 소스가 없습니다",
+      label: "데이터 소스",
+      choose: "소스 선택...",
     },
-    "counts": {
-      "emptyTitle": "{{sourceKey}}에는 이 개념에 대한 데이터가 없습니다",
-      "emptyMessage": "개념 {{conceptId}}은 OMOP vocabulary에 있지만 이 소스의 계층화 코드 집계에는 관측값이 없습니다. 다른 개념을 시도하거나({{sourceKey}}에서 데이터가 있는 개념만 검색됨) 이 코드를 포함한 소스로 전환하세요.",
-      "loading": "건수를 불러오는 중...",
-      "failed": "건수를 불러오지 못했습니다.",
-      "conceptId": "concept_id",
-      "count": "건수",
-      "group": "그룹",
-      "gender": "성별",
-      "ageDecile": "연령 분위",
-      "node": "노드 ({{count}})",
-      "descendant": "후손 ({{count}})"
+    counts: {
+      emptyTitle: "{{sourceKey}}에는 이 개념에 대한 데이터가 없습니다",
+      emptyMessage:
+        "개념 {{conceptId}}은 OMOP vocabulary에 있지만 이 소스의 계층화 코드 집계에는 관측값이 없습니다. 다른 개념을 시도하거나({{sourceKey}}에서 데이터가 있는 개념만 검색됨) 이 코드를 포함한 소스로 전환하세요.",
+      loading: "건수를 불러오는 중...",
+      failed: "건수를 불러오지 못했습니다.",
+      conceptId: "concept_id",
+      count: "건수",
+      group: "그룹",
+      gender: "성별",
+      ageDecile: "연령 분위",
+      node: "노드 ({{count}})",
+      descendant: "후손 ({{count}})",
     },
-    "chart": {
-      "noData": "표시할 데이터가 없습니다",
-      "male": "남성",
-      "female": "여성",
-      "unknown": "알 수 없음"
+    chart: {
+      noData: "표시할 데이터가 없습니다",
+      male: "남성",
+      female: "여성",
+      unknown: "알 수 없음",
     },
-    "hierarchy": {
-      "loading": "계층을 불러오는 중...",
-      "failed": "불러오지 못했습니다.",
-      "direction": "방향",
-      "both": "양방향",
-      "ancestorsOnly": "상위 개념만",
-      "descendantsOnly": "하위 개념만",
-      "maxDepth": "최대 깊이",
-      "empty": "깊이 {{depth}}에서 이 개념의 계층 데이터가 없습니다."
+    hierarchy: {
+      loading: "계층을 불러오는 중...",
+      failed: "불러오지 못했습니다.",
+      direction: "방향",
+      both: "양방향",
+      ancestorsOnly: "상위 개념만",
+      descendantsOnly: "하위 개념만",
+      maxDepth: "최대 깊이",
+      empty: "깊이 {{depth}}에서 이 개념의 계층 데이터가 없습니다.",
     },
-    "relationships": {
-      "loading": "관계를 불러오는 중...",
-      "failed": "불러오지 못했습니다.",
-      "empty": "이 개념에 대한 관계를 찾지 못했습니다.",
-      "headers": {
-        "relationship": "관계",
-        "targetConcept": "대상 개념",
-        "vocabulary": "어휘",
-        "standard": "표준"
-      }
-    },
-    "reports": {
-      "loading": "보고서를 불러오는 중...",
-      "failed": "불러오지 못했습니다.",
-      "empty": "아직 보고서가 없습니다. 보고서 탭으로 이동해 생성하세요.",
-      "headers": {
-        "created": "생성됨",
-        "source": "소스",
-        "concept": "개념",
-        "status": "상태",
-        "pin": "고정"
+    relationships: {
+      loading: "관계를 불러오는 중...",
+      failed: "불러오지 못했습니다.",
+      empty: "이 개념에 대한 관계를 찾지 못했습니다.",
+      headers: {
+        relationship: "관계",
+        targetConcept: "대상 개념",
+        vocabulary: "어휘",
+        standard: "표준",
       },
-      "pin": "고정",
-      "unpin": "고정 해제",
-      "generateReport": "보고서 생성",
-      "generating": "생성 중...",
-      "failedToDispatch": "보고서 전송에 실패했습니다.",
-      "progress": "{{percent}}% - {{message}}",
-      "failedTitle": "보고서 생성 실패",
-      "ready": "보고서 준비 완료",
-      "downloadHtml": "HTML 다운로드",
-      "iframeTitle": "ROMOPAPI 보고서",
-      "inlinePreviewNote": "인라인 미리보기는 샌드박스 처리되어 있습니다(스크립트 및 교차 출처 비활성화). 전체 대화형 보기를 보려면 파일을 다운로드하세요."
     },
-    "sourceReadiness": {
-      "settingUp": "{{sourceKey}} 설정 중...",
-      "sourceNeedsInitialization": "소스 {{sourceKey}}는 초기화가 필요합니다",
-      "missing": "누락: {{missing}}. 이는 계층화 코드 집계 테이블을 물리화하는 관리자 전용 1회 설정입니다.",
-      "dispatching": "전송 중...",
-      "initializeSource": "소스 초기화",
-      "failedToDispatch": "전송에 실패했습니다. `finngen.code-explorer.setup` 권한이 없을 수 있습니다."
-    }
+    reports: {
+      loading: "보고서를 불러오는 중...",
+      failed: "불러오지 못했습니다.",
+      empty: "아직 보고서가 없습니다. 보고서 탭으로 이동해 생성하세요.",
+      headers: {
+        created: "생성됨",
+        source: "소스",
+        concept: "개념",
+        status: "상태",
+        pin: "고정",
+      },
+      pin: "고정",
+      unpin: "고정 해제",
+      generateReport: "보고서 생성",
+      generating: "생성 중...",
+      failedToDispatch: "보고서 전송에 실패했습니다.",
+      progress: "{{percent}}% - {{message}}",
+      failedTitle: "보고서 생성 실패",
+      ready: "보고서 준비 완료",
+      downloadHtml: "HTML 다운로드",
+      iframeTitle: "ROMOPAPI 보고서",
+      inlinePreviewNote:
+        "인라인 미리보기는 샌드박스 처리되어 있습니다(스크립트 및 교차 출처 비활성화). 전체 대화형 보기를 보려면 파일을 다운로드하세요.",
+    },
+    sourceReadiness: {
+      settingUp: "{{sourceKey}} 설정 중...",
+      sourceNeedsInitialization: "소스 {{sourceKey}}는 초기화가 필요합니다",
+      missing:
+        "누락: {{missing}}. 이는 계층화 코드 집계 테이블을 물리화하는 관리자 전용 1회 설정입니다.",
+      dispatching: "전송 중...",
+      initializeSource: "소스 초기화",
+      failedToDispatch:
+        "전송에 실패했습니다. `finngen.code-explorer.setup` 권한이 없을 수 있습니다.",
+    },
   },
-  "gis": {
-    "common": {
-      "analysisLayerCount_one": "{{count}}개 분석 레이어 활성",
-      "analysisLayerCount_other": "{{count}}개 분석 레이어 활성",
-      "avgValue": "평균: {{value}}",
-      "records_one": "{{count}}개 레코드",
-      "records_other": "{{count}}개 레코드",
-      "present": "있음",
-      "unknownRegion": "지역"
+  gis: {
+    common: {
+      analysisLayerCount_one: "{{count}}개 분석 레이어 활성",
+      analysisLayerCount_other: "{{count}}개 분석 레이어 활성",
+      avgValue: "평균: {{value}}",
+      records_one: "{{count}}개 레코드",
+      records_other: "{{count}}개 레코드",
+      present: "있음",
+      unknownRegion: "지역",
     },
-    "page": {
-      "title": "GIS 탐색기",
-      "reset": "재설정",
-      "collapse": "접기",
-      "expand": "펼치기",
-      "enableLayers": "왼쪽 패널에서 분석 레이어를 활성화하세요",
-      "selectDisease": "공간 분석을 시작할 질환을 선택하세요"
+    page: {
+      title: "GIS 탐색기",
+      reset: "재설정",
+      collapse: "접기",
+      expand: "펼치기",
+      enableLayers: "왼쪽 패널에서 분석 레이어를 활성화하세요",
+      selectDisease: "공간 분석을 시작할 질환을 선택하세요",
     },
-    "layerPanel": {
-      "title": "분석 레이어",
-      "privacy": "개인정보 보호",
-      "suppressionOff": "억제: 해제됨 (합성 데이터)"
+    layerPanel: {
+      title: "분석 레이어",
+      privacy: "개인정보 보호",
+      suppressionOff: "억제: 해제됨 (합성 데이터)",
     },
-    "context": {
-      "researchActions": "연구 작업",
-      "createStudy": "연구 생성",
-      "browseCohorts": "코호트 탐색",
-      "clickRegion": "레이어 세부정보를 보려면 지도에서 지역을 클릭하세요"
+    context: {
+      researchActions: "연구 작업",
+      createStudy: "연구 생성",
+      browseCohorts: "코호트 탐색",
+      clickRegion: "레이어 세부정보를 보려면 지도에서 지역을 클릭하세요",
     },
-    "diseaseSelector": {
-      "title": "질환",
-      "searchPlaceholder": "질환 검색...",
-      "top": "상위",
-      "categories": "카테고리",
-      "noMatches": "일치하는 질환이 없습니다",
-      "patientCountTitle": "{{count}}명 환자"
+    diseaseSelector: {
+      title: "질환",
+      searchPlaceholder: "질환 검색...",
+      top: "상위",
+      categories: "카테고리",
+      noMatches: "일치하는 질환이 없습니다",
+      patientCountTitle: "{{count}}명 환자",
     },
-    "regionDetail": {
-      "loading": "불러오는 중...",
-      "close": "닫기",
-      "loadingDetails": "지역 세부정보를 불러오는 중...",
-      "area": "면적: {{value}} km²",
-      "drillDown_one": "{{count}}개 하위 지역으로 드릴다운",
-      "drillDown_other": "{{count}}개 하위 지역으로 드릴다운",
-      "exposures": "노출",
-      "concept": "개념 {{conceptId}}"
+    regionDetail: {
+      loading: "불러오는 중...",
+      close: "닫기",
+      loadingDetails: "지역 세부정보를 불러오는 중...",
+      area: "면적: {{value}} km²",
+      drillDown_one: "{{count}}개 하위 지역으로 드릴다운",
+      drillDown_other: "{{count}}개 하위 지역으로 드릴다운",
+      exposures: "노출",
+      concept: "개념 {{conceptId}}",
     },
-    "countyDetail": {
-      "county": "카운티",
-      "cases": "사례",
-      "deaths": "사망",
-      "cfr": "치명률",
-      "hospitalized": "입원",
-      "population": "인구",
-      "ageDistributionCovid": "연령 분포 (COVID)",
-      "monthlyCases": "월별 사례",
-      "casesTitle": "{{period}}: {{count}}건"
+    countyDetail: {
+      county: "카운티",
+      cases: "사례",
+      deaths: "사망",
+      cfr: "치명률",
+      hospitalized: "입원",
+      population: "인구",
+      ageDistributionCovid: "연령 분포 (COVID)",
+      monthlyCases: "월별 사례",
+      casesTitle: "{{period}}: {{count}}건",
     },
-    "diseaseSummary": {
-      "cases": "사례",
-      "deaths": "사망",
-      "cfr": "치명률",
-      "counties": "카운티",
-      "prevalence": "유병률"
+    diseaseSummary: {
+      cases: "사례",
+      deaths: "사망",
+      cfr: "치명률",
+      counties: "카운티",
+      prevalence: "유병률",
     },
-    "analysisDrawer": {
-      "title_one": "분석 ({{count}}개 레이어)",
-      "title_other": "분석 ({{count}}개 레이어)"
+    analysisDrawer: {
+      title_one: "분석 ({{count}}개 레이어)",
+      title_other: "분석 ({{count}}개 레이어)",
     },
-    "layers": {
-      "airQuality": {
-        "name": "대기질",
-        "description": "EPA PM2.5 및 오존 수준",
-        "legend": {
-          "good": "좋음 (낮은 PM2.5)",
-          "poor": "나쁨 (높은 PM2.5)"
+    layers: {
+      airQuality: {
+        name: "대기질",
+        description: "EPA PM2.5 및 오존 수준",
+        legend: {
+          good: "좋음 (낮은 PM2.5)",
+          poor: "나쁨 (높은 PM2.5)",
         },
-        "tooltip": {
-          "pm25": "PM2.5"
+        tooltip: {
+          pm25: "PM2.5",
         },
-        "analysis": {
-          "loading": "불러오는 중...",
-          "noData": "데이터 없음"
+        analysis: {
+          loading: "불러오는 중...",
+          noData: "데이터 없음",
         },
-        "detail": {
-          "loading": "불러오는 중...",
-          "empty": "대기질 데이터 없음",
-          "ozone": "오존"
-        }
+        detail: {
+          loading: "불러오는 중...",
+          empty: "대기질 데이터 없음",
+          ozone: "오존",
+        },
       },
-      "comorbidity": {
-        "name": "동반질환 부담",
-        "description": "당뇨, 고혈압, 비만 군집",
-        "legend": {
-          "low": "낮은 부담 (0)",
-          "high": "높은 부담 (3)"
+      comorbidity: {
+        name: "동반질환 부담",
+        description: "당뇨, 고혈압, 비만 군집",
+        legend: {
+          low: "낮은 부담 (0)",
+          high: "높은 부담 (3)",
         },
-        "tooltip": {
-          "burden": "부담"
+        tooltip: {
+          burden: "부담",
         },
-        "analysis": {
-          "loading": "불러오는 중...",
-          "noData": "데이터 없음"
+        analysis: {
+          loading: "불러오는 중...",
+          noData: "데이터 없음",
         },
-        "detail": {
-          "title": "{{fips}}의 동반질환 데이터",
-          "subtitle": "당뇨 + 고혈압 + 비만 부담 점수"
-        }
+        detail: {
+          title: "{{fips}}의 동반질환 데이터",
+          subtitle: "당뇨 + 고혈압 + 비만 부담 점수",
+        },
       },
-      "hospitalAccess": {
-        "name": "병원 접근성",
-        "description": "CMS 병원 접근성",
-        "legend": {
-          "withEd": "병원 (응급실)",
-          "withoutEd": "병원 (응급실 없음)"
+      hospitalAccess: {
+        name: "병원 접근성",
+        description: "CMS 병원 접근성",
+        legend: {
+          withEd: "병원 (응급실)",
+          withoutEd: "병원 (응급실 없음)",
         },
-        "analysis": {
-          "loading": "불러오는 중...",
-          "noData": "데이터 없음"
+        analysis: {
+          loading: "불러오는 중...",
+          noData: "데이터 없음",
         },
-        "detail": {
-          "title": "{{fips}}에서 가장 가까운 병원",
-          "subtitle": "거리 구간: 15/30/60 km"
-        }
+        detail: {
+          title: "{{fips}}에서 가장 가까운 병원",
+          subtitle: "거리 구간: 15/30/60 km",
+        },
       },
-      "rucc": {
-        "name": "도시-농촌",
-        "description": "USDA Rural-Urban Continuum Codes",
-        "legend": {
-          "metro": "대도시",
-          "micropolitan": "중소도시",
-          "rural": "농촌"
+      rucc: {
+        name: "도시-농촌",
+        description: "USDA Rural-Urban Continuum Codes",
+        legend: {
+          metro: "대도시",
+          micropolitan: "중소도시",
+          rural: "농촌",
         },
-        "tooltip": {
-          "classification": "분류"
+        tooltip: {
+          classification: "분류",
         },
-        "analysis": {
-          "loading": "불러오는 중...",
-          "noData": "데이터 없음"
+        analysis: {
+          loading: "불러오는 중...",
+          noData: "데이터 없음",
         },
-        "detail": {
-          "loading": "불러오는 중...",
-          "empty": "RUCC 데이터 없음",
-          "code": "RUCC 코드",
-          "classification": "분류",
-          "category": "범주",
-          "patients": "환자"
+        detail: {
+          loading: "불러오는 중...",
+          empty: "RUCC 데이터 없음",
+          code: "RUCC 코드",
+          classification: "분류",
+          category: "범주",
+          patients: "환자",
         },
-        "categories": {
-          "metro": "대도시",
-          "micro": "중소도시",
-          "rural": "농촌"
-        }
+        categories: {
+          metro: "대도시",
+          micro: "중소도시",
+          rural: "농촌",
+        },
       },
-      "svi": {
-        "name": "사회적 취약성",
-        "description": "센서스 구역별 CDC/ATSDR SVI",
-        "legend": {
-          "low": "낮은 취약성",
-          "high": "높은 취약성"
+      svi: {
+        name: "사회적 취약성",
+        description: "센서스 구역별 CDC/ATSDR SVI",
+        legend: {
+          low: "낮은 취약성",
+          high: "높은 취약성",
         },
-        "tooltip": {
-          "score": "SVI"
+        tooltip: {
+          score: "SVI",
         },
-        "analysis": {
-          "loading": "불러오는 중...",
-          "noData": "사용 가능한 데이터가 없습니다"
+        analysis: {
+          loading: "불러오는 중...",
+          noData: "사용 가능한 데이터가 없습니다",
         },
-        "detail": {
-          "loading": "불러오는 중...",
-          "empty": "SVI 데이터 없음",
-          "overall": "전체 SVI",
-          "themes": {
-            "socioeconomicStatus": "사회경제적 상태",
-            "householdComposition": "가구 구성",
-            "minorityStatus": "소수자 상태",
-            "housingTransportation": "주거 및 교통"
-          }
-        }
-      }
-    }
+        detail: {
+          loading: "불러오는 중...",
+          empty: "SVI 데이터 없음",
+          overall: "전체 SVI",
+          themes: {
+            socioeconomicStatus: "사회경제적 상태",
+            householdComposition: "가구 구성",
+            minorityStatus: "소수자 상태",
+            housingTransportation: "주거 및 교통",
+          },
+        },
+      },
+    },
   },
-  "queryAssistant": {
-    "page": {
-      "title": "쿼리 도우미",
-      "subtitle": "OHDSI 쿼리 라이브러리를 탐색하거나 자연어에서 SQL을 생성하는 AI를 사용할 수 있습니다",
-      "dialect": "방언",
-      "default": "기본",
-      "defaultTooltip": "변경 사항이 시스템 기본값으로 저장됩니다(슈퍼 관리자)",
-      "tabs": {
-        "library": "쿼리 라이브러리",
-        "naturalLanguage": "자연어"
-      }
-    },
-    "naturalLanguage": {
-      "askQuestion": "질문하기",
-      "placeholder": "예: 2023년에 제2형 당뇨병 진단을 받은 환자는 몇 명인가요?",
-      "ctrlEnter": "Ctrl+Enter로 생성",
-      "tryExample": "예시 사용",
-      "examples": {
-        "diabetes": "당뇨병 환자는 몇 명인가요?",
-        "topConditions": "유병률 기준 상위 10개 질환은 무엇인가요?",
-        "heartFailureAge": "심부전 환자의 평균 연령",
-        "statins2024": "2024년 스타틴 약물 노출 건수"
+  queryAssistant: {
+    page: {
+      title: "쿼리 도우미",
+      subtitle:
+        "OHDSI 쿼리 라이브러리를 탐색하거나 자연어에서 SQL을 생성하는 AI를 사용할 수 있습니다",
+      dialect: "방언",
+      default: "기본",
+      defaultTooltip: "변경 사항이 시스템 기본값으로 저장됩니다(슈퍼 관리자)",
+      tabs: {
+        library: "쿼리 라이브러리",
+        naturalLanguage: "자연어",
       },
-      "generateWithAi": "AI로 생성",
-      "generating": "생성 중...",
-      "failedToGenerate": "SQL을 생성하지 못했습니다. 다시 시도하세요.",
-      "queryHistory": "쿼리 기록",
-      "clear": "지우기",
-      "emptyTitle": "시작하려면 질문하세요",
-      "emptyDescription": "OMOP CDM 데이터에 대한 자연어 질문을 입력하면 AI가 해당 SQL 쿼리를 생성합니다."
     },
-    "library": {
-      "searchPlaceholder": "키워드로 쿼리 검색...",
-      "indexedQueries": "{{count}}개 인덱싱된 쿼리",
-      "matches": "{{count}}개 일치",
-      "featuredTemplates": "{{count}}개 추천 템플릿",
-      "refreshing": "새로 고침 중",
-      "allDomains": "모든 도메인",
-      "failedToLoad": "쿼리 라이브러리를 불러오지 못했습니다.",
-      "noMatches": "검색과 일치하는 쿼리를 찾지 못했습니다.",
-      "tryDifferentKeyword": "다른 키워드를 시도하거나 필터를 지우세요.",
-      "importHint": "라이브러리가 비어 있으면 관리자에게 다음 명령 실행을 요청하세요: php artisan query-library:import-ohdsi",
-      "showMoreMatches": "더 많은 일치 항목 보기"
+    naturalLanguage: {
+      askQuestion: "질문하기",
+      placeholder: "예: 2023년에 제2형 당뇨병 진단을 받은 환자는 몇 명인가요?",
+      ctrlEnter: "Ctrl+Enter로 생성",
+      tryExample: "예시 사용",
+      examples: {
+        diabetes: "당뇨병 환자는 몇 명인가요?",
+        topConditions: "유병률 기준 상위 10개 질환은 무엇인가요?",
+        heartFailureAge: "심부전 환자의 평균 연령",
+        statins2024: "2024년 스타틴 약물 노출 건수",
+      },
+      generateWithAi: "AI로 생성",
+      generating: "생성 중...",
+      failedToGenerate: "SQL을 생성하지 못했습니다. 다시 시도하세요.",
+      queryHistory: "쿼리 기록",
+      clear: "지우기",
+      emptyTitle: "시작하려면 질문하세요",
+      emptyDescription:
+        "OMOP CDM 데이터에 대한 자연어 질문을 입력하면 AI가 해당 SQL 쿼리를 생성합니다.",
     },
-    "results": {
-      "safeReadOnly": "안전 - 읽기 전용",
-      "needsReview": "검토 필요",
-      "unsafe": "안전하지 않음",
-      "queryLibraryMatch": "쿼리 라이브러리 일치",
-      "templateParameters": "템플릿 매개변수",
-      "rendering": "렌더링 중...",
-      "sqlUpdated": "SQL 업데이트됨",
-      "renderTemplate": "템플릿 렌더링",
-      "renderFailed": "쿼리 템플릿을 렌더링하지 못했습니다.",
-      "generatedSql": "생성된 SQL",
-      "aggregate": "집계",
-      "tablesReferenced": "참조된 테이블",
-      "explanation": "설명",
-      "validateSql": "SQL 검증",
-      "validating": "검증 중...",
-      "validSql": "유효한 SQL",
-      "validationFailed": "검증 실패",
-      "readOnly": "읽기 전용",
-      "complexity": {
-        "low": "낮은 복잡도",
-        "medium": "중간 복잡도",
-        "high": "높은 복잡도"
-      },
-      "renderError": "쿼리 템플릿을 렌더링하지 못했습니다.",
-      "validateError": "SQL을 검증하지 못했습니다."
+    library: {
+      searchPlaceholder: "키워드로 쿼리 검색...",
+      indexedQueries: "{{count}}개 인덱싱된 쿼리",
+      matches: "{{count}}개 일치",
+      featuredTemplates: "{{count}}개 추천 템플릿",
+      refreshing: "새로 고침 중",
+      allDomains: "모든 도메인",
+      failedToLoad: "쿼리 라이브러리를 불러오지 못했습니다.",
+      noMatches: "검색과 일치하는 쿼리를 찾지 못했습니다.",
+      tryDifferentKeyword: "다른 키워드를 시도하거나 필터를 지우세요.",
+      importHint:
+        "라이브러리가 비어 있으면 관리자에게 다음 명령 실행을 요청하세요: php artisan query-library:import-ohdsi",
+      showMoreMatches: "더 많은 일치 항목 보기",
     },
-    "schemaBrowser": {
-      "title": "OMOP CDM 스키마 브라우저",
-      "failedToLoad": "스키마를 불러오지 못했습니다.",
-      "clinicalTables": "임상 테이블 ({{count}})",
-      "vocabularyTables": "어휘 테이블 ({{count}})",
-      "commonJoins": "자주 쓰는 조인",
-      "cols": "{{count}}개 컬럼",
-      "noDescription": "설명이 없습니다."
+    results: {
+      safeReadOnly: "안전 - 읽기 전용",
+      needsReview: "검토 필요",
+      unsafe: "안전하지 않음",
+      queryLibraryMatch: "쿼리 라이브러리 일치",
+      templateParameters: "템플릿 매개변수",
+      rendering: "렌더링 중...",
+      sqlUpdated: "SQL 업데이트됨",
+      renderTemplate: "템플릿 렌더링",
+      renderFailed: "쿼리 템플릿을 렌더링하지 못했습니다.",
+      generatedSql: "생성된 SQL",
+      aggregate: "집계",
+      tablesReferenced: "참조된 테이블",
+      explanation: "설명",
+      validateSql: "SQL 검증",
+      validating: "검증 중...",
+      validSql: "유효한 SQL",
+      validationFailed: "검증 실패",
+      readOnly: "읽기 전용",
+      complexity: {
+        low: "낮은 복잡도",
+        medium: "중간 복잡도",
+        high: "높은 복잡도",
+      },
+      renderError: "쿼리 템플릿을 렌더링하지 못했습니다.",
+      validateError: "SQL을 검증하지 못했습니다.",
     },
-    "sqlBlock": {
-      "sql": "SQL",
-      "runSql": "SQL 실행",
-      "copy": "복사",
-      "copied": "복사됨"
+    schemaBrowser: {
+      title: "OMOP CDM 스키마 브라우저",
+      failedToLoad: "스키마를 불러오지 못했습니다.",
+      clinicalTables: "임상 테이블 ({{count}})",
+      vocabularyTables: "어휘 테이블 ({{count}})",
+      commonJoins: "자주 쓰는 조인",
+      cols: "{{count}}개 컬럼",
+      noDescription: "설명이 없습니다.",
     },
-    "sqlRunner": {
-      "errorTitles": {
-        "explanationInsteadOfSql": "AI가 SQL 대신 설명을 반환했습니다",
-        "mysqlBackticks": "MySQL 방식 backtick은 지원되지 않습니다",
-        "syntaxError": "SQL 구문 오류",
-        "syntaxErrorNear": "\"{{token}}\" 근처 구문 오류",
-        "timeout": "쿼리 시간이 초과되었습니다(120초 제한)",
-        "tableNotFound": "테이블을 찾을 수 없습니다",
-        "tableNotFoundNamed": "\"{{table}}\" 테이블을 찾을 수 없습니다",
-        "columnNotFound": "컬럼을 찾을 수 없습니다",
-        "columnNotFoundNamed": "\"{{column}}\" 컬럼을 찾을 수 없습니다",
-        "insufficientPermissions": "권한이 부족합니다"
+    sqlBlock: {
+      sql: "SQL",
+      runSql: "SQL 실행",
+      copy: "복사",
+      copied: "복사됨",
+    },
+    sqlRunner: {
+      errorTitles: {
+        explanationInsteadOfSql: "AI가 SQL 대신 설명을 반환했습니다",
+        mysqlBackticks: "MySQL 방식 backtick은 지원되지 않습니다",
+        syntaxError: "SQL 구문 오류",
+        syntaxErrorNear: '"{{token}}" 근처 구문 오류',
+        timeout: "쿼리 시간이 초과되었습니다(120초 제한)",
+        tableNotFound: "테이블을 찾을 수 없습니다",
+        tableNotFoundNamed: '"{{table}}" 테이블을 찾을 수 없습니다',
+        columnNotFound: "컬럼을 찾을 수 없습니다",
+        columnNotFoundNamed: '"{{column}}" 컬럼을 찾을 수 없습니다',
+        insufficientPermissions: "권한이 부족합니다",
       },
-      "suggestions": {
-        "explanationInsteadOfSql": {
-          "first": "질문을 더 구체적으로 바꿔 보세요",
-          "second": "쿼리 라이브러리 탭에서 미리 만들어진 템플릿을 찾아보세요",
-          "third": "조회하려는 정확한 테이블과 컬럼을 지정하세요"
+      suggestions: {
+        explanationInsteadOfSql: {
+          first: "질문을 더 구체적으로 바꿔 보세요",
+          second: "쿼리 라이브러리 탭에서 미리 만들어진 템플릿을 찾아보세요",
+          third: "조회하려는 정확한 테이블과 컬럼을 지정하세요",
         },
-        "mysqlBackticks": {
-          "first": "PostgreSQL은 식별자에 큰따옴표를 사용합니다: \"column_name\"",
-          "second": "대부분의 OMOP 컬럼명은 따옴표가 필요 없습니다",
-          "third": "쿼리를 다시 생성해 보세요. AI가 가끔 MySQL 구문을 사용합니다"
+        mysqlBackticks: {
+          first: 'PostgreSQL은 식별자에 큰따옴표를 사용합니다: "column_name"',
+          second: "대부분의 OMOP 컬럼명은 따옴표가 필요 없습니다",
+          third: "쿼리를 다시 생성해 보세요. AI가 가끔 MySQL 구문을 사용합니다",
         },
-        "syntaxError": {
-          "first": "생성된 SQL에 구문 문제가 있습니다. 더 명확한 질문으로 다시 생성해 보세요",
-          "second": "괄호 불일치, 누락된 쉼표, 불필요한 키워드를 확인하세요",
-          "third": "실행 전에 SQL 검증 버튼으로 먼저 문제를 확인하세요"
+        syntaxError: {
+          first:
+            "생성된 SQL에 구문 문제가 있습니다. 더 명확한 질문으로 다시 생성해 보세요",
+          second: "괄호 불일치, 누락된 쉼표, 불필요한 키워드를 확인하세요",
+          third: "실행 전에 SQL 검증 버튼으로 먼저 문제를 확인하세요",
         },
-        "timeout": {
-          "first": "스캔되는 데이터를 줄이도록 더 구체적인 WHERE 조건을 추가하세요",
-          "second": "결과 집합을 제한하는 LIMIT 절을 추가하세요",
-          "third": "SELECT *를 피하고 필요한 컬럼만 선택하세요",
-          "fourth": "데이터 범위를 좁히기 위해 날짜 범위로 필터링하세요"
+        timeout: {
+          first:
+            "스캔되는 데이터를 줄이도록 더 구체적인 WHERE 조건을 추가하세요",
+          second: "결과 집합을 제한하는 LIMIT 절을 추가하세요",
+          third: "SELECT *를 피하고 필요한 컬럼만 선택하세요",
+          fourth: "데이터 범위를 좁히기 위해 날짜 범위로 필터링하세요",
         },
-        "tableNotFound": {
-          "first": "OMOP 테이블은 스키마를 포함해야 합니다: omop.person, omop.condition_occurrence",
-          "second": "페이지 하단의 스키마 브라우저로 테이블 이름을 확인하세요",
-          "third": "철자를 확인하세요. 자주 쓰는 테이블: person, condition_occurrence, drug_exposure, measurement"
+        tableNotFound: {
+          first:
+            "OMOP 테이블은 스키마를 포함해야 합니다: omop.person, omop.condition_occurrence",
+          second: "페이지 하단의 스키마 브라우저로 테이블 이름을 확인하세요",
+          third:
+            "철자를 확인하세요. 자주 쓰는 테이블: person, condition_occurrence, drug_exposure, measurement",
         },
-        "columnNotFound": {
-          "first": "사용 가능한 컬럼을 보려면 스키마 브라우저에서 테이블을 펼치세요",
-          "second": "OMOP 컬럼명은 밑줄을 사용합니다: person_id, condition_start_date",
-          "third": "이 컬럼을 가진 다른 테이블과 JOIN이 필요한지 확인하세요"
+        columnNotFound: {
+          first:
+            "사용 가능한 컬럼을 보려면 스키마 브라우저에서 테이블을 펼치세요",
+          second:
+            "OMOP 컬럼명은 밑줄을 사용합니다: person_id, condition_start_date",
+          third: "이 컬럼을 가진 다른 테이블과 JOIN이 필요한지 확인하세요",
         },
-        "insufficientPermissions": {
-          "first": "이 쿼리는 \"안전함\"(읽기 전용)으로 분류되지 않았습니다",
-          "second": "안전으로 표시되지 않은 쿼리는 관리자만 실행할 수 있습니다",
-          "third": "SQL 검증 버튼으로 안전 분류를 확인하세요"
-        }
+        insufficientPermissions: {
+          first: '이 쿼리는 "안전함"(읽기 전용)으로 분류되지 않았습니다',
+          second: "안전으로 표시되지 않은 쿼리는 관리자만 실행할 수 있습니다",
+          third: "SQL 검증 버튼으로 안전 분류를 확인하세요",
+        },
       },
-      "defaults": {
-        "queryExecutionFailed": "쿼리 실행 실패",
-        "failedToRenderTemplate": "템플릿 렌더링 실패",
-        "typeToSearchConcepts": "OMOP 개념을 검색하려면 입력하세요...",
-        "typeToSearchConceptsWithDefault": "{{defaultValue}} - OMOP 개념을 검색하려면 입력하세요"
+      defaults: {
+        queryExecutionFailed: "쿼리 실행 실패",
+        failedToRenderTemplate: "템플릿 렌더링 실패",
+        typeToSearchConcepts: "OMOP 개념을 검색하려면 입력하세요...",
+        typeToSearchConceptsWithDefault:
+          "{{defaultValue}} - OMOP 개념을 검색하려면 입력하세요",
       },
-      "state": {
-        "active": "쿼리 실행 중...",
-        "idle": "대기",
-        "idleInTransaction": "결과 처리 중...",
-        "idleAborted": "트랜잭션 중단됨",
-        "fastpath": "빠른 경로 호출",
-        "disabled": "추적 비활성화됨",
-        "completed": "완료",
-        "error": "오류"
+      state: {
+        active: "쿼리 실행 중...",
+        idle: "대기",
+        idleInTransaction: "결과 처리 중...",
+        idleAborted: "트랜잭션 중단됨",
+        fastpath: "빠른 경로 호출",
+        disabled: "추적 비활성화됨",
+        completed: "완료",
+        error: "오류",
       },
-      "modal": {
-        "title": "SQL 쿼리 실행기",
-        "wait": "대기: {{value}}",
-        "preparing": "준비 중...",
-        "runQuery": "쿼리 실행",
-        "queryCompleted": "쿼리 완료",
-        "rowsIn": "{{elapsed}} 동안 {{count}}행",
-        "cappedAt10k": "10,000행으로 제한됨",
-        "queryFailed": "쿼리 실패",
-        "downloadCsv": "CSV 다운로드",
-        "close": "닫기",
-        "showingSomeRows": "{{total}}행 중 {{shown}}행 표시",
-        "showingAllRows": "{{count}}행",
-        "nullValue": "null"
-      }
-    }
-  }
+      modal: {
+        title: "SQL 쿼리 실행기",
+        wait: "대기: {{value}}",
+        preparing: "준비 중...",
+        runQuery: "쿼리 실행",
+        queryCompleted: "쿼리 완료",
+        rowsIn: "{{elapsed}} 동안 {{count}}행",
+        cappedAt10k: "10,000행으로 제한됨",
+        queryFailed: "쿼리 실패",
+        downloadCsv: "CSV 다운로드",
+        close: "닫기",
+        showingSomeRows: "{{total}}행 중 {{shown}}행 표시",
+        showingAllRows: "{{count}}행",
+        nullValue: "null",
+      },
+    },
+  },
 });
 const hiGisTools: MessageTree = mergeMessageTrees(enGisTools, {
-  "poseidon": {
-    "page": {
-      "unavailableTitle": "Poseidon उपलब्ध नहीं है",
-      "unavailableMessage": "Poseidon orchestration service से कनेक्ट नहीं हो सका. कृपया जांचें कि Poseidon containers चल रहे हैं.",
-      "retry": "फिर कोशिश करें",
-      "title": "Poseidon",
-      "subtitle": "dbt + Dagster के जरिए incremental loads, dependency-aware execution, और प्रति-स्रोत scheduling वाली CDM refresh orchestration",
-      "refresh": "रिफ्रेश"
+  poseidon: {
+    page: {
+      unavailableTitle: "Poseidon उपलब्ध नहीं है",
+      unavailableMessage:
+        "Poseidon orchestration service से कनेक्ट नहीं हो सका. कृपया जांचें कि Poseidon containers चल रहे हैं.",
+      retry: "फिर कोशिश करें",
+      title: "Poseidon",
+      subtitle:
+        "dbt + Dagster के जरिए incremental loads, dependency-aware execution, और प्रति-स्रोत scheduling वाली CDM refresh orchestration",
+      refresh: "रिफ्रेश",
     },
-    "overview": {
-      "activeSchedules": "सक्रिय अनुसूचियां",
-      "runsInProgress": "प्रगति पर निष्पादन",
-      "successfulRuns": "सफल निष्पादन",
-      "failedRuns": "विफल निष्पादन",
-      "ofTotal": "कुल {{count}} में से"
+    overview: {
+      activeSchedules: "सक्रिय अनुसूचियां",
+      runsInProgress: "प्रगति पर निष्पादन",
+      successfulRuns: "सफल निष्पादन",
+      failedRuns: "विफल निष्पादन",
+      ofTotal: "कुल {{count}} में से",
     },
-    "runStatus": {
-      "pending": "लंबित",
-      "running": "चल रहा है",
-      "success": "सफल",
-      "failed": "विफल",
-      "cancelled": "रद्द"
+    runStatus: {
+      pending: "लंबित",
+      running: "चल रहा है",
+      success: "सफल",
+      failed: "विफल",
+      cancelled: "रद्द",
     },
-    "runType": {
-      "fullRefresh": "पूर्ण refresh",
-      "vocabulary": "शब्दावली",
-      "incremental": "क्रमिक"
+    runType: {
+      fullRefresh: "पूर्ण refresh",
+      vocabulary: "शब्दावली",
+      incremental: "क्रमिक",
     },
-    "scheduleType": {
-      "manual": "मैनुअल",
-      "cron": "अनुसूचित",
-      "sensor": "इवेंट-चालित"
+    scheduleType: {
+      manual: "मैनुअल",
+      cron: "अनुसूचित",
+      sensor: "इवेंट-चालित",
     },
-    "schedules": {
-      "title": "स्रोत अनुसूचियां",
-      "emptyTitle": "कोई अनुसूची कॉन्फ़िगर नहीं है",
-      "emptyMessage": "किसी data source के लिए CDM refresh को automate करने हेतु Poseidon schedule बनाएं.",
-      "active": "सक्रिय",
-      "paused": "रोक दिया गया",
-      "lastRun": "पिछला run: {{value}}",
-      "nextRun": "अगला: {{value}}",
-      "runCount_one": "{{count}} निष्पादन",
-      "runCount_other": "{{count}} निष्पादन",
-      "pauseSchedule": "अनुसूची रोकें",
-      "activateSchedule": "अनुसूची सक्रिय करें",
-      "pause": "रोकें",
-      "activate": "सक्रिय करें",
-      "runIncrementalRefresh": "क्रमिक refresh चलाएं"
+    schedules: {
+      title: "स्रोत अनुसूचियां",
+      emptyTitle: "कोई अनुसूची कॉन्फ़िगर नहीं है",
+      emptyMessage:
+        "किसी data source के लिए CDM refresh को automate करने हेतु Poseidon schedule बनाएं.",
+      active: "सक्रिय",
+      paused: "रोक दिया गया",
+      lastRun: "पिछला run: {{value}}",
+      nextRun: "अगला: {{value}}",
+      runCount_one: "{{count}} निष्पादन",
+      runCount_other: "{{count}} निष्पादन",
+      pauseSchedule: "अनुसूची रोकें",
+      activateSchedule: "अनुसूची सक्रिय करें",
+      pause: "रोकें",
+      activate: "सक्रिय करें",
+      runIncrementalRefresh: "क्रमिक refresh चलाएं",
     },
-    "recentRuns": {
-      "title": "हाल के runs",
-      "emptyTitle": "अभी तक कोई run नहीं",
-      "emptyMessage": "मैनुअल run ट्रिगर करें या अनुसूचित run की प्रतीक्षा करें.",
-      "headers": {
-        "source": "स्रोत",
-        "type": "प्रकार",
-        "status": "स्थिति",
-        "trigger": "ट्रिगर",
-        "duration": "अवधि",
-        "started": "शुरू हुआ",
-        "actions": "कार्रवाइयां"
+    recentRuns: {
+      title: "हाल के runs",
+      emptyTitle: "अभी तक कोई run नहीं",
+      emptyMessage: "मैनुअल run ट्रिगर करें या अनुसूचित run की प्रतीक्षा करें.",
+      headers: {
+        source: "स्रोत",
+        type: "प्रकार",
+        status: "स्थिति",
+        trigger: "ट्रिगर",
+        duration: "अवधि",
+        started: "शुरू हुआ",
+        actions: "कार्रवाइयां",
       },
-      "cancel": "रद्द करें"
+      cancel: "रद्द करें",
     },
-    "runDetail": {
-      "title": "निष्पादन #{{id}}",
-      "type": "प्रकार",
-      "triggeredBy": "किसके द्वारा शुरू",
-      "duration": "अवधि",
-      "modelsRun": "चलाए गए models",
-      "rowsInserted": "डाली गई पंक्तियां",
-      "rowsUpdated": "अपडेट की गई पंक्तियां",
-      "testsPassed": "सफल tests",
-      "testsFailed": "विफल tests",
-      "error": "त्रुटि"
+    runDetail: {
+      title: "निष्पादन #{{id}}",
+      type: "प्रकार",
+      triggeredBy: "किसके द्वारा शुरू",
+      duration: "अवधि",
+      modelsRun: "चलाए गए models",
+      rowsInserted: "डाली गई पंक्तियां",
+      rowsUpdated: "अपडेट की गई पंक्तियां",
+      testsPassed: "सफल tests",
+      testsFailed: "विफल tests",
+      error: "त्रुटि",
     },
-    "freshness": {
-      "title": "CDM ताजगी",
-      "assetCount_one": "{{count}} asset",
-      "assetCount_other": "{{count}} assets",
-      "loading": "Dagster से freshness data लोड हो रहा है...",
-      "emptyTitle": "कोई freshness data नहीं",
-      "emptyMessage": "कम से कम एक सफल Poseidon run के बाद freshness data दिखाई देगा.",
-      "never": "कभी नहीं"
+    freshness: {
+      title: "CDM ताजगी",
+      assetCount_one: "{{count}} asset",
+      assetCount_other: "{{count}} assets",
+      loading: "Dagster से freshness data लोड हो रहा है...",
+      emptyTitle: "कोई freshness data नहीं",
+      emptyMessage:
+        "कम से कम एक सफल Poseidon run के बाद freshness data दिखाई देगा.",
+      never: "कभी नहीं",
     },
-    "lineage": {
-      "title": "Asset lineage",
-      "assetCount_one": "{{count}} asset",
-      "assetCount_other": "{{count}} assets",
-      "loading": "Dagster से lineage data लोड हो रहा है...",
-      "emptyTitle": "कोई lineage data नहीं",
-      "emptyMessage": "Dagster द्वारा dbt models खोज लेने के बाद asset lineage दिखाई देगा.",
-      "dependsOn": "{{dependencies}} पर निर्भर",
-      "tiers": {
-        "staging": "मचान",
-        "intermediate": "मध्यवर्ती",
-        "cdm": "CDM",
-        "quality": "गुणवत्ता",
-        "fallback": "स्तर {{index}}"
-      }
-    }
+    lineage: {
+      title: "Asset lineage",
+      assetCount_one: "{{count}} asset",
+      assetCount_other: "{{count}} assets",
+      loading: "Dagster से lineage data लोड हो रहा है...",
+      emptyTitle: "कोई lineage data नहीं",
+      emptyMessage:
+        "Dagster द्वारा dbt models खोज लेने के बाद asset lineage दिखाई देगा.",
+      dependsOn: "{{dependencies}} पर निर्भर",
+      tiers: {
+        staging: "मचान",
+        intermediate: "मध्यवर्ती",
+        cdm: "CDM",
+        quality: "गुणवत्ता",
+        fallback: "स्तर {{index}}",
+      },
+    },
   },
-  "jupyter": {
-    "status": {
-      "hubOnline": "Hub ऑनलाइन",
-      "unavailable": "उपलब्ध नहीं",
-      "authenticating": "प्रमाणीकरण हो रहा है...",
-      "startingServer": "सर्वर शुरू हो रहा है...",
-      "running": "चल रहा है",
-      "failed": "विफल"
+  jupyter: {
+    status: {
+      hubOnline: "Hub ऑनलाइन",
+      unavailable: "उपलब्ध नहीं",
+      authenticating: "प्रमाणीकरण हो रहा है...",
+      startingServer: "सर्वर शुरू हो रहा है...",
+      running: "चल रहा है",
+      failed: "विफल",
     },
-    "page": {
-      "title": "Jupyter कार्यक्षेत्र",
-      "subtitle": "interactive research, custom analyses, और data exploration के लिए आपका व्यक्तिगत notebook environment",
-      "refresh": "रिफ्रेश",
-      "openInNewTab": "नए tab में खोलें",
-      "workspaceDetails": "workspace विवरण",
-      "checkingHub": "JupyterHub जांचा जा रहा है...",
-      "iframeTitle": "Parthenon ज्यूपिटर",
-      "startOverlay": "आपका notebook server शुरू हो रहा है...",
-      "firstLaunchNote": "पहली बार इसमें 30 सेकंड तक लग सकते हैं",
-      "failedToStart": "notebook server शुरू नहीं हो सका",
-      "retry": "फिर कोशिश करें",
-      "failedToCreateSession": "session बनाई नहीं जा सकी"
+    page: {
+      title: "Jupyter कार्यक्षेत्र",
+      subtitle:
+        "interactive research, custom analyses, और data exploration के लिए आपका व्यक्तिगत notebook environment",
+      refresh: "रिफ्रेश",
+      openInNewTab: "नए tab में खोलें",
+      workspaceDetails: "workspace विवरण",
+      checkingHub: "JupyterHub जांचा जा रहा है...",
+      iframeTitle: "Parthenon ज्यूपिटर",
+      startOverlay: "आपका notebook server शुरू हो रहा है...",
+      firstLaunchNote: "पहली बार इसमें 30 सेकंड तक लग सकते हैं",
+      failedToStart: "notebook server शुरू नहीं हो सका",
+      retry: "फिर कोशिश करें",
+      failedToCreateSession: "session बनाई नहीं जा सकी",
     },
-    "unavailable": {
-      "title": "JupyterHub तक पहुंच नहीं है",
-      "message": "notebook सेवा इस समय उपलब्ध नहीं है. container healthy होने पर refresh करें."
+    unavailable: {
+      title: "JupyterHub तक पहुंच नहीं है",
+      message:
+        "notebook सेवा इस समय उपलब्ध नहीं है. container healthy होने पर refresh करें.",
     },
-    "drawer": {
-      "title": "Jupyter workspace विवरण",
-      "environment": "पर्यावरण",
-      "runtime": "रनटाइम",
-      "runtimeDescription": "Python 3.12 with pandas, polars, sqlalchemy, और role-based database access.",
-      "privateWorkspace": "निजी workspace",
-      "privateWorkspaceDescription": "यह आपकी personal notebook directory है. यह sessions के बीच बनी रहती है, इसलिए आपका काम हमेशा सुरक्षित रहता है.",
-      "sharedFolder": "साझा folder",
-      "sharedFolderDescription": "सहकर्मियों के साथ साझा करने के लिए notebooks यहां कॉपी करें. सभी Jupyter users इस folder को पढ़ सकते हैं.",
-      "mountedPaths": "mounted paths",
-      "starterNotebooks": "starter notebooks",
-      "noStarterNotebooks": "कोई starter notebook उपलब्ध नहीं है.",
-      "tips": "सुझाव",
-      "quickLinks": "त्वरित links",
-      "openHubNewTab": "JupyterHub को नए tab में खोलें",
-      "defaults": {
-        "runtime": "JupyterLab 4.4",
-        "privateWorkspace": "/home/jovyan/notebooks",
-        "sharedFolder": "/home/jovyan/shared"
-      }
-    }
+    drawer: {
+      title: "Jupyter workspace विवरण",
+      environment: "पर्यावरण",
+      runtime: "रनटाइम",
+      runtimeDescription:
+        "Python 3.12 with pandas, polars, sqlalchemy, और role-based database access.",
+      privateWorkspace: "निजी workspace",
+      privateWorkspaceDescription:
+        "यह आपकी personal notebook directory है. यह sessions के बीच बनी रहती है, इसलिए आपका काम हमेशा सुरक्षित रहता है.",
+      sharedFolder: "साझा folder",
+      sharedFolderDescription:
+        "सहकर्मियों के साथ साझा करने के लिए notebooks यहां कॉपी करें. सभी Jupyter users इस folder को पढ़ सकते हैं.",
+      mountedPaths: "mounted paths",
+      starterNotebooks: "starter notebooks",
+      noStarterNotebooks: "कोई starter notebook उपलब्ध नहीं है.",
+      tips: "सुझाव",
+      quickLinks: "त्वरित links",
+      openHubNewTab: "JupyterHub को नए tab में खोलें",
+      defaults: {
+        runtime: "JupyterLab 4.4",
+        privateWorkspace: "/home/jovyan/notebooks",
+        sharedFolder: "/home/jovyan/shared",
+      },
+    },
   },
-  "codeExplorer": {
-    "page": {
-      "title": "कोड एक्सप्लोरर",
-      "concept": "अवधारणा",
-      "searchPlaceholder": "इस source में data वाले concepts खोजें",
-      "pickSource": "शुरू करने के लिए source चुनें.",
-      "pickSourceAndConcept": "data देखने के लिए source और concept चुनें."
+  codeExplorer: {
+    page: {
+      title: "कोड एक्सप्लोरर",
+      concept: "अवधारणा",
+      searchPlaceholder: "इस source में data वाले concepts खोजें",
+      pickSource: "शुरू करने के लिए source चुनें.",
+      pickSourceAndConcept: "data देखने के लिए source और concept चुनें.",
     },
-    "tabs": {
-      "counts": "गणनाएं",
-      "relationships": "संबंध",
-      "hierarchy": "पदानुक्रम",
-      "report": "रिपोर्ट",
-      "myReports": "मेरी reports"
+    tabs: {
+      counts: "गणनाएं",
+      relationships: "संबंध",
+      hierarchy: "पदानुक्रम",
+      report: "रिपोर्ट",
+      myReports: "मेरी reports",
     },
-    "sourcePicker": {
-      "loading": "sources लोड हो रहे हैं...",
-      "empty": "कोई source configured नहीं है",
-      "label": "data source",
-      "choose": "source चुनें..."
+    sourcePicker: {
+      loading: "sources लोड हो रहे हैं...",
+      empty: "कोई source configured नहीं है",
+      label: "data source",
+      choose: "source चुनें...",
     },
-    "counts": {
-      "emptyTitle": "{{sourceKey}} में इस concept के लिए कोई data नहीं",
-      "emptyMessage": "Concept {{conceptId}} OMOP vocabulary में है, लेकिन इस source की stratified code counts table में इसके लिए कोई observation नहीं है. दूसरा concept आजमाएं (search box अब {{sourceKey}} में data वाले concepts तक सीमित है) या ऐसी source चुनें जिसमें यह code शामिल हो.",
-      "loading": "counts लोड हो रहे हैं...",
-      "failed": "counts लोड नहीं हो सके.",
-      "conceptId": "concept_id",
-      "count": "गणना",
-      "group": "समूह",
-      "gender": "लिंग",
-      "ageDecile": "आयु decile",
-      "node": "नोड ({{count}})",
-      "descendant": "descendant ({{count}})"
+    counts: {
+      emptyTitle: "{{sourceKey}} में इस concept के लिए कोई data नहीं",
+      emptyMessage:
+        "Concept {{conceptId}} OMOP vocabulary में है, लेकिन इस source की stratified code counts table में इसके लिए कोई observation नहीं है. दूसरा concept आजमाएं (search box अब {{sourceKey}} में data वाले concepts तक सीमित है) या ऐसी source चुनें जिसमें यह code शामिल हो.",
+      loading: "counts लोड हो रहे हैं...",
+      failed: "counts लोड नहीं हो सके.",
+      conceptId: "concept_id",
+      count: "गणना",
+      group: "समूह",
+      gender: "लिंग",
+      ageDecile: "आयु decile",
+      node: "नोड ({{count}})",
+      descendant: "descendant ({{count}})",
     },
-    "chart": {
-      "noData": "दिखाने के लिए data नहीं",
-      "male": "पुरुष",
-      "female": "महिला",
-      "unknown": "अज्ञात"
+    chart: {
+      noData: "दिखाने के लिए data नहीं",
+      male: "पुरुष",
+      female: "महिला",
+      unknown: "अज्ञात",
     },
-    "hierarchy": {
-      "loading": "hierarchy लोड हो रही है...",
-      "failed": "लोड नहीं हो सका.",
-      "direction": "दिशा",
-      "both": "दोनों",
-      "ancestorsOnly": "केवल ancestors",
-      "descendantsOnly": "केवल descendants",
-      "maxDepth": "अधिकतम depth",
-      "empty": "depth {{depth}} पर इस concept के लिए कोई hierarchy data नहीं है."
+    hierarchy: {
+      loading: "hierarchy लोड हो रही है...",
+      failed: "लोड नहीं हो सका.",
+      direction: "दिशा",
+      both: "दोनों",
+      ancestorsOnly: "केवल ancestors",
+      descendantsOnly: "केवल descendants",
+      maxDepth: "अधिकतम depth",
+      empty: "depth {{depth}} पर इस concept के लिए कोई hierarchy data नहीं है.",
     },
-    "relationships": {
-      "loading": "relationships लोड हो रहे हैं...",
-      "failed": "लोड नहीं हो सका.",
-      "empty": "इस concept के लिए कोई relationship नहीं मिला.",
-      "headers": {
-        "relationship": "संबंध",
-        "targetConcept": "Target concept",
-        "vocabulary": "शब्दावली",
-        "standard": "मानक"
-      }
-    },
-    "reports": {
-      "loading": "reports लोड हो रही हैं...",
-      "failed": "लोड नहीं हो सका.",
-      "empty": "अभी आपकी कोई reports नहीं हैं. Report tab पर जाएं और एक generate करें.",
-      "headers": {
-        "created": "बनाया था",
-        "source": "स्रोत",
-        "concept": "अवधारणा",
-        "status": "स्थिति",
-        "pin": "नत्थी करना"
+    relationships: {
+      loading: "relationships लोड हो रहे हैं...",
+      failed: "लोड नहीं हो सका.",
+      empty: "इस concept के लिए कोई relationship नहीं मिला.",
+      headers: {
+        relationship: "संबंध",
+        targetConcept: "Target concept",
+        vocabulary: "शब्दावली",
+        standard: "मानक",
       },
-      "pin": "नत्थी करना",
-      "unpin": "अनपिन",
-      "generateReport": "Report generate करें",
-      "generating": "Generate हो रहा है...",
-      "failedToDispatch": "Report dispatch नहीं हो सका.",
-      "progress": "{{percent}}% - {{message}}",
-      "failedTitle": "Report generation विफल",
-      "ready": "Report तैयार है",
-      "downloadHtml": "HTML डाउनलोड करें",
-      "iframeTitle": "ROMOPएपीआई रिपोर्ट",
-      "inlinePreviewNote": "Inline preview sandboxed है (scripts और cross-origin disabled). पूरी interactive view के लिए file डाउनलोड करें."
     },
-    "sourceReadiness": {
-      "settingUp": "{{sourceKey}} set up किया जा रहा है...",
-      "sourceNeedsInitialization": "Source {{sourceKey}} को initialization की आवश्यकता है",
-      "missing": "अनुपस्थित: {{missing}}. यह admin-only एकबारगी setup है जो stratified code counts table materialize करता है.",
-      "dispatching": "Dispatch किया जा रहा है...",
-      "initializeSource": "Source initialize करें",
-      "failedToDispatch": "Dispatch विफल. हो सकता है आपके पास `finngen.code-explorer.setup` permission न हो."
-    }
+    reports: {
+      loading: "reports लोड हो रही हैं...",
+      failed: "लोड नहीं हो सका.",
+      empty:
+        "अभी आपकी कोई reports नहीं हैं. Report tab पर जाएं और एक generate करें.",
+      headers: {
+        created: "बनाया था",
+        source: "स्रोत",
+        concept: "अवधारणा",
+        status: "स्थिति",
+        pin: "नत्थी करना",
+      },
+      pin: "नत्थी करना",
+      unpin: "अनपिन",
+      generateReport: "Report generate करें",
+      generating: "Generate हो रहा है...",
+      failedToDispatch: "Report dispatch नहीं हो सका.",
+      progress: "{{percent}}% - {{message}}",
+      failedTitle: "Report generation विफल",
+      ready: "Report तैयार है",
+      downloadHtml: "HTML डाउनलोड करें",
+      iframeTitle: "ROMOPएपीआई रिपोर्ट",
+      inlinePreviewNote:
+        "Inline preview sandboxed है (scripts और cross-origin disabled). पूरी interactive view के लिए file डाउनलोड करें.",
+    },
+    sourceReadiness: {
+      settingUp: "{{sourceKey}} set up किया जा रहा है...",
+      sourceNeedsInitialization:
+        "Source {{sourceKey}} को initialization की आवश्यकता है",
+      missing:
+        "अनुपस्थित: {{missing}}. यह admin-only एकबारगी setup है जो stratified code counts table materialize करता है.",
+      dispatching: "Dispatch किया जा रहा है...",
+      initializeSource: "Source initialize करें",
+      failedToDispatch:
+        "Dispatch विफल. हो सकता है आपके पास `finngen.code-explorer.setup` permission न हो.",
+    },
   },
-  "gis": {
-    "common": {
-      "analysisLayerCount_one": "{{count}} analysis layer active",
-      "analysisLayerCount_other": "{{count}} analysis layers active",
-      "avgValue": "औसत: {{value}}",
-      "records_one": "{{count}} रिकॉर्ड",
-      "records_other": "{{count}} रिकॉर्ड",
-      "present": "मौजूद",
-      "unknownRegion": "क्षेत्र"
+  gis: {
+    common: {
+      analysisLayerCount_one: "{{count}} analysis layer active",
+      analysisLayerCount_other: "{{count}} analysis layers active",
+      avgValue: "औसत: {{value}}",
+      records_one: "{{count}} रिकॉर्ड",
+      records_other: "{{count}} रिकॉर्ड",
+      present: "मौजूद",
+      unknownRegion: "क्षेत्र",
     },
-    "page": {
-      "title": "GIS एक्सप्लोरर",
-      "reset": "रीसेट",
-      "collapse": "समेटें",
-      "expand": "फैलाएं",
-      "enableLayers": "बाएं panel में analysis layers सक्षम करें",
-      "selectDisease": "spatial analysis शुरू करने के लिए कोई disease चुनें"
+    page: {
+      title: "GIS एक्सप्लोरर",
+      reset: "रीसेट",
+      collapse: "समेटें",
+      expand: "फैलाएं",
+      enableLayers: "बाएं panel में analysis layers सक्षम करें",
+      selectDisease: "spatial analysis शुरू करने के लिए कोई disease चुनें",
     },
-    "layerPanel": {
-      "title": "Analysis layers",
-      "privacy": "गोपनीयता",
-      "suppressionOff": "Suppression: बंद (synthetic data)"
+    layerPanel: {
+      title: "Analysis layers",
+      privacy: "गोपनीयता",
+      suppressionOff: "Suppression: बंद (synthetic data)",
     },
-    "context": {
-      "researchActions": "Research actions",
-      "createStudy": "Study बनाएं",
-      "browseCohorts": "Cohorts देखें",
-      "clickRegion": "layer details देखने के लिए map पर किसी region पर click करें"
+    context: {
+      researchActions: "Research actions",
+      createStudy: "Study बनाएं",
+      browseCohorts: "Cohorts देखें",
+      clickRegion:
+        "layer details देखने के लिए map पर किसी region पर click करें",
     },
-    "diseaseSelector": {
-      "title": "बीमारी",
-      "searchPlaceholder": "conditions खोजें...",
-      "top": "शीर्ष",
-      "categories": "श्रेणियाँ",
-      "noMatches": "कोई matching condition नहीं",
-      "patientCountTitle": "{{count}} patients"
+    diseaseSelector: {
+      title: "बीमारी",
+      searchPlaceholder: "conditions खोजें...",
+      top: "शीर्ष",
+      categories: "श्रेणियाँ",
+      noMatches: "कोई matching condition नहीं",
+      patientCountTitle: "{{count}} patients",
     },
-    "regionDetail": {
-      "loading": "लोड हो रहा है...",
-      "close": "बंद करें",
-      "loadingDetails": "region details लोड हो रही हैं...",
-      "area": "क्षेत्रफल: {{value}} km²",
-      "drillDown_one": "Drill down ({{count}} sub-region)",
-      "drillDown_other": "Drill down ({{count}} sub-regions)",
-      "exposures": "निवेश जोखिम",
-      "concept": "Concept {{conceptId}}"
+    regionDetail: {
+      loading: "लोड हो रहा है...",
+      close: "बंद करें",
+      loadingDetails: "region details लोड हो रही हैं...",
+      area: "क्षेत्रफल: {{value}} km²",
+      drillDown_one: "Drill down ({{count}} sub-region)",
+      drillDown_other: "Drill down ({{count}} sub-regions)",
+      exposures: "निवेश जोखिम",
+      concept: "Concept {{conceptId}}",
     },
-    "countyDetail": {
-      "county": "काउंटी",
-      "cases": "मामले",
-      "deaths": "मौतें",
-      "cfr": "मृत्यु अनुपात",
-      "hospitalized": "अस्पताल में भर्ती",
-      "population": "जनसंख्या",
-      "ageDistributionCovid": "आयु वितरण (COVID)",
-      "monthlyCases": "मासिक मामले",
-      "casesTitle": "{{period}}: {{count}} मामले"
+    countyDetail: {
+      county: "काउंटी",
+      cases: "मामले",
+      deaths: "मौतें",
+      cfr: "मृत्यु अनुपात",
+      hospitalized: "अस्पताल में भर्ती",
+      population: "जनसंख्या",
+      ageDistributionCovid: "आयु वितरण (COVID)",
+      monthlyCases: "मासिक मामले",
+      casesTitle: "{{period}}: {{count}} मामले",
     },
-    "diseaseSummary": {
-      "cases": "मामले",
-      "deaths": "मौतें",
-      "cfr": "मृत्यु अनुपात",
-      "counties": "काउंटी",
-      "prevalence": "प्रचलन"
+    diseaseSummary: {
+      cases: "मामले",
+      deaths: "मौतें",
+      cfr: "मृत्यु अनुपात",
+      counties: "काउंटी",
+      prevalence: "प्रचलन",
     },
-    "analysisDrawer": {
-      "title_one": "विश्लेषण ({{count}} लेयर)",
-      "title_other": "विश्लेषण ({{count}} लेयर्स)"
+    analysisDrawer: {
+      title_one: "विश्लेषण ({{count}} लेयर)",
+      title_other: "विश्लेषण ({{count}} लेयर्स)",
     },
-    "layers": {
-      "airQuality": {
-        "name": "वायु गुणवत्ता",
-        "description": "EPA PM2.5 और ozone levels",
-        "legend": {
-          "good": "अच्छी (कम PM2.5)",
-          "poor": "खराब (अधिक PM2.5)"
+    layers: {
+      airQuality: {
+        name: "वायु गुणवत्ता",
+        description: "EPA PM2.5 और ozone levels",
+        legend: {
+          good: "अच्छी (कम PM2.5)",
+          poor: "खराब (अधिक PM2.5)",
         },
-        "tooltip": {
-          "pm25": "PM2.5"
+        tooltip: {
+          pm25: "PM2.5",
         },
-        "analysis": {
-          "loading": "लोड हो रहा है...",
-          "noData": "कोई data नहीं"
+        analysis: {
+          loading: "लोड हो रहा है...",
+          noData: "कोई data नहीं",
         },
-        "detail": {
-          "loading": "लोड हो रहा है...",
-          "empty": "कोई air quality data नहीं",
-          "ozone": "ओजोन"
-        }
+        detail: {
+          loading: "लोड हो रहा है...",
+          empty: "कोई air quality data नहीं",
+          ozone: "ओजोन",
+        },
       },
-      "comorbidity": {
-        "name": "सह-रोग भार",
-        "description": "डीएम, एचटीएन, मोटापा क्लस्टरिंग",
-        "legend": {
-          "low": "कम भार (0)",
-          "high": "अधिक भार (3)"
+      comorbidity: {
+        name: "सह-रोग भार",
+        description: "डीएम, एचटीएन, मोटापा क्लस्टरिंग",
+        legend: {
+          low: "कम भार (0)",
+          high: "अधिक भार (3)",
         },
-        "tooltip": {
-          "burden": "भार"
+        tooltip: {
+          burden: "भार",
         },
-        "analysis": {
-          "loading": "लोड हो रहा है...",
-          "noData": "कोई data नहीं"
+        analysis: {
+          loading: "लोड हो रहा है...",
+          noData: "कोई data नहीं",
         },
-        "detail": {
-          "title": "{{fips}} के लिए comorbidity data",
-          "subtitle": "डीएम + एचटीएन + मोटापा बोझ स्कोर"
-        }
+        detail: {
+          title: "{{fips}} के लिए comorbidity data",
+          subtitle: "डीएम + एचटीएन + मोटापा बोझ स्कोर",
+        },
       },
-      "hospitalAccess": {
-        "name": "अस्पताल पहुंच",
-        "description": "सीएमएस अस्पताल निकटता",
-        "legend": {
-          "withEd": "अस्पताल (ED)",
-          "withoutEd": "अस्पताल (ED नहीं)"
+      hospitalAccess: {
+        name: "अस्पताल पहुंच",
+        description: "सीएमएस अस्पताल निकटता",
+        legend: {
+          withEd: "अस्पताल (ED)",
+          withoutEd: "अस्पताल (ED नहीं)",
         },
-        "analysis": {
-          "loading": "लोड हो रहा है...",
-          "noData": "कोई data नहीं"
+        analysis: {
+          loading: "लोड हो रहा है...",
+          noData: "कोई data नहीं",
         },
-        "detail": {
-          "title": "{{fips}} के निकटतम अस्पताल",
-          "subtitle": "दूरी रिंग: 15/30/60 km"
-        }
+        detail: {
+          title: "{{fips}} के निकटतम अस्पताल",
+          subtitle: "दूरी रिंग: 15/30/60 km",
+        },
       },
-      "rucc": {
-        "name": "शहरी-ग्रामीण",
-        "description": "USDA Rural-Urban Continuum Codes",
-        "legend": {
-          "metro": "मेट्रो",
-          "micropolitan": "माइक्रोपॉलिटन",
-          "rural": "ग्रामीण"
+      rucc: {
+        name: "शहरी-ग्रामीण",
+        description: "USDA Rural-Urban Continuum Codes",
+        legend: {
+          metro: "मेट्रो",
+          micropolitan: "माइक्रोपॉलिटन",
+          rural: "ग्रामीण",
         },
-        "tooltip": {
-          "classification": "वर्गीकरण"
+        tooltip: {
+          classification: "वर्गीकरण",
         },
-        "analysis": {
-          "loading": "लोड हो रहा है...",
-          "noData": "कोई data नहीं"
+        analysis: {
+          loading: "लोड हो रहा है...",
+          noData: "कोई data नहीं",
         },
-        "detail": {
-          "loading": "लोड हो रहा है...",
-          "empty": "कोई RUCC data नहीं",
-          "code": "आरयूसीसी कोड",
-          "classification": "वर्गीकरण",
-          "category": "श्रेणी",
-          "patients": "रोगी"
+        detail: {
+          loading: "लोड हो रहा है...",
+          empty: "कोई RUCC data नहीं",
+          code: "आरयूसीसी कोड",
+          classification: "वर्गीकरण",
+          category: "श्रेणी",
+          patients: "रोगी",
         },
-        "categories": {
-          "metro": "मेट्रो",
-          "micro": "माइक्रोपॉलिटन",
-          "rural": "ग्रामीण"
-        }
+        categories: {
+          metro: "मेट्रो",
+          micro: "माइक्रोपॉलिटन",
+          rural: "ग्रामीण",
+        },
       },
-      "svi": {
-        "name": "सामाजिक संवेदनशीलता",
-        "description": "census tract के अनुसार CDC/ATSDR SVI",
-        "legend": {
-          "low": "कम संवेदनशीलता",
-          "high": "अधिक संवेदनशीलता"
+      svi: {
+        name: "सामाजिक संवेदनशीलता",
+        description: "census tract के अनुसार CDC/ATSDR SVI",
+        legend: {
+          low: "कम संवेदनशीलता",
+          high: "अधिक संवेदनशीलता",
         },
-        "tooltip": {
-          "score": "एसवीआई"
+        tooltip: {
+          score: "एसवीआई",
         },
-        "analysis": {
-          "loading": "लोड हो रहा है...",
-          "noData": "कोई data उपलब्ध नहीं"
+        analysis: {
+          loading: "लोड हो रहा है...",
+          noData: "कोई data उपलब्ध नहीं",
         },
-        "detail": {
-          "loading": "लोड हो रहा है...",
-          "empty": "कोई SVI data नहीं",
-          "overall": "कुल SVI",
-          "themes": {
-            "socioeconomicStatus": "सामाजिक-आर्थिक स्थिति",
-            "householdComposition": "परिवार संरचना",
-            "minorityStatus": "अल्पसंख्यक स्थिति",
-            "housingTransportation": "आवास और परिवहन"
-          }
-        }
-      }
-    }
+        detail: {
+          loading: "लोड हो रहा है...",
+          empty: "कोई SVI data नहीं",
+          overall: "कुल SVI",
+          themes: {
+            socioeconomicStatus: "सामाजिक-आर्थिक स्थिति",
+            householdComposition: "परिवार संरचना",
+            minorityStatus: "अल्पसंख्यक स्थिति",
+            housingTransportation: "आवास और परिवहन",
+          },
+        },
+      },
+    },
   },
-  "queryAssistant": {
-    "page": {
-      "title": "क्वेरी सहायक",
-      "subtitle": "OHDSI query library ब्राउज़ करें या natural language से SQL बनाने के लिए AI का उपयोग करें",
-      "dialect": "बोली",
-      "default": "गलती करना",
-      "defaultTooltip": "परिवर्तन system default के रूप में सहेजे जाते हैं (super-admin)",
-      "tabs": {
-        "library": "क्वेरी लाइब्रेरी",
-        "naturalLanguage": "प्राकृतिक भाषा"
-      }
-    },
-    "naturalLanguage": {
-      "askQuestion": "प्रश्न पूछें",
-      "placeholder": "उदा. 2023 में type 2 diabetes का निदान पाए कितने patients थे?",
-      "ctrlEnter": "generate करने के लिए Ctrl+Enter",
-      "tryExample": "उदाहरण आजमाएं",
-      "examples": {
-        "diabetes": "diabetes वाले patients कितने हैं?",
-        "topConditions": "प्रचलन के आधार पर शीर्ष 10 conditions कौन-सी हैं?",
-        "heartFailureAge": "heart failure वाले patients की औसत आयु",
-        "statins2024": "2024 में statins exposure counts"
+  queryAssistant: {
+    page: {
+      title: "क्वेरी सहायक",
+      subtitle:
+        "OHDSI query library ब्राउज़ करें या natural language से SQL बनाने के लिए AI का उपयोग करें",
+      dialect: "बोली",
+      default: "गलती करना",
+      defaultTooltip:
+        "परिवर्तन system default के रूप में सहेजे जाते हैं (super-admin)",
+      tabs: {
+        library: "क्वेरी लाइब्रेरी",
+        naturalLanguage: "प्राकृतिक भाषा",
       },
-      "generateWithAi": "AI से generate करें",
-      "generating": "Generate हो रहा है...",
-      "failedToGenerate": "SQL generate नहीं हो सका. फिर से कोशिश करें.",
-      "queryHistory": "Query history",
-      "clear": "साफ करें",
-      "emptyTitle": "शुरू करने के लिए प्रश्न पूछें",
-      "emptyDescription": "अपने OMOP CDM data के बारे में natural language question लिखें और AI उसके अनुरूप SQL query बनाएगा."
     },
-    "library": {
-      "searchPlaceholder": "कीवर्ड से queries खोजें...",
-      "indexedQueries": "{{count}} indexed queries",
-      "matches": "{{count}} matches",
-      "featuredTemplates": "{{count}} featured templates",
-      "refreshing": "Refresh हो रहा है",
-      "allDomains": "सभी domains",
-      "failedToLoad": "Query library लोड नहीं हो सकी.",
-      "noMatches": "आपकी खोज से मेल खाने वाली कोई query नहीं मिली.",
-      "tryDifferentKeyword": "कोई दूसरा keyword आजमाएं या filters साफ करें.",
-      "importHint": "यदि library खाली है, तो admin से यह command चलाने को कहें: php artisan query-library:import-ohdsi",
-      "showMoreMatches": "और matches दिखाएं"
+    naturalLanguage: {
+      askQuestion: "प्रश्न पूछें",
+      placeholder:
+        "उदा. 2023 में type 2 diabetes का निदान पाए कितने patients थे?",
+      ctrlEnter: "generate करने के लिए Ctrl+Enter",
+      tryExample: "उदाहरण आजमाएं",
+      examples: {
+        diabetes: "diabetes वाले patients कितने हैं?",
+        topConditions: "प्रचलन के आधार पर शीर्ष 10 conditions कौन-सी हैं?",
+        heartFailureAge: "heart failure वाले patients की औसत आयु",
+        statins2024: "2024 में statins exposure counts",
+      },
+      generateWithAi: "AI से generate करें",
+      generating: "Generate हो रहा है...",
+      failedToGenerate: "SQL generate नहीं हो सका. फिर से कोशिश करें.",
+      queryHistory: "Query history",
+      clear: "साफ करें",
+      emptyTitle: "शुरू करने के लिए प्रश्न पूछें",
+      emptyDescription:
+        "अपने OMOP CDM data के बारे में natural language question लिखें और AI उसके अनुरूप SQL query बनाएगा.",
     },
-    "results": {
-      "safeReadOnly": "SAFE - केवल पढ़ें",
-      "needsReview": "REVIEW आवश्यक",
-      "unsafe": "असुरक्षित",
-      "queryLibraryMatch": "Query library match",
-      "templateParameters": "Template parameters",
-      "rendering": "Render हो रहा है...",
-      "sqlUpdated": "SQL अपडेट हुआ",
-      "renderTemplate": "Template render करें",
-      "renderFailed": "Query template render नहीं हो सका.",
-      "generatedSql": "उत्पन्न SQL",
-      "aggregate": "सकल",
-      "tablesReferenced": "Referenced tables",
-      "explanation": "स्पष्टीकरण",
-      "validateSql": "SQL validate करें",
-      "validating": "Validate हो रहा है...",
-      "validSql": "मान्य SQL",
-      "validationFailed": "Validation विफल",
-      "readOnly": "केवल पढ़ें",
-      "complexity": {
-        "low": "कम complexity",
-        "medium": "मध्यम complexity",
-        "high": "उच्च complexity"
-      },
-      "renderError": "Query template render नहीं हो सका.",
-      "validateError": "SQL validate नहीं हो सका."
+    library: {
+      searchPlaceholder: "कीवर्ड से queries खोजें...",
+      indexedQueries: "{{count}} indexed queries",
+      matches: "{{count}} matches",
+      featuredTemplates: "{{count}} featured templates",
+      refreshing: "Refresh हो रहा है",
+      allDomains: "सभी domains",
+      failedToLoad: "Query library लोड नहीं हो सकी.",
+      noMatches: "आपकी खोज से मेल खाने वाली कोई query नहीं मिली.",
+      tryDifferentKeyword: "कोई दूसरा keyword आजमाएं या filters साफ करें.",
+      importHint:
+        "यदि library खाली है, तो admin से यह command चलाने को कहें: php artisan query-library:import-ohdsi",
+      showMoreMatches: "और matches दिखाएं",
     },
-    "schemaBrowser": {
-      "title": "OMOP CDM schema browser",
-      "failedToLoad": "Schema load नहीं हुआ.",
-      "clinicalTables": "Clinical tables ({{count}})",
-      "vocabularyTables": "Vocabulary tables ({{count}})",
-      "commonJoins": "Common joins",
-      "cols": "{{count}} cols",
-      "noDescription": "कोई description उपलब्ध नहीं है."
+    results: {
+      safeReadOnly: "SAFE - केवल पढ़ें",
+      needsReview: "REVIEW आवश्यक",
+      unsafe: "असुरक्षित",
+      queryLibraryMatch: "Query library match",
+      templateParameters: "Template parameters",
+      rendering: "Render हो रहा है...",
+      sqlUpdated: "SQL अपडेट हुआ",
+      renderTemplate: "Template render करें",
+      renderFailed: "Query template render नहीं हो सका.",
+      generatedSql: "उत्पन्न SQL",
+      aggregate: "सकल",
+      tablesReferenced: "Referenced tables",
+      explanation: "स्पष्टीकरण",
+      validateSql: "SQL validate करें",
+      validating: "Validate हो रहा है...",
+      validSql: "मान्य SQL",
+      validationFailed: "Validation विफल",
+      readOnly: "केवल पढ़ें",
+      complexity: {
+        low: "कम complexity",
+        medium: "मध्यम complexity",
+        high: "उच्च complexity",
+      },
+      renderError: "Query template render नहीं हो सका.",
+      validateError: "SQL validate नहीं हो सका.",
     },
-    "sqlBlock": {
-      "sql": "SQL",
-      "runSql": "SQL चलाएं",
-      "copy": "प्रतिलिपि",
-      "copied": "कॉपी हो गया"
+    schemaBrowser: {
+      title: "OMOP CDM schema browser",
+      failedToLoad: "Schema load नहीं हुआ.",
+      clinicalTables: "Clinical tables ({{count}})",
+      vocabularyTables: "Vocabulary tables ({{count}})",
+      commonJoins: "Common joins",
+      cols: "{{count}} cols",
+      noDescription: "कोई description उपलब्ध नहीं है.",
     },
-    "sqlRunner": {
-      "errorTitles": {
-        "explanationInsteadOfSql": "AI ने SQL की जगह explanation लौटाया",
-        "mysqlBackticks": "MySQL-style backticks समर्थित नहीं हैं",
-        "syntaxError": "SQL वाक्यविन्यास त्रुटि",
-        "syntaxErrorNear": "\"{{token}}\" के पास syntax error",
-        "timeout": "Query timeout (120s limit)",
-        "tableNotFound": "Table नहीं मिली",
-        "tableNotFoundNamed": "Table \"{{table}}\" नहीं मिली",
-        "columnNotFound": "Column नहीं मिली",
-        "columnNotFoundNamed": "Column \"{{column}}\" नहीं मिली",
-        "insufficientPermissions": "अनुमतियां अपर्याप्त हैं"
+    sqlBlock: {
+      sql: "SQL",
+      runSql: "SQL चलाएं",
+      copy: "प्रतिलिपि",
+      copied: "कॉपी हो गया",
+    },
+    sqlRunner: {
+      errorTitles: {
+        explanationInsteadOfSql: "AI ने SQL की जगह explanation लौटाया",
+        mysqlBackticks: "MySQL-style backticks समर्थित नहीं हैं",
+        syntaxError: "SQL वाक्यविन्यास त्रुटि",
+        syntaxErrorNear: '"{{token}}" के पास syntax error',
+        timeout: "Query timeout (120s limit)",
+        tableNotFound: "Table नहीं मिली",
+        tableNotFoundNamed: 'Table "{{table}}" नहीं मिली',
+        columnNotFound: "Column नहीं मिली",
+        columnNotFoundNamed: 'Column "{{column}}" नहीं मिली',
+        insufficientPermissions: "अनुमतियां अपर्याप्त हैं",
       },
-      "suggestions": {
-        "explanationInsteadOfSql": {
-          "first": "अपना question और specific करके देखें",
-          "second": "pre-built template खोजने के लिए Query Library tab का उपयोग करें",
-          "third": "जिन tables और columns को query करना है, उन्हें स्पष्ट बताएं"
+      suggestions: {
+        explanationInsteadOfSql: {
+          first: "अपना question और specific करके देखें",
+          second:
+            "pre-built template खोजने के लिए Query Library tab का उपयोग करें",
+          third: "जिन tables और columns को query करना है, उन्हें स्पष्ट बताएं",
         },
-        "mysqlBackticks": {
-          "first": "PostgreSQL identifiers के लिए double quotes का उपयोग करता है: \"column_name\"",
-          "second": "ज्यादातर OMOP column names को quotes की जरूरत नहीं होती",
-          "third": "query फिर से generate करें - AI कभी-कभी MySQL syntax का उपयोग करता है"
+        mysqlBackticks: {
+          first:
+            'PostgreSQL identifiers के लिए double quotes का उपयोग करता है: "column_name"',
+          second: "ज्यादातर OMOP column names को quotes की जरूरत नहीं होती",
+          third:
+            "query फिर से generate करें - AI कभी-कभी MySQL syntax का उपयोग करता है",
         },
-        "syntaxError": {
-          "first": "Generated SQL में syntax समस्या है - अधिक स्पष्ट question के साथ फिर generate करें",
-          "second": "mismatched parentheses, missing commas, या extra keywords देखें",
-          "third": "चलाने से पहले समस्याएं पकड़ने के लिए Validate SQL button का उपयोग करें"
+        syntaxError: {
+          first:
+            "Generated SQL में syntax समस्या है - अधिक स्पष्ट question के साथ फिर generate करें",
+          second:
+            "mismatched parentheses, missing commas, या extra keywords देखें",
+          third:
+            "चलाने से पहले समस्याएं पकड़ने के लिए Validate SQL button का उपयोग करें",
         },
-        "timeout": {
-          "first": "स्कैन होने वाले data को कम करने के लिए और specific WHERE conditions जोड़ें",
-          "second": "result set सीमित करने के लिए LIMIT clause जोड़ें",
-          "third": "SELECT * से बचें - केवल जरूरी columns चुनें",
-          "fourth": "dataset संकीर्ण करने के लिए date range से filter करने पर विचार करें"
+        timeout: {
+          first:
+            "स्कैन होने वाले data को कम करने के लिए और specific WHERE conditions जोड़ें",
+          second: "result set सीमित करने के लिए LIMIT clause जोड़ें",
+          third: "SELECT * से बचें - केवल जरूरी columns चुनें",
+          fourth:
+            "dataset संकीर्ण करने के लिए date range से filter करने पर विचार करें",
         },
-        "tableNotFound": {
-          "first": "OMOP tables को schema-qualified होना चाहिए: omop.person, omop.condition_occurrence",
-          "second": "table names सत्यापित करने के लिए page के नीचे schema browser का उपयोग करें",
-          "third": "spelling जांचें - common tables: person, condition_occurrence, drug_exposure, measurement"
+        tableNotFound: {
+          first:
+            "OMOP tables को schema-qualified होना चाहिए: omop.person, omop.condition_occurrence",
+          second:
+            "table names सत्यापित करने के लिए page के नीचे schema browser का उपयोग करें",
+          third:
+            "spelling जांचें - common tables: person, condition_occurrence, drug_exposure, measurement",
         },
-        "columnNotFound": {
-          "first": "available columns देखने के लिए schema browser में table expand करें",
-          "second": "OMOP column names underscores का उपयोग करते हैं: person_id, condition_start_date",
-          "third": "देखें कि क्या इस column वाली किसी दूसरी table के साथ JOIN चाहिए"
+        columnNotFound: {
+          first:
+            "available columns देखने के लिए schema browser में table expand करें",
+          second:
+            "OMOP column names underscores का उपयोग करते हैं: person_id, condition_start_date",
+          third:
+            "देखें कि क्या इस column वाली किसी दूसरी table के साथ JOIN चाहिए",
         },
-        "insufficientPermissions": {
-          "first": "इस query को \"safe\" (read-only) के रूप में classify नहीं किया गया",
-          "second": "जो queries safe marked नहीं हैं, उन्हें केवल admins चला सकते हैं",
-          "third": "safety classification जांचने के लिए Validate SQL button इस्तेमाल करें"
-        }
+        insufficientPermissions: {
+          first:
+            'इस query को "safe" (read-only) के रूप में classify नहीं किया गया',
+          second:
+            "जो queries safe marked नहीं हैं, उन्हें केवल admins चला सकते हैं",
+          third:
+            "safety classification जांचने के लिए Validate SQL button इस्तेमाल करें",
+        },
       },
-      "defaults": {
-        "queryExecutionFailed": "Query execution विफल",
-        "failedToRenderTemplate": "Template render नहीं हुआ",
-        "typeToSearchConcepts": "OMOP concepts खोजने के लिए टाइप करें...",
-        "typeToSearchConceptsWithDefault": "{{defaultValue}} - OMOP concepts खोजने के लिए टाइप करें"
+      defaults: {
+        queryExecutionFailed: "Query execution विफल",
+        failedToRenderTemplate: "Template render नहीं हुआ",
+        typeToSearchConcepts: "OMOP concepts खोजने के लिए टाइप करें...",
+        typeToSearchConceptsWithDefault:
+          "{{defaultValue}} - OMOP concepts खोजने के लिए टाइप करें",
       },
-      "state": {
-        "active": "Query चल रही है...",
-        "idle": "निठल्ला",
-        "idleInTransaction": "Results प्रोसेस हो रहे हैं...",
-        "idleAborted": "Transaction abort हो गई",
-        "fastpath": "तेज़ पथ कॉल",
-        "disabled": "ट्रैकिंग अक्षम की गई",
-        "completed": "पुरा होना।",
-        "error": "गलती"
+      state: {
+        active: "Query चल रही है...",
+        idle: "निठल्ला",
+        idleInTransaction: "Results प्रोसेस हो रहे हैं...",
+        idleAborted: "Transaction abort हो गई",
+        fastpath: "तेज़ पथ कॉल",
+        disabled: "ट्रैकिंग अक्षम की गई",
+        completed: "पुरा होना।",
+        error: "गलती",
       },
-      "modal": {
-        "title": "SQLक्वेरी रनर",
-        "wait": "प्रतीक्षा: {{value}}",
-        "preparing": "तैयार किया जा रहा है...",
-        "runQuery": "Query चलाएं",
-        "queryCompleted": "Query पूरी हुई",
-        "rowsIn": "{{elapsed}} में {{count}} rows",
-        "cappedAt10k": "10,000 rows तक सीमित",
-        "queryFailed": "Query विफल",
-        "downloadCsv": "CSV डाउनलोड करें",
-        "close": "बंद करना",
-        "showingSomeRows": "{{total}} में से {{shown}} rows दिख रही हैं",
-        "showingAllRows": "{{count}} rows",
-        "nullValue": "null"
-      }
-    }
-  }
+      modal: {
+        title: "SQLक्वेरी रनर",
+        wait: "प्रतीक्षा: {{value}}",
+        preparing: "तैयार किया जा रहा है...",
+        runQuery: "Query चलाएं",
+        queryCompleted: "Query पूरी हुई",
+        rowsIn: "{{elapsed}} में {{count}} rows",
+        cappedAt10k: "10,000 rows तक सीमित",
+        queryFailed: "Query विफल",
+        downloadCsv: "CSV डाउनलोड करें",
+        close: "बंद करना",
+        showingSomeRows: "{{total}} में से {{shown}} rows दिख रही हैं",
+        showingAllRows: "{{count}} rows",
+        nullValue: "null",
+      },
+    },
+  },
 });
 const frGisToolsPass100: MessageTree = mergeMessageTrees(frGisTools, {
   gis: {
@@ -4701,9 +4531,1673 @@ export const gisToolsResources: Record<string, MessageTree> = {
   "fr-FR": frGisToolsPass100,
   "de-DE": deGisToolsPass100,
   "pt-BR": ptGisToolsPass100,
-  "fi-FI": mergeMessageTrees(enGisTools, {}),
-  "ja-JP": mergeMessageTrees(enGisTools, {}),
-  "zh-Hans": mergeMessageTrees(enGisTools, {}),
+  "fi-FI": mergeMessageTrees(enGisTools, {
+    poseidon: {
+      page: {
+        unavailableTitle: "Poseidon ei saatavilla",
+        unavailableMessage:
+          "Ei saatu yhteyttä Poseidon-orkesteripalveluun. Varmista, että Poseidon-säiliöt ovat käynnissä.",
+        retry: "Yritä uudelleen",
+        subtitle:
+          "CDM-päivitysorkesterointi - lisälataukset, riippuvuustietoinen suoritus ja lähdekohtainen ajoitus dbt + Dagster -toiminnolla",
+        refresh: "Päivitä",
+      },
+      overview: {
+        activeSchedules: "Aktiiviset aikataulut",
+        runsInProgress: "Käynnissä",
+        successfulRuns: "Onnistuneet juoksut",
+        failedRuns: "Epäonnistuneet juoksut",
+      },
+      runStatus: {
+        pending: "Odottaa",
+        running: "Juoksemassa",
+        success: "Onnistui",
+        failed: "Epäonnistui",
+        cancelled: "Peruutettu",
+      },
+      runType: {
+        fullRefresh: "Täysi päivitys",
+        vocabulary: "Sanasto",
+        incremental: "Inkrementaalinen",
+      },
+      scheduleType: {
+        manual: "Manuaalinen",
+        cron: "Aikataulutettu",
+        sensor: "Tapahtumalähtöinen",
+      },
+      schedules: {
+        title: "Lähdeaikataulut",
+        emptyTitle: "Aikatauluja ei ole määritetty",
+        emptyMessage:
+          "Luo Poseidon-aikataulu tietolähteen CDM-päivitysten automatisoimiseksi.",
+        active: "Aktiivinen",
+        paused: "Keskeytetty",
+        pauseSchedule: "Keskeytä aikataulu",
+        activateSchedule: "Aktivoi aikataulu",
+        pause: "Tauko",
+        activate: "Aktivoida",
+        runIncrementalRefresh: "Suorita asteittainen päivitys",
+      },
+      recentRuns: {
+        title: "Viimeisimmät juoksut",
+        emptyTitle: "Ei vielä juoksuja",
+        emptyMessage:
+          "Käynnistä manuaalinen ajo tai odota ajoitettua suoritusta.",
+        headers: {
+          source: "Lähde",
+          type: "Tyyppi",
+          status: "Tila",
+          trigger: "Laukaista",
+          duration: "Kesto",
+          started: "Aloitettu",
+          actions: "Toiminnot",
+        },
+        cancel: "Peruuttaa",
+      },
+      runDetail: {
+        type: "Tyyppi",
+        triggeredBy: "Laukaisi",
+        duration: "Kesto",
+        modelsRun: "Mallit juoksevat",
+        rowsInserted: "Rivit lisätty",
+        rowsUpdated: "Rivit päivitetty",
+        testsPassed: "Testit läpäisty",
+        testsFailed: "Testit epäonnistuivat",
+        error: "Virhe",
+      },
+      freshness: {
+        title: "CDM tuoreus",
+        loading: "Ladataan tuoreustietoja Dagsterista...",
+        emptyTitle: "Ei tuoreustietoja",
+        emptyMessage:
+          "Tuoreustiedot tulevat näkyviin vähintään yhden onnistuneen Poseidon-ajon jälkeen.",
+        never: "Ei koskaan",
+      },
+      lineage: {
+        title: "Omaisuuslinja",
+        loading: "Ladataan sukulinjaa Dagsterista...",
+        emptyTitle: "Ei sukuperätietoja",
+        emptyMessage:
+          "Omaisuuslinja tulee näkyviin sen jälkeen, kun Dagster löytää dbt-malleja.",
+        tiers: {
+          staging: "Lavastus",
+          intermediate: "Keskitason",
+          quality: "Laatu",
+        },
+      },
+    },
+    jupyter: {
+      status: {
+        hubOnline: "Hub verkossa",
+        unavailable: "Ei saatavilla",
+        authenticating: "Todennetaan...",
+        startingServer: "Käynnistetään palvelinta...",
+        running: "Juoksemassa",
+        failed: "Epäonnistui",
+      },
+      page: {
+        title: "Jupyter työpöytä",
+        subtitle:
+          "Henkilökohtainen muistikirjaympäristösi interaktiiviseen tutkimukseen, mukautettuihin analyyseihin ja tietojen tutkimiseen",
+        refresh: "Päivitä",
+        openInNewTab: "Avaa uudessa välilehdessä",
+        workspaceDetails: "Työtilan tiedot",
+        checkingHub: "Tarkistetaan JupyterHubia...",
+        iframeTitle: "Parthenonin Jupyter",
+        startOverlay: "Käynnistetään muistikirjapalvelinta...",
+        firstLaunchNote:
+          "Tämä voi kestää jopa 30 sekuntia ensimmäisessä käynnistyksessä",
+        failedToStart: "Muistikirjan palvelimen käynnistäminen epäonnistui",
+        retry: "Yritä uudelleen",
+        failedToCreateSession: "Istunnon luominen epäonnistui",
+      },
+      unavailable: {
+        title: "JupyterHub ei ole tavoitettavissa",
+        message:
+          "Muistikirjapalvelu ei ole tällä hetkellä käytettävissä. Päivitä, kun säiliö on terve.",
+      },
+      drawer: {
+        title: "Jupyter-työtilan tiedot",
+        environment: "Ympäristö",
+        runtime: "Suoritusaika",
+        runtimeDescription:
+          "Python 3.12, jossa on pandat, polarit, sqlalchemy ja roolipohjainen tietokantakäyttö.",
+        privateWorkspace: "Yksityinen työtila",
+        privateWorkspaceDescription:
+          "Henkilökohtainen muistikirjahakemistosi. Jatkuu istuntojen ajan – työsi tallennetaan aina.",
+        sharedFolder: "Jaettu kansio",
+        sharedFolderDescription:
+          "Kopioi muistikirjat tähän jaettavaksi työtovereiden kanssa. Kaikki Jupyterin käyttäjät voivat lukea tätä kansiota.",
+        mountedPaths: "Asennetut polut",
+        starterNotebooks: "Aloitusmuistikirjat",
+        noStarterNotebooks: "Aloitusmuistikirjoja ei ole saatavilla.",
+        tips: "Vinkkejä",
+        quickLinks: "Pikalinkit",
+        openHubNewTab: "Avaa JupyterHub uudessa välilehdessä",
+      },
+    },
+    codeExplorer: {
+      page: {
+        title: "Koodiselain",
+        concept: "Käsite",
+        pickSource: "Valitse lähde aloittaaksesi.",
+        pickSourceAndConcept:
+          "Valitse lähde ja käsite tarkastellaksesi tietoja.",
+      },
+      tabs: {
+        counts: "Laskee",
+        relationships: "Suhteet",
+        hierarchy: "Hierarkia",
+        report: "Raportoi",
+        myReports: "Omat raportit",
+      },
+      sourcePicker: {
+        loading: "Ladataan lähteitä...",
+        empty: "Lähteitä ei ole määritetty",
+        label: "Tietolähde",
+        choose: "Valitse lähde...",
+      },
+      counts: {
+        loading: "Latausmäärät...",
+        failed: "Lukujen lataaminen epäonnistui.",
+        count: "Laskea",
+        group: "ryhmä",
+        gender: "Sukupuoli",
+        ageDecile: "Ikädesiili",
+      },
+      chart: {
+        noData: "Ei näytettävää dataa",
+        male: "Uros",
+        female: "Naaras",
+        unknown: "Tuntematon",
+      },
+      hierarchy: {
+        loading: "Ladataan hierarkiaa...",
+        failed: "Lataus epäonnistui.",
+        direction: "Suunta",
+        both: "Molemmat",
+        ancestorsOnly: "Vain esivanhemmat",
+        descendantsOnly: "Vain jälkeläiset",
+        maxDepth: "Max syvyys",
+      },
+      relationships: {
+        loading: "Ladataan suhteita...",
+        failed: "Lataus epäonnistui.",
+        empty: "Tälle konseptille ei löytynyt suhteita.",
+        headers: {
+          relationship: "Suhde",
+          targetConcept: "Kohdekonsepti",
+          vocabulary: "Sanasto",
+          standard: "Vakio",
+        },
+      },
+      reports: {
+        loading: "Ladataan raportteja...",
+        failed: "Lataus epäonnistui.",
+        empty:
+          "Sinulla ei ole vielä raportteja. Siirry Raportti-välilehteen ja luo sellainen.",
+        headers: {
+          created: "Luotu",
+          source: "Lähde",
+          concept: "Käsite",
+          status: "Tila",
+          pin: "Kiinnitetty",
+        },
+        pin: "Kiinnitä",
+        unpin: "Irrota kiinnitys",
+        generateReport: "Luo raportti",
+        generating: "Luodaan...",
+        failedToDispatch: "Raportin lähettäminen epäonnistui.",
+        failedTitle: "Raportin luominen epäonnistui",
+        ready: "Raportti valmis",
+        downloadHtml: "Lataa HTML",
+        iframeTitle: "ROMOPAPI-raportti",
+        inlinePreviewNote:
+          "Sisäänrakennettu esikatselu on hiekkalaatikolla (skriptit + cross-origin pois käytöstä). Lataa tiedosto koko interaktiiviseen näkymää varten selaimessasi.",
+      },
+      sourceReadiness: {
+        dispatching: "Lähetetään...",
+        initializeSource: "Alusta lähde",
+        failedToDispatch:
+          "Lähetys epäonnistui. Sinulta saattaa puuttua finngen.code-explorer.setup-oikeus.",
+      },
+    },
+    gis: {
+      common: {
+        present: "esittää",
+        unknownRegion: "Alue",
+      },
+      page: {
+        title: "GIS-selain",
+        reset: "Nollaa",
+        collapse: "Romahdus",
+        expand: "Laajentaa",
+        enableLayers: "Ota analyysitasot käyttöön vasemmassa paneelissa",
+        selectDisease: "Aloita tilaanalyysi valitsemalla sairaus",
+      },
+      layerPanel: {
+        title: "Analyysikerrokset",
+        privacy: "Yksityisyys",
+        suppressionOff: "Vaimennus: pois päältä (synteettiset tiedot)",
+      },
+      context: {
+        researchActions: "Tutkimustoimet",
+        createStudy: "Luo tutkimus",
+        browseCohorts: "Selaa kohortteja",
+        clickRegion: "Napsauta aluetta kartalla nähdäksesi tason tiedot",
+      },
+      diseaseSelector: {
+        title: "Sairaus",
+        top: "Ylös",
+        categories: "Luokat",
+        noMatches: "Ei vastaavia ehtoja",
+      },
+      regionDetail: {
+        loading: "Ladataan...",
+        close: "Lähellä",
+        loadingDetails: "Ladataan alueen tietoja...",
+        exposures: "Altistukset",
+      },
+      countyDetail: {
+        county: "Lääni",
+        cases: "Tapaukset",
+        deaths: "Kuolemat",
+        cfr: "Kuolleisuusosuus",
+        hospitalized: "Sairaalaan",
+        population: "Väestö",
+        ageDistributionCovid: "Ikäjakauma (COVID)",
+        monthlyCases: "Kuukausittaiset tapaukset",
+      },
+      diseaseSummary: {
+        cases: "Tapaukset",
+        deaths: "Kuolemat",
+        cfr: "Kuolleisuusosuus",
+        counties: "Maakunnat",
+        prevalence: "Yleisyys",
+      },
+      layers: {
+        airQuality: {
+          name: "Ilmanlaatu",
+          description: "EPA PM2.5 ja otsonitasot",
+          legend: {
+            good: "Hyvä (matala PM2,5)",
+            poor: "Huono (korkea PM2,5)",
+          },
+          analysis: {
+            loading: "Ladataan...",
+            noData: "Ei dataa",
+          },
+          detail: {
+            loading: "Ladataan...",
+            empty: "Ei ilmanlaatutietoja",
+            ozone: "Otsoni",
+          },
+        },
+        comorbidity: {
+          name: "Komorbiditeettitaakka",
+          description: "DM, HTN, liikalihavuuden klusterointi",
+          legend: {
+            low: "Pieni taakka (0)",
+            high: "Suuri taakka (3)",
+          },
+          tooltip: {
+            burden: "Taakka",
+          },
+          analysis: {
+            loading: "Ladataan...",
+            noData: "Ei dataa",
+          },
+          detail: {
+            subtitle: "DM + HTN + liikalihavuustaakkapisteet",
+          },
+        },
+        hospitalAccess: {
+          name: "Pääsy sairaalaan",
+          description: "CMS-sairaalan läheisyys",
+          legend: {
+            withEd: "Sairaala (ED)",
+            withoutEd: "Sairaala (ei ED)",
+          },
+          analysis: {
+            loading: "Ladataan...",
+            noData: "Ei dataa",
+          },
+          detail: {
+            subtitle: "Etäisyys renkaat: 15/30/60 km",
+          },
+        },
+        rucc: {
+          name: "Kaupunki-maaseutu",
+          legend: {
+            metro: "Metropolialue",
+            micropolitan: "Mikropolialue",
+            rural: "Maaseudun",
+          },
+          tooltip: {
+            classification: "Luokitus",
+          },
+          analysis: {
+            loading: "Ladataan...",
+            noData: "Ei dataa",
+          },
+          detail: {
+            loading: "Ladataan...",
+            empty: "Ei RUCC-tietoja",
+            code: "RUCC koodi",
+            classification: "Luokitus",
+            category: "Luokka",
+            patients: "Potilaat",
+          },
+          categories: {
+            metro: "Metropolialue",
+            micro: "Mikropolialue",
+            rural: "Maaseudun",
+          },
+        },
+        svi: {
+          name: "Sosiaalinen haavoittuvuus",
+          description: "CDC/ATSDR SVI väestönlaskennan mukaan",
+          legend: {
+            low: "Matala haavoittuvuus",
+            high: "Korkea haavoittuvuus",
+          },
+          analysis: {
+            loading: "Ladataan...",
+            noData: "Tietoja ei ole saatavilla",
+          },
+          detail: {
+            loading: "Ladataan...",
+            empty: "Ei SVI-tietoja",
+            overall: "Kaiken kaikkiaan SVI",
+            themes: {
+              socioeconomicStatus: "Sosioekonominen asema",
+              householdComposition: "Kotitalouden kokoonpano",
+              minorityStatus: "Vähemmistön asema",
+              housingTransportation: "Asuminen ja kuljetus",
+            },
+          },
+        },
+      },
+    },
+    queryAssistant: {
+      page: {
+        title: "Kyselyassistentti",
+        subtitle:
+          "Selaa OHDSI-kyselykirjastoa tai käytä tekoälyä SQL:n luomiseen luonnollisesta kielestä",
+        dialect: "Murre",
+        default: "Oletus",
+        defaultTooltip:
+          "Muutokset tallennettu järjestelmän oletukseksi (super-admin)",
+        tabs: {
+          library: "Kyselykirjasto",
+          naturalLanguage: "Luonnollinen kieli",
+        },
+      },
+      naturalLanguage: {
+        askQuestion: "Esitä kysymys",
+        placeholder:
+          "esim. Kuinka monella potilaalla diagnosoitiin tyypin 2 diabetes vuonna 2023?",
+        ctrlEnter: "Ctrl+Enter luodaksesi",
+        tryExample: "Kokeile esimerkkiä",
+        examples: {
+          diabetes: "Kuinka monella potilaalla on diabetes?",
+          topConditions:
+            "Mitkä ovat 10 yleisintä sairautta esiintyvyyden mukaan?",
+          heartFailureAge:
+            "Sydämen vajaatoimintaa sairastavien potilaiden keski-ikä",
+          statins2024: "Statiinien lääkealtistusluvut vuonna 2024",
+        },
+        generateWithAi: "Luo tekoälyllä",
+        generating: "Luodaan...",
+        failedToGenerate: "SQL:n luominen epäonnistui. Yritä uudelleen.",
+        queryHistory: "Kyselyhistoria",
+        clear: "Selkeä",
+        emptyTitle: "Aloita esittämällä kysymys",
+        emptyDescription:
+          "Kirjoita luonnollisen kielen kysymys OMOP CDM -tiedoistasi ja AI luo vastaavan SQL-kyselyn.",
+      },
+      library: {
+        refreshing: "Virkistävä",
+        allDomains: "Kaikki verkkotunnukset",
+        failedToLoad: "Kyselykirjaston lataaminen epäonnistui.",
+        noMatches: "Hakuasi vastaavia kyselyitä ei löytynyt.",
+        tryDifferentKeyword:
+          "Kokeile toista avainsanaa tai tyhjennä suodattimet.",
+        importHint:
+          "Jos kirjasto on tyhjä, pyydä järjestelmänvalvojaa suorittamaan: php artisan query-library:import-ohdsi",
+        showMoreMatches: "Näytä lisää osumia",
+      },
+      results: {
+        safeReadOnly: "TURVALLINEN - Vain luku",
+        needsReview: "TARVITSE TARKASTELUA",
+        unsafe: "TURVALLINEN",
+        queryLibraryMatch: "Pyydä kirjaston haku",
+        templateParameters: "Mallin parametrit",
+        rendering: "Renderöidään...",
+        sqlUpdated: "SQL päivitetty",
+        renderTemplate: "Renderöi malli",
+        renderFailed: "Kyselymallin renderöinti epäonnistui.",
+        generatedSql: "Luotu SQL",
+        aggregate: "Aggregaatti",
+        tablesReferenced: "Taulukot viitataan",
+        explanation: "Selitys",
+        validateSql: "Vahvista SQL",
+        validating: "Vahvistetaan...",
+        validSql: "Kelvollinen SQL",
+        validationFailed: "Vahvistus epäonnistui",
+        readOnly: "Vain luku",
+        complexity: {
+          low: "alhainen monimutkaisuus",
+          medium: "keskikokoinen monimutkaisuus",
+          high: "korkea monimutkaisuus",
+        },
+        renderError: "Kyselymallin renderöinti epäonnistui.",
+        validateError: "SQL:n vahvistaminen epäonnistui.",
+      },
+      schemaBrowser: {
+        title: "OMOP CDM Schema -selain",
+        failedToLoad: "Kaavan lataaminen epäonnistui.",
+        commonJoins: "Yhteiset liitokset",
+        noDescription: "Kuvausta ei ole saatavilla.",
+      },
+      sqlBlock: {
+        runSql: "Suorita SQL",
+        copy: "Kopioida",
+        copied: "Kopioitu",
+      },
+      sqlRunner: {
+        errorTitles: {
+          explanationInsteadOfSql: "Tekoäly palautti selityksen SQL:n sijaan",
+          mysqlBackticks: "MySQL-tyylisiä backtickejä ei tueta",
+          syntaxError: "SQL-syntaksivirhe",
+          timeout: "Kysely aikakatkaistiin (120 s raja)",
+          tableNotFound: "Taulukkoa ei löydy",
+          columnNotFound: "Saraketta ei löydy",
+          insufficientPermissions: "Riittämättömät käyttöoikeudet",
+        },
+        suggestions: {
+          explanationInsteadOfSql: {
+            first: "Yritä muotoilla kysymys uudelleen tarkemmaksi",
+            second:
+              "Käytä Kyselykirjasto-välilehteä löytääksesi valmiiksi laaditun mallin",
+            third:
+              "Määritä tarkat taulukot ja sarakkeet, joista haluat tehdä kyselyn",
+          },
+          mysqlBackticks: {
+            first:
+              'PostgreSQL käyttää lainausmerkkejä tunnisteissa: "sarakkeen_nimi"',
+            second:
+              "Useimpia OMOP-sarakkeiden nimiä ei tarvitse lainata ollenkaan",
+            third:
+              "Yritä generoida kysely uudelleen - tekoäly käyttää joskus MySQL-syntaksia",
+          },
+          syntaxError: {
+            first:
+              "Luodussa SQL:ssä on syntaksiongelma - yritä luoda uudelleen selkeämmällä kysymyksellä",
+            second:
+              "Tarkista, onko sulkuja, puuttuvia pilkkuja tai ylimääräisiä avainsanoja",
+            third:
+              "Käytä Vahvista SQL -painiketta ensin havaitaksesi ongelmat ennen suorittamista",
+          },
+          timeout: {
+            first:
+              "Lisää tarkempia WHERE-ehtoja vähentääksesi skannattujen tietojen määrää",
+            second: "Lisää LIMIT-lause, joka rajoittaa tulosjoukkoa",
+            third: "Vältä SELECT * - valitse vain tarvitsemasi sarakkeet",
+            fourth:
+              "Harkitse ajanjakson suodattamista tietojoukon kaventamiseksi",
+          },
+          tableNotFound: {
+            first:
+              "OMOP-taulukoiden on oltava skeemapäteviä: omop.person, omop.condition_occurrence",
+            second:
+              "Tarkista taulukoiden nimet sivun alareunassa olevalla Schema Browserilla",
+            third:
+              "Tarkista oikeinkirjoitus - yleiset taulukot: henkilö, kunto_esiintyminen, lääkealtistus, mittaus",
+          },
+          columnNotFound: {
+            first:
+              "Laajenna taulukko Schema Browserissa nähdäksesi käytettävissä olevat sarakkeet",
+            second:
+              "OMOP-sarakkeiden nimet käyttävät alaviivoja: henkilötunnus, ehto_aloituspäivämäärä",
+            third:
+              "Tarkista, tarvitsetko LIITTYMÄN toiseen taulukkoon, jossa on tämä sarake",
+          },
+          insufficientPermissions: {
+            first: 'Tätä kyselyä ei luokiteltu "turvalliseksi" (vain luku)',
+            second:
+              "Vain järjestelmänvalvojat voivat suorittaa kyselyitä, joita ei ole merkitty turvallisiksi",
+            third:
+              "Käytä Vahvista SQL -painiketta turvaluokituksen tarkistamiseen",
+          },
+        },
+        defaults: {
+          queryExecutionFailed: "Kyselyn suoritus epäonnistui",
+          failedToRenderTemplate: "Mallin renderöinti epäonnistui",
+          typeToSearchConcepts: "Hae OMOP-käsitteitä kirjoittamalla...",
+        },
+        state: {
+          active: "Suoritetaan kyselyä...",
+          idle: "Tyhjäkäynti",
+          idleInTransaction: "Käsitellään tuloksia...",
+          idleAborted: "Kauppa keskeytetty",
+          fastpath: "Pikapuhelu",
+          disabled: "Seuranta pois käytöstä",
+          completed: "Valmis",
+          error: "Virhe",
+        },
+        modal: {
+          title: "SQL-suoritin",
+          preparing: "Valmistellaan...",
+          runQuery: "Suorita kysely",
+          queryCompleted: "Kysely suoritettu",
+          cappedAt10k: "Rajattu 10 000 riviin",
+          queryFailed: "Kysely epäonnistui",
+          downloadCsv: "Lataa CSV",
+          close: "Lähellä",
+        },
+      },
+    },
+  }),
+  "ja-JP": mergeMessageTrees(enGisTools, {
+    poseidon: {
+      page: {
+        unavailableTitle: "ポセイドンは利用不可",
+        unavailableMessage:
+          "ポセイドン オーケストレーション サービスに接続できませんでした。 Poseidon コンテナが実行されていることを確認します。",
+        retry: "リトライ",
+        subtitle:
+          "CDM リフレッシュ オーケストレーション - 増分ロード、依存関係を意識した実行、dbt + Dagster によるソースごとのスケジューリング",
+        refresh: "リフレッシュ",
+      },
+      overview: {
+        activeSchedules: "アクティブなスケジュール",
+        runsInProgress: "進行中の実行",
+        successfulRuns: "成功した実行",
+        failedRuns: "失敗した実行",
+      },
+      runStatus: {
+        pending: "保留中",
+        running: "ランニング",
+        success: "成功しました",
+        failed: "失敗した",
+        cancelled: "キャンセル",
+      },
+      runType: {
+        fullRefresh: "フルリフレッシュ",
+        vocabulary: "語彙",
+        incremental: "増分",
+      },
+      scheduleType: {
+        manual: "マニュアル",
+        cron: "予定されている",
+        sensor: "イベント駆動型",
+      },
+      schedules: {
+        title: "ソーススケジュール",
+        emptyTitle: "スケジュールが設定されていません",
+        emptyMessage:
+          "ポセイドン スケジュールを作成して、データ ソースの CDM 更新を自動化します。",
+        active: "アクティブ",
+        paused: "一時停止中",
+        pauseSchedule: "スケジュールを一時停止する",
+        activateSchedule: "スケジュールをアクティブにする",
+        pause: "一時停止",
+        activate: "活性化",
+        runIncrementalRefresh: "増分更新の実行",
+      },
+      recentRuns: {
+        title: "最近の実行",
+        emptyTitle: "まだ実行はありません",
+        emptyMessage:
+          "手動実行をトリガーするか、スケジュールされた実行を待ちます。",
+        headers: {
+          source: "ソース",
+          type: "タイプ",
+          status: "状態",
+          trigger: "トリガー",
+          duration: "間隔",
+          started: "開始しました",
+          actions: "アクション",
+        },
+        cancel: "キャンセル",
+      },
+      runDetail: {
+        type: "タイプ",
+        triggeredBy: "きっかけ",
+        duration: "間隔",
+        modelsRun: "モデルの実行",
+        rowsInserted: "挿入された行",
+        rowsUpdated: "更新された行",
+        testsPassed: "テストに合格しました",
+        testsFailed: "テストは失敗しました",
+        error: "エラー",
+      },
+      freshness: {
+        title: "CDMの鮮度",
+        loading: "Dagster から鮮度データをロードしています...",
+        emptyTitle: "鮮度データなし",
+        emptyMessage:
+          "鮮度データは、ポセイドンの実行が少なくとも 1 回成功すると表示されます。",
+        never: "一度もない",
+      },
+      lineage: {
+        title: "資産の系統",
+        loading: "Dagster から系統をロードしています...",
+        emptyTitle: "血統データがありません",
+        emptyMessage:
+          "Dagster が dbt モデルを検出すると、アセット リネージが表示されます。",
+        tiers: {
+          staging: "ステージング",
+          intermediate: "中級",
+          quality: "品質",
+        },
+      },
+    },
+    jupyter: {
+      status: {
+        hubOnline: "ハブオンライン",
+        unavailable: "利用不可",
+        authenticating: "認証中...",
+        startingServer: "サーバーを起動中...",
+        running: "ランニング",
+        failed: "失敗した",
+      },
+      page: {
+        title: "ジュピターワークベンチ",
+        subtitle:
+          "インタラクティブなリサーチ、カスタム分析、データ探索のための個人用ノートブック環境",
+        refresh: "リフレッシュ",
+        openInNewTab: "新しいタブで開く",
+        workspaceDetails: "ワークスペースの詳細",
+        checkingHub: "JupyterHub をチェックしています...",
+        iframeTitle: "パルテノン神殿ジュピター",
+        startOverlay: "ノートブック サーバーを起動しています...",
+        firstLaunchNote: "初回起動時は最大 30 秒かかる場合があります",
+        failedToStart: "ノートブックサーバーの起動に失敗しました",
+        retry: "リトライ",
+        failedToCreateSession: "セッションの作成に失敗しました",
+      },
+      unavailable: {
+        title: "JupyterHub にアクセスできません",
+        message:
+          "現在、ノートブック サービスはご利用いただけません。コンテナが正常になったらリフレッシュしてください。",
+      },
+      drawer: {
+        title: "Jupyter ワークスペースの詳細",
+        environment: "環境",
+        runtime: "ランタイム",
+        runtimeDescription:
+          "pandas、polars、sqlalchemy、およびロールベースのデータベース アクセスを備えた Python 3.12。",
+        privateWorkspace: "プライベートワークスペース",
+        privateWorkspaceDescription:
+          "あなたの個人的なノートブックのディレクトリ。セッションをまたいで保持されるため、作業内容は常に保存されます。",
+        sharedFolder: "共有フォルダー",
+        sharedFolderDescription:
+          "ノートブックをここにコピーして同僚と共有します。すべての Jupyter ユーザーはこのフォルダーを読み取ることができます。",
+        mountedPaths: "マウントされたパス",
+        starterNotebooks: "スターターノートブック",
+        noStarterNotebooks: "利用可能なスターター ノートブックはありません。",
+        tips: "ヒント",
+        quickLinks: "クイックリンク",
+        openHubNewTab: "新しいタブで JupyterHub を開く",
+      },
+    },
+    codeExplorer: {
+      page: {
+        title: "コードエクスプローラー",
+        concept: "コンセプト",
+        pickSource: "ソースを選択して開始します。",
+        pickSourceAndConcept:
+          "ソースとコンセプトを選択してデータを表示します。",
+      },
+      tabs: {
+        counts: "カウント",
+        relationships: "人間関係",
+        hierarchy: "階層",
+        report: "報告",
+        myReports: "私のレポート",
+      },
+      sourcePicker: {
+        loading: "ソースを読み込んでいます...",
+        empty: "ソースが設定されていません",
+        label: "データソース",
+        choose: "ソースを選択してください...",
+      },
+      counts: {
+        loading: "カウントを読み込み中...",
+        failed: "カウントのロードに失敗しました。",
+        count: "カウント",
+        group: "グループ",
+        gender: "性別",
+        ageDecile: "年齢十分位数",
+      },
+      chart: {
+        noData: "表示するデータがありません",
+        male: "男",
+        female: "女性",
+        unknown: "未知",
+      },
+      hierarchy: {
+        loading: "階層を読み込んでいます...",
+        failed: "ロードに失敗しました。",
+        direction: "方向",
+        both: "両方",
+        ancestorsOnly: "祖先のみ",
+        descendantsOnly: "子孫のみ",
+        maxDepth: "最大深度",
+      },
+      relationships: {
+        loading: "関係を読み込んでいます...",
+        failed: "ロードに失敗しました。",
+        empty: "この概念との関係は見つかりませんでした。",
+        headers: {
+          relationship: "関係",
+          targetConcept: "ターゲットコンセプト",
+          vocabulary: "語彙",
+          standard: "標準",
+        },
+      },
+      reports: {
+        loading: "レポートを読み込んでいます...",
+        failed: "ロードに失敗しました。",
+        empty:
+          "まだレポートがありません。 「レポート」タブに移動し、レポートを生成します。",
+        headers: {
+          created: "作成されました",
+          source: "ソース",
+          concept: "コンセプト",
+          status: "状態",
+          pin: "ピン",
+        },
+        pin: "ピン",
+        unpin: "固定を解除する",
+        generateReport: "レポートの生成",
+        generating: "生成中...",
+        failedToDispatch: "レポートの送信に失敗しました。",
+        failedTitle: "レポートの生成に失敗しました",
+        ready: "レポートの準備ができました",
+        downloadHtml: "HTMLをダウンロード",
+        iframeTitle: "ロモパピレポート",
+        inlinePreviewNote:
+          "インライン プレビューはサンドボックス化されています (スクリプト + クロスオリジンが無効になっています)。ファイルをダウンロードすると、ブラウザで完全な対話型ビューが表示されます。",
+      },
+      sourceReadiness: {
+        dispatching: "派遣中...",
+        initializeSource: "ソースの初期化",
+        failedToDispatch:
+          "発送に失敗しました。 「finngen.code-explorer.setup」権限が不足している可能性があります。",
+      },
+    },
+    gis: {
+      common: {
+        present: "現在",
+        unknownRegion: "地域",
+      },
+      page: {
+        title: "GIS エクスプローラー",
+        reset: "リセット",
+        collapse: "崩壊",
+        expand: "拡大する",
+        enableLayers: "左側のパネルで分析レイヤーを有効にする",
+        selectDisease: "疾患を選択して空間分析を開始してください",
+      },
+      layerPanel: {
+        title: "分析レイヤー",
+        privacy: "プライバシー",
+        suppressionOff: "サプレッション：オフ（合成データ）",
+      },
+      context: {
+        researchActions: "研究活動",
+        createStudy: "スタディの作成",
+        browseCohorts: "コホートを参照する",
+        clickRegion:
+          "マップ上の地域をクリックすると、レイヤーの詳細が表示されます",
+      },
+      diseaseSelector: {
+        title: "病気",
+        top: "トップ",
+        categories: "カテゴリー",
+        noMatches: "一致する条件がありません",
+      },
+      regionDetail: {
+        loading: "読み込み中...",
+        close: "近い",
+        loadingDetails: "地域の詳細を読み込んでいます...",
+        exposures: "露出",
+      },
+      countyDetail: {
+        county: "郡",
+        cases: "事例",
+        deaths: "死亡者（数",
+        cfr: "致死率",
+        hospitalized: "入院",
+        population: "人口",
+        ageDistributionCovid: "年齢分布（新型コロナウイルス）",
+        monthlyCases: "毎月の事件",
+      },
+      diseaseSummary: {
+        cases: "事例",
+        deaths: "死亡者（数",
+        cfr: "致死率",
+        counties: "郡",
+        prevalence: "有病率",
+      },
+      layers: {
+        airQuality: {
+          name: "空気の質",
+          description: "EPA PM2.5 とオゾンレベル",
+          legend: {
+            good: "良い（PM2.5が少ない）",
+            poor: "悪い（PM2.5が高い）",
+          },
+          analysis: {
+            loading: "読み込み中...",
+            noData: "データなし",
+          },
+          detail: {
+            loading: "読み込み中...",
+            empty: "大気質データなし",
+            ozone: "オゾン",
+          },
+        },
+        comorbidity: {
+          name: "併存疾患負担",
+          description: "DM、HTN、肥満クラスタリング",
+          legend: {
+            low: "負担が少ない(0)",
+            high: "負担が大きい (3)",
+          },
+          tooltip: {
+            burden: "重荷",
+          },
+          analysis: {
+            loading: "読み込み中...",
+            noData: "データなし",
+          },
+          detail: {
+            subtitle: "DM + HTN + 肥満負荷スコア",
+          },
+        },
+        hospitalAccess: {
+          name: "病院へのアクセス",
+          description: "CMS病院に近い",
+          legend: {
+            withEd: "病院（ED）",
+            withoutEd: "病院（EDなし）",
+          },
+          analysis: {
+            loading: "読み込み中...",
+            noData: "データなし",
+          },
+          detail: {
+            subtitle: "リング距離: 15/30/60 km",
+          },
+        },
+        rucc: {
+          name: "都市部と農村部",
+          legend: {
+            metro: "地下鉄",
+            micropolitan: "ミクロポリタン",
+            rural: "田舎",
+          },
+          tooltip: {
+            classification: "分類",
+          },
+          analysis: {
+            loading: "読み込み中...",
+            noData: "データなし",
+          },
+          detail: {
+            loading: "読み込み中...",
+            empty: "RUCC データなし",
+            code: "RUCCコード",
+            classification: "分類",
+            category: "カテゴリ",
+            patients: "患者",
+          },
+          categories: {
+            metro: "地下鉄",
+            micro: "ミクロポリタン",
+            rural: "田舎",
+          },
+        },
+        svi: {
+          name: "社会的脆弱性",
+          description: "国勢調査区による CDC/ATSDR SVI",
+          legend: {
+            low: "脆弱性が低い",
+            high: "高い脆弱性",
+          },
+          analysis: {
+            loading: "読み込み中...",
+            noData: "利用可能なデータがありません",
+          },
+          detail: {
+            loading: "読み込み中...",
+            empty: "SVIデータなし",
+            overall: "SVI全体",
+            themes: {
+              socioeconomicStatus: "社会経済的地位",
+              householdComposition: "世帯構成",
+              minorityStatus: "マイノリティの地位",
+              housingTransportation: "住宅と交通",
+            },
+          },
+        },
+      },
+    },
+    queryAssistant: {
+      page: {
+        title: "クエリアシスタント",
+        subtitle:
+          "OHDSI クエリ ライブラリを参照するか、AI を使用して自然言語から SQL を生成します",
+        dialect: "方言",
+        default: "デフォルト",
+        defaultTooltip:
+          "変更はシステムのデフォルトとして保存されました (スーパー管理者)",
+        tabs: {
+          library: "クエリライブラリ",
+          naturalLanguage: "自然言語",
+        },
+      },
+      naturalLanguage: {
+        askQuestion: "質問する",
+        placeholder: "例えば2023 年に 2 型糖尿病と診断された患者は何人ですか?",
+        ctrlEnter: "Ctrl+Enter を押して生成します",
+        tryExample: "例を試してみる",
+        examples: {
+          diabetes: "糖尿病患者は何人いますか?",
+          topConditions: "有病率のトップ 10 の病気は何ですか?",
+          heartFailureAge: "心不全患者の平均年齢",
+          statins2024: "2024 年のスタチン系薬物曝露数",
+        },
+        generateWithAi: "AIで生成",
+        generating: "生成中...",
+        failedToGenerate: "SQLの生成に失敗しました。もう一度試してください。",
+        queryHistory: "クエリ履歴",
+        clear: "クリア",
+        emptyTitle: "始めるには質問してください",
+        emptyDescription:
+          "OMOP CDM データに関する自然言語の質問を入力すると、AI が対応する SQL クエリを生成します。",
+      },
+      library: {
+        refreshing: "さわやか",
+        allDomains: "すべてのドメイン",
+        failedToLoad: "クエリライブラリのロードに失敗しました。",
+        noMatches: "検索に一致するクエリは見つかりませんでした。",
+        tryDifferentKeyword:
+          "別のキーワードを試すか、フィルターをクリアしてください。",
+        importHint:
+          "ライブラリが空の場合は、管理者に次のコマンドを実行するように依頼してください: php artisan query-library:import-ohdsi",
+        showMoreMatches: "さらに一致を表示",
+      },
+      results: {
+        safeReadOnly: "安全 - 読み取り専用",
+        needsReview: "見直しが必要",
+        unsafe: "危険",
+        queryLibraryMatch: "クエリライブラリの一致",
+        templateParameters: "テンプレートパラメータ",
+        rendering: "レンダリング...",
+        sqlUpdated: "SQLが更新されました",
+        renderTemplate: "レンダリングテンプレート",
+        renderFailed: "クエリ テンプレートのレンダリングに失敗しました。",
+        generatedSql: "生成されたSQL",
+        aggregate: "集計",
+        tablesReferenced: "参照されるテーブル",
+        explanation: "説明",
+        validateSql: "SQLを検証する",
+        validating: "検証中...",
+        validSql: "有効なSQL",
+        validationFailed: "検証に失敗しました",
+        readOnly: "読み取り専用",
+        complexity: {
+          low: "複雑さの低い",
+          medium: "中程度の複雑さ",
+          high: "高い複雑さ",
+        },
+        renderError: "クエリ テンプレートのレンダリングに失敗しました。",
+        validateError: "SQLの検証に失敗しました。",
+      },
+      schemaBrowser: {
+        title: "OMOP CDM スキーマブラウザ",
+        failedToLoad: "スキーマのロードに失敗しました。",
+        commonJoins: "共通結合",
+        noDescription: "説明はありません。",
+      },
+      sqlBlock: {
+        runSql: "SQLを実行する",
+        copy: "コピー",
+        copied: "コピーされました",
+      },
+      sqlRunner: {
+        errorTitles: {
+          explanationInsteadOfSql: "AI は SQL の代わりに説明を返しました",
+          mysqlBackticks:
+            "MySQL スタイルのバッククォートはサポートされていません",
+          syntaxError: "SQL構文エラー",
+          timeout: "クエリがタイムアウトしました (120 秒の制限)",
+          tableNotFound: "テーブルが見つかりません",
+          columnNotFound: "列が見つかりません",
+          insufficientPermissions: "権限が不十分です",
+        },
+        suggestions: {
+          explanationInsteadOfSql: {
+            first: "質問をより具体的に言い換えてみてください",
+            second:
+              "[クエリ ライブラリ] タブを使用して、事前に構築されたテンプレートを検索します。",
+            third: "クエリを実行する正確なテーブルと列を指定します",
+          },
+          mysqlBackticks: {
+            first: 'PostgreSQL は識別子に二重引用符を使用します: "column_name"',
+            second: "ほとんどの OMOP 列名は引用符で囲む必要がありません。",
+            third:
+              "クエリを再生成してみてください - AI は MySQL 構文を使用する場合があります",
+          },
+          syntaxError: {
+            first:
+              "生成された SQL には構文の問題があります。より明確な質問を使用して再生成してください。",
+            second:
+              "括弧の不一致、カンマの欠落、または余分なキーワードがないか確認してください。",
+            third:
+              "実行する前に、まず [SQL の検証] ボタンを使用して問題を検出します。",
+          },
+          timeout: {
+            first:
+              "より具体的な WHERE 条件を追加して、スキャンされるデータを削減します。",
+            second: "LIMIT 句を追加して結果セットを制限する",
+            third: "SELECT * を避ける - 必要な列のみを選択します",
+            fourth:
+              "データセットを絞り込むために日付範囲でフィルタリングすることを検討してください",
+          },
+          tableNotFound: {
+            first:
+              "OMOP テーブルはスキーマ修飾されている必要があります: omop.person、omop.condition_occurrence",
+            second:
+              "ページの下部にあるスキーマ ブラウザを使用してテーブル名を確認します。",
+            third:
+              "スペルチェック - 共通テーブル: person、condition_occurrence、drug_exposure、measurement",
+          },
+          columnNotFound: {
+            first:
+              "スキーマ ブラウザでテーブルを展開すると、使用可能な列が表示されます",
+            second:
+              "OMOP 列名にはアンダースコアが使用されます: person_id、condition_start_date",
+            third:
+              "この列を持つ別のテーブルへの JOIN が必要かどうかを確認してください",
+          },
+          insufficientPermissions: {
+            first:
+              "このクエリは「安全」(読み取り専用) として分類されませんでした。",
+            second:
+              "安全とマークされていないクエリを実行できるのは管理者だけです",
+            third: "「SQL の検証」ボタンを使用して安全性分類を確認します。",
+          },
+        },
+        defaults: {
+          queryExecutionFailed: "クエリの実行に失敗しました",
+          failedToRenderTemplate: "テンプレートのレンダリングに失敗しました",
+          typeToSearchConcepts: "OMOP の概念を検索するには入力してください...",
+        },
+        state: {
+          active: "クエリを実行中...",
+          idle: "アイドル状態",
+          idleInTransaction: "結果を処理中...",
+          idleAborted: "トランザクションが中止されました",
+          fastpath: "ファストパスコール",
+          disabled: "追跡が無効になっています",
+          completed: "完了しました",
+          error: "エラー",
+        },
+        modal: {
+          title: "SQLクエリランナー",
+          preparing: "準備中...",
+          runQuery: "クエリの実行",
+          queryCompleted: "クエリが完了しました",
+          cappedAt10k: "上限は 10,000 行",
+          queryFailed: "クエリが失敗しました",
+          downloadCsv: "CSVをダウンロード",
+          close: "近い",
+        },
+      },
+    },
+  }),
+  "zh-Hans": mergeMessageTrees(enGisTools, {
+    poseidon: {
+      page: {
+        unavailableTitle: "波塞冬不可用",
+        unavailableMessage:
+          "无法连接到 Poseidon 编排服务。验证 Poseidon 容器正在运行。",
+        retry: "重试",
+        subtitle:
+          "CDM 刷新编排 - 增量加载、依赖性感知执行以及通过 dbt + Dagster 进行按源调度",
+        refresh: "刷新",
+      },
+      overview: {
+        activeSchedules: "活动日程",
+        runsInProgress: "运行中",
+        successfulRuns: "成功运行",
+        failedRuns: "失败的运行",
+      },
+      runStatus: {
+        pending: "待办的",
+        running: "跑步",
+        success: "成功了",
+        failed: "失败的",
+        cancelled: "取消",
+      },
+      runType: {
+        fullRefresh: "全面刷新",
+        vocabulary: "词汇",
+        incremental: "增量式",
+      },
+      scheduleType: {
+        manual: "手动的",
+        cron: "预定",
+        sensor: "事件驱动",
+      },
+      schedules: {
+        title: "来源时间表",
+        emptyTitle: "没有配置计划",
+        emptyMessage: "创建 Poseidon 计划以自动执行数据源的 CDM 刷新。",
+        active: "积极的",
+        paused: "已暂停",
+        pauseSchedule: "暂停时间表",
+        activateSchedule: "激活时间表",
+        pause: "暂停",
+        activate: "激活",
+        runIncrementalRefresh: "运行增量刷新",
+      },
+      recentRuns: {
+        title: "最近的跑步",
+        emptyTitle: "还没有运行",
+        emptyMessage: "触发手动运行或等待计划的执行。",
+        headers: {
+          source: "来源",
+          type: "类型",
+          status: "地位",
+          trigger: "扳机",
+          duration: "期间",
+          started: "开始",
+          actions: "行动",
+        },
+        cancel: "取消",
+      },
+      runDetail: {
+        type: "类型",
+        triggeredBy: "触发者",
+        duration: "期间",
+        modelsRun: "模型运行",
+        rowsInserted: "插入的行数",
+        rowsUpdated: "更新行数",
+        testsPassed: "测试通过",
+        testsFailed: "测试失败",
+        error: "错误",
+      },
+      freshness: {
+        title: "CDM 新鲜度",
+        loading: "正在从 Dagster 加载新鲜度数据...",
+        emptyTitle: "没有新鲜度数据",
+        emptyMessage: "新鲜度数据在至少一次成功的 Poseidon 运行后出现。",
+        never: "绝不",
+      },
+      lineage: {
+        title: "资产谱系",
+        loading: "正在从 Dagster 加载谱系...",
+        emptyTitle: "没有谱系数据",
+        emptyMessage: "Dagster 发现 dbt 模型后，资产谱系就会出现。",
+        tiers: {
+          staging: "分期",
+          intermediate: "中间的",
+          quality: "质量",
+        },
+      },
+    },
+    jupyter: {
+      status: {
+        hubOnline: "在线中心",
+        unavailable: "不可用",
+        authenticating: "正在验证...",
+        startingServer: "正在启动服务器...",
+        running: "跑步",
+        failed: "失败的",
+      },
+      page: {
+        title: "Jupyter工作台",
+        subtitle: "用于交互式研究、自定义分析和数据探索的个人笔记本环境",
+        refresh: "刷新",
+        openInNewTab: "在新选项卡中打开",
+        workspaceDetails: "工作区详细信息",
+        checkingHub: "正在检查 JupyterHub...",
+        iframeTitle: "帕台农神庙朱庇特",
+        startOverlay: "启动您的笔记本服务器...",
+        firstLaunchNote: "首次启动时可能需要长达 30 秒的时间",
+        failedToStart: "无法启动笔记本服务器",
+        retry: "重试",
+        failedToCreateSession: "创建会话失败",
+      },
+      unavailable: {
+        title: "JupyterHub 无法访问",
+        message: "目前笔记本服务不可用。容器健康后刷新。",
+      },
+      drawer: {
+        title: "Jupyter 工作区详细信息",
+        environment: "环境",
+        runtime: "运行时",
+        runtimeDescription:
+          "Python 3.12，带有 pandas、polars、sqlalchemy 和基于角色的数据库访问。",
+        privateWorkspace: "私人工作空间",
+        privateWorkspaceDescription:
+          "您的个人笔记本目录。跨会话持续存在 - 您的工作始终会保存。",
+        sharedFolder: "共享文件夹",
+        sharedFolderDescription:
+          "在这里复制笔记本与同事分享。所有 Jupyter 用户都可以读取此文件夹。",
+        mountedPaths: "安装路径",
+        starterNotebooks: "入门笔记本",
+        noStarterNotebooks: "没有可用的入门笔记本。",
+        tips: "尖端",
+        quickLinks: "快速链接",
+        openHubNewTab: "在新选项卡中打开 JupyterHub",
+      },
+    },
+    codeExplorer: {
+      page: {
+        title: "代码浏览器",
+        concept: "概念",
+        pickSource: "选择一个来源开始。",
+        pickSourceAndConcept: "选择来源和概念来查看数据。",
+      },
+      tabs: {
+        counts: "计数",
+        relationships: "人际关系",
+        hierarchy: "等级制度",
+        report: "报告",
+        myReports: "我的报告",
+      },
+      sourcePicker: {
+        loading: "正在加载源...",
+        empty: "未配置源",
+        label: "数据来源",
+        choose: "选择来源...",
+      },
+      counts: {
+        loading: "加载计数...",
+        failed: "无法加载计数。",
+        count: "数数",
+        group: "团体",
+        gender: "性别",
+        ageDecile: "年龄十分位数",
+      },
+      chart: {
+        noData: "无数据可显示",
+        male: "男性",
+        female: "女性",
+        unknown: "未知",
+      },
+      hierarchy: {
+        loading: "正在加载层次结构...",
+        failed: "加载失败。",
+        direction: "方向",
+        both: "两个都",
+        ancestorsOnly: "仅限祖先",
+        descendantsOnly: "仅限后代",
+        maxDepth: "最大深度",
+      },
+      relationships: {
+        loading: "正在加载关系...",
+        failed: "加载失败。",
+        empty: "没有找到此概念的关系。",
+        headers: {
+          relationship: "关系",
+          targetConcept: "目标理念",
+          vocabulary: "词汇",
+          standard: "标准",
+        },
+      },
+      reports: {
+        loading: "正在加载报告...",
+        failed: "加载失败。",
+        empty: "您还没有任何报告。转到“报告”选项卡并生成一份。",
+        headers: {
+          created: "已创建",
+          source: "来源",
+          concept: "概念",
+          status: "地位",
+          pin: "别针",
+        },
+        pin: "别针",
+        unpin: "取消固定",
+        generateReport: "生成报告",
+        generating: "生成...",
+        failedToDispatch: "发送报告失败。",
+        failedTitle: "报告生成失败",
+        ready: "报告准备就绪",
+        downloadHtml: "下载 HTML",
+        iframeTitle: "ROMOPAPI报告",
+        inlinePreviewNote:
+          "内联预览是沙盒的（脚本+禁用跨域）。下载文件以在浏览器中查看完整的交互式视图。",
+      },
+      sourceReadiness: {
+        dispatching: "正在调度...",
+        initializeSource: "初始化源",
+        failedToDispatch:
+          "发送失败。您可能缺少“finngen.code-explorer.setup”权限。",
+      },
+    },
+    gis: {
+      common: {
+        present: "展示",
+        unknownRegion: "地区",
+      },
+      page: {
+        title: "地理信息系统浏览器",
+        reset: "重置",
+        collapse: "坍塌",
+        expand: "扩张",
+        enableLayers: "在左侧面板中启用分析图层",
+        selectDisease: "选择一种疾病开始空间分析",
+      },
+      layerPanel: {
+        title: "分析层",
+        privacy: "隐私",
+        suppressionOff: "抑制：关闭（合成数据）",
+      },
+      context: {
+        researchActions: "研究行动",
+        createStudy: "创建研究",
+        browseCohorts: "浏览同类群组",
+        clickRegion: "单击地图上的某个区域可查看图层详细信息",
+      },
+      diseaseSelector: {
+        title: "疾病",
+        top: "顶部",
+        categories: "类别",
+        noMatches: "没有符合条件",
+      },
+      regionDetail: {
+        loading: "加载中...",
+        close: "关闭",
+        loadingDetails: "正在加载区域详细信息...",
+        exposures: "曝光",
+      },
+      countyDetail: {
+        county: "县",
+        cases: "案例",
+        deaths: "死亡人数",
+        cfr: "病死率",
+        hospitalized: "住院治疗",
+        population: "人口",
+        ageDistributionCovid: "年龄分布（新冠肺炎）",
+        monthlyCases: "每月案例",
+      },
+      diseaseSummary: {
+        cases: "案例",
+        deaths: "死亡人数",
+        cfr: "病死率",
+        counties: "县",
+        prevalence: "患病率",
+      },
+      layers: {
+        airQuality: {
+          name: "空气质量",
+          description: "EPA PM2.5 和臭氧水平",
+          legend: {
+            good: "好（低PM2.5）",
+            poor: "差（PM2.5高）",
+          },
+          analysis: {
+            loading: "加载中...",
+            noData: "无数据",
+          },
+          detail: {
+            loading: "加载中...",
+            empty: "没有空气质量数据",
+            ozone: "臭氧",
+          },
+        },
+        comorbidity: {
+          name: "合并症负担",
+          description: "DM、HTN、肥胖聚类",
+          legend: {
+            low: "低负担 (0)",
+            high: "高负担 (3)",
+          },
+          tooltip: {
+            burden: "负担",
+          },
+          analysis: {
+            loading: "加载中...",
+            noData: "无数据",
+          },
+          detail: {
+            subtitle: "DM + HTN + 肥胖负担评分",
+          },
+        },
+        hospitalAccess: {
+          name: "医院通道",
+          description: "CMS 医院附近",
+          legend: {
+            withEd: "医院（急诊科）",
+            withoutEd: "医院（无急诊室）",
+          },
+          analysis: {
+            loading: "加载中...",
+            noData: "无数据",
+          },
+          detail: {
+            subtitle: "距离环：15/30/60公里",
+          },
+        },
+        rucc: {
+          name: "城乡",
+          legend: {
+            metro: "地铁",
+            micropolitan: "小都会",
+            rural: "乡村的",
+          },
+          tooltip: {
+            classification: "分类",
+          },
+          analysis: {
+            loading: "加载中...",
+            noData: "无数据",
+          },
+          detail: {
+            loading: "加载中...",
+            empty: "没有 RUCC 数据",
+            code: "RUCC 代码",
+            classification: "分类",
+            category: "类别",
+            patients: "患者",
+          },
+          categories: {
+            metro: "地铁",
+            micro: "小都会",
+            rural: "乡村的",
+          },
+        },
+        svi: {
+          name: "社会脆弱性",
+          description: "CDC/ATSDR SVI（按人口普查区）",
+          legend: {
+            low: "低脆弱性",
+            high: "高脆弱性",
+          },
+          analysis: {
+            loading: "加载中...",
+            noData: "无可用数据",
+          },
+          detail: {
+            loading: "加载中...",
+            empty: "没有 SVI 数据",
+            overall: "整体SVI",
+            themes: {
+              socioeconomicStatus: "社会经济状况",
+              householdComposition: "家庭构成",
+              minorityStatus: "少数族裔地位",
+              housingTransportation: "住房和交通",
+            },
+          },
+        },
+      },
+    },
+    queryAssistant: {
+      page: {
+        title: "查询助手",
+        subtitle: "浏览 OHDSI 查询库或使用 AI 从自然语言生成 SQL",
+        dialect: "方言",
+        default: "默认",
+        defaultTooltip: "更改保存为系统默认值（超级管理员）",
+        tabs: {
+          library: "查询库",
+          naturalLanguage: "自然语言",
+        },
+      },
+      naturalLanguage: {
+        askQuestion: "问一个问题",
+        placeholder: "例如2023 年有多少患者被诊断患有 2 型糖尿病？",
+        ctrlEnter: "Ctrl+Enter 生成",
+        tryExample: "尝试一个例子",
+        examples: {
+          diabetes: "有多少患者患有糖尿病？",
+          topConditions: "按患病率排名前 10 位的病症是什么？",
+          heartFailureAge: "心力衰竭患者的平均年龄",
+          statins2024: "2024 年他汀类药物暴露计数",
+        },
+        generateWithAi: "用人工智能生成",
+        generating: "生成...",
+        failedToGenerate: "无法生成 SQL。请再试一次。",
+        queryHistory: "查询历史记录",
+        clear: "清除",
+        emptyTitle: "提出问题以开始使用",
+        emptyDescription:
+          "输入有关 OMOP CDM 数据的自然语言问题，AI 将生成相应的 SQL 查询。",
+      },
+      library: {
+        refreshing: "清爽",
+        allDomains: "所有域名",
+        failedToLoad: "无法加载查询库。",
+        noMatches: "未找到与您的搜索匹配的查询。",
+        tryDifferentKeyword: "尝试不同的关键字或清除过滤器。",
+        importHint:
+          "如果库为空，请要求管理员运行：php artisan query-library:import-ohdsi",
+        showMoreMatches: "显示更多比赛",
+      },
+      results: {
+        safeReadOnly: "安全 - 只读",
+        needsReview: "需求审查",
+        unsafe: "不安全",
+        queryLibraryMatch: "查询库匹配",
+        templateParameters: "模板参数",
+        rendering: "渲染...",
+        sqlUpdated: "SQL 更新",
+        renderTemplate: "渲染模板",
+        renderFailed: "无法呈现查询模板。",
+        generatedSql: "生成的 SQL",
+        aggregate: "总计的",
+        tablesReferenced: "参考表格",
+        explanation: "解释",
+        validateSql: "验证 SQL",
+        validating: "正在验证...",
+        validSql: "有效的SQL",
+        validationFailed: "验证失败",
+        readOnly: "只读",
+        complexity: {
+          low: "低复杂度",
+          medium: "中等复杂度",
+          high: "高复杂度",
+        },
+        renderError: "无法呈现查询模板。",
+        validateError: "无法验证 SQL。",
+      },
+      schemaBrowser: {
+        title: "OMOP CDM 模式浏览​​器",
+        failedToLoad: "无法加载架构。",
+        commonJoins: "常见连接",
+        noDescription: "没有可用的描述。",
+      },
+      sqlBlock: {
+        runSql: "运行SQL",
+        copy: "复制",
+        copied: "已复制",
+      },
+      sqlRunner: {
+        errorTitles: {
+          explanationInsteadOfSql: "AI 返回解释而不是 SQL",
+          mysqlBackticks: "不支持 MySQL 风格的反引号",
+          syntaxError: "SQL语法错误",
+          timeout: "查询超时（限制120秒）",
+          tableNotFound: "未找到表",
+          columnNotFound: "未找到列",
+          insufficientPermissions: "权限不足",
+        },
+        suggestions: {
+          explanationInsteadOfSql: {
+            first: "尝试将您的问题改写得更具体",
+            second: "使用“查询库”选项卡查找预构建的模板",
+            third: "指定要查询的确切表和列",
+          },
+          mysqlBackticks: {
+            first: "PostgreSQL 使用双引号作为标识符：“column_name”",
+            second: "大多数 OMOP 列名根本不需要引号",
+            third: "尝试重新生成查询 - AI 有时使用 MySQL 语法",
+          },
+          syntaxError: {
+            first: "生成的 SQL 有语法问题 - 尝试用更清晰的问题重新生成",
+            second: "检查是否有不匹配的括号、缺少逗号或多余的关键字",
+            third: "在运行之前首先使用“验证 SQL”按钮来捕获问题",
+          },
+          timeout: {
+            first: "添加更具体的WHERE条件以减少扫描的数据",
+            second: "添加 LIMIT 子句以限制结果集",
+            third: "避免 SELECT * - 仅选择您需要的列",
+            fourth: "考虑按日期范围过滤以缩小数据集范围",
+          },
+          tableNotFound: {
+            first:
+              "OMOP 表必须是模式限定的：omop.person、omop.condition_occurrence",
+            second: "使用页面底部的架构浏览器来验证表名称",
+            third: "检查拼写 - 常用表：人员、条件发生情况、药物暴露、测量",
+          },
+          columnNotFound: {
+            first: "展开架构浏览器中的表以查看可用的列",
+            second: "OMOP 列名称使用下划线：person_id、condition_start_date",
+            third: "检查是否需要 JOIN 到具有此列的另一个表",
+          },
+          insufficientPermissions: {
+            first: "该查询未被分类为“安全”（只读）",
+            second: "只有管​​理员才能运行未标记为安全的查询",
+            third: "使用“验证 SQL”按钮检查安全分类",
+          },
+        },
+        defaults: {
+          queryExecutionFailed: "查询执行失败",
+          failedToRenderTemplate: "渲染模板失败",
+          typeToSearchConcepts: "输入以搜索 OMOP 概念...",
+        },
+        state: {
+          active: "正在执行查询...",
+          idle: "闲置的",
+          idleInTransaction: "处理结果...",
+          idleAborted: "交易中止",
+          fastpath: "快速路径调用",
+          disabled: "跟踪已禁用",
+          completed: "完全的",
+          error: "错误",
+        },
+        modal: {
+          title: "SQL 查询运行器",
+          preparing: "正在准备...",
+          runQuery: "运行查询",
+          queryCompleted: "查询完成",
+          cappedAt10k: "上限为 10,000 行",
+          queryFailed: "查询失败",
+          downloadCsv: "下载 CSV 文件",
+          close: "关闭",
+        },
+      },
+    },
+  }),
   "ko-KR": koGisTools,
   "hi-IN": hiGisTools,
   ar: mergeMessageTrees(enGisTools, {}),
