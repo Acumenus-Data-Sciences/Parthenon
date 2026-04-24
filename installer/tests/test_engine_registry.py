@@ -109,3 +109,11 @@ def test_bootstrap_phase_has_six_steps():
     phase = next((p for p in DEFAULT_REGISTRY.phases() if p.id == "bootstrap"), None)
     assert phase is not None
     assert len(phase.steps) == 6
+
+
+def test_all_nine_phases_registered():
+    from installer.engine.phases import DEFAULT_REGISTRY
+    ids = [p.id for p in DEFAULT_REGISTRY.phases()]
+    expected = ["preflight", "config", "hecate", "docker", "bootstrap",
+                "datasets", "frontend", "solr", "admin"]
+    assert ids == expected
