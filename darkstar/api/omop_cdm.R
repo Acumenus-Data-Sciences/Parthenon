@@ -5,6 +5,7 @@
 
 library(DatabaseConnector)
 library(CommonDataModel)
+library(Achilles)
 
 #* Create OMOP CDM v5.4 schema on an external database
 #* @post /omop/create-cdm-schema
@@ -70,7 +71,7 @@ function(body, response) {
 #* @post /omop/create-results-schema
 #* @serializer unboxedJSON
 function(body, response) {
-  dialect        <- body$dialect
+  dialect        <- body$dialect %||% "postgresql"
   host           <- body$host
   port           <- as.integer(body$port %||% 5432L)
   database       <- body$database
@@ -83,10 +84,7 @@ function(body, response) {
     return(list(status = "error", message = "host, database, and results_schema are required"))
   }
 
-  library(DatabaseConnector)
-  library(Achilles)
-
-  server <- if (!is.null(dialect) && dialect %in% c("sqlserver", "synapse")) {
+  server <- if (dialect %in% c("sqlserver", "synapse")) {
     paste0(host, ";databaseName=", database)
   } else {
     paste0(host, "/", database)
