@@ -1816,6 +1816,22 @@ const arSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
   },
 });
 
+const arSmallWorkbenchPass2: MessageTree = mergeMessageTrees(arSmallWorkbench, {
+  "workbenchLauncher": {
+    "toolsetMeta": {
+      "morpheus": {
+        "name": "مورفيوس"
+      }
+    }
+  },
+  "etl": {
+    "toolsPage": {
+      "cdm54": "OMOP CDM v5.4",
+      "cdm53": "OMOP CDM v5.3"
+    }
+  }
+});
+
 export const smallWorkbenchResources: Record<string, MessageTree> = {
   "en-US": enSmallWorkbench,
   "es-ES": esSmallWorkbench,
@@ -2441,6 +2457,6 @@ export const smallWorkbenchResources: Record<string, MessageTree> = {
   }),
   "ko-KR": koSmallWorkbench,
   "hi-IN": hiSmallWorkbench,
-  ar: arSmallWorkbench,
+  ar: arSmallWorkbenchPass2,
   "en-XA": mergeMessageTrees(enSmallWorkbench, {}),
 };

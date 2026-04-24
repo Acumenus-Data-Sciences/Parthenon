@@ -5180,6 +5180,101 @@ const arInvestigation: MessageTree = mergeMessageTrees(enInvestigation, {
   },
 });
 
+const arInvestigationPass2: MessageTree = mergeMessageTrees(arInvestigation, {
+  "investigation": {
+    "common": {
+      "tabs": {
+        "openTargets": "Open Targets"
+      },
+      "sections": {
+        "atlasJson": "Atlas JSON"
+      },
+      "labels": {
+        "noDate": null,
+        "pValueInline": "ع = {{value}}"
+      },
+      "empty": {
+        "none": null
+      }
+    },
+    "phenotype": {
+      "importModes": {
+        "json": {
+          "label": "Atlas JSON"
+        }
+      },
+      "attrition": {
+        "countLabel": "ن = {{count}}"
+      }
+    },
+    "clinical": {
+      "drawer": {
+        "gradientBoosting": "تعزيز التدرج",
+        "randomForest": "غابة عشوائية",
+        "adaBoost": "adaBoost"
+      },
+      "charts": {
+        "tooltipTime": "ر = {{value}}",
+        "curveValue": "{{label}}: {{value}}%"
+      },
+      "results": {
+        "aucAuroc": "الجامعة الأمريكية بالقاهرة / أوروك",
+        "ppv": "PPV",
+        "npv": "صافي القيمة الحالية"
+      }
+    },
+    "genomic": {
+      "title": "الأدلة الجينومية",
+      "subtitle": "Open Targets · كتالوج GWAS · ملخص الإحصائيات",
+      "uploadTitle": "تحميل إحصائيات ملخص GWAS",
+      "releaseToUpload": "الافراج للتحميل",
+      "dropSummaryStats": "إسقاط إحصائيات ملخص GWAS",
+      "fileTypes": ".tsv، .csv، أو .gz · الحد الأقصى 500 ميجابايت",
+      "uploadFailed": "فشل التحميل. يرجى المحاولة مرة أخرى.",
+      "allColumnsRequired": "يجب تعيين جميع الأعمدة المطلوبة قبل التأكيد.",
+      "parseFailed": "فشل في تحليل الملف. يرجى التحقق من التنسيق.",
+      "confirmMapping": "تأكيد التعيين",
+      "threshold": "{{count}} مواضع · العتبة p <{{threshold}}",
+      "noLoci": "لا توجد مواقع أقل من عتبة الأهمية ({{threshold}})",
+      "pinThisLocus": "دبوس هذا المكان",
+      "chr": "مركز حقوق الإنسان",
+      "position": "موضع",
+      "pValue": "القيمة p",
+      "betaOr": "بيتا/أو",
+      "refAlt": "المرجع/البديل",
+      "manhattanPlot": "مؤامرة مانهاتن",
+      "qqPlot": "مؤامرة QQ",
+      "showingOfResults": "عرض نتائج {{shown}} لـ {{total}} - كتالوج GWAS",
+      "sample": "عينة:",
+      "snps": "تعدد الأشكال:",
+      "unknownTrait": "صفة غير معروفة",
+      "platform": "منصة",
+      "gene": "الجين",
+      "disease": "مرض",
+      "crossDomainLinks": "الروابط عبر المجال",
+      "qqPlotNoData": "لا تتوفر بيانات القيمة الاحتمالية",
+      "qqPlotExpectedNegLogP": "المتوقع -log10(ع)",
+      "qqPlotObservedNegLogP": "تمت ملاحظتها -log10 (ع)",
+      "lambdaLabel": "μ = {{value}}",
+      "noGwasDataAvailable": "لا توجد بيانات GWAS متاحة",
+      "noGwasDataAvailableAria": "مؤامرة مانهاتن: لا توجد بيانات GWAS متاحة",
+      "manhattanAriaNoVariants": "مؤامرة مانهاتن: لا توجد متغيرات",
+      "manhattanAriaTopPeak": "أعلى قمة عند chr{{chr}}:{{pos}}، p={{pValue}}",
+      "manhattanAriaNoPeaks": "لا قمم",
+      "manhattanAriaSummary": "مؤامرة مانهاتن: متغيرات {{variantCount}}، {{significantCount}} ذات أهمية على مستوى الجينوم، {{topPeak}}",
+      "negLogP": "-log10 (ع)"
+    },
+    "synthesis": {
+      "completeTitle": "مكتمل",
+      "removePin": "إزالة الدبوس",
+      "markKeyFinding": "وضع علامة على النتيجة الرئيسية",
+      "unmarkKeyFinding": "قم بإلغاء تحديد النتائج الرئيسية",
+      "customFinding": "العثور على العرف",
+      "exportDescription": "قم بتصدير ملف الأدلة الكامل بما في ذلك جميع النتائج المثبتة والسرد وملاحظات القسم."
+    }
+  }
+});
+
 export const investigationResources: Record<string, MessageTree> = {
   "en-US": enInvestigation,
   "es-ES": esInvestigation,
@@ -6770,6 +6865,6 @@ export const investigationResources: Record<string, MessageTree> = {
   }),
   "ko-KR": koInvestigation,
   "hi-IN": hiInvestigation,
-  ar: arInvestigation,
+  ar: arInvestigationPass2,
   "en-XA": mergeMessageTrees(enInvestigation, {}),
 };

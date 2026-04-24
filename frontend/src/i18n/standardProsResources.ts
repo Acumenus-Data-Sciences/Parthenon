@@ -4410,6 +4410,32 @@ const arStandardPros: MessageTree = mergeMessageTrees(enStandardPros, {
   },
 });
 
+const arStandardProsPass2: MessageTree = mergeMessageTrees(arStandardPros, {
+  "standardPros": {
+    "common": {
+      "omop": "OMOP"
+    },
+    "domains": {
+      "catalog": {
+        "promis": "بروميس"
+      }
+    },
+    "responseTypes": {
+      "nrs": "NRS",
+      "vas": "خدمات القيمة المضافة"
+    },
+    "builder": {
+      "redcapPlaceholder": "اسم المتغير / الحقل، اسم النموذج، رأس القسم، نوع الحقل، تسمية الحقل، الاختيارات، العمليات الحسابية، أو تسميات شريط التمرير",
+      "fhirPlaceholder": "{ \"resourceType\": \"استبيان\"، \"title\": \"مثال\"، \"item\": [] }"
+    },
+    "instrumentDetail": {
+      "loinc": "LOINC",
+      "snomed": "SNOMED",
+      "snomedCt": "SNOMED ط م"
+    }
+  }
+});
+
 export const standardProsResources: Record<string, MessageTree> = {
   "en-US": enStandardPros,
   "es-ES": esStandardPros,
@@ -5886,6 +5912,6 @@ export const standardProsResources: Record<string, MessageTree> = {
   }),
   "ko-KR": koStandardPros,
   "hi-IN": hiStandardPros,
-  ar: arStandardPros,
+  ar: arStandardProsPass2,
   "en-XA": mergeMessageTrees(enStandardPros, {}),
 };

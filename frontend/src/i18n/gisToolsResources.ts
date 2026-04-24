@@ -5153,6 +5153,69 @@ const ptGisToolsPass100: MessageTree = mergeMessageTrees(ptGisTools, {
   },
 });
 
+const arGisToolsPass2: MessageTree = mergeMessageTrees(arGisTools, {
+  "poseidon": {
+    "page": {
+      "title": "بوسيدون"
+    },
+    "lineage": {
+      "tiers": {
+        "cdm": "CDM"
+      }
+    }
+  },
+  "jupyter": {
+    "page": {
+      "iframeTitle": "Parthenon Jupyter"
+    },
+    "drawer": {
+      "defaults": {
+        "runtime": "JupyterLab 4.4",
+        "privateWorkspace": "/الصفحة الرئيسية/جوفيان/دفاتر الملاحظات",
+        "sharedFolder": "/home/jovyan/shared"
+      }
+    }
+  },
+  "codeExplorer": {
+    "counts": {
+      "conceptId": "Concept_id"
+    },
+    "reports": {
+      "progress": "{{percent}}٪ - {{message}}"
+    }
+  },
+  "gis": {
+    "countyDetail": {
+      "cfr": "CFR"
+    },
+    "diseaseSummary": {
+      "cfr": "CFR"
+    },
+    "layers": {
+      "airQuality": {
+        "tooltip": {
+          "pm25": "PM2.5"
+        }
+      },
+      "svi": {
+        "tooltip": {
+          "score": "SVI"
+        }
+      }
+    }
+  },
+  "queryAssistant": {
+    "sqlBlock": {
+      "sql": "SQL"
+    },
+    "sqlRunner": {
+      "modal": {
+        "nullValue": "باطل"
+      }
+    }
+  }
+});
+
 export const gisToolsResources: Record<string, MessageTree> = {
   "en-US": enGisTools,
   "es-ES": esGisTools,
@@ -6828,6 +6891,6 @@ export const gisToolsResources: Record<string, MessageTree> = {
   }),
   "ko-KR": koGisTools,
   "hi-IN": hiGisTools,
-  ar: arGisTools,
+  ar: arGisToolsPass2,
   "en-XA": mergeMessageTrees(enGisTools, {}),
 };

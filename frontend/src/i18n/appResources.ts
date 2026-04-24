@@ -43000,6 +43000,1567 @@ const hiAppPass1: MessageTree = mergeMessageTrees(hiApp, {
   },
 });
 
+const arAppPass1: MessageTree = mergeMessageTrees(enApp, {
+  "analysis": {
+    "titles": {
+      "characterization": "التوصيف",
+      "incidenceRate": "تحليل معدل الإصابة",
+      "pathway": "تحليل المسار",
+      "estimation": "تحليل التقدير",
+      "prediction": "تحليل التنبؤ",
+      "sccs": "تحليل SCCS",
+      "evidenceSynthesis": "التحليل التجميعي للأدلة"
+    }
+  },
+  "errors": {
+    "boundary": {
+      "title": "حدث خطأ ما",
+      "message": "حدث خطأ غير متوقع. حاول إعادة تحميل الصفحة.",
+      "reloadPage": "إعادة تحميل الصفحة"
+    },
+    "route": {
+      "routeError": "خطأ في المسار",
+      "pageFailed": "فشل عرض الصفحة.",
+      "analysisDescription": "واجهت صفحة التحليل هذه خطأ في العرض أو في تحميل المسار.",
+      "label": "خطأ",
+      "backToAnalyses": "العودة إلى التحليلات",
+      "reloadPage": "إعادة تحميل الصفحة"
+    }
+  },
+  "covariates": {
+    "title": "إعدادات المتغير",
+    "description": "حدد المجالات التي تريد تضمينها كمتغيرات مشتركة لـ FeatureExtraction.",
+    "groups": {
+      "core": "المجالات الأساسية",
+      "extended": "المجالات الموسعة",
+      "indices": "مؤشرات الاعتلال المشترك"
+    },
+    "labels": {
+      "demographics": "التركيبة السكانية",
+      "conditionOccurrence": "حدوث الحالة",
+      "drugExposure": "التعرض للمخدرات",
+      "procedureOccurrence": "حدوث الإجراء",
+      "measurement": "قياس",
+      "observation": "ملاحظة",
+      "deviceExposure": "تعرض الجهاز",
+      "visitCount": "عدد الزيارات",
+      "charlsonComorbidity": "الاعتلال المشترك تشارلسون",
+      "dcsi": "دي سي إس آي (مرض السكري)",
+      "chads2": "تشادس2",
+      "chads2Vasc": "CHA2DS2-VASC"
+    },
+    "timeWindows": "نوافذ الوقت",
+    "to": "ل",
+    "days": "أيام",
+    "addTimeWindow": "إضافة نافذة زمنية"
+  },
+  "studies": {
+    "list": {
+      "title": "دراسات",
+      "subtitle": "تنسيق وإدارة الدراسات البحثية الموحدة",
+      "tableView": "عرض الجدول",
+      "cardView": "عرض البطاقة",
+      "searchPlaceholder": "دراسات البحث...",
+      "noSearchMatches": "لا توجد دراسات تطابق \"{{query}}\"",
+      "typeToFilter": "اكتب لتصفية دراسات {{count}}",
+      "newStudy": "دراسة جديدة",
+      "solr": "Solr",
+      "drilldownTitle": "دراسات {{phase}}",
+      "filterLabels": {
+        "status": "حالة",
+        "type": "يكتب",
+        "priority": "أولوية"
+      },
+      "loadFailed": "فشل في تحميل الدراسات",
+      "clear": "واضح",
+      "empty": {
+        "noMatchingTitle": "لا توجد دراسات مطابقة",
+        "noStudiesTitle": "لا توجد دراسات حتى الآن",
+        "noResultsFor": "لم يتم العثور على أي دراسات ل \"{{query}}\"",
+        "tryAdjusting": "حاول تعديل مصطلحات البحث الخاصة بك.",
+        "createFirst": "أنشئ دراستك الأولى لتنظيم الأبحاث الفيدرالية."
+      },
+      "table": {
+        "title": "عنوان",
+        "type": "يكتب",
+        "status": "حالة",
+        "priority": "أولوية",
+        "pi": "باي",
+        "created": "مخلوق"
+      },
+      "pagination": {
+        "showing": "عرض {{start}} - {{end}} من {{total}}",
+        "page": "{{page}} / {{totalPages}}"
+      }
+    },
+    "create": {
+      "backToStudies": "دراسات",
+      "title": "إنشاء دراسة",
+      "subtitle": "قم بتكوين دراستك البحثية خطوة بخطوة",
+      "previous": "سابق",
+      "next": "التالي",
+      "createAsDraft": "إنشاء كمسودة",
+      "steps": {
+        "basics": "الأساسيات",
+        "science": "التصميم العلمي",
+        "team": "الفريق والجدول الزمني",
+        "review": "مراجعة وإنشاء"
+      },
+      "studyTypes": {
+        "characterization": {
+          "label": "التوصيف",
+          "description": "وصف مجموعات المرضى وأنماط العلاج"
+        },
+        "populationLevelEstimation": {
+          "label": "تقدير مستوى السكان",
+          "description": "تقدير التأثيرات السببية باستخدام بيانات الرصد"
+        },
+        "patientLevelPrediction": {
+          "label": "التنبؤ على مستوى المريض",
+          "description": "التنبؤ بنتائج المرضى الفردية"
+        },
+        "comparativeEffectiveness": {
+          "label": "الفعالية المقارنة",
+          "description": "قارن بين العلاجات في إعدادات العالم الحقيقي"
+        },
+        "safetySurveillance": {
+          "label": "مراقبة السلامة",
+          "description": "مراقبة إشارات سلامة الدواء بعد التسويق"
+        },
+        "drugUtilization": {
+          "label": "استخدام المخدرات",
+          "description": "تحليل أنماط واتجاهات استخدام الأدوية"
+        },
+        "qualityImprovement": {
+          "label": "تحسين الجودة",
+          "description": "تقييم جودة الرعاية والالتزام بالمبادئ التوجيهية"
+        },
+        "custom": {
+          "label": "مخصص",
+          "description": "تحديد نوع الدراسة المخصصة"
+        }
+      },
+      "designs": {
+        "select": "اختر التصميم...",
+        "retrospectiveCohort": "الفوج بأثر رجعي",
+        "prospectiveCohort": "الفوج المحتملين",
+        "caseControl": "التحكم في الحالة",
+        "crossSectional": "مستعرضة",
+        "selfControlled": "سلسلة الحالات التي يتم التحكم فيها ذاتيًا",
+        "nestedCaseControl": "التحكم في الحالة المتداخلة",
+        "metaAnalysis": "التحليل التلوي",
+        "networkStudy": "دراسة الشبكة",
+        "methodological": "منهجي"
+      },
+      "phases": {
+        "select": "اختر المرحلة...",
+        "phaseI": "المرحلة الأولى",
+        "phaseII": "المرحلة الثانية",
+        "phaseIII": "المرحلة الثالثة",
+        "phaseIV": "المرحلة الرابعة",
+        "notApplicable": "غير قابل للتطبيق"
+      },
+      "basics": {
+        "studyType": "نوع الدراسة *",
+        "title": "عنوان *",
+        "titlePlaceholder": "على سبيل المثال، تأثير الستاتينات على نتائج القلب والأوعية الدموية في T2DM",
+        "shortTitle": "عنوان قصير",
+        "shortTitlePlaceholder": "على سبيل المثال، LEGEND-T2DM",
+        "priority": "أولوية",
+        "studyDesign": "تصميم الدراسة",
+        "description": "وصف",
+        "descriptionPlaceholder": "وصف مختصر للدراسة...",
+        "tags": "العلامات",
+        "tagsPlaceholder": "أضف علامة واضغط على Enter...",
+        "addTag": "إضافة علامة"
+      },
+      "science": {
+        "aiPrompt": "اسمح للذكاء الاصطناعي باقتراح مجالات التصميم العلمي بناءً على عنوان دراستك",
+        "generating": "جارٍ الإنشاء...",
+        "generateWithAi": "إنشاء باستخدام الذكاء الاصطناعي",
+        "aiUnavailable": "خدمة الذكاء الاصطناعي غير متوفرة. يرجى ملء الحقول يدويا.",
+        "rationale": "الأساس المنطقي العلمي",
+        "rationalePlaceholder": "لماذا هذه الدراسة مطلوبة؟ ما هي الفجوة المعرفية التي يعالجها؟",
+        "hypothesis": "فرضية",
+        "hypothesisPlaceholder": "اذكر الفرضية الأولية التي سيتم اختبارها...",
+        "primaryObjective": "الهدف الأساسي",
+        "primaryObjectivePlaceholder": "ما هو الهدف الرئيسي لهذه الدراسة؟",
+        "secondaryObjectives": "الأهداف الثانوية",
+        "secondaryObjectivePlaceholder": "أضف هدفًا واضغط على Enter...",
+        "addSecondaryObjective": "إضافة هدف ثانوي",
+        "fundingSource": "مصدر التمويل",
+        "fundingSourcePlaceholder": "على سبيل المثال، NIH R01، PCORI، برعاية الصناعة"
+      },
+      "team": {
+        "startDate": "تاريخ بدء الدراسة",
+        "endDate": "تاريخ انتهاء الدراسة",
+        "endDateAfterStart": "يجب أن يكون تاريخ الانتهاء بعد تاريخ البدء",
+        "targetSites": "مواقع التسجيل المستهدفة",
+        "targetSitesPlaceholder": "على سبيل المثال، 10",
+        "studyPhase": "مرحلة الدراسة",
+        "nctId": "ClinicalTrials.gov ID",
+        "nctIdPlaceholder": "على سبيل المثال، NCT12345678",
+        "note": "يمكن تكوين أعضاء الفريق والمواقع والمجموعات النموذجية بعد إنشاء الدراسة من لوحة معلومات الدراسة."
+      },
+      "review": {
+        "basics": "الأساسيات",
+        "scientificDesign": "التصميم العلمي",
+        "timelineRegistration": "الجدول الزمني والتسجيل",
+        "labels": {
+          "title": "عنوان:",
+          "shortTitle": "عنوان قصير:",
+          "type": "يكتب:",
+          "priority": "أولوية:",
+          "design": "تصميم:",
+          "rationale": "الأساس المنطقي:",
+          "hypothesis": "فرضية:",
+          "primaryObjective": "الهدف الأساسي:",
+          "secondaryObjectives": "الأهداف الثانوية:",
+          "start": "يبدأ:",
+          "end": "نهاية:",
+          "targetSites": "المواقع المستهدفة:",
+          "phase": "مرحلة:",
+          "nctId": "إن سي تي ID:",
+          "funding": "التمويل:"
+        }
+      }
+    },
+    "workbench": {
+      "sessionTitle": "تصميم نية الدراسة",
+      "title": "مترجم تصميم الدراسة",
+      "subtitle": "قم بتحويل سؤال بحثي إلى هدف دراسة تمت مراجعته ومتوافق مع OHDSI، ثم قم بفحص أصول النمط الظاهري القابلة لإعادة الاستخدام قبل أن يتحرك أي شيء في اتجاه مجرى النهر.",
+      "newSession": "جلسة جديدة",
+      "sessions": "الجلسات",
+      "researchQuestion": "سؤال بحثي",
+      "researchQuestionPlaceholder": "قارن MACE المتكرر في مرضى ما بعد MI الذين يبدأون عقار كلوبيدوجريل مقابل الأسبرين.",
+      "emptyQuestionPlaceholder": "شرح سؤال الدراسة...",
+      "generateIntent": "توليد النية",
+      "startSession": "ابدأ جلسة تصميم، ثم قم بإنشاء نية PICO منظمة من سؤال الدراسة.",
+      "createAndGenerate": "إنشاء جلسة وتوليد النية",
+      "loadingSessions": "جارٍ تحميل جلسات التصميم...",
+      "sections": {
+        "phenotypeRecommendations": "توصيات النمط الظاهري وإعادة الاستخدام",
+        "conceptSetDrafts": "مسودات مجموعة المفاهيم",
+        "cohortDrafts": "مسودات الفوج",
+        "cohortReadiness": "دراسة استعداد الفوج",
+        "feasibility": "الجدوى",
+        "sources": "مصادر",
+        "attrition": "الاستنزاف",
+        "analysisPlans": "خطط التحليل",
+        "packageLock": "قفل الحزمة",
+        "currentAssets": "أصول الدراسة الحالية",
+        "intentReview": "مراجعة النية",
+        "source": "مصدر",
+        "governance": "الحكم"
+      },
+      "descriptions": {
+        "recommendations": "قم بمراجعة إدخالات مكتبة النمط الظاهري القابلة لإعادة الاستخدام، والمجموعات المحلية، ومجموعات المفاهيم المحلية قبل صياغة أي شيء جديد.",
+        "conceptSets": "قم بتحويل الأدلة المقبولة إلى مسودات تم التحقق من مفرداتها قبل إنشاء مجموعات المفاهيم الأصلية.",
+        "cohorts": "تحويل مجموعات المفاهيم المتحققة إلى مسودات تعريف جماعية أصلية.",
+        "feasibility": "تحقق من المجموعات المرتبطة مقابل مصادر CDM المحددة قبل تخطيط التحليل.",
+        "analysisPlans": "تجميع مجموعات الدراسة الممكنة في تصميمات التحليل الأصلية المتوافقة مع HADES.",
+        "packageLock": "قم بتجميد النية المقبولة ومجموعات المفاهيم والأفواج والجدوى والتحليلات الأصلية في حزمة دراسة قابلة للتدقيق.",
+        "currentAssets": "قم بإدراج المجموعات النموذجية والتحليلات التي تم إنشاؤها يدويًا في مسار التصميم هذا، ثم قم بمراجعة الفجوات دون تغيير السجلات الموجودة."
+      },
+      "actions": {
+        "recommend": "يوصي",
+        "draftConceptSets": "مجموعات مفاهيم المسودة",
+        "draftCohorts": "مشروع الأفواج",
+        "runFeasibility": "تشغيل الجدوى",
+        "draftPlans": "مسودة الخطط",
+        "importCurrent": "استيراد الحالي",
+        "critique": "نقد",
+        "verify": "يؤكد",
+        "review": "مراجعة",
+        "accept": "يقبل",
+        "defer": "تأجيل",
+        "reject": "يرفض",
+        "materialize": "تجسيد",
+        "openNativeEditor": "افتح المحرر الأصلي",
+        "linkToStudy": "رابط للدراسة",
+        "search": "يبحث",
+        "add": "يضيف",
+        "remove": "يزيل",
+        "saveReview": "حفظ المراجعة",
+        "acceptIntent": "قبول النية",
+        "lockPackage": "حزمة القفل",
+        "locked": "مغلق",
+        "downloadPackageSummary": "تحميل ملخص الحزمة"
+      },
+      "labels": {
+        "verified": "تم التحقق منه",
+        "needsCheck": "يحتاج إلى فحص",
+        "blocked": "محظور",
+        "unverified": "لم يتم التحقق منها",
+        "reviewQueue": "قائمة انتظار المراجعة",
+        "conceptSetDraft": "مسودة مجموعة المفاهيم",
+        "cohortDraft": "مسودة الفوج",
+        "concepts": "المفاهيم",
+        "concept": "مفهوم",
+        "domain": "اِختِصاص",
+        "vocabulary": "مفردات",
+        "flags": "أعلام",
+        "actions": "الإجراءات",
+        "lint": "لينت",
+        "source": "مصدر",
+        "status": "حالة",
+        "cohorts": "الأفواج",
+        "coverage": "التغطية",
+        "domains": "المجالات",
+        "freshness": "نضارة",
+        "dqd": "DQD",
+        "attrition": "الاستنزاف",
+        "nativeConceptSet": "مجموعة المفهوم الأصلي #{{id}}",
+        "nativeCohort": "الفوج الأصلي #{{id}}",
+        "linkedStudyCohort": "مجموعة الدراسة المرتبطة #{{id}}",
+        "conceptsCount": "مفاهيم {{count}}",
+        "conceptSetsCount": "مجموعات مفهوم {{count}}",
+        "nativeAnalysis": "التحليل الأصلي #{{id}}",
+        "feasibility": "الجدوى",
+        "rank": "الرتبة {{score}}",
+        "match": "تطابق {{score}}%",
+        "ohdsiId": "OHDSI #{{id}}",
+        "computable": "قابلة للحساب",
+        "imported": "مستورد",
+        "evidence": "شهادة",
+        "origin": "أصل",
+        "matchedTerm": "المصطلح المطابق",
+        "canonicalRecord": "السجل الكنسي",
+        "noCanonicalRecord": "لا يوجد سجل قانوني",
+        "eligibility": "الأهلية",
+        "acceptable": "مقبول",
+        "blockedOrNeedsReview": "محظور أو يحتاج إلى مراجعة",
+        "policy": "سياسة",
+        "nextActions": "الإجراءات التالية",
+        "rankComponents": "مكونات الرتبة",
+        "verifierChecks": "عمليات التحقق",
+        "versionStatus": "النسخة {{version}} · {{status}}",
+        "primaryObjective": "الهدف الأساسي",
+        "population": "سكان",
+        "exposure": "التعرض",
+        "comparator": "المقارنة",
+        "primaryOutcome": "النتيجة الأولية",
+        "timeAtRisk": "الوقت في خطر",
+        "conceptSetsMetric": "مجموعات المفاهيم",
+        "cohortsMetric": "الأفواج",
+        "analysesMetric": "يحلل",
+        "packagesMetric": "الحزم",
+        "aiEvents": "أحداث الذكاء الاصطناعي",
+        "reviewed": "تمت المراجعة",
+        "manifest": "يظهر",
+        "critiques": "انتقادات"
+      },
+      "messages": {
+        "saveOrAcceptBeforeRecommendations": "احفظ نية جاهزة للمراجعة أو اقبل النية قبل طلب التوصيات.",
+        "loadingRecommendations": "جارٍ تحميل التوصيات...",
+        "noRecommendations": "لا توجد توصيات حتى الآن.",
+        "acceptRecommendationFirst": "اقبل توصية واحدة على الأقل من النمط الظاهري أو المجموعة أو مجموعة المفاهيم التي تم التحقق منها أولاً.",
+        "noConceptSetDrafts": "لا يوجد مفهوم محدد للمسودات حتى الآن.",
+        "onlyVerifiedConceptSetDrafts": "يمكن قبول مسودات مجموعة المفاهيم التي تم التحقق منها فقط.",
+        "searchConceptsPlaceholder": "بحث مفاهيم المفردات OMOP",
+        "materializeConceptSetFirst": "قم بتجسيد مسودة مجموعة مفاهيمية واحدة على الأقل تم التحقق منها أولاً.",
+        "noCohortDrafts": "لا توجد مسودات جماعية حتى الآن.",
+        "checkingLinkedRoles": "جارٍ التحقق من الأدوار المرتبطة...",
+        "noReadinessSignal": "لا توجد إشارة الاستعداد حتى الآن.",
+        "ready": "مستعد",
+        "blocked": "محظور",
+        "drafts": "مسودات {{count}}",
+        "materialized": "{{count}} تتحقق",
+        "linked": "مرتبط {{count}}",
+        "linkRequiredCohorts": "ربط مجموعات الدراسة المطلوبة قبل جدوى المصدر.",
+        "loadingSources": "جارٍ تحميل المصادر...",
+        "noSources": "لم يتم تكوين مصادر CDM.",
+        "smallCellThreshold": "عتبة الخلايا الصغيرة",
+        "sourcesReady": "مصادر {{ready}}/{{total}} جاهزة",
+        "ranAt": "ران {{time}}",
+        "noDates": "لا تواريخ",
+        "none": "لا أحد",
+        "roles": "أدوار {{ready}}/{{total}}",
+        "unknown": "مجهول",
+        "noDqd": "لا DQD",
+        "passRate": "تمرير {{rate}}٪",
+        "noFeasibilityEvidence": "لم يتم تخزين أي دليل جدوى لإصدار التصميم هذا.",
+        "runFeasibilityBeforePlans": "قم بتشغيل جدوى المصدر قبل صياغة خطط التحليل.",
+        "noAnalysisPlans": "لا توجد خطط تحليلية حتى الآن.",
+        "feasibilityStatus": "الجدوى: {{status}}",
+        "checkingPackageReadiness": "التحقق من جاهزية الحزمة...",
+        "readyToLock": "جاهز للقفل.",
+        "lockedPackageAvailable": "الحزمة المقفلة متاحة في التحف الدراسية.",
+        "signed": "وقعت",
+        "pending": "قيد الانتظار",
+        "onlyVerifiedRecommendations": "ولا يمكن قبول سوى التوصيات التي تم التحقق منها بشكل حتمي."
+      }
+    },
+    "dashboard": {
+      "progressSummary": "تم الانتهاء من تحليلات {{completed}} لـ {{total}}",
+      "stats": {
+        "total": "المجموع",
+        "pending": "قيد الانتظار",
+        "running": "جري",
+        "completed": "مكتمل",
+        "failed": "فشل"
+      },
+      "sections": {
+        "studyAnalyses": "تحليلات الدراسة"
+      },
+      "table": {
+        "type": "يكتب",
+        "name": "اسم",
+        "status": "حالة"
+      },
+      "messages": {
+        "notExecuted": "لم يتم تنفيذه"
+      },
+      "empty": {
+        "title": "لا توجد تحليلات في هذه الدراسة",
+        "message": "أضف التحليلات في علامة التبويب \"التصميم\" للبدء."
+      }
+    }
+  },
+  "vocabulary": {
+    "mappingAssistant": {
+      "title": "مساعد رسم خرائط المفاهيم",
+      "poweredBy": "مدعوم من أريادن",
+      "subtitle": "قم بتعيين مصطلحات المصدر إلى مفاهيم OMOP القياسية باستخدام المطابقة الحرفية والمتجهة وLLM",
+      "filters": {
+        "selectedCount": "تم تحديد {{count}}",
+        "clearSelection": "مسح التحديد",
+        "targetVocabulary": "المفردات المستهدفة:",
+        "allVocabularies": "جميع المفردات",
+        "targetDomain": "المجال المستهدف:",
+        "allDomains": "جميع المجالات"
+      },
+      "drawer": {
+        "disambiguate": "إزالة الغموض",
+        "candidateCount": "مرشحو {{count}} - حدد التعيين الصحيح",
+        "noCandidates": "لم يتم العثور على أي مرشحين. حاول تنظيف المصطلح أدناه.",
+        "cleanRemap": "تنظيف وإعادة الخريطة",
+        "editPlaceholder": "تعديل المصطلح وإعادة الخريطة..."
+      },
+      "actions": {
+        "clean": "ينظف",
+        "remap": "إعادة الخريطة",
+        "acceptMapping": "قبول التعيين",
+        "rejectMapping": "رفض التعيين",
+        "disambiguateTitle": "إزالة الغموض - عرض جميع المرشحين",
+        "uploadCsv": "تحميل CSV",
+        "loadProject": "تحميل المشروع",
+        "mapping": "رسم الخرائط...",
+        "mapTerms": "شروط الخريطة",
+        "clearResults": "نتائج واضحة",
+        "acceptAllThreshold": "قبول الكل >= 90%",
+        "saveToVocabulary": "حفظ إلى المفردات",
+        "saveProject": "حفظ المشروع",
+        "exportCsv": "تصدير CSV"
+      },
+      "toasts": {
+        "remapped": "إعادة تعيين \"{{source}}\" -> {{concept}}",
+        "noMatchForCleaned": "لم يتم العثور على تطابق للمصطلح الذي تم تنظيفه \"{{term}}\"",
+        "remapFailed": "فشلت إعادة التعيين",
+        "autoAccepted": "تعيينات عالية الثقة {{count}} مقبولة تلقائيًا",
+        "savedMappings": "تم حفظ تعيينات {{count}} في source_to_concept_map",
+        "saveMappingsFailed": "فشل حفظ التعيينات",
+        "projectSaved": "تم حفظ المشروع: {{name}}",
+        "saveProjectFailed": "فشل حفظ المشروع",
+        "projectLoaded": "تم تحميل المشروع: {{name}}",
+        "loadProjectFailed": "فشل تحميل المشروع"
+      },
+      "errors": {
+        "cleanupFailed": "فشلت عملية التنظيف.",
+        "mappingFailed": "فشل التعيين. تحقق من أن خدمة Ariadne قيد التشغيل ويمكن الوصول إليها."
+      },
+      "results": {
+        "candidateCount": "المرشحين {{count}}",
+        "overridden": "(تجاوز)",
+        "noMatchFound": "لم يتم العثور على تطابق",
+        "selectOverride": "حدد مرشحًا لتجاوز التعيين",
+        "noAdditionalCandidates": "لا يوجد مرشحين إضافيين."
+      },
+      "labels": {
+        "noValue": null,
+        "separator": null
+      },
+      "input": {
+        "termsMapped": "تم تعيين مصطلحات {{count}}",
+        "editTerms": "تحرير الشروط",
+        "sourceTerms": "شروط المصدر",
+        "termsPlaceholder": "أدخل مصطلحات المصدر، واحدة في كل سطر...\n\nداء السكري من النوع 2\nاحتشاء عضلة القلب الحاد\nHTN\nآسا 81 ملغ",
+        "termsEntered": "تم إدخال مصطلحات {{count}}"
+      },
+      "projects": {
+        "loading": "جارٍ تحميل المشاريع...",
+        "loadFailed": "فشل في تحميل المشاريع",
+        "empty": "لا توجد مشاريع محفوظة",
+        "projectMeta": "مصطلحات {{count}} - {{date}}",
+        "namePlaceholder": "اسم المشروع..."
+      },
+      "vocabularies": {
+        "SNOMED": "SNOMED ط م",
+        "ICD10CM": "ICD-10-CM",
+        "RxNorm": "RxNorm",
+        "LOINC": "LOINC",
+        "ICD9CM": "التصنيف الدولي للأمراض-9-سم",
+        "CPT4": "سي بي تي-4",
+        "HCPCS": "HCPCS",
+        "MedDRA": "ميدرا"
+      },
+      "domains": {
+        "Condition": "حالة",
+        "Drug": "دواء",
+        "Procedure": "إجراء",
+        "Measurement": "قياس",
+        "Observation": "ملاحظة",
+        "Device": "جهاز"
+      },
+      "progress": {
+        "mappingTerms": "تعيين مصطلحات {{count}}..."
+      },
+      "metrics": {
+        "termsMapped": "المصطلحات المعينة",
+        "highConfidence": "ثقة عالية",
+        "needReview": "بحاجة إلى مراجعة",
+        "noMatch": "لا يوجد تطابق"
+      },
+      "table": {
+        "sourceTerm": "مصطلح المصدر",
+        "bestMatch": "أفضل مباراة",
+        "confidence": "ثقة",
+        "matchType": "نوع المطابقة",
+        "vocabulary": "مفردات",
+        "actions": "الإجراءات"
+      },
+      "summary": {
+        "mapped": "تم تعيين {{count}}",
+        "high": "{{count}} عالية",
+        "review": "مراجعة {{count}}",
+        "noMatch": "{{count}} لا يوجد تطابق",
+        "accepted": "تم قبول {{count}}"
+      }
+    },
+    "conceptDetail": {
+      "tabs": {
+        "info": "معلومات",
+        "relationships": "العلاقات",
+        "mapsFrom": "الخرائط من",
+        "hierarchy": "تَسَلسُل"
+      },
+      "empty": {
+        "title": "حدد مفهومًا لعرض التفاصيل",
+        "subtitle": "ابحث وانقر فوق مفهوم من اللوحة اليمنى",
+        "noAncestors": "لم يتم العثور على أسلاف",
+        "noRelationships": "لم يتم العثور على علاقات",
+        "noSourceCodes": "لا توجد أكواد مصدر تعين هذا المفهوم"
+      },
+      "errors": {
+        "failedLoad": "فشل تحميل المفهوم"
+      },
+      "toasts": {
+        "conceptIdCopied": "تم نسخ المفهوم ID"
+      },
+      "actions": {
+        "copyConceptId": "نسخ مفهوم ID",
+        "addToSet": "أضف إلى المجموعة"
+      },
+      "values": {
+        "standard": "معيار",
+        "classification": "تصنيف",
+        "nonStandard": "غير قياسي",
+        "valid": "صالح"
+      },
+      "sections": {
+        "basicInformation": "المعلومات الأساسية",
+        "synonyms": "المرادفات",
+        "ancestors": "الأجداد",
+        "relationships": "العلاقات",
+        "mapsFrom": "تعيين رموز المصدر لهذا المفهوم",
+        "mapsFromDescription": "رموز المفردات المصدرية (ICD-10، SNOMED، RxNorm، وما إلى ذلك) التي تتوافق مع هذا المفهوم القياسي",
+        "hierarchy": "مفهوم التسلسل الهرمي"
+      },
+      "fields": {
+        "conceptCode": "رمز المفهوم",
+        "domain": "اِختِصاص",
+        "vocabulary": "مفردات",
+        "conceptClass": "فئة المفهوم",
+        "standardConcept": "المفهوم القياسي",
+        "invalidReason": "سبب غير صالح",
+        "validStartDate": "تاريخ البدء صالح",
+        "validEndDate": "تاريخ انتهاء صالح"
+      },
+      "table": {
+        "id": "ID",
+        "name": "اسم",
+        "domain": "اِختِصاص",
+        "vocabulary": "مفردات",
+        "relationship": "علاقة",
+        "relatedId": "ذات الصلة ID",
+        "relatedName": "الاسم ذو الصلة",
+        "code": "شفرة",
+        "class": "فصل"
+      },
+      "pagination": {
+        "showingRange": "عرض {{start}}-{{end}} من {{total}}",
+        "showingSourceCodes": "عرض رموز مصدر {{shown}} {{total}}"
+      }
+    },
+    "semanticSearch": {
+      "hecate": "هيكات",
+      "poweredBy": "مدعوم من هيكات",
+      "tagline": "اكتشاف مفهوم مدعوم بالنواقل",
+      "placeholder": "أدخل مصطلحًا سريريًا للبحث لغويًا...",
+      "filters": {
+        "allDomains": "جميع المجالات",
+        "allVocabularies": "جميع المفردات",
+        "standard": {
+          "all": "الجميع",
+          "standard": "س",
+          "classification": "ج"
+        }
+      },
+      "badges": {
+        "standard": "معيار",
+        "classification": "تصنيف"
+      },
+      "values": {
+        "inSet": "في المجموعة",
+        "standardAbbrev": "س"
+      },
+      "actions": {
+        "addToSet": "أضف إلى المجموعة",
+        "clearFilters": "مسح المرشحات",
+        "retry": "أعد المحاولة",
+        "tryClearingFilters": "حاول مسح المرشحات"
+      },
+      "errors": {
+        "unavailable": "البحث الدلالي غير متوفر.",
+        "serviceHelp": "تأكد من تشغيل خدمة Hecate AI وتهيئة ChromaDB."
+      },
+      "empty": {
+        "prompt": "أدخل مصطلحًا سريريًا للبحث عنه لغويًا",
+        "help": "يستخدم Hecate التضمينات المتجهة للعثور على مفاهيم OMOP المتشابهة من الناحية المفاهيمية، حتى عندما تفشل التطابقات الدقيقة للكلمات الرئيسية.",
+        "noResults": "لم يتم العثور على تطابقات دلالية لـ \"{{query}}\""
+      },
+      "results": {
+        "matchCountOne": "{{count}} مطابقة الدلالية",
+        "matchCountMany": "{{count}} التطابقات الدلالية",
+        "updating": "جارٍ التحديث..."
+      }
+    },
+    "searchPanel": {
+      "placeholder": "مفاهيم البحث...",
+      "filters": {
+        "toggle": "المرشحات",
+        "standardOnly": "معيار",
+        "allDomains": "جميع المجالات",
+        "allVocabularies": "جميع المفردات",
+        "allConceptClasses": "جميع فئات المفهوم",
+        "countSuffix": "(ززف0زز)"
+      },
+      "actions": {
+        "clearAllFilters": "مسح كافة عوامل التصفية",
+        "tryClearingFilters": "حاول مسح المرشحات",
+        "loading": "تحميل...",
+        "loadMoreResults": "تحميل المزيد من النتائج"
+      },
+      "empty": {
+        "prompt": "ابحث في المفردات OMOP",
+        "help": "اكتب حرفين على الأقل للبحث عن المفاهيم حسب الاسم أو الرمز أو ID",
+        "noResults": "لم يتم العثور على مفاهيم لـ \"{{query}}\""
+      },
+      "results": {
+        "showingCount": "عرض نتائج {{shown}} لـ {{total}}"
+      },
+      "engine": {
+        "solr": "Solr",
+        "pg": "ص"
+      },
+      "values": {
+        "inSet": "في المجموعة"
+      }
+    },
+    "conceptComparison": {
+      "title": "مقارنة المفاهيم",
+      "subtitle": "مقارنة جنبًا إلى جنب بين 2-4 مفاهيم OMOP مع السمات والأسلاف والعلاقات",
+      "search": {
+        "placeholder": "مفهوم البحث لإضافة..."
+      },
+      "sections": {
+        "ancestors": "الأسلاف (مستويان)",
+        "relationships": "العلاقات"
+      },
+      "fields": {
+        "conceptCode": "رمز المفهوم",
+        "domain": "اِختِصاص",
+        "vocabulary": "مفردات",
+        "conceptClass": "فئة المفهوم",
+        "standard": "معيار",
+        "validStart": "بداية صالحة",
+        "validEnd": "نهاية صالحة",
+        "invalidReason": "سبب غير صالح"
+      },
+      "actions": {
+        "addConcept": "إضافة مفهوم"
+      },
+      "empty": {
+        "prompt": "ابحث عن المفاهيم للمقارنة",
+        "help": "حدد 2-4 مفاهيم لرؤية مقارنة جنبًا إلى جنب لصفاتهم وأسلافهم وعلاقاتهم"
+      },
+      "values": {
+        "standard": "معيار",
+        "classification": "تصنيف",
+        "nonStandard": "غير قياسي",
+        "valid": "صالح",
+        "level": "L{{level}}",
+        "selected": "المحدد:",
+        "addOneMore": "أضف واحدًا آخر على الأقل للمقارنة"
+      }
+    },
+    "addToConceptSet": {
+      "title": "أضف إلى مجموعة المفاهيم",
+      "create": {
+        "title": "إنشاء مجموعة مفاهيم جديدة",
+        "help": "أضف مفهومًا وافتحه في Builder",
+        "nameLabel": "اسم مجموعة المفهوم الجديد"
+      },
+      "actions": {
+        "create": "يخلق",
+        "cancel": "يلغي",
+        "openBuilderWithSearch": "افتح Builder باستخدام البحث الحالي"
+      },
+      "divider": "أو إضافتها إلى الموجودة",
+      "filter": {
+        "placeholder": "مجموعات مفاهيم التصفية..."
+      },
+      "empty": {
+        "noMatching": "لا توجد مجموعات مفاهيم متطابقة",
+        "noSets": "لم يتم العثور على مجموعات المفاهيم"
+      },
+      "footer": {
+        "includeDescendants": "يضيف مع تضمين أحفاد"
+      },
+      "toasts": {
+        "addedToSet": "تمت الإضافة إلى \"{{setName}}\"",
+        "addFailed": "فشلت إضافة المفهوم إلى المجموعة",
+        "missingSetId": "فشل في استرداد مجموعة المفاهيم الجديدة ID",
+        "createdAndAdded": "تم إنشاء \"{{name}}\" وإضافة المفهوم",
+        "createdAddFailed": "تم إنشاء المجموعة ولكن فشلت في إضافة المفهوم",
+        "createFailed": "فشل في إنشاء مجموعة المفاهيم"
+      }
+    },
+    "page": {
+      "title": "متصفح المفردات",
+      "subtitle": "ابحث واستكشف وتنقل في المفردات الموحدة OMOP",
+      "tabs": {
+        "keyword": "البحث عن الكلمات الرئيسية",
+        "semantic": "البحث الدلالي",
+        "browse": "تصفح التسلسل الهرمي"
+      }
+    },
+    "hierarchyBrowser": {
+      "breadcrumb": {
+        "allDomains": "جميع المجالات"
+      },
+      "filters": {
+        "allSources": "جميع المصادر",
+        "itemPlaceholder": "تصفية عناصر {{count}}..."
+      },
+      "actions": {
+        "showAllConcepts": "إظهار كافة المفاهيم",
+        "showGroupings": "إظهار المجموعات",
+        "clearFilter": "مسح الفلتر",
+        "viewDetailsFor": "عرض تفاصيل {{conceptName}}",
+        "viewConceptDetails": "عرض تفاصيل المفهوم"
+      },
+      "empty": {
+        "noMatchingConcepts": "لا توجد مفاهيم متطابقة",
+        "noConcepts": "لم يتم العثور على أي مفاهيم"
+      },
+      "counts": {
+        "clinicalGroupings": "المجموعات السريرية {{count}}",
+        "concepts": "مفاهيم {{count}}",
+        "items": "عناصر {{count}}",
+        "filteredItems": "{{shown}} من عناصر {{total}}",
+        "namedSubCategories": "{{name}} - الفئات الفرعية {{count}}",
+        "subCategories": "الفئات الفرعية {{count}}",
+        "subcategories": "الفئات الفرعية {{count}}",
+        "oneAnchor": "1 مرساة",
+        "persons": "الأشخاص {{count}}",
+        "records": "سجلات {{count}}",
+        "groupingCoversSubcategories": "يغطي {{groupingName}} الفئات الفرعية {{count}}"
+      }
+    },
+    "hierarchyTree": {
+      "empty": {
+        "noData": "لا توجد بيانات هرمية متاحة"
+      }
+    }
+  },
+  "jobs": {
+    "page": {
+      "title": "وظائف",
+      "subtitle": "مراقبة وظائف الخلفية وحالة قائمة الانتظار",
+      "empty": {
+        "title": "لم يتم العثور على وظائف",
+        "archived": "لا توجد وظائف مؤرشفة مضى عليها أكثر من 24 ساعة.",
+        "filtered": "لا توجد وظائف بالحالة {{status}}. جرب مرشحًا مختلفًا.",
+        "recent": "لا يوجد وظائف خلال 24 ساعة الماضية. تحقق من المؤرشفة للوظائف القديمة."
+      },
+      "table": {
+        "job": "وظيفة",
+        "type": "يكتب",
+        "source": "مصدر",
+        "started": "بدأت",
+        "duration": "مدة",
+        "status": "حالة",
+        "actions": "الإجراءات"
+      },
+      "pagination": "صفحة {{current}} من {{last}} · وظائف {{total}}"
+    },
+    "filters": {
+      "statuses": {
+        "all": "الكل (24 ساعة)",
+        "pending": "قيد الانتظار",
+        "queued": "في قائمة الانتظار",
+        "running": "جري",
+        "completed": "مكتمل",
+        "failed": "فشل",
+        "cancelled": "تم الإلغاء",
+        "archived": "مؤرشف"
+      },
+      "types": {
+        "all": "جميع الأنواع",
+        "analysis": "تحليل",
+        "characterization": "التوصيف",
+        "incidenceRate": "معدل الإصابة",
+        "estimation": "تقدير",
+        "prediction": "تنبؤ",
+        "pathway": "المسار",
+        "sccs": "SCCS",
+        "evidenceSynthesis": "تجميع الأدلة",
+        "cohortGeneration": "جيل الفوج",
+        "careGaps": "فجوات الرعاية",
+        "achilles": "Achilles",
+        "dataQuality": "جودة البيانات",
+        "heelChecks": "فحص الكعب",
+        "ingestion": "الابتلاع",
+        "vocabulary": "مفردات",
+        "genomicParse": "التحليل الجينومي",
+        "poseidon": "بوسيدون إي تي إل",
+        "fhirExport": "تصدير FHIR",
+        "fhirSync": "مزامنة FHIR",
+        "gisImport": "استيراد GIS",
+        "gisBoundaries": "حدود GIS"
+      }
+    },
+    "actions": {
+      "retry": "أعد المحاولة",
+      "retryJob": "أعد محاولة المهمة",
+      "cancel": "يلغي",
+      "cancelJob": "إلغاء المهمة",
+      "previous": "سابق",
+      "next": "التالي"
+    },
+    "drawer": {
+      "titleFallback": "تفاصيل الوظيفة",
+      "loadError": "فشل في تحميل تفاصيل المهمة.",
+      "sections": {
+        "executionLog": "سجل التنفيذ",
+        "analysis": "تحليل",
+        "cohort": "الفوج",
+        "ingestionPipeline": "خط أنابيب الابتلاع",
+        "fhirSync": "مزامنة FHIR",
+        "dataQuality": "جودة البيانات",
+        "heelChecks": "فحص الكعب",
+        "achillesAnalyses": "تحليلات Achilles",
+        "genomicParse": "التحليل الجينومي",
+        "poseidonEtl": "بوسيدون إي تي إل",
+        "careGapEvaluation": "تقييم فجوة الرعاية",
+        "gisBoundaries": "حدود GIS",
+        "gisImport": "استيراد GIS",
+        "vocabularyImport": "استيراد المفردات",
+        "fhirExport": "تصدير FHIR",
+        "overview": "ملخص",
+        "output": "الإخراج"
+      },
+      "labels": {
+        "analysis": "تحليل",
+        "createdBy": "تم الإنشاء بواسطة",
+        "parameters": "حدود",
+        "cohort": "الفوج",
+        "personCount": "عدد الأشخاص",
+        "source": "مصدر",
+        "sourceKey": "مفتاح المصدر",
+        "stage": "منصة",
+        "project": "مشروع",
+        "file": "ملف",
+        "fileSize": "حجم الملف",
+        "mappingCoverage": "تغطية الخرائط",
+        "processed": "تمت معالجتها",
+        "failed": "فشل",
+        "filesDownloaded": "تم تنزيل الملفات",
+        "recordsExtracted": "السجلات المستخرجة",
+        "recordsMapped": "تم تعيين السجلات",
+        "recordsWritten": "السجلات مكتوبة",
+        "recordsFailed": "فشلت السجلات",
+        "passed": "اجتاز",
+        "passRate": "معدل النجاح",
+        "expectedChecks": "الشيكات المتوقعة",
+        "executionTime": "وقت التنفيذ",
+        "failingChecks": "الشيكات الفاشلة",
+        "totalRules": "القواعد الإجمالية",
+        "rulesTriggered": "تم تفعيل القواعد",
+        "totalViolations": "إجمالي الانتهاكات",
+        "topViolations": "أعلى الانتهاكات",
+        "completed": "مكتمل",
+        "byCategory": "حسب الفئة",
+        "failedSteps": "خطوات فاشلة",
+        "format": "شكل",
+        "totalVariants": "إجمالي المتغيرات",
+        "mappedVariants": "المتغيرات المعينة",
+        "samples": "عينات",
+        "runType": "نوع التشغيل",
+        "dagsterRunId": "تشغيل Dagster ID",
+        "stats": "احصائيات",
+        "bundle": "باقة",
+        "complianceSummary": "ملخص الامتثال",
+        "dataset": "مجموعة البيانات",
+        "dataType": "نوع البيانات",
+        "version": "إصدار",
+        "geometry": "الهندسة",
+        "features": "سمات",
+        "tablesLoaded": "تم تحميل الجداول",
+        "recordsLoaded": "تم تحميل السجلات",
+        "outputFormat": "تنسيق الإخراج",
+        "type": "يكتب",
+        "triggeredBy": "أثار بواسطة",
+        "duration": "مدة",
+        "started": "بدأت",
+        "created": "مخلوق",
+        "error": "خطأ"
+      },
+      "messages": {
+        "stalled": "توقفت هذه المهمة وتم وضع علامة فشل عليها بعد تجاوز المهلة البالغة ساعة واحدة.",
+        "failedCount": "فشل {{count}}",
+        "runningCount": "تشغيل {{count}}",
+        "ofTotal": "من {{count}}",
+        "records": "سجلات {{count}}"
+      }
+    }
+  },
+  "dataExplorer": {
+    "overview": {
+      "metrics": {
+        "persons": "الأشخاص",
+        "personsTotal": "مجموع {{value}}",
+        "medianObsDuration": "متوسط ​​مدة Obs",
+        "durationDays": "أيام {{value}}",
+        "observationPeriods": "فترات المراقبة {{value}}",
+        "totalEvents": "إجمالي الأحداث",
+        "acrossAllCdmTables": "عبر جميع جداول CDM",
+        "dataCompleteness": "اكتمال البيانات",
+        "tablesPopulated": "تم ملء الجداول {{populated}}/{{total}}"
+      },
+      "sections": {
+        "demographics": "التركيبة السكانية السكانية",
+        "observationPeriods": "تحليل فترة المراقبة",
+        "domainRecordProportions": "نسب سجل المجال",
+        "dataDensityOverTime": "كثافة البيانات مع مرور الوقت",
+        "recordDistribution": "توزيع السجلات"
+      },
+      "cards": {
+        "genderDistribution": "التوزيع بين الجنسين",
+        "ethnicity": "الإثنية",
+        "race": "العرق",
+        "topTen": "أعلى 10",
+        "yearOfBirthDistribution": "توزيع سنة الميلاد",
+        "yearOfBirthSubtitle": "رسم بياني بكثافة ناعمة (ذهبي)",
+        "cumulativeObservationDuration": "مدة المراقبة التراكمية",
+        "cumulativeObservationSubtitle": "أسلوب كابلان ماير: نسبة الأشخاص ذوي الملاحظة >= X من الأيام",
+        "observationStartEndDates": "تواريخ بدء / انتهاء المراقبة",
+        "observationStartEndSubtitle": "التوزيع الزمني لفترات المراقبة",
+        "observationPeriodDurationDays": "مدة فترة المراقبة (بالأيام)",
+        "observationPeriodsPerPerson": "فترات المراقبة لكل شخص",
+        "observationPeriodsPerPersonSubtitle": "توزيع عدد الدورات الشهرية لكل شخص",
+        "clinicalDataDomains": "مجالات البيانات السريرية",
+        "clinicalDataDomainsSubtitle": "تم الترتيب حسب عدد السجلات - انقر فوق المجال لاستكشاف مفاهيمه",
+        "recordsByDomainAndYear": "السجلات حسب المجال والسنة",
+        "recordsByDomainAndYearSubtitle": "تشير كثافة اللون إلى حجم التسجيل لكل مجال في السنة",
+        "cdmTableRecordCounts": "عدد سجلات جدول CDM",
+        "cdmTableRecordCountsSubtitle": "المقياس اللوغاريتمي - جميع الجداول مرئية بغض النظر عن حجمها"
+      },
+      "messages": {
+        "runAchillesForTemporalData": "قم بتشغيل Achilles لإنشاء بيانات الاتجاه الزمني"
+      }
+    },
+    "charts": {
+      "common": {
+        "records": "سجلات {{count}}",
+        "persons": "الأشخاص {{count}}",
+        "total": "المجموع",
+        "separator": null
+      },
+      "boxPlot": {
+        "noDistributionData": "لا توجد بيانات التوزيع",
+        "ariaLabel": "مؤامرة مربع",
+        "labels": {
+          "p25": "ص25: {{value}}",
+          "median": "الوسيط: {{value}}",
+          "p75": "ص75:{{value}}"
+        }
+      },
+      "cumulativeObservation": {
+        "tooltipValue": "أيام {{days}} - {{pct}}% من الأشخاص",
+        "xAxisLabel": "مدة المراقبة (بالأيام)",
+        "labels": {
+          "min": "دقيقة",
+          "p10": "ص10",
+          "p25": "ص25",
+          "median": "متوسط",
+          "p75": "ص75",
+          "p90": "ص90",
+          "max": "الأعلى"
+        }
+      },
+      "demographics": {
+        "ageDistribution": "التوزيع العمري",
+        "noAgeData": "لا توجد بيانات التوزيع العمري",
+        "age": "عمر",
+        "male": "ذكر",
+        "female": "أنثى"
+      },
+      "heatmap": {
+        "ariaLabel": "الخريطة الحرارية لكثافة البيانات"
+      },
+      "hierarchy": {
+        "noData": "لا توجد بيانات هرمية متاحة",
+        "classificationHierarchy": "التسلسل الهرمي للتصنيف",
+        "back": "خلف"
+      },
+      "periodCount": {
+        "observationPeriods": "فترة (فترات) المراقبة {{count}}"
+      },
+      "recordCounts": {
+        "noData": "لا تتوفر بيانات عدد السجلات",
+        "title": "سجل التهم حسب جدول CDM"
+      },
+      "temporalTrend": {
+        "events": "الأحداث",
+        "secondary": "ثانوي"
+      },
+      "topConcepts": {
+        "noData": "لا توجد بيانات مفهوم متاحة",
+        "title": "أهم المفاهيم",
+        "id": "ID: {{id}}",
+        "prevalence": "معدل الانتشار: {{value}}%"
+      },
+      "yearOfBirth": {
+        "year": "السنة: {{year}}"
+      }
+    },
+    "dqd": {
+      "categories": {
+        "completeness": "الاكتمال",
+        "conformance": "المطابقة",
+        "plausibility": "المعقولية",
+        "overall": "إجمالي"
+      },
+      "progress": {
+        "title": "تشغيل تحليل DQD",
+        "checksCompleted": "تم الانتهاء من عمليات فحص {{completed}} لـ {{total}}",
+        "waiting": "منتظر...",
+        "running": "جري:"
+      },
+      "labels": {
+        "passed": "اجتاز",
+        "failed": "فشل",
+        "remaining": "متبقي",
+        "warnings": "تحذيرات"
+      },
+      "severity": {
+        "error": "خطأ",
+        "warning": "تحذير",
+        "info": "معلومات"
+      },
+      "categoryPanel": {
+        "checkCount": "الشيكات {{count}}",
+        "passRate": "نسبة النجاح {{percent}}%",
+        "table": {
+          "check": "يفحص",
+          "table": "طاولة",
+          "column": "عمود",
+          "severity": "خطورة",
+          "violationPercent": "انتهاك ٪"
+        }
+      },
+      "scorecard": {
+        "emptyTitle": "لا تتوفر نتائج DQD",
+        "emptyDescription": "قم بإجراء تحليل لوحة معلومات جودة البيانات لرؤية النتائج",
+        "overallScore": "النتيجة الإجمالية",
+        "passedFraction": "تم تمرير {{passed}}/{{total}}"
+      },
+      "tableGrid": {
+        "noResults": "لا توجد نتائج لعرض DQD",
+        "title": "الجدول × خريطة الحرارة للفئة",
+        "cdmTable": "جدول CDM"
+      },
+      "actions": {
+        "runDqd": "قم بتشغيل DQD"
+      },
+      "dispatchFailed": "فشل في إرسال تشغيل DQD",
+      "empty": "لم يتم تشغيل DQD حتى الآن",
+      "emptyHelp": "انقر فوق \"تشغيل DQD\" لبدء تحليل جودة البيانات"
+    },
+    "achilles": {
+      "severities": {
+        "error": "خطأ",
+        "warning": "تحذير",
+        "notification": "إشعار"
+      },
+      "severityCounts": {
+        "error": "أخطاء",
+        "warning": "تحذيرات",
+        "notification": "إشعارات"
+      },
+      "actions": {
+        "running": "جري...",
+        "runHeelChecks": "قم بإجراء فحص الكعب",
+        "runAchilles": "قم بتشغيل Achilles",
+        "selectRun": "حدد تشغيل",
+        "viewLiveProgress": "عرض التقدم المباشر",
+        "viewDetails": "عرض التفاصيل"
+      },
+      "runShort": "تشغيل {{id}}...",
+      "statuses": {
+        "completed": "مكتمل",
+        "failed": "فشل",
+        "running": "جري",
+        "pending": "قيد الانتظار"
+      },
+      "labels": {
+        "status": "حالة",
+        "total": "المجموع",
+        "passed": "اجتاز",
+        "failed": "فشل",
+        "durationSeconds": "المدة: {{value}}s"
+      },
+      "heel": {
+        "title": "فحص الكعب",
+        "dispatchFailed": "فشل في إرسال الشيكات كعب",
+        "running": "تشغيل فحص الكعب...",
+        "empty": "لم يتم إجراء أي فحص للكعب حتى الآن",
+        "allPassed": "مرت جميع الشيكات",
+        "issueSummary": "قضايا {{count}}: {{errors}}E / {{warnings}}W / {{notifications}}N"
+      },
+      "characterization": {
+        "title": "توصيف Achilles",
+        "dispatchFailed": "فشل في إرسال تشغيل Achilles",
+        "empty": "لم يتم تشغيل Achilles حتى الآن",
+        "emptyHelp": "انقر فوق \"تشغيل Achilles\" لوصف بياناتك"
+      },
+      "runModal": {
+        "completedIn": "اكتمل في {{duration}}",
+        "analysisProgress": "تحليلات {{done}} لـ {{total}}",
+        "elapsed": "المنقضي:",
+        "passedCount": "مرت {{count}}",
+        "failedCount": "فشل {{count}}",
+        "totalDuration": "مجموع {{duration}}",
+        "remaining": "~{{duration}} المتبقية",
+        "waiting": "في انتظار بدء التحاليل...",
+        "done": "منتهي",
+        "runInBackground": "تشغيل في الخلفية"
+      }
+    },
+    "concept": {
+      "details": "تفاصيل المفهوم",
+      "loadFailed": "فشل تحميل تفاصيل المفهوم",
+      "genderDistribution": "التوزيع بين الجنسين",
+      "temporalTrend": "الاتجاه الزمني",
+      "typeDistribution": "توزيع النوع",
+      "ageAtFirstOccurrence": "العمر عند أول ظهور",
+      "valueByLabel": "{{label}}: {{value}}"
+    },
+    "tabs": {
+      "overview": "ملخص",
+      "domains": "المجالات",
+      "temporal": "زمني",
+      "heel": "Achilles",
+      "dqd": "جودة البيانات",
+      "ares": "Ares"
+    },
+    "domains": {
+      "condition": "شروط",
+      "drug": "المخدرات",
+      "procedure": "إجراءات",
+      "measurement": "القياسات",
+      "observation": "الملاحظات",
+      "visit": "الزيارات"
+    },
+    "page": {
+      "title": "مستكشف البيانات",
+      "subtitle": "استكشف نتائج توصيف Achilles وجودة البيانات",
+      "selectSourceTitle": "حدد مصدر بيانات",
+      "selectSourceMessage": "اختر مصدر CDM من القائمة المنسدلة أعلاه لاستكشاف بياناته"
+    },
+    "domain": {
+      "metrics": {
+        "totalRecords": "إجمالي السجلات",
+        "distinctConcepts": "مفاهيم متميزة"
+      },
+      "loadFailed": "فشل تحميل بيانات {{domain}}",
+      "temporalTrendTitle": "{{domain}} الاتجاه الزمني"
+    },
+    "temporal": {
+      "domainsLabel": "المجالات:",
+      "multiDomainOverlay": "تراكب زمني متعدد المجالات",
+      "emptyTitle": "لا توجد بيانات زمنية متاحة",
+      "emptyHelp": "حدد المجالات أعلاه وتأكد من تشغيل Achilles"
+    },
+    "sourceSelector": {
+      "loading": "جارٍ تحميل المصادر...",
+      "placeholder": "حدد مصدر بيانات"
+    }
+  }
+});
+
+const arAppPass2: MessageTree = mergeMessageTrees(arAppPass1, {
+  "studies": {
+    "detail": {
+      "loadFailed": "فشل تحميل الدراسة",
+      "backToStudies": "العودة إلى الدراسات",
+      "studies": "دراسات",
+      "confirmDelete": "هل أنت متأكد أنك تريد حذف هذه الدراسة؟ لا يمكن التراجع عن هذا الإجراء.",
+      "confirmArchive": "أرشفة هذه الدراسة؟ ويمكن استعادته لاحقا.",
+      "copyTitle": "نسخة من {{title}}",
+      "tabs": {
+        "overview": "ملخص",
+        "design": "تصميم",
+        "analyses": "يحلل",
+        "results": "نتائج",
+        "progress": "تقدم",
+        "sites": "مواقع",
+        "team": "فريق",
+        "cohorts": "الأفواج",
+        "milestones": "المعالم",
+        "artifacts": "التحف",
+        "activity": "نشاط",
+        "federated": "متحد"
+      },
+      "statuses": {
+        "draft": "مسودة",
+        "protocol_development": "تطوير البروتوكول",
+        "feasibility": "الجدوى",
+        "irb_review": "مراجعة مجلس الهجرة واللاجئين",
+        "recruitment": "توظيف",
+        "execution": "تنفيذ",
+        "analysis": "تحليل",
+        "synthesis": "توليف",
+        "manuscript": "مخطوطة",
+        "published": "تم النشر",
+        "archived": "مؤرشف",
+        "withdrawn": "انسحبت"
+      },
+      "studyTypes": {
+        "characterization": "التوصيف",
+        "population_level_estimation": "تقدير مستوى السكان",
+        "patient_level_prediction": "التنبؤ على مستوى المريض",
+        "comparative_effectiveness": "الفعالية المقارنة",
+        "safety_surveillance": "مراقبة السلامة",
+        "drug_utilization": "استخدام المخدرات",
+        "quality_improvement": "تحسين الجودة",
+        "custom": "مخصص"
+      },
+      "actions": {
+        "transitionTo": "الانتقال إلى",
+        "generateManuscriptTitle": "إنشاء مخطوطة من التحليلات المكتملة",
+        "manuscript": "مخطوطة",
+        "duplicateStudy": "دراسة مكررة",
+        "exportJson": "تصدير كـ JSON",
+        "archiveStudy": "دراسة الأرشيف",
+        "deleteStudy": "حذف الدراسة"
+      },
+      "sections": {
+        "about": "عن",
+        "analysisPipeline": "خط أنابيب التحليل ({{count}})",
+        "executionProgress": "تقدم التنفيذ",
+        "details": "تفاصيل",
+        "timeline": "الجدول الزمني",
+        "tags": "العلامات",
+        "createdBy": "تم الإنشاء بواسطة"
+      },
+      "labels": {
+        "primaryObjective": "الهدف الأساسي",
+        "hypothesis": "فرضية",
+        "secondaryObjectives": "الأهداف الثانوية",
+        "principalInvestigator": "المحقق الرئيسي",
+        "leadDataScientist": "عالم بيانات رئيسي",
+        "studyDesign": "تصميم الدراسة",
+        "phase": "مرحلة",
+        "protocolVersion": "إصدار البروتوكول",
+        "funding": "التمويل",
+        "clinicalTrialsGov": "ClinicalTrials.gov",
+        "start": "يبدأ:",
+        "end": "نهاية:",
+        "targetSites": "المواقع المستهدفة:",
+        "created": "مخلوق:"
+      },
+      "messages": {
+        "noDescription": "لم يتم تقديم أي وصف",
+        "moreAnalyses": "+{{count}} المزيد من التحليلات"
+      },
+      "progress": {
+        "completed": "اكتمل {{count}}",
+        "running": "تشغيل {{count}}",
+        "failed": "فشل {{count}}",
+        "pending": "{{count}} معلق"
+      }
+    },
+    "results": {
+      "sections": {
+        "results": "النتائج ({{count}})",
+        "syntheses": "التوليفات ({{count}})"
+      },
+      "actions": {
+        "synthesize": "توليف",
+        "markPrimary": "وضع علامة على أنها أساسية",
+        "unmarkPrimary": "قم بإلغاء تحديد العلامة الأساسية",
+        "markPublishable": "وضع علامة على أنها قابلة للنشر",
+        "unmarkPublishable": "قم بإزالة العلامة القابلة للنشر",
+        "cancel": "يلغي"
+      },
+      "filters": {
+        "allTypes": "جميع الأنواع",
+        "publishableOnly": "للنشر فقط"
+      },
+      "empty": {
+        "noResultsTitle": "لا توجد نتائج حتى الآن",
+        "noResultsMessage": "ستظهر النتائج هنا بعد تنفيذ التحليلات",
+        "noSummaryData": "لا توجد بيانات ملخصة متاحة",
+        "noSynthesesTitle": "لا توليفات",
+        "noSynthesesMessage": "الجمع بين النتائج من مواقع متعددة باستخدام التحليل التلوي"
+      },
+      "resultTypes": {
+        "cohort_count": "عدد الفوج",
+        "characterization": "التوصيف",
+        "incidence_rate": "معدل الإصابة",
+        "effect_estimate": "تقدير التأثير",
+        "prediction_performance": "أداء التنبؤ",
+        "pathway": "المسار",
+        "sccs": "SCCS",
+        "custom": "مخصص"
+      },
+      "synthesisTypes": {
+        "fixed_effects_meta": "التحليل التلوي للتأثيرات الثابتة",
+        "random_effects_meta": "التأثيرات العشوائية التحليل التلوي",
+        "bayesian_meta": "التحليل التلوي بايزي",
+        "forest_plot": "مؤامرة الغابات",
+        "heterogeneity_analysis": "تحليل عدم التجانس",
+        "funnel_plot": "مؤامرة القمع",
+        "evidence_synthesis": "تجميع الأدلة",
+        "custom": "مخصص"
+      },
+      "badges": {
+        "primary": "أساسي",
+        "publishable": "قابل للنشر"
+      },
+      "messages": {
+        "resultCreated": "النتيجة #{{id}} · {{date}}",
+        "reviewedBy": "تمت المراجعة من قبل{{name}}"
+      },
+      "labels": {
+        "summary": "ملخص",
+        "diagnostics": "التشخيص"
+      },
+      "pagination": {
+        "previous": "سابق",
+        "next": "التالي",
+        "page": "صفحة {{page}} من {{totalPages}}"
+      },
+      "synthesis": {
+        "createTitle": "إنشاء التوليف",
+        "instructions": "حدد نتيجتين أو أكثر أعلاه، ثم اختر طريقة التجميع.",
+        "createSelected": "إنشاء (تم تحديد {{count}})",
+        "confirmDelete": "هل تريد حذف هذا التوليف؟",
+        "resultsCount": "نتائج {{count}}",
+        "system": "نظام",
+        "methodSettings": "إعدادات الطريقة",
+        "output": "الإخراج",
+        "noOutput": "لم يتم إنشاء أي مخرجات حتى الآن"
+      }
+    },
+    "team": {
+      "sections": {
+        "members": "أعضاء الفريق ({{count}})"
+      },
+      "actions": {
+        "addMember": "إضافة عضو",
+        "cancel": "يلغي",
+        "save": "يحفظ",
+        "edit": "تحرير عضو الفريق",
+        "remove": "إزالة عضو الفريق"
+      },
+      "form": {
+        "addTitle": "إضافة عضو الفريق",
+        "user": "مستخدم",
+        "userSearchPlaceholder": "البحث عن المستخدمين حسب الاسم أو البريد الإلكتروني...",
+        "role": "دور"
+      },
+      "empty": {
+        "title": "لا يوجد أعضاء الفريق",
+        "message": "إضافة الباحثين والمتعاونين لهذه الدراسة"
+      },
+      "table": {
+        "name": "اسم",
+        "email": "بريد إلكتروني",
+        "role": "دور",
+        "status": "حالة",
+        "joined": "انضم"
+      },
+      "messages": {
+        "allUsersAssigned": "جميع المستخدمين هم بالفعل أعضاء في الفريق",
+        "noMatchingUsers": "لا يوجد مستخدمون مطابقون",
+        "userFallback": "المستخدم #{{id}}"
+      },
+      "confirmRemove": "هل ترغب في إزالة عضو الفريق هذا؟",
+      "statuses": {
+        "active": "نشيط",
+        "inactive": "غير نشط"
+      },
+      "roles": {
+        "principal_investigator": "المحقق الرئيسي",
+        "co_investigator": "محقق مشارك",
+        "data_scientist": "عالم البيانات",
+        "statistician": "إحصائي",
+        "site_lead": "قائد الموقع",
+        "data_analyst": "محلل بيانات",
+        "research_coordinator": "منسق البحوث",
+        "irb_liaison": "اتصال IRB",
+        "project_manager": "مدير المشروع",
+        "observer": "المراقب"
+      },
+      "roleDescriptions": {
+        "principal_investigator": "الباحث الرئيسي المسؤول عن الدراسة",
+        "co_investigator": "مساهمة الباحث في الإشراف على الدراسة",
+        "data_scientist": "تطوير وتشغيل خطوط الأنابيب التحليلية",
+        "statistician": "التحليل الإحصائي والمنهجية",
+        "site_lead": "يدير عمليات موقع شريك البيانات",
+        "data_analyst": "معالجة البيانات وفحص الجودة",
+        "research_coordinator": "إحداثيات الدراسة اللوجستية والجداول الزمنية",
+        "irb_liaison": "يدير عمليات تقديم IRB والامتثال",
+        "project_manager": "التخطيط الشامل للمشروع وتتبعه",
+        "observer": "الوصول للقراءة فقط إلى المواد الدراسية"
+      }
+    },
+    "artifacts": {
+      "sections": {
+        "artifacts": "التحف ({{count}})"
+      },
+      "actions": {
+        "addArtifact": "إضافة قطعة أثرية",
+        "cancel": "يلغي",
+        "create": "يخلق",
+        "save": "يحفظ",
+        "edit": "تحرير قطعة أثرية",
+        "delete": "حذف قطعة أثرية",
+        "openLink": "فتح الرابط"
+      },
+      "form": {
+        "addTitle": "إضافة قطعة أثرية للدراسة",
+        "title": "عنوان",
+        "titleRequired": "عنوان *",
+        "titlePlaceholder": "على سبيل المثال، بروتوكول الدراسة v2.1",
+        "version": "إصدار",
+        "type": "يكتب",
+        "urlOptional": "عنوان URL (اختياري)",
+        "description": "وصف",
+        "descriptionOptional": "الوصف (اختياري)",
+        "descriptionPlaceholder": "وصف مختصر لهذه القطعة الأثرية..."
+      },
+      "empty": {
+        "title": "لا التحف",
+        "message": "تخزين البروتوكولات وحزم التحليل ووثائق الدراسة"
+      },
+      "badges": {
+        "current": "حاضِر"
+      },
+      "labels": {
+        "versionValue": "v{{version}}",
+        "sizeKb": "{{size}} كيلو بايت"
+      },
+      "messages": {
+        "unknown": "مجهول",
+        "uploadedBy": "{{name}} · {{date}}"
+      },
+      "confirmDelete": "هل تريد حذف هذه القطعة الأثرية؟",
+      "types": {
+        "protocol": "بروتوكول",
+        "sap": "خطة التحليل الإحصائي",
+        "irb_submission": "تقديم IRB",
+        "cohort_json": "الفوج JSON",
+        "analysis_package_r": "حزمة تحليل R",
+        "analysis_package_python": "حزمة تحليل بايثون",
+        "results_report": "تقرير النتائج",
+        "manuscript_draft": "مسودة مخطوطة",
+        "supplementary": "المواد التكميلية",
+        "presentation": "عرض تقديمي",
+        "data_dictionary": "قاموس البيانات",
+        "study_package_zip": "حزمة الدراسة ZIP",
+        "other": "آخر"
+      }
+    },
+    "sites": {
+      "sections": {
+        "sites": "المواقع ({{count}})"
+      },
+      "actions": {
+        "addSite": "أضف موقع",
+        "cancel": "يلغي",
+        "save": "يحفظ",
+        "edit": "تحرير الموقع",
+        "remove": "إزالة الموقع"
+      },
+      "form": {
+        "addTitle": "إضافة موقع شريك البيانات",
+        "sourceSearchPlaceholder": "البحث في مصادر البيانات...",
+        "siteRole": "دور الموقع",
+        "irbProtocol": "بروتوكول IRB #",
+        "notes": "ملحوظات",
+        "optional": "خياري"
+      },
+      "empty": {
+        "title": "لم يتم تسجيل أي مواقع",
+        "message": "أضف مواقع شركاء البيانات إلى هذه الدراسة"
+      },
+      "table": {
+        "source": "مصدر",
+        "role": "دور",
+        "status": "حالة",
+        "irb": "إيرب #",
+        "patients": "مرضى",
+        "cdm": "CDM"
+      },
+      "messages": {
+        "allSourcesAssigned": "تم تعيين كافة المصادر بالفعل",
+        "noMatchingSources": "لا توجد مصادر مطابقة",
+        "sourceFallback": "المصدر #{{id}}"
+      },
+      "confirmRemove": "هل تريد إزالة هذا الموقع؟",
+      "roles": {
+        "data_partner": "شريك البيانات",
+        "coordinating_center": "مركز التنسيق",
+        "analytics_node": "عقدة التحليلات",
+        "observer": "المراقب"
+      },
+      "statuses": {
+        "pending": "قيد الانتظار",
+        "invited": "مدعو",
+        "approved": "موافقة",
+        "active": "نشيط",
+        "completed": "مكتمل",
+        "withdrawn": "انسحبت"
+      }
+    }
+  }
+});
+
 export const appResources: Record<string, MessageTree> = {
   "en-US": enApp,
   "es-ES": esAppPass1,
@@ -43011,4 +44572,5 @@ export const appResources: Record<string, MessageTree> = {
   "zh-Hans": zhApp,
   "ko-KR": koAppPass1,
   "hi-IN": hiAppPass1,
+  ar: arAppPass2,
 };

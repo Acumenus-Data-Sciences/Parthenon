@@ -6060,6 +6060,15 @@ const arCommons: MessageTree = mergeMessageTrees(enCommons, {
   },
 });
 
+const arCommonsPass2: MessageTree = mergeMessageTrees(arCommons, {
+  "abby": {
+    "name": "Abby",
+    "aiAssistantShort": "AI",
+    "modelLabel": "MedGemma 1.5 - 4B",
+    "avatarAlt": "Abby"
+  }
+});
+
 export const commonsResources: Record<string, MessageTree> = {
   "en-US": enCommons,
   "es-ES": esCommons,
@@ -6071,5 +6080,5 @@ export const commonsResources: Record<string, MessageTree> = {
   "zh-Hans": zhCommons,
   "ko-KR": koCommons,
   "hi-IN": hiCommons,
-  ar: arCommons,
+  ar: arCommonsPass2,
 };
