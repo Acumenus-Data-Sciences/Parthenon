@@ -5915,3 +5915,87 @@ export const standardProsResources: Record<string, MessageTree> = {
   ar: arStandardProsPass2,
   "en-XA": mergeMessageTrees(enStandardPros, {}),
 };
+
+standardProsResources["fr-FR"] = mergeMessageTrees(
+  standardProsResources["fr-FR"],
+  {
+    standardPros: {
+      page: {
+        title: "PROs+ standardisés",
+      },
+      publicSurvey: {
+        headerEyebrow: "PRO standardisés de Parthenon",
+      },
+    },
+  },
+);
+
+standardProsResources["de-DE"] = mergeMessageTrees(
+  standardProsResources["de-DE"],
+  {
+    standardPros: {
+      page: {
+        title: "Standardisierte PROs+",
+      },
+      publicSurvey: {
+        headerEyebrow: "Parthenon Standard-PROs",
+      },
+    },
+  },
+);
+
+standardProsResources["pt-BR"] = mergeMessageTrees(
+  standardProsResources["pt-BR"],
+  {
+    standardPros: {
+      page: {
+        title: "PROs+ padronizados",
+      },
+      publicSurvey: {
+        headerEyebrow: "PROs padronizados do Parthenon",
+      },
+    },
+  },
+);
+
+standardProsResources["fi-FI"] = mergeMessageTrees(
+  standardProsResources["fi-FI"],
+  {
+    standardPros: {
+      page: {
+        title: "Standardoidut PROt+",
+      },
+      publicSurvey: {
+        headerEyebrow: "Parthenonin standardoidut PRO:t",
+      },
+    },
+  },
+);
+
+standardProsResources["ja-JP"] = mergeMessageTrees(
+  standardProsResources["ja-JP"],
+  {
+    standardPros: {
+      page: {
+        title: "標準PRO+",
+      },
+      publicSurvey: {
+        headerEyebrow: "Parthenon標準PRO",
+      },
+    },
+  },
+);
+
+standardProsResources["zh-Hans"] = mergeMessageTrees(
+  standardProsResources["zh-Hans"],
+  {
+    standardPros: {
+      page: {
+        title: "标准 PRO+",
+      },
+      publicSurvey: {
+        headerEyebrow: "Parthenon 标准 PRO",
+      },
+    },
+  },
+);

@@ -7698,3 +7698,127 @@ export const imagingGenomicsResources: Record<string, MessageTree> = {
   }),
   "en-XA": mergeMessageTrees(enImagingGenomics, {}),
 };
+
+const finalImagingActionLabels: Record<string, MessageTree> = {
+  "fr-FR": {
+    imaging: {
+      timeline: {
+        tableHeaders: {
+          action: "Action",
+        },
+        studyHeaders: {
+          action: "Action",
+        },
+      },
+    },
+    genomics: {
+      page: {
+        tableHeaders: {
+          actions: "Actions",
+        },
+      },
+    },
+  },
+  "de-DE": {
+    imaging: {
+      timeline: {
+        tableHeaders: {
+          action: "Aktion",
+        },
+        studyHeaders: {
+          action: "Aktion",
+        },
+      },
+    },
+    genomics: {
+      page: {
+        tableHeaders: {
+          actions: "Aktionen",
+        },
+      },
+    },
+  },
+  "pt-BR": {
+    imaging: {
+      timeline: {
+        tableHeaders: {
+          action: "Ação",
+        },
+        studyHeaders: {
+          action: "Ação",
+        },
+      },
+    },
+    genomics: {
+      page: {
+        tableHeaders: {
+          actions: "Ações",
+        },
+      },
+    },
+  },
+  "fi-FI": {
+    imaging: {
+      timeline: {
+        tableHeaders: {
+          action: "Toiminto",
+        },
+        studyHeaders: {
+          action: "Toiminto",
+        },
+      },
+    },
+    genomics: {
+      page: {
+        tableHeaders: {
+          actions: "Toiminnot",
+        },
+      },
+    },
+  },
+  "ja-JP": {
+    imaging: {
+      timeline: {
+        tableHeaders: {
+          action: "操作",
+        },
+        studyHeaders: {
+          action: "操作",
+        },
+      },
+    },
+    genomics: {
+      page: {
+        tableHeaders: {
+          actions: "操作",
+        },
+      },
+    },
+  },
+  "zh-Hans": {
+    imaging: {
+      timeline: {
+        tableHeaders: {
+          action: "操作",
+        },
+        studyHeaders: {
+          action: "操作",
+        },
+      },
+    },
+    genomics: {
+      page: {
+        tableHeaders: {
+          actions: "操作",
+        },
+      },
+    },
+  },
+};
+
+for (const [locale, overrides] of Object.entries(finalImagingActionLabels)) {
+  imagingGenomicsResources[locale] = mergeMessageTrees(
+    imagingGenomicsResources[locale],
+    overrides,
+  );
+}

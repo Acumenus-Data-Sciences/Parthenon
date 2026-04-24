@@ -8713,3 +8713,36 @@ export const profileSimilarityResources: Record<string, MessageTree> = {
   ar: arProfileSimilarityPass1,
   "en-XA": mergeMessageTrees(enProfileSimilarity, {}),
 };
+
+profileSimilarityResources["fi-FI"] = mergeMessageTrees(
+  profileSimilarityResources["fi-FI"],
+  {
+    patientSimilarity: {
+      searchForm: {
+        mrn: "MRN-tunnus",
+      },
+    },
+  },
+);
+
+profileSimilarityResources["ja-JP"] = mergeMessageTrees(
+  profileSimilarityResources["ja-JP"],
+  {
+    patientSimilarity: {
+      searchForm: {
+        mrn: "MRN番号",
+      },
+    },
+  },
+);
+
+profileSimilarityResources["zh-Hans"] = mergeMessageTrees(
+  profileSimilarityResources["zh-Hans"],
+  {
+    patientSimilarity: {
+      searchForm: {
+        mrn: "MRN 编号",
+      },
+    },
+  },
+);
