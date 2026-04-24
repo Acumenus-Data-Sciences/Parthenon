@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 
 class TestConnectionCommand extends Command
 {
+    private const NON_PDO_DRIVER = '__non_pdo__';
+
     protected $signature = 'omop:test-connection
         {--source-key= : Registered source key to test}
         {--dialect=postgresql : Dialect for raw credential test}
@@ -33,7 +35,8 @@ class TestConnectionCommand extends Command
 
         $pdoDialects = ['pgsql', 'sqlsrv', 'mysql'];
         if (! in_array($driver, $pdoDialects, true)) {
-            $this->warn("Dialect driver '{$driver}' does not support PHP PDO. Skipping connection test.");
+            $dialect = $this->option('dialect') ?? 'postgresql';
+            $this->warn("Dialect '{$dialect}' does not support PHP PDO. Skipping connection test — verify connectivity manually.");
 
             return self::SUCCESS;
         }
@@ -102,9 +105,11 @@ class TestConnectionCommand extends Command
     private function dialectToDriver(string $dialect): string
     {
         return match ($dialect) {
+            'postgresql', 'postgres' => 'pgsql',
             'sqlserver', 'synapse' => 'sqlsrv',
-            'mysql' => 'mysql',
-            default => 'pgsql',
+            'mysql', 'mariadb' => 'mysql',
+            // Non-PDO dialects — handled by the non-PDO branch in handle()
+            default => self::NON_PDO_DRIVER,
         };
     }
 }
