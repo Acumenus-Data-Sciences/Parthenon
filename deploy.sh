@@ -472,16 +472,31 @@ if $DO_DB; then
   if $DB_ONLY && [ "${OWNERSHIP_BLOCKED:-0}" != "1" ]; then
     if [ -n "$MIG_USER" ] && [ -n "$MIG_PW" ]; then
       echo "   Migrating as: ${MIG_USER} (runtime app continues as DB_USERNAME from .env)"
-      MIGRATE_CMD=(docker compose exec -T -e "DB_USERNAME=${MIG_USER}" -e "DB_PASSWORD=${MIG_PW}" php php artisan migrate --force)
+      MIGRATE_EXEC=(docker compose exec -T -e "DB_USERNAME=${MIG_USER}" -e "DB_PASSWORD=${MIG_PW}" php php artisan)
     else
       warn "DB_MIGRATION_USERNAME/PASSWORD not set in backend/.env — migrating as runtime user (NOT RECOMMENDED)"
-      MIGRATE_CMD=(docker compose exec php php artisan migrate --force)
+      MIGRATE_EXEC=(docker compose exec -T php php artisan)
     fi
-    if "${MIGRATE_CMD[@]}"; then
-      ok "Migrations applied"
+    # Tripwire in AppServiceProvider blocks bare `migrate` — must use --path= per migration.
+    # Get pending migrations and run each one individually.
+    PENDING=$(docker compose exec -T php php artisan migrate:status --pending 2>/dev/null \
+      | grep -oP '(?<=\s)\d{4}_\d{2}_\d{2}_\d+_\S+(?=\s)' || true)
+    if [ -z "$PENDING" ]; then
+      ok "No pending migrations"
     else
-      fail "Migration failed"
-      ERRORS=$((ERRORS + 1))
+      MIG_ERRORS=0
+      while IFS= read -r mig; do
+        echo "   → ${mig}"
+        if ! "${MIGRATE_EXEC[@]}" migrate --path="database/migrations/${mig}.php" --force 2>&1; then
+          fail "Migration failed: ${mig}"
+          MIG_ERRORS=$((MIG_ERRORS + 1))
+        fi
+      done <<< "$PENDING"
+      if [ "$MIG_ERRORS" -eq 0 ]; then
+        ok "Migrations applied"
+      else
+        ERRORS=$((ERRORS + MIG_ERRORS))
+      fi
     fi
   elif ! $DB_ONLY; then
     warn "Migrations skipped — use ./deploy.sh --db to run explicitly"
