@@ -19,7 +19,7 @@ class MaterializeBundleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'source_id' => ['required', 'integer', 'exists:sources,id'],
+            'source_id' => ['required', 'integer', 'exists:sources,id,deleted_at,NULL'],
         ];
     }
 }

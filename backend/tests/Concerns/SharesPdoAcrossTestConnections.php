@@ -62,6 +62,8 @@ trait SharesPdoAcrossTestConnections
      * `pgsql_testing` is the master — all others rebind to it.
      */
     private const TEST_PDO_SIBLINGS = [
+        'pgsql',
+        'finngen',
         'inpatient_testing',
         'finngen_testing',
         'finngen_ro_testing',
@@ -69,7 +71,18 @@ trait SharesPdoAcrossTestConnections
 
     /**
      * Override Laravel's `setUpTraits()` to rebind sibling PDOs BEFORE the
-     * parent implementation triggers RefreshDatabase's transaction opening.
+     * parent implementation triggers RefreshDatabase's transaction opening,
+     * then sync sibling transaction-level counters AFTER.
+     *
+     * Two-phase approach:
+     *   1. Rebind PDOs + prune connectionsToTransact BEFORE parent::setUpTraits()
+     *      so all connections share one PDO before BEGIN is issued.
+     *   2. After parent::setUpTraits() has opened the master transaction
+     *      (pgsql_testing.$transactions == 1), copy that level to every
+     *      sibling's Connection object. This prevents sibling connections
+     *      from issuing a bare BEGIN (which fails on an already-open PDO
+     *      transaction) — they will use SAVEPOINTs instead for any nested
+     *      DB::connection('finngen')->transaction(...) calls in production code.
      *
      * @return array<string,string>
      */
@@ -78,7 +91,55 @@ trait SharesPdoAcrossTestConnections
         $this->rebindTestConnectionPdos();
         $this->pruneSiblingsFromTransactionList();
 
-        return parent::setUpTraits();
+        $result = parent::setUpTraits();
+
+        // After parent has opened the master transaction, sync sibling counters.
+        $this->syncSiblingTransactionLevels();
+
+        return $result;
+    }
+
+    /**
+     * Copy the master connection's transaction level to every sibling's
+     * Connection object so that subsequent DB::connection('finngen')->transaction()
+     * calls use SAVEPOINTs rather than bare BEGIN statements.
+     *
+     * Without this, sibling Connection objects think their transaction level is
+     * 0 after PDO rebinding, so Laravel's ManagesTransactions::beginTransaction()
+     * fires PDO::beginTransaction() — which fails with "There is already an
+     * active transaction" because the shared PDO is already inside the master's
+     * RefreshDatabase transaction.
+     *
+     * Timing: must run AFTER parent::setUpTraits() has opened the master
+     * transaction (pgsql_testing.$transactions is now 1).
+     */
+    private function syncSiblingTransactionLevels(): void
+    {
+        /** @var DatabaseManager $dbm */
+        $dbm = $this->app->make(DatabaseManager::class);
+
+        $master = $dbm->connection('pgsql_testing');
+        $masterLevel = $master->transactionLevel();
+
+        if ($masterLevel === 0) {
+            // No transaction open yet — nothing to sync.
+            return;
+        }
+
+        foreach (self::TEST_PDO_SIBLINGS as $siblingName) {
+            if (! array_key_exists($siblingName, config('database.connections', []))) {
+                continue;
+            }
+
+            $sibling = $dbm->connection($siblingName);
+
+            // Use reflection to set the protected $transactions property so the
+            // sibling thinks it is already inside a transaction. This makes
+            // ManagesTransactions::beginTransaction() use SAVEPOINTs.
+            $ref = new \ReflectionProperty($sibling, 'transactions');
+            $ref->setAccessible(true);
+            $ref->setValue($sibling, $masterLevel);
+        }
     }
 
     /**

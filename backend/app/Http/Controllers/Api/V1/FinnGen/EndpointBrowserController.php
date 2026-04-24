@@ -782,17 +782,18 @@ final class EndpointBrowserController extends Controller
         $userId = (int) $user->getKey();
         $isAdmin = $user->hasAnyRole(['admin', 'super-admin']);
 
-        // Single CTE pre-aggregates {source}_results.cohort counts + last_generated_at
+        // Single CTE pre-aggregates {source}.cohort counts + last_generated_at
         // per cohort_definition_id — one scan instead of N scalar subqueries (§CR-01).
-        // Cohort materializations are always written to {source}_results.cohort, not the
-        // CDM schema ({source}.cohort is an empty OMOP stub or doesn't exist on all CDMs).
+        // Cohort materializations are written to the CDM schema {source}.cohort
+        // (the OMOP cohort table); this is also where assertControlCohortPrepared
+        // in GwasRunService checks for cohort existence, so both paths agree.
         // $sourceLower is regex-validated above; interpolate via sprintf, bind scalars.
         $cteSql = sprintf(
             'WITH cohort_counts AS (
                  SELECT cohort_definition_id,
                         COUNT(*)                AS subject_count,
                         MAX(cohort_start_date)  AS last_generated_at
-                   FROM %s_results.cohort
+                   FROM %s.cohort
                   GROUP BY cohort_definition_id
              )',
             $sourceLower

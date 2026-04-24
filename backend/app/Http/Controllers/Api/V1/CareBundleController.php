@@ -17,7 +17,6 @@ use App\Services\CareBundles\FhirMeasureExporter;
 use App\Services\CareBundles\IntersectionCohortService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -60,7 +59,7 @@ class CareBundleController extends Controller
     public function qualifications(Request $request, ConditionBundle $bundle): JsonResponse
     {
         $validated = $request->validate([
-            'source_id' => ['required', 'integer', 'exists:sources,id'],
+            'source_id' => ['required', 'integer', 'exists:sources,id,deleted_at,NULL'],
         ]);
 
         $source = Source::findOrFail($validated['source_id']);
@@ -223,7 +222,7 @@ class CareBundleController extends Controller
      * Export the bundle as a FHIR R4 Measure resource (one group per
      * QualityMeasure). Response uses application/fhir+json per the FHIR spec.
      */
-    public function fhirMeasure(ConditionBundle $bundle): Response
+    public function fhirMeasure(ConditionBundle $bundle): JsonResponse
     {
         $resource = $this->fhirExporter->exportBundle($bundle);
 

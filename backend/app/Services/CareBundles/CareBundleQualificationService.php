@@ -24,14 +24,15 @@ class CareBundleQualificationService
      */
     public function coverageMatrix(): Collection
     {
-        return DB::table('care_bundle_qualifications as cbq')
-            ->join('care_bundle_current_runs as cbcr', 'cbcr.care_bundle_run_id', '=', 'cbq.care_bundle_run_id')
-            ->where('cbq.qualifies', true)
-            ->groupBy('cbq.condition_bundle_id', 'cbq.source_id', 'cbcr.updated_at')
+        // Drive from the current-runs pointer so zero-patient runs appear.
+        // Pulling qualified_person_count from the run record avoids a full
+        // GROUP BY over the qualifications fact table on every page load.
+        return DB::table('care_bundle_current_runs as cbcr')
+            ->join('care_bundle_runs as cbr', 'cbr.id', '=', 'cbcr.care_bundle_run_id')
             ->select([
-                'cbq.condition_bundle_id',
-                'cbq.source_id',
-                DB::raw('COUNT(DISTINCT cbq.person_id) AS qualified_patients'),
+                'cbcr.condition_bundle_id',
+                'cbcr.source_id',
+                DB::raw('COALESCE(cbr.qualified_person_count, 0) AS qualified_patients'),
                 'cbcr.updated_at',
             ])
             ->get();

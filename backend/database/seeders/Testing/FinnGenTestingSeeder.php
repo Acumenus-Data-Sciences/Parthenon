@@ -7,6 +7,8 @@ namespace Database\Seeders\Testing;
 use App\Models\App\Source;
 use App\Models\User;
 use Database\Seeders\FinnGenAnalysisModuleSeeder;
+use Database\Seeders\FinnGenEndpointProfileModuleSeeder;
+use Database\Seeders\FinnGenPrsAnalysisModuleSeeder;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
@@ -38,6 +40,8 @@ class FinnGenTestingSeeder extends Seeder
         (new RolePermissionSeeder)->run();
 
         (new FinnGenAnalysisModuleSeeder)->run();
+        (new FinnGenPrsAnalysisModuleSeeder)->run();
+        (new FinnGenEndpointProfileModuleSeeder)->run();
 
         $this->seedSources();
         $this->seedUsers();
