@@ -36,3 +36,13 @@ test('test-connection succeeds against app database', function () {
         '--source-key' => 'EXT_SELF_TEST',
     ])->assertExitCode(0);
 });
+
+test('test-connection warns and succeeds for non-PDO dialect', function () {
+    $this->artisan('omop:test-connection', [
+        '--dialect' => 'oracle',
+        '--host' => 'db.example.com',
+        '--database' => 'omop_db',
+    ])
+        ->expectsOutputToContain('does not support PHP PDO')
+        ->assertExitCode(0);
+});

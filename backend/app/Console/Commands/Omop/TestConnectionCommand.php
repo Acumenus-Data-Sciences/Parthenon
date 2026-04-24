@@ -25,7 +25,12 @@ class TestConnectionCommand extends Command
 
     public function handle(): int
     {
-        [$driver, $host, $port, $database, $username, $password] = $this->resolveParams();
+        $params = $this->resolveParams();
+        if ($params === null) {
+            return self::FAILURE;
+        }
+
+        [$driver, $host, $port, $database, $username, $password] = $params;
 
         if (! $host || ! $database) {
             $this->error('Provide --source-key or --host + --database');
@@ -33,8 +38,7 @@ class TestConnectionCommand extends Command
             return self::FAILURE;
         }
 
-        $pdoDialects = ['pgsql', 'sqlsrv', 'mysql'];
-        if (! in_array($driver, $pdoDialects, true)) {
+        if ($driver === self::NON_PDO_DRIVER) {
             $dialect = $this->option('dialect') ?? 'postgresql';
             $this->warn("Dialect '{$dialect}' does not support PHP PDO. Skipping connection test — verify connectivity manually.");
 
@@ -71,15 +75,15 @@ class TestConnectionCommand extends Command
         }
     }
 
-    /** @return array{string, string|null, string|int, string|null, string|null, string|null} */
-    private function resolveParams(): array
+    /** @return array{string, string|null, string|int, string|null, string|null, string|null}|null */
+    private function resolveParams(): ?array
     {
         if ($key = $this->option('source-key')) {
             $source = Source::where('source_key', $key)->first();
             if (! $source) {
                 $this->error("Source '{$key}' not found.");
 
-                return ['pgsql', null, 5432, null, null, null];
+                return null;
             }
 
             return [
