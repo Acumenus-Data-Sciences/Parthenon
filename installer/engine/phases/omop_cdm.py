@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import re
 
-from ..exceptions import StepError
+from ..exceptions import StepError  # noqa: F401 — used by _run_* implementations added in Task 7
 from ..registry import Context, Phase, Step
 from installer import utils
 

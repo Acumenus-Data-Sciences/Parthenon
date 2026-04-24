@@ -1,7 +1,6 @@
 # installer/tests/test_omop_cdm_phase.py
 from __future__ import annotations
 import pytest
-from unittest.mock import patch, MagicMock
 from installer.engine.phases.omop_cdm import (
     _ext_source_key,
     _check_test_connection,
@@ -12,6 +11,8 @@ from installer.engine.phases.omop_cdm import (
     _check_run_achilles,
     _check_run_dqd,
     PHASE,
+    MODE_LOCAL,
+    MODE_EXISTING_CDM,
 )
 from installer.engine.registry import Context
 from installer.engine.secrets import SecretManager
@@ -23,10 +24,6 @@ def _ctx(resolved: dict, tmp_path) -> Context:
         secrets=SecretManager(tmp_path / "s"),
         emit=lambda msg: None,
     )
-
-
-MODE3 = "Create local PostgreSQL OMOP database"
-MODE1 = "Use an existing OMOP CDM"
 
 
 class TestExtSourceKey:
@@ -50,50 +47,50 @@ class TestMode3Guard:
     """All check() functions must return True (no-op) for mode 3."""
 
     def test_test_connection_skips_mode3(self, tmp_path):
-        ctx = _ctx({"cdm_setup_mode": MODE3}, tmp_path)
+        ctx = _ctx({"cdm_setup_mode": MODE_LOCAL}, tmp_path)
         assert _check_test_connection(ctx) is True
 
     def test_create_cdm_schema_skips_mode3(self, tmp_path):
-        ctx = _ctx({"cdm_setup_mode": MODE3}, tmp_path)
+        ctx = _ctx({"cdm_setup_mode": MODE_LOCAL}, tmp_path)
         assert _check_create_cdm_schema(ctx) is True
 
     def test_register_source_skips_mode3(self, tmp_path):
-        ctx = _ctx({"cdm_setup_mode": MODE3}, tmp_path)
+        ctx = _ctx({"cdm_setup_mode": MODE_LOCAL}, tmp_path)
         assert _check_register_source(ctx) is True
 
     def test_load_vocabulary_skips_mode3(self, tmp_path):
-        ctx = _ctx({"cdm_setup_mode": MODE3}, tmp_path)
+        ctx = _ctx({"cdm_setup_mode": MODE_LOCAL}, tmp_path)
         assert _check_load_vocabulary(ctx) is True
 
     def test_create_results_schema_skips_mode3(self, tmp_path):
-        ctx = _ctx({"cdm_setup_mode": MODE3}, tmp_path)
+        ctx = _ctx({"cdm_setup_mode": MODE_LOCAL}, tmp_path)
         assert _check_create_results_schema(ctx) is True
 
     def test_run_achilles_skips_mode3(self, tmp_path):
-        ctx = _ctx({"cdm_setup_mode": MODE3}, tmp_path)
+        ctx = _ctx({"cdm_setup_mode": MODE_LOCAL}, tmp_path)
         assert _check_run_achilles(ctx) is True
 
     def test_run_dqd_skips_mode3(self, tmp_path):
-        ctx = _ctx({"cdm_setup_mode": MODE3}, tmp_path)
+        ctx = _ctx({"cdm_setup_mode": MODE_LOCAL}, tmp_path)
         assert _check_run_dqd(ctx) is True
 
 
 class TestOptOutGuards:
     def test_achilles_skips_when_opted_out(self, tmp_path):
-        ctx = _ctx({"cdm_setup_mode": MODE1, "run_achilles": False, "cdm_database": "x"}, tmp_path)
+        ctx = _ctx({"cdm_setup_mode": MODE_EXISTING_CDM, "run_achilles": False, "cdm_database": "x"}, tmp_path)
         assert _check_run_achilles(ctx) is True
 
     def test_dqd_skips_when_opted_out(self, tmp_path):
-        ctx = _ctx({"cdm_setup_mode": MODE1, "run_dqd": False, "cdm_database": "x"}, tmp_path)
+        ctx = _ctx({"cdm_setup_mode": MODE_EXISTING_CDM, "run_dqd": False, "cdm_database": "x"}, tmp_path)
         assert _check_run_dqd(ctx) is True
 
     def test_load_vocab_skips_when_existing(self, tmp_path):
-        ctx = _ctx({"cdm_setup_mode": MODE1, "vocabulary_setup": "Use existing vocabulary",
+        ctx = _ctx({"cdm_setup_mode": MODE_EXISTING_CDM, "vocabulary_setup": "Use existing vocabulary",
                     "cdm_database": "x"}, tmp_path)
         assert _check_load_vocabulary(ctx) is True
 
     def test_load_vocab_skips_when_no_zip(self, tmp_path):
-        ctx = _ctx({"cdm_setup_mode": MODE1, "vocabulary_setup": "Load Athena vocabulary ZIP",
+        ctx = _ctx({"cdm_setup_mode": MODE_EXISTING_CDM, "vocabulary_setup": "Load Athena vocabulary ZIP",
                     "vocab_zip_path": None, "cdm_database": "x"}, tmp_path)
         assert _check_load_vocabulary(ctx) is True
 
