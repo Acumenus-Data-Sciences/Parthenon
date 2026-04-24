@@ -223,14 +223,27 @@ jobs:
           } else {
             $env:WINDOWS_TRUSTED_SIGNING_DESCRIPTION
           }
+          # Use object form for signCommand to avoid shlex::split mangling
+          # Windows backslashes in %1 path substitution (Tauri v2 string-form bug).
           $config = @{
             bundle = @{
               windows = @{
-                signCommand = "trusted-signing-cli -e $env:WINDOWS_TRUSTED_SIGNING_ENDPOINT -a $env:WINDOWS_TRUSTED_SIGNING_ACCOUNT -c $env:WINDOWS_TRUSTED_SIGNING_PROFILE -d `"$description`" %1"
+                signCommand = @{
+                  cmd = 'trusted-signing-cli'
+                  args = @(
+                    '-e', $env:WINDOWS_TRUSTED_SIGNING_ENDPOINT,
+                    '-a', $env:WINDOWS_TRUSTED_SIGNING_ACCOUNT,
+                    '-c', $env:WINDOWS_TRUSTED_SIGNING_PROFILE,
+                    '-d', $description,
+                    '%1'
+                  )
+                }
               }
             }
           } | ConvertTo-Json -Depth 6
           Set-Content -Path tauri.windows.conf.json -Value $config
+          Write-Host "=== Generated tauri.windows.conf.json ==="
+          Get-Content tauri.windows.conf.json
 
       - name: Diagnostic — test trusted-signing-cli on dummy file
         if: ${{ runner.os == 'Windows' && env.WINDOWS_SIGNING_CONFIGURED == 'true' }}
