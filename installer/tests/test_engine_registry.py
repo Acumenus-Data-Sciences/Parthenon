@@ -67,3 +67,18 @@ def test_preflight_all_step_ids_prefixed():
     phase = next(p for p in DEFAULT_REGISTRY.phases() if p.id == "preflight")
     for step in phase.steps:
         assert step.id.startswith("preflight.")
+
+
+def test_config_phase_registered():
+    from installer.engine.phases import DEFAULT_REGISTRY
+    ids = [p.id for p in DEFAULT_REGISTRY.phases()]
+    assert "config" in ids
+
+
+def test_config_phase_has_three_steps():
+    from installer.engine.phases import DEFAULT_REGISTRY
+    phase = next(p for p in DEFAULT_REGISTRY.phases() if p.id == "config")
+    assert len(phase.steps) == 3
+    assert phase.steps[0].id == "config.gather"
+    assert phase.steps[1].id == "config.write_env"
+    assert phase.steps[2].id == "config.store_secrets"
