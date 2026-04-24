@@ -1,6 +1,7 @@
 # installer/tests/test_omop_cdm_phase.py
 from __future__ import annotations
 import pytest
+from unittest.mock import patch, MagicMock
 from installer.engine.phases.omop_cdm import (
     _ext_source_key,
     _check_test_connection,
@@ -115,3 +116,43 @@ class TestPhaseStructure:
         for step in PHASE.steps:
             assert callable(step.run), f"{step.id} missing run"
             assert callable(step.check), f"{step.id} missing check"
+
+
+class TestCheckFunctions:
+    """check() paths for non-mode-3 scenarios using exec_php mocks."""
+
+    def test_register_source_false_when_count_is_zero(self, tmp_path):
+        ctx = _ctx({"cdm_setup_mode": MODE_EXISTING_CDM, "cdm_database": "test_db"}, tmp_path)
+        with patch("installer.engine.phases.omop_cdm.utils.exec_php") as mock:
+            mock.return_value = MagicMock(stdout="0\n", returncode=0)
+            assert _check_register_source(ctx) is False
+
+    def test_register_source_true_when_count_is_one(self, tmp_path):
+        ctx = _ctx({"cdm_setup_mode": MODE_EXISTING_CDM, "cdm_database": "test_db"}, tmp_path)
+        with patch("installer.engine.phases.omop_cdm.utils.exec_php") as mock:
+            mock.return_value = MagicMock(stdout="1\n", returncode=0)
+            assert _check_register_source(ctx) is True
+
+    def test_create_results_schema_false_when_table_missing(self, tmp_path):
+        ctx = _ctx({"cdm_setup_mode": MODE_EXISTING_CDM, "cdm_database": "db"}, tmp_path)
+        with patch("installer.engine.phases.omop_cdm.utils.exec_php") as mock:
+            mock.return_value = MagicMock(stdout="0\n", returncode=0)
+            assert _check_create_results_schema(ctx) is False
+
+    def test_create_results_schema_true_when_table_exists(self, tmp_path):
+        ctx = _ctx({"cdm_setup_mode": MODE_EXISTING_CDM, "cdm_database": "db"}, tmp_path)
+        with patch("installer.engine.phases.omop_cdm.utils.exec_php") as mock:
+            mock.return_value = MagicMock(stdout="1\n", returncode=0)
+            assert _check_create_results_schema(ctx) is True
+
+    def test_run_achilles_true_when_results_exist(self, tmp_path):
+        ctx = _ctx({"cdm_setup_mode": MODE_EXISTING_CDM, "cdm_database": "db", "run_achilles": True}, tmp_path)
+        with patch("installer.engine.phases.omop_cdm.utils.exec_php") as mock:
+            mock.return_value = MagicMock(stdout="1000\n", returncode=0)
+            assert _check_run_achilles(ctx) is True
+
+    def test_run_dqd_false_when_no_results(self, tmp_path):
+        ctx = _ctx({"cdm_setup_mode": MODE_EXISTING_CDM, "cdm_database": "db", "run_dqd": True}, tmp_path)
+        with patch("installer.engine.phases.omop_cdm.utils.exec_php") as mock:
+            mock.return_value = MagicMock(stdout="0\n", returncode=0)
+            assert _check_run_dqd(ctx) is False
