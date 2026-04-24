@@ -9,6 +9,9 @@ ROOT = utils.REPO_ROOT
 
 
 def _check_load_eunomia(ctx: Context) -> bool:
+    resolved = ctx.config.get("resolved", {})
+    if not resolved.get("LOAD_EUNOMIA", True):
+        return True  # disabled by config — treat as already done
     result = utils.exec_php(
         "php artisan tinker --execute=\"echo DB::connection('eunomia')->table('person')->count();\" --no-ansi 2>&1",
         check=False,
@@ -20,10 +23,6 @@ def _check_load_eunomia(ctx: Context) -> bool:
 
 
 def _run_load_eunomia(ctx: Context) -> None:
-    resolved = ctx.config.get("resolved", {})
-    if not resolved.get("LOAD_EUNOMIA", True):
-        ctx.emit("Eunomia loading skipped by config")
-        return
     ctx.emit("Loading GiBleed demo dataset (Eunomia)…")
     result = utils.exec_php(
         "php artisan parthenon:load-eunomia --fresh --no-ansi 2>&1", check=False

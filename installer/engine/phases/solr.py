@@ -34,7 +34,7 @@ def _run_index_vocabulary(ctx: Context) -> None:
 
 
 def _check_index_cohorts(ctx: Context) -> bool:
-    return _solr_num_docs("cohorts") >= 0  # core exists and responds
+    return _solr_num_docs("cohorts") > 0
 
 
 def _run_index_cohorts(ctx: Context) -> None:
@@ -48,7 +48,7 @@ def _run_index_cohorts(ctx: Context) -> None:
 
 
 def _check_index_analyses(ctx: Context) -> bool:
-    return _solr_num_docs("analyses") >= 0
+    return _solr_num_docs("analyses") > 0
 
 
 def _run_index_analyses(ctx: Context) -> None:

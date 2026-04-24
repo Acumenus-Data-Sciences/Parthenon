@@ -134,7 +134,7 @@ def docker_compose(args: list[str], *, capture: bool = False, check: bool = True
 
 def exec_php(cmd: str, *, check: bool = True) -> subprocess.CompletedProcess:
     """Run a command inside the parthenon-php container (non-interactive)."""
-    return run(["docker", "compose", "exec", "-T", "php", *cmd.split()], check=check, cwd=REPO_ROOT)
+    return run(["docker", "compose", "exec", "-T", "php", "sh", "-c", cmd], check=check, cwd=REPO_ROOT)
 
 
 def exec_pg(cmd: str, *, check: bool = True) -> subprocess.CompletedProcess:
