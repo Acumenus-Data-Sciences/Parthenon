@@ -221,6 +221,7 @@ def _check_run_achilles(ctx: Context) -> bool:
         return True  # opted out
     key = _ext_source_key(r)
     results_schema = r.get("results_schema", "results")
+    # results schema is assumed co-located on the app's PG instance (same host as the installer)
     result = utils.exec_php(
         f"php artisan tinker --execute=\""
         f"try {{"
@@ -285,6 +286,7 @@ def _check_run_dqd(ctx: Context) -> bool:
 def _run_run_dqd(ctx: Context) -> None:
     r = _resolved(ctx)
     key = _ext_source_key(r)
+    ctx.emit("Looking up source ID for DQD run…")
     id_result = utils.exec_php(
         f"php artisan tinker --execute=\""
         f"echo App\\\\Models\\\\App\\\\Source::where('source_key','{key}')->value('id') ?? 'not_found';"
