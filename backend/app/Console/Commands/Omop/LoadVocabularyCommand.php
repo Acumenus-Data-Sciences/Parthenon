@@ -60,6 +60,6 @@ class LoadVocabularyCommand extends Command
             .'parthenon:load-vocabularies --zip targeting this source\'s vocabulary schema.'
         );
 
-        return self::INVALID;
+        return self::SUCCESS;
     }
 }

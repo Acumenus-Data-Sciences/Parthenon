@@ -9,22 +9,42 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Grant REFERENCES on condition_bundles to parthenon_owner so the FK
-        // constraint below can be added when running as parthenon_owner.
-        // condition_bundles was created in an earlier migration (2026_03_02)
-        // before the parthenon_owner pattern was adopted; its REFERENCES
-        // privilege must be granted explicitly. This statement is idempotent.
-        // Skipped gracefully if the role does not exist (e.g. bare test envs).
+        // Grant REFERENCES on condition_bundles and sources to parthenon_owner
+        // so the FK constraints below can be added when running as parthenon_owner.
+        // Both tables were created before the parthenon_owner pattern was adopted;
+        // their REFERENCES privilege must be granted explicitly. Idempotent.
+        // Skipped gracefully if the role does not exist (e.g. CI fresh DB).
         try {
             DB::statement('GRANT REFERENCES ON TABLE app.condition_bundles TO parthenon_owner');
         } catch (Exception $e) {
-            // Role may not exist in all environments (CI fresh DB, local dev);
-            // the FK will still succeed when running as a superuser.
+            // Role may not exist in all environments; FK will succeed as superuser.
+        }
+
+        try {
+            DB::statement('GRANT REFERENCES ON TABLE app.sources TO parthenon_owner');
+        } catch (Exception $e) {
+            // Role may not exist in all environments; FK will succeed as superuser.
+        }
+
+        try {
+            DB::statement('GRANT REFERENCES ON TABLE app.users TO parthenon_owner');
+        } catch (Exception $e) {
+            // Role may not exist in all environments; FK will succeed as superuser.
         }
 
         // Ensure tables are owned by parthenon_owner so default privileges
         // fire and parthenon_app receives DML grants automatically.
-        DB::statement('SET ROLE parthenon_owner');
+        // Use a DO block so the SET ROLE is skipped gracefully when
+        // parthenon_owner does not exist (CI fresh DB, bare test envs).
+        DB::statement("
+            DO \$\$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_owner') THEN
+                    SET ROLE parthenon_owner;
+                END IF;
+            END
+            \$\$
+        ");
 
         Schema::create('care_bundle_runs', function (Blueprint $table) {
             $table->id();
@@ -54,6 +74,11 @@ return new class extends Migration
             $table->index(['condition_bundle_id', 'source_id'], 'idx_cbr_bundle_source');
             $table->index('status', 'idx_cbr_status');
         });
+
+        // Restore the original session role so subsequent statements (e.g. the
+        // Laravel migrations recorder inserting into php.migrations) execute as
+        // the connecting user, not parthenon_owner.
+        DB::statement('RESET ROLE');
     }
 
     public function down(): void
