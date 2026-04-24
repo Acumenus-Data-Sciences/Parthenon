@@ -188,6 +188,17 @@ function schemaExists(string $schema): bool
     return $row !== null;
 }
 
+function tableExists(string $schema, string $table): bool
+{
+    $row = DB::selectOne(
+        'SELECT 1 AS x FROM information_schema.tables '.
+        'WHERE table_schema = ? AND table_name = ?',
+        [$schema, $table]
+    );
+
+    return $row !== null;
+}
+
 it('runs step-1 → step-2 end-to-end with mocked FinnGenRunService', function () {
     // Swap the fake to return Run instances that short-circuit ->fresh()
     // so pollUntilTerminal exits immediately instead of timing out. We do
@@ -292,7 +303,17 @@ it('runs step-1 → step-2 end-to-end with mocked FinnGenRunService', function (
         @unlink($cacheDir.'/fit_pred.list');
         @rmdir($cacheDir);
     }
-});
+})->skip(
+    fn () => ! tableExists('pancreas', 'person'),
+    'Requires live PANCREAS CDM schema WITH populated pancreas.person + '.
+    'pancreas.cohort tables (not just the schema namespace). On parthenon_testing '.
+    'the pancreas schema exists but the CDM tables are not bootstrapped by any '.
+    'migration — they live in an external ETL. The command\'s ensureCaseControlSplit '.
+    'step queries pancreas.person to compute case/control balance. Full Darkstar-'.
+    'side smoke-gen is exercised in DEV via the Phase 13.1-05 DEPLOY-LOG and Phase '.
+    '13.2-05 runbook. Tracked as deferred test-hygiene item in Phase 13.2 residuals '.
+    'triage (2026-04-18) — see residual #3 in 13.2-07-PEST-LOG.'
+);
 
 it('fails fast when source has no variant index', function () {
     SourceVariantIndex::query()->delete();

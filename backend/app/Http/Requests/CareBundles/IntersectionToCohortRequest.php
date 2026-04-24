@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\CareBundles;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -15,7 +16,7 @@ class IntersectionToCohortRequest extends FormRequest
     }
 
     /**
-     * @return array<string, array<int, string|\Illuminate\Contracts\Validation\ValidationRule>>
+     * @return array<string, array<int, string|ValidationRule>>
      */
     public function rules(): array
     {

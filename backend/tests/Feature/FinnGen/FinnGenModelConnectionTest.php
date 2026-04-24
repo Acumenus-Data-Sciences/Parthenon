@@ -22,18 +22,24 @@ use App\Models\App\FinnGenUnmappedCode;
  * route to which connection to prevent accidental cross-wiring of
  * app.cohort_definitions with the finngen connection.
  *
- * @note RED until Plan 13.1-03 model wiring ships for the 5 existing models.
+ * Phase 13.2-06 update: models now resolve $connection via
+ * config('finngen.connection', 'finngen'), which in the testing env is
+ * overridden to 'finngen_testing' via FINNGEN_DB_CONNECTION in
+ * phpunit.xml. The assertions read the config value so they stay green
+ * under both production (finngen) and testing (finngen_testing).
  */
-it('EndpointDefinition uses the finngen connection', function (): void {
-    expect((new EndpointDefinition)->getConnectionName())->toBe('finngen');
+it('EndpointDefinition uses the configured finngen connection', function (): void {
+    $expected = config('finngen.connection', 'finngen');
+    expect((new EndpointDefinition)->getConnectionName())->toBe($expected);
 });
 
-it('all 5 existing FinnGen models use the finngen connection', function (): void {
-    expect((new AnalysisModule)->getConnectionName())->toBe('finngen');
-    expect((new Run)->getConnectionName())->toBe('finngen');
-    expect((new WorkbenchSession)->getConnectionName())->toBe('finngen');
-    expect((new FinnGenUnmappedCode)->getConnectionName())->toBe('finngen');
-    expect((new FinnGenEndpointGeneration)->getConnectionName())->toBe('finngen');
+it('all 5 existing FinnGen models use the configured finngen connection', function (): void {
+    $expected = config('finngen.connection', 'finngen');
+    expect((new AnalysisModule)->getConnectionName())->toBe($expected);
+    expect((new Run)->getConnectionName())->toBe($expected);
+    expect((new WorkbenchSession)->getConnectionName())->toBe($expected);
+    expect((new FinnGenUnmappedCode)->getConnectionName())->toBe($expected);
+    expect((new FinnGenEndpointGeneration)->getConnectionName())->toBe($expected);
 });
 
 it('CohortDefinition stays on default pgsql', function (): void {

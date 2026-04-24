@@ -309,6 +309,15 @@ RUN R -e " \
 RUN apt-get update && apt-get install -y --no-install-recommends pandoc \
     && rm -rf /var/lib/apt/lists/*
 
+# postgresql-client provides `psql`, required by DatabaseConnector::bulkLoadPostgres
+# (COPY FROM STDIN via psql CLI). FinnGen GWAS writes millions of summary_stats rows
+# per run; parameterized INSERT is ~100× slower. POSTGRES_PATH is the env var
+# checkBulkLoadCredentials() looks for. Kept as a LATE layer so the R package
+# caches above stay warm.
+RUN apt-get update && apt-get install -y --no-install-recommends postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+ENV POSTGRES_PATH=/usr/bin
+
 # Python packages for PLP sklearn-based models — pinned versions
 # + PyTorch and deps for DeepPatientLevelPrediction (via reticulate)
 RUN pip3 install --break-system-packages \
@@ -381,6 +390,14 @@ COPY darkstar/s6/finngen-artifacts-init/ /etc/s6-overlay/s6-rc.d/finngen-artifac
 COPY darkstar/s6/scripts/finngen-artifacts-init.sh /etc/s6-overlay/scripts/finngen-artifacts-init.sh
 RUN chmod +x /etc/s6-overlay/scripts/finngen-artifacts-init.sh && \
     touch /etc/s6-overlay/s6-rc.d/user/contents.d/finngen-artifacts-init
+
+# /app readability cont-init (oneshot) — defensive chmod o+r on bind-mounted
+# R sources so a host umask / editor drift cannot break the ruser-run plumber
+# service. plumber depends on this via darkstar/s6/plumber/dependencies.d/app-readable-init
+COPY darkstar/s6/app-readable-init/ /etc/s6-overlay/s6-rc.d/app-readable-init/
+COPY darkstar/s6/scripts/app-readable-init.sh /etc/s6-overlay/scripts/app-readable-init.sh
+RUN chmod +x /etc/s6-overlay/scripts/app-readable-init.sh && \
+    touch /etc/s6-overlay/s6-rc.d/user/contents.d/app-readable-init
 
 # Ensure JDBC driver directory is readable by ruser
 RUN chown -R ruser:ruser /opt/jdbc

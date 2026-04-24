@@ -24,7 +24,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 13: FinnGen Endpoint Universalization (Standard-First Resolver)** - Upgrade FinnGenConceptResolver to prefer OHDSI standard concepts; ship a curated FinnGen-authored cross-walk (source_to_concept_map only, no custom vocab registration); add coverage_profile metadata per endpoint; re-process 5,161 live expressions in one shot at phase merge
 - [x] **Phase 13.1: FinnGen Schema Isolation** [INSERTED] - Move FinnGen persistence out of `app.*` into a dedicated `finngen.*` schema; relocate 6 existing `app.finngen_*` tables and extract 5,161 endpoint rows from `app.cohort_definitions` into a new purpose-built `finngen.endpoint_definitions` table; wire dedicated `finngen`/`finngen_ro` Laravel connections to the already-provisioned `parthenon_finngen_rw`/`parthenon_finngen_ro` PG roles; drop FinnGen-specific `coverage_profile` column from `app.cohort_definitions`; single-transaction migration with functional `down()` rollback (completed 2026-04-17 with 1 R-worker gap → 13.2)
-- [ ] **Phase 13.2: Finish FinnGen Cutover — R Worker Integration + Role Grants Codification + E2E Verification** [INSERTED] - Close the loop on 13.1: update the Darkstar R worker (`finngen_endpoint_generate_execute`) to use `finngen.endpoint_generations.id + 100_000_000_000` as the OMOP `{cohort_schema}.cohort.cohort_definition_id`; codify the 3 dev-applied role-split grants (GRANT CREATE on DB to parthenon_migrator, ALTER TABLE app.cohort_definitions OWNER TO parthenon_migrator, re-GRANT DML on app.cohort_definitions to parthenon_app); run full FinnGen Pest suite against `parthenon_testing` (proves SC 10 from 13.1); verify PANCREAS smoke-gen end-to-end (E4_DM2 → status=succeeded with subject_count > 0)
+- [x] **Phase 13.2: Finish FinnGen Cutover — R Worker Integration + Role Grants Codification + E2E Verification** [INSERTED] - Close the loop on 13.1: update the Darkstar R worker (`finngen_endpoint_generate_execute`) to use `finngen.endpoint_generations.id + 100_000_000_000` as the OMOP `{cohort_schema}.cohort.cohort_definition_id`; codify the 3 dev-applied role-split grants (GRANT CREATE on DB to parthenon_migrator, ALTER TABLE app.cohort_definitions OWNER TO parthenon_migrator, re-GRANT DML on app.cohort_definitions to parthenon_app); run full FinnGen Pest suite against `parthenon_testing` (proves SC 10 from 13.1); verify PANCREAS smoke-gen end-to-end (E4_DM2 → status=succeeded with subject_count > 0) (completed 2026-04-18)
 - [ ] **Phase 14: regenie GWAS Infrastructure** - Containerize regenie, wire Darkstar async dispatch, and ship the per-source `{source}_gwas_results` schema with indexed summary-stat tables
 - [x] **Phase 15: GWAS Dispatch, Run Tracking, and Generation History** - Endpoint x source GWAS dispatch API, run-history catalog per (endpoint x source x covariate-set), and multi-run generation history view (completed 2026-04-19)
 - [x] **Phase 16: PheWeb-lite Results UI and Workbench Attribution** - Manhattan plot, regional/LocusZoom-lite views, top-variants drawer, plus the one-tweak workbench attribution badge for FinnGen-seeded sessions (completed 2026-04-19)
@@ -77,11 +77,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   - `/app/api/finngen/cohort_ops.R` inside `parthenon-darkstar` container (lines 387-540) — target of the R worker edit
   - `backend/app/Http/Controllers/Api/V1/FinnGen/EndpointBrowserController.php` `generate()` method (Phase 13.1 rewrite reference point)
 **Plans**: 5 plans
-- [ ] 13.2-01-PLAN.md — Wave 1: OMOP_COHORT_ID_OFFSET constant + run_id nullable migration + Mockery PHPStan fix
-- [ ] 13.2-02-PLAN.md — Wave 1: codify 13.1 role-split deviations (D4/D5/D6) as idempotent migration
-- [ ] 13.2-03-PLAN.md — Wave 2: R worker additive-param patch + controller reorder + new Pest test (SC-1/SC-2)
-- [ ] 13.2-04-PLAN.md — Wave 3: full FinnGen Pest suite green on parthenon_testing (SC-4, proves SC-10 from 13.1)
-- [ ] 13.2-05-PLAN.md — Wave 4: CHECKPOINT + DEV migration execution + PANCREAS smoke-gen E2E (SC-5/6/7)
+- [x] 13.2-01-PLAN.md — Wave 1: OMOP_COHORT_ID_OFFSET constant + run_id nullable migration + Mockery PHPStan fix
+- [x] 13.2-02-PLAN.md — Wave 1: codify 13.1 role-split deviations (D4/D5/D6) as idempotent migration
+- [x] 13.2-03-PLAN.md — Wave 2: R worker additive-param patch + controller reorder + new Pest test (SC-1/SC-2)
+- [x] 13.2-04-PLAN.md — Wave 3: full FinnGen Pest suite green on parthenon_testing (SC-4, proves SC-10 from 13.1)
+- [x] 13.2-05-PLAN.md — Wave 4: CHECKPOINT + DEV migration execution + PANCREAS smoke-gen E2E (SC-5/6/7)
 
 ### Phase 14: regenie GWAS Infrastructure
 **Goal**: A containerized regenie runtime is callable by Darkstar with summary statistics landing in an indexed per-source schema

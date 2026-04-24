@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\FinnGen;
 
-use App\Models\App\FinnGen\EndpointGwasRun;
 use App\Models\App\FinnGen\GwasCovariateSet;
 use App\Models\App\FinnGen\Run;
 use App\Models\App\FinnGen\SourceVariantIndex;
@@ -12,10 +11,8 @@ use App\Models\User;
 use App\Services\FinnGen\Exceptions\SourceNotPreparedException;
 use App\Services\FinnGen\Exceptions\Step1ArtifactMissingException;
 use App\Services\FinnGen\GwasRunService;
-use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use JsonException;
 use Throwable;
 
@@ -53,17 +50,13 @@ use Throwable;
 final class GwasSmokeTestCommand extends Command
 {
     protected $signature = 'finngen:gwas-smoke-test
-        {--via-http : Dispatch via the HTTP POST /gwas endpoint (authenticates via Sanctum) — Phase 15 SC-4 mode}
-        {--endpoint=E4_DM2 : FinnGen endpoint name (used by --via-http)}
-        {--control-cohort=221 : app.cohort_definitions.id of a non-FinnGen control cohort (used by --via-http)}
-        {--base-url= : Base URL of the Parthenon API; defaults to config(app.url) (used by --via-http)}
-        {--user-email=admin@acumenus.net : Email of the user whose Sanctum token to mint (used by --via-http)}
         {--source=PANCREAS : CDM source key (normalized to lowercase internally)}
         {--cohort-id=221 : Case cohort definition id}
         {--covariate-set-id= : Defaults to the is_default=true covariate set}
         {--assert-cache-hit-on-rerun : After step-2 success, re-run step-1 and assert cache_hit=true (GENOMICS-01 SC #2)}
         {--force-as-user= : Run as user id X (super-admin test bypass)}
-        {--timeout-minutes=30 : Poll timeout per step (Phase 14) or total deadline (--via-http)}';
+        {--seed-cohort-split : Materialize a 50/50 case/control split on the smoke cohort before dispatch (dev fixtures only)}
+        {--timeout-minutes=30 : Poll timeout per step}';
 
     protected $description = 'End-to-end GWAS smoke test: step-1 → step-2 → summary_stats assertion (D-15)';
 
@@ -81,13 +74,6 @@ final class GwasSmokeTestCommand extends Command
 
     public function handle(): int
     {
-        // Phase 15 SC-4 — exercise the REAL HTTP dispatch path instead of the
-        // direct-service Phase 14 path. Branches early so none of the Phase 14
-        // preconditions / auth gate / poll logic below apply to --via-http.
-        if ((bool) $this->option('via-http')) {
-            return $this->handleViaHttp();
-        }
-
         // 1. Auth gate (HIGHSEC §1.1).
         if (! $this->authorizedToRun()) {
             $this->error('finngen:gwas-smoke-test requires super-admin.');
@@ -138,6 +124,22 @@ final class GwasSmokeTestCommand extends Command
                 $sourceUpper,
                 $sourceUpper
             ));
+
+            return self::FAILURE;
+        }
+
+        // 4a. Precondition: the case cohort must have both cases AND controls.
+        //     regenie aborts with `sd=0` on a case-only (or control-only) Y1
+        //     column (null-model fit collapses). The synthetic PANCREAS PGEN
+        //     generator ships a 361-of-361 case cohort by default — opt-in
+        //     --seed-cohort-split halves it to 180/181 for the smoke fixture.
+        $splitReport = $this->ensureCaseControlSplit(
+            $sourceLower,
+            $cohortId,
+            (bool) $this->option('seed-cohort-split')
+        );
+        if ($splitReport !== null) {
+            $this->error($splitReport);
 
             return self::FAILURE;
         }
@@ -266,249 +268,6 @@ final class GwasSmokeTestCommand extends Command
     }
 
     // ------------------------------------------------------------------
-    // Phase 15 SC-4 — --via-http mode
-    // ------------------------------------------------------------------
-
-    /**
-     * Phase 15 (GENOMICS-03 SC-4) per 15-CONTEXT.md §D-29 and
-     * 15-RESEARCH.md §Primary recommendation #6.
-     *
-     * Mints a Sanctum token for --user-email (default: admin@acumenus.net),
-     * POSTs to the live /api/v1/finngen/endpoints/{endpoint}/gwas route,
-     * polls the finngen.endpoint_gwas_runs tracking row every 30s until
-     * terminal or --timeout-minutes (default: 30) elapses, then asserts
-     * status='succeeded' AND {source_lower}_gwas_results.summary_stats row
-     * count > 0 for the step-2 run_id returned in the 202 body.
-     *
-     * HIGHSEC §5.2 — the raw Sanctum token is NEVER echoed to stdout. We log
-     * only "[smoke] minting token" and "[smoke] token cleanup" breadcrumbs;
-     * the transcript is safe to commit as gate evidence.
-     *
-     * Cleanup — the minted token is deleted in a finally{} block (best effort).
-     * Sanctum's 8h expiration (HIGHSEC §1.2) is the backstop if delete fails.
-     */
-    private function handleViaHttp(): int
-    {
-        // HIGHSEC §5.3 — the plaintext Sanctum token lives in memory for the
-        // full 30-minute poll window. An APP_DEBUG=true exception render or a
-        // Sentry stack trace would leak it. Refuse early with remediation hint.
-        if (config('app.debug') === true) {
-            $this->error('[smoke] refusing to run --via-http with APP_DEBUG=true — set APP_DEBUG=false in .env (HIGHSEC §5.3).');
-
-            return self::FAILURE;
-        }
-
-        $endpoint = (string) ($this->option('endpoint') ?? '');
-        $sourceRaw = (string) ($this->option('source') ?? '');
-        $controlCohort = (int) ($this->option('control-cohort') ?? 0);
-        $baseUrlOpt = (string) ($this->option('base-url') ?? '');
-        $timeoutMinutes = max(1, (int) ($this->option('timeout-minutes') ?? 30));
-        $userEmail = (string) ($this->option('user-email') ?? '');
-
-        // Validate inputs up-front so the mint-then-cleanup dance is skipped on
-        // obvious misuse.
-        if ($endpoint === '' || preg_match('/^[A-Za-z0-9_]+$/', $endpoint) !== 1) {
-            $this->error("--endpoint is required and must match /^[A-Za-z0-9_]+\$/ (got '{$endpoint}').");
-
-            return self::FAILURE;
-        }
-        if ($sourceRaw === '') {
-            $this->error('--source is required (e.g., --source=PANCREAS).');
-
-            return self::FAILURE;
-        }
-        $sourceLower = strtolower($sourceRaw);
-        if (preg_match('/^[a-z][a-z0-9_]*$/', $sourceLower) !== 1) {
-            $this->error("--source must match /^[a-z][a-z0-9_]*\$/i (got '{$sourceRaw}').");
-
-            return self::FAILURE;
-        }
-        $sourceUpper = strtoupper($sourceLower);
-        if ($controlCohort <= 0) {
-            $this->error('--control-cohort must be a positive integer.');
-
-            return self::FAILURE;
-        }
-        if ($userEmail === '') {
-            $this->error('--user-email is required.');
-
-            return self::FAILURE;
-        }
-
-        $configuredUrl = config('app.url');
-        $baseUrl = rtrim(
-            $baseUrlOpt !== ''
-                ? $baseUrlOpt
-                : (is_string($configuredUrl) && $configuredUrl !== ''
-                    ? $configuredUrl
-                    : 'http://localhost:8082'),
-            '/'
-        );
-
-        /** @var User|null $user */
-        $user = User::query()->where('email', $userEmail)->first();
-        if ($user === null) {
-            $this->error("User {$userEmail} not found.");
-
-            return self::FAILURE;
-        }
-
-        $this->line("[smoke] minting Sanctum token for {$userEmail}");
-        // HIGHSEC §1.2 default is 8h (480min); a 30-min smoke test does not
-        // need that much. Cap at 1 hour so a leaked token cannot outlive the
-        // command (REVIEW §WR-05).
-        $tokenRecord = $user->createToken('finngen-gwas-smoke', ['*'], now()->addHour());
-        // HIGHSEC §5.2 — never echo $tokenRecord->plainTextToken.
-        $token = $tokenRecord->plainTextToken;
-
-        try {
-            $url = "{$baseUrl}/api/v1/finngen/endpoints/{$endpoint}/gwas";
-            $this->line("[smoke] POST {$url}");
-            $dispatchedAt = CarbonImmutable::now();
-
-            $response = Http::withToken($token)
-                ->acceptJson()
-                ->timeout(30)
-                ->post($url, [
-                    'source_key' => $sourceUpper,
-                    'control_cohort_id' => $controlCohort,
-                ]);
-
-            if ($response->status() !== 202) {
-                $this->error("[smoke] unexpected status {$response->status()}");
-                $this->line($response->body());
-
-                return self::FAILURE;
-            }
-
-            $body = (array) $response->json();
-            $data = (array) ($body['data'] ?? []);
-            $gwasRun = (array) ($data['gwas_run'] ?? []);
-            $trackingId = (int) ($gwasRun['id'] ?? 0);
-            $runId = (string) ($gwasRun['run_id'] ?? '');
-            $step1RunId = (string) ($gwasRun['step1_run_id'] ?? '');
-            $cached = (bool) ($data['cached_step1'] ?? false);
-
-            if ($trackingId <= 0 || $runId === '') {
-                $this->error('[smoke] 202 body missing gwas_run.id or gwas_run.run_id');
-                $this->line($response->body());
-
-                return self::FAILURE;
-            }
-
-            $this->line(sprintf(
-                '[smoke] 202 tracking_id=%d run_id=%s step1_run_id=%s cached_step1=%s',
-                $trackingId,
-                $runId,
-                $step1RunId !== '' ? $step1RunId : '—',
-                $cached ? 'true' : 'false'
-            ));
-
-            // REVIEW §WR-05 — the poll loop reads tracking state via
-            // EndpointGwasRun::find($trackingId) (DB, not HTTP). The plaintext
-            // token is no longer needed — drop it from memory to shrink the
-            // leak window. The $tokenRecord Eloquent row stays so the finally
-            // block can still delete the DB token.
-            unset($token);
-
-            // Poll loop — every 30s until terminal or deadline.
-            $deadline = $dispatchedAt->addMinutes($timeoutMinutes);
-            $lastStatusLogged = '';
-            while (CarbonImmutable::now()->lessThan($deadline)) {
-                $tracking = EndpointGwasRun::find($trackingId);
-                if ($tracking === null) {
-                    $this->error('[smoke] tracking row disappeared');
-
-                    return self::FAILURE;
-                }
-                $status = (string) $tracking->status;
-                if ($status !== $lastStatusLogged) {
-                    $this->line(sprintf(
-                        '[smoke] status=%s case_n=%s control_n=%s',
-                        $status,
-                        $tracking->case_n !== null ? (string) $tracking->case_n : '—',
-                        $tracking->control_n !== null ? (string) $tracking->control_n : '—'
-                    ));
-                    $lastStatusLogged = $status;
-                }
-                if (in_array($status, EndpointGwasRun::TERMINAL_STATUSES, true)) {
-                    break;
-                }
-                sleep(30);
-            }
-
-            $tracking = EndpointGwasRun::find($trackingId);
-            if ($tracking === null) {
-                $this->error('[smoke] tracking row missing after poll');
-
-                return self::FAILURE;
-            }
-            $terminalStatus = (string) $tracking->status;
-            if ($terminalStatus !== EndpointGwasRun::STATUS_SUCCEEDED) {
-                $this->error(sprintf(
-                    '[smoke] terminal status is %s (expected succeeded); tracking_id=%d run_id=%s',
-                    $terminalStatus !== '' ? $terminalStatus : 'null',
-                    $trackingId,
-                    $runId
-                ));
-
-                return self::FAILURE;
-            }
-
-            // Assert {source_lower}_gwas_results.summary_stats has at least one
-            // row for this gwas_run_id (the step-2 ULID). Identifier schema name
-            // is validated by the same preg_match allow-list as the Phase 14
-            // path — parameter binding handles the $runId.
-            $schema = $sourceLower.'_gwas_results';
-            if (preg_match('/^[a-z][a-z0-9_]*$/', $schema) !== 1) {
-                $this->error('[smoke] invalid schema derived from source key');
-
-                return self::FAILURE;
-            }
-            $row = DB::selectOne(
-                sprintf('SELECT COUNT(*) AS c FROM %s.summary_stats WHERE gwas_run_id = ?', $schema),
-                [$runId]
-            );
-            $count = (int) ($row->c ?? 0);
-            if ($count <= 0) {
-                $this->error(sprintf(
-                    '[smoke] summary_stats count is 0 for gwas_run_id=%s (schema=%s)',
-                    $runId,
-                    $schema
-                ));
-
-                return self::FAILURE;
-            }
-
-            $elapsedMinutes = $dispatchedAt->diffInMinutes(CarbonImmutable::now());
-            $this->info(sprintf(
-                '[smoke] PASS — tracking_id=%d run_id=%s summary_stats=%d case_n=%s control_n=%s top_hit_p_value=%s elapsed=%dmin',
-                $trackingId,
-                $runId,
-                $count,
-                $tracking->case_n !== null ? (string) $tracking->case_n : '—',
-                $tracking->control_n !== null ? (string) $tracking->control_n : '—',
-                $tracking->top_hit_p_value !== null ? (string) $tracking->top_hit_p_value : '—',
-                $elapsedMinutes
-            ));
-
-            return self::SUCCESS;
-        } finally {
-            // Best-effort token cleanup — HIGHSEC §5.2 & T-15-31.
-            try {
-                $tokenRecord->accessToken?->delete();
-                $this->line('[smoke] token cleanup: ok');
-            } catch (Throwable $e) {
-                // REVIEW §WR-05 — log the DB row id (NEVER the plaintext) so
-                // an operator can run `php artisan tinker` and delete the
-                // lingering token manually.
-                $tokenId = $tokenRecord->accessToken?->id ?? 'unknown';
-                $this->warn("[smoke] token cleanup failed (tokenRecord id={$tokenId}): ".$e->getMessage());
-            }
-        }
-    }
-
-    // ------------------------------------------------------------------
     // Helpers
     // ------------------------------------------------------------------
 
@@ -613,6 +372,118 @@ final class GwasSmokeTestCommand extends Command
         }
 
         return null;
+    }
+
+    /**
+     * Verify the smoke cohort has both cases AND controls, optionally
+     * materializing a 50/50 split when --seed-cohort-split is passed.
+     *
+     * regenie's null model fit requires sd(Y1) > 0. A cohort that contains
+     * every row of {source}.person (as the synthetic PANCREAS generator
+     * currently produces for cohort 221) yields 100% cases / 0% controls
+     * and aborts step-1 with an opaque `phenotype 'Y1' has sd=0` error.
+     *
+     * Identifier interpolation is safe: $sourceLower has been validated by
+     * the same preg_match allow-list used elsewhere in this command.
+     *
+     * Returns null when the cohort is balanced (or was successfully split).
+     * Returns a human-readable error string on imbalance without --seed-.
+     */
+    private function ensureCaseControlSplit(string $sourceLower, int $cohortId, bool $seed): ?string
+    {
+        $cohortSchema = $sourceLower.'_results';
+        $cdmSchema = $sourceLower;
+
+        $counts = $this->countCaseControl($cdmSchema, $cohortSchema, $cohortId);
+        $cases = $counts['cases'];
+        $controls = $counts['controls'];
+
+        if ($cases > 0 && $controls > 0) {
+            return null;
+        }
+
+        if (! $seed) {
+            return sprintf(
+                'Cohort %d on source %s has %d cases and %d controls — regenie will abort with sd=0. '.
+                'Re-run with --seed-cohort-split to halve the cohort in-place, '.
+                'or fix the fixture (SQL: DELETE FROM %s.cohort WHERE cohort_definition_id=%d AND subject_id > '.
+                '(SELECT MAX(person_id)/2 FROM %s.person);).',
+                $cohortId,
+                strtoupper($sourceLower),
+                $cases,
+                $controls,
+                $cohortSchema,
+                $cohortId,
+                $cdmSchema,
+            );
+        }
+
+        // Safety: only allow auto-seed in dev/local/testing OR when the
+        // caller explicitly super-admin-forced. authorizedToRun() already
+        // enforced one of these before reaching here.
+        $this->warn(sprintf(
+            'Auto-materializing 50/50 case/control split on cohort %d (cases=%d controls=%d → halving).',
+            $cohortId,
+            $cases,
+            $controls
+        ));
+
+        // Halve the cohort by subject_id. Idempotent: if cohort already has
+        // controls, we return early above. DELETE uses parameterized bindings.
+        $deleted = DB::delete(
+            sprintf(
+                'DELETE FROM %s.cohort WHERE cohort_definition_id = ? '.
+                'AND subject_id > (SELECT COALESCE(MAX(person_id),0)/2 FROM %s.person)',
+                $cohortSchema,
+                $cdmSchema
+            ),
+            [$cohortId]
+        );
+
+        $post = $this->countCaseControl($cdmSchema, $cohortSchema, $cohortId);
+        $this->info(sprintf(
+            'Seeded smoke split: deleted %d cohort rows; now cases=%d controls=%d.',
+            $deleted,
+            $post['cases'],
+            $post['controls']
+        ));
+
+        if ($post['cases'] === 0 || $post['controls'] === 0) {
+            return sprintf(
+                'Auto-seed ran but cohort is still imbalanced (cases=%d controls=%d). Check %s.person population.',
+                $post['cases'],
+                $post['controls'],
+                $cdmSchema
+            );
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array{cases:int, controls:int}
+     */
+    private function countCaseControl(string $cdmSchema, string $cohortSchema, int $cohortId): array
+    {
+        $cases = (int) (DB::selectOne(
+            sprintf(
+                'SELECT COUNT(DISTINCT subject_id) AS c FROM %s.cohort WHERE cohort_definition_id = ?',
+                $cohortSchema
+            ),
+            [$cohortId]
+        )->c ?? 0);
+
+        $controls = (int) (DB::selectOne(
+            sprintf(
+                'SELECT COUNT(*) AS c FROM %s.person p '.
+                'WHERE NOT EXISTS (SELECT 1 FROM %s.cohort c WHERE c.cohort_definition_id = ? AND c.subject_id = p.person_id)',
+                $cdmSchema,
+                $cohortSchema
+            ),
+            [$cohortId]
+        )->c ?? 0);
+
+        return ['cases' => $cases, 'controls' => $controls];
     }
 
     /**

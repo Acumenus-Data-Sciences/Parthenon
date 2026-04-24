@@ -12,6 +12,13 @@ use function Pest\Laravel\getJson;
 
 uses(RefreshDatabase::class);
 
+beforeEach(function (): void {
+    // Phase 13.2-07: ensure the Spatie role/permission matrix exists before
+    // $user->assignRole('super-admin') is called. Previously masked by FK
+    // violations that aborted tests before the assignRole line ran.
+    $this->seed(RolePermissionSeeder::class);
+});
+
 /**
  * Phase 13.1 Wave 0 — SC 7.
  *

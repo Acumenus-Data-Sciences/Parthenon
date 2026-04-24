@@ -26,6 +26,8 @@
         <env name="DB_DATABASE" value="parthenon_testing" force="true"/>
         <env name="DB_TEST_DATABASE" value="parthenon_testing" force="true"/>
         <env name="MORPHEUS_DB_CONNECTION" value="inpatient_testing" force="true"/>
+        <env name="FINNGEN_DB_CONNECTION" value="finngen_testing" force="true"/>
+        <env name="FINNGEN_RO_DB_CONNECTION" value="finngen_ro_testing" force="true"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="QUEUE_CONNECTION" value="sync" force="true"/>

@@ -174,14 +174,14 @@ class CareBundleMaterializationService
     private function promoteToCurrent(CareBundleRun $run, Connection $appConn): void
     {
         $appConn->statement(
-            "
+            '
             INSERT INTO care_bundle_current_runs
                 (condition_bundle_id, source_id, care_bundle_run_id, updated_at)
             VALUES (?, ?, ?, NOW())
             ON CONFLICT (condition_bundle_id, source_id) DO UPDATE SET
                 care_bundle_run_id = EXCLUDED.care_bundle_run_id,
                 updated_at = NOW()
-        ",
+        ',
             [$run->condition_bundle_id, $run->source_id, $run->id]
         );
     }

@@ -17,6 +17,7 @@ use App\Services\CareBundles\FhirMeasureExporter;
 use App\Services\CareBundles\IntersectionCohortService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -222,7 +223,7 @@ class CareBundleController extends Controller
      * Export the bundle as a FHIR R4 Measure resource (one group per
      * QualityMeasure). Response uses application/fhir+json per the FHIR spec.
      */
-    public function fhirMeasure(ConditionBundle $bundle)
+    public function fhirMeasure(ConditionBundle $bundle): Response
     {
         $resource = $this->fhirExporter->exportBundle($bundle);
 

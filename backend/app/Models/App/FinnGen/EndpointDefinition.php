@@ -44,8 +44,6 @@ class EndpointDefinition extends Model
 {
     use HasFactory;
 
-    protected $connection = 'finngen';
-
     protected $table = 'endpoint_definitions';
 
     protected $primaryKey = 'name';
@@ -53,6 +51,15 @@ class EndpointDefinition extends Model
     public $incrementing = false;
 
     protected $keyType = 'string';
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->setConnection(config('finngen.connection', 'finngen'));
+    }
 
     /**
      * @var list<string>

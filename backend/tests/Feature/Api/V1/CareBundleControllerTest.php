@@ -10,6 +10,9 @@ use App\Models\App\ConditionBundle;
 use App\Models\App\QualityMeasure;
 use App\Models\App\Source;
 use App\Models\User;
+use App\Services\CareBundles\CareBundleMeasureEvaluator;
+use App\Services\CareBundles\Evaluators\CohortBasedMeasureEvaluator;
+use App\Services\CareBundles\Evaluators\CqlMeasureEvaluator;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -382,16 +385,16 @@ it('marks retired bundles as status=retired in FHIR export', function () {
 
 it('falls back to CohortBasedMeasureEvaluator when config is default', function () {
     config(['care_bundles.evaluator' => 'cohort_based']);
-    $evaluator = app(\App\Services\CareBundles\CareBundleMeasureEvaluator::class);
+    $evaluator = app(CareBundleMeasureEvaluator::class);
     expect($evaluator)->toBeInstanceOf(
-        \App\Services\CareBundles\Evaluators\CohortBasedMeasureEvaluator::class,
+        CohortBasedMeasureEvaluator::class,
     );
 });
 
 it('binds CqlMeasureEvaluator when config selects cql', function () {
     config(['care_bundles.evaluator' => 'cql']);
-    $evaluator = app(\App\Services\CareBundles\CareBundleMeasureEvaluator::class);
+    $evaluator = app(CareBundleMeasureEvaluator::class);
     expect($evaluator)->toBeInstanceOf(
-        \App\Services\CareBundles\Evaluators\CqlMeasureEvaluator::class,
+        CqlMeasureEvaluator::class,
     );
 });
