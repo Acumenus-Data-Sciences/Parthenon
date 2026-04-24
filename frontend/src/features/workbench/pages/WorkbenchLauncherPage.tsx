@@ -47,17 +47,6 @@ const TOOLSET_REGISTRY: ToolsetDescriptor[] = [
     copyKey: "morpheus",
   },
   {
-    slug: "sdk",
-    name: "",
-    tagline: "",
-    description: "",
-    icon: "Blocks",
-    accent: "var(--accent)",
-    status: "available",
-    route: "/workbench/community-sdk-demo",
-    copyKey: "sdk",
-  },
-  {
     // i18n-exempt: P1 scaffolding — copy can graduate to i18n once the toolset
     // copy catalogue gets a "carebundles" key.
     slug: "carebundles",
@@ -69,6 +58,17 @@ const TOOLSET_REGISTRY: ToolsetDescriptor[] = [
     accent: "var(--accent)",
     status: "available",
     route: "/workbench/care-bundles",
+  },
+  {
+    slug: "sdk",
+    name: "",
+    tagline: "",
+    description: "",
+    icon: "Blocks",
+    accent: "var(--accent)",
+    status: "available",
+    route: "/workbench/community-sdk-demo",
+    copyKey: "sdk",
   },
 ];
 
