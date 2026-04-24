@@ -96,12 +96,20 @@ return new class extends Migration
 DO $reset$
 BEGIN
     DROP TABLE IF EXISTS finngen.endpoint_definitions              CASCADE;
+    -- Post-rename names (Block 3 completed)
     DROP TABLE IF EXISTS finngen.analysis_modules                  CASCADE;
     DROP TABLE IF EXISTS finngen.runs                              CASCADE;
     DROP TABLE IF EXISTS finngen.workbench_sessions                CASCADE;
     DROP TABLE IF EXISTS finngen.unmapped_codes                    CASCADE;
     DROP TABLE IF EXISTS finngen.endpoint_generations              CASCADE;
     DROP TABLE IF EXISTS finngen.endpoint_expressions_pre_phase13  CASCADE;
+    -- Pre-rename names (SET SCHEMA completed but RENAME did not — partial run)
+    DROP TABLE IF EXISTS finngen.finngen_analysis_modules                          CASCADE;
+    DROP TABLE IF EXISTS finngen.finngen_runs                                      CASCADE;
+    DROP TABLE IF EXISTS finngen.finngen_workbench_sessions                        CASCADE;
+    DROP TABLE IF EXISTS finngen.finngen_unmapped_codes                            CASCADE;
+    DROP TABLE IF EXISTS finngen.finngen_endpoint_generations                      CASCADE;
+    DROP TABLE IF EXISTS finngen.finngen_endpoint_expressions_pre_phase13          CASCADE;
 END
 $reset$
 SQL);

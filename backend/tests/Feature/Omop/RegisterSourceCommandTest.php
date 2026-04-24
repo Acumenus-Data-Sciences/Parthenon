@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\App\Source;
 use App\Models\App\SourceDaimon;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
-uses(DatabaseTransactions::class);
+uses(RefreshDatabase::class);
 
 test('register-source creates source and three daimons', function () {
     $this->artisan('omop:register-source', [
@@ -55,4 +57,9 @@ test('register-source is idempotent', function () {
 
 test('register-source fails without source-key', function () {
     $this->artisan('omop:register-source')->assertExitCode(1);
+});
+
+test('register-source fails without host or database', function () {
+    $this->artisan('omop:register-source', ['--source-key' => 'NO_HOST'])->assertExitCode(1);
+    $this->artisan('omop:register-source', ['--source-key' => 'NO_DB', '--host' => 'db.example.com'])->assertExitCode(1);
 });

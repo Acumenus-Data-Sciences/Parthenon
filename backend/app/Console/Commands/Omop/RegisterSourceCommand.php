@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands\Omop;
 
 use App\Enums\DaimonType;
@@ -29,6 +31,14 @@ class RegisterSourceCommand extends Command
         $key = $this->option('source-key');
         if (! $key) {
             $this->error('--source-key is required');
+
+            return self::FAILURE;
+        }
+
+        $host = $this->option('host');
+        $database = $this->option('database');
+        if (! $host || ! $database) {
+            $this->error('--host and --database are required');
 
             return self::FAILURE;
         }
