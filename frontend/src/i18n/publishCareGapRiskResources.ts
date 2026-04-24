@@ -2,7 +2,10 @@ type MessageTree = {
   [key: string]: string | MessageTree;
 };
 
-function mergeMessageTrees(base: MessageTree, overrides: MessageTree): MessageTree {
+function mergeMessageTrees(
+  base: MessageTree,
+  overrides: MessageTree,
+): MessageTree {
   return Object.fromEntries(
     Object.entries(base).map(([key, baseValue]) => {
       const overrideValue = overrides[key];
@@ -98,7 +101,7 @@ const enPublishCareGapRisk: MessageTree = {
       },
       search: {
         analysesPlaceholder: "Search analyses...",
-        noMatch: "No analyses match \"{{query}}\"",
+        noMatch: 'No analyses match "{{query}}"',
         typeToFilter: "Type to filter {{count}} analyses",
       },
       count: {
@@ -146,7 +149,8 @@ const enPublishCareGapRisk: MessageTree = {
     },
     hub: {
       title: "Risk Score Analyses",
-      subtitle: "Stratify patient populations by validated clinical risk scores",
+      subtitle:
+        "Stratify patient populations by validated clinical risk scores",
       metrics: {
         total: "Total",
         running: "Running",
@@ -169,7 +173,7 @@ const enPublishCareGapRisk: MessageTree = {
       empty: {
         noMatchingAnalyses: "No matching analyses",
         noRiskScoreAnalysesYet: "No risk score analyses yet",
-        noAnalysesFoundFor: "No analyses found for \"{{query}}\"",
+        noAnalysesFoundFor: 'No analyses found for "{{query}}"',
         createFirst:
           "Create your first analysis to stratify patients by clinical risk scores.",
       },
@@ -247,7 +251,8 @@ const enPublishCareGapRisk: MessageTree = {
       avgCompleteness: "Avg Completeness",
       avgConfidence: "Avg Confidence",
       acrossSummaries: "across summaries",
-      thisAnalysisHasNotBeenExecutedYet: "This analysis hasn't been executed yet.",
+      thisAnalysisHasNotBeenExecutedYet:
+        "This analysis hasn't been executed yet.",
       executionInProgress: "Execution in progress...",
       lastExecutionFailed: "Last execution failed.",
       recentExecution: "Recent Execution",
@@ -289,8 +294,7 @@ const enPublishCareGapRisk: MessageTree = {
     scoreDetail: {
       selectSourcePrompt:
         "Select a data source from the header to check eligibility.",
-      eligiblePatients:
-        "Eligible - {{count}} patients have sufficient data",
+      eligiblePatients: "Eligible - {{count}} patients have sufficient data",
       insufficientData: "Insufficient data in the active source",
       missing: "Missing:",
       checkingEligibility: "Checking eligibility for the active source...",
@@ -325,10 +329,8 @@ const enPublishCareGapRisk: MessageTree = {
     runModal: {
       title: "Population Risk Scores",
       computingScores: "Computing scores...",
-      completedScoresIn:
-        "Completed {{count}} score in {{duration}}",
-      completedScoresIn_other:
-        "Completed {{count}} scores in {{duration}}",
+      completedScoresIn: "Completed {{count}} score in {{duration}}",
+      completedScoresIn_other: "Completed {{count}} scores in {{duration}}",
       runFailed: "Run failed",
       passed: "{{count}} passed",
       failed: "{{count}} failed",
@@ -422,8 +424,7 @@ const enPublishCareGapRisk: MessageTree = {
       evaluationInProgress: "Evaluation in progress...",
       noEvaluationResults:
         "No evaluation results yet. Execute an evaluation to see compliance data.",
-      deleteConfirm:
-        "Are you sure you want to delete this condition bundle?",
+      deleteConfirm: "Are you sure you want to delete this condition bundle?",
     },
     bundleDesigner: {
       bundleDetails: "Bundle Details",
@@ -463,8 +464,7 @@ const enPublishCareGapRisk: MessageTree = {
       deduplicatedFrom: "Deduplicated from: {{value}}",
     },
     population: {
-      selectSourcePrompt:
-        "Select a data source to view population compliance.",
+      selectSourcePrompt: "Select a data source to view population compliance.",
       failedToLoad: "Failed to load population summary.",
       totalBundles: "Total Bundles",
       totalPatients: "Total Patients",
@@ -531,8 +531,7 @@ const enPublishCareGapRisk: MessageTree = {
     },
     page: {
       title: "Publish",
-      subtitle:
-        "Create pre-publication manuscripts from studies and analyses",
+      subtitle: "Create pre-publication manuscripts from studies and analyses",
       startNewDocument: "Start new document",
       untitledDocument: "Untitled Document",
     },
@@ -937,7 +936,7 @@ const frPublishCareGapRisk: MessageTree = mergeMessageTrees(
         },
         search: {
           analysesPlaceholder: "Rechercher des analyses...",
-          noMatch: "Aucune analyse ne correspond a \"{{query}}\"",
+          noMatch: 'Aucune analyse ne correspond a "{{query}}"',
           typeToFilter: "Saisissez pour filtrer {{count}} analyses",
         },
         count: {
@@ -1002,8 +1001,9 @@ const frPublishCareGapRisk: MessageTree = mergeMessageTrees(
         },
         empty: {
           noMatchingAnalyses: "Aucune analyse correspondante",
-          noRiskScoreAnalysesYet: "Aucune analyse de score de risque pour l'instant",
-          noAnalysesFoundFor: "Aucune analyse trouvee pour \"{{query}}\"",
+          noRiskScoreAnalysesYet:
+            "Aucune analyse de score de risque pour l'instant",
+          noAnalysesFoundFor: 'Aucune analyse trouvee pour "{{query}}"',
           createFirst:
             "Creez votre premiere analyse pour stratifier les patients par scores cliniques de risque.",
         },
@@ -1018,8 +1018,7 @@ const frPublishCareGapRisk: MessageTree = mergeMessageTrees(
           completedResults: "{{count}} resultats termines",
           selectSourcePrompt:
             "Selectionnez une source de donnees dans l'en-tete pour verifier l'eligibilite de chaque score.",
-          sourceLevelCompletedScores:
-            "Scores termines au niveau de la source",
+          sourceLevelCompletedScores: "Scores termines au niveau de la source",
           sourceLevelCompletedScoresDetail:
             "{{count}} score termine existe pour la source active mais n'est rattache a aucune execution d'analyse v2.",
           sourceLevelCompletedScoresDetail_other:
@@ -1151,8 +1150,7 @@ const frPublishCareGapRisk: MessageTree = mergeMessageTrees(
         executionId: "ID execution :",
         score: "Score :",
         tier: "Niveau :",
-        createFailed:
-          "Echec de la creation de la cohorte. Veuillez reessayer.",
+        createFailed: "Echec de la creation de la cohorte. Veuillez reessayer.",
         derivedDescription:
           "Patients de la cohorte '{{cohort}}' avec le niveau de risque {{score}} = {{tier}}",
         defaultName: "{{score}} - Risque {{tier}} - {{cohort}}",
@@ -1168,8 +1166,7 @@ const frPublishCareGapRisk: MessageTree = mergeMessageTrees(
         title: "Scores de risque populationnels",
         computingScores: "Calcul des scores...",
         completedScoresIn: "{{count}} score termine en {{duration}}",
-        completedScoresIn_other:
-          "{{count}} scores termines en {{duration}}",
+        completedScoresIn_other: "{{count}} scores termines en {{duration}}",
         runFailed: "Execution echouee",
         passed: "{{count}} reussis",
         failed: "{{count}} echecs",
@@ -1263,8 +1260,7 @@ const frPublishCareGapRisk: MessageTree = mergeMessageTrees(
         evaluationInProgress: "Evaluation en cours...",
         noEvaluationResults:
           "Aucun resultat d'evaluation pour l'instant. Executez une evaluation pour voir les donnees de conformite.",
-        deleteConfirm:
-          "Voulez-vous vraiment supprimer ce lot de pathologies ?",
+        deleteConfirm: "Voulez-vous vraiment supprimer ce lot de pathologies ?",
       },
       bundleDesigner: {
         bundleDetails: "Details du lot",
@@ -1292,7 +1288,8 @@ const frPublishCareGapRisk: MessageTree = mergeMessageTrees(
         },
       },
       measureCompliance: {
-        noResultsAvailable: "Aucun resultat de mesure disponible pour l'instant.",
+        noResultsAvailable:
+          "Aucun resultat de mesure disponible pour l'instant.",
         code: "Code",
         measure: "Mesure",
         domain: "Domaine",
@@ -1306,21 +1303,18 @@ const frPublishCareGapRisk: MessageTree = mergeMessageTrees(
       population: {
         selectSourcePrompt:
           "Selectionnez une source de donnees pour afficher la conformite populationnelle.",
-        failedToLoad:
-          "Echec du chargement du resume populationnel.",
+        failedToLoad: "Echec du chargement du resume populationnel.",
         totalBundles: "Nombre total de lots",
         totalPatients: "Patients totaux",
         avgCompliance: "Conformite moy.",
         totalOpenGaps: "Total des lacunes ouvertes",
         filterByCategory: "Filtrer par categorie :",
         bundleComplianceComparison: "Comparaison de conformite des lots",
-        noBundlesMatchFilter:
-          "Aucun lot ne correspond au filtre selectionne.",
+        noBundlesMatchFilter: "Aucun lot ne correspond au filtre selectionne.",
         patientsShort: "{{count}} pts",
       },
       overlapRules: {
-        failedToLoad:
-          "Echec du chargement des regles de chevauchement.",
+        failedToLoad: "Echec du chargement des regles de chevauchement.",
         noneConfigured: "Aucune regle de chevauchement configuree.",
         subtitle:
           "Les regles de chevauchement evitent le double comptage des mesures entre les lots.",
@@ -1392,14 +1386,12 @@ const frPublishCareGapRisk: MessageTree = mergeMessageTrees(
         template: "Modele",
       },
       preview: {
-        diagramDataNotAvailable:
-          "Donnees de diagramme indisponibles",
+        diagramDataNotAvailable: "Donnees de diagramme indisponibles",
         unknownDiagramType: "Type de diagramme inconnu",
         reviewWarning:
           "Certaines sections generees par IA n'ont pas encore ete revues. Veuillez accepter ou modifier tout le contenu IA avant l'export.",
         generatedLabel: "Genere le {{date}}",
-        noSectionContent:
-          "Aucun contenu disponible pour cette section.",
+        noSectionContent: "Aucun contenu disponible pour cette section.",
         noSectionsIncluded:
           "Aucune section incluse. Revenez en arriere pour configurer votre document.",
         backToConfigure: "Retour a la configuration",
@@ -1418,7 +1410,8 @@ const frPublishCareGapRisk: MessageTree = mergeMessageTrees(
             description: "Document Word structure",
           },
           xlsx: {
-            description: "Tableaux et statistiques sous forme de feuille de calcul",
+            description:
+              "Tableaux et statistiques sous forme de feuille de calcul",
           },
           png: {
             description: "Graphiques sous forme d'images raster",
@@ -1438,13 +1431,11 @@ const frPublishCareGapRisk: MessageTree = mergeMessageTrees(
         formats: {
           docx: {
             label: "Microsoft Word",
-            description:
-              "Manuscrit pret pour revue avec figures integrees",
+            description: "Manuscrit pret pour revue avec figures integrees",
           },
           pdf: {
             label: "Document PDF",
-            description:
-              "Document pret a imprimer pour relecture et partage",
+            description: "Document pret a imprimer pour relecture et partage",
           },
           figuresZip: {
             label: "Figures individuelles",
@@ -1513,8 +1504,7 @@ const frPublishCareGapRisk: MessageTree = mergeMessageTrees(
       },
       studySelector: {
         loadingStudies: "Chargement des etudes...",
-        failedToLoad:
-          "Echec du chargement des etudes. Veuillez reessayer.",
+        failedToLoad: "Echec du chargement des etudes. Veuillez reessayer.",
         selectStudy: "Selectionner une etude",
         noStudiesFound: "Aucune etude trouvee. Creez d'abord une etude.",
         completedExecutions: "Executions terminees",
@@ -1536,8 +1526,7 @@ const frPublishCareGapRisk: MessageTree = mergeMessageTrees(
         loadingAnalyses: "Chargement des analyses...",
         noCompletedAnalyses: "Aucune analyse terminee trouvee",
         loadingStudies: "Chargement des etudes...",
-        noStudiesMatchFilters:
-          "Aucune etude ne correspond a vos filtres",
+        noStudiesMatchFilters: "Aucune etude ne correspond a vos filtres",
         noStudiesFound: "Aucune etude trouvee",
         completedAnalyses_one: "{{count}} analyse terminee",
         completedAnalyses_other: "{{count}} analyses terminees",
@@ -1571,8 +1560,7 @@ const frPublishCareGapRisk: MessageTree = mergeMessageTrees(
             "Serie de cas auto-controlee : rapports de taux d'incidence par fenetre d'exposition",
           treatmentPathways: "Parcours therapeutiques (top 10)",
           populationCharacteristics: "Caracteristiques de la population",
-          predictionModelPerformance:
-            "Performance du modele de prediction",
+          predictionModelPerformance: "Performance du modele de prediction",
           evidenceSynthesisPooled:
             "Synthese des preuves : estimations combinees",
         },
@@ -1607,8 +1595,7 @@ const frPublishCareGapRisk: MessageTree = mergeMessageTrees(
         },
         "comparative-effectiveness": {
           name: "Rapport d'efficacite comparative",
-          description:
-            "Structure CLE/CER avec analyse par score de propension",
+          description: "Structure CLE/CER avec analyse par score de propension",
           sections: {
             background: "Contexte",
             "study-design": "Plan d'etude",
@@ -1775,7 +1762,7 @@ const dePublishCareGapRisk: MessageTree = mergeMessageTrees(
         },
         search: {
           analysesPlaceholder: "Analysen suchen...",
-          noMatch: "Keine Analysen entsprechen \"{{query}}\"",
+          noMatch: 'Keine Analysen entsprechen "{{query}}"',
           typeToFilter: "{{count}} Analysen durch Eingabe filtern",
         },
         count: {
@@ -1840,7 +1827,7 @@ const dePublishCareGapRisk: MessageTree = mergeMessageTrees(
         empty: {
           noMatchingAnalyses: "Keine passenden Analysen",
           noRiskScoreAnalysesYet: "Noch keine Risiko-Score-Analysen",
-          noAnalysesFoundFor: "Keine Analysen fur \"{{query}}\" gefunden",
+          noAnalysesFoundFor: 'Keine Analysen fur "{{query}}" gefunden',
           createFirst:
             "Erstellen Sie Ihre erste Analyse, um Patienten nach klinischen Risikoscores zu stratifizieren.",
         },
@@ -1855,8 +1842,7 @@ const dePublishCareGapRisk: MessageTree = mergeMessageTrees(
           completedResults: "{{count}} abgeschlossene Ergebnisse",
           selectSourcePrompt:
             "Wahlen Sie im Kopfbereich eine Datenquelle aus, um die Eignung jedes Scores zu prufen.",
-          sourceLevelCompletedScores:
-            "Abgeschlossene Scores auf Quellenebene",
+          sourceLevelCompletedScores: "Abgeschlossene Scores auf Quellenebene",
           sourceLevelCompletedScoresDetail:
             "{{count}} abgeschlossener Score existiert fur die aktive Quelle, ist aber keiner v2-Analyseausfuhrung zugeordnet.",
           sourceLevelCompletedScoresDetail_other:
@@ -1881,10 +1867,8 @@ const dePublishCareGapRisk: MessageTree = mergeMessageTrees(
         cohortPatients: "{{count}} Patienten",
         autoNameSuffix: "Risikostratifizierung",
         placeholders: {
-          name:
-            "z. B. Herzinsuffizienz-Kohorte - Risikostratifizierung",
-          description:
-            "Optionale Beschreibung dieser Risiko-Score-Analyse...",
+          name: "z. B. Herzinsuffizienz-Kohorte - Risikostratifizierung",
+          description: "Optionale Beschreibung dieser Risiko-Score-Analyse...",
         },
         completeness: "Vollstandigkeit:",
         createAsDraft: "Als Entwurf erstellen",
@@ -1957,8 +1941,7 @@ const dePublishCareGapRisk: MessageTree = mergeMessageTrees(
         showingPatients: "{{count}} Patienten angezeigt",
         patientsOnPage: "{{count}} Patienten auf dieser Seite",
         noPatientResultsAvailable: "Keine Patientenergebnisse verfugbar",
-        adjustFilters:
-          "Passen Sie Ihre Filter an, um Ergebnisse anzuzeigen.",
+        adjustFilters: "Passen Sie Ihre Filter an, um Ergebnisse anzuzeigen.",
         executeToGenerate:
           "Fuhren Sie die Analyse aus, um Scores auf Patientenebene zu erzeugen.",
         personId: "Personen-ID",
@@ -1968,11 +1951,9 @@ const dePublishCareGapRisk: MessageTree = mergeMessageTrees(
           "Wahlen Sie im Kopfbereich eine Datenquelle aus, um die Eignung zu prufen.",
         eligiblePatients:
           "Geeignet - {{count}} Patienten verfugen uber ausreichende Daten",
-        insufficientData:
-          "Unzureichende Daten in der aktiven Quelle",
+        insufficientData: "Unzureichende Daten in der aktiven Quelle",
         missing: "Fehlend:",
-        checkingEligibility:
-          "Eignung fur die aktive Quelle wird gepruft...",
+        checkingEligibility: "Eignung fur die aktive Quelle wird gepruft...",
         eligiblePopulation: "Geeignete Population",
         requiredComponents: "Erforderliche Komponenten",
         cdmTablesUsed: "Verwendete CDM-Tabellen",
@@ -2080,8 +2061,7 @@ const dePublishCareGapRisk: MessageTree = mergeMessageTrees(
         sortCompliance: "Konformitat",
         noBundlesFound: "Keine Bundles gefunden",
         adjustFilters: "Passen Sie Ihre Filter an",
-        createToGetStarted:
-          "Erstellen Sie ein Bundle, um zu beginnen",
+        createToGetStarted: "Erstellen Sie ein Bundle, um zu beginnen",
       },
       bundleDetail: {
         failedToLoad: "Bundle konnte nicht geladen werden",
@@ -2103,8 +2083,7 @@ const dePublishCareGapRisk: MessageTree = mergeMessageTrees(
         evaluationInProgress: "Bewertung lauft...",
         noEvaluationResults:
           "Noch keine Bewertungsergebnisse. Fuhren Sie eine Bewertung aus, um Compliance-Daten anzuzeigen.",
-        deleteConfirm:
-          "Mochten Sie dieses Krankheits-Bundle wirklich loschen?",
+        deleteConfirm: "Mochten Sie dieses Krankheits-Bundle wirklich loschen?",
       },
       bundleDesigner: {
         bundleDetails: "Bundle-Details",
@@ -2117,8 +2096,7 @@ const dePublishCareGapRisk: MessageTree = mergeMessageTrees(
         omopConceptIds: "OMOP-Konzept-IDs",
         ecqmReferences: "eCQM-Referenzen",
         attachedMeasures: "Verknupfte Metriken",
-        noMeasuresAttached:
-          "Diesem Bundle sind keine Metriken zugeordnet.",
+        noMeasuresAttached: "Diesem Bundle sind keine Metriken zugeordnet.",
         saveBundle: "Bundle speichern",
         saving: "Speichern...",
         add: "Hinzufugen",
@@ -2131,8 +2109,7 @@ const dePublishCareGapRisk: MessageTree = mergeMessageTrees(
         },
       },
       measureCompliance: {
-        noResultsAvailable:
-          "Noch keine Metrikergebnisse verfugbar.",
+        noResultsAvailable: "Noch keine Metrikergebnisse verfugbar.",
         measure: "Metrik",
         domain: "Domane",
         eligible: "Geeignet",
@@ -2145,8 +2122,7 @@ const dePublishCareGapRisk: MessageTree = mergeMessageTrees(
       population: {
         selectSourcePrompt:
           "Wahlen Sie eine Datenquelle aus, um die Populations-Compliance anzuzeigen.",
-        failedToLoad:
-          "Populationszusammenfassung konnte nicht geladen werden.",
+        failedToLoad: "Populationszusammenfassung konnte nicht geladen werden.",
         totalBundles: "Bundles gesamt",
         totalPatients: "Patienten gesamt",
         avgCompliance: "Durchschn. Compliance",
@@ -2157,10 +2133,8 @@ const dePublishCareGapRisk: MessageTree = mergeMessageTrees(
           "Keine Bundles entsprechen dem ausgewahlten Filter.",
       },
       overlapRules: {
-        failedToLoad:
-          "Uberlappungsregeln konnten nicht geladen werden.",
-        noneConfigured:
-          "Keine Uberlappungsregeln konfiguriert.",
+        failedToLoad: "Uberlappungsregeln konnten nicht geladen werden.",
+        noneConfigured: "Keine Uberlappungsregeln konfiguriert.",
         subtitle:
           "Uberlappungsregeln verhindern Doppelzahlungen von Metriken uber Bundles hinweg.",
       },
@@ -2231,14 +2205,12 @@ const dePublishCareGapRisk: MessageTree = mergeMessageTrees(
         template: "Vorlage",
       },
       preview: {
-        diagramDataNotAvailable:
-          "Diagrammdaten nicht verfugbar",
+        diagramDataNotAvailable: "Diagrammdaten nicht verfugbar",
         unknownDiagramType: "Unbekannter Diagrammtyp",
         reviewWarning:
           "Einige KI-generierte Abschnitte wurden noch nicht gepruft. Bitte akzeptieren oder bearbeiten Sie alle KI-Inhalte vor dem Export.",
         generatedLabel: "Erzeugt am {{date}}",
-        noSectionContent:
-          "Fur diesen Abschnitt ist kein Inhalt verfugbar.",
+        noSectionContent: "Fur diesen Abschnitt ist kein Inhalt verfugbar.",
         noSectionsIncluded:
           "Keine Abschnitte enthalten. Gehen Sie zuruck und konfigurieren Sie Ihr Dokument.",
         backToConfigure: "Zuruck zur Konfiguration",
@@ -2251,7 +2223,8 @@ const dePublishCareGapRisk: MessageTree = mergeMessageTrees(
         exportAs: "Als {{format}} exportieren",
         formats: {
           pdf: {
-            description: "Vollstandig formatierten Bericht uber den Druckdialog",
+            description:
+              "Vollstandig formatierten Bericht uber den Druckdialog",
           },
           docx: {
             description: "Strukturiertes Word-Dokument",
@@ -2282,13 +2255,11 @@ const dePublishCareGapRisk: MessageTree = mergeMessageTrees(
           },
           pdf: {
             label: "PDF-Dokument",
-            description:
-              "Druckfertiges Dokument fur Review und Weitergabe",
+            description: "Druckfertiges Dokument fur Review und Weitergabe",
           },
           figuresZip: {
             label: "Einzelne Abbildungen",
-            description:
-              "SVG-Dateien fur separaten Journal-Upload",
+            description: "SVG-Dateien fur separaten Journal-Upload",
           },
         },
       },
@@ -2332,12 +2303,10 @@ const dePublishCareGapRisk: MessageTree = mergeMessageTrees(
         excluded: "Ausgeschlossen",
       },
       resultsSummary: {
-        empty:
-          "Fur diese Ausfuhrung sind keine Ergebnisdaten verfugbar.",
+        empty: "Fur diese Ausfuhrung sind keine Ergebnisdaten verfugbar.",
       },
       resultsTable: {
-        empty:
-          "Fur diese Tabelle sind keine strukturierten Daten verfugbar.",
+        empty: "Fur diese Tabelle sind keine strukturierten Daten verfugbar.",
         caption: "Tabelle {{number}}. {{title}}",
       },
       sectionEditor: {
@@ -2376,15 +2345,12 @@ const dePublishCareGapRisk: MessageTree = mergeMessageTrees(
           fromStudies: "Aus Studien",
         },
         loadingAnalyses: "Analysen werden geladen...",
-        noCompletedAnalyses:
-          "Keine abgeschlossenen Analysen gefunden",
+        noCompletedAnalyses: "Keine abgeschlossenen Analysen gefunden",
         loadingStudies: "Studien werden geladen...",
-        noStudiesMatchFilters:
-          "Keine Studien entsprechen Ihren Filtern",
+        noStudiesMatchFilters: "Keine Studien entsprechen Ihren Filtern",
         noStudiesFound: "Keine Studien gefunden",
         completedAnalyses_one: "{{count}} abgeschlossene Analyse",
-        completedAnalyses_other:
-          "{{count}} abgeschlossene Analysen",
+        completedAnalyses_other: "{{count}} abgeschlossene Analysen",
         actions: {
           selectAll: "Alle auswahlen",
           deselectAll: "Auswahl aufheben",
@@ -2415,10 +2381,8 @@ const dePublishCareGapRisk: MessageTree = mergeMessageTrees(
             "Selbstkontrollierte Fallserie: Inzidenzratenverhaltnisse nach Expositionsfenster",
           treatmentPathways: "Behandlungspfade (Top 10)",
           populationCharacteristics: "Populationsmerkmale",
-          predictionModelPerformance:
-            "Leistung des Vorhersagemodells",
-          evidenceSynthesisPooled:
-            "Evidenzsynthese: gepoolte Schatzungen",
+          predictionModelPerformance: "Leistung des Vorhersagemodells",
+          evidenceSynthesisPooled: "Evidenzsynthese: gepoolte Schatzungen",
         },
         headers: {
           outcome: "Endpunkt",
@@ -2447,8 +2411,7 @@ const dePublishCareGapRisk: MessageTree = mergeMessageTrees(
         },
         "comparative-effectiveness": {
           name: "Bericht zur vergleichenden Wirksamkeit",
-          description:
-            "CLE/CER-Struktur mit Propensity-Score-Analyse",
+          description: "CLE/CER-Struktur mit Propensity-Score-Analyse",
           sections: {
             background: "Hintergrund",
             "study-design": "Studiendesign",
@@ -2615,7 +2578,7 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
         },
         search: {
           analysesPlaceholder: "Pesquisar analises...",
-          noMatch: "Nenhuma analise corresponde a \"{{query}}\"",
+          noMatch: 'Nenhuma analise corresponde a "{{query}}"',
           typeToFilter: "Digite para filtrar {{count}} analises",
         },
         count: {
@@ -2680,8 +2643,7 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
         empty: {
           noMatchingAnalyses: "Nenhuma analise correspondente",
           noRiskScoreAnalysesYet: "Ainda nao ha analises de score de risco",
-          noAnalysesFoundFor:
-            "Nenhuma analise encontrada para \"{{query}}\"",
+          noAnalysesFoundFor: 'Nenhuma analise encontrada para "{{query}}"',
           createFirst:
             "Crie sua primeira analise para estratificar pacientes por scores clinicos de risco.",
         },
@@ -2691,14 +2653,12 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
         },
         catalogue: {
           checkingEligibility: "Verificando elegibilidade...",
-          showingEligibilityFor:
-            "Mostrando elegibilidade para {{source}}",
+          showingEligibilityFor: "Mostrando elegibilidade para {{source}}",
           eligibleSummary: "{{eligible}} de {{total}} scores elegiveis",
           completedResults: "{{count}} resultados concluidos",
           selectSourcePrompt:
             "Selecione uma fonte de dados no cabecalho para verificar a elegibilidade de cada score.",
-          sourceLevelCompletedScores:
-            "Scores concluidos no nivel da fonte",
+          sourceLevelCompletedScores: "Scores concluidos no nivel da fonte",
           sourceLevelCompletedScoresDetail:
             "{{count}} score concluido existe para a fonte ativa, mas nao esta vinculado a nenhuma execucao de analise v2.",
           sourceLevelCompletedScoresDetail_other:
@@ -2724,10 +2684,8 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
         cohortPatients: "{{count}} pacientes",
         autoNameSuffix: "Estratificacao de risco",
         placeholders: {
-          name:
-            "ex.: Coorte de insuficiencia cardiaca - Estratificacao de risco",
-          description:
-            "Descricao opcional desta analise de score de risco...",
+          name: "ex.: Coorte de insuficiencia cardiaca - Estratificacao de risco",
+          description: "Descricao opcional desta analise de score de risco...",
         },
         completeness: "Completude:",
         createAsDraft: "Criar como rascunho",
@@ -2798,10 +2756,8 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
         all: "Todos",
         showingPatients: "Mostrando {{count}} pacientes",
         patientsOnPage: "{{count}} pacientes nesta pagina",
-        noPatientResultsAvailable:
-          "Nenhum resultado de paciente disponivel",
-        adjustFilters:
-          "Tente ajustar seus filtros para ver os resultados.",
+        noPatientResultsAvailable: "Nenhum resultado de paciente disponivel",
+        adjustFilters: "Tente ajustar seus filtros para ver os resultados.",
         executeToGenerate:
           "Execute a analise para gerar scores no nivel do paciente.",
         personId: "ID da pessoa",
@@ -2813,8 +2769,7 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
           "Elegivel - {{count}} pacientes possuem dados suficientes",
         insufficientData: "Dados insuficientes na fonte ativa",
         missing: "Ausente:",
-        checkingEligibility:
-          "Verificando elegibilidade para a fonte ativa...",
+        checkingEligibility: "Verificando elegibilidade para a fonte ativa...",
         eligiblePopulation: "Populacao elegivel",
         requiredComponents: "Componentes obrigatorios",
         cdmTablesUsed: "Tabelas CDM utilizadas",
@@ -2838,8 +2793,7 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
         defaultName: "{{score}} - Risco {{tier}} - {{cohort}}",
       },
       recommendations: {
-        selectSourceToView:
-          "Selecione uma fonte para ver as recomendacoes",
+        selectSourceToView: "Selecione uma fonte para ver as recomendacoes",
         recommended: "Recomendado",
         available: "Disponivel",
         notApplicable: "Nao aplicavel",
@@ -2847,10 +2801,8 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
       runModal: {
         title: "Scores de risco populacionais",
         computingScores: "Calculando scores...",
-        completedScoresIn:
-          "{{count}} score concluido em {{duration}}",
-        completedScoresIn_other:
-          "{{count}} scores concluidos em {{duration}}",
+        completedScoresIn: "{{count}} score concluido em {{duration}}",
+        completedScoresIn_other: "{{count}} scores concluidos em {{duration}}",
         runFailed: "Execucao falhou",
         passed: "{{count}} aprovados",
         failed: "{{count}} falharam",
@@ -2958,8 +2910,7 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
         omopConceptIds: "IDs de conceito OMOP",
         ecqmReferences: "Referencias eCQM",
         attachedMeasures: "Medidas associadas",
-        noMeasuresAttached:
-          "Nenhuma medida associada a este bundle.",
+        noMeasuresAttached: "Nenhuma medida associada a este bundle.",
         saveBundle: "Salvar bundle",
         saving: "Salvando...",
         add: "Adicionar",
@@ -2972,8 +2923,7 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
         },
       },
       measureCompliance: {
-        noResultsAvailable:
-          "Ainda nao ha resultados de medidas disponiveis.",
+        noResultsAvailable: "Ainda nao ha resultados de medidas disponiveis.",
         measure: "Medida",
         domain: "Dominio",
         eligible: "Elegivel",
@@ -2986,23 +2936,19 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
       population: {
         selectSourcePrompt:
           "Selecione uma fonte de dados para ver a conformidade populacional.",
-        failedToLoad:
-          "Falha ao carregar o resumo da populacao.",
+        failedToLoad: "Falha ao carregar o resumo da populacao.",
         totalBundles: "Total de bundles",
         totalPatients: "Total de pacientes",
         avgCompliance: "Conformidade media",
         totalOpenGaps: "Total de lacunas abertas",
         filterByCategory: "Filtrar por categoria:",
-        bundleComplianceComparison:
-          "Comparacao de conformidade dos bundles",
+        bundleComplianceComparison: "Comparacao de conformidade dos bundles",
         noBundlesMatchFilter:
           "Nenhum bundle corresponde ao filtro selecionado.",
       },
       overlapRules: {
-        failedToLoad:
-          "Falha ao carregar as regras de sobreposicao.",
-        noneConfigured:
-          "Nenhuma regra de sobreposicao configurada.",
+        failedToLoad: "Falha ao carregar as regras de sobreposicao.",
+        noneConfigured: "Nenhuma regra de sobreposicao configurada.",
         subtitle:
           "As regras de sobreposicao evitam contagem duplicada de medidas entre bundles.",
       },
@@ -3044,8 +2990,7 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
           pathway: "Percurso",
         },
         resultSection: {
-          populationCharacteristics:
-            "Caracteristicas da populacao",
+          populationCharacteristics: "Caracteristicas da populacao",
           incidenceRates: "Taxas de incidencia",
           comparativeEffectiveness: "Efetividade comparativa",
           treatmentPatterns: "Padroes de tratamento",
@@ -3074,14 +3019,12 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
         template: "Modelo",
       },
       preview: {
-        diagramDataNotAvailable:
-          "Dados do diagrama nao disponiveis",
+        diagramDataNotAvailable: "Dados do diagrama nao disponiveis",
         unknownDiagramType: "Tipo de diagrama desconhecido",
         reviewWarning:
           "Algumas secoes geradas por IA ainda nao foram revisadas. Aceite ou edite todo o conteudo de IA antes de exportar.",
         generatedLabel: "Gerado em {{date}}",
-        noSectionContent:
-          "Nenhum conteudo disponivel para esta secao.",
+        noSectionContent: "Nenhum conteudo disponivel para esta secao.",
         noSectionsIncluded:
           "Nenhuma secao incluida. Volte para configurar seu documento.",
         backToConfigure: "Voltar para configurar",
@@ -3094,15 +3037,13 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
         exportAs: "Exportar como {{format}}",
         formats: {
           pdf: {
-            description:
-              "Relatorio completo formatado via caixa de impressao",
+            description: "Relatorio completo formatado via caixa de impressao",
           },
           docx: {
             description: "Documento Word estruturado",
           },
           xlsx: {
-            description:
-              "Tabelas e estatisticas como planilha",
+            description: "Tabelas e estatisticas como planilha",
           },
           png: {
             description: "Graficos como arquivos de imagem raster",
@@ -3132,8 +3073,7 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
           },
           figuresZip: {
             label: "Figuras individuais",
-            description:
-              "Arquivos SVG para envio separado ao periodico",
+            description: "Arquivos SVG para envio separado ao periodico",
           },
         },
       },
@@ -3177,12 +3117,10 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
         excluded: "Excluida",
       },
       resultsSummary: {
-        empty:
-          "Nenhum dado de resultado disponivel para esta execucao.",
+        empty: "Nenhum dado de resultado disponivel para esta execucao.",
       },
       resultsTable: {
-        empty:
-          "Nenhum dado estruturado disponivel para esta tabela.",
+        empty: "Nenhum dado estruturado disponivel para esta tabela.",
         caption: "Tabela {{number}}. {{title}}",
       },
       sectionEditor: {
@@ -3199,11 +3137,9 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
       },
       studySelector: {
         loadingStudies: "Carregando estudos...",
-        failedToLoad:
-          "Falha ao carregar os estudos. Tente novamente.",
+        failedToLoad: "Falha ao carregar os estudos. Tente novamente.",
         selectStudy: "Selecionar um estudo",
-        noStudiesFound:
-          "Nenhum estudo encontrado. Crie um estudo primeiro.",
+        noStudiesFound: "Nenhum estudo encontrado. Crie um estudo primeiro.",
         completedExecutions: "Execucoes concluidas",
         loadingExecutions: "Carregando execucoes...",
         noCompletedExecutions:
@@ -3221,15 +3157,12 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
           fromStudies: "Dos estudos",
         },
         loadingAnalyses: "Carregando analises...",
-        noCompletedAnalyses:
-          "Nenhuma analise concluida encontrada",
+        noCompletedAnalyses: "Nenhuma analise concluida encontrada",
         loadingStudies: "Carregando estudos...",
-        noStudiesMatchFilters:
-          "Nenhum estudo corresponde aos seus filtros",
+        noStudiesMatchFilters: "Nenhum estudo corresponde aos seus filtros",
         noStudiesFound: "Nenhum estudo encontrado",
         completedAnalyses_one: "{{count}} analise concluida",
-        completedAnalyses_other:
-          "{{count}} analises concluidas",
+        completedAnalyses_other: "{{count}} analises concluidas",
         actions: {
           selectAll: "Selecionar tudo",
           deselectAll: "Desmarcar tudo",
@@ -3259,10 +3192,8 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
           sccsEstimates:
             "Serie de casos autocontrolada: razoes de taxa de incidencia por janela de exposicao",
           treatmentPathways: "Percursos terapeuticos (top 10)",
-          populationCharacteristics:
-            "Caracteristicas da populacao",
-          predictionModelPerformance:
-            "Desempenho do modelo de predicao",
+          populationCharacteristics: "Caracteristicas da populacao",
+          predictionModelPerformance: "Desempenho do modelo de predicao",
           evidenceSynthesisPooled:
             "Sintese de evidencias: estimativas combinadas",
         },
@@ -3295,8 +3226,7 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
         },
         "comparative-effectiveness": {
           name: "Relatorio de efetividade comparativa",
-          description:
-            "Estrutura CLE/CER com analise por score de propensao",
+          description: "Estrutura CLE/CER com analise por score de propensao",
           sections: {
             background: "Contexto",
             "study-design": "Desenho do estudo",
@@ -3337,8 +3267,7 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
             "background-significance": "Contexto e relevancia",
             objective: "Objetivo",
             "materials-methods": "Materiais e metodos",
-            "data-sources":
-              "Fontes de dados e populacao do estudo",
+            "data-sources": "Fontes de dados e populacao do estudo",
             "phenotype-definitions": "Definicoes de fenotipo",
             "statistical-analysis": "Analise estatistica",
             discussion: "Discussao",
@@ -3353,8 +3282,7 @@ const ptPublishCareGapRisk: MessageTree = mergeMessageTrees(
           sections: {
             introduction: "Introducao",
             methods: "Metodos",
-            "study-design-participants":
-              "Desenho do estudo e participantes",
+            "study-design-participants": "Desenho do estudo e participantes",
             procedures: "Procedimentos",
             outcomes: "Desfechos",
             "statistical-analysis": "Analise estatistica",
@@ -3494,7 +3422,7 @@ const esPublishCareGapRisk: MessageTree = mergeMessageTrees(
         },
         search: {
           analysesPlaceholder: "Buscar análisis...",
-          noMatch: "Ningún análisis coincide con \"{{query}}\"",
+          noMatch: 'Ningún análisis coincide con "{{query}}"',
           typeToFilter: "Escribe para filtrar {{count}} análisis",
         },
         count: {
@@ -3563,7 +3491,7 @@ const esPublishCareGapRisk: MessageTree = mergeMessageTrees(
         empty: {
           noMatchingAnalyses: "No hay análisis coincidentes",
           noRiskScoreAnalysesYet: "Aún no hay análisis de riesgo",
-          noAnalysesFoundFor: "No se encontraron análisis para \"{{query}}\"",
+          noAnalysesFoundFor: 'No se encontraron análisis para "{{query}}"',
           createFirst:
             "Crea tu primer análisis para estratificar pacientes por puntuaciones clínicas de riesgo.",
         },
@@ -3605,8 +3533,7 @@ const esPublishCareGapRisk: MessageTree = mergeMessageTrees(
         cohortPatients: "{{count}} pacientes",
         autoNameSuffix: "Estratificación de riesgo",
         placeholders: {
-          name:
-            "p. ej., cohorte de insuficiencia cardíaca - estratificación de riesgo",
+          name: "p. ej., cohorte de insuficiencia cardíaca - estratificación de riesgo",
           description:
             "Descripción opcional de este análisis de puntuación de riesgo...",
         },
@@ -3679,8 +3606,7 @@ const esPublishCareGapRisk: MessageTree = mergeMessageTrees(
         all: "Todos",
         showingPatients: "Mostrando {{count}} pacientes",
         patientsOnPage: "{{count}} pacientes en esta página",
-        noPatientResultsAvailable:
-          "No hay resultados de pacientes disponibles",
+        noPatientResultsAvailable: "No hay resultados de pacientes disponibles",
         adjustFilters: "Prueba ajustando los filtros para ver resultados.",
         executeToGenerate:
           "Ejecuta el análisis para generar puntuaciones a nivel de paciente.",
@@ -3727,8 +3653,7 @@ const esPublishCareGapRisk: MessageTree = mergeMessageTrees(
       runModal: {
         title: "Puntuaciones de riesgo poblacional",
         computingScores: "Calculando puntuaciones...",
-        completedScoresIn:
-          "{{count}} puntuación completada en {{duration}}",
+        completedScoresIn: "{{count}} puntuación completada en {{duration}}",
         completedScoresIn_other:
           "{{count}} puntuaciones completadas en {{duration}}",
         runFailed: "La ejecución falló",
@@ -3824,8 +3749,7 @@ const esPublishCareGapRisk: MessageTree = mergeMessageTrees(
         evaluationInProgress: "Evaluación en curso...",
         noEvaluationResults:
           "Aún no hay resultados de evaluación. Ejecuta una evaluación para ver los datos de cumplimiento.",
-        deleteConfirm:
-          "¿Seguro que quieres eliminar este bundle de condición?",
+        deleteConfirm: "¿Seguro que quieres eliminar este bundle de condición?",
       },
       bundleDesigner: {
         bundleDetails: "Detalles del bundle",
@@ -4009,8 +3933,7 @@ const esPublishCareGapRisk: MessageTree = mergeMessageTrees(
           },
           figuresZip: {
             label: "Figuras individuales",
-            description:
-              "Archivos SVG para carga independiente en la revista",
+            description: "Archivos SVG para carga independiente en la revista",
           },
         },
       },
@@ -4094,11 +4017,9 @@ const esPublishCareGapRisk: MessageTree = mergeMessageTrees(
           fromStudies: "Desde estudios",
         },
         loadingAnalyses: "Cargando análisis...",
-        noCompletedAnalyses:
-          "No se encontraron análisis completados",
+        noCompletedAnalyses: "No se encontraron análisis completados",
         loadingStudies: "Cargando estudios...",
-        noStudiesMatchFilters:
-          "Ningún estudio coincide con tus filtros",
+        noStudiesMatchFilters: "Ningún estudio coincide con tus filtros",
         noStudiesFound: "No se encontraron estudios",
         completedAnalyses_one: "{{count}} análisis completado",
         completedAnalyses_other: "{{count}} análisis completados",
@@ -4132,8 +4053,7 @@ const esPublishCareGapRisk: MessageTree = mergeMessageTrees(
             "Serie de casos autocontrolada: razones de tasas de incidencia por ventana de exposición",
           treatmentPathways: "Trayectorias de tratamiento (top 10)",
           populationCharacteristics: "Características poblacionales",
-          predictionModelPerformance:
-            "Desempeño del modelo de predicción",
+          predictionModelPerformance: "Desempeño del modelo de predicción",
           evidenceSynthesisPooled:
             "Síntesis de evidencia: estimaciones combinadas",
         },
@@ -4338,7 +4258,7 @@ const koPublishCareGapRisk: MessageTree = mergeMessageTrees(
         },
         search: {
           analysesPlaceholder: "분석 검색...",
-          noMatch: "\"{{query}}\"와 일치하는 분석이 없습니다",
+          noMatch: '"{{query}}"와 일치하는 분석이 없습니다',
           typeToFilter: "{{count}}개 분석을 필터링하려면 입력하세요",
         },
         count: {
@@ -4383,8 +4303,7 @@ const koPublishCareGapRisk: MessageTree = mergeMessageTrees(
       },
       hub: {
         title: "위험 점수 분석",
-        subtitle:
-          "검증된 임상 위험 점수로 환자 집단을 층화합니다",
+        subtitle: "검증된 임상 위험 점수로 환자 집단을 층화합니다",
         metrics: {
           total: "전체",
           running: "실행 중",
@@ -4407,14 +4326,12 @@ const koPublishCareGapRisk: MessageTree = mergeMessageTrees(
         empty: {
           noMatchingAnalyses: "일치하는 분석이 없습니다",
           noRiskScoreAnalysesYet: "아직 위험 점수 분석이 없습니다",
-          noAnalysesFoundFor:
-            "\"{{query}}\"에 대한 분석을 찾을 수 없습니다",
+          noAnalysesFoundFor: '"{{query}}"에 대한 분석을 찾을 수 없습니다',
           createFirst:
             "첫 번째 분석을 생성하여 임상 위험 점수로 환자를 층화하세요.",
         },
         errors: {
-          failedToLoadAnalyses:
-            "분석을 불러오지 못했습니다. 다시 시도하세요.",
+          failedToLoadAnalyses: "분석을 불러오지 못했습니다. 다시 시도하세요.",
         },
         catalogue: {
           checkingEligibility: "적격성 확인 중...",
@@ -4434,8 +4351,7 @@ const koPublishCareGapRisk: MessageTree = mergeMessageTrees(
       },
       create: {
         title: "새 위험 점수 분석",
-        subtitle:
-          "위험 점수 분석을 구성하고 계산할 점수를 선택합니다",
+        subtitle: "위험 점수 분석을 구성하고 계산할 점수를 선택합니다",
         steps: {
           configure: "구성",
           reviewAndRun: "검토 및 실행",
@@ -4523,8 +4439,7 @@ const koPublishCareGapRisk: MessageTree = mergeMessageTrees(
         patientsOnPage: "이 페이지의 환자 {{count}}명",
         noPatientResultsAvailable: "환자 결과가 없습니다",
         adjustFilters: "결과를 보려면 필터를 조정해 보세요.",
-        executeToGenerate:
-          "환자 수준 점수를 생성하려면 분석을 실행하세요.",
+        executeToGenerate: "환자 수준 점수를 생성하려면 분석을 실행하세요.",
         personId: "환자 ID",
       },
       scoreDetail: {
@@ -4566,10 +4481,8 @@ const koPublishCareGapRisk: MessageTree = mergeMessageTrees(
       runModal: {
         title: "인구 집단 위험 점수",
         computingScores: "점수 계산 중...",
-        completedScoresIn:
-          "{{duration}} 동안 점수 {{count}}개 완료",
-        completedScoresIn_other:
-          "{{duration}} 동안 점수 {{count}}개 완료",
+        completedScoresIn: "{{duration}} 동안 점수 {{count}}개 완료",
+        completedScoresIn_other: "{{duration}} 동안 점수 {{count}}개 완료",
         runFailed: "실행 실패",
         passed: "{{count}}개 통과",
         failed: "{{count}}개 실패",
@@ -4626,8 +4539,7 @@ const koPublishCareGapRisk: MessageTree = mergeMessageTrees(
       },
       page: {
         title: "케어 갭",
-        subtitle:
-          "질환 번들, 품질 지표, 인구 집단 준수도 추적",
+        subtitle: "질환 번들, 품질 지표, 인구 집단 준수도 추적",
         untitledBundle: "제목 없는 번들",
         tabs: {
           bundles: "질환 번들",
@@ -4663,8 +4575,7 @@ const koPublishCareGapRisk: MessageTree = mergeMessageTrees(
         evaluationInProgress: "평가 진행 중...",
         noEvaluationResults:
           "아직 평가 결과가 없습니다. 준수 데이터를 보려면 평가를 실행하세요.",
-        deleteConfirm:
-          "이 질환 번들을 삭제하시겠습니까?",
+        deleteConfirm: "이 질환 번들을 삭제하시겠습니까?",
       },
       bundleDesigner: {
         bundleDetails: "번들 세부 정보",
@@ -4713,14 +4624,12 @@ const koPublishCareGapRisk: MessageTree = mergeMessageTrees(
         totalOpenGaps: "전체 미해결 갭",
         filterByCategory: "범주별 필터:",
         bundleComplianceComparison: "번들 준수도 비교",
-        noBundlesMatchFilter:
-          "선택한 필터와 일치하는 번들이 없습니다.",
+        noBundlesMatchFilter: "선택한 필터와 일치하는 번들이 없습니다.",
       },
       overlapRules: {
         failedToLoad: "중복 규칙을 불러오지 못했습니다.",
         noneConfigured: "구성된 중복 규칙이 없습니다.",
-        subtitle:
-          "중복 규칙은 번들 간 측정치의 이중 집계를 방지합니다.",
+        subtitle: "중복 규칙은 번들 간 측정치의 이중 집계를 방지합니다.",
       },
     },
     publish: {
@@ -4771,8 +4680,7 @@ const koPublishCareGapRisk: MessageTree = mergeMessageTrees(
       },
       page: {
         title: "출판",
-        subtitle:
-          "연구와 분석에서 사전 출판용 원고를 생성합니다",
+        subtitle: "연구와 분석에서 사전 출판용 원고를 생성합니다",
         startNewDocument: "새 문서 시작",
         untitledDocument: "제목 없는 문서",
       },
@@ -4874,14 +4782,12 @@ const koPublishCareGapRisk: MessageTree = mergeMessageTrees(
         title: "연구 보고서 미리보기",
         subtitle:
           "섹션을 켜거나 끄고 컨트롤을 사용해 순서를 바꾸세요. 포함된 섹션만 내보내기에 나타납니다.",
-        empty:
-          "미리볼 섹션이 없습니다. 뒤로 돌아가 분석 실행을 선택하세요.",
+        empty: "미리볼 섹션이 없습니다. 뒤로 돌아가 분석 실행을 선택하세요.",
       },
       reportSection: {
         moveUp: "위로 이동",
         moveDown: "아래로 이동",
-        diagnosticsPlaceholder:
-          "진단 데이터는 내보낸 보고서에 렌더링됩니다.",
+        diagnosticsPlaceholder: "진단 데이터는 내보낸 보고서에 렌더링됩니다.",
         includeSection: "섹션 포함",
         excludeSection: "섹션 제외",
         included: "포함됨",
@@ -4908,15 +4814,12 @@ const koPublishCareGapRisk: MessageTree = mergeMessageTrees(
       },
       studySelector: {
         loadingStudies: "연구 불러오는 중...",
-        failedToLoad:
-          "연구를 불러오지 못했습니다. 다시 시도하세요.",
+        failedToLoad: "연구를 불러오지 못했습니다. 다시 시도하세요.",
         selectStudy: "연구 선택",
-        noStudiesFound:
-          "연구를 찾을 수 없습니다. 먼저 연구를 생성하세요.",
+        noStudiesFound: "연구를 찾을 수 없습니다. 먼저 연구를 생성하세요.",
         completedExecutions: "완료된 실행",
         loadingExecutions: "실행 불러오는 중...",
-        noCompletedExecutions:
-          "이 연구에 대한 완료된 실행을 찾을 수 없습니다.",
+        noCompletedExecutions: "이 연구에 대한 완료된 실행을 찾을 수 없습니다.",
         executionLabel: "실행 #{{value}}",
       },
       analysisPicker: {
@@ -4930,11 +4833,9 @@ const koPublishCareGapRisk: MessageTree = mergeMessageTrees(
           fromStudies: "연구에서",
         },
         loadingAnalyses: "분석 불러오는 중...",
-        noCompletedAnalyses:
-          "완료된 분석을 찾을 수 없습니다",
+        noCompletedAnalyses: "완료된 분석을 찾을 수 없습니다",
         loadingStudies: "연구 불러오는 중...",
-        noStudiesMatchFilters:
-          "필터와 일치하는 연구가 없습니다",
+        noStudiesMatchFilters: "필터와 일치하는 연구가 없습니다",
         noStudiesFound: "연구를 찾을 수 없습니다",
         completedAnalyses_one: "완료된 분석 {{count}}개",
         completedAnalyses_other: "완료된 분석 {{count}}개",
@@ -4963,8 +4864,7 @@ const koPublishCareGapRisk: MessageTree = mergeMessageTrees(
         captions: {
           incidenceRatesByCohort: "코호트별 발생률",
           comparativeEffectivenessEstimates: "비교 효과성 추정치",
-          sccsEstimates:
-            "자기 대조 사례군 연구: 노출 구간별 발생률비",
+          sccsEstimates: "자기 대조 사례군 연구: 노출 구간별 발생률비",
           treatmentPathways: "치료 경로 (상위 10개)",
           populationCharacteristics: "인구 집단 특성",
           predictionModelPerformance: "예측 모델 성능",
@@ -4993,8 +4893,7 @@ const koPublishCareGapRisk: MessageTree = mergeMessageTrees(
       templates: {
         "generic-ohdsi": {
           name: "일반 OHDSI 출판 템플릿",
-          description:
-            "관찰 건강 데이터 연구를 위한 표준 IMRaD 구조",
+          description: "관찰 건강 데이터 연구를 위한 표준 IMRaD 구조",
           sections: {
             introduction: "서론",
             methods: "방법",
@@ -5024,8 +4923,7 @@ const koPublishCareGapRisk: MessageTree = mergeMessageTrees(
         },
         "study-protocol": {
           name: "연구 프로토콜 / SAP",
-          description:
-            "연구 전 통계 분석 계획 - 결과 불필요",
+          description: "연구 전 통계 분석 계획 - 결과 불필요",
           sections: {
             objectives: "목표",
             hypotheses: "가설",
@@ -5170,7 +5068,7 @@ const hiPublishCareGapRisk: MessageTree = mergeMessageTrees(
         },
         search: {
           analysesPlaceholder: "विश्लेषण खोजें...",
-          noMatch: "\"{{query}}\" से मेल खाने वाला कोई विश्लेषण नहीं मिला",
+          noMatch: '"{{query}}" से मेल खाने वाला कोई विश्लेषण नहीं मिला',
           typeToFilter: "{{count}} विश्लेषण फ़िल्टर करने के लिए लिखें",
         },
         count: {
@@ -5239,8 +5137,7 @@ const hiPublishCareGapRisk: MessageTree = mergeMessageTrees(
         empty: {
           noMatchingAnalyses: "कोई मेल खाने वाला विश्लेषण नहीं",
           noRiskScoreAnalysesYet: "अभी तक कोई जोखिम स्कोर विश्लेषण नहीं है",
-          noAnalysesFoundFor:
-            "\"{{query}}\" के लिए कोई विश्लेषण नहीं मिला",
+          noAnalysesFoundFor: '"{{query}}" के लिए कोई विश्लेषण नहीं मिला',
           createFirst:
             "नैदानिक जोखिम स्कोर के आधार पर रोगियों को स्तरीकृत करने के लिए अपना पहला विश्लेषण बनाएँ.",
         },
@@ -5250,8 +5147,7 @@ const hiPublishCareGapRisk: MessageTree = mergeMessageTrees(
         },
         catalogue: {
           checkingEligibility: "पात्रता जाँची जा रही है...",
-          showingEligibilityFor:
-            "{{source}} के लिए पात्रता दिखाई जा रही है",
+          showingEligibilityFor: "{{source}} के लिए पात्रता दिखाई जा रही है",
           eligibleSummary: "{{total}} में से {{eligible}} स्कोर पात्र हैं",
           completedResults: "{{count}} पूर्ण परिणाम",
           selectSourcePrompt:
@@ -5282,10 +5178,8 @@ const hiPublishCareGapRisk: MessageTree = mergeMessageTrees(
         cohortPatients: "{{count}} रोगी",
         autoNameSuffix: "जोखिम स्तरीकरण",
         placeholders: {
-          name:
-            "उदा. हार्ट फेल्योर कोहोर्ट - जोखिम स्तरीकरण",
-          description:
-            "इस जोखिम स्कोरिंग विश्लेषण का वैकल्पिक विवरण...",
+          name: "उदा. हार्ट फेल्योर कोहोर्ट - जोखिम स्तरीकरण",
+          description: "इस जोखिम स्कोरिंग विश्लेषण का वैकल्पिक विवरण...",
         },
         completeness: "पूर्णता:",
         createAsDraft: "मसौदे के रूप में बनाएँ",
@@ -5293,8 +5187,7 @@ const hiPublishCareGapRisk: MessageTree = mergeMessageTrees(
         errors: {
           executionFailed:
             "विश्लेषण बना दिया गया, लेकिन निष्पादन विफल हुआ. आप इसे विवरण पृष्ठ से फिर चला सकते हैं.",
-          createFailed:
-            "विश्लेषण बनाया नहीं जा सका. कृपया फिर से प्रयास करें.",
+          createFailed: "विश्लेषण बनाया नहीं जा सका. कृपया फिर से प्रयास करें.",
         },
         recommendations: {
           recommended: "अनुशंसित",
@@ -5358,21 +5251,16 @@ const hiPublishCareGapRisk: MessageTree = mergeMessageTrees(
         showingPatients: "{{count}} रोगी दिखाए जा रहे हैं",
         patientsOnPage: "इस पृष्ठ पर {{count}} रोगी",
         noPatientResultsAvailable: "कोई रोगी-स्तर परिणाम उपलब्ध नहीं है",
-        adjustFilters:
-          "परिणाम देखने के लिए अपने फ़िल्टर समायोजित करें.",
-        executeToGenerate:
-          "रोगी-स्तर स्कोर बनाने के लिए विश्लेषण चलाएँ.",
+        adjustFilters: "परिणाम देखने के लिए अपने फ़िल्टर समायोजित करें.",
+        executeToGenerate: "रोगी-स्तर स्कोर बनाने के लिए विश्लेषण चलाएँ.",
         personId: "व्यक्ति ID",
       },
       scoreDetail: {
-        selectSourcePrompt:
-          "पात्रता जाँचने के लिए हेडर से डेटा स्रोत चुनें.",
-        eligiblePatients:
-          "पात्र - {{count}} रोगियों के पास पर्याप्त डेटा है",
+        selectSourcePrompt: "पात्रता जाँचने के लिए हेडर से डेटा स्रोत चुनें.",
+        eligiblePatients: "पात्र - {{count}} रोगियों के पास पर्याप्त डेटा है",
         insufficientData: "सक्रिय स्रोत में पर्याप्त डेटा नहीं है",
         missing: "गायब:",
-        checkingEligibility:
-          "सक्रिय स्रोत के लिए पात्रता जाँची जा रही है...",
+        checkingEligibility: "सक्रिय स्रोत के लिए पात्रता जाँची जा रही है...",
         eligiblePopulation: "पात्र आबादी",
         requiredComponents: "आवश्यक घटक",
         cdmTablesUsed: "प्रयुक्त CDM तालिकाएँ",
@@ -5396,8 +5284,7 @@ const hiPublishCareGapRisk: MessageTree = mergeMessageTrees(
         defaultName: "{{score}} - {{tier}} जोखिम - {{cohort}}",
       },
       recommendations: {
-        selectSourceToView:
-          "सिफारिशें देखने के लिए स्रोत चुनें",
+        selectSourceToView: "सिफारिशें देखने के लिए स्रोत चुनें",
         recommended: "अनुशंसित",
         available: "उपलब्ध",
         notApplicable: "लागू नहीं",
@@ -5405,10 +5292,8 @@ const hiPublishCareGapRisk: MessageTree = mergeMessageTrees(
       runModal: {
         title: "जनसंख्या जोखिम स्कोर",
         computingScores: "स्कोर की गणना हो रही है...",
-        completedScoresIn:
-          "{{duration}} में {{count}} स्कोर पूर्ण",
-        completedScoresIn_other:
-          "{{duration}} में {{count}} स्कोर पूर्ण",
+        completedScoresIn: "{{duration}} में {{count}} स्कोर पूर्ण",
+        completedScoresIn_other: "{{duration}} में {{count}} स्कोर पूर्ण",
         runFailed: "रन विफल हुआ",
         passed: "{{count}} सफल",
         failed: "{{count}} विफल",
@@ -5465,8 +5350,7 @@ const hiPublishCareGapRisk: MessageTree = mergeMessageTrees(
       },
       page: {
         title: "केयर गैप्स",
-        subtitle:
-          "स्थिति बंडल, गुणवत्ता मापदंड और आबादी अनुपालन ट्रैकिंग",
+        subtitle: "स्थिति बंडल, गुणवत्ता मापदंड और आबादी अनुपालन ट्रैकिंग",
         untitledBundle: "बिना शीर्षक वाला बंडल",
         tabs: {
           bundles: "रोग बंडल",
@@ -5502,8 +5386,7 @@ const hiPublishCareGapRisk: MessageTree = mergeMessageTrees(
         evaluationInProgress: "मूल्यांकन जारी है...",
         noEvaluationResults:
           "अभी तक कोई मूल्यांकन परिणाम नहीं है. अनुपालन डेटा देखने के लिए मूल्यांकन चलाएँ.",
-        deleteConfirm:
-          "क्या आप इस स्थिति बंडल को हटाना चाहते हैं?",
+        deleteConfirm: "क्या आप इस स्थिति बंडल को हटाना चाहते हैं?",
       },
       bundleDesigner: {
         bundleDetails: "बंडल विवरण",
@@ -5516,8 +5399,7 @@ const hiPublishCareGapRisk: MessageTree = mergeMessageTrees(
         omopConceptIds: "OMOP कॉन्सेप्ट ID",
         ecqmReferences: "eCQM संदर्भ",
         attachedMeasures: "संलग्न मापदंड",
-        noMeasuresAttached:
-          "इस बंडल से कोई मापदंड संलग्न नहीं है.",
+        noMeasuresAttached: "इस बंडल से कोई मापदंड संलग्न नहीं है.",
         saveBundle: "बंडल सहेजें",
         saving: "सहेजा जा रहा है...",
         add: "जोड़ें",
@@ -5544,8 +5426,7 @@ const hiPublishCareGapRisk: MessageTree = mergeMessageTrees(
         deduplicatedFrom: "इससे डी-डुप्लिकेट किया गया: {{value}}",
       },
       population: {
-        selectSourcePrompt:
-          "आबादी अनुपालन देखने के लिए डेटा स्रोत चुनें.",
+        selectSourcePrompt: "आबादी अनुपालन देखने के लिए डेटा स्रोत चुनें.",
         failedToLoad: "आबादी सारांश लोड नहीं हो सका.",
         totalBundles: "कुल बंडल",
         totalPatients: "कुल रोगी",
@@ -5553,14 +5434,12 @@ const hiPublishCareGapRisk: MessageTree = mergeMessageTrees(
         totalOpenGaps: "कुल खुले गैप्स",
         filterByCategory: "श्रेणी से फ़िल्टर करें:",
         bundleComplianceComparison: "बंडल अनुपालन तुलना",
-        noBundlesMatchFilter:
-          "चयनित फ़िल्टर से कोई बंडल मेल नहीं खाता.",
+        noBundlesMatchFilter: "चयनित फ़िल्टर से कोई बंडल मेल नहीं खाता.",
       },
       overlapRules: {
         failedToLoad: "ओवरलैप नियम लोड नहीं हो सके.",
         noneConfigured: "कोई ओवरलैप नियम कॉन्फ़िगर नहीं है.",
-        subtitle:
-          "ओवरलैप नियम बंडलों के बीच मापदंडों की दोहरी गणना रोकते हैं.",
+        subtitle: "ओवरलैप नियम बंडलों के बीच मापदंडों की दोहरी गणना रोकते हैं.",
       },
     },
     publish: {
@@ -5676,18 +5555,15 @@ const hiPublishCareGapRisk: MessageTree = mergeMessageTrees(
         formats: {
           docx: {
             label: "Microsoft Word दस्तावेज़",
-            description:
-              "एम्बेडेड फ़िगर्स के साथ जर्नल-तैयार पांडुलिपि",
+            description: "एम्बेडेड फ़िगर्स के साथ जर्नल-तैयार पांडुलिपि",
           },
           pdf: {
             label: "PDF दस्तावेज़",
-            description:
-              "समीक्षा और साझा करने के लिए प्रिंट-तैयार दस्तावेज़",
+            description: "समीक्षा और साझा करने के लिए प्रिंट-तैयार दस्तावेज़",
           },
           figuresZip: {
             label: "अलग-अलग फ़िगर्स",
-            description:
-              "अलग जर्नल अपलोड के लिए SVG फ़ाइलें",
+            description: "अलग जर्नल अपलोड के लिए SVG फ़ाइलें",
           },
         },
       },
@@ -5751,15 +5627,12 @@ const hiPublishCareGapRisk: MessageTree = mergeMessageTrees(
       },
       studySelector: {
         loadingStudies: "अध्ययन लोड हो रहे हैं...",
-        failedToLoad:
-          "अध्ययन लोड नहीं हो सके. कृपया फिर से प्रयास करें.",
+        failedToLoad: "अध्ययन लोड नहीं हो सके. कृपया फिर से प्रयास करें.",
         selectStudy: "अध्ययन चुनें",
-        noStudiesFound:
-          "कोई अध्ययन नहीं मिला. पहले एक अध्ययन बनाएँ.",
+        noStudiesFound: "कोई अध्ययन नहीं मिला. पहले एक अध्ययन बनाएँ.",
         completedExecutions: "पूर्ण निष्पादन",
         loadingExecutions: "निष्पादन लोड हो रहे हैं...",
-        noCompletedExecutions:
-          "इस अध्ययन के लिए कोई पूर्ण निष्पादन नहीं मिला.",
+        noCompletedExecutions: "इस अध्ययन के लिए कोई पूर्ण निष्पादन नहीं मिला.",
         executionLabel: "निष्पादन #{{value}}",
       },
       analysisPicker: {
@@ -5773,11 +5646,9 @@ const hiPublishCareGapRisk: MessageTree = mergeMessageTrees(
           fromStudies: "अध्ययनों से",
         },
         loadingAnalyses: "विश्लेषण लोड हो रहे हैं...",
-        noCompletedAnalyses:
-          "कोई पूर्ण विश्लेषण नहीं मिला",
+        noCompletedAnalyses: "कोई पूर्ण विश्लेषण नहीं मिला",
         loadingStudies: "अध्ययन लोड हो रहे हैं...",
-        noStudiesMatchFilters:
-          "कोई अध्ययन आपके फ़िल्टर से मेल नहीं खाता",
+        noStudiesMatchFilters: "कोई अध्ययन आपके फ़िल्टर से मेल नहीं खाता",
         noStudiesFound: "कोई अध्ययन नहीं मिला",
         completedAnalyses_one: "{{count}} पूर्ण विश्लेषण",
         completedAnalyses_other: "{{count}} पूर्ण विश्लेषण",
@@ -5805,8 +5676,7 @@ const hiPublishCareGapRisk: MessageTree = mergeMessageTrees(
       tables: {
         captions: {
           incidenceRatesByCohort: "कोहोर्ट के अनुसार घटनादर",
-          comparativeEffectivenessEstimates:
-            "तुलनात्मक प्रभावशीलता अनुमान",
+          comparativeEffectivenessEstimates: "तुलनात्मक प्रभावशीलता अनुमान",
           sccsEstimates:
             "स्व-नियंत्रित केस सीरीज़: एक्सपोज़र विंडो के अनुसार घटनादर अनुपात",
           treatmentPathways: "उपचार पाथवे (शीर्ष 10)",
@@ -5847,8 +5717,7 @@ const hiPublishCareGapRisk: MessageTree = mergeMessageTrees(
         },
         "comparative-effectiveness": {
           name: "तुलनात्मक प्रभावशीलता रिपोर्ट",
-          description:
-            "प्रोपेन्सिटी स्कोर विश्लेषण के साथ CLE/CER संरचना",
+          description: "प्रोपेन्सिटी स्कोर विश्लेषण के साथ CLE/CER संरचना",
           sections: {
             background: "पृष्ठभूमि",
             "study-design": "अध्ययन डिज़ाइन",
@@ -5951,9 +5820,2159 @@ export const publishCareGapRiskResources: Record<string, MessageTree> = {
   "fr-FR": frPublishCareGapRisk,
   "de-DE": dePublishCareGapRiskPass100,
   "pt-BR": ptPublishCareGapRiskPass100,
-  "fi-FI": mergeMessageTrees(enPublishCareGapRisk, {}),
-  "ja-JP": mergeMessageTrees(enPublishCareGapRisk, {}),
-  "zh-Hans": mergeMessageTrees(enPublishCareGapRisk, {}),
+  "fi-FI": mergeMessageTrees(enPublishCareGapRisk, {
+    riskScores: {
+      common: {
+        status: {
+          draft: "Luonnos",
+          pending: "Odottaa",
+          running: "Juoksemassa",
+          completed: "Valmis",
+          failed: "Epäonnistui",
+        },
+        tier: {
+          low: "Matala",
+          intermediate: "Keskitason",
+          high: "Korkea",
+          veryHigh: "Erittäin korkea",
+          uncomputable: "Laskematon",
+          filtered: "Suodatettu",
+          customFilter: "Mukautettu suodatin",
+        },
+        category: {
+          cardiovascular: "Kardiovaskulaarinen",
+          comorbidityBurden: "Komorbiditeettitaakka",
+          hepatic: "Maksa",
+          pulmonary: "Keuhkosyöpä",
+          respiratory: "Hengitys",
+          metabolic: "Metabolinen",
+          endocrine: "Endokriininen",
+          musculoskeletal: "Tuki- ja liikuntaelimistön",
+        },
+        tabs: {
+          overview: "Yleiskatsaus",
+          results: "Tulokset",
+          patients: "Potilaat",
+          recommendations: "Suositukset",
+          configuration: "Kokoonpano",
+        },
+        actions: {
+          back: "Takaisin",
+          close: "Lähellä",
+          cancel: "Peruuttaa",
+          clear: "Selkeä",
+          refresh: "Päivitä",
+          reRun: "Suorita uudelleen",
+          reRunAnalysis: "Suorita analyysi uudelleen",
+          runAnalysis: "Suorita analyysi",
+          quickRun: "Pikajuoksu",
+          createAnalysis: "Luo analyysi",
+          createCohort: "Luo kohortti",
+          createCohortFromFilter: "Luo kohortti suodattimesta",
+          newAnalysis: "Uusi analyysi",
+          duplicateAnalysis: "Kaksoisanalyysi",
+          deleteAnalysis: "Poista analyysi",
+          openCatalogue: "Avaa Katalogi",
+          viewFullResults: "Näytä täydelliset tulokset",
+        },
+        view: {
+          table: "Taulukkonäkymä",
+          card: "Korttinäkymä",
+        },
+        search: {
+          analysesPlaceholder: "Hakuanalyysit...",
+        },
+        headers: {
+          name: "Nimi",
+          cohort: "Kohortti",
+          status: "Tila",
+          scores: "Pisteet",
+          lastRun: "Viimeinen juoksu",
+          author: "Tekijä",
+          created: "Luotu",
+          tier: "Taso",
+          count: "Laskea",
+          meanScore: "Keskimääräinen pistemäärä",
+          confidence: "Luottamus",
+          score: "Pisteet",
+          value: "Arvo",
+          riskTier: "Riskitaso",
+          completeness: "Täydellisyys",
+          missing: "Puuttuu",
+          started: "Aloitettu",
+          duration: "Kesto",
+          actions: "Toiminnot",
+        },
+      },
+      hub: {
+        title: "Riskipisteanalyysit",
+        subtitle:
+          "Osioi potilasryhmät validoiduilla kliinisillä riskipisteillä",
+        metrics: {
+          total: "Kokonais",
+          running: "Juoksemassa",
+          completed: "Valmis",
+          scoresAvailable: "Pisteet saatavilla",
+          patientsScored: "Potilaat pisteytetään",
+        },
+        filters: {
+          category: "Luokka",
+          status: "Tila",
+          allCategories: "Kaikki luokat",
+        },
+        tabs: {
+          analyses: "Analyysit",
+          scoreCatalogue: "Pisteet Katalogi",
+        },
+        empty: {
+          noMatchingAnalyses: "Ei vastaavia analyyseja",
+          noRiskScoreAnalysesYet: "Ei vielä riskipisteanalyysejä",
+          createFirst:
+            "Luo ensimmäinen analyysisi jakaaksesi potilaat kliinisten riskipisteiden mukaan.",
+        },
+        errors: {
+          failedToLoadAnalyses:
+            "Analyysien lataaminen epäonnistui.Yritä uudelleen.",
+        },
+        catalogue: {
+          checkingEligibility: "Tarkistetaan kelpoisuutta...",
+          selectSourcePrompt:
+            "Valitse otsikosta tietolähde ja tarkista kunkin pisteen kelpoisuus.",
+          sourceLevelCompletedScores: "Lähdetason valmistuneet pisteet",
+        },
+      },
+      create: {
+        title: "Uusi riskipisteanalyysi",
+        subtitle: "Määritä riskipisteanalyysi ja valitse laskettavat pisteet",
+        steps: {
+          configure: "Määritä",
+          reviewAndRun: "Tarkista & Suorita",
+        },
+        basics: "Perusasiat",
+        description: "Kuvaus",
+        selectCohort: "Valitse kohortti...",
+        scoreSelection: "Pisteiden valinta",
+        autoNameSuffix: "Riskien kerrostaminen",
+        completeness: "Täydellisyys:",
+        createAsDraft: "Luo luonnoksena",
+        createAndRun: "Luo ja suorita",
+        errors: {
+          executionFailed:
+            "Analyysi luotiin, mutta suoritus epäonnistui.Voit suorittaa uudelleen tietosivulta.",
+          createFailed: "Analyysin luominen epäonnistui.Yritä uudelleen.",
+        },
+        recommendations: {
+          recommended: "Suositeltava",
+          available: "Saatavilla",
+          notApplicable: "Ei sovelleta",
+        },
+      },
+      detail: {
+        notFound: "Analyysia ei löytynyt",
+        backToRiskScores: "Takaisin riskipisteisiin",
+        selectSourcePrompt:
+          "Valitse suoritettava tietolähde tai tarkastella suoritustuloksia.",
+        deleteConfirm:
+          "Haluatko varmasti poistaa tämän analyysin?Tätä toimintoa ei voi kumota.",
+      },
+      overview: {
+        about: "Noin",
+        resultsSummary: "Tulosten yhteenveto",
+        scoresComputed: "Pisteet laskettu",
+        uniqueScores: "ainutlaatuiset pisteet",
+        patientsScored: "Potilaat pisteytetään",
+        maxPerScore: "max per pisteet",
+        avgCompleteness: "Keskimääräinen täydellisyys",
+        avgConfidence: "Keskimääräinen luottamus",
+        acrossSummaries: "yhteenvetojen välillä",
+        thisAnalysisHasNotBeenExecutedYet: "Tätä analyysiä ei ole vielä tehty.",
+        executionInProgress: "Toteutus käynnissä...",
+        lastExecutionFailed: "Viimeisin suoritus epäonnistui.",
+        recentExecution: "Viimeaikainen toteutus",
+        started: "Aloitettu",
+        completed: "Valmis",
+        duration: "Kesto",
+      },
+      configuration: {
+        analysisDesign: "Analyysisuunnittelu",
+        targetCohorts: "Kohortit",
+        selectedScores: "Valitut pisteet",
+        parameters: "Parametrit",
+        minCompleteness: "Minimi täydellisyys:",
+        storePatientLevel: "Tallenna potilastaso:",
+        executionHistory: "Toteutushistoria",
+        noExecutionsYet: "Ei vielä teloituksia",
+      },
+      results: {
+        noResultsAvailable:
+          "Ei tuloksia saatavilla.Suorita analyysi riskipisteiden laskemiseksi.",
+        allScores: "Kaikki pisteet",
+        percentOfTotal: "% kokonaismäärästä",
+        action: "Toiminta",
+        averageCompleteness: "Keskimääräinen täydellisyys:",
+      },
+      patients: {
+        noExecutionSelected: "Suoritusta ei ole valittu",
+        runExecutionToViewPatientLevel:
+          "Suorita suoritus nähdäksesi potilastason tulokset.",
+        all: "Kaikki",
+        noPatientResultsAvailable: "Potilastuloksia ei ole saatavilla",
+        adjustFilters: "Yritä säätää suodattimia nähdäksesi tulokset.",
+        executeToGenerate: "Suorita analyysi luodaksesi potilastason pisteet.",
+        personId: "Henkilötunnus",
+      },
+      scoreDetail: {
+        selectSourcePrompt:
+          "Tarkista kelpoisuus valitsemalla otsikosta tietolähde.",
+        insufficientData: "Liian vähän dataa aktiivisessa lähteessä",
+        missing: "Puuttuu:",
+        checkingEligibility: "Aktiivisen lähteen kelpoisuutta tarkistetaan...",
+        eligiblePopulation: "Tukikelpoinen väestö",
+        requiredComponents: "Vaaditut komponentit",
+        cdmTablesUsed: "Käytetyt CDM-taulukot",
+        riskTierDefinitions: "Riskitason määritelmät",
+        scoreRange: "Pisteiden vaihteluväli",
+      },
+      createCohort: {
+        title: "Luo kohortti riskitasosta",
+        cohortName: "Kohortin nimi",
+        description: "Kuvaus",
+        showDetails: "Näytä tiedot",
+        hideDetails: "Piilota tiedot",
+        analysisId: "Analyysin tunnus:",
+        executionId: "Toteutustunnus:",
+        score: "Pisteet:",
+        tier: "Taso:",
+        createFailed: "Kohortin luominen epäonnistui.Yritä uudelleen.",
+      },
+      recommendations: {
+        selectSourceToView: "Valitse lähde nähdäksesi suositukset",
+        recommended: "Suositeltava",
+        available: "Saatavilla",
+        notApplicable: "Ei sovelleta",
+      },
+      runModal: {
+        title: "Väestöriskin pisteet",
+        computingScores: "Lasketaan pisteitä...",
+        runFailed: "Juoksu epäonnistui",
+        seconds: "sekuntia",
+      },
+      tierBreakdown: {
+        tierDistribution: "Tason jakelu",
+        patientsPerTier: "Potilaat per taso",
+        patients: "Potilaat",
+      },
+      cohortProfile: {
+        demographics: "Väestötiedot",
+        patients: "potilaita",
+        age: "Ikä",
+        topConditions: "Huippuehdot",
+        measurementCoverage: "Mittauksen kattavuus",
+      },
+    },
+    careGaps: {
+      common: {
+        status: {
+          pending: "Odottaa",
+          running: "Juoksemassa",
+          completed: "Valmis",
+          failed: "Epäonnistui",
+        },
+        actions: {
+          newBundle: "Uusi paketti",
+          delete: "Poistaa",
+          evaluate: "Arvioida",
+          backToList: "Takaisin luetteloon",
+          saveChanges: "Tallenna muutokset",
+          createBundle: "Luo nippu",
+        },
+        category: {
+          all: "Kaikki",
+          endocrine: "Endokriininen",
+          cardiovascular: "Kardiovaskulaarinen",
+          respiratory: "Hengitys",
+          mentalHealth: "Mielenterveys",
+          rheumatologic: "Reumatologinen",
+          neurological: "Neurologinen",
+          oncology: "Onkologia",
+        },
+        bundle: {
+          active: "Aktiivinen",
+          inactive: "Ei-aktiivinen",
+        },
+      },
+      page: {
+        title: "Hoitoaukot",
+        subtitle:
+          "Kuntopaketit, laatumittaukset ja populaation noudattamisen seuranta",
+        untitledBundle: "Nimetön paketti",
+        tabs: {
+          bundles: "Sairauspaketit",
+          population: "Yleiskatsaus väestöstä",
+        },
+      },
+      bundleList: {
+        allCategories: "Kaikki luokat",
+        sortName: "Nimi",
+        sortCompliance: "Vaatimustenmukaisuus",
+        noBundlesFound: "Kimppuja ei löytynyt",
+        adjustFilters: "Kokeile säätää suodattimia",
+        createToGetStarted: "Aloita luomalla paketti",
+      },
+      bundleDetail: {
+        failedToLoad: "Paketin lataaminen epäonnistui",
+        backToCareGaps: "Hoitoaukot",
+        overallCompliance: "Yleinen vaatimustenmukaisuus",
+        tabs: {
+          compliance: "Vaatimustenmukaisuuden tulokset",
+          design: "Suunnittelu",
+          overlap: "Päällekkäisyyssäännöt",
+        },
+        executeEvaluation: "Suorita arviointi",
+        overall: "Kaiken kaikkiaan",
+        totalPatients: "Potilaita yhteensä",
+        openGaps: "Avaa Gaps",
+        gapsMet: "Täytetyt aukot",
+        excluded: "Poissuljettu",
+        evaluationHistory: "Arviointihistoria",
+        evaluationInProgress: "Arviointi käynnissä...",
+        noEvaluationResults:
+          "Ei vielä arviointituloksia.Suorita arviointi nähdäksesi vaatimustenmukaisuustiedot.",
+        deleteConfirm: "Haluatko varmasti poistaa tämän ehtopaketin?",
+      },
+      bundleDesigner: {
+        bundleDetails: "Paketin tiedot",
+        bundleCode: "Paketin koodi",
+        conditionName: "Ehdon nimi",
+        description: "Kuvaus",
+        diseaseCategory: "Sairauden luokka",
+        selectCategory: "Valitse kategoria...",
+        icd10Patterns: "ICD-10 mallit",
+        omopConceptIds: "OMOP-konseptitunnukset",
+        ecqmReferences: "eCQM-viitteet",
+        attachedMeasures: "Liitteenä olevat toimenpiteet",
+        noMeasuresAttached: "Tähän nippuun ei ole liitetty toimenpiteitä.",
+        saveBundle: "Tallenna paketti",
+        saving: "Tallennetaan...",
+        add: "Lisätä",
+        remove: "Poistaa",
+      },
+      measureCompliance: {
+        noResultsAvailable: "Mittaustuloksia ei ole vielä saatavilla.",
+        code: "Koodi",
+        measure: "Mitata",
+        domain: "Verkkotunnus",
+        eligible: "Tukikelpoinen",
+        met: "Täytetty",
+        notMet: "Ei tavattu",
+        compliance: "Vaatimustenmukaisuus",
+        deduplicated: "Duplikoitu",
+      },
+      population: {
+        selectSourcePrompt:
+          "Valitse tietolähde tarkastellaksesi väestön noudattamista.",
+        failedToLoad: "Väestön yhteenvedon lataaminen epäonnistui.",
+        totalBundles: "Paketit yhteensä",
+        totalPatients: "Potilaita yhteensä",
+        avgCompliance: "Keskimääräinen vaatimustenmukaisuus",
+        totalOpenGaps: "Avoimet aukot yhteensä",
+        filterByCategory: "Suodata luokan mukaan:",
+        bundleComplianceComparison: "Paketin vaatimustenmukaisuuden vertailu",
+        noBundlesMatchFilter: "Yksikään nippu ei vastaa valittua suodatinta.",
+      },
+      overlapRules: {
+        failedToLoad: "Päällekkäissääntöjen lataaminen epäonnistui.",
+        noneConfigured: "Päällekkäissääntöjä ei ole määritetty.",
+        subtitle:
+          "Päällekkäisyyssäännöt estävät toimenpiteiden kaksinkertaisen laskemisen nipuissa.",
+      },
+    },
+    publish: {
+      steps: {
+        selectAnalyses: "Valitse Analyysit",
+        configure: "Määritä",
+        preview: "Esikatselu",
+        export: "Viedä",
+      },
+      common: {
+        actions: {
+          back: "Takaisin",
+          next: "Seuraavaksi",
+          previewDocument: "Esikatsele asiakirja ->",
+          configureDocument: "Määritä asiakirja ->",
+          close: "Lähellä",
+        },
+        sectionType: {
+          title: "Otsikko",
+          methods: "menetelmät",
+          results: "Tulokset",
+          diagram: "Kaavio",
+          discussion: "Keskustelu",
+          diagnostics: "Diagnostiikka",
+        },
+        analysisType: {
+          characterizations: "Karakterisointi",
+          characterization: "Karakterisointi",
+          estimations: "Arviointi",
+          estimation: "Arviointi",
+          predictions: "Ennustus",
+          prediction: "Ennustus",
+          incidence_rates: "Ilmaantuvuusprosentti",
+          incidence_rate: "Ilmaantuvuusprosentti",
+          evidence_synthesis: "Todisteiden synteesi",
+          pathways: "Polku",
+          pathway: "Polku",
+        },
+        resultSection: {
+          populationCharacteristics: "Väestön ominaisuudet",
+          incidenceRates: "Ilmaantuvuusluvut",
+          comparativeEffectiveness: "Vertaileva tehokkuus",
+          treatmentPatterns: "Hoitomallit",
+          safetyAnalysis: "Turvallisuusanalyysi",
+          predictiveModeling: "Ennustava mallinnus",
+          evidenceSynthesis: "Todisteiden synteesi",
+        },
+      },
+      page: {
+        title: "Julkaista",
+        subtitle:
+          "Luo julkaisua edeltäviä käsikirjoituksia tutkimuksista ja analyyseista",
+        startNewDocument: "Aloita uusi asiakirja",
+        untitledDocument: "Nimetön asiakirja",
+      },
+      cart: {
+        empty: "Analyyseja ei ole vielä valittu",
+      },
+      configurator: {
+        documentTitle: "Asiakirjan otsikko",
+        documentTitlePlaceholder: "Anna asiakirjan otsikko...",
+        authors: "Tekijät (pilkuilla erotettu)",
+        authorsPlaceholder: "Kirjoittaja yksi, kirjoittaja kaksi...",
+        template: "Malli",
+      },
+      preview: {
+        diagramDataNotAvailable: "Kaavion tiedot eivät ole käytettävissä",
+        unknownDiagramType: "Tuntematon kaaviotyyppi",
+        reviewWarning:
+          "Joitakin tekoälyn luomia osia ei ole tarkistettu.Hyväksy tai muokkaa kaikkea tekoälysisältöä ennen vientiä.",
+        noSectionContent: "Tälle osiolle ei ole saatavilla sisältöä.",
+        noSectionsIncluded:
+          "Ei sisällä osioita.Palaa määrittämään asiakirjasi.",
+        backToConfigure: "Takaisin Määritä",
+        export: "Viedä",
+      },
+      exportControls: {
+        exportFormat: "Vie muoto",
+        comingSoon: "Tulossa pian",
+        exporting: "Viedään...",
+        formats: {
+          pdf: {
+            description: "Täysi muotoiltu raportti tulostusikkunan kautta",
+          },
+          docx: {
+            description: "Jäsennelty Word-asiakirja",
+          },
+          xlsx: {
+            description: "Taulukot ja tilastot laskentataulukkona",
+          },
+          png: {
+            description: "Kaaviot rasterikuvatiedostoina",
+          },
+          svg: {
+            description: "Kaaviot vektorikuvatiedostoina",
+          },
+        },
+      },
+      exportPanel: {
+        draftWarning:
+          "Jotkut tekoälyn luomat osat ovat edelleen luonnostilassa.Palaa takaisin ja hyväksy tai muokkaa kaikkea tekoälysisältöä ennen vientiä.",
+        chooseExportFormat: "Valitse Vientimuoto",
+        exporting: "Viedään...",
+        backToPreview: "Takaisin esikatseluun",
+        formats: {
+          docx: {
+            label: "Microsoft Word -asiakirja",
+            description: "Päiväkirjavalmis käsikirjoitus upotetuilla kuvilla",
+          },
+          pdf: {
+            label: "PDF-dokumentti",
+            description:
+              "Tulostusvalmis asiakirja tarkastettavaksi ja jaettavaksi",
+          },
+          figuresZip: {
+            label: "Yksittäiset hahmot",
+            description: "SVG-tiedostot erilliseen päiväkirjalataukseen",
+          },
+        },
+      },
+      methods: {
+        studyDesign: "Opintojen suunnittelu",
+        primaryObjective: "Ensisijainen tavoite",
+        hypothesis: "Hypoteesi",
+        scientificRationale: "Tieteellinen perustelu",
+        cohortDefinitions: "Kohortin määritelmät",
+        target: "Kohde",
+        comparator: "Vertailija",
+        outcome: "Tulokset",
+        start: "Aloita",
+        end: "Loppu",
+        matchingStrategy: "Vastaava strategia",
+        modelSettings: "Mallin asetukset",
+        timeAtRisk: "Riskiaika",
+        empty:
+          "Menetelmätietoja ei ole saatavilla.Menetelmät luodaan automaattisesti, kun analyysiparametrit tarjotaan.",
+        defaults: {
+          observational: "Havainnollistava",
+          cohortStart: "kohortin alku",
+          cohortEnd: "kohortin loppu",
+        },
+      },
+      reportPreview: {
+        title: "Tutkimusraportin esikatselu",
+        subtitle:
+          "Ota osiot käyttöön / pois käytöstä ja järjestä uudelleen ohjaimilla.Vain sisällytetyt osiot näkyvät viennissä.",
+        empty:
+          "Ei esikatseltavia osioita.Palaa takaisin ja valitse analyysisuoritukset.",
+      },
+      reportSection: {
+        moveUp: "Siirrä ylös",
+        moveDown: "Siirry alas",
+        diagnosticsPlaceholder:
+          "Diagnostiikkatiedot esitetään vietyssä raportissa.",
+        includeSection: "Sisällytä osio",
+        excludeSection: "Sulje osio pois",
+        included: "Mukana",
+        excluded: "Poissuljettu",
+      },
+      resultsSummary: {
+        empty: "Tälle suoritukselle ei ole saatavilla tulostietoja.",
+      },
+      resultsTable: {
+        empty: "Tälle taulukolle ei ole saatavilla strukturoitua dataa.",
+      },
+      sectionEditor: {
+        tableLabel: "Taulukko",
+        aiNarrative: "AI-kertomus",
+        structuredData: "Strukturoitu data",
+        hideTable: "Piilota taulukko",
+        showTable: "Näytä taulukko",
+        hideNarrative: "Piilota kerronta",
+        showNarrative: "Näytä kerronta",
+        hideDiagram: "Piilota kaavio",
+        showDiagram: "Näytä kaavio",
+        noDiagram: "Kaaviota ei ole vielä luotu",
+      },
+      studySelector: {
+        loadingStudies: "Ladataan tutkimuksia...",
+        failedToLoad: "Tutkimusten lataaminen epäonnistui.Yritä uudelleen.",
+        selectStudy: "Valitse tutkimus",
+        noStudiesFound: "Tutkimuksia ei löytynyt.Luo ensin tutkimus.",
+        completedExecutions: "Suoritetut teloitukset",
+        loadingExecutions: "Ladataan teloituksia...",
+        noCompletedExecutions:
+          "Tälle tutkimukselle ei löytynyt suoritettuja suorituksia.",
+      },
+      analysisPicker: {
+        filter: {
+          allTypes: "Kaikki tyypit",
+        },
+        searchAnalyses: "Hakuanalyysit...",
+        searchStudies: "Hae tutkimuksia...",
+        tabs: {
+          allAnalyses: "Kaikki analyysit",
+          fromStudies: "Opiskeluista",
+        },
+        loadingAnalyses: "Ladataan analyyseja...",
+        noCompletedAnalyses: "Valmiita analyyseja ei löytynyt",
+        loadingStudies: "Ladataan tutkimuksia...",
+        noStudiesMatchFilters: "Yksikään tutkimus ei vastaa suodattimiasi",
+        noStudiesFound: "Tutkimuksia ei löytynyt",
+        actions: {
+          selectAll: "Valitse Kaikki",
+          deselectAll: "Poista kaikki valinta",
+        },
+      },
+      aiNarrative: {
+        generate: "Luo AI-luonnos",
+        generating: "Luodaan kerrontaa...",
+        draft: "AI luonnos",
+        accept: "Hyväksyä",
+        regenerate: "Luo uudelleen",
+        accepted: "Hyväksytty",
+        edit: "Muokata",
+      },
+      structuredData: {
+        empty: "Strukturoitua dataa ei ole saatavilla",
+      },
+      diagram: {
+        exportSvg: "Vie SVG-muodossa",
+        exportPng: "Vie PNG-muodossa",
+      },
+      tables: {
+        captions: {
+          incidenceRatesByCohort: "Ilmaantuvuusluvut kohorttien mukaan",
+          comparativeEffectivenessEstimates: "Vertailevat tehokkuusarviot",
+          sccsEstimates:
+            "Itseohjautuva tapaussarja: ilmaantuvuussuhteet altistusikkunan mukaan",
+          treatmentPathways: "Hoitoreitit (10 parasta)",
+          populationCharacteristics: "Väestön ominaisuudet",
+          predictionModelPerformance: "Ennustemallin suorituskyky",
+          evidenceSynthesisPooled: "Todisteiden synteesi: yhdistetyt arviot",
+        },
+        headers: {
+          cohort: "Kohortti",
+          outcome: "Tulokset",
+          events: "Tapahtumat",
+          personYears: "Henkilö-vuodet",
+          ratePer1000Py: "Hinta /1000PY",
+          exposureWindow: "Valotusikkuna",
+          pathway: "Polku",
+          patients: "Potilaat",
+          percentFemale: "% Nainen",
+          percentMale: "% Mies",
+          ageGroup: "Ikäryhmä",
+          model: "Malli",
+          brierScore: "Brier pisteet",
+          targetN: "Kohde N",
+          outcomeN: "Tulos N",
+          analysis: "Analyysi",
+          pooledEstimate: "Yhdistetty arvio",
+        },
+      },
+      templates: {
+        "generic-ohdsi": {
+          name: "Yleinen OHDSI-julkaisu",
+          description:
+            "Standardi IMRaD-rakenne havainnoitaviin terveystietotutkimuksiin",
+          sections: {
+            introduction: "Johdanto",
+            methods: "menetelmät",
+            discussion: "Keskustelu",
+          },
+        },
+        "comparative-effectiveness": {
+          name: "Vertaileva tehokkuusraportti",
+          description: "CLE/CER-rakenne ja taipumuspisteanalyysi",
+          sections: {
+            background: "Tausta",
+            "study-design": "Opintojen suunnittelu",
+            "ps-matching": "Taipumuspisteiden vastaavuus",
+            covariates: "Kovariaattitasapaino",
+            "sensitivity-analyses": "Herkkyysanalyysit",
+            discussion: "Keskustelu",
+          },
+        },
+        "incidence-report": {
+          name: "Ilmaantuvuusraportti",
+          description: "Väestöpohjainen ilmaantuvuusanalyysi",
+          sections: {
+            background: "Tausta",
+            methods: "menetelmät",
+            discussion: "Keskustelu",
+          },
+        },
+        "study-protocol": {
+          name: "Tutkimusprotokolla / SAP",
+          description:
+            "Tutkimusta edeltävä tilastollinen analyysisuunnitelma – tuloksia ei tarvita",
+          sections: {
+            objectives: "Tavoitteet",
+            hypotheses: "Hypoteesit",
+            "study-design": "Opintojen suunnittelu",
+            "data-sources": "Tietolähteet",
+            "cohort-definitions": "Kohortin määritelmät",
+            "analysis-plan": "Analyysisuunnitelma",
+            timeline: "Aikajana",
+          },
+        },
+        "jamia-style": {
+          name: "JAMIA Tyyli",
+          description:
+            "Journal of the American Medical Informatics Association - tietotekniikan metodologia keskittyy toistettavuuteen",
+          sections: {
+            "background-significance": "Tausta ja merkitys",
+            objective: "Tavoite",
+            "materials-methods": "Materiaalit ja menetelmät",
+            "data-sources": "Tietolähteet ja tutkimuspopulaatio",
+            "phenotype-definitions": "Fenotyypin määritelmät",
+            "statistical-analysis": "Tilastollinen analyysi",
+            discussion: "Keskustelu",
+            limitations: "Rajoitukset",
+            conclusion: "Johtopäätös",
+          },
+        },
+        "lancet-style": {
+          name: "Lancet-tyyli",
+          description:
+            "Lancet – maailmanlaajuinen terveysfokus, jossa on jäsennellyt menetelmät, näyttöön perustuva tulkinta ja poliittinen vaikutus",
+          sections: {
+            introduction: "Johdanto",
+            methods: "menetelmät",
+            "study-design-participants":
+              "Tutkimuksen suunnittelu ja osallistujat",
+            procedures: "Menettelyt",
+            outcomes: "Tulokset",
+            "statistical-analysis": "Tilastollinen analyysi",
+            "role-of-funding": "Rahoituslähteen rooli",
+            discussion: "Keskustelu",
+          },
+        },
+        "nejm-style": {
+          name: "NEJM-tyyli",
+          description:
+            "New England Journal of Medicine – ytimekäs kliininen vaikutusrakenne ja tiukka sanatalous",
+          sections: {
+            introduction: "Johdanto",
+            methods: "menetelmät",
+            "study-design": "Tutkimuksen suunnittelu ja valvonta",
+            patients: "Potilaat",
+            endpoints: "Päätepisteet",
+            "statistical-analysis": "Tilastollinen analyysi",
+            discussion: "Keskustelu",
+          },
+        },
+        "himss-poster": {
+          name: "HIMSS-juliste",
+          description:
+            "HIMSS-konferenssijuliste – tiiviit paneelit taustasta, menetelmistä, tärkeimmistä havainnoista ja vaikutuksista",
+          sections: {
+            background: "Tausta",
+            "problem-statement": "Ongelmailmoitus",
+            objectives: "Tavoitteet",
+            methods: "menetelmät",
+            "key-findings": "Keskeiset havainnot",
+            "clinical-impact": "Kliininen ja toiminnallinen vaikutus",
+            "next-steps": "Seuraavat vaiheet",
+          },
+        },
+      },
+    },
+  }),
+  "ja-JP": mergeMessageTrees(enPublishCareGapRisk, {
+    riskScores: {
+      common: {
+        status: {
+          draft: "下書き",
+          pending: "保留中",
+          running: "ランニング",
+          completed: "完了しました",
+          failed: "失敗した",
+        },
+        tier: {
+          low: "低い",
+          intermediate: "中級",
+          high: "高い",
+          veryHigh: "非常に高い",
+          uncomputable: "計算不能",
+          filtered: "フィルタリング済み",
+          customFilter: "カスタムフィルター",
+        },
+        category: {
+          cardiovascular: "心臓血管",
+          comorbidityBurden: "併存疾患負担",
+          hepatic: "肝臓",
+          pulmonary: "肺",
+          respiratory: "呼吸器系",
+          metabolic: "代謝性",
+          endocrine: "内分泌",
+          musculoskeletal: "筋骨格系",
+        },
+        tabs: {
+          overview: "概要",
+          results: "結果",
+          patients: "患者",
+          recommendations: "推奨事項",
+          configuration: "構成",
+        },
+        actions: {
+          back: "戻る",
+          close: "近い",
+          cancel: "キャンセル",
+          clear: "クリア",
+          refresh: "リフレッシュ",
+          reRun: "再実行",
+          reRunAnalysis: "分析の再実行",
+          runAnalysis: "分析の実行",
+          quickRun: "クイックラン",
+          createAnalysis: "分析の作成",
+          createCohort: "コホートの作成",
+          createCohortFromFilter: "フィルターからコホートを作成",
+          newAnalysis: "新しい分析",
+          duplicateAnalysis: "重複分析",
+          deleteAnalysis: "分析の削除",
+          openCatalogue: "カタログを開く",
+          viewFullResults: "完全な結果を表示",
+        },
+        view: {
+          table: "テーブルビュー",
+          card: "カードビュー",
+        },
+        search: {
+          analysesPlaceholder: "検索分析...",
+        },
+        headers: {
+          name: "名前",
+          cohort: "コホート",
+          scores: "スコア",
+          status: "状態",
+          lastRun: "ラストラン",
+          author: "著者",
+          created: "作成されました",
+          tier: "階層",
+          count: "カウント",
+          meanScore: "平均スコア",
+          confidence: "自信",
+          score: "スコア",
+          value: "価値",
+          riskTier: "リスク階層",
+          completeness: "完全",
+          missing: "ない",
+          started: "開始しました",
+          duration: "間隔",
+          actions: "アクション",
+        },
+      },
+      hub: {
+        title: "リスクスコア分析",
+        subtitle: "検証された臨床リスクスコアによる患者集団の階層化",
+        metrics: {
+          total: "合計",
+          running: "ランニング",
+          completed: "完了しました",
+          scoresAvailable: "利用可能なスコア",
+          patientsScored: "患者のスコア",
+        },
+        filters: {
+          status: "状態",
+          category: "カテゴリ",
+          allCategories: "すべてのカテゴリ",
+        },
+        tabs: {
+          analyses: "分析",
+          scoreCatalogue: "スコアカタログ",
+        },
+        empty: {
+          noMatchingAnalyses: "一致する分析はありません",
+          noRiskScoreAnalysesYet: "リスクスコア分析はまだありません",
+          createFirst:
+            "最初の分析を作成して、臨床リスク スコアによって患者を層別化します。",
+        },
+        errors: {
+          failedToLoadAnalyses:
+            "分析のロードに失敗しました。もう一度試してください。",
+        },
+        catalogue: {
+          checkingEligibility: "資格を確認しています...",
+          selectSourcePrompt:
+            "ヘッダーからデータ ソースを選択して、各スコアの適格性を確認します。",
+          sourceLevelCompletedScores: "ソースレベルの完了スコア",
+        },
+      },
+      create: {
+        title: "新しいリスクスコア分析",
+        subtitle: "リスク スコアリング分析を構成し、計算するスコアを選択する",
+        steps: {
+          configure: "設定する",
+          reviewAndRun: "レビューと実行",
+        },
+        basics: "基本",
+        description: "説明",
+        selectCohort: "コホートを選択してください...",
+        scoreSelection: "スコアの選択",
+        autoNameSuffix: "リスクの階層化",
+        completeness: "完全：",
+        createAsDraft: "ドラフトとして作成",
+        createAndRun: "作成して実行",
+        errors: {
+          executionFailed:
+            "分析は作成されましたが、実行に失敗しました。詳細ページから再実行が可能です。",
+          createFailed: "分析の作成に失敗しました。もう一度試してください。",
+        },
+        recommendations: {
+          recommended: "推奨",
+          available: "利用可能",
+          notApplicable: "適用できない",
+        },
+      },
+      detail: {
+        notFound: "分析が見つかりません",
+        backToRiskScores: "リスクスコアに戻る",
+        selectSourcePrompt:
+          "実行するデータ ソースを選択するか、実行結果を表示します。",
+        deleteConfirm:
+          "この分析を削除してもよろしいですか?この操作は元に戻すことができません。",
+      },
+      overview: {
+        about: "について",
+        resultsSummary: "結果の概要",
+        scoresComputed: "計算されたスコア",
+        uniqueScores: "ユニークなスコア",
+        patientsScored: "患者のスコア",
+        maxPerScore: "スコアごとの最大値",
+        avgCompleteness: "平均的な完全性",
+        avgConfidence: "平均信頼度",
+        acrossSummaries: "概要全体にわたって",
+        thisAnalysisHasNotBeenExecutedYet: "この分析はまだ実行されていません。",
+        executionInProgress: "実行中...",
+        lastExecutionFailed: "最後の実行は失敗しました。",
+        recentExecution: "最近の実行",
+        started: "開始しました",
+        completed: "完了しました",
+        duration: "間隔",
+      },
+      configuration: {
+        analysisDesign: "分析設計",
+        targetCohorts: "対象コホート",
+        selectedScores: "選択されたスコア",
+        parameters: "パラメータ",
+        minCompleteness: "最小完全性:",
+        storePatientLevel: "ストア患者レベル:",
+        executionHistory: "実行履歴",
+        noExecutionsYet: "まだ処刑はされていない",
+      },
+      results: {
+        noResultsAvailable:
+          "結果はありません。分析を実行してリスク スコアを計算します。",
+        allScores: "すべてのスコア",
+        percentOfTotal: "全体の %",
+        action: "アクション",
+        averageCompleteness: "平均的な完成度:",
+      },
+      patients: {
+        noExecutionSelected: "実行が選択されていません",
+        runExecutionToViewPatientLevel:
+          "実行を実行して患者レベルの結果を表示します。",
+        all: "全て",
+        noPatientResultsAvailable: "利用可能な患者結果はありません",
+        adjustFilters: "フィルタを調整して結果を確認してください。",
+        executeToGenerate: "分析を実行して患者レベルのスコアを生成します。",
+        personId: "個人ID",
+      },
+      scoreDetail: {
+        selectSourcePrompt:
+          "ヘッダーからデータ ソースを選択して、適格性を確認します。",
+        insufficientData: "アクティブなソースのデータが不十分です",
+        missing: "ない：",
+        checkingEligibility: "アクティブなソースの資格を確認しています...",
+        eligiblePopulation: "対象となる人口",
+        requiredComponents: "必要なコンポーネント",
+        cdmTablesUsed: "使用される CDM テーブル",
+        riskTierDefinitions: "リスク階層の定義",
+        scoreRange: "スコア範囲",
+      },
+      createCohort: {
+        title: "リスク階層からコホートを作成",
+        cohortName: "コホート名",
+        description: "説明",
+        showDetails: "詳細を表示",
+        hideDetails: "詳細を隠す",
+        analysisId: "分析ID:",
+        executionId: "実行ID:",
+        score: "スコア：",
+        tier: "階層:",
+        createFailed: "コホートの作成に失敗しました。もう一度試してください。",
+      },
+      recommendations: {
+        selectSourceToView: "ソースを選択して推奨事項を表示します",
+        recommended: "推奨",
+        available: "利用可能",
+        notApplicable: "適用できない",
+      },
+      runModal: {
+        title: "人口リスクスコア",
+        computingScores: "スコアを計算しています...",
+        runFailed: "実行に失敗しました",
+        seconds: "秒",
+      },
+      tierBreakdown: {
+        tierDistribution: "ティアの分布",
+        patientsPerTier: "階層ごとの患者数",
+        patients: "患者",
+      },
+      cohortProfile: {
+        demographics: "人口動態",
+        patients: "患者",
+        age: "年",
+        topConditions: "トップコンディション",
+        measurementCoverage: "測定範囲",
+      },
+    },
+    careGaps: {
+      common: {
+        status: {
+          pending: "保留中",
+          running: "ランニング",
+          completed: "完了しました",
+          failed: "失敗した",
+        },
+        actions: {
+          newBundle: "新しいバンドル",
+          delete: "消去",
+          evaluate: "評価する",
+          backToList: "リストに戻る",
+          saveChanges: "変更を保存",
+          createBundle: "バンドルの作成",
+        },
+        category: {
+          all: "全て",
+          endocrine: "内分泌",
+          cardiovascular: "心臓血管",
+          respiratory: "呼吸器系",
+          mentalHealth: "メンタルヘルス",
+          rheumatologic: "リウマチ科",
+          neurological: "神経系",
+          oncology: "腫瘍学",
+        },
+        bundle: {
+          active: "アクティブ",
+          inactive: "非アクティブ",
+        },
+      },
+      page: {
+        title: "ケアギャップ",
+        subtitle: "条件バンドル、品質測定、集団コンプライアンスの追跡",
+        untitledBundle: "無題のバンドル",
+        tabs: {
+          bundles: "疾患バンドル",
+          population: "人口の概要",
+        },
+      },
+      bundleList: {
+        allCategories: "すべてのカテゴリ",
+        sortName: "名前",
+        sortCompliance: "コンプライアンス",
+        noBundlesFound: "バンドルが見つかりませんでした",
+        adjustFilters: "フィルターを調整してみてください",
+        createToGetStarted: "始めるにはバンドルを作成してください",
+      },
+      bundleDetail: {
+        failedToLoad: "バンドルのロードに失敗しました",
+        backToCareGaps: "ケアギャップ",
+        overallCompliance: "全体的なコンプライアンス",
+        tabs: {
+          design: "デザイン",
+          compliance: "コンプライアンスの結果",
+          overlap: "重複ルール",
+        },
+        executeEvaluation: "評価の実行",
+        overall: "全体",
+        totalPatients: "総患者数",
+        gapsMet: "満たされたギャップ",
+        openGaps: "オープンギャップ",
+        excluded: "除外される",
+        evaluationHistory: "評価履歴",
+        evaluationInProgress: "評価中です...",
+        noEvaluationResults:
+          "評価結果はまだありません。評価を実行してコンプライアンス データを確認します。",
+        deleteConfirm: "この条件バンドルを削除してもよろしいですか?",
+      },
+      bundleDesigner: {
+        bundleDetails: "バンドルの詳細",
+        bundleCode: "バンドルコード",
+        conditionName: "条件名",
+        description: "説明",
+        diseaseCategory: "病気のカテゴリー",
+        selectCategory: "カテゴリを選択...",
+        icd10Patterns: "ICD-10 パターン",
+        omopConceptIds: "OMOP コンセプト ID",
+        ecqmReferences: "eCQM リファレンス",
+        attachedMeasures: "付属措置",
+        noMeasuresAttached: "このバンドルには対策は適用されていません。",
+        saveBundle: "バンドルを保存",
+        saving: "保存中...",
+        add: "追加",
+        remove: "取り除く",
+      },
+      measureCompliance: {
+        noResultsAvailable: "測定結果はまだありません。",
+        code: "コード",
+        measure: "測定",
+        domain: "ドメイン",
+        eligible: "適格",
+        met: "会った",
+        notMet: "満たされていない",
+        compliance: "コンプライアンス",
+        deduplicated: "重複排除済み",
+      },
+      population: {
+        selectSourcePrompt:
+          "データ ソースを選択して、母集団のコンプライアンスを表示します。",
+        failedToLoad: "人口概要のロードに失敗しました。",
+        totalBundles: "バンドルの合計数",
+        totalPatients: "総患者数",
+        avgCompliance: "平均コンプライアンス",
+        totalOpenGaps: "開いているギャップの合計",
+        filterByCategory: "カテゴリでフィルターします:",
+        bundleComplianceComparison: "バンドルのコンプライアンス比較",
+        noBundlesMatchFilter:
+          "選択したフィルターに一致するバンドルはありません。",
+      },
+      overlapRules: {
+        failedToLoad: "重複ルールのロードに失敗しました。",
+        noneConfigured: "重複ルールが設定されていません。",
+        subtitle:
+          "重複ルールにより、バンドル間でメジャーが二重にカウントされるのを防ぎます。",
+      },
+    },
+    publish: {
+      steps: {
+        selectAnalyses: "分析の選択",
+        configure: "設定する",
+        preview: "プレビュー",
+        export: "輸出",
+      },
+      common: {
+        actions: {
+          back: "戻る",
+          next: "次",
+          previewDocument: "ドキュメントのプレビュー ->",
+          configureDocument: "ドキュメントの構成 ->",
+          close: "近い",
+        },
+        sectionType: {
+          title: "タイトル",
+          methods: "メソッド",
+          results: "結果",
+          diagram: "ダイアグラム",
+          discussion: "議論",
+          diagnostics: "診断",
+        },
+        analysisType: {
+          characterizations: "特性評価",
+          characterization: "特性評価",
+          estimations: "推定",
+          estimation: "推定",
+          predictions: "予測",
+          prediction: "予測",
+          incidence_rates: "発生率",
+          incidence_rate: "発生率",
+          evidence_synthesis: "証拠の総合",
+          pathways: "経路",
+          pathway: "経路",
+        },
+        resultSection: {
+          populationCharacteristics: "人口の特徴",
+          incidenceRates: "発生率",
+          comparativeEffectiveness: "有効性の比較",
+          treatmentPatterns: "治療パターン",
+          safetyAnalysis: "安全性分析",
+          predictiveModeling: "予測モデリング",
+          evidenceSynthesis: "証拠の総合",
+        },
+      },
+      page: {
+        title: "公開",
+        subtitle: "研究と分析から出版前の原稿を作成する",
+        startNewDocument: "新しいドキュメントを開始する",
+        untitledDocument: "無題のドキュメント",
+      },
+      cart: {
+        empty: "まだ分​​析が選択されていません",
+      },
+      configurator: {
+        documentTitle: "文書のタイトル",
+        documentTitlePlaceholder: "ドキュメントのタイトルを入力してください...",
+        authors: "著者 (カンマ区切り)",
+        authorsPlaceholder: "著者 1、著者 2...",
+        template: "テンプレート",
+      },
+      preview: {
+        diagramDataNotAvailable: "ダイアグラムデータは利用できません",
+        unknownDiagramType: "不明な図のタイプ",
+        reviewWarning:
+          "AI によって生成された一部のセクションはレビューされていません。エクスポートする前に、すべての AI コンテンツを受け入れるか編集してください。",
+        noSectionContent: "このセクションに利用できるコンテンツはありません。",
+        noSectionsIncluded:
+          "セクションは含まれていません。戻ってドキュメントの設定を行います。",
+        backToConfigure: "設定に戻る",
+        export: "輸出",
+      },
+      exportControls: {
+        exportFormat: "エクスポート形式",
+        comingSoon: "近日公開",
+        exporting: "エクスポート中...",
+        formats: {
+          pdf: {
+            description: "印刷ダイアログによる完全なフォーマットのレポート",
+          },
+          docx: {
+            description: "構造化された Word 文書",
+          },
+          xlsx: {
+            description: "スプレッドシートとしてのテーブルと統計",
+          },
+          png: {
+            description: "ラスター画像ファイルとしてのチャート",
+          },
+          svg: {
+            description: "ベクター画像ファイルとしてのグラフ",
+          },
+        },
+      },
+      exportPanel: {
+        draftWarning:
+          "AI によって生成された一部のセクションはまだドラフト状態です。エクスポートする前に、戻ってすべての AI コンテンツを受け入れるか編集してください。",
+        chooseExportFormat: "エクスポート形式の選択",
+        exporting: "エクスポート中...",
+        backToPreview: "プレビューに戻る",
+        formats: {
+          docx: {
+            label: "マイクロソフトワード",
+            description: "図が埋め込まれた雑誌用原稿",
+          },
+          pdf: {
+            label: "PDFドキュメント",
+            description: "レビューと共有のための印刷可能なドキュメント",
+          },
+          figuresZip: {
+            label: "個々の数字",
+            description: "個別の日記アップロード用の SVG ファイル",
+          },
+        },
+      },
+      methods: {
+        studyDesign: "研究デザイン",
+        primaryObjective: "主な目的",
+        hypothesis: "仮説",
+        scientificRationale: "科学的根拠",
+        cohortDefinitions: "コホートの定義",
+        target: "ターゲット",
+        comparator: "コンパレータ",
+        outcome: "結果",
+        timeAtRisk: "危険な時間",
+        start: "始める",
+        end: "終わり",
+        matchingStrategy: "マッチング戦略",
+        modelSettings: "モデル設定",
+        empty:
+          "利用可能なメソッド データはありません。分析パラメータが指定されると、メソッドが自動生成されます。",
+        defaults: {
+          observational: "観察的",
+          cohortStart: "コホートの開始",
+          cohortEnd: "コホートエンド",
+        },
+      },
+      reportPreview: {
+        title: "調査レポートのプレビュー",
+        subtitle:
+          "コントロールを使用してセクションのオン/オフを切り替え、順序を変更します。含まれているセクションのみがエクスポートに表示されます。",
+        empty:
+          "プレビューするセクションはありません。戻って分析の実行を選択します。",
+      },
+      reportSection: {
+        moveUp: "上に移動",
+        moveDown: "下に移動",
+        diagnosticsPlaceholder:
+          "診断データはエクスポートされたレポートに表示されます。",
+        includeSection: "インクルードセクション",
+        excludeSection: "セクションを除外する",
+        included: "付属",
+        excluded: "除外される",
+      },
+      resultsSummary: {
+        empty: "この実行で使用できる結果データはありません。",
+      },
+      resultsTable: {
+        empty: "このテーブルには利用可能な構造化データがありません。",
+      },
+      sectionEditor: {
+        tableLabel: "テーブル",
+        aiNarrative: "AI ナラティブ",
+        structuredData: "構造化データ",
+        hideTable: "テーブルを非表示にする",
+        showTable: "テーブルを表示",
+        hideNarrative: "ナラティブを隠す",
+        showNarrative: "ナレーションを表示する",
+        hideDiagram: "図を隠す",
+        showDiagram: "図を表示",
+        noDiagram: "まだ図は生成されていません",
+      },
+      studySelector: {
+        loadingStudies: "研究を読み込んでいます...",
+        failedToLoad:
+          "スタディのロードに失敗しました。もう一度試してください。",
+        selectStudy: "研究を選択してください",
+        noStudiesFound:
+          "研究は見つかりませんでした。まずスタディを作成します。",
+        completedExecutions: "完了した実行",
+        loadingExecutions: "実行をロード中...",
+        noCompletedExecutions:
+          "この研究では完了した処刑は見つかりませんでした。",
+      },
+      analysisPicker: {
+        filter: {
+          allTypes: "全種類",
+        },
+        searchAnalyses: "検索分析...",
+        searchStudies: "研究を検索...",
+        tabs: {
+          allAnalyses: "すべての分析",
+          fromStudies: "研究から",
+        },
+        loadingAnalyses: "分析を読み込んでいます...",
+        noCompletedAnalyses: "完了した分析が見つかりませんでした",
+        loadingStudies: "研究を読み込んでいます...",
+        noStudiesMatchFilters: "フィルターに一致する研究はありません",
+        noStudiesFound: "研究は見つかりませんでした",
+        actions: {
+          selectAll: "すべて選択",
+          deselectAll: "すべての選択を解除",
+        },
+      },
+      aiNarrative: {
+        generate: "AI ドラフトの生成",
+        generating: "物語を生成しています...",
+        draft: "AIドラフト",
+        accept: "受け入れる",
+        regenerate: "再生する",
+        accepted: "承認されました",
+        edit: "編集",
+      },
+      structuredData: {
+        empty: "利用可能な構造化データがありません",
+      },
+      diagram: {
+        exportSvg: "SVGとしてエクスポート",
+        exportPng: "PNG としてエクスポート",
+      },
+      tables: {
+        captions: {
+          incidenceRatesByCohort: "コホート別の発生率",
+          comparativeEffectivenessEstimates: "有効性の比較推定",
+          sccsEstimates: "自己制御ケースシリーズ: 曝露ウィンドウ別の発生率比",
+          treatmentPathways: "治療経路 (上位 10)",
+          populationCharacteristics: "人口の特徴",
+          predictionModelPerformance: "予測モデルのパフォーマンス",
+          evidenceSynthesisPooled: "証拠の統合: 統合された推定値",
+        },
+        headers: {
+          cohort: "コホート",
+          outcome: "結果",
+          events: "イベント",
+          personYears: "人年",
+          ratePer1000Py: "料金/1000PY",
+          exposureWindow: "露出ウィンドウ",
+          pathway: "経路",
+          patients: "患者",
+          percentFemale: "％ 女性",
+          percentMale: "％ 男",
+          ageGroup: "年齢層",
+          model: "モデル",
+          brierScore: "ブライアースコア",
+          targetN: "ターゲットN",
+          outcomeN: "結果N",
+          analysis: "分析",
+          pooledEstimate: "統合された見積もり",
+        },
+      },
+      templates: {
+        "generic-ohdsi": {
+          name: "一般的な OHDSI 出版物",
+          description: "健康観察データ研究のための標準的な IMRaD 構造",
+          sections: {
+            introduction: "導入",
+            methods: "メソッド",
+            discussion: "議論",
+          },
+        },
+        "comparative-effectiveness": {
+          name: "有効性比較レポート",
+          description: "傾向スコア分析による CLE /CER 構造",
+          sections: {
+            background: "背景",
+            "study-design": "研究デザイン",
+            "ps-matching": "傾向スコアのマッチング",
+            covariates: "共変量バランス",
+            "sensitivity-analyses": "感度分析",
+            discussion: "議論",
+          },
+        },
+        "incidence-report": {
+          name: "発生率レポート",
+          description: "集団ベースの発生率分析",
+          sections: {
+            background: "背景",
+            methods: "メソッド",
+            discussion: "議論",
+          },
+        },
+        "study-protocol": {
+          name: "研究プロトコル / SAP",
+          description: "研究前の統計分析計画 -- 結果は必要ありません",
+          sections: {
+            objectives: "目的",
+            hypotheses: "仮説",
+            "study-design": "研究デザイン",
+            "data-sources": "データソース",
+            "cohort-definitions": "コホートの定義",
+            "analysis-plan": "分析計画",
+            timeline: "タイムライン",
+          },
+        },
+        "jamia-style": {
+          name: "ジャミアスタイル",
+          description:
+            "米国医療情報学会ジャーナル -- 再現性を重視した情報学方法論に焦点を当てる",
+          sections: {
+            "background-significance": "背景と意義",
+            objective: "客観的",
+            "materials-methods": "材料と方法",
+            "data-sources": "データソースと研究対象集団",
+            "phenotype-definitions": "表現型の定義",
+            "statistical-analysis": "統計分析",
+            discussion: "議論",
+            limitations: "制限事項",
+            conclusion: "結論",
+          },
+        },
+        "lancet-style": {
+          name: "ランセットスタイル",
+          description:
+            "ランセット -- 構造化された手法、証拠に基づいた解釈、政策への影響を含む世界的な健康に焦点を当てた論文",
+          sections: {
+            introduction: "導入",
+            methods: "メソッド",
+            "study-design-participants": "研究デザインと参加者",
+            procedures: "手順",
+            outcomes: "結果",
+            "statistical-analysis": "統計分析",
+            "role-of-funding": "資金源の役割",
+            discussion: "議論",
+          },
+        },
+        "nejm-style": {
+          name: "NEJMスタイル",
+          description:
+            "New England Journal of Medicine -- 厳格なワードエコノミーを備えた簡潔な臨床影響構造",
+          sections: {
+            introduction: "導入",
+            methods: "メソッド",
+            "study-design": "研究の設計と監督",
+            patients: "患者",
+            endpoints: "エンドポイント",
+            "statistical-analysis": "統計分析",
+            discussion: "議論",
+          },
+        },
+        "himss-poster": {
+          name: "ヒムスポスター",
+          description:
+            "HIMSS カンファレンス ポスター -- 背景、手法、主要な調査結果、影響ステートメントの簡潔なパネル",
+          sections: {
+            background: "背景",
+            "problem-statement": "問題提起",
+            objectives: "目的",
+            methods: "メソッド",
+            "key-findings": "主な調査結果",
+            "clinical-impact": "臨床的および運用上の影響",
+            "next-steps": "次のステップ",
+          },
+        },
+      },
+    },
+  }),
+  "zh-Hans": mergeMessageTrees(enPublishCareGapRisk, {
+    riskScores: {
+      common: {
+        status: {
+          draft: "草稿",
+          pending: "待办的",
+          running: "跑步",
+          completed: "完全的",
+          failed: "失败的",
+        },
+        tier: {
+          low: "低的",
+          intermediate: "中间的",
+          high: "高的",
+          veryHigh: "非常高",
+          uncomputable: "不可计算",
+          filtered: "已过滤",
+          customFilter: "定制过滤器",
+        },
+        category: {
+          cardiovascular: "心血管",
+          comorbidityBurden: "合并症负担",
+          hepatic: "肝的",
+          pulmonary: "肺部",
+          respiratory: "呼吸系统",
+          metabolic: "代谢",
+          endocrine: "内分泌",
+          musculoskeletal: "肌肉骨骼",
+        },
+        tabs: {
+          overview: "概述",
+          results: "结果",
+          patients: "患者",
+          recommendations: "建议",
+          configuration: "配置",
+        },
+        actions: {
+          back: "后退",
+          close: "关闭",
+          cancel: "取消",
+          clear: "清除",
+          refresh: "刷新",
+          reRun: "重新运行",
+          reRunAnalysis: "重新运行分析",
+          runAnalysis: "运行分析",
+          quickRun: "快速奔跑",
+          createAnalysis: "创建分析",
+          createCohort: "创建群组",
+          createCohortFromFilter: "从过滤器创建群组",
+          newAnalysis: "新分析",
+          duplicateAnalysis: "重复分析",
+          deleteAnalysis: "删除分析",
+          openCatalogue: "打开目录",
+          viewFullResults: "查看完整结果",
+        },
+        view: {
+          table: "表格视图",
+          card: "卡片视图",
+        },
+        search: {
+          analysesPlaceholder: "搜索分析...",
+        },
+        headers: {
+          name: "姓名",
+          cohort: "队列",
+          scores: "分数",
+          status: "地位",
+          lastRun: "最后一次运行",
+          author: "作者",
+          created: "已创建",
+          tier: "等级",
+          count: "数数",
+          meanScore: "平均分",
+          confidence: "信心",
+          score: "分数",
+          value: "价值",
+          riskTier: "风险等级",
+          completeness: "完整性",
+          missing: "丢失的",
+          started: "开始",
+          duration: "期间",
+          actions: "行动",
+        },
+      },
+      hub: {
+        title: "风险评分分析",
+        subtitle: "通过经过验证的临床风险评分对患者群体进行分层",
+        metrics: {
+          total: "全部的",
+          running: "跑步",
+          completed: "完全的",
+          scoresAvailable: "可用分数",
+          patientsScored: "患者评分",
+        },
+        filters: {
+          status: "地位",
+          category: "类别",
+          allCategories: "所有类别",
+        },
+        tabs: {
+          analyses: "分析",
+          scoreCatalogue: "乐谱目录",
+        },
+        empty: {
+          noMatchingAnalyses: "没有匹配的分析",
+          noRiskScoreAnalysesYet: "尚未进行风险评分分析",
+          createFirst: "创建您的第一个分析，根据临床风险评分对患者进行分层。",
+        },
+        errors: {
+          failedToLoadAnalyses: "无法加载分析。请再试一次。",
+        },
+        catalogue: {
+          checkingEligibility: "检查资格...",
+          selectSourcePrompt: "从标题中选择一个数据源以检查每个分数的资格。",
+          sourceLevelCompletedScores: "来源级别完成分数",
+        },
+      },
+      create: {
+        title: "新的风险评分分析",
+        subtitle: "配置风险评分分析并选择要计算的分数",
+        steps: {
+          configure: "配置",
+          reviewAndRun: "检查并运行",
+        },
+        basics: "基础知识",
+        description: "描述",
+        selectCohort: "选择一个队列...",
+        scoreSelection: "分数选择",
+        autoNameSuffix: "风险分层",
+        completeness: "完整性：",
+        createAsDraft: "创建为草稿",
+        createAndRun: "创建并运行",
+        errors: {
+          executionFailed:
+            "分析已创建但执行失败。您可以从详细信息页面重新运行。",
+          createFailed: "无法创建分析。请再试一次。",
+        },
+        recommendations: {
+          recommended: "受到推崇的",
+          available: "可用的",
+          notApplicable: "不适用",
+        },
+      },
+      detail: {
+        notFound: "未找到分析",
+        backToRiskScores: "返回风险评分",
+        selectSourcePrompt: "选择要运行的数据源或查看执行结果。",
+        deleteConfirm: "您确定要删除此分析吗？此操作无法撤消。",
+      },
+      overview: {
+        about: "关于",
+        resultsSummary: "结果总结",
+        scoresComputed: "计算分数",
+        uniqueScores: "独特的分数",
+        patientsScored: "患者评分",
+        maxPerScore: "每分最高分",
+        avgCompleteness: "平均完整性",
+        avgConfidence: "平均置信度",
+        acrossSummaries: "跨摘要",
+        thisAnalysisHasNotBeenExecutedYet: "该分析尚未执行。",
+        executionInProgress: "执行中...",
+        lastExecutionFailed: "上次执行失败。",
+        recentExecution: "最近执行",
+        started: "开始",
+        completed: "完全的",
+        duration: "期间",
+      },
+      configuration: {
+        analysisDesign: "分析设计",
+        targetCohorts: "目标群体",
+        selectedScores: "选定的分数",
+        parameters: "参数",
+        minCompleteness: "最小完整性：",
+        storePatientLevel: "存储患者级别：",
+        executionHistory: "执行历史",
+        noExecutionsYet: "尚未执行死刑",
+      },
+      results: {
+        noResultsAvailable: "无可用结果。运行分析以计算风险评分。",
+        allScores: "所有分数",
+        percentOfTotal: "占总数的%",
+        action: "行动",
+        averageCompleteness: "平均完整性：",
+      },
+      patients: {
+        noExecutionSelected: "未选择执行",
+        runExecutionToViewPatientLevel: "运行执行以查看患者级别的结果。",
+        all: "全部",
+        noPatientResultsAvailable: "没有可用的患者结果",
+        adjustFilters: "尝试调整过滤器以查看结果。",
+        executeToGenerate: "执行分析以生成患者级别的评分。",
+        personId: "人员ID",
+      },
+      scoreDetail: {
+        selectSourcePrompt: "从标题中选择数据源以检查资格。",
+        insufficientData: "活动源中的数据不足",
+        missing: "丢失的：",
+        checkingEligibility: "正在检查活动源的资格...",
+        eligiblePopulation: "符合资格的人口",
+        requiredComponents: "所需组件",
+        cdmTablesUsed: "使用的 CDM 表",
+        riskTierDefinitions: "风险等级定义",
+        scoreRange: "分数范围",
+      },
+      createCohort: {
+        title: "从风险层创建群组",
+        cohortName: "群组名称",
+        description: "描述",
+        showDetails: "显示详情",
+        hideDetails: "隐藏详细信息",
+        analysisId: "分析ID：",
+        executionId: "执行ID：",
+        score: "分数：",
+        tier: "等级：",
+        createFailed: "创建群组失败。请再试一次。",
+      },
+      recommendations: {
+        selectSourceToView: "选择来源以查看推荐",
+        recommended: "受到推崇的",
+        available: "可用的",
+        notApplicable: "不适用",
+      },
+      runModal: {
+        title: "人群风险评分",
+        computingScores: "计算分数...",
+        runFailed: "运行失败",
+        seconds: "秒",
+      },
+      tierBreakdown: {
+        tierDistribution: "层级分布",
+        patientsPerTier: "每层患者",
+        patients: "患者",
+      },
+      cohortProfile: {
+        demographics: "人口统计",
+        patients: "患者",
+        age: "年龄",
+        topConditions: "顶级条件",
+        measurementCoverage: "测量范围",
+      },
+    },
+    careGaps: {
+      common: {
+        status: {
+          pending: "待办的",
+          running: "跑步",
+          completed: "完全的",
+          failed: "失败的",
+        },
+        actions: {
+          newBundle: "新捆绑包",
+          delete: "删除",
+          evaluate: "评价",
+          backToList: "返回列表",
+          saveChanges: "保存更改",
+          createBundle: "创建捆绑包",
+        },
+        category: {
+          all: "全部",
+          endocrine: "内分泌",
+          cardiovascular: "心血管",
+          respiratory: "呼吸系统",
+          mentalHealth: "心理健康",
+          rheumatologic: "风湿科",
+          neurological: "神经病学",
+          oncology: "肿瘤学",
+        },
+        bundle: {
+          active: "积极的",
+          inactive: "不活跃",
+        },
+      },
+      page: {
+        title: "护理差距",
+        subtitle: "条件包、质量测量和群体合规性跟踪",
+        untitledBundle: "无标题捆绑包",
+        tabs: {
+          bundles: "疾病组合",
+          population: "人口概况",
+        },
+      },
+      bundleList: {
+        allCategories: "所有类别",
+        sortName: "姓名",
+        sortCompliance: "遵守",
+        noBundlesFound: "没有找到捆绑包",
+        adjustFilters: "尝试调整你的过滤器",
+        createToGetStarted: "创建捆绑包以开始使用",
+      },
+      bundleDetail: {
+        failedToLoad: "无法加载捆绑包",
+        backToCareGaps: "护理差距",
+        overallCompliance: "整体合规性",
+        tabs: {
+          design: "设计",
+          compliance: "合规结果",
+          overlap: "重叠规则",
+        },
+        executeEvaluation: "执行评估",
+        overall: "全面的",
+        totalPatients: "患者总数",
+        gapsMet: "遇到的差距",
+        openGaps: "打开缺口",
+        excluded: "排除",
+        evaluationHistory: "评估历史",
+        evaluationInProgress: "评估进行中...",
+        noEvaluationResults: "尚未有评估结果。执行评估以查看合规性数据。",
+        deleteConfirm: "您确定要删除此条件包吗？",
+      },
+      bundleDesigner: {
+        bundleDetails: "捆绑详情",
+        bundleCode: "捆绑代码",
+        conditionName: "条件名称",
+        description: "描述",
+        diseaseCategory: "疾病类别",
+        selectCategory: "选择类别...",
+        icd10Patterns: "ICD-10 模式",
+        omopConceptIds: "OMOP 概念 ID",
+        ecqmReferences: "eCQM 参考",
+        attachedMeasures: "附加措施",
+        noMeasuresAttached: "此捆绑包没有附加任何措施。",
+        saveBundle: "保存捆绑包",
+        saving: "保存...",
+        add: "添加",
+        remove: "消除",
+      },
+      measureCompliance: {
+        noResultsAvailable: "尚无可用的测量结果。",
+        code: "代码",
+        measure: "措施",
+        domain: "领域",
+        eligible: "有资格的",
+        met: "蛋氨酸",
+        notMet: "未满足",
+        compliance: "遵守",
+        deduplicated: "重复数据删除",
+      },
+      population: {
+        selectSourcePrompt: "选择数据源以查看人口合规性。",
+        failedToLoad: "无法加载人口摘要。",
+        totalBundles: "总捆绑包数",
+        totalPatients: "患者总数",
+        avgCompliance: "平均合规性",
+        totalOpenGaps: "总缺口",
+        filterByCategory: "按类别过滤：",
+        bundleComplianceComparison: "捆绑合规性比较",
+        noBundlesMatchFilter: "没有与所选过滤器匹配的包。",
+      },
+      overlapRules: {
+        failedToLoad: "无法加载重叠规则。",
+        noneConfigured: "未配置重叠规则。",
+        subtitle: "重叠规则可防止跨捆绑包的重复计算措施。",
+      },
+    },
+    publish: {
+      steps: {
+        selectAnalyses: "选择分析",
+        configure: "配置",
+        preview: "预览",
+        export: "出口",
+      },
+      common: {
+        actions: {
+          back: "后退",
+          next: "下一个",
+          previewDocument: "预览文档 ->",
+          configureDocument: "配置文档->",
+          close: "关闭",
+        },
+        sectionType: {
+          title: "标题",
+          methods: "方法",
+          results: "结果",
+          diagram: "图表",
+          discussion: "讨论",
+          diagnostics: "诊断",
+        },
+        analysisType: {
+          characterizations: "表征",
+          characterization: "表征",
+          estimations: "预估",
+          estimation: "预估",
+          predictions: "预言",
+          prediction: "预言",
+          incidence_rates: "发病率",
+          incidence_rate: "发病率",
+          evidence_synthesis: "证据综合",
+          pathways: "途径",
+          pathway: "途径",
+        },
+        resultSection: {
+          populationCharacteristics: "人口特征",
+          incidenceRates: "发病率",
+          comparativeEffectiveness: "比较有效性",
+          treatmentPatterns: "治疗模式",
+          safetyAnalysis: "安全分析",
+          predictiveModeling: "预测建模",
+          evidenceSynthesis: "证据综合",
+        },
+      },
+      page: {
+        title: "发布",
+        subtitle: "根据研究和分析创建出版前手稿",
+        startNewDocument: "开始新文档",
+        untitledDocument: "无标题文档",
+      },
+      cart: {
+        empty: "尚未选择分析",
+      },
+      configurator: {
+        documentTitle: "文件标题",
+        documentTitlePlaceholder: "输入文档标题...",
+        authors: "作者（以逗号分隔）",
+        authorsPlaceholder: "作者一、作者二……",
+        template: "模板",
+      },
+      preview: {
+        diagramDataNotAvailable: "图表数据不可用",
+        unknownDiagramType: "未知图表类型",
+        reviewWarning:
+          "一些人工智能生成的部分尚未经过审查。请在导出前接受或编辑所有 AI 内容。",
+        noSectionContent: "此部分没有可用的内容。",
+        noSectionsIncluded: "不包含任何部分。返回配置您的文档。",
+        backToConfigure: "返回配置",
+        export: "出口",
+      },
+      exportControls: {
+        exportFormat: "导出格式",
+        comingSoon: "即将推出",
+        exporting: "出口...",
+        formats: {
+          pdf: {
+            description: "通过打印对话框生成完整格式的报告",
+          },
+          docx: {
+            description: "结构化Word文档",
+          },
+          xlsx: {
+            description: "电子表格形式的表格和统计数据",
+          },
+          png: {
+            description: "作为光栅图像文件的图表",
+          },
+          svg: {
+            description: "作为矢量图像文件的图表",
+          },
+        },
+      },
+      exportPanel: {
+        draftWarning:
+          "一些人工智能生成的部分仍处于草稿状态。请在导出之前返回并接受或编辑所有 AI 内容。",
+        chooseExportFormat: "选择导出格式",
+        exporting: "出口...",
+        backToPreview: "返回预览",
+        formats: {
+          docx: {
+            label: "微软Word",
+            description: "带有嵌入数字的期刊手稿",
+          },
+          pdf: {
+            label: "PDF文档",
+            description: "可打印的文档以供审阅和共享",
+          },
+          figuresZip: {
+            label: "个人数字",
+            description: "用于单独上传日志的 SVG 文件",
+          },
+        },
+      },
+      methods: {
+        studyDesign: "研究设计",
+        primaryObjective: "主要目标",
+        hypothesis: "假设",
+        scientificRationale: "科学原理",
+        cohortDefinitions: "群组定义",
+        target: "目标",
+        comparator: "比较器",
+        outcome: "结果",
+        timeAtRisk: "风险时间",
+        start: "开始",
+        end: "结尾",
+        matchingStrategy: "匹配策略",
+        modelSettings: "模型设置",
+        empty: "没有可用的方法数据。提供分析参数后，方法将自动生成。",
+        defaults: {
+          observational: "观察性",
+          cohortStart: "队列开始",
+          cohortEnd: "队列结束",
+        },
+      },
+      reportPreview: {
+        title: "研究报告预览",
+        subtitle:
+          "使用控件打开/关闭部分并重新排序。只有包含的部分才会出现在导出中。",
+        empty: "没有可预览的部分。返回并选择分析执行。",
+      },
+      reportSection: {
+        moveUp: "向上移动",
+        moveDown: "下移",
+        diagnosticsPlaceholder: "诊断数据将呈现在导出的报告中。",
+        includeSection: "包括部分",
+        excludeSection: "排除部分",
+        included: "包括",
+        excluded: "排除",
+      },
+      resultsSummary: {
+        empty: "没有可用于此执行的结果数据。",
+      },
+      resultsTable: {
+        empty: "该表没有可用的结构化数据。",
+      },
+      sectionEditor: {
+        tableLabel: "桌子",
+        aiNarrative: "人工智能叙事",
+        structuredData: "结构化数据",
+        hideTable: "隐藏表格",
+        showTable: "显示表格",
+        hideNarrative: "隐藏叙述",
+        showNarrative: "显示叙述",
+        hideDiagram: "隐藏图表",
+        showDiagram: "显示图表",
+        noDiagram: "尚未生成图表",
+      },
+      studySelector: {
+        loadingStudies: "正在加载研究...",
+        failedToLoad: "无法加载研究。请再试一次。",
+        selectStudy: "选择一项研究",
+        noStudiesFound: "没有研究发现。首先创建一个研究。",
+        completedExecutions: "已完成处决",
+        loadingExecutions: "正在加载执行...",
+        noCompletedExecutions: "本研究未发现已完成的处决。",
+      },
+      analysisPicker: {
+        filter: {
+          allTypes: "所有类型",
+        },
+        searchAnalyses: "搜索分析...",
+        searchStudies: "搜索研究...",
+        tabs: {
+          allAnalyses: "所有分析",
+          fromStudies: "来自研究",
+        },
+        loadingAnalyses: "正在加载分析...",
+        noCompletedAnalyses: "未找到完整的分析",
+        loadingStudies: "正在加载研究...",
+        noStudiesMatchFilters: "没有研究符合您的筛选条件",
+        noStudiesFound: "没有研究发现",
+        actions: {
+          selectAll: "选择全部",
+          deselectAll: "取消全选",
+        },
+      },
+      aiNarrative: {
+        generate: "生成AI草稿",
+        generating: "生成叙述...",
+        draft: "人工智能草稿",
+        accept: "接受",
+        regenerate: "再生",
+        accepted: "公认",
+        edit: "编辑",
+      },
+      structuredData: {
+        empty: "没有可用的结构化数据",
+      },
+      diagram: {
+        exportSvg: "导出为 SVG",
+        exportPng: "导出为 PNG",
+      },
+      tables: {
+        captions: {
+          incidenceRatesByCohort: "按队列划分的发病率",
+          comparativeEffectivenessEstimates: "比较有效性估计",
+          sccsEstimates: "自我对照病例系列：按暴露窗口划分的发病率比率",
+          treatmentPathways: "治疗途径（前 10 名）",
+          populationCharacteristics: "人口特征",
+          predictionModelPerformance: "预测模型性能",
+          evidenceSynthesisPooled: "证据综合：汇总估计",
+        },
+        headers: {
+          cohort: "队列",
+          outcome: "结果",
+          events: "活动",
+          personYears: "人年",
+          ratePer1000Py: "费率/1000PY",
+          exposureWindow: "曝光窗口",
+          pathway: "途径",
+          patients: "患者",
+          percentFemale: "％ 女性",
+          percentMale: "％ 男性",
+          ageGroup: "年龄组",
+          model: "模型",
+          brierScore: "布赖尔分数",
+          targetN: "目标N",
+          outcomeN: "结果N",
+          analysis: "分析",
+          pooledEstimate: "汇总估算",
+        },
+      },
+      templates: {
+        "generic-ohdsi": {
+          name: "通用 OHDSI 出版物",
+          description: "用于观察健康数据研究的标准 IMRaD 结构",
+          sections: {
+            introduction: "介绍",
+            methods: "方法",
+            discussion: "讨论",
+          },
+        },
+        "comparative-effectiveness": {
+          name: "比较效果报告",
+          description: "带有倾向评分分析的 CLE /CER 结构",
+          sections: {
+            background: "背景",
+            "study-design": "研究设计",
+            "ps-matching": "倾向得分匹配",
+            covariates: "协变量平衡",
+            "sensitivity-analyses": "敏感性分析",
+            discussion: "讨论",
+          },
+        },
+        "incidence-report": {
+          name: "发病率报告",
+          description: "基于人群的发病率分析",
+          sections: {
+            background: "背景",
+            methods: "方法",
+            discussion: "讨论",
+          },
+        },
+        "study-protocol": {
+          name: "研究方案/SAP",
+          description: "研究前统计分析计划——无需结果",
+          sections: {
+            objectives: "目标",
+            hypotheses: "假设",
+            "study-design": "研究设计",
+            "data-sources": "数据来源",
+            "cohort-definitions": "群组定义",
+            "analysis-plan": "分析计划",
+            timeline: "时间轴",
+          },
+        },
+        "jamia-style": {
+          name: "贾米亚风格",
+          description: "美国医学信息学协会杂志——注重信息学方法论并强调可重复性",
+          sections: {
+            "background-significance": "背景及意义",
+            objective: "客观的",
+            "materials-methods": "材料和方法",
+            "data-sources": "数据来源和研究人群",
+            "phenotype-definitions": "表型定义",
+            "statistical-analysis": "统计分析",
+            discussion: "讨论",
+            limitations: "局限性",
+            conclusion: "结论",
+          },
+        },
+        "lancet-style": {
+          name: "柳叶刀风格",
+          description:
+            "《柳叶刀》——通过结构化方法、基于证据的解释和政策影响来关注全球健康",
+          sections: {
+            introduction: "介绍",
+            methods: "方法",
+            "study-design-participants": "研究设计和参与者",
+            procedures: "程序",
+            outcomes: "结果",
+            "statistical-analysis": "统计分析",
+            "role-of-funding": "资金来源的作用",
+            discussion: "讨论",
+          },
+        },
+        "nejm-style": {
+          name: "新英格兰医学杂志风格",
+          description: "新英格兰医学杂志——简洁的临床影响结构和严格的用词经济",
+          sections: {
+            introduction: "介绍",
+            methods: "方法",
+            "study-design": "研究设计和监督",
+            patients: "患者",
+            endpoints: "终点",
+            "statistical-analysis": "统计分析",
+            discussion: "讨论",
+          },
+        },
+        "himss-poster": {
+          name: "健康管理与管理系统海报",
+          description:
+            "HIMSS 会议海报——背景、方法、主要发现和影响陈述的简明面板",
+          sections: {
+            background: "背景",
+            "problem-statement": "问题陈述",
+            objectives: "目标",
+            methods: "方法",
+            "key-findings": "主要发现",
+            "clinical-impact": "临床和运营影响",
+            "next-steps": "下一步",
+          },
+        },
+      },
+    },
+  }),
   "ko-KR": koPublishCareGapRisk,
   "hi-IN": hiPublishCareGapRisk,
   ar: mergeMessageTrees(enPublishCareGapRisk, {}),
