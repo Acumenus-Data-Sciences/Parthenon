@@ -47,7 +47,7 @@ c.DockerSpawner.network_name = os.environ.get(
     "JUPYTER_USER_NETWORK_NAME", "parthenon_jupyter_users"
 )
 c.DockerSpawner.name_template = "parthenon-jupyter-{username}"
-c.DockerSpawner.remove = False  # Keep stopped containers for debugging (set True in production)
+c.DockerSpawner.remove = True
 c.DockerSpawner.use_internal_ip = True  # Use container IP on the Docker network
 c.DockerSpawner.start_timeout = 120  # Allow more time for first pull/start
 c.DockerSpawner.debug = True  # Log spawn details
