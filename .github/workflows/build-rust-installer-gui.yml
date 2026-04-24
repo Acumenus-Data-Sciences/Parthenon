@@ -232,6 +232,34 @@ jobs:
           } | ConvertTo-Json -Depth 6
           Set-Content -Path tauri.windows.conf.json -Value $config
 
+      - name: Diagnostic — test trusted-signing-cli on dummy file
+        if: ${{ runner.os == 'Windows' && env.WINDOWS_SIGNING_CONFIGURED == 'true' }}
+        working-directory: installer/rust-gui
+        shell: pwsh
+        continue-on-error: true
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          WINDOWS_TRUSTED_SIGNING_ACCOUNT: ${{ secrets.WINDOWS_TRUSTED_SIGNING_ACCOUNT }}
+          WINDOWS_TRUSTED_SIGNING_PROFILE: ${{ secrets.WINDOWS_TRUSTED_SIGNING_PROFILE }}
+          WINDOWS_TRUSTED_SIGNING_ENDPOINT: ${{ secrets.WINDOWS_TRUSTED_SIGNING_ENDPOINT }}
+        run: |
+          # Copy a real Windows binary (signtool.exe) as a dummy target
+          $dummy = "$env:TEMP\sign-test.exe"
+          Copy-Item "$env:windir\System32\notepad.exe" $dummy -Force
+          Write-Host "=== trusted-signing-cli --version ==="
+          trusted-signing-cli --version
+          Write-Host "=== trusted-signing-cli sign attempt (verbose) ==="
+          $env:RUST_LOG = "debug"
+          trusted-signing-cli `
+            -e $env:WINDOWS_TRUSTED_SIGNING_ENDPOINT `
+            -a $env:WINDOWS_TRUSTED_SIGNING_ACCOUNT `
+            -c $env:WINDOWS_TRUSTED_SIGNING_PROFILE `
+            -d "Diagnostic test" `
+            $dummy 2>&1
+          Write-Host "=== trusted-signing-cli exit code: $LASTEXITCODE ==="
+
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'
         run: |
