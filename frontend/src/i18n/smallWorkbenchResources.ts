@@ -1596,6 +1596,226 @@ const hiSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
   },
 });
 
+const arSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
+  studyAgent: {
+    header: {
+      title: "مصمم الدراسة",
+      subtitle: "تصميم دراسات بمساعدة الذكاء الاصطناعي مدعوم بـ OHDSI StudyAgent",
+    },
+    tabs: {
+      intent: "نية الدراسة",
+      search: "بحث الأنماط الظاهرية",
+      recommend: "التوصيات",
+      lint: "فحص المجموعة",
+    },
+    intent: {
+      title: "صف دراستك",
+      description:
+        "أدخل وصفًا باللغة الطبيعية لدراستك. سيقسّمه الذكاء الاصطناعي إلى مجتمع الهدف والنتيجة، ثم يوصي بأنماط ظاهرية من مكتبة OHDSI.",
+      placeholder:
+        "مثال: قارن خطر فشل القلب لدى المرضى الذين وُصف لهم حديثًا مثبطات SGLT2 مقابل مثبطات DPP-4 بين البالغين المصابين بالسكري من النوع الثاني...",
+      analyze: "حلل نية الدراسة",
+      targetPopulation: "مجتمع الهدف",
+      outcome: "النتيجة",
+    },
+    recommendations: {
+      title: "الأنماط الظاهرية الموصى بها",
+      score: "الدرجة: {{value}}",
+      loading: "جارٍ العثور على توصيات الأنماط الظاهرية...",
+      promptPrefix: "أدخل نية دراسة في تبويب",
+      promptSuffix: "للحصول على توصيات أنماط ظاهرية مرتبة بالذكاء الاصطناعي.",
+    },
+    search: {
+      title: "ابحث في مكتبة الأنماط الظاهرية",
+      placeholder:
+        "ابحث عن الأنماط الظاهرية (مثل السكري من النوع الثاني أو فشل القلب أو COPD)...",
+      submit: "بحث",
+      resultsFound_one: "تم العثور على نتيجة واحدة",
+      resultsFound_other: "تم العثور على {{count}} نتائج",
+      noneFound: "لم يتم العثور على أنماط ظاهرية. جرّب مصطلح بحث آخر.",
+    },
+    lint: {
+      title: "فحص تعريف المجموعة",
+      description:
+        "الصق JSON الخاص بتعريف المجموعة للتحقق من مشكلات التصميم مثل فترات الغسل المفقودة أو مجموعات المفاهيم الفارغة أو النوافذ الزمنية المعكوسة.",
+      run: "تشغيل الفحص",
+      noIssuesFound: "لم يتم العثور على مشكلات",
+      issuesFound_one: "تم العثور على مشكلة واحدة",
+      issuesFound_other: "تم العثور على {{count}} مشكلات",
+      failed: "فشل الفحص: JSON غير صالح أو خطأ في الخادم.",
+    },
+  },
+  phenotypeLibrary: {
+    page: {
+      title: "مكتبة الأنماط الظاهرية",
+      subtitle:
+        "أكثر من 300 تعريف نمطي ظاهري منسق من OHDSI - تصفحها وصفِّها واستوردها بنقرة واحدة",
+      searchPlaceholder: "ابحث عن الأنماط الظاهرية بالاسم أو الوصف...",
+      allDomains: "كل المجالات",
+      loading: "جارٍ التحميل...",
+      clearFilters: "مسح المرشحات",
+      resultCount_one: "{{displayCount}} نمط ظاهري",
+      resultCount_other: "{{displayCount}} أنماط ظاهرية",
+      matchingFilters: "مطابقة للمرشحات",
+    },
+    detail: {
+      description: "الوصف",
+      logic: "المنطق",
+      noAdditionalDetails: "لا توجد تفاصيل إضافية متاحة.",
+    },
+    stats: {
+      totalPhenotypes: "إجمالي الأنماط الظاهرية",
+      withExpression: "مع تعبير",
+      domainsCovered: "المجالات المغطاة",
+      imported: "تم الاستيراد",
+    },
+    table: {
+      headers: {
+        name: "الاسم",
+        domain: "المجال",
+        severity: "الشدة",
+        tags: "الوسوم",
+        action: "الإجراء",
+      },
+      failedToLoad: "تعذر تحميل مكتبة الأنماط الظاهرية.",
+      empty: "لم يتم العثور على أنماط ظاهرية.",
+      noTags: "لا توجد وسوم",
+    },
+    actions: {
+      imported: "تم الاستيراد",
+      import: "استيراد",
+      importing: "جارٍ الاستيراد...",
+      noExpressionAvailable: "لا يوجد تعبير متاح",
+      importAsCohortDefinition: "استيراد كتعريف مجموعة",
+    },
+    pagination: {
+      pageOf: "الصفحة {{page}} من {{totalPages}}",
+      previous: "السابق",
+      next: "التالي",
+    },
+    domains: {
+      condition: "حالة",
+      drug: "دواء",
+      measurement: "قياس",
+      procedure: "إجراء",
+      observation: "ملاحظة",
+      device: "جهاز",
+    },
+    severities: {
+      acute: "حاد",
+      chronic: "مزمن",
+      subacute: "تحت حاد",
+    },
+  },
+  communityWorkbenchSdk: {
+    page: {
+      badge: "عرض المرحلة الثالثة",
+      title: "عرض Community Workbench SDK",
+      subtitle:
+        "تُظهر صفحة الصندوق الرملي هذه كيف تبدو الأداة المولدة عبر SDK داخل Parthenon قبل ربط منطق خاص بالمجال. إنها مرجع غير إنتاجي لمطوري المجتمع وفرق الشركاء ومساعدي البرمجة بالذكاء الاصطناعي.",
+      backToWorkbench: "العودة إلى مساحة العمل",
+      openSdkDocs: "افتح وثائق SDK",
+      loading: "جارٍ تحميل حمولة العرض من خلفية Parthenon...",
+      failed: "تعذر تحميل حمولة عرض Community Workbench SDK من الخلفية.",
+    },
+    serviceDescriptor: {
+      title: "واصف خدمة نموذجي",
+      description:
+        "هذه هي بيانات الاكتشاف والتوافر التي ينبغي أن تعرضها الأداة المولدة قبل أن يعرض الواجهة الأمامية سطح مساحة العمل.",
+    },
+    checklist: {
+      title: "قائمة تكامل",
+      step: "الخطوة {{index}}",
+      items: {
+        serviceRegistry: "أضف إدخال سجل خدمة في {{path}}.",
+        toolModule: "سجل وحدة أداة MCP في {{path}}.",
+        backendController:
+          "اربط متحكمًا خلفيًا وخدمة مساحة عمل للتحقق والصلاحيات والاستمرارية.",
+        frontendRoute:
+          "أضف مسار واجهة أمامية واستبدل اللوحات المؤقتة بعرض خاص بالمجال.",
+        validatePayloads:
+          "تحقق من الحمولات الحقيقية مقابل مخططات Community Workbench SDK قبل الإصدار.",
+      },
+    },
+    resultEnvelope: {
+      title: "غلاف نتائج نموذجي",
+      description:
+        "ينبغي للأدوات المولدة عبر SDK أن تطبع تشخيصات وقت التشغيل وسياق المصدر والملخص والنتاجات في غلاف متوقع مثل هذا قبل عرض لوحات أكثر غنى.",
+    },
+    artifacts: {
+      title: "جرد الناتج المولد",
+      descriptionPrefix: "هذا العرض مدعوم بسقالة نموذجية مولدة حقيقية في",
+      descriptionSuffix: "داخل المستودع.",
+    },
+  },
+  workbenchLauncher: {
+    page: {
+      title: "مساحة العمل",
+      subtitle: "قدرات جديدة ومجموعات أدوات بحثية",
+    },
+    sections: {
+      toolsetsTitle: "مجموعات الأدوات",
+      toolsetsSubtitle: "اختر مساحة العمل التي تناسب سؤالك البحثي.",
+      recentTitle: "التحقيقات الأخيرة",
+      recentSubtitle: "تحقيقات الأدلة التي عملت عليها مؤخرًا.",
+    },
+    states: {
+      loadingInvestigations: "جارٍ تحميل التحقيقات...",
+      emptyInvestigations: "ابدأ أول تحقيق أدلة لك.",
+    },
+    actions: {
+      createInvestigation: "إنشاء تحقيق",
+      newInvestigation: "تحقيق جديد",
+    },
+    footer: {
+      prompt: "هل تريد بناء مجموعة أدوات مخصصة؟",
+      link: "اعرض مرجع Community SDK",
+    },
+    toolsetMeta: {
+      morpheus: {
+        name: "Morpheus",
+        tagline: "مساحة عمل لتحليلات العناية المركزة ونتائج التنويم",
+        description:
+          "تحليلات متمركزة حول العناية المركزة تعتمد على بيانات MIMIC-IV في OMOP CDM 5.4. التزام حزمة ABCDEF Liberation، وتنبؤ الفطام من جهاز التنفس، ومراقبة التهدئة، وأبحاث النتائج داخل المستشفى.",
+      },
+      sdk: {
+        name: "ابنِ مجموعة أدوات",
+        tagline: "Community SDK للتكاملات الخارجية",
+        description:
+          "تنفيذ مرجعي ووثائق SDK لبناء مجموعات أدوات مخصصة تتكامل مع Parthenon Workbench. واصفات الخدمات وأغلفة النتائج وأنماط الناتج.",
+      },
+    },
+    toolsetStatus: {
+      available: "متاح",
+      comingSoon: "قريبًا",
+      sdkRequired: "يتطلب SDK",
+    },
+    investigationStatus: {
+      draft: "مسودة",
+      active: "نشط",
+      complete: "مكتمل",
+      archived: "مؤرشف",
+    },
+  },
+  etl: {
+    toolsPage: {
+      loadingProjects: "جارٍ تحميل مشاريع ETL...",
+      createTitle: "إنشاء مشروع تعيين ETL",
+      createDescription:
+        "ابدأ تعيين مخطط المصدر إلى OMOP CDM. اختر أولًا مصدرًا جرى توصيفه عبر تبويب Source Profiler.",
+      cdmVersion: "إصدار CDM",
+      cdm54: "OMOP CDM v5.4",
+      cdm53: "OMOP CDM v5.3",
+      creating: "جارٍ الإنشاء...",
+      createProject: "إنشاء مشروع",
+      createFailed: "تعذر إنشاء المشروع",
+      emptyTitle: "مصمم تعيين ETL في Aqueduct",
+      emptyDescription:
+        'انتقل إلى مشروع استيعاب وانقر "Open in Aqueduct" لبدء تصميم تعيينات ETL من مخطط المصدر إلى OMOP CDM.',
+    },
+  },
+});
+
 export const smallWorkbenchResources: Record<string, MessageTree> = {
   "en-US": enSmallWorkbench,
   "es-ES": esSmallWorkbench,
@@ -2221,6 +2441,6 @@ export const smallWorkbenchResources: Record<string, MessageTree> = {
   }),
   "ko-KR": koSmallWorkbench,
   "hi-IN": hiSmallWorkbench,
-  ar: mergeMessageTrees(enSmallWorkbench, {}),
+  ar: arSmallWorkbench,
   "en-XA": mergeMessageTrees(enSmallWorkbench, {}),
 };
