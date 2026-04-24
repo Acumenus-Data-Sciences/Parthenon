@@ -1704,6 +1704,209 @@ const hiEtlAqueduct: MessageTree = mergeMessageTrees(enEtlAqueduct, {
   },
 });
 
+const arEtlAqueduct: MessageTree = mergeMessageTrees(enEtlAqueduct, {
+  etl: {
+    profiler: {
+      page: {
+        title: "محلل المصدر",
+        subtitle:
+          "حلّل قواعد بيانات المصدر باستخدام BlackRabbit لتقييم اكتمال البيانات والكاردينالية والجودة قبل ETL",
+        blackRabbitService: "خدمة BlackRabbit",
+        available: "متاح",
+        unavailableScanMayFail: "غير متاح - قد يفشل الفحص",
+        scanConfiguration: "إعدادات الفحص",
+        database: "قاعدة البيانات",
+        selectDatabase: "اختر قاعدة بيانات...",
+        noDatabaseConnections:
+          "لم يتم العثور على اتصالات بقواعد البيانات. استخدم تبويب الاستيعاب لربط قاعدة بيانات أولا.",
+        tableFilter: "عامل تصفية الجداول",
+        commaSeparated: "(مفصولة بفواصل)",
+        tableFilterPlaceholder:
+          "مثال: person, visit_occurrence, condition_occurrence",
+        advancedOptions: "خيارات متقدمة",
+        sampleRowsPerTable: "صفوف العينة لكل جدول",
+        sampleRowsHelp:
+          "يحد من أخذ عينات الصفوف للجداول الكبيرة. الافتراضي: 10,000.",
+        scanning: "جار الفحص...",
+        scanDatabase: "فحص قاعدة البيانات",
+        scanFailed: "فشل الفحص",
+        searchTablesPlaceholder: "ابحث في الجداول...",
+        listView: "عرض قائمة",
+        compactView: "عرض مضغوط",
+        noScanResultsYet: "لا توجد نتائج فحص بعد",
+        emptyDescription:
+          'اختر مصدر بيانات وانقر على "فحص قاعدة البيانات" لتحليل بيانات المصدر. تتضمن النتائج اكتمال الأعمدة والكاردينالية وتوزيعات القيم ودرجات جودة البيانات.',
+        historyHint: "أو اختر فحصا سابقا من لوحة السجل.",
+      },
+      metrics: {
+        tables: "الجداول",
+        columns: "الأعمدة",
+        totalRows: "إجمالي الصفوف",
+        scanTime: "وقت الفحص",
+        grade: "الدرجة",
+      },
+      sort: {
+        name: "الاسم",
+        rows: "الصفوف",
+        columns: "الأعمدة",
+        grade: "الدرجة",
+      },
+      compact: {
+        rows: "صفوف",
+        cols: "أعمدة",
+        highNull: "فراغ مرتفع",
+      },
+      progress: {
+        complete: "اكتمل الفحص",
+        tables: "الجداول",
+        columns: "الأعمدة",
+        rows: "الصفوف",
+        elapsed: "الوقت المنقضي",
+        cancel: "إلغاء",
+      },
+      history: {
+        title: "سجل الفحص",
+        compareSelected: "مقارنة المحدد",
+        selectForComparison: "اختيار للمقارنة",
+        deleteScan: "حذف الفحص",
+      },
+      heatmap: {
+        title: "الخريطة الحرارية للاكتمال",
+        table: "الجدول",
+      },
+      scorecard: {
+        title: "بطاقة جودة البيانات",
+        overall: "الاكتمال العام للبيانات",
+        checks: {
+          highNullColumns: "الأعمدة ذات القيم الفارغة المرتفعة (>50%)",
+          nearlyEmptyColumns: "الأعمدة شبه الفارغة (>99%)",
+          lowCardinality: "كاردينالية منخفضة (<5 قيم مميزة)",
+          singleValueColumns: "الأعمدة ذات القيمة الواحدة",
+          emptyTables: "الجداول الفارغة (0 صف)",
+          piiColumns: "أعمدة المعلومات الشخصية",
+        },
+      },
+      sizeChart: {
+        title: "توزيع أحجام الجداول",
+      },
+      relationships: {
+        title: "علاقات CDM",
+      },
+      accordion: {
+        highNull: "فراغ مرتفع",
+        lowCard: "كاردينالية منخفضة",
+        headers: {
+          column: "العمود",
+          type: "النوع",
+          nullPercent: "نسبة الفراغ",
+          distinct: "القيم المميزة",
+          sampleValues: "قيم نموذجية",
+        },
+      },
+    },
+    aqueduct: {
+      common: {
+        statuses: {
+          draft: "مسودة",
+          inReview: "قيد المراجعة",
+          approved: "معتمد",
+          archived: "مؤرشف",
+        },
+        filters: {
+          all: "الكل",
+          mapped: "مُعيَّن",
+          unmapped: "غير مُعيَّن",
+        },
+        exportFormats: {
+          markdown: "مواصفة Markdown (.md)",
+          sql: "ملفات SQL (.zip)",
+        },
+        mappingTypes: {
+          direct: "مباشر",
+          transform: "تحويل",
+          lookup: "بحث",
+          constant: "ثابت",
+          concat: "دمج",
+          expression: "تعبير",
+        },
+      },
+      canvas: {
+        dismiss: "إخفاء",
+      },
+      toolbar: {
+        goBack: "رجوع",
+        suggesting: "جار اقتراح...",
+        export: "تصدير",
+        collapse: "طي",
+        expand: "توسيع",
+      },
+      nodes: {
+        sourceEmpty: "فارغ",
+        stemTitle: "الجدول الجذعي",
+      },
+      detailModal: {
+        required: "مطلوب",
+        requiredShort: "مطل.",
+      },
+      conceptSearch: {
+        label: "بحث المفاهيم",
+        placeholder: "ابحث في مفاهيم OMOP...",
+      },
+      suggestions: {
+        acceptAllTopSuggestions: "قبول جميع أفضل الاقتراحات",
+        refresh: "تحديث",
+        analyzing: "جار تحليل تطابقات الأعمدة...",
+        failed: "فشل إنشاء الاقتراحات",
+        retry: "إعادة المحاولة",
+        allMapped: "تم تعيين جميع أعمدة CDM",
+        required: "مطلوب",
+        noMatches: "لم يتم العثور على أعمدة مصدر مطابقة",
+        accept: "قبول",
+      },
+      fieldMapping: {
+        removeMappingTitle: "إزالة التعيين",
+        selectSource: "اختر مصدرا...",
+        searchSourceColumns: "ابحث في أعمدة المصدر...",
+        noMatchingColumns: "لا توجد أعمدة مطابقة",
+        mapped: "مُعيَّن",
+        mappingModifiedElsewhere: "تم تعديل التعيين في مكان آخر، جار التحديث...",
+        failedToSave: "فشل حفظ تعيينات الحقول",
+        aiAssist: "مساعدة الذكاء الاصطناعي",
+        prev: "السابق",
+        next: "التالي",
+        deleteConfirm: "هل تريد حذف هذا التعيين؟",
+        deleteMapping: "حذف تعيين هذا الجدول",
+        failedToDelete: "فشل حذف التعيين",
+        yes: "نعم",
+        no: "لا",
+        headers: {
+          cdmColumn: "عمود CDM",
+          sourceColumn: "عمود المصدر",
+          type: "النوع",
+          logic: "المنطق",
+          status: "الحالة",
+        },
+        sections: {
+          requiredUnmapped: "مطلوب غير مُعيَّن",
+          optionalUnmapped: "اختياري غير مُعيَّن",
+          needsReview: "يحتاج إلى مراجعة",
+          reviewed: "تمت مراجعته",
+        },
+        needsReview: "يحتاج إلى مراجعة",
+        unmapped: "غير مُعيَّن",
+        logicExpression: "المنطق / التعبير",
+        logicPlaceholder: "منطق التحويل أو تعبير SQL",
+        reviewed: "تمت مراجعته",
+        removeMapping: "إزالة التعيين",
+        documentation: "توثيق CDM",
+        userGuide: "دليل المستخدم",
+        etlConventions: "اصطلاحات ETL",
+        fkTable: "جدول FK",
+      },
+    },
+  },
+});
+
 export const etlAqueductResources: Record<string, MessageTree> = {
   "en-US": enEtlAqueduct,
   "es-ES": esEtlAqueduct,
@@ -2327,6 +2530,6 @@ export const etlAqueductResources: Record<string, MessageTree> = {
   }),
   "ko-KR": koEtlAqueduct,
   "hi-IN": hiEtlAqueduct,
-  ar: mergeMessageTrees(enEtlAqueduct, {}),
+  ar: arEtlAqueduct,
   "en-XA": mergeMessageTrees(enEtlAqueduct, {}),
 };
