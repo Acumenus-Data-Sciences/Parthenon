@@ -29,7 +29,7 @@ def _run_gather(ctx: Context) -> None:
 
 def _check_write_env(ctx: Context) -> bool:
     env_file = ROOT / "backend" / ".env"
-    return env_file.exists() and "APP_KEY=" in env_file.read_text()
+    return env_file.exists() and "APP_KEY=base64:" in env_file.read_text()
 
 
 def _run_write_env(ctx: Context) -> None:
@@ -44,7 +44,8 @@ def _run_write_env(ctx: Context) -> None:
 
 
 def _check_store_secrets(ctx: Context) -> bool:
-    return ctx.secrets.get("DB_PASSWORD") is not None
+    required = ["DB_PASSWORD", "REDIS_PASSWORD", "APP_KEY", "ADMIN_PASSWORD"]
+    return all(ctx.secrets.get(k) is not None for k in required)
 
 
 def _run_store_secrets(ctx: Context) -> None:

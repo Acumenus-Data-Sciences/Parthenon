@@ -24,6 +24,9 @@ class CheckpointStore:
         }
         self._write(data)
 
+    def exists(self) -> bool:
+        return self._path.exists()
+
     def load(self) -> dict[str, Any]:
         if not self._path.exists():
             return {}
@@ -31,6 +34,20 @@ class CheckpointStore:
             data = json.load(f)
         if data.get("schema_version", 1) < SCHEMA_VERSION:
             data = self._migrate(data)
+        # A step left in "running" means the previous run crashed mid-step.
+        # Demote to "failed" so the next run retries it and last_error is populated.
+        steps = data.get("steps", {})
+        crashed = [sid for sid, s in steps.items() if s == "running"]
+        if crashed:
+            for sid in crashed:
+                steps[sid] = "failed"
+            data.setdefault("last_error", {})
+            data["last_error"] = {
+                "step": crashed[-1],
+                "message": "Process was interrupted while this step was running.",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+            self._write(data)
         return data
 
     def set_step(self, step_id: str, status: str, error: str | None = None) -> None:

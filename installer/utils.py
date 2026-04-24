@@ -139,7 +139,7 @@ def exec_php(cmd: str, *, check: bool = True) -> subprocess.CompletedProcess:
 
 def exec_pg(cmd: str, *, check: bool = True) -> subprocess.CompletedProcess:
     """Run a command inside the parthenon-postgres container."""
-    return run(["docker", "compose", "exec", "-T", "postgres", *cmd.split()], check=check, cwd=REPO_ROOT)
+    return run(["docker", "compose", "exec", "-T", "postgres", "sh", "-c", cmd], check=check, cwd=REPO_ROOT)
 
 
 def exec_node(cmd: str, *, check: bool = True) -> subprocess.CompletedProcess:

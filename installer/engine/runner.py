@@ -31,7 +31,7 @@ class StepRunner:
         phases = self._registry.phases()
         phase_total = len(phases)
 
-        if not resume or not self._checkpoint._path.exists():
+        if not resume or not self._checkpoint.exists():
             self._checkpoint.initialize(self._registry.all_step_ids())
 
         state = self._checkpoint.load()

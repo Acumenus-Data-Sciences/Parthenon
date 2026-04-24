@@ -47,9 +47,12 @@ def test_set_step_records_error(store: CheckpointStore):
 def test_crash_in_running_treated_as_failed_on_load(store: CheckpointStore):
     store.initialize(["p.a"])
     store.set_step("p.a", "running")
-    # Simulate crash: load sees "running" — the runner treats it as failed
+    # Simulate crash: load() demotes "running" → "failed" so the runner retries
+    # and last_error is populated for diagnostics.
     data = store.load()
-    assert data["steps"]["p.a"] == "running"
+    assert data["steps"]["p.a"] == "failed"
+    assert data["last_error"]["step"] == "p.a"
+    assert "interrupted" in data["last_error"]["message"]
 
 
 def test_delete_removes_file(store: CheckpointStore, tmp_path: Path):

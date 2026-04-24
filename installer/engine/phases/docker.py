@@ -94,7 +94,14 @@ def _check_wait_healthy(ctx: Context) -> bool:
         capture_output=True, text=True, cwd=ROOT,
     )
     statuses = result.stdout.splitlines()
-    return bool(statuses) and all(s in ("healthy", "") for s in statuses)
+    if not statuses:
+        return False
+    # Require at least one container with an explicit healthcheck to be "healthy";
+    # containers without HEALTHCHECK directives report "" and are accepted as-is.
+    return (
+        any(s == "healthy" for s in statuses)
+        and all(s in ("healthy", "") for s in statuses)
+    )
 
 
 def _run_wait_healthy(ctx: Context) -> None:
