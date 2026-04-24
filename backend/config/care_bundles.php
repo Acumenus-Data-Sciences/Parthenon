@@ -39,4 +39,19 @@ return [
         'publisher' => env('CARE_BUNDLES_FHIR_PUBLISHER', 'Parthenon'),
         'base_url' => env('CARE_BUNDLES_FHIR_BASE_URL', 'https://parthenon.local/fhir'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Minimum Population Threshold
+    |--------------------------------------------------------------------------
+    |
+    | CDMs below this person count are flagged as research-only and filtered
+    | from the default workbench UI. 100,000 is the inflection point where
+    | Wilson 95% CIs on proportion-type quality measures tighten below ±0.5pp.
+    | Smaller corpora (rare disease, single-cancer) are still materializable
+    | but banner-warned and excluded from materialize-all fan-outs.
+    |
+    */
+    'min_population' => (int) env('CARE_BUNDLES_MIN_POPULATION', 100_000),
+    'population_cache_ttl' => (int) env('CARE_BUNDLES_POPULATION_CACHE_TTL', 86_400),
 ];

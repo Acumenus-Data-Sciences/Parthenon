@@ -13,6 +13,7 @@ use App\Models\App\CareBundleRun;
 use App\Models\App\ConditionBundle;
 use App\Models\App\Source;
 use App\Services\CareBundles\CareBundleQualificationService;
+use App\Services\CareBundles\CareBundleSourceService;
 use App\Services\CareBundles\FhirMeasureExporter;
 use App\Services\CareBundles\IntersectionCohortService;
 use Illuminate\Http\JsonResponse;
@@ -28,7 +29,25 @@ class CareBundleController extends Controller
         private readonly CareBundleQualificationService $qualifications,
         private readonly IntersectionCohortService $intersectionCohorts,
         private readonly FhirMeasureExporter $fhirExporter,
+        private readonly CareBundleSourceService $sources,
     ) {}
+
+    /**
+     * GET /v1/care-bundles/sources
+     *
+     * Lists all sources with person counts and the N≥min_population gate
+     * verdict. The frontend uses `qualifies=false` rows to render a
+     * "research-only" banner and exclude them from default dropdowns.
+     */
+    public function sources(): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->sources->listWithPopulation(),
+            'meta' => [
+                'min_population' => (int) config('care_bundles.min_population'),
+            ],
+        ]);
+    }
 
     /**
      * GET /v1/care-bundles/coverage

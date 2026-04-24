@@ -1,23 +1,30 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { GitMerge, Loader2, PanelsTopLeft, RefreshCw } from "lucide-react";
+import { Loader2, PanelsTopLeft, RefreshCw } from "lucide-react";
 import { Shell } from "@/components/workbench/primitives";
 import { useBundles } from "@/features/care-gaps/hooks/useCareGaps";
-import { useSources } from "@/features/data-sources/hooks/useSources";
 import {
   useCareBundleCoverage,
+  useCareBundleSources,
   useMaterializeAllCareBundles,
 } from "../hooks";
 import { formatRelativeTime } from "../lib/formatting";
+import { WorkbenchTabs } from "../components/WorkbenchTabs";
 
 export default function CareBundlesHomePage() {
   const bundlesQuery = useBundles({ per_page: 100 });
-  const sourcesQuery = useSources();
+  const sourcesQuery = useCareBundleSources();
   const coverageQuery = useCareBundleCoverage();
   const materializeAll = useMaterializeAllCareBundles();
 
+  const [showResearchOnly, setShowResearchOnly] = useState(false);
+
   const bundles = bundlesQuery.data?.data ?? [];
-  const sources = sourcesQuery.data ?? [];
+  const allSources = sourcesQuery.data?.data ?? [];
+  const minPop = sourcesQuery.data?.meta.min_population ?? 100_000;
+  const sources = showResearchOnly ? allSources : allSources.filter((s) => s.qualifies);
   const coverage = coverageQuery.data ?? [];
+  const nonQualifyingCount = allSources.length - allSources.filter((s) => s.qualifies).length;
 
   const cellKey = (bundleId: number, sourceId: number) =>
     `${bundleId}:${sourceId}`;
@@ -46,13 +53,6 @@ export default function CareBundlesHomePage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Link
-            to="/workbench/care-bundles/intersect"
-            className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-surface-overlay"
-          >
-            <GitMerge className="h-4 w-4" />
-            Explore intersections
-          </Link>
           <button
             onClick={() => materializeAll.mutate()}
             disabled={materializeAll.isPending}
@@ -68,6 +68,26 @@ export default function CareBundlesHomePage() {
           </button>
         </div>
       </header>
+
+      <WorkbenchTabs />
+
+      {nonQualifyingCount > 0 && (
+        <div className="flex items-center justify-between rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-xs">
+          <span className="text-text-ghost">
+            {nonQualifyingCount} source{nonQualifyingCount === 1 ? "" : "s"} hidden
+            (N &lt; {minPop.toLocaleString()} — not adequate for quality measurement).
+          </span>
+          <label className="flex items-center gap-2 text-text-muted">
+            <input
+              type="checkbox"
+              checked={showResearchOnly}
+              onChange={(e) => setShowResearchOnly(e.target.checked)}
+              className="h-3.5 w-3.5"
+            />
+            Show research-only sources
+          </label>
+        </div>
+      )}
 
       <Shell
         title="Coverage matrix"

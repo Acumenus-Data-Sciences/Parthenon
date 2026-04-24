@@ -114,3 +114,103 @@ export interface DerivedCohortDefinition {
 }
 
 export type { ConditionBundle, QualityMeasure };
+
+// ---------------------------------------------------------------------------
+// Workbench-aware sources (N ≥ min_population gate)
+// ---------------------------------------------------------------------------
+
+export interface CareBundleSource {
+  id: number;
+  source_name: string;
+  cdm_schema: string | null;
+  person_count: number | null;
+  qualifies: boolean;
+  reason: string | null;
+}
+
+export interface CareBundleSourcesResponse {
+  data: CareBundleSource[];
+  meta: { min_population: number };
+}
+
+// ---------------------------------------------------------------------------
+// VSAC reference library — value sets and CMS measures
+// ---------------------------------------------------------------------------
+
+export interface VsacValueSetSummary {
+  value_set_oid: string;
+  name: string;
+  definition_version: string | null;
+  expansion_version: string | null;
+  qdm_category: string | null;
+  code_count: number;
+  omop_concept_count: number;
+}
+
+export interface VsacValueSetDetail {
+  value_set: {
+    value_set_oid: string;
+    name: string;
+    definition_version: string | null;
+    expansion_version: string | null;
+    qdm_category: string | null;
+    purpose_clinical_focus: string | null;
+    purpose_data_scope: string | null;
+    purpose_inclusion: string | null;
+    purpose_exclusion: string | null;
+  };
+  code_count: number;
+  omop_concept_count: number;
+  code_systems: Array<{ code_system: string; count: number }>;
+  linked_measures: Array<{ cms_id: string; cbe_number: string | null; title: string | null }>;
+}
+
+export interface VsacCode {
+  id: number;
+  value_set_oid: string;
+  code: string;
+  description: string | null;
+  code_system: string;
+  code_system_oid: string | null;
+  code_system_version: string | null;
+}
+
+export interface VsacOmopConcept {
+  concept_id: number;
+  concept_name: string;
+  vocabulary_id: string;
+  code: string;
+  code_system: string;
+}
+
+export interface VsacMeasureSummary {
+  cms_id: string;
+  cbe_number: string | null;
+  program_candidate: string | null;
+  title: string | null;
+  expansion_version: string | null;
+  value_set_count: number;
+}
+
+export interface VsacMeasureValueSet {
+  value_set_oid: string;
+  name: string;
+  qdm_category: string | null;
+  code_count: number;
+  omop_concept_count: number;
+}
+
+export interface VsacMeasureDetail {
+  measure: VsacMeasureSummary;
+  value_sets: VsacMeasureValueSet[];
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    total: number;
+    page: number;
+    per_page: number;
+    last_page?: number;
+  };
+}

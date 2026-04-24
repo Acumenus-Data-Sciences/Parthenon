@@ -408,6 +408,34 @@ export const router = createBrowserRouter(
                   ).then((m) => ({ Component: m.default })),
               },
               {
+                path: "value-sets",
+                lazy: () =>
+                  import(
+                    "@/features/carebundles-workbench/pages/CareBundleVsacValueSetsPage"
+                  ).then((m) => ({ Component: m.default })),
+              },
+              {
+                path: "value-sets/:oid",
+                lazy: () =>
+                  import(
+                    "@/features/carebundles-workbench/pages/CareBundleVsacValueSetDetailPage"
+                  ).then((m) => ({ Component: m.default })),
+              },
+              {
+                path: "measures",
+                lazy: () =>
+                  import(
+                    "@/features/carebundles-workbench/pages/CareBundleVsacMeasuresPage"
+                  ).then((m) => ({ Component: m.default })),
+              },
+              {
+                path: "measures/:cms_id",
+                lazy: () =>
+                  import(
+                    "@/features/carebundles-workbench/pages/CareBundleVsacMeasureDetailPage"
+                  ).then((m) => ({ Component: m.default })),
+              },
+              {
                 path: ":bundleId",
                 lazy: () =>
                   import(

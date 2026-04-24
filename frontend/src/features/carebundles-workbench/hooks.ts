@@ -4,10 +4,18 @@ import {
   createCohortFromIntersection,
   fetchBundleQualifications,
   fetchBundleRuns,
+  fetchCareBundleSources,
   fetchCoverageMatrix,
   fetchRun,
+  fetchVsacCodes,
+  fetchVsacMeasure,
+  fetchVsacMeasures,
+  fetchVsacOmopConcepts,
+  fetchVsacValueSet,
+  fetchVsacValueSets,
   materializeAllBundles,
   materializeBundle,
+  type VsacValueSetListParams,
 } from "./api";
 import type { IntersectionMode } from "./types";
 
@@ -119,5 +127,78 @@ export function useCreateCohortFromIntersection() {
       qc.invalidateQueries({ queryKey: ["cohort-definitions"] });
       qc.invalidateQueries({ queryKey: ["care-gap-bundles"] });
     },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Source population gate
+// ---------------------------------------------------------------------------
+
+export function useCareBundleSources() {
+  return useQuery({
+    queryKey: ["care-bundles", "sources"],
+    queryFn: fetchCareBundleSources,
+    staleTime: 5 * 60_000,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// VSAC library
+// ---------------------------------------------------------------------------
+
+export function useVsacValueSets(params: VsacValueSetListParams = {}) {
+  return useQuery({
+    queryKey: ["vsac", "value-sets", params],
+    queryFn: () => fetchVsacValueSets(params),
+    staleTime: 60_000,
+  });
+}
+
+export function useVsacValueSet(oid: string | null) {
+  return useQuery({
+    queryKey: oid ? ["vsac", "value-sets", oid] : ["vsac", "vs", "disabled"],
+    queryFn: () => fetchVsacValueSet(oid as string),
+    enabled: oid != null,
+    staleTime: 60_000,
+  });
+}
+
+export function useVsacCodes(
+  oid: string | null,
+  params: { code_system?: string; page?: number; per_page?: number } = {},
+) {
+  return useQuery({
+    queryKey: oid ? ["vsac", "codes", oid, params] : ["vsac", "codes", "disabled"],
+    queryFn: () => fetchVsacCodes(oid as string, params),
+    enabled: oid != null,
+  });
+}
+
+export function useVsacOmopConcepts(
+  oid: string | null,
+  params: { vocabulary_id?: string; page?: number; per_page?: number } = {},
+) {
+  return useQuery({
+    queryKey: oid ? ["vsac", "omop", oid, params] : ["vsac", "omop", "disabled"],
+    queryFn: () => fetchVsacOmopConcepts(oid as string, params),
+    enabled: oid != null,
+  });
+}
+
+export function useVsacMeasures(
+  params: { q?: string; page?: number; per_page?: number } = {},
+) {
+  return useQuery({
+    queryKey: ["vsac", "measures", params],
+    queryFn: () => fetchVsacMeasures(params),
+    staleTime: 60_000,
+  });
+}
+
+export function useVsacMeasure(cmsId: string | null) {
+  return useQuery({
+    queryKey: cmsId ? ["vsac", "measures", cmsId] : ["vsac", "measure", "disabled"],
+    queryFn: () => fetchVsacMeasure(cmsId as string),
+    enabled: cmsId != null,
   });
 }

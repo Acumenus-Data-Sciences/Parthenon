@@ -3,14 +3,23 @@ import type {
   CareBundleCoverageCell,
   CareBundleQualificationsResponse,
   CareBundleRun,
+  CareBundleSourcesResponse,
   DerivedCohortDefinition,
   IntersectionMode,
   IntersectionResponse,
   IntersectionToCohortPayload,
   MaterializeDispatchResponse,
+  PaginatedResponse,
+  VsacCode,
+  VsacMeasureDetail,
+  VsacMeasureSummary,
+  VsacOmopConcept,
+  VsacValueSetDetail,
+  VsacValueSetSummary,
 } from "./types";
 
 const BASE = "/care-bundles";
+const VSAC = "/vsac";
 
 export async function fetchCoverageMatrix(): Promise<CareBundleCoverageCell[]> {
   const { data } = await apiClient.get<{ data: CareBundleCoverageCell[] }>(
@@ -94,4 +103,87 @@ export async function fetchFhirMeasure(bundleId: number): Promise<unknown> {
     { headers: { Accept: "application/fhir+json" } },
   );
   return data;
+}
+
+// ---------------------------------------------------------------------------
+// Source population gate (N ≥ min_population)
+// ---------------------------------------------------------------------------
+
+export async function fetchCareBundleSources(): Promise<CareBundleSourcesResponse> {
+  const { data } = await apiClient.get<CareBundleSourcesResponse>(
+    `${BASE}/sources`,
+  );
+  return data;
+}
+
+// ---------------------------------------------------------------------------
+// VSAC reference library
+// ---------------------------------------------------------------------------
+
+export interface VsacValueSetListParams {
+  q?: string;
+  code_system?: string;
+  cms_id?: string;
+  page?: number;
+  per_page?: number;
+}
+
+export async function fetchVsacValueSets(
+  params: VsacValueSetListParams = {},
+): Promise<PaginatedResponse<VsacValueSetSummary>> {
+  const { data } = await apiClient.get<PaginatedResponse<VsacValueSetSummary>>(
+    `${VSAC}/value-sets`,
+    { params },
+  );
+  return data;
+}
+
+export async function fetchVsacValueSet(
+  oid: string,
+): Promise<VsacValueSetDetail> {
+  const { data } = await apiClient.get<{ data: VsacValueSetDetail }>(
+    `${VSAC}/value-sets/${oid}`,
+  );
+  return data.data;
+}
+
+export async function fetchVsacCodes(
+  oid: string,
+  params: { code_system?: string; page?: number; per_page?: number } = {},
+): Promise<PaginatedResponse<VsacCode>> {
+  const { data } = await apiClient.get<PaginatedResponse<VsacCode>>(
+    `${VSAC}/value-sets/${oid}/codes`,
+    { params },
+  );
+  return data;
+}
+
+export async function fetchVsacOmopConcepts(
+  oid: string,
+  params: { vocabulary_id?: string; page?: number; per_page?: number } = {},
+): Promise<PaginatedResponse<VsacOmopConcept>> {
+  const { data } = await apiClient.get<PaginatedResponse<VsacOmopConcept>>(
+    `${VSAC}/value-sets/${oid}/omop-concepts`,
+    { params },
+  );
+  return data;
+}
+
+export async function fetchVsacMeasures(
+  params: { q?: string; page?: number; per_page?: number } = {},
+): Promise<PaginatedResponse<VsacMeasureSummary>> {
+  const { data } = await apiClient.get<PaginatedResponse<VsacMeasureSummary>>(
+    `${VSAC}/measures`,
+    { params },
+  );
+  return data;
+}
+
+export async function fetchVsacMeasure(
+  cmsId: string,
+): Promise<VsacMeasureDetail> {
+  const { data } = await apiClient.get<{ data: VsacMeasureDetail }>(
+    `${VSAC}/measures/${cmsId}`,
+  );
+  return data.data;
 }

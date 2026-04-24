@@ -921,6 +921,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/population-summary', [CareGapController::class, 'populationSummary']);
 
             // CareBundles Workbench — static paths BEFORE /{bundle} wildcard.
+            Route::get('/sources', [CareBundleController::class, 'sources'])
+                ->middleware(['permission:care-bundles.view', 'throttle:120,1']);
             Route::get('/coverage', [CareBundleController::class, 'coverage'])
                 ->middleware(['permission:care-bundles.view', 'throttle:120,1']);
             Route::post('/materialize-all', [CareBundleController::class, 'materializeAll'])

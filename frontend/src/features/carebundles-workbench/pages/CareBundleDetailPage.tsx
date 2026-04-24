@@ -3,14 +3,16 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Download, Loader2, Play } from "lucide-react";
 import { Shell } from "@/components/workbench/primitives";
 import { useBundle } from "@/features/care-gaps/hooks/useCareGaps";
-import { useSources } from "@/features/data-sources/hooks/useSources";
 import { fetchFhirMeasure } from "../api";
 import {
   useCareBundleQualifications,
   useCareBundleRuns,
+  useCareBundleSources,
   useMaterializeCareBundle,
 } from "../hooks";
 import { formatRate, formatRelativeTime } from "../lib/formatting";
+import { WorkbenchTabs } from "../components/WorkbenchTabs";
+import { SourceQualifierBanner } from "../components/SourceQualifierBanner";
 
 export default function CareBundleDetailPage() {
   const { bundleId: bundleIdParam } = useParams<{ bundleId: string }>();
@@ -19,18 +21,22 @@ export default function CareBundleDetailPage() {
   const [sourceId, setSourceId] = useState<number | null>(null);
 
   const bundleQuery = useBundle(bundleId);
-  const sourcesQuery = useSources();
+  const sourcesQuery = useCareBundleSources();
   const qualificationsQuery = useCareBundleQualifications(bundleId, sourceId);
   const runsQuery = useCareBundleRuns(bundleId);
   const materialize = useMaterializeCareBundle();
 
-  const sources = useMemo(() => sourcesQuery.data ?? [], [sourcesQuery.data]);
+  const sources = useMemo(() => sourcesQuery.data?.data ?? [], [sourcesQuery.data]);
+  const minPop = sourcesQuery.data?.meta.min_population ?? 100_000;
 
-  // Default source: first available one once loaded.
+  // Default source: first qualifying one; fall back to any source if none qualify.
   const effectiveSourceId = useMemo(() => {
     if (sourceId != null) return sourceId;
-    return sources[0]?.id ?? null;
+    const firstQualifying = sources.find((s) => s.qualifies);
+    return firstQualifying?.id ?? sources[0]?.id ?? null;
   }, [sourceId, sources]);
+
+  const selectedSource = sources.find((s) => s.id === effectiveSourceId) ?? null;
 
   if (sourceId == null && effectiveSourceId != null) {
     setSourceId(effectiveSourceId);
@@ -42,6 +48,8 @@ export default function CareBundleDetailPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
+      <WorkbenchTabs />
+
       <header className="flex items-start justify-between gap-4">
         <div>
           <Link
@@ -70,11 +78,22 @@ export default function CareBundleDetailPage() {
             onChange={(e) => setSourceId(Number(e.target.value))}
             className="rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary"
           >
-            {sources.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.source_name}
-              </option>
-            ))}
+            <optgroup label="Population measurement eligible (N ≥ 100K)">
+              {sources.filter((s) => s.qualifies).map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.source_name} ({s.person_count?.toLocaleString() ?? "?"})
+                </option>
+              ))}
+            </optgroup>
+            {sources.some((s) => !s.qualifies) && (
+              <optgroup label="Research only (N &lt; 100K)">
+                {sources.filter((s) => !s.qualifies).map((s) => (
+                  <option key={s.id} value={s.id}>
+                    ⚠ {s.source_name} ({s.person_count?.toLocaleString() ?? "?"})
+                  </option>
+                ))}
+              </optgroup>
+            )}
           </select>
 
           <button
@@ -110,6 +129,8 @@ export default function CareBundleDetailPage() {
           </button>
         </div>
       </header>
+
+      <SourceQualifierBanner source={selectedSource} minPopulation={minPop} />
 
       <section className="grid grid-cols-3 gap-3">
         <MetricTile
