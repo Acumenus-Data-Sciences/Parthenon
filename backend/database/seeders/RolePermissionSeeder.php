@@ -39,6 +39,9 @@ class RolePermissionSeeder extends Seeder
         // ── Cohort definitions ────────────────────────────────────────────
         'cohorts' => ['view', 'create', 'edit', 'delete', 'generate'],
 
+        // ── CareBundles Workbench (eCQM materialization + intersections) ──
+        'care-bundles' => ['view', 'materialize', 'create-cohort'],
+
         // ── Concept sets ─────────────────────────────────────────────────
         'concept-sets' => ['view', 'create', 'edit', 'delete'],
 
@@ -130,6 +133,7 @@ class RolePermissionSeeder extends Seeder
         'researcher' => [
             'vocabulary.view',
             'cohorts.view', 'cohorts.create', 'cohorts.edit', 'cohorts.generate',
+            'care-bundles.view', 'care-bundles.create-cohort',
             'concept-sets.view', 'concept-sets.create', 'concept-sets.edit',
             'analyses.view', 'analyses.create', 'analyses.edit', 'analyses.run',
             'studies.view', 'studies.create', 'studies.edit', 'studies.execute',
@@ -160,6 +164,7 @@ class RolePermissionSeeder extends Seeder
             'data-quality.view', 'data-quality.run', 'data-quality.delete',
             'jobs.view', 'jobs.cancel',
             'cohorts.view',
+            'care-bundles.view', 'care-bundles.materialize',
             'analyses.view',
             'profiler.view', 'profiler.scan',
             'etl.view', 'etl.create', 'etl.export',
@@ -185,6 +190,7 @@ class RolePermissionSeeder extends Seeder
         'viewer' => [
             'vocabulary.view',
             'cohorts.view',
+            'care-bundles.view',
             'concept-sets.view',
             'analyses.view',
             'studies.view',

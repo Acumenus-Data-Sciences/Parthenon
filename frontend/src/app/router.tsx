@@ -389,6 +389,34 @@ export const router = createBrowserRouter(
               ).then((m) => ({ Component: m.default })),
           },
           {
+            // CareBundles Workbench — coverage matrix + per-bundle detail +
+            // cross-bundle intersection explorer.
+            path: "care-bundles",
+            children: [
+              {
+                index: true,
+                lazy: () =>
+                  import(
+                    "@/features/carebundles-workbench/pages/CareBundlesHomePage"
+                  ).then((m) => ({ Component: m.default })),
+              },
+              {
+                path: "intersect",
+                lazy: () =>
+                  import(
+                    "@/features/carebundles-workbench/pages/CareBundleIntersectionPage"
+                  ).then((m) => ({ Component: m.default })),
+              },
+              {
+                path: ":bundleId",
+                lazy: () =>
+                  import(
+                    "@/features/carebundles-workbench/pages/CareBundleDetailPage"
+                  ).then((m) => ({ Component: m.default })),
+              },
+            ],
+          },
+          {
             path: "investigation",
             children: [
               {

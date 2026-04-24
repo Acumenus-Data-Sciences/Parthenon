@@ -57,6 +57,19 @@ const TOOLSET_REGISTRY: ToolsetDescriptor[] = [
     route: "/workbench/community-sdk-demo",
     copyKey: "sdk",
   },
+  {
+    // i18n-exempt: P1 scaffolding — copy can graduate to i18n once the toolset
+    // copy catalogue gets a "carebundles" key.
+    slug: "carebundles",
+    name: "CareBundles Workbench",
+    tagline: "Population qualification across care bundles",
+    description:
+      "Materialize eCQM care bundles (HTN, T2DM, Obesity, Cardio-renal, Oncology screening, Behavioral health) against every CDM source. See qualified patient counts per bundle × source, drill into per-measure rates, and explore cross-bundle intersections (P2).",
+    icon: "LayoutGrid",
+    accent: "var(--accent)",
+    status: "available",
+    route: "/workbench/care-bundles",
+  },
 ];
 
 const STATUS_BADGE_CLASS: Record<string, string> = {

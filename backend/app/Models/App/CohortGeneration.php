@@ -11,6 +11,7 @@ class CohortGeneration extends Model
     protected $fillable = [
         'cohort_definition_id',
         'source_id',
+        'care_bundle_run_id',
         'status',
         'started_at',
         'completed_at',
@@ -44,5 +45,13 @@ class CohortGeneration extends Model
     public function source(): BelongsTo
     {
         return $this->belongsTo(Source::class);
+    }
+
+    /**
+     * @return BelongsTo<CareBundleRun, $this>
+     */
+    public function careBundleRun(): BelongsTo
+    {
+        return $this->belongsTo(CareBundleRun::class, 'care_bundle_run_id');
     }
 }

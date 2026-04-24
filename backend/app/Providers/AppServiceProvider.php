@@ -59,6 +59,11 @@ use App\Policies\FinnGen\RunPolicy as FinnGenRunPolicy;
 use App\Policies\IngestionProjectPolicy;
 use App\Services\AI\AbbyAiService;
 use App\Services\Analysis\CareGapService;
+use App\Services\CareBundles\CareBundleMaterializationService;
+use App\Services\CareBundles\CareBundleMeasureEvaluator;
+use App\Services\CareBundles\CareBundleQualificationService;
+use App\Services\CareBundles\Evaluators\CohortBasedMeasureEvaluator;
+use App\Services\CareBundles\Evaluators\CqlMeasureEvaluator;
 use App\Services\Analysis\CharacterizationService;
 use App\Services\Analysis\EstimationService;
 use App\Services\Analysis\IncidenceRateService;
@@ -142,6 +147,19 @@ class AppServiceProvider extends ServiceProvider
 
             return $app->make($providerClass);
         });
+
+        // CareBundles Workbench — config-driven evaluator binding.
+        // Default: cohort_based (direct SQL). Phase 3b: cql (external CQL engine).
+        $this->app->bind(CareBundleMeasureEvaluator::class, function () {
+            $impl = (string) config('care_bundles.evaluator', 'cohort_based');
+
+            return match ($impl) {
+                'cql' => $this->app->make(CqlMeasureEvaluator::class),
+                default => $this->app->make(CohortBasedMeasureEvaluator::class),
+            };
+        });
+        $this->app->singleton(CareBundleMaterializationService::class);
+        $this->app->singleton(CareBundleQualificationService::class);
 
         // Analysis services
         $this->app->singleton(CareGapService::class);

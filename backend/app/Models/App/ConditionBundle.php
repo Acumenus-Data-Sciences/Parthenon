@@ -69,6 +69,14 @@ class ConditionBundle extends Model
     }
 
     /**
+     * @return HasMany<CareBundleRun, $this>
+     */
+    public function runs(): HasMany
+    {
+        return $this->hasMany(CareBundleRun::class, 'condition_bundle_id');
+    }
+
+    /**
      * Get overlap rules applicable to this bundle.
      *
      * @return Collection<int, BundleOverlapRule>

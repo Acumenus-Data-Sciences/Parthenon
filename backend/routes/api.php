@@ -31,6 +31,7 @@ use App\Http\Controllers\Api\V1\CirceController;
 use App\Http\Controllers\Api\V1\ClaimsSearchController;
 use App\Http\Controllers\Api\V1\ClinicalCoherenceController;
 use App\Http\Controllers\Api\V1\CohortAuthoringArtifactController;
+use App\Http\Controllers\Api\V1\CareBundleController;
 use App\Http\Controllers\Api\V1\CohortDefinitionController;
 use App\Http\Controllers\Api\V1\CohortDiagnosticsController;
 use App\Http\Controllers\Api\V1\CohortPrsController;
@@ -918,6 +919,18 @@ Route::prefix('v1')->group(function () {
             Route::get('/overlap-rules', [CareGapController::class, 'overlapRules']);
             Route::get('/population-summary', [CareGapController::class, 'populationSummary']);
 
+            // CareBundles Workbench — static paths BEFORE /{bundle} wildcard.
+            Route::get('/coverage', [CareBundleController::class, 'coverage'])
+                ->middleware(['permission:care-bundles.view', 'throttle:120,1']);
+            Route::post('/materialize-all', [CareBundleController::class, 'materializeAll'])
+                ->middleware(['permission:care-bundles.materialize', 'throttle:5,1']);
+            Route::post('/intersections', [CareBundleController::class, 'intersections'])
+                ->middleware(['permission:care-bundles.view', 'throttle:60,1']);
+            Route::post('/intersections/to-cohort', [CareBundleController::class, 'intersectionToCohort'])
+                ->middleware(['permission:care-bundles.create-cohort', 'throttle:10,1']);
+            Route::get('/runs/{run}', [CareBundleController::class, 'run'])
+                ->middleware(['permission:care-bundles.view', 'throttle:120,1']);
+
             Route::get('/', [CareGapController::class, 'index']);
             Route::post('/', [CareGapController::class, 'store']);
             Route::get('/{bundle}', [CareGapController::class, 'show']);
@@ -931,6 +944,16 @@ Route::prefix('v1')->group(function () {
             Route::post('/{bundle}/evaluate', [CareGapController::class, 'evaluate']);
             Route::get('/{bundle}/evaluations', [CareGapController::class, 'evaluations']);
             Route::get('/{bundle}/evaluations/{evaluation}', [CareGapController::class, 'showEvaluation']);
+
+            // Workbench per-bundle endpoints (sub-paths won't collide with /{bundle})
+            Route::get('/{bundle}/qualifications', [CareBundleController::class, 'qualifications'])
+                ->middleware(['permission:care-bundles.view', 'throttle:120,1']);
+            Route::get('/{bundle}/runs', [CareBundleController::class, 'runs'])
+                ->middleware(['permission:care-bundles.view', 'throttle:120,1']);
+            Route::get('/{bundle}/fhir/measure', [CareBundleController::class, 'fhirMeasure'])
+                ->middleware(['permission:care-bundles.view', 'throttle:60,1']);
+            Route::post('/{bundle}/materialize', [CareBundleController::class, 'materialize'])
+                ->middleware(['permission:care-bundles.materialize', 'throttle:30,1']);
         });
 
         // Population Characterization (Tier 3 — PC001–PC006)
