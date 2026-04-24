@@ -127,6 +127,10 @@ class CareBundleMaterializationService
 
         $placeholders = implode(',', array_fill(0, count($conceptIds), '?'));
 
+        // Expand bundle concept IDs via vocab.concept_ancestor so descendants
+        // of the bundle's parent concepts qualify too. Without this, real CDM
+        // data (coded to specific SNOMED leaves) matches 0 patients against
+        // parent concepts like 316866 "Hypertensive disorder".
         $sql = "
             INSERT INTO care_bundle_qualifications
                 (care_bundle_run_id, condition_bundle_id, source_id,
@@ -134,7 +138,11 @@ class CareBundleMaterializationService
             SELECT
                 ?, ?, ?, co.person_id, TRUE, '{}'::jsonb, NOW()
             FROM \"{$cdmSchema}\".condition_occurrence co
-            WHERE co.condition_concept_id IN ({$placeholders})
+            WHERE co.condition_concept_id IN (
+                SELECT ca.descendant_concept_id
+                FROM vocab.concept_ancestor ca
+                WHERE ca.ancestor_concept_id IN ({$placeholders})
+            )
             GROUP BY co.person_id
             ON CONFLICT (care_bundle_run_id, person_id) DO NOTHING
         ";

@@ -46,6 +46,14 @@ final class CohortBasedMeasureEvaluator implements CareBundleMeasureEvaluator
         $dateCol = $this->resolveDateColumn($measure->domain);
         $conceptPh = implode(',', array_fill(0, count($conceptIds), '?'));
 
+        // Expand numerator concept IDs via vocab.concept_ancestor so descendants
+        // (e.g., specific drug ingredients/products under an RxNorm class) count
+        // toward the measure. Mirrors the qualification query's hierarchy logic.
+        //
+        // Anchor the lookback window on the CDM's MAX({$dateCol}) instead of
+        // CURRENT_DATE. Historical CDMs (SynPUF maxes at 2010; most MIMIC-IV
+        // derivatives pre-2020) contain zero rows in the last 365 calendar
+        // days, so CURRENT_DATE anchoring returned 0-rate everywhere.
         $sql = "
             UPDATE care_bundle_qualifications cbq
             SET measure_summary = COALESCE(cbq.measure_summary, '{}'::jsonb)
@@ -57,8 +65,15 @@ final class CohortBasedMeasureEvaluator implements CareBundleMeasureEvaluator
                             SELECT 1
                             FROM \"{$cdmSchema}\".{$tableName} t
                             WHERE t.person_id = cbq.person_id
-                              AND t.{$conceptCol} IN ({$conceptPh})
-                              AND t.{$dateCol} >= CURRENT_DATE - INTERVAL '{$lookbackDays} days'
+                              AND t.{$conceptCol} IN (
+                                  SELECT ca.descendant_concept_id
+                                  FROM vocab.concept_ancestor ca
+                                  WHERE ca.ancestor_concept_id IN ({$conceptPh})
+                              )
+                              AND t.{$dateCol} >= (
+                                  SELECT MAX({$dateCol})
+                                  FROM \"{$cdmSchema}\".{$tableName}
+                              ) - INTERVAL '{$lookbackDays} days'
                         )
                     )
                 )
