@@ -1,0 +1,38 @@
+{
+    "id": 159,
+    "name": "Atrial Fibrillation - Conditions",
+    "description": "Condition concepts from Atrial Fibrillation care bundle.",
+    "expression_json": null,
+    "author_id": 327,
+    "is_public": true,
+    "tags": [
+        "afib",
+        "care-bundle",
+        "conditions"
+    ],
+    "created_at": "2026-04-24T02:02:05.000000Z",
+    "updated_at": "2026-04-24T02:02:05.000000Z",
+    "deleted_at": null,
+    "items": [
+        {
+            "id": 1427,
+            "concept_set_id": 159,
+            "concept_id": 313217,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-24T02:02:05.000000Z",
+            "updated_at": "2026-04-24T02:02:05.000000Z"
+        },
+        {
+            "id": 1428,
+            "concept_set_id": 159,
+            "concept_id": 4141360,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-24T02:02:05.000000Z",
+            "updated_at": "2026-04-24T02:02:05.000000Z"
+        }
+    ]
+}

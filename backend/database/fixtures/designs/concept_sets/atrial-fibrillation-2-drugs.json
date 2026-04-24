@@ -1,0 +1,98 @@
+{
+    "id": 165,
+    "name": "Atrial Fibrillation 2 - Drugs",
+    "description": "Drugs from Atrial Fibrillation care bundle.",
+    "expression_json": null,
+    "author_id": 126,
+    "is_public": true,
+    "tags": [
+        "afib",
+        "care-bundle",
+        "drug"
+    ],
+    "created_at": "2026-04-24T13:56:38.000000Z",
+    "updated_at": "2026-04-24T13:56:38.000000Z",
+    "deleted_at": null,
+    "items": [
+        {
+            "id": 1448,
+            "concept_set_id": 165,
+            "concept_id": 1310149,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-24T13:56:38.000000Z",
+            "updated_at": "2026-04-24T13:56:38.000000Z"
+        },
+        {
+            "id": 1449,
+            "concept_set_id": 165,
+            "concept_id": 40228152,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-24T13:56:38.000000Z",
+            "updated_at": "2026-04-24T13:56:38.000000Z"
+        },
+        {
+            "id": 1450,
+            "concept_set_id": 165,
+            "concept_id": 40241331,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-24T13:56:38.000000Z",
+            "updated_at": "2026-04-24T13:56:38.000000Z"
+        },
+        {
+            "id": 1451,
+            "concept_set_id": 165,
+            "concept_id": 43013024,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-24T13:56:38.000000Z",
+            "updated_at": "2026-04-24T13:56:38.000000Z"
+        },
+        {
+            "id": 1452,
+            "concept_set_id": 165,
+            "concept_id": 1314002,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-24T13:56:38.000000Z",
+            "updated_at": "2026-04-24T13:56:38.000000Z"
+        },
+        {
+            "id": 1453,
+            "concept_set_id": 165,
+            "concept_id": 1338005,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-24T13:56:38.000000Z",
+            "updated_at": "2026-04-24T13:56:38.000000Z"
+        },
+        {
+            "id": 1454,
+            "concept_set_id": 165,
+            "concept_id": 1307046,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-24T13:56:38.000000Z",
+            "updated_at": "2026-04-24T13:56:38.000000Z"
+        },
+        {
+            "id": 1455,
+            "concept_set_id": 165,
+            "concept_id": 1309799,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-24T13:56:38.000000Z",
+            "updated_at": "2026-04-24T13:56:38.000000Z"
+        }
+    ]
+}

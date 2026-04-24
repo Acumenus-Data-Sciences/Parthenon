@@ -1,0 +1,68 @@
+{
+    "id": 167,
+    "name": "Atrial Fibrillation 2 - Measurements",
+    "description": "Measurements from Atrial Fibrillation care bundle.",
+    "expression_json": null,
+    "author_id": 126,
+    "is_public": true,
+    "tags": [
+        "afib",
+        "care-bundle",
+        "measurement"
+    ],
+    "created_at": "2026-04-24T13:56:38.000000Z",
+    "updated_at": "2026-04-24T13:56:38.000000Z",
+    "deleted_at": null,
+    "items": [
+        {
+            "id": 1457,
+            "concept_set_id": 167,
+            "concept_id": 3016502,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-24T13:56:38.000000Z",
+            "updated_at": "2026-04-24T13:56:38.000000Z"
+        },
+        {
+            "id": 1458,
+            "concept_set_id": 167,
+            "concept_id": 3019170,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-24T13:56:38.000000Z",
+            "updated_at": "2026-04-24T13:56:38.000000Z"
+        },
+        {
+            "id": 1459,
+            "concept_set_id": 167,
+            "concept_id": 3016723,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-24T13:56:38.000000Z",
+            "updated_at": "2026-04-24T13:56:38.000000Z"
+        },
+        {
+            "id": 1460,
+            "concept_set_id": 167,
+            "concept_id": 3000963,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-24T13:56:38.000000Z",
+            "updated_at": "2026-04-24T13:56:38.000000Z"
+        },
+        {
+            "id": 1461,
+            "concept_set_id": 167,
+            "concept_id": 3010813,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-24T13:56:38.000000Z",
+            "updated_at": "2026-04-24T13:56:38.000000Z"
+        }
+    ]
+}
