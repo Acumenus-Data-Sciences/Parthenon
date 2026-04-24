@@ -54,3 +54,16 @@ def test_phases_returns_defensive_copy():
     phases = reg.phases()
     phases.append(Phase(id="p2", name="P2", steps=[]))
     assert len(reg.phases()) == 1, "external mutation of phases() should not affect registry"
+
+
+def test_preflight_phase_registered_in_default_registry():
+    from installer.engine.phases import DEFAULT_REGISTRY
+    ids = [p.id for p in DEFAULT_REGISTRY.phases()]
+    assert "preflight" in ids
+
+
+def test_preflight_all_step_ids_prefixed():
+    from installer.engine.phases import DEFAULT_REGISTRY
+    phase = next(p for p in DEFAULT_REGISTRY.phases() if p.id == "preflight")
+    for step in phase.steps:
+        assert step.id.startswith("preflight.")
