@@ -28,7 +28,7 @@ describe("FilterChip snapshots (dark clinical theme)", () => {
       >
         SNOMED
         <span
-          aria-label="Remove SNOMED"
+          aria-label="Remove SNOMED filter"
           class="chip-close"
           role="button"
         >

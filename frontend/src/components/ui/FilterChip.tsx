@@ -35,7 +35,7 @@ export function FilterChip({
             onRemove();
           }}
           role="button"
-          aria-label={`Remove ${label}`}
+          aria-label={`Remove ${label} filter`}
         >
           <X size={12} />
         </span>
