@@ -45,3 +45,12 @@ def test_context_emit_callable():
     ctx = Context(config={}, secrets=None, emit=messages.append)
     ctx.emit("hello")
     assert messages == ["hello"]
+
+
+def test_phases_returns_defensive_copy():
+    reg = PhaseRegistry()
+    p1 = Phase(id="p1", name="P1", steps=[make_step("p1.a")])
+    reg.register(p1)
+    phases = reg.phases()
+    phases.append(Phase(id="p2", name="P2", steps=[]))
+    assert len(reg.phases()) == 1, "external mutation of phases() should not affect registry"

@@ -4,14 +4,14 @@ from dataclasses import dataclass, field
 from typing import Any, Callable
 
 
-@dataclass
+@dataclass(frozen=True)
 class Context:
     config: dict[str, Any]
     secrets: Any          # SecretManager — use Any to avoid circular import
     emit: Callable[[str], None]  # log a message for the current step
 
 
-@dataclass
+@dataclass(frozen=True)
 class Step:
     id: str
     name: str
@@ -19,7 +19,7 @@ class Step:
     check: Callable[[Context], bool] # returns True if step can be safely skipped
 
 
-@dataclass
+@dataclass(frozen=True)
 class Phase:
     id: str
     name: str
