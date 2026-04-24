@@ -5928,6 +5928,812 @@ const hiProfileSimilarity: MessageTree = mergeMessageTrees(
   },
 );
 
+const arProfileSimilarityPass1: MessageTree = mergeMessageTrees(
+  enProfileSimilarity,
+  {
+  "profiles": {
+    "common": {
+      "notAvailable": "لا يوجد",
+      "selectSource": "اختر المصدر...",
+      "dataSource": "مصدر البيانات",
+      "cohort": "الفوج",
+      "patient": "مريض",
+      "event_one": "حدث {{count}}",
+      "event_other": "أحداث {{count}}",
+      "concept_one": "مفهوم {{count}}",
+      "concept_other": "مفاهيم {{count}}",
+      "personLabel": "الشخص #{{id}}",
+      "domain": {
+        "condition": "حالة",
+        "drug": "دواء",
+        "procedure": "إجراء",
+        "measurement": "قياس",
+        "observation": "ملاحظة",
+        "visit": "يزور"
+      },
+      "domains": {
+        "condition": "شروط",
+        "drug": "المخدرات",
+        "procedure": "إجراءات",
+        "measurement": "القياسات",
+        "observation": "الملاحظات",
+        "visit": "الزيارات"
+      },
+      "table": {
+        "date": "تاريخ",
+        "value": "قيمة",
+        "range": "يتراوح",
+        "status": "حالة"
+      },
+      "actions": {
+        "exportCsv": "تصدير CSV",
+        "cancel": "يلغي",
+        "done": "منتهي",
+        "previous": "سابق",
+        "next": "التالي",
+        "prev": "السابق",
+        "reset": "إعادة ضبط"
+      }
+    },
+    "recent": {
+      "title": "الملفات الشخصية الأخيرة",
+      "clear": "واضح",
+      "justNow": "الآن",
+      "minutesAgo_one": "منذ {{count}}m",
+      "minutesAgo_other": "منذ {{count}}m",
+      "hoursAgo_one": "منذ {{count}}h",
+      "hoursAgo_other": "منذ {{count}}h",
+      "daysAgo_one": "منذ {{count}}d",
+      "daysAgo_other": "منذ {{count}}d"
+    },
+    "page": {
+      "title": "ملفات تعريف المرضى",
+      "titleSingle": "الملف الشخصي للمريض",
+      "subtitle": "البحث حسب الشخص ID أو MRN، أو تصفح أعضاء المجموعة",
+      "selectSourcePrompt": "الرجاء تحديد مصدر بيانات لتحميل ملف تعريف المريض.",
+      "failedToLoad": "فشل في تحميل ملف تعريف المريض",
+      "patientNotFound": "قد لا يكون الشخص #{{id}} موجودًا في مصدر البيانات هذا.",
+      "findSimilarPatients": "البحث عن مرضى مماثلين",
+      "clinicalEvents": "الأحداث السريرية ({{count}})",
+      "noEventsInCategory": "لا توجد أحداث في هذه الفئة",
+      "tabs": {
+        "all": "الجميع"
+      },
+      "views": {
+        "timeline": "الجدول الزمني",
+        "list": "قائمة",
+        "labs": "مختبرات",
+        "imaging": "التصوير",
+        "visits": "الزيارات",
+        "notes": "ملحوظات",
+        "eras": "العصور",
+        "precision": "الطب الدقيق"
+      },
+      "truncation": {
+        "headline": "النتائج بحد أقصى {{limit}} لكل مجال.",
+        "detail": "عرض أحدث السجلات فقط.",
+        "domainSummary": "{{label}}: {{loaded}} من {{total}}"
+      },
+      "imaging": {
+        "failedToLoad": "فشل تحميل بيانات التصوير",
+        "noStudies": "لا توجد دراسات تصويرية متاحة لهذا المريض"
+      },
+      "listToggle": {
+        "grouped_one": "مفهوم {{count}}",
+        "grouped_other": "مفاهيم {{count}}",
+        "events_one": "حدث {{count}}",
+        "events_other": "أحداث {{count}}"
+      }
+    },
+    "cohortBrowser": {
+      "findPatient": "البحث عن المريض",
+      "browseByCohort": "تصفح حسب المجموعة",
+      "selectDataSource": "تحديد مصدر بيانات...",
+      "selectCohort": "حدد مجموعة...",
+      "failedToLoad": "فشل تحميل أعضاء المجموعة النموذجية",
+      "noMembers": "لم يتم العثور على أعضاء في هذه المجموعة",
+      "cohortMembers": "أعضاء الفوج",
+      "matchingCurrentFilters": "{{count}} مطابقة المرشحات الحالية",
+      "filters": {
+        "title": "المرشحات",
+        "activeLabel": "المرشحات:",
+        "filterById": "التصفية حسب ID...",
+        "personIdContains": "يحتوي الشخص ID على...",
+        "gender": "جنس",
+        "any": "أي",
+        "birthYear": "سنة الميلاد",
+        "min": "دقيقة",
+        "max": "الأعلى",
+        "birthYearGte": "سنة الميلاد>=",
+        "birthYearLte": "سنة الميلاد <=",
+        "exampleYear": "على سبيل المثال {{year}}",
+        "clear": "مسح المرشحات"
+      },
+      "stats": {
+        "title": "إحصائيات الصفحة الحالية",
+        "totalMembers": "مجموع الأعضاء",
+        "meanBirthYear": "يعني سنة الميلاد",
+        "genderBreakdown": "تقسيم الجنس"
+      },
+      "sort": {
+        "subjectId": "مريض",
+        "gender": "جنس",
+        "yearOfBirth": "سنة الميلاد",
+        "cohortStartDate": "يبدأ",
+        "cohortEndDate": "نهاية"
+      },
+      "table": {
+        "personId": "الشخص ID",
+        "yearOfBirth": "سنة الميلاد",
+        "cohortStart": "بداية الفوج",
+        "cohortEnd": "نهاية الفوج",
+        "noEnd": null,
+        "viewProfile": "عرض الملف الشخصي",
+        "noMembersMatchingCurrentFilters": "لا يوجد أعضاء يطابقون عوامل التصفية الحالية"
+      },
+      "pagination": {
+        "pageXOfY": "صفحة {{current}} من {{total}}",
+        "rowsXtoYOfZ": "{{from}}-{{to}} من صفوف {{total}}"
+      },
+      "exportFilename": "مجموعة-أعضاء-page{{page}}.csv"
+    },
+    "search": {
+      "searchPlaceholder": "البحث حسب الشخص ID أو MRN...",
+      "selectSourceFirst": "حدد مصدر بيانات أولاً",
+      "personId": "الشخص ID",
+      "mrnSourceValue": "MRN / قيمة المصدر",
+      "namesNotInOmop": "(الأسماء ليست في OMOP CDM)",
+      "noPatientsFound": "لم يتم العثور على مرضى لـ \"{{query}}\"",
+      "tryDifferent": "جرب شخصًا مختلفًا ID أو MRN",
+      "resultCount_one": "نتيجة {{count}}",
+      "resultCount_other": "نتائج {{count}}",
+      "showingFirstTwenty": "(عرض أول 20)",
+      "mrn": "MRN:"
+    },
+    "header": {
+      "fallbackName": "الشخص #{{id}}",
+      "demographics": {
+        "unknownGender": "مجهول",
+        "unknownRace": "عرق غير معروف",
+        "unknownEthnicity": "إثنية غير معروفة",
+        "years": "{{count}} سنة",
+        "shortYears": "سنوات",
+        "yearsAtDeath": "{{count}} سنة على الموت",
+        "observationSpan": "{{count}} يوم ملاحظة",
+        "county": "(مقاطعة {{county}})",
+        "deceased": "المتوفى {{date}}"
+      },
+      "stats": {
+        "events": "الأحداث",
+        "observationSpan": "أوب سبان",
+        "conditions": "شروط",
+        "drugs": "المخدرات",
+        "visits": "الزيارات"
+      }
+    },
+    "events": {
+      "latest": "الأحدث: {{value}}",
+      "belowRange": "أقل من النطاق ({{value}})",
+      "aboveRange": "فوق النطاق ({{value}})",
+      "normalRange": "عادي ({{low}}-{{high}})",
+      "route": "الطريق: {{route}}",
+      "supplyDays": "العرض {{count}}d",
+      "quantity": "الكمية: {{value}}",
+      "viewConceptTitle": "عرض مفهوم {{conceptId}} في متصفح المفردات",
+      "viaRoute": "عبر {{route}}"
+    },
+    "conceptDetail": {
+      "concept": "مفهوم",
+      "occurrence": "حدوث",
+      "value": "قيمة",
+      "conceptId": "مفهوم ID",
+      "vocabulary": "مفردات",
+      "domain": "اِختِصاص",
+      "recordType": "نوع السجل",
+      "startDate": "تاريخ البدء",
+      "endDate": "تاريخ الانتهاء",
+      "recordId": "سجل ID",
+      "reference": "المرجع: {{low}} - {{high}} {{unit}}",
+      "belowNormal": "أقل من المعدل الطبيعي",
+      "aboveNormal": "فوق المعدل الطبيعي",
+      "withinNormal": "ضمن المعدل الطبيعي",
+      "valueConcept": "القيمة (المفهوم)",
+      "valueText": "القيمة (النص)",
+      "exposureDetails": "تفاصيل التعرض",
+      "route": "طريق",
+      "daysSupply": "أيام العرض",
+      "quantity": "كمية",
+      "days": "أيام {{count}}",
+      "viewInVocabularyBrowser": "عرض في متصفح المفردات"
+    },
+    "labs": {
+      "noNumericValues": "لا توجد قيم رقمية للتخطيط",
+      "reference": "مرجع:",
+      "referenceShort": "المرجع:",
+      "panelTitle": "لوحة المختبر",
+      "testCount": "اختبارات {{count}}",
+      "summary": "اختبارات {{tests}} · قيم {{values}}",
+      "filterTests": "اختبارات التصفية...",
+      "test": "امتحان",
+      "countHeader": "ن",
+      "trend": "اتجاه",
+      "latest": "أحدث",
+      "noTestsMatch": "لا توجد اختبارات تطابق \"{{query}}\"",
+      "noMeasurements": "لا توجد قياسات مخبرية متاحة",
+      "showValues": "إظهار القيم",
+      "hideValues": "إخفاء القيم",
+      "sourceLabel": "مصدر",
+      "status": {
+        "low": "قليل",
+        "normal": "طبيعي",
+        "high": "عالي",
+        "critical": "شديد الأهمية"
+      },
+      "tooltip": {
+        "below": "(أدناه {{value}})",
+        "above": "(فوق {{value}})",
+        "unknown": "مجهول"
+      }
+    },
+    "notes": {
+      "untitled": "ملاحظة بلا عنوان",
+      "provider": "المزود #{{id}}",
+      "visit": "قم بزيارة #{{id}}",
+      "showFullNote": "إظهار الملاحظة الكاملة ({{count}}k chars)",
+      "failedToLoad": "فشل تحميل الملاحظات السريرية",
+      "noNotes": "لا توجد ملاحظات سريرية متاحة لهذا المريض",
+      "title": "ملاحظات سريرية",
+      "total": "(إجمالي {{count}})",
+      "pageOf": "صفحة {{current}} من {{total}}"
+    },
+    "visits": {
+      "noAssociatedEvents": "لا توجد أحداث مرتبطة",
+      "noVisitData": "لا توجد بيانات الزيارة المتاحة",
+      "visitOccurrencesRequired": "مرات الزيارة مطلوبة لاستخدام طريقة العرض هذه",
+      "durationDays": "(ززف0ززد)",
+      "summary": "زيارات {{visits}} · الأحداث المرتبطة بـ {{events}}",
+      "summaryWithUnassociated": "زيارات {{visits}} · الأحداث المرتبطة بـ {{events}} · {{unassociated}} غير مرتبطة",
+      "eventsNotAssociated": "أحداث {{count}} غير مرتبطة بأي زيارة",
+      "associatedEvents": "الأحداث المرتبطة بـ {{count}}"
+    },
+    "eras": {
+      "noData": "لا توجد بيانات العصر المتاحة",
+      "conditionEras": "عصور الحالة ({{count}})",
+      "drugEras": "عصور المخدرات ({{count}})"
+    },
+    "timeline": {
+      "duration": {
+        "sameDay": "نفس اليوم",
+        "oneDay": "يوم واحد",
+        "days": "أيام {{count}}",
+        "oneMonth": "شهر واحد",
+        "months": "{{count}} أشهر",
+        "oneYear": "1 سنة",
+        "years": "{{count}} سنوات"
+      },
+      "obsPeriod": "أوب. فترة",
+      "toolbar": {
+        "summary": "أحداث {{events}} · نطاقات {{domains}}",
+        "observationPeriod_one": "ملاحظة {{count}}. فترة",
+        "observationPeriod_other": "ملاحظة {{count}}. فترات",
+        "highlightEvents": "تسليط الضوء على الأحداث...",
+        "zoomOut": "تصغير",
+        "zoomIn": "تكبير"
+      },
+      "shortcuts": "Ctrl + التمرير للتكبير · السحب للتحريك · مفاتيح الأسهم · +/- مفاتيح · انقر فوق الحدث للحصول على التفاصيل",
+      "domainsLabel": "المجالات:",
+      "jump": "القفز:",
+      "today": "اليوم"
+    }
+  },
+  "patientSimilarity": {
+    "common": {
+      "title": "تشابه المريض",
+      "backToWorkspace": "تشابه المريض",
+      "run": "يجري",
+      "running": "جري...",
+      "failed": "فشل",
+      "compare": "يقارن",
+      "yes": "نعم",
+      "no": "لا",
+      "dimensions": {
+        "demographics": "التركيبة السكانية",
+        "conditions": "شروط",
+        "labs": "مختبرات",
+        "medications": "الأدوية",
+        "procedures": "إجراءات",
+        "genomics": "علم الجينوم"
+      },
+      "genders": {
+        "male": "ذكر",
+        "female": "أنثى",
+        "unknown": "مجهول",
+        "shortMale": "م",
+        "shortFemale": "ف",
+        "shortUnknown": "؟",
+        "any": "أي جنس"
+      },
+      "modes": {
+        "compareCohorts": "قارن الأفواج",
+        "expandCohort": "قم بتوسيع المجموعة النموذجية",
+        "findSimilar": "البحث عن مماثلة",
+        "auto": "آلي",
+        "interpretable": "قابل للتفسير",
+        "embedding": "التضمين"
+      },
+      "ageRange": {
+        "title": "النطاق العمري",
+        "min": "دقيقة",
+        "max": "الأعلى",
+        "any": "الجميع"
+      },
+      "personLabel": "الشخص {{id}}",
+      "patientA": "المريض أ",
+      "patientB": "المريض ب",
+      "seed": "بذرة",
+      "target": "هدف",
+      "comparator": "المقارنة",
+      "source": "مصدر",
+      "cohort": "الفوج"
+    },
+    "pipeline": {
+      "applyAndRerun": "تطبيق وإعادة تشغيل خط الأنابيب",
+      "steps": {
+        "profileComparison": {
+          "name": "مقارنة الملف الشخصي",
+          "description": "رادار الاختلاف عبر 6 أبعاد سريرية"
+        },
+        "covariateBalance": {
+          "name": "التوازن المتغير",
+          "description": "تحليل SMD مع مؤامرة الحب"
+        },
+        "propensityScoreMatching": {
+          "name": "مطابقة نقاط الميل",
+          "description": "إنشاء مجموعات مقارنة متوازنة"
+        },
+        "umapLandscape": {
+          "name": "UMAP المناظر الطبيعية",
+          "description": "أفواج المشروع في مساحة المريض"
+        },
+        "phenotypeDiscovery": {
+          "name": "اكتشاف النمط الظاهري",
+          "description": "ابحث عن المجموعات الفرعية الكامنة عبر التجميع المتفق عليه"
+        },
+        "networkFusion": {
+          "name": "اندماج الشبكة",
+          "description": "SNF متعدد الوسائط مع اكتشاف المجتمع"
+        },
+        "centroidProfile": {
+          "name": "ملف تعريف النقطه الوسطى",
+          "description": "رادار النقطه الوسطى الفوج مع تغطية البعد"
+        },
+        "similarPatients": {
+          "name": "مرضى مماثلون",
+          "description": "ابحث عن المرضى المطابقين لملف تعريف الفوج"
+        }
+      }
+    },
+    "comparison": {
+      "pageTitle": "مقارنة المريض",
+      "subtitle": "تحليل التشابه وجهاً لوجه عبر جميع الأبعاد السريرية",
+      "missingParameters": "معلمات مفقودة",
+      "missingParametersDetail": "مطلوبة person_a وperson_b وsource_id.",
+      "backToPatientSimilarity": "العودة إلى تشابه المريض",
+      "comparingPatients": "مقارنة المرضى...",
+      "comparisonFailed": "فشلت المقارنة. يرجى التحقق من وجود كلا المريضين في مصدر البيانات هذا.",
+      "overallSimilarity": "التشابه {{label}}",
+      "score": {
+        "veryHigh": "عالية جدًا",
+        "high": "عالي",
+        "moderate": "معتدل",
+        "low": "قليل",
+        "veryLow": "منخفض جدًا"
+      },
+      "narrative": {
+        "sameAgeRange": "نفس الفئة العمرية",
+        "ageGap": "{{count}} الفجوة العمرية سنة",
+        "sameDemographicProfile": "نفس الملف الديموغرافي ({{gender}}، {{age}})",
+        "sharedDiagnoses": "{{count}} التشخيصات المشتركة",
+        "sharedMedications": "{{count}} الأدوية المشتركة",
+        "sharedProcedures": "الإجراءات المشتركة {{count}}",
+        "labProfilesVerySimilar": "ملفات تعريف مختبرية متشابهة جدًا",
+        "labProfilesSimilar": "ملفات تعريف مختبر مماثلة",
+        "labProfilesModeratelySimilar": "ملفات تعريف مختبرية متشابهة إلى حد ما",
+        "sharedSummary": "يشترك هؤلاء المرضى في {{items}}.",
+        "limitedOverlap": "تم العثور على تداخل محدود بين هؤلاء المرضى."
+      },
+      "sectionTitles": {
+        "dimensionBreakdown": "انهيار البعد",
+        "patientDemographics": "التركيبة السكانية للمرضى",
+        "featureOverlap": "ميزة التداخل",
+        "sharedClinicalFeatures": "المظاهر السريرية المشتركة"
+      },
+      "demographics": {
+        "gender": "جنس",
+        "ageRange": "النطاق العمري",
+        "labTypes": "أنواع المختبرات"
+      },
+      "overlap": {
+        "shared": "تمت مشاركة ‏{{count}}‏",
+        "overlapPercent": "(تداخل بنسبة {{count}})",
+        "patientAOnly": "المريض أ فقط: {{count}}",
+        "patientBOnly": "المريض ب فقط: {{count}}",
+        "sharedOnly": "المشتركة: {{count}}"
+      },
+      "sharedFeatures": {
+        "noShared": "لا يوجد {{label}} مشترك",
+        "totalShared": "تمت مشاركة ‏{{count}}‏",
+        "more": "+{{count}} المزيد"
+      }
+    },
+    "selectorBar": {
+      "analysisSettings": "إعدادات التحليل",
+      "sourcePlaceholder": "مصدر…",
+      "targetPlaceholder": "المجموعة المستهدفة…",
+      "seedPlaceholder": "جماعة البذور…",
+      "comparatorPlaceholder": "مجموعة المقارنة…",
+      "targetLabel": "هدف:",
+      "seedLabel": "البذور:",
+      "comparatorLabel": "المقارنة:"
+    },
+    "workspace": {
+      "subtitle": "قارن الملفات التعريفية للمجموعة، واعثر على مرضى مشابهين، وقم بتشغيل مطابقة درجات الميل عبر مصادر OMOP CDM",
+      "futureStep": "ستكون هذه الخطوة متاحة في التحديث المستقبلي.",
+      "viewSimilarPatients": "عرض المرضى المماثلين",
+      "exportAsNewCohort": "تصدير كمجموعة جديدة",
+      "continueToLandscape": "الاستمرار في المناظر الطبيعية",
+      "noCovariateData": "لا توجد بيانات متغيرة",
+      "covariatesImbalanced": "المتغيرات المشتركة {{imbalanced}}/{{total}} غير متوازنة",
+      "worst": "الأسوأ: {{covariate}} (SMD {{value}})",
+      "unknownCohort": "مجهول",
+      "cohortLabel": "الفوج {{id}}",
+      "centroidSummary": "أعضاء {{members}} · أبعاد {{dimensions}}",
+      "similarPatientsFound": "تم العثور على مرضى {{count}} مماثلين",
+      "overallDivergence": "الاختلاف العام {{count}}%"
+    },
+    "settings": {
+      "title": "إعدادات التحليل",
+      "dimensionWeights": "أوزان الأبعاد",
+      "demographicFilters": "المرشحات الديموغرافية",
+      "resetDefaults": "إعادة تعيين الإعدادات الافتراضية",
+      "loadingDimensions": "جارٍ تحميل الأبعاد...",
+      "all": "الجميع"
+    },
+    "generation": {
+      "checkingStatus": "التحقق من حالة الجيل...",
+      "queueing": "جيل الانتظار...",
+      "generating": "جارٍ إنشاء المجموعة...",
+      "notGenerated": "لم يتم إنشاؤها لهذا المصدر",
+      "generateNow": "توليد الآن",
+      "members": "أعضاء"
+    },
+    "searchForm": {
+      "selectSource": "اختر المصدر...",
+      "seedPatientId": "مريض البذور ID",
+      "typePersonOrMrn": "اكتب الشخص ID أو MRN...",
+      "selectSourceFirst": "حدد مصدر بيانات أولاً",
+      "personId": "الشخص ID",
+      "mrn": "رقم السجل الطبي (MRN)",
+      "resultCount_one": "نتيجة {{count}}",
+      "resultCount_other": "نتائج {{count}}",
+      "showingFirstTwenty": "(عرض أول 20)",
+      "noPatientsFound": "لم يتم العثور على مرضى لـ \"{{query}}\"",
+      "dimensionWeights": "أوزان الأبعاد",
+      "filtersOptional": "المرشحات (اختياري)",
+      "minAge": "الحد الأدنى من العمر",
+      "maxAge": "الحد الأقصى للعمر",
+      "findSimilarPatients": "البحث عن مرضى مماثلين"
+    },
+    "cohortCompareForm": {
+      "sourceCohort": "مجموعة المصدر",
+      "targetCohort": "المجموعة المستهدفة",
+      "loading": "تحميل...",
+      "selectSourceCohort": "تحديد مجموعة المصدر...",
+      "selectTargetCohort": "تحديد المجموعة المستهدفة...",
+      "compareProfiles": "قارن الملفات الشخصية",
+      "findMatchingPatients": "ابحث عن المرضى المطابقين"
+    },
+    "cohortSeedForm": {
+      "seedCohort": "مجموعة البذور",
+      "loadingCohorts": "جارٍ تحميل المجموعات...",
+      "selectCohort": "حدد مجموعة..."
+    },
+    "cohortExpand": {
+      "title": "قم بتوسيع {{name}}",
+      "success": "تم توسيع المجموعة النموذجية بنجاح",
+      "addedPatients": "تمت إضافة مرضى {{count}}",
+      "duplicatesSkipped": "(تم تخطي التكرارات {{count}})",
+      "newTotal": "المجموع الجديد: أعضاء {{count}}",
+      "addSimilarPatientsTo": "أضف مرضى مشابهين إلى {{name}}",
+      "currentSize": "الحجم الحالي: أعضاء {{current}} -> الحجم الجديد: {{next}}",
+      "minimumScore": "الحد الأدنى من النقاط",
+      "meetThreshold": "{{filtered}} من مرضى {{total}} يستوفون العتبة",
+      "expansionFailed": "فشل التوسع. يرجى المحاولة مرة أخرى.",
+      "addPatients": "إضافة مرضى {{count}}"
+    },
+    "cohortExport": {
+      "title": "تصدير كمجموعة نموذجية",
+      "success": "تم إنشاء المجموعة النموذجية بنجاح",
+      "cohortDefinitionId": "تعريف الفوج ID: {{id}}",
+      "cohortName": "اسم المجموعة",
+      "cohortNamePlaceholder": "على سبيل المثال على غرار المريض 12345",
+      "description": "وصف",
+      "descriptionPlaceholder": "وصف اختياري...",
+      "minimumScore": "الحد الأدنى من النقاط",
+      "thresholdPreview": "{{filtered}} من مرضى {{total}} يستوفون الحد الأدنى من الدرجات",
+      "exportFailed": "فشل التصدير. يرجى المحاولة مرة أخرى.",
+      "export": "تصدير ({{count}})"
+    },
+    "similarityTable": {
+      "noPatientsFound": "لم يتم العثور على مرضى مماثلين للمعايير المحددة.",
+      "score": "نتيجة",
+      "recentOverlap": "التداخل الأخير",
+      "recentCount": "{{count}} الأخيرة",
+      "lifetimeShared": "(مشاركة {{shared}} من {{seed}} مدى الحياة)",
+      "moreRecent": "+{{count}} الأحدث",
+      "more": "+{{count}} المزيد",
+      "compare": "يقارن",
+      "anchorDate": "تاريخ المرساة",
+      "vectorVersion": "نسخة المتجهات"
+    },
+    "resultDiagnostics": {
+      "resultCohort": "مجموعة النتائج",
+      "returned": "عاد",
+      "medianAge": "متوسط ​​العمر",
+      "anchorMin": "مرساة دقيقة",
+      "anchorMax": "مرساة كحد أقصى",
+      "genderDistribution": "التوزيع بين الجنسين",
+      "coverage": "التغطية",
+      "balance": "توازن",
+      "reference": "مرجع",
+      "seedCohort": "مجموعة البذور",
+      "singlePatient": "مريض واحد",
+      "meanAbsSmd": "متوسط |SMD|",
+      "smdShort": "|SMD|",
+      "imbalancedCovariates": "المتغيرات المشتركة غير المتوازنة",
+      "highImbalance": "ارتفاع عدم التوازن",
+      "topImbalancedCovariates": "أعلى المتغيرات المشتركة غير المتوازنة",
+      "seedVsResult": "البذور {{seed}} · النتيجة {{result}}",
+      "warnings": "تحذيرات",
+      "verdict": {
+        "wellBalanced": "متوازن بشكل جيد",
+        "marginalImbalance": "اختلال التوازن الهامشي",
+        "significantImbalance": "اختلال كبير في التوازن",
+        "notApplicable": "لا ينطبق",
+        "insufficientData": "بيانات غير كافية"
+      }
+    },
+    "headToHead": {
+      "profile": "حساب تعريفي",
+      "overallSimilarity": "التشابه الشامل",
+      "dimensionScores": "عشرات البعد",
+      "sharedFeatures": "الميزات المشتركة",
+      "temporalTrajectory": "المسار الزمني",
+      "viewPatientAProfile": "عرض الملف التعريفي للمريض",
+      "viewPatientBProfile": "عرض الملف التعريفي للمريض ب",
+      "loadingComparison": "جارٍ تحميل المقارنة...",
+      "noComparisonData": "لا توجد بيانات مقارنة متاحة.",
+      "ensureVectors": "تأكد من أن كلا المرضى لديهما ناقلات ميزات محسوبة لهذا المصدر.",
+      "title": "مقارنة وجها لوجه",
+      "selectPatients": "حدد اثنين من المرضى للمقارنة.",
+      "vs": "مقابل"
+    },
+    "profileComparison": {
+      "lowDivergence": "تباعد منخفض - الأفواج متشابهة إلى حد كبير",
+      "moderateDivergence": "الاختلاف المعتدل - اختلافات ملحوظة عبر الأبعاد",
+      "highDivergence": "تباعد كبير - تختلف الأفواج بشكل كبير",
+      "overallDivergence": "التباين الشامل",
+      "perDimensionDivergence": "لكل البعد الاختلاف",
+      "noScores": "لا توجد نتائج متاحة لكل بُعد.",
+      "viewCovariateBalance": "عرض الرصيد المتغير"
+    },
+    "charts": {
+      "divergenceScores": "عشرات الاختلاف",
+      "overall": "إجمالي:",
+      "distributionalDivergence": "التباين التوزيعي",
+      "distributionalDivergenceHelp": "تباعد جنسن-شانون (JSD) للمسافة الفئوية ومسافة فاسرشتاين للأبعاد المستمرة.",
+      "dimension": "البعد",
+      "metric": "متري",
+      "value": "قيمة",
+      "interpretation": "تفسير",
+      "cohortCentroidProfile": "الفوج النقطه الوسطى الملف الشخصي",
+      "members": "أعضاء {{count}}",
+      "coverageWithData": "التغطية (% مع البيانات)",
+      "diversityPerMember": "التنوع (المفاهيم/العضو)",
+      "unique": "{{count}} فريدة من نوعها",
+      "divergenceRadar": "رادار التباعد",
+      "similarityScale": "0% متشابهة • 100% متباينة",
+      "noComparableDimensions": "لا تتوفر أبعاد قابلة للمقارنة لهذه المجموعات النموذجية.",
+      "omittedFromRadar": "تم حذفه من الرادار لعدم توفر البيانات:",
+      "divergence": "الاختلاف",
+      "covariateBalanceSmd": "الرصيد المتغير (|SMD|)",
+      "covariatesBalanced": "تعتبر المتغيرات المشتركة التي تقل عن 0.1 متوازنة بشكل جيد",
+      "lovePlotBeforeAfter": "مؤامرة الحب: قبل مقابل بعد المطابقة",
+      "lovePlotBeforeAfterHelp": "يجب أن تكون النقاط بعد المطابقة (اللون الأزرق المخضر) أقرب إلى الصفر من النقاط قبل المطابقة (القرمزي)",
+      "covariate": "متغير مشترك",
+      "before": "قبل",
+      "after": "بعد",
+      "beforeAbsSmd": "قبل |SMD|",
+      "afterAbsSmd": "بعد |SMD|",
+      "preferenceScoreDistribution": "توزيع نقاط التفضيل",
+      "preferenceScoreHelp": "تشير التوزيعات المتداخلة إلى توازن جيد بين الأفواج",
+      "preferenceScore": "نقاط التفضيل",
+      "preferenceLabel": "التفضيل: {{value}}",
+      "targetAbove": "الهدف (أعلاه)",
+      "comparatorBelow": "المقارنة (أدناه)",
+      "propensityScoreMatchingResults": "نتائج مطابقة نقاط الميل",
+      "meanSmdBefore": "متوسط |SMD| قبل:",
+      "meanSmdAfter": "متوسط |SMD| بعد:",
+      "reduction": "تخفيض:",
+      "temporalTrajectory": "المسار الزمني",
+      "temporalTrajectoryComparison": "مقارنة المسار الزمني",
+      "computingTrajectory": "حساب تشابه المسار...",
+      "temporalComparisonFailed": "فشل في حساب مقارنة المسار الزمني.",
+      "noSharedTemporalMeasurements": "لم يتم العثور على قياسات زمنية مشتركة بين هؤلاء المرضى.",
+      "dtwSimilarity": "تشابه DTW:",
+      "similarityOption": "{{name}} (التشابه: {{value}})",
+      "dtwDistance": "مسافة دي تي دبليو",
+      "similarity": "تشابه",
+      "patientAPoints": "نقاط المريض",
+      "patientBPoints": "نقاط المريض ب",
+      "chartValueAxis": "قيمة"
+    },
+    "covariateBalance": {
+      "totalCovariates": "إجمالي المتغيرات المشتركة",
+      "balanced": "متوازن",
+      "imbalanced": "غير متوازن",
+      "meanAbsSmd": "متوسط |SMD|",
+      "psmRecommended": "أوصى PSM",
+      "noCovariateData": "لا تتوفر بيانات رصيد متغير.",
+      "noDistributionalData": "لا توجد بيانات الاختلاف التوزيعي المتاحة.",
+      "thresholdWarning": "تتجاوز المتغيرات المشتركة {{count}} عتبة 0.1 SMD. يوصى بمطابقة نقاط الميل قبل المتابعة.",
+      "balancedReady": "جميع المتغيرات المشتركة متوازنة بشكل جيد. يمكنك المتابعة إلى عرض المناظر الطبيعية.",
+      "runComparison": "تشغيل مقارنة الأتراب لتقييم التوازن المتغير.",
+      "runPsm": "تشغيل مطابقة نقاط الميل",
+      "continueToLandscape": "الاستمرار في المناظر الطبيعية"
+    },
+    "psm": {
+      "auc": "AUC",
+      "matchedPairs": "أزواج متطابقة",
+      "smdReduction": "تخفيض SMD",
+      "caliper": "هامش المطابقة",
+      "exportMatchedCohort": "تصدير المجموعة النموذجية المطابقة",
+      "continueToLandscape": "الاستمرار في المناظر الطبيعية"
+    },
+    "landscape": {
+      "title": "{{count}}D مشهد المريض",
+      "colorBy": "اللون بواسطة",
+      "cohort": "الفوج",
+      "cluster": "تَجَمَّع",
+      "groups": "المجموعات",
+      "clusters": "مجموعات",
+      "cohortMembers": "أعضاء الفوج",
+      "nonMembers": "غير الأعضاء",
+      "show": "يعرض",
+      "hide": "يخفي",
+      "inspector": "مفتش",
+      "clearSelection": "واضح ({{count}})",
+      "clickToInspect": "انقر فوق نقطة لفحصها. انقر مع الضغط على Shift للإضافة.",
+      "removeFromSelection": "إزالة من التحديد",
+      "member": "عضو",
+      "nonMember": "غير عضو",
+      "points": "نقاط",
+      "projection": "الإسقاط",
+      "resetView": "إعادة ضبط العرض",
+      "collapse": "ينهار",
+      "expand": "يوسع",
+      "ageBucket": "دلو العمر",
+      "pointGender": "جنس",
+      "pointCluster": "تَجَمَّع",
+      "pointCohort": "الفوج",
+      "cohortMember": "عضو الفوج",
+      "clusterSummary": "ملخص الكتلة",
+      "size": "مقاس",
+      "meanAge": "متوسط ​​العمر",
+      "topGender": "أعلى الجنس",
+      "cohortPercent": "المجموعة %",
+      "exportScreenshot": "تصدير لقطة الشاشة",
+      "continueToPhenotype": "تابع اكتشاف النمط الظاهري"
+    },
+    "phenotype": {
+      "silhouette": {
+        "strong": "قوي",
+        "good": "جيد",
+        "fair": "عدل",
+        "weak": "ضعيف",
+        "separation": "فصل {{label}}"
+      },
+      "silhouetteMetric": "خيال",
+      "clusterLabel": "الكتلة {{index}}",
+      "patientsSummary": "مرضى {{count}} ({{percent}}%)",
+      "ageApprox": "العمر ~{{age}}y",
+      "genderSplit": "م {{male}}% / و {{female}}%",
+      "topConditions": "أعلى الشروط",
+      "topDrugs": "أعلى المخدرات",
+      "featureHeatmap": "ميزة الخريطة الحرارية",
+      "featureHeatmapSubtitle": "أعلى الميزات المميزة لـ {{count}} من خلال التباين عبر المجموعة",
+      "feature": "ميزة",
+      "clusters": "مجموعات",
+      "patients": "مرضى",
+      "method": "طريقة",
+      "features": "مميزات {{count}}",
+      "capped": "تم تحديد الفوج لمرضى {{count}} من أجل الجدوى الحسابية.",
+      "clusterProfiles": "ملفات تعريف الكتلة",
+      "continueToNetworkFusion": "تابع إلى Network Fusion"
+    },
+    "diagnostics": {
+      "title": "تشخيص البحث",
+      "candidatePool": "تجمع المرشحين",
+      "totalCandidates": "إجمالي المرشحين: {{value}}",
+      "loaded": "تم التحميل: {{value}}",
+      "returned": "عاد: {{value}}",
+      "sqlPrescored": "تم فحص SQL مسبقًا قبل التسجيل الكامل",
+      "fullScoring": "سجل كامل على مجموعة المرشحين",
+      "queryContract": "الاستعلام عن العقد",
+      "filters": "المرشحات: {{value}}",
+      "minScore": "النتيجة الدنيا: {{value}}",
+      "limit": "الحد: {{value}}",
+      "temporalWindow": "النافذة الزمنية: {{value}}",
+      "temporalDays": "أيام {{count}}",
+      "provenance": "المصدر",
+      "vectorVersion": "نسخة المتجهات: {{value}}",
+      "seedAnchor": "مرساة البذور: {{value}}",
+      "computed": "محسوبة: {{value}}",
+      "queryHash": "تجزئة الاستعلام: {{value}}",
+      "sourceReadiness": "جاهزية المصدر",
+      "latestVectors": "أحدث المتجهات: {{value}}",
+      "embeddingsReady": "Embeddings جاهزة: {{value}}",
+      "recommendedMode": "الوضع الموصى به: {{value}}",
+      "stale": "قد تكون المتجهات قديمة",
+      "notStale": "لا يوجد تحذير من الثبات",
+      "featuresAreStale": "الميزات قديمة",
+      "recompute": "إعادة الحساب",
+      "updatedDaysAgo": "تم التحديث قبل {{count}}d",
+      "notYetComputed": "لم يتم حسابها بعد",
+      "patients": "مرضى {{count}}",
+      "dimensionWeights": "أوزان الأبعاد",
+      "noFilters": "لا أحد",
+      "ageFilter": "العمر {{min}}-{{max}}"
+    },
+    "networkFusion": {
+      "title": "شبكة التشابه الانصهار",
+      "subtitle": "تشابه المريض متعدد الوسائط عبر نشر الشبكة التكراري عبر الحالات والأدوية والإجراءات والمختبرات",
+      "run": "تشغيل شبكة الانصهار",
+      "computing": "الحوسبة...",
+      "failed": "فشل دمج الشبكة.",
+      "capped": "تم تحديد الفوج لمرضى {{count}} من أجل الجدوى الحسابية.",
+      "communities": "المجتمعات",
+      "patients": "مرضى",
+      "edges": "الحواف",
+      "convergence": "التقارب",
+      "communityLabel": "المجتمع {{index}}",
+      "network": "شبكة منصهرة",
+      "modalityContributions": "مساهمات الطريقة",
+      "modalityHelp": "يوضح مدى مساهمة كل نوع من أنواع البيانات السريرية في شبكة التشابه المندمجة. الوزن الأعلى يعني أن الطريقة كان لها تأثير أقوى على مجموعات المرضى.",
+      "convergedIn": "متقاربة في تكرارات {{iterations}} (دلتا: {{delta}}) | مرضى {{patients}} | حواف {{edges}} | مجتمعات {{communities}}",
+      "person": "الشخص: {{id}}",
+      "patientCount": "مرضى"
+    },
+    "aiInterpretation": {
+      "title": "تفسير الباحث",
+      "subtitle": "قم بإنشاء قراءة مجمعة كاملة فقط لهذه الخطوة باستخدام موفر LLM الذي تم تكوينه.",
+      "regenerate": "تجديد",
+      "interpretThisStep": "تفسير هذه الخطوة",
+      "viewLatest": "عرض أحدث التفسير",
+      "interpreting": "تفسير هذه الخطوة...",
+      "interpretingDetail": "تقوم خدمة LLM التي تم تكوينها بمراجعة النتائج الإجمالية وإعداد الآثار السريرية والتحذيرات والخطوات التالية.",
+      "unavailable": "الترجمة الفورية غير متوفرة",
+      "startInterpretation": "ابدأ تفسيرًا لمراجعة هذه الخطوة.",
+      "parseFailure": "لا يمكن تحليل الاستجابة النموذجية.",
+      "confidence": "ثقة {{count}}٪",
+      "clinicalImplications": "الآثار السريرية",
+      "methodologicCautions": "تحذيرات منهجية",
+      "recommendedNextSteps": "الخطوات التالية الموصى بها"
+    }
+  }
+},
+);
+
 export const profileSimilarityResources: Record<string, MessageTree> = {
   "en-US": enProfileSimilarity,
   "es-ES": esProfileSimilarity,
@@ -7904,6 +8710,6 @@ export const profileSimilarityResources: Record<string, MessageTree> = {
   }),
   "ko-KR": koProfileSimilarity,
   "hi-IN": hiProfileSimilarity,
-  ar: mergeMessageTrees(enProfileSimilarity, {}),
+  ar: arProfileSimilarityPass1,
   "en-XA": mergeMessageTrees(enProfileSimilarity, {}),
 };

@@ -5135,6 +5135,717 @@ const hiImagingGenomicsPass2: MessageTree = mergeMessageTrees(
   },
 );
 
+const arImagingGenomicsPass1: MessageTree = mergeMessageTrees(
+  enImagingGenomics,
+  {
+  "imaging": {
+    "common": {
+      "accessionNumber": "رقم الانضمام",
+      "aiFeatures": "ميزات الذكاء الاصطناعي",
+      "analytics": "التحليلات السكانية",
+      "bodyPart": "جزء الجسم",
+      "cancel": "يلغي",
+      "close": "يغلق",
+      "confidence": "ثقة",
+      "current": "حاضِر",
+      "criteria": "معايير",
+      "date": "تاريخ",
+      "delete": "يمسح",
+      "description": "وصف",
+      "details": "تفاصيل",
+      "from": "من",
+      "images": "الصور",
+      "measurements": "القياسات",
+      "metadata": "البيانات الوصفية",
+      "modality": "الطريقة",
+      "name": "اسم",
+      "next": "التالي",
+      "patient": "مريض",
+      "patientTimeline": "الجدول الزمني للمريض",
+      "personId": "الشخص ID",
+      "prev": "السابق",
+      "save": "يحفظ",
+      "series": "مسلسل",
+      "sourceId": "المصدر ID",
+      "status": "حالة",
+      "studies": "دراسات",
+      "studyDate": "تاريخ الدراسة",
+      "studyInstanceUid": "دراسة مثيل UID",
+      "treatments": "العلاجات",
+      "to": "ل",
+      "upload": "رفع",
+      "value": "قيمة",
+      "view": "منظر",
+      "viewer": "عرض المسح"
+    },
+    "page": {
+      "title": "التصوير الطبي",
+      "subtitle": "تحليل التصوير الطولي، وتقييم الاستجابة للعلاج، وأبحاث النتائج",
+      "tabs": {
+        "studies": "دراسات",
+        "features": "ميزات الذكاء الاصطناعي",
+        "criteria": "معايير التصوير",
+        "timeline": "الجدول الزمني للمريض",
+        "analytics": "التحليلات السكانية"
+      },
+      "stats": {
+        "totalStudies": "مجموع الدراسات",
+        "aiFeatures": "ميزات الذكاء الاصطناعي",
+        "personsWithImaging": "الأشخاص الذين لديهم تصوير"
+      },
+      "studiesTab": {
+        "filterBySourceId": "تصفية حسب المصدر ID",
+        "sourceIdPlaceholder": "على سبيل المثال 9",
+        "modalityPlaceholder": "CT، MRI، PT...",
+        "allStatuses": "جميع الحالات",
+        "bodyPartPlaceholder": "الصدر.. العقل..",
+        "find": "يجد",
+        "searchPlaceholder": "UID، الانضمام، الوصف، المريض...",
+        "reset": "إعادة ضبط",
+        "syncFullCatalog": "مزامنة الكتالوج الكامل",
+        "indexedSummary": "مفهرسة {{indexed}} الجديدة، تم تحديث {{updated}} عبر السجلات الممسوحة ضوئيًا {{scanned}}",
+        "empty": "لم يتم فهرسة أي دراسات. استخدم \"استيراد ملفات DICOM المحلية\" أعلاه أو أدخل مصدر ID وانقر على \"فهرس من DICOMweb\".",
+        "totalStudiesPage": "{{total}} مجموع الدراسات – صفحة {{page}}",
+        "prev": "السابق",
+        "next": "التالي"
+      },
+      "featuresTab": {
+        "featureType": "نوع الميزة",
+        "allFeatureTypes": "جميع أنواع الميزات",
+        "nlpFinding": "العثور على البرمجة اللغوية العصبية",
+        "aiClassification": "تصنيف الذكاء الاصطناعي",
+        "radiomic": "راديوميك",
+        "manual": "يدوي",
+        "empty": "لم يتم استخراج أي ميزات حتى الآن. استخدم \"استخراج البرمجة اللغوية العصبية\" في دراسة لملءها.",
+        "totalFeatures": "إجمالي ميزات {{total}}"
+      },
+      "criteriaTab": {
+        "savedBanner": "معايير الفوج التصوير المحفوظة. استخدمها في Cohort Builder لاختيار المرضى بناءً على خصائص التصوير.",
+        "loading": "تحميل...",
+        "empty": "لم يتم حفظ معايير التصوير حتى الآن.",
+        "shared": "مشترك",
+        "deleteTitle": "حذف المعيار"
+      },
+      "analyticsTab": {
+        "sourceIdPlaceholder": "على سبيل المثال 9",
+        "intro": "أدخل مصدر ID لعرض تحليلات التصوير السكاني.",
+        "loading": "جارٍ تحميل التحليلات...",
+        "studiesByModality": "الدراسات حسب الطريقة",
+        "personsCount": "الأشخاص {{count}}",
+        "studiesByBodyPart": "دراسات حسب جزء الجسم",
+        "topFeatures": "أهم ميزات الذكاء الاصطناعي/البرمجة اللغوية العصبية"
+      },
+      "importDicom": "استيراد DICOM"
+    },
+    "studyPage": {
+      "tabs": {
+        "metadata": "البيانات الوصفية",
+        "measurements": "القياسات",
+        "viewer": "عرض المسح"
+      },
+      "notFound": "لم يتم العثور على الدراسة.",
+      "backToImaging": "العودة إلى التصوير",
+      "title": "دراسة DICOM",
+      "indexSeries": "سلسلة الفهرس",
+      "extractNlp": "استخراج البرمجة اللغوية العصبية",
+      "indexedSeries": "سلسلة {{count}} المفهرسة.",
+      "extractedSummary": "نتائج {{extracted}} المستخرجة، تم تعيين {{mapped}} OMOP.",
+      "viewerUnavailable": "لا تحتوي هذه الدراسة على بيانات DICOM في خادم PACS (الحالة: {{status}}).",
+      "viewerUnavailableHelp": "يمكن فقط الاطلاع على الدراسات المفهرسة من Orthanc في OHIF.",
+      "studyMetadata": "دراسة البيانات الوصفية",
+      "seriesTitle": "سلسلة ({{count}})",
+      "aiFeaturesTitle": "ميزات الذكاء الاصطناعي ({{count}})",
+      "fields": {
+        "studyInstanceUid": "دراسة مثيل UID",
+        "accessionNumber": "رقم الانضمام",
+        "modality": "الطريقة",
+        "bodyPart": "جزء الجسم",
+        "description": "وصف",
+        "studyDate": "تاريخ الدراسة",
+        "seriesCount": "عدد المسلسلات",
+        "imageCount": "عدد الصور",
+        "personId": "الشخص ID",
+        "status": "حالة"
+      },
+      "seriesHeaders": {
+        "number": null,
+        "modality": "الطريقة",
+        "description": "وصف",
+        "images": "الصور",
+        "sliceThickness": "سمك الشريحة",
+        "manufacturer": "الشركة المصنعة"
+      },
+      "featureHeaders": {
+        "finding": "العثور على",
+        "type": "يكتب",
+        "bodySite": "موقع الجسم",
+        "value": "قيمة",
+        "confidence": "ثقة",
+        "omop": "OMOP"
+      }
+    },
+    "uploadModal": {
+      "title": "استيراد ملفات DICOM",
+      "dropLead": "قم بسحب وإسقاط ملفات DICOM أو تصفحها",
+      "dropLeadPrefix": "قم بسحب وإسقاط ملفات DICOM أو",
+      "browse": "تصفح",
+      "dropDetail": "ملفات ‎.dcm يصل حجم كل منها إلى 2 جيجابايت. المجلدات غير مدعومة - حدد الملفات مباشرة.",
+      "filesSelected_one": "تم تحديد ملف {{count}}",
+      "filesSelected_other": "تم تحديد ملفات {{count}}",
+      "clearAll": "مسح الكل",
+      "moreFiles": "... و{{count}} المزيد من الملفات",
+      "uploadingToOrthanc": "جارٍ التحميل إلى Orthanc... {{completed}}/{{total}}",
+      "indexingStudies": "دراسات الفهرسة...",
+      "uploadedCount": "تم تحميل {{count}}",
+      "failedCount": "فشل {{count}}",
+      "importComplete": "اكتمل الاستيراد",
+      "importCompleteSummary": "تم تحميل {{uploaded}}{{failedSuffix}}{{studySuffix}}",
+      "failedSuffix": "، فشل {{count}}",
+      "studySuffix_one": "- دراسة {{count}}",
+      "studySuffix_other": "- دراسات {{count}}",
+      "previewAlt": "معاينة DICOM",
+      "unknownPatient": "مريض غير معروف",
+      "seriesCount_one": "سلسلة {{count}}",
+      "seriesCount_other": "سلسلة {{count}}",
+      "importFailed": "فشل الاستيراد",
+      "uploadCount": "تحميل ملفات {{count}}",
+      "uploadButton": "رفع"
+    },
+    "criteriaPanel": {
+      "addTitle": "إضافة معيار التصوير",
+      "typeLabels": {
+        "modality": "الطريقة",
+        "anatomy": "التشريح / جزء الجسم",
+        "quantitative": "الميزة الكمية",
+        "aiClassification": "تصنيف الذكاء الاصطناعي",
+        "dose": "جرعة الإشعاع"
+      },
+      "modalityLabel": "الطريقة *",
+      "modalityPlaceholder": "أو اكتب طريقة مخصصة...",
+      "bodyPartLabel": "جزء الجسم *",
+      "bodyPartPlaceholder": "أو اكتب جزء الجسم المخصص...",
+      "featureName": "اسم الميزة *",
+      "classificationLabel": "علامة التصنيف *",
+      "minConfidence": "الحد الأدنى من الثقة",
+      "maxCumulativeDose": "الجرعة التراكمية القصوى",
+      "excludeFeature": "استبعاد المرضى الذين يعانون من هذه الميزة",
+      "addCriterion": "إضافة معيار",
+      "labelTemplates": {
+        "modality": "الطريقة: {{modality}}",
+        "bodyPart": "جزء الجسم: {{bodyPart}}",
+        "quantitative": "{{feature}} {{operator}} {{value}} {{unit}}",
+        "aiClassification": "الذكاء الاصطناعي: {{label}} (>= نسبة ثقة {{confidence}})",
+        "dose": "الجرعة <= {{dose}} غراي",
+        "excludePrefix": "استبعاد:"
+      },
+      "typeDescriptions": {
+        "modality": "CT، MRI، PT، US، CR...",
+        "anatomy": "الصدر، البطن، الدماغ...",
+        "quantitative": "القياس الإشعاعي أو الرقمي للذكاء الاصطناعي",
+        "aiClassification": "علامة مشتقة من الذكاء الاصطناعي بثقة",
+        "dose": "الجرعة التراكمية القصوى (غراي)"
+      }
+    },
+    "measurements": {
+      "aiExtraction": "استخراج قياس الذكاء الاصطناعي",
+      "autoExtract": "استخراج تلقائي",
+      "extracting": "استخراج...",
+      "medGemmaHelp": "يستخدم MedGemma لاستخراج القياسات الكمية من تقارير الأشعة والبيانات الوصفية DICOM.",
+      "suggestedTemplate": "القالب المقترح: {{template}}",
+      "extractedCount": "قياسات {{count}} المستخرجة",
+      "extractedTypes": "(ززف0زز)",
+      "extractionFailed": "فشل الاستخراج: {{message}}",
+      "templates": "قوالب القياس",
+      "recordMeasurement": "قياس السجل",
+      "type": "يكتب",
+      "name": "اسم",
+      "value": "قيمة",
+      "bodySite": "موقع الجسم",
+      "optional": "- خياري -",
+      "laterality": "الجوانب",
+      "na": "- غير متاح -",
+      "left": "غادر",
+      "right": "يمين",
+      "bilateral": "الثنائية",
+      "recistTarget": "هدف RECIST",
+      "saveMeasurement": "حفظ القياس",
+      "addMeasurement": "إضافة القياس",
+      "title": "القياسات ({{count}})",
+      "targetBadge": "ت",
+      "deleteTitle": "حذف القياس",
+      "omopWarning": "لا ترتبط هذه الدراسة بمريض OMOP. سيتم حفظ القياسات ولكنها لن تظهر في المخططات الزمنية للمريض حتى يتم ربط person_id.",
+      "presets": {
+        "recist": {
+          "label": "RECIST - ورم صلب",
+          "description": "قياسات القطر الأطول للآفة المستهدفة لتقييم RECIST 1.1",
+          "fields": {
+            "lesion1": "الهدف الآفة 1",
+            "lesion2": "الهدف الآفة 2",
+            "lesion1Perp": "الآفة المستهدفة 1 (perp)"
+          }
+        },
+        "covidLungCt": {
+          "label": "COVID الرئة CT",
+          "description": "تسجيل خطورة CT لتقييم الالتهاب الرئوي COVID-19",
+          "fields": {
+            "severityIndex": "مؤشر الخطورة CT (0-25)",
+            "groundGlass": "عتامة الزجاج الأرضي",
+            "consolidation": "توحيد",
+            "totalOpacity": "مجموع نقاط التعتيم"
+          }
+        },
+        "petResponse": {
+          "label": "استجابة PET (لوغانو)",
+          "description": "SUVmax والقياسات الأيضية لاستجابة سرطان الغدد الليمفاوية / PET",
+          "fields": {
+            "suvmax": "SUVmax",
+            "metabolicVolume": "حجم الورم الأيضي",
+            "lesionGlycolysis": "مجموع تحلل الآفة"
+          }
+        },
+        "tumorVolumetrics": {
+          "label": "قياس حجم الورم",
+          "description": "قياسات حجم الورم وكثافته ثلاثية الأبعاد",
+          "fields": {
+            "tumorVolume": "حجم الورم",
+            "longestDiameter": "أطول قطر",
+            "meanDensity": "متوسط ​​الكثافة",
+            "lesionCount": "عدد الآفة"
+          }
+        }
+      }
+    },
+    "trends": {
+      "empty": "لم يتم تسجيل أي قياسات. استخدم AI Auto-Extract أو أدخل القياسات يدويًا في الدراسات الفردية.",
+      "title": "اتجاهات القياس",
+      "summary": "نوع {{types}}{{typesPlural}} - نقاط بيانات {{points}}",
+      "summaryPlural": "ق"
+    },
+    "viewer": {
+      "loading": "جارٍ تحميل عارض OHIF...",
+      "failed": "فشل تحميل عارض OHIF",
+      "openInNewTab": "افتح في علامة تبويب جديدة",
+      "title": "عارض OHIF DICOM",
+      "savePending_one": "حفظ قياس {{count}}",
+      "savePending_other": "حفظ قياسات {{count}}",
+      "savedCount": "تم حفظ {{count}}",
+      "bridge": "بوينتي",
+      "volumeTitle": "افتح OHIF في تخطيط الحجم ثلاثي الأبعاد",
+      "mprTitle": "افتح OHIF في تخطيط MPR",
+      "newTabTitle": "افتح OHIF في علامة تبويب جديدة",
+      "expand": "يوسع"
+    },
+    "timeline": {
+      "patient": "مريض",
+      "personLabel": "الشخص {{id}}",
+      "demographicsUnavailable": "المعلومات السكانية غير متاحة",
+      "studies": "دراسات",
+      "measurements": "القياسات",
+      "treatments": "العلاجات",
+      "noStudies": "لم يتم العثور على دراسات تصويرية لهذا المريض.",
+      "title": "الجدول الزمني الطولي",
+      "treatmentContext": "سياق العلاج",
+      "imagingStudies": "دراسات التصوير",
+      "allStudies": "جميع الدراسات ({{count}})",
+      "noDrugExposures": "لم يتم العثور على حالات تعرض للمخدرات في نافذة التصوير.",
+      "treatmentContextCount": "سياق العلاج (أدوية {{count}})",
+      "loadFailed": "فشل تحميل المخطط الزمني للمريض: {{message}}",
+      "showTreatmentDetails": "إظهار تفاصيل العلاج ({{count}})",
+      "hideTreatmentDetails": "إخفاء تفاصيل العلاج ({{count}})",
+      "showResponseAssessments": "عرض تقييمات الاستجابة",
+      "hideResponseAssessments": "إخفاء تقييمات الاستجابة",
+      "view": "منظر",
+      "patientPersonId": "الشخص المريض ID",
+      "personIdPlaceholder": "أدخل معرف الشخص OMOP...",
+      "viewTimeline": "عرض الجدول الزمني",
+      "autoLinkStudies": "دراسات الارتباط التلقائي",
+      "autoLinkedSummary": "دراسات {{count}} المرتبطة تلقائيًا بأشخاص OMOP.",
+      "heading": "الجدول الزمني للمريض - الشخص {{id}}",
+      "backToPatientList": "العودة إلى قائمة المرضى",
+      "failedToLoadTimeline": "فشل تحميل المخطط الزمني: {{message}}",
+      "patientsWithImaging": "المرضى الذين يعانون من التصوير الطولي",
+      "minStudies": "دراسات دقيقة",
+      "loadingPatients": "جارٍ تحميل المرضى...",
+      "emptyPatients": "لم يتم العثور على مرضى مع دراسات التصوير المرتبطة. استخدم \"دراسات الارتباط التلقائي\" لمطابقة DICOM المريض IDs مع الأشخاص OMOP، أو ربط الدراسات يدويًا في علامة التبويب \"الدراسات\".",
+      "tableHeaders": {
+        "personId": "الشخص ID",
+        "studies": "دراسات",
+        "modalities": "الطرائق",
+        "firstStudy": "الدراسة الأولى",
+        "lastStudy": "آخر دراسة",
+        "action": ""
+      },
+      "actionTimeline": "الجدول الزمني",
+      "patientsPageSummary": "مرضى {{total}} - صفحة {{current}} من {{last}}",
+      "studyHeaders": {
+        "date": "تاريخ",
+        "modality": "الطريقة",
+        "bodyPart": "جزء الجسم",
+        "description": "وصف",
+        "series": "مسلسل",
+        "images": "الصور",
+        "measurements": "القياسات",
+        "action": ""
+      },
+      "drugHeaders": {
+        "drugName": "اسم الدواء",
+        "class": "فصل",
+        "start": "يبدأ",
+        "end": "نهاية",
+        "daysSupply": "أيام العرض"
+      }
+    },
+    "response": {
+      "categoryLabels": {
+        "completeResponse": "الرد الكامل",
+        "partialResponse": "الاستجابة الجزئية",
+        "stableDisease": "مرض مستقر",
+        "progressiveDisease": "المرض التقدمي",
+        "notEvaluable": "غير قابلة للتقييم"
+      },
+      "criteriaLabels": {
+        "recist": "ريجيست 1.1",
+        "ctSeverity": "خطورة CT",
+        "deauville": "دوفيل / لوغانو",
+        "rano": "رانو"
+      },
+      "computeTitle": "حساب تقييم الاستجابة",
+      "help": "يحسب استجابة العلاج تلقائيًا من خلال مقارنة القياسات عبر النقاط الزمنية باستخدام معايير RECIST 1.1 أو CT Severity أو Deauville/Lugano أو RANO.",
+      "currentStudy": "الدراسة الحالية (نقطة زمنية)",
+      "selectStudy": "اختر الدراسة...",
+      "criteria": "معايير",
+      "autoDetect": "الكشف التلقائي",
+      "assess": "يٌقيِّم",
+      "assessmentFailed": "فشل التقييم",
+      "assessmentHistory": "تاريخ التقييم",
+      "empty": "لم يتم احتساب تقييمات الاستجابة حتى الآن. حدد نقطة زمنية للدراسة أعلاه لحساب واحدة.",
+      "vsBaseline": "مقابل خط الأساس:",
+      "vsNadir": "ضد نادر:",
+      "confirmed": "مؤكد",
+      "baseline": "خط الأساس",
+      "nadir": "نادر",
+      "current": "حاضِر"
+    },
+    "studyBrowser": {
+      "unknownDate": "مجهول",
+      "dicomStudy": "دراسة DICOM",
+      "details": "تفاصيل",
+      "compare": "يقارن",
+      "selected": "مختارة",
+      "seriesImageSummary": "{{series}}s · {{images}}i",
+      "all": "الكل ({{count}})",
+      "date": "تاريخ",
+      "clear": "واضح",
+      "noStudies": "لم يتم العثور على دراسات التصوير",
+      "defaultTitle": "دراسات التصوير ({{count}})"
+    }
+  },
+  "genomics": {
+    "common": {
+      "analysisSuite": "جناح التحليل",
+      "benign": "حميدة",
+      "cancel": "يلغي",
+      "class": "فصل",
+      "clinvarReference": "مرجع ClinVar",
+      "confidence": "ثقة",
+      "dataSource": "مصدر البيانات",
+      "deleteUpload": "حذف التحميل",
+      "gene": "الجين",
+      "genome": "الجينوم",
+      "genomeBuild": "بناء الجينوم",
+      "hgvsOptional": "هغفس (اختياري)",
+      "likelyBenign": "من المحتمل أن تكون حميدة",
+      "likelyPathogenic": "من المحتمل أن تكون مسببة للأمراض",
+      "no": "لا",
+      "omopMapped": "تم تعيين OMOP",
+      "pathogenic": "المسببة للأمراض",
+      "pendingReview": "في انتظار المراجعة",
+      "recentUploads": "التحميلات الأخيرة",
+      "response": "إجابة",
+      "significance": "دلالة",
+      "sourceId": "المصدر ID",
+      "status": "حالة",
+      "totalVariants": "إجمالي المتغيرات",
+      "totalUploads": "إجمالي التحميلات",
+      "tumorBoard": "مجلس الأورام",
+      "uncertainSignificance": "أهمية غير مؤكدة",
+      "uploadVariants": "تحميل المتغيرات",
+      "uploads": "التحميلات",
+      "variant": "البديل",
+      "vus": "VUS",
+      "yes": "نعم"
+    },
+    "page": {
+      "title": "الجينوم الجزيئي",
+      "subtitle": "الابتلاع المتغير ورسم خرائط OMOP والمعايير الجينية للفوج",
+      "loadingStats": "جارٍ تحميل الإحصائيات...",
+      "tabs": {
+        "uploads": "التحميلات",
+        "clinvar": "مرجع ClinVar"
+      },
+      "topMutatedGenes": "أعلى الجينات المتحورة",
+      "recentUploads": "التحميلات الأخيرة",
+      "noUploadsTitle": "لم يتم تحميل أي ملفات متغيرة حتى الآن",
+      "noUploadsMessage": "قم بتحميل ملف VCF أو MAF لبدء التحليل الجيني",
+      "tableHeaders": {
+        "filename": "اسم الملف",
+        "format": "شكل",
+        "genome": "الجينوم",
+        "variants": "المتغيرات",
+        "status": "حالة",
+        "uploaded": "تم الرفع",
+        "actions": ""
+      },
+      "annotateTitle": "قم بتعليق المتغيرات ذات الأهمية ClinVar",
+      "deleteTitle": "حذف التحميل",
+      "deleteConfirm": "هل تريد حذف التحميل \"{{filename}}\"؟"
+    },
+    "clinvar": {
+      "title": "قاعدة البيانات المرجعية ClinVar",
+      "subtitle": "NCBI ClinVar - GRCh38 - يتم تحديثه أسبوعيًا",
+      "papuOnlyTitle": "تنزيل متغيرات P/LP فقط (~69 كيلوبايت، سريع)",
+      "papuOnly": "السعر/LP فقط",
+      "fullSyncTitle": "تنزيل ClinVar بالكامل (~181 ميجابايت، أبطأ)",
+      "fullSync": "مزامنة كاملة",
+      "loadingStatus": "جارٍ التحميل...",
+      "totalVariants": "إجمالي المتغيرات",
+      "pathogenicLp": "المسببة للأمراض / ليرة لبنانية",
+      "lastSync": "آخر مزامنة",
+      "syncComplete": "اكتملت المزامنة - تم إدراج {{inserted}}، وتم تحديث {{updated}}",
+      "syncFailed": "فشلت المزامنة - تحقق من سجلات الخادم",
+      "noDataTitle": "لم تتم فهرسة أي بيانات ClinVar حتى الآن",
+      "noDataMessage": "استخدم \"P/LP فقط\" للحصول على بذرة سريعة تبلغ 69 كيلوبايت، أو \"المزامنة الكاملة\" لجميع الـ 181 ميغابايت",
+      "searchPlaceholder": "ابحث عن الجينات، HGVS، المرض، RS ID...",
+      "genePlaceholder": "الجين",
+      "allSignificance": "كل الأهمية",
+      "pathogenic": "المسببة للأمراض",
+      "likelyPathogenic": "من المحتمل أن تكون مسببة للأمراض",
+      "uncertainSignificance": "أهمية غير مؤكدة",
+      "benign": "حميدة",
+      "likelyBenign": "من المحتمل أن تكون حميدة",
+      "conflicting": "متضاربة",
+      "browsePrompt": "أدخل مصطلح بحث أو قم بتطبيق عامل تصفية لتصفح ClinVar",
+      "noMatches": "لا توجد متغيرات تطابق بحثك",
+      "tableHeaders": {
+        "gene": "الجين",
+        "hgvsVariant": "HGVS / البديل",
+        "significance": "دلالة",
+        "disease": "مرض",
+        "reviewStatus": "حالة المراجعة",
+        "build": "يبني",
+        "ids": "المعرفات"
+      },
+      "variantsPageSummary": "متغيرات {{total}} - صفحة {{current}} من {{last}}"
+    },
+    "uploadDialog": {
+      "title": "تحميل ملف البديل",
+      "dataSource": "مصدر البيانات",
+      "dropLead": "قم بإسقاط الملف هنا أو انقر للتصفح",
+      "allowedExtensions": ".vcf، .maf، .json",
+      "sizeKb": "{{count}} كيلو بايت",
+      "fileFormat": "تنسيق الملف",
+      "formatLabels": {
+        "cbioMaf": "cBioPortal ماف",
+        "fhirGenomics": "FHIR علم الجينوم"
+      },
+      "genomeBuild": "بناء الجينوم",
+      "genomeBuildOptions": {
+        "grch38": "GRCh38 / hg38",
+        "grch37": "GRCh37/hg19"
+      },
+      "sampleIdOptional": "عينة ID (اختياري)",
+      "uploadFailed": "فشل التحميل. يرجى التحقق من تنسيق الملف والمحاولة مرة أخرى.",
+      "uploadingParsing": "جاري التحميل والتحليل...",
+      "uploadParse": "تحميل وتحليل"
+    },
+    "criteriaPanel": {
+      "title": "إضافة معيار الجينوم",
+      "typeLabels": {
+        "geneMutation": "طفرة جينية",
+        "tmb": "عبء الورم التحولي",
+        "msi": "عدم استقرار الأقمار الصناعية الصغيرة",
+        "fusion": "الانصهار الجيني",
+        "pathogenicity": "فئة المسببة للأمراض",
+        "treatmentEpisode": "حلقة العلاج"
+      },
+      "typeDescriptions": {
+        "geneMutation": "على سبيل المثال إي جي إف آر L858R، كراس G12D",
+        "tmb": "TMB-عالية / TMB-عتبة منخفضة",
+        "msi": "MSI-H أو MSI-L أو MSS",
+        "fusion": "على سبيل المثال إعادة ترتيب ALK، BCR-ABL1",
+        "pathogenicity": "تصنيف ClinVar",
+        "treatmentEpisode": "نظام العلاج الكيميائي HemOnc"
+      },
+      "msiOptions": {
+        "high": "MSI-عالية",
+        "anyUnstable": "MSI-عالية أو MSI-منخفضة (أي غير مستقرة)",
+        "low": "MSI-منخفض",
+        "stable": "مستقر للأقمار الصناعية الصغيرة (MSS)"
+      },
+      "gene": "الجين *",
+      "hgvsOptional": "هغفس (اختياري)",
+      "hgvsPlaceholder": "ص.Leu858Arg",
+      "gene1": "الجين 1 *",
+      "gene2Optional": "الجين 2 (اختياري)",
+      "regimenName": "اسم النظام *",
+      "tmbUnit": "موت/ميجابايت",
+      "excludeFeature": "استبعاد المرضى الذين يعانون من هذه الميزة",
+      "addCriterion": "إضافة معيار",
+      "labelTemplates": {
+        "mutation": "طفرة {{gene}}",
+        "tmb": "TMB {{operator}} {{value}} mut/Mb",
+        "fusion": "{{gene1}}::{{gene2}} الانصهار",
+        "rearrangement": "إعادة ترتيب {{gene}}",
+        "regimen": "نظام {{name}}",
+        "excludePrefix": "استبعاد:"
+      }
+    },
+    "analysis": {
+      "title": "مجموعة تحليل النتائج المتغيرة",
+      "subtitle": "التحليلات الجينومية على مستوى السكان مرتبطة بالنتائج السريرية OMOP",
+      "tabs": {
+        "survival": "طفرة البقاء على قيد الحياة",
+        "matrix": "مصفوفة متغيرة العلاج",
+        "characterization": "التوصيف الجينومي"
+      },
+      "days": "أيام",
+      "mutatedLegend": "{{gene}} متحور (n={{count}})",
+      "wildTypeLegend": "من النوع البري (ن={{count}})",
+      "noData": "لا توجد بيانات. تحميل المتغيرات + التأكد من اتصال CDM لبيانات التعرض للمخدرات.",
+      "gene": "الجين",
+      "genePlaceholder": "EGFR",
+      "runningSurvival": "تشغيل تحليل البقاء...",
+      "analysisFailed": "فشل التحليل. تأكد من أن مصدر CDM يحتوي على بيانات النتائج الجينومية.",
+      "overallSurvival": "البقاء الشامل",
+      "noSurvival": "لا توجد بيانات البقاء المتطابقة. قم بتحميل ملفات VCF مع مطابقة person_id وتأكد من حصول المرضى على فترات مراقبة.",
+      "genesComma": "الجينات (مفصولة بفواصل)",
+      "genesPlaceholder": "إغفر، كراس، ألك، براف",
+      "topMutatedGenes": "أعلى الجينات المتحورة",
+      "totalVariants": "(إجمالي المتغيرات {{count}})",
+      "variantTypes": "أنواع البديل",
+      "mutationLoadPerSample": "تحميل الطفرة لكل عينة",
+      "noVariantsLoaded": "لم يتم تحميل المتغيرات. قم بتحميل ملفات VCF/MAF أولاً."
+    },
+    "tumorBoard": {
+      "title": "مجلس الأورام الجزيئية",
+      "subtitle": "لوحة الأدلة الجزيئية لكل مريض - المتغيرات، والنتائج المماثلة للمرضى، وأنماط الأدوية",
+      "omopPersonId": "OMOP الشخص ID",
+      "personIdPlaceholder": "أدخل معرف الشخص...",
+      "loadPanel": "لوحة التحميل",
+      "buildingEvidence": "بناء لوحة الأدلة...",
+      "loadFailed": "فشل تحميل اللوحة. تأكد من وجود person_id ومن توفر البيانات الجينومية.",
+      "evidenceSummary": "ملخص الأدلة",
+      "actionable": "قابلة للتنفيذ",
+      "actionableGene": "{{gene}} - قابل للتنفيذ",
+      "variantsTitle": "المتغيرات ({{count}})",
+      "noVariants": "لا توجد متغيرات جينية مسجلة لهذا المريض.",
+      "demographics": "التركيبة السكانية",
+      "drugPatterns": "أنماط المخدرات في المرضى مماثلة",
+      "similarOutcomes": "النتائج في المرضى المتشابهين جزيئيًا",
+      "variantHeaders": {
+        "gene": "الجين",
+        "alteration": "تغيير",
+        "type": "يكتب",
+        "class": "فصل",
+        "af": "بالعربية",
+        "classification": "تصنيف"
+      },
+      "similarOutcomeHeaders": {
+        "gene": "الجين",
+        "similarPatients": "مرضى مماثلين (ن)",
+        "medianSurvival": "متوسط ​​البقاء على قيد الحياة",
+        "eventRate": "معدل الحدث"
+      },
+      "months": "{{count}} أشهر"
+    },
+    "uploadDetail": {
+      "notFound": "لم يتم العثور على التحميل",
+      "backToGenomics": "العودة إلى علم الجينوم",
+      "matchPersons": "مطابقة الأشخاص",
+      "importToOmop": "استيراد إلى OMOP",
+      "parseError": "خطأ في التحليل:",
+      "metrics": {
+        "totalVariants": "إجمالي المتغيرات",
+        "omopMapped": "تم تعيين OMOP",
+        "needsReview": "يحتاج إلى مراجعة"
+      },
+      "variants": "المتغيرات",
+      "shown": "تم عرض {{count}}",
+      "parsingInProgress": "جاري التحليل...",
+      "noVariantsAvailable": "لا توجد متغيرات متاحة",
+      "tableHeaders": {
+        "gene": "الجين",
+        "variant": "البديل",
+        "hgvs": "HGVS",
+        "type": "يكتب",
+        "zygosity": "زيجوسيتي",
+        "af": "بالعربية",
+        "clinvar": "ClinVar",
+        "omop": "OMOP"
+      }
+    }
+  },
+  "radiogenomics": {
+    "panel": {
+      "loadFailed": "فشل تحميل لوحة الطب الدقيق",
+      "noData": "لا توجد بيانات جينومية متاحة لهذا المريض",
+      "stats": {
+        "totalVariants": "إجمالي المتغيرات",
+        "pathogenic": "المسببة للأمراض",
+        "vus": "VUS",
+        "drugCorrelations": "الارتباطات المخدرات",
+        "recommendations": "التوصيات",
+        "treatments": "العلاجات"
+      },
+      "relationshipLabels": {
+        "sensitive": "حساس",
+        "resistant": "مقاومة",
+        "partialResponse": "الاستجابة الجزئية"
+      },
+      "recommendationsTitle": "توصيات الطب الدقيق",
+      "avoid": "تجنب (المقاومة المتوقعة)",
+      "consider": "ضع في اعتبارك (الحساسية المتوقعة)",
+      "correlationsTitle": "الارتباطات الدوائية المتغيرة ({{count}})",
+      "headers": {
+        "gene": "الجين",
+        "variant": "البديل",
+        "drug": "دواء",
+        "relationship": "علاقة",
+        "confidence": "ثقة",
+        "received": "تلقى",
+        "response": "إجابة"
+      },
+      "yes": "نعم",
+      "no": "لا",
+      "mechanism": "الآلية:",
+      "evidence": "شهادة:",
+      "rationale": "الأساس المنطقي:",
+      "treatmentPeriod": "فترة العلاج:",
+      "ongoing": "مستمر",
+      "evidenceLevel": "مستوى الأدلة:",
+      "clinvar": "ClinVar:",
+      "genomicVariantsTitle": "المتغيرات الجينومية ({{count}})",
+      "variantHeaders": {
+        "gene": "الجين",
+        "variant": "البديل",
+        "class": "فصل",
+        "significance": "دلالة",
+        "disease": "مرض",
+        "status": "حالة"
+      },
+      "actionable": "قابلة للتنفيذ",
+      "other": "آخر",
+      "treatmentHistoryTitle": "تاريخ العلاج ({{count}})",
+      "showLess": "عرض أقل",
+      "showAll": "إظهار كافة المتغيرات {{count}}",
+      "pathogenicCount": "{{count}} المسببة للأمراض",
+      "vusCount": "{{count}} VUS",
+      "treatmentDays": "أيام {{count}}"
+    }
+  }
+},
+);
+
 export const imagingGenomicsResources: Record<string, MessageTree> = {
   "en-US": enImagingGenomics,
   "es-ES": esImagingGenomicsPass2,
@@ -6966,6 +7677,6 @@ export const imagingGenomicsResources: Record<string, MessageTree> = {
   }),
   "ko-KR": koImagingGenomicsPass2,
   "hi-IN": hiImagingGenomicsPass2,
-  ar: mergeMessageTrees(enImagingGenomics, {}),
+  ar: arImagingGenomicsPass1,
   "en-XA": mergeMessageTrees(enImagingGenomics, {}),
 };
