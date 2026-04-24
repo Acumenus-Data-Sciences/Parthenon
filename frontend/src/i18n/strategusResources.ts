@@ -1701,6 +1701,252 @@ const hiStrategus: MessageTree = mergeMessageTrees(enStrategus, {
   },
 });
 
+const arStrategus: MessageTree = mergeMessageTrees(enStrategus, {
+  strategus: {
+    common: {
+      added: "تمت الإضافة",
+      auto: "تلقائي",
+      back: "رجوع",
+      comparator: "المقارن",
+      cohorts: "المجموعات",
+      description: "الوصف",
+      issues: "المشكلات",
+      modules: "الوحدات",
+      next: "التالي",
+      noneConfigured: "لا شيء مكوّن",
+      outcome: "النتيجة",
+      required: "مطلوب",
+      source: "المصدر",
+      status: "الحالة",
+      target: "الهدف",
+      warnings: "تحذيرات",
+    },
+    page: {
+      header: {
+        title: "حزم الدراسات",
+        subtitle: "أنشئ ونفّذ حزم دراسات OHDSI متعددة التحليلات في Strategus",
+        importJson: "استيراد JSON",
+        exportJson: "تصدير JSON",
+      },
+      steps: {
+        studyInfo: "معلومات الدراسة",
+        selectModules: "اختيار الوحدات",
+        sharedCohorts: "المجموعات المشتركة",
+        moduleSettings: "إعدادات الوحدات",
+        jsonPreview: "معاينة JSON",
+        reviewValidate: "المراجعة والتحقق",
+        execute: "تنفيذ",
+      },
+      studyInfo: {
+        title: "معلومات الدراسة",
+        intro: "سمِّ حزمة الدراسة وقدّم وصفا اختياريا.",
+        studyName: "اسم الدراسة",
+        description: "الوصف",
+        studyNamePlaceholder: "مثال: دراسة خطر فشل القلب SGLT2i مقابل DPP4i",
+        descriptionPlaceholder:
+          "صف بإيجاز أهداف الدراسة والفئة السكانية والنتائج المتوقعة...",
+        info: "ينفذ Strategus حزم دراسات OHDSI متعددة التحليلات عبر مصدر بيانات CDM واحد أو أكثر. تعمل كل وحدة تحليل بشكل مستقل وتكتب النتائج إلى دليل الإخراج المكوّن.",
+      },
+      selectModules: {
+        loading: "جار تحميل الوحدات المتاحة...",
+        title: "اختيار وحدات التحليل",
+        intro:
+          "اختر وحدات تحليل OHDSI التي تريد تضمينها. CohortGenerator مطلوب ومضمن دائما.",
+        selectedSummary_one:
+          "{{count}} وحدة محددة (بما في ذلك CohortGenerator)",
+        selectedSummary_other:
+          "{{count}} وحدات محددة (بما في ذلك CohortGenerator)",
+      },
+      sharedCohorts: {
+        title: "تعريفات المجموعات المشتركة",
+        intro:
+          "أضف مجموعات الهدف والمقارن والنتيجة المشتركة عبر جميع وحدات التحليل.",
+        addCohort: "إضافة مجموعة",
+        searchPlaceholder: "ابحث في تعريفات المجموعات...",
+        loading: "جار تحميل المجموعات...",
+        noneFound: "لم يتم العثور على تعريفات مجموعات.",
+        empty:
+          "لم تتم إضافة أي مجموعات بعد. تتطلب معظم وحدات التحليل مجموعة هدف واحدة على الأقل.",
+        roles: {
+          target: "الهدف",
+          comparator: "المقارن",
+          outcome: "النتيجة",
+        },
+      },
+      review: {
+        title: "ملخص حزمة الدراسة",
+        studyName: "اسم الدراسة",
+        description: "الوصف",
+        modules: "الوحدات",
+        cohorts: "المجموعات",
+        validateTitle: "التحقق من المواصفة",
+        validateIntro:
+          "تحقق من مواصفة التحليل بحثا عن مشكلات تكوين الوحدات قبل التنفيذ.",
+        runValidation: "تشغيل التحقق",
+        validationPassed: "نجح التحقق",
+        validationFailed: "فشل التحقق",
+        validationFailedWithMessage: "فشل التحقق: {{message}}",
+        validationRequestFailed: "فشل طلب التحقق",
+        severity: {
+          error: "خطأ",
+          warning: "تحذير",
+        },
+      },
+      execute: {
+        title: "تنفيذ حزمة الدراسة",
+        intro:
+          'اختر مصدر بيانات CDM ونفّذ "{{studyName}}" عبر جميع الوحدات المكوّنة.',
+        targetDataSource: "مصدر البيانات الهدف",
+        loadingSources: "جار تحميل المصادر...",
+        selectSource: "اختر مصدرا",
+        executeStudyPackage: "تنفيذ حزمة الدراسة",
+        executing: "جار التنفيذ...",
+        runningTitle: "حزمة الدراسة قيد التشغيل...",
+        runningIntro:
+          "يقوم Strategus بتنسيق تنفيذ الوحدات. قد يستغرق ذلك عدة دقائق بحسب حجم مجموعة البيانات وعدد الوحدات.",
+        executionFailed: "فشل التنفيذ: {{message}}",
+        executionRequestFailed: "فشل طلب التنفيذ",
+        executionComplete: "اكتمل التنفيذ",
+        outputDirectory: "دليل الإخراج",
+        modulesExecuted: "الوحدات المنفذة",
+        resultStats: {
+          status: "الحالة",
+          modulesRun: "الوحدات المشغلة",
+          resultFiles: "ملفات النتائج",
+        },
+        statusLabels: {
+          completed: "مكتمل",
+          running: "قيد التشغيل",
+          failed: "فشل",
+        },
+      },
+    },
+    jsonEditor: {
+      title: "معاينة مواصفة JSON",
+      intro:
+        "راجع مواصفة التحليل المُنشأة. عدّلها مباشرة أو طبّق التغييرات أدناه.",
+      copied: "تم النسخ",
+      copyToClipboard: "نسخ إلى الحافظة",
+      resetToGenerated: "إعادة التعيين إلى النسخة المُنشأة",
+      lineCount_one: "{{count}} سطر",
+      lineCount_other: "{{count}} أسطر",
+      validJson: "JSON صالح",
+      invalidJson: "JSON غير صالح",
+      applyChanges: "تطبيق التغييرات",
+    },
+    moduleSettings: {
+      title: "إعدادات الوحدات",
+      intro: "اضبط المعلمات لكل وحدة. انقر على وحدة لتوسيع إعداداتها.",
+      unknownModule: "وحدة غير معروفة: {{moduleName}}",
+      autoBadge: "تلقائي",
+      noConfigurationNeeded:
+        "لا حاجة إلى إعدادات. يقوم CohortGenerator بإنشاء المجموعات تلقائيا من تعريفات المجموعات المشتركة.",
+      noCohorts: "لا تتوفر مجموعات. أضف مجموعات في خطوة المجموعات المشتركة.",
+      noRoleCohorts:
+        "لا تتوفر مجموعات {{role}}. أضف مجموعات في خطوة المجموعات المشتركة.",
+      sections: {
+        cohortAssignment: "إسناد المجموعات",
+        parameters: "المعلمات",
+        covariateSettings: "إعدادات المتغيرات المصاحبة",
+        modelConfiguration: "إعدادات النموذج",
+        timeAtRisk: "فترة التعرض للخطر",
+        trainingParameters: "معلمات التدريب",
+        eraCovariateSettings: "إعدادات متغيرات الفترات",
+        diagnosticsOptions: "خيارات التشخيص",
+        synthesisConfiguration: "إعدادات توليف الأدلة",
+      },
+      fields: {
+        targetCohorts: "مجموعات الهدف",
+        comparatorCohorts: "مجموعات المقارنة",
+        outcomeCohorts: "مجموعات النتيجة",
+        exposureCohorts: "مجموعات التعرض",
+        washoutPeriod: "فترة الغسل (بالأيام)",
+        maxCohortSize: "الحد الأقصى لحجم المجموعة (0 = غير محدود)",
+        demographics: "التركيبة السكانية",
+        conditionOccurrence: "حدوث الحالة",
+        drugExposure: "التعرض للدواء",
+        procedureOccurrence: "حدوث الإجراء",
+        measurement: "القياس",
+        modelType: "نوع النموذج",
+        windowStart: "بداية النافذة (بالأيام)",
+        windowEnd: "نهاية النافذة (بالأيام)",
+        minCohortSize: "الحد الأدنى لحجم المجموعة",
+        splitSeed: "بذرة التقسيم",
+        testFraction: "نسبة الاختبار",
+        includeEraOverlap: "تضمين تداخل الفترات",
+        firstOccurrenceOnly: "الحدوث الأول فقط",
+        inclusionStatistics: "إحصاءات الإدراج",
+        incidenceRate: "معدل الحدوث",
+        timeSeries: "سلسلة زمنية",
+        breakdownIndexEvents: "تفصيل أحداث المؤشر",
+        orphanConcepts: "المفاهيم اليتيمة",
+        minCellCount: "الحد الأدنى لعدد الخلايا",
+        minPriorObservation: "الحد الأدنى للملاحظة السابقة (بالأيام)",
+        dechallengeStopInterval: "فاصل إيقاف سحب العلاج",
+        dechallengeEvalWindow: "نافذة تقييم سحب العلاج",
+        start: "البداية (بالأيام)",
+        end: "النهاية (بالأيام)",
+        cleanWindow: "نافذة التنقية (بالأيام)",
+        method: "الطريقة",
+        evidenceSourceModule: "وحدة مصدر الأدلة",
+      },
+      options: {
+        modelTypes: {
+          lassoLogistic: "انحدار لوجستي Lasso",
+          gradientBoosting: "التعزيز التدريجي",
+          randomForest: "الغابة العشوائية",
+          deepLearning: "التعلم العميق",
+        },
+        synthesisMethods: {
+          fixedEffects: "تأثيرات ثابتة",
+          randomEffects: "تأثيرات عشوائية",
+          bayesian: "بايزي",
+        },
+        evidenceSources: {
+          cohortMethod: "طريقة المجموعة",
+          selfControlledCaseSeries: "سلسلة الحالات ذاتية الضبط",
+        },
+      },
+    },
+    moduleMeta: {
+      cohortGenerator: {
+        label: "مولد المجموعات",
+        description: "ينشئ المجموعات من التعريفات. وهو مطلوب لجميع أنواع الدراسات.",
+      },
+      cohortMethod: {
+        label: "طريقة المجموعة",
+        description: "تقدير الأثر على مستوى السكان باستخدام تصميم مجموعة مقارنة.",
+      },
+      patientLevelPrediction: {
+        label: "التنبؤ على مستوى المريض",
+        description:
+          "يبني نماذج تنبؤية لنتائج المرضى على المستوى الفردي باستخدام ML.",
+      },
+      selfControlledCaseSeries: {
+        label: "سلسلة الحالات ذاتية الضبط",
+        description: "يقدّر نسب معدلات الحدوث باستخدام تصميم SCCS.",
+      },
+      cohortDiagnostics: {
+        label: "تشخيصات المجموعة",
+        description: "يقيّم خوارزميات الأنماط الظاهرية ويصف خصائص المجموعات.",
+      },
+      characterization: {
+        label: "التوصيف",
+        description: "يحسب الخصائص الأساسية عبر مجموعات الهدف والمقارنة.",
+      },
+      cohortIncidence: {
+        label: "حدوث المجموعة",
+        description: "يحسب معدلات حدوث النتائج في الفئات السكانية المستهدفة.",
+      },
+      evidenceSynthesis: {
+        label: "توليف الأدلة",
+        description:
+          "يجري تحليلا تجميعيا عبر مصادر البيانات باستخدام نماذج التأثيرات الثابتة أو العشوائية.",
+      },
+    },
+  },
+});
+
 export const strategusResources: Record<string, MessageTree> = {
   "en-US": enStrategus,
   "es-ES": esStrategus,
@@ -2405,6 +2651,6 @@ export const strategusResources: Record<string, MessageTree> = {
   }),
   "ko-KR": koStrategus,
   "hi-IN": hiStrategus,
-  ar: mergeMessageTrees(enStrategus, {}),
+  ar: arStrategus,
   "en-XA": mergeMessageTrees(enStrategus, {}),
 };

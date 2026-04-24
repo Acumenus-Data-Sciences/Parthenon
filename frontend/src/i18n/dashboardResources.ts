@@ -1172,6 +1172,118 @@ const hiDashboard: MessageTree = mergeMessageTrees(enDashboard, {
   }
 });
 
+const arDashboard: MessageTree = mergeMessageTrees(enDashboard, {
+  page: {
+    title: "لوحة المعلومات",
+    subtitle: "منصة موحدة لأبحاث النتائج",
+  },
+  metrics: {
+    cdmSources: "مصادر CDM",
+    runningJobs: "المهام الجارية",
+    conceptSets: "مجموعات المفاهيم",
+    activeCohorts: "المجموعات النشطة",
+    descriptions: {
+      cdmSources: "{{postgresqlCount}} PostgreSQL · {{personsText}}",
+      persons: "{{count}} شخصا",
+      noCdmLoaded: "لم يتم تحميل CDM",
+      runningJobs: "{{completedCount}} اكتمل مؤخرا · {{failedCount}} فشل",
+      conceptSets:
+        "{{populatedTables}}/{{totalTables}} من جداول CDM معبأة · الاكتمال {{completeness}}%",
+      activeCohorts:
+        "{{generatedCount}} تم إنشاؤها · {{conceptSetCount}} مجموعة مفاهيم",
+    },
+  },
+  error: {
+    title: "تعذر تحميل بيانات لوحة المعلومات",
+    message: "قد تكون واجهة API غير متاحة. سيتم عرض البيانات المخزنة مؤقتا إن وجدت.",
+  },
+  cdm: {
+    title: "توصيف CDM",
+    subtitle: "ملف البيانات السريرية للمصدر المحدد",
+    viewFull: "عرض كامل",
+    noSource: "اختر مصدر بيانات لعرض التوصيف",
+    noDomainData: "لا تتوفر بيانات نطاق",
+    metrics: {
+      persons: "الأشخاص",
+      medianObservationDuration: "وسيط مدة الرصد",
+      medianObservationDurationValue: "{{count}} يوما",
+      totalEvents: "إجمالي الأحداث",
+      dataCompleteness: "اكتمال البيانات",
+      tableCount: "{{populatedTables}}/{{totalTables}} جداول",
+    },
+    demographics: "التركيبة السكانية",
+    ageDistribution: "توزيع الأعمار",
+    noAgeDistributionData: "لا تتوفر بيانات لتوزيع الأعمار",
+    age: "العمر",
+    gender: {
+      male: "ذكر",
+      female: "أنثى",
+    },
+    domainCounts: "إحصاءات نطاقات CDM",
+    domains: {
+      conditionOccurrence: "الحالات",
+      drugExposure: "التعرضات الدوائية",
+      procedureOccurrence: "الإجراءات",
+      measurement: "القياسات",
+      observation: "الملاحظات",
+      visitOccurrence: "الزيارات",
+      drugEra: "فترات الدواء",
+      conditionEra: "فترات الحالة",
+      deviceExposure: "الأجهزة",
+      death: "الوفيات",
+    },
+  },
+  panels: {
+    recentCohortActivity: "نشاط المجموعات الأخير",
+    quickActions: "إجراءات سريعة",
+    sourceHealth: "حالة المصدر",
+    activeJobs: "المهام النشطة",
+    viewAll: "عرض الكل",
+  },
+  tables: {
+    cohort: "المجموعة",
+    subjects: "الأفراد",
+    status: "الحالة",
+    source: "المصدر",
+    dialect: "اللهجة",
+    job: "المهمة",
+    type: "النوع",
+  },
+  empty: {
+    noCohortsTitle: "لا توجد مجموعات بعد",
+    noCohortsMessage: "أنشئ أول تعريف مجموعة لبدء البحث.",
+    newCohort: "مجموعة جديدة",
+    noDataSourcesTitle: "لا توجد مصادر بيانات",
+    noDataSourcesMessage: "قم بربط قاعدة بيانات CDM للبدء.",
+    addSource: "إضافة مصدر",
+    noActiveJobsTitle: "لا توجد مهام نشطة",
+    noActiveJobsMessage: "ستظهر المهام هنا عندما تكون التحليلات قيد التشغيل.",
+  },
+  quickActions: {
+    connectDataSource: "ربط مصدر بيانات",
+    createCohortDefinition: "إنشاء تعريف مجموعة",
+    buildConceptSet: "إنشاء مجموعة مفاهيم",
+    exploreDataQuality: "استكشاف جودة البيانات",
+  },
+  statuses: {
+    healthy: "سليم",
+    cohort: {
+      active: "نشط",
+      error: "خطأ",
+      draft: "مسودة",
+      pending: "قيد الانتظار",
+    },
+    job: {
+      running: "قيد التشغيل",
+      completed: "مكتمل",
+      failed: "فشل",
+      success: "نجاح",
+      fail: "فشل",
+      queued: "في قائمة الانتظار",
+    },
+  },
+});
+
 
 export const dashboardResources: Record<string, MessageTree> = {
   "en-US": enDashboard,
@@ -1184,4 +1296,5 @@ export const dashboardResources: Record<string, MessageTree> = {
   "zh-Hans": zhDashboard,
   "ko-KR": koDashboard,
   "hi-IN": hiDashboard,
+  ar: arDashboard,
 };

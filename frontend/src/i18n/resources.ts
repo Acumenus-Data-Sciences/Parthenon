@@ -7551,7 +7551,7 @@ export const resources: Resource = {
     arSettingsDetails,
     arHelp,
     withAuthSetup(arAuth, enAuthSetup),
-    dashboardResources["en-US"],
+    dashboardResources["ar"],
     commonsResources["en-US"],
     appForLocale("ar"),
   ),

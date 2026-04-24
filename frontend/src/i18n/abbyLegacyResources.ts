@@ -487,6 +487,69 @@ const hiAbbyLegacy: MessageTree = mergeMessageTrees(enAbbyLegacy, {
   },
 });
 
+const arAbbyLegacy: MessageTree = mergeMessageTrees(enAbbyLegacy, {
+  abbyLegacy: {
+    panel: {
+      subtitle: "منشئ المجموعات الذكي",
+      newQuery: "استعلام جديد",
+      examplesTitle: "جرّب مثالا",
+      examples: {
+        diabetesMetformin: "مرضى السكري من النوع الثاني الذين يتناولون الميتفورمين",
+        aceInhibitors:
+          "مستخدمون جدد لمثبطات ACE من دون قصور قلب سابق",
+        hipFracture: "مرضى بعمر 65 عاما فأكثر لديهم أول كسر في الورك",
+        breastCancerChemo:
+          "نساء مصابات بسرطان الثدي تلقين علاجا كيميائيا",
+      },
+      analyzing: "تقوم Abby بتحليل سؤالك البحثي",
+      errorTitle: "حدث خطأ ما",
+      errorFallback: "تعذرت معالجة طلبك. يرجى المحاولة مرة أخرى.",
+      analysisTitle: "التحليل",
+      conceptSetsTitle: "مجموعات المفاهيم ({{count}})",
+      conceptsCount_one: "{{count}} مفهوم",
+      conceptsCount_other: "{{count}} مفاهيم",
+      applyToBuilder: "تطبيق على المنشئ",
+      refine: "تنقيح",
+      refinePlaceholder: "كيف ترغب في تعديل هذه المجموعة؟",
+      refineCohort: "تنقيح المجموعة",
+      promptPlaceholder: "صف الفئة السكانية المستهدفة...",
+      buildCohort: "إنشاء مجموعة",
+    },
+    plan: {
+      title: "خطة العمل",
+      status: {
+        executing: "جار التنفيذ...",
+        completed: "مكتمل",
+        failed: "فشل",
+        cancelled: "أُلغي",
+      },
+      actions: {
+        approveAndExecute: "اعتماد وتنفيذ",
+        cancel: "إلغاء",
+      },
+      runningSteps: "جار تشغيل خطوات الخطة...",
+      success: "اكتملت جميع الخطوات بنجاح.",
+      failure: "فشلت خطوة واحدة أو أكثر. تم تخطي الخطوات المتبقية.",
+    },
+    profile: {
+      loading: "جار تحميل الملف الشخصي...",
+      failed: "تعذر تحميل الملف الشخصي",
+      title: "ملفي البحثي",
+      reset: "إعادة تعيين",
+      researchInterests: "الاهتمامات البحثية",
+      expertise: "الخبرة",
+      responseStyle: "أسلوب الاستجابة",
+      verbosity: {
+        terse: "موجز",
+        normal: "قياسي",
+        verbose: "مفصل",
+      },
+      learningMessage:
+        "تتعلم Abby اهتماماتك البحثية. واصل الدردشة وستنشئ ملفك الشخصي تلقائيا.",
+    },
+  },
+});
+
 export const abbyLegacyResources: Record<string, MessageTree> = {
   "en-US": enAbbyLegacy,
   "es-ES": esAbbyLegacy,
@@ -673,6 +736,6 @@ export const abbyLegacyResources: Record<string, MessageTree> = {
   }),
   "ko-KR": koAbbyLegacy,
   "hi-IN": hiAbbyLegacy,
-  ar: mergeMessageTrees(enAbbyLegacy, {}),
+  ar: arAbbyLegacy,
   "en-XA": mergeMessageTrees(enAbbyLegacy, {}),
 };
