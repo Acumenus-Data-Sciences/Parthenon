@@ -9,18 +9,24 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Grant REFERENCES on sources to parthenon_owner so the FK below can be
-        // added when running as that role. Skipped gracefully if role is absent.
+        // Grant REFERENCES on sources and condition_bundles to parthenon_owner so
+        // the FK constraints below can be added when running as that role.
+        // Use SAVEPOINTs so a failed GRANT (role absent in CI) rolls back only to
+        // the savepoint and does NOT poison the outer migration transaction.
+        DB::unprepared('SAVEPOINT grant_refs_1');
         try {
             DB::statement('GRANT REFERENCES ON TABLE app.sources TO parthenon_owner');
+            DB::unprepared('RELEASE SAVEPOINT grant_refs_1');
         } catch (Exception $e) {
-            // Role may not exist in all environments; FK will succeed as superuser.
+            DB::unprepared('ROLLBACK TO SAVEPOINT grant_refs_1');
         }
 
+        DB::unprepared('SAVEPOINT grant_refs_2');
         try {
             DB::statement('GRANT REFERENCES ON TABLE app.condition_bundles TO parthenon_owner');
+            DB::unprepared('RELEASE SAVEPOINT grant_refs_2');
         } catch (Exception $e) {
-            // Role may not exist in all environments; FK will succeed as superuser.
+            DB::unprepared('ROLLBACK TO SAVEPOINT grant_refs_2');
         }
 
         // Conditional SET ROLE — skips gracefully when parthenon_owner is absent

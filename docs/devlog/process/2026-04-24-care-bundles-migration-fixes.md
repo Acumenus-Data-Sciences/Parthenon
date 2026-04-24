@@ -26,3 +26,12 @@ The `feat(care-bundles)` commit (2eeaf9d) was made with `--no-verify`, leaving 6
 - `LoadVocabularyCommand::handle()` returns `self::SUCCESS` (0) when
   prerequisites are validated — was returning `self::INVALID` (2), breaking
   two `LoadVocabularyCommandTest` assertions.
+
+## CI fix (2026-04-24, session 3)
+
+- Replaced bare `try { GRANT } catch {}` blocks with SAVEPOINT/ROLLBACK TO
+  SAVEPOINT pattern in all four care-bundle migrations. A failed GRANT (when
+  `parthenon_owner` does not exist in CI) poisoned the PostgreSQL transaction
+  even though PHP caught the exception — subsequent `SQLSTATE[25P02]` aborted
+  the entire migration. SAVEPOINTs isolate each GRANT failure to its own
+  mini-rollback, leaving the outer transaction intact.

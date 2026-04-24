@@ -9,27 +9,32 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Grant REFERENCES on condition_bundles and sources to parthenon_owner
+        // Grant REFERENCES on condition_bundles, sources, and users to parthenon_owner
         // so the FK constraints below can be added when running as parthenon_owner.
-        // Both tables were created before the parthenon_owner pattern was adopted;
-        // their REFERENCES privilege must be granted explicitly. Idempotent.
-        // Skipped gracefully if the role does not exist (e.g. CI fresh DB).
+        // Use SAVEPOINTs so a failed GRANT (role absent in CI) rolls back only to
+        // the savepoint and does NOT poison the outer migration transaction.
+        DB::unprepared('SAVEPOINT grant_refs_1');
         try {
             DB::statement('GRANT REFERENCES ON TABLE app.condition_bundles TO parthenon_owner');
+            DB::unprepared('RELEASE SAVEPOINT grant_refs_1');
         } catch (Exception $e) {
-            // Role may not exist in all environments; FK will succeed as superuser.
+            DB::unprepared('ROLLBACK TO SAVEPOINT grant_refs_1');
         }
 
+        DB::unprepared('SAVEPOINT grant_refs_2');
         try {
             DB::statement('GRANT REFERENCES ON TABLE app.sources TO parthenon_owner');
+            DB::unprepared('RELEASE SAVEPOINT grant_refs_2');
         } catch (Exception $e) {
-            // Role may not exist in all environments; FK will succeed as superuser.
+            DB::unprepared('ROLLBACK TO SAVEPOINT grant_refs_2');
         }
 
+        DB::unprepared('SAVEPOINT grant_refs_3');
         try {
             DB::statement('GRANT REFERENCES ON TABLE app.users TO parthenon_owner');
+            DB::unprepared('RELEASE SAVEPOINT grant_refs_3');
         } catch (Exception $e) {
-            // Role may not exist in all environments; FK will succeed as superuser.
+            DB::unprepared('ROLLBACK TO SAVEPOINT grant_refs_3');
         }
 
         // Ensure tables are owned by parthenon_owner so default privileges
