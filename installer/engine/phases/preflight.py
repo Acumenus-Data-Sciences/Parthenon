@@ -1,6 +1,7 @@
 # installer/engine/phases/preflight.py
 from __future__ import annotations
 
+import re
 import subprocess
 
 from ..exceptions import StepError
@@ -18,10 +19,10 @@ def _run_check_docker(ctx: Context) -> None:
     version = utils.docker_version()
     if version is None:
         raise StepError("Docker is not installed or not running. Install Docker Desktop and retry.")
-    try:
-        major = int(version.split(".")[0])
-    except ValueError:
+    m = re.search(r"(\d+)\.\d+", version)
+    if not m:
         raise StepError(f"Cannot parse Docker version: {version!r}")
+    major = int(m.group(1))
     if major < 24:
         raise StepError(f"Docker {version} is too old. Version 24+ is required.")
     ctx.emit(f"Docker {version} — OK")
@@ -31,8 +32,9 @@ def _run_check_compose(ctx: Context) -> None:
     version = utils.docker_compose_version()
     if version is None:
         raise StepError("Docker Compose v2 is not available. Update Docker Desktop.")
-    if not version.startswith("v2") and not version.startswith("2"):
-        raise StepError(f"Docker Compose {version} is v1. Compose v2+ is required.")
+    m = re.search(r"v?(\d+)\.\d+", version)
+    if not m or int(m.group(1)) < 2:
+        raise StepError(f"Docker Compose {version} is v1 or unrecognized. Compose v2+ is required.")
     ctx.emit(f"Docker Compose {version} — OK")
 
 
