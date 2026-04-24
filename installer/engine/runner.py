@@ -31,7 +31,7 @@ class StepRunner:
         phases = self._registry.phases()
         phase_total = len(phases)
 
-        if not resume:
+        if not resume or not self._checkpoint._path.exists():
             self._checkpoint.initialize(self._registry.all_step_ids())
 
         state = self._checkpoint.load()
@@ -91,6 +91,8 @@ class StepRunner:
                        step_total, step_total, f"{phase.name} complete")
 
         self._checkpoint.delete()
+        if not phases:
+            return True
         last = phases[-1]
         self._emit("install_done", last, None, phase_total, phase_total,
                    0, 0, "Installation complete.")
