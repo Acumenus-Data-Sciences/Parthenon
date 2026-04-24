@@ -13,12 +13,12 @@ test('create-cdm-schema calls R Plumber API and succeeds', function () {
     ]);
 
     $this->artisan('omop:create-cdm-schema', [
-        '--dialect'    => 'postgresql',
-        '--host'       => 'db.example.com',
-        '--port'       => '5432',
-        '--database'   => 'omop_db',
-        '--username'   => 'reader',
-        '--password'   => 'secret',
+        '--dialect' => 'postgresql',
+        '--host' => 'db.example.com',
+        '--port' => '5432',
+        '--database' => 'omop_db',
+        '--username' => 'reader',
+        '--password' => 'secret',
         '--cdm-schema' => 'omop',
     ])->assertExitCode(0);
 
@@ -34,10 +34,10 @@ test('create-cdm-schema fails when R API returns error status', function () {
     ]);
 
     $this->artisan('omop:create-cdm-schema', [
-        '--dialect'    => 'postgresql',
-        '--host'       => 'db.example.com',
-        '--port'       => '5432',
-        '--database'   => 'omop_db',
+        '--dialect' => 'postgresql',
+        '--host' => 'db.example.com',
+        '--port' => '5432',
+        '--database' => 'omop_db',
         '--cdm-schema' => 'omop',
     ])->assertExitCode(1);
 });
@@ -48,7 +48,7 @@ test('create-cdm-schema fails when R API HTTP error', function () {
     ]);
 
     $this->artisan('omop:create-cdm-schema', [
-        '--host'     => 'db.example.com',
+        '--host' => 'db.example.com',
         '--database' => 'omop_db',
     ])->assertExitCode(1);
 });
