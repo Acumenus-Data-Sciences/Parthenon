@@ -46830,6 +46830,312 @@ const arAppPass3: MessageTree = mergeMessageTrees(arAppPass2, {
   }
 });
 
+const arAppPass4: MessageTree = mergeMessageTrees(arAppPass3, {
+  "studies": {
+    "metrics": {
+      "total": "الإجمالي",
+      "active": "نشط",
+      "preStudy": "ما قبل الدراسة",
+      "inProgress": "قيد التنفيذ",
+      "postStudy": "ما بعد الدراسة"
+    },
+    "studyTypes": {
+      "characterization": "التوصيف",
+      "comparativeEffectiveness": "مقارن",
+      "safetySurveillance": "السلامة",
+      "drugUtilization": "استخدام الأدوية",
+      "custom": "مخصص"
+    },
+    "statuses": {
+      "draft": "مسودة",
+      "protocol_development": "تطوير البروتوكول",
+      "feasibility": "الجدوى",
+      "irb_review": "مراجعة لجنة الأخلاقيات",
+      "execution": "التنفيذ",
+      "analysis": "التحليل",
+      "published": "منشور",
+      "archived": "مؤرشف"
+    },
+    "priorities": {
+      "critical": "حرج",
+      "high": "عالٍ",
+      "medium": "متوسط",
+      "low": "منخفض"
+    },
+    "phases": {
+      "activeMetric": "نشط",
+      "pre_study": "ما قبل الدراسة",
+      "active": "قيد التنفيذ",
+      "post_study": "ما بعد الدراسة"
+    },
+    "analyses": {
+      "selectSource": "اختر مصدرًا...",
+      "executeAll": "تشغيل الكل",
+      "addAnalysisToStudy": "إضافة تحليل إلى الدراسة",
+      "emptyMessage": "أضف التوصيفات والتقديرات والتنبؤات وغير ذلك لبناء مسار التحليل الخاص بك",
+      "openAnalysisDetail": "فتح تفاصيل التحليل",
+      "confirmRemove": "إزالة هذا التحليل من الدراسة؟",
+      "removeFromStudy": "إزالة من الدراسة",
+      "analysisId": "معرّف التحليل",
+      "lastRun": "آخر تشغيل",
+      "error": "خطأ",
+      "viewFullDetail": "عرض التفاصيل الكاملة"
+    },
+    "federated": {
+      "loadingResults": "جارٍ تحميل النتائج...",
+      "unknownError": "خطأ غير معروف",
+      "arachneNotReachable": "لا يمكن الوصول إلى Arachne Central",
+      "loadNodesFailed": "تعذر تحميل عقد Arachne",
+      "arachneConnectionHelp": "عيّن ARACHNE_URL في بيئتك لتمكين التنفيذ الاتحادي. وتأكد من أن Arachne Central يعمل ويمكن الوصول إليه.",
+      "availableDataNodes": "عُقد البيانات المتاحة",
+      "poweredByArachne": "مدعوم بواسطة Arachne",
+      "noNodes": "لم تُهيأ أي عقد Arachne. عيّن ARACHNE_URL في البيئة لتمكين التنفيذ الاتحادي.",
+      "distributionSucceeded": "تم توزيع الدراسة بنجاح. تابع الحالة أدناه.",
+      "federatedExecutions": "عمليات التنفيذ الاتحادي",
+      "noExecutions": "لا توجد عمليات تنفيذ اتحادي بعد. حدّد عقد البيانات أعلاه ووزّع للبدء.",
+      "statuses": {
+        "PENDING": "قيد الانتظار",
+        "EXECUTING": "قيد التنفيذ",
+        "COMPLETED": "مكتمل",
+        "FAILED": "فشل"
+      },
+      "table": {
+        "name": "الاسم",
+        "status": "الحالة",
+        "cdmVersion": "إصدار CDM",
+        "patients": "المرضى",
+        "lastSeen": "آخر ظهور",
+        "node": "العقدة",
+        "submitted": "تم الإرسال",
+        "completed": "اكتمل"
+      }
+    },
+    "cohorts": {
+      "actions": {
+        "assignCohort": "تعيين مجموعة",
+        "assign": "تعيين",
+        "cancel": "إلغاء",
+        "save": "حفظ",
+        "edit": "تحرير تعيين المجموعة",
+        "remove": "إزالة تعيين المجموعة"
+      },
+      "form": {
+        "assignTitle": "تعيين تعريف مجموعة",
+        "cohortDefinition": "تعريف المجموعة",
+        "role": "الدور",
+        "label": "التسمية",
+        "labelPlaceholder": "مثال: مجتمع T2DM المستهدف",
+        "description": "الوصف",
+        "optional": "اختياري"
+      },
+      "empty": {
+        "title": "لم تُعيَّن أي مجموعات",
+        "message": "عيّن تعريفات المجموعات وحدّد أدوارها في هذه الدراسة"
+      },
+      "messages": {
+        "allAssigned": "جميع تعريفات المجموعات معيّنة بالفعل",
+        "noMatchingCohorts": "لا توجد مجموعات مطابقة"
+      },
+      "confirmRemove": "إزالة تعيين هذه المجموعة؟",
+      "roles": {
+        "target": "مستهدف",
+        "comparator": "مقارن",
+        "outcome": "نتيجة",
+        "exclusion": "استبعاد",
+        "subgroup": "مجموعة فرعية",
+        "event": "حدث"
+      }
+    },
+    "milestones": {
+      "actions": {
+        "addMilestone": "إضافة معلم",
+        "cancel": "إلغاء",
+        "create": "إنشاء",
+        "save": "حفظ",
+        "edit": "تحرير المعلم",
+        "delete": "حذف المعلم"
+      },
+      "form": {
+        "titlePlaceholder": "عنوان المعلم..."
+      },
+      "empty": {
+        "title": "لا توجد معالم",
+        "message": "تابع تقدم الدراسة باستخدام المعالم والتواريخ المستهدفة"
+      },
+      "confirmDelete": "حذف هذا المعلم؟",
+      "types": {
+        "protocol": "بروتوكول",
+        "data_access": "الوصول إلى البيانات",
+        "analysis": "تحليل",
+        "review": "مراجعة",
+        "publication": "نشر",
+        "custom": "مخصص"
+      },
+      "statuses": {
+        "pending": "قيد الانتظار",
+        "in_progress": "قيد التنفيذ",
+        "completed": "مكتمل",
+        "overdue": "متأخر",
+        "cancelled": "ملغي"
+      }
+    },
+    "activity": {
+      "title": "سجل النشاط",
+      "empty": {
+        "title": "لا يوجد نشاط بعد",
+        "message": "ستظهر هنا الإجراءات المتخذة على هذه الدراسة"
+      },
+      "pagination": {
+        "previous": "السابق",
+        "next": "التالي"
+      },
+      "actions": {
+        "created": "أُنشئ",
+        "updated": "حُدّث",
+        "deleted": "حُذف",
+        "status_changed": "تغيّرت الحالة",
+        "member_added": "أُضيف عضو",
+        "member_removed": "أُزيل عضو",
+        "site_added": "أُضيف موقع",
+        "analysis_added": "أُضيف تحليل",
+        "executed": "تم التنفيذ"
+      },
+      "entities": {
+        "study": "دراسة",
+        "study_analysis": "تحليل دراسة",
+        "study_artifact": "مُخرج دراسة",
+        "study_cohort": "مجموعة الدراسة",
+        "study_milestone": "معلم الدراسة",
+        "study_site": "موقع الدراسة",
+        "study_team_member": "عضو فريق الدراسة"
+      }
+    },
+    "designer": {
+      "title": "مترجم تصميم الدراسات في OHDSI",
+      "subtitle": "حوّل سؤالًا بحثيًا تمت مراجعته إلى مجموعات مفاهيم قابلة للتتبع، ومجموعات، وأدلة جدوى، وخطط تحليل جاهزة لـ HADES، وحزمة دراسة مقفلة.",
+      "researchQuestionPlaceholder": "بين البالغين المصابين بـ...، هل يؤدي... مقارنةً بـ... إلى تقليل...",
+      "versionStatuses": {
+        "generated": "مُولَّد",
+        "review_ready": "جاهز للمراجعة",
+        "accepted": "مقبول",
+        "locked": "مقفل"
+      },
+      "metrics": {
+        "assets": "الأصول"
+      },
+      "actions": {
+        "downloadLockedPackage": "تنزيل الحزمة المقفلة",
+        "downloadPackage": "تنزيل الحزمة",
+        "add": "إضافة",
+        "saveChanges": "حفظ التغييرات"
+      },
+      "sections": {
+        "verificationGates": "بوابات التحقق",
+        "packageProvenance": "مصدر الحزمة",
+        "assetEvidence": "أدلة الأصول",
+        "basicInformation": "المعلومات الأساسية",
+        "addAnalysis": "إضافة تحليل"
+      },
+      "descriptions": {
+        "verificationGates": "عالِج العوائق قبل قفل حزمة OHDSI.",
+        "assetEvidence": "راجع مخرجات أداة التحقق المحجوبة قبل قبول الحزمة."
+      },
+      "gates": {
+        "designIntent": "نية التصميم",
+        "acceptResearchQuestion": "اقبل السؤال البحثي الذي تمت مراجعته.",
+        "feasibilityReady": "أدلة الجدوى المتحقق منها جاهزة.",
+        "runFeasibility": "شغّل الجدوى بعد التحقق من المجموعات.",
+        "analysisPlan": "خطة التحليل",
+        "analysisPlanReady": "خطة التحليل المعتمدة لـ HADES جاهزة.",
+        "verifyAnalysisPlan": "تحقق من خطة التحليل وقم بتجسيدها."
+      },
+      "labels": {
+        "version": "الإصدار",
+        "verifiedAssets": "الأصول المتحقق منها",
+        "title": "العنوان",
+        "description": "الوصف",
+        "studyType": "نوع الدراسة",
+        "analysisType": "نوع التحليل",
+        "analysis": "التحليل",
+        "missingOmopIds": "معرّفات OMOP المفقودة",
+        "deprecatedOmopIds": "معرّفات OMOP المتقادمة",
+        "invalidDraftIds": "معرّفات المسودات غير الصالحة"
+      },
+      "analysisTypes": {
+        "characterization": "التوصيف",
+        "incidence-rate": "معدل الحدوث",
+        "pathway": "المسار",
+        "estimation": "التقدير",
+        "prediction": "التنبؤ"
+      },
+      "messages": {
+        "new": "جديد",
+        "none": "لا شيء",
+        "notStarted": "لم يبدأ",
+        "createOrImport": "أنشئ تصميمًا أو استورده للبدء.",
+        "needsEvidence": "يحتاج إلى أدلة",
+        "noVersion": "لا يوجد إصدار",
+        "noBlockers": "لا توجد عوائق",
+        "startEvidenceReview": "ولّد النية أو استورد الدراسة الحالية لبدء مراجعة الأدلة.",
+        "noAnalyses": "لم تُضف أي تحليلات بعد."
+      }
+    }
+  },
+  "dataExplorer": {
+    "charts": {
+      "common": {
+        "separator": "|"
+      }
+    },
+    "ares": {
+      "feasibility": {
+        "status": {
+          "eligible": "مؤهل",
+          "ineligible": "غير مؤهل"
+        }
+      },
+      "dqHistory": {
+        "status": {
+          "new": "جديد",
+          "existing": "قائم",
+          "resolved": "تم الحل",
+          "stable": "مستقر"
+        },
+        "result": {
+          "fail": "فشل"
+        }
+      }
+    }
+  },
+  "vocabulary": {
+    "mappingAssistant": {
+      "labels": {
+        "noValue": "غير متوفر",
+        "separator": "|"
+      }
+    }
+  },
+  "administration": {
+    "authProviders": {
+      "oauthForm": {
+        "labels": {
+          "tokenUrl": "رابط رمز الوصول"
+        }
+      }
+    },
+    "atlasMigration": {
+      "connect": {
+        "webapiUrl": "رابط WebAPI الأساسي"
+      }
+    },
+    "fhirConnections": {
+      "labels": {
+        "fhirBaseUrl": "رابط FHIR الأساسي"
+      }
+    }
+  }
+});
+
 export const appResources: Record<string, MessageTree> = {
   "en-US": enApp,
   "es-ES": esAppPass1,
@@ -46841,5 +47147,5 @@ export const appResources: Record<string, MessageTree> = {
   "zh-Hans": zhApp,
   "ko-KR": koAppPass1,
   "hi-IN": hiAppPass1,
-  ar: arAppPass3,
+  ar: arAppPass4,
 };

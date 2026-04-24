@@ -4299,6 +4299,63 @@ const hiAbbyLayout: MessageTree = mergeMessageTrees(enAbbyLayout, {
   },
 });
 
+const arAbbyLayout: MessageTree = {
+  panel: {
+    dialogLabel: "المساعد الذكي",
+    conversationHistory: "سجل المحادثات",
+    newChat: "محادثة جديدة",
+    closePanel: "إغلاق لوحة الذكاء الاصطناعي",
+    backToChat: "العودة إلى الدردشة",
+    noPastConversations: "لا توجد محادثات سابقة",
+    deleteConversation: "حذف المحادثة",
+    suggestedPrompts: "مطالبات مقترحة",
+    sendMessage: "إرسال الرسالة",
+    untitledConversation: "بلا عنوان",
+    time: {
+      justNow: "للتو",
+    },
+  },
+  about: {
+    title: "حول Abby",
+    images: {
+      abbyAlt: "Abby - مساعد Parthenon بالذكاء الاصطناعي",
+      abbyCaption: "Abby - مساعد الأبحاث بالذكاء الاصطناعي",
+    },
+    subtitle: "مساعد Parthenon البحثي بالذكاء الاصطناعي",
+    dedication: {
+      title: "إحياءً لذكرى أبيغيل غايزنغر",
+      namedPrefix: "سُمّيت Abby تكريمًا لـ",
+      namedSuffix:
+        "(1827-1921)، المحسنة الرائدة التي أسست ما سيصبح أحد أكثر الأنظمة الصحية ابتكارًا في الولايات المتحدة.",
+      age85:
+        "في سن الخامسة والثمانين، وكانت أرملة بلا أطفال، نظرت أبيغيل إلى مجتمعها الريفي في دانفيل بولاية بنسلفانيا ورأت مشكلة لم يكن أحد غيرها يعالجها: لم يكن هناك مستشفى. وكان المرضى يُنقلون بالعربة - ثم لاحقًا بسيارتها الشخصية Hupmobile - إلى أقرب مرفق في صنبري. فقررت أنها ستصلح ذلك.",
+      founding:
+        "في عام 1912، جمعت مجموعة من الناس وحوّلت رؤيتها إلى واقع. واستدعت بنفسها الأخوين Mayo ليُوصيا بطبيب جدير بقيادة مستشفاها. فأرسلا لها الدكتور Harold Foss، الذي كان يمارس الطب على الضفاف المتجمدة لنهر Kiwalik في Candle بألاسكا. أقنعته بالمجيء إلى بنسلفانيا. وُضع حجر الأساس في عام 1913. وعندما افتُتح مستشفى George F. Geisinger Memorial Hospital في 12 سبتمبر 1915، كان وباء التيفوئيد قد اجتاح دانفيل قبل ذلك بأسبوعين فقط - وكان مستشفاها ينقذ الأرواح بالفعل.",
+      mottoIntro: "كان شعارها أثناء البناء ثابتًا لا يتزعزع:",
+      motto: '"اجعلوا مستشفاي صحيحًا. اجعلوه الأفضل."',
+      service:
+        "لم تكن مجرد محسنة تكتب الشيكات. كانت تزور المرضى وتحمل لهم الزهور من حديقتها الخاصة. وفي عيد الميلاد، كانت توزع سلال الفاكهة في أنحاء المجتمع. وخلال الحرب العالمية الأولى، تطوعت لرعاية الجنود الجرحى واتصلت شخصيًا بقادة وطنيين لتعرض خدمات مستشفاها. وتُظهر صور حفل وضع حجر الأساس أنها كانت تضحك ورأسها مرفوع إلى الخلف - امرأة تجمع بين الدفء وروح الدعابة وصلابة العزيمة.",
+      legacy:
+        "عندما توفيت أبيغيل غايزنغر في 8 يوليو 1921 عن عمر 94 عامًا، تركت أكثر من مليون دولار لضمان بقاء مستشفاها. وهي مدفونة في مقبرة تطل على المؤسسة التي شيدتها - حارسة صامتة تشاهد أعظم إنجاز في حياتها وهو ينمو من 44 سريرًا و13 فدانًا إلى نظام صحي يضم عشرة مستشفيات، ويُدرّب أجيالًا من الأطباء، ويمس حياة الملايين.",
+    },
+    why: {
+      title: "لماذا سمّيناها Abby",
+      problem:
+        "رأت أبيغيل غايزنغر أن الرعاية الصحية كانت شديدة التشرذم، وصعبة الوصول، ومعقدة على الناس الذين يحتاجون إليها أكثر من غيرهم. ولم تقبل أن يكون هذا هو الواقع الذي لا بد منه. فبنت شيئًا أفضل.",
+      parthenon:
+        "يوجد Parthenon للسبب نفسه. إن منظومة OHDSI - Atlas وWebAPI وAchilles وعشرات الأدوات الأخرى - قوية لكنها مجزأة. يقضي الباحثون وقتًا أطول في مصارعة الأدوات من الإجابة عن الأسئلة السريرية. يجمع Parthenon كل ذلك تحت سقف واحد، تمامًا كما جلبت أبيغيل الطب الحديث إلى مجتمع لم يكن يملكه.",
+      abbyPrefix:
+        "تحمل Abby، مساعدتنا بالذكاء الاصطناعي، روح من سُمّيت باسمها: فهي تساعد الباحثين على وصف المجموعات بلغة إنجليزية بسيطة، وتربط المفاهيم عبر المفردات، وتسعى إلى جعل المعقد في متناول الجميع. إنها تحيتنا الصغيرة لامرأة نظرت إلى مشكلة مستحيلة وقالت ببساطة،",
+      abbyQuote: '"سأصلح ذلك."',
+    },
+    footer: {
+      dedication:
+        "مهدى بإعجاب إلى ذكرى أبيغيل أ. غايزنغر (1827-1921)",
+      founder: "مؤسسة Geisinger Medical Center - دانفيل، بنسلفانيا",
+    },
+  },
+};
+
 function withAbbyLayout(
   namespaces: ParthenonNamespaces,
   abbyLayout: MessageTree,
@@ -4678,6 +4735,38 @@ const hiCommonUi: MessageTree = mergeMessageTrees(enCommonUi, {
     },
   },
 });
+
+const arCommonUi: MessageTree = {
+  aria: {
+    breadcrumb: "مسار التنقل",
+    copyCode: "نسخ الشيفرة",
+    close: "إغلاق",
+    dismiss: "تجاهل",
+  },
+  codeFallback: "شيفرة",
+  job: {
+    status: {
+      pending: "قيد الانتظار",
+      running: "قيد التشغيل",
+      completed: "مكتمل",
+      failed: "فشل",
+    },
+    progress: "التقدم",
+    duration: "المدة",
+    elapsed: "المنقضي",
+    completedSuccessfully: "اكتملت المهمة بنجاح.",
+  },
+  tags: {
+    filterByTag: "التصفية حسب الوسم:",
+    search: "بحث",
+    clearAll: "مسح الكل",
+    done: "تم",
+    sort: {
+      selectedFirst: "المحدد أولًا",
+      byCount: "حسب العدد",
+    },
+  },
+};
 
 function withCommonUi(
   namespaces: ParthenonNamespaces,
@@ -7374,6 +7463,248 @@ const hiAuthSetup: MessageTree = mergeMessageTrees(enAuthSetup, {
   },
 });
 
+const arAuthSetup: MessageTree = {
+  setup: {
+    wizard: {
+      steps: {
+        welcome: "مرحبًا",
+        security: "الأمان",
+        health: "السلامة",
+        auth: "المصادقة",
+        dataSources: "مصادر البيانات",
+        complete: "الاكتمال",
+      },
+      close: "إغلاق",
+      skipSetup: "تخطي الإعداد - يمكنك العودة في أي وقت عبر الإدارة",
+      previous: "السابق",
+      next: "التالي",
+      skip: "تخطي",
+      skipStep: "تخطَّ هذه الخطوة - يمكنك تهيئتها لاحقًا من الإدارة",
+    },
+    welcome: {
+      title: "مرحبًا بك في Parthenon",
+      intro:
+        "دعنا نهيئ منصة الأبحاث الخاصة بك. يرشدك هذا المعالج عبر خطوات الإعداد الأساسية، ويمكن تخطي كل خطوة والعودة إليها في أي وقت من لوحة الإدارة.",
+      configureTitle: "ما الذي سنهيئه",
+      beforeTitle: "قبل أن تبدأ",
+      optionalNote: "لا يلزم إكمال أي من الخطوات الاختيارية للمتابعة.",
+      overview: {
+        systemHealth: {
+          label: "سلامة النظام",
+          description: "تحقق من أن جميع خدمات المنصة تعمل بصورة صحيحة.",
+        },
+        aiProvider: {
+          label: "مزوّد الذكاء الاصطناعي",
+          description: "هيّئ الواجهة الخلفية للذكاء الاصطناعي التي تشغّل Abby.",
+        },
+        authentication: {
+          label: "المصادقة",
+          description:
+            "أعد إعداد مزوّدي SSO مثل LDAP وOAuth وOIDC.",
+        },
+        dataSources: {
+          label: "مصادر البيانات",
+          description:
+            "اربط قواعد بيانات CDM أو استورد من WebAPI قديم.",
+        },
+      },
+      before: {
+        cdm: "يمكن الوصول إلى قاعدة بيانات OMOP CDM الخاصة بك من هذا الخادم",
+        docker:
+          "يعمل Docker وجميع الحاويات (وسيتم التحقق من ذلك في الخطوة التالية)",
+        ollama:
+          "يعمل Ollama محليًا إذا كنت تريد ميزات الذكاء الاصطناعي (اختياري)",
+        sso:
+          "لديك تفاصيل SSO الخاصة بمؤسستك إذا كنت ستفعّل تسجيل الدخول الموحد (اختياري)",
+      },
+    },
+    changePassword: {
+      strength: {
+        weak: "ضعيفة",
+        fair: "مقبولة",
+        good: "جيدة",
+        strong: "قوية",
+        excellent: "ممتازة",
+        tooShort: "قصيرة جدًا",
+      },
+      errors: {
+        mismatch: "كلمتا المرور غير متطابقتين.",
+        tooShort: "يجب ألا تقل كلمة المرور الجديدة عن 8 أحرف.",
+        same: "يجب أن تختلف كلمة المرور الجديدة عن كلمة المرور الحالية.",
+        failed: "فشل تغيير كلمة المرور. يرجى المحاولة مرة أخرى.",
+      },
+      successTitle: "تم تحديث كلمة المرور",
+      successDescription: "أصبح حسابك مؤمّنًا. تابع إلى الخطوة التالية.",
+      title: "أمّن حسابك",
+      intro:
+        "تم إنشاء كلمة مرور مؤقتة أثناء التثبيت. حدّد كلمة مرور دائمة قبل المتابعة.",
+      temporaryTitle: "تم إنشاء بيانات اعتماد مؤقتة أثناء التثبيت",
+      temporaryPrefix: "توجد كلمة المرور المؤقتة في",
+      temporarySuffix:
+        "في جذر المستودع. أدخلها أدناه، ثم اختر كلمة مرور دائمة.",
+      currentLabel: "كلمة المرور الحالية (المؤقتة)",
+      currentPlaceholder: "أدخل كلمة المرور المؤقتة",
+      newLabel: "كلمة المرور الجديدة",
+      newPlaceholder: "8 أحرف على الأقل",
+      toggleNewVisibility: "إظهار كلمة المرور الجديدة أو إخفاؤها",
+      confirmLabel: "تأكيد كلمة المرور الجديدة",
+      confirmPlaceholder: "أعد إدخال كلمة المرور الجديدة",
+      submit: "تعيين كلمة مرور دائمة",
+    },
+    systemHealth: {
+      status: {
+        healthy: "سليم",
+        degraded: "متدهور",
+        down: "متوقف",
+      },
+      queue: {
+        pending: "قيد الانتظار",
+        failed: "فشل",
+      },
+      aiUnhealthy:
+        "لا يستجيب Abby AI - هيّئ المزوّد في الخطوة التالية.",
+      configureAi: "تهيئة الذكاء الاصطناعي",
+      title: "فحص سلامة النظام",
+      intro: "جارٍ التحقق من أن جميع خدمات المنصة تعمل بصورة صحيحة.",
+      refresh: "تحديث",
+      checking: "جارٍ التحقق من الخدمات...",
+      autoRefresh: "يُحدَّث تلقائيًا كل 30 ثانية.",
+    },
+    aiProvider: {
+      switchToThis: "التبديل إلى هذا",
+      testFailed: "فشل اختبار الاتصال.",
+      loading: "جارٍ تحميل مزوّدي الذكاء الاصطناعي...",
+      title: "تهيئة مزوّد الذكاء الاصطناعي",
+      intro:
+        "هيّئ الواجهة الخلفية التي تشغّل Abby، مساعد الأبحاث. لا يمكن تنشيط سوى مزوّد واحد في كل مرة.",
+      activeProvider: "المزوّد النشط:",
+      model: "النموذج",
+      modelPlaceholder: "اسم النموذج",
+      apiKey: "مفتاح API",
+      save: "حفظ",
+      testConnection: "اختبار الاتصال",
+    },
+    authentication: {
+      providers: {
+        ldap: {
+          description: "المصادقة عبر AD أو أي دليل LDAP v3.",
+        },
+        oauth2: {
+          description:
+            "تفويض المصادقة إلى GitHub أو Google أو Microsoft أو مزوّد مخصّص.",
+        },
+        saml2: {
+          description:
+            "تسجيل دخول موحد مؤسسي عبر Okta أو Azure AD أو ADFS وغيرها.",
+        },
+        oidc: {
+          description: "تسجيل دخول موحد حديث مع PKCE واكتشاف OIDC.",
+        },
+      },
+      enabled: "ممكّن",
+      disabled: "معطّل",
+      configure: "تهيئة",
+      testConnection: "اختبار الاتصال",
+      connectionSuccessful: "تم الاتصال بنجاح",
+      connectionFailed: "فشل الاتصال",
+      loading: "جارٍ تحميل مزوّدي المصادقة...",
+      title: "مزوّدو المصادقة",
+      intro:
+        "هيّئ مزوّدي الهوية الخارجيين لتسجيل الدخول الموحد. هذه الخطوة اختيارية؛ فالمصادقة المحلية باسم المستخدم وكلمة المرور متاحة دائمًا.",
+      usernamePassword: "اسم المستخدم وكلمة المرور",
+      builtIn: "مصادقة Sanctum المدمجة - مفعّلة دائمًا.",
+      alwaysOn: "دائمًا قيد التشغيل",
+    },
+    onboarding: {
+      tour: {
+        sidebarTitle: "شريط التنقل الجانبي",
+        sidebarContent:
+          "توجد هنا كل أدواتك البحثية: مستكشف البيانات، والمفردات، وتعريفات المجموعات، ومجموعات المفاهيم، والتحليلات، وغير ذلك.",
+        commandTitle: "لوحة الأوامر (Cmd K)",
+        commandContent:
+          "انتقل بسرعة إلى أي صفحة أو إجراء من دون التنقل عبر القوائم. جرّب Cmd K (أو Ctrl+K) وابحث عن \"cohort\".",
+        dataSourcesTitle: "مصادر البيانات",
+        dataSourcesContent:
+          "اربط مصادر CDM الخاصة بك هنا. تعمل جميع التحليلات على هذه المصادر.",
+        cohortDefinitionsTitle: "تعريفات المجموعات",
+        cohortDefinitionsContent:
+          "أنشئ تعريفات مجموعات متوافقة مع OHDSI باستخدام معايير الاشتمال والاستبعاد، ثم ولّد الأعداد على أي CDM متصل.",
+        vocabularyTitle: "مستكشف المفردات",
+        vocabularyContent:
+          "ابحث في أكثر من 7 ملايين مفهوم OMOP، واستعرض التسلسلات الهرمية، وأنشئ مجموعات مفاهيم لاستخدامها في تعريفات المجموعات.",
+      },
+      cards: {
+        vocabularyTitle: "استكشف المفردات",
+        vocabularyDescription:
+          "ابحث في أكثر من 7 ملايين مفهوم OMOP وأنشئ مجموعات مفاهيم.",
+        cohortTitle: "أنشئ مجموعة",
+        cohortDescription:
+          "حدّد معايير الاشتمال والاستبعاد وأنشئ الأعداد.",
+        quickStartTitle: "اقرأ البدء السريع",
+        quickStartDescription: "من الصفر إلى عدد مجموعة خلال 15 دقيقة.",
+      },
+      skipAria: "تخطي الجولة التعريفية",
+      title: "مرحبًا بك في Parthenon",
+      intro: "منصة حديثة لأبحاث النتائج المبنية على OMOP. لنبدأ.",
+      startTour: "ابدأ الجولة السريعة",
+      skip: "أنا مألوف بها بالفعل - تخطَّ",
+    },
+    dataSources: {
+      demoTitle: "تم تحميل مجموعة بيانات Eunomia GiBleed التجريبية",
+      demoPrefix: "مجموعة بيانات OMOP اصطناعية تضم",
+      demoPatients: "2,694 مريضًا",
+      demoSuffix:
+        "وحالات نزف معدي معوي. آمنة لتشغيل تعريفات المجموعات وتحليلات التوصيف عليها، وهي مثالية لاستكشاف Parthenon قبل ربط CDM الحقيقي.",
+      loading: "جارٍ تحميل مصادر البيانات...",
+      title: "مصادر البيانات",
+      intro:
+        "اربط قواعد بيانات CDM لتشغيل تعريفات المجموعات والتحليلات عليها. ويمكنك أيضًا استيراد المصادر من مثيل OHDSI WebAPI قديم.",
+      emptyTitle: "لا توجد مصادر بيانات بعد",
+      emptyDescription:
+        "استورد من مثيل WebAPI قديم أو أضف المصادر لاحقًا من صفحة مصادر البيانات.",
+      importToggle: "استيراد من WebAPI القديم",
+      authType: "نوع المصادقة",
+      auth: {
+        none: "بلا",
+        bearer: "رمز حامل",
+        basicCredentials: "اسم المستخدم:كلمة المرور",
+      },
+      importSources: "استيراد المصادر",
+      sourceSingular: "مصدر",
+      sourcePlural: "مصادر",
+      importFailed: "فشل الاستيراد. يرجى التحقق من الرابط والمحاولة مرة أخرى.",
+      managePrefix: "أدِر مصادر البيانات في أي وقت من",
+      manageLink: "الإعدادات > مصادر البيانات",
+    },
+    complete: {
+      summaryItems: {
+        accountSecured: "تم تأمين الحساب",
+        systemHealthVerified: "تم التحقق من سلامة النظام",
+        aiProviderConfigured: "تمت تهيئة مزوّد الذكاء الاصطناعي",
+        authenticationConfigured: "تمت تهيئة المصادقة",
+        dataSourcesConnected: "تم ربط مصادر البيانات",
+      },
+      nextSteps: {
+        exploreDemoData: "استكشف البيانات التجريبية",
+        exploreDemoDataDescription:
+          "تصفّح مجموعة بيانات Eunomia GiBleed",
+        createFirstCohort: "أنشئ أول مجموعة",
+        createFirstCohortDescription: "ابنِ تعريفًا لمجموعة مرضى",
+        inviteTeam: "ادعُ أعضاء الفريق",
+        inviteTeamDescription: "أضف المستخدمين وعيّن الأدوار",
+      },
+      title: "Parthenon جاهز!",
+      allDone:
+        "اكتملت جميع خطوات الإعداد. يمكنك العودة إلى هذا المعالج في أي وقت عبر الإدارة.",
+      setupSummary: "ملخص الإعداد",
+      skipped: "(تم التخطي)",
+      fix: "إصلاح",
+      nextTitle: "ما الذي يجب فعله بعد ذلك",
+      launch: "تشغيل Parthenon",
+    },
+  },
+};
+
 function withAuthSetup(auth: MessageTree, setup: MessageTree): MessageTree {
   return mergeMessageTrees(auth, setup);
 }
@@ -7382,6 +7713,13 @@ const enSettingsNotificationPage: MessageTree = {
   notifications: {
     pageTitle: "Notification Preferences",
     pageSubtitle: "Configure how and when you receive notifications",
+  },
+};
+
+const arSettingsNotificationPage: MessageTree = {
+  notifications: {
+    pageTitle: "تفضيلات الإشعارات",
+    pageSubtitle: "هيّئ كيف ومتى تريد تلقي الإشعارات",
   },
 };
 
@@ -7546,11 +7884,14 @@ export const resources: Resource = {
     appForLocale("hi-IN"),
   ),
   ar: withProductResources(
-    withCommonUi(withAbbyLayout(ar, enAbbyLayout), enCommonUi),
+    withCommonUi(
+      withAbbyLayout(ar, mergeMessageTrees(enAbbyLayout, arAbbyLayout)),
+      mergeMessageTrees(enCommonUi, arCommonUi),
+    ),
     arSettings,
-    arSettingsDetails,
+    mergeMessageTrees(arSettingsNotificationPage, arSettingsDetails),
     arHelp,
-    withAuthSetup(arAuth, enAuthSetup),
+    withAuthSetup(arAuth, mergeMessageTrees(enAuthSetup, arAuthSetup)),
     dashboardResources["ar"],
     commonsResources["ar"] ?? commonsResources["en-US"],
     appForLocale("ar"),

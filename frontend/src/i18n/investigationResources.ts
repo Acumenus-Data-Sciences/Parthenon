@@ -6865,6 +6865,20 @@ export const investigationResources: Record<string, MessageTree> = {
   }),
   "ko-KR": koInvestigation,
   "hi-IN": hiInvestigation,
-  ar: arInvestigationPass2,
+  ar: mergeMessageTrees(arInvestigationPass2, {
+    investigation: {
+      common: {
+        tabs: {
+          openTargets: "أوبن تارجتس",
+        },
+        labels: {
+          noDate: "لا يوجد تاريخ",
+        },
+        empty: {
+          none: "لا شيء",
+        },
+      },
+    },
+  }),
   "en-XA": mergeMessageTrees(enInvestigation, {}),
 };

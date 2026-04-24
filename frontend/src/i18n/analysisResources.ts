@@ -6842,6 +6842,12 @@ export const analysisResources: Record<string, MessageTree> = {
   }),
   "ko-KR": koAnalysisResources,
   "hi-IN": hiAnalysisResources,
-  ar: arAnalysisResourcesPass1,
+  ar: mergeMessageTrees(arAnalysisResourcesPass1, {
+    analyses: {
+      auto: {
+        auc95Ci_83c298: "AUC (فاصل الثقة 95%)",
+      },
+    },
+  }),
   "en-XA": mergeMessageTrees(enAnalysisResources, {}),
 };

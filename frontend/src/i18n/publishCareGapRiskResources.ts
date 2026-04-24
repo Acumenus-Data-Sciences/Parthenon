@@ -8489,6 +8489,305 @@ export const publishCareGapRiskResources: Record<string, MessageTree> = {
   }),
   "ko-KR": koPublishCareGapRisk,
   "hi-IN": hiPublishCareGapRisk,
-  ar: arPublishCareGapRisk,
+  ar: mergeMessageTrees(arPublishCareGapRisk, {
+    careGaps: {
+      common: {
+        status: {
+          pending: "قيد الانتظار",
+          running: "قيد التشغيل",
+          completed: "مكتمل",
+          failed: "فشل",
+        },
+        actions: {
+          newBundle: "حزمة جديدة",
+          delete: "حذف",
+          evaluate: "تقييم",
+          backToList: "العودة إلى القائمة",
+          saveChanges: "حفظ التغييرات",
+          createBundle: "إنشاء حزمة",
+        },
+        category: {
+          all: "الكل",
+          endocrine: "الغدد الصماء",
+          cardiovascular: "القلبية الوعائية",
+          respiratory: "التنفسية",
+          mentalHealth: "الصحة النفسية",
+          rheumatologic: "الروماتولوجية",
+          neurological: "العصبية",
+          oncology: "الأورام",
+        },
+        bundle: {
+          active: "نشط",
+          inactive: "غير نشط",
+        },
+      },
+      page: {
+        title: "فجوات الرعاية",
+        subtitle:
+          "حزم الحالات، ومقاييس الجودة، وتتبع امتثال السكان",
+        untitledBundle: "حزمة بلا عنوان",
+        tabs: {
+          bundles: "حزم الأمراض",
+          population: "نظرة عامة على السكان",
+        },
+      },
+      bundleList: {
+        allCategories: "جميع الفئات",
+        sortName: "الاسم",
+        sortCompliance: "الامتثال",
+        noBundlesFound: "لم يتم العثور على أي حزم",
+        adjustFilters: "جرّب تعديل عوامل التصفية",
+        createToGetStarted: "أنشئ حزمة للبدء",
+      },
+      bundleDetail: {
+        failedToLoad: "تعذر تحميل الحزمة",
+        backToCareGaps: "فجوات الرعاية",
+        overallCompliance: "الامتثال الإجمالي",
+        tabs: {
+          design: "التصميم",
+          compliance: "نتائج الامتثال",
+          overlap: "قواعد التداخل",
+        },
+        executeEvaluation: "تشغيل التقييم",
+        overall: "الإجمالي",
+        totalPatients: "إجمالي المرضى",
+        gapsMet: "الفجوات المستوفاة",
+        openGaps: "الفجوات المفتوحة",
+        excluded: "المستبعدون",
+        evaluationHistory: "سجل التقييم",
+        evaluationInProgress: "التقييم جارٍ...",
+        noEvaluationResults:
+          "لا توجد نتائج تقييم بعد. شغّل تقييمًا لرؤية بيانات الامتثال.",
+        deleteConfirm: "هل أنت متأكد من حذف حزمة الحالات هذه؟",
+      },
+      bundleDesigner: {
+        bundleDetails: "تفاصيل الحزمة",
+        bundleCode: "رمز الحزمة",
+        conditionName: "اسم الحالة",
+        description: "الوصف",
+        diseaseCategory: "فئة المرض",
+        selectCategory: "اختر فئة...",
+        icd10Patterns: "أنماط ICD-10",
+        omopConceptIds: "معرّفات مفاهيم OMOP",
+        ecqmReferences: "مراجع eCQM",
+        attachedMeasures: "المقاييس المرفقة",
+        noMeasuresAttached: "لا توجد مقاييس مرفقة بهذه الحزمة.",
+        saveBundle: "حفظ الحزمة",
+        saving: "جارٍ الحفظ...",
+        add: "إضافة",
+        remove: "إزالة",
+      },
+      measureCompliance: {
+        noResultsAvailable: "لا توجد نتائج مقاييس متاحة بعد.",
+        code: "الرمز",
+        measure: "المقياس",
+        domain: "المجال",
+        eligible: "مؤهل",
+        met: "مستوفى",
+        notMet: "غير مستوفى",
+        compliance: "الامتثال",
+        deduplicated: "أزيل التكرار",
+      },
+      population: {
+        selectSourcePrompt: "اختر مصدر بيانات لعرض امتثال السكان.",
+        failedToLoad: "تعذر تحميل ملخص السكان.",
+        totalBundles: "إجمالي الحزم",
+        totalPatients: "إجمالي المرضى",
+        avgCompliance: "متوسط الامتثال",
+        totalOpenGaps: "إجمالي الفجوات المفتوحة",
+        filterByCategory: "التصفية حسب الفئة:",
+        bundleComplianceComparison: "مقارنة امتثال الحزم",
+        noBundlesMatchFilter: "لا توجد حزم تطابق عامل التصفية المحدد.",
+      },
+      overlapRules: {
+        failedToLoad: "تعذر تحميل قواعد التداخل.",
+        noneConfigured: "لم تُهيأ أي قواعد تداخل.",
+        subtitle:
+          "تمنع قواعد التداخل احتساب المقاييس مرتين عبر الحزم.",
+      },
+    },
+    publish: {
+      steps: {
+        selectAnalyses: "اختيار التحليلات",
+        configure: "تهيئة",
+        preview: "معاينة",
+        export: "تصدير",
+      },
+      page: {
+        title: "النشر",
+        subtitle:
+          "إنشاء مسودات ما قبل النشر من الدراسات والتحليلات",
+        startNewDocument: "بدء مستند جديد",
+        untitledDocument: "مستند بلا عنوان",
+      },
+      cart: {
+        empty: "لم يتم اختيار أي تحليلات بعد",
+      },
+      configurator: {
+        documentTitle: "عنوان المستند",
+        documentTitlePlaceholder: "أدخل عنوان المستند...",
+        authors: "المؤلفون (مفصولون بفواصل)",
+        authorsPlaceholder: "المؤلف الأول، المؤلف الثاني...",
+        template: "القالب",
+      },
+      preview: {
+        diagramDataNotAvailable: "بيانات المخطط غير متاحة",
+        unknownDiagramType: "نوع مخطط غير معروف",
+        reviewWarning:
+          "بعض الأقسام المولدة بالذكاء الاصطناعي لم تُراجع بعد. يرجى قبول جميع محتويات الذكاء الاصطناعي أو تحريرها قبل التصدير.",
+        noSectionContent: "لا يوجد محتوى متاح لهذا القسم.",
+        noSectionsIncluded:
+          "لا توجد أقسام مضمنة. عد إلى الخلف لتهيئة مستندك.",
+        backToConfigure: "العودة إلى التهيئة",
+        export: "تصدير",
+      },
+      exportControls: {
+        exportFormat: "صيغة التصدير",
+        comingSoon: "قريبًا",
+        exporting: "جارٍ التصدير...",
+        formats: {
+          pdf: {
+            description: "تقرير منسق كامل عبر نافذة الطباعة",
+          },
+          docx: {
+            description: "مستند Word منظم",
+          },
+          xlsx: {
+            description: "الجداول والإحصاءات في صورة جدول بيانات",
+          },
+          png: {
+            description: "المخططات كملفات صور نقطية",
+          },
+          svg: {
+            description: "المخططات كملفات صور متجهة",
+          },
+        },
+      },
+      exportPanel: {
+        draftWarning:
+          "لا تزال بعض الأقسام المولدة بالذكاء الاصطناعي في حالة مسودة. ارجع واقبل جميع المحتويات أو حررها قبل التصدير.",
+        chooseExportFormat: "اختر صيغة التصدير",
+        exporting: "جارٍ التصدير...",
+        backToPreview: "العودة إلى المعاينة",
+        formats: {
+          docx: {
+            label: "مستند Microsoft Word",
+            description: "مخطوطة جاهزة للمجلات مع أشكال مضمّنة",
+          },
+          pdf: {
+            label: "مستند PDF",
+            description: "مستند جاهز للطباعة للمراجعة والمشاركة",
+          },
+          figuresZip: {
+            label: "أشكال منفردة",
+            description: "ملفات SVG للرفع المنفصل إلى المجلات",
+          },
+        },
+      },
+      methods: {
+        studyDesign: "تصميم الدراسة",
+        primaryObjective: "الهدف الرئيسي",
+        hypothesis: "الفرضية",
+        scientificRationale: "المبرر العلمي",
+        cohortDefinitions: "تعريفات المجموعات",
+        target: "المستهدف",
+        comparator: "المقارن",
+        outcome: "النتيجة",
+        timeAtRisk: "زمن التعرض للخطر",
+        start: "البداية",
+        end: "النهاية",
+        matchingStrategy: "استراتيجية المطابقة",
+        modelSettings: "إعدادات النموذج",
+        empty:
+          "لا تتوفر بيانات للمنهجية. ستُنشأ المنهجية تلقائيًا عند توفير معلمات التحليل.",
+        defaults: {
+          observational: "رصدية",
+          cohortStart: "بداية المجموعة",
+          cohortEnd: "نهاية المجموعة",
+        },
+      },
+      reportPreview: {
+        title: "معاينة تقرير الدراسة",
+        subtitle:
+          "بدّل الأقسام تشغيلًا أو إيقافًا وأعد ترتيبها باستخدام عناصر التحكم. لن تظهر في التصدير إلا الأقسام المضمّنة.",
+        empty:
+          "لا توجد أقسام للمعاينة. ارجع واختر عمليات تنفيذ التحليل.",
+      },
+      reportSection: {
+        moveUp: "نقل للأعلى",
+        moveDown: "نقل للأسفل",
+        diagnosticsPlaceholder:
+          "ستُعرض بيانات التشخيصات في التقرير المصدَّر.",
+        includeSection: "تضمين القسم",
+        excludeSection: "استبعاد القسم",
+        included: "مضمّن",
+        excluded: "مستبعد",
+      },
+      resultsSummary: {
+        empty: "لا تتوفر بيانات نتائج لهذا التنفيذ.",
+      },
+      resultsTable: {
+        empty: "لا تتوفر بيانات منظمة لهذا الجدول.",
+      },
+      sectionEditor: {
+        tableLabel: "الجدول",
+        aiNarrative: "السرد بالذكاء الاصطناعي",
+        structuredData: "بيانات منظمة",
+        hideTable: "إخفاء الجدول",
+        showTable: "إظهار الجدول",
+        hideNarrative: "إخفاء السرد",
+        showNarrative: "إظهار السرد",
+        hideDiagram: "إخفاء المخطط",
+        showDiagram: "إظهار المخطط",
+        noDiagram: "لم يُنشأ أي مخطط بعد",
+      },
+      studySelector: {
+        loadingStudies: "جارٍ تحميل الدراسات...",
+        failedToLoad: "تعذر تحميل الدراسات. يرجى المحاولة مرة أخرى.",
+        selectStudy: "اختر دراسة",
+        noStudiesFound: "لم يتم العثور على دراسات. أنشئ دراسة أولًا.",
+        completedExecutions: "عمليات التنفيذ المكتملة",
+        loadingExecutions: "جارٍ تحميل عمليات التنفيذ...",
+        noCompletedExecutions:
+          "لم يتم العثور على عمليات تنفيذ مكتملة لهذه الدراسة.",
+      },
+      analysisPicker: {
+        filter: {
+          allTypes: "كل الأنواع",
+        },
+        searchAnalyses: "ابحث في التحليلات...",
+        searchStudies: "ابحث في الدراسات...",
+        tabs: {
+          allAnalyses: "كل التحليلات",
+          fromStudies: "من الدراسات",
+        },
+        loadingAnalyses: "جارٍ تحميل التحليلات...",
+        noCompletedAnalyses: "لم يتم العثور على تحليلات مكتملة",
+        loadingStudies: "جارٍ تحميل الدراسات...",
+        noStudiesMatchFilters: "لا توجد دراسات تطابق عوامل التصفية",
+        noStudiesFound: "لم يتم العثور على دراسات",
+        actions: {
+          selectAll: "تحديد الكل",
+          deselectAll: "إلغاء تحديد الكل",
+        },
+      },
+      aiNarrative: {
+        generate: "إنشاء مسودة بالذكاء الاصطناعي",
+        generating: "جارٍ إنشاء السرد...",
+        draft: "مسودة الذكاء الاصطناعي",
+        accept: "قبول",
+        regenerate: "إعادة الإنشاء",
+        accepted: "مقبول",
+        edit: "تحرير",
+      },
+      structuredData: {
+        empty: "لا توجد بيانات منظمة متاحة",
+      },
+      diagram: {
+        exportSvg: "تصدير بصيغة SVG",
+        exportPng: "تصدير بصيغة PNG",
+      },
+    },
+  }),
   "en-XA": mergeMessageTrees(enPublishCareGapRisk, {}),
 };

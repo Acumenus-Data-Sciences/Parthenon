@@ -7677,6 +7677,24 @@ export const imagingGenomicsResources: Record<string, MessageTree> = {
   }),
   "ko-KR": koImagingGenomicsPass2,
   "hi-IN": hiImagingGenomicsPass2,
-  ar: arImagingGenomicsPass1,
+  ar: mergeMessageTrees(arImagingGenomicsPass1, {
+    imaging: {
+      timeline: {
+        tableHeaders: {
+          action: "الإجراء",
+        },
+        studyHeaders: {
+          action: "الإجراء",
+        },
+      },
+    },
+    genomics: {
+      page: {
+        tableHeaders: {
+          actions: "الإجراءات",
+        },
+      },
+    },
+  }),
   "en-XA": mergeMessageTrees(enImagingGenomics, {}),
 };
