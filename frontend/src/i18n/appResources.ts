@@ -44561,6 +44561,2275 @@ const arAppPass2: MessageTree = mergeMessageTrees(arAppPass1, {
   }
 });
 
+const arAppPass3: MessageTree = mergeMessageTrees(arAppPass2, {
+  "administration": {
+    "dashboard": {
+      "title": "إدارة",
+      "subtitle": "إدارة المستخدمين والأدوار والأذونات وتكوين النظام.",
+      "panels": {
+        "platform": "منصة",
+        "usersAccess": "المستخدمون والوصول",
+        "dataSources": "مصادر البيانات",
+        "aiResearch": "الذكاء الاصطناعي والأبحاث"
+      },
+      "status": {
+        "allHealthy": "كل شيء صحي",
+        "degraded": "متدهورة",
+        "warning": "تحذير"
+      },
+      "labels": {
+        "services": "خدمات",
+        "queue": "طابور",
+        "redis": "Redis",
+        "totalUsers": "إجمالي المستخدمين",
+        "roles": "الأدوار",
+        "authProviders": "مقدمي المصادقة",
+        "tokenExpiry": "انتهاء صلاحية الرمز المميز",
+        "solr": "Solr",
+        "aiProvider": "موفر الذكاء الاصطناعي",
+        "model": "نموذج",
+        "abby": "Abby",
+        "researchRuntime": "R / HADES"
+      },
+      "values": {
+        "servicesUp": "{{healthy}}/{{total}} للأعلى",
+        "queueSummary": "{{pending}} معلق / {{failed}} فشل",
+        "enabledCount": "{{count}} ممكّن",
+        "tokenExpiry": "8 ساعات",
+        "cdmCount": "{{count}} CDM",
+        "solrSummary": "{{docs}} المستندات / {{cores}} النوى",
+        "none": "لا أحد",
+        "online": "متصل"
+      },
+      "messages": {
+        "noCdmSources": "لم يتم تكوين مصادر CDM"
+      },
+      "nav": {
+        "userManagement": {
+          "title": "إدارة المستخدم",
+          "description": "إنشاء وتحرير وإلغاء تنشيط حسابات المستخدمين. تعيين الأدوار للتحكم في الوصول."
+        },
+        "rolesPermissions": {
+          "title": "الأدوار والأذونات",
+          "description": "قم بتحديد الأدوار المخصصة وضبط تعيينات الأذونات عبر جميع المجالات."
+        },
+        "authProviders": {
+          "title": "موفري المصادقة",
+          "description": "تمكين وتكوين LDAP، OAuth 2.0، SAML 2.0، أو OIDC لـ SSO."
+        },
+        "aiProviders": {
+          "title": "إعداد موفر الذكاء الاصطناعي",
+          "description": "قم بالتبديل بين الواجهة الخلفية لـ Abby بين Ollama وAnthropic وOpenAI وGemini والمزيد."
+        },
+        "systemHealth": {
+          "title": "صحة النظام",
+          "description": "الحالة المباشرة لجميع خدمات Parthenon: Redis والذكاء الاصطناعي وDarkstar وSolr وOrthanc PACS وصفوف المهام."
+        },
+        "vocabularyManagement": {
+          "title": "إدارة المفردات",
+          "description": "قم بتحديث جداول المفردات OMOP عن طريق تحميل ملف مفردات أثينا الجديد ZIP."
+        },
+        "fhirConnections": {
+          "title": "اتصالات FHIR لأنظمة السجلات الصحية الإلكترونية",
+          "description": "إدارة اتصالات FHIR R4 مع Epic وCerner وغيرها من أنظمة السجلات الصحية الإلكترونية لاستيراد البيانات المجمعة."
+        }
+      },
+      "setupWizard": {
+        "title": "معالج إعداد النظام الأساسي",
+        "description": "أعد تشغيل معالج الإعداد: التحقق من السلامة، وموفر الذكاء الاصطناعي، والمصادقة، ومصادر البيانات."
+      },
+      "atlasMigration": {
+        "title": "الترحيل من Atlas",
+        "description": "قم باستيراد تعريفات المجموعة ومجموعات المفاهيم والتحليلات من تثبيت OHDSI Atlas موجود."
+      },
+      "actions": {
+        "open": "يفتح",
+        "openWizard": "افتح المعالج"
+      }
+    },
+    "acropolisServices": {
+      "descriptions": {
+        "authentik": "مزود الهوية وبوابة الوصول",
+        "wazuh": "مراقبة الأمان ولوحة التحكم SIEM",
+        "grafana": "لوحات المقاييس وإمكانية الملاحظة",
+        "portainer": "عمليات الحاويات والمكدس",
+        "pgadmin": "PostgreSQL وحدة التحكم الإدارية",
+        "n8n": "تنسيق سير العمل والأتمتة",
+        "superset": "BI ومساحة عمل التحليلات المخصصة",
+        "datahub": "كتالوج البيانات الوصفية ومستكشف النسب"
+      },
+      "openService": "افتح الخدمة"
+    },
+    "grafana": {
+      "openDashboard": "افتح لوحة المعلومات"
+    },
+    "broadcastEmail": {
+      "title": "بث البريد الإلكتروني",
+      "descriptionPrefix": "سيؤدي هذا إلى إرسال بريد إلكتروني فردي إلى كل من",
+      "descriptionSuffix": "المستخدمين المسجلين.",
+      "subject": "موضوع",
+      "subjectPlaceholder": "سطر موضوع البريد الإلكتروني...",
+      "message": "رسالة",
+      "messagePlaceholder": "أكتب رسالتك هنا...",
+      "close": "يغلق",
+      "cancel": "يلغي",
+      "sending": "إرسال...",
+      "sendToAll": "إرسال إلى كافة المستخدمين",
+      "resultWithRecipients": "{{message}} ({{count}} مستلمون)",
+      "unknownError": "خطأ غير معروف"
+    },
+    "userModal": {
+      "titles": {
+        "editUser": "تحرير المستخدم",
+        "newUser": "مستخدم جديد"
+      },
+      "fields": {
+        "fullName": "الاسم الكامل",
+        "email": "بريد إلكتروني",
+        "password": "كلمة المرور",
+        "roles": "الأدوار"
+      },
+      "hints": {
+        "keepCurrentPassword": "(اتركه فارغًا للمحافظة على التحديث)"
+      },
+      "placeholders": {
+        "maskedPassword": null,
+        "passwordRequirements": "الحد الأدنى 8 أحرف، حالة مختلطة + رقم"
+      },
+      "actions": {
+        "cancel": "يلغي",
+        "saving": "توفير...",
+        "saveChanges": "حفظ التغييرات",
+        "createUser": "إنشاء مستخدم"
+      },
+      "errors": {
+        "generic": "حدث خطأ.",
+        "passwordRequired": "كلمة المرور مطلوبة."
+      }
+    },
+    "liveKit": {
+      "loadingConfiguration": "جارٍ تحميل التكوين...",
+      "provider": "مزود",
+      "providerBadges": {
+        "cloud": "سحاب",
+        "self-hosted": "استضافة ذاتية",
+        "env": "البيئة"
+      },
+      "providerOptions": {
+        "environment": "بيئة",
+        "liveKitCloud": "LiveKit سحابة",
+        "selfHosted": "استضافة ذاتية"
+      },
+      "providerDescriptions": {
+        "useEnvFile": "استخدم ملف .env",
+        "hostedByLiveKit": "تمت الاستضافة بواسطة LiveKit",
+        "yourOwnServer": "الخادم الخاص بك"
+      },
+      "env": {
+        "usingEnvConfiguration": "باستخدام تكوين .env",
+        "url": "URL:",
+        "apiKey": "API المفتاح:",
+        "apiSecret": "API السر:",
+        "notSet": "لم يتم ضبطه",
+        "missing": "مفتقد",
+        "editPrefix": "يحرر",
+        "editSuffix": "وأعد تشغيل PHP للتغيير."
+      },
+      "fields": {
+        "cloudUrl": "LiveKit Cloud URL",
+        "serverUrl": "الخادم URL",
+        "apiKey": "API المفتاح",
+        "apiSecret": "API سر"
+      },
+      "placeholders": {
+        "savedKey": "أنقذ؛ أدخل مفتاحًا جديدًا ليحل محله",
+        "savedSecret": "أنقذ؛ أدخل سرًا جديدًا ليحل محله",
+        "enterApiKey": "أدخل مفتاح API",
+        "enterApiSecret": "أدخل API السر"
+      },
+      "actions": {
+        "hideConfiguration": "إخفاء التكوين",
+        "configureLiveKit": "تكوين LiveKit",
+        "testConnection": "اتصال الاختبار",
+        "saveConfiguration": "حفظ التكوين",
+        "useEnvDefaults": "استخدم إعدادات .env الافتراضية"
+      },
+      "toasts": {
+        "noUrlToTest": "لا URL للاختبار",
+        "connectionSuccessful": "تم الاتصال بنجاح",
+        "connectionFailed": "فشل الاتصال",
+        "configurationSaved": "تم حفظ التكوين LiveKit",
+        "saveFailed": "فشل حفظ التكوين"
+      }
+    },
+    "authProviders": {
+      "title": "موفري المصادقة",
+      "subtitle": "تمكين واحد أو أكثر من موفري الهوية الخارجيين لتسجيل الدخول الموحد. اسم المستخدم/كلمة المرور الخاصة بـ Sanctum متاحة دائمًا كبديل.",
+      "providers": {
+        "ldap": {
+          "label": "LDAP / الدليل النشط",
+          "description": "قم بالمصادقة ضد Microsoft Active Directory أو أي دليل LDAP v3. يدعم TLS، ومزامنة المجموعة، وتعيين السمات."
+        },
+        "oauth2": {
+          "label": "OAuth 2.0",
+          "description": "تفويض المصادقة إلى GitHub، أو Google، أو Microsoft، أو أي موفر OAuth 2.0 مخصص."
+        },
+        "saml2": {
+          "label": "SAML 2.0",
+          "description": "Enterprise SSO عبر موفر الهوية SAML 2.0 (Okta، Azure AD، ADFS، وما إلى ذلك)."
+        },
+        "oidc": {
+          "label": "OpenID Connect",
+          "description": "الحديث SSO عبر اكتشاف OIDC. يدعم PKCE وأي موفِّر هوية متوافق مع المعايير."
+        }
+      },
+      "enabled": "ممكّن",
+      "disabled": "عاجز",
+      "configure": "تكوين",
+      "testConnection": "اتصال الاختبار",
+      "connectionSuccessful": "تم الاتصال بنجاح",
+      "connectionFailed": "فشل الاتصال",
+      "usernamePassword": "اسم المستخدم وكلمة المرور",
+      "alwaysOn": "دائما على",
+      "builtIn": "مصادقة Sanctum المدمجة - نشطة دائمًا.",
+      "loading": "جارٍ تحميل المزوّدين...",
+      "formActions": {
+        "saving": "توفير...",
+        "save": "يحفظ",
+        "saved": "أنقذ"
+      },
+      "oauthForm": {
+        "drivers": {
+          "github": "جيثب",
+          "google": "جوجل",
+          "microsoft": "مايكروسوفت / أزور AD",
+          "custom": "مخصص OAuth 2.0"
+        },
+        "sections": {
+          "customEndpoints": "نقاط النهاية المخصصة"
+        },
+        "labels": {
+          "provider": "مزود",
+          "clientId": "العميل ID",
+          "clientSecret": "سر العميل",
+          "redirectUri": "إعادة توجيه URI",
+          "scopes": "النطاقات",
+          "authorizationUrl": "التفويض URL",
+          "tokenUrl": "Token URL",
+          "userInfoUrl": "معلومات المستخدم URL"
+        },
+        "hints": {
+          "redirectUri": "يجب أن يتطابق مع URI المسجل في موفر OAuth الخاص بك",
+          "scopes": "قائمة مفصولة بمسافة"
+        },
+        "placeholders": {
+          "clientId": "العميل / التطبيق ID",
+          "redirectUri": "/api/v1/auth/oauth2/callback",
+          "scopes": "البريد الإلكتروني للملف الشخصي مفتوح"
+        }
+      },
+      "oidcForm": {
+        "labels": {
+          "discoveryUrl": "Discovery URL",
+          "clientId": "العميل ID",
+          "clientSecret": "سر العميل",
+          "redirectUri": "إعادة توجيه URI",
+          "scopes": "النطاقات",
+          "pkceEnabled": "تمكين PKCE (موصى به - يتطلب عميلاً عامًا)"
+        },
+        "hints": {
+          "discoveryUrl": "نقطة نهاية /.well-known/openid-configuration لموفِّر الهوية (IdP) الخاص بك",
+          "redirectUri": "يجب أن يتطابق مع ما تم تسجيله في IdP الخاص بك",
+          "scopes": "مفصولة بمساحة"
+        },
+        "placeholders": {
+          "discoveryUrl": "https://accounts.google.com/.well-known/openid-configuration",
+          "clientId": "معرف العميل الخاص بك",
+          "redirectUri": "/api/v1/auth/oidc/callback",
+          "scopes": "البريد الإلكتروني للملف الشخصي مفتوح"
+        }
+      },
+      "samlForm": {
+        "sections": {
+          "identityProvider": "موفر الهوية (IdP)",
+          "serviceProvider": "مقدم الخدمة (SP)",
+          "attributeMapping": "تعيين السمات"
+        },
+        "labels": {
+          "idpEntityId": "كيان موفر الهوية ID",
+          "ssoUrl": "SSO URL",
+          "sloUrl": "SLO URL",
+          "idpCertificate": "شهادة موفر الهوية",
+          "spEntityId": "SP الكيان ID",
+          "acsUrl": "ACS URL",
+          "nameIdFormat": "تنسيق معرف الاسم",
+          "signAssertions": "تأكيدات التوقيع (يتطلب SP مفتاح خاص - تكوين في بيئة الخادم)",
+          "emailAttribute": "سمة البريد الإلكتروني",
+          "displayNameAttribute": "سمة اسم العرض"
+        },
+        "hints": {
+          "ssoUrl": "نقطة نهاية الدخول الموحد",
+          "sloUrl": "نقطة نهاية تسجيل خروج واحدة (اختياري)",
+          "idpCertificate": "الصق شهادة X.509 (تنسيق PEM، مع رؤوس أو بدونها)",
+          "spEntityId": "يجب أن يتطابق مثيل Parthenon URL مع ما سجله IdP",
+          "acsUrl": "تأكيد خدمة المستهلك"
+        },
+        "placeholders": {
+          "certificate": "-----BEGIN CERTIFICATE-----\nMIIDxTCC...\n-----END CERTIFICATE-----",
+          "acsUrl": "/api/v1/auth/saml2/callback",
+          "sloUrl": "/api/v1/auth/saml2/logout",
+          "displayName": "اسم العرض"
+        },
+        "attributeMappingDescription": "قم بتعيين أسماء سمات التأكيد SAML إلى Parthenon حقول المستخدم."
+      },
+      "ldapForm": {
+        "sections": {
+          "connection": "اتصال",
+          "bindCredentials": "ربط بيانات الاعتماد",
+          "userSearch": "بحث المستخدم",
+          "attributeMapping": "تعيين السمات",
+          "groupSync": "مزامنة المجموعة"
+        },
+        "labels": {
+          "host": "يستضيف",
+          "port": "ميناء",
+          "useSsl": "استخدم SSL (LDAPS)",
+          "useTls": "استخدم StartTLS",
+          "timeout": "المهلة (المهلات)",
+          "bindDn": "ربط DN",
+          "bindPassword": "ربط كلمة المرور",
+          "baseDn": "القاعدة DN",
+          "userSearchBase": "قاعدة بحث المستخدم",
+          "userFilter": "مرشح المستخدم",
+          "usernameField": "حقل اسم المستخدم",
+          "emailField": "حقل البريد الإلكتروني",
+          "displayNameField": "حقل اسم العرض",
+          "syncGroups": "مزامنة LDAP مجموعات مع Parthenon أدوار",
+          "groupSearchBase": "قاعدة بحث المجموعة",
+          "groupFilter": "مرشح المجموعة"
+        },
+        "hints": {
+          "host": "LDAP اسم مضيف الخادم أو IP",
+          "bindDn": "حساب الخدمة DN المستخدم لاستعلامات الدليل",
+          "userFilter": "يتم استبدال {username} في وقت تسجيل الدخول"
+        },
+        "placeholders": {
+          "bindDn": "cn=svc-parthenon,dc=example,dc=com",
+          "baseDn": "dc=example,dc=com.dc=example,dc=com",
+          "userSearchBase": "ou=users,dc=example,dc=com",
+          "userFilter": "(المعرف={username})",
+          "groupSearchBase": "ou=groups,dc=example,dc=com",
+          "groupFilter": "(objectClass=groupOfNames)"
+        },
+        "actions": {
+          "saving": "توفير...",
+          "save": "يحفظ",
+          "saved": "أنقذ"
+        }
+      }
+    },
+    "roles": {
+      "title": "الأدوار والأذونات",
+      "subtitle": "تحديد الأدوار المخصصة وضبط تعيينات الأذونات. استخدم المصفوفة لإجراء تعديلات مجمعة.",
+      "tabs": {
+        "roleList": "قائمة الأدوار",
+        "permissionMatrix": "مصفوفة الإذن"
+      },
+      "permissionMatrix": {
+        "instructions": "انقر فوق الخلايا لتبديل الأذونات · رؤوس الصفوف لتطبيقها على جميع الأدوار · رؤوس الأعمدة لمنح/إلغاء الكل لدور ما.",
+        "saveAllChangesOne": "حفظ كافة التغييرات (دور {{count}})",
+        "saveAllChangesOther": "حفظ كافة التغييرات ({{count}} الأدوار)",
+        "permission": "إذن",
+        "columnTitle": "تبديل كافة الأذونات لـ {{role}}",
+        "permissionCount": "{{count}} بيرم",
+        "saving": "توفير...",
+        "saved": "تم الحفظ ✓",
+        "save": "يحفظ",
+        "domainTitle": "تبديل جميع أذونات {{domain}} عبر جميع الأدوار",
+        "rowTitle": "قم بتبديل {{permission}} لجميع الأدوار",
+        "cellTitleGrant": "منح {{permission}} إلى {{role}}",
+        "cellTitleRevoke": "إبطال {{permission}} من {{role}}"
+      },
+      "editor": {
+        "roleName": "اسم الدور",
+        "roleNamePlaceholder": "على سبيل المثال منسق الموقع",
+        "permissions": "الأذونات",
+        "selectedCount": "({{count}} محدد)"
+      },
+      "actions": {
+        "newRole": "دور جديد",
+        "cancel": "يلغي",
+        "saving": "توفير...",
+        "saveRole": "حفظ الدور",
+        "editRole": "تحرير الدور",
+        "deleteRole": "حذف الدور",
+        "deleting": "جارٍ الحذف...",
+        "delete": "يمسح"
+      },
+      "values": {
+        "builtIn": "مدمج",
+        "userCountOne": "{{count}} المستخدم",
+        "userCountOther": "{{count}} المستخدمين",
+        "permissionCountOne": "{{count}} إذن",
+        "permissionCountOther": "{{count}} الأذونات",
+        "more": "+{{count}} المزيد"
+      },
+      "deleteModal": {
+        "title": "هل تريد حذف الدور؟",
+        "prefix": "الدور",
+        "suffix": "سيتم حذفه نهائيًا. سيفقد المستخدمون الذين تم تعيينهم لهذا الدور فقط جميع الأذونات."
+      }
+    },
+    "pacs": {
+      "studyBrowser": {
+        "browseTitle": "تصفح: {{name}}",
+        "filters": {
+          "patientName": "اسم المريض",
+          "patientId": "المريض ID",
+          "allModalities": "جميع الطرائق"
+        },
+        "empty": {
+          "noStudies": "لم يتم العثور على دراسات"
+        },
+        "table": {
+          "patientName": "اسم المريض",
+          "patientId": "المريض ID",
+          "date": "تاريخ",
+          "modality": "الطريقة",
+          "description": "وصف",
+          "series": "مسلسل",
+          "instances": "انست."
+        },
+        "pagination": {
+          "range": "{{start}}-{{end}}",
+          "ofStudies": "من {{total}} الدراسات",
+          "previous": "سابق",
+          "next": "التالي"
+        }
+      },
+      "connectionCard": {
+        "defaultConnection": "الاتصال الافتراضي",
+        "setAsDefault": "تعيين كافتراضي",
+        "deleteConfirm": "هل تريد حذف \"{{name}}\"؟",
+        "never": "أبداً",
+        "seriesByModality": "سلسلة حسب الطريقة",
+        "statsUpdated": "تم تحديث الإحصائيات {{date}}",
+        "stats": {
+          "patients": "مرضى",
+          "studies": "دراسات",
+          "series": "مسلسل",
+          "instances": "المثيلات",
+          "disk": "القرص"
+        },
+        "actions": {
+          "edit": "يحرر",
+          "delete": "يمسح",
+          "test": "امتحان",
+          "stats": "احصائيات",
+          "browse": "تصفح"
+        }
+      }
+    },
+    "solrAdmin": {
+      "title": "Solr إدارة البحث",
+      "subtitle": "إدارة مراكز بحث Solr وتشغيل إعادة الفهرسة ومراقبة الحالة.",
+      "loadingCoreStatus": "جارٍ تحميل الحالة الأساسية...",
+      "status": {
+        "healthy": "صحيح",
+        "unavailable": "غير متاح"
+      },
+      "labels": {
+        "documents": "وثائق",
+        "lastIndexed": "آخر مفهرسة",
+        "duration": "مدة"
+      },
+      "values": {
+        "never": "أبداً",
+        "seconds": "{{seconds}}s"
+      },
+      "actions": {
+        "reindexAll": "إعادة فهرسة كافة النوى",
+        "reindex": "إعادة الفهرسة",
+        "fullReindex": "إعادة الفهرسة الكاملة",
+        "clear": "واضح"
+      },
+      "messages": {
+        "fetchFailed": "فشل جلب الحالة Solr",
+        "reindexCompleted": "اكتملت إعادة فهرسة '{{core}}'",
+        "reindexFailed": "فشلت إعادة فهرسة '{{core}}'",
+        "reindexAllCompleted": "إعادة فهرسة جميع الانتهاء",
+        "reindexAllFailed": "فشل في إعادة فهرسة كافة النوى",
+        "clearConfirm": "هل أنت متأكد أنك تريد مسح كافة المستندات من '{{core}}'؟ لا يمكن التراجع عن هذا.",
+        "clearCompleted": "تم مسح النواة \"{{core}}\".",
+        "clearFailed": "فشل في مسح \"{{core}}\""
+      }
+    },
+    "aiProviders": {
+      "title": "إعداد موفر الذكاء الاصطناعي",
+      "subtitle": "اختر البنية الخلفية للذكاء الاصطناعي في Abby. يمكن تنشيط موفر واحد فقط في كل مرة. يتم تخزين مفاتيح API بشكل مشفر.",
+      "activeProvider": "المزود النشط:",
+      "fields": {
+        "model": "نموذج",
+        "apiKey": "API المفتاح",
+        "ollamaBaseUrl": "أولاما Base URL"
+      },
+      "placeholders": {
+        "modelName": "اسم النموذج"
+      },
+      "values": {
+        "active": "نشيط",
+        "enabled": "ممكّن",
+        "disabled": "عاجز",
+        "noModelSelected": "لم يتم تحديد أي نموذج"
+      },
+      "actions": {
+        "currentlyActive": "نشط حاليا",
+        "setAsActive": "تعيين كنشط",
+        "save": "يحفظ",
+        "testConnection": "اتصال الاختبار"
+      },
+      "messages": {
+        "requestFailed": "فشل الطلب."
+      }
+    },
+    "gisImport": {
+      "steps": {
+        "upload": "رفع",
+        "analyze": "تحليل",
+        "mapColumns": "أعمدة الخريطة",
+        "configure": "تكوين",
+        "validate": "التحقق من صحة",
+        "import": "يستورد"
+      },
+      "analyze": {
+        "analysisFailed": "واجه Abby مشكلة في تحليل هذا الملف.",
+        "unknownError": "خطأ غير معروف",
+        "retry": "أعد المحاولة",
+        "analyzing": "يقوم Abby بتحليل بياناتك...",
+        "detecting": "الكشف عن أنواع الأعمدة والرموز الجغرافية ودلالات القيمة"
+      },
+      "upload": {
+        "uploading": "جارٍ التحميل...",
+        "dropPrompt": "قم بإسقاط ملف هنا أو انقر للتصفح",
+        "acceptedFormats": "CSV، TSV، Excel، Shapefile (.zip)، GeoJSON، KML، GeoPackage - الحد الأقصى {{maxSize}}MB",
+        "largeFiles": "بالنسبة للملفات الكبيرة (> {{maxSize}}MB)",
+        "fileTooLarge": "يتجاوز الملف {{maxSize}}MB. استخدم CLI: php artisan gis:import {{filename}}",
+        "uploadFailed": "فشل التحميل"
+      },
+      "configure": {
+        "fields": {
+          "layerName": "اسم الطبقة",
+          "exposureType": "نوع التعرض",
+          "geographyLevel": "مستوى الجغرافيا",
+          "valueType": "نوع القيمة",
+          "aggregation": "تجميع"
+        },
+        "placeholders": {
+          "layerName": "على سبيل المثال، مؤشر الضعف الاجتماعي",
+          "exposureType": "على سبيل المثال، svi_overall"
+        },
+        "geographyLevels": {
+          "county": "مقاطعة",
+          "tract": "مسالك التعداد",
+          "state": "ولاية",
+          "country": "دولة",
+          "custom": "مخصص"
+        },
+        "valueTypes": {
+          "continuous": "مستمر (كوربليث)",
+          "categorical": "فئوية (ألوان منفصلة)",
+          "binary": "ثنائي (حضور / غياب)"
+        },
+        "aggregations": {
+          "mean": "يقصد",
+          "sum": "مجموع",
+          "maximum": "الحد الأقصى",
+          "minimum": "الحد الأدنى",
+          "latest": "أحدث"
+        },
+        "saving": "توفير...",
+        "continue": "يكمل"
+      },
+      "mapping": {
+        "title": "تعيين العمود",
+        "subtitle": "قم بتعيين كل عمود مصدر للغرض المخصص له",
+        "purposes": {
+          "geographyCode": "كود الجغرافيا",
+          "geographyName": "اسم الجغرافيا",
+          "latitude": "خط العرض",
+          "longitude": "خط الطول",
+          "valueMetric": "القيمة (مترية)",
+          "metadata": "البيانات الوصفية",
+          "skip": "يتخطى"
+        },
+        "confidence": {
+          "high": "عالي",
+          "medium": "واسطة",
+          "low": "قليل"
+        },
+        "askAbby": "اسأل Abby",
+        "abbyOnColumn": "Abby على \"{{column}}\":",
+        "thinking": "أفكر...",
+        "saving": "توفير...",
+        "continue": "يكمل"
+      },
+      "validate": {
+        "validating": "جارٍ التحقق...",
+        "validationFailed": "فشل التحقق من الصحة:",
+        "unknownError": "خطأ غير معروف",
+        "results": "نتائج التحقق من الصحة",
+        "stats": {
+          "totalRows": "إجمالي الصفوف",
+          "uniqueGeographies": "الجغرافيا الفريدة",
+          "matched": "متطابق",
+          "unmatched": "لا مثيل لها (بذرة)",
+          "matchRate": "معدل المباراة",
+          "geographyType": "نوع الجغرافيا"
+        },
+        "unmatchedWarning": "{{count}} المناطق الجغرافية غير موجودة في قاعدة البيانات. سيتم إنشاء إدخالات كعب الروتين (بدون هندسة حدودية).",
+        "backToMapping": "العودة إلى رسم الخرائط",
+        "proceedWithImport": "المضي قدما في الاستيراد"
+      },
+      "import": {
+        "starting": "جارٍ البدء...",
+        "startImport": "ابدأ الاستيراد",
+        "importing": "جارٍ الاستيراد... {{progress}}%",
+        "complete": "اكتمل الاستيراد",
+        "rowsImported": "تم استيراد {{count}} من الصفوف",
+        "saveLearningPrompt": "احفظ التعيينات حتى يتعلم Abby للمرة القادمة",
+        "saveToAbby": "حفظ في Abby",
+        "viewInGisExplorer": "عرض في GIS إكسبلورر",
+        "importAnother": "استيراد آخر",
+        "failed": "فشل الاستيراد",
+        "startOver": "البدء من جديد"
+      }
+    },
+    "chromaStudio": {
+      "title": "استوديو مجموعة كروما",
+      "subtitle": "فحص مجموعات المتجهات وتشغيل الاستعلامات الدلالية وإدارة الاستيعاب",
+      "values": {
+        "collectionCount": "{{count}} المجموعات",
+        "loading": "تحميل",
+        "loadingEllipsis": "تحميل...",
+        "countSuffix": "({{count}})",
+        "sampledSuffix": "({{count}} عينة)"
+      },
+      "actions": {
+        "refreshCollections": "تحديث المجموعات",
+        "ingestDocs": "استيعاب المستندات",
+        "ingestClinical": "استيعاب السريرية",
+        "promoteFaq": "الترويج لـ FAQ",
+        "ingestOhdsiPapers": "استيعاب OHDSI الأوراق",
+        "ingestOhdsiKnowledge": "استيعاب OHDSI المعرفة",
+        "ingestTextbooks": "استيعاب الكتب المدرسية"
+      },
+      "stats": {
+        "vectors": "المتجهات",
+        "sampled": "عينات",
+        "dimensions": "أبعاد",
+        "metaFields": "حقول ميتا"
+      },
+      "messages": {
+        "loadingCollectionData": "جارٍ تحميل بيانات المجموعة..."
+      },
+      "empty": {
+        "title": "هذه المجموعة فارغة",
+        "description": "استخدم إجراءات الإدخال أعلاه لملء \"{{collection}}\" بالمستندات.",
+        "noRecords": "لا توجد سجلات في هذه المجموعة.",
+        "noDocumentReturned": "لم يتم إرجاع أي مستند.",
+        "noDocumentText": "لا يوجد نص مستند متاح."
+      },
+      "tabs": {
+        "overview": "ملخص",
+        "retrieval": "استرجاع"
+      },
+      "search": {
+        "placeholder": "استعلام دلالي...",
+        "recentQueries": "الاستفسارات الأخيرة",
+        "kLabel": "ك:",
+        "queryAction": "استفسار",
+        "empty": "أدخل استعلامًا أعلاه وانقر فوق استعلام لفحص نتائج الاسترجاع.",
+        "queryLabel": "استفسار:",
+        "resultsCount": "{{count}} النتائج",
+        "querying": "الاستعلام...",
+        "distance": "مسافة"
+      },
+      "overview": {
+        "facetDistribution": "توزيع الوجه",
+        "sampleRecords": "سجلات العينة",
+        "collectionMetadata": "البيانات الوصفية للجمع"
+      }
+    },
+    "vectorExplorer": {
+      "title": "مستكشف المتجهات",
+      "semanticMapTitle": "{{dimensions}}D الخريطة الدلالية",
+      "loading": {
+        "computingProjection": "الإسقاط الحسابي",
+        "runningProjection": "تشغيل PCA->UMAP على المتجهات {{sample}}...",
+        "recomputingProjection": "إعادة حساب الإسقاط..."
+      },
+      "values": {
+        "all": "الجميع",
+        "loadingEllipsis": "تحميل...",
+        "countSuffix": "({{count}})",
+        "sampled": "{{count}} تم أخذ العينات",
+        "dimensions": "{{dimensions}}د",
+        "knnEdges": "k={{neighbors}} - {{edges}} الحواف",
+        "seconds": "{{seconds}}s",
+        "points": "{{count}} نقطة",
+        "cachedSuffix": "- مخبأة",
+        "fallbackSuffix": "- احتياطي",
+        "timeSuffix": "- {{seconds}}s"
+      },
+      "modes": {
+        "clusters": "مجموعات",
+        "query": "استفسار",
+        "qa": "QA"
+      },
+      "sample": {
+        "label": "عينة",
+        "confirmLoadAll": "هل تريد تحميل كافة المتجهات {{count}}؟ قد يستغرق هذا وقتًا أطول بشكل ملحوظ.",
+        "steps": {
+          "all": "الجميع"
+        }
+      },
+      "empty": {
+        "selectCollection": "حدد مجموعة لتصور التضمينات."
+      },
+      "tooltips": {
+        "requiresAiService": "يتطلب اتصالا بخدمة الذكاء الاصطناعي"
+      },
+      "controls": {
+        "colorBy": "اللون بواسطة",
+        "modeDefault": "الوضع الافتراضي"
+      },
+      "search": {
+        "placeholder": "البحث داخل الفضاء المتجه",
+        "searching": "جارٍ البحث...",
+        "search": "يبحث",
+        "visibleResults": "{{visible}} من {{total}} النتائج المرئية في هذا العرض"
+      },
+      "query": {
+        "anchor": "مرساة الاستعلام"
+      },
+      "sections": {
+        "overlays": "تراكبات",
+        "clusterProfile": "ملف تعريف الكتلة",
+        "inspector": "مفتش"
+      },
+      "inspector": {
+        "selectPoint": "انقر فوق نقطة لفحصها.",
+        "loadingDetails": "جارٍ تحميل التفاصيل الكاملة...",
+        "flags": {
+          "outlier": "ناشز",
+          "duplicate": "ينسخ",
+          "orphan": "يتيم"
+        }
+      },
+      "overlays": {
+        "clusterHulls": {
+          "label": "هياكل الكتلة",
+          "help": "مظاريف محدبة حول العناقيد"
+        },
+        "topologyLines": {
+          "label": "خطوط الطوبولوجيا",
+          "help": "ك-NN الروابط بين النقاط القريبة"
+        },
+        "queryRays": {
+          "label": "أشعة الاستعلام",
+          "help": "روابط التشابه للنتيجة"
+        }
+      },
+      "stats": {
+        "totalVectors": "مجموع المتجهات",
+        "sampled": "عينات",
+        "projection": "الإسقاط",
+        "knnGraph": "الرسم البياني k-NN",
+        "source": "مصدر",
+        "projectionTime": "وقت الإسقاط",
+        "indexed": "مفهرسة"
+      },
+      "sources": {
+        "solrCached": "Solr (مخبأة)",
+        "clientFallback": "احتياطي العميل",
+        "liveUmap": "مباشر UMAP"
+      },
+      "actions": {
+        "recomputeProjection": "إعادة حساب الإسقاط",
+        "expand": "يوسع"
+      },
+      "legend": {
+        "clusters": "مجموعات",
+        "quality": "جودة",
+        "similarity": "تشابه",
+        "hide": "يخفي",
+        "show": "يعرض"
+      },
+      "quality": {
+        "outliers": "القيم المتطرفة",
+        "duplicates": "التكرارات",
+        "duplicatePairs": "أزواج مكررة",
+        "orphans": "الأيتام",
+        "normal": "طبيعي",
+        "outOfSampled": "من {{count}} العينة",
+        "exportCsv": "تصدير CSV"
+      },
+      "clusterProfile": {
+        "selectCluster": "حدد مجموعة لفحص بيانات التعريف السائدة الخاصة بها.",
+        "clusterSize": "حجم الكتلة",
+        "dominantMetadata": "البيانات الوصفية المهيمنة",
+        "representativeTitles": "ألقاب تمثيلية"
+      }
+    },
+    "pacsConnectionModal": {
+      "title": {
+        "add": "أضف اتصال PACS",
+        "edit": "تحرير PACS اتصال"
+      },
+      "description": "قم بتكوين اتصال خادم التصوير DICOM.",
+      "fields": {
+        "name": "اسم",
+        "type": "يكتب",
+        "authType": "نوع المصادقة",
+        "baseUrl": "Base URL",
+        "username": "اسم المستخدم",
+        "password": "كلمة المرور",
+        "bearerToken": "رمز الحامل",
+        "linkedSource": "المصدر المرتبط (اختياري)",
+        "active": "نشيط"
+      },
+      "placeholders": {
+        "name": "الخادم الرئيسي PACS",
+        "keepExisting": "اتركه فارغًا لتبقى موجودًا",
+        "password": "كلمة المرور",
+        "token": "رمز مميز"
+      },
+      "types": {
+        "orthanc": "Orthanc",
+        "dicomweb": "DICOMweb",
+        "googleHealthcare": "Google Healthcare",
+        "cloud": "سحاب"
+      },
+      "auth": {
+        "none": "لا أحد",
+        "basic": "المصادقة الأساسية",
+        "bearer": "رمز الحامل"
+      },
+      "values": {
+        "latency": "({{ms}} مللي ثانية)"
+      },
+      "actions": {
+        "testConnection": "اتصال الاختبار",
+        "cancel": "يلغي",
+        "saveChanges": "حفظ التغييرات",
+        "createConnection": "إنشاء اتصال"
+      },
+      "errors": {
+        "testRequestFailed": "فشل طلب الاختبار",
+        "saveFailed": "فشل حفظ الاتصال"
+      }
+    },
+    "users": {
+      "title": "المستخدمين",
+      "summary": {
+        "totalAccounts": "إجمالي الحسابات"
+      },
+      "empty": {
+        "loading": "تحميل...",
+        "noUsers": "لم يتم العثور على مستخدمين",
+        "adjustFilters": "حاول تعديل بحثك أو عوامل التصفية."
+      },
+      "deleteModal": {
+        "title": "هل تريد حذف المستخدم؟",
+        "description": "سيتم حذفه نهائيًا وإلغاء كافة الرموز المميزة API الخاصة بهم.",
+        "irreversible": "لا يمكن التراجع عن هذا."
+      },
+      "actions": {
+        "cancel": "يلغي",
+        "deleting": "جارٍ الحذف...",
+        "delete": "يمسح",
+        "adminEmailer": "البريد الإلكتروني المشرف",
+        "newUser": "مستخدم جديد",
+        "editUser": "تحرير المستخدم",
+        "deleteUser": "حذف المستخدم"
+      },
+      "filters": {
+        "searchPlaceholder": "البحث بالاسم أو البريد الإلكتروني...",
+        "allRoles": "جميع الأدوار"
+      },
+      "table": {
+        "name": "اسم",
+        "email": "بريد إلكتروني",
+        "lastActive": "آخر نشاط",
+        "joined": "انضم",
+        "roles": "الأدوار"
+      },
+      "values": {
+        "never": "أبداً"
+      },
+      "pagination": {
+        "page": "صفحة",
+        "of": "ل",
+        "users": "المستخدمين"
+      }
+    },
+    "userAudit": {
+      "title": "سجل تدقيق المستخدم",
+      "subtitle": "تتبع أحداث تسجيل الدخول والوصول إلى الميزات وإجراءات الأمان عبر جميع المستخدمين.",
+      "actions": {
+        "login": "تسجيل الدخول",
+        "logout": "تسجيل الخروج",
+        "passwordChanged": "تم تغيير كلمة المرور",
+        "passwordReset": "إعادة تعيين كلمة المرور",
+        "featureAccess": "الوصول إلى الميزة"
+      },
+      "empty": {
+        "noMatching": "لا توجد أحداث مطابقة",
+        "noEvents": "لا توجد أحداث التدقيق حتى الآن",
+        "adjustFilters": "حاول تعديل عوامل التصفية أو النطاق الزمني.",
+        "description": "يتم تسجيل أحداث التدقيق أثناء قيام المستخدمين بتسجيل الدخول والوصول إلى ميزات النظام الأساسي."
+      },
+      "stats": {
+        "loginsToday": "تسجيلات الدخول اليوم",
+        "activeUsers7d": "المستخدمون النشطون (7د)",
+        "totalEvents": "إجمالي الأحداث",
+        "topFeature": "الميزة الأعلى"
+      },
+      "sections": {
+        "mostAccessedFeatures": "الميزات الأكثر وصولاً - آخر 7 أيام"
+      },
+      "filters": {
+        "searchPlaceholder": "بحث المستخدم، الميزة، IP...",
+        "allActions": "جميع الإجراءات",
+        "clearAll": "مسح الكل"
+      },
+      "table": {
+        "time": "وقت",
+        "user": "مستخدم",
+        "action": "فعل",
+        "feature": "ميزة",
+        "ipAddress": "IP العنوان"
+      },
+      "pagination": {
+        "page": "صفحة",
+        "of": "ل",
+        "events": "الأحداث"
+      }
+    },
+    "serviceDetail": {
+      "actions": {
+        "backToSystemHealth": "العودة إلى صحة النظام",
+        "systemHealth": "صحة النظام",
+        "refresh": "ينعش",
+        "manageSolrCores": "إدارة Solr النوى"
+      },
+      "empty": {
+        "serviceNotFound": "لم يتم العثور على الخدمة.",
+        "noLogs": "لا توجد إدخالات سجل حديثة متاحة."
+      },
+      "values": {
+        "checkedAt": "تم التحقق في {{time}}",
+        "entriesCount": "({{count}} إدخالات)",
+        "yes": "نعم",
+        "no": "لا"
+      },
+      "sections": {
+        "metrics": "المقاييس",
+        "recentLogs": "السجلات الأخيرة"
+      },
+      "pacs": {
+        "title": "PACS الاتصالات",
+        "addConnection": "إضافة اتصال",
+        "empty": "لم يتم تكوين اتصالات PACS."
+      },
+      "darkstar": {
+        "ohdsiPackages": "OHDSI HADES الحزم",
+        "positPackages": "الوضع / CRAN الحزم",
+        "installedCount": "({{count}} مثبت)"
+      }
+    },
+    "atlasMigration": {
+      "steps": {
+        "connect": "يتصل",
+        "discover": "يكتشف",
+        "select": "يختار",
+        "import": "يستورد",
+        "summary": "ملخص"
+      },
+      "entityTypes": {
+        "conceptSets": "مجموعات المفاهيم",
+        "cohortDefinitions": "تعريفات الفوج",
+        "incidenceRates": "معدلات الإصابة",
+        "characterizations": "الخصائص",
+        "pathways": "الممرات",
+        "estimations": "التقديرات",
+        "predictions": "التنبؤات"
+      },
+      "connect": {
+        "title": "الاتصال بـ Atlas WebAPI",
+        "description": "أدخل القاعدة URL لمثيل OHDSI WebAPI الموجود لديك. سيقوم Parthenon بالاتصال وجرد جميع الكيانات المتاحة للترحيل.",
+        "webapiUrl": "WebAPI Base URL",
+        "authentication": "المصادقة",
+        "auth": {
+          "none": "لا شيء (عام WebAPI)",
+          "basic": "المصادقة الأساسية",
+          "bearer": "رمز الحامل"
+        },
+        "credentials": "بيانات الاعتماد (اسم المستخدم: كلمة المرور)",
+        "bearerToken": "رمز الحامل",
+        "testConnection": "اتصال الاختبار",
+        "webapiVersion": "WebAPI الإصدار: {{version}}"
+      },
+      "discover": {
+        "discovering": "اكتشاف الكيانات...",
+        "querying": "الاستعلام عن جميع نقاط النهاية WebAPI بالتوازي",
+        "title": "Atlas المخزون",
+        "summary": "تم العثور على {{count}} كيانات قابلة للترحيل عبر {{categories}} من الفئات.",
+        "sourcesFound": "تم العثور أيضًا على {{count}} مصدر (مصادر) بيانات."
+      },
+      "select": {
+        "title": "حدد الكيانات المراد ترحيلها",
+        "description": "اختر الكيانات التي تريد استيرادها. يتم حل التبعيات تلقائيا.",
+        "analysisWarning": "قد تشير كيانات التحليل إلى تعريفات المجموعة النموذجية ومجموعات المفاهيم بواسطة ID. سيقوم Parthenon بإعادة تعيين هذه المراجع تلقائيًا أثناء الاستيراد. للحصول على أفضل النتائج، قم بتضمين المجموعات النموذجية ومجموعات المفاهيم المشار إليها في اختيارك.",
+        "selectedCount": "تم تحديد {{selected}}/{{total}}",
+        "totalSelected": "{{count}} الكيانات المحددة للترحيل"
+      },
+      "import": {
+        "starting": "بدء الهجرة...",
+        "importing": "استيراد الكيانات...",
+        "complete": "الهجرة كاملة",
+        "failed": "فشل الترحيل",
+        "processed": "تمت معالجة كافة الكيانات المحددة.",
+        "error": "حدث خطأ أثناء الترحيل.",
+        "percentComplete": "{{percent}}% مكتمل",
+        "polling": "التصويت للحصول على التحديثات..."
+      },
+      "summary": {
+        "successful": "الهجرة ناجحة",
+        "completedWithWarnings": "اكتملت عملية الترحيل مع التحذيرات",
+        "failed": "فشل الترحيل",
+        "from": "من",
+        "duration": "المدة: {{duration}}"
+      },
+      "metrics": {
+        "total": "المجموع",
+        "imported": "مستورد",
+        "skipped": "تم تخطيه",
+        "failed": "فشل"
+      },
+      "table": {
+        "entityType": "نوع الكيان",
+        "category": "فئة"
+      },
+      "actions": {
+        "selectAll": "حدد الكل",
+        "deselectAll": "قم بإلغاء تحديد الكل",
+        "retryFailed": "فشلت إعادة المحاولة ({{count}})",
+        "done": "منتهي",
+        "closeTitle": "إغلاق - العودة في أي وقت عبر الإدارة",
+        "previous": "سابق",
+        "startMigration": "ابدأ الهجرة",
+        "next": "التالي"
+      },
+      "errors": {
+        "connectionFailed": "فشل الاتصال",
+        "discoveryFailed": "فشل الاكتشاف"
+      }
+    },
+    "fhirExport": {
+      "title": "FHIR التصدير بالجملة",
+      "subtitle": "قم بتصدير بيانات OMOP CDM كملفات FHIR R4 NDJSON لتحقيق التشغيل البيني.",
+      "comingSoon": "قريباً",
+      "description": "ميزة FHIR Bulk Export ($export) ما تزال قيد التطوير. ستسمح هذه الميزة بتصدير بيانات OMOP CDM كملفات FHIR R4 NDJSON لتحقيق التشغيل البيني.",
+      "backendPending": "لم يتم تنفيذ نقاط النهاية الخلفية لهذه الميزة بعد."
+    },
+    "fhirConnections": {
+      "title": "اتصالات FHIR لأنظمة السجلات الصحية الإلكترونية",
+      "subtitle": "قم بتكوين اتصالات SMART Backend Services لاستخراج بيانات FHIR R4 المجمعة من Epic وCerner وغيرها من أنظمة السجلات الصحية الإلكترونية.",
+      "runMetrics": {
+        "extracted": "مستخرج",
+        "mapped": "تم تعيينه",
+        "written": "مكتوب",
+        "failed": "فشل",
+        "mappingCoverage": "تغطية الخرائط"
+      },
+      "history": {
+        "loading": "جارٍ تحميل سجل المزامنة...",
+        "empty": "لم يتم تشغيل أي مزامنة حتى الآن.",
+        "status": "حالة",
+        "started": "بدأت",
+        "duration": "مدة",
+        "metrics": "المقاييس",
+        "title": "سجل المزامنة"
+      },
+      "dialog": {
+        "editTitle": "تحرير FHIR اتصال",
+        "addTitle": "أضف اتصال FHIR",
+        "description": "قم بتكوين اتصال SMART Backend Services مع نقطة نهاية FHIR R4 لنظام السجل الصحي الإلكتروني."
+      },
+      "labels": {
+        "siteName": "اسم الموقع",
+        "siteKey": "مفتاح الموقع (سبيكة)",
+        "ehrVendor": "مورد نظام السجل الصحي الإلكتروني",
+        "fhirBaseUrl": "FHIR Base URL",
+        "tokenEndpoint": "Token نقطة النهاية",
+        "clientId": "العميل ID",
+        "rsaPrivateKey": "RSA المفتاح الخاص (PEM)",
+        "scopes": "النطاقات",
+        "groupId": "المجموعة ID (للتصدير بالجملة)",
+        "exportResourceTypes": "تصدير أنواع الموارد (مفصولة بفواصل، فارغة = الكل)",
+        "active": "نشيط",
+        "incrementalSync": "مزامنة تزايدية"
+      },
+      "vendors": {
+        "epic": "ملحمي",
+        "cerner": "سيرنر (Oracle الصحة)",
+        "other": "أخرى FHIR R4"
+      },
+      "placeholders": {
+        "siteName": "ملحمة جونز هوبكنز",
+        "keepExistingKey": "اتركه فارغًا للاحتفاظ بالمفتاح الموجود",
+        "resourceTypes": "المريض، الحالة، اللقاء، طلب الدواء، الملاحظة، الإجراء"
+      },
+      "actions": {
+        "cancel": "يلغي",
+        "saveChanges": "حفظ التغييرات",
+        "createConnection": "إنشاء اتصال",
+        "testConnection": "اتصال الاختبار",
+        "edit": "يحرر",
+        "delete": "يمسح",
+        "details": "تفاصيل",
+        "syncMonitor": "مراقب المزامنة",
+        "addConnection": "إضافة اتصال"
+      },
+      "messages": {
+        "failedToSave": "فشل الحفظ",
+        "failedToStartSync": "فشل بدء المزامنة",
+        "deleteConfirm": "هل تريد حذف \"{{name}}\"؟",
+        "noConnections": "لم يتم تكوين اتصالات FHIR",
+        "noConnectionsDescription": "أضف اتصالا لبدء استخراج البيانات السريرية من نظام سجل صحي إلكتروني عبر بيانات FHIR R4 المجمعة."
+      },
+      "sync": {
+        "activateFirst": "قم بتنشيط الاتصال أولاً",
+        "uploadKeyFirst": "قم بتحميل مفتاح خاص أولاً",
+        "inProgress": "المزامنة قيد التقدم",
+        "incrementalTitle": "المزامنة التزايدية (البيانات الجديدة فقط)",
+        "fullSync": "مزامنة كاملة",
+        "sync": "مزامنة",
+        "incrementalSync": "مزامنة تزايدية",
+        "incrementalDescription": "البيانات الجديدة/المحدثة فقط منذ آخر مزامنة",
+        "fullDescription": "تنزيل جميع البيانات من نظام السجل الصحي الإلكتروني",
+        "forceFullSync": "فرض المزامنة الكاملة",
+        "forceFullDescription": "إعادة تنزيل كافة البيانات، وإلغاء التكرار عند الكتابة"
+      },
+      "values": {
+        "percent": "{{value}}%",
+        "byUser": "بواسطة {{name}}",
+        "keyUploaded": "تم تحميل المفتاح",
+        "noKey": "لا يوجد مفتاح",
+        "lastSync": "آخر مزامنة: {{date}}",
+        "records": "{{count}} السجلات",
+        "testElapsed": "{{message}} ({{elapsed}} مللي ثانية)",
+        "allSupported": "كل الدعم",
+        "enabled": "ممكّن",
+        "disabled": "عاجز",
+        "since": "(منذ {{date}})",
+        "notSet": "لم يتم ضبطه",
+        "never": "أبداً"
+      },
+      "details": {
+        "tokenEndpoint": "Token نقطة النهاية:",
+        "clientId": "العميل ID:",
+        "scopes": "النطاقات:",
+        "groupId": "المجموعة ID:",
+        "resourceTypes": "أنواع الموارد:",
+        "incremental": "تزايدي:",
+        "targetSource": "المصدر المستهدف:",
+        "syncRuns": "تشغيل المزامنة:"
+      },
+      "stats": {
+        "totalConnections": "إجمالي الاتصالات",
+        "active": "نشيط",
+        "keysConfigured": "تم تكوين المفاتيح",
+        "lastSync": "آخر مزامنة"
+      }
+    },
+    "vocabulary": {
+      "title": "إدارة المفردات",
+      "subtitle": "قم بتحديث OMOP جداول المفردات من تنزيل Athena ZIP.",
+      "status": {
+        "pending": "في قائمة الانتظار",
+        "running": "جري",
+        "completed": "مكتمل",
+        "failed": "فشل"
+      },
+      "log": {
+        "title": "سجل الاستيراد",
+        "noOutput": "(لا يوجد مخرج بعد)"
+      },
+      "labels": {
+        "schema": "مخطط:",
+        "source": "مصدر:",
+        "rowsLoaded": "تم تحميل الصفوف:",
+        "duration": "مدة:",
+        "by": "بواسطة:",
+        "progress": "تقدم",
+        "optional": "(خياري)"
+      },
+      "values": {
+        "seconds": "{{value}}s"
+      },
+      "actions": {
+        "refresh": "ينعش",
+        "remove": "يزيل",
+        "uploading": "جارٍ التحميل...",
+        "startImport": "ابدأ الاستيراد"
+      },
+      "upload": {
+        "title": "تحميل مفردات أثينا ZIP",
+        "descriptionPrefix": "تحميل مجموعة المفردات من",
+        "descriptionMiddle": "وتحميله هنا.",
+        "descriptionSuffix": "يتم تشغيل الاستيراد كمهمة خلفية ويمكن أن يستغرق من 15 إلى 60 دقيقة حسب حجم المفردات.",
+        "maxFileSize": "يتم دعم الملفات التي يصل حجمها إلى 5 GB",
+        "dropHere": "أسقط أثينا ZIP هنا",
+        "browse": "أو انقر للتصفح",
+        "targetSource": "الهدف CDM المصدر",
+        "defaultSchema": "مخطط المفردات الافتراضي",
+        "sourceHelpPrefix": "يحدد مخطط مفردات المصدر الذي سيتم ملؤه بالاستيراد. إذا لم يتم اختيار مصدر، الافتراضي",
+        "sourceHelpSuffix": "يتم استخدام مخطط الاتصال."
+      },
+      "instructions": {
+        "title": "كيفية الحصول على المفردات ZIP من أثينا",
+        "signInPrefix": "يزور",
+        "signInSuffix": "وقم بتسجيل الدخول.",
+        "selectDomains": "حدد مجالات المفردات والإصدارات التي تحتاجها (على سبيل المثال SNOMED، RxNorm، LOINC).",
+        "clickPrefix": "انقر",
+        "downloadVocabularies": "تحميل المفردات",
+        "clickSuffix": "- سترسل لك أثينا رابط التنزيل عبر البريد الإلكتروني.",
+        "uploadZip": "قم بتنزيل ZIP (عادةً 500 MB-3 GB) وقم بتحميله أدناه."
+      },
+      "messages": {
+        "deleteConfirm": "هل تريد حذف سجل الاستيراد هذا؟",
+        "uploadFailed": "فشل التحميل: {{message}}",
+        "unknownError": "خطأ غير معروف",
+        "uploadSuccess": "تم تحميل ZIP بنجاح. مهمة الاستيراد في قائمة الانتظار - تحقق أدناه لمعرفة التقدم.",
+        "importRunning": "عملية الاستيراد قيد التشغيل حاليًا. يتم تعطيل التحميلات الجديدة حتى تكتمل."
+      },
+      "history": {
+        "title": "تاريخ الاستيراد",
+        "loading": "تحميل...",
+        "empty": "لا توجد واردات المفردات حتى الآن. قم بتحميل Athena ZIP أعلاه للبدء."
+      }
+    },
+    "systemHealth": {
+      "title": "صحة النظام",
+      "subtitle": "الحالة المباشرة لجميع خدمات Parthenon. يتم التحديث تلقائيًا كل 30 ثانية.",
+      "serverStatus": "حالة الخادم",
+      "lastChecked": "تم آخر فحص في {{time}}",
+      "polling": "خدمات الاقتراع...",
+      "gisDataManagement": "GIS إدارة البيانات",
+      "status": {
+        "healthy": "صحيح",
+        "degraded": "متدهورة",
+        "down": "تحت"
+      },
+      "overall": {
+        "healthy": "صحيح",
+        "needsAttention": "يحتاج إلى اهتمام"
+      },
+      "labels": {
+        "pending": "قيد الانتظار:",
+        "failed": "فشل:",
+        "cores": "النوى:",
+        "documents": "وثائق:",
+        "dagster": "Dagster:",
+        "graphql": "GraphQL:",
+        "studies": "دراسات:",
+        "instances": "المثيلات:",
+        "disk": "القرص:"
+      },
+      "actions": {
+        "refresh": "ينعش",
+        "openService": "افتح الخدمة",
+        "viewDetails": "عرض التفاصيل"
+      },
+      "tiers": {
+        "corePlatform": "المنصة الأساسية",
+        "dataSearch": "البيانات والبحث",
+        "aiAnalytics": "الذكاء الاصطناعي والتحليلات",
+        "clinicalServices": "الخدمات السريرية",
+        "monitoringCommunications": "المراقبة والاتصالات",
+        "acropolisInfrastructure": "Acropolis البنية التحتية",
+        "unknown": "خدمات أخرى"
+      },
+      "hades": {
+        "title": "OHDSI تكافؤ الحزمة",
+        "subtitle": "تغطية حزمة Darkstar للأعمال الأصلية والمتوافقة من الدرجة الأولى.",
+        "checking": "التحقق من حزم Darkstar...",
+        "unavailable": "مخزون حزمة Darkstar غير متوفر.",
+        "installed": "تم التثبيت:",
+        "missing": "مفتقد:",
+        "total": "المجموع:",
+        "requiredMissing": "المطلوب مفقود:",
+        "shinyPolicy": "سياسة لامعة تراثية",
+        "notExposed": "لم يتعرض",
+        "shinyPolicyDescription": "يتم تعطيل التطبيقات اللامعة المستضافة وتضمين iframe ومسارات التطبيقات التي يوفرها المستخدم. OHDSI تظل الحزم اللامعة عناصر متوافقة مع وقت التشغيل فقط.",
+        "replacement": "الاستبدال: {{surface}}",
+        "package": "طَرد",
+        "capability": "القدرة",
+        "priority": "أولوية",
+        "surface": "سطح",
+        "source": "مصدر",
+        "runtime": "وقت التشغيل",
+        "status": {
+          "complete": "مكتمل",
+          "partial": "جزئي"
+        }
+      }
+    },
+    "fhirSync": {
+      "title": "FHIR Sync مراقب",
+      "subtitle": "مراقبة خطوط الأنابيب ETL في الوقت الفعلي عبر جميع اتصالات FHIR",
+      "status": {
+        "completed": "مكتمل",
+        "running": "جري",
+        "pending": "قيد الانتظار",
+        "exporting": "تصدير",
+        "downloading": "جارٍ التنزيل",
+        "processing": "يعالج",
+        "failed": "فشل"
+      },
+      "timeline": {
+        "empty": "لم يكن هناك نشاط مزامنة في آخر 30 يومًا",
+        "tooltip": "{{date}}: {{completed}} اكتمل، {{failed}} فشل",
+        "hoverSummary": "{{completed}} حسنًا / {{failed}} فشل"
+      },
+      "metrics": {
+        "extracted": "مستخرج",
+        "mapped": "تم تعيينه",
+        "written": "مكتوب",
+        "failed": "فشل",
+        "averageMappingCoverage": "متوسط ​​تغطية الخرائط"
+      },
+      "actions": {
+        "viewError": "عرض الخطأ"
+      },
+      "values": {
+        "runs": "{{count}} يجري",
+        "never": "أبداً",
+        "activeRuns": "{{count}} نشط",
+        "refreshInterval": "تحديث {{seconds}}s",
+        "allTimeTotals": "الإجماليات في كل الأوقات",
+        "lastRuns": "آخر 20 عبر جميع الاتصالات"
+      },
+      "messages": {
+        "failedToLoad": "فشل تحميل بيانات لوحة القيادة.",
+        "noConnections": "لم يتم تكوين أي اتصالات",
+        "noRuns": "لم يتم تشغيل أي مزامنة حتى الآن"
+      },
+      "stats": {
+        "connections": "اتصالات",
+        "totalRuns": "إجمالي عدد مرات التشغيل",
+        "completed": "مكتمل",
+        "failed": "فشل",
+        "recordsWritten": "السجلات مكتوبة",
+        "avgCoverage": "متوسط ​​التغطية"
+      },
+      "panels": {
+        "pipelineThroughput": "إنتاجية خطوط الأنابيب",
+        "syncActivity": "نشاط المزامنة (30 يومًا)",
+        "connectionHealth": "صحة الاتصال",
+        "recentRuns": "عمليات المزامنة الأخيرة"
+      },
+      "table": {
+        "status": "حالة",
+        "connection": "اتصال",
+        "started": "بدأت",
+        "duration": "مدة",
+        "metrics": "المقاييس"
+      }
+    },
+    "gisData": {
+      "title": "GIS بيانات الحدود",
+      "subtitle": "إدارة مجموعات بيانات الحدود الجغرافية لمستكشف GIS",
+      "status": {
+        "loaded": "محملة",
+        "empty": "فارغ"
+      },
+      "tabs": {
+        "boundaries": "حدود",
+        "dataImport": "استيراد البيانات"
+      },
+      "messages": {
+        "checking": "جارٍ التحقق من بيانات الحدود...",
+        "noBoundaryData": "لم يتم تحميل أي بيانات حدودية. حدد المصدر والمستويات أدناه للبدء."
+      },
+      "labels": {
+        "boundaries": "حدود:",
+        "countries": "بلدان:"
+      },
+      "load": {
+        "title": "حدود التحميل",
+        "adminLevels": "مستويات المسؤول للتحميل:"
+      },
+      "sources": {
+        "gadm": {
+          "name": "GADM الإصدار 4.1",
+          "description": "المناطق الإدارية العالمية - 356 ألف حدود عبر 6 مستويات إدارية"
+        },
+        "geoboundaries": {
+          "name": "الحدود الجغرافية CGAZ",
+          "description": "الحدود المبسطة للاتساق الخرائطي (ADM0-2)"
+        }
+      },
+      "levels": {
+        "adm0": "الدول (ADM0)",
+        "adm1": "الولايات/المقاطعات (ADM1)",
+        "adm2": "المناطق/المقاطعات (ADM2)",
+        "adm3": "النواحي (ADM3)"
+      },
+      "actions": {
+        "preparing": "جارٍ التحضير...",
+        "generateLoadCommand": "توليد أمر التحميل",
+        "refreshStats": "تحديث الإحصائيات",
+        "copyToClipboard": "نسخ إلى الحافظة",
+        "close": "يغلق"
+      },
+      "modal": {
+        "runOnHost": "تشغيل على المضيف",
+        "description": "يتم تحميل بيانات GIS مباشرة إلى PostgreSQL المحلي 17. قم بتشغيل هذا الأمر من جذر المشروع:",
+        "datasetFlagPrefix": "ال",
+        "datasetFlagSuffix": "العلم يتيح تتبع التقدم. تحديث الإحصائيات بعد اكتمال البرنامج النصي."
+      },
+      "job": {
+        "title": "جارٍ تحميل GIS الحدود",
+        "description": "المصدر: {{source}} | المستويات: {{levels}}"
+      },
+      "values": {
+        "all": "الجميع"
+      }
+    },
+    "honestBroker": {
+      "title": "Honest Broker",
+      "subtitle": "قم بتسجيل المشاركين في الاستطلاع المكفوفين، واربطهم بسجلات OMOP person_id، وراقب حالة الإرسال دون الكشف عن هويات المستجيبين الأولية للباحثين.",
+      "actions": {
+        "cancel": "يلغي",
+        "registerParticipant": "تسجيل مشارك",
+        "sendInvitation": "أرسل الدعوة",
+        "sendInvite": "أرسل دعوة",
+        "refresh": "ينعش",
+        "copyLink": "نسخ الوصلة",
+        "openSurvey": "فتح الاستطلاع",
+        "resend": "إعادة الإرسال",
+        "revoke": "إبطال"
+      },
+      "labels": {
+        "personId": "الشخص ID",
+        "notes": "ملحوظات",
+        "participant": "مشارك",
+        "deliveryEmail": "البريد الإلكتروني الخاص بالتسليم",
+        "unknown": "مجهول",
+        "unknownInstrument": "أداة غير معروفة",
+        "notYet": "ليس بعد",
+        "notRecorded": "لم يتم تسجيلها",
+        "system": "نظام",
+        "statusToken": "{{status}} · {{token}}",
+        "tokenReference": "...{{token}}"
+      },
+      "metrics": {
+        "brokerCampaigns": "حملات الوسيط",
+        "registeredParticipants": "المشاركون المسجلون",
+        "submitted": "مُقَدَّم",
+        "invitationsSent": "الدعوات المرسلة",
+        "complete": "مكتمل",
+        "pending": "قيد الانتظار",
+        "seeded": "المصنف",
+        "registered": "مسجل",
+        "completion": "انتهاء",
+        "completionPercent": "{{value}}%"
+      },
+      "campaignStatuses": {
+        "draft": "مسودة",
+        "active": "نشيط",
+        "closed": "مغلق"
+      },
+      "matchStatuses": {
+        "submitted": "مُقَدَّم",
+        "registered": "مسجل",
+        "pending": "قيد الانتظار",
+        "matched": "متطابق"
+      },
+      "deliveryStatuses": {
+        "pending": "قيد الانتظار",
+        "queued": "في قائمة الانتظار",
+        "sent": "مرسل",
+        "opened": "مفتوح",
+        "submitted": "مُقَدَّم",
+        "revoked": "تم إبطاله",
+        "failed": "فشل"
+      },
+      "unauthorized": {
+        "title": "Honest Broker الوصول مطلوب",
+        "description": "تقتصر مساحة العمل هذه على مشرفي البيانات والمسؤولين لأنها تربط هويات المسح المعماة بسجلات المرضى."
+      },
+      "registerModal": {
+        "title": "تسجيل مشارك",
+        "titleWithCampaign": "تسجيل مشارك · {{campaign}}",
+        "registering": "جاري التسجيل...",
+        "description": "قم بإنشاء إدخال تسجيل معماة يقوم بتعيين معرف المستجيب لسجل المريض لحملة الاستطلاع هذه.",
+        "respondentIdentifier": "معرف المجيب",
+        "respondentPlaceholder": "MRN أو رمز الدراسة أو رمز الدعوة",
+        "personIdPlaceholder": "معروف OMOP person_id",
+        "notesPlaceholder": "ملاحظات وسيط اختيارية"
+      },
+      "inviteModal": {
+        "title": "أرسل الدعوة",
+        "titleWithCampaign": "إرسال دعوة · {{campaign}}",
+        "sending": "إرسال...",
+        "description": "أرسل رابط استبيان يديره الوسيط لمرة واحدة. الوسيط فقط هو الذي يحتفظ بعنوان التسليم وسلسلة الحضانة.",
+        "selectParticipant": "اختر المشارك",
+        "participantWithPerson": "{{blindedId}} · شخص {{personId}}",
+        "emailPlaceholder": "المريض@example.org",
+        "lastInvitation": "الدعوة الأخيرة: {{status}} · نهاية الرمز المميز {{token}}"
+      },
+      "campaignRegistry": {
+        "title": "سجل الحملة",
+        "subtitle": "الحملات التي يدعمها الوسيط الصادق فقط.",
+        "loading": "جارٍ تحميل الحملات...",
+        "emptyPrefix": "لا توجد حملات وسيط نزيه حتى الآن. يُمكَِن",
+        "requireHonestBroker": "يتطلب Honest Broker",
+        "emptySuffix": "في حملة المسح أولا."
+      },
+      "messages": {
+        "selectCampaignManage": "حدد حملة لإدارة تسجيلات الوسيط.",
+        "selectCampaignReview": "حدد حملة لمراجعة تسجيلات الوسيط."
+      },
+      "participants": {
+        "title": "المشاركون المسجلون",
+        "subtitle": "تم إلغاء تحديد إدخالات التسجيل لحملة الاستطلاع المحددة.",
+        "searchPlaceholder": "البحث عن معرف أعمى، معرف الشخص، والملاحظات ...",
+        "loading": "جارٍ تحميل التسجيلات...",
+        "noMatches": "لا توجد تسجيلات وسيط تتطابق مع عامل التصفية الحالي."
+      },
+      "invitations": {
+        "title": "دفتر الدعوة",
+        "subtitle": "سلسلة الحراسة الصادرة والواردة لدعوات المسح التي يديرها الوسيط.",
+        "loading": "جارٍ تحميل الدعوات...",
+        "empty": "لم يتم إرسال أي دعوات لهذه الحملة حتى الآن."
+      },
+      "audit": {
+        "title": "مسار التدقيق",
+        "subtitle": "سلسلة عهدة غير قابلة للتغيير من جانب الوسيط لتسجيل المشاركين، والدعوات الصادرة، وأحداث الاستجابة الواردة.",
+        "loading": "جارٍ تحميل مسار التدقيق...",
+        "empty": "لم يتم تسجيل أي أحداث تدقيق للوسيط حتى الآن."
+      },
+      "latest": {
+        "title": "أحدث سجل مطابقة",
+        "blindedId": "أعمى ID",
+        "created": "مخلوق"
+      },
+      "table": {
+        "blindedParticipant": "مشارك أعمى",
+        "conductId": "السلوك ID",
+        "status": "حالة",
+        "submitted": "مُقَدَّم",
+        "contact": "اتصال",
+        "latestInvite": "أحدث دعوة",
+        "destination": "وجهة",
+        "sent": "مرسل",
+        "opened": "مفتوح",
+        "reference": "مرجع",
+        "actions": "الإجراءات",
+        "time": "وقت",
+        "action": "فعل",
+        "actor": "ممثل",
+        "inviteRef": "دعوة المرجع",
+        "metadata": "البيانات الوصفية"
+      },
+      "auditActions": {
+        "participant_registered": "مشارك مسجل",
+        "invitation_sent": "تم إرسال الدعوة",
+        "invitation_resent": "تمت إعادة إرسال الدعوة",
+        "invitation_revoked": "تم إلغاء الدعوة",
+        "response_submitted": "تم إرسال الرد",
+        "status_changed": "تم تغيير الحالة"
+      },
+      "confirmRevoke": "هل تريد إلغاء الدعوة التي تنتهي بـ {{token}}؟",
+      "toasts": {
+        "publishLinkCopied": "تم نسخ رابط النشر",
+        "publishLinkCopyFailed": "فشل نسخ رابط النشر",
+        "participantRegistered": "تم تسجيل المشارك",
+        "participantRegisterFailed": "فشل في تسجيل المشارك",
+        "invitationSent": "تم إرسال الدعوة · نهاية الرمز المميز {{token}}",
+        "invitationSendFailed": "فشل إرسال الدعوة",
+        "invitationResent": "تمت إعادة الدعوة · نهاية الرمز المميز {{token}}",
+        "invitationResendFailed": "فشلت إعادة إرسال الدعوة",
+        "invitationRevoked": "تم إلغاء الدعوة · نهاية الرمز المميز {{token}}",
+        "invitationRevokeFailed": "فشل في إلغاء الدعوة"
+      }
+    }
+  },
+  "dataExplorer": {
+    "ares": {
+      "name": "Ares",
+      "breadcrumbSeparator": null,
+      "comingSoon": "قريبا في مرحلة قادمة",
+      "sections": {
+        "hub": "مَركَز",
+        "networkOverview": "نظرة عامة على الشبكة",
+        "conceptComparison": "مقارنة المفهوم",
+        "dqHistory": "DQ التاريخ",
+        "coverage": "التغطية",
+        "coverageMatrix": "مصفوفة التغطية",
+        "feasibility": "الجدوى",
+        "diversity": "تنوع",
+        "releases": "الإصدارات",
+        "unmappedCodes": "رموز غير محددة",
+        "cost": "يكلف",
+        "costAnalysis": "تحليل التكلفة",
+        "annotations": "الشروح"
+      },
+      "cards": {
+        "sourcesBelowDq": "{{value}} مصادر أقل من 80% DQ",
+        "networkOverviewDescription": "صحة المصدر، DQ النتائج، مؤشرات الاتجاه",
+        "conceptComparisonDescription": "مقارنة انتشار المفهوم عبر المصادر",
+        "dqHistoryDescription": "متوسط ​​نقاط الشبكة DQ مقارنة بالإصدارات",
+        "coverageDescription": "توفر المجال x المصدر",
+        "feasibilityDescription": "هل يمكن لشبكتك دعم الدراسة؟",
+        "diversityDescription": "التكافؤ الديموغرافي عبر المصادر",
+        "releasesDescription": "سجل الإصدارات لكل مصدر",
+        "unmappedCodesDescription": "أكواد المصدر بدون تعيينات قياسية",
+        "annotationsDescription": "ملاحظات الرسم البياني عبر جميع المصادر",
+        "costDescription": "بيانات التكلفة حسب المجال وعلى مر الزمن"
+      },
+      "networkOverview": {
+        "title": "نظرة عامة على الشبكة",
+        "networkTotal": "إجمالي الشبكة",
+        "percent": "{{value}}%",
+        "averagePercent": "{{value}}% المتوسط",
+        "actions": {
+          "dqRadar": "DQ الرادار",
+          "hideRadar": "إخفاء الرادار"
+        },
+        "metrics": {
+          "dataSources": "مصادر البيانات",
+          "avgDqScore": "متوسط ​​DQ النتيجة",
+          "unmappedCodes": "رموز غير محددة",
+          "needAttention": "بحاجة الى الاهتمام",
+          "totalPersons": "إجمالي الأشخاص"
+        },
+        "table": {
+          "source": "مصدر",
+          "dqScore": "DQ النتيجة",
+          "dqTrend": "DQ الاتجاه",
+          "freshness": "نضارة",
+          "domains": "المجالات",
+          "persons": "الأشخاص",
+          "latestRelease": "أحدث إصدار"
+        },
+        "messages": {
+          "loading": "جارٍ تحميل النظرة العامة على الشبكة...",
+          "noData": "لا توجد بيانات الشبكة المتاحة.",
+          "noReleases": "لا توجد إصدارات"
+        },
+        "radar": {
+          "title": "DQ ملف تعريف الرادار (أبعاد خان)",
+          "description": "معدلات النجاح عبر أبعاد جودة بيانات Kahn الخمسة. تشير القيم الأعلى إلى جودة أفضل.",
+          "noData": "لا توجد بيانات رادارية DQ متاحة.",
+          "dimensions": {
+            "completeness": "الاكتمال",
+            "conformanceValue": "المطابقة (القيمة)",
+            "conformanceRelational": "المطابقة (العلائقية)",
+            "plausibilityAtemporal": "المعقولية (غير زمانية)",
+            "plausibilityTemporal": "المعقولية (الزمنية)"
+          }
+        }
+      },
+      "feasibility": {
+        "title": "تقييمات الجدوى",
+        "assessmentMeta": "{{date}} | {{sources}} تم تقييم المصادر",
+        "passedSummary": "تم تمرير {{passed}}/{{total}}",
+        "resultsTitle": "النتائج: {{name}}",
+        "scoreLabel": "{{score}}% النتيجة",
+        "empty": "لا التقييمات حتى الآن. قم بإنشاء واحدة لتقييم ما إذا كانت شبكتك يمكنها دعم الدراسة المقترحة.",
+        "actions": {
+          "newAssessment": "+ تقييم جديد",
+          "running": "جري...",
+          "runAssessment": "تشغيل التقييم",
+          "hide": "يخفي",
+          "forecast": "تنبؤ بالمناخ"
+        },
+        "filters": {
+          "view": "منظر:"
+        },
+        "detailViews": {
+          "table": "جدول النقاط",
+          "impact": "تحليل التأثير",
+          "consort": "CONSORT التدفق"
+        },
+        "criteria": {
+          "domains": "المجالات",
+          "concepts": "المفاهيم",
+          "visitTypes": "أنواع الزيارة",
+          "dateRange": "النطاق الزمني",
+          "patientCount": "عدد المرضى"
+        },
+        "forecast": {
+          "insufficientData": "البيانات التاريخية غير كافية للتنبؤ (الحد الأدنى المطلوب 6 أشهر).",
+          "title": "توقعات وصول المريض: {{source}}",
+          "monthlyRate": "المعدل الشهري: {{rate}} مريض/شهر",
+          "targetReachedIn": "تم الوصول إلى الهدف خلال ~{{months}} شهرًا",
+          "targetAlreadyReached": "تم الوصول للهدف بالفعل",
+          "actual": "فِعلي",
+          "projected": "المتوقع",
+          "confidenceBand": "95% CI",
+          "targetLabel": "الهدف: {{target}}",
+          "footnote": "يعتمد الإسقاط على الانحدار الخطي لآخر 12 شهرًا. يتسع نطاق الثقة مع مسافة العرض."
+        },
+        "consort": {
+          "allSources": "جميع المصادر",
+          "noResults": "لا توجد نتائج لعرض الرسم البياني CONSORT.",
+          "title": "CONSORT-تدفق استنزاف النمط",
+          "description": "يوضح كيف يتم استبعاد المصادر تدريجيًا بواسطة كل بوابة معيار.",
+          "sources": "{{count}} المصادر",
+          "excluded": "-{{count}} مستبعدة"
+        },
+        "impact": {
+          "noData": "لا توجد بيانات تأثير المعايير المتاحة.",
+          "title": "تحليل تأثير المعايير",
+          "description": "يوضح عدد المصادر الإضافية التي سيتم تمريرها إذا تمت إزالة كل معيار. خط الأساس: {{passed}}/{{total}} عابر.",
+          "sourcesRecovered": "+{{count}} المصادر",
+          "guidance": "المعيار الأكثر تأثيرًا هو المعيار الذي ستؤدي إزالته إلى استرداد معظم المصادر. فكر في تخفيف المعايير عالية التأثير إذا كان هناك عدد قليل جدًا من المصادر المؤهلة."
+        },
+        "templates": {
+          "loading": "جارٍ تحميل النماذج...",
+          "startFrom": "ابدأ من القالب"
+        },
+        "table": {
+          "source": "مصدر",
+          "domains": "المجالات",
+          "concepts": "المفاهيم",
+          "visits": "الزيارات",
+          "dates": "بلح",
+          "patients": "مرضى",
+          "score": "نتيجة",
+          "overall": "إجمالي",
+          "forecast": "تنبؤ بالمناخ"
+        },
+        "status": {
+          "eligible": "ELIGIBLE",
+          "ineligible": "INELIGIBLE"
+        },
+        "form": {
+          "title": "تقييم الجدوى الجديد",
+          "assessmentName": "اسم التقييم",
+          "assessmentNamePlaceholder": "على سبيل المثال دراسة نتائج مرض السكري",
+          "requiredDomains": "المجالات المطلوبة",
+          "minPatientCount": "الحد الأدنى لعدد المرضى (اختياري)",
+          "minPatientCountPlaceholder": "على سبيل المثال 1000",
+          "domains": {
+            "condition": "شروط",
+            "drug": "المخدرات",
+            "procedure": "إجراءات",
+            "measurement": "القياسات",
+            "observation": "الملاحظات",
+            "visit": "الزيارات"
+          }
+        }
+      },
+      "annotations": {
+        "filters": {
+          "allSources": "جميع المصادر"
+        },
+        "tags": {
+          "all": "الجميع",
+          "dataEvent": "حدث البيانات",
+          "researchNote": "مذكرة بحثية",
+          "actionItem": "عنصر العمل",
+          "system": "نظام"
+        },
+        "viewModes": {
+          "list": "قائمة",
+          "timeline": "الجدول الزمني"
+        },
+        "actions": {
+          "reply": "رد",
+          "delete": "يمسح"
+        },
+        "replyPlaceholder": "أكتب الرد...",
+        "searchPlaceholder": "بحث في التعليقات التوضيحية...",
+        "confirmDelete": "هل تريد حذف هذا التعليق التوضيحي؟",
+        "coordinateValue": "{{axis}} = {{value}}",
+        "sourceContext": "على {{source}}",
+        "empty": {
+          "selectSource": "حدد مصدرًا لعرض التعليقات التوضيحية الخاصة به",
+          "noAnnotations": "لا توجد تعليقات توضيحية حتى الآن لهذا المصدر",
+          "noTimeline": "لا توجد تعليقات توضيحية لعرضها في المخطط الزمني."
+        }
+      },
+      "coverage": {
+        "title": "مصفوفة التغطية (تقرير ستراند)",
+        "description": "توفر النطاق عبر جميع مصادر البيانات. الأخضر = كثافة عالية، العنبر = كثافة منخفضة، الأحمر = لا توجد بيانات.",
+        "yes": "نعم",
+        "densityTitle": "الكثافة: {{density}} للشخص الواحد",
+        "filters": {
+          "view": "منظر:"
+        },
+        "viewModes": {
+          "records": "السجلات",
+          "per_person": "لكل شخص",
+          "date_range": "النطاق الزمني"
+        },
+        "actions": {
+          "exporting": "جارٍ التصدير...",
+          "exportCsv": "تصدير CSV",
+          "expectedVsActual": "المتوقع مقابل الفعلي"
+        },
+        "table": {
+          "source": "مصدر",
+          "domains": "المجالات"
+        },
+        "expectedStates": {
+          "expectedPresent": "المنتظر والحاضر",
+          "expectedMissing": "متوقع ولكنه مفقود",
+          "unexpectedBonus": "بيانات مكافأة غير متوقعة",
+          "notExpectedAbsent": "غير متوقع، غير موجود"
+        },
+        "messages": {
+          "loading": "جارٍ تحميل مصفوفة التغطية...",
+          "noSources": "لا توجد مصادر متاحة لتحليل التغطية."
+        }
+      },
+      "dqHistory": {
+        "filters": {
+          "source": "مصدر:",
+          "selectSource": "اختر المصدر..."
+        },
+        "tabs": {
+          "trends": "الاتجاهات",
+          "heatmap": "خريطة الحرارة",
+          "sla": "SLA",
+          "overlay": "عبر المصدر"
+        },
+        "sections": {
+          "passRate": "DQ معدل النجاح على الإصدارات",
+          "heatmap": "الفئة x إصدار الخريطة الحرارية",
+          "sla": "SLA لوحة معلومات الامتثال",
+          "overlay": "تراكب عبر المصادر DQ"
+        },
+        "passRate": "معدل النجاح",
+        "deltaReportTitle": "تقرير دلتا: {{release}}",
+        "status": {
+          "new": "NEW",
+          "existing": "EXISTING",
+          "resolved": "RESOLVED",
+          "stable": "STABLE"
+        },
+        "result": {
+          "pass": "PASS",
+          "fail": "FAIL"
+        },
+        "statusSummary": {
+          "new": "{{count}} جديد",
+          "existing": "{{count}} موجود",
+          "resolved": "تم حل {{count}}",
+          "stable": "{{count}} مستقر"
+        },
+        "table": {
+          "category": "فئة",
+          "status": "حالة",
+          "checkId": "تحقق من ID",
+          "current": "حاضِر",
+          "previous": "سابق"
+        },
+        "sla": {
+          "targetsTitle": "SLA الأهداف (معدل النجاح الأدنى %)",
+          "currentCompliance": "الامتثال الحالي",
+          "actual": "فِعلي",
+          "target": "هدف",
+          "errorBudget": "خطأ في الميزانية",
+          "targetComparison": "{{actual}}% / {{target}}% الهدف"
+        },
+        "messages": {
+          "selectSource": "حدد مصدرًا لعرض سجل DQ.",
+          "loadingHistory": "جارٍ تحميل سجل DQ...",
+          "loadingDeltas": "جارٍ تحميل الدلتا...",
+          "loadingHeatmap": "جارٍ تحميل الخريطة الحرارية...",
+          "loadingOverlay": "جارٍ تحميل بيانات التراكب...",
+          "noOverlayData": "لا توجد بيانات DQ متاحة عبر المصادر.",
+          "noHeatmapData": "لا توجد بيانات خريطة الحرارة المتاحة. قم بتشغيل DQD على إصدارات متعددة لرؤية اتجاهات الفئات.",
+          "noDeltaData": "لا توجد بيانات دلتا متاحة لهذا الإصدار.",
+          "saved": "أنقذ",
+          "noSlaTargets": "لم يتم تحديد أهداف SLA. قم بتعيين الأهداف أعلاه لمعرفة الامتثال.",
+          "noTrendData": "لا توجد بيانات سجل DQ متاحة. قم بتشغيل DQD على إصدارين على الأقل لرؤية الاتجاهات.",
+          "trendHelp": "انقر فوق نقطة الإصدار لعرض تفاصيل الدلتا. أخضر > 90%، كهرماني 80-90%، أحمر <80%.",
+          "overlayHelp": "DQ معدلات النجاح متراكبة عبر جميع المصادر في مخطط زمني موحد."
+        },
+        "actions": {
+          "exporting": "جارٍ التصدير...",
+          "exportCsv": "تصدير CSV",
+          "saving": "توفير...",
+          "saveSlaTargets": "حفظ SLA الأهداف"
+        }
+      },
+      "unmapped": {
+        "filters": {
+          "source": "مصدر:",
+          "selectSource": "اختر المصدر...",
+          "release": "يطلق:",
+          "table": "طاولة:",
+          "allTables": "جميع الجداول",
+          "searchPlaceholder": "البحث في رموز المصدر..."
+        },
+        "viewModes": {
+          "table": "طاولة",
+          "pareto": "باريتو",
+          "vocabulary": "مفردات"
+        },
+        "actions": {
+          "exporting": "جارٍ التصدير...",
+          "exportUsagiCsv": "تصدير Usagi CSV",
+          "previous": "السابق",
+          "next": "التالي"
+        },
+        "summaryBadge": "{{table}} ({{codes}} رموز، {{records}} سجلات)",
+        "vocabularyValue": "({{vocabulary}})",
+        "progress": {
+          "noCodes": "لا توجد رموز غير معينة للمراجعة.",
+          "title": "تقدم رسم الخرائط",
+          "reviewed": "تمت مراجعة {{percent}}%",
+          "segmentTitle": "{{label}}: {{count}} ({{percent}}%)",
+          "label": "{{label}}:",
+          "status": {
+            "mapped": "تم تعيينه",
+            "deferred": "مؤجل",
+            "excluded": "مستبعد",
+            "pending": "قيد الانتظار"
+          }
+        },
+        "sections": {
+          "pareto": "تحليل باريتو للرموز غير المعينة",
+          "vocabulary": "الرموز غير المعينة حسب المفردات",
+          "suggestions": "اقتراحات التعيين بالذكاء الاصطناعي"
+        },
+        "suggestions": {
+          "generating": "إنشاء اقتراحات عبر تشابه pgvector...",
+          "failed": "فشل تحميل الاقتراحات. قد لا تكون خدمة الذكاء الاصطناعي أو تضمينات المفاهيم متاحة.",
+          "empty": "لا توجد اقتراحات متاحة. قد لا يتم تحميل تضمينات المفهوم.",
+          "id": "ID: {{id}}",
+          "accepted": "مقبول",
+          "accept": "يقبل",
+          "skip": "يتخطى"
+        },
+        "pareto": {
+          "topCodesCoverage": "تغطي أفضل 20 رمزًا {{percent}}% من جميع السجلات غير المعينة",
+          "percent": "{{value}}%",
+          "cumulativePercent": "النسبة التراكمية"
+        },
+        "vocabulary": {
+          "total": "المجموع",
+          "codeCount": "رموز {{count}}"
+        },
+        "messages": {
+          "selectSource": "حدد مصدرًا لعرض الرموز غير المعينة.",
+          "loading": "جارٍ تحميل الرموز غير المعينة...",
+          "emptyPareto": "لم يتم العثور على رموز غير معينة لتحليل باريتو.",
+          "emptyVocabulary": "لا توجد بيانات المفردات المتاحة.",
+          "noneFound": "لم يتم العثور على رموز مصدر غير معينة. يتم تعيين جميع الرموز وفقًا لمفاهيم OMOP القياسية.",
+          "sortedByImpact": "مرتبة حسب درجة التأثير (عدد السجلات × وزن المجال)",
+          "showing": "عرض {{start}}-{{end}} من {{total}}"
+        },
+        "table": {
+          "sourceCode": "كود المصدر",
+          "vocabulary": "مفردات",
+          "cdmTable": "CDM الجدول",
+          "cdmField": "CDM الحقل",
+          "records": "السجلات",
+          "impactScore": "نقاط التأثير"
+        }
+      },
+      "conceptComparison": {
+        "title": "مقارنة المفاهيم عبر المصادر",
+        "searchPlaceholder": "ابحث عن مفهوم (على سبيل المثال، \"مرض السكري من النوع 2\"، \"ميتفورمين\")...",
+        "conceptMetadata": "{{domain}} | {{vocabulary}} | ID: {{id}}",
+        "selectedConceptMetadata": "{{domain}} | {{vocabulary}} | المفهوم ID: {{id}}",
+        "temporalTrendTitle": "الاتجاه الزمني: {{concept}}",
+        "addConceptPlaceholder": "إضافة مفهوم آخر ({{selected}}/{{max}} محدد)...",
+        "cdcNationalRate": "CDC المعدل الوطني: {{value}}/1000",
+        "viewModes": {
+          "single": "أعزب",
+          "temporal": "زمني",
+          "multi": "متعدد المفاهيم",
+          "funnel": "قمع الاستنزاف"
+        },
+        "rateModes": {
+          "crude": "سعر النفط الخام",
+          "standardized": "العمر والجنس المعدل"
+        },
+        "metrics": {
+          "rate": "معدل/1000",
+          "count": "عدد",
+          "perThousandShort": "{{value}}/1ك",
+          "perThousandLong": "{{value}} لكل 1000"
+        },
+        "messages": {
+          "noComparisonData": "لا توجد بيانات مقارنة متاحة.",
+          "noTemporalPrevalenceData": "لا توجد بيانات الانتشار الزمني المتاحة.",
+          "selectTwoConcepts": "حدد مفهومين على الأقل للمقارنة.",
+          "searching": "جارٍ البحث...",
+          "loadingComparison": "جارٍ تحميل بيانات المقارنة...",
+          "standardizedNote": "تم توحيدها وفقًا للتعداد السكاني US لعام 2020 باستخدام التوحيد المباشر للعمر والجنس.",
+          "searchToCompare": "ابحث عن المفهوم أعلاه لمقارنة مدى انتشاره عبر جميع مصادر البيانات.",
+          "loadingTemporal": "جارٍ تحميل الانتشار الزمني...",
+          "noTemporalData": "لا توجد بيانات زمنية متاحة لهذا المفهوم.",
+          "searchForTemporal": "ابحث عن المفهوم أعلاه لعرض اتجاه انتشاره الزمني عبر الإصدارات.",
+          "loadingMulti": "جارٍ تحميل المقارنة متعددة المفاهيم...",
+          "loadingFunnel": "جارٍ تحميل مسار الاستنزاف...",
+          "noAttritionData": "لا توجد بيانات تناقص متاحة للمفاهيم المحددة.",
+          "temporalPrevalenceHelp": "المعدل لكل 1000 شخص مع مرور الوقت."
+        }
+      },
+      "releases": {
+        "releaseTypes": {
+          "etl": "ETL",
+          "scheduledEtl": "تمت جدولته ETL",
+          "snapshot": "لقطة"
+        },
+        "cdmVersion": "CDM {{version}}",
+        "vocabularyVersion": "كلمة {{version}}",
+        "personCount": "{{value}} الأشخاص",
+        "recordCount": "{{value}} السجلات",
+        "actions": {
+          "showDiff": "إظهار الفرق",
+          "editRelease": "تحرير الإصدار",
+          "createRelease": "إنشاء الإصدار",
+          "creating": "جارٍ الإنشاء...",
+          "create": "يخلق",
+          "saving": "توفير...",
+          "save": "يحفظ",
+          "cancel": "يلغي"
+        },
+        "etl": {
+          "provenance": "ETL المصدر",
+          "ranBy": "ركض بواسطة:",
+          "codeVersion": "إصدار الكود:",
+          "duration": "مدة:",
+          "started": "بدأت:",
+          "parameters": "حدود:"
+        },
+        "duration": {
+          "hoursMinutes": "{{hours}}ح {{minutes}}م",
+          "minutesSeconds": "{{minutes}}م {{seconds}}ث",
+          "seconds": "{{seconds}}s"
+        },
+        "confirmDelete": "هل تريد حذف هذا الإصدار؟",
+        "tabs": {
+          "list": "الإصدارات",
+          "swimlane": "حارة السباحة",
+          "calendar": "تقويم"
+        },
+        "timelineTitle": "الجدول الزمني للإصدار (جميع المصادر)",
+        "calendarTitle": "الافراج عن التقويم",
+        "selectSource": "حدد مصدرًا",
+        "form": {
+          "releaseName": "اسم الإصدار",
+          "cdmVersion": "CDM الإصدار",
+          "vocabularyVersion": "نسخة المفردات",
+          "etlVersion": "ETL الإصدار",
+          "notes": "ملحوظات",
+          "notesPlaceholder": "ملاحظات الإصدار...",
+          "cdmVersionOptional": "إصدار CDM (اختياري)",
+          "vocabularyVersionOptional": "نسخة المفردات (اختياري)",
+          "cdmVersionPlaceholder": "CDM v5.4",
+          "vocabularyVersionPlaceholder": "2024-11-01",
+          "etlVersionPlaceholder": "v1.2.3"
+        },
+        "empty": {
+          "selectSource": "حدد مصدرًا لعرض إصداراته",
+          "noReleases": "لا توجد إصدارات حتى الآن لهذا المصدر",
+          "noReleaseData": "لا توجد بيانات الإصدار المتاحة."
+        },
+        "calendar": {
+          "noEvents": "لا توجد أحداث الإصدار.",
+          "dayEvents": "{{date}}: {{count}} الإصدارات",
+          "less": "أقل",
+          "more": "أكثر"
+        },
+        "diff": {
+          "computing": "فرق الحوسبة...",
+          "title": "الافراج عن الفرق",
+          "initialRelease": "الإصدار الأولي - لا توجد بيانات سابقة للمقارنة.",
+          "persons": "الأشخاص:",
+          "records": "السجلات:",
+          "dqScore": "DQ النتيجة:",
+          "unmapped": "غير معين:",
+          "vocabUpdated": "تم تحديث المفردات",
+          "domainDeltas": "دلتا المجال:"
+        }
+      },
+      "diversity": {
+        "title": "تقرير التنوع",
+        "description": "النسب الديموغرافية عبر مصادر البيانات. المصادر مرتبة حسب حجم السكان.",
+        "ratings": {
+          "very_high": "عالية جدا",
+          "high": "عالي",
+          "moderate": "معتدل",
+          "low": "قليل"
+        },
+        "percentValue": "{{value}}%",
+        "labelPercentValue": "{{label}}: {{value}}%",
+        "personCount": "{{value}} الأشخاص",
+        "labels": {
+          "gender": "جنس",
+          "race": "سباق",
+          "ethnicity": "عِرق",
+          "male": "ذكر",
+          "female": "أنثى"
+        },
+        "dimensions": {
+          "composite": "مركب",
+          "gender": "جنس",
+          "race": "سباق",
+          "ethnicity": "عِرق"
+        },
+        "tabs": {
+          "overview": "ملخص",
+          "pyramid": "الهرم العمري",
+          "dap": "DAP فجوة",
+          "pooled": "مجمعة",
+          "geographic": "جغرافية",
+          "trends": "الاتجاهات"
+        },
+        "filters": {
+          "selectSource": "حدد مصدرًا"
+        },
+        "benchmarks": {
+          "usCensus2020": "US التعداد السكاني 2020"
+        },
+        "dap": {
+          "title": "FDA DAP تحليل فجوة التسجيل",
+          "description": "مقارنة التركيبة السكانية المصدر مع معايير US للتعداد السكاني لعام 2020 لتحديد فجوات التسجيل.",
+          "tooltip": "الفعلي: {{actual}}% | الهدف: {{target}}% | الفجوة: {{gap}}%",
+          "status": {
+            "met": "التقى (في حدود 2%)",
+            "gap": "الفجوة (2-10%)",
+            "critical": "حرجة (> 10%)"
+          }
+        },
+        "agePyramid": {
+          "title": "{{source}} -- التوزيع العمري"
+        },
+        "benchmark": {
+          "title": "المعيار: {{label}}",
+          "actual": "فِعلي",
+          "benchmark": "المعيار"
+        },
+        "trends": {
+          "title": "اتجاهات التنوع: {{source}}",
+          "description": "مؤشر سيمبسون للتنوع لكل إصدار (0 = متجانس، 1 = أقصى قدر من التنوع)"
+        },
+        "geographic": {
+          "loading": "جارٍ تحميل بيانات التنوع الجغرافي...",
+          "noLocationData": "لا توجد بيانات الموقع المتاحة",
+          "noAdiData": "ADI البيانات غير متوفرة (قد لا يتم تحميل ADI الوحدة النمطية ADI)",
+          "noGeographicData": "لا توجد بيانات جغرافية متاحة. قد لا تحتوي المصادر على بيانات موقع في جدول الأشخاص.",
+          "statesCovered": "الولايات / المناطق المشمولة",
+          "networkMedianAdi": "متوسط ​​الشبكة ADI:",
+          "sourcesWithLocation": "المصادر مع بيانات الموقع",
+          "sourcesWithAdi": "المصادر التي تحتوي على بيانات ADI",
+          "stateCount": "{{count}} الدول",
+          "medianAdiValue": "المتوسط ​​ADI: {{value}}",
+          "topStates": "أعلى الولايات حسب عدد المرضى",
+          "adiDistribution": "ADI التوزيع العشري",
+          "leastDeprived": "الأقل حرماناً",
+          "adiDecile": "ADI عشري",
+          "mostDeprived": "الأكثر حرماناً",
+          "decileTitle": "العشري {{decile}}: {{count}} ZIP الرموز",
+          "adiRatings": {
+            "low": "انخفاض الحرمان",
+            "moderate": "الحرمان المعتدل",
+            "high": "الحرمان الشديد (نقص الخدمات)"
+          }
+        },
+        "pooled": {
+          "title": "التركيبة السكانية المجمعة",
+          "description": "حدد مصادر متعددة لرؤية الملفات الشخصية الديموغرافية المدمجة الموزونة.",
+          "summary": "الإجمالي: {{persons}} من الأشخاص عبر {{sources}} من المصادر"
+        },
+        "messages": {
+          "loading": "جارٍ تحميل بيانات التنوع...",
+          "noSources": "لا توجد مصادر متاحة لتحليل التنوع.",
+          "noData": "لا توجد بيانات",
+          "noTrendData": "لا توجد بيانات إصدار متاحة لاتجاهات التنوع.",
+          "noTrendReleases": "لم يتم العثور على الإصدارات لهذا المصدر. إنشاء إصدارات لتتبع اتجاهات التنوع."
+        }
+      },
+      "cost": {
+        "empty": {
+          "title": "لا تتوفر بيانات التكلفة",
+          "message": "تتطلب بيانات التكلفة مجموعات بيانات قائمة على المطالبات مثل MarketScan وOptum وPharMetrics. أما مجموعات البيانات المشتقة من أنظمة السجلات الصحية الإلكترونية مثل SynPUF وMIMIC-IV ومعظم بيانات المراكز الطبية الأكاديمية، فعادة لا تملأ جدول التكلفة في OMOP."
+        },
+        "filters": {
+          "source": "مصدر:",
+          "selectSource": "اختر المصدر..."
+        },
+        "tabs": {
+          "overview": "ملخص",
+          "distribution": "توزيع",
+          "care-setting": "إعداد الرعاية",
+          "trends": "الاتجاهات",
+          "drivers": "محركات التكلفة",
+          "cross-source": "عبر المصدر"
+        },
+        "messages": {
+          "selectSource": "حدد مصدرًا لعرض بيانات التكلفة.",
+          "loading": "جارٍ تحميل بيانات التكلفة...",
+          "distributionHelp": "مؤامرات الصندوق والشارب تظهر انتشار التكلفة. المربع = IQR (P25-P75)، الشعيرات = P10-P90، الخط الذهبي = المتوسط، النقطة الحمراء = المتوسط.",
+          "noDistributionData": "لا توجد بيانات التوزيع المتاحة.",
+          "noCareSettingData": "لا تتوفر بيانات تكلفة إعداد الرعاية. يتطلب ربط سجلات تكلفة نطاق الزيارة بـ visit_occurrence.",
+          "selectSourceForDrivers": "حدد مصدرًا لعرض محركات التكلفة.",
+          "loadingDrivers": "جارٍ تحميل محركات التكلفة...",
+          "noDriverData": "لا تتوفر بيانات سائق التكلفة لهذا المصدر.",
+          "costDriversHelp": "أفضل 10 مفاهيم حسب التكلفة الإجمالية. انقر فوق شريط للحصول على تفاصيل المفهوم.",
+          "loadingCrossSource": "جارٍ تحميل المقارنة بين المصادر...",
+          "noComparisonSources": "لا توجد مصادر متاحة للمقارنة.",
+          "noCrossSourceCostData": "لا توجد مصادر لديها بيانات التكلفة للمقارنة.",
+          "crossSourceHelp": "الصندوق والشارب لكل مصدر. المربع = IQR (P25-P75)، الشعيرات = P10-P90، الخط الذهبي = المتوسط."
+        },
+        "metrics": {
+          "totalCost": "التكلفة الإجمالية",
+          "perPatientPerYear": "لكل مريض لكل سنة",
+          "persons": "الأشخاص",
+          "observationYears": "{{value}} سنة",
+          "avgObservation": "متوسط ​​المراقبة",
+          "recordsAverage": "{{records}} السجلات | المتوسط ​​{{average}}",
+          "recordCount": "{{count}} السجلات",
+          "patientCount": "{{count}} المرضى",
+          "averagePerRecord": "المتوسط: {{value}}/سجل",
+          "medianValue": "الوسيط: {{value}}",
+          "meanValue": "يعني: {{value}}",
+          "percent": "{{value}}%",
+          "range": "النطاق: {{min}} - {{max}}"
+        },
+        "costTypeFilter": {
+          "title": "تم اكتشاف أنواع تكلفة متعددة.",
+          "message": "يحتوي هذا المصدر على {{count}} مفاهيم مختلفة لأنواع التكلفة. إن الخلط بين المبالغ المشحونة والمبالغ المدفوعة يؤدي إلى إحصائيات مضللة. قم بالتصفية حسب نوع التكلفة للحصول على تحليل دقيق.",
+          "allTypes": "جميع الأنواع",
+          "option": "{{name}} ({{count}})"
+        },
+        "sections": {
+          "costByDomain": "التكلفة حسب المجال",
+          "distributionByDomain": "توزيع التكلفة حسب المجال",
+          "costByCareSetting": "التكلفة حسب إعداد الرعاية",
+          "monthlyTrends": "اتجاهات التكلفة الشهرية",
+          "topCostDrivers": "أعلى برامج تشغيل التكلفة",
+          "crossSourceComparison": "مقارنة التكلفة عبر المصادر"
+        }
+      }
+    }
+  }
+});
+
 export const appResources: Record<string, MessageTree> = {
   "en-US": enApp,
   "es-ES": esAppPass1,
@@ -44572,5 +46841,5 @@ export const appResources: Record<string, MessageTree> = {
   "zh-Hans": zhApp,
   "ko-KR": koAppPass1,
   "hi-IN": hiAppPass1,
-  ar: arAppPass2,
+  ar: arAppPass3,
 };
