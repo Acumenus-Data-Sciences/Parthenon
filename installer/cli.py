@@ -245,7 +245,8 @@ def _append_new_env_vars(env_path: Path) -> None:
 # Main entry point
 # ---------------------------------------------------------------------------
 
-def run(*, non_interactive: bool = False, pre_seed: dict[str, Any] | None = None, upgrade: bool = False) -> None:
+def run(*, non_interactive: bool = False, pre_seed: dict[str, Any] | None = None,
+        upgrade: bool = False, resume: bool = False) -> None:
     """Run the full 9-phase installer.
 
     Args:
@@ -347,145 +348,25 @@ def run(*, non_interactive: bool = False, pre_seed: dict[str, Any] | None = None
             )
             return
 
-    state = _load_state()
-    cfg: dict[str, Any] = state.get("config", {})
+    from .engine import StepRunner, CheckpointStore, SecretManager
+    from .engine.phases import DEFAULT_REGISTRY
 
-    # Merge pre-seed defaults into config (state file takes precedence for resume)
-    if pre_seed and not cfg:
-        cfg = dict(pre_seed)
+    config: dict[str, Any] = {
+        "non_interactive": non_interactive,
+        "pre_seed": pre_seed or {},
+        "upgrade": upgrade,
+    }
 
-    # --- Resume prompt ---
-    completed = state.get("completed_phases", [])
-    if completed and not non_interactive:
-        import questionary
-        last = completed[-1] if completed else "none"
-        resume = questionary.confirm(
-            f"Found a previous install attempt (last completed phase: {last}). Resume?",
-            default=True,
-        ).ask()
-        if not resume:
-            _clear_state()
-            state = {}
-            cfg = dict(pre_seed) if pre_seed else {}
-            completed = []
+    checkpoint = CheckpointStore(STATE_FILE)
+    secrets = SecretManager()
 
-    # -----------------------------------------------------------------------
-    # Phase 1 — Preflight
-    # -----------------------------------------------------------------------
-    if "preflight" not in completed:
-        preflight.run(interactive=not non_interactive, cfg=cfg or None)
-        completed.append("preflight")
-        _save_state({"completed_phases": completed, "config": cfg})
+    runner = StepRunner(
+        registry=DEFAULT_REGISTRY,
+        checkpoint=checkpoint,
+        config=config,
+        secrets=secrets,
+    )
 
-    # -----------------------------------------------------------------------
-    # Phase 2 — Configuration
-    # -----------------------------------------------------------------------
-    if "config" not in completed:
-        cfg = config.collect(resume_data=cfg or None, non_interactive=non_interactive)
-        config.write(cfg, confirm=not non_interactive)
-        completed.append("config")
-        _save_state({"completed_phases": completed, "config": cfg})
-    else:
-        console.rule("[bold]Phase 2 — Configuration[/bold]")
-        console.print("[dim]Resuming — using previously collected config.[/dim]\n")
-
-    # -----------------------------------------------------------------------
-    # Hecate bootstrap assets (before Docker mounts them)
-    # -----------------------------------------------------------------------
-    if "hecate-assets" not in completed:
-        hecate_bootstrap.ensure(cfg, console=console)
-        completed.append("hecate-assets")
-        _save_state({"completed_phases": completed, "config": cfg})
-
-    # -----------------------------------------------------------------------
-    # Phase 3 — Docker
-    # -----------------------------------------------------------------------
-    if "docker" not in completed:
-        docker_ops.run(cfg=cfg)
-        completed.append("docker")
-        _save_state({"completed_phases": completed, "config": cfg})
-
-    # -----------------------------------------------------------------------
-    # Phase 4 — Laravel Bootstrap
-    # -----------------------------------------------------------------------
-    if "bootstrap" not in completed:
-        bootstrap.run_laravel_bootstrap()
-        completed.append("bootstrap")
-        _save_state({"completed_phases": completed, "config": cfg})
-
-    # -----------------------------------------------------------------------
-    # Phase 5 — Dataset Acquisition
-    # -----------------------------------------------------------------------
-    if "datasets" not in completed:
-        console.rule("[bold]Phase 5 — Dataset Acquisition[/bold]")
-
-        # Determine which datasets to load
-        dataset_keys = cfg.get("datasets")
-
-        if not dataset_keys:
-            # Build default list from legacy config flags
-            dataset_keys = []
-            if cfg.get("include_eunomia", True):
-                dataset_keys.append("eunomia")
-
-        if dataset_keys:
-            from datasets.loader import run_selected, print_summary
-            results = run_selected(dataset_keys, console=console)
-            print_summary(results, console=console)
-        else:
-            console.print("[dim]No datasets selected during configuration.[/dim]")
-            console.print(
-                "  Run [bold]./parthenon-data[/bold] after installation to load datasets.\n"
-            )
-
-        # Handle vocabulary separately if ZIP was provided (legacy config path)
-        vocab_zip = cfg.get("vocab_zip_path")
-        if vocab_zip and "vocabulary" not in (dataset_keys or []):
-            from datasets.loaders.vocabulary import load as load_vocab
-            load_vocab(console=console, downloads_dir=utils.REPO_ROOT / "downloads", zip_path=vocab_zip)
-
-        completed.append("datasets")
-        _save_state({"completed_phases": completed, "config": cfg})
-
-    # -----------------------------------------------------------------------
-    # Phase 6 — Frontend
-    # -----------------------------------------------------------------------
-    if "frontend" not in completed:
-        _build_frontend()
-        completed.append("frontend")
-        _save_state({"completed_phases": completed, "config": cfg})
-
-    # -----------------------------------------------------------------------
-    # Phase 7 — Solr Indexing (if enabled)
-    # -----------------------------------------------------------------------
-    if "solr" not in completed:
-        if cfg.get("enable_solr", True):
-            _index_solr(cfg)
-        else:
-            console.rule("[bold]Phase 7 — Solr Indexing[/bold]")
-            console.print("[dim]Skipped (Solr not enabled).[/dim]\n")
-        completed.append("solr")
-        _save_state({"completed_phases": completed, "config": cfg})
-
-    # -----------------------------------------------------------------------
-    # Phase 8 — Admin account
-    # -----------------------------------------------------------------------
-    if "admin" not in completed:
-        bootstrap.run_create_admin(
-            email=cfg["admin_email"],
-            name=cfg["admin_name"],
-            password=cfg["admin_password"],
-        )
-        completed.append("admin")
-        _save_state({"completed_phases": completed, "config": cfg})
-
-    # -----------------------------------------------------------------------
-    # Phase 9 — Complete
-    # -----------------------------------------------------------------------
-    _clear_state()
-
-    # Write version file
-    from acropolis.installer.version import write_version
-    write_version(modules=cfg.get("modules", []))
-
-    _print_summary(cfg)
+    success = runner.run(resume=resume)
+    if not success:
+        sys.exit(1)
