@@ -43477,8 +43477,8 @@ const arAppPass1: MessageTree = mergeMessageTrees(enApp, {
         "noAdditionalCandidates": "لا يوجد مرشحين إضافيين."
       },
       "labels": {
-        "noValue": null,
-        "separator": null
+        "noValue": "",
+        "separator": ""
       },
       "input": {
         "termsMapped": "تم تعيين مصطلحات {{count}}",
@@ -43996,7 +43996,7 @@ const arAppPass1: MessageTree = mergeMessageTrees(enApp, {
         "records": "سجلات {{count}}",
         "persons": "الأشخاص {{count}}",
         "total": "المجموع",
-        "separator": null
+        "separator": ""
       },
       "boxPlot": {
         "noDistributionData": "لا توجد بيانات التوزيع",

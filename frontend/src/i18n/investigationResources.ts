@@ -5190,11 +5190,11 @@ const arInvestigationPass2: MessageTree = mergeMessageTrees(arInvestigation, {
         "atlasJson": "Atlas JSON"
       },
       "labels": {
-        "noDate": null,
+        "noDate": "",
         "pValueInline": "ع = {{value}}"
       },
       "empty": {
-        "none": null
+        "none": ""
       }
     },
     "phenotype": {
