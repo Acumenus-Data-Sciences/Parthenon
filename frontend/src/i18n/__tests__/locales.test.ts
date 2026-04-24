@@ -78,16 +78,17 @@ describe("i18n locale support", () => {
       "zh-Hans",
       "ko-KR",
       "hi-IN",
+      "ar",
     ]);
     expect(getLocaleMetadata("ar")).toMatchObject({
-      qaOnly: true,
-      selectable: false,
+      selectable: true,
+      releaseTier: "rtl-canary",
     });
   });
 
   it("keeps QA canary locales available in development and test selectors", () => {
     expect(USER_SELECTABLE_LOCALES.map((locale) => locale.code)).toEqual(
-      expect.arrayContaining(["ar", "en-XA"]),
+      expect.arrayContaining(["en-XA"]),
     );
   });
 

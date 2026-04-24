@@ -73,7 +73,7 @@ return [
         ],
         'fi-FI' => [
             'label' => 'Finnish (Finland)',
-            'native_label' => 'Suomi (Suomi)',
+            'native_label' => 'Suomi (Finnish)',
             'direction' => 'ltr',
             'laravel' => 'fi',
             'docusaurus' => 'fi',
@@ -147,8 +147,7 @@ return [
             'fallbacks' => ['ar', 'en-US', 'en'],
             'release_tier' => 'rtl-canary',
             'enabled' => true,
-            'selectable' => false,
-            'qa_only' => true,
+            'selectable' => true,
         ],
         'en-XA' => [
             'label' => 'Pseudolocale',

@@ -75,7 +75,7 @@ export const SUPPORTED_LOCALES = [
   {
     code: "fi-FI",
     label: "Finnish (Finland)",
-    nativeLabel: "Suomi (Suomi)",
+    nativeLabel: "Suomi (Finnish)",
     direction: "ltr",
     laravelLocale: "fi",
     docusaurusLocale: "fi",
@@ -154,8 +154,7 @@ export const SUPPORTED_LOCALES = [
     fallbackLocales: ["ar", "en-US", "en"],
     releaseTier: "rtl-canary",
     enabled: true,
-    selectable: false,
-    qaOnly: true,
+    selectable: true,
   },
   {
     code: "en-XA",
