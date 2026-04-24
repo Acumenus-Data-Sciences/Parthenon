@@ -6,6 +6,7 @@ import os
 import stat
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 SCHEMA_VERSION = 2
 
@@ -23,7 +24,7 @@ class CheckpointStore:
         }
         self._write(data)
 
-    def load(self) -> dict:
+    def load(self) -> dict[str, Any]:
         if not self._path.exists():
             return {}
         with open(self._path) as f:
@@ -48,11 +49,11 @@ class CheckpointStore:
     def delete(self) -> None:
         self._path.unlink(missing_ok=True)
 
-    def _write(self, data: dict) -> None:
+    def _write(self, data: dict[str, Any]) -> None:
         self._path.write_text(json.dumps(data, indent=2))
         os.chmod(self._path, stat.S_IRUSR | stat.S_IWUSR)
 
-    def _migrate(self, data: dict) -> dict:
+    def _migrate(self, data: dict[str, Any]) -> dict[str, Any]:
         # v1 format: {"completed_phases": [...], "config": {...}}
         # We can't reconstruct step-level granularity from phase names alone.
         # Return a fresh v2 schema so the runner replays from the beginning.
