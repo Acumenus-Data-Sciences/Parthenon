@@ -4492,6 +4492,634 @@ const hiGisTools: MessageTree = mergeMessageTrees(enGisTools, {
     },
   },
 });
+
+const arGisTools: MessageTree = mergeMessageTrees(enGisTools, {
+  poseidon: {
+    page: {
+      unavailableTitle: "Poseidon غير متاح",
+      unavailableMessage:
+        "تعذر الاتصال بخدمة تنسيق Poseidon. تأكد من أن حاويات Poseidon قيد التشغيل.",
+      retry: "إعادة المحاولة",
+      title: "Poseidon",
+      subtitle:
+        "تنسيق تحديث CDM مع عمليات تحميل تدريجية وتنفيذ واعٍ بالتبعيات وجدولة لكل مصدر عبر dbt + Dagster",
+      refresh: "تحديث",
+    },
+    overview: {
+      activeSchedules: "الجدولات النشطة",
+      runsInProgress: "التشغيلات الجارية",
+      successfulRuns: "التشغيلات الناجحة",
+      failedRuns: "التشغيلات الفاشلة",
+      ofTotal: "من إجمالي {{count}}",
+    },
+    runStatus: {
+      pending: "قيد الانتظار",
+      running: "قيد التشغيل",
+      success: "نجحت",
+      failed: "فشلت",
+      cancelled: "أُلغيت",
+    },
+    runType: {
+      fullRefresh: "تحديث كامل",
+      vocabulary: "المفردات",
+      incremental: "تدريجي",
+    },
+    scheduleType: {
+      manual: "يدوي",
+      cron: "مجدول",
+      sensor: "مدفوع بالأحداث",
+    },
+    schedules: {
+      title: "جدولات المصادر",
+      emptyTitle: "لا توجد جدولات مهيأة",
+      emptyMessage:
+        "أنشئ جدول Poseidon لأتمتة تحديثات CDM لمصدر بيانات.",
+      active: "نشط",
+      paused: "متوقف مؤقتاً",
+      lastRun: "آخر تشغيل: {{value}}",
+      nextRun: "التالي: {{value}}",
+      runCount_one: "{{count}} تشغيل",
+      runCount_other: "{{count}} تشغيلات",
+      pauseSchedule: "إيقاف الجدول مؤقتاً",
+      activateSchedule: "تفعيل الجدول",
+      pause: "إيقاف مؤقت",
+      activate: "تفعيل",
+      runIncrementalRefresh: "تشغيل التحديث التدريجي",
+    },
+    recentRuns: {
+      title: "أحدث التشغيلات",
+      emptyTitle: "لا توجد تشغيلات بعد",
+      emptyMessage: "شغّل مهمة يدوية أو انتظر تنفيذ الجدول.",
+      headers: {
+        source: "المصدر",
+        type: "النوع",
+        status: "الحالة",
+        trigger: "المشغّل",
+        duration: "المدة",
+        started: "وقت البدء",
+        actions: "الإجراءات",
+      },
+      cancel: "إلغاء",
+    },
+    runDetail: {
+      title: "التشغيل رقم {{id}}",
+      type: "النوع",
+      triggeredBy: "تم التشغيل بواسطة",
+      duration: "المدة",
+      modelsRun: "النماذج التي شُغلت",
+      rowsInserted: "الصفوف المدرجة",
+      rowsUpdated: "الصفوف المحدّثة",
+      testsPassed: "الاختبارات الناجحة",
+      testsFailed: "الاختبارات الفاشلة",
+      error: "الخطأ",
+    },
+    freshness: {
+      title: "حداثة CDM",
+      assetCount_one: "{{count}} أصل",
+      assetCount_other: "{{count}} أصول",
+      loading: "جارٍ تحميل بيانات الحداثة من Dagster...",
+      emptyTitle: "لا توجد بيانات حداثة",
+      emptyMessage: "تظهر بيانات الحداثة بعد تشغيل Poseidon ناجح واحد على الأقل.",
+      never: "أبداً",
+    },
+    lineage: {
+      title: "سلسلة الأصول",
+      assetCount_one: "{{count}} أصل",
+      assetCount_other: "{{count}} أصول",
+      loading: "جارٍ تحميل السلسلة من Dagster...",
+      emptyTitle: "لا توجد بيانات سلسلة",
+      emptyMessage: "تظهر سلسلة الأصول بعد أن يكتشف Dagster نماذج dbt.",
+      dependsOn: "يعتمد على: {{dependencies}}",
+      tiers: {
+        staging: "المرحلة التحضيرية",
+        intermediate: "المرحلة الوسيطة",
+        cdm: "CDM",
+        quality: "الجودة",
+        fallback: "الطبقة {{index}}",
+      },
+    },
+  },
+  jupyter: {
+    status: {
+      hubOnline: "المحور متصل",
+      unavailable: "غير متاح",
+      authenticating: "جارٍ المصادقة...",
+      startingServer: "جارٍ بدء الخادم...",
+      running: "قيد التشغيل",
+      failed: "فشل",
+    },
+    page: {
+      title: "مساحة عمل Jupyter",
+      subtitle:
+        "بيئة دفاتر الملاحظات الشخصية للبحث التفاعلي والتحليلات المخصصة واستكشاف البيانات",
+      refresh: "تحديث",
+      openInNewTab: "فتح في علامة تبويب جديدة",
+      workspaceDetails: "تفاصيل مساحة العمل",
+      checkingHub: "جارٍ التحقق من JupyterHub...",
+      iframeTitle: "Parthenon Jupyter",
+      startOverlay: "جارٍ بدء خادم الدفاتر الخاص بك...",
+      firstLaunchNote: "قد يستغرق ذلك حتى 30 ثانية عند التشغيل الأول",
+      failedToStart: "تعذر بدء خادم الدفاتر",
+      retry: "إعادة المحاولة",
+      failedToCreateSession: "تعذر إنشاء الجلسة",
+    },
+    unavailable: {
+      title: "يتعذر الوصول إلى JupyterHub",
+      message:
+        "خدمة الدفاتر غير متاحة حالياً. حدّث الصفحة بعد أن تصبح الحاوية سليمة.",
+    },
+    drawer: {
+      title: "تفاصيل مساحة Jupyter",
+      environment: "البيئة",
+      runtime: "بيئة التشغيل",
+      runtimeDescription:
+        "Python 3.12 مع pandas وpolars وsqlalchemy وإمكانية وصول إلى قاعدة البيانات بحسب الأدوار.",
+      privateWorkspace: "مساحة عمل خاصة",
+      privateWorkspaceDescription:
+        "دليل الدفاتر الشخصي الخاص بك. يبقى محفوظاً بين الجلسات، لذلك لا يضيع عملك.",
+      sharedFolder: "مجلد مشترك",
+      sharedFolderDescription:
+        "انسخ الدفاتر هنا لمشاركتها مع الزملاء. يمكن لجميع مستخدمي Jupyter قراءة هذا المجلد.",
+      mountedPaths: "المسارات الموصولة",
+      starterNotebooks: "دفاتر البداية",
+      noStarterNotebooks: "لا توجد دفاتر بداية متاحة.",
+      tips: "نصائح",
+      quickLinks: "روابط سريعة",
+      openHubNewTab: "فتح JupyterHub في علامة تبويب جديدة",
+      defaults: {
+        runtime: "JupyterLab 4.4",
+        privateWorkspace: "/home/jovyan/notebooks",
+        sharedFolder: "/home/jovyan/shared",
+      },
+    },
+  },
+  codeExplorer: {
+    page: {
+      title: "مستكشف الأكواد",
+      concept: "المفهوم",
+      searchPlaceholder: "ابحث عن مفاهيم تحتوي على بيانات في هذا المصدر",
+      pickSource: "اختر مصدراً للبدء.",
+      pickSourceAndConcept: "اختر مصدراً ومفهوماً لعرض البيانات.",
+    },
+    tabs: {
+      counts: "العدّادات",
+      relationships: "العلاقات",
+      hierarchy: "التسلسل الهرمي",
+      report: "التقرير",
+      myReports: "تقاريري",
+    },
+    sourcePicker: {
+      loading: "جارٍ تحميل المصادر...",
+      empty: "لا توجد مصادر مهيأة",
+      label: "مصدر البيانات",
+      choose: "اختر مصدراً...",
+    },
+    counts: {
+      emptyTitle: "لا توجد بيانات لهذا المفهوم في {{sourceKey}}",
+      emptyMessage:
+        "يوجد المفهوم {{conceptId}} في مفردات OMOP، لكنه لا يملك ملاحظات في عدّادات الأكواد المصنفة لهذا المصدر. جرّب مفهوماً آخر، فمربع البحث يحصر النتائج الآن في المفاهيم التي تملك بيانات في {{sourceKey}}، أو انتقل إلى مصدر يتضمن هذا الكود.",
+      loading: "جارٍ تحميل العدّادات...",
+      failed: "تعذر تحميل العدّادات.",
+      conceptId: "concept_id",
+      count: "العدد",
+      group: "المجموعة",
+      gender: "الجنس",
+      ageDecile: "عشرية العمر",
+      node: "العقدة ({{count}})",
+      descendant: "السليل ({{count}})",
+    },
+    chart: {
+      noData: "لا توجد بيانات للعرض",
+      male: "ذكر",
+      female: "أنثى",
+      unknown: "غير معروف",
+    },
+    hierarchy: {
+      loading: "جارٍ تحميل التسلسل الهرمي...",
+      failed: "تعذر التحميل.",
+      direction: "الاتجاه",
+      both: "الاثنان",
+      ancestorsOnly: "الأسلاف فقط",
+      descendantsOnly: "السلالات فقط",
+      maxDepth: "أقصى عمق",
+      empty: "لا توجد بيانات تسلسل هرمي لهذا المفهوم عند العمق {{depth}}.",
+    },
+    relationships: {
+      loading: "جارٍ تحميل العلاقات...",
+      failed: "تعذر التحميل.",
+      empty: "لم يتم العثور على علاقات لهذا المفهوم.",
+      headers: {
+        relationship: "العلاقة",
+        targetConcept: "المفهوم الهدف",
+        vocabulary: "المفردات",
+        standard: "معياري",
+      },
+    },
+    reports: {
+      loading: "جارٍ تحميل التقارير...",
+      failed: "تعذر التحميل.",
+      empty: "لا تملك أي تقارير بعد. انتقل إلى علامة تبويب التقرير وأنشئ واحداً.",
+      headers: {
+        created: "تاريخ الإنشاء",
+        source: "المصدر",
+        concept: "المفهوم",
+        status: "الحالة",
+        pin: "تثبيت",
+      },
+      pin: "تثبيت",
+      unpin: "إلغاء التثبيت",
+      generateReport: "إنشاء تقرير",
+      generating: "جارٍ الإنشاء...",
+      failedToDispatch: "تعذر إرسال التقرير.",
+      progress: "{{percent}}% - {{message}}",
+      failedTitle: "فشل إنشاء التقرير",
+      ready: "التقرير جاهز",
+      downloadHtml: "تنزيل HTML",
+      iframeTitle: "تقرير ROMOPAPI",
+      inlinePreviewNote:
+        "المعاينة المضمنة تعمل داخل صندوق حماية مع تعطيل السكربتات والوصول عبر المصادر. نزّل الملف للحصول على العرض التفاعلي الكامل داخل متصفحك.",
+    },
+    sourceReadiness: {
+      settingUp: "جارٍ إعداد {{sourceKey}}...",
+      sourceNeedsInitialization: "المصدر {{sourceKey}} يحتاج إلى تهيئة",
+      missing:
+        "المفقود: {{missing}}. هذا إعداد لمرة واحدة للمشرفين فقط ويقوم بتهيئة جدول عدّ الأكواد المصنف.",
+      dispatching: "جارٍ الإرسال...",
+      initializeSource: "تهيئة المصدر",
+      failedToDispatch:
+        "تعذر الإرسال. قد لا تمتلك صلاحية `finngen.code-explorer.setup`.",
+    },
+  },
+  gis: {
+    common: {
+      analysisLayerCount_one: "{{count}} طبقة تحليل نشطة",
+      analysisLayerCount_other: "{{count}} طبقات تحليل نشطة",
+      avgValue: "المتوسط: {{value}}",
+      records_one: "{{count}} سجل",
+      records_other: "{{count}} سجلات",
+      present: "موجود",
+      unknownRegion: "المنطقة",
+    },
+    page: {
+      title: "مستكشف GIS",
+      reset: "إعادة ضبط",
+      collapse: "طي",
+      expand: "توسيع",
+      enableLayers: "فعّل طبقات التحليل في اللوحة اليسرى",
+      selectDisease: "اختر مرضاً لبدء التحليل المكاني",
+    },
+    layerPanel: {
+      title: "طبقات التحليل",
+      privacy: "الخصوصية",
+      suppressionOff: "الإخفاء: متوقف (بيانات اصطناعية)",
+    },
+    context: {
+      researchActions: "إجراءات البحث",
+      createStudy: "إنشاء دراسة",
+      browseCohorts: "استعراض المجموعات",
+      clickRegion: "انقر على منطقة في الخريطة لرؤية تفاصيل الطبقة",
+    },
+    diseaseSelector: {
+      title: "المرض",
+      searchPlaceholder: "ابحث في الحالات...",
+      top: "الأعلى",
+      categories: "الفئات",
+      noMatches: "لا توجد حالات مطابقة",
+      patientCountTitle: "{{count}} مريض",
+    },
+    regionDetail: {
+      loading: "جارٍ التحميل...",
+      close: "إغلاق",
+      loadingDetails: "جارٍ تحميل تفاصيل المنطقة...",
+      area: "المساحة: {{value}} كم²",
+      drillDown_one: "التعمق ({{count}} منطقة فرعية)",
+      drillDown_other: "التعمق ({{count}} مناطق فرعية)",
+      exposures: "التعرّضات",
+      concept: "المفهوم {{conceptId}}",
+    },
+    countyDetail: {
+      county: "المقاطعة",
+      cases: "الحالات",
+      deaths: "الوفيات",
+      cfr: "CFR",
+      hospitalized: "المنوّمون",
+      population: "السكان",
+      ageDistributionCovid: "التوزيع العمري (كوفيد)",
+      monthlyCases: "الحالات الشهرية",
+      casesTitle: "{{period}}: {{count}} حالة",
+    },
+    diseaseSummary: {
+      cases: "الحالات",
+      deaths: "الوفيات",
+      cfr: "CFR",
+      counties: "المقاطعات",
+      prevalence: "الانتشار",
+    },
+    analysisDrawer: {
+      title_one: "التحليل ({{count}} طبقة)",
+      title_other: "التحليل ({{count}} طبقات)",
+    },
+    layers: {
+      airQuality: {
+        name: "جودة الهواء",
+        description: "مستويات PM2.5 والأوزون وفق EPA",
+        legend: {
+          good: "جيد (PM2.5 منخفض)",
+          poor: "رديء (PM2.5 مرتفع)",
+        },
+        tooltip: {
+          pm25: "PM2.5",
+        },
+        analysis: {
+          loading: "جارٍ التحميل...",
+          noData: "لا توجد بيانات",
+        },
+        detail: {
+          loading: "جارٍ التحميل...",
+          empty: "لا توجد بيانات لجودة الهواء",
+          ozone: "الأوزون",
+        },
+      },
+      comorbidity: {
+        name: "عبء الأمراض المصاحبة",
+        description: "تجمع السكري وارتفاع الضغط والسمنة",
+        legend: {
+          low: "عبء منخفض (0)",
+          high: "عبء مرتفع (3)",
+        },
+        tooltip: {
+          burden: "العبء",
+        },
+        analysis: {
+          loading: "جارٍ التحميل...",
+          noData: "لا توجد بيانات",
+        },
+        detail: {
+          title: "بيانات الأمراض المصاحبة لـ {{fips}}",
+          subtitle: "درجة عبء السكري + ارتفاع الضغط + السمنة",
+        },
+      },
+      hospitalAccess: {
+        name: "الوصول إلى المستشفيات",
+        description: "القرب من المستشفيات وفق CMS",
+        legend: {
+          withEd: "مستشفى (طوارئ)",
+          withoutEd: "مستشفى (بدون طوارئ)",
+        },
+        analysis: {
+          loading: "جارٍ التحميل...",
+          noData: "لا توجد بيانات",
+        },
+        detail: {
+          title: "أقرب المستشفيات إلى {{fips}}",
+          subtitle: "حلقات المسافة: 15/30/60 كم",
+        },
+      },
+      rucc: {
+        name: "حضري - ريفي",
+        description: "رموز الاستمرارية الحضرية الريفية التابعة لوزارة الزراعة الأمريكية",
+        legend: {
+          metro: "حضري",
+          micropolitan: "ميكروبوليتان",
+          rural: "ريفي",
+        },
+        tooltip: {
+          classification: "التصنيف",
+        },
+        analysis: {
+          loading: "جارٍ التحميل...",
+          noData: "لا توجد بيانات",
+        },
+        detail: {
+          loading: "جارٍ التحميل...",
+          empty: "لا توجد بيانات RUCC",
+          code: "رمز RUCC",
+          classification: "التصنيف",
+          category: "الفئة",
+          patients: "المرضى",
+        },
+        categories: {
+          metro: "حضري",
+          micro: "ميكروبوليتان",
+          rural: "ريفي",
+        },
+      },
+      svi: {
+        name: "الهشاشة الاجتماعية",
+        description: "مؤشر SVI التابع لـ CDC/ATSDR حسب منطقة التعداد",
+        legend: {
+          low: "هشاشة منخفضة",
+          high: "هشاشة مرتفعة",
+        },
+        tooltip: {
+          score: "SVI",
+        },
+        analysis: {
+          loading: "جارٍ التحميل...",
+          noData: "لا توجد بيانات متاحة",
+        },
+        detail: {
+          loading: "جارٍ التحميل...",
+          empty: "لا توجد بيانات SVI",
+          overall: "إجمالي SVI",
+          themes: {
+            socioeconomicStatus: "الوضع الاجتماعي الاقتصادي",
+            householdComposition: "تركيبة الأسرة",
+            minorityStatus: "حالة الأقليات",
+            housingTransportation: "السكن والنقل",
+          },
+        },
+      },
+    },
+  },
+  queryAssistant: {
+    page: {
+      title: "مساعد الاستعلامات",
+      subtitle:
+        "استعرض مكتبة استعلامات OHDSI أو استخدم الذكاء الاصطناعي لتوليد SQL من اللغة الطبيعية",
+      dialect: "اللهجة",
+      default: "افتراضي",
+      defaultTooltip: "تُحفَظ التغييرات كإعداد افتراضي للنظام (مشرف فائق)",
+      tabs: {
+        library: "مكتبة الاستعلامات",
+        naturalLanguage: "اللغة الطبيعية",
+      },
+    },
+    naturalLanguage: {
+      askQuestion: "اطرح سؤالاً",
+      placeholder:
+        "مثال: كم عدد المرضى الذين شُخّصوا بالسكري من النوع الثاني في 2023؟",
+      ctrlEnter: "استخدم Ctrl+Enter للتوليد",
+      tryExample: "جرّب مثالاً",
+      examples: {
+        diabetes: "كم عدد المرضى المصابين بالسكري؟",
+        topConditions: "ما أكثر 10 حالات انتشاراً؟",
+        heartFailureAge: "متوسط عمر المرضى المصابين بقصور القلب",
+        statins2024: "أعداد التعرض الدوائي للستاتينات في 2024",
+      },
+      generateWithAi: "توليد بالذكاء الاصطناعي",
+      generating: "جارٍ التوليد...",
+      failedToGenerate: "تعذر توليد SQL. يرجى المحاولة مرة أخرى.",
+      queryHistory: "سجل الاستعلامات",
+      clear: "مسح",
+      emptyTitle: "اطرح سؤالاً للبدء",
+      emptyDescription:
+        "اكتب سؤالاً باللغة الطبيعية عن بيانات OMOP CDM لديك، وسيقوم الذكاء الاصطناعي بتوليد استعلام SQL المقابل.",
+    },
+    library: {
+      searchPlaceholder: "ابحث في الاستعلامات بالكلمات المفتاحية...",
+      indexedQueries: "{{count}} استعلامات مفهرسة",
+      matches: "{{count}} نتائج مطابقة",
+      featuredTemplates: "{{count}} قوالب مميزة",
+      refreshing: "جارٍ التحديث",
+      allDomains: "كل المجالات",
+      failedToLoad: "تعذر تحميل مكتبة الاستعلامات.",
+      noMatches: "لم يتم العثور على استعلامات تطابق بحثك.",
+      tryDifferentKeyword: "جرّب كلمة مفتاحية أخرى أو امسح عوامل التصفية.",
+      importHint:
+        "إذا كانت المكتبة فارغة، فاطلب من المشرف تشغيل: php artisan query-library:import-ohdsi",
+      showMoreMatches: "عرض المزيد من النتائج",
+    },
+    results: {
+      safeReadOnly: "آمن - قراءة فقط",
+      needsReview: "يحتاج إلى مراجعة",
+      unsafe: "غير آمن",
+      queryLibraryMatch: "مطابقة من مكتبة الاستعلامات",
+      templateParameters: "معاملات القالب",
+      rendering: "جارٍ التهيئة...",
+      sqlUpdated: "تم تحديث SQL",
+      renderTemplate: "تجهيز القالب",
+      renderFailed: "تعذر تجهيز قالب الاستعلام.",
+      generatedSql: "SQL المولّد",
+      aggregate: "تجميعي",
+      tablesReferenced: "الجداول المشار إليها",
+      explanation: "الشرح",
+      validateSql: "التحقق من SQL",
+      validating: "جارٍ التحقق...",
+      validSql: "SQL صالح",
+      validationFailed: "فشل التحقق",
+      readOnly: "قراءة فقط",
+      complexity: {
+        low: "تعقيد منخفض",
+        medium: "تعقيد متوسط",
+        high: "تعقيد مرتفع",
+      },
+      renderError: "تعذر تجهيز قالب الاستعلام.",
+      validateError: "تعذر التحقق من SQL.",
+    },
+    schemaBrowser: {
+      title: "متصفح مخطط OMOP CDM",
+      failedToLoad: "تعذر تحميل المخطط.",
+      clinicalTables: "الجداول السريرية ({{count}})",
+      vocabularyTables: "جداول المفردات ({{count}})",
+      commonJoins: "الربط الشائع",
+      cols: "{{count}} أعمدة",
+      noDescription: "لا يوجد وصف متاح.",
+    },
+    sqlBlock: {
+      sql: "SQL",
+      runSql: "تشغيل SQL",
+      copy: "نسخ",
+      copied: "تم النسخ",
+    },
+    sqlRunner: {
+      errorTitles: {
+        explanationInsteadOfSql:
+          "أعاد الذكاء الاصطناعي شرحاً بدلاً من SQL",
+        mysqlBackticks: "علامات الاقتباس الخلفية بنمط MySQL غير مدعومة",
+        syntaxError: "خطأ في صياغة SQL",
+        syntaxErrorNear: 'خطأ في الصياغة قرب "{{token}}"',
+        timeout: "انتهت مهلة الاستعلام (حد 120 ثانية)",
+        tableNotFound: "لم يتم العثور على الجدول",
+        tableNotFoundNamed: 'لم يتم العثور على الجدول "{{table}}"',
+        columnNotFound: "لم يتم العثور على العمود",
+        columnNotFoundNamed: 'لم يتم العثور على العمود "{{column}}"',
+        insufficientPermissions: "صلاحيات غير كافية",
+      },
+      suggestions: {
+        explanationInsteadOfSql: {
+          first: "حاول إعادة صياغة سؤالك ليكون أكثر تحديداً",
+          second: "استخدم علامة تبويب مكتبة الاستعلامات للعثور على قالب جاهز",
+          third: "حدد الجداول والأعمدة التي تريد الاستعلام عنها بدقة",
+        },
+        mysqlBackticks: {
+          first:
+            'يستخدم PostgreSQL علامات اقتباس مزدوجة للمعرفات: "column_name"',
+          second: "معظم أسماء أعمدة OMOP لا تحتاج إلى اقتباس أصلاً",
+          third:
+            "حاول توليد الاستعلام مرة أخرى، فالذكاء الاصطناعي يستخدم أحياناً صياغة MySQL",
+        },
+        syntaxError: {
+          first:
+            "يحتوي SQL المولّد على مشكلة صياغة. حاول التوليد مجدداً بسؤال أوضح.",
+          second: "تحقق من الأقواس أو الفواصل أو الكلمات الزائدة غير المتطابقة",
+          third:
+            "استخدم زر التحقق من SQL أولاً لاكتشاف المشكلات قبل التشغيل",
+        },
+        timeout: {
+          first: "أضف شروط WHERE أكثر تحديداً لتقليل حجم البيانات المفحوصة",
+          second: "أضف عبارة LIMIT لتحديد حجم مجموعة النتائج",
+          third: "تجنب SELECT * واختر الأعمدة التي تحتاج إليها فقط",
+          fourth: "فكّر في التصفية حسب نطاق زمني لتضييق مجموعة البيانات",
+        },
+        tableNotFound: {
+          first:
+            "يجب تحديد جداول OMOP بالمخطط: omop.person وomop.condition_occurrence",
+          second:
+            "استخدم متصفح المخطط أسفل الصفحة للتحقق من أسماء الجداول",
+          third:
+            "تحقق من التهجئة. من الجداول الشائعة: person وcondition_occurrence وdrug_exposure وmeasurement",
+        },
+        columnNotFound: {
+          first: "وسّع الجدول في متصفح المخطط لرؤية الأعمدة المتاحة",
+          second:
+            "تستخدم أسماء أعمدة OMOP الشرطات السفلية مثل person_id وcondition_start_date",
+          third:
+            "تحقق مما إذا كنت تحتاج إلى JOIN مع جدول آخر يحتوي على هذا العمود",
+        },
+        insufficientPermissions: {
+          first: 'لم يُصنف هذا الاستعلام على أنه "آمن" (قراءة فقط)',
+          second:
+            "يمكن للمسؤولين فقط تشغيل الاستعلامات غير المصنفة على أنها آمنة",
+          third: "استخدم زر التحقق من SQL لفحص تصنيف الأمان",
+        },
+      },
+      defaults: {
+        queryExecutionFailed: "فشل تنفيذ الاستعلام",
+        failedToRenderTemplate: "تعذر تجهيز القالب",
+        typeToSearchConcepts: "اكتب للبحث عن مفاهيم OMOP...",
+        typeToSearchConceptsWithDefault:
+          "{{defaultValue}} - اكتب للبحث عن مفاهيم OMOP",
+      },
+      state: {
+        active: "جارٍ تنفيذ الاستعلام...",
+        idle: "خامل",
+        idleInTransaction: "جارٍ معالجة النتائج...",
+        idleAborted: "تم إلغاء المعاملة",
+        fastpath: "استدعاء المسار السريع",
+        disabled: "التتبع معطل",
+        completed: "مكتمل",
+        error: "خطأ",
+      },
+      modal: {
+        title: "مشغّل استعلامات SQL",
+        wait: "الانتظار: {{value}}",
+        preparing: "جارٍ التحضير...",
+        runQuery: "تشغيل الاستعلام",
+        queryCompleted: "اكتمل الاستعلام",
+        rowsIn: "{{count}} صفوف خلال {{elapsed}}",
+        cappedAt10k: "الحد الأقصى 10,000 صف",
+        queryFailed: "فشل الاستعلام",
+        downloadCsv: "تنزيل CSV",
+        close: "إغلاق",
+        showingSomeRows: "عرض {{shown}} من أصل {{total}} صفاً",
+        showingAllRows: "{{count}} صفوف",
+        nullValue: "null",
+      },
+    },
+  },
+});
+
 const frGisToolsPass100: MessageTree = mergeMessageTrees(frGisTools, {
   gis: {
     common: {
@@ -6200,6 +6828,6 @@ export const gisToolsResources: Record<string, MessageTree> = {
   }),
   "ko-KR": koGisTools,
   "hi-IN": hiGisTools,
-  ar: mergeMessageTrees(enGisTools, {}),
+  ar: arGisTools,
   "en-XA": mergeMessageTrees(enGisTools, {}),
 };
