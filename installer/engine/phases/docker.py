@@ -68,14 +68,24 @@ def _check_start_containers(ctx: Context) -> bool:
 
 
 def _run_start_containers(ctx: Context) -> None:
+    DOCKER_SECRETS = ["DB_PASSWORD", "REDIS_PASSWORD", "APP_KEY", "ADMIN_PASSWORD",
+                      "RESEND_KEY", "CLAUDE_API_KEY"]
+    secrets_dir = ROOT / ".secrets"
+    override_path = ROOT / "docker-compose.secrets.yml"
+
+    ctx.secrets.write_docker_secrets(DOCKER_SECRETS, secrets_dir)
+    ctx.emit(f"Secrets written to {secrets_dir}")
+
     compose_file = utils.active_compose_file()
-    result = subprocess.run(
-        ["docker", "compose", "-f", compose_file, "up", "-d", "--remove-orphans"],
-        capture_output=True, text=True, cwd=ROOT,
-    )
+    compose_cmd = ["docker", "compose", "-f", compose_file]
+    if override_path.exists():
+        compose_cmd += ["-f", str(override_path)]
+    compose_cmd += ["up", "-d", "--remove-orphans"]
+
+    result = subprocess.run(compose_cmd, capture_output=True, text=True, cwd=ROOT)
     if result.returncode != 0:
         raise StepError(f"docker compose up failed:\n{result.stderr.strip()}")
-    ctx.emit("Containers started")
+    ctx.emit("Containers started with secrets injected")
 
 
 def _check_wait_healthy(ctx: Context) -> bool:

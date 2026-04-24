@@ -73,6 +73,8 @@ vcf/
 
 # Secrets
 .secrets
+.secrets/
+docker-compose.secrets.yml
 .claudeapikey
 .resendapikey
 *.apikey
