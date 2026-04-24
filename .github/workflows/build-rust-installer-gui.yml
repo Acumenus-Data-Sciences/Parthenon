@@ -61,7 +61,7 @@ jobs:
             --pretty > dist/installer-bundle/extracted-validation.json
 
       - name: Install Python installer test dependencies
-        run: python -m pip install --quiet pytest rich psycopg2-binary requests docker
+        run: python -m pip install --quiet pytest rich psycopg2-binary requests docker keyring
 
       - name: Run installer parity tests
         run: python -m pytest installer/tests tests/installer
@@ -318,13 +318,21 @@ jobs:
         run: |
           echo "$GPG_SIGNING_KEY" | base64 --decode | gpg --batch --import
           KEY_ID=$(gpg --list-secret-keys --with-colons | grep '^fpr' | head -1 | cut -d: -f10)
-          for pkg in \
-            $(find target/release/bundle/deb -name "*.deb" 2>/dev/null) \
-            $(find target/release/bundle/rpm -name "*.rpm" 2>/dev/null) \
-            $(find target/release/bundle/appimage -name "*.AppImage" 2>/dev/null); do
-            gpg --batch --local-user "$KEY_ID" --detach-sign --armor "$pkg"
-            echo "Signed: $pkg"
-          done
+          find target/release/bundle/deb -name "*.deb" -print0 2>/dev/null | \
+            while IFS= read -r -d '' pkg; do
+              gpg --batch --local-user "$KEY_ID" --detach-sign --armor "$pkg"
+              echo "Signed: $pkg"
+            done
+          find target/release/bundle/rpm -name "*.rpm" -print0 2>/dev/null | \
+            while IFS= read -r -d '' pkg; do
+              gpg --batch --local-user "$KEY_ID" --detach-sign --armor "$pkg"
+              echo "Signed: $pkg"
+            done
+          find target/release/bundle/appimage -name "*.AppImage" -print0 2>/dev/null | \
+            while IFS= read -r -d '' pkg; do
+              gpg --batch --local-user "$KEY_ID" --detach-sign --armor "$pkg"
+              echo "Signed: $pkg"
+            done
 
       - name: List generated bundles
         working-directory: installer/rust-gui
