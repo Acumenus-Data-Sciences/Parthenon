@@ -87,6 +87,5 @@
     "domain": "cardiovascular",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null,
-    "coverage_profile": null
+    "superseded_by": null
 }

@@ -106,6 +106,5 @@
     "domain": "rare-disease",
     "quality_tier": "validated",
     "deprecated_at": null,
-    "superseded_by": null,
-    "coverage_profile": null
+    "superseded_by": null
 }

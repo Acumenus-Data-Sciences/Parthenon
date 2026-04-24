@@ -30,14 +30,13 @@
     "is_public": false,
     "version": 1,
     "created_at": "2026-04-16T22:03:22.000000Z",
-    "updated_at": "2026-04-16T22:03:22.000000Z",
-    "deleted_at": null,
+    "updated_at": "2026-04-22T20:08:16.000000Z",
+    "deleted_at": "2026-04-22T20:08:16.000000Z",
     "tags": null,
     "share_token": null,
     "share_expires_at": null,
     "domain": "general",
     "quality_tier": "draft",
     "deprecated_at": null,
-    "superseded_by": null,
-    "coverage_profile": null
+    "superseded_by": null
 }

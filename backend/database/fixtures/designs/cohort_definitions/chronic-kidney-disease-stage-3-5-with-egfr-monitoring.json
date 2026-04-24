@@ -195,6 +195,5 @@
     "domain": "renal",
     "quality_tier": "study-ready",
     "deprecated_at": null,
-    "superseded_by": null,
-    "coverage_profile": null
+    "superseded_by": null
 }
