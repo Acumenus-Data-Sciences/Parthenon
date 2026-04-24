@@ -145,6 +145,7 @@ use App\Http\Controllers\Api\V1\SyntheaController;
 use App\Http\Controllers\Api\V1\TextToSqlController;
 use App\Http\Controllers\Api\V1\UserProfileController;
 use App\Http\Controllers\Api\V1\VocabularyController;
+use App\Http\Controllers\Api\V1\VsacController;
 use App\Http\Controllers\Api\V1\WhiteRabbitController;
 use App\Http\Controllers\Api\V1\WikiController as AiWikiController;
 use App\Services\GIS\SpatialStatsProxy;
@@ -954,6 +955,20 @@ Route::prefix('v1')->group(function () {
                 ->middleware(['permission:care-bundles.view', 'throttle:60,1']);
             Route::post('/{bundle}/materialize', [CareBundleController::class, 'materialize'])
                 ->middleware(['permission:care-bundles.materialize', 'throttle:30,1']);
+        });
+
+        // VSAC reference library — CMS value sets + OMOP crosswalk (read-only)
+        Route::prefix('vsac')->middleware(['permission:vocabulary.view', 'throttle:120,1'])->group(function () {
+            Route::get('/value-sets', [VsacController::class, 'valueSets']);
+            Route::get('/value-sets/{oid}', [VsacController::class, 'valueSet'])
+                ->where('oid', '[0-9.]+');
+            Route::get('/value-sets/{oid}/codes', [VsacController::class, 'codes'])
+                ->where('oid', '[0-9.]+');
+            Route::get('/value-sets/{oid}/omop-concepts', [VsacController::class, 'omopConcepts'])
+                ->where('oid', '[0-9.]+');
+            Route::get('/measures', [VsacController::class, 'measures']);
+            Route::get('/measures/{cms_id}', [VsacController::class, 'measure'])
+                ->where('cms_id', 'CMS[0-9]+v[0-9]+');
         });
 
         // Population Characterization (Tier 3 — PC001–PC006)
