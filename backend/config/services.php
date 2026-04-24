@@ -38,6 +38,7 @@ return [
     'darkstar' => [
         'url' => env('DARKSTAR_URL', env('R_SERVICE_URL', 'http://darkstar:8787')),
         'timeout' => env('DARKSTAR_TIMEOUT', env('R_SERVICE_TIMEOUT', 7200)),
+        'ddl_timeout' => (int) env('DARKSTAR_DDL_TIMEOUT', 300),
     ],
 
     // Phase 16: DICOMweb / Orthanc

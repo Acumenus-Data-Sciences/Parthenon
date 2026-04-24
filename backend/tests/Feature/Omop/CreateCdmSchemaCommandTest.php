@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Http;
 
+beforeEach(function () {
+    Http::preventStrayRequests();
+});
+
 test('create-cdm-schema calls R Plumber API and succeeds', function () {
     Http::fake([
         '*/omop/create-cdm-schema' => Http::response(

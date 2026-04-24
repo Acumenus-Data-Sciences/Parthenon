@@ -53,6 +53,10 @@ function(body, response) {
     list(status = "ok", message = paste("CDM schema created:", cdm_schema))
   }, error = function(e) {
     response$status <- 500L
-    list(status = "error", message = conditionMessage(e))
+    msg <- conditionMessage(e)
+    # Strip JDBC connection strings that may embed passwords
+    msg <- gsub("password=[^;\" ]*", "password=***", msg, ignore.case = TRUE)
+    msg <- gsub("Password=[^;\" ]*", "Password=***", msg)
+    list(status = "error", message = msg)
   })
 }

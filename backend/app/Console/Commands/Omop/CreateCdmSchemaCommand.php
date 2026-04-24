@@ -32,7 +32,7 @@ class CreateCdmSchemaCommand extends Command
         }
 
         $rUrl = rtrim((string) config('services.darkstar.url', 'http://darkstar:8787'), '/');
-        $timeout = (int) config('services.darkstar.timeout', 300);
+        $timeout = (int) config('services.darkstar.ddl_timeout', 300);
 
         $this->info("Creating CDM schema '{$this->option('cdm-schema')}' on {$host}…");
 
