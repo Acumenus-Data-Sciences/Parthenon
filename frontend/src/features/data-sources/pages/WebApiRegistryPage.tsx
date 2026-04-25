@@ -11,6 +11,7 @@ import {
   Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import {
   useWebApiRegistries,
   useCreateWebApiRegistry,
@@ -80,14 +81,17 @@ export function WebApiRegistryPage() {
             {t("dataSources.registry.subtitle")}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setShowForm(!showForm)}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-surface-base hover:bg-accent transition-colors"
-        >
-          <Plus size={14} />
-          {t("dataSources.actions.addRegistry")}
-        </button>
+        <div className="flex items-center gap-2">
+          <HelpButton helpKey="admin.webapi-registry" />
+          <button
+            type="button"
+            onClick={() => setShowForm(!showForm)}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-surface-base hover:bg-accent transition-colors"
+          >
+            <Plus size={14} />
+            {t("dataSources.actions.addRegistry")}
+          </button>
+        </div>
       </div>
 
       {/* Create form */}

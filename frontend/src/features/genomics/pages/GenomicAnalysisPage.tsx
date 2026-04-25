@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import { Dna, BarChart3, Grid3X3, Activity, Loader2, AlertCircle, type LucideIcon } from "lucide-react";
 import apiClient from "@/lib/api-client";
 import { SourceSelector } from "@/features/data-explorer/components/SourceSelector";
+import { HelpButton } from "@/features/help";
 
 // ── Survival data types ──────────────────────────────────────────────────────
 
@@ -260,7 +261,10 @@ export default function GenomicAnalysisPage() {
             </p>
           </div>
         </div>
-        <SourceSelector value={selectedSourceId} onChange={setSelectedSourceId} />
+        <div className="flex items-center gap-2">
+          <HelpButton helpKey="genomics" />
+          <SourceSelector value={selectedSourceId} onChange={setSelectedSourceId} />
+        </div>
       </div>
 
       {/* Tab bar */}

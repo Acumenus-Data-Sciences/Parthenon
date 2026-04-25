@@ -52,6 +52,7 @@ import {
   type ProfileDomainTab,
   type ProfileViewMode,
 } from "../lib/i18n";
+import { HelpButton } from "@/features/help";
 
 type ViewMode = ProfileViewMode;
 type DomainTab = ProfileDomainTab;
@@ -400,6 +401,7 @@ export default function PatientProfilePage() {
 
         {/* Right side: source selector + quick patient search */}
         <div className="flex items-start gap-3 shrink-0">
+          <HelpButton helpKey="profiles" />
           {/* Quick-jump patient search (only when source selected) */}
           {sourceId && (
             <div className="w-72">

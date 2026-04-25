@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { HelpButton } from "@/features/help";
 import {
   Brain,
   Search,
@@ -82,18 +83,21 @@ export default function StudyDesignerPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20">
-          <Brain className="h-5 w-5 text-primary" />
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20">
+            <Brain className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-text-primary">
+              {t("studyAgent.header.title")}
+            </h1>
+            <p className="text-sm text-text-muted">
+              {t("studyAgent.header.subtitle")}
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-text-primary">
-            {t("studyAgent.header.title")}
-          </h1>
-          <p className="text-sm text-text-muted">
-            {t("studyAgent.header.subtitle")}
-          </p>
-        </div>
+        <HelpButton helpKey="study-designer" />
       </div>
 
       {/* Tab bar */}

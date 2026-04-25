@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { HelpButton } from "@/features/help";
 import {
   ArrowLeft,
   Loader2,
@@ -327,6 +328,7 @@ export default function StudyDetailPage() {
 
           {/* Action buttons */}
           <div className="flex items-center gap-1.5 shrink-0">
+            <HelpButton helpKey="studies" />
             {(analyses ?? []).some(
               (sa) => sa.analysis?.latest_execution?.status === "completed"
             ) && (

@@ -2,6 +2,7 @@ import { useLocation, useParams, Link } from "react-router-dom";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Layers, Brain, Loader2, ScanLine, Monitor, Ruler } from "lucide-react";
+import { HelpButton } from "@/features/help";
 import { useImagingStudy, useIndexSeries, useExtractNlp, useImagingFeatures } from "../hooks/useImaging";
 import type { ImagingSeries, ImagingFeature } from "../types";
 import OhifViewer from "../components/OhifViewer";
@@ -81,6 +82,7 @@ export default function ImagingStudyPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <HelpButton helpKey="imaging" />
           <button
             type="button"
             onClick={() => indexSeries.mutate(studyId)}

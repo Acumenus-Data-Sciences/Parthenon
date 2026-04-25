@@ -8,6 +8,7 @@ import {
   Shield,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { HelpButton } from "@/features/help";
 import { QueryLibraryTab } from "../components/QueryLibraryTab";
 import { NaturalLanguageTab } from "../components/NaturalLanguageTab";
 import { fetchAppSettings, updateAppSettings } from "../api";
@@ -182,6 +183,7 @@ export default function QueryAssistantPage() {
             )}
           </div>
         )}
+        <HelpButton helpKey="query-assistant" />
       </div>
 
       {/* Tab bar */}

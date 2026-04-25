@@ -39,6 +39,7 @@ import {
 } from "../lib/profiler-utils";
 import { getProfilerMetricLabel, getProfilerSortLabel } from "../lib/i18n";
 import { GradeBadge } from "../components/profiler-badges";
+import { HelpButton } from "@/features/help";
 import { CompletenessHeatmap } from "../components/CompletenessHeatmap";
 import { DataQualityScorecard } from "../components/DataQualityScorecard";
 import { TableSizeChart } from "../components/TableSizeChart";
@@ -278,8 +279,11 @@ export default function SourceProfilerPage() {
             {t("etl.profiler.page.subtitle")}
           </p>
         </div>
-        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[rgba(155,27,48,0.12)]">
-          <ScanSearch size={20} className="text-primary" />
+        <div className="flex items-center gap-2">
+          <HelpButton helpKey="source-profiler" />
+          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[rgba(155,27,48,0.12)]">
+            <ScanSearch size={20} className="text-primary" />
+          </div>
         </div>
       </div>
 

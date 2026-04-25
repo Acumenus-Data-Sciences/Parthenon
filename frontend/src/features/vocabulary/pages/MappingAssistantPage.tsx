@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { HelpButton } from "@/features/help";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   ArrowLeftRight,
@@ -889,6 +890,7 @@ export default function MappingAssistantPage() {
             </p>
           </div>
         </div>
+        <HelpButton helpKey="mapping-assistant" />
       </div>
 
       {/* ── Input section ── */}

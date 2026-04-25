@@ -13,6 +13,7 @@ import {
   Loader2,
   X,
 } from "lucide-react";
+import { HelpButton } from "@/features/help";
 import {
   useHeorAnalysis,
   useRunAnalysis,
@@ -250,11 +251,13 @@ export default function HeorAnalysisPage() {
             })}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => runMutation.mutate()}
-          disabled={runMutation.isPending || analysis.status === "running"}
-          className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-surface-base hover:bg-success-dark disabled:opacity-50 transition-colors"
+        <div className="flex items-center gap-2">
+          <HelpButton helpKey="heor" />
+          <button
+            type="button"
+            onClick={() => runMutation.mutate()}
+            disabled={runMutation.isPending || analysis.status === "running"}
+            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-surface-base hover:bg-success-dark disabled:opacity-50 transition-colors"
         >
           {runMutation.isPending ? (
             <Loader2 size={14} className="animate-spin" />
@@ -264,7 +267,8 @@ export default function HeorAnalysisPage() {
           {runMutation.isPending
             ? t("heor.common.messages.running")
             : t("heor.common.actions.runAnalysis")}
-        </button>
+          </button>
+        </div>
       </div>
 
       {runMutation.isSuccess && (

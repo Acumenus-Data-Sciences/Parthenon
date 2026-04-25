@@ -1,4 +1,5 @@
 import { useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { HelpButton } from "@/features/help";
 import {
   Package,
   ChevronRight,
@@ -1020,6 +1021,7 @@ export default function StudyPackagePage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <HelpButton helpKey="study-packages" />
           <input
             ref={importRef}
             type="file"

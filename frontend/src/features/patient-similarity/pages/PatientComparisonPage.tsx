@@ -1,5 +1,6 @@
 import { useSearchParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { HelpButton } from "@/features/help";
 import {
   ArrowLeft,
   Loader2,
@@ -553,25 +554,28 @@ export default function PatientComparisonPage() {
   return (
     <div className="space-y-4 max-w-5xl">
       {/* Header */}
-      <div>
-        <Link
-          to={backUrl}
-          className="inline-flex items-center gap-1 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors mb-3"
-        >
-          <ArrowLeft size={14} />
-          {t("patientSimilarity.common.backToWorkspace")}
-        </Link>
-        <div className="flex items-center gap-3">
-          <h1 className="page-title">
-            {t("patientSimilarity.comparison.pageTitle")}
-          </h1>
-          <span className="text-sm text-[var(--color-text-secondary)] tabular-nums font-['IBM_Plex_Mono',monospace]">
-            #{personA} {t("patientSimilarity.headToHead.vs")} #{personB}
-          </span>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <Link
+            to={backUrl}
+            className="inline-flex items-center gap-1 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors mb-3"
+          >
+            <ArrowLeft size={14} />
+            {t("patientSimilarity.common.backToWorkspace")}
+          </Link>
+          <div className="flex items-center gap-3">
+            <h1 className="page-title">
+              {t("patientSimilarity.comparison.pageTitle")}
+            </h1>
+            <span className="text-sm text-[var(--color-text-secondary)] tabular-nums font-['IBM_Plex_Mono',monospace]">
+              #{personA} {t("patientSimilarity.headToHead.vs")} #{personB}
+            </span>
+          </div>
+          <p className="page-subtitle">
+            {t("patientSimilarity.comparison.subtitle")}
+          </p>
         </div>
-        <p className="page-subtitle">
-          {t("patientSimilarity.comparison.subtitle")}
-        </p>
+        <HelpButton helpKey="patient-similarity" />
       </div>
 
       {/* Loading */}

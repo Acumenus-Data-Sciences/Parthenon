@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Badge, EmptyState } from "@/components/ui";
 import { Drawer } from "@/components/ui/Drawer";
+import { HelpButton } from "@/features/help";
 import { useJupyterWorkspace } from "../hooks/useJupyterWorkspace";
 import { useJupyterSession } from "../hooks/useJupyterSession";
 import { useTranslation } from "react-i18next";
@@ -127,6 +128,7 @@ export default function JupyterPage() {
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+          <HelpButton helpKey="jupyter" />
           <button
             type="button"
             onClick={() => {

@@ -30,6 +30,7 @@ import {
   getPhenotypeDomainLabel,
   getPhenotypeSeverityLabel,
 } from "../lib/i18n";
+import { HelpButton } from "@/features/help";
 
 // ── Domain colour palette (cycles through teal/gold/crimson/violet/slate) ─
 const DOMAIN_COLORS: Record<string, string> = {
@@ -247,6 +248,7 @@ export default function PhenotypeLibraryPage() {
             </p>
           </div>
         </div>
+        <HelpButton helpKey="phenotype-library" />
       </div>
 
       {/* ── Stats cards ── */}

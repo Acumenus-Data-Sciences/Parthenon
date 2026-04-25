@@ -20,6 +20,7 @@ import {
   getCareGapCategoryLabel,
   getCareGapStatusLabel,
 } from "../lib/i18n";
+import { HelpButton } from "@/features/help";
 import {
   useBundle,
   useDeleteBundle,
@@ -201,6 +202,7 @@ export default function BundleDetailPage() {
 
         {/* Actions */}
         <div className="flex items-center gap-2 shrink-0">
+          <HelpButton helpKey="care-gaps.detail" />
           <button
             type="button"
             onClick={handleDelete}

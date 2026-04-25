@@ -5,6 +5,7 @@
 import { useReducer, useCallback, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { FileOutput, Check } from "lucide-react";
+import { HelpButton } from "@/features/help";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import UnifiedAnalysisPicker from "../components/UnifiedAnalysisPicker";
@@ -470,22 +471,25 @@ export default function PublishPage() {
             </p>
           </div>
         </div>
-        {state.step > 1 && (
-          <button
-            type="button"
-            onClick={() => {
-              sessionStorage.removeItem(STORAGE_KEY);
-              dispatch({ type: "SET_SELECTIONS", selections: [] });
-              dispatch({ type: "SET_SECTIONS", sections: [] });
-              dispatch({ type: "SET_TITLE", title: "" });
-              dispatch({ type: "SET_AUTHORS", authors: [] });
-              dispatch({ type: "SET_STEP", step: 1 });
-            }}
-            className="text-xs text-text-ghost hover:text-text-primary transition-colors"
-          >
-            {t("publish.page.startNewDocument")}
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          <HelpButton helpKey="publish" />
+          {state.step > 1 && (
+            <button
+              type="button"
+              onClick={() => {
+                sessionStorage.removeItem(STORAGE_KEY);
+                dispatch({ type: "SET_SELECTIONS", selections: [] });
+                dispatch({ type: "SET_SECTIONS", sections: [] });
+                dispatch({ type: "SET_TITLE", title: "" });
+                dispatch({ type: "SET_AUTHORS", authors: [] });
+                dispatch({ type: "SET_STEP", step: 1 });
+              }}
+              className="text-xs text-text-ghost hover:text-text-primary transition-colors"
+            >
+              {t("publish.page.startNewDocument")}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Progress bar */}

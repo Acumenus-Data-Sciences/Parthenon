@@ -7,6 +7,7 @@ import {
   GitMerge,
   Plus,
 } from "lucide-react";
+import { HelpButton } from "@/features/help";
 import { fetchIngestionProjects, type IngestionProject } from "@/features/ingestion/api/ingestionApi";
 import { AqueductCanvas } from "../components/aqueduct/AqueductCanvas";
 import {
@@ -184,12 +185,21 @@ export default function EtlToolsPage() {
 
   if (projectParam && hasJobs) {
     return (
-      <AqueductContent ingestionProjectId={selectedProjectIdNum} />
+      <div className="space-y-4">
+        <div className="flex justify-end">
+          <HelpButton helpKey="etl-tools" />
+        </div>
+        <AqueductContent ingestionProjectId={selectedProjectIdNum} />
+      </div>
     );
   }
 
   return (
-    <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-border-default bg-surface-raised">
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <HelpButton helpKey="etl-tools" />
+      </div>
+      <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-border-default bg-surface-raised">
       <div className="w-16 h-16 rounded-full bg-surface-overlay flex items-center justify-center mb-4">
         <GitMerge size={28} className="text-text-muted" />
       </div>
@@ -199,6 +209,7 @@ export default function EtlToolsPage() {
       <p className="text-sm text-text-muted mt-1 text-center max-w-md">
         {t("etl.toolsPage.emptyDescription")}
       </p>
+    </div>
     </div>
   );
 }
