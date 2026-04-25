@@ -315,6 +315,18 @@ jobs:
           python install.py --contract plan --community --contract-redact --contract-pretty >/dev/null
           python install.py --contract data-check --community --contract-redact --contract-pretty >/dev/null
           python install.py --contract bundle-manifest --community --contract-redact --contract-pretty >/dev/null
+          # New contract actions added in Phase 1
+          python install.py --contract health --community --contract-redact --contract-pretty >/dev/null
+          python install.py --contract credentials --community --contract-redact --contract-pretty >/dev/null
+          python install.py --contract service-status --community --contract-redact --contract-pretty >/dev/null
+          python install.py --contract open-app --community --contract-redact --contract-pretty >/dev/null
+          python install.py --contract recover --community --contract-redact --contract-pretty >/dev/null
+          # diagnose requires an input payload
+          echo '{"_diagnose_input":{"stdout":"benign","stderr":"","exit_code":0,"phase":"x","platform":"linux"}}' > /tmp/diagnose-input.json
+          python install.py --contract diagnose --community --contract-input /tmp/diagnose-input.json --contract-redact --contract-pretty >/dev/null
+          # port-holder requires a port input
+          echo '{"_port":65535}' > /tmp/port-holder-input.json
+          python install.py --contract port-holder --community --contract-input /tmp/port-holder-input.json --contract-redact --contract-pretty >/dev/null
 
       - name: Validate Rust GUI
         working-directory: installer/rust-gui
