@@ -1,0 +1,14 @@
+{
+  "key": "workbench.care-bundles.intersect",
+  "title": "Explorador de intersecciones",
+  "description": "El explorador de intersecciones muestra cómo se solapan las poblaciones de pacientes entre múltiples paquetes de atención para una única fuente de datos. Usa gráficos UpSet o diagramas de Venn para visualizar patrones de comorbilidad — por ejemplo, cuántos pacientes califican simultáneamente para un paquete de diabetes y otro de hipertensión.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Selecciona primero una fuente de datos, luego marca dos o más paquetes de la lista para calcular su intersección.",
+    "El gráfico UpSet es más legible que un diagrama de Venn cuando hay cuatro o más paquetes.",
+    "Cambia entre los modos 'Todas las intersecciones' y 'Solo seleccionadas' para centrarte en pacientes que califican para todos los paquetes elegidos.",
+    "Haz clic en 'Guardar como cohorte' para exportar la intersección como una definición de cohorte con nombre para usarla en análisis.",
+    "Los recuentos de intersección requieren que cada paquete se haya materializado en la fuente elegida — los recuentos faltantes aparecen como N/A."
+  ]
+}

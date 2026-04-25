@@ -1,0 +1,15 @@
+{
+  "key": "workbench.care-bundles.detail",
+  "title": "Detalle del paquete de atención",
+  "description": "Esta página muestra el rendimiento por medida de un único paquete de atención para una fuente de datos seleccionada. Cada medida eCQM de FHIR muestra sus recuentos de numerador y denominador, tasa de rendimiento e intervalo de confianza del 95%. Las estratificaciones desglosan las tasas por grupo de edad, sexo o pagador.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Cambia las fuentes de datos usando el menú desplegable en la parte superior derecha. Las fuentes etiquetadas con ⚠ están por debajo del umbral de 100.000 pacientes y son solo para uso de investigación.",
+    "Haz clic en el chevron junto a cualquier medida para expandir sus estratificaciones (rango de edad, sexo, pagador).",
+    "Haz clic en el icono de información (ℹ) para abrir el panel de metodología de la medida FHIR — muestra la lógica de la medida, criterios de población y requisitos de datos.",
+    "Haz clic en 'Materializar' para ejecutar este paquete contra la fuente seleccionada. Las ejecuciones se ponen en cola y los resultados aparecen en minutos.",
+    "Usa 'Comparar fuentes' para abrir una vista lado a lado de las mismas medidas en todas las fuentes calificadas.",
+    "Descarga el recurso Measure de FHIR R4 (JSON) para compartir la definición de la medida o importarla en otro sistema compatible con FHIR."
+  ]
+}

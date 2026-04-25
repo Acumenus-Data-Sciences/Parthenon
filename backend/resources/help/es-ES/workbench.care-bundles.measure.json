@@ -1,0 +1,14 @@
+{
+  "key": "workbench.care-bundles.measure",
+  "title": "Detalle de medida CMS",
+  "description": "Esta página muestra una única eCQM de CMS y todos sus conjuntos de valores VSAC vinculados. Cada conjunto de valores representa un criterio de población — población inicial de pacientes, denominador, numerador, exclusiones — y se asigna a conceptos estándar de OMOP para su ejecución contra datos CDM.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "El número CBE y la versión de expansión identifican la versión exacta de la especificación de esta medida.",
+    "Haz clic en el nombre de cualquier conjunto de valores para ver sus códigos, asignaciones OMOP y propósito clínico.",
+    "La columna 'Conceptos OMOP' muestra cuántos códigos se han traducido a conceptos estándar OMOP. Una baja cobertura puede causar subconteo.",
+    "Los conjuntos de valores con cero conceptos OMOP necesitan una revisión manual de mapeo antes de que esta medida pueda ejecutarse con precisión.",
+    "Los criterios de esta medida se implementan como lógica de FHIR Measure — descarga la medida FHIR desde la página de detalle del paquete para inspeccionar el CQL completo."
+  ]
+}

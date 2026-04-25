@@ -1,0 +1,14 @@
+{
+  "key": "workbench.care-bundles.value-sets",
+  "title": "VSAC 값 집합",
+  "description": "이 페이지는 Value Set Authority Center(VSAC) 라이브러리 — CMS eCQM이 사용하는 임상 용어 값 집합의 표준 출처 — 를 색인합니다. 각 값 집합은 SNOMED CT, ICD-10-CM, LOINC, RxNorm, CPT 또는 HCPCS의 코드를 그룹화하여 품질 측정에 사용되는 임상 개념을 집합적으로 나타냅니다.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "이름(예: '당뇨병')으로 검색하거나 OID를 직접 붙여 넣어 특정 값 집합을 찾습니다.",
+    "코드 시스템별로 필터링하여 결과를 ICD-10-CM, SNOMED CT, LOINC, RxNorm, CPT 또는 HCPCS로 좁힙니다.",
+    "값 집합 이름을 클릭하면 코드, OMOP 개념 매핑 및 이를 참조하는 CMS 측정값을 볼 수 있습니다.",
+    "OMOP 개념 열은 OMOP 표준 개념에 매핑된 코드 수를 보여줍니다 — 높은 커버리지는 더 나은 코호트 충실도를 의미합니다.",
+    "값 집합은 확장 날짜별로 버전이 지정됩니다 — 확장 버전은 상세 페이지에 표시됩니다."
+  ]
+}

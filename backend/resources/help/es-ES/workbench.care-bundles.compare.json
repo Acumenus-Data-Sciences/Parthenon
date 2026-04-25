@@ -1,0 +1,14 @@
+{
+  "key": "workbench.care-bundles.compare",
+  "title": "Comparación de fuentes",
+  "description": "La vista de comparación de fuentes ejecuta las medidas del mismo paquete en todas las fuentes de datos calificadas simultáneamente, permitiéndote ver cómo varían las tasas de rendimiento entre sitios, pagadores o períodos de tiempo. Los deltas se calculan respecto a la fuente con la mayor población calificada.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "La fuente de referencia (utilizada para el cálculo del delta) se elige automáticamente como la fuente con más pacientes calificados.",
+    "Los valores delta verdes indican mejor rendimiento que la referencia; los valores rojos indican peor rendimiento.",
+    "Solo se muestran las fuentes que se han materializado y tienen al menos un paciente calificado.",
+    "Si no aparece ninguna fuente, vuelve a la página de detalle del paquete y materialízalo en al menos una fuente con N ≥ 100K.",
+    "Se muestran intervalos de confianza para cada fuente — intervalos amplios indican denominadores pequeños y tasas menos confiables."
+  ]
+}

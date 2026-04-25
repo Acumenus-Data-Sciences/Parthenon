@@ -1,0 +1,14 @@
+{
+  "key": "workbench.care-bundles.value-sets",
+  "title": "Conjuntos de valores VSAC",
+  "description": "Esta página indexa la biblioteca del Value Set Authority Center (VSAC) — la fuente canónica de conjuntos de valores de terminología clínica utilizados por las eCQM de CMS. Cada conjunto de valores agrupa códigos de SNOMED CT, ICD-10-CM, LOINC, RxNorm, CPT o HCPCS que representan colectivamente un concepto clínico utilizado en la medición de la calidad.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Busca por nombre (por ejemplo, 'diabetes') o pega un OID directamente para encontrar un conjunto de valores específico.",
+    "Filtra por sistema de códigos para acotar los resultados a ICD-10-CM, SNOMED CT, LOINC, RxNorm, CPT o HCPCS.",
+    "Haz clic en el nombre de un conjunto de valores para ver sus códigos, asignaciones de conceptos OMOP y qué medidas CMS lo referencian.",
+    "La columna 'Conceptos OMOP' muestra cuántos códigos se han asignado a conceptos estándar OMOP — alta cobertura significa mejor fidelidad de cohorte.",
+    "Los conjuntos de valores se versionan por fecha de expansión — la versión de expansión se muestra en la página de detalle."
+  ]
+}

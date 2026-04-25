@@ -1,0 +1,14 @@
+{
+  "key": "workbench.care-bundles.value-set",
+  "title": "Detalle del conjunto de valores",
+  "description": "Esta página muestra un único conjunto de valores VSAC — sus códigos constituyentes, asignaciones a conceptos estándar de OMOP, propósito clínico y las medidas CMS que lo utilizan. Los IDs de conceptos OMOP pueden copiarse como un array JSON y pegarse directamente en el campo omop_concept_ids de un paquete de atención.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Haz clic en 'Copiar concept_ids OMOP' para copiar la lista completa de IDs de conceptos OMOP asignados como un array JSON — utilízalo para configurar criterios de cohorte o definiciones de paquetes de atención.",
+    "La sección 'Foco clínico' describe la intención clínica del conjunto de valores tal como se documenta en VSAC.",
+    "La sección 'Usado por medidas CMS' enlaza a cada eCQM que hace referencia a este conjunto de valores.",
+    "No todos los códigos fuente tendrán asignaciones OMOP — revisa los códigos no mapeados si los recuentos de tu cohorte parecen bajos.",
+    "La versión de expansión refleja la fecha en que este conjunto de valores se actualizó por última vez en VSAC. Las expansiones más antiguas pueden no incluir códigos añadidos recientemente."
+  ]
+}

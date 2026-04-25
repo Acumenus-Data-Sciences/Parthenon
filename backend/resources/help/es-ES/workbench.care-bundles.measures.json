@@ -1,0 +1,14 @@
+{
+  "key": "workbench.care-bundles.measures",
+  "title": "Medidas CMS",
+  "description": "Esta página enumera las medidas electrónicas de calidad clínica (eCQM) de CMS de la biblioteca VSAC. Cada medida tiene un identificador CMS (por ejemplo, CMS349v6), un número CBE asignado por el National Quality Forum, un programa de informes (MIPS, Hospital, etc.) y un conjunto de conjuntos de valores que definen sus criterios de población.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Busca por ID CMS (por ejemplo, 'CMS349'), número CBE o título de la medida.",
+    "Haz clic en un ID CMS para ver todos los conjuntos de valores vinculados a esa medida y su cobertura de conceptos OMOP.",
+    "Los números CBE son asignados por el National Quality Forum (NQF) y se utilizan en informes regulatorios.",
+    "Los conjuntos de valores de cada medida definen la población de pacientes, numerador, denominador y criterios de exclusión.",
+    "Las medidas utilizadas por los paquetes de atención en Parthenon aparecen en sus respectivas páginas de detalle del paquete — esta biblioteca contiene el catálogo completo de eCQM de CMS."
+  ]
+}

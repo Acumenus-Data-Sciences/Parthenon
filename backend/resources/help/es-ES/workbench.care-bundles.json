@@ -1,0 +1,14 @@
+{
+  "key": "workbench.care-bundles",
+  "title": "Banco de trabajo CareBundles",
+  "description": "El banco de trabajo CareBundles ofrece una matriz de cobertura con recuentos de pacientes calificados para cada paquete de atención específico de una condición a través de tus fuentes de datos conectadas. Cada celda muestra cuántos pacientes de una fuente determinada cumplen los criterios de entrada del paquete. Los paquetes deben materializarse antes de que aparezcan los recuentos.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Haz clic en 'Materializar todo' para ejecutar la lógica de calificación para cada combinación de paquete × fuente a la vez.",
+    "Las fuentes con menos de 100.000 pacientes se excluyen por defecto — activa 'Mostrar fuentes solo de investigación' para incluirlas.",
+    "Haz clic en cualquier celda con recuento distinto de cero para profundizar en el rendimiento por medida del paquete para esa fuente.",
+    "Un guion gris significa que el paquete nunca se ha materializado para esa fuente. Un cero significa que la fuente se ejecutó pero ningún paciente calificó.",
+    "Cada paquete de atención corresponde a un programa eCQM de FHIR (por ejemplo, CMS349 para detección de VIH). El código del paquete es el ID de la medida CMS."
+  ]
+}
