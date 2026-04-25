@@ -371,7 +371,7 @@ jobs:
             cargo tauri build
           fi
 
-      - name: Notarize and staple macOS .app and .dmg
+      - name: Notarize and staple macOS .app, then rebuild + staple .dmg
         if: ${{ runner.os == 'macOS' && env.APPLE_API_KEY_CONFIGURED == 'true' }}
         working-directory: installer/rust-gui
         shell: bash
@@ -381,13 +381,13 @@ jobs:
           APPLE_API_KEY_PATH: ${{ env.APPLE_API_KEY_PATH }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
+          set -e
           app_bundle="$(find target/release/bundle/macos -maxdepth 1 -name '*.app' -print -quit)"
           if [ -z "$app_bundle" ]; then
             echo "Expected a macOS .app bundle after build, but none was found." >&2
             exit 1
           fi
           echo "Notarizing .app: $app_bundle"
-          # notarytool submit wants a zip/dmg/pkg — zip the .app temporarily
           zip_path="$(mktemp -d)/app.zip"
           ditto -c -k --sequesterRsrc --keepParent "$app_bundle" "$zip_path"
           xcrun notarytool submit "$zip_path" \
@@ -399,16 +399,29 @@ jobs:
           xcrun stapler staple "$app_bundle"
           echo "Notarized and stapled .app"
 
-          dmg="$(find target/release/bundle/dmg -name '*.dmg' -print -quit)"
-          if [ -n "$dmg" ]; then
-            echo "Notarizing .dmg: $dmg"
-            xcrun notarytool submit "$dmg" \
+          # Find the original dmg, delete it, then rebuild from the stapled .app
+          original_dmg="$(find target/release/bundle/dmg -name '*.dmg' -print -quit)"
+          if [ -n "$original_dmg" ]; then
+            dmg_dir="$(dirname "$original_dmg")"
+            dmg_name="$(basename "$original_dmg")"
+            volname="${dmg_name%.dmg}"
+            echo "Rebuilding $dmg_name from stapled .app to embed the staple ticket"
+            rm "$original_dmg"
+            staging="$(mktemp -d)/dmg-staging"
+            mkdir -p "$staging"
+            cp -R "$app_bundle" "$staging/"
+            ln -s /Applications "$staging/Applications"
+            hdiutil create -volname "$volname" -srcfolder "$staging" -ov -format UDZO "$dmg_dir/$dmg_name"
+            echo "Rebuilt $dmg_name"
+
+            echo "Notarizing rebuilt .dmg: $dmg_dir/$dmg_name"
+            xcrun notarytool submit "$dmg_dir/$dmg_name" \
               --key "$APPLE_API_KEY_PATH" \
               --key-id "$APPLE_API_KEY" \
               --issuer "$APPLE_API_ISSUER" \
               --team-id "$APPLE_TEAM_ID" \
               --wait
-            xcrun stapler staple "$dmg"
+            xcrun stapler staple "$dmg_dir/$dmg_name"
             echo "Notarized and stapled .dmg"
           fi
 
@@ -424,9 +437,18 @@ jobs:
           fi
           codesign --verify --deep --strict --verbose=2 "$app_bundle"
           spctl -a -vv "$app_bundle"
+          xcrun stapler validate "$app_bundle"
           dmg="$(find target/release/bundle/dmg -name '*.dmg' -print -quit)"
           if [ -n "$dmg" ]; then
             xcrun stapler validate "$dmg"
+            mount_point="$(mktemp -d)/dmgcheck"
+            hdiutil attach "$dmg" -mountpoint "$mount_point" -nobrowse -readonly
+            mounted_app="$(find "$mount_point" -maxdepth 1 -name '*.app' -print -quit)"
+            if [ -n "$mounted_app" ]; then
+              xcrun stapler validate "$mounted_app"
+              echo "✓ .app inside .dmg has staple ticket"
+            fi
+            hdiutil detach "$mount_point"
           fi
 
       - name: Sign Linux packages with GPG
