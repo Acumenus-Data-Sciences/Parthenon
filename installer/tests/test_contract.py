@@ -290,3 +290,19 @@ def test_bundle_manifest_validation_detects_tampering(tmp_path):
 
     assert names["install.py"]["status"] == "fail"
     assert names["install.py"]["detail"] == "checksum mismatch"
+
+
+def test_health_contract_action_returns_probe_shape(monkeypatch):
+    monkeypatch.setattr("installer.config.utils.is_port_free", lambda port: True)
+    monkeypatch.setattr(
+        "installer.health._http_get",
+        lambda url, timeout=5.0: (200, ""),
+    )
+
+    payload = contract.build_payload(
+        "health",
+        community=True,
+        overrides={"app_url": "http://localhost:8082"},
+    )
+
+    assert payload == {"ready": True, "attempt": 1, "last_status": 200}

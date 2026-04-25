@@ -245,6 +245,12 @@ def bundle_manifest_payload(*, repo_root: str | None = None) -> dict[str, Any]:
     return manifest
 
 
+def health_payload(cfg: dict[str, Any], *, attempt: int = 1) -> dict[str, Any]:
+    from . import health as installer_health
+    app_url = cfg.get("app_url") or "http://localhost"
+    return installer_health.probe(app_url, attempt=attempt)
+
+
 def build_payload(
     action: str,
     *,
@@ -253,14 +259,30 @@ def build_payload(
     repo_root: str | None = None,
     redacted: bool = False,
 ) -> dict[str, Any]:
-    cfg = normalize_defaults(overrides, community=community)
+    """Build the JSON payload for a contract action.
+
+    `overrides` carries two kinds of values:
+    1. **Config overrides** (e.g. `app_url`, `admin_email`) — merged into the
+       normalized config used by the action.
+    2. **Action call-time parameters** (keys prefixed with `_`, e.g. `_health_attempt`,
+       `_port`, `_diagnose_input`) — read by specific action branches and
+       NOT merged into config. Underscore-prefixed keys are filtered from the
+       config layer to keep the namespace clean.
+
+    The underscore convention lets one input file carry both layers without an
+    extra parameter on `build_payload`. Each action documents which `_*` keys
+    it consumes.
+    """
+    raw_overrides = overrides or {}
+    config_overrides = {k: v for k, v in raw_overrides.items() if not k.startswith("_")}
+    cfg = normalize_defaults(config_overrides, community=community)
 
     if action == "defaults":
         payload: dict[str, Any] = cfg
     elif action == "validate":
         payload = {
             "ok": True,
-            "config": validate_defaults(overrides, community=community),
+            "config": validate_defaults(config_overrides, community=community),
         }
     elif action == "plan":
         payload = {
@@ -281,6 +303,11 @@ def build_payload(
         payload = {
             "manifest": bundle_manifest_payload(repo_root=repo_root),
         }
+    elif action == "health":
+        attempt = 1
+        if isinstance(raw_overrides.get("_health_attempt"), int):
+            attempt = raw_overrides["_health_attempt"]
+        payload = health_payload(cfg, attempt=attempt)
     else:
         raise ValueError(f"Unsupported contract action: {action}")
 
@@ -301,7 +328,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Parthenon installer contract")
     parser.add_argument(
         "action",
-        choices=["defaults", "validate", "plan", "preflight", "data-check", "bundle-manifest"],
+        choices=["defaults", "validate", "plan", "preflight", "data-check", "bundle-manifest", "health"],
         help="Contract payload to emit",
     )
     parser.add_argument("--community", action="store_true", help="Use Community MVP defaults")
