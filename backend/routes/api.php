@@ -961,6 +961,12 @@ Route::prefix('v1')->group(function () {
             Route::get('/{bundle}/measures/{measure}/strata', [CareBundleController::class, 'strata'])
                 ->middleware(['permission:care-bundles.view', 'throttle:60,1'])
                 ->where(['bundle' => '[0-9]+', 'measure' => '[0-9]+']);
+            Route::get('/{bundle}/measures/{measure}/trend', [CareBundleController::class, 'trend'])
+                ->middleware(['permission:care-bundles.view', 'throttle:60,1'])
+                ->where(['bundle' => '[0-9]+', 'measure' => '[0-9]+']);
+            Route::get('/{bundle}/comparison', [CareBundleController::class, 'comparison'])
+                ->middleware(['permission:care-bundles.view', 'throttle:60,1'])
+                ->where('bundle', '[0-9]+');
             Route::post('/{bundle}/materialize', [CareBundleController::class, 'materialize'])
                 ->middleware(['permission:care-bundles.materialize', 'throttle:30,1']);
         });

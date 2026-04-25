@@ -5,6 +5,7 @@ import {
   ChevronDown,
   ChevronRight,
   Download,
+  GitCompareArrows,
   Info,
   Loader2,
   Play,
@@ -118,6 +119,15 @@ export default function CareBundleDetailPage() {
               </optgroup>
             )}
           </select>
+
+          <Link
+            to={`/workbench/care-bundles/${bundleId ?? ""}/compare`}
+            className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-surface-overlay"
+            title="Compare this bundle's measures across qualifying sources"
+          >
+            <GitCompareArrows className="h-4 w-4" />
+            Compare sources
+          </Link>
 
           <button
             onClick={() =>

@@ -4,6 +4,7 @@ import type {
   CareBundleQualificationsResponse,
   CareBundleRun,
   CareBundleSourcesResponse,
+  ComparisonResponse,
   DerivedCohortDefinition,
   IntersectionMode,
   IntersectionResponse,
@@ -12,6 +13,7 @@ import type {
   MeasureMethodology,
   MeasureStrata,
   PaginatedResponse,
+  TrendResponse,
   VsacCode,
   VsacMeasureDetail,
   VsacMeasureSummary,
@@ -214,6 +216,32 @@ export async function fetchMeasureStrata(
   const { data } = await apiClient.get<{ data: MeasureStrata }>(
     `${BASE}/${bundleId}/measures/${measureId}/strata`,
     { params: { source_id: sourceId } },
+  );
+  return data.data;
+}
+
+// ---------------------------------------------------------------------------
+// Source comparison + Time trend (Tier B)
+// ---------------------------------------------------------------------------
+
+export async function fetchBundleComparison(
+  bundleId: number,
+): Promise<ComparisonResponse> {
+  const { data } = await apiClient.get<{ data: ComparisonResponse }>(
+    `${BASE}/${bundleId}/comparison`,
+  );
+  return data.data;
+}
+
+export async function fetchMeasureTrend(
+  bundleId: number,
+  measureId: number,
+  sourceId: number,
+  limit = 24,
+): Promise<TrendResponse> {
+  const { data } = await apiClient.get<{ data: TrendResponse }>(
+    `${BASE}/${bundleId}/measures/${measureId}/trend`,
+    { params: { source_id: sourceId, limit } },
   );
   return data.data;
 }

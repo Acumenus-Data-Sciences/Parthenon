@@ -17,8 +17,10 @@ use App\Services\CareBundles\CareBundleQualificationService;
 use App\Services\CareBundles\CareBundleSourceService;
 use App\Services\CareBundles\FhirMeasureExporter;
 use App\Services\CareBundles\IntersectionCohortService;
+use App\Services\CareBundles\MeasureComparisonService;
 use App\Services\CareBundles\MeasureMethodologyService;
 use App\Services\CareBundles\MeasureStratificationService;
+use App\Services\CareBundles\MeasureTrendService;
 use App\Services\CareBundles\WilsonCI;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -36,7 +38,43 @@ class CareBundleController extends Controller
         private readonly CareBundleSourceService $sources,
         private readonly MeasureMethodologyService $methodologyService,
         private readonly MeasureStratificationService $stratificationService,
+        private readonly MeasureComparisonService $comparisonService,
+        private readonly MeasureTrendService $trendService,
     ) {}
+
+    /**
+     * GET /v1/care-bundles/{bundle}/comparison
+     *
+     * Side-by-side per-source results for every measure in this bundle.
+     * Reads only from already-materialized runs — no CDM scans.
+     */
+    public function comparison(ConditionBundle $bundle): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->comparisonService->compare($bundle),
+        ]);
+    }
+
+    /**
+     * GET /v1/care-bundles/{bundle}/measures/{measure}/trend?source_id=X
+     *
+     * Historical run snapshots for one (bundle, source, measure). Each run
+     * is one trend point with its own rate + Wilson CI.
+     */
+    public function trend(Request $request, ConditionBundle $bundle, QualityMeasure $measure): JsonResponse
+    {
+        $validated = $request->validate([
+            'source_id' => ['required', 'integer', 'exists:sources,id,deleted_at,NULL'],
+            'limit' => ['nullable', 'integer', 'min:1', 'max:100'],
+        ]);
+
+        $source = Source::findOrFail($validated['source_id']);
+        $limit = (int) ($validated['limit'] ?? 24);
+
+        return response()->json([
+            'data' => $this->trendService->trend($bundle, $measure, $source, $limit),
+        ]);
+    }
 
     /**
      * GET /v1/care-bundles/{bundle}/measures/{measure}/methodology?source_id=X

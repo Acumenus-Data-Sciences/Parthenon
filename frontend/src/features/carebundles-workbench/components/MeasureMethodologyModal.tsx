@@ -1,6 +1,7 @@
 import { AlertOctagon, AlertTriangle, Info, Loader2, X } from "lucide-react";
 import { useMeasureMethodology } from "../hooks";
 import type { DataQualityFlag } from "../types";
+import { MeasureTrendChart } from "./MeasureTrendChart";
 
 interface Props {
   bundleId: number | null;
@@ -66,6 +67,14 @@ export function MeasureMethodologyModal({
           {data && (
             <>
               <DqSection flags={data.data_quality_flags} />
+
+              <Section title="Trend">
+                <MeasureTrendChart
+                  bundleId={bundleId}
+                  measureId={measureId}
+                  sourceId={sourceId}
+                />
+              </Section>
 
               <Section title="Bundle qualification">
                 <Field label="Bundle">

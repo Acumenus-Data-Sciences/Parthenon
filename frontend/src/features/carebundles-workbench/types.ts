@@ -310,3 +310,60 @@ export interface MeasureStrata {
   age_band: MeasureStratum[];
   sex: MeasureStratum[];
 }
+
+// ---------------------------------------------------------------------------
+// Source comparison + Time trend (Tier B)
+// ---------------------------------------------------------------------------
+
+export interface CompareSource {
+  id: number;
+  source_name: string;
+  person_count: number | null;
+  qualifies: boolean;
+  run_id: number | null;
+  qualified_person_count: number | null;
+  completed_at: string | null;
+}
+
+export interface CompareCell {
+  denominator_count: number;
+  numerator_count: number;
+  exclusion_count: number;
+  rate: number | null;
+  ci_lower: number | null;
+  ci_upper: number | null;
+  computed_at: string | null;
+}
+
+export interface CompareMeasure {
+  measure_id: number;
+  measure_code: string;
+  measure_name: string;
+  domain: string;
+  by_source: Record<string, CompareCell>;
+}
+
+export interface ComparisonResponse {
+  bundle_id: number;
+  sources: CompareSource[];
+  measures: CompareMeasure[];
+}
+
+export interface TrendPoint {
+  run_id: number;
+  completed_at: string | null;
+  qualified_person_count: number;
+  denominator_count: number;
+  numerator_count: number;
+  exclusion_count: number;
+  rate: number | null;
+  ci_lower: number | null;
+  ci_upper: number | null;
+}
+
+export interface TrendResponse {
+  bundle_id: number;
+  source_id: number;
+  measure_id: number;
+  points: TrendPoint[];
+}

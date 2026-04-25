@@ -436,6 +436,13 @@ export const router = createBrowserRouter(
                   ).then((m) => ({ Component: m.default })),
               },
               {
+                path: ":bundleId/compare",
+                lazy: () =>
+                  import(
+                    "@/features/carebundles-workbench/pages/CareBundleComparePage"
+                  ).then((m) => ({ Component: m.default })),
+              },
+              {
                 path: ":bundleId",
                 lazy: () =>
                   import(

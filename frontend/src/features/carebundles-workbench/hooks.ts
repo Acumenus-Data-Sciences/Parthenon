@@ -2,12 +2,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   computeIntersection,
   createCohortFromIntersection,
+  fetchBundleComparison,
   fetchBundleQualifications,
   fetchBundleRuns,
   fetchCareBundleSources,
   fetchCoverageMatrix,
   fetchMeasureMethodology,
   fetchMeasureStrata,
+  fetchMeasureTrend,
   fetchRun,
   fetchVsacCodes,
   fetchVsacMeasure,
@@ -240,5 +242,37 @@ export function useMeasureStrata(
     queryFn: () => fetchMeasureStrata(bundleId as number, measureId as number, sourceId as number),
     enabled: ready,
     staleTime: 5 * 60_000,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Source comparison + Time trend (Tier B)
+// ---------------------------------------------------------------------------
+
+export function useBundleComparison(bundleId: number | null) {
+  return useQuery({
+    queryKey: bundleId
+      ? ["care-bundles", bundleId, "comparison"]
+      : ["care-bundles", "comparison", "disabled"],
+    queryFn: () => fetchBundleComparison(bundleId as number),
+    enabled: bundleId != null,
+    staleTime: 60_000,
+  });
+}
+
+export function useMeasureTrend(
+  bundleId: number | null,
+  measureId: number | null,
+  sourceId: number | null,
+  enabled: boolean = true,
+) {
+  const ready = enabled && bundleId != null && measureId != null && sourceId != null;
+  return useQuery({
+    queryKey: ready
+      ? ["care-bundles", bundleId, "measures", measureId, "trend", sourceId]
+      : ["care-bundles", "trend", "disabled"],
+    queryFn: () => fetchMeasureTrend(bundleId as number, measureId as number, sourceId as number),
+    enabled: ready,
+    staleTime: 60_000,
   });
 }
