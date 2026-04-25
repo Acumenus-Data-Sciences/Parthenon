@@ -725,7 +725,8 @@ function renderDiagnosticCards(result) {
   }
   for (const match of matches) {
     const card = document.createElement("div");
-    card.className = `diagnostic-card severity-${match.severity || "warn"}`;
+    const sev = ["error", "warn", "info"].includes(match.severity) ? match.severity : "warn";
+    card.className = `diagnostic-card severity-${sev}`;
     card.innerHTML = `
       <div class="diagnostic-card-id">${escapeHtml(match.id || "unknown")}</div>
       <div class="diagnostic-card-message">${escapeHtml(match.message || "")}</div>
@@ -1092,14 +1093,11 @@ document.querySelector("#recovery-retry-btn")?.addEventListener("click", async (
   }
   const panel = document.querySelector("#recovery-panel");
   if (panel) panel.hidden = true;
-  // Retry from start: clear .install-state.json so engine starts fresh
-  // (the start_install command itself doesn't delete state — the user gets
-  // a true retry by deleting state via reset_install with --keep-data, but
-  // for simplicity we just re-invoke and let the user delete state via Reset
-  // if Retry hits the same problem)
+  // Re-invoke start_install. The engine's checkpoint store auto-resumes from
+  // the last successful step. For a true fresh start, the user must click Reset.
   setStep("install");
   state.running = true;
-  setStatus("Retrying install…");
+  setStatus("Retrying install (resuming from checkpoint)…");
   updateInstallButton();
   try {
     await invoke("start_install", { request: recoveryState.lastRequest });

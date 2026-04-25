@@ -1702,14 +1702,26 @@ fn reset_install(app: AppHandle) -> Result<String, String> {
     for filename in [".install-state.json", ".install-credentials"] {
         let path = install_dir.join(filename);
         if path.exists() {
-            let _ = std::fs::remove_file(&path);
-            let _ = app.emit(
-                "install-log",
-                InstallEvent {
-                    stream: "stdout".to_string(),
-                    message: format!("✓ Deleted {filename}"),
-                },
-            );
+            match std::fs::remove_file(&path) {
+                Ok(_) => {
+                    let _ = app.emit(
+                        "install-log",
+                        InstallEvent {
+                            stream: "stdout".to_string(),
+                            message: format!("✓ Deleted {filename}"),
+                        },
+                    );
+                }
+                Err(err) => {
+                    let _ = app.emit(
+                        "install-log",
+                        InstallEvent {
+                            stream: "stderr".to_string(),
+                            message: format!("⚠ Could not delete {filename}: {err}"),
+                        },
+                    );
+                }
+            }
         }
     }
 
@@ -1717,14 +1729,29 @@ fn reset_install(app: AppHandle) -> Result<String, String> {
     if !request.bundle_install_dir.trim().is_empty() {
         let cache = PathBuf::from(request.bundle_install_dir.trim());
         if cache.exists() {
-            let _ = std::fs::remove_dir_all(&cache);
-            let _ = app.emit(
-                "install-log",
-                InstallEvent {
-                    stream: "stdout".to_string(),
-                    message: format!("✓ Removed bundle cache {}", cache.display()),
-                },
-            );
+            match std::fs::remove_dir_all(&cache) {
+                Ok(_) => {
+                    let _ = app.emit(
+                        "install-log",
+                        InstallEvent {
+                            stream: "stdout".to_string(),
+                            message: format!("✓ Removed bundle cache {}", cache.display()),
+                        },
+                    );
+                }
+                Err(err) => {
+                    let _ = app.emit(
+                        "install-log",
+                        InstallEvent {
+                            stream: "stderr".to_string(),
+                            message: format!(
+                                "⚠ Could not remove bundle cache {}: {err}",
+                                cache.display()
+                            ),
+                        },
+                    );
+                }
+            }
         }
     }
 
