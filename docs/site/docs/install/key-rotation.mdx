@@ -1,0 +1,91 @@
+---
+title: Updater Keypair & Rotation
+sidebar_position: 90
+---
+
+# Updater Keypair & Rotation
+
+The Parthenon Installer's auto-updater uses Tauri's signed-update mechanism. Each release publishes a `latest.json` file signed with an Ed25519 private key; the installer verifies that signature against the public key compiled into the binary.
+
+This page documents the one-time keypair generation, secret storage, and rotation procedure.
+
+## One-Time Generation
+
+Run this on a trusted local machine — never in CI, never in a shared shell session.
+
+```bash
+mkdir -p ~/.tauri
+tauri signer generate -w ~/.tauri/parthenon-updater.key
+```
+
+The command outputs:
+- The **private key** is written to `~/.tauri/parthenon-updater.key` (passphrase-protected during generation).
+- The **public key** is printed to stdout. It looks like:
+  ```
+  dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDFGRUM2NDY1...
+  ```
+
+## Storage
+
+| Material | Location | Purpose |
+|---|---|---|
+| Private key | GitHub repo secret `TAURI_UPDATER_PRIVATE_KEY` | CI signs `latest.json` per release |
+| Private key passphrase | GitHub repo secret `TAURI_UPDATER_KEY_PASSWORD` | Unlocks the key in CI |
+| Private key (encrypted backup) | 1Password vault `Parthenon — Release Keys` | Disaster recovery |
+| Public key | `installer/rust-gui/tauri.conf.json` `plugins.updater.pubkey` | Installer verifies signatures |
+| Public key | acumenus.net release-keys page | Independent publication channel |
+
+Until `TAURI_UPDATER_PRIVATE_KEY` is set, CI cannot generate `latest.json` and the updater banner in the GUI will report "no update available" forever — that is the safe failure mode.
+
+## Replacing the Placeholder
+
+After running `tauri signer generate`:
+
+1. Copy the printed public key.
+2. Open `installer/rust-gui/tauri.conf.json`.
+3. Replace `"REPLACE_WITH_REAL_PUBKEY_BEFORE_RELEASE"` with the real key string.
+4. Commit:
+   ```bash
+   git add installer/rust-gui/tauri.conf.json
+   git commit -m "chore(installer-gui): set production updater pubkey"
+   ```
+5. Add the private key file's contents to GitHub repo secret `TAURI_UPDATER_PRIVATE_KEY`.
+6. Add the passphrase to GitHub repo secret `TAURI_UPDATER_KEY_PASSWORD`.
+
+## Rotation
+
+Rotate the keypair **every 5 years** OR immediately after a suspected compromise.
+
+Rotation is non-disruptive when done correctly: Tauri 2 supports an array of pubkeys in `tauri.conf.json` so old releases can still be verified by users running newer installers, and new releases signed by the new key are accepted.
+
+### Rotation Procedure
+
+1. Generate a new keypair on a trusted machine: `tauri signer generate -w ~/.tauri/parthenon-updater-2.key`.
+2. Edit `installer/rust-gui/tauri.conf.json` and convert `pubkey` to an array containing both keys, newest first:
+   ```jsonc
+   "pubkey": [
+     "<new-pubkey>",
+     "<old-pubkey>"
+   ]
+   ```
+3. Update GitHub secrets `TAURI_UPDATER_PRIVATE_KEY` and `TAURI_UPDATER_KEY_PASSWORD` with the new key.
+4. Tag a release. CI signs `latest.json` with the new key.
+5. After 90 days (covering one full update cycle), drop the old pubkey from the array.
+
+### After Suspected Compromise
+
+If the private key is suspected exposed:
+1. Immediately rotate to a new keypair (above).
+2. Issue a security advisory on GitHub.
+3. Bump the installer's minimum supported version (`tauri.conf.json` `version`) so existing installs are forced to update through the new key.
+4. Notify acumenus.net release-keys page subscribers via the maintained mailing list.
+
+## Verification (User-Facing)
+
+End users do not interact with the updater key directly — the installer verifies signatures automatically. Users who want independent verification can compare the bundled pubkey against the version published at https://acumenus.net/security/release-keys before running the installer for the first time.
+
+The published fingerprint is reproducible from the public key:
+
+```bash
+echo "<pubkey-string>" | sha256sum
+```
