@@ -315,6 +315,12 @@ def credentials_payload(cfg: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+def recover_payload() -> dict[str, Any]:
+    from . import recovery as installer_recovery
+    state_path = utils.REPO_ROOT / ".install-state.json"
+    return installer_recovery.inspect(state_path)
+
+
 def build_payload(
     action: str,
     *,
@@ -380,6 +386,8 @@ def build_payload(
         payload = open_app_payload(cfg)
     elif action == "port-holder":
         payload = port_holder_payload(cfg, raw_overrides)
+    elif action == "recover":
+        payload = recover_payload()
     else:
         raise ValueError(f"Unsupported contract action: {action}")
 
@@ -400,7 +408,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Parthenon installer contract")
     parser.add_argument(
         "action",
-        choices=["defaults", "validate", "plan", "preflight", "data-check", "bundle-manifest", "health", "credentials", "service-status", "open-app", "port-holder"],
+        choices=["defaults", "validate", "plan", "preflight", "data-check", "bundle-manifest", "health", "credentials", "service-status", "open-app", "port-holder", "recover"],
         help="Contract payload to emit",
     )
     parser.add_argument("--community", action="store_true", help="Use Community MVP defaults")
