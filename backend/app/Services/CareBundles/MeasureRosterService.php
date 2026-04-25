@@ -131,41 +131,6 @@ class MeasureRosterService
         ];
     }
 
-    /**
-     * @return list<int>
-     */
-    public function allPersonIds(
-        ConditionBundle $bundle,
-        QualityMeasure $measure,
-        Source $source,
-        string $bucket,
-    ): array {
-        if (! in_array($bucket, self::BUCKETS, true)) {
-            throw new \InvalidArgumentException("Unknown compliance bucket: {$bucket}");
-        }
-
-        $runId = (int) DB::table('care_bundle_current_runs')
-            ->where('condition_bundle_id', $bundle->id)
-            ->where('source_id', $source->id)
-            ->value('care_bundle_run_id');
-
-        if ($runId === 0) {
-            return [];
-        }
-
-        $q = DB::table('care_bundle_measure_person_status')
-            ->where('care_bundle_run_id', $runId)
-            ->where('quality_measure_id', $measure->id);
-
-        match ($bucket) {
-            'non_compliant' => $q->where('is_numer', false)->where('is_excl', false),
-            'compliant' => $q->where('is_numer', true)->where('is_excl', false),
-            'excluded' => $q->where('is_excl', true),
-        };
-
-        return array_values(array_map('intval', $q->pluck('person_id')->all()));
-    }
-
     private function genderLabel(int $conceptId): string
     {
         return match ($conceptId) {

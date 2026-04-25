@@ -199,6 +199,25 @@ class CareBundleQualificationService
     }
 
     /**
+     * Public-facing variant that normalizes inputs and projects only
+     * `cbq.person_id`, suitable for splicing into a cross-schema
+     * INSERT … SELECT (used by IntersectionCohortService to stream members
+     * server-side, no PHP heap roundtrip).
+     *
+     * @param  list<int>  $bundleIds
+     */
+    public function intersectionQueryForExport(
+        Source $source,
+        array $bundleIds,
+        string $mode,
+    ): Builder {
+        $bundleIds = $this->normalizeBundleIds($bundleIds);
+
+        return $this->intersectionQuery($source, $bundleIds, $mode)
+            ->select('cbq.person_id');
+    }
+
+    /**
      * @param  list<int>  $bundleIds
      */
     private function intersectionQuery(

@@ -61,11 +61,20 @@ class CareBundleMaterializationService
 
             $appConn = DB::connection();
 
+            // Transaction covers only the data writes — qualifications,
+            // measure_results, strata. Promotion to `care_bundle_current_runs`
+            // happens AFTER the run is marked completed (HIGH-5 fix): if we
+            // committed the data + promotion together but crashed before the
+            // status update, the pointer table would point at a run still in
+            // `running` status and downstream readers (qualifications,
+            // comparison) would silently serve incomplete data. Promoting
+            // last makes the worst-case outcome a stale pointer to the
+            // *previous* completed run — the next materialization restores
+            // currency.
             DB::transaction(function () use ($run, $bundle, $source, $cdmSchema, $appConn) {
                 $this->populateQualifications($run, $bundle, $source, $cdmSchema, $appConn);
                 $bundle->load('measures');
                 $this->runMeasures($run, $bundle->measures, $source, $cdmSchema);
-                $this->promoteToCurrent($run, $appConn);
             });
 
             $qualifiedCount = (int) $appConn->table('care_bundle_qualifications')
@@ -79,6 +88,11 @@ class CareBundleMaterializationService
                 'measure_count' => $bundle->measures->count(),
                 'cdm_fingerprint' => $this->fingerprintCdm($source, $cdmSchema),
             ]);
+
+            // Promote AFTER status=completed so any read of
+            // care_bundle_current_runs is guaranteed to resolve to a
+            // completed run.
+            $this->promoteToCurrent($run, $appConn);
 
             Log::info('CareBundle materialization complete', [
                 'run_id' => $run->id,
