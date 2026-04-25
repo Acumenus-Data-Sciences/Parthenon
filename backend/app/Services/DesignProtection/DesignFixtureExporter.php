@@ -112,7 +112,59 @@ class DesignFixtureExporter
 
         file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
+        $this->removeStaleAliases($dir, $entityId, $path);
+
         return true;
+    }
+
+    /**
+     * Delete any other file in $dir that references the same $entityId under a different filename.
+     * Handles the case where a row is renamed (canonical slug changes) or an auto-increment id
+     * is recycled and points at different content than the prior occupant left on disk.
+     */
+    private function removeStaleAliases(string $dir, int $entityId, string $keepPath): void
+    {
+        foreach (glob($dir.'/*.json') ?: [] as $file) {
+            if ($file === $keepPath) {
+                continue;
+            }
+            $data = json_decode((string) file_get_contents($file), true);
+            if (is_array($data) && isset($data['id']) && (int) $data['id'] === $entityId) {
+                @unlink($file);
+            }
+        }
+    }
+
+    /**
+     * Delete fixture files in the entity's directory whose `id` is not in $liveIds.
+     * Skipped entirely when $liveIds is empty — refuses to nuke a populated dir
+     * when the DB returned zero rows (more likely a partial seed than a real empty state).
+     *
+     * @param  array<int,bool>  $liveIds  Set of live entity IDs (id => true)
+     * @return int Count of files deleted
+     */
+    private function reconcile(string $entityType, array $liveIds): int
+    {
+        if ($liveIds === []) {
+            return 0;
+        }
+
+        $dir = $this->basePath.'/'.(self::DIR_MAP[$entityType] ?? $entityType);
+        if (! is_dir($dir)) {
+            return 0;
+        }
+
+        $deleted = 0;
+        foreach (glob($dir.'/*.json') ?: [] as $file) {
+            $data = json_decode((string) file_get_contents($file), true);
+            $id = is_array($data) && isset($data['id']) ? (int) $data['id'] : null;
+            if ($id === null || ! isset($liveIds[$id])) {
+                @unlink($file);
+                $deleted++;
+            }
+        }
+
+        return $deleted;
     }
 
     /** Remove the fixture file for a hard-deleted entity. */
@@ -144,13 +196,21 @@ class DesignFixtureExporter
                     ? $modelClass::withTrashed()->get()
                     : $modelClass::all();
 
+                $liveIds = [];
                 foreach ($models as $model) {
+                    $id = (int) $model->getKey();
+                    $liveIds[$id] = true;
                     try {
-                        $written = $this->exportEntity($entityType, (int) $model->getKey());
+                        $written = $this->exportEntity($entityType, $id);
                         $summary = $written ? $summary->addWritten() : $summary->addSkipped();
                     } catch (\Throwable $e) {
-                        $summary = $summary->withError("{$entityType}#{$model->getKey()}: {$e->getMessage()}");
+                        $summary = $summary->withError("{$entityType}#{$id}: {$e->getMessage()}");
                     }
+                }
+
+                $deleted = $this->reconcile($entityType, $liveIds);
+                if ($deleted > 0) {
+                    $summary = $summary->addDeleted($deleted);
                 }
             } catch (\Throwable $e) {
                 $summary = $summary->withError("{$entityType}: {$e->getMessage()}");
@@ -224,6 +284,7 @@ class DesignFixtureExporter
         }
 
         $slug = strtolower($name);
+        $slug = str_replace('_', ' ', $slug);
         $slug = (string) preg_replace('/[^a-z0-9\s-]/', '', $slug);
         $slug = (string) preg_replace('/[\s-]+/', '-', $slug);
         $slug = trim($slug, '-');
