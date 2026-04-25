@@ -486,6 +486,11 @@ jobs:
         run: |
           mkdir -p dist-artifacts
           tar -C target/release -czf "dist-artifacts/${{ matrix.artifact }}.tar.gz" bundle
+          # SHA-256 sidecars
+          cd dist-artifacts
+          for f in *.tar.gz; do
+            sha256sum "$f" > "$f.sha256"
+          done
 
       - name: Package macOS bundles
         if: runner.os == 'macOS'
@@ -493,6 +498,10 @@ jobs:
         run: |
           mkdir -p dist-artifacts
           ditto -c -k --sequesterRsrc --keepParent target/release/bundle "dist-artifacts/${{ matrix.artifact }}.zip"
+          cd dist-artifacts
+          for f in *.zip; do
+            shasum -a 256 "$f" > "$f.sha256"
+          done
 
       - name: Package Windows bundles
         if: runner.os == 'Windows'
@@ -501,6 +510,12 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path dist-artifacts | Out-Null
           Compress-Archive -Path target/release/bundle/* -DestinationPath "dist-artifacts/${{ matrix.artifact }}.zip" -Force
+          Push-Location dist-artifacts
+          Get-ChildItem -Filter *.zip | ForEach-Object {
+            $hash = (Get-FileHash -Algorithm SHA256 $_.FullName).Hash.ToLower()
+            Set-Content -Path "$($_.Name).sha256" -Value "$hash *$($_.Name)"
+          }
+          Pop-Location
 
       - name: Upload installer packages
         uses: actions/upload-artifact@v4
@@ -523,8 +538,11 @@ jobs:
             echo "No .dmg found — skipping release upload." >&2
             exit 0
           fi
+          # Per-asset sha256
+          shasum -a 256 "$DMG" | awk '{print $1}' > "${DMG}.sha256"
           gh release upload "${{ github.event.release.tag_name }}" \
             "${DMG}#Parthenon-Installer-${VERSION}-macos-${ARCH}.dmg" \
+            "${DMG}.sha256#Parthenon-Installer-${VERSION}-macos-${ARCH}.dmg.sha256" \
             --clobber
 
       - name: Upload Windows release asset
@@ -540,8 +558,13 @@ jobs:
             Write-Warning "No .msi found — skipping release upload."
             exit 0
           }
+          # Per-asset sha256
+          $hash = (Get-FileHash -Algorithm SHA256 $msi.FullName).Hash.ToLower()
+          $sha256Path = "$($msi.FullName).sha256"
+          Set-Content -Path $sha256Path -Value $hash
           gh release upload "${{ github.event.release.tag_name }}" `
-            "$($msi.FullName)#Parthenon-Installer-${version}-windows-x64.msi" --clobber
+            "$($msi.FullName)#Parthenon-Installer-${version}-windows-x64.msi" `
+            "${sha256Path}#Parthenon-Installer-${version}-windows-x64.msi.sha256" --clobber
 
       - name: Upload Linux release assets
         if: ${{ github.event_name == 'release' && runner.os == 'Linux' }}
@@ -552,21 +575,31 @@ jobs:
           VERSION=$(jq -r '.version' tauri.conf.json)
           UPLOADS=()
 
+          gen_sha256() {
+            sha256sum "$1" | awk '{print $1}' > "$1.sha256"
+          }
+
           DEB=$(find target/release/bundle/deb -name "*.deb" 2>/dev/null | head -1)
           if [ -n "$DEB" ]; then
+            gen_sha256 "$DEB"
             UPLOADS+=("${DEB}#Parthenon-Installer-${VERSION}-linux-x64.deb")
+            UPLOADS+=("${DEB}.sha256#Parthenon-Installer-${VERSION}-linux-x64.deb.sha256")
             [ -f "${DEB}.asc" ] && UPLOADS+=("${DEB}.asc#Parthenon-Installer-${VERSION}-linux-x64.deb.asc")
           fi
 
           RPM=$(find target/release/bundle/rpm -name "*.rpm" 2>/dev/null | head -1)
           if [ -n "$RPM" ]; then
+            gen_sha256 "$RPM"
             UPLOADS+=("${RPM}#Parthenon-Installer-${VERSION}-linux-x64.rpm")
+            UPLOADS+=("${RPM}.sha256#Parthenon-Installer-${VERSION}-linux-x64.rpm.sha256")
             [ -f "${RPM}.asc" ] && UPLOADS+=("${RPM}.asc#Parthenon-Installer-${VERSION}-linux-x64.rpm.asc")
           fi
 
           APPIMAGE=$(find target/release/bundle/appimage -name "*.AppImage" 2>/dev/null | head -1)
           if [ -n "$APPIMAGE" ]; then
+            gen_sha256 "$APPIMAGE"
             UPLOADS+=("${APPIMAGE}#Parthenon-Installer-${VERSION}-linux-x64.AppImage")
+            UPLOADS+=("${APPIMAGE}.sha256#Parthenon-Installer-${VERSION}-linux-x64.AppImage.sha256")
             [ -f "${APPIMAGE}.asc" ] && UPLOADS+=("${APPIMAGE}.asc#Parthenon-Installer-${VERSION}-linux-x64.AppImage.asc")
           fi
 
