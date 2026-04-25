@@ -521,8 +521,8 @@ async function boot() {
     checkForUpdatesBanner();
   }
 
-  // Trust indicator + first-launch banners (non-blocking, best-effort)
-  setupTrustIndicators();
+  // First-launch banners (Gatekeeper / SmartScreen). Non-blocking.
+  showFirstLaunchBanner();
 
   if (tauriEvent) {
     await tauriEvent.listen("install-log", (event) => {
@@ -1219,49 +1219,20 @@ document.querySelector("#updater-download-btn")?.addEventListener("click", async
   }
 });
 
-async function setupTrustIndicators() {
-  // Trust pill in header
-  let info;
-  try {
-    info = await invoke("signing_info", {});
-  } catch (err) {
-    return; // Silent — non-essential
-  }
-
-  const pill = document.querySelector("#trust-pill");
-  const pillIcon = document.querySelector("#trust-pill-icon");
-  const pillText = document.querySelector("#trust-pill-text");
-  if (pill && pillIcon && pillText) {
-    pill.hidden = false;
-    if (info.signed && info.signer) {
-      pill.classList.add("signed");
-      pill.classList.remove("unsigned");
-      pillIcon.textContent = "✓";
-      pillText.textContent = `Signed: ${info.signer.split(",")[0].replace(/^CN=/, "")}`;
-      pill.title = info.detail || "Verified signature";
-    } else if (info.platform === "linux") {
-      pill.classList.remove("signed", "unsigned");
-      pillIcon.textContent = "·";
-      pillText.textContent = "Linux: verify via SIGNING-KEY.asc";
-      pill.title = info.detail || "See docs/install/verifying-signatures";
-    } else {
-      pill.classList.add("unsigned");
-      pill.classList.remove("signed");
-      pillIcon.textContent = "?";
-      pillText.textContent = "Signature not detected";
-      pill.title = info.error || info.detail || "No signature found on this binary";
-    }
-  }
-
-  // First-launch banners — show once per platform unless dismissed
+function showFirstLaunchBanner() {
+  // First-launch banners — show once per platform unless dismissed.
+  // Uses state.platform (set by bootstrap()) instead of a separate signing_info
+  // round-trip; the banner is purely platform-gated and doesn't need cert data.
+  const platform = state.platform;
+  if (!platform) return;
   const dismissedKey = "parthenon_trust_banner_dismissed";
   const dismissed = JSON.parse(localStorage.getItem(dismissedKey) || "{}");
 
-  if (info.platform === "macos" && !dismissed.gatekeeper) {
+  if (platform === "macos" && !dismissed.gatekeeper) {
     const banner = document.querySelector("#gatekeeper-banner");
     if (banner) banner.hidden = false;
   }
-  if (info.platform === "windows" && !dismissed.smartscreen) {
+  if (platform === "windows" && !dismissed.smartscreen) {
     const banner = document.querySelector("#smartscreen-banner");
     if (banner) banner.hidden = false;
   }

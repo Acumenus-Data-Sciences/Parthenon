@@ -976,32 +976,6 @@ button:disabled {
   color: #94a3b8;
   margin: 6px 0 0 0;
 }
-.intro-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-.trust-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: #181820;
-  border: 1px solid #2a2a35;
-  color: #94a3b8;
-  cursor: help;
-}
-.trust-pill.signed {
-  border-color: #2DD4BF;
-  color: #2DD4BF;
-}
-.trust-pill.unsigned {
-  border-color: #C9A227;
-  color: #C9A227;
-}
 .trust-banner {
   display: flex;
   align-items: flex-start;
