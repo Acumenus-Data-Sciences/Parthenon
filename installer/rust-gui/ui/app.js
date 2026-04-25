@@ -795,4 +795,123 @@ document.querySelector("#feedback-link")?.addEventListener("click", async (event
   }
 });
 
+// ── Task 3: Service-status grid ──────────────────────────────────────────────
+
+let serviceStatusTimer = null;
+
+async function pollServiceStatus() {
+  try {
+    const status = await invoke("service_status_check", {});
+    renderServiceGrid(status);
+  } catch (err) {
+    const grid = document.querySelector("#service-status-grid");
+    if (grid) grid.innerHTML = `<span class="service-status-loading">Could not read status: ${escapeHtml(String(err))}</span>`;
+  }
+}
+
+function renderServiceGrid(status) {
+  const grid = document.querySelector("#service-status-grid");
+  if (!grid) return;
+  if (!status?.available) {
+    grid.innerHTML = `<span class="service-status-loading">Service status unavailable</span>`;
+    return;
+  }
+  const services = status.services || [];
+  if (services.length === 0) {
+    grid.innerHTML = `<span class="service-status-loading">No services running</span>`;
+    return;
+  }
+  grid.innerHTML = services.map((s) => {
+    let cls = "service-pip";
+    let icon = "○";
+    if (s.health === "healthy" || (s.state === "running" && s.health === "none")) {
+      cls += " healthy";
+      icon = "✓";
+    } else if (s.health === "starting") {
+      cls += " starting";
+      icon = "…";
+    } else if (s.state === "exited" || s.state === "dead") {
+      cls += " unhealthy";
+      icon = "✗";
+    } else {
+      cls += " starting";
+      icon = "…";
+    }
+    return `<span class="${cls}"><span class="service-pip-icon">${icon}</span>${escapeHtml(s.name)}</span>`;
+  }).join("");
+}
+
+function startServiceStatusPolling() {
+  // Only poll while the Advanced section is open
+  const details = document.querySelector(".advanced-disclosure");
+  if (!details) return;
+  const tick = () => {
+    if (details.open) {
+      pollServiceStatus();
+    }
+  };
+  pollServiceStatus(); // immediate
+  if (serviceStatusTimer) clearInterval(serviceStatusTimer);
+  serviceStatusTimer = setInterval(tick, 5000);
+  details.addEventListener("toggle", () => {
+    if (details.open) pollServiceStatus();
+  });
+}
+
+// ── Task 3: Runtime image check ──────────────────────────────────────────────
+
+async function checkRuntimeImage() {
+  try {
+    const result = await invoke("runtime_image_check", {});
+    const statusEl = document.querySelector("#runtime-image-status");
+    const pullBtn = document.querySelector("#runtime-image-pull-btn");
+    if (!statusEl) return;
+    if (!result.available) {
+      statusEl.textContent = result.error || "Could not check for image updates";
+      return;
+    }
+    statusEl.textContent = result.detail;
+    if (pullBtn) pullBtn.hidden = !result.has_updates;
+  } catch (err) {
+    const statusEl = document.querySelector("#runtime-image-status");
+    if (statusEl) statusEl.textContent = `Could not check: ${err}`;
+  }
+}
+
+document.querySelector("#runtime-image-pull-btn")?.addEventListener("click", async () => {
+  const pullBtn = document.querySelector("#runtime-image-pull-btn");
+  if (pullBtn) {
+    pullBtn.disabled = true;
+    pullBtn.textContent = "Pulling…";
+  }
+  try {
+    await invoke("runtime_image_pull", {});
+    const statusEl = document.querySelector("#runtime-image-status");
+    if (statusEl) statusEl.textContent = "Pull started — see the log panel for progress";
+  } catch (err) {
+    setStatus(`Could not start pull: ${err}`, "error");
+    if (pullBtn) {
+      pullBtn.disabled = false;
+      pullBtn.textContent = "Pull newer images";
+    }
+  }
+});
+
+// ── Task 3: Reset button ─────────────────────────────────────────────────────
+
+document.querySelector("#reset-everything-btn")?.addEventListener("click", async () => {
+  const ok = window.confirm(
+    "This will tear down all Parthenon containers, delete the install state file, the bundle cache, and .install-credentials. Databases are NOT dropped. Continue?"
+  );
+  if (!ok) return;
+  // For now, just emit instructions to the log — actual reset implementation
+  // requires a 'reset' contract action which is Phase 5 work.
+  appendLog("Reset is currently a manual operation. Run:", "stdout");
+  appendLog("  cd " + (doneState.appUrl ? "your install dir" : "your install dir"), "stdout");
+  appendLog("  docker compose down -v", "stdout");
+  appendLog("  rm -f .install-state.json .install-credentials", "stdout");
+  appendLog("  rm -rf .acropolis-installer", "stdout");
+  setStatus("Reset instructions emitted to log. Reset action automation lands in Phase 5.", "info");
+});
+
 boot();

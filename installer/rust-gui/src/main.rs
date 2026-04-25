@@ -1584,6 +1584,111 @@ fn open_app_url() -> Result<String, String> {
         .ok_or_else(|| "open-app payload missing 'url' field".to_string())
 }
 
+#[derive(Debug, Serialize)]
+struct RuntimeImageStatus {
+    available: bool,
+    has_updates: bool,
+    detail: String,
+    error: Option<String>,
+}
+
+#[tauri::command]
+fn runtime_image_check() -> RuntimeImageStatus {
+    // Run docker compose pull --dry-run --quiet to check whether newer
+    // images are available. Exit code 0 means images already up-to-date;
+    // any pulled image manifests in stdout indicate an update is available.
+    // We don't actually pull — that's user-initiated.
+    let output = match Command::new("docker")
+        .args(["compose", "pull", "--quiet", "--dry-run"])
+        .output()
+    {
+        Ok(o) => o,
+        Err(err) => {
+            return RuntimeImageStatus {
+                available: false,
+                has_updates: false,
+                detail: String::new(),
+                error: Some(format!("docker compose not available: {err}")),
+            };
+        }
+    };
+
+    if !output.status.success() {
+        // Could be no compose file in cwd, or some other error
+        return RuntimeImageStatus {
+            available: false,
+            has_updates: false,
+            detail: String::new(),
+            error: Some(String::from_utf8_lossy(&output.stderr).trim().to_string()),
+        };
+    }
+
+    // dry-run output: each line that mentions "Pulling" or contains a digest
+    // indicates a service that would be pulled. Empty stdout = up to date.
+    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+    let has_updates = stdout.lines().any(|line| !line.trim().is_empty());
+    let detail = if has_updates {
+        format!(
+            "{} updated images available",
+            stdout.lines().filter(|l| !l.trim().is_empty()).count()
+        )
+    } else {
+        "All Parthenon images are up to date".to_string()
+    };
+
+    RuntimeImageStatus {
+        available: true,
+        has_updates,
+        detail,
+        error: None,
+    }
+}
+
+#[tauri::command]
+fn runtime_image_pull(app: AppHandle) -> Result<String, String> {
+    // Run docker compose pull (non-dry-run). Stream output via install-log events
+    // so the GUI can show progress. This is non-blocking — kicks off a thread.
+    thread::spawn(move || {
+        let mut child = match Command::new("docker")
+            .args(["compose", "pull"])
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+        {
+            Ok(c) => c,
+            Err(err) => {
+                emit_log(
+                    &app,
+                    "stderr",
+                    &format!("docker compose pull failed to start: {err}"),
+                );
+                return;
+            }
+        };
+
+        let stdout = child.stdout.take();
+        let stderr = child.stderr.take();
+        let app_out = app.clone();
+        let app_err = app.clone();
+        let h_out = stdout.map(|s| thread::spawn(move || read_stream(s, app_out, "stdout")));
+        let h_err = stderr.map(|s| thread::spawn(move || read_stream(s, app_err, "stderr")));
+
+        let _ = child.wait();
+        if let Some(h) = h_out {
+            let _ = h.join();
+        }
+        if let Some(h) = h_err {
+            let _ = h.join();
+        }
+        emit_log(
+            &app,
+            "stdout",
+            "Pull complete. Restart Docker to pick up the new images.",
+        );
+    });
+    Ok("Pull started in background".to_string())
+}
+
 fn build_seed(request: &InstallRequest) -> serde_json::Value {
     let datasets = if request.include_eunomia {
         serde_json::json!(["eunomia", "phenotype-library"])
@@ -2040,7 +2145,9 @@ fn main() {
             cancel_install,
             check_for_updates,
             credentials_check,
-            open_app_url
+            open_app_url,
+            runtime_image_check,
+            runtime_image_pull
         ])
         .run(tauri::generate_context!())
         .expect("error while running Parthenon installer GUI");
