@@ -295,6 +295,37 @@ async function boot() {
     document.querySelector("#bundle-install-dir").value = data.bundle_install_dir || "";
     document.querySelector("#install-target-dir").value = data.install_target_dir || "";
     windowsFields.hidden = !data.windows;
+    if (data.windows) {
+      try {
+        const wsl = await invoke("wsl_distros", {});
+        const select = document.querySelector("#wsl-distro");
+        const help = document.querySelector("#wsl-distro-help");
+        if (!wsl.available) {
+          select.innerHTML = '<option value="">WSL not detected</option>';
+          if (help) {
+            help.textContent = "WSL2 is required. Run `wsl --install` from an Administrator PowerShell, then reboot.";
+            help.classList.add("warn");
+          }
+        } else if (wsl.distros.length === 0) {
+          select.innerHTML = '<option value="">No distros installed</option>';
+          if (help) {
+            help.textContent = "WSL is installed but no Linux distribution is set up. Run `wsl --install -d Ubuntu-24.04`.";
+            help.classList.add("warn");
+          }
+        } else {
+          select.innerHTML = wsl.distros
+            .map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`)
+            .join("");
+          if (help) {
+            help.textContent = `Detected ${wsl.distros.length} WSL distro(s).`;
+            help.classList.remove("warn");
+          }
+        }
+      } catch (err) {
+        const select = document.querySelector("#wsl-distro");
+        select.innerHTML = '<option value="">WSL enumeration failed</option>';
+      }
+    }
     setStatus(`Ready on ${data.platform}${data.python ? ` with ${data.python}` : ""}`);
     renderReview();
   } catch (err) {

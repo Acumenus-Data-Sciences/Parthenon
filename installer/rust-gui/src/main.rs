@@ -151,6 +151,73 @@ struct InstallRequest {
     dry_run: bool,
 }
 
+#[derive(Debug, Serialize)]
+struct WslDistros {
+    available: bool,
+    distros: Vec<String>,
+    error: Option<String>,
+}
+
+#[tauri::command]
+fn wsl_distros() -> WslDistros {
+    if !cfg!(target_os = "windows") {
+        return WslDistros {
+            available: false,
+            distros: vec![],
+            error: Some("WSL distro enumeration only runs on Windows hosts".to_string()),
+        };
+    }
+
+    let output = match Command::new("wsl.exe").args(["--list", "--quiet"]).output() {
+        Ok(output) => output,
+        Err(err) => {
+            return WslDistros {
+                available: false,
+                distros: vec![],
+                error: Some(format!("wsl.exe not found or failed: {err}")),
+            };
+        }
+    };
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+        return WslDistros {
+            available: false,
+            distros: vec![],
+            error: Some(if stderr.is_empty() {
+                "wsl.exe --list --quiet exited with non-zero status".to_string()
+            } else {
+                stderr
+            }),
+        };
+    }
+
+    // wsl.exe --list emits UTF-16 LE text on Windows; decode best-effort
+    let raw = output.stdout;
+    let text = if raw.len() >= 2 && raw[0] == 0xFF && raw[1] == 0xFE {
+        String::from_utf16_lossy(
+            &raw[2..]
+                .chunks_exact(2)
+                .map(|chunk| u16::from_le_bytes([chunk[0], chunk[1]]))
+                .collect::<Vec<_>>(),
+        )
+    } else {
+        String::from_utf8_lossy(&raw).to_string()
+    };
+
+    let distros: Vec<String> = text
+        .lines()
+        .map(|line| line.trim().to_string())
+        .filter(|line| !line.is_empty())
+        .collect();
+
+    WslDistros {
+        available: true,
+        distros,
+        error: None,
+    }
+}
+
 #[tauri::command]
 fn bootstrap() -> BootstrapPayload {
     BootstrapPayload {
@@ -1699,6 +1766,7 @@ fn main() {
         .manage(InstallerState::default())
         .invoke_handler(tauri::generate_handler![
             bootstrap,
+            wsl_distros,
             validate_environment,
             preview_defaults,
             start_install
@@ -2501,5 +2569,15 @@ mod tests {
             shell_quote("/home/alice's/Parthenon"),
             "'/home/alice'\\''s/Parthenon'"
         );
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    #[test]
+    fn wsl_distros_returns_unavailable_on_non_windows() {
+        let result = wsl_distros();
+        assert!(!result.available);
+        assert!(result.distros.is_empty());
+        assert!(result.error.is_some());
+        assert!(result.error.as_deref().unwrap().contains("Windows"));
     }
 }

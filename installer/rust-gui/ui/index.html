@@ -80,7 +80,10 @@
             <div id="windows-fields" class="windows-fields" hidden>
               <label>
                 WSL distro
-                <input id="wsl-distro" name="wsl_distro" placeholder="Ubuntu-24.04" autocomplete="off" />
+                <select id="wsl-distro" name="wsl_distro">
+                  <option value="">Detecting WSL distros…</option>
+                </select>
+                <span id="wsl-distro-help" class="field-help"></span>
               </label>
               <label>
                 WSL install path
