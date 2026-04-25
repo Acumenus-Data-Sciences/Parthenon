@@ -377,6 +377,32 @@
             </div>
           </footer>
         </section>
+
+        <section id="recovery-panel" class="form-section recovery-panel" hidden>
+          <header class="recovery-header">
+            <span class="recovery-eyebrow">Install failed</span>
+            <h2 id="recovery-title">Something went wrong</h2>
+            <p id="recovery-message" class="recovery-message"></p>
+          </header>
+
+          <div id="diagnostic-cards" class="diagnostic-cards"></div>
+
+          <div class="recovery-actions">
+            <button id="recovery-resume-btn" type="button" class="primary recovery-primary" hidden>Resume from this step</button>
+            <details class="recovery-secondary-disclosure">
+              <summary>Changed your config?</summary>
+              <button id="recovery-retry-btn" type="button" class="recovery-secondary">Retry from start</button>
+            </details>
+            <details class="recovery-tertiary-disclosure">
+              <summary>Stuck? Reset everything</summary>
+              <p class="recovery-warning">
+                This will run <code>docker compose down -v</code>, delete <code>.install-state.json</code>,
+                <code>.install-credentials</code>, and the bundle cache. Databases are NOT dropped.
+              </p>
+              <button id="recovery-reset-btn" type="button" class="danger-btn">Reset everything</button>
+            </details>
+          </div>
+        </section>
       </section>
 
       <aside class="status-panel">
