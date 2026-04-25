@@ -250,6 +250,11 @@ def bundle_manifest_payload(*, repo_root: str | None = None) -> dict[str, Any]:
     return manifest
 
 
+def service_status_payload() -> dict[str, Any]:
+    from . import service_status as installer_service_status
+    return installer_service_status.collect()
+
+
 def health_payload(cfg: dict[str, Any], *, attempt: int = 1) -> dict[str, Any]:
     from . import health as installer_health
     app_url = cfg.get("app_url") or "http://localhost"
@@ -344,6 +349,8 @@ def build_payload(
         payload = health_payload(cfg, attempt=attempt)
     elif action == "credentials":
         payload = credentials_payload(cfg)
+    elif action == "service-status":
+        payload = service_status_payload()
     else:
         raise ValueError(f"Unsupported contract action: {action}")
 
@@ -364,7 +371,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Parthenon installer contract")
     parser.add_argument(
         "action",
-        choices=["defaults", "validate", "plan", "preflight", "data-check", "bundle-manifest", "health", "credentials"],
+        choices=["defaults", "validate", "plan", "preflight", "data-check", "bundle-manifest", "health", "credentials", "service-status"],
         help="Contract payload to emit",
     )
     parser.add_argument("--community", action="store_true", help="Use Community MVP defaults")
