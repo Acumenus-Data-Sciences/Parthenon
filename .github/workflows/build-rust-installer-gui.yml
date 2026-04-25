@@ -31,6 +31,8 @@ on:
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
 
 jobs:
   installer-bundle:
@@ -519,6 +521,17 @@ jobs:
             Set-Content -Path "$($_.Name).sha256" -Value "$hash *$($_.Name)"
           }
           Pop-Location
+
+      - name: Attest build provenance (SLSA L3)
+        if: ${{ github.event_name == 'release' }}
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            installer/rust-gui/target/release/bundle/dmg/*.dmg
+            installer/rust-gui/target/release/bundle/msi/*.msi
+            installer/rust-gui/target/release/bundle/deb/*.deb
+            installer/rust-gui/target/release/bundle/rpm/*.rpm
+            installer/rust-gui/target/release/bundle/appimage/*.AppImage
 
       - name: Upload installer packages
         uses: actions/upload-artifact@v4
