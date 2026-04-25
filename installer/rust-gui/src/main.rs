@@ -1623,15 +1623,19 @@ fn runtime_image_check() -> RuntimeImageStatus {
         };
     }
 
-    // dry-run output: each line that mentions "Pulling" or contains a digest
-    // indicates a service that would be pulled. Empty stdout = up to date.
-    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-    let has_updates = stdout.lines().any(|line| !line.trim().is_empty());
+    // dry-run output goes to stderr. Filter for "Pulling"/"Pulled" lines
+    // which indicate images that would be updated; skip "Skipped" / status lines.
+    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+    let pull_lines: Vec<&str> = stderr
+        .lines()
+        .filter(|line| {
+            let l = line.trim();
+            !l.is_empty() && (l.contains("Pulling") || l.contains("Pulled"))
+        })
+        .collect();
+    let has_updates = !pull_lines.is_empty();
     let detail = if has_updates {
-        format!(
-            "{} updated images available",
-            stdout.lines().filter(|l| !l.trim().is_empty()).count()
-        )
+        format!("{} updated images available", pull_lines.len())
     } else {
         "All Parthenon images are up to date".to_string()
     };

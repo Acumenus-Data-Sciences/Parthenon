@@ -836,6 +836,9 @@ function renderServiceGrid(status) {
       cls += " starting";
       icon = "…";
     } else if (s.state === "exited" || s.state === "dead") {
+      cls += " exited";
+      icon = "✗";
+    } else if (s.health === "unhealthy") {
       cls += " unhealthy";
       icon = "✗";
     } else {
