@@ -25,6 +25,157 @@ const vocabZipField = document.querySelector("#vocab-zip-field");
 const vocabularySetupEl = document.querySelector("#vocabulary-setup");
 const includeEunomiaEl = document.querySelector("#include-eunomia");
 
+// Task 7 — regex-based error detection for stderr lines
+const LOG_ERROR_REGEX = /(^\[red\]✗|^Error:|^FATAL:|^Traceback|^.*Exception:|^Cannot connect)/;
+
+// Task 4 — phase progress strip state
+const PHASE_REGEX = /Phase (\d+)\s+—\s+(.+?)(?:\s+\[|$)/;
+let phaseStartTime = 0;
+let phaseElapsedTimer = null;
+
+function parsePhaseFromLog(line) {
+  const m = line.match(PHASE_REGEX);
+  if (!m) return null;
+  return { number: parseInt(m[1], 10), name: m[2].trim() };
+}
+
+function setPhase(number, name) {
+  const strip = document.querySelector("#phase-strip");
+  if (!strip) return;
+  strip.hidden = false;
+  document.querySelectorAll(".phase-cell").forEach((cell) => {
+    const cellNum = parseInt(cell.dataset.phase, 10);
+    cell.classList.toggle("active", cellNum === number);
+    cell.classList.toggle("complete", cellNum < number);
+  });
+  phaseStartTime = Date.now();
+  if (phaseElapsedTimer) clearInterval(phaseElapsedTimer);
+  phaseElapsedTimer = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - phaseStartTime) / 1000);
+    const el = document.querySelector("#phase-elapsed");
+    if (el) el.textContent = `Phase ${number} of 9 · ${name} · ${elapsed} s elapsed`;
+  }, 1000);
+}
+
+function endPhases() {
+  if (phaseElapsedTimer) {
+    clearInterval(phaseElapsedTimer);
+    phaseElapsedTimer = null;
+  }
+  document.querySelectorAll(".phase-cell").forEach((cell) => {
+    cell.classList.remove("active");
+    cell.classList.add("complete");
+  });
+  const el = document.querySelector("#phase-elapsed");
+  if (el) el.textContent = "All phases complete";
+}
+
+// Task 6 — client-side form validation
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function validatePayload(payload) {
+  const errors = [];
+  if (!payload.admin_email || !EMAIL_RE.test(payload.admin_email)) {
+    errors.push({ field: "admin-email", message: "Valid admin email is required" });
+  }
+  if (payload.source_mode === "Use installer bundle") {
+    if (!payload.bundle_url && !payload.bundle_archive_path) {
+      errors.push({ field: "bundle-url", message: "Bundle URL or local archive path is required" });
+    }
+    if (!payload.install_target_dir) {
+      errors.push({ field: "install-target-dir", message: "Install target folder is required" });
+    }
+  } else if (!payload.repo_path) {
+    errors.push({ field: "repo-path", message: "Existing checkout path is required" });
+  }
+  return errors;
+}
+
+function clearFieldErrors() {
+  document.querySelectorAll(".field-error").forEach((el) => el.remove());
+  document.querySelectorAll(".has-error").forEach((el) => el.classList.remove("has-error"));
+}
+
+function showFieldErrors(errors) {
+  clearFieldErrors();
+  for (const error of errors) {
+    const input = document.querySelector(`#${error.field}`);
+    if (!input) continue;
+    input.classList.add("has-error");
+    const errEl = document.createElement("span");
+    errEl.className = "field-error";
+    errEl.textContent = error.message;
+    input.closest("label")?.appendChild(errEl);
+  }
+}
+
+const VERIFY_MAX_ATTEMPTS = 60;
+const VERIFY_INTERVAL_MS = 2000;
+
+const verifyPanel = () => document.querySelector("#verify-panel");
+const verifyAttemptEl = () => document.querySelector("#verify-attempt");
+const verifyLastStatusEl = () => document.querySelector("#verify-last-status");
+const verifyActionsEl = () => document.querySelector("#verify-actions");
+
+function setVerifyRow(name, pass) {
+  const row = document.querySelector(`[data-verify="${name}"]`);
+  if (!row) return;
+  row.classList.toggle("pass", pass);
+  const pip = row.querySelector(".verify-pip");
+  if (pip) pip.textContent = pass ? "✓" : "○";
+}
+
+async function runVerify() {
+  setStep("verify");
+  const panel = verifyPanel();
+  if (panel) panel.hidden = false;
+  ["nginx", "php", "postgres", "health", "frontend"].forEach((name) => setVerifyRow(name, false));
+  if (verifyActionsEl()) verifyActionsEl().hidden = true;
+  await pollHealth();
+}
+
+async function pollHealth() {
+  let attempt = 0;
+  while (attempt < VERIFY_MAX_ATTEMPTS) {
+    attempt += 1;
+    if (verifyAttemptEl()) {
+      verifyAttemptEl().textContent = `Attempt ${attempt} of ${VERIFY_MAX_ATTEMPTS}`;
+    }
+    let result;
+    try {
+      result = await invoke("health_check", { attempt });
+    } catch (err) {
+      result = { ready: false, last_status: 0, attempt };
+    }
+    if (verifyLastStatusEl()) {
+      verifyLastStatusEl().textContent = `Last status: ${result.last_status || "no response"}`;
+    }
+    if (result.ready) {
+      ["nginx", "php", "postgres", "health", "frontend"].forEach((name) => setVerifyRow(name, true));
+      setStatus("Parthenon is ready", "success");
+      setTimeout(() => setStep("done"), 1000);
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, VERIFY_INTERVAL_MS));
+  }
+  setStatus("Health probe timed out — services are slow to come up.", "error");
+  if (verifyActionsEl()) verifyActionsEl().hidden = false;
+}
+
+document.querySelector("#verify-wait-more")?.addEventListener("click", () => {
+  if (verifyActionsEl()) verifyActionsEl().hidden = true;
+  pollHealth();
+});
+
+document.querySelector("#verify-show-status")?.addEventListener("click", async () => {
+  try {
+    const status = await invoke("service_status_check", {});
+    appendLog(JSON.stringify(status, null, 2), "stdout");
+  } catch (err) {
+    setStatus(String(err), "error");
+  }
+});
+
 const state = {
   checks: [],
   preflightRan: false,
@@ -45,7 +196,7 @@ function setStep(activeStep) {
 }
 
 function stepRank(step) {
-  return { configure: 0, check: 1, install: 2, done: 3 }[step] ?? 0;
+  return { configure: 0, check: 1, install: 2, verify: 3, done: 4 }[step] ?? 0;
 }
 
 function readPayload() {
@@ -158,11 +309,17 @@ function renderChecks(checks) {
   }).join("");
 }
 
+// Task 7 — regex-based error tagging (replaces stream-based prefix)
 function appendLog(message, stream = "stdout") {
   if (logEl.textContent === "Waiting for installer output.") {
     logEl.textContent = "";
   }
-  const prefix = stream === "stderr" || stream === "error" ? "[error] " : "";
+  const phase = parsePhaseFromLog(message);
+  if (phase) {
+    setPhase(phase.number, phase.name);
+  }
+  const isError = LOG_ERROR_REGEX.test(message);
+  const prefix = isError ? "[error] " : "";
   logEl.textContent += `${prefix}${message}\n`;
   logEl.scrollTop = logEl.scrollHeight;
 }
@@ -190,6 +347,8 @@ function updateInstallButton() {
     || !state.preflightRan
     || hasFailedCheck()
     || (!dryRunEl.checked && !confirmEl.checked);
+  const controls = document.querySelector("#install-controls");
+  if (controls) controls.hidden = !state.running;
 }
 
 function updateDataSetupVisibility() {
@@ -336,16 +495,33 @@ async function boot() {
     await tauriEvent.listen("install-log", (event) => {
       appendLog(event.payload.message, event.payload.stream);
     });
+    // Task 1 — install-finished now transitions to verify, not done
     await tauriEvent.listen("install-finished", (event) => {
       state.running = false;
-      setStep(event.payload.success ? "done" : "install");
-      setStatus(event.payload.message, event.payload.success ? "success" : "error");
+      endPhases();
+      if (event.payload.success) {
+        setStep("verify");
+        setStatus("Install complete — waiting for services to come online…");
+        runVerify();
+      } else {
+        setStep("install");
+        setStatus(event.payload.message, "error");
+      }
       updateInstallButton();
     });
   }
 }
 
 async function runPreflight() {
+  // Task 6 — validate before advancing to Check step
+  const payload = readPayload();
+  const errors = validatePayload(payload);
+  if (errors.length > 0) {
+    showFieldErrors(errors);
+    setStatus(`Fix ${errors.length} validation error(s) before checking the system.`, "error");
+    return;
+  }
+  clearFieldErrors();
   setStep("check");
   state.preflightRan = false;
   state.checks = [];
@@ -354,7 +530,7 @@ async function runPreflight() {
   setStatus("Checking system...");
   preflightEl.textContent = "Checking Python, Docker, installer source, ports, and selected services.";
   try {
-    const checks = await invoke("validate_environment", { request: readPayload() });
+    const checks = await invoke("validate_environment", { request: payload });
     state.checks = checks;
     state.preflightRan = true;
     renderChecks(checks);
@@ -393,6 +569,12 @@ form.addEventListener("submit", async (event) => {
   logEl.textContent = "";
   state.running = true;
   setStep("install");
+  // Task 4 — reset phase strip on install start
+  document.querySelectorAll(".phase-cell").forEach((cell) => {
+    cell.classList.remove("active", "complete");
+  });
+  const stripEl = document.querySelector("#phase-strip");
+  if (stripEl) stripEl.hidden = false;
   updateInstallButton();
   setStatus(dryRunEl.checked ? "Running installer test..." : "Installing Parthenon...");
   try {
@@ -420,6 +602,20 @@ vocabularySetupEl.addEventListener("change", updateInstallButton);
 sourceModeEl.addEventListener("change", updateInstallButton);
 document.querySelectorAll("[data-browse]").forEach((button) => {
   button.addEventListener("click", () => browsePath(button));
+});
+
+document.querySelector("#cancel-btn")?.addEventListener("click", async () => {
+  if (!state.running) return;
+  const ok = window.confirm(
+    "Stop the install? State is preserved if past Phase 4 — you can resume from this step."
+  );
+  if (!ok) return;
+  try {
+    const message = await invoke("cancel_install", {});
+    setStatus(message, "info");
+  } catch (err) {
+    setStatus(String(err), "error");
+  }
 });
 
 boot();

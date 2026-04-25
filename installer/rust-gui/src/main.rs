@@ -16,6 +16,7 @@ use tauri::{AppHandle, Emitter, Manager, State};
 #[derive(Default)]
 struct InstallerState {
     running: Mutex<bool>,
+    running_pid: Mutex<Option<u32>>,
 }
 
 #[derive(Debug, Serialize)]
@@ -1035,6 +1036,13 @@ fn run_install(app: AppHandle, request: InstallRequest) -> Result<(), String> {
         }
     };
 
+    let pid = child.id();
+    if let Some(state) = app.try_state::<InstallerState>() {
+        if let Ok(mut guard) = state.running_pid.lock() {
+            *guard = Some(pid);
+        }
+    }
+
     let stdout = child.stdout.take();
     let stderr = child.stderr.take();
     let app_stdout = app.clone();
@@ -1047,10 +1055,21 @@ fn run_install(app: AppHandle, request: InstallRequest) -> Result<(), String> {
     let status = match child.wait() {
         Ok(status) => status,
         Err(err) => {
+            if let Some(state) = app.try_state::<InstallerState>() {
+                if let Ok(mut guard) = state.running_pid.lock() {
+                    *guard = None;
+                }
+            }
             cleanup_temp_file(temp_defaults);
             return Err(format!("Installer process wait failed: {err}"));
         }
     };
+
+    if let Some(state) = app.try_state::<InstallerState>() {
+        if let Ok(mut guard) = state.running_pid.lock() {
+            *guard = None;
+        }
+    }
     cleanup_temp_file(temp_defaults);
     if let Some(handle) = out_reader {
         let _ = handle.join();
@@ -1537,7 +1556,8 @@ exit "$rc"
 
 fn validate_contract_action(action: &str) -> Result<(), String> {
     match action {
-        "defaults" | "validate" | "plan" | "preflight" | "data-check" | "bundle-manifest" => Ok(()),
+        "defaults" | "validate" | "plan" | "preflight" | "data-check" | "bundle-manifest"
+        | "health" | "service-status" => Ok(()),
         _ => Err(format!("Unsupported installer contract action: {action}")),
     }
 }
@@ -1661,6 +1681,72 @@ fn find_repo_root() -> Option<PathBuf> {
     env::current_dir().ok().and_then(search_ancestors_for_repo)
 }
 
+fn current_install_request_or_default() -> InstallRequest {
+    InstallRequest {
+        source_mode: "Use installer bundle".to_string(),
+        repo_path: find_repo_root()
+            .map(|p| p.to_string_lossy().to_string())
+            .unwrap_or_default(),
+        wsl_distro: None,
+        wsl_repo_path: None,
+        bundle_url: String::new(),
+        bundle_archive_path: String::new(),
+        bundle_sha256: String::new(),
+        bundle_install_dir: String::new(),
+        install_target_dir: String::new(),
+        admin_email: "admin@example.com".to_string(),
+        admin_name: "Admin".to_string(),
+        admin_password: String::new(),
+        app_url: "http://localhost".to_string(),
+        timezone: "UTC".to_string(),
+        cdm_setup_mode: "Create local PostgreSQL OMOP database".to_string(),
+        cdm_existing_state: "Empty database or schema".to_string(),
+        cdm_dialect: "PostgreSQL".to_string(),
+        cdm_server: String::new(),
+        cdm_database: String::new(),
+        cdm_user: String::new(),
+        cdm_password: String::new(),
+        cdm_schema: "omop".to_string(),
+        vocabulary_schema: "vocab".to_string(),
+        results_schema: "results".to_string(),
+        temp_schema: "scratch".to_string(),
+        vocabulary_setup: "Use demo starter data".to_string(),
+        vocab_zip_path: String::new(),
+        include_eunomia: true,
+        enable_solr: true,
+        enable_study_agent: false,
+        enable_blackrabbit: false,
+        enable_fhir_to_cdm: false,
+        enable_hecate: true,
+        enable_orthanc: false,
+        ollama_url: String::new(),
+        dry_run: false,
+    }
+}
+
+fn contract_payload_with_overrides(
+    request: &InstallRequest,
+    action: &str,
+    redact: bool,
+    extra_overrides: Option<&serde_json::Value>,
+) -> Result<String, String> {
+    let mut seed = build_seed(request);
+    if let (Some(extra), Some(seed_obj)) = (extra_overrides, seed.as_object_mut()) {
+        if let Some(extra_obj) = extra.as_object() {
+            for (k, v) in extra_obj {
+                seed_obj.insert(k.clone(), v.clone());
+            }
+        }
+    }
+    let seed_json = serde_json::to_string_pretty(&seed).map_err(|err| err.to_string())?;
+    let command_plan = if cfg!(target_os = "windows") {
+        build_windows_contract_command(request, action, &seed_json, redact)?
+    } else {
+        build_local_contract_command(request, action, &seed_json, redact)?
+    };
+    run_capture(command_plan)
+}
+
 fn search_ancestors_for_repo(start: PathBuf) -> Option<PathBuf> {
     for ancestor in start.ancestors() {
         if ancestor.join("install.py").exists() {
@@ -1766,6 +1852,110 @@ impl CheckResult {
     }
 }
 
+#[derive(Debug, Serialize)]
+struct HealthCheckResult {
+    ready: bool,
+    attempt: u32,
+    last_status: u32,
+    error: Option<String>,
+}
+
+#[tauri::command]
+fn health_check(attempt: u32) -> HealthCheckResult {
+    let request = current_install_request_or_default();
+    let payload = match contract_payload_with_overrides(
+        &request,
+        "health",
+        true,
+        Some(&serde_json::json!({"_health_attempt": attempt})),
+    ) {
+        Ok(p) => p,
+        Err(err) => {
+            return HealthCheckResult {
+                ready: false,
+                attempt,
+                last_status: 0,
+                error: Some(err),
+            };
+        }
+    };
+    let parsed: serde_json::Value = match serde_json::from_str(&payload) {
+        Ok(v) => v,
+        Err(err) => {
+            return HealthCheckResult {
+                ready: false,
+                attempt,
+                last_status: 0,
+                error: Some(format!("could not parse health JSON: {err}")),
+            };
+        }
+    };
+    HealthCheckResult {
+        ready: parsed
+            .get("ready")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false),
+        attempt: parsed
+            .get("attempt")
+            .and_then(|v| v.as_u64())
+            .map(|v| v as u32)
+            .unwrap_or(attempt),
+        last_status: parsed
+            .get("last_status")
+            .and_then(|v| v.as_u64())
+            .map(|v| v as u32)
+            .unwrap_or(0),
+        error: None,
+    }
+}
+
+#[tauri::command]
+fn service_status_check() -> Result<serde_json::Value, String> {
+    let request = current_install_request_or_default();
+    let payload = contract_payload_with_overrides(&request, "service-status", true, None)?;
+    serde_json::from_str(&payload).map_err(|e| format!("parse error: {e}"))
+}
+
+#[tauri::command]
+fn cancel_install(state: State<'_, InstallerState>) -> Result<String, String> {
+    let pid = match state.running_pid.lock() {
+        Ok(guard) => *guard,
+        Err(_) => return Err("Installer state lock poisoned".to_string()),
+    };
+    let pid = match pid {
+        Some(p) => p,
+        None => return Ok("No install is running".to_string()),
+    };
+
+    if cfg!(target_os = "windows") {
+        Command::new("taskkill")
+            .args(["/PID", &pid.to_string(), "/T"])
+            .status()
+            .map_err(|e| format!("taskkill failed: {e}"))?;
+    } else {
+        Command::new("kill")
+            .args(["-TERM", &pid.to_string()])
+            .status()
+            .map_err(|e| format!("kill -TERM failed: {e}"))?;
+    }
+
+    let pid_clone = pid;
+    thread::spawn(move || {
+        thread::sleep(std::time::Duration::from_secs(5));
+        if cfg!(target_os = "windows") {
+            let _ = Command::new("taskkill")
+                .args(["/F", "/PID", &pid_clone.to_string(), "/T"])
+                .status();
+        } else {
+            let _ = Command::new("kill")
+                .args(["-KILL", &pid_clone.to_string()])
+                .status();
+        }
+    });
+
+    Ok(format!("Cancellation signal sent to pid {pid}"))
+}
+
 #[tauri::command]
 async fn check_for_updates(app: AppHandle) -> UpdateCheckResult {
     use tauri_plugin_updater::UpdaterExt;
@@ -1823,6 +2013,9 @@ fn main() {
             validate_environment,
             preview_defaults,
             start_install,
+            health_check,
+            service_status_check,
+            cancel_install,
             check_for_updates
         ])
         .run(tauri::generate_context!())

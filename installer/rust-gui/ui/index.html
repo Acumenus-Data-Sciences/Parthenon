@@ -19,10 +19,52 @@
           <div class="step active" data-step="configure"><span>1</span> Configure</div>
           <div class="step" data-step="check"><span>2</span> Check</div>
           <div class="step" data-step="install"><span>3</span> Install</div>
-          <div class="step" data-step="done"><span>4</span> Done</div>
+          <div class="step" data-step="verify"><span>4</span> Verify</div>
+          <div class="step" data-step="done"><span>5</span> Done</div>
         </nav>
 
+        <div id="phase-strip" class="phase-strip" hidden>
+          <div class="phase-cell" data-phase="1">1</div>
+          <div class="phase-cell" data-phase="2">2</div>
+          <div class="phase-cell" data-phase="3">3</div>
+          <div class="phase-cell" data-phase="4">4</div>
+          <div class="phase-cell" data-phase="5">5</div>
+          <div class="phase-cell" data-phase="6">6</div>
+          <div class="phase-cell" data-phase="7">7</div>
+          <div class="phase-cell" data-phase="8">8</div>
+          <div class="phase-cell" data-phase="9">9</div>
+          <div id="phase-elapsed" class="phase-elapsed"></div>
+        </div>
+
         <form id="installer-form" class="installer-form">
+          <section class="form-section">
+            <div>
+              <h2>Administrator</h2>
+              <p>This account is created during installation.</p>
+            </div>
+            <div class="field-grid">
+              <label>
+                Admin email
+                <input id="admin-email" name="admin_email" type="email" value="admin@example.com" />
+              </label>
+              <label>
+                Admin name
+                <input id="admin-name" name="admin_name" value="Admin" />
+              </label>
+              <label>
+                Admin password
+                <input id="admin-password" name="admin_password" type="password" placeholder="Leave blank to auto-generate" />
+              </label>
+              <label>
+                Timezone
+                <input id="timezone" name="timezone" value="UTC" />
+              </label>
+            </div>
+          </section>
+
+          <details class="customize-disclosure">
+            <summary>▼ Customize bundle source, services, and OMOP data setup</summary>
+
           <section class="form-section">
             <div>
               <h2>Workspace</h2>
@@ -88,31 +130,6 @@
               <label>
                 WSL install path
                 <input id="wsl-repo-path" name="wsl_repo_path" placeholder="/home/user/Parthenon" autocomplete="off" />
-              </label>
-            </div>
-          </section>
-
-          <section class="form-section">
-            <div>
-              <h2>Administrator</h2>
-              <p>This account is created during installation.</p>
-            </div>
-            <div class="field-grid">
-              <label>
-                Admin email
-                <input id="admin-email" name="admin_email" type="email" value="admin@example.com" />
-              </label>
-              <label>
-                Admin name
-                <input id="admin-name" name="admin_name" value="Admin" />
-              </label>
-              <label>
-                Admin password
-                <input id="admin-password" name="admin_password" type="password" placeholder="Leave blank to auto-generate" />
-              </label>
-              <label>
-                Timezone
-                <input id="timezone" name="timezone" value="UTC" />
               </label>
             </div>
           </section>
@@ -241,6 +258,8 @@
             </label>
           </section>
 
+          </details>
+
           <section class="form-section">
             <div>
               <h2>Ready To Install</h2>
@@ -255,8 +274,33 @@
               <button id="preflight-btn" type="button">Check System</button>
               <button id="install-btn" class="primary" type="submit">Run Test</button>
             </div>
+            <div id="install-controls" class="install-controls" hidden>
+              <button id="cancel-btn" type="button" class="cancel-button">Cancel install</button>
+            </div>
           </section>
         </form>
+
+        <section id="verify-panel" class="form-section verify-panel" hidden>
+          <div>
+            <h2>Verifying Parthenon</h2>
+            <p>Waiting for services to come online. This usually takes 30 to 60 seconds.</p>
+          </div>
+          <div class="verify-checklist">
+            <div class="verify-row" data-verify="nginx"><span class="verify-pip">○</span> Web server accepting connections</div>
+            <div class="verify-row" data-verify="php"><span class="verify-pip">○</span> Application runtime responding</div>
+            <div class="verify-row" data-verify="postgres"><span class="verify-pip">○</span> Database ready</div>
+            <div class="verify-row" data-verify="health"><span class="verify-pip">○</span> /api/v1/health returns 200</div>
+            <div class="verify-row" data-verify="frontend"><span class="verify-pip">○</span> Frontend assets served</div>
+          </div>
+          <div class="verify-status">
+            <span id="verify-attempt">Attempt 1 of 60</span>
+            <span id="verify-last-status"></span>
+          </div>
+          <div id="verify-actions" class="verify-actions" hidden>
+            <button id="verify-wait-more" type="button">Wait another 60 s</button>
+            <button id="verify-show-status" type="button">Show service status</button>
+          </div>
+        </section>
       </section>
 
       <aside class="status-panel">
