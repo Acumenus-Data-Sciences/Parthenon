@@ -28,6 +28,11 @@ SECRET_FIELDS = {
     "umls_api_key",
 }
 
+# Actions that bypass --contract-redact entirely.  The credentials action's whole
+# purpose is to surface the admin password to the Rust GUI Done page — redacting
+# it would defeat the point.
+NON_REDACTABLE_ACTIONS: set[str] = {"credentials"}
+
 
 HADES_SUPPORTED_DBMS = [
     "PostgreSQL",
@@ -251,6 +256,35 @@ def health_payload(cfg: dict[str, Any], *, attempt: int = 1) -> dict[str, Any]:
     return installer_health.probe(app_url, attempt=attempt)
 
 
+def credentials_payload(cfg: dict[str, Any]) -> dict[str, Any]:
+    """Read .install-credentials and surface admin email + password.
+
+    Format is KEY=VALUE per line, written by `engine.secrets.export_credentials_file`.
+    Returns the password verbatim — caller decides whether to display.
+    """
+    creds_path = utils.REPO_ROOT / ".install-credentials"
+    result: dict[str, Any] = {
+        "admin_email": cfg.get("admin_email") or "admin@example.com",
+        "admin_password": None,
+        "credentials_path": str(creds_path),
+    }
+    if not creds_path.exists():
+        result["error"] = "credentials file not found"
+        return result
+
+    for line in creds_path.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        if key.strip() == "ADMIN_PASSWORD":
+            result["admin_password"] = value.strip()
+            break
+    return result
+
+
 def build_payload(
     action: str,
     *,
@@ -308,10 +342,12 @@ def build_payload(
         if isinstance(raw_overrides.get("_health_attempt"), int):
             attempt = raw_overrides["_health_attempt"]
         payload = health_payload(cfg, attempt=attempt)
+    elif action == "credentials":
+        payload = credentials_payload(cfg)
     else:
         raise ValueError(f"Unsupported contract action: {action}")
 
-    if redacted:
+    if redacted and action not in NON_REDACTABLE_ACTIONS:
         if "config" in payload and isinstance(payload["config"], dict):
             payload = dict(payload)
             payload["config"] = redact(payload["config"])
@@ -328,7 +364,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Parthenon installer contract")
     parser.add_argument(
         "action",
-        choices=["defaults", "validate", "plan", "preflight", "data-check", "bundle-manifest", "health"],
+        choices=["defaults", "validate", "plan", "preflight", "data-check", "bundle-manifest", "health", "credentials"],
         help="Contract payload to emit",
     )
     parser.add_argument("--community", action="store_true", help="Use Community MVP defaults")
