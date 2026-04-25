@@ -90,7 +90,7 @@ export function MeasureTrendChart({ bundleId, measureId, sourceId }: Props) {
                 fontSize: "11px",
               }}
               formatter={
-                ((value: number, _name: string, item: { payload: ChartPoint }) => {
+                ((_value: number, _name: string, item: { payload: ChartPoint }) => {
                   const p = item.payload;
                   return [
                     formatRateWithCI(

@@ -3,9 +3,9 @@ import { GitMerge, LayoutGrid, List, Scale } from "lucide-react";
 
 const TABS = [
   { to: "/workbench/care-bundles", label: "Bundles", icon: LayoutGrid, end: true },
-  { to: "/workbench/care-bundles/intersect", label: "Intersect", icon: GitMerge },
-  { to: "/workbench/care-bundles/value-sets", label: "Value Sets", icon: List },
-  { to: "/workbench/care-bundles/measures", label: "CMS Measures", icon: Scale },
+  { to: "/workbench/care-bundles/intersect", label: "Intersect", icon: GitMerge, end: false },
+  { to: "/workbench/care-bundles/value-sets", label: "Value Sets", icon: List, end: false },
+  { to: "/workbench/care-bundles/measures", label: "CMS Measures", icon: Scale, end: false },
 ] as const;
 
 export function WorkbenchTabs() {
@@ -15,7 +15,7 @@ export function WorkbenchTabs() {
         <NavLink
           key={to}
           to={to}
-          end={end ?? false}
+          end={end}
           className={({ isActive }) =>
             [
               "-mb-px inline-flex items-center gap-2 border-b-2 px-4 py-2 text-sm font-medium transition-colors",

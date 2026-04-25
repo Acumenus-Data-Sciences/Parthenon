@@ -14,14 +14,21 @@ export default function CareBundleVsacValueSetDetailPage() {
   const codes = useVsacCodes(oid, { per_page: 100 });
   const omop = useVsacOmopConcepts(oid, { per_page: 1000 });
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
 
   const d = detail.data;
 
   const copyConceptIds = async () => {
     const ids = (omop.data?.data ?? []).map((c) => c.concept_id);
-    await navigator.clipboard.writeText(JSON.stringify(ids));
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1800);
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(ids));
+      setCopyError(null);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setCopyError("Clipboard blocked — check browser permissions.");
+      window.setTimeout(() => setCopyError(null), 3000);
+    }
   };
 
   return (
@@ -47,17 +54,29 @@ export default function CareBundleVsacValueSetDetailPage() {
         <div className="flex items-center gap-2">
           <HelpButton helpKey="workbench.care-bundles.value-set" />
           <button
-            onClick={copyConceptIds}
+            onClick={() => {
+              void copyConceptIds();
+            }}
             disabled={!omop.data || omop.data.data.length === 0}
             className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-text-primary transition-colors hover:opacity-90 disabled:opacity-60"
             style={{ backgroundColor: "var(--accent)" }}
             title="Copy all OMOP concept_ids as JSON array — paste into a care bundle's omop_concept_ids"
           >
             <Copy className="h-4 w-4" />
-            {copied ? "Copied!" : "Copy OMOP concept_ids"}
+            {copyError ? "Copy failed" : copied ? "Copied!" : "Copy OMOP concept_ids"}
           </button>
         </div>
       </header>
+
+      {copyError && (
+        <p
+          role="status"
+          aria-live="polite"
+          className="rounded-lg border border-amber-900/60 bg-amber-950/30 p-3 text-xs text-amber-200"
+        >
+          {copyError}
+        </p>
+      )}
 
       {d && (
         <section className="grid grid-cols-4 gap-3">

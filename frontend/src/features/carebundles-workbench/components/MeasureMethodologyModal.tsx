@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { AlertOctagon, AlertTriangle, Info, Loader2, X } from "lucide-react";
 import { useMeasureMethodology } from "../hooks";
 import type { DataQualityFlag } from "../types";
@@ -22,20 +23,32 @@ export function MeasureMethodologyModal({
     sourceId,
   );
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   if (bundleId == null || measureId == null || sourceId == null) return null;
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-8"
       onClick={onClose}
+      role="presentation"
     >
       <div
         className="max-h-full w-full max-w-3xl overflow-y-auto rounded-xl border border-border-default bg-surface-base shadow-xl"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="methodology-modal-title"
       >
         <header className="sticky top-0 flex items-center justify-between border-b border-border-default bg-surface-raised px-6 py-3">
           <div>
-            <h2 className="text-base font-bold text-text-primary">
+            <h2 id="methodology-modal-title" className="text-base font-bold text-text-primary">
               Methodology · {data?.measure.measure_code ?? "…"}
             </h2>
             <p className="mt-0.5 text-xs text-text-ghost">

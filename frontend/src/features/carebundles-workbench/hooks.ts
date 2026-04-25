@@ -323,7 +323,9 @@ export function useExportRosterToCohort() {
       measureId: number;
       payload: import("./types").RosterToCohortPayload;
     }) => exportRosterToCohort(bundleId, measureId, payload),
-    onSuccess: () => {
+    // Invalidate on settle (success OR error) so retries after a transient
+    // failure don't replay against stale cohort lists.
+    onSettled: () => {
       qc.invalidateQueries({ queryKey: ["cohort-definitions"] });
       qc.invalidateQueries({ queryKey: ["care-gap-bundles"] });
     },

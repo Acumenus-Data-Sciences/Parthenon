@@ -27,10 +27,11 @@ export default function CareBundleIntersectionPage() {
   );
   const sources = sourcesQuery.data ?? [];
 
+  // Default source falls back to the first available; we never write the
+  // default into `sourceId` state, so all downstream queries use
+  // `effectiveSourceId` directly. (Avoids the render-time setState
+  // anti-pattern and the setState-in-effect anti-pattern.)
   const effectiveSourceId = sourceId ?? sources[0]?.id ?? null;
-  if (sourceId == null && effectiveSourceId != null) {
-    setSourceId(effectiveSourceId);
-  }
 
   const intersection = useCareBundleIntersection(
     effectiveSourceId,
@@ -190,7 +191,8 @@ export default function CareBundleIntersectionPage() {
           </div>
         ) : intersection.isError ? (
           <p className="p-6 text-sm text-red-300">
-            {(intersection.error as Error).message}
+            {(intersection.error as Error | null)?.message ??
+              "Intersection computation failed."}
           </p>
         ) : intersection.data ? (
           <div className="space-y-4 p-4">

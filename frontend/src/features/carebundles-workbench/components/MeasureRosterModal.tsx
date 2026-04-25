@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2, Save, Users, X } from "lucide-react";
 import { useExportRosterToCohort, useMeasureRoster } from "../hooks";
 import type { ComplianceBucket } from "../types";
@@ -38,6 +38,14 @@ export function MeasureRosterModal({
 
   const rosterQuery = useMeasureRoster(bundleId, measureId, sourceId, bucket, page);
   const exporter = useExportRosterToCohort();
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
 
   if (bundleId == null || measureId == null || sourceId == null) return null;
 
@@ -79,16 +87,20 @@ export function MeasureRosterModal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-8"
       onClick={onClose}
+      role="presentation"
     >
       <div
         className="max-h-full w-full max-w-3xl overflow-y-auto rounded-xl border border-border-default bg-surface-base shadow-xl"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="roster-modal-title"
       >
         <header className="sticky top-0 flex items-center justify-between border-b border-border-default bg-surface-raised px-6 py-3">
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-text-secondary" />
             <div>
-              <h2 className="text-base font-bold text-text-primary">
+              <h2 id="roster-modal-title" className="text-base font-bold text-text-primary">
                 Patient roster · {measureCode ?? ""}
               </h2>
               <p className="mt-0.5 text-xs text-text-ghost">

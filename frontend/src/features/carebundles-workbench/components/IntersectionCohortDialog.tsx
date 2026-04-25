@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCreateCohortFromIntersection } from "../hooks";
@@ -30,6 +30,15 @@ export function IntersectionCohortDialog({
   const [name, setName] = useState(defaultName);
   const [description, setDescription] = useState("");
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,15 +58,19 @@ export function IntersectionCohortDialog({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
       onClick={onClose}
+      role="presentation"
     >
       <form
         onSubmit={handleSubmit}
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-md space-y-4 rounded-xl border border-border-default bg-surface-raised p-6 shadow-xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="intersection-dialog-title"
       >
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-text-primary">
+            <h2 id="intersection-dialog-title" className="text-lg font-semibold text-text-primary">
               Save intersection as cohort
             </h2>
             <p className="mt-1 text-xs text-text-ghost">
@@ -68,6 +81,7 @@ export function IntersectionCohortDialog({
           <button
             type="button"
             onClick={onClose}
+            aria-label="Close dialog"
             className="rounded-lg p-1 text-text-ghost hover:bg-surface-overlay"
           >
             <X className="h-4 w-4" />
@@ -100,7 +114,7 @@ export function IntersectionCohortDialog({
 
         {mutation.isError && (
           <p className="rounded-lg border border-red-900 bg-red-900/20 px-3 py-2 text-xs text-red-300">
-            {(mutation.error as Error).message}
+            {(mutation.error as Error | null)?.message ?? "Cohort creation failed."}
           </p>
         )}
 

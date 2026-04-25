@@ -57,7 +57,6 @@ export default function CareBundleDetailPage() {
 
   const bundleQuery = useBundle(bundleId);
   const sourcesQuery = useCareBundleSources();
-  const qualificationsQuery = useCareBundleQualifications(bundleId, sourceId);
   const runsQuery = useCareBundleRuns(bundleId);
   const materialize = useMaterializeCareBundle();
 
@@ -65,6 +64,10 @@ export default function CareBundleDetailPage() {
   const minPop = sourcesQuery.data?.meta.min_population ?? 100_000;
 
   // Default source: first qualifying one; fall back to any source if none qualify.
+  // `effectiveSourceId` is the value used by every downstream query — it falls
+  // back to the default until the user picks one in the dropdown. We never
+  // write the default into state, which would otherwise require a render-time
+  // setState (anti-pattern) or a setState-in-effect (cascading renders).
   const effectiveSourceId = useMemo(() => {
     if (sourceId != null) return sourceId;
     const firstQualifying = sources.find((s) => s.qualifies);
@@ -73,9 +76,7 @@ export default function CareBundleDetailPage() {
 
   const selectedSource = sources.find((s) => s.id === effectiveSourceId) ?? null;
 
-  if (sourceId == null && effectiveSourceId != null) {
-    setSourceId(effectiveSourceId);
-  }
+  const qualificationsQuery = useCareBundleQualifications(bundleId, effectiveSourceId);
 
   const bundle = bundleQuery.data;
   const qualifications = qualificationsQuery.data;
