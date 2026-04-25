@@ -1,5 +1,5 @@
 {
-    "id": 40,
+    "id": 46,
     "name": "S6: CKD Progression Incidence — Prediabetes Cohort",
     "description": "Incidence rates of CKD Stage 4, ESRD, and composite MACE in new prediabetes patients, stratified by age and gender. Characterizes cardiorenal progression rates across the full prediabetes target population.",
     "design_json": {
@@ -46,7 +46,7 @@
         "stratifyByGender": true
     },
     "author_id": 117,
-    "created_at": "2026-03-20T00:28:56.000000Z",
-    "updated_at": "2026-03-20T00:28:56.000000Z",
+    "created_at": "2026-03-20T00:29:27.000000Z",
+    "updated_at": "2026-03-20T00:35:33.000000Z",
     "deleted_at": null
 }
