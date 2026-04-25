@@ -629,3 +629,100 @@ jobs:
           gh release upload "${{ github.event.release.tag_name }}" \
             "${UPLOADS[@]}" \
             --clobber
+
+  publish-updater-manifest:
+    name: Publish updater latest.json
+    needs: [build, installer-bundle]
+    runs-on: ubuntu-22.04
+    if: ${{ github.event_name == 'release' }}
+    env:
+      TAURI_UPDATER_PRIVATE_KEY_CONFIGURED: ${{ secrets.TAURI_UPDATER_PRIVATE_KEY != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --version '^2' --locked
+
+      - name: Skip if updater key not configured
+        if: ${{ env.TAURI_UPDATER_PRIVATE_KEY_CONFIGURED != 'true' }}
+        run: |
+          echo "TAURI_UPDATER_PRIVATE_KEY secret not set — skipping latest.json publication."
+          echo "The auto-updater banner will silently no-op until the keypair is provisioned."
+          echo "See docs/site/docs/install/key-rotation.mdx for the bootstrap procedure."
+          exit 0
+
+      - name: Download release artifacts
+        if: ${{ env.TAURI_UPDATER_PRIVATE_KEY_CONFIGURED == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p artifacts
+          gh release download "${{ github.event.release.tag_name }}" \
+            --pattern '*.dmg' --pattern '*.msi' --pattern '*.AppImage' \
+            --dir artifacts
+          ls -la artifacts/
+
+      - name: Sign artifacts and assemble latest.json
+        if: ${{ env.TAURI_UPDATER_PRIVATE_KEY_CONFIGURED == 'true' }}
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_UPDATER_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_UPDATER_KEY_PASSWORD }}
+        run: |
+          set -e
+          version="${{ github.event.release.tag_name }}"
+          version="${version#v}"  # strip leading v if present
+          notes_url="https://github.com/${{ github.repository }}/releases/tag/${{ github.event.release.tag_name }}"
+          pub_date="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+          # Find each platform artifact and sign it
+          dmg="$(find artifacts -name '*.dmg' | head -1)"
+          msi="$(find artifacts -name '*.msi' | head -1)"
+          appimage="$(find artifacts -name '*.AppImage' | head -1)"
+
+          sign_artifact() {
+            local artifact="$1"
+            if [ -z "$artifact" ] || [ ! -f "$artifact" ]; then
+              echo ""
+              return
+            fi
+            cargo tauri signer sign --private-key "$TAURI_SIGNING_PRIVATE_KEY" --password "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" "$artifact" >/dev/null 2>&1
+            cat "${artifact}.sig" | tr -d '\n'
+          }
+
+          dmg_sig="$(sign_artifact "$dmg")"
+          msi_sig="$(sign_artifact "$msi")"
+          appimage_sig="$(sign_artifact "$appimage")"
+
+          dmg_url="https://github.com/${{ github.repository }}/releases/download/${{ github.event.release.tag_name }}/$(basename "$dmg")"
+          msi_url="https://github.com/${{ github.repository }}/releases/download/${{ github.event.release.tag_name }}/$(basename "$msi")"
+          appimage_url="https://github.com/${{ github.repository }}/releases/download/${{ github.event.release.tag_name }}/$(basename "$appimage")"
+
+          # Assemble latest.json
+          cat > latest.json <<JSON
+          {
+            "version": "$version",
+            "notes": "$notes_url",
+            "pub_date": "$pub_date",
+            "platforms": {
+              "darwin-x86_64":  { "signature": "$dmg_sig",      "url": "$dmg_url" },
+              "darwin-aarch64": { "signature": "$dmg_sig",      "url": "$dmg_url" },
+              "windows-x86_64": { "signature": "$msi_sig",      "url": "$msi_url" },
+              "linux-x86_64":   { "signature": "$appimage_sig", "url": "$appimage_url" }
+            }
+          }
+          JSON
+
+          # Validate
+          jq . latest.json >/dev/null
+          cat latest.json
+
+      - name: Upload latest.json
+        if: ${{ env.TAURI_UPDATER_PRIVATE_KEY_CONFIGURED == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${{ github.event.release.tag_name }}" \
+            "latest.json" --clobber
+          echo "Published latest.json to release ${{ github.event.release.tag_name }}"
