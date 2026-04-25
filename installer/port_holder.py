@@ -107,6 +107,15 @@ def _platform() -> str:
 
 
 def _run(cmd: list[str]) -> tuple[int, str, str]:
-    """Indirection seam for tests."""
-    proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
-    return proc.returncode, proc.stdout, proc.stderr
+    """Indirection seam for tests.
+
+    Catches FileNotFoundError so a missing binary (lsof / ss / netstat /
+    tasklist) is reported via the same exit-code-127 channel as a runtime
+    "command not found", which lets the platform-specific dispatchers fall
+    through to the next probe instead of bubbling an exception.
+    """
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        return proc.returncode, proc.stdout, proc.stderr
+    except FileNotFoundError as err:
+        return 127, "", str(err)

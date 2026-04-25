@@ -81,11 +81,19 @@ def _parse_compose_ps_output(stdout: str) -> list[Any]:
 
 
 def _run_compose_ps() -> tuple[int, str, str]:
-    """Indirection seam for tests."""
-    proc = subprocess.run(
-        ["docker", "compose", "ps", "--format", "json"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    return proc.returncode, proc.stdout, proc.stderr
+    """Indirection seam for tests.
+
+    Catches FileNotFoundError so a missing `docker` binary is reported via
+    the same exit-code-127 channel as a runtime "command not found", letting
+    callers handle it without a top-level exception.
+    """
+    try:
+        proc = subprocess.run(
+            ["docker", "compose", "ps", "--format", "json"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        return proc.returncode, proc.stdout, proc.stderr
+    except FileNotFoundError as err:
+        return 127, "", f"docker: command not found ({err})"
