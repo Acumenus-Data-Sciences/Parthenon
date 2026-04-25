@@ -470,3 +470,73 @@ button:disabled {
   font-size: 11px;
   margin-top: 2px;
 }
+
+/* Task 2 — Verify panel */
+.verify-panel {
+  background: #181820;
+  border-radius: 8px;
+  padding: 24px;
+  margin-top: 16px;
+}
+.verify-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 16px 0;
+}
+.verify-row {
+  font-family: ui-monospace, monospace;
+  font-size: 14px;
+  color: #cbd5e1;
+}
+.verify-row.pass {
+  color: #2DD4BF;
+}
+.verify-row.pass .verify-pip {
+  color: #2DD4BF;
+}
+.verify-pip {
+  display: inline-block;
+  width: 1.2em;
+  font-weight: bold;
+}
+.verify-status {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 12px;
+}
+.verify-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+.verify-actions button {
+  padding: 6px 12px;
+  border: 1px solid #2DD4BF;
+  background: transparent;
+  color: #2DD4BF;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.verify-actions button:hover {
+  background: rgba(45, 212, 191, 0.1);
+}
+
+/* Task 5 — Cancel button */
+.install-controls {
+  margin: 16px 0;
+}
+.cancel-button {
+  padding: 8px 16px;
+  background: transparent;
+  color: #f87171;
+  border: 1px solid #f87171;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.cancel-button:hover {
+  background: rgba(248, 113, 113, 0.1);
+}

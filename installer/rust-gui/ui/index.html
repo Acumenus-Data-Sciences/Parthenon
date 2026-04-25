@@ -274,8 +274,33 @@
               <button id="preflight-btn" type="button">Check System</button>
               <button id="install-btn" class="primary" type="submit">Run Test</button>
             </div>
+            <div id="install-controls" class="install-controls" hidden>
+              <button id="cancel-btn" type="button" class="cancel-button">Cancel install</button>
+            </div>
           </section>
         </form>
+
+        <section id="verify-panel" class="form-section verify-panel" hidden>
+          <div>
+            <h2>Verifying Parthenon</h2>
+            <p>Waiting for services to come online. This usually takes 30 to 60 seconds.</p>
+          </div>
+          <div class="verify-checklist">
+            <div class="verify-row" data-verify="nginx"><span class="verify-pip">○</span> Web server accepting connections</div>
+            <div class="verify-row" data-verify="php"><span class="verify-pip">○</span> Application runtime responding</div>
+            <div class="verify-row" data-verify="postgres"><span class="verify-pip">○</span> Database ready</div>
+            <div class="verify-row" data-verify="health"><span class="verify-pip">○</span> /api/v1/health returns 200</div>
+            <div class="verify-row" data-verify="frontend"><span class="verify-pip">○</span> Frontend assets served</div>
+          </div>
+          <div class="verify-status">
+            <span id="verify-attempt">Attempt 1 of 60</span>
+            <span id="verify-last-status"></span>
+          </div>
+          <div id="verify-actions" class="verify-actions" hidden>
+            <button id="verify-wait-more" type="button">Wait another 60 s</button>
+            <button id="verify-show-status" type="button">Show service status</button>
+          </div>
+        </section>
       </section>
 
       <aside class="status-panel">

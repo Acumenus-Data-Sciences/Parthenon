@@ -109,12 +109,72 @@ function showFieldErrors(errors) {
   }
 }
 
-// Task 1 — stub for Verify step (Task 2 implements the full health-probe loop)
-async function runVerify() {
-  // Stub — Task 2 implements the full health-probe loop.
-  setStep("done");
-  setStatus("Install complete (verify pending)", "success");
+const VERIFY_MAX_ATTEMPTS = 60;
+const VERIFY_INTERVAL_MS = 2000;
+
+const verifyPanel = () => document.querySelector("#verify-panel");
+const verifyAttemptEl = () => document.querySelector("#verify-attempt");
+const verifyLastStatusEl = () => document.querySelector("#verify-last-status");
+const verifyActionsEl = () => document.querySelector("#verify-actions");
+
+function setVerifyRow(name, pass) {
+  const row = document.querySelector(`[data-verify="${name}"]`);
+  if (!row) return;
+  row.classList.toggle("pass", pass);
+  const pip = row.querySelector(".verify-pip");
+  if (pip) pip.textContent = pass ? "✓" : "○";
 }
+
+async function runVerify() {
+  setStep("verify");
+  const panel = verifyPanel();
+  if (panel) panel.hidden = false;
+  ["nginx", "php", "postgres", "health", "frontend"].forEach((name) => setVerifyRow(name, false));
+  if (verifyActionsEl()) verifyActionsEl().hidden = true;
+  await pollHealth();
+}
+
+async function pollHealth() {
+  let attempt = 0;
+  while (attempt < VERIFY_MAX_ATTEMPTS) {
+    attempt += 1;
+    if (verifyAttemptEl()) {
+      verifyAttemptEl().textContent = `Attempt ${attempt} of ${VERIFY_MAX_ATTEMPTS}`;
+    }
+    let result;
+    try {
+      result = await invoke("health_check", { attempt });
+    } catch (err) {
+      result = { ready: false, last_status: 0, attempt };
+    }
+    if (verifyLastStatusEl()) {
+      verifyLastStatusEl().textContent = `Last status: ${result.last_status || "no response"}`;
+    }
+    if (result.ready) {
+      ["nginx", "php", "postgres", "health", "frontend"].forEach((name) => setVerifyRow(name, true));
+      setStatus("Parthenon is ready", "success");
+      setTimeout(() => setStep("done"), 1000);
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, VERIFY_INTERVAL_MS));
+  }
+  setStatus("Health probe timed out — services are slow to come up.", "error");
+  if (verifyActionsEl()) verifyActionsEl().hidden = false;
+}
+
+document.querySelector("#verify-wait-more")?.addEventListener("click", () => {
+  if (verifyActionsEl()) verifyActionsEl().hidden = true;
+  pollHealth();
+});
+
+document.querySelector("#verify-show-status")?.addEventListener("click", async () => {
+  try {
+    const status = await invoke("service_status_check", {});
+    appendLog(JSON.stringify(status, null, 2), "stdout");
+  } catch (err) {
+    setStatus(String(err), "error");
+  }
+});
 
 const state = {
   checks: [],
@@ -287,6 +347,8 @@ function updateInstallButton() {
     || !state.preflightRan
     || hasFailedCheck()
     || (!dryRunEl.checked && !confirmEl.checked);
+  const controls = document.querySelector("#install-controls");
+  if (controls) controls.hidden = !state.running;
 }
 
 function updateDataSetupVisibility() {
@@ -540,6 +602,20 @@ vocabularySetupEl.addEventListener("change", updateInstallButton);
 sourceModeEl.addEventListener("change", updateInstallButton);
 document.querySelectorAll("[data-browse]").forEach((button) => {
   button.addEventListener("click", () => browsePath(button));
+});
+
+document.querySelector("#cancel-btn")?.addEventListener("click", async () => {
+  if (!state.running) return;
+  const ok = window.confirm(
+    "Stop the install? State is preserved if past Phase 4 — you can resume from this step."
+  );
+  if (!ok) return;
+  try {
+    const message = await invoke("cancel_install", {});
+    setStatus(message, "info");
+  } catch (err) {
+    setStatus(String(err), "error");
+  }
 });
 
 boot();
