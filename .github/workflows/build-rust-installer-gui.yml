@@ -537,7 +537,11 @@ jobs:
           Push-Location dist-artifacts
           Get-ChildItem -Filter *.zip | ForEach-Object {
             $hash = (Get-FileHash -Algorithm SHA256 $_.FullName).Hash.ToLower()
-            Set-Content -Path "$($_.Name).sha256" -Value "$hash *$($_.Name)"
+            # WriteAllText writes UTF-8 no-BOM with no trailing newline — matches
+            # the Linux/macOS sidecar format produced by `awk '{print $1}'`. PS's
+            # Set-Content appends CRLF on Windows, which awk on the verifier
+            # treats as part of $1 and breaks `expected = actual` comparisons.
+            [System.IO.File]::WriteAllText("$($_.FullName).sha256", "$hash *$($_.Name)")
           }
           Pop-Location
 
@@ -593,10 +597,12 @@ jobs:
             Write-Warning "No .msi found — skipping release upload."
             exit 0
           }
-          # Per-asset sha256
+          # Per-asset sha256 — UTF-8 no-BOM, no trailing newline (matches the
+          # Linux/macOS sidecar format; Set-Content's CRLF would break the
+          # verify-release awk comparison).
           $hash = (Get-FileHash -Algorithm SHA256 $msi.FullName).Hash.ToLower()
           $sha256Path = "$($msi.FullName).sha256"
-          Set-Content -Path $sha256Path -Value $hash
+          [System.IO.File]::WriteAllText($sha256Path, $hash)
           gh release upload "${{ github.event.release.tag_name }}" `
             "$($msi.FullName)#Parthenon-Installer-${version}-windows-x64.msi" `
             "${sha256Path}#Parthenon-Installer-${version}-windows-x64.msi.sha256" --clobber
@@ -772,7 +778,10 @@ jobs:
               echo "WARN: sidecar $sha_file has no corresponding artifact" >&2
               continue
             fi
-            expected="$(awk '{print $1}' "$sha_file")"
+            # tr -d '\r' strips Windows CRLF that some sidecar producers leave
+            # behind; awk's RS is LF only so a trailing \r would otherwise be
+            # captured into $expected and break the comparison.
+            expected="$(awk '{print $1}' "$sha_file" | tr -d '\r')"
             actual="$(sha256sum "$artifact" | awk '{print $1}')"
             if [ "$expected" = "$actual" ]; then
               echo "✓ $artifact"
