@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\DaimonType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CareBundles\IntersectionRequest;
 use App\Http\Requests\CareBundles\IntersectionToCohortRequest;
@@ -28,6 +29,7 @@ use App\Services\CareBundles\WilsonCI;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 /**
@@ -305,12 +307,40 @@ class CareBundleController extends Controller
             'manual',
         );
 
+        // Min-population gate is enforced for the materialize-all fan-out via
+        // CareBundleSourceService::qualifyingSourceIds(), but a single-bundle
+        // materialize is intentionally permissive — data stewards need to run
+        // sub-threshold sources for development. We log a warning so that
+        // sub-threshold runs are visible in operational monitoring; the
+        // SourceQualifierBanner on the frontend already warns the user before
+        // they trigger this.
+        $threshold = (int) config('care_bundles.min_population', 100_000);
+        $count = $this->sources->personCount($source->id, (string) $source->getTableQualifier(DaimonType::CDM));
+        $belowThreshold = $count !== null && $count < $threshold;
+
+        $message = 'Materialization dispatched to cohort queue.';
+        if ($belowThreshold) {
+            Log::warning('CareBundle materialization below population gate', [
+                'bundle' => $bundle->bundle_code,
+                'source_id' => $source->id,
+                'person_count' => $count,
+                'threshold' => $threshold,
+                'triggered_by' => $request->user()?->id,
+            ]);
+            $message .= sprintf(
+                ' Note: source population %s is below the %s gate; results are research-only.',
+                number_format($count ?? 0),
+                number_format($threshold),
+            );
+        }
+
         return response()->json([
             'data' => [
                 'bundle_id' => $bundle->id,
                 'source_id' => $source->id,
                 'status' => 'queued',
-                'message' => 'Materialization dispatched to cohort queue.',
+                'below_population_threshold' => $belowThreshold,
+                'message' => $message,
             ],
         ], 202);
     }

@@ -44,7 +44,10 @@ class FhirMeasureExporter
             'name' => $this->pascalize($bundle->bundle_code),
             'title' => $bundle->condition_name,
             'status' => $bundle->is_active ? 'active' : 'retired',
-            'experimental' => false,
+            // Inactive bundles are flagged experimental in addition to
+            // status=retired — they're effectively draft/research artifacts
+            // until reactivated.
+            'experimental' => ! $bundle->is_active,
             'date' => ($bundle->updated_at ?? now())->toIso8601String(),
             'publisher' => (string) config('care_bundles.fhir.publisher'),
             'description' => (string) ($bundle->description ?? $bundle->condition_name),
@@ -114,7 +117,7 @@ class FhirMeasureExporter
             'name' => $this->pascalize($measure->measure_code),
             'title' => $measure->measure_name,
             'status' => $measure->is_active ? 'active' : 'retired',
-            'experimental' => false,
+            'experimental' => ! $measure->is_active,
             'date' => ($measure->updated_at ?? now())->toIso8601String(),
             'publisher' => (string) config('care_bundles.fhir.publisher'),
             'description' => (string) ($measure->description ?? $measure->measure_name),
@@ -140,6 +143,7 @@ class FhirMeasureExporter
      */
     private function renderGroup(ConditionBundle $bundle, QualityMeasure $measure): array
     {
+        $baseUrl = rtrim((string) config('care_bundles.fhir.base_url'), '/');
         $population = [
             $this->renderPopulation(
                 id: "{$measure->measure_code}-initial-population",
@@ -184,7 +188,7 @@ class FhirMeasureExporter
             'description' => $measure->description ?? $measure->measure_name,
             'code' => [
                 'coding' => [[
-                    'system' => 'http://parthenon.local/measure-code',
+                    'system' => "{$baseUrl}/measure-code",
                     'code' => $measure->measure_code,
                     'display' => $measure->measure_name,
                 ]],

@@ -80,7 +80,12 @@ class CareBundleSourceService
 
                     return $row ? (int) $row->c : null;
                 } catch (\Throwable $e) {
-                    Log::warning('Source population lookup failed', [
+                    // Error level (not warning) so this surfaces in
+                    // operational monitoring — a missing CDM SELECT grant
+                    // for the default `pgsql` connection silently gates the
+                    // source out of every materialize-all run, and the prior
+                    // warning level was easy to miss.
+                    Log::error('Source population lookup failed', [
                         'schema' => $cdmSchema,
                         'error' => $e->getMessage(),
                     ]);

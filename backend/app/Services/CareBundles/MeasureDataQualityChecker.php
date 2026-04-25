@@ -112,6 +112,51 @@ class MeasureDataQualityChecker
                     ];
                 }
             }
+
+            // Symmetric check on the denominator's domain. Denominator concepts
+            // can pin a measure to a specific lab/observation that the source
+            // doesn't code (e.g., a LOINC code missing from a claims-only CDM).
+            // Without this flag the measure runs, denom comes back 0 with the
+            // existing `denominator_below_30` critical, and researchers waste
+            // time investigating "why is this denominator empty?" — the
+            // denominator concept just isn't represented in this CDM.
+            $denomDomain = (string) ($measure->denominator_criteria['domain'] ?? '');
+            /** @var list<int> $denomIds */
+            $denomIds = is_array($measure->denominator_criteria['concept_ids'] ?? null)
+                ? array_values(array_map('intval', $measure->denominator_criteria['concept_ids']))
+                : [];
+
+            if ($denomDomain !== '' && ! empty($denomIds)) {
+                $denomTable = $this->resolveTableName($denomDomain);
+                $denomCol = $this->resolveConceptColumn($denomDomain);
+                $denomPh = implode(',', array_fill(0, count($denomIds), '?'));
+                $hitRow = $appConn->selectOne(
+                    "
+                    SELECT EXISTS (
+                        SELECT 1
+                        FROM \"{$cdmSchema}\".{$denomTable} t
+                        WHERE t.{$denomCol} IN (
+                            SELECT ca.descendant_concept_id
+                            FROM vocab.concept_ancestor ca
+                            WHERE ca.ancestor_concept_id IN ({$denomPh})
+                        )
+                    ) AS has_match
+                ",
+                    $denomIds,
+                );
+                $hasMatch = (bool) ($hitRow->has_match ?? false);
+
+                if (! $hasMatch) {
+                    $flags[] = [
+                        'level' => 'critical',
+                        'code' => 'denominator_concepts_unused',
+                        'message' => 'No rows in '.$cdmSchema.'.'.$denomTable.' match the measure\'s '
+                            .'denominator concepts (with descendants). The denominator will be '
+                            ."0 — likely because this CDM doesn't code the measure's qualifying "
+                            .'domain (e.g., labs missing from a claims-only source).',
+                    ];
+                }
+            }
         } catch (\Throwable $e) {
             $flags[] = [
                 'level' => 'warning',
