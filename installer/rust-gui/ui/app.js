@@ -501,6 +501,11 @@ async function boot() {
     setStatus(String(err), "error");
   }
 
+  // Auto-updater check (cached 24 h via localStorage)
+  if (typeof checkForUpdatesBanner === "function") {
+    checkForUpdatesBanner();
+  }
+
   if (tauriEvent) {
     await tauriEvent.listen("install-log", (event) => {
       appendLog(event.payload.message, event.payload.stream);
@@ -912,6 +917,72 @@ document.querySelector("#reset-everything-btn")?.addEventListener("click", async
   appendLog("  rm -f .install-state.json .install-credentials", "stdout");
   appendLog("  rm -rf .acropolis-installer", "stdout");
   setStatus("Reset instructions emitted to log. Reset action automation lands in Phase 5.", "info");
+});
+
+// ── Task 4: Auto-updater banner ──────────────────────────────────────────────
+
+async function checkForUpdatesBanner() {
+  // Cache check for 24 h (no need to hit GitHub on every Done-page view)
+  const cacheKey = "parthenon_updater_check_at";
+  const lastCheck = localStorage.getItem(cacheKey);
+  if (lastCheck) {
+    const elapsed = Date.now() - parseInt(lastCheck, 10);
+    if (elapsed < 24 * 60 * 60 * 1000) {
+      // Don't show banner — already checked today
+      return;
+    }
+  }
+  localStorage.setItem(cacheKey, String(Date.now()));
+
+  let result;
+  try {
+    result = await invoke("check_for_updates", {});
+  } catch (err) {
+    return; // Silent failure; updater banner is non-essential
+  }
+
+  if (!result?.has_update) return;
+
+  const banner = document.querySelector("#updater-banner");
+  const text = document.querySelector("#updater-banner-text");
+  const downloadBtn = document.querySelector("#updater-download-btn");
+  if (!banner || !text) return;
+
+  text.textContent = `New installer ${result.latest_version} available (you're on ${result.current_version})`;
+  if (downloadBtn) downloadBtn.hidden = false;
+  banner.hidden = false;
+}
+
+document.querySelector("#updater-dismiss-btn")?.addEventListener("click", () => {
+  const banner = document.querySelector("#updater-banner");
+  if (banner) banner.hidden = true;
+});
+
+document.querySelector("#updater-download-btn")?.addEventListener("click", async () => {
+  const downloadBtn = document.querySelector("#updater-download-btn");
+  if (downloadBtn) {
+    downloadBtn.disabled = true;
+    downloadBtn.textContent = "Verifying signature…";
+  }
+  try {
+    // The updater plugin handles download + signature verification + install.
+    // Use the JS API directly: window.__TAURI__.updater.check() then update.downloadAndInstall().
+    const updater = window.__TAURI__?.updater;
+    if (!updater) {
+      throw new Error("updater plugin not available");
+    }
+    const update = await updater.check();
+    if (update?.available) {
+      await update.downloadAndInstall();
+      // App will relaunch automatically
+    }
+  } catch (err) {
+    setStatus(`Update failed: ${err}`, "error");
+    if (downloadBtn) {
+      downloadBtn.disabled = false;
+      downloadBtn.textContent = "Download & install";
+    }
+  }
 });
 
 boot();
