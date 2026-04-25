@@ -1,0 +1,112 @@
+[
+  {
+    "id": "port-conflict-generic",
+    "fingerprint": "Address already in use.*[,\\s(](\\d{2,5})[)'\\])]",
+    "category": "port-conflict",
+    "severity": "error",
+    "fix_action": "port-holder",
+    "fix_args_template": {"port": "$1"},
+    "user_message": "Port {port} is already in use. Use the port-holder action to find and stop the process.",
+    "learn_more": "docs/install/port-conflicts",
+    "platforms": ["all"]
+  },
+  {
+    "id": "docker-daemon-not-running-mac",
+    "fingerprint": "Cannot connect to the Docker daemon at unix:///var/run/docker\\.sock",
+    "category": "docker",
+    "severity": "error",
+    "fix_action": null,
+    "fix_args": {},
+    "user_message": "Docker Desktop is not running. Start Docker Desktop, wait for the whale icon to be steady, then retry.",
+    "learn_more": "docs/install/docker-not-running",
+    "platforms": ["darwin"]
+  },
+  {
+    "id": "docker-daemon-not-running-linux",
+    "fingerprint": "Cannot connect to the Docker daemon.*Is the docker daemon running",
+    "category": "docker",
+    "severity": "error",
+    "fix_action": null,
+    "fix_args": {},
+    "user_message": "The Docker daemon is not running. Start it with `sudo systemctl start docker`.",
+    "learn_more": "docs/install/docker-not-running",
+    "platforms": ["linux"]
+  },
+  {
+    "id": "wsl-not-installed",
+    "fingerprint": "(WSL is not installed|wsl\\.exe.*not recognized|The Windows Subsystem for Linux is not installed)",
+    "category": "wsl",
+    "severity": "error",
+    "fix_action": null,
+    "fix_args": {},
+    "user_message": "WSL2 is required on Windows. Install it with `wsl --install` from an Administrator PowerShell, then reboot.",
+    "learn_more": "docs/install/wsl-setup",
+    "platforms": ["windows"]
+  },
+  {
+    "id": "wsl-no-distros",
+    "fingerprint": "There are no distributions installed",
+    "category": "wsl",
+    "severity": "error",
+    "fix_action": null,
+    "fix_args": {},
+    "user_message": "WSL is installed but no Linux distribution is set up. Install Ubuntu with `wsl --install -d Ubuntu-24.04`.",
+    "learn_more": "docs/install/wsl-setup",
+    "platforms": ["windows"]
+  },
+  {
+    "id": "python3-missing-in-distro",
+    "fingerprint": "(python3: command not found|/bin/sh: python3: not found)",
+    "category": "wsl",
+    "severity": "error",
+    "fix_action": null,
+    "fix_args": {},
+    "user_message": "python3 is not installed inside the WSL distro. Run `sudo apt-get install -y python3 python3-pip` inside WSL, then retry.",
+    "learn_more": "docs/install/wsl-setup",
+    "platforms": ["windows"]
+  },
+  {
+    "id": "image-pull-rate-limit",
+    "fingerprint": "toomanyrequests: You have reached your pull rate limit",
+    "category": "network",
+    "severity": "error",
+    "fix_action": null,
+    "fix_args": {},
+    "user_message": "Docker Hub pull rate limit hit. Sign in to Docker Hub with `docker login` (free tier allows 200 pulls per 6 hours).",
+    "learn_more": "docs/install/docker-rate-limit",
+    "platforms": ["all"]
+  },
+  {
+    "id": "disk-full-docker",
+    "fingerprint": "no space left on device",
+    "category": "disk",
+    "severity": "error",
+    "fix_action": null,
+    "fix_args": {},
+    "user_message": "Disk is full. Free space with `docker system prune -af` or remove unused volumes with `docker volume prune`.",
+    "learn_more": "docs/install/disk-space",
+    "platforms": ["all"]
+  },
+  {
+    "id": "compose-permission-denied-socket",
+    "fingerprint": "permission denied while trying to connect to the Docker daemon socket",
+    "category": "docker",
+    "severity": "error",
+    "fix_action": null,
+    "fix_args": {},
+    "user_message": "Your user is not in the `docker` group. Run `sudo usermod -aG docker $USER`, then log out and back in.",
+    "learn_more": "docs/install/docker-group",
+    "platforms": ["linux"]
+  },
+  {
+    "id": "backend-env-missing",
+    "fingerprint": "(backend/\\.env.*No such file or directory|cp: cannot stat 'backend/\\.env)",
+    "category": "config",
+    "severity": "error",
+    "fix_action": null,
+    "fix_args": {},
+    "user_message": "backend/.env is missing. Run `cp backend/.env.example backend/.env`, edit any required values, then retry.",
+    "learn_more": "docs/install/env-setup",
+    "platforms": ["all"]
+  }
+]
