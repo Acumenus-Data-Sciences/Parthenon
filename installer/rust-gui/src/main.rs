@@ -854,123 +854,6 @@ fn local_repo_check(repo_path: &str) -> CheckResult {
 }
 
 #[tauri::command]
-fn browse_directory(title: String, current_path: Option<String>) -> Result<Option<String>, String> {
-    browse_path(PathPickerMode::Directory, &title, current_path.as_deref())
-}
-
-#[tauri::command]
-fn browse_file(title: String, current_path: Option<String>) -> Result<Option<String>, String> {
-    browse_path(PathPickerMode::File, &title, current_path.as_deref())
-}
-
-#[derive(Clone, Copy)]
-enum PathPickerMode {
-    Directory,
-    File,
-}
-
-fn browse_path(
-    mode: PathPickerMode,
-    title: &str,
-    current_path: Option<&str>,
-) -> Result<Option<String>, String> {
-    if cfg!(target_os = "macos") {
-        return browse_path_macos(mode, title);
-    }
-    if cfg!(target_os = "windows") {
-        return browse_path_windows(mode, title);
-    }
-    browse_path_linux(mode, title, current_path)
-}
-
-fn browse_path_linux(
-    mode: PathPickerMode,
-    title: &str,
-    current_path: Option<&str>,
-) -> Result<Option<String>, String> {
-    let start = current_path
-        .map(str::trim)
-        .filter(|value| !value.is_empty())
-        .unwrap_or(".");
-
-    if command_available("zenity") {
-        let mut args = vec!["--file-selection".to_string(), format!("--title={title}")];
-        match mode {
-            PathPickerMode::Directory => args.push("--directory".to_string()),
-            PathPickerMode::File => {}
-        }
-        args.push(format!("--filename={start}"));
-        return run_picker("zenity", &args);
-    }
-
-    if command_available("kdialog") {
-        let mut args = match mode {
-            PathPickerMode::Directory => vec!["--getexistingdirectory".to_string()],
-            PathPickerMode::File => vec!["--getopenfilename".to_string()],
-        };
-        args.push(start.to_string());
-        args.push("--title".to_string());
-        args.push(title.to_string());
-        return run_picker("kdialog", &args);
-    }
-
-    Err(
-        "No native file picker was found. Install zenity or kdialog, or type the path directly."
-            .to_string(),
-    )
-}
-
-fn browse_path_macos(mode: PathPickerMode, title: &str) -> Result<Option<String>, String> {
-    let prompt = applescript_quote(title);
-    let command = match mode {
-        PathPickerMode::Directory => format!("POSIX path of (choose folder with prompt {prompt})"),
-        PathPickerMode::File => format!("POSIX path of (choose file with prompt {prompt})"),
-    };
-    run_picker("osascript", &["-e".to_string(), command])
-}
-
-fn browse_path_windows(mode: PathPickerMode, title: &str) -> Result<Option<String>, String> {
-    let escaped_title = title.replace('\'', "''");
-    let dialog_script = match mode {
-        PathPickerMode::Directory => format!(
-            "Add-Type -AssemblyName System.Windows.Forms; $d = New-Object System.Windows.Forms.FolderBrowserDialog; $d.Description = '{escaped_title}'; if ($d.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {{ $d.SelectedPath }}"
-        ),
-        PathPickerMode::File => format!(
-            "Add-Type -AssemblyName System.Windows.Forms; $d = New-Object System.Windows.Forms.OpenFileDialog; $d.Title = '{escaped_title}'; $d.Filter = 'Installer archives (*.tar.gz;*.tgz;*.zip)|*.tar.gz;*.tgz;*.zip|All files (*.*)|*.*'; if ($d.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {{ $d.FileName }}"
-        ),
-    };
-    run_picker(
-        "powershell.exe",
-        &[
-            "-NoProfile".to_string(),
-            "-STA".to_string(),
-            "-Command".to_string(),
-            dialog_script,
-        ],
-    )
-}
-
-fn run_picker(program: &str, args: &[String]) -> Result<Option<String>, String> {
-    let output = Command::new(program)
-        .args(args)
-        .output()
-        .map_err(|err| format!("Could not open native file picker: {err}"))?;
-    if !output.status.success() {
-        return Ok(None);
-    }
-    let selected = String::from_utf8_lossy(&output.stdout).trim().to_string();
-    if selected.is_empty() {
-        Ok(None)
-    } else {
-        Ok(Some(selected))
-    }
-}
-
-fn applescript_quote(value: &str) -> String {
-    format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
-}
-
-#[tauri::command]
 fn preview_defaults(request: InstallRequest) -> Result<String, String> {
     let (resolved_request, _) = resolve_install_source(None, &request)?;
     install_summary_text(&resolved_request)
@@ -1816,8 +1699,6 @@ fn main() {
         .manage(InstallerState::default())
         .invoke_handler(tauri::generate_handler![
             bootstrap,
-            browse_directory,
-            browse_file,
             validate_environment,
             preview_defaults,
             start_install

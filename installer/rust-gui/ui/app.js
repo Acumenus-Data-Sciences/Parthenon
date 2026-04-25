@@ -253,14 +253,28 @@ async function browsePath(button) {
   const input = document.querySelector(button.dataset.target);
   if (!input) return;
 
-  const command = button.dataset.browse === "file" ? "browse_file" : "browse_directory";
+  const isFile = button.dataset.browse === "file";
   const title = input.closest("label")?.textContent.replace(/\s+/g, " ").trim() || "Select path";
+
   try {
-    const selected = await invoke(command, {
-      title,
-      currentPath: input.value,
-    });
-    if (selected) {
+    const dialog = window.__TAURI__?.dialog;
+    if (!dialog) {
+      throw new Error("Tauri dialog plugin not available — run inside the desktop app");
+    }
+    const selected = isFile
+      ? await dialog.open({
+          title,
+          multiple: false,
+          directory: false,
+          defaultPath: input.value || undefined,
+        })
+      : await dialog.open({
+          title,
+          multiple: false,
+          directory: true,
+          defaultPath: input.value || undefined,
+        });
+    if (selected && typeof selected === "string") {
       input.value = selected;
       input.dispatchEvent(new Event("input", { bubbles: true }));
       input.dispatchEvent(new Event("change", { bubbles: true }));
