@@ -1,0 +1,86 @@
+---
+title: No Telemetry
+sidebar_position: 92
+---
+
+# No Telemetry
+
+The Parthenon Installer makes **zero** telemetry connections. No analytics SDK, no crash reporter, no usage tracking, no opt-in feedback channel. The "Learn more" link on the installer's Done page brings you here so you can verify this for yourself.
+
+## What the installer connects to (and why)
+
+The installer makes outbound network calls to exactly two destinations, both required for it to do its job:
+
+| Destination | Why | When |
+|---|---|---|
+| **GitHub Releases** (`github.com/sudoshi/Parthenon/releases/...`) | Download the installer bundle (`.tar.gz`); auto-updater check (`latest.json`) | Once per install (bundle); once per 24 h (updater check, cached) |
+| **Docker Hub / GHCR** (`docker.io`, `ghcr.io`) | Pull container images for Parthenon services (PHP, PostgreSQL, Redis, Solr, etc.) | Once per install; periodic on user-initiated "Pull newer images" |
+
+That's it. No other endpoints are contacted by the installer GUI or by `install.py`.
+
+## What we don't do
+
+- **No analytics SDK.** No Sentry, Mixpanel, PostHog, GA, Plausible, Amplitude, or similar.
+- **No crash reporter.** If the installer crashes, you decide whether to file an issue.
+- **No usage tracking.** We don't know how many people clicked "Open Parthenon" vs "Cancel install."
+- **No phone-home for feature flags.** Feature toggles ship as configuration in the binary.
+- **No opt-in failure reporting.** Even opt-in is too much surface; users explicitly chose to share when they file a GitHub issue.
+- **No fingerprinting.** No MAC address, hostname, or installation-ID is generated or transmitted.
+
+## How to verify
+
+Don't take our word for it. Verify with a network capture:
+
+### macOS
+
+```bash
+# Filter packets to the installer's Tauri webview process
+sudo tcpdump -i any -A -s 0 'host github.com or host api.anthropic.com or host sentry.io'
+```
+
+Run the installer end-to-end. You should see traffic only to `github.com` (bundle download, updater check) and `*.docker.io` / `ghcr.io` (image pulls).
+
+### Linux
+
+```bash
+sudo tcpdump -i any -A -s 0 'not host 0.0.0.0 and not net 127.0.0.0/8'
+```
+
+Same expectation as macOS.
+
+### Windows
+
+Use Wireshark with a display filter:
+
+```
+http.host or tls.handshake.extensions_server_name
+```
+
+Run the installer; only `*.github.com`, `*.docker.io`, and `ghcr.io` should appear.
+
+## The feedback link is user-initiated
+
+The Done page footer includes a passive link:
+
+> Was this install painful? [Tell us at github.com/sudoshi/Parthenon/discussions]
+
+Clicking that link opens GitHub Discussions in your default browser. Nothing is sent automatically. You decide what to share, when, and through what channel. This is the only signal channel we have for installer-experience feedback — and it requires you to type into a public GitHub thread, fully visible.
+
+## Why we chose zero telemetry
+
+Two reasons:
+
+1. **Healthcare context.** Parthenon is built for healthcare-IT teams. Buyers in that space face strict policies around third-party API calls and supply-chain visibility. "We send your install logs to a third party" — even with consent — fails some procurement reviews.
+
+2. **Trust is a finite resource.** Acumenus Data Sciences is a nonprofit. Our only currency is the trust users place in the binaries we ship. Adding a phone-home — even one we'd never abuse — costs more trust than it returns in signal.
+
+## What if we change this?
+
+If a future version of the Parthenon Installer adds any kind of telemetry, it will be:
+
+1. **Opt-in only**, never opt-out
+2. **Documented here on this page** before the change ships
+3. **Announced via a security advisory** so existing users can decide whether to opt in
+4. **Cryptographically separable** — you can verify what's being sent before each call
+
+For now: zero. Verified by source code at `installer/rust-gui/src/main.rs` (no network calls except `bundle download` and `tauri-plugin-updater`'s GitHub-pinned endpoint) and `install.py` (calls only to `github.com` for bundle archive and `docker` for image pulls).
