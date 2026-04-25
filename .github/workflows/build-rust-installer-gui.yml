@@ -31,6 +31,8 @@ on:
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
 
 jobs:
   installer-bundle:
@@ -371,7 +373,7 @@ jobs:
             cargo tauri build
           fi
 
-      - name: Notarize and staple macOS .app and .dmg
+      - name: Notarize and staple macOS .app, then rebuild + staple .dmg
         if: ${{ runner.os == 'macOS' && env.APPLE_API_KEY_CONFIGURED == 'true' }}
         working-directory: installer/rust-gui
         shell: bash
@@ -381,13 +383,13 @@ jobs:
           APPLE_API_KEY_PATH: ${{ env.APPLE_API_KEY_PATH }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
+          set -e
           app_bundle="$(find target/release/bundle/macos -maxdepth 1 -name '*.app' -print -quit)"
           if [ -z "$app_bundle" ]; then
             echo "Expected a macOS .app bundle after build, but none was found." >&2
             exit 1
           fi
           echo "Notarizing .app: $app_bundle"
-          # notarytool submit wants a zip/dmg/pkg — zip the .app temporarily
           zip_path="$(mktemp -d)/app.zip"
           ditto -c -k --sequesterRsrc --keepParent "$app_bundle" "$zip_path"
           xcrun notarytool submit "$zip_path" \
@@ -399,16 +401,29 @@ jobs:
           xcrun stapler staple "$app_bundle"
           echo "Notarized and stapled .app"
 
-          dmg="$(find target/release/bundle/dmg -name '*.dmg' -print -quit)"
-          if [ -n "$dmg" ]; then
-            echo "Notarizing .dmg: $dmg"
-            xcrun notarytool submit "$dmg" \
+          # Find the original dmg, delete it, then rebuild from the stapled .app
+          original_dmg="$(find target/release/bundle/dmg -name '*.dmg' -print -quit)"
+          if [ -n "$original_dmg" ]; then
+            dmg_dir="$(dirname "$original_dmg")"
+            dmg_name="$(basename "$original_dmg")"
+            volname="${dmg_name%.dmg}"
+            echo "Rebuilding $dmg_name from stapled .app to embed the staple ticket"
+            rm "$original_dmg"
+            staging="$(mktemp -d)/dmg-staging"
+            mkdir -p "$staging"
+            cp -R "$app_bundle" "$staging/"
+            ln -s /Applications "$staging/Applications"
+            hdiutil create -volname "$volname" -srcfolder "$staging" -ov -format UDZO "$dmg_dir/$dmg_name"
+            echo "Rebuilt $dmg_name"
+
+            echo "Notarizing rebuilt .dmg: $dmg_dir/$dmg_name"
+            xcrun notarytool submit "$dmg_dir/$dmg_name" \
               --key "$APPLE_API_KEY_PATH" \
               --key-id "$APPLE_API_KEY" \
               --issuer "$APPLE_API_ISSUER" \
               --team-id "$APPLE_TEAM_ID" \
               --wait
-            xcrun stapler staple "$dmg"
+            xcrun stapler staple "$dmg_dir/$dmg_name"
             echo "Notarized and stapled .dmg"
           fi
 
@@ -424,9 +439,18 @@ jobs:
           fi
           codesign --verify --deep --strict --verbose=2 "$app_bundle"
           spctl -a -vv "$app_bundle"
+          xcrun stapler validate "$app_bundle"
           dmg="$(find target/release/bundle/dmg -name '*.dmg' -print -quit)"
           if [ -n "$dmg" ]; then
             xcrun stapler validate "$dmg"
+            mount_point="$(mktemp -d)/dmgcheck"
+            hdiutil attach "$dmg" -mountpoint "$mount_point" -nobrowse -readonly
+            mounted_app="$(find "$mount_point" -maxdepth 1 -name '*.app' -print -quit)"
+            if [ -n "$mounted_app" ]; then
+              xcrun stapler validate "$mounted_app"
+              echo "✓ .app inside .dmg has staple ticket"
+            fi
+            hdiutil detach "$mount_point"
           fi
 
       - name: Sign Linux packages with GPG
@@ -437,6 +461,9 @@ jobs:
         run: |
           echo "$GPG_SIGNING_KEY" | base64 --decode | gpg --batch --import
           KEY_ID=$(gpg --list-secret-keys --with-colons | grep '^fpr' | head -1 | cut -d: -f10)
+          # Export public key for release distribution
+          gpg --armor --export "$KEY_ID" > ../../SIGNING-KEY.asc
+          echo "Exported SIGNING-KEY.asc with fingerprint $KEY_ID"
           find target/release/bundle/deb -name "*.deb" -print0 2>/dev/null | \
             while IFS= read -r -d '' pkg; do
               gpg --batch --local-user "$KEY_ID" --detach-sign --armor "$pkg"
@@ -464,6 +491,11 @@ jobs:
         run: |
           mkdir -p dist-artifacts
           tar -C target/release -czf "dist-artifacts/${{ matrix.artifact }}.tar.gz" bundle
+          # SHA-256 sidecars
+          cd dist-artifacts
+          for f in *.tar.gz; do
+            sha256sum "$f" > "$f.sha256"
+          done
 
       - name: Package macOS bundles
         if: runner.os == 'macOS'
@@ -471,6 +503,10 @@ jobs:
         run: |
           mkdir -p dist-artifacts
           ditto -c -k --sequesterRsrc --keepParent target/release/bundle "dist-artifacts/${{ matrix.artifact }}.zip"
+          cd dist-artifacts
+          for f in *.zip; do
+            shasum -a 256 "$f" > "$f.sha256"
+          done
 
       - name: Package Windows bundles
         if: runner.os == 'Windows'
@@ -479,6 +515,23 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path dist-artifacts | Out-Null
           Compress-Archive -Path target/release/bundle/* -DestinationPath "dist-artifacts/${{ matrix.artifact }}.zip" -Force
+          Push-Location dist-artifacts
+          Get-ChildItem -Filter *.zip | ForEach-Object {
+            $hash = (Get-FileHash -Algorithm SHA256 $_.FullName).Hash.ToLower()
+            Set-Content -Path "$($_.Name).sha256" -Value "$hash *$($_.Name)"
+          }
+          Pop-Location
+
+      - name: Attest build provenance (SLSA L3)
+        if: ${{ github.event_name == 'release' }}
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            installer/rust-gui/target/release/bundle/dmg/*.dmg
+            installer/rust-gui/target/release/bundle/msi/*.msi
+            installer/rust-gui/target/release/bundle/deb/*.deb
+            installer/rust-gui/target/release/bundle/rpm/*.rpm
+            installer/rust-gui/target/release/bundle/appimage/*.AppImage
 
       - name: Upload installer packages
         uses: actions/upload-artifact@v4
@@ -501,8 +554,11 @@ jobs:
             echo "No .dmg found — skipping release upload." >&2
             exit 0
           fi
+          # Per-asset sha256
+          shasum -a 256 "$DMG" | awk '{print $1}' > "${DMG}.sha256"
           gh release upload "${{ github.event.release.tag_name }}" \
             "${DMG}#Parthenon-Installer-${VERSION}-macos-${ARCH}.dmg" \
+            "${DMG}.sha256#Parthenon-Installer-${VERSION}-macos-${ARCH}.dmg.sha256" \
             --clobber
 
       - name: Upload Windows release asset
@@ -518,8 +574,13 @@ jobs:
             Write-Warning "No .msi found — skipping release upload."
             exit 0
           }
+          # Per-asset sha256
+          $hash = (Get-FileHash -Algorithm SHA256 $msi.FullName).Hash.ToLower()
+          $sha256Path = "$($msi.FullName).sha256"
+          Set-Content -Path $sha256Path -Value $hash
           gh release upload "${{ github.event.release.tag_name }}" `
-            "$($msi.FullName)#Parthenon-Installer-${version}-windows-x64.msi" --clobber
+            "$($msi.FullName)#Parthenon-Installer-${version}-windows-x64.msi" `
+            "${sha256Path}#Parthenon-Installer-${version}-windows-x64.msi.sha256" --clobber
 
       - name: Upload Linux release assets
         if: ${{ github.event_name == 'release' && runner.os == 'Linux' }}
@@ -530,21 +591,31 @@ jobs:
           VERSION=$(jq -r '.version' tauri.conf.json)
           UPLOADS=()
 
+          gen_sha256() {
+            sha256sum "$1" | awk '{print $1}' > "$1.sha256"
+          }
+
           DEB=$(find target/release/bundle/deb -name "*.deb" 2>/dev/null | head -1)
           if [ -n "$DEB" ]; then
+            gen_sha256 "$DEB"
             UPLOADS+=("${DEB}#Parthenon-Installer-${VERSION}-linux-x64.deb")
+            UPLOADS+=("${DEB}.sha256#Parthenon-Installer-${VERSION}-linux-x64.deb.sha256")
             [ -f "${DEB}.asc" ] && UPLOADS+=("${DEB}.asc#Parthenon-Installer-${VERSION}-linux-x64.deb.asc")
           fi
 
           RPM=$(find target/release/bundle/rpm -name "*.rpm" 2>/dev/null | head -1)
           if [ -n "$RPM" ]; then
+            gen_sha256 "$RPM"
             UPLOADS+=("${RPM}#Parthenon-Installer-${VERSION}-linux-x64.rpm")
+            UPLOADS+=("${RPM}.sha256#Parthenon-Installer-${VERSION}-linux-x64.rpm.sha256")
             [ -f "${RPM}.asc" ] && UPLOADS+=("${RPM}.asc#Parthenon-Installer-${VERSION}-linux-x64.rpm.asc")
           fi
 
           APPIMAGE=$(find target/release/bundle/appimage -name "*.AppImage" 2>/dev/null | head -1)
           if [ -n "$APPIMAGE" ]; then
+            gen_sha256 "$APPIMAGE"
             UPLOADS+=("${APPIMAGE}#Parthenon-Installer-${VERSION}-linux-x64.AppImage")
+            UPLOADS+=("${APPIMAGE}.sha256#Parthenon-Installer-${VERSION}-linux-x64.AppImage.sha256")
             [ -f "${APPIMAGE}.asc" ] && UPLOADS+=("${APPIMAGE}.asc#Parthenon-Installer-${VERSION}-linux-x64.AppImage.asc")
           fi
 
@@ -558,3 +629,180 @@ jobs:
           gh release upload "${{ github.event.release.tag_name }}" \
             "${UPLOADS[@]}" \
             --clobber
+
+  publish-updater-manifest:
+    name: Publish updater latest.json
+    needs: [build, installer-bundle]
+    runs-on: ubuntu-22.04
+    if: ${{ github.event_name == 'release' }}
+    env:
+      TAURI_UPDATER_PRIVATE_KEY_CONFIGURED: ${{ secrets.TAURI_UPDATER_PRIVATE_KEY != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --version '^2' --locked
+
+      - name: Skip if updater key not configured
+        if: ${{ env.TAURI_UPDATER_PRIVATE_KEY_CONFIGURED != 'true' }}
+        run: |
+          echo "TAURI_UPDATER_PRIVATE_KEY secret not set — skipping latest.json publication."
+          echo "The auto-updater banner will silently no-op until the keypair is provisioned."
+          echo "See docs/site/docs/install/key-rotation.mdx for the bootstrap procedure."
+          exit 0
+
+      - name: Download release artifacts
+        if: ${{ env.TAURI_UPDATER_PRIVATE_KEY_CONFIGURED == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p artifacts
+          gh release download "${{ github.event.release.tag_name }}" \
+            --pattern '*.dmg' --pattern '*.msi' --pattern '*.AppImage' \
+            --dir artifacts
+          ls -la artifacts/
+
+      - name: Sign artifacts and assemble latest.json
+        if: ${{ env.TAURI_UPDATER_PRIVATE_KEY_CONFIGURED == 'true' }}
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_UPDATER_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_UPDATER_KEY_PASSWORD }}
+        run: |
+          set -e
+          version="${{ github.event.release.tag_name }}"
+          version="${version#v}"  # strip leading v if present
+          notes_url="https://github.com/${{ github.repository }}/releases/tag/${{ github.event.release.tag_name }}"
+          pub_date="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+          # Find each platform artifact and sign it
+          dmg="$(find artifacts -name '*.dmg' | head -1)"
+          msi="$(find artifacts -name '*.msi' | head -1)"
+          appimage="$(find artifacts -name '*.AppImage' | head -1)"
+
+          sign_artifact() {
+            local artifact="$1"
+            if [ -z "$artifact" ] || [ ! -f "$artifact" ]; then
+              echo ""
+              return
+            fi
+            cargo tauri signer sign --private-key "$TAURI_SIGNING_PRIVATE_KEY" --password "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" "$artifact" >/dev/null 2>&1
+            cat "${artifact}.sig" | tr -d '\n'
+          }
+
+          dmg_sig="$(sign_artifact "$dmg")"
+          msi_sig="$(sign_artifact "$msi")"
+          appimage_sig="$(sign_artifact "$appimage")"
+
+          dmg_url="https://github.com/${{ github.repository }}/releases/download/${{ github.event.release.tag_name }}/$(basename "$dmg")"
+          msi_url="https://github.com/${{ github.repository }}/releases/download/${{ github.event.release.tag_name }}/$(basename "$msi")"
+          appimage_url="https://github.com/${{ github.repository }}/releases/download/${{ github.event.release.tag_name }}/$(basename "$appimage")"
+
+          # Assemble latest.json
+          cat > latest.json <<JSON
+          {
+            "version": "$version",
+            "notes": "$notes_url",
+            "pub_date": "$pub_date",
+            "platforms": {
+              "darwin-x86_64":  { "signature": "$dmg_sig",      "url": "$dmg_url" },
+              "darwin-aarch64": { "signature": "$dmg_sig",      "url": "$dmg_url" },
+              "windows-x86_64": { "signature": "$msi_sig",      "url": "$msi_url" },
+              "linux-x86_64":   { "signature": "$appimage_sig", "url": "$appimage_url" }
+            }
+          }
+          JSON
+
+          # Validate
+          jq . latest.json >/dev/null
+          cat latest.json
+
+      - name: Upload latest.json
+        if: ${{ env.TAURI_UPDATER_PRIVATE_KEY_CONFIGURED == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${{ github.event.release.tag_name }}" \
+            "latest.json" --clobber
+          echo "Published latest.json to release ${{ github.event.release.tag_name }}"
+
+  verify-release:
+    name: Verify release artifacts
+    needs: [build, installer-bundle, publish-updater-manifest]
+    runs-on: ubuntu-22.04
+    if: ${{ github.event_name == 'release' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p verify
+          gh release download "${{ github.event.release.tag_name }}" --dir verify
+          ls -la verify/
+
+      - name: Verify SHA-256 sidecars
+        working-directory: verify
+        run: |
+          set -e
+          for sha_file in *.sha256; do
+            artifact="${sha_file%.sha256}"
+            if [ ! -f "$artifact" ]; then
+              echo "WARN: sidecar $sha_file has no corresponding artifact" >&2
+              continue
+            fi
+            expected="$(awk '{print $1}' "$sha_file")"
+            actual="$(sha256sum "$artifact" | awk '{print $1}')"
+            if [ "$expected" = "$actual" ]; then
+              echo "✓ $artifact"
+            else
+              echo "✗ $artifact: expected $expected, got $actual" >&2
+              exit 1
+            fi
+          done
+
+      - name: Verify GPG signatures (Linux artifacts)
+        working-directory: verify
+        run: |
+          set -e
+          if [ ! -f SIGNING-KEY.asc ]; then
+            echo "WARN: SIGNING-KEY.asc not present in release — skipping GPG verification"
+            exit 0
+          fi
+          gpg --import SIGNING-KEY.asc
+          for asc in *.asc; do
+            [ "$asc" = "SIGNING-KEY.asc" ] && continue
+            artifact="${asc%.asc}"
+            if [ ! -f "$artifact" ]; then
+              continue
+            fi
+            if gpg --verify "$asc" "$artifact"; then
+              echo "✓ GPG: $artifact"
+            else
+              echo "✗ GPG verification failed for $artifact" >&2
+              exit 1
+            fi
+          done
+
+      - name: Verify SLSA attestations
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          cd verify
+          for artifact in *.dmg *.msi *.deb *.rpm *.AppImage; do
+            [ -f "$artifact" ] || continue
+            if gh attestation verify "$artifact" --owner sudoshi; then
+              echo "✓ Attestation: $artifact"
+            else
+              echo "✗ Attestation verification failed for $artifact" >&2
+              exit 1
+            fi
+          done
+
+      - name: Summary
+        run: |
+          echo "All cryptographic verifications passed."
+          echo "Release ${{ github.event.release.tag_name }} is ready for publication."
