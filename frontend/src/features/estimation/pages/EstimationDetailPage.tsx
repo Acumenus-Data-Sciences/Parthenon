@@ -11,6 +11,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { EstimationDesigner } from "../components/EstimationDesigner";
 import { EstimationResults } from "../components/EstimationResults";
@@ -143,6 +144,7 @@ export default function EstimationDetailPage() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
+          <HelpButton helpKey="estimation" />
           {/* Execute Controls */}
           <div className="flex items-center gap-2">
             <div className="relative">

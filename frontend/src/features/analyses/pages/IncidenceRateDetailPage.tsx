@@ -11,6 +11,7 @@ import {
   Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { IncidenceRateDesigner } from "../components/IncidenceRateDesigner";
 import { IncidenceRateResults } from "../components/IncidenceRateResults";
@@ -160,6 +161,7 @@ export default function IncidenceRateDetailPage() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
+          <HelpButton helpKey="incidence-rates" />
           <div className="flex items-center gap-2">
             <div className="relative">
               <Database

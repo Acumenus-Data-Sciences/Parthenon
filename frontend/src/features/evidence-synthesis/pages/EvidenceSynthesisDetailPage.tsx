@@ -8,6 +8,7 @@ import {
   Play,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import { ExecutionStatusBadge } from "@/features/analyses/components/ExecutionStatusBadge";
 import {
   useEvidenceSynthesisAnalysis,
@@ -133,6 +134,7 @@ export default function EvidenceSynthesisDetailPage() {
 
         {!isNew && (
           <div className="flex items-center gap-2 shrink-0">
+            <HelpButton helpKey="evidence-synthesis" />
             <button
               type="button"
               onClick={handleExecute}

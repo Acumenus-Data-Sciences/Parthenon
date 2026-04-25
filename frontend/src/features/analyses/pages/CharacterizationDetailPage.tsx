@@ -10,6 +10,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { CharacterizationDesigner } from "../components/CharacterizationDesigner";
 import { CharacterizationResults } from "../components/CharacterizationResults";
@@ -157,6 +158,7 @@ export default function CharacterizationDetailPage() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
+          <HelpButton helpKey="characterization" />
           <div className="flex items-center gap-2">
             <div className="relative">
               <Database

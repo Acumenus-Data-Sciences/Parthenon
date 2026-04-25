@@ -11,6 +11,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { PredictionDesigner } from "../components/PredictionDesigner";
 import { PredictionResults } from "../components/PredictionResults";
@@ -143,6 +144,7 @@ export default function PredictionDetailPage() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
+          <HelpButton helpKey="prediction" />
           {/* Execute Controls */}
           <div className="flex items-center gap-2">
             <div className="relative">

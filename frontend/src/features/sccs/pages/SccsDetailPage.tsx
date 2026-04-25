@@ -11,6 +11,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { SccsDesigner } from "../components/SccsDesigner";
 import { SccsResults } from "../components/SccsResults";
@@ -143,6 +144,7 @@ export default function SccsDetailPage() {
 
         {!isNew && (
           <div className="flex items-center gap-2 shrink-0">
+            <HelpButton helpKey="sccs" />
             <div className="flex items-center gap-2">
               <div className="relative">
                 <Database
