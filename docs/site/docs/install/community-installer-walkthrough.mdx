@@ -140,8 +140,10 @@ gpg --import SIGNING-KEY.asc
 # Verify the GPG signature
 gpg --verify Parthenon-Installer-*.deb.asc Parthenon-Installer-*.deb
 
-# Verify the SHA-256 sidecar
-shasum -a 256 -c Parthenon-Installer-*.deb.sha256
+# Verify the SHA-256 sidecar (sidecars contain the digest only, no filename)
+expected="$(cat Parthenon-Installer-*.deb.sha256)"
+actual="$(sha256sum Parthenon-Installer-*.deb | awk '{print $1}')"
+[ "$expected" = "$actual" ] && echo "OK" || { echo "MISMATCH"; exit 1; }
 
 # Optionally verify the SLSA provenance attestation
 gh attestation verify Parthenon-Installer-*.deb --owner sudoshi
@@ -173,14 +175,17 @@ The "Open Parthenon" CTA uses xdg-open to launch your default browser to `http:/
 
 ### Headless installation (DevOps path)
 
-If you're installing on a headless Linux server via SSH:
+If you're installing on a headless Linux server via SSH, the GUI is not used at all. Drive `install.py` directly with `--non-interactive` and a defaults file:
 
 ```bash
-# The installer GUI also accepts --non-interactive mode via the installer.py CLI:
+# Generate a defaults template (writes config to stdout for review)
+python3 install.py --contract defaults --community --contract-pretty > my-defaults.json
+
+# Edit my-defaults.json to taste, then run the install
 python3 install.py --community --non-interactive --defaults-file my-defaults.json
 ```
 
-See the [Headless Installation](./headless.mdx) docs (forthcoming) for the full CLI surface.
+For the full CLI surface, run `python3 install.py --help`. The same `--contract <action>` interface that backs the GUI's preflight, recovery, and verify steps is also available from the command line — see [Verifying Installer Signatures](./verifying-signatures.mdx) for the contract action list.
 
 ## What "ready" means
 

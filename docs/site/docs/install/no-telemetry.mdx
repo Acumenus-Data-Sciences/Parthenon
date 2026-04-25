@@ -31,22 +31,32 @@ That's it. No other endpoints are contacted by the installer GUI or by `install.
 
 Don't take our word for it. Verify with a network capture:
 
+The principle is the same on every platform: **capture all outbound traffic without a destination filter, then verify only the expected hosts appear**. A whitelist filter would mask any unexpected destination, defeating the verification.
+
 ### macOS
 
+macOS does not provide tcpdump's Linux `-i any` interface. Capture on your active interface (or use `pktap` to capture on all interfaces simultaneously):
+
 ```bash
-# Filter packets to the installer's Tauri webview process
-sudo tcpdump -i any -A -s 0 'host github.com or host api.anthropic.com or host sentry.io'
+# Find your active interface (typically en0 for Wi-Fi, en1 for Ethernet)
+networksetup -listallhardwareports | grep -A 1 'Wi-Fi\|Ethernet'
+
+# Capture all TLS handshake destinations on every active interface (pktap covers all)
+sudo tcpdump -i pktap,en0 -nn -s 0 -A 'tcp port 443'
 ```
 
-Run the installer end-to-end. You should see traffic only to `github.com` (bundle download, updater check) and `*.docker.io` / `ghcr.io` (image pulls).
+Run the installer end-to-end while the capture is running. The only Server Name Indication (SNI) entries you should see are `*.github.com`, `*.githubusercontent.com`, `*.docker.io`, and `ghcr.io`. Any other host is a finding worth reporting.
+
+For a friendlier UI, use [Little Snitch](https://www.obdev.at/products/littlesnitch/) and set every connection to "ask" — every outbound destination shows up as an interactive prompt.
 
 ### Linux
 
 ```bash
-sudo tcpdump -i any -A -s 0 'not host 0.0.0.0 and not net 127.0.0.0/8'
+# Capture all outbound TLS handshakes; -i any catches all interfaces
+sudo tcpdump -i any -nn -s 0 -A 'tcp port 443 and not net 127.0.0.0/8'
 ```
 
-Same expectation as macOS.
+Same expectation: `*.github.com`, `*.githubusercontent.com`, `*.docker.io`, `ghcr.io` only.
 
 ### Windows
 
