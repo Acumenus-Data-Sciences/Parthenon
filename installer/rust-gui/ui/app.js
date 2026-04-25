@@ -193,6 +193,13 @@ const doneState = {
   revealCountdownTimer: null,
 };
 
+const recoveryState = {
+  capturedStdout: [],
+  capturedStderr: [],
+  currentPhase: "",
+  lastRequest: null,
+};
+
 function setStatus(message, kind = "info") {
   statusEl.textContent = message;
   statusEl.dataset.kind = kind;
@@ -327,6 +334,14 @@ function appendLog(message, stream = "stdout") {
   const phase = parsePhaseFromLog(message);
   if (phase) {
     setPhase(phase.number, phase.name);
+    recoveryState.currentPhase = phase.name;
+  }
+  if (state.running) {
+    if (stream === "stderr") {
+      recoveryState.capturedStderr.push(message);
+    } else {
+      recoveryState.capturedStdout.push(message);
+    }
   }
   const isError = LOG_ERROR_REGEX.test(message);
   const prefix = isError ? "[error] " : "";
@@ -521,6 +536,7 @@ async function boot() {
       } else {
         setStep("install");
         setStatus(event.payload.message, "error");
+        runRecovery(event.payload);
       }
       updateInstallButton();
     });
@@ -588,6 +604,11 @@ form.addEventListener("submit", async (event) => {
   document.querySelectorAll(".phase-cell").forEach((cell) => {
     cell.classList.remove("active", "complete");
   });
+  // Phase 5 — reset capture buffers for this install run
+  recoveryState.capturedStdout = [];
+  recoveryState.capturedStderr = [];
+  recoveryState.currentPhase = "";
+  recoveryState.lastRequest = readPayload();
   const stripEl = document.querySelector("#phase-strip");
   if (stripEl) stripEl.hidden = false;
   updateInstallButton();
@@ -632,6 +653,142 @@ document.querySelector("#cancel-btn")?.addEventListener("click", async () => {
     setStatus(String(err), "error");
   }
 });
+
+// ── Phase 5: Recovery flow ────────────────────────────────────────────
+
+async function runRecovery(failPayload) {
+  const panel = document.querySelector("#recovery-panel");
+  if (!panel) return;
+  panel.hidden = false;
+
+  const titleEl = document.querySelector("#recovery-title");
+  const messageEl = document.querySelector("#recovery-message");
+  if (titleEl) titleEl.textContent = "Install failed — pick a recovery option";
+  if (messageEl) {
+    messageEl.textContent = failPayload?.message || "Install subprocess exited with non-zero status.";
+  }
+
+  // 1. Run diagnose against captured streams
+  const diagnoseInput = {
+    stdout: recoveryState.capturedStdout.slice(-200).join("\n"),
+    stderr: recoveryState.capturedStderr.slice(-200).join("\n"),
+    exit_code: typeof failPayload?.code === "number" ? failPayload.code : 1,
+    phase: recoveryState.currentPhase,
+    platform: detectPlatform(),
+  };
+
+  let diagnoseResult;
+  try {
+    diagnoseResult = await invoke("diagnose_check", { input: diagnoseInput });
+  } catch (err) {
+    diagnoseResult = { matches: [], ai_assist_eligible: false, error: String(err) };
+  }
+  renderDiagnosticCards(diagnoseResult);
+
+  // 2. Run recover for Resume/Retry/Reset recommendation
+  let recoverResult;
+  try {
+    recoverResult = await invoke("recover_check", {});
+  } catch (err) {
+    recoverResult = { mode: "retry", can_resume: false, message: String(err) };
+  }
+  renderRecoveryActions(recoverResult);
+}
+
+function detectPlatform() {
+  // Best-effort browser-side platform detection. The installer GUI ships per-platform,
+  // so this matches the bundle target.
+  const ua = navigator.userAgent || "";
+  if (/Mac|Darwin/.test(ua)) return "darwin";
+  if (/Windows|Win32|Win64/.test(ua)) return "windows";
+  return "linux";
+}
+
+function renderDiagnosticCards(result) {
+  const container = document.querySelector("#diagnostic-cards");
+  if (!container) return;
+  container.innerHTML = "";
+  const matches = result?.matches || [];
+  if (matches.length === 0) {
+    if (result?.ai_assist_eligible) {
+      container.innerHTML = `
+        <div class="diagnostic-card">
+          <div class="diagnostic-card-id">No matching fingerprint</div>
+          <div class="diagnostic-card-message">
+            The installer's diagnostic knowledge base did not match this failure pattern.
+            See the log panel above. (AI-assisted diagnosis is a future v0.3.0 feature.)
+          </div>
+        </div>
+      `;
+    }
+    return;
+  }
+  for (const match of matches) {
+    const card = document.createElement("div");
+    const sev = ["error", "warn", "info"].includes(match.severity) ? match.severity : "warn";
+    card.className = `diagnostic-card severity-${sev}`;
+    card.innerHTML = `
+      <div class="diagnostic-card-id">${escapeHtml(match.id || "unknown")}</div>
+      <div class="diagnostic-card-message">${escapeHtml(match.message || "")}</div>
+      <div class="diagnostic-card-actions"></div>
+      <div class="diagnostic-card-result" hidden></div>
+    `;
+    if (match.fix_action) {
+      const btn = document.createElement("button");
+      btn.className = "try-fix-btn";
+      btn.textContent = `Try this fix (${match.fix_action})`;
+      btn.dataset.action = match.fix_action;
+      btn.dataset.args = JSON.stringify(match.fix_args || {});
+      btn.addEventListener("click", () => runTryFix(card, match));
+      card.querySelector(".diagnostic-card-actions").appendChild(btn);
+    }
+    container.appendChild(card);
+  }
+}
+
+async function runTryFix(card, match) {
+  const btn = card.querySelector(".try-fix-btn");
+  const resultEl = card.querySelector(".diagnostic-card-result");
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Running…";
+  }
+  try {
+    const fixResult = await invoke("try_fix", {
+      input: {
+        action: match.fix_action,
+        args: match.fix_args || {},
+      },
+    });
+    if (resultEl) {
+      resultEl.hidden = false;
+      resultEl.textContent = JSON.stringify(fixResult, null, 2);
+    }
+  } catch (err) {
+    if (resultEl) {
+      resultEl.hidden = false;
+      resultEl.textContent = `Fix failed: ${err}`;
+    }
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = `Try this fix (${match.fix_action})`;
+    }
+  }
+}
+
+function renderRecoveryActions(result) {
+  const resumeBtn = document.querySelector("#recovery-resume-btn");
+  if (resumeBtn) {
+    if (result?.can_resume && result?.mode === "resume") {
+      const phase = result.last_phase ? `from ${result.last_phase}` : "from where it failed";
+      resumeBtn.textContent = `Resume install ${phase}`;
+      resumeBtn.hidden = false;
+    } else {
+      resumeBtn.hidden = true;
+    }
+  }
+}
 
 // ── Phase 4: Done-page wiring ─────────────────────────────────────────
 
@@ -905,21 +1062,92 @@ document.querySelector("#runtime-image-pull-btn")?.addEventListener("click", asy
   }
 });
 
-// ── Task 3: Reset button ─────────────────────────────────────────────────────
+// ── Phase 5: Resume / Retry / Reset button handlers ──────────────────────────
+
+document.querySelector("#recovery-resume-btn")?.addEventListener("click", async () => {
+  if (!recoveryState.lastRequest) {
+    setStatus("No install request captured to resume", "error");
+    return;
+  }
+  const panel = document.querySelector("#recovery-panel");
+  if (panel) panel.hidden = true;
+  setStep("install");
+  state.running = true;
+  setStatus("Resuming install…");
+  updateInstallButton();
+  try {
+    // Engine auto-resumes from .install-state.json — no special flag needed.
+    // Re-invoke start_install with the captured request.
+    await invoke("start_install", { request: recoveryState.lastRequest });
+  } catch (err) {
+    state.running = false;
+    setStatus(String(err), "error");
+    updateInstallButton();
+  }
+});
+
+document.querySelector("#recovery-retry-btn")?.addEventListener("click", async () => {
+  if (!recoveryState.lastRequest) {
+    setStatus("No install request captured to retry", "error");
+    return;
+  }
+  const panel = document.querySelector("#recovery-panel");
+  if (panel) panel.hidden = true;
+  // Re-invoke start_install. The engine's checkpoint store auto-resumes from
+  // the last successful step. For a true fresh start, the user must click Reset.
+  setStep("install");
+  state.running = true;
+  setStatus("Retrying install (resuming from checkpoint)…");
+  updateInstallButton();
+  try {
+    await invoke("start_install", { request: recoveryState.lastRequest });
+  } catch (err) {
+    state.running = false;
+    setStatus(String(err), "error");
+    updateInstallButton();
+  }
+});
+
+document.querySelector("#recovery-reset-btn")?.addEventListener("click", async () => {
+  const ok = window.confirm(
+    "Reset will run docker compose down -v and delete .install-state.json, .install-credentials, and the bundle cache. Databases are NOT dropped. Continue?"
+  );
+  if (!ok) return;
+  const btn = document.querySelector("#recovery-reset-btn");
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Resetting…";
+  }
+  try {
+    const message = await invoke("reset_install", {});
+    setStatus(message, "info");
+    const panel = document.querySelector("#recovery-panel");
+    if (panel) panel.hidden = true;
+    // Return user to Configure step so they can adjust settings
+    setStep("configure");
+  } catch (err) {
+    setStatus(`Reset failed: ${err}`, "error");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Reset everything";
+    }
+  }
+});
+
+// ── Task 3 (Phase 4): Done-page Reset button — now calls reset_install ────────
 
 document.querySelector("#reset-everything-btn")?.addEventListener("click", async () => {
   const ok = window.confirm(
-    "This will tear down all Parthenon containers, delete the install state file, the bundle cache, and .install-credentials. Databases are NOT dropped. Continue?"
+    "This will run docker compose down -v, delete .install-state.json, .install-credentials, and the bundle cache. Databases are NOT dropped. Continue?"
   );
   if (!ok) return;
-  // For now, just emit instructions to the log — actual reset implementation
-  // requires a 'reset' contract action which is Phase 5 work.
-  appendLog("Reset is currently a manual operation. Run:", "stdout");
-  appendLog("  cd " + (doneState.appUrl ? "your install dir" : "your install dir"), "stdout");
-  appendLog("  docker compose down -v", "stdout");
-  appendLog("  rm -f .install-state.json .install-credentials", "stdout");
-  appendLog("  rm -rf .acropolis-installer", "stdout");
-  setStatus("Reset instructions emitted to log. Reset action automation lands in Phase 5.", "info");
+  try {
+    const message = await invoke("reset_install", {});
+    setStatus(message, "info");
+  } catch (err) {
+    setStatus(`Reset failed: ${err}`, "error");
+  }
 });
 
 // ── Task 4: Auto-updater banner ──────────────────────────────────────────────

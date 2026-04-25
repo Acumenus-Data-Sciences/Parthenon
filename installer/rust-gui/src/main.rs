@@ -1557,7 +1557,8 @@ exit "$rc"
 fn validate_contract_action(action: &str) -> Result<(), String> {
     match action {
         "defaults" | "validate" | "plan" | "preflight" | "data-check" | "bundle-manifest"
-        | "health" | "service-status" | "credentials" | "open-app" => Ok(()),
+        | "health" | "service-status" | "credentials" | "open-app" | "recover" | "diagnose"
+        | "port-holder" => Ok(()),
         _ => Err(format!("Unsupported installer contract action: {action}")),
     }
 }
@@ -1582,6 +1583,179 @@ fn open_app_url() -> Result<String, String> {
         .and_then(|v| v.as_str())
         .map(str::to_string)
         .ok_or_else(|| "open-app payload missing 'url' field".to_string())
+}
+
+#[tauri::command]
+fn recover_check() -> Result<serde_json::Value, String> {
+    let request = current_install_request_or_default();
+    let payload = contract_payload_with_overrides(&request, "recover", true, None)?;
+    serde_json::from_str(&payload).map_err(|e| format!("parse error: {e}"))
+}
+
+#[derive(Debug, Deserialize)]
+struct DiagnoseInput {
+    stdout: String,
+    stderr: String,
+    exit_code: i32,
+    phase: String,
+    platform: String,
+}
+
+#[tauri::command]
+fn diagnose_check(input: DiagnoseInput) -> Result<serde_json::Value, String> {
+    let request = current_install_request_or_default();
+    let extra = serde_json::json!({
+        "_diagnose_input": {
+            "stdout": input.stdout,
+            "stderr": input.stderr,
+            "exit_code": input.exit_code,
+            "phase": input.phase,
+            "platform": input.platform,
+        }
+    });
+    let payload = contract_payload_with_overrides(&request, "diagnose", true, Some(&extra))?;
+    serde_json::from_str(&payload).map_err(|e| format!("parse error: {e}"))
+}
+
+#[derive(Debug, Deserialize)]
+struct TryFixInput {
+    action: String,
+    args: serde_json::Value,
+}
+
+#[tauri::command]
+fn try_fix(input: TryFixInput) -> Result<serde_json::Value, String> {
+    let request = current_install_request_or_default();
+    // Currently supports only "port-holder" fix_action. Future: install-python-in-wsl, fetch-hecate-bootstrap, etc.
+    if input.action != "port-holder" {
+        return Err(format!("Unsupported fix action: {}", input.action));
+    }
+    let port = input
+        .args
+        .get("port")
+        .and_then(|v| v.as_i64())
+        .ok_or("port-holder requires args.port (int)")?;
+    let extra = serde_json::json!({"_port": port});
+    let payload = contract_payload_with_overrides(&request, "port-holder", true, Some(&extra))?;
+    serde_json::from_str(&payload).map_err(|e| format!("parse error: {e}"))
+}
+
+#[tauri::command]
+fn reset_install(app: AppHandle) -> Result<String, String> {
+    let request = current_install_request_or_default();
+    let install_dir = if !request.install_target_dir.trim().is_empty() {
+        PathBuf::from(request.install_target_dir.trim())
+    } else if !request.repo_path.trim().is_empty() {
+        PathBuf::from(request.repo_path.trim())
+    } else {
+        return Err("No install directory configured".to_string());
+    };
+
+    if !install_dir.exists() {
+        return Err(format!(
+            "Install directory not found: {}",
+            install_dir.display()
+        ));
+    }
+
+    let _ = app.emit(
+        "install-log",
+        InstallEvent {
+            stream: "stdout".to_string(),
+            message: format!("Resetting install at {}", install_dir.display()),
+        },
+    );
+
+    // Step 1: docker compose down -v
+    let down_output = Command::new("docker")
+        .args(["compose", "down", "-v"])
+        .current_dir(&install_dir)
+        .output();
+    match down_output {
+        Ok(o) if o.status.success() => {
+            let _ = app.emit(
+                "install-log",
+                InstallEvent {
+                    stream: "stdout".to_string(),
+                    message: "✓ Stopped containers and removed volumes".to_string(),
+                },
+            );
+        }
+        Ok(o) => {
+            let _ = app.emit(
+                "install-log",
+                InstallEvent {
+                    stream: "stderr".to_string(),
+                    message: format!(
+                        "docker compose down -v warning: {}",
+                        String::from_utf8_lossy(&o.stderr).trim()
+                    ),
+                },
+            );
+        }
+        Err(err) => {
+            return Err(format!("docker compose down failed: {err}"));
+        }
+    }
+
+    // Step 2: remove state files
+    for filename in [".install-state.json", ".install-credentials"] {
+        let path = install_dir.join(filename);
+        if path.exists() {
+            match std::fs::remove_file(&path) {
+                Ok(_) => {
+                    let _ = app.emit(
+                        "install-log",
+                        InstallEvent {
+                            stream: "stdout".to_string(),
+                            message: format!("✓ Deleted {filename}"),
+                        },
+                    );
+                }
+                Err(err) => {
+                    let _ = app.emit(
+                        "install-log",
+                        InstallEvent {
+                            stream: "stderr".to_string(),
+                            message: format!("⚠ Could not delete {filename}: {err}"),
+                        },
+                    );
+                }
+            }
+        }
+    }
+
+    // Step 3: clean bundle cache (if user pointed at one)
+    if !request.bundle_install_dir.trim().is_empty() {
+        let cache = PathBuf::from(request.bundle_install_dir.trim());
+        if cache.exists() {
+            match std::fs::remove_dir_all(&cache) {
+                Ok(_) => {
+                    let _ = app.emit(
+                        "install-log",
+                        InstallEvent {
+                            stream: "stdout".to_string(),
+                            message: format!("✓ Removed bundle cache {}", cache.display()),
+                        },
+                    );
+                }
+                Err(err) => {
+                    let _ = app.emit(
+                        "install-log",
+                        InstallEvent {
+                            stream: "stderr".to_string(),
+                            message: format!(
+                                "⚠ Could not remove bundle cache {}: {err}",
+                                cache.display()
+                            ),
+                        },
+                    );
+                }
+            }
+        }
+    }
+
+    Ok("Reset complete. Restart the installer to begin a fresh install.".to_string())
 }
 
 #[derive(Debug, Serialize)]
@@ -2151,7 +2325,11 @@ fn main() {
             credentials_check,
             open_app_url,
             runtime_image_check,
-            runtime_image_pull
+            runtime_image_pull,
+            recover_check,
+            diagnose_check,
+            try_fix,
+            reset_install
         ])
         .run(tauri::generate_context!())
         .expect("error while running Parthenon installer GUI");
