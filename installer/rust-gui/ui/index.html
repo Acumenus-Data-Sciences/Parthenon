@@ -32,8 +32,18 @@
         <div class="intro">
           <p class="eyebrow">Community Edition</p>
           <h1>Install Parthenon</h1>
-          <p>Set the admin account, check the machine, then start the Community installer. The app handles the installer details for you.</p>
+          <p>Type your admin email below, then click <strong>Check System</strong>. The installer will download Parthenon (~80 MB), verify the bundle, run preflight, and walk you through to first login.</p>
         </div>
+
+        <aside id="bundle-progress" class="bundle-progress" hidden>
+          <div class="bundle-progress-row">
+            <span class="bundle-progress-label" id="bundle-progress-label">Downloading Parthenon…</span>
+            <span class="bundle-progress-detail" id="bundle-progress-detail"></span>
+          </div>
+          <div class="bundle-progress-bar">
+            <div class="bundle-progress-fill" id="bundle-progress-fill" style="width: 0%"></div>
+          </div>
+        </aside>
 
         <nav class="stepper" aria-label="Installer progress">
           <div class="step active" data-step="configure"><span>1</span> Configure</div>

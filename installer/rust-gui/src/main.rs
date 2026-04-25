@@ -4,7 +4,7 @@ use sha2::{Digest, Sha256};
 use std::{
     env, fs,
     fs::File,
-    io::{self, BufRead, BufReader, Read, Write},
+    io::{BufRead, BufReader, Read, Write},
     path::{Component, Path, PathBuf},
     process::{Command, Stdio},
     sync::Mutex,
@@ -98,6 +98,22 @@ struct ContractCheck {
 struct InstallEvent {
     stream: String,
     message: String,
+}
+
+#[derive(Clone, Debug, Serialize)]
+struct BundleDownloadProgress {
+    /// Bytes downloaded so far.
+    bytes: u64,
+    /// Total bytes per Content-Length, or 0 if the server didn't send one.
+    total: u64,
+    /// 0..=100 percentage, or 0 when total is unknown.
+    percent: u8,
+    /// Mebibytes per second, computed since the previous emission.
+    mb_per_sec: f64,
+    /// Either "downloading" while bytes are flowing, "extracting" during tar
+    /// extraction, "validating" during manifest checksum verification, or
+    /// "done" when the bundle is ready and verified.
+    phase: String,
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -252,8 +268,15 @@ fn bootstrap() -> BootstrapPayload {
 }
 
 #[tauri::command]
-fn validate_environment(request: InstallRequest) -> Vec<CheckResult> {
-    let (contract_request, source_check) = match resolve_install_source(None, &request) {
+fn validate_environment(app: AppHandle, request: InstallRequest) -> Vec<CheckResult> {
+    validate_environment_inner(Some(&app), request)
+}
+
+fn validate_environment_inner(
+    app: Option<&AppHandle>,
+    request: InstallRequest,
+) -> Vec<CheckResult> {
+    let (contract_request, source_check) = match resolve_install_source(app, &request) {
         Ok(resolved) => resolved,
         Err(err) => {
             let mut checks = fallback_environment_checks(&request);
@@ -414,6 +437,7 @@ fn prepare_local_bundle(
         ));
     }
     verify_archive_checksum(&archive_path, request.bundle_sha256.trim())?;
+    emit_bundle_progress(app, 0, 0, 0.0, "extracting");
     emit_optional_log(app, "stdout", "Extracting installer bundle.");
 
     let staging = unique_temp_path(&cache_dir, "extracting");
@@ -424,8 +448,11 @@ fn prepare_local_bundle(
         return Err(err);
     }
 
+    emit_bundle_progress(app, 0, 0, 0.0, "validating");
+    emit_optional_log(app, "stdout", "Validating bundle manifest.");
     let manifest = read_extracted_bundle_manifest(&staging)?;
     validate_extracted_bundle(&staging, &manifest)?;
+    emit_bundle_progress(app, 0, 0, 0.0, "done");
     let final_dir = local_bundle_target_dir(request, &cache_dir, &manifest);
 
     if final_dir.exists() {
@@ -684,12 +711,89 @@ fn download_bundle_archive(
     let response = ureq::get(url)
         .call()
         .map_err(|err| format!("Could not download installer bundle: {err}"))?;
+    let total: u64 = response
+        .header("Content-Length")
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(0);
     let mut reader = response.into_reader();
     let mut file = File::create(&archive_path)
         .map_err(|err| format!("Could not create installer bundle archive: {err}"))?;
-    io::copy(&mut reader, &mut file)
-        .map_err(|err| format!("Could not save installer bundle archive: {err}"))?;
+
+    // Initial 0% event so the UI can flip into the downloading state immediately
+    // (before any bytes flow). Without this the progress bar would stay at "Ready"
+    // for several seconds while ureq establishes the TLS connection.
+    emit_bundle_progress(app, 0, total, 0.0, "downloading");
+
+    // Chunked read with progress emission throttled to ~5Hz. 64KB buffer means
+    // ~1250 reads for an 80MB bundle on a fast link, but we only emit every
+    // 200ms so the event volume is bounded regardless of network speed.
+    let mut buffer = [0_u8; 64 * 1024];
+    let mut downloaded: u64 = 0;
+    let mut last_emit = std::time::Instant::now();
+    let mut last_emit_bytes: u64 = 0;
+    let start = std::time::Instant::now();
+    loop {
+        let read = reader
+            .read(&mut buffer)
+            .map_err(|err| format!("Could not read installer bundle: {err}"))?;
+        if read == 0 {
+            break;
+        }
+        file.write_all(&buffer[..read])
+            .map_err(|err| format!("Could not save installer bundle archive: {err}"))?;
+        downloaded += read as u64;
+
+        let elapsed = last_emit.elapsed();
+        if elapsed.as_millis() >= 200 {
+            let interval_secs = elapsed.as_secs_f64().max(0.001);
+            let interval_bytes = downloaded.saturating_sub(last_emit_bytes);
+            let mb_per_sec = (interval_bytes as f64 / 1_048_576.0) / interval_secs;
+            emit_bundle_progress(app, downloaded, total, mb_per_sec, "downloading");
+            last_emit = std::time::Instant::now();
+            last_emit_bytes = downloaded;
+        }
+    }
+
+    let total_secs = start.elapsed().as_secs_f64().max(0.001);
+    let avg_mb_per_sec = (downloaded as f64 / 1_048_576.0) / total_secs;
+    emit_bundle_progress(app, downloaded, total, avg_mb_per_sec, "downloading");
+    emit_optional_log(
+        app,
+        "stdout",
+        &format!(
+            "Bundle download complete: {:.1} MB in {:.1}s ({:.1} MB/s).",
+            downloaded as f64 / 1_048_576.0,
+            total_secs,
+            avg_mb_per_sec
+        ),
+    );
     Ok(archive_path)
+}
+
+fn emit_bundle_progress(
+    app: Option<&AppHandle>,
+    bytes: u64,
+    total: u64,
+    mb_per_sec: f64,
+    phase: &str,
+) {
+    if let Some(app) = app {
+        let percent = if total > 0 {
+            ((bytes.min(total) as f64 / total as f64) * 100.0).round() as u8
+        } else {
+            0
+        };
+        let _ = app.emit(
+            "bundle-download-progress",
+            BundleDownloadProgress {
+                bytes,
+                total,
+                percent,
+                mb_per_sec,
+                phase: phase.to_string(),
+            },
+        );
+    }
 }
 
 fn verify_archive_checksum(path: &Path, expected: &str) -> Result<(), String> {
@@ -3001,7 +3105,7 @@ mod tests {
             .expect("repo root");
         request.repo_path = repo_root.to_string_lossy().to_string();
 
-        let checks = validate_environment(request);
+        let checks = validate_environment_inner(None, request);
 
         assert!(checks.iter().any(|check| {
             check.name == "Installer config validation" && check.status == "pass"

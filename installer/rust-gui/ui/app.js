@@ -359,6 +359,55 @@ function escapeHtml(value) {
   }[char]));
 }
 
+const bundleProgressPanel = () => document.querySelector("#bundle-progress");
+const bundleProgressLabel = () => document.querySelector("#bundle-progress-label");
+const bundleProgressDetail = () => document.querySelector("#bundle-progress-detail");
+const bundleProgressFill = () => document.querySelector("#bundle-progress-fill");
+
+function formatMb(bytes) {
+  return (bytes / 1_048_576).toFixed(1);
+}
+
+function renderBundleProgress(payload) {
+  const panel = bundleProgressPanel();
+  const labelEl = bundleProgressLabel();
+  const detailEl = bundleProgressDetail();
+  const fillEl = bundleProgressFill();
+  if (!panel || !labelEl || !detailEl || !fillEl) return;
+
+  const phase = payload?.phase || "downloading";
+  if (phase === "done") {
+    panel.hidden = true;
+    panel.classList.remove("indeterminate");
+    return;
+  }
+
+  panel.hidden = false;
+
+  if (phase === "downloading") {
+    labelEl.textContent = "Downloading Parthenon installer bundle…";
+    if (payload.total > 0) {
+      panel.classList.remove("indeterminate");
+      fillEl.style.width = `${Math.max(2, payload.percent)}%`;
+      detailEl.textContent =
+        `${formatMb(payload.bytes)} / ${formatMb(payload.total)} MB · ${payload.mb_per_sec.toFixed(1)} MB/s`;
+    } else {
+      // Server didn't send Content-Length — use indeterminate animation
+      panel.classList.add("indeterminate");
+      detailEl.textContent =
+        `${formatMb(payload.bytes)} MB · ${payload.mb_per_sec.toFixed(1)} MB/s`;
+    }
+  } else if (phase === "extracting") {
+    labelEl.textContent = "Extracting installer bundle…";
+    detailEl.textContent = "";
+    panel.classList.add("indeterminate");
+  } else if (phase === "validating") {
+    labelEl.textContent = "Verifying bundle manifest…";
+    detailEl.textContent = "Checking SHA-256 of every file in the bundle";
+    panel.classList.add("indeterminate");
+  }
+}
+
 function hasFailedCheck() {
   return state.checks.some((check) => check.status === "fail");
 }
@@ -528,6 +577,9 @@ async function boot() {
     await tauriEvent.listen("install-log", (event) => {
       appendLog(event.payload.message, event.payload.stream);
     });
+    await tauriEvent.listen("bundle-download-progress", (event) => {
+      renderBundleProgress(event.payload);
+    });
     // Task 1 — install-finished now transitions to verify, not done
     await tauriEvent.listen("install-finished", (event) => {
       state.running = false;
@@ -561,8 +613,10 @@ async function runPreflight() {
   state.checks = [];
   updateInstallButton();
   preflightBtn.disabled = true;
-  setStatus("Checking system...");
-  preflightEl.textContent = "Checking Python, Docker, installer source, ports, and selected services.";
+  setStatus("Preparing installer bundle and running preflight…");
+  preflightEl.textContent =
+    "Downloading Parthenon (~80 MB on first run), verifying the bundle manifest, then checking Docker, ports, and disk. " +
+    "This can take 30–90 seconds on a fresh install.";
   try {
     const checks = await invoke("validate_environment", { request: payload });
     state.checks = checks;
