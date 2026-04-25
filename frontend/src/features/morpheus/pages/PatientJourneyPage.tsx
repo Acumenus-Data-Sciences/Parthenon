@@ -31,6 +31,7 @@ import ExportButton from '../components/ExportButton';
 import TruncationWarning from '../components/TruncationWarning';
 import SearchDropdown from '../components/SearchDropdown';
 import { getMorpheusGenderLabel } from '../lib/i18n';
+import { HelpButton } from '@/features/help';
 
 type ViewMode = 'journey' | 'diagnoses' | 'medications' | 'labs' | 'vitals' | 'microbiology';
 
@@ -133,6 +134,7 @@ export default function PatientJourneyPage() {
             data={(patientsQuery.data?.data ?? []) as unknown as Record<string, unknown>[]}
             filename="morpheus-patient-list"
           />
+          <HelpButton helpKey="morpheus.patient-journey" />
         </div>
 
         {/* Patient list */}

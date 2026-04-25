@@ -1,0 +1,13 @@
+{
+  "key": "workbench",
+  "title": "Workbench Launcher",
+  "description": "The Workbench Launcher is your starting point for investigation workspaces. Browse recent investigations, open an existing workspace, or create a new investigation to begin your analysis.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Create a new investigation to organize your analysis questions, cohort queries, and results in one workspace.",
+    "Recent investigations are listed with their last-modified date so you can quickly resume work.",
+    "Each investigation can contain multiple cohort definitions, analyses, and exported results.",
+    "Use the search bar to find investigations by name or description across your team."
+  ]
+}

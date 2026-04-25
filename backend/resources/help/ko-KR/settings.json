@@ -1,0 +1,13 @@
+{
+  "key": "settings",
+  "title": "Settings",
+  "description": "Manage your account preferences, display options, default data source, and notification settings. Changes are saved per user and persist across sessions.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Set a default data source so that data explorer, cohort builder, and patient profiles all open with your preferred CDM.",
+    "Display preferences such as date format and timezone affect how clinical dates appear throughout the application.",
+    "Change your password using the Security section if you were assigned a temporary password.",
+    "Notification settings control which in-app and email alerts you receive for job completions and study updates."
+  ]
+}

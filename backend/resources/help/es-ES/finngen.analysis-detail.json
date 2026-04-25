@@ -1,0 +1,14 @@
+{
+  "key": "finngen.analysis-detail",
+  "title": "FinnGen Analysis Detail",
+  "description": "View the results of a FinnGen genome-wide association study analysis for a specific endpoint. Review association statistics, Manhattan plots, QQ plots, and top GWAS hits filtered by significance threshold.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Manhattan plots display –log10(p-value) for each SNP across the genome — peaks above the red line (p < 5×10⁻⁸) are genome-wide significant.",
+    "The QQ plot diagnoses population stratification and inflation — points deviating early from the diagonal may indicate confounding.",
+    "Top hits table is pre-filtered to p < 1×10⁻⁵ by default; adjust the threshold using the filter controls.",
+    "Click a significant variant to view its rsID, effect allele, odds ratio, and 95% confidence interval.",
+    "FinnGen endpoints are defined using Finnish national registry data — consult the endpoint documentation for case definitions."
+  ]
+}

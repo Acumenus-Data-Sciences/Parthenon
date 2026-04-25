@@ -1,0 +1,13 @@
+{
+  "key": "settings.notifications",
+  "title": "Notification Settings",
+  "description": "Configure which events trigger in-app and email notifications. You can subscribe to job completion alerts, study status changes, cohort updates, and system announcements.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Enable job completion notifications to be alerted when long-running analyses or ingestion jobs finish.",
+    "Study status change alerts notify you when a colleague updates a study you are a member of.",
+    "Email notifications require a verified email address — check your profile settings if emails are not arriving.",
+    "You can mute notifications for individual studies without disabling global notification preferences."
+  ]
+}

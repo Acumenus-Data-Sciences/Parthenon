@@ -12,6 +12,7 @@ import {
   PieChart,
   Info,
 } from "lucide-react";
+import { HelpButton } from "@/features/help";
 import { INSTRUMENTS } from "../data/instruments";
 import { InstrumentTable } from "../components/InstrumentTable";
 import { CoverageChart } from "../components/CoverageChart";
@@ -204,6 +205,7 @@ export default function StandardProsPage() {
             {t("standardPros.page.subtitle")}
           </p>
         </div>
+        <HelpButton helpKey="standard-pros" />
         <button
           type="button"
           onClick={() => setShowAbout(true)}

@@ -24,6 +24,7 @@ import { useMatchCohort } from "../hooks/useMatchCohort";
 import { useWorkbenchStore } from "../stores/workbenchStore";
 import type { OperationNode } from "../lib/operationTree";
 import type { MatchedCohortPromotion } from "../types";
+import { HelpButton } from "@/features/help";
 
 export default function WorkbenchPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -144,7 +145,10 @@ export default function WorkbenchPage() {
               session {session.id.slice(0, 8)}…
             </p>
           </div>
-          <AutosaveBadge status={autosave} />
+          <div className="flex items-center gap-2">
+            <HelpButton helpKey="finngen.workbench" />
+            <AutosaveBadge status={autosave} />
+          </div>
         </div>
         <WorkbenchStepper current={currentStep} completed={completed} onStepChange={goToStep} />
       </header>

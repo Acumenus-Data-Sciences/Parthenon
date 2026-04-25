@@ -1,0 +1,14 @@
+{
+  "key": "self-controlled-cohort",
+  "title": "Self-Controlled Cohort Analysis",
+  "description": "Self-Controlled Cohort (SCC) analysis estimates the association between a drug exposure and an outcome by comparing event rates during exposed and unexposed periods within the same patients. This design controls for between-person confounding by using each patient as their own control.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Define your target drug and outcome precisely — the SCC design is sensitive to temporal overlap between exposure and outcome windows.",
+    "The unexposed period is defined as time before first exposure or after washout — configure these windows carefully.",
+    "Incidence rate ratios greater than 1.0 suggest a positive association between the exposure and outcome.",
+    "SCC is particularly well-suited for acute outcomes that occur shortly after drug initiation.",
+    "Run the analysis on multiple data sources to assess consistency across populations before drawing conclusions."
+  ]
+}

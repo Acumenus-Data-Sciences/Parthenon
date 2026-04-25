@@ -1,0 +1,14 @@
+{
+  "key": "standard-pros",
+  "title": "Patient-Reported Outcomes",
+  "description": "Browse and administer validated Patient-Reported Outcome (PRO) instruments including PHQ-9, GAD-7, KCCQ-12, PROMIS, and custom questionnaires. PRO data collected here is stored in the OMOP CDM Observation domain.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Select an instrument from the library to view its scoring methodology, validated use cases, and OMOP concept mappings.",
+    "Use the Send Survey button to distribute an instrument to a patient cohort via the secure survey portal.",
+    "Completed surveys are automatically scored and written to the OMOP Observation table with the appropriate concept IDs.",
+    "Filter by domain (depression, anxiety, cardiac, etc.) to find instruments relevant to your study population.",
+    "KCCQ-12 is recommended for cardiac outcomes research; PHQ-9 and GAD-7 for mental health screening."
+  ]
+}

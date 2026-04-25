@@ -1,0 +1,13 @@
+{
+  "key": "investigation.detail",
+  "title": "Investigation Workspace",
+  "description": "The Investigation workspace provides a canvas for exploring a specific clinical question. Build queries, run analyses, annotate findings, and track the evolution of your hypothesis in a single organized view.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Use the Query Builder panel to construct OMOP-based cohort queries directly within your investigation.",
+    "Add analyses from the Analyses panel to run incidence rate, characterization, or pathway studies on your cohort.",
+    "Annotate cells with free-text notes to capture your interpretation alongside the data.",
+    "Save your investigation regularly — snapshots let you restore prior states if your hypothesis evolves."
+  ]
+}

@@ -28,6 +28,7 @@ import { VariantDrawer } from "../components/gwas-results/VariantDrawer";
 import { useTopVariants } from "../hooks/useTopVariants";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { HelpButton } from "@/features/help";
 import type { TopVariantRow } from "../api/gwas-results";
 
 export default function FinnGenGwasResultsPage(): JSX.Element {
@@ -87,6 +88,7 @@ export default function FinnGenGwasResultsPage(): JSX.Element {
             </span>
           </p>
         </div>
+        <HelpButton helpKey="finngen.gwas-results" />
       </header>
 
       <ErrorBoundary

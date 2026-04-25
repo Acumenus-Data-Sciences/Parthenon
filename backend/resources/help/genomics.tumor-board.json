@@ -1,0 +1,14 @@
+{
+  "key": "genomics.tumor-board",
+  "title": "Molecular Tumor Board",
+  "description": "The Molecular Tumor Board workspace supports multidisciplinary oncology case review. Present somatic variant findings, copy number alterations, fusion events, and TMB/MSI status alongside clinical history for treatment decision support.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Upload a patient-specific VCF or connect to an existing genomics upload to populate the variant panel.",
+    "Variants are annotated against ClinVar, OncoKB, and COSMIC — pathogenicity classifications appear alongside each variant.",
+    "The actionability panel highlights variants with FDA-approved or clinical trial therapies based on OncoKB tier.",
+    "TMB (Tumor Mutational Burden) and MSI status are calculated automatically and displayed as biomarker badges.",
+    "Document case discussion notes and treatment decisions in the Meeting Notes section for audit trail purposes."
+  ]
+}

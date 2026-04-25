@@ -1,0 +1,13 @@
+{
+  "key": "risk-scores.create",
+  "title": "Create Risk Score",
+  "description": "Define a new clinical risk score model by selecting predictors, specifying the outcome, and configuring model parameters. Parthenon supports CHADS2-VASc, Charlson Comorbidity Index, and custom logistic regression models.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Start with a validated clinical scoring system (CHADS2-VASc, Charlson) before creating custom models.",
+    "Specify your observation window — the time period before the index date used to collect predictor values.",
+    "Include both continuous and categorical predictors; Parthenon handles encoding automatically.",
+    "Use the cohort selector to apply your risk score to a specific patient population defined in the Cohort Builder."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "key": "finngen.endpoints",
+  "title": "FinnGen Endpoint Browser",
+  "description": "Search and explore the complete catalog of FinnGen disease endpoints. Each endpoint represents a phenotype derived from Finnish hospital discharge records, cause-of-death data, and primary care registers.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Search endpoints by ICD-10 code, FinnGen endpoint ID (e.g., I9_CHD), or free-text phenotype description.",
+    "Endpoints tagged with broad definitions (FINNGEN_GWAS_*) include all ICD codes under a chapter — narrow endpoints are more specific.",
+    "Case and control counts are from FinnGen R10 (approximately 500,000 participants).",
+    "Click GWAS Results to view the full association summary for an endpoint including top variants and Manhattan plot.",
+    "FinnGen endpoints follow the OHDSI cohort definition paradigm — you can map them to Parthenon cohort definitions for cross-study comparison."
+  ]
+}

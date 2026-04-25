@@ -10,6 +10,7 @@ import {
   UserCheck,
   DatabaseZap,
 } from "lucide-react";
+import { HelpButton } from "@/features/help";
 import { useQuery } from "@tanstack/react-query";
 import { getUpload } from "../api/genomicsApi";
 import { useGenomicVariants, useMatchPersons, useImportToOmop } from "../hooks/useGenomics";
@@ -120,6 +121,7 @@ export default function UploadDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <HelpButton helpKey="genomics.upload-detail" />
           {upload.status === "mapped" && (
             <>
               <button

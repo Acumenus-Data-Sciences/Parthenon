@@ -15,6 +15,7 @@ import {
 } from "../hooks/useWorkbenchSession";
 import type { WorkbenchSession, WorkbenchSessionStateV1 } from "../types";
 import { Shell } from "@/components/workbench/primitives";
+import { HelpButton } from "@/features/help";
 
 export default function SessionsListPage() {
   const navigate = useNavigate();
@@ -84,11 +85,14 @@ export default function SessionsListPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-4 p-4">
-      <header>
-        <h1 className="text-lg font-semibold text-text-primary">Cohort Workbench</h1>
-        <p className="text-xs text-text-ghost">
-          Compose, match, and materialize cohorts. Hand off to the Analysis Gallery when ready.
-        </p>
+      <header className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-lg font-semibold text-text-primary">Cohort Workbench</h1>
+          <p className="text-xs text-text-ghost">
+            Compose, match, and materialize cohorts. Hand off to the Analysis Gallery when ready.
+          </p>
+        </div>
+        <HelpButton helpKey="finngen.workbench-sessions" />
       </header>
 
       <Shell

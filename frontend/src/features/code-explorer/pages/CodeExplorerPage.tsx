@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { ConceptSearchInput } from "@/components/concept/ConceptSearchInput";
+import { HelpButton } from "@/features/help";
 
 import { CountsTab } from "../components/CountsTab";
 import { HierarchyTab } from "../components/HierarchyTab";
@@ -74,9 +75,12 @@ export function CodeExplorerPage() {
   return (
     <div className="grid grid-cols-[320px_1fr] gap-6 p-6">
       <aside className="flex flex-col gap-4">
-        <h1 className="text-lg font-semibold text-slate-100">
-          {t("codeExplorer.page.title")}
-        </h1>
+        <div className="flex items-center justify-between gap-2">
+          <h1 className="text-lg font-semibold text-slate-100">
+            {t("codeExplorer.page.title")}
+          </h1>
+          <HelpButton helpKey="code-explorer" />
+        </div>
         <SourcePicker value={sourceKey} onChange={handleSourceChange} />
         {sourceKey ? (
           <>

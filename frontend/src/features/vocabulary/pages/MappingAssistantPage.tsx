@@ -255,6 +255,7 @@ function DisambiguationDrawer({ result, onClose, onSelectCandidate }: Disambigua
   // Reset clean state when result changes
   useEffect(() => {
     if (result) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCleanRawText(result.source_term);
       cleanMutation.reset();
       setRemapPending(false);

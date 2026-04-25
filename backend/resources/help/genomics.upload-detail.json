@@ -1,0 +1,14 @@
+{
+  "key": "genomics.upload-detail",
+  "title": "Genomics Upload Detail",
+  "description": "View the processing status and annotation results for an uploaded VCF or genomics file. Review variant calling statistics, annotation completeness, quality metrics, and linked OMOP concept mappings.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "The processing pipeline annotates variants with HGVS notation, gene symbols, functional impact, and clinical significance.",
+    "Quality metrics include Ti/Tv ratio, pass filter rate, and coverage depth — values outside expected ranges may indicate sequencing artifacts.",
+    "Annotation coverage shows the percentage of variants successfully mapped to ClinVar, dbSNP, and OncoKB.",
+    "Use the OMOP tab to review how somatic variants are mapped to OMOP Measurement and Observation concept IDs.",
+    "Failed uploads show an error log with specific reasons — common issues include non-standard contig names or VCF format violations."
+  ]
+}

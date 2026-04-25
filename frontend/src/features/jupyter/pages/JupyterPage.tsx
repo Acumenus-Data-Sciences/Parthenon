@@ -52,6 +52,7 @@ export default function JupyterPage() {
   }, [data?.available]); // eslint-disable-line react-hooks/exhaustive-deps
   /* eslint-enable react-hooks/immutability */
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const launchSession = useCallback(() => {
     setServerState("authenticating");
     setErrorMsg(null);
@@ -85,6 +86,7 @@ export default function JupyterPage() {
   // Transition from spawning → running when server is ready
   useEffect(() => {
     if (serverState === "spawning" && data?.server_status === "running") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setServerState("running");
     }
   }, [data?.server_status, serverState]);

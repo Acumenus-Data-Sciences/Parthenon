@@ -1,0 +1,14 @@
+{
+  "key": "finngen.gwas-results",
+  "title": "GWAS Results",
+  "description": "View genome-wide association results for a FinnGen endpoint. Explore the Manhattan plot, QQ plot, top variant table, and locus zoom views for significant genomic regions.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Variants with p-value < 5×10⁻⁸ are considered genome-wide significant and highlighted in the top hits table.",
+    "The locus zoom view shows fine-mapping details for a selected genomic region including linkage disequilibrium structure.",
+    "Effect sizes are reported as odds ratios for binary endpoints and beta coefficients for quantitative traits.",
+    "Use the Export button to download the full or filtered summary statistics as a tab-delimited file.",
+    "Cross-reference GWAS hits with the OMOP vocabulary to identify known drug targets and clinical concepts for each variant."
+  ]
+}

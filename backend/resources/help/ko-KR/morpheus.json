@@ -1,0 +1,13 @@
+{
+  "key": "morpheus",
+  "title": "Morpheus Inpatient Analytics",
+  "description": "Morpheus provides real-time inpatient analytics built on MIMIC-IV ICU data. Explore census views, patient acuity distributions, length-of-stay trends, and clinical outcome patterns across the ICU population.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "The census view shows current ICU occupancy and patient distribution across care units.",
+    "Use the acuity filter to segment patients by severity score (APACHE, SOFA) for focused analysis.",
+    "Length-of-stay distributions highlight outlier cases that may benefit from clinical review.",
+    "Outcome trends are stratified by diagnosis group — use this to identify mortality or complication patterns."
+  ]
+}

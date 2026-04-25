@@ -1,0 +1,14 @@
+{
+  "key": "standard-pros.detail",
+  "title": "PRO Instrument Detail",
+  "description": "View the full specification of a Patient-Reported Outcome instrument including question items, response scales, scoring algorithms, reference ranges, and OMOP concept mappings. Administer the instrument or review aggregate response data from this page.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "The Scoring tab shows the algorithm used to compute domain scores and total scores from raw item responses.",
+    "Reference ranges indicate clinically meaningful thresholds (e.g., PHQ-9 score ≥10 indicates moderate depression).",
+    "The OMOP Mapping tab shows how each item maps to observation_concept_id values in the CDM.",
+    "Use the Administer button to create a new survey session linked to a specific patient encounter or visit.",
+    "Trend charts in the Results tab show how scores change over time for patients who completed the instrument multiple times."
+  ]
+}

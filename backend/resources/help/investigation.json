@@ -1,0 +1,13 @@
+{
+  "key": "investigation",
+  "title": "Investigations",
+  "description": "Investigations are structured research workspaces that organize your clinical questions, cohort queries, and analytical findings. Each investigation tracks your hypothesis, data sources, and outputs in one place.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Create a new investigation for each distinct research question or study protocol.",
+    "Investigations support multiple cohort definitions and analyses — link them together for a complete picture.",
+    "Use the notes section to document your hypothesis, inclusion criteria, and preliminary findings.",
+    "Completed investigations can be exported for sharing with collaborators or publication workflows."
+  ]
+}

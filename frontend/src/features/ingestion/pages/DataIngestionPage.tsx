@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 
 // Lazy-load tab content
 const IngestionDashboardPage = lazy(() => import("./IngestionDashboardPage"));
@@ -68,6 +69,7 @@ export default function DataIngestionPage() {
             {t("ingestion.dashboard.subtitle")}
           </p>
         </div>
+        <HelpButton helpKey="data-ingestion" />
       </div>
 
       {/* Tab navigation — matches Data Explorer gold standard */}

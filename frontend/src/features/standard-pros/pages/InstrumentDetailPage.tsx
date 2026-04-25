@@ -16,6 +16,7 @@ import {
   Beaker,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import { useSurveyInstrument } from "../hooks/useSurveyInstruments";
 import { DOMAIN_COLORS, OMOP_COLORS } from "../types/proInstrument";
 import type { OmopCoverage } from "../types/proInstrument";
@@ -198,7 +199,8 @@ export default function InstrumentDetailPage() {
       </Link>
 
       {/* Header */}
-      <div className="flex items-start gap-4">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start gap-4 min-w-0">
         <div
           className="flex items-center justify-center w-12 h-12 rounded-xl shrink-0"
           style={{ backgroundColor: `${domainColor}18` }}
@@ -228,6 +230,8 @@ export default function InstrumentDetailPage() {
             </p>
           )}
         </div>
+        </div>
+        <HelpButton helpKey="standard-pros.detail" />
       </div>
 
       {/* Metadata cards */}

@@ -1,0 +1,14 @@
+{
+  "key": "finngen.workbench-sessions",
+  "title": "FinnGen Workbench Sessions",
+  "description": "Manage your FinnGen interactive analysis sessions. Each session provides an isolated computing environment for running polygenic risk score calculations, colocalization analyses, and custom genomic queries against FinnGen summary statistics.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Create a new session to start an interactive analysis — sessions persist for 24 hours after last activity.",
+    "Resume an existing session to continue work from where you left off without re-uploading data.",
+    "Each session has a dedicated R environment with pre-installed HADES and genomics packages.",
+    "Sessions are isolated per user — collaborate by exporting results to a shared study rather than sharing sessions.",
+    "Completed sessions show a summary of outputs produced, which can be downloaded or linked to a Parthenon study."
+  ]
+}

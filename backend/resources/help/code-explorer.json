@@ -1,0 +1,13 @@
+{
+  "key": "code-explorer",
+  "title": "Code Explorer",
+  "description": "Browse and search OMOP CDM value set codes including ICD, SNOMED, RxNorm, LOINC, and CPT. Use the code explorer to look up concept codes, verify mappings, and inspect hierarchical relationships within clinical terminologies.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Search by code, description, or vocabulary name to quickly locate specific clinical concepts.",
+    "Use the vocabulary filter to narrow results to a specific terminology such as ICD-10-CM, SNOMED-CT, or RxNorm.",
+    "Click a concept to view its full details including domain, vocabulary, concept class, and validity dates.",
+    "Ancestor and descendant relationships are shown when available, helping you understand hierarchical coverage."
+  ]
+}

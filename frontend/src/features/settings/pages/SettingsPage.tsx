@@ -2,6 +2,7 @@ import { useSearchParams } from "react-router-dom";
 import { User, Shield, Bell, Settings, Globe2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import { ProfileTab } from "../components/ProfileTab";
 import { AccountSecurityTab } from "../components/AccountSecurityTab";
 import { NotificationSettings } from "../components/NotificationSettings";
@@ -28,16 +29,19 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-success/10">
-          <Settings size={20} className="text-success" />
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-success/10">
+            <Settings size={20} className="text-success" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-text-primary">{t("title")}</h1>
+            <p className="text-sm text-text-muted">
+              {t("subtitle")}
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-text-primary">{t("title")}</h1>
-          <p className="text-sm text-text-muted">
-            {t("subtitle")}
-          </p>
-        </div>
+        <HelpButton helpKey="settings" />
       </div>
 
       {/* Tabs */}

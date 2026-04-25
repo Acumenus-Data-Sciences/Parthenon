@@ -1,6 +1,7 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { HelpButton } from '@/features/help';
 import MetricCard from '../components/MetricCard';
 import HorizontalBarChart from '../components/HorizontalBarChart';
 import DistributionChart from '../components/DistributionChart';
@@ -116,7 +117,8 @@ export default function MorpheusDashboardPage() {
             {t('morpheus.dashboard.subtitle')}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          <HelpButton helpKey="morpheus" />
           <button onClick={() => navigate(`/morpheus/journey?icu=true${ds}`)}
             className="rounded-lg bg-primary/80 px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary transition-colors">
             {t('morpheus.common.actions.icuPatients')}

@@ -13,6 +13,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { SelfControlledCohortDesigner } from "../components/SelfControlledCohortDesigner";
 import { SccsResults } from "@/features/sccs/components/SccsResults";
@@ -151,6 +152,7 @@ export default function SelfControlledCohortDetailPage() {
 
         {!isNew && (
           <div className="flex items-center gap-2 shrink-0">
+            <HelpButton helpKey="self-controlled-cohort" />
             <div className="flex items-center gap-2">
               <div className="relative">
                 <Database

@@ -1,0 +1,13 @@
+{
+  "key": "investigation.new",
+  "title": "New Investigation",
+  "description": "Start a new investigation by defining your research question, selecting a data source, and configuring your initial workspace. Investigations structure your entire analytical workflow from hypothesis to findings.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Write a clear research question before proceeding — it will guide your cohort definitions and analysis choices.",
+    "Select the data source that best matches your population of interest (e.g., SynPUF for testing, Acumenus for production).",
+    "You can always add more data sources and analyses after the investigation is created.",
+    "Tag your investigation with keywords to make it discoverable by colleagues."
+  ]
+}

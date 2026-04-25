@@ -15,6 +15,7 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Database } from "lucide-react";
 import type { FinnGenAnalysisModule } from "@/features/_finngen-foundation";
+import { HelpButton } from "@/features/help";
 import { AnalysisGalleryPage } from "./AnalysisGalleryPage";
 import { AnalysisDetailPage } from "./AnalysisDetailPage";
 
@@ -57,21 +58,24 @@ export default function FinnGenAnalysesStandalonePage() {
         >
           <ArrowLeft size={12} /> Workbench
         </Link>
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-lg font-semibold text-text-primary">
-            FinnGen Analysis Gallery
-          </h1>
-          <span
-            className="inline-flex items-center rounded bg-info/10 px-2 py-0.5 font-mono text-[10px] font-medium text-info"
-            title="Data source this gallery is scoped to"
-          >
-            {sourceKey}
-          </span>
-          {validCohortId !== null && (
-            <span className="inline-flex items-center gap-1 rounded bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">
-              <Database size={10} /> cohort #{validCohortId} pre-selected
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-lg font-semibold text-text-primary">
+              FinnGen Analysis Gallery
+            </h1>
+            <span
+              className="inline-flex items-center rounded bg-info/10 px-2 py-0.5 font-mono text-[10px] font-medium text-info"
+              title="Data source this gallery is scoped to"
+            >
+              {sourceKey}
             </span>
-          )}
+            {validCohortId !== null && (
+              <span className="inline-flex items-center gap-1 rounded bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">
+                <Database size={10} /> cohort #{validCohortId} pre-selected
+              </span>
+            )}
+          </div>
+          <HelpButton helpKey="finngen.analyses" />
         </div>
       </header>
 

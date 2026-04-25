@@ -2,6 +2,7 @@ import { Loader2, PanelsTopLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { useInvestigations } from "@/features/investigation/hooks/useInvestigation";
+import { HelpButton } from "@/features/help";
 import type { ToolsetDescriptor } from "../types";
 import { ToolsetCard } from "../components/ToolsetCard";
 import { Shell } from "@/components/workbench/primitives";
@@ -97,18 +98,21 @@ export default function WorkbenchLauncherPage() {
     <div className="mx-auto max-w-6xl px-6 py-10">
       {/* Header */}
       <div className="mb-10">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-surface-raised">
-            <PanelsTopLeft className="h-5 w-5 text-text-secondary" />
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-surface-raised">
+              <PanelsTopLeft className="h-5 w-5 text-text-secondary" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-text-primary">
+                {t("workbenchLauncher.page.title")}
+              </h1>
+              <p className="text-sm text-text-ghost">
+                {t("workbenchLauncher.page.subtitle")}
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-text-primary">
-              {t("workbenchLauncher.page.title")}
-            </h1>
-            <p className="text-sm text-text-ghost">
-              {t("workbenchLauncher.page.subtitle")}
-            </p>
-          </div>
+          <HelpButton helpKey="workbench" />
         </div>
       </div>
 

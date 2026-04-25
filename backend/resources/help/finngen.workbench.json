@@ -1,0 +1,14 @@
+{
+  "key": "finngen.workbench",
+  "title": "FinnGen Workbench",
+  "description": "The FinnGen Workbench provides an interactive computational environment for genomic analyses. Run polygenic risk scores, colocalization, Mendelian randomization, and custom R scripts against FinnGen R10 summary statistics.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "The workbench provides pre-loaded FinnGen R10 summary statistics — no data download needed.",
+    "Use the Script panel to write and execute custom R code using the finngen and MendelianRandomization packages.",
+    "PRS calculations use pre-computed LD reference panels from the Finnish population for accurate score estimates.",
+    "Save your analysis scripts to the session library for reuse across future workbench sessions.",
+    "Visualizations produced in the workbench can be exported as PNG, PDF, or SVG files."
+  ]
+}

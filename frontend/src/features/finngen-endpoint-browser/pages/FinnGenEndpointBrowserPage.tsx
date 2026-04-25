@@ -27,6 +27,7 @@ import { GwasRunsSection } from "../components/GwasRunsSection";
 import { RunGwasPanel } from "../components/RunGwasPanel";
 // Phase 18 Plan 06 — Profile tab (Risteys-style endpoint dashboard).
 import { ProfilePanel } from "../components/profile/ProfilePanel";
+import { HelpButton } from "@/features/help";
 
 /**
  * Phase 13 — source keys whose CDM carries Finnish source vocabs
@@ -159,6 +160,7 @@ export function FinnGenEndpointBrowserPage() {
               </p>
             </div>
             <div className="flex items-center gap-2">
+              <HelpButton helpKey="finngen.endpoints" />
               <Link
                 to="/workbench/cohorts"
                 className="rounded-md border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-200 hover:border-teal-500/60 hover:text-teal-300"

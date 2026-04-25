@@ -1,0 +1,14 @@
+{
+  "key": "finngen.gallery",
+  "title": "FinnGen Analysis Gallery",
+  "description": "Browse all available FinnGen GWAS analyses across disease endpoints. The gallery provides an overview of analyzed phenotypes, case counts, and top association signals, enabling comparison across conditions.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Filter the gallery by disease category (cardiovascular, metabolic, psychiatric, etc.) to find relevant endpoints.",
+    "Case counts are shown for each endpoint — endpoints with fewer than 200 cases may have limited statistical power.",
+    "Click any endpoint card to open the full GWAS analysis including Manhattan plot and top hits.",
+    "Use the search bar to find endpoints by ICD code, phenotype name, or FinnGen endpoint identifier.",
+    "The significance column shows the most significant p-value observed for each endpoint as a quick overview of genetic association strength."
+  ]
+}

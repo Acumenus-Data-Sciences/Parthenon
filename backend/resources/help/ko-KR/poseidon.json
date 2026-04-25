@@ -1,0 +1,13 @@
+{
+  "key": "poseidon",
+  "title": "Poseidon Data Pipeline",
+  "description": "Poseidon is the visual ETL pipeline manager for OMOP CDM data loading. Configure your source database connections, define field mappings, run automated ETL jobs, and monitor pipeline status in real time.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Connect your source database using the Sources panel before configuring field mappings.",
+    "The automated mapping suggestions use vocabulary lookups to pre-fill common OMOP fields — review and confirm before running.",
+    "Pipeline runs are logged with row-level counts, error details, and elapsed time for each stage.",
+    "Use the Validation tab to run post-load DQD checks and confirm CDM conformance before promoting data."
+  ]
+}

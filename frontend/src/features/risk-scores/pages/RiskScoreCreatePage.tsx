@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import apiClient from "@/lib/api-client";
 import { useSourceStore } from "@/stores/sourceStore";
 import {
@@ -496,10 +497,15 @@ export default function RiskScoreCreatePage() {
         >
           <ArrowLeft size={14} /> {t("riskScores.detail.backToRiskScores")}
         </button>
-        <h1 className="page-title">{t("riskScores.create.title")}</h1>
-        <p className="page-subtitle">
-          {t("riskScores.create.subtitle")}
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="page-title">{t("riskScores.create.title")}</h1>
+            <p className="page-subtitle">
+              {t("riskScores.create.subtitle")}
+            </p>
+          </div>
+          <HelpButton helpKey="risk-scores.create" />
+        </div>
       </div>
 
       <div className="flex items-center gap-1">

@@ -1,0 +1,13 @@
+{
+  "key": "risk-scores.detail",
+  "title": "Risk Score Results",
+  "description": "Review the outputs of a calculated risk score including distribution histograms, percentile breakdowns, patient-level scores, and discrimination metrics such as C-statistic and AUC.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "The score distribution histogram shows how patients are stratified into risk tiers.",
+    "Use the percentile table to identify thresholds for high, medium, and low risk classifications.",
+    "C-statistic and AUC values quantify model discrimination — values above 0.75 indicate good predictive performance.",
+    "Export the patient-level score table for integration with care management workflows."
+  ]
+}

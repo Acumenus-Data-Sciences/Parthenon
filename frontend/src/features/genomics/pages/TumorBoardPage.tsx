@@ -25,6 +25,7 @@ import {
   ShieldQuestion,
 } from "lucide-react";
 import apiClient from "@/lib/api-client";
+import { HelpButton } from "@/features/help";
 
 interface Variant {
   id: number;
@@ -108,16 +109,19 @@ export default function TumorBoardPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center justify-center w-9 h-9 rounded-md bg-domain-observation/12 flex-shrink-0">
-          <Dna size={18} style={{ color: "var(--domain-observation)" }} />
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center w-9 h-9 rounded-md bg-domain-observation/12 flex-shrink-0">
+            <Dna size={18} style={{ color: "var(--domain-observation)" }} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-text-primary">{t("genomics.tumorBoard.title")}</h1>
+            <p className="text-sm text-text-muted">
+              {t("genomics.tumorBoard.subtitle")}
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-text-primary">{t("genomics.tumorBoard.title")}</h1>
-          <p className="text-sm text-text-muted">
-            {t("genomics.tumorBoard.subtitle")}
-          </p>
-        </div>
+        <HelpButton helpKey="genomics.tumor-board" />
       </div>
 
       {/* Patient search */}

@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useInvestigations } from "../hooks/useInvestigation";
+import { HelpButton } from "@/features/help";
 import type { Investigation } from "../types";
 import {
   formatInvestigationDate,
@@ -283,14 +284,17 @@ export default function InvestigationLandingPage() {
               </div>
             </div>
 
-            <button
-              onClick={() => void navigate("/workbench/investigation/new")}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-text-primary transition-colors hover:opacity-90 shrink-0"
-              style={{ backgroundColor: "var(--primary)" }}
-            >
-              <Plus className="h-4 w-4" />
-              {t("investigation.common.actions.newInvestigation")}
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              <HelpButton helpKey="investigation" />
+              <button
+                onClick={() => void navigate("/workbench/investigation/new")}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-text-primary transition-colors hover:opacity-90"
+                style={{ backgroundColor: "var(--primary)" }}
+              >
+                <Plus className="h-4 w-4" />
+                {t("investigation.common.actions.newInvestigation")}
+              </button>
+            </div>
           </div>
         </div>
 

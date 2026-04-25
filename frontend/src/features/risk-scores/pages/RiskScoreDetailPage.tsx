@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import { useSourceStore } from "@/stores/sourceStore";
 import {
   useRiskScoreAnalysis,
@@ -301,6 +302,7 @@ export default function RiskScoreDetailPage() {
           </div>
 
           <div className="flex shrink-0 items-center gap-1.5">
+            <HelpButton helpKey="risk-scores.detail" />
             <button
               type="button"
               onClick={() => setShowRunModal(true)}

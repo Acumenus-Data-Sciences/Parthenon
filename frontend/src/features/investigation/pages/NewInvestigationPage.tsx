@@ -6,6 +6,7 @@ import { useCreateInvestigation } from "../hooks/useInvestigation";
 import { saveDomainState } from "../api";
 import { splitIntent } from "@/features/study-agent/api";
 import type { IntentSplitResult } from "@/features/study-agent/api";
+import { HelpButton } from "@/features/help";
 
 type StatusPhase = "idle" | "creating" | "analyzing" | "done";
 
@@ -97,9 +98,12 @@ export default function NewInvestigationPage() {
 
       <div className="flex-1 flex items-center justify-center">
       <div className="max-w-lg w-full mx-auto bg-surface-base/50 border border-border-default rounded-2xl p-8">
-        <h1 className="text-xl font-bold text-text-primary mb-1">
-          {t("investigation.newPage.title")}
-        </h1>
+        <div className="flex items-start justify-between gap-2 mb-1">
+          <h1 className="text-xl font-bold text-text-primary">
+            {t("investigation.newPage.title")}
+          </h1>
+          <HelpButton helpKey="investigation.new" />
+        </div>
         <p className="text-sm text-text-ghost mb-6">
           {t("investigation.newPage.subtitle")}
         </p>

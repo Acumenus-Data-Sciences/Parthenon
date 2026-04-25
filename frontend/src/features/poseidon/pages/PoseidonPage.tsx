@@ -40,6 +40,7 @@ import {
   getPoseidonScheduleTypeLabel,
   getPoseidonTierLabel,
 } from "../lib/i18n";
+import { HelpButton } from "@/features/help";
 
 /* ── Status maps ─────────────────────────────────────────────────────── */
 
@@ -142,14 +143,17 @@ export default function PoseidonPage() {
             {t("poseidon.page.subtitle")}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => dashboardQuery.refetch()}
-          className="inline-flex items-center gap-2 rounded-lg border border-surface-highlight px-3 py-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
-        >
-          <RefreshCw size={14} />
-          {t("poseidon.page.refresh")}
-        </button>
+        <div className="flex items-center gap-2">
+          <HelpButton helpKey="poseidon" />
+          <button
+            type="button"
+            onClick={() => dashboardQuery.refetch()}
+            className="inline-flex items-center gap-2 rounded-lg border border-surface-highlight px-3 py-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
+          >
+            <RefreshCw size={14} />
+            {t("poseidon.page.refresh")}
+          </button>
+        </div>
       </div>
 
       {/* Overview metrics */}

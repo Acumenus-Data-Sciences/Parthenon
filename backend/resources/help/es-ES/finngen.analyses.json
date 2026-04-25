@@ -1,0 +1,13 @@
+{
+  "key": "finngen.analyses",
+  "title": "FinnGen Analyses",
+  "description": "Access FinnGen R10 GWAS summary statistics and endpoint analyses. This module integrates genome-wide association data from the FinnGen biobank (500,000+ Finnish participants) with your OMOP CDM cohorts.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "FinnGen R10 includes over 2,200 binary and quantitative endpoints derived from Finnish national health registry data.",
+    "Use the Endpoint Browser tab to search endpoints and view association results before importing to your study.",
+    "FinnGen GWAS results can be cross-referenced with your OMOP cohorts by mapping FinnGen ICD-10 codes to OMOP concept IDs.",
+    "Download summary statistics for selected endpoints using the Export button for meta-analysis or Mendelian randomization workflows."
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "key": "morpheus.patient-journey",
+  "title": "Patient Journey",
+  "description": "The Patient Journey view traces an individual patient’s clinical trajectory through the ICU stay. Review admission events, interventions, vital signs, lab results, and clinical notes in a unified timeline.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Scroll the timeline to navigate through the patient’s hospitalization from admission to discharge.",
+    "Click any event to expand its clinical details, including documented values and the recording clinician.",
+    "Lab result panels show trends over time with reference range indicators for quick interpretation.",
+    "Use the filter bar to focus on specific event types such as medications, procedures, or imaging studies."
+  ]
+}
