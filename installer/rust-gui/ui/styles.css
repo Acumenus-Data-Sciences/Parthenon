@@ -396,3 +396,77 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 }
+
+/* Task 1 — 5-step stepper */
+.stepper {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+/* Task 4 — 9-cell phase progress strip */
+.phase-strip {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr) auto;
+  gap: 4px;
+  align-items: center;
+  margin: 16px 0;
+}
+.phase-cell {
+  padding: 8px;
+  text-align: center;
+  background: #181820;
+  border-radius: 4px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+.phase-cell.active {
+  background: #2DD4BF22;
+  color: #2DD4BF;
+  border-color: #2DD4BF;
+}
+.phase-cell.complete {
+  background: #2DD4BF;
+  color: #0E0E11;
+}
+.phase-elapsed {
+  margin-left: 12px;
+  font-size: 11px;
+  color: #94a3b8;
+  font-family: ui-monospace, monospace;
+}
+
+/* Task 3 — progressive disclosure */
+.customize-disclosure {
+  margin: 16px 0;
+  border-top: 1px solid #2a2a35;
+  padding-top: 16px;
+}
+.customize-disclosure > summary {
+  cursor: pointer;
+  font-size: 14px;
+  color: #94a3b8;
+  user-select: none;
+  list-style: none;
+  padding: 8px 0;
+}
+.customize-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+.customize-disclosure[open] > summary {
+  color: #cbd5e1;
+  border-bottom: 1px solid #2a2a35;
+  margin-bottom: 16px;
+}
+
+/* Task 6 — field validation errors */
+.has-error {
+  border-color: #f87171 !important;
+  outline-color: #f87171 !important;
+}
+.field-error {
+  display: block;
+  color: #f87171;
+  font-size: 11px;
+  margin-top: 2px;
+}
