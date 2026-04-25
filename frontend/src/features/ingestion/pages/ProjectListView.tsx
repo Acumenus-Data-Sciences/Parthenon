@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Plus, Trash2, FolderOpen, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import {
   useIngestionProjects,
   useCreateIngestionProject,
@@ -80,14 +81,17 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
         <h2 className="text-lg font-semibold text-text-primary">
           {t("ingestion.projectList.title")}
         </h2>
-        <button
-          type="button"
-          onClick={() => setShowForm((v) => !v)}
-          className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-light"
-        >
-          <Plus size={16} />
-          {t("ingestion.actions.newProject")}
-        </button>
+        <div className="flex items-center gap-2">
+          <HelpButton helpKey="ingestion.projects" />
+          <button
+            type="button"
+            onClick={() => setShowForm((v) => !v)}
+            className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-light"
+          >
+            <Plus size={16} />
+            {t("ingestion.actions.newProject")}
+          </button>
+        </div>
       </div>
 
       {/* Inline create form */}

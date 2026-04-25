@@ -1,0 +1,14 @@
+{
+  "key": "ingestion.schema-mapping",
+  "title": "Schema Mapping",
+  "description": "Map source database tables and columns to their OMOP CDM equivalents. The AI suggests mappings based on field names and data patterns — you review, adjust, and approve before the ETL runs.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Use 'AI Suggest' to auto-populate mappings — it typically covers 80%+ of fields correctly.",
+    "Required OMOP columns are highlighted — unmapped required fields will block ETL execution.",
+    "Hover over a source field name to see sample values from the WhiteRabbit scan report.",
+    "Date fields need a format string (e.g., YYYY-MM-DD) — check source data before confirming.",
+    "Save mappings frequently; unsaved changes are lost on navigation."
+  ]
+}

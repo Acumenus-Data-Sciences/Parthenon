@@ -1,0 +1,14 @@
+{
+  "key": "ingestion.mapping-review",
+  "title": "Concept Mapping Review",
+  "description": "Review and approve AI-suggested concept mappings from source values to OMOP standard vocabulary concepts. Each unmapped value needs a confirmed standard concept before the ETL can proceed.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Confidence badges show how certain the AI is about each mapping suggestion — review low-confidence mappings carefully.",
+    "Use 'Batch Accept' to approve all high-confidence mappings at once, then manually review the rest.",
+    "Click a source value to open the concept browser and search for alternative mappings.",
+    "Concepts with a 'Standard' badge are preferred — avoid mapping to non-standard or deprecated concepts.",
+    "All mapping decisions are logged with your user ID for audit trail purposes."
+  ]
+}

@@ -12,6 +12,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import { toast } from "@/components/ui/Toast";
 import { useTranslation } from "react-i18next";
 import { ConceptSetEditor } from "../components/ConceptSetEditor";
@@ -302,6 +303,7 @@ export default function ConceptSetDetailPage() {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2 shrink-0">
+          <HelpButton helpKey="concept-set-builder" />
           <button
             type="button"
             onClick={handleDuplicate}

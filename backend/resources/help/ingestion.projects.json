@@ -1,0 +1,14 @@
+{
+  "key": "ingestion.projects",
+  "title": "Ingestion Projects",
+  "description": "Ingestion Projects organize the full data pipeline from raw source files to a validated OMOP CDM schema. Each project tracks WhiteRabbit scanning, field mapping, validation, and ETL execution in a single workspace.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Create one project per data source — each project maps a single database or file set to OMOP CDM.",
+    "Projects advance through stages: scan → map → validate ��� execute. You can return to earlier stages at any time.",
+    "Use descriptive names like 'Acumenus Claims 2024' to distinguish projects when you have multiple sources.",
+    "Delete abandoned projects to keep the list clean — project metadata is retained in audit logs.",
+    "The project status badge shows the current pipeline stage at a glance."
+  ]
+}

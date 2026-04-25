@@ -1,0 +1,14 @@
+{
+  "key": "ingestion.project",
+  "title": "Ingestion Project",
+  "description": "This view shows all files and pipeline jobs within a single ingestion project. Upload source files, monitor ETL jobs, and track each file through the full pipeline: scan → map → validate → load.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Each row represents one source file and its current pipeline stage.",
+    "Click a file row to drill into job details, logs, and validation results.",
+    "Re-run failed jobs from the job detail page after fixing the underlying issue.",
+    "The 'Map to OMOP' button appears once WhiteRabbit scanning is complete.",
+    "Aqueduct ETL execution is available once mapping is approved and validation passes."
+  ]
+}

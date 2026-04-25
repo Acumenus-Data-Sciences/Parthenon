@@ -1,0 +1,14 @@
+{
+  "key": "ingestion.upload",
+  "title": "File Upload",
+  "description": "Upload source data files (CSV, TSV, delimited text) to begin the WhiteRabbit scanning pipeline. Files are stored securely and processed asynchronously — large uploads may take several minutes.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Select the target OMOP CDM data source before uploading — this determines where scanned data will be loaded.",
+    "CSV/TSV files work best; avoid files with non-standard delimiters unless WhiteRabbit is configured for them.",
+    "Upload multiple files in one batch if they belong to the same source schema.",
+    "Files are automatically scanned by WhiteRabbit after upload — scanning may take 1–5 minutes per file.",
+    "Duplicate uploads for the same project are tracked — each upload creates a new job version."
+  ]
+}

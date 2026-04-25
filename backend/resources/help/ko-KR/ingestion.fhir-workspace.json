@@ -1,0 +1,14 @@
+{
+  "key": "ingestion.fhir-workspace",
+  "title": "FHIR Project Workspace",
+  "description": "The FHIR Project Workspace ingests FHIR R4 bundles or NDJSON feeds and transforms them to OMOP CDM. Connect a FHIR server, select a patient population, and run the FHIR-to-CDM pipeline.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "FHIR connections are configured in Admin → FHIR Connections before they appear here.",
+    "Start with a small patient cohort to validate the mapping before ingesting the full population.",
+    "The sandbox mode lets you preview mapped records without writing to the CDM.",
+    "FHIR R4 is fully supported; DSTU2/STU3 resources are partially mapped — check the mapping log.",
+    "Re-run the pipeline after FHIR connection credentials change — old jobs use cached credentials."
+  ]
+}

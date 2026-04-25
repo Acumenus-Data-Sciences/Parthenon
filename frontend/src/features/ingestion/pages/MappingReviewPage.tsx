@@ -13,6 +13,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import type {
   MappingAction,
   ConceptMapping,
@@ -290,22 +291,25 @@ export default function MappingReviewPage() {
       </div>
 
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <Link
-          to={`/ingestion/jobs/${jobId}`}
-          className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-colors"
-        >
-          <ArrowLeft size={18} />
-        </Link>
-        <div>
-          <h1 className="text-xl font-bold text-text-primary">
-            {t("ingestion.mappingReview.title")}
-          </h1>
-          <p className="text-sm text-text-muted">
-            {t("ingestion.mappingReview.jobPrefix", { id: jobId })}{" "}
-            {t("ingestion.mappingReview.jobDescription")}
-          </p>
+      <div className="flex items-center justify-between gap-3 mb-6">
+        <div className="flex items-center gap-3">
+          <Link
+            to={`/ingestion/jobs/${jobId}`}
+            className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-colors"
+          >
+            <ArrowLeft size={18} />
+          </Link>
+          <div>
+            <h1 className="text-xl font-bold text-text-primary">
+              {t("ingestion.mappingReview.title")}
+            </h1>
+            <p className="text-sm text-text-muted">
+              {t("ingestion.mappingReview.jobPrefix", { id: jobId })}{" "}
+              {t("ingestion.mappingReview.jobDescription")}
+            </p>
+          </div>
         </div>
+        <HelpButton helpKey="ingestion.mapping-review" />
       </div>
 
       {/* Two-panel layout */}

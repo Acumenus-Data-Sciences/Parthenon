@@ -16,6 +16,7 @@ import {
   FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import {
   useIngestionProject,
   useStageFiles,
@@ -198,23 +199,26 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
               {t(statusStyle.labelKey)}
             </span>
           </div>
-          <a
-            href={
-              project.status === "ready" || project.status === "mapping" || project.status === "completed"
-                ? `/ingestion?tab=aqueduct&project=${project.id}`
-                : undefined
-            }
-            aria-disabled={project.status !== "ready" && project.status !== "mapping" && project.status !== "completed"}
-            className={cn(
-              "inline-flex items-center gap-2 rounded-lg px-4 py-1.5 text-xs font-medium transition-colors",
-              project.status === "ready" || project.status === "mapping" || project.status === "completed"
-                ? "bg-success text-surface-base hover:bg-success-dark"
-                : "bg-surface-overlay text-text-ghost border border-surface-highlight pointer-events-none",
-            )}
-          >
-            {t("ingestion.actions.openInAqueduct")}
-            <ExternalLink size={12} />
-          </a>
+          <div className="flex items-center gap-2">
+            <HelpButton helpKey="ingestion.project" />
+            <a
+              href={
+                project.status === "ready" || project.status === "mapping" || project.status === "completed"
+                  ? `/ingestion?tab=aqueduct&project=${project.id}`
+                  : undefined
+              }
+              aria-disabled={project.status !== "ready" && project.status !== "mapping" && project.status !== "completed"}
+              className={cn(
+                "inline-flex items-center gap-2 rounded-lg px-4 py-1.5 text-xs font-medium transition-colors",
+                project.status === "ready" || project.status === "mapping" || project.status === "completed"
+                  ? "bg-success text-surface-base hover:bg-success-dark"
+                  : "bg-surface-overlay text-text-ghost border border-surface-highlight pointer-events-none",
+              )}
+            >
+              {t("ingestion.actions.openInAqueduct")}
+              <ExternalLink size={12} />
+            </a>
+          </div>
         </div>
 
         <div className="flex items-center gap-4 text-xs text-text-muted">

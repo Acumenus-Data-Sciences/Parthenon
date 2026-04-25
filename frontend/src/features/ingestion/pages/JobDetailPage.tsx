@@ -10,6 +10,7 @@ import {
   Clock,
 } from "lucide-react";
 import { fetchJob, fetchProfile, retryJob } from "../api/ingestionApi";
+import { HelpButton } from "@/features/help";
 import { PipelineStepper } from "../components/PipelineStepper";
 import { ScanReport } from "../components/ScanReport";
 import type { IngestionStep } from "@/types/ingestion";
@@ -133,6 +134,7 @@ export default function JobDetailPage() {
             </div>
           </div>
         </div>
+        <HelpButton helpKey="ingestion.job-detail" />
       </div>
 
       {/* Pipeline Stepper */}

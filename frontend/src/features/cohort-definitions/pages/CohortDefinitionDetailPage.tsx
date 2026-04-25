@@ -19,6 +19,7 @@ import {
 import { AbbyAiPanel } from "@/features/abby-ai/components/AbbyAiPanel";
 import { ShareCohortModal } from "../components/ShareCohortModal";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import { exportCohortDefinition } from "../api/cohortApi";
 import { CohortExpressionEditor } from "../components/CohortExpressionEditor";
 import { CohortSqlPreview } from "../components/CohortSqlPreview";
@@ -99,7 +100,7 @@ export default function CohortDefinitionDetailPage() {
   const [showComputePrsModal, setShowComputePrsModal] = useState(false);
 
   // Load expression from API into store
-  /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable react-hooks/exhaustive-deps, react-hooks/set-state-in-effect */
   useEffect(() => {
     if (definition) {
       setName(definition.name);
@@ -110,7 +111,7 @@ export default function CohortDefinitionDetailPage() {
       reset();
     };
   }, [definition]);
-  /* eslint-enable react-hooks/exhaustive-deps */
+  /* eslint-enable react-hooks/exhaustive-deps, react-hooks/set-state-in-effect */
 
   // Ctrl+S / Cmd+S keyboard shortcut
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -524,6 +525,7 @@ export default function CohortDefinitionDetailPage() {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2 shrink-0">
+          <HelpButton helpKey="cohort-builder" />
           {/* Save expression */}
           <button
             type="button"

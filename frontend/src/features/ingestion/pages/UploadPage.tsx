@@ -5,6 +5,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { ArrowLeft, Loader2, Upload, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { uploadFile } from "../api/ingestionApi";
 import { FileUploadZone } from "../components/FileUploadZone";
@@ -43,21 +44,24 @@ export default function UploadPage() {
   return (
     <div className="space-y-6 max-w-2xl">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <Link
-          to="/ingestion"
-          className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-colors"
-        >
-          <ArrowLeft size={18} />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-text-primary">
-            {t("ingestion.upload.title")}
-          </h1>
-          <p className="mt-1 text-sm text-text-muted">
-            {t("ingestion.upload.subtitle")}
-          </p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Link
+            to="/ingestion"
+            className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-colors"
+          >
+            <ArrowLeft size={18} />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold text-text-primary">
+              {t("ingestion.upload.title")}
+            </h1>
+            <p className="mt-1 text-sm text-text-muted">
+              {t("ingestion.upload.subtitle")}
+            </p>
+          </div>
         </div>
+        <HelpButton helpKey="ingestion.upload" />
       </div>
 
       {/* Source Selector */}

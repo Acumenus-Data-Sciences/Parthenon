@@ -1,0 +1,14 @@
+{
+  "key": "ingestion.job-detail",
+  "title": "Pipeline Job",
+  "description": "Track the progress of a single file through the ingestion pipeline: WhiteRabbit scan → concept mapping → validation → ETL load. Each stage is shown with its current status and any errors.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "The pipeline stepper shows which stage is active, completed, or failed.",
+    "Failed stages show an error message — expand the error to see the full stack trace.",
+    "Validation errors list specific rows and columns that failed OMOP conformance checks.",
+    "Re-run a failed job after fixing the source data or mapping issue.",
+    "Completed ETL jobs show record counts per OMOP domain (person, visit, drug, etc.)."
+  ]
+}

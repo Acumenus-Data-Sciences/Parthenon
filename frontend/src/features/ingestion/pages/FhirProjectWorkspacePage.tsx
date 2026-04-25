@@ -12,6 +12,7 @@ import {
   Upload,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { MetricCard } from "@/components/ui/MetricCard";
@@ -102,13 +103,16 @@ function ProjectPicker({ onSelect }: { onSelect: (id: number) => void }) {
   return (
     <Panel
       header={
-        <div>
-          <h2 className="text-lg font-semibold text-text-primary">
-            {t("ingestion.fhirWorkspace.title")}
-          </h2>
-          <p className="mt-1 text-sm text-text-muted">
-            {t("ingestion.fhirWorkspace.subtitle")}
-          </p>
+        <div className="flex items-start justify-between w-full">
+          <div>
+            <h2 className="text-lg font-semibold text-text-primary">
+              {t("ingestion.fhirWorkspace.title")}
+            </h2>
+            <p className="mt-1 text-sm text-text-muted">
+              {t("ingestion.fhirWorkspace.subtitle")}
+            </p>
+          </div>
+          <HelpButton helpKey="ingestion.fhir-workspace" />
         </div>
       }
     >

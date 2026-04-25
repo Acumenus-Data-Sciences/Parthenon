@@ -13,6 +13,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import { ConfidenceBadge } from "../components/ConfidenceBadge";
 import {
   fetchSchemaMapping,
@@ -149,6 +150,7 @@ export default function SchemaMappingPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <HelpButton helpKey="ingestion.schema-mapping" />
           <button
             onClick={() => suggestMutation.mutate()}
             disabled={suggestMutation.isPending}
