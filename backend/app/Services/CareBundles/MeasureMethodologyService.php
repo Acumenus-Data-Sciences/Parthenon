@@ -8,6 +8,7 @@ use App\Models\App\CareBundleRun;
 use App\Models\App\ConditionBundle;
 use App\Models\App\QualityMeasure;
 use App\Models\App\Source;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -42,20 +43,37 @@ class MeasureMethodologyService
             ->where('source_id', $source->id)
             ->value('care_bundle_run_id');
 
-        $run = $runId ? CareBundleRun::find($runId) : null;
-        $result = $run
-            ? CareBundleMeasureResult::where('care_bundle_run_id', $run->id)
-                ->where('quality_measure_id', $measure->id)
-                ->first()
-            : null;
+        // Cache the whole assembled response per (bundle, measure, source, run).
+        // Methodology only changes when a new run lands or the measure
+        // definition is edited; until then every click rebuilds the same JSON
+        // out of vocab.concept_ancestor scans + slow MAX(date) scans + DQ
+        // checks (~10–15s cold without this cache, sub-100ms with).
+        // bundle->updated_at + measure->updated_at invalidates on edit.
+        $stamp = max(
+            (int) ($bundle->updated_at?->timestamp ?? 0),
+            (int) ($measure->updated_at?->timestamp ?? 0),
+        );
+        $cacheKey = sprintf(
+            'care-bundles:methodology:%d:%d:%d:%d:%d',
+            $bundle->id, $measure->id, $source->id, (int) ($runId ?? 0), $stamp,
+        );
 
-        return [
-            'bundle' => $this->describeBundle($bundle),
-            'measure' => $this->describeMeasure($measure),
-            'source' => $this->describeSource($source, $cdmSchema, $measure),
-            'run' => $run ? $this->describeRun($run) : null,
-            'data_quality_flags' => $this->dq->check($measure, $source, $cdmSchema, $run, $result),
-        ];
+        return Cache::remember($cacheKey, 86_400, function () use ($bundle, $measure, $source, $cdmSchema, $runId) {
+            $run = $runId ? CareBundleRun::find($runId) : null;
+            $result = $run
+                ? CareBundleMeasureResult::where('care_bundle_run_id', $run->id)
+                    ->where('quality_measure_id', $measure->id)
+                    ->first()
+                : null;
+
+            return [
+                'bundle' => $this->describeBundle($bundle),
+                'measure' => $this->describeMeasure($measure),
+                'source' => $this->describeSource($source, $cdmSchema, $measure),
+                'run' => $run ? $this->describeRun($run) : null,
+                'data_quality_flags' => $this->dq->check($measure, $source, $cdmSchema, $run, $result),
+            ];
+        });
     }
 
     /**
@@ -152,11 +170,23 @@ class MeasureMethodologyService
             $domains[$domainTable] = $domainDateCol;
         }
 
+        // MAX(date) on multi-million-row CDM tables can take seconds on
+        // sources without a dedicated date index, so we cache for 24h
+        // keyed by source + table. The lookback anchor only changes when
+        // new data lands, so a one-day TTL is appropriate.
         $maxDates = [];
         foreach ($domains as $table => $dateCol) {
+            $cacheKey = "care-bundles:cdm-max-date:{$source->id}:{$table}:{$dateCol}";
             try {
-                $row = DB::selectOne("SELECT MAX({$dateCol}) AS max_date FROM \"{$cdmSchema}\".{$table}");
-                $maxDates[$table] = $row->max_date ?? null;
+                $maxDates[$table] = Cache::remember(
+                    $cacheKey,
+                    86_400,
+                    function () use ($cdmSchema, $table, $dateCol) {
+                        $row = DB::selectOne("SELECT MAX({$dateCol}) AS max_date FROM \"{$cdmSchema}\".{$table}");
+
+                        return $row->max_date ?? null;
+                    },
+                );
             } catch (\Throwable) {
                 $maxDates[$table] = null;
             }

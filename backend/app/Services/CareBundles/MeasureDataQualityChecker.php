@@ -52,10 +52,17 @@ class MeasureDataQualityChecker
         $appConn = DB::connection();
 
         // 1. Does the measure's domain table even have rows in this CDM?
+        //    pg_class.reltuples is the planner's estimate (kept fresh by
+        //    autovacuum/ANALYZE) — instant lookup from the catalog. A bad
+        //    answer of 0 here only matters when the table is genuinely empty,
+        //    in which case any honest stats would also report 0.
         try {
             $table = $this->resolveTableName($measure->domain);
             $col = $this->resolveConceptColumn($measure->domain);
-            $countRow = $appConn->selectOne("SELECT COUNT(*) AS c FROM \"{$cdmSchema}\".{$table}");
+            $countRow = $appConn->selectOne(
+                'SELECT reltuples::bigint AS c FROM pg_class WHERE oid = ?::regclass',
+                ["{$cdmSchema}.{$table}"],
+            );
             $totalRows = $countRow ? (int) $countRow->c : 0;
 
             if ($totalRows === 0) {
@@ -70,7 +77,8 @@ class MeasureDataQualityChecker
             }
 
             // 2. Are any of the numerator concepts (or their descendants) actually
-            //    present in the source data?
+            //    present in the source data? EXISTS short-circuits on first
+            //    match — sub-100ms instead of a full COUNT(*) scan.
             /** @var list<int> $numerIds */
             $numerIds = is_array($measure->numerator_criteria['concept_ids'] ?? null)
                 ? array_values(array_map('intval', $measure->numerator_criteria['concept_ids']))
@@ -80,20 +88,21 @@ class MeasureDataQualityChecker
                 $ph = implode(',', array_fill(0, count($numerIds), '?'));
                 $hitRow = $appConn->selectOne(
                     "
-                    SELECT COUNT(*) AS c
-                    FROM \"{$cdmSchema}\".{$table} t
-                    WHERE t.{$col} IN (
-                        SELECT ca.descendant_concept_id
-                        FROM vocab.concept_ancestor ca
-                        WHERE ca.ancestor_concept_id IN ({$ph})
-                    )
-                    LIMIT 1
+                    SELECT EXISTS (
+                        SELECT 1
+                        FROM \"{$cdmSchema}\".{$table} t
+                        WHERE t.{$col} IN (
+                            SELECT ca.descendant_concept_id
+                            FROM vocab.concept_ancestor ca
+                            WHERE ca.ancestor_concept_id IN ({$ph})
+                        )
+                    ) AS has_match
                 ",
                     $numerIds,
                 );
-                $matchedRows = $hitRow ? (int) $hitRow->c : 0;
+                $hasMatch = (bool) ($hitRow->has_match ?? false);
 
-                if ($matchedRows === 0) {
+                if (! $hasMatch) {
                     $flags[] = [
                         'level' => 'critical',
                         'code' => 'numerator_concepts_unused',
