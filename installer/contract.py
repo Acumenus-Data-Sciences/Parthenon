@@ -278,6 +278,14 @@ def open_app_payload(cfg: dict[str, Any]) -> dict[str, Any]:
     return {"url": app_url}
 
 
+def port_holder_payload(cfg: dict[str, Any], overrides: dict[str, Any]) -> dict[str, Any]:
+    from . import port_holder as installer_port_holder
+    port = overrides.get("_port") if overrides else None
+    if not isinstance(port, int):
+        return {"found": False, "error": "_port (int) is required"}
+    return installer_port_holder.identify(port)
+
+
 def credentials_payload(cfg: dict[str, Any]) -> dict[str, Any]:
     """Read .install-credentials and surface admin email + password.
 
@@ -370,6 +378,8 @@ def build_payload(
         payload = service_status_payload()
     elif action == "open-app":
         payload = open_app_payload(cfg)
+    elif action == "port-holder":
+        payload = port_holder_payload(cfg, raw_overrides)
     else:
         raise ValueError(f"Unsupported contract action: {action}")
 
@@ -390,7 +400,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Parthenon installer contract")
     parser.add_argument(
         "action",
-        choices=["defaults", "validate", "plan", "preflight", "data-check", "bundle-manifest", "health", "credentials", "service-status", "open-app"],
+        choices=["defaults", "validate", "plan", "preflight", "data-check", "bundle-manifest", "health", "credentials", "service-status", "open-app", "port-holder"],
         help="Contract payload to emit",
     )
     parser.add_argument("--community", action="store_true", help="Use Community MVP defaults")
