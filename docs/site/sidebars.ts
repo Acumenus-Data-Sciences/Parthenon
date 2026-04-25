@@ -65,7 +65,7 @@ const sidebars: SidebarsConfig = {
         "part4-analyses/14-studies",
         "part4-analyses/14a-sccs",
         "part4-analyses/14b-evidence-synthesis",
-        "part4-analyses/14c-study-designer",
+        "part4-analyses/study-designer",
         "part4-analyses/14d-study-packages",
         "part4-analyses/14e-phenotype-library",
       ],

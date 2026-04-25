@@ -147,7 +147,7 @@ return [
             'fallbacks' => ['ar', 'en-US', 'en'],
             'release_tier' => 'rtl-canary',
             'enabled' => true,
-            'selectable' => true,
+            'selectable' => false,
         ],
         'en-XA' => [
             'label' => 'Pseudolocale',
