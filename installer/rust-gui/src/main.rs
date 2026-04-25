@@ -2305,6 +2305,187 @@ async fn check_for_updates(app: AppHandle) -> UpdateCheckResult {
     }
 }
 
+#[derive(Debug, Serialize)]
+struct SigningInfo {
+    platform: String,
+    signed: bool,
+    signer: Option<String>,
+    detail: String,
+    error: Option<String>,
+}
+
+#[tauri::command]
+fn signing_info() -> SigningInfo {
+    let platform = env::consts::OS.to_string();
+
+    if platform == "macos" {
+        return signing_info_macos();
+    }
+    if platform == "windows" {
+        return signing_info_windows();
+    }
+    SigningInfo {
+        platform,
+        signed: false,
+        signer: None,
+        detail: "Linux installer signatures are detached .asc files. See docs/install/verifying-signatures.".to_string(),
+        error: None,
+    }
+}
+
+#[cfg(target_os = "macos")]
+fn signing_info_macos() -> SigningInfo {
+    // Locate the .app bundle by walking up from current_exe()
+    // Inside Foo.app/Contents/MacOS/foo — go up 3 levels to reach Foo.app
+    let app_path = match env::current_exe() {
+        Ok(exe) => exe
+            .parent()
+            .and_then(|p| p.parent())
+            .and_then(|p| p.parent())
+            .map(|p| p.to_path_buf()),
+        Err(_) => None,
+    };
+    let target = match app_path {
+        Some(p) if p.extension().is_some_and(|e| e == "app") => p,
+        _ => {
+            return SigningInfo {
+                platform: "macos".to_string(),
+                signed: false,
+                signer: None,
+                detail: "Could not locate .app bundle (running outside an installed bundle?)"
+                    .to_string(),
+                error: None,
+            };
+        }
+    };
+
+    let output = Command::new("codesign")
+        .args(["-dv", "--verbose=2"])
+        .arg(&target)
+        .output();
+
+    let output = match output {
+        Ok(o) => o,
+        Err(err) => {
+            return SigningInfo {
+                platform: "macos".to_string(),
+                signed: false,
+                signer: None,
+                detail: String::new(),
+                error: Some(format!("codesign not available: {err}")),
+            };
+        }
+    };
+
+    // codesign -dv writes to stderr by convention
+    let text = String::from_utf8_lossy(&output.stderr).to_string();
+    if !output.status.success() {
+        return SigningInfo {
+            platform: "macos".to_string(),
+            signed: false,
+            signer: None,
+            detail: text.trim().to_string(),
+            error: None,
+        };
+    }
+
+    let signer = text
+        .lines()
+        .find(|line| line.starts_with("Authority="))
+        .and_then(|line| line.split_once('='))
+        .map(|(_, v)| v.to_string());
+
+    SigningInfo {
+        platform: "macos".to_string(),
+        signed: signer.is_some(),
+        signer,
+        detail: text.trim().to_string(),
+        error: None,
+    }
+}
+
+#[cfg(not(target_os = "macos"))]
+fn signing_info_macos() -> SigningInfo {
+    SigningInfo {
+        platform: env::consts::OS.to_string(),
+        signed: false,
+        signer: None,
+        detail: String::new(),
+        error: Some("macOS-only".to_string()),
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn signing_info_windows() -> SigningInfo {
+    let exe = match env::current_exe() {
+        Ok(p) => p,
+        Err(err) => {
+            return SigningInfo {
+                platform: "windows".to_string(),
+                signed: false,
+                signer: None,
+                detail: String::new(),
+                error: Some(format!("could not locate exe: {err}")),
+            };
+        }
+    };
+
+    // Use PowerShell Get-AuthenticodeSignature
+    let script = format!(
+        "(Get-AuthenticodeSignature '{}' | Select-Object -Property Status, SignerCertificate | ConvertTo-Json -Compress)",
+        exe.display()
+    );
+    let output = Command::new("powershell.exe")
+        .args(["-NoProfile", "-Command", &script])
+        .output();
+
+    let output = match output {
+        Ok(o) => o,
+        Err(err) => {
+            return SigningInfo {
+                platform: "windows".to_string(),
+                signed: false,
+                signer: None,
+                detail: String::new(),
+                error: Some(format!("PowerShell unavailable: {err}")),
+            };
+        }
+    };
+
+    let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    let parsed: serde_json::Value =
+        serde_json::from_str(&stdout).unwrap_or(serde_json::Value::Null);
+    let status = parsed
+        .get("Status")
+        .and_then(|v| v.as_str())
+        .map(str::to_string);
+    let subject = parsed
+        .get("SignerCertificate")
+        .and_then(|c| c.get("Subject"))
+        .and_then(|v| v.as_str())
+        .map(str::to_string);
+
+    let signed = status.as_deref() == Some("Valid");
+    SigningInfo {
+        platform: "windows".to_string(),
+        signed,
+        signer: subject.clone(),
+        detail: stdout,
+        error: None,
+    }
+}
+
+#[cfg(not(target_os = "windows"))]
+fn signing_info_windows() -> SigningInfo {
+    SigningInfo {
+        platform: env::consts::OS.to_string(),
+        signed: false,
+        signer: None,
+        detail: String::new(),
+        error: Some("Windows-only".to_string()),
+    }
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -2329,7 +2510,8 @@ fn main() {
             recover_check,
             diagnose_check,
             try_fix,
-            reset_install
+            reset_install,
+            signing_info
         ])
         .run(tauri::generate_context!())
         .expect("error while running Parthenon installer GUI");
