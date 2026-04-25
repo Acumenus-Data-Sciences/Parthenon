@@ -1,5 +1,5 @@
 type MessageTree = {
-  [key: string]: string | MessageTree;
+  [key: string]: string | MessageTree | null;
 };
 
 function mergeMessageTrees(
