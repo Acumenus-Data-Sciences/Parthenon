@@ -301,6 +301,82 @@
             <button id="verify-show-status" type="button">Show service status</button>
           </div>
         </section>
+
+        <section id="done-panel" class="form-section done-panel" hidden>
+          <header class="done-header">
+            <span class="done-eyebrow">Step 5 of 5 · Ready</span>
+            <h2>Parthenon is ready</h2>
+            <p class="done-tagline">Sign in once, then change the password. Parthenon will keep running as long as Docker is running — you can close this installer when you're done.</p>
+          </header>
+
+          <div class="done-card url-card">
+            <div class="done-label">Sign in at</div>
+            <div class="done-row">
+              <code id="done-url">http://localhost:8082</code>
+              <button class="copy-btn" data-copy-target="done-url" type="button" title="Copy URL">⎘</button>
+            </div>
+          </div>
+
+          <div class="done-card credentials-card">
+            <div class="done-row">
+              <div class="done-col">
+                <div class="done-label">Admin email</div>
+                <div class="done-row">
+                  <code id="done-email">admin@example.com</code>
+                  <button class="copy-btn" data-copy-target="done-email" type="button" title="Copy email">⎘</button>
+                </div>
+              </div>
+              <div class="done-col">
+                <div class="done-label">Admin password</div>
+                <div class="done-row">
+                  <code id="done-password" class="masked">••••••••••••</code>
+                  <button class="reveal-btn" id="reveal-password-btn" type="button" title="Show password (30s)">👁</button>
+                  <button class="copy-btn" data-copy-target="done-password" data-copy-source="real" type="button" title="Copy password">⎘</button>
+                </div>
+                <div class="done-hint" id="reveal-hint" hidden>Hidden again in <span id="reveal-countdown">30</span>s</div>
+              </div>
+            </div>
+          </div>
+
+          <button id="open-parthenon-btn" type="button" class="primary open-btn" disabled>Open Parthenon →</button>
+          <p class="done-warning">On first sign-in, Parthenon will require you to change this password. That's the expected flow.</p>
+          <p class="done-close-hint">You can close this installer once you're signed in. Parthenon runs as Docker services and stays at the URL above every time Docker is running.</p>
+
+          <details class="advanced-disclosure">
+            <summary>▼ Advanced · service status, logs, reset</summary>
+            <div class="advanced-body">
+              <div class="advanced-section">
+                <h3>Service status</h3>
+                <div id="service-status-grid" class="service-grid">
+                  <span class="service-status-loading">Loading…</span>
+                </div>
+              </div>
+              <div class="advanced-section">
+                <h3>Runtime image</h3>
+                <div id="runtime-image-row">
+                  <span id="runtime-image-status">Checking for newer Parthenon images…</span>
+                  <button id="runtime-image-pull-btn" type="button" hidden>Pull newer images</button>
+                </div>
+              </div>
+              <div class="advanced-section">
+                <h3>Reset</h3>
+                <p>Tear down the install (containers + state file + bundle cache + .install-credentials). Does NOT drop databases.</p>
+                <button id="reset-everything-btn" type="button" class="danger-btn">Reset everything</button>
+              </div>
+            </div>
+          </details>
+
+          <footer class="done-footer">
+            <div class="telemetry-banner">
+              ✓ Zero telemetry. This installer connects to GitHub Releases and Docker Hub only.
+              <a href="#" id="telemetry-docs-link">Learn more</a>
+            </div>
+            <div class="feedback-link">
+              Was this install painful?
+              <a href="#" id="feedback-link">Tell us at github.com/sudoshi/Parthenon/discussions</a>
+            </div>
+          </footer>
+        </section>
       </section>
 
       <aside class="status-panel">
@@ -319,5 +395,10 @@
       </aside>
     </main>
     <script src="./app.js"></script>
+    <aside id="updater-banner" class="updater-banner" hidden>
+      <span id="updater-banner-text">Checking for updates…</span>
+      <button id="updater-download-btn" type="button" hidden>Download &amp; install</button>
+      <button id="updater-dismiss-btn" type="button" class="updater-dismiss" title="Dismiss">×</button>
+    </aside>
   </body>
 </html>

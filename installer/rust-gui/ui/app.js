@@ -153,7 +153,10 @@ async function pollHealth() {
     if (result.ready) {
       ["nginx", "php", "postgres", "health", "frontend"].forEach((name) => setVerifyRow(name, true));
       setStatus("Parthenon is ready", "success");
-      setTimeout(() => setStep("done"), 1000);
+      setTimeout(() => {
+        setStep("done");
+        runDone();
+      }, 1000);
       return;
     }
     await new Promise((resolve) => setTimeout(resolve, VERIFY_INTERVAL_MS));
@@ -181,6 +184,13 @@ const state = {
   preflightRan: false,
   running: false,
   platform: "",
+};
+
+const doneState = {
+  realPassword: null,
+  appUrl: null,
+  revealTimer: null,
+  revealCountdownTimer: null,
 };
 
 function setStatus(message, kind = "info") {
@@ -491,6 +501,11 @@ async function boot() {
     setStatus(String(err), "error");
   }
 
+  // Auto-updater check (cached 24 h via localStorage)
+  if (typeof checkForUpdatesBanner === "function") {
+    checkForUpdatesBanner();
+  }
+
   if (tauriEvent) {
     await tauriEvent.listen("install-log", (event) => {
       appendLog(event.payload.message, event.payload.stream);
@@ -615,6 +630,361 @@ document.querySelector("#cancel-btn")?.addEventListener("click", async () => {
     setStatus(message, "info");
   } catch (err) {
     setStatus(String(err), "error");
+  }
+});
+
+// ── Phase 4: Done-page wiring ─────────────────────────────────────────
+
+async function runDone() {
+  const panel = document.querySelector("#done-panel");
+  if (panel) panel.hidden = false;
+
+  // Fetch credentials
+  try {
+    const creds = await invoke("credentials_check", {});
+    if (creds && creds.admin_email) {
+      const emailEl = document.querySelector("#done-email");
+      if (emailEl) emailEl.textContent = creds.admin_email;
+    }
+    if (creds && creds.admin_password) {
+      doneState.realPassword = creds.admin_password;
+    } else if (creds && creds.error) {
+      const passwordEl = document.querySelector("#done-password");
+      if (passwordEl) passwordEl.textContent = creds.error;
+    }
+  } catch (err) {
+    setStatus(`Could not read credentials: ${err}`, "error");
+  }
+
+  // Resolve canonical URL
+  try {
+    const url = await invoke("open_app_url", {});
+    if (url) {
+      doneState.appUrl = url;
+      const urlEl = document.querySelector("#done-url");
+      if (urlEl) urlEl.textContent = url;
+    }
+  } catch (err) {
+    // Fall back to default; the Open button will use whatever's in #done-url
+  }
+
+  // Final readiness check then enable Open button
+  try {
+    const health = await invoke("health_check", { attempt: 1 });
+    const openBtn = document.querySelector("#open-parthenon-btn");
+    if (openBtn) openBtn.disabled = !health.ready;
+  } catch (err) {
+    // Leave button disabled
+  }
+
+  // Kick off other Done-page widgets (Tasks 4-5)
+  if (typeof startServiceStatusPolling === "function") startServiceStatusPolling();
+  if (typeof checkRuntimeImage === "function") checkRuntimeImage();
+  if (typeof checkForUpdatesBanner === "function") checkForUpdatesBanner();
+}
+
+async function copyToClipboard(text) {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (err) {
+    // Fall through to fallback
+  }
+  // Fallback: hidden textarea + execCommand
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+document.addEventListener("click", async (event) => {
+  const btn = event.target.closest(".copy-btn");
+  if (!btn) return;
+  const targetId = btn.dataset.copyTarget;
+  const useReal = btn.dataset.copySource === "real";
+  let text = "";
+  if (useReal && targetId === "done-password" && doneState.realPassword) {
+    text = doneState.realPassword;
+  } else {
+    const target = document.querySelector(`#${targetId}`);
+    text = target ? target.textContent : "";
+  }
+  if (!text) return;
+  const ok = await copyToClipboard(text);
+  if (ok) {
+    btn.classList.add("copied");
+    btn.textContent = "✓";
+    setTimeout(() => {
+      btn.classList.remove("copied");
+      btn.textContent = "⎘";
+    }, 1500);
+  }
+});
+
+document.querySelector("#reveal-password-btn")?.addEventListener("click", () => {
+  const passwordEl = document.querySelector("#done-password");
+  const hintEl = document.querySelector("#reveal-hint");
+  const countdownEl = document.querySelector("#reveal-countdown");
+  if (!passwordEl || !doneState.realPassword) return;
+
+  // Clear any existing timers
+  if (doneState.revealTimer) clearTimeout(doneState.revealTimer);
+  if (doneState.revealCountdownTimer) clearInterval(doneState.revealCountdownTimer);
+
+  passwordEl.textContent = doneState.realPassword;
+  passwordEl.classList.remove("masked");
+  if (hintEl) hintEl.hidden = false;
+
+  let remaining = 30;
+  if (countdownEl) countdownEl.textContent = String(remaining);
+
+  doneState.revealCountdownTimer = setInterval(() => {
+    remaining -= 1;
+    if (countdownEl) countdownEl.textContent = String(Math.max(remaining, 0));
+  }, 1000);
+
+  doneState.revealTimer = setTimeout(() => {
+    passwordEl.textContent = "••••••••••••";
+    passwordEl.classList.add("masked");
+    if (hintEl) hintEl.hidden = true;
+    if (doneState.revealCountdownTimer) clearInterval(doneState.revealCountdownTimer);
+    doneState.revealTimer = null;
+    doneState.revealCountdownTimer = null;
+  }, 30000);
+});
+
+document.querySelector("#open-parthenon-btn")?.addEventListener("click", async () => {
+  const url = doneState.appUrl || document.querySelector("#done-url")?.textContent;
+  if (!url) {
+    setStatus("No app URL configured", "error");
+    return;
+  }
+  try {
+    const shell = window.__TAURI__?.shell;
+    if (shell?.open) {
+      await shell.open(url);
+    } else {
+      // Fallback: open in webview's parent — won't work in pure Tauri but acceptable degradation
+      window.open(url, "_blank");
+    }
+    setStatus(`Opened ${url} in your browser. Sign in with the email and password above.`, "success");
+  } catch (err) {
+    setStatus(`Could not open browser: ${err}`, "error");
+  }
+});
+
+document.querySelector("#telemetry-docs-link")?.addEventListener("click", async (event) => {
+  event.preventDefault();
+  const shell = window.__TAURI__?.shell;
+  if (shell?.open) {
+    await shell.open("https://github.com/sudoshi/Parthenon/blob/main/docs/site/docs/install/no-telemetry.mdx");
+  }
+});
+
+document.querySelector("#feedback-link")?.addEventListener("click", async (event) => {
+  event.preventDefault();
+  const shell = window.__TAURI__?.shell;
+  if (shell?.open) {
+    await shell.open("https://github.com/sudoshi/Parthenon/discussions");
+  }
+});
+
+// ── Task 3: Service-status grid ──────────────────────────────────────────────
+
+let serviceStatusTimer = null;
+
+async function pollServiceStatus() {
+  try {
+    const status = await invoke("service_status_check", {});
+    renderServiceGrid(status);
+  } catch (err) {
+    const grid = document.querySelector("#service-status-grid");
+    if (grid) grid.innerHTML = `<span class="service-status-loading">Could not read status: ${escapeHtml(String(err))}</span>`;
+  }
+}
+
+function renderServiceGrid(status) {
+  const grid = document.querySelector("#service-status-grid");
+  if (!grid) return;
+  if (!status?.available) {
+    grid.innerHTML = `<span class="service-status-loading">Service status unavailable</span>`;
+    return;
+  }
+  const services = status.services || [];
+  if (services.length === 0) {
+    grid.innerHTML = `<span class="service-status-loading">No services running</span>`;
+    return;
+  }
+  grid.innerHTML = services.map((s) => {
+    let cls = "service-pip";
+    let icon = "○";
+    if (s.health === "healthy" || (s.state === "running" && s.health === "none")) {
+      cls += " healthy";
+      icon = "✓";
+    } else if (s.health === "starting") {
+      cls += " starting";
+      icon = "…";
+    } else if (s.state === "exited" || s.state === "dead") {
+      cls += " exited";
+      icon = "✗";
+    } else if (s.health === "unhealthy") {
+      cls += " unhealthy";
+      icon = "✗";
+    } else {
+      cls += " starting";
+      icon = "…";
+    }
+    return `<span class="${cls}"><span class="service-pip-icon">${icon}</span>${escapeHtml(s.name)}</span>`;
+  }).join("");
+}
+
+function startServiceStatusPolling() {
+  // Only poll while the Advanced section is open
+  const details = document.querySelector(".advanced-disclosure");
+  if (!details) return;
+  const tick = () => {
+    if (details.open) {
+      pollServiceStatus();
+    }
+  };
+  pollServiceStatus(); // immediate
+  if (serviceStatusTimer) clearInterval(serviceStatusTimer);
+  serviceStatusTimer = setInterval(tick, 5000);
+  details.addEventListener("toggle", () => {
+    if (details.open) pollServiceStatus();
+  });
+}
+
+// ── Task 3: Runtime image check ──────────────────────────────────────────────
+
+async function checkRuntimeImage() {
+  try {
+    const result = await invoke("runtime_image_check", {});
+    const statusEl = document.querySelector("#runtime-image-status");
+    const pullBtn = document.querySelector("#runtime-image-pull-btn");
+    if (!statusEl) return;
+    if (!result.available) {
+      statusEl.textContent = result.error || "Could not check for image updates";
+      return;
+    }
+    statusEl.textContent = result.detail;
+    if (pullBtn) pullBtn.hidden = !result.has_updates;
+  } catch (err) {
+    const statusEl = document.querySelector("#runtime-image-status");
+    if (statusEl) statusEl.textContent = `Could not check: ${err}`;
+  }
+}
+
+document.querySelector("#runtime-image-pull-btn")?.addEventListener("click", async () => {
+  const pullBtn = document.querySelector("#runtime-image-pull-btn");
+  if (pullBtn) {
+    pullBtn.disabled = true;
+    pullBtn.textContent = "Pulling…";
+  }
+  try {
+    await invoke("runtime_image_pull", {});
+    const statusEl = document.querySelector("#runtime-image-status");
+    if (statusEl) statusEl.textContent = "Pull started — see the log panel for progress";
+  } catch (err) {
+    setStatus(`Could not start pull: ${err}`, "error");
+    if (pullBtn) {
+      pullBtn.disabled = false;
+      pullBtn.textContent = "Pull newer images";
+    }
+  }
+});
+
+// ── Task 3: Reset button ─────────────────────────────────────────────────────
+
+document.querySelector("#reset-everything-btn")?.addEventListener("click", async () => {
+  const ok = window.confirm(
+    "This will tear down all Parthenon containers, delete the install state file, the bundle cache, and .install-credentials. Databases are NOT dropped. Continue?"
+  );
+  if (!ok) return;
+  // For now, just emit instructions to the log — actual reset implementation
+  // requires a 'reset' contract action which is Phase 5 work.
+  appendLog("Reset is currently a manual operation. Run:", "stdout");
+  appendLog("  cd " + (doneState.appUrl ? "your install dir" : "your install dir"), "stdout");
+  appendLog("  docker compose down -v", "stdout");
+  appendLog("  rm -f .install-state.json .install-credentials", "stdout");
+  appendLog("  rm -rf .acropolis-installer", "stdout");
+  setStatus("Reset instructions emitted to log. Reset action automation lands in Phase 5.", "info");
+});
+
+// ── Task 4: Auto-updater banner ──────────────────────────────────────────────
+
+async function checkForUpdatesBanner() {
+  // Cache check for 24 h (no need to hit GitHub on every Done-page view)
+  const cacheKey = "parthenon_updater_check_at";
+  const lastCheck = localStorage.getItem(cacheKey);
+  if (lastCheck) {
+    const elapsed = Date.now() - parseInt(lastCheck, 10);
+    if (elapsed < 24 * 60 * 60 * 1000) {
+      // Don't show banner — already checked today
+      return;
+    }
+  }
+  localStorage.setItem(cacheKey, String(Date.now()));
+
+  let result;
+  try {
+    result = await invoke("check_for_updates", {});
+  } catch (err) {
+    return; // Silent failure; updater banner is non-essential
+  }
+
+  if (!result?.has_update) return;
+
+  const banner = document.querySelector("#updater-banner");
+  const text = document.querySelector("#updater-banner-text");
+  const downloadBtn = document.querySelector("#updater-download-btn");
+  if (!banner || !text) return;
+
+  text.textContent = `New installer ${result.latest_version} available (you're on ${result.current_version})`;
+  if (downloadBtn) downloadBtn.hidden = false;
+  banner.hidden = false;
+}
+
+document.querySelector("#updater-dismiss-btn")?.addEventListener("click", () => {
+  const banner = document.querySelector("#updater-banner");
+  if (banner) banner.hidden = true;
+});
+
+document.querySelector("#updater-download-btn")?.addEventListener("click", async () => {
+  const downloadBtn = document.querySelector("#updater-download-btn");
+  if (downloadBtn) {
+    downloadBtn.disabled = true;
+    downloadBtn.textContent = "Verifying signature…";
+  }
+  try {
+    // The updater plugin handles download + signature verification + install.
+    // Use the JS API directly: window.__TAURI__.updater.check() then update.downloadAndInstall().
+    const updater = window.__TAURI__?.updater;
+    if (!updater) {
+      throw new Error("updater plugin not available");
+    }
+    const update = await updater.check();
+    if (update?.available) {
+      await update.downloadAndInstall();
+      // App will relaunch automatically
+    }
+  } catch (err) {
+    setStatus(`Update failed: ${err}`, "error");
+    if (downloadBtn) {
+      downloadBtn.disabled = false;
+      downloadBtn.textContent = "Download & install";
+    }
   }
 });
 
