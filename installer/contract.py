@@ -261,6 +261,23 @@ def health_payload(cfg: dict[str, Any], *, attempt: int = 1) -> dict[str, Any]:
     return installer_health.probe(app_url, attempt=attempt)
 
 
+def open_app_payload(cfg: dict[str, Any]) -> dict[str, Any]:
+    """Resolve the canonical user-facing URL.
+
+    If app_url is a localhost URL with no port, append the nginx port (mirrors
+    `installer.cli._print_summary` logic). External URLs pass through untouched.
+    """
+    app_url = (cfg.get("app_url") or "http://localhost").strip().rstrip("/")
+    nginx_port = cfg.get("nginx_port") or 8082
+    if "localhost" in app_url and f":{nginx_port}" not in app_url:
+        # Match cli.py heuristic: only inject port if no port already present
+        # after the host segment.
+        already_has_port = ":" in app_url.split("//", 1)[1]
+        if not already_has_port:
+            app_url = f"{app_url}:{nginx_port}"
+    return {"url": app_url}
+
+
 def credentials_payload(cfg: dict[str, Any]) -> dict[str, Any]:
     """Read .install-credentials and surface admin email + password.
 
@@ -351,6 +368,8 @@ def build_payload(
         payload = credentials_payload(cfg)
     elif action == "service-status":
         payload = service_status_payload()
+    elif action == "open-app":
+        payload = open_app_payload(cfg)
     else:
         raise ValueError(f"Unsupported contract action: {action}")
 
@@ -371,7 +390,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Parthenon installer contract")
     parser.add_argument(
         "action",
-        choices=["defaults", "validate", "plan", "preflight", "data-check", "bundle-manifest", "health", "credentials", "service-status"],
+        choices=["defaults", "validate", "plan", "preflight", "data-check", "bundle-manifest", "health", "credentials", "service-status", "open-app"],
         help="Contract payload to emit",
     )
     parser.add_argument("--community", action="store_true", help="Use Community MVP defaults")

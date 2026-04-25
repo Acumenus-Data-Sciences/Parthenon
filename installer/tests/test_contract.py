@@ -306,3 +306,39 @@ def test_health_contract_action_returns_probe_shape(monkeypatch):
     )
 
     assert payload == {"ready": True, "attempt": 1, "last_status": 200}
+
+
+def test_open_app_action_returns_canonical_url(monkeypatch):
+    monkeypatch.setattr("installer.config.utils.is_port_free", lambda port: True)
+
+    payload = contract.build_payload(
+        "open-app",
+        community=True,
+        overrides={"app_url": "http://localhost", "nginx_port": 8082},
+    )
+
+    assert payload == {"url": "http://localhost:8082"}
+
+
+def test_open_app_action_preserves_existing_port(monkeypatch):
+    monkeypatch.setattr("installer.config.utils.is_port_free", lambda port: True)
+
+    payload = contract.build_payload(
+        "open-app",
+        community=True,
+        overrides={"app_url": "http://localhost:9999", "nginx_port": 8082},
+    )
+
+    assert payload == {"url": "http://localhost:9999"}
+
+
+def test_open_app_action_preserves_external_url(monkeypatch):
+    monkeypatch.setattr("installer.config.utils.is_port_free", lambda port: True)
+
+    payload = contract.build_payload(
+        "open-app",
+        community=True,
+        overrides={"app_url": "https://parthenon.example.com", "nginx_port": 8082},
+    )
+
+    assert payload == {"url": "https://parthenon.example.com"}
