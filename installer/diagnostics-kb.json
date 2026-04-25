@@ -1,0 +1,515 @@
+[
+  {
+    "id": "port-conflict-generic",
+    "fingerprint": "Address already in use.*[,\\s(](\\d{2,5})[)'\\])]",
+    "category": "port-conflict",
+    "severity": "error",
+    "fix_action": "port-holder",
+    "fix_args_template": {"port": "$1"},
+    "user_message": "Port {port} is already in use. Use the port-holder action to find and stop the process.",
+    "learn_more": "docs/install/port-conflicts",
+    "platforms": ["all"]
+  },
+  {
+    "id": "docker-daemon-not-running-mac",
+    "fingerprint": "Cannot connect to the Docker daemon at unix:///var/run/docker\\.sock",
+    "category": "docker",
+    "severity": "error",
+    "fix_action": null,
+    "fix_args": {},
+    "user_message": "Docker Desktop is not running. Start Docker Desktop, wait for the whale icon to be steady, then retry.",
+    "learn_more": "docs/install/docker-not-running",
+    "platforms": ["darwin"]
+  },
+  {
+    "id": "docker-daemon-not-running-linux",
+    "fingerprint": "Cannot connect to the Docker daemon.*Is the docker daemon running",
+    "category": "docker",
+    "severity": "error",
+    "fix_action": null,
+    "fix_args": {},
+    "user_message": "The Docker daemon is not running. Start it with `sudo systemctl start docker`.",
+    "learn_more": "docs/install/docker-not-running",
+    "platforms": ["linux"]
+  },
+  {
+    "id": "wsl-not-installed",
+    "fingerprint": "(WSL is not installed|wsl\\.exe.*not recognized|The Windows Subsystem for Linux is not installed)",
+    "category": "wsl",
+    "severity": "error",
+    "fix_action": null,
+    "fix_args": {},
+    "user_message": "WSL2 is required on Windows. Install it with `wsl --install` from an Administrator PowerShell, then reboot.",
+    "learn_more": "docs/install/wsl-setup",
+    "platforms": ["windows"]
+  },
+  {
+    "id": "wsl-no-distros",
+    "fingerprint": "There are no distributions installed",
+    "category": "wsl",
+    "severity": "error",
+    "fix_action": null,
+    "fix_args": {},
+    "user_message": "WSL is installed but no Linux distribution is set up. Install Ubuntu with `wsl --install -d Ubuntu-24.04`.",
+    "learn_more": "docs/install/wsl-setup",
+    "platforms": ["windows"]
+  },
+  {
+    "id": "python3-missing-in-distro",
+    "fingerprint": "(python3: command not found|/bin/sh: python3: not found)",
+    "category": "wsl",
+    "severity": "error",
+    "fix_action": null,
+    "fix_args": {},
+    "user_message": "python3 is not installed inside the WSL distro. Run `sudo apt-get install -y python3 python3-pip` inside WSL, then retry.",
+    "learn_more": "docs/install/wsl-setup",
+    "platforms": ["windows"]
+  },
+  {
+    "id": "image-pull-rate-limit",
+    "fingerprint": "toomanyrequests: You have reached your pull rate limit",
+    "category": "network",
+    "severity": "error",
+    "fix_action": null,
+    "fix_args": {},
+    "user_message": "Docker Hub pull rate limit hit. Sign in to Docker Hub with `docker login` (free tier allows 200 pulls per 6 hours).",
+    "learn_more": "docs/install/docker-rate-limit",
+    "platforms": ["all"]
+  },
+  {
+    "id": "disk-full-docker",
+    "fingerprint": "no space left on device",
+    "category": "disk",
+    "severity": "error",
+    "fix_action": null,
+    "fix_args": {},
+    "user_message": "Disk is full. Free space with `docker system prune -af` or remove unused volumes with `docker volume prune`.",
+    "learn_more": "docs/install/disk-space",
+    "platforms": ["all"]
+  },
+  {
+    "id": "compose-permission-denied-socket",
+    "fingerprint": "permission denied while trying to connect to the Docker daemon socket",
+    "category": "docker",
+    "severity": "error",
+    "fix_action": null,
+    "fix_args": {},
+    "user_message": "Your user is not in the `docker` group. Run `sudo usermod -aG docker $USER`, then log out and back in.",
+    "learn_more": "docs/install/docker-group",
+    "platforms": ["linux"]
+  },
+  {
+    "id": "backend-env-missing",
+    "fingerprint": "(backend/\\.env.*No such file or directory|cp: cannot stat 'backend/\\.env)",
+    "category": "config",
+    "severity": "error",
+    "fix_action": null,
+    "fix_args": {},
+    "user_message": "backend/.env is missing. Run `cp backend/.env.example backend/.env`, edit any required values, then retry.",
+    "learn_more": "docs/install/env-setup",
+    "platforms": ["all"]
+  },
+  {
+    "id": "docker-compose-v1-only",
+    "fingerprint": "docker-compose: error: argument COMMAND.*invalid choice",
+    "category": "docker",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "Only Docker Compose v1 was found. Parthenon requires Docker Compose v2 (`docker compose ...`). Update Docker to a recent version.",
+    "learn_more": "docs/install/docker-compose-v2",
+    "platforms": ["all"]
+  },
+  {
+    "id": "docker-not-installed",
+    "fingerprint": "docker: command not found",
+    "category": "docker",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "Docker is not installed. Install Docker Desktop (mac/Windows) or Docker Engine (Linux) and retry.",
+    "learn_more": "docs/install/docker",
+    "platforms": ["all"]
+  },
+  {
+    "id": "image-pull-unauthorized",
+    "fingerprint": "(unauthorized: authentication required|denied: requested access to the resource is denied)",
+    "category": "network",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "An image is private and you are not authenticated. Run `docker login` (or `docker login ghcr.io`) and retry.",
+    "learn_more": "docs/install/registry-auth",
+    "platforms": ["all"]
+  },
+  {
+    "id": "image-not-found",
+    "fingerprint": "manifest for .* not found",
+    "category": "network",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "An image referenced by docker-compose was not found. Confirm your network is up and the image tag is correct.",
+    "learn_more": "docs/install/image-not-found",
+    "platforms": ["all"]
+  },
+  {
+    "id": "dns-resolution-failure",
+    "fingerprint": "(Temporary failure in name resolution|getaddrinfo failed|EAI_AGAIN)",
+    "category": "network",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "DNS resolution failed. Confirm internet connectivity and that no corporate VPN/proxy is required.",
+    "learn_more": "docs/install/network",
+    "platforms": ["all"]
+  },
+  {
+    "id": "https-cert-error",
+    "fingerprint": "(SSL certificate problem|certificate has expired|self.signed certificate)",
+    "category": "network",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "TLS certificate problem reaching a registry. If you're behind a corporate proxy, set HTTPS_PROXY or import the proxy CA into your trust store.",
+    "learn_more": "docs/install/proxy",
+    "platforms": ["all"]
+  },
+  {
+    "id": "compose-port-already-allocated",
+    "fingerprint": "Bind for 0\\.0\\.0\\.0:(\\d+) failed: port is already allocated",
+    "category": "port-conflict",
+    "severity": "error",
+    "fix_action": "port-holder",
+    "fix_args_template": {"port": "$1"},
+    "user_message": "Port {port} is already mapped by another container. Stop the conflicting container or change the host port.",
+    "learn_more": "docs/install/port-conflicts",
+    "platforms": ["all"]
+  },
+  {
+    "id": "out-of-memory-compose-up",
+    "fingerprint": "(Killed.*OOM|out of memory|cannot allocate memory)",
+    "category": "memory",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "A service was killed for lack of memory. Increase Docker Desktop memory to at least 6 GB (Preferences → Resources).",
+    "learn_more": "docs/install/memory",
+    "platforms": ["all"]
+  },
+  {
+    "id": "postgres-password-mismatch",
+    "fingerprint": "(password authentication failed for user|FATAL:.*password)",
+    "category": "database",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "PostgreSQL rejected the configured password. Reset the database with `docker compose down -v` (deletes data) or fix the DB_PASSWORD value in backend/.env.",
+    "learn_more": "docs/install/postgres-credentials",
+    "platforms": ["all"]
+  },
+  {
+    "id": "postgres-not-ready",
+    "fingerprint": "(could not connect to server.*Connection refused|the database system is starting up)",
+    "category": "database",
+    "severity": "warn",
+    "fix_action": null, "fix_args": {},
+    "user_message": "PostgreSQL is starting up. The installer will wait — if this persists past 60 s, check `docker compose logs postgres`.",
+    "learn_more": "docs/install/postgres-startup",
+    "platforms": ["all"]
+  },
+  {
+    "id": "redis-connection-refused",
+    "fingerprint": "Could not connect to Redis at .*: Connection refused",
+    "category": "redis",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "Redis is not reachable. Check `docker compose logs redis` and confirm REDIS_PASSWORD is set in backend/.env.",
+    "learn_more": "docs/install/redis",
+    "platforms": ["all"]
+  },
+  {
+    "id": "solr-startup-oom",
+    "fingerprint": "Solr.*OutOfMemoryError",
+    "category": "memory",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "Solr ran out of heap. Edit SOLR_HEAP in backend/.env to a larger value (default 512 m → try 1 g) and `docker compose up -d --force-recreate solr`.",
+    "learn_more": "docs/install/solr-memory",
+    "platforms": ["all"]
+  },
+  {
+    "id": "vite-build-oom",
+    "fingerprint": "(JavaScript heap out of memory|FATAL ERROR.*Reached heap limit)",
+    "category": "memory",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "Vite ran out of Node heap. Set NODE_OPTIONS=--max-old-space-size=4096 and rerun the install.",
+    "learn_more": "docs/install/vite-memory",
+    "platforms": ["all"]
+  },
+  {
+    "id": "composer-network-failure",
+    "fingerprint": "(Could not authenticate against|Failed to download.*from packagist)",
+    "category": "network",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "Composer (PHP) cannot reach Packagist. Check internet/proxy settings; if behind a proxy, set HTTPS_PROXY before running the installer.",
+    "learn_more": "docs/install/composer-network",
+    "platforms": ["all"]
+  },
+  {
+    "id": "npm-eperm-windows",
+    "fingerprint": "EPERM: operation not permitted",
+    "category": "permissions",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "npm hit a permissions error. Close any IDE that has the project open, or run from a non-OneDrive folder.",
+    "learn_more": "docs/install/npm-permissions",
+    "platforms": ["windows"]
+  },
+  {
+    "id": "macos-quarantine-warning",
+    "fingerprint": "operation not permitted.*\\.app",
+    "category": "permissions",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "macOS is blocking a quarantined binary. Right-click → Open the .app once, or run `xattr -dr com.apple.quarantine <path>`.",
+    "learn_more": "docs/install/gatekeeper",
+    "platforms": ["darwin"]
+  },
+  {
+    "id": "selinux-denial",
+    "fingerprint": "(SELinux is preventing|avc: denied)",
+    "category": "security",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "SELinux denied a Docker volume mount. Add `:Z` to the volume in docker-compose.community.yml or set SELinux to permissive temporarily for testing.",
+    "learn_more": "docs/install/selinux",
+    "platforms": ["linux"]
+  },
+  {
+    "id": "wsl-version-1",
+    "fingerprint": "(WSL 1|--set-version)",
+    "category": "wsl",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "Your WSL distro is on WSL 1. Upgrade with `wsl --set-version <distro> 2` and re-run the installer.",
+    "learn_more": "docs/install/wsl-version",
+    "platforms": ["windows"]
+  },
+  {
+    "id": "docker-desktop-wsl-integration-off",
+    "fingerprint": "(WSL distro does not have Docker integration|cannot connect to WSL.*docker)",
+    "category": "wsl",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "Docker Desktop's WSL integration is disabled for your distro. Open Docker Desktop → Settings → Resources → WSL integration, enable your distro, click Apply & Restart.",
+    "learn_more": "docs/install/docker-desktop-wsl",
+    "platforms": ["windows"]
+  },
+  {
+    "id": "git-not-installed",
+    "fingerprint": "git: command not found",
+    "category": "tooling",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "git is not installed. Install git and retry.",
+    "learn_more": "docs/install/tooling",
+    "platforms": ["all"]
+  },
+  {
+    "id": "pip-install-permission-denied",
+    "fingerprint": "Could not install packages due to an OSError.*Permission denied",
+    "category": "permissions",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "pip cannot write to its install location. On Linux, prefix with sudo OR use a venv. On macOS/Windows in WSL, prefer `pip install --user`.",
+    "learn_more": "docs/install/pip-permissions",
+    "platforms": ["all"]
+  },
+  {
+    "id": "achilles-sql-error",
+    "fingerprint": "(Achilles failed|R session aborted.*Achilles)",
+    "category": "analytics",
+    "severity": "warn",
+    "fix_action": null, "fix_args": {},
+    "user_message": "OHDSI Achilles characterization failed for one source. The install can continue; re-run later via Admin → System Health → Achilles.",
+    "learn_more": "docs/install/achilles",
+    "platforms": ["all"]
+  },
+  {
+    "id": "vocabulary-zip-not-found",
+    "fingerprint": "(Athena vocabulary ZIP.*not found|vocab\\.zip: No such file)",
+    "category": "config",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "The Athena vocabulary ZIP path is invalid. Re-download from https://athena.ohdsi.org and update the path in Configure.",
+    "learn_more": "docs/install/vocabulary",
+    "platforms": ["all"]
+  },
+  {
+    "id": "hecate-bootstrap-missing",
+    "fingerprint": "(hecate.*bootstrap.*missing|qdrant_collections.*not found)",
+    "category": "hecate",
+    "severity": "warn",
+    "fix_action": null, "fix_args": {},
+    "user_message": "Hecate concept-search bootstrap assets are missing. Use the 'Download Hecate bootstrap' button in preflight, or skip Hecate by unchecking it in Configure.",
+    "learn_more": "docs/install/hecate",
+    "platforms": ["all"]
+  },
+  {
+    "id": "compose-yaml-parse-error",
+    "fingerprint": "(yaml: line \\d+: |error parsing.*docker-compose)",
+    "category": "config",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "docker-compose.yml has a syntax error. Run `docker compose config` to see the parser's complaint.",
+    "learn_more": "docs/install/compose-syntax",
+    "platforms": ["all"]
+  },
+  {
+    "id": "host-networking-not-supported",
+    "fingerprint": "host networking is not supported",
+    "category": "docker",
+    "severity": "warn",
+    "fix_action": null, "fix_args": {},
+    "user_message": "Docker Desktop on macOS/Windows does not support `network_mode: host`. The installer's compose file should not use it.",
+    "learn_more": "docs/install/host-networking",
+    "platforms": ["darwin", "windows"]
+  },
+  {
+    "id": "free-port-3000-vite",
+    "fingerprint": "Port 3000 is already in use",
+    "category": "port-conflict",
+    "severity": "warn",
+    "fix_action": "port-holder",
+    "fix_args_template": {"port": 3000},
+    "user_message": "Port 3000 is busy. The installer can use a different port — re-run with `VITE_PORT=3001` exported.",
+    "learn_more": "docs/install/port-conflicts",
+    "platforms": ["all"]
+  },
+  {
+    "id": "free-port-5432-postgres",
+    "fingerprint": "(0\\.0\\.0\\.0:5432.*already in use|port 5432 is already)",
+    "category": "port-conflict",
+    "severity": "error",
+    "fix_action": "port-holder",
+    "fix_args_template": {"port": 5432},
+    "user_message": "Port 5432 is busy. Stop the local PostgreSQL service holding it, or set DB_PORT to another port in backend/.env.",
+    "learn_more": "docs/install/postgres-port",
+    "platforms": ["all"]
+  },
+  {
+    "id": "ollama-unreachable",
+    "fingerprint": "(connection refused.*11434|ollama.*not reachable)",
+    "category": "ai",
+    "severity": "warn",
+    "fix_action": null, "fix_args": {},
+    "user_message": "Ollama (AI features) is not reachable on port 11434. Either install Ollama and `ollama serve`, or unset OLLAMA_URL in backend/.env to disable AI features.",
+    "learn_more": "docs/install/ollama",
+    "platforms": ["all"]
+  },
+  {
+    "id": "wsl-distro-missing-curl",
+    "fingerprint": "curl: command not found",
+    "category": "wsl",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "curl is not installed in your WSL distro. Run `sudo apt-get install -y curl` inside WSL, then retry.",
+    "learn_more": "docs/install/wsl-setup",
+    "platforms": ["windows"]
+  },
+  {
+    "id": "tar-not-found-windows",
+    "fingerprint": "tar: command not found",
+    "category": "tooling",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "tar is not installed in your WSL distro. Run `sudo apt-get install -y tar` inside WSL, then retry.",
+    "learn_more": "docs/install/wsl-setup",
+    "platforms": ["windows"]
+  },
+  {
+    "id": "node-version-too-old",
+    "fingerprint": "(npm WARN.*node.*>=20|engine.*node.*not satisfied)",
+    "category": "tooling",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "Node.js version is too old. Install Node 20 or newer (via nvm or nodejs.org) and retry.",
+    "learn_more": "docs/install/node-version",
+    "platforms": ["all"]
+  },
+  {
+    "id": "docker-context-pointing-elsewhere",
+    "fingerprint": "Cannot connect to the Docker daemon at tcp://",
+    "category": "docker",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "docker is configured to talk to a remote daemon. Run `docker context use default` and retry.",
+    "learn_more": "docs/install/docker-context",
+    "platforms": ["all"]
+  },
+  {
+    "id": "rosetta-needed-on-arm",
+    "fingerprint": "exec format error",
+    "category": "platform",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "An x86-64 binary cannot run on Apple Silicon. Confirm you downloaded the universal/arm64 .dmg, or install Rosetta with `softwareupdate --install-rosetta`.",
+    "learn_more": "docs/install/apple-silicon",
+    "platforms": ["darwin"]
+  },
+  {
+    "id": "appimage-fuse-missing",
+    "fingerprint": "(AppImage requires FUSE|dlopen.*libfuse)",
+    "category": "tooling",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": ".AppImage needs FUSE. On Ubuntu 22.04+: `sudo apt-get install -y libfuse2`.",
+    "learn_more": "docs/install/appimage-fuse",
+    "platforms": ["linux"]
+  },
+  {
+    "id": "rpm-signature-not-trusted",
+    "fingerprint": "(NOKEY|GPG.*key not.*imported)",
+    "category": "security",
+    "severity": "warn",
+    "fix_action": null, "fix_args": {},
+    "user_message": "The RPM is signed but its public key is not in your keyring. Import SIGNING-KEY.asc and retry.",
+    "learn_more": "docs/install/verifying-signatures",
+    "platforms": ["linux"]
+  },
+  {
+    "id": "deb-signature-failed",
+    "fingerprint": "(BADSIG|gpg: BAD signature)",
+    "category": "security",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "The .deb signature did not verify. Do not install — re-download and verify against SHA256SUMS.txt.",
+    "learn_more": "docs/install/verifying-signatures",
+    "platforms": ["linux"]
+  },
+  {
+    "id": "frontend-build-missing",
+    "fingerprint": "(frontend/dist.*not found|frontend assets are not built)",
+    "category": "frontend",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "The frontend build was not produced. Re-run with the community runtime profile, or run `./deploy.sh --frontend` manually.",
+    "learn_more": "docs/install/frontend",
+    "platforms": ["all"]
+  },
+  {
+    "id": "subprocess-killed-by-user",
+    "fingerprint": "(Terminated|Interrupt|KeyboardInterrupt)",
+    "category": "user",
+    "severity": "warn",
+    "fix_action": null, "fix_args": {},
+    "user_message": "The installer was cancelled by the user. State is preserved — Resume picks up from the last completed step.",
+    "learn_more": "docs/install/cancel-and-resume",
+    "platforms": ["all"]
+  },
+  {
+    "id": "permission-denied-tmp",
+    "fingerprint": "Permission denied.*/tmp",
+    "category": "permissions",
+    "severity": "error",
+    "fix_action": null, "fix_args": {},
+    "user_message": "/tmp is not writable. Confirm disk isn't full and that /tmp is mounted with default permissions.",
+    "learn_more": "docs/install/tmp-permissions",
+    "platforms": ["linux", "darwin"]
+  }
+]

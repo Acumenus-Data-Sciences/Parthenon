@@ -28,6 +28,11 @@ SECRET_FIELDS = {
     "umls_api_key",
 }
 
+# Actions that bypass --contract-redact entirely.  The credentials action's whole
+# purpose is to surface the admin password to the Rust GUI Done page — redacting
+# it would defeat the point.
+NON_REDACTABLE_ACTIONS: set[str] = {"credentials"}
+
 
 HADES_SUPPORTED_DBMS = [
     "PostgreSQL",
@@ -245,6 +250,118 @@ def bundle_manifest_payload(*, repo_root: str | None = None) -> dict[str, Any]:
     return manifest
 
 
+def service_status_payload() -> dict[str, Any]:
+    from . import service_status as installer_service_status
+    return installer_service_status.collect()
+
+
+def health_payload(cfg: dict[str, Any], *, attempt: int = 1) -> dict[str, Any]:
+    from . import health as installer_health
+    app_url = cfg.get("app_url") or "http://localhost"
+    return installer_health.probe(app_url, attempt=attempt)
+
+
+def open_app_payload(cfg: dict[str, Any]) -> dict[str, Any]:
+    """Resolve the canonical user-facing URL.
+
+    If app_url is a localhost URL with no port, append the nginx port (mirrors
+    `installer.cli._print_summary` logic). External URLs pass through untouched.
+    """
+    app_url = (cfg.get("app_url") or "http://localhost").strip().rstrip("/")
+    nginx_port = cfg.get("nginx_port") or 8082
+    if "localhost" in app_url and f":{nginx_port}" not in app_url:
+        # Match cli.py heuristic: only inject port if no port already present
+        # after the host segment.
+        already_has_port = ":" in app_url.split("//", 1)[1]
+        if not already_has_port:
+            app_url = f"{app_url}:{nginx_port}"
+    return {"url": app_url}
+
+
+def port_holder_payload(cfg: dict[str, Any], overrides: dict[str, Any]) -> dict[str, Any]:
+    from . import port_holder as installer_port_holder
+    port = overrides.get("_port") if overrides else None
+    if not isinstance(port, int):
+        return {"found": False, "error": "_port (int) is required"}
+    return installer_port_holder.identify(port)
+
+
+def credentials_payload(cfg: dict[str, Any]) -> dict[str, Any]:
+    """Read .install-credentials and surface admin email + password.
+
+    Format is KEY=VALUE per line, written by `engine.secrets.export_credentials_file`.
+    Returns the password verbatim — caller decides whether to display.
+    """
+    creds_path = utils.REPO_ROOT / ".install-credentials"
+    result: dict[str, Any] = {
+        "admin_email": cfg.get("admin_email") or "admin@example.com",
+        "admin_password": None,
+        "credentials_path": str(creds_path),
+    }
+    if not creds_path.exists():
+        result["error"] = "credentials file not found"
+        return result
+
+    for line in creds_path.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        if key.strip() == "ADMIN_PASSWORD":
+            result["admin_password"] = value.strip()
+            break
+    return result
+
+
+def recover_payload() -> dict[str, Any]:
+    from . import recovery as installer_recovery
+    state_path = utils.REPO_ROOT / ".install-state.json"
+    return installer_recovery.inspect(state_path)
+
+
+def diagnose_payload(overrides: dict[str, Any]) -> dict[str, Any]:
+    """Match captured installer output against the diagnostic KB.
+
+    Reads the `_diagnose_input` key from overrides (call-time parameter, not config):
+    {
+      "stdout": str,
+      "stderr": str,
+      "exit_code": int,
+      "phase": str,
+      "platform": "darwin" | "linux" | "windows"
+    }
+
+    Returns {matches: [...], ai_assist_eligible: bool}. ai_assist_eligible is the
+    future hook for Layer 2 (BYO-key Claude assist) — true only when exit_code != 0
+    and no fingerprint matched.
+    """
+    from . import diagnostics as installer_diagnostics
+
+    input_payload = (overrides or {}).get("_diagnose_input") or {}
+    stdout = input_payload.get("stdout", "")
+    stderr = input_payload.get("stderr", "")
+    exit_code = int(input_payload.get("exit_code", 0))
+    phase = input_payload.get("phase", "")
+    platform_name = input_payload.get("platform", "linux")
+
+    if exit_code == 0:
+        return {"matches": [], "ai_assist_eligible": False}
+
+    matches = installer_diagnostics.match(
+        stdout=stdout,
+        stderr=stderr,
+        exit_code=exit_code,
+        phase=phase,
+        platform=platform_name,
+    )
+    return {
+        "matches": matches,
+        "ai_assist_eligible": len(matches) == 0,
+    }
+
+
 def build_payload(
     action: str,
     *,
@@ -253,14 +370,30 @@ def build_payload(
     repo_root: str | None = None,
     redacted: bool = False,
 ) -> dict[str, Any]:
-    cfg = normalize_defaults(overrides, community=community)
+    """Build the JSON payload for a contract action.
+
+    `overrides` carries two kinds of values:
+    1. **Config overrides** (e.g. `app_url`, `admin_email`) — merged into the
+       normalized config used by the action.
+    2. **Action call-time parameters** (keys prefixed with `_`, e.g. `_health_attempt`,
+       `_port`, `_diagnose_input`) — read by specific action branches and
+       NOT merged into config. Underscore-prefixed keys are filtered from the
+       config layer to keep the namespace clean.
+
+    The underscore convention lets one input file carry both layers without an
+    extra parameter on `build_payload`. Each action documents which `_*` keys
+    it consumes.
+    """
+    raw_overrides = overrides or {}
+    config_overrides = {k: v for k, v in raw_overrides.items() if not k.startswith("_")}
+    cfg = normalize_defaults(config_overrides, community=community)
 
     if action == "defaults":
         payload: dict[str, Any] = cfg
     elif action == "validate":
         payload = {
             "ok": True,
-            "config": validate_defaults(overrides, community=community),
+            "config": validate_defaults(config_overrides, community=community),
         }
     elif action == "plan":
         payload = {
@@ -281,10 +414,27 @@ def build_payload(
         payload = {
             "manifest": bundle_manifest_payload(repo_root=repo_root),
         }
+    elif action == "health":
+        attempt = 1
+        if isinstance(raw_overrides.get("_health_attempt"), int):
+            attempt = raw_overrides["_health_attempt"]
+        payload = health_payload(cfg, attempt=attempt)
+    elif action == "credentials":
+        payload = credentials_payload(cfg)
+    elif action == "service-status":
+        payload = service_status_payload()
+    elif action == "open-app":
+        payload = open_app_payload(cfg)
+    elif action == "port-holder":
+        payload = port_holder_payload(cfg, raw_overrides)
+    elif action == "recover":
+        payload = recover_payload()
+    elif action == "diagnose":
+        payload = diagnose_payload(raw_overrides)
     else:
         raise ValueError(f"Unsupported contract action: {action}")
 
-    if redacted:
+    if redacted and action not in NON_REDACTABLE_ACTIONS:
         if "config" in payload and isinstance(payload["config"], dict):
             payload = dict(payload)
             payload["config"] = redact(payload["config"])
@@ -301,7 +451,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Parthenon installer contract")
     parser.add_argument(
         "action",
-        choices=["defaults", "validate", "plan", "preflight", "data-check", "bundle-manifest"],
+        choices=["defaults", "validate", "plan", "preflight", "data-check", "bundle-manifest", "health", "credentials", "service-status", "open-app", "port-holder", "recover", "diagnose"],
         help="Contract payload to emit",
     )
     parser.add_argument("--community", action="store_true", help="Use Community MVP defaults")

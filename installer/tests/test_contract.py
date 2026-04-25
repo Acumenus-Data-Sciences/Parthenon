@@ -290,3 +290,123 @@ def test_bundle_manifest_validation_detects_tampering(tmp_path):
 
     assert names["install.py"]["status"] == "fail"
     assert names["install.py"]["detail"] == "checksum mismatch"
+
+
+def test_health_contract_action_returns_probe_shape(monkeypatch):
+    monkeypatch.setattr("installer.config.utils.is_port_free", lambda port: True)
+    monkeypatch.setattr(
+        "installer.health._http_get",
+        lambda url, timeout=5.0: (200, ""),
+    )
+
+    payload = contract.build_payload(
+        "health",
+        community=True,
+        overrides={"app_url": "http://localhost:8082"},
+    )
+
+    assert payload == {"ready": True, "attempt": 1, "last_status": 200}
+
+
+def test_open_app_action_returns_canonical_url(monkeypatch):
+    monkeypatch.setattr("installer.config.utils.is_port_free", lambda port: True)
+
+    payload = contract.build_payload(
+        "open-app",
+        community=True,
+        overrides={"app_url": "http://localhost", "nginx_port": 8082},
+    )
+
+    assert payload == {"url": "http://localhost:8082"}
+
+
+def test_open_app_action_preserves_existing_port(monkeypatch):
+    monkeypatch.setattr("installer.config.utils.is_port_free", lambda port: True)
+
+    payload = contract.build_payload(
+        "open-app",
+        community=True,
+        overrides={"app_url": "http://localhost:9999", "nginx_port": 8082},
+    )
+
+    assert payload == {"url": "http://localhost:9999"}
+
+
+def test_open_app_action_preserves_external_url(monkeypatch):
+    monkeypatch.setattr("installer.config.utils.is_port_free", lambda port: True)
+
+    payload = contract.build_payload(
+        "open-app",
+        community=True,
+        overrides={"app_url": "https://parthenon.example.com", "nginx_port": 8082},
+    )
+
+    assert payload == {"url": "https://parthenon.example.com"}
+
+
+def test_diagnose_action_returns_matched_fingerprints(monkeypatch):
+    monkeypatch.setattr("installer.config.utils.is_port_free", lambda port: True)
+
+    payload = contract.build_payload(
+        "diagnose",
+        community=True,
+        overrides={
+            "_diagnose_input": {
+                "stdout": "OSError: [Errno 98] Address already in use: ('0.0.0.0', 8082)",
+                "stderr": "",
+                "exit_code": 1,
+                "phase": "bootstrap",
+                "platform": "linux",
+            },
+        },
+    )
+
+    assert "matches" in payload
+    assert len(payload["matches"]) >= 1
+    top = payload["matches"][0]
+    assert top["id"] == "port-conflict-generic"
+    assert top["fix_action"] == "port-holder"
+    assert top["fix_args"] == {"port": 8082}
+    assert payload["ai_assist_eligible"] is False  # match found
+
+
+def test_diagnose_action_marks_ai_assist_eligible_when_no_match(monkeypatch):
+    monkeypatch.setattr("installer.config.utils.is_port_free", lambda port: True)
+
+    payload = contract.build_payload(
+        "diagnose",
+        community=True,
+        overrides={
+            "_diagnose_input": {
+                "stdout": "Some unmatched novel error",
+                "stderr": "",
+                "exit_code": 1,
+                "phase": "frontend",
+                "platform": "linux",
+            },
+        },
+    )
+
+    assert payload["matches"] == []
+    assert payload["ai_assist_eligible"] is True
+
+
+def test_diagnose_action_returns_empty_when_exit_code_zero(monkeypatch):
+    monkeypatch.setattr("installer.config.utils.is_port_free", lambda port: True)
+
+    payload = contract.build_payload(
+        "diagnose",
+        community=True,
+        overrides={
+            "_diagnose_input": {
+                "stdout": "Address already in use",
+                "stderr": "",
+                "exit_code": 0,
+                "phase": "noop",
+                "platform": "linux",
+            },
+        },
+    )
+
+    assert payload["matches"] == []
+    assert payload["ai_assist_eligible"] is False  # not a failure
