@@ -1,0 +1,14 @@
+{
+  "key": "workbench.care-bundles.value-sets",
+  "title": "VSAC Value Sets",
+  "description": "This page indexes the Value Set Authority Center (VSAC) library — the canonical source of clinical terminology value sets used by CMS eCQMs. Each value set groups codes from SNOMED CT, ICD-10-CM, LOINC, RxNorm, CPT, or HCPCS that collectively represent a clinical concept used in quality measurement.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Search by name (e.g. 'diabetes') or paste an OID directly to find a specific value set.",
+    "Filter by code system to narrow results to ICD-10-CM, SNOMED CT, LOINC, RxNorm, CPT, or HCPCS.",
+    "Click a value set name to see its codes, OMOP concept mappings, and which CMS measures reference it.",
+    "The OMOP concepts column shows how many codes have been mapped to OMOP standard concepts — high coverage means better cohort fidelity.",
+    "Value sets are versioned by expansion date — the expansion version is shown on the detail page."
+  ]
+}

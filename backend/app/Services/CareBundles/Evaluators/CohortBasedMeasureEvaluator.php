@@ -141,6 +141,31 @@ final class CohortBasedMeasureEvaluator implements CareBundleMeasureEvaluator
             ];
         }
 
+        // Persist per-person compliance status for this measure. Powers
+        // Tier C drill-down + cohort export (non-compliant roster). The
+        // temp tables are still in scope, so this is one INSERT...SELECT.
+        $appConn->statement(
+            '
+            DELETE FROM care_bundle_measure_person_status
+            WHERE care_bundle_run_id = ? AND quality_measure_id = ?
+        ',
+            [$run->id, $measure->id]
+        );
+        $appConn->statement(
+            '
+            INSERT INTO care_bundle_measure_person_status
+                (care_bundle_run_id, quality_measure_id, person_id, is_numer, is_excl)
+            SELECT ?, ?, cbq.person_id,
+                   (n.person_id IS NOT NULL),
+                   (e.person_id IS NOT NULL)
+            FROM care_bundle_qualifications cbq
+            LEFT JOIN cb_eval_numer_pp n ON n.person_id = cbq.person_id
+            LEFT JOIN cb_eval_excl_pp  e ON e.person_id = cbq.person_id
+            WHERE cbq.care_bundle_run_id = ?
+        ',
+            [$run->id, $measure->id, $run->id]
+        );
+
         // Drop the per-measure temp tables so the next measure's call gets a
         // clean slate; ON COMMIT DROP would only fire when the outer
         // materialization transaction commits.

@@ -2,12 +2,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   computeIntersection,
   createCohortFromIntersection,
+  exportRosterToCohort,
   fetchBundleComparison,
   fetchBundleQualifications,
   fetchBundleRuns,
   fetchCareBundleSources,
   fetchCoverageMatrix,
   fetchMeasureMethodology,
+  fetchMeasureRoster,
   fetchMeasureStrata,
   fetchMeasureTrend,
   fetchRun,
@@ -21,6 +23,7 @@ import {
   materializeBundle,
   type VsacValueSetListParams,
 } from "./api";
+import type { ComplianceBucket } from "./types";
 import type { IntersectionMode } from "./types";
 
 const KEYS = {
@@ -274,5 +277,55 @@ export function useMeasureTrend(
     queryFn: () => fetchMeasureTrend(bundleId as number, measureId as number, sourceId as number),
     enabled: ready,
     staleTime: 60_000,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Patient roster + cohort export (Tier C)
+// ---------------------------------------------------------------------------
+
+export function useMeasureRoster(
+  bundleId: number | null,
+  measureId: number | null,
+  sourceId: number | null,
+  bucket: ComplianceBucket,
+  page: number,
+  enabled: boolean = true,
+) {
+  const ready = enabled && bundleId != null && measureId != null && sourceId != null;
+  return useQuery({
+    queryKey: ready
+      ? ["care-bundles", bundleId, "measures", measureId, "roster", sourceId, bucket, page]
+      : ["care-bundles", "roster", "disabled"],
+    queryFn: () =>
+      fetchMeasureRoster(
+        bundleId as number,
+        measureId as number,
+        sourceId as number,
+        bucket,
+        page,
+        100,
+      ),
+    enabled: ready,
+    staleTime: 30_000,
+  });
+}
+
+export function useExportRosterToCohort() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      bundleId,
+      measureId,
+      payload,
+    }: {
+      bundleId: number;
+      measureId: number;
+      payload: import("./types").RosterToCohortPayload;
+    }) => exportRosterToCohort(bundleId, measureId, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["cohort-definitions"] });
+      qc.invalidateQueries({ queryKey: ["care-gap-bundles"] });
+    },
   });
 }

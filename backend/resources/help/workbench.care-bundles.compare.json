@@ -1,0 +1,14 @@
+{
+  "key": "workbench.care-bundles.compare",
+  "title": "Source Comparison",
+  "description": "The source comparison view runs the same bundle's measures across every qualifying data source simultaneously, letting you see how performance rates vary between sites, payers, or time periods. Deltas are computed relative to the source with the largest qualified population.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "The baseline source (used for delta calculation) is automatically chosen as the source with the most qualified patients.",
+    "Green delta values indicate better performance than the baseline; red values indicate worse performance.",
+    "Only sources that have been materialized and have at least one qualified patient are shown.",
+    "If no sources appear, return to the bundle detail page and materialize on at least one source with N ≥ 100K.",
+    "Confidence intervals are shown for each source — wide intervals indicate small denominators and less reliable rates."
+  ]
+}

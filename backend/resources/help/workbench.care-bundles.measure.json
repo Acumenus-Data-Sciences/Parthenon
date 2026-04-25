@@ -1,0 +1,14 @@
+{
+  "key": "workbench.care-bundles.measure",
+  "title": "CMS Measure Detail",
+  "description": "This page shows a single CMS eCQM and all of its linked VSAC value sets. Each value set represents a population criterion — initial patient population, denominator, numerator, exclusions — and maps to OMOP standard concepts for execution against CDM data.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "The CBE number and expansion version identify the exact specification version of this measure.",
+    "Click any value set name to view its codes, OMOP mappings, and clinical purpose.",
+    "The OMOP concepts column shows how many codes have been translated to OMOP standard concepts. Low coverage may cause under-counting.",
+    "Value sets with zero OMOP concepts need manual mapping review before this measure can be executed accurately.",
+    "This measure's criteria are implemented as FHIR Measure logic — download the FHIR Measure from the bundle detail page to inspect the full CQL."
+  ]
+}

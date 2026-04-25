@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Copy, Loader2 } from "lucide-react";
 import { Shell } from "@/components/workbench/primitives";
+import { HelpButton } from "@/features/help";
 import { useVsacCodes, useVsacOmopConcepts, useVsacValueSet } from "../hooks";
 import { WorkbenchTabs } from "../components/WorkbenchTabs";
 
@@ -43,16 +44,19 @@ export default function CareBundleVsacValueSetDetailPage() {
             {oid} · {d?.value_set.expansion_version ?? "—"}
           </p>
         </div>
-        <button
-          onClick={copyConceptIds}
-          disabled={!omop.data || omop.data.data.length === 0}
-          className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-text-primary transition-colors hover:opacity-90 disabled:opacity-60"
-          style={{ backgroundColor: "var(--accent)" }}
-          title="Copy all OMOP concept_ids as JSON array — paste into a care bundle's omop_concept_ids"
-        >
-          <Copy className="h-4 w-4" />
-          {copied ? "Copied!" : "Copy OMOP concept_ids"}
-        </button>
+        <div className="flex items-center gap-2">
+          <HelpButton helpKey="workbench.care-bundles.value-set" />
+          <button
+            onClick={copyConceptIds}
+            disabled={!omop.data || omop.data.data.length === 0}
+            className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-text-primary transition-colors hover:opacity-90 disabled:opacity-60"
+            style={{ backgroundColor: "var(--accent)" }}
+            title="Copy all OMOP concept_ids as JSON array — paste into a care bundle's omop_concept_ids"
+          >
+            <Copy className="h-4 w-4" />
+            {copied ? "Copied!" : "Copy OMOP concept_ids"}
+          </button>
+        </div>
       </header>
 
       {d && (

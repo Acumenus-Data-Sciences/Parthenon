@@ -5,6 +5,7 @@ import type {
   CareBundleRun,
   CareBundleSourcesResponse,
   ComparisonResponse,
+  ComplianceBucket,
   DerivedCohortDefinition,
   IntersectionMode,
   IntersectionResponse,
@@ -13,6 +14,9 @@ import type {
   MeasureMethodology,
   MeasureStrata,
   PaginatedResponse,
+  RosterResponse,
+  RosterToCohortPayload,
+  RosterToCohortResponse,
   TrendResponse,
   VsacCode,
   VsacMeasureDetail,
@@ -242,6 +246,37 @@ export async function fetchMeasureTrend(
   const { data } = await apiClient.get<{ data: TrendResponse }>(
     `${BASE}/${bundleId}/measures/${measureId}/trend`,
     { params: { source_id: sourceId, limit } },
+  );
+  return data.data;
+}
+
+// ---------------------------------------------------------------------------
+// Patient roster + cohort export (Tier C)
+// ---------------------------------------------------------------------------
+
+export async function fetchMeasureRoster(
+  bundleId: number,
+  measureId: number,
+  sourceId: number,
+  bucket: ComplianceBucket = "non_compliant",
+  page = 1,
+  perPage = 100,
+): Promise<RosterResponse> {
+  const { data } = await apiClient.get<{ data: RosterResponse }>(
+    `${BASE}/${bundleId}/measures/${measureId}/roster`,
+    { params: { source_id: sourceId, bucket, page, per_page: perPage } },
+  );
+  return data.data;
+}
+
+export async function exportRosterToCohort(
+  bundleId: number,
+  measureId: number,
+  payload: RosterToCohortPayload,
+): Promise<RosterToCohortResponse> {
+  const { data } = await apiClient.post<{ data: RosterToCohortResponse }>(
+    `${BASE}/${bundleId}/measures/${measureId}/roster/to-cohort`,
+    payload,
   );
   return data.data;
 }

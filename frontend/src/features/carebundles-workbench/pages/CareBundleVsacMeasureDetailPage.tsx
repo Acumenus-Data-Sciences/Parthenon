@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Shell } from "@/components/workbench/primitives";
+import { HelpButton } from "@/features/help";
 import { useVsacMeasure } from "../hooks";
 import { WorkbenchTabs } from "../components/WorkbenchTabs";
 
@@ -21,16 +22,19 @@ export default function CareBundleVsacMeasureDetailPage() {
         <ArrowLeft className="h-3 w-3" /> CMS Measures
       </Link>
 
-      <header>
-        <h1 className="text-2xl font-bold text-text-primary">
-          {cmsId ?? "…"}
-        </h1>
-        <p className="mt-1 text-sm text-text-ghost">
-          {data?.measure.cbe_number && data.measure.cbe_number !== "Not Applicable"
-            ? `CBE ${data.measure.cbe_number} · `
-            : ""}
-          {data?.measure.expansion_version ?? ""}
-        </p>
+      <header className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-text-primary">
+            {cmsId ?? "…"}
+          </h1>
+          <p className="mt-1 text-sm text-text-ghost">
+            {data?.measure.cbe_number && data.measure.cbe_number !== "Not Applicable"
+              ? `CBE ${data.measure.cbe_number} · `
+              : ""}
+            {data?.measure.expansion_version ?? ""}
+          </p>
+        </div>
+        <HelpButton helpKey="workbench.care-bundles.measure" />
       </header>
 
       <Shell

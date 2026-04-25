@@ -1,0 +1,14 @@
+{
+  "key": "workbench.care-bundles.measures",
+  "title": "CMS Measures",
+  "description": "This page lists CMS electronic clinical quality measures (eCQMs) from the VSAC library. Each measure has a CMS identifier (e.g. CMS349v6), a CBE number assigned by the National Quality Forum, a reporting program (MIPS, Hospital, etc.), and a set of value sets that define its population criteria.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Search by CMS ID (e.g. 'CMS349'), CBE number, or measure title.",
+    "Click a CMS ID to see all value sets linked to that measure and their OMOP concept coverage.",
+    "CBE numbers are assigned by the National Quality Forum (NQF) and are used in regulatory reporting.",
+    "Each measure's value sets define the patient population, numerator, denominator, and exclusion criteria.",
+    "Measures used by care bundles in Parthenon appear on their respective bundle detail pages — this library contains the full CMS eCQM catalog."
+  ]
+}

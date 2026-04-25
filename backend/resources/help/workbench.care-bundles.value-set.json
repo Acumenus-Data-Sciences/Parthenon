@@ -1,0 +1,14 @@
+{
+  "key": "workbench.care-bundles.value-set",
+  "title": "Value Set Detail",
+  "description": "This page shows a single VSAC value set — its constituent codes, OMOP standard concept mappings, clinical purpose, and the CMS measures that use it. The OMOP concept IDs can be copied as a JSON array and pasted directly into a care bundle's omop_concept_ids field.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Click 'Copy OMOP concept_ids' to copy the full list of mapped OMOP concept IDs as a JSON array — use this to configure cohort criteria or care bundle definitions.",
+    "The 'Clinical focus' section describes the clinical intent of the value set as documented in VSAC.",
+    "The 'Used by CMS measures' section links to every eCQM that references this value set.",
+    "Not all source codes will have OMOP mappings — review unmapped codes if your cohort counts seem low.",
+    "The expansion version reflects the date this value set was last updated in VSAC. Older expansions may not include recently added codes."
+  ]
+}

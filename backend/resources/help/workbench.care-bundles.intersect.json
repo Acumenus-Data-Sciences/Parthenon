@@ -1,0 +1,14 @@
+{
+  "key": "workbench.care-bundles.intersect",
+  "title": "Intersection Explorer",
+  "description": "The intersection explorer shows how patient populations overlap across multiple care bundles for a single data source. Use UpSet plots or Venn diagrams to visualise comorbidity patterns — for example, how many patients qualify for both a diabetes bundle and a hypertension bundle simultaneously.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Select a data source first, then check two or more bundles from the list to compute their intersection.",
+    "The UpSet plot is more readable than a Venn diagram for four or more bundles.",
+    "Switch between 'All intersections' and 'Selected only' mode to focus on patients who qualify for every chosen bundle.",
+    "Click 'Save as cohort' to export the intersection as a named cohort definition for use in analyses.",
+    "Intersection counts require each bundle to have been materialized on the chosen source — missing counts appear as N/A."
+  ]
+}

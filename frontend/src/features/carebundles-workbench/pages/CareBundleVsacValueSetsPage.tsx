@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { List, Loader2, Search } from "lucide-react";
 import { Shell } from "@/components/workbench/primitives";
+import { HelpButton } from "@/features/help";
 import { useVsacValueSets } from "../hooks";
 import { WorkbenchTabs } from "../components/WorkbenchTabs";
 
@@ -30,16 +31,19 @@ export default function CareBundleVsacValueSetsPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-6 py-8">
-      <header className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-surface-raised">
-          <List className="h-5 w-5 text-text-secondary" />
+      <header className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-surface-raised">
+            <List className="h-5 w-5 text-text-secondary" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-text-primary">VSAC Value Sets</h1>
+            <p className="text-sm text-text-ghost">
+              CMS Value Set Authority Center library — {meta?.total?.toLocaleString() ?? "…"} value sets indexed.
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-text-primary">VSAC Value Sets</h1>
-          <p className="text-sm text-text-ghost">
-            CMS Value Set Authority Center library — {meta?.total?.toLocaleString() ?? "…"} value sets indexed.
-          </p>
-        </div>
+        <HelpButton helpKey="workbench.care-bundles.value-sets" />
       </header>
 
       <WorkbenchTabs />

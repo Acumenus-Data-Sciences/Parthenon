@@ -1,0 +1,15 @@
+{
+  "key": "workbench.care-bundles.detail",
+  "title": "Care Bundle Detail",
+  "description": "This page shows per-measure performance for a single care bundle against a selected data source. Each FHIR eCQM measure displays its numerator and denominator counts, performance rate, and 95% confidence interval. Stratifications break down rates by age group, sex, or payer.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Switch data sources using the dropdown at the top right. Sources labelled ⚠ are below the 100,000-patient threshold and are for research use only.",
+    "Click the chevron next to any measure to expand its stratifications (age band, sex, payer).",
+    "Click the info icon (ℹ) to open the FHIR Measure methodology panel — this shows measure logic, population criteria, and data requirements.",
+    "Click 'Materialize' to run this bundle against the selected source. Runs are queued and results appear within minutes.",
+    "Use 'Compare sources' to open a side-by-side view of the same measures across all qualifying sources.",
+    "Download the FHIR R4 Measure resource (JSON) to share the measure definition or import it into another FHIR-enabled system."
+  ]
+}

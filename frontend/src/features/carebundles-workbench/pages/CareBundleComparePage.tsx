@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, GitCompareArrows, Loader2 } from "lucide-react";
 import { Shell } from "@/components/workbench/primitives";
+import { HelpButton } from "@/features/help";
 import { useBundle } from "@/features/care-gaps/hooks/useCareGaps";
 import { useBundleComparison } from "../hooks";
 import { formatRateWithCI } from "../lib/formatting";
@@ -41,22 +42,25 @@ export default function CareBundleComparePage() {
         <ArrowLeft className="h-3 w-3" /> Back to bundle
       </Link>
 
-      <header className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-surface-raised">
-          <GitCompareArrows className="h-5 w-5 text-text-secondary" />
+      <header className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-surface-raised">
+            <GitCompareArrows className="h-5 w-5 text-text-secondary" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-text-primary">
+              Source comparison · {bundle?.condition_name ?? "…"}
+            </h1>
+            <p className="text-sm text-text-ghost">
+              Same measures, every qualifying source. Deltas relative to{" "}
+              <span className="font-medium text-text-muted">
+                {baselineSource?.source_name ?? "baseline"}
+              </span>
+              .
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-text-primary">
-            Source comparison · {bundle?.condition_name ?? "…"}
-          </h1>
-          <p className="text-sm text-text-ghost">
-            Same measures, every qualifying source. Deltas relative to{" "}
-            <span className="font-medium text-text-muted">
-              {baselineSource?.source_name ?? "baseline"}
-            </span>
-            .
-          </p>
-        </div>
+        <HelpButton helpKey="workbench.care-bundles.compare" />
       </header>
 
       {compareQuery.isLoading && (

@@ -1,0 +1,14 @@
+{
+  "key": "workbench.care-bundles",
+  "title": "CareBundles Workbench",
+  "description": "The CareBundles Workbench gives you a coverage matrix of qualified patient counts for each condition-specific care bundle across your connected data sources. Each cell shows how many patients in a given source meet the bundle's entry criteria. Bundles must be materialized before counts appear.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Click 'Materialize all' to run qualification logic for every bundle × source combination at once.",
+    "Sources with fewer than 100,000 patients are excluded by default — toggle 'Show research-only sources' to include them.",
+    "Click any non-zero count cell to drill into that bundle's per-measure performance for that source.",
+    "A grey dash means the bundle has never been materialized for that source. A zero means the source was run but no patients qualified.",
+    "Each care bundle corresponds to a FHIR eCQM program (e.g. CMS349 for HIV screening). The bundle code is the CMS measure ID."
+  ]
+}

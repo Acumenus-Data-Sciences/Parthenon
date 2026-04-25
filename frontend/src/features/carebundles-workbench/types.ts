@@ -367,3 +367,41 @@ export interface TrendResponse {
   measure_id: number;
   points: TrendPoint[];
 }
+
+// ---------------------------------------------------------------------------
+// Patient roster + cohort export (Tier C)
+// ---------------------------------------------------------------------------
+
+export type ComplianceBucket = "non_compliant" | "compliant" | "excluded";
+
+export interface RosterPerson {
+  person_id: number;
+  age: number | null;
+  gender: string;
+}
+
+export interface RosterResponse {
+  bucket: ComplianceBucket;
+  total: number;
+  page: number;
+  per_page: number;
+  persons: RosterPerson[];
+  run_id?: number;
+}
+
+export interface RosterToCohortPayload {
+  source_id: number;
+  bucket: ComplianceBucket;
+  name: string;
+  description?: string | null;
+  is_public?: boolean;
+}
+
+export interface RosterToCohortResponse {
+  id: number;
+  name: string;
+  description: string | null;
+  is_public: boolean;
+  version: number;
+  created_at: string;
+}

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CareBundles\IntersectionRequest;
 use App\Http\Requests\CareBundles\IntersectionToCohortRequest;
 use App\Http\Requests\CareBundles\MaterializeBundleRequest;
+use App\Http\Requests\CareBundles\MeasureRosterToCohortRequest;
 use App\Jobs\CareBundles\MaterializeAllCareBundlesJob;
 use App\Jobs\CareBundles\MaterializeCareBundleJob;
 use App\Models\App\CareBundleMeasureResult;
@@ -17,14 +18,17 @@ use App\Services\CareBundles\CareBundleQualificationService;
 use App\Services\CareBundles\CareBundleSourceService;
 use App\Services\CareBundles\FhirMeasureExporter;
 use App\Services\CareBundles\IntersectionCohortService;
+use App\Services\CareBundles\MeasureCohortExportService;
 use App\Services\CareBundles\MeasureComparisonService;
 use App\Services\CareBundles\MeasureMethodologyService;
+use App\Services\CareBundles\MeasureRosterService;
 use App\Services\CareBundles\MeasureStratificationService;
 use App\Services\CareBundles\MeasureTrendService;
 use App\Services\CareBundles\WilsonCI;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 /**
  * @group CareBundles Workbench
@@ -40,7 +44,65 @@ class CareBundleController extends Controller
         private readonly MeasureStratificationService $stratificationService,
         private readonly MeasureComparisonService $comparisonService,
         private readonly MeasureTrendService $trendService,
+        private readonly MeasureRosterService $rosterService,
+        private readonly MeasureCohortExportService $cohortExporter,
     ) {}
+
+    /**
+     * GET /v1/care-bundles/{bundle}/measures/{measure}/roster?source_id=X&bucket=non_compliant&page=1
+     *
+     * Paginated patient roster for a compliance bucket. Powers the Tier C
+     * drill-down — "show me the 98K BP-uncontrolled patients."
+     */
+    public function roster(Request $request, ConditionBundle $bundle, QualityMeasure $measure): JsonResponse
+    {
+        $validated = $request->validate([
+            'source_id' => ['required', 'integer', 'exists:sources,id,deleted_at,NULL'],
+            'bucket' => ['nullable', Rule::in(MeasureRosterService::BUCKETS)],
+            'page' => ['nullable', 'integer', 'min:1'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:500'],
+        ]);
+
+        $source = Source::findOrFail($validated['source_id']);
+
+        return response()->json([
+            'data' => $this->rosterService->roster(
+                $bundle,
+                $measure,
+                $source,
+                $validated['bucket'] ?? 'non_compliant',
+                (int) ($validated['page'] ?? 1),
+                (int) ($validated['per_page'] ?? 100),
+            ),
+        ]);
+    }
+
+    /**
+     * POST /v1/care-bundles/{bundle}/measures/{measure}/roster/to-cohort
+     *
+     * Materialize a compliance bucket into a first-class CohortDefinition
+     * (with members written to OMOP results.cohort) for downstream Studies.
+     */
+    public function rosterToCohort(
+        MeasureRosterToCohortRequest $request,
+        ConditionBundle $bundle,
+        QualityMeasure $measure,
+    ): JsonResponse {
+        $source = Source::findOrFail($request->integer('source_id'));
+
+        $cohort = $this->cohortExporter->export(
+            $bundle,
+            $measure,
+            $source,
+            (string) $request->input('bucket'),
+            (string) $request->input('name'),
+            $request->input('description'),
+            $request->user(),
+            (bool) $request->boolean('is_public'),
+        );
+
+        return response()->json(['data' => $cohort], 201);
+    }
 
     /**
      * GET /v1/care-bundles/{bundle}/comparison

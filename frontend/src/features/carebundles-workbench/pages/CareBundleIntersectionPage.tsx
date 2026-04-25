@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, GitMerge, Loader2 } from "lucide-react";
 import { Shell } from "@/components/workbench/primitives";
+import { HelpButton } from "@/features/help";
 import { useBundles } from "@/features/care-gaps/hooks/useCareGaps";
 import { useSources } from "@/features/data-sources/hooks/useSources";
 import { UpSetPlot } from "../components/UpSetPlot";
@@ -74,18 +75,21 @@ export default function CareBundleIntersectionPage() {
           </div>
         </div>
 
-        <button
-          onClick={() => setDialogOpen(true)}
-          disabled={
-            intersection.data == null ||
-            intersection.data.count === 0 ||
-            selectedBundleIds.length < 1
-          }
-          className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-text-primary transition-colors hover:opacity-90 disabled:opacity-60"
-          style={{ backgroundColor: "var(--primary)" }}
-        >
-          Save intersection as cohort
-        </button>
+        <div className="flex items-center gap-2">
+          <HelpButton helpKey="workbench.care-bundles.intersect" />
+          <button
+            onClick={() => setDialogOpen(true)}
+            disabled={
+              intersection.data == null ||
+              intersection.data.count === 0 ||
+              selectedBundleIds.length < 1
+            }
+            className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-text-primary transition-colors hover:opacity-90 disabled:opacity-60"
+            style={{ backgroundColor: "var(--primary)" }}
+          >
+            Save intersection as cohort
+          </button>
+        </div>
       </header>
 
       <Shell title="Query" subtitle="Pick bundles, a source, and a mode">

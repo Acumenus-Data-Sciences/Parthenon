@@ -9,8 +9,10 @@ import {
   Info,
   Loader2,
   Play,
+  Users,
 } from "lucide-react";
 import { Shell } from "@/components/workbench/primitives";
+import { HelpButton } from "@/features/help";
 import { useBundle } from "@/features/care-gaps/hooks/useCareGaps";
 import { fetchFhirMeasure } from "../api";
 import {
@@ -23,7 +25,15 @@ import { formatRateWithCI, formatRelativeTime } from "../lib/formatting";
 import { WorkbenchTabs } from "../components/WorkbenchTabs";
 import { SourceQualifierBanner } from "../components/SourceQualifierBanner";
 import { MeasureMethodologyModal } from "../components/MeasureMethodologyModal";
+import { MeasureRosterModal } from "../components/MeasureRosterModal";
 import { MeasureStrataRow } from "../components/MeasureStrataRow";
+
+interface RosterTarget {
+  measureId: number;
+  measureCode: string | null;
+  measureName: string | null;
+}
+
 
 export default function CareBundleDetailPage() {
   const { bundleId: bundleIdParam } = useParams<{ bundleId: string }>();
@@ -31,6 +41,7 @@ export default function CareBundleDetailPage() {
 
   const [sourceId, setSourceId] = useState<number | null>(null);
   const [methodologyMeasureId, setMethodologyMeasureId] = useState<number | null>(null);
+  const [rosterTarget, setRosterTarget] = useState<RosterTarget | null>(null);
   const [stratifiedMeasureIds, setStratifiedMeasureIds] = useState<Set<number>>(
     () => new Set(),
   );
@@ -97,6 +108,7 @@ export default function CareBundleDetailPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <HelpButton helpKey="workbench.care-bundles.detail" />
           <select
             value={effectiveSourceId ?? ""}
             onChange={(e) => setSourceId(Number(e.target.value))}
@@ -282,6 +294,20 @@ export default function CareBundleDetailPage() {
                             </button>
                             <button
                               onClick={() =>
+                                setRosterTarget({
+                                  measureId: m.quality_measure_id,
+                                  measureCode: m.measure.measure_code,
+                                  measureName: m.measure.measure_name,
+                                })
+                              }
+                              className="rounded p-1 text-text-ghost transition-colors hover:bg-surface-overlay hover:text-text-primary"
+                              title="View patient roster + export as cohort"
+                              aria-label="View patient roster"
+                            >
+                              <Users className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() =>
                                 setMethodologyMeasureId(m.quality_measure_id)
                               }
                               className="rounded p-1 text-text-ghost transition-colors hover:bg-surface-overlay hover:text-text-primary"
@@ -315,6 +341,16 @@ export default function CareBundleDetailPage() {
         measureId={methodologyMeasureId}
         sourceId={effectiveSourceId}
         onClose={() => setMethodologyMeasureId(null)}
+      />
+
+      <MeasureRosterModal
+        bundleId={bundleId}
+        measureId={rosterTarget?.measureId ?? null}
+        measureCode={rosterTarget?.measureCode ?? null}
+        measureName={rosterTarget?.measureName ?? null}
+        sourceId={effectiveSourceId}
+        sourceName={selectedSource?.source_name ?? null}
+        onClose={() => setRosterTarget(null)}
       />
 
       <Shell title="Recent runs" subtitle={`${runs.length} most recent`}>

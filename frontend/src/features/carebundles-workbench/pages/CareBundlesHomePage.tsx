@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Loader2, PanelsTopLeft, RefreshCw } from "lucide-react";
 import { Shell } from "@/components/workbench/primitives";
+import { HelpButton } from "@/features/help";
 import { useBundles } from "@/features/care-gaps/hooks/useCareGaps";
 import {
   useCareBundleCoverage,
@@ -53,6 +54,7 @@ export default function CareBundlesHomePage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <HelpButton helpKey="workbench.care-bundles" />
           <button
             onClick={() => materializeAll.mutate()}
             disabled={materializeAll.isPending}
