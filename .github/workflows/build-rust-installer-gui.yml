@@ -726,3 +726,83 @@ jobs:
           gh release upload "${{ github.event.release.tag_name }}" \
             "latest.json" --clobber
           echo "Published latest.json to release ${{ github.event.release.tag_name }}"
+
+  verify-release:
+    name: Verify release artifacts
+    needs: [build, installer-bundle, publish-updater-manifest]
+    runs-on: ubuntu-22.04
+    if: ${{ github.event_name == 'release' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p verify
+          gh release download "${{ github.event.release.tag_name }}" --dir verify
+          ls -la verify/
+
+      - name: Verify SHA-256 sidecars
+        working-directory: verify
+        run: |
+          set -e
+          for sha_file in *.sha256; do
+            artifact="${sha_file%.sha256}"
+            if [ ! -f "$artifact" ]; then
+              echo "WARN: sidecar $sha_file has no corresponding artifact" >&2
+              continue
+            fi
+            expected="$(awk '{print $1}' "$sha_file")"
+            actual="$(sha256sum "$artifact" | awk '{print $1}')"
+            if [ "$expected" = "$actual" ]; then
+              echo "✓ $artifact"
+            else
+              echo "✗ $artifact: expected $expected, got $actual" >&2
+              exit 1
+            fi
+          done
+
+      - name: Verify GPG signatures (Linux artifacts)
+        working-directory: verify
+        run: |
+          set -e
+          if [ ! -f SIGNING-KEY.asc ]; then
+            echo "WARN: SIGNING-KEY.asc not present in release — skipping GPG verification"
+            exit 0
+          fi
+          gpg --import SIGNING-KEY.asc
+          for asc in *.asc; do
+            [ "$asc" = "SIGNING-KEY.asc" ] && continue
+            artifact="${asc%.asc}"
+            if [ ! -f "$artifact" ]; then
+              continue
+            fi
+            if gpg --verify "$asc" "$artifact"; then
+              echo "✓ GPG: $artifact"
+            else
+              echo "✗ GPG verification failed for $artifact" >&2
+              exit 1
+            fi
+          done
+
+      - name: Verify SLSA attestations
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          cd verify
+          for artifact in *.dmg *.msi *.deb *.rpm *.AppImage; do
+            [ -f "$artifact" ] || continue
+            if gh attestation verify "$artifact" --owner sudoshi; then
+              echo "✓ Attestation: $artifact"
+            else
+              echo "✗ Attestation verification failed for $artifact" >&2
+              exit 1
+            fi
+          done
+
+      - name: Summary
+        run: |
+          echo "All cryptographic verifications passed."
+          echo "Release ${{ github.event.release.tag_name }} is ready for publication."
