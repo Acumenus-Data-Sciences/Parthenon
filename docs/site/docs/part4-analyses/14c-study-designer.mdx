@@ -1,164 +1,297 @@
 ---
-id: 14c-study-designer
-title: "14c. Study Designer (AI)"
-sidebar_label: "14c. Study Designer (AI)"
-slug: /study-designer
+id: study-designer
+title: Study Designer
+sidebar_label: Study Designer
 ---
 
-# Study Designer (AI)
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-The **Study Designer** is an AI-assisted tool powered by the OHDSI StudyAgent that helps researchers translate natural language study descriptions into structured study components. It provides four capabilities: intent splitting, phenotype search, AI-ranked phenotype recommendations, and cohort definition linting.
+# Study Designer
 
-This module bridges the gap between a researcher's clinical question and the technical artifacts needed to execute the study in Parthenon.
+The **Study Designer** is Parthenon's end-to-end, OHDSI-aligned workspace for authoring, verifying, and packaging observational research studies. It guides you from an initial research intent through concept set drafting, cohort authoring, feasibility assessment, and analysis planning, and ultimately produces a locked, reproducible study package artifact.
 
----
-
-## Module Architecture
-
-```
-StudyDesignerPage
- |
- |-- Header (Brain icon, "Study Designer" title)
- |
- |-- Tab Bar
- |    |-- Study Intent  (Target icon)
- |    |-- Phenotype Search  (Search icon)
- |    |-- Recommendations  (Sparkles icon)
- |    |-- Cohort Lint  (AlertTriangle icon)
- |
- |-- Tab: Study Intent
- |    |-- Natural language text area
- |    |-- "Analyze Study Intent" button
- |    |-- Intent Split Results (target population + outcome)
- |    |-- Recommended Phenotypes list (scored, ranked)
- |
- |-- Tab: Phenotype Search
- |    |-- Search input + Search button
- |    |-- Results list (cohort ID, name, description, score)
- |
- |-- Tab: Recommendations
- |    |-- Prompt to use Study Intent tab first
- |
- |-- Tab: Cohort Lint
- |    |-- JSON text area for cohort definition
- |    |-- "Run Lint" button
- |    |-- Lint results (severity-coded warnings/errors)
-```
-
-All API calls route through the backend to the Python AI service (`/api/v1/study-agent/*`).
-
----
-
-## Feature Walkthrough
-
-### Study Intent Tab
-
-The primary workflow starts here. Enter a natural language description of your study:
-
-> *"Compare the risk of heart failure in patients newly prescribed SGLT2 inhibitors vs DPP-4 inhibitors among adults with type 2 diabetes"*
-
-Click **Analyze Study Intent** to trigger two parallel AI operations:
-
-1. **Intent Splitting** -- The AI parses your description into a structured **target population** and **outcome**. Results appear in a two-column card layout:
-   - **Target Population** (teal) -- the patient group under study
-   - **Outcome** (gold) -- the clinical event being measured
-
-2. **Phenotype Recommendations** -- The AI searches the OHDSI Phenotype Library and returns ranked phenotype definitions relevant to your study intent. Each recommendation shows:
-   - A numbered rank
-   - Phenotype name
-   - Rationale explaining why it was selected
-   - Relevance score
-
-:::tip
-Write your study intent in plain clinical language. The AI performs best with descriptions that clearly specify the intervention, population, and outcome. Include details like age ranges, disease context, and specific drug classes when possible.
-:::
-
-### Phenotype Search Tab
-
-A direct search interface for the OHDSI Phenotype Library. Enter a clinical term (e.g., "type 2 diabetes", "heart failure", "COPD") and press Enter or click **Search**.
-
-Results display in a list showing:
-- **Cohort ID** -- the OHDSI phenotype library identifier
-- **Name** -- the phenotype definition name
-- **Description** -- truncated phenotype description
-- **Score** -- semantic similarity score from the search
-
-:::tip
-Phenotype search uses vector similarity (pgvector embeddings) rather than keyword matching. Searches like "T2DM" and "type 2 diabetes mellitus" will return equivalent results.
-:::
-
-### Recommendations Tab
-
-This tab serves as a pointer to the Study Intent tab. Phenotype recommendations are generated as a side effect of analyzing a study intent and appear inline on that tab. Navigate to the Study Intent tab and submit your study description to populate recommendations.
-
-### Cohort Lint Tab
-
-The cohort linter analyzes a cohort definition JSON for common design issues. Paste a full cohort definition JSON (the `ConceptSets`, `PrimaryCriteria`, etc.) into the text area and click **Run Lint**.
-
-The linter checks for issues such as:
-- Missing washout periods
-- Empty concept sets
-- Inverted time windows
-- Missing inclusion criteria
-- Overly broad primary criteria
-
-Results are displayed with severity-coded cards:
-
-| Severity | Color | Meaning |
-|---|---|---|
-| **Error** | Red | Critical design flaw that will likely produce incorrect results |
-| **Warning** | Yellow | Potential issue that warrants review |
-| **Info** | Gray | Suggestion for improvement |
-
-:::warning
-The cohort linter requires valid JSON input. If the JSON is malformed, the lint operation will fail with an error message. Ensure your cohort definition is well-formed before running the lint check.
+:::info OHDSI Workflow Alignment
+Study Designer follows the canonical OHDSI study development lifecycle: **Intent → Concept Sets → Cohorts → Feasibility → Analysis Plan → Package Lock**. Each gate must pass verification before you can proceed to the next phase.
 :::
 
 ---
 
-## API Reference
+## Overview
 
-| Endpoint | Method | Description |
-|---|---|---|
-| `GET /api/v1/study-agent/health` | GET | Check AI service availability |
-| `POST /api/v1/study-agent/intent/split` | POST | Split natural language intent into target + outcome |
-| `POST /api/v1/study-agent/phenotype/search` | POST | Search phenotype library by semantic query |
-| `POST /api/v1/study-agent/phenotype/recommend` | POST | Get AI-ranked phenotype recommendations for a study intent |
-| `POST /api/v1/study-agent/cohort/lint` | POST | Lint a cohort definition JSON for design issues |
-| `POST /api/v1/study-agent/concept-set/review` | POST | Review a concept set for completeness |
-| `POST /api/v1/study-agent/phenotype/improve` | POST | Suggest improvements to a phenotype definition |
+A **Study Design Session** is a versioned workspace. Every material change — AI-assisted intent generation, cohort imports, concept set drafts, and analysis plan edits — is recorded as a versioned asset so you have a full audit trail from idea to locked package.
 
-:::warning
-The Study Designer requires the Python AI service to be running and healthy. If the AI service is unavailable, all tabs will return errors. Check the service at `http://localhost:8002/health` or via the System Health dashboard in Administration.
+| Concept | Description |
+|---|---|
+| **Session** | Top-level container for one research question |
+| **Version** | Snapshot of a session at a point in time; versions are immutable once locked |
+| **Asset** | Any durable artifact attached to a session (intent, concept set draft, cohort draft, analysis plan, feasibility report) |
+| **AI Event** | Recorded invocation of an AI assistant action within the session |
+| **Locked Package** | A signed, immutable bundle of all verified assets ready for execution or external distribution |
+
+---
+
+## Creating a Study Design Session
+
+1. Navigate to **Analyses → Study Designer**.
+2. Click **New Study**.
+3. Enter a **Study Title** and optional description.
+4. Choose a starting workflow:
+   - **Intent-First** — Describe your research question in natural language and let Abby AI generate a structured intent.
+   - **Bottom-Up Import** — Import an existing cohort, concept set, or analysis specification as the starting point.
+5. Click **Create Session**.
+
+The session opens at the **Intent** phase.
+
+---
+
+## Phase 1 — Research Intent
+
+The intent phase captures the structured research question that governs all downstream assets.
+
+### AI-Assisted Intent Generation
+
+1. In the **Intent** panel, type your research question in plain language.
+   > *Example: "Compare the risk of major adverse cardiovascular events in new users of GLP-1 receptor agonists versus DPP-4 inhibitors in type 2 diabetes patients aged 40–75."*
+2. Click **Generate Intent**. Abby AI produces a structured intent document covering:
+   - Population description
+   - Exposure(s) of interest
+   - Comparator(s)
+   - Outcomes
+   - Time-at-risk windows
+   - Covariates and confounders
+3. Review and edit each field directly in the intent editor.
+4. Click **Accept Intent** to lock the intent and advance to concept set drafting.
+
+:::tip Critique Assets
+At any phase you can click **Critique** to invoke Abby AI's critique pipeline. The critique reviews your current assets for methodological gaps, OMOP alignment issues, and OHDSI best-practice deviations, and writes a structured critique asset to the session timeline.
+:::
+
+### Bottom-Up Study Import
+
+If you are starting from existing work:
+
+1. Click **Import Study** in the Intent panel.
+2. Select one or more source objects:
+   - Cohort definitions from Parthenon's Cohort Library
+   - Concept sets from your library or the Phenotype Library
+   - An existing analysis specification (PLE, PLP, IR, Characterization)
+3. Study Designer maps imported objects to the appropriate intent fields and creates draft assets.
+4. Review the generated intent, then click **Accept Intent**.
+
+---
+
+## Phase 2 — Concept Set Drafts
+
+The concept set drafting phase lets you build or refine the OMOP concept sets that will define your exposures, outcomes, and covariates.
+
+### Verifier Rules
+
+Study Designer enforces strict concept set verification before any cohort or package operations:
+
+| Rule | Effect |
+|---|---|
+| All concept IDs must be **positive integers** present in `vocab.concept` | Concepts not found in the vocabulary block materialization |
+| **Deprecated** concepts (`invalid_reason IS NOT NULL`) are flagged | Deprecated concepts block materialization with a hard error |
+| Concepts with `standard_concept != 'S'` generate warnings | Non-standard concepts are highlighted but do not block unless promoted to errors in your system configuration |
+
+### Diagnostics Panel
+
+The **Verifier Diagnostics** panel (right sidebar) shows real-time validation state:
+
+- 🟢 **Valid** — concept is current, standard, and present in `vocab.concept`
+- 🟡 **Warning** — concept is non-standard or has a newer mapping
+- 🔴 **Error** — concept is missing from the vocabulary or deprecated; **materialization is blocked**
+
+Click any flagged concept to open the Vocabulary Browser and find a replacement.
+
+### Drafting Workflow
+
+1. Click **Add Concept Set** to create a new draft.
+2. Search the vocabulary or paste a list of concept IDs.
+3. The verifier runs automatically after each change.
+4. Resolve all errors shown in the Diagnostics panel.
+5. Click **Finalize Concept Sets** to seal the concept set assets and proceed.
+
+---
+
+## Phase 3 — Cohort Drafts
+
+Cohort drafts are authored using the same Cohort Expression builder available elsewhere in Parthenon, but are managed within the session versioning system.
+
+### Authoring a Cohort Draft
+
+1. Click **New Cohort Draft**.
+2. Build inclusion criteria using your finalized concept sets.
+3. Configure entry events, additional criteria, and exit criteria as you would in the standard Cohort Builder.
+4. Save the draft. The session records the draft as a versioned cohort asset.
+
+### Importing Cohorts
+
+1. Click **Import Cohort**.
+2. Select from your Cohort Library or the Phenotype Library.
+3. Study Designer performs phenotype validation on import:
+   - Deprecated concepts within an imported cohort definition **block feasibility and package lock**.
+   - A deprecation report is shown inline; you must resolve or acknowledge each deprecated concept before proceeding.
+
+### Cohort Verifier
+
+Cohorts must be **materialized** against at least one connected data source before they are considered verified.
+
+1. Select a data source from the **Materialize Against** dropdown.
+2. Click **Generate**. Parthenon runs the cohort generation job.
+3. Once complete, the cohort status changes to **Verified — Materialized**.
+
+:::warning Deprecated Cohorts Block Downstream Phases
+If a cohort draft or imported cohort contains deprecated OMOP concept IDs that have not been resolved, the session will display a hard block on the Feasibility and Package Lock phases. Resolve all deprecations in the Diagnostics panel before continuing.
 :::
 
 ---
 
-## Best Practices
+## Phase 4 — Feasibility Evidence
 
-### Writing Effective Study Intents
+Feasibility evidence gives you an early signal on cohort sizes and outcome rates before committing to full execution.
 
-For optimal intent splitting and phenotype recommendations, follow these guidelines:
-
-1. **Be specific about the intervention** -- name the drug class or procedure, not just "treatment." For example: "SGLT2 inhibitors" rather than "diabetes medication."
-2. **Define the population clearly** -- include age ranges, disease context, and any relevant inclusion criteria. For example: "adults over 18 with established type 2 diabetes."
-3. **State the outcome explicitly** -- use standard clinical terminology for the event being measured. For example: "hospitalization for heart failure" rather than "heart problems."
-4. **Include the comparator when applicable** -- if your study compares two treatments, name both. For example: "SGLT2 inhibitors vs DPP-4 inhibitors."
-
-### Using Lint Results Effectively
-
-The cohort linter is most valuable when used iteratively:
-
-1. Build or import a cohort definition.
-2. Run the lint check to identify potential design issues.
-3. Address any errors (critical flaws) before proceeding.
-4. Review warnings to determine if they apply to your specific study context.
-5. Re-lint after making changes to confirm all issues are resolved.
+1. With cohorts verified and materialized, click **Run Feasibility**.
+2. Study Designer submits feasibility queries against your selected data sources.
+3. Results populate the **Feasibility Evidence** panel:
+   - Target cohort size (N)
+   - Comparator cohort size (N)
+   - Outcome rate estimate
+   - Data source coverage summary
+4. Review results. If sizes are insufficient, return to Phase 2 or 3 and revise.
+5. Click **Accept Feasibility Evidence** to record the feasibility asset and unlock the Analysis Plan phase.
 
 ---
 
-## Related Pages
+## Phase 5 — Analysis Plan
 
-- [Phenotype Library](/phenotype-library) -- browse and import the full OHDSI phenotype catalog
-- [Building Cohorts](/part3-cohorts/06-building-cohorts) -- manually build cohort definitions
-- [Concept Sets](/part2-vocabulary/04-concept-sets) -- create concept sets referenced by cohort definitions
+The analysis plan specifies the statistical methods that will be applied to your verified cohorts.
+
+### Supported Analysis Types
+
+| Analysis Type | Module |
+|---|---|
+| Cohort Characterization | Part IV — Characterization |
+| Incidence Rate Analysis | Part IV — Incidence Rates |
+| Population-Level Estimation (PLE) | Part IV — PLE |
+| Patient-Level Prediction (PLP) | Part IV — PLP |
+| Self-Controlled Case Series (SCCS) | Part IV — SCCS |
+
+### Authoring the Plan
+
+1. Click **Add Analysis** and select an analysis type.
+2. Configure the analysis parameters. The UI surfaces the same configuration panels as the standalone analysis modules.
+3. Repeat for each analysis in your study.
+4. Click **Verify Analysis Plan**. The verifier checks:
+   - All referenced cohorts are verified and materialized.
+   - All referenced concept sets are finalized and error-free.
+   - Required parameters are complete for each analysis type.
+5. When verification passes, the plan status changes to **Verified**.
+
+---
+
+## Phase 6 — Readiness Check & Package Lock
+
+The **Readiness Check** panel aggregates the status of all session gates:
+
+| Gate | Required State |
+|---|---|
+| Research Intent | Accepted |
+| Concept Sets | All errors resolved; no deprecated concepts |
+| Cohorts | All verified and materialized; no deprecated imports |
+| Feasibility Evidence | Accepted |
+| Analysis Plan | Verified |
+
+All five gates must show **green** before the **Lock Package** button becomes active.
+
+### Locking the Package
+
+1. Click **Lock Package**.
+2. Parthenon assembles a **locked package artifact** containing:
+   - Accepted intent document
+   - Finalized concept set definitions (JSON)
+   - Cohort expression definitions (Circe JSON)
+   - Feasibility evidence report
+   - Analysis plan specification
+   - Session version history and AI event log
+   - Package provenance manifest (hash, timestamp, locking user)
+3. The session moves to **Locked** state. No further edits are permitted on this version.
+4. A new version can be branched from a locked session if revisions are needed.
+
+### Downloading the Package
+
+1. Open the locked session.
+2. Click **Download Package**.
+3. Parthenon performs a **study ownership check** — only the session owner or users with the `study:package:download` permission can download the artifact.
+4. The package downloads as a `.zip` archive suitable for submission to OHDSI network sites or archival.
+
+:::info Package Provenance
+Each locked package includes a `provenance.json` manifest recording the session ID, version hash, lock timestamp, and the identity of the locking user. This manifest is verified on import into any Parthenon instance.
+:::
+
+---
+
+## Session Timeline & Version History
+
+The **Session Timeline** (accessible from the left rail) provides a chronological view of all versioned changes:
+
+- Asset creation and edits
+- AI events (intent generation, critique invocations)
+- Verification runs and outcomes
+- Phase transitions
+- Package lock events
+
+Click any timeline entry to inspect the full asset state at that point.
+
+---
+
+## Permissions
+
+| Action | Required Role |
+|---|---|
+| Create a session | `study:create` |
+| Edit drafts | `study:edit` (own sessions) or `study:edit:any` |
+| Run feasibility | `study:feasibility` |
+| Lock package | `study:lock` |
+| Download package | `study:package:download` |
+| View any session | `study:view:any` |
+
+See [Roles & Permissions](../part8-administration/23-roles-permissions) for full role configuration.
+
+---
+
+## Troubleshooting
+
+### Package Lock Button Is Disabled
+
+Open the **Readiness Check** panel and inspect each gate. Common causes:
+
+- One or more concept sets still have deprecated concept errors → Diagnostics panel will highlight the offending concepts.
+- An imported cohort contains deprecated concepts → Resolve in the cohort draft editor.
+- Feasibility evidence has not been accepted → Run and accept feasibility.
+- Analysis plan verification has not been run or failed → Click **Verify Analysis Plan**.
+
+### Deprecated Concept Errors After Vocabulary Update
+
+If a vocabulary refresh deprecates concepts that were previously valid in your session:
+
+1. The session automatically re-runs the verifier after a vocabulary update is detected.
+2. Affected assets are flagged in the Diagnostics panel.
+3. Open each flagged concept set or cohort draft, replace deprecated concepts with current standard concepts, and re-verify.
+
+### Feasibility Queries Return Zero Counts
+
+- Confirm the selected data source has completed CDM ETL and Achilles characterization.
+- Check that cohort generation completed successfully (see [Jobs Monitoring](../part5-ingestion/18-jobs-monitoring)).
+- Review cohort inclusion criteria — overly restrictive criteria can produce empty cohorts even on large data sources.
+
+---
+
+## Related Topics
+
+- [Studies](14-studies) — managing and executing study packages
+- [Study Packages](14d-study-packages) — detailed package format reference
+- [Phenotype Library](14e-phenotype-library) — importing validated phenotypes into Study Designer
+- [Evidence Synthesis](14b-evidence-synthesis) — aggregating results across network sites
+- [Abby AI Assistant](../part8-administration/28-abby-ai-assistant) — configuring AI providers used by Study Designer
