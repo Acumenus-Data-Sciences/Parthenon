@@ -112,6 +112,25 @@ KB_FIXTURES = {
     "deb-signature-failed": ("gpg: BAD signature from \"Acumenus\"", "linux"),
     "frontend-build-missing": ("frontend/dist not found", "linux"),
     "subprocess-killed-by-user": ("KeyboardInterrupt", "linux"),
+    # Original 9 seed entries
+    "docker-daemon-not-running-mac": ("Cannot connect to the Docker daemon at unix:///var/run/docker.sock", "darwin"),
+    "docker-daemon-not-running-linux": ("Cannot connect to the Docker daemon at tcp://. Is the docker daemon running?", "linux"),
+    "wsl-not-installed": ("WSL is not installed", "windows"),
+    "wsl-no-distros": ("There are no distributions installed", "windows"),
+    "python3-missing-in-distro": ("python3: command not found", "windows"),
+    "image-pull-rate-limit": ("toomanyrequests: You have reached your pull rate limit", "linux"),
+    "disk-full-docker": ("write /var/lib/docker/tmp: no space left on device", "linux"),
+    "compose-permission-denied-socket": ("permission denied while trying to connect to the Docker daemon socket", "linux"),
+    "backend-env-missing": ("cp: cannot stat 'backend/.env.example': No such file or directory", "linux"),
+    # Additional entries from the 40 expansion that were missed
+    "npm-eperm-windows": ("npm ERR! EPERM: operation not permitted", "windows"),
+    "macos-quarantine-warning": ("operation not permitted, opening /Applications/Foo.app/Contents", "darwin"),
+    "docker-desktop-wsl-integration-off": ("WSL distro does not have Docker integration enabled", "windows"),
+    "achilles-sql-error": ("Achilles failed: SQL state 42P01", "linux"),
+    "host-networking-not-supported": ("host networking is not supported on this platform", "darwin"),
+    "free-port-3000-vite": ("Port 3000 is already in use by another process", "linux"),
+    "rpm-signature-not-trusted": ("warning: package.rpm: Header V4 RSA/SHA256 Signature, key ID abcd1234: NOKEY", "linux"),
+    "permission-denied-tmp": ("Permission denied: '/tmp/lock-file'", "linux"),
 }
 
 

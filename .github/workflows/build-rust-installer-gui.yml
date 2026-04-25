@@ -322,7 +322,7 @@ jobs:
           python install.py --contract open-app --community --contract-redact --contract-pretty >/dev/null
           python install.py --contract recover --community --contract-redact --contract-pretty >/dev/null
           # diagnose requires an input payload
-          echo '{"_diagnose_input":{"stdout":"benign","stderr":"","exit_code":0,"phase":"x","platform":"linux"}}' > /tmp/diagnose-input.json
+          echo '{"_diagnose_input":{"stdout":"OSError: [Errno 98] Address already in use: (\"0.0.0.0\", 8082)","stderr":"","exit_code":1,"phase":"bootstrap","platform":"linux"}}' > /tmp/diagnose-input.json
           python install.py --contract diagnose --community --contract-input /tmp/diagnose-input.json --contract-redact --contract-pretty >/dev/null
           # port-holder requires a port input
           echo '{"_port":65535}' > /tmp/port-holder-input.json
