@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import { useRoles, usePermissions, useCreateRole, useUpdateRole, useDeleteRole } from "../hooks/useAdminRoles";
 import { PermissionMatrix } from "../components/PermissionMatrix";
 import type { Role } from "@/types/models";
@@ -192,16 +193,19 @@ export default function RolesPage() {
             {t("administration.roles.subtitle")}
           </p>
         </div>
-        {tab === "roles" && (
-          <button
-            type="button"
-            onClick={() => setCreating(true)}
-            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-surface-base transition-colors hover:bg-success-dark"
-          >
-            <Plus size={16} />
-            {t("administration.roles.actions.newRole")}
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          <HelpButton helpKey="admin.roles" />
+          {tab === "roles" && (
+            <button
+              type="button"
+              onClick={() => setCreating(true)}
+              className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-surface-base transition-colors hover:bg-success-dark"
+            >
+              <Plus size={16} />
+              {t("administration.roles.actions.newRole")}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Tab switcher */}

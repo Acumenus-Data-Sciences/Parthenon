@@ -1,0 +1,14 @@
+{
+  "key": "admin.honest-broker",
+  "title": "Honest Broker Console",
+  "description": "The Honest Broker Console enables privacy-preserving research data releases. Super-admins can create de-identification campaigns, define patient cohorts to release, and track all data-sharing transactions for HIPAA-compliant audit trails.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Campaigns define the scope of a data release — each campaign is associated with a specific cohort and purpose.",
+    "All de-identification steps (date shifting, ID removal, quasi-identifier suppression) are applied automatically per campaign policy.",
+    "The audit log records every data access event including who initiated the release and when.",
+    "Only super-admins can create or approve campaigns; researchers can only request access.",
+    "Use the 'Refresh' button to sync the latest campaign statuses from the queue."
+  ]
+}

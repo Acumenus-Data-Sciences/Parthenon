@@ -1,0 +1,14 @@
+{
+  "key": "admin.user-audit",
+  "title": "User Audit Log",
+  "description": "The User Audit Log provides a complete activity trail of all user actions within Parthenon — logins, cohort saves, analysis executions, role changes, and data exports. Use it to satisfy compliance requirements and investigate security incidents.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Filter by feature or action type to narrow down activity to a specific module.",
+    "The date range filter uses UTC — adjust for your timezone when investigating time-sensitive events.",
+    "Audit records are immutable and cannot be deleted, ensuring a tamper-proof compliance trail.",
+    "Suspicious patterns like off-hours logins or bulk exports can be spotted with the date and action filters.",
+    "Super-admins see all users' activity; regular admins see only their own."
+  ]
+}

@@ -6,6 +6,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { HelpButton } from "@/features/help";
 import { Panel, Badge, Button } from "@/components/ui";
 import { useAuthProviders, useToggleAuthProvider, useUpdateAuthProvider, useTestAuthProvider } from "../hooks/useAuthProviders";
 import { LdapConfigForm } from "../components/LdapConfigForm";
@@ -202,13 +203,16 @@ export default function AuthProvidersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">
-          {t("administration.authProviders.title")}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("administration.authProviders.subtitle")}
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">
+            {t("administration.authProviders.title")}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t("administration.authProviders.subtitle")}
+          </p>
+        </div>
+        <HelpButton helpKey="admin.auth-providers" />
       </div>
 
       {/* Sanctum (always-on) */}

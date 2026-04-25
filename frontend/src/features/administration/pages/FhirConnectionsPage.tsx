@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Panel, MetricCard } from "@/components/ui";
+import { HelpButton } from "@/features/help";
 import { formatNumber } from "@/i18n/format";
 import {
   useFhirConnections,
@@ -622,6 +623,7 @@ export default function FhirConnectionsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <HelpButton helpKey="admin.fhir-connections" />
           <Link
             to="/admin/fhir-sync-monitor"
             className="inline-flex items-center gap-2 rounded-lg border border-border-default px-4 py-2.5 text-sm font-medium text-text-secondary hover:bg-surface-elevated transition-colors"

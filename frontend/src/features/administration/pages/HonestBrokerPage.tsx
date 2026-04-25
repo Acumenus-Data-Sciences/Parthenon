@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Copy, Loader2, Mail, RotateCw, Send, ShieldCheck, UserPlus, Users, Search, ExternalLink, CheckCircle2, Ban } from "lucide-react";
 import { Modal, toast } from "@/components/ui";
+import { HelpButton } from "@/features/help";
 import { formatDateTime, formatNumber } from "@/i18n/format";
 import { useAuthStore } from "@/stores/authStore";
 import type { HonestBrokerAuditLogApi, HonestBrokerInvitationApi, HonestBrokerLinkApi, SurveyCampaignApi } from "@/features/standard-pros/api/campaignApi";
@@ -450,6 +451,7 @@ export default function HonestBrokerPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <HelpButton helpKey="admin.honest-broker" />
             <button
               type="button"
               onClick={() => campaignsQuery.refetch()}

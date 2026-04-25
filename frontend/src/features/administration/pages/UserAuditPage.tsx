@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import { formatDateTime, formatNumber } from "@/i18n/format";
 import { useAuditLog, useAuditSummary } from "../hooks/useUserAudit";
 import type { UserAuditEntry, AuditFilters } from "../api/adminApi";
@@ -119,13 +120,16 @@ export default function UserAuditPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-text-primary">
-          {t("administration.userAudit.title")}
-        </h1>
-        <p className="mt-1 text-sm text-text-muted">
-          {t("administration.userAudit.subtitle")}
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-text-primary">
+            {t("administration.userAudit.title")}
+          </h1>
+          <p className="mt-1 text-sm text-text-muted">
+            {t("administration.userAudit.subtitle")}
+          </p>
+        </div>
+        <HelpButton helpKey="admin.user-audit" />
       </div>
 
       {/* Stat cards */}

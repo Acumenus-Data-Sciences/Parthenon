@@ -1,56 +1,40 @@
-# Care Bundles — Phase 3 Tier C: Patient Roster Drill-Down + Help Content
+# CareBundles Tier C — Patient roster + cohort export
 
 **Date:** 2026-04-25
 
-## What shipped
+The bridge from "we measured a gap" to "let's intervene on these patients."
 
-### Migration: care_bundle_measure_person_status
+## What ships
 
-New table storing per-person compliance flags for every (run, measure) pair.
-Written during materialization alongside aggregate counts. Powers paginated
-roster queries without hitting CDM at click time.
+- New table `app.care_bundle_measure_person_status` — per (run, measure, person)
+  fact rows with `is_numer` + `is_excl` flags. Populated during materialization
+  via INSERT...SELECT off the same temp tables that drive aggregates and
+  strata, so cost is incremental.
 
-Columns: `care_bundle_run_id`, `quality_measure_id`, `person_id`, `is_numer`, `is_excl`.
-Composite primary key; secondary index on flags for fast bucket filters.
+- `GET /care-bundles/{bundle}/measures/{measure}/roster?source_id=X&bucket=…`
+  paginated roster with minimal demographics (age + sex). Buckets:
+  `non_compliant`, `compliant`, `excluded`.
 
-### Backend
+- `POST /care-bundles/{bundle}/measures/{measure}/roster/to-cohort`
+  materializes a bucket as a first-class CohortDefinition + CohortGeneration,
+  with members written to the source's `results.cohort` table. Sentinel in
+  `expression_json` marks it as derived (don't regenerate). Mirrors
+  IntersectionCohortService.
 
-- **CohortBasedMeasureEvaluator** — writes person-status rows after each
-  measure evaluation using existing temp tables (`cb_eval_numer_pp`,
-  `cb_eval_excl_pp`). One `INSERT...SELECT` while temp tables are still in scope.
-- **MeasureRosterService** — paginated patient roster by compliance bucket
-  (`non_compliant` / `compliant` / `excluded`). JOINs CDM `person` table for
-  age and sex. PHI-safe: no dates, names, or identifiers.
-- **MeasureCohortExportService** — materializes a compliance bucket into a
-  first-class `CohortDefinition` with members written to `results.cohort`.
-  Mirrors the `IntersectionCohortService` pattern.
-- Two new routes: `GET /{bundle}/measures/{measure}/roster` and
-  `POST .../roster/to-cohort`. Both require `care-bundles.view` /
-  `care-bundles.create-cohort` permissions respectively.
+- New `Users` icon button on every measure row → `MeasureRosterModal`.
+  Bucket toggle, paginated table, "Save N patients as cohort" form, success
+  banner with the new cohort id.
 
-### Frontend
+## Live verification on Acumenus HTN-01
 
-- **MeasureRosterModal** — paginated patient table, bucket tabs
-  (Non-compliant / Compliant / Excluded), and inline "Save as cohort" form
-  with name, description, and public/private toggle. Success banner links to
-  the new cohort ID.
-- **CareBundleDetailPage** — `Users` icon button on each measure row opens the
-  roster modal for that measure.
-- Types, API functions, and TanStack Query hooks added for roster and export.
+- Materialization: 5:36 (394K persons, 6 measures, 2.36M fact rows written)
+- Roster API call: **135 ms**
+- Buckets: compliant 280,267 / non_compliant 98,104 / excluded 15,813 — sums
+  match the prior aggregate exactly.
 
-### Help content
+## Why this matters
 
-8 contextual help files covering all CareBundles Workbench pages:
-
-| Key | Page |
-|-----|------|
-| `workbench.care-bundles` | Home / coverage matrix |
-| `workbench.care-bundles.detail` | Bundle detail with measures |
-| `workbench.care-bundles.compare` | Cross-source delta comparison |
-| `workbench.care-bundles.intersect` | UpSet/Venn intersection explorer |
-| `workbench.care-bundles.value-sets` | VSAC value set library |
-| `workbench.care-bundles.value-set` | Individual value set detail |
-| `workbench.care-bundles.measures` | CMS eCQM catalog |
-| `workbench.care-bundles.measure` | Individual CMS measure detail |
-
-`HelpButton` wired into all 8 page headers.
+Researchers who want to study outcomes for the 98K BP-uncontrolled patients
+no longer have to leave the workbench, write SQL, or rebuild a cohort by
+hand. One click → a cohort that downstream Studies (CohortMethod, PLP,
+risk-score evaluation) can consume immediately.

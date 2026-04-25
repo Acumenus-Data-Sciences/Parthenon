@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { HelpButton } from "@/features/help";
 import {
   Activity, Bot, KeyRound, ShieldCheck, Users, ArrowRight, Wand2, BookOpen, Server, ArrowRightLeft,
   Database, FlaskConical, CircleDot,
@@ -154,13 +155,16 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">
-          {t("administration.dashboard.title")}
-        </h1>
-        <p className="mt-1 text-muted-foreground">
-          {t("administration.dashboard.subtitle")}
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">
+            {t("administration.dashboard.title")}
+          </h1>
+          <p className="mt-1 text-muted-foreground">
+            {t("administration.dashboard.subtitle")}
+          </p>
+        </div>
+        <HelpButton helpKey="administration" />
       </div>
 
       {/* High-density system panels */}

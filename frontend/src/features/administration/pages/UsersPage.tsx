@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import { formatDate, formatDateTime, formatNumber } from "@/i18n/format";
 import { useUsers, useDeleteUser, useAvailableRoles } from "../hooks/useAdminUsers";
 import { UserModal } from "../components/UserModal";
@@ -192,6 +193,7 @@ export default function UsersPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <HelpButton helpKey="admin.users" />
           {isSuperAdmin && (
             <button
               type="button"

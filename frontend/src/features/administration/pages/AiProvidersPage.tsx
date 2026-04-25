@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Bot, ChevronDown, ChevronUp, Eye, EyeOff, Loader2, Radio } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { HelpButton } from "@/features/help";
 import { Panel, Badge, Button } from "@/components/ui";
 import type { AiProviderSetting } from "@/types/models";
 import {
@@ -353,13 +354,16 @@ export default function AiProvidersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">
-          {t("administration.aiProviders.title")}
-        </h1>
-        <p className="mt-1 text-muted-foreground">
-          {t("administration.aiProviders.subtitle")}
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">
+            {t("administration.aiProviders.title")}
+          </h1>
+          <p className="mt-1 text-muted-foreground">
+            {t("administration.aiProviders.subtitle")}
+          </p>
+        </div>
+        <HelpButton helpKey="admin.ai-providers" />
       </div>
 
       {/* Active provider banner */}

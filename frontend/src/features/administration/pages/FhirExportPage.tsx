@@ -1,5 +1,6 @@
 import { PackageOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { HelpButton } from "@/features/help";
 
 export default function FhirExportPage() {
   const { t } = useTranslation("app");
@@ -7,13 +8,16 @@ export default function FhirExportPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-text-primary">
-          {t("administration.fhirExport.title")}
-        </h1>
-        <p className="mt-1 text-sm text-text-muted">
-          {t("administration.fhirExport.subtitle")}
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-text-primary">
+            {t("administration.fhirExport.title")}
+          </h1>
+          <p className="mt-1 text-sm text-text-muted">
+            {t("administration.fhirExport.subtitle")}
+          </p>
+        </div>
+        <HelpButton helpKey="admin.fhir-export" />
       </div>
 
       {/* Coming Soon Card */}

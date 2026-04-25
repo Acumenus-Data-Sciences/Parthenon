@@ -20,6 +20,7 @@ import {
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Panel, MetricCard } from "@/components/ui";
+import { HelpButton } from "@/features/help";
 import { formatDateTime, formatNumber } from "@/i18n/format";
 import { useFhirSyncDashboard } from "../hooks/useFhirConnections";
 import type { FhirSyncRun, FhirSyncDashboard } from "../api/adminApi";
@@ -385,21 +386,24 @@ export default function FhirSyncDashboardPage() {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 text-xs text-text-ghost">
-          {s.active_runs > 0 && (
-            <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-blue-400/10 text-blue-400 font-medium">
-              <Loader2 size={10} className="animate-spin" />
-              {t("administration.fhirSync.values.activeRuns", {
-                count: formatNumber(s.active_runs),
+        <div className="flex items-center gap-2">
+          <HelpButton helpKey="admin.fhir-sync-monitor" />
+          <div className="flex items-center gap-2 text-xs text-text-ghost">
+            {s.active_runs > 0 && (
+              <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-blue-400/10 text-blue-400 font-medium">
+                <Loader2 size={10} className="animate-spin" />
+                {t("administration.fhirSync.values.activeRuns", {
+                  count: formatNumber(s.active_runs),
+                })}
+              </span>
+            )}
+            <span className="flex items-center gap-1">
+              <RefreshCw size={10} />
+              {t("administration.fhirSync.values.refreshInterval", {
+                seconds: hasActiveRuns(dashboard) ? "10" : "60",
               })}
             </span>
-          )}
-          <span className="flex items-center gap-1">
-            <RefreshCw size={10} />
-            {t("administration.fhirSync.values.refreshInterval", {
-              seconds: hasActiveRuns(dashboard) ? "10" : "60",
-            })}
-          </span>
+          </div>
         </div>
       </div>
 

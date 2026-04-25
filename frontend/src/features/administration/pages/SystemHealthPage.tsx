@@ -3,6 +3,7 @@ import { RefreshCw, ArrowRight, Server, Database, Cpu, HeartPulse, Activity, Bui
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Panel, Badge, StatusDot, Button, type BadgeVariant, type StatusDotVariant } from "@/components/ui";
+import { HelpButton } from "@/features/help";
 import { formatDate, formatNumber } from "@/i18n/format";
 import type { SystemHealthService } from "@/types/models";
 import { useHadesPackageInventory, useSystemHealth } from "../hooks/useAiProviders";
@@ -383,15 +384,18 @@ export default function SystemHealthPage() {
             {t("administration.systemHealth.subtitle")}
           </p>
         </div>
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => refetch()}
-          disabled={isFetching}
-        >
-          <RefreshCw className={`h-4 w-4 mr-1 ${isFetching ? "animate-spin" : ""}`} />
-          {t("administration.systemHealth.actions.refresh")}
-        </Button>
+        <div className="flex items-center gap-2">
+          <HelpButton helpKey="admin.system-health" />
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => refetch()}
+            disabled={isFetching}
+          >
+            <RefreshCw className={`h-4 w-4 mr-1 ${isFetching ? "animate-spin" : ""}`} />
+            {t("administration.systemHealth.actions.refresh")}
+          </Button>
+        </div>
       </div>
 
       {/* Overall banner */}

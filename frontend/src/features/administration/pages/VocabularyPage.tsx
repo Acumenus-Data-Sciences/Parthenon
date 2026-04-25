@@ -6,6 +6,7 @@ import {
   Clock, Loader2, Trash2, Database, FileArchive, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { Panel } from "@/components/ui";
+import { HelpButton } from "@/features/help";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { formatDateTime, formatNumber } from "@/i18n/format";
 import {
@@ -396,14 +397,17 @@ export default function VocabularyPage() {
             </p>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={() => queryClient.invalidateQueries({ queryKey: ["vocab-imports"] })}
-          className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors"
-        >
-          <RefreshCw className="h-3.5 w-3.5" />
-          {t("administration.vocabulary.actions.refresh")}
-        </button>
+        <div className="flex items-center gap-2">
+          <HelpButton helpKey="admin.vocabulary" />
+          <button
+            type="button"
+            onClick={() => queryClient.invalidateQueries({ queryKey: ["vocab-imports"] })}
+            className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            {t("administration.vocabulary.actions.refresh")}
+          </button>
+        </div>
       </div>
 
       {/* Instructions panel */}
