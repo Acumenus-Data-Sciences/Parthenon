@@ -5,6 +5,9 @@ Thumbs.db
 # Installer state
 .parthenon-version
 
+# Git worktrees (superpowers + manual)
+.worktrees/
+
 # DICOM sample data
 dicom_samples/
 
