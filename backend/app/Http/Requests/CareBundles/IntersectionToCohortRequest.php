@@ -21,7 +21,7 @@ class IntersectionToCohortRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'source_id' => ['required', 'integer', 'exists:sources,id'],
+            'source_id' => ['required', 'integer', 'exists:sources,id,deleted_at,NULL'],
             'bundle_ids' => ['required', 'array', 'min:1', 'max:10'],
             'bundle_ids.*' => ['integer', 'exists:condition_bundles,id'],
             'mode' => ['required', Rule::in(['all', 'any', 'exactly'])],

@@ -917,8 +917,10 @@ Route::prefix('v1')->group(function () {
 
         // Care Bundles & Care Gaps
         Route::prefix('care-bundles')->group(function () {
-            Route::get('/overlap-rules', [CareGapController::class, 'overlapRules']);
-            Route::get('/population-summary', [CareGapController::class, 'populationSummary']);
+            Route::get('/overlap-rules', [CareGapController::class, 'overlapRules'])
+                ->middleware('permission:care-bundles.view');
+            Route::get('/population-summary', [CareGapController::class, 'populationSummary'])
+                ->middleware('permission:care-bundles.view');
 
             // CareBundles Workbench — static paths BEFORE /{bundle} wildcard.
             Route::get('/sources', [CareBundleController::class, 'sources'])

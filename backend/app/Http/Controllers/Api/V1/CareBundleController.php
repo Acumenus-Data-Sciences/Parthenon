@@ -403,29 +403,55 @@ class CareBundleController extends Controller
     }
 
     /**
-     * GET /v1/care-bundles/{bundle}/runs
+     * GET /v1/care-bundles/{bundle}/runs?source_id=X
+     *
+     * `fail_message` may contain query text or schema names — only operators
+     * with `care-bundles.materialize` see it. Plain viewers get the run
+     * envelope without the diagnostic blob.
      */
-    public function runs(ConditionBundle $bundle): JsonResponse
+    public function runs(Request $request, ConditionBundle $bundle): JsonResponse
     {
-        $runs = CareBundleRun::where('condition_bundle_id', $bundle->id)
-            ->orderByDesc('id')
-            ->limit(50)
-            ->get([
-                'id', 'condition_bundle_id', 'source_id', 'status',
-                'started_at', 'completed_at', 'trigger_kind', 'triggered_by',
-                'qualified_person_count', 'measure_count', 'bundle_version',
-                'cdm_fingerprint', 'fail_message', 'created_at',
-            ]);
+        $validated = $request->validate([
+            'source_id' => ['nullable', 'integer', 'exists:sources,id,deleted_at,NULL'],
+        ]);
+
+        $columns = [
+            'id', 'condition_bundle_id', 'source_id', 'status',
+            'started_at', 'completed_at', 'trigger_kind', 'triggered_by',
+            'qualified_person_count', 'measure_count', 'bundle_version',
+            'cdm_fingerprint', 'created_at',
+        ];
+
+        $canSeeFailMessage = $request->user()?->can('care-bundles.materialize') ?? false;
+        if ($canSeeFailMessage) {
+            $columns[] = 'fail_message';
+        }
+
+        $query = CareBundleRun::where('condition_bundle_id', $bundle->id);
+        if (! empty($validated['source_id'])) {
+            $query->where('source_id', (int) $validated['source_id']);
+        }
+
+        $runs = $query->orderByDesc('id')->limit(50)->get($columns);
 
         return response()->json(['data' => $runs]);
     }
 
     /**
      * GET /v1/care-bundles/runs/{run}
+     *
+     * Strips `fail_message` for callers without `care-bundles.materialize`
+     * (same policy as the `runs` listing above) so a viewer who guesses a
+     * run id can't read schema names or query text from a failed run.
      */
-    public function run(CareBundleRun $run): JsonResponse
+    public function run(Request $request, CareBundleRun $run): JsonResponse
     {
         $run->load(['bundle:id,bundle_code,condition_name', 'source:id,source_name', 'triggeredBy:id,name']);
+
+        $canSeeFailMessage = $request->user()?->can('care-bundles.materialize') ?? false;
+        if (! $canSeeFailMessage) {
+            $run->makeHidden('fail_message');
+        }
 
         return response()->json(['data' => $run]);
     }

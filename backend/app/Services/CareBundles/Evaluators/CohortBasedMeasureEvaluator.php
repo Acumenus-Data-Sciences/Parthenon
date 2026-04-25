@@ -214,6 +214,10 @@ final class CohortBasedMeasureEvaluator implements CareBundleMeasureEvaluator
         $date = $this->resolveDateColumn($measure->domain);
         $ph = implode(',', array_fill(0, count($ids), '?'));
 
+        // INTERVAL literals can't be parameterized directly in PG; multiply
+        // a parameterized integer by `INTERVAL '1 day'` to keep $lookback off
+        // the SQL string. Cast to int already enforced above — this is
+        // defense-in-depth for future widening of lookback_days storage.
         $sql = "
             SELECT DISTINCT t.person_id
             FROM \"{$cdmSchema}\".{$table} t
@@ -224,10 +228,10 @@ final class CohortBasedMeasureEvaluator implements CareBundleMeasureEvaluator
             )
             AND t.{$date} >= (
                 SELECT MAX({$date}) FROM \"{$cdmSchema}\".{$table}
-            ) - INTERVAL '{$lookback} days'
+            ) - (? * INTERVAL '1 day')
         ";
 
-        return [$sql, $ids];
+        return [$sql, [...$ids, $lookback]];
     }
 
     /**
@@ -272,9 +276,9 @@ final class CohortBasedMeasureEvaluator implements CareBundleMeasureEvaluator
                 )
                 AND t.{$date} >= (
                     SELECT MAX({$date}) FROM \"{$cdmSchema}\".{$table}
-                ) - INTERVAL '{$lookback} days'
+                ) - (? * INTERVAL '1 day')
             ";
-            $bindings = array_merge($bindings, $ids);
+            $bindings = array_merge($bindings, $ids, [$lookback]);
         }
 
         if (empty($parts)) {
