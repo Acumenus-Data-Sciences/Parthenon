@@ -244,6 +244,7 @@ None yet.
 | 260416-owf | Full live end-to-end smoke of SP4 workbench workers | 2026-04-16 | fc53cfdd7 | [260416-owf-full-live-end-to-end-smoke-of-sp4-workbe](./quick/260416-owf-full-live-end-to-end-smoke-of-sp4-workbe/) |
 | 260416-qpg | Import FinnGen curated endpoint library (DF14, 5,161 phenotypes) into app.cohort_definitions | 2026-04-16 | 44909d0b5 | [260416-qpg-import-finngen-curated-endpoint-library-](./quick/260416-qpg-import-finngen-curated-endpoint-library-/) |
 | 260423-qvz | Implement FinnGen Workbench UI improvements: RunStatusBadge pulse animation, CoverageBadge redesign, StatTile visual upgrade, WorkbenchStepper step icons | 2026-04-23 | 896765264 | [260423-qvz-implement-finngen-workbench-ui-improveme](./quick/260423-qvz-implement-finngen-workbench-ui-improveme/) |
+| 260425-iu4 | Commit CareBundles audit fixes — vocab grant migration, backend hardening (HIGH-1/2/3, LOW-3, INTERVAL parameterization), frontend a11y/error/render-pattern | 2026-04-25 | a97160f74, cbf0c9dfc | [260425-iu4-commit-carebundles-audit-fixes-vocab-gra](./quick/260425-iu4-commit-carebundles-audit-fixes-vocab-gra/) |
 
 ## Session Continuity
 
