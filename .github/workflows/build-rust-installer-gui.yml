@@ -459,6 +459,9 @@ jobs:
         run: |
           echo "$GPG_SIGNING_KEY" | base64 --decode | gpg --batch --import
           KEY_ID=$(gpg --list-secret-keys --with-colons | grep '^fpr' | head -1 | cut -d: -f10)
+          # Export public key for release distribution
+          gpg --armor --export "$KEY_ID" > ../../SIGNING-KEY.asc
+          echo "Exported SIGNING-KEY.asc with fingerprint $KEY_ID"
           find target/release/bundle/deb -name "*.deb" -print0 2>/dev/null | \
             while IFS= read -r -d '' pkg; do
               gpg --batch --local-user "$KEY_ID" --detach-sign --armor "$pkg"
