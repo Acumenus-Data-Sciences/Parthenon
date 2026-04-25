@@ -1,0 +1,149 @@
+---
+title: First-Launch Trust Warnings
+sidebar_position: 93
+---
+
+# First-Launch Trust Warnings
+
+When you launch the Parthenon Installer for the first time, your operating system may show a warning even though the installer is signed by Acumenus Data Sciences. This page explains why each warning appears and how to safely proceed.
+
+The installer is signed and notarized — but Apple Gatekeeper, Windows SmartScreen, and similar mechanisms have additional layers beyond signature checking. This is a feature, not a bug; it's why this page exists.
+
+## macOS Gatekeeper
+
+### What you might see
+
+> "Parthenon Installer.app" cannot be opened because the developer cannot be verified.
+
+Or:
+
+> macOS cannot verify that this app is free from malware.
+
+### Why this appears
+
+macOS Gatekeeper validates code signatures, but it also tracks whether a binary has been launched from this user before. The first time you run the .app from a download (vs. a known location), macOS prompts you regardless of the signature.
+
+If you see this warning on a properly notarized binary:
+
+1. The artifact has been quarantined by Safari/Chrome/another browser (the `com.apple.quarantine` extended attribute is set).
+2. The download came from an unrecognized location.
+3. Network conditions blocked the notarization staple lookup.
+
+The signature itself is still valid — Gatekeeper is asking for explicit consent to run a recently-downloaded app.
+
+### How to proceed
+
+Right-click (or Control-click) the .app and choose **Open**. macOS will show a one-time confirmation that includes the developer name. If it says **Acumenus Data Sciences**, click **Open**.
+
+```
+Right-click "Parthenon Installer.app"
+  → Open
+  → Confirm "Open" in the dialog (you'll only see this once)
+```
+
+After this confirmation, macOS records the user's decision; subsequent launches don't prompt.
+
+### How to verify the signature explicitly
+
+If you want to confirm the signature before running:
+
+```bash
+codesign --verify --deep --strict --verbose=2 "/Applications/Parthenon Installer.app"
+spctl -a -vv "/Applications/Parthenon Installer.app"
+xcrun stapler validate "/Applications/Parthenon Installer.app"
+```
+
+See [Verifying Installer Signatures](./verifying-signatures.mdx) for full per-platform verification.
+
+### What if I see "App is damaged"?
+
+If macOS reports "Parthenon Installer.app is damaged and can't be opened", that means the quarantine attribute interfered with the staple ticket. Strip it:
+
+```bash
+xattr -dr com.apple.quarantine "/Applications/Parthenon Installer.app"
+```
+
+This is safe for binaries you've verified. If you haven't verified the signature, do that first (link above).
+
+## Windows SmartScreen
+
+### What you might see
+
+> Microsoft Defender SmartScreen prevented an unrecognized app from starting. Running this app might put your PC at risk.
+
+### Why this appears
+
+Windows SmartScreen tracks publisher reputation in addition to signature validity. New code-signing certificates start with zero reputation; SmartScreen prompts on every download until the certificate accrues installations.
+
+The Parthenon Installer is signed via Azure Trusted Signing, which uses a fresh certificate per release. Reputation is built up over time as more users launch signed binaries from the same publisher identity. Until that reputation accrues, SmartScreen will show this warning even though the signature is valid.
+
+### How to proceed
+
+Click **More info**, then **Run anyway**.
+
+```
+Click "More info" in the SmartScreen dialog
+  → Note the "Publisher: Acumenus Data Sciences" line
+  → Click "Run anyway"
+```
+
+After the first launch, SmartScreen records your decision and won't prompt again for this version. New versions reset the prompt.
+
+### How to verify the signature explicitly
+
+PowerShell (most users):
+
+```powershell
+Get-AuthenticodeSignature .\Parthenon-Installer-*.msi
+```
+
+Look for `Status: Valid` and `SignerCertificate.Subject` containing `CN=Acumenus Data Sciences`.
+
+Command Prompt with `signtool` (Windows SDK installed):
+
+```cmd
+signtool verify /pa /v Parthenon-Installer-*.msi
+```
+
+See [Verifying Installer Signatures](./verifying-signatures.mdx) for full instructions.
+
+### What about antivirus alerts?
+
+Some endpoint-protection suites flag unfamiliar signed installers heuristically until they accrue reputation in the AV vendor's cloud database. If your AV flags Parthenon Installer:
+
+1. Verify the SHA-256 against the `.sha256` sidecar (catch tampering)
+2. Verify the Authenticode signature with `signtool` (catch a compromised binary)
+3. If both verify, whitelist the binary or temporarily disable the AV during install
+4. Re-enable the AV before opening Parthenon in your browser
+
+Don't disable AV for a binary you can't verify.
+
+## Linux
+
+Linux distributions don't show OS-level warnings the way macOS and Windows do. You're expected to verify signatures yourself before running unknown binaries.
+
+The Parthenon Installer ships with detached GPG signatures (`.asc` files) for `.deb`, `.rpm`, and `.AppImage` artifacts. The public key (`SIGNING-KEY.asc`) is uploaded with every release.
+
+Verify before installing:
+
+```bash
+gpg --import SIGNING-KEY.asc
+gpg --verify Parthenon-Installer-*.deb.asc Parthenon-Installer-*.deb
+```
+
+A successful verification prints `Good signature from "Acumenus Data Sciences (Releases)"`.
+
+The installer doesn't trigger any first-launch prompts on Linux because no Linux distribution ships an equivalent of Gatekeeper or SmartScreen. The trust model is verify-yourself-before-install.
+
+See [Verifying Installer Signatures](./verifying-signatures.mdx) for fingerprint, full verification commands, and SLSA attestation verification.
+
+## Why these warnings exist (the bigger picture)
+
+Both Gatekeeper and SmartScreen are optimistic-trust systems. They assume most users won't read warnings, so they bias toward strong signal (e.g., reputation that takes time to accrue) over weak signal (e.g., a fresh Authenticode signature on its own). For a small healthcare-informatics nonprofit, that means our first few hundred users will see warnings even when nothing is wrong.
+
+Over time:
+
+- macOS notarization pushes the first-launch warning to a single right-click → Open per user
+- Windows SmartScreen reputation accrues installation-by-installation; once the threshold is crossed, the prompt disappears for subsequent users
+
+The Acumenus team is committed to maintaining a clean reputation chain across releases. If a release ever causes a new SmartScreen prompt for users who previously installed a release with no prompt, that's a regression we'll investigate and document.
