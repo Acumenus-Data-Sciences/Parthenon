@@ -384,20 +384,45 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           set -e
+
+          # Apple's notary service occasionally returns HTTPClientError.connectTimeout
+          # mid-upload. Retry up to 3 times with exponential backoff (10s, 30s, 90s)
+          # before failing the step. Each notarytool submit is idempotent — re-submitting
+          # the same artifact returns the existing ticket if one already exists.
+          notarize_with_retry() {
+            local artifact="$1"
+            local attempt=1
+            local max_attempts=3
+            local backoff=10
+            while [ "$attempt" -le "$max_attempts" ]; do
+              echo "Notarizing $artifact (attempt $attempt of $max_attempts)"
+              if xcrun notarytool submit "$artifact" \
+                  --key "$APPLE_API_KEY_PATH" \
+                  --key-id "$APPLE_API_KEY" \
+                  --issuer "$APPLE_API_ISSUER" \
+                  --team-id "$APPLE_TEAM_ID" \
+                  --wait; then
+                return 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                echo "notarytool submit failed; sleeping ${backoff}s before retry"
+                sleep "$backoff"
+                backoff=$((backoff * 3))
+              fi
+              attempt=$((attempt + 1))
+            done
+            echo "notarytool submit failed after $max_attempts attempts" >&2
+            return 1
+          }
+
           app_bundle="$(find target/release/bundle/macos -maxdepth 1 -name '*.app' -print -quit)"
           if [ -z "$app_bundle" ]; then
             echo "Expected a macOS .app bundle after build, but none was found." >&2
             exit 1
           fi
-          echo "Notarizing .app: $app_bundle"
           zip_path="$(mktemp -d)/app.zip"
           ditto -c -k --sequesterRsrc --keepParent "$app_bundle" "$zip_path"
-          xcrun notarytool submit "$zip_path" \
-            --key "$APPLE_API_KEY_PATH" \
-            --key-id "$APPLE_API_KEY" \
-            --issuer "$APPLE_API_ISSUER" \
-            --team-id "$APPLE_TEAM_ID" \
-            --wait
+          notarize_with_retry "$zip_path"
           xcrun stapler staple "$app_bundle"
           echo "Notarized and stapled .app"
 
@@ -416,13 +441,7 @@ jobs:
             hdiutil create -volname "$volname" -srcfolder "$staging" -ov -format UDZO "$dmg_dir/$dmg_name"
             echo "Rebuilt $dmg_name"
 
-            echo "Notarizing rebuilt .dmg: $dmg_dir/$dmg_name"
-            xcrun notarytool submit "$dmg_dir/$dmg_name" \
-              --key "$APPLE_API_KEY_PATH" \
-              --key-id "$APPLE_API_KEY" \
-              --issuer "$APPLE_API_ISSUER" \
-              --team-id "$APPLE_TEAM_ID" \
-              --wait
+            notarize_with_retry "$dmg_dir/$dmg_name"
             xcrun stapler staple "$dmg_dir/$dmg_name"
             echo "Notarized and stapled .dmg"
           fi
