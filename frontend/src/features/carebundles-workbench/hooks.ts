@@ -6,6 +6,8 @@ import {
   fetchBundleRuns,
   fetchCareBundleSources,
   fetchCoverageMatrix,
+  fetchMeasureMethodology,
+  fetchMeasureStrata,
   fetchRun,
   fetchVsacCodes,
   fetchVsacMeasure,
@@ -200,5 +202,43 @@ export function useVsacMeasure(cmsId: string | null) {
     queryKey: cmsId ? ["vsac", "measures", cmsId] : ["vsac", "measure", "disabled"],
     queryFn: () => fetchVsacMeasure(cmsId as string),
     enabled: cmsId != null,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Methodology + Stratification
+// ---------------------------------------------------------------------------
+
+export function useMeasureMethodology(
+  bundleId: number | null,
+  measureId: number | null,
+  sourceId: number | null,
+  enabled: boolean = true,
+) {
+  const ready = enabled && bundleId != null && measureId != null && sourceId != null;
+  return useQuery({
+    queryKey: ready
+      ? ["care-bundles", bundleId, "measures", measureId, "methodology", sourceId]
+      : ["care-bundles", "methodology", "disabled"],
+    queryFn: () => fetchMeasureMethodology(bundleId as number, measureId as number, sourceId as number),
+    enabled: ready,
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useMeasureStrata(
+  bundleId: number | null,
+  measureId: number | null,
+  sourceId: number | null,
+  enabled: boolean = true,
+) {
+  const ready = enabled && bundleId != null && measureId != null && sourceId != null;
+  return useQuery({
+    queryKey: ready
+      ? ["care-bundles", bundleId, "measures", measureId, "strata", sourceId]
+      : ["care-bundles", "strata", "disabled"],
+    queryFn: () => fetchMeasureStrata(bundleId as number, measureId as number, sourceId as number),
+    enabled: ready,
+    staleTime: 5 * 60_000,
   });
 }

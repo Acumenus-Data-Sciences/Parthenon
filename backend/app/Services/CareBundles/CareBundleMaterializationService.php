@@ -176,7 +176,46 @@ class CareBundleMaterializationService
                     'computed_at' => now(),
                 ],
             );
+
+            $this->persistStrata($run, $measure, $result);
         }
+    }
+
+    private function persistStrata(CareBundleRun $run, QualityMeasure $measure, MeasureEvalResult $result): void
+    {
+        // Wipe prior strata for this run/measure so a re-evaluation is clean.
+        DB::table('care_bundle_measure_strata')
+            ->where('care_bundle_run_id', $run->id)
+            ->where('quality_measure_id', $measure->id)
+            ->delete();
+
+        if (empty($result->strata)) {
+            return;
+        }
+
+        $rows = array_map(function (array $s) use ($run, $measure) {
+            $denom = (int) $s['denom'];
+            $numer = (int) $s['numer'];
+            $rate = $denom > 0 ? round($numer / $denom, 4) : null;
+            $ci = WilsonCI::compute($numer, $denom);
+
+            return [
+                'care_bundle_run_id' => $run->id,
+                'quality_measure_id' => $measure->id,
+                'dimension' => (string) $s['dimension'],
+                'stratum' => (string) $s['stratum'],
+                'sort_key' => (int) ($s['sort_key'] ?? 0),
+                'denominator_count' => $denom,
+                'numerator_count' => $numer,
+                'exclusion_count' => (int) $s['excl'],
+                'rate' => $rate,
+                'ci_lower' => $ci['lower'] ?? null,
+                'ci_upper' => $ci['upper'] ?? null,
+                'computed_at' => now(),
+            ];
+        }, $result->strata);
+
+        DB::table('care_bundle_measure_strata')->insert($rows);
     }
 
     private function promoteToCurrent(CareBundleRun $run, Connection $appConn): void

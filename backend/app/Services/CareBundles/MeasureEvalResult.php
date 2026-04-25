@@ -8,10 +8,14 @@ namespace App\Services\CareBundles;
  */
 final class MeasureEvalResult
 {
+    /**
+     * @param  list<array{dimension: string, stratum: string, sort_key: int, denom: int, numer: int, excl: int}>  $strata
+     */
     public function __construct(
         public readonly int $denominatorCount,
         public readonly int $numeratorCount,
         public readonly int $exclusionCount,
+        public readonly array $strata = [],
     ) {}
 
     public function rate(): ?float

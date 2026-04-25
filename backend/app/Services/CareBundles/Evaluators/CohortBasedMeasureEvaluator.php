@@ -7,24 +7,28 @@ use App\Models\App\QualityMeasure;
 use App\Models\App\Source;
 use App\Services\CareBundles\CareBundleMeasureEvaluator;
 use App\Services\CareBundles\MeasureEvalResult;
+use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Aggregate-first measure evaluator.
+ * Aggregate-and-stratify evaluator using session-scope temp tables.
  *
- * Returns denominator / numerator / exclusion counts via a single CTE-based
- * aggregate query per measure. No per-person UPDATEs to care_bundle_qualifications,
- * no jsonb mutation — a prior per-row UPDATE design caused 15+ minute runs on
- * 370K-person bundles. This approach is seconds per measure.
+ * Per measure we:
+ *   1. Materialize numer_pp_t and excl_pp_t — small (thousands of rows max)
+ *      person-set tables with ON COMMIT DROP. Each scan happens ONCE.
+ *   2. Run a single GROUPING SETS aggregate joining qualifications to person
+ *      and the two temp tables, producing the headline rate plus age and sex
+ *      strata in one pass.
+ *
+ * The qualification × person × small-temp-table join is fast (PG hashes the
+ * temps and probes); the heavy CDM scans happen exactly once each. This
+ * replaces the prior pattern that re-evaluated the CTEs three times (once
+ * for the headline aggregate, once per strata dimension) on the click path.
  *
  * Semantics follow standard eCQM:
- *   denom = qualified persons who are NOT in the exclusion set
- *   numer = qualified persons who meet numerator criteria AND are NOT excluded
- *   excl  = qualified persons who are in the exclusion set
- *
- * Descendants via vocab.concept_ancestor. Lookback anchored on MAX(date_col)
- * of the relevant CDM domain so historical corpora (SynPUF 2010 etc.) still
- * return usable windows.
+ *   denom = qualified persons NOT in the exclusion set
+ *   numer = qualified persons in the numerator set AND NOT excluded
+ *   excl  = qualified persons in the exclusion set (removed from both)
  */
 final class CohortBasedMeasureEvaluator implements CareBundleMeasureEvaluator
 {
@@ -36,44 +40,137 @@ final class CohortBasedMeasureEvaluator implements CareBundleMeasureEvaluator
     ): MeasureEvalResult {
         $appConn = DB::connection();
 
-        [$numerCte, $numerBindings] = $this->buildNumeratorCte($measure, $cdmSchema);
-        [$exclCte, $exclBindings] = $this->buildExclusionCte($measure, $cdmSchema);
+        $this->materializePersonSet(
+            $appConn,
+            'cb_eval_numer_pp',
+            $this->buildNumeratorSelect($measure, $cdmSchema),
+        );
+        $this->materializePersonSet(
+            $appConn,
+            'cb_eval_excl_pp',
+            $this->buildExclusionSelect($measure, $cdmSchema),
+        );
 
+        // Persist a "hit" flag per qualified person via a tiny bridging temp
+        // table so the GROUPING SETS aggregate has a clean shape regardless
+        // of whether numerator / exclusion concept lists were empty.
         $sql = "
-            WITH
-                q AS (
-                    SELECT person_id
-                    FROM care_bundle_qualifications
-                    WHERE care_bundle_run_id = ?
-                ),
-                numer_pp AS ({$numerCte}),
-                excl_pp AS ({$exclCte})
+            WITH q AS (
+                SELECT cbq.person_id,
+                       p.year_of_birth,
+                       p.gender_concept_id
+                FROM care_bundle_qualifications cbq
+                JOIN \"{$cdmSchema}\".person p ON p.person_id = cbq.person_id
+                WHERE cbq.care_bundle_run_id = ?
+            ),
+            classified AS (
+                SELECT
+                    (n.person_id IS NOT NULL) AS is_numer,
+                    (e.person_id IS NOT NULL) AS is_excl,
+                    CASE
+                        WHEN (EXTRACT(YEAR FROM CURRENT_DATE)::int - q.year_of_birth) BETWEEN 18 AND 44 THEN '18\xE2\x80\x9344'
+                        WHEN (EXTRACT(YEAR FROM CURRENT_DATE)::int - q.year_of_birth) BETWEEN 45 AND 64 THEN '45\xE2\x80\x9364'
+                        WHEN (EXTRACT(YEAR FROM CURRENT_DATE)::int - q.year_of_birth) BETWEEN 65 AND 74 THEN '65\xE2\x80\x9374'
+                        WHEN (EXTRACT(YEAR FROM CURRENT_DATE)::int - q.year_of_birth) >= 75 THEN '75+'
+                        ELSE 'Under 18 / Unknown'
+                    END AS age_band,
+                    CASE
+                        WHEN (EXTRACT(YEAR FROM CURRENT_DATE)::int - q.year_of_birth) BETWEEN 18 AND 44 THEN 0
+                        WHEN (EXTRACT(YEAR FROM CURRENT_DATE)::int - q.year_of_birth) BETWEEN 45 AND 64 THEN 1
+                        WHEN (EXTRACT(YEAR FROM CURRENT_DATE)::int - q.year_of_birth) BETWEEN 65 AND 74 THEN 2
+                        WHEN (EXTRACT(YEAR FROM CURRENT_DATE)::int - q.year_of_birth) >= 75 THEN 3
+                        ELSE 99
+                    END AS age_sort,
+                    CASE q.gender_concept_id
+                        WHEN 8507 THEN 'Male'
+                        WHEN 8532 THEN 'Female'
+                        ELSE 'Unknown'
+                    END AS sex_cat
+                FROM q
+                LEFT JOIN cb_eval_numer_pp n ON n.person_id = q.person_id
+                LEFT JOIN cb_eval_excl_pp  e ON e.person_id = q.person_id
+            )
             SELECT
-                COUNT(*) FILTER (WHERE excl_pp.person_id IS NULL) AS denom,
-                COUNT(*) FILTER (
-                    WHERE numer_pp.person_id IS NOT NULL
-                      AND excl_pp.person_id IS NULL
-                ) AS numer,
-                COUNT(*) FILTER (WHERE excl_pp.person_id IS NOT NULL) AS excl
-            FROM q
-            LEFT JOIN numer_pp ON numer_pp.person_id = q.person_id
-            LEFT JOIN excl_pp  ON excl_pp.person_id  = q.person_id
+                CASE GROUPING(age_band, sex_cat)
+                    WHEN 3 THEN 'all'
+                    WHEN 1 THEN 'age_band'
+                    WHEN 2 THEN 'sex'
+                END AS dimension,
+                CASE GROUPING(age_band, sex_cat)
+                    WHEN 3 THEN 'All'
+                    WHEN 1 THEN age_band
+                    WHEN 2 THEN sex_cat
+                END AS stratum,
+                COALESCE(MIN(age_sort), 0) AS sort_key,
+                COUNT(*) FILTER (WHERE NOT is_excl) AS denom,
+                COUNT(*) FILTER (WHERE is_numer AND NOT is_excl) AS numer,
+                COUNT(*) FILTER (WHERE is_excl) AS excl
+            FROM classified
+            GROUP BY GROUPING SETS ((), (age_band), (sex_cat))
+            ORDER BY dimension, sort_key, stratum
         ";
 
-        $bindings = array_merge([$run->id], $numerBindings, $exclBindings);
-        $row = $appConn->selectOne($sql, $bindings);
+        $rows = $appConn->select($sql, [$run->id]);
+
+        $denom = 0;
+        $numer = 0;
+        $excl = 0;
+        $strata = [];
+
+        foreach ($rows as $r) {
+            $rowDenom = (int) ($r->denom ?? 0);
+            $rowNumer = (int) ($r->numer ?? 0);
+            $rowExcl = (int) ($r->excl ?? 0);
+            $dim = (string) ($r->dimension ?? '');
+
+            if ($dim === 'all') {
+                $denom = $rowDenom;
+                $numer = $rowNumer;
+                $excl = $rowExcl;
+
+                continue;
+            }
+
+            $strata[] = [
+                'dimension' => $dim,
+                'stratum' => (string) ($r->stratum ?? 'Unknown'),
+                'sort_key' => (int) ($r->sort_key ?? 0),
+                'denom' => $rowDenom,
+                'numer' => $rowNumer,
+                'excl' => $rowExcl,
+            ];
+        }
+
+        // Drop the per-measure temp tables so the next measure's call gets a
+        // clean slate; ON COMMIT DROP would only fire when the outer
+        // materialization transaction commits.
+        $appConn->statement('DROP TABLE IF EXISTS cb_eval_numer_pp');
+        $appConn->statement('DROP TABLE IF EXISTS cb_eval_excl_pp');
 
         return new MeasureEvalResult(
-            denominatorCount: (int) ($row->denom ?? 0),
-            numeratorCount: (int) ($row->numer ?? 0),
-            exclusionCount: (int) ($row->excl ?? 0),
+            denominatorCount: $denom,
+            numeratorCount: $numer,
+            exclusionCount: $excl,
+            strata: $strata,
         );
+    }
+
+    /**
+     * @param  array{0: string, 1: list<mixed>}  $select
+     */
+    private function materializePersonSet(Connection $conn, string $tempName, array $select): void
+    {
+        [$selectSql, $bindings] = $select;
+        $conn->statement("DROP TABLE IF EXISTS {$tempName}");
+        $conn->statement("CREATE TEMP TABLE {$tempName} ON COMMIT DROP AS {$selectSql}", $bindings);
+        $conn->statement("CREATE INDEX ON {$tempName} (person_id)");
+        $conn->statement("ANALYZE {$tempName}");
     }
 
     /**
      * @return array{0: string, 1: list<mixed>}
      */
-    private function buildNumeratorCte(QualityMeasure $measure, string $cdmSchema): array
+    private function buildNumeratorSelect(QualityMeasure $measure, string $cdmSchema): array
     {
         /** @var array<string, mixed> $numerator */
         $numerator = $measure->numerator_criteria ?? [];
@@ -83,8 +180,6 @@ final class CohortBasedMeasureEvaluator implements CareBundleMeasureEvaluator
             : [];
 
         if (empty($ids)) {
-            // Empty numerator set → no one ever flips to numer:true.
-            // Selecting NULL::bigint yields a 0-row CTE with correct column type.
             return ['SELECT NULL::bigint AS person_id WHERE FALSE', []];
         }
 
@@ -113,7 +208,7 @@ final class CohortBasedMeasureEvaluator implements CareBundleMeasureEvaluator
     /**
      * @return array{0: string, 1: list<mixed>}
      */
-    private function buildExclusionCte(QualityMeasure $measure, string $cdmSchema): array
+    private function buildExclusionSelect(QualityMeasure $measure, string $cdmSchema): array
     {
         /** @var array<string, mixed> $criteria */
         $criteria = $measure->exclusion_criteria ?? [];

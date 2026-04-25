@@ -955,6 +955,12 @@ Route::prefix('v1')->group(function () {
                 ->middleware(['permission:care-bundles.view', 'throttle:120,1']);
             Route::get('/{bundle}/fhir/measure', [CareBundleController::class, 'fhirMeasure'])
                 ->middleware(['permission:care-bundles.view', 'throttle:60,1']);
+            Route::get('/{bundle}/measures/{measure}/methodology', [CareBundleController::class, 'methodology'])
+                ->middleware(['permission:care-bundles.view', 'throttle:60,1'])
+                ->where(['bundle' => '[0-9]+', 'measure' => '[0-9]+']);
+            Route::get('/{bundle}/measures/{measure}/strata', [CareBundleController::class, 'strata'])
+                ->middleware(['permission:care-bundles.view', 'throttle:60,1'])
+                ->where(['bundle' => '[0-9]+', 'measure' => '[0-9]+']);
             Route::post('/{bundle}/materialize', [CareBundleController::class, 'materialize'])
                 ->middleware(['permission:care-bundles.materialize', 'throttle:30,1']);
         });

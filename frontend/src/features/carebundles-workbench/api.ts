@@ -9,6 +9,8 @@ import type {
   IntersectionResponse,
   IntersectionToCohortPayload,
   MaterializeDispatchResponse,
+  MeasureMethodology,
+  MeasureStrata,
   PaginatedResponse,
   VsacCode,
   VsacMeasureDetail,
@@ -184,6 +186,34 @@ export async function fetchVsacMeasure(
 ): Promise<VsacMeasureDetail> {
   const { data } = await apiClient.get<{ data: VsacMeasureDetail }>(
     `${VSAC}/measures/${cmsId}`,
+  );
+  return data.data;
+}
+
+// ---------------------------------------------------------------------------
+// Methodology card + Stratification
+// ---------------------------------------------------------------------------
+
+export async function fetchMeasureMethodology(
+  bundleId: number,
+  measureId: number,
+  sourceId: number,
+): Promise<MeasureMethodology> {
+  const { data } = await apiClient.get<{ data: MeasureMethodology }>(
+    `${BASE}/${bundleId}/measures/${measureId}/methodology`,
+    { params: { source_id: sourceId } },
+  );
+  return data.data;
+}
+
+export async function fetchMeasureStrata(
+  bundleId: number,
+  measureId: number,
+  sourceId: number,
+): Promise<MeasureStrata> {
+  const { data } = await apiClient.get<{ data: MeasureStrata }>(
+    `${BASE}/${bundleId}/measures/${measureId}/strata`,
+    { params: { source_id: sourceId } },
   );
   return data.data;
 }

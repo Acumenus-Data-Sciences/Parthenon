@@ -11,11 +11,14 @@ use App\Jobs\CareBundles\MaterializeCareBundleJob;
 use App\Models\App\CareBundleMeasureResult;
 use App\Models\App\CareBundleRun;
 use App\Models\App\ConditionBundle;
+use App\Models\App\QualityMeasure;
 use App\Models\App\Source;
 use App\Services\CareBundles\CareBundleQualificationService;
 use App\Services\CareBundles\CareBundleSourceService;
 use App\Services\CareBundles\FhirMeasureExporter;
 use App\Services\CareBundles\IntersectionCohortService;
+use App\Services\CareBundles\MeasureMethodologyService;
+use App\Services\CareBundles\MeasureStratificationService;
 use App\Services\CareBundles\WilsonCI;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -31,7 +34,47 @@ class CareBundleController extends Controller
         private readonly IntersectionCohortService $intersectionCohorts,
         private readonly FhirMeasureExporter $fhirExporter,
         private readonly CareBundleSourceService $sources,
+        private readonly MeasureMethodologyService $methodologyService,
+        private readonly MeasureStratificationService $stratificationService,
     ) {}
+
+    /**
+     * GET /v1/care-bundles/{bundle}/measures/{measure}/methodology?source_id=X
+     *
+     * Researcher-grade methodology card: exact concept_ids (with names +
+     * descendant counts), CDM provenance, run pointer, and DQ flags.
+     */
+    public function methodology(Request $request, ConditionBundle $bundle, QualityMeasure $measure): JsonResponse
+    {
+        $validated = $request->validate([
+            'source_id' => ['required', 'integer', 'exists:sources,id,deleted_at,NULL'],
+        ]);
+
+        $source = Source::findOrFail($validated['source_id']);
+
+        return response()->json([
+            'data' => $this->methodologyService->build($bundle, $measure, $source),
+        ]);
+    }
+
+    /**
+     * GET /v1/care-bundles/{bundle}/measures/{measure}/strata?source_id=X
+     *
+     * Univariate stratification (age band, sex) of denominator/numerator/
+     * exclusion counts with Wilson CIs per stratum.
+     */
+    public function strata(Request $request, ConditionBundle $bundle, QualityMeasure $measure): JsonResponse
+    {
+        $validated = $request->validate([
+            'source_id' => ['required', 'integer', 'exists:sources,id,deleted_at,NULL'],
+        ]);
+
+        $source = Source::findOrFail($validated['source_id']);
+
+        return response()->json([
+            'data' => $this->stratificationService->stratify($bundle, $measure, $source),
+        ]);
+    }
 
     /**
      * GET /v1/care-bundles/sources

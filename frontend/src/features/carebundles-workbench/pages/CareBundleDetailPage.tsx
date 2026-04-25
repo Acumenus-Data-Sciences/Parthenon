@@ -1,6 +1,14 @@
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Download, Loader2, Play } from "lucide-react";
+import {
+  ArrowLeft,
+  ChevronDown,
+  ChevronRight,
+  Download,
+  Info,
+  Loader2,
+  Play,
+} from "lucide-react";
 import { Shell } from "@/components/workbench/primitives";
 import { useBundle } from "@/features/care-gaps/hooks/useCareGaps";
 import { fetchFhirMeasure } from "../api";
@@ -13,12 +21,27 @@ import {
 import { formatRateWithCI, formatRelativeTime } from "../lib/formatting";
 import { WorkbenchTabs } from "../components/WorkbenchTabs";
 import { SourceQualifierBanner } from "../components/SourceQualifierBanner";
+import { MeasureMethodologyModal } from "../components/MeasureMethodologyModal";
+import { MeasureStrataRow } from "../components/MeasureStrataRow";
 
 export default function CareBundleDetailPage() {
   const { bundleId: bundleIdParam } = useParams<{ bundleId: string }>();
   const bundleId = bundleIdParam ? Number(bundleIdParam) : null;
 
   const [sourceId, setSourceId] = useState<number | null>(null);
+  const [methodologyMeasureId, setMethodologyMeasureId] = useState<number | null>(null);
+  const [stratifiedMeasureIds, setStratifiedMeasureIds] = useState<Set<number>>(
+    () => new Set(),
+  );
+
+  const toggleStrata = (measureId: number) => {
+    setStratifiedMeasureIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(measureId)) next.delete(measureId);
+      else next.add(measureId);
+      return next;
+    });
+  };
 
   const bundleQuery = useBundle(bundleId);
   const sourcesQuery = useCareBundleSources();
@@ -191,46 +214,98 @@ export default function CareBundleDetailPage() {
                   <th className="px-4 py-2 text-right text-xs font-semibold text-text-ghost">
                     Rate (95% CI)
                   </th>
+                  <th className="w-20 px-2 py-2 text-right text-xs font-semibold text-text-ghost">
+                    Detail
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {qualifications.measures.map((m) => (
-                  <tr
-                    key={m.quality_measure_id}
-                    className="border-b border-border-default/60 hover:bg-surface-overlay/40"
-                  >
-                    <td className="px-4 py-2">
-                      <div className="text-sm font-medium text-text-primary">
-                        {m.measure.measure_name}
-                      </div>
-                      <div className="text-[10px] uppercase tracking-wide text-text-ghost">
-                        {m.measure.measure_code}
-                      </div>
-                    </td>
-                    <td className="px-4 py-2 text-xs text-text-muted">
-                      {m.measure.domain}
-                    </td>
-                    <td className="px-4 py-2 text-right font-mono text-xs">
-                      {m.denominator_count.toLocaleString()}
-                    </td>
-                    <td className="px-4 py-2 text-right font-mono text-xs text-text-ghost">
-                      {m.exclusion_count > 0
-                        ? m.exclusion_count.toLocaleString()
-                        : "—"}
-                    </td>
-                    <td className="px-4 py-2 text-right font-mono text-xs">
-                      {m.numerator_count.toLocaleString()}
-                    </td>
-                    <td className="px-4 py-2 text-right font-mono text-xs">
-                      {formatRateWithCI(m.rate, m.ci_lower, m.ci_upper)}
-                    </td>
-                  </tr>
-                ))}
+                {qualifications.measures.map((m) => {
+                  const isStratExpanded = stratifiedMeasureIds.has(
+                    m.quality_measure_id,
+                  );
+                  return (
+                    <Fragment key={m.quality_measure_id}>
+                      <tr className="border-b border-border-default/60 hover:bg-surface-overlay/40">
+                        <td className="px-4 py-2">
+                          <div className="text-sm font-medium text-text-primary">
+                            {m.measure.measure_name}
+                          </div>
+                          <div className="text-[10px] uppercase tracking-wide text-text-ghost">
+                            {m.measure.measure_code}
+                          </div>
+                        </td>
+                        <td className="px-4 py-2 text-xs text-text-muted">
+                          {m.measure.domain}
+                        </td>
+                        <td className="px-4 py-2 text-right font-mono text-xs">
+                          {m.denominator_count.toLocaleString()}
+                        </td>
+                        <td className="px-4 py-2 text-right font-mono text-xs text-text-ghost">
+                          {m.exclusion_count > 0
+                            ? m.exclusion_count.toLocaleString()
+                            : "—"}
+                        </td>
+                        <td className="px-4 py-2 text-right font-mono text-xs">
+                          {m.numerator_count.toLocaleString()}
+                        </td>
+                        <td className="px-4 py-2 text-right font-mono text-xs">
+                          {formatRateWithCI(m.rate, m.ci_lower, m.ci_upper)}
+                        </td>
+                        <td className="px-2 py-2 text-right">
+                          <div className="inline-flex items-center gap-1">
+                            <button
+                              onClick={() => toggleStrata(m.quality_measure_id)}
+                              className="rounded p-1 text-text-ghost transition-colors hover:bg-surface-overlay hover:text-text-primary"
+                              title={
+                                isStratExpanded
+                                  ? "Collapse strata"
+                                  : "Stratify by age + sex"
+                              }
+                              aria-label="Toggle stratification"
+                            >
+                              {isStratExpanded ? (
+                                <ChevronDown className="h-3.5 w-3.5" />
+                              ) : (
+                                <ChevronRight className="h-3.5 w-3.5" />
+                              )}
+                            </button>
+                            <button
+                              onClick={() =>
+                                setMethodologyMeasureId(m.quality_measure_id)
+                              }
+                              className="rounded p-1 text-text-ghost transition-colors hover:bg-surface-overlay hover:text-text-primary"
+                              title="View methodology + DQ flags"
+                              aria-label="View methodology"
+                            >
+                              <Info className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      {isStratExpanded && (
+                        <MeasureStrataRow
+                          bundleId={bundleId}
+                          measureId={m.quality_measure_id}
+                          sourceId={effectiveSourceId}
+                          colSpan={7}
+                        />
+                      )}
+                    </Fragment>
+                  );
+                })}
               </tbody>
             </table>
           )}
         </div>
       </Shell>
+
+      <MeasureMethodologyModal
+        bundleId={bundleId}
+        measureId={methodologyMeasureId}
+        sourceId={effectiveSourceId}
+        onClose={() => setMethodologyMeasureId(null)}
+      />
 
       <Shell title="Recent runs" subtitle={`${runs.length} most recent`}>
         {runs.length === 0 ? (

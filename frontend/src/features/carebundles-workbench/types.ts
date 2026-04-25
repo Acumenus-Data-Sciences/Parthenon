@@ -221,3 +221,92 @@ export interface PaginatedResponse<T> {
     last_page?: number;
   };
 }
+
+// ---------------------------------------------------------------------------
+// Methodology card + Data Quality flags
+// ---------------------------------------------------------------------------
+
+export interface MethodologyConcept {
+  concept_id: number;
+  concept_name: string;
+  vocabulary_id: string;
+  descendant_count: number;
+}
+
+export interface MethodologyExclusion {
+  label: string;
+  domain: string;
+  lookback_days: number;
+  vsac_oid: string | null;
+  concepts: MethodologyConcept[];
+  total_descendants: number;
+}
+
+export interface DataQualityFlag {
+  level: "info" | "warning" | "critical";
+  code: string;
+  message: string;
+}
+
+export interface MeasureMethodology {
+  bundle: {
+    id: number;
+    bundle_code: string;
+    condition_name: string;
+    qualification: {
+      domain: string;
+      concepts: MethodologyConcept[];
+      total_descendants: number;
+    };
+  };
+  measure: {
+    id: number;
+    measure_code: string;
+    measure_name: string;
+    domain: string;
+    frequency: string | null;
+    numerator: {
+      lookback_days: number;
+      concepts: MethodologyConcept[];
+      total_descendants: number;
+    };
+    exclusions: MethodologyExclusion[];
+  };
+  source: {
+    id: number;
+    source_name: string;
+    cdm_schema: string;
+    cdm_max_dates: Record<string, string | null>;
+  };
+  run: {
+    id: number;
+    status: string;
+    started_at: string | null;
+    completed_at: string | null;
+    qualified_person_count: number | null;
+    measure_count: number | null;
+    bundle_version: string | null;
+    cdm_fingerprint: string | null;
+    trigger_kind: string;
+  } | null;
+  data_quality_flags: DataQualityFlag[];
+}
+
+// ---------------------------------------------------------------------------
+// Stratification
+// ---------------------------------------------------------------------------
+
+export interface MeasureStratum {
+  stratum: string;
+  denom: number;
+  numer: number;
+  excl: number;
+  rate: number | null;
+  ci_lower: number | null;
+  ci_upper: number | null;
+}
+
+export interface MeasureStrata {
+  age_band: MeasureStratum[];
+  sex: MeasureStratum[];
+}
