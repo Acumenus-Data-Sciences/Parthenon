@@ -96,8 +96,14 @@ export function IntersectionCohortDialog({
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
+            maxLength={255}
             className="mt-1 w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary"
           />
+          {name.length >= 240 && (
+            <span className="mt-1 block text-[10px] text-amber-300">
+              {255 - name.length} characters remaining (max 255).
+            </span>
+          )}
         </label>
 
         <label className="block">

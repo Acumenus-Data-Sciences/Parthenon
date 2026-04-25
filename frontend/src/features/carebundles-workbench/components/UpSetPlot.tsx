@@ -62,8 +62,21 @@ export function UpSetPlot({ cells, bundles, width = 700, height = 380 }: Props) 
     );
   }
 
+  // Screen-reader summary: top three intersection cells by cardinality so
+  // non-visual users get the gist without parsing the SVG.
+  const topCombinations = [...combinations]
+    .sort((a, b) => b.cardinality - a.cardinality)
+    .slice(0, 3);
+  const ariaLabel =
+    `UpSet plot of ${sets.length} bundle sets across ${combinations.length} intersection cells. ` +
+    (topCombinations.length > 0
+      ? `Largest cells: ${topCombinations
+          .map((c) => `${c.name} (${c.cardinality.toLocaleString()})`)
+          .join("; ")}.`
+      : "No populated intersection cells.");
+
   return (
-    <div className="p-2">
+    <div className="p-2" role="img" aria-label={ariaLabel}>
       <UpSetJS
         sets={sets}
         combinations={combinations}

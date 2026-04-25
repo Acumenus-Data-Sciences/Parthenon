@@ -59,7 +59,17 @@ export function MeasureRosterModal({
   };
 
   const handleSave = () => {
-    if (!cohortName.trim() || measureId == null || bundleId == null || sourceId == null) {
+    const trimmed = cohortName.trim();
+    // Server-side `name` is `string|max:255` per RosterToCohortRequest. Catch
+    // it here so a user pasting a long name gets immediate feedback instead
+    // of a 422 from the API after submit.
+    if (
+      !trimmed
+      || trimmed.length > 255
+      || measureId == null
+      || bundleId == null
+      || sourceId == null
+    ) {
       return;
     }
     exporter.mutate(
@@ -174,9 +184,15 @@ export function MeasureRosterModal({
                 <input
                   value={cohortName}
                   onChange={(e) => setCohortName(e.target.value)}
+                  maxLength={255}
                   className="mt-1 w-full rounded border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary"
                   autoFocus
                 />
+                {cohortName.length >= 240 && (
+                  <p className="mt-1 text-[10px] text-amber-300">
+                    {255 - cohortName.length} characters remaining (max 255).
+                  </p>
+                )}
               </div>
               <div>
                 <label className="text-xs font-semibold text-text-ghost">
@@ -201,7 +217,11 @@ export function MeasureRosterModal({
               <div className="flex items-center gap-2 pt-2">
                 <button
                   onClick={handleSave}
-                  disabled={!cohortName.trim() || exporter.isPending}
+                  disabled={
+                    !cohortName.trim()
+                    || cohortName.length > 255
+                    || exporter.isPending
+                  }
                   className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-text-primary transition-colors hover:opacity-90 disabled:opacity-60"
                   style={{ backgroundColor: "var(--accent)" }}
                 >

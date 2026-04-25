@@ -58,9 +58,18 @@ export function VennDiagram({
     const onlyA = region([a]);
     const onlyB = region([b]);
     const both = region([a, b]);
+    const ariaLabel =
+      `Two-set Venn diagram. ${labels[0]} only: ${onlyA.toLocaleString()}; ` +
+      `${labels[1]} only: ${onlyB.toLocaleString()}; ` +
+      `${labels[0]} ∩ ${labels[1]}: ${both.toLocaleString()}.`;
 
     return (
-      <svg viewBox={`0 0 ${width} ${height}`} className="max-w-full">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        className="max-w-full"
+        role="img"
+        aria-label={ariaLabel}
+      >
         <circle
           cx={width * 0.38}
           cy={height / 2}
@@ -126,8 +135,23 @@ export function VennDiagram({
   const cx3 = width * 0.5;
   const cy3 = height * 0.66;
 
+  const ariaLabel =
+    `Three-set Venn diagram. ` +
+    `${labels[0]} only: ${onlyA.toLocaleString()}; ` +
+    `${labels[1]} only: ${onlyB.toLocaleString()}; ` +
+    `${labels[2]} only: ${onlyC.toLocaleString()}; ` +
+    `${labels[0]} ∩ ${labels[1]}: ${ab.toLocaleString()}; ` +
+    `${labels[0]} ∩ ${labels[2]}: ${ac.toLocaleString()}; ` +
+    `${labels[1]} ∩ ${labels[2]}: ${bc.toLocaleString()}; ` +
+    `all three: ${abc.toLocaleString()}.`;
+
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="max-w-full">
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      className="max-w-full"
+      role="img"
+      aria-label={ariaLabel}
+    >
       <circle cx={cx1} cy={cy1} r={r} fill="var(--primary)" fillOpacity={0.25} stroke="var(--primary)" />
       <circle cx={cx2} cy={cy2} r={r} fill="var(--accent)" fillOpacity={0.25} stroke="var(--accent)" />
       <circle cx={cx3} cy={cy3} r={r} fill="#C9A227" fillOpacity={0.25} stroke="#C9A227" />

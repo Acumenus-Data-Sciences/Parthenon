@@ -39,8 +39,13 @@ export function MeasureTrendChart({ bundleId, measureId, sourceId }: Props) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 p-4 text-xs text-text-ghost">
-        <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading trend…
+      <div
+        role="status"
+        aria-live="polite"
+        className="flex items-center gap-2 p-4 text-xs text-text-ghost"
+      >
+        <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+        Loading trend…
       </div>
     );
   }
@@ -63,12 +68,26 @@ export function MeasureTrendChart({ bundleId, measureId, sourceId }: Props) {
     numerator_count: p.numerator_count,
   }));
 
+  // Screen-reader summary: latest rate + min/max + run count. The chart
+  // itself is still rendered for sighted users; this label gives non-visual
+  // users the gist without forcing them to drill into individual data points.
+  const ratesPct = points
+    .map((p) => p.rate)
+    .filter((r): r is number => r != null);
+  const latest = ratesPct[ratesPct.length - 1];
+  const min = ratesPct.length ? Math.min(...ratesPct) : null;
+  const max = ratesPct.length ? Math.max(...ratesPct) : null;
+  const trendLabel =
+    latest != null && min != null && max != null
+      ? `Rate over time across ${points.length} run${points.length === 1 ? "" : "s"}; latest ${latest.toFixed(1)}%, range ${min.toFixed(1)}% to ${max.toFixed(1)}%.`
+      : `Rate over time across ${points.length} run${points.length === 1 ? "" : "s"}; insufficient data for a numerical summary.`;
+
   return (
     <div className="space-y-2">
       <div className="text-[10px] font-semibold uppercase tracking-wide text-text-ghost">
         Rate over time ({points.length} run{points.length === 1 ? "" : "s"})
       </div>
-      <div style={{ width: "100%", height: 180 }}>
+      <div role="img" aria-label={trendLabel} style={{ width: "100%", height: 180 }}>
         <ResponsiveContainer>
           <LineChart data={points} margin={{ top: 8, right: 16, bottom: 8, left: 0 }}>
             <CartesianGrid stroke="var(--border-default)" strokeDasharray="3 3" />
