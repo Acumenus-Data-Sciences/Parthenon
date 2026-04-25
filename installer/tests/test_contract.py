@@ -342,3 +342,71 @@ def test_open_app_action_preserves_external_url(monkeypatch):
     )
 
     assert payload == {"url": "https://parthenon.example.com"}
+
+
+def test_diagnose_action_returns_matched_fingerprints(monkeypatch):
+    monkeypatch.setattr("installer.config.utils.is_port_free", lambda port: True)
+
+    payload = contract.build_payload(
+        "diagnose",
+        community=True,
+        overrides={
+            "_diagnose_input": {
+                "stdout": "OSError: [Errno 98] Address already in use: ('0.0.0.0', 8082)",
+                "stderr": "",
+                "exit_code": 1,
+                "phase": "bootstrap",
+                "platform": "linux",
+            },
+        },
+    )
+
+    assert "matches" in payload
+    assert len(payload["matches"]) >= 1
+    top = payload["matches"][0]
+    assert top["id"] == "port-conflict-generic"
+    assert top["fix_action"] == "port-holder"
+    assert top["fix_args"] == {"port": 8082}
+    assert payload["ai_assist_eligible"] is False  # match found
+
+
+def test_diagnose_action_marks_ai_assist_eligible_when_no_match(monkeypatch):
+    monkeypatch.setattr("installer.config.utils.is_port_free", lambda port: True)
+
+    payload = contract.build_payload(
+        "diagnose",
+        community=True,
+        overrides={
+            "_diagnose_input": {
+                "stdout": "Some unmatched novel error",
+                "stderr": "",
+                "exit_code": 1,
+                "phase": "frontend",
+                "platform": "linux",
+            },
+        },
+    )
+
+    assert payload["matches"] == []
+    assert payload["ai_assist_eligible"] is True
+
+
+def test_diagnose_action_returns_empty_when_exit_code_zero(monkeypatch):
+    monkeypatch.setattr("installer.config.utils.is_port_free", lambda port: True)
+
+    payload = contract.build_payload(
+        "diagnose",
+        community=True,
+        overrides={
+            "_diagnose_input": {
+                "stdout": "Address already in use",
+                "stderr": "",
+                "exit_code": 0,
+                "phase": "noop",
+                "platform": "linux",
+            },
+        },
+    )
+
+    assert payload["matches"] == []
+    assert payload["ai_assist_eligible"] is False  # not a failure

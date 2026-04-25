@@ -321,6 +321,47 @@ def recover_payload() -> dict[str, Any]:
     return installer_recovery.inspect(state_path)
 
 
+def diagnose_payload(overrides: dict[str, Any]) -> dict[str, Any]:
+    """Match captured installer output against the diagnostic KB.
+
+    Reads the `_diagnose_input` key from overrides (call-time parameter, not config):
+    {
+      "stdout": str,
+      "stderr": str,
+      "exit_code": int,
+      "phase": str,
+      "platform": "darwin" | "linux" | "windows"
+    }
+
+    Returns {matches: [...], ai_assist_eligible: bool}. ai_assist_eligible is the
+    future hook for Layer 2 (BYO-key Claude assist) — true only when exit_code != 0
+    and no fingerprint matched.
+    """
+    from . import diagnostics as installer_diagnostics
+
+    input_payload = (overrides or {}).get("_diagnose_input") or {}
+    stdout = input_payload.get("stdout", "")
+    stderr = input_payload.get("stderr", "")
+    exit_code = int(input_payload.get("exit_code", 0))
+    phase = input_payload.get("phase", "")
+    platform_name = input_payload.get("platform", "linux")
+
+    if exit_code == 0:
+        return {"matches": [], "ai_assist_eligible": False}
+
+    matches = installer_diagnostics.match(
+        stdout=stdout,
+        stderr=stderr,
+        exit_code=exit_code,
+        phase=phase,
+        platform=platform_name,
+    )
+    return {
+        "matches": matches,
+        "ai_assist_eligible": len(matches) == 0,
+    }
+
+
 def build_payload(
     action: str,
     *,
@@ -388,6 +429,8 @@ def build_payload(
         payload = port_holder_payload(cfg, raw_overrides)
     elif action == "recover":
         payload = recover_payload()
+    elif action == "diagnose":
+        payload = diagnose_payload(raw_overrides)
     else:
         raise ValueError(f"Unsupported contract action: {action}")
 
@@ -408,7 +451,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Parthenon installer contract")
     parser.add_argument(
         "action",
-        choices=["defaults", "validate", "plan", "preflight", "data-check", "bundle-manifest", "health", "credentials", "service-status", "open-app", "port-holder", "recover"],
+        choices=["defaults", "validate", "plan", "preflight", "data-check", "bundle-manifest", "health", "credentials", "service-status", "open-app", "port-holder", "recover", "diagnose"],
         help="Contract payload to emit",
     )
     parser.add_argument("--community", action="store_true", help="Use Community MVP defaults")
