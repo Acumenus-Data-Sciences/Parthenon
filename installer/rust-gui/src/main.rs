@@ -151,6 +151,82 @@ struct InstallRequest {
     dry_run: bool,
 }
 
+#[derive(Debug, Serialize)]
+struct WslDistros {
+    available: bool,
+    distros: Vec<String>,
+    error: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+struct UpdateCheckResult {
+    has_update: bool,
+    latest_version: Option<String>,
+    current_version: String,
+    notes: Option<String>,
+    error: Option<String>,
+}
+
+#[tauri::command]
+fn wsl_distros() -> WslDistros {
+    if !cfg!(target_os = "windows") {
+        return WslDistros {
+            available: false,
+            distros: vec![],
+            error: Some("WSL distro enumeration only runs on Windows hosts".to_string()),
+        };
+    }
+
+    let output = match Command::new("wsl.exe").args(["--list", "--quiet"]).output() {
+        Ok(output) => output,
+        Err(err) => {
+            return WslDistros {
+                available: false,
+                distros: vec![],
+                error: Some(format!("wsl.exe not found or failed: {err}")),
+            };
+        }
+    };
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+        return WslDistros {
+            available: false,
+            distros: vec![],
+            error: Some(if stderr.is_empty() {
+                "wsl.exe --list --quiet exited with non-zero status".to_string()
+            } else {
+                stderr
+            }),
+        };
+    }
+
+    // wsl.exe --list emits UTF-16 LE text on Windows; decode best-effort
+    let raw = output.stdout;
+    let text = if raw.len() >= 2 && raw[0] == 0xFF && raw[1] == 0xFE {
+        String::from_utf16_lossy(
+            &raw[2..]
+                .chunks_exact(2)
+                .map(|chunk| u16::from_le_bytes([chunk[0], chunk[1]]))
+                .collect::<Vec<_>>(),
+        )
+    } else {
+        String::from_utf8_lossy(&raw).to_string()
+    };
+
+    let distros: Vec<String> = text
+        .lines()
+        .map(|line| line.trim().to_string())
+        .filter(|line| !line.is_empty())
+        .collect();
+
+    WslDistros {
+        available: true,
+        distros,
+        error: None,
+    }
+}
+
 #[tauri::command]
 fn bootstrap() -> BootstrapPayload {
     BootstrapPayload {
@@ -851,123 +927,6 @@ fn local_repo_check(repo_path: &str) -> CheckResult {
             "install.py was not found in the selected directory",
         )
     }
-}
-
-#[tauri::command]
-fn browse_directory(title: String, current_path: Option<String>) -> Result<Option<String>, String> {
-    browse_path(PathPickerMode::Directory, &title, current_path.as_deref())
-}
-
-#[tauri::command]
-fn browse_file(title: String, current_path: Option<String>) -> Result<Option<String>, String> {
-    browse_path(PathPickerMode::File, &title, current_path.as_deref())
-}
-
-#[derive(Clone, Copy)]
-enum PathPickerMode {
-    Directory,
-    File,
-}
-
-fn browse_path(
-    mode: PathPickerMode,
-    title: &str,
-    current_path: Option<&str>,
-) -> Result<Option<String>, String> {
-    if cfg!(target_os = "macos") {
-        return browse_path_macos(mode, title);
-    }
-    if cfg!(target_os = "windows") {
-        return browse_path_windows(mode, title);
-    }
-    browse_path_linux(mode, title, current_path)
-}
-
-fn browse_path_linux(
-    mode: PathPickerMode,
-    title: &str,
-    current_path: Option<&str>,
-) -> Result<Option<String>, String> {
-    let start = current_path
-        .map(str::trim)
-        .filter(|value| !value.is_empty())
-        .unwrap_or(".");
-
-    if command_available("zenity") {
-        let mut args = vec!["--file-selection".to_string(), format!("--title={title}")];
-        match mode {
-            PathPickerMode::Directory => args.push("--directory".to_string()),
-            PathPickerMode::File => {}
-        }
-        args.push(format!("--filename={start}"));
-        return run_picker("zenity", &args);
-    }
-
-    if command_available("kdialog") {
-        let mut args = match mode {
-            PathPickerMode::Directory => vec!["--getexistingdirectory".to_string()],
-            PathPickerMode::File => vec!["--getopenfilename".to_string()],
-        };
-        args.push(start.to_string());
-        args.push("--title".to_string());
-        args.push(title.to_string());
-        return run_picker("kdialog", &args);
-    }
-
-    Err(
-        "No native file picker was found. Install zenity or kdialog, or type the path directly."
-            .to_string(),
-    )
-}
-
-fn browse_path_macos(mode: PathPickerMode, title: &str) -> Result<Option<String>, String> {
-    let prompt = applescript_quote(title);
-    let command = match mode {
-        PathPickerMode::Directory => format!("POSIX path of (choose folder with prompt {prompt})"),
-        PathPickerMode::File => format!("POSIX path of (choose file with prompt {prompt})"),
-    };
-    run_picker("osascript", &["-e".to_string(), command])
-}
-
-fn browse_path_windows(mode: PathPickerMode, title: &str) -> Result<Option<String>, String> {
-    let escaped_title = title.replace('\'', "''");
-    let dialog_script = match mode {
-        PathPickerMode::Directory => format!(
-            "Add-Type -AssemblyName System.Windows.Forms; $d = New-Object System.Windows.Forms.FolderBrowserDialog; $d.Description = '{escaped_title}'; if ($d.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {{ $d.SelectedPath }}"
-        ),
-        PathPickerMode::File => format!(
-            "Add-Type -AssemblyName System.Windows.Forms; $d = New-Object System.Windows.Forms.OpenFileDialog; $d.Title = '{escaped_title}'; $d.Filter = 'Installer archives (*.tar.gz;*.tgz;*.zip)|*.tar.gz;*.tgz;*.zip|All files (*.*)|*.*'; if ($d.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {{ $d.FileName }}"
-        ),
-    };
-    run_picker(
-        "powershell.exe",
-        &[
-            "-NoProfile".to_string(),
-            "-STA".to_string(),
-            "-Command".to_string(),
-            dialog_script,
-        ],
-    )
-}
-
-fn run_picker(program: &str, args: &[String]) -> Result<Option<String>, String> {
-    let output = Command::new(program)
-        .args(args)
-        .output()
-        .map_err(|err| format!("Could not open native file picker: {err}"))?;
-    if !output.status.success() {
-        return Ok(None);
-    }
-    let selected = String::from_utf8_lossy(&output.stdout).trim().to_string();
-    if selected.is_empty() {
-        Ok(None)
-    } else {
-        Ok(Some(selected))
-    }
-}
-
-fn applescript_quote(value: &str) -> String {
-    format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
 }
 
 #[tauri::command]
@@ -1807,16 +1766,64 @@ impl CheckResult {
     }
 }
 
+#[tauri::command]
+async fn check_for_updates(app: AppHandle) -> UpdateCheckResult {
+    use tauri_plugin_updater::UpdaterExt;
+
+    let current = env!("CARGO_PKG_VERSION").to_string();
+
+    let updater = match app.updater() {
+        Ok(u) => u,
+        Err(err) => {
+            return UpdateCheckResult {
+                has_update: false,
+                latest_version: None,
+                current_version: current,
+                notes: None,
+                error: Some(format!("updater unavailable: {err}")),
+            };
+        }
+    };
+
+    match updater.check().await {
+        Ok(Some(update)) => UpdateCheckResult {
+            has_update: true,
+            latest_version: Some(update.version.clone()),
+            current_version: current,
+            notes: update.body.clone(),
+            error: None,
+        },
+        Ok(None) => UpdateCheckResult {
+            has_update: false,
+            latest_version: None,
+            current_version: current,
+            notes: None,
+            error: None,
+        },
+        Err(err) => UpdateCheckResult {
+            has_update: false,
+            latest_version: None,
+            current_version: current,
+            notes: None,
+            error: Some(err.to_string()),
+        },
+    }
+}
+
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_store::Builder::default().build())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(InstallerState::default())
         .invoke_handler(tauri::generate_handler![
             bootstrap,
-            browse_directory,
-            browse_file,
+            wsl_distros,
             validate_environment,
             preview_defaults,
-            start_install
+            start_install,
+            check_for_updates
         ])
         .run(tauri::generate_context!())
         .expect("error while running Parthenon installer GUI");
@@ -2616,5 +2623,29 @@ mod tests {
             shell_quote("/home/alice's/Parthenon"),
             "'/home/alice'\\''s/Parthenon'"
         );
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    #[test]
+    fn wsl_distros_returns_unavailable_on_non_windows() {
+        let result = wsl_distros();
+        assert!(!result.available);
+        assert!(result.distros.is_empty());
+        assert!(result.error.is_some());
+        assert!(result.error.as_deref().unwrap().contains("Windows"));
+    }
+
+    #[test]
+    fn update_check_result_serializes_known_fields() {
+        let result = UpdateCheckResult {
+            has_update: false,
+            latest_version: None,
+            current_version: "0.1.0".to_string(),
+            notes: None,
+            error: None,
+        };
+        let json = serde_json::to_string(&result).expect("serialize");
+        assert!(json.contains("has_update"));
+        assert!(json.contains("current_version"));
     }
 }
