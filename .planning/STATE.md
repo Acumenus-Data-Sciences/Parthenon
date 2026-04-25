@@ -245,6 +245,7 @@ None yet.
 | 260416-qpg | Import FinnGen curated endpoint library (DF14, 5,161 phenotypes) into app.cohort_definitions | 2026-04-16 | 44909d0b5 | [260416-qpg-import-finngen-curated-endpoint-library-](./quick/260416-qpg-import-finngen-curated-endpoint-library-/) |
 | 260423-qvz | Implement FinnGen Workbench UI improvements: RunStatusBadge pulse animation, CoverageBadge redesign, StatTile visual upgrade, WorkbenchStepper step icons | 2026-04-23 | 896765264 | [260423-qvz-implement-finngen-workbench-ui-improveme](./quick/260423-qvz-implement-finngen-workbench-ui-improveme/) |
 | 260425-iu4 | Commit CareBundles audit fixes — vocab grant migration, backend hardening (HIGH-1/2/3, LOW-3, INTERVAL parameterization), frontend a11y/error/render-pattern | 2026-04-25 | a97160f74, cbf0c9dfc | [260425-iu4-commit-carebundles-audit-fixes-vocab-gra](./quick/260425-iu4-commit-carebundles-audit-fixes-vocab-gra/) |
+| 260425-iyq | Address deferred CareBundles audit findings — HIGH-4 cohort export idempotency, HIGH-5 promote-to-current ordering, HIGH-6 INSERT…SELECT, MEDIUM DQ/gate/personCount, LOW FHIR polish, frontend a11y | 2026-04-25 | 92e91cb84, f0d2bef56, f5309a7a3 | [260425-iyq-address-deferred-carebundles-audit-findi](./quick/260425-iyq-address-deferred-carebundles-audit-findi/) |
 
 ## Session Continuity
 
