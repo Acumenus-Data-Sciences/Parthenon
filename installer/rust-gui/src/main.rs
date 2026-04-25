@@ -158,6 +158,15 @@ struct WslDistros {
     error: Option<String>,
 }
 
+#[derive(Debug, Serialize)]
+struct UpdateCheckResult {
+    has_update: bool,
+    latest_version: Option<String>,
+    current_version: String,
+    notes: Option<String>,
+    error: Option<String>,
+}
+
 #[tauri::command]
 fn wsl_distros() -> WslDistros {
     if !cfg!(target_os = "windows") {
@@ -1757,6 +1766,50 @@ impl CheckResult {
     }
 }
 
+#[tauri::command]
+async fn check_for_updates(app: AppHandle) -> UpdateCheckResult {
+    use tauri_plugin_updater::UpdaterExt;
+
+    let current = env!("CARGO_PKG_VERSION").to_string();
+
+    let updater = match app.updater() {
+        Ok(u) => u,
+        Err(err) => {
+            return UpdateCheckResult {
+                has_update: false,
+                latest_version: None,
+                current_version: current,
+                notes: None,
+                error: Some(format!("updater unavailable: {err}")),
+            };
+        }
+    };
+
+    match updater.check().await {
+        Ok(Some(update)) => UpdateCheckResult {
+            has_update: true,
+            latest_version: Some(update.version.clone()),
+            current_version: current,
+            notes: update.body.clone(),
+            error: None,
+        },
+        Ok(None) => UpdateCheckResult {
+            has_update: false,
+            latest_version: None,
+            current_version: current,
+            notes: None,
+            error: None,
+        },
+        Err(err) => UpdateCheckResult {
+            has_update: false,
+            latest_version: None,
+            current_version: current,
+            notes: None,
+            error: Some(err.to_string()),
+        },
+    }
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -1769,7 +1822,8 @@ fn main() {
             wsl_distros,
             validate_environment,
             preview_defaults,
-            start_install
+            start_install,
+            check_for_updates
         ])
         .run(tauri::generate_context!())
         .expect("error while running Parthenon installer GUI");
@@ -2579,5 +2633,19 @@ mod tests {
         assert!(result.distros.is_empty());
         assert!(result.error.is_some());
         assert!(result.error.as_deref().unwrap().contains("Windows"));
+    }
+
+    #[test]
+    fn update_check_result_serializes_known_fields() {
+        let result = UpdateCheckResult {
+            has_update: false,
+            latest_version: None,
+            current_version: "0.1.0".to_string(),
+            notes: None,
+            error: None,
+        };
+        let json = serde_json::to_string(&result).expect("serialize");
+        assert!(json.contains("has_update"));
+        assert!(json.contains("current_version"));
     }
 }

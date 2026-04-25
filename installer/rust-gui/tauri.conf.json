@@ -35,5 +35,15 @@
     "category": "DeveloperTool",
     "shortDescription": "Install Parthenon Community",
     "longDescription": "A cross-platform Rust GUI for launching the Python-based Parthenon Community installer."
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://github.com/sudoshi/Parthenon/releases/latest/download/latest.json"
+      ],
+      "pubkey": "REPLACE_WITH_REAL_PUBKEY_BEFORE_RELEASE",
+      "windows": { "installMode": "passive" }
+    },
+    "shell": { "open": true }
   }
 }
